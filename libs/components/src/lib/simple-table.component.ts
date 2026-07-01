@@ -5,7 +5,7 @@ import {
     computed,
     effect,
     input,
-    model,
+    linkedSignal,
     output,
     signal,
 } from '@angular/core';
@@ -88,8 +88,8 @@ export interface TableColumn {
                                 {{
                                     sort()?.key === column.key &&
                                     sort()?.reverse
-                                        ? 'arrow_upward'
-                                        : 'arrow_downward'
+                                        ? 'arrow_downward'
+                                        : 'arrow_upward'
                                 }}
                             </icon>
                         }
@@ -118,7 +118,7 @@ export interface TableColumn {
                 }
                 @for (
                     column of active_columns();
-                    track column.key;
+                    track column.key + j;
                     let j = $index
                 ) {
                     <div
@@ -298,7 +298,8 @@ export class SimpleTableComponent<T extends object = any> {
     public readonly filter = input('');
     public readonly sortable = input(false);
     public readonly show_header = input(true);
-    public readonly selected = model<number[]>([]);
+    public readonly selectedInput = input<number[]>([], { alias: 'selected' });
+    public readonly selected = linkedSignal(this.selectedInput);
     public readonly page_size = input(0);
     public readonly empty_message = input('No data to list');
     public readonly child_template = input<TemplateRef<any>>(null);

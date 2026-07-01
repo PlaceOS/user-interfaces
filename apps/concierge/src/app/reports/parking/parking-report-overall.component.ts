@@ -1,5 +1,4 @@
 import { Component, computed, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { formatDuration } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
 import { differenceInBusinessDays, endOfDay, startOfDay } from 'date-fns';
@@ -28,15 +27,21 @@ import { ParkingReportService } from './parking-report.service';
                 <p class="text-2xl">{{ total_count() || 0 }}</p>
             </div>
             <div class="flex flex-1 flex-col items-center">
-                <h3 class="text-sm">Active</h3>
+                <h3 class="text-sm">
+                    {{ 'APP.CONCIERGE.REPORTS_ALLOCATIONS' | translate }}
+                </h3>
                 <p class="text-2xl">{{ active_count() || 0 }}</p>
             </div>
             <div class="flex flex-1 flex-col items-center">
-                <h3 class="text-sm">Rejected</h3>
+                <h3 class="text-sm">
+                    {{ 'APP.CONCIERGE.REPORTS_REJECTED' | translate }}
+                </h3>
                 <p class="text-2xl">{{ cancelled_count() || 0 }}</p>
             </div>
             <div class="flex flex-1 flex-col items-center">
-                <h3 class="text-sm">Cancelled</h3>
+                <h3 class="text-sm">
+                    {{ 'APP.CONCIERGE.REPORTS_CANCELLED' | translate }}
+                </h3>
                 <p class="text-2xl">{{ deleted_count() || 0 }}</p>
             </div>
             <div class="flex flex-1 flex-col items-center">
@@ -52,12 +57,8 @@ import { ParkingReportService } from './parking-report.service';
 })
 export class ParkingReportOverallComponent {
     private _state = inject(ParkingReportService);
-    private readonly _bookings = toSignal(this._state.bookings$, {
-        initialValue: [],
-    });
-    private readonly _options = toSignal(this._state.options$, {
-        initialValue: { start: Date.now(), end: Date.now() },
-    });
+    private readonly _bookings = this._state.bookings;
+    private readonly _options = this._state.options;
 
     private readonly _booking_stats = computed(() =>
         reportBookingStatusStats(this._bookings()),
@@ -86,11 +87,10 @@ export class ParkingReportOverallComponent {
     });
     public readonly avg_length = computed(() => {
         const events: any = activeReportBookings(this._bookings());
+        const avg_minutes =
+            events.reduce((c, i) => c + i.duration, 0) / events.length || 0;
         return formatDuration({
-            minutes:
-                Math.floor(
-                    events.reduce((c, i) => c + i.duration, 0) / events.length,
-                ) || 0,
+            hours: Math.round((avg_minutes / 60) * 10) / 10,
         });
     });
 }

@@ -1,7 +1,4 @@
-import { Component, inject, input, output } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Component, computed, inject, input, output } from '@angular/core';
 
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -140,26 +137,18 @@ export class ParkingListComponent {
     public readonly onSelect = output<BookingAsset>();
     public readonly toggleFav = output<BookingAsset>();
 
-    public readonly assets = toSignal(
-        combineLatest([
-            this._form.options,
-            this._form.available_resources,
-        ]).pipe(
-            map(([{ show_fav }, _]) =>
-                _.filter((i) => !show_fav || this.isFavourite(i.id)).sort(
-                    (a, b) => {
-                        const a_fav = this.isFavourite(a.id) ? 1 : 0;
-                        const b_fav = this.isFavourite(b.id) ? 1 : 0;
-                        return b_fav - a_fav;
-                    },
-                ),
-            ),
-        ),
-        { initialValue: [] },
-    );
-    public readonly loading = toSignal(this._form.loading, {
-        initialValue: '',
+    public readonly assets = computed(() => {
+        const { show_fav } = this._form.options();
+        return this._form
+            .available_resources()
+            .filter((i) => !show_fav || this.isFavourite(i.id))
+            .sort((a, b) => {
+                const a_fav = this.isFavourite(a.id) ? 1 : 0;
+                const b_fav = this.isFavourite(b.id) ? 1 : 0;
+                return b_fav - a_fav;
+            });
     });
+    public readonly loading = this._form.loading;
 
     public isFavourite(space_id: string) {
         return this.favorites().includes(space_id);

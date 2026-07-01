@@ -1,5 +1,3 @@
-import { of, throwError } from 'rxjs';
-
 jest.mock('@placeos/ts-client', () => ({
     queryAssetCategories: jest.fn(),
     queryAssetTypes: jest.fn(),
@@ -58,16 +56,18 @@ describe('[Catering Assets]', () => {
         const { ts_client, assets_fn, catering_assets } = await load_modules();
         ts_client.queryAssetCategories.mockReturnValue(response([]));
         ts_client.queryAssetTypes.mockReturnValue(response([]));
-        assets_fn.saveAssetCategory.mockReturnValue(
-            of({ id: 'cat-1', name: '_CATERING_', hidden: true }) as any,
-        );
-        assets_fn.saveAssetType.mockReturnValue(
-            of({ id: 'type-1', name: 'CATERING:Acme Catering' }) as any,
-        );
+        assets_fn.saveAssetCategory.mockResolvedValue({
+            id: 'cat-1',
+            name: '_CATERING_',
+            hidden: true,
+        } as any);
+        assets_fn.saveAssetType.mockResolvedValue({
+            id: 'type-1',
+            name: 'CATERING:Acme Catering',
+        } as any);
 
-        const type_id = await catering_assets
-            .resolveCateringTypeId('Acme Catering')
-            .toPromise();
+        const type_id =
+            await catering_assets.resolveCateringTypeId('Acme Catering');
 
         expect(type_id).toBe('type-1');
         expect(assets_fn.saveAssetCategory).toHaveBeenCalledWith({
@@ -107,9 +107,7 @@ describe('[Catering Assets]', () => {
             ]),
         );
 
-        const items = await catering_assets
-            .queryCateringItems('bld-1')
-            .toPromise();
+        const items = await catering_assets.queryCateringItems('bld-1');
 
         expect(ts_client.queryAssets).toHaveBeenCalledTimes(1);
         expect(ts_client.queryAssets).toHaveBeenCalledWith({
@@ -132,22 +130,18 @@ describe('[Catering Assets]', () => {
             response([{ id: 'type-1', name: 'CATERING:_STANDALONE_' }]),
         );
         assets_fn.saveAsset
-            .mockReturnValueOnce(throwError(() => ({ status: 404 })))
-            .mockReturnValueOnce(
-                of({
-                    id: 'asset-1',
-                    name: 'Coffee',
-                    images: [],
-                    other_data: { category: 'Drinks' },
-                }) as any,
-            );
+            .mockRejectedValueOnce({ status: 404 })
+            .mockResolvedValueOnce({
+                id: 'asset-1',
+                name: 'Coffee',
+                images: [],
+                other_data: { category: 'Drinks' },
+            } as any);
 
-        const item = await catering_assets
-            .saveCateringItem(
-                { id: 'legacy-id', name: 'Coffee', caterer: 'standalone' },
-                'bld-1',
-            )
-            .toPromise();
+        const item = await catering_assets.saveCateringItem(
+            { id: 'legacy-id', name: 'Coffee', caterer: 'standalone' },
+            'bld-1',
+        );
 
         expect(assets_fn.saveAsset).toHaveBeenCalledTimes(2);
         expect(assets_fn.saveAsset.mock.calls[1][0].id).toBeUndefined();

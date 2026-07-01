@@ -1,5 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import {
+    Component,
+    OnInit,
+    computed,
+    debounced,
+    inject,
+    resource,
+    signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatRippleModule } from '@angular/material/core';
@@ -15,8 +23,6 @@ import {
 } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
 import { querySystems } from '@placeos/ts-client';
-import { BehaviorSubject, combineLatest, of } from 'rxjs';
-import { debounceTime, map, shareReplay, switchMap } from 'rxjs/operators';
 
 const SYS_ID_KEY = 'PLACEOS.ASSISTANT.system';
 
@@ -35,7 +41,7 @@ const SYS_ID_KEY = 'PLACEOS.ASSISTANT.system';
                     {{ 'COMMON.BOOTSTRAP_SETUP' | translate }}
                 </div>
             </header>
-            @if (!loading) {
+            @if (!loading()) {
                 <main class="flex w-full flex-col space-y-2 p-4">
                     <label for="system-id">
                         {{ 'COMMON.BOOTSTRAP_LABEL' | translate }}
@@ -43,12 +49,11 @@ const SYS_ID_KEY = 'PLACEOS.ASSISTANT.system';
                     <mat-form-field appearance="outline" class="w-full">
                         <input
                             matInput
-                            [ngModel]="system_id$ | async"
+                            [(ngModel)]="system_id"
                             [matAutocomplete]="auto"
                             [placeholder]="'COMMON.BOOTSTRAP_LABEL' | translate"
-                            (ngModelChange)="system_id$.next($event)"
                         />
-                        @if (loading === 'search') {
+                        @if (searching()) {
                             <mat-spinner
                                 [diameter]="32"
                                 matSuffix
@@ -59,7 +64,7 @@ const SYS_ID_KEY = 'PLACEOS.ASSISTANT.system';
                         </mat-hint>
                     </mat-form-field>
                     <mat-autocomplete #auto="matAutocomplete">
-                        @for (option of space_list | async; track option) {
+                        @for (option of space_list(); track option) {
                             <mat-option [value]="option.id">
                                 <div
                                     class="flex w-full items-center space-x-4 leading-tight"
@@ -88,10 +93,7 @@ const SYS_ID_KEY = 'PLACEOS.ASSISTANT.system';
                                 </div>
                             </mat-option>
                         }
-                        @if (
-                            system_id$.getValue()?.length < 2 &&
-                            !(space_list | async)?.length
-                        ) {
+                        @if (system_id().length < 2 && !space_list().length) {
                             <mat-option class="pointer-events-none opacity-60">
                                 {{
                                     'COMMON.BOOTSTRAP_INPUT_PLACEHOLDER'
@@ -109,7 +111,7 @@ const SYS_ID_KEY = 'PLACEOS.ASSISTANT.system';
                     <p>{{ 'COMMON.BOOTSTRAP_LOADING' | translate }}</p>
                 </main>
             }
-            @if (!loading) {
+            @if (!loading()) {
                 <footer
                     class="border-base-300 flex w-full items-center justify-end border-t px-4 py-2"
                 >
@@ -117,7 +119,7 @@ const SYS_ID_KEY = 'PLACEOS.ASSISTANT.system';
                         btn
                         matRipple
                         class="w-32"
-                        [disabled]="!system_id$.getValue()"
+                        [disabled]="!system_id()"
                         (click)="bootstrap()"
                     >
                         {{ 'COMMON.CONTINUE' | translate }}
@@ -156,28 +158,32 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
         return VERSION;
     }
 
-    public loading = '';
+    /** Current loading state of the bootstrap process */
+    public readonly loading = signal('');
     /** ID of the system to bootstrap */
-    public system_id$ = new BehaviorSubject('');
+    public readonly system_id = signal('');
 
-    public readonly space_list = combineLatest([
-        this.system_id$,
-        this._org.initialised,
-    ]).pipe(
-        debounceTime(300),
-        switchMap(([search]) => {
-            return search.length < 2
-                ? of({ data: [] })
-                : querySystems({
-                      q: search,
-                      limit: 20,
-                      fields: ['id', 'name', 'display_name', 'email'].join(','),
-                      zone_id: this._org.organisation.id,
-                  });
+    private readonly _search = debounced(this.system_id, 300);
+    private readonly _spaces = resource({
+        params: () => ({
+            q: this._search.value(),
+            ready: this._org.initialised(),
         }),
-        map((_) => _.data.map((_) => new Space(_ as any))),
-        shareReplay(1),
-    );
+        loader: async ({ params }) => {
+            if (!params.ready || params.q.length < 2) return [];
+            const { data } = await querySystems({
+                q: params.q,
+                limit: 20,
+                fields: ['id', 'name', 'display_name', 'email'].join(','),
+                zone_id: this._org.organisation.id,
+            });
+            return data.map((_) => new Space(_ as any));
+        },
+    });
+    /** Spaces matching the current search */
+    public readonly space_list = computed(() => this._spaces.value() ?? []);
+    /** Whether a space search is currently in flight */
+    public readonly searching = this._spaces.isLoading;
 
     public async ngOnInit() {
         this.subscription(
@@ -187,8 +193,8 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
                     this.clearBootstrap();
                 }
                 if (params.has('system_id') || params.has('sys_id')) {
-                    this.system_id$.next(
-                        params.get('system_id') || params.get('sys_id'),
+                    this.system_id.set(
+                        params.get('system_id') || params.get('sys_id') || '',
                     );
                     this.bootstrap();
                 }
@@ -202,7 +208,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
      * @param system_id System to bootstrap
      */
     private configure(system_id: string): void {
-        this.loading = 'Setup';
+        this.loading.set('Setup');
         if (localStorage) {
             localStorage.setItem(SYS_ID_KEY, system_id);
             localStorage.setItem('trust', 'true');
@@ -211,15 +217,14 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
         this._router.navigate(['/panel', system_id], {
             queryParamsHandling: 'preserve',
         });
-        this.loading = '';
+        this.loading.set('');
     }
     /* Setup the default system for the application to bind to */
-    public readonly bootstrap = () =>
-        this.configure(this.system_id$.getValue());
+    public readonly bootstrap = () => this.configure(this.system_id());
 
     /* Check if the application has previously been bootstrapped */
     private checkBootstrapped(): void {
-        this.loading = 'Checks';
+        this.loading.set('Checks');
         if (localStorage) {
             const system_id = localStorage.getItem(SYS_ID_KEY);
             if (system_id) {
@@ -229,7 +234,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
                 return;
             }
         }
-        this.loading = '';
+        this.loading.set('');
     }
 
     /* Remove any previously set bootstrapping details */

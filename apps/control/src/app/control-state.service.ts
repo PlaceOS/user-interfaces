@@ -1,17 +1,17 @@
-import { inject, Injectable } from '@angular/core';
+import {
+    computed,
+    debounced,
+    effect,
+    inject,
+    Injectable,
+    Injector,
+    resource,
+    signal,
+    Signal,
+    untracked,
+} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { getModule, PlaceSystem, showSystem } from '@placeos/ts-client';
-import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
-import {
-    debounceTime,
-    distinct,
-    filter,
-    map,
-    shareReplay,
-    startWith,
-    switchMap,
-    tap,
-} from 'rxjs/operators';
 
 import { Router } from '@angular/router';
 import {
@@ -19,10 +19,9 @@ import {
     Calendar,
     CalendarEvent,
     currentUser,
+    firstValueWhere,
     HashMap,
     log,
-    nextValueFrom,
-    observableFromSignal,
     Space,
 } from '@placeos/common';
 import { CalendarService, queryEvents, SpacesService } from '@placeos/events';
@@ -111,6 +110,13 @@ export interface SystemState {
     volume?: number;
     voice_control?: boolean;
     active?: boolean;
+    recording?: boolean;
+    has_zoom?: boolean;
+    meeting_url?: string;
+    phone?: any;
+    offhook?: any;
+    ringing?: any;
+    dial_bindings?: any;
 }
 
 @Injectable({
@@ -121,253 +127,237 @@ export class ControlStateService extends AsyncHandler {
     private _cal = inject(CalendarService);
     private _spaces = inject(SpacesService);
     private _router = inject(Router);
+    private _injector = inject(Injector);
 
-    private _id = new BehaviorSubject<string>('');
-    private _system = new BehaviorSubject<SystemState>({});
-    private _inputs = new BehaviorSubject<string[]>([]);
-    private _available_inputs = new BehaviorSubject<string[]>([]);
-    private _outputs = new BehaviorSubject<string[]>([]);
-    private _volume = new BehaviorSubject<number>(0);
-    private _mute = new BehaviorSubject<boolean>(false);
-    private _input_data = new BehaviorSubject<RoomInput[]>([]);
-    private _output_data = new BehaviorSubject<RoomOutput[]>([]);
-    private _lights = new BehaviorSubject<string[]>([]);
-    private _blinds = new BehaviorSubject<string[]>([]);
-    private _screens = new BehaviorSubject<string[]>([]);
-    private _url = new BehaviorSubject<string>('');
-    private _active_output = new BehaviorSubject<string>('');
-    private _calendar = new BehaviorSubject<Calendar>(null);
+    private readonly _id = signal<string>('');
+    private readonly _system = signal<SystemState>({});
+    private readonly _inputs = signal<string[]>([]);
+    private readonly _available_inputs = signal<string[]>([]);
+    private readonly _outputs = signal<string[]>([]);
+    private readonly _volume = signal<number>(0);
+    private readonly _mute = signal<boolean>(false);
+    private readonly _input_data = signal<RoomInput[]>([]);
+    private readonly _output_data = signal<RoomOutput[]>([]);
+    private readonly _lights = signal<string[]>([]);
+    private readonly _blinds = signal<string[]>([]);
+    private readonly _screens = signal<string[]>([]);
+    private readonly _url = signal<string>('');
+    private readonly _active_output = signal<string>('');
+    private readonly _calendar = signal<Calendar>(null);
     private _ignore_changes: string[] = [];
 
-    public readonly space = this._id.pipe(
-        debounceTime(1000),
-        tap((id) => log('Panel', `Loading system "${id}"...`)),
-        switchMap((id) =>
-            showSystem(id).catch(({ status, message }) => {
+    /** ID of the active system */
+    public readonly system_id = this._id.asReadonly();
+    /** General data associated with the active system */
+    public readonly system = this._system.asReadonly();
+    public readonly calendar = this._calendar.asReadonly();
+    /** List of available light sources */
+    public readonly lights = this._lights.asReadonly();
+    /** List of available blind sources */
+    public readonly blinds = this._blinds.asReadonly();
+    public readonly screens = this._screens.asReadonly();
+    public readonly volume = this._volume.asReadonly();
+    public readonly mute = this._mute.asReadonly();
+    public readonly active_output = this._active_output.asReadonly();
+
+    private readonly _debounced_id = debounced(this._id, 1000, {
+        injector: this._injector,
+    });
+    /** Active system details loaded from the API */
+    private readonly _space = resource({
+        params: () => this._debounced_id.value(),
+        loader: async ({ params: id }) => {
+            if (!id) return new Space(new PlaceSystem() as any);
+            log('Panel', `Loading system "${id}"...`);
+            try {
+                const system = await showSystem(id);
+                return new Space(system as any);
+            } catch (error: any) {
+                const { status, message } = error || {};
                 log(
                     'Control',
                     'Error loading system details:',
                     [status, message],
                     'error',
                 );
-                status === 404 ? this._router.navigate(['/bootstrap']) : '';
-                return new PlaceSystem();
-            }),
-        ),
-        map((_) => new Space(_ as any)),
-        shareReplay(1),
-    );
+                if (status === 404) this._router.navigate(['/bootstrap']);
+                return new Space(new PlaceSystem() as any);
+            }
+        },
+    });
+    public readonly space = computed(() => this._space.value());
 
-    /** General data associated with the active system */
-    public readonly system = this._system.asObservable();
     /** List of available input sources */
-    public readonly input_list = this._input_data.pipe(
-        map((l) => l.filter((_) => !_.hidden)),
-        shareReplay(1),
+    public readonly input_list = computed(() =>
+        this._input_data().filter((_) => !_.hidden),
     );
-    public readonly available_inputs = combineLatest([
-        this._available_inputs,
-        this.input_list,
-    ]).pipe(map(([ids, list]) => list.filter((_) => ids.includes(_.id))));
-    public readonly presentables$ = this._input_data.pipe(
-        map((l) => l.filter((_) => _.presentable !== false)),
-        shareReplay(1),
+    public readonly available_inputs = computed(() => {
+        const ids = this._available_inputs();
+        return this.input_list().filter((_) => ids.includes(_.id));
+    });
+    public readonly presentables = computed(() =>
+        this._input_data().filter((_) => _.presentable !== false),
     );
-    public readonly system_id = this._id.asObservable();
-    public readonly calendar = this._calendar.asObservable();
-    /** List of available light sources */
-    public readonly lights = this._lights.asObservable();
-    /** List of available blind sources */
-    public readonly blinds = this._blinds.asObservable();
-    public readonly screens = this._screens.asObservable();
-    public readonly volume = this._volume.asObservable();
-    public readonly mute = this._mute.asObservable();
-    public readonly active_output = this._active_output.asObservable();
     /** List of available capture output sources */
-    public readonly capture_list = this._output_data.pipe(
-        map((list) =>
-            list?.filter(
-                (_) => _.type === 'recording' || _.mod?.includes('Capture'),
-            ),
+    public readonly capture_list = computed(() =>
+        this._output_data().filter(
+            (_) => _.type === 'recording' || _.mod?.includes('Capture'),
         ),
     );
     /** List of available microphone input sources */
-    public readonly mic_list = this._input_data.pipe(
-        map((list) =>
-            list?.filter(
-                (_) => _.type === 'mic' || _.mod?.includes('Microphone'),
-            ),
+    public readonly mic_list = computed(() =>
+        this._input_data().filter(
+            (_) => _.type === 'mic' || _.mod?.includes('Microphone'),
         ),
     );
     /** List of available camera input sources */
-    public readonly camera_list = this._input_data.pipe(
-        map((list) =>
-            list?.filter((_) => _.type === 'cam' || _.mod?.includes('Camera')),
+    public readonly camera_list = computed(() =>
+        this._input_data().filter(
+            (_) => _.type === 'cam' || _.mod?.includes('Camera'),
         ),
-        startWith([]),
-        shareReplay(1),
     );
-    public readonly available_camera_list = this.system_id.pipe(
-        switchMap((id) => this._listenToSystemBinding(id, 'available_cameras')),
-        startWith([]),
-        shareReplay(1),
+    public readonly available_camera_list = this._systemBinding<string[]>(
+        'available_cameras',
+        'System',
+        [],
     );
-    public readonly available_cameras = combineLatest([
-        this.camera_list,
-        this.available_camera_list,
-    ]).pipe(
-        map(([camera_list, available_cameras]) => {
-            if (!available_cameras?.length) return camera_list;
-            return camera_list.filter((camera) =>
-                available_cameras.includes(camera.id),
-            );
-        }),
-        shareReplay(1),
-    );
-    public readonly selected_camera = this.system_id.pipe(
-        switchMap((id) => this._listenToSystemBinding(id, 'selected_camera')),
-        shareReplay(1),
-    );
-    public readonly microphones: Observable<string[]> = this.system_id.pipe(
-        switchMap((id) => this._listenToSystemBinding(id, 'microphones')),
-        shareReplay(1),
-    );
-    public readonly join_modes: Observable<
-        HashMap<{ name: string; room_ids: string[] }>
-    > = this.system_id.pipe(
-        switchMap((id) => this._listenToSystemBinding(id, 'join_modes')),
-        shareReplay(1),
-    );
-    public readonly joined_id: Observable<string> = this.system_id.pipe(
-        switchMap((id) => this._listenToSystemBinding(id, 'joined')),
-        shareReplay(1),
-    );
-    public readonly lighting_scenes: Observable<LightScene[]> =
-        this.system_id.pipe(
-            switchMap((id) =>
-                this._listenToSystemBinding(id, 'lighting_scenes'),
-            ),
-            shareReplay(1),
+    public readonly available_cameras = computed(() => {
+        const camera_list = this.camera_list();
+        const available_cameras = this.available_camera_list();
+        if (!available_cameras?.length) return camera_list;
+        return camera_list.filter((camera) =>
+            available_cameras.includes(camera.id),
         );
-    public readonly lighting_scene: Observable<string> = this.system_id.pipe(
-        switchMap((id) => this._listenToSystemBinding(id, 'lighting_scene')),
-        shareReplay(1),
+    });
+    public readonly selected_camera =
+        this._systemBinding<string>('selected_camera');
+    public readonly microphones = this._systemBinding<any[]>(
+        'microphones',
+        'System',
+        [],
     );
-    public readonly lighting_levels: Observable<
-        {
-            name: string;
-            area: any;
-            binding: string;
-            value?: number;
-        }[]
-    > = this.system_id.pipe(
-        switchMap((id) => this._listenToSystemBinding(id, 'lighting_levels')),
-        shareReplay(1),
-    );
-    public readonly room_accessories: Observable<RoomAccessory[]> =
-        this.system_id.pipe(
-            switchMap((id) =>
-                this._listenToSystemBinding(id, 'room_accessories'),
-            ),
-            shareReplay(1),
+    public readonly join_modes =
+        this._systemBinding<HashMap<{ name: string; room_ids: string[] }>>(
+            'join_modes',
         );
-    public readonly joined = combineLatest([
-        this.join_modes,
-        this.joined_id,
-    ]).pipe(map(([modes, id]) => (modes ? modes[id] : null)));
+    public readonly joined_id = this._systemBinding<string>('joined');
+    public readonly lighting_scenes = this._systemBinding<LightScene[]>(
+        'lighting_scenes',
+        'System',
+        [],
+    );
+    public readonly lighting_scene =
+        this._systemBinding<number>('lighting_scene');
+    public readonly lighting_levels =
+        this._systemBinding<
+            { name: string; area: any; binding: string; value?: number }[]
+        >('lighting_levels');
+    public readonly room_accessories = this._systemBinding<RoomAccessory[]>(
+        'room_accessories',
+        'System',
+        [],
+    );
+    public readonly joined = computed(() => {
+        const modes = this.join_modes();
+        const id = this.joined_id();
+        return modes ? modes[id] : null;
+    });
     /** List of available output sources */
-    public readonly output_list = combineLatest([
-        this._output_data,
-        this._outputs,
-        this.joined,
-    ]).pipe(
-        map(([l, a, j]) =>
-            l.filter(
-                (_) =>
-                    !_.hidden &&
-                    (!_.hide_on_join || !j?.room_ids?.length) &&
-                    (!_.id || (a || []).includes(_.id)),
-            ),
-        ),
-        shareReplay(1),
-    );
-    /** List of help items */
-    public readonly help_items = this.system_id.pipe(
-        switchMap((id) => this._listenToSystemBinding(id, 'help')),
-        map((_) =>
-            !_ ? null : Object.keys(_).map((key) => ({ id: key, ..._[key] })),
-        ),
-        shareReplay(1),
-    );
-    public readonly preview_outputs = this.system_id.pipe(
-        switchMap((id) => this._listenToSystemBinding(id, 'preview_outputs')),
-        map((_) => _?.length > 0),
-        shareReplay(1),
-    );
-    public readonly tabs: Observable<TabDetails[]> = this.system_id.pipe(
-        switchMap((id) => this._listenToSystemBinding(id, 'tabs')),
-        map((_) => _ || []),
-        shareReplay(1),
-    );
-    public readonly hide_join_button: Observable<boolean> = this.system_id.pipe(
-        switchMap((id) => this._listenToSystemBinding(id, 'join_hide_button')),
-        map((_) => !!_),
-        shareReplay(1),
-    );
-    public readonly hide_present_all: Observable<boolean> = this.system_id.pipe(
-        switchMap((id) => this._listenToSystemBinding(id, 'hide_present_all')),
-        map((_) => !!_),
-        shareReplay(1),
-    );
-    public readonly has_master_audio: Observable<boolean> = this.system_id.pipe(
-        switchMap((id) => this._listenToSystemBinding(id, 'has_master_audio')),
-        shareReplay(1),
-    );
-
-    public readonly join_status: Observable<[boolean, boolean]> =
-        this.system_id.pipe(
-            switchMap((id) =>
-                combineLatest([
-                    this._listenToSystemBinding(id, 'join_master'),
-                    this._listenToSystemBinding(id, 'join_lockout_secondary'),
-                ]),
-            ),
-            shareReplay(1),
+    public readonly output_list = computed(() => {
+        const list = this._output_data();
+        const available = this._outputs();
+        const joined = this.joined();
+        return list.filter(
+            (_) =>
+                !_.hidden &&
+                (!_.hide_on_join || !joined?.room_ids?.length) &&
+                (!_.id || (available || []).includes(_.id)),
         );
+    });
+    private readonly _help = this._systemBinding<HashMap>('help');
+    /** List of help items */
+    public readonly help_items = computed(() => {
+        const help = this._help();
+        return !help
+            ? null
+            : Object.keys(help).map((key) => ({ id: key, ...help[key] }));
+    });
+    private readonly _preview_outputs =
+        this._systemBinding<unknown[]>('preview_outputs');
+    public readonly preview_outputs = computed(
+        () => this._preview_outputs()?.length > 0,
+    );
+    public readonly tabs = this._systemBinding<TabDetails[]>(
+        'tabs',
+        'System',
+        [],
+    );
+    private readonly _hide_join_button =
+        this._systemBinding('join_hide_button');
+    public readonly hide_join_button = computed(
+        () => !!this._hide_join_button(),
+    );
+    private readonly _hide_present_all =
+        this._systemBinding('hide_present_all');
+    public readonly hide_present_all = computed(
+        () => !!this._hide_present_all(),
+    );
+    public readonly has_master_audio =
+        this._systemBinding<boolean>('has_master_audio');
+
+    private readonly _join_master = this._systemBinding<boolean>('join_master');
+    private readonly _join_lockout = this._systemBinding<boolean>(
+        'join_lockout_secondary',
+    );
+    public readonly join_status = computed<[boolean, boolean]>(() => [
+        this._join_master(),
+        this._join_lockout(),
+    ]);
 
     public readonly calendars = this._cal.calendar_list;
 
-    public readonly events = combineLatest([this._url, this._calendar]).pipe(
-        switchMap(([url, cal]) => {
-            if (!cal || !url) return of([] as CalendarEvent[]);
-            return queryEvents({
+    private readonly _events = resource({
+        params: () => ({ url: this._url(), calendar: this._calendar() }),
+        loader: async ({ params: { url, calendar } }) => {
+            if (!calendar || !url) return [] as CalendarEvent[];
+            const list = await queryEvents({
                 period_start: getUnixTime(Date.now()),
                 period_end: getUnixTime(endOfDay(Date.now())),
-                calendars: cal.id,
+                calendars: calendar.id,
             });
-        }),
-        map((list) => {
-            const url = this._url.getValue();
             return list.filter((_) => _.meeting_url.startsWith(url));
-        }),
-        shareReplay(1),
-    );
+        },
+    });
+    public readonly events = computed(() => this._events.value() ?? []);
 
     public get id() {
-        return this._id.getValue();
+        return this._id();
     }
 
     constructor() {
         super();
-        this._id.pipe(distinct()).subscribe((id) => this.bindToState(id));
-        this._inputs.subscribe((_) => this.bindSources('input', _ || []));
-        this._outputs.subscribe((_) => this.bindSources('output', _ || []));
-        this.space.subscribe();
+        // Only the source signals (`_id`/`_inputs`/`_outputs`) should trigger
+        // rebinding. The bodies set up ts-client bindings whose callbacks fire
+        // synchronously and read+write `_input_data`/`_output_data`/`_system`;
+        // running them untracked stops those reads becoming dependencies (which
+        // would otherwise re-run the effect on every write — an infinite loop).
+        effect(() => {
+            const id = this._id();
+            untracked(() => this.bindToState(id));
+        });
+        effect(() => {
+            const inputs = this._inputs() || [];
+            untracked(() => this.bindSources('input', inputs));
+        });
+        effect(() => {
+            const outputs = this._outputs() || [];
+            untracked(() => this.bindSources('output', outputs));
+        });
     }
 
     public setID(id: string) {
-        if (id !== this._id.getValue()) {
-            this._id.next(id);
+        if (id !== this._id()) {
+            this._id.set(id);
             this._spaces.loadSpace(id);
         }
     }
@@ -389,15 +379,15 @@ export class ControlStateService extends AsyncHandler {
 
     /** Set the active calendar */
     public setCalendar(cal: Calendar) {
-        this._calendar.next(cal);
+        this._calendar.set(cal);
     }
 
     /** Set the active calendar */
     public setOutput(id: string) {
-        this._active_output.next(id);
-        if (this._system.getValue()?.selected_input) {
-            this.setOutputSource(this._system.getValue()?.selected_input);
-            this._active_output.next('');
+        this._active_output.set(id);
+        if (this._system()?.selected_input) {
+            this.setOutputSource(this._system()?.selected_input);
+            this._active_output.set('');
         }
     }
 
@@ -413,24 +403,22 @@ export class ControlStateService extends AsyncHandler {
     }
 
     public routeToAll(input = '') {
-        if (!input) input = this._system.getValue().selected_input;
+        if (!input) input = this._system().selected_input;
         return this._execute('route_all', [input]);
     }
 
     /** Set the route of the active output */
     public async setOutputSource(input: string, clear = true) {
-        const output = this._active_output.getValue();
-        const data = (this._output_data.getValue() || []).find(
-            (_) => _.id === output,
-        );
+        const output = this._active_output();
+        const data = (this._output_data() || []).find((_) => _.id === output);
         this.setSelectedInput(input);
         if (!output || data?.source === input) return;
         await this.setRoute(input, output);
-        if (clear) this._active_output.next('');
+        if (clear) this._active_output.set('');
     }
 
     public setSelectedInput(input: string) {
-        if (this._system.getValue().selected_input === input) return;
+        if (this._system().selected_input === input) return;
         console.warn('Select:', input);
         return this.timeout(
             `selected`,
@@ -456,9 +444,9 @@ export class ControlStateService extends AsyncHandler {
     }
 
     public setMute(state = true, source = '') {
-        const outputs = this._output_data.getValue();
+        const outputs = this._output_data();
         if (!source) {
-            this._mute.next(state);
+            this._mute.set(state);
             source = outputs[0]?.id || '';
         }
         if (source) {
@@ -478,9 +466,9 @@ export class ControlStateService extends AsyncHandler {
             `set:volume:${source}`,
             () => {
                 value = Math.floor(value);
-                const outputs = this._output_data.getValue();
+                const outputs = this._output_data();
                 if (!source) {
-                    this._volume.next(value);
+                    this._volume.set(value);
                     source = outputs[0]?.id || '';
                 }
                 if (source) {
@@ -512,7 +500,7 @@ export class ControlStateService extends AsyncHandler {
 
     /** Execute driver method */
     private _execute(name: string, params: any[] = [], mod_name = 'System') {
-        const mod = getModule(this._id.getValue(), mod_name);
+        const mod = getModule(this._id(), mod_name);
         if (!mod) return;
         return mod.execute(name, params);
     }
@@ -526,7 +514,7 @@ export class ControlStateService extends AsyncHandler {
 
     /** Open select meeting modal */
     public async selectMeeting(input?: string) {
-        const cals = await nextValueFrom(this.calendars);
+        const cals = this.calendars();
         if (cals?.length) this.setCalendar(cals[0]);
         this._dialog.open(SelectMeetingModalComponent, {
             data: { input },
@@ -537,8 +525,10 @@ export class ControlStateService extends AsyncHandler {
     public async viewHelp(id?: string) {
         this._dialog.open(HelpModalComponent, {
             data: {
-                items: await nextValueFrom(
-                    this.help_items.pipe(filter((_) => !!_)),
+                items: await firstValueWhere(
+                    this.help_items,
+                    (_) => !!_,
+                    this._injector,
                 ),
                 active_id: id,
             },
@@ -549,7 +539,7 @@ export class ControlStateService extends AsyncHandler {
         if (!id) return;
         this.bindTo(id, 'supported_meeting_url', 'MeetingPush', (u) => {
             this.updateProperty('meeting_url', u);
-            this._url.next(u);
+            this._url.set(u);
         });
         this.bindTo(id, 'name');
         this.bindTo(id, 'voice_control');
@@ -561,16 +551,16 @@ export class ControlStateService extends AsyncHandler {
         this.bindTo(id, 'selected_input');
         this.bindTo(id, 'mute');
         this.bindTo(id, 'volume');
-        this.bindTo(id, 'inputs', undefined, (l) => this._inputs.next(l));
+        this.bindTo(id, 'inputs', undefined, (l) => this._inputs.set(l));
         this.bindTo(id, 'available_inputs', undefined, (l) =>
-            this._available_inputs.next(l || []),
+            this._available_inputs.set(l || []),
         );
         this.bindTo(id, 'available_outputs', undefined, (l) =>
-            this._outputs.next(l),
+            this._outputs.set(l),
         );
-        this.bindTo(id, 'lights', undefined, (l) => this._lights.next(l));
-        this.bindTo(id, 'blinds', undefined, (l) => this._blinds.next(l));
-        this.bindTo(id, 'screen', undefined, (l) => this._screens.next(l));
+        this.bindTo(id, 'lights', undefined, (l) => this._lights.set(l));
+        this.bindTo(id, 'blinds', undefined, (l) => this._blinds.set(l));
+        this.bindTo(id, 'screen', undefined, (l) => this._screens.set(l));
         this.bindTo(id, 'qsc_dial_number', undefined, (v) =>
             this.updateProperty('phone', v),
         );
@@ -589,11 +579,11 @@ export class ControlStateService extends AsyncHandler {
 
     /** Bind to changes on input or output sources */
     private bindSources(type: 'input' | 'output', alias_list: string[]) {
-        const id = this._id.getValue();
+        const id = this._id();
         if (!id) return;
 
-        if (type === 'input') this._input_data.next([]);
-        else this._output_data.next([]);
+        if (type === 'input') this._input_data.set([]);
+        else this._output_data.set([]);
 
         for (const alias of alias_list) {
             this.bindTo(id, `${type}/${alias}`, undefined, (d) =>
@@ -608,9 +598,9 @@ export class ControlStateService extends AsyncHandler {
         id: string,
         data: HashMap,
     ) {
-        const list_observer =
+        const list_signal =
             type === 'input' ? this._input_data : this._output_data;
-        let list: any[] = [...list_observer.getValue()];
+        let list: any[] = [...list_signal()];
         const index = list.findIndex((item) => item.id === id);
         if (index >= 0) {
             list.splice(index, 1, { id, ...data });
@@ -618,10 +608,10 @@ export class ControlStateService extends AsyncHandler {
             list.push({ id, ...data });
         }
         if (type === 'output') {
-            this._volume.next(list[0].volume || 0);
-            this._mute.next(!!list[0].mute);
+            this._volume.set(list[0].volume || 0);
+            this._mute.set(!!list[0].mute);
         }
-        list_observer.next(list);
+        list_signal.set(list);
     }
 
     /** List to binding */
@@ -641,16 +631,36 @@ export class ControlStateService extends AsyncHandler {
     /** Update properties of the system data */
     private updateProperty(name: string, value: any) {
         if (this._ignore_changes.includes(name)) return;
-        const item = { ...this._system.getValue() };
-        item[name] = value;
-        this._system.next(item);
+        this._system.update((item) => ({ ...item, [name]: value }));
     }
 
-    private _listenToSystemBinding(id: string, name: string) {
-        const mod = getModule(id, 'System');
-        const binding = mod.variable(name);
-        const unbind = binding.bind();
-        this.subscription(`binding:${name}`, unbind);
-        return observableFromSignal(binding.listen());
+    /**
+     * Create an Angular signal that mirrors a status variable binding on the
+     * active system, rebinding whenever the active system changes.
+     */
+    private _systemBinding<T>(
+        name: string,
+        mod = 'System',
+        initial: T = undefined as T,
+    ): Signal<T> {
+        const value = signal<T>(initial);
+        effect((onCleanup) => {
+            const id = this._id();
+            if (!id) {
+                value.set(initial);
+                return;
+            }
+            const binding = getModule(id, mod).variable(name);
+            const unbind = binding.bind();
+            const listener = binding.listen();
+            const update = () => value.set((listener() ?? initial) as T);
+            update();
+            const unsubscribe = listener.subscribe(() => update());
+            onCleanup(() => {
+                unsubscribe();
+                unbind();
+            });
+        });
+        return value.asReadonly();
     }
 }

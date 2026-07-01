@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -78,7 +77,7 @@ import { EventStateService } from './event-state.service';
                     key: 'actions',
                     name: ' ',
                     content: actions_template,
-                    size: '4rem',
+                    size: '3.25rem',
                     sortable: false,
                 },
             ]"
@@ -150,10 +149,11 @@ import { EventStateService } from './event-state.service';
         <ng-template #interested_template let-item="row">
             <button
                 icon
+                default
                 matRipple
                 customTooltip
                 [content]="view_attendees"
-                class="mx-auto h-12 w-12 rounded-sm"
+                class="mx-auto"
                 [disabled]="!attendeeCount(item.attendees)"
             >
                 {{ attendeeCount(item.attendees) || 0 }}
@@ -177,10 +177,11 @@ import { EventStateService } from './event-state.service';
         <ng-template #attending_template let-item="row">
             <button
                 icon
+                default
                 matRipple
                 customTooltip
                 [content]="view_attendees"
-                class="mx-auto h-12 w-12 rounded-sm"
+                class="mx-auto"
                 [disabled]="!checkedInCount(item.attendees)"
             >
                 {{ checkedInCount(item.attendees) }}
@@ -244,8 +245,9 @@ import { EventStateService } from './event-state.service';
         <ng-template #actions_template let-row="row">
             <button
                 icon
+                default
                 matRipple
-                class="mx-2 h-12 w-12 rounded-sm"
+                class="mx-auto"
                 [matMenuTriggerFor]="menu"
                 [disabled]="row.state === 'done'"
             >
@@ -325,12 +327,8 @@ export class EventListingComponent {
     private _settings = inject(SettingsService);
     private _state = inject(EventStateService);
 
-    public readonly loading = toSignal(this._state.loading, {
-        initialValue: '',
-    });
-    public readonly event_list = toSignal(this._state.event_list, {
-        initialValue: [],
-    });
+    public readonly loading = this._state.loading;
+    public readonly event_list = this._state.event_list;
     public readonly time_format = this._settings.time_format;
 
     public readonly viewEvent = (event: any) => this._state.viewEvent(event);

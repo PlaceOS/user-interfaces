@@ -19,6 +19,7 @@ import {
     differenceInMonths,
     isBefore,
     isSameMonth,
+    isValid,
     set,
     startOfDay,
     startOfMonth,
@@ -155,6 +156,7 @@ export class DateCalendarComponent
     }
 
     public setValue(new_value: number) {
+        if (!isValid(new_value)) return;
         if (new_value < this.from() || new_value >= this.to()) return;
         const date = new Date(new_value);
         this.date.set(
@@ -169,8 +171,9 @@ export class DateCalendarComponent
     }
 
     public writeValue(value: number) {
-        this.date.set(value);
-        this.active_date.set(startOfDay(value).valueOf());
+        const date = this._validDate(value);
+        this.date.set(date);
+        this.active_date.set(startOfDay(date).valueOf());
         this.offset.set(0);
         this.generateDates();
     }
@@ -194,9 +197,9 @@ export class DateCalendarComponent
             'week_start',
             this.offset_weekday(),
         )();
-        const date = addMonths(this.date(), this.offset());
+        const date = addMonths(this._validDate(this.date()), this.offset());
         let start = startOfWeek(startOfMonth(date), {
-            weekStartsOn: offset as any,
+            weekStartsOn: this._validWeekday(offset),
         });
         const now = startOfDay(Date.now());
         const list = [];
@@ -209,5 +212,15 @@ export class DateCalendarComponent
             start = addDays(start, 1);
         }
         this.date_list.set(list);
+    }
+
+    private _validDate(date: number) {
+        return isValid(date) ? date : Date.now();
+    }
+
+    private _validWeekday(day: number) {
+        return Number.isInteger(day) && day >= 0 && day <= 6
+            ? (day as 0 | 1 | 2 | 3 | 4 | 5 | 6)
+            : 0;
     }
 }

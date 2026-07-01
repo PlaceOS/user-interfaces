@@ -1,13 +1,18 @@
 import { CommonModule } from '@angular/common';
 import {
     Component,
+    computed,
+    effect,
     ElementRef,
     inject,
+    Injector,
     OnInit,
+    signal,
     TemplateRef,
     viewChild,
 } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
+import { FormField } from '@angular/forms/signals';
 import {
     MatBottomSheet,
     MatBottomSheetRef,
@@ -27,11 +32,11 @@ import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
     AsyncHandler,
     currentUser,
-    getInvalidFields,
+    getInvalidSignalFields,
     i18n,
-    nextValueFrom,
     notifyError,
     notifyWarn,
+    onFieldChange,
     OrganisationService,
     settingSignal,
     SettingsService,
@@ -50,8 +55,6 @@ import {
     UserListFieldComponent,
 } from '@placeos/form-fields';
 import { FindAvailabilityModalComponent } from '@placeos/users';
-import { BehaviorSubject, combineLatest, of } from 'rxjs';
-import { debounceTime, first, map, switchMap, tap } from 'rxjs/operators';
 
 import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-details.component';
 import { MeetingFlowConfirmModalComponent } from './meeting-flow-confirm-modal.component';
@@ -68,7 +71,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                     class="border-base-300 w-full border-b p-4 text-2xl font-medium sm:px-16 sm:py-4"
                 >
                     {{
-                        (!!form.value.id
+                        (!!model().id
                             ? 'APP.WORKPLACE.MEETING_BOOK_EDIT_HEADER'
                             : 'APP.WORKPLACE.MEETING_BOOK_NEW_HEADER'
                         ) | translate
@@ -77,7 +80,6 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                 @if (form) {
                     <form
                         class="divide-base-200 space-y-2 divide-y p-0 sm:px-16 sm:py-4"
-                        [formGroup]="form"
                     >
                         <section class="p-2">
                             <h3 class="flex items-center space-x-2">
@@ -162,8 +164,8 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                 >
                                     <a-user-list-field
                                         class="mt-4"
-                                        formControlName="attendees"
-                                        [time]="form.value.date"
+                                        [formField]="form.attendees"
+                                        [time]="model().date"
                                         [guests]="allow_externals()"
                                     ></a-user-list-field>
                                 </div>
@@ -203,8 +205,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                 @if (
                                     !strict_capacity_check &&
                                     total_capacity &&
-                                    total_capacity <=
-                                        form.value.attendees?.length
+                                    total_capacity <= model().attendees?.length
                                 ) {
                                     <div
                                         class="bg-warning text-warning-content mx-auto my-2 inline-flex rounded-sm p-2 text-xs shadow-sm"
@@ -217,12 +218,12 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                 }
                                 <space-list-field
                                     class="w-full"
-                                    formControlName="resources"
+                                    [formField]="form.resources"
                                     [multiday]="allow_multiday"
                                 ></space-list-field>
                             </div>
                         </section>
-                        @if (has_catering | async) {
+                        @if (has_catering()) {
                             <section class="p-2">
                                 <h3 class="flex items-center space-x-2">
                                     <div
@@ -260,21 +261,19 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                     "
                                 >
                                     <catering-list-field
-                                        formControlName="catering"
+                                        [formField]="form.catering"
                                         [options]="{
-                                            date: form.getRawValue().date,
-                                            duration: form.value.duration,
-                                            all_day: form.value.all_day,
-                                            zone_id: form.value?.resources
-                                                ?.length
-                                                ? form.value?.resources[0]
-                                                      ?.level?.parent_id
+                                            date: model().date,
+                                            duration: model().duration,
+                                            all_day: model().all_day,
+                                            zone_id: model()?.resources?.length
+                                                ? model()?.resources[0]?.level
+                                                      ?.parent_id
                                                 : '',
                                         }"
                                     ></catering-list-field>
                                     @if (
-                                        form.value.catering?.length && has_codes
-                                            | async
+                                        model().catering?.length && has_codes()
                                     ) {
                                         <mat-form-field
                                             appearance="outline"
@@ -282,7 +281,9 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                             (openedChange)="focusInput()"
                                         >
                                             <mat-select
-                                                formControlName="catering_charge_code"
+                                                [formField]="
+                                                    form.catering_charge_code
+                                                "
                                                 [placeholder]="
                                                     'CALENDAR_EVENT.CATERING_CHARGE_CODE'
                                                         | translate
@@ -291,11 +292,9 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                                 <input
                                                     #input
                                                     class="border-base-200 bg-base-100 sticky top-0 z-50 w-full rounded-none border-x-0 border-t-0 border-b px-4 py-3 text-base focus:border-b"
-                                                    [ngModel]="
-                                                        code_filter.getValue()
-                                                    "
+                                                    [ngModel]="code_filter()"
                                                     (ngModelChange)="
-                                                        code_filter.next($event)
+                                                        code_filter.set($event)
                                                     "
                                                     [ngModelOptions]="{
                                                         standalone: true,
@@ -309,8 +308,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                                     class="hidden"
                                                 ></mat-option>
                                                 @for (
-                                                    code of filtered_codes
-                                                        | async;
+                                                    code of filtered_codes();
                                                     track code
                                                 ) {
                                                     <mat-option [value]="code">
@@ -326,21 +324,22 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                             </mat-error>
                                         </mat-form-field>
                                     }
-                                    @if (form.value.catering?.length) {
+                                    @if (model().catering?.length) {
                                         <mat-form-field
                                             appearance="outline"
                                             class="w-full"
                                             [class.mt-2]="
                                                 !(
-                                                    form.value.catering
-                                                        ?.length && has_codes
-                                                    | async
+                                                    model().catering?.length &&
+                                                    has_codes()
                                                 )
                                             "
                                         >
                                             <textarea
                                                 matInput
-                                                formControlName="catering_notes"
+                                                [formField]="
+                                                    form.catering_notes
+                                                "
                                                 [placeholder]="
                                                     'CALENDAR_EVENT.CATERING_NOTES'
                                                         | translate
@@ -363,9 +362,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                     <div
                                         class="bg-base-200 flex h-6 w-6 items-center justify-center rounded-full"
                                     >
-                                        {{
-                                            !(has_catering | async) ? '4' : '5'
-                                        }}
+                                        {{ !has_catering() ? '4' : '5' }}
                                     </div>
                                     <div class="text-xl">
                                         {{ 'RESOURCE.ASSETS' | translate }}
@@ -395,18 +392,17 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                 >
                                     <asset-list-field
                                         [options]="{
-                                            date: form.getRawValue().date,
-                                            duration: form.value.duration,
-                                            all_day: form.value.all_day,
-                                            zone: form.value?.resources?.length
-                                                ? form.value?.resources[0]
-                                                      ?.level?.parent_id
+                                            date: model().date,
+                                            duration: model().duration,
+                                            all_day: model().all_day,
+                                            zone: model()?.resources?.length
+                                                ? model()?.resources[0]?.level
+                                                      ?.parent_id
                                                 : '',
-                                            resources:
-                                                form.value?.resources || [],
+                                            resources: model()?.resources || [],
                                         }"
-                                        [rejected_ids]="invalid_assets"
-                                        formControlName="assets"
+                                        [rejected_ids]="invalid_assets()"
+                                        [formField]="form.assets"
                                     ></asset-list-field>
                                 </div>
                             </section>
@@ -418,10 +414,8 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                         class="bg-base-200 flex h-6 w-6 items-center justify-center rounded-full"
                                     >
                                         {{
-                                            !(has_catering | async) ||
-                                            !has_assets
-                                                ? !(has_catering | async) &&
-                                                  !has_assets
+                                            !has_catering() || !has_assets
+                                                ? !has_catering() && !has_assets
                                                     ? '4'
                                                     : '5'
                                                 : '6'
@@ -442,8 +436,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                         }}
                                     </label>
                                     <rich-text-input
-                                        name="notes"
-                                        formControlName="body"
+                                        [formField]="form.body"
                                         [placeholder]="
                                             'CALENDAR_EVENT.NOTES_INFO'
                                                 | translate
@@ -476,10 +469,8 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                 (click)="clearForm()"
                             >
                                 {{
-                                    (!!form.value.id
-                                        ? 'FORM.RESET'
-                                        : 'FORM.CLEAR'
-                                    ) | translate
+                                    (!!model().id ? 'FORM.RESET' : 'FORM.CLEAR')
+                                        | translate
                                 }}
                             </button>
                         </section>
@@ -502,7 +493,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
         MatInputModule,
         MatSelectModule,
         FormsModule,
-        ReactiveFormsModule,
+        FormField,
         SpaceListFieldComponent,
         UserListFieldComponent,
         MeetingFormDetailsComponent,
@@ -519,34 +510,32 @@ export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
     private _bottom_sheet = inject(MatBottomSheet);
     private _org = inject(OrganisationService);
     private _idle = inject(UserIdleTimeService);
+    private _injector = inject(Injector);
 
     public sheet_ref: MatBottomSheetRef<any>;
     public dialog_ref: MatDialogRef<any>;
     public hide_block: Record<string, boolean> = {};
-    public code_filter = new BehaviorSubject('');
-    public invalid_assets: string[] = [];
+    public code_filter = signal('');
+    public invalid_assets = signal<string[]>([]);
 
-    public readonly has_catering = this._catering.available_menu.pipe(
-        map((l) => l.length > 0),
+    public readonly has_catering = computed(
+        () => this._catering.available_menu().length > 0,
     );
 
-    public readonly has_codes = this._catering.charge_codes.pipe(
-        map((l) => l.length > 0),
-        tap((has_codes) => {
-            if (!has_codes) {
-                this.form.get('catering_charge_code').setValidators([]);
-                this.form.updateValueAndValidity();
-            }
-        }),
+    public readonly has_codes = computed(
+        () => this._catering.charge_codes().length > 0,
     );
 
-    public readonly filtered_codes = combineLatest([
-        this.code_filter,
-        this._catering.charge_codes,
-    ]).pipe(
-        map(([s, l]) =>
-            l.filter((_) => _.toLowerCase().includes(s.toLowerCase())),
-        ),
+    public get model() {
+        return this._state.model;
+    }
+
+    public readonly filtered_codes = computed(() =>
+        this._catering
+            .charge_codes()
+            .filter((_) =>
+                _.toLowerCase().includes(this.code_filter().toLowerCase()),
+            ),
     );
 
     public get form() {
@@ -576,9 +565,7 @@ export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
     }
 
     public get total_capacity() {
-        return (
-            this.form.value.resources?.reduce((c, i) => c + i.capacity, 0) || 0
-        );
+        return this.model().resources?.reduce((c, i) => c + i.capacity, 0) || 0;
     }
 
     public get allow_multiday() {
@@ -590,9 +577,9 @@ export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
 
     public get attendee_count() {
         const user = currentUser();
-        let count = this.form.value.attendees?.length || 0;
+        let count = this.model().attendees?.length || 0;
         if (
-            !this.form.value.attendees.find(
+            !this.model().attendees.find(
                 (_) => _.email.toLowerCase() === user.email.toLowerCase(),
             )
         ) {
@@ -601,123 +588,34 @@ export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
         return count;
     }
 
-    private _space_list = new BehaviorSubject<Space[]>([]);
+    private _space_list = signal<Space[]>([]);
 
-    private _assets_available = this._space_list.pipe(
-        debounceTime(300),
-        switchMap((space_list) => {
-            if (!space_list?.length || !this.has_assets) return of(false);
-            const value = this.form.getRawValue();
-            this._assets.setOptions({
-                date: value.date,
-                duration: value.duration,
-                resources: space_list,
-                zone: this._org.levelWithID(space_list[0].zones)?.parent_id,
-                tags: [],
-                categories: [],
-            } as any);
-            return combineLatest([
-                this._assets.filtered_assets,
-                this._assets.disabled_rooms,
-            ]).pipe(
-                map(([items, disabled_rooms]) => {
-                    const assets_available = space_list.every(
-                        (s) =>
-                            items.filter(
-                                (_) =>
-                                    !(_ as any).hide_for_zones?.find((z) =>
-                                        s.zones.includes(z),
-                                    ),
-                            ).length > 0,
-                    );
-                    if (
-                        assets_available &&
-                        !disabled_rooms.find((_) =>
-                            space_list.find((i) => i.id === _),
-                        )
-                    )
-                        return true;
-                    const event = this._state.event;
-                    const { id, assets, date, date_end } =
-                        this.form.getRawValue();
-                    const time_changed =
-                        !id ||
-                        (assets?.length &&
-                            (date !== event.date ||
-                                date_end !== event.date_end));
-                    if (time_changed) {
-                        this.form.patchValue({ assets: [] });
-                        if (this.has_assets) {
-                            notifyWarn(
-                                i18n('CALENDAR_EVENT.ASSETS_UNAVAILABLE'),
-                            );
-                        }
-                    }
-                    return false;
-                }),
-            );
-        }),
-    );
+    private _assets_available = signal(false);
 
-    private _catering_available = combineLatest([
-        this._space_list,
-        this.has_catering,
-    ]).pipe(
-        debounceTime(300),
-        switchMap(([space_list, has_catering]) => {
-            if (!space_list?.length || !has_catering) return of(false);
-            const value = this.form.getRawValue();
-            this._catering.setFilters({
-                search: '',
-                date: value.date,
-                duration: value.duration,
-                resources: space_list,
-                zone_id: this._org.levelWithID(space_list[0].zones)?.parent_id,
-                tags: [],
-                categories: [],
-            });
-            return combineLatest([
-                this._catering.filtered_menu,
-                this._catering.availability,
-            ]).pipe(
-                map(([menu, disabled_rooms]) => {
-                    const can_cater = space_list.every(
-                        (s) =>
-                            menu.filter(
-                                (_) =>
-                                    !_.hide_for_zones.find((z) =>
-                                        s.zones.includes(z),
-                                    ),
-                            ).length > 0,
-                    );
-                    if (
-                        can_cater &&
-                        !disabled_rooms.find((_) =>
-                            space_list.find((i) => i.id === _),
-                        )
-                    )
-                        return true;
-                    const event = this._state.event;
-                    const { id, catering, date, date_end } =
-                        this.form.getRawValue();
-                    const time_changed =
-                        !id ||
-                        (catering?.length &&
-                            (date !== event.date ||
-                                date_end !== event.date_end));
-                    if (time_changed) {
-                        this.form.patchValue({ catering: [] });
-                        if (has_catering) {
-                            notifyWarn(
-                                i18n('CALENDAR_EVENT.CATERING_UNAVAILABLE'),
-                            );
-                        }
-                    }
-                    return false;
-                }),
+    private _catering_available = signal(false);
+
+    constructor() {
+        super();
+        effect((onCleanup) => {
+            const space_list = this._space_list();
+            this.model();
+            const timeout = setTimeout(
+                () => this._checkAssets(space_list),
+                300,
             );
-        }),
-    );
+            onCleanup(() => clearTimeout(timeout));
+        });
+        effect((onCleanup) => {
+            const space_list = this._space_list();
+            this.has_catering();
+            this.model();
+            const timeout = setTimeout(
+                () => this._checkCatering(space_list),
+                300,
+            );
+            onCleanup(() => clearTimeout(timeout));
+        });
+    }
 
     public readonly clearForm = () => this._state.resetForm();
 
@@ -726,8 +624,8 @@ export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
     }
 
     public readonly viewConfirm = async () => {
-        if (!this.form.value.host)
-            this.form.patchValue({ host: currentUser()?.email });
+        if (!this.model().host)
+            this.model.update((m) => ({ ...m, host: currentUser()?.email }));
         if (
             this.strict_capacity_check &&
             this.attendee_count > this.total_capacity
@@ -736,26 +634,24 @@ export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
         }
         if (
             !this.allow_daily_allday_recurrence &&
-            this.form.value.all_day &&
-            this.form.value.recurrence?.pattern === 'daily'
+            this.model().all_day &&
+            this.model().recurrence?.pattern === 'daily'
         ) {
             return notifyError(i18n('CALENDAR_EVENT.DAILY_RECURR_ERROR'));
         }
-        const has_codes = await nextValueFrom(this.has_codes);
-        if (!has_codes) {
-            this.form.get('catering_charge_code').setValidators([]);
-            this.form.updateValueAndValidity();
-        }
-        this.form.markAllAsTouched();
-        if (!this.form.valid)
+        this.form().markAsTouched();
+        if (!this.form().valid())
             return notifyError(
                 i18n('FORM.INVALID_FIELDS', {
-                    field_list: getInvalidFields(this.form).join(', '),
+                    field_list: getInvalidSignalFields(
+                        this.form,
+                        this.model,
+                    ).join(', '),
                 }),
             );
         if (
             this._settings.get('app.events.no_standalone') &&
-            !this.form.value.resources.length
+            !this.model().resources.length
         )
             return notifyError(i18n('CALENDAR_EVENT.ROOM_REQUIRED'));
         if (this._settings.get('app.events.booking_unavailable'))
@@ -792,78 +688,160 @@ export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
         viewChild<ElementRef<HTMLInputElement>>('input');
 
     private _updateValidAssets() {
-        this.invalid_assets = [];
-        if (!this.event?.id) return;
-        const requested_assets = this.form.value.assets || [];
+        if (!this.event?.id) {
+            this.invalid_assets.set([]);
+            return;
+        }
+        const requested_assets = this.model().assets || [];
         const linked_bookings = this.event?.linked_bookings || [];
-        this.invalid_assets = requested_assets
-            .filter(
-                (_) =>
-                    !_._changed &&
-                    !linked_bookings.find(
-                        (bkn) => bkn.extension_data?.request_id === _.id,
-                    ),
-            )
-            .map((_) => _.id);
+        this.invalid_assets.set(
+            requested_assets
+                .filter(
+                    (_) =>
+                        !_._changed &&
+                        !linked_bookings.find(
+                            (bkn) => bkn.extension_data?.request_id === _.id,
+                        ),
+                )
+                .map((_) => _.id),
+        );
+    }
+
+    private _checkAssets(space_list: Space[]) {
+        if (!space_list?.length || !this.has_assets) {
+            this._assets_available.set(false);
+            return;
+        }
+        const value = this.model();
+        this._assets.setOptions({
+            date: value.date,
+            duration: value.duration,
+            resources: space_list,
+            zone: this._org.levelWithID(space_list[0].zones)?.parent_id,
+            tags: [],
+            categories: [],
+        } as any);
+        const items = this._assets.filtered_assets();
+        const disabled_rooms = this._assets.disabled_rooms();
+        const assets_available = space_list.every(
+            (space) =>
+                items.filter(
+                    (_) =>
+                        !(_ as any).hide_for_zones?.find((z) =>
+                            space.zones.includes(z),
+                        ),
+                ).length > 0,
+        );
+        const available =
+            assets_available &&
+            !disabled_rooms.find((_) => space_list.find((i) => i.id === _));
+        this._assets_available.set(available);
+        if (available) return;
+        const event = this._state.event;
+        const { id, assets, date, date_end } = this.model();
+        const has_assets = !!assets?.length;
+        const time_changed =
+            has_assets &&
+            (!id || date !== event.date || date_end !== event.date_end);
+        if (time_changed) {
+            this.model.update((m) => ({ ...m, assets: [] }));
+            if (this.has_assets) {
+                notifyWarn(i18n('CALENDAR_EVENT.ASSETS_UNAVAILABLE'));
+            }
+        }
+    }
+
+    private _checkCatering(space_list: Space[]) {
+        if (!space_list?.length || !this.has_catering()) {
+            this._catering_available.set(false);
+            return;
+        }
+        const value = this.model();
+        this._catering.setFilters({
+            search: '',
+            date: value.date,
+            duration: value.duration,
+            resources: space_list,
+            zone_id: this._org.levelWithID(space_list[0].zones)?.parent_id,
+            tags: [],
+            categories: [],
+        });
+        const menu = this._catering.filtered_menu();
+        const disabled_rooms = this._catering.availability();
+        const can_cater = space_list.every(
+            (space) =>
+                menu.filter(
+                    (_) =>
+                        !_.hide_for_zones.find((z) => space.zones.includes(z)),
+                ).length > 0,
+        );
+        const available =
+            can_cater &&
+            !disabled_rooms.find((_) => space_list.find((i) => i.id === _));
+        this._catering_available.set(available);
+        if (available) return;
+        const event = this._state.event;
+        const { id, catering, date, date_end } = this.model();
+        const has_catering = !!catering?.length;
+        const time_changed =
+            has_catering &&
+            (!id || date !== event.date || date_end !== event.date_end);
+        if (time_changed) {
+            this.model.update((m) => ({ ...m, catering: [] }));
+            if (this.has_catering()) {
+                notifyWarn(i18n('CALENDAR_EVENT.CATERING_UNAVAILABLE'));
+            }
+        }
     }
 
     public async ngOnInit() {
-        await this._org.initialised.pipe(first((_) => _)).toPromise();
-        this.form.controls.assets.disable();
-        this.form.controls.catering.disable();
-        this.subscription(
-            'asset_changes',
-            this.form.controls.assets.valueChanges.subscribe(() =>
-                this._updateValidAssets(),
-            ),
-        );
-        for (const key of ['resources', 'date', 'duration', 'date_end']) {
-            this.subscription(
-                `${key}_changes`,
-                this.form.controls[key].valueChanges.subscribe(() =>
-                    this.timeout('check_resources', () =>
-                        this._space_list.next(this.form.value.resources || []),
-                    ),
-                ),
-            );
+        await this._org.waitUntilInitialised();
+        // Asset enable/disable is driven by the form schema (assets are
+        // disabled until a room/resource is selected); catering visibility is
+        // gated in the template by `has_catering`/`_catering_available`.
+        this.subscription('asset_changes', {
+            unsubscribe: onFieldChange(
+                this._state.model,
+                (m) => m.assets,
+                () => this._updateValidAssets(),
+                this._injector,
+            ).destroy,
+        } as any);
+        for (const key of [
+            'resources',
+            'date',
+            'duration',
+            'date_end',
+        ] as const) {
+            this.subscription(`${key}_changes`, {
+                unsubscribe: onFieldChange(
+                    this._state.model,
+                    (m) => (m as any)[key],
+                    () =>
+                        this.timeout('check_resources', () =>
+                            this._space_list.set(this.model().resources || []),
+                        ),
+                    this._injector,
+                ).destroy,
+            } as any);
         }
         this._catering.setOptions({ zone: '' });
-        this._space_list.next(this.form.value.resources || []);
-        this.subscription(
-            'assets_available',
-            this._assets_available.subscribe((a) => {
-                if (!a) this.form.controls.assets.disable();
-                else this.form.controls.assets.enable();
-            }),
-        );
-        this.subscription(
-            'catering_available',
-            this._catering_available.subscribe((a) => {
-                if (!a) this.form.controls.catering.disable();
-                else this.form.controls.catering.enable();
-            }),
-        );
-        this.subscription(
-            'idle-listen',
-            this._idle
-                .idleFor(
-                    (this._settings.get('app.idle_timeout') || 5) * 60 * 1000,
-                )
-                .subscribe(async () => {
-                    this.unsub('idle');
-                    await openConfirmModal(
-                        {
-                            title: i18n('APP.WORKPLACE.MEETING_IDLE_TITLE'),
-                            content: i18n('APP.WORKPLACE.MEETING_IDLE_MSG'),
-                            icon: { content: 'update' },
-                            confirm_text: i18n('COMMON.REFRESH'),
-                        },
-                        this._dialog,
-                    );
-                    this._state.newForm();
-                    location.reload();
-                }),
-        );
+        this._space_list.set(this.model().resources || []);
+        this._idle
+            .idleFor((this._settings.get('app.idle_timeout') || 5) * 60 * 1000)
+            .then(async () => {
+                await openConfirmModal(
+                    {
+                        title: i18n('APP.WORKPLACE.MEETING_IDLE_TITLE'),
+                        content: i18n('APP.WORKPLACE.MEETING_IDLE_MSG'),
+                        icon: { content: 'update' },
+                        confirm_text: i18n('COMMON.REFRESH'),
+                    },
+                    this._dialog,
+                );
+                this._state.newForm();
+                location.reload();
+            });
         this.timeout(
             'init_valid_assets',
             () => this._updateValidAssets(),
@@ -883,7 +861,7 @@ export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
     }
 
     public findAvailableTime() {
-        const { attendees, organiser, date, duration } = this.form.value;
+        const { attendees, organiser, date, duration } = this.model();
         const ref = this._dialog.open(FindAvailabilityModalComponent, {
             data: {
                 users: attendees,
@@ -894,11 +872,12 @@ export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
         });
         ref.afterClosed().subscribe((d) => {
             if (!d) return;
-            this.form.patchValue({
+            this.model.update((m) => ({
+                ...m,
                 date: ref.componentInstance.date(),
                 attendees: ref.componentInstance.users(),
                 duration: ref.componentInstance.duration(),
-            });
+            }));
         });
     }
 }

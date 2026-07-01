@@ -1,24 +1,16 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
-import { BookingFormService, findNearbyFeature } from '@placeos/bookings';
 import {
-    Booking,
     BuildingLevel,
-    currentUser,
-    firstTruthyValueFrom,
     formatRecurrence,
     fromEventRecurrence,
-    i18n,
-    notifyError,
     OrganisationService,
     SettingsService,
     Space,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { EventFormService, SpacePipe } from '@placeos/events';
-import { set } from 'date-fns';
-import { firstValueFrom, skip } from 'rxjs';
 
 @Component({
     selector: 'meeting-flow-success',
@@ -120,15 +112,14 @@ import { firstValueFrom, skip } from 'rxjs';
     `,
     styles: [``],
     imports: [CommonModule, RouterModule, TranslatePipe, IconComponent],
+    providers: [SpacePipe],
 })
 export class MeetingFlowSuccessComponent implements OnInit {
     private _event_form = inject(EventFormService);
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
-    private _booking_form = inject(BookingFormService);
     private _router = inject(Router);
-
-    private _space_pipe: SpacePipe = new SpacePipe(this._org);
+    private _space_pipe = inject(SpacePipe);
 
     public readonly loading = signal(false);
     public readonly desk_loading = signal(false);
@@ -156,25 +147,28 @@ export class MeetingFlowSuccessComponent implements OnInit {
         return formatRecurrence(
             fromEventRecurrence({
                 ...event.recurrence,
-                start: event.date || event.recurrence.start,
+                start: event.recurrence.start || event.date,
             }),
+            event.recurrence.start || event.date,
         );
     }
 
     public async ngOnInit() {
         this.loading.set(true);
-        if (this._org.initialised) {
-            await firstTruthyValueFrom(this._org.initialised);
-        }
         const event_space = this.last_event()?.space;
         if (event_space) {
             this.space.set(new Space(event_space));
             try {
-                this.space.set(
-                    await this._space_pipe.transform(
-                        event_space.email || event_space.id,
-                    ),
+                const resolved_space = await this._space_pipe.transform(
+                    event_space.email || event_space.id,
                 );
+                if (
+                    resolved_space &&
+                    (resolved_space.id ||
+                        resolved_space.email !== 'empty.space@place.os')
+                ) {
+                    this.space.set(new Space(resolved_space));
+                }
             } catch {
                 /* Falls back to event space details when org data is unavailable */
             }
@@ -182,77 +176,12 @@ export class MeetingFlowSuccessComponent implements OnInit {
         setTimeout(() => this.loading.set(false), 500);
     }
 
-    public async startDeskBooking() {
-        this.desk_loading.set(true);
-        if (!this.space().email) {
-            return notifyError(
-                'Unable to book nearby desk when no room in meeting',
-            );
-        }
-        try {
-            const event = this.last_event();
-            const date = set(event.date, {
-                hours: 8,
-                minutes: 0,
-            }).valueOf();
-
-            // Pass correct date/duration via Booking so newForm's internal
-            // timeout('date') doesn't overwrite with defaults
-            this._booking_form.newForm(
-                'desk',
-                new Booking({
-                    date,
-                    duration: 8 * 60,
-                    all_day: event.all_day,
-                    booking_type: 'desk',
-                }),
-            );
-            this._booking_form.setOptions({
-                type: 'desk',
-                zone_id: this.level()?.id,
-            });
-            this._booking_form.form.patchValue({ user: currentUser() });
-
-            // Activate the available_resources pipeline (it only queries
-            // when subscribed) and detect stale shareReplay(1) cache.
-            let has_cached = false;
-            const warmup = this._booking_form.available_resources.subscribe(
-                () => {
-                    has_cached = true;
-                },
-            );
-            // shareReplay replays synchronously, so has_cached is set by now
-            warmup.unsubscribe();
-            const resources = await firstValueFrom(
-                this._booking_form.available_resources.pipe(
-                    skip(has_cached ? 1 : 0),
-                ),
-            );
-            const bookable_desks = resources
-                .map((_) => _.map_id || _.id)
-                .filter((i) => i);
-            const nearby = await findNearbyFeature(
-                this.level().map_id,
-                this.space()?.map_id,
-                bookable_desks,
-            );
-            if (!nearby) {
-                notifyError(i18n('APP.WORKPLACE.MEETING_DESK_ERROR'));
-                this._router.navigate(['/book', 'desk', 'form']);
-                return;
-            }
-            const resource = resources.find((_) => _.map_id === nearby);
-            this._booking_form.form.patchValue({
-                asset_id: nearby,
-                asset_name: resource.name,
-                resources: [resource],
-            });
-            this._router.navigate(['/book', 'desk', 'form']);
-        } catch (e) {
-            notifyError(i18n('APP.WORKPLACE.MEETING_DESK_ERROR'));
-            this._router.navigate(['/book', 'desk', 'form']);
-        } finally {
-            this.desk_loading.set(false);
-        }
+    public startDeskBooking() {
+        this._router.navigate(['/book', 'desk', 'form'], {
+            queryParams: {
+                nearby_space: this.space().id || this.space().email,
+                date: this.last_event().date,
+            },
+        });
     }
 }

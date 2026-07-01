@@ -29,13 +29,14 @@ describe('DesksTopbarComponent', () => {
         providers: [
             MockProvider(DesksStateService, {
                 filters: signal({}),
+                levels: signal([]),
                 setFilters: jest.fn(),
                 approveDesk: jest.fn(),
                 rejectDesk: jest.fn(),
             } as any),
             MockProvider(OrganisationService, {
-                active_levels: of([]),
-                initialised: of(true),
+                active_levels: signal([]),
+                initialised: signal(true),
                 levelWithID: jest.fn(),
                 buildings: [],
             }),

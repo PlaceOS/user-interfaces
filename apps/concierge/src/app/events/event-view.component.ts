@@ -4,7 +4,6 @@ import { ActivatedRoute } from '@angular/router';
 import {
     AsyncHandler,
     CalendarEvent,
-    firstTruthyValueFrom,
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
@@ -15,7 +14,6 @@ import {
     showEventMetadata,
     SpacePipe,
 } from '@placeos/events';
-import { lastValueFrom } from 'rxjs';
 
 @Component({
     selector: 'group-event-view',
@@ -64,7 +62,7 @@ export class EventViewComponent extends AsyncHandler implements OnInit {
     public readonly event = signal<CalendarEvent>(null);
 
     public async ngOnInit() {
-        await firstTruthyValueFrom(this._org.initialised);
+        await this._org.waitUntilInitialised();
         this.subscription(
             'route.params',
             this._route.paramMap.subscribe((params) => {
@@ -78,15 +76,15 @@ export class EventViewComponent extends AsyncHandler implements OnInit {
             this._settings.get<string>('app.group_events_calendar') || '';
         this.loading.set(true);
         const space_pipe = new SpacePipe();
-        const booking = await lastValueFrom(
-            showEvent(id, { calendar }),
-        ).catch();
+        const booking = await showEvent(id, { calendar }).catch();
         if (!booking) return this.loading.set(false);
         const space = await space_pipe.transform(calendar);
-        const metadata = await lastValueFrom(
-            showEventMetadata(id, space?.id || booking.system?.id, {
+        const metadata = await showEventMetadata(
+            id,
+            space?.id || booking.system?.id,
+            {
                 ical_uid: booking.ical_uid,
-            }),
+            },
         ).catch(() => ({}));
         this.event.set(
             new CalendarEvent({

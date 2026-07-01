@@ -1,6 +1,5 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 import { Component, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import { i18n, notifySuccess } from '@placeos/common';
 import { BuildingManagementService } from './building-management.service';
@@ -58,7 +57,7 @@ import { WorkplaceSettingsFormModalComponent } from '../ui/app-settings/workplac
                         key: 'actions',
                         name: ' ',
                         content: action_template,
-                        size: '3.5rem',
+                        size: '3.25rem',
                         sortable: false,
                     },
                 ]"
@@ -94,13 +93,8 @@ import { WorkplaceSettingsFormModalComponent } from '../ui/app-settings/workplac
             }
         </ng-template>
         <ng-template #action_template let-row="row">
-            <div class="flex w-full justify-center space-x-2 p-1">
-                <button
-                    icon
-                    matRipple
-                    class="h-12 w-12 rounded-sm"
-                    [matMenuTriggerFor]="menu"
-                >
+            <div class="mx-auto flex items-center p-2">
+                <button icon default matRipple [matMenuTriggerFor]="menu">
                     <icon>more_vert</icon>
                 </button>
                 <mat-menu #menu="matMenu">
@@ -258,9 +252,7 @@ export class BuildingListComponent {
     private _clipboard = inject(Clipboard);
     private _dialog = inject(MatDialog);
 
-    public readonly buildings = toSignal(this._manager.filtered_buildings, {
-        initialValue: [],
-    });
+    public readonly buildings = this._manager.filtered_buildings;
     public settings = {};
 
     public readonly editBuilding = (building) =>

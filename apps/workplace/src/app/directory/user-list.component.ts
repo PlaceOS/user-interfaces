@@ -1,15 +1,4 @@
-import { Component, inject } from '@angular/core';
-import { BehaviorSubject, Observable, of } from 'rxjs';
-import {
-    catchError,
-    debounceTime,
-    distinctUntilChanged,
-    map,
-    shareReplay,
-    startWith,
-    switchMap,
-    tap,
-} from 'rxjs/operators';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -26,6 +15,7 @@ import {
 import { searchStaff } from '@placeos/users';
 import { FooterMenuComponent } from '../components/footer-menu.component';
 import { TopbarComponent } from '../components/topbar.component';
+import { VirtualConciergeButtonComponent } from '../components/virtual-concierge-button.component';
 
 const LETTERS = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`.split('');
 
@@ -46,11 +36,10 @@ const LETTERS = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`.split('');
                         <icon class="text-xl" matPrefix>search</icon>
                         <input
                             matInput
-                            [ngModel]="search$.getValue()"
-                            (ngModelChange)="search$.next($event)"
+                            [(ngModel)]="search"
                             placeholder="Search for a person..."
                         />
-                        @if (loading) {
+                        @if (loading()) {
                             <mat-spinner
                                 matSuffix
                                 class="top-2"
@@ -60,8 +49,8 @@ const LETTERS = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`.split('');
                     </mat-form-field>
                 </div>
                 <main class="h-1/2 w-full flex-1">
-                    @let user_list = search_results$ | async;
-                    @let grouped_users = grouped_results$ | async;
+                    @let user_list = search_results();
+                    @let grouped_users = grouped_results();
                     @if (user_list.length) {
                         @for (letter of letters; track letter) {
                             @if (grouped_users[letter]?.length) {
@@ -132,7 +121,7 @@ const LETTERS = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`.split('');
                             }
                         }
                     } @else {
-                        @let search_str = search$ | async;
+                        @let search_str = search();
                         <div class="flex flex-col items-center p-8">
                             <icon class="text-5xl">{{
                                 search_str?.length >= min_search_length
@@ -150,6 +139,7 @@ const LETTERS = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`.split('');
                     }
                 </main>
             </div>
+            <virtual-concierge-button />
         </div>
         <footer-menu />
     `,
@@ -174,6 +164,7 @@ const LETTERS = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`.split('');
         IconComponent,
         FooterMenuComponent,
         TopbarComponent,
+        VirtualConciergeButtonComponent,
         SafePipe,
         UserAvatarComponent,
         MatFormFieldModule,
@@ -187,34 +178,38 @@ export class DirectoryUserListComponent extends AsyncHandler {
     private _settings = inject(SettingsService);
 
     /** Whether space list is being filtered */
-    public loading: boolean;
+    public readonly loading = signal(false);
     /** Whether to show menu */
     public show_menu: boolean;
     /** List of values to group users by */
     public readonly letters = LETTERS;
     /** Subject holding the value of the search */
-    public readonly search$ = new BehaviorSubject<string>('');
+    public readonly search = signal('');
     /** List of users from an API search */
-    public readonly search_results$: Observable<User[]> = this.search$.pipe(
-        debounceTime(400),
-        distinctUntilChanged(),
-        switchMap((query) => {
-            this.loading = true;
-            return query.length >= this.min_search_length
-                ? searchStaff(query).pipe(catchError(() => of([])))
-                : of([]);
-        }),
-        tap((l) => {
-            console.log('Results:', l);
-            this.loading = false;
-        }),
-        startWith([]),
-        shareReplay(1),
-    );
+    public readonly search_results = signal<User[]>([]);
     /** List of user search results groups by first letter */
-    public readonly grouped_results$ = this.search_results$.pipe(
-        map((list) => this.buildGroups(list)),
+    public readonly grouped_results = computed(() =>
+        this.buildGroups(this.search_results()),
     );
+
+    constructor() {
+        super();
+        effect((onCleanup) => {
+            const query = this.search();
+            const timeout = setTimeout(async () => {
+                if (query.length < this.min_search_length) {
+                    this.search_results.set([]);
+                    this.loading.set(false);
+                    return;
+                }
+                this.loading.set(true);
+                const list = await searchStaff(query).catch(() => []);
+                this.search_results.set(list);
+                this.loading.set(false);
+            }, 400);
+            onCleanup(() => clearTimeout(timeout));
+        });
+    }
 
     /** Minimum length of the search string needed to initial a search */
     public get min_search_length(): number {

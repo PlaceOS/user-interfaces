@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
     OrganisationService,
@@ -9,8 +9,6 @@ import {
 } from '@placeos/common';
 import { openConfirmModal } from '@placeos/components';
 import { PlaceZone, removeZone } from '@placeos/ts-client';
-import { BehaviorSubject, combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { AppSettingsModalComponent } from '../ui/app-settings-modal.component';
 import { RegionModalComponent } from './region-modal.component';
 
@@ -25,37 +23,33 @@ export class RegionManagementService {
     private _org = inject(OrganisationService);
     private _dialog = inject(MatDialog);
 
-    private _options = new BehaviorSubject<RegionListOptions>({});
-    private _change = new BehaviorSubject(0);
+    private _options = signal<RegionListOptions>({});
 
-    public options = this._options.asObservable();
+    public readonly options = this._options.asReadonly();
 
-    public readonly filtered_regions = combineLatest([
-        this._org.building_list,
-        this._org.region_list,
-        this._options,
-    ]).pipe(
-        map(([buildings, list, options]) => {
-            if (options.search) {
-                list = list.filter((_) =>
-                    _.name.toLowerCase().includes(options.search.toLowerCase()),
-                );
-            }
-            for (const region of list) {
-                (region as any).building_count = buildings.filter(
-                    (bld) => bld.parent_id === region.id,
-                ).length;
-            }
-            return list;
-        }),
-    );
+    public readonly filtered_regions = computed(() => {
+        const buildings = this._org.building_list();
+        let list = this._org.region_list();
+        const options = this._options();
+        if (options.search) {
+            list = list.filter((_) =>
+                _.name.toLowerCase().includes(options.search.toLowerCase()),
+            );
+        }
+        for (const region of list) {
+            (region as any).building_count = buildings.filter(
+                (bld) => bld.parent_id === region.id,
+            ).length;
+        }
+        return list;
+    });
 
     public setFilters(options: Partial<RegionListOptions>) {
-        this._options.next({ ...this._options.getValue(), ...options });
+        this._options.update((current) => ({ ...current, ...options }));
     }
 
     public setSearchString(search: string) {
-        this._options.next({ ...this._options.getValue(), search });
+        this._options.update((current) => ({ ...current, search }));
     }
 
     public editRegion(region: PlaceZone = new PlaceZone()) {

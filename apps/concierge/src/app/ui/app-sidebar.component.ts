@@ -1,4 +1,11 @@
-import { Component, ElementRef, OnInit, inject, signal } from '@angular/core';
+import {
+    Component,
+    ElementRef,
+    OnInit,
+    effect,
+    inject,
+    signal,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { RouterModule } from '@angular/router';
 import {
@@ -7,12 +14,10 @@ import {
     OrganisationService,
     SettingsService,
     currentUser,
-    firstTruthyValueFrom,
     i18n,
     unique,
 } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
-import { debounceTime, filter } from 'rxjs/operators';
 
 @Component({
     selector: 'app-sidebar',
@@ -105,6 +110,15 @@ export class ApplicationSidebarComponent
 
     public filtered_links = signal([]);
 
+    constructor() {
+        super();
+        effect(() => {
+            const building = this._org.active_building();
+            if (!building) return;
+            this.timeout('update_links', () => this.updateFilteredLinks(), 500);
+        });
+    }
+
     public get feature_list() {
         return this._settings.get('app.features') || [];
     }
@@ -124,7 +138,7 @@ export class ApplicationSidebarComponent
     }
 
     public async ngOnInit() {
-        await firstTruthyValueFrom(this._org.initialised);
+        await this._org.waitUntilInitialised();
         this.links = [
             {
                 name: i18n('APP.CONCIERGE.MENU_BOOKINGS'),
@@ -343,21 +357,6 @@ export class ApplicationSidebarComponent
             },
         ];
         this.updateFilteredLinks();
-        this.subscription(
-            'building',
-            this._org.active_building
-                .pipe(
-                    filter((_) => !!_),
-                    debounceTime(100),
-                )
-                .subscribe(() =>
-                    this.timeout(
-                        'update_links',
-                        () => this.updateFilteredLinks(),
-                        500,
-                    ),
-                ),
-        );
         this.timeout('update_inview', () => this._moveActiveLinkIntoView(), 50);
         this.timeout('update_links', () => this.updateFilteredLinks(), 500);
     }

@@ -50,13 +50,12 @@ describe('RecurrenceModalComponent', () => {
     });
 
     it('should default end_date when none is passed in', () => {
-        expect(spectator.component.form.controls.end_date.value).toBe(
-            default_end_date,
-        );
+        expect(spectator.component.model().end_date).toBe(default_end_date);
     });
 
     it('should return a default end_date when confirming without one', () => {
-        spectator.component.form.patchValue({ end_date: null });
+        spectator.component.model.update((m) => ({ ...m, end_date: null }));
+        spectator.detectChanges();
 
         expect(spectator.component.confirmValue().end_date).toBe(
             default_end_date,
@@ -64,12 +63,14 @@ describe('RecurrenceModalComponent', () => {
     });
 
     it('should set weekly instance end_date to the final occurrence date', () => {
-        spectator.component.form.patchValue({
+        spectator.component.model.update((m) => ({
+            ...m,
             type: 'weekly',
             interval: 1,
             end_type: 'instances',
             end_instances: 7,
-        });
+        }));
+        spectator.detectChanges();
 
         expect(spectator.component.confirmValue().end_date).toBe(
             endOfDay(addWeeks(booking_date, 6)).valueOf(),
@@ -77,13 +78,15 @@ describe('RecurrenceModalComponent', () => {
     });
 
     it('should count instances from the first matching recurrence date', () => {
-        spectator.component.form.patchValue({
+        spectator.component.model.update((m) => ({
+            ...m,
             type: 'weekly',
             interval: 1,
             weekdays: new Set([4]),
             end_type: 'instances',
             end_instances: 3,
-        });
+        }));
+        spectator.detectChanges();
 
         expect(spectator.component.confirmValue().end_date).toBe(
             endOfDay(addWeeks(new Date(2026, 3, 2).valueOf(), 2)).valueOf(),
@@ -91,12 +94,14 @@ describe('RecurrenceModalComponent', () => {
     });
 
     it('should clamp instance ends to the allowed booking window', () => {
-        spectator.component.form.patchValue({
+        spectator.component.model.update((m) => ({
+            ...m,
             type: 'weekly',
             interval: 1,
             end_type: 'instances',
             end_instances: 53,
-        });
+        }));
+        spectator.detectChanges();
 
         const value = spectator.component.confirmValue();
 
@@ -105,11 +110,13 @@ describe('RecurrenceModalComponent', () => {
     });
 
     it('should limit instance count to the available booking window', () => {
-        spectator.component.form.patchValue({
+        spectator.component.model.update((m) => ({
+            ...m,
             type: 'weekly',
             interval: 4,
             end_type: 'instances',
-        });
+        }));
+        spectator.detectChanges();
 
         const max_instances = spectator.component.maxInstances();
 
@@ -117,7 +124,7 @@ describe('RecurrenceModalComponent', () => {
         expect(
             recurrenceEndDate(
                 {
-                    ...spectator.component.form.getRawValue(),
+                    ...spectator.component.model(),
                     end_instances: max_instances,
                 } as any,
                 booking_date,
@@ -126,11 +133,12 @@ describe('RecurrenceModalComponent', () => {
     });
 
     it('should create monthly custom recurrence on weekday instance', () => {
-        spectator.component.form.patchValue({ type: 'monthly' });
+        spectator.component.model.update((m) => ({ ...m, type: 'monthly' }));
+        spectator.detectChanges();
 
-        expect(spectator.component.form.value.monthly_type).toBe('day_of_week');
-        expect(spectator.component.form.value.week).toBe(1);
-        expect(spectator.component.form.value.weekdays?.has(2)).toBe(true);
+        expect(spectator.component.model().monthly_type).toBe('day_of_week');
+        expect(spectator.component.model().week).toBe(1);
+        expect(spectator.component.model().weekdays?.has(2)).toBe(true);
     });
 
     it('should normalise legacy monthly day-of-month recurrence to weekday instance', () => {
@@ -144,7 +152,7 @@ describe('RecurrenceModalComponent', () => {
 
         spectator = createComponent();
 
-        expect(spectator.component.form.value.monthly_type).toBe('day_of_week');
+        expect(spectator.component.model().monthly_type).toBe('day_of_week');
         expect(spectator.component.confirmValue().monthly_type).toBe(
             'day_of_week',
         );
@@ -152,14 +160,16 @@ describe('RecurrenceModalComponent', () => {
     });
 
     it('should clamp instance count when recurrence settings reduce the limit', () => {
-        spectator.component.form.patchValue({
+        spectator.component.model.update((m) => ({
+            ...m,
             type: 'weekly',
             interval: 4,
             end_type: 'instances',
             end_instances: 53,
-        });
+        }));
+        spectator.detectChanges();
 
-        expect(spectator.component.form.controls.end_instances.value).toBe(
+        expect(spectator.component.model().end_instances).toBe(
             spectator.component.maxInstances(),
         );
     });

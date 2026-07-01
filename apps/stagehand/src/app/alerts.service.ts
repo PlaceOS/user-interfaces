@@ -1,5 +1,5 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { firstTruthyValueFrom, OrganisationService } from '@placeos/common';
+import { OrganisationService } from '@placeos/common';
 import { token } from '@placeos/ts-client';
 
 import mqtt from 'mqtt';
@@ -73,7 +73,7 @@ export class AlertsService {
     }
 
     public async init() {
-        await firstTruthyValueFrom(this._org.initialised);
+        await this._org.waitUntilInitialised();
         const jwt = token();
         const url = `${location.host}/api/mqtt/`;
         const secure = location.protocol === 'https:';

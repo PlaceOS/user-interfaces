@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, input, OnInit } from '@angular/core';
+import {
+    Component,
+    computed,
+    effect,
+    inject,
+    input,
+    OnInit,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
@@ -24,7 +31,6 @@ import {
     DateRangeCalendarComponent,
 } from '@placeos/form-fields';
 import { endOfDay, isSameDay, startOfDay } from 'date-fns';
-import { debounceTime, filter } from 'rxjs/operators';
 import {
     ScheduleOptions,
     ScheduleStateService,
@@ -34,11 +40,11 @@ import {
     selector: 'schedule-sidebar',
     template: `
         <div
-            class="flex h-full w-[18rem] flex-col overflow-hidden border-r border-base-300 bg-base-100"
+            class="border-base-300 bg-base-100 flex h-full w-[18rem] flex-col overflow-hidden border-r"
         >
             @if (period === 'day') {
                 <date-calendar
-                    class="border-b border-base-200"
+                    class="border-base-200 border-b"
                     [ngModel]="date()"
                     (ngModelChange)="setDate($event)"
                     [offset_weekday]="offset_weekday"
@@ -78,7 +84,7 @@ import {
             }
             @if (period === 'list') {
                 <date-range-calendar
-                    class="border-b border-base-200 p-2"
+                    class="border-base-200 border-b p-2"
                     [from]="null"
                     [start]="date()?.valueOf()"
                     [end]="end_date()?.valueOf()"
@@ -86,7 +92,9 @@ import {
                     (startChange)="setStartDate($event)"
                     (endChange)="setEndDate($event)"
                 ></date-range-calendar>
-                <div class="m-2 w-[calc(100%-1rem)] rounded bg-info p-1 text-xs text-info-content text-center">
+                <div
+                    class="bg-info text-info-content m-2 w-[calc(100%-1rem)] rounded p-1 text-center text-xs"
+                >
                     Pick a date range selecting the start then end date.
                 </div>
             }
@@ -106,7 +114,7 @@ import {
                                 class="-my-2 -ml-2 flex items-center space-x-2"
                             >
                                 <div
-                                    class="rounded-full bg-base-300 p-1 text-2xl"
+                                    class="bg-base-300 rounded-full p-1 text-2xl"
                                     [style.background-color]="
                                         colors[item.type][0]
                                     "
@@ -181,7 +189,7 @@ export class ScheduleSidebarComponent extends AsyncHandler implements OnInit {
         },
         {
             type: 'parking',
-            feat: 'parking',
+            feat: ['parking', 'parking-requests'],
             icon: 'drive_eta',
             name: 'RESOURCE.PARKING',
         },
@@ -202,12 +210,6 @@ export class ScheduleSidebarComponent extends AsyncHandler implements OnInit {
             feat: 'group-events',
             icon: 'event_available',
             name: 'RESOURCE.EVENTS',
-        },
-        {
-            type: 'vip-visitor',
-            feat: 'vip-visitor-invite',
-            icon: 'star',
-            name: 'RESOURCE.VIP_VISITORS',
         },
     ];
 
@@ -256,40 +258,44 @@ export class ScheduleSidebarComponent extends AsyncHandler implements OnInit {
         this._state.setOptions(options);
     }
 
-    public hasFeature(feature: string) {
-        return (this._settings.get('app.features') || []).includes(feature);
+    public hasFeature(feature: string | string[]) {
+        const features = this._settings.get('app.features') || [];
+        if (Array.isArray(feature)) {
+            return feature.some((f) => features.includes(f));
+        }
+        return features.includes(feature);
     }
 
     public get offset_weekday() {
         return this._settings.get('app.week_start') || 0;
     }
 
-    public ngOnInit() {
-        this.subscription(
-            'building',
-            this._org.active_building
-                .pipe(
-                    filter((_) => !!_),
-                    debounceTime(1000),
-                )
-                .subscribe((_) => {
-                    this._state.setType('event', this.hasFeature('spaces'));
-                    this._state.setType('desk', this.hasFeature('desks'));
-                    this._state.setType('parking', this.hasFeature('parking'));
-                    this._state.setType(
-                        'visitor',
-                        this.hasFeature('visitor-invite'),
-                    );
-                    this._state.setType('locker', this.hasFeature('lockers'));
-                    this._state.setType(
-                        'group-event',
-                        this.hasFeature('group-events'),
-                    );
-                    this._state.setType(
-                        'vip-visitor',
-                        this.hasFeature('vip-visitor-invite'),
-                    );
-                }),
-        );
+    constructor() {
+        super();
+        effect((onCleanup) => {
+            const bld = this._org.active_building();
+            if (!bld) return;
+            const timeout = setTimeout(() => {
+                this._state.setType('event', this.hasFeature('spaces'));
+                this._state.setType('desk', this.hasFeature('desks'));
+                this._state.setType(
+                    'parking',
+                    this.hasFeature('parking') ||
+                        this.hasFeature('parking-requests'),
+                );
+                this._state.setType(
+                    'visitor',
+                    this.hasFeature('visitor-invite'),
+                );
+                this._state.setType('locker', this.hasFeature('lockers'));
+                this._state.setType(
+                    'group-event',
+                    this.hasFeature('group-events'),
+                );
+            }, 1000);
+            onCleanup(() => clearTimeout(timeout));
+        });
     }
+
+    public ngOnInit() {}
 }

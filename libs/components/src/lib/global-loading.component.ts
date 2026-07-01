@@ -96,7 +96,7 @@ export class GlobalLoadingComponent extends AsyncHandler implements OnInit {
 
     public async ngOnInit() {
         this.loading.set(true);
-        await firstTruthyValueFrom(this._org.initialised);
+        await this._org.waitUntilInitialised();
         await firstTruthyValueFrom(this._settings.initialised);
         this.online.set(isOnline());
         this.interval(

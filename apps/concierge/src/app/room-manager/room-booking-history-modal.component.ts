@@ -188,8 +188,8 @@ type HistoryPeriod = 'week' | 'month' | '3_months' | '12_months';
                 <div class="flex h-full w-full items-center justify-center">
                     <button
                         icon
+                        default
                         matRipple
-                        class="h-10 w-10 rounded-sm"
                         [attr.aria-label]="
                             (expanded()[row.id]
                                 ? 'APP.CONCIERGE.ROOMS_HISTORY_COLLAPSE'
@@ -401,9 +401,7 @@ export class RoomBookingHistoryModalComponent {
             period_start: getUnixTime(start),
             period_end: getUnixTime(end),
             include_cancelled: true,
-        })
-            .toPromise()
-            .catch(() => []);
+        }).catch(() => []);
         this._events.set(events || []);
         this.loading.set(false);
     }
@@ -469,9 +467,9 @@ export class RoomBookingHistoryModalComponent {
         } else {
             params.system_ids = this.room.id;
         }
-        const changes = await queryEventHistory(params)
-            .toPromise()
-            .catch(() => [] as CalendarEventChange[]);
+        const changes = await queryEventHistory(params).catch(
+            () => [] as CalendarEventChange[],
+        );
         const sorted = [...(changes || [])].sort(
             (a, b) => (b.updated_at || 0) - (a.updated_at || 0),
         );

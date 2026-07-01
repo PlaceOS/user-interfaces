@@ -1,10 +1,6 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import {
-    firstTruthyValueFrom,
-    notifySuccess,
-    OrganisationService,
-} from '@placeos/common';
+import { notifySuccess, OrganisationService } from '@placeos/common';
 import { openConfirmModal } from '@placeos/components';
 import {
     queryAnswers,
@@ -17,7 +13,6 @@ import {
     SurveyAnswer,
     SurveyQuestion,
 } from '@placeos/ts-client';
-import { forkJoin, lastValueFrom } from 'rxjs';
 
 export interface QuestionFilters {
     search_text?: string;
@@ -86,7 +81,7 @@ export class SurveyService {
     });
 
     constructor() {
-        firstTruthyValueFrom(this._org.initialised).then(() => {
+        this._org.waitUntilInitialised().then(() => {
             setTimeout(() => this._load(), 300);
         });
     }
@@ -147,26 +142,20 @@ export class SurveyService {
     }
 
     private async _load(type = LoadType.ALL) {
-        const buildings = this._org.buildings_signal();
+        const buildings = this._org.building_list();
         if (!buildings) return;
         this.loading.set('Loading survey data...');
         if (type === LoadType.ALL || type === LoadType.SURVEYS) {
-            const surveys = await lastValueFrom(
-                forkJoin(
-                    buildings.map((bld) =>
-                        querySurveys({ building_id: bld.id }),
-                    ),
-                ),
+            const surveys = await Promise.all(
+                buildings.map((bld) => querySurveys({ building_id: bld.id })),
             );
             const survey_list = surveys.flat();
             this.survey_list.set(survey_list);
         }
         if (type === LoadType.ALL || type === LoadType.ANSWERS) {
-            const answers = await lastValueFrom(
-                forkJoin(
-                    this.survey_list().map((survey) =>
-                        queryAnswers({ survey_id: survey.id }),
-                    ),
+            const answers = await Promise.all(
+                this.survey_list().map((survey) =>
+                    queryAnswers({ survey_id: survey.id }),
                 ),
             );
             this.answer_list.set(answers.flat());

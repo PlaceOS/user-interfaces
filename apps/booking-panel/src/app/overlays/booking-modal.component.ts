@@ -1,22 +1,18 @@
 import {
+    ChangeDetectionStrategy,
     Component,
-    EventEmitter,
     inject,
     OnInit,
-    Output,
+    output,
     signal,
 } from '@angular/core';
-import {
-    FormControl,
-    FormGroup,
-    ReactiveFormsModule,
-    Validators,
-} from '@angular/forms';
+import { form, FormField, submit, validate } from '@angular/forms/signals';
 import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
     MatDialog,
     MatDialogModule,
+    MatDialogRef,
 } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -25,7 +21,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
     AsyncHandler,
     DialogEvent,
-    getInvalidFields,
     HashMap,
     i18n,
     notifyError,
@@ -39,8 +34,6 @@ import {
     UserSearchFieldComponent,
 } from '@placeos/form-fields';
 import { getModule } from '@placeos/ts-client';
-import { lastValueFrom, of } from 'rxjs';
-import { first, shareReplay, switchMap } from 'rxjs/operators';
 
 export interface BookingModalData extends HashMap {
     title?: string;
@@ -57,14 +50,27 @@ export async function openBookingModal(
 ) {
     const ref = dialog.open(BookingModalComponent, {
         data,
+        disableClose: true,
         backdropClass: ['pointer-events-none', 'bg-black', 'opacity-60'],
     });
-    const result = await Promise.race([
-        lastValueFrom(
-            ref.componentInstance.event.pipe(first((_) => _.reason === 'done')),
-        ),
-        lastValueFrom(ref.afterClosed()),
-    ]).catch((_) => ({}));
+    const result = await new Promise<DialogEvent>((resolve) => {
+        let resolved = false;
+        let event_sub;
+        const finish = (event?: DialogEvent) => {
+            if (resolved) return;
+            resolved = true;
+            event_sub?.unsubscribe();
+            resolve(event || ({} as DialogEvent));
+        };
+        const close = ref.close.bind(ref);
+        ref.close = ((event?: DialogEvent) => {
+            finish(event);
+            close(event);
+        }) as any;
+        event_sub = ref.componentInstance.event.subscribe((event) => {
+            finish(event);
+        });
+    });
     return {
         ...result,
         close: () => ref.close(),
@@ -84,18 +90,17 @@ export async function openBookingModal(
                     {{ 'APP.BOOKING_PANEL.BOOKING_NEW' | translate }}
                 </h2>
                 @if (!loading()) {
-                    <button icon matRipple mat-dialog-close>
+                    <button icon matRipple (click)="cancel()">
                         <icon>close</icon>
                     </button>
                 }
             </header>
-            @if (form && !loading()) {
+            @if (!loading()) {
                 <div
                     form
-                    [formGroup]="form"
                     class="max-h-[calc(100vh-12rem)] w-full overflow-auto px-4"
                 >
-                    @if (!hide_host() && form.controls.organiser) {
+                    @if (!hide_host()) {
                         <div class="field">
                             <label for="host"
                                 >{{
@@ -106,54 +111,49 @@ export async function openBookingModal(
                             <a-user-search-field
                                 name="host"
                                 [query_fn]="searchStaff"
-                                formControlName="organiser"
+                                [formField]="form.organiser"
                                 class="mb-2"
                                 [error]="'Host is required'"
                             ></a-user-search-field>
                         </div>
                     }
                     <div class="flex space-x-2">
-                        @if (form.controls.date && future) {
+                        @if (future) {
                             <div class="flex-1">
                                 <label for="start-time">{{
                                     'FORM.TIME_START' | translate
                                 }}</label>
                                 <a-time-field
                                     name="start-time"
-                                    formControlName="date"
+                                    [formField]="form.date"
                                 ></a-time-field>
                             </div>
                         }
-                        @if (form.controls.duration) {
-                            <div class="flex-1">
-                                <label for="duration">{{
-                                    'FORM.DURATION' | translate
-                                }}</label>
-                                <a-duration-field
-                                    [min]="min_duration"
-                                    [max]="max_duration"
-                                    [step]="max_duration < 120 ? 5 : 15"
-                                    name="duration"
-                                    formControlName="duration"
-                                ></a-duration-field>
-                            </div>
-                        }
-                    </div>
-                    @if (form.controls.title) {
-                        <div class="flex flex-col">
-                            <label for="title">{{
-                                'FORM.TITLE' | translate
+                        <div class="flex-1">
+                            <label for="duration">{{
+                                'FORM.DURATION' | translate
                             }}</label>
-                            <mat-form-field appearance="outline" class="w-full">
-                                <input
-                                    matInput
-                                    name="title"
-                                    [placeholder]="'FORM.TITLE' | translate"
-                                    formControlName="title"
-                                />
-                            </mat-form-field>
+                            <a-duration-field
+                                [min]="min_duration"
+                                [max]="max_duration"
+                                [step]="max_duration < 120 ? 5 : 15"
+                                name="duration"
+                                [formField]="form.duration"
+                            ></a-duration-field>
                         </div>
-                    }
+                    </div>
+                    <div class="flex flex-col">
+                        <label for="title">{{
+                            'FORM.TITLE' | translate
+                        }}</label>
+                        <mat-form-field appearance="outline" class="w-full">
+                            <input
+                                matInput
+                                [placeholder]="'FORM.TITLE' | translate"
+                                [formField]="form.title"
+                            />
+                        </mat-form-field>
+                    </div>
                 </div>
             } @else {
                 <div
@@ -183,6 +183,7 @@ export async function openBookingModal(
         </div>
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatRippleModule,
         TranslatePipe,
@@ -193,14 +194,17 @@ export async function openBookingModal(
         DurationFieldComponent,
         TimeFieldComponent,
         UserSearchFieldComponent,
-        ReactiveFormsModule,
+        FormField,
         MatDialogModule,
     ],
 })
 export class BookingModalComponent extends AsyncHandler implements OnInit {
     private _data: BookingModalData = inject(MAT_DIALOG_DATA);
+    private _dialog_ref = inject(MatDialogRef<BookingModalComponent>, {
+        optional: true,
+    });
     /** Emitter for user action on the modal */
-    @Output() public event = new EventEmitter<DialogEvent>();
+    public event = output<DialogEvent>();
     /** Whether the modal is processing a booking request */
     public loading = signal<boolean>(false);
 
@@ -208,61 +212,80 @@ export class BookingModalComponent extends AsyncHandler implements OnInit {
     public future = this._data.future;
     public min_duration = this._data.min_duration || 15;
     public max_duration = this._data.max_duration || 480;
-    /** Form */
-    public form: FormGroup = new FormGroup({
-        organiser: new FormControl<User>(this._data.user || null),
-        room_ids: new FormControl<string[]>([this._data.space?.email || '']),
-        date: new FormControl(this._data.date || new Date().valueOf()),
-        duration: new FormControl(Math.min(this._data.min_duration || 15, 30)),
-        title: new FormControl(`${this._data.title || ''}`),
+
+    public readonly model = signal({
+        organiser: this._data.user || (null as User | null),
+        room_ids: [this._data.space?.email || ''],
+        date: this._data.date || new Date().valueOf(),
+        duration: Math.min(this._data.min_duration || 15, 30),
+        title: `${this._data.title || ''}`,
+    });
+
+    public readonly form = form(this.model, (p) => {
+        validate(p, ({ value }) => {
+            if (
+                this._data.disable_book_now_host ||
+                this._data.user ||
+                value().organiser
+            ) {
+                return undefined;
+            }
+            return {
+                kind: 'required',
+                message: 'Host is required',
+            };
+        });
     });
 
     public ngOnInit() {
         if (this._data.disable_book_now_host || this._data.user) {
-            this.form.controls.organiser.setValidators([]);
             this.hide_host.set(true);
-        } else {
-            this.form.controls.organiser.setValidators([Validators.required]);
-            this.form.patchValue({ organiser: this._data.user });
         }
     }
 
-    public searchStaff = (q: string) =>
-        of(q).pipe(
-            switchMap(() => {
-                const mod = getModule(this._data.space?.id, 'Bookings');
-                if (!mod) return of([]);
-                return mod.execute('list_users', [q]).catch(() => []);
-            }),
-            shareReplay(1),
-        );
+    public searchStaff: any = async (q: string) => {
+        const mod = getModule(this._data.space?.id, 'Bookings');
+        if (!mod) return [];
+        return mod.execute('list_users', [q]).catch(() => []);
+    };
 
     /**
      * Post form data
      */
-    public save() {
-        this.form.markAllAsTouched();
-        if (!this.form.valid) {
-            return notifyError(
+    public async save() {
+        const success = await submit(this.form, async () => {
+            if (!this.future) {
+                this.model.update((m) => ({
+                    ...m,
+                    date: new Date().valueOf(),
+                }));
+            }
+            const value = this.model();
+            this.loading.set(true);
+            this.event.emit({
+                reason: 'done',
+                metadata: {
+                    ...value,
+                    user: value.organiser,
+                    title: value.title || 'Ad-Hoc Panel Booking',
+                },
+            });
+        });
+        if (!success) {
+            notifyError(
                 i18n(`FORM.INVALID_FIELDS`, {
-                    field_list: getInvalidFields(this.form, {
-                        organiser: 'Booked By',
-                        date: 'Date',
-                        duration: 'Duration',
-                        title: 'Title',
-                    }).join(', '),
+                    field_list: getInvalidFieldsFromSignalForm(),
                 }),
             );
         }
-        if (!this.future) this.form.patchValue({ date: new Date().valueOf() });
-        this.loading.set(true);
-        this.event.emit({
-            reason: 'done',
-            metadata: {
-                ...this.form.value,
-                user: this.form.value.organiser,
-                title: this.form.value.title || 'Ad-Hoc Panel Booking',
-            },
-        });
     }
+
+    public cancel() {
+        this.event.emit({ reason: 'close' });
+        this._dialog_ref?.close();
+    }
+}
+
+function getInvalidFieldsFromSignalForm() {
+    return ['Booked By'];
 }

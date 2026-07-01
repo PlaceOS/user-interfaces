@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import {
@@ -15,12 +14,8 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { startOfDay } from 'date-fns';
-import { map } from 'rxjs/operators';
 import { DateOptionsComponent } from '../ui/date-options.component';
-import {
-    AssetManagerStateService,
-    AssetOptions,
-} from './asset-manager-state.service';
+import { AssetManagerStateService } from './asset-manager-state.service';
 import { AssetRequestDetailsComponent } from './asset-request-details.component';
 import { SplitJoinPipe } from './split-join.pipe';
 
@@ -296,18 +291,12 @@ export class AssetRequestListComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
 
-    public readonly requests = toSignal(
-        this._state.filtered_requests.pipe(
-            map((list) => {
-                list.forEach((request) => this.level(request));
-                return list;
-            }),
-        ),
-        { initialValue: [] },
-    );
-    public readonly filters = toSignal(this._state.options, {
-        initialValue: { view: 'grid' } as AssetOptions,
+    public readonly requests = computed(() => {
+        const list = this._state.filtered_requests();
+        list.forEach((request) => this.level(request));
+        return list;
     });
+    public readonly filters = this._state.options;
     public readonly request = signal<any>(null);
 
     public readonly loading = signal<Record<string, boolean>>({});

@@ -21,7 +21,7 @@ function getFolders(root) {
 }
 
 function commands(target) {
-    const release = ref.includes('release');
+    const release = ref.includes('release') || ref.includes('-prod');
     const apps = getFolders('apps');
     const libs = getFolders('libs');
     if (release) {
@@ -30,7 +30,7 @@ function commands(target) {
     }
     const base = release ? '' : `--base=${baseSha}~1`;
     const raw_result = execSync(
-        `npx nx show projects --affected --target=${target} --select=tasks.target.project ${base}`
+        `bunx nx show projects --affected --target=${target} --select=tasks.target.project ${base}`
     ).toString();
     const array = raw_result
         .replace(/\n/g, ', ')

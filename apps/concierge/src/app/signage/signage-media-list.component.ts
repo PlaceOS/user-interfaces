@@ -1,7 +1,6 @@
 import { DragDropModule } from '@angular/cdk/drag-drop';
 
 import { Component, computed, inject, input, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -366,16 +365,9 @@ export class SignageMediaListComponent {
     public readonly search = signal<string>('');
     public readonly playlist_search = signal<string>('');
 
-    private readonly _playlists = toSignal(this._state.playlists, {
-        initialValue: [],
-    });
-    private readonly _media = toSignal(this._state.media, {
-        initialValue: [],
-    });
-
     public readonly playlists = computed(() => {
         const search_term = this.playlist_search();
-        const list = this._playlists();
+        const list = this._state.playlists();
         return list.filter((_) =>
             _.name.toLowerCase().includes(search_term.toLowerCase()),
         );
@@ -383,7 +375,7 @@ export class SignageMediaListComponent {
 
     public readonly media = computed(() => {
         const search_term = this.search();
-        const media_list = this._media();
+        const media_list = this._state.media();
         return media_list.filter((_) =>
             _.name.toLowerCase().includes(search_term.toLowerCase()),
         );

@@ -2,6 +2,7 @@ import {
     Component,
     ElementRef,
     input,
+    linkedSignal,
     model,
     OnChanges,
     OnInit,
@@ -61,7 +62,8 @@ const PLUGIN_LOAD_TIMEOUT = 15 * 1000;
                 [class.z-10]="active_output() === 0"
                 [class.z-0]="active_output() !== 0"
                 [class.opacity-0]="
-                    active_output() !== 0 || (defer_reveal() && pending_output() === 0)
+                    active_output() !== 0 ||
+                    (defer_reveal() && pending_output() === 0)
                 "
             >
                 <img
@@ -105,7 +107,8 @@ const PLUGIN_LOAD_TIMEOUT = 15 * 1000;
                 [class.z-10]="active_output() === 1"
                 [class.z-0]="active_output() !== 1"
                 [class.opacity-0]="
-                    active_output() !== 1 || (defer_reveal() && pending_output() === 1)
+                    active_output() !== 1 ||
+                    (defer_reveal() && pending_output() === 1)
                 "
             >
                 <img
@@ -158,7 +161,9 @@ const PLUGIN_LOAD_TIMEOUT = 15 * 1000;
                     />
                 </div>
                 @if (can_close()) {
-                    <div class="absolute top-0 left-1/2 z-20 -translate-x-1/2 p-2">
+                    <div
+                        class="absolute top-0 left-1/2 z-20 -translate-x-1/2 p-2"
+                    >
                         <div
                             class="border-base-200 bg-base-100 flex items-center space-x-4 rounded-full border p-2"
                         >
@@ -175,8 +180,8 @@ const PLUGIN_LOAD_TIMEOUT = 15 * 1000;
                             </div>
                             <button
                                 icon
+                                default
                                 matRipple
-                                class="border-base-300 border"
                                 (click)="closed.emit()"
                             >
                                 <icon>close</icon>
@@ -195,8 +200,9 @@ const PLUGIN_LOAD_TIMEOUT = 15 * 1000;
                 }
                 <button
                     icon
+                    default
                     matRipple
-                    class="border-base-200 bg-base-100 absolute top-6 right-6 z-20 border shadow-sm"
+                    class="absolute top-6 right-6 z-20"
                     (click)="show_playlist.set(!show_playlist())"
                 >
                     <icon>{{ show_playlist() ? 'close' : 'queue_music' }}</icon>
@@ -234,10 +240,15 @@ export class MediaPlayerComponent
     public readonly can_close = input(false);
     public readonly loop = model<'NONE' | 'ONE' | 'ALL'>('ALL');
     public readonly shuffle = model(false);
-    public readonly index = model(-1);
+    public readonly indexInput = input(-1, { alias: 'index' });
+    public readonly index = linkedSignal(this.indexInput);
     public readonly animation_time = input(1000);
-    public readonly muted = model(false);
-    public readonly state = model<MediaPlayerState>('PLAYING');
+    public readonly mutedInput = input(false, { alias: 'muted' });
+    public readonly muted = linkedSignal(this.mutedInput);
+    public readonly stateInput = input<MediaPlayerState>('PLAYING', {
+        alias: 'state',
+    });
+    public readonly state = linkedSignal(this.stateInput);
     public readonly stateChange = output<MediaPlayerState>();
     public readonly indexChange = output<number>();
     public readonly mutedChange = output<boolean>();
@@ -350,7 +361,9 @@ export class MediaPlayerComponent
     }
 
     private _activeItemOutput(): 0 | 1 {
-        return this._item_output.get(this.active_item?.id) ?? this.active_output();
+        return (
+            this._item_output.get(this.active_item?.id) ?? this.active_output()
+        );
     }
 
     private _setOutputPlugin(output: 0 | 1, plugin: SignagePlugin) {
@@ -366,10 +379,7 @@ export class MediaPlayerComponent
         }
     }
 
-    private _setOutputPluginConfig(
-        output: 0 | 1,
-        config: PluginConfigPayload,
-    ) {
+    private _setOutputPluginConfig(output: 0 | 1, config: PluginConfigPayload) {
         const configs = [...this.output_plugin_configs()] as [
             PluginConfigPayload,
             PluginConfigPayload,
@@ -690,10 +700,7 @@ export class MediaPlayerComponent
         this.pending_output.set(output);
         this._startDisplayAttempt(item, output);
         if (should_defer_reveal) {
-            this._prepareDeferredReveal(
-                resume_if_paused,
-                should_transition,
-            );
+            this._prepareDeferredReveal(resume_if_paused, should_transition);
         } else {
             this._clearDeferredReveal();
         }
@@ -761,11 +768,7 @@ export class MediaPlayerComponent
             reveal();
             return;
         }
-        this.timeout(
-            'deferred-reveal',
-            reveal,
-            delay,
-        );
+        this.timeout('deferred-reveal', reveal, delay);
     }
 
     private _revealPreparedItem(
@@ -791,11 +794,15 @@ export class MediaPlayerComponent
     private _playPreparedPlugin(item: MediaPlayerItem) {
         if (item.type !== 'plugin') return;
         const output = this._item_output.get(item.id) ?? this.active_output();
-        this.timeout('plugin-play', () => {
-            const value = time();
-            this._setOutputPluginPlay(output, value);
-            this.plugin_play.set(value);
-        }, 100);
+        this.timeout(
+            'plugin-play',
+            () => {
+                const value = time();
+                this._setOutputPluginPlay(output, value);
+                this.plugin_play.set(value);
+            },
+            100,
+        );
     }
 
     private _startDisplayAttempt(item: MediaPlayerItem, output: 0 | 1) {
@@ -1050,7 +1057,10 @@ export class MediaPlayerComponent
         output: 0 | 1 = this._activeItemOutput(),
     ) {
         const item = this.active_item;
-        if (item?.type === 'plugin' && this._item_output.get(item.id) !== output)
+        if (
+            item?.type === 'plugin' &&
+            this._item_output.get(item.id) !== output
+        )
             return;
         log('MediaPlayer', `Plugin error: ${error.message}`, [error], 'error');
         if (!error.fatal) return;
@@ -1242,11 +1252,7 @@ export class MediaPlayerComponent
             skip();
             return;
         }
-        this.timeout(
-            'skip-failed-media',
-            skip,
-            skip_delay,
-        );
+        this.timeout('skip-failed-media', skip, skip_delay);
     }
 
     private _processURLs() {

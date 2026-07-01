@@ -1,5 +1,9 @@
-import { AsyncPipe } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import {
+    Component,
+    computed,
+    inject,
+    signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -64,13 +68,13 @@ const COMPACT_SIGNAL = signal(false);
                 </button>
             </div>
             @if (!is_compact()) {
-                @let r_list = region_list | async;
-                @let bld_list = building_list | async;
+                @let r_list = region_list();
+                @let bld_list = building_list();
                 @if (r_list.length || bld_list.length) {
                     <div class="space-y-2 p-2">
                         @if (r_list.length > 0) {
                             <label
-                                class="block px-1 text-xs font-medium uppercase tracking-wide"
+                                class="block px-1 text-xs font-medium tracking-wide uppercase"
                                 for="sidebar-region"
                             >
                                 Region
@@ -106,7 +110,7 @@ const COMPACT_SIGNAL = signal(false);
                         }
                         @if (bld_list.length > 0 && region()) {
                             <label
-                                class="block px-1 text-xs font-medium uppercase tracking-wide"
+                                class="block px-1 text-xs font-medium tracking-wide uppercase"
                                 for="sidebar-building"
                             >
                                 Building
@@ -338,7 +342,6 @@ const COMPACT_SIGNAL = signal(false);
         `,
     ],
     imports: [
-        AsyncPipe,
         MatRippleModule,
         MatTooltipModule,
         IconComponent,

@@ -1,5 +1,4 @@
 import { Component, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import {
     CustomTooltipData,
     SanitizePipe,
@@ -39,5 +38,5 @@ export class PowerTooltipComponent {
     /** Close the tooltip */
     public readonly close = () => this._tooltip.close();
 
-    public readonly joined = toSignal(this._state.joined);
+    public readonly joined = this._state.joined;
 }

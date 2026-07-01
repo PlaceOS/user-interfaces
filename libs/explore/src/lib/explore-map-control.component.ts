@@ -1,7 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AsyncHandler, firstTruthyValueFrom } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -77,17 +76,11 @@ export class ExploreMapControlComponent extends AsyncHandler implements OnInit {
     private _route = inject(ActivatedRoute);
 
     /** List of available buildings */
-    public readonly buildings = toSignal(this._org.active_buildings, {
-        initialValue: [],
-    });
+    public readonly buildings = this._org.active_buildings;
     /** Currently active building */
-    public readonly building = toSignal(this._org.active_building, {
-        initialValue: null,
-    });
+    public readonly building = this._org.active_building;
     /** List of availabel levels */
-    public readonly levels = toSignal(this._org.active_levels, {
-        initialValue: [],
-    });
+    public readonly levels = this._org.active_levels;
     /** Currently active level */
     public readonly level = this._state.level;
     /** Set the currently active level */
@@ -111,7 +104,7 @@ export class ExploreMapControlComponent extends AsyncHandler implements OnInit {
     }
 
     public async ngOnInit() {
-        await firstTruthyValueFrom(this._org.initialised);
+        await this._org.waitUntilInitialised();
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) =>

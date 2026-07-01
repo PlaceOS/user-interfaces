@@ -1,15 +1,19 @@
-import { Injectable } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { Booking, CalendarEvent, nextValueFrom } from '@placeos/common';
-import { checkinEventGuest, showEvent } from '@placeos/events';
+import { Injectable, computed, effect, resource, signal } from '@angular/core';
+import { FormControl, FormGroup } from '@angular/forms';
+import { email, form, required, validate } from '@angular/forms/signals';
 import { checkinBooking, showBooking, updateBooking } from '@placeos/bookings';
+import { Booking, CalendarEvent, patchSignalModel } from '@placeos/common';
+import { checkinEventGuest, showEvent } from '@placeos/events';
 import { setToken } from '@placeos/ts-client';
 import { showGuest, updateGuest } from '@placeos/users';
 import { getUnixTime } from 'date-fns';
-import { BehaviorSubject, combineLatest, of } from 'rxjs';
-import { catchError, filter, shareReplay, switchMap, tap } from 'rxjs/operators';
 
-export type EnrolmentView = 'event' | 'guest' | 'vip-guest' | 'error' | 'complete';
+export type EnrolmentView =
+    | 'event'
+    | 'guest'
+    | 'vip-guest'
+    | 'error'
+    | 'complete';
 
 export interface VipGuestData {
     vip_title: string;
@@ -23,6 +27,18 @@ export interface VipGuestData {
     vehicle_plate_type: string;
     beverage_preference: 'none' | 'standard' | 'custom';
     beverage_notes: string;
+}
+
+export interface EnrolmentFormValue {
+    name: string;
+    email: string;
+    organisation: string;
+    phone: string;
+    assistance_required: boolean;
+    preferred_beverage: string;
+    attachments: any[];
+    vaccination_proof: any;
+    accepted_terms_conditions: boolean;
 }
 
 export function parseJWT(token: string) {
@@ -43,74 +59,34 @@ export function parseJWT(token: string) {
     providedIn: 'root',
 })
 export class EnrolmentStateService {
-    private _loading = new BehaviorSubject('Loading your details...');
-    private _error = new BehaviorSubject('link');
-    private _event_id = new BehaviorSubject('');
-    private _guest_id = new BehaviorSubject('');
-    private _booking_id = new BehaviorSubject('');
-    private _view = new BehaviorSubject<EnrolmentView>('error');
-    private _is_vip = new BehaviorSubject(false);
+    private _loading = signal('Loading your details...');
+    private _error = signal('link');
+    private _event_id = signal('');
+    private _guest_id = signal('');
+    private _booking_id = signal('');
+    private _view = signal<EnrolmentView>('error');
+    private _is_vip = signal(false);
 
-    public readonly guest = this._guest_id.pipe(
-        filter((id) => !!id),
-        switchMap((id) => {
-            this._loading.next('Loading your details...');
-            return showGuest(id);
-        }),
-        tap((guest) => {
-            if (!guest) this.setError('guest');
-            else this.form.patchValue({ ...guest });
-        }),
-        shareReplay(1),
-    );
-    public readonly event = combineLatest([
-        this._event_id,
-        this.guest,
-        this._error,
-    ]).pipe(
-        filter(([id, _, err]) => !!_ && !!id && !err),
-        switchMap(([id]) => {
-            this._loading.next('Loading your meeting details...');
-            return showEvent(id);
-        }),
-        tap((e) => this._checkEvent(e)),
-        shareReplay(1),
-    );
+    public readonly model = signal<EnrolmentFormValue>({
+        name: '',
+        email: '',
+        organisation: '',
+        phone: '',
+        assistance_required: false,
+        preferred_beverage: '',
+        attachments: [],
+        vaccination_proof: null,
+        accepted_terms_conditions: false,
+    });
 
-    public readonly vip_booking = this._booking_id.pipe(
-        filter((id) => !!id),
-        switchMap((id) => {
-            this._loading.next('Loading your VIP details...');
-            return showBooking(id).pipe(
-                catchError(() => {
-                    this.setError('booking');
-                    return of(null);
-                }),
-            );
-        }),
-        tap((booking) => {
-            if (!booking) {
-                this.setError('booking');
-            } else {
-                this._checkVipBooking(booking);
-            }
-        }),
-        shareReplay(1),
-    );
-
-    public readonly form = new FormGroup({
-        name: new FormControl('', Validators.required),
-        email: new FormControl('', [Validators.required, Validators.email]),
-        organisation: new FormControl('', Validators.required),
-        phone: new FormControl(''),
-        assistance_required: new FormControl(false),
-        preferred_beverage: new FormControl(''),
-        attachments: new FormControl([]),
-        vaccination_proof: new FormControl(),
-        accepted_terms_conditions: new FormControl(
-            false,
-            Validators.requiredTrue,
-        ),
+    public readonly form = form(this.model, (p) => {
+        required(p.name);
+        required(p.email);
+        email(p.email);
+        required(p.organisation);
+        validate(p.accepted_terms_conditions, ({ value }) =>
+            value() ? undefined : { kind: 'required' },
+        );
     });
 
     public readonly vip_form = new FormGroup({
@@ -129,46 +105,84 @@ export class EnrolmentStateService {
         beverage_notes: new FormControl(''),
     });
 
-    public readonly loading = this._loading.asObservable();
-    public readonly error = this._error.asObservable();
-    public readonly view = this._view.asObservable();
-    public readonly is_vip = this._is_vip.asObservable();
+    private readonly _guest = resource({
+        params: () => this._guest_id() || undefined,
+        loader: async ({ params: id }) => {
+            this._loading.set('Loading your details...');
+            const guest = await showGuest(id);
+            if (!guest) this.setError('guest');
+            else patchSignalModel(this.model, { ...guest });
+            return guest;
+        },
+    });
+
+    private readonly _event = resource({
+        params: () => ({
+            id: this._event_id(),
+            guest: this._guest.value(),
+            error: this._error(),
+        }),
+        loader: async ({ params }) => {
+            if (!params.guest || !params.id || params.error) return undefined;
+            this._loading.set('Loading your meeting details...');
+            const event = await showEvent(params.id);
+            this._checkEvent(event);
+            return event;
+        },
+    });
+
+    private readonly _vip_booking = resource({
+        params: () => this._booking_id() || undefined,
+        loader: async ({ params: id }) => {
+            this._loading.set('Loading your VIP details...');
+            return showBooking(id).catch(() => {
+                this.setError('booking');
+                return null;
+            });
+        },
+    });
+
+    public readonly guest = computed(() => this._guest.value());
+    public readonly event = computed(() => this._event.value());
+    public readonly vip_booking = computed(() => this._vip_booking.value());
+
+    public readonly loading = this._loading.asReadonly();
+    public readonly error = this._error.asReadonly();
+    public readonly view = this._view.asReadonly();
+    public readonly is_vip = this._is_vip.asReadonly();
 
     constructor() {
-        this.guest.subscribe();
-        this.event.subscribe();
-        this.vip_booking.subscribe();
+        effect(() => {
+            const booking = this._vip_booking.value();
+            if (booking) this._checkVipBooking(booking);
+        });
     }
 
     public setView(value: EnrolmentView) {
-        this._view.next(value);
+        this._view.set(value);
     }
 
     public setError(error_name: string) {
-        this._error.next(error_name);
-        this._view.next('error');
-        this._loading.next('');
+        this._error.set(error_name);
+        this._view.set('error');
+        this._loading.set('');
     }
 
     public async checkin() {
-        if (this.form.dirty) await this.updateGuest();
-        this._loading.next('Checking you in...');
-        await checkinEventGuest(
-            this._event_id.getValue(),
-            this._guest_id.getValue(),
-            true,
-        ).toPromise();
-        this._view.next('complete');
-        this._loading.next('');
+        if (this.form().dirty()) await this.updateGuest();
+        this._loading.set('Checking you in...');
+        await checkinEventGuest(this._event_id(), this._guest_id(), true);
+        this._view.set('complete');
+        this._loading.set('');
     }
 
     public async updateGuest() {
-        this.form.markAllAsTouched();
-        if (!this.form.valid) return;
-        this._loading.next('Updating your details...');
-        const details = await nextValueFrom(this.guest);
-        await updateGuest(details.id, { ...details, ...this.form.value });
-        this._loading.next('');
+        this.form().markAsTouched();
+        if (!this.form().valid()) return;
+        this._loading.set('Updating your details...');
+        const details = this._guest.value();
+        await updateGuest(details.id, { ...details, ...this.model() });
+        this._loading.set('');
     }
 
     public handleUserToken(token: string) {
@@ -176,19 +190,14 @@ export class EnrolmentStateService {
         const data = parseJWT(token);
         const user = data.u;
         const [event_id] = user.r;
-
-        // Check if this is a VIP booking token
         const booking_id = user.b || data.booking_id;
-
         if (user && getUnixTime(Date.now()) <= data.exp) {
             if (booking_id) {
-                // VIP booking flow
-                this._is_vip.next(true);
-                this._booking_id.next(booking_id);
+                this._is_vip.set(true);
+                this._booking_id.set(booking_id);
             } else {
-                // Standard event/guest flow
-                this._event_id.next(event_id);
-                this._guest_id.next(user.e);
+                this._event_id.set(event_id);
+                this._guest_id.set(user.e);
             }
         } else {
             this.setError('link');
@@ -197,74 +206,62 @@ export class EnrolmentStateService {
 
     public async updateVipDetails() {
         this.vip_form.markAllAsTouched();
-        this._loading.next('Updating your details...');
-        const booking = await nextValueFrom(this.vip_booking);
+        this._loading.set('Updating your details...');
+        const booking = this._vip_booking.value();
         if (!booking) {
-            this._loading.next('');
+            this._loading.set('');
             return;
         }
-
         const vip_data = this.vip_form.value;
-        const extension_data = {
-            ...booking.extension_data,
-            vip_title: vip_data.vip_title,
-            vip_full_name: vip_data.vip_full_name,
-            vip_contact_number: vip_data.vip_contact_number,
-            assistant_name: vip_data.assistant_name,
-            assistant_contact_number: vip_data.assistant_contact_number,
-            protocol_officer_name: vip_data.protocol_officer_name,
-            protocol_officer_contact_number:
-                vip_data.protocol_officer_contact_number,
-            vehicle_plate_number: vip_data.vehicle_plate_number,
-            vehicle_plate_type: vip_data.vehicle_plate_type,
-            beverage_preference: vip_data.beverage_preference,
-            beverage_notes:
-                vip_data.beverage_preference === 'custom'
-                    ? vip_data.beverage_notes
-                    : '',
-        };
-
-        await updateBooking(booking.id, { extension_data }).toPromise();
-        this._loading.next('');
+        await updateBooking(booking.id, {
+            extension_data: {
+                ...booking.extension_data,
+                vip_title: vip_data.vip_title,
+                vip_full_name: vip_data.vip_full_name,
+                vip_contact_number: vip_data.vip_contact_number,
+                assistant_name: vip_data.assistant_name,
+                assistant_contact_number: vip_data.assistant_contact_number,
+                protocol_officer_name: vip_data.protocol_officer_name,
+                protocol_officer_contact_number:
+                    vip_data.protocol_officer_contact_number,
+                vehicle_plate_number: vip_data.vehicle_plate_number,
+                vehicle_plate_type: vip_data.vehicle_plate_type,
+                beverage_preference: vip_data.beverage_preference,
+                beverage_notes:
+                    vip_data.beverage_preference === 'custom'
+                        ? vip_data.beverage_notes
+                        : '',
+            },
+        });
+        this._loading.set('');
     }
 
     public async checkinVip() {
         if (this.vip_form.dirty) await this.updateVipDetails();
-        this._loading.next('Checking you in...');
-        const booking = await nextValueFrom(this.vip_booking);
+        this._loading.set('Checking you in...');
+        const booking = this._vip_booking.value();
         if (!booking) {
-            this._loading.next('');
+            this._loading.set('');
             return;
         }
-        await checkinBooking(booking.id, true).toPromise();
-        this._view.next('complete');
-        this._loading.next('');
+        await checkinBooking(booking.id, true);
+        this._view.set('complete');
+        this._loading.set('');
     }
 
     private _checkEvent(event: CalendarEvent) {
         if (!event) this.setError('meeting');
         else if (event.state === 'done') this.setError('link');
         else if (event.status === 'declined') this.setError('cancelled');
-        this._loading.next('');
+        this._loading.set('');
     }
 
     private _checkVipBooking(booking: Booking) {
-        if (!booking) {
-            this.setError('booking');
-            return;
-        }
-
-        if (booking.checked_out_at) {
-            this.setError('checked_out');
-            return;
-        }
-
+        if (!booking) return this.setError('booking');
+        if (booking.checked_out_at) return this.setError('checked_out');
         if (booking.status === 'declined' || booking.rejected) {
-            this.setError('cancelled');
-            return;
+            return this.setError('cancelled');
         }
-
-        // Populate VIP form with existing data from booking
         const ext = booking.extension_data || {};
         this.vip_form.patchValue({
             vip_title: ext.vip_title || '',
@@ -278,13 +275,12 @@ export class EnrolmentStateService {
                 ext.protocol_officer_contact_number || '',
             vehicle_plate_number: ext.vehicle_plate_number || '',
             vehicle_plate_type: ext.vehicle_plate_type || '',
-            beverage_preference: ext.beverage_preference ||
-                ext.welcome_beverage || 'none',
+            beverage_preference:
+                ext.beverage_preference || ext.welcome_beverage || 'none',
             beverage_notes:
                 ext.beverage_notes || ext.welcome_beverage_custom || '',
         });
-
-        this._view.next('vip-guest');
-        this._loading.next('');
+        this._view.set('vip-guest');
+        this._loading.set('');
     }
 }

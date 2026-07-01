@@ -25,7 +25,7 @@ export class FeatureAvailableGuard {
     }
 
     private async checkFeature() {
-        await this._org.initialised.pipe(first((_) => _)).toPromise();
+        await this._org.waitUntilInitialised();
         await this._settings.initialised.pipe(first((_) => _)).toPromise();
         const features = this._settings.get('app.disabled_features') || [];
         const can_activate = !features.find((_) =>

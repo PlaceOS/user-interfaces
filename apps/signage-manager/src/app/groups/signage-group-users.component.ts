@@ -1,13 +1,11 @@
 import { Component, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { i18n } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { PlaceGroupUser } from '@placeos/ts-client';
-import { lastValueFrom } from 'rxjs';
-import { SignageService } from '../signage.service';
+import { dialogClosed, SignageService } from '../signage.service';
 import {
     groupPermissionLabels,
     SignageGroupPermissionsModalComponent,
@@ -29,15 +27,19 @@ import { SignageGroupUserSelectModalComponent } from './signage-group-user-selec
                     <icon class="text-lg">group</icon>
                     {{
                         'SIGNAGE_MANAGER.USERS_COUNT'
-                            | translate: { count: users().length } : users().length
+                            | translate
+                                : { count: users().length }
+                                : users().length
                     }}
                 </h5>
                 <button
                     icon
+                    default
                     type="button"
                     matRipple
-                    class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
-                    [matTooltip]="'SIGNAGE_MANAGER.ADD_USER_TOOLTIP' | translate"
+                    [matTooltip]="
+                        'SIGNAGE_MANAGER.ADD_USER_TOOLTIP' | translate
+                    "
                     [attr.aria-label]="
                         'SIGNAGE_MANAGER.ADD_USER_ARIA' | translate
                     "
@@ -73,8 +75,8 @@ import { SignageGroupUserSelectModalComponent } from './signage-group-user-selec
                                         permissionLabels(row.permissions);
                                     @if (labels.length) {
                                         @for (label of labels; track label) {
-                                            {{ label | translate
-                                            }}@if (!$last) {
+                                            {{ label | translate }}
+                                            @if (!$last) {
                                                 ,
                                             }
                                         }
@@ -88,14 +90,16 @@ import { SignageGroupUserSelectModalComponent } from './signage-group-user-selec
                             </div>
                             <button
                                 icon
+                                default
                                 type="button"
                                 matRipple
-                                class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
                                 [matTooltip]="
-                                    'SIGNAGE_MANAGER.EDIT_USER_PERMS' | translate
+                                    'SIGNAGE_MANAGER.EDIT_USER_PERMS'
+                                        | translate
                                 "
                                 [attr.aria-label]="
-                                    'SIGNAGE_MANAGER.EDIT_USER_PERMS' | translate
+                                    'SIGNAGE_MANAGER.EDIT_USER_PERMS'
+                                        | translate
                                 "
                                 (click)="editUserPermissions(row)"
                             >
@@ -103,9 +107,10 @@ import { SignageGroupUserSelectModalComponent } from './signage-group-user-selec
                             </button>
                             <button
                                 icon
+                                default
+                                error
                                 type="button"
                                 matRipple
-                                class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
                                 [matTooltip]="
                                     'SIGNAGE_MANAGER.REMOVE_USER' | translate
                                 "
@@ -114,7 +119,7 @@ import { SignageGroupUserSelectModalComponent } from './signage-group-user-selec
                                 "
                                 (click)="removeUser(row)"
                             >
-                                <icon class="text-error">close</icon>
+                                <icon>close</icon>
                             </button>
                         </div>
                     }
@@ -124,7 +129,9 @@ import { SignageGroupUserSelectModalComponent } from './signage-group-user-selec
                     >
                         <icon class="text-4xl">group_off</icon>
                         <p class="text-sm">
-                            {{ 'SIGNAGE_MANAGER.NO_USERS_ASSIGNED' | translate }}
+                            {{
+                                'SIGNAGE_MANAGER.NO_USERS_ASSIGNED' | translate
+                            }}
                         </p>
                     </div>
                 }
@@ -145,35 +152,29 @@ export class SignageGroupUsersComponent {
     private readonly _service = inject(SignageService);
     private readonly _dialog = inject(MatDialog);
 
-    public readonly users = toSignal(this._service.managed_group_users, {
-        initialValue: [] as PlaceGroupUser[],
-    });
+    public readonly users = this._service.managed_group_users;
     public readonly permissionLabels = groupPermissionLabels;
 
     public async addUser() {
-        const user = await lastValueFrom(
-            this._dialog
-                .open(SignageGroupUserSelectModalComponent, {
-                    data: {
-                        exclude_ids: this.users().map((item) => item.user_id),
-                    },
-                    panelClass: 'mobile-fullscreen',
-                })
-                .afterClosed(),
+        const user = await dialogClosed(
+            this._dialog.open(SignageGroupUserSelectModalComponent, {
+                data: {
+                    exclude_ids: this.users().map((item) => item.user_id),
+                },
+                panelClass: 'mobile-fullscreen',
+            }),
         );
         if (user) await this._service.addManagedGroupUser(user);
     }
 
     public async editUserPermissions(row: PlaceGroupUser) {
-        const result = await lastValueFrom(
-            this._dialog
-                .open(SignageGroupPermissionsModalComponent, {
-                    data: {
-                        title: i18n('SIGNAGE_MANAGER.USER_PERMISSIONS'),
-                        permissions: row.permissions,
-                    },
-                })
-                .afterClosed(),
+        const result = await dialogClosed(
+            this._dialog.open(SignageGroupPermissionsModalComponent, {
+                data: {
+                    title: i18n('SIGNAGE_MANAGER.USER_PERMISSIONS'),
+                    permissions: row.permissions,
+                },
+            }),
         );
         if (result) {
             await this._service.updateManagedGroupUser(row, result.permissions);

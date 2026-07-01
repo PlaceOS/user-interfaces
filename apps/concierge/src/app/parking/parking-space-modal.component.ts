@@ -1,17 +1,14 @@
 import {
     Component,
+    computed,
+    effect,
     EventEmitter,
     inject,
     OnInit,
     Output,
     signal,
 } from '@angular/core';
-import {
-    FormControl,
-    FormGroup,
-    ReactiveFormsModule,
-    Validators,
-} from '@angular/forms';
+import { form, FormField, required } from '@angular/forms/signals';
 import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
@@ -22,7 +19,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { DialogEvent, User } from '@placeos/common';
+import { Booking, DialogEvent, User } from '@placeos/common';
+import { queryBookings } from '@placeos/bookings';
+import { addMonths, getUnixTime } from 'date-fns';
 import {
     IconComponent,
     SettingsToggleComponent,
@@ -57,21 +56,17 @@ import { ParkingSpace } from './parking-state.service';
                 }
             </header>
             @if (!loading()) {
-                <main
-                    class="flex max-h-[65vh] flex-col overflow-auto p-4"
-                    [formGroup]="form"
-                >
+                <main class="flex max-h-[65vh] flex-col overflow-auto p-4">
                     <label for="identifier">{{
                         'APP.CONCIERGE.PARKING_SPACE_NAME' | translate
                     }}</label>
                     <mat-form-field appearance="outline">
                         <input
                             matInput
-                            name="identifier"
                             [placeholder]="
                                 'APP.CONCIERGE.PARKING_SPACE_NAME' | translate
                             "
-                            formControlName="identifier"
+                            [formField]="form.identifier"
                         />
                         <mat-error>{{
                             'FORM.NAME_REQUIRED' | translate
@@ -83,11 +78,10 @@ import { ParkingSpace } from './parking-state.service';
                     <mat-form-field appearance="outline">
                         <input
                             matInput
-                            name="map-id"
                             [placeholder]="
                                 'EXPLORE.MAP_ID_PLACEHOLDER' | translate
                             "
-                            formControlName="map_id"
+                            [formField]="form.map_id"
                         />
                         <mat-error>
                             {{ 'EXPLORE.MAP_ID_REQUIRED' | translate }}
@@ -98,8 +92,7 @@ import { ParkingSpace } from './parking-state.service';
                     }}</label>
                     <div class="mb-4 flex space-x-2">
                         <a-user-search-field
-                            name="user"
-                            formControlName="assigned_user"
+                            [formField]="form.assigned_user"
                             class="flex-1"
                         ></a-user-search-field>
                         <button
@@ -109,24 +102,33 @@ import { ParkingSpace } from './parking-state.service';
                             [matTooltip]="
                                 'APP.CONCIERGE.USER_CLEAR' | translate
                             "
-                            (click)="
-                                form.patchValue({
-                                    assigned_user: null,
-                                    assigned_to: null,
-                                    assigned_name: null,
-                                })
-                            "
+                            (click)="clearUser()"
                         >
                             <icon className="material-symbols-outlined">
                                 person_cancel
                             </icon>
                         </button>
                     </div>
+                    @if (future_bookings().length) {
+                        <div
+                            class="bg-warning/10 border-warning text-warning-content mb-4 flex items-start space-x-2 rounded-sm border p-2 text-sm"
+                        >
+                            <icon class="text-warning">warning</icon>
+                            <p class="flex-1">
+                                {{
+                                    'APP.CONCIERGE.ASSIGNED_FUTURE_PARKING_BOOKINGS'
+                                        | translate
+                                            : { count: future_bookings().length }
+                                            : future_bookings().length
+                                }}
+                            </p>
+                        </div>
+                    }
                     <div class="flex space-x-4 pb-4">
                         <settings-toggle
-                            formControlName="bookable"
+                            [formField]="form.bookable"
                             class="w-full"
-                            [name]="'COMMON.BOOKABLE' | translate"
+                            [label]="'COMMON.BOOKABLE' | translate"
                         >
                         </settings-toggle>
                     </div>
@@ -134,21 +136,20 @@ import { ParkingSpace } from './parking-state.service';
                     <item-list-field
                         class="w-full"
                         [placeholder]="'BOOKINGS.GROUPS' | translate"
-                        formControlName="place_groups"
+                        [formField]="form.place_groups"
                     ></item-list-field>
                     <label>{{ 'COMMON.FEATURES' | translate }}</label>
                     <item-list-field
                         class="w-full"
                         [placeholder]="'COMMON.FEATURES' | translate"
-                        formControlName="features"
+                        [formField]="form.features"
                     ></item-list-field>
                     <label for="notes">{{ 'FORM.NOTES' | translate }}</label>
                     <mat-form-field appearance="outline">
                         <textarea
                             matInput
-                            name="notes"
                             [placeholder]="'FORM.NOTES' | translate"
-                            formControlName="notes"
+                            [formField]="form.notes"
                         ></textarea>
                     </mat-form-field>
                 </main>
@@ -183,7 +184,7 @@ import { ParkingSpace } from './parking-state.service';
         ItemListFieldComponent,
         SettingsToggleComponent,
         UserSearchFieldComponent,
-        ReactiveFormsModule,
+        FormField,
         MatTooltipModule,
     ],
 })
@@ -195,53 +196,106 @@ export class ParkingSpaceModalComponent implements OnInit {
     @Output() public readonly event = new EventEmitter<DialogEvent>();
     public readonly loading = signal(false);
 
+    /** Future parking bookings for the assigned user (excluding this space) */
+    public readonly future_bookings = signal<Booking[]>([]);
+
+    private readonly _assigned_email = computed(() => this.model().assigned_to);
+
     public get id() {
         return this._data?.id || '';
     }
 
-    public readonly form = new FormGroup({
-        id: new FormControl(''),
-        identifier: new FormControl('', [Validators.required]),
-        map_id: new FormControl('', [Validators.required]),
-        assigned_user: new FormControl<User>(null),
-        assigned_to: new FormControl(''),
-        assigned_name: new FormControl(''),
-        bookable: new FormControl(false),
-        place_groups: new FormControl<string[]>([]),
-        features: new FormControl<string[]>([]),
-        notes: new FormControl(''),
-        map_rotation: new FormControl(0),
+    public readonly model = signal({
+        id: '',
+        identifier: '',
+        map_id: '',
+        assigned_user: null as User | null,
+        assigned_to: '',
+        assigned_name: '',
+        bookable: false,
+        place_groups: [] as string[],
+        features: [] as string[],
+        notes: '',
+        map_rotation: 0,
+    });
+    public readonly form = form(this.model, (p) => {
+        required(p.identifier);
+        required(p.map_id);
     });
 
     constructor() {
-        const _data = this._data;
-        if (_data) {
-            this.form.patchValue({
-                ..._data,
-                features: [...(_data.features || [])],
-                place_groups: [...(_data.place_groups || [])],
-                map_id: _data.map_id || _data.other_data?.map_id,
-            });
+        const data = this._data as any;
+        if (data) {
+            this.model.update((m) => ({
+                ...m,
+                id: data.id ?? m.id,
+                identifier: data.identifier ?? m.identifier,
+                map_id: data.map_id || data.other_data?.map_id || m.map_id,
+                assigned_to: data.assigned_to ?? m.assigned_to,
+                assigned_name: data.assigned_name ?? m.assigned_name,
+                bookable: data.bookable ?? m.bookable,
+                place_groups: [...(data.place_groups || m.place_groups)],
+                features: [...(data.features || m.features)],
+                notes: data.notes ?? m.notes,
+                map_rotation: data.map_rotation ?? m.map_rotation,
+            }));
         }
+        effect(() => this._checkFutureBookings(this._assigned_email()));
+    }
+
+    /**
+     * Warn when the assigned user already has upcoming parking bookings. The
+     * space being edited is excluded so its own assignment booking does not
+     * trigger the warning.
+     */
+    private async _checkFutureBookings(email: string) {
+        if (!email) {
+            this.future_bookings.set([]);
+            return;
+        }
+        const now = Date.now();
+        const bookings = await queryBookings({
+            period_start: getUnixTime(now),
+            period_end: getUnixTime(addMonths(now, 12)),
+            type: 'parking',
+            email,
+            include_checked_out: true,
+        });
+        // Selection changed while the query was in flight; ignore stale result
+        if (this._assigned_email() !== email) return;
+        this.future_bookings.set(
+            bookings.filter((booking) => booking.asset_id !== this.id),
+        );
     }
 
     public async ngOnInit() {
         if (this._data.assigned_to) {
-            const user = await showStaff(this._data.assigned_to).toPromise();
+            const user = await showStaff(this._data.assigned_to);
             if (user) {
-                this.form.patchValue({
+                this.model.update((m) => ({
+                    ...m,
                     assigned_user: user,
                     assigned_to: user.email,
                     assigned_name: user.name,
-                });
+                }));
             }
         }
     }
 
+    public clearUser() {
+        this.model.update((m) => ({
+            ...m,
+            assigned_user: null,
+            assigned_to: '',
+            assigned_name: '',
+        }));
+    }
+
     public postForm() {
-        if (!this.form.valid) return;
+        this.form().markAsTouched();
+        if (!this.form().valid()) return;
         this.loading.set(true);
-        const value = { ...this.form.getRawValue() };
+        const value: any = { ...this.model() };
         if (value.assigned_user) {
             value.assigned_to = value.assigned_user.email;
             value.assigned_name = value.assigned_user.name;

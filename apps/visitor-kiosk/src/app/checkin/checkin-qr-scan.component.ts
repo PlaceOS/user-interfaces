@@ -12,11 +12,10 @@ import { Router, RouterModule } from '@angular/router';
 import {
     AsyncHandler,
     SettingsService,
-    nextValueFrom,
     notifyError,
-    scanForQRCode,
     settingSignal,
 } from '@placeos/common';
+import decodeQR from 'qr/decode.js';
 
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
@@ -173,6 +172,7 @@ export class CheckinQRScanComponent
     private _canvas: HTMLCanvasElement;
     /** Canvas context */
     private _ctx: CanvasRenderingContext2D;
+    private _qr_scan_interval: ReturnType<typeof setInterval> | null = null;
 
     public ngAfterViewInit() {
         this._checkin.metadata = '';
@@ -186,12 +186,12 @@ export class CheckinQRScanComponent
                 .getTracks()
                 .forEach((track) => track?.stop());
         }
-        this.unsub('scan_for_qr_code');
+        this.stopQRReader();
     }
 
     public async checkQRCode(raw_text: string) {
         if (this.checking_code()) return;
-        this.unsub('scan_for_qr_code');
+        this.stopQRReader();
         this.checking_code.set(true);
         const chunks = raw_text.split(',');
         let [visit_block, system_id, event_id, host_email] = chunks;
@@ -210,7 +210,12 @@ export class CheckinQRScanComponent
                 this.checking_code.set(false);
                 throw err;
             });
-        const event = await nextValueFrom(this._checkin.event);
+        const event = this._checkin.event();
+        if (!event) {
+            this.handleError('Unable to find visitor booking.');
+            this.checking_code.set(false);
+            return;
+        }
         if (event.rejected) {
             this.handleError('Your meeting has been rejected.');
             this.checking_code.set(false);
@@ -251,7 +256,12 @@ export class CheckinQRScanComponent
             this.checking_code.set(false);
             return;
         }
-        const event = await nextValueFrom(this._checkin.event);
+        const event = this._checkin.event();
+        if (!event) {
+            this.handleError('Unable to find visitor booking.');
+            this.checking_code.set(false);
+            return;
+        }
         if (event.checked_out_at) {
             this.handleError('Your meeting has already finished.');
             this.checking_code.set(false);
@@ -295,22 +305,68 @@ export class CheckinQRScanComponent
                     _video_el.srcObject = stream;
                     _video_el.onloadedmetadata = () =>
                         this.scanner_ready.set(true);
-                    this.subscription(
-                        'scan_for_qr_code',
-                        scanForQRCode(_video_el).subscribe({
-                            next: (qr_code) =>
-                                qr_code ? this.checkQRCode(qr_code) : null,
-                            error: (error: any) =>
-                                console.error('Error scanning QR code:', error),
-                        }),
-                    );
+                    this.startQRScanner(_video_el);
                 })
                 .catch((e) => {
                     this.scanner_ready.set(false);
                     console.error('Unable to fetch media devices!', e);
                 });
         } else if (_video_el.srcObject) {
-            this.unsub('scan_for_qr_code');
+            this.stopQRReader();
+        }
+    }
+
+    private stopQRReader() {
+        if (this._qr_scan_interval) clearInterval(this._qr_scan_interval);
+        this._qr_scan_interval = null;
+    }
+
+    private startQRScanner(video_el: HTMLVideoElement) {
+        this.stopQRReader();
+        this._canvas = document.createElement('canvas');
+        this._ctx = this._canvas.getContext('2d');
+        if (!this._ctx) {
+            console.error('Unable to get 2D context for QR scanning');
+            return;
+        }
+        this._qr_scan_interval = setInterval(
+            () => this.scanVideoFrame(video_el),
+            120,
+        );
+        this.scanVideoFrame(video_el);
+    }
+
+    private scanVideoFrame(video_el: HTMLVideoElement) {
+        if (!video_el || video_el.videoWidth === 0 || video_el.videoHeight === 0)
+            return;
+        const source_width = video_el.videoWidth;
+        const source_height = video_el.videoHeight;
+        const scale = Math.min(1, 720 / Math.max(source_width, source_height));
+        const target_width = Math.max(1, Math.floor(source_width * scale));
+        const target_height = Math.max(1, Math.floor(source_height * scale));
+        if (
+            this._canvas.width !== target_width ||
+            this._canvas.height !== target_height
+        ) {
+            this._canvas.width = target_width;
+            this._canvas.height = target_height;
+        }
+        this._ctx.drawImage(video_el, 0, 0, target_width, target_height);
+        try {
+            const image_data = this._ctx.getImageData(
+                0,
+                0,
+                this._canvas.width,
+                this._canvas.height,
+            );
+            const qr_code = decodeQR({
+                height: image_data.height,
+                width: image_data.width,
+                data: image_data.data,
+            });
+            if (qr_code) this.checkQRCode(qr_code);
+        } catch {
+            // QR decode failures are expected when no code is visible.
         }
     }
 

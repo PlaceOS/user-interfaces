@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
 import {
@@ -7,7 +8,6 @@ import {
 } from '@placeos/common';
 import { EventFormService, SpacesService } from '@placeos/events';
 import { MockProvider } from 'ng-mocks';
-import { BehaviorSubject, of } from 'rxjs';
 import { PanelStateService } from '../../app/panel-state.service';
 
 describe('PanelStateService', () => {
@@ -15,10 +15,13 @@ describe('PanelStateService', () => {
     const createService = createServiceFactory({
         service: PanelStateService,
         providers: [
-            MockProvider(SpacesService, { list: new BehaviorSubject([]) }),
+            MockProvider(SpacesService, {
+                list: signal([]),
+                loadSpace: jest.fn(),
+            }),
             MockProvider(MatDialog, { open: jest.fn() }),
             MockProvider(EventFormService, {}),
-            MockProvider(OrganisationService, { initialised: of(true) }),
+            MockProvider(OrganisationService, { initialised: signal(true) }),
             MockProvider(KeepAliveService),
             MockProvider(SettingsService, { get: jest.fn() }),
         ],

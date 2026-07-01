@@ -1,9 +1,16 @@
-import { Component, OnInit, effect, inject, signal } from '@angular/core';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import {
+    Component,
+    computed,
+    debounced,
+    effect,
+    inject,
+    OnInit,
+    resource,
+    signal,
+} from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { querySystems } from '@placeos/ts-client';
-import { of } from 'rxjs';
-import { debounceTime, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -180,28 +187,26 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     /** Whether input field is focused */
     public input_focus = signal(false);
 
-    public readonly space_list = toSignal(
-        toObservable(this.system_id).pipe(
-            debounceTime(300),
-            switchMap((search) => {
-                this.loading.set('search');
-                return search.length < 2
-                    ? of({ data: [] })
-                    : querySystems({
-                          q: search,
-                          limit: 20,
-                          fields: ['id', 'name', 'display_name', 'email'].join(
-                              ',',
-                          ),
-                          zone_id: this._org.organisation?.id,
-                      });
-            }),
-            map((_) => _.data.map((_) => new Space(_ as any))),
-            tap((_) => this.loading.set('')),
-            shareReplay(1),
-        ),
-        { initialValue: [] as Space[] },
-    );
+    private readonly _debounced_search = debounced(this.system_id, 300);
+    private readonly _space_list = resource({
+        params: () => this._debounced_search.value(),
+        loader: async ({ params: search }) => {
+            if (search.length < 2) return [] as Space[];
+            this.loading.set('search');
+            try {
+                const { data } = await querySystems({
+                    q: search,
+                    limit: 20,
+                    fields: ['id', 'name', 'display_name', 'email'].join(','),
+                    zone_id: this._org.organisation?.id,
+                });
+                return data.map((_) => new Space(_ as any));
+            } finally {
+                this.loading.set('');
+            }
+        },
+    });
+    public readonly space_list = computed(() => this._space_list.value() ?? []);
 
     constructor() {
         super();

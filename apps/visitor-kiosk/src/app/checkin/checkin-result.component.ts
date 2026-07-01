@@ -1,24 +1,23 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, inject, OnInit, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import {
+    Component,
+    computed,
+    inject,
+    OnInit,
+    signal,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { Router } from '@angular/router';
 import {
     AsyncHandler,
     Booking,
     generateQRCode,
-    nextValueFrom,
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import {
-    SanitizePipe,
-    TranslatePipe,
-} from '@placeos/components';
+import { SanitizePipe, TranslatePipe } from '@placeos/components';
 import { UserLabelComponent } from '@placeos/users';
 import { roundToNearestMinutes, startOfMinute } from 'date-fns';
-import { combineLatest, firstValueFrom, of } from 'rxjs';
-import { filter, first, map, startWith } from 'rxjs/operators';
 import { CheckinStateService } from './checkin-state.service';
 
 const DEFAULT_TEMPLATE = `
@@ -82,7 +81,8 @@ const DEFAULT_TEMPLATE = `
                                 host: ev?.user_name || ev.user_email,
                                 zones: ev?.zones,
                                 date: ev?.date || date(),
-                                extra_details: ev?.extension_data?.extra_details,
+                                extra_details:
+                                    ev?.extension_data?.extra_details,
                                 pass_number: ev?.extension_data?.pass_number,
                                 qr_code: qr_code(),
                             })
@@ -125,67 +125,56 @@ export class CheckinResultsComponent extends AsyncHandler implements OnInit {
     public readonly allow_beverages = signal(false);
     public readonly printing = signal(false);
     public readonly label_size = signal({ width: 25, height: 15, scale: 4 });
-    public readonly event = toSignal(this._checkin.event || of(undefined), {
-        initialValue: undefined,
-    });
-    public readonly guest = toSignal(this._checkin.guest || of(undefined), {
-        initialValue: undefined,
-    });
-    public readonly photo = toSignal(this._checkin.photo || of(undefined), {
-        initialValue: undefined,
+    public readonly event = this._checkin.event;
+    public readonly guest = this._checkin.guest;
+    public readonly photo = this._checkin.photo;
+
+    public readonly level = computed(() => {
+        const event = this.event();
+        this._org.initialised();
+        return event ? this._org.levelWithID(event.zones) : null;
     });
 
-    public readonly level = toSignal(
-        combineLatest([this._checkin.event, this._org.initialised]).pipe(
-            map(([_]) => (_ ? this._org.levelWithID(_.zones) : null)),
-        ),
-        { initialValue: null },
-    );
-
-    public readonly result_template = toSignal(
-        combineLatest([this._checkin.event, this._checkin.guest]).pipe(
-            filter(([event, guest]) => !!event && !!guest),
-            map(([event, guest]) => {
-                let template = this._settings.get('app.checked_in_template');
-                if (!template) template = DEFAULT_TEMPLATE;
-                let updated_template = template
-                    .replace(/{{ title }}/g, event?.title || '')
-                    .replace(
-                        /{{ room_name }}/g,
-                        event?.extension_data?.location_id || '',
-                    )
-                    .replace(/{{ host_name }}/g, event?.user_name || '')
-                    .replace(/{{ host_email }}/g, event?.user_email || '')
-                    .replace(/{{ visitor_name }}/g, guest?.name || '')
-                    .replace(/{{ visitor_email }}/g, guest?.email || '')
-                    .replace(
-                        /{{ can_use_lift }}/g,
-                        event?.extension_data?.can_use_lift
-                            ? `Please use the vistor access lift over there`
-                            : `Please wait in the lobby.`,
-                    );
-                try {
-                    const date =
-                        event.date ||
-                        (event as any).event_start * 1000 ||
-                        event.booking_start * 1000 ||
-                        startOfMinute(Date.now());
-                    updated_template = updated_template
-                        .replace(
-                            /{{ date }}/g,
-                            this._date.transform(date, 'mediumDate'),
-                        )
-                        .replace(
-                            /{{ time }}/g,
-                            this._date.transform(date, this.time_format),
-                        );
-                } catch {}
-                return updated_template;
-            }),
-            startWith(DEFAULT_TEMPLATE),
-        ),
-        { initialValue: DEFAULT_TEMPLATE },
-    );
+    public readonly result_template = computed(() => {
+        const event = this.event();
+        const guest = this.guest();
+        if (!event || !guest) return DEFAULT_TEMPLATE;
+        let template = this._settings.get('app.checked_in_template');
+        if (!template) template = DEFAULT_TEMPLATE;
+        let updated_template = template
+            .replace(/{{ title }}/g, event?.title || '')
+            .replace(
+                /{{ room_name }}/g,
+                event?.extension_data?.location_id || '',
+            )
+            .replace(/{{ host_name }}/g, event?.user_name || '')
+            .replace(/{{ host_email }}/g, event?.user_email || '')
+            .replace(/{{ visitor_name }}/g, guest?.name || '')
+            .replace(/{{ visitor_email }}/g, guest?.email || '')
+            .replace(
+                /{{ can_use_lift }}/g,
+                event?.extension_data?.can_use_lift
+                    ? `Please use the vistor access lift over there`
+                    : `Please wait in the lobby.`,
+            );
+        try {
+            const date =
+                event.date ||
+                (event as any).event_start * 1000 ||
+                event.booking_start * 1000 ||
+                startOfMinute(Date.now());
+            updated_template = updated_template
+                .replace(
+                    /{{ date }}/g,
+                    this._date.transform(date, 'mediumDate'),
+                )
+                .replace(
+                    /{{ time }}/g,
+                    this._date.transform(date, this.time_format),
+                );
+        } catch {}
+        return updated_template;
+    });
 
     public readonly print = () => {
         this.printing.set(true);
@@ -214,7 +203,7 @@ export class CheckinResultsComponent extends AsyncHandler implements OnInit {
     }
 
     public async ngOnInit() {
-        const event = await firstValueFrom(this._checkin.event.pipe(first()));
+        const event = this._checkin.event();
         !event ? this.previous() : '';
         if (!event) return;
         this.date.set(event.date || event.booking_start * 1000);
@@ -244,7 +233,7 @@ export class CheckinResultsComponent extends AsyncHandler implements OnInit {
     }
 
     public async next() {
-        const event = await nextValueFrom(this._checkin.event);
+        const event = this._checkin.event();
         const standalone_location = this._settings.get(
             'app.standalone_visitor_location',
         );

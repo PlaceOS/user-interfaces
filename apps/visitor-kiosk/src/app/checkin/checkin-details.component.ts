@@ -1,25 +1,33 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { ReactiveFormsModule } from '@angular/forms';
+import {
+    Component,
+    computed,
+    inject,
+    OnInit,
+    signal,
+} from '@angular/core';
+import {
+    email,
+    FormField,
+    required,
+    form as signalForm,
+} from '@angular/forms/signals';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router, RouterModule } from '@angular/router';
-import { nextValueFrom, settingSignal } from '@placeos/common';
+import { settingSignal } from '@placeos/common';
 import {
     IconComponent,
     TranslatePipe,
     VirtualKeyboardComponent,
 } from '@placeos/components';
-import { first } from 'rxjs/operators';
 import { CheckinStateService } from './checkin-state.service';
 
 @Component({
     selector: '[checkin-details]',
     template: `
-        @if (ready_form(); as form_group) {
+        @if (ready_form()) {
             <form
-                [formGroup]="form_group"
                 class="bg-base-100 relative flex w-xl flex-col items-center overflow-hidden rounded-sm p-4 shadow-sm"
             >
                 <h3 class="m-4 text-2xl">Confirm Details</h3>
@@ -31,8 +39,7 @@ import { CheckinStateService } from './checkin-state.service';
                         <input
                             keyboard
                             matInput
-                            name="host"
-                            formControlName="host"
+                            [formField]="form.host"
                             [placeholder]="'APP.VISITOR_KIOSK.HOST' | translate"
                         />
                         <mat-error>
@@ -48,8 +55,7 @@ import { CheckinStateService } from './checkin-state.service';
                         <input
                             keyboard
                             matInput
-                            name="name"
-                            formControlName="name"
+                            [formField]="form.name"
                             [placeholder]="'APP.VISITOR_KIOSK.NAME' | translate"
                         />
                         <mat-error>Please enter your full name</mat-error>
@@ -63,8 +69,7 @@ import { CheckinStateService } from './checkin-state.service';
                         <input
                             keyboard
                             matInput
-                            name="email"
-                            formControlName="email"
+                            [formField]="form.email"
                             [placeholder]="
                                 'APP.VISITOR_KIOSK.EMAIL' | translate
                             "
@@ -82,9 +87,8 @@ import { CheckinStateService } from './checkin-state.service';
                         <input
                             keyboard
                             matInput
-                            name="phone"
                             type="tel"
-                            formControlName="phone"
+                            [formField]="form.phone"
                             [placeholder]="
                                 'APP.VISITOR_KIOSK.PHONE' | translate
                             "
@@ -99,8 +103,7 @@ import { CheckinStateService } from './checkin-state.service';
                         <input
                             keyboard
                             matInput
-                            name="org"
-                            formControlName="organisation"
+                            [formField]="form.organisation"
                             [placeholder]="
                                 'APP.VISITOR_KIOSK.ORGANISATION' | translate
                             "
@@ -116,8 +119,7 @@ import { CheckinStateService } from './checkin-state.service';
                             <input
                                 keyboard
                                 matInput
-                                name="pass"
-                                formControlName="pass_number"
+                                [formField]="form.pass_number"
                                 [placeholder]="
                                     'BOOKINGS.VISITOR_PASS_PLACEHOLDER'
                                         | translate
@@ -126,7 +128,7 @@ import { CheckinStateService } from './checkin-state.service';
                         </mat-form-field>
                     </div>
                 }
-                <button next btn matRipple (click)="updateGuest()">
+                <button next type="button" btn matRipple (click)="updateGuest()">
                     {{ 'APP.VISITOR_KIOSK.CONTINUE' | translate }}
                 </button>
                 <a
@@ -177,7 +179,7 @@ import { CheckinStateService } from './checkin-state.service';
         RouterModule,
         MatFormFieldModule,
         MatInputModule,
-        ReactiveFormsModule,
+        FormField,
         VirtualKeyboardComponent,
     ],
 })
@@ -185,12 +187,15 @@ export class CheckinDetailsComponent implements OnInit {
     private _checkin = inject(CheckinStateService);
     private _router = inject(Router);
 
-    public readonly form$ = this._checkin.form;
-    public readonly form = toSignal(this.form$, { initialValue: null });
+    public readonly form = signalForm(this._checkin.form, (p) => {
+        required(p.host, { message: 'Host is required' });
+        required(p.name, { message: 'Name is required' });
+        required(p.email, { message: 'Email is required' });
+        email(p.email, { message: 'Email is invalid' });
+        required(p.organisation, { message: 'Organisation is required' });
+    });
     public readonly loading = signal(false);
-    public readonly ready_form = computed(() =>
-        this.loading() ? null : this.form(),
-    );
+    public readonly ready_form = computed(() => !this.loading());
     public readonly induction_after_details = settingSignal(
         'induction_after_details',
         false,
@@ -220,12 +225,11 @@ export class CheckinDetailsComponent implements OnInit {
     );
 
     public async ngOnInit() {
-        const form = await nextValueFrom(this.form$.pipe(first()));
-        const event = await nextValueFrom(this._checkin.event.pipe(first()));
+        const form_value = this._checkin.form();
         if (this._checkin.metadata === 'registered') {
             this.updateGuest(false);
         } else {
-            !form || !form.value.email ? this.previous() : '';
+            !form_value.email ? this.previous() : '';
         }
     }
 

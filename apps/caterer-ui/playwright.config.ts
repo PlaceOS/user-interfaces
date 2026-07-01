@@ -19,7 +19,7 @@ export default defineConfig({
         trace: 'on-first-retry',
     },
     webServer: {
-        command: 'npx nx serve caterer-ui --port=4203',
+        command: 'bunx nx serve caterer-ui --port=4203',
         url: 'http://localhost:4203',
         reuseExistingServer: !process.env.CI,
         cwd: workspaceRoot,

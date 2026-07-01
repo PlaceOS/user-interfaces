@@ -1,12 +1,14 @@
-import { Component, forwardRef, OnInit } from '@angular/core';
+import {
+    Component,
+    effect,
+    forwardRef,
+    signal,
+} from '@angular/core';
 import {
     ControlValueAccessor,
-    FormControl,
-    FormGroup,
     NG_VALUE_ACCESSOR,
-    ReactiveFormsModule,
-    Validators,
 } from '@angular/forms';
+import { form, FormField, pattern } from '@angular/forms/signals';
 
 const VALID_INPUT = [
     '0',
@@ -42,46 +44,40 @@ function listPattern(fieldPattern) {
             class="border-base-300 focus-within:border-base-content focus-within:outline-base-content mb-1 flex w-full items-center space-x-2 rounded-sm border focus-within:outline-4"
             role="group"
             aria-label="CRON expression fields"
-            [formGroup]="form"
         >
             <input
                 class="w-px flex-1 border-none bg-none p-2 text-base outline-hidden"
                 placeholder="*"
                 aria-label="CRON minute field"
-                name="minute"
-                formControlName="minute"
+                [formField]="form.minute"
                 (keydown)="preventInvalidCharacters($event)"
             />
             <input
                 class="w-px flex-1 border-none bg-none p-2 text-base outline-hidden"
                 placeholder="*"
                 aria-label="CRON hour field"
-                name="hour"
-                formControlName="hour"
+                [formField]="form.hour"
             />
             <input
                 class="w-px flex-1 border-none bg-none p-2 text-base outline-hidden"
                 placeholder="*"
                 aria-label="CRON day of month field"
-                name="day"
-                formControlName="day"
+                [formField]="form.day"
             />
             <input
                 class="w-px flex-1 border-none bg-none p-2 text-base outline-hidden"
                 placeholder="*"
                 aria-label="CRON month field"
-                name="month"
-                formControlName="month"
+                [formField]="form.month"
             />
             <input
                 class="w-px flex-1 border-none bg-none p-2 text-base outline-hidden"
                 placeholder="*"
                 aria-label="CRON day of week field"
-                name="day_of_week"
-                formControlName="day_of_week"
+                [formField]="form.day_of_week"
             />
         </div>
-        <div class="text-error text-xs" [class.opacity-0]="form.valid">
+        <div class="text-error text-xs" [class.opacity-0]="form().valid()">
             CRON expression is invalid
         </div>
     `,
@@ -93,47 +89,60 @@ function listPattern(fieldPattern) {
             multi: true,
         },
     ],
-    imports: [ReactiveFormsModule],
+    imports: [FormField],
 })
-export class CronInputFieldComponent implements ControlValueAccessor, OnInit {
+export class CronInputFieldComponent implements ControlValueAccessor {
     public cron_string: string;
-    public readonly form = new FormGroup({
-        minute: new FormControl('*', [
-            Validators.pattern(
-                listPattern(
-                    '(?:\\*(?:/\\d{1,2})?|[0-5]?\\d(?:-[0-5]?\\d)?(?:/\\d{1,2})?)',
-                ),
-            ),
-        ]),
-        hour: new FormControl('*', [
-            Validators.pattern(
-                listPattern(
-                    '(?:\\*(?:/\\d{1,2})?|(?:[01]?\\d|2[0-3])(?:-(?:[01]?\\d|2[0-3]))?(?:/\\d{1,2})?)',
-                ),
-            ),
-        ]),
-        day: new FormControl('*', [
-            Validators.pattern(
-                listPattern(
-                    '(?:\\*(?:/\\d{1,2})?|(?:[1-9]|[12]\\d|3[01])(?:-(?:[1-9]|[12]d|3[01]))?(?:/\\d{1,2})?)',
-                ),
-            ),
-        ]),
-        month: new FormControl('*', [
-            Validators.pattern(
-                listPattern(
-                    '(?:\\*(?:/\\d{1,2})?|(?:[1-9]|1[0-2])(?:-(?:[1-9]|1[0-2]))?(?:/\\d{1,2})?)',
-                ),
-            ),
-        ]),
-        day_of_week: new FormControl('*', [
-            Validators.pattern(
-                listPattern(
-                    '(?:\\*(?:/\\d{1,2})?|[0-6](?:-[0-6])?(?:/\\d{1,2})?)',
-                ),
-            ),
-        ]),
+    public readonly model = signal({
+        minute: '*',
+        hour: '*',
+        day: '*',
+        month: '*',
+        day_of_week: '*',
     });
+    public readonly form = form(this.model, (p) => {
+        pattern(
+            p.minute,
+            new RegExp(
+                `^${listPattern(
+                    '(?:\\*(?:/\\d{1,2})?|[0-5]?\\d(?:-[0-5]?\\d)?(?:/\\d{1,2})?)',
+                )}$`,
+            ),
+        );
+        pattern(
+            p.hour,
+            new RegExp(
+                `^${listPattern(
+                    '(?:\\*(?:/\\d{1,2})?|(?:[01]?\\d|2[0-3])(?:-(?:[01]?\\d|2[0-3]))?(?:/\\d{1,2})?)',
+                )}$`,
+            ),
+        );
+        pattern(
+            p.day,
+            new RegExp(
+                `^${listPattern(
+                    '(?:\\*(?:/\\d{1,2})?|(?:[1-9]|[12]\\d|3[01])(?:-(?:[1-9]|[12]d|3[01]))?(?:/\\d{1,2})?)',
+                )}$`,
+            ),
+        );
+        pattern(
+            p.month,
+            new RegExp(
+                `^${listPattern(
+                    '(?:\\*(?:/\\d{1,2})?|(?:[1-9]|1[0-2])(?:-(?:[1-9]|1[0-2]))?(?:/\\d{1,2})?)',
+                )}$`,
+            ),
+        );
+        pattern(
+            p.day_of_week,
+            new RegExp(
+                `^${listPattern(
+                    '(?:\\*(?:/\\d{1,2})?|[0-6](?:-[0-6])?(?:/\\d{1,2})?)',
+                )}$`,
+            ),
+        );
+    });
+    private readonly _form_change = effect(() => this.updateValueFromForm());
 
     public readonly registerOnChange = (fn) => (this._onChange = fn);
     public readonly registerOnTouched = (fn) => (this._onTouch = fn);
@@ -141,15 +150,14 @@ export class CronInputFieldComponent implements ControlValueAccessor, OnInit {
     private _onChange: (_: string) => void;
     private _onTouch: (_: string) => void;
 
-    public ngOnInit(): void {
-        this.form.valueChanges.subscribe((value) => {
-            if (!this.form.valid) return;
-            this.setValue(
-                `${value.minute || '*'} ${value.hour || '*'} ${
-                    value.day || '*'
-                } ${value.month || '*'} ${value.day_of_week || '*'}`,
-            );
-        });
+    public updateValueFromForm(): void {
+        const value = this.model();
+        if (!this.form().valid()) return;
+        this.setValue(
+            `${value.minute || '*'} ${value.hour || '*'} ${
+                value.day || '*'
+            } ${value.month || '*'} ${value.day_of_week || '*'}`,
+        );
     }
 
     public setValue(value: string): void {
@@ -161,7 +169,7 @@ export class CronInputFieldComponent implements ControlValueAccessor, OnInit {
         if (!value) return;
         this.cron_string = value;
         const parts = value.split(' ');
-        this.form.setValue({
+        this.model.set({
             minute: parts[0] || '*',
             hour: parts[1] || '*',
             day: parts[2] || '*',

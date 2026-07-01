@@ -1,6 +1,13 @@
-import { Component, computed, inject, OnInit } from '@angular/core';
+import {
+    Component,
+    computed,
+    inject,
+    OnInit,
+} from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { RouterOutlet } from '@angular/router';
 import { SwUpdate } from '@angular/service-worker';
+import { GlobalLoadingComponent } from '@placeos/components';
 import {
     AsyncHandler,
     current_user,
@@ -20,7 +27,6 @@ import {
 } from '@placeos/common';
 import { invalidateToken, isMock, setToken, token } from '@placeos/ts-client';
 import { setInternalUserDomain } from '@placeos/users';
-import { first } from 'rxjs/operators';
 
 declare let Office: any;
 declare let OfficeRuntime: any;
@@ -32,7 +38,7 @@ declare let OfficeRuntime: any;
         <global-loading />
     `,
     styles: [``],
-    standalone: false,
+    imports: [RouterOutlet, GlobalLoadingComponent],
 })
 export class AppComponent extends AsyncHandler implements OnInit {
     private _settings = inject(SettingsService);
@@ -118,7 +124,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
         if (!this._settings.get('composer.local_login')) {
             this.timeout('wait_for_user', () => this.onInitError(), 30 * 1000);
         }
-        await current_user.pipe(first((_) => !!_)).toPromise();
+        await firstTruthyValueFrom(current_user);
         this.clearTimeout('wait_for_user');
         setDefaultCreator(this._current_user());
         const internal_user_domain = this._internal_user_domain();

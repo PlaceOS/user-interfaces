@@ -7,9 +7,9 @@ import { Router } from '@angular/router';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { MockModule, MockProvider } from 'ng-mocks';
 
+import { signal } from '@angular/core';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { SpacesService } from '@placeos/events';
-import { of } from 'rxjs';
 import { BootstrapComponent } from '../app/bootstrap.component';
 
 describe('BootstrapComponent', () => {
@@ -18,13 +18,13 @@ describe('BootstrapComponent', () => {
         component: BootstrapComponent,
         providers: [
             MockProvider(SpacesService, {
-                initialised: of(true),
+                initialised: signal(true),
                 space_list: [{ id: '1', name: 'Space 1' }],
             } as any),
             MockProvider(SettingsService, { get: jest.fn() }),
             MockProvider(OrganisationService, {
                 organisation: { id: 'org-123', name: 'Test Org' },
-                initialised: of(true),
+                initialised: signal(true),
             } as any),
         ],
         imports: [
@@ -82,6 +82,7 @@ describe('BootstrapComponent', () => {
 
     it('should auto bootstrap if there is a system query parameter', () => {
         spectator.setRouteQueryParam('system_id', 'sys-B0');
+        spectator.component.ngOnInit();
         spectator.detectChanges();
         const router = spectator.inject(Router);
         expect(router.navigate).toHaveBeenCalledWith(['panel', 'sys-B0'], {
@@ -92,6 +93,7 @@ describe('BootstrapComponent', () => {
     it('should clear bootstrap if there is a clear query parameter', () => {
         localStorage.setItem('PLACEOS.BOOKINGS.system', 'sys-B0');
         spectator.setRouteQueryParam('clear', 'true');
+        spectator.component.ngOnInit();
         spectator.detectChanges();
         expect(localStorage.getItem('PLACEOS.BOOKINGS.system')).toBeFalsy();
     });

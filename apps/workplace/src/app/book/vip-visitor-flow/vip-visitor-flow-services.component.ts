@@ -111,27 +111,27 @@ export interface VipServicesData {
             <!-- Toggle Options Row 1 -->
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 <settings-toggle
-                    [name]="'BOOKINGS.VIP_WALKTHROUGH' | translate"
+                    [label]="'BOOKINGS.VIP_WALKTHROUGH' | translate"
                     [ngModel]="data().walkthrough"
                     (ngModelChange)="update('walkthrough', $event)"
                 ></settings-toggle>
                 <settings-toggle
-                    [name]="'BOOKINGS.VIP_GIVEAWAY_GIFT' | translate"
+                    [label]="'BOOKINGS.VIP_GIVEAWAY_GIFT' | translate"
                     [ngModel]="data().gift"
                     (ngModelChange)="update('gift', $event)"
                 ></settings-toggle>
                 <settings-toggle
-                    [name]="'BOOKINGS.VIP_PHOTOGRAPHER' | translate"
+                    [label]="'BOOKINGS.VIP_PHOTOGRAPHER' | translate"
                     [ngModel]="data().photographer"
                     (ngModelChange)="update('photographer', $event)"
                 ></settings-toggle>
                 <settings-toggle
-                    [name]="'BOOKINGS.VIP_WELCOME_SCREEN' | translate"
+                    [label]="'BOOKINGS.VIP_WELCOME_SCREEN' | translate"
                     [ngModel]="data().welcome_screen"
                     (ngModelChange)="update('welcome_screen', $event)"
                 ></settings-toggle>
                 <settings-toggle
-                    [name]="'BOOKINGS.VIP_PRESENTATION' | translate"
+                    [label]="'BOOKINGS.VIP_PRESENTATION' | translate"
                     [ngModel]="data().presentation"
                     (ngModelChange)="update('presentation', $event)"
                 ></settings-toggle>
@@ -190,7 +190,9 @@ export interface VipServicesData {
             <!-- Restaurant Reservation -->
             <div class="border-base-300 rounded-lg border p-4">
                 <settings-toggle
-                    [name]="'BOOKINGS.VIP_RESTAURANT_RESERVATION' | translate"
+                    [label]="
+                        'BOOKINGS.VIP_RESTAURANT_RESERVATION' | translate
+                    "
                     [ngModel]="!!data().restaurant_reservation"
                     (ngModelChange)="toggleRestaurant($event)"
                 ></settings-toggle>

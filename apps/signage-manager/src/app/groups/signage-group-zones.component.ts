@@ -1,13 +1,11 @@
 import { Component, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { i18n } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { PlaceGroupZone } from '@placeos/ts-client';
-import { lastValueFrom } from 'rxjs';
-import { SignageService } from '../signage.service';
+import { dialogClosed, SignageService } from '../signage.service';
 import {
     groupPermissionLabels,
     SignageGroupPermissionsModalComponent,
@@ -29,15 +27,19 @@ import { SignageGroupZoneSelectModalComponent } from './signage-group-zone-selec
                     <icon class="text-lg">layers</icon>
                     {{
                         'SIGNAGE_MANAGER.ZONES_COUNT'
-                            | translate: { count: zones().length } : zones().length
+                            | translate
+                                : { count: zones().length }
+                                : zones().length
                     }}
                 </h5>
                 <button
                     icon
+                    default
                     type="button"
                     matRipple
-                    class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
-                    [matTooltip]="'SIGNAGE_MANAGER.ADD_ZONE_TOOLTIP' | translate"
+                    [matTooltip]="
+                        'SIGNAGE_MANAGER.ADD_ZONE_TOOLTIP' | translate
+                    "
                     [attr.aria-label]="
                         'SIGNAGE_MANAGER.ADD_ZONE_ARIA' | translate
                     "
@@ -70,8 +72,8 @@ import { SignageGroupZoneSelectModalComponent } from './signage-group-zone-selec
                                         permissionLabels(row.permissions);
                                     @if (labels.length) {
                                         @for (label of labels; track label) {
-                                            {{ label | translate
-                                            }}@if (!$last) {
+                                            {{ label | translate }}
+                                            @if (!$last) {
                                                 ,
                                             }
                                         }
@@ -93,14 +95,16 @@ import { SignageGroupZoneSelectModalComponent } from './signage-group-zone-selec
                             </div>
                             <button
                                 icon
+                                default
                                 type="button"
                                 matRipple
-                                class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
                                 [matTooltip]="
-                                    'SIGNAGE_MANAGER.EDIT_ZONE_PERMS' | translate
+                                    'SIGNAGE_MANAGER.EDIT_ZONE_PERMS'
+                                        | translate
                                 "
                                 [attr.aria-label]="
-                                    'SIGNAGE_MANAGER.EDIT_ZONE_PERMS' | translate
+                                    'SIGNAGE_MANAGER.EDIT_ZONE_PERMS'
+                                        | translate
                                 "
                                 (click)="editZonePermissions(row)"
                             >
@@ -108,9 +112,10 @@ import { SignageGroupZoneSelectModalComponent } from './signage-group-zone-selec
                             </button>
                             <button
                                 icon
+                                default
+                                error
                                 type="button"
                                 matRipple
-                                class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
                                 [matTooltip]="
                                     'SIGNAGE_MANAGER.REMOVE_ZONE' | translate
                                 "
@@ -119,7 +124,7 @@ import { SignageGroupZoneSelectModalComponent } from './signage-group-zone-selec
                                 "
                                 (click)="removeZone(row)"
                             >
-                                <icon class="text-error">close</icon>
+                                <icon>close</icon>
                             </button>
                         </div>
                     }
@@ -129,7 +134,9 @@ import { SignageGroupZoneSelectModalComponent } from './signage-group-zone-selec
                     >
                         <icon class="text-4xl">layers_clear</icon>
                         <p class="text-sm">
-                            {{ 'SIGNAGE_MANAGER.NO_ZONES_ASSIGNED' | translate }}
+                            {{
+                                'SIGNAGE_MANAGER.NO_ZONES_ASSIGNED' | translate
+                            }}
                         </p>
                     </div>
                 }
@@ -150,37 +157,31 @@ export class SignageGroupZonesComponent {
     private readonly _service = inject(SignageService);
     private readonly _dialog = inject(MatDialog);
 
-    public readonly zones = toSignal(this._service.managed_group_zones, {
-        initialValue: [] as PlaceGroupZone[],
-    });
+    public readonly zones = this._service.managed_group_zones;
     public readonly permissionLabels = groupPermissionLabels;
 
     public async addZone() {
-        const zone = await lastValueFrom(
-            this._dialog
-                .open(SignageGroupZoneSelectModalComponent, {
-                    data: {
-                        exclude_ids: this.zones().map((item) => item.zone_id),
-                    },
-                    panelClass: 'mobile-fullscreen',
-                })
-                .afterClosed(),
+        const zone = await dialogClosed(
+            this._dialog.open(SignageGroupZoneSelectModalComponent, {
+                data: {
+                    exclude_ids: this.zones().map((item) => item.zone_id),
+                },
+                panelClass: 'mobile-fullscreen',
+            }),
         );
         if (zone) await this._service.addManagedGroupZone(zone);
     }
 
     public async editZonePermissions(row: PlaceGroupZone) {
-        const result = await lastValueFrom(
-            this._dialog
-                .open(SignageGroupPermissionsModalComponent, {
-                    data: {
-                        title: i18n('SIGNAGE_MANAGER.ZONE_PERMISSIONS'),
-                        permissions: row.permissions,
-                        deny: row.deny,
-                        show_deny: true,
-                    },
-                })
-                .afterClosed(),
+        const result = await dialogClosed(
+            this._dialog.open(SignageGroupPermissionsModalComponent, {
+                data: {
+                    title: i18n('SIGNAGE_MANAGER.ZONE_PERMISSIONS'),
+                    permissions: row.permissions,
+                    deny: row.deny,
+                    show_deny: true,
+                },
+            }),
         );
         if (result) {
             await this._service.updateManagedGroupZone(

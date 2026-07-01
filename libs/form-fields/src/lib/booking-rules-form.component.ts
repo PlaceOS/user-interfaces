@@ -6,7 +6,9 @@ import {
     inject,
     input,
     output,
+    signal,
 } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import {
     FormControl,
     FormGroup,
@@ -86,7 +88,7 @@ const ITEM_LIST_CONDITIONS = ['groups', 'locations', 'tags', 'resource_ids'];
                 <div class="flex flex-1 flex-col">
                     <settings-toggle
                         formControlName="hidden"
-                        [name]="'BOOKINGS.PREVENT' | translate"
+                        [label]="'BOOKINGS.PREVENT' | translate"
                         [info]="'BOOKINGS.PREVENT_INFO' | translate"
                     >
                     </settings-toggle>
@@ -95,7 +97,7 @@ const ITEM_LIST_CONDITIONS = ['groups', 'locations', 'tags', 'resource_ids'];
                     @if (!form.value.rules.hidden) {
                         <settings-toggle
                             formControlName="auto_approve"
-                            [name]="'BOOKINGS.AUTO_APPROVE' | translate"
+                            [label]="'BOOKINGS.AUTO_APPROVE' | translate"
                             [info]="'BOOKINGS.AUTO_APPROVE_INFO' | translate"
                         >
                         </settings-toggle>
@@ -149,7 +151,7 @@ const ITEM_LIST_CONDITIONS = ['groups', 'locations', 'tags', 'resource_ids'];
                     </mat-select>
                 </mat-form-field>
             </div>
-            @if (available_conditions.includes('groups')) {
+            @if (available_conditions().includes('groups')) {
                 <div class="flex flex-col" formGroupName="conditions">
                     <label for="groups">
                         {{
@@ -166,7 +168,7 @@ const ITEM_LIST_CONDITIONS = ['groups', 'locations', 'tags', 'resource_ids'];
                     ></item-list-field>
                 </div>
             }
-            @if (available_conditions.includes('locations')) {
+            @if (available_conditions().includes('locations')) {
                 <div class="flex flex-col" formGroupName="conditions">
                     <label for="locations">
                         {{ 'BOOKINGS.CONDITION_LOCATION' | translate }}
@@ -180,7 +182,7 @@ const ITEM_LIST_CONDITIONS = ['groups', 'locations', 'tags', 'resource_ids'];
                     ></item-list-field>
                 </div>
             }
-            @if (available_conditions.includes('tags')) {
+            @if (available_conditions().includes('tags')) {
                 <div class="flex flex-col" formGroupName="conditions">
                     <label for="tags">
                         {{ 'BOOKINGS.CONDITION_TAGS' | translate }}
@@ -193,14 +195,14 @@ const ITEM_LIST_CONDITIONS = ['groups', 'locations', 'tags', 'resource_ids'];
                 </div>
             }
             @if (
-                available_conditions.includes('min_length') ||
-                available_conditions.includes('max_length')
+                available_conditions().includes('min_length') ||
+                available_conditions().includes('max_length')
             ) {
                 <div
                     class="flex items-center space-x-2"
                     formGroupName="conditions"
                 >
-                    @if (available_conditions.includes('min_length')) {
+                    @if (available_conditions().includes('min_length')) {
                         <div class="flex flex-1 flex-col">
                             <label for="min_length">
                                 {{
@@ -219,7 +221,7 @@ const ITEM_LIST_CONDITIONS = ['groups', 'locations', 'tags', 'resource_ids'];
                             ></a-duration-field>
                         </div>
                     }
-                    @if (available_conditions.includes('max_length')) {
+                    @if (available_conditions().includes('max_length')) {
                         <div class="flex flex-1 flex-col">
                             <label for="max_length">
                                 {{
@@ -240,7 +242,7 @@ const ITEM_LIST_CONDITIONS = ['groups', 'locations', 'tags', 'resource_ids'];
                     }
                 </div>
             }
-            @if (available_conditions.includes('is_before')) {
+            @if (available_conditions().includes('is_before')) {
                 <div class="flex flex-col" formGroupName="conditions">
                     <label for="is-before">
                         {{
@@ -267,7 +269,7 @@ const ITEM_LIST_CONDITIONS = ['groups', 'locations', 'tags', 'resource_ids'];
                     </mat-form-field>
                 </div>
             }
-            @if (available_conditions.includes('is_after')) {
+            @if (available_conditions().includes('is_after')) {
                 <div class="flex flex-col" formGroupName="conditions">
                     <label for="is-after">
                         {{
@@ -291,7 +293,7 @@ const ITEM_LIST_CONDITIONS = ['groups', 'locations', 'tags', 'resource_ids'];
                     </mat-form-field>
                 </div>
             }
-            @if (available_conditions.includes('is_period')) {
+            @if (available_conditions().includes('is_period')) {
                 <div class="flex flex-col" formGroupName="conditions">
                     <label for="is-after">
                         {{
@@ -330,7 +332,7 @@ const ITEM_LIST_CONDITIONS = ['groups', 'locations', 'tags', 'resource_ids'];
                     </div>
                 </div>
             }
-            @if (available_conditions.includes('is_between')) {
+            @if (available_conditions().includes('is_between')) {
                 <div class="flex flex-col" formGroupName="conditions">
                     <label for="is_between">
                         {{
@@ -357,7 +359,7 @@ const ITEM_LIST_CONDITIONS = ['groups', 'locations', 'tags', 'resource_ids'];
                             >
                                 @for (time of time_blocks; track time) {
                                     <mat-option [value]="time.id">
-                                        {{ time.value | date: time_format }}
+                                        {{ time.value | date: time_format() }}
                                     </mat-option>
                                 }
                             </mat-select>
@@ -383,7 +385,9 @@ const ITEM_LIST_CONDITIONS = ['groups', 'locations', 'tags', 'resource_ids'];
                                             6)
                                     ) {
                                         <mat-option [value]="time.id">
-                                            {{ time.value | date: time_format }}
+                                            {{
+                                                time.value | date: time_format()
+                                            }}
                                         </mat-option>
                                     }
                                 }
@@ -395,7 +399,7 @@ const ITEM_LIST_CONDITIONS = ['groups', 'locations', 'tags', 'resource_ids'];
                     </div>
                 </div>
             }
-            @if (available_conditions.includes('resource_ids')) {
+            @if (available_conditions().includes('resource_ids')) {
                 <div class="flex flex-col" formGroupName="conditions">
                     <label for="resource_ids">
                         {{
@@ -445,9 +449,9 @@ export class BookingRulesFormComponent implements OnChanges {
     public readonly save = input(false);
     public readonly rulesetChange = output<BookingRuleset>();
 
-    public available_conditions: string[] = [];
+    public readonly available_conditions = signal<string[]>([]);
 
-    public readonly building_zones = this._org.active_building.pipe(
+    public readonly building_zones = toObservable(this._org.active_building).pipe(
         filter((_) => !!_),
         switchMap((bld) =>
             queryZones({ parent_id: bld.id }).catch(() => ({ data: [] })),
@@ -510,14 +514,14 @@ export class BookingRulesFormComponent implements OnChanges {
         }),
     });
 
-    public get time_format() {
-        return this._settings.time_format_signal();
-    }
+    public readonly time_format = this._settings.time_format_signal;
 
     public ngOnChanges(changes: SimpleChanges): void {
         const ruleset = this.ruleset();
         if (changes.ruleset && ruleset) {
-            this.available_conditions = Object.keys(ruleset.conditions || {});
+            this.available_conditions.set(
+                Object.keys(ruleset.conditions || {}),
+            );
             this.form.patchValue(ruleset);
         }
         if (
@@ -560,7 +564,7 @@ export class BookingRulesFormComponent implements OnChanges {
         const conditions = value.conditions as Record<string, unknown>;
         const condition_keys = Object.keys(conditions);
         for (const key of condition_keys) {
-            if (!this.available_conditions.includes(key)) {
+            if (!this.available_conditions().includes(key)) {
                 delete conditions[key];
             } else if (ITEM_LIST_CONDITIONS.includes(key)) {
                 conditions[key] = uniqueChipItems(

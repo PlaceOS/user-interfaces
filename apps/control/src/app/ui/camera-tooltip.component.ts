@@ -1,5 +1,4 @@
 import { Component, effect, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import {
     BindingDirective,
     CustomTooltipData,
@@ -258,10 +257,8 @@ export class CameraTooltipComponent {
     /** New preset name input */
     public readonly new_preset = signal('');
     /** List of available cameras to select from */
-    public readonly camera_list = toSignal(this._state.available_cameras, {
-        initialValue: [] as RoomInput[],
-    });
-    private readonly _selected_camera = toSignal(this._state.selected_camera);
+    public readonly camera_list = this._state.available_cameras;
+    private readonly _selected_camera = this._state.selected_camera;
     /** Close the tooltip */
     public readonly close = () => this._tooltip.close();
 

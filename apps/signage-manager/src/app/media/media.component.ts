@@ -1,5 +1,4 @@
 import { Component, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { IconComponent } from '@placeos/components';
 import { NavFooterComponent } from '../shared/nav-footer.component';
 import { NavSidebarComponent } from '../shared/nav-sidebar.component';
@@ -19,10 +18,10 @@ import { PlaylistSidebarComponent } from './playlist-sidebar.component';
             (window:drop)="handleDrop($event)"
         >
             <nav-sidebar class="sm:h-full" />
-            <div class="flex min-h-0 flex-1 flex-col">
+            <div class="flex min-h-0 min-w-0 flex-1 flex-col">
                 <media-list-header class="relative z-10" />
                 <div class="flex min-h-0 flex-1 flex-row">
-                    <main class="relative flex-1 overflow-auto">
+                    <main class="relative min-w-0 flex-1 overflow-auto">
                         <media-list
                             class="relative z-0"
                             [playlist_count]="playlists()?.length"
@@ -74,9 +73,7 @@ export class MediaSectionComponent {
     private readonly _service = inject(SignageService);
     private _drag_counter = 0;
 
-    public readonly playlists = toSignal(this._service.playlists, {
-        initialValue: [],
-    });
+    public readonly playlists = this._service.playlists;
     public readonly show_dropzone = signal(false);
 
     public handleDragEnter(event: DragEvent) {

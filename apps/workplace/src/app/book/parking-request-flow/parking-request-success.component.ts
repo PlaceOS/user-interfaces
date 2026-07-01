@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { RouterModule } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
@@ -58,7 +58,7 @@ import {
                             matRipple
                             name="parking-request-outlook-link"
                             class="inverse flex w-64 items-center space-x-2 rounded-sm p-2 pr-4"
-                            [href]="outlook_link | sanitize: 'url'"
+                            [href]="outlook_link() | sanitize: 'url'"
                             target="_blank"
                             rel="noopener noreferer"
                         >
@@ -72,7 +72,7 @@ import {
                             matRipple
                             name="parking-request-google-link"
                             class="inverse flex w-64 items-center space-x-2 rounded-sm p-2 pr-4"
-                            [href]="google_link | sanitize: 'url'"
+                            [href]="google_link() | sanitize: 'url'"
                             target="_blank"
                             rel="noopener noreferer"
                         >
@@ -86,7 +86,7 @@ import {
                             matRipple
                             name="parking-request-ical-link"
                             class="inverse flex w-64 items-center space-x-2 rounded-sm p-2 pr-4"
-                            [href]="ical_link | safe: 'url'"
+                            [href]="ical_link() | safe: 'url'"
                             target="_blank"
                             rel="noopener noreferer"
                         >
@@ -121,9 +121,9 @@ export class ParkingRequestSuccessComponent {
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
 
-    public outlook_link = '';
-    public google_link = '';
-    public ical_link = '';
+    public outlook_link = signal('');
+    public google_link = signal('');
+    public ical_link = signal('');
 
     public get location() {
         if (!this.last_event) return 'Unknown';
@@ -150,8 +150,8 @@ export class ParkingRequestSuccessComponent {
             ...this.last_event,
             location: `${this.location}`,
         };
-        this.outlook_link = generateMicrosoftCalendarLink(event);
-        this.google_link = generateGoogleCalendarLink(event);
-        this.ical_link = generateCalendarFileLink(event);
+        this.outlook_link.set(generateMicrosoftCalendarLink(event));
+        this.google_link.set(generateGoogleCalendarLink(event));
+        this.ical_link.set(generateCalendarFileLink(event));
     }
 }

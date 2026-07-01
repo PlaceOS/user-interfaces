@@ -1,5 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
-import { MatRippleModule } from '@angular/material/core';
+import { Component, computed, inject, viewChild } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import {
     OrganisationService,
@@ -9,8 +8,7 @@ import {
 } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
-    CustomTooltipComponent,
-    UserControlsComponent,
+    UserControlsSidebarComponent,
 } from '@placeos/components';
 import { UserAvatarComponent } from '../../../../../libs/components/src/lib/user-avatar.component';
 import { GlobalSearchComponent } from './global-search.component';
@@ -23,7 +21,7 @@ const EMPTY = [];
     template: `
         <div
             topbar
-            class="border-base-200 bg-base-100 relative z-50 flex h-14 items-center justify-between border-b shadow-sm"
+            class="border-base-200 bg-base-100 relative z-50 flex min-h-14 items-center justify-between border-b shadow-sm pt-[env(safe-area-inset-top)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]"
         >
             <a
                 name="nav-logo"
@@ -44,23 +42,15 @@ const EMPTY = [];
             <div
                 class="relative hidden h-full w-1/2 flex-1 items-center justify-center sm:flex"
             >
-                <top-menu></top-menu>
+                <top-menu />
             </div>
             <div class="flex w-48 items-center justify-end">
                 @if (search) {
-                    <global-search></global-search>
+                    <global-search />
                 }
-                <button
-                    icon
-                    matRipple
-                    avatar
-                    name="user-controls"
-                    class="bg-base-200 mr-2 flex h-10 w-10 items-center justify-center rounded-full"
-                    customTooltip
-                    [content]="user_controls"
-                >
+                <user-controls-sidebar class="mr-2">
                     <a-user-avatar [user]="user()" />
-                </button>
+                </user-controls-sidebar>
             </div>
         </div>
     `,
@@ -72,13 +62,12 @@ const EMPTY = [];
         `,
     ],
     imports: [
-        MatRippleModule,
         GlobalSearchComponent,
         TopMenuComponent,
         AuthenticatedImageDirective,
         RouterModule,
         UserAvatarComponent,
-        CustomTooltipComponent,
+        UserControlsSidebarComponent,
     ],
 })
 export class TopbarComponent {
@@ -86,8 +75,8 @@ export class TopbarComponent {
     private _org = inject(OrganisationService);
 
     public show_menu: boolean;
-    public readonly user_controls = UserControlsComponent;
     public readonly user = userSignal();
+    public readonly user_controls = viewChild(UserControlsSidebarComponent);
 
     public readonly logo = computed(() => {
         return this._settings.theme_signal() === 'dark'

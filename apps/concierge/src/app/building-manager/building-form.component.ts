@@ -4,16 +4,11 @@ import {
     effect,
     inject,
     input,
-    model,
+    linkedSignal,
     output,
+    signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import {
-    FormControl,
-    FormGroup,
-    ReactiveFormsModule,
-    Validators,
-} from '@angular/forms';
+import { form, FormField, required } from '@angular/forms/signals';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -23,33 +18,28 @@ import {
     Building,
     OrganisationService,
     TIMEZONES_IANA,
-    getInvalidFields,
+    getInvalidSignalFields,
     i18n,
     notifyError,
     notifySuccess,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { addZone, authority, updateZone } from '@placeos/ts-client';
-import { startWith } from 'rxjs/operators';
 
 @Component({
     selector: 'building-form',
     template: `
-        @if (form) {
-            <form building [formGroup]="form">
-                @if (region_list().length) {
-                    <div class="flex flex-col">
-                        <label for="region">
-                            {{ 'RESOURCE.REGION' | translate }}
-                        </label>
-                        <mat-form-field appearance="outline">
-                            <mat-select
-                                name="region"
-                                formControlName="parent_id"
-                                [placeholder]="
-                                    'COMMON.REGION_SELECT' | translate
-                                "
-                            >
+        <form building>
+            @if (region_list().length) {
+                <div class="flex flex-col">
+                    <label for="region">
+                        {{ 'RESOURCE.REGION' | translate }}
+                    </label>
+                    <mat-form-field appearance="outline">
+                        <mat-select
+                            [formField]="form.parent_id"
+                            [placeholder]="'COMMON.REGION_SELECT' | translate"
+                        >
                                 <mat-option [value]="default_parent">
                                     {{ 'COMMON.NONE' | translate }}
                                 </mat-option>
@@ -72,9 +62,8 @@ import { startWith } from 'rxjs/operators';
                     <mat-form-field appearance="outline">
                         <input
                             matInput
-                            name="display-name"
                             [placeholder]="'FORM.DISPLAY_NAME' | translate"
-                            formControlName="display_name"
+                            [formField]="form.display_name"
                         />
                     </mat-form-field>
                 </div>
@@ -86,7 +75,7 @@ import { startWith } from 'rxjs/operators';
                         <icon matPrefix class="text-2xl">search</icon>
                         <input
                             matInput
-                            formControlName="timezone"
+                            [formField]="form.timezone"
                             [placeholder]="'COMMON.TIMEZONE' | translate"
                             [matAutocomplete]="auto"
                         />
@@ -109,20 +98,18 @@ import { startWith } from 'rxjs/operators';
                     <mat-form-field appearance="outline">
                         <input
                             matInput
-                            name="address"
                             [placeholder]="'COMMON.LOCATION' | translate"
-                            formControlName="location"
+                            [formField]="form.location"
                         />
                     </mat-form-field>
                 </div>
             </form>
-        }
     `,
     styles: [``],
     imports: [
         TranslatePipe,
         IconComponent,
-        ReactiveFormsModule,
+        FormField,
         MatFormFieldModule,
         MatAutocompleteModule,
         MatSelectModule,
@@ -134,34 +121,29 @@ export class BuildingFormComponent extends AsyncHandler {
 
     public readonly building = input<Building | null>(null);
     public readonly save = input(0);
-    public readonly loading = model(false);
+    public readonly loadingInput = input(false, { alias: 'loading' });
+    public readonly loading = linkedSignal(this.loadingInput);
     public readonly loadingChange = output<boolean>();
     public readonly done = output<any>();
 
     public readonly timezones = TIMEZONES_IANA;
-    public readonly region_list = toSignal(this._org.region_list, {
-        initialValue: [],
+    public readonly region_list = this._org.region_list;
+
+    public readonly model = signal({
+        id: '',
+        parent_id: this._org.organisation.id,
+        display_name: '',
+        timezone: Intl?.DateTimeFormat()?.resolvedOptions()?.timeZone || '',
+        location: '',
     });
 
-    public readonly form = new FormGroup({
-        id: new FormControl(''),
-        parent_id: new FormControl(this._org.organisation.id, [
-            Validators.required,
-        ]),
-        display_name: new FormControl('', [Validators.required]),
-        timezone: new FormControl(
-            Intl?.DateTimeFormat()?.resolvedOptions()?.timeZone || '',
-        ),
-        location: new FormControl(''),
+    public readonly form = form(this.model, (p) => {
+        required(p.parent_id);
+        required(p.display_name);
     });
-    private readonly _timezone = toSignal(
-        this.form.controls.timezone.valueChanges.pipe(
-            startWith(this.form.controls.timezone.value || ''),
-        ),
-        { initialValue: this.form.controls.timezone.value || '' },
-    );
+
     public readonly filtered_timezones = computed(() => {
-        const timezone = (this._timezone() || '').toLowerCase();
+        const timezone = (this.model().timezone || '').toLowerCase();
         return this.timezones.filter((_) => _.toLowerCase().includes(timezone));
     });
 
@@ -172,8 +154,16 @@ export class BuildingFormComponent extends AsyncHandler {
     constructor() {
         super();
         effect(() => {
-            const building = this.building();
-            if (building) this.form.patchValue(building);
+            const building = this.building() as any;
+            if (!building) return;
+            this.model.update((m) => ({
+                ...m,
+                id: building.id ?? m.id,
+                parent_id: building.parent_id ?? m.parent_id,
+                display_name: building.display_name ?? m.display_name,
+                timezone: building.timezone ?? m.timezone,
+                location: building.location ?? m.location,
+            }));
         });
         effect(() => {
             if (this.save()) this.saveChanges();
@@ -181,17 +171,22 @@ export class BuildingFormComponent extends AsyncHandler {
     }
 
     public async saveChanges() {
-        this.form.patchValue({
-            parent_id: this.form.value.parent_id || this._org.organisation.id,
-        });
-        if (!this.form.valid) {
+        this.model.update((m) => ({
+            ...m,
+            parent_id: m.parent_id || this._org.organisation.id,
+        }));
+        this.form().markAsTouched();
+        if (!this.form().valid()) {
             return notifyError(
                 i18n('FORM.INVALID_FIELDS', {
-                    field_list: getInvalidFields(this.form).join(', '),
+                    field_list: getInvalidSignalFields(
+                        this.form,
+                        this.model,
+                    ).join(', '),
                 }),
             );
         }
-        const data = this.form.getRawValue();
+        const data = this.model();
         this.loading.set(true);
         this.loadingChange.emit(true);
         const body = {

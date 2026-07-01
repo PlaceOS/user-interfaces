@@ -3,10 +3,9 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { RouterModule } from '@angular/router';
-import { IconComponent, TranslatePipe } from '@placeos/components';
 import { i18n } from '@placeos/common';
-import { lastValueFrom } from 'rxjs';
-import { SignageService } from '../signage.service';
+import { IconComponent, TranslatePipe } from '@placeos/components';
+import { dialogClosed, SignageService } from '../signage.service';
 import { GroupSelectModalComponent } from './group-select-modal.component';
 import { filterManageNavItems } from './nav-items';
 
@@ -76,7 +75,8 @@ import { filterManageNavItems } from './nav-items';
                             type="button"
                             mat-menu-item
                             [attr.aria-label]="
-                                'SIGNAGE_MANAGER.SELECT_SIGNAGE_GROUP' | translate
+                                'SIGNAGE_MANAGER.SELECT_SIGNAGE_GROUP'
+                                    | translate
                             "
                             (click)="selectGroup()"
                         >
@@ -84,7 +84,10 @@ import { filterManageNavItems } from './nav-items';
                                 <icon class="mr-2 text-2xl">group</icon>
                                 <div class="min-w-0 leading-tight">
                                     <div class="font-medium">
-                                        {{ 'SIGNAGE_MANAGER.SELECT_GROUP' | translate }}
+                                        {{
+                                            'SIGNAGE_MANAGER.SELECT_GROUP'
+                                                | translate
+                                        }}
                                     </div>
                                     <div
                                         class="text-base-content/70 truncate text-xs"
@@ -146,9 +149,7 @@ export class NavFooterComponent {
     public readonly selected_group = this._service.selected_group;
     public readonly is_sys_admin = this._service.is_sys_admin;
     public readonly selected_label = computed(
-        () =>
-            this.selected_group()?.group.name ||
-            'SIGNAGE_MANAGER.ALL_GROUPS',
+        () => this.selected_group()?.group.name || 'SIGNAGE_MANAGER.ALL_GROUPS',
     );
 
     public async selectGroup() {
@@ -161,7 +162,7 @@ export class NavFooterComponent {
             },
             panelClass: 'mobile-fullscreen',
         });
-        const group_id = await lastValueFrom(ref.afterClosed());
+        const group_id = await dialogClosed(ref);
         if (group_id === undefined) return;
         this._service.setSelectedGroup(group_id);
     }

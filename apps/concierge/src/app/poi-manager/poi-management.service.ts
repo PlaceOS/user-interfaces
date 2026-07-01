@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, computed, effect, inject, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
     OrganisationService,
@@ -9,8 +9,6 @@ import {
 import { openConfirmModal } from '@placeos/components';
 import { ExplorePointOfInterestModalComponent } from '@placeos/explore';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
-import { BehaviorSubject, combineLatest, from, of } from 'rxjs';
-import { catchError, map, shareReplay, switchMap } from 'rxjs/operators';
 import { POIModalComponent } from './poi-modal.component';
 
 export interface POIListOptions {
@@ -39,56 +37,57 @@ export class POIManagementService {
     private _org = inject(OrganisationService);
     private _dialog = inject(MatDialog);
 
-    private _options = new BehaviorSubject<POIListOptions>({});
-    private _change = new BehaviorSubject(0);
+    private readonly _change = signal(0);
 
-    public options = this._options.asObservable();
+    public readonly options = signal<POIListOptions>({});
 
-    private _features = combineLatest([
-        this._org.active_building,
-        this._change,
-    ]).pipe(
-        switchMap(() =>
-            from(
-                showMetadata(this._org.organisation.id, 'points-of-interest'),
-            ).pipe(catchError((_) => of({ details: {} }))),
-        ),
-        map((_) => {
-            const mapping = _.details || {};
-            const levels = this._org.levelsForBuilding(this._org.building);
-            const list = flatten(levels.map((lvl) => mapping[lvl.id] || []));
-            return list as PointOfInterest[];
-        }),
-        shareReplay(1),
-    );
+    private readonly _features = signal<PointOfInterest[]>([]);
 
-    public readonly filtered_features = combineLatest([
-        this._features,
-        this._options,
-    ]).pipe(
-        map(([list, options]) => {
-            if (options.search) {
-                list = list.filter((_) =>
-                    _.name.toLowerCase().includes(options.search.toLowerCase()),
-                );
-            }
-            return list;
-        }),
-    );
+    public readonly filtered_features = computed(() => {
+        const list = this._features();
+        const { search } = this.options();
+        if (search) {
+            return list.filter((_) =>
+                _.name.toLowerCase().includes(search.toLowerCase()),
+            );
+        }
+        return list;
+    });
+
+    constructor() {
+        effect(() => {
+            this._org.active_building();
+            this._change();
+            this._loadFeatures();
+        });
+    }
+
+    private async _loadFeatures() {
+        const metadata = await showMetadata(
+            this._org.organisation.id,
+            'points-of-interest',
+        ).catch((_) => ({ details: {} }));
+        const mapping = metadata.details || {};
+        const levels = this._org.levelsForBuilding(this._org.building);
+        const list = flatten(levels.map((lvl) => mapping[lvl.id] || []));
+        this._features.set(list as PointOfInterest[]);
+    }
 
     public setFilters(options: Partial<POIListOptions>) {
-        this._options.next({ ...this._options.getValue(), ...options });
+        this.options.update((current) => ({ ...current, ...options }));
     }
 
     public setSearchString(search: string) {
-        this._options.next({ ...this._options.getValue(), search });
+        this.options.update((current) => ({ ...current, search }));
     }
 
     public editPointOfInterest(poi?: PointOfInterest) {
         const ref = this._dialog.open(POIModalComponent, {
             data: poi,
         });
-        ref.afterClosed().subscribe(() => this._change.next(Date.now()));
+        ref.afterClosed().subscribe(() =>
+            this._change.update((value) => value + 1),
+        );
     }
 
     public previewPointOfInterest(poi: PointOfInterest) {
@@ -129,6 +128,6 @@ export class POIManagementService {
         });
         notifySuccess('Successfully removed point of interest.');
         ref.close();
-        this._change.next(Date.now());
+        this._change.update((value) => value + 1);
     }
 }

@@ -69,26 +69,26 @@ describe('AppSettingsModalComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should have a form with general controls', () => {
-        const form = spectator.component.form;
-        expect(form.get('use_24_hour_time')).toBeTruthy();
-        expect(form.get('features')).toBeTruthy();
+    it('should have a model with general values', () => {
+        const model = spectator.component.model();
+        expect('use_24_hour_time' in model).toBe(true);
+        expect('features' in model).toBe(true);
     });
 
-    it('should have events form group', () => {
-        const events = spectator.component.form.get('events');
+    it('should have events model group', () => {
+        const events = spectator.component.model().events;
         expect(events).toBeTruthy();
-        expect(events.get('allow_all_day')).toBeTruthy();
-        expect(events.get('can_book_for_others')).toBeTruthy();
-        expect(events.get('has_assets')).toBeTruthy();
-        expect(events.get('has_catering')).toBeTruthy();
-        expect(events.get('allow_externals')).toBeTruthy();
+        expect('allow_all_day' in events).toBe(true);
+        expect('can_book_for_others' in events).toBe(true);
+        expect('has_assets' in events).toBe(true);
+        expect('has_catering' in events).toBe(true);
+        expect('allow_externals' in events).toBe(true);
     });
 
-    it('should have desks form group', () => {
-        const desks = spectator.component.form.get('desks');
+    it('should have desks model group', () => {
+        const desks = spectator.component.model().desks;
         expect(desks).toBeTruthy();
-        expect(desks.get('allow_all_day')).toBeTruthy();
+        expect('allow_all_day' in desks).toBe(true);
     });
 
     it('should expose available features list', () => {
@@ -161,9 +161,9 @@ describe('AppSettingsModalComponent', () => {
             },
         } as never);
         await spectator.component.ngOnInit();
-        expect(spectator.component.active_features['spaces']).toBe(true);
-        expect(spectator.component.active_features['desks']).toBe(true);
-        expect(spectator.component.active_features['use_24_hour_time']).toBe(
+        expect(spectator.component.active_features()['spaces']).toBe(true);
+        expect(spectator.component.active_features()['desks']).toBe(true);
+        expect(spectator.component.active_features()['use_24_hour_time']).toBe(
             true,
         );
     });
@@ -204,8 +204,8 @@ describe('AppSettingsModalComponent', () => {
         expect(common_mod.notifyError).toHaveBeenCalled();
     });
 
-    it('should update form values from active_features before save', () => {
-        spectator.component.active_features = {
+    it('should build features list from active_features', () => {
+        spectator.component.active_features.set({
             spaces: true,
             desks: false,
             explore: true,
@@ -214,9 +214,9 @@ describe('AppSettingsModalComponent', () => {
             schedule: false,
             wfh: true,
             use_24_hour_time: true,
-        };
-        spectator.component.updateFormValues();
-        const features = spectator.component.form.value.features;
+        });
+        const out = spectator.component.buildSettings();
+        const features = out.features;
         expect(features).toContain('spaces');
         expect(features).not.toContain('desks');
         expect(features).toContain('explore');
@@ -225,26 +225,25 @@ describe('AppSettingsModalComponent', () => {
     });
 
     it('should filter features list to only available_features', () => {
-        spectator.component.active_features = {
+        spectator.component.active_features.set({
             spaces: true,
             use_24_hour_time: true, // not in available_features
             allow_all_day: true, // not in available_features
-        };
-        spectator.component.updateFormValues();
-        const features = spectator.component.form.value.features;
+        });
+        const out = spectator.component.buildSettings();
+        const features = out.features;
         expect(features).toContain('spaces');
         expect(features).not.toContain('use_24_hour_time');
         expect(features).not.toContain('allow_all_day');
     });
 
-    it('should copy desks to bookings in updateFormValues', () => {
-        (spectator.component.form.get('desks') as any).patchValue({
-            allow_all_day: true,
-        });
-        spectator.component.updateFormValues();
-        expect(spectator.component.form.value.bookings.allow_all_day).toEqual(
-            spectator.component.form.value.desks.allow_all_day,
-        );
+    it('should copy desks to bookings in buildSettings', () => {
+        spectator.component.model.update((m) => ({
+            ...m,
+            desks: { ...m.desks, allow_all_day: true },
+        }));
+        const out = spectator.component.buildSettings();
+        expect(out.bookings.allow_all_day).toEqual(out.desks.allow_all_day);
     });
 
     it('should set loading and disableClose during init', async () => {

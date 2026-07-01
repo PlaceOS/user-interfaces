@@ -1,17 +1,17 @@
 import { CommonModule } from '@angular/common';
 import {
     Component,
+    effect,
     ElementRef,
-    OnInit,
     inject,
+    OnInit,
     signal,
     viewChild,
 } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterModule } from '@angular/router';
-import { AsyncHandler, Booking, CalendarEvent } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 
 import { ExploreSearchService } from '@placeos/explore';
@@ -32,13 +32,12 @@ import { ScheduleStateService } from '../schedule/schedule-state.service';
             </button>
             <div
                 search
-                class="border-neutral bg-base-100 absolute top-1/2 right-2 z-50 flex h-12 max-w-[calc(100vw-4rem)] -translate-y-1/2 items-center space-x-2 rounded-[24px] border-2 px-2 shadow-sm"
+                class="border-neutral bg-base-100 absolute top-1/2 right-2 z-50 flex h-12 w-[calc(100vw-4rem)] -translate-y-1/2 items-center space-x-2 rounded-[24px] border-2 px-2 shadow-sm sm:w-lg"
                 [ngClass]="{
-                    'w-lg': show(),
-                    'w-px': !show(),
                     'opacity-100': show(),
                     'opacity-0': !show(),
                     'pointer-events-none': !show(),
+                    open: show(),
                 }"
                 (click)="showInput()"
             >
@@ -58,13 +57,12 @@ import { ScheduleStateService } from '../schedule/schedule-state.service';
             @if (filter_str()) {
                 <div
                     search
-                    class="border-base-200 bg-base-100 absolute right-2 bottom-0 flex max-h-[40vh] max-w-[calc(100vw-4rem)] translate-y-[calc(100%-1rem)] flex-col items-center overflow-auto rounded-b border pt-4 shadow-sm"
+                    class="border-base-200 bg-base-100 absolute right-2 bottom-0 flex max-h-[40vh] w-[calc(100vw-4rem)] translate-y-[calc(100%-1rem)] flex-col items-center overflow-auto rounded-b border pt-4 shadow-sm sm:w-lg"
                     [ngClass]="{
-                        'w-lg': show(),
-                        'w-px': !show(),
                         'opacity-100': show(),
                         'opacity-0': !show(),
                         'pointer-events-none': !show(),
+                        open: show(),
                     }"
                 >
                     @if (!results().length && filter_str()) {
@@ -131,9 +129,20 @@ import { ScheduleStateService } from '../schedule/schedule-state.service';
     styles: [
         `
             [search] {
+                clip-path: inset(0 0 0 calc(100% - 3rem) round 24px);
                 transition:
-                    width 200ms,
-                    opacity 200ms;
+                    clip-path 220ms cubic-bezier(0.2, 0.8, 0.2, 1),
+                    opacity 160ms ease-out;
+            }
+
+            [search].open {
+                clip-path: inset(0 0 0 0 round 24px);
+            }
+
+            @media (prefers-reduced-motion: reduce) {
+                [search] {
+                    transition: none;
+                }
             }
         `,
     ],
@@ -164,22 +173,18 @@ export class GlobalSearchComponent extends AsyncHandler implements OnInit {
     public readonly _input_el =
         viewChild<ElementRef<HTMLInputElement>>('input');
 
-    // Convert signal to observable in injection context (field initializer)
-    private readonly _bookings$ = toObservable(this._schedule.bookings);
-
-    public ngOnInit() {
-        // Subscribe to bookings and filter for in-progress ones
-        this.subscription(
-            'in_progress_bookings',
-            this._bookings$.subscribe((bookings: (Booking | CalendarEvent)[]) => {
-                const in_progress = bookings.filter((b) => {
-                    const state = b.state;
-                    return state === 'in_progress' || state === 'started';
-                });
-                this._service.setInProgressBookings(in_progress);
-            }),
-        );
+    constructor() {
+        super();
+        effect(() => {
+            const in_progress = this._schedule.bookings().filter((b) => {
+                const state = b.state;
+                return state === 'in_progress' || state === 'started';
+            });
+            this._service.setInProgressBookings(in_progress);
+        });
     }
+
+    public ngOnInit() {}
 
     public showInput() {
         this.show.set(true);

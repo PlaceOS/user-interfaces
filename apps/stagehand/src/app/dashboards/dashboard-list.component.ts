@@ -1,4 +1,9 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import {
+    Component,
+    inject,
+    OnInit,
+    signal,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -166,9 +171,7 @@ import { DashboardsService } from './dashboards.service';
                         matRipple
                         [routerLink]="['/dashboards', 'manage', dashboard.id]"
                         class="rounded-sm"
-                        [attr.aria-label]="
-                            'Edit dashboard ' + dashboard.name
-                        "
+                        [attr.aria-label]="'Edit dashboard ' + dashboard.name"
                         [matTooltip]="
                             'APP.STAGEHAND.DASHBOARD_EDIT' | translate
                         "
@@ -181,9 +184,7 @@ import { DashboardsService } from './dashboards.service';
                         matRipple
                         class="rounded-sm"
                         (click)="remove(dashboard)"
-                        [attr.aria-label]="
-                            'Remove dashboard ' + dashboard.name
-                        "
+                        [attr.aria-label]="'Remove dashboard ' + dashboard.name"
                         [matTooltip]="
                             'APP.STAGEHAND.DASHBOARD_REMOVE' | translate
                         "
@@ -196,9 +197,7 @@ import { DashboardsService } from './dashboards.service';
                         matRipple
                         class="rounded-sm"
                         (click)="toggleChildren(dashboard)"
-                        [attr.aria-expanded]="
-                            !!show_children()?.[dashboard.id]
-                        "
+                        [attr.aria-expanded]="!!show_children()?.[dashboard.id]"
                         [attr.aria-label]="
                             (show_children()?.[dashboard.id]
                                 ? 'Hide'

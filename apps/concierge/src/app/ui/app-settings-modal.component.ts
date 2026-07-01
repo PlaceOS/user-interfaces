@@ -1,10 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import {
-    FormControl,
-    FormGroup,
-    FormsModule,
-    ReactiveFormsModule,
-} from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import {
@@ -34,20 +29,14 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
                 </h2>
             </header>
             @if (!loading()) {
-                <main
-                    class="z-0 h-1/2 flex-1 space-y-2 overflow-auto p-2"
-                    [formGroup]="form"
-                >
+                <main class="z-0 h-1/2 flex-1 space-y-2 overflow-auto p-2">
                     <div class="mx-auto w-full max-w-[640px]">
                         <h3 class="text-lg font-medium">General Features</h3>
                         <div class="-mx-2 flex flex-wrap items-center py-2">
                             <button
                                 matRipple
                                 class="border-base-200 m-2 flex w-[calc(50%-1rem)] items-center space-x-2 border p-2"
-                                (click)="
-                                    active_features['use_24_hour_time'] =
-                                        !active_features['use_24_hour_time']
-                                "
+                                (click)="toggleFeature('use_24_hour_time')"
                             >
                                 <div class="ml-2 flex-1 text-left">
                                     {{
@@ -56,7 +45,7 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
                                 </div>
                                 <mat-checkbox
                                     [ngModel]="
-                                        active_features['use_24_hour_time']
+                                        active_features()['use_24_hour_time']
                                     "
                                     [ngModelOptions]="{ standalone: true }"
                                     class="pointer-events-none"
@@ -72,16 +61,13 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
                                 <button
                                     matRipple
                                     class="border-base-200 m-2 flex w-[calc(50%-1rem)] items-center space-x-2 border p-2"
-                                    (click)="
-                                        active_features[feature] =
-                                            !active_features[feature]
-                                    "
+                                    (click)="toggleFeature(feature)"
                                 >
                                     <div class="ml-2 flex-1 text-left">
                                         {{ feature_descriptions[feature] }}
                                     </div>
                                     <mat-checkbox
-                                        [ngModel]="active_features[feature]"
+                                        [ngModel]="active_features()[feature]"
                                         [ngModelOptions]="{ standalone: true }"
                                         class="pointer-events-none"
                                     ></mat-checkbox>
@@ -94,24 +80,21 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
                                 <button
                                     matRipple
                                     class="border-base-200 m-2 flex w-[calc(50%-1rem)] items-center space-x-2 border p-2"
-                                    (click)="
-                                        active_features[feature] =
-                                            !active_features[feature]
-                                    "
+                                    (click)="toggleFeature(feature)"
                                 >
                                     <div class="ml-2 flex-1 text-left">
                                         {{ feature_descriptions[feature] }}
                                     </div>
                                     <mat-checkbox
-                                        [ngModel]="active_features[feature]"
+                                        [ngModel]="active_features()[feature]"
                                         [ngModelOptions]="{ standalone: true }"
                                         class="pointer-events-none"
                                     ></mat-checkbox>
                                 </button>
                             }
                         </div>
-                        @if (active_features['spaces']) {
-                            <ng-container formGroupName="events">
+                        @if (active_features()['spaces']) {
+                            <ng-container>
                                 <h3 class="text-lg font-medium">
                                     Room Bookings
                                 </h3>
@@ -125,16 +108,7 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
                                         <button
                                             matRipple
                                             class="border-base-200 m-2 flex w-[calc(50%-1rem)] items-center space-x-2 border p-2"
-                                            (click)="
-                                                form
-                                                    .get('events')
-                                                    .get(feature)
-                                                    .setValue(
-                                                        !form
-                                                            .get('events')
-                                                            .get(feature).value
-                                                    )
-                                            "
+                                            (click)="toggleEventFeature(feature)"
                                         >
                                             <div class="ml-2 flex-1 text-left">
                                                 {{
@@ -144,7 +118,12 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
                                                 }}
                                             </div>
                                             <mat-checkbox
-                                                [formControlName]="feature"
+                                                [ngModel]="
+                                                    model().events[feature]
+                                                "
+                                                [ngModelOptions]="{
+                                                    standalone: true,
+                                                }"
                                                 class="pointer-events-none"
                                             ></mat-checkbox>
                                         </button>
@@ -152,8 +131,8 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
                                 </div>
                             </ng-container>
                         }
-                        @if (active_features['desks']) {
-                            <div formGroupName="desks">
+                        @if (active_features()['desks']) {
+                            <div>
                                 <h3 class="text-lg font-medium">
                                     Desk Bookings
                                 </h3>
@@ -167,16 +146,7 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
                                         <button
                                             matRipple
                                             class="border-base-200 m-2 flex w-[calc(50%-1rem)] items-center space-x-2 border p-2"
-                                            (click)="
-                                                form
-                                                    .get('desks')
-                                                    .get(feature)
-                                                    .setValue(
-                                                        !form
-                                                            .get('desks')
-                                                            .get(feature).value
-                                                    )
-                                            "
+                                            (click)="toggleDeskFeature(feature)"
                                         >
                                             <div class="ml-2 flex-1 text-left">
                                                 {{
@@ -186,7 +156,12 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
                                                 }}
                                             </div>
                                             <mat-checkbox
-                                                [formControlName]="feature"
+                                                [ngModel]="
+                                                    model().desks[feature]
+                                                "
+                                                [ngModelOptions]="{
+                                                    standalone: true,
+                                                }"
                                                 class="pointer-events-none"
                                             ></mat-checkbox>
                                         </button>
@@ -230,7 +205,6 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
     `,
     styles: [``],
     imports: [
-        ReactiveFormsModule,
         FormsModule,
         MatRippleModule,
         MatDialogModule,
@@ -281,7 +255,7 @@ export class AppSettingsModalComponent implements OnInit {
     public readonly desk_features = ['allow_all_day'];
     public readonly loading = signal('');
     public combined_settings: Record<string, any> = {};
-    public active_features: Record<string, boolean> = {};
+    public readonly active_features = signal<Record<string, boolean>>({});
 
     public readonly feature_descriptions = {
         use_24_hour_time: 'Use 24 Hour Time',
@@ -312,35 +286,56 @@ export class AppSettingsModalComponent implements OnInit {
         allow_recurrence: 'Allow recurring bookings',
     };
 
-    public readonly form = new FormGroup({
-        use_24_hour_time: new FormControl(false),
-        features: new FormControl([]),
-        general: new FormGroup({
-            show_quick_links: new FormControl(false),
-            hide_availability: new FormControl(false),
-            hide_colleagues: new FormControl(false),
-            hide_landing_sidebar: new FormControl(false),
-            hide_rooms: new FormControl(false),
-            hide_spaces: new FormControl(false),
-        }),
-        events: new FormGroup({
-            allow_all_day: new FormControl(false),
-            booking_unavailable: new FormControl(false),
-            can_book_for_others: new FormControl(false),
-            has_assets: new FormControl(false),
-            has_catering: new FormControl(false),
-            allow_externals: new FormControl(false),
-            hide_notes: new FormControl(false),
-            allow_recurrence: new FormControl(false),
-        }),
-        desks: new FormGroup({
-            allow_all_day: new FormControl(false),
-            has_assets: new FormControl(false),
-        }),
-        bookings: new FormGroup({
-            allow_all_day: new FormControl(false),
-        }),
+    public readonly model = signal({
+        use_24_hour_time: false,
+        features: [] as string[],
+        general: {
+            show_quick_links: false,
+            hide_availability: false,
+            hide_colleagues: false,
+            hide_landing_sidebar: false,
+            hide_rooms: false,
+            hide_spaces: false,
+        } as Record<string, boolean>,
+        events: {
+            allow_all_day: false,
+            booking_unavailable: false,
+            can_book_for_others: false,
+            has_assets: false,
+            has_catering: false,
+            allow_externals: false,
+            hide_notes: false,
+            allow_recurrence: false,
+        } as Record<string, boolean>,
+        desks: {
+            allow_all_day: false,
+            has_assets: false,
+        } as Record<string, boolean>,
+        bookings: {
+            allow_all_day: false,
+        } as Record<string, boolean>,
     });
+
+    public toggleFeature(feature: string) {
+        this.active_features.update((f) => ({
+            ...f,
+            [feature]: !f[feature],
+        }));
+    }
+
+    public toggleEventFeature(feature: string) {
+        this.model.update((m) => ({
+            ...m,
+            events: { ...m.events, [feature]: !m.events[feature] },
+        }));
+    }
+
+    public toggleDeskFeature(feature: string) {
+        this.model.update((m) => ({
+            ...m,
+            desks: { ...m.desks, [feature]: !m.desks[feature] },
+        }));
+    }
 
     public async ngOnInit() {
         this.loading.set('Loading settings...');
@@ -387,35 +382,46 @@ export class AppSettingsModalComponent implements OnInit {
                 ...zone_settings.bookings,
             },
         };
-        this.form.patchValue(combined_settings);
+        this.model.update((m) => ({
+            ...m,
+            use_24_hour_time:
+                combined_settings.use_24_hour_time ?? m.use_24_hour_time,
+            features: combined_settings.features ?? m.features,
+            general: { ...m.general, ...(combined_settings.general || {}) },
+            events: { ...m.events, ...(combined_settings.events || {}) },
+            desks: { ...m.desks, ...(combined_settings.desks || {}) },
+            bookings: { ...m.bookings, ...(combined_settings.bookings || {}) },
+        }));
+        const active_features: Record<string, boolean> = {};
         for (const key in combined_settings) {
             if (typeof combined_settings[key] === 'object') {
                 for (const sub_key in combined_settings[key]) {
                     if (typeof combined_settings[key][sub_key] === 'boolean') {
-                        this.active_features[sub_key] =
+                        active_features[sub_key] =
                             combined_settings[key][sub_key];
                     }
                 }
             } else if (typeof combined_settings[key] === 'boolean') {
-                this.active_features[key] = combined_settings[key];
+                active_features[key] = combined_settings[key];
             }
         }
         for (const feature of combined_settings.features || []) {
-            this.active_features[feature] = true;
+            active_features[feature] = true;
         }
+        this.active_features.set(active_features);
         this.combined_settings = combined_settings;
         this.loading.set('');
         this._dialog_ref.disableClose = false;
     }
 
     public async save() {
-        this.updateFormValues();
+        const details = this.buildSettings();
         this.loading.set('Saving settings...');
         this._dialog_ref.disableClose = true;
         try {
             await updateMetadata(this.zone.id, {
                 name: `${this.workplace_key}`,
-                details: this.form.value,
+                details,
                 description: 'Workplace Application Settings',
             });
         } catch (e) {
@@ -432,26 +438,30 @@ export class AppSettingsModalComponent implements OnInit {
         notifySuccess('Successfully saved settings');
     }
 
-    public updateFormValues() {
-        const form_values = this.form.value;
+    public buildSettings(): Record<string, any> {
+        const form_values: any = JSON.parse(JSON.stringify(this.model()));
         for (const key in form_values) {
-            if (typeof form_values[key] === 'object') {
+            if (
+                form_values[key] &&
+                typeof form_values[key] === 'object' &&
+                !Array.isArray(form_values[key])
+            ) {
                 if (key === 'events' || key === 'desks' || key === 'bookings')
                     continue;
                 for (const sub_key in form_values[key]) {
                     if (typeof form_values[key][sub_key] === 'boolean') {
                         form_values[key][sub_key] =
-                            this.active_features[sub_key];
+                            this.active_features()[sub_key];
                     }
                 }
             } else if (typeof form_values[key] === 'boolean') {
-                form_values[key] = this.active_features[key];
+                form_values[key] = this.active_features()[key];
             }
         }
         form_values.bookings = form_values.desks;
-        form_values.features = Object.keys(this.active_features)
-            .filter((key) => this.active_features[key])
+        form_values.features = Object.keys(this.active_features())
+            .filter((key) => this.active_features()[key])
             .filter((key) => this.available_features.includes(key));
-        this.form.patchValue(form_values);
+        return form_values;
     }
 }

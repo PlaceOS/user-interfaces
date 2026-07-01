@@ -1,5 +1,4 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AsyncHandler, i18n, notifyError } from '@placeos/common';
@@ -147,10 +146,8 @@ export class MeetingFlowNewComponent extends AsyncHandler implements OnInit {
     private _event_form = inject(EventFormService);
 
     public readonly view = signal(0);
-    public readonly flow_view = toSignal(this._event_form.view$);
-    public readonly form_value = toSignal(this._event_form.form.valueChanges, {
-        initialValue: this._event_form.form.value,
-    });
+    public readonly flow_view = this._event_form.view;
+    public readonly form_value = this._event_form.model;
 
     public readonly has_title = computed(
         () => !!this.form_value()?.title?.trim(),
@@ -186,6 +183,7 @@ export class MeetingFlowNewComponent extends AsyncHandler implements OnInit {
     }
 
     public ngOnInit() {
+        this._event_form.loadForm();
         this.subscription(
             'route.params',
             this._route.paramMap.subscribe((param) => {

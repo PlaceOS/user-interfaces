@@ -1,249 +1,523 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import {
+    Component,
+    computed,
+    inject,
+    OnInit,
+    TemplateRef,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { AsyncHandler, Booking, SettingsService } from '@placeos/common';
+import { ParkingSpacePipe } from '@placeos/assets';
 import {
+    AsyncHandler,
+    Booking,
+    settingSignal,
+    SettingsService,
+} from '@placeos/common';
+import {
+    CustomTooltipComponent,
     IconComponent,
     SimpleTableComponent,
+    TableColumn,
     TranslatePipe,
 } from '@placeos/components';
-import { combineLatest, map } from 'rxjs';
 import { ParkingBookingsWeekViewComponent } from './parking-bookings-week-view.component';
 import { ParkingStateService } from './parking-state.service';
+import { isParkingAllDayBooking } from './parking.utilities';
+
+interface ParkingBookingExtensionColumn {
+    field: string;
+    name?: string;
+    display_name?: string;
+    size?: string;
+}
+
+interface ParkingBookingColumnTemplates {
+    state_template: TemplateRef<any>;
+    type_template: TemplateRef<any>;
+    date_template: TemplateRef<any>;
+    bay_template: TemplateRef<any>;
+    person_template: TemplateRef<any>;
+    host_template: TemplateRef<any>;
+    plate_template: TemplateRef<any>;
+    notes_template: TemplateRef<any>;
+    status_template: TemplateRef<any>;
+    user_groups_template: TemplateRef<any>;
+    action_template: TemplateRef<any>;
+    status_busy_label: string;
+    type_label: string;
+    time_label: string;
+    bay_number_label: string;
+    reserved_for_label: string;
+    reserved_by_label: string;
+    plate_number_label: string;
+    notes_label: string;
+    status_label: string;
+    user_groups_label: string;
+}
 
 @Component({
-    selector: 'parking-bookings-list',
+    selector: '[parking-bookings-list]',
     template: `
-        <mat-progress-bar
-            [class.opacity-0]="!(loading | async)?.includes('bookings')"
-            class="sticky left-0 w-full"
-        />
-        @if ((options | async)?.period === 'week') {
-            <parking-bookings-week-view
-                [booking_events]="(filtered_events | async) || []"
-                [date]="(options | async)?.date || 0"
-                [week_start]="week_start"
-                [time_format]="time_format"
-                [approve]="approve"
-                [reject]="reject"
-                [edit_reservation]="editReservation"
-            />
-        } @else {
-            <simple-table
-                class="block min-w-304 text-sm"
-                [data]="filtered_events"
-                [columns]="[
-                    {
-                        key: 'state',
-                        name: 'COMMON.STATUS_BUSY' | translate,
-                        content: state_template,
-                        size: '4.75rem',
-                        sortable: false,
-                    },
-                    {
-                        key: 'date',
-                        name: 'FORM.TIME' | translate,
-                        content: date_template,
-                    },
-                    {
-                        key: 'asset_name',
-                        name: 'APP.CONCIERGE.PARKING_BAY_NUMBER' | translate,
-                    },
-                    {
-                        key: 'user_name',
-                        name: 'APP.CONCIERGE.PARKING_RESERVED_FOR' | translate,
-                        content: person_template,
-                    },
-                    {
-                        key: 'booked_by_name',
-                        name: 'APP.CONCIERGE.PARKING_RESERVED_BY' | translate,
-                        content: host_template,
-                    },
-                    {
-                        key: 'plate_number',
-                        name: 'EXPLORE.PARKING_PLATE_NUMBER' | translate,
-                        content: plate_template,
-                        size: '10rem',
-                        sortable: false,
-                    },
-                    {
-                        key: 'status',
-                        name: 'COMMON.STATUS' | translate,
-                        content: status_template,
-                        size: '9.5rem',
-                    },
-                    {
-                        key: 'actions',
-                        name: ' ',
-                        content: action_template,
-                        size: '3.5rem',
-                        sortable: false,
-                    },
-                ]"
-                [filter]="(options | async)?.search"
-                [sortable]="true"
-                [empty_message]="
-                    'APP.CONCIERGE.PARKING_BOOKINGS_EMPTY' | translate
-                "
-            />
-        }
-        <ng-template #date_template let-row="row">
-            <div class="px-4 py-2">
-                {{
-                    row.all_day || row.duration > 12 * 60
-                        ? ('COMMON.ALL_DAY' | translate)
-                        : (row.date | date: time_format) +
-                          ' - ' +
-                          (row.date_end | date: time_format)
-                }}
-            </div>
-        </ng-template>
-        <ng-template #person_template let-row="row">
-            <div class="px-4 py-2">
-                <div>{{ row.user_name || row.user_email }}</div>
-                @if (row.user_name && row.user_email) {
-                    <div class="text-xs opacity-30">
-                        {{ row.user_email }}
+        <div class="w-fit px-8">
+            @if (period() === 'week') {
+                <parking-bookings-week-view />
+            } @else {
+                <mat-progress-bar
+                    [class.opacity-0]="!loading().includes('[BOOKINGS]')"
+                    class="sticky left-0 w-full"
+                />
+                <simple-table
+                    class="block min-w-324 text-sm"
+                    [data]="filtered_events()"
+                    [columns]="
+                        bookingColumns({
+                            state_template,
+                            type_template,
+                            date_template,
+                            bay_template,
+                            person_template,
+                            host_template,
+                            plate_template,
+                            notes_template,
+                            status_template,
+                            user_groups_template,
+                            action_template,
+                            status_busy_label: 'COMMON.STATUS_BUSY' | translate,
+                            type_label:
+                                'BOOKINGS.PARKING_VEHICLE_TYPE' | translate,
+                            time_label: 'FORM.TIME' | translate,
+                            bay_number_label:
+                                'APP.CONCIERGE.PARKING_BAY_NUMBER' | translate,
+                            reserved_for_label:
+                                'APP.CONCIERGE.PARKING_RESERVED_FOR'
+                                | translate,
+                            reserved_by_label:
+                                'APP.CONCIERGE.PARKING_RESERVED_BY' | translate,
+                            plate_number_label:
+                                'EXPLORE.PARKING_PLATE_NUMBER' | translate,
+                            notes_label: 'FORM.NOTES' | translate,
+                            status_label: 'COMMON.STATUS' | translate,
+                            user_groups_label:
+                                'APP.CONCIERGE.PARKING_USER_GROUPS' | translate,
+                        })
+                    "
+                    [filter]="options().search"
+                    [sortable]="true"
+                    [empty_message]="
+                        (isRequestFilter(options().request_filter)
+                            ? 'APP.CONCIERGE.PARKING_REQUESTS_EMPTY'
+                            : 'APP.CONCIERGE.PARKING_BOOKINGS_EMPTY'
+                        ) | translate
+                    "
+                />
+                <ng-template #date_template let-row="row">
+                    <div class="px-4 py-2">
+                        {{
+                            isAllDayBooking(row)
+                                ? ('COMMON.ALL_DAY' | translate)
+                                : (row.date | date: time_format : timezone) +
+                                  ' - ' +
+                                  (row.date_end | date: time_format : timezone)
+                        }}
                     </div>
-                }
-            </div>
-        </ng-template>
-        <ng-template #host_template let-row="row">
-            <div class="px-4 py-2">
-                <div>{{ row.booked_by_name || row.booked_by_email }}</div>
-                @if (row.booked_by_name && row.booked_by_email) {
-                    <div class="text-xs opacity-30">
-                        {{ row.booked_by_email }}
+                </ng-template>
+                <ng-template #person_template let-row="row">
+                    <div class="px-4 py-2">
+                        <div>{{ row.user_name || row.user_email }}</div>
+                        @if (row.user_name && row.user_email) {
+                            <div class="text-xs opacity-30">
+                                {{ row.user_email }}
+                            </div>
+                        }
                     </div>
-                }
-            </div>
-        </ng-template>
-        <ng-template #state_template let-row="row">
-            @if (!row?.checked_in && row.checked_out_at) {
-                <div
-                    class="bg-base-300 text-base-100 mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl"
-                    [matTooltip]="
-                        'APP.CONCIERGE.PARKING_CHECKED_OUT_AT'
-                            | translate
-                                : {
-                                      time:
-                                          (row.checked_out_at * 1000
-                                          | date: time_format),
-                                  }
-                    "
-                    matTooltipPosition="right"
-                >
-                    <icon>done</icon>
-                </div>
-            }
-            @if (!row?.checked_in && !row.checked_out_at) {
-                <div
-                    class="bg-warning text-warning-content mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl"
-                    [matTooltip]="
-                        'APP.CONCIERGE.PARKING_NOT_CHECKED_IN' | translate
-                    "
-                    matTooltipPosition="right"
-                >
-                    <icon>question_mark</icon>
-                </div>
-            }
-            @if (row?.checked_in) {
-                <div
-                    class="bg-success text-success-content mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl"
-                    [matTooltip]="
-                        'APP.CONCIERGE.PARKING_CHECKED_IN' | translate
-                    "
-                    matTooltipPosition="right"
-                >
-                    <icon>done</icon>
-                </div>
-            }
-        </ng-template>
-        <ng-template #plate_template let-row="row">
-            <div class="p-4 font-mono text-sm uppercase">
-                {{ row?.extension_data?.plate_number }}
-                @if (!row?.extension_data?.plate_number) {
-                    <span class="opacity-30">
-                        {{ 'COMMON.EMPTY' | translate }}
-                    </span>
-                }
-            </div>
-        </ng-template>
-        <ng-template #status_template let-row="row">
-            <div class="px-4">
-                <button
-                    matRipple
-                    class="h-10 w-30 rounded-3xl border-none"
-                    [class.text-success-content]="row?.status === 'approved'"
-                    [class.bg-success]="row?.status === 'approved'"
-                    [class.text-error-content]="row?.status === 'declined'"
-                    [class.bg-error]="row?.status === 'declined'"
-                    [class.text-neutral-content]="row?.status === 'ended'"
-                    [class.bg-neutral]="row?.status === 'ended'"
-                    [class.opacity-30]="row?.status === 'ended'"
-                    [class.text-warning-content]="row?.status === 'tentative'"
-                    [class.bg-warning]="row?.status === 'tentative'"
-                    [matMenuTriggerFor]="menu"
-                    [disabled]="row?.status === 'ended'"
-                >
-                    <div class="flex items-center space-x-2 pr-2 pl-4">
-                        <div class="flex-1 text-left">
-                            {{
-                                (row?.status === 'ended'
-                                    ? 'APP.CONCIERGE.BOOKING_STATUS_ENDED'
-                                    : row?.status === 'approved'
-                                      ? 'APP.CONCIERGE.BOOKING_STATUS_APPROVED'
-                                      : row?.status === 'declined'
-                                        ? 'APP.CONCIERGE.BOOKING_STATUS_DECLINED'
-                                        : 'APP.CONCIERGE.BOOKING_STATUS_PENDING'
-                                ) | translate
-                            }}
+                </ng-template>
+                <ng-template #host_template let-row="row">
+                    <div class="px-4 py-2">
+                        <div>
+                            {{ row.booked_by_name || row.booked_by_email }}
                         </div>
-                        <icon class="text-2xl">arrow_drop_down</icon>
+                        @if (row.booked_by_name && row.booked_by_email) {
+                            <div class="text-xs opacity-30">
+                                {{ row.booked_by_email }}
+                            </div>
+                        }
                     </div>
-                </button>
-            </div>
-            <mat-menu #menu="matMenu">
-                <button mat-menu-item (click)="approve(row)">
-                    <div class="flex items-center space-x-2">
-                        <icon class="text-2xl">event_available</icon>
-                        <div class="pr-2">
-                            {{ 'APP.CONCIERGE.PARKING_APPROVE' | translate }}
+                </ng-template>
+                <ng-template #state_template let-row="row">
+                    @if (!row?.checked_in && row.checked_out_at) {
+                        <div
+                            class="bg-base-300 text-base-100 mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl"
+                            [matTooltip]="
+                                'APP.CONCIERGE.PARKING_CHECKED_OUT_AT'
+                                    | translate
+                                        : {
+                                              time:
+                                                  (row.checked_out_at * 1000
+                                                  | date
+                                                      : time_format
+                                                      : timezone),
+                                          }
+                            "
+                            matTooltipPosition="right"
+                        >
+                            <icon>done</icon>
                         </div>
+                    }
+                    @if (!row?.checked_in && !row.checked_out_at) {
+                        <div
+                            class="bg-warning text-warning-content mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl"
+                            [matTooltip]="
+                                'APP.CONCIERGE.PARKING_NOT_CHECKED_IN'
+                                    | translate
+                            "
+                            matTooltipPosition="right"
+                        >
+                            <icon>question_mark</icon>
+                        </div>
+                    }
+                    @if (row?.checked_in) {
+                        <div
+                            class="bg-success text-success-content mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl"
+                            [matTooltip]="
+                                'APP.CONCIERGE.PARKING_CHECKED_IN' | translate
+                            "
+                            matTooltipPosition="right"
+                        >
+                            <icon>done</icon>
+                        </div>
+                    }
+                </ng-template>
+                <ng-template #bay_template let-row="row">
+                    <div class="px-4 py-2">
+                        @let id = row.asset_id;
+                        @if (id && !isRequestId(id)) {
+                            {{ (id | parkingSpace | async)?.identifier || id }}
+                        } @else {
+                            <span class="opacity-30">
+                                {{ 'COMMON.EMPTY' | translate }}
+                            </span>
+                        }
                     </div>
-                </button>
-                <button mat-menu-item (click)="reject(row)">
-                    <div class="flex items-center space-x-2">
-                        <icon class="text-2xl">event_busy</icon>
-                        <div class="pr-2">
-                            {{ 'APP.CONCIERGE.PARKING_DECLINE' | translate }}
+                </ng-template>
+                <ng-template #plate_template let-row="row">
+                    <div class="p-4 font-mono text-sm uppercase">
+                        {{ row?.extension_data?.plate_number }}
+                        @if (!row?.extension_data?.plate_number) {
+                            <span class="opacity-30">
+                                {{ 'COMMON.EMPTY' | translate }}
+                            </span>
+                        }
+                    </div>
+                </ng-template>
+                <ng-template #notes_template let-row="row">
+                    <div class="flex justify-center px-4 py-2">
+                        @if (row.notes) {
+                            <span
+                                class="text-base-content/70 bg-base-200 border-base-300 flex h-8 w-8 items-center justify-center rounded-full border"
+                                customTooltip
+                                tabindex="0"
+                                [content]="notes_tooltip"
+                                [data]="{ notes: row.notes }"
+                                [hover]="true"
+                                [backdrop]="false"
+                                [xPosition]="'center'"
+                                [yPosition]="'top'"
+                                [attr.aria-label]="
+                                    ('FORM.NOTES' | translate) +
+                                    ': ' +
+                                    row.notes
+                                "
+                            >
+                                <icon class="text-xl">sticky_note_2</icon>
+                            </span>
+                        } @else {
+                            <span class="opacity-30">
+                                {{ 'COMMON.EMPTY' | translate }}
+                            </span>
+                        }
+                    </div>
+                </ng-template>
+                <ng-template #notes_tooltip let-notes="notes">
+                    <div
+                        class="border-base-300 bg-base-100 text-base-content my-2 max-w-96 rounded-lg border px-4 py-3 text-left text-sm leading-snug whitespace-pre-wrap shadow-xl"
+                    >
+                        {{ notes }}
+                    </div>
+                </ng-template>
+                <ng-template #type_template let-row="row">
+                    <div class="mx-auto flex justify-center px-4 py-2">
+                        <div
+                            class="bg-base-300 text-base-content inline-flex h-8 w-8 items-center justify-center rounded"
+                            [matTooltip]="vehicleTypeLabel(row) | translate"
+                            matTooltipPosition="right"
+                        >
+                            <icon class="text-2xl">{{
+                                vehicleTypeIcon(row)
+                            }}</icon>
                         </div>
                     </div>
-                </button>
-            </mat-menu>
-        </ng-template>
-        <ng-template #action_template let-row="row">
-            <div class="mx-auto flex items-center justify-end space-x-2">
-                <button
-                    icon
-                    matRipple
-                    [disabled]="
-                        row.checked_in ||
-                        row.state === 'in_progress' ||
-                        row.status === 'ended' ||
-                        row.instance
-                    "
-                    [matTooltip]="'APP.CONCIERGE.PARKING_EDIT' | translate"
-                    (click)="editReservation(row)"
-                >
-                    <icon class="text-2xl">edit</icon>
-                </button>
-            </div>
-        </ng-template>
-        <div class="h-20 w-full"></div>
+                </ng-template>
+                <ng-template #status_template let-row="row">
+                    <div class="px-4">
+                        <button
+                            matRipple
+                            class="h-10 w-30 rounded-3xl border-none"
+                            [class.text-success-content]="
+                                row?.status === 'approved' &&
+                                !isAssignedBooking(row) &&
+                                !isDeletedBooking(row)
+                            "
+                            [class.bg-success]="
+                                row?.status === 'approved' &&
+                                !isAssignedBooking(row) &&
+                                !isDeletedBooking(row)
+                            "
+                            [class.text-secondary-content!]="
+                                isAssignedBooking(row)
+                            "
+                            [class.bg-secondary!]="isAssignedBooking(row)"
+                            [class.text-neutral-content!]="
+                                isDeletedBooking(row)
+                            "
+                            [class.bg-neutral!]="isDeletedBooking(row)"
+                            [class.text-error-content]="
+                                row?.status === 'declined' &&
+                                !isAssignedBooking(row) &&
+                                !isDeletedBooking(row)
+                            "
+                            [class.bg-error]="
+                                row?.status === 'declined' &&
+                                !isAssignedBooking(row) &&
+                                !isDeletedBooking(row)
+                            "
+                            [class.text-neutral-content]="
+                                row?.status === 'ended' &&
+                                !isAssignedBooking(row) &&
+                                !isDeletedBooking(row)
+                            "
+                            [class.bg-neutral]="
+                                row?.status === 'ended' &&
+                                !isAssignedBooking(row) &&
+                                !isDeletedBooking(row)
+                            "
+                            [class.opacity-30]="
+                                isStatusActionDisabled(row) &&
+                                !isAssignedBooking(row) &&
+                                !isDeletedBooking(row)
+                            "
+                            [class.text-warning-content]="
+                                row?.status === 'tentative' &&
+                                !isAssignedBooking(row) &&
+                                !isDeletedBooking(row) &&
+                                !isVisibleWaitlisted(row)
+                            "
+                            [class.bg-warning]="
+                                row?.status === 'tentative' &&
+                                !isAssignedBooking(row) &&
+                                !isDeletedBooking(row) &&
+                                !isVisibleWaitlisted(row)
+                            "
+                            [class.text-info-content]="
+                                row?.status === 'tentative' &&
+                                !isAssignedBooking(row) &&
+                                !isDeletedBooking(row) &&
+                                isVisibleWaitlisted(row)
+                            "
+                            [class.bg-info]="
+                                row?.status === 'tentative' &&
+                                !isAssignedBooking(row) &&
+                                !isDeletedBooking(row) &&
+                                isVisibleWaitlisted(row)
+                            "
+                            [matMenuTriggerFor]="menu"
+                            [disabled]="isStatusActionDisabled(row)"
+                        >
+                            <div class="flex items-center space-x-2 pr-2 pl-4">
+                                <div class="flex-1 text-left">
+                                    {{ statusLabel(row) | translate }}
+                                </div>
+                                @if (!isStatusActionDisabled(row)) {
+                                    <icon class="text-2xl"
+                                        >arrow_drop_down</icon
+                                    >
+                                }
+                            </div>
+                        </button>
+                    </div>
+                    <mat-menu #menu="matMenu">
+                        @if (isRecurringInstance(row)) {
+                            <button
+                                mat-menu-item
+                                [disabled]="!canApproveBooking(row)"
+                                (click)="approve(row)"
+                            >
+                                <div class="flex items-center space-x-2">
+                                    <icon class="text-2xl"
+                                        >event_available</icon
+                                    >
+                                    <div class="pr-2">
+                                        {{
+                                            'APP.CONCIERGE.PARKING_APPROVE_INSTANCE'
+                                                | translate
+                                        }}
+                                    </div>
+                                </div>
+                            </button>
+                            <button
+                                mat-menu-item
+                                [disabled]="!canApproveBooking(row)"
+                                (click)="approve(row, true)"
+                            >
+                                <div class="flex items-center space-x-2">
+                                    <icon class="text-2xl"
+                                        >event_available</icon
+                                    >
+                                    <div class="pr-2">
+                                        {{
+                                            'APP.CONCIERGE.PARKING_APPROVE_SERIES'
+                                                | translate
+                                        }}
+                                    </div>
+                                </div>
+                            </button>
+                            <button
+                                mat-menu-item
+                                [disabled]="!canApproveBooking(row)"
+                                (click)="reject(row)"
+                            >
+                                <div class="flex items-center space-x-2">
+                                    <icon class="text-2xl">event_busy</icon>
+                                    <div class="pr-2">
+                                        {{
+                                            'APP.CONCIERGE.PARKING_DECLINE_INSTANCE'
+                                                | translate
+                                        }}
+                                    </div>
+                                </div>
+                            </button>
+                            <button
+                                mat-menu-item
+                                [disabled]="!canApproveBooking(row)"
+                                (click)="reject(row, true)"
+                            >
+                                <div class="flex items-center space-x-2">
+                                    <icon class="text-2xl">event_busy</icon>
+                                    <div class="pr-2">
+                                        {{
+                                            'APP.CONCIERGE.PARKING_DECLINE_SERIES'
+                                                | translate
+                                        }}
+                                    </div>
+                                </div>
+                            </button>
+                        } @else {
+                            <button
+                                mat-menu-item
+                                [disabled]="!canApproveBooking(row)"
+                                (click)="approve(row)"
+                            >
+                                <div class="flex items-center space-x-2">
+                                    <icon class="text-2xl"
+                                        >event_available</icon
+                                    >
+                                    <div class="pr-2">
+                                        {{
+                                            'APP.CONCIERGE.PARKING_APPROVE'
+                                                | translate
+                                        }}
+                                    </div>
+                                </div>
+                            </button>
+                            <button
+                                mat-menu-item
+                                [disabled]="!canApproveBooking(row)"
+                                (click)="reject(row)"
+                            >
+                                <div class="flex items-center space-x-2">
+                                    <icon class="text-2xl">event_busy</icon>
+                                    <div class="pr-2">
+                                        {{
+                                            'APP.CONCIERGE.PARKING_DECLINE'
+                                                | translate
+                                        }}
+                                    </div>
+                                </div>
+                            </button>
+                        }
+                    </mat-menu>
+                </ng-template>
+                <ng-template #user_groups_template let-row="row">
+                    <div class="px-4 py-2">{{ row.user_groups }}</div>
+                </ng-template>
+                <ng-template #action_template let-row="row">
+                    <div class="flex w-full items-center justify-end gap-2 p-2">
+                        @if (isRequest(row) && !hide_assign_space) {
+                            <button
+                                icon
+                                default
+                                matRipple
+                                [disabled]="
+                                    row.checked_in ||
+                                    row.state === 'in_progress' ||
+                                    row.status === 'ended'
+                                "
+                                [matTooltip]="
+                                    'APP.CONCIERGE.PARKING_ASSIGN_SPACE'
+                                        | translate
+                                "
+                                (click)="assignSpace(row)"
+                            >
+                                <icon>add_location</icon>
+                            </button>
+                        }
+                        @if (canEdit(row)) {
+                            <button
+                                icon
+                                default
+                                matRipple
+                                [disabled]="
+                                    row.checked_in ||
+                                    row.state === 'in_progress' ||
+                                    row.status === 'ended' ||
+                                    row.instance
+                                "
+                                [matTooltip]="
+                                    'APP.CONCIERGE.PARKING_EDIT' | translate
+                                "
+                                (click)="editReservation(row)"
+                            >
+                                <icon>edit</icon>
+                            </button>
+                        }
+                        @if (can_delete()) {
+                            <button
+                                icon
+                                default
+                                error
+                                matRipple
+                                [disabled]="
+                                    row.checked_in ||
+                                    row.state === 'in_progress' ||
+                                    row.status === 'ended'
+                                "
+                                [matTooltip]="
+                                    'APP.CONCIERGE.BOOKING_REMOVE_TITLE'
+                                        | translate
+                                "
+                                (click)="removeBooking(row)"
+                            >
+                                <icon>delete</icon>
+                            </button>
+                        }
+                    </div>
+                </ng-template>
+                <div class="h-20 w-full"></div>
+            }
+        </div>
     `,
     styles: [``],
     imports: [
@@ -253,10 +527,11 @@ import { ParkingStateService } from './parking-state.service';
         TranslatePipe,
         MatRippleModule,
         IconComponent,
+        CustomTooltipComponent,
         MatMenuModule,
         MatTooltipModule,
-        IconComponent,
         ParkingBookingsWeekViewComponent,
+        ParkingSpacePipe,
     ],
 })
 export class ParkingBookingsListComponent
@@ -266,50 +541,333 @@ export class ParkingBookingsListComponent
     private _state = inject(ParkingStateService);
     private _settings = inject(SettingsService);
 
-    public readonly events = this._state.bookings;
+    public readonly bookings = this._state.bookings;
     public readonly options = this._state.options;
     public readonly loading = this._state.loading;
+    public readonly period = this._state.period;
 
-    public readonly filtered_events = combineLatest([
-        this._state.bookings,
-        this.options,
-    ]).pipe(
-        map(([booking_list, { search }]) => {
-            const show_requests = !!this._settings.get(
-                'app.parking.show_requests',
+    public readonly filtered_events = computed(() => {
+        const { search, request_filter } = this.options();
+        const list = this._state.filterEventList(
+            this.bookings(),
+            request_filter,
+        );
+        return this._state
+            .filterEventSearch(list, search)
+            .map((booking) => ({
+                ...booking,
+                vehicle_type: this.vehicleType(booking),
+                notes: booking.extension_data?.notes || '',
+                // Surface plate number as a root field so the table can sort by it
+                plate_number: booking.extension_data?.plate_number || '',
+                // Resolve the human-readable bay identifier onto the row so the
+                // table's built-in search matches it (the `asset_id` field only
+                // holds the space id, not the bay number/name).
+                bay_number: this._state.bayNumber(booking),
+                // Intersection of the booking's user groups with the
+                // configured `show_user_groups` filter, surfaced for display.
+                user_groups: this.matchedUserGroups(booking),
+                ...this.customExtensionColumnValues(booking),
+            }))
+            .sort((a, b) =>
+                (a.bay_number || a.asset_name || '').localeCompare(
+                    b.bay_number || b.asset_name || '',
+                ),
             );
-            const list = show_requests
-                ? booking_list.filter(
-                      (b) => !b.asset_id?.startsWith('unallocated'),
-                  )
-                : booking_list;
-            const s = search.toLowerCase();
-            return !s
-                ? list
-                : list.filter(
-                      (b) =>
-                          b.user_name.toLowerCase().includes(s) ||
-                          b.user_email.toLowerCase().includes(s) ||
-                          b.booked_by_name.toLowerCase().includes(s) ||
-                          b.booked_by_email.toLowerCase().includes(s) ||
-                          b.asset_name.toLowerCase().includes(s),
-                  );
-        }),
-    );
+    });
 
-    public readonly reject = (e) => this._state.rejectBooking(e);
-    public readonly approve = (e) => this._state.approveBooking(e);
+    public action_count(row) {
+        let count = 0;
+        if (this.isRequest(row) && !this.hide_assign_space) count += 1;
+        if (this.canEdit(row)) count += 1;
+        if (this.can_delete()) count += 1;
+        return count;
+    }
+
+    public readonly reject = (e, series = false) =>
+        this._state.rejectBooking(e, series);
+    public readonly approve = (e, series = false) =>
+        this._state.approveBooking(e, series);
     public readonly editReservation = (e) => this._state.editReservation(e);
+    public readonly assignSpace = (e) => this._state.assignSpace(e);
+    public readonly removeBooking = (e) => this._state.removeBooking(e);
+    public readonly isRequest = (e) => this._state.isRequest(e);
+    public readonly isManualRequest = (e) => this._state.isManualRequest(e);
+    public readonly isWaitlisted = (e) => this._state.isWaitlisted(e);
+    public readonly canApproveBooking = (e: Booking) =>
+        this._state.canApproveBooking(e);
+    public readonly isStatusActionDisabled = (e: Booking) =>
+        e?.status === 'ended' ||
+        this.isAssignedBooking(e) ||
+        this.isDeletedBooking(e) ||
+        !this.canApproveBooking(e);
+    public readonly hide_bay_number_column = computed(() => {
+        const { request_filter } = this.options();
+        return this.hide_bay_number || this.isRequestFilter(request_filter);
+    });
+    public readonly show_action_column = computed(() => {
+        const { search, request_filter } = this.options();
+        const list = this._state.filterEventList(
+            this.bookings(),
+            request_filter,
+        );
+        return this._state
+            .filterEventSearch(list, search)
+            .some((booking) => this.action_count(booking) > 0);
+    });
+    public readonly show_notes_column = computed(() => {
+        const { search, request_filter } = this.options();
+        const list = this._state.filterEventList(
+            this.bookings(),
+            request_filter,
+        );
+        return this._state
+            .filterEventSearch(list, search)
+            .some((booking) => !!booking.extension_data?.notes);
+    });
+
+    public readonly can_edit = settingSignal('parking.allow_editing', true);
+    public readonly can_edit_allocated = settingSignal(
+        'parking.allow_editing_allocated',
+    );
+    public readonly can_delete = settingSignal('parking.allow_deleting', false);
+
+    public canEdit(bkn: Booking) {
+        const allocated = !bkn?.asset_id?.startsWith('unallocated');
+        return allocated
+            ? (this.can_edit_allocated() ?? this.can_edit())
+            : this.can_edit();
+    }
+
+    public get show_request_types() {
+        return !!this._settings.get('app.parking.show_requests');
+    }
+
+    public get hide_bay_number() {
+        return !!this._settings.get('app.parking.hide_bay_number');
+    }
+
+    public get hide_assign_space() {
+        return !!this._settings.get('app.parking.hide_assign_space');
+    }
+
+    public get custom_extension_columns(): ParkingBookingExtensionColumn[] {
+        const columns = this._settings.get(
+            'app.parking.custom_booking_columns',
+        );
+        return Array.isArray(columns)
+            ? columns.filter((column) => !!column?.field)
+            : [];
+    }
+
+    public get show_user_groups(): string[] {
+        const groups = this._settings.get('app.parking.show_user_groups');
+        return Array.isArray(groups) ? groups.filter(Boolean) : [];
+    }
+
+    public matchedUserGroups(booking: Booking): string {
+        const allowed = this.show_user_groups;
+        if (!allowed.length) return '';
+        const groups = booking?.extension_data?.user_groups;
+        if (!Array.isArray(groups)) return '';
+        return groups.filter((group) => allowed.includes(group)).join(', ');
+    }
+
+    public get show_waitlist() {
+        return this._settings.get('app.parking.show_waitlist') !== false;
+    }
 
     public get time_format() {
         return this._settings.time_format;
     }
 
-    public get week_start() {
-        return this._settings.get('app.week_start') || 0;
+    public get timezone() {
+        return this._state.timezone;
+    }
+
+    public isVisibleWaitlisted(booking: Booking) {
+        return this.show_waitlist && this.isWaitlisted(booking);
+    }
+
+    public isRequestFilter(filter_type?: string) {
+        return ['manual', 'pending', 'requests', 'waitlist'].includes(
+            filter_type || '',
+        );
+    }
+
+    public isRequestId(id?: string) {
+        return !!id?.startsWith('unallocated');
+    }
+
+    public isAssignedBooking(booking: Booking) {
+        return !!booking?.extension_data?.is_assigned;
+    }
+
+    public isDeletedBooking(booking: Booking) {
+        return !!booking?.deleted;
+    }
+
+    public isRecurringInstance(booking: Booking) {
+        return !!booking?.instance;
+    }
+
+    public isAllDayBooking(booking: Booking) {
+        return isParkingAllDayBooking(booking, this.timezone);
+    }
+
+    public statusLabel(booking: Booking) {
+        return this.isAssignedBooking(booking)
+            ? 'APP.CONCIERGE.BOOKING_STATUS_ASSIGNED'
+            : this.isDeletedBooking(booking)
+              ? 'APP.CONCIERGE.BOOKING_STATUS_DELETED'
+              : booking?.status === 'ended'
+                ? 'APP.CONCIERGE.BOOKING_STATUS_ENDED'
+                : booking?.status === 'approved'
+                  ? 'APP.CONCIERGE.BOOKING_STATUS_APPROVED'
+                  : booking?.status === 'declined'
+                    ? 'APP.CONCIERGE.BOOKING_STATUS_DECLINED'
+                    : this.isVisibleWaitlisted(booking)
+                      ? 'APP.CONCIERGE.PARKING_WAITLISTED'
+                      : 'APP.CONCIERGE.BOOKING_STATUS_PENDING';
+    }
+
+    public bookingColumns(
+        templates: ParkingBookingColumnTemplates,
+    ): TableColumn[] {
+        let max_count = 0;
+        for (const bkn of this.bookings()) {
+            max_count = Math.max(max_count, this.action_count(bkn));
+        }
+        return [
+            {
+                key: 'state',
+                name: templates.status_busy_label,
+                content: templates.state_template,
+                size: '4.75rem',
+                sortable: false,
+            },
+            {
+                key: 'vehicle_type',
+                name: templates.type_label,
+                content: templates.type_template,
+                size: '5.5rem',
+                show: this.show_request_types,
+            },
+            {
+                key: 'date',
+                name: templates.time_label,
+                content: templates.date_template,
+            },
+            {
+                key: 'bay_number',
+                name: templates.bay_number_label,
+                content: templates.bay_template,
+                show: !this.hide_bay_number_column(),
+            },
+            {
+                key: 'user_name',
+                name: templates.reserved_for_label,
+                content: templates.person_template,
+            },
+            {
+                key: 'booked_by_name',
+                name: templates.reserved_by_label,
+                content: templates.host_template,
+            },
+            {
+                key: 'plate_number',
+                name: templates.plate_number_label,
+                content: templates.plate_template,
+                size: '10rem',
+            },
+            {
+                key: 'notes',
+                name: templates.notes_label,
+                content: templates.notes_template,
+                size: '5rem',
+                sortable: false,
+                show: this.show_notes_column(),
+            },
+            ...this.custom_extension_columns.map((column) => ({
+                key: this.customExtensionColumnKey(column.field),
+                name: column.display_name || column.name || column.field,
+                size: column.size,
+            })),
+            {
+                key: 'status',
+                name: templates.status_label,
+                content: templates.status_template,
+                size: '9.5rem',
+            },
+            {
+                key: 'user_groups',
+                name: templates.user_groups_label,
+                content: templates.user_groups_template,
+                size: '12rem',
+                sortable: false,
+                show: this.show_user_groups.length > 0,
+            },
+            {
+                key: 'actions',
+                name: ' ',
+                content: templates.action_template,
+                size: 3.25 + (max_count - 1) * 2.75 + 'rem',
+                sortable: false,
+                show: this.show_action_column(),
+            },
+        ];
+    }
+
+    public vehicleType(booking: Booking) {
+        return booking?.extension_data?.vehicle_type || 'car';
+    }
+
+    public vehicleTypeLabel(booking: Booking) {
+        return `BOOKINGS.PARKING_VEHICLE_${this.vehicleType(booking).toUpperCase()}`;
+    }
+
+    public vehicleTypeIcon(booking: Booking) {
+        const icons = {
+            bike: 'pedal_bike',
+            motorcycle: 'motorcycle',
+            car: 'directions_car',
+            truck: 'local_shipping',
+            van: 'airport_shuttle',
+        };
+        return icons[this.vehicleType(booking)] || 'category';
     }
 
     public ngOnInit() {
         this.subscription('poll', this._state.startPolling());
+    }
+
+    private customExtensionColumnKey(field: string) {
+        return `extension_data.${field}`;
+    }
+
+    private customExtensionColumnValues(booking: Booking) {
+        const values: Record<string, unknown> = {};
+        for (const column of this.custom_extension_columns) {
+            values[this.customExtensionColumnKey(column.field)] =
+                this.formatExtensionValue(
+                    this.extensionFieldValue(booking, column.field),
+                );
+        }
+        return values;
+    }
+
+    private extensionFieldValue(booking: Booking, field: string) {
+        return field
+            .split('.')
+            .filter(Boolean)
+            .reduce((value, key) => value?.[key], booking?.extension_data);
+    }
+
+    private formatExtensionValue(value: unknown) {
+        return Array.isArray(value)
+            ? value.join(', ')
+            : value && typeof value === 'object'
+              ? JSON.stringify(value)
+              : value;
     }
 }

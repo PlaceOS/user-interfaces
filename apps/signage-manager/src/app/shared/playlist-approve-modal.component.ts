@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, resource, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
@@ -16,15 +16,6 @@ import {
     SignagePlaylist,
     updateSignagePlaylistMedia,
 } from '@placeos/ts-client';
-import {
-    BehaviorSubject,
-    filter,
-    firstValueFrom,
-    map,
-    shareReplay,
-    switchMap,
-    tap,
-} from 'rxjs';
 import { playlistMediaItems } from '../signage-playlist.util';
 import { SignageService } from '../signage.service';
 import { PlaylistApprovalPreviewComponent } from './playlist-approval-preview.component';
@@ -57,11 +48,9 @@ interface PlaylistApproveModalData {
             </header>
             @if (!loading()) {
                 <main class="max-h-[60vh] gap-2 overflow-auto py-2">
-                    @let versions = playlist_versions | async;
-                    @let media = playlist_media | async;
                     <playlist-approval-preview
-                        [versions]="versions || []"
-                        [media]="media || []"
+                        [versions]="playlist_versions()"
+                        [media]="playlist_media()"
                         (preview)="previewItem($event)"
                     />
                 </main>
@@ -112,8 +101,7 @@ interface PlaylistApproveModalData {
         TranslatePipe,
     ],
 })
-export class PlaylistApproveModalComponent implements OnInit {
-    private readonly _playlist_id = new BehaviorSubject('');
+export class PlaylistApproveModalComponent {
     private readonly _data = inject<PlaylistApproveModalData>(MAT_DIALOG_DATA);
     private readonly _dialog_ref = inject(
         MatDialogRef<PlaylistApproveModalComponent>,
@@ -124,34 +112,36 @@ export class PlaylistApproveModalComponent implements OnInit {
     public readonly has_previous_version = signal(false);
     public readonly can_update = this._service.can_update;
 
-    public readonly playlist_versions = this._playlist_id.pipe(
-        filter((id) => !!id),
-        tap(() => this.loading.set(i18n('SIGNAGE_MANAGER.LOADING_VERSIONS'))),
-        switchMap((id) => listSignagePlaylistMediaRevisions(id, { limit: 2 })),
-        tap((versions) => this.has_previous_version.set(versions.length > 1)),
-        shareReplay(1),
-    );
-
-    public readonly playlist_media = this.playlist_versions.pipe(
-        map((playlists) =>
-            playlists.map((playlist) => playlistMediaItems(playlist)),
-        ),
-        tap(() => this.loading.set('')),
-        shareReplay(1),
-    );
-
-    public ngOnInit() {
-        this._playlist_id.next(this._data?.playlist?.id || '');
-    }
+    private readonly _playlist_versions = resource({
+        params: () => this._data?.playlist?.id || '',
+        loader: async ({ params }) => {
+            if (!params) return [];
+            this.loading.set(i18n('SIGNAGE_MANAGER.LOADING_VERSIONS'));
+            try {
+                const versions = await listSignagePlaylistMediaRevisions(
+                    params,
+                    { limit: 2 },
+                );
+                this.has_previous_version.set(versions.length > 1);
+                return versions;
+            } finally {
+                this.loading.set('');
+            }
+        },
+    });
+    public readonly playlist_versions = () =>
+        this._playlist_versions.value() || [];
+    public readonly playlist_media = () =>
+        this.playlist_versions().map((playlist) =>
+            playlistMediaItems(playlist),
+        );
 
     public async undoChanges() {
         if (!this.can_update()) {
             notifyWarn(i18n('SIGNAGE_MANAGER.SVC_NO_UPDATE_PLAYLISTS'));
             return;
         }
-        const [, previous_version] = await firstValueFrom(
-            this.playlist_versions,
-        );
+        const [, previous_version] = this.playlist_versions();
         if (!previous_version?.items) return;
         this.loading.set(i18n('SIGNAGE_MANAGER.UNDOING_CHANGES'));
         this._dialog_ref.disableClose = true;

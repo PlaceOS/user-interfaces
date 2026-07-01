@@ -1,33 +1,48 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import {
+    Component,
+    computed,
+    effect,
+    inject,
+    signal,
+    untracked,
+} from '@angular/core';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router, RouterLink } from '@angular/router';
 import {
     BookingDetailsModalComponent,
+    canEditBooking,
     checkinBooking,
 } from '@placeos/bookings';
 import {
     AsyncHandler,
     Booking,
     CalendarEvent,
+    currentUser,
     i18n,
     notifyError,
     notifySuccess,
     OrganisationService,
 } from '@placeos/common';
 import {
+    BindingDirective,
     IconComponent,
     MapLocateModalComponent,
     TranslatePipe,
 } from '@placeos/components';
 import {
+    checkinEventGuest,
     EventDetailsModalComponent,
     GroupEventDetailsModalComponent,
 } from '@placeos/events';
+import { getModule } from '@placeos/ts-client';
 import { differenceInMinutes, format, isSameDay } from 'date-fns';
+import { SpacePipe } from 'libs/events/src/lib/space.pipe';
+import { timer } from 'rxjs';
+import { debounce, distinctUntilChanged } from 'rxjs/operators';
 import { LandingStateService } from '../landing/landing-state.service';
 import { ScheduleStateService } from '../schedule/schedule-state.service';
 
@@ -38,6 +53,24 @@ import { ScheduleStateService } from '../schedule/schedule-state.service';
             <div
                 class="bg-grad border-base-300 text-brand-content col-span-2 space-y-2 rounded-lg border p-4"
             >
+                @if (room_system_id(); as room_id) {
+                    <i
+                        binding
+                        class="hidden"
+                        [(model)]="room_status"
+                        [sys]="room_id"
+                        mod="Bookings"
+                        bind="status"
+                    ></i>
+                    <i
+                        binding
+                        class="hidden"
+                        [(model)]="room_booking_start"
+                        [sys]="room_id"
+                        mod="Bookings"
+                        bind="last_booking_started"
+                    ></i>
+                }
                 <div class="flex w-full items-center justify-between">
                     <div
                         class="relative overflow-hidden rounded px-2 py-1 text-sm capitalize"
@@ -101,7 +134,7 @@ import { ScheduleStateService } from '../schedule/schedule-state.service';
                             <button
                                 btn
                                 matRipple
-                                [disabled]="!canCheckin() || isCheckedIn()"
+                                [disabled]="checkinDisabled()"
                                 class="flex-1 space-x-2"
                                 [class.white]="!isCheckedIn()"
                                 [class.bg-success]="isCheckedIn()"
@@ -125,6 +158,7 @@ import { ScheduleStateService } from '../schedule/schedule-state.service';
                                 matRiple
                                 matTooltip="Edit Booking"
                                 matTooltipPosition="left"
+                                [disabled]="!canEdit()"
                                 class="white inverse h-12 w-12 px-0"
                                 (click)="edit()"
                             >
@@ -146,6 +180,7 @@ import { ScheduleStateService } from '../schedule/schedule-state.service';
                                 matRiple
                                 matTooltip="Delete Booking"
                                 matTooltipPosition="left"
+                                [disabled]="deleteDisabled()"
                                 class="white inverse h-12 w-12 px-0"
                                 (click)="remove()"
                             >
@@ -235,6 +270,7 @@ import { ScheduleStateService } from '../schedule/schedule-state.service';
     imports: [
         CommonModule,
         MatRippleModule,
+        BindingDirective,
         IconComponent,
         TranslatePipe,
         RouterLink,
@@ -247,8 +283,16 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
     private _dialog = inject(MatDialog);
     private _org = inject(OrganisationService);
     private _router = inject(Router);
+    private _space_pipe = new SpacePipe(this._org);
 
-    public readonly upcomingEvents = toSignal(this._state.upcoming_events);
+    public readonly upcomingEvents = this._state.upcoming_events;
+    public readonly room_status = signal('');
+    public readonly room_booking_start = signal(0);
+    public readonly room_system_id = signal('');
+    private readonly _room_event_key = signal('');
+    private readonly _current_time_tick = toSignal(timer(0, 1000), {
+        initialValue: 0,
+    });
 
     public readonly edit_fn = (i) => this._schedule.edit(i);
     public readonly edit_booking_fn = (i) => this._schedule.editBooking(i);
@@ -265,14 +309,40 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
         const can_checkin =
             event instanceof Booking
                 ? !event.checked_out_at
-                : event?.can_check_in;
+                : event?.extension_data?.shared_event
+                  ? event?.can_check_in
+                  : event?.can_check_in;
         return (
             can_checkin &&
+            (event instanceof Booking ||
+                event?.extension_data?.shared_event ||
+                (this.room_status() && this.room_status() !== 'free')) &&
             (event.state === 'upcoming' ||
                 event.state === 'started' ||
                 event.state === 'in_progress') &&
             event.status !== 'declined'
         );
+    });
+
+    public readonly checkinDisabled = computed(
+        () => !this.canCheckin() || this.isCheckedIn(),
+    );
+
+    public readonly canEdit = computed(() => {
+        const event = this.nextEvent();
+        if (!event) return false;
+        if (event instanceof Booking) return canEditBooking(event);
+        return !event.extension_data?.shared_event;
+    });
+
+    public readonly deleteDisabled = computed(() => {
+        this._current_time_tick();
+        const event = this.nextEvent();
+        if (!event) return true;
+        // Bookings can be ended early (sets checked_out_at); has_ended covers
+        // both the manual-end and scheduled-end cases.
+        if (event instanceof Booking) return event.has_ended;
+        return Date.now() >= event.date_end;
     });
 
     public readonly eventTitle = computed(() => {
@@ -324,11 +394,69 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
         return differenceInMinutes(end_time, Date.now());
     });
 
-    public readonly isCheckedIn = computed(() => {
+    private readonly _checked_in = computed(() => {
         const event = this.nextEvent();
-        if (!event || !(event instanceof Booking)) return false;
-        return event.checked_in;
+        if (!event) return true;
+        if (event instanceof Booking) return event.checked_in;
+        if (!event.extension_data?.shared_event) {
+            return (
+                this.room_status() !== 'pending' &&
+                this.room_status() !== 'free' &&
+                this._roomBookingMatchesEventStart(event)
+            );
+        }
+        const user_email = currentUser()?.email?.toLowerCase();
+        if (!user_email) return false;
+        const checked_in = (event.extension_data as any)?.checked_in || [];
+        return checked_in.some(
+            (email: string) => `${email}`.toLowerCase() === user_email,
+        );
     });
+
+    public readonly isCheckedIn = toSignal(
+        toObservable(this._checked_in).pipe(
+            distinctUntilChanged(),
+            debounce((checked_in) => timer(checked_in ? 0 : 300)),
+        ),
+        {
+            initialValue: this._checked_in(),
+        },
+    );
+
+    constructor() {
+        super();
+        effect(() => {
+            const events = this._state.upcoming_events();
+            const event = events?.[0];
+            if (
+                !(event instanceof CalendarEvent) ||
+                event.extension_data?.shared_event
+            ) {
+                untracked(() => {
+                    this._room_event_key.set('');
+                    this.room_status.set('');
+                    this.room_booking_start.set(0);
+                    this.room_system_id.set('');
+                });
+                return;
+            }
+            const event_key = (event as any).instance
+                ? `${event.id}|${(event as any).instance}`
+                : event.id;
+            untracked(() => {
+                const same_event = this._room_event_key() === event_key;
+                this._room_event_key.set(event_key);
+                if (!same_event) {
+                    this.room_status.set('');
+                    this.room_booking_start.set(0);
+                    this.room_system_id.set('');
+                }
+                if (!same_event || !this.room_system_id()) {
+                    this._resolveRoomSystem(event);
+                }
+            });
+        });
+    }
 
     public readonly attendeeCount = computed(() => {
         const event = this.nextEvent();
@@ -341,10 +469,26 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
 
     public async checkIn() {
         const event = this.nextEvent();
-        if (!event || !(event instanceof Booking)) return;
+        if (!event) return;
 
         try {
-            await checkinBooking(event.id, true).toPromise();
+            if (event instanceof Booking) {
+                await checkinBooking(event.id, true);
+            } else if (event.extension_data?.shared_event) {
+                const user_email = currentUser()?.email;
+                if (!user_email) throw new Error('Missing current user email');
+                await checkinEventGuest(event.id, user_email, true, {
+                    system_id: event.system?.id,
+                });
+            } else {
+                const room_id =
+                    this.room_system_id() ||
+                    event.space?.id ||
+                    event.system?.id;
+                const mod = getModule(room_id, 'Bookings');
+                if (!mod) throw new Error('Missing bookings module');
+                await mod.execute('checkin', [Math.floor(event.date / 1000)]);
+            }
             notifySuccess('Successfully checked in');
             this._state.refreshUpcomingEvents();
         } catch (error) {
@@ -370,6 +514,7 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
                     edit_fn: this.edit_booking_fn,
                     remove_fn: this.remove_fn,
                     end_fn: this.end_fn,
+                    refresh_fn: () => this._state.refreshUpcomingEvents(),
                 };
                 this._dialog.open(view_component, { data });
             } else if (event instanceof CalendarEvent) {
@@ -397,6 +542,7 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
 
     public edit() {
         const event = this.nextEvent();
+        if (!event || !this.canEdit()) return;
         event instanceof CalendarEvent
             ? this.edit_fn(event)
             : this.edit_booking_fn(event);
@@ -404,6 +550,7 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
 
     public remove() {
         const event = this.nextEvent();
+        if (this.deleteDisabled()) return;
         this.remove_fn(event);
     }
 
@@ -451,5 +598,28 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
 
     public findColleagues() {
         this._router.navigate(['/explore']);
+    }
+
+    private async _resolveRoomSystem(event: CalendarEvent) {
+        const lookup_id =
+            event.system?.id ||
+            event.system?.email ||
+            event.resources?.[0]?.id ||
+            event.resources?.[0]?.email ||
+            '';
+        if (!lookup_id) return;
+        const space = await this._space_pipe.transform(lookup_id);
+        if (this.nextEvent()?.id !== event.id) return;
+        this.room_system_id.set(space?.id || event.system?.id || '');
+    }
+
+    private _roomBookingMatchesEventStart(event: CalendarEvent) {
+        const booking_start = this.room_booking_start();
+        if (!booking_start) return false;
+        const booking_start_ms =
+            booking_start < 1_000_000_000_000
+                ? booking_start * 1000
+                : booking_start;
+        return Math.abs(booking_start_ms - event.date) <= 60 * 1000;
     }
 }

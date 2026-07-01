@@ -1,15 +1,19 @@
 import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 import { Component, computed, effect, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
 import {
     AuthenticatedImageDirective,
-    IconComponent, TranslatePipe } from '@placeos/components';
+    IconComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { SignagePlaylist } from '@placeos/ts-client';
+import { IntersectDirective } from '../shared/intersect.directive';
 import { SignageService } from '../signage.service';
 
 type PlaylistStatus =
@@ -25,21 +29,50 @@ type PlaylistStatus =
         <div
             class="border-base-300 bg-base-100 rounded-ld m-2 hidden h-[calc(100%-1rem)] w-72 shrink-0 flex-col rounded-lg border md:flex"
         >
-            <div class="border-base-300 border-b px-4 py-3">
-                <h4 class="text-lg font-medium">{{ 'SIGNAGE_MANAGER.NAV_PLAYLISTS' | translate }}</h4>
-                <p class="mb-2 text-xs opacity-60">
-                    {{ 'SIGNAGE_MANAGER.DRAG_MEDIA_HINT' | translate }}
-                </p>
+            <div class="border-base-300 border-b p-2">
+                <div class="flex justify-between">
+                    <div class="px-2">
+                        <h4 class="text-lg font-medium">
+                            {{ 'SIGNAGE_MANAGER.NAV_PLAYLISTS' | translate }}
+                        </h4>
+                        <p class="mb-2 text-xs opacity-60">
+                            {{ 'SIGNAGE_MANAGER.DRAG_MEDIA_HINT' | translate }}
+                        </p>
+                    </div>
+                    @if (can_create()) {
+                        <button
+                            icon
+                            default
+                            type="button"
+                            matRipple
+                            (click)="addPlaylist()"
+                            [attr.aria-label]="
+                                'SIGNAGE_MANAGER.CREATE_NEW_PLAYLIST'
+                                    | translate
+                            "
+                            [matTooltip]="
+                                'SIGNAGE_MANAGER.NEW_PLAYLIST' | translate
+                            "
+                            matTooltipPosition="right"
+                        >
+                            <icon>add</icon>
+                        </button>
+                    }
+                </div>
                 <mat-form-field
                     appearance="outline"
-                    class="no-subscript -mx-2 w-[calc(100%+1rem)]"
+                    class="no-subscript w-full"
                 >
                     <input
                         matInput
-                        [placeholder]="'SIGNAGE_MANAGER.SEARCH_PLAYLISTS' | translate"
+                        [placeholder]="
+                            'SIGNAGE_MANAGER.SEARCH_PLAYLISTS' | translate
+                        "
                         [ngModel]="search()"
                         (ngModelChange)="search.set($event)"
-                        [attr.aria-label]="'SIGNAGE_MANAGER.SEARCH_PLAYLISTS' | translate"
+                        [attr.aria-label]="
+                            'SIGNAGE_MANAGER.SEARCH_PLAYLISTS' | translate
+                        "
                     />
                 </mat-form-field>
             </div>
@@ -118,7 +151,10 @@ type PlaylistStatus =
                                             <span
                                                 class="bg-base-200 shrink-0 rounded px-1.5 py-0.5 font-bold uppercase"
                                             >
-                                                {{ 'COMMON.DISABLED' | translate }}
+                                                {{
+                                                    'COMMON.DISABLED'
+                                                        | translate
+                                                }}
                                             </span>
                                         }
                                         @switch (getStatus(playlist)) {
@@ -126,28 +162,40 @@ type PlaylistStatus =
                                                 <span
                                                     class="bg-error text-error-content shrink-0 rounded px-1.5 py-0.5 font-bold uppercase"
                                                 >
-                                                    {{ 'SIGNAGE_MANAGER.STATUS_EXPIRED' | translate }}
+                                                    {{
+                                                        'SIGNAGE_MANAGER.STATUS_EXPIRED'
+                                                            | translate
+                                                    }}
                                                 </span>
                                             }
                                             @case ('pending') {
                                                 <span
                                                     class="bg-info text-info-content shrink-0 rounded px-1.5 py-0.5 font-bold uppercase"
                                                 >
-                                                    {{ 'COMMON.PENDING' | translate }}
+                                                    {{
+                                                        'COMMON.PENDING'
+                                                            | translate
+                                                    }}
                                                 </span>
                                             }
                                             @case ('awaiting_review') {
                                                 <span
                                                     class="bg-base-300 shrink-0 rounded px-1.5 py-0.5 font-bold uppercase"
                                                 >
-                                                    {{ 'SIGNAGE_MANAGER.STATUS_AWAITING_REVIEW' | translate }}
+                                                    {{
+                                                        'SIGNAGE_MANAGER.STATUS_AWAITING_REVIEW'
+                                                            | translate
+                                                    }}
                                                 </span>
                                             }
                                             @case ('awaiting_approval') {
                                                 <span
                                                     class="bg-warning text-warning-content shrink-0 rounded px-1.5 py-0.5 font-bold uppercase"
                                                 >
-                                                    {{ 'COMMON.APPROVAL_REQUIRED' | translate }}
+                                                    {{
+                                                        'COMMON.APPROVAL_REQUIRED'
+                                                            | translate
+                                                    }}
                                                 </span>
                                             }
                                         }
@@ -163,12 +211,33 @@ type PlaylistStatus =
                             </div>
                         </a>
                     }
+                    @if (has_more()) {
+                        <div
+                            class="h-px w-full"
+                            intersect
+                            (intersect)="loadMore()"
+                        ></div>
+                    } @else {
+                        <div
+                            class="text-base-content/50 bg-base-content/10 col-span-full rounded-lg p-2 text-center text-xs"
+                        >
+                            {{ 'COMMON.END_OF_LIST' | translate }}
+                        </div>
+                    }
+                } @else if (loading()) {
+                    <div class="flex items-center justify-center p-8">
+                        <mat-spinner diameter="32" />
+                    </div>
                 } @else {
                     <div
                         class="text-base-content/70 flex flex-col items-center justify-center p-8"
                     >
                         <icon class="text-4xl">playlist_play</icon>
-                        <p class="mt-2 text-sm">{{ 'SIGNAGE_MANAGER.NO_PLAYLISTS_SHORT' | translate }}</p>
+                        <p class="mt-2 text-sm">
+                            {{
+                                'SIGNAGE_MANAGER.NO_PLAYLISTS_SHORT' | translate
+                            }}
+                        </p>
                     </div>
                 }
             </div>
@@ -196,20 +265,23 @@ type PlaylistStatus =
         FormsModule,
         MatFormFieldModule,
         MatInputModule,
+        MatProgressSpinnerModule,
         AuthenticatedImageDirective,
         IconComponent,
         RouterLink,
         MatRippleModule,
         TranslatePipe,
+        MatTooltipModule,
+        IntersectDirective,
     ],
 })
 export class PlaylistSidebarComponent {
     private readonly _service = inject(SignageService);
 
-    private readonly _playlists = toSignal(this._service.playlists, {
-        initialValue: [] as SignagePlaylist[],
-    });
+    private readonly _playlists = this._service.playlists;
 
+    public readonly can_create = this._service.can_create;
+    public readonly loading = this._service.playlists_loading;
     public readonly search = signal('');
     public readonly playlist_thumbnail_media =
         this._service.playlist_thumbnail_media;
@@ -224,9 +296,19 @@ export class PlaylistSidebarComponent {
         return list.filter((p) => p.name.toLowerCase().includes(term));
     });
 
+    // Backend pagination: fetches the next page as the sentinel scrolls in.
+    public readonly has_more = this._service.playlists_has_more;
+    public loadMore() {
+        this._service.loadMorePlaylists();
+    }
+
     private readonly _load_playlist_thumbnails = effect(() => {
         this._service.queuePlaylistMeta(this.filtered_playlists());
     });
+
+    public addPlaylist() {
+        this._service.addPlaylist();
+    }
 
     public async onDrop(playlist: SignagePlaylist, event: CdkDragDrop<any>) {
         const media = event.previousContainer.data[event.previousIndex];

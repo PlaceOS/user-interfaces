@@ -1,7 +1,5 @@
 import { Component, computed, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { addDays, format, startOfMinute } from 'date-fns';
-import { map, shareReplay, startWith } from 'rxjs/operators';
 
 import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
@@ -129,9 +127,7 @@ import { EventStateService } from './event-state.service';
 export class EventWeekViewComponent {
     private _state = inject(EventStateService);
 
-    private readonly _options = toSignal(this._state.options, {
-        initialValue: { period: 'week', date: Date.now() },
-    });
+    private readonly _options = this._state.options;
 
     public readonly days = computed(() => {
         const date = this._options().date;
@@ -143,29 +139,7 @@ export class EventWeekViewComponent {
     public readonly hours = new Array(24)
         .fill(0)
         .map((_, idx) => (idx % 12 ? idx % 12 : 12));
-    public readonly event_day_map = toSignal(
-        this._state.event_list.pipe(
-            map((list) => {
-                const map = {};
-                for (const event of list) {
-                    const date = format(event.date, 'yyyy-MM-dd');
-                    if (!map[date]) map[date] = [];
-                    const start = new Date(event.date);
-                    map[date].push({
-                        ...event,
-                        offset:
-                            (start.getHours() * 60 + start.getMinutes()) /
-                            (24 * 60),
-                        length: event.duration / (24 * 60),
-                    });
-                }
-                return map;
-            }),
-            startWith({}),
-            shareReplay(1),
-        ),
-        { initialValue: {} },
-    );
+    public readonly event_day_map = this._state.event_day_map;
 
     public readonly viewEvent = (event: any) => this._state.viewEvent(event);
 

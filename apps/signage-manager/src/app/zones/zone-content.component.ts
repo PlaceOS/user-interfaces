@@ -1,5 +1,4 @@
 import { Component, computed, effect, inject, input } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
@@ -68,7 +67,7 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                     track playlist.id
                                 ) {
                                     <div
-                                        class="border-base-300 bg-base-100 mb-2 flex items-center gap-3 rounded-lg border p-0.5 pl-1"
+                                        class="border-base-300 bg-base-100 mb-2 flex items-center gap-3 rounded-lg border p-0.5 pr-2 pl-1"
                                     >
                                         <a
                                             matRipple
@@ -80,7 +79,9 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                             [attr.aria-label]="
                                                 'SIGNAGE_MANAGER.OPEN_PLAYLIST'
                                                     | translate
-                                                        : { name: playlist.name }
+                                                        : {
+                                                              name: playlist.name,
+                                                          }
                                             "
                                         >
                                             <div
@@ -202,6 +203,7 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                             <button
                                                 icon
                                                 default
+                                                error
                                                 type="button"
                                                 matRipple
                                                 [matTooltip]="
@@ -217,7 +219,9 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                                 [attr.aria-label]="
                                                     'SIGNAGE_MANAGER.REMOVE_PLAYLIST_FROM_ZONE'
                                                         | translate
-                                                            : { name: playlist.name }
+                                                            : {
+                                                                  name: playlist.name,
+                                                              }
                                                 "
                                             >
                                                 <icon class="text-error">
@@ -397,12 +401,8 @@ export class ZoneContentComponent {
         this._service.playlist_approval_status;
     public readonly can_update = this._service.can_update;
 
-    private readonly _playlists = toSignal(this._service.playlists, {
-        initialValue: [],
-    });
-    private readonly _displays = toSignal(this._service.displays, {
-        initialValue: [],
-    });
+    private readonly _playlists = this._service.playlists;
+    private readonly _displays = this._service.displays;
 
     public readonly zone_playlists = computed(() => {
         const zone = this.selected_zone();

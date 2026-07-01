@@ -1,7 +1,6 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { AsyncHandler, current_user, SettingsService } from '@placeos/common';
-import { first } from 'rxjs/operators';
+import { AsyncHandler, SettingsService } from '@placeos/common';
 import { FooterMenuComponent } from './footer-menu.component';
 
 @Component({
@@ -30,8 +29,7 @@ export class DeskBookingComponent extends AsyncHandler implements OnInit {
 
     public readonly countdown_time = signal(5 * 60 * 1000);
 
-    public async ngOnInit() {
-        await current_user.pipe(first((_) => !!_)).toPromise();
+    public ngOnInit() {
         this.countdown_time.set(
             this._settings.get('app.kiosk_reset_delay') || 5 * 60 * 1000,
         );

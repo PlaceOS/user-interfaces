@@ -1,14 +1,15 @@
+import { NgTemplateOutlet } from '@angular/common';
 import {
     afterNextRender,
     Component,
     computed,
+    DestroyRef,
     effect,
     ElementRef,
     inject,
     signal,
     viewChild,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
@@ -16,10 +17,56 @@ import {
     i18n,
     OrganisationService,
     settingSignal,
+    SettingsService,
     userSignal,
 } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
-import { filter, map } from 'rxjs/operators';
+
+export interface TopMenuEmbedItem {
+    id: string;
+    name: string;
+    url: string;
+    icon?: string;
+    external?: boolean;
+}
+
+interface TopMenuRoute {
+    id: string;
+    route: string;
+    url?: string;
+    icon: string;
+    name: string;
+    embed?: boolean;
+    external?: boolean;
+}
+
+interface TopMenuSettingsState {
+    settings_initialised: boolean;
+    org_initialised: boolean;
+    has_region_context: boolean;
+    has_building_context: boolean;
+    override_count: number;
+    required_override_count: number;
+}
+
+const TOP_MENU_FEATURE_ALIASES: Record<string, string[]> = {
+    'parking-requests': ['parking', 'parking-requests'],
+};
+
+export function hasActiveTopMenuFeature(type: string, features: string[]) {
+    const feature_names = TOP_MENU_FEATURE_ALIASES[type] || [type];
+    return feature_names.some((_) => features.includes(_));
+}
+
+export function hasLoadedTopMenuSettings(state: TopMenuSettingsState) {
+    return (
+        !!state.settings_initialised &&
+        !!state.org_initialised &&
+        state.has_region_context &&
+        state.has_building_context &&
+        state.override_count >= state.required_override_count
+    );
+}
 
 @Component({
     selector: 'top-menu',
@@ -33,34 +80,37 @@ import { filter, map } from 'rxjs/operators';
                 (window:resize)="checkMenu()"
                 class="text-base-content flex h-full w-full min-w-full items-center justify-center overflow-hidden"
             >
-                @for (route of routes(); track route) {
-                    @if (features().includes(route.id) || route.id === 'home') {
+                @for (route of visible_routes(); track trackRoute(route)) {
+                    @if (route.external) {
                         <a
                             matRipple
                             [name]="'nav-' + route.id"
                             class="relative flex items-center justify-center space-x-2 px-8"
-                            [routerLink]="[route.route]"
+                            [href]="route.url"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            [matTooltip]="route.name"
+                            matTooltipPosition="below"
+                        >
+                            <ng-container
+                                [ngTemplateOutlet]="route_contents"
+                                [ngTemplateOutletContext]="{ route }"
+                            />
+                        </a>
+                    } @else {
+                        <a
+                            matRipple
+                            [name]="'nav-' + route.id"
+                            class="relative flex items-center justify-center space-x-2 px-8"
+                            [routerLink]="route.route"
                             routerLinkActive="text-secondary active"
                             [matTooltip]="route.name"
                             matTooltipPosition="below"
                         >
-                            <icon
-                                filled
-                                class="text-xl"
-                                [class.mx-auto]="hide_text()"
-                                >{{ route.icon }}</icon
-                            >
-                            <icon
-                                outline
-                                className="material-symbols-outlined"
-                                [class.mx-auto]="hide_text()"
-                                class="m-0! text-xl"
-                            >
-                                {{ route.icon }}
-                            </icon>
-                            @if (!hide_text()) {
-                                <span class="truncate">{{ route.name }}</span>
-                            }
+                            <ng-container
+                                [ngTemplateOutlet]="route_contents"
+                                [ngTemplateOutletContext]="{ route }"
+                            />
                             <div
                                 bar
                                 class="bg-secondary absolute inset-x-0 bottom-0 h-0.5"
@@ -72,36 +122,70 @@ import { filter, map } from 'rxjs/operators';
         }
         @if (mobile_menu()) {
             <div
-                class="absolute inset-y-0 -right-16 left-0 flex items-center justify-end"
+                class="absolute inset-y-0 -right-20 left-0 flex items-center justify-end"
             >
-                <button icon matRipple [matMenuTriggerFor]="menu">
+                <button icon default matRipple [matMenuTriggerFor]="menu">
                     <icon>menu</icon>
                 </button>
             </div>
         }
         <mat-menu #menu="matMenu">
-            @for (route of routes(); track route) {
-                @if (features().includes(route.id) || route.id === 'home') {
+            @for (route of visible_routes(); track trackRoute(route)) {
+                @if (route.external) {
+                    <a
+                        mat-menu-item
+                        [href]="route.url"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        <ng-container
+                            [ngTemplateOutlet]="mobile_route_contents"
+                            [ngTemplateOutletContext]="{ route }"
+                        />
+                    </a>
+                } @else {
                     <a
                         mat-menu-item
                         [routerLink]="route.route"
-                        routerLinkActive="text-secondary active"
+                        routerLinkActive="bg-info-light! active"
                     >
-                        <div class="flex items-center space-x-2">
-                            <icon filled class="text-xl">{{ route.icon }}</icon>
-                            <icon
-                                outline
-                                className="material-symbols-outlined"
-                                class="text-xl"
-                            >
-                                {{ route.icon }}
-                            </icon>
-                            <div class="truncate pr-4">{{ route.name }}</div>
-                        </div>
+                        <ng-container
+                            [ngTemplateOutlet]="mobile_route_contents"
+                            [ngTemplateOutletContext]="{ route }"
+                        />
                     </a>
                 }
             }
         </mat-menu>
+        <ng-template #route_contents let-route="route">
+            <icon filled class="text-xl" [class.mx-auto]="hide_text()">{{
+                route.icon
+            }}</icon>
+            <icon
+                outline
+                className="material-symbols-outlined"
+                [class.mx-auto]="hide_text()"
+                class="m-0! text-xl"
+            >
+                {{ route.icon }}
+            </icon>
+            @if (!hide_text()) {
+                <span class="truncate">{{ route.name }}</span>
+            }
+        </ng-template>
+        <ng-template #mobile_route_contents let-route="route">
+            <div class="flex items-center space-x-2">
+                <icon filled class="text-xl">{{ route.icon }}</icon>
+                <icon
+                    outline
+                    className="material-symbols-outlined"
+                    class="text-xl"
+                >
+                    {{ route.icon }}
+                </icon>
+                <div class="truncate pr-4">{{ route.name }}</div>
+            </div>
+        </ng-template>
     `,
     styles: [
         `
@@ -138,18 +222,43 @@ import { filter, map } from 'rxjs/operators';
             }
         `,
     ],
-    imports: [MatMenuModule, IconComponent, RouterModule, MatTooltipModule],
+    imports: [
+        MatMenuModule,
+        IconComponent,
+        RouterModule,
+        MatTooltipModule,
+        NgTemplateOutlet,
+    ],
 })
 export class TopMenuComponent {
     private _element = inject(ElementRef);
     private _org = inject(OrganisationService);
     private _router = inject(Router);
+    private _settings = inject(SettingsService);
+    private _destroy_ref = inject(DestroyRef);
 
     private readonly menu =
         viewChild<ElementRef<HTMLDivElement>>('menuContainer');
 
-    public readonly buildings = this._org.building_list;
-    public readonly building = toSignal(this._org.active_building);
+    public readonly building = this._org.active_building;
+    private readonly settings_initialised = signal(
+        this._settings.is_initialised,
+    );
+    private readonly settings_ready = computed(() => {
+        const region = this._org.active_region();
+        const building = this._org.active_building();
+        const overrides = this._settings.overrides();
+        const has_region_context = !this._org.regions.length || !!region?.id;
+        const required_overrides = (this._org.settings?.length || 0) + 2;
+        return hasLoadedTopMenuSettings({
+            settings_initialised: this.settings_initialised(),
+            org_initialised: this._org.initialised(),
+            has_region_context,
+            has_building_context: !!building?.id,
+            override_count: overrides.length,
+            required_override_count: required_overrides,
+        });
+    });
     private readonly previous_size = signal(9999);
     public readonly checking = signal(false);
     public readonly mobile_menu = signal(false);
@@ -171,6 +280,10 @@ export class TopMenuComponent {
         'vip_visitor_booker_group',
         '',
     );
+    public readonly menu_embeds = settingSignal<TopMenuEmbedItem[]>(
+        'menu_embeds',
+        [],
+    );
 
     public readonly is_admin = computed(() => {
         const groups = this.user().groups;
@@ -186,13 +299,13 @@ export class TopMenuComponent {
         const groups = this.user().groups;
         const vip_group = this.vip_visitor_booker_group();
         return feature_list.filter((name) => {
-            // Special check for VIP visitor - requires user to be in vip_visitor_booker_group
-            if (name === 'vip-visitor-invite') {
-                if (vip_group && !groups.includes(vip_group)) {
-                    return false;
-                }
+            if (
+                name === 'vip-visitor-invite' &&
+                vip_group &&
+                !groups.includes(vip_group)
+            ) {
+                return false;
             }
-            // Regular feature group check
             return (
                 !feature_groups[name]?.length ||
                 feature_groups[name].find((_) => groups.includes(_))
@@ -200,13 +313,7 @@ export class TopMenuComponent {
         });
     });
 
-    private readonly url = toSignal(
-        this._router.events.pipe(
-            filter((e) => e instanceof NavigationEnd),
-            map(() => this._router.url),
-        ),
-        { initialValue: this._router.url },
-    );
+    private readonly url = signal(this._router.url);
 
     public readonly type = computed(() => {
         const url = this.url();
@@ -215,6 +322,7 @@ export class TopMenuComponent {
         if (url.includes('book/spaces')) return 'spaces';
         if (url.includes('book/desk')) return 'desks';
         if (url.includes('book/locker')) return 'lockers';
+        if (url.includes('book/vip-visitor')) return 'vip-visitor-invite';
         if (url.includes('book/parking-request')) return 'parking-requests';
         if (url.includes('book/parking')) return 'parking';
         if (url.includes('explore')) return 'explore';
@@ -222,7 +330,7 @@ export class TopMenuComponent {
         return '';
     });
 
-    public readonly routes = computed(() => [
+    public readonly routes = computed<TopMenuRoute[]>(() => [
         {
             id: 'home',
             route: this.default_page(),
@@ -307,15 +415,51 @@ export class TopMenuComponent {
             icon: 'groups',
             name: i18n('APP.WORKPLACE.MENU_TEAM_SCHEDULE'),
         },
+        ...this.menu_embeds()
+            .filter((item) => item?.id && item?.name && item?.url)
+            .map((item) => ({
+                id: `embed-${item.id}`,
+                route: item.external
+                    ? item.url
+                    : `/embedded/${encodeURIComponent(item.id)}`,
+                url: item.external ? item.url : undefined,
+                icon: item.icon || 'open_in_browser',
+                name: item.name,
+                embed: true,
+                external: !!item.external,
+            })),
     ]);
+
+    public readonly visible_routes = computed(() => {
+        const features = this.features();
+        return this.routes().filter(
+            (route) =>
+                route.embed ||
+                route.id === 'home' ||
+                features.includes(route.id),
+        );
+    });
+
+    public readonly trackRoute = (route: TopMenuRoute) => route.id;
 
     private _check_menu_timer: ReturnType<typeof setTimeout> | null = null;
 
     constructor() {
         this.checking.set(true);
+        const settings_sub = this._settings.initialised.subscribe((value) =>
+            this.settings_initialised.set(value),
+        );
+        const route_sub = this._router.events.subscribe((event) => {
+            if (event instanceof NavigationEnd) this.url.set(this._router.url);
+        });
+        this._destroy_ref.onDestroy(() => {
+            settings_sub.unsubscribe();
+            route_sub.unsubscribe();
+        });
 
         effect(() => {
             this.building();
+            this.visible_routes();
             this._checkRoute();
         });
 
@@ -325,9 +469,17 @@ export class TopMenuComponent {
     }
 
     private _checkRoute() {
+        if (!this.settings_ready()) {
+            this._scheduleCheckMenu(300);
+            return;
+        }
         const type = this.type();
         const features = this.features();
-        if (type && type !== 'home' && !features.includes(type)) {
+        if (
+            type &&
+            type !== 'home' &&
+            !hasActiveTopMenuFeature(type, features)
+        ) {
             this._router.navigate(['/']);
         }
         this._scheduleCheckMenu(300);

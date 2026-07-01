@@ -1,6 +1,13 @@
-import { Component, computed, effect, inject, input } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import {
+    Component,
+    computed,
+    effect,
+    inject,
+    input,
+    signal,
+} from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { FormField } from '@angular/forms/signals';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -22,8 +29,6 @@ import { EventFormService } from 'libs/events/src/lib/event-form.service';
 import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.component';
 import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
 import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.component';
-import { combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { SpacesService } from '../spaces.service';
 
 @Component({
@@ -38,7 +43,6 @@ import { SpacesService } from '../spaces.service';
         </div>
         <form
             class="divide-base-200 max-h-[65vh] w-full max-w-[100vw] divide-y overflow-x-hidden overflow-y-auto p-2"
-            [formGroup]="form"
         >
             <section details>
                 <h2 class="mb-1 text-lg font-medium">
@@ -135,8 +139,10 @@ import { SpacesService } from '../spaces.service';
                         </label>
                         <a-date-field
                             name="date"
-                            [ngModel]="form.getRawValue().date"
-                            (ngModelChange)="form.patchValue({ date: $event })"
+                            [ngModel]="model().date"
+                            (ngModelChange)="
+                                model.update((m) => ({ ...m, date: $event }))
+                            "
                             [ngModelOptions]="{ standalone: true }"
                             [to]="end_date()"
                             [short]="true"
@@ -153,9 +159,12 @@ import { SpacesService } from '../spaces.service';
                             </label>
                             <a-date-field
                                 name="date"
-                                [ngModel]="form.getRawValue().date_end"
+                                [ngModel]="model().date_end"
                                 (ngModelChange)="
-                                    form.patchValue({ date_end: $event })
+                                    model.update((m) => ({
+                                        ...m,
+                                        date_end: $event
+                                    }))
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                                 [from]="start_date"
@@ -173,9 +182,9 @@ import { SpacesService } from '../spaces.service';
                 @if (allow_all_day()) {
                     <div class="-mt-2 mb-2 flex justify-end">
                         <mat-checkbox
-                            [ngModel]="form.value.all_day"
+                            [ngModel]="model().all_day"
                             (ngModelChange)="
-                                form.patchValue({ all_day: $event })
+                                model.update((m) => ({ ...m, all_day: $event }))
                             "
                             [ngModelOptions]="{ standalone: true }"
                         >
@@ -183,7 +192,7 @@ import { SpacesService } from '../spaces.service';
                         </mat-checkbox>
                     </div>
                 }
-                @if (!form.value.all_day) {
+                @if (!model().all_day) {
                     <div class="flex items-center space-x-2">
                         <div class="w-1/3 flex-1">
                             <label for="start-time">
@@ -192,9 +201,9 @@ import { SpacesService } from '../spaces.service';
                             </label>
                             <a-time-field
                                 name="start-time"
-                                [ngModel]="form.getRawValue().date"
+                                [ngModel]="model().date"
                                 (ngModelChange)="
-                                    form.patchValue({ date: $event })
+                                    model.update((m) => ({ ...m, date: $event }))
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                                 [use_24hr]="use_24hr()"
@@ -211,12 +220,15 @@ import { SpacesService } from '../spaces.service';
                                 </label>
                                 <a-time-field
                                     name="end-time"
-                                    [ngModel]="form.value.date_end"
+                                    [ngModel]="model().date_end"
                                     (ngModelChange)="
-                                        form.patchValue({ date_end: $event })
+                                        model.update((m) => ({
+                                            ...m,
+                                            date_end: $event
+                                        }))
                                     "
                                     [ngModelOptions]="{ standalone: true }"
-                                    [from]="form?.getRawValue()?.date"
+                                    [from]="model().date"
                                     [use_24hr]="use_24hr()"
                                     [timezone]="timezone()"
                                     [range]="bookable_hours()"
@@ -230,9 +242,8 @@ import { SpacesService } from '../spaces.service';
                                     }}<span>*</span>
                                 </label>
                                 <a-duration-field
-                                    name="end-time"
-                                    formControlName="duration"
-                                    [time]="form?.getRawValue()?.date"
+                                    [formField]="form.duration"
+                                    [time]="model().date"
                                     [max]="max_duration()"
                                     [min]="min_duration()"
                                     [step]="duration_step()"
@@ -255,7 +266,7 @@ import { SpacesService } from '../spaces.service';
                     <div class="flex w-full items-center">
                         <settings-toggle
                             class="w-full"
-                            [name]="'COMMON.FAVOURITES_ONLY' | translate"
+                            [label]="'COMMON.FAVOURITES_ONLY' | translate"
                             [ngModel]="filters()?.show_fav"
                             (ngModelChange)="setFilters({ show_fav: $event })"
                             [ngModelOptions]="{ standalone: true }"
@@ -275,7 +286,7 @@ import { SpacesService } from '../spaces.service';
                             <div class="flex items-center">
                                 <settings-toggle
                                     class="w-full"
-                                    [name]="feature_display()[feat] || feat"
+                                    [label]="feature_display()[feat] || feat"
                                     [ngModel]="
                                         filters()?.features?.includes(feat)
                                     "
@@ -290,7 +301,7 @@ import { SpacesService } from '../spaces.service';
                 </section>
             }
         </form>
-        @if (can_close) {
+        @if (can_close()) {
             <div class="border-base-200 w-full border-t px-2 pt-2">
                 <button
                     btn
@@ -325,7 +336,7 @@ import { SpacesService } from '../spaces.service';
         MatFormFieldModule,
         MatSelectModule,
         FormsModule,
-        ReactiveFormsModule,
+        FormField,
         BuildingPipe,
     ],
 })
@@ -338,51 +349,34 @@ export class SpaceFiltersComponent {
     public readonly multiday = input<boolean>(undefined);
     public readonly hide_levels = input<boolean>(undefined);
     public readonly viewing_map = input<boolean>(undefined);
-    public can_close = false;
-    public readonly options = toSignal(this._event_form.options$, {
-        initialValue: null,
-    });
-    public readonly filters = toSignal(this._event_form.filters$, {
-        initialValue: null,
-    });
+    public readonly can_close = signal(false);
+    public readonly options = this._event_form.options;
+    public readonly filters = this._event_form.filters;
 
     public readonly use_region = settingSignal<boolean>('use_region', false);
 
-    public readonly building = toSignal(this._org.active_building, {
-        initialValue: null,
-    });
-    public readonly buildings = toSignal(this._org.active_buildings, {
-        initialValue: [],
-    });
+    public readonly building = this._org.active_building;
+    public readonly buildings = this._org.active_buildings;
 
-    public readonly levels = toSignal(
-        combineLatest([
-            this._org.active_region,
-            this._org.active_building,
-            this._event_form.spaces$,
-        ]).pipe(
-            map(([region, bld, spaces]) => {
-                const level_list = this.use_region()
-                    ? this._org.levelsForRegion(region)
-                    : this._org.levelsForBuilding(bld);
-                const level_ids = new Set(
-                    flatten(spaces.map((space) => space.zones || [])),
-                );
-                const viewable_levels = level_list.filter(
-                    (lvl) =>
-                        !lvl.tags.includes('parking') && level_ids.has(lvl.id),
-                );
-                return viewable_levels.sort(
-                    (a, b) =>
-                        a.parent_id.localeCompare(b.parent_id) ||
-                        (a.display_name || '').localeCompare(
-                            b.display_name || '',
-                        ),
-                );
-            }),
-        ),
-        { initialValue: [] },
-    );
+    public readonly levels = computed(() => {
+        const region = this._org.active_region();
+        const bld = this._org.active_building();
+        const spaces = this._event_form.spaces();
+        const level_list = this.use_region()
+            ? this._org.levelsForRegion(region)
+            : this._org.levelsForBuilding(bld);
+        const level_ids = new Set(
+            flatten(spaces.map((space) => space.zones || [])),
+        );
+        const viewable_levels = level_list.filter(
+            (lvl) => !lvl.tags.includes('parking') && level_ids.has(lvl.id),
+        );
+        return viewable_levels.sort(
+            (a, b) =>
+                a.parent_id.localeCompare(b.parent_id) ||
+                (a.display_name || '').localeCompare(b.display_name || ''),
+        );
+    });
 
     public readonly show_level_select = computed(
         () => !this.hide_levels() && this.levels().length > 1,
@@ -400,25 +394,15 @@ export class SpaceFiltersComponent {
         }
     });
 
-    public readonly regions = toSignal(this._org.region_list, {
-        initialValue: [],
-    });
+    public readonly regions = this._org.region_list;
 
-    public readonly using_mapspeople = toSignal(this._mapspeople.available$, {
-        initialValue: false,
-    });
+    public readonly using_mapspeople = this._mapspeople.available;
 
-    public readonly features = toSignal(
-        combineLatest([
-            this._spaces.features,
-            this._event_form.available_spaces,
-        ]).pipe(
-            map(([features, spaces]) =>
-                unique(features.concat(flatten(spaces.map((_) => _.features)))),
-            ),
-        ),
-        { initialValue: [] },
-    );
+    public readonly features = computed(() => {
+        const features = this._spaces.features();
+        const spaces = this._event_form.available_spaces();
+        return unique(features.concat(flatten(spaces.map((_) => _.features))));
+    });
 
     public readonly allow_all_day = settingSignal<boolean>(
         'events.allow_all_day',
@@ -432,19 +416,21 @@ export class SpaceFiltersComponent {
 
     public readonly timezone = computed(() =>
         this._use_building_tz()
-            ? this._org.building_signal()?.timezone || ''
+            ? this._org.active_building()?.timezone || ''
             : '',
     );
 
     public readonly setOptions = (o) => this._event_form.setOptions(o);
     public readonly setFilters = (f) => this._event_form.setFilters(f);
 
-    public readonly region = toSignal(this._org.active_region, {
-        initialValue: null,
-    });
+    public readonly region = this._org.active_region;
 
     public get form() {
         return this._event_form.form;
+    }
+
+    public get model() {
+        return this._event_form.model;
     }
 
     public readonly bookable_hours = settingSignal<{
@@ -492,7 +478,7 @@ export class SpaceFiltersComponent {
     );
 
     public get start_date() {
-        return startOfDay(this.form.getRawValue().date).valueOf();
+        return startOfDay(this.model().date).valueOf();
     }
 
     private readonly _allowed_future_days = settingSignal<number>(
@@ -519,7 +505,7 @@ export class SpaceFiltersComponent {
     }
 
     public async toggleFeature(feat: string, state: boolean) {
-        const { features } = this._event_form.filters;
+        const { features } = this._event_form.filters();
         const new_list = (features || []).filter((_) => feat !== _);
         if (state) new_list.push(feat);
         this._event_form.setFilters({ features: new_list });

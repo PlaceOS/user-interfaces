@@ -1,6 +1,6 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
-import { BehaviorSubject } from 'rxjs';
+import { signal } from '@angular/core';
 
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
@@ -20,7 +20,7 @@ describe('CateringReportOrdersComponent', () => {
         ],
         providers: [
             MockProvider(CateringReportStateService, {
-                catering_orders: new BehaviorSubject({}),
+                catering_orders: signal({}),
                 downloadOrders: jest.fn(),
             } as any),
             MockProvider(Router, {}),

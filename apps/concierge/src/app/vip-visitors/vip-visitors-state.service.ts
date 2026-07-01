@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { BehaviorSubject, combineLatest, of } from 'rxjs';
+import { BehaviorSubject, combineLatest, from, of } from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -58,7 +59,7 @@ export class VipVisitorsStateService extends AsyncHandler {
     public readonly filters = this._filters.asObservable();
 
     public readonly bookings = combineLatest([
-        this._org.active_building,
+        toObservable(this._org.active_building),
         this._filters,
         this._poll,
     ]).pipe(
@@ -72,14 +73,16 @@ export class VipVisitorsStateService extends AsyncHandler {
             const end = filters.end_date
                 ? endOfDay(new Date(filters.end_date))
                 : endOfDay(start);
-            return queryBookings({
-                type: 'vip-visitor',
-                period_start: getUnixTime(start),
-                period_end: getUnixTime(end),
-                zones: (filters.zones || []).join(',') || bld.id,
-                include_checked_out: true,
-                limit: 1000,
-            }).pipe(catchError((_) => of([] as Booking[])));
+            return from(
+                queryBookings({
+                    type: 'vip-visitor',
+                    period_start: getUnixTime(start),
+                    period_end: getUnixTime(end),
+                    zones: (filters.zones || []).join(',') || bld.id,
+                    include_checked_out: true,
+                    limit: 1000,
+                }),
+            ).pipe(catchError((_) => of([] as Booking[])));
         }),
         tap(() => this._loading.next(false)),
         shareReplay(1),
@@ -138,7 +141,7 @@ export class VipVisitorsStateService extends AsyncHandler {
         await updateBooking(guest.id, {
             ...guest.toJSON(),
             extension_data,
-        }).toPromise();
+        });
         this._poll.next(Date.now());
     }
 
@@ -155,7 +158,7 @@ export class VipVisitorsStateService extends AsyncHandler {
         );
         if (details.reason !== 'done') return details.close();
         details.loading(i18n('APP.CONCIERGE.VIP_UPDATING'));
-        await (approveBooking(item.id) as any).toPromise().catch((e) => {
+        await approveBooking(item.id).catch((e) => {
             notifyError(
                 `Error approving VIP visitor: ${e.message || e.error || e}`,
             );
@@ -180,15 +183,13 @@ export class VipVisitorsStateService extends AsyncHandler {
         );
         if (details.reason !== 'done') return details.close();
         details.loading(i18n('APP.CONCIERGE.VIP_UPDATING'));
-        await rejectBooking(item.id)
-            .toPromise()
-            .catch((e) => {
-                notifyError(
-                    `Error declining VIP visitor: ${e.message || e.error || e}`,
-                );
-                details.close();
-                throw e;
-            });
+        await rejectBooking(item.id).catch((e) => {
+            notifyError(
+                `Error declining VIP visitor: ${e.message || e.error || e}`,
+            );
+            details.close();
+            throw e;
+        });
         notifySuccess(i18n('APP.CONCIERGE.VIP_DECLINED_SUCCESS'));
         this._poll.next(Date.now());
         details.close();
@@ -198,19 +199,17 @@ export class VipVisitorsStateService extends AsyncHandler {
         if (item.rejected)
             throw i18n('APP.CONCIERGE.VIP_CHECKIN_REJECTED_ERROR');
         if (!item.approved && state === true) {
-            await approveBooking(item.id).toPromise();
+            await approveBooking(item.id);
         }
-        await checkinBooking(item.id, state)
-            .toPromise()
-            .catch((e) => {
-                notifyError(
-                    i18n('APP.CONCIERGE.VIP_CHECKIN_ERROR', {
-                        action: state ? 'in' : 'out',
-                        name: item.asset_name || item.asset_id,
-                    }),
-                );
-                throw e;
-            });
+        await checkinBooking(item.id, state).catch((e) => {
+            notifyError(
+                i18n('APP.CONCIERGE.VIP_CHECKIN_ERROR', {
+                    action: state ? 'in' : 'out',
+                    name: item.asset_name || item.asset_id,
+                }),
+            );
+            throw e;
+        });
         notifySuccess(
             i18n('APP.CONCIERGE.VIP_CHECKIN_SUCCESS', {
                 action: state ? 'in' : 'out',

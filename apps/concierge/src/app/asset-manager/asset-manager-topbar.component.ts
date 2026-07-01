@@ -1,5 +1,4 @@
 import { Component, inject, input } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -10,7 +9,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import {
     AsyncHandler,
-    nextValueFrom,
     notifySuccess,
     OrganisationService,
     settingSignal,
@@ -21,10 +19,7 @@ import {
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
-import {
-    AssetManagerStateService,
-    AssetOptions,
-} from './asset-manager-state.service';
+import { AssetManagerStateService } from './asset-manager-state.service';
 
 @Component({
     selector: 'asset-manager-topbar',
@@ -189,15 +184,9 @@ export class AssetManagerTopbarComponent extends AsyncHandler {
 
     public readonly active = input('');
 
-    public readonly options = toSignal(this._state.options, {
-        initialValue: { view: 'grid' } as AssetOptions,
-    });
-    public readonly building = toSignal(this._org.active_building, {
-        initialValue: null,
-    });
-    public readonly buildings = toSignal(this._org.active_buildings, {
-        initialValue: [],
-    });
+    public readonly options = this._state.options;
+    public readonly building = this._org.active_building;
+    public readonly buildings = this._org.active_buildings;
     public readonly use_region = settingSignal('use_region');
 
     public readonly setOptions = (o) => this._state.setOptions(o);
@@ -218,7 +207,7 @@ export class AssetManagerTopbarComponent extends AsyncHandler {
         const ref = this._dialog.open(AvailableRoomsStateModalComponent, {
             data: {
                 type: 'Assets',
-                disabled_rooms: await nextValueFrom(this._state.availability),
+                disabled_rooms: this._state.availability(),
             },
         });
         this.subscription(

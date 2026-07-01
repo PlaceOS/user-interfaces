@@ -1,17 +1,16 @@
-import { inject, Injectable } from '@angular/core';
+import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import { searchStaff } from '@placeos/users';
-import { BehaviorSubject, combineLatest } from 'rxjs';
 
 import { checkinBooking, queryBookings, saveBooking } from '@placeos/bookings';
 import {
     AsyncHandler,
     Booking,
+    MINUTES,
     OrganisationService,
     StaffUser,
     timePeriodsIntersect,
 } from '@placeos/common';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { map, shareReplay, switchMap } from 'rxjs/operators';
 
 export interface StaffFilters {
     date?: number;
@@ -27,84 +26,52 @@ export class StaffStateService extends AsyncHandler {
 
     private _onsite: Record<string, boolean> = {};
     private _events: Record<string, Booking> = {};
-    private _filters = new BehaviorSubject<StaffFilters>({});
-    private _search = new BehaviorSubject<string>('');
-    private _loading = new BehaviorSubject<boolean>(false);
-    private _users = new BehaviorSubject<StaffUser[]>([]);
+    private readonly _users = signal<StaffUser[]>([]);
+    private readonly _poll = signal(0);
 
-    public readonly loading = this._loading.asObservable();
+    public readonly loading = signal<boolean>(false);
+    public readonly filters = signal<StaffFilters>({});
+    public readonly search = signal<string>('');
+    public readonly user_events = signal<Record<string, boolean>>({});
 
-    public readonly filters = this._filters.asObservable();
-
-    public readonly users = this._filters.asObservable();
-
-    public readonly filtered_users = combineLatest([
-        this._search,
-        this._users,
-        this._filters,
-    ]).pipe(
-        map((details) => {
-            const [filter, users, options] = details;
-            return users.filter(
-                (i) =>
-                    (!filter ||
-                        i.name.toLowerCase().includes(filter) ||
-                        i.email.toLowerCase().includes(filter)) &&
-                    (!options.only_onsite || this._onsite[i.email]),
-            );
-        }),
-    );
-
-    public readonly user_events = combineLatest([this._filters]).pipe(
-        switchMap(async (_) => {
-            this._loading.next(true);
-            const bookings = await queryBookings({
-                period_start: getUnixTime(startOfDay(Date.now())),
-                period_end: getUnixTime(endOfDay(Date.now())),
-                type: 'staff',
-            }).toPromise();
-            const checkin_map = {};
-            const now = new Date().valueOf();
-            for (const bkn of bookings) {
-                if (
-                    timePeriodsIntersect(
-                        now,
-                        now,
-                        bkn.date,
-                        bkn.date + bkn.duration * 60 * 1000,
-                    )
-                ) {
-                    checkin_map[bkn.asset_id] = bkn.checked_in;
-                    this._events[bkn.asset_id] = bkn;
-                }
-            }
-            this._onsite = checkin_map;
-            this._loading.next(false);
-            return checkin_map;
-        }),
-        shareReplay(1),
-    );
+    public readonly filtered_users = computed(() => {
+        const filter = this.search();
+        const users = this._users();
+        const options = this.filters();
+        return users.filter(
+            (i) =>
+                (!filter ||
+                    i.name.toLowerCase().includes(filter) ||
+                    i.email.toLowerCase().includes(filter)) &&
+                (!options.only_onsite || this._onsite[i.email]),
+        );
+    });
 
     constructor() {
         super();
         this.loadUsers();
-        this.user_events.subscribe();
+        effect(() => {
+            this._org.active_building();
+            this._poll();
+            this.timeout('load-events', () => this._loadEvents(), 300);
+        });
     }
 
     public setFilters(filters: StaffFilters) {
-        this._filters.next({ ...this._filters.getValue(), ...filters });
+        this.filters.set({ ...this.filters(), ...filters });
     }
 
     public setSearchString(search: string) {
-        this._search.next(search);
+        this.search.set(search);
     }
 
-    public startPolling(delay: number = 30 * 1000) {
-        this.setFilters(this._filters.getValue());
+    public startPolling(delay: number = 3 * MINUTES) {
+        const poll_delay = Math.max(delay, 3 * MINUTES);
+        this._poll.update((value) => value + 1);
         this.interval(
             'poll',
-            () => this.setFilters(this._filters.getValue()),
-            delay,
+            () => this._poll.update((value) => value + 1),
+            poll_delay,
         );
     }
 
@@ -122,8 +89,8 @@ export class StaffStateService extends AsyncHandler {
                 this._org.building.display_name || this._org.building.name,
             zones: [this._org.building.id],
             booking_type: 'staff',
-        } as any).toPromise();
-        await checkinBooking(result.id, true).toPromise();
+        } as any);
+        await checkinBooking(result.id, true);
         this._events[user.email] = result;
         this._onsite[user.email] = true;
     }
@@ -134,16 +101,43 @@ export class StaffStateService extends AsyncHandler {
             const result = await saveBooking({
                 ...event.toJSON(),
                 booking_end: Math.floor(new Date().valueOf() / 1000),
-            } as any).toPromise();
-            await checkinBooking(result.id, false).toPromise();
+            } as any);
+            await checkinBooking(result.id, false);
             this._events[user.email] = result;
             this._onsite[user.email] = false;
         }
     }
 
+    private async _loadEvents() {
+        this.loading.set(true);
+        const bookings = await queryBookings({
+            period_start: getUnixTime(startOfDay(Date.now())),
+            period_end: getUnixTime(endOfDay(Date.now())),
+            type: 'staff',
+        });
+        const checkin_map = {};
+        const now = new Date().valueOf();
+        for (const bkn of bookings) {
+            if (
+                timePeriodsIntersect(
+                    now,
+                    now,
+                    bkn.date,
+                    bkn.date + bkn.duration * 60 * 1000,
+                )
+            ) {
+                checkin_map[bkn.asset_id] = bkn.checked_in;
+                this._events[bkn.asset_id] = bkn;
+            }
+        }
+        this._onsite = checkin_map;
+        this.user_events.set(checkin_map);
+        this.loading.set(false);
+    }
+
     private async loadUsers() {
-        const user_list = await searchStaff('').toPromise();
+        const user_list = await searchStaff('');
         user_list.sort((a, b) => a.name.localeCompare(b.name));
-        this._users.next(user_list);
+        this._users.set(user_list);
     }
 }

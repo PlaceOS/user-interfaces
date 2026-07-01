@@ -6,7 +6,6 @@ import {
     signal,
     untracked,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { Point, ViewerFeature } from '@placeos/common';
 import { showMetadata } from '@placeos/ts-client';
 
@@ -57,12 +56,8 @@ export class ExploreZonesService extends AsyncHandler {
     private _settings = inject(SettingsService);
     private _injector = inject(Injector);
 
-    private _org_initialised = toSignal(this._org.initialised, {
-        initialValue: false,
-    });
-    private _building = toSignal(this._org.active_building, {
-        initialValue: null,
-    });
+    private _org_initialised = this._org.initialised;
+    private _building = this._org.active_building;
 
     private _area_list: string[] = [];
     private _statuses: HashMap<string> = {};

@@ -1,13 +1,15 @@
 import { COMMA, ENTER, SPACE } from '@angular/cdk/keycodes';
 import { CurrencyPipe } from '@angular/common';
-import { Component, EventEmitter, Output, inject } from '@angular/core';
 import {
-    FormControl,
-    FormGroup,
-    FormsModule,
-    ReactiveFormsModule,
-    Validators,
-} from '@angular/forms';
+    Component,
+    EventEmitter,
+    Output,
+    computed,
+    inject,
+    signal,
+} from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { FormField, form, required } from '@angular/forms/signals';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 import { MatRippleModule } from '@angular/material/core';
@@ -38,29 +40,26 @@ export interface CateringItemModalData {
         >
             <h2 class="px-2 text-xl font-medium">
                 {{
-                    (item.id ? 'CATERING.ITEM_EDIT' : 'CATERING.ITEM_NEW')
+                    (item().id ? 'CATERING.ITEM_EDIT' : 'CATERING.ITEM_NEW')
                         | translate
                 }}
             </h2>
-            @if (!loading) {
+            @if (!loading()) {
                 <button icon matRipple mat-dialog-close>
                     <icon>close</icon>
                 </button>
             }
         </header>
-        @if (form && !loading) {
-            <form
-                class="max-h-[65vh] max-w-xl overflow-auto px-4"
-                [formGroup]="form"
-            >
+        @if (!loading()) {
+            <form class="max-h-[65vh] max-w-xl overflow-auto px-4">
                 <div class="flex w-full items-center space-x-2">
-                    @if (form.controls.name) {
+                    @if (form.name) {
                         <div class="flex flex-1 flex-col">
                             <label
                                 for="title"
                                 [class.error]="
-                                    form.controls.name.invalid &&
-                                    form.controls.name.touched
+                                    form.name().invalid() &&
+                                    form.name().touched()
                                 "
                             >
                                 {{ 'FORM.NAME' | translate }}<span>*</span>:
@@ -68,9 +67,8 @@ export interface CateringItemModalData {
                             <mat-form-field appearance="outline">
                                 <input
                                     matInput
-                                    name="name"
                                     [placeholder]="'FORM.NAME' | translate"
-                                    formControlName="name"
+                                    [formField]="form.name"
                                 />
                                 <mat-error>{{
                                     'FORM.NAME_REQUIRED' | translate
@@ -80,13 +78,13 @@ export interface CateringItemModalData {
                     }
                 </div>
                 <div class="flex w-full items-center space-x-2">
-                    @if (form.controls.category) {
+                    @if (form.category) {
                         <div class="flex flex-1 flex-col">
                             <label
                                 for="category"
                                 [class.error]="
-                                    form.controls.category.invalid &&
-                                    form.controls.category.touched
+                                    form.category().invalid() &&
+                                    form.category().touched()
                                 "
                             >
                                 {{ 'COMMON.CATEGORY' | translate
@@ -95,11 +93,10 @@ export interface CateringItemModalData {
                             <mat-form-field appearance="outline">
                                 <input
                                     matInput
-                                    name="category"
                                     [placeholder]="
                                         'COMMON.CATEGORY' | translate
                                     "
-                                    formControlName="category"
+                                    [formField]="form.category"
                                     [matAutocomplete]="auto"
                                 />
                                 <mat-error>{{
@@ -108,7 +105,7 @@ export interface CateringItemModalData {
                             </mat-form-field>
                         </div>
                     }
-                    @if (form.controls.caterer) {
+                    @if (form.caterer) {
                         <div class="flex flex-1 flex-col">
                             <label for="caterer">
                                 {{ 'CATERING.CATERER' | translate
@@ -117,11 +114,10 @@ export interface CateringItemModalData {
                             <mat-form-field appearance="outline">
                                 <input
                                     matInput
-                                    name="caterer"
                                     [placeholder]="
                                         'CATERING.CATERER' | translate
                                     "
-                                    formControlName="caterer"
+                                    [formField]="form.caterer"
                                     [matAutocomplete]="caterer_auto"
                                 />
                             </mat-form-field>
@@ -129,20 +125,20 @@ export interface CateringItemModalData {
                     }
                 </div>
                 <div class="flex space-x-4">
-                    @if (form.controls.unit_price) {
+                    @if (form.unit_price) {
                         <div class="flex flex-1 flex-col">
                             <label
                                 for="title"
                                 [class.error]="
-                                    form.controls.unit_price.invalid &&
-                                    form.controls.unit_price.touched
+                                    form.unit_price().invalid() &&
+                                    form.unit_price().touched()
                                 "
                             >
                                 {{ 'CATERING.ITEM_PRICE' | translate
                                 }}<span>*</span>
                             </label>
                             <a-counter
-                                formControlName="unit_price"
+                                [formField]="form.unit_price"
                                 [min]="0"
                                 [max]="100000"
                                 [step]="10"
@@ -153,8 +149,8 @@ export interface CateringItemModalData {
                     <div class="flex flex-1 items-center py-4">
                         <settings-toggle
                             class="w-full"
-                            [name]="'CATERING.ITEM_POINTS' | translate"
-                            formControlName="accept_points"
+                            [label]="'CATERING.ITEM_POINTS' | translate"
+                            [formField]="form.accept_points"
                         >
                         </settings-toggle>
                     </div>
@@ -165,7 +161,7 @@ export interface CateringItemModalData {
                     }}</label>
                     <div class="max-w-[calc(50%-0.5rem)]">
                         <a-counter
-                            formControlName="discount_cap"
+                            [formField]="form.discount_cap"
                             [min]="0"
                             [max]="100"
                             [step]="5"
@@ -173,7 +169,7 @@ export interface CateringItemModalData {
                         ></a-counter>
                     </div>
                 </div>
-                @if (form.controls.description) {
+                @if (form.description) {
                     <div class="flex flex-col">
                         <label for="description">{{
                             'COMMON.DESCRIPTION' | translate
@@ -181,27 +177,25 @@ export interface CateringItemModalData {
                         <mat-form-field appearance="outline">
                             <textarea
                                 matInput
-                                name="description"
                                 [placeholder]="'COMMON.DESCRIPTION' | translate"
-                                formControlName="description"
+                                [formField]="form.description"
                             ></textarea>
                         </mat-form-field>
                     </div>
                 }
-                @if (form.controls.tags) {
+                @if (form.tags) {
                     <div class="flex flex-col">
                         <label
                             for="tags"
                             [class.error]="
-                                form.controls.tags.invalid &&
-                                form.controls.tags.touched
+                                form.tags().invalid() && form.tags().touched()
                             "
                         >
                             {{ 'COMMON.TAGS' | translate }}
                         </label>
                         <mat-form-field appearance="outline">
                             <mat-chip-grid #chipList aria-label="Item Tags">
-                                @for (item of tag_list; track item) {
+                                @for (item of tag_list(); track item) {
                                     <mat-chip-row (removed)="removeTag(item)">
                                         {{ item }}
                                         <button
@@ -231,7 +225,7 @@ export interface CateringItemModalData {
                 <div class="-mx-2 flex flex-wrap items-center pb-2" list>
                     <settings-toggle
                         class="min-w-[40%] flex-1 p-2"
-                        [name]="'CATERING.TAG_GLUTEN_FREE' | translate"
+                        [label]="'CATERING.TAG_GLUTEN_FREE' | translate"
                         [ngModel]="hasTag('Gluten Free')"
                         (ngModelChange)="
                             $event
@@ -243,7 +237,7 @@ export interface CateringItemModalData {
                     </settings-toggle>
                     <settings-toggle
                         class="min-w-[40%] flex-1 p-2"
-                        [name]="'CATERING.TAG_VEGAN' | translate"
+                        [label]="'CATERING.TAG_VEGAN' | translate"
                         [ngModel]="hasTag('Vegan')"
                         (ngModelChange)="
                             $event
@@ -255,7 +249,7 @@ export interface CateringItemModalData {
                     </settings-toggle>
                     <settings-toggle
                         class="min-w-[40%] flex-1 p-2"
-                        [name]="'CATERING.TAG_VEGETARIAN' | translate"
+                        [label]="'CATERING.TAG_VEGETARIAN' | translate"
                         [ngModel]="hasTag('Vegetarian')"
                         (ngModelChange)="
                             $event
@@ -267,7 +261,7 @@ export interface CateringItemModalData {
                     </settings-toggle>
                     <settings-toggle
                         class="min-w-[40%] flex-1 p-2"
-                        [name]="'CATERING.TAG_DAIRY' | translate"
+                        [label]="'CATERING.TAG_DAIRY' | translate"
                         [ngModel]="hasTag('Contains Dairy')"
                         (ngModelChange)="
                             $event
@@ -279,7 +273,7 @@ export interface CateringItemModalData {
                     </settings-toggle>
                     <settings-toggle
                         class="w-1/2 min-w-[40%] p-2"
-                        [name]="'CATERING.TAG_NUTS' | translate"
+                        [label]="'CATERING.TAG_NUTS' | translate"
                         [ngModel]="hasTag('Contains Nuts')"
                         (ngModelChange)="
                             $event
@@ -290,14 +284,13 @@ export interface CateringItemModalData {
                     >
                     </settings-toggle>
                 </div>
-                @if (form.controls.images) {
+                @if (form.images) {
                     <div class="flex flex-col">
                         <label for="images">{{
                             'COMMON.IMAGES' | translate
                         }}</label>
                         <image-list-field
-                            name="images"
-                            formControlName="images"
+                            [formField]="form.images"
                         ></image-list-field>
                     </div>
                 }
@@ -308,7 +301,7 @@ export interface CateringItemModalData {
                 <p>{{ 'CATERING.ITEM_SAVING' | translate }}</p>
             </div>
         }
-        @if (!loading) {
+        @if (!loading()) {
             <footer
                 class="border-base-200 flex items-center justify-end border-t border-solid px-4 py-2"
             >
@@ -316,7 +309,7 @@ export interface CateringItemModalData {
                     btn
                     matRipple
                     class="w-32"
-                    [disabled]="!form.dirty"
+                    [disabled]="!form().dirty()"
                     (click)="saveChanges()"
                 >
                     {{ 'COMMON.SAVE' | translate }}
@@ -324,14 +317,14 @@ export interface CateringItemModalData {
             </footer>
         }
         <mat-autocomplete #auto="matAutocomplete">
-            @for (option of categories; track option) {
+            @for (option of categories(); track option) {
                 <mat-option [value]="option">
                     {{ option }}
                 </mat-option>
             }
         </mat-autocomplete>
         <mat-autocomplete #caterer_auto="matAutocomplete">
-            @for (option of caterers; track option) {
+            @for (option of caterers(); track option) {
                 <mat-option [value]="option">
                     {{ option }}
                     @if (!option) {
@@ -361,7 +354,7 @@ export interface CateringItemModalData {
         ImageListFieldComponent,
         SettingsToggleComponent,
         MatChipsModule,
-        ReactiveFormsModule,
+        FormField,
         FormsModule,
     ],
 })
@@ -371,45 +364,37 @@ export class CateringItemModalComponent {
 
     /** Emitter for events on the modal */
     @Output() public event = new EventEmitter<DialogEvent>();
+    /** Current item details */
+    public readonly item = computed(
+        () => this._data.item || new CateringItem(),
+    );
+    /** List of available categories */
+    public readonly categories = computed(() => this._data.categories || []);
+    /** List of available caterers */
+    public readonly caterers = computed(() => this._data.caterers || []);
     /** Form fields for item */
-    public form = new FormGroup({
-        name: new FormControl(this.item.name || '', [Validators.required]),
-        description: new FormControl(this.item.description || ''),
-        category: new FormControl(this.item.category || '', [
-            Validators.required,
-        ]),
-        caterer: new FormControl(this.item.caterer || ''),
-        unit_price: new FormControl(this.item.unit_price, [
-            Validators.required,
-        ]),
-        tags: new FormControl(this.item.tags || []),
-        accept_points: new FormControl(this.item.accept_points || false),
-        discount_cap: new FormControl(this.item.discount_cap || 0),
-        images: new FormControl(this.item.images || []),
+    public readonly model = signal({
+        name: this.item().name || '',
+        description: this.item().description || '',
+        category: this.item().category || '',
+        caterer: this.item().caterer || '',
+        unit_price: this.item().unit_price,
+        tags: this.item().tags || [],
+        accept_points: this.item().accept_points || false,
+        discount_cap: this.item().discount_cap || 0,
+        images: this.item().images || [],
+    });
+    public readonly form = form(this.model, (p) => {
+        required(p.name);
+        required(p.category);
+        required(p.unit_price);
     });
     /** Whether changes are being saved */
-    public loading = false;
+    public readonly loading = signal(false);
     /** List of separator characters for tags */
     public readonly separators: number[] = [ENTER, COMMA, SPACE];
 
-    /** Current item details */
-    public get item(): CateringItem {
-        return this._data.item || new CateringItem();
-    }
-
-    /** List of available categories */
-    public get categories(): string[] {
-        return this._data.categories || [];
-    }
-
-    /** List of available caterers */
-    public get caterers(): string[] {
-        return this._data.caterers || [];
-    }
-
-    public get tag_list(): string[] {
-        return this.form.controls.tags.value;
-    }
+    public readonly tag_list = computed(() => this.model().tags || []);
 
     public renderPercent(value = 0) {
         return `${value}%`;
@@ -420,6 +405,7 @@ export class CateringItemModalComponent {
     public renderPrice = (v) => this._renderPrice(v);
 
     public _renderPrice(value = 0): string {
+        this._org.active_building();
         return (
             this._currency_pipe?.transform(
                 value / 100,
@@ -429,7 +415,7 @@ export class CateringItemModalComponent {
     }
 
     public hasTag(tag: string) {
-        return this.tag_list.includes(tag);
+        return this.tag_list().includes(tag);
     }
 
     /**
@@ -437,14 +423,13 @@ export class CateringItemModalComponent {
      * @param event Input event
      */
     public addTag(event: MatChipInputEvent): void {
-        if (!this.form || !this.form.controls.tags) return;
-        this.form.controls.tags.markAsDirty();
         const input = event.input;
-        const value = event.value;
-        const tag_list = this.tag_list;
-        if ((value || '').trim()) {
-            tag_list.push(value);
-            this.form.controls.tags.setValue(tag_list);
+        const value = (event.value || '').trim();
+        if (value) {
+            this.model.update((m) => ({
+                ...m,
+                tags: [...(m.tags || []), value],
+            }));
         }
 
         // Reset the input value
@@ -456,25 +441,20 @@ export class CateringItemModalComponent {
      * @param existing_tag Tag to remove
      */
     public removeTag(existing_tag: string): void {
-        if (!this.form || !this.form.controls.tags) return;
-        const tag_list = this.tag_list;
-        this.form.controls.tags.markAsDirty();
-        const index = tag_list.indexOf(existing_tag);
-
-        if (index >= 0) {
-            tag_list.splice(index, 1);
-            this.form.controls.tags.setValue(tag_list);
-        }
+        this.model.update((m) => ({
+            ...m,
+            tags: (m.tags || []).filter((tag) => tag !== existing_tag),
+        }));
     }
 
     public saveChanges() {
-        this.loading = true;
+        this.loading.set(true);
         this.event.emit({
             reason: 'done',
             metadata: {
                 item: new CateringItem({
-                    ...this.item,
-                    ...this.form.value,
+                    ...this.item(),
+                    ...this.model(),
                 }),
             },
         });

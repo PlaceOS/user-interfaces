@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, input } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { Component, computed, inject, input } from '@angular/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     downloadFile,
@@ -14,7 +13,6 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { format } from 'date-fns';
-import { map } from 'rxjs/operators';
 import {
     ReportMetricGuideComponent,
     ReportMetricGuideItem,
@@ -145,46 +143,41 @@ export class VisitorReportListComponent {
               );
     }
 
-    public readonly visitor_bookings = toSignal(
-        this._state.bookings$.pipe(
-            map((bookings) => {
-                const list = [];
-                for (const booking of bookings) {
-                    list.push({
-                        visitor_name:
-                            booking.asset_name ||
-                            booking.extension_data?.asset_name ||
-                            booking.description ||
-                            booking.asset_id,
-                        visitor_email:
-                            booking.asset_id ||
-                            booking.extension_data?.visitor_email ||
-                            '',
-                        date: booking.date,
-                        host: booking.user_name || booking.user_email,
-                        host_email:
-                            booking.user_email || booking.booked_by_email,
+    public readonly visitor_bookings = computed(() => {
+        const bookings = this._state.bookings();
+        const list = [];
+        for (const booking of bookings) {
+            list.push({
+                visitor_name:
+                    booking.asset_name ||
+                    booking.extension_data?.asset_name ||
+                    booking.description ||
+                    booking.asset_id,
+                visitor_email:
+                    booking.asset_id ||
+                    booking.extension_data?.visitor_email ||
+                    '',
+                date: booking.date,
+                host: booking.user_name || booking.user_email,
+                host_email: booking.user_email || booking.booked_by_email,
 
-                        checked_in: i18n(
-                            booking.checked_in ? 'COMMON.TRUE' : 'COMMON.FALSE',
-                        ),
-                        self_registered: i18n(
-                            booking.extension_data?.self_registered
-                                ? 'COMMON.TRUE'
-                                : 'COMMON.FALSE',
-                        ),
-                        international: i18n(
-                            booking.extension_data?.international
-                                ? 'COMMON.TRUE'
-                                : 'COMMON.FALSE',
-                        ),
-                    });
-                }
-                return list;
-            }),
-        ),
-        { initialValue: [] },
-    );
+                checked_in: i18n(
+                    booking.checked_in ? 'COMMON.TRUE' : 'COMMON.FALSE',
+                ),
+                self_registered: i18n(
+                    booking.extension_data?.self_registered
+                        ? 'COMMON.TRUE'
+                        : 'COMMON.FALSE',
+                ),
+                international: i18n(
+                    booking.extension_data?.international
+                        ? 'COMMON.TRUE'
+                        : 'COMMON.FALSE',
+                ),
+            });
+        }
+        return list;
+    });
 
     public readonly download = async () => {
         const data = this.visitor_bookings().map((item) => ({ ...item }));

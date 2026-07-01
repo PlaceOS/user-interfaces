@@ -1,5 +1,4 @@
 import { Component, computed, effect, inject, input } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
@@ -60,9 +59,9 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                 @if (can_update()) {
                                     <button
                                         icon
+                                        default
                                         type="button"
                                         matRipple
-                                        class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
                                         [matTooltip]="
                                             'SIGNAGE_MANAGER.ADD_PLAYLIST_TOOLTIP'
                                                 | translate
@@ -229,9 +228,10 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                             @if (can_update()) {
                                                 <button
                                                     icon
+                                                    default
+                                                    error
                                                     type="button"
                                                     matRipple
-                                                    class="border-base-200 hover:bg-base-200 hover:border-base-300 mr-1 rounded-lg border hover:shadow-md"
                                                     [matTooltip]="
                                                         'SIGNAGE_MANAGER.REMOVE_PLAYLIST_TOOLTIP'
                                                             | translate
@@ -250,9 +250,7 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                                                   }
                                                     "
                                                 >
-                                                    <icon class="text-error">
-                                                        close
-                                                    </icon>
+                                                    <icon>close</icon>
                                                 </button>
                                             }
                                         </div>
@@ -294,7 +292,10 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                     {{
                                         'SIGNAGE_MANAGER.ZONES_COUNT'
                                             | translate
-                                                : { count: display_zones().length }
+                                                : {
+                                                      count: display_zones()
+                                                          .length,
+                                                  }
                                                 : display_zones().length
                                     }}
                                 </h5>
@@ -367,7 +368,9 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                 class="text-base-content/70 flex flex-1 flex-col items-center justify-center space-y-2 p-8"
             >
                 <icon class="text-6xl">tv</icon>
-                <p>{{ 'SIGNAGE_MANAGER.DISPLAY_SELECT_DETAILS' | translate }}</p>
+                <p>
+                    {{ 'SIGNAGE_MANAGER.DISPLAY_SELECT_DETAILS' | translate }}
+                </p>
             </div>
         }
     `,
@@ -403,12 +406,8 @@ export class DisplayContentComponent {
         this._service.playlist_approval_status;
     public readonly can_update = this._service.can_update;
 
-    private readonly _playlists = toSignal(this._service.playlists, {
-        initialValue: [],
-    });
-    private readonly _zones = toSignal(this._service.zones, {
-        initialValue: [],
-    });
+    private readonly _playlists = this._service.playlists;
+    private readonly _zones = this._service.zones;
 
     public readonly display_playlists = computed(() => {
         const display = this.selected_display();

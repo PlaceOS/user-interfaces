@@ -34,20 +34,46 @@ const EMPTY_FAVS = [];
 @Component({
     selector: `catering-list-field`,
     template: `
-        <div list class="space-y-2">
-            @for (order of orders(); track order.id) {
-                <div
-                    order
-                    class="bg-base-100 overflow-hidden rounded-xl border shadow-sm"
-                    [class.border-error]="end_time() < order.deliver_at"
-                    [class.border-base-300]="end_time() >= order.deliver_at"
-                >
-                    <div class="flex items-center space-x-2 p-4">
-                        <div class="flex-1">
-                            <div class="flex items-center space-x-4">
-                                <div>
+        @if (orders().length) {
+            <div list class="space-y-2">
+                @for (order of orders(); track order.id) {
+                    <div
+                        order
+                        class="bg-base-100 overflow-hidden rounded-xl border shadow-sm"
+                        [class.border-error]="end_time() < order.deliver_at"
+                        [class.border-base-300]="end_time() >= order.deliver_at"
+                    >
+                        <div class="flex items-center space-x-2 p-4">
+                            <div class="flex-1">
+                                <div class="flex items-center space-x-4">
+                                    <div>
+                                        {{
+                                            'CALENDAR_EVENT.CATERING_ORDER_AT_DATE'
+                                                | translate
+                                                    : {
+                                                          date:
+                                                              order.deliver_at_time
+                                                              | date
+                                                                  : 'mediumDate',
+                                                          time:
+                                                              order.deliver_at_time
+                                                              | date
+                                                                  : time_format(),
+                                                      }
+                                        }}
+                                    </div>
+                                    @if (end_time() < order.deliver_at) {
+                                        <div
+                                            class="bg-error text-error-content flex h-6 w-6 items-center justify-center rounded-full"
+                                            [matTooltip]="err_tooltip()"
+                                        >
+                                            <icon>priority_high</icon>
+                                        </div>
+                                    }
+                                </div>
+                                <div class="text-xs opacity-60">
                                     {{
-                                        'CALENDAR_EVENT.CATERING_ORDER_AT_DATE'
+                                        'CALENDAR_EVENT.CATERING_ORDER_DETAILS'
                                             | translate
                                                 : {
                                                       date:
@@ -55,32 +81,11 @@ const EMPTY_FAVS = [];
                                                           | date: 'mediumDate',
                                                       time:
                                                           order.deliver_at
-                                                          | date: time_format,
+                                                          | date: time_format(),
                                                   }
                                     }}
                                 </div>
-                                @if (end_time() < order.deliver_at) {
-                                    <div
-                                        class="bg-error text-error-content flex h-6 w-6 items-center justify-center rounded-full"
-                                        [matTooltip]="err_tooltip()"
-                                    >
-                                        <icon>priority_high</icon>
-                                    </div>
-                                }
                             </div>
-                            <div class="text-xs opacity-60">
-                                {{
-                                    'CALENDAR_EVENT.CATERING_ORDER_DETAILS'
-                                        | translate
-                                            : {
-                                                  count: order.item_count,
-                                                  cost:
-                                                      order.total_cost / 100
-                                                      | currency: currency_code,
-                                              }
-                                }}
-                            </div>
-                        </div>
                         @if (!disabled()) {
                             <button
                                 icon
@@ -177,7 +182,7 @@ const EMPTY_FAVS = [];
                                 >
                                     {{
                                         item.unit_price_with_options / 100
-                                            | currency: currency_code
+                                            | currency: currency_code()
                                     }}
                                     ea
                                 </div>
@@ -197,19 +202,19 @@ const EMPTY_FAVS = [];
                                     matRipple
                                     name="toggle-catering-item-favourite"
                                     [matTooltip]="
-                                        (favorites.includes(item.id)
+                                        (favorites().includes(item.id)
                                             ? 'COMMON.FAVOURITES_REMOVE'
                                             : 'COMMON.FAVOURITES_ADD'
                                         ) | translate
                                     "
                                     [class.text-info]="
-                                        favorites.includes(item.id)
+                                        favorites().includes(item.id)
                                     "
                                     (click)="toggleFavourite(item)"
                                 >
                                     <icon
                                         [className]="
-                                            favorites.includes(item.id)
+                                            favorites().includes(item.id)
                                                 ? 'material-symbols-rounded'
                                                 : 'material-symbols-outlined'
                                         "
@@ -220,23 +225,55 @@ const EMPTY_FAVS = [];
                         }
                     </div>
                 </div>
-            }
-        </div>
-        <button
-            btn
-            matRipple
-            name="add-catering-item"
-            class="inverse mt-2 w-full"
-            [disabled]="disabled()"
-            (click)="editOrder()"
-        >
-            <div class="flex items-center justify-center space-x-2">
-                <icon>search</icon>
-                <span>
-                    {{ 'CALENDAR_EVENT.CATERING_ORDER_ADD' | translate }}
-                </span>
+                }
             </div>
-        </button>
+            <button
+                btn
+                matRipple
+                name="add-catering-item"
+                class="inverse mt-2 w-full"
+                [disabled]="disabled()"
+                (click)="editOrder()"
+            >
+                <div class="flex items-center justify-center space-x-2">
+                    <icon>search</icon>
+                    <span>
+                        {{ 'CALENDAR_EVENT.CATERING_ORDER_ADD' | translate }}
+                    </span>
+                </div>
+            </button>
+        } @else {
+            @if (disabled()) {
+                <div
+                    class="bg-base-200 flex w-full flex-col items-center space-y-2 rounded-xl p-8"
+                >
+                    <icon class="text-6xl opacity-30">hand_meal</icon>
+                    <p class="opacity-30">
+                        Catering is not available for the selected space and/or
+                        time
+                    </p>
+                </div>
+            } @else {
+                <div
+                    class="bg-base-200 flex w-full flex-col items-center space-y-2 rounded-xl p-8"
+                >
+                    <p>No catering orders for this booking</p>
+                    <button
+                        btn
+                        matRipple
+                        class="inverse space-x-2"
+                        (click)="editOrder()"
+                    >
+                        <icon class="text-2xl">add_notes</icon>
+                        <span class="pr-3">
+                            {{
+                                'CALENDAR_EVENT.CATERING_ORDER_ADD' | translate
+                            }}
+                        </span>
+                    </button>
+                </div>
+            }
+        }
     `,
     styles: [``],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
@@ -283,9 +320,8 @@ export class CateringListFieldComponent
 
     private _onChange: (_: CateringOrder[]) => void;
     private _onTouch: (_: CateringOrder[]) => void;
-    public selected: CateringOrder[] = [];
 
-    public get favorites() {
+    public readonly favorites = computed(() => {
         return (
             this._settings.signal<string[]>(
                 'favourite_menu_items',
@@ -293,15 +329,16 @@ export class CateringListFieldComponent
                 true,
             )() || EMPTY_FAVS
         );
-    }
+    });
 
-    public get time_format() {
-        return this._settings.time_format_signal() || 'shortTime';
-    }
+    public readonly time_format = computed(
+        () => this._settings.time_format_signal() || 'shortTime',
+    );
 
-    public get currency_code() {
+    public readonly currency_code = computed(() => {
+        this._org.active_building();
         return this._org.currency_code;
-    }
+    });
 
     public ngOnInit() {
         this.err_tooltip.set(i18n('CALENDAR_EVENT.CATERING_ORDER_ERROR'));
@@ -411,16 +448,20 @@ export class CateringListFieldComponent
                     option.active = !!opt;
                 }
             }
+            const modal = ref.componentInstance;
+            const exact_time = this.readDialogValue(modal.exact_time);
+            const offset = this.readDialogValue(modal.offset);
+            const offset_day = this.readDialogValue(modal.offset_day);
             const new_order = new CateringOrder({
                 ...order,
                 items,
                 caterer: items[0].caterer,
                 event: this.options() as any,
-                deliver_offset: ref.componentInstance.offset,
-                deliver_time: ref.componentInstance.exact_time
+                deliver_offset: offset,
+                deliver_time: exact_time
                     ? time.getHours() + time.getMinutes() / 60
                     : null,
-                deliver_day_offset: ref.componentInstance.offset_day || 0,
+                deliver_day_offset: offset_day || 0,
             });
             if (new_order.item_count <= 0) {
                 this.setValue(orders);
@@ -428,6 +469,10 @@ export class CateringListFieldComponent
             }
             this.setValue([...orders, new_order]);
         });
+    }
+
+    private readDialogValue<T>(value: T | (() => T)): T {
+        return typeof value === 'function' ? (value as () => T)() : value;
     }
 
     public toggleOrder(order_id: string) {
@@ -442,7 +487,7 @@ export class CateringListFieldComponent
     }
 
     public toggleFavourite(cateringitem: CateringItem) {
-        const fav_list = this.favorites;
+        const fav_list = this.favorites();
         const new_state = !fav_list.includes(cateringitem.id);
         if (new_state) {
             this._settings.saveUserSetting('favourite_menu_items', [

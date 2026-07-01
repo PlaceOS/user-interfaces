@@ -1,4 +1,5 @@
-import { FormGroup } from '@angular/forms';
+import { Injector } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 import { Booking, CalendarEvent, WeekOfMonth } from '@placeos/common';
 import {
     generateBookingForm,
@@ -6,42 +7,134 @@ import {
 } from '../lib/booking.utilities';
 
 describe('Booking Utilities', () => {
+    let injector: Injector;
+
+    beforeEach(() => {
+        injector = TestBed.inject(Injector);
+    });
+
     describe('generateBookingForm', () => {
-        it('should get current status from a list of bookings', () =>
-            expect(generateBookingForm()).toBeInstanceOf(FormGroup));
+        it('should get current status from a list of bookings', () => {
+            const { model, form } = TestBed.runInInjectionContext(() =>
+                generateBookingForm(new Booking(), injector),
+            );
+            expect(typeof model).toBe('function');
+            expect(typeof form).toBe('function');
+            for (const key of Object.keys(model())) {
+                expect(typeof form[key]).toBe('function');
+                expect(form[key]()).toBeDefined();
+                expect(model()[key]).not.toBeNull();
+            }
+        });
 
         it('should use visitor_name extension data instead of description for visitor forms', () => {
-            const form = generateBookingForm(
-                new Booking({
-                    booking_type: 'visitor',
-                    asset_id: 'visitor@example.com',
-                    description: 'Vendor Interview',
-                    extension_data: { visitor_name: 'Visitor One' },
-                }),
+            const { model } = TestBed.runInInjectionContext(() =>
+                generateBookingForm(
+                    new Booking({
+                        booking_type: 'visitor',
+                        asset_id: 'visitor@example.com',
+                        description: 'Vendor Interview',
+                        extension_data: { visitor_name: 'Visitor One' },
+                    }),
+                    injector,
+                ),
             );
 
-            expect(form.value.asset_name).toBe('Visitor One');
+            expect(model().asset_name).toBe('Visitor One');
         });
 
         it('should revalidate duration when the start date changes', () => {
             const past_date = Date.now() - 2 * 60 * 60 * 1000;
             const future_date = Date.now() + 2 * 60 * 60 * 1000;
-            const form = generateBookingForm(
-                new Booking({
-                    booking_type: 'visitor',
-                    date: past_date,
-                    duration: 60,
-                }),
+            const { model, form } = TestBed.runInInjectionContext(() =>
+                generateBookingForm(
+                    new Booking({
+                        booking_type: 'visitor',
+                        date: past_date,
+                        duration: 60,
+                    }),
+                    injector,
+                ),
             );
 
-            form.controls.duration.updateValueAndValidity({
-                emitEvent: false,
-            });
-            expect(form.controls.duration.errors).toEqual({ duration: true });
+            expect(form.duration().errors()).toEqual([
+                expect.objectContaining({ kind: 'duration' }),
+            ]);
 
-            form.patchValue({ date: future_date });
+            model.update((m) => ({ ...m, date: future_date }));
 
-            expect(form.controls.duration.errors).toBeNull();
+            expect(form.duration().errors()).toEqual([]);
+        });
+
+        it('should coerce undefined writes back to typed defaults so [formField] bindings survive', () => {
+            const { model, form } = TestBed.runInInjectionContext(() =>
+                generateBookingForm(
+                    new Booking({ booking_type: 'visitor' }),
+                    injector,
+                ),
+            );
+
+            // A CVA or handler clearing fields to undefined would otherwise
+            // remove them from the FieldTree, breaking `[formField]`.
+            model.update((m) => ({
+                ...m,
+                user: undefined as any,
+                asset_id: undefined as any,
+                assets: undefined as any,
+            }));
+
+            // Sanitised synchronously at the update() boundary — no tick.
+            expect(typeof form.user).toBe('function');
+            expect(typeof form.asset_id).toBe('function');
+            expect(typeof form.assets).toBe('function');
+            expect(model().asset_id).toBe('');
+            expect(model().assets).toEqual([]);
+            expect(model().user).toBeDefined();
+        });
+
+        it('should coerce null writes for non-nullable fields so [formField] bindings survive', () => {
+            const { model, form } = TestBed.runInInjectionContext(() =>
+                generateBookingForm(
+                    new Booking({ booking_type: 'visitor' }),
+                    injector,
+                ),
+            );
+
+            // UserSearchField clears via null. For a non-nullable object field
+            // that makes signal-forms degrade the field binding.
+            model.update((m) => ({
+                ...m,
+                user: null as any,
+                asset_id: null as any,
+                assets: null as any,
+                booking_asset: null as any,
+                group: null as any,
+                recurrence_instances: null as any,
+            }));
+
+            expect(typeof form.user).toBe('function');
+            expect(typeof form.asset_id).toBe('function');
+            expect(typeof form.assets).toBe('function');
+            expect(typeof form.booking_asset).toBe('function');
+            expect(typeof form.group).toBe('function');
+            expect(typeof form.recurrence_instances).toBe('function');
+            expect(model().asset_id).toBe('');
+            expect(model().assets).toEqual([]);
+            expect(model().booking_asset).toEqual({});
+            expect(model().group).toBe('');
+            expect(model().recurrence_instances).toEqual([]);
+            expect(model().user).toBeDefined();
+        });
+
+        it('should keep the date field disabled state stable (no oscillation)', () => {
+            const { form } = TestBed.runInInjectionContext(() =>
+                generateBookingForm(
+                    new Booking({ booking_type: 'desk' }),
+                    injector,
+                ),
+            );
+
+            expect(typeof form.date().disabled()).toBe('boolean');
         });
     });
 

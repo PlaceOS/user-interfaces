@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialogRef } from '@angular/material/dialog';
@@ -260,15 +259,9 @@ export class AddColleaguesModalComponent
     public readonly selected_users = signal<User[]>([]);
     public readonly search_term_signal = signal('');
 
-    private readonly _search_results = toSignal(this._state.search_results, {
-        initialValue: [],
-    });
-    private readonly _loading_state = toSignal(this._state.loading, {
-        initialValue: '',
-    });
-    private readonly _existing_contacts = toSignal(this._state.contacts, {
-        initialValue: [],
-    });
+    private readonly _search_results = this._state.search_results;
+    private readonly _loading_state = this._state.loading;
+    private readonly _existing_contacts = this._state.contacts;
 
     public readonly loading_users = computed(() => !!this._loading_state());
     public readonly available_users = computed(() => this._search_results());

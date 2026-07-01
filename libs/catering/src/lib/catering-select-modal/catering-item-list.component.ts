@@ -1,5 +1,4 @@
 import { Component, computed, inject, input, output } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CateringItem } from '@placeos/common';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
@@ -51,7 +50,7 @@ import { CateringItemListItemComponent } from './catering-item-list-item.compone
                                 [active]="isActive(item)"
                                 [show_count]="false"
                                 [favourite]="isFavourite(item.id)"
-                                [code]="code"
+                                [code]="code()"
                                 (toggleFav)="toggleFav.emit(item)"
                                 (select)="selectItem(item, true)"
                             ></catering-item-list-item>
@@ -98,16 +97,10 @@ export class CateringItemListComponent {
     public readonly onSelect = output<CateringItem>();
 
     public readonly list = computed(() => this.selected_items() || []);
-    public readonly loading = toSignal(this._state.loading, {
-        initialValue: '',
-    });
-    public readonly item_list = toSignal(this._state.filtered_menu, {
-        initialValue: [],
-    });
+    public readonly loading = this._state.loading;
+    public readonly item_list = this._state.filtered_menu;
 
-    public get code() {
-        return this._state.currency_code;
-    }
+    public readonly code = computed(() => this._state.currency_code);
 
     public isFavourite(item_id: string) {
         return this.favorites()?.includes(item_id);

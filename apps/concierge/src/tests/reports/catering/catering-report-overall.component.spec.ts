@@ -1,5 +1,5 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { BehaviorSubject } from 'rxjs';
+import { signal } from '@angular/core';
 
 import { Router } from '@angular/router';
 import { OrganisationService } from '@placeos/common';
@@ -16,7 +16,7 @@ describe('CateringReportOverallComponent', () => {
             {
                 provide: CateringReportStateService,
                 useValue: {
-                    stats: new BehaviorSubject({}),
+                    stats: signal({}),
                 },
             },
             { provide: Router, useValue: {} },
@@ -33,7 +33,7 @@ describe('CateringReportOverallComponent', () => {
     it('should show order count', async () => {
         const stats: any = spectator.inject(CateringReportStateService).stats;
         await expect('[count]').toContainText('0');
-        stats.next({ order_count: 32 });
+        stats.set({ order_count: 32 });
         spectator.detectChanges();
         await expect('[count]').toContainText('32');
     });
@@ -41,7 +41,7 @@ describe('CateringReportOverallComponent', () => {
     it('should show unique number of items', async () => {
         const stats: any = spectator.inject(CateringReportStateService).stats;
         await expect('[unique]').toContainText('0');
-        stats.next({ unique_items: 32 });
+        stats.set({ unique_items: 32 });
         spectator.detectChanges();
         await expect('[unique]').toContainText('32');
     });
@@ -49,7 +49,7 @@ describe('CateringReportOverallComponent', () => {
     it('should show number of items ordered', async () => {
         const stats: any = spectator.inject(CateringReportStateService).stats;
         await expect('[items]').toContainText('0');
-        stats.next({ item_count: 32 });
+        stats.set({ item_count: 32 });
         spectator.detectChanges();
         await expect('[items]').toContainText('32');
     });
@@ -57,7 +57,7 @@ describe('CateringReportOverallComponent', () => {
     it('should show total cost', async () => {
         const stats: any = spectator.inject(CateringReportStateService).stats;
         await expect('[total]').toContainText('$0');
-        stats.next({ total_cost: 3200 });
+        stats.set({ total_cost: 3200 });
         spectator.detectChanges();
         await expect('[total]').toContainText('$32');
     });
@@ -65,7 +65,7 @@ describe('CateringReportOverallComponent', () => {
     it('should show average cost', async () => {
         const stats: any = spectator.inject(CateringReportStateService).stats;
         await expect('[average]').toContainText('$0');
-        stats.next({ avg_cost: 3200 });
+        stats.set({ avg_cost: 3200 });
         spectator.detectChanges();
         await expect('[average]').toContainText('$32');
     });

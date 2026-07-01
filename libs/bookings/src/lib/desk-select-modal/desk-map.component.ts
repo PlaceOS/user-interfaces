@@ -1,20 +1,14 @@
 import {
     Component,
     computed,
-    DestroyRef,
     effect,
     inject,
     input,
-    OnInit,
+    model,
     output,
     signal,
     WritableSignal,
 } from '@angular/core';
-import {
-    takeUntilDestroyed,
-    toObservable,
-    toSignal,
-} from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
@@ -23,8 +17,6 @@ import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import { combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
 
 import { BuildingPipe } from 'libs/components/src/lib/building.pipe';
 import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
@@ -107,11 +99,10 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
         BuildingPipe,
     ],
 })
-export class DeskMapComponent implements OnInit {
+export class DeskMapComponent {
     private _state = inject(BookingFormService);
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
-    private _destroyRef = inject(DestroyRef);
     private readonly _use_region = this._settings.signal('use_region', false);
 
     public readonly is_displayed = input(false);
@@ -121,121 +112,70 @@ export class DeskMapComponent implements OnInit {
     public readonly desks = this._state.available_resources;
     public readonly loading = this._state.loading;
 
-    public zoom = 1;
-    public center = { x: 0.5, y: 0.5 };
+    public readonly zoom = model(1);
+    public readonly center = model({ x: 0.5, y: 0.5 });
     public readonly level = signal<BuildingLevel | undefined>(undefined);
     public readonly coordinates = signal<any>(undefined);
     public readonly statuses: Record<string, WritableSignal<string>> = {};
 
     private readonly _change = signal(0);
-    private readonly _change$ = toObservable(this._change);
 
-    public readonly levels = toSignal(
-        combineLatest([
-            this._org.active_region,
-            this._org.active_building,
-        ]).pipe(
-            map(([region, bld]) => {
-                const level_list = this._use_region()
-                    ? this._org.levelsForRegion(region)
-                    : this._org.levelsForBuilding(bld);
-                const viewable_levels = level_list.filter(
-                    (lvl) => !lvl.tags.includes('parking'),
-                );
-                if (!this.level() && viewable_levels.length) {
-                    this.level.set(viewable_levels[0]);
-                }
-                return viewable_levels.sort(
-                    (a, b) =>
-                        a.parent_id.localeCompare(b.parent_id) ||
-                        (a.display_name || '').localeCompare(
-                            b.display_name || '',
-                        ),
-                );
-            }),
-        ),
-        { initialValue: [] },
-    );
+    public readonly levels = computed(() => {
+        const region = this._org.active_region();
+        const bld = this._org.active_building();
+        const level_list = this._use_region()
+            ? this._org.levelsForRegion(region)
+            : this._org.levelsForBuilding(bld);
+        const viewable_levels = level_list.filter(
+            (lvl) => !lvl.tags.includes('parking'),
+        );
+        return viewable_levels.sort(
+            (a, b) =>
+                a.parent_id.localeCompare(b.parent_id) ||
+                (a.display_name || '').localeCompare(b.display_name || ''),
+        );
+    });
+
+    private readonly _select_default_level = effect(() => {
+        const levels = this.levels();
+        if (!this.level() && levels.length) {
+            this.level.set(levels[0]);
+        }
+    });
 
     public readonly setOptions = (o) => this._state.setOptions(o);
 
     public readonly map_url = computed(() => this.level()?.map_id || '');
 
-    public readonly actions = toSignal(
-        this._state.available_resources.pipe(
-            map((desks) =>
-                desks.map((desk) => ({
-                    id: desk.map_id || desk.id,
-                    action: ['touchend', 'mouseup'],
-                    callback: () => this.selectDesk(desk as any),
-                })),
-            ),
-        ),
-        { initialValue: [] },
+    public readonly actions = computed(() =>
+        this._state.available_resources().map((desk) => ({
+            id: desk.map_id || desk.id,
+            action: ['touchend', 'mouseup'],
+            callback: () => this.selectDesk(desk as any),
+        })),
     );
 
-    public readonly features = toSignal(
-        combineLatest([
-            this._state.resources,
-            this._state.available_resources,
-        ]).pipe(
-            map(([desks]) => {
-                return this._settings.get('app.desks.hide_user')
-                    ? []
-                    : desks.map((desk) => ({
-                          location: desk.id,
-                          content: ExploreDeskInfoComponent,
-                          full_size: true,
-                          no_scale: true,
-                          data: {
-                              id: desk.map_id || desk.id,
-                              map_id: desk.name,
-                              name: desk.name || desk.map_id,
-                              user: this._state.resourceUserName(desk.id),
-                              status: this.statuses[desk.id],
-                          },
-                          z_index: 20,
-                      }));
-            }),
-        ),
-        { initialValue: [] },
-    );
+    public readonly features = computed(() => {
+        const desks = this._state.resources();
+        return this._settings.get('app.desks.hide_user')
+            ? []
+            : desks.map((desk) => ({
+                  location: desk.id,
+                  content: ExploreDeskInfoComponent,
+                  full_size: true,
+                  no_scale: true,
+                  data: {
+                      id: desk.map_id || desk.id,
+                      map_id: desk.name,
+                      name: desk.name || desk.map_id,
+                      user: this._state.resourceUserName(desk.id),
+                      status: this.statuses[desk.id],
+                  },
+                  z_index: 20,
+              }));
+    });
 
-    public readonly styles = toSignal(
-        combineLatest([
-            this._state.resources,
-            this._state.available_resources,
-            this._change$,
-        ]).pipe(
-            map(([desks, free_desks]) =>
-                desks.reduce((styles, desk) => {
-                    const colours =
-                        this._settings.get('app.explore.colors') || {};
-                    if (!(desk.id in this.statuses))
-                        this.statuses[desk.id] = signal('not-bookable');
-                    const status =
-                        this.active() === desk.id
-                            ? 'active'
-                            : free_desks.find((_) => _.id === desk.id)
-                              ? 'free'
-                              : this._state.resourceUserName(desk.id)
-                                ? 'busy'
-                                : 'not-bookable';
-                    this.statuses[desk.id].set(status);
-                    styles[`#${desk.map_id || desk.id}`] = {
-                        fill:
-                            status === 'active'
-                                ? '#512DA8'
-                                : colours[`desk-${status}`] ||
-                                  colours[`${status}`] ||
-                                  DEFAULT_COLOURS[`${status}`],
-                    };
-                    return styles;
-                }, {}),
-            ),
-        ),
-        { initialValue: {} },
-    );
+    public readonly styles = signal<Record<string, any>>({});
     public readonly use_region = this._use_region;
 
     constructor() {
@@ -243,15 +183,40 @@ export class DeskMapComponent implements OnInit {
             this.active();
             this._change.set(Date.now());
         });
-    }
-
-    public ngOnInit(): void {
-        this._state.options
-            .pipe(takeUntilDestroyed(this._destroyRef))
-            .subscribe(({ zone_id }) => {
-                const level = this._org.levelWithID([zone_id]);
-                if (level) this.level.set(level);
-            });
+        effect(() => {
+            const desks = this._state.resources();
+            const free_desks = this._state.available_resources();
+            this._change();
+            const styles = desks.reduce((styles, desk) => {
+                const colours = this._settings.get('app.explore.colors') || {};
+                if (!(desk.id in this.statuses))
+                    this.statuses[desk.id] = signal('not-bookable');
+                const status =
+                    this.active() === desk.id
+                        ? 'active'
+                        : free_desks.find((_) => _.id === desk.id)
+                          ? 'free'
+                          : this._state.resourceUserName(desk.id)
+                            ? 'busy'
+                            : 'not-bookable';
+                this.statuses[desk.id].set(status);
+                styles[`#${desk.map_id || desk.id}`] = {
+                    fill:
+                        status === 'active'
+                            ? '#512DA8'
+                            : colours[`desk-${status}`] ||
+                              colours[`${status}`] ||
+                              DEFAULT_COLOURS[`${status}`],
+                };
+                return styles;
+            }, {});
+            this.styles.set(styles);
+        });
+        effect(() => {
+            const { zone_id } = this._state.options();
+            const level = this._org.levelWithID([zone_id]);
+            if (level) this.level.set(level);
+        });
     }
 
     public selectDesk(desk: BookingAsset) {
@@ -271,11 +236,11 @@ export class DeskMapComponent implements OnInit {
     }
 
     public setZoom(new_zoom: number) {
-        this.zoom = Math.max(0.5, Math.min(10, new_zoom));
+        this.zoom.set(Math.max(0.5, Math.min(10, new_zoom)));
     }
 
     public resetMap() {
-        this.zoom = 1;
-        this.center = { x: 0.5, y: 0.5 };
+        this.zoom.set(1);
+        this.center.set({ x: 0.5, y: 0.5 });
     }
 }

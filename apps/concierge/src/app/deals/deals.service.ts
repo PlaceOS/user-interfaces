@@ -1,4 +1,4 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { inject, Injectable, resource, Signal, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
     AsyncHandler,
@@ -9,20 +9,6 @@ import {
 } from '@placeos/common';
 import { openConfirmModal } from '@placeos/components';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
-import {
-    BehaviorSubject,
-    catchError,
-    combineLatest,
-    filter,
-    from,
-    map,
-    Observable,
-    of,
-    shareReplay,
-    startWith,
-    switchMap,
-    tap,
-} from 'rxjs';
 import { DealModalComponent } from './deal-modal.component';
 
 @Injectable({
@@ -31,26 +17,37 @@ import { DealModalComponent } from './deal-modal.component';
 export class DealsService extends AsyncHandler {
     private _org = inject(OrganisationService);
     private _dialog = inject(MatDialog);
-    private _changed = new BehaviorSubject(0);
+    private _changed = signal(0);
 
     public readonly loading = signal(false);
 
-    public readonly deals$: Observable<Deal[]> = combineLatest([
-        this._org.active_building,
-        this._changed,
-    ]).pipe(
-        filter(([b]) => !!b?.id),
-        switchMap(([bld]) => {
-            this.loading.set(true);
-            return from(showMetadata(bld.id, 'deals-n-offers')).pipe(
-                catchError(() => of({ details: [] })),
-            );
+    private readonly _deals = resource({
+        params: () => ({
+            building: this._org.active_building()?.id,
+            change: this._changed(),
         }),
-        map(({ details }) => (details instanceof Array ? details : [])),
-        tap(() => this.loading.set(false)),
-        startWith([]),
-        shareReplay(1),
-    );
+        defaultValue: [] as Deal[],
+        loader: async ({ params }) => {
+            if (!params.building) return [];
+            this.loading.set(true);
+            const metadata = await showMetadata(
+                params.building,
+                'deals-n-offers',
+            ).catch(() => ({ details: [] }) as any);
+            this.loading.set(false);
+            return metadata?.details instanceof Array ? metadata.details : [];
+        },
+    });
+    public readonly deals: Signal<Deal[]> = this._deals.value;
+
+    /** Fetch the current list of deals directly from metadata */
+    public async getDeals(): Promise<Deal[]> {
+        const metadata = await showMetadata(
+            this._org.building.id,
+            'deals-n-offers',
+        ).catch(() => null);
+        return metadata?.details instanceof Array ? metadata.details : [];
+    }
 
     public async saveDeal(deal: Partial<Deal>) {
         const metadata = await showMetadata(
@@ -67,7 +64,7 @@ export class DealsService extends AsyncHandler {
             description: 'List of deals and offers',
             details: deals,
         });
-        this._changed.next(Date.now());
+        this._changed.set(Date.now());
         return deal;
     }
 
@@ -96,7 +93,7 @@ export class DealsService extends AsyncHandler {
             description: 'List of deals and offers',
             details: deals,
         });
-        this._changed.next(Date.now());
+        this._changed.set(Date.now());
         return true;
     }
 

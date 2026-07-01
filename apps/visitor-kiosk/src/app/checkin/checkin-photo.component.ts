@@ -1,4 +1,9 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import {
+    Component,
+    OnInit,
+    inject,
+    signal,
+} from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router } from '@angular/router';
 import { notifyError } from '@placeos/common';

@@ -1,4 +1,4 @@
-import { signal } from '@angular/core';
+import { signal, WritableSignal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -10,7 +10,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
-import { BehaviorSubject } from 'rxjs';
 import {
     DeskQrItem,
     DesksStateService,
@@ -23,8 +22,8 @@ import { SearchbarComponent } from '../../app/ui/searchbar.component';
 
 describe('DesksComponent', () => {
     let spectator: SpectatorRouting<DesksComponent>;
-    let active_building: BehaviorSubject<any>;
-    let active_region: BehaviorSubject<any>;
+    let active_building: WritableSignal<any>;
+    let active_region: WritableSignal<any>;
     let current_building: any;
     let filters_signal: ReturnType<typeof signal<any>>;
     let print_desk_signal: ReturnType<typeof signal<DeskQrItem | null>>;
@@ -84,8 +83,8 @@ describe('DesksComponent', () => {
 
     beforeEach(() => {
         current_building = { id: 'bld-1', parent_id: 'region-1' };
-        active_building = new BehaviorSubject(current_building);
-        active_region = new BehaviorSubject({ id: 'region-1' });
+        active_building = signal(current_building);
+        active_region = signal({ id: 'region-1' });
         organisation_service.active_building = active_building;
         organisation_service.active_region = active_region;
         filters_signal = signal({ zones: ['level-a'] });
@@ -123,11 +122,20 @@ describe('DesksComponent', () => {
         // Events view defaults to "all levels" (empty selection). When the
         // building changes, zones that don't belong to the new building must
         // be dropped so the user isn't left with a stale selection.
+        const injected_building = spectator.inject(OrganisationService)
+            .active_building as WritableSignal<any>;
+        // Flush the initial `toObservable` emissions, then restore the active
+        // selection (initial sync may clear it) so we test the building change.
+        spectator.detectChanges();
+        filters_signal.set({ zones: ['level-a'] });
         const update_zones = jest.spyOn(spectator.component, 'updateZones');
         update_zones.mockClear();
 
         current_building = { id: 'bld-2', parent_id: 'region-1' };
-        active_building.next(current_building);
+        injected_building.set(current_building);
+        // `toObservable` emits the signal change via an effect, flushed on the
+        // next change detection cycle.
+        spectator.detectChanges();
 
         expect(update_zones).toHaveBeenCalledWith([]);
     });

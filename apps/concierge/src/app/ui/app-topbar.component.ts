@@ -1,7 +1,7 @@
 import { Component, computed, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { RouterModule } from '@angular/router';
-import { SettingsService, currentUser } from '@placeos/common';
+import { SettingsService, userSignal } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
     IconComponent,
@@ -81,5 +81,5 @@ export class ApplicationTopbarComponent {
                 ? this._logo_dark()
                 : this._logo_light()) || {},
     );
-    public readonly user = computed(() => currentUser());
+    public readonly user = userSignal();
 }

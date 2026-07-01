@@ -1,5 +1,4 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { DesksService } from '@placeos/bookings';
 import { AsyncHandler, OrganisationService } from '@placeos/common';
@@ -8,6 +7,7 @@ import { ExploreMapViewComponent, ExploreStateService } from '@placeos/explore';
 import { differenceInMinutes } from 'date-fns';
 import { FooterMenuComponent } from '../components/footer-menu.component';
 import { TopbarComponent } from '../components/topbar.component';
+import { VirtualConciergeButtonComponent } from '../components/virtual-concierge-button.component';
 import { LandingStateService } from '../landing/landing-state.service';
 import { EventPinComponent } from './event-pin.component';
 
@@ -24,7 +24,8 @@ import { EventPinComponent } from './event-pin.component';
                 <explore-map-view></explore-map-view>
                 @if (next_event()) {
                     <div
-                        class="border-base-300 bg-base-100 absolute top-2 right-2 flex items-center space-x-2 rounded-full border p-1"
+                        name="upcoming-booking-map-pill"
+                        class="border-base-300 bg-base-100 absolute top-20 right-2 left-2 flex items-center space-x-2 rounded-full border p-1 sm:top-2 sm:left-auto"
                     >
                         <div class="max-w-[40vw] flex-1 px-4 leading-tight">
                             <div class="truncate">{{ next_event().title }}</div>
@@ -64,6 +65,7 @@ import { EventPinComponent } from './event-pin.component';
                     </div>
                 }
             </main>
+            <virtual-concierge-button />
         </div>
 
         @if (!hide_nav) {
@@ -87,6 +89,7 @@ import { EventPinComponent } from './event-pin.component';
     imports: [
         TopbarComponent,
         FooterMenuComponent,
+        VirtualConciergeButtonComponent,
         ExploreMapViewComponent,
         IconComponent,
         TranslatePipe,
@@ -100,7 +103,7 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
     private _explore = inject(ExploreStateService);
     private _org = inject(OrganisationService);
 
-    private _upcoming = toSignal(this._landing.upcoming_events);
+    private _upcoming = this._landing.upcoming_events;
     private _time = signal(Date.now());
 
     public readonly next_event = computed(() => {

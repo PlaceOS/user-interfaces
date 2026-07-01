@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Output, signal } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormField, form } from '@angular/forms/signals';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatRadioModule } from '@angular/material/radio';
@@ -12,14 +12,14 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
         @if (!failure()) {
             <div class="relative">
                 <h2 class="p-4 text-xl">COVID-19 Questionnaire</h2>
-                <main class="p-4" [formGroup]="form">
+                <main class="p-4">
                     <div class="mb-4 flex flex-col">
                         <label>
                             Have you travelled overseas within the last 14
                             days?<span>*</span>
                         </label>
                         <mat-radio-group
-                            formControlName="travelled"
+                            [formField]="form.travelled"
                             class="space-x-2"
                         >
                             <mat-radio-button [value]="true"
@@ -36,7 +36,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
                             symptoms?<span>*</span>
                         </label>
                         <mat-radio-group
-                            formControlName="unwell"
+                            [formField]="form.unwell"
                             class="space-x-2"
                         >
                             <mat-radio-button [value]="true"
@@ -53,7 +53,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
                             COVID-19?<span>*</span>
                         </label>
                         <mat-radio-group
-                            formControlName="contact"
+                            [formField]="form.contact"
                             class="space-x-2"
                         >
                             <mat-radio-button [value]="true"
@@ -105,26 +105,25 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
         MatDialogModule,
         MatRippleModule,
         MatRadioModule,
-        ReactiveFormsModule,
+        FormField,
     ],
 })
 export class DeskQuestionsModalComponent {
     @Output() public readonly event = new EventEmitter<DialogEvent>();
 
-    public form = new FormGroup({
-        travelled: new FormControl(false),
-        unwell: new FormControl(false),
-        contact: new FormControl(false),
+    public readonly model = signal({
+        travelled: false,
+        unwell: false,
+        contact: false,
     });
+    public readonly form = form(this.model);
     public readonly failure = signal(false);
 
     public submit() {
-        this.form.markAllAsTouched();
+        this.form().markAsTouched();
         if (
-            Object.keys(this.form.value).find(
-                (key) =>
-                    this.form.value[key] === true ||
-                    this.form.value[key] === 'true',
+            Object.values(this.model()).find(
+                (value) => value === true || (value as any) === 'true',
             )
         ) {
             this.failure.set(true);

@@ -60,8 +60,30 @@ const MAX_ZOOM = 10;
 const MIN_ZOOM = 1;
 /** Fraction of the view reserved as padding around the map at 100% zoom */
 const VIEW_PADDING = 0.05;
-const BASE_TEXTURE_SIZE = 4096;
-const HIGH_RES_TEXTURE_SIZE = 8192;
+/** Total texture pixel budget on desktop, independent of aspect ratio */
+const DESKTOP_TEXTURE_MEGAPIXELS = 16;
+/** Total texture pixel budget on mobile, independent of aspect ratio */
+const MOBILE_TEXTURE_MEGAPIXELS = 4;
+/** Multiple of the container's pixel count to render fixed (zoom-disabled) maps at */
+const FIXED_TEXTURE_CONTAINER_MULTIPLIER = 2;
+/**
+ * Upper bound on either texture dimension. Browsers cap canvas size (the
+ * limit is lowest on mobile Safari), so extreme aspect ratios are clamped
+ * here rather than allowed to silently fail to rasterise.
+ */
+const MAX_TEXTURE_DIMENSION = 8192;
+
+/**
+ * Whether the current device should use the reduced mobile texture budget.
+ * A coarse pointer on a small viewport indicates a phone-class device with
+ * limited GPU memory, where a 16MP texture is wasteful and can fail to load.
+ */
+function isMobileDevice(): boolean {
+    if (typeof window === 'undefined' || !window.matchMedia) return false;
+    const coarse_pointer = window.matchMedia('(pointer: coarse)').matches;
+    const small_viewport = window.matchMedia('(max-width: 1024px)').matches;
+    return coarse_pointer && small_viewport;
+}
 
 interface ElementBoundsResult {
     bounds: Map<string, MapElementBounds>;
@@ -295,8 +317,12 @@ export class MapViewer {
     public center: Point = { x: 0.5, y: 0.5 };
     /** Zoom level of the map. 1 represents the whole map image fitting within the view */
     public zoom = 1;
-    /** Whether to render the map texture at double resolution (8192×8192) */
-    public high_resolution = false;
+    /**
+     * Megapixel budget for fixed (zoom-disabled) maps. When greater than 0
+     * this overrides the default of twice the container's pixel count, for
+     * maps rendered at a small fixed size where the default is wasteful.
+     */
+    public fixed_resolution_megapixels = 0;
     /** Whether user zoom interactions are disabled */
     public disable_zoom = false;
     /** Whether user pan interactions are disabled */
@@ -311,6 +337,8 @@ export class MapViewer {
         pointer: null as Point | null,
         /** ID of the smallest map element under the pointer */
         hover_id: '',
+        /** ID of the map element explicitly highlighted from debug controls */
+        highlight_id: '',
         /** Duration of the last map draw in milliseconds */
         last_draw_ms: 0,
         /** Number of map draws over the last second */
@@ -321,6 +349,9 @@ export class MapViewer {
     private _map_path = '';
     /** Generation counter for map image renders, used to discard stale renders */
     private _image_generation = 0;
+    /** Dimensions of the most recently rendered map texture, in pixels */
+    private _texture_width = 0;
+    private _texture_height = 0;
     private _image_frame_id: number | null = null;
     private _draw_frame_id: number | null = null;
     private _notify_frame_id: number | null = null;
@@ -358,7 +389,7 @@ export class MapViewer {
             'position: absolute; inset: 0; pointer-events: none;';
         this.container.appendChild(this.overlays);
 
-        this._resize_observer = new ResizeObserver(() => this._renderMap());
+        this._resize_observer = new ResizeObserver(() => this._onResize());
         this._resize_observer.observe(this.container);
 
         // Interaction events are handled on the container so they apply over
@@ -409,24 +440,46 @@ export class MapViewer {
         this._renderMap();
     }
 
-    public setHighResolution(enabled: boolean) {
-        if (this.high_resolution === enabled) return;
-        this.high_resolution = enabled;
-        // Re-render the map image at the new resolution
-        this._renderMapImage();
+    /**
+     * Override the texture budget for fixed (zoom-disabled) maps, in
+     * megapixels. Pass 0 to restore the default of twice the container pixels.
+     */
+    public setFixedResolution(megapixels: number) {
+        const value = megapixels > 0 ? megapixels : 0;
+        if (this.fixed_resolution_megapixels === value) return;
+        this.fixed_resolution_megapixels = value;
+        // Only affects fixed maps, so a re-render is needed only when zooming
+        // is disabled
+        if (this.disable_zoom) this._renderMapImage();
     }
 
     public setOptions(options: {
         disable_zoom?: boolean;
         disable_pan?: boolean;
     }) {
+        const was_zoom_disabled = this.disable_zoom;
         this.disable_zoom = !!options?.disable_zoom;
         this.disable_pan = !!options?.disable_pan;
+        // The texture budget differs between zoomable and fixed maps, so the
+        // texture must be re-rendered when this toggles
+        if (was_zoom_disabled !== this.disable_zoom) this._renderMapImage();
     }
 
     /** Number of overlays currently attached to the map */
     public get overlay_count(): number {
         return this._overlay_instances.length;
+    }
+
+    /** Human-readable description of the current texture sizing mode, for debug */
+    public get texture_mode(): string {
+        if (this.disable_zoom) {
+            return this.fixed_resolution_megapixels
+                ? `fixed ${this.fixed_resolution_megapixels}MP`
+                : `fixed ${FIXED_TEXTURE_CONTAINER_MULTIPLIER}× container`;
+        }
+        return isMobileDevice()
+            ? `mobile ${MOBILE_TEXTURE_MEGAPIXELS}MP`
+            : `desktop ${DESKTOP_TEXTURE_MEGAPIXELS}MP`;
     }
 
     /** Toggle rendering of debugging info over the map */
@@ -474,9 +527,17 @@ export class MapViewer {
             }
             this.debug_info.pointer = null;
             this.debug_info.hover_id = '';
+            this.debug_info.highlight_id = '';
         }
         this._applyOverlayOutlines();
         this._renderMap();
+    }
+
+    /** Highlight a map element while debug mode is active */
+    public setDebugHighlight(ref: string) {
+        if (this.debug_info.highlight_id === ref) return;
+        this.debug_info.highlight_id = ref;
+        if (this.debug) this._renderMap();
     }
 
     /** Center the view on the map element with the given ID */
@@ -815,6 +876,68 @@ export class MapViewer {
         }
     }
 
+    private _onResize() {
+        this._renderMap();
+        // Fixed (zoom-disabled) textures are sized from the on-screen pixel
+        // count, so re-rasterise when the container resizes enough to change
+        // the texture dimensions. Zoomable maps use a fixed megapixel budget
+        // and so are unaffected by container size.
+        if (this.disable_zoom && !this.fixed_resolution_megapixels) {
+            const { width, height } = this._textureDimensions();
+            if (
+                width !== this._texture_width ||
+                height !== this._texture_height
+            ) {
+                this._renderMapImage();
+            }
+        }
+    }
+
+    /**
+     * Total texture pixel budget for the current map. Zoomable maps use a
+     * fixed megapixel budget (reduced on mobile) so the map stays sharp when
+     * zoomed in. Fixed maps never scale up, so they only need enough pixels
+     * to cover the container, defaulting to twice the container's pixel count.
+     */
+    private _targetTexturePixels(): number {
+        if (this.disable_zoom) {
+            if (this.fixed_resolution_megapixels > 0) {
+                return this.fixed_resolution_megapixels * 1_000_000;
+            }
+            const container_pixels =
+                (this.container.clientWidth || 1) *
+                (this.container.clientHeight || 1);
+            return container_pixels * FIXED_TEXTURE_CONTAINER_MULTIPLIER;
+        }
+        const megapixels = isMobileDevice()
+            ? MOBILE_TEXTURE_MEGAPIXELS
+            : DESKTOP_TEXTURE_MEGAPIXELS;
+        return megapixels * 1_000_000;
+    }
+
+    /**
+     * Texture dimensions matching the SVG's aspect ratio with a total area of
+     * `_targetTexturePixels()`. Each side is clamped to the maximum canvas
+     * dimension, so very wide or tall maps render slightly below the budget.
+     */
+    private _textureDimensions(): { width: number; height: number } {
+        const aspect = this.map?.aspect_ratio || 1;
+        const target_pixels = this._targetTexturePixels();
+        // width * height = target_pixels and width / height = aspect
+        const height = Math.sqrt(target_pixels / aspect);
+        const width = height * aspect;
+        return {
+            width: Math.max(
+                1,
+                Math.min(MAX_TEXTURE_DIMENSION, Math.round(width)),
+            ),
+            height: Math.max(
+                1,
+                Math.min(MAX_TEXTURE_DIMENSION, Math.round(height)),
+            ),
+        };
+    }
+
     private _renderMapImage() {
         // Debounce to the next animation frame
         if (this._image_frame_id !== null) {
@@ -840,16 +963,11 @@ export class MapViewer {
         const svg_element = doc.querySelector('svg');
         if (!svg_element) return;
 
-        // Size the texture to match the SVG's aspect ratio, with the
-        // longest side at the target size
-        const target_size = this.high_resolution
-            ? HIGH_RES_TEXTURE_SIZE
-            : BASE_TEXTURE_SIZE;
-        const aspect = this.map.aspect_ratio;
-        const width =
-            aspect >= 1 ? target_size : Math.round(target_size * aspect);
-        const height =
-            aspect >= 1 ? Math.round(target_size / aspect) : target_size;
+        // Size the texture to a total pixel budget while matching the SVG's
+        // aspect ratio, so the megapixel target is hit regardless of shape
+        const { width, height } = this._textureDimensions();
+        this._texture_width = width;
+        this._texture_height = height;
 
         // Without a viewBox, changing width/height crops the drawing
         // instead of scaling it, so derive one from the declared size first
@@ -1026,9 +1144,11 @@ export class MapViewer {
             ctx.strokeRect(x, y, w, h);
         }
 
-        // Highlight and label the hovered element
-        const hover_bounds = this.debug_info.hover_id
-            ? this.map.element_bounds.get(this.debug_info.hover_id)
+        // Highlight and label the hovered or debug-selected element
+        const highlight_id =
+            this.debug_info.highlight_id || this.debug_info.hover_id;
+        const hover_bounds = highlight_id
+            ? this.map.element_bounds.get(highlight_id)
             : null;
         if (hover_bounds) {
             const x = toScreenX(hover_bounds.x);
@@ -1040,7 +1160,7 @@ export class MapViewer {
                 hover_bounds.w * scale.x,
                 hover_bounds.h * scale.y,
             );
-            const label = `#${this.debug_info.hover_id}`;
+            const label = `#${highlight_id}`;
             ctx.font = '12px monospace';
             ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
             ctx.fillRect(x, y - 16, ctx.measureText(label).width + 8, 16);

@@ -5,7 +5,6 @@ import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { IconComponent } from '@placeos/components';
 import { ExploreSearchService } from '@placeos/explore';
 import { MockComponent, MockProvider } from 'ng-mocks';
-import { BehaviorSubject } from 'rxjs';
 
 import { SettingsService } from '@placeos/common';
 import { GlobalSearchComponent } from '../../app/components/global-search.component';
@@ -25,7 +24,7 @@ describe('GlobalSearchComponent', () => {
                 setInProgressBookings: jest.fn(),
             } as any),
             MockProvider(ScheduleStateService, {
-                bookings: new BehaviorSubject([]),
+                bookings: signal([]),
             } as any),
         ],
         declarations: [MockComponent(IconComponent)],

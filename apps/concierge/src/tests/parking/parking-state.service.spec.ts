@@ -1,15 +1,17 @@
+import { signal, WritableSignal } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { SpectatorService, createServiceFactory } from '@ngneat/spectator/jest';
 import { Booking, OrganisationService, SettingsService } from '@placeos/common';
 import { addMinutes, endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { BehaviorSubject, of, throwError } from 'rxjs';
+import { of } from 'rxjs';
 
 import * as assets_mod from '@placeos/assets';
 import * as booking_mod from '@placeos/bookings';
 import * as common_mod from '@placeos/common';
 import * as component_mod from '@placeos/components';
-import { MockProvider } from 'ng-mocks';
 import { UserPipe } from '@placeos/users';
+import { MockProvider } from 'ng-mocks';
 import { ParkingStateService } from '../../app/parking/parking-state.service';
 import { ParkingBookingModalComponent } from '../../app/parking/parking-booking-modal.component';
 import { ParkingRequestModalComponent } from '../../app/parking/parking-request-modal.component';
@@ -30,14 +32,15 @@ jest.mock('@placeos/common', () => {
 
 describe('ParkingStateService', () => {
     let spectator: SpectatorService<ParkingStateService>;
-    let active_building: BehaviorSubject<any>;
-    let active_region: BehaviorSubject<any>;
+    let active_building: WritableSignal<any>;
+    let active_region: WritableSignal<any>;
     let current_building: any;
     let settings_map: Record<string, any>;
 
     const organisation_service: any = {
         organisation: { id: 'org-1' },
         region: { id: 'region-1' },
+        initialised: signal(true),
         levels: [],
         buildingsForRegion: jest.fn(() => []),
         levelsForBuilding: jest.fn((bld) =>
@@ -56,6 +59,9 @@ describe('ParkingStateService', () => {
             MockProvider(MatDialog, { open: jest.fn() }),
             MockProvider(SettingsService, {
                 get: jest.fn((name: string) => settings_map[name]) as any,
+                signal: jest.fn((name: string, default_value: any) =>
+                    signal(settings_map[`app.${name}`] ?? default_value),
+                ) as any,
             } as any),
             MockProvider(OrganisationService, organisation_service),
         ],
@@ -68,23 +74,43 @@ describe('ParkingStateService', () => {
             'app.bookings.use_building_timezone': true,
             'app.parking.assign_space_on_approve': false,
         };
-        active_building = new BehaviorSubject(current_building);
-        active_region = new BehaviorSubject({ id: 'region-1' });
+        active_building = signal(current_building);
+        active_region = signal({ id: 'region-1' });
         organisation_service.active_building = active_building;
         organisation_service.active_region = active_region;
         organisation_service.levels = [];
-        (assets_mod as any).queryParkingUsers = jest.fn(() => of([]));
-        (assets_mod as any).queryParkingFleetVehicles = jest.fn(() => of([]));
-        (assets_mod as any).queryParkingSpaces = jest.fn(() => of([]));
-        (assets_mod as any).queryParkingSpacesForZones = jest.fn(() => of([]));
-        (booking_mod as any).bookedResourceList = jest.fn(() => of([]));
-        (booking_mod as any).queryBookings = jest.fn(() => of([]));
-        (booking_mod as any).saveBooking = jest.fn(() => of({}));
-        (booking_mod as any).updateBooking = jest.fn(() => of({}));
-        (booking_mod as any).updateBookingInstance = jest.fn(() => of({}));
-        (booking_mod as any).approveBooking = jest.fn(() => of({}));
-        (booking_mod as any).approveBookingInstance = jest.fn(() => of({}));
-        (booking_mod as any).removeBooking = jest.fn(() => of({}));
+        (assets_mod as any).queryParkingUsers = jest.fn(() =>
+            Promise.resolve([]),
+        );
+        (assets_mod as any).queryParkingFleetVehicles = jest.fn(() =>
+            Promise.resolve([]),
+        );
+        (assets_mod as any).queryParkingSpaces = jest.fn(() =>
+            Promise.resolve([]),
+        );
+        (assets_mod as any).queryParkingSpacesForZones = jest.fn(() =>
+            Promise.resolve([]),
+        );
+        (booking_mod as any).bookedResourceList = jest.fn(() =>
+            Promise.resolve([]),
+        );
+        (booking_mod as any).queryBookings = jest.fn(() => Promise.resolve([]));
+        (booking_mod as any).saveBooking = jest.fn(() => Promise.resolve({}));
+        (booking_mod as any).updateBooking = jest.fn(() =>
+            Promise.resolve({}),
+        );
+        (booking_mod as any).updateBookingInstance = jest.fn(() =>
+            Promise.resolve({}),
+        );
+        (booking_mod as any).approveBooking = jest.fn(() =>
+            Promise.resolve({}),
+        );
+        (booking_mod as any).approveBookingInstance = jest.fn(() =>
+            Promise.resolve({}),
+        );
+        (booking_mod as any).removeBooking = jest.fn(() =>
+            Promise.resolve({}),
+        );
         (component_mod as any).openConfirmModal = jest.fn(async () => ({
             reason: 'done',
             loading: jest.fn(),
@@ -102,10 +128,11 @@ describe('ParkingStateService', () => {
     it('should apply building timezone to parking booking listing requests', async () => {
         jest.useFakeTimers();
         const date = new Date('2026-06-15T12:00:00').valueOf();
-        const subscription = spectator.service.bookings.subscribe();
 
         spectator.service.setOptions({ date });
+        TestBed.flushEffects();
         await jest.advanceTimersByTimeAsync(1100);
+        TestBed.flushEffects();
 
         expect(booking_mod.queryBookings).toHaveBeenLastCalledWith(
             expect.objectContaining({
@@ -114,7 +141,6 @@ describe('ParkingStateService', () => {
             }),
         );
 
-        subscription.unsubscribe();
         jest.useRealTimers();
     });
 
@@ -123,10 +149,11 @@ describe('ParkingStateService', () => {
         settings_map['app.bookings.use_building_timezone'] = false;
         settings_map['app.parking.use_building_timezone'] = true;
         const date = new Date('2026-06-15T12:00:00').valueOf();
-        const subscription = spectator.service.bookings.subscribe();
 
         spectator.service.setOptions({ date });
+        TestBed.flushEffects();
         await jest.advanceTimersByTimeAsync(1100);
+        TestBed.flushEffects();
 
         expect(booking_mod.queryBookings).toHaveBeenLastCalledWith(
             expect.objectContaining({
@@ -135,19 +162,19 @@ describe('ParkingStateService', () => {
             }),
         );
 
-        subscription.unsubscribe();
         jest.useRealTimers();
     });
 
     it('should filter booking listings by selected levels for all bookings', async () => {
         jest.useFakeTimers();
-        const subscription = spectator.service.bookings.subscribe();
 
         spectator.service.setOptions({
             request_filter: 'all',
             zones: ['lvl-1', 'lvl-2'],
         });
+        TestBed.flushEffects();
         await jest.advanceTimersByTimeAsync(1100);
+        TestBed.flushEffects();
 
         expect(booking_mod.queryBookings).toHaveBeenLastCalledWith(
             expect.objectContaining({
@@ -155,19 +182,19 @@ describe('ParkingStateService', () => {
             }),
         );
 
-        subscription.unsubscribe();
         jest.useRealTimers();
     });
 
     it('should filter request listings by the building zone when levels are disabled', async () => {
         jest.useFakeTimers();
-        const subscription = spectator.service.bookings.subscribe();
 
         spectator.service.setOptions({
             request_filter: 'requests',
             zones: ['lvl-1', 'lvl-2'],
         });
+        TestBed.flushEffects();
         await jest.advanceTimersByTimeAsync(1100);
+        TestBed.flushEffects();
 
         expect(booking_mod.queryBookings).toHaveBeenLastCalledWith(
             expect.objectContaining({
@@ -175,7 +202,29 @@ describe('ParkingStateService', () => {
             }),
         );
 
-        subscription.unsubscribe();
+        jest.useRealTimers();
+    });
+
+    it('should wait for parking users before loading bookings', async () => {
+        jest.useFakeTimers();
+        let resolve_users: (users: any[]) => void;
+        (assets_mod.queryParkingUsers as jest.Mock).mockReturnValue(
+            new Promise((resolve) => (resolve_users = resolve)),
+        );
+        spectator = createService();
+
+        TestBed.flushEffects();
+        await jest.advanceTimersByTimeAsync(1100);
+        TestBed.flushEffects();
+        expect(booking_mod.queryBookings).not.toHaveBeenCalled();
+
+        resolve_users([]);
+        await Promise.resolve();
+        TestBed.flushEffects();
+        await jest.advanceTimersByTimeAsync(1100);
+        TestBed.flushEffects();
+
+        expect(booking_mod.queryBookings).toHaveBeenCalledTimes(1);
         jest.useRealTimers();
     });
 
@@ -205,7 +254,7 @@ describe('ParkingStateService', () => {
         };
         (spectator.inject(MatDialog).open as any).mockReturnValue(dialog_ref);
         (assets_mod.saveParkingSpace as jest.Mock).mockReturnValue(
-            of({ id: 'space-1', name: 'Bay 1' }),
+            Promise.resolve({ id: 'space-1', name: 'Bay 1' }),
         );
         jest.spyOn(UserPipe.prototype, 'transform').mockResolvedValue({
             id: 'user-1',
@@ -283,29 +332,27 @@ describe('ParkingStateService', () => {
             { id: 'lvl-2', parent_id: 'bld-1', tags: ['parking'] },
         ];
         (assets_mod as any).queryParkingSpacesForZones = jest.fn(() =>
-            of([
+            Promise.resolve([
                 { id: 'space-1', zone_id: 'lvl-1' },
                 { id: 'space-2', zone_id: 'lvl-2' },
             ]),
         );
-        let spaces: any[] = [];
-        const subscription = spectator.service.spaces.subscribe(
-            (list) => (spaces = list),
-        );
 
         spectator.service.setOptions({ zones: ['lvl-1', 'lvl-2'] });
+        TestBed.flushEffects();
         await jest.advanceTimersByTimeAsync(400);
+        TestBed.flushEffects();
+        await jest.advanceTimersByTimeAsync(0);
 
-        expect(assets_mod.queryParkingSpacesForZones).toHaveBeenLastCalledWith([
+        expect(assets_mod.queryParkingSpacesForZones).toHaveBeenCalledWith([
             'lvl-1',
             'lvl-2',
         ]);
-        expect(spaces).toEqual([
+        expect(spectator.service.spaces()).toEqual([
             expect.objectContaining({ id: 'space-1', zone_id: 'lvl-1' }),
             expect.objectContaining({ id: 'space-2', zone_id: 'lvl-2' }),
         ]);
 
-        subscription.unsubscribe();
         jest.useRealTimers();
     });
 
@@ -505,7 +552,7 @@ describe('ParkingStateService', () => {
             { id: 'lvl-1', parent_id: 'bld-1', tags: ['parking'] },
         ];
         (assets_mod as any).queryParkingSpaces = jest.fn(() =>
-            of([
+            Promise.resolve([
                 {
                     id: 'space-1',
                     name: 'Bay 1',
@@ -514,7 +561,9 @@ describe('ParkingStateService', () => {
                 },
             ]),
         );
-        (booking_mod as any).bookedResourceList = jest.fn(() => of([]));
+        (booking_mod as any).bookedResourceList = jest.fn(() =>
+            Promise.resolve([]),
+        );
         const request = {
             id: 'req-1',
             asset_id: 'unallocated-1',
@@ -550,7 +599,7 @@ describe('ParkingStateService', () => {
             { id: 'lvl-1', parent_id: 'bld-1', tags: ['parking'] },
         ];
         (assets_mod as any).queryParkingSpaces = jest.fn(() =>
-            of([
+            Promise.resolve([
                 {
                     id: 'space-1',
                     name: 'Bay 1',
@@ -560,7 +609,7 @@ describe('ParkingStateService', () => {
             ]),
         );
         (booking_mod as any).bookedResourceList = jest.fn(() =>
-            of(['space-1']),
+            Promise.resolve(['space-1']),
         );
         const request = {
             id: 'req-1',
@@ -600,7 +649,7 @@ describe('ParkingStateService', () => {
             { id: 'lvl-1', parent_id: 'bld-1', tags: ['parking'] },
         ];
         (assets_mod as any).queryParkingSpacesForZones = jest.fn(() =>
-            of([
+            Promise.resolve([
                 {
                     id: 'space-existing',
                     assigned_to: 'staff@example.com',
@@ -665,7 +714,7 @@ describe('ParkingStateService', () => {
         };
         (spectator.inject(MatDialog).open as any).mockReturnValue(dialog_ref);
         (booking_mod.queryBookings as jest.Mock).mockReturnValue(
-            of([
+            Promise.resolve([
                 {
                     id: 'booking-1',
                     asset_id: 'space-1',
@@ -673,11 +722,11 @@ describe('ParkingStateService', () => {
             ]),
         );
         (assets_mod.saveParkingSpace as jest.Mock)
-            .mockReturnValueOnce(of({ id: 'space-1', name: 'Bay 1' }))
-            .mockReturnValueOnce(of(original_space));
+            .mockResolvedValueOnce({ id: 'space-1', name: 'Bay 1' })
+            .mockResolvedValueOnce(original_space);
         (booking_mod.saveBooking as jest.Mock)
-            .mockReturnValueOnce(throwError(() => ({ status: 409 })))
-            .mockReturnValueOnce(of({}));
+            .mockRejectedValueOnce({ status: 409 })
+            .mockResolvedValueOnce({});
         jest.spyOn(UserPipe.prototype, 'transform').mockResolvedValue({
             id: 'user-1',
             name: 'Staff Name',

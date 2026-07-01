@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { OrganisationService } from '@placeos/common';
 import {
@@ -8,7 +7,6 @@ import {
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { of } from 'rxjs';
 import { PointsStateService } from './points-state.service';
 
 export interface CustomRate {
@@ -94,11 +92,11 @@ export interface PointAsset {
         </ng-template>
         <ng-template #action_template let-row="row">
             <div class="mx-auto flex items-center justify-end p-2">
-                <button icon matRipple (click)="edit(row)">
+                <button icon default matRipple (click)="edit(row)">
                     <icon>edit</icon>
                 </button>
-                <button icon matRipple (click)="remove(row)">
-                    <icon class="text-error">delete</icon>
+                <button icon default error matRipple (click)="remove(row)">
+                    <icon>delete</icon>
                 </button>
             </div>
         </ng-template>
@@ -125,9 +123,7 @@ export class PointsAssetsComponent {
     private _state = inject(PointsStateService);
     private _org = inject(OrganisationService);
 
-    public readonly asset_list = toSignal(this._state.assets || of([]), {
-        initialValue: [],
-    });
+    public readonly asset_list = this._state.assets;
 
     public readonly edit = (d) => this._state.newAsset(d);
     public readonly remove = (d) => this._state.removeAsset(d?.id);

@@ -6,6 +6,7 @@ import {
     OnChanges,
     OnInit,
     output,
+    signal,
     SimpleChanges,
     viewChild,
 } from '@angular/core';
@@ -39,7 +40,7 @@ import { ITimelineEventGroup } from './event-timeline.component';
                 (touchmove)="move($event)"
             >
                 <div class="timeblocks">
-                    @for (item of blocks; track item) {
+                    @for (item of blocks(); track item) {
                         <div class="blk">
                             @if (item.hour) {
                                 <div class="text">{{ item.display }}</div>
@@ -48,7 +49,7 @@ import { ITimelineEventGroup } from './event-timeline.component';
                     }
                 </div>
                 <div class="eventblocks" #block>
-                    @for (item of blocks; track item) {
+                    @for (item of blocks(); track item) {
                         <div
                             class="blk"
                             [class.shown-block]="item.show"
@@ -60,8 +61,8 @@ import { ITimelineEventGroup } from './event-timeline.component';
                     <div
                         class="selected-time"
                         #time
-                        [style.top]="active_start * 100 + '%'"
-                        [style.height]="active_length * 100 + '%'"
+                        [style.top]="active_start() * 100 + '%'"
+                        [style.height]="active_length() * 100 + '%'"
                     >
                         <div
                             class="inner"
@@ -216,13 +217,13 @@ export class VerticalTimelineComponent
     /** Groups and events */
     public readonly groups = input<ITimelineEventGroup[]>(undefined);
     /** Blocks */
-    public blocks: any[];
+    public blocks = signal<any[]>([]);
     /** Element to move */
     public active_move: string;
     /** Active start date */
-    public active_start: number;
+    public active_start = signal(0);
     /** Active duration */
-    public active_length: number;
+    public active_length = signal(0);
     /** Offset of time box */
     public offset = { x: 0, y: 0 };
 
@@ -258,7 +259,7 @@ export class VerticalTimelineComponent
     }
 
     public generateBlocks() {
-        this.blocks = [];
+        const blocks = [];
         const start = this.timeline_start;
         const end = this.timeline_end;
         const now = Date.now();
@@ -268,7 +269,7 @@ export class VerticalTimelineComponent
             time = addMinutes(time, 5).valueOf()
         ) {
             const minute = new Date(time).getMinutes();
-            this.blocks.push({
+            blocks.push({
                 id: format(time, 'HH:mm'),
                 display: format(time, 'HH:mm'),
                 hour: minute === 0,
@@ -276,6 +277,7 @@ export class VerticalTimelineComponent
                 disabled: isBefore(time, now),
             });
         }
+        this.blocks.set(blocks);
         this.checkInUseBlocks();
     }
 
@@ -378,10 +380,10 @@ export class VerticalTimelineComponent
 
     public checkInUseBlocks() {
         const groups = this.groups();
-        if (!this.blocks || !groups) {
+        if (!this.blocks().length || !groups) {
             return;
         }
-        const blocks = this.blocks.map((i) => ({
+        const blocks = this.blocks().map((i) => ({
             ...i,
             unavailable: false,
         }));
@@ -402,7 +404,7 @@ export class VerticalTimelineComponent
                 }
             }
         }
-        this.blocks = blocks;
+        this.blocks.set(blocks);
     }
 
     public hoursToDate(time: number) {
@@ -426,8 +428,9 @@ export class VerticalTimelineComponent
         const start = startOfMinute(this.date());
         const period =
             differenceInMinutes(this.timeline_end, this.timeline_start) / 60;
-        this.active_start =
-            differenceInMinutes(start, this.timeline_start) / 60 / period;
-        this.active_length = this.duration() / 60 / period;
+        this.active_start.set(
+            differenceInMinutes(start, this.timeline_start) / 60 / period,
+        );
+        this.active_length.set(this.duration() / 60 / period);
     }
 }

@@ -23,6 +23,8 @@ export class Desk implements Record<string, any> {
     public readonly features: string[];
     /** List of URLs to images */
     public readonly images: string[];
+    /** Tags associated with the desk for group-based auto-assignment */
+    public readonly tags: string[];
     /** Homebase associated with the desk */
     public readonly homebase: string;
     /**  */
@@ -41,6 +43,7 @@ export class Desk implements Record<string, any> {
         this.qr_code = data.qr_code || '';
         this.features = data.features || [];
         this.images = data.images || [];
+        this.tags = data.tags || [];
         this.homebase = data.homebase || '';
         this.security = data.security || '';
         for (const key in data) {

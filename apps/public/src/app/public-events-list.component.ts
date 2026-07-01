@@ -1,4 +1,9 @@
-import { Component, input, output } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    input,
+    output,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
     eventDescription,
@@ -13,6 +18,7 @@ import { PublicEvent } from './public-events.service';
 @Component({
     selector: 'placeos-public-events-list',
     imports: [RouterLink],
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `
         <section
             class="border-base-300 bg-base-100/95 w-full space-y-4 rounded-xl border p-5 shadow-md backdrop-blur"

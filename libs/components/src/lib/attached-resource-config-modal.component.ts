@@ -80,7 +80,7 @@ export interface AttachedResourceConfigModalData {
                 <settings-toggle
                     [ngModel]="require_notes()"
                     (ngModelChange)="saveNotesSetting($event)"
-                    [name]="'RESOURCE.REQUIRE_NOTES' | translate"
+                    [label]="'RESOURCE.REQUIRE_NOTES' | translate"
                 ></settings-toggle>
             }
             <button

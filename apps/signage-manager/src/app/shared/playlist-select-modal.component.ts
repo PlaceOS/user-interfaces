@@ -1,5 +1,4 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -40,7 +39,9 @@ import { SignageService } from '../signage.service';
                     matInput
                     [ngModel]="search()"
                     (ngModelChange)="search.set($event)"
-                    [placeholder]="'SIGNAGE_MANAGER.SEARCH_PLAYLISTS' | translate"
+                    [placeholder]="
+                        'SIGNAGE_MANAGER.SEARCH_PLAYLISTS' | translate
+                    "
                     [attr.aria-label]="
                         'SIGNAGE_MANAGER.SEARCH_PLAYLISTS' | translate
                     "
@@ -99,9 +100,7 @@ export class PlaylistSelectModalComponent {
     private readonly _data: { media_id: string } = inject(MAT_DIALOG_DATA);
     private readonly _service = inject(SignageService);
 
-    private readonly _playlists = toSignal(this._service.playlists, {
-        initialValue: [],
-    });
+    private readonly _playlists = this._service.playlists;
 
     public readonly search = signal('');
 

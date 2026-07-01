@@ -1,33 +1,23 @@
-import { computed, inject, Injectable, signal } from '@angular/core';
+import {
+    computed,
+    inject,
+    Injectable,
+    resource,
+    Signal,
+    signal,
+} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { flatten, notifySuccess, OrganisationService } from '@placeos/common';
+import { notifySuccess, OrganisationService } from '@placeos/common';
 import { openConfirmModal } from '@placeos/components';
 import {
-    queryAnswers,
     queryQuestions,
-    querySurveys,
     removeQuestion,
     removeSurvey,
     showSurvey,
     Survey,
-    SurveyAnswer,
     SurveyQuestion,
 } from '@placeos/ts-client';
-import {
-    BehaviorSubject,
-    combineLatest,
-    forkJoin,
-    from,
-    map,
-    Observable,
-    of,
-    shareReplay,
-    switchMap,
-    tap,
-} from 'rxjs';
 import { QuestionModalComponent } from './question-modal.component';
-// import { QuestionModalComponent } from './question-modal.component';
-// import { updateQuestionMap } from './question.pipe';
 
 export interface QuestionFilters {
     search_text?: string;
@@ -47,136 +37,68 @@ export class NewSurveyService {
     private _org = inject(OrganisationService);
     private _dialog = inject(MatDialog);
 
-    private _survey_id = new BehaviorSubject<string>('');
-    private _bld_id = new BehaviorSubject<string>('');
-    private _change = new BehaviorSubject(0);
-    private _loading = new BehaviorSubject<boolean>(false);
-    private _question_filters = new BehaviorSubject<QuestionFilters>({});
+    private _survey_id = signal<string>('');
+    private _bld_id = signal<string>('');
+    private _change = signal(0);
+    private _question_filters = signal<QuestionFilters>({});
 
-    public readonly survey_list = signal<Survey[]>([]);
-    public readonly answer_list = signal<SurveyAnswer[]>([]);
-    public readonly building_surveys = computed(() => {
-        const bld_id = this._org.building_signal().id;
-        return this.survey_list().filter(
-            (survey) => survey.building_id === bld_id,
-        );
+    /** Active survey being viewed or edited */
+    private readonly _survey = resource({
+        params: () => this._survey_id(),
+        defaultValue: null as Survey | null,
+        loader: async ({ params: id }) => (!id ? null : showSurvey(id)),
     });
-    public readonly building_answers = computed(() => {
-        const surveys = this.building_surveys();
-        return this.answer_list().filter((answer) =>
-            surveys.find((s) => s.id === answer.survey_id),
-        );
+    public readonly survey: Signal<Survey | null> = this._survey.value;
+
+    /** Full list of survey questions */
+    private readonly _questions = resource({
+        params: () => this._change(),
+        defaultValue: [] as SurveyQuestion[],
+        loader: async () => queryQuestions({ limit: 1000 } as any),
     });
+    public readonly questions: Signal<SurveyQuestion[]> = this._questions.value;
 
-    public readonly survey_list$ = combineLatest([
-        this._org.building_list,
-        this._change,
-    ]).pipe(
-        tap(() => this._loading.next(true)),
-        switchMap(([list]) =>
-            forkJoin(list.map((bld) => querySurveys({ building_id: bld.id }))),
-        ),
-        map((data) => flatten(data) as Survey[]),
-        tap((list) => this.survey_list.set(list)),
-        shareReplay(1),
-    );
-
-    public readonly answer_list$: Observable<SurveyAnswer[]> =
-        this.survey_list$.pipe(
-            switchMap((surveys) =>
-                forkJoin(
-                    surveys.map((survey) =>
-                        queryAnswers({ survey_id: survey.id }),
-                    ),
-                ),
-            ),
-            map((answers) => flatten(answers) as SurveyAnswer[]),
-            tap(() => this._loading.next(false)),
-            tap((list) => this.answer_list.set(list)),
-            shareReplay(1),
-        );
-
-    public readonly building_surveys$ = combineLatest([
-        this._bld_id,
-        this.survey_list$,
-    ]).pipe(
-        map(([bld_id, list]) => list.filter((s) => s.building_id === bld_id)),
-    );
-
-    public readonly building_answers$ = combineLatest([
-        this.building_surveys$,
-        this.answer_list$,
-    ]).pipe(
-        map(([surveys, list]) =>
-            list.filter((s) =>
-                surveys.find((survey) => survey.id === s.survey_id),
-            ),
-        ),
-    );
-
-    public readonly survey$ = this._survey_id.pipe(
-        switchMap((id) => (!id ? of(null) : showSurvey(id))),
-        shareReplay(1),
-    );
-
-    public readonly questions$: Observable<SurveyQuestion[]> = from(
-        queryQuestions({
-            limit: 1000,
-        } as any),
-    ).pipe(
-        // tap((l) => updateQuestionMap(l)),
-        shareReplay(1),
-    );
-
-    public readonly survey_questions$ = combineLatest([
-        this.survey$,
-        this.questions$,
-    ]).pipe(
-        map(([survey, questions]) => {
-            if (!survey) return [];
-            const q_list = [];
-            for (const page of survey.pages) {
-                for (const q_id of page.question_order) {
-                    q_list.push(questions.find((q) => q.id === q_id));
-                }
+    /** Questions belonging to the active survey, in page order */
+    public readonly survey_questions = computed(() => {
+        const survey = this.survey();
+        const questions = this.questions();
+        if (!survey) return [];
+        const q_list: SurveyQuestion[] = [];
+        for (const page of survey.pages) {
+            for (const q_id of page.question_order) {
+                const question = questions.find((q) => q.id === q_id);
+                if (question) q_list.push(question);
             }
-            return q_list;
-        }),
-        shareReplay(1),
-    );
+        }
+        return q_list;
+    });
 
-    public readonly filtered_questions$ = combineLatest([
-        this.questions$,
-        this._question_filters,
-    ]).pipe(
-        map(([questions, filters]) =>
-            questions.filter(
-                (q) =>
-                    (!filters.type || q.type === filters.type) &&
-                    (!filters.search_text ||
-                        q.title.includes(filters.search_text)),
-            ),
-        ),
-    );
-
-    public readonly loading$ = this._loading.asObservable();
+    /** Questions matching the active question filters */
+    public readonly filtered_questions = computed(() => {
+        const questions = this.questions();
+        const filters = this._question_filters();
+        return questions.filter(
+            (q) =>
+                (!filters.type || q.type === filters.type) &&
+                (!filters.search_text ||
+                    q.title.includes(filters.search_text)),
+        );
+    });
 
     public get building() {
-        return this._org.buildings.find(
-            (bld) => bld.id === this._bld_id.getValue(),
-        );
+        return this._org.buildings.find((bld) => bld.id === this._bld_id());
     }
 
     public setSurvey(id: string) {
-        this._survey_id.next(id);
+        this._survey_id.set(id);
     }
 
     public setBuilding(id: string) {
-        this._bld_id.next(id);
+        this._bld_id.set(id);
     }
 
     public setQuestionFilters(filters: QuestionFilters) {
-        this._question_filters.next(filters);
+        this._question_filters.set(filters);
     }
 
     public async removeSurvey(survey: Survey, confirm = true) {
@@ -197,7 +119,7 @@ export class NewSurveyService {
             await removeSurvey(`${survey.id}`);
         }
         notifySuccess('Successfully removed survey.');
-        this._change.next(Date.now());
+        this._change.update((v) => v + 1);
     }
 
     public editQuestion(question = new SurveyQuestion({ type: 'text' })) {
@@ -205,7 +127,7 @@ export class NewSurveyService {
             data: question,
         });
         ref.afterClosed().subscribe((result) => {
-            if (result) this._change.next(Date.now());
+            if (result) this._change.update((v) => v + 1);
         });
     }
 
@@ -228,6 +150,6 @@ export class NewSurveyService {
             await removeQuestion(`${question.id}`);
         }
         notifySuccess('Successfully removed survey question.');
-        this._change.next(Date.now());
+        this._change.update((v) => v + 1);
     }
 }

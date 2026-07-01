@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import {
@@ -20,15 +20,6 @@ import {
     type SignagePlaylistApprover,
     updateSignagePlaylistMedia,
 } from '@placeos/ts-client';
-import {
-    BehaviorSubject,
-    filter,
-    firstValueFrom,
-    map,
-    shareReplay,
-    switchMap,
-    tap,
-} from 'rxjs';
 import { playlistMediaItems } from '../signage-playlist.util';
 import { SignageService } from '../signage.service';
 import { PlaylistApprovalPreviewComponent } from './playlist-approval-preview.component';
@@ -135,7 +126,7 @@ export interface PlaylistRequestApprovalModalResult {
                             : 'SIGNAGE_MANAGER.SHOW_APPROVAL_CHANGES'
                         ) | translate
                     "
-                    (click)="show_preview.set(!show_preview())"
+                    (click)="togglePreview()"
                 >
                     <div>
                         <div class="font-medium">
@@ -153,11 +144,9 @@ export interface PlaylistRequestApprovalModalResult {
                     }}</icon>
                 </button>
                 @if (show_preview()) {
-                    @let versions = playlist_versions | async;
-                    @let media = playlist_media | async;
                     <playlist-approval-preview
-                        [versions]="versions || []"
-                        [media]="media || []"
+                        [versions]="playlist_versions()"
+                        [media]="playlist_media()"
                         (preview)="previewItem($event)"
                     />
                 }
@@ -225,8 +214,7 @@ export interface PlaylistRequestApprovalModalResult {
         TranslatePipe,
     ],
 })
-export class PlaylistRequestApprovalModalComponent implements OnInit {
-    private readonly _playlist_id = new BehaviorSubject('');
+export class PlaylistRequestApprovalModalComponent {
     private readonly _service = inject(SignageService);
     public readonly data =
         inject<PlaylistRequestApprovalModalData>(MAT_DIALOG_DATA);
@@ -247,24 +235,34 @@ export class PlaylistRequestApprovalModalComponent implements OnInit {
     public readonly has_previous_version = signal(false);
     public readonly can_update = this._service.can_update;
 
-    public readonly playlist_versions = this._playlist_id.pipe(
-        filter((id) => !!id),
-        tap(() => this.loading.set(i18n('SIGNAGE_MANAGER.LOADING_VERSIONS'))),
-        switchMap((id) => listSignagePlaylistMediaRevisions(id, { limit: 2 })),
-        tap((versions) => this.has_previous_version.set(versions.length > 1)),
-        shareReplay(1),
-    );
+    public readonly playlist_versions = signal<any[]>([]);
+    public readonly playlist_media = () =>
+        this.playlist_versions().map((playlist) =>
+            playlistMediaItems(playlist),
+        );
 
-    public readonly playlist_media = this.playlist_versions.pipe(
-        map((playlists) =>
-            playlists.map((playlist) => playlistMediaItems(playlist)),
-        ),
-        tap(() => this.loading.set('')),
-        shareReplay(1),
-    );
+    public togglePreview() {
+        const show_preview = !this.show_preview();
+        this.show_preview.set(show_preview);
+        if (show_preview) void this._loadPlaylistVersions();
+    }
 
-    public ngOnInit() {
-        this._playlist_id.next(this.data?.playlist?.id || '');
+    private async _loadPlaylistVersions() {
+        if (this.playlist_versions().length) return this.playlist_versions();
+        const playlist_id = this.data?.playlist?.id || '';
+        if (!playlist_id) return [];
+        this.loading.set(i18n('SIGNAGE_MANAGER.LOADING_VERSIONS'));
+        try {
+            const versions = await listSignagePlaylistMediaRevisions(
+                playlist_id,
+                { limit: 2 },
+            );
+            this.playlist_versions.set(versions);
+            this.has_previous_version.set(versions.length > 1);
+            return versions;
+        } finally {
+            this.loading.set('');
+        }
     }
 
     public submit() {
@@ -279,9 +277,7 @@ export class PlaylistRequestApprovalModalComponent implements OnInit {
             notifyWarn(i18n('SIGNAGE_MANAGER.SVC_NO_UPDATE_PLAYLISTS'));
             return;
         }
-        const [, previous_version] = await firstValueFrom(
-            this.playlist_versions,
-        );
+        const [, previous_version] = await this._loadPlaylistVersions();
         if (!previous_version?.items) return;
         this.loading.set(i18n('SIGNAGE_MANAGER.UNDOING_CHANGES'));
         this._dialog_ref.disableClose = true;

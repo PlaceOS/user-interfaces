@@ -1,5 +1,4 @@
 import { Component, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import {
     FullscreenModalShellComponent,
@@ -50,9 +49,7 @@ export class InviteVisitorModalComponent {
         inject<MatDialogRef<InviteVisitorModalComponent>>(MatDialogRef);
     private _form = inject(BookingFormService);
 
-    public readonly loading = toSignal(this._form.loading, {
-        initialValue: '',
-    });
+    public readonly loading = this._form.loading;
 
     public readonly date = this._data.date;
     public readonly done = signal(0);

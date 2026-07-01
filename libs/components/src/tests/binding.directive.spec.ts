@@ -6,7 +6,13 @@ import { BehaviorSubject, of } from 'rxjs';
 
 import { BindingDirective } from '../lib/binding.directive';
 
-jest.mock('@placeos/ts-client');
+jest.mock('@placeos/ts-client', () => ({
+    ...jest.requireActual('@placeos/ts-client'),
+    authority: jest.fn(),
+    getModule: jest.fn(),
+    onlineState: jest.fn(),
+    waitForSignal: jest.fn(),
+}));
 
 import { fakeAsync } from '@angular/core/testing';
 import * as ts_client from '@placeos/ts-client';
@@ -16,9 +22,10 @@ describe('BindingDirective', () => {
     const createDirective = createDirectiveFactory(BindingDirective);
 
     beforeEach(() => {
-        (ts_client as any).authority = jest.fn(() => true);
-        (ts_client as any).onlineState = jest.fn(() => of(true));
-        (ts_client as any).waitForSignal = jest.fn(() => Promise.resolve(true));
+        jest.clearAllMocks();
+        jest.mocked(ts_client.authority).mockReturnValue(true as any);
+        jest.mocked(ts_client.onlineState).mockReturnValue(of(true) as any);
+        jest.mocked(ts_client.waitForSignal).mockResolvedValue(true as any);
         spectator = createDirective(
             `
             <div 
@@ -51,14 +58,14 @@ describe('BindingDirective', () => {
 
     it('should listen to binding changes', fakeAsync(() => {
         const value = new BehaviorSubject('');
-        (ts_client as any).getModule = jest.fn(() => ({
+        jest.mocked(ts_client.getModule).mockReturnValue({
             variable: jest.fn(() => ({
                 bindThenSubscribe: jest.fn((callback) => {
                     const sub = value.subscribe(callback);
                     return sub;
                 }),
             })),
-        }));
+        } as any);
         spectator.setHostInput({
             sys: 'system-1',
             mod: 'System',
@@ -81,9 +88,9 @@ describe('BindingDirective', () => {
 
     it('should allow performing executions', fakeAsync(() => {
         const execute = jest.fn(async (_) => null);
-        (ts_client as any).getModule = jest.fn(() => ({
+        jest.mocked(ts_client.getModule).mockReturnValue({
             execute,
-        }));
+        } as any);
         spectator.setHostInput({
             sys: 'system-1',
             mod: 'System',
@@ -108,9 +115,9 @@ describe('BindingDirective', () => {
 
     it('should allow executing on parent element DOM events', fakeAsync(() => {
         const execute = jest.fn(async (_) => null);
-        (ts_client as any).getModule = jest.fn(() => ({
+        jest.mocked(ts_client.getModule).mockReturnValue({
             execute,
-        }));
+        } as any);
         spectator.setHostInput({
             sys: 'system-1',
             mod: 'System',

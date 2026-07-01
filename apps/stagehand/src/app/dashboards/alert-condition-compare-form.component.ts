@@ -2,14 +2,12 @@ import {
     Component,
     OnChanges,
     OnInit,
+    signal,
     SimpleChanges,
     input,
 } from '@angular/core';
-import {
-    FormsModule,
-    ReactiveFormsModule,
-    UntypedFormGroup,
-} from '@angular/forms';
+import { FormsModule } from '@angular/forms';
+import { FormField } from '@angular/forms/signals';
 import {
     PlaceModule,
     PlaceSystem,
@@ -26,6 +24,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { Identity, i18n, notifyError } from '@placeos/common';
 
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+
+type ComparisonSide = 'left' | 'right';
 
 /**
  * Calculate the index of the module
@@ -52,32 +52,29 @@ export function calculateModuleIndex(
 @Component({
     selector: 'alert-condition-comparison-form',
     template: `@if (form()) {
-            <div class="alert-condition form comparison" [formGroup]="form()">
+            <div class="alert-condition form comparison">
                 <ng-container
                     *ngTemplateOutlet="
                         status_variable_form;
                         context: { side: 'left' }
                     "
                 ></ng-container>
-                @if (
-                    form().controls.left.touched && form().controls.left.errors
-                ) {
+                @if (form().left().touched() && form().left().errors().length) {
                     <div class="error">
                         {{ 'TRIGGERS.COMPARE_VARIABLE_ERROR' | translate }}
                     </div>
                 }
-                @if (form().controls.operator) {
+                @if (form().operator) {
                     <div class="flex flex-1 flex-col">
                         <mat-form-field appearance="outline">
                             <mat-select
-                                name="operator"
-                                formControlName="operator"
+                                [formField]="form().operator"
                                 [placeholder]="
                                     'TRIGGERS.COMPARE_OP_SELECT' | translate
                                 "
                             >
                                 @for (
-                                    operation of compare_types;
+                                    operation of compare_types();
                                     track operation
                                 ) {
                                     <mat-option [value]="operation.id">
@@ -88,18 +85,18 @@ export function calculateModuleIndex(
                         </mat-form-field>
                     </div>
                 }
-                @if (form().controls.operator) {
+                @if (form().operator) {
                     <div class="flex flex-1 flex-col">
                         <mat-form-field appearance="outline">
                             <mat-select
                                 name="compared-to"
                                 [(ngModel)]="rhs_type"
                                 (ngModelChange)="
-                                    form().controls.right.setValue(null)
+                                    form().right().value.set('')
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                             >
-                                @for (type of right_var_type; track type) {
+                                @for (type of right_var_type(); track type) {
                                     <mat-option [value]="type.id">
                                         {{ type.name }}
                                     </mat-option>
@@ -108,13 +105,12 @@ export function calculateModuleIndex(
                         </mat-form-field>
                     </div>
                 }
-                @if (rhs_type === 'constant' && form().controls.right) {
+                @if (rhs_type() === 'constant' && form().right) {
                     <div class="flex flex-1 flex-col">
                         <mat-form-field appearance="outline">
                             <input
                                 matInput
-                                name="constant"
-                                formControlName="right"
+                                [formField]="form().right"
                                 placeholder="true/false, 'string', 123.456"
                             />
                             <mat-error>{{
@@ -134,7 +130,7 @@ export function calculateModuleIndex(
         }
         <ng-template #status_variable_form let-side="side">
             <div class="flex space-x-4">
-                @if (this[side + '_side']) {
+                @if (sideData(side)) {
                     <div class="flex flex-1 flex-col">
                         <label for="type">{{
                             'COMMON.MODULE' | translate
@@ -142,8 +138,9 @@ export function calculateModuleIndex(
                         <mat-form-field appearance="outline">
                             <mat-select
                                 name="type"
-                                [(ngModel)]="this[side + '_side'].mod"
+                                [ngModel]="sideData(side).mod"
                                 (ngModelChange)="
+                                    setSideMod(side, $event);
                                     loadSystemStatusVariables($event, side)
                                 "
                                 [ngModelOptions]="{ standalone: true }"
@@ -151,7 +148,7 @@ export function calculateModuleIndex(
                                     'TRIGGERS.COMPARE_MODULE_SELECT' | translate
                                 "
                             >
-                                @for (mod of module_list; track mod) {
+                                @for (mod of module_list(); track mod) {
                                     <mat-option [value]="mod.name">
                                         {{ mod.name }}
                                     </mat-option>
@@ -160,7 +157,7 @@ export function calculateModuleIndex(
                         </mat-form-field>
                     </div>
                 }
-                @if (this[side + '_status_variables']?.length) {
+                @if (statusVars(side)?.length) {
                     <div class="flex flex-1 flex-col">
                         <label [for]="side + '-status-var'">{{
                             'TRIGGERS.COMPARE_VARIABLE' | translate
@@ -168,8 +165,11 @@ export function calculateModuleIndex(
                         <mat-form-field appearance="outline">
                             <mat-select
                                 [name]="side + '-status-var'"
-                                [(ngModel)]="this[side + '_side'].status"
-                                (ngModelChange)="updateFormForSide(side)"
+                                [ngModel]="sideData(side).status"
+                                (ngModelChange)="
+                                    setSideStatus(side, $event);
+                                    updateFormForSide(side)
+                                "
                                 [ngModelOptions]="{ standalone: true }"
                                 [placeholder]="
                                     'TRIGGERS.COMPARE_VARIABLE_SELECT'
@@ -177,7 +177,7 @@ export function calculateModuleIndex(
                                 "
                             >
                                 @for (
-                                    mod of this[side + '_status_variables'];
+                                    mod of statusVars(side);
                                     track mod
                                 ) {
                                     <mat-option [value]="mod.name">
@@ -189,10 +189,7 @@ export function calculateModuleIndex(
                     </div>
                 }
             </div>
-            @if (
-                this[side + '_status_variables'] &&
-                this[side + '_status_variables'].length
-            ) {
+            @if (statusVars(side)?.length) {
                 <div class="flex flex-col">
                     <label [for]="side + '-subkeys'">{{
                         'TRIGGERS.COMPARE_SUBKEYS' | translate
@@ -200,9 +197,9 @@ export function calculateModuleIndex(
                     <mat-form-field appearance="outline">
                         <input
                             matInput
-                            [ngModel]="this[side + '_keys']"
+                            [ngModel]="keysFor(side)"
                             (ngModelChange)="
-                                this[side + '_side'].keys = $event.split(',');
+                                setSideKeys(side, $event);
                                 updateFormForSide(side)
                             "
                             [name]="side + '-subkeys'"
@@ -224,56 +221,68 @@ export function calculateModuleIndex(
         FormsModule,
         MatSelectModule,
         MatInputModule,
-        ReactiveFormsModule,
+        FormField,
     ],
 })
 export class AlertConditionComparisonFormComponent
     implements OnChanges, OnInit
 {
     /** Group of form fields used for creating the system */
-    public readonly form = input<UntypedFormGroup>(undefined);
+    public readonly form = input<any>(undefined);
     /** Systems used for templating the status variables */
     public readonly system = input<PlaceSystem>(undefined);
     /** List of modules associated with the template system */
     public modules: PlaceModule[] = [];
-    /** List of status variables associated with the selected module */
-    public module_list: Identity[] = [];
-    /** List of status variables associated with the selected module */
-    public left_status_variables: Identity[] = [];
-    /** List of status variables associated with the selected module */
-    public right_status_variables: Identity[] = [];
+    /** List of modules available for selection */
+    public readonly module_list = signal<Identity[]>([]);
+    /** List of status variables associated with the selected left module */
+    public readonly left_status_variables = signal<Identity[]>([]);
+    /** List of status variables associated with the selected right module */
+    public readonly right_status_variables = signal<Identity[]>([]);
     /** Type of value to compare the left hand side to */
-    public rhs_type: 'constant' | 'status_var' = 'constant';
-    /** Type of value to compare the left hand side to */
-    public rhs_value: string;
+    public readonly rhs_type = signal<'constant' | 'status_var'>('constant');
     /** Status variable details for the left side of the comparison */
-    public left_side: TriggerStatusVariable = { mod: '', status: '', keys: [] };
-    /** Status variable details for the right side of the comparison */
-    public right_side: TriggerStatusVariable = {
+    public readonly left_side = signal<TriggerStatusVariable>({
         mod: '',
         status: '',
         keys: [],
-    };
+    });
+    /** Status variable details for the right side of the comparison */
+    public readonly right_side = signal<TriggerStatusVariable>({
+        mod: '',
+        status: '',
+        keys: [],
+    });
 
     /** Types of trigger conditions */
-    public right_var_type: Identity[] = [];
+    public readonly right_var_type = signal<Identity[]>([]);
 
     /** Allowed comparison operators */
-    public compare_types: Identity[] = [];
+    public readonly compare_types = signal<Identity[]>([]);
 
-    public get left_keys(): string {
-        return this.left_side?.keys?.join(',') || '';
+    /** Status variable details for the given side of the comparison */
+    public sideData(side: ComparisonSide): TriggerStatusVariable {
+        return side === 'left' ? this.left_side() : this.right_side();
     }
-    public get right_keys(): string {
-        return this.right_side?.keys?.join(',') || '';
+
+    /** Available status variables for the given side of the comparison */
+    public statusVars(side: ComparisonSide): Identity[] {
+        return side === 'left'
+            ? this.left_status_variables()
+            : this.right_status_variables();
+    }
+
+    /** Comma separated sub-keys for the given side of the comparison */
+    public keysFor(side: ComparisonSide): string {
+        return this.sideData(side)?.keys?.join(',') || '';
     }
 
     public ngOnInit() {
-        this.right_var_type = [
+        this.right_var_type.set([
             { id: 'constant', name: i18n('TRIGGERS.COMPARE_CONSTANT') },
             { id: 'status_var', name: i18n('TRIGGERS.COMPARE_VARIABLE') },
-        ];
-        this.compare_types = [
+        ]);
+        this.compare_types.set([
             {
                 id: TriggerConditionOperator.EQ,
                 name: i18n('TRIGGERS.COMPARE_OP_EQUAL'),
@@ -310,7 +319,7 @@ export class AlertConditionComparisonFormComponent
                 id: TriggerConditionOperator.XOR,
                 name: i18n('TRIGGERS.COMPARE_OP_XOR'),
             },
-        ];
+        ]);
     }
 
     public ngOnChanges(changes: SimpleChanges): void {
@@ -319,21 +328,37 @@ export class AlertConditionComparisonFormComponent
         }
     }
 
-    public updateFormForSide(side: 'left' | 'right') {
+    public updateFormForSide(side: ComparisonSide) {
         const form = this.form();
-        if (form.controls[side]) {
-            if (!this[side + '_side'].keys) {
-                this[side + '_side'].keys = [];
-            }
-            form.controls[side].setValue(this[side + '_side']);
+        if (!form?.[side]) return;
+        let data = this.sideData(side);
+        if (!data.keys) {
+            data = { ...data, keys: [] };
+            this._setSide(side, data);
         }
+        form[side]().value.set(data);
+    }
+
+    /** Update the selected module for the given side of the comparison */
+    public setSideMod(side: ComparisonSide, mod: string) {
+        this._setSide(side, { ...this.sideData(side), mod });
+    }
+
+    /** Update the selected status variable for the given side of the comparison */
+    public setSideStatus(side: ComparisonSide, status: string) {
+        this._setSide(side, { ...this.sideData(side), status });
+    }
+
+    /** Update the sub-keys for the given side of the comparison */
+    public setSideKeys(side: ComparisonSide, value: string) {
+        this._setSide(side, { ...this.sideData(side), keys: value.split(',') });
     }
 
     /**
      * Load the list of status variables for the given modules
      * @param module Module to list status variables
      */
-    public loadSystemStatusVariables(mod_name: string, side: 'left' | 'right') {
+    public loadSystemStatusVariables(mod_name: string, side: ComparisonSide) {
         const name = (mod_name || '').split('_');
         if (!name[0]?.length) return;
         systemModuleState(
@@ -347,11 +372,12 @@ export class AlertConditionComparisonFormComponent
                 if (Object.keys(var_map || {}).length <= 0) {
                     var_map = { connected: true };
                 }
-                this[`${side}_status_variables`] = Object.keys(var_map).map(
-                    (key) => ({
+                this._setStatusVars(
+                    side,
+                    Object.keys(var_map).map((key) => ({
                         id: key,
                         name: key,
-                    }),
+                    })),
                 );
                 this.addExistingStatusVariables();
             },
@@ -381,15 +407,17 @@ export class AlertConditionComparisonFormComponent
                 this.modules.sort(
                     (a, b) => mod_list.indexOf(a.id) - mod_list.indexOf(b.id),
                 );
-                this.module_list = this.modules.map((mod) => {
-                    const name = mod.custom_name || mod.name || 'Blank';
-                    const index = calculateModuleIndex(this.modules, mod);
-                    return {
-                        id: mod.id,
-                        name: `${name}_${index}`,
-                        keys: [],
-                    };
-                });
+                this.module_list.set(
+                    this.modules.map((mod) => {
+                        const name = mod.custom_name || mod.name || 'Blank';
+                        const index = calculateModuleIndex(this.modules, mod);
+                        return {
+                            id: mod.id,
+                            name: `${name}_${index}`,
+                            keys: [],
+                        };
+                    }),
+                );
                 this.addExistingModules();
             });
     }
@@ -399,34 +427,34 @@ export class AlertConditionComparisonFormComponent
      */
     private addExistingModules() {
         const form = this.form();
-        if (form.controls.left && form.controls.left.value) {
-            const module = form.controls.left.value.mod;
-            if (!this.module_list.find((mod) => mod.name === module)) {
-                this.module_list.unshift({
-                    id: 'old_left_value',
-                    name: module,
-                    keys: [],
-                });
+        if (form.left && form.left().value()) {
+            const left_value = form.left().value();
+            const module = left_value.mod;
+            if (!this.module_list().find((mod) => mod.name === module)) {
+                this.module_list.update((list) => [
+                    { id: 'old_left_value', name: module, keys: [] },
+                    ...list,
+                ]);
             }
             this.loadSystemStatusVariables(module, 'left');
-            this.left_side = form.controls.left.value;
+            this.left_side.set(left_value);
         }
         if (
-            form.controls.right &&
-            form.controls.right.value &&
-            form.controls.right.value.mod
+            form.right &&
+            form.right().value() &&
+            form.right().value().mod
         ) {
-            this.rhs_type = 'status_var';
-            const module = form.controls.right.value.mod;
-            if (!this.module_list.find((mod) => mod.name === module)) {
-                this.module_list.unshift({
-                    id: 'old_right_value',
-                    name: module,
-                    keys: [],
-                });
+            this.rhs_type.set('status_var');
+            const right_value = form.right().value();
+            const module = right_value.mod;
+            if (!this.module_list().find((mod) => mod.name === module)) {
+                this.module_list.update((list) => [
+                    { id: 'old_right_value', name: module, keys: [] },
+                    ...list,
+                ]);
             }
             this.loadSystemStatusVariables(module, 'right');
-            this.right_side = form.controls.right_side.value;
+            this.right_side.set(right_value);
         }
     }
 
@@ -434,31 +462,41 @@ export class AlertConditionComparisonFormComponent
      * Add pre-exisiting status variables to the available list
      */
     private addExistingStatusVariables() {
-        if (this.left_side.status) {
+        const left_status = this.left_side().status;
+        if (left_status) {
             if (
-                !this.left_status_variables.find(
-                    (status) => status.name === this.left_side.status,
+                !this.left_status_variables().find(
+                    (status) => status.name === left_status,
                 )
             ) {
-                this.left_status_variables.unshift({
-                    id: this.left_side.status,
-                    name: this.left_side.status,
-                    keys: [],
-                });
+                this.left_status_variables.update((list) => [
+                    { id: left_status, name: left_status, keys: [] },
+                    ...list,
+                ]);
             }
         }
-        if (this.right_side.status) {
+        const right_status = this.right_side().status;
+        if (right_status) {
             if (
-                !this.right_status_variables.find(
-                    (status) => status.name === this.right_side.status,
+                !this.right_status_variables().find(
+                    (status) => status.name === right_status,
                 )
             ) {
-                this.right_status_variables.unshift({
-                    id: this.right_side.status,
-                    name: this.right_side.status,
-                    keys: [],
-                });
+                this.right_status_variables.update((list) => [
+                    { id: right_status, name: right_status, keys: [] },
+                    ...list,
+                ]);
             }
         }
+    }
+
+    private _setSide(side: ComparisonSide, value: TriggerStatusVariable) {
+        side === 'left' ? this.left_side.set(value) : this.right_side.set(value);
+    }
+
+    private _setStatusVars(side: ComparisonSide, list: Identity[]) {
+        side === 'left'
+            ? this.left_status_variables.set(list)
+            : this.right_status_variables.set(list);
     }
 }

@@ -1,5 +1,4 @@
-import { Component, inject, input, output } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { Component, computed, inject, input, output } from '@angular/core';
 import { SettingsService } from '@placeos/common';
 
 import { CommonModule } from '@angular/common';
@@ -39,10 +38,10 @@ import { BookingFormService } from '../booking-form.service';
             class="border-base-300 bg-base-100 sticky -top-1 z-20 -mx-1 mb-4! flex w-[calc(100%+0.5rem)] flex-wrap items-center rounded-sm border p-1 pr-10! sm:pr-1!"
         >
             <!-- TODO: filter chips -->
-            <div filter-item date>{{ start | date: 'mediumDate' }}</div>
+            <div filter-item date>{{ start() | date: 'mediumDate' }}</div>
             <div filter-item time>
-                {{ start | date: time_format }} &mdash;
-                {{ end | date: time_format }}
+                {{ start() | date: time_format() }} &mdash;
+                {{ end() | date: time_format() }}
             </div>
             @for (feat of options()?.features || []; track feat) {
                 <div filter-item features>
@@ -96,23 +95,18 @@ export class LockerFiltersDisplayComponent {
 
     public readonly view = input<'map' | 'list'>('list');
     public readonly viewChange = output<'map' | 'list'>();
-    public readonly options = toSignal(this._state.options, {
-        initialValue: {} as any,
-    });
+    public readonly options = this._state.options;
     public readonly setOptions = (o) => this._state.setOptions(o);
     public readonly setFeature = (f, e) => this._state.setFeature(f, e);
+    private readonly _model = this._state.model;
 
-    public get start() {
-        return this._state.form.value.date;
-    }
+    public readonly start = computed(() => this._model().date);
 
-    public get end() {
-        const { date, duration, all_day } = this._state.form.value;
+    public readonly end = computed(() => {
+        const { date, duration, all_day } = this._model();
         if (all_day) return endOfDay(date);
         return date + duration * 60 * 1000;
-    }
+    });
 
-    public get time_format() {
-        return this._settings.time_format_signal();
-    }
+    public readonly time_format = this._settings.time_format_signal;
 }

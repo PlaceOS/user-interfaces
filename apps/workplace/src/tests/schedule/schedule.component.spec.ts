@@ -10,10 +10,13 @@ import { EventCardComponent, EventFormService } from '@placeos/events';
 import { MockProvider } from 'ng-mocks';
 import { FooterMenuComponent } from '../../app/components/footer-menu.component';
 import { TopbarComponent } from '../../app/components/topbar.component';
+import { ScheduleDayViewComponent } from '../../app/schedule/schedule-day-view.component';
 import { ScheduleFiltersComponent } from '../../app/schedule/schedule-filters.component';
-import { ScheduleMobileCalendarComponent } from '../../app/schedule/schedule-mobile-calendar.component';
+import { ScheduleListViewComponent } from '../../app/schedule/schedule-list-view.component';
 import { ScheduleSidebarComponent } from '../../app/schedule/schedule-sidebar.component';
 import { ScheduleStateService } from '../../app/schedule/schedule-state.service';
+import { ScheduleTopbarComponent } from '../../app/schedule/schedule-topbar.component';
+import { ScheduleWeekViewComponent } from '../../app/schedule/schedule-week-view.component';
 import { ScheduleComponent } from '../../app/schedule/schedule.component';
 
 describe('ScheduleComponent', () => {
@@ -22,12 +25,15 @@ describe('ScheduleComponent', () => {
         component: ScheduleComponent,
         declarations: [
             mockComponent(ScheduleSidebarComponent),
-            mockComponent(ScheduleMobileCalendarComponent),
             mockComponent(ScheduleFiltersComponent),
             mockComponent(EventCardComponent),
             mockComponent(BookingCardComponent),
             mockComponent(TopbarComponent),
             mockComponent(FooterMenuComponent),
+            mockComponent(ScheduleTopbarComponent),
+            mockComponent(ScheduleListViewComponent),
+            mockComponent(ScheduleWeekViewComponent),
+            mockComponent(ScheduleDayViewComponent),
         ],
         providers: [
             MockProvider(ScheduleStateService, {
@@ -51,7 +57,10 @@ describe('ScheduleComponent', () => {
         imports: [MatProgressBarModule, FormsModule],
     });
 
-    beforeEach(() => (spectator = createComponent()));
+    beforeEach(() => {
+        jest.clearAllMocks();
+        spectator = createComponent();
+    });
 
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();

@@ -1,9 +1,14 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    effect,
+    inject,
+    OnInit,
+    signal,
+} from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { AsyncHandler, CalendarEvent } from '@placeos/common';
-import { combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { AsyncHandler } from '@placeos/common';
 
 import { MatRippleModule } from '@angular/material/core';
 import { IconComponent, TranslatePipe } from '@placeos/components';
@@ -133,7 +138,7 @@ import { CheckinTimetableComponent } from './checkin-timetable.component';
                         {{ 'APP.BOOKING_PANEL.CHECKIN' | translate }}
                     </button>
                 }
-                @if (state() === 'free') {
+                @if (state() === 'free' && can_book()) {
                     <button btn matRipple class="w-24" (click)="newBooking()">
                         {{ 'APP.BOOKING_PANEL.BOOK' | translate }}
                     </button>
@@ -155,7 +160,7 @@ import { CheckinTimetableComponent } from './checkin-timetable.component';
                         {{ event_state()?.next || 'No upcoming event' }}
                     </div>
                 </div>
-                @if (!event_state()?.next) {
+                @if (!event_state()?.next && can_book()) {
                     <button
                         btn
                         matRipple
@@ -175,7 +180,7 @@ import { CheckinTimetableComponent } from './checkin-timetable.component';
         >
             <checkin-timetable
                 [events]="bookings()"
-                (event)="newBooking($event)"
+                (event)="bookSlot($event)"
             ></checkin-timetable>
         </div>
         @if (false) {
@@ -247,6 +252,7 @@ import { CheckinTimetableComponent } from './checkin-timetable.component';
         `,
     ],
     providers: [PanelStateService],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         IconComponent,
         TranslatePipe,
@@ -258,62 +264,53 @@ export class CheckinViewComponent extends AsyncHandler implements OnInit {
     private _state = inject(PanelStateService);
     private _route = inject(ActivatedRoute);
 
-    public readonly state = toSignal(this._state.status, {
-        initialValue: 'free',
-    });
-    public readonly system = toSignal(this._state.space);
-    public readonly bookings = toSignal(this._state.bookings, {
-        initialValue: [] as CalendarEvent[],
-    });
+    public readonly state = this._state.status;
+    public readonly system = this._state.space;
+    public readonly bookings = this._state.bookings;
     public start = signal<number>(Date.now());
 
+    public readonly can_book = computed(
+        () => this._state.setting('disable_book_now') !== true,
+    );
+
     public readonly checkInCurrent = () => this._state.startMeeting();
-    public readonly newBooking = (d = Date.now(), f = false) =>
-        this._state.newBooking(d, this.has_user(), f, true);
+    public readonly newBooking = (d = Date.now(), future = false) => {
+        if (!this.can_book()) return;
+        this._state.newBooking(d, this.has_user(), future, true);
+    };
+    // Timetable emits the absolute start time of the tapped slot; treat any
+    // slot past now as a future booking so the chosen time isn't overwritten.
+    public readonly bookSlot = (d: number) => this.newBooking(d, d > Date.now());
 
     public has_user = signal<boolean>(true);
 
-    public readonly event_state = toSignal(
-        combineLatest([
-            this._state.current,
-            this._state.next,
-            this._state.bookings,
-        ]).pipe(
-            map(([c, n, l]) => ({
-                current: currentPeriod(l, c, n),
-                next: nextPeriod(n),
-            })),
+    public readonly event_state = computed(() => ({
+        current: currentPeriod(
+            this._state.bookings(),
+            this._state.current(),
+            this._state.next(),
         ),
-        { initialValue: { current: [] as any, next: '' } },
-    );
-
-    private readonly _next_available$ = this._state.bookings.pipe(
-        map((_) => getNextFreeTimeSlot(_).start),
-    );
+        next: nextPeriod(this._state.next()),
+    }));
 
     public get room_image() {
         return this._state.setting('room_image');
     }
 
+    constructor() {
+        super();
+        effect(() => {
+            this.start.set(getNextFreeTimeSlot(this._state.bookings()).start);
+        });
+    }
+
     public ngOnInit() {
         this._state.system = '';
-        this.subscription(
-            'next-available',
-            this._next_available$.subscribe((_) => this.start.set(_)),
-        );
-        this.subscription(
-            'route.params',
-            this._route.paramMap.subscribe((params) => {
-                if (params.has('system_id')) {
-                    this._state.system = params.get('system_id');
-                }
-            }),
-        );
-        this.subscription(
-            'route.query',
-            this._route.queryParamMap.subscribe((params) => {
-                this.has_user.set(params.get('user') !== 'false');
-            }),
-        );
+        const params = this._route.snapshot.paramMap;
+        if (params.has('system_id')) {
+            this._state.system = params.get('system_id');
+        }
+        const query = this._route.snapshot.queryParamMap;
+        this.has_user.set(query.get('user') !== 'false');
     }
 }

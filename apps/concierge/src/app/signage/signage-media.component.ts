@@ -2,7 +2,6 @@ import { Component, computed, inject, signal } from '@angular/core';
 
 import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 
-import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -194,24 +193,24 @@ export class SignageMediaComponent extends AsyncHandler {
 
     public readonly search = signal('');
     public readonly loading = this._state.loading;
-    private readonly _playlists_signal = toSignal(this._state.playlists, {
-        initialValue: [],
-    });
     public readonly playlists = computed(() => {
         const search_value = this.search();
-        const list = this._playlists_signal();
+        const list = this._state.playlists();
         return list.filter((_) =>
             _.name.toLowerCase().includes(search_value.toLowerCase()),
         );
     });
-    private readonly _route_query = toSignal(this._route.queryParamMap);
-    public readonly selected_playlist = computed(
-        () => this._route_query()?.get('playlist') || '',
-    );
+    public readonly selected_playlist = signal('');
     public readonly show_dropzone = signal(false);
 
     constructor() {
         super();
+        this.subscription(
+            'route.query',
+            this._route.queryParamMap.subscribe((params) =>
+                this.selected_playlist.set(params.get('playlist') || ''),
+            ),
+        );
     }
 
     public readonly addPlaylist = async () => {

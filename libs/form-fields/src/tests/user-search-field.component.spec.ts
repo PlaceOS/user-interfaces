@@ -6,7 +6,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { MockComponent, MockProvider } from 'ng-mocks';
-import { of } from 'rxjs';
 
 import { User } from '@placeos/common';
 import { showUser } from '@placeos/ts-client';
@@ -52,32 +51,28 @@ describe('UserSearchFieldComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should allow searching for users', fakeAsync(() => {
+    it('should allow searching for users', async () => {
         const user_list = Array(20)
             .fill(1)
             .map(() => new User(generateMockUser()));
 
         const spec = createComponent({
             props: {
-                query_fn: (q: string) => of([...user_list]),
+                query_fn: (q: string) => Promise.resolve([...user_list]),
             },
-        });
-
-        let result_count = 0;
-        spec.component.search_results.subscribe((results) => {
-            result_count = results.length;
         });
 
         spec.component.search_term.set(user_list[0].name as any);
         spec.detectChanges();
-        spec.tick(401);
+        await new Promise((r) => setTimeout(r, 350)); // debounce window
+        spec.detectChanges();
+        await spec.fixture.whenStable();
         spec.detectChanges();
 
-        expect(result_count).toBeGreaterThan(0);
-        tick(1000);
-    }));
+        expect(spec.component.search_results().length).toBeGreaterThan(0);
+    });
 
-    it('should allow limiting the selection of users', fakeAsync(() => {
+    it('should allow limiting the selection of users', async () => {
         const user_list = [
             new User({
                 id: '1',
@@ -103,24 +98,19 @@ describe('UserSearchFieldComponent', () => {
 
         const spec = createComponent({ props: { options: user_list } });
 
-        let result_count = 0;
-        spec.component.search_results.subscribe((results) => {
-            result_count = results.length;
-        });
-
         spec.component.search_term.set('test' as any);
         spec.detectChanges();
-        spec.tick(401);
+        await new Promise((r) => setTimeout(r, 350)); // debounce window
+        spec.detectChanges();
+        await spec.fixture.whenStable();
         spec.detectChanges();
 
-        expect(result_count).toBeGreaterThan(0);
+        expect(spec.component.search_results().length).toBeGreaterThan(0);
 
         spec.component.setValue(user_list[0]);
-        spec.tick(101);
+        spec.detectChanges();
         expect(spec.component.user()).toBeTruthy();
-
-        tick(1000);
-    }));
+    });
 
     it("should show the selected user's name in the input field", fakeAsync(() => {
         const user = new User(generateMockUser());

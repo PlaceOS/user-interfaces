@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
+import { FormField } from '@angular/forms/signals';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -10,9 +10,10 @@ import {
     AssetGroup,
     AsyncHandler,
     OrganisationService,
-    getInvalidFields,
+    getInvalidSignalFields,
     notifyError,
     notifySuccess,
+    patchSignalModel,
 } from '@placeos/common';
 import {
     FullscreenModalShellComponent,
@@ -26,7 +27,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
     template: `
         <fullscreen-modal-shell
             [heading]="
-                (form.value.id
+                (model().id
                     ? 'APP.CONCIERGE.ASSETS_EDIT'
                     : 'APP.CONCIERGE.ASSETS_NEW'
                 ) | translate
@@ -37,7 +38,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
             [loading]="loading()"
             (confirm)="save()"
         >
-            <form [formGroup]="form">
+            <form>
                 <div class="flex flex-1 flex-col space-y-2">
                     <label for="name">{{
                         'APP.CONCIERGE.ASSETS_PRODUCT' | translate
@@ -59,12 +60,11 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         <mat-form-field appearance="outline">
                             <input
                                 matInput
-                                name="serial-number"
                                 [placeholder]="
                                     'APP.CONCIERGE.ASSETS_ITEM_ASSET_SERIAL'
                                         | translate
                                 "
-                                formControlName="serial_number"
+                                [formField]="form.serial_number"
                             />
                             <mat-error>{{
                                 'APP.CONCIERGE.ASSETS_SERIAL_REQUIRED'
@@ -79,12 +79,11 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         <mat-form-field appearance="outline">
                             <input
                                 matInput
-                                name="identifier"
                                 [placeholder]="
                                     'APP.CONCIERGE.ASSETS_ITEM_ASSET_NAME'
                                         | translate
                                 "
-                                formControlName="identifier"
+                                [formField]="form.identifier"
                             />
                             <mat-error>
                                 {{
@@ -101,7 +100,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     }}</label>
                     <mat-form-field appearance="outline">
                         <mat-select
-                            formControlName="purchase_order_id"
+                            [formField]="form.purchase_order_id"
                             [placeholder]="
                                 'APP.CONCIERGE.ASSETS_ORDER_SELECT' | translate
                             "
@@ -138,11 +137,10 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     <mat-form-field appearance="outline">
                         <input
                             matInput
-                            name="barcode"
                             [placeholder]="
                                 'APP.CONCIERGE.ASSETS_BARCODE' | translate
                             "
-                            formControlName="barcode"
+                            [formField]="form.barcode"
                         />
                         <mat-error>{{
                             'APP.CONCIERGE.ASSETS_BARCODE_REQUIRED' | translate
@@ -160,7 +158,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
         MatSelectModule,
         TranslatePipe,
         FormsModule,
-        ReactiveFormsModule,
+        FormField,
     ],
 })
 export class AssetFormComponent extends AsyncHandler implements OnInit {
@@ -169,10 +167,10 @@ export class AssetFormComponent extends AsyncHandler implements OnInit {
     private _router = inject(Router);
     private _org = inject(OrganisationService);
 
-    public readonly form = generateAssetForm();
-    public readonly purchase_orders = toSignal(this._state.purchase_orders, {
-        initialValue: [],
-    });
+    private readonly _form_ref = generateAssetForm();
+    public readonly form = this._form_ref.form;
+    public readonly model = this._form_ref.model;
+    public readonly purchase_orders = this._state.purchase_orders;
     public readonly product = signal<AssetGroup | null>(null);
     public readonly loading = signal('');
 
@@ -193,7 +191,7 @@ export class AssetFormComponent extends AsyncHandler implements OnInit {
                         notifyError('Unable to load asset details.');
                         this._router.navigate([this.base_route]);
                     }
-                    this.form.patchValue(asset);
+                    patchSignalModel(this.model, asset);
                     this.loading.set('');
                 }
                 if (params.get('group_id')) {
@@ -208,7 +206,7 @@ export class AssetFormComponent extends AsyncHandler implements OnInit {
                         this._router.navigate([this.base_route]);
                     }
                     this.product.set(product);
-                    this.form.patchValue({ asset_type_id: product.id });
+                    patchSignalModel(this.model, { asset_type_id: product.id });
                     this.loading.set('');
                 }
             }),
@@ -217,24 +215,25 @@ export class AssetFormComponent extends AsyncHandler implements OnInit {
     }
 
     public async save() {
-        if (!this.form.valid) {
+        if (!this.form().valid()) {
             return notifyError(
-                `Some fields are invalid. [${getInvalidFields(this.form)}]`,
+                `Some fields are invalid. [${getInvalidSignalFields(
+                    this.form,
+                    this.model,
+                )}]`,
             );
         }
         this.loading.set('Saving Product...');
-        const data = this.form.value;
+        const data = this.model();
         const item = await saveAsset({
             ...data,
             zone_id: this._org.building.id,
-        } as any)
-            .toPromise()
-            .catch((e) => {
-                this.loading.set('');
-                notifyError(`Error saving asset: ${e.message}`);
-                throw e;
-            });
-        this.form.reset();
+        } as any).catch((e) => {
+            this.loading.set('');
+            notifyError(`Error saving asset: ${e.message}`);
+            throw e;
+        });
+        this.form().reset();
         this._state.postChange();
         this._state.setExtraAssets(
             [item].map((d) => ({ ...d, asset_type_id: this.product()?.id })),

@@ -1,5 +1,4 @@
 import { Component, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatRadioModule } from '@angular/material/radio';
@@ -60,8 +59,8 @@ export class BuildingSelectComponent {
     private _data = inject(CustomTooltipData);
     private _org = inject(OrganisationService);
 
-    public readonly buildings = toSignal(this._org.active_buildings);
-    public readonly building = toSignal(this._org.active_building);
+    public readonly buildings = this._org.active_buildings;
+    public readonly building = this._org.active_building;
 
     public readonly setBuilding = (b) => {
         this._org.setBuilding(b, true);

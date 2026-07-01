@@ -9,7 +9,6 @@ import {
     output,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -259,13 +258,6 @@ export class SignageItemPlaylistsComponent {
     public readonly remove = output<SignagePlaylist>();
     public readonly ondrop = output<any>();
 
-    private _playlists = toSignal(this._state.playlists, {
-        initialValue: [],
-    });
-    private _has_changed = toSignal(this._state.has_changed, {
-        initialValue: 0,
-    });
-
     private _update_counts = effect(() => {
         const playlists = this.active_playlists();
         for (const item of playlists) {
@@ -290,10 +282,10 @@ export class SignageItemPlaylistsComponent {
     });
 
     public readonly active_playlists = computed(() => {
-        const playlists = this._playlists();
+        const playlists = this._state.playlists();
         const ids = this.item()?.playlists || [];
         // Trigger re-computation when state changes
-        this._has_changed();
+        this._state.has_changed();
         return ids
             .map((id) => playlists.find((_) => _.id === id))
             .filter((_) => !!_);

@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, input } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { downloadFile, i18n, jsonToCsv } from '@placeos/common';
@@ -151,9 +150,7 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
 })
 export class LockersReportListComponent {
     private _state = inject(LockersReportService);
-    private readonly _bookings = toSignal(this._state.bookings$, {
-        initialValue: [],
-    });
+    private readonly _bookings = this._state.bookings;
 
     public readonly print = input(false);
     public readonly table_metric_guide = TABLE_METRIC_GUIDE;

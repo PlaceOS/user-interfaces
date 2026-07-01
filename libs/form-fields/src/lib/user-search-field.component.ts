@@ -3,14 +3,15 @@ import { CommonModule } from '@angular/common';
 import {
     Component,
     computed,
+    debounced,
     ElementRef,
     forwardRef,
     input,
     model,
+    resource,
     signal,
     viewChild,
 } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
 import {
     ControlValueAccessor,
     FormsModule,
@@ -26,16 +27,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AsyncHandler, settingSignal, User } from '@placeos/common';
 import { authority, queryUsers, showUser } from '@placeos/ts-client';
-import { forkJoin, from, Observable, of } from 'rxjs';
-import {
-    catchError,
-    debounceTime,
-    map,
-    shareReplay,
-    startWith,
-    switchMap,
-    tap,
-} from 'rxjs/operators';
 
 import {
     UserAvatarComponent,
@@ -88,7 +79,7 @@ import { searchStaff } from 'libs/users/src/lib/staff.fn';
                     [displayWith]="displayFn"
                     (optionSelected)="setValue($event.option.value)"
                 >
-                    @let user_list = search_results | async;
+                    @let user_list = search_results();
                     @let term = search_term();
                     @for (user of user_list; track $index) {
                         <mat-option [value]="user">
@@ -211,7 +202,7 @@ export class UserSearchFieldComponent
     private use_basic_search = settingSignal('basic_user_search', true);
 
     public readonly search_term = signal<string>('');
-    public readonly loading = signal(false);
+    public readonly loading = computed(() => this._search.isLoading());
     public readonly user = signal<User | null>(null);
     public readonly selected_user = computed<User | null>(() => {
         const term = this.search_term() as string | User;
@@ -243,46 +234,41 @@ export class UserSearchFieldComponent
     /** Function for filtering the results of the user list */
     public readonly filter = input<(_: any, s?: string) => boolean>(undefined);
     /** Function for querying the user list */
-    public readonly query_fn = input<(_: string) => Observable<User[]>>((q) => {
-        const staff_query = this.use_basic_search()
-            ? from(queryUsers({ q, authority_id: authority()?.id })).pipe(
-                  map((_) => _.data.map((_) => new User(_))),
-                  catchError(() => of([])),
-              )
-            : searchStaff(q).pipe(catchError(() => of([])));
-        const guest_query = searchGuests(q).pipe(catchError(() => of([])));
-        if (this.guests_only()) return guest_query;
-        if (!this.guests()) return staff_query;
-        return forkJoin([staff_query, guest_query]).pipe(
-            map(([staff, guests]) => [...staff, ...guests]),
-        );
-    });
-
-    public readonly search_results = toObservable(this.search_term).pipe(
-        debounceTime(300),
-        switchMap((term) => {
-            if (term && typeof term !== 'string') return of([term]);
-            if (term === this.user()?.name) return of([this.user()]);
-            if (this.disable_search()) return of([]);
-            this.loading.set(true);
-            const s = `${term || ''}`.toLowerCase();
-            return this.options()?.length
-                ? of(
-                      this.options().filter(
-                          (_) =>
-                              _.name.toLowerCase().includes(s) ||
-                              _.email.toLowerCase().includes(s),
-                      ),
-                  )
-                : s.length > 2
-                  ? this.query_fn()(s)
-                  : of([]);
-        }),
-        map((_) => _.filter((_) => !!_)),
-        tap(() => this.loading.set(false)),
-        startWith([]),
-        shareReplay(1),
+    public readonly query_fn = input<(_: string) => Promise<User[]>>(
+        async (q) => {
+            const guest_query = () => searchGuests(q).catch(() => [] as User[]);
+            if (this.guests_only()) return guest_query();
+            const staff = this.use_basic_search()
+                ? await queryUsers({ q, authority_id: authority()?.id })
+                      .then((_) => _.data.map((u) => new User(u)))
+                      .catch(() => [] as User[])
+                : await searchStaff(q).catch(() => [] as User[]);
+            if (!this.guests()) return staff;
+            return [...staff, ...(await guest_query())];
+        },
     );
+
+    private readonly _debounced_term = debounced(this.search_term, 300);
+    private readonly _search = resource({
+        params: () => ({ term: this._debounced_term.value() }),
+        loader: async ({ params: { term } }): Promise<User[]> => {
+            if (term && typeof term !== 'string') return [term as User];
+            if (term === this.user()?.name) return [this.user()];
+            if (this.disable_search()) return [];
+            const s = `${term || ''}`.toLowerCase();
+            if (this.options()?.length) {
+                return this.options().filter(
+                    (_) =>
+                        _.name.toLowerCase().includes(s) ||
+                        _.email.toLowerCase().includes(s),
+                );
+            }
+            if (s.length <= 2) return [];
+            const list = await this.query_fn()(s).catch(() => [] as User[]);
+            return list.filter((_) => !!_);
+        },
+    });
+    public readonly search_results = computed(() => this._search.value() ?? []);
 
     private _onChange: (_: User) => void;
     private _onTouch: (_: User) => void;

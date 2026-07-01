@@ -1,5 +1,5 @@
+import { signal } from '@angular/core';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { BehaviorSubject } from 'rxjs';
 import { ControlStateService } from '../../app/control-state.service';
 
 import { CustomTooltipData, SanitizePipe } from '@placeos/components';
@@ -15,7 +15,7 @@ describe('HelpTooltipComponent', () => {
             {
                 provide: ControlStateService,
                 useValue: {
-                    blinds: new BehaviorSubject([]),
+                    blinds: signal([]),
                 },
             },
             {

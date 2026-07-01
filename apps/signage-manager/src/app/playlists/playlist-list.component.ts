@@ -11,6 +11,7 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { SignagePlaylist } from '@placeos/ts-client';
+import { IntersectDirective } from '../shared/intersect.directive';
 import { SignageService } from '../signage.service';
 
 type PlaylistStatus =
@@ -35,7 +36,9 @@ type PlaylistStatus =
                 >
                     <input
                         matInput
-                        [placeholder]="'SIGNAGE_MANAGER.SEARCH_PLAYLISTS' | translate"
+                        [placeholder]="
+                            'SIGNAGE_MANAGER.SEARCH_PLAYLISTS' | translate
+                        "
                         [ngModel]="search()"
                         (ngModelChange)="search.set($event)"
                         [attr.aria-label]="
@@ -118,10 +121,7 @@ type PlaylistStatus =
                                     <span
                                         class="bg-base-200 shrink-0 rounded px-1.5 py-0.5"
                                     >
-                                        {{
-                                            'COMMON.DISABLED'
-                                                | translate
-                                        }}
+                                        {{ 'COMMON.DISABLED' | translate }}
                                     </span>
                                 }
                                 @switch (getStatus(playlist)) {
@@ -139,10 +139,7 @@ type PlaylistStatus =
                                         <span
                                             class="bg-info text-info-content shrink-0 rounded px-1.5 py-0.5"
                                         >
-                                            {{
-                                                'COMMON.PENDING'
-                                                    | translate
-                                            }}
+                                            {{ 'COMMON.PENDING' | translate }}
                                         </span>
                                     }
                                     @case ('awaiting_review') {
@@ -183,6 +180,19 @@ type PlaylistStatus =
                         </div>
                     </a>
                 }
+                @if (has_more()) {
+                    <div
+                        class="h-px w-full"
+                        intersect
+                        (intersect)="loadMore()"
+                    ></div>
+                } @else {
+                    <div
+                        class="text-base-content/50 bg-base-content/10 col-span-full my-2 p-2 text-center text-xs"
+                    >
+                        {{ 'COMMON.END_OF_LIST' | translate }}
+                    </div>
+                }
             } @else {
                 <div
                     class="text-base-content/70 flex flex-1 flex-col items-center justify-center space-y-2 p-8"
@@ -212,6 +222,7 @@ type PlaylistStatus =
         AuthenticatedImageDirective,
         IconComponent,
         TranslatePipe,
+        IntersectDirective,
     ],
 })
 export class PlaylistListComponent {
@@ -226,6 +237,12 @@ export class PlaylistListComponent {
         this._service.playlist_approval_status;
     public readonly playlist_approval_requested_status =
         this._service.playlist_approval_requested_status;
+
+    // Backend pagination: fetches the next page as the sentinel scrolls in.
+    public readonly has_more = this._service.playlists_has_more;
+    public loadMore() {
+        this._service.loadMorePlaylists();
+    }
 
     constructor() {
         effect(() => {

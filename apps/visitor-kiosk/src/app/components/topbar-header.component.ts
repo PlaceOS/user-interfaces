@@ -1,13 +1,16 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import {
+    Component,
+    computed,
+    DestroyRef,
+    inject,
+    signal,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { RouterModule } from '@angular/router';
 import { settingSignal, SettingsService } from '@placeos/common';
 import { AuthenticatedImageDirective } from '@placeos/components';
 import { startOfMinute } from 'date-fns';
-import { timer } from 'rxjs';
-import { map } from 'rxjs/operators';
 
 @Component({
     selector: 'a-topbar-header',
@@ -59,6 +62,7 @@ import { map } from 'rxjs/operators';
 })
 export class TopbarHeaderComponent {
     private _settings = inject(SettingsService);
+    private _destroy_ref = inject(DestroyRef);
 
     public readonly logo_dark = settingSignal('logo_dark');
     public readonly logo_light = settingSignal('logo_light');
@@ -72,8 +76,13 @@ export class TopbarHeaderComponent {
         () => this.logo()?.src || this.logo(),
     );
 
-    public readonly time = toSignal(
-        timer(0, 60 * 1000).pipe(map(() => startOfMinute(Date.now()))),
-        { initialValue: startOfMinute(Date.now()) },
-    );
+    public readonly time = signal(startOfMinute(Date.now()));
+
+    public constructor() {
+        const interval_id = setInterval(
+            () => this.time.set(startOfMinute(Date.now())),
+            60 * 1000,
+        );
+        this._destroy_ref.onDestroy(() => clearInterval(interval_id));
+    }
 }

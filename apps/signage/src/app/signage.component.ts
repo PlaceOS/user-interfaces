@@ -1,6 +1,11 @@
 import { DatePipe } from '@angular/common';
-import { Component, inject, OnInit, signal, viewChildren } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import {
+    Component,
+    inject,
+    OnInit,
+    signal,
+    viewChildren,
+} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler, log, SettingsService, VERSION } from '@placeos/common';
 import { time } from './media-helpers';
@@ -80,7 +85,7 @@ export class SignagePanelComponent extends AsyncHandler implements OnInit {
     private _signage = inject(SignageService);
     private _settings = inject(SettingsService);
 
-    public readonly playlist = toSignal(this._signage.playlist);
+    public readonly playlist = this._signage.playlist;
     public readonly override_playlist = this._signage.override_playlist;
     public readonly debug = this._signage.debug;
     public readonly playing_id = this._signage.playing_id;

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute } from '@angular/router';
 import {
@@ -11,7 +11,6 @@ import {
     AuthenticatedImageDirective,
     IconComponent,
 } from '@placeos/components';
-import { debounceTime, map } from 'rxjs/operators';
 import { EnrolmentErrorComponent } from './enrolment-error.component';
 import { EnrolmentEventDetailsComponent } from './enrolment-event-details.component';
 import { EnrolmentGuestConfirmComponent } from './enrolment-guest-confirm.component';
@@ -25,7 +24,7 @@ import { EnrolmentStateService } from './enrolment-state.service';
             <div
                 class="bg-secondary text-secondary-content z-20 h-16 w-full p-2 shadow-sm"
             >
-                @let logo_path = (logo | async)?.src || (logo | async);
+                @let logo_path = logo()?.src || logo();
                 <img
                     auth
                     class="h-12"
@@ -37,8 +36,8 @@ import { EnrolmentStateService } from './enrolment-state.service';
             <div
                 class="relative z-10 flex h-1/2 w-full flex-1 flex-col items-center overflow-auto"
             >
-                @if (!(loading | async)) {
-                    @switch (view | async) {
+                @if (!loading()) {
+                    @switch (view()) {
                         @case ('event') {
                             <enrolment-event-details></enrolment-event-details>
                         }
@@ -56,10 +55,9 @@ import { EnrolmentStateService } from './enrolment-state.service';
                                 <p>
                                     You are now checked in. See you
                                     {{
-                                        (event | async)?.date
+                                        event()?.date
                                             ? 'at ' +
-                                              ((event | async)?.date
-                                                  | date: 'shortTime')
+                                              (event()?.date | date: 'shortTime')
                                             : 'soon'
                                     }}
                                 </p>
@@ -74,7 +72,7 @@ import { EnrolmentStateService } from './enrolment-state.service';
                         class="flex h-full w-full flex-col items-center justify-center space-y-2 p-16"
                     >
                         <mat-spinner [diameter]="32"></mat-spinner>
-                        <p>{{ loading | async }}</p>
+                        <p>{{ loading() }}</p>
                     </div>
                 }
             </div>
@@ -98,19 +96,19 @@ export class EnrolmentComponent extends AsyncHandler {
     private _route = inject(ActivatedRoute);
     private _org = inject(OrganisationService);
 
-    public loading = this._state.loading;
-    public view = this._state.view;
-    public event = this._state.event;
+    public readonly loading = this._state.loading;
+    public readonly view = this._state.view;
+    public readonly event = this._state.event;
 
-    public readonly logo = this._org.active_building.pipe(
-        debounceTime(500),
-        map(
-            () =>
-                (this._settings.theme === 'dark'
-                    ? this._settings.get('app.logo_light')
-                    : this._settings.get('app.logo_dark')) || {},
-        ),
-    );
+    public readonly logo = computed(() => {
+        // Recompute when the active building changes
+        this._org.active_building();
+        return (
+            (this._settings.theme === 'dark'
+                ? this._settings.get('app.logo_light')
+                : this._settings.get('app.logo_dark')) || {}
+        );
+    });
 
     public ngOnInit() {
         this.subscription(

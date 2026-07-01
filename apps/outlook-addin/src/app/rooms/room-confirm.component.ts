@@ -1,6 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import {
+    Component,
+    computed,
+    inject,
+    signal,
+} from '@angular/core';
 import {
     MAT_BOTTOM_SHEET_DATA,
     MatBottomSheetRef,
@@ -9,7 +13,6 @@ import { MatRippleModule } from '@angular/material/core';
 import { CalendarEvent, Space, User } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
 import { EventFormService } from '@placeos/events';
-import { startWith } from 'rxjs';
 import { RoomConfirmService } from './room-confirm.service';
 
 @Component({
@@ -153,14 +156,12 @@ export class RoomConfirmComponent {
     private _roomConfirmService = inject(RoomConfirmService);
 
     public readonly form = this._state.form;
-    public loading = this._state.loading$;
+    public readonly model = this._state.model;
+    public loading = this._state.loading;
     public readonly show_submit_button = signal(true);
     public readonly space = signal<Space>(this.data as Space);
 
-    private readonly _form_value = toSignal(
-        this.form.valueChanges.pipe(startWith(this.form.getRawValue())),
-        { initialValue: this.form.getRawValue() },
-    );
+    private readonly _form_value = this.model;
 
     public readonly unix_time = computed(
         () => this._form_value()?.date as number,

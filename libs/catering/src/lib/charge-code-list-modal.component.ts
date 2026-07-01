@@ -6,13 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import {
-    csvToJson,
-    downloadFile,
-    nextValueFrom,
-    notifyError,
-    unique,
-} from '@placeos/common';
+import { csvToJson, downloadFile, notifyError, unique } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { CateringStateService } from './catering-state.service';
@@ -45,7 +39,8 @@ import { CateringStateService } from './catering-state.service';
                             >
                                 <input
                                     matInput
-                                    [(ngModel)]="charge_codes()[i]"
+                                    [ngModel]="charge_codes()[i]"
+                                    (ngModelChange)="updateCode(i, $event)"
                                     [placeholder]="
                                         'CATERING.CHARGE_CODES' | translate
                                     "
@@ -134,22 +129,22 @@ export class ChargeCodeListModalComponent implements OnInit {
     public readonly loading = signal<boolean>(false);
 
     public async ngOnInit() {
-        this.charge_codes.set(
-            (await nextValueFrom(this._state.charge_codes)) || [],
-        );
+        this.charge_codes.set(this._state.charge_codes() || []);
     }
 
     public newCode() {
-        this.charge_codes.update((l) => {
-            l.push('');
-            return l;
-        });
+        this.charge_codes.update((l) => [...l, '']);
     }
 
     public removeCode(index: number) {
+        this.charge_codes.update((l) => l.filter((_, i) => i !== index));
+    }
+
+    public updateCode(index: number, code: string) {
         this.charge_codes.update((l) => {
-            l.splice(index, 1);
-            return l;
+            const list = [...l];
+            list[index] = code;
+            return list;
         });
     }
 
@@ -176,11 +171,12 @@ export class ChargeCodeListModalComponent implements OnInit {
                     const list =
                         csvToJson((evt.srcElement as any).result) || [];
                     this.charge_codes.update((l) => {
-                        for (const { code, description } of list) {
-                            l.push(code);
+                        let codes = [...l];
+                        for (const { code } of list) {
+                            codes.push(code);
                         }
-                        l = unique(l);
-                        return l;
+                        codes = unique(codes);
+                        return codes;
                     });
                     event.target.value = '';
                 });

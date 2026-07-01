@@ -11,18 +11,18 @@ import { EnrolmentStateService } from './enrolment-state.service';
             <h3 class="text-center text-xl font-medium">Meeting Details</h3>
             <div>
                 <label>Host:</label>
-                <div>{{ (event | async)?.host || 'No host' }}</div>
+                <div>{{ event()?.host || 'No host' }}</div>
             </div>
             <div>
                 <label>Date:</label>
                 <div>
-                    {{ (event | async)?.date || 0 | date: 'mediumDate' }} at
-                    {{ (event | async)?.date || 0 | date: 'shortTime' }}
+                    {{ event()?.date || 0 | date: 'mediumDate' }} at
+                    {{ event()?.date || 0 | date: 'shortTime' }}
                 </div>
             </div>
             <div>
                 <label>Location:</label>
-                <div>{{ (event | async)?.location || 'No Location' }}</div>
+                <div>{{ event()?.location || 'No Location' }}</div>
             </div>
         </div>
     `,

@@ -1,5 +1,4 @@
 import { Component, inject, input } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { downloadFile, jsonToCsv } from '@placeos/common';
 import { format } from 'date-fns';
 
@@ -148,9 +147,7 @@ export class ReportDesksOverallListComponent {
     public readonly print = input(false);
     public readonly table_metric_guide = TABLE_METRIC_GUIDE;
 
-    public readonly day_list = toSignal(this._state.day_list, {
-        initialValue: [],
-    });
+    public readonly day_list = this._state.day_list;
 
     public readonly download = async () => {
         const data = this.day_list().map((d) => ({

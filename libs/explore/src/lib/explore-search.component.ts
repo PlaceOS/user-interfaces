@@ -28,20 +28,20 @@ import { ExploreSearchService, SearchResult } from './explore-search.service';
             matRipple
             class="bg-base-200 m-2"
             (window:resize)="checkButtonPosition()"
-            (click)="show ? closeSearch($event) : showSearch()"
+            (click)="show() ? closeSearch($event) : showSearch()"
         >
-            <icon>{{ show || search_str ? 'close' : 'search' }}</icon>
+            <icon>{{ show() || search_str() ? 'close' : 'search' }}</icon>
         </button>
         <div
             role="search"
             tabindex="0"
             matRipple
             class="bg-base-100 absolute top-1/2 z-10 flex max-w-[calc(100vw-7rem)] -translate-y-1/2 items-center overflow-hidden px-4 outline-hidden"
-            [class.right-0]="right_size"
-            [class.-translate-x-14]="right_size"
-            [class.left-0]="!right_size"
-            [class.translate-x-14]="!right_size"
-            [class.show]="show || search_str"
+            [class.right-0]="right_size()"
+            [class.-translate-x-14]="right_size()"
+            [class.left-0]="!right_size()"
+            [class.translate-x-14]="!right_size()"
+            [class.show]="show() || search_str()"
             (click)="focusInput()"
             matAutocompleteOrigin
             #origin="matAutocompleteOrigin"
@@ -50,7 +50,7 @@ import { ExploreSearchService, SearchResult } from './explore-search.service';
                 #input
                 keyboard
                 class="flex-1 border-none text-base outline-hidden"
-                [ngModel]="search_str"
+                [ngModel]="search_str()"
                 (ngModelChange)="setFilter($event)"
                 [placeholder]="'COMMON.SEARCH' | translate"
                 (focus)="cancelClear()"
@@ -63,7 +63,7 @@ import { ExploreSearchService, SearchResult } from './explore-search.service';
             }
         </div>
         <mat-autocomplete #auto="matAutocomplete">
-            @if (loading() !== true && (show || search_str)) {
+            @if (loading() !== true && (show() || search_str())) {
                 @if (!results_list().length) {
                     <mat-option class="pointer-events-none">
                         {{ 'COMMON.SEARCH_EMPTY' | translate }}
@@ -133,40 +133,16 @@ export class ExploreSearchComponent extends AsyncHandler implements OnInit {
     private _router = inject(Router);
     private _route = inject(ActivatedRoute);
 
-    private readonly _show = signal(false);
-    private readonly _search_str = signal('');
-    private readonly _right_size = signal(false);
+    public readonly show = signal(false);
+    public readonly search_str = signal('');
+    public readonly right_size = signal(false);
     public readonly results = this._search.search_results;
     public readonly results_list = computed(() => this.results() || []);
     public readonly loading = this._search.loading;
     public readonly setFilter = (value: string) => {
-        this.search_str = value || '';
+        this.search_str.set(value || '');
         this._search.setFilter(value);
     };
-
-    public get show() {
-        return this._show();
-    }
-
-    public set show(value: boolean) {
-        this._show.set(value);
-    }
-
-    public get search_str() {
-        return this._search_str();
-    }
-
-    public set search_str(value: string) {
-        this._search_str.set(value || '');
-    }
-
-    public get right_size() {
-        return this._right_size();
-    }
-
-    public set right_size(value: boolean) {
-        this._right_size.set(value);
-    }
 
     private readonly _input_el =
         viewChild<ElementRef<HTMLInputElement>>('input');
@@ -183,7 +159,7 @@ export class ExploreSearchComponent extends AsyncHandler implements OnInit {
 
     public clear() {
         this.timeout('clear', () => {
-            this.show = false;
+            this.show.set(false);
             this.setFilter('');
         });
     }
@@ -203,12 +179,12 @@ export class ExploreSearchComponent extends AsyncHandler implements OnInit {
     }
 
     public showSearch() {
-        this.show = true;
+        this.show.set(true);
         this.focusInput();
     }
 
     public closeSearch(e?: any) {
-        this.show = false;
+        this.show.set(false);
         this.setFilter('');
         const _input_el = this._input_el();
         if (_input_el?.nativeElement) {
@@ -218,7 +194,7 @@ export class ExploreSearchComponent extends AsyncHandler implements OnInit {
     }
 
     public select(item: SearchResult) {
-        this.search_str = item.name;
+        this.search_str.set(item.name);
         const query: any = {};
         const type =
             item.type === 'space'
@@ -243,6 +219,6 @@ export class ExploreSearchComponent extends AsyncHandler implements OnInit {
         const button_rect =
             this._button_el().nativeElement.getBoundingClientRect();
         const x_center = button_rect.left + button_rect.width / 2;
-        this.right_size = x_center > window_width / 2;
+        this.right_size.set(x_center > window_width / 2);
     }
 }

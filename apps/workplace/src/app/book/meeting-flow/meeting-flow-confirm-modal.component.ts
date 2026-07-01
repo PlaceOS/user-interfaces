@@ -1,13 +1,18 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, OnInit, inject, model } from '@angular/core';
+import {
+    Component,
+    OnInit,
+    computed,
+    inject,
+    model,
+    signal,
+} from '@angular/core';
 import {
     MatDialog,
     MatDialogModule,
     MatDialogRef,
 } from '@angular/material/dialog';
 import { addMinutes, endOfDay, startOfDay } from 'date-fns';
-import { BehaviorSubject, combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
 
 import { validateAssetRequestsForResource } from '@placeos/assets';
 import {
@@ -48,12 +53,12 @@ import { SpacePipe } from '@placeos/events';
             <h2 class="text-xl font-medium capitalize">
                 {{ 'APP.WORKPLACE.MEETING_CONFIRM' | translate }}
             </h2>
-            @if (!(loading | async)) {
+            @if (!loading()) {
                 <button icon matRipple mat-dialog-close>
                     <icon>close</icon>
                 </button>
             }
-            @if (loading | async) {
+            @if (loading()) {
                 <mat-spinner
                     diameter="32"
                     class="absolute top-1/2 right-2 -translate-y-1/2"
@@ -114,8 +119,7 @@ import { SpacePipe } from '@placeos/events';
                     </div>
                     <div class="space-y-1 pl-10">
                         @for (s of event.resources; track s.email) {
-                            @let space = s.email | space | async;
-                            @let level = space?.zones | level;
+                            @let level = s.zones | level;
                             <div class="flex items-center space-x-2">
                                 <icon class="text-2xl">layers</icon>
                                 <div>
@@ -145,7 +149,9 @@ import { SpacePipe } from '@placeos/events';
                             {{
                                 'CALENDAR_EVENT.ATTENDEE_COUNT'
                                     | translate
-                                        : { count: event.attendees?.length }
+                                        : {
+                                              count: event.attendees?.length,
+                                          }
                             }}
                         </h3>
                     </div>
@@ -446,7 +452,7 @@ import { SpacePipe } from '@placeos/events';
                 </div>
             }
         </main>
-        @if (!(loading | async)) {
+        @if (!loading()) {
             <footer
                 class="border-base-200 flex items-center justify-end border-t p-2"
             >
@@ -471,7 +477,6 @@ import { SpacePipe } from '@placeos/events';
         MatRippleModule,
         SanitizePipe,
         MatTooltipModule,
-        SpacePipe,
         LevelPipe,
         MatProgressSpinnerModule,
         MatChipsModule,
@@ -493,14 +498,13 @@ export class MeetingFlowConfirmModalComponent
 
     public readonly show_close = model(false);
 
-    private _loading = new BehaviorSubject(false);
+    private _loading = signal(false);
 
     private _date: DatePipe = new DatePipe('en');
 
-    public readonly loading = combineLatest([
-        this._event_form.loading$,
-        this._loading,
-    ]).pipe(map(([a, b]) => a || b));
+    public readonly loading = computed(
+        () => this._event_form.loading() || this._loading(),
+    );
     public readonly catering_orders;
     public readonly assets;
     public err_tooltip(request: AssetRequest) {
@@ -590,7 +594,7 @@ export class MeetingFlowConfirmModalComponent
     }
 
     public get event() {
-        return this._event_form.form.getRawValue() as any;
+        return this._event_form.model() as any;
     }
 
     public get space(): Space {
@@ -655,8 +659,8 @@ export class MeetingFlowConfirmModalComponent
             !this._event_form.event ||
             this.event.date !== this._event_form.event.date ||
             this.event.date_end !== this._event_form.event.date_end;
-        const event = this._event_form.form.getRawValue();
-        this._loading.next(true);
+        const event = this._event_form.model();
+        this._loading.set(true);
         if (this.has_assets && event.assets?.length) {
             await validateAssetRequestsForResource(
                 this._event_form.event || {},
@@ -682,12 +686,15 @@ export class MeetingFlowConfirmModalComponent
                     (this as any).assets = event.assets?.map(
                         (_) => new AssetRequest({ ..._, event }),
                     );
-                    this._event_form.form.patchValue({ assets: event.assets });
+                    this._event_form.model.update((m) => ({
+                        ...m,
+                        assets: event.assets,
+                    }));
                 },
                 100,
             );
         }
-        this._loading.next(false);
+        this._loading.set(false);
     }
 
     public optionList(item: CateringItem) {

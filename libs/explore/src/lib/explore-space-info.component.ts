@@ -48,20 +48,20 @@ export interface SpaceInfoData {
             [hover]="true"
             [attr.id]="space().map_id || space().id"
             (mouseenter)="updateOffset()"
-            class="pointer-events-auto relative hidden h-full w-full cursor-pointer sm:block"
+            class="pointer-events-auto relative h-full w-full cursor-pointer"
         ></div>
         <ng-template #space_tooltip>
             <div
                 name="space-info"
                 [id]="space().id"
-                class="pointer-events-none absolute left-0 top-0 w-64 transform overflow-hidden rounded border border-base-300 bg-base-100 shadow"
-                [class.-translate-x-full]="x_pos === 'end'"
-                [class.-translate-y-full]="y_pos === 'bottom'"
+                class="border-base-300 bg-base-100 pointer-events-none absolute top-0 left-0 w-64 transform overflow-hidden rounded border shadow"
+                [class.-translate-x-full]="x_pos() === 'end'"
+                [class.-translate-y-full]="y_pos() === 'bottom'"
             >
                 <div class="arrow"></div>
                 <div class="relative">
                     <div
-                        class="relative flex w-full items-center justify-center overflow-hidden bg-opacity-20"
+                        class="bg-opacity-20 relative flex w-full items-center justify-center overflow-hidden"
                         [class.bg-neutral]="space().images[0]"
                         [class.h-32]="space().images[0]"
                         [class.h-8]="!space().images[0]"
@@ -83,19 +83,19 @@ export interface SpaceInfoData {
                             status
                             [class]="
                                 'text-light rounded-sm border border-white p-1 px-2 capitalize shadow-sm ' +
-                                status
+                                status()
                             "
                         >
                             {{
-                                (status === 'not-bookable'
+                                (status() === 'not-bookable'
                                     ? 'COMMON.STATUS_NOT_BOOKABLE'
-                                    : 'COMMON.STATUS_' + (status | uppercase)
+                                    : 'COMMON.STATUS_' + (status() | uppercase)
                                 ) | translate
                             }}
                         </div>
-                        @if (status !== 'not-bookable') {
+                        @if (status() !== 'not-bookable') {
                             <div available-until>
-                                {{ available_until }}
+                                {{ available_until() }}
                             </div>
                         }
                     </div>
@@ -194,7 +194,6 @@ export interface SpaceInfoData {
             }
         `,
     ],
-
     imports: [
         AsyncPipe,
         DatePipe,
@@ -210,8 +209,8 @@ export class ExploreSpaceInfoComponent extends AsyncHandler implements OnInit {
     private _details = inject<SpaceInfoData>(MAP_FEATURE_DATA);
     private _element = inject<ElementRef<HTMLElement>>(ElementRef);
 
-    public y_pos: 'top' | 'bottom';
-    public x_pos: 'start' | 'end';
+    public readonly y_pos = signal<'top' | 'bottom'>('top');
+    public readonly x_pos = signal<'start' | 'end'>('start');
     /** Space to display details for */
     public readonly space = signal(this._details.space || new Space());
     /** List of upcoming events for space */
@@ -219,11 +218,19 @@ export class ExploreSpaceInfoComponent extends AsyncHandler implements OnInit {
     /** List of upcoming events for space */
     public readonly now = signal(Date.now());
     /** List of upcoming events for space */
-    public readonly next = signal<CalendarEvent>(null);
+    public readonly next = computed<CalendarEvent>(() => {
+        return [...this.events()]
+            .sort((a, b) => a.date - b.date)
+            .filter(
+                (item) =>
+                    item.date_end > this.now() &&
+                    isSameDay(item.date, this.now()),
+            )[0];
+    });
     public readonly current = computed(() =>
         this.next()
-            ? this.next()?.date <= Date.now() &&
-              this.next()?.date_end > Date.now()
+            ? this.next()?.date <= this.now() &&
+              this.next()?.date_end > this.now()
             : false,
     );
     /** Whether the event details should be display on the tooltip */
@@ -232,33 +239,27 @@ export class ExploreSpaceInfoComponent extends AsyncHandler implements OnInit {
         true,
     );
     /** Current status of the space */
-    public readonly status = this._details.status;
+    public readonly status = signal(this._details.status);
 
     public readonly hide_features = settingSignal(
         'spaces.hide_features',
         false,
     );
 
+    public readonly available_until = computed(() => '');
+
     public ngOnInit() {
         this.space.set(this._details.space || new Space());
         this.events.set(this._details.events || []);
         this.timeout('update_offset', () => this.updateOffset(), 200);
-        const events = this.events()
-            ?.sort((a, b) => a.date - b.date)
-            .filter(
-                (i) => i.date_end > Date.now() && isSameDay(i.date, Date.now()),
-            );
         this.interval('time', () => this.now.set(Date.now()), 5000);
-        if (events?.length) this.next.set(events[0]);
     }
 
     public updateOffset() {
         const pos = this._element.nativeElement.getBoundingClientRect();
-        this.x_pos = pos.x < document.body.clientWidth / 2 ? 'start' : 'end';
-        this.y_pos = pos.y < document.body.clientHeight / 2 ? 'top' : 'bottom';
-    }
-
-    public get available_until() {
-        return '';
+        this.x_pos.set(pos.x < document.body.clientWidth / 2 ? 'start' : 'end');
+        this.y_pos.set(
+            pos.y < document.body.clientHeight / 2 ? 'top' : 'bottom',
+        );
     }
 }

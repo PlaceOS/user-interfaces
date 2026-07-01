@@ -1,11 +1,16 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import {
+    Component,
+    computed,
+    effect,
+    inject,
+    input,
+    signal,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
 import { settingSignal } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
-import { map } from 'rxjs/operators';
 import { NavFooterComponent } from '../shared/nav-footer.component';
 import { NavSidebarComponent } from '../shared/nav-sidebar.component';
 import { SignageService } from '../signage.service';
@@ -77,8 +82,8 @@ function parseDisplayTab(
                                 </div>
                                 <a
                                     icon
+                                    default
                                     matRipple
-                                    class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
                                     [matTooltip]="
                                         'SIGNAGE_MANAGER.OPEN_PANEL' | translate
                                     "
@@ -226,29 +231,17 @@ export class DisplaysSectionComponent {
     private readonly _route = inject(ActivatedRoute);
     private readonly _router = inject(Router);
 
+    public readonly id = input('');
+    public readonly tab = input<string | null>(null);
     public readonly signage_path = settingSignal('signage_path');
     public readonly view_tab = signal<'schedule' | 'playlists' | 'zones'>(
         'schedule',
     );
     public readonly selected_display = this._service.selected_display;
 
-    private readonly _displays = toSignal(this._service.displays, {
-        initialValue: [],
-    });
-    private readonly _playlists = toSignal(this._service.playlists, {
-        initialValue: [],
-    });
-    private readonly _zones = toSignal(this._service.zones, {
-        initialValue: [],
-    });
-    private readonly _route_id = toSignal(
-        this._route.paramMap.pipe(map((p) => p.get('id') || '')),
-        { initialValue: '' },
-    );
-    private readonly _route_tab = toSignal(
-        this._route.queryParamMap.pipe(map((p) => p.get(TAB_QUERY_PARAM))),
-        { initialValue: null as string | null },
-    );
+    private readonly _displays = this._service.displays;
+    private readonly _playlists = this._service.playlists;
+    private readonly _zones = this._service.zones;
 
     public readonly playlist_count = computed(() => {
         const display = this.selected_display();
@@ -275,14 +268,14 @@ export class DisplaysSectionComponent {
 
     constructor() {
         effect(() => {
-            const route_tab = parseDisplayTab(this._route_tab());
+            const route_tab = parseDisplayTab(this.tab());
             if (route_tab !== this.view_tab()) {
                 this.view_tab.set(route_tab);
             }
         });
 
         effect(() => {
-            const id = this._route_id();
+            const id = this.id();
             const list = this._displays();
             if (!list.length) return;
             if (id) {

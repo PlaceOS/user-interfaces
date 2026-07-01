@@ -13,6 +13,11 @@
         "lib": ["es2017", "dom"],
         "skipLibCheck": true,
         "skipDefaultLibCheck": true,
+        "ignoreDeprecations": "6.0",
+        "strict": false,
+        "noImplicitAny": false,
+        "strictNullChecks": false,
+        "strictPropertyInitialization": false,
         "resolveJsonModule": true,
         "baseUrl": ".",
         "paths": {

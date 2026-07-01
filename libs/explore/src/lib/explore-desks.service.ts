@@ -10,11 +10,9 @@ import {
     untracked,
     WritableSignal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import { showMetadata } from '@placeos/ts-client';
 import { addDays, endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { firstValueFrom, lastValueFrom } from 'rxjs';
 
 import {
     alignDateToBookableHours,
@@ -67,12 +65,8 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
     private _dialog = inject(MatDialog);
     private _injector = inject(Injector);
 
-    private _org_initialised = toSignal(this._org.initialised, {
-        initialValue: false,
-    });
-    private _building = toSignal(this._org.active_building, {
-        initialValue: null,
-    });
+    private _org_initialised = this._org.initialised;
+    private _building = this._org.active_building;
 
     private _in_use = signal<string[]>([]);
     private _options = signal<DeskOptions>({});
@@ -132,14 +126,12 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                 : undefined;
         },
         loader: ({ params: { date, zone } }) =>
-            firstValueFrom(
-                queryBookings({
-                    type: 'desk',
-                    period_start: getUnixTime(startOfDay(date || Date.now())),
-                    period_end: getUnixTime(endOfDay(date || Date.now())),
-                    zones: zone,
-                }),
-            ).catch(() => [] as Booking[]),
+            queryBookings({
+                type: 'desk',
+                period_start: getUnixTime(startOfDay(date || Date.now())),
+                period_end: getUnixTime(endOfDay(date || Date.now())),
+                zones: zone,
+            }).catch(() => [] as Booking[]),
     });
 
     constructor() {
@@ -492,7 +484,9 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                     bookable_hours,
                 },
             });
-            const details = await lastValueFrom(ref.afterClosed());
+            const details = await new Promise<any>((resolve) =>
+                ref.afterClosed().subscribe(resolve),
+            );
             if (!details) throw 'User cancelled';
             date = details.date;
             duration = details.duration;
@@ -535,25 +529,28 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
             return notifyError(i18n('EXPLORE.OUTSIDE_BOOKABLE_HOURS'));
         }
         if (options.date) {
-            this._bookings.form.patchValue({
+            this._bookings.model.update((m) => ({
+                ...m,
                 date: bookable_hours
                     ? alignDateToBookableHours(options.date, bookable_hours)
                     : options.date,
-            });
-            this._bookings.form.patchValue({
+            }));
+            this._bookings.model.update((m) => ({
+                ...m,
                 all_day: !!options.all_day,
-            });
+            }));
         } else if (bookable_hours) {
-            this._bookings.form.patchValue({
+            this._bookings.model.update((m) => ({
+                ...m,
                 date: alignDateToBookableHours(
-                    this._bookings.form.value.date,
+                    this._bookings.model().date,
                     bookable_hours,
                 ),
-            });
+            }));
         }
         let { date, duration, user, all_day } = await this._setBookingTime(
-            this._bookings.form.value.date,
-            this._bookings.form.value.duration,
+            this._bookings.model().date,
+            this._bookings.model().duration,
             this._options()?.custom ?? false,
             desk as any,
             !!options.all_day,
@@ -561,7 +558,8 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
         );
         user = user || options.host || currentUser();
         const user_email = user?.email;
-        this._bookings.form.patchValue({
+        this._bookings.model.update((m) => ({
+            ...m,
             resources: [resource],
             asset_id,
             asset_name: desk.name,
@@ -574,7 +572,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
             user_email,
             booking_type: 'desk',
             zones: desk.zone ? [desk.zone?.parent_id, desk.zone?.id] : [],
-        });
+        }));
 
         const restrictions = this.booking_rules();
         const is_restricted = rulesForResource(

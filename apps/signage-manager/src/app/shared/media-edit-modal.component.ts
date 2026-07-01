@@ -7,13 +7,7 @@ import {
     signal,
     ViewChild,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import {
-    FormControl,
-    FormGroup,
-    ReactiveFormsModule,
-    Validators,
-} from '@angular/forms';
+import { form, FormField, required, submit } from '@angular/forms/signals';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -47,12 +41,12 @@ import {
 } from '@placeos/ts-client';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-permissions-modal.component';
-import { debounceTime, Subscription } from 'rxjs';
 import {
     getVideoContainer,
     isSupportedImageFile,
     SignageMediaMetadata,
 } from '../signage-media-upload.util';
+import { playlistMediaThumbnailUrl } from '../signage-playlist.util';
 
 export interface MediaEditModalData {
     media: SignageMedia;
@@ -69,6 +63,19 @@ export interface MediaEditModalData {
     ) => Promise<SignageMedia>;
     onEdit: (id: string, data: any) => Promise<void>;
     preview: (item: any) => void;
+}
+
+interface MediaEditFormModel {
+    name: string;
+    media_uri: string;
+    description: string;
+    animation: MediaAnimation;
+    start_time: number;
+    play_time: number;
+    tags: string[];
+    plugin_params: Record<string, unknown>;
+    valid_from: number;
+    valid_until: number;
 }
 
 function mediaSaveErrorMessage(error: unknown) {
@@ -124,12 +131,10 @@ function schemaDefaults(schema: Record<string, unknown> | null | undefined) {
             "
             (confirm)="saveMedia()"
             [loading]="
-                loading()
-                    ? ('SIGNAGE_MANAGER.MEDIA_SAVING' | translate)
-                    : ''
+                loading() ? ('SIGNAGE_MANAGER.MEDIA_SAVING' | translate) : ''
             "
         >
-            <form [formGroup]="form">
+            <form>
                 <div class="flex flex-col">
                     <button
                         type="button"
@@ -174,8 +179,9 @@ function schemaDefaults(schema: Record<string, unknown> | null | undefined) {
                                 auth
                                 [source]="thumbnail || url"
                                 [alt]="
-                                    form.value.name ||
-                                    ('SIGNAGE_MANAGER.MEDIA_PREVIEW' | translate)
+                                    model().name ||
+                                    ('SIGNAGE_MANAGER.MEDIA_PREVIEW'
+                                        | translate)
                                 "
                             />
                         }
@@ -189,8 +195,7 @@ function schemaDefaults(schema: Record<string, unknown> | null | undefined) {
                     <mat-form-field appearance="outline">
                         <input
                             matInput
-                            name="name"
-                            formControlName="name"
+                            [formField]="form.name"
                             [placeholder]="'FORM.NAME' | translate"
                             [attr.aria-label]="
                                 'SIGNAGE_MANAGER.MEDIA_NAME_ARIA' | translate
@@ -207,12 +212,12 @@ function schemaDefaults(schema: Record<string, unknown> | null | undefined) {
                         <mat-form-field appearance="outline">
                             <input
                                 matInput
-                                name="media-uri"
                                 type="url"
-                                formControlName="media_uri"
+                                [formField]="form.media_uri"
                                 placeholder="https://example.com"
                                 [attr.aria-label]="
-                                    'SIGNAGE_MANAGER.WEBPAGE_URL_ARIA' | translate
+                                    'SIGNAGE_MANAGER.WEBPAGE_URL_ARIA'
+                                        | translate
                                 "
                             />
                             <mat-error>{{
@@ -229,7 +234,7 @@ function schemaDefaults(schema: Record<string, unknown> | null | undefined) {
                             >
                             <div class="font-mono text-xs">
                                 {{
-                                    form.value.start_time / 1000
+                                    model().start_time / 1000
                                         | mediaDuration: true
                                 }}
                             </div>
@@ -240,23 +245,21 @@ function schemaDefaults(schema: Record<string, unknown> | null | undefined) {
                             step="100"
                         >
                             <input
-                                name="start-time"
                                 matSliderThumb
-                                formControlName="start_time"
+                                [formField]="form.start_time"
                             />
                         </mat-slider>
                     }
                     <div class="flex items-center gap-4">
                         <label for="play-time" class="m-0 w-auto min-w-0">
                             {{
-                                'SIGNAGE_MANAGER.MEDIA_PLAY_TIME'
-                                    | translate
+                                'SIGNAGE_MANAGER.MEDIA_PLAY_TIME' | translate
                             }}</label
                         >
                         <div class="font-mono text-xs">
-                            @if (form.value.play_time) {
+                            @if (model().play_time) {
                                 {{
-                                    form.value.play_time / 1000
+                                    model().play_time / 1000
                                         | mediaDuration: true
                                 }}
                             } @else {
@@ -272,58 +275,43 @@ function schemaDefaults(schema: Record<string, unknown> | null | undefined) {
                         </div>
                     </div>
                     <mat-slider
-                        [min]="form.value.start_time"
+                        [min]="model().start_time"
                         [max]="item.video_length || 300000"
                         step="100"
                     >
-                        <input
-                            name="play-time"
-                            matSliderThumb
-                            formControlName="play_time"
-                        />
+                        <input matSliderThumb [formField]="form.play_time" />
                     </mat-slider>
                     <label for="animation">{{
                         'SIGNAGE_MANAGER.ANIMATION' | translate
                     }}</label>
                     <mat-form-field appearance="outline">
                         <mat-select
-                            name="animation"
-                            formControlName="animation"
-                            [placeholder]="
-                                'COMMON.DEFAULT'
-                                    | translate
-                            "
+                            [formField]="form.animation"
+                            [placeholder]="'COMMON.DEFAULT' | translate"
                             [attr.aria-label]="
                                 'SIGNAGE_MANAGER.ANIMATION' | translate
                             "
                         >
                             <mat-option [value]="0">{{
-                                'COMMON.DEFAULT'
-                                    | translate
+                                'COMMON.DEFAULT' | translate
                             }}</mat-option>
                             <mat-option [value]="1">{{
-                                'SIGNAGE_MANAGER.ANIM_CUT'
-                                    | translate
+                                'SIGNAGE_MANAGER.ANIM_CUT' | translate
                             }}</mat-option>
                             <mat-option [value]="2">{{
-                                'SIGNAGE_MANAGER.ANIM_CROSS_FADE'
-                                    | translate
+                                'SIGNAGE_MANAGER.ANIM_CROSS_FADE' | translate
                             }}</mat-option>
                             <mat-option [value]="3">{{
-                                'SIGNAGE_MANAGER.ANIM_SLIDE_TOP'
-                                    | translate
+                                'SIGNAGE_MANAGER.ANIM_SLIDE_TOP' | translate
                             }}</mat-option>
                             <mat-option [value]="4">{{
-                                'SIGNAGE_MANAGER.ANIM_SLIDE_LEFT'
-                                    | translate
+                                'SIGNAGE_MANAGER.ANIM_SLIDE_LEFT' | translate
                             }}</mat-option>
                             <mat-option [value]="5">{{
-                                'SIGNAGE_MANAGER.ANIM_SLIDE_RIGHT'
-                                    | translate
+                                'SIGNAGE_MANAGER.ANIM_SLIDE_RIGHT' | translate
                             }}</mat-option>
                             <mat-option [value]="6">{{
-                                'SIGNAGE_MANAGER.ANIM_SLIDE_BOTTOM'
-                                    | translate
+                                'SIGNAGE_MANAGER.ANIM_SLIDE_BOTTOM' | translate
                             }}</mat-option>
                         </mat-select>
                     </mat-form-field>
@@ -333,9 +321,8 @@ function schemaDefaults(schema: Record<string, unknown> | null | undefined) {
                     <mat-form-field appearance="outline" class="w-full">
                         <textarea
                             matInput
-                            name="description"
                             [placeholder]="'COMMON.DESCRIPTION' | translate"
-                            formControlName="description"
+                            [formField]="form.description"
                             class="min-h-32"
                             [attr.aria-label]="
                                 'SIGNAGE_MANAGER.MEDIA_DESCRIPTION_ARIA'
@@ -346,7 +333,7 @@ function schemaDefaults(schema: Record<string, unknown> | null | undefined) {
                     <label for="tags">{{ 'COMMON.TAGS' | translate }}</label>
                     <item-list-field
                         name="tags"
-                        formControlName="tags"
+                        [formField]="form.tags"
                         [placeholder]="'COMMON.TAGS' | translate"
                     ></item-list-field>
                     @if (media_type === 'plugin' && plugin_loading()) {
@@ -368,7 +355,7 @@ function schemaDefaults(schema: Record<string, unknown> | null | undefined) {
                         <div class="bg-base-200/60 mb-2 rounded-lg p-4">
                             <schema-form
                                 [schema]="active_plugin_schema()"
-                                [formControlName]="'plugin_params'"
+                                [formField]="form.plugin_params"
                             ></schema-form>
                         </div>
                     }
@@ -379,7 +366,7 @@ function schemaDefaults(schema: Record<string, unknown> | null | undefined) {
                             }}</label>
                             <a-date-field
                                 name="valid-from"
-                                formControlName="valid_from"
+                                [formField]="form.valid_from"
                                 [clear]="true"
                             ></a-date-field>
                         </div>
@@ -389,8 +376,8 @@ function schemaDefaults(schema: Record<string, unknown> | null | undefined) {
                             }}</label>
                             <a-date-field
                                 name="valid-until"
-                                [from]="form.value.valid_from"
-                                formControlName="valid_until"
+                                [from]="model().valid_from"
+                                [formField]="form.valid_until"
                                 [clear]="true"
                             ></a-date-field>
                         </div>
@@ -408,7 +395,7 @@ function schemaDefaults(schema: Record<string, unknown> | null | undefined) {
     ],
     imports: [
         FullscreenModalShellComponent,
-        ReactiveFormsModule,
+        FormField,
         DateFieldComponent,
         TranslatePipe,
         SafePipe,
@@ -443,38 +430,47 @@ export class MediaEditModalComponent implements OnDestroy {
             !this._data.plugin,
     );
     public readonly thumbnail =
-        this._data.file_thumbnail || this._data.media.thumbnail_url;
-    public readonly plugin_embed_schema =
-        signal<Record<string, unknown> | null>(null);
+        this._data.file_thumbnail ||
+        playlistMediaThumbnailUrl(this._data.media);
+    public readonly plugin_embed_schema = signal<Record<
+        string,
+        unknown
+    > | null>(null);
     public readonly active_plugin_schema = computed(() =>
         this._resolvePluginSchema(),
     );
     public readonly preview_url = signal('');
-
-    public readonly form = new FormGroup({
-        name: new FormControl('', [Validators.required]),
-        media_uri: new FormControl(''),
-        description: new FormControl(''),
-        animation: new FormControl<MediaAnimation>(MediaAnimation.Default),
-        start_time: new FormControl(0),
-        play_time: new FormControl<number | null>(null),
-        tags: new FormControl<string[]>([]),
-        plugin_params: new FormControl<Record<string, unknown> | null>(null),
-        valid_from: new FormControl<number | null>(null),
-        valid_until: new FormControl<number | null>(null),
+    public readonly model = signal<MediaEditFormModel>({
+        name: this._data.file?.name || this._data.media.name || '',
+        media_uri: this._data.media.media_uri || '',
+        description: this._data.media.description || '',
+        animation: this._data.media.animation ?? MediaAnimation.Default,
+        start_time: this._data.media.start_time || 0,
+        play_time: this._data.media.play_time || 0,
+        tags: this._data.media.tags || [],
+        plugin_params: this._data.media.plugin_params || {},
+        valid_from: this._data.media.valid_from
+            ? this._data.media.valid_from * 1000
+            : 0,
+        valid_until: this._data.media.valid_until
+            ? this._data.media.valid_until * 1000
+            : 0,
     });
-    public readonly form_value = toSignal(this.form.valueChanges, {
-        initialValue: this.form.getRawValue(),
+    public readonly form = form(this.model, (path) => {
+        required(path.name);
+        required(path.media_uri, {
+            when: () => this.media_type === 'webpage',
+        });
     });
 
     private _file_url: string;
-    private _media_uri_subscription: Subscription;
+    private _preview_url_timeout?: ReturnType<typeof setTimeout>;
 
     public readonly preview = () =>
         this._data.preview({
             media_uri: this.url,
             media_type: this.media_type,
-            name: this.form.value.name,
+            name: this.model().name,
             plugin_id: this.item.plugin_id || this.plugin()?.id,
             plugin_params: this.plugin_config(),
         });
@@ -482,7 +478,7 @@ export class MediaEditModalComponent implements OnDestroy {
     public readonly plugin_config = computed(() => ({
         ...(this.plugin()?.defaults || {}),
         ...schemaDefaults(this.active_plugin_schema()),
-        ...(this.form_value()?.plugin_params || {}),
+        ...(this.model().plugin_params || {}),
     }));
 
     public readonly plugin_preview_config = computed<PluginConfigPayload>(
@@ -506,7 +502,7 @@ export class MediaEditModalComponent implements OnDestroy {
 
     public get url() {
         if (this.media_type === 'webpage') {
-            return this.form.value.media_uri || this.item.media_uri;
+            return this.model().media_uri || this.item.media_uri;
         }
         if (this.item.id) return this.item.media_url;
         if (this.item.media_uri) return this.item.media_uri;
@@ -517,26 +513,15 @@ export class MediaEditModalComponent implements OnDestroy {
 
     constructor() {
         if (this.media_type === 'webpage') {
-            this.form.controls.media_uri.addValidators(Validators.required);
             this.preview_url.set(this.item.media_uri || this.item.media_url);
-            this._media_uri_subscription =
-                this.form.controls.media_uri.valueChanges
-                    .pipe(debounceTime(1500))
-                    .subscribe((url) => this.preview_url.set(url || ''));
-        }
-        this.form.patchValue({
-            ...this._data.media,
-            plugin_params: this._data.media.plugin_params || null,
-            valid_from: this._data.media.valid_from
-                ? this._data.media.valid_from * 1000
-                : null,
-            valid_until: this._data.media.valid_until
-                ? this._data.media.valid_until * 1000
-                : null,
-        });
-        if (this._data.file) {
-            this.form.patchValue({
-                name: this._data.file.name,
+            effect((onCleanup) => {
+                const url = this.model().media_uri;
+                clearTimeout(this._preview_url_timeout);
+                this._preview_url_timeout = setTimeout(
+                    () => this.preview_url.set(url || ''),
+                    1500,
+                );
+                onCleanup(() => clearTimeout(this._preview_url_timeout));
             });
         }
         if (this._data.file_metadata) {
@@ -555,12 +540,13 @@ export class MediaEditModalComponent implements OnDestroy {
                 ...schemaDefaults(this.active_plugin_schema()),
             };
             if (!objectHasKeys(defaults)) return;
-            this.form.patchValue({
+            this.model.update((model) => ({
+                ...model,
                 plugin_params: {
                     ...defaults,
-                    ...(this.form.value.plugin_params || {}),
+                    ...(model.plugin_params || {}),
                 },
-            });
+            }));
         });
     }
 
@@ -580,72 +566,71 @@ export class MediaEditModalComponent implements OnDestroy {
 
     public ngOnDestroy() {
         if (this._file_url) URL.revokeObjectURL(this._file_url);
-        this._media_uri_subscription?.unsubscribe();
+        clearTimeout(this._preview_url_timeout);
     }
 
     public async saveMedia() {
-        this.form.markAllAsTouched();
-        this.form.updateValueAndValidity();
-        if (!this.form.valid) return;
-        if (this.schema_form && !this.schema_form.isValid()) return;
-        this.loading.set(true);
-        this._dialog_ref.disableClose = true;
-        const form_value = this.form.getRawValue();
-        const new_media: any = {
-            ...this.item,
-            ...form_value,
-        };
-        if (this.plugin()) {
-            new_media.plugin_id = this.item.plugin_id || this.plugin().id;
-        }
-        if (this.media_type === 'plugin') {
-            const plugin_config = this.plugin_config();
-            if (objectHasKeys(plugin_config)) {
-                new_media.plugin_params = plugin_config;
+        await submit(this.form, async () => {
+            if (this.schema_form && !this.schema_form.isValid()) return;
+            this.loading.set(true);
+            this._dialog_ref.disableClose = true;
+            const form_value = this.model();
+            const new_media: any = {
+                ...this.item,
+                ...form_value,
+            };
+            if (this.plugin()) {
+                new_media.plugin_id = this.item.plugin_id || this.plugin().id;
+            }
+            if (this.media_type === 'plugin') {
+                const plugin_config = this.plugin_config();
+                if (objectHasKeys(plugin_config)) {
+                    new_media.plugin_params = plugin_config;
+                } else {
+                    delete new_media.plugin_params;
+                }
+            } else if (form_value.plugin_params) {
+                new_media.plugin_params = form_value.plugin_params;
             } else {
                 delete new_media.plugin_params;
             }
-        } else if (form_value.plugin_params) {
-            new_media.plugin_params = form_value.plugin_params;
-        } else {
-            delete new_media.plugin_params;
-        }
-        if (form_value.valid_from) {
-            new_media.valid_from = getUnixTime(
-                startOfDay(form_value.valid_from),
-            );
-        } else {
-            new_media.valid_from = null;
-        }
-        if (form_value.valid_until) {
-            new_media.valid_until = getUnixTime(
-                endOfDay(form_value.valid_until),
-            );
-        } else {
-            new_media.valid_until = null;
-        }
-        try {
-            if (this.item.id) {
-                await this._data.onEdit(this.item.id, new_media);
-            } else {
-                await this._data.onAdd(
-                    this.file,
-                    new SignageMedia(new_media),
-                    this._data.file_metadata,
+            if (form_value.valid_from) {
+                new_media.valid_from = getUnixTime(
+                    startOfDay(form_value.valid_from),
                 );
+            } else {
+                new_media.valid_from = null;
             }
-        } catch (error) {
-            notifyError(
-                i18n('SIGNAGE_MANAGER.MEDIA_SAVE_ERROR', {
-                    error: mediaSaveErrorMessage(error),
-                }),
-            );
-            return;
-        } finally {
-            this._dialog_ref.disableClose = false;
-            this.loading.set(false);
-        }
-        this._dialog_ref.close();
-        notifySuccess(i18n('SIGNAGE_MANAGER.MEDIA_SAVE_SUCCESS'));
+            if (form_value.valid_until) {
+                new_media.valid_until = getUnixTime(
+                    endOfDay(form_value.valid_until),
+                );
+            } else {
+                new_media.valid_until = null;
+            }
+            try {
+                if (this.item.id) {
+                    await this._data.onEdit(this.item.id, new_media);
+                } else {
+                    await this._data.onAdd(
+                        this.file,
+                        new SignageMedia(new_media),
+                        this._data.file_metadata,
+                    );
+                }
+            } catch (error) {
+                notifyError(
+                    i18n('SIGNAGE_MANAGER.MEDIA_SAVE_ERROR', {
+                        error: mediaSaveErrorMessage(error),
+                    }),
+                );
+                return;
+            } finally {
+                this._dialog_ref.disableClose = false;
+                this.loading.set(false);
+            }
+            this._dialog_ref.close();
+            notifySuccess(i18n('SIGNAGE_MANAGER.MEDIA_SAVE_SUCCESS'));
+        });
     }
 }

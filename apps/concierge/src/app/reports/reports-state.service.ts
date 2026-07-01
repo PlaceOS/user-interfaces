@@ -1,5 +1,13 @@
 import { formatDate } from '@angular/common';
-import { inject, Injectable } from '@angular/core';
+import {
+    computed,
+    inject,
+    Injectable,
+    resource,
+    Signal,
+    signal,
+    untracked,
+} from '@angular/core';
 import {
     queryLockerAssetsForZones,
     queryLockerBankAssetsForZones,
@@ -7,6 +15,7 @@ import {
 } from '@placeos/assets';
 import { queryAllBookings } from '@placeos/bookings';
 import {
+    AsyncHandler,
     BookableHoursRange,
     Booking,
     CalendarEvent,
@@ -15,6 +24,7 @@ import {
     HashMap,
     i18n,
     jsonToCsv,
+    nextValueFrom,
     notifyError,
     OrganisationService,
     SettingsService,
@@ -36,25 +46,6 @@ import {
     setDay,
     startOfDay,
 } from 'date-fns';
-import {
-    BehaviorSubject,
-    combineLatest,
-    forkJoin,
-    from,
-    Observable,
-    of,
-    Subject,
-} from 'rxjs';
-import {
-    catchError,
-    debounceTime,
-    finalize,
-    map,
-    shareReplay,
-    skip,
-    switchMap,
-    takeUntil,
-} from 'rxjs/operators';
 import {
     activeReportBookings,
     activeReportEvents,
@@ -113,18 +104,17 @@ export const REMOVE_KEYS = [
 @Injectable({
     providedIn: 'root',
 })
-export class ReportsStateService {
+export class ReportsStateService extends AsyncHandler {
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
 
     private _space_pipe: SpacePipe = new SpacePipe(this._org);
-    private _generate = new Subject<number>();
-    private _loading = new BehaviorSubject<string>('');
-    private _active_bookings = new BehaviorSubject<(CalendarEvent | Booking)[]>(
-        [],
-    );
+    private _loading = signal<string>('');
+    private _active_bookings = signal<(CalendarEvent | Booking)[]>([]);
+    /** Token used to discard responses from superseded booking loads */
+    private _load_token = 0;
 
-    private _options = new BehaviorSubject<ReportOptions>({
+    private _options = signal<ReportOptions>({
         start: new Date(),
         end: new Date(),
         zones: [],
@@ -153,114 +143,18 @@ export class ReportsStateService {
         return reportBookableMinutes(this._event_bookable_hours);
     }
 
-    private _bookings_list = this._generate.pipe(
-        debounceTime(500),
-        switchMap((_) => {
-            const options = this._options.getValue();
-            this._loading.next(i18n('APP.CONCIERGE.REPORTS_LOADING'));
-            if (!options?.type && !options?.zones?.length) return of([]);
-            const start = startOfDay(options.start || Date.now());
-            const end = endOfDay(options.end || start);
-            let zones = options?.zones
-                ? options.zones.filter((z) => z !== 'All').join(',')
-                : '';
-            if (!zones) {
-                zones = this._settings.get('app.use_region')
-                    ? this._org.region.id
-                    : this._org.building.id;
-            }
-            const query = {
-                period_start: getUnixTime(start),
-                period_end: getUnixTime(end),
-            };
-            const bookings_query = {
-                ...query,
-                include_deleted: true as any,
-                include_checked_out: true,
-            };
-            let request$: Observable<(CalendarEvent | Booking)[]>;
-            switch (options.type) {
-                case 'desks':
-                    request$ = queryAllBookings({
-                        ...bookings_query,
-                        zones: zones,
-                        type: 'desk',
-                        limit: 1000,
-                    });
-                    break;
-                case 'parking':
-                    request$ = queryAllBookings({
-                        ...bookings_query,
-                        zones: zones,
-                        type: 'parking',
-                        limit: 1000,
-                    });
-                    break;
-                case 'lockers':
-                    request$ = queryAllBookings({
-                        ...bookings_query,
-                        zones: zones,
-                        type: 'locker',
-                        limit: 1000,
-                    });
-                    break;
-                case 'assets':
-                    request$ = queryAllBookings({
-                        ...bookings_query,
-                        zones: zones,
-                        type: 'asset-request',
-                        limit: 1000,
-                    });
-                    break;
-                case 'catering':
-                    request$ = queryAllBookings({
-                        ...bookings_query,
-                        zones: zones,
-                        type: 'catering-order',
-                        limit: 1000,
-                    });
-                    break;
-                case 'events':
-                    request$ = queryAllEvents({
-                        ...query,
-                        zone_ids: zones,
-                        include_cancelled: true,
-                        limit: 1000,
-                    }).pipe(catchError((_) => of([])));
-                    break;
-                default:
-                    request$ = of([]);
-            }
-            // Cancel request if options change before it completes
-            return request$.pipe(
-                takeUntil(this._options.pipe(skip(1))),
-                finalize(() => this._loading.next('')),
-            );
-        }),
-        map((list) => {
-            if (!list?.length) {
-                notifyError('No bookings for the selected levels and period');
-            }
-            list = list.filter((bkn) => {
-                return !this._ignore_days.includes(
-                    DAYS_OF_WEEK_INDEX[new Date(bkn.date).getDay()],
-                );
-            });
-            this._active_bookings.next(list || []);
-            return list;
-        }),
-        shareReplay(1),
-    );
+    public readonly loading = this._loading.asReadonly();
 
-    public readonly loading = this._loading.asObservable();
+    public readonly options = this._options.asReadonly();
 
-    public readonly options = this._options.asObservable();
+    public readonly bookings = this._active_bookings.asReadonly();
 
-    public readonly bookings = this._active_bookings.asObservable();
-
-    public readonly spaces = this._options.pipe(
-        switchMap(({ zones }) => {
+    /** List of bookable spaces for the active zones */
+    private readonly _spaces = resource({
+        params: () => this._options().zones || [],
+        loader: async ({ params }) => {
             const use_region = this._settings.get('app.use_region');
+            let zones = params;
             if (!zones?.length) {
                 zones = [
                     (use_region
@@ -268,20 +162,32 @@ export class ReportsStateService {
                         : this._org.building?.id) || this._org.building?.id,
                 ];
             }
-            return forkJoin(
+            const lists = await Promise.all(
                 zones.map((id) =>
-                    requestSpacesForZone(id).pipe(catchError(() => of([]))),
+                    nextValueFrom(requestSpacesForZone(id)).catch(() => []),
                 ),
             );
-        }),
-        map((l) => flatten(l)),
-        shareReplay(1),
-    );
+            return flatten(lists);
+        },
+    });
+    public readonly spaces = computed<any[]>(() => this._spaces.value() ?? []);
 
-    public readonly counts = this._options.pipe(
-        debounceTime(500),
-        switchMap((filters) => {
-            let zones = (filters.zones || []).filter(
+    /** Total bookable resource counts per zone for the active filters */
+    private readonly _counts = resource({
+        params: () => {
+            const type = this._options().type;
+            const spaces = this._spaces.value();
+            return (type === 'events' || type === 'catering') && !spaces
+                ? undefined
+                : {
+                      type,
+                      zones: this._options().zones || [],
+                      spaces: spaces || [],
+                  };
+        },
+        defaultValue: {} as HashMap<number>,
+        loader: async ({ params }) => {
+            let zones = (params.zones || []).filter(
                 (z: any) => z !== -1 && z !== 'All',
             );
             if (!zones.length) {
@@ -289,101 +195,86 @@ export class ReportsStateService {
                     ? this._org.levelsForRegion().map((_) => _.id)
                     : this._org.levelsForBuilding().map((_) => _.id);
             }
-            if (filters.type === 'events' || filters.type === 'catering') {
-                return this.spaces.pipe(
-                    map((_) =>
-                        zones.map((z) => [
-                            z,
-                            _.filter((s) => s.zones.includes(z)).length,
-                        ]),
-                    ),
-                );
-            }
-            if (filters.type === 'parking') {
+            let list: [string, number][] = [];
+            if (params.type === 'events' || params.type === 'catering') {
+                list = zones.map((z) => [
+                    z,
+                    params.spaces.filter((s) => s.zones.includes(z)).length,
+                ]);
+            } else if (params.type === 'parking') {
                 const scope_id = this._settings.get('app.use_region')
                     ? this._org.region?.id
                     : this._org.building?.id;
-                if (!scope_id) return of([]);
-                return queryParkingSpacesForZones([scope_id]).pipe(
-                    map((spaces) =>
-                        zones.map((z) => [
-                            z,
-                            spaces.filter((space) => space.zones?.includes(z))
-                                .length,
-                        ]),
+                if (scope_id) {
+                    const spaces = await queryParkingSpacesForZones([
+                        scope_id,
+                    ]).catch(() => []);
+                    list = zones.map((z) => [
+                        z,
+                        spaces.filter((space) => space.zones?.includes(z))
+                            .length,
+                    ]);
+                }
+            } else if (zones.length) {
+                list = await Promise.all(
+                    zones.map((z) =>
+                        this._resourceCountForZone(z, params.type),
                     ),
-                    catchError(() => of([])),
                 );
             }
-            if (!zones.length) return of([]);
-            return forkJoin(
-                zones.map((z) => this._resourceCountForZone(z, filters.type)),
-            );
-        }),
-        map((list: [string, number][]) => {
             const map: HashMap<number> = {};
-            this._active_bookings.next([]);
             list.forEach(([id, count]) => (map[id] = count));
             return map;
-        }),
-        shareReplay(1),
-    );
+        },
+    });
+    public readonly counts: Signal<HashMap<number>> = this._counts.value;
 
-    private _resourceCountForZone(
+    private async _resourceCountForZone(
         zone_id: string,
         resource_type: ReportOptions['type'],
-    ): Observable<[string, number]> {
+    ): Promise<[string, number]> {
         switch (resource_type) {
-            case 'lockers':
+            case 'lockers': {
                 const parent_id = this._org.levels.find(
                     (level) => level.id === zone_id,
                 )?.parent_id;
-                if (!parent_id) {
-                    return of([zone_id, 0]);
-                }
-                return forkJoin([
-                    queryLockerBankAssetsForZones([parent_id]).pipe(
-                        catchError(() => of([])),
-                    ),
-                    queryLockerAssetsForZones([parent_id]).pipe(
-                        catchError(() => of([])),
-                    ),
-                ]).pipe(
-                    map(([banks, lockers]) => {
-                        const bank_ids = banks
-                            .filter((bank) => bank.zones?.includes(zone_id))
-                            .map((bank) => bank.id);
-                        const count = lockers.filter(
-                            (locker) =>
-                                locker.bookable !== false &&
-                                bank_ids.includes((locker as any).parent_id),
-                        ).length;
-                        return [zone_id, count] as [string, number];
-                    }),
-                    catchError(() => of([zone_id, 0] as [string, number])),
+                if (!parent_id) return [zone_id, 0];
+                const banks = await queryLockerBankAssetsForZones([
+                    parent_id,
+                ]).catch(() => []);
+                const lockers = await queryLockerAssetsForZones([
+                    parent_id,
+                ]).catch(() => []);
+                const bank_ids = banks
+                    .filter((bank) => bank.zones?.includes(zone_id))
+                    .map((bank) => bank.id);
+                const count = lockers.filter(
+                    (locker) =>
+                        locker.bookable !== false &&
+                        bank_ids.includes((locker as any).parent_id),
+                ).length;
+                return [zone_id, count];
+            }
+            case 'desks': {
+                const metadata = await showMetadata(zone_id, 'desks').catch(
+                    () => ({ details: [] }) as any,
                 );
-            case 'desks':
-                return from(showMetadata(zone_id, 'desks')).pipe(
-                    catchError(() => of({ details: [] })),
-                    map(
-                        (metadata) =>
-                            [zone_id, metadata.details.length] as [
-                                string,
-                                number,
-                            ],
-                    ),
-                );
+                return [zone_id, metadata.details.length];
+            }
             default:
-                return of([zone_id, 0]);
+                return [zone_id, 0];
         }
     }
 
-    public readonly stats: Observable<HashMap> = combineLatest([
-        this.counts,
-        this.bookings,
-    ]).pipe(
-        debounceTime(300),
-        switchMap(async ([counts, list]) => {
+    /** Aggregated statistics for the active bookings and resource counts */
+    private readonly _stats = resource({
+        params: () => ({
+            counts: this._counts.value(),
+            list: this._active_bookings(),
+        }),
+        defaultValue: {} as HashMap,
+        loader: async ({ params }) => {
+            const { counts, list } = params;
             if (list[0] instanceof CalendarEvent) {
                 const events = (list as CalendarEvent[]) || [];
                 return {
@@ -395,7 +286,7 @@ export class ReportsStateService {
                     ),
                     ...reportEventStatusStats(events),
                     all_events: events,
-                };
+                } as HashMap;
             }
             const bookings = (list as Booking[]) || [];
             return {
@@ -406,85 +297,80 @@ export class ReportsStateService {
                 ),
                 ...reportBookingStatusStats(bookings),
                 all_events: bookings,
-            };
-        }),
-        shareReplay(1),
-    );
+            } as HashMap;
+        },
+    });
+    public readonly stats: Signal<HashMap> = this._stats.value;
 
-    public readonly day_list = combineLatest([this.options, this.stats]).pipe(
-        map(([options, stats]) => {
-            const { start } = options;
-            let date = startOfDay(start);
-            const end = endOfDay(options.end || date);
-            const dates = [];
-            while (isBefore(date, end)) {
-                if (
-                    this._ignore_days.includes(
-                        DAYS_OF_WEEK_INDEX[date.getDay()],
-                    )
-                ) {
-                    date = addDays(date, 1);
-                    continue;
-                }
-                const s = startOfDay(date).valueOf();
-                const e = endOfDay(s).valueOf();
-                const all_events: (Booking | CalendarEvent)[] =
-                    stats.all_events?.filter((bkn) =>
-                        timePeriodsIntersect(
-                            s,
-                            e,
-                            bkn.date,
-                            bkn.date + bkn.duration * 60 * 1000,
-                        ),
-                    ) || [];
-                const events: (Booking | CalendarEvent)[] =
-                    stats.events?.filter((bkn) =>
-                        timePeriodsIntersect(
-                            s,
-                            e,
-                            bkn.date,
-                            bkn.date + bkn.duration * 60 * 1000,
-                        ),
-                    ) || [];
-                const usage =
-                    options.type === 'events'
-                        ? unique(events, 'system_id').length
-                        : unique(events, 'asset_id').length;
-                dates.push({
-                    date: s,
-                    total: stats.total,
-                    usage,
-                    free: stats.total - events.length,
-                    approved: events.reduce(
-                        (c, e) =>
-                            c +
-                            ((e as Booking).approved || e.status === 'approved'
-                                ? 1
-                                : 0),
-                        0,
-                    ),
-                    cancelled: all_events.filter(
-                        (event) =>
-                            !event.deleted &&
-                            isDeclinedReportEvent(event as CalendarEvent),
-                    ).length,
-                    deleted: all_events.filter((event) => event.deleted).length,
-                    count: all_events.length,
-                    utilisation: reportBookedTimeUtilisationPercent(
-                        events as CalendarEvent[],
-                        stats.total,
-                        this._event_bookable_minutes,
-                    ).toFixed(1),
-                });
+    public readonly day_list = computed(() => {
+        const options = this._options();
+        const stats = this.stats();
+        const { start } = options;
+        let date = startOfDay(start);
+        const end = endOfDay(options.end || date);
+        const dates = [];
+        while (isBefore(date, end)) {
+            if (this._ignore_days.includes(DAYS_OF_WEEK_INDEX[date.getDay()])) {
                 date = addDays(date, 1);
+                continue;
             }
-            return dates;
-        }),
-        shareReplay(1),
-    );
+            const s = startOfDay(date).valueOf();
+            const e = endOfDay(s).valueOf();
+            const all_events: (Booking | CalendarEvent)[] =
+                stats.all_events?.filter((bkn) =>
+                    timePeriodsIntersect(
+                        s,
+                        e,
+                        bkn.date,
+                        bkn.date + bkn.duration * 60 * 1000,
+                    ),
+                ) || [];
+            const events: (Booking | CalendarEvent)[] =
+                stats.events?.filter((bkn) =>
+                    timePeriodsIntersect(
+                        s,
+                        e,
+                        bkn.date,
+                        bkn.date + bkn.duration * 60 * 1000,
+                    ),
+                ) || [];
+            const usage =
+                options.type === 'events'
+                    ? unique(events, 'system_id').length
+                    : unique(events, 'asset_id').length;
+            dates.push({
+                date: s,
+                total: stats.total,
+                usage,
+                free: stats.total - events.length,
+                approved: events.reduce(
+                    (c, e) =>
+                        c +
+                        ((e as Booking).approved || e.status === 'approved'
+                            ? 1
+                            : 0),
+                    0,
+                ),
+                cancelled: all_events.filter(
+                    (event) =>
+                        !event.deleted &&
+                        isDeclinedReportEvent(event as CalendarEvent),
+                ).length,
+                deleted: all_events.filter((event) => event.deleted).length,
+                count: all_events.length,
+                utilisation: reportBookedTimeUtilisationPercent(
+                    events as CalendarEvent[],
+                    stats.total,
+                    this._event_bookable_minutes,
+                ).toFixed(1),
+            });
+            date = addDays(date, 1);
+        }
+        return dates;
+    });
 
     public get duration() {
-        const opts = this._options.getValue();
+        const opts = this._options();
         let start = startOfDay(opts.start);
         const end = endOfDay(opts.end).valueOf();
         let count = 1;
@@ -500,14 +386,118 @@ export class ReportsStateService {
     }
 
     constructor() {
-        this._bookings_list.subscribe((_) => _);
+        super();
     }
 
     public generateReport() {
-        this._generate.next(new Date().valueOf());
+        this.timeout('generate-report', () => this._loadBookings(), 500);
+    }
+
+    /** Load the bookings for the active report options */
+    private async _loadBookings() {
+        const options = this._options();
+        this._loading.set(i18n('APP.CONCIERGE.REPORTS_LOADING'));
+        if (!options?.type && !options?.zones?.length) {
+            this._loading.set('');
+            this._active_bookings.set([]);
+            return;
+        }
+        const start = startOfDay(options.start || Date.now());
+        const end = endOfDay(options.end || start);
+        let zones = options?.zones
+            ? options.zones.filter((z) => z !== 'All').join(',')
+            : '';
+        if (!zones) {
+            zones = this._settings.get('app.use_region')
+                ? this._org.region.id
+                : this._org.building.id;
+        }
+        const query = {
+            period_start: getUnixTime(start),
+            period_end: getUnixTime(end),
+        };
+        const bookings_query = {
+            ...query,
+            include_deleted: true as any,
+            include_checked_out: true,
+        };
+        const token = ++this._load_token;
+        let list: (CalendarEvent | Booking)[] = [];
+        try {
+            switch (options.type) {
+                case 'desks':
+                    list = await queryAllBookings({
+                        ...bookings_query,
+                        zones,
+                        type: 'desk',
+                        limit: 1000,
+                    });
+                    break;
+                case 'parking':
+                    list = await queryAllBookings({
+                        ...bookings_query,
+                        zones,
+                        type: 'parking',
+                        limit: 1000,
+                    });
+                    break;
+                case 'lockers':
+                    list = await queryAllBookings({
+                        ...bookings_query,
+                        zones,
+                        type: 'locker',
+                        limit: 1000,
+                    });
+                    break;
+                case 'assets':
+                    list = await queryAllBookings({
+                        ...bookings_query,
+                        zones,
+                        type: 'asset-request',
+                        limit: 1000,
+                    });
+                    break;
+                case 'catering':
+                    list = await queryAllBookings({
+                        ...bookings_query,
+                        zones,
+                        type: 'catering-order',
+                        limit: 1000,
+                    });
+                    break;
+                case 'events':
+                    list = await queryAllEvents({
+                        ...query,
+                        zone_ids: zones,
+                        include_cancelled: true,
+                        limit: 1000,
+                    }).catch(() => []);
+                    break;
+                default:
+                    list = [];
+            }
+        } catch (_) {
+            list = [];
+        }
+        // Discard the response if the options changed before it completed
+        if (token !== this._load_token) return;
+        this._loading.set('');
+        if (!list?.length) {
+            notifyError('No bookings for the selected levels and period');
+        }
+        list = list.filter((bkn) => {
+            return !this._ignore_days.includes(
+                DAYS_OF_WEEK_INDEX[new Date(bkn.date).getDay()],
+            );
+        });
+        this._active_bookings.set(list || []);
     }
 
     public setOptions(options: ReportOptions) {
+        // Read the current value untracked so callers invoking setOptions from
+        // a reactive context (e.g. an effect) do not create a dependency on
+        // `_options` — which, combined with the write below, would loop.
+        const current = untracked(this._options);
         if (options.zones?.includes('All')) {
             options.zones = [
                 'All',
@@ -515,24 +505,23 @@ export class ReportsStateService {
                     .levelsForBuilding(this._org.building)
                     .map((lvl) => lvl.id),
             ];
-        } else if (
-            options.zones &&
-            this._options.getValue()?.zones?.includes('All')
-        ) {
+        } else if (options.zones && current.zones?.includes('All')) {
             options.zones = [];
         }
         if (
-            options.start?.valueOf() ===
-                this._options.getValue().start?.valueOf() ||
-            options.end?.valueOf() === this._options.getValue().end?.valueOf()
+            options.start?.valueOf() === current.start?.valueOf() ||
+            options.end?.valueOf() === current.end?.valueOf()
         )
             return;
-        this._options.next({ ...this._options.getValue(), ...options });
+        // Clear stale bookings and cancel any in-flight load
+        this._active_bookings.set([]);
+        this._load_token++;
+        this._options.set({ ...current, ...options });
     }
 
     public downloadReport() {
-        const options = this._options.getValue();
-        const bookings: HashMap[] = this._active_bookings.getValue();
+        const options = this._options();
+        const bookings: HashMap[] = this._active_bookings();
         downloadFile(
             `report+${options.type}+${format(
                 options.start,

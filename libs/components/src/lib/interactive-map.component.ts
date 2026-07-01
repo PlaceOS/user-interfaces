@@ -6,7 +6,6 @@ import {
     model,
     output,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 
 import {
     MapElementBounds,
@@ -63,6 +62,7 @@ export type { MapMetadata, MapOptions };
                 [labels]="labels()"
                 [options]="renderer_options()"
                 [focus]="focus()"
+                [fixedResolution]="fixedResolution()"
                 (mapInfo)="mapInfo.emit($event)"
             >
                 <ng-content />
@@ -96,9 +96,15 @@ export class InteractiveMapComponent {
     public actions = input<ViewAction[]>([]);
     public options = input({} as MapOptions);
     public focus = input('');
+    /**
+     * Override the texture budget for fixed (zoom-disabled) maps, in
+     * megapixels. Defaults to twice the container's pixel count when 0. Only
+     * applies to the dynamic map renderer.
+     */
+    public fixedResolution = input(0);
     public mapInfo = output<Record<string, MapElementBounds>>();
 
-    public readonly use_mapsindoors = toSignal(this._mapspeople.available$);
+    public readonly use_mapsindoors = this._mapspeople.available;
 
     public readonly metadata = computed<MapMetadata>(() => ({
         actions: this.actions() || [],

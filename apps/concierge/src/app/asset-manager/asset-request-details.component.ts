@@ -3,7 +3,8 @@ import {
     Component,
     computed,
     inject,
-    model,
+    input,
+    linkedSignal,
     output,
     signal,
 } from '@angular/core';
@@ -291,7 +292,8 @@ export class AssetRequestDetailsComponent {
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
 
-    public readonly request = model<any>(undefined);
+    public readonly requestInput = input<any>(undefined, { alias: 'request' });
+    public readonly request = linkedSignal(this.requestInput);
     public readonly requestChange = output<any>();
 
     public readonly loading = signal(false);

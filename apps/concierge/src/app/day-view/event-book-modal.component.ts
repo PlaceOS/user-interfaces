@@ -6,7 +6,6 @@ import {
     output,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
@@ -19,9 +18,9 @@ import {
     notifySuccess,
 } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
-import { map, tap } from 'rxjs/operators';
 
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
+import { FormField } from '@angular/forms/signals';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -49,7 +48,7 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
     template: `
         <fullscreen-modal-shell
             [heading]="
-                (form.value.id
+                (model().id
                     ? 'APP.CONCIERGE.ROOMS_BOOK_EDIT'
                     : 'APP.CONCIERGE.ROOMS_BOOK_NEW'
                 ) | translate
@@ -57,7 +56,7 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
             [loading]="loading() ? ('CALENDAR_EVENT.LOADING' | translate) : ''"
             (confirm)="save()"
         >
-            <form [formGroup]="form">
+            <form>
                 <section class="p-2">
                     <h3 class="flex items-center space-x-2">
                         <div
@@ -74,10 +73,15 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                             icon
                             name="toggle-details-meeting"
                             matRipple
-                            (click)="hide_block.details = !hide_block.details"
+                            (click)="
+                                hide_block.update((b) => ({
+                                    ...b,
+                                    details: !b.details,
+                                }))
+                            "
                         >
                             <icon>{{
-                                hide_block.details
+                                hide_block().details
                                     ? 'expand_more'
                                     : 'expand_less'
                             }}</icon>
@@ -85,7 +89,7 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                     </h3>
                     <div
                         class="overflow-hidden"
-                        [@show]="hide_block.details ? 'hide' : 'show'"
+                        [@show]="hide_block().details ? 'hide' : 'show'"
                     >
                         <meeting-form-details
                             class="mt-4"
@@ -111,11 +115,14 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                                 name="toggle-attendees-meeting"
                                 matRipple
                                 (click)="
-                                    hide_block.attendees = !hide_block.attendees
+                                    hide_block.update((b) => ({
+                                        ...b,
+                                        attendees: !b.attendees,
+                                    }))
                                 "
                             >
                                 <icon>{{
-                                    hide_block.attendees
+                                    hide_block().attendees
                                         ? 'expand_more'
                                         : 'expand_less'
                                 }}</icon>
@@ -123,11 +130,11 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                         </h3>
                         <div
                             class="overflow-hidden"
-                            [@show]="hide_block.attendees ? 'hide' : 'show'"
+                            [@show]="hide_block().attendees ? 'hide' : 'show'"
                         >
                             <a-user-list-field
                                 class="mt-4"
-                                formControlName="attendees"
+                                [formField]="form.attendees"
                                 [guests]="allow_externals"
                             ></a-user-list-field>
                         </div>
@@ -150,11 +157,14 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                             name="toggle-spaces-meeting"
                             matRipple
                             (click)="
-                                hide_block.resources = !hide_block.resources
+                                hide_block.update((b) => ({
+                                    ...b,
+                                    resources: !b.resources,
+                                }))
                             "
                         >
                             <icon>{{
-                                hide_block.resources
+                                hide_block().resources
                                     ? 'expand_more'
                                     : 'expand_less'
                             }}</icon>
@@ -162,12 +172,12 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                     </h3>
                     <div
                         class="flex flex-col items-center overflow-hidden"
-                        [@show]="hide_block.resources ? 'hide' : 'show'"
+                        [@show]="hide_block().resources ? 'hide' : 'show'"
                     >
                         @if (
                             !strict_capacity_check &&
                             total_capacity &&
-                            total_capacity <= form.value.attendees?.length
+                            total_capacity <= model().attendees?.length
                         ) {
                             <div
                                 class="bg-warning text-warning-content mx-auto my-2 inline-flex rounded-sm p-2 text-xs shadow-sm"
@@ -180,7 +190,7 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                         }
                         <space-list-field
                             class="w-full"
-                            formControlName="resources"
+                            [formField]="form.resources"
                             [multiday]="allow_multiday"
                         ></space-list-field>
                     </div>
@@ -203,11 +213,14 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                                 name="toggle-catering-meeting"
                                 matRipple
                                 (click)="
-                                    hide_block.catering = !hide_block.catering
+                                    hide_block.update((b) => ({
+                                        ...b,
+                                        catering: !b.catering,
+                                    }))
                                 "
                             >
                                 <icon>{{
-                                    hide_block.catering
+                                    hide_block().catering
                                         ? 'expand_more'
                                         : 'expand_less'
                                 }}</icon>
@@ -215,27 +228,27 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                         </h3>
                         <div
                             class="overflow-hidden"
-                            [@show]="hide_block.catering ? 'hide' : 'show'"
+                            [@show]="hide_block().catering ? 'hide' : 'show'"
                         >
                             <catering-list-field
-                                formControlName="catering"
+                                [formField]="form.catering"
                                 [options]="{
-                                    date: form.value.date,
-                                    duration: form.value.duration,
-                                    all_day: form.value.all_day,
-                                    zone_id: form.value?.resources?.length
-                                        ? form.value?.resources[0]?.level
+                                    date: model().date,
+                                    duration: model().duration,
+                                    all_day: model().all_day,
+                                    zone_id: model()?.resources?.length
+                                        ? model()?.resources[0]?.level
                                               ?.parent_id
                                         : '',
                                 }"
                             ></catering-list-field>
-                            @if (form.value.catering?.length && has_codes()) {
+                            @if (model().catering?.length && has_codes()) {
                                 <mat-form-field
                                     appearance="outline"
                                     class="mt-2 w-full"
                                 >
                                     <mat-select
-                                        formControlName="catering_charge_code"
+                                        [formField]="form.catering_charge_code"
                                         [placeholder]="
                                             'CALENDAR_EVENT.CATERING_CHARGE_CODE'
                                                 | translate
@@ -271,20 +284,20 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                                     </mat-error>
                                 </mat-form-field>
                             }
-                            @if (form.value.catering?.length) {
+                            @if (model().catering?.length) {
                                 <mat-form-field
                                     appearance="outline"
                                     class="w-full"
                                     [class.mt-2]="
                                         !(
-                                            form.value.catering?.length &&
+                                            model().catering?.length &&
                                             has_codes()
                                         )
                                     "
                                 >
                                     <textarea
                                         matInput
-                                        formControlName="catering_notes"
+                                        [formField]="form.catering_notes"
                                         [placeholder]="
                                             'CALENDAR_EVENT.CATERING_NOTES'
                                                 | translate
@@ -318,10 +331,15 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                                 icon
                                 name="toggle-assets-meeting"
                                 matRipple
-                                (click)="hide_block.assets = !hide_block.assets"
+                                (click)="
+                                    hide_block.update((b) => ({
+                                        ...b,
+                                        assets: !b.assets,
+                                    }))
+                                "
                             >
                                 <icon>{{
-                                    hide_block.assets
+                                    hide_block().assets
                                         ? 'expand_more'
                                         : 'expand_less'
                                 }}</icon>
@@ -329,19 +347,19 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                         </h3>
                         <div
                             class="overflow-hidden"
-                            [@show]="hide_block.assets ? 'hide' : 'show'"
+                            [@show]="hide_block().assets ? 'hide' : 'show'"
                         >
                             <asset-list-field
                                 [options]="{
-                                    date: form.getRawValue().date,
-                                    duration: form.value.duration,
-                                    all_day: form.value.all_day,
-                                    zone_id: form.value?.resources?.length
-                                        ? form.value?.resources[0]?.level
+                                    date: model().date,
+                                    duration: model().duration,
+                                    all_day: model().all_day,
+                                    zone_id: model()?.resources?.length
+                                        ? model()?.resources[0]?.level
                                               ?.parent_id
                                         : '',
                                 }"
-                                formControlName="assets"
+                                [formField]="form.assets"
                             ></asset-list-field>
                         </div>
                     </section>
@@ -369,8 +387,7 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                                 {{ 'CALENDAR_EVENT.NOTES_INFO' | translate }}
                             </label>
                             <rich-text-input
-                                name="notes"
-                                formControlName="body"
+                                [formField]="form.body"
                                 [placeholder]="
                                     'CALENDAR_EVENT.NOTES_INFO' | translate
                                 "
@@ -393,7 +410,7 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
         MatInputModule,
         TranslatePipe,
         IconComponent,
-        ReactiveFormsModule,
+        FormField,
         MeetingFormDetailsComponent,
         UserListFieldComponent,
         MatAutocompleteModule,
@@ -413,29 +430,17 @@ export class EventBookModalComponent implements OnInit {
 
     public readonly event = output<DialogEvent>();
     public readonly loading = signal(false);
-    public hide_block: Record<string, boolean> = {};
+    public readonly hide_block = signal<Record<string, boolean>>({});
     public readonly code_filter = signal('');
 
-    private readonly _charge_codes = toSignal(this._catering.charge_codes, {
-        initialValue: [],
-    });
+    private readonly _charge_codes = this._catering.charge_codes;
 
-    public readonly has_catering = toSignal(
-        this._catering.available_menu.pipe(map((l) => l.length > 0)),
-        { initialValue: false },
+    public readonly has_catering = computed(
+        () => this._catering.available_menu().length > 0,
     );
 
-    public readonly has_codes = toSignal(
-        this._catering.charge_codes.pipe(
-            map((l) => l.length > 0),
-            tap((has_codes) => {
-                if (!has_codes) {
-                    this.form.get('catering_charge_code').setValidators([]);
-                    this.form.updateValueAndValidity();
-                }
-            }),
-        ),
-        { initialValue: false },
+    public readonly has_codes = computed(
+        () => this._catering.charge_codes().length > 0,
     );
 
     public readonly filtered_codes = computed(() =>
@@ -446,6 +451,10 @@ export class EventBookModalComponent implements OnInit {
 
     public get form() {
         return this._event_form.form;
+    }
+
+    public get model() {
+        return this._event_form.model;
     }
 
     public get has_assets() {
@@ -470,7 +479,7 @@ export class EventBookModalComponent implements OnInit {
 
     public get total_capacity() {
         return (
-            this.form.value.resources?.reduce((c, i) => c + i.capacity, 0) || 0
+            this.model().resources?.reduce((c, i) => c + i.capacity, 0) || 0
         );
     }
 
@@ -483,9 +492,9 @@ export class EventBookModalComponent implements OnInit {
 
     public get attendee_count() {
         const user = currentUser();
-        let count = this.form.value.attendees?.length || 0;
+        let count = this.model().attendees?.length || 0;
         if (
-            !this.form.value.attendees.find(
+            !this.model().attendees.find(
                 (_) => _.email.toLowerCase() === user.email.toLowerCase(),
             )
         ) {
@@ -500,10 +509,11 @@ export class EventBookModalComponent implements OnInit {
 
     public async save() {
         this.loading.set(true);
-        if (!this.form.value.host) {
-            this.form.patchValue({
+        if (!this.model().host) {
+            this.model.update((m) => ({
+                ...m,
                 host: currentUser().email,
-            });
+            }));
         }
         const event = await this._event_form.postForm().catch((_) => {
             notifyError(_);

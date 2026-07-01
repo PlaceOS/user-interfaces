@@ -20,9 +20,9 @@ import {
     notifySuccess,
     settingSignal,
     SettingsService,
+    userSignal,
 } from '@placeos/common';
-import { addMinutes, format } from 'date-fns';
-import { lastValueFrom } from 'rxjs';
+import { addMinutes, format, isSameWeek } from 'date-fns';
 
 import { OrganisationService } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -33,12 +33,27 @@ import { MapPinComponent } from 'libs/components/src/lib/map-pin.component';
 import { StatusPillComponent } from 'libs/components/src/lib/status-pill.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { UserPipe } from 'libs/users/src/lib/user.pipe';
+import {
+    bookingLocationString,
+    visitorDisplayNameFor,
+} from './booking.utilities';
 import { checkinBooking, checkinBookingInstance } from './bookings.fn';
 import { DeskSettingsModalComponent } from './desk-settings-modal.component';
 
-interface VipDetail {
-    label: string;
-    value: string;
+export function canEditBooking(booking: Booking) {
+    const is_visitor = booking.booking_type === 'visitor';
+    const visitor_edit_allowed =
+        is_visitor && settingSignal('visitors.allow_editing', false)();
+    const is_parking = booking.booking_type === 'parking';
+    const features: string[] = settingSignal<string[]>('features', [])();
+    const parking_allocated_edit_blocked =
+        is_parking && !!booking.asset_id && !features.includes('parking');
+    return (
+        !booking.is_done &&
+        !booking.checked_in &&
+        (!is_visitor || visitor_edit_allowed) &&
+        !parking_allocated_edit_blocked
+    );
 }
 
 @Component({
@@ -81,7 +96,9 @@ interface VipDetail {
                             {{ period() }}
                         </status-pill>
                         @if (booking().instance) {
-                            <icon class="text-2xl" [matTooltip]="recurr_tooltip"
+                            <icon
+                                class="text-2xl"
+                                [matTooltip]="recurr_tooltip()"
                                 >event_repeat</icon
                             >
                         }
@@ -101,7 +118,7 @@ interface VipDetail {
                                     <button
                                         btn
                                         matRipple
-                                        class="h-10 flex-1 border-none"
+                                        class="h-10 min-w-40 flex-1 border-none"
                                         [class.bg-success]="
                                             booking().checked_in
                                         "
@@ -113,14 +130,18 @@ interface VipDetail {
                                     >
                                         @if (!checking_in()) {
                                             <div
-                                                class="flex items-center justify-center space-x-2"
+                                                class="flex items-center justify-center gap-1"
                                             >
-                                                <icon>{{
-                                                    booking().checked_in
-                                                        ? 'done'
-                                                        : 'arrow_back'
-                                                }}</icon>
-                                                <div class="mr-4">
+                                                @if (booking().checked_in) {
+                                                    <icon class="text-xl"
+                                                        >done</icon
+                                                    >
+                                                }
+                                                <div
+                                                    [class.mr-4]="
+                                                        booking().checked_in
+                                                    "
+                                                >
                                                     {{
                                                         (booking().checked_in
                                                             ? 'COMMON.CHECKED_IN'
@@ -180,25 +201,30 @@ interface VipDetail {
                                     </div>
                                 }
                             } @else {
-                                {{ level()?.display_name || level()?.name }},
-                                {{ booking().asset_name || booking().asset_id }}
+                                {{ resource_details_label() }}
                             }
                         </div>
                     </div>
                     <div class="flex items-center space-x-2 px-2">
                         <icon matTooltip="Location">place</icon>
                         <div>
-                            {{ building()?.display_name || building()?.name }}
-                            {{
-                                building()?.address
-                                    ? ', ' + building().address
-                                    : ''
-                            }}
+                            {{ location() }}
                         </div>
                     </div>
+                    @if (current_user()?.email !== booking().user_email) {
+                        <div class="flex items-center space-x-2 px-2">
+                            <icon matTooltip="Host">person</icon>
+                            <div>
+                                {{
+                                    (booking().user_email | user | async)
+                                        ?.name || booking().user_name
+                                }}
+                            </div>
+                        </div>
+                    }
                     @if (booking().booked_by_email !== booking().user_email) {
                         <div class="flex items-center space-x-2 px-2">
-                            <icon matTooltip="Booked By">person</icon>
+                            <icon matTooltip="Booked By">edit_calendar</icon>
                             <div>
                                 {{
                                     (booking().booked_by_email | user | async)
@@ -208,6 +234,39 @@ interface VipDetail {
                         </div>
                     }
                 </div>
+                @if (group_details(); as group) {
+                    <div
+                        class="border-base-200 sm:bg-base-100 mt-4 min-w-1/3 grow-3 rounded-sm sm:m-2 sm:w-[16rem] sm:border sm:p-4"
+                    >
+                        <h3 class="mx-3 py-2 text-lg font-medium">
+                            Group Booking
+                        </h3>
+                        <div class="flex flex-col space-y-2 px-3 text-sm">
+                            <div class="flex items-center space-x-2">
+                                <icon matTooltip="Group Size">groups</icon>
+                                <div>{{ group.size }} people</div>
+                            </div>
+                            @if (group.resource_type) {
+                                <div class="flex items-center space-x-2">
+                                    <icon matTooltip="Resource Type"
+                                        >category</icon
+                                    >
+                                    <div>{{ group.resource_type }}</div>
+                                </div>
+                            }
+                            @if (group.name) {
+                                <div class="flex items-center space-x-2">
+                                    <icon matTooltip="Group Reference"
+                                        >tag</icon
+                                    >
+                                    <div class="break-all">
+                                        {{ group.name }}
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
                 @if (has_assets()) {
                     <div
                         class="border-base-200 sm:bg-base-100 mt-4 min-w-1/3 grow-3 rounded-sm sm:m-2 sm:w-[16rem] sm:border sm:p-4"
@@ -229,10 +288,7 @@ interface VipDetail {
                                     <button
                                         matRipple
                                         class="flex w-full items-center space-x-2 p-3"
-                                        (click)="
-                                            show_request[request.id] =
-                                                !show_request[request.id]
-                                        "
+                                        (click)="toggleRequest(request.id)"
                                     >
                                         <div class="flex-1 text-left">
                                             <div class="text-sm">
@@ -244,7 +300,7 @@ interface VipDetail {
                                                                       request.deliver_at
                                                                       | date
                                                                           : 'MMM d, ' +
-                                                                                time_format,
+                                                                                time_format(),
                                                               }
                                                 }}
                                             </div>
@@ -291,7 +347,7 @@ interface VipDetail {
                                         >
                                             <icon class="text-2xl">
                                                 {{
-                                                    show_request[request.id]
+                                                    showRequest(request.id)
                                                         ? 'expand_less'
                                                         : 'expand_more'
                                                 }}
@@ -301,7 +357,7 @@ interface VipDetail {
                                     <div
                                         class="divide-base-100 bg-base-200 flex flex-col divide-y"
                                         [@show]="
-                                            show_request[request.id]
+                                            showRequest(request.id)
                                                 ? 'show'
                                                 : 'hide'
                                         "
@@ -333,29 +389,7 @@ interface VipDetail {
                         </div>
                     </div>
                 }
-                @if (vip_service_details().length) {
-                    <div
-                        class="border-base-200 sm:bg-base-100 mt-4 min-w-1/3 grow-3 rounded-sm sm:m-2 sm:w-[16rem] sm:border sm:p-4"
-                    >
-                        <h3 class="mx-3 py-2 text-lg font-medium">
-                            {{ 'BOOKINGS.VIP_SERVICES_HEADER' | translate }}
-                        </h3>
-                        <div class="flex flex-col space-y-2 px-3">
-                            @for (
-                                item of vip_service_details();
-                                track item.label
-                            ) {
-                                <div>
-                                    <div class="text-xs opacity-60">
-                                        {{ item.label }}
-                                    </div>
-                                    <div>{{ item.value }}</div>
-                                </div>
-                            }
-                        </div>
-                    </div>
-                }
-                @if (level()?.map_id) {
+                @if (level()?.map_id && !hide_selected_parking_space()) {
                     <button
                         map
                         class="border-base-200 sm:bg-base-100 relative m-2 mt-4 h-64 w-[calc(100%-1rem)] min-w-1/3 grow-3 overflow-hidden rounded-sm border p-2 sm:my-2 sm:h-48 sm:w-[16rem]"
@@ -377,9 +411,10 @@ interface VipDetail {
             </div>
             <button
                 icon
+                default
                 matRipple
                 mat-dialog-close
-                class="bg-neutral absolute top-0 left-2 text-white"
+                class="absolute top-2 left-2"
             >
                 <icon>close</icon>
             </button>
@@ -409,13 +444,30 @@ interface VipDetail {
                     </div>
                 </button>
             }
-            <button mat-menu-item (click)="remove(booking(), false)">
-                <div class="flex items-center space-x-2 text-base">
-                    <icon class="text-error">delete</icon>
-                    <div>{{ 'BOOKINGS.ACTION_DELETE' | translate }}</div>
-                </div>
-            </button>
-            @if (booking().instance && allow_series_delete()) {
+            @if (!booking().is_done) {
+                <button mat-menu-item (click)="remove(booking(), false)">
+                    <div class="flex items-center space-x-2 text-base">
+                        <icon class="text-error">delete</icon>
+                        <div>{{ 'BOOKINGS.ACTION_DELETE' | translate }}</div>
+                    </div>
+                </button>
+            }
+            @if (can_manage_group()) {
+                <button
+                    mat-menu-item
+                    (click)="remove(group_parent_booking(), false)"
+                >
+                    <div class="flex items-center space-x-2 text-base">
+                        <icon class="text-error">delete</icon>
+                        <div>Delete group</div>
+                    </div>
+                </button>
+            }
+            @if (
+                !booking().is_done &&
+                booking().instance &&
+                allow_series_delete()
+            ) {
                 <button mat-menu-item (click)="remove(booking(), true)">
                     <div class="flex items-center space-x-2 text-base">
                         <icon class="text-error">delete</icon>
@@ -458,6 +510,7 @@ export class BookingDetailsModalComponent {
         edit_fn: (i) => void;
         remove_fn: (i, s?) => void;
         end_fn: (i) => void;
+        refresh_fn?: () => void;
     }>(MAT_DIALOG_DATA);
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
@@ -467,10 +520,10 @@ export class BookingDetailsModalComponent {
     public readonly checked_out = signal(false);
     public readonly checking_in = signal(false);
     public readonly booking = signal(this._data.booking);
+    public readonly current_user = userSignal();
     public readonly edit = this._data.edit_fn;
-    public readonly remove = this._data.remove_fn;
     public readonly end = this._data.end_fn;
-    public show_request = {};
+    private readonly _show_request = signal<Record<string, boolean>>({});
     public readonly features = computed(() => [
         {
             location:
@@ -488,24 +541,30 @@ export class BookingDetailsModalComponent {
     public readonly level_or_building = computed(
         () => this.level() || this.building(),
     );
+    public readonly location = computed(() =>
+        bookingLocationString(this.booking(), this._org),
+    );
     public readonly resource_location = computed(() => {
         const location_name =
             this.level_or_building()?.display_name ||
             this.level_or_building()?.name ||
             '';
         const resource_name =
-            this.booking().asset_name || this.booking().asset_id;
+            this.booking().asset_name ||
+            this.booking().location ||
+            this.booking().asset_id;
         return location_name
             ? `${location_name}, ${resource_name}`
             : resource_name;
     });
+    private readonly _use_region = this._settings.signal('use_region', false);
     public readonly building = computed(() => {
         const zones = this.booking()?.zones || [];
         const level = this.level();
         const building = this._org.buildings.find(
             (bld) => zones.includes(bld.id) || bld.id === level?.parent_id,
         );
-        if (this._settings.get('app.use_region')) {
+        if (this._use_region()) {
             const region = this._org.regions.find(
                 (region) =>
                     zones.includes(region.id) ||
@@ -516,16 +575,7 @@ export class BookingDetailsModalComponent {
         return building;
     });
 
-    public readonly can_edit = computed(() => {
-        const is_visitor = this.booking().booking_type === 'visitor';
-        const visitor_edit_allowed =
-            is_visitor && settingSignal('visitors.allow_editing', false)();
-        return (
-            !this.booking().is_done &&
-            !this.booking().checked_in &&
-            (!is_visitor || visitor_edit_allowed)
-        );
-    });
+    public readonly can_edit = computed(() => canEditBooking(this.booking()));
 
     public readonly can_checkin = computed(
         () =>
@@ -560,30 +610,52 @@ export class BookingDetailsModalComponent {
         `${this.booking()?.type || 'bookings'}.auto_checkin`,
         false,
     );
+    public readonly show_waitlist = this._settings.signal(
+        'parking.show_waitlist',
+        true,
+    );
+    private readonly _hide_selected_parking_space = this._settings.signal(
+        'parking.hide_selected_space',
+        false,
+    );
+    public readonly hide_selected_parking_space = computed(
+        () =>
+            this.booking()?.booking_type === 'parking' &&
+            this._hide_selected_parking_space(),
+    );
     public readonly is_checked_in = computed(() => this.booking().checked_in);
     public readonly desk_height_enabled = computed(
         () =>
             this.booking()?.type === 'desk' &&
             settingSignal('desks.height_enabled')(),
     );
-    public readonly is_visitor = computed(() =>
-        this._isVisitorBooking(this.booking()),
-    );
-    public readonly is_vip_visitor = computed(
-        () => this.booking()?.booking_type === 'vip-visitor',
+    public readonly is_visitor = computed(
+        () => this.booking()?.booking_type === 'visitor',
     );
     public readonly display_title = computed(() => {
         const booking = this.booking();
         if (!booking) return '';
         return booking.title || booking.asset_name || booking.asset_id;
     });
-    public readonly visitor_display_name = computed(() =>
-        this._visitorDisplayNameFor(this.booking()),
+    public readonly resource_details_label = computed(() => {
+        const level_name =
+            this.level()?.display_name || this.level()?.name || '';
+        if (this.hide_selected_parking_space()) {
+            return level_name || i18n('RESOURCE.PARKING');
+        }
+        const resource_name =
+            this.booking()?.asset_name || this.booking()?.asset_id || '';
+        return [level_name, resource_name].filter((_) => !!_).join(', ');
+    });
+    public readonly visitor_display_name = computed(
+        () => visitorDisplayNameFor(this.booking()) || 'Visitor',
     );
     public readonly visitor_reason = computed(() => {
         const booking = this.booking();
         if (!booking || !this.is_visitor()) return '';
-        const visitor_name = this._visitorDisplayNameFor(booking).toLowerCase();
+        const visitor_name = (
+            visitorDisplayNameFor(booking) || 'Visitor'
+        ).toLowerCase();
         const reason = `${booking.title || booking.description || ''}`.trim();
         if (!reason.length) return '';
         return reason.toLowerCase() === visitor_name ? '' : reason;
@@ -592,107 +664,59 @@ export class BookingDetailsModalComponent {
         const booking = this.booking();
         const asset_id = `${booking?.asset_id || ''}`.trim();
         if (!asset_id || !this._looksLikeEmail(asset_id)) return '';
-        const display_name = this._visitorDisplayNameFor(booking);
+        const display_name = visitorDisplayNameFor(booking) || 'Visitor';
         return display_name.toLowerCase() === asset_id.toLowerCase()
             ? ''
             : asset_id;
     });
-    public readonly vip_service_details = computed(() => {
+    public readonly group_parent_booking = computed(() => {
         const booking = this.booking();
-        if (!booking || !this.is_vip_visitor()) return [];
-        const data = booking.extension_data || {};
-        const details: VipDetail[] = [];
-        this._addDetail(
-            details,
-            i18n('BOOKINGS.VIP_ASSISTANT_NAME'),
-            data.vip_assistant_name,
+        if (booking.booking_type === 'group') return booking;
+        const parent = booking.linked_parent_booking;
+        if (parent?.booking_type !== 'group') return null;
+        return new Booking({
+            ...parent,
+            booking_type: 'group',
+            type: 'group',
+            date: parent.date || booking.date,
+            duration: parent.duration || booking.duration,
+            user_email: (parent as any).user_email || booking.user_email,
+            booked_by_email:
+                (parent as any).booked_by_email || booking.booked_by_email,
+        } as any);
+    });
+    public readonly can_manage_group = computed(() => {
+        const group_booking = this.group_parent_booking();
+        if (!group_booking || group_booking.is_done) return false;
+        const current_email = this.current_user()?.email?.toLowerCase();
+        const host_emails = [
+            group_booking.user_email,
+            group_booking.booked_by_email,
+        ].map((_) => _?.toLowerCase());
+        return !!current_email && host_emails.includes(current_email);
+    });
+
+    public remove(booking: Booking, remove_series?: boolean) {
+        if (booking?.is_done) return;
+        if (remove_series === undefined) this._data.remove_fn(booking);
+        else this._data.remove_fn(booking, remove_series);
+    }
+    public readonly group_details = computed(() => {
+        const booking = this.booking();
+        const group_booking = this.group_parent_booking();
+        const extension_data =
+            group_booking?.extension_data || booking.extension_data || {};
+        const group_members = extension_data.group_members || [];
+        const linked_children = (booking.linked_bookings || []).filter(
+            (_) => _.parent_id === group_booking?.id,
         );
-        this._addDetail(
-            details,
-            i18n('BOOKINGS.VIP_ASSISTANT_EMAIL'),
-            data.vip_assistant_email,
-        );
-        if (data.meet_greet && data.meet_greet !== 'none') {
-            this._addDetail(
-                details,
-                i18n('BOOKINGS.VIP_MEET_GREET'),
-                this._formatVipChoice(
-                    'BOOKINGS.VIP_MEET_GREET_',
-                    data.meet_greet,
-                ),
-            );
-        }
-        this._addBooleanDetail(
-            details,
-            i18n('BOOKINGS.VIP_WALKTHROUGH'),
-            data,
-            'walkthrough',
-        );
-        if (data.welcome_beverage && data.welcome_beverage !== 'none') {
-            this._addDetail(
-                details,
-                i18n('BOOKINGS.VIP_WELCOME_BEVERAGE'),
-                this._formatVipChoice(
-                    'BOOKINGS.VIP_WELCOME_BEVERAGE_',
-                    data.welcome_beverage,
-                ),
-            );
-        }
-        this._addDetail(
-            details,
-            i18n('BOOKINGS.VIP_WELCOME_BEVERAGE_CUSTOM_DETAILS'),
-            data.welcome_beverage_custom,
-        );
-        this._addBooleanDetail(
-            details,
-            i18n('BOOKINGS.VIP_GIVEAWAY_GIFT'),
-            data,
-            'gift',
-        );
-        this._addBooleanDetail(
-            details,
-            i18n('BOOKINGS.VIP_PHOTOGRAPHER'),
-            data,
-            'photographer',
-        );
-        const restaurant = data.restaurant_reservation;
-        if (restaurant) {
-            this._addDetail(
-                details,
-                i18n('BOOKINGS.VIP_RESTAURANT_NAME'),
-                restaurant.name,
-            );
-            this._addDetail(
-                details,
-                i18n('BOOKINGS.VIP_RESTAURANT_ADDRESS'),
-                restaurant.address,
-            );
-            this._addDetail(
-                details,
-                i18n('BOOKINGS.VIP_RESTAURANT_TIME'),
-                this._formatTimestamp(restaurant.time),
-            );
-        }
-        if (data.driver) {
-            this._addDetail(
-                details,
-                i18n('BOOKINGS.VIP_DRIVER'),
-                this._formatVipChoice('BOOKINGS.VIP_DRIVER_', data.driver),
-            );
-        }
-        this._addBooleanDetail(
-            details,
-            i18n('BOOKINGS.VIP_WELCOME_SCREEN'),
-            data,
-            'welcome_screen',
-        );
-        this._addBooleanDetail(
-            details,
-            i18n('BOOKINGS.VIP_PRESENTATION'),
-            data,
-            'presentation',
-        );
-        return details;
+        const size = group_members.length || linked_children.length;
+        if (!group_booking && !size) return null;
+        return {
+            name: extension_data.group || booking.group,
+            resource_type: extension_data.group_resource_type || '',
+            size,
+        };
     });
 
     public readonly is_in_progress = computed(() => {
@@ -703,15 +727,28 @@ export class BookingDetailsModalComponent {
         return start <= ts && ts <= end;
     });
 
-    public get time_format() {
-        return this._settings.time_format || 'h:mm a';
-    }
+    public readonly time_format = this._settings.time_format_signal;
+
+    private readonly _is_visible_waitlisted = computed(() => {
+        const booking = this.booking();
+        return (
+            this.show_waitlist() &&
+            booking?.booking_type === 'parking' &&
+            booking?.status === 'tentative' &&
+            booking?.process_state !== 'waiting_approval' &&
+            !!booking?.asset_id?.startsWith('unallocated') &&
+            isSameWeek(Date.now(), booking.date)
+        );
+    });
 
     public readonly booking_status = computed(() => {
         if (this.booking()?.is_done) return 'neutral';
         if (this.booking()?.status === 'approved') return 'success';
         if (this.booking()?.status === 'declined') return 'error';
-        if (this.booking()?.status === 'tentative') return 'warning';
+        if (this.booking()?.status === 'tentative') {
+            if (this._is_visible_waitlisted()) return 'info';
+            return 'warning';
+        }
         return 'warning';
     });
 
@@ -726,23 +763,34 @@ export class BookingDetailsModalComponent {
         })
             .replace(' hour', 'hr')
             .replace(' minute', 'min');
-        return `${format(start, this.time_format)} - ${format(
+        return `${format(start, this.time_format())} - ${format(
             end,
-            this.time_format,
+            this.time_format(),
         )} (${dur})`;
     });
+
+    public showRequest(id: string) {
+        return this._show_request()[id];
+    }
+
+    public toggleRequest(id: string) {
+        this._show_request.update((value) => ({
+            ...value,
+            [id]: !value[id],
+        }));
+    }
 
     public async toggleCheckedIn() {
         this.checking_in.set(true);
         const bkn = this.booking();
-        const promise = lastValueFrom(
+        const promise = (
             bkn.instance
                 ? checkinBookingInstance(
                       bkn.id,
                       bkn.instance,
                       !this.booking().checked_in,
                   )
-                : checkinBooking(this.booking().id, !this.booking().checked_in),
+                : checkinBooking(this.booking().id, !this.booking().checked_in)
         ).catch((_) => {
             notifyError(i18n('BOOKINGS.CHECK_IN_ERROR'));
             this.checking_in.set(false);
@@ -761,15 +809,17 @@ export class BookingDetailsModalComponent {
                     : 'BOOKINGS.CHECK_OUT_SUCCESS',
             ),
         );
+        this._data.refresh_fn?.();
         this.checking_in.set(false);
     }
 
-    public get recurr_tooltip() {
-        return (
-            formatRecurrence(fromBookingRecurrence(this.booking())) ||
-            i18n('CALENDAR_EVENT.RECURRING_TOOLTIP')
-        );
-    }
+    public readonly recurr_tooltip = computed(
+        () =>
+            formatRecurrence(
+                fromBookingRecurrence(this.booking()),
+                this.booking()?.date,
+            ) || i18n('CALENDAR_EVENT.RECURRING_TOOLTIP'),
+    );
 
     public status(id: string): string {
         const booking = this.booking().linked_bookings.find(
@@ -788,8 +838,11 @@ export class BookingDetailsModalComponent {
     public viewLocation() {
         this.hide_map.set(true);
         const ref = this._dialog.open(MapLocateModalComponent, {
-            maxWidth: '95vw',
-            maxHeight: '95vh',
+            width: '100vw',
+            height: '100vh',
+            maxWidth: '100vw',
+            maxHeight: '100vh',
+            panelClass: 'fullscreen-dialog',
             data: {
                 item: {
                     id: this.booking().asset_id,
@@ -812,96 +865,7 @@ export class BookingDetailsModalComponent {
         });
     }
 
-    private _visitorDisplayNameFor(booking: Booking) {
-        if (!booking) return 'Visitor';
-        const asset_id = `${booking.asset_id || ''}`.trim();
-        const group_member_name = this._visitorGroupMemberName(booking);
-        if (group_member_name) return group_member_name;
-        const attendee_name = this._visitorAttendeeName(booking);
-        if (attendee_name) return attendee_name;
-        const asset_name =
-            `${booking.extension_data?.visitor_name || booking.asset_name || ''}`.trim();
-        const reason_values = [
-            `${booking.title || ''}`.trim().toLowerCase(),
-            `${booking.description || ''}`.trim().toLowerCase(),
-        ].filter((_) => !!_);
-        if (
-            asset_name &&
-            asset_name.toLowerCase() !== asset_id.toLowerCase() &&
-            !reason_values.includes(asset_name.toLowerCase())
-        ) {
-            return asset_name;
-        }
-        return this._formatEmailName(asset_id || asset_name || 'Visitor');
-    }
-
-    private _visitorGroupMemberName(booking: Booking) {
-        const member = (booking.extension_data?.group_members || []).find(
-            (item) => item?.email === booking.asset_id,
-        );
-        const name = `${member?.name || ''}`.trim();
-        return name || '';
-    }
-
-    private _visitorAttendeeName(booking: Booking) {
-        const attendee =
-            (booking.attendees || []).find(
-                (item) => item?.email === booking.asset_id,
-            ) || booking.attendees?.[0];
-        const name = `${attendee?.name || ''}`.trim();
-        return name || '';
-    }
-
-    private _formatEmailName(value: string) {
-        if (!this._looksLikeEmail(value)) return value;
-        const [local_part] = value.split('@');
-        const formatted_local = local_part
-            .replace(/[._-]+/g, ' ')
-            .replace(/\s+/g, ' ')
-            .trim();
-        if (!formatted_local) return value;
-        return formatted_local.replace(/\b\w/g, (char) => char.toUpperCase());
-    }
-
     private _looksLikeEmail(value: string) {
         return !!value && value.includes('@');
-    }
-
-    private _isVisitorBooking(booking: Booking) {
-        return ['visitor', 'vip-visitor'].includes(booking?.booking_type);
-    }
-
-    private _addDetail(details: VipDetail[], label: string, value: unknown) {
-        const formatted_value = `${value ?? ''}`.trim();
-        if (!formatted_value) return;
-        details.push({ label, value: formatted_value });
-    }
-
-    private _addBooleanDetail(
-        details: VipDetail[],
-        label: string,
-        data: Record<string, any>,
-        key: string,
-    ) {
-        if (!Object.prototype.hasOwnProperty.call(data, key)) return;
-        details.push({
-            label,
-            value: i18n(data[key] ? 'COMMON.YES' : 'COMMON.NO'),
-        });
-    }
-
-    private _formatVipChoice(prefix: string, value: string) {
-        const key = `${prefix}${`${value}`.toUpperCase()}`;
-        const translated = i18n(key);
-        if (translated !== key) return translated;
-        return `${value}`
-            .replace(/_/g, ' ')
-            .replace(/\b\w/g, (char) => char.toUpperCase());
-    }
-
-    private _formatTimestamp(value: number) {
-        if (!value) return '';
-        const timestamp = value < 1_000_000_000_000 ? value * 1000 : value;
-        return format(timestamp, `d MMM, ${this.time_format}`);
     }
 }

@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormField } from '@angular/forms/signals';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -15,8 +15,7 @@ import { EnrolmentStateService } from './enrolment-state.service';
     selector: 'enrolment-guest-confirm',
     template: `
         <div
-            class="border-base-200 bg-base-100 mx-auto my-4 w-120 max-w-[calc(100vw-2rem)] rounded-sm border p-4 shadow-sm"
-            [formGroup]="form"
+            class="border-base-200 bg-base-100 mx-auto my-4 w-[480px] max-w-[calc(100vw-2rem)] rounded-sm border p-4 shadow-sm"
         >
             <h3 class="mb-4 text-center text-xl font-medium">
                 Confirm your details
@@ -24,7 +23,11 @@ import { EnrolmentStateService } from './enrolment-state.service';
             <div class="flex flex-col">
                 <label>Name:</label>
                 <mat-form-field appearance="outline">
-                    <input matInput formControlName="name" placeholder="Name" />
+                    <input
+                        matInput
+                        [formField]="form.name"
+                        placeholder="Name"
+                    />
                     <mat-error>Name is required</mat-error>
                 </mat-form-field>
             </div>
@@ -33,7 +36,7 @@ import { EnrolmentStateService } from './enrolment-state.service';
                 <mat-form-field appearance="outline">
                     <input
                         matInput
-                        formControlName="email"
+                        [formField]="form.email"
                         placeholder="Email"
                     />
                     <mat-error>Email Address is required</mat-error>
@@ -44,7 +47,7 @@ import { EnrolmentStateService } from './enrolment-state.service';
                 <mat-form-field appearance="outline">
                     <input
                         matInput
-                        formControlName="organisation"
+                        [formField]="form.organisation"
                         placeholder="Organisation"
                     />
                     <mat-error>Organisation is required</mat-error>
@@ -53,19 +56,19 @@ import { EnrolmentStateService } from './enrolment-state.service';
             <div class="flex min-h-12 flex-col">
                 <label>Identification:</label>
                 <div class="border-base-200 bg-base-200 mb-4 border p-2">
-                    <upload-list formControlName="attachments"></upload-list>
+                    <upload-list [formField]="form.attachments"></upload-list>
                 </div>
             </div>
-            @if (check_vaccine) {
+            @if (check_vaccine()) {
                 <div class="mb-4 flex flex-col">
                     <label>Vaccination Proof:</label>
                     <upload-file
-                        formControlName="vaccination_proof"
+                        [formField]="form.vaccination_proof"
                     ></upload-file>
                 </div>
             }
             <mat-checkbox
-                formControlName="accepted_terms_conditions"
+                [formField]="form.accepted_terms_conditions"
                 class="mb-4"
             >
                 Accept Terms and Conditions
@@ -75,7 +78,7 @@ import { EnrolmentStateService } from './enrolment-state.service';
                     btn
                     matRipple
                     class="inverse w-32"
-                    [disabled]="!form.valid"
+                    [disabled]="!form().valid()"
                     (click)="updateGuest()"
                 >
                     {{ 'COMMON.UPDATE' | translate }}
@@ -84,7 +87,7 @@ import { EnrolmentStateService } from './enrolment-state.service';
                     btn
                     matRipple
                     class="w-32"
-                    [disabled]="!form.valid"
+                    [disabled]="!form().valid()"
                     (click)="checkin()"
                 >
                     {{ 'COMMON.CHECK_IN' | translate }}
@@ -94,7 +97,7 @@ import { EnrolmentStateService } from './enrolment-state.service';
     `,
     styles: [``],
     imports: [
-        ReactiveFormsModule,
+        FormField,
         TranslatePipe,
         MatCheckboxModule,
         UploadFileFieldComponent,
@@ -108,10 +111,10 @@ export class EnrolmentGuestConfirmComponent {
     private _settings = inject(SettingsService);
 
     public readonly form = this._state.form;
+    public readonly check_vaccine = this._settings.signal(
+        'guests.vaccine_check',
+        false,
+    );
     public readonly updateGuest = () => this._state.updateGuest();
     public readonly checkin = () => this._state.checkin();
-
-    public get check_vaccine() {
-        return this._settings.get('app.guests.vaccine_check');
-    }
 }

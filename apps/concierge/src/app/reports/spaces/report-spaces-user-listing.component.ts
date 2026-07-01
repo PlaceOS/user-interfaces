@@ -1,5 +1,4 @@
 import { Component, computed, inject, input } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { downloadFile, formatDuration, jsonToCsv } from '@placeos/common';
@@ -8,7 +7,6 @@ import {
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { map } from 'rxjs/operators';
 import {
     ReportMetricGuideComponent,
     ReportMetricGuideItem,
@@ -115,9 +113,8 @@ export class ReportSpacesUserListingComponent {
 
     public readonly print = input(false);
     public readonly table_metric_guide = TABLE_METRIC_GUIDE;
-    private readonly _stats = toSignal(
-        this._reports.stats.pipe(map((stats) => stats || { events: [] })),
-        { initialValue: { events: [] } },
+    private readonly _stats = computed(
+        () => this._reports.stats() || { events: [] },
     );
 
     public readonly user_list = computed(() => {

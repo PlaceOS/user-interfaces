@@ -5,8 +5,14 @@ import {
     moveItemInArray,
 } from '@angular/cdk/drag-drop';
 
-import { Component, computed, inject, input, signal } from '@angular/core';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import {
+    Component,
+    computed,
+    inject,
+    input,
+    resource,
+    signal,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -26,15 +32,6 @@ import {
     SignagePlaylist,
 } from '@placeos/ts-client';
 import { getUnixTime, startOfMinute } from 'date-fns';
-import { combineLatest, from, of } from 'rxjs';
-import {
-    catchError,
-    debounceTime,
-    filter,
-    map,
-    switchMap,
-    tap,
-} from 'rxjs/operators';
 import { SignageStateService } from './signage-state.service';
 
 @Component({
@@ -377,8 +374,6 @@ export class SignagePlaylistMediaListComponent {
     public readonly approved = signal(0);
     public readonly loading = signal(false);
 
-    private _playlists = toSignal(this._state.playlists, { initialValue: [] });
-    private _state_media = toSignal(this._state.media, { initialValue: [] });
     public readonly playlist_ids = computed(() =>
         new Array(this.playlist_count())
             .fill(0)
@@ -425,7 +420,7 @@ export class SignagePlaylistMediaListComponent {
 
     public readonly selected_playlist = computed(() => {
         const playlist_id = this.playlist();
-        const list = this._playlists();
+        const list = this._state.playlists();
         const item = list.find((_) => _.id === playlist_id);
         if (!item && playlist_id) {
             this._router.navigate(['/signage/media', {}]);
@@ -433,31 +428,31 @@ export class SignagePlaylistMediaListComponent {
         return item;
     });
 
-    private _playlist_media = toSignal(
-        combineLatest([
-            toObservable(this.selected_playlist),
-            this._state.has_changed,
-        ]).pipe(
-            map(([playlist]) => playlist),
-            filter((playlist) => !!playlist),
-            debounceTime(300),
-            tap(() => this.loading.set(true)),
-            switchMap((playlist) =>
-                from(listSignagePlaylistMedia(playlist.id)).pipe(
-                    catchError(() => of({ id: '', items: [], approved: 0 })),
-                ),
-            ),
-            tap((_: any) => {
-                this.approved.set(_.approved);
+    private readonly _playlist_media_resource = resource({
+        params: () => ({
+            id: this.selected_playlist()?.id,
+            change: this._state.has_changed(),
+        }),
+        defaultValue: { id: '', items: [], approved: 0 } as any,
+        loader: async ({ params }) => {
+            if (!params.id) return { id: '', items: [], approved: 0 };
+            this.loading.set(true);
+            try {
+                const result = await listSignagePlaylistMedia(
+                    params.id,
+                ).catch(() => ({ id: '', items: [], approved: 0 }) as any);
+                this.approved.set(result.approved);
+                return result;
+            } finally {
                 this.loading.set(false);
-            }),
-        ),
-        { initialValue: { id: '', items: [], approved: 0 } },
-    );
+            }
+        },
+    });
+    private _playlist_media = this._playlist_media_resource.value;
 
     public readonly media = computed(() => {
         const playlist = this._playlist_media();
-        const media_list = this._state_media();
+        const media_list = this._state.media();
         if (!playlist) return [];
         return playlist.items
             .map((_) => media_list.find((m) => m.id === _))

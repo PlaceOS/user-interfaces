@@ -1,5 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Point } from '@placeos/common';
 
@@ -7,7 +6,6 @@ import { MatRippleModule } from '@angular/material/core';
 
 import {
     AsyncHandler,
-    firstTruthyValueFrom,
     i18n,
     MapsPeopleService,
     notifyError,
@@ -63,7 +61,7 @@ const EMPTY = [];
                 @if (!hide_zones()) {
                     <settings-toggle
                         class="mt-2"
-                        [name]="'EXPLORE.AREAS' | translate"
+                        [label]="'EXPLORE.AREAS' | translate"
                         [ngModel]="!options()?.disable?.includes('zones')"
                         (ngModelChange)="toggleZones($event)"
                     />
@@ -211,9 +209,10 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
         EMPTY,
     );
 
-    public readonly use_mapsindoors = toSignal(
-        this._maps.available$ || (this._maps as any).use_mapspeople$,
-        { initialValue: false },
+    public readonly use_mapsindoors = computed(() =>
+        this._maps.available instanceof Function
+            ? this._maps.available()
+            : false,
     );
 
     constructor() {
@@ -222,12 +221,25 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
 
     public async ngOnInit() {
         this._state.reset();
-        await firstTruthyValueFrom(this._spaces.initialised);
+        while (
+            this._spaces.initialised instanceof Function &&
+            !this._spaces.initialised()
+        ) {
+            await new Promise((resolve) => setTimeout(resolve, 100));
+        }
         this.toggleZones(false);
-        this.subscription(
-            'parking_poll',
-            this._parking.startPolling?.() || { unsubscribe: () => null },
-        );
+        const stop_polling: (() => void) | { unsubscribe?: () => void } =
+            this._parking.startPolling?.() || (() => undefined);
+        const cleanup_polling =
+            typeof stop_polling === 'function'
+                ? stop_polling
+                : () =>
+                      (
+                          stop_polling as { unsubscribe?: () => void }
+                      ).unsubscribe?.();
+        this.subscription('parking_poll', {
+            unsubscribe: cleanup_polling,
+        });
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe(async (params) => {
@@ -243,7 +255,7 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
                     let user = this._settings.value('last_search');
                     if (!user || params.get('user') !== user.email) {
                         user = null;
-                        user = await showStaff(params.get('user')).toPromise();
+                        user = await showStaff(params.get('user'));
                     }
                     if (!user)
                         return notifyError(

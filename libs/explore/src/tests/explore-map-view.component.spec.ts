@@ -5,7 +5,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { SpectatorRouting, createRoutingFactory } from '@ngneat/spectator/jest';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
-import { BehaviorSubject, of } from 'rxjs';
+import { of } from 'rxjs';
 
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { SpacesService } from '@placeos/events';
@@ -25,7 +25,10 @@ import { ExploreStateService } from '../lib/explore-state.service';
 import { ExploreZonesService } from '../lib/explore-zones.service';
 import { ExploreZoomControlComponent } from '../lib/explore-zoom-control.component';
 
-jest.mock('@placeos/ts-client');
+jest.mock('@placeos/ts-client', () => ({
+    ...jest.requireActual('@placeos/ts-client'),
+    getModule: jest.fn(),
+}));
 jest.mock('libs/users/src/lib/staff.fn');
 jest.mock('libs/common/src/lib/notifications');
 
@@ -54,14 +57,14 @@ describe('ExploreMapViewComponent', () => {
         ],
         providers: [
             MockProvider(MapsPeopleService, {
-                use_mapspeople$: new BehaviorSubject(false),
+                available: signal(false),
             } as any),
             MockProvider(OrganisationService, {
-                initialised: of(true),
+                initialised: signal(true),
                 levelWithID: jest.fn(),
                 binding: jest.fn(() => 'sys'),
-                active_levels: new BehaviorSubject([]),
-                active_building: new BehaviorSubject({ id: 'bld-1' }),
+                active_levels: signal([]),
+                active_building: signal({ id: 'bld-1' }),
             } as any),
             MockProvider(SpacesService, { initialised: of(true) }),
             MockProvider(ExploreStateService, {
@@ -91,7 +94,10 @@ describe('ExploreMapViewComponent', () => {
         ],
     });
 
-    beforeEach(() => (spectator = createComponent()));
+    beforeEach(() => {
+        jest.clearAllMocks();
+        spectator = createComponent();
+    });
 
     afterEach(() => {
         if (spectator) {
@@ -110,11 +116,7 @@ describe('ExploreMapViewComponent', () => {
     it('should handle option changes', () => {
         expect('settings-toggle').toExist();
         const state = spectator.inject(ExploreStateService);
-        spectator.triggerEventHandler(
-            'settings-toggle',
-            'ngModelChange',
-            true,
-        );
+        spectator.triggerEventHandler('settings-toggle', 'ngModelChange', true);
         expect(state.setOptions).toHaveBeenCalled();
     });
 
@@ -128,17 +130,17 @@ describe('ExploreMapViewComponent', () => {
 
     it('should handle locating users', fakeAsync(() => {
         const state = spectator.inject(ExploreStateService);
-        (ts_client as any).getModule = jest.fn(() => ({
+        jest.mocked(ts_client.getModule).mockReturnValue({
             execute: jest.fn(() => [{}]),
-        }));
+        } as any);
         (common_mod as any).notifyError = jest.fn();
         (user_mod as any).showStaff = jest.fn(() => of({}));
         spectator.setRouteQueryParam('user', 'jim@jim.com');
         spectator.tick(1000);
         expect(state.setFeatures).toHaveBeenCalledTimes(2);
-        (ts_client as any).getModule = jest.fn(() => ({
+        jest.mocked(ts_client.getModule).mockReturnValue({
             execute: jest.fn(() => []),
-        }));
+        } as any);
         expect(common_mod.notifyError).not.toHaveBeenCalled();
         spectator.setRouteQueryParam('user', 'jim2@jim.com');
         spectator.detectChanges();

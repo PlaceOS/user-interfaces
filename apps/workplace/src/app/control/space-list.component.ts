@@ -1,5 +1,4 @@
-import { Component, inject } from '@angular/core';
-import { filter, map, startWith } from 'rxjs/operators';
+import { Component, computed, inject, signal } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -9,7 +8,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AsyncHandler, OrganisationService, Space } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
 import { SpacesService } from '@placeos/events';
-import { BehaviorSubject, combineLatest } from 'rxjs';
 import { ControlSpaceListItemComponent } from './list-item.component';
 
 @Component({
@@ -24,13 +22,8 @@ import { ControlSpaceListItemComponent } from './list-item.component';
                 appearance="outline"
             >
                 <icon class="text-xl" matPrefix>search</icon>
-                <input
-                    matInput
-                    [ngModel]="search.getValue()"
-                    (ngModelChange)="search.next($event)"
-                    placeholder="Search..."
-                />
-                @if (loading) {
+                <input matInput [(ngModel)]="search" placeholder="Search..." />
+                @if (loading()) {
                     <mat-spinner
                         matSuffix
                         class="top-2"
@@ -39,7 +32,7 @@ import { ControlSpaceListItemComponent } from './list-item.component';
                 }
             </mat-form-field>
         </div>
-        @let spaces = filtered_spaces | async;
+        @let spaces = filtered_spaces();
         @if (spaces.length) {
             <div class="flex w-full flex-1 flex-col overflow-auto p-4">
                 @for (space of spaces; track space.id) {
@@ -53,8 +46,8 @@ import { ControlSpaceListItemComponent } from './list-item.component';
                 <icon class="text-6xl">no_meeting_room</icon>
                 <p>
                     {{
-                        search.getValue()
-                            ? ' No matches for "' + search.getValue() + '"'
+                        search()
+                            ? ' No matches for "' + search() + '"'
                             : 'No controllable spaces'
                     }}
                 </p>
@@ -91,47 +84,48 @@ export class ControlSpaceListComponent extends AsyncHandler {
     private _org = inject(OrganisationService);
 
     /** Filter string */
-    public readonly search = new BehaviorSubject('');
+    public readonly search = signal('');
     /** List of controlable spaces for the active building */
-    public readonly space_list = combineLatest([
-        this._org.active_building,
-        this._spaces.all_spaces,
-        this._spaces.initialised,
-    ]).pipe(
-        filter(([_]) => !!_),
-        map(([bld, list]) =>
-            list.filter((s) => !!s.support_url && s.zones.includes(bld.id)),
-        ),
-        map((spaces) => spaces.sort((a, b) => this.sortSpaces(a, b))),
-    );
+    public readonly space_list = computed(() => {
+        const bld = this._org.active_building();
+        if (!bld) return [];
+        const all_spaces = this._spaces.all_spaces as any;
+        const list =
+            typeof all_spaces === 'function'
+                ? all_spaces()
+                : all_spaces?.getValue?.() || [];
+        return list
+            .filter((s) => !!s.support_url && s.zones.includes(bld.id))
+            .sort((a, b) => this.sortSpaces(a, b));
+    });
     // Filtered list of controlable spaces
-    public readonly filtered_spaces = combineLatest([
-        this.space_list,
-        this.search,
-    ]).pipe(
-        map(([list, s]) => {
-            const search = (s || '').toLowerCase();
-            if (!search) return list;
-            return (list || []).filter((space) => {
-                const bld = this._org.buildings.find(
-                    (building) => building.id === space.level.parent_id,
-                );
-                const space_name = (space.name || '').toLowerCase();
-                const level_name = (
-                    (space.level ? space.level.name : '') || ''
-                ).toLowerCase();
-                const bld_name = ((bld ? bld.name : '') || '').toLowerCase();
-                return (
-                    space_name.indexOf(search) >= 0 ||
-                    (level_name && level_name.indexOf(search) >= 0) ||
-                    (bld_name && bld_name.indexOf(search) >= 0)
-                );
-            });
-        }),
-        startWith([]),
-    );
+    public readonly filtered_spaces = computed(() => {
+        const list = this.space_list();
+        const search = (this.search() || '').toLowerCase();
+        if (!search) return list;
+        return list.filter((space) => {
+            const bld = this._org.buildings.find(
+                (building) => building.id === space.level.parent_id,
+            );
+            const space_name = (space.name || '').toLowerCase();
+            const level_name = (
+                (space.level ? space.level.name : '') || ''
+            ).toLowerCase();
+            const bld_name = ((bld ? bld.name : '') || '').toLowerCase();
+            return (
+                space_name.indexOf(search) >= 0 ||
+                (level_name && level_name.indexOf(search) >= 0) ||
+                (bld_name && bld_name.indexOf(search) >= 0)
+            );
+        });
+    });
     /** Whether space list is being filtered */
-    public loading: boolean;
+    public readonly loading = computed(() => {
+        const initialised = this._spaces.initialised as any;
+        return typeof initialised === 'function'
+            ? !initialised()
+            : !initialised?.getValue?.();
+    });
 
     private sortSpaces(first: Space, second: Space) {
         const bld_a = this._org.buildings.find(

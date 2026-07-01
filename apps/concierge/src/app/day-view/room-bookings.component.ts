@@ -1,5 +1,12 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import {
+    Component,
+    effect,
+    inject,
+    OnInit,
+    resource,
+    signal,
+    untracked,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
@@ -28,16 +35,8 @@ import {
 import { requestSpacesForZone } from '@placeos/events';
 import { UserPipe } from '@placeos/users';
 import { format } from 'date-fns';
-import { combineLatest, of } from 'rxjs';
-import {
-    catchError,
-    debounceTime,
-    map,
-    shareReplay,
-    switchMap,
-} from 'rxjs/operators';
 import { loadPersistedZones, persistZones } from '../ui/zone-persistence';
-import { BookingUIOptions, EventsStateService } from './events-state.service';
+import { EventsStateService } from './events-state.service';
 import { RoomBookingsApprovalsComponent } from './room-approvals.component';
 import { RoomBookingsListComponent } from './room-bookings-list.component';
 import { RoomBookingsInvertedTimelineComponent } from './room-timeline-inverted.component';
@@ -48,8 +47,8 @@ const EMPTY = [];
 @Component({
     selector: 'room-bookings',
     template: `
-        <div class="absolute inset-0 flex flex-col overflow-hidden pl-8">
-            <div class="flex w-full items-center space-x-2 py-4 pr-8">
+        <div class="absolute inset-0 flex flex-col overflow-hidden">
+            <div class="flex w-full items-center gap-2 px-8 py-4">
                 <h2 class="text-2xl font-medium">
                     {{ 'APP.CONCIERGE.ROOM_BOOKINGS' | translate }}
                 </h2>
@@ -90,13 +89,13 @@ const EMPTY = [];
                     <icon class="text-2xl">add</icon>
                 </button>
                 <div
-                    class="border-base-300 bg-base-100 ml-2 flex rounded border"
+                    class="border-base-300 bg-base-100 flex overflow-hidden rounded-lg border"
                 >
                     <button
                         icon
                         matRipple
-                        class="h-12 w-12 rounded-none"
-                        [class.bg-secondary]="view() === 'timeline'"
+                        class="hover:bg-base-200 h-12 w-12 rounded-none"
+                        [class.bg-secondary!]="view() === 'timeline'"
                         [class.text-secondary-content]="view() === 'timeline'"
                         [class.opacity-70]="view() !== 'timeline'"
                         [matTooltip]="'COMMON.DAY' | translate"
@@ -107,8 +106,8 @@ const EMPTY = [];
                     <button
                         icon
                         matRipple
-                        class="h-12 w-12 rounded-none"
-                        [class.bg-secondary]="view() === 'list'"
+                        class="hover:bg-base-200 h-12 w-12 rounded-none"
+                        [class.bg-secondary!]="view() === 'list'"
                         [class.text-secondary-content]="view() === 'list'"
                         [class.opacity-70]="view() !== 'list'"
                         [matTooltip]="'COMMON.LIST' | translate"
@@ -118,7 +117,7 @@ const EMPTY = [];
                     </button>
                 </div>
             </div>
-            <div class="flex w-full items-center space-x-2">
+            <div class="flex w-full items-center gap-2 px-8">
                 <mat-form-field appearance="outline" class="no-subscript w-52">
                     <mat-select
                         [ngModel]="zones()"
@@ -157,17 +156,17 @@ const EMPTY = [];
                         }}</settings-toggle
                     >
                 }
-                <div class="flex flex-1 justify-end pr-2">
+                <div class="flex flex-1 justify-end">
                     <div
-                        class="border-base-300 flex max-w-lg flex-1 items-center rounded-full border"
+                        class="border-base-300 bg-base-200 flex max-w-lg flex-1 items-center rounded-full border"
                     >
                         <div
                             class="flex w-px flex-1 items-center space-x-1 overflow-x-auto rounded-l-full px-1"
                         >
-                            @for (type of types; track type.id) {
+                            @for (type of types(); track type.id) {
                                 @if (!type_list.includes(type.id)) {
                                     <div
-                                        class="border-base-300 flex items-center rounded-full border"
+                                        class="border-base-300 bg-base-100 flex items-center rounded-full border"
                                     >
                                         <div
                                             class="m-2 h-4 w-4 rounded-full"
@@ -206,7 +205,7 @@ const EMPTY = [];
                         <div
                             class="flex w-48 flex-col space-y-2 overflow-hidden"
                         >
-                            @for (type of types; track type) {
+                            @for (type of types(); track type) {
                                 <mat-checkbox
                                     [ngModel]="!type_list.includes(type.id)"
                                     (ngModelChange)="
@@ -280,25 +279,24 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
         'default',
     );
 
-    public readonly zones = toSignal(this._state.zones, { initialValue: [] });
-    public readonly period = toSignal(this._state.period, {
-        initialValue: 'day' as const,
-    });
+    public readonly zones = this._state.zones;
+    public readonly period = this._state.period;
     public readonly downloading = signal(false);
     public readonly view = signal<'timeline' | 'list'>('timeline');
-    public readonly ui_options = toSignal(this._state.options, {
-        initialValue: {} as BookingUIOptions,
-    });
-    private readonly _levels$ = combineLatest([
-        this._org.active_building,
-        this._org.active_region,
-    ]).pipe(
-        switchMap(([bld, region]) => {
-            const zone = this.use_region ? region : bld;
-            if (!zone?.id) return of([]);
-            return requestSpacesForZone(zone.id).pipe(catchError(() => of([])));
+    public readonly ui_options = this._state.options;
+    private readonly _levels = resource({
+        params: () => ({
+            building: this._org.active_building()?.id,
+            region: this._org.active_region()?.id,
+            use_region: this.use_region,
         }),
-        map((spaces) => {
+        defaultValue: [],
+        loader: async ({ params }) => {
+            const zone_id = params.use_region ? params.region : params.building;
+            if (!zone_id) return [];
+            const spaces = await nextValueFrom(
+                requestSpacesForZone(zone_id),
+            ).catch(() => []);
             const level_ids = new Set(
                 spaces
                     .filter((space) => space.bookable)
@@ -308,10 +306,38 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
                 ? this._org.levelsForRegion(this._org.region)
                 : this._org.levelsForBuilding(this._org.building);
             return level_list.filter((level) => level_ids.has(level.id));
-        }),
-        shareReplay(1),
-    );
-    public readonly levels = toSignal(this._levels$, { initialValue: [] });
+        },
+    });
+    public readonly levels = this._levels.value;
+
+    constructor() {
+        super();
+        // Restore or normalise the selected levels whenever the available
+        // levels for the active building resolve.
+        effect(() => {
+            const levels = this.levels();
+            if (this._levels.status() !== 'resolved') return;
+            untracked(() => {
+                if (this.use_region) return;
+                const current = this.zones().filter((zone) =>
+                    levels.find((lvl) => lvl.id === zone),
+                );
+                if (!this.zones().length) {
+                    // Restore persisted selection when the view first loads
+                    // without an explicit URL filter. Empty means "all levels".
+                    const persisted = loadPersistedZones(
+                        'room-bookings',
+                        this._persistScopeId(),
+                    ).filter((zone) => levels.find((lvl) => lvl.id === zone));
+                    if (persisted.length) {
+                        this.updateZones(persisted);
+                        return;
+                    }
+                }
+                this.updateZones(current);
+            });
+        });
+    }
     /** List of levels for the active building */
     public readonly updateZones = (zones: string[]) => {
         const zone_ids = this._clean_zone_ids(zones);
@@ -345,11 +371,11 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
     /**  */
     public readonly newBooking = (d?) => this._state.newBooking(d);
 
-    public types: any[] = [
+    public readonly types = signal<any[]>([
         { id: 'internal', name: 'Internal', color: '#D81B60' },
         { id: 'external', name: 'External', color: '#1E88E5' },
         { id: 'cancelled', name: 'Cancelled', color: '#eeeeee' },
-    ];
+    ]);
 
     public get type_list() {
         return this._state.filters.hide_type || EMPTY;
@@ -368,7 +394,7 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
     }
 
     public ngOnInit() {
-        this.types = [
+        this.types.set([
             {
                 id: 'internal',
                 name: i18n('COMMON.TYPE_INTERNAL'),
@@ -384,7 +410,7 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
                 name: i18n('COMMON.TYPE_CANCELLED'),
                 color: '#eeeeee',
             },
-        ];
+        ]);
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
@@ -414,29 +440,6 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
                 }
             }),
         );
-        this.subscription(
-            'levels',
-            this._levels$.pipe(debounceTime(300)).subscribe(async (levels) => {
-                if (this.use_region) return;
-                const current = this.zones().filter((zone) =>
-                    levels.find((lvl) => lvl.id === zone),
-                );
-                if (!this.zones().length) {
-                    // Restore persisted selection when the view first
-                    // loads without an explicit URL filter. Empty means
-                    // "all levels".
-                    const persisted = loadPersistedZones(
-                        'room-bookings',
-                        this._persistScopeId(),
-                    ).filter((zone) => levels.find((lvl) => lvl.id === zone));
-                    if (persisted.length) {
-                        this.updateZones(persisted);
-                        return;
-                    }
-                }
-                this.updateZones(current);
-            }),
-        );
     }
 
     private _persistScopeId() {
@@ -456,7 +459,7 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
     public async downloadAttendeeList() {
         this.downloading.set(true);
         try {
-            const events = await nextValueFrom(this._state.filtered);
+            const events = this._state.filtered();
             const emails = new Set<string>();
             for (const event of events) {
                 if (event.host && event.system?.email !== event.host)

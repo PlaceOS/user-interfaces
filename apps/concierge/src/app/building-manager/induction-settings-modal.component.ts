@@ -42,7 +42,7 @@ import { showMetadata, updateMetadata } from '@placeos/ts-client';
             <main class="flex flex-col space-y-2 px-4">
                 <settings-toggle
                     [(ngModel)]="is_enabled"
-                    [name]="'APP.CONCIERGE.INDUCTION_ENABLE' | translate"
+                    [label]="'APP.CONCIERGE.INDUCTION_ENABLE' | translate"
                 ></settings-toggle>
                 <mat-form-field
                     appearance="outline"

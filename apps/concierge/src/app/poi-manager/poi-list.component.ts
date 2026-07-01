@@ -1,5 +1,4 @@
 import { Component, effect, inject, signal, untracked } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -55,7 +54,7 @@ interface QR_Codes {
                         key: 'actions',
                         name: ' ',
                         content: action_template,
-                        size: '9.5rem',
+                        size: '9rem',
                         sortable: false,
                     },
                 ]"
@@ -78,26 +77,34 @@ interface QR_Codes {
             }
         </ng-template>
         <ng-template #action_template let-row="row">
-            <div class="mx-auto flex w-full justify-end space-x-2 px-4 py-2">
+            <div class="mx-auto flex gap-2 p-2">
                 <div [matTooltip]="'APP.CONCIERGE.POI_PRIVATE_QR' | translate">
                     <button
                         icon
+                        default
                         matRipple
                         customTooltip
                         [content]="qr_menu"
-                        [data]="{ qr: qr_codes()[row.id]?.private, item: row }"
+                        [data]="{
+                            qr: qr_codes()[row.id]?.private,
+                            item: row,
+                        }"
                         (click)="loadQrCode(row)"
                     >
-                        <icon>qr_code</icon>
+                        <icon>qr_code_2</icon>
                     </button>
                 </div>
                 <div [matTooltip]="'APP.CONCIERGE.POI_PUBLIC_QR' | translate">
                     <button
                         icon
+                        default
                         matRipple
                         customTooltip
                         [disabled]="!row.short_link_id"
-                        [data]="{ qr: qr_codes()[row.id]?.public, item: row }"
+                        [data]="{
+                            qr: qr_codes()[row.id]?.public,
+                            item: row,
+                        }"
                         [content]="qr_menu"
                         (click)="loadPublicQrCode(row)"
                     >
@@ -136,7 +143,7 @@ interface QR_Codes {
                         </button>
                     </div>
                 </ng-template>
-                <button icon matRipple [matMenuTriggerFor]="menu">
+                <button icon default matRipple [matMenuTriggerFor]="menu">
                     <icon>more_vert</icon>
                 </button>
                 <mat-menu #menu="matMenu">
@@ -186,9 +193,7 @@ export class POIListComponent extends AsyncHandler {
     private _manager = inject(POIManagementService);
     private _settings = inject(SettingsService);
 
-    public readonly features = toSignal(this._manager.filtered_features, {
-        initialValue: [],
-    });
+    public readonly features = this._manager.filtered_features;
     public readonly qr_codes = signal<Record<string, QR_Codes>>({});
 
     public readonly edit = (region) =>

@@ -1,8 +1,9 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, resource, Signal, signal } from '@angular/core';
 import {
     AsyncHandler,
     Attachment,
     i18n,
+    nextValueFrom,
     notifyError,
     notifySuccess,
     OrganisationService,
@@ -30,24 +31,6 @@ import {
     updateSignagePlaylistMedia,
     updateSystem,
 } from '@placeos/ts-client';
-import {
-    BehaviorSubject,
-    combineLatest,
-    from,
-    lastValueFrom,
-    Observable,
-    of,
-} from 'rxjs';
-import {
-    catchError,
-    debounceTime,
-    filter,
-    map,
-    shareReplay,
-    startWith,
-    switchMap,
-} from 'rxjs/operators';
-
 import { MatDialog } from '@angular/material/dialog';
 import { SignedRequest } from '@placeos/cloud-uploads';
 import { openConfirmModal } from '@placeos/components';
@@ -95,134 +78,136 @@ export class SignageStateService extends AsyncHandler {
     private _settings = inject(SettingsService);
     private _uploads = inject(UploadsService);
 
-    private _loading = new BehaviorSubject(false);
-    private _change = new BehaviorSubject(0);
-    private _active_upload = new BehaviorSubject<Attachment>(null);
+    private _loading = signal(false);
+    private _change = signal(0);
+    private _active_upload = signal<Attachment>(null);
 
-    public readonly loading = this._loading.asObservable();
-    public readonly has_changed = this._change.asObservable();
+    public readonly loading = this._loading.asReadonly();
+    public readonly has_changed = this._change.asReadonly();
 
-    public readonly media: Observable<SignageMedia[]> = combineLatest([
-        this._org.active_building,
-        this._change,
-    ]).pipe(
-        filter(([_]) => !!_?.id),
-        debounceTime(300),
-        switchMap(() => querySignageMedia({ limit: 2500 } as any)),
-        map((_) => _.data.sort((a, b) => b.created_at - a.created_at)),
-        startWith([] as SignageMedia[]),
-        shareReplay(1),
-    );
+    /** List of signage media for the active building */
+    private readonly _media = resource({
+        params: () => ({
+            building: this._org.active_building()?.id,
+            change: this._change(),
+        }),
+        defaultValue: [] as SignageMedia[],
+        loader: async ({ params }) => {
+            if (!params.building) return [];
+            const resp = await querySignageMedia({ limit: 2500 } as any);
+            return (resp.data || []).sort(
+                (a, b) => b.created_at - a.created_at,
+            );
+        },
+    });
+    public readonly media: Signal<SignageMedia[]> = this._media.value;
 
-    public readonly playlists: Observable<SignagePlaylist[]> = combineLatest([
-        this._org.active_building,
-        this._change,
-    ]).pipe(
-        filter(([_]) => !!_?.id),
-        debounceTime(300),
-        switchMap(() => querySignagePlaylists({ limit: 500 } as any)),
-        map((_) => (_.data || []).sort((a, b) => a.name.localeCompare(b.name))),
-        startWith([] as SignagePlaylist[]),
-        shareReplay(1),
-    );
+    /** List of signage playlists for the active building */
+    private readonly _playlists = resource({
+        params: () => ({
+            building: this._org.active_building()?.id,
+            change: this._change(),
+        }),
+        defaultValue: [] as SignagePlaylist[],
+        loader: async ({ params }) => {
+            if (!params.building) return [];
+            const resp = await querySignagePlaylists({ limit: 500 } as any);
+            return (resp.data || []).sort((a, b) =>
+                a.name.localeCompare(b.name),
+            );
+        },
+    });
+    public readonly playlists: Signal<SignagePlaylist[]> =
+        this._playlists.value;
 
-    public readonly displays: Observable<PlaceSystem[]> = combineLatest([
-        this._org.active_region,
-        this._org.active_building,
-        this._change,
-    ]).pipe(
-        filter(([, bld]) => !!bld?.id),
-        switchMap(([region, bld]) =>
-            from(
-                querySystems({
-                    zone_id:
-                        (this._settings.get('app.use_region')
-                            ? region?.id
-                            : '') || bld?.id,
-                    limit: 500,
-                    signage: true,
-                }),
-            ).pipe(
-                map((_) =>
-                    (_.data || [])
-                        .sort((a, b) =>
-                            (a.display_name || a.name).localeCompare(
-                                b.display_name || b.name,
-                            ),
-                        )
-                        .filter((_) => _.signage),
-                ),
-            ),
-        ),
-        startWith([] as PlaceSystem[]),
-        shareReplay(1),
-    );
+    /** List of signage displays for the active region/building */
+    private readonly _displays = resource({
+        params: () => ({
+            region: this._org.active_region()?.id,
+            building: this._org.active_building()?.id,
+            change: this._change(),
+        }),
+        defaultValue: [] as PlaceSystem[],
+        loader: async ({ params }) => {
+            if (!params.building) return [];
+            const resp = await querySystems({
+                zone_id:
+                    (this._settings.get('app.use_region')
+                        ? params.region
+                        : '') || params.building,
+                limit: 500,
+                signage: true,
+            } as any);
+            return (resp.data || [])
+                .sort((a, b) =>
+                    (a.display_name || a.name).localeCompare(
+                        b.display_name || b.name,
+                    ),
+                )
+                .filter((_) => _.signage);
+        },
+    });
+    public readonly displays: Signal<PlaceSystem[]> = this._displays.value;
 
-    public readonly zones = combineLatest([
-        this._org.active_building,
-        this._change,
-    ]).pipe(
-        switchMap(() =>
-            from(
-                queryZones({
-                    limit: 250,
-                    tags: 'signage',
-                } as any),
-            ).pipe(catchError(() => of({ data: [] }))),
-        ),
-        map((_) =>
-            (_.data || []).sort((a, b) =>
+    /** List of signage zones */
+    private readonly _zones = resource({
+        params: () => ({
+            building: this._org.active_building()?.id,
+            change: this._change(),
+        }),
+        defaultValue: [] as PlaceZone[],
+        loader: async () => {
+            const resp = await queryZones({
+                limit: 250,
+                tags: 'signage',
+            } as any).catch(() => ({ data: [] }) as any);
+            return (resp.data || []).sort((a, b) =>
                 (a.display_name || a.name).localeCompare(
                     b.display_name || b.name,
                 ),
-            ),
-        ),
-        startWith([] as PlaceZone[]),
-        shareReplay(1),
-    );
+            );
+        },
+    });
+    public readonly zones: Signal<PlaceZone[]> = this._zones.value;
 
     public changed() {
-        this._change.next(Date.now());
+        this._change.set(Date.now());
     }
 
-    public editPlaylist(playlist: SignagePlaylist = new SignagePlaylist({})) {
-        return new Promise<SignagePlaylist | null>((resolve) => {
-            const ref = this._dialog.open(SignagePlaylistModalComponent, {
-                data: playlist,
-            });
-            ref.afterClosed().subscribe((result) => {
-                this.timeout('changed', () => this._change.next(Date.now()));
-                resolve(result);
-            });
+    public async editPlaylist(
+        playlist: SignagePlaylist = new SignagePlaylist({}),
+    ) {
+        const ref = this._dialog.open(SignagePlaylistModalComponent, {
+            data: playlist,
         });
+        const result = await nextValueFrom(ref.afterClosed());
+        this.timeout('changed', () => this._change.set(Date.now()));
+        return result as SignagePlaylist | null;
     }
 
-    public editMedia(
+    public async editMedia(
         media: SignageMedia = new SignageMedia({}),
         file?: File,
         playlist_id = '',
     ) {
-        return new Promise<SignagePlaylist | null>(async (resolve) => {
-            const ref = this._dialog.open(SignageMediaModalComponent, {
-                data: {
-                    media,
-                    file,
-                    file_metadata: file
-                        ? await this._getMediaMetadata(file)
-                        : [media.orientation === 'landscape', 0],
-                    file_thumbnail: file
-                        ? await this._generateThumbnail(file, 1024, 720)
-                        : '',
-                    playlist_id,
-                    onAdd: (f, m) => this.addMedia(f, m),
-                    preview: (item) => this.previewMedia(item),
-                },
-            });
-            ref.afterClosed().subscribe((result) => {
-                this.timeout('changed', () => this._change.next(Date.now()));
-                resolve(result);
-            });
+        const ref = this._dialog.open(SignageMediaModalComponent, {
+            data: {
+                media,
+                file,
+                file_metadata: file
+                    ? await this._getMediaMetadata(file)
+                    : [media.orientation === 'landscape', 0],
+                file_thumbnail: file
+                    ? await this._generateThumbnail(file, 1024, 720)
+                    : '',
+                playlist_id,
+                onAdd: (f, m) => this.addMedia(f, m),
+                preview: (item) => this.previewMedia(item),
+            },
         });
+        const result = await nextValueFrom(ref.afterClosed());
+        this.timeout('changed', () => this._change.set(Date.now()));
+        return result as SignagePlaylist | null;
     }
 
     public async editDisplay(display: PlaceSystem = new PlaceSystem({})) {
@@ -230,8 +215,8 @@ export class SignageStateService extends AsyncHandler {
         const ref = this._dialog.open(SignageDisplayModalComponent, {
             data: { display },
         });
-        const result = await lastValueFrom(ref.afterClosed());
-        this.timeout('changed', () => this._change.next(Date.now()));
+        const result = await nextValueFrom(ref.afterClosed());
+        this.timeout('changed', () => this._change.set(Date.now()));
         return result;
     }
 
@@ -255,7 +240,7 @@ export class SignageStateService extends AsyncHandler {
         } else {
             await removeSystem(display.id);
         }
-        this._change.next(Date.now());
+        this._change.set(Date.now());
         notifySuccess(i18n('APP.CONCIERGE.SIGNAGE_DISPLAYS_REMOVE_SUCCESS'));
         result.close();
     }
@@ -267,7 +252,7 @@ export class SignageStateService extends AsyncHandler {
             : addSignagePlaylist(clean_playlist);
         const new_playlist = await call;
         notifySuccess(i18n('APP.CONCIERGE.SIGNAGE_PLAYLISTS_SAVE_SUCCESS'));
-        this._change.next(Date.now());
+        this._change.set(Date.now());
     }
 
     public async removePlaylist(playlist: SignagePlaylist) {
@@ -285,7 +270,7 @@ export class SignageStateService extends AsyncHandler {
         if (result.reason !== 'done') return;
         await removeSignagePlaylist(playlist.id);
         notifySuccess(i18n('APP.CONCIERGE.SIGNAGE_PLAYLISTS_REMOVE_SUCCESS'));
-        this._change.next(Date.now());
+        this._change.set(Date.now());
         result.close();
     }
 
@@ -335,7 +320,7 @@ export class SignageStateService extends AsyncHandler {
         const ref = this._dialog.open(SignageMediaPreviewModalComponent, {
             data: { url, type, name: media.name, save: true, file: media },
         });
-        ref.afterClosed().subscribe(() => URL.revokeObjectURL(url));
+        nextValueFrom(ref.afterClosed()).then(() => URL.revokeObjectURL(url));
         ref.componentInstance.save.subscribe(async () => {
             ref.componentInstance.loading.set('Saving...');
             const new_media = await this.addMedia(media).catch((e) => {
@@ -370,8 +355,8 @@ export class SignageStateService extends AsyncHandler {
             if (!data[key]) delete data[key];
         }
         const result = await addSignageMedia(data);
-        this._active_upload.next(null);
-        this._change.next(Date.now());
+        this._active_upload.set(null);
+        this._change.set(Date.now());
         notifySuccess('Successfully added media from link');
         return result;
     }
@@ -385,33 +370,30 @@ export class SignageStateService extends AsyncHandler {
                 let state = null;
                 let resolved = false;
 
-                this.subscription(
-                    `upload-${id}`,
-                    this._uploads.upload_list.subscribe(
-                        (list) => {
-                            console.log('Upload List:', list, id);
-                            state = list.find((s) => id === s.id);
-                            if (
-                                state &&
-                                (state.link || state.progress >= 100)
-                            ) {
-                                resolved = true;
-                                const uid =
-                                    state.upload_id || state.upload?.id || id;
-                                const url = `/api/engine/v2/uploads/${encodeURIComponent(
-                                    uid,
-                                )}/url`;
-                                resolve({
-                                    id: uid,
-                                    link: state.link || url,
-                                });
-                                this.unsub(`upload-${id}`);
-                            }
-                        },
-                        reject,
-                        () => (!resolved ? resolve(state) : null),
-                    ),
-                );
+                const check_state = () => {
+                    const list = this._uploads.upload_list();
+                    console.log('Upload List:', list, id);
+                    state = list.find((s) => id === s.id);
+                    if (state?.error) {
+                        this.clearInterval(`upload-${id}`);
+                        reject(state.error);
+                        return;
+                    }
+                    if (state && (state.link || state.progress >= 100)) {
+                        resolved = true;
+                        const uid = state.upload_id || state.upload?.id || id;
+                        const url = `/api/engine/v2/uploads/${encodeURIComponent(
+                            uid,
+                        )}/url`;
+                        resolve({
+                            id: uid,
+                            link: state.link || url,
+                        });
+                        this.clearInterval(`upload-${id}`);
+                    }
+                };
+                this.interval(`upload-${id}`, check_state, 100);
+                check_state();
             });
         const [is_landscape] = await this._getMediaMetadata(file);
         const thumbnail_image = await this._generateThumbnail(
@@ -449,8 +431,8 @@ export class SignageStateService extends AsyncHandler {
             if (!data[key]) delete data[key];
         }
         const result = await addSignageMedia(data);
-        this._active_upload.next(null);
-        this.timeout('changed', () => this._change.next(Date.now()), 500);
+        this._active_upload.set(null);
+        this.timeout('changed', () => this._change.set(Date.now()), 500);
         return result;
     }
 
@@ -480,7 +462,7 @@ export class SignageStateService extends AsyncHandler {
         if (result.reason !== 'done') return;
         result.loading(i18n('APP.CONCIERGE.SIGNAGE_MEDIA_REMOVE_LOADING'));
         await removeSignageMedia(item.id);
-        this._change.next(Date.now());
+        this._change.set(Date.now());
         notifySuccess(i18n('APP.CONCIERGE.SIGNAGE_MEDIA_REMOVE_SUCCESS'));
         result.close();
     }

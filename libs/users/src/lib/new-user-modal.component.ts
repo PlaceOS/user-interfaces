@@ -1,4 +1,4 @@
-import { Component, inject, output } from '@angular/core';
+import { Component, inject, output, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { AsyncHandler, DialogEvent, User } from '@placeos/common';
@@ -17,19 +17,19 @@ import { generateUserForm } from './user.utilities';
         >
             <h2 class="px-2 text-xl font-medium">
                 {{
-                    (user?.id ? 'COMMON.USER_EDIT' : 'COMMON.USER_NEW')
+                    (user()?.id ? 'COMMON.USER_EDIT' : 'COMMON.USER_NEW')
                         | translate
                 }}
             </h2>
-            @if (!loading) {
+            @if (!loading()) {
                 <button icon matRipple mat-dialog-close>
                     <icon>close</icon>
                 </button>
             }
         </header>
-        @if (!loading) {
+        @if (!loading()) {
             <main class="flex w-full min-w-[24rem] flex-col items-center px-4">
-                <user-form [form]="form"></user-form>
+                <user-form [form]="form()"></user-form>
             </main>
         } @else {
             <main class="flex w-full flex-col items-center space-y-2 p-2">
@@ -37,7 +37,7 @@ import { generateUserForm } from './user.utilities';
                 <p>{{ 'COMMON.USER_SAVING' | translate }}</p>
             </main>
         }
-        @if (!loading) {
+        @if (!loading()) {
             <footer
                 class="border-base-200 flex w-full items-center justify-end space-x-2 border-t p-2"
             >
@@ -76,25 +76,27 @@ export class NewUserModalComponent extends AsyncHandler {
 
     /** Emitter for user action on the modal */
     public readonly event = output<DialogEvent>();
-    /** Form fields for the new user */
-    public form = generateUserForm(this.user || new User());
     /** New user data store */
-    public user?: User;
+    public readonly user = signal<User | undefined>(undefined);
+    /** Form fields for the new user */
+    public readonly form = signal(generateUserForm(new User()));
     /** Whether user details are being saved */
-    public loading = false;
+    public readonly loading = signal(false);
 
     constructor() {
         super();
-        this.user = this._data.user || {};
-        this.form = generateUserForm(this.user);
+        const user = this._data.user || {};
+        this.user.set(user);
+        this.form.set(generateUserForm(user));
     }
 
     public saveChanges() {
-        if (!this.form) return;
-        this.form.markAllAsTouched();
-        if (this.form.valid) {
+        const form = this.form();
+        if (!form) return;
+        form().markAsTouched();
+        if (form().valid()) {
             const new_user = new User({
-                ...this.form.value,
+                ...form().value(),
                 is_external: true,
             });
             this.event.emit({ reason: 'done', metadata: new_user });

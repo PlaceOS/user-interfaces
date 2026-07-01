@@ -5,6 +5,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { RouterLink } from '@angular/router';
 import { IconComponent, TranslatePipe } from '@placeos/components';
+import { IntersectDirective } from '../shared/intersect.directive';
 import { SignageService } from '../signage.service';
 
 @Component({
@@ -20,7 +21,9 @@ import { SignageService } from '../signage.service';
                 >
                     <input
                         matInput
-                        [placeholder]="'SIGNAGE_MANAGER.SEARCH_DISPLAYS' | translate"
+                        [placeholder]="
+                            'SIGNAGE_MANAGER.SEARCH_DISPLAYS' | translate
+                        "
                         [ngModel]="search()"
                         (ngModelChange)="search.set($event)"
                         [attr.aria-label]="
@@ -74,6 +77,17 @@ import { SignageService } from '../signage.service';
                         </div>
                     </a>
                 }
+                @if (has_more()) {
+                    <div
+                        class="h-px w-full"
+                        intersect
+                        (intersect)="loadMore()"
+                    ></div>
+                } @else {
+                    <div class="text-base-content/50 p-3 text-center text-xs">
+                        {{ 'COMMON.END_OF_LIST' | translate }}
+                    </div>
+                }
             } @else {
                 <div
                     class="text-base-content/70 flex flex-1 flex-col items-center justify-center space-y-2 p-8"
@@ -101,6 +115,7 @@ import { SignageService } from '../signage.service';
         MatInputModule,
         IconComponent,
         TranslatePipe,
+        IntersectDirective,
     ],
 })
 export class DisplayListComponent {
@@ -109,4 +124,10 @@ export class DisplayListComponent {
     public readonly search = this._service.display_search_term;
     public readonly displays = this._service.filtered_displays;
     public readonly selected = this._service.selected_display;
+
+    // Backend pagination: fetches the next page as the sentinel scrolls in.
+    public readonly has_more = this._service.displays_has_more;
+    public loadMore() {
+        this._service.loadMoreDisplays();
+    }
 }

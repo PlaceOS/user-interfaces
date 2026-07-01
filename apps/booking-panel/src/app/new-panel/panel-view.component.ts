@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler, RemoteLoggingService, VERSION } from '@placeos/common';
 import { SafePipe, TranslatePipe } from '@placeos/components';
@@ -61,6 +60,7 @@ import { PanelViewStatusComponent } from './panel-view-status.component';
     `,
     styles: [``],
     providers: [PanelStateService],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         PanelViewStatusComponent,
         PanelViewDetailsComponent,
@@ -74,7 +74,7 @@ export class PanelViewComponent extends AsyncHandler {
     private _route = inject(ActivatedRoute);
     private _logger = inject(RemoteLoggingService);
 
-    public readonly system = toSignal(this._state.space);
+    public readonly system = this._state.space;
     public readonly version = VERSION;
 
     public get name() {
@@ -130,15 +130,11 @@ export class PanelViewComponent extends AsyncHandler {
 
     public ngOnInit() {
         this._state.system = '';
-        this.subscription(
-            'route.params',
-            this._route.paramMap.subscribe((params) => {
-                if (params.has('system_id')) {
-                    this._state.system = params.get('system_id');
-                    this._logger.setMetadata(params.get('system_id'));
-                }
-            }),
-        );
+        const params = this._route.snapshot.paramMap;
+        if (params.has('system_id')) {
+            this._state.system = params.get('system_id');
+            this._logger.setMetadata(params.get('system_id'));
+        }
         document.body.parentElement.classList.add('showing-panel');
     }
 

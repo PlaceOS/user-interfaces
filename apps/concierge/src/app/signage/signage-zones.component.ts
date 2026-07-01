@@ -1,13 +1,12 @@
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 
-import { Component, computed, effect, inject, signal } from '@angular/core';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { Component, computed, inject, resource, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import { i18n, notifySuccess } from '@placeos/common';
+import { AsyncHandler, i18n, notifySuccess } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import {
     listZoneTriggers,
@@ -15,7 +14,6 @@ import {
     updateTrigger,
     updateZone,
 } from '@placeos/ts-client';
-import { from, map, of, switchMap, tap } from 'rxjs';
 import { SearchOverlayComponent } from './search-overlay.component';
 import { SignageItemPlaylistsComponent } from './signage-item-playlists.component';
 import { SignageStateService } from './signage-state.service';
@@ -161,7 +159,7 @@ import { SignageStateService } from './signage-state.service';
         FormsModule,
     ],
 })
-export class SignageZonesComponent {
+export class SignageZonesComponent extends AsyncHandler {
     private _state = inject(SignageStateService);
     private _route = inject(ActivatedRoute);
 
@@ -170,12 +168,9 @@ export class SignageZonesComponent {
     public readonly search = signal('');
     public readonly loading = this._state.loading;
 
-    private readonly _state_zones = toSignal(this._state.zones, {
-        initialValue: [],
-    });
     public readonly zones = computed(() => {
         const search_value = this.search().toLowerCase();
-        const list = this._state_zones();
+        const list = this._state.zones();
         return list.filter((_) => _.name.toLowerCase().includes(search_value));
     });
 
@@ -188,18 +183,17 @@ export class SignageZonesComponent {
         return zones.find((item) => item.id === id);
     });
 
-    public readonly triggers = toSignal(
-        toObservable(this.selected).pipe(
-            switchMap((id) => {
-                if (!id) return of([]);
-                return from(listZoneTriggers(id)).pipe(
-                    map((_) => _.data),
-                    tap(() => setTimeout(() => this.switching.set(false), 100)),
-                );
-            }),
-        ),
-        { initialValue: [] },
-    );
+    private readonly _triggers = resource({
+        params: () => this.selected(),
+        defaultValue: [] as any[],
+        loader: async ({ params: id }) => {
+            if (!id) return [];
+            const resp = await listZoneTriggers(id);
+            setTimeout(() => this.switching.set(false), 100);
+            return resp.data as any[];
+        },
+    });
+    public readonly triggers = this._triggers.value;
 
     public readonly active_trigger = computed(() => {
         const list = this.triggers();
@@ -207,32 +201,27 @@ export class SignageZonesComponent {
         return list.find((item) => item.id === id);
     });
 
-    private readonly _state_playlists = toSignal(this._state.playlists, {
-        initialValue: [],
-    });
-    private readonly _state_has_changed = toSignal(this._state.has_changed, {
-        initialValue: 0,
-    });
-
     public readonly playlists = computed(() => {
         const zone = this.active_zone();
         const trigger = this.active_trigger();
-        const playlists = this._state_playlists();
-        this._state_has_changed(); // Track changes
+        const playlists = this._state.playlists();
+        this._state.has_changed(); // Track changes
         return playlists.filter(
             (_) => !(trigger || zone)?.playlists.find((id) => _.id === id),
         );
     });
 
     constructor() {
-        const queryParams = toSignal(this._route.queryParamMap);
-        effect(() => {
-            const params = queryParams();
-            if (!params) return;
-            this.switching.set(params.get('zone') !== this.selected());
-            this.selected.set(params.get('zone') || '');
-            this.selected_trigger.set(params.get('trigger') || '');
-        });
+        super();
+        this.subscription(
+            'route.query',
+            this._route.queryParamMap.subscribe((params) => {
+                if (!params) return;
+                this.switching.set(params.get('zone') !== this.selected());
+                this.selected.set(params.get('zone') || '');
+                this.selected_trigger.set(params.get('trigger') || '');
+            }),
+        );
     }
 
     public async addPlaylist(playlist: Partial<SignagePlaylist>) {
@@ -241,11 +230,7 @@ export class SignageZonesComponent {
         const item = trigger || zone;
         const playlists = [...item.playlists, playlist.id];
         const method: any = trigger ? updateTrigger : updateZone;
-        await method(
-            item.id,
-            { playlists, version: zone.version },
-            'patch',
-        ).toPromise();
+        await method(item.id, { playlists, version: zone.version }, 'patch');
         notifySuccess(
             i18n(
                 trigger
@@ -263,11 +248,7 @@ export class SignageZonesComponent {
         const item = trigger || zone;
         const playlists = item.playlists.filter((id) => playlist.id !== id);
         const method: any = trigger ? updateTrigger : updateZone;
-        await method(
-            item.id,
-            { playlists, version: zone.version },
-            'patch',
-        ).toPromise();
+        await method(item.id, { playlists, version: zone.version }, 'patch');
         notifySuccess(
             i18n(
                 trigger
@@ -289,13 +270,15 @@ export class SignageZonesComponent {
         (item as any).playlists = playlists;
         this._state.changed();
         const method: any = trigger ? updateTrigger : updateZone;
-        await method(item.id, { playlists, version: zone.version }, 'patch')
-            .toPromise()
-            .catch((e) => {
-                (item as any).playlists = old_playlist;
-                this._state.changed();
-                throw e;
-            });
+        await method(
+            item.id,
+            { playlists, version: zone.version },
+            'patch',
+        ).catch((e) => {
+            (item as any).playlists = old_playlist;
+            this._state.changed();
+            throw e;
+        });
         notifySuccess(
             i18n(
                 trigger

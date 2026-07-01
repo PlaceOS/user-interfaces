@@ -20,7 +20,6 @@ import {
     OrganisationService,
     ViewAction,
     ViewerStyles,
-    firstTruthyValueFrom,
     log,
     notifyError,
 } from '@placeos/common';
@@ -259,7 +258,7 @@ export class IndoorMapsComponent
 
     async ngOnInit() {
         this.loading.set(true);
-        await firstTruthyValueFrom(this._org.initialised);
+        await this._org.waitUntilInitialised();
         this.setBuilding(this._org.building);
         const custom_coordinates = this.custom_coordinates();
         if (custom_coordinates) this.coordinates.set(custom_coordinates);

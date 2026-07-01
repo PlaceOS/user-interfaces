@@ -1,5 +1,4 @@
 import { Component, computed, inject, output } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -90,9 +89,7 @@ export class ContactTracingOptionsComponent {
     public readonly printing = output<boolean>();
     public readonly download = output<void>();
 
-    public readonly options = toSignal(this._state.options, {
-        initialValue: {} as any,
-    });
+    public readonly options = this._state.options;
     public readonly can_download = computed(() => !!this.options()?.user);
     public readonly setOptions = (_) => this._state.setOptions(_);
     public readonly generate = () => this._state.generateReport();

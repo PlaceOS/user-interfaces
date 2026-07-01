@@ -6,16 +6,13 @@ import {
     Booking,
     currentUser,
     Desk,
-    firstTruthyValueFrom,
     i18n,
-    nextValueFrom,
     notifyError,
     notifyInfo,
     OrganisationService,
 } from '@placeos/common';
 import { SpacePipe } from '@placeos/events';
 import { set } from 'date-fns';
-import { lastValueFrom, map, timer } from 'rxjs';
 import { NewDeskFlowSuccessComponent } from './desk-flow-new/desk-flow-success.component';
 import { NewDeskFlowFormComponent } from './desk-flow/desk-flow-form.component';
 
@@ -57,18 +54,18 @@ export class NewDeskFlowComponent extends AsyncHandler implements OnInit {
     }
 
     public async ngOnInit() {
-        await firstTruthyValueFrom(this._org.initialised);
-        await lastValueFrom(timer(300));
-        const active_form = this._state.form.getRawValue();
+        await this._org.waitUntilInitialised();
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        const active_form = this._state.model();
         const has_edit_state =
             !!active_form?.id && active_form?.booking_type === 'desk';
-        if (!has_edit_state) this._state.loadForm();
+        if (!has_edit_state) this._state.loadForm('desk');
         this._state.setOptions({ type: 'desk' });
-        const { id, booking_type } = this._state.form.value;
+        const { id, booking_type } = this._state.model();
         if (!id || booking_type !== 'desk') this._state.newForm('desk');
-        this._state.form.patchValue({ booking_type: 'desk' });
+        this._state.model.update((m) => ({ ...m, booking_type: 'desk' }));
         if (id && booking_type === 'desk') {
-            const booking = new Booking(this._state.form.getRawValue());
+            const booking = new Booking(this._state.model() as any);
             const is_group =
                 !!booking.parent_id ||
                 !!booking.group ||
@@ -82,68 +79,61 @@ export class NewDeskFlowComponent extends AsyncHandler implements OnInit {
                 });
             }
         }
-        this.subscription(
-            'route.params',
-            this._route.paramMap.subscribe((param) => {
-                if (param.has('step'))
-                    this._state.setView(param.get('step') as any);
-            }),
-        );
-        this.subscription(
-            'route.query',
-            this._route.queryParamMap.subscribe(async (params) => {
-                if (params.has('success')) {
-                    this._state.setView(params.get('success') as any);
-                }
-                if (params.has('asset_id')) {
-                    const id = params.get('asset_id');
-                    await firstTruthyValueFrom(
-                        this._state.loading.pipe(map((_) => !_)),
-                    );
-                    const resources = await nextValueFrom(
-                        this._state.resources,
-                    );
-                    const asset = resources.find((_) => _.id === id);
-                    if (!asset) {
-                        return notifyInfo(
-                            'Unable to find desk with given asset ID.',
-                        );
-                    }
-                    this._state.form.patchValue({
-                        asset_id: asset.id,
-                        resources: [
-                            new Desk({
-                                id: asset.id,
-                                name: asset.name || asset.id,
-                                zone:
-                                    asset.zone ||
-                                    (this._org.levelsForBuilding()[0] as any),
-                            }),
-                        ],
-                    });
-                }
-                if (params.has('nearby_space')) {
-                    await this._initNearbyDeskBooking(
-                        params.get('nearby_space'),
-                        parseInt(params.get('date'), 10) || Date.now(),
-                    );
-                }
-            }),
-        );
+        const param = this._route.snapshot.paramMap;
+        if (param.has('step')) this._state.setView(param.get('step') as any);
+        const params = this._route.snapshot.queryParamMap;
+        if (params.has('success')) {
+            this._state.setView(params.get('success') as any);
+        }
+        if (params.has('asset_id')) {
+            const id = params.get('asset_id');
+            await this._waitForResources();
+            const resources = await this._state.listResources();
+            const asset = resources.find((_) => _.id === id);
+            if (!asset) {
+                return notifyInfo('Unable to find desk with given asset ID.');
+            }
+            this._state.model.update((m) => ({
+                ...m,
+                asset_id: asset.id,
+                resources: [
+                    new Desk({
+                        id: asset.id,
+                        name: asset.name || asset.id,
+                        zone:
+                            asset.zone ||
+                            (this._org.levelsForBuilding()[0] as any),
+                    }),
+                ],
+            }));
+        }
+        if (params.has('nearby_space')) {
+            await this._initNearbyDeskBooking(
+                params.get('nearby_space'),
+                parseInt(params.get('date'), 10) || Date.now(),
+            );
+        }
+    }
+
+    private async _waitForResources() {
+        while (this._state.loading()) {
+            await new Promise((resolve) => setTimeout(resolve, 50));
+        }
     }
 
     private async _initNearbyDeskBooking(space_id: string, event_date: number) {
         const space = await this._space_pipe.transform(space_id);
         const level = this._org.levelWithID(space?.zones);
         this._state.setOptions({ type: 'desk', zone_id: level?.id });
-        this._state.form.patchValue({
+        this._state.model.update((m) => ({
+            ...m,
             date: set(event_date, { hours: 8, minutes: 0 }).valueOf(),
             duration: 10 * 60,
             all_day: true,
             booking_type: 'desk',
             user: currentUser(),
-        });
-        const resources = await nextValueFrom(this._state.available_resources);
+        }));
+        const resources = await this._state.listAvailableResources();
         const bookable_desks = resources
             .map((_) => _.map_id || _.id)
             .filter((i) => i);
@@ -154,15 +144,20 @@ export class NewDeskFlowComponent extends AsyncHandler implements OnInit {
         );
         if (!nearby)
             return notifyError(i18n('APP.WORKPLACE.MEETING_DESK_ERROR'));
-        const resource = resources.find((_) => _.map_id === nearby);
-        this._state.form.patchValue({
+        const resource = resources.find(
+            (_) => _.map_id === nearby || _.id === nearby,
+        );
+        if (!resource)
+            return notifyError(i18n('APP.WORKPLACE.MEETING_DESK_ERROR'));
+        this._state.model.update((m) => ({
+            ...m,
             date: set(event_date, { hours: 8, minutes: 0 }).valueOf(),
             duration: 10 * 60,
             all_day: true,
             booking_type: 'desk',
-            asset_id: nearby,
+            asset_id: resource.id,
             asset_name: resource.name,
             resources: [resource],
-        });
+        }));
     }
 }

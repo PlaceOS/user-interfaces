@@ -1,8 +1,7 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { effect, inject, Injectable, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
     AsyncHandler,
-    firstTruthyValueFrom,
     i18n,
     log,
     notifySuccess,
@@ -238,32 +237,24 @@ export class DashboardsService extends AsyncHandler {
     constructor() {
         super();
 
-        firstTruthyValueFrom(this._org.initialised).then(() => {
+        this._org.waitUntilInitialised().then(() => {
             // Check for region/building in URL query params immediately
             this._initFromQueryParams();
 
-            // If not set from params, sync with org service region/building
+            // If not set from params, sync with the org service region and
+            // default to all buildings.
             if (!this._region_set_from_params) {
                 this.region_id.set(this._org.region?.id || '');
-                this.building_id.set(this._org.building?.id || '');
-                // Subscribe to catch late region restoration (e.g., from localStorage)
-                this.subscription(
-                    'org_region',
-                    this._org.active_region.subscribe((region) => {
-                        if (!this._region_set_from_params) {
-                            this.region_id.set(region?.id || '');
-                        }
-                    }),
-                );
-                this.subscription(
-                    'org_building',
-                    this._org.active_building.subscribe((building) => {
-                        if (!this._region_set_from_params) {
-                            this.building_id.set(building?.id || '');
-                        }
-                    }),
-                );
+                this.building_id.set('');
             }
+        });
+        effect(() => {
+            const region = this._org.active_region();
+            if (this._region_set_from_params) return;
+            const region_id = region?.id || '';
+            if (this.region_id() === region_id) return;
+            this.region_id.set(region_id);
+            this.building_id.set('');
         });
     }
 
@@ -401,7 +392,7 @@ export class DashboardsService extends AsyncHandler {
         if (this._initialising()) return;
         this._initialising.set(true);
         try {
-            await firstTruthyValueFrom(this._org.initialised);
+            await this._org.waitUntilInitialised();
             this.unsubWith('alert:');
             _org_id = this._org.organisation.id;
             const jwt = token();

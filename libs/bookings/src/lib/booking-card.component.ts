@@ -1,36 +1,28 @@
 import { CommonModule } from '@angular/common';
-import {
-    Component,
-    OnChanges,
-    OnInit,
-    SimpleChanges,
-    inject,
-    input,
-    signal,
-} from '@angular/core';
+import { Component, computed, DestroyRef, inject, input } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import {
-    BOOKING_TYPE_COLORS,
     Booking,
-    SettingsService,
+    BOOKING_TYPE_COLORS,
     currentUser,
     formatDuration,
     formatRecurrence,
     fromBookingRecurrence,
     i18n,
+    SettingsService,
 } from '@placeos/common';
-import { addMinutes, format, isSameDay } from 'date-fns';
-import { map } from 'rxjs/operators';
+import { addMinutes, format, isSameDay, isSameWeek } from 'date-fns';
 
 import { OrganisationService } from '@placeos/common';
-import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { StatusPillComponent } from 'libs/components/src/lib/status-pill.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { GroupEventDetailsModalComponent } from '../../../events/src/lib/group-event-details-modal.component';
 import { BookingDetailsModalComponent } from './booking-details-modal.component';
+import { bookingLocationString } from './booking.utilities';
 import { ParkingService } from './parking.service';
 
 @Component({
@@ -39,9 +31,9 @@ import { ParkingService } from './parking.service';
         @if (booking()) {
             <h4 class="mb-2 flex items-center px-2">
                 @if (show_day()) {
-                    <span day>{{ day }},&nbsp;</span>
+                    <span day>{{ day() }},&nbsp;</span>
                 }
-                {{ booking()?.date | date: time_format }}
+                {{ booking()?.date | date: time_format() }}
                 <span class="px-2 text-xs"
                     >({{ booking()?.date | date: 'zzzz' }})</span
                 >
@@ -52,14 +44,16 @@ import { ParkingService } from './parking.service';
                 name="view-booking-details"
                 class="relative w-full cursor-pointer overflow-hidden"
                 [routerLink]="['./']"
-                [queryParams]="{ booking: booking()?.id }"
+                [queryParams]="{
+                    booking: booking()?.id,
+                }"
                 (click)="viewDetails()"
             >
                 <div
                     class="border-base-300 bg-base-100 relative w-full rounded-xl border py-4 shadow-sm"
                 >
                     <div
-                        class="absolute right-2 top-2 rounded-full bg-base-300 p-1 text-2xl"
+                        class="bg-base-300 absolute top-2 right-2 rounded-full p-1 text-2xl"
                         [style.background-color]="typeColors[0]"
                         [style.color]="typeColors[1]"
                     >
@@ -72,11 +66,28 @@ import { ParkingService } from './parking.service';
                     </div>
                     <h4 class="px-4 text-lg">{{ booking()?.title }}</h4>
                     <div class="mx-4 my-2 flex items-center space-x-2">
-                        <status-pill [status]="status">{{
-                            period
+                        <status-pill [status]="status()">{{
+                            period()
                         }}</status-pill>
+                        @if (!for_current_user() && booked_for_label()) {
+                            <div
+                                booked-for
+                                class="text-base-content/70 flex min-w-0 items-center space-x-1 text-sm"
+                            >
+                                <icon class="text-lg">person</icon>
+                                <span class="truncate">
+                                    {{
+                                        'BOOKINGS.BOOKED_FOR'
+                                            | translate
+                                                : { name: booked_for_label() }
+                                    }}
+                                </span>
+                            </div>
+                        }
                         @if (booking().instance) {
-                            <icon class="text-2xl" [matTooltip]="recurr_tooltip"
+                            <icon
+                                class="text-2xl"
+                                [matTooltip]="recurr_tooltip()"
                                 >event_repeat</icon
                             >
                         }
@@ -86,7 +97,7 @@ import { ParkingService } from './parking.service';
                     >
                         <div class="flex max-w-[33%] items-center px-4">
                             <icon>
-                                @switch (type) {
+                                @switch (type()) {
                                     @case ('desk') {
                                         desk
                                     }
@@ -105,13 +116,15 @@ import { ParkingService } from './parking.service';
                                 }
                             </icon>
                             <div class="mx-2 w-1/2 flex-1 truncate">
-                                {{ resource_label }}
+                                {{ resource_label() }}
                             </div>
                         </div>
-                        @if (location) {
+                        @if (location()) {
                             <div class="flex items-center px-4">
                                 <icon>place</icon>
-                                <div class="mx-2 truncate">{{ location }}</div>
+                                <div class="mx-2 truncate">
+                                    {{ location() }}
+                                </div>
                             </div>
                         }
                     </div>
@@ -120,26 +133,41 @@ import { ParkingService } from './parking.service';
                     >
                         chevron_right
                     </icon>
+                    @if (booking()?.checked_in && !booking()?.is_done) {
+                        <div
+                            checked-in-badge
+                            class="bg-success text-success-content absolute top-2 right-2 flex items-center space-x-1 rounded-xl px-2 py-1 text-xs"
+                        >
+                            <icon class="text-sm">check_circle</icon>
+                            <span>{{ 'COMMON.CHECKED_IN' | translate }}</span>
+                        </div>
+                    }
                     @if (
-                        !for_current_user &&
+                        !booking()?.checked_in &&
+                        !for_current_user() &&
                         booking()?.booking_type !== 'group-event'
                     ) {
                         <div
-                            class="bg-warning/50 absolute right-2 top-14 rounded-xl px-2 py-1 text-xs"
+                            class="bg-warning/50 absolute top-14 right-2 rounded-xl px-2 py-1 text-xs"
                         >
                             {{ 'BOOKINGS.ASSOCIATE' | translate }}
                         </div>
                     }
-                    @if (booking()?.booking_type === 'group-event') {
+                    @if (
+                        !booking()?.checked_in &&
+                        booking()?.booking_type === 'group-event'
+                    ) {
                         <div
-                            class="bg-warning/50 absolute right-2 top-14 rounded-xl px-2 py-1 text-xs"
+                            class="bg-warning/50 absolute top-14 right-2 rounded-xl px-2 py-1 text-xs"
                         >
                             {{ 'BOOKINGS.EVENT' | translate }}
                         </div>
                     }
-                    @if (is_reserved_parking_space | async) {
+                    @if (
+                        !booking()?.checked_in && is_reserved_parking_space()
+                    ) {
                         <div
-                            class="bg-warning/50 absolute right-2 top-14 rounded-xl px-2 py-1 text-xs"
+                            class="bg-warning/50 absolute top-14 right-2 rounded-xl px-2 py-1 text-xs"
                         >
                             {{
                                 (booking().status !== 'declined'
@@ -171,10 +199,7 @@ import { ParkingService } from './parking.service';
         MatTooltipModule,
     ],
 })
-export class BookingCardComponent
-    extends AsyncHandler
-    implements OnInit, OnChanges
-{
+export class BookingCardComponent {
     private _dialog = inject(MatDialog);
     private _route = inject(ActivatedRoute);
     private _org = inject(OrganisationService);
@@ -187,68 +212,95 @@ export class BookingCardComponent
     public readonly remove_fn = input((i, s?) => null);
     public readonly end_fn = input((i) => null);
 
-    public readonly raw_description = signal('');
+    public readonly raw_description = computed(() =>
+        this.removeHtmlTags(this.booking()?.description),
+    );
 
-    public readonly is_reserved_parking_space =
-        this._parking.assigned_space.pipe(
-            map(
-                (space) =>
-                    this.booking().booking_type === 'parking' &&
-                    space &&
-                    this.booking().asset_id === space.id,
-            ),
-        );
-
-    public get for_current_user() {
+    public readonly is_reserved_parking_space = computed(() => {
+        const space = this._parking.assigned_space();
         return (
-            this.booking()?.user_email.toLowerCase() ===
-            currentUser()?.email.toLowerCase()
+            this.booking()?.booking_type === 'parking' &&
+            !!space &&
+            this.booking()?.asset_id === space.id
         );
-    }
+    });
 
-    public get time_format() {
-        return this._settings.time_format;
-    }
+    public readonly for_current_user = computed(
+        () =>
+            this.booking()?.user_email?.toLowerCase() ===
+            currentUser()?.email?.toLowerCase(),
+    );
 
-    public get status() {
+    public readonly booked_for_label = computed(() => {
+        const booking = this.booking();
+        if (!booking) return '';
+        return (
+            `${booking.user_name || ''}`.trim() ||
+            this._formatEmailName(`${booking.user_email || ''}`.trim())
+        );
+    });
+
+    public readonly show_waitlist = this._settings.signal(
+        'parking.show_waitlist',
+        true,
+    );
+    public readonly hide_selected_parking_space = this._settings.signal(
+        'parking.hide_selected_space',
+        false,
+    );
+
+    private readonly _is_visible_waitlisted = computed(() => {
+        const booking = this.booking();
+        return (
+            this.show_waitlist() &&
+            booking?.booking_type === 'parking' &&
+            booking?.status === 'tentative' &&
+            booking?.process_state !== 'waiting_approval' &&
+            !!booking?.asset_id?.startsWith('unallocated') &&
+            isSameWeek(Date.now(), booking.date)
+        );
+    });
+
+    public readonly time_format = this._settings.time_format_signal;
+
+    public readonly status = computed(() => {
         const booking = this.booking();
         if (booking?.is_done) return 'neutral';
         if (booking?.status === 'approved') return 'success';
         if (booking?.status === 'declined') return 'error';
         if (booking?.status === 'cancelled') return 'error';
-        if (booking?.status === 'tentative') return 'warning';
+        if (booking?.status === 'tentative') {
+            if (this._is_visible_waitlisted()) {
+                return 'info';
+            }
+            return 'warning';
+        }
         return 'warning';
-    }
+    });
 
-    public get recurr_tooltip() {
-        return (
-            formatRecurrence(fromBookingRecurrence(this.booking())) ||
-            i18n('CALENDAR_EVENT.RECURRING_TOOLTIP')
-        );
-    }
+    public readonly recurr_tooltip = computed(
+        () =>
+            formatRecurrence(
+                fromBookingRecurrence(this.booking()),
+                this.booking()?.date,
+            ) || i18n('CALENDAR_EVENT.RECURRING_TOOLTIP'),
+    );
 
-    public ngOnInit() {
-        this.subscription(
-            'route.query',
-            this._route.queryParamMap.subscribe((params) =>
+    public readonly type = computed(() => this.booking()?.type);
+
+    private _open_timer?: ReturnType<typeof setTimeout>;
+
+    constructor() {
+        const destroy_ref = inject(DestroyRef);
+        destroy_ref.onDestroy(() => clearTimeout(this._open_timer));
+        this._route.queryParamMap
+            .pipe(takeUntilDestroyed())
+            .subscribe((params) =>
                 params.has('booking') &&
                 this.booking()?.id === params.get('event')
                     ? this.viewDetails()
                     : '',
-            ),
-        );
-    }
-
-    public ngOnChanges(changes: SimpleChanges) {
-        if (changes.booking) {
-            this.raw_description.set(
-                this.removeHtmlTags(this.booking()?.description),
             );
-        }
-    }
-
-    public get type() {
-        return this.booking().type;
     }
 
     public get typeIcon() {
@@ -282,28 +334,17 @@ export class BookingCardComponent
         return BOOKING_TYPE_COLORS[type] || ['#E5E7EB', '#1F2937'];
     }
 
-    public get day() {
+    public readonly day = computed(() => {
         const date = this.booking()?.date || Date.now();
         const is_today = isSameDay(Date.now(), date);
         return `${is_today ? i18n('COMMON.TODAY') : format(date, 'EEEE')}`;
-    }
+    });
 
-    public get location() {
-        const zones = this.booking()?.zones || [];
-        const level = this._org.levelWithID(zones);
-        const building = (this._org.buildings || []).find(
-            (bld) => zones.includes(bld.id) || bld.id === level?.parent_id,
-        );
-        return `${
-            level?.display_name ||
-            level?.name ||
-            building?.display_name ||
-            building?.name ||
-            ''
-        }`;
-    }
+    public readonly location = computed(() =>
+        bookingLocationString(this.booking(), this._org),
+    );
 
-    public get period() {
+    public readonly period = computed(() => {
         const booking = this.booking();
         if (booking?.is_all_day) return i18n('COMMON.ALL_DAY');
         const start = booking?.date || Date.now();
@@ -315,31 +356,48 @@ export class BookingCardComponent
         })
             .replace(' hour', 'hr')
             .replace(' minute', 'min');
-        return `${format(start, this.time_format)} - ${format(
+        return `${format(start, this.time_format())} - ${format(
             end,
-            this.time_format,
+            this.time_format(),
         )} (${dur})`;
-    }
+    });
 
-    public get resource_label() {
+    public readonly resource_label = computed(() => {
         const booking = this.booking();
         if (!booking) return '';
+        if (
+            booking.booking_type === 'parking' &&
+            this.hide_selected_parking_space()
+        ) {
+            return i18n('RESOURCE.PARKING');
+        }
         if (booking.booking_type !== 'visitor') {
-            return (
-                this.raw_description() || booking.asset_name || booking.asset_id
-            );
+            const label =
+                this.raw_description() ||
+                booking.asset_name ||
+                booking.asset_id ||
+                '';
+            // Unallocated parking has no space yet; hide the raw `unallocated-*`
+            // asset id that the label can fall back to.
+            if (label.startsWith('unallocated')) {
+                return booking.booking_type === 'parking'
+                    ? i18n('RESOURCE.PARKING')
+                    : '';
+            }
+            return label;
         }
         return this._visitorDisplayNameFor(booking);
-    }
+    });
 
-    public removeHtmlTags(html: string) {
+    public removeHtmlTags(html = '') {
         const doc = new DOMParser().parseFromString(html, 'text/html');
         return doc.body.textContent || '';
     }
 
     public viewDetails() {
         if (!this.booking()) return;
-        this.timeout('open', () => {
+        clearTimeout(this._open_timer);
+        this._open_timer = setTimeout(() => {
             this._dialog.closeAll();
             const view_component: any =
                 this.booking().booking_type === 'group-event'
@@ -356,16 +414,16 @@ export class BookingCardComponent
                 end_fn: this.end_fn(),
             };
             this._dialog.open(view_component, { data });
-        });
+        }, 300);
     }
-
     private _visitorDisplayNameFor(booking: Booking) {
         const asset_id = `${booking?.asset_id || ''}`.trim();
         const group_member_name = this._visitorGroupMemberName(booking);
         if (group_member_name) return group_member_name;
         const attendee_name = this._visitorAttendeeName(booking);
         if (attendee_name) return attendee_name;
-        const asset_name = `${booking?.extension_data?.visitor_name || booking?.asset_name || ''}`.trim();
+        const asset_name =
+            `${booking?.extension_data?.visitor_name || booking?.asset_name || ''}`.trim();
         const reason_values = [
             `${booking?.title || ''}`.trim().toLowerCase(),
             `${booking?.description || ''}`.trim().toLowerCase(),
@@ -390,8 +448,9 @@ export class BookingCardComponent
 
     private _visitorAttendeeName(booking: Booking) {
         const attendee =
-            (booking.attendees || []).find((item) => item?.email === booking.asset_id) ||
-            booking.attendees?.[0];
+            (booking.attendees || []).find(
+                (item) => item?.email === booking.asset_id,
+            ) || booking.attendees?.[0];
         const name = `${attendee?.name || ''}`.trim();
         return name || '';
     }

@@ -85,52 +85,52 @@ describe('VisitorKioskSettingsFormModalComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should have a form with general settings controls', () => {
-        const form = spectator.component.form;
-        expect(form.get('logo_light')).toBeTruthy();
-        expect(form.get('logo_dark')).toBeTruthy();
-        expect(form.get('welcome_background')).toBeTruthy();
-        expect(form.get('welcome_message')).toBeTruthy();
-        expect(form.get('induction_enabled')).toBeTruthy();
-        expect(form.get('allow_self_registration')).toBeTruthy();
-        expect(form.get('allow_pass_number')).toBeTruthy();
-        expect(form.get('allow_printing_label')).toBeTruthy();
-        expect(form.get('allow_user_photo')).toBeTruthy();
-        expect(form.get('allow_beverages')).toBeTruthy();
-        expect(form.get('hide_explore')).toBeTruthy();
-        expect(form.get('hide_building_image')).toBeTruthy();
-        expect(form.get('checked_in_template')).toBeTruthy();
-        expect(form.get('standalone_visitor_location')).toBeTruthy();
+    it('should have a model with general settings values', () => {
+        const model = spectator.component.model();
+        expect('logo_light' in model).toBe(true);
+        expect('logo_dark' in model).toBe(true);
+        expect('welcome_background' in model).toBe(true);
+        expect('welcome_message' in model).toBe(true);
+        expect('induction_enabled' in model).toBe(true);
+        expect('allow_self_registration' in model).toBe(true);
+        expect('allow_pass_number' in model).toBe(true);
+        expect('allow_printing_label' in model).toBe(true);
+        expect('allow_user_photo' in model).toBe(true);
+        expect('allow_beverages' in model).toBe(true);
+        expect('hide_explore' in model).toBe(true);
+        expect('hide_building_image' in model).toBe(true);
+        expect('checked_in_template' in model).toBe(true);
+        expect('standalone_visitor_location' in model).toBe(true);
     });
 
-    it('should have visitor label size form group', () => {
-        const label_size = spectator.component.form.get('visitor_label_size');
+    it('should have visitor label size model group', () => {
+        const label_size = spectator.component.model().visitor_label_size;
         expect(label_size).toBeTruthy();
-        expect(label_size.get('width')).toBeTruthy();
-        expect(label_size.get('height')).toBeTruthy();
-        expect(label_size.get('scale')).toBeTruthy();
+        expect('width' in label_size).toBe(true);
+        expect('height' in label_size).toBe(true);
+        expect('scale' in label_size).toBe(true);
     });
 
-    it('should have visitors form group', () => {
-        const visitors = spectator.component.form.get('visitors');
+    it('should have visitors model group', () => {
+        const visitors = spectator.component.model().visitors;
         expect(visitors).toBeTruthy();
-        expect(visitors.get('allow_all_day')).toBeTruthy();
-        expect(visitors.get('max_duration')).toBeTruthy();
+        expect('allow_all_day' in visitors).toBe(true);
+        expect('max_duration' in visitors).toBe(true);
     });
 
-    it('should have explore form group', () => {
-        const explore = spectator.component.form.get('explore');
+    it('should have explore model group', () => {
+        const explore = spectator.component.model().explore;
         expect(explore).toBeTruthy();
-        expect(explore.get('hide_device_fields')).toBeTruthy();
-        expect(explore.get('show_legend')).toBeTruthy();
-        expect(explore.get('hide_zones')).toBeTruthy();
-        expect(explore.get('disable')).toBeTruthy();
-        expect(explore.get('disable_actions')).toBeTruthy();
-        expect(explore.get('disable_labels')).toBeTruthy();
-        expect(explore.get('disable_features')).toBeTruthy();
-        expect(explore.get('disable_styles')).toBeTruthy();
-        expect(explore.get('show_booking_qr')).toBeTruthy();
-        expect(explore.get('use_zone_polygons')).toBeTruthy();
+        expect('hide_device_fields' in explore).toBe(true);
+        expect('show_legend' in explore).toBe(true);
+        expect('hide_zones' in explore).toBe(true);
+        expect('disable' in explore).toBe(true);
+        expect('disable_actions' in explore).toBe(true);
+        expect('disable_labels' in explore).toBe(true);
+        expect('disable_features' in explore).toBe(true);
+        expect('disable_styles' in explore).toBe(true);
+        expect('show_booking_qr' in explore).toBe(true);
+        expect('use_zone_polygons' in explore).toBe(true);
     });
 
     it('should expose the zone from dialog data', () => {
@@ -181,9 +181,10 @@ describe('VisitorKioskSettingsFormModalComponent', () => {
 
     it('should save settings via updateMetadata', async () => {
         await spectator.component.ngOnInit();
-        spectator.component.form.patchValue({
+        spectator.component.model.update((m) => ({
+            ...m,
             welcome_message: 'Hello Visitors',
-        });
+        }));
         await spectator.component.save();
         expect(ts_client.updateMetadata).toHaveBeenCalledWith(
             'zone-1',
@@ -218,33 +219,40 @@ describe('VisitorKioskSettingsFormModalComponent', () => {
     });
 
     it('should add legend item', () => {
-        const explore = spectator.component.form.get('explore');
         // Set a mutable array first
-        explore.get('legend').setValue([]);
+        spectator.component.model.update((m) => ({
+            ...m,
+            explore: { ...m.explore, legend: [] },
+        }));
         spectator.component.addLegend();
-        expect(explore.value.legend.length).toBe(1);
+        expect(spectator.component.model().explore.legend.length).toBe(1);
     });
 
     it('should remove legend item', () => {
-        const explore = spectator.component.form.get('explore');
-        explore.get('legend').setValue([
-            ['a', '#000'],
-            ['b', '#fff'],
-        ]);
+        spectator.component.model.update((m) => ({
+            ...m,
+            explore: {
+                ...m.explore,
+                legend: [
+                    ['a', '#000'],
+                    ['b', '#fff'],
+                ],
+            },
+        }));
         spectator.component.removeLegend(0);
-        expect(explore.value.legend.length).toBe(1);
+        expect(spectator.component.model().explore.legend.length).toBe(1);
     });
 
     it('should set default visitor label size values', () => {
-        const label_size = spectator.component.form.get('visitor_label_size');
-        expect(label_size.value.width).toBe(25);
-        expect(label_size.value.height).toBe(15);
-        expect(label_size.value.scale).toBe(4);
+        const label_size = spectator.component.model().visitor_label_size;
+        expect(label_size.width).toBe(25);
+        expect(label_size.height).toBe(15);
+        expect(label_size.scale).toBe(4);
     });
 
     it('should set default visitor max duration', () => {
-        const visitors = spectator.component.form.get('visitors');
-        expect(visitors.value.max_duration).toBe(180);
+        const visitors = spectator.component.model().visitors;
+        expect(visitors.max_duration).toBe(180);
     });
 
     it('should set edited_by on save', async () => {

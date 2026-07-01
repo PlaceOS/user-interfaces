@@ -11,7 +11,6 @@ import {
 import { MatRippleModule } from '@angular/material/core';
 import {
     Booking,
-    firstTruthyValueFrom,
     OrganisationService,
     settingSignal,
     SettingsService,
@@ -71,7 +70,7 @@ import { BookingFormService } from './booking-form.service';
                                           | date: 'mediumDate',
                                       time:
                                           last_success()?.date
-                                          | date: time_format,
+                                          | date: time_format(),
                                   }
                     }}
                 </p>
@@ -207,13 +206,9 @@ export class VisitorInviteSuccessComponent implements OnInit {
         this.cal_event() ? generateCalendarFileLink(this.cal_event()) : '',
     );
 
-    public get time_format() {
-        return this._settings.time_format_signal();
-    }
+    public readonly time_format = this._settings.time_format_signal;
 
-    public async ngOnInit() {
-        await firstTruthyValueFrom(this._org.initialised);
-        console.log('Last Success:', this._form.last_success);
+    public ngOnInit() {
         this.last_success.set(this._form.last_success);
     }
 }

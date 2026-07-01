@@ -1,17 +1,12 @@
 import { Component, inject, signal } from '@angular/core';
-import {
-    FormControl,
-    FormGroup,
-    ReactiveFormsModule,
-    Validators,
-} from '@angular/forms';
+import { form, FormField, required } from '@angular/forms/signals';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import {
     AsyncHandler,
     ShortURL,
-    getInvalidFields,
+    getInvalidSignalFields,
     notifyError,
     saveShortURL,
 } from '@placeos/common';
@@ -27,7 +22,7 @@ import { RichTextInputComponent } from '@placeos/form-fields';
     template: `
         <fullscreen-modal-shell
             [heading]="
-                (form.value.id
+                (model().id
                     ? 'APP.CONCIERGE.URLS_EDIT'
                     : 'APP.CONCIERGE.URLS_ADD'
                 ) | translate
@@ -37,63 +32,49 @@ import { RichTextInputComponent } from '@placeos/form-fields';
                 loading() ? ('APP.CONCIERGE.URLS_SAVING' | translate) : ''
             "
         >
-            <form [formGroup]="form">
-                @if (form.controls.name) {
-                    <div class="flex flex-col">
-                        <label for="name">
-                            {{ 'FORM.NAME' | translate }}<span>*</span>
-                        </label>
-                        <mat-form-field appearance="outline">
-                            <input
-                                matInput
-                                name="name"
-                                placeholder="Name"
-                                formControlName="name"
-                            />
-                        </mat-form-field>
-                    </div>
-                }
-                @if (form.controls.uri) {
-                    <div class="flex flex-col">
-                        <label for="uri">
-                            {{ 'APP.CONCIERGE.URLS_URI' | translate
-                            }}<span>*</span>
-                        </label>
-                        <mat-form-field appearance="outline">
-                            <input
-                                matInput
-                                name="uri"
-                                [placeholder]="
-                                    'APP.CONCIERGE.URLS_URI' | translate
-                                "
-                                formControlName="uri"
-                            />
-                        </mat-form-field>
-                    </div>
-                }
-                @if (form.controls.description) {
-                    <div class="flex flex-col">
-                        <label for="description">
-                            {{ 'COMMON.DESCRIPTION' | translate }}
-                        </label>
-                        <rich-text-input
-                            name="description"
-                            formControlName="description"
-                            placeholder="URL description..."
-                        ></rich-text-input>
-                    </div>
-                }
-                @if (form.controls.enabled) {
-                    <div class="item-center flex space-x-4 py-4">
-                        <settings-toggle
-                            class="flex-1"
-                            [name]="'APP.CONCIERGE.URLS_ENABLED' | translate"
-                            formControlName="enabled"
-                        >
-                        </settings-toggle>
-                        <div class="flex-1"></div>
-                    </div>
-                }
+            <form>
+                <div class="flex flex-col">
+                    <label for="name">
+                        {{ 'FORM.NAME' | translate }}<span>*</span>
+                    </label>
+                    <mat-form-field appearance="outline">
+                        <input
+                            matInput
+                            placeholder="Name"
+                            [formField]="form.name"
+                        />
+                    </mat-form-field>
+                </div>
+                <div class="flex flex-col">
+                    <label for="uri">
+                        {{ 'APP.CONCIERGE.URLS_URI' | translate }}<span>*</span>
+                    </label>
+                    <mat-form-field appearance="outline">
+                        <input
+                            matInput
+                            [placeholder]="'APP.CONCIERGE.URLS_URI' | translate"
+                            [formField]="form.uri"
+                        />
+                    </mat-form-field>
+                </div>
+                <div class="flex flex-col">
+                    <label for="description">
+                        {{ 'COMMON.DESCRIPTION' | translate }}
+                    </label>
+                    <rich-text-input
+                        [formField]="form.description"
+                        placeholder="URL description..."
+                    ></rich-text-input>
+                </div>
+                <div class="item-center flex space-x-4 py-4">
+                    <settings-toggle
+                        class="flex-1"
+                        [label]="'APP.CONCIERGE.URLS_ENABLED' | translate"
+                        [formField]="form.enabled"
+                    >
+                    </settings-toggle>
+                    <div class="flex-1"></div>
+                </div>
                 <!-- <div class="flex flex-col" *ngIf="form.controls.valid_from">
             <label for="uri" >{{ 'APP.CONCIERGE.VALID_FROM' | translate }}</label>
             <a-date-field formControlName="valid_from"></a-date-field>
@@ -118,7 +99,7 @@ import { RichTextInputComponent } from '@placeos/form-fields';
         MatFormFieldModule,
         MatInputModule,
         TranslatePipe,
-        ReactiveFormsModule,
+        FormField,
     ],
 })
 export class ShortUrlModalComponent extends AsyncHandler {
@@ -128,32 +109,30 @@ export class ShortUrlModalComponent extends AsyncHandler {
 
     public readonly loading = signal(false);
 
-    public readonly form = new FormGroup({
-        id: new FormControl(this._data?.id || ''),
-        name: new FormControl(this._data?.name || '', [Validators.required]),
-        description: new FormControl(this._data?.description || '', []),
-        uri: new FormControl(this._data?.uri || '', [Validators.required]),
-        enabled: new FormControl(this._data?.enabled ?? true, []),
-        // valid_from: new FormControl(
-        //     this._data?.valid_from || startOfDay(Date.now()).valueOf(),
-        //     []
-        // ),
-        // valid_to: new FormControl(
-        //     this._data?.valid_to ||
-        //         addYears(startOfDay(Date.now()).valueOf(), 10),
-        //     []
-        // ),
+    public readonly model = signal({
+        id: this._data?.id || '',
+        name: this._data?.name || '',
+        description: this._data?.description || '',
+        uri: this._data?.uri || '',
+        enabled: this._data?.enabled ?? true,
+    });
+
+    public readonly form = form(this.model, (p) => {
+        required(p.name);
+        required(p.uri);
     });
 
     public async save() {
-        if (!this.form.valid) {
+        this.form().markAsTouched();
+        if (!this.form().valid()) {
             return notifyError(
-                `Some form fields are invalid. [${getInvalidFields(
+                `Some form fields are invalid. [${getInvalidSignalFields(
                     this.form,
+                    this.model,
                 ).join(', ')}]`,
             );
         }
-        const data: any = this.form.getRawValue();
+        const data: any = this.model();
         this.loading.set(true);
         const resp = await saveShortURL(data).catch((e) =>
             notifyError(`Error saving Short URL: ${e.message}`),

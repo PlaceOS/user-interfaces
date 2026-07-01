@@ -1,9 +1,10 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
 import {
-    AsyncHandler,
-    firstTruthyValueFrom,
-    OrganisationService,
-} from '@placeos/common';
+    Component,
+    inject,
+    OnInit,
+    signal,
+} from '@angular/core';
+import { AsyncHandler, OrganisationService } from '@placeos/common';
 import { SafePipe } from '@placeos/components';
 import { showMetadata } from '@placeos/ts-client';
 import { SidebarComponent } from './ui/sidebar.component';
@@ -74,7 +75,7 @@ export class RecorderGridViewComponent extends AsyncHandler implements OnInit {
     public readonly refresh_delay = 1000;
 
     public async ngOnInit() {
-        await firstTruthyValueFrom(this._org.initialised);
+        await this._org.waitUntilInitialised();
         const block = await showMetadata(
             this._org.organisation.id,
             'recorder-streams',

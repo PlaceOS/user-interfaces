@@ -1,4 +1,17 @@
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import {
+    Injector,
+    signal,
+    untracked,
+    type WritableSignal,
+} from '@angular/core';
+import {
+    disabled,
+    email,
+    form,
+    required,
+    validate,
+    type FieldTree,
+} from '@angular/forms/signals';
 import {
     queryLockerAssetsForZones,
     queryLockerBankAssetsForZones,
@@ -9,22 +22,20 @@ import {
     current_user,
     currentUser,
     fromEventRecurrence,
+    guardModelUndefinedWrites,
+    onFieldChange,
     OrganisationService,
     Point,
+    settingSignal,
     setupFormTimeSync,
     toBookingRecurrence,
+    User,
+    type FormTimeSyncHandle,
+    type SignalFormRef,
 } from '@placeos/common';
 import { getMapDetails } from '@placeos/components';
 import { PlaceAsset } from '@placeos/ts-client';
-import { endInFuture } from 'libs/events/src/lib/validators';
-import { combineLatest, Observable, of } from 'rxjs';
-import {
-    catchError,
-    filter,
-    map,
-    shareReplay,
-    switchMap,
-} from 'rxjs/operators';
+import { addMinutes, isAfter } from 'date-fns';
 import { Locker, LockerBank } from './locker.class';
 
 function parseJson<T>(value: string, fallback: T): T {
@@ -75,22 +86,29 @@ export function lockerFromAsset(
     } as Locker;
 }
 
-function setBookingAsset(form: FormGroup, resource: any) {
-    if (!resource) return form.patchValue({ asset_id: undefined });
-    form.patchValue(
-        {
-            asset_id: resource.id,
-            asset_name: resource.name,
-            name: resource.display_name || resource.name || resource.id,
-            map_id: resource.map_id || resource.id,
-            description: resource.name,
-            zones: resource.zone
-                ? [resource.zone?.parent_id, resource.zone?.id]
-                : [],
-            booking_asset: resource,
-        },
-        { emitEvent: false },
-    );
+function setBookingAsset(
+    model: WritableSignal<BookingFormValue>,
+    resource: any,
+) {
+    if (!resource) {
+        // Use '' rather than `undefined`: an undefined value removes the
+        // `asset_id` sub-field from the signal-forms FieldTree, breaking any
+        // `[formField]="form.asset_id"` binding (`this.field() is not a function`).
+        model.update((m) => ({ ...m, asset_id: '' }));
+        return;
+    }
+    model.update((m) => ({
+        ...m,
+        asset_id: resource.id,
+        asset_name: resource.name,
+        name: resource.display_name || resource.name || resource.id,
+        map_id: resource.map_id || resource.id,
+        description: resource.name,
+        zones: resource.zone
+            ? [resource.zone?.parent_id, resource.zone?.id]
+            : [],
+        booking_asset: resource,
+    }));
 }
 
 const visitorGroupMemberName = (booking: Booking) => {
@@ -144,142 +162,314 @@ export const visitorDisplayNameFor = (booking: Booking) => {
     return formatEmailName(asset_id || asset_name || 'Visitor');
 };
 
-export function generateBookingForm(booking: Booking = new Booking()) {
+/**
+ * Location text shown for a booking/event: `<resource> - <level>`, falling back
+ * to whichever part is available. Shared by the booking card, booking details
+ * modal, and workplace schedule week/day views so they all read the same.
+ */
+export function bookingLocationString(
+    booking: Booking | CalendarEvent,
+    org: OrganisationService,
+): string {
+    let location = '';
+    let level_name = '';
+
+    if (booking instanceof Booking) {
+        location =
+            booking.booking_type === 'visitor'
+                ? booking.extension_data?.location || ''
+                : booking.location || booking.asset_name || '';
+        // Unallocated parking has no space yet; hide the raw `unallocated-*`
+        // asset id that the location/asset name can fall back to.
+        if (location.startsWith('unallocated')) location = '';
+        const level = org.levelWithID(booking.zones);
+        level_name = level?.display_name || level?.name || '';
+    } else {
+        location =
+            booking.location ||
+            booking.space?.display_name ||
+            booking.space?.name ||
+            (booking.system as any)?.name ||
+            '';
+        level_name =
+            booking.space?.level?.display_name ||
+            booking.space?.level?.name ||
+            (booking.system as any)?.zones
+                ? org.levelWithID((booking.system as any)?.zones || [])
+                      ?.display_name ||
+                  org.levelWithID((booking.system as any)?.zones || [])?.name
+                : '';
+    }
+
+    if (location && level_name) {
+        return `${location} - ${level_name}`;
+    }
+    return location || level_name || '';
+}
+
+/** Raw value held by the booking form model. */
+export interface BookingFormValue {
+    id: string;
+    parent_id: string;
+    event_id: string;
+    ical_uid: string;
+    date: number;
+    date_end: number;
+    all_day: boolean;
+    name: string;
+    duration: number;
+    booking_type: any;
+    zones: string[];
+    title: string;
+    description: string;
+    booking_asset: any;
+    resources: any[];
+    company: string;
+    asset_id: string;
+    asset_name: string;
+    assets: any[];
+    attendees: any[];
+    map_id: string;
+    featured: boolean;
+    user: User;
+    user_id: string;
+    group: any;
+    user_email: string;
+    user_name: string;
+    timezone: string;
+    booked_by: User;
+    booked_by_id: string;
+    booked_by_email: string;
+    secondary_resource: any;
+    location: string;
+    attendance_type: string;
+    phone?: string;
+    permission: string;
+    images: any[];
+    tags: string[];
+    plate_number: string;
+    vehicle_type: string;
+    request_type: string;
+    requires_manual_approval: boolean;
+    space_restrictions: boolean;
+    extra_space_restrictions: any[];
+    approver_group: string;
+    prefer_booked_location_first: boolean;
+    pass_number: string;
+    international: boolean;
+    recurrence_custom: boolean;
+    recurrence_type: string;
+    recurrence_days: any;
+    recurrence_nth_of_month: any;
+    recurrence_interval: any;
+    recurrence_end: any;
+    recurrence_instances: any;
+    notes: string;
+    attachments: string[];
+    update_master: boolean;
+    self_registered: boolean;
+    is_assgined: boolean;
+}
+
+export function bookingAttachments(booking: Booking = new Booking()): string[] {
+    booking = booking || new Booking();
+    const extension_data = booking.extension_data || {};
+    return [
+        ...(extension_data.attachments || []),
+        ...(extension_data.p2_document_names || []),
+    ].filter((item) => !!item);
+}
+
+/** Build the raw booking form value from a booking. */
+export function bookingFormValue(
+    booking: Booking = new Booking(),
+): BookingFormValue {
+    const extension_data = booking.extension_data || {};
     const visitor_name =
         booking.booking_type === 'visitor'
-            ? booking.extension_data?.visitor_name || booking.asset_name || ''
+            ? extension_data.visitor_name || booking.asset_name || ''
             : booking.asset_name || booking.description;
-    const form = new FormGroup({
-        id: new FormControl(booking.id || ''),
-        parent_id: new FormControl(booking.parent_id || ''),
-        event_id: new FormControl(booking.event_id || ''),
-        ical_uid: new FormControl(booking.extension_data.ical_uid || ''),
-        date: new FormControl(booking.date, [Validators.required]),
-        date_end: new FormControl(booking.date_end),
-        all_day: new FormControl(booking.all_day ?? false),
-        name: new FormControl(
-            booking.extension_data.name || booking.asset_name || '',
-        ),
-        duration: new FormControl(booking.duration, [endInFuture]),
-        booking_type: new FormControl(booking.booking_type),
-        zones: new FormControl(booking.zones),
-        title: new FormControl(booking.title),
-        description: new FormControl(booking.description),
-        booking_asset: new FormControl(null),
-        resources: new FormControl([]),
-        company: new FormControl(booking.extension_data?.company || ''),
-        asset_id: new FormControl(booking.asset_id, [Validators.required]),
-        asset_name: new FormControl(visitor_name),
-        assets: new FormControl(booking.extension_data?.assets || []),
-        attendees: new FormControl(booking.attendees || []),
-        map_id: new FormControl(booking.extension_data?.map_id),
-        featured: new FormControl(booking.extension_data?.featured || false),
-        user: new FormControl(currentUser()),
-        user_id: new FormControl(booking.user_id),
-        group: new FormControl(booking.group),
-        user_email: new FormControl(booking.user_email),
-        user_name: new FormControl(booking.user_name),
-        timezone: new FormControl(booking.timezone || ''),
-        booked_by: new FormControl(currentUser()),
-        booked_by_id: new FormControl(booking.booked_by_id),
-        booked_by_email: new FormControl(booking.booked_by_email),
-        secondary_resource: new FormControl(
-            booking.extension_data?.other_asset_type ||
-                booking.extension_data?.secondary_resource,
-        ),
-        location: new FormControl(booking.extension_data.location || ''),
-        attendance_type: new FormControl(
-            booking.extension_data.attendance_type || 'ANY',
-        ),
-        phone: new FormControl(booking.extension_data.phone || ''),
-        permission: new FormControl(booking.permission || 'PRIVATE'),
-        images: new FormControl(booking.images || []),
-        tags: new FormControl(booking?.tags || []),
-        plate_number: new FormControl(
-            booking.extension_data.plate_number || '',
-        ),
-        vehicle_type: new FormControl(
-            booking.extension_data.vehicle_type || 'car',
-        ),
-        request_type: new FormControl(
-            booking.extension_data.request_type || 'standard',
-        ),
-        requires_manual_approval: new FormControl(
-            booking.extension_data.requires_manual_approval ?? false,
-        ),
-        space_restrictions: new FormControl(
-            booking.extension_data.space_restrictions ?? false,
-        ),
-        extra_space_restrictions: new FormControl(
-            booking.extension_data.extra_space_restrictions ?? [],
-        ),
-        approver_group: new FormControl(
-            booking.extension_data.approver_group || '',
-        ),
-        prefer_booked_location_first: new FormControl(
-            booking.extension_data.prefer_booked_location_first ?? false,
-        ),
-        pass_number: new FormControl(booking.extension_data.pass_number || ''),
-        international: new FormControl(
-            booking.extension_data.international ?? false,
-        ),
-        recurrence_custom: new FormControl(
-            booking.extension_data.recurrence_custom ?? false,
-        ),
-        recurrence_type: new FormControl(booking.recurrence_type || 'none'),
-        recurrence_days: new FormControl(booking.recurrence_days),
-        recurrence_nth_of_month: new FormControl(
-            booking.recurrence_nth_of_month,
-        ),
-        recurrence_interval: new FormControl(booking.recurrence_interval),
-        recurrence_end: new FormControl(booking.recurrence_end),
-        recurrence_instances: new FormControl(
-            booking.extension_data.recurrence_instances,
-        ),
-        notes: new FormControl(booking.extension_data.notes || ''),
-        update_master: new FormControl(false),
-        self_registered: new FormControl(false),
-        is_assgined: new FormControl(false),
-    });
-    form.valueChanges.subscribe(() => {
-        if (form.getRawValue().date < Date.now() && form.value.id) {
-            form.get('date')?.disable({ emitEvent: false });
-        } else {
-            form.get('date')?.enable({ emitEvent: false });
-        }
-    });
-    form.controls.date.valueChanges.subscribe(() => {
-        form.controls.duration.updateValueAndValidity({ emitEvent: false });
-    });
-    form.controls.user.valueChanges.subscribe((user) => {
-        if (!user) return;
-        form.patchValue(
-            {
-                user: user,
-                user_id: user?.id,
-                user_email: user?.email,
-                user_name: user?.name,
-            },
-            { emitEvent: false },
-        );
-    });
+    // Every field must be non-`undefined`: the signal-forms FieldTree only
+    // exposes a sub-field for keys whose value is defined, so an `undefined`
+    // seed would make `[formField]="form.x"` bind to nothing at runtime.
+    return {
+        id: booking.id || '',
+        parent_id: booking.parent_id || '',
+        event_id: booking.event_id || '',
+        ical_uid: extension_data.ical_uid || '',
+        date: booking.date ?? 0,
+        date_end: booking.date_end ?? 0,
+        all_day: booking.all_day ?? false,
+        name: extension_data.name || booking.asset_name || '',
+        duration: booking.duration ?? 0,
+        booking_type: booking.booking_type || '',
+        zones: booking.zones || [],
+        title: booking.title || '',
+        description: booking.description || '',
+        booking_asset: {},
+        resources: [],
+        company: extension_data.company || '',
+        asset_id: booking.asset_id || '',
+        asset_name: visitor_name || '',
+        assets: extension_data.assets || [],
+        attendees: booking.attendees || [],
+        map_id: extension_data.map_id || '',
+        featured: extension_data.featured || false,
+        user: currentUser(),
+        user_id: booking.user_id || '',
+        group: booking.group ?? {},
+        user_email: booking.user_email || '',
+        user_name: booking.user_name || '',
+        timezone: booking.timezone || '',
+        booked_by: currentUser(),
+        booked_by_id: booking.booked_by_id || '',
+        booked_by_email: booking.booked_by_email || '',
+        secondary_resource:
+            extension_data.other_asset_type ||
+            extension_data.secondary_resource ||
+            {},
+        location: extension_data.location || '',
+        attendance_type: extension_data.attendance_type || 'ANY',
+        phone: extension_data.phone || '',
+        permission: booking.permission || 'PRIVATE',
+        images: booking.images || [],
+        tags: booking?.tags || [],
+        plate_number: extension_data.plate_number || '',
+        vehicle_type: extension_data.vehicle_type || 'car',
+        request_type: extension_data.request_type || 'standard',
+        requires_manual_approval:
+            extension_data.requires_manual_approval ?? false,
+        space_restrictions: extension_data.space_restrictions ?? false,
+        extra_space_restrictions:
+            extension_data.extra_space_restrictions ?? [],
+        approver_group: extension_data.approver_group || '',
+        prefer_booked_location_first:
+            extension_data.prefer_booked_location_first ?? false,
+        pass_number: extension_data.pass_number || '',
+        international: extension_data.international ?? false,
+        recurrence_custom: extension_data.recurrence_custom ?? false,
+        recurrence_type: booking.recurrence_type || 'none',
+        recurrence_days: booking.recurrence_days ?? 0,
+        recurrence_nth_of_month: booking.recurrence_nth_of_month ?? 0,
+        recurrence_interval: booking.recurrence_interval ?? 0,
+        recurrence_end: booking.recurrence_end ?? 0,
+        recurrence_instances: extension_data.recurrence_instances ?? [],
+        notes: extension_data.notes || '',
+        attachments: bookingAttachments(booking),
+        update_master: false,
+        self_registered: false,
+        is_assgined: false,
+    } as BookingFormValue;
+}
+
+/** FieldTree for the booking form, with attached time-sync handle. */
+export type BookingForm = FieldTree<BookingFormValue> & {
+    _time_sync?: FormTimeSyncHandle;
+};
+
+export type BookingFormRef = SignalFormRef<BookingFormValue, BookingForm> & {
+    /** Time-sync handle for runtime duration/bookable-hours reconfiguration. */
+    time_sync: FormTimeSyncHandle;
+};
+
+export function generateBookingForm(
+    booking: Booking = new Booking(),
+    injector?: Injector,
+): BookingFormRef {
+    const started = booking.state === 'started';
+    const model: WritableSignal<BookingFormValue> = signal(
+        bookingFormValue(booking),
+    );
+
+    // Keep every key defined so signal-forms never drops a sub-field bound via
+    // `[formField]` (an undefined value triggers `this.field() is not a
+    // function`). Guards writes synchronously — no reactive surface.
+    guardModelUndefinedWrites(model, bookingFormValue(new Booking()));
+
+    const require_plate_number = settingSignal<boolean>(
+        'parking.require_plate_number',
+        false,
+    );
+    const booking_form = form<BookingFormValue>(
+        model,
+        (p) => {
+            required(p.date);
+            required(p.asset_id);
+            // Visitor bookings use asset_id to hold the visitor's email address.
+            email(p.asset_id, {
+                when: ({ valueOf }) => valueOf(p.booking_type) === 'visitor',
+            });
+            // Parking requests can require a vehicle plate number via settings.
+            // Scope to parking bookings so the required state never bleeds into
+            // desk/visitor forms sharing this FieldTree.
+            required(p.plate_number, {
+                when: ({ valueOf }) => {
+                    const booking_type = valueOf(p.booking_type);
+                    return (
+                        booking_type === 'parking' && require_plate_number()
+                    );
+                },
+            });
+            validate(p.duration, ({ value, valueOf }) => {
+                const date = valueOf(p.date);
+                if (value() <= 0) return { kind: 'duration' };
+                return date && isAfter(Date.now(), addMinutes(date, value()))
+                    ? { kind: 'duration' }
+                    : undefined;
+            });
+            // Depend only on the date field's own value (`ctx.value()`) and read
+            // `id` untracked. `valueOf(p.id)` here threw NG01901 (the resolver
+            // can't navigate `.id` from the `date` field), and reading the whole
+            // `model()` made this recompute on every model change — extra reactive
+            // surface that could feed loops on the explore page.
+            disabled(p.date, ({ value }) => {
+                if (started) return true;
+                return value() < Date.now() && !!untracked(model).id;
+            });
+        },
+        { injector },
+    ) as BookingForm;
+
+    // user → user_id/email/name
+    onFieldChange(
+        model,
+        (v) => v.user,
+        (user) => {
+            if (!user) return;
+            // Coalesce to '' so the sub-fields are never removed from the
+            // FieldTree (an undefined value breaks `[formField]="form.user_*"`).
+            model.update((m) => ({
+                ...m,
+                user,
+                user_id: (user as any)?.id ?? '',
+                user_email: (user as any)?.email ?? '',
+                user_name: (user as any)?.name ?? '',
+            }));
+        },
+        injector,
+    );
+    // resources → booking asset fields
+    onFieldChange(
+        model,
+        (v) => v.resources,
+        (resources) => setBookingAsset(model, (resources || [])[0]),
+        injector,
+    );
+    // Keep booked_by synced to the current user
     current_user.subscribe((user) => {
         if (!user) return;
-        form.patchValue(
-            {
-                booked_by: user,
-                booked_by_id: user?.id,
-                booked_by_email: user?.email,
-            },
-            { emitEvent: false },
-        );
+        model.update((m) => ({
+            ...m,
+            booked_by: user,
+            booked_by_id: user?.id,
+            booked_by_email: user?.email,
+        }));
     });
-    form.controls.resources.valueChanges.subscribe((resources) =>
-        setBookingAsset(form, (resources || [])[0]),
-    );
-    (form as any)._time_sync = setupFormTimeSync(form);
-    if (booking.state === 'started') form.get('date').disable();
-    return form;
+
+    const time_sync = setupFormTimeSync(model, {}, injector);
+    (booking_form as BookingForm)._time_sync = time_sync;
+    (model as any)._time_sync = time_sync;
+    return { model, form: booking_form, time_sync };
 }
 
 export async function findNearbyFeature(
@@ -315,7 +505,10 @@ export async function findNearbyFeature(
 export function newBookingFromCalendarEvent(event: CalendarEvent) {
     const date = event.date || event.event_start * 1000;
     const recurrence = event.recurrence?.pattern
-        ? toBookingRecurrence(fromEventRecurrence(event.recurrence), date)
+        ? toBookingRecurrence(
+              fromEventRecurrence(event.recurrence),
+              date,
+          )
         : {};
     return new Booking({
         id: event.id,
@@ -333,60 +526,44 @@ export function newBookingFromCalendarEvent(event: CalendarEvent) {
     });
 }
 
-export function loadLockerBanks(
+/** Load locker banks for a single zone scope (signal/promise based) */
+export async function loadLockerBanksForScope(
     org: OrganisationService,
-    obs: Observable<any>,
-    useRegion: () => boolean,
-): Observable<LockerBank[]> {
-    return obs.pipe(
-        filter(([bld, region]) => !!(useRegion() ? region || org.region : bld)),
-        switchMap(([bld, region]) => {
-            const scope_id = useRegion()
-                ? region?.id || org.region?.id
-                : bld?.id;
-            return queryLockerBankAssetsForZones([scope_id]).pipe(
-                catchError(() => of([])),
-            );
-        }),
-        map((assets) => assets.map(lockerBankFromAsset)),
-        map((banks) => {
-            for (const bank of banks) {
-                bank.zone = org.levelWithID(bank.zones || []) as any;
-            }
-            return banks;
-        }),
-        shareReplay(1),
+    scope_id: string,
+): Promise<LockerBank[]> {
+    if (!scope_id) return [];
+    const assets = await queryLockerBankAssetsForZones([scope_id]).catch(
+        () => [],
     );
+    const banks = assets.map(lockerBankFromAsset);
+    for (const bank of banks) {
+        bank.zone = org.levelWithID(bank.zones || []) as any;
+    }
+    return banks;
 }
 
-export function loadLockers(
+/** Load lockers for a single zone scope, attaching them to their banks */
+export async function loadLockersForScope(
     org: OrganisationService,
-    obs: Observable<any>,
-    banks$: Observable<LockerBank[]>,
-    useRegion: () => boolean,
-): Observable<Locker[]> {
-    return obs.pipe(
-        filter(([bld, region]) => !!(useRegion() ? region || org.region : bld)),
-        switchMap(([bld, region]) => {
-            const scope_id = useRegion()
-                ? region?.id || org.region?.id
-                : bld?.id;
-            return combineLatest([
-                queryLockerAssetsForZones([scope_id]).pipe(
-                    catchError(() => of([])),
-                ),
-                banks$,
-            ]);
-        }),
-        map(([assets, banks]) => {
-            const lockers = assets.map((_) => lockerFromAsset(_, banks));
-            for (const bank of banks) {
-                bank.lockers = lockers
-                    .filter((_) => _.bank_id === bank.id)
-                    .map((_) => ({ ..._ }));
-            }
-            return lockers.filter((_) => _.bank);
-        }),
-        shareReplay(1),
-    );
+    scope_id: string,
+    banks: LockerBank[],
+): Promise<Locker[]> {
+    if (!scope_id) return [];
+    const assets = await queryLockerAssetsForZones([scope_id]).catch(() => []);
+    const lockers = assets.map((_) => lockerFromAsset(_, banks));
+    for (const bank of banks) {
+        bank.lockers = lockers
+            .filter((_) => _.bank_id === bank.id)
+            .map((_) => ({ ..._ }));
+    }
+    return lockers.filter((_) => _.bank);
+}
+
+/** Load all locker resources for a single zone scope (signal/promise based) */
+export async function loadLockerResources(
+    org: OrganisationService,
+    scope_id: string,
+): Promise<Locker[]> {
+    const banks = await loadLockerBanksForScope(org, scope_id);
+    return loadLockersForScope(org, scope_id, banks);
 }

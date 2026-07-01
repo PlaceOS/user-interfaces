@@ -1,29 +1,44 @@
+import { inject, Injector, signal } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { BookingFormService, generateBookingForm } from '@placeos/bookings';
 import { SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
-import { of } from 'rxjs';
 
 import { DeskBookModalComponent } from '../../app/desks/desk-book-modal.component';
 
 describe('DeskBookModalComponent', () => {
     let spectator: Spectator<DeskBookModalComponent>;
     let settings: Record<string, unknown>;
-    const form = generateBookingForm();
+    let model: BookingFormService['model'];
+    let form: BookingFormService['form'];
+    let default_value: ReturnType<BookingFormService['model']>;
     const newForm = jest.fn();
     const applyDurationSettings = jest.fn();
     const createComponent = createComponentFactory({
         component: DeskBookModalComponent,
         shallow: true,
         providers: [
-            MockProvider(BookingFormService, {
-                form,
-                newForm,
-                applyDurationSettings,
-                options: of({ type: 'desk' }),
-                postForm: jest.fn(async () => null),
-            }),
+            {
+                provide: BookingFormService,
+                useFactory: () => {
+                    const ref = generateBookingForm(
+                        undefined,
+                        inject(Injector),
+                    );
+                    model = ref.model;
+                    form = ref.form;
+                    if (!default_value) default_value = model();
+                    return {
+                        model: ref.model,
+                        form: ref.form,
+                        newForm,
+                        applyDurationSettings,
+                        options: signal({ type: 'desk' }) as any,
+                        postForm: jest.fn(async () => null),
+                    } as Partial<BookingFormService>;
+                },
+            },
             MockProvider(MatDialogRef, { close: jest.fn() }),
             MockProvider(SettingsService as any, {
                 get: jest.fn((key: string) => settings[key]),
@@ -33,7 +48,6 @@ describe('DeskBookModalComponent', () => {
 
     beforeEach(() => {
         settings = { 'app.desks.default_duration': 60 };
-        form.reset();
         newForm.mockClear();
         applyDurationSettings.mockClear();
     });
@@ -42,7 +56,7 @@ describe('DeskBookModalComponent', () => {
         spectator = createComponent();
 
         expect(newForm).toHaveBeenCalledWith('desk');
-        expect(spectator.component.form.value.duration).toBe(60);
+        expect(model().duration).toBe(60);
         expect(applyDurationSettings).toHaveBeenCalledTimes(1);
     });
 
@@ -51,7 +65,7 @@ describe('DeskBookModalComponent', () => {
 
         spectator = createComponent();
 
-        expect(spectator.component.form.value.all_day).toBe(true);
+        expect(model().all_day).toBe(true);
     });
 
     it('should fall back to the booking all day default setting', () => {
@@ -59,6 +73,6 @@ describe('DeskBookModalComponent', () => {
 
         spectator = createComponent();
 
-        expect(spectator.component.form.value.all_day).toBe(true);
+        expect(model().all_day).toBe(true);
     });
 });

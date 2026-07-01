@@ -1,6 +1,5 @@
 import {
     AfterViewInit,
-    ChangeDetectorRef,
     Component,
     ElementRef,
     forwardRef,
@@ -9,6 +8,7 @@ import {
     NgZone,
     OnChanges,
     SecurityContext,
+    signal,
     SimpleChanges,
     viewChild,
 } from '@angular/core';
@@ -18,7 +18,7 @@ import { AsyncHandler, UploadsService } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
 import { apiKey, token } from '@placeos/ts-client';
 
-import Squire from 'squire-rte';
+import type Squire from 'squire-rte';
 
 @Component({
     selector: 'rich-text-input',
@@ -55,8 +55,8 @@ import Squire from 'squire-rte';
                         icon
                         type="button"
                         class="border-base-300 rounded border px-2 py-1 text-sm"
-                        [class.border-info]="toolbar_state.bold"
-                        [class.text-info]="toolbar_state.bold"
+                        [class.border-info]="toolbar_state().bold"
+                        [class.text-info]="toolbar_state().bold"
                         (click)="toggleBold()"
                     >
                         <icon>format_bold</icon>
@@ -65,8 +65,8 @@ import Squire from 'squire-rte';
                         icon
                         type="button"
                         class="border-base-300 rounded border px-2 py-1 text-sm"
-                        [class.border-info]="toolbar_state.italic"
-                        [class.text-info]="toolbar_state.italic"
+                        [class.border-info]="toolbar_state().italic"
+                        [class.text-info]="toolbar_state().italic"
                         (click)="toggleItalic()"
                     >
                         <icon>format_italic</icon>
@@ -75,8 +75,8 @@ import Squire from 'squire-rte';
                         icon
                         type="button"
                         class="border-base-300 rounded border px-2 py-1 text-sm"
-                        [class.border-info]="toolbar_state.underline"
-                        [class.text-info]="toolbar_state.underline"
+                        [class.border-info]="toolbar_state().underline"
+                        [class.text-info]="toolbar_state().underline"
                         (click)="toggleUnderline()"
                     >
                         <icon>format_underlined</icon>
@@ -85,8 +85,8 @@ import Squire from 'squire-rte';
                         icon
                         type="button"
                         class="border-base-300 rounded border px-2 py-1 text-sm"
-                        [class.border-info]="toolbar_state.unordered_list"
-                        [class.text-info]="toolbar_state.unordered_list"
+                        [class.border-info]="toolbar_state().unordered_list"
+                        [class.text-info]="toolbar_state().unordered_list"
                         (click)="makeUnorderedList()"
                     >
                         <icon>format_list_bulleted</icon>
@@ -95,8 +95,8 @@ import Squire from 'squire-rte';
                         icon
                         type="button"
                         class="border-base-300 rounded border px-2 py-1 text-sm"
-                        [class.border-info]="toolbar_state.ordered_list"
-                        [class.text-info]="toolbar_state.ordered_list"
+                        [class.border-info]="toolbar_state().ordered_list"
+                        [class.text-info]="toolbar_state().ordered_list"
                         (click)="makeOrderedList()"
                     >
                         <icon>format_list_numbered</icon>
@@ -105,8 +105,8 @@ import Squire from 'squire-rte';
                         icon
                         type="button"
                         class="border-base-300 rounded border px-2 py-1 text-sm"
-                        [class.border-info]="toolbar_state.link"
-                        [class.text-info]="toolbar_state.link"
+                        [class.border-info]="toolbar_state().link"
+                        [class.text-info]="toolbar_state().link"
                         (click)="insertLink()"
                     >
                         <icon>link</icon>
@@ -190,7 +190,6 @@ export class RichTextInputComponent
     private _uploads = inject(UploadsService);
     private _dom_sanitizer = inject(DomSanitizer);
     private _ng_zone = inject(NgZone);
-    private _cdr = inject(ChangeDetectorRef);
     public readonly placeholder = input('');
     public readonly readonly = input(false);
     public readonly images_allowed = input(false);
@@ -201,14 +200,14 @@ export class RichTextInputComponent
     private _editor: Squire;
     private _onChange: (_: string) => void = () => undefined;
     private _onTouch: () => void = () => undefined;
-    public toolbar_state = {
+    public readonly toolbar_state = signal({
         bold: false,
         italic: false,
         underline: false,
         unordered_list: false,
         ordered_list: false,
         link: false,
-    };
+    });
 
     public readonly registerOnChange = (fn: (_: string) => void) =>
         (this._onChange = fn);
@@ -330,11 +329,14 @@ export class RichTextInputComponent
         this._embedFile(false);
     }
 
-    private _initialiseEditor() {
+    private async _initialiseEditor() {
         const _editor_el = this._editor_el()?.nativeElement;
         if (!_editor_el) {
             return this.timeout('init', () => this._initialiseEditor());
         }
+        // Load the Squire editor lazily so the ~58KB library stays out of the
+        // initial bundle until a rich-text field is actually rendered.
+        const { default: Squire } = await import('squire-rte');
         if (this._editor) {
             this._editor.destroy();
         }
@@ -397,13 +399,14 @@ export class RichTextInputComponent
     private readonly _refreshToolbarState = () => {
         if (!this._editor) return;
         this._ng_zone.run(() => {
-            this.toolbar_state.bold = this._editor.hasFormat('B');
-            this.toolbar_state.italic = this._editor.hasFormat('I');
-            this.toolbar_state.underline = this._editor.hasFormat('U');
-            this.toolbar_state.unordered_list = this._editor.hasFormat('UL');
-            this.toolbar_state.ordered_list = this._editor.hasFormat('OL');
-            this.toolbar_state.link = this._editor.hasFormat('A');
-            this._cdr.markForCheck();
+            this.toolbar_state.set({
+                bold: this._editor.hasFormat('B'),
+                italic: this._editor.hasFormat('I'),
+                underline: this._editor.hasFormat('U'),
+                unordered_list: this._editor.hasFormat('UL'),
+                ordered_list: this._editor.hasFormat('OL'),
+                link: this._editor.hasFormat('A'),
+            });
         });
     };
 

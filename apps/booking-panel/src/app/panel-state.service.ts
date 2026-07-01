@@ -1,4 +1,11 @@
-import { inject, Injectable } from '@angular/core';
+import {
+    computed,
+    effect,
+    inject,
+    Injectable,
+    signal,
+    untracked,
+} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { OrganisationService, randomInt } from '@placeos/common';
@@ -9,28 +16,15 @@ import {
     PlaceSystem,
     showSystem,
 } from '@placeos/ts-client';
-import { BehaviorSubject, combineLatest, interval, Observable } from 'rxjs';
-import {
-    debounceTime,
-    filter,
-    first,
-    map,
-    shareReplay,
-    startWith,
-    switchMap,
-    tap,
-} from 'rxjs/operators';
 
 import {
     AsyncHandler,
     CalendarEvent,
     currentUser,
     log,
-    nextValueFrom,
     notifyError,
     notifySuccess,
     notifyWarn,
-    observableFromSignal,
     SettingsService,
     Space,
     timePeriodsIntersect,
@@ -139,147 +133,145 @@ export class PanelStateService extends AsyncHandler {
     private _router = inject(Router);
 
     private _space_pipe: SpacePipe = new SpacePipe(this._org);
-    /** Polling observable */
-    private _poll = interval(1000);
     /** Mapping of current settings for the active system */
-    private _settings = new BehaviorSubject<PanelSettings>({});
+    private _settings = signal<PanelSettings>({});
     /** Active system */
-    private _system = new BehaviorSubject<string>('');
+    private _system = signal<string>('');
+    private _clock = signal(Date.now());
+    private _load_id = 0;
+    private _bound_system = '';
     /** Mapping of current settings for the active system */
-    public readonly settings = this._settings.asObservable();
+    public readonly settings = this._settings.asReadonly();
     /** List of current bookings for active system */
-    public readonly space = this._system.pipe(
-        debounceTime(1000),
-        tap((id) => log('Panel', `Loading system "${id}"...`)),
-        switchMap((id) =>
-            showSystem(id).catch(({ status, message }) => {
-                log(
-                    'Panel',
-                    'Error loading system details:',
-                    [status, message],
-                    'error',
-                );
-                if (status === 404) this._router.navigate(['/bootstrap']);
-                else {
-                    this.timeout(
-                        'reload_system',
-                        () => this._system.next(id),
-                        2000 + randomInt(3000),
-                    );
-                }
-                return new PlaceSystem();
-            }),
-        ),
-        map((_) => new Space(_ as any)),
-        shareReplay(1),
-    );
+    public readonly space = signal<Space>(null);
     /** Active system */
     public get system() {
-        return this._system.getValue();
+        return this._system();
     }
     public set system(value: string) {
-        this._system.next(value);
+        if (this._system() === value) return;
+        this._system.set(value);
         this._spaces.loadSpace(value);
     }
 
     public setting<K extends keyof PanelSettings>(name: K): PanelSettings[K] {
-        return this._settings.getValue()[name];
+        return this._settings()[name];
     }
     /** List of current bookings for active system */
-    public readonly bookings: Observable<CalendarEvent[]> = this._system.pipe(
-        filter((_) => !!_),
-        switchMap((id) => this._listenToModuleBinding(id, 'bookings')),
-        map((_) => (_?.length ? _.map((_) => new CalendarEvent(_)) : [])),
-        shareReplay(1),
-    );
+    public readonly bookings = signal<CalendarEvent[]>([]);
     /** Currently active booking */
-    public readonly _current: Observable<CalendarEvent> = this._system.pipe(
-        filter((_) => !!_),
-        switchMap((id) => this._listenToModuleBinding(id, 'current_booking')),
-        map((_) => (_ ? new CalendarEvent(_) : null)),
-        shareReplay(1),
-    );
-    public readonly current = combineLatest([
-        this._current,
-        interval(3 * 60 * 1000).pipe(startWith(0)),
-    ]).pipe(map(([e]) => (!e || e.state === 'done' ? null : e)));
+    public readonly _current = signal<CalendarEvent>(null);
+    public readonly current = computed(() => {
+        this._clock();
+        const e = this._current();
+        return !e || e.state === 'done' ? null : e;
+    });
     /** Upcoming booking */
-    public readonly _next: Observable<CalendarEvent> = this._system.pipe(
-        filter((_) => !!_),
-        switchMap((id) => this._listenToModuleBinding(id, 'next_booking')),
-        map((_) => (_ ? new CalendarEvent(_) : null)),
-        shareReplay(1),
-    );
-    public readonly next = combineLatest([
-        this._next,
-        interval(3 * 60 * 1000).pipe(startWith(0)),
-    ]).pipe(map(([e]) => (!e || Date.now() > e.date ? null : e)));
+    public readonly _next = signal<CalendarEvent>(null);
+    public readonly next = computed(() => {
+        this._clock();
+        const e = this._next();
+        return !e || Date.now() > e.date ? null : e;
+    });
 
-    public readonly status: Observable<string> = combineLatest([
-        this._settings,
-        this._current,
-    ]).pipe(
-        map(([{ status }, booking]) => status || (booking ? 'busy' : 'free')),
-        shareReplay(1),
-    );
-    public readonly pending_check = combineLatest([
-        this._current,
-        this.status,
-        interval(15 * 1000),
-    ]).pipe(
-        tap(([current, status]) => {
-            if (
-                !current ||
-                status !== 'pending' ||
-                current.body.includes('main_event_id') ||
-                this.setting('disable_end_meeting') === true
-            ) {
-                return;
-            }
-            const pending_period = this.setting('pending_period');
-            if (!pending_period || pending_period < 1) return;
-            const diff = differenceInMinutes(Date.now(), current.date);
-            if (diff <= pending_period) return;
-            this.endCurrent('Pending period expired.');
-        }),
-    );
+    public readonly status = computed<string>(() => {
+        const { status } = this._settings();
+        const booking = this._current();
+        return status || (booking ? 'busy' : 'free');
+    });
 
     constructor() {
         super();
+        this.interval('clock', () => this._clock.set(Date.now()), 5000);
+        this.interval('pending_check', () => this._checkPending(), 15 * 1000);
+        effect(() => {
+            if (!this._org.initialised()) return;
+            const id = this._system();
+            untracked(() => this._bindSystem(id));
+        });
         this._init();
     }
 
+    private _bindSystem(id: string) {
+        if (this._bound_system === id) return;
+        this._bound_system = id;
+        this.unsubWith('listen:');
+        this.unsubWith('binding:');
+        this.clearTimeout('load_system');
+        this.clearTimeout('reload_system');
+        this._load_id += 1;
+        this._resetPanelState();
+        if (!id) return;
+        this._loadSystem(id);
+        const settings: any[] = [
+            'room_name',
+            'custom_qr_url',
+            'custom_qr_color',
+            'disable_book_now',
+            'hide_meeting_details',
+            'hide_meeting_title',
+            'disable_book_now_host',
+            'disable_end_meeting',
+            'enable_end_meeting_button',
+            'min_duration',
+            'max_duration',
+            'pending',
+            'status',
+            'control_ui',
+            'catering_ui',
+            'pending_period',
+            'pending_before',
+            'room_image',
+            'offline_image',
+            'show_qr_code',
+            'hide_qr_text',
+            'presence',
+            'room_capacity',
+        ];
+        settings.forEach((k) => this.bindTo(id, k));
+        this._listenToModuleBinding(id, 'bookings', (value) =>
+            this.bookings.set(
+                value?.length
+                    ? value.map((item) => new CalendarEvent(item))
+                    : [],
+            ),
+        );
+        this._listenToModuleBinding(id, 'current_booking', (value) =>
+            this._current.set(value ? new CalendarEvent(value) : null),
+        );
+        this._listenToModuleBinding(id, 'next_booking', (value) =>
+            this._next.set(value ? new CalendarEvent(value) : null),
+        );
+    }
+
+    private _resetPanelState() {
+        this._settings.set({});
+        this.space.set(null);
+        this.bookings.set([]);
+        this._current.set(null);
+        this._next.set(null);
+    }
+
+    private _checkPending() {
+        const current = this._current();
+        const status = this.status();
+        if (
+            !current ||
+            status !== 'pending' ||
+            current.body.includes('main_event_id') ||
+            this.setting('disable_end_meeting') === true
+        ) {
+            return;
+        }
+        const pending_period = this.setting('pending_period');
+        if (!pending_period || pending_period < 1) return;
+        const diff = differenceInMinutes(Date.now(), current.date);
+        if (diff <= pending_period) return;
+        this.endCurrent('Pending period expired.');
+    }
+
     private async _init() {
-        await this._org.initialised.pipe(first((_) => !!_)).toPromise();
-        this._system.pipe(filter((_) => !!_)).subscribe((id) => {
-            const settings: any[] = [
-                'room_name',
-                'custom_qr_url',
-                'custom_qr_color',
-                'disable_book_now',
-                'hide_meeting_details',
-                'hide_meeting_title',
-                'disable_book_now_host',
-                'disable_end_meeting',
-                'enable_end_meeting_button',
-                'min_duration',
-                'max_duration',
-                'pending',
-                'status',
-                'control_ui',
-                'catering_ui',
-                'pending_period',
-                'pending_before',
-                'room_image',
-                'offline_image',
-                'show_qr_code',
-                'hide_qr_text',
-                'presence',
-                'room_capacity',
-            ];
-            settings.forEach((k) => this.bindTo(id, k));
-        });
-        this.subscription('pending_check', this.pending_check.subscribe());
+        await this._org.waitUntilInitialised();
         if (this._app_settings.get('app.refresh_when_websocket_unstable')) {
             let count = 0;
             this.subscription(
@@ -291,6 +283,39 @@ export class PanelStateService extends AsyncHandler {
                 }),
             );
         }
+    }
+
+    private async _loadSystem(id: string) {
+        const load_id = ++this._load_id;
+        this.timeout(
+            'load_system',
+            async () => {
+                log('Panel', `Loading system "${id}"...`);
+                const system = await showSystem(id).catch(
+                    ({ status, message }) => {
+                        log(
+                            'Panel',
+                            'Error loading system details:',
+                            [status, message],
+                            'error',
+                        );
+                        if (status === 404)
+                            this._router.navigate(['/bootstrap']);
+                        else {
+                            this.timeout(
+                                'reload_system',
+                                () => this._loadSystem(id),
+                                2000 + randomInt(3000),
+                            );
+                        }
+                        return new PlaceSystem();
+                    },
+                );
+                if (load_id !== this._load_id) return;
+                this.space.set(new Space(system as any));
+            },
+            1000,
+        );
     }
 
     /**
@@ -306,7 +331,7 @@ export class PanelStateService extends AsyncHandler {
         // if (date <= Date.now() && !user) {
         //     return this.confirmBookNow();
         // }
-        const current = await nextValueFrom(this._current);
+        const current = this._current();
         if (
             current &&
             isAfter(date, current.date) &&
@@ -314,11 +339,11 @@ export class PanelStateService extends AsyncHandler {
         )
             return notifyError('Booking already exists for this time');
 
-        let max_duration = this._settings.getValue().max_duration;
-        const next = await nextValueFrom(this.next);
+        let max_duration = this._settings().max_duration;
+        const next = this.next();
         if (next && date <= Date.now()) {
             const diff = Math.abs(differenceInMinutes(next.date, date));
-            const max = this._settings.getValue().max_duration || 480;
+            const max = this._settings().max_duration || 480;
             max_duration = diff < max ? diff : max;
         }
         if (max_duration != null && max_duration < 15) {
@@ -327,7 +352,7 @@ export class PanelStateService extends AsyncHandler {
             );
         }
 
-        const min_duration = this._settings.getValue().min_duration;
+        const min_duration = this._settings().min_duration;
         const space = await this._space_pipe.transform(this.system);
         this.timeout(
             'reset_view',
@@ -337,7 +362,7 @@ export class PanelStateService extends AsyncHandler {
         this._dialog.closeAll();
         const details = await openBookingModal(
             {
-                ...this._settings.getValue(),
+                ...this._settings(),
                 user: user ? currentUser() : undefined,
                 space,
                 date: future
@@ -353,14 +378,15 @@ export class PanelStateService extends AsyncHandler {
         );
         if (details.reason !== 'done') return details.close();
         this._events.newForm();
-        this._events.form.patchValue({
+        this._events.model.update((m) => ({
+            ...m,
             ...details.metadata,
             host: details.metadata.organiser?.email,
             resources: [space],
             system: space,
-        });
+        }));
         await this.makeBooking(
-            this._events.form.getRawValue(),
+            this._events.model() as Partial<CalendarEvent>,
             force_api,
         ).catch((e) => {
             notifyError(`Error creating meeting. ${e}`);
@@ -380,7 +406,7 @@ export class PanelStateService extends AsyncHandler {
             2 * 60 * 1000,
         );
         const date = Date.now();
-        const current = await nextValueFrom(this._current);
+        const current = this._current();
         if (
             current &&
             isAfter(date, current.date) &&
@@ -389,10 +415,10 @@ export class PanelStateService extends AsyncHandler {
             return notifyError('Booking already exists for this time');
         }
         let max_duration = undefined;
-        const next = await nextValueFrom(this._next);
+        const next = this._next();
         if (next && date <= Date.now()) {
             const diff = Math.abs(differenceInMinutes(next.date, date));
-            const max = this._settings.getValue().max_duration || 480;
+            const max = this._settings().max_duration || 480;
             max_duration = diff < max ? diff : max;
         }
         if (max_duration != null && max_duration < 15) {
@@ -437,8 +463,6 @@ export class PanelStateService extends AsyncHandler {
         force_api = false,
     ) {
         if (isAfter(details.date, addMinutes(Date.now(), 5)) || force_api) {
-            this._events.form.controls.host.setValidators([]);
-            this._events.form.updateValueAndValidity();
             await this._events.postForm(true);
         } else {
             const module = getModule(this.system, 'Bookings');
@@ -469,7 +493,7 @@ export class PanelStateService extends AsyncHandler {
             {
                 title: 'Do you wish to start your meeting?',
                 content: `If you don't start your meeting it will be cancelled ${
-                    this._settings.getValue().pending_period / 60
+                    this._settings().pending_period / 60
                 } minutes after the start time.`,
                 icon: {
                     class: 'material-symbols-rounded',
@@ -492,9 +516,7 @@ export class PanelStateService extends AsyncHandler {
                 'Current or upcoming meeting is not in a pending state.',
             );
         }
-        const meeting =
-            (await nextValueFrom(this._current)) ||
-            (await nextValueFrom(this._next));
+        const meeting = this._current() || this._next();
         const mod = getModule(this.system, 'Bookings');
         if (!meeting || !mod) return;
         await mod
@@ -536,7 +558,7 @@ export class PanelStateService extends AsyncHandler {
      * @param reason Reason for ending the meeting early
      */
     public async endCurrent(reason = 'user_input') {
-        const current = await nextValueFrom(this._current);
+        const current = this._current();
         const module = getModule(this.system, 'Bookings');
         if (current && module) {
             await module
@@ -556,7 +578,7 @@ export class PanelStateService extends AsyncHandler {
      * Open confirmation modal for calling waiter
      */
     public async viewControl() {
-        const control_url = this._settings.getValue().control_ui;
+        const control_url = this._settings().control_ui;
         if (!control_url) return;
         this._dialog.open(EmbeddedControlModalComponent, {
             data: { control_url },
@@ -634,20 +656,26 @@ export class PanelStateService extends AsyncHandler {
         name: K,
         value: PanelSettings[K],
     ) {
-        const item = { ...this._settings.getValue() };
-        item[name] = value;
-        this._settings.next(item);
+        const item = this._settings();
+        if (item[name] === value) return;
+        this._settings.set({ ...item, [name]: value });
     }
 
     private _listenToModuleBinding(
         id: string,
         name: string,
+        update: (value: any) => void,
         mod_name = 'Bookings',
     ) {
         const mod = getModule(id, mod_name);
         if (window.debug) window.panel_module = mod;
         const binding = mod.variable(name);
         this.subscription(`binding:${mod_name}:${name}`, binding.bind());
-        return observableFromSignal(binding.listen());
+        const listen = binding.listen();
+        update(listen());
+        this.subscription(
+            `binding:${mod_name}:${name}:listen`,
+            listen.subscribe(update),
+        );
     }
 }

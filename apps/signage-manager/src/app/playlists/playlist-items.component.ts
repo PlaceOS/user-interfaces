@@ -4,7 +4,6 @@ import {
     moveItemInArray,
 } from '@angular/cdk/drag-drop';
 import { Component, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -35,9 +34,9 @@ import { SignageService } from '../signage.service';
                     @if (can_approve()) {
                         <button
                             icon
+                            default
                             type="button"
                             matRipple
-                            class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
                             [matTooltip]="
                                 'SIGNAGE_MANAGER.APPROVE_PLAYLIST_TOOLTIP'
                                     | translate
@@ -53,9 +52,9 @@ import { SignageService } from '../signage.service';
                     } @else {
                         <button
                             icon
+                            default
                             type="button"
                             matRipple
-                            class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
                             [matTooltip]="
                                 'SIGNAGE_MANAGER.REQUEST_PLAYLIST_APPROVAL_TOOLTIP'
                                     | translate
@@ -78,12 +77,12 @@ import { SignageService } from '../signage.service';
                 @if (can_update()) {
                     <button
                         icon
+                        default
                         type="button"
                         matRipple
                         [matTooltip]="
                             'SIGNAGE_MANAGER.EDIT_PLAYLIST_TOOLTIP' | translate
                         "
-                        class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
                         (click)="editPlaylist()"
                         [attr.aria-label]="
                             'SIGNAGE_MANAGER.EDIT_SELECTED_PLAYLIST' | translate
@@ -95,15 +94,16 @@ import { SignageService } from '../signage.service';
                 @if (can_share()) {
                     <button
                         icon
+                        default
                         type="button"
                         matRipple
                         [matTooltip]="
                             'SIGNAGE_MANAGER.SHARE_PLAYLIST_TOOLTIP' | translate
                         "
-                        class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
                         (click)="sharePlaylist()"
                         [attr.aria-label]="
-                            'SIGNAGE_MANAGER.SHARE_SELECTED_PLAYLIST' | translate
+                            'SIGNAGE_MANAGER.SHARE_SELECTED_PLAYLIST'
+                                | translate
                         "
                     >
                         <icon>ios_share</icon>
@@ -112,18 +112,21 @@ import { SignageService } from '../signage.service';
                 @if (can_delete()) {
                     <button
                         icon
+                        default
+                        error
                         type="button"
                         matRipple
                         [matTooltip]="
-                            'SIGNAGE_MANAGER.DELETE_PLAYLIST_TOOLTIP' | translate
+                            'SIGNAGE_MANAGER.DELETE_PLAYLIST_TOOLTIP'
+                                | translate
                         "
-                        class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
                         (click)="removePlaylist()"
                         [attr.aria-label]="
-                            'SIGNAGE_MANAGER.DELETE_SELECTED_PLAYLIST' | translate
+                            'SIGNAGE_MANAGER.DELETE_SELECTED_PLAYLIST'
+                                | translate
                         "
                     >
-                        <icon class="text-error">delete</icon>
+                        <icon>delete</icon>
                     </button>
                 }
             </div>
@@ -132,7 +135,11 @@ import { SignageService } from '../signage.service';
                     class="flex flex-1 flex-col items-center justify-center space-y-3 p-8 opacity-70"
                 >
                     <mat-spinner diameter="32" />
-                    <p>{{ 'SIGNAGE_MANAGER.LOADING_PLAYLIST_ITEMS' | translate }}</p>
+                    <p>
+                        {{
+                            'SIGNAGE_MANAGER.LOADING_PLAYLIST_ITEMS' | translate
+                        }}
+                    </p>
                 </div>
             } @else if (items().length > 0) {
                 <div
@@ -246,6 +253,7 @@ import { SignageService } from '../signage.service';
                             </div>
                             <button
                                 icon
+                                default
                                 type="button"
                                 matRipple
                                 [matMenuTriggerFor]="item_menu"
@@ -354,9 +362,7 @@ export class PlaylistItemsComponent {
     public readonly loading = this._service.playlist_media_loading;
     public readonly approval_request_loading =
         this._service.playlist_approval_request_loading;
-    public readonly items = toSignal(this._service.playlist_media_items$, {
-        initialValue: [] as SignageMedia[],
-    });
+    public readonly items = this._service.playlist_media_items;
     public selectItem(item: SignageMedia) {
         this._service.selected_playlist_item.set(item);
     }

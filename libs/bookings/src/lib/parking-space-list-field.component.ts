@@ -3,15 +3,13 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 
 import { MatRippleModule } from '@angular/material/core';
+import { SETTING_KEYS } from '@placeos/common';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { BookingAsset } from './booking-form.service';
-import {
-    FAV_PARKING_KEY,
-    ParkingSelectModalComponent,
-} from './parking-select-modal/parking-select-modal.component';
+import { ParkingSelectModalComponent } from './parking-select-modal/parking-select-modal.component';
 
 const EMPTY_FAVS: string[] = [];
 
@@ -63,6 +61,7 @@ const EMPTY_FAVS: string[] = [];
                                 btn
                                 matRipple
                                 edit-space
+                                type="button"
                                 class="clear"
                                 (click)="changeResources()"
                             >
@@ -75,6 +74,7 @@ const EMPTY_FAVS: string[] = [];
                                 btn
                                 matRipple
                                 remove-space
+                                type="button"
                                 class="clear"
                                 (click)="removeResource(space)"
                             >
@@ -89,13 +89,14 @@ const EMPTY_FAVS: string[] = [];
                         icon
                         matRipple
                         fav
+                        type="button"
                         class="absolute top-1 right-1"
-                        [class.text-info]="favorites.includes(space?.id)"
+                        [class.text-info]="favorites().includes(space?.id)"
                         (click)="toggleFavourite(space)"
                     >
                         <icon
                             [className]="
-                                favorites.includes(space?.id)
+                                favorites().includes(space?.id)
                                     ? 'material-symbols-rounded'
                                     : 'material-symbols-outlined'
                             "
@@ -109,6 +110,7 @@ const EMPTY_FAVS: string[] = [];
             btn
             matRipple
             add-space
+            type="button"
             class="inverse mt-2 w-full"
             (click)="changeResources()"
         >
@@ -148,13 +150,11 @@ export class ParkingSpaceListFieldComponent implements ControlValueAccessor {
     private _onChange: (_: BookingAsset[]) => void;
     private _onTouch: (_: BookingAsset[]) => void;
 
-    public get favorites() {
-        return this._settings.signal<string[]>(
-            'favourite_spaces',
-            EMPTY_FAVS,
-            true,
-        )();
-    }
+    public readonly favorites = this._settings.signal<string[]>(
+        SETTING_KEYS.FAVORITE_PARKING_SPACES,
+        EMPTY_FAVS,
+        true,
+    );
 
     /** Add or edit selected spaces */
     public changeResources() {
@@ -201,16 +201,16 @@ export class ParkingSpaceListFieldComponent implements ControlValueAccessor {
     public readonly setDisabledState = (s: boolean) => this.disabled.set(s);
 
     public toggleFavourite(space: BookingAsset) {
-        const fav_list = this.favorites;
+        const fav_list = this.favorites() || EMPTY_FAVS;
         const new_state = !fav_list.includes(space.id);
         if (new_state) {
-            this._settings.saveUserSetting(FAV_PARKING_KEY, [
-                ...fav_list,
-                space.id,
-            ]);
+            this._settings.saveUserSetting(
+                SETTING_KEYS.FAVORITE_PARKING_SPACES,
+                [...fav_list, space.id],
+            );
         } else {
             this._settings.saveUserSetting(
-                FAV_PARKING_KEY,
+                SETTING_KEYS.FAVORITE_PARKING_SPACES,
                 fav_list.filter((_) => _ !== space.id),
             );
         }

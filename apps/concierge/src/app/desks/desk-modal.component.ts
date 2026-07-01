@@ -1,10 +1,13 @@
-import { Component, inject, OnInit, output, signal } from '@angular/core';
 import {
-    FormControl,
-    FormGroup,
-    ReactiveFormsModule,
-    Validators,
-} from '@angular/forms';
+    Component,
+    computed,
+    effect,
+    inject,
+    OnInit,
+    output,
+    signal,
+} from '@angular/core';
+import { form, FormField, required } from '@angular/forms/signals';
 import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
@@ -17,6 +20,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
+    Booking,
     Desk,
     DialogEvent,
     notifyInfo,
@@ -25,6 +29,8 @@ import {
     unique,
     User,
 } from '@placeos/common';
+import { queryBookings } from '@placeos/bookings';
+import { addMonths, getUnixTime } from 'date-fns';
 import {
     IconComponent,
     SettingsToggleComponent,
@@ -35,7 +41,6 @@ import {
     UserSearchFieldComponent,
 } from '@placeos/form-fields';
 import { showStaff } from '@placeos/users';
-import { lastValueFrom } from 'rxjs';
 import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.component';
 
 const CHARS = '0123456789ABCDEF';
@@ -62,10 +67,7 @@ const CHARS = '0123456789ABCDEF';
                 }
             </header>
             @if (!loading()) {
-                <main
-                    class="flex max-h-[65vh] flex-col overflow-auto p-4"
-                    [formGroup]="form"
-                >
+                <main class="flex max-h-[65vh] flex-col overflow-auto p-4">
                     <div class="w-full">
                         <label for="id">
                             {{ 'APP.CONCIERGE.DESKS_ID' | translate }}
@@ -74,8 +76,7 @@ const CHARS = '0123456789ABCDEF';
                         <mat-form-field appearance="outline" class="w-full">
                             <input
                                 matInput
-                                name="id"
-                                formControlName="id"
+                                [formField]="form.id"
                                 placeholder="desk-10.123"
                             />
                             <mat-error>{{
@@ -92,8 +93,7 @@ const CHARS = '0123456789ABCDEF';
                             <mat-form-field appearance="outline" class="w-full">
                                 <input
                                     matInput
-                                    name="name"
-                                    formControlName="name"
+                                    [formField]="form.name"
                                     placeholder="e.g. Office Desk"
                                 />
                                 <mat-error>{{
@@ -112,8 +112,7 @@ const CHARS = '0123456789ABCDEF';
                                 >
                                     <input
                                         matInput
-                                        name="map-id"
-                                        formControlName="map_id"
+                                        [formField]="form.map_id"
                                         [placeholder]="
                                             'APP.CONCIERGE.DESKS_MAP_ID_PLACEHOLDER'
                                                 | translate
@@ -146,8 +145,7 @@ const CHARS = '0123456789ABCDEF';
                     }}</label>
                     <div class="mb-4 flex space-x-2">
                         <a-user-search-field
-                            name="user"
-                            formControlName="assigned_user"
+                            [formField]="form.assigned_user"
                             class="flex-1"
                         ></a-user-search-field>
                         <button
@@ -157,24 +155,33 @@ const CHARS = '0123456789ABCDEF';
                             [matTooltip]="
                                 'APP.CONCIERGE.USER_CLEAR' | translate
                             "
-                            (click)="
-                                form.patchValue({
-                                    assigned_user: null,
-                                    assigned_to: null,
-                                    assigned_name: null,
-                                })
-                            "
+                            (click)="clearUser()"
                         >
                             <icon className="material-symbols-outlined">
                                 person_cancel
                             </icon>
                         </button>
                     </div>
+                    @if (future_bookings().length) {
+                        <div
+                            class="bg-warning/10 border-warning text-warning-content mb-4 flex items-start space-x-2 rounded-sm border p-2 text-sm"
+                        >
+                            <icon class="text-warning">warning</icon>
+                            <p class="flex-1">
+                                {{
+                                    'APP.CONCIERGE.ASSIGNED_FUTURE_DESK_BOOKINGS'
+                                        | translate
+                                            : { count: future_bookings().length }
+                                            : future_bookings().length
+                                }}
+                            </p>
+                        </div>
+                    }
                     <div class="flex space-x-4 pb-4">
                         <settings-toggle
-                            formControlName="bookable"
+                            [formField]="form.bookable"
                             class="flex-1"
-                            [name]="'COMMON.BOOKABLE' | translate"
+                            [label]="'COMMON.BOOKABLE' | translate"
                         >
                         </settings-toggle>
                         <div class="flex-1"></div>
@@ -183,7 +190,7 @@ const CHARS = '0123456789ABCDEF';
                     <item-list-field
                         class="w-full"
                         [placeholder]="'BOOKINGS.GROUPS' | translate"
-                        formControlName="groups"
+                        [formField]="form.groups"
                     ></item-list-field>
                     <label for="notes">{{
                         'COMMON.FEATURES' | translate
@@ -191,15 +198,20 @@ const CHARS = '0123456789ABCDEF';
                     <item-list-field
                         class="w-full"
                         [placeholder]="'COMMON.FEATURES' | translate"
-                        formControlName="features"
+                        [formField]="form.features"
+                    ></item-list-field>
+                    <label for="tags">{{ 'COMMON.TAGS' | translate }}</label>
+                    <item-list-field
+                        class="w-full"
+                        [placeholder]="'COMMON.TAGS' | translate"
+                        [formField]="form.tags"
                     ></item-list-field>
                     <label for="notes">{{ 'FORM.NOTES' | translate }}</label>
                     <mat-form-field appearance="outline">
                         <textarea
                             matInput
-                            name="notes"
                             [placeholder]="'FORM.NOTES' | translate"
-                            formControlName="notes"
+                            [formField]="form.notes"
                         ></textarea>
                     </mat-form-field>
                     <label for="homebase">
@@ -208,11 +220,10 @@ const CHARS = '0123456789ABCDEF';
                     <mat-form-field appearance="outline" class="w-full">
                         <input
                             matInput
-                            name="homebase"
                             [placeholder]="
                                 'APP.CONCIERGE.DESKS_HOMEBASE' | translate
                             "
-                            formControlName="homebase"
+                            [formField]="form.homebase"
                         />
                     </mat-form-field>
                     <label for="security">
@@ -221,11 +232,10 @@ const CHARS = '0123456789ABCDEF';
                     <mat-form-field appearance="outline" class="w-full">
                         <input
                             matInput
-                            name="security"
                             [placeholder]="
                                 'APP.CONCIERGE.DESKS_SECURITY' | translate
                             "
-                            formControlName="security"
+                            [formField]="form.security"
                         />
                     </mat-form-field>
                 </main>
@@ -254,7 +264,7 @@ const CHARS = '0123456789ABCDEF';
         MatRippleModule,
         MatFormFieldModule,
         MatInputModule,
-        ReactiveFormsModule,
+        FormField,
         MatProgressSpinnerModule,
         ItemListFieldComponent,
         SettingsToggleComponent,
@@ -274,6 +284,11 @@ export class DeskModalComponent implements OnInit {
     public readonly event = output<DialogEvent>();
     public loading = signal(false);
 
+    /** Future desk bookings for the currently assigned user (excluding this desk) */
+    public readonly future_bookings = signal<Booking[]>([]);
+
+    private readonly _assigned_email = computed(() => this.model().assigned_to);
+
     public get id(): string {
         return this._data?.desk?.id || '';
     }
@@ -282,51 +297,108 @@ export class DeskModalComponent implements OnInit {
         return this._data?.desk;
     }
 
-    public readonly form = new FormGroup({
-        id: new FormControl(``),
-        name: new FormControl('', [Validators.required]),
-        map_id: new FormControl('', [Validators.required]),
-        groups: new FormControl<string[]>([]),
-        features: new FormControl<string[]>([]),
-        bookable: new FormControl(false),
-        notes: new FormControl(''),
-        assigned_user: new FormControl<User>(null),
-        assigned_to: new FormControl(''),
-        assigned_name: new FormControl(''),
-        homebase: new FormControl(''),
-        security: new FormControl(''),
+    public readonly model = signal({
+        id: ``,
+        name: '',
+        map_id: '',
+        groups: [] as string[],
+        features: [] as string[],
+        tags: [] as string[],
+        bookable: false,
+        notes: '',
+        assigned_user: null as User | null,
+        assigned_to: '',
+        assigned_name: '',
+        homebase: '',
+        security: '',
+    });
+
+    public readonly form = form(this.model, (p) => {
+        required(p.name);
+        required(p.map_id);
     });
 
     constructor() {
-        const _data = this._data;
-
-        if (_data?.desk) this.form.patchValue(_data.desk);
-        if (!this.form.value.id) {
-            this.form.patchValue({
-                id: `desk-${randomString(3, CHARS)}_${randomString(5, CHARS)}`,
-            });
+        const desk = this._data?.desk as any;
+        if (desk) {
+            this.model.update((m) => ({
+                ...m,
+                id: desk.id ?? m.id,
+                name: desk.name ?? m.name,
+                map_id: desk.map_id ?? m.map_id,
+                groups: desk.groups ?? m.groups,
+                features: desk.features ?? m.features,
+                tags: desk.tags ?? m.tags,
+                bookable: desk.bookable ?? m.bookable,
+                notes: desk.notes ?? m.notes,
+                assigned_to: desk.assigned_to ?? m.assigned_to,
+                assigned_name: desk.assigned_name ?? m.assigned_name,
+                homebase: desk.homebase ?? m.homebase,
+                security: desk.security ?? m.security,
+            }));
         }
+        if (!this.model().id) {
+            this.model.update((m) => ({
+                ...m,
+                id: `desk-${randomString(3, CHARS)}_${randomString(5, CHARS)}`,
+            }));
+        }
+        effect(() => this._checkFutureBookings(this._assigned_email()));
+    }
+
+    /**
+     * Warn when the assigned user already has upcoming desk bookings. The
+     * desk being edited is excluded so its own assignment booking does not
+     * trigger the warning.
+     */
+    private async _checkFutureBookings(email: string) {
+        if (!email) {
+            this.future_bookings.set([]);
+            return;
+        }
+        const now = Date.now();
+        const bookings = await queryBookings({
+            period_start: getUnixTime(now),
+            period_end: getUnixTime(addMonths(now, 12)),
+            type: 'desk',
+            email,
+            include_checked_out: true,
+        });
+        // Selection changed while the query was in flight; ignore stale result
+        if (this._assigned_email() !== email) return;
+        this.future_bookings.set(
+            bookings.filter((booking) => booking.asset_id !== this.id),
+        );
     }
 
     public async ngOnInit() {
         if (this.desk?.assigned_to) {
-            const user = await lastValueFrom(showStaff(this.desk.assigned_to));
+            const user = await showStaff(this.desk.assigned_to);
             if (user) {
-                this.form.patchValue({
+                this.model.update((m) => ({
+                    ...m,
                     assigned_user: user,
                     assigned_to: user.email,
                     assigned_name: user.name,
-                });
+                }));
             }
         }
     }
 
+    public clearUser() {
+        this.model.update((m) => ({
+            ...m,
+            assigned_user: null,
+            assigned_to: '',
+            assigned_name: '',
+        }));
+    }
+
     public postForm() {
-        this.form.markAllAsTouched();
-        this.form.updateValueAndValidity();
-        if (!this.form.valid) return;
+        this.form().markAsTouched();
+        if (!this.form().valid()) return;
         this.loading.set(true);
-        const value = { ...this.form.getRawValue() };
+        const value: any = { ...this.model() };
         if (value.assigned_user) {
             value.assigned_to = value.assigned_user?.email || value.assigned_to;
             value.assigned_name =
@@ -354,7 +426,7 @@ export class DeskModalComponent implements OnInit {
         let level = this.desk.zone as any;
         const ref = this._dialog.open(SelectMapItemModalComponent, {
             data: {
-                location: this.form.value.map_id,
+                location: this.model().map_id,
                 level_id: this.form,
             },
         });
@@ -367,7 +439,7 @@ export class DeskModalComponent implements OnInit {
                 this._org.building.id,
                 level?.id,
             ]);
-            this.form.patchValue({ map_id: d });
+            this.model.update((m) => ({ ...m, map_id: d }));
         });
     }
 }

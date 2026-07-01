@@ -1,7 +1,7 @@
+import { signal } from '@angular/core';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { IconComponent } from '@placeos/components';
 import { MockComponent, MockProvider } from 'ng-mocks';
-import { BehaviorSubject } from 'rxjs';
 
 import { CalendarEvent, SettingsService } from '@placeos/common';
 import { DayviewEventComponent } from '../../app/day-view/dayview-event.component';
@@ -14,7 +14,7 @@ describe('DayviewEventComponent', () => {
         declarations: [MockComponent(IconComponent)],
         providers: [
             MockProvider(EventsStateService, {
-                options: new BehaviorSubject({}),
+                options: signal({}),
                 setEvent: jest.fn(),
             }),
             MockProvider(SettingsService, { time_format: 'h:mm a' }),
@@ -43,7 +43,7 @@ describe('DayviewEventComponent', () => {
         spectator.detectChanges();
         expect('[cleaning]').not.toExist();
         const events = spectator.inject(EventsStateService);
-        (events.options as any).next({ show_cleaning: true });
+        (events.options as any).set({ show_cleaning: true });
         spectator.detectChanges();
         expect('[cleaning]').toExist();
     });

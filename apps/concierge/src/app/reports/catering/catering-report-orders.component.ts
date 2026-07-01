@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, input } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { OrganisationService, SettingsService } from '@placeos/common';
@@ -122,9 +121,7 @@ export class CateringReportOrdersComponent {
 
     public readonly print = input(false);
     public readonly table_metric_guide = TABLE_METRIC_GUIDE;
-    public readonly orders = toSignal(this._report.catering_orders, {
-        initialValue: [],
-    });
+    public readonly orders = this._report.catering_orders;
 
     public get code() {
         return this._org.currency_code;

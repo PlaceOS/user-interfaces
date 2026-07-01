@@ -88,8 +88,7 @@ import { DateFieldComponent } from '@placeos/form-fields';
                     <div class="flex w-full gap-2">
                         <a-date-field
                             [from]="1"
-                            [ngModel]="edited_time()"
-                            (ngModelChange)="edited_time.set($event)"
+                            [(ngModel)]="edited_time"
                             class="no-subscript w-40 flex-1"
                         />
                         <mat-form-field

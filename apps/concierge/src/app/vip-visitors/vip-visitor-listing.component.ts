@@ -214,7 +214,7 @@ import { VipVisitorsStateService } from './vip-visitors-state.service';
                     class="rounded"
                     [href]="'mailto:' + row?.asset_id"
                     [matTooltip]="
-                        'APP.CONCIERGE.VISITORS_ACTION_EMAIL_visitor'
+                        'APP.CONCIERGE.VISITORS_ACTION_EMAIL'
                             | translate
                     "
                 >

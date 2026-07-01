@@ -19,7 +19,9 @@ import { SignageGroupEditModalComponent } from './signage-group-edit-modal.compo
                 <div class="text-sm opacity-60">
                     {{
                         'SIGNAGE_MANAGER.GROUP_COUNT'
-                            | translate: { count: group_count() } : group_count()
+                            | translate
+                                : { count: group_count() }
+                                : group_count()
                     }}
                 </div>
             </div>
@@ -27,10 +29,12 @@ import { SignageGroupEditModalComponent } from './signage-group-edit-modal.compo
             @if (can_manage_all_groups()) {
                 <button
                     icon
+                    default
                     type="button"
                     matRipple
-                    class="border-base-200 hover:bg-base-200 hover:border-base-300 mr-1 rounded-lg border hover:shadow-md"
-                    [matTooltip]="'SIGNAGE_MANAGER.GROUPS_NEW_TOOLTIP' | translate"
+                    [matTooltip]="
+                        'SIGNAGE_MANAGER.GROUPS_NEW_TOOLTIP' | translate
+                    "
                     matTooltipPosition="left"
                     (click)="editGroup()"
                 >

@@ -1,10 +1,4 @@
-import {
-    Component,
-    computed,
-    HostListener,
-    inject,
-    signal,
-} from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';

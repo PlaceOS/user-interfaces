@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { RouterModule } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
@@ -68,7 +68,7 @@ import {
                             matRipple
                             name="locker-outlook-link"
                             class="inverse flex w-64 items-center space-x-2 rounded-sm p-2 pr-4"
-                            [href]="outlook_link | sanitize: 'url'"
+                            [href]="outlook_link() | sanitize: 'url'"
                             target="_blank"
                             rel="noopener noreferer"
                         >
@@ -82,7 +82,7 @@ import {
                             matRipple
                             name="locker-google-link"
                             class="inverse flex w-64 items-center space-x-2 rounded-sm p-2 pr-4"
-                            [href]="google_link | sanitize: 'url'"
+                            [href]="google_link() | sanitize: 'url'"
                             target="_blank"
                             rel="noopener noreferer"
                         >
@@ -96,7 +96,7 @@ import {
                             matRipple
                             name="locker-ical-link"
                             class="inverse flex w-64 items-center space-x-2 rounded-sm p-2 pr-4"
-                            [href]="ical_link | safe: 'url'"
+                            [href]="ical_link() | safe: 'url'"
                             target="_blank"
                             rel="noopener noreferer"
                         >
@@ -136,9 +136,9 @@ export class BookLockerFlowSuccessComponent {
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
 
-    public outlook_link = '';
-    public google_link = '';
-    public ical_link = '';
+    public outlook_link = signal('');
+    public google_link = signal('');
+    public ical_link = signal('');
     public get location() {
         if (!this.last_event) return 'Unknown';
         const building = this._org.buildings.find((_) =>
@@ -167,10 +167,12 @@ export class BookLockerFlowSuccessComponent {
         this._state.openBookingLinkModal();
 
     public ngOnInit() {
-        this.outlook_link = generateMicrosoftCalendarLink(
-            this.last_event as any,
+        this.outlook_link.set(
+            generateMicrosoftCalendarLink(this.last_event as any),
         );
-        this.google_link = generateGoogleCalendarLink(this.last_event as any);
-        this.ical_link = generateCalendarFileLink(this.last_event as any);
+        this.google_link.set(
+            generateGoogleCalendarLink(this.last_event as any),
+        );
+        this.ical_link.set(generateCalendarFileLink(this.last_event as any));
     }
 }

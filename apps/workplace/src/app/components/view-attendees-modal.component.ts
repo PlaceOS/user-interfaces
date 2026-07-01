@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 
 import { AsyncHandler, User } from '@placeos/common';
@@ -19,7 +19,7 @@ import { IconComponent } from '@placeos/components';
         </header>
         <mat-dialog-content>
             <div class="body">
-                @for (item of attendees; track item) {
+                @for (item of attendees(); track item) {
                     <div>
                         <icon
                             [icon]="{
@@ -82,9 +82,9 @@ export class ViewAttendeesModalComponent
         attendees: User[];
     }>(MAT_DIALOG_DATA);
 
-    public attendees: User[];
+    public attendees = signal<User[]>([]);
 
     public ngOnInit() {
-        this.attendees = this._data.attendees;
+        this.attendees.set(this._data.attendees);
     }
 }

@@ -1,6 +1,5 @@
 import { SlicePipe } from '@angular/common';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { BookingFormService } from '@placeos/bookings';
 import { SettingsService, User } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
@@ -116,15 +115,12 @@ export class VisitorFlowRecentComponent implements OnInit {
     private _settings = inject(SettingsService);
 
     public readonly visitors = signal<User[]>([]);
-    public readonly options = toSignal(this._booking_form.options);
+    public readonly options = this._booking_form.options;
 
-    public readonly form_value = toSignal(
-        this._booking_form.form.valueChanges,
-        {
-            initialValue: this._booking_form.form.value,
-        },
-    );
-    public readonly is_edit = computed(() => !!this.form_value()?.id);
+    private get _model() {
+        return this._booking_form.model;
+    }
+    public readonly is_edit = computed(() => !!this._model()?.id);
 
     public readonly is_single = computed(() => {
         const is_group_mode = this.options()?.group === true;
@@ -138,7 +134,7 @@ export class VisitorFlowRecentComponent implements OnInit {
     });
 
     public readonly selected_visitors = computed(() => {
-        const assets = this.form_value()?.assets || [];
+        const assets = this._model()?.assets || [];
         return new Set(assets.map((a: any) => a.email));
     });
 
@@ -150,7 +146,7 @@ export class VisitorFlowRecentComponent implements OnInit {
 
     public isVisitorSelected(visitor: any): boolean {
         if (this.is_single()) {
-            return this.form_value()?.asset_id === visitor.email;
+            return this._model()?.asset_id === visitor.email;
         }
         return this.selected_visitors().has(visitor.email);
     }
@@ -238,7 +234,7 @@ export class VisitorFlowRecentComponent implements OnInit {
 
         if (is_group) {
             // Toggle visitor in assets array
-            const current_assets = [...(this.form_value()?.assets || [])];
+            const current_assets = [...(this._model()?.assets || [])];
             const index = current_assets.findIndex(
                 (a: any) => a.email === visitor.email,
             );
@@ -256,17 +252,19 @@ export class VisitorFlowRecentComponent implements OnInit {
                 });
             }
 
-            this._booking_form.form.patchValue({
+            this._model.update((m) => ({
+                ...m,
                 assets: current_assets,
-            });
+            }));
         } else {
             // Single mode - set as the visitor
-            this._booking_form.form.patchValue({
+            this._model.update((m) => ({
+                ...m,
                 asset_id: enriched.email,
                 asset_name: enriched.name,
                 company: enriched.company,
                 phone: enriched.phone,
-            });
+            }));
         }
     }
 }

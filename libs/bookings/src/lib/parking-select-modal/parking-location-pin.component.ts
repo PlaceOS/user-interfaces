@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { MAP_FEATURE_DATA } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 
@@ -68,11 +68,11 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
             >
                 <div
                     class="bg-base-100 relative z-10 h-4 w-4 rounded-full border-2 border-[#0B421D]"
-                    *ngIf="!selected"
+                    *ngIf="!selected()"
                 ></div>
                 <icon
                     class="relative z-10 text-2xl text-white"
-                    *ngIf="selected"
+                    *ngIf="selected()"
                 >
                     done
                 </icon>
@@ -85,7 +85,5 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
 export class ParkingLocationPinComponent {
     private _data = inject(MAP_FEATURE_DATA);
 
-    public get selected() {
-        return this._data.selected === true;
-    }
+    public readonly selected = computed(() => this._data.selected === true);
 }

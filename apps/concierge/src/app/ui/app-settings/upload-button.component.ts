@@ -1,4 +1,12 @@
-import { Component, forwardRef, inject, input, signal } from '@angular/core';
+import {
+    Component,
+    effect,
+    forwardRef,
+    inject,
+    Injector,
+    input,
+    signal,
+} from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -43,6 +51,7 @@ import { IconComponent } from '@placeos/components';
 })
 export class UploadButtonComponent {
     private _uploads = inject(UploadsService);
+    private _injector = inject(Injector);
 
     public readonly types = input<string[]>(['image']);
     public uploading = signal(false);
@@ -63,7 +72,6 @@ export class UploadButtonComponent {
      */
     public setValue(new_value: string): void {
         if (this.value() === new_value) return;
-        console.error('Set Value:', this.value, new_value);
         this.value.set(new_value);
         /* istanbul ignore else */
         if (this._onChange) this._onChange(new_value);
@@ -86,36 +94,42 @@ export class UploadButtonComponent {
         if (!element?.files?.length) return;
         const files: FileList = element.files;
         const file = files[0];
-        console.log(`File: ${file.name}`);
         const types = this.types();
         if (!types.some((t) => file.type.includes(t))) {
             return notifyError(`File is not an ${types.join(', ')}`);
         }
-        console.log(`Uploading file...`);
         this.progress.set(0);
         this.uploading.set(true);
-        let upload_id = '';
-        this._uploads.uploadFileWithProgress(file).subscribe(
-            (s) => {
-                console.log(`Progress:`, s);
-                this.progress.set(s.progress);
-                upload_id = s.upload_id || s.upload?.id || s.id || upload_id;
-            },
+        const upload = this._uploads.uploadFileWithProgress(file);
+        const effect_ref = effect(
             () => {
-                notifyError('Failed to upload image. Try again later');
-                this.uploading.set(false);
+                this._setUploadState(upload(), () => effect_ref.destroy());
             },
-            () => {
-                if (!upload_id) {
-                    notifyError('Failed to get uploaded file ID');
-                    this.uploading.set(false);
-                    return;
-                }
-                this.setValue(
-                    `/api/engine/v2/uploads/${encodeURIComponent(upload_id)}/url`,
-                );
-                this.uploading.set(false);
-            },
+            { injector: this._injector },
         );
+    }
+
+    private _setUploadState(state, cleanup: () => void) {
+        if (!state) return;
+        this.progress.set(state.progress);
+        if (state.error) {
+            notifyError('Failed to upload image. Try again later');
+            this.uploading.set(false);
+            cleanup();
+            return;
+        }
+        if (state.progress < 100) return;
+        const upload_id = state.upload_id || state.upload?.id || state.id;
+        if (!upload_id) {
+            notifyError('Failed to get uploaded file ID');
+            this.uploading.set(false);
+            cleanup();
+            return;
+        }
+        this.setValue(
+            `/api/engine/v2/uploads/${encodeURIComponent(upload_id)}/url`,
+        );
+        this.uploading.set(false);
+        cleanup();
     }
 }

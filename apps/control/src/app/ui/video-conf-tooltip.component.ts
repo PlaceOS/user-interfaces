@@ -1,5 +1,4 @@
 import { Component, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { CustomTooltipData, TranslatePipe } from '@placeos/components';
 
 import { MatRippleModule } from '@angular/material/core';
@@ -61,7 +60,7 @@ export class VideoConferenceTooltipComponent {
 
     public readonly dial_number = signal('');
     public readonly loading = signal(false);
-    public readonly call = toSignal(this._vc_state.call);
+    public readonly call = this._vc_state.call;
 
     public get id(): string {
         return this._state.id;

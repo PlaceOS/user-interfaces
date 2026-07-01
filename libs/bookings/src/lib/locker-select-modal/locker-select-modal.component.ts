@@ -6,9 +6,8 @@ import {
     MatDialogRef,
 } from '@angular/material/dialog';
 
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { isMobileSafari, SettingsService } from '@placeos/common';
+import { isMobileSafari, SETTING_KEYS, SettingsService } from '@placeos/common';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
@@ -23,8 +22,6 @@ import { LockerBankListComponent } from './locker-bank-list.component';
 import { LockerFiltersDisplayComponent } from './locker-filters-display.component';
 import { LockerFiltersComponent } from './locker-filters.component';
 import { LockerMapComponent } from './locker-map.component';
-
-export const FAV_LOCKER_KEY = 'favourite_lockers';
 
 @Component({
     selector: 'locker-select-modal',
@@ -220,9 +217,7 @@ export class LockerSelectModalComponent {
         options: Partial<BookingFlowOptions>;
     }>(MAT_DIALOG_DATA);
 
-    private readonly _options = toSignal(this._event_form.options, {
-        initialValue: null,
-    });
+    private readonly _options = this._event_form.options;
 
     public readonly show_filters = signal(false);
     public readonly displayed = signal<BookingAsset | null>(null);
@@ -236,7 +231,7 @@ export class LockerSelectModalComponent {
             .join(','),
     );
     public readonly favorites = signal<string[]>(
-        this._settings.get<string[]>(FAV_LOCKER_KEY) || [],
+        this._settings.get<string[]>(SETTING_KEYS.FAVORITE_LOCKERS) || [],
     );
 
     constructor() {
@@ -271,6 +266,9 @@ export class LockerSelectModalComponent {
             ? [...fav_list, item.id]
             : fav_list.filter((_) => _ !== item.id);
         this.favorites.set(next_favs);
-        this._settings.saveUserSetting(FAV_LOCKER_KEY, next_favs);
+        this._settings.saveUserSetting(
+            SETTING_KEYS.FAVORITE_LOCKERS,
+            next_favs,
+        );
     }
 }

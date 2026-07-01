@@ -1,8 +1,7 @@
-import { inject, Injectable } from '@angular/core';
+import { computed, inject, Injectable, resource, signal } from '@angular/core';
 import {
     AsyncHandler,
     i18n,
-    nextValueFrom,
     notifyError,
     notifySuccess,
     OrganisationService,
@@ -16,15 +15,6 @@ import {
     updateMetadata,
 } from '@placeos/ts-client';
 import { getUnixTime } from 'date-fns';
-import { BehaviorSubject, combineLatest, forkJoin, from, of } from 'rxjs';
-import {
-    catchError,
-    filter,
-    map,
-    shareReplay,
-    switchMap,
-    tap,
-} from 'rxjs/operators';
 
 export interface EmailTemplate {
     id: string;
@@ -60,60 +50,52 @@ export class EmailTemplatesStateService extends AsyncHandler {
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
 
-    private _filters = new BehaviorSubject<EmailTemplatesFilters>({});
-    private _change = new BehaviorSubject(0);
+    private _filters = signal<EmailTemplatesFilters>({});
+    private _change = signal(0);
 
-    public readonly template_definitions = combineLatest([
-        this._org.active_building,
-        this._org.active_region,
-        this._change,
-    ]).pipe(
-        filter(([bld]) => !!bld),
-        switchMap(() =>
-            from(
-                showMetadata(
-                    this._org.organisation.id,
-                    'email_template_fields',
-                ),
-            ).pipe(
-                map((_) => {
-                    const definitions =
-                        (_ as any)?.details ||
-                        ({} as Record<string, EmailTemplateDefinition>);
-                    return Object.keys(definitions).map(
-                        (key) =>
-                            ({
-                                id: key,
-                                name: definitions[key].name,
-                                module_name: definitions[key].module_name,
-                                name_details: definitions[key].name.split(':'),
-                                description: definitions[key].description || '',
-                                fields: definitions[key].fields.map(
-                                    (field) => ({
-                                        name: field.name,
-                                        description: field.description || '',
-                                    }),
-                                ),
-                            }) as EmailTemplateDefinition,
-                    );
-                }),
-                catchError(() => of([] as EmailTemplateDefinition[])),
-            ),
-        ),
-        tap((_) => console.log('Templates:', _)),
-        shareReplay(1),
-    );
-
-    public readonly template_groups = this.template_definitions.pipe(
-        map((defs) => {
-            const groups = unique(defs.map((_) => _.module_name));
-            if (!groups.length) return [{ name: '', items: defs }];
-            return groups.map((name) => ({
-                name,
-                items: defs.filter((_) => _.module_name === name),
-            }));
+    private readonly _template_definitions = resource({
+        params: () => ({
+            building: this._org.active_building()?.id,
+            region: this._org.active_region()?.id,
+            change: this._change(),
         }),
-    );
+        defaultValue: [] as EmailTemplateDefinition[],
+        loader: async ({ params }) => {
+            if (!params.building) return [];
+            const metadata = await showMetadata(
+                this._org.organisation.id,
+                'email_template_fields',
+            ).catch(() => null);
+            const definitions =
+                (metadata as any)?.details ||
+                ({} as Record<string, EmailTemplateDefinition>);
+            return Object.keys(definitions).map(
+                (key) =>
+                    ({
+                        id: key,
+                        name: definitions[key].name,
+                        module_name: definitions[key].module_name,
+                        name_details: definitions[key].name.split(':'),
+                        description: definitions[key].description || '',
+                        fields: definitions[key].fields.map((field) => ({
+                            name: field.name,
+                            description: field.description || '',
+                        })),
+                    }) as EmailTemplateDefinition,
+            );
+        },
+    });
+    public readonly template_definitions = this._template_definitions.value;
+
+    public readonly template_groups = computed(() => {
+        const defs = this.template_definitions();
+        const groups = unique(defs.map((_) => _.module_name));
+        if (!groups.length) return [{ name: '', items: defs }];
+        return groups.map((name) => ({
+            name,
+            items: defs.filter((_) => _.module_name === name),
+        }));
+    });
 
     private _processTemplates(metadata: PlaceMetadata, zone_id: string) {
         const data = metadata.details;
@@ -122,55 +104,58 @@ export class EmailTemplatesStateService extends AsyncHandler {
         );
     }
 
-    public readonly templates = combineLatest([
-        this._org.active_building,
-        this._org.active_region,
-        this._change,
-    ]).pipe(
-        filter(([bld]) => !!bld),
-        switchMap(([bld, region]) =>
-            forkJoin([
-                from(
-                    showMetadata(this._org.organisation.id, 'email_templates'),
-                ).pipe(
-                    map((_) =>
+    /** Query the merged list of templates for the given building/region */
+    private async _queryTemplates(
+        building: string,
+        region: string,
+    ): Promise<EmailTemplate[]> {
+        if (!building) return [];
+        const [org_templates, bld_templates, region_templates] =
+            await Promise.all([
+                showMetadata(this._org.organisation.id, 'email_templates')
+                    .then((_) =>
                         this._processTemplates(_, this._org.organisation.id),
-                    ),
-                    catchError(() => of([] as EmailTemplate[])),
-                ),
-                from(showMetadata(bld.id, 'email_templates')).pipe(
-                    map((_) => this._processTemplates(_, bld.id)),
-                    catchError(() => of([] as EmailTemplate[])),
-                ),
+                    )
+                    .catch(() => [] as EmailTemplate[]),
+                showMetadata(building, 'email_templates')
+                    .then((_) => this._processTemplates(_, building))
+                    .catch(() => [] as EmailTemplate[]),
                 region
-                    ? from(showMetadata(region.id, 'email_templates')).pipe(
-                          map((_) => this._processTemplates(_, region.id)),
-                          catchError(() => of([] as EmailTemplate[])),
-                      )
-                    : of([] as EmailTemplate[]),
-            ]),
-        ),
-        map(([org_templates, bld_templates, region_templates]) =>
-            org_templates.concat(bld_templates).concat(region_templates),
-        ),
-        shareReplay(1),
-    );
-    public readonly filters = this._filters.asObservable();
+                    ? showMetadata(region, 'email_templates')
+                          .then((_) => this._processTemplates(_, region))
+                          .catch(() => [] as EmailTemplate[])
+                    : Promise.resolve([] as EmailTemplate[]),
+            ]);
+        return org_templates.concat(bld_templates).concat(region_templates);
+    }
 
-    public readonly filtered_templates = combineLatest([
-        this.templates,
-        this.filters,
-    ]).pipe(
-        map(([templates, filters]) => {
-            const category = filters.category || '';
-            return templates.filter(
-                (_) => _.category === category || category === '',
-            );
+    private readonly _templates = resource({
+        params: () => ({
+            building: this._org.active_building()?.id,
+            region: this._org.active_region()?.id,
+            change: this._change(),
         }),
-    );
+        defaultValue: [] as EmailTemplate[],
+        loader: ({ params }) =>
+            this._queryTemplates(params.building, params.region),
+    });
+    public readonly templates = this._templates.value;
+
+    public readonly filters = this._filters.asReadonly();
+
+    public readonly filtered_templates = computed(() => {
+        const templates = this.templates();
+        const category = this.filters().category || '';
+        return templates.filter(
+            (_) => _.category === category || category === '',
+        );
+    });
 
     public async loadTemplate(id: string) {
-        const template_list = await nextValueFrom(this.templates);
+        const template_list = await this._queryTemplates(
+            this._org.active_building()?.id,
+            this._org.active_region()?.id,
+        );
         return template_list.find((_) => _.id === id);
     }
 
@@ -223,11 +208,14 @@ export class EmailTemplatesStateService extends AsyncHandler {
             throw e;
         });
         notifySuccess(i18n('APP.CONCIERGE.EMAIL_TEMPLATES_SAVE_SUCCESS'));
-        this.timeout('changed', () => this._change.next(Date.now()));
+        this.timeout('changed', () => this._change.set(Date.now()));
     }
 
     public async removeTemplate(template: EmailTemplate) {
-        const template_list = await nextValueFrom(this.templates);
+        const template_list = await this._queryTemplates(
+            this._org.active_building()?.id,
+            this._org.active_region()?.id,
+        );
         const zone_templates = template_list.filter(
             (_) => _.zone_id === template.zone_id,
         );
@@ -247,10 +235,10 @@ export class EmailTemplatesStateService extends AsyncHandler {
             throw e;
         });
         notifySuccess(i18n('APP.CONCIERGE.EMAIL_TEMPLATES_REMOVE_SUCCESS'));
-        this.timeout('changed', () => this._change.next(Date.now()));
+        this.timeout('changed', () => this._change.set(Date.now()));
     }
 
     public setFilters(filters: Partial<EmailTemplatesFilters>) {
-        this._filters.next({ ...this._filters.getValue(), ...filters });
+        this._filters.set({ ...this._filters(), ...filters });
     }
 }

@@ -1,10 +1,11 @@
+import { inject, Injector } from '@angular/core';
 import {
     MAT_DIALOG_DATA,
     MatDialogModule,
     MatDialogRef,
 } from '@angular/material/dialog';
 import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
-import { SettingsService, Space } from '@placeos/common';
+import { SETTING_KEYS, SettingsService, Space } from '@placeos/common';
 import { EventFormService, generateEventForm } from '@placeos/events';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
@@ -26,19 +27,30 @@ describe('SpaceSelectModalComponent', () => {
             }),
             MockProvider(MAT_DIALOG_DATA, []),
             MockProvider(MatDialogRef, { close: jest.fn() }),
-            MockProvider(EventFormService, {
-                loading$: new BehaviorSubject(''),
-                room_alerts: new BehaviorSubject({}),
-                options$: new BehaviorSubject({}),
-                filters$: new BehaviorSubject({}),
-                available_spaces: new BehaviorSubject([]),
-                spaces$: new BehaviorSubject([]),
-                form: generateEventForm(),
-                filters: {},
-                setOptions: jest.fn(),
-                setFilters: jest.fn(),
-                setView: jest.fn(),
-            }),
+            {
+                provide: EventFormService,
+                useFactory: () => {
+                    const { model, form } = generateEventForm(
+                        undefined,
+                        undefined,
+                        inject(Injector),
+                    );
+                    return {
+                        loading$: new BehaviorSubject(''),
+                        room_alerts: new BehaviorSubject({}),
+                        options$: new BehaviorSubject({}),
+                        filters$: new BehaviorSubject({}),
+                        available_spaces: new BehaviorSubject([]),
+                        spaces$: new BehaviorSubject([]),
+                        model,
+                        form,
+                        filters: {},
+                        setOptions: jest.fn(),
+                        setFilters: jest.fn(),
+                        setView: jest.fn(),
+                    } as Partial<EventFormService>;
+                },
+            },
         ],
         imports: [
             MockModule(MatDialogModule),
@@ -82,7 +94,7 @@ describe('SpaceSelectModalComponent', () => {
         spectator.component.toggleFavourite(new Space({ id: '1' }));
         expect(
             spectator.inject(SettingsService).saveUserSetting,
-        ).toHaveBeenCalledWith('favourite_spaces', ['1']);
+        ).toHaveBeenCalledWith(SETTING_KEYS.FAVORITE_ROOMS, ['1']);
     });
 
     it('should allow un-favouriting a space', () => {
@@ -90,7 +102,7 @@ describe('SpaceSelectModalComponent', () => {
         spectator.component.toggleFavourite(new Space({ id: '1' }));
         expect(
             spectator.inject(SettingsService).saveUserSetting,
-        ).toHaveBeenCalledWith('favourite_spaces', ['1']);
+        ).toHaveBeenCalledWith(SETTING_KEYS.FAVORITE_ROOMS, ['1']);
     });
 });
 
@@ -101,25 +113,36 @@ describe('SpaceSelectModalComponent (with favourites)', () => {
         providers: [
             MockProvider(SettingsService, {
                 get: jest.fn((key: string) =>
-                    key === 'favourite_spaces' ? ['1'] : undefined,
+                    key === SETTING_KEYS.FAVORITE_ROOMS ? ['1'] : undefined,
                 ) as any,
                 saveUserSetting: jest.fn(),
             }),
             MockProvider(MAT_DIALOG_DATA, []),
             MockProvider(MatDialogRef, { close: jest.fn() }),
-            MockProvider(EventFormService, {
-                loading$: new BehaviorSubject(''),
-                room_alerts: new BehaviorSubject({}),
-                options$: new BehaviorSubject({}),
-                filters$: new BehaviorSubject({}),
-                available_spaces: new BehaviorSubject([]),
-                spaces$: new BehaviorSubject([]),
-                form: generateEventForm(),
-                filters: {},
-                setOptions: jest.fn(),
-                setFilters: jest.fn(),
-                setView: jest.fn(),
-            }),
+            {
+                provide: EventFormService,
+                useFactory: () => {
+                    const { model, form } = generateEventForm(
+                        undefined,
+                        undefined,
+                        inject(Injector),
+                    );
+                    return {
+                        loading$: new BehaviorSubject(''),
+                        room_alerts: new BehaviorSubject({}),
+                        options$: new BehaviorSubject({}),
+                        filters$: new BehaviorSubject({}),
+                        available_spaces: new BehaviorSubject([]),
+                        spaces$: new BehaviorSubject([]),
+                        model,
+                        form,
+                        filters: {},
+                        setOptions: jest.fn(),
+                        setFilters: jest.fn(),
+                        setView: jest.fn(),
+                    } as Partial<EventFormService>;
+                },
+            },
         ],
         imports: [
             MockModule(MatDialogModule),
@@ -138,6 +161,6 @@ describe('SpaceSelectModalComponent (with favourites)', () => {
         spectator.component.toggleFavourite(new Space({ id: '1' }));
         expect(
             spectator.inject(SettingsService).saveUserSetting,
-        ).toHaveBeenCalledWith('favourite_spaces', []);
+        ).toHaveBeenCalledWith(SETTING_KEYS.FAVORITE_ROOMS, []);
     });
 });

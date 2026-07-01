@@ -1,10 +1,4 @@
-import {
-    ChangeDetectorRef,
-    OnDestroy,
-    Pipe,
-    PipeTransform,
-    inject,
-} from '@angular/core';
+import { OnDestroy, Pipe, PipeTransform } from '@angular/core';
 import { apiKey, authority, token } from '@placeos/ts-client';
 
 /**
@@ -82,6 +76,13 @@ export function setAuthCookie(cookie_path: string) {
     }`;
 }
 
+export function authHeaders(): Record<string, string> {
+    const tkn = token();
+    return tkn === 'x-api-key'
+        ? { 'X-API-Key': apiKey() }
+        : { Authorization: `Bearer ${tkn}` };
+}
+
 async function responseToObjectUrl(source: string, response: Response) {
     const blob = await response.blob();
     const url = URL.createObjectURL(blob);
@@ -93,13 +94,30 @@ export async function loadAuthenticatedImage(
     source: string,
     cookie_path: string,
 ): Promise<string> {
+    return _loadAuthenticatedImage(source, () => {
+        setAuthCookie(cookie_path);
+        return fetch(source);
+    });
+}
+
+export async function loadAuthenticatedImageWithHeader(
+    source: string,
+): Promise<string> {
+    return _loadAuthenticatedImage(source, () =>
+        fetch(source, { headers: authHeaders() }),
+    );
+}
+
+async function _loadAuthenticatedImage(
+    source: string,
+    request: () => Promise<Response>,
+): Promise<string> {
     if (IMAGE_STORE.has(source)) return IMAGE_STORE.get(source);
     const cached_response = await getSessionCachedResponse(source);
     if (cached_response) {
         return responseToObjectUrl(source, cached_response);
     }
-    setAuthCookie(cookie_path);
-    const response = await fetch(source);
+    const response = await request();
     if (!response || !response.ok) {
         throw new Error(`Failed to fetch image: ${response?.status}`);
     }
@@ -112,7 +130,6 @@ export async function loadAuthenticatedImage(
     pure: false, // Impure pipe to handle async loading
 })
 export class AuthenticatedImagePipe implements PipeTransform, OnDestroy {
-    private _cdr = inject(ChangeDetectorRef);
     private _subscriptions = new Set<string>();
 
     ngOnDestroy() {
@@ -134,10 +151,7 @@ export class AuthenticatedImagePipe implements PipeTransform, OnDestroy {
     private async _loadImage(source: string): Promise<void> {
         if (!authority()) {
             // Retry after a delay if authority is not available yet
-            setTimeout(() => {
-                LOADING_STORE.delete(source);
-                this._cdr.markForCheck();
-            }, 300);
+            setTimeout(() => LOADING_STORE.delete(source), 300);
             return;
         }
 
@@ -153,8 +167,6 @@ export class AuthenticatedImagePipe implements PipeTransform, OnDestroy {
         } finally {
             LOADING_STORE.delete(source);
             this._subscriptions.delete(source);
-            // Trigger change detection to update the view with the loaded image
-            this._cdr.markForCheck();
         }
     }
 

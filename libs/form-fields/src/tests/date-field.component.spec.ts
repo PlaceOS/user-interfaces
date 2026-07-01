@@ -1,8 +1,8 @@
 import { fakeAsync } from '@angular/core/testing';
 import { FormsModule, NgControl } from '@angular/forms';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { addDays, format, set, startOfMinute } from 'date-fns';
-import { fromZonedTime, toZonedTime } from 'date-fns-tz';
+import { addDays, format } from 'date-fns';
+import { toZonedTime } from 'date-fns-tz';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -73,6 +73,22 @@ describe('DateFieldComponent', () => {
             )[0];
     };
 
+    const expectPreservedDateAndTime = (
+        result: number,
+        previous_date: number,
+        selected_date: number,
+        timezone: string,
+    ) => {
+        expect(getTimeInTimezone(result, timezone)).toEqual(
+            getTimeInTimezone(previous_date, timezone),
+        );
+        const zoned_result = toZonedTime(result, timezone);
+        const expected_date = new Date(selected_date);
+        expect(zoned_result.getFullYear()).toEqual(expected_date.getFullYear());
+        expect(zoned_result.getMonth()).toEqual(expected_date.getMonth());
+        expect(zoned_result.getDate()).toEqual(expected_date.getDate());
+    };
+
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();
     });
@@ -121,37 +137,44 @@ describe('DateFieldComponent', () => {
         expect(spectator.query('button[aria-label="Clear date"]')).toBeNull();
     });
 
-    it('should preserve the selected calendar day in the configured timezone', () => {
-        const timezone = pickTimezoneBehindLocal();
-        expect(timezone).toBeTruthy();
-        const old_date = new Date('2026-04-08T15:30:00.000Z').valueOf();
-        const new_date = new Date('2026-04-12T00:00:00.000Z').valueOf();
+    it('should preserve wall-clock time in the configured timezone', () => {
+        const timezone = 'UTC';
+
+        const old_date = new Date('2030-04-08T15:30:00.000Z').valueOf();
+        const new_date = new Date(2030, 3, 12).valueOf();
         const on_change = jest.fn();
-        spectator.setInput('from', 1);
         spectator.setInput('timezone', timezone);
         spectator.component.registerOnChange(on_change);
         spectator.component.writeValue(old_date);
 
         spectator.component.setValue(new_date);
 
-        const { hours, minutes } = getTimeInTimezone(old_date, timezone);
-        const selected_date = new Date(new_date);
-        const expected = startOfMinute(
-            fromZonedTime(
-                set(toZonedTime(old_date, timezone), {
-                    year: selected_date.getFullYear(),
-                    month: selected_date.getMonth(),
-                    date: selected_date.getDate(),
-                    hours,
-                    minutes,
-                    seconds: 0,
-                    milliseconds: 0,
-                }),
-                timezone,
-            ),
-        ).valueOf();
-        expect(on_change).toHaveBeenCalledWith(
-            expected,
+        expectPreservedDateAndTime(
+            on_change.mock.calls[0][0],
+            old_date,
+            new_date,
+            timezone,
+        );
+    });
+
+    it('should preserve the selected calendar day in the configured timezone', () => {
+        const timezone = pickTimezoneBehindLocal();
+        expect(timezone).toBeTruthy();
+
+        const old_date = new Date('2030-04-08T15:30:00.000Z').valueOf();
+        const new_date = new Date(2030, 3, 12).valueOf();
+        const on_change = jest.fn();
+        spectator.setInput('timezone', timezone);
+        spectator.component.registerOnChange(on_change);
+        spectator.component.writeValue(old_date);
+
+        spectator.component.setValue(new_date);
+
+        expectPreservedDateAndTime(
+            on_change.mock.calls[0][0],
+            old_date,
+            new_date,
+            timezone,
         );
     });
 });

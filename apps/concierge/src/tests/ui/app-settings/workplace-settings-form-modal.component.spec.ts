@@ -86,85 +86,85 @@ describe('WorkplaceSettingsFormModalComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should have a form with general settings controls', () => {
-        const form = spectator.component.form;
-        expect(form.get('logo_light')).toBeTruthy();
-        expect(form.get('logo_dark')).toBeTruthy();
-        expect(form.get('features')).toBeTruthy();
-        expect(form.get('default_route')).toBeTruthy();
-        expect(form.get('use_24_hour_time')).toBeTruthy();
-        expect(form.get('use_region')).toBeTruthy();
-        expect(form.get('week_start')).toBeTruthy();
-        expect(form.get('currency')).toBeTruthy();
-        expect(form.get('external_support_url')).toBeTruthy();
-        expect(form.get('show_changelog')).toBeTruthy();
-        expect(form.get('support_email')).toBeTruthy();
-        expect(form.get('catering_provider')).toBeTruthy();
+    it('should have a model with general settings values', () => {
+        const model = spectator.component.model();
+        expect('logo_light' in model).toBe(true);
+        expect('logo_dark' in model).toBe(true);
+        expect('features' in model).toBe(true);
+        expect('default_route' in model).toBe(true);
+        expect('use_24_hour_time' in model).toBe(true);
+        expect('use_region' in model).toBe(true);
+        expect('week_start' in model).toBe(true);
+        expect('currency' in model).toBe(true);
+        expect('external_support_url' in model).toBe(true);
+        expect('show_changelog' in model).toBe(true);
+        expect('support_email' in model).toBe(true);
+        expect('catering_provider' in model).toBe(true);
     });
 
-    it('should have events form group for room bookings', () => {
-        const events = spectator.component.form.get('events');
+    it('should have events model group for room bookings', () => {
+        const events = spectator.component.model().events;
         expect(events).toBeTruthy();
-        expect(events.get('allow_all_day')).toBeTruthy();
-        expect(events.get('all_day_period')).toBeTruthy();
-        expect(events.get('bookable_hours')).toBeTruthy();
-        expect(events.get('can_book_for_others')).toBeTruthy();
-        expect(events.get('has_assets')).toBeTruthy();
-        expect(events.get('allow_externals')).toBeTruthy();
-        expect(events.get('max_duration')).toBeTruthy();
-        expect(events.get('allowed_future_days')).toBeTruthy();
-        expect(events.get('force_host')).toBeTruthy();
-        expect(events.get('setup')).toBeTruthy();
-        expect(events.get('breakdown')).toBeTruthy();
-        expect(events.get('cache_duration_in_days')).toBeTruthy();
+        expect('allow_all_day' in events).toBe(true);
+        expect('all_day_period' in events).toBe(true);
+        expect('bookable_hours' in events).toBe(true);
+        expect('can_book_for_others' in events).toBe(true);
+        expect('has_assets' in events).toBe(true);
+        expect('allow_externals' in events).toBe(true);
+        expect('max_duration' in events).toBe(true);
+        expect('allowed_future_days' in events).toBe(true);
+        expect('force_host' in events).toBe(true);
+        expect('setup' in events).toBe(true);
+        expect('breakdown' in events).toBe(true);
+        expect('cache_duration_in_days' in events).toBe(true);
     });
 
-    it('should have desks form group', () => {
-        const desks = spectator.component.form.get('desks');
+    it('should have desks model group', () => {
+        const desks = spectator.component.model().desks;
         expect(desks).toBeTruthy();
-        expect(desks.get('allow_all_day')).toBeTruthy();
-        expect(desks.get('bookable_hours')).toBeTruthy();
-        expect(desks.get('allow_groups')).toBeTruthy();
-        expect(desks.get('auto_allocation')).toBeTruthy();
-        expect(desks.get('max_duration')).toBeTruthy();
-        expect(desks.get('available_period')).toBeTruthy();
+        expect('allow_all_day' in desks).toBe(true);
+        expect('bookable_hours' in desks).toBe(true);
+        expect('allow_groups' in desks).toBe(true);
+        expect('auto_allocation' in desks).toBe(true);
+        expect('max_duration' in desks).toBe(true);
+        expect('available_period' in desks).toBe(true);
     });
 
-    it('should have bookings form group', () => {
-        const bookings = spectator.component.form.get('bookings');
+    it('should have bookings model group', () => {
+        const bookings = spectator.component.model().bookings;
         expect(bookings).toBeTruthy();
-        expect(bookings.get('allow_all_day')).toBeTruthy();
-        expect(bookings.get('all_day_period')).toBeTruthy();
-        expect(bookings.get('bookable_hours')).toBeTruthy();
-        expect(bookings.get('can_book_for_others')).toBeTruthy();
+        expect('allow_all_day' in bookings).toBe(true);
+        expect('all_day_period' in bookings).toBe(true);
+        expect('bookable_hours' in bookings).toBe(true);
+        expect('can_book_for_others' in bookings).toBe(true);
     });
 
-    it('should have parking form group', () => {
-        const parking = spectator.component.form.get('parking');
+    it('should have parking model group', () => {
+        const parking = spectator.component.model().parking;
         expect(parking).toBeTruthy();
-        expect(parking.get('allow_all_day')).toBeTruthy();
-        expect(parking.get('bookable_hours')).toBeTruthy();
-        expect(parking.get('show_users')).toBeTruthy();
-        expect(parking.get('show_status_details')).toBeTruthy();
-        expect(parking.get('auto_allocation')).toBeTruthy();
+        expect('allow_all_day' in parking).toBe(true);
+        expect('bookable_hours' in parking).toBe(true);
+        expect('show_users' in parking).toBe(true);
+        expect('show_status_details' in parking).toBe(true);
+        expect('auto_allocation' in parking).toBe(true);
     });
 
-    it('should have lockers form group', () => {
-        const lockers = spectator.component.form.get('lockers');
+    it('should have lockers model group', () => {
+        const lockers = spectator.component.model().lockers;
         expect(lockers).toBeTruthy();
-        expect(lockers.get('allow_all_day')).toBeTruthy();
-        expect(lockers.get('bookable_hours')).toBeTruthy();
-        expect(lockers.get('show_calendar_links')).toBeTruthy();
+        expect('allow_all_day' in lockers).toBe(true);
+        expect('bookable_hours' in lockers).toBe(true);
+        expect('show_calendar_links' in lockers).toBe(true);
     });
 
-    it('should have explore form group', () => {
-        const explore = spectator.component.form.get('explore');
+    it('should have explore model group', () => {
+        const explore = spectator.component.model().explore;
         expect(explore).toBeTruthy();
-        expect(explore.get('hide_device_fields')).toBeTruthy();
-        expect(explore.get('show_legend')).toBeTruthy();
-        expect(explore.get('hide_zones')).toBeTruthy();
-        expect(explore.get('disable')).toBeTruthy();
-        expect(explore.get('disable_actions')).toBeTruthy();
+        expect('hide_device_fields' in explore).toBe(true);
+        expect('show_legend' in explore).toBe(true);
+        expect('hide_zones' in explore).toBe(true);
+        expect('disable' in explore).toBe(true);
+        expect('disable_actions' in explore).toBe(true);
     });
 
     it('should expose the zone from dialog data', () => {
@@ -226,6 +226,27 @@ describe('WorkplaceSettingsFormModalComponent', () => {
         );
     });
 
+    it('should preserve nested defaults when metadata only patches part of a group', async () => {
+        (ts_client.showMetadata as jest.Mock)
+            .mockResolvedValueOnce({
+                details: {
+                    events: {
+                        bookable_hours: { start: 8 },
+                    },
+                },
+            })
+            .mockResolvedValueOnce({ details: {} })
+            .mockResolvedValueOnce({ details: {} });
+
+        await spectator.component.ngOnInit();
+
+        expect(spectator.component.model().events.bookable_hours).toEqual({
+            start: 8,
+            end: null,
+        });
+        expect(spectator.component.model().events.force_host).toBe('');
+    });
+
     it('should save settings via updateMetadata', async () => {
         await spectator.component.ngOnInit();
         await spectator.component.save();
@@ -262,30 +283,38 @@ describe('WorkplaceSettingsFormModalComponent', () => {
     });
 
     it('should add legend item', () => {
-        const explore = spectator.component.form.get('explore');
-        explore.patchValue({ legend: [] } as any);
+        spectator.component.model.update((m) => ({
+            ...m,
+            explore: { ...m.explore, legend: [] },
+        }));
         spectator.component.addLegend();
-        expect(explore.value.legend.length).toBe(1);
-        expect(explore.value.legend[0]).toEqual(['', '#1E88E5']);
+        const legend = spectator.component.model().explore.legend;
+        expect(legend.length).toBe(1);
+        expect(legend[0]).toEqual(['', '#1E88E5']);
     });
 
     it('should remove legend item', () => {
-        const explore = spectator.component.form.get('explore');
-        explore.patchValue({
-            legend: [
-                ['a', '#000'],
-                ['b', '#fff'],
-            ],
-        } as any);
+        spectator.component.model.update((m) => ({
+            ...m,
+            explore: {
+                ...m.explore,
+                legend: [
+                    ['a', '#000'],
+                    ['b', '#fff'],
+                ],
+            },
+        }));
         spectator.component.removeLegend(0);
-        expect(explore.value.legend.length).toBe(1);
+        expect(spectator.component.model().explore.legend.length).toBe(1);
     });
 
     it('should not remove legend item at invalid index', () => {
-        const explore = spectator.component.form.get('explore');
-        (explore as any).patchValue({ legend: [['a', '#000']] });
+        spectator.component.model.update((m) => ({
+            ...m,
+            explore: { ...m.explore, legend: [['a', '#000']] },
+        }));
         spectator.component.removeLegend(5);
-        expect(explore.value.legend.length).toBe(1);
+        expect(spectator.component.model().explore.legend.length).toBe(1);
     });
 
     it('should generate date string', () => {

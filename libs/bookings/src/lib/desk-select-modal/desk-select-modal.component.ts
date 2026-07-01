@@ -7,7 +7,7 @@ import {
 } from '@angular/material/dialog';
 
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { isMobileSafari, SettingsService } from '@placeos/common';
+import { isMobileSafari, SETTING_KEYS, SettingsService } from '@placeos/common';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
@@ -21,8 +21,6 @@ import { DeskFiltersDisplayComponent } from './desk-filters-display.component';
 import { DeskFiltersComponent } from './desk-filters.component';
 import { DeskListComponent } from './desk-list.component';
 import { DeskMapComponent } from './desk-map.component';
-
-export const FAV_DESK_KEY = 'favourite_desks';
 
 @Component({
     selector: 'desk-select-modal',
@@ -168,10 +166,10 @@ export const FAV_DESK_KEY = 'favourite_desks';
             </main>
             <footer
                 class="bg-base-200 flex w-full items-center space-x-2 rounded-sm border-none p-2"
-                [class.justify-between]="allow_multiple"
-                [class.justify-end]="!allow_multiple"
+                [class.justify-between]="allow_multiple()"
+                [class.justify-end]="!allow_multiple()"
             >
-                @if (allow_multiple) {
+                @if (allow_multiple()) {
                     <button
                         btn
                         matRipple
@@ -193,13 +191,13 @@ export const FAV_DESK_KEY = 'favourite_desks';
                     name="toggle-desk"
                     [disabled]="!displayed()"
                     [class.inverse]="
-                        allow_multiple && isSelected(displayed()?.id)
+                        allow_multiple() && isSelected(displayed()?.id)
                     "
                     (click)="toggleDisplayedDesk()"
                 >
                     <div class="flex items-center">
                         <icon class="text-xl">{{
-                            allow_multiple
+                            allow_multiple()
                                 ? isSelected(displayed()?.id)
                                     ? 'remove'
                                     : 'add'
@@ -207,7 +205,7 @@ export const FAV_DESK_KEY = 'favourite_desks';
                         }}</icon>
                         <div class="mr-1">
                             {{
-                                allow_multiple
+                                allow_multiple()
                                     ? ((isSelected(displayed()?.id)
                                           ? 'COMMON.REMOVE_FROM'
                                           : 'COMMON.ADD_TO'
@@ -267,12 +265,12 @@ export class DeskSelectModalComponent {
         false,
     );
     public readonly favorites = signal<string[]>(
-        this._settings.get<string[]>(FAV_DESK_KEY) || [],
+        this._settings.get<string[]>(SETTING_KEYS.FAVORITE_DESKS) || [],
     );
 
-    public get allow_multiple() {
-        return !!this._data.options?.group;
-    }
+    public readonly allow_multiple = computed(
+        () => !!this._data.options?.group,
+    );
 
     constructor() {
         const selected_desks =
@@ -302,17 +300,22 @@ export class DeskSelectModalComponent {
         if (!this.displayed()) return;
         this.setSelected(
             this.displayed(),
-            this.allow_multiple ? !this.isSelected(this.displayed()?.id) : true,
+            this.allow_multiple()
+                ? !this.isSelected(this.displayed()?.id)
+                : true,
         );
     }
 
-    public toggleFavourite(item: BookingAsset) {
-        const fav_list = this.favorites();
+    public toggleFavourite(item: BookingAsset | null) {
+        if (!item?.id) return;
+        const fav_list =
+            this._settings.get<string[]>(SETTING_KEYS.FAVORITE_DESKS) ||
+            this.favorites();
         const new_state = !fav_list.includes(item.id);
         const next_favs = new_state
             ? [...fav_list, item.id]
             : fav_list.filter((_) => _ !== item.id);
-        this._settings.saveUserSetting(FAV_DESK_KEY, next_favs);
         this.favorites.set(next_favs);
+        this._settings.saveUserSetting(SETTING_KEYS.FAVORITE_DESKS, next_favs);
     }
 }

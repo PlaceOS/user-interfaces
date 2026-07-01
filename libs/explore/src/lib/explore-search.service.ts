@@ -2,11 +2,11 @@ import {
     Injectable,
     Injector,
     computed,
+    debounced,
     inject,
     resource,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import {
     Asset,
     AssetCategory,
@@ -20,7 +20,6 @@ import {
     Space,
     StaffUser,
     User,
-    debouncedSignal,
     firstValueWhere,
     flatten,
 } from '@placeos/common';
@@ -33,7 +32,6 @@ import {
     queryUsers,
     showMetadata,
 } from '@placeos/ts-client';
-import { firstValueFrom } from 'rxjs';
 
 import { toQueryString } from '@placeos/common';
 import { searchStaff } from '@placeos/users';
@@ -155,15 +153,9 @@ export class ExploreSearchService {
     private _state = inject(ExploreStateService);
     private _injector = inject(Injector);
 
-    private _initialised = toSignal(this._org.initialised, {
-        initialValue: false,
-    });
-    private _building = toSignal(this._org.active_building, {
-        initialValue: null,
-    });
-    private _maps_people_available = toSignal(this._maps_people.available$, {
-        initialValue: false,
-    });
+    private _initialised = this._org.initialised;
+    private _building = this._org.active_building;
+    private _maps_people_available = this._maps_people.available;
 
     /** In-progress bookings/events for sorting priority */
     private _in_progress_bookings = signal<(Booking | CalendarEvent)[]>([]);
@@ -172,8 +164,8 @@ export class ExploreSearchService {
     private _emergency_contacts = signal<User[]>([]);
     /** Filter string for results */
     private _filter = signal<string>('');
-    private _debounced_filter = debouncedSignal(this._filter, 400);
-    private _slow_debounced_filter = debouncedSignal(this._filter, 1000);
+    private _debounced_filter = debounced(this._filter, 400);
+    private _slow_debounced_filter = debounced(this._filter, 1000);
 
     public readonly emergency_contacts = this._emergency_contacts.asReadonly();
 
@@ -181,7 +173,9 @@ export class ExploreSearchService {
     private _asset_based_contacts = resource({
         params: () => {
             const bld = this._building();
-            return bld ? { bld, search: this._debounced_filter() } : undefined;
+            return bld
+                ? { bld, search: this._debounced_filter.value() }
+                : undefined;
         },
         loader: async ({ params: { bld } }) => {
             // First get the category
@@ -257,7 +251,7 @@ export class ExploreSearchService {
     });
 
     private _user_search = resource({
-        params: () => ({ q: this._debounced_filter() }),
+        params: () => ({ q: this._debounced_filter.value() }),
         loader: ({ params: { q } }) =>
             q?.length > 2
                 ? this.search_fn(q).catch(() => [] as StaffUser[])
@@ -265,7 +259,7 @@ export class ExploreSearchService {
     });
 
     private _space_search = resource({
-        params: () => ({ q: this._debounced_filter() }),
+        params: () => ({ q: this._debounced_filter.value() }),
         loader: ({ params: { q } }) =>
             q?.length > 2
                 ? querySystems({ q, zone_id: this._org.organisation.id })
@@ -305,7 +299,7 @@ export class ExploreSearchService {
     private _maps_people_search = resource({
         params: () => ({
             available: this._maps_people_available(),
-            q: this._slow_debounced_filter(),
+            q: this._slow_debounced_filter.value(),
             bld: this._building(),
         }),
         loader: async ({ params: { available, q } }) => {
@@ -589,7 +583,7 @@ export class ExploreSearchService {
     /** Whether results are being loaded */
     public readonly loading = computed(
         () =>
-            this._filter() !== this._debounced_filter() ||
+            this._filter() !== this._debounced_filter.value() ||
             this._user_search.isLoading() ||
             this._space_search.isLoading(),
     );
@@ -599,7 +593,7 @@ export class ExploreSearchService {
             ? queryUsers({ q, authority_id: authority()?.id }).then(
                   (_) => _.data as any as StaffUser[],
               )
-            : firstValueFrom(searchStaff(q));
+            : searchStaff(q);
 
     public hideItem(name: string) {
         const hide_items =

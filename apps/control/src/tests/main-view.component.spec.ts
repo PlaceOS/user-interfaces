@@ -1,8 +1,8 @@
+import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { MockComponent, MockProvider } from 'ng-mocks';
-import { BehaviorSubject } from 'rxjs';
 import { ControlStateService } from '../app/control-state.service';
 
 import { ControlMainViewComponent } from '../app/main-view.component';
@@ -25,7 +25,7 @@ describe('ControlMainViewComponent', () => {
             MockProvider(MatDialog),
             MockProvider(ControlStateService, {
                 powerOn: jest.fn(),
-                system: new BehaviorSubject({}),
+                system: signal({}),
                 setID: jest.fn(),
             }),
         ],
@@ -39,7 +39,7 @@ describe('ControlMainViewComponent', () => {
 
     it('should shown loading when connecting to system', async () => {
         const service = spectator.inject(ControlStateService);
-        (service as any).system.next({ connected: true });
+        (service as any).system.set({ connected: true });
         expect('[name="loader"]').toExist();
         spectator.detectChanges();
         expect('[name="loader"]').not.toExist();
@@ -47,7 +47,7 @@ describe('ControlMainViewComponent', () => {
 
     it('should show splash page for space', async () => {
         const service = spectator.inject(ControlStateService);
-        (service as any).system.next({ connected: true });
+        (service as any).system.set({ connected: true });
         spectator.detectChanges();
         expect('[name="splash"]').toExist();
         expect('topbar-header').not.toExist();
@@ -57,7 +57,7 @@ describe('ControlMainViewComponent', () => {
 
     it('should show panel when powered up', async () => {
         const service = spectator.inject(ControlStateService);
-        (service as any).system.next({ connected: true, active: true });
+        (service as any).system.set({ connected: true, active: true });
         spectator.detectChanges();
         expect('[name="splash"]').not.toExist();
         expect('topbar-header').toExist();

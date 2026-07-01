@@ -1,10 +1,6 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import {
-    FormControl,
-    FormGroup,
-    FormsModule,
-    ReactiveFormsModule,
-} from '@angular/forms';
+import { FormsModule } from '@angular/forms';
+import { form, FormField, min } from '@angular/forms/signals';
 import {
     MAT_DIALOG_DATA,
     MatDialogModule,
@@ -19,7 +15,6 @@ import {
     SettingsService,
 } from '@placeos/common';
 import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
-import { map } from 'rxjs/operators';
 
 import { DEFAULT_SETTINGS } from 'apps/concierge/src/environments/settings';
 import { format } from 'date-fns';
@@ -35,7 +30,6 @@ import {
     SettingsToggleComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { firstValueFrom, from } from 'rxjs';
 import {
     AVAILABLE_PERIOD_EXTENDED_OPTIONS,
     AVAILABLE_PERIOD_SHORT_OPTIONS,
@@ -59,7 +53,7 @@ import { UploadButtonComponent } from './upload-button.component';
             [loading]="loading()"
             (confirm)="save()"
         >
-            <form [formGroup]="form" class="flex flex-col space-y-8 pb-4">
+            <form class="flex flex-col space-y-8 pb-4">
                 <section general class="bg-base-100 space-y-2 rounded-sm">
                     <div>
                         <label for="logo_light">Light Mode Logo</label>
@@ -68,18 +62,15 @@ import { UploadButtonComponent } from './upload-button.component';
                                 appearance="outline"
                                 class="no-subscript w-full"
                             >
-                                <input
-                                    matInput
-                                    name="logo_light"
-                                    formControlName="logo_light"
-                                />
+                                <input matInput [formField]="form.logo_light" />
                             </mat-form-field>
                             <upload-button
                                 ngModel
                                 (ngModelChange)="
-                                    form.patchValue({
+                                    model.update((m) => ({
+                                        ...m,
                                         logo_light: $event,
-                                    })
+                                    }))
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                             ></upload-button>
@@ -92,18 +83,15 @@ import { UploadButtonComponent } from './upload-button.component';
                                 appearance="outline"
                                 class="no-subscript w-full"
                             >
-                                <input
-                                    matInput
-                                    name="logo_dark"
-                                    formControlName="logo_dark"
-                                />
+                                <input matInput [formField]="form.logo_dark" />
                             </mat-form-field>
                             <upload-button
                                 ngModel
                                 (ngModelChange)="
-                                    form.patchValue({
+                                    model.update((m) => ({
+                                        ...m,
                                         logo_dark: $event,
-                                    })
+                                    }))
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                             ></upload-button>
@@ -112,11 +100,7 @@ import { UploadButtonComponent } from './upload-button.component';
                     <div>
                         <label for="features">Features</label>
                         <mat-form-field appearance="outline" class="w-full">
-                            <mat-select
-                                name="features"
-                                formControlName="features"
-                                multiple
-                            >
+                            <mat-select [formField]="form.features" multiple>
                                 <mat-option value="zones"> Zones </mat-option>
                                 <mat-option value="spaces"> Rooms </mat-option>
                                 <mat-option value="assets">Assets</mat-option>
@@ -168,7 +152,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                 <mat-option value="reports">
                                     Reports
                                 </mat-option>
-                                @if (form.value.features.includes('reports')) {
+                                @if (model().features.includes('reports')) {
                                     <mat-option value="booking-report">
                                         Room Report
                                     </mat-option>
@@ -211,19 +195,17 @@ import { UploadButtonComponent } from './upload-button.component';
                                 >
                                     <mat-select
                                         name="banner-type"
-                                        [ngModel]="
-                                            form.value.banner?.type || ''
-                                        "
+                                        [ngModel]="model().banner?.type || ''"
                                         (ngModelChange)="
-                                            form.patchValue({
+                                            model.update((m) => ({
+                                                ...m,
                                                 banner: {
                                                     id: date_string,
                                                     content:
-                                                        form.value.banner
-                                                            ?.content || '',
+                                                        m.banner?.content || '',
                                                     type: $event,
                                                 },
-                                            })
+                                            }))
                                         "
                                         [ngModelOptions]="{
                                             standalone: true,
@@ -248,21 +230,17 @@ import { UploadButtonComponent } from './upload-button.component';
                                 >
                                     <input
                                         matInput
-                                        name="banner-message"
                                         placeholder="Banner Message"
-                                        [ngModel]="
-                                            form.value.banner?.content || ''
-                                        "
+                                        [ngModel]="model().banner?.content || ''"
                                         (ngModelChange)="
-                                            form.patchValue({
+                                            model.update((m) => ({
+                                                ...m,
                                                 banner: {
                                                     id: date_string,
-                                                    type:
-                                                        form.value.banner
-                                                            ?.type || '',
+                                                    type: m.banner?.type || '',
                                                     content: $event,
                                                 },
-                                            })
+                                            }))
                                         "
                                         [ngModelOptions]="{
                                             standalone: true,
@@ -277,14 +255,13 @@ import { UploadButtonComponent } from './upload-button.component';
                         <mat-form-field appearance="outline" class="w-full">
                             <input
                                 matInput
-                                name="default-route"
-                                formControlName="default_route"
+                                [formField]="form.default_route"
                                 placeholder="/book/rooms/new"
                             />
                             <mat-hint> Main page of the application </mat-hint>
                         </mat-form-field>
                     </div>
-                    @if (form.value.features.includes('events')) {
+                    @if (model().features.includes('events')) {
                         <div>
                             <label for="group-events-calendar">
                                 Group Events Calendar
@@ -292,8 +269,7 @@ import { UploadButtonComponent } from './upload-button.component';
                             <mat-form-field appearance="outline" class="w-full">
                                 <input
                                     matInput
-                                    name="group-events-calendar"
-                                    formControlName="group_events_calendar"
+                                    [formField]="form.group_events_calendar"
                                     placeholder="shared.events@calendar.acme.tech"
                                 />
                                 <mat-hint>
@@ -310,8 +286,7 @@ import { UploadButtonComponent } from './upload-button.component';
                             <mat-form-field appearance="outline" class="w-full">
                                 <input
                                     matInput
-                                    name="workplace-url-path"
-                                    formControlName="workplace_url_path"
+                                    [formField]="form.workplace_url_path"
                                     placeholder="/workplace"
                                 />
                             </mat-form-field>
@@ -321,8 +296,7 @@ import { UploadButtonComponent } from './upload-button.component';
                             <mat-form-field appearance="outline" class="w-full">
                                 <input
                                     matInput
-                                    name="public-url-path"
-                                    formControlName="public_url_path"
+                                    [formField]="form.public_url_path"
                                     placeholder="/public"
                                 />
                             </mat-form-field>
@@ -334,8 +308,7 @@ import { UploadButtonComponent } from './upload-button.component';
                             <mat-form-field appearance="outline" class="w-full">
                                 <input
                                     matInput
-                                    name="kiosk-url-path"
-                                    formControlName="kiosk_url_path"
+                                    [formField]="form.kiosk_url_path"
                                     placeholder="/map-kiosk"
                                 />
                             </mat-form-field>
@@ -347,8 +320,7 @@ import { UploadButtonComponent } from './upload-button.component';
                             <mat-form-field appearance="outline" class="w-full">
                                 <input
                                     matInput
-                                    name="control-path"
-                                    formControlName="control_path"
+                                    [formField]="form.control_path"
                                     placeholder="/control"
                                 />
                             </mat-form-field>
@@ -358,8 +330,7 @@ import { UploadButtonComponent } from './upload-button.component';
                             <mat-form-field appearance="outline" class="w-full">
                                 <input
                                     matInput
-                                    name="signage-path"
-                                    formControlName="signage_path"
+                                    [formField]="form.signage_path"
                                     placeholder="/signage"
                                 />
                             </mat-form-field>
@@ -372,8 +343,7 @@ import { UploadButtonComponent } from './upload-button.component';
                         <mat-form-field appearance="outline" class="w-full">
                             <input
                                 matInput
-                                name="short-url-public-key"
-                                formControlName="short_url_public_key"
+                                [formField]="form.short_url_public_key"
                                 placeholder="your-short-url-public-key"
                             />
                         </mat-form-field>
@@ -382,8 +352,7 @@ import { UploadButtonComponent } from './upload-button.component';
                         <label for="week-start">Week Start</label>
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
-                                name="week-start"
-                                formControlName="week_start"
+                                [formField]="form.week_start"
                                 placeholder="Sunday"
                             >
                                 @for (opt of WEEK_START; track opt.value) {
@@ -402,8 +371,7 @@ import { UploadButtonComponent } from './upload-button.component';
                         <label for="currency">Currency</label>
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
-                                name="currency"
-                                formControlName="currency"
+                                [formField]="form.currency"
                                 placeholder="Select currency code"
                                 (openedChange)="
                                     onCurrencySelectStateChange($event)
@@ -443,33 +411,32 @@ import { UploadButtonComponent } from './upload-button.component';
                     </div>
                     <div class="-mx-2 flex flex-wrap items-center">
                         <settings-toggle
-                            name="Use 24 hour time"
-                            formControlName="use_24_hour_time"
+                            label="Use 24 hour time"
+                            [formField]="form.use_24_hour_time"
                         ></settings-toggle>
                         <settings-toggle
-                            name="Delegated"
-                            formControlName="delegated"
+                            label="Delegated"
+                            [formField]="form.delegated"
                         ></settings-toggle>
                         <settings-toggle
-                            name="Force upload state"
-                            formControlName="force_upload_state"
+                            label="Force upload state"
+                            [formField]="form.force_upload_state"
                         ></settings-toggle>
                         <settings-toggle
-                            name="All uploads are private"
-                            formControlName="private_uploads"
+                            label="All uploads are private"
+                            [formField]="form.private_uploads"
                         ></settings-toggle>
                         <settings-toggle
-                            name="Use region over building"
-                            formControlName="use_region"
+                            label="Use region over building"
+                            [formField]="form.use_region"
                         ></settings-toggle>
                     </div>
                 </section>
-                @if (form.value.features.includes('attendance-report')) {
+                @if (model().features.includes('attendance-report')) {
                     <section
                         reports
                         id="feature-reports"
                         class="border-base-300 relative rounded-sm border px-2 pt-4 pb-2"
-                        formGroupName="reports"
                     >
                         <h3
                             class="bg-base-100 absolute top-0 left-4 -translate-y-1/2 rounded-sm px-2 py-1 font-medium"
@@ -477,17 +444,18 @@ import { UploadButtonComponent } from './upload-button.component';
                             Reports
                         </h3>
                         <settings-toggle
-                            name="Include weekends in site attendance averages"
-                            formControlName="attendance_include_weekends"
+                            label="Include weekends in site attendance averages"
+                            [formField]="
+                                form.reports.attendance_include_weekends
+                            "
                         ></settings-toggle>
                     </section>
                 }
-                @if (form.value.features.includes('spaces')) {
+                @if (model().features.includes('spaces')) {
                     <section
                         spaces
                         id="feature-spaces"
                         class="border-base-300 relative rounded-sm border"
-                        formGroupName="events"
                     >
                         <h3
                             class="bg-base-100 absolute top-0 left-4 -translate-y-1/2 rounded-sm px-2 py-1 font-medium"
@@ -520,8 +488,9 @@ import { UploadButtonComponent } from './upload-button.component';
                                         class="w-full"
                                     >
                                         <mat-select
-                                            name="day-timeline-view"
-                                            formControlName="day_timeline_view"
+                                            [formField]="
+                                                form.events.day_timeline_view
+                                            "
                                         >
                                             @for (
                                                 opt of DAY_TIMELINE_VIEW;
@@ -549,8 +518,9 @@ import { UploadButtonComponent } from './upload-button.component';
                                             class="w-full"
                                         >
                                             <mat-select
-                                                name="block-start"
-                                                formControlName="block_start"
+                                                [formField]="
+                                                    form.events.block_start
+                                                "
                                                 placeholder="12AM (Midnight)"
                                             >
                                                 @for (
@@ -579,8 +549,9 @@ import { UploadButtonComponent } from './upload-button.component';
                                             class="w-full"
                                         >
                                             <mat-select
-                                                name="block-end"
-                                                formControlName="block_end"
+                                                [formField]="
+                                                    form.events.block_end
+                                                "
                                                 placeholder="12AM (Midnight)"
                                             >
                                                 @for (
@@ -611,8 +582,9 @@ import { UploadButtonComponent } from './upload-button.component';
                                             class="w-full"
                                         >
                                             <mat-select
-                                                name="block-height"
-                                                formControlName="block_height"
+                                                [formField]="
+                                                    form.events.block_height
+                                                "
                                             >
                                                 @for (
                                                     opt of BLOCK_HEIGHT;
@@ -640,8 +612,9 @@ import { UploadButtonComponent } from './upload-button.component';
                                             class="w-full"
                                         >
                                             <mat-select
-                                                name="max-duration"
-                                                formControlName="max_duration"
+                                                [formField]="
+                                                    form.events.max_duration
+                                                "
                                             >
                                                 @for (
                                                     opt of MAX_DURATION_FULL;
@@ -671,8 +644,9 @@ import { UploadButtonComponent } from './upload-button.component';
                                         class="w-full"
                                     >
                                         <mat-select
-                                            name="available-period"
-                                            formControlName="available_period"
+                                            [formField]="
+                                                form.events.available_period
+                                            "
                                         >
                                             @for (
                                                 opt of AVAILABLE_PERIOD_SHORT;
@@ -693,7 +667,6 @@ import { UploadButtonComponent } from './upload-button.component';
                                 </div>
                                 <div
                                     class="grid grid-cols-1 gap-4 md:grid-cols-2"
-                                    formGroupName="bookable_hours"
                                 >
                                     <div>
                                         <label for="events-bookable-start">
@@ -704,8 +677,10 @@ import { UploadButtonComponent } from './upload-button.component';
                                             class="w-full"
                                         >
                                             <mat-select
-                                                name="events-bookable-start"
-                                                formControlName="start"
+                                                [formField]="
+                                                    form.events.bookable_hours
+                                                        .start
+                                                "
                                             >
                                                 @for (
                                                     opt of BOOKABLE_HOUR_START;
@@ -730,8 +705,10 @@ import { UploadButtonComponent } from './upload-button.component';
                                             class="w-full"
                                         >
                                             <mat-select
-                                                name="events-bookable-end"
-                                                formControlName="end"
+                                                [formField]="
+                                                    form.events.bookable_hours
+                                                        .end
+                                                "
                                             >
                                                 @for (
                                                     opt of BOOKABLE_HOUR_END;
@@ -750,65 +727,80 @@ import { UploadButtonComponent } from './upload-button.component';
                                 </div>
                                 <div class="-mx-2 flex flex-wrap items-center">
                                     <settings-toggle
-                                        name="Allow all day bookings"
-                                        formControlName="allow_all_day"
+                                        label="Allow all day bookings"
+                                        [formField]="form.events.allow_all_day"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Default to all day"
-                                        formControlName="all_day_default"
+                                        label="Default to all day"
+                                        [formField]="
+                                            form.events.all_day_default
+                                        "
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Allow editing setup/breakdown times"
-                                        formControlName="allow_setup_breakdown"
+                                        label="Allow editing setup/breakdown times"
+                                        [formField]="
+                                            form.events.allow_setup_breakdown
+                                        "
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Allow booking for other users"
-                                        formControlName="can_book_for_others"
+                                        label="Allow booking for other users"
+                                        [formField]="
+                                            form.events.can_book_for_others
+                                        "
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Allow booking for any other users"
-                                        formControlName="can_book_for_anyone"
+                                        label="Allow booking for any other users"
+                                        [formField]="
+                                            form.events.can_book_for_anyone
+                                        "
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Allow booking with assets"
-                                        formControlName="has_assets"
+                                        label="Allow booking with assets"
+                                        [formField]="form.events.has_assets"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Hide notes field when booking"
-                                        formControlName="hide_notes"
+                                        label="Hide notes field when booking"
+                                        [formField]="form.events.hide_notes"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Hide attendees field when booking"
-                                        formControlName="hide_attendees"
+                                        label="Hide attendees field when booking"
+                                        [formField]="form.events.hide_attendees"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Allow booking for external users"
-                                        formControlName="allow_externals"
+                                        label="Allow booking for external users"
+                                        [formField]="
+                                            form.events.allow_externals
+                                        "
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Enforce capacity for rooms"
-                                        formControlName="strict_capacity_check"
+                                        label="Enforce capacity for rooms"
+                                        [formField]="
+                                            form.events.strict_capacity_check
+                                        "
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Allow booking for multiple days"
-                                        formControlName="allow_multiday"
+                                        label="Allow booking for multiple days"
+                                        [formField]="form.events.allow_multiday"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Display times with building timezone"
-                                        formControlName="use_building_timezone"
+                                        label="Display times with building timezone"
+                                        [formField]="
+                                            form.events.use_building_timezone
+                                        "
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Allow Visibility options"
-                                        formControlName="allow_visibility"
+                                        label="Allow Visibility options"
+                                        [formField]="
+                                            form.events.allow_visibility
+                                        "
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Allow editing bookings"
-                                        formControlName="allow_edit"
+                                        label="Allow editing bookings"
+                                        [formField]="form.events.allow_edit"
                                     ></settings-toggle>
                                 </div>
                                 <div
                                     class="grid grid-cols-1 gap-4 md:grid-cols-2"
-                                    formGroupName="all_day_period"
                                 >
                                     <div>
                                         <label for="events-all-day-start">
@@ -819,8 +811,10 @@ import { UploadButtonComponent } from './upload-button.component';
                                             class="w-full"
                                         >
                                             <mat-select
-                                                name="events-all-day-start"
-                                                formControlName="start"
+                                                [formField]="
+                                                    form.events.all_day_period
+                                                        .start
+                                                "
                                                 placeholder="None"
                                             >
                                                 @for (
@@ -846,8 +840,10 @@ import { UploadButtonComponent } from './upload-button.component';
                                             class="w-full"
                                         >
                                             <mat-select
-                                                name="events-all-day-end"
-                                                formControlName="end"
+                                                [formField]="
+                                                    form.events.all_day_period
+                                                        .end
+                                                "
                                                 placeholder="None"
                                             >
                                                 @for (
@@ -869,12 +865,11 @@ import { UploadButtonComponent } from './upload-button.component';
                         </div>
                     </section>
                 }
-                @if (form.value.features.includes('desks')) {
+                @if (model().features.includes('desks')) {
                     <section
                         desks
                         id="feature-desks"
                         class="border-base-300 relative rounded-sm border"
-                        formGroupName="desks"
                     >
                         <h3
                             class="bg-base-100 absolute top-0 left-4 -translate-y-1/2 rounded-sm px-2 py-1 font-medium"
@@ -909,9 +904,9 @@ import { UploadButtonComponent } from './upload-button.component';
                                         <input
                                             matInput
                                             type="number"
-                                            min="0"
-                                            name="desks-max-assigned-count"
-                                            formControlName="max_assigned_count"
+                                            [formField]="
+                                                form.desks.max_assigned_count
+                                            "
                                         />
                                         <mat-hint>
                                             Maximum number of desk assignments a
@@ -924,12 +919,11 @@ import { UploadButtonComponent } from './upload-button.component';
                         </div>
                     </section>
                 }
-                @if (form.value.features.includes('visitors')) {
+                @if (model().features.includes('visitors')) {
                     <section
                         visitors
                         id="feature-visitors"
                         class="border-base-300 relative rounded-sm border"
-                        formGroupName="visitors"
                     >
                         <h3
                             class="bg-base-100 absolute top-0 left-4 -translate-y-1/2 rounded-sm px-2 py-1 font-medium"
@@ -955,7 +949,6 @@ import { UploadButtonComponent } from './upload-button.component';
                             <div class="content px-4 pt-4 pb-2">
                                 <div
                                     class="grid grid-cols-1 gap-4 md:grid-cols-2"
-                                    formGroupName="bookable_hours"
                                 >
                                     <div>
                                         <label for="visitors-bookable-start">
@@ -966,8 +959,10 @@ import { UploadButtonComponent } from './upload-button.component';
                                             class="w-full"
                                         >
                                             <mat-select
-                                                name="visitors-bookable-start"
-                                                formControlName="start"
+                                                [formField]="
+                                                    form.visitors.bookable_hours
+                                                        .start
+                                                "
                                                 placeholder="None"
                                             >
                                                 @for (
@@ -993,8 +988,10 @@ import { UploadButtonComponent } from './upload-button.component';
                                             class="w-full"
                                         >
                                             <mat-select
-                                                name="visitors-bookable-end"
-                                                formControlName="end"
+                                                [formField]="
+                                                    form.visitors.bookable_hours
+                                                        .end
+                                                "
                                                 placeholder="None"
                                             >
                                                 @for (
@@ -1020,8 +1017,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                     class="w-full"
                                 >
                                     <mat-select
-                                        name="hide-fields"
-                                        formControlName="hide_fields"
+                                        [formField]="form.visitors.hide_fields"
                                         placeholder="No fields selected"
                                         multiple
                                     >
@@ -1067,9 +1063,10 @@ import { UploadButtonComponent } from './upload-button.component';
                                     <input
                                         matInput
                                         type="number"
-                                        min="0"
-                                        name="all-visitors-action-window"
-                                        formControlName="all_visitors_action_window"
+                                        [formField]="
+                                            form.visitors
+                                                .all_visitors_action_window
+                                        "
                                     />
                                     <mat-hint>
                                         Minutes before and after the booking
@@ -1079,24 +1076,32 @@ import { UploadButtonComponent } from './upload-button.component';
                                 </mat-form-field>
                                 <div class="-mx-2 flex flex-wrap items-center">
                                     <settings-toggle
-                                        name="Allow booking parking for visitors"
-                                        formControlName="has_parking"
+                                        label="Allow booking parking for visitors"
+                                        [formField]="form.visitors.has_parking"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Allow setting pass number for visitors"
-                                        formControlName="allow_pass_number"
+                                        label="Allow setting pass number for visitors"
+                                        [formField]="
+                                            form.visitors.allow_pass_number
+                                        "
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Allow printing visitor labels"
-                                        formControlName="allow_printing_label"
+                                        label="Allow printing visitor labels"
+                                        [formField]="
+                                            form.visitors.allow_printing_label
+                                        "
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Allow international flag for visitors"
-                                        formControlName="allow_international"
+                                        label="Allow international flag for visitors"
+                                        [formField]="
+                                            form.visitors.allow_international
+                                        "
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Show calendar links after booking"
-                                        formControlName="show_calendar_links"
+                                        label="Show calendar links after booking"
+                                        [formField]="
+                                            form.visitors.show_calendar_links
+                                        "
                                     ></settings-toggle>
                                 </div>
                             </div>
@@ -1104,15 +1109,14 @@ import { UploadButtonComponent } from './upload-button.component';
                     </section>
                 }
                 @if (
-                    form.value.features.includes('visitors') ||
-                    form.value.features.includes('parking') ||
-                    form.value.features.includes('lockers')
+                    model().features.includes('visitors') ||
+                    model().features.includes('parking') ||
+                    model().features.includes('lockers')
                 ) {
                     <section
                         bookings
                         id="feature-bookings"
                         class="border-base-300 relative rounded-sm border"
-                        formGroupName="bookings"
                     >
                         <h3
                             class="bg-base-100 absolute top-0 left-4 -translate-y-1/2 rounded-sm px-2 py-1 font-medium"
@@ -1145,8 +1149,9 @@ import { UploadButtonComponent } from './upload-button.component';
                                         class="w-full"
                                     >
                                         <mat-select
-                                            name="available-period"
-                                            formControlName="available_period"
+                                            [formField]="
+                                                form.bookings.available_period
+                                            "
                                         >
                                             @for (
                                                 opt of AVAILABLE_PERIOD_EXTENDED;
@@ -1173,8 +1178,9 @@ import { UploadButtonComponent } from './upload-button.component';
                                         class="w-full"
                                     >
                                         <mat-select
-                                            name="max-duration"
-                                            formControlName="max_duration"
+                                            [formField]="
+                                                form.bookings.max_duration
+                                            "
                                         >
                                             @for (
                                                 opt of MAX_DURATION_FULL;
@@ -1193,7 +1199,6 @@ import { UploadButtonComponent } from './upload-button.component';
                                 </div>
                                 <div
                                     class="grid grid-cols-1 gap-4 md:grid-cols-2"
-                                    formGroupName="bookable_hours"
                                 >
                                     <div>
                                         <label for="bookings-bookable-start">
@@ -1204,8 +1209,10 @@ import { UploadButtonComponent } from './upload-button.component';
                                             class="w-full"
                                         >
                                             <mat-select
-                                                name="bookings-bookable-start"
-                                                formControlName="start"
+                                                [formField]="
+                                                    form.bookings.bookable_hours
+                                                        .start
+                                                "
                                             >
                                                 @for (
                                                     opt of BOOKABLE_HOUR_START;
@@ -1230,8 +1237,10 @@ import { UploadButtonComponent } from './upload-button.component';
                                             class="w-full"
                                         >
                                             <mat-select
-                                                name="bookings-bookable-end"
-                                                formControlName="end"
+                                                [formField]="
+                                                    form.bookings.bookable_hours
+                                                        .end
+                                                "
                                             >
                                                 @for (
                                                     opt of BOOKABLE_HOUR_END;
@@ -1250,21 +1259,22 @@ import { UploadButtonComponent } from './upload-button.component';
                                 </div>
                                 <div class="-mx-2 flex flex-wrap items-center">
                                     <settings-toggle
-                                        name="Allow all day bookings"
-                                        formControlName="allow_all_day"
+                                        label="Allow all day bookings"
+                                        [formField]="form.bookings.allow_all_day"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Display times with building timezone"
-                                        formControlName="use_building_timezone"
+                                        label="Display times with building timezone"
+                                        [formField]="
+                                            form.bookings.use_building_timezone
+                                        "
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Allow booking with assets"
-                                        formControlName="has_assets"
+                                        label="Allow booking with assets"
+                                        [formField]="form.bookings.has_assets"
                                     ></settings-toggle>
                                 </div>
                                 <div
                                     class="grid grid-cols-1 gap-4 md:grid-cols-2"
-                                    formGroupName="all_day_period"
                                 >
                                     <div>
                                         <label for="bookings-all-day-start">
@@ -1275,8 +1285,10 @@ import { UploadButtonComponent } from './upload-button.component';
                                             class="w-full"
                                         >
                                             <mat-select
-                                                name="bookings-all-day-start"
-                                                formControlName="start"
+                                                [formField]="
+                                                    form.bookings.all_day_period
+                                                        .start
+                                                "
                                             >
                                                 @for (
                                                     opt of BLOCK_START;
@@ -1301,8 +1313,10 @@ import { UploadButtonComponent } from './upload-button.component';
                                             class="w-full"
                                         >
                                             <mat-select
-                                                name="bookings-all-day-end"
-                                                formControlName="end"
+                                                [formField]="
+                                                    form.bookings.all_day_period
+                                                        .end
+                                                "
                                             >
                                                 @for (
                                                     opt of BLOCK_END;
@@ -1324,14 +1338,13 @@ import { UploadButtonComponent } from './upload-button.component';
                     </section>
                 }
                 @if (
-                    form.value.features.includes('parking') ||
-                    form.value.features.includes('parking-bookings')
+                    model().features.includes('parking') ||
+                    model().features.includes('parking-bookings')
                 ) {
                     <section
                         parking
                         id="feature-parking"
                         class="border-base-300 relative rounded-sm border"
-                        formGroupName="parking"
                     >
                         <h3
                             class="bg-base-100 absolute top-0 left-4 -translate-y-1/2 rounded-sm px-2 py-1 font-medium"
@@ -1364,8 +1377,9 @@ import { UploadButtonComponent } from './upload-button.component';
                                         class="w-full"
                                     >
                                         <mat-select
-                                            name="available-period"
-                                            formControlName="available_period"
+                                            [formField]="
+                                                form.parking.available_period
+                                            "
                                         >
                                             @for (
                                                 opt of AVAILABLE_PERIOD_EXTENDED;
@@ -1392,8 +1406,9 @@ import { UploadButtonComponent } from './upload-button.component';
                                         class="w-full"
                                     >
                                         <mat-select
-                                            name="max-duration"
-                                            formControlName="max_duration"
+                                            [formField]="
+                                                form.parking.max_duration
+                                            "
                                         >
                                             @for (
                                                 opt of MAX_DURATION_FULL;
@@ -1421,9 +1436,9 @@ import { UploadButtonComponent } from './upload-button.component';
                                         <input
                                             matInput
                                             type="number"
-                                            min="0"
-                                            name="parking-max-assigned-count"
-                                            formControlName="max_assigned_count"
+                                            [formField]="
+                                                form.parking.max_assigned_count
+                                            "
                                         />
                                         <mat-hint>
                                             Maximum number of parking space
@@ -1434,7 +1449,6 @@ import { UploadButtonComponent } from './upload-button.component';
                                 </div>
                                 <div
                                     class="grid grid-cols-1 gap-4 md:grid-cols-2"
-                                    formGroupName="bookable_hours"
                                 >
                                     <div>
                                         <label for="parking-bookable-start">
@@ -1445,8 +1459,10 @@ import { UploadButtonComponent } from './upload-button.component';
                                             class="w-full"
                                         >
                                             <mat-select
-                                                name="parking-bookable-start"
-                                                formControlName="start"
+                                                [formField]="
+                                                    form.parking.bookable_hours
+                                                        .start
+                                                "
                                             >
                                                 @for (
                                                     opt of BOOKABLE_HOUR_START;
@@ -1471,8 +1487,10 @@ import { UploadButtonComponent } from './upload-button.component';
                                             class="w-full"
                                         >
                                             <mat-select
-                                                name="parking-bookable-end"
-                                                formControlName="end"
+                                                [formField]="
+                                                    form.parking.bookable_hours
+                                                        .end
+                                                "
                                             >
                                                 @for (
                                                     opt of BOOKABLE_HOUR_END;
@@ -1491,71 +1509,93 @@ import { UploadButtonComponent } from './upload-button.component';
                                 </div>
                                 <div class="-mx-2 flex flex-wrap items-center">
                                     <settings-toggle
-                                        name="Allow all day bookings"
-                                        formControlName="allow_all_day"
+                                        label="Allow all day bookings"
+                                        [formField]="form.parking.allow_all_day"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Show assigned users on parking map"
-                                        formControlName="show_users"
+                                        label="Show assigned users on parking map"
+                                        [formField]="form.parking.show_users"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Show parking status details on map"
-                                        formControlName="show_status_details"
+                                        label="Show parking status details on map"
+                                        [formField]="
+                                            form.parking.show_status_details
+                                        "
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Disable parking map styles"
-                                        formControlName="disable_styles"
+                                        label="Disable parking map styles"
+                                        [formField]="form.parking.disable_styles"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Disable reservations"
-                                        formControlName="disable_bookings"
+                                        label="Disable reservations"
+                                        [formField]="
+                                            form.parking.disable_bookings
+                                        "
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Show booking requests"
-                                        formControlName="show_requests"
+                                        label="Show booking requests"
+                                        [formField]="form.parking.show_requests"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Show waitlisted status and filter"
-                                        formControlName="show_waitlist"
+                                        label="Show waitlisted status and filter"
+                                        [formField]="form.parking.show_waitlist"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Always hide bay number column"
-                                        formControlName="hide_bay_number"
+                                        label="Always hide bay number column"
+                                        [formField]="
+                                            form.parking.hide_bay_number
+                                        "
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Hide level selector on booking list"
-                                        formControlName="hide_level_selector_on_booking_list"
+                                        label="Hide level selector on booking list"
+                                        [formField]="
+                                            form.parking
+                                                .hide_level_selector_on_booking_list
+                                        "
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Hide users and vehicle tabs"
-                                        formControlName="hide_users_and_vehicles"
+                                        label="Hide user tab"
+                                        [formField]="form.parking.hide_users"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Hide assign space action"
-                                        formControlName="hide_assign_space"
+                                        label="Hide vehicle tab"
+                                        [formField]="form.parking.hide_vehicles"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        [name]="
+                                        label="Hide user and vehicle tabs"
+                                        [formField]="
+                                            form.parking.hide_users_and_vehicles
+                                        "
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        label="Hide assign space action"
+                                        [formField]="
+                                            form.parking.hide_assign_space
+                                        "
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        [label]="
                                             'APP.CONCIERGE.PARKING_ALLOW_DELETING'
                                                 | translate
                                         "
-                                        formControlName="allow_deleting"
+                                        [formField]="form.parking.allow_deleting"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Assign a space when approving requests"
-                                        formControlName="assign_space_on_approve"
+                                        label="Assign a space when approving requests"
+                                        [formField]="
+                                            form.parking.assign_space_on_approve
+                                        "
                                     ></settings-toggle>
                                 </div>
                             </div>
                         </div>
                     </section>
                 }
-                @if (form.value.features.includes('lockers')) {
+                @if (model().features.includes('lockers')) {
                     <section
                         lockers
                         id="feature-lockers"
                         class="border-base-300 relative rounded-sm border"
-                        formGroupName="lockers"
                     >
                         <h3
                             class="bg-base-100 absolute top-0 left-4 -translate-y-1/2 rounded-sm px-2 py-1 font-medium"
@@ -1588,8 +1628,9 @@ import { UploadButtonComponent } from './upload-button.component';
                                         class="w-full"
                                     >
                                         <mat-select
-                                            name="available-period"
-                                            formControlName="available_period"
+                                            [formField]="
+                                                form.lockers.available_period
+                                            "
                                         >
                                             @for (
                                                 opt of AVAILABLE_PERIOD_SHORT;
@@ -1616,8 +1657,9 @@ import { UploadButtonComponent } from './upload-button.component';
                                         class="w-full"
                                     >
                                         <mat-select
-                                            name="max-duration"
-                                            formControlName="max_duration"
+                                            [formField]="
+                                                form.lockers.max_duration
+                                            "
                                         >
                                             @for (
                                                 opt of MAX_DURATION_FULL;
@@ -1633,7 +1675,6 @@ import { UploadButtonComponent } from './upload-button.component';
                                 </div>
                                 <div
                                     class="grid grid-cols-1 gap-4 md:grid-cols-2"
-                                    formGroupName="bookable_hours"
                                 >
                                     <div>
                                         <label for="lockers-bookable-start">
@@ -1644,8 +1685,10 @@ import { UploadButtonComponent } from './upload-button.component';
                                             class="w-full"
                                         >
                                             <mat-select
-                                                name="lockers-bookable-start"
-                                                formControlName="start"
+                                                [formField]="
+                                                    form.lockers.bookable_hours
+                                                        .start
+                                                "
                                             >
                                                 @for (
                                                     opt of BOOKABLE_HOUR_START;
@@ -1670,8 +1713,10 @@ import { UploadButtonComponent } from './upload-button.component';
                                             class="w-full"
                                         >
                                             <mat-select
-                                                name="lockers-bookable-end"
-                                                formControlName="end"
+                                                [formField]="
+                                                    form.lockers.bookable_hours
+                                                        .end
+                                                "
                                             >
                                                 @for (
                                                     opt of BOOKABLE_HOUR_END;
@@ -1690,28 +1735,36 @@ import { UploadButtonComponent } from './upload-button.component';
                                 </div>
                                 <div class="-mx-2 flex flex-wrap items-center">
                                     <settings-toggle
-                                        name="Allow all day bookings"
-                                        formControlName="allow_all_day"
+                                        label="Allow all day bookings"
+                                        [formField]="form.lockers.allow_all_day"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Default bookings to all day"
-                                        formControlName="all_day_default"
+                                        label="Default bookings to all day"
+                                        [formField]="
+                                            form.lockers.all_day_default
+                                        "
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Show Calendar Links after booking"
-                                        formControlName="show_calendar_links"
+                                        label="Show Calendar Links after booking"
+                                        [formField]="
+                                            form.lockers.show_calendar_links
+                                        "
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Hide End time option"
-                                        formControlName="hide_end_time"
+                                        label="Hide End time option"
+                                        [formField]="form.lockers.hide_end_time"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Disable Date selection"
-                                        formControlName="disabled_date_select"
+                                        label="Disable Date selection"
+                                        [formField]="
+                                            form.lockers.disabled_date_select
+                                        "
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Disable start time option"
-                                        formControlName="disabled_start_time"
+                                        label="Disable start time option"
+                                        [formField]="
+                                            form.lockers.disabled_start_time
+                                        "
                                     ></settings-toggle>
                                 </div>
                             </div>
@@ -1733,7 +1786,7 @@ import { UploadButtonComponent } from './upload-button.component';
         MatDialogModule,
         FullscreenModalShellComponent,
         SettingsToggleComponent,
-        ReactiveFormsModule,
+        FormField,
         MatRippleModule,
         IconComponent,
         TranslatePipe,
@@ -1783,127 +1836,137 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
     public readonly settings_key =
         this._settings.get('app.concierge_metadata_key') || 'concierge_app';
 
-    public readonly form = new FormGroup({
-        logo_light: new FormControl(''),
-        logo_dark: new FormControl(''),
-        features: new FormControl([]),
-        banner: new FormControl({} as any),
-        default_route: new FormControl(''),
-        use_24_hour_time: new FormControl(false),
-        delegated: new FormControl(false),
-        force_upload_state: new FormControl(false),
-        private_uploads: new FormControl(false),
-        week_start: new FormControl(0),
-        currency: new FormControl('USD'),
-        use_region: new FormControl(false),
-        group_events_calendar: new FormControl(''),
-        kiosk_url_path: new FormControl(''),
-        short_url_public_key: new FormControl(''),
-        control_path: new FormControl(''),
-        signage_path: new FormControl(''),
-        workplace_url_path: new FormControl(''),
-        public_url_path: new FormControl(''),
-        admin_group: new FormControl(''),
-        events: new FormGroup({
-            allow_all_day: new FormControl(false),
-            all_day_period: new FormGroup({
-                start: new FormControl<number | null>(null),
-                end: new FormControl<number | null>(null),
-            }),
-            bookable_hours: new FormGroup({
-                start: new FormControl<number | null>(null),
-                end: new FormControl<number | null>(null),
-            }),
-            all_day_default: new FormControl(false),
-            allow_setup_breakdown: new FormControl(false),
-            has_assets: new FormControl(false),
-            hide_notes: new FormControl(false),
-            hide_attendees: new FormControl(false),
-            allow_externals: new FormControl(false),
-            strict_capacity_check: new FormControl(false),
-            allow_multiday: new FormControl(false),
-            use_building_timezone: new FormControl(false),
-            day_timeline_view: new FormControl('default'),
-            block_start: new FormControl(0),
-            block_end: new FormControl(24),
-            block_height: new FormControl(3),
-            max_duration: new FormControl(360),
-            available_period: new FormControl(14),
-            can_book_for_others: new FormControl(false),
-            can_book_for_anyone: new FormControl(false),
-            allow_visibility: new FormControl(false),
-            allow_edit: new FormControl(true),
-        }),
-        desks: new FormGroup({
-            max_assigned_count: new FormControl(0),
-        }),
-        visitors: new FormGroup({
-            bookable_hours: new FormGroup({
-                start: new FormControl<number | null>(null),
-                end: new FormControl<number | null>(null),
-            }),
-            has_parking: new FormControl(false),
-            allow_pass_number: new FormControl(false),
-            allow_printing_label: new FormControl(false),
-            allow_international: new FormControl(false),
-            show_calendar_links: new FormControl(false),
-            all_visitors_action_window: new FormControl(15),
-            hide_fields: new FormControl([]),
-        }),
-        bookings: new FormGroup({
-            allow_all_day: new FormControl(true),
-            all_day_period: new FormGroup({
-                start: new FormControl<number | null>(null),
-                end: new FormControl<number | null>(null),
-            }),
-            bookable_hours: new FormGroup({
-                start: new FormControl<number | null>(null),
-                end: new FormControl<number | null>(null),
-            }),
-            has_assets: new FormControl(false),
-            use_building_timezone: new FormControl(false),
-            available_period: new FormControl(14),
-            max_duration: new FormControl(480),
-        }),
-        reports: new FormGroup({
-            attendance_include_weekends: new FormControl(false),
-        }),
-        parking: new FormGroup({
-            allow_all_day: new FormControl(true),
-            bookable_hours: new FormGroup({
-                start: new FormControl<number | null>(null),
-                end: new FormControl<number | null>(null),
-            }),
-            show_users: new FormControl(false),
-            show_status_details: new FormControl(true),
-            disable_styles: new FormControl(false),
-            disable_bookings: new FormControl(false),
-            show_requests: new FormControl(false),
-            show_waitlist: new FormControl(true),
-            hide_bay_number: new FormControl(false),
-            hide_level_selector_on_booking_list: new FormControl(false),
-            hide_users_and_vehicles: new FormControl(false),
-            hide_assign_space: new FormControl(false),
-            allow_deleting: new FormControl(false),
-            assign_space_on_approve: new FormControl(false),
-            available_period: new FormControl(7),
-            max_duration: new FormControl(480),
-            max_assigned_count: new FormControl(0),
-        }),
-        lockers: new FormGroup({
-            allow_all_day: new FormControl(true),
-            bookable_hours: new FormGroup({
-                start: new FormControl<number | null>(null),
-                end: new FormControl<number | null>(null),
-            }),
-            all_day_default: new FormControl(false),
-            show_calendar_links: new FormControl(false),
-            available_period: new FormControl(14),
-            max_duration: new FormControl(480),
-            hide_end_time: new FormControl(false),
-            disabled_start_time: new FormControl(false),
-            disabled_date_select: new FormControl(false),
-        }),
+    public readonly model = signal({
+        logo_light: '',
+        logo_dark: '',
+        features: [] as string[],
+        banner: {} as any,
+        default_route: '',
+        use_24_hour_time: false,
+        delegated: false,
+        force_upload_state: false,
+        private_uploads: false,
+        week_start: 0,
+        currency: 'USD',
+        use_region: false,
+        group_events_calendar: '',
+        kiosk_url_path: '',
+        short_url_public_key: '',
+        control_path: '',
+        signage_path: '',
+        workplace_url_path: '',
+        public_url_path: '',
+        admin_group: '',
+        events: {
+            allow_all_day: false,
+            all_day_period: {
+                start: null as number | null,
+                end: null as number | null,
+            },
+            bookable_hours: {
+                start: null as number | null,
+                end: null as number | null,
+            },
+            all_day_default: false,
+            allow_setup_breakdown: false,
+            has_assets: false,
+            hide_notes: false,
+            hide_attendees: false,
+            allow_externals: false,
+            strict_capacity_check: false,
+            allow_multiday: false,
+            use_building_timezone: false,
+            day_timeline_view: 'default',
+            block_start: 0,
+            block_end: 24,
+            block_height: 3,
+            max_duration: 360,
+            available_period: 14,
+            can_book_for_others: false,
+            can_book_for_anyone: false,
+            allow_visibility: false,
+            allow_edit: true,
+        },
+        desks: {
+            max_assigned_count: 0,
+        },
+        visitors: {
+            bookable_hours: {
+                start: null as number | null,
+                end: null as number | null,
+            },
+            has_parking: false,
+            allow_pass_number: false,
+            allow_printing_label: false,
+            allow_international: false,
+            show_calendar_links: false,
+            all_visitors_action_window: 15,
+            hide_fields: [] as string[],
+        },
+        bookings: {
+            allow_all_day: true,
+            all_day_period: {
+                start: null as number | null,
+                end: null as number | null,
+            },
+            bookable_hours: {
+                start: null as number | null,
+                end: null as number | null,
+            },
+            has_assets: false,
+            use_building_timezone: false,
+            available_period: 14,
+            max_duration: 480,
+        },
+        reports: {
+            attendance_include_weekends: false,
+        },
+        parking: {
+            allow_all_day: true,
+            bookable_hours: {
+                start: null as number | null,
+                end: null as number | null,
+            },
+            show_users: false,
+            show_status_details: true,
+            disable_styles: false,
+            disable_bookings: false,
+            show_requests: false,
+            show_waitlist: true,
+            hide_bay_number: false,
+            hide_level_selector_on_booking_list: false,
+            hide_users: false,
+            hide_vehicles: false,
+            hide_users_and_vehicles: false,
+            hide_assign_space: false,
+            allow_deleting: false,
+            assign_space_on_approve: false,
+            available_period: 7,
+            max_duration: 480,
+            max_assigned_count: 0,
+        },
+        lockers: {
+            allow_all_day: true,
+            bookable_hours: {
+                start: null as number | null,
+                end: null as number | null,
+            },
+            all_day_default: false,
+            show_calendar_links: false,
+            available_period: 14,
+            max_duration: 480,
+            hide_end_time: false,
+            disabled_start_time: false,
+            disabled_date_select: false,
+        },
+    });
+
+    public readonly form = form(this.model, (p) => {
+        // Preserve the `min="0"` browser constraint the template inputs had;
+        // signal-forms manages the DOM min attr from this validator instead.
+        min(p.desks.max_assigned_count, 0);
+        min(p.visitors.all_visitors_action_window, 0);
+        min(p.parking.max_assigned_count, 0);
     });
 
     public get date_string() {
@@ -1916,7 +1979,7 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
         this.heading.set(
             `Concierge Settings <div class="font-mono text-xs px-2 py-1 rounded bg-base-300 ml-2">${this.zone.display_name || this.zone.name || 'Organisation'}</div>`,
         );
-        this.form.patchValue(DEFAULT_SETTINGS.app);
+        this._patchModel(DEFAULT_SETTINGS.app);
         const org_id = this._org.organisation.id;
         const org_metadata = await this._getMetadata(org_id);
         const parent_metadata =
@@ -1929,9 +1992,9 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
             ...org_metadata,
             ...parent_metadata,
         };
-        this.form.patchValue(org_metadata || {});
-        this.form.patchValue(parent_metadata || {});
-        this.form.patchValue(metadata || {});
+        this._patchModel(org_metadata || {});
+        this._patchModel(parent_metadata || {});
+        this._patchModel(metadata || {});
         this.old_settings = metadata;
         this.loading.set('');
     }
@@ -1953,7 +2016,7 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
     public async save() {
         this.loading.set('Saving settings...');
         const zone = this._data.zone;
-        const form_value = this.form.getRawValue();
+        const form_value: any = this.model();
         const new_settings = { ...this.old_settings };
         for (const key in form_value) {
             if (form_value[key] instanceof Array) {
@@ -2021,6 +2084,33 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
         this._dialog_ref.close();
     }
 
+    private _patchModel(patch: Record<string, any>) {
+        this.model.update((m) => this._mergeInto(m, patch));
+    }
+
+    private _mergeInto(target: any, patch: Record<string, any>): any {
+        if (!patch || typeof patch !== 'object') return target;
+        const result = { ...target };
+        for (const key in patch) {
+            if (!(key in result)) continue;
+            const patch_value = patch[key];
+            const current_value = result[key];
+            if (
+                patch_value &&
+                typeof patch_value === 'object' &&
+                !Array.isArray(patch_value) &&
+                current_value &&
+                typeof current_value === 'object' &&
+                !Array.isArray(current_value)
+            ) {
+                result[key] = this._mergeInto(current_value, patch_value);
+            } else if (patch_value !== undefined) {
+                result[key] = patch_value;
+            }
+        }
+        return result;
+    }
+
     private _isValid<T>(new_value: T, existing_value: T) {
         return (
             new_value !== '' &&
@@ -2030,11 +2120,8 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
         );
     }
 
-    private _getMetadata(id) {
-        return firstValueFrom(
-            from(showMetadata(id, this.settings_key) as any).pipe(
-                map((m: any) => m.details as Record<string, any>),
-            ),
-        );
+    private async _getMetadata(id) {
+        const metadata: any = await showMetadata(id, this.settings_key);
+        return metadata.details as Record<string, any>;
     }
 }

@@ -1,6 +1,7 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import {
     Booking,
+    guardModelUndefinedWrites,
     GuestUser,
     HashMap,
     i18n,
@@ -8,7 +9,6 @@ import {
     notifySuccess,
 } from '@placeos/common';
 import { addMinutes, getUnixTime, isSameDay } from 'date-fns';
-import { BehaviorSubject, lastValueFrom } from 'rxjs';
 
 import {
     checkinBooking,
@@ -18,82 +18,111 @@ import {
     updateBookingInductionStatus,
 } from '@placeos/bookings';
 import { SpacePipe } from '@placeos/events';
-import { generateGuestForm, showGuest } from '@placeos/users';
+import { showGuest } from '@placeos/users';
+
+export interface CheckinGuestDetails {
+    host: string;
+    name: string;
+    email: string;
+    phone: string;
+    organisation: string;
+    pass_number: string;
+}
+
+function guestDetailsForm(
+    guest: GuestUser = new GuestUser(),
+    host = '',
+): CheckinGuestDetails {
+    return {
+        host,
+        name: guest.name || '',
+        email: guest.email || '',
+        phone: guest.phone || '',
+        organisation: guest.organisation || '',
+        pass_number: guest.extension_data?.pass_number || '',
+    };
+}
 
 @Injectable({
     providedIn: 'root',
 })
 export class CheckinStateService {
     /** Current event being checked in */
-    private _booking = new BehaviorSubject<Booking>(null);
+    private _booking = signal<Booking>(null);
     /** Current guest being checked in */
-    private _guest = new BehaviorSubject<GuestUser>(null);
+    private _guest = signal<GuestUser>(null);
     /** Photo of the current guest */
-    private _photo = new BehaviorSubject<string>('');
+    private _photo = signal<string>('');
     /** Photo of the current guest */
-    private _error = new BehaviorSubject<string>('');
+    private _error = signal<string>('');
     /** Form for the current guest details */
-    private _form = new BehaviorSubject(generateGuestForm());
+    public readonly form = signal<CheckinGuestDetails>(guestDetailsForm());
     private _space_pipe = new SpacePipe();
 
-    public readonly photo = this._photo.asObservable();
-    public readonly event = this._booking.asObservable();
-    public readonly guest = this._guest.asObservable();
-    public readonly error = this._error.asObservable();
-    public readonly form = this._form.asObservable();
+    public readonly photo = this._photo.asReadonly();
+    public readonly event = this._booking.asReadonly();
+    public readonly guest = this._guest.asReadonly();
+    public readonly error = this._error.asReadonly();
 
     public metadata = '';
 
+    constructor() {
+        // Keep every key defined so signal-forms never drops a sub-field bound
+        // via `[formField]` in checkin-details (an undefined/partial value
+        // triggers `this.field() is not a function`). Guards writes
+        // synchronously — no reactive surface.
+        guardModelUndefinedWrites(this.form, guestDetailsForm());
+    }
+
     public clear() {
-        this._guest.next(null);
-        this._booking.next(null);
-        this._photo.next(null);
+        this._guest.set(null);
+        this._booking.set(null);
+        this._photo.set(null);
     }
 
     public setBooking(booking: Booking, metadata = '') {
-        this._booking.next(booking);
-        this._guest.next(
-            new GuestUser({
-                email: booking.asset_id,
-                name: booking.asset_name,
-                organisation: booking.extension_data?.organisation,
-                phone: booking.extension_data?.phone,
-            }),
-        );
+        const guest = new GuestUser({
+            email: booking.asset_id,
+            name: booking.asset_name,
+            organisation: booking.extension_data?.organisation,
+            phone: booking.extension_data?.phone,
+            extension_data: booking.extension_data || {},
+        });
+        this._booking.set(booking);
+        this._guest.set(guest);
+        this.form.set(guestDetailsForm(guest, booking.user_email));
         this.metadata = metadata;
     }
 
     public setPhoto(data: string) {
-        this._photo.next(data);
+        this._photo.set(data);
     }
 
     public setError(message: string) {
-        this._error.next(message);
+        this._error.set(message);
     }
 
     /** Load guest and event data */
     public async loadGuestAndEvent(email: string, event_id?: string) {
-        const guest = await lastValueFrom(showGuest(email));
+        const guest = await showGuest(email);
         if (!guest.booking && event_id) {
-            const event = await lastValueFrom(showBooking(event_id));
-            this._guest.next(guest);
-            this._booking.next(event);
-            this._form.next(generateGuestForm(guest, event.user_email));
+            const event = await showBooking(event_id);
+            this._guest.set(guest);
+            this._booking.set(event);
+            this.form.set(guestDetailsForm(guest, event.user_email));
             return { guest, event };
         }
         if (guest.booking) {
-            this._guest.next(guest);
-            this._booking.next(guest.booking);
-            this._form.next(generateGuestForm(guest, guest.booking.user_email));
+            this._guest.set(guest);
+            this._booking.set(guest.booking);
+            this.form.set(guestDetailsForm(guest, guest.booking.user_email));
             return { guest, event: guest.booking };
         }
-        let upcoming = await lastValueFrom(
-            queryAllBookings({
-                type: 'visitor',
-                period_start: getUnixTime(Date.now()),
-                period_end: getUnixTime(addMinutes(Date.now(), 120)),
-            }),
-        );
+        let upcoming = await queryAllBookings({
+            type: 'visitor',
+            period_start: getUnixTime(Date.now()),
+            period_end: getUnixTime(addMinutes(Date.now(), 120)),
+        });
         upcoming = upcoming.filter(
             (_) => _.user_email === email || _.asset_id === email,
         );
@@ -105,62 +134,58 @@ export class CheckinStateService {
         if (todays_events.length <= 0) {
             throw new Error(i18n('APP.VISITOR_KIOSK.NOT_FOUND', { email }));
         }
-        this._guest.next(guest);
-        this._booking.next(todays_events[0]);
-        this._form.next(generateGuestForm(guest, todays_events[0].user_email));
+        this._guest.set(guest);
+        this._booking.set(todays_events[0]);
+        this.form.set(guestDetailsForm(guest, todays_events[0].user_email));
         return { guest, event: todays_events[0] };
     }
 
     public async updateGuest(data?: HashMap) {
-        const guest = this._guest.getValue();
-        const form = this._form.getValue();
+        const guest = this._guest();
+        const form = this.form();
         if (!guest || !form) return;
-        const booking = this._booking.getValue() || guest.extension_data.event;
-        if (!booking || this.metadata || !form.value) return;
-        const updated_booking = await lastValueFrom(
-            updateBooking(
-                booking.id,
-                new Booking({
-                    ...booking,
-                    asset_id: form.value.email || booking.asset_id,
-                    asset_name: form.value.name || booking.asset_name,
-                    description: form.value.name || booking.description,
-                    extension_data: {
-                        ...booking.extension_data,
-                        pass_number:
-                            form.value.pass_number ||
-                            booking.extension_data?.pass_number,
-                        organisation:
-                            form.value.organisation ||
-                            booking.extension_data?.organisation,
-                        phone:
-                            form.value.phone || booking.extension_data?.phone,
-                    },
-                }).toJSON(),
-            ),
+        const booking = this._booking() || guest.extension_data.event;
+        if (!booking || this.metadata) return;
+        const updated_booking = await updateBooking(
+            booking.id,
+            new Booking({
+                ...booking,
+                asset_id: form.email || booking.asset_id,
+                asset_name: form.name || booking.asset_name,
+                description: form.name || booking.description,
+                extension_data: {
+                    ...booking.extension_data,
+                    pass_number:
+                        form.pass_number || booking.extension_data?.pass_number,
+                    organisation:
+                        form.organisation ||
+                        booking.extension_data?.organisation,
+                    phone: form.phone || booking.extension_data?.phone,
+                },
+            }).toJSON(),
         );
         this.setBooking(updated_booking);
     }
 
     public async completeInduction() {
-        const guest = this._guest.getValue();
-        const event = this._booking.getValue() || guest.extension_data.event;
+        const guest = this._guest();
+        const event = this._booking() || guest.extension_data.event;
         if (!guest || !event) return;
-        await lastValueFrom(updateBookingInductionStatus(event.id, 'accepted'));
+        await updateBookingInductionStatus(event.id, 'accepted');
     }
 
     public async declineInduction() {
-        const guest = this._guest.getValue();
-        const event = this._booking.getValue() || guest.extension_data.event;
+        const guest = this._guest();
+        const event = this._booking() || guest.extension_data.event;
         if (!guest || !event) return;
-        await lastValueFrom(updateBookingInductionStatus(event.id, 'declined'));
+        await updateBookingInductionStatus(event.id, 'declined');
     }
 
     public async checkinGuest(state = true) {
-        const guest = this._guest.getValue();
-        const event = this._booking.getValue() || guest.extension_data.event;
+        const guest = this._guest();
+        const event = this._booking() || guest.extension_data.event;
         if (!guest || !event) return;
-        const checkin_fn = lastValueFrom(checkinBooking(event.id, state));
+        const checkin_fn = checkinBooking(event.id, state);
         const vars = {
             guest: guest.name,
             host: event.user_name || event.user_email,

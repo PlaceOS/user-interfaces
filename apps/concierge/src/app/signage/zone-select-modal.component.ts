@@ -1,22 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { Component, computed, inject, resource, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { IconComponent, TranslatePipe } from '@placeos/components';
-import { queryZones } from '@placeos/ts-client';
-import {
-    catchError,
-    debounceTime,
-    from,
-    map,
-    of,
-    startWith,
-    switchMap,
-} from 'rxjs';
+import { PlaceZone, queryZones } from '@placeos/ts-client';
 
 @Component({
     selector: 'app-zone-select-modal',
@@ -98,20 +88,19 @@ export class ZoneSelectModalComponent {
     public readonly query = this._data.query || {};
     public readonly ignore = this._data.ignore || [];
     public readonly search_term = signal('');
-    private readonly _zones = toSignal(
-        toObservable(this.search_term).pipe(
-            debounceTime(300),
-            switchMap((term) =>
-                from(queryZones({ ...this.query, q: term, limit: 100 })).pipe(
-                    map((_) => _.data),
-                    catchError(() => of([])),
-                ),
-            ),
-            startWith([]),
-        ),
-        { initialValue: [] },
-    );
+    private readonly _zones = resource({
+        params: () => this.search_term(),
+        defaultValue: [] as PlaceZone[],
+        loader: async ({ params: term }) => {
+            const resp = await queryZones({
+                ...this.query,
+                q: term,
+                limit: 100,
+            }).catch(() => ({ data: [] }) as any);
+            return resp.data;
+        },
+    });
     public readonly zones = computed(() =>
-        this._zones().filter((zone) => !this.ignore.includes(zone.id)),
+        this._zones.value().filter((zone) => !this.ignore.includes(zone.id)),
     );
 }

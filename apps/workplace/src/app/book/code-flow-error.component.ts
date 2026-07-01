@@ -48,7 +48,7 @@ const VALID_TYPES = ['not_started', 'wrong_resource', 'other'];
                         matRipple
                         class="w-full max-w-lg"
                         [routerLink]="['/book', 'code']"
-                        [queryParams]="{ asset_id: asset_id }"
+                        [queryParams]="{ asset_id: asset_id() }"
                     >
                         {{ 'APP.WORKPLACE.TRY_AGAIN' | translate }}
                     </a>

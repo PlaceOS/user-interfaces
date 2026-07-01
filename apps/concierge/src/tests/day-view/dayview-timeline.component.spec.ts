@@ -1,9 +1,10 @@
+import { signal } from '@angular/core';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { OrganisationService } from '@placeos/common';
 import { SpacesService } from '@placeos/events';
 import { MockComponent } from 'ng-mocks';
-import { BehaviorSubject, of } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 
 import { DayviewSpaceComponent } from '../../app/day-view/dayview-space.component';
 import { DayviewTimelineComponent } from '../../app/day-view/dayview-timeline.component';
@@ -15,7 +16,6 @@ jest.mock('@placeos/ts-client', () => {
     return { querySystems: jest.fn(), PlaceZone: CLASS, PlaceSystem: CLASS };
 });
 
-import { fakeAsync } from '@angular/core/testing';
 import * as client from '@placeos/ts-client';
 
 describe('DayviewTimelineComponent', () => {
@@ -30,7 +30,7 @@ describe('DayviewTimelineComponent', () => {
             {
                 provide: OrganisationService,
                 useValue: {
-                    active_building: new BehaviorSubject({ id: ' bld-1' }),
+                    active_building: signal({ id: ' bld-1' }),
                     levelWithID: jest.fn(),
                 },
             },
@@ -43,7 +43,9 @@ describe('DayviewTimelineComponent', () => {
             {
                 provide: EventsStateService,
                 useValue: {
-                    zones: new BehaviorSubject([]),
+                    zones: signal([]),
+                    loading: signal(false),
+                    event: signal(null),
                     startPolling: jest.fn(),
                     stopPolling: jest.fn(),
                 },
@@ -53,27 +55,31 @@ describe('DayviewTimelineComponent', () => {
     });
 
     beforeEach(() => {
-        (client.querySystems as any).mockImplementation(() => of({ data: [] }));
+        (client.querySystems as any).mockImplementation(() =>
+            Promise.resolve({ data: [] }),
+        );
         spectator = createComponent();
     });
 
     it('should create component', () =>
         expect(spectator.component).toBeTruthy());
 
-    it('should display spaces', fakeAsync(() => {
-        (spectator.inject(SpacesService).list as any).next([]);
+    it('should display spaces', async () => {
+        spectator.detectChanges();
+        await spectator.fixture.whenStable();
         spectator.detectChanges();
         expect('dayview-space').not.toExist();
         (client.querySystems as any).mockImplementation(() =>
-            of({ data: [{}, {}] }),
+            Promise.resolve({ data: [{}, {}] }),
         );
-        (spectator.inject(OrganisationService).active_building as any).next({
+        (spectator.inject(OrganisationService).active_building as any).set({
             id: 'bld-1',
         });
-        spectator.tick(1001);
+        spectator.detectChanges();
+        await spectator.fixture.whenStable();
         spectator.detectChanges();
         expect('dayview-space').toExist();
-    }));
+    });
 
     it('should handle scrolling', async () => {
         jest.spyOn(spectator.component, 'onScroll');

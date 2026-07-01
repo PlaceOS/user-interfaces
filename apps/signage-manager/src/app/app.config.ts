@@ -1,32 +1,25 @@
 import {
     ApplicationConfig,
+    inject,
     LOCALE_ID,
+    provideAppInitializer,
     provideBrowserGlobalErrorListeners,
     provideZonelessChangeDetection,
 } from '@angular/core';
-import { registerLocaleData } from '@angular/common';
-import localeAr from '@angular/common/locales/ar';
-import localeEs from '@angular/common/locales/es';
-import localeFr from '@angular/common/locales/fr';
-import localeIt from '@angular/common/locales/it';
-import localeJa from '@angular/common/locales/ja';
-import localeZh from '@angular/common/locales/zh';
-import { provideRouter, Routes, withHashLocation } from '@angular/router';
+import {
+    provideRouter,
+    Routes,
+    withComponentInputBinding,
+    withHashLocation,
+} from '@angular/router';
 import { provideServiceWorker } from '@angular/service-worker';
-import { LocaleService } from '@placeos/common';
+import { LocaleService, registerActiveLocale } from '@placeos/common';
 import {
     AuthorisedUserGuard,
     UnauthorisedComponent,
 } from '@placeos/components';
 import { environment } from '../environments/environment';
 import { signageAccessGuard } from './signage-access.guard';
-
-registerLocaleData(localeFr);
-registerLocaleData(localeAr);
-registerLocaleData(localeJa);
-registerLocaleData(localeZh);
-registerLocaleData(localeEs);
-registerLocaleData(localeIt);
 
 const APP_ROUTES: Routes = [
     {
@@ -113,7 +106,10 @@ export const APP_CONFIG: ApplicationConfig = {
             enabled: environment.production,
         }),
         provideZonelessChangeDetection(),
-        provideRouter(APP_ROUTES, withHashLocation()),
+        provideAppInitializer(() =>
+            registerActiveLocale(inject(LocaleService).locale),
+        ),
+        provideRouter(APP_ROUTES, withHashLocation(), withComponentInputBinding()),
         // {
         //     provide: ErrorHandler,
         //     useValue: Sentry.createErrorHandler({

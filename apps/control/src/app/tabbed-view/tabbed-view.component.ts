@@ -1,4 +1,4 @@
-import { Component, effect, inject } from '@angular/core';
+import { Component, computed, effect, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
@@ -14,7 +14,6 @@ import {
 import { DatePipe } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { OrganisationService } from '@placeos/common';
-import { debounceTime, map } from 'rxjs/operators';
 import { ControlStateService } from '../control-state.service';
 import { ControlStatusBarComponent } from '../status-bar.component';
 import { TopbarHeaderComponent } from '../topbar-header.component';
@@ -150,15 +149,11 @@ export class ControlTabbedViewComponent {
         initialValue: this._route.snapshot.queryParamMap,
     });
 
-    public readonly system = toSignal(this._state.system, {
-        initialValue: {} as any,
-    });
-    public readonly join_status = toSignal(this._state.join_status, {
-        initialValue: [false, false] as [boolean, boolean],
-    });
+    public readonly system = this._state.system;
+    public readonly join_status = this._state.join_status;
 
     public readonly powerOn = () => this._state.powerOn();
-    public readonly id = toSignal(this._state.system_id, { initialValue: '' });
+    public readonly id = this._state.system_id;
     public readonly version = VERSION;
 
     public async viewChangelog() {
@@ -170,17 +165,14 @@ export class ControlTabbedViewComponent {
         this._dialog.open(ChangelogModalComponent, { data: { changelog } });
     }
 
-    public readonly logo = toSignal(
-        this._org.active_building.pipe(
-            debounceTime(500),
-            map(
-                () =>
-                    (this._settings.theme === 'dark'
-                        ? this._settings.get('app.logo_dark')
-                        : this._settings.get('app.logo_light')) || {},
-            ),
-        ),
-    );
+    public readonly logo = computed(() => {
+        this._org.active_building();
+        return (
+            (this._settings.theme === 'dark'
+                ? this._settings.get('app.logo_dark')
+                : this._settings.get('app.logo_light')) || {}
+        );
+    });
 
     constructor() {
         effect(() => {

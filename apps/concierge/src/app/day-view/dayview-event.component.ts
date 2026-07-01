@@ -1,5 +1,4 @@
 import { Component, computed, inject, input } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { addMinutes, differenceInMinutes, format, startOfDay } from 'date-fns';
 
 import { CalendarEvent, SettingsService } from '@placeos/common';
@@ -144,9 +143,7 @@ export class DayviewEventComponent {
 
     /** Event to display */
     public readonly event = input<CalendarEvent>(undefined);
-    public readonly ui_options = toSignal(this._state.options, {
-        initialValue: {},
-    });
+    public readonly ui_options = this._state.options;
 
     public readonly view = (e) => this._state.setEvent(e);
 

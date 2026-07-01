@@ -1,23 +1,14 @@
 import { formatDate } from '@angular/common';
-import { inject, Injectable } from '@angular/core';
+import { computed, inject, Injectable, resource, signal } from '@angular/core';
 import { queryParkingSpacesForZones } from '@placeos/assets';
 import {
     Booking,
     downloadFile,
     jsonToCsv,
-    nextValueFrom,
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
 import { format, isSameDay } from 'date-fns';
-import { BehaviorSubject, combineLatest, of } from 'rxjs';
-import {
-    catchError,
-    debounceTime,
-    map,
-    shareReplay,
-    switchMap,
-} from 'rxjs/operators';
 import { REMOVE_KEYS, ReportsStateService } from '../reports-state.service';
 
 export interface ReportOptions {
@@ -37,39 +28,35 @@ export class ParkingReportService {
     private _org = inject(OrganisationService);
     private _report = inject(ReportsStateService);
 
-    private _options = new BehaviorSubject<ReportOptions>({});
+    private _options = signal<ReportOptions>({});
 
-    public readonly loading$ = this._report.loading;
-    public readonly options$ = this._options.asObservable();
+    public readonly loading = this._report.loading;
+    public readonly options = this._options.asReadonly();
 
-    public readonly bookings$ = this._report.bookings.pipe(
-        map((_) => _ as Booking[]),
+    public readonly bookings = computed(
+        () => this._report.bookings() as Booking[],
     );
 
-    public readonly daily_stats$ = combineLatest([
-        this.bookings$,
-        this._options,
-    ]).pipe(
-        map(([bookings, options]) => {
-            const days = {};
-            for (const booking of bookings) {
-                const date = format(booking.date, 'yyyy-MM-dd');
-                if (!days[date]) {
-                    days[date] = {
-                        date: booking.date,
-                        bookings: [],
-                    };
-                }
-                days[date].bookings.push(booking);
+    public readonly daily_stats = computed(() => {
+        const bookings = this.bookings();
+        const days = {};
+        for (const booking of bookings) {
+            const date = format(booking.date, 'yyyy-MM-dd');
+            if (!days[date]) {
+                days[date] = {
+                    date: booking.date,
+                    bookings: [],
+                };
             }
-            return days;
-        }),
-        shareReplay(1),
-    );
+            days[date].bookings.push(booking);
+        }
+        return days;
+    });
 
-    public readonly counts$ = this._options.pipe(
-        debounceTime(500),
-        switchMap((filters) => {
+    private readonly _counts = resource({
+        params: () => this._options(),
+        defaultValue: {} as Record<string, number>,
+        loader: async ({ params: filters }) => {
             let zones = (filters.zones || []).filter(
                 (z: any) => z !== -1 && z !== 'All',
             );
@@ -82,38 +69,33 @@ export class ParkingReportService {
                     .filter((_) => _.tags.includes('parking'))
                     .map((_) => _.id);
             }
-            if (!zones.length) return of([]);
+            if (!zones.length) return {};
             const scope_id = this._settings.get('app.use_region')
                 ? this._org.region?.id
                 : this._org.building?.id;
-            if (!scope_id) return of([]);
-            return queryParkingSpacesForZones([scope_id]).pipe(
-                catchError(() => of([])),
-                map((spaces) =>
-                    zones.map(
-                        (z) =>
-                            [
-                                z,
-                                spaces.filter((space) =>
-                                    space.zones?.includes(z),
-                                ).length,
-                            ] as [string, number],
-                    ),
-                ),
+            if (!scope_id) return {};
+            const spaces = await queryParkingSpacesForZones([scope_id]).catch(
+                () => [],
             );
-        }),
-        map((list: [string, number][]) => {
+            const list = zones.map(
+                (z) =>
+                    [
+                        z,
+                        spaces.filter((space) => space.zones?.includes(z))
+                            .length,
+                    ] as [string, number],
+            );
             const mapping: Record<string, number> = {};
             list.forEach(
                 ([id, count]) => (mapping[id] = Math.max(count || 0, 1)),
             );
             return mapping;
-        }),
-        shareReplay(1),
-    );
+        },
+    });
+    public readonly counts = this._counts.value;
 
     public setOptions(options: Partial<ReportOptions>) {
-        this._options.next({ ...this._options.getValue(), ...options });
+        this._options.set({ ...this._options(), ...options });
         this._report.setOptions({ ...options, type: 'parking' });
     }
 
@@ -123,8 +105,8 @@ export class ParkingReportService {
     }
 
     public async downloadReport() {
-        const options = this._options.getValue();
-        const bookings = await nextValueFrom(this.bookings$);
+        const options = this._options();
+        const bookings = this.bookings();
         if (!bookings?.length) return;
         const is_same = isSameDay(options.start, options.end);
         const date = is_same

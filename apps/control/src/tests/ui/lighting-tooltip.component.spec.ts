@@ -1,6 +1,6 @@
+import { signal } from '@angular/core';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { MockDirective } from 'ng-mocks';
-import { BehaviorSubject } from 'rxjs';
 
 import { BindingDirective, CustomTooltipData } from '@placeos/components';
 import { ControlStateService } from '../../app/control-state.service';
@@ -15,7 +15,7 @@ describe('LightingTooltipComponent', () => {
             {
                 provide: ControlStateService,
                 useValue: {
-                    lights: new BehaviorSubject([]),
+                    lights: signal([]),
                 },
             },
             {

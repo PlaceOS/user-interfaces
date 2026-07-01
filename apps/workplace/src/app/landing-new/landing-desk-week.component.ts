@@ -5,9 +5,9 @@ import {
     inject,
     OnDestroy,
     OnInit,
+    resource,
     signal,
 } from '@angular/core';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -29,6 +29,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
 import {
     addDays,
     addWeeks,
+    endOfDay,
     endOfWeek,
     format,
     getUnixTime,
@@ -37,7 +38,6 @@ import {
     startOfDay,
     startOfWeek,
 } from 'date-fns';
-import { catchError, of, shareReplay, switchMap, tap } from 'rxjs';
 import { ScheduleStateService } from '../schedule/schedule-state.service';
 
 interface WeekDay {
@@ -46,6 +46,7 @@ interface WeekDay {
     day_name: string;
     day_number: number;
     is_past: boolean;
+    is_bookable: boolean;
     is_today: boolean;
     is_weekend: boolean;
 }
@@ -82,7 +83,7 @@ type WeekdayIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6;
                         btn
                         matRipple
                         class="inverse h-8 text-sm"
-                        [disabled]="!is_current_week()"
+                        [disabled]="!is_current_week() || !can_go_next_monday()"
                         (click)="goToNextMonday()"
                     >
                         {{ 'APP.WORKPLACE.DESK_WEEK_NEXT_MONDAY' | translate }}
@@ -95,6 +96,7 @@ type WeekdayIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6;
                             [matTooltip]="
                                 'APP.WORKPLACE.DESK_WEEK_PREVIOUS' | translate
                             "
+                            [disabled]="!can_go_previous_week()"
                             (click)="previousWeek()"
                         >
                             <icon class="text-2xl">chevron_left</icon>
@@ -106,6 +108,7 @@ type WeekdayIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6;
                             [matTooltip]="
                                 'APP.WORKPLACE.DESK_WEEK_NEXT' | translate
                             "
+                            [disabled]="!can_go_next_week()"
                             (click)="nextWeek()"
                         >
                             <icon class="text-2xl">chevron_right</icon>
@@ -122,7 +125,7 @@ type WeekdayIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6;
                     <div class="flex flex-col">
                         <div
                             class="mb-1 flex items-center justify-center space-x-2 text-sm"
-                            [class.opacity-40]="day.is_past"
+                            [class.opacity-40]="!day.is_bookable"
                         >
                             <div class="flex items-center space-x-1">
                                 <icon
@@ -146,7 +149,7 @@ type WeekdayIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6;
                         </div>
                         <div
                             class="border-base-300 min-h-16 flex-1 rounded-lg border p-2"
-                            [class.opacity-40]="day.is_past"
+                            [class.opacity-40]="!day.is_bookable"
                             [class.bg-base-200]="day.is_weekend"
                         >
                             @if (bookings_by_date()[day.id]?.length; as count) {
@@ -180,7 +183,7 @@ type WeekdayIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6;
                                         </div>
                                     </button>
                                 }
-                            } @else if (!day.is_past && !day.is_weekend) {
+                            } @else if (day.is_bookable) {
                                 <button
                                     btn
                                     matRipple
@@ -216,7 +219,7 @@ type WeekdayIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6;
                         <div class="flex flex-col">
                             <div
                                 class="mb-1 flex items-center justify-center space-x-2 text-sm"
-                                [class.opacity-40]="day.is_past"
+                                [class.opacity-40]="!day.is_bookable"
                             >
                                 <div class="flex items-center space-x-1">
                                     <icon class="text-base">event_note</icon>
@@ -234,7 +237,7 @@ type WeekdayIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6;
                             </div>
                             <div
                                 class="border-base-300 flex min-h-24 flex-1 flex-col space-y-2 rounded-lg border p-2"
-                                [class.opacity-40]="day.is_past"
+                                [class.opacity-40]="!day.is_bookable"
                             >
                                 @if (
                                     bookings_by_date()[day.id]?.length;
@@ -280,7 +283,7 @@ type WeekdayIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6;
                                             </div>
                                         </button>
                                     }
-                                } @else if (!day.is_past) {
+                                } @else if (day.is_bookable) {
                                     <button
                                         btn
                                         matRipple
@@ -313,7 +316,7 @@ type WeekdayIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6;
                         <div class="flex flex-1 flex-col">
                             <div
                                 class="mb-1 flex items-center justify-center space-x-2 text-sm"
-                                [class.opacity-40]="day.is_past"
+                                [class.opacity-40]="!day.is_bookable"
                             >
                                 <div class="flex items-center space-x-1">
                                     <icon class="text-base opacity-40"
@@ -333,7 +336,7 @@ type WeekdayIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6;
                             </div>
                             <div
                                 class="border-base-300 bg-base-200 flex min-h-12 flex-1 flex-col space-y-2 rounded-lg border p-2"
-                                [class.opacity-40]="day.is_past"
+                                [class.opacity-40]="!day.is_bookable"
                             >
                                 @if (
                                     bookings_by_date()[day.id]?.length;
@@ -379,6 +382,20 @@ type WeekdayIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6;
                                             </div>
                                         </button>
                                     }
+                                } @else if (day.is_bookable) {
+                                    <button
+                                        btn
+                                        matRipple
+                                        class="inverse border-base-300 h-full w-full gap-2 border-2 border-dashed px-0"
+                                        (click)="bookDesk(day.date)"
+                                    >
+                                        <icon class="text-xl opacity-60"
+                                            >add_circle_outline</icon
+                                        >
+                                        <span class="pr-2 text-xs opacity-60">{{
+                                            'COMMON.BOOK_DESK' | translate
+                                        }}</span>
+                                    </button>
                                 } @else {
                                     <div
                                         class="flex h-full w-full flex-col items-center justify-center"
@@ -415,11 +432,17 @@ export class LandingDeskWeekComponent
     private _booking_form = inject(BookingFormService);
     private _schedule = inject(ScheduleStateService);
 
-    public readonly loading = signal(false);
     public readonly selected_date = signal(Date.now());
     public readonly offset_weekday = settingSignal<WeekdayIndex>(
         'week_start',
         0,
+    );
+    public readonly available_days = settingSignal(
+        'desks.available_period',
+        90,
+    );
+    public readonly end_date = computed(() =>
+        endOfDay(addDays(Date.now(), this.available_days())).valueOf(),
     );
 
     public readonly weekdays = computed(() => {
@@ -427,16 +450,22 @@ export class LandingDeskWeekComponent
         const week_start = startOfWeek(this.selected_date(), {
             weekStartsOn: this.offset_weekday(),
         });
+        const today = Date.now();
+        const today_start = startOfDay(today);
+        const end_date = this.end_date();
         for (let i = 0; i < 7; i++) {
             const date = addDays(week_start, i);
+            const date_value = date.valueOf();
             const day_of_week = date.getDay();
+            const is_past = isBefore(date, today_start);
             days.push({
                 id: format(date, 'yyyy-MM-dd'),
-                date: date.valueOf(),
+                date: date_value,
                 day_name: format(date, 'EEE'),
                 day_number: date.getDate(),
-                is_past: isBefore(date, startOfDay(Date.now())),
-                is_today: isSameDay(date, Date.now()),
+                is_past,
+                is_bookable: !is_past && date_value <= end_date,
+                is_today: isSameDay(date, today),
                 is_weekend: day_of_week === 0 || day_of_week === 6,
             });
         }
@@ -467,30 +496,39 @@ export class LandingDeskWeekComponent
         });
         return isSameDay(current_week_start, selected_week_start);
     });
-
-    private readonly _desk_bookings$ = toObservable(this.selected_date).pipe(
-        tap(() => this.loading.set(true)),
-        switchMap((date) => {
-            const week_start = startOfWeek(date, {
-                weekStartsOn: this.offset_weekday(),
-            });
-            const week_end = endOfWeek(date, {
-                weekStartsOn: this.offset_weekday(),
-            });
-            return queryBookings({
-                period_start: getUnixTime(week_start),
-                period_end: getUnixTime(week_end),
-                type: 'desk',
-                include_checked_out: true,
-            }).pipe(catchError(() => of([])));
-        }),
-        tap(() => this.loading.set(false)),
-        shareReplay(1),
+    public readonly can_go_previous_week = computed(() =>
+        this._weekHasBookableDay(addWeeks(this.selected_date(), -1).valueOf()),
+    );
+    public readonly can_go_next_week = computed(() =>
+        this._weekHasBookableDay(addWeeks(this.selected_date(), 1).valueOf()),
+    );
+    public readonly can_go_next_monday = computed(() =>
+        this._weekHasBookableDay(this._nextMonday().valueOf()),
     );
 
-    public readonly desk_bookings = toSignal(this._desk_bookings$, {
-        initialValue: [],
+    private readonly _desk_bookings_resource = resource({
+        params: () => ({
+            date: this.selected_date(),
+            week_start: this.offset_weekday(),
+        }),
+        loader: ({ params: { date, week_start } }) => {
+            const start = startOfWeek(date, { weekStartsOn: week_start });
+            const end = endOfWeek(date, { weekStartsOn: week_start });
+            return queryBookings({
+                period_start: getUnixTime(start),
+                period_end: getUnixTime(end),
+                type: 'desk',
+                include_checked_out: true,
+            }).catch(() => [] as Booking[]);
+        },
     });
+
+    public readonly desk_bookings = computed(
+        () => this._desk_bookings_resource.value() ?? ([] as Booking[]),
+    );
+    public readonly loading = computed(() =>
+        this._desk_bookings_resource.isLoading(),
+    );
 
     public readonly bookings_by_date = computed(() => {
         const bookings = this.desk_bookings();
@@ -507,7 +545,7 @@ export class LandingDeskWeekComponent
         // Start polling for updates
         this.interval(
             'poll_bookings',
-            () => this.selected_date.set(this.selected_date()),
+            () => this._desk_bookings_resource.reload(),
             2 * 60 * 1000,
         );
     }
@@ -517,18 +555,17 @@ export class LandingDeskWeekComponent
     }
 
     public goToNextMonday(): void {
-        const today = new Date();
-        const day_of_week = today.getDay();
-        // Calculate days until next Monday (day 1)
-        const days_until_monday = day_of_week === 0 ? 1 : 8 - day_of_week;
-        this.selected_date.set(addDays(today, days_until_monday).valueOf());
+        if (!this.can_go_next_monday()) return;
+        this.selected_date.set(this._nextMonday().valueOf());
     }
 
     public previousWeek(): void {
+        if (!this.can_go_previous_week()) return;
         this.selected_date.set(addWeeks(this.selected_date(), -1).valueOf());
     }
 
     public nextWeek(): void {
+        if (!this.can_go_next_week()) return;
         this.selected_date.set(addWeeks(this.selected_date(), 1).valueOf());
     }
 
@@ -565,6 +602,7 @@ export class LandingDeskWeekComponent
                 remove_fn: async (b, s) => {
                     await this._schedule.remove(b, s);
                     this.selected_date.set(Date.now());
+                    this._desk_bookings_resource.reload();
                 },
                 end_fn: (b) => this._schedule.end(b),
             },
@@ -572,15 +610,39 @@ export class LandingDeskWeekComponent
     }
 
     public bookDesk(date: number): void {
-        this._booking_form.newForm(
-            'desk',
-            new Booking({ date, booking_type: 'desk' }),
+        if (date > this.end_date()) return;
+        // Navigate first, then prepare the form. The desk flow page resets any
+        // unsaved form in its ngOnInit, so populating beforehand would be wiped.
+        // A native setTimeout is used (not AsyncHandler.timeout) because this
+        // component is destroyed during navigation, which would cancel it.
+        this._router.navigate(['/book', 'desk', 'form']);
+        setTimeout(
+            () =>
+                this._booking_form.newForm(
+                    'desk',
+                    new Booking({ date, booking_type: 'desk' }),
+                ),
+            300,
         );
-        this._router.navigate(['/book', 'desk']);
-        this.timeout(
-            'set_date',
-            () => this._booking_form.form.patchValue({ date }),
-            100,
+    }
+
+    private _weekHasBookableDay(date: number): boolean {
+        const week_start = startOfWeek(date, {
+            weekStartsOn: this.offset_weekday(),
+        }).valueOf();
+        const week_end = endOfWeek(date, {
+            weekStartsOn: this.offset_weekday(),
+        }).valueOf();
+        return (
+            week_end >= startOfDay(Date.now()).valueOf() &&
+            week_start <= this.end_date()
         );
+    }
+
+    private _nextMonday(): Date {
+        const today = new Date();
+        const day_of_week = today.getDay();
+        const days_until_monday = day_of_week === 0 ? 1 : 8 - day_of_week;
+        return addDays(today, days_until_monday);
     }
 }

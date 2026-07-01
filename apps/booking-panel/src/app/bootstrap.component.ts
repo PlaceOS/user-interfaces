@@ -1,9 +1,13 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    effect,
+    inject,
+    OnInit,
+    signal,
+} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { querySystems } from '@placeos/ts-client';
-import { combineLatest, of } from 'rxjs';
-import { debounceTime, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 
 import {
     AsyncHandler,
@@ -151,6 +155,7 @@ import { TranslatePipe } from '@placeos/components';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         MatRippleModule,
@@ -174,49 +179,56 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     /** ID of the system to bootstrap */
     public system_id = signal('');
 
-    private readonly _space_list$ = combineLatest([
-        toObservable(this.system_id),
-        this._org.initialised,
-    ]).pipe(
-        debounceTime(300),
-        switchMap(([search]) => {
-            this.loading.set('search');
-            return search.length < 2
-                ? of({ data: [] as any[] })
-                : querySystems({
-                      q: search,
-                      limit: 20,
-                      fields: ['id', 'name', 'display_name', 'email'].join(','),
-                      zone_id: this._org.organisation.id,
-                  });
-        }),
-        map((_: any) => _.data.map((_: any) => new Space(_))),
-        tap(() => this.loading.set('')),
-        shareReplay(1),
-    );
-
-    public readonly space_list = toSignal(this._space_list$, {
-        initialValue: [] as Space[],
-    });
+    public readonly space_list = signal<Space[]>([]);
 
     private _event = false;
+    private _search_id = 0;
+
+    constructor() {
+        super();
+        effect(() => {
+            const search = this.system_id();
+            if (!this._org.initialised()) return;
+            const search_id = ++this._search_id;
+            this.timeout(
+                'system-search',
+                async () => {
+                    this.loading.set('search');
+                    const results =
+                        search.length < 2
+                            ? { data: [] as any[] }
+                            : await querySystems({
+                                  q: search,
+                                  limit: 20,
+                                  fields: [
+                                      'id',
+                                      'name',
+                                      'display_name',
+                                      'email',
+                                  ].join(','),
+                                  zone_id: this._org.organisation.id,
+                              });
+                    if (search_id !== this._search_id) return;
+                    this.space_list.set(
+                        results.data.map((item: any) => new Space(item)),
+                    );
+                    this.loading.set('');
+                },
+                300,
+            );
+        });
+    }
 
     public async ngOnInit() {
-        this.subscription(
-            'route.query',
-            this._route.queryParamMap.subscribe((params) => {
-                if (params.has('clear') && !!params.get('clear')) {
-                    this.clearBootstrap();
-                }
-                if (params.has('event')) this._event = true;
-                if (params.has('system_id') || params.has('sys_id')) {
-                    this.system_id.set(
-                        params.get('system_id') || params.get('sys_id'),
-                    );
-                    this.bootstrap();
-                }
-            }),
-        );
+        const params = this._route.snapshot.queryParamMap;
+        if (params.has('clear') && !!params.get('clear')) {
+            this.clearBootstrap();
+        }
+        if (params.has('event')) this._event = true;
+        if (params.has('system_id') || params.has('sys_id')) {
+            this.system_id.set(params.get('system_id') || params.get('sys_id'));
+            this.bootstrap();
+        }
         this.checkBootstrapped();
     }
 

@@ -5,18 +5,17 @@ import {
     computed,
     effect,
     inject,
+    input,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
-import { IconComponent, TranslatePipe } from '@placeos/components';
 import { i18n } from '@placeos/common';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { addDays, isSameDay, startOfDay } from 'date-fns';
-import { map } from 'rxjs/operators';
 import { NavFooterComponent } from '../shared/nav-footer.component';
 import { NavSidebarComponent } from '../shared/nav-sidebar.component';
 import { SignageService } from '../signage.service';
@@ -48,10 +47,15 @@ function parseScheduleTab(value: string | null): 'displays' | 'zones' {
                     >
                         <div class="min-w-0 flex-1">
                             <h2 class="text-lg font-semibold">
-                                {{ 'SIGNAGE_MANAGER.NAV_SCHEDULES' | translate }}
+                                {{
+                                    'SIGNAGE_MANAGER.NAV_SCHEDULES' | translate
+                                }}
                             </h2>
                             <p class="text-base-content/50 text-xs">
-                                {{ 'SIGNAGE_MANAGER.SCHEDULES_SUBTITLE' | translate }}
+                                {{
+                                    'SIGNAGE_MANAGER.SCHEDULES_SUBTITLE'
+                                        | translate
+                                }}
                             </p>
                         </div>
                         <div
@@ -73,7 +77,10 @@ function parseScheduleTab(value: string | null): 'displays' | 'zones' {
                                 (click)="setViewTab('displays')"
                             >
                                 <div class="px-1">
-                                    {{ 'SIGNAGE_MANAGER.NAV_DISPLAYS' | translate }}
+                                    {{
+                                        'SIGNAGE_MANAGER.NAV_DISPLAYS'
+                                            | translate
+                                    }}
                                 </div>
                                 <div
                                     class="bg-base-content/5 h-6 min-w-6 rounded-full p-1 text-xs opacity-60"
@@ -93,7 +100,9 @@ function parseScheduleTab(value: string | null): 'displays' | 'zones' {
                                 (click)="setViewTab('zones')"
                             >
                                 <div class="px-1">
-                                    {{ 'SIGNAGE_MANAGER.NAV_ZONES' | translate }}
+                                    {{
+                                        'SIGNAGE_MANAGER.NAV_ZONES' | translate
+                                    }}
                                 </div>
                                 <div
                                     class="bg-base-content/5 h-6 min-w-6 rounded-full p-1 text-xs opacity-60"
@@ -111,9 +120,14 @@ function parseScheduleTab(value: string | null): 'displays' | 'zones' {
                                 icon
                                 type="button"
                                 matRipple
-                                [matTooltip]="'SIGNAGE_MANAGER.PREVIOUS_DAY' | translate"
+                                [matTooltip]="
+                                    'SIGNAGE_MANAGER.PREVIOUS_DAY' | translate
+                                "
                                 (click)="previousDay()"
-                                [attr.aria-label]="'SIGNAGE_MANAGER.SHOW_PREVIOUS_DAY' | translate"
+                                [attr.aria-label]="
+                                    'SIGNAGE_MANAGER.SHOW_PREVIOUS_DAY'
+                                        | translate
+                                "
                             >
                                 <icon>chevron_left</icon>
                             </button>
@@ -123,7 +137,9 @@ function parseScheduleTab(value: string | null): 'displays' | 'zones' {
                                 matRipple
                                 [matTooltip]="'COMMON.TODAY' | translate"
                                 (click)="goToToday()"
-                                [attr.aria-label]="'SIGNAGE_MANAGER.SHOW_TODAY' | translate"
+                                [attr.aria-label]="
+                                    'SIGNAGE_MANAGER.SHOW_TODAY' | translate
+                                "
                             >
                                 <icon>today</icon>
                             </button>
@@ -131,9 +147,13 @@ function parseScheduleTab(value: string | null): 'displays' | 'zones' {
                                 icon
                                 type="button"
                                 matRipple
-                                [matTooltip]="'SIGNAGE_MANAGER.NEXT_DAY' | translate"
+                                [matTooltip]="
+                                    'SIGNAGE_MANAGER.NEXT_DAY' | translate
+                                "
                                 (click)="nextDay()"
-                                [attr.aria-label]="'SIGNAGE_MANAGER.SHOW_NEXT_DAY' | translate"
+                                [attr.aria-label]="
+                                    'SIGNAGE_MANAGER.SHOW_NEXT_DAY' | translate
+                                "
                             >
                                 <icon>chevron_right</icon>
                             </button>
@@ -160,7 +180,9 @@ function parseScheduleTab(value: string | null): 'displays' | 'zones' {
                                 [value]="search_term()"
                                 [placeholder]="search_placeholder() | translate"
                                 (input)="setSearch($event)"
-                                [attr.aria-label]="search_placeholder() | translate"
+                                [attr.aria-label]="
+                                    search_placeholder() | translate
+                                "
                             />
                             @if (search_term()) {
                                 <button
@@ -253,26 +275,15 @@ export class SchedulesSectionComponent {
     private readonly _router = inject(Router);
     private readonly _destroy_ref = inject(DestroyRef);
 
+    public readonly tab = input<string | null>(null);
     public readonly view_tab = signal<'displays' | 'zones'>('displays');
     public readonly search_term = signal('');
     public readonly selected_date = signal(startOfDay(new Date()));
     public readonly current_time = signal(new Date());
 
-    private readonly _playlists = toSignal(this._service.playlists, {
-        initialValue: [],
-    });
-    private readonly _displays = toSignal(this._service.displays, {
-        initialValue: [],
-    });
-    private readonly _zones = toSignal(this._service.zones, {
-        initialValue: [],
-    });
-    private readonly _route_tab = toSignal(
-        this._route.queryParamMap.pipe(
-            map((params) => params.get(TAB_QUERY_PARAM)),
-        ),
-        { initialValue: null as string | null },
-    );
+    private readonly _playlists = this._service.playlists;
+    private readonly _displays = this._service.displays;
+    private readonly _zones = this._service.zones;
 
     public readonly playlist_approval_status =
         this._service.playlist_approval_status;
@@ -311,9 +322,13 @@ export class SchedulesSectionComponent {
                 );
                 const zone_count = (display.zones || []).length;
                 const zone_label = zone_count
-                    ? ` · ${i18n('SIGNAGE_MANAGER.ZONE_COUNT_LABEL', {
-                          count: zone_count,
-                      }, zone_count)}`
+                    ? ` · ${i18n(
+                          'SIGNAGE_MANAGER.ZONE_COUNT_LABEL',
+                          {
+                              count: zone_count,
+                          },
+                          zone_count,
+                      )}`
                     : '';
                 const search_index = [
                     display.display_name || display.name,
@@ -327,13 +342,18 @@ export class SchedulesSectionComponent {
                     id: display.id,
                     name: display.display_name || display.name,
                     description: display.description || '',
-                    subtitle: `${i18n('SIGNAGE_MANAGER.PLAYLIST_COUNT_LABEL', {
-                        count: assignments.length,
-                    }, assignments.length)}${zone_label}`,
+                    subtitle: `${i18n(
+                        'SIGNAGE_MANAGER.PLAYLIST_COUNT_LABEL',
+                        {
+                            count: assignments.length,
+                        },
+                        assignments.length,
+                    )}${zone_label}`,
                     icon: 'tv',
                     route: ['/displays', display.id],
                     blocks,
                     search_index,
+                    signage_last_seen: display.signage_last_seen,
                     updated_at: display.updated_at,
                 };
             })
@@ -371,11 +391,19 @@ export class SchedulesSectionComponent {
                     id: zone.id,
                     name: zone.display_name || zone.name,
                     description: zone.description || '',
-                    subtitle: `${i18n('SIGNAGE_MANAGER.PLAYLIST_COUNT_LABEL', {
-                        count: assignments.length,
-                    }, assignments.length)} · ${i18n('SIGNAGE_MANAGER.DISPLAY_COUNT_LABEL', {
-                        count: display_count,
-                    }, display_count)}`,
+                    subtitle: `${i18n(
+                        'SIGNAGE_MANAGER.PLAYLIST_COUNT_LABEL',
+                        {
+                            count: assignments.length,
+                        },
+                        assignments.length,
+                    )} · ${i18n(
+                        'SIGNAGE_MANAGER.DISPLAY_COUNT_LABEL',
+                        {
+                            count: display_count,
+                        },
+                        display_count,
+                    )}`,
                     icon: 'layers',
                     route: ['/zones', zone.id],
                     blocks,
@@ -392,7 +420,7 @@ export class SchedulesSectionComponent {
 
     constructor() {
         effect(() => {
-            const route_tab = parseScheduleTab(this._route_tab());
+            const route_tab = parseScheduleTab(this.tab());
             if (route_tab !== this.view_tab()) {
                 this.view_tab.set(route_tab);
             }

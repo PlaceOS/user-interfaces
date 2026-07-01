@@ -1,7 +1,7 @@
+import { signal } from '@angular/core';
 import { waitForAsync } from '@angular/core/testing';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { MockComponent } from 'ng-mocks';
-import { BehaviorSubject } from 'rxjs';
 
 import { ControlAdvancedViewComponent } from '../app/advanced-view.component';
 import { ControlStateService } from '../app/control-state.service';
@@ -16,8 +16,8 @@ describe('ControlAdvancedViewComponent', () => {
             {
                 provide: ControlStateService,
                 useValue: {
-                    output_list: new BehaviorSubject([]),
-                    outputs: new BehaviorSubject([]),
+                    output_list: signal([]),
+                    outputs: signal([]),
                 },
             },
         ],
@@ -35,18 +35,18 @@ describe('ControlAdvancedViewComponent', () => {
         const service: any = spectator.inject(ControlStateService);
         expect('output-display').toHaveLength(0);
         expect('p').toExist();
-        service.output_list.next([{ id: '1' }, { id: '2' }]);
+        service.output_list.set([{ id: '1' }, { id: '2' }]);
         spectator.detectChanges();
         expect('output-display').toHaveLength(2);
     }));
 
     it('should paginate outputs', waitForAsync(async () => {
         const service: any = spectator.inject(ControlStateService);
-        service.output_list.next([{ id: '1' }, { id: '2' }]);
+        service.output_list.set([{ id: '1' }, { id: '2' }]);
         spectator.detectChanges();
         expect('output-display').toHaveLength(2);
         expect('button').toHaveLength(0);
-        service.output_list.next([
+        service.output_list.set([
             { id: '1' },
             { id: '2' },
             { id: '3' },

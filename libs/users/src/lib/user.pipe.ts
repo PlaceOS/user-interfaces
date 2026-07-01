@@ -1,6 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
 import { User } from '@placeos/common';
-import { lastValueFrom } from 'rxjs';
 
 import { showGuest } from './guests.fn';
 import { showStaff } from './staff.fn';
@@ -21,12 +20,12 @@ export function replaceUser(user: User): void {
 }
 
 async function fetchUser(user_id: string): Promise<User> {
-    let user = await lastValueFrom(showStaff(user_id)).catch(() => null);
+    let user = await showStaff(user_id).catch(() => null);
     if (user) {
         USER_LIST.push(user);
         return user;
     }
-    user = await lastValueFrom(showGuest(user_id)).catch(() => null);
+    user = await showGuest(user_id).catch(() => null);
     if (user) {
         USER_LIST.push(user);
         return user;

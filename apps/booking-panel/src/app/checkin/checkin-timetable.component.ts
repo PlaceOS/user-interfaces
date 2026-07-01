@@ -1,4 +1,11 @@
-import { Component, effect, input, output, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    effect,
+    input,
+    output,
+    signal,
+} from '@angular/core';
 import { AsyncHandler, CalendarEvent } from '@placeos/common';
 import {
     addHours,
@@ -84,6 +91,7 @@ interface EventBlock {
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [],
 })
 export class CheckinTimetableComponent extends AsyncHandler {

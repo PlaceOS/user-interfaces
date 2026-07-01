@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
     Building,
@@ -9,8 +9,6 @@ import {
 } from '@placeos/common';
 import { openConfirmModal } from '@placeos/components';
 import { PlaceZone, removeZone } from '@placeos/ts-client';
-import { BehaviorSubject, combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { AppSettingsModalComponent } from '../ui/app-settings-modal.component';
 import { AutoReleaseSettingsModalComponent } from './auto-release-settings-modal.component';
 import { BuildingModalComponent } from './building-modal.component';
@@ -29,44 +27,40 @@ export class BuildingManagementService {
     private _org = inject(OrganisationService);
     private _dialog = inject(MatDialog);
 
-    private _options = new BehaviorSubject<BuildingListOptions>({});
-    private _change = new BehaviorSubject(0);
+    private _options = signal<BuildingListOptions>({});
 
-    public options = this._options.asObservable();
+    public readonly options = this._options.asReadonly();
 
-    public readonly filtered_buildings = combineLatest([
-        this._org.region_list,
-        this._org.building_list,
-        this._options,
-        this._org.initialised,
-    ]).pipe(
-        map(([regions, list, options]) => {
-            if (options.zone) {
-                list = list.filter((_) => _.parent_id === options.zone);
+    public readonly filtered_buildings = computed(() => {
+        this._org.initialised();
+        const regions = this._org.region_list();
+        let list = this._org.building_list();
+        const options = this._options();
+        if (options.zone) {
+            list = list.filter((_) => _.parent_id === options.zone);
+        }
+        if (options.search) {
+            list = list.filter((_) =>
+                _.name.toLowerCase().includes(options.search.toLowerCase()),
+            );
+        }
+        for (const bld of list) {
+            const parent = regions.find((_) => _.id === bld.parent_id);
+            if (parent) {
+                (bld as any).region = parent.display_name || parent.name;
             }
-            if (options.search) {
-                list = list.filter((_) =>
-                    _.name.toLowerCase().includes(options.search.toLowerCase()),
-                );
-            }
-            for (const bld of list) {
-                const parent = regions.find((_) => _.id === bld.parent_id);
-                if (parent) {
-                    (bld as any).region = parent.display_name || parent.name;
-                }
-                (bld as any).level_count =
-                    this._org.levelsForBuilding(bld)?.length || 0;
-            }
-            return list;
-        }),
-    );
+            (bld as any).level_count =
+                this._org.levelsForBuilding(bld)?.length || 0;
+        }
+        return list;
+    });
 
     public setFilters(options: Partial<BuildingListOptions>) {
-        this._options.next({ ...this._options.getValue(), ...options });
+        this._options.update((current) => ({ ...current, ...options }));
     }
 
     public setSearchString(search: string) {
-        this._options.next({ ...this._options.getValue(), search });
+        this._options.update((current) => ({ ...current, search }));
     }
 
     public editBuilding(building: PlaceZone = new PlaceZone()) {

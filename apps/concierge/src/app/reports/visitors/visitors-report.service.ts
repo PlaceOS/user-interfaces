@@ -1,29 +1,16 @@
 import { formatDate } from '@angular/common';
-import { inject, Injectable } from '@angular/core';
+import { computed, inject, Injectable, resource, signal } from '@angular/core';
 import { queryBookings } from '@placeos/bookings';
 import {
+    Booking,
     downloadFile,
     i18n,
     jsonToCsv,
-    nextValueFrom,
     notifyError,
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
 import { endOfDay, format, getUnixTime, isSameDay, startOfDay } from 'date-fns';
-import { BehaviorSubject, combineLatest } from 'rxjs';
-import {
-    debounceTime,
-    filter,
-    finalize,
-    map,
-    shareReplay,
-    skip,
-    startWith,
-    switchMap,
-    takeUntil,
-    tap,
-} from 'rxjs/operators';
 import { REMOVE_KEYS } from '../reports-state.service';
 
 export interface ReportOptions {
@@ -42,76 +29,73 @@ export class VisitorsReportService {
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
 
-    private _loading = new BehaviorSubject<boolean>(false);
-    private _options = new BehaviorSubject<ReportOptions>({});
-    private _generate = new BehaviorSubject<number>(0);
+    private _loading = signal<boolean>(false);
+    private _options = signal<ReportOptions>({});
+    private _generate = signal<number>(0);
 
-    public readonly loading$ = this._loading.asObservable();
-    public readonly options$ = this._options.asObservable();
+    public readonly loading = this._loading.asReadonly();
+    public readonly options = this._options.asReadonly();
 
-    public readonly bookings$ = this._generate.pipe(
-        filter((gen) => gen > 0),
-        debounceTime(300),
-        switchMap(() => {
-            const options = this._options.getValue();
-            this._loading.next(true);
+    private readonly _bookings = resource({
+        params: () => this._generate(),
+        defaultValue: [] as Booking[],
+        loader: async ({ params: gen }) => {
+            if (gen <= 0) return [];
+            const options = this._options();
+            this._loading.set(true);
             const { start, end, zones } = options;
-            return queryBookings({
-                period_start: getUnixTime(startOfDay(start || Date.now())),
-                period_end: getUnixTime(endOfDay(end || start || Date.now())),
-                type: 'visitor',
-                zones:
-                    (zones || [])?.join(',') ||
-                    (this._settings.get('app.use_region')
-                        ? this._org.region?.id
-                        : '') ||
-                    this._org.building?.id,
-            }).pipe(
-                takeUntil(this._options.pipe(skip(1))),
-                finalize(() => this._loading.next(false)),
-            );
-        }),
-        tap((_) => {
-            if (!_.length) {
-                notifyError(i18n('APP.CONCIERGE.REPORTS_LOAD_ERROR'));
-            }
-        }),
-        startWith([]),
-        shareReplay(1),
-    );
-
-    public readonly daily_stats$ = combineLatest([
-        this.bookings$,
-        this._options,
-    ]).pipe(
-        map(([bookings, options]) => {
-            const days = {};
-            for (const booking of bookings) {
-                const date = format(booking.date, 'yyyy-MM-dd');
-                if (!days[date]) {
-                    days[date] = {
-                        date: booking.date,
-                        bookings: [],
-                    };
+            try {
+                const list = await queryBookings({
+                    period_start: getUnixTime(startOfDay(start || Date.now())),
+                    period_end: getUnixTime(
+                        endOfDay(end || start || Date.now()),
+                    ),
+                    type: 'visitor',
+                    zones:
+                        (zones || [])?.join(',') ||
+                        (this._settings.get('app.use_region')
+                            ? this._org.region?.id
+                            : '') ||
+                        this._org.building?.id,
+                });
+                if (!list.length) {
+                    notifyError(i18n('APP.CONCIERGE.REPORTS_LOAD_ERROR'));
                 }
-                days[date].bookings.push(booking);
+                return list;
+            } finally {
+                this._loading.set(false);
             }
-            return days;
-        }),
-        shareReplay(1),
-    );
+        },
+    });
+    public readonly bookings = this._bookings.value;
+
+    public readonly daily_stats = computed(() => {
+        const bookings = this.bookings();
+        const days = {};
+        for (const booking of bookings) {
+            const date = format(booking.date, 'yyyy-MM-dd');
+            if (!days[date]) {
+                days[date] = {
+                    date: booking.date,
+                    bookings: [],
+                };
+            }
+            days[date].bookings.push(booking);
+        }
+        return days;
+    });
 
     public setOptions(options: Partial<ReportOptions>) {
-        this._options.next({ ...this._options.getValue(), ...options });
+        this._options.set({ ...this._options(), ...options });
     }
 
     public generateReport() {
-        this._generate.next(Date.now());
+        this._generate.set(Date.now());
     }
 
     public async downloadReport() {
-        const options = this._options.getValue();
-        const bookings = await nextValueFrom(this.bookings$);
+        const options = this._options();
+        const bookings = this.bookings();
         const show_international = !!this._settings.get(
             'app.visitors.allow_international',
         );
@@ -123,7 +107,6 @@ export class VisitorsReportService {
                   options.end || endOfDay(Date.now()),
                   'yyyy-MM-dd',
               )}`;
-        console.log('Bookings:', bookings);
         downloadFile(
             `report+assets+${date}.tsv`,
             jsonToCsv(

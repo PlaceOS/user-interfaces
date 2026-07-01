@@ -1,10 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import {
-    FormControl,
-    FormGroup,
-    ReactiveFormsModule,
-    Validators,
-} from '@angular/forms';
+import { form, FormField, required } from '@angular/forms/signals';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -33,7 +28,7 @@ import { addSystem, PlaceSystem, updateSystem } from '@placeos/ts-client';
                     : ''
             "
         >
-            <form [formGroup]="form">
+            <form>
                 <div class="flex flex-col">
                     <label for="name"
                         >{{ 'FORM.NAME' | translate
@@ -42,10 +37,8 @@ import { addSystem, PlaceSystem, updateSystem } from '@placeos/ts-client';
                     <mat-form-field appearance="outline" class="w-full">
                         <input
                             matInput
-                            name="name"
                             [placeholder]="'FORM.NAME' | translate"
-                            formControlName="name"
-                            required
+                            [formField]="form.name"
                         />
                         <mat-error>{{
                             'FORM.NAME_REQUIRED' | translate
@@ -59,9 +52,8 @@ import { addSystem, PlaceSystem, updateSystem } from '@placeos/ts-client';
                     <mat-form-field appearance="outline" class="w-full">
                         <textarea
                             matInput
-                            name="description"
                             [placeholder]="'COMMON.DESCRIPTION' | translate"
-                            formControlName="description"
+                            [formField]="form.description"
                             class="min-h-32"
                         ></textarea>
                     </mat-form-field>
@@ -72,8 +64,7 @@ import { addSystem, PlaceSystem, updateSystem } from '@placeos/ts-client';
                     }}</label>
                     <mat-form-field appearance="outline" class="w-full">
                         <mat-select
-                            name="orientation"
-                            formControlName="orientation"
+                            [formField]="form.orientation"
                             [placeholder]="
                                 'APP.CONCIERGE.SIGNAGE_ORIENTATION_NONE'
                                     | translate
@@ -109,7 +100,7 @@ import { addSystem, PlaceSystem, updateSystem } from '@placeos/ts-client';
         MatFormFieldModule,
         MatSelectModule,
         MatInputModule,
-        ReactiveFormsModule,
+        FormField,
         TranslatePipe,
     ],
 })
@@ -124,23 +115,21 @@ export class SignageDisplayModalComponent {
     public readonly loading = signal(false);
     public readonly display = this._data.display;
 
-    public readonly form = new FormGroup({
-        id: new FormControl(this._data.display?.id || ''),
-        name: new FormControl(this._data.display?.display_name || '', [
-            Validators.required,
-        ]),
-        description: new FormControl(this._data.display?.description || ''),
-        orientation: new FormControl(
-            this._data.display?.orientation || 'unspecified',
-        ),
+    public readonly model = signal({
+        id: this._data.display?.id || '',
+        name: this._data.display?.display_name || '',
+        description: this._data.display?.description || '',
+        orientation: this._data.display?.orientation || 'unspecified',
+    });
+    public readonly form = form(this.model, (p) => {
+        required(p.name);
     });
 
     public async save() {
-        this.form.markAllAsTouched();
-        this.form.updateValueAndValidity();
-        if (this.form.invalid) return;
+        this.form().markAsTouched();
+        if (!this.form().valid()) return;
         this.loading.set(true);
-        const form_value = this.form.getRawValue();
+        const form_value = this.model();
         const new_display = new PlaceSystem({
             ...form_value,
             name: `SIGNAGE ${form_value.name}`,

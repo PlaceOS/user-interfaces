@@ -1,12 +1,8 @@
 import { Component, computed, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { formatDuration } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
 import { differenceInBusinessDays, endOfDay, startOfDay } from 'date-fns';
-import {
-    ReportOptions,
-    VisitorsReportService,
-} from './visitors-report.service';
+import { VisitorsReportService } from './visitors-report.service';
 
 @Component({
     selector: 'visitor-report-overall',
@@ -39,12 +35,8 @@ import {
 })
 export class VisitorReportOverallComponent {
     private _state = inject(VisitorsReportService);
-    private readonly _bookings = toSignal(this._state.bookings$, {
-        initialValue: [],
-    });
-    private readonly _options = toSignal(this._state.options$, {
-        initialValue: {} as ReportOptions,
-    });
+    private readonly _bookings = this._state.bookings;
+    private readonly _options = this._state.options;
 
     public readonly total_count = computed(() => this._bookings().length || 0);
     public readonly business_days = computed(() => {

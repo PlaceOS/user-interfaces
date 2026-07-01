@@ -6,8 +6,8 @@ import {
     SettingsService,
 } from '@placeos/common';
 import { mockComponent, mockDirective } from '@placeos/common/tests';
+import { signal } from '@angular/core';
 import { MockProvider } from 'ng-mocks';
-import { BehaviorSubject } from 'rxjs';
 
 import { signal } from '@angular/core';
 import {
@@ -31,9 +31,9 @@ describe('TopbarComponent', () => {
                 theme_signal: signal(''),
             }),
             MockProvider(OrganisationService, {
-                active_building: new BehaviorSubject(new Building()),
-                active_region: new BehaviorSubject(null),
-                region_list: new BehaviorSubject([]),
+                active_building: signal(new Building()),
+                active_region: signal(null),
+                region_list: signal([]),
                 building: new Building(),
             }),
         ],
@@ -79,8 +79,8 @@ describe('TopbarComponent', () => {
     it('should render user avatar and details', () =>
         expect('[avatar]').toExist());
 
-    it('should render user controls sidebar', () => {
-        expect('user-controls-sidebar').toExist();
+    it('should render user controls trigger', () => {
         expect('[name="user-controls"]').toExist();
+        expect(spectator.component.user_controls).toBeTruthy();
     });
 });

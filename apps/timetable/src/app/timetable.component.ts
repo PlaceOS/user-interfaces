@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import {
+    Component,
+    computed,
+    inject,
+    OnInit,
+    signal,
+} from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import {
     AsyncHandler,
@@ -14,7 +21,6 @@ import {
 } from '@placeos/components';
 import { SpacesService } from '@placeos/events';
 import { getHours, getMinutes, startOfSecond } from 'date-fns';
-import { debounceTime, map } from 'rxjs/operators';
 import { SpaceTimetableComponent } from './space-timetable.component';
 
 @Component({
@@ -29,7 +35,7 @@ import { SpaceTimetableComponent } from './space-timetable.component';
                     auth
                     class="h-10"
                     alt="Logo"
-                    [source]="(logo | async)?.src || (logo | async)"
+                    [source]="logo()?.src || logo()"
                 />
                 <div class="flex-1"></div>
                 <div class="p-2 text-xl">
@@ -130,6 +136,7 @@ export class AppTimetableComponent extends AsyncHandler implements OnInit {
     private _settings = inject(SettingsService);
     private _route = inject(ActivatedRoute);
     private _spaces = inject(SpacesService);
+    private _spaces_initialised = toObservable(this._spaces.initialised);
     private _org = inject(OrganisationService);
 
     public readonly spaces = signal<Space[]>([]);
@@ -146,20 +153,20 @@ export class AppTimetableComponent extends AsyncHandler implements OnInit {
         );
     });
 
-    public readonly logo = this._org.active_building.pipe(
-        debounceTime(500),
-        map(
-            () =>
-                (this._settings.theme === 'dark'
-                    ? this._settings.get('app.logo_dark')
-                    : this._settings.get('app.logo_light')) || {},
-        ),
-    );
+    public readonly logo = computed(() => {
+        // Recompute the logo whenever the active building changes.
+        this._org.active_building();
+        return (
+            (this._settings.theme === 'dark'
+                ? this._settings.get('app.logo_dark')
+                : this._settings.get('app.logo_light')) || {}
+        );
+    });
 
     public async ngOnInit() {
-        await firstTruthyValueFrom(this._org.initialised);
+        await this._org.waitUntilInitialised();
         await firstTruthyValueFrom(this._settings.initialised);
-        await firstTruthyValueFrom(this._spaces.initialised);
+        await firstTruthyValueFrom(this._spaces_initialised);
         this.interval('time', () => this.date.set(Date.now()), 2000);
         this.subscription(
             'route.query',

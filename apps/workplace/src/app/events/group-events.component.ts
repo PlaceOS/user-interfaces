@@ -1,12 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
 import { GroupEventCardComponent } from '@placeos/events';
-import { combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { FooterMenuComponent } from '../components/footer-menu.component';
 import { TopbarComponent } from '../components/topbar.component';
+import { VirtualConciergeButtonComponent } from '../components/virtual-concierge-button.component';
 import { GroupEventsFiltersListComponent } from './group-events-filters-list.component';
 import { GroupEventsSidebarComponent } from './group-events-sidebar.component';
 import { GroupEventsStateService } from './group-events-state.service';
@@ -19,19 +18,16 @@ import { GroupEventsStateService } from './group-events-state.service';
             <group-events-sidebar></group-events-sidebar>
             <div class="h-full w-full flex-1 overflow-auto p-2 sm:w-1/2 sm:p-4">
                 <group-events-filters-list></group-events-filters-list>
-                @if (featured | async) {
+                @if (featured(); as event) {
                     <group-event-card
-                        [event]="featured | async"
+                        [event]="event"
                         [featured]="true"
                         class="mx-auto my-2 w-5xl max-w-full"
                     ></group-event-card>
                 }
-                @if ((event_list | async)?.length) {
+                @if (event_list().length) {
                     <div class="mx-auto mt-2 flex w-5xl max-w-full flex-wrap">
-                        @for (
-                            event of events_without_featured | async;
-                            track event
-                        ) {
+                        @for (event of events_without_featured(); track event) {
                             <group-event-card
                                 [event]="event"
                                 class="m-2"
@@ -52,6 +48,7 @@ import { GroupEventsStateService } from './group-events-state.service';
                     </div>
                 }
             </div>
+            <virtual-concierge-button />
         </main>
         <footer-menu />
     `,
@@ -81,6 +78,7 @@ import { GroupEventsStateService } from './group-events-state.service';
         CommonModule,
         TopbarComponent,
         FooterMenuComponent,
+        VirtualConciergeButtonComponent,
         GroupEventCardComponent,
         GroupEventsFiltersListComponent,
         GroupEventsSidebarComponent,
@@ -91,17 +89,12 @@ export class GroupEventsComponent extends AsyncHandler {
     private _state = inject(GroupEventsStateService);
 
     public readonly event_list = this._state.filtered_events;
-    public readonly featured = this.event_list.pipe(
-        map((_) =>
-            _.find((_: any) => _.extension_data?.featured || _.featured),
+    public readonly featured = computed(() =>
+        this.event_list().find(
+            (_: any) => _.extension_data?.featured || _.featured,
         ),
     );
-    public readonly events_without_featured = combineLatest([
-        this.event_list,
-        this.featured,
-    ]).pipe(
-        map(([list, featured]) =>
-            list.filter((_: any) => _.id !== featured?.id),
-        ),
+    public readonly events_without_featured = computed(() =>
+        this.event_list().filter((_: any) => _.id !== this.featured()?.id),
     );
 }

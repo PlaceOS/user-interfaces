@@ -1,7 +1,6 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -113,9 +112,9 @@ export { EmergencyContact } from './emergency-contacts.service';
                     <simple-table
                         class="block min-w-208 text-sm"
                         [data]="filtered_contacts()"
-                        [filter]="search"
+                        [filter]="search()"
                         [empty_message]="
-                            (search
+                            (search()
                                 ? 'APP.CONCIERGE.CONTACTS_SEARCH_EMPTY'
                                 : 'APP.CONCIERGE.CONTACTS_EMPTY'
                             ) | translate
@@ -183,6 +182,7 @@ export { EmergencyContact } from './emergency-contacts.service';
                         >
                             <button
                                 icon
+                                default
                                 matRipple
                                 [matTooltip]="
                                     'APP.CONCIERGE.CONTACTS_EDIT' | translate
@@ -193,8 +193,9 @@ export { EmergencyContact } from './emergency-contacts.service';
                             </button>
                             <button
                                 icon
+                                default
                                 matRipple
-                                class="text-error"
+                                error
                                 (click)="removeContact(row)"
                                 [matTooltip]="
                                     'APP.CONCIERGE.CONTACTS_REMOVE' | translate
@@ -240,15 +241,10 @@ export class EmergencyContactsComponent implements OnInit {
     private _clipboard = inject(Clipboard);
     private _contacts_service = inject(EmergencyContactsService);
 
-    public search = '';
+    public readonly search = signal('');
     public readonly role_filter = signal('');
-    public readonly data$ = this._contacts_service.data$;
-    public readonly roles = toSignal(this._contacts_service.roles$, {
-        initialValue: [],
-    });
-    public readonly contacts = toSignal(this._contacts_service.contacts$, {
-        initialValue: [],
-    });
+    public readonly roles = this._contacts_service.roles;
+    public readonly contacts = this._contacts_service.contacts;
     public readonly filtered_contacts = computed(() => {
         const role = this.role_filter();
         return this.contacts().filter((_) => !role || _.roles.includes(role));

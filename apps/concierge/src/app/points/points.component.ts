@@ -1,11 +1,9 @@
-import { Component, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { Component, computed, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTabsModule } from '@angular/material/tabs';
-import { NavigationEnd, Router, RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
-import { filter, map, startWith } from 'rxjs/operators';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
 import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
 import { PointsStateService } from './points-state.service';
@@ -88,18 +86,22 @@ export class PointsComponent extends AsyncHandler {
     private _state = inject(PointsStateService);
     private _router = inject(Router);
 
+    private readonly _url = signal<unknown>(null);
+
     /** Page being displayed */
-    public readonly page = toSignal(
-        this._router.events.pipe(
-            filter((event) => event instanceof NavigationEnd),
-            startWith(null),
-            map(() => {
-                const url_parts = this._router.url?.split('/') || [''];
-                return url_parts[url_parts.length - 1];
-            }),
-        ),
-        { initialValue: this._router.url?.split('/').pop() || '' },
-    );
+    public readonly page = computed(() => {
+        this._url();
+        const url_parts = this._router.url?.split('/') || [''];
+        return url_parts[url_parts.length - 1];
+    });
 
     public readonly newAsset = () => this._state.newAsset();
+
+    constructor() {
+        super();
+        this.subscription(
+            'router',
+            this._router.events.subscribe((event) => this._url.set(event)),
+        );
+    }
 }

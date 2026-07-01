@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { Component, computed, inject, resource } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
@@ -10,7 +9,6 @@ import {
     SETTING_KEYS,
     settingSignal,
     SettingsService,
-    Space,
 } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
@@ -20,7 +18,6 @@ import {
 } from '@placeos/components';
 import { EventFormService } from '@placeos/events';
 import { ExploreSpacesService } from '@placeos/explore';
-import { filter, startWith, switchMap } from 'rxjs/operators';
 
 export interface FavoriteEntry {
     id: string;
@@ -193,34 +190,27 @@ export class LandingFavouritesNewComponent {
     );
 
     // Full resource lists
-    public readonly all_spaces = toSignal(this._event_form.spaces$, {
-        initialValue: [] as Space[],
+    public readonly all_spaces = this._event_form.spaces;
+    private readonly _desks_resource = resource({
+        params: () => this._org.active_building()?.id || undefined,
+        loader: () => this._booking_form.loadResourceList('desks'),
     });
-    public readonly all_desks = toSignal(
-        this._org.active_building.pipe(
-            filter((building) => !!building),
-            switchMap(() => this._booking_form.loadResourceList('desks')),
-            startWith([] as any[]),
-        ),
-        { initialValue: [] as any[] },
+    public readonly all_desks = computed(
+        () => this._desks_resource.value() ?? ([] as any[]),
     );
-    public readonly all_parking = toSignal(
-        this._org.active_building.pipe(
-            filter((building) => !!building),
-            switchMap(() =>
-                this._booking_form.loadResourceList('parking-spaces'),
-            ),
-            startWith([] as any[]),
-        ),
-        { initialValue: [] as any[] },
+    private readonly _parking_resource = resource({
+        params: () => this._org.active_building()?.id || undefined,
+        loader: () => this._booking_form.loadResourceList('parking-spaces'),
+    });
+    public readonly all_parking = computed(
+        () => this._parking_resource.value() ?? ([] as any[]),
     );
-    public readonly all_lockers = toSignal(
-        this._org.active_building.pipe(
-            filter((building) => !!building),
-            switchMap(() => this._booking_form.loadResourceList('lockers')),
-            startWith([] as any[]),
-        ),
-        { initialValue: [] as any[] },
+    private readonly _lockers_resource = resource({
+        params: () => this._org.active_building()?.id || undefined,
+        loader: () => this._booking_form.loadResourceList('lockers'),
+    });
+    public readonly all_lockers = computed(
+        () => this._lockers_resource.value() ?? ([] as any[]),
     );
 
     public readonly favourites = computed(() => {
@@ -340,7 +330,10 @@ export class LandingFavouritesNewComponent {
                     this._router.navigate(['/book', 'spaces']);
                 }
                 setTimeout(() => {
-                    this._event_form.form.patchValue({ resources: [space] });
+                    this._event_form.model.update((m) => ({
+                        ...m,
+                        resources: [space],
+                    }));
                 }, 300);
                 break;
 
@@ -360,11 +353,12 @@ export class LandingFavouritesNewComponent {
                 // Initialize form with parking before navigating
                 this._booking_form.newForm('parking');
                 this._booking_form.setOptions({ type: 'parking' });
-                this._booking_form.form.patchValue({
+                this._booking_form.model.update((m) => ({
+                    ...m,
                     resources: [parking],
                     asset_id: parking.id,
                     booking_type: 'parking',
-                });
+                }));
 
                 // Navigate after setting the resource
                 this._router.navigate(['/book', 'parking']);
@@ -377,11 +371,12 @@ export class LandingFavouritesNewComponent {
                 // Initialize form with locker before navigating
                 this._booking_form.newForm('locker');
                 this._booking_form.setOptions({ type: 'locker' });
-                this._booking_form.form.patchValue({
+                this._booking_form.model.update((m) => ({
+                    ...m,
                     resources: [locker],
                     asset_id: locker.id,
                     booking_type: 'locker',
-                });
+                }));
 
                 // Navigate after setting the resource
                 this._router.navigate(['/book', 'locker']);

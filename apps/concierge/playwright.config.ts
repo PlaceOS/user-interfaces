@@ -19,7 +19,7 @@ export default defineConfig({
         trace: 'on-first-retry',
     },
     webServer: {
-        command: 'npx nx serve concierge --port=4215',
+        command: 'bunx nx serve concierge --port=4215',
         url: 'http://localhost:4215',
         reuseExistingServer: !process.env.CI,
         cwd: workspaceRoot,

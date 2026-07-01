@@ -1,5 +1,4 @@
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
@@ -48,9 +47,7 @@ import { StaffTopbarComponent } from './staff-topbar.component';
 export class StaffComponent implements OnInit, OnDestroy {
     private _state = inject(StaffStateService);
 
-    public readonly loading = toSignal(this._state.loading, {
-        initialValue: false,
-    });
+    public readonly loading = this._state.loading;
 
     public ngOnInit() {
         this._state.startPolling();

@@ -1,14 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { Component, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { SimpleTableComponent, TranslatePipe } from '@placeos/components';
-import { combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
-import {
-    AssetManagerStateService,
-    AssetOptions,
-} from './asset-manager-state.service';
+import { AssetManagerStateService } from './asset-manager-state.service';
 
 @Component({
     selector: 'app-asset-purchase-order-list',
@@ -94,26 +88,19 @@ export class AssetPurchaseOrderListComponent {
     private _router = inject(Router);
 
     public readonly now = Date.now();
-    public readonly purchase_orders = toSignal(
-        combineLatest([this._state.options, this._state.purchase_orders]).pipe(
-            map(([{ search }, list]) =>
-                (list || []).filter(
-                    (_) =>
-                        !search ||
-                        (_ as any).purchase_order_number
-                            .toLowerCase()
-                            .includes(search.toLowerCase()) ||
-                        _.invoice_number
-                            ?.toLowerCase()
-                            .includes(search.toLowerCase()),
-                )
-            ),
-        ),
-        { initialValue: [] },
-    );
-    public readonly filters = toSignal(this._state.options, {
-        initialValue: { view: 'grid' } as AssetOptions,
+    public readonly purchase_orders = computed(() => {
+        const search = this._state.options().search;
+        const list = this._state.purchase_orders();
+        return (list || []).filter(
+            (_) =>
+                !search ||
+                (_ as any).purchase_order_number
+                    .toLowerCase()
+                    .includes(search.toLowerCase()) ||
+                _.invoice_number?.toLowerCase().includes(search.toLowerCase()),
+        );
     });
+    public readonly filters = this._state.options;
 
     public editOrder(order) {
         this._router.navigate(

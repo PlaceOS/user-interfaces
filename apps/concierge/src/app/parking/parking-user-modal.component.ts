@@ -1,19 +1,13 @@
 import {
     Component,
     EventEmitter,
-    OnInit,
+    Injector,
     Output,
     computed,
     inject,
     signal,
 } from '@angular/core';
-import {
-    FormControl,
-    FormGroup,
-    FormsModule,
-    ReactiveFormsModule,
-    Validators,
-} from '@angular/forms';
+import { form, FormField, required } from '@angular/forms/signals';
 import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
@@ -24,7 +18,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { AsyncHandler, DialogEvent, User } from '@placeos/common';
+import {
+    AsyncHandler,
+    DialogEvent,
+    onFieldChange,
+    User,
+} from '@placeos/common';
 import {
     IconComponent,
     SettingsToggleComponent,
@@ -55,14 +54,10 @@ import { ParkingUser } from './parking-state.service';
                 }
             </header>
             @if (!loading()) {
-                <main
-                    class="flex max-h-[65vh] flex-col overflow-auto p-4"
-                    [formGroup]="form"
-                >
+                <main class="flex max-h-[65vh] flex-col overflow-auto p-4">
                     <div class="mb-4 flex space-x-2">
                         <a-user-search-field
-                            name="user"
-                            formControlName="user"
+                            [formField]="form.user"
                             class="flex-1"
                         ></a-user-search-field>
                         <button
@@ -70,13 +65,7 @@ import { ParkingUser } from './parking-state.service';
                             matRipple
                             class="bg-secondary text-secondary-content h-12 w-12 min-w-12 rounded-sm"
                             matTooltip="Clear Selected User"
-                            (click)="
-                                form.patchValue({
-                                    user: null,
-                                    email: null,
-                                    name: null,
-                                })
-                            "
+                            (click)="clearUser()"
                         >
                             <icon className="material-symbols-outlined">
                                 person_cancel
@@ -87,8 +76,7 @@ import { ParkingUser } from './parking-state.service';
                     <mat-form-field appearance="outline">
                         <input
                             matInput
-                            name="name"
-                            formControlName="name"
+                            [formField]="form.name"
                             placeholder="Name"
                         />
                         <mat-error>{{
@@ -99,8 +87,7 @@ import { ParkingUser } from './parking-state.service';
                     <mat-form-field appearance="outline">
                         <input
                             matInput
-                            name="email"
-                            formControlName="email"
+                            [formField]="form.email"
                             [placeholder]="'FORM.EMAIL' | translate"
                         />
                         <mat-error>{{
@@ -115,8 +102,7 @@ import { ParkingUser } from './parking-state.service';
                             <mat-form-field appearance="outline" class="w-full">
                                 <input
                                     matInput
-                                    name="plate-number"
-                                    formControlName="plate_number"
+                                    [formField]="form.plate_number"
                                     [placeholder]="
                                         'EXPLORE.PARKING_PLATE_NUMBER'
                                             | translate
@@ -131,8 +117,7 @@ import { ParkingUser } from './parking-state.service';
                             <mat-form-field appearance="outline" class="w-full">
                                 <input
                                     matInput
-                                    name="car-color"
-                                    formControlName="car_colour"
+                                    [formField]="form.car_colour"
                                     [placeholder]="
                                         'APP.CONCIERGE.PARKING_CAR_COLOUR'
                                             | translate
@@ -145,19 +130,18 @@ import { ParkingUser } from './parking-state.service';
                     <mat-form-field appearance="outline">
                         <textarea
                             matInput
-                            name="notes"
-                            formControlName="notes"
+                            [formField]="form.notes"
                             [placeholder]="'FORM.NOTES' | translate"
                         ></textarea>
                     </mat-form-field>
                     <div class="mb-4 flex items-center">
                         <settings-toggle
                             class="flex-1"
-                            [name]="
+                            [label]="
                                 'APP.CONCIERGE.PARKING_USER_DENY_PLACEHOLER'
                                     | translate
                             "
-                            formControlName="deny"
+                            [formField]="form.deny"
                         >
                         </settings-toggle>
                     </div>
@@ -190,14 +174,13 @@ import { ParkingUser } from './parking-state.service';
         SettingsToggleComponent,
         MatFormFieldModule,
         MatInputModule,
-        ReactiveFormsModule,
-        FormsModule,
+        FormField,
         MatTooltipModule,
         UserSearchFieldComponent,
         MatDialogModule,
     ],
 })
-export class ParkingUserModalComponent extends AsyncHandler implements OnInit {
+export class ParkingUserModalComponent extends AsyncHandler {
     private _data = inject<ParkingUser>(MAT_DIALOG_DATA);
     private _dialog_ref =
         inject<MatDialogRef<ParkingUserModalComponent>>(MatDialogRef);
@@ -206,52 +189,69 @@ export class ParkingUserModalComponent extends AsyncHandler implements OnInit {
     public readonly loading = signal(false);
 
     public readonly id = computed(() => this._data?.id || '');
+    private _injector = inject(Injector);
 
-    public readonly form = new FormGroup({
-        id: new FormControl(''),
-        user: new FormControl<User>(null),
-        name: new FormControl('', [Validators.required]),
-        email: new FormControl('', [Validators.required]),
-        plate_number: new FormControl(''),
-        car_colour: new FormControl(''),
-        notes: new FormControl(''),
-        deny: new FormControl(false),
+    public readonly model = signal({
+        id: '',
+        user: null as User | null,
+        name: '',
+        email: '',
+        plate_number: '',
+        car_colour: '',
+        notes: '',
+        deny: false,
+    });
+    public readonly form = form(this.model, (p) => {
+        required(p.name);
+        required(p.email);
     });
 
     constructor() {
         super();
-        const _data = this._data;
-
-        if (_data) {
-            this.form.patchValue({
-                ..._data,
-                car_colour:
-                    (_data as any).car_colour || (_data as any).car_color || '',
-            });
+        const data = this._data as any;
+        if (data) {
+            this.model.update((m) => ({
+                ...m,
+                id: data.id ?? m.id,
+                name: data.name ?? m.name,
+                email: data.email ?? m.email,
+                plate_number: data.plate_number ?? m.plate_number,
+                car_colour: data.car_colour || data.car_color || '',
+                notes: data.notes ?? m.notes,
+                deny: data.deny ?? m.deny,
+            }));
         }
-    }
-
-    public ngOnInit() {
-        this.subscription(
-            'user',
-            this.form.valueChanges.subscribe((value) => {
-                if (
-                    value.user?.id &&
-                    value.user?.email !== this.form.value.email
-                ) {
-                    this.form.patchValue({
-                        email: value.user.email,
-                        name: value.user.name,
-                    });
+        // Sync name/email from the selected user when it changes.
+        onFieldChange(
+            this.model,
+            (m) => m.user,
+            (user) => {
+                if (user?.id && user?.email !== this.model().email) {
+                    this.model.update((m) => ({
+                        ...m,
+                        email: user.email,
+                        name: user.name,
+                    }));
                 }
-            }),
+            },
+            this._injector,
         );
     }
 
+    public clearUser() {
+        this.model.update((m) => ({
+            ...m,
+            user: null,
+            email: '',
+            name: '',
+        }));
+    }
+
     public postForm() {
-        if (!this.form.valid) return;
+        this.form().markAsTouched();
+        if (!this.form().valid()) return;
         this.loading.set(true);
-        const value = this.form.value;
+        const value: any = { ...this.model() };
         if (value.user) {
             value.email = value.user.email;
             value.name = value.user.name;

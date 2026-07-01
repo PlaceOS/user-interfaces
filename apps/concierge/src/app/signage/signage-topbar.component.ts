@@ -1,8 +1,7 @@
 import { Component, effect, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { OrganisationService } from '@placeos/common';
+import { AsyncHandler, OrganisationService } from '@placeos/common';
 import { SignageStateService } from './signage-state.service';
 
 @Component({
@@ -49,7 +48,7 @@ import { SignageStateService } from './signage-state.service';
     ],
     imports: [],
 })
-export class SignageTopbarComponent {
+export class SignageTopbarComponent extends AsyncHandler {
     private _state = inject(SignageStateService);
     private _org = inject(OrganisationService);
     private _route = inject(ActivatedRoute);
@@ -58,30 +57,29 @@ export class SignageTopbarComponent {
     /** List of selected levels */
     public zones = signal<string[]>([]);
     /** List of levels for the active building */
-    public readonly levels = toSignal(this._org.active_levels, {
-        initialValue: [],
-    });
-    /** Route query parameters */
-    private readonly _queryParams = toSignal(this._route.queryParamMap);
+    public readonly levels = this._org.active_levels;
 
     constructor() {
+        super();
         // Handle query parameter changes
-        effect(() => {
-            const params = this._queryParams();
-            if (params?.has('zone_ids')) {
-                const zone_ids = params.get('zone_ids').split(',');
-                if (zone_ids.length) {
-                    const level = this._org.levelWithID(zone_ids);
-                    if (!level) {
-                        return;
+        this.subscription(
+            'route.query',
+            this._route.queryParamMap.subscribe((params) => {
+                if (params?.has('zone_ids')) {
+                    const zone_ids = params.get('zone_ids').split(',');
+                    if (zone_ids.length) {
+                        const level = this._org.levelWithID(zone_ids);
+                        if (!level) {
+                            return;
+                        }
+                        this._org.building = this._org.buildings.find(
+                            (bld) => bld.id === level.parent_id,
+                        );
+                        this.zones.set(zone_ids);
                     }
-                    this._org.building = this._org.buildings.find(
-                        (bld) => bld.id === level.parent_id,
-                    );
-                    this.zones.set(zone_ids);
                 }
-            }
-        });
+            }),
+        );
 
         // Handle level changes
         effect(() => {

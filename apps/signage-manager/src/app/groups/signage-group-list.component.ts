@@ -13,7 +13,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { PlaceGroup } from '@placeos/ts-client';
-import { lastValueFrom } from 'rxjs';
 import { SignageService } from '../signage.service';
 
 interface GroupTreeNode {
@@ -43,7 +42,9 @@ interface GroupListRow extends GroupTreeNode {
                         matInput
                         id="group-search"
                         name="group-search"
-                        [placeholder]="'SIGNAGE_MANAGER.SEARCH_GROUPS' | translate"
+                        [placeholder]="
+                            'SIGNAGE_MANAGER.SEARCH_GROUPS' | translate
+                        "
                         [(ngModel)]="search"
                         [attr.aria-label]="
                             'SIGNAGE_MANAGER.GROUPS_SEARCH_ARIA' | translate
@@ -385,9 +386,9 @@ export class SignageGroupListComponent {
     }
 
     private async loadChildren(group_id: string) {
-        const children = await lastValueFrom(
-            this._service.groupChildren(group_id),
-        ).catch(() => this.child_lookup()[group_id] || []);
+        const children = await this._service
+            .groupChildren(group_id)
+            .catch(() => this.child_lookup()[group_id] || []);
         this.applyLoadedChildren(group_id, children);
     }
 

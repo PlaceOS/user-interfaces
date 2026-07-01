@@ -2,6 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { SettingsService } from '@placeos/common';
 import { FooterMenuComponent } from '../components/footer-menu.component';
 import { TopbarComponent } from '../components/topbar.component';
+import { VirtualConciergeButtonComponent } from '../components/virtual-concierge-button.component';
 import { ControlSpaceListComponent } from './space-list.component';
 
 @Component({
@@ -14,6 +15,7 @@ import { ControlSpaceListComponent } from './space-list.component';
             >
                 <a-control-space-list></a-control-space-list>
             </main>
+            <virtual-concierge-button />
         </div>
         <footer-menu />
     `,
@@ -28,7 +30,12 @@ import { ControlSpaceListComponent } from './space-list.component';
             }
         `,
     ],
-    imports: [TopbarComponent, FooterMenuComponent, ControlSpaceListComponent],
+    imports: [
+        TopbarComponent,
+        FooterMenuComponent,
+        VirtualConciergeButtonComponent,
+        ControlSpaceListComponent,
+    ],
 })
 export class ControlComponent implements OnInit {
     private _settings = inject(SettingsService);

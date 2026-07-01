@@ -21,19 +21,16 @@ import { IconComponent } from '@placeos/components';
         <!-- Compact Card View -->
         @if (!is_fullscreen()) {
             <div
-                class="flex flex-col space-y-4 rounded-lg border border-base-300 bg-base-100 p-6 shadow md:col-span-3"
+                class="border-base-300 bg-base-100 flex flex-col space-y-4 rounded-lg border p-6 shadow md:col-span-3"
             >
                 <div class="flex items-center space-x-4">
                     <div
-                        class="relative flex h-16 w-16 flex-shrink-0 items-center justify-center overflow-hidden rounded-full border border-base-300 bg-base-200"
+                        class="border-base-300 bg-base-200 relative flex h-16 w-16 flex-shrink-0 items-center justify-center overflow-hidden rounded-full border"
                     >
                         <div
-                            class="absolute z-0 h-full w-full bg-base-100 opacity-30"
+                            class="bg-base-100 absolute z-0 h-full w-full opacity-30"
                         ></div>
-                        <img
-                            class="z-10 h-12"
-                            src="assets/icons/ben_icon.svg"
-                        />
+                        <img class="z-10 h-12" src="assets/icons/roybot.png" />
                     </div>
                     <div class="flex-1">
                         <h2 class="text-lg font-medium">
@@ -70,7 +67,7 @@ import { IconComponent } from '@placeos/components';
                 </div>
 
                 <!-- Quick Actions -->
-                <div class="space-y-2 border-t border-base-300 pt-4">
+                <div class="border-base-300 space-y-2 border-t pt-4">
                     <h4 class="opacity-60">Quick actions:</h4>
                     <div class="-m-1 flex flex-wrap">
                         @if (features().includes('spaces')) {
@@ -129,13 +126,13 @@ import { IconComponent } from '@placeos/components';
                 (click)="closeFullscreen()"
             >
                 <div
-                    class="relative mx-auto flex h-full w-full max-w-4xl flex-col bg-base-100 p-8 sm:h-auto sm:max-h-[90vh] sm:rounded-xl sm:shadow-2xl"
+                    class="bg-base-100 relative mx-auto flex h-full w-full max-w-4xl flex-col p-8 sm:h-auto sm:max-h-[90vh] sm:rounded-xl sm:shadow-2xl"
                     (click)="$event.stopPropagation()"
                 >
                     <button
                         icon
                         matRipple
-                        class="absolute right-4 top-4 h-12 w-12"
+                        class="absolute top-4 right-4 h-12 w-12"
                         (click)="closeFullscreen()"
                     >
                         <icon class="text-2xl">close</icon>
@@ -144,14 +141,14 @@ import { IconComponent } from '@placeos/components';
                     <div class="flex flex-col space-y-6 overflow-auto">
                         <div class="flex items-center space-x-4">
                             <div
-                                class="relative flex h-20 w-20 flex-shrink-0 items-center justify-center overflow-hidden rounded-full border border-base-300 bg-base-200"
+                                class="border-base-300 bg-base-200 relative flex h-20 w-20 flex-shrink-0 items-center justify-center overflow-hidden rounded-full border"
                             >
                                 <div
-                                    class="absolute z-0 h-full w-full bg-base-100 opacity-30"
+                                    class="bg-base-100 absolute z-0 h-full w-full opacity-30"
                                 ></div>
                                 <img
                                     class="z-10 h-14"
-                                    src="assets/icons/ben_icon.svg"
+                                    src="assets/icons/roybot.png"
                                 />
                             </div>
                             <div class="flex-1">

@@ -6,7 +6,8 @@ import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { CateringOrdersService, CateringStateService } from '@placeos/catering';
 import { OrganisationService } from '@placeos/common';
 import { MockComponent, MockProvider } from 'ng-mocks';
-import { BehaviorSubject, of } from 'rxjs';
+import { signal } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
 
 import { SettingsService } from '@placeos/common';
 import { CateringTopbarComponent } from '../../app/catering/catering-topbar.component';
@@ -19,15 +20,18 @@ describe('CateringTopbarComponent', () => {
         component: CateringTopbarComponent,
         providers: [
             MockProvider(OrganisationService, {
-                initialised: of(true),
-                active_levels: new BehaviorSubject([]),
+                initialised: signal(true),
+                active_levels: signal([]),
                 levelWithID: jest.fn(),
-                active_building: new BehaviorSubject({}),
-                active_region: new BehaviorSubject({}),
+                active_building: signal({}),
+                active_region: signal({}),
             } as any),
-            MockProvider(CateringStateService, {}),
+            MockProvider(CateringStateService, {
+                caterers: signal([]),
+            }),
             MockProvider(CateringOrdersService, {
                 filters: new BehaviorSubject({}),
+                order_filters: signal({}),
             } as any),
             MockProvider(MatDialog, { open: jest.fn() }),
             MockProvider(SettingsService, { get: jest.fn() }),

@@ -1,7 +1,5 @@
 import { StaffUser, toQueryString } from '@placeos/common';
 import { get } from '@placeos/ts-client';
-import { from, Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
 
 const STAFF_ENDPOINT = '/api/staff/v1/people';
 
@@ -9,7 +7,7 @@ const STAFF_ENDPOINT = '/api/staff/v1/people';
  * Search staff members
  * @param q Search string for filtering staff
  */
-export function searchStaff(q: string): Observable<StaffUser[]> {
+export async function searchStaff(q: string): Promise<StaffUser[]> {
     const query = toQueryString({
         q,
         fields: [
@@ -21,20 +19,17 @@ export function searchStaff(q: string): Observable<StaffUser[]> {
             'department',
         ].join(','),
     });
-    return from(get(`${STAFF_ENDPOINT}${q ? '?' + query : ''}`)).pipe(
-        map((list) =>
-            list.map((item: Record<string, any>) => new StaffUser(item)),
-        ),
-    );
+    const list = await get(`${STAFF_ENDPOINT}${q ? '?' + query : ''}`);
+    return list.map((item: Record<string, any>) => new StaffUser(item));
 }
 
 /**
  * Get user details
  * @param id User ID or email
  */
-export function showStaff(id: string) {
-    return from(get(`${STAFF_ENDPOINT}/${encodeURIComponent(id)}`)).pipe(
-        map((item) => new StaffUser(item)),
+export async function showStaff(id: string): Promise<StaffUser> {
+    return new StaffUser(
+        await get(`${STAFF_ENDPOINT}/${encodeURIComponent(id)}`),
     );
 }
 

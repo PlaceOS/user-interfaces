@@ -1,5 +1,5 @@
 import { formatDate } from '@angular/common';
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { queryLockerAssets, queryParkingSpaces } from '@placeos/assets';
 import { queryAllBookings } from '@placeos/bookings';
 import {
@@ -9,6 +9,7 @@ import {
     formatDuration,
     i18n,
     jsonToCsv,
+    nextValueFrom,
     notifyError,
     OrganisationService,
     SettingsService,
@@ -24,8 +25,6 @@ import {
     isSameDay,
     startOfDay,
 } from 'date-fns';
-import { BehaviorSubject, forkJoin, from, of } from 'rxjs';
-import { catchError, finalize, map, skip, takeUntil } from 'rxjs/operators';
 
 import {
     activeReportBookings,
@@ -127,24 +126,28 @@ export class SiteAttendanceReportService {
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
 
-    private _loading = new BehaviorSubject(false);
-    private _options = new BehaviorSubject<ReportOptions>({
+    private _loading = signal(false);
+    private _options = signal<ReportOptions>({
         start: startOfDay(Date.now()).valueOf(),
         end: endOfDay(Date.now()).valueOf(),
         zones: [],
     });
-    private _report = new BehaviorSubject<SiteAttendanceReport>(EMPTY_REPORT);
+    private _report = signal<SiteAttendanceReport>(EMPTY_REPORT);
+    /** Token used to discard responses from superseded report loads */
+    private _load_token = 0;
 
-    public readonly loading$ = this._loading.asObservable();
-    public readonly options$ = this._options.asObservable();
-    public readonly report$ = this._report.asObservable();
+    public readonly loading = this._loading.asReadonly();
+    public readonly options = this._options.asReadonly();
+    public readonly report = this._report.asReadonly();
 
     public setOptions(options: Partial<ReportOptions>) {
-        this._options.next({ ...this._options.getValue(), ...options });
+        // Cancel any in-flight load when the options change
+        this._load_token++;
+        this._options.set({ ...this._options(), ...options });
     }
 
-    public generateReport() {
-        const options = this._options.getValue();
+    public async generateReport() {
+        const options = this._options();
         const start = startOfDay(options.start || Date.now());
         const end = endOfDay(options.end || start.valueOf());
         const booking_zones = this.getBookingZones(options.zones);
@@ -159,75 +162,102 @@ export class SiteAttendanceReportService {
             ...query,
             include_checked_out: true,
         };
-        this._loading.next(true);
-        forkJoin({
-            events: enabled.events
-                ? queryAllEvents({
-                      ...query,
-                      zone_ids: booking_zones,
-                      limit: 1000,
-                  }).pipe(catchError(() => of([])))
-                : of([]),
-            desks: enabled.desks
-                ? queryAllBookings({
-                      ...bookings_query,
-                      zones: booking_zones,
-                      type: 'desk',
-                      limit: 1000,
-                  }).pipe(catchError(() => of([])))
-                : of([]),
-            parking: enabled.parking
-                ? queryAllBookings({
-                      ...bookings_query,
-                      zones: booking_zones,
-                      type: 'parking',
-                      limit: 1000,
-                  }).pipe(catchError(() => of([])))
-                : of([]),
-            lockers: enabled.lockers
-                ? queryAllBookings({
-                      ...bookings_query,
-                      zones: booking_zones,
-                      type: 'locker',
-                      limit: 1000,
-                  }).pipe(catchError(() => of([])))
-                : of([]),
-            visitors: enabled.visitors
-                ? queryAllBookings({
-                      ...bookings_query,
-                      type: 'visitor',
-                      zones: booking_zones,
-                      limit: 1000,
-                  }).pipe(catchError(() => of([])))
-                : of([]),
-            room_count: enabled.events ? this.getRoomCount(space_zones) : of(0),
-            desk_count: enabled.desks ? this.getDeskCount(level_ids) : of(0),
-            parking_count: enabled.parking
-                ? this.getParkingCount(level_ids)
-                : of(0),
-            locker_count: enabled.lockers
-                ? this.getLockerCount(level_ids)
-                : of(0),
-            enabled: of(enabled),
-        })
-            .pipe(
-                takeUntil(this._options.pipe(skip(1))),
-                finalize(() => this._loading.next(false)),
-                map((result) =>
-                    this.buildReport(result, start.valueOf(), end.valueOf()),
-                ),
-            )
-            .subscribe((report) => {
-                if (!report.total_bookings) {
-                    notifyError(i18n('APP.CONCIERGE.REPORTS_LOAD_ERROR'));
-                }
-                this._report.next(report);
-            });
+        const token = ++this._load_token;
+        this._loading.set(true);
+        try {
+            const [
+                events,
+                desks,
+                parking,
+                lockers,
+                visitors,
+                room_count,
+                desk_count,
+                parking_count,
+                locker_count,
+            ] = await Promise.all([
+                enabled.events
+                    ? queryAllEvents({
+                          ...query,
+                          zone_ids: booking_zones,
+                          limit: 1000,
+                      }).catch(() => [])
+                    : Promise.resolve([]),
+                enabled.desks
+                    ? queryAllBookings({
+                          ...bookings_query,
+                          zones: booking_zones,
+                          type: 'desk',
+                          limit: 1000,
+                      }).catch(() => [])
+                    : Promise.resolve([]),
+                enabled.parking
+                    ? queryAllBookings({
+                          ...bookings_query,
+                          zones: booking_zones,
+                          type: 'parking',
+                          limit: 1000,
+                      }).catch(() => [])
+                    : Promise.resolve([]),
+                enabled.lockers
+                    ? queryAllBookings({
+                          ...bookings_query,
+                          zones: booking_zones,
+                          type: 'locker',
+                          limit: 1000,
+                      }).catch(() => [])
+                    : Promise.resolve([]),
+                enabled.visitors
+                    ? queryAllBookings({
+                          ...bookings_query,
+                          type: 'visitor',
+                          zones: booking_zones,
+                          limit: 1000,
+                      }).catch(() => [])
+                    : Promise.resolve([]),
+                enabled.events
+                    ? this.getRoomCount(space_zones)
+                    : Promise.resolve(0),
+                enabled.desks
+                    ? this.getDeskCount(level_ids)
+                    : Promise.resolve(0),
+                enabled.parking
+                    ? this.getParkingCount(level_ids)
+                    : Promise.resolve(0),
+                enabled.lockers
+                    ? this.getLockerCount(level_ids)
+                    : Promise.resolve(0),
+            ]);
+            // Discard the response if the options changed before it completed
+            if (token !== this._load_token) return;
+            const report = this.buildReport(
+                {
+                    events,
+                    desks,
+                    parking,
+                    lockers,
+                    visitors,
+                    room_count,
+                    desk_count,
+                    parking_count,
+                    locker_count,
+                    enabled,
+                },
+                start.valueOf(),
+                end.valueOf(),
+            );
+            if (!report.total_bookings) {
+                notifyError(i18n('APP.CONCIERGE.REPORTS_LOAD_ERROR'));
+            }
+            this._report.set(report);
+        } finally {
+            if (token === this._load_token) this._loading.set(false);
+        }
     }
 
     public downloadReport() {
-        const report = this._report.getValue();
-        const { start, end } = this._options.getValue();
+        const report = this._report();
+        const { start, end } = this._options();
         if (!report.total_bookings) return;
         const is_same = isSameDay(start || Date.now(), end || Date.now());
         const date = is_same
@@ -301,65 +331,56 @@ export class SiteAttendanceReportService {
         };
     }
 
-    private getRoomCount(zones: string[]) {
-        if (!zones.length) return of(0);
-        return forkJoin(
+    private async getRoomCount(zones: string[]) {
+        if (!zones.length) return 0;
+        const space_lists = await Promise.all(
             zones.map((zone) =>
-                requestSpacesForZone(zone).pipe(catchError(() => of([]))),
+                nextValueFrom(requestSpacesForZone(zone)).catch(() => []),
             ),
-        ).pipe(
-            map((space_lists) => {
-                const space_ids = new Set(
-                    space_lists
-                        .flat()
-                        .map((space) => space.id)
-                        .filter((id) => !!id),
-                );
-                return space_ids.size;
-            }),
         );
+        const space_ids = new Set(
+            space_lists
+                .flat()
+                .map((space) => space.id)
+                .filter((id) => !!id),
+        );
+        return space_ids.size;
     }
 
-    private getDeskCount(zones: string[]) {
-        if (!zones.length) return of(0);
-        return forkJoin(
+    private async getDeskCount(zones: string[]) {
+        if (!zones.length) return 0;
+        const counts = await Promise.all(
             zones.map((zone) =>
-                from(showMetadata(zone, 'desks')).pipe(
-                    catchError(() => of({ details: [] })),
-                    map((metadata) => metadata.details?.length || 0),
-                ),
+                showMetadata(zone, 'desks')
+                    .then((metadata) => metadata.details?.length || 0)
+                    .catch(() => 0),
             ),
-        ).pipe(
-            map((counts) => counts.reduce((count, value) => count + value, 0)),
         );
+        return counts.reduce((count, value) => count + value, 0);
     }
 
-    private getParkingCount(zones: string[]) {
-        if (!zones.length) return of(0);
-        return forkJoin(
+    private async getParkingCount(zones: string[]) {
+        if (!zones.length) return 0;
+        const counts = await Promise.all(
             zones.map((zone) =>
-                queryParkingSpaces(zone).pipe(
-                    catchError(() => of([])),
-                    map((spaces) => spaces.length || 0),
-                ),
+                queryParkingSpaces(zone)
+                    .then((spaces) => spaces.length || 0)
+                    .catch(() => 0),
             ),
-        ).pipe(
-            map((counts) => counts.reduce((count, value) => count + value, 0)),
         );
+        return counts.reduce((count, value) => count + value, 0);
     }
 
-    private getLockerCount(zones: string[]) {
-        if (!zones.length) return of(0);
-        return forkJoin(
+    private async getLockerCount(zones: string[]) {
+        if (!zones.length) return 0;
+        const counts = await Promise.all(
             zones.map((zone) =>
-                queryLockerAssets(zone).pipe(
-                    catchError(() => of([])),
-                    map((lockers) => lockers.length || 0),
-                ),
+                queryLockerAssets(zone)
+                    .then((lockers) => lockers.length || 0)
+                    .catch(() => 0),
             ),
-        ).pipe(
-            map((counts) => counts.reduce((count, value) => count + value, 0)),
         );
+        return counts.reduce((count, value) => count + value, 0);
     }
 
     private buildReport(
@@ -761,8 +782,7 @@ export class SiteAttendanceReportService {
             bookings.reduce(
                 (count, booking) => count + reportBookingDuration(booking),
                 0,
-            ) /
-                Math.max(1, bookings.length),
+            ) / Math.max(1, bookings.length),
         );
         return formatDuration({ minutes }) || '0';
     }

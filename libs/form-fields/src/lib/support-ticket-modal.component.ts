@@ -1,12 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
-import {
-    FormControl,
-    FormGroup,
-    FormsModule,
-    ReactiveFormsModule,
-    Validators,
-} from '@angular/forms';
+import { Component, inject, signal } from '@angular/core';
+import { form, FormField, required } from '@angular/forms/signals';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -36,11 +30,11 @@ export interface SupportRequestType {
     template: `
         <fullscreen-modal-shell
             [heading]="'Raise a support ticket'"
-            [loading]="loading ? 'true' : ''"
+            [loading]="loading() ? 'true' : ''"
             [confirm_text]="'COMMON.SUBMIT' | translate"
             (confirm)="submit()"
         >
-            <form [formGroup]="form">
+            <form>
                 <div class="flex flex-wrap items-center sm:space-x-2">
                     <div class="flex flex-1 flex-col">
                         <label
@@ -50,7 +44,7 @@ export interface SupportRequestType {
                             <input
                                 matInput
                                 [placeholder]="'FORM.NAME' | translate"
-                                formControlName="name"
+                                [formField]="form.name"
                             />
                             <mat-error>{{
                                 'FORM.NAME_REQUIRED' | translate
@@ -65,7 +59,7 @@ export interface SupportRequestType {
                             <input
                                 matInput
                                 [placeholder]="'FORM.EMAIL' | translate"
-                                formControlName="email"
+                                [formField]="form.email"
                             />
                             <mat-error>{{
                                 'FORM.EMAIL_REQUIRED' | translate
@@ -80,9 +74,9 @@ export interface SupportRequestType {
                             [placeholder]="
                                 'COMMON.SUPPORT_LOCATION' | translate
                             "
-                            formControlName="location"
+                            [formField]="form.location"
                         >
-                            @for (bld of buildings | async; track bld) {
+                            @for (bld of buildings(); track bld) {
                                 <mat-option
                                     [value]="bld.display_name || bld.name"
                                 >
@@ -100,7 +94,7 @@ export interface SupportRequestType {
                                 [placeholder]="
                                     'COMMON.SUPPORT_TYPE' | translate
                                 "
-                                formControlName="issue_type"
+                                [formField]="form.issue_type"
                             >
                                 @for (
                                     type of support_request_types();
@@ -121,9 +115,9 @@ export interface SupportRequestType {
                     </label>
                     <rich-text-input
                         [placeholder]="'COMMON.SUPPORT_DESCRIPTION' | translate"
-                        formControlName="description"
+                        [formField]="form.description"
                     ></rich-text-input>
-                    @if (desc_error) {
+                    @if (desc_error()) {
                         <mat-error class="my-2 text-xs">
                             {{
                                 'COMMON.SUPPORT_DESCRIPTION_REQUIRED'
@@ -138,7 +132,7 @@ export interface SupportRequestType {
                             'COMMON.SUPPORT_IMAGES' | translate
                         }}</label>
                         <image-list-field
-                            formControlName="images"
+                            [formField]="form.images"
                         ></image-list-field>
                     </div>
                 }
@@ -159,8 +153,7 @@ export interface SupportRequestType {
         CommonModule,
         MatFormFieldModule,
         MatInputModule,
-        FormsModule,
-        ReactiveFormsModule,
+        FormField,
         MatProgressSpinnerModule,
         MatRippleModule,
         RichTextInputComponent,
@@ -190,22 +183,22 @@ export class SupportTicketModalComponent {
         false,
     );
 
-    public loading = false;
-    public readonly form = new FormGroup({
-        name: new FormControl('', [Validators.required]),
-        email: new FormControl('', [Validators.required]),
-        location: new FormControl(''),
-        description: new FormControl('', [Validators.required]),
-        issue_type: new FormControl(''),
-        images: new FormControl([]),
+    public readonly loading = signal(false);
+    public readonly model = signal({
+        name: '',
+        email: '',
+        location: '',
+        description: '',
+        issue_type: '',
+        images: [] as string[],
+    });
+    public readonly form = form(this.model, (p) => {
+        required(p.name);
+        required(p.email);
+        required(p.description);
     });
 
-    public get desc_error() {
-        return (
-            !this.form.controls.description.valid &&
-            this.form.controls.description.touched
-        );
-    }
+    public readonly desc_error = signal(false);
 
     public readonly support_email = this._support_email;
     public readonly support_request_types = this._support_issue_types;
@@ -216,30 +209,32 @@ export class SupportTicketModalComponent {
     public ngOnInit() {
         const user = currentUser();
         if (user) {
-            this.form.patchValue({
+            this.model.update((m) => ({
+                ...m,
                 name: user.name,
                 email: user.email,
-            });
+            }));
         }
         if (this._org.building) {
-            this.form.patchValue({
+            this.model.update((m) => ({
+                ...m,
                 location:
                     this._org.building.display_name || this._org.building.name,
-            });
+            }));
         }
     }
 
     public async submit() {
-        this.loading = true;
-        this.form.markAllAsTouched();
-        this.form.updateValueAndValidity();
-        if (this.form.valid) {
+        this.loading.set(true);
+        this.form().markAsTouched();
+        this._updateDescError();
+        if (this.form().valid()) {
             const mod = this._org.module('smtp', 'Mailer');
             if (!mod) {
                 return notifyError(i18n('COMMON.SUPPORT_NO_MAILER'));
             }
             const { name, email, location, description, images, issue_type } =
-                this.form.value;
+                this.model();
             const support_email =
                 this.support_request_types().find(
                     (type) => type.name === issue_type,
@@ -265,8 +260,15 @@ export class SupportTicketModalComponent {
                 `${email}`,
             ]);
             this._dialog_ref.close();
-            this.loading = false;
+            this.loading.set(false);
             notifySuccess(i18n('COMMON.SUPPORT_SUCCESS'));
         }
+    }
+
+    private _updateDescError() {
+        this.desc_error.set(
+            this.form.description().invalid() &&
+                this.form.description().touched(),
+        );
     }
 }

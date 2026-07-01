@@ -1,7 +1,6 @@
-import { AsyncPipe } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { Component, computed, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { FormField } from '@angular/forms/signals';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -28,10 +27,10 @@ import {
     template: `
         <div class="h-full w-full">
             <div
-                class="flex w-full flex-col overflow-hidden rounded-xl border border-base-300 bg-base-100"
+                class="border-base-300 bg-base-100 flex w-full flex-col overflow-hidden rounded-xl border"
             >
                 <div
-                    class="gradient relative flex items-center space-x-2 border-l-8 border-base-content px-4 py-3 text-xl font-medium"
+                    class="gradient border-base-content relative flex items-center space-x-2 border-l-8 px-4 py-3 text-xl font-medium"
                 >
                     <icon>info</icon>
                     <div>
@@ -40,7 +39,7 @@ import {
                         }}
                     </div>
                 </div>
-                <div class="flex flex-col p-4" [formGroup]="form()">
+                <div class="flex flex-col p-4">
                     <label class="uppercase"
                         >{{ 'CALENDAR_EVENT.MEETING_TITLE_LABEL' | translate }}
                         <span required>*</span></label
@@ -48,23 +47,23 @@ import {
                     <mat-form-field appearance="outline">
                         <input
                             matInput
-                            formControlName="title"
+                            [formField]="form.title"
                             [placeholder]="
                                 'CALENDAR_EVENT.TITLE_PLACEHOLDER' | translate
                             "
                         />
                     </mat-form-field>
                     <div
-                        class="flex flex-col space-y-2 sm:flex-row sm:space-x-2 sm:space-y-0"
+                        class="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2"
                     >
                         <div class="relative flex-1">
                             <label for="date" class="uppercase">{{
                                 'FORM.DATE' | translate
                             }}</label>
-                            <date-field name="date" formControlName="date" />
+                            <date-field [formField]="form.date" />
                             @if (allow_all_day()) {
                                 <mat-checkbox
-                                    formControlName="all_day"
+                                    [formField]="form.all_day"
                                     class="absolute -top-2 right-2"
                                 >
                                     {{ 'COMMON.ALL_DAY' | translate }}
@@ -79,10 +78,14 @@ import {
                                 name="time"
                                 [ngModel]="form_value().date"
                                 (ngModelChange)="
-                                    form().patchValue({ date: $event })
+                                    model.update((m) => ({
+                                        ...m,
+                                        date: $event,
+                                    }))
                                 "
                                 [ngModelOptions]="{ standalone: true }"
-                                [disabled]="form_value().all_day"
+                                [range]="bookable_hours()"
+                                [disabled]="start_time_disabled()"
                             />
                         </div>
                         <div class="flex-1">
@@ -90,15 +93,15 @@ import {
                                 'FORM.DURATION' | translate
                             }}</label>
                             <duration-field
-                                name="duration"
                                 [time]="form_value().date"
                                 [max]="max_duration()"
                                 [min]="min_duration()"
                                 [step]="duration_step()"
                                 [custom_options]="custom_duration_options()"
                                 [use_24hr]="use_24hr()"
+                                [end_time]="bookable_hours()?.end"
                                 [timezone]="timezone"
-                                formControlName="duration"
+                                [formField]="form.duration"
                                 [disabled]="form_value().all_day"
                             />
                         </div>
@@ -110,13 +113,14 @@ import {
                                 }}<span>*</span>
                             </label>
                             <recurrence-field
-                                name="recurrence"
                                 type="event"
-                                [date]="form().getRawValue().date"
-                                formControlName="recurrence"
+                                [date]="model().date"
+                                [available_days]="available_days()"
+                                (first_instance)="onFirstInstanceChange($event)"
+                                [formField]="form.recurrence"
                             ></recurrence-field>
-                            @if (form().value.id) {
-                                <mat-checkbox formControlName="update_master">
+                            @if (model().id) {
+                                <mat-checkbox [formField]="form.update_master">
                                     {{ 'FORM.UPDATE_FUTURE' | translate }}
                                 </mat-checkbox>
                             }
@@ -124,7 +128,7 @@ import {
                     }
                 </div>
                 <div
-                    class="gradient relative flex items-center space-x-2 border-l-8 border-base-content px-4 py-3 text-xl font-medium"
+                    class="gradient border-base-content relative flex items-center space-x-2 border-l-8 px-4 py-3 text-xl font-medium"
                 >
                     <icon>info</icon>
                     <div>
@@ -132,12 +136,29 @@ import {
                     </div>
                 </div>
                 <div class="-mx-1 flex flex-wrap p-4">
-                    @let capacity = (options | async)?.capacity || -1;
+                    @let capacity = options()?.capacity || -1;
                     <button
                         btn
                         matRipple
                         class="m-1 min-w-40 flex-1"
-                        [class.inverse]="capacity !== 1 && capacity !== -1"
+                        [class.inverse]="capacity !== -1"
+                        (click)="setCapacity(-1)"
+                    >
+                        <div class="flex items-center space-x-2">
+                            <icon>person</icon>
+                            <div>
+                                {{ 'COMMON.CAPACITY_ANY' | translate }}
+                            </div>
+                        </div>
+                        @if (capacity === -1) {
+                            <icon class="absolute top-0 right-0">task_alt</icon>
+                        }
+                    </button>
+                    <button
+                        btn
+                        matRipple
+                        class="m-1 min-w-40 flex-1"
+                        [class.inverse]="capacity !== 1"
                         (click)="setCapacity(1)"
                     >
                         <div class="flex items-center space-x-2">
@@ -146,8 +167,8 @@ import {
                                 {{ 'CALENDAR_EVENT.ROOM_SIZE_1_2' | translate }}
                             </div>
                         </div>
-                        @if (!(capacity !== 1 && capacity !== -1)) {
-                            <icon class="absolute right-0 top-0">task_alt</icon>
+                        @if (capacity === 1) {
+                            <icon class="absolute top-0 right-0">task_alt</icon>
                         }
                     </button>
                     <button
@@ -164,7 +185,7 @@ import {
                             </div>
                         </div>
                         @if (capacity === 3) {
-                            <icon class="absolute right-0 top-0">task_alt</icon>
+                            <icon class="absolute top-0 right-0">task_alt</icon>
                         }
                     </button>
                     <button
@@ -181,7 +202,7 @@ import {
                             </div>
                         </div>
                         @if (capacity === 5) {
-                            <icon class="absolute right-0 top-0">task_alt</icon>
+                            <icon class="absolute top-0 right-0">task_alt</icon>
                         }
                     </button>
                     <button
@@ -201,14 +222,14 @@ import {
                             </div>
                         </div>
                         @if (capacity === 9) {
-                            <icon class="absolute right-0 top-0">task_alt</icon>
+                            <icon class="absolute top-0 right-0">task_alt</icon>
                         }
                     </button>
                 </div>
             </div>
             <div class="min-h-4 sm:min-h-[calc(100vh-44.25rem)]"></div>
             <div
-                class="sticky bottom-0 z-20 flex justify-between rounded-t-xl border-x border-t border-base-300 bg-base-100 p-3"
+                class="border-base-300 bg-base-100 sticky bottom-0 z-20 flex justify-between rounded-t-xl border-x border-t p-3"
             >
                 <div></div>
                 <button btn matRipple (click)="searchRooms()">
@@ -238,7 +259,6 @@ import {
         `,
     ],
     imports: [
-        AsyncPipe,
         MatRippleModule,
         IconComponent,
         MatFormFieldModule,
@@ -248,7 +268,7 @@ import {
         RecurrenceFieldComponent,
         TimeFieldComponent,
         FormsModule,
-        ReactiveFormsModule,
+        FormField,
         RouterModule,
         TranslatePipe,
         MatCheckboxModule,
@@ -261,11 +281,8 @@ export class MeetingFlowDetailsComponent {
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
 
-    public readonly form = signal(this._event_form.form);
-    public readonly options = this._event_form.filters$;
-    public readonly form_value = toSignal(this._event_form.form.valueChanges, {
-        initialValue: this._event_form.form.getRawValue(),
-    });
+    public readonly options = this._event_form.filters;
+    public readonly form_value = this._event_form.model;
     public readonly allow_all_day = settingSignal(
         'events.allow_all_day',
         false,
@@ -278,6 +295,26 @@ export class MeetingFlowDetailsComponent {
         'events.custom_duration_options',
         [],
     );
+    public readonly available_days = settingSignal(
+        'events.available_period',
+        180,
+    );
+    public readonly recurrence_enabled = settingSignal(
+        'events.allow_recurrence',
+        false,
+    );
+
+    public readonly bookable_hours = settingSignal<
+        { start: number; end: number } | undefined
+    >('events.bookable_hours', undefined);
+
+    public get form() {
+        return this._event_form.form;
+    }
+
+    public get model() {
+        return this._event_form.model;
+    }
 
     public get timezone() {
         return this._settings.get('app.events.use_building_timezone')
@@ -287,15 +324,21 @@ export class MeetingFlowDetailsComponent {
     public readonly has_title = computed(
         () => !!this.form_value()?.title?.trim(),
     );
+    public readonly start_time_disabled = computed(
+        () => this.form_value().all_day || this.form.date().disabled(),
+    );
     public readonly setCapacity = (capacity: number) => {
         this._event_form.setFilters({ capacity });
     };
 
     public readonly allow_recurrence = computed(
         () =>
-            settingSignal('events.allow_recurrence') &&
-            this.form_value().duration <= 24 * 60,
+            this.recurrence_enabled() && this.form_value().duration <= 24 * 60,
     );
+
+    public onFirstInstanceChange(date: number) {
+        this.model.update((m) => ({ ...m, date }));
+    }
 
     public searchRooms() {
         if (!this.has_title()) {

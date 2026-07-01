@@ -1,11 +1,28 @@
-import { Component, computed, inject, OnInit } from '@angular/core';
+import {
+    Component,
+    computed,
+    inject,
+    OnInit,
+} from '@angular/core';
+import { RouterOutlet } from '@angular/router';
 import { PlaceOS_Service, setMocks, settingSignal } from '@placeos/common';
-import { VirtualKeyboardComponent } from '@placeos/components';
+import {
+    ChatComponent,
+    GlobalBannerComponent,
+    GlobalLoadingComponent,
+    VirtualKeyboardComponent,
+} from '@placeos/components';
 import { mocksInit } from '@placeos/mocks';
 import { parseTokenFromUrl } from './checkin/token-from-url';
 
 @Component({
     selector: 'app-root',
+    imports: [
+        RouterOutlet,
+        GlobalBannerComponent,
+        ChatComponent,
+        GlobalLoadingComponent,
+    ],
     template: `
         <global-banner />
         <div content class="relative h-1/2 w-full flex-1 overflow-hidden">
@@ -32,7 +49,6 @@ import { parseTokenFromUrl } from './checkin/token-from-url';
             }
         `,
     ],
-    standalone: false,
 })
 export class AppComponent implements OnInit {
     private _placeos = inject(PlaceOS_Service);

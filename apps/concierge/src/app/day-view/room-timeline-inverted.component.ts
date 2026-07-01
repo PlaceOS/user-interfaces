@@ -5,11 +5,11 @@ import {
     ElementRef,
     OnInit,
     computed,
+    effect,
     inject,
     signal,
     viewChild,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -20,6 +20,7 @@ import {
     SettingsService,
     getTimezoneDifferenceInHours,
     getTimezoneOffsetString,
+    nextValueFrom,
     notifyError,
     notifySuccess,
 } from '@placeos/common';
@@ -38,10 +39,8 @@ import {
     startOfDay,
     startOfMinute,
 } from 'date-fns';
-import { combineLatest } from 'rxjs';
-import { debounceTime, filter, first } from 'rxjs/operators';
 import { DateOptionsComponent } from '../ui/date-options.component';
-import { BookingUIOptions, EventsStateService } from './events-state.service';
+import { EventsStateService } from './events-state.service';
 import { RoomBookingSearchComponent } from './room-booking-search.component';
 import { isActiveRoomTimelineEvent } from './room-timeline.utilities';
 
@@ -66,7 +65,7 @@ import { isActiveRoomTimelineEvent } from './room-timeline.utilities';
             ></date-options>
             @if (is_today()) {
                 <div
-                    class="text-info absolute top-1/2 left-4 -translate-y-1/2 text-sm"
+                    class="text-info absolute top-1/2 left-10 -translate-y-1/2 text-sm"
                 >
                     {{ 'COMMON.TODAY' | translate }}
                 </div>
@@ -287,22 +286,31 @@ export class RoomBookingsInvertedTimelineComponent
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
     private _timeline_el = viewChild<ElementRef<HTMLElement>>('timeline_el');
-    private _building = toSignal(this._org.active_building, {
-        initialValue: this._org.building,
-    });
-    private _filtered = toSignal(this._state.filtered, { initialValue: [] });
+    private _building = this._org.active_building;
+    private _filtered = this._state.filtered;
     private _did_auto_scroll = false;
     public readonly hovered_row = signal(-1);
 
     public block_width = 7;
     public row_height = 2.75;
-    public readonly ui_options = toSignal(this._state.options, {
-        initialValue: {} as BookingUIOptions,
-    });
-    public readonly spaces = toSignal(this._state.spaces, { initialValue: [] });
-    public readonly date = toSignal(this._state.date, {
-        initialValue: this._state.getDate(),
-    });
+    public readonly ui_options = this._state.options;
+    public readonly spaces = this._state.spaces;
+    public readonly date = this._state.date;
+
+    constructor() {
+        super();
+        // Auto-scroll to the current time once the spaces for the day load.
+        effect(() => {
+            const spaces = this.spaces();
+            const date = this.date();
+            if (this._did_auto_scroll || !spaces.length) return;
+            this.timeout(
+                'auto_scroll',
+                () => this._autoScrollToCurrentTime(date),
+                100,
+            );
+        });
+    }
     public readonly is_today = computed(() =>
         isSameDay(this.date(), Date.now()),
     );
@@ -423,16 +431,6 @@ Host:  ${event.organiser?.name || event.host}`;
 
     public ngOnInit() {
         this.subscription('poll', this._state.startPolling());
-        this.subscription(
-            'auto_scroll',
-            combineLatest([this._state.date, this._state.spaces])
-                .pipe(
-                    debounceTime(100),
-                    filter(([_, spaces]) => spaces.length > 0),
-                    first(),
-                )
-                .subscribe(([date]) => this._autoScrollToCurrentTime(date)),
-        );
     }
 
     public ngAfterViewInit() {
@@ -488,7 +486,7 @@ Host:  ${event.organiser?.name || event.host}`;
                 const ref = this._dialog.open(SetupBreakdownModalComponent, {
                     data: event,
                 });
-                const data = await ref.afterClosed().toPromise();
+                const data = await nextValueFrom(ref.afterClosed());
                 if (data) this._state.replace(data);
             }),
         );
@@ -508,14 +506,12 @@ Host:  ${event.organiser?.name || event.host}`;
         await declineEvent(item.id, {
             calendar: item.calendar || item.mailbox || item.host,
             system_id: space_id,
-        })
-            .toPromise()
-            .catch((e) => {
-                this._state.restore(item);
-                notifyError(`Unable to cancel booking. ${e}`);
-                resp.close();
-                throw e;
-            });
+        }).catch((e) => {
+            this._state.restore(item);
+            notifyError(`Unable to cancel booking. ${e}`);
+            resp.close();
+            throw e;
+        });
         notifySuccess('Successfully cancelled booking.');
         this._dialog.closeAll();
     }

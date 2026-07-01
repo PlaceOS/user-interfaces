@@ -1,8 +1,6 @@
-import { Component, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { Component, OnDestroy, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import { map } from 'rxjs/operators';
 
 import {
     CateringMenuComponent,
@@ -136,10 +134,16 @@ import { CateringTopbarComponent } from './catering-topbar.component';
         CateringMenuComponent,
     ],
 })
-export class CateringComponent {
+export class CateringComponent implements OnDestroy {
     private _route = inject(ActivatedRoute);
-    public readonly page = toSignal(
-        this._route.paramMap.pipe(map((params) => params.get('view') || '')),
-        { initialValue: this._route.snapshot.paramMap.get('view') || '' },
+    public readonly page = signal(
+        this._route.snapshot.paramMap.get('view') || '',
     );
+    private _sub = this._route.paramMap.subscribe((params) =>
+        this.page.set(params.get('view') || ''),
+    );
+
+    public ngOnDestroy() {
+        this._sub.unsubscribe();
+    }
 }

@@ -1,4 +1,11 @@
-import { Component, inject, input, OnInit } from '@angular/core';
+import {
+    Component,
+    computed,
+    inject,
+    input,
+    OnInit,
+    signal,
+} from '@angular/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import {
     currentUser,
@@ -54,9 +61,11 @@ export interface AppLocale {
                     [matTooltip]="groups"
                 ></a-user-avatar>
                 <div class="">{{ user?.name }}</div>
-                <div class="truncate text-xs opacity-60">{{ user?.email }}</div>
+                <div class="truncate text-xs opacity-60">
+                    {{ user?.email }}
+                </div>
             </div>
-            @if (features().includes('wfh') && active_block) {
+            @if (features().includes('wfh') && active_block()) {
                 <div class="border-base-200 w-full rounded-sm border-y py-2">
                     <h3 class="w-full px-4 pb-2 text-sm font-medium">
                         Today's Work Location
@@ -68,7 +77,7 @@ export interface AppLocale {
                             >
                                 <icon class="text-2xl">{{
                                     location_icon(
-                                        timeFrom(active_block.start_time)
+                                        timeFrom(active_block().start_time)
                                     )
                                 }}</icon>
                             </div>
@@ -82,7 +91,7 @@ export interface AppLocale {
                                         {{
                                             location(
                                                 timeFrom(
-                                                    active_block.start_time
+                                                    active_block().start_time
                                                 )
                                             )
                                         }}
@@ -90,7 +99,7 @@ export interface AppLocale {
                                     <icon>expand_more</icon>
                                 </button>
                                 <mat-menu #work_menu="matMenu">
-                                    @for (loc of pref_locations; track loc) {
+                                    @for (loc of pref_locations(); track loc) {
                                         <button
                                             mat-menu-item
                                             (click)="
@@ -115,12 +124,12 @@ export interface AppLocale {
                                 </mat-menu>
                                 <div class="px-2 text-xs opacity-60">
                                     {{
-                                        timeFrom(active_block.start_time)
+                                        timeFrom(active_block().start_time)
                                             | date: 'shortTime'
                                     }}
                                     &ndash;
                                     {{
-                                        timeFrom(active_block.end_time)
+                                        timeFrom(active_block().end_time)
                                             | date: 'shortTime'
                                     }}
                                 </div>
@@ -129,7 +138,7 @@ export interface AppLocale {
                     </div>
                 </div>
             }
-            @if ((regions | async).length) {
+            @if (regions()?.length) {
                 <div customTooltip [content]="region_select" class="relative">
                     <button btn matRipple class="clear h-14 w-full text-left">
                         <div class="flex w-full items-center space-x-2">
@@ -139,10 +148,7 @@ export interface AppLocale {
                                 <icon>layers</icon>
                             </div>
                             <div class="w-px flex-1 truncate">
-                                {{
-                                    (region | async)?.display_name ||
-                                        (region | async)?.name
-                                }}
+                                {{ region()?.display_name || region()?.name }}
                             </div>
                             <icon class="text-2xl opacity-60">
                                 chevron_right
@@ -151,7 +157,7 @@ export interface AppLocale {
                     </button>
                 </div>
             }
-            @if (!disable_building_select && !use_region) {
+            @if (!disable_building_select() && !use_region()) {
                 <div customTooltip [content]="building_select" class="relative">
                     <button btn matRipple class="clear h-14 w-full text-left">
                         <div class="flex w-full items-center space-x-2">
@@ -162,8 +168,7 @@ export interface AppLocale {
                             </div>
                             <div class="w-px flex-1 truncate">
                                 {{
-                                    (building | async)?.display_name ||
-                                        (building | async)?.name
+                                    building()?.display_name || building()?.name
                                 }}
                             </div>
                             <icon class="text-2xl opacity-60">
@@ -213,30 +218,36 @@ export interface AppLocale {
                     </button>
                 </div>
             }
-            <div
-                customTooltip
-                [content]="accessibility_tooltip"
-                [class.border-b!]="!locales?.length || !desk_height"
-            >
-                <button btn matRipple class="clear h-14 w-full text-left">
-                    <div class="flex w-full items-center space-x-2">
-                        <div
-                            class="bg-base-200 flex h-8 w-8 items-center justify-center rounded-full"
-                        >
-                            <icon>mode_night</icon>
+            @if (accessibility()) {
+                <div
+                    customTooltip
+                    [content]="accessibility_tooltip"
+                    [class.border-b!]="!locales().length || !desk_height()"
+                >
+                    <button btn matRipple class="clear h-14 w-full text-left">
+                        <div class="flex w-full items-center space-x-2">
+                            <div
+                                class="bg-base-200 flex h-8 w-8 items-center justify-center rounded-full"
+                            >
+                                <icon>mode_night</icon>
+                            </div>
+                            <div class="flex-1">
+                                {{
+                                    'COMMON.CONTROLS_ACCESSIBILITY' | translate
+                                }}
+                            </div>
+                            <icon class="text-2xl opacity-60"
+                                >chevron_right</icon
+                            >
                         </div>
-                        <div class="flex-1">
-                            {{ 'COMMON.CONTROLS_ACCESSIBILITY' | translate }}
-                        </div>
-                        <icon class="text-2xl opacity-60">chevron_right</icon>
-                    </div>
-                </button>
-            </div>
-            @if (desk_height) {
+                    </button>
+                </div>
+            }
+            @if (desk_height()) {
                 <div
                     customTooltip
                     [content]="desk_height_tooltip"
-                    [class.border-b!]="!locales?.length"
+                    [class.border-b!]="!locales().length"
                 >
                     <button btn matRipple class="clear h-14 w-full text-left">
                         <div class="flex w-full items-center space-x-2">
@@ -259,11 +270,11 @@ export interface AppLocale {
                 <desk-height-presets></desk-height-presets>
             </ng-template>
 
-            @if (features().includes('parking')) {
+            @if (features().includes('parking-controls')) {
                 <div
                     customTooltip
                     [content]="parking_tooltip"
-                    [class.border-b!]="!locales?.length"
+                    [class.border-b!]="!locales().length"
                 >
                     <button btn matRipple class="clear h-14 w-full text-left">
                         <div class="flex w-full items-center space-x-2">
@@ -282,7 +293,7 @@ export interface AppLocale {
                     </button>
                 </div>
             }
-            @if (locales?.length > 1) {
+            @if (locales().length > 1) {
                 <div
                     customTooltip
                     [content]="language_tooltip"
@@ -360,12 +371,16 @@ export interface AppLocale {
                     <ng-container>
                         {{ 'COMMON.CONTROLS_VERSION' | translate }}:
                     </ng-container>
-                    <button
-                        class="m-0 border-none bg-none p-0 text-xs underline"
-                        (click)="viewChangelog()"
-                    >
-                        {{ version.hash }}
-                    </button>
+                    @if (show_changelog()) {
+                        <button
+                            class="m-0 border-none bg-none p-0 text-xs underline"
+                            (click)="viewChangelog()"
+                        >
+                            {{ version.hash }}
+                        </button>
+                    } @else {
+                        <span>{{ version.hash }}</span>
+                    }
                 </div>
                 <div class="w-full text-xs opacity-60">
                     {{ version.time | date: 'longDate' }}
@@ -398,6 +413,11 @@ export class UserControlsComponent implements OnInit {
     public readonly region = this._org.active_region;
     public readonly regions = this._org.region_list;
     public readonly sidebar = input(false);
+    public readonly accessibility = settingSignal(
+        'allow_accessibility_changes',
+        true,
+    );
+    public readonly show_changelog = settingSignal('show_changelog', true);
 
     public readonly region_select = RegionSelectComponent;
     public readonly building_select = BuildingSelectComponent;
@@ -407,35 +427,47 @@ export class UserControlsComponent implements OnInit {
     public readonly work_location_tooltip = WorkLocationTooltipComponent;
     public readonly parking_tooltip = UserParkingTooltipComponent;
     public readonly features = settingSignal('features', []);
-    public pref_locations = [];
-    public work_prefs: WorktimePreference[] = [];
-    public overrides: Record<string, WorktimePreference> = {};
+    private readonly _locales = this._settings.signal('locales', []);
+    private readonly _desk_height = this._settings.signal(
+        'desks.height_enabled',
+        false,
+    );
+    private readonly _use_region = this._settings.signal('use_region', false);
+    private readonly _disable_building_select = this._settings.signal(
+        'disable_building_select',
+        false,
+    );
+    public readonly pref_locations = signal<
+        { id: string; name: string; icon: string }[]
+    >([]);
+    public readonly work_prefs = signal<WorktimePreference[]>([]);
+    public readonly overrides = signal<Record<string, WorktimePreference>>({});
 
-    public get active_block() {
+    public readonly active_block = computed(() => {
         const date = format(new Date(), 'yyyy-MM-dd');
         const day = new Date().getDay();
-        const pref = this.overrides[date]
-            ? this.overrides[date]
-            : this.work_prefs.find((pref) => pref.day_of_week === day);
+        const pref = this.overrides()[date]
+            ? this.overrides()[date]
+            : this.work_prefs().find((pref) => pref.day_of_week === day);
         return pref?.blocks?.find(
             (_) =>
                 this.now >= this.timeFrom(_.start_time) &&
                 this.now < this.timeFrom(_.end_time),
         );
-    }
+    });
 
-    public get active_index() {
+    public readonly active_index = computed(() => {
         const date = format(new Date(), 'yyyy-MM-dd');
         const day = new Date().getDay();
-        const pref = this.overrides[date]
-            ? this.overrides[date]
-            : this.work_prefs.find((pref) => pref.day_of_week === day);
+        const pref = this.overrides()[date]
+            ? this.overrides()[date]
+            : this.work_prefs().find((pref) => pref.day_of_week === day);
         return pref?.blocks?.findIndex(
             (_) =>
                 this.now >= this.timeFrom(_.start_time) &&
                 this.now < this.timeFrom(_.end_time),
         );
-    }
+    });
 
     public location_icon(time: number) {
         const user = currentUser();
@@ -463,7 +495,7 @@ export class UserControlsComponent implements OnInit {
     }
 
     public get groups() {
-        return this.user.groups.join('\n');
+        return this.user?.groups?.join('\n') || '';
     }
 
     public get version() {
@@ -471,7 +503,7 @@ export class UserControlsComponent implements OnInit {
     }
 
     public get active_locale(): string {
-        const locale_list = this.locales;
+        const locale_list = this.locales();
         const locale = this._locale.locale;
         for (const item of locale_list) {
             if (item.id === locale) return item.name;
@@ -483,21 +515,10 @@ export class UserControlsComponent implements OnInit {
         return startOfMinute(Date.now()).getTime();
     }
 
-    public get locales(): { id: string; name: string }[] {
-        return this._settings.get('app.locales') || [];
-    }
-
-    public get desk_height() {
-        return this._settings.get('app.desks.height_enabled');
-    }
-
-    public get use_region(): boolean {
-        return this._settings.get('app.use_region');
-    }
-
-    public get disable_building_select() {
-        return this._settings.get('app.disable_building_select');
-    }
+    public readonly locales = this._locales;
+    public readonly desk_height = this._desk_height;
+    public readonly use_region = this._use_region;
+    public readonly disable_building_select = this._disable_building_select;
 
     public get has_new_version() {
         return hasNewVersion();
@@ -505,14 +526,14 @@ export class UserControlsComponent implements OnInit {
 
     public ngOnInit() {
         const user = currentUser();
-        this.work_prefs = user.work_preferences;
-        this.overrides = user.work_overrides;
-        this.pref_locations = [
+        this.work_prefs.set(user?.work_preferences || []);
+        this.overrides.set(user?.work_overrides || {});
+        this.pref_locations.set([
             { id: 'wfo', name: i18n('COMMON.WORK_OFFICE'), icon: 'business' },
             { id: 'wfh', name: i18n('COMMON.WORK_HOME'), icon: 'home' },
             { id: 'aol', name: i18n('COMMON.WORK_LEAVE'), icon: 'event_busy' },
             { id: 'sick', name: i18n('COMMON.WORK_SICK'), icon: 'sick' },
-        ];
+        ]);
     }
 
     public logout() {

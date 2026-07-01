@@ -5,8 +5,9 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { OrganisationService, SettingsService } from '@placeos/common';
+import { signal } from '@angular/core';
 import { MockProvider } from 'ng-mocks';
-import { BehaviorSubject, of, timer } from 'rxjs';
+import { timer } from 'rxjs';
 
 import { Router } from '@angular/router';
 import { EventsStateService } from '../../app/day-view/events-state.service';
@@ -14,33 +15,33 @@ import { RoomBookingsComponent } from '../../app/day-view/room-bookings.componen
 
 describe('RoomBookingsComponent', () => {
     let spectator: SpectatorRouting<RoomBookingsComponent>;
-    const zones = new BehaviorSubject<string[]>([]);
-    const active_levels = new BehaviorSubject<any[]>([]);
+    const zones = signal<string[]>([]);
+    const active_levels = signal<any[]>([]);
     const createComponent = createRoutingFactory({
         component: RoomBookingsComponent,
         shallow: true,
         detectChanges: false,
         providers: [
             MockProvider(OrganisationService, {
-                active_building: new BehaviorSubject({ id: 'bld-1' }),
-                active_region: new BehaviorSubject({ id: 'reg-1' }),
+                active_building: signal({ id: 'bld-1' }),
+                active_region: signal({ id: 'reg-1' }),
                 active_levels,
-                levelsForBuilding: jest.fn(() => active_levels.getValue()),
-                levelsForRegion: jest.fn(() => active_levels.getValue()),
+                levelsForBuilding: jest.fn(() => active_levels()),
+                levelsForRegion: jest.fn(() => active_levels()),
                 levelWithID: jest.fn(),
                 buildings: [{ id: 'bld-1', parent_id: 'reg-1' }],
                 binding: jest.fn(),
             } as any),
             MockProvider(EventsStateService, {
                 zones,
-                period: of('day'),
-                date: of(Date.now()),
-                options: of({}),
-                filtered: of([]),
-                spaces: of([]),
-                loading: of(false),
+                period: signal('day'),
+                date: signal(Date.now()),
+                options: signal({}),
+                filtered: signal([]),
+                spaces: signal([]),
+                loading: signal(false),
                 filters: {},
-                setZones: jest.fn((zone_ids: string[]) => zones.next(zone_ids)),
+                setZones: jest.fn((zone_ids: string[]) => zones.set(zone_ids)),
                 setPeriod: jest.fn(),
                 setFilters: jest.fn(),
                 setUIOptions: jest.fn(),
@@ -61,8 +62,8 @@ describe('RoomBookingsComponent', () => {
     });
 
     beforeEach(() => {
-        zones.next([]);
-        active_levels.next([]);
+        zones.set([]);
+        active_levels.set([]);
         spectator = createComponent();
         spectator.component.view.set('list');
         spectator.detectChanges();
@@ -89,7 +90,7 @@ describe('RoomBookingsComponent', () => {
     });
 
     it('should not auto-select the first level when none are selected', async () => {
-        active_levels.next([{ id: 'lvl-1', parent_id: 'bld-1' }]);
+        active_levels.set([{ id: 'lvl-1', parent_id: 'bld-1' }]);
         await timer(350).toPromise();
         expect(
             spectator.inject(EventsStateService).setZones,

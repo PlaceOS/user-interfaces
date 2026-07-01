@@ -1,14 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { BookingFormService, ParkingService } from '@placeos/bookings';
-import {
-    AsyncHandler,
-    firstTruthyValueFrom,
-    OrganisationService,
-} from '@placeos/common';
+import { AsyncHandler, OrganisationService } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
-import { lastValueFrom, timer } from 'rxjs';
 import { NewParkingFlowConfirmComponent } from './parking-flow/parking-flow-confirm.component';
 import { ParkingFlowFormComponent } from './parking-flow/parking-flow-form.component';
 import { ParkingFlowSuccessComponent } from './parking-flow/parking-flow-success.component';
@@ -17,8 +12,8 @@ import { ParkingFlowSuccessComponent } from './parking-flow/parking-flow-success
     selector: 'placeos-parking-flow',
     template: `
         @if (ready()) {
-            @if (!(deny_parking_access | async)) {
-                @if (is_home_location | async) {
+            @if (!deny_parking_access()) {
+                @if (is_home_location()) {
                     <div
                         class="bg-base-100 z-50 flex h-full w-full flex-col items-center justify-center space-y-4"
                     >
@@ -33,7 +28,7 @@ import { ParkingFlowSuccessComponent } from './parking-flow/parking-flow-success
                             }}
                         </p>
                     </div>
-                } @else if (!(assigned_space | async) || !(has_booking | async)) {
+                } @else if (!assigned_space() || !has_booking()) {
                     <div class="bg-base-100 z-50 h-full w-full">
                         @switch (view()) {
                             @case ('success') {
@@ -60,8 +55,7 @@ import { ParkingFlowSuccessComponent } from './parking-flow/parking-flow-success
                                 'APP.WORKPLACE.PARKING_ASSIGNED'
                                     | translate
                                         : {
-                                              name: (assigned_space | async)
-                                                  ?.name,
+                                              name: assigned_space()?.name,
                                           }
                             }}
                         </p>
@@ -79,7 +73,10 @@ import { ParkingFlowSuccessComponent } from './parking-flow/parking-flow-success
                 <div
                     class="bg-base-100 z-50 flex h-full w-full flex-col items-center justify-center space-y-4"
                 >
-                    <img src="assets/icons/permission-none.svg" class="h-64 w-64" />
+                    <img
+                        src="assets/icons/permission-none.svg"
+                        class="h-64 w-64"
+                    />
                     <p>
                         Your user account is not allowed to book parking in this
                         building.
@@ -125,29 +122,21 @@ export class NewParkingFlowComponent extends AsyncHandler implements OnInit {
     }
 
     public async ngOnInit() {
-        await firstTruthyValueFrom(this._org.initialised);
-        await lastValueFrom(timer(300));
-        const active_form = this._state.form.getRawValue();
+        this._parking.loadBookings();
+        await this._org.waitUntilInitialised();
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        const active_form = this._state.model();
         const has_edit_state =
             !!active_form?.id && active_form?.booking_type === 'parking';
-        if (!has_edit_state) this._state.loadForm();
+        if (!has_edit_state) this._state.loadForm('parking');
         this._state.setOptions({ type: 'parking' });
-        const { id, booking_type } = this._state.form.value;
+        const { id, booking_type } = this._state.model();
         if (!id || booking_type !== 'parking') this._state.newForm('parking');
-        this._state.form.patchValue({ booking_type: 'parking' });
+        this._state.model.update((m) => ({ ...m, booking_type: 'parking' }));
         this.ready.set(true);
-        this.subscription(
-            'route.params',
-            this._route.paramMap.subscribe((param) => {
-                if (param.has('step'))
-                    this._state.setView(param.get('step') as any);
-            }),
-        );
-        this.subscription(
-            'route.query',
-            this._route.queryParamMap.subscribe((param) => {
-                if (param.has('success')) this._state.setView('success');
-            }),
-        );
+        const param = this._route.snapshot.paramMap;
+        if (param.has('step')) this._state.setView(param.get('step') as any);
+        const query = this._route.snapshot.queryParamMap;
+        if (query.has('success')) this._state.setView('success');
     }
 }

@@ -1,11 +1,16 @@
 import { CommonModule } from '@angular/common';
-import { Component, effect, inject, input, output } from '@angular/core';
+import {
+    Component,
+    computed,
+    effect,
+    inject,
+    input,
+    output,
+    signal,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AssetGroup } from '@placeos/common';
-import { BehaviorSubject, combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
-
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
@@ -19,14 +24,14 @@ import { AssetStateService } from '../asset-state.service';
             {{
                 'COMMON.RESULTS_COUNT'
                     | translate
-                        : { count: (assets | async)?.length || 0 }
-                        : (assets | async)?.length || 0
+                        : { count: assets().length || 0 }
+                        : assets().length || 0
             }}
         </p>
-        @if (!(loading | async)) {
-            @if ((assets | async)?.length) {
+        @if (!loading()) {
+            @if (assets().length) {
                 <ul class="list-style-none space-y-2">
-                    @for (asset of assets | async; track asset) {
+                    @for (asset of assets(); track asset) {
                         <li
                             asset
                             matRipple
@@ -152,37 +157,34 @@ export class AssetListComponent {
     public readonly toggleFav = output<AssetGroup>();
     public readonly onSelect = output<AssetGroup>();
 
-    private _requested_items = new BehaviorSubject<Record<string, number>>({});
+    private _requested_items = signal<Record<string, number>>({});
 
-    public readonly counts = new BehaviorSubject<Record<string, number>>({});
+    public readonly counts = signal<Record<string, number>>({});
 
     public readonly loading = this._asset_state.loading;
-    public readonly assets = combineLatest([
-        this.counts,
-        this._asset_state.filtered_assets,
-        this._requested_items,
-    ]).pipe(
-        map(([counts, assets, requested]) => {
-            for (const item of assets) {
-                item.quantity = counts[item.id] || 0;
-                const selected = this.selected_items().find(
-                    (i) => i.id === item.id,
-                );
-                if (selected) selected.assets = item.assets;
-                if (requested[item.id] !== undefined) {
-                    (item as any).available = Math.max(
-                        (item.assets?.length || 0) - requested[item.id],
-                        0,
-                    );
-                }
-            }
-            return assets.filter(
-                (_: any) =>
-                    (_.available != null && _.available > 0) ||
-                    (_.available == null && _.assets?.length > 0),
+    public readonly assets = computed(() => {
+        const counts = this.counts();
+        const assets = this._asset_state.filtered_assets();
+        const requested = this._requested_items();
+        for (const item of assets) {
+            item.quantity = counts[item.id] || 0;
+            const selected = this.selected_items().find(
+                (i) => i.id === item.id,
             );
-        }),
-    );
+            if (selected) selected.assets = item.assets;
+            if (requested[item.id] !== undefined) {
+                (item as any).available = Math.max(
+                    (item.assets?.length || 0) - requested[item.id],
+                    0,
+                );
+            }
+        }
+        return assets.filter(
+            (_: any) =>
+                (_.available != null && _.available > 0) ||
+                (_.available == null && _.assets?.length > 0),
+        );
+    });
 
     constructor() {
         effect(() => {
@@ -193,10 +195,10 @@ export class AssetListComponent {
                     counts[item.id] = item.quantity;
                 }
             }
-            this.counts.next(counts);
+            this.counts.set(counts);
         });
         effect(() => {
-            this._requested_items.next(this.requested());
+            this._requested_items.set(this.requested());
         });
     }
 

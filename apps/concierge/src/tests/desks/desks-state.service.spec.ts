@@ -1,9 +1,9 @@
-import { EventEmitter } from '@angular/core';
+import { EventEmitter, WritableSignal, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { SpectatorService, createServiceFactory } from '@ngneat/spectator/jest';
 import { OrganisationService } from '@placeos/common';
 import { addMinutes, endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { BehaviorSubject, lastValueFrom, of, throwError } from 'rxjs';
+import { lastValueFrom, of } from 'rxjs';
 
 import * as booking_mod from '@placeos/bookings';
 import * as common_mod from '@placeos/common';
@@ -20,13 +20,13 @@ jest.mock('@placeos/ts-client');
 
 describe('DesksStateService', () => {
     let spectator: SpectatorService<DesksStateService>;
-    let active_building: BehaviorSubject<any>;
-    let active_region: BehaviorSubject<any>;
+    let active_building: WritableSignal<any>;
+    let active_region: WritableSignal<any>;
     let current_building: any;
     let settings_map: Record<string, any>;
     const organisation_service: any = {
-        active_levels: of([]),
-        initialised: of(true),
+        active_levels: signal([]),
+        initialised: signal(true),
         levelWithID: jest.fn(),
         organisation: { id: 'org-1' },
         region: { id: 'region-1' },
@@ -56,20 +56,30 @@ describe('DesksStateService', () => {
     beforeEach(() => {
         current_building = { id: 'bld-1' };
         settings_map = { 'app.use_region': false };
-        active_building = new BehaviorSubject(current_building);
-        active_region = new BehaviorSubject({ id: 'region-1' });
+        active_building = signal(current_building);
+        active_region = signal({ id: 'region-1' });
         organisation_service.active_building = active_building;
         organisation_service.active_region = active_region;
         organisation_service.region = { id: 'region-1' };
         (booking_mod as any).queryPagedBookings = jest.fn(() =>
-            of({ data: [], total: 0, next: null }),
+            Promise.resolve({ data: [], total: 0, next: null }),
         );
-        (booking_mod as any).queryBookings = jest.fn(() => of([]));
-        (booking_mod as any).saveBooking = jest.fn(() => of({}));
-        (booking_mod as any).removeBooking = jest.fn(() => of(undefined));
-        (booking_mod as any).rejectBooking = jest.fn(() => of({}));
-        (booking_mod as any).rejectBookingInstance = jest.fn(() => of({}));
-        (booking_mod as any).updateBooking = jest.fn(() => of({}));
+        (booking_mod as any).queryBookings = jest.fn(() =>
+            Promise.resolve([]),
+        );
+        (booking_mod as any).saveBooking = jest.fn(() => Promise.resolve({}));
+        (booking_mod as any).removeBooking = jest.fn(() =>
+            Promise.resolve(undefined),
+        );
+        (booking_mod as any).rejectBooking = jest.fn(() =>
+            Promise.resolve({}),
+        );
+        (booking_mod as any).rejectBookingInstance = jest.fn(() =>
+            Promise.resolve({}),
+        );
+        (booking_mod as any).updateBooking = jest.fn(() =>
+            Promise.resolve({}),
+        );
         jest.spyOn(ts_client_mod, 'updateMetadata').mockResolvedValue(
             {} as never,
         );
@@ -105,7 +115,7 @@ describe('DesksStateService', () => {
             { id: 'bld-1-lvl-1' },
         ]);
         current_building = { id: 'bld-2' };
-        active_building.next(current_building);
+        active_building.set(current_building);
         expect((spectator.service as any)._currentLevelList()).toEqual([
             { id: 'bld-2-lvl-1' },
         ]);
@@ -113,7 +123,7 @@ describe('DesksStateService', () => {
 
     it('should apply building timezone to desk booking listing requests', () => {
         current_building = { id: 'bld-1', timezone: 'Australia/Sydney' };
-        active_building.next(current_building);
+        active_building.set(current_building);
         (spectator.inject(SettingsService).get as any) = jest.fn(
             (name: string) => {
                 if (name === 'app.use_region') return false;
@@ -135,6 +145,62 @@ describe('DesksStateService', () => {
                 addMinutes(endOfDay(date), spectator.service.tz_offset * 60),
             ),
         ).toBe(getUnixTime(addMinutes(endOfDay(date), 120)));
+    });
+
+    it('should include and show rejected desk bookings as declined', async () => {
+        const first_page = jest.fn(() =>
+            Promise.resolve({
+                data: [
+                    {
+                        id: 'booking-1',
+                        rejected: true,
+                        status: 'approved',
+                    },
+                ],
+                total: 1,
+                next: null,
+            }),
+        );
+        (spectator.service as any)._first_page = first_page;
+        (spectator.service as any)._next_page_fn = first_page;
+
+        await (spectator.service as any)._loadPage(true);
+
+        expect(spectator.service.bookings()[0]).toEqual(
+            expect.objectContaining({
+                rejected: true,
+                status: 'declined',
+            }),
+        );
+    });
+
+    it('should keep rejected status when a fast reload returns the old approved state', async () => {
+        const booking = {
+            id: 'booking-1',
+            approved: true,
+            rejected: false,
+            status: 'approved',
+        } as any;
+        const first_page = jest.fn(() =>
+            Promise.resolve({
+                data: [{ ...booking, approved: true, status: 'approved' }],
+                total: 1,
+                next: null,
+            }),
+        );
+
+        await spectator.service.rejectDesk(booking);
+        (spectator.service as any)._first_page = first_page;
+        (spectator.service as any)._next_page_fn = first_page;
+        await (spectator.service as any)._loadPage(true);
+
+        expect(spectator.service.bookings()[0]).toEqual(
+            expect.objectContaining({
+                approved: false,
+                rejected: true,
+                status: 'declined',
+            }),
+        );
     });
 
     it('should cancel only one recurring booking instance', async () => {
@@ -171,7 +237,7 @@ describe('DesksStateService', () => {
         const mock_now = new Date('2026-06-15T12:00:00Z').valueOf();
         const assigned_start = new Date('2026-06-15T01:00:00Z').valueOf();
         current_building = { id: 'bld-1', timezone: 'Australia/Sydney' };
-        active_building.next(current_building);
+        active_building.set(current_building);
         settings_map['app.bookings.use_building_timezone'] = true;
         jest.spyOn(Date, 'now').mockReturnValue(mock_now);
         (common_mod as any).setTimeInTimezone.mockReturnValue(assigned_start);
@@ -208,6 +274,42 @@ describe('DesksStateService', () => {
             expect.objectContaining({
                 booking_start: getUnixTime(assigned_start),
                 booking_end: getUnixTime(assigned_start + 22 * 60 * 60 * 1000),
+            }),
+        );
+    });
+
+    it('should persist homebase when editing desks', async () => {
+        jest.spyOn(ts_client_mod, 'updateMetadata').mockReturnValue(
+            of({}) as any,
+        );
+        const dialog_ref = {
+            afterClosed: () =>
+                of({
+                    reason: 'done',
+                    metadata: {
+                        id: 'desk-1',
+                        name: 'Desk 1',
+                        map_id: 'desk-1',
+                        homebase: 'Sydney HQ',
+                    },
+                }),
+            componentInstance: {
+                event: new EventEmitter<any>(),
+                loading: { set: jest.fn() },
+            },
+            close: jest.fn(),
+        };
+        (spectator.inject(MatDialog).open as any).mockReturnValue(dialog_ref);
+        spectator.service.setFilters({ zones: ['level-1'] });
+
+        await spectator.service.editDesk({ id: 'desk-1' } as any);
+
+        expect(ts_client_mod.updateMetadata).toHaveBeenCalledWith(
+            'level-1',
+            expect.objectContaining({
+                details: expect.arrayContaining([
+                    expect.objectContaining({ homebase: 'Sydney HQ' }),
+                ]),
             }),
         );
     });
@@ -285,7 +387,7 @@ describe('DesksStateService', () => {
         (spectator.inject(MatDialog).open as any).mockReturnValue(dialog_ref);
         spectator.service.setFilters({ zones: ['level-1'] });
         (booking_mod.queryBookings as jest.Mock).mockReturnValue(
-            of([
+            Promise.resolve([
                 {
                     id: 'booking-1',
                     asset_id: 'desk-1',
@@ -293,8 +395,8 @@ describe('DesksStateService', () => {
             ]),
         );
         (booking_mod.saveBooking as jest.Mock)
-            .mockReturnValueOnce(throwError(() => ({ status: 409 })))
-            .mockReturnValueOnce(of({}));
+            .mockRejectedValueOnce({ status: 409 })
+            .mockResolvedValueOnce({});
 
         await spectator.service.editDesk(original_desk).catch(() => undefined);
 
@@ -332,42 +434,6 @@ describe('DesksStateService', () => {
         );
     });
 
-    it('should persist homebase when editing desks', async () => {
-        jest.spyOn(ts_client_mod, 'updateMetadata').mockReturnValue(
-            of({}) as any,
-        );
-        const dialog_ref = {
-            afterClosed: () =>
-                of({
-                    reason: 'done',
-                    metadata: {
-                        id: 'desk-1',
-                        name: 'Desk 1',
-                        map_id: 'desk-1',
-                        homebase: 'Sydney HQ',
-                    },
-                }),
-            componentInstance: {
-                event: new EventEmitter<any>(),
-                loading: { set: jest.fn() },
-            },
-            close: jest.fn(),
-        };
-        (spectator.inject(MatDialog).open as any).mockReturnValue(dialog_ref);
-        spectator.service.setFilters({ zones: ['level-1'] });
-
-        await spectator.service.editDesk({ id: 'desk-1' } as any);
-
-        expect(ts_client_mod.updateMetadata).toHaveBeenCalledWith(
-            'level-1',
-            expect.objectContaining({
-                details: expect.arrayContaining([
-                    expect.objectContaining({ homebase: 'Sydney HQ' }),
-                ]),
-            }),
-        );
-    });
-
     it.todo('should handle loading desk bookings');
     it.todo('should handle loading desk list');
     it.todo('should handle filtering of desk bookings');
@@ -399,17 +465,14 @@ describe('DesksStateService', () => {
 
     it('should reset desk bookings with the first page query on refresh', () => {
         const first_page = jest.fn(() =>
-            of({ data: [], total: 0, next: null }),
+            Promise.resolve({ data: [], total: 0, next: null }),
         );
-        const next_pages: any[] = [];
         (spectator.service as any)._first_page = first_page;
-        (spectator.service as any)._next_page.subscribe((next_page) =>
-            next_pages.push(next_page),
-        );
 
         spectator.service.refresh();
 
-        expect(next_pages).toContain(first_page);
+        expect((spectator.service as any)._next_page_fn).toBe(first_page);
+        expect(first_page).toHaveBeenCalled();
     });
 
     it('should reject all displayed desk bookings with the instance endpoint where needed', async () => {
@@ -473,7 +536,7 @@ describe('DesksStateService', () => {
             }),
         });
         (booking_mod.rejectBookingInstance as jest.Mock).mockReturnValue(
-            throwError(() => '405 Method Not Allowed'),
+            Promise.reject('405 Method Not Allowed'),
         );
         const refresh_spy = jest.spyOn(spectator.service, 'refresh');
 

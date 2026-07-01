@@ -1,6 +1,5 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { ReactiveFormsModule } from '@angular/forms';
+import { Component, OnInit, inject, resource, signal } from '@angular/core';
+import { FormField } from '@angular/forms/signals';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -17,6 +16,7 @@ import {
     i18n,
     notifyError,
     notifySuccess,
+    patchSignalModel,
 } from '@placeos/common';
 import {
     FullscreenModalShellComponent,
@@ -26,8 +26,6 @@ import {
 import { DateFieldComponent } from '@placeos/form-fields';
 import { showAssetPurchaseOrder } from '@placeos/ts-client';
 import { addYears, getUnixTime } from 'date-fns';
-import { combineLatest } from 'rxjs';
-import { filter, shareReplay, switchMap } from 'rxjs/operators';
 import { AssetManagerStateService } from './asset-manager-state.service';
 
 @Component({
@@ -35,7 +33,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
     template: `
         <fullscreen-modal-shell
             [heading]="
-                (form.value.id
+                (model().id
                     ? 'APP.CONCIERGE.ASSETS_PURCHASE_EDIT'
                     : 'APP.CONCIERGE.ASSETS_PURCHASE_NEW'
                 ) | translate
@@ -48,7 +46,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
             [loading]="loading()"
             (confirm)="save()"
         >
-            <form [formGroup]="form">
+            <form>
                 <div class="flex flex-col space-y-2">
                     <label for="order-number">
                         {{ 'APP.CONCIERGE.ASSETS_PURCHASE_NUMBER' | translate
@@ -57,12 +55,11 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     <mat-form-field appearance="outline">
                         <input
                             matInput
-                            name="order-number"
                             [placeholder]="
                                 'APP.CONCIERGE.ASSETS_PURCHASE_NUMBER'
                                     | translate
                             "
-                            formControlName="purchase_order_number"
+                            [formField]="form.purchase_order_number"
                         />
                         <mat-error>{{
                             'APP.CONCIERGE.ASSETS_PURCHASE_NUMBER_REQUIRED'
@@ -77,12 +74,11 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     <mat-form-field appearance="outline">
                         <input
                             matInput
-                            name="invoice-number"
                             [placeholder]="
                                 'APP.CONCIERGE.ASSETS_PURCHASE_INVOICE'
                                     | translate
                             "
-                            formControlName="invoice_number"
+                            [formField]="form.invoice_number"
                         />
                         <mat-error>{{
                             'APP.CONCIERGE.ASSETS_PURCHASE_INVOICE_REQUIRED'
@@ -96,9 +92,8 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                             'APP.CONCIERGE.ASSETS_PURCHASE_DATE' | translate
                         }}</label>
                         <a-date-field
-                            name="purchase-date"
                             [from]="from.valueOf()"
-                            formControlName="purchase_date"
+                            [formField]="form.purchase_date"
                         ></a-date-field>
                     </div>
                     <div class="flex flex-1 flex-col space-y-2">
@@ -107,11 +102,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         }}</label>
                         <mat-form-field appearance="outline" class="w-full">
                             <div matPrefix>$</div>
-                            <input
-                                matInput
-                                name="unit-price"
-                                formControlName="unit_price"
-                            />
+                            <input matInput [formField]="form.unit_price" />
                         </mat-form-field>
                     </div>
                 </div>
@@ -124,9 +115,8 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                             }}
                         </label>
                         <a-date-field
-                            name="depreciation-start-date"
                             [from]="from.valueOf()"
-                            formControlName="expected_service_start_date"
+                            [formField]="form.expected_service_start_date"
                         ></a-date-field>
                     </div>
                     <div class="flex flex-1 flex-col space-y-2">
@@ -136,8 +126,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                             }}
                         </label>
                         <a-date-field
-                            name="depreciation-end-date"
-                            formControlName="expected_service_end_date"
+                            [formField]="form.expected_service_end_date"
                         ></a-date-field>
                     </div>
                 </div>
@@ -188,7 +177,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
         DateFieldComponent,
         MatFormFieldModule,
         MatInputModule,
-        ReactiveFormsModule,
+        FormField,
     ],
 })
 export class AssetPurchaseOrderFormComponent
@@ -200,33 +189,39 @@ export class AssetPurchaseOrderFormComponent
     private _router = inject(Router);
     private _org = inject(OrganisationService);
 
-    public readonly form = generateAssetPurchaseOrderForm();
+    private readonly _form_ref = generateAssetPurchaseOrderForm();
+    public readonly form = this._form_ref.form;
+    public readonly model = this._form_ref.model;
     public readonly loading = signal('');
     public readonly product_id = signal('');
     public readonly _id = signal('');
     public readonly item = signal<AssetPurchaseOrder | null>(null);
     public readonly from = addYears(Date.now(), -5);
-    public readonly asset_list = toSignal(
-        combineLatest([toObservable(this._id), this._org.active_building]).pipe(
-            filter(([id, bld]) => !!id && !!bld),
-            switchMap(([id]) => queryAssets({ order_id: id })),
-            switchMap(async (asset_list) => {
-                const groups = await queryAssetTypes({
+    private readonly _asset_list = resource({
+        params: () => ({
+            id: this._id(),
+            building: this._org.active_building()?.id,
+        }),
+        defaultValue: [] as any[],
+        loader: async ({ params }) => {
+            if (!params.id || !params.building) return [];
+            const [asset_list, groups] = await Promise.all([
+                queryAssets({ order_id: params.id }),
+                queryAssetTypes({
                     zone_id: this._org.building.id,
                     limit: 500,
-                }).toPromise();
-                return asset_list.data.map((asset) => ({
-                    ...asset,
-                    name:
-                        groups.data.find(
-                            (_) => _.id === (asset as any).asset_type_id,
-                        )?.name || asset.id,
-                }));
-            }),
-            shareReplay(1),
-        ),
-        { initialValue: [] },
-    );
+                }),
+            ]);
+            return asset_list.data.map((asset) => ({
+                ...asset,
+                name:
+                    groups.data.find(
+                        (_) => _.id === (asset as any).asset_type_id,
+                    )?.name || asset.id,
+            }));
+        },
+    });
+    public readonly asset_list = this._asset_list.value;
 
     public get base_route() {
         return this._state.base_route;
@@ -249,7 +244,7 @@ export class AssetPurchaseOrderFormComponent
                         );
                         this._router.navigate([this.base_route]);
                     }
-                    this.form.patchValue({
+                    patchSignalModel(this.model, {
                         ...asset,
                         purchase_date: asset.purchase_date * 1000,
                         expected_service_end_date:
@@ -270,9 +265,9 @@ export class AssetPurchaseOrderFormComponent
     }
 
     public async save() {
-        if (!this.form.valid) return;
+        if (!this.form().valid()) return;
         this.loading.set(i18n('APP.CONCIERGE.ASSETS_PURCHASE_SAVING'));
-        const data = this.form.value;
+        const data = { ...this.model() };
         data.purchase_date = getUnixTime(data.purchase_date) || null;
         data.expected_service_start_date =
             getUnixTime(data.expected_service_start_date) ||
@@ -283,18 +278,16 @@ export class AssetPurchaseOrderFormComponent
             this.item()?.expected_service_end_date ||
             null;
         data.unit_price = +data.unit_price;
-        const item = await saveAssetPurchaseOrder(data as any)
-            .toPromise()
-            .catch((e) => {
-                this.loading.set('');
-                notifyError(
-                    i18n('APP.CONCIERGE.ASSETS_PURCHASE_SAVE_ERROR', {
-                        error: e.message || e,
-                    }),
-                );
-                throw e;
-            });
-        this.form.reset();
+        const item = await saveAssetPurchaseOrder(data as any).catch((e) => {
+            this.loading.set('');
+            notifyError(
+                i18n('APP.CONCIERGE.ASSETS_PURCHASE_SAVE_ERROR', {
+                    error: e.message || e,
+                }),
+            );
+            throw e;
+        });
+        this.form().reset();
         notifySuccess(i18n('APP.CONCIERGE.ASSETS_PURCHASE_SAVE_SUCCESS'));
         this._state.postChange();
         if (this.product_id()) {

@@ -1,10 +1,14 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import {
+    Component,
+    OnInit,
+    inject,
+    signal,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router, RouterModule } from '@angular/router';
 import { OrganisationService, i18n, notifySuccess } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
-import { first } from 'rxjs/operators';
 import { CheckinStateService } from './checkin-state.service';
 
 @Component({
@@ -68,8 +72,8 @@ export class CheckoutComponent implements OnInit {
     public loading = signal(false);
 
     public async ngOnInit() {
-        await this._org.initialised.pipe(first((_) => _)).toPromise();
-        const event = await this._state.event.pipe(first()).toPromise();
+        await this._org.waitUntilInitialised();
+        const event = this._state.event();
         if (!event) this._router.navigate(['/checkin']);
     }
 

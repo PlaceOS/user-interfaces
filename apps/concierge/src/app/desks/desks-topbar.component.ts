@@ -1,7 +1,13 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import {
+    Component,
+    computed,
+    effect,
+    inject,
+    OnInit,
+    signal,
+    untracked,
+} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { first } from 'rxjs/operators';
 
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
@@ -155,16 +161,9 @@ export class DesksTopbarComponent extends AsyncHandler implements OnInit {
     private _dialog = inject(MatDialog);
 
     /** List of levels for the active building */
-    public readonly all_levels = toSignal(this._org.active_levels, {
-        initialValue: [],
-    });
+    public readonly all_levels = this._org.active_levels;
     /** List of levels with bookable desk resources */
-    public readonly bookable_levels = toSignal(
-        this._desks.levels || this._org.active_levels,
-        {
-            initialValue: [],
-        },
-    );
+    public readonly bookable_levels = this._desks.levels;
     /** List of levels to show for the current view */
     public readonly levels = computed(() =>
         this.manage() ? this.all_levels() : this.bookable_levels(),
@@ -187,8 +186,29 @@ export class DesksTopbarComponent extends AsyncHandler implements OnInit {
         this._desks.setFilters({ zones });
     };
 
+    constructor() {
+        super();
+        // Snap the active zone selection to the available levels once the
+        // organisation data has initialised.
+        effect(() => {
+            if (!this._org.initialised()) return;
+            const levels = this._org.active_levels();
+            untracked(() => {
+                const filters = this.filters();
+                const zones =
+                    filters?.zones?.filter(
+                        (zone) =>
+                            levels.find((lvl) => lvl.id === zone) ||
+                            zone === 'All',
+                    ) || [];
+                if (!zones.length && levels.length) zones.push(levels[0].id);
+                this.updateZones(zones);
+            });
+        });
+    }
+
     public async ngOnInit() {
-        await this._org.initialised.pipe(first((_) => _)).toPromise();
+        await this._org.waitUntilInitialised();
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
@@ -220,22 +240,6 @@ export class DesksTopbarComponent extends AsyncHandler implements OnInit {
             this._router.events.subscribe(() => {
                 this.manage.set(this._router.url?.includes('manage'));
                 this.is_map.set(this._router.url?.includes('map'));
-            }),
-        );
-        this.subscription(
-            'levels',
-            this._org.active_levels.subscribe(async (levels) => {
-                const filters = this.filters();
-                const zones =
-                    filters?.zones?.filter(
-                        (zone) =>
-                            levels.find((lvl) => lvl.id === zone) ||
-                            zone === 'All',
-                    ) || [];
-                if (!zones.length && levels.length) {
-                    zones.push(levels[0].id);
-                }
-                this.updateZones(zones);
             }),
         );
         this.manage.set(this._router.url?.includes('manage'));
@@ -289,6 +293,7 @@ export class DesksTopbarComponent extends AsyncHandler implements OnInit {
             bookable: true,
             groups: ['test-desk-group', 'desk-bookers'],
             features: ['Standing Desk', 'Dual Monitor'],
+            tags: ['engineering', 'level-3'],
             homebase: 'Sydney HQ',
         }).toJSON();
         delete desk.images;
@@ -301,7 +306,7 @@ export class DesksTopbarComponent extends AsyncHandler implements OnInit {
      * @param id Booking ID to approve
      */
     private async approve(id: string) {
-        const booking = await showBooking(id).toPromise();
+        const booking = await showBooking(id);
         if (booking) {
             this._desks.approveDesk(booking);
         }
@@ -312,7 +317,7 @@ export class DesksTopbarComponent extends AsyncHandler implements OnInit {
      * @param id Booking ID to reject
      */
     private async reject(id: string) {
-        const booking = await showBooking(id).toPromise();
+        const booking = await showBooking(id);
         if (booking) {
             this._desks.rejectDesk(booking);
         }

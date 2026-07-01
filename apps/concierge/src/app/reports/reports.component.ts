@@ -1,7 +1,6 @@
-import { Component, computed, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { Component, computed, inject, signal } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
-import { startWith } from 'rxjs/operators';
+import { AsyncHandler } from '@placeos/common';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
 import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
 import { ReportsMenuComponent } from './reports-menu.component';
@@ -48,19 +47,22 @@ import { ReportsMenuComponent } from './reports-menu.component';
         ReportsMenuComponent,
     ],
 })
-export class ReportsComponent {
+export class ReportsComponent extends AsyncHandler {
     private _router = inject(Router);
 
-    private readonly _url = toSignal(
-        this._router.events.pipe(startWith(null)),
-        {
-            initialValue: null,
-        },
-    );
+    private readonly _url = signal<unknown>(null);
 
     public readonly path = computed(() => {
         this._url();
         const parts = this._router.url.split('/');
         return parts[parts.length - 1];
     });
+
+    constructor() {
+        super();
+        this.subscription(
+            'router',
+            this._router.events.subscribe((event) => this._url.set(event)),
+        );
+    }
 }

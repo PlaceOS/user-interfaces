@@ -7,17 +7,6 @@ import { MockComponent } from 'ng-mocks';
 import { DeskBookingComponent } from '../app/desk-booking.component';
 import { FooterMenuComponent } from '../app/footer-menu.component';
 
-import { of } from 'rxjs';
-
-import * as common_mod from '@placeos/common';
-
-jest.mock('@placeos/common', () => {
-    return {
-        __esModule: true, //    <----- this __esModule: true is important
-        ...jest.requireActual('@placeos/common'),
-    };
-});
-
 describe('DeskBookingComponent', () => {
     let spectator: Spectator<DeskBookingComponent>;
     const createComponent = createComponentFactory({
@@ -30,9 +19,6 @@ describe('DeskBookingComponent', () => {
     });
 
     beforeEach(() => {
-        Object.defineProperty(common_mod, 'current_user', {
-            get: () => of({} as any),
-        });
         spectator = createComponent();
     });
 

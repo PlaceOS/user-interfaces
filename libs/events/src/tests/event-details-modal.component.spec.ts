@@ -24,13 +24,15 @@ import { EventDetailsModalComponent } from '../lib/event-details-modal.component
 
 describe('EventDetailsModalComponent', () => {
     let spectator: Spectator<EventDetailsModalComponent>;
+    const edit_fn = jest.fn();
+    const remove_fn = jest.fn();
     const createComponent = createComponentFactory({
         component: EventDetailsModalComponent,
         providers: [
             MockProvider(MAT_DIALOG_DATA, {
                 event: new CalendarEvent(),
-                edit_fn: jest.fn(),
-                remove_fn: jest.fn(),
+                edit_fn,
+                remove_fn,
             }),
             MockProvider(OrganisationService, {
                 levelWithID: jest.fn(),
@@ -65,7 +67,10 @@ describe('EventDetailsModalComponent', () => {
         ],
     });
 
-    beforeEach(() => (spectator = createComponent()));
+    beforeEach(() => {
+        jest.clearAllMocks();
+        spectator = createComponent();
+    });
 
     it('should create component', () =>
         expect(spectator.component).toBeTruthy());
@@ -82,6 +87,18 @@ describe('EventDetailsModalComponent', () => {
     });
 
     it('should show title', () => expect('[title]').toExist());
+
+    it('should not delete ended events', () => {
+        const event = new CalendarEvent({
+            id: 'event-1',
+            date: Date.now() - 2 * 60 * 60 * 1000,
+            duration: 60,
+        } as any);
+
+        spectator.component.remove(event);
+
+        expect(remove_fn).not.toHaveBeenCalled();
+    });
 
     it('should show map', () => expect('interactive-map').toExist());
 

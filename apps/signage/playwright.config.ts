@@ -16,7 +16,7 @@ export default defineConfig({
         trace: 'on-first-retry',
     },
     webServer: {
-        command: 'npx nx serve signage --port=4209',
+        command: 'bunx nx serve signage --port=4209',
         url: 'http://localhost:4209',
         reuseExistingServer: !process.env.CI,
         cwd: workspaceRoot,

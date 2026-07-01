@@ -1,14 +1,26 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { PlaceOS_Service } from '@placeos/common';
+import { RouterOutlet } from '@angular/router';
+import { PlaceOS_Service, SettingsService } from '@placeos/common';
+import {
+    ChatComponent,
+    GlobalBannerComponent,
+    GlobalLoadingComponent,
+} from '@placeos/components';
 
 @Component({
     selector: 'app-root',
+    imports: [
+        RouterOutlet,
+        ChatComponent,
+        GlobalBannerComponent,
+        GlobalLoadingComponent,
+    ],
     template: `
         <global-banner />
         <div class="relative h-1/2 w-full flex-1">
             <router-outlet></router-outlet>
         </div>
-        @if (has_chat) {
+        @if (has_chat()) {
             <global-chat />
         }
         <global-loading />
@@ -24,14 +36,12 @@ import { PlaceOS_Service } from '@placeos/common';
             }
         `,
     ],
-    standalone: false,
 })
 export class AppComponent implements OnInit {
     private _placeos = inject(PlaceOS_Service);
+    private _settings = inject(SettingsService);
 
-    public get has_chat(): boolean {
-        return this._placeos.has_chat;
-    }
+    public readonly has_chat = this._settings.signal('chat.enabled', false);
 
     public ngOnInit(): void {
         this._placeos.init();

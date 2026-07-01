@@ -1,4 +1,3 @@
-import { ReactiveFormsModule } from '@angular/forms';
 import { MatRadioModule } from '@angular/material/radio';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -15,7 +14,7 @@ describe('DeskQuestionsModalComponent', () => {
     const createComponent = createComponentFactory({
         component: DeskQuestionsModalComponent,
         declarations: [MockComponent(IconComponent)],
-        imports: [MatRadioModule, ReactiveFormsModule],
+        imports: [MatRadioModule],
     });
 
     beforeEach(() => (spectator = createComponent()));
@@ -26,17 +25,17 @@ describe('DeskQuestionsModalComponent', () => {
 
     it('should check for validation', (done) => {
         (common_mod as any).notifyError = jest.fn();
-        spectator.component.form.patchValue({ contact: true });
+        spectator.component.model.update((m) => ({ ...m, contact: true }));
         spectator.click('footer button');
-        expect(spectator.component.failure).toBeTruthy();
-        spectator.component.form.patchValue({ contact: false });
+        expect(spectator.component.failure()).toBeTruthy();
+        spectator.component.model.update((m) => ({ ...m, contact: false }));
         spectator.component.event.subscribe(() => done());
         spectator.component.submit();
     });
 
     it('should show failure state', () => {
         expect('[failure]').not.toExist();
-        spectator.component.form.patchValue({ unwell: true });
+        spectator.component.model.update((m) => ({ ...m, unwell: true }));
         spectator.component.submit();
         spectator.detectChanges();
         expect('[failure]').toExist();

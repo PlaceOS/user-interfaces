@@ -1,6 +1,6 @@
 import { Component, computed, inject, input, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
+import { FormField } from '@angular/forms/signals';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -17,7 +17,6 @@ import {
     SpaceListFieldComponent,
     UserListFieldComponent,
 } from '@placeos/form-fields';
-import { map, tap } from 'rxjs/operators';
 
 import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-details.component';
 
@@ -25,7 +24,7 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
     selector: 'event-form',
     template: `
         @if (form()) {
-            <form [formGroup]="form()">
+            <form>
                 <meeting-form-details [form]="form()"></meeting-form-details>
                 @if (!hide_attendees) {
                     <div class="flex flex-1 flex-col">
@@ -34,9 +33,8 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                             }}<span>*</span>:
                         </label>
                         <a-user-list-field
-                            name="attendees"
-                            formControlName="attendees"
-                            [time]="form().value.date"
+                            [formField]="form().attendees"
+                            [time]="model().date"
                             [guests]="allow_externals"
                         ></a-user-list-field>
                     </div>
@@ -47,32 +45,30 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                     </label>
                     <space-list-field
                         class="w-full"
-                        formControlName="resources"
+                        [formField]="form().resources"
                         [multiday]="allow_multiday"
                     ></space-list-field>
                 </div>
-                @if (has_catering() && form().contains('catering')) {
+                @if (has_catering()) {
                     <div class="py-2">
                         <label for="catering">Catering:</label>
                         <catering-list-field
-                            name="catering"
-                            formControlName="catering"
+                            [formField]="form().catering"
                             [options]="{
-                                date: form().value.date,
-                                duration: form().value.duration,
-                                all_day: form().value.all_day,
+                                date: model().date,
+                                duration: model().duration,
+                                all_day: model().all_day,
                                 zone_id:
-                                    form().value.resources?.[0]?.level
-                                        ?.parent_id,
+                                    model().resources?.[0]?.level?.parent_id,
                             }"
                         ></catering-list-field>
-                        @if (form().value.catering?.length && has_codes()) {
+                        @if (model().catering?.length && has_codes()) {
                             <mat-form-field
                                 appearance="outline"
                                 class="mt-2 w-full"
                             >
                                 <mat-select
-                                    formControlName="catering_charge_code"
+                                    [formField]="form().catering_charge_code"
                                     placeholder="Charge Code"
                                 >
                                     <input
@@ -96,20 +92,17 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                                 </mat-error>
                             </mat-form-field>
                         }
-                        @if (form().value.catering?.length) {
+                        @if (model().catering?.length) {
                             <mat-form-field
                                 appearance="outline"
                                 class="w-full"
                                 [class.mt-2]="
-                                    !(
-                                        form().value.catering?.length &&
-                                        has_codes()
-                                    )
+                                    !(model().catering?.length && has_codes())
                                 "
                             >
                                 <textarea
                                     matInput
-                                    formControlName="catering_notes"
+                                    [formField]="form().catering_notes"
                                     placeholder="Extra catering details..."
                                 ></textarea>
                                 <mat-error>
@@ -123,9 +116,9 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                     <div class="mb-4 flex flex-1 flex-col">
                         <label for="space">Assets:</label>
                         <asset-list-field
-                            [date]="form().value.date"
-                            [duration]="form().value.duration"
-                            formControlName="assets"
+                            [date]="model().date"
+                            [duration]="model().duration"
+                            [formField]="form().assets"
                         ></asset-list-field>
                     </div>
                 }
@@ -134,8 +127,7 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                         <div class="flex flex-1 flex-col space-y-2">
                             <label for="setup">Setup Duration</label>
                             <a-duration-field
-                                name="setup"
-                                formControlName="setup_time"
+                                [formField]="form().setup_time"
                                 [min]="0"
                                 [custom_options]="[5, 10]"
                             ></a-duration-field>
@@ -143,9 +135,8 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                         <div class="flex flex-1 flex-col space-y-2">
                             <label for="breakdown">Breakdown Duration</label>
                             <a-duration-field
-                                name="breakdown"
                                 [min]="0"
-                                formControlName="breakdown_time"
+                                [formField]="form().breakdown_time"
                                 [custom_options]="[5, 10]"
                             ></a-duration-field>
                         </div>
@@ -157,7 +148,7 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
     styles: [``],
     imports: [
         FormsModule,
-        ReactiveFormsModule,
+        FormField,
         MatFormFieldModule,
         MatInputModule,
         DurationFieldComponent,
@@ -175,29 +166,22 @@ export class EventFormComponent {
     private _event_form = inject(EventFormService);
     private _catering = inject(CateringOrderStateService);
 
-    public readonly form = input<FormGroup>(undefined);
+    public readonly form = input<EventFormService['form']>(undefined);
     public readonly code_filter = signal('');
 
-    private readonly _charge_codes = toSignal(this._catering.charge_codes, {
-        initialValue: [],
-    });
+    /** Raw value signal for the event form (mirrors the bound form). */
+    public get model() {
+        return this._event_form.model;
+    }
 
-    public readonly has_catering = toSignal(
-        this._catering.available_menu.pipe(map((l) => l.length > 0)),
-        { initialValue: false },
+    private readonly _charge_codes = this._catering.charge_codes;
+
+    public readonly has_catering = computed(
+        () => this._catering.available_menu().length > 0,
     );
 
-    public readonly has_codes = toSignal(
-        this._catering.charge_codes.pipe(
-            map((l) => l.length > 0),
-            tap((has_codes) => {
-                if (!has_codes) {
-                    this.form().get('catering_charge_code').setValidators([]);
-                    this.form().updateValueAndValidity();
-                }
-            }),
-        ),
-        { initialValue: false },
+    public readonly has_codes = computed(
+        () => this._catering.charge_codes().length > 0,
     );
 
     public readonly filtered_codes = computed(() =>

@@ -5,7 +5,10 @@ import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { CheckinCovidComponent } from '../../app/checkin/checkin-covid.component';
 import { CheckinStateService } from '../../app/checkin/checkin-state.service';
 
-jest.mock('@placeos/common');
+jest.mock('@placeos/common', () => ({
+    ...jest.requireActual('@placeos/common'),
+    notifyError: jest.fn(),
+}));
 
 import { FormsModule } from '@angular/forms';
 import * as common_mod from '@placeos/common';
@@ -26,14 +29,16 @@ describe('CheckinCovidComponent', () => {
         imports: [MatRadioModule, FormsModule],
     });
 
-    beforeEach(() => (spectator = createComponent()));
+    beforeEach(() => {
+        (common_mod.notifyError as jest.Mock).mockClear();
+        spectator = createComponent();
+    });
 
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();
     });
 
     it('should allow confirming questions', () => {
-        (common_mod.notifyError as any) = jest.fn();
         spectator.component.confirm();
         expect(common_mod.notifyError).toHaveBeenCalledWith(
             'Please select yes or no for each question',

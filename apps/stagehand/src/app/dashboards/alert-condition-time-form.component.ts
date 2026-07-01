@@ -3,13 +3,11 @@ import {
     input,
     OnChanges,
     OnInit,
+    signal,
     SimpleChanges,
 } from '@angular/core';
-import {
-    FormsModule,
-    ReactiveFormsModule,
-    UntypedFormGroup,
-} from '@angular/forms';
+import { FormsModule } from '@angular/forms';
+import { FormField } from '@angular/forms/signals';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -23,6 +21,15 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.component';
 import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.component';
 import { CronInputFieldComponent } from './cron-input-field.component';
+
+type CronPeriod =
+    | 'minute'
+    | 'hour'
+    | 'day'
+    | 'week'
+    | 'month'
+    | 'year'
+    | 'custom';
 
 /**
  * Calculate the position counter for the given number e.g `1st`, `2nd`, `3rd`, `4th`...
@@ -46,16 +53,16 @@ export function numberToPosition(num: number): string {
     selector: 'alert-condition-time-form',
     template: `
         @if (form()) {
-            <div class="alert-condition form time" [formGroup]="form()">
+            <div class="alert-condition form time">
                 <div class="mb-4 flex flex-col">
                     <settings-toggle
-                        [name]="'TRIGGERS.TIME_SCHEDULE' | translate"
+                        [label]="'TRIGGERS.TIME_SCHEDULE' | translate"
                         [(ngModel)]="is_cron"
                         (ngModelChange)="toggleCRON($event)"
                         [ngModelOptions]="{ standalone: true }"
                     ></settings-toggle>
                 </div>
-                @if (is_cron) {
+                @if (is_cron()) {
                     <div class="flex flex-col">
                         <label for="timezone">{{
                             'COMMON.TIMEZONE' | translate
@@ -64,16 +71,21 @@ export function numberToPosition(num: number): string {
                             <icon matPrefix class="text-2xl">search</icon>
                             <input
                                 matInput
-                                formControlName="timezone"
+                                [formField]="form().timezone"
                                 [placeholder]="'COMMON.TIMEZONE' | translate"
                                 [matAutocomplete]="auto"
+                                (input)="
+                                    updateTimezoneList(
+                                        $any($event.target).value
+                                    )
+                                "
                             />
                         </mat-form-field>
                         <mat-autocomplete #auto="matAutocomplete">
-                            @for (tz of timezones; track tz) {
+                            @for (tz of timezones(); track tz) {
                                 <mat-option [value]="tz">{{ tz }}</mat-option>
                             }
-                            @if (!timezones.length) {
+                            @if (!timezones().length) {
                                 <mat-option [disabled]="true">{{
                                     'COMMON.TIMEZONE_EMPTY' | translate
                                 }}</mat-option>
@@ -81,9 +93,9 @@ export function numberToPosition(num: number): string {
                         </mat-autocomplete>
                     </div>
                 }
-                @if (!is_cron) {
+                @if (!is_cron()) {
                     <div class="flex space-x-4">
-                        @if (form().controls.time) {
+                        @if (form().time) {
                             <div class="flex flex-1 flex-col">
                                 <label for="type"
                                     >{{
@@ -92,11 +104,11 @@ export function numberToPosition(num: number): string {
                                 </label>
                                 <a-date-field
                                     name="date"
-                                    formControlName="time"
+                                    [formField]="form().time"
                                 ></a-date-field>
                             </div>
                         }
-                        @if (form().controls.time) {
+                        @if (form().time) {
                             <div class="flex flex-1 flex-col">
                                 <label for="type"
                                     >{{
@@ -105,7 +117,7 @@ export function numberToPosition(num: number): string {
                                 </label>
                                 <a-time-field
                                     name="date"
-                                    formControlName="time"
+                                    [formField]="form().time"
                                 ></a-time-field>
                             </div>
                         }
@@ -122,7 +134,7 @@ export function numberToPosition(num: number): string {
                                 (ngModelChange)="updateCronString()"
                                 [ngModelOptions]="{ standalone: true }"
                             >
-                                @for (period of repeat_period; track period) {
+                                @for (period of repeat_period(); track period) {
                                     <mat-option [value]="period.id">
                                         {{ period.name }}
                                     </mat-option>
@@ -130,9 +142,9 @@ export function numberToPosition(num: number): string {
                             </mat-select>
                         </mat-form-field>
                     </div>
-                    @if (cron_period !== 'custom') {
+                    @if (cron_period() !== 'custom') {
                         <div class="flex space-x-4">
-                            @if (cron_period === 'year') {
+                            @if (cron_period() === 'year') {
                                 <div class="flex w-2/5 flex-1 flex-col">
                                     <label for="month"
                                         >{{
@@ -150,7 +162,7 @@ export function numberToPosition(num: number): string {
                                             }"
                                         >
                                             @for (
-                                                month of months_of_year;
+                                                month of months_of_year();
                                                 track month;
                                                 let i = $index
                                             ) {
@@ -163,8 +175,8 @@ export function numberToPosition(num: number): string {
                                 </div>
                             }
                             @if (
-                                cron_period === 'month' ||
-                                cron_period === 'year'
+                                cron_period() === 'month' ||
+                                cron_period() === 'year'
                             ) {
                                 <div class="flex w-2/5 flex-1 flex-col">
                                     <label for="day"
@@ -195,7 +207,7 @@ export function numberToPosition(num: number): string {
                                 </div>
                             }
                         </div>
-                        @if (cron_period === 'week') {
+                        @if (cron_period() === 'week') {
                             <div class="flex flex-col">
                                 <label for="weekday">
                                     {{
@@ -210,7 +222,7 @@ export function numberToPosition(num: number): string {
                                         [ngModelOptions]="{ standalone: true }"
                                     >
                                         @for (
-                                            weekday of days_of_week;
+                                            weekday of days_of_week();
                                             track weekday;
                                             let i = $index
                                         ) {
@@ -224,8 +236,8 @@ export function numberToPosition(num: number): string {
                         }
                         <div class="flex items-center space-x-4">
                             @if (
-                                cron_period !== 'minute' &&
-                                cron_period !== 'hour'
+                                cron_period() !== 'minute' &&
+                                cron_period() !== 'hour'
                             ) {
                                 <div class="flex w-2/5 flex-1 flex-col">
                                     <label for="hour">{{
@@ -241,7 +253,7 @@ export function numberToPosition(num: number): string {
                                             }"
                                         >
                                             <mat-select-trigger>
-                                                {{ pad(cron_hour) }}:<span
+                                                {{ pad(cron_hour()) }}:<span
                                                     class="stagehand-muted"
                                                     >00</span
                                                 >
@@ -261,7 +273,7 @@ export function numberToPosition(num: number): string {
                                     </mat-form-field>
                                 </div>
                             }
-                            @if (cron_period !== 'minute') {
+                            @if (cron_period() !== 'minute') {
                                 <div class="flex w-2/5 flex-1 flex-col">
                                     <label for="minute">{{
                                         'TRIGGERS.TIME_MINUTE_OF_HOUR'
@@ -278,18 +290,20 @@ export function numberToPosition(num: number): string {
                                         >
                                             <mat-select-trigger>
                                                 <span class="stagehand-muted">{{
-                                                    pad(cron_hour)
+                                                    pad(cron_hour())
                                                 }}</span
-                                                >:{{ pad(cron_minute) }}
+                                                >:{{ pad(cron_minute()) }}
                                             </mat-select-trigger>
                                             @for (
                                                 minute of minutes_in_hour;
                                                 track minute
                                             ) {
                                                 <mat-option [value]="+minute">
-                                                    <span class="stagehand-muted">{{
-                                                        pad(cron_hour)
-                                                    }}</span
+                                                    <span
+                                                        class="stagehand-muted"
+                                                        >{{
+                                                            pad(cron_hour())
+                                                        }}</span
                                                     >:{{ pad(minute) }}
                                                 </mat-option>
                                             }
@@ -322,7 +336,7 @@ export function numberToPosition(num: number): string {
         MatAutocompleteModule,
         SettingsToggleComponent,
         MatInputModule,
-        ReactiveFormsModule,
+        FormField,
         TranslatePipe,
         IconComponent,
     ],
@@ -332,53 +346,48 @@ export class AlertConditionTimeFormComponent
     implements OnChanges, OnInit
 {
     /** Group of form fields used for creating the system */
-    public readonly form = input<UntypedFormGroup>(undefined);
+    public readonly form = input<any>(undefined);
     /** List of available periods for scheduled repetition */
-    public repeat_period: Identity[] = [];
+    public readonly repeat_period = signal<Identity[]>([]);
     /** Whether condition is a cron(recurring) job */
-    public is_cron: boolean;
+    public readonly is_cron = signal(false);
     /** The period which the user selects the recurrence */
-    public cron_period:
-        | 'minute'
-        | 'hour'
-        | 'day'
-        | 'week'
-        | 'month'
-        | 'year'
-        | 'custom' = 'minute';
+    public readonly cron_period = signal<CronPeriod>('minute');
 
-    public minutes_in_hour = new Array(12).fill(0).map((_, idx) => idx * 5);
-    public hours_in_day = new Array(24).fill(0).map((_, idx) => idx);
-    public days_of_week = [];
-    public days_of_month: Identity[] = Array(31)
+    public readonly minutes_in_hour = new Array(12)
+        .fill(0)
+        .map((_, idx) => idx * 5);
+    public readonly hours_in_day = new Array(24).fill(0).map((_, idx) => idx);
+    public readonly days_of_week = signal<string[]>([]);
+    public readonly days_of_month: Identity[] = Array(31)
         .fill(0)
         .map((_, index) => ({
             id: index + 1,
             name: `${numberToPosition(index + 1)}`,
         }));
-    public months_of_year = [];
-    public cron_string = '';
+    public readonly months_of_year = signal<string[]>([]);
+    public readonly cron_string = signal('');
     /** Minute of the hour to recurr on */
-    public cron_minute = 0;
+    public readonly cron_minute = signal(0);
     /** Hour of the day to recurr on */
-    public cron_hour = 0;
+    public readonly cron_hour = signal(0);
     /** Hour of the day to recurr on */
     public cron_hour_period = 'AM';
     /** Hour of the day to recurr on */
-    public cron_day = 0;
+    public readonly cron_day = signal(0);
     /** Hour of the day to recurr on */
-    public cron_date = 1;
+    public readonly cron_date = signal(1);
     /** Hour of the day to recurr on */
-    public cron_month = 1;
+    public readonly cron_month = signal(1);
 
-    public timezones: string[] = [];
+    public readonly timezones = signal<string[]>([]);
 
     public pad(str: any, digits = 2) {
         return `${str}`.padStart(digits, '0');
     }
 
     public ngOnInit() {
-        this.repeat_period = [
+        this.repeat_period.set([
             { id: 'minute', name: i18n('COMMON.MINUTE') },
             { id: 'hour', name: i18n('COMMON.HOUR') },
             { id: 'day', name: i18n('COMMON.DAY') },
@@ -386,58 +395,56 @@ export class AlertConditionTimeFormComponent
             { id: 'month', name: i18n('COMMON.MONTH') },
             { id: 'year', name: i18n('COMMON.YEAR') },
             { id: 'custom', name: i18n('COMMON.CRON_CUSTOM') },
-        ];
-        this.days_of_week = new Array(7)
-            .fill(0)
-            .map((_, index) =>
-                i18n(
-                    `COMMON.${format(
-                        setDay(Date.now(), index),
-                        'EEEE',
-                    ).toUpperCase()}`,
+        ]);
+        this.days_of_week.set(
+            new Array(7)
+                .fill(0)
+                .map((_, index) =>
+                    i18n(
+                        `COMMON.${format(
+                            setDay(Date.now(), index),
+                            'EEEE',
+                        ).toUpperCase()}`,
+                    ),
                 ),
-            );
-        this.months_of_year = Array(12)
-            .fill(0)
-            .map((_, index) =>
-                i18n(
-                    `COMMON.${format(
-                        setMonth(Date.now(), index),
-                        'MMMM',
-                    ).toUpperCase()}`,
+        );
+        this.months_of_year.set(
+            Array(12)
+                .fill(0)
+                .map((_, index) =>
+                    i18n(
+                        `COMMON.${format(
+                            setMonth(Date.now(), index),
+                            'MMMM',
+                        ).toUpperCase()}`,
+                    ),
                 ),
-            );
+        );
     }
 
     public ngOnChanges(changes: SimpleChanges): void {
         const form = this.form();
         if (changes.form && form) {
-            this.is_cron = form.controls.time_type.value === 'cron';
-            if (this.is_cron) {
-                this.loadCronTab(form.controls.cron.value);
-            }
-            this.subscription(
-                'timezone',
-                form
-                    .get('timezone')
-                    .valueChanges.subscribe((tz) =>
-                        this.updateTimezoneList(tz),
-                    ),
+            this.is_cron.set(
+                form.time_type().value() === TriggerTimeConditionType.CRON,
             );
-            this.updateTimezoneList(form.get('timezone').value);
+            if (this.is_cron()) {
+                this.loadCronTab(form.cron().value());
+            }
+            this.updateTimezoneList(form.timezone().value());
         }
     }
 
     public updateTimezoneList(tz: string) {
         const tz_lower = (tz || '').toLowerCase();
-        this.timezones = TIMEZONES_IANA.filter((_) =>
-            _.toLowerCase().includes(tz_lower),
+        this.timezones.set(
+            TIMEZONES_IANA.filter((_) => _.toLowerCase().includes(tz_lower)),
         );
     }
 
     public toggleCRON(is_cron: boolean) {
-        this.form().controls.cron.setValue(null);
-        this.form().controls.time_type.setValue(
+        this.form().cron().value.set('');
+        this.form().time_type().value.set(
             is_cron
                 ? TriggerTimeConditionType.CRON
                 : TriggerTimeConditionType.AT,
@@ -448,7 +455,7 @@ export class AlertConditionTimeFormComponent
     public saveCRON(cron_str: string) {
         this.timeout(
             'save_cron',
-            () => this.form().controls.cron.setValue(cron_str),
+            () => this.form().cron().value.set(cron_str),
             1000,
         );
     }
@@ -458,14 +465,18 @@ export class AlertConditionTimeFormComponent
      */
     public updateCronString() {
         const form = this.form();
-        if (form && form.controls.cron) {
-            const hour = this.cron_hour;
-            const minute = this.cron_minute % 60;
-            const day_of_week = this.days_of_week.indexOf(this.cron_day);
-            const day_of_month = this.cron_date;
-            const month = this.months_of_year.indexOf(this.cron_month);
+        if (form && form.cron) {
+            const hour = this.cron_hour();
+            const minute = this.cron_minute() % 60;
+            const day_of_week = this.days_of_week().indexOf(
+                this.cron_day() as any,
+            );
+            const day_of_month = this.cron_date();
+            const month = this.months_of_year().indexOf(
+                this.cron_month() as any,
+            );
             let cron_str = '* * * * *';
-            switch (this.cron_period) {
+            switch (this.cron_period()) {
                 case 'minute':
                     cron_str = minute ? `*/${minute} * * * *` : '* * * * *';
                     break;
@@ -487,77 +498,37 @@ export class AlertConditionTimeFormComponent
                     cron_str = `${minute} ${hour} ${day_of_month} ${month} *`;
                     break;
             }
-            form.controls.cron.setValue(cron_str);
+            form.cron().value.set(cron_str);
         }
     }
 
     private loadCronTab(cron_tab: string): void {
-        this.cron_string = cron_tab;
+        this.cron_string.set(cron_tab);
+        const cron_string = this.cron_string();
         if (
-            this.cron_string.includes('-') ||
-            this.cron_string.includes('/') ||
-            this.cron_string.includes(',')
+            cron_string.includes('-') ||
+            cron_string.includes('/') ||
+            cron_string.includes(',')
         ) {
-            this.cron_period = 'custom';
+            this.cron_period.set('custom');
             return;
         }
         const [minute, hour, day, month, weekday] = cron_tab.split(' ');
-        this.cron_minute = +minute || 0;
-        this.cron_hour = +hour || 0;
-        this.cron_day = +weekday || 0;
-        this.cron_date = +hour || 1;
-        this.cron_month = +month - 1;
-        this.cron_period = 'minute';
+        this.cron_minute.set(+minute || 0);
+        this.cron_hour.set(+hour || 0);
+        this.cron_day.set(+weekday || 0);
+        this.cron_date.set(+hour || 1);
+        this.cron_month.set(+month - 1);
+        this.cron_period.set('minute');
         if (month !== '*') {
-            this.cron_period = 'month';
+            this.cron_period.set('month');
         } else if (weekday !== '*') {
-            this.cron_period = 'week';
+            this.cron_period.set('week');
         } else if (day !== '*') {
-            this.cron_period = 'day';
+            this.cron_period.set('day');
         } else if (hour !== '*') {
-            this.cron_period = 'hour';
+            this.cron_period.set('hour');
         }
-        this.cron_hour_period = this.cron_hour > 12 ? 'PM' : 'AM';
-        // const cron_str = new CronBuilder(cron_tab);
-        // this.cron_minute =
-        //     cron_str.get('minute') === '*'
-        //         ? this.cron_minute
-        //         : +cron_str.get('minute');
-        // this.cron_hour =
-        //     cron_str.get('hour') === '*'
-        //         ? this.cron_minute
-        //         : +cron_str.get('hour');
-        // if (this.cron_hour > 12) {
-        //     this.cron_hour = this.cron_hour % 12;
-        //     this.cron_hour_period = 'PM';
-        // } else {
-        //     this.cron_hour_period = 'AM';
-        // }
-        // this.cron_day =
-        //     cron_str.get('dayOfTheWeek') === '*'
-        //         ? this.cron_day
-        //         : this.days_of_week[+cron_str.get('dayOfTheWeek')];
-        // this.cron_date =
-        //     cron_str.get('dayOfTheMonth') === '*'
-        //         ? this.cron_date
-        //         : +cron_str.get('dayOfTheMonth');
-        // this.cron_month =
-        //     cron_str.get('month') === '*'
-        //         ? this.cron_month
-        //         : this.months_of_year[+cron_str.get('month') - 1];
-        // /** Set the cron period */
-        // if (cron_str.get('month') !== '*') {
-        //     this.cron_period = 'year';
-        // } else if (cron_str.get('dayOfTheMonth') !== '*') {
-        //     this.cron_period = 'month';
-        // } else if (cron_str.get('dayOfTheWeek') !== '*') {
-        //     this.cron_period = 'week';
-        // } else if (cron_str.get('hour') !== '*') {
-        //     this.cron_period = 'day';
-        // } else if (cron_str.get('minute') !== '*') {
-        //     this.cron_period = 'hour';
-        // } else {
-        //     this.cron_period = 'minute';
-        // }
+        this.cron_hour_period = this.cron_hour() > 12 ? 'PM' : 'AM';
     }
 }

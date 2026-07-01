@@ -2,6 +2,7 @@ import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import {
+    currentUser,
     MapsPeopleService,
     OrganisationService,
     SettingsService,
@@ -15,7 +16,7 @@ import { ImageCarouselComponent } from 'libs/components/src/lib/image-carousel.c
 import { IndoorMapsComponent } from 'libs/components/src/lib/indoor-maps.component';
 import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
 import { StatusPillComponent } from 'libs/components/src/lib/status-pill.component';
-import { BehaviorSubject, of } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { BookingDetailsModalComponent } from '../lib/booking-details-modal.component';
 import * as bookings_fn from '../lib/bookings.fn';
 
@@ -83,6 +84,22 @@ describe('BookingDetailsModalComponent', () => {
     });
 
     it('should show title', () => expect('[title]').toExist());
+
+    it('should not delete ended bookings', () => {
+        const booking = new Booking({
+            id: 'booking-1',
+            booking_type: 'desk',
+            type: 'desk',
+            checked_out_at: Math.floor(Date.now() / 1000) - 60,
+            date: Date.now(),
+            duration: 60,
+            status: 'approved',
+        } as any);
+
+        spectator.component.remove(booking);
+
+        expect(remove_fn).not.toHaveBeenCalled();
+    });
 
     it('should format visitor name nicely in booking details', () => {
         (spectator.component as any).booking.set(
@@ -176,12 +193,12 @@ describe('BookingDetailsModalComponent', () => {
 
     it('should refresh parent state after toggling checked in', async () => {
         jest.spyOn(bookings_fn, 'checkinBooking').mockReturnValue(
-            of(
+            Promise.resolve(
                 new Booking({
                     id: 'booking-1',
                     checked_in: true,
                 } as any),
-            ),
+            ) as any,
         );
 
         await spectator.component.toggleCheckedIn();
@@ -302,14 +319,14 @@ describe('BookingDetailsModalComponent', () => {
                 booking_type: 'desk',
                 type: 'desk',
                 parent_id: 'booking-group',
-                user_email: '<empty>@dev.place.tech',
+                user_email: currentUser().email,
                 linked_parent_booking: {
                     id: 'booking-group',
                     asset_id: 'group-1',
                     asset_name: 'Group Booking',
                     user_id: 'current-user',
                     user_name: '<empty>',
-                    user_email: '<empty>@dev.place.tech',
+                    user_email: currentUser().email,
                     description: 'Group Booking',
                     booking_type: 'group',
                     date: Date.now(),
@@ -319,7 +336,7 @@ describe('BookingDetailsModalComponent', () => {
                         group_resource_type: 'desk',
                         group_members: [
                             {
-                                email: '<empty>@dev.place.tech',
+                                email: currentUser().email,
                                 name: '<empty>',
                             },
                             { email: 'two@example.com', name: 'Two' },
@@ -346,7 +363,7 @@ describe('BookingDetailsModalComponent', () => {
                 booking_type: 'desk',
                 type: 'desk',
                 parent_id: 'booking-group',
-                user_email: '<empty>@dev.place.tech',
+                user_email: currentUser().email,
                 linked_parent_booking: {
                     id: 'booking-group',
                     asset_id: 'group-1',

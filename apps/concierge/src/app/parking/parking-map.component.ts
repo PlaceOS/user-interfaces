@@ -6,22 +6,20 @@ import {
     OnInit,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import {
     AsyncHandler,
-    firstTruthyValueFrom,
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
 import { InteractiveMapComponent } from '@placeos/components';
 import { ExploreParkingService, ExploreStateService } from '@placeos/explore';
-import { ParkingOptions, ParkingStateService } from './parking-state.service';
+import { ParkingStateService } from './parking-state.service';
 
 @Component({
     selector: 'parking-map',
     template: `
         <div
-            class="bg-base-200 relative my-2 h-[calc(100%-1.5rem)] w-full rounded-xl shadow-sm"
+            class="bg-base-200 relative mx-8 my-2 h-[calc(100%-1.5rem)] w-[calc(100%-4rem)] rounded-xl shadow-sm"
         >
             <interactive-map
                 [src]="url()"
@@ -45,18 +43,9 @@ export class ParkingMapComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
 
-    private readonly _default_options: ParkingOptions = {
-        date: Date.now(),
-        search: '',
-        zones: [],
-        period: 'day',
-        request_filter: 'all',
-    };
     private readonly _ready = signal(false);
 
-    public readonly options = toSignal(this._parking.options, {
-        initialValue: this._default_options,
-    });
+    public readonly options = this._parking.options;
     public readonly url = this._explore.map_url;
     public readonly raw_styles = this._explore.map_styles;
     public readonly features = this._explore.map_features;
@@ -92,7 +81,7 @@ export class ParkingMapComponent extends AsyncHandler implements OnInit {
     }
 
     public async ngOnInit() {
-        await firstTruthyValueFrom(this._org.initialised);
+        await this._org.waitUntilInitialised();
         this._ready.set(true);
         this.subscription('parking_poll', this._ex_parking.startPolling());
         this._ex_parking.on_book = async (space) => {

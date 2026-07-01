@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { createSettingsServiceMock } from '@placeos/common/tests';
@@ -9,7 +10,6 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
 
 import { Booking, SettingsService } from '@placeos/common';
 import { StatusPillComponent } from 'libs/components/src/lib/status-pill.component';
-import { BehaviorSubject } from 'rxjs';
 import { BookingCardComponent } from '../lib/booking-card.component';
 
 describe('BookingCardComponent', () => {
@@ -24,8 +24,9 @@ describe('BookingCardComponent', () => {
         providers: [
             MockProvider(OrganisationService as any, {
                 levelWithID: jest.fn(),
-                level_list: new BehaviorSubject([]),
-                building_list: new BehaviorSubject([]),
+                active_building: signal({}),
+                level_list: signal([]),
+                building_list: signal([]),
                 buildingsForRegion: jest.fn(() => []),
             }),
             MockProvider(MatDialog, { open: jest.fn() }),
@@ -164,6 +165,31 @@ describe('BookingCardComponent', () => {
         });
 
         expect(spectator.component.status()).toBe('warning');
+    });
+
+    it('should hide the asset id of unallocated parking bookings', () => {
+        spectator.setInput({
+            booking: new Booking({
+                booking_type: 'parking',
+                type: 'parking',
+                asset_id: 'unallocated-123',
+            } as any),
+        });
+
+        expect(spectator.component.resource_label()).toBe('RESOURCE.PARKING');
+    });
+
+    it('should show selected parking space when allocated', () => {
+        spectator.setInput({
+            booking: new Booking({
+                booking_type: 'parking',
+                type: 'parking',
+                asset_id: 'parking-1',
+                asset_name: 'Parking 1',
+            } as any),
+        });
+
+        expect(spectator.component.resource_label()).toBe('Parking 1');
     });
 
     it('should hide selected parking space when enabled', () => {

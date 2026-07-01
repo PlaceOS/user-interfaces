@@ -1,5 +1,4 @@
 import { Component, computed, inject, input } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { Space } from '@placeos/common';
 
 import { EventsStateService } from './events-state.service';
@@ -29,9 +28,7 @@ export class DayviewSpaceComponent {
     public readonly space = input<Space>(undefined);
 
     /** List of events for the selected space */
-    private readonly _filtered = toSignal(this._state.filtered, {
-        initialValue: [],
-    });
+    private readonly _filtered = this._state.filtered;
 
     public readonly events = computed(() => {
         const space = this.space();

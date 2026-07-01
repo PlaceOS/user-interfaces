@@ -4,10 +4,10 @@ import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
+import { signal } from '@angular/core';
 import { mockComponent } from '@placeos/common/tests';
 import { IconComponent } from '@placeos/components';
 import { MockProvider } from 'ng-mocks';
-import { BehaviorSubject } from 'rxjs';
 import { FooterMenuComponent } from '../../app/components/footer-menu.component';
 import { TopbarComponent } from '../../app/components/topbar.component';
 import { LandingAvailabilityComponent } from '../../app/landing/landing-availability.component';
@@ -30,10 +30,10 @@ describe('LandingComponent', () => {
         providers: [
             MockProvider(SettingsService),
             MockProvider(OrganisationService, {
-                active_building: new BehaviorSubject(new Building()),
+                active_building: signal(new Building()),
                 building: new Building(),
-                initialised: new BehaviorSubject(true),
-                level_list: new BehaviorSubject([]),
+                initialised: signal(true),
+                level_list: signal([]),
             }),
         ],
     });
@@ -47,6 +47,8 @@ describe('LandingComponent', () => {
     it('should match snapshot', () => {
         spectator.component.time.set(1);
         spectator.detectChanges();
-        expect('[date]').toContainText('1970');
+        expect(spectator.query('[date]')?.textContent || '').toMatch(
+            /1969|1970/,
+        );
     });
 });

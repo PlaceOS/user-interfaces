@@ -1,8 +1,10 @@
-import { Component, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    inject,
+} from '@angular/core';
 import { IconComponent, SafePipe, TranslatePipe } from '@placeos/components';
-import { combineLatest, interval } from 'rxjs';
-import { map, shareReplay } from 'rxjs/operators';
 import { PanelStateService } from '../panel-state.service';
 import { currentPeriod, nextPeriod } from './helpers';
 
@@ -171,14 +173,13 @@ import { currentPeriod, nextPeriod } from './helpers';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [TranslatePipe, SafePipe, IconComponent],
 })
 export class PanelViewStatusComponent {
     private _state = inject(PanelStateService);
 
-    public readonly state = toSignal(this._state.status, {
-        initialValue: 'free',
-    });
+    public readonly state = this._state.status;
 
     public get can_book() {
         return this._state.setting('disable_book_now') !== true;
@@ -192,21 +193,14 @@ export class PanelViewStatusComponent {
         return this._state.setting('enable_end_meeting_button') === true;
     }
 
-    public readonly event_state = toSignal(
-        combineLatest([
-            this._state.current,
-            this._state.next,
-            this._state.bookings,
-            interval(5000),
-        ]).pipe(
-            map(([c, n, l]) => ({
-                current: currentPeriod(l, c, n),
-                next: nextPeriod(n),
-            })),
-            shareReplay(1),
+    public readonly event_state = computed(() => ({
+        current: currentPeriod(
+            this._state.bookings(),
+            this._state.current(),
+            this._state.next(),
         ),
-        { initialValue: { current: [] as any, next: '' } },
-    );
+        next: nextPeriod(this._state.next()),
+    }));
 
     public readonly free_svg = `
     <svg width="129" height="117" viewBox="0 0 129 117" fill="none" xmlns="http://www.w3.org/2000/svg">

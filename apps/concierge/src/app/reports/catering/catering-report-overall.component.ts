@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { OrganisationService } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
 import { CateringReportStateService } from './catering-report-state.service';
@@ -80,15 +79,7 @@ export class CateringReportOverallComponent {
     private _report = inject(CateringReportStateService);
     private _org = inject(OrganisationService);
 
-    public readonly stats = toSignal(this._report.stats, {
-        initialValue: {
-            order_count: 0,
-            unique_items: 0,
-            item_count: 0,
-            total_cost: 0,
-            avg_cost: 0,
-        },
-    });
+    public readonly stats = this._report.stats;
 
     public get code() {
         return this._org.currency_code;

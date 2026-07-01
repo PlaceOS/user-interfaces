@@ -15,7 +15,7 @@ import { ScheduleStateService } from './schedule-state.service';
 @Component({
     selector: 'schedule-filters',
     template: `
-        <div class="hidden border-b border-base-300 bg-base-100 p-1 sm:block">
+        <div class="border-base-300 bg-base-100 hidden border-b p-1 sm:block">
             <div class="flex flex-wrap">
                 @for (item of feature_list; track item.type) {
                     @if (
@@ -23,11 +23,11 @@ import { ScheduleStateService } from './schedule-state.service';
                         hasFeature(item.feat)
                     ) {
                         <div
-                            class="m-0.5 flex items-center rounded-3xl border border-base-200 bg-base-100 pl-2 text-sm"
+                            class="border-base-200 bg-base-100 m-0.5 flex items-center rounded-3xl border pl-2 text-sm"
                         >
                             <div class="px-2">{{ item.name | translate }}</div>
                             <div
-                                class="flex h-5 w-5 items-center justify-center rounded-full bg-base-200 font-mono text-[0.625rem] opacity-50"
+                                class="bg-base-200 flex h-5 w-5 items-center justify-center rounded-full font-mono text-[0.625rem] opacity-50"
                             >
                                 {{ counts()[item.type] || 0 }}
                             </div>
@@ -49,7 +49,7 @@ import { ScheduleStateService } from './schedule-state.service';
             </div>
         </div>
         <div
-            class="flex items-center space-x-2 overflow-auto border-b border-base-300 bg-base-100 p-2 sm:hidden"
+            class="border-base-300 bg-base-100 flex items-center space-x-2 overflow-auto border-b p-2 sm:hidden"
         >
             <button
                 btn
@@ -68,11 +68,11 @@ import { ScheduleStateService } from './schedule-state.service';
                     hasFeature(item.feat)
                 ) {
                     <div
-                        class="flex items-center rounded-3xl border border-base-200 bg-base-100 pl-2 text-sm"
+                        class="border-base-200 bg-base-100 flex items-center rounded-3xl border pl-2 text-sm"
                     >
                         <div class="px-2">{{ item.name | translate }}</div>
                         <div
-                            class="flex h-5 w-5 items-center justify-center rounded-full bg-base-200 font-mono text-[0.625rem] opacity-50"
+                            class="bg-base-200 flex h-5 w-5 items-center justify-center rounded-full font-mono text-[0.625rem] opacity-50"
                         >
                             {{ counts()[item.type] || 0 }}
                         </div>
@@ -125,7 +125,11 @@ export class ScheduleFiltersComponent {
     public readonly feature_list = [
         { type: 'desk', feat: 'desks', name: 'RESOURCE.DESKS' },
         { type: 'event', feat: 'spaces', name: 'RESOURCE.MEETINGS' },
-        { type: 'parking', feat: 'parking', name: 'RESOURCE.PARKING' },
+        {
+            type: 'parking',
+            feat: ['parking', 'parking-requests'],
+            name: 'RESOURCE.PARKING',
+        },
         { type: 'visitor', feat: 'visitor-invite', name: 'RESOURCE.VISITORS' },
         { type: 'locker', feat: 'lockers', name: 'RESOURCE.LOCKERS' },
         { type: 'group-event', feat: 'group-events', name: 'RESOURCE.EVENTS' },
@@ -138,8 +142,12 @@ export class ScheduleFiltersComponent {
 
     public readonly toggleType = (t, c = false) => this._state.toggleType(t, c);
 
-    public hasFeature(feature: string) {
-        return this.features()?.includes(feature);
+    public hasFeature(feature: string | string[]) {
+        const features = this.features() || [];
+        if (Array.isArray(feature)) {
+            return feature.some((f) => features.includes(f));
+        }
+        return features.includes(feature);
     }
 
     public openFilters() {

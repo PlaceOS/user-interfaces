@@ -1,5 +1,4 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, Subscription } from 'rxjs';
+import { Injectable, signal, WritableSignal } from '@angular/core';
 
 import { unique } from './general';
 import { HashMap } from './types';
@@ -17,10 +16,10 @@ const INVALID_STANDALONE_KEYS: string[] = [
     providedIn: 'root',
 })
 export class HotkeysService {
-    /** Map of subjects which store press states of keys */
-    private keydown_states: HashMap<BehaviorSubject<number>> = {};
-    /** Map of obserers for key state subjects */
-    private keydown_observers: HashMap<Observable<number>> = {};
+    /** Map of signals which store press states of keys */
+    private keydown_states: HashMap<WritableSignal<number>> = {};
+    /** Map of callbacks for the final key in a combination */
+    private keydown_callbacks: HashMap<Set<(count: number) => void>> = {};
     /** List of keys at the end of a combination */
     private combo_end: string[] = [];
     /** List of registered hotkey combinations */
@@ -35,11 +34,10 @@ export class HotkeysService {
             const code = this.mapKey((event.code || '').toLowerCase());
             if (this.last_down !== code) {
                 if (!this.keydown_states[code]) {
-                    this.keydown_states[code] = new BehaviorSubject(null);
-                    this.keydown_observers[code] =
-                        this.keydown_states[code].asObservable();
+                    this.keydown_states[code] = signal(null);
                 }
-                this.keydown_states[code].next(++this.counter);
+                this.keydown_states[code].set(++this.counter);
+                this._handleKeyPress(code, this.counter);
                 if (this.combo_end.indexOf(code) >= 0) {
                     event.preventDefault();
                 }
@@ -49,7 +47,7 @@ export class HotkeysService {
 
         window.addEventListener('keyup', (event: KeyboardEvent) => {
             const code = this.mapKey((event.code || '').toLowerCase());
-            this.keydown_states[code]?.next(null);
+            this.keydown_states[code]?.set(null);
             if (this.last_down === code) {
                 this.last_down = null;
             }
@@ -61,7 +59,10 @@ export class HotkeysService {
      * @param combo Array of key codes to listen to or a hotkey string e.g. `Alt+Shift+KeyK`
      * @param next Callback for combination presses
      */
-    public listen(combo: string | string[], next: () => void): Subscription {
+    public listen(
+        combo: string | string[],
+        next: () => void,
+    ): { unsubscribe: () => void } {
         combo = combo instanceof Array ? combo : combo.split('+');
         const combination: string[] = combo.map((i) =>
             this.mapKey(i.toLowerCase()),
@@ -70,19 +71,17 @@ export class HotkeysService {
             this.registered_combos.push(combination);
             const last_key = combination[combination.length - 1];
             if (!this.keydown_states[last_key]) {
-                this.keydown_states[last_key] = new BehaviorSubject(null);
-                this.keydown_observers[last_key] =
-                    this.keydown_states[last_key].asObservable();
+                this.keydown_states[last_key] = signal(null);
             }
             this.updateCombinationEndList();
-            return this.keydown_observers[last_key].subscribe((count) => {
+            const callback = (count: number) => {
                 if (count) {
                     const presses: number[] = [];
                     if (combination.length > 0) {
                         // Check that keys are pressed
                         for (const key of combination) {
                             const state = this.keydown_states[key];
-                            presses.push(state ? state.getValue() || -1 : -1);
+                            presses.push(state ? state() || -1 : -1);
                         }
                         // Check that keys are pressed in the correct order
                         for (let i = 0; i < combination.length - 1; i++) {
@@ -99,9 +98,21 @@ export class HotkeysService {
                         next();
                     }
                 }
-            });
+            };
+            this.keydown_callbacks[last_key] ||= new Set();
+            this.keydown_callbacks[last_key].add(callback);
+            return {
+                unsubscribe: () =>
+                    this.keydown_callbacks[last_key]?.delete(callback),
+            };
         }
         return null;
+    }
+
+    private _handleKeyPress(code: string, count: number) {
+        for (const callback of this.keydown_callbacks[code] || []) {
+            callback(count);
+        }
     }
 
     /**

@@ -1,7 +1,4 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { debounceTime, map } from 'rxjs/operators';
-
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute } from '@angular/router';
 import {
@@ -143,30 +140,24 @@ export class ReportSpacesComponent extends AsyncHandler implements OnInit {
 
     public readonly printing = signal(false);
     public readonly metric_guide = METRIC_GUIDE;
-    public readonly total_count = toSignal(
-        this._state.stats.pipe(map((i) => i.total_count || i.count || 0)),
-        { initialValue: 0 },
-    );
-    public readonly loading = toSignal(this._state.loading, {
-        initialValue: '',
+    public readonly total_count = computed(() => {
+        const i = this._state.stats();
+        return i.total_count || i.count || 0;
     });
+    public readonly loading = this._state.loading;
     public readonly has_data = computed(() => !!this.total_count());
 
     public readonly downloadReport = () => this._state.downloadReport();
     public readonly generateReport = () => this._state.generateReport();
 
-    public readonly logo = toSignal(
-        this._org.active_building.pipe(
-            debounceTime(500),
-            map(
-                () =>
-                    (this._settings.theme === 'dark'
-                        ? this._settings.get('app.logo_dark')
-                        : this._settings.get('app.logo_light')) || {},
-            ),
-        ),
-        { initialValue: {} },
-    );
+    public readonly logo = computed(() => {
+        this._org.active_building();
+        return (
+            (this._settings.theme === 'dark'
+                ? this._settings.get('app.logo_dark')
+                : this._settings.get('app.logo_light')) || {}
+        );
+    });
 
     public ngOnInit() {
         this._state.setOptions({ type: 'events' });

@@ -1,5 +1,4 @@
 import { Component, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -99,9 +98,7 @@ export class POIManagerComponent {
 
     public readonly new = () => this._state.editPointOfInterest();
 
-    public readonly buildings = toSignal(this._org.active_buildings, {
-        initialValue: [],
-    });
+    public readonly buildings = this._org.active_buildings;
 
     public get building() {
         return this._org.building;

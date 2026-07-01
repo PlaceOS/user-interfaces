@@ -9,6 +9,7 @@ import {
     SettingsService,
     WorktimePreference,
     i18n,
+    nextValueFrom,
     notifyError,
     notifySuccess,
 } from '@placeos/common';
@@ -29,7 +30,6 @@ import {
     startOfDay,
     startOfMinute,
 } from 'date-fns';
-import { lastValueFrom } from 'rxjs';
 
 import { WFHSettingsModalComponent } from '@placeos/users';
 
@@ -110,7 +110,7 @@ import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
                     </div>
                     <settings-toggle
                         class="mb-4 flex-1"
-                        [name]="
+                        [label]="
                             'APP.CONCIERGE.AUTO_RELEASE_OUTSIDE_HOURS'
                                 | translate
                         "
@@ -211,7 +211,7 @@ import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
                             class="border-base-200 mb-4 space-y-4 rounded-lg border"
                         >
                             <settings-toggle
-                                [name]="
+                                [label]="
                                     'APP.CONCIERGE.AUTO_RELEASE_' +
                                         name.toUpperCase() | translate
                                 "
@@ -377,7 +377,7 @@ export class AutoReleaseSettingsModalComponent implements OnInit {
                 preferences: this.setting('default_work_preferences') || [],
             },
         });
-        const result = await lastValueFrom(ref.afterClosed());
+        const result = await nextValueFrom(ref.afterClosed());
         if (!result) return;
         this.setSetting('default_work_preferences', result);
     }

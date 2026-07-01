@@ -7,5 +7,4 @@ export * from './catering-order-options-modal.component';
 export * from './catering-orders.service';
 export * from './catering-state.service';
 export * from './catering.interfaces';
-export * from './catering.module';
 export * from './catering.vars';

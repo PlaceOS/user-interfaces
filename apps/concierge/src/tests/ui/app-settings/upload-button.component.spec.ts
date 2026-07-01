@@ -1,10 +1,10 @@
+import { signal } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { UploadsService } from '@placeos/common';
 import { mockComponent } from '@placeos/common/tests';
 import { IconComponent } from '@placeos/components';
 import { MockProvider } from 'ng-mocks';
-import { Subject } from 'rxjs';
 
 import { UploadButtonComponent } from '../../../app/ui/app-settings/upload-button.component';
 
@@ -68,11 +68,9 @@ describe('UploadButtonComponent', () => {
     });
 
     it('should handle image upload', () => {
-        const upload_subject = new Subject<any>();
+        const upload_state = signal<any>(null);
         const uploads = spectator.inject(UploadsService);
-        (uploads.uploadFileWithProgress as jest.Mock).mockReturnValue(
-            upload_subject.asObservable(),
-        );
+        (uploads.uploadFileWithProgress as jest.Mock).mockReturnValue(upload_state);
 
         const file = new File(['test'], 'test.png', { type: 'image/png' });
         const event = {
@@ -85,11 +83,9 @@ describe('UploadButtonComponent', () => {
     });
 
     it('should update progress during upload', () => {
-        const upload_subject = new Subject<any>();
+        const upload_state = signal<any>(null);
         const uploads = spectator.inject(UploadsService);
-        (uploads.uploadFileWithProgress as jest.Mock).mockReturnValue(
-            upload_subject.asObservable(),
-        );
+        (uploads.uploadFileWithProgress as jest.Mock).mockReturnValue(upload_state);
 
         const file = new File(['test'], 'test.png', { type: 'image/png' });
         const event = {
@@ -97,16 +93,15 @@ describe('UploadButtonComponent', () => {
         } as Event;
 
         spectator.component.uploadImage(event);
-        upload_subject.next({ progress: 50 });
+        upload_state.set({ progress: 50 });
+        spectator.detectChanges();
         expect(spectator.component.progress()).toBe(50);
     });
 
     it('should set value on upload complete', () => {
-        const upload_subject = new Subject<any>();
+        const upload_state = signal<any>(null);
         const uploads = spectator.inject(UploadsService);
-        (uploads.uploadFileWithProgress as jest.Mock).mockReturnValue(
-            upload_subject.asObservable(),
-        );
+        (uploads.uploadFileWithProgress as jest.Mock).mockReturnValue(upload_state);
 
         const spy = jest.fn();
         spectator.component.registerOnChange(spy);
@@ -117,8 +112,8 @@ describe('UploadButtonComponent', () => {
         } as Event;
 
         spectator.component.uploadImage(event);
-        upload_subject.next({ progress: 100, upload_id: 'upload-123' });
-        upload_subject.complete();
+        upload_state.set({ progress: 100, upload_id: 'upload-123' });
+        spectator.detectChanges();
 
         expect(spectator.component.uploading()).toBe(false);
         expect(spectator.component.value()).toBe(
@@ -127,11 +122,9 @@ describe('UploadButtonComponent', () => {
     });
 
     it('should handle upload error', () => {
-        const upload_subject = new Subject<any>();
+        const upload_state = signal<any>(null);
         const uploads = spectator.inject(UploadsService);
-        (uploads.uploadFileWithProgress as jest.Mock).mockReturnValue(
-            upload_subject.asObservable(),
-        );
+        (uploads.uploadFileWithProgress as jest.Mock).mockReturnValue(upload_state);
 
         const file = new File(['test'], 'test.png', { type: 'image/png' });
         const event = {
@@ -139,7 +132,8 @@ describe('UploadButtonComponent', () => {
         } as Event;
 
         spectator.component.uploadImage(event);
-        upload_subject.error('Upload failed');
+        upload_state.set({ progress: 0, error: 'Upload failed' });
+        spectator.detectChanges();
 
         expect(common_mod.notifyError).toHaveBeenCalledWith(
             'Failed to upload image. Try again later',
@@ -170,11 +164,9 @@ describe('UploadButtonComponent', () => {
     });
 
     it('should prevent double upload', () => {
-        const upload_subject = new Subject<any>();
+        const upload_state = signal<any>(null);
         const uploads = spectator.inject(UploadsService);
-        (uploads.uploadFileWithProgress as jest.Mock).mockReturnValue(
-            upload_subject.asObservable(),
-        );
+        (uploads.uploadFileWithProgress as jest.Mock).mockReturnValue(upload_state);
 
         const file = new File(['test'], 'test.png', { type: 'image/png' });
         const event = {
@@ -189,11 +181,9 @@ describe('UploadButtonComponent', () => {
     });
 
     it('should show error when upload completes without upload_id', () => {
-        const upload_subject = new Subject<any>();
+        const upload_state = signal<any>(null);
         const uploads = spectator.inject(UploadsService);
-        (uploads.uploadFileWithProgress as jest.Mock).mockReturnValue(
-            upload_subject.asObservable(),
-        );
+        (uploads.uploadFileWithProgress as jest.Mock).mockReturnValue(upload_state);
 
         const file = new File(['test'], 'test.png', { type: 'image/png' });
         const event = {
@@ -201,8 +191,8 @@ describe('UploadButtonComponent', () => {
         } as Event;
 
         spectator.component.uploadImage(event);
-        upload_subject.next({ progress: 100 });
-        upload_subject.complete();
+        upload_state.set({ progress: 100 });
+        spectator.detectChanges();
 
         expect(common_mod.notifyError).toHaveBeenCalledWith(
             'Failed to get uploaded file ID',

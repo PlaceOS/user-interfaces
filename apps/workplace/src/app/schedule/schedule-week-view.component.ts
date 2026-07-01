@@ -11,7 +11,11 @@ import {
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { BookingDetailsModalComponent } from '@placeos/bookings';
+import {
+    BookingDetailsModalComponent,
+    bookingLocationString,
+    visitorDisplayNameFor,
+} from '@placeos/bookings';
 import {
     Booking,
     BOOKING_TYPE_COLORS,
@@ -29,6 +33,7 @@ import {
     format,
     isBefore,
     isSameDay,
+    isSameWeek,
     startOfDay,
     startOfWeek,
 } from 'date-fns';
@@ -44,14 +49,17 @@ interface Weekday {
 @Component({
     selector: `schedule-week-view`,
     template: `
-        <div #scrollContainer class="h-full w-full overflow-auto">
+        <div
+            #scrollContainer
+            class="h-full w-full snap-x snap-mandatory overflow-auto"
+        >
             <div class="m-2">
                 <div class="grid w-full min-w-[87.5rem] grid-cols-7 gap-2">
                     @for (day of weekdays(); track day.id) {
                         <div
                             #dayColumn
                             header
-                            class="flex items-center justify-center space-x-2 py-2"
+                            class="flex snap-start items-center justify-center space-x-2 py-2"
                             [attr.data-is-today]="day.is_today"
                         >
                             <div
@@ -80,7 +88,7 @@ interface Weekday {
                     @for (day of weekdays(); track day.id) {
                         <div
                             body
-                            class="flex min-h-[calc(100vh-15rem)] flex-col space-y-2 rounded-xl border border-base-300 bg-base-100 p-2"
+                            class="border-base-300 bg-base-100 flex min-h-[calc(100vh-15rem)] snap-start flex-col space-y-2 rounded-xl border p-2"
                             [class.opacity-30]="day.is_past"
                         >
                             @for (
@@ -89,7 +97,7 @@ interface Weekday {
                             ) {
                                 <button
                                     matRipple
-                                    class="w-full rounded-lg border bg-base-100 p-2 text-left text-black"
+                                    class="bg-base-100 w-full rounded-lg border p-2 text-left text-black"
                                     [style.border-color]="colors[type(bkn)][1]"
                                     [style.background-color]="
                                         colors[type(bkn)][0]
@@ -101,10 +109,15 @@ interface Weekday {
                                             ? '
 ' + location(bkn)
                                             : '') +
+                                        (visitorName(bkn)
+                                            ? '
+' + visitorName(bkn)
+                                            : '') +
                                         '
 ' +
                                         ($any(bkn).user_name ||
-                                            ($any(bkn).host | user | async)?.name ||
+                                            ($any(bkn).host | user | async)
+                                                ?.name ||
                                             $any(bkn).host) +
                                         '
 ' +
@@ -113,14 +126,36 @@ interface Weekday {
                                         (bkn.date_end | date: 'shortTime')
                                     "
                                 >
-                                    <div class="truncate text-sm">
-                                        {{ bkn.title }}
+                                    <div
+                                        class="flex items-start justify-between gap-2"
+                                    >
+                                        <div class="min-w-0 truncate text-sm">
+                                            {{ bkn.title }}
+                                        </div>
+                                        @if (bookingStatus(bkn); as status) {
+                                            <div
+                                                class="h-2.5 w-2.5 flex-shrink-0 rounded-full"
+                                                [style.background-color]="
+                                                    statusColor(status)
+                                                "
+                                                [matTooltip]="
+                                                    statusLabel(status)
+                                                "
+                                            ></div>
+                                        }
                                     </div>
                                     @if (location(bkn)) {
                                         <div
                                             class="truncate text-xs opacity-75"
                                         >
                                             {{ location(bkn) }}
+                                        </div>
+                                    }
+                                    @if (visitorName(bkn)) {
+                                        <div
+                                            class="truncate text-xs opacity-60"
+                                        >
+                                            {{ visitorName(bkn) }}
                                         </div>
                                     }
                                     <div class="text-xs">
@@ -207,8 +242,11 @@ export class ScheduleWeekViewComponent {
 
     public readonly weekdays = computed(() => {
         const days: Weekday[] = [];
+        const week_start = startOfWeek(this.date(), {
+            weekStartsOn: this._state.offset_weekday,
+        });
         for (let i = 0; i < 7; i++) {
-            const date = addDays(startOfWeek(this.date()), i);
+            const date = addDays(week_start, i);
             days.push({
                 id: format(date, 'yyyy-MM-dd'),
                 date: date.valueOf(),
@@ -233,38 +271,53 @@ export class ScheduleWeekViewComponent {
         return booking.extension_data?.shared_event ? 'group-event' : 'event';
     }
 
+    public bookingStatus(
+        booking: Booking | CalendarEvent,
+    ): 'approved' | 'tentative' | 'declined' | 'waitlisted' | null {
+        const status = booking.status;
+        if (
+            status === 'tentative' &&
+            booking instanceof Booking &&
+            booking.booking_type === 'parking' &&
+            isSameWeek(Date.now(), booking.date, {
+                weekStartsOn: this._state.offset_weekday,
+            })
+        ) {
+            return 'waitlisted';
+        }
+        return status === 'approved' ||
+            status === 'tentative' ||
+            status === 'declined'
+            ? status
+            : null;
+    }
+
+    public statusLabel(
+        status: 'approved' | 'tentative' | 'declined' | 'waitlisted',
+    ) {
+        return status.charAt(0).toUpperCase() + status.slice(1);
+    }
+
+    public statusColor(
+        status: 'approved' | 'tentative' | 'declined' | 'waitlisted',
+    ) {
+        if (status === 'approved') return 'var(--success)';
+        if (status === 'waitlisted') return 'var(--info)';
+        if (status === 'tentative') return 'var(--warn)';
+        return 'var(--error)';
+    }
+
+    public visitorName(booking: Booking | CalendarEvent): string {
+        // Only visitor bookings have a visitor name; for other types this
+        // would fall back to the raw `asset_id` (e.g. unallocated parking).
+        if (booking instanceof Booking && booking.booking_type === 'visitor') {
+            return visitorDisplayNameFor(booking);
+        }
+        return '';
+    }
+
     public location(booking: Booking | CalendarEvent): string {
-        let location = '';
-        let level_name = '';
-
-        if (booking instanceof Booking) {
-            location = booking.location || booking.asset_name || '';
-            const level = this._org.levelWithID(booking.zones);
-            level_name = level?.display_name || level?.name || '';
-        } else {
-            location =
-                booking.location ||
-                booking.space?.display_name ||
-                booking.space?.name ||
-                (booking.system as any)?.name ||
-                '';
-            level_name =
-                booking.space?.level?.display_name ||
-                booking.space?.level?.name ||
-                (booking.system as any)?.zones
-                    ? this._org.levelWithID(
-                          (booking.system as any)?.zones || [],
-                      )?.display_name ||
-                      this._org.levelWithID(
-                          (booking.system as any)?.zones || [],
-                      )?.name
-                    : '';
-        }
-
-        if (location && level_name) {
-            return `${location} - ${level_name}`;
-        }
-        return location || level_name || '';
+        return bookingLocationString(booking, this._org);
     }
 
     public viewBooking(bkn: CalendarEvent | Booking) {

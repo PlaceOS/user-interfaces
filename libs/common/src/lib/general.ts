@@ -1,3 +1,10 @@
+import {
+    effect,
+    untracked,
+    type Injector,
+    type Signal,
+    type WritableSignal,
+} from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { Signal as TSSignal } from '@placeos/ts-client';
 import {
@@ -1004,9 +1011,142 @@ export interface FormTimeSyncHandle {
  * @returns A {@link FormTimeSyncHandle} with the active subscriptions and an
  *          `updateOptions` function for runtime reconfiguration.
  */
-export function setupFormTimeSync(
-    form: FormGroup,
+/**
+ * Result of a signal-forms generator: the writable model signal that holds
+ * the raw value, and the {@link https://angular.dev | FieldTree} produced by
+ * `form()` for binding/validation. The `_time_sync` and any lock signals are
+ * attached to `form` by the generator for the owning service to drive.
+ */
+export interface SignalFormRef<T, F = any> {
+    /** Writable signal holding the raw form value (the `getRawValue` equivalent). */
+    model: WritableSignal<T>;
+    /** FieldTree from `form(model, schema)` used for template binding + state. */
+    form: F;
+}
+
+/**
+ * Coerce invalid empty values written to a signal-forms model back to a typed
+ * default. Signal-forms removes or degrades a sub-field the moment a defined
+ * field becomes `undefined` or a non-nullable object field becomes `null`,
+ * which permanently breaks any `[formField]` bound to it (`this.field() is not
+ * a function`). Wrapping the model's `set`/`update` keeps every key defined at
+ * the write boundary, adding no reactive surface (so it can never feed a
+ * change-detection loop).
+ */
+export function guardModelUndefinedWrites<T extends object>(
+    model: WritableSignal<T>,
+    defaults: T,
+): void {
+    const sanitize = (value: T): T => {
+        for (const key of Object.keys(defaults)) {
+            const default_value = (defaults as any)[key];
+            const current_value = (value as any)[key];
+            if (
+                current_value === undefined ||
+                (current_value === null && default_value !== null)
+            ) {
+                (value as any)[key] = default_value;
+            }
+        }
+        return value;
+    };
+    const set = model.set.bind(model);
+    const update = model.update.bind(model);
+    model.set = (value: T) => set(sanitize({ ...value }));
+    model.update = (fn: (current: T) => T) =>
+        update((current) => sanitize({ ...fn(current) }));
+}
+
+/**
+ * Signal-forms replacement for `control.valueChanges.subscribe`. Runs
+ * `handler` whenever the value selected from `model` changes (compared with
+ * `Object.is`). The selected field's previous value is captured *before*
+ * `handler` runs so that handlers which write back to other fields don't
+ * re-trigger themselves — the equivalent of the old `{ emitEvent: false }`.
+ *
+ * Returns a teardown. Falls back to a no-op when created outside an Angular
+ * injection context and no `injector` is supplied (e.g. forms built bare in
+ * unit tests).
+ */
+export function onFieldChange<T, V>(
+    model: Signal<T>,
+    select: (value: T) => V,
+    handler: (current: V, previous: V) => void,
+    injector?: Injector,
+): { destroy: () => void } {
+    let previous = select(untracked(model));
+    const body = () => {
+        const current = select(model());
+        if (Object.is(current, previous)) return;
+        const prior = previous;
+        previous = current;
+        handler(current, prior);
+    };
+    try {
+        const ref = injector ? effect(body, { injector }) : effect(body);
+        return { destroy: () => ref.destroy() };
+    } catch {
+        return { destroy: () => {} };
+    }
+}
+
+/**
+ * Signal-forms equivalent of {@link getInvalidFields}: returns the list of
+ * top-level field keys whose field state is currently invalid, mapped through
+ * the optional friendly-name `mappings`. The form value is read via `model`.
+ */
+export function getInvalidSignalFields<T extends object>(
+    form: any,
+    model: Signal<T>,
+    mappings: Record<string, string> = {},
+): string[] {
+    const value = untracked(model) as Record<string, unknown>;
+    const invalid: string[] = [];
+    for (const key of Object.keys(value || {})) {
+        const field = form?.[key];
+        try {
+            if (typeof field === 'function' && field()?.invalid?.()) {
+                invalid.push(key);
+            }
+        } catch {
+            // Field has no state — skip.
+        }
+    }
+    return invalid.map((field) => mappings[field] || field);
+}
+
+/**
+ * Signal-forms equivalent of `FormGroup.patchValue`: writes the keys of
+ * `partial` that already exist in the model and leaves every other field
+ * untouched. Unknown keys are ignored, matching reactive `patchValue`.
+ */
+export function patchSignalModel<T extends object>(
+    model: WritableSignal<T>,
+    partial: Partial<T> | Record<string, unknown> | null | undefined,
+): void {
+    if (!partial) return;
+    model.update((current) => {
+        const next = { ...current } as Record<string, unknown>;
+        for (const key of Object.keys(partial)) {
+            if (key in current) next[key] = (partial as any)[key];
+        }
+        return next as T;
+    });
+}
+
+/** Subset of a form model that the time sync reads and writes. */
+export interface TimeSyncModel {
+    id?: string;
+    date?: number;
+    duration?: number;
+    date_end?: number;
+    all_day?: boolean;
+}
+
+export function setupFormTimeSync<T extends TimeSyncModel>(
+    model: WritableSignal<T>,
     options: FormTimeSyncOptions = {},
+    injector?: Injector,
 ): FormTimeSyncHandle {
     let min_duration = options.min_duration ?? 30;
     let max_duration = options.max_duration ?? 0;
@@ -1026,6 +1166,86 @@ export function setupFormTimeSync(
     const round_to = options.round_to ?? 5;
     const on_change = options.on_time_change;
 
+    /** Read the current model value without creating a reactive dependency. */
+    const snap = (): T => untracked(model);
+    const finiteNumber = (value: unknown): number | undefined => {
+        const number = Number(value);
+        return Number.isFinite(number) ? number : undefined;
+    };
+    const sameValue = (a: unknown, b: unknown) => Object.is(a, b);
+    const normaliseTimeValue = (value: unknown) => finiteNumber(value) ?? 0;
+    /**
+     * Tracks the last-applied date/duration/date_end/all_day so that each
+     * field effect only reacts to a change in its own field and programmatic
+     * writes never re-trigger the sibling effects (the signal equivalent of
+     * the old `{ emitEvent: false }` patches).
+     */
+    const prev: {
+        date?: number;
+        duration?: number;
+        date_end?: number;
+        all_day?: boolean;
+    } = {
+        date: finiteNumber(snap().date),
+        duration: finiteNumber(snap().duration),
+        date_end: finiteNumber(snap().date_end),
+        all_day: snap().all_day,
+    };
+    const refreshPrev = () => {
+        const s = snap();
+        prev.date = finiteNumber(s.date);
+        prev.duration = finiteNumber(s.duration);
+        prev.date_end = finiteNumber(s.date_end);
+        prev.all_day = s.all_day;
+    };
+    // Re-entrancy guard. The duration↔date_end effects both read and write the
+    // model, so a configuration where they can't reach a mutual fixed point
+    // (e.g. a bookable window whose remaining minutes aren't a multiple of
+    // `round_to`, so the ceil-rounded end and the clamped duration never agree)
+    // makes them rewrite each other forever — an unbounded `model.update`
+    // storm that hangs change detection and exhausts memory. Cap the number of
+    // model-mutating patches per synchronous burst; once exceeded, accept the
+    // current value as settled so the form degrades gracefully instead of
+    // freezing the tab. The counter resets on the next event-loop turn, so
+    // genuine user edits always start fresh.
+    const MAX_SYNC_PATCHES = 12;
+    let sync_patches = 0;
+    let reset_scheduled = false;
+    /** Apply a patch to the model and refresh the change-tracking snapshot. */
+    const applyPatch = (patch: Partial<T>) => {
+        const current = snap();
+        const safe_patch = { ...patch } as Record<string, unknown>;
+        for (const key of ['date', 'duration', 'date_end']) {
+            if (key in safe_patch) {
+                safe_patch[key] = normaliseTimeValue(safe_patch[key]);
+            }
+        }
+        const keys = Object.keys(safe_patch);
+        if (keys.every((key) => sameValue(current[key], safe_patch[key]))) {
+            refreshPrev();
+            return false;
+        }
+        if (sync_patches >= MAX_SYNC_PATCHES) {
+            console.warn(
+                'setupFormTimeSync: aborting runaway time-sync corrections',
+                safe_patch,
+            );
+            refreshPrev();
+            return false;
+        }
+        sync_patches++;
+        if (!reset_scheduled) {
+            reset_scheduled = true;
+            setTimeout(() => {
+                sync_patches = 0;
+                reset_scheduled = false;
+            });
+        }
+        model.update((value) => ({ ...value, ...(safe_patch as Partial<T>) }));
+        refreshPrev();
+        return true;
+    };
+
     const effective_min_duration = () =>
         Math.min(min_duration, ...custom_duration_options);
 
@@ -1038,8 +1258,7 @@ export function setupFormTimeSync(
             roundingMethod: 'ceil',
         }).valueOf();
 
-    const allDayMinDate = () =>
-        form.getRawValue().id ? undefined : Date.now();
+    const allDayMinDate = () => (snap().id ? undefined : Date.now());
 
     /**
      * Minutes remaining in the bookable window from `start` until the end of
@@ -1049,12 +1268,17 @@ export function setupFormTimeSync(
      * window).
      */
     const bookableWindowRemaining = (start: number): number => {
-        if (!bookable_hours || !start || form.value.id)
+        start = normaliseTimeValue(start);
+        if (!bookable_hours || !start || snap().id)
             return Number.POSITIVE_INFINITY;
         const time = timezone ? toZonedTime(start, timezone) : new Date(start);
         const start_minutes = time.getHours() * 60 + time.getMinutes();
         const end_minutes = bookable_hours.end * 60;
-        return Math.max(0, end_minutes - start_minutes);
+        const remaining = Math.max(0, end_minutes - start_minutes);
+        // Floor to the rounding grid so a window-capped duration and the
+        // ceil-rounded `date_end` share a fixed point (otherwise the two time
+        // effects rewrite each other indefinitely — see the applyPatch guard).
+        return Math.floor(remaining / round_to) * round_to;
     };
 
     /**
@@ -1064,13 +1288,17 @@ export function setupFormTimeSync(
      * that means falling below `min_duration`.
      */
     const clampDuration = (dur: number, start?: number): number => {
+        dur = normaliseTimeValue(dur);
+        start = normaliseTimeValue(start);
         if (is_custom_duration(dur)) {
             const window = bookableWindowRemaining(start);
+            if (window <= 0) return dur;
             return Math.min(dur, window);
         }
         let clamped = Math.max(dur, min_duration);
         if (max_duration > 0) clamped = Math.min(clamped, max_duration);
-        clamped = Math.min(clamped, bookableWindowRemaining(start));
+        const window = bookableWindowRemaining(start);
+        if (window > 0) clamped = Math.min(clamped, window);
         return clamped;
     };
 
@@ -1084,7 +1312,8 @@ export function setupFormTimeSync(
         date: number,
         preserve_calendar_day = false,
     ): number => {
-        if (!bookable_hours || !date || form.value.id) return date;
+        date = normaliseTimeValue(date);
+        if (!bookable_hours || !date || snap().id) return date;
         if (preserve_calendar_day) {
             return alignDateToBookableHours(
                 date,
@@ -1118,6 +1347,8 @@ export function setupFormTimeSync(
 
     /** Check whether date and date_end fall on different calendar days. */
     const isMultiday = (date: number, date_end: number): boolean => {
+        date = normaliseTimeValue(date);
+        date_end = normaliseTimeValue(date_end);
         if (!date || !date_end) return false;
         const d = timezone ? toZonedTime(date, timezone) : new Date(date);
         const e = timezone
@@ -1132,7 +1363,8 @@ export function setupFormTimeSync(
      * the calendar date is preserved.
      */
     const alignEndToBookableHours = (date_end: number): number => {
-        if (!bookable_hours || !date_end || form.value.id) return date_end;
+        date_end = normaliseTimeValue(date_end);
+        if (!bookable_hours || !date_end || snap().id) return date_end;
         const time = timezone
             ? toZonedTime(date_end, timezone)
             : new Date(date_end);
@@ -1167,13 +1399,47 @@ export function setupFormTimeSync(
     };
 
     const subscriptions: Subscription[] = [];
-    let last_date = form.getRawValue().date;
+
+    /**
+     * Create an effect that runs `handler` only when the field selected by
+     * `select` actually changes. All four time effects depend on the whole
+     * model signal (a field read is coarse), so the explicit per-field gate
+     * is what keeps each stream isolated. Falls back to a no-op when no
+     * injection context is available (e.g. forms built outside Angular DI in
+     * unit tests) — `updateOptions` still works in that case.
+     */
+    const fieldEffect = (
+        select: (value: T) => number | boolean,
+        handler: () => void,
+    ) => {
+        const body = () => {
+            const current = select(model());
+            if (sameValue(current, select(prev as T))) return;
+            try {
+                handler();
+            } finally {
+                refreshPrev();
+            }
+        };
+        try {
+            const ref = injector ? effect(body, { injector }) : effect(body);
+            subscriptions.push({
+                unsubscribe: () => ref.destroy(),
+            } as Subscription);
+        } catch {
+            // No injection context — skip live syncing.
+        }
+    };
 
     // duration → date_end (with min/max enforcement)
-    subscriptions.push(
-        form.controls.duration.valueChanges.subscribe((dur: number) => {
-            if (form.value.all_day) return;
-            const date = form.getRawValue().date;
+    fieldEffect(
+        (v) => v.duration,
+        () => {
+            const s = snap();
+            if (s.all_day) return;
+            const dur = normaliseTimeValue(s.duration);
+            const date = normaliseTimeValue(s.date);
+            if (!date) return;
             const new_end = roundCeil(addMinutes(date, dur));
             const multiday = isMultiday(date, new_end);
             if (multiday) {
@@ -1181,25 +1447,35 @@ export function setupFormTimeSync(
                 // time to bookable hours on the end day
                 const aligned_end = alignEndToBookableHours(new_end);
                 const actual_dur = differenceInMinutes(aligned_end, date);
-                const patch: Record<string, any> = { date_end: aligned_end };
-                if (actual_dur !== dur) patch.duration = actual_dur;
-                form.patchValue(patch, { emitEvent: false });
+                const patch: Partial<T> = {
+                    date_end: aligned_end,
+                } as Partial<T>;
+                if (actual_dur !== dur)
+                    (patch as TimeSyncModel).duration = actual_dur;
+                applyPatch(patch);
             } else {
                 const clamped = clampDuration(dur, date);
                 const clamped_end = roundCeil(addMinutes(date, clamped));
-                const patch: Record<string, any> = { date_end: clamped_end };
-                if (clamped !== dur) patch.duration = clamped;
-                form.patchValue(patch, { emitEvent: false });
+                const patch: Partial<T> = {
+                    date_end: clamped_end,
+                } as Partial<T>;
+                if (clamped !== dur)
+                    (patch as TimeSyncModel).duration = clamped;
+                applyPatch(patch);
             }
             on_change?.();
-        }),
+        },
     );
 
     // date_end → duration (with min/max enforcement)
-    subscriptions.push(
-        form.controls.date_end.valueChanges.subscribe((end: number) => {
-            if (form.value.all_day) return;
-            const date = form.getRawValue().date;
+    fieldEffect(
+        (v) => v.date_end,
+        () => {
+            const s = snap();
+            if (s.all_day) return;
+            const end = normaliseTimeValue(s.date_end);
+            const date = normaliseTimeValue(s.date);
+            if (!date || !end) return;
             const raw = differenceInMinutes(end, date);
             const multiday = isMultiday(date, end);
             if (multiday) {
@@ -1208,34 +1484,34 @@ export function setupFormTimeSync(
                 const aligned_end = alignEndToBookableHours(end);
                 const actual_dur = differenceInMinutes(aligned_end, date);
                 if (aligned_end !== end) {
-                    form.patchValue(
-                        { date_end: aligned_end, duration: actual_dur },
-                        { emitEvent: false },
-                    );
+                    applyPatch({
+                        date_end: aligned_end,
+                        duration: actual_dur,
+                    } as Partial<T>);
                 } else {
-                    form.patchValue({ duration: raw }, { emitEvent: false });
+                    applyPatch({ duration: raw } as Partial<T>);
                 }
             } else {
                 const clamped = clampDuration(raw, date);
                 if (clamped !== raw) {
-                    form.patchValue(
-                        {
-                            date_end: roundCeil(addMinutes(date, clamped)),
-                            duration: clamped,
-                        },
-                        { emitEvent: false },
-                    );
+                    applyPatch({
+                        date_end: roundCeil(addMinutes(date, clamped)),
+                        duration: clamped,
+                    } as Partial<T>);
                 } else {
-                    form.patchValue({ duration: raw }, { emitEvent: false });
+                    applyPatch({ duration: raw } as Partial<T>);
                 }
             }
             on_change?.();
-        }),
+        },
     );
 
     // date → date_end + past-date snap + bookable-hours alignment
-    subscriptions.push(
-        form.controls.date.valueChanges.subscribe((date: number) => {
+    fieldEffect(
+        (v) => v.date,
+        () => {
+            const date = normaliseTimeValue(snap().date);
+            const last_date = normaliseTimeValue(prev.date);
             const previous_time = timezone
                 ? toZonedTime(last_date, timezone)
                 : new Date(last_date);
@@ -1246,135 +1522,119 @@ export function setupFormTimeSync(
                 !!last_date && !!date && !isSameDay(previous_time, next_time);
             const aligned = alignToBookableHours(date, calendar_day_changed);
             let effective = aligned !== date ? aligned : date;
-            if (
-                form.value.all_day &&
-                effective < Date.now() &&
-                !form.value.id
-            ) {
+            const is_all_day = snap().all_day;
+            const has_id = !!snap().id;
+            if (is_all_day && effective < Date.now() && !has_id) {
                 const snapped = roundCeil(Date.now());
                 effective = alignToBookableHours(snapped) || snapped;
             }
-            if (form.value.all_day) {
-                form.patchValue(
+            if (is_all_day) {
+                applyPatch(
                     getAllDayTimeRange(
                         effective,
                         timezone,
                         all_day_start,
                         all_day_end,
                         allDayMinDate(),
-                    ),
-                    { emitEvent: false },
+                    ) as Partial<T>,
                 );
                 on_change?.();
                 return;
             }
             const expected_end = roundCeil(
-                addMinutes(effective, form.getRawValue().duration),
+                addMinutes(effective, normaliseTimeValue(snap().duration)),
             );
             const multiday = isMultiday(effective, expected_end);
-            if (!form.value.all_day) {
-                if (multiday) {
-                    const current_end = form.getRawValue().date_end;
-                    if (current_end <= effective) {
-                        // End date is now at or before the new start —
-                        // advance it using start + duration
-                        const new_end =
-                            alignEndToBookableHours(expected_end) ||
-                            expected_end;
-                        form.patchValue(
-                            {
-                                date_end: new_end,
-                                duration: differenceInMinutes(
-                                    new_end,
-                                    effective,
-                                ),
-                            },
-                            { emitEvent: false },
-                        );
-                    } else {
-                        // Preserve the existing end date/time
-                        // but align its wall-clock time to bookable hours
-                        const aligned_end =
-                            alignEndToBookableHours(current_end);
-                        if (aligned_end !== current_end) {
-                            form.patchValue(
-                                {
-                                    date_end: aligned_end,
-                                    duration: differenceInMinutes(
-                                        aligned_end,
-                                        effective,
-                                    ),
-                                },
-                                { emitEvent: false },
-                            );
-                        } else {
-                            form.patchValue(
-                                {
-                                    duration: differenceInMinutes(
-                                        current_end,
-                                        effective,
-                                    ),
-                                },
-                                { emitEvent: false },
-                            );
-                        }
-                    }
+            if (multiday) {
+                const current_end = normaliseTimeValue(snap().date_end);
+                if (current_end <= effective) {
+                    // End date is now at or before the new start —
+                    // advance it using start + duration
+                    const new_end =
+                        alignEndToBookableHours(expected_end) || expected_end;
+                    applyPatch({
+                        date_end: new_end,
+                        duration: differenceInMinutes(new_end, effective),
+                    } as Partial<T>);
                 } else {
-                    const duration = form.getRawValue().duration;
-                    const capped = clampDuration(duration, effective);
-                    const capped_end =
-                        capped === duration
-                            ? expected_end
-                            : roundCeil(addMinutes(effective, capped));
-                    const patch: Record<string, any> = { date_end: capped_end };
-                    if (capped !== duration) patch.duration = capped;
-                    form.patchValue(patch, { emitEvent: false });
+                    // Preserve the existing end date/time
+                    // but align its wall-clock time to bookable hours
+                    const aligned_end = alignEndToBookableHours(current_end);
+                    if (aligned_end !== current_end) {
+                        applyPatch({
+                            date_end: aligned_end,
+                            duration: differenceInMinutes(
+                                aligned_end,
+                                effective,
+                            ),
+                        } as Partial<T>);
+                    } else {
+                        applyPatch({
+                            duration: differenceInMinutes(
+                                current_end,
+                                effective,
+                            ),
+                        } as Partial<T>);
+                    }
                 }
+            } else {
+                const duration = normaliseTimeValue(snap().duration);
+                const capped = clampDuration(duration, effective);
+                const capped_end =
+                    capped === duration
+                        ? expected_end
+                        : roundCeil(addMinutes(effective, capped));
+                const patch: Partial<T> = {
+                    date_end: capped_end,
+                } as Partial<T>;
+                if (capped !== duration)
+                    (patch as TimeSyncModel).duration = capped;
+                applyPatch(patch);
             }
-            if (effective < Date.now() && !form.value.id) {
+            if (effective < Date.now() && !has_id) {
                 const snapped = roundCeil(Date.now());
-                form.patchValue(
-                    { date: alignToBookableHours(snapped) || snapped },
-                    { emitEvent: false },
-                );
+                applyPatch({
+                    date: alignToBookableHours(snapped) || snapped,
+                } as Partial<T>);
             } else if (aligned !== date) {
-                form.patchValue({ date: aligned }, { emitEvent: false });
+                applyPatch({ date: aligned } as Partial<T>);
             }
-            last_date = form.getRawValue().date;
             on_change?.();
-        }),
+        },
     );
 
     // all_day toggle
-    if (form.controls.all_day) {
-        subscriptions.push(
-            form.controls.all_day.valueChanges.subscribe((all_day: boolean) => {
-                if (all_day) {
-                    form.patchValue(
-                        getAllDayTimeRange(
-                            form.getRawValue().date,
-                            timezone,
-                            all_day_start,
-                            all_day_end,
-                            allDayMinDate(),
-                        ),
-                        { emitEvent: false },
-                    );
-                } else {
-                    const date = form.getRawValue().date;
-                    const dur = clampDuration(default_duration, date);
-                    form.patchValue(
-                        {
-                            duration: dur,
-                            date_end: roundCeil(addMinutes(date, dur)),
-                        },
-                        { emitEvent: false },
-                    );
-                }
-                on_change?.();
-            }),
-        );
-    }
+    fieldEffect(
+        (v) => v.all_day,
+        () => {
+            const all_day = snap().all_day;
+            if (all_day) {
+                applyPatch(
+                    getAllDayTimeRange(
+                        normaliseTimeValue(snap().date),
+                        timezone,
+                        all_day_start,
+                        all_day_end,
+                        allDayMinDate(),
+                    ) as Partial<T>,
+                );
+            } else {
+                const date = normaliseTimeValue(snap().date);
+                const duration = normaliseTimeValue(snap().duration);
+                const date_end = normaliseTimeValue(snap().date_end);
+                const explicit_window =
+                    !sameValue(duration, normaliseTimeValue(prev.duration)) ||
+                    !sameValue(date_end, normaliseTimeValue(prev.date_end));
+                if (explicit_window) return;
+                const dur = clampDuration(default_duration, date);
+                applyPatch({
+                    duration: dur,
+                    date_end: roundCeil(addMinutes(date, dur)),
+                } as Partial<T>);
+            }
+            on_change?.();
+        },
+    );
 
     const handle: FormTimeSyncHandle = {
         subscriptions,
@@ -1400,46 +1660,42 @@ export function setupFormTimeSync(
             if (patch.all_day_end !== undefined)
                 all_day_end = patch.all_day_end;
 
-            if (form.value.all_day && form.getRawValue().date) {
-                form.patchValue(
+            if (snap().all_day && snap().date) {
+                applyPatch(
                     getAllDayTimeRange(
-                        form.getRawValue().date,
+                        normaliseTimeValue(snap().date),
                         timezone,
                         all_day_start,
                         all_day_end,
                         allDayMinDate(),
-                    ),
-                    { emitEvent: false },
+                    ) as Partial<T>,
                 );
                 on_change?.();
                 return;
             }
 
             // Re-clamp the current duration to the new bounds
-            if (!form.value.all_day) {
-                const date = form.getRawValue().date;
-                const date_end = form.getRawValue().date_end;
+            if (!snap().all_day) {
+                const date = normaliseTimeValue(snap().date);
+                const date_end = normaliseTimeValue(snap().date_end);
                 const multiday = isMultiday(date, date_end);
                 if (!multiday) {
-                    const current = form.getRawValue().duration;
+                    const current = normaliseTimeValue(snap().duration);
                     const clamped = clampDuration(current, date);
                     if (clamped !== current) {
-                        form.patchValue(
-                            {
-                                duration: clamped,
-                                date_end: roundCeil(addMinutes(date, clamped)),
-                            },
-                            { emitEvent: false },
-                        );
+                        applyPatch({
+                            duration: clamped,
+                            date_end: roundCeil(addMinutes(date, clamped)),
+                        } as Partial<T>);
                         on_change?.();
                     }
                 }
             }
 
             // Re-align the current date to the (possibly new) bookable window
-            if (bookable_hours && !form.value.all_day) {
-                const date = form.getRawValue().date;
-                const date_end = form.getRawValue().date_end;
+            if (bookable_hours && !snap().all_day) {
+                const date = normaliseTimeValue(snap().date);
+                const date_end = normaliseTimeValue(snap().date_end);
                 const multiday = isMultiday(date, date_end);
                 const aligned = alignToBookableHours(date);
                 if (aligned !== date) {
@@ -1447,46 +1703,31 @@ export function setupFormTimeSync(
                         // For multiday, align start to bookable hours
                         // and also align end to bookable hours on its day
                         const aligned_end = alignEndToBookableHours(date_end);
-                        form.patchValue(
-                            {
-                                date: aligned,
-                                date_end: aligned_end,
-                                duration: differenceInMinutes(
-                                    aligned_end,
-                                    aligned,
-                                ),
-                            },
-                            { emitEvent: false },
-                        );
+                        applyPatch({
+                            date: aligned,
+                            date_end: aligned_end,
+                            duration: differenceInMinutes(aligned_end, aligned),
+                        } as Partial<T>);
                     } else {
-                        form.patchValue(
-                            {
-                                date: aligned,
-                                date_end: roundCeil(
-                                    addMinutes(
-                                        aligned,
-                                        form.getRawValue().duration,
-                                    ),
+                        applyPatch({
+                            date: aligned,
+                            date_end: roundCeil(
+                                addMinutes(
+                                    aligned,
+                                    normaliseTimeValue(snap().duration),
                                 ),
-                            },
-                            { emitEvent: false },
-                        );
+                            ),
+                        } as Partial<T>);
                     }
                     on_change?.();
                 } else if (multiday) {
                     // Start is fine, but also align end to bookable hours
                     const aligned_end = alignEndToBookableHours(date_end);
                     if (aligned_end !== date_end) {
-                        form.patchValue(
-                            {
-                                date_end: aligned_end,
-                                duration: differenceInMinutes(
-                                    aligned_end,
-                                    date,
-                                ),
-                            },
-                            { emitEvent: false },
-                        );
+                        applyPatch({
+                            date_end: aligned_end,
+                            duration: differenceInMinutes(aligned_end, date),
+                        } as Partial<T>);
                         on_change?.();
                     }
                 }
@@ -1503,7 +1744,7 @@ export function setupFormTimeSync(
  * `generateBookingForm`). Returns `undefined` if no handle is attached.
  */
 export function getFormTimeSyncHandle(
-    form: FormGroup,
+    form: { _time_sync?: FormTimeSyncHandle } | null | undefined,
 ): FormTimeSyncHandle | undefined {
     return (form as any)?._time_sync;
 }

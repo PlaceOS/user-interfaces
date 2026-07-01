@@ -1,6 +1,5 @@
 import { DatePipe } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
@@ -113,16 +112,12 @@ export class SelectMeetingModalComponent {
     private _dialog_ref =
         inject<MatDialogRef<SelectMeetingModalComponent>>(MatDialogRef);
 
-    public readonly calendars = toSignal(this._service.calendars, {
-        initialValue: [],
-    });
-    public readonly events = toSignal(this._service.events, {
-        initialValue: [],
-    });
+    public readonly calendars = this._service.calendars;
+    public readonly events = this._service.events;
 
     public readonly loading = signal(false);
 
-    public readonly calendar = toSignal(this._service.calendar);
+    public readonly calendar = this._service.calendar;
 
     public readonly setCalendar = (c: any) => this._service.setCalendar(c);
 

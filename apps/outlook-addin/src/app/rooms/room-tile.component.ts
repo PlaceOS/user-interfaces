@@ -1,4 +1,8 @@
-import { Component, inject, signal } from '@angular/core';
+import {
+    Component,
+    inject,
+    signal,
+} from '@angular/core';
 import {
     MAT_BOTTOM_SHEET_DATA,
     MatBottomSheetRef,

@@ -1,29 +1,20 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, signal } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
+import {
+    Component,
+    computed,
+    inject,
+    OnInit,
+    resource,
+    signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import {
-    addStringKey,
-    AsyncHandler,
-    removeStringKey,
-    SettingsService,
-} from '@placeos/common';
+import { AsyncHandler, SettingsService } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { DateRangeFieldComponent } from '@placeos/form-fields';
-import { queryAnswers, Survey } from '@placeos/ts-client';
+import { queryAnswers, SurveyAnswer } from '@placeos/ts-client';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { combineLatest, from, of } from 'rxjs';
-import {
-    catchError,
-    filter,
-    map,
-    shareReplay,
-    startWith,
-    switchMap,
-    tap,
-} from 'rxjs/operators';
 import { NewSurveyWidgetComponent } from './new-survey-widget.component';
 import { NewSurveyService } from './new-survey.service';
 
@@ -52,7 +43,8 @@ import { NewSurveyService } from './new-survey.service';
                     [routerLink]="[
                         '/surveys',
                         'list',
-                        (survey$ | async)?.building_id,
+
+                        survey()?.building_id,
                     ]"
                 >
                     <icon class="flex">arrow_back</icon>
@@ -62,7 +54,7 @@ import { NewSurveyService } from './new-survey.service';
                         {{ 'APP.CONCIERGE.SURVEY_ANSWERS_HEADER' | translate }}
                     </div>
                     <div class="text-lg">
-                        {{ (survey$ | async)?.title || '' }}
+                        {{ survey()?.title || '' }}
                     </div>
                 </div>
             </div>
@@ -87,7 +79,7 @@ import { NewSurveyService } from './new-survey.service';
                     {{ 'APP.CONCIERGE.SURVEY_ANSWERS_QUESTIONS' | translate }}
                 </h3>
                 <p class="text-4xl">
-                    {{ (questions$ | async)?.length || 0 }}
+                    {{ questions().length || 0 }}
                 </p>
             </div>
             <div
@@ -97,7 +89,7 @@ import { NewSurveyService } from './new-survey.service';
                     {{ 'APP.CONCIERGE.SURVEY_ANSWERS_ANSWERS' | translate }}
                 </h3>
                 <p class="text-4xl">
-                    {{ (answers$ | async)?.length || 0 }}
+                    {{ answers().length || 0 }}
                 </p>
             </div>
             <div
@@ -107,11 +99,11 @@ import { NewSurveyService } from './new-survey.service';
                     {{ 'APP.CONCIERGE.SURVEY_ANSWERS_TRIGGER' | translate }}
                 </h3>
                 <p class="font-mono text-xl capitalize">
-                    {{ (survey$ | async)?.trigger }}
+                    {{ survey()?.trigger }}
                 </p>
             </div>
         </div>
-        @let question_pages = paged_responses$ | async;
+        @let question_pages = paged_responses();
         @if (question_pages?.length > 0) {
             <div
                 class="border-base-300 bg-base-200 h-1/2 flex-1 overflow-auto border-t"
@@ -181,59 +173,52 @@ export class SurveyResponsesComponent extends AsyncHandler implements OnInit {
     private _service = inject(NewSurveyService);
 
     public readonly options = signal<any>({});
-    public readonly loading = signal('');
-    private readonly _options = toObservable(this.options);
 
-    public readonly survey$ = this._service.survey$;
-    public readonly questions$ = this._service.survey_questions$;
+    public readonly survey = this._service.survey;
+    public readonly questions = this._service.survey_questions;
 
-    public readonly answers$ = combineLatest([
-        this.survey$,
-        this._options,
-    ]).pipe(
-        filter(([_]) => !!_),
-        switchMap(([{ id }, { start, end }]) => {
-            this.loading.set(addStringKey(this.loading(), 'ANSWERS'));
-            const q: any = {
-                survey_id: id,
-            };
-            if (start || end) {
-                q.created_after = getUnixTime(startOfDay(start || Date.now()));
-                q.created_before = getUnixTime(endOfDay(end || Date.now()));
+    private readonly _answers = resource({
+        params: () => ({ survey: this.survey(), options: this.options() }),
+        defaultValue: [] as SurveyAnswer[],
+        loader: async ({ params: { survey, options } }) => {
+            if (!survey) return [];
+            const q: any = { survey_id: survey.id };
+            if (options.start || options.end) {
+                q.created_after = getUnixTime(
+                    startOfDay(options.start || Date.now()),
+                );
+                q.created_before = getUnixTime(
+                    endOfDay(options.end || Date.now()),
+                );
             }
-            return from(queryAnswers(q)).pipe(catchError(() => of([])));
-        }),
-        tap(() => this.loading.set(removeStringKey(this.loading(), 'ANSWERS'))),
-        shareReplay(1),
-        startWith([]),
+            return queryAnswers(q).catch(() => [] as SurveyAnswer[]);
+        },
+    });
+    public readonly answers = this._answers.value;
+    public readonly loading = computed(() =>
+        this._answers.isLoading() ? 'ANSWERS' : '',
     );
 
-    public readonly paged_responses$ = combineLatest([
-        this.survey$,
-        this.questions$,
-        this.answers$,
-    ]).pipe(
-        map(([survey, questions, answers]) => {
-            return [
-                survey,
-                questions.map((item) => ({
-                    question: item,
-                    answers: answers.filter((a) => a.question_id === item.id),
-                })),
-            ];
-        }),
-        map(([survey, q_list]: [Survey, any[]]) => {
-            const mapping = {};
-            q_list.forEach((e) => (mapping[e.question.id] = e));
-            const paged = [];
-            survey?.pages.forEach((p) => {
-                const t = { title: p.title, responses: [] };
-                p.question_order.forEach((q) => t.responses.push(mapping[q]));
-                paged.push(t);
-            });
-            return paged;
-        }),
-    );
+    public readonly paged_responses = computed(() => {
+        const survey = this.survey();
+        const questions = this.questions();
+        const answers = this.answers();
+        if (!survey) return [];
+        const mapping: Record<string, any> = {};
+        questions.forEach((question) => {
+            mapping[question.id] = {
+                question,
+                answers: answers.filter((a) => a.question_id === question.id),
+            };
+        });
+        const paged = [];
+        survey.pages.forEach((p) => {
+            const t = { title: p.title, responses: [] };
+            p.question_order.forEach((q) => t.responses.push(mapping[q]));
+            paged.push(t);
+        });
+        return paged;
+    });
 
     public get week_start() {
         return this._settings.get('app.week_start');

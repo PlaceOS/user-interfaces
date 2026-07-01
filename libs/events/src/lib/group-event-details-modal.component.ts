@@ -27,10 +27,9 @@ import {
     settingSignal,
     Space,
     unique,
+    ViewerFeature,
 } from '@placeos/common';
 import { MapLocateModalComponent, MapPinComponent } from '@placeos/components';
-import { ViewerFeature } from '@placeos/common';
-import { lastValueFrom } from 'rxjs';
 
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -188,22 +187,24 @@ import {
                                 </div>
                             </div>
                         </button>
-                        <button
-                            mat-menu-item
-                            (click)="remove ? remove(event(), false) : ''"
-                        >
-                            <div class="flex items-center space-x-2">
-                                <icon class="text-error text-2xl">
-                                    delete
-                                </icon>
-                                <div class="mr-2">
-                                    {{
-                                        'CALENDAR_EVENT.GROUP_DELETE'
-                                            | translate
-                                    }}
+                        @if (event().state !== 'done') {
+                            <button
+                                mat-menu-item
+                                (click)="remove(event(), false)"
+                            >
+                                <div class="flex items-center space-x-2">
+                                    <icon class="text-error text-2xl">
+                                        delete
+                                    </icon>
+                                    <div class="mr-2">
+                                        {{
+                                            'CALENDAR_EVENT.GROUP_DELETE'
+                                                | translate
+                                        }}
+                                    </div>
                                 </div>
-                            </div>
-                        </button>
+                            </button>
+                        }
                     </mat-menu>
                     <mat-menu #menu="matMenu">
                         <button
@@ -489,7 +490,6 @@ export class GroupEventDetailsModalComponent implements OnInit {
     );
 
     public readonly edit = this._data?.edit_fn;
-    public readonly remove = this._data?.remove_fn;
     public readonly space = signal<Space>(new Space());
     public readonly event = model(this._data?.event);
     public readonly is_limited = signal(!this._data);
@@ -541,6 +541,11 @@ export class GroupEventDetailsModalComponent implements OnInit {
             this.event().attendees?.filter((_: any) => _.checked_in)?.length ||
             0,
     );
+
+    public remove(event: CalendarEvent, remove_series?: boolean) {
+        if (event?.state === 'done') return;
+        this._data?.remove_fn(event, remove_series);
+    }
 
     public readonly attendees = computed(
         () =>
@@ -599,7 +604,7 @@ export class GroupEventDetailsModalComponent implements OnInit {
         const map_id = (this.event().extension_data as any)?.map_id;
         const id = this.space()?.map_id || map_id;
         if (id) {
-            this.styles[`#${id}`] = { fill: 'green' };
+            this.styles.set({ [`#${id}`]: { fill: 'green' } });
             this.features.set([
                 {
                     location: id,
@@ -628,8 +633,11 @@ export class GroupEventDetailsModalComponent implements OnInit {
         }
         this.showing_map.set(true);
         const ref = this._dialog.open(MapLocateModalComponent, {
-            maxWidth: '95vw',
-            maxHeight: '95vh',
+            width: '100vw',
+            height: '100vh',
+            maxWidth: '100vw',
+            maxHeight: '100vh',
+            panelClass: 'fullscreen-dialog',
             data: { item: this.space },
         });
         ref.afterClosed().subscribe(() => this.showing_map.set(false));
@@ -639,32 +647,34 @@ export class GroupEventDetailsModalComponent implements OnInit {
         let user = this.guest_details();
         const _user = new GuestUser(currentUser());
         if (this.is_interested() && user) {
-            await lastValueFrom(
-                removeEventGuest(this.event().id, _user, {
-                    system_id: this.calendar_space().id,
-                    calendar: this.group_event_calendar(),
-                }),
-            );
-            this.event.update((e) => {
-                (e as any).attendees = (e.attendees || []).filter(
-                    (_: any) => _.email !== user.email,
-                );
-                return e;
+            await removeEventGuest(this.event().id, _user, {
+                system_id: this.calendar_space().id,
+                calendar: this.group_event_calendar(),
             });
+            this.event.update(
+                (event) =>
+                    new CalendarEvent({
+                        ...event,
+                        attendees: (event.attendees || []).filter(
+                            (_: any) => _.email !== user.email,
+                        ),
+                    }),
+            );
         } else {
-            user = await lastValueFrom(
-                addEventGuest(this.event().id, _user, {
-                    system_id: this.calendar_space().id,
-                    calendar: this.group_event_calendar(),
-                }),
-            );
-            this.event.update((e) => {
-                (e as any).attendees = unique(
-                    [...(e.attendees || []), user],
-                    'email',
-                );
-                return e;
+            user = await addEventGuest(this.event().id, _user, {
+                system_id: this.calendar_space().id,
+                calendar: this.group_event_calendar(),
             });
+            this.event.update(
+                (event) =>
+                    new CalendarEvent({
+                        ...event,
+                        attendees: unique(
+                            [...(event.attendees || []), user],
+                            'email',
+                        ),
+                    }),
+            );
         }
     }
 
@@ -680,28 +690,40 @@ export class GroupEventDetailsModalComponent implements OnInit {
         let user = this.guest_details();
         const _user = new GuestUser(currentUser());
         if (!user) {
-            user = await lastValueFrom(
-                addEventGuest(this.event().id, _user, {
-                    system_id: this.event().system?.id,
-                    calendar: this.group_event_calendar(),
-                }),
-            );
-            (this.event as any).attendees = unique(
-                [...(this.event().attendees || []), user],
-                'email',
+            user = await addEventGuest(this.event().id, _user, {
+                system_id: this.event().system?.id,
+                calendar: this.group_event_calendar(),
+            });
+            this.event.update(
+                (event) =>
+                    new CalendarEvent({
+                        ...event,
+                        attendees: unique(
+                            [...(event.attendees || []), user],
+                            'email',
+                        ),
+                    }),
             );
         }
         user = { ...currentUser(), ...(user || {}) };
         if (!user.email) return;
-        await lastValueFrom(
-            checkinEventGuest(this.event().id, user.email, !this.is_going(), {
-                system_id: this.event().system?.id,
-            }),
-        );
+        await checkinEventGuest(this.event().id, user.email, !this.is_going(), {
+            system_id: this.event().system?.id,
+        });
         const guest = this.event().attendees.find(
             (_) => _.email === user.email,
         );
         if (!guest) return;
-        (guest as any).checked_in = !this.is_going();
+        this.event.update(
+            (event) =>
+                new CalendarEvent({
+                    ...event,
+                    attendees: event.attendees.map((attendee) =>
+                        attendee.email === user.email
+                            ? { ...attendee, checked_in: !this.is_going() }
+                            : attendee,
+                    ),
+                }),
+        );
     }
 }

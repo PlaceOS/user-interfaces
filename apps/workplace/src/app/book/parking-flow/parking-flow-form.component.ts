@@ -1,5 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormField } from '@angular/forms/signals';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatRippleModule } from '@angular/material/core';
 import { Router } from '@angular/router';
@@ -12,8 +12,7 @@ import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
     AsyncHandler,
     currentUser,
-    getInvalidFields,
-    nextValueFrom,
+    getInvalidSignalFields,
     notifyError,
     SettingsService,
 } from '@placeos/common';
@@ -33,7 +32,7 @@ import { ParkingFormDetailsComponent } from './parking-form-details.component';
                     class="border-base-200 w-full border-b p-4 text-2xl font-medium sm:px-16 sm:py-4"
                 >
                     {{
-                        (form.value.id
+                        (model().id
                             ? 'APP.WORKPLACE.PARKING_EDIT_HEADER'
                             : 'APP.WORKPLACE.PARKING_NEW_HEADER'
                         ) | translate
@@ -41,7 +40,6 @@ import { ParkingFormDetailsComponent } from './parking-form-details.component';
                 </h2>
                 <form
                     class="divide-base-200 space-y-2 divide-y p-0 sm:px-16 sm:py-4"
-                    [formGroup]="form"
                 >
                     <section class="p-2">
                         <h3 class="flex items-center space-x-2">
@@ -56,6 +54,7 @@ import { ParkingFormDetailsComponent } from './parking-form-details.component';
                             <div class="w-px flex-1"></div>
                             <button
                                 icon
+                                type="button"
                                 matRipple
                                 (click)="
                                     hide_block.details = !hide_block.details
@@ -91,6 +90,7 @@ import { ParkingFormDetailsComponent } from './parking-form-details.component';
                             <div class="w-px flex-1"></div>
                             <button
                                 icon
+                                type="button"
                                 matRipple
                                 (click)="hide_block.space = !hide_block.space"
                             >
@@ -106,7 +106,7 @@ import { ParkingFormDetailsComponent } from './parking-form-details.component';
                             [@show]="hide_block.space ? 'hide' : 'show'"
                         >
                             <parking-space-list-field
-                                formControlName="resources"
+                                [formField]="form.resources"
                             ></parking-space-list-field>
                         </div>
                     </section>
@@ -115,6 +115,7 @@ import { ParkingFormDetailsComponent } from './parking-form-details.component';
                     >
                         <button
                             btn
+                            type="button"
                             matRipple
                             confirm
                             class="mb-2 w-full sm:mb-0 sm:w-auto"
@@ -124,13 +125,14 @@ import { ParkingFormDetailsComponent } from './parking-form-details.component';
                         </button>
                         <button
                             btn
+                            type="button"
                             matRipple
                             clear-form
                             class="inverse w-full sm:w-auto"
                             (click)="clearForm()"
                         >
                             {{
-                                (form.value.id ? 'FORM.RESET' : 'FORM.CLEAR')
+                                (model().id ? 'FORM.RESET' : 'FORM.CLEAR')
                                     | translate
                             }}
                         </button>
@@ -143,7 +145,7 @@ import { ParkingFormDetailsComponent } from './parking-form-details.component';
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
     imports: [
         MatRippleModule,
-        ReactiveFormsModule,
+        FormField,
         TranslatePipe,
         IconComponent,
         ParkingFormDetailsComponent,
@@ -166,43 +168,47 @@ export class ParkingFlowFormComponent extends AsyncHandler implements OnInit {
         return this._state.form;
     }
 
+    public get model() {
+        return this._state.model;
+    }
+
     public async ngOnInit() {
         this._state.setOptions({ type: 'parking' });
-        this.form.patchValue({ user: currentUser() });
-        const user = await nextValueFrom(this._parking.user_details);
-        if (user?.email && !this.form.value.plate_number) {
-            this.form.patchValue({
+        this.model.update((m) => ({ ...m, user: currentUser() }));
+        const user = this._parking.user_details();
+        if (user?.email && !this.model().plate_number) {
+            this.model.update((m) => ({
+                ...m,
                 plate_number:
                     this._settings.get('plate_number') ||
                     user.plate_number ||
                     '',
-            });
+            }));
         }
     }
 
     public readonly viewConfirm = () => {
-        const { asset_id, resources, date } = this.form.getRawValue();
-        console.log('Form:', this.form.getRawValue().date);
+        const { asset_id, resources, date } = this.model();
+        console.log('Form:', this.model().date);
         if (resources?.length && asset_id !== resources[0].id) {
-            this.form.patchValue({ asset_id: resources[0].id });
+            this.model.update((m) => ({ ...m, asset_id: resources[0].id }));
         }
         if (!date) {
-            const state = this.form.controls.date.disabled;
-            if (state) this.form.controls.date.enable();
-            this.form.patchValue({
+            this.model.update((m) => ({
+                ...m,
                 date: roundToNearestMinutes(Date.now(), {
                     nearestTo: 5,
                     roundingMethod: 'ceil',
                 }).valueOf(),
-            });
-            if (state) this.form.controls.date.disable();
+            }));
         }
-        console.log('Form:', this.form.getRawValue().date);
-        if (!this.form.valid)
+        console.log('Form:', this.model().date);
+        if (!this.form().valid())
             return notifyError(
-                `Some fields are invalid. [${getInvalidFields(this.form).join(
-                    ', ',
-                )}]`,
+                `Some fields are invalid. [${getInvalidSignalFields(
+                    this.form,
+                    this.model,
+                ).join(', ')}]`,
             );
         this.sheet_ref = this._bottom_sheet.open(
             NewParkingFlowConfirmComponent,

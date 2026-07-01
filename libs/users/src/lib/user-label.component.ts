@@ -69,9 +69,9 @@ export interface UserDetails extends User {
                 <img
                     auth
                     class="h-[3em] object-contain"
-                    [style.max-width]="landscape ? '8em' : ''"
+                    [style.max-width]="landscape() ? '8em' : ''"
                     alt="Logo"
-                    [src]="logo?.src || logo"
+                    [src]="logo()?.src || logo()"
                 />
                 @let level = user().zones | level;
                 @if (level) {
@@ -149,11 +149,11 @@ export class UserLabelComponent {
     public readonly height = input<number>(15);
     public readonly landscape = computed(() => this.width() > this.height());
 
-    public get logo() {
-        return this._theme() === 'dark'
-            ? this._logo_dark()
-            : this._logo_light();
-    }
+    public readonly logo = computed(() => {
+        const logo =
+            this._theme() === 'dark' ? this._logo_dark() : this._logo_light();
+        return typeof logo === 'function' ? logo() : logo;
+    });
 
     print() {
         console.log('Printing user label...');

@@ -1,5 +1,11 @@
-import { Component, inject, input, output } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import {
+    Component,
+    computed,
+    inject,
+    input,
+    output,
+    resource,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { OrganisationService, SettingsService } from '@placeos/common';
@@ -7,10 +13,11 @@ import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticat
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { LevelPipe } from 'libs/components/src/lib/level.pipe';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { BookingAsset, BookingFormService } from '../booking-form.service';
-import { loadLockerBanks, loadLockers } from '../booking.utilities';
+import {
+    loadLockerBanksForScope,
+    loadLockersForScope,
+} from '../booking.utilities';
 
 @Component({
     selector: 'locker-bank-list',
@@ -183,61 +190,72 @@ export class LockerBankListComponent {
     public readonly toggleFav = output<BookingAsset>();
     private readonly _use_region = this._settings.signal('use_region', false);
 
-    private readonly _lockers_banks$ = loadLockerBanks(
-        this._org,
-        combineLatest([this._org.active_building, this._org.active_region]),
-        () => this._use_region(),
-    );
-
-    private readonly _lockers$ = loadLockers(
-        this._org,
-        combineLatest([this._org.active_building, this._org.active_region]),
-        this._lockers_banks$,
-        () => this._use_region(),
-    );
-
-    public readonly locker_banks = toSignal(
-        combineLatest([
-            this._state.options,
-            this._state.available_resources,
-            this._lockers_banks$,
-            this._lockers$,
-        ]).pipe(
-            map(([{ show_fav, show_accessible }, resources, banks]) => {
-                return banks
-                    .filter(
-                        (i) =>
-                            (!show_fav || this.isFavourite(i.id)) &&
-                            (!show_accessible ||
-                                i.lockers.find((_) => _.accessible)) &&
-                            resources.find((_: any) => _.bank_id === i.id),
-                    )
-                    .map((bank) => {
-                        const locker_list = bank.lockers.map((_) => ({
-                            ..._,
-                            available:
-                                !!resources.find((lkr) => lkr.id === _.id) &&
-                                (!show_accessible || _.accessible),
-                            map_id: bank.map_id || bank.id,
-                            zone: bank.zone,
-                            zones: bank.zones,
-                        }));
-                        return {
-                            ...bank,
-                            available: locker_list.reduce(
-                                (c, l) => c + (l.available ? 1 : 0),
-                                0,
-                            ),
-                            lockers: locker_list,
-                        };
-                    });
-            }),
-        ),
-        { initialValue: [] },
-    );
-    public readonly loading = toSignal(this._state.loading, {
-        initialValue: '',
+    private readonly _scope_id = computed(() => {
+        const region = this._org.active_region();
+        const bld = this._org.active_building();
+        if (this._use_region()) return region?.id || this._org.region?.id;
+        return bld?.id;
     });
+
+    private readonly _locker_banks_resource = resource({
+        params: () => {
+            const scope_id = this._scope_id();
+            return scope_id ? { scope_id } : undefined;
+        },
+        loader: ({ params: { scope_id } }) =>
+            loadLockerBanksForScope(this._org, scope_id),
+    });
+    private readonly _banks = computed(
+        () => this._locker_banks_resource.value() ?? [],
+    );
+
+    private readonly _lockers_resource = resource({
+        params: () => {
+            const scope_id = this._scope_id();
+            const banks = this._banks();
+            return scope_id && banks.length ? { scope_id, banks } : undefined;
+        },
+        loader: ({ params: { scope_id, banks } }) =>
+            loadLockersForScope(this._org, scope_id, banks),
+    });
+    private readonly _lockers = computed(
+        () => this._lockers_resource.value() ?? [],
+    );
+
+    public readonly locker_banks = computed(() => {
+        const { show_fav, show_accessible } = this._state.options();
+        const resources = this._state.available_resources();
+        const banks = this._banks();
+        // Depend on lockers so banks have their `lockers` populated
+        this._lockers();
+        return banks
+            .filter(
+                (i) =>
+                    (!show_fav || this.isFavourite(i.id)) &&
+                    (!show_accessible || i.lockers.find((_) => _.accessible)) &&
+                    resources.find((_: any) => _.bank_id === i.id),
+            )
+            .map((bank) => {
+                const locker_list = bank.lockers.map((_) => ({
+                    ..._,
+                    available:
+                        !!resources.find((lkr) => lkr.id === _.id) &&
+                        (!show_accessible || _.accessible),
+                    map_id: bank.map_id || bank.id,
+                    zone: bank.zone,
+                    zones: bank.zones,
+                }));
+                return {
+                    ...bank,
+                    available: locker_list.reduce(
+                        (c, l) => c + (l.available ? 1 : 0),
+                        0,
+                    ),
+                    lockers: locker_list,
+                };
+            });
+    });
+    public readonly loading = this._state.loading;
 
     public isFavourite(locker_bank_id: string) {
         return this.favorites().includes(locker_bank_id);

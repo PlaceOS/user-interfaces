@@ -50,11 +50,11 @@ describe('CateringOrderOptionsModalComponent', () => {
             done();
         });
         spectator.component.updateGroupOption(
-            spectator.component.groups[0],
+            spectator.component.groups()[0],
             '1',
         );
-        expect(spectator.component.option_state['1']).toBeTruthy();
-        expect(spectator.component.option_state['2']).toBeFalsy();
+        expect(spectator.component.option_state()['1']).toBeTruthy();
+        expect(spectator.component.option_state()['2']).toBeFalsy();
         spectator.component.saveOptions();
     });
 });

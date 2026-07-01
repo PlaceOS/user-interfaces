@@ -9,6 +9,7 @@ import {
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     isMobileSafari,
+    SETTING_KEYS,
     settingSignal,
     SettingsService,
     Space,
@@ -22,8 +23,6 @@ import { SpaceFiltersDisplayComponent } from './space-filters-display.component'
 import { SpaceFiltersComponent } from './space-filters.component';
 import { SpaceListComponent } from './space-list.component';
 import { SpaceMapComponent } from './space-map.component';
-
-export const FAV_DESK_KEY = 'favourite_spaces';
 
 @Component({
     selector: 'space-select-modal',
@@ -268,7 +267,7 @@ export class SpaceSelectModalComponent {
     );
 
     public readonly favorites = settingSignal<string[]>(
-        'favourite_spaces',
+        SETTING_KEYS.FAVORITE_ROOMS,
         [],
         true,
     );
@@ -314,19 +313,14 @@ export class SpaceSelectModalComponent {
         );
     }
 
-    public toggleFavourite(item: Space) {
+    public toggleFavourite(item: Space | null) {
+        if (!item?.id) return;
         const fav_list = this.favorites();
         const new_state = !fav_list.includes(item.id);
-        if (new_state) {
-            this._settings.saveUserSetting('favourite_spaces', [
-                ...fav_list,
-                item.id,
-            ]);
-        } else {
-            this._settings.saveUserSetting(
-                'favourite_spaces',
-                fav_list.filter((_) => _ !== item.id),
-            );
-        }
+        const updated = new_state
+            ? [...fav_list, item.id]
+            : fav_list.filter((_) => _ !== item.id);
+        this.favorites.set(updated);
+        this._settings.saveUserSetting(SETTING_KEYS.FAVORITE_ROOMS, updated);
     }
 }

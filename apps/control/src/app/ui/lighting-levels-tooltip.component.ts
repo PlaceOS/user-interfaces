@@ -1,5 +1,4 @@
 import { Component, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import {
     BindingDirective,
     CustomTooltipData,
@@ -65,8 +64,8 @@ export class LightingLevelsTooltipComponent {
 
     private _level_timeout: any;
 
-    public readonly system = toSignal(this._state.system_id);
-    public readonly lights = toSignal(this._state.lighting_levels);
+    public readonly system = this._state.system_id;
+    public readonly lights = this._state.lighting_levels;
     /** Close the tooltip */
     public readonly close = () => this._tooltip.close();
 

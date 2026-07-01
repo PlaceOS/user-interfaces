@@ -353,6 +353,24 @@ code {
     }
 }
 
+.fullscreen-dialog {
+    max-width: 100vw !important;
+    max-height: 100vh !important;
+
+    .mdc-dialog__surface,
+    .mat-mdc-dialog-surface {
+        border-radius: 0 !important;
+        height: 100%;
+        width: 100%;
+    }
+
+    mat-dialog-container,
+    .mat-mdc-dialog-container {
+        height: 100%;
+        width: 100%;
+    }
+}
+
 .mdc-dialog__container {
     padding: 0;
 
@@ -934,6 +952,26 @@ a[icon] {
     }
 }
 
+@keyframes sidebar-dialog-in-left {
+    from {
+        transform: translateX(-100%);
+    }
+
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes sidebar-dialog-in-right {
+    from {
+        transform: translateX(100%);
+    }
+
+    to {
+        transform: translateX(0);
+    }
+}
+
 #placeos {
     mat-select {
         .mdc-select-trigger {
@@ -1006,6 +1044,26 @@ a[icon] {
 
     .cdk-overlay-pane {
         max-width: none !important;
+    }
+
+    .sidebar-embed-dialog .mat-mdc-dialog-surface {
+        border-radius: 0;
+        overflow: hidden;
+        padding: 0;
+    }
+
+    .sidebar-embed-dialog-left .mat-mdc-dialog-surface {
+        animation: sidebar-dialog-in-left 200ms ease-out;
+    }
+
+    .sidebar-embed-dialog-right .mat-mdc-dialog-surface {
+        animation: sidebar-dialog-in-right 200ms ease-out;
+    }
+
+    .svg-viewer__label {
+        top: -200%;
+        left: -200%;
+        line-height: 1.1;
     }
 
     .mdc-datepicker-toggle {

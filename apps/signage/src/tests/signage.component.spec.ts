@@ -3,7 +3,6 @@ import { Router } from '@angular/router';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
-import { of } from 'rxjs';
 
 import { SignagePanelComponent } from '../app/signage.component';
 import { SignageService } from '../app/signage.service';
@@ -27,7 +26,7 @@ describe('SignagePanelComponent', () => {
     beforeEach(() => {
         sessionStorage.clear();
         signage_service = {
-            playlist: of([]),
+            playlist: signal([]),
             override_playlist: signal({ ends_at: 0, playlist: [] }),
             debug: signal(false),
             playing_id: signal(''),

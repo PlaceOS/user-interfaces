@@ -1,4 +1,9 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import {
+    Component,
+    computed,
+    inject,
+    signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
@@ -11,7 +16,6 @@ import {
     settingSignal,
 } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
-import { first } from 'rxjs/operators';
 import { CheckinStateService } from './checkin-state.service';
 
 @Component({
@@ -88,8 +92,8 @@ export class CheckinInductionComponent {
     );
 
     public async ngOnInit() {
-        await this._org.initialised.pipe(first((_) => _)).toPromise();
-        const event = await this.event.pipe(first()).toPromise();
+        await this._org.waitUntilInitialised();
+        const event = this.event();
         if (!event) this._router.navigate(['/checkin']);
         if (!this.is_enabled() || event.induction === 'accepted') {
             if (this.induction_after_details()) {

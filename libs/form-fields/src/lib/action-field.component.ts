@@ -9,7 +9,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
             type="button"
             role="button"
             [attr.disabled]="disabled()"
-            [attr.name]="name()"
+            [attr.name]="label()"
             form-field
             tabindex="0"
             (keydown.enter)="performAction()"
@@ -36,8 +36,8 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
     imports: [IconComponent],
 })
 export class ActionFieldComponent {
-    /** Name of the field */
-    public readonly name = input<string>(undefined);
+    /** Label of the field */
+    public readonly label = input<string>(undefined);
     /** Whether form field is disabled */
     public readonly disabled = input<boolean>(undefined);
     /** Emitter for user interaction events */

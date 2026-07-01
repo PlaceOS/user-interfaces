@@ -75,11 +75,9 @@ export class ParkingSpecialRequestModalComponent {
         const urls: string[] = (
             this._data.booking?.extension_data?.attachments || []
         ).filter((url) => !!url);
-        const names: string[] =
-            this._data.booking?.extension_data?.p2_document_names || [];
-        return urls.map((url, index) => ({
+        return urls.map((url) => ({
             url,
-            name: names[index] || this._fileNameFromUrl(url),
+            name: this._fileNameFromUrl(url),
         }));
     })();
 

@@ -1,5 +1,4 @@
 import { Component, computed, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { TranslatePipe } from '@placeos/components';
 import { ControlStateService } from '../control-state.service';
@@ -34,9 +33,7 @@ import { ControlStateService } from '../control-state.service';
 export class JoinRoomTooltipComponent {
     private _state = inject(ControlStateService);
 
-    private readonly _join_modes = toSignal(this._state.join_modes, {
-        initialValue: {} as Record<string, any>,
-    });
+    private readonly _join_modes = this._state.join_modes;
 
     public readonly modes = computed(() => {
         const mapping = this._join_modes();
@@ -49,6 +46,6 @@ export class JoinRoomTooltipComponent {
         }
         return list;
     });
-    public readonly active = toSignal(this._state.joined_id);
+    public readonly active = this._state.joined_id;
     public readonly join = (id: string) => this._state.join(id);
 }

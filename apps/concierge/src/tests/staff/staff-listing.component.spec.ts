@@ -1,6 +1,6 @@
+import { signal } from '@angular/core';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { MockComponent } from 'ng-mocks';
-import { BehaviorSubject } from 'rxjs';
 import { StaffDetailsComponent } from '../../app/staff/staff-details.component';
 import { StaffListingComponent } from '../../app/staff/staff-listing.component';
 import { StaffStateService } from '../../app/staff/staff-state.service';
@@ -13,8 +13,9 @@ describe('StaffListingComponent', () => {
             {
                 provide: StaffStateService,
                 useValue: {
-                    loading: new BehaviorSubject(false),
-                    filtered_users: new BehaviorSubject([]),
+                    loading: signal(false),
+                    filtered_users: signal([]),
+                    user_events: signal({}),
                     startPolling: jest.fn(),
                     stopPolling: jest.fn(),
                 },

@@ -1,6 +1,12 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import {
+    Component,
+    OnInit,
+    effect,
+    inject,
+    signal,
+    untracked,
+} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { first } from 'rxjs/operators';
 
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -91,8 +97,29 @@ export class StaffTopbarComponent extends AsyncHandler implements OnInit {
         this._state.setFilters({ zones });
     };
 
+    constructor() {
+        super();
+        effect(() => {
+            this.filters.set(this._state.filters() || {});
+        });
+        effect(() => {
+            const current_levels = this._org.active_levels() || [];
+            untracked(() => {
+                this.levels.set(current_levels);
+                const zones = this.zones().filter((zone) =>
+                    current_levels.find((lvl) => lvl.id === zone),
+                );
+                if (!zones.length && current_levels.length) {
+                    zones.push(current_levels[0].id);
+                }
+                this.zones.set(zones);
+                this.updateZones(zones);
+            });
+        });
+    }
+
     public async ngOnInit() {
-        await this._org.initialised.pipe(first((_) => _)).toPromise();
+        await this._org.waitUntilInitialised();
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
@@ -109,29 +136,6 @@ export class StaffTopbarComponent extends AsyncHandler implements OnInit {
                         this.zones.set(zones);
                     }
                 }
-            }),
-        );
-        if (this._state.filters?.subscribe) {
-            this.subscription(
-                'filters',
-                this._state.filters.subscribe((filters) => {
-                    this.filters.set(filters || {});
-                }),
-            );
-        }
-        this.subscription(
-            'levels',
-            this._org.active_levels.subscribe((levels) => {
-                const current_levels = levels || [];
-                this.levels.set(current_levels);
-                const zones = this.zones().filter((zone) =>
-                    current_levels.find((lvl) => lvl.id === zone),
-                );
-                if (!zones.length && current_levels.length) {
-                    zones.push(current_levels[0].id);
-                }
-                this.zones.set(zones);
-                this.updateZones(zones);
             }),
         );
         this.setSearch('');

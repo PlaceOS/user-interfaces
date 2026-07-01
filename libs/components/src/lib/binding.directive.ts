@@ -8,7 +8,7 @@ import {
     SimpleChanges,
     inject,
     input,
-    model,
+    linkedSignal,
     output,
 } from '@angular/core';
 import {
@@ -48,7 +48,8 @@ export class BindingDirective<T = any>
     public readonly params = input<any[]>(null);
     public readonly ignore = input<boolean>(false);
     /** Current value of the binding */
-    public readonly model = model<T | null>(null);
+    public readonly modelInput = input<T | null>(null, { alias: 'model' });
+    public readonly model = linkedSignal(this.modelInput);
     /** Emitter for changes to the value of the binding */
     public readonly modelChange = output<T | null>();
 
@@ -68,7 +69,11 @@ export class BindingDirective<T = any>
             this.bindVariable();
         }
         const model = this.model();
-        if (changes.model && this._old_model !== model && this.model != null) {
+        if (
+            (changes.model || changes.modelInput) &&
+            this._old_model !== model &&
+            this.model != null
+        ) {
             this._old_model = model;
             this.execute();
         }

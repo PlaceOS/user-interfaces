@@ -1,4 +1,8 @@
-import { Component, inject, signal } from '@angular/core';
+import {
+    Component,
+    inject,
+    signal,
+} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler, settingSignal } from '@placeos/common';
 

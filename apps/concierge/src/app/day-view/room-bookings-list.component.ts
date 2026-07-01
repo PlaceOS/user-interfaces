@@ -1,11 +1,15 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { SettingsService, i18n, settingSignal } from '@placeos/common';
+import {
+    SettingsService,
+    i18n,
+    nextValueFrom,
+    settingSignal,
+} from '@placeos/common';
 import {
     IconComponent,
     SimpleTableComponent,
@@ -36,7 +40,7 @@ import { EventsStateService } from './events-state.service';
                     [hide_today]="true"
                 ></date-options>
             </div>
-            <div class="min-h-0 flex-1 overflow-auto pb-16">
+            <div class="min-h-0 flex-1 overflow-auto px-8 pb-16">
                 <simple-table
                     class="block min-w-368 text-sm"
                     [data]="bookings()"
@@ -83,7 +87,7 @@ import { EventsStateService } from './events-state.service';
                             key: 'actions',
                             name: ' ',
                             content: action_template,
-                            size: '3.5rem',
+                            size: '3.25rem',
                             sortable: false,
                         },
                     ]"
@@ -193,16 +197,14 @@ import { EventsStateService } from './events-state.service';
             </ng-template>
             <ng-template #action_template let-row="row">
                 @if (show_actions(row)) {
-                    <div
-                        class="mx-auto flex items-center justify-end space-x-2"
-                    >
+                    <div class="mx-auto">
                         <button
                             icon
+                            default
                             matRipple
-                            class="h-12 w-12 rounded-sm"
                             [matMenuTriggerFor]="action_menu"
                         >
-                            <icon class="text-2xl">more_vert</icon>
+                            <icon>more_vert</icon>
                         </button>
                         <mat-menu #action_menu="matMenu">
                             @if (!hide_edit()) {
@@ -313,21 +315,11 @@ export class RoomBookingsListComponent {
     private _dialog = inject(MatDialog);
 
     public readonly can_delete = settingSignal('events.allow_deleting', false);
-    public readonly events = toSignal(this._state.filtered, {
-        initialValue: [],
-    });
-    public readonly date = toSignal(this._state.date, {
-        initialValue: Date.now(),
-    });
-    public readonly period = toSignal(this._state.period, {
-        initialValue: 'day' as const,
-    });
-    public readonly spaces = toSignal(this._state.spaces, {
-        initialValue: [],
-    });
-    public readonly loading = toSignal(this._state.loading, {
-        initialValue: false,
-    });
+    public readonly events = this._state.filtered;
+    public readonly date = this._state.date;
+    public readonly period = this._state.period;
+    public readonly spaces = this._state.spaces;
+    public readonly loading = this._state.loading;
     public readonly bookings = computed(() =>
         [...this.events()]
             .filter((event) => !event.extension_data?.shared_event)
@@ -385,7 +377,7 @@ export class RoomBookingsListComponent {
         const ref = this._dialog.open(SetupBreakdownModalComponent, {
             data: event,
         });
-        const data = await ref.afterClosed().toPromise();
+        const data = await nextValueFrom(ref.afterClosed());
         if (data) this._state.replace(data);
     }
 

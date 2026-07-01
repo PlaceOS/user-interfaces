@@ -235,6 +235,29 @@ describe('CalendarEvent', () => {
         expect(json.recurrence.days_of_week).toEqual(['wednesday']);
     });
 
+    it('should preserve monthly nth-weekday recurrence metadata', () => {
+        const recurrence_start = new Date(2026, 4, 13, 9).valueOf();
+        event = new CalendarEvent({
+            date: new Date(2026, 4, 12, 9).valueOf(),
+            date_end: new Date(2026, 4, 12, 10).valueOf(),
+            recurring: true,
+            recurrence: {
+                start: recurrence_start,
+                end: new Date(2026, 10, 30).valueOf(),
+                interval: 1,
+                pattern: 'monthly',
+                days_of_week: [3],
+                nth_of_month: WeekOfMonth.Second,
+            },
+        });
+
+        const json = event.toJSON();
+
+        expect(json.recurrence.pattern).toBe('monthly');
+        expect(json.recurrence.days_of_week).toEqual(['wednesday']);
+        expect(json.recurrence.nth_of_month).toBe(WeekOfMonth.Second);
+    });
+
     it('should serialise recurring events until the selected end date', () => {
         const recurrence_end = new Date(2026, 5, 30, 23, 59, 59, 999).valueOf();
         event = new CalendarEvent({

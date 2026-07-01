@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -153,8 +154,8 @@ export class VipVisitorsComponent
     public start: number = startOfDay(Date.now()).getTime();
     public end: number = endOfDay(Date.now()).getTime();
     public readonly levels = combineLatest([
-        this._org.active_building,
-        this._org.active_region,
+        toObservable(this._org.active_building),
+        toObservable(this._org.active_region),
     ]).pipe(
         map(([bld, region]) =>
             this._settings.get('app.use_region')

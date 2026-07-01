@@ -4,41 +4,47 @@ import {
     computed,
     effect,
     inject,
+    Injector,
     input,
     OnInit,
+    runInInjectionContext,
     signal,
+    untracked,
+    WritableSignal,
 } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
-import {
-    FormGroup,
-    FormsModule,
-    ReactiveFormsModule,
-    Validators,
-} from '@angular/forms';
+import { FormsModule } from '@angular/forms';
+import { FormField } from '@angular/forms/signals';
+import { MatRippleModule } from '@angular/material/core';
+import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     bookedResourceList,
+    BookingForm,
+    BookingFormValue,
     ParkingService,
     queryBookings,
 } from '@placeos/bookings';
 import {
     AsyncHandler,
     currentUser,
-    firstTruthyValueFrom,
+    getFormTimeSyncHandle,
     getTimeInTimezone,
+    notifyError,
     OrganisationService,
     settingSignal,
     SettingsService,
     startOfDayInTimezone,
+    UploadsService,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import {
     DateFieldComponent,
     UserSearchFieldComponent,
 } from '@placeos/form-fields';
+import { isMock } from '@placeos/ts-client';
 import {
     addDays,
     addMinutes,
@@ -47,9 +53,16 @@ import {
     startOfDay,
     startOfWeek,
 } from 'date-fns';
-import { combineLatest, defer, of } from 'rxjs';
-import { catchError, filter, map, startWith, switchMap } from 'rxjs/operators';
-import { SettingsToggleComponent } from '../../../../../../libs/components/src/lib/settings-toggle.component';
+import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
+import { FullscreenEmbedComponent } from '../../components/fullscreen-embed.component';
+
+const SHIFT_PRESETS: Record<string, { start: number; end: number }> = {
+    day_worker: { start: 420, end: 1020 },
+    day_shift_12hr: { start: 330, end: 1110 },
+    night_shift_12hr: { start: 1050, end: 390 },
+    half_day_am: { start: 420, end: 720 },
+    half_day_pm: { start: 750, end: 1020 },
+};
 
 interface ParkingRequestShiftOption {
     id: string;
@@ -115,24 +128,36 @@ const ALL_DAY_END_MINS = 1440;
 const DEFAULT_DAY_DURATION_MINS = 540;
 
 const DEFAULT_SHIFT_OPTIONS: ParkingRequestShiftOption[] = [
-    // {
-    //     id: 'business',
-    //     name: 'BOOKINGS.PARKING_SHIFT_BUSINESS',
-    //     start_time: 540,
-    //     end_time: 1020,
-    // },
-    // {
-    //     id: 'morning',
-    //     name: 'BOOKINGS.PARKING_SHIFT_MORNING',
-    //     start_time: 360,
-    //     end_time: 720,
-    // },
-    // {
-    //     id: 'afternoon',
-    //     name: 'BOOKINGS.PARKING_SHIFT_AFTERNOON',
-    //     start_time: 720,
-    //     end_time: 1080,
-    // },
+    {
+        id: 'day_worker',
+        name: 'BOOKINGS.PARKING_SHIFT_DAY_WORKER',
+        start_time: SHIFT_PRESETS.day_worker.start,
+        end_time: SHIFT_PRESETS.day_worker.end,
+    },
+    {
+        id: 'day_shift_12hr',
+        name: 'BOOKINGS.PARKING_SHIFT_DAY_12HR',
+        start_time: SHIFT_PRESETS.day_shift_12hr.start,
+        end_time: SHIFT_PRESETS.day_shift_12hr.end,
+    },
+    {
+        id: 'night_shift_12hr',
+        name: 'BOOKINGS.PARKING_SHIFT_NIGHT_12HR',
+        start_time: SHIFT_PRESETS.night_shift_12hr.start,
+        end_time: SHIFT_PRESETS.night_shift_12hr.end,
+    },
+    {
+        id: 'half_day_am',
+        name: 'BOOKINGS.PARKING_SHIFT_HALF_DAY_AM',
+        start_time: SHIFT_PRESETS.half_day_am.start,
+        end_time: SHIFT_PRESETS.half_day_am.end,
+    },
+    {
+        id: 'half_day_pm',
+        name: 'BOOKINGS.PARKING_SHIFT_HALF_DAY_PM',
+        start_time: SHIFT_PRESETS.half_day_pm.start,
+        end_time: SHIFT_PRESETS.half_day_pm.end,
+    },
 ];
 
 const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
@@ -146,19 +171,20 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
 @Component({
     selector: 'parking-request-form-details',
     template: `
-        @if (form()) {
-            <div class="space-y-4" [formGroup]="form()">
+        @if (form() && model) {
+            <div class="flex flex-col gap-2 sm:gap-4">
                 <!-- BOOKING FREQUENCY -->
-                <div class="border-base-300 space-y-3 rounded-lg border p-4">
-                    <h3
-                        class="text-info flex items-center gap-2 text-sm font-bold tracking-wider uppercase"
-                    >
-                        <icon class="text-lg">date_range</icon>
+                <div
+                    class="gradient border-base-content flex items-center space-x-2 border-l-8 px-4 py-3 font-medium"
+                >
+                    <icon>date_range</icon>
+                    <div>
                         {{ 'BOOKINGS.PARKING_BOOKING_FREQUENCY' | translate }}
-                    </h3>
+                    </div>
+                </div>
+                <div class="space-y-3 p-4">
                     <a-date-field
-                        name="date"
-                        formControlName="date"
+                        [formField]="form().date"
                         [to]="end_date()"
                         [timezone]="timezone"
                     ></a-date-field>
@@ -378,37 +404,37 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                 </div>
 
                 <!-- REQUEST TYPE -->
-                <div class="border-base-300 space-y-3 rounded-lg border p-4">
-                    <h3
-                        class="text-info flex items-center gap-2 text-sm font-bold tracking-wider uppercase"
-                    >
-                        <icon class="text-lg">ballot</icon>
+                <div
+                    class="gradient border-base-content flex items-center space-x-2 border-l-8 px-4 py-3 font-medium"
+                >
+                    <icon>ballot</icon>
+                    <div>
                         {{ 'BOOKINGS.PARKING_REQUEST_TYPE' | translate }}
-                    </h3>
+                    </div>
+                </div>
+                <div class="space-y-3 p-4">
                     <div class="space-y-2">
-                        @for (type of request_types(); track type.id) {
+                        @for (type of request_types(); track trackById(type)) {
                             <div
                                 class="flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition-colors"
                                 [class.border-info]="
-                                    form().value.request_type === type.id
+                                    model().request_type === type.id
                                 "
                                 [class.border-base-300]="
-                                    form().value.request_type !== type.id
+                                    model().request_type !== type.id
                                 "
                                 (click)="setRequestType(type.id)"
                             >
                                 <div
                                     class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2"
                                     [class.border-info]="
-                                        form().value.request_type === type.id
+                                        model().request_type === type.id
                                     "
                                     [class.border-base-300]="
-                                        form().value.request_type !== type.id
+                                        model().request_type !== type.id
                                     "
                                 >
-                                    @if (
-                                        form().value.request_type === type.id
-                                    ) {
+                                    @if (model().request_type === type.id) {
                                         <div
                                             class="bg-info h-2.5 w-2.5 rounded-full"
                                         ></div>
@@ -421,7 +447,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                         }}</span>
                                         @if (type.badge) {
                                             <span
-                                                class="bg-base-200 rounded px-2 py-0.5 text-xs"
+                                                class="bg-base-200 rounded px-2 py-0.5 text-center text-xs"
                                                 >{{
                                                     type.badge | translate
                                                 }}</span
@@ -441,7 +467,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                 {{ 'BOOKINGS.REQUEST_SPACE_FOR' | translate }}
                             </h4>
                             <a-user-search-field
-                                formControlName="user"
+                                [formField]="form().user"
                                 [guests]="
                                     allow_any_host() ||
                                     (can_book_for_anyone() &&
@@ -473,22 +499,139 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                             <mat-form-field appearance="outline" class="w-full">
                                 <textarea
                                     matInput
-                                    formControlName="notes"
+                                    [formField]="form().notes"
                                     rows="3"
                                 ></textarea>
                             </mat-form-field>
                         </div>
                     }
                 </div>
+                @if (
+                    model().request_type === 'special' && show_special_needs()
+                ) {
+                    <!-- P2 SPECIAL NEEDS DETAILS -->
+                    <div
+                        class="gradient border-base-content text-warning flex items-center space-x-2 border-l-8 px-4 py-3 font-medium"
+                    >
+                        <icon>description</icon>
+                        <div>
+                            {{
+                                'BOOKINGS.P2_SPECIAL_NEEDS_DETAILS' | translate
+                            }}
+                        </div>
+                    </div>
+                    <div class="space-y-6 p-4">
+                        <div>
+                            <label class="mb-2 block text-sm font-medium">
+                                {{
+                                    'BOOKINGS.P2_REASON_FOR_REQUEST' | translate
+                                }}
+                                <span class="text-error">*</span>
+                            </label>
+                            <textarea
+                                matInput
+                                formControlName="notes"
+                                rows="6"
+                                class="border-base-content w-full rounded-lg border p-4 text-base"
+                                [placeholder]="
+                                    'BOOKINGS.P2_REASON_PLACEHOLDER' | translate
+                                "
+                            ></textarea>
+                        </div>
+
+                        <div>
+                            <div class="mb-2 text-sm font-medium">
+                                {{
+                                    'BOOKINGS.P2_ATTACH_SUPPORTING_DOCS'
+                                        | translate
+                                }}
+                            </div>
+                            <label
+                                class="border-base-300 hover:border-info flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition-colors"
+                                for="p2-supporting-docs"
+                            >
+                                <icon class="mt-0.5 text-xl">upload_file</icon>
+                                <div>
+                                    <div class="font-medium">
+                                        {{
+                                            'BOOKINGS.P2_UPLOAD_FILE'
+                                                | translate
+                                        }}
+                                    </div>
+                                    <div class="text-sm opacity-70">
+                                        {{
+                                            'BOOKINGS.P2_ACCEPTED_FORMATS'
+                                                | translate
+                                        }}
+                                    </div>
+                                </div>
+                            </label>
+                            <input
+                                id="p2-supporting-docs"
+                                type="file"
+                                class="hidden"
+                                multiple
+                                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                                (change)="onSupportingDocsSelected($event)"
+                            />
+                            @if (supporting_doc_names().length) {
+                                <div class="mt-3 space-y-2">
+                                    @for (
+                                        file_name of supporting_doc_names();
+                                        track $index
+                                    ) {
+                                        <div
+                                            class="border-base-300 bg-base-100 flex items-center justify-between rounded-lg border p-1"
+                                        >
+                                            <div
+                                                class="truncate px-4 py-2 text-sm"
+                                            >
+                                                {{ file_name }}
+                                            </div>
+                                            <div class="flex items-center">
+                                                <button
+                                                    icon
+                                                    type="button"
+                                                    matRipple
+                                                    (click)="
+                                                        previewSupportingDoc(
+                                                            $index
+                                                        )
+                                                    "
+                                                >
+                                                    <icon>open_in_new</icon>
+                                                </button>
+                                                <button
+                                                    icon
+                                                    type="button"
+                                                    matRipple
+                                                    (click)="
+                                                        removeSupportingDoc(
+                                                            $index
+                                                        )
+                                                    "
+                                                >
+                                                    <icon>close</icon>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
 
                 <!-- SHIFT SELECTION -->
-                <div class="border-base-300 space-y-3 rounded-lg border p-4">
-                    <h3
-                        class="text-info flex items-center gap-2 text-sm font-bold tracking-wider uppercase"
-                    >
-                        <icon class="text-lg">schedule</icon>
+                <div
+                    class="gradient border-base-content flex items-center space-x-2 border-l-8 px-4 py-3 font-medium"
+                >
+                    <icon>schedule</icon>
+                    <div>
                         {{ 'BOOKINGS.PARKING_SHIFT_SELECTION' | translate }}
-                    </h3>
+                    </div>
+                </div>
+                <div class="space-y-3 p-4">
                     @if (forced_request_time(); as forced_time) {
                         <div
                             class="border-base-300 bg-base-200 rounded-lg border px-4 py-3"
@@ -583,7 +726,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                             </mat-select-trigger>
                                             @for (
                                                 option of shift_options();
-                                                track option.id
+                                                track trackById(option)
                                             ) {
                                                 <mat-option [value]="option.id">
                                                     {{
@@ -732,48 +875,49 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                 </div>
 
                 <!-- LOCATION PREFERENCE -->
-                @if (hasMultipleBuildings(building_list | async)) {
+                @if (hasMultipleBuildings(building_list())) {
                     <div
-                        class="border-base-300 space-y-3 rounded-lg border p-4"
+                        class="gradient border-base-content flex items-center space-x-2 border-l-8 px-4 py-3 font-medium"
                     >
-                        <h3
-                            class="text-success flex items-center gap-2 text-sm font-bold tracking-wider uppercase"
-                        >
-                            <icon class="text-lg">place</icon>
+                        <icon>place</icon>
+                        <div>
                             {{
                                 'BOOKINGS.PARKING_LOCATION_PREFERENCE'
                                     | translate
                             }}
-                        </h3>
+                        </div>
+                    </div>
+                    <div class="space-y-3 p-4">
                         @if (region_name) {
                             <div class="text-sm font-medium">
                                 {{ region_name }}
                             </div>
                         }
                         <div class="space-y-2">
-                            @for (bld of building_list | async; track bld.id) {
+                            @for (
+                                bld of building_list();
+                                track trackById(bld)
+                            ) {
                                 <div
                                     class="flex min-h-15 cursor-pointer items-center gap-3 rounded-lg border px-4 py-2 transition-colors"
                                     [class.border-info]="
-                                        (building | async)?.id === bld.id
+                                        building()?.id === bld.id
                                     "
                                     [class.border-base-300]="
-                                        (building | async)?.id !== bld.id
+                                        building()?.id !== bld.id
                                     "
                                     (click)="setBuilding(bld)"
                                 >
                                     <div
                                         class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2"
                                         [class.border-info]="
-                                            (building | async)?.id === bld.id
+                                            building()?.id === bld.id
                                         "
                                         [class.border-base-300]="
-                                            (building | async)?.id !== bld.id
+                                            building()?.id !== bld.id
                                         "
                                     >
-                                        @if (
-                                            (building | async)?.id === bld.id
-                                        ) {
+                                        @if (building()?.id === bld.id) {
                                             <div
                                                 class="bg-info h-2.5 w-2.5 rounded-full"
                                             ></div>
@@ -805,7 +949,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                             }
                                         </div>
                                         @if (
-                                            (building | async)?.id === bld.id &&
+                                            building()?.id === bld.id &&
                                             !hide_availability_counter()
                                         ) {
                                             <div
@@ -876,7 +1020,9 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                         </div>
                         @if (!hide_prefer_toggle()) {
                             <settings-toggle
-                                formControlName="prefer_booked_location_first"
+                                [formField]="
+                                    form().prefer_booked_location_first
+                                "
                             >
                                 {{
                                     'BOOKINGS.PARKING_PREFER_BOOKED_LOCATION_FIRST'
@@ -887,7 +1033,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                     </div>
                 } @else {
                     <div
-                        class="border-base-300 space-y-3 rounded-lg border p-4"
+                        class="border-base-300 mx-4 space-y-3 rounded-lg border p-4"
                     >
                         <h3
                             class="text-success flex items-center gap-2 text-sm font-bold tracking-wider uppercase"
@@ -902,13 +1048,13 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                             <div>
                                 <div class="font-medium">
                                     {{
-                                        (building | async)?.display_name ||
-                                            (building | async)?.name
+                                        building()?.display_name ||
+                                            building()?.name
                                     }}
                                 </div>
-                                @if (getBayInfo(building | async)) {
+                                @if (getBayInfo(building())) {
                                     <div class="text-sm opacity-60">
-                                        {{ getBayInfo(building | async) }}
+                                        {{ getBayInfo(building()) }}
                                     </div>
                                 }
                             </div>
@@ -922,13 +1068,11 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                         >
                                             Checking...
                                         </div>
-                                    } @else if (
-                                        available_space_count() !== null
-                                    ) {
+                                    } @else {
                                         @let percent = usage_ratio();
                                         <div class="flex items-center">
-                                            {{ spaces_in_use_count() }} of
-                                            {{ total_space_count() }}
+                                            {{ spaces_in_use_count() || 0 }} of
+                                            {{ total_space_count() || 0 }}
                                             <icon class="ml-1! text-lg"
                                                 >car_lock</icon
                                             >
@@ -961,13 +1105,15 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                     </div>
                 }
                 <!-- VEHICLE DETAILS -->
-                <div class="border-base-300 space-y-3 rounded-lg border p-4">
-                    <h3
-                        class="text-info flex items-center gap-2 text-sm font-bold tracking-wider uppercase"
-                    >
-                        <icon class="text-lg">directions_car</icon>
+                <div
+                    class="gradient border-base-content flex items-center space-x-2 border-l-8 px-4 py-3 font-medium"
+                >
+                    <icon>directions_car</icon>
+                    <div>
                         {{ 'BOOKINGS.PARKING_VEHICLE_DETAILS' | translate }}
-                    </h3>
+                    </div>
+                </div>
+                <div class="space-y-3 p-4">
                     <div class="flex flex-col gap-3 sm:flex-row sm:gap-4">
                         <div class="flex-1">
                             <label class="mb-1 block text-sm font-medium">
@@ -976,10 +1122,10 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                 }}
                             </label>
                             <mat-form-field appearance="outline" class="w-full">
-                                <mat-select formControlName="vehicle_type">
+                                <mat-select [formField]="form().vehicle_type">
                                     @for (
                                         vtype of vehicle_type_options();
-                                        track vtype.id
+                                        track trackById(vtype)
                                     ) {
                                         <mat-option [value]="vtype.id">{{
                                             vtype.name | translate
@@ -1000,18 +1146,22 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                             <mat-form-field appearance="outline" class="w-full">
                                 <input
                                     matInput
-                                    formControlName="plate_number"
+                                    [ngModel]="model().plate_number"
+                                    [ngModelOptions]="{ standalone: true }"
+                                    (ngModelChange)="setPlateNumber($event)"
                                     [placeholder]="
                                         'BOOKINGS.PARKING_REGISTRATION_PLACEHOLDER'
                                             | translate
                                     "
                                 />
-                                <mat-error>
-                                    {{
-                                        'BOOKINGS.PARKING_PLATE_NUMBER_REQUIRED'
-                                            | translate
-                                    }}
-                                </mat-error>
+                                @if (showPlateNumberError()) {
+                                    <mat-error>
+                                        {{
+                                            'BOOKINGS.PARKING_PLATE_NUMBER_REQUIRED'
+                                                | translate
+                                        }}
+                                    </mat-error>
+                                }
                             </mat-form-field>
                         </div>
                     </div>
@@ -1036,7 +1186,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                         </h3>
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
-                                formControlName="approver_group"
+                                [formField]="form().approver_group"
                                 [placeholder]="
                                     'BOOKINGS.PARKING_APPROVER_GROUP_PLACEHOLDER'
                                         | translate
@@ -1044,7 +1194,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                             >
                                 @for (
                                     option of filtered_approver_group_options();
-                                    track option.id
+                                    track trackById(option)
                                 ) {
                                     <mat-option [value]="option.id">{{
                                         option.name | translate
@@ -1061,17 +1211,17 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                     extra_space_restriction_options().length
                 ) {
                     <div
-                        class="border-base-300 space-y-3 rounded-lg border p-4"
+                        class="gradient border-base-content flex items-center space-x-2 border-l-8 px-4 py-3 font-medium"
                     >
-                        <h3
-                            class="text-info flex items-center gap-2 text-sm font-bold tracking-wider uppercase"
-                        >
-                            <icon class="text-lg">tune</icon>
+                        <icon>tune</icon>
+                        <div>
                             {{
                                 'BOOKINGS.PARKING_SPACE_RESTRICTIONS_TITLE'
                                     | translate
                             }}
-                        </h3>
+                        </div>
+                    </div>
+                    <div class="space-y-3 p-4">
                         <p class="text-sm opacity-60">
                             {{
                                 'BOOKINGS.PARKING_SPACE_RESTRICTIONS_DESC'
@@ -1088,7 +1238,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                 >
                                     @for (
                                         option of space_restriction_options();
-                                        track option.id
+                                        track trackById(option)
                                     ) {
                                         <mat-option [value]="option.id">{{
                                             option.name | translate
@@ -1101,10 +1251,10 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                             <div class="flex flex-col gap-2">
                                 @for (
                                     option of extra_space_restriction_options();
-                                    track option.id
+                                    track trackById(option)
                                 ) {
                                     <settings-toggle
-                                        [name]="option.name | translate"
+                                        [label]="option.name | translate"
                                         [ngModel]="
                                             isExtraRestrictionSelected(
                                                 option.id
@@ -1126,11 +1276,22 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
             </div>
         }
     `,
-    styles: [``],
+    styles: [
+        `
+            .gradient {
+                background: linear-gradient(
+                    105deg,
+                    var(--base-200) 0%,
+                    var(--base-200) 50%,
+                    var(--base-100) 100%
+                );
+            }
+        `,
+    ],
     imports: [
         CommonModule,
-        ReactiveFormsModule,
         FormsModule,
+        FormField,
         MatFormFieldModule,
         MatInputModule,
         MatSelectModule,
@@ -1140,6 +1301,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
         DateFieldComponent,
         UserSearchFieldComponent,
         SettingsToggleComponent,
+        MatRippleModule,
     ],
 })
 export class ParkingRequestFormDetailsComponent
@@ -1148,9 +1310,13 @@ export class ParkingRequestFormDetailsComponent
 {
     private _prefilled_plate_number = '';
     private _parking = inject(ParkingService);
+    private _injector = inject(Injector);
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
+    private _uploads = inject(UploadsService);
+    private _dialog = inject(MatDialog);
     private _saved_shift_state: ParkingRequestShiftState | null = null;
+    private readonly _selected_shift_duration = signal(0);
     /**
      * Set to `true` once the user has explicitly chosen a shift via the
      * dropdown / custom inputs / request type. While this is `false` the
@@ -1178,34 +1344,50 @@ export class ParkingRequestFormDetailsComponent
             if (this.forced_request_time()) return;
             this._applyPreferredShift();
         });
+        // Plate-number `required` validation lives in the booking form
+        // schema; nothing to toggle here.
         effect(() => {
             const form = this.form();
-            if (!form) return;
-            const control = form.controls.plate_number;
-            if (!control) return;
-            if (this.require_plate_number()) {
-                control.addValidators(Validators.required);
-            } else {
-                control.removeValidators(Validators.required);
-            }
-            control.updateValueAndValidity({ emitEvent: false });
+            const model = this.model;
+            if (!form || !model) return;
+            const requires_manual_approval =
+                !!this.selected_request_type()?.requires_manual_approval;
+            if (model().requires_manual_approval === requires_manual_approval)
+                return;
+            model.update((m) => ({ ...m, requires_manual_approval }));
         });
         effect(() => {
             const form = this.form();
-            if (!form) return;
-            const requires_manual_approval =
-                !!this.selected_request_type()?.requires_manual_approval;
-            if (
-                form.getRawValue().requires_manual_approval ===
-                requires_manual_approval
-            )
+            const model = this.model;
+            const duration = this._selected_shift_duration();
+            if (!form || !model || !duration) return;
+            const value = model();
+            const date = value.date || Date.now();
+            const date_end = date + duration * 60 * 1000;
+            if (value.duration === duration && value.date_end === date_end)
                 return;
-            form.patchValue({ requires_manual_approval });
+            this._timeSync(model)?.updateOptions({
+                bookable_hours: null,
+                default_duration: duration,
+                timezone: this.timezone,
+            });
+            model.update((m) => ({
+                ...m,
+                duration,
+                date_end,
+            }));
         });
     }
 
-    public readonly form = input<FormGroup>(undefined);
-    public readonly show_special_needs = input<boolean>(false);
+    public readonly form = input<BookingForm>(undefined);
+    public readonly model_input =
+        input<WritableSignal<BookingFormValue>>(undefined);
+    public readonly show_special_needs = input<boolean>(true);
+
+    /** Writable signal holding the raw booking form value */
+    public get model() {
+        return this.model_input();
+    }
     public readonly force_show_host_select = input<boolean>(false);
     public readonly force_allow_any_host = input<boolean>(false);
     public readonly building = this._org.active_building;
@@ -1213,34 +1395,30 @@ export class ParkingRequestFormDetailsComponent
         'parking.hidden_buildings',
         [],
     );
-    private readonly _hidden_buildings$ = toObservable(this.hidden_buildings);
     /**
      * Buildings available as parking locations. Excludes buildings without
      * any parking levels and buildings listed in `parking.hidden_buildings`.
+     *
+     * `active_buildings`/`level_list` are read synchronously from the
+     * organisation signals so the list is available immediately, matching the
+     * eager behaviour the booking flow relies on.
      */
-    public readonly building_list = defer(() =>
-        combineLatest([
-            this._org.active_buildings,
-            this._org.level_list,
-            this._hidden_buildings$,
-        ]),
-    ).pipe(
-        map(([buildings, levels, hidden]) => {
-            const hidden_ids = new Set(hidden || []);
-            return (buildings || []).filter(
-                (bld) =>
-                    !hidden_ids.has(bld.id) &&
-                    (levels || []).some(
-                        (lvl) =>
-                            lvl.parent_id === bld.id &&
-                            lvl.tags.includes('parking'),
-                    ),
-            );
-        }),
-    );
+    public readonly building_list = computed(() => {
+        const hidden_ids = new Set(this.hidden_buildings() || []);
+        const levels = this._org.level_list();
+        return (this._org.active_buildings() || []).filter(
+            (bld) =>
+                !hidden_ids.has(bld.id) &&
+                (levels || []).some(
+                    (lvl) =>
+                        lvl.parent_id === bld.id &&
+                        lvl.tags.includes('parking'),
+                ),
+        );
+    });
     public readonly desk_booking_building_id = signal('');
-    public readonly available_space_count = signal<number | null>(null);
-    public readonly total_space_count = signal<number | null>(null);
+    public readonly available_space_count = signal<number>(0);
+    public readonly total_space_count = signal<number>(0);
     public readonly availability_loading = signal(false);
     public readonly spaces_in_use_count = computed(() => {
         const available = this.available_space_count();
@@ -1347,6 +1525,7 @@ export class ParkingRequestFormDetailsComponent
     public readonly shift_type = signal<string>(CUSTOM_SHIFT_ID);
     public readonly start_time_mins = signal<number>(480);
     public readonly end_time_mins = signal<number>(1020);
+    public readonly supporting_doc_names = signal<string[]>([]);
     public readonly custom_start_time_mins = signal<number>(480);
     public readonly custom_end_time_mins = signal<number>(600);
     public readonly shift_options = computed(() => {
@@ -1454,7 +1633,7 @@ export class ParkingRequestFormDetailsComponent
         return all_options.filter((_) => allowed_ids.includes(_.id));
     });
     public readonly selected_space_restriction = computed(() => {
-        const value = this.form()?.getRawValue()?.space_restrictions;
+        const value = this.model()?.space_restrictions;
         if (typeof value === 'string' && value) return value;
         return this.space_restriction_options()[0]?.id || '';
     });
@@ -1537,153 +1716,185 @@ export class ParkingRequestFormDetailsComponent
     }
 
     public async ngOnInit() {
-        await firstTruthyValueFrom(this._org.initialised);
+        await this._org.waitUntilInitialised();
         const form = this.form();
-        if (!form) return;
-        this.subscription(
-            'ensure_valid_building',
-            combineLatest([this.building_list, this._org.active_building])
-                .pipe(
-                    filter(
-                        ([buildings, bld]) =>
-                            buildings.length > 0 &&
-                            !buildings.some((_) => _.id === bld?.id),
-                    ),
-                )
-                .subscribe(([buildings]) => {
-                    this._org.building = buildings[0];
-                }),
+        const model = this.model;
+        if (!form || !model) return;
+        this.supporting_doc_names.set(
+            (model().attachments || []).map((url) =>
+                this._fileNameFromUrl(url),
+            ),
         );
-        this.subscription(
-            'space_availability',
-            combineLatest([
-                this._org.active_building,
-                this._parking.spaces,
-                form.valueChanges.pipe(startWith(form.getRawValue())),
-            ])
-                .pipe(
-                    filter(([bld]) => !!bld?.id),
-                    switchMap(([bld, spaces, value]) => {
-                        const space_ids = new Set(
-                            spaces
-                                .filter((space) => space.bookable !== false)
-                                .map((space) => space.id),
-                        );
-                        this.total_space_count.set(space_ids.size);
-                        if (!space_ids.size) return of(0);
-                        const start_date = value.date || Date.now();
-                        const duration = value.duration || 540;
-                        this.availability_loading.set(true);
-                        return bookedResourceList({
-                            period_start: getUnixTime(start_date),
-                            period_end: getUnixTime(
-                                addMinutes(start_date, duration),
-                            ),
-                            type: 'parking',
-                            zones: bld.id,
-                            rejected: false,
-                        }).pipe(
-                            map((booked_assets) => {
-                                const booked_ids = new Set(
-                                    booked_assets.filter((id) =>
-                                        space_ids.has(id),
-                                    ),
-                                );
-                                return [...space_ids].filter(
-                                    (id) => !booked_ids.has(id),
-                                ).length;
-                            }),
-                            catchError(() => of(0)),
-                        );
-                    }),
-                )
-                .subscribe((count) => {
-                    this.available_space_count.set(count);
-                    this.availability_loading.set(false);
-                }),
+        runInInjectionContext(this._injector, () =>
+            effect((onCleanup) => {
+                const buildings = this.building_list();
+                const bld = this.building();
+                let active = true;
+                let timeout: ReturnType<typeof setTimeout> | null = null;
+                onCleanup(() => {
+                    active = false;
+                    if (timeout) clearTimeout(timeout);
+                });
+                if (
+                    buildings.length > 0 &&
+                    !buildings.some((_) => _.id === bld?.id)
+                ) {
+                    timeout = setTimeout(() => {
+                        if (active) this._org.building = buildings[0];
+                    });
+                }
+            }),
         );
-        this.subscription(
-            'default_building_from_desk_booking',
-            combineLatest([
-                this.building_list,
-                form.controls.date.valueChanges.pipe(
-                    startWith(form.getRawValue().date),
-                ),
-                form.controls.user.valueChanges.pipe(
-                    startWith(form.getRawValue().user),
-                ),
-            ])
-                .pipe(
-                    switchMap(([buildings, date, user]) => {
-                        if (
-                            !this.default_location_from_desk_booking() ||
-                            form.getRawValue().id ||
-                            !date ||
-                            buildings?.length <= 1
-                        ) {
-                            return of(null);
-                        }
-                        const email = user?.email || currentUser()?.email || '';
-                        if (!email) return of(null);
-                        const period_start = getUnixTime(startOfDay(date));
-                        const period_end = getUnixTime(endOfDay(date));
-                        return queryBookings({
-                            type: 'desk',
-                            period_start,
-                            period_end,
-                            email,
-                            rejected: false,
-                        }).pipe(
-                            map((bookings) => {
-                                const booking = bookings.find(
-                                    (_) =>
-                                        _.user_email?.toLowerCase() ===
-                                        email.toLowerCase(),
-                                );
-                                if (!booking) return null;
-                                return this._buildingForBookingZones(
-                                    booking.zones,
-                                    buildings,
-                                );
-                            }),
-                            catchError(() => of(null)),
-                        );
-                    }),
-                )
-                .subscribe((building) => {
-                    this.desk_booking_building_id.set(building?.id || '');
-                    if (building && building.id !== this._org.building?.id) {
-                        this._org.building = building;
+        // The availability count only depends on the booking window. Reading
+        // the whole `model()` in the effect would track every field, so
+        // unrelated edits (e.g. typing a plate number) re-run it. Value-compare
+        // the window so only real window changes trigger a recount.
+        const availability_window = computed(
+            () => {
+                const v = model();
+                return { date: v.date, duration: v.duration };
+            },
+            { equal: (a, b) => a.date === b.date && a.duration === b.duration },
+        );
+        runInInjectionContext(this._injector, () =>
+            effect((onCleanup) => {
+                const bld = this.building();
+                const spaces = this._parking.spaces();
+                const { date, duration } = availability_window();
+                let active = true;
+                // 300ms trailing debounce: each re-run clears the pending timer
+                // via onCleanup, so the lookup fires 300ms after the last
+                // change, not 300ms after the first.
+                const timeout = setTimeout(async () => {
+                    if (!active) return;
+                    if (!bld?.id) {
+                        this.availability_loading.set(false);
+                        return;
                     }
-                }),
+                    const space_ids = new Set(
+                        spaces
+                            .filter((space) => space.bookable !== false)
+                            .map((space) => space.id),
+                    );
+                    this.total_space_count.set(space_ids.size);
+                    if (!space_ids.size) {
+                        this.available_space_count.set(0);
+                        this.availability_loading.set(false);
+                        return;
+                    }
+                    if (isMock()) {
+                        this.available_space_count.set(space_ids.size);
+                        this.availability_loading.set(false);
+                        return;
+                    }
+                    const start_date = date || Date.now();
+                    const window_duration = duration || 540;
+                    this.availability_loading.set(true);
+                    const booked_assets = await bookedResourceList({
+                        period_start: getUnixTime(start_date),
+                        period_end: getUnixTime(
+                            addMinutes(start_date, window_duration),
+                        ),
+                        type: 'parking',
+                        zones: bld.id,
+                        rejected: false,
+                    }).catch(() => []);
+                    if (!active) return;
+                    const booked_ids = new Set(
+                        booked_assets.filter((id) => space_ids.has(id)),
+                    );
+                    this.available_space_count.set(
+                        [...space_ids].filter((id) => !booked_ids.has(id))
+                            .length,
+                    );
+                    this.availability_loading.set(false);
+                }, 300);
+                onCleanup(() => {
+                    active = false;
+                    clearTimeout(timeout);
+                });
+            }),
         );
-        this._initShiftStateFromForm(form);
-        if (form.value.request_type) {
-            this.selected_request_type_id.set(form.value.request_type);
+        // An effect tracks the whole `model()` read, not the destructured
+        // fields, so reading `model()` directly here re-runs (and re-fires
+        // `queryBookings`) on every form edit — e.g. each plate-number
+        // keystroke. Gate on a value-compared subset so the lookup only runs
+        // when the fields it actually uses change.
+        const desk_lookup_inputs = computed(
+            () => {
+                const { date, user, id } = model();
+                return { date, email: user?.email || '', id };
+            },
+            {
+                equal: (a, b) =>
+                    a.date === b.date && a.email === b.email && a.id === b.id,
+            },
+        );
+        runInInjectionContext(this._injector, () =>
+            effect(async () => {
+                const buildings = this.building_list();
+                const { date, email: model_email, id } = desk_lookup_inputs();
+                if (
+                    !this.default_location_from_desk_booking() ||
+                    isMock() ||
+                    id ||
+                    !date ||
+                    buildings?.length <= 1
+                ) {
+                    this.desk_booking_building_id.set('');
+                    return;
+                }
+                const email = model_email || currentUser()?.email || '';
+                if (!email) return;
+                const period_start = getUnixTime(startOfDay(date));
+                const period_end = getUnixTime(endOfDay(date));
+                const bookings = await queryBookings({
+                    type: 'desk',
+                    period_start,
+                    period_end,
+                    email,
+                    rejected: false,
+                }).catch(() => []);
+                const booking = bookings.find(
+                    (_) => _.user_email?.toLowerCase() === email.toLowerCase(),
+                );
+                const building = booking
+                    ? this._buildingForBookingZones(booking.zones, buildings)
+                    : null;
+                this.desk_booking_building_id.set(building?.id || '');
+                if (building && building.id !== this._org.building?.id) {
+                    this._org.building = building;
+                }
+            }),
+        );
+        this._initShiftStateFromForm(model);
+        if (model().request_type) {
+            this.selected_request_type_id.set(model().request_type);
         }
         this._syncRequestTypeTime();
-        this._syncRequestTypeUser(form);
-        this._syncPrefilledPlateNumber(form);
-        this._syncPlateNumberUser(form);
+        this._syncRequestTypeUser(model);
+        this._syncPrefilledPlateNumber(model);
+        this._syncPlateNumberUser(model);
         if (
             this.filtered_approver_group_options().length &&
             !this.is_auto_approved()
         ) {
-            const current = form.value.approver_group;
+            const current = model().approver_group;
             if (
                 !current ||
                 !this.filtered_approver_group_options().find(
                     (_) => _.id === current,
                 )
             ) {
-                form.patchValue({
+                model.update((m) => ({
+                    ...m,
                     approver_group:
                         this.filtered_approver_group_options()[0].id,
-                });
+                }));
             }
         }
         if (this.space_restriction_options().length) {
-            const current = form.value.space_restrictions;
+            const current = model().space_restrictions;
             if (
                 !current ||
                 current === true ||
@@ -1698,30 +1909,31 @@ export class ParkingRequestFormDetailsComponent
             }
         }
         const is_daily =
-            this.allow_recurrence() && form.value.recurrence_type === 'daily';
+            this.allow_recurrence() && model().recurrence_type === 'daily';
         this.booking_frequency.set(is_daily ? 'daily' : 'single');
-        if (!this.allow_recurrence() && form.value.recurrence_type !== 'none') {
-            form.patchValue({
+        if (!this.allow_recurrence() && model().recurrence_type !== 'none') {
+            model.update((m) => ({
+                ...m,
                 recurrence_type: 'none',
                 recurrence_days: null,
                 recurrence_interval: null,
                 recurrence_end: null,
-            });
+            }));
         }
         if (is_daily) {
-            if (form.value.recurrence_days) {
+            if (model().recurrence_days) {
                 const days = new Set<number>();
                 for (let i = 1; i <= 7; i++) {
-                    if (form.value.recurrence_days & (1 << i)) days.add(i);
+                    if (model().recurrence_days & (1 << i)) days.add(i);
                 }
                 if (days.size > 0) this.selected_days.set(days);
             }
-            const raw_date = form.getRawValue().date;
-            if (form.value.recurrence_end && raw_date) {
+            const raw_date = model().date;
+            if (model().recurrence_end && raw_date) {
                 const recurrence_end =
-                    form.value.recurrence_end < 1e12
-                        ? form.value.recurrence_end * 1000
-                        : form.value.recurrence_end;
+                    model().recurrence_end < 1e12
+                        ? model().recurrence_end * 1000
+                        : model().recurrence_end;
                 const reference = startOfDay(raw_date);
                 const ref_dow =
                     reference.getDay() === 0 ? 7 : reference.getDay();
@@ -1767,16 +1979,16 @@ export class ParkingRequestFormDetailsComponent
 
     public setRequestType(type_id: string) {
         this.selected_request_type_id.set(type_id);
-        const form = this.form();
-        if (!form) return;
-        form.patchValue({ request_type: type_id });
+        const model = this.model;
+        if (!model) return;
+        model.update((m) => ({ ...m, request_type: type_id }));
         this._syncRequestTypeTime();
-        this._syncRequestTypeUser(form);
+        this._syncRequestTypeUser(model);
         const options = this.filtered_approver_group_options();
         if (options.length && !this.is_auto_approved()) {
-            const current = form.value.approver_group;
+            const current = model().approver_group;
             if (!current || !options.find((_) => _.id === current)) {
-                form.patchValue({ approver_group: options[0].id });
+                model.update((m) => ({ ...m, approver_group: options[0].id }));
             }
         }
     }
@@ -1784,23 +1996,25 @@ export class ParkingRequestFormDetailsComponent
     public setBookingFrequency(freq: 'single' | 'daily') {
         if (freq === 'daily' && !this.allow_recurrence()) return;
         this.booking_frequency.set(freq);
-        const form = this.form();
-        if (!form) return;
+        const model = this.model;
+        if (!model) return;
         if (freq === 'single') {
-            form.patchValue({
+            model.update((m) => ({
+                ...m,
                 recurrence_type: 'none',
                 recurrence_days: null,
                 recurrence_interval: null,
                 recurrence_end: null,
-            });
+            }));
         } else {
             this.selected_days.set(new Set([1, 2, 3, 4, 5]));
             this.num_weeks.set(1);
-            form.patchValue({
+            model.update((m) => ({
+                ...m,
                 recurrence_type: 'daily',
                 recurrence_interval: 1,
                 recurrence_days: this._computeDaysBitmask(),
-            });
+            }));
             this._updateRecurrenceEnd();
         }
     }
@@ -1874,28 +2088,28 @@ export class ParkingRequestFormDetailsComponent
     }
 
     public setSpaceRestriction(value: string) {
-        const form = this.form();
-        if (!form) return;
-        form.patchValue({
-            space_restrictions: value || false,
-        });
+        const model = this.model;
+        if (!model) return;
+        model.update((m) => ({
+            ...m,
+            space_restrictions: (value || false) as any,
+        }));
     }
 
     public isExtraRestrictionSelected(id: string): boolean {
-        const form = this.form();
-        const value = form?.getRawValue()?.extra_space_restrictions;
+        const value = this.model?.()?.extra_space_restrictions;
         return Array.isArray(value) && value.includes(id);
     }
 
     public setExtraRestriction(id: string, enabled: boolean) {
-        const form = this.form();
-        if (!form) return;
-        const current = form.getRawValue()?.extra_space_restrictions;
+        const model = this.model;
+        if (!model) return;
+        const current = model()?.extra_space_restrictions;
         const list = Array.isArray(current) ? [...current] : [];
         const index = list.indexOf(id);
         if (enabled && index === -1) list.push(id);
         if (!enabled && index !== -1) list.splice(index, 1);
-        form.patchValue({ extra_space_restrictions: list });
+        model.update((m) => ({ ...m, extra_space_restrictions: list }));
     }
 
     public setBuilding(bld) {
@@ -1903,8 +2117,68 @@ export class ParkingRequestFormDetailsComponent
         this._org.building = bld;
     }
 
+    public async onSupportingDocsSelected(event: Event) {
+        const input = event.target as HTMLInputElement;
+        const files = Array.from(input.files || []);
+        const valid_files = files.filter(
+            (file) => file.size <= 10 * 1024 * 1024,
+        );
+        if (valid_files.length !== files.length) {
+            notifyError('Some files exceeded 10MB and were skipped.');
+        }
+        const model = this.model;
+        const existing_urls: string[] = model?.().attachments || [];
+        const existing_names = this.supporting_doc_names();
+        const new_urls: string[] = [];
+        const uploaded_names: string[] = [];
+        for (const file of valid_files) {
+            const upload_id = await this._uploads
+                .uploadFile(file, true)
+                .catch(() => '');
+            if (!upload_id) continue;
+            uploaded_names.push(file.name);
+            new_urls.push(
+                `${location.origin}/api/engine/v2/uploads/${encodeURIComponent(upload_id)}/url`,
+            );
+        }
+        const names = [...existing_names, ...uploaded_names];
+        const urls = [...existing_urls, ...new_urls];
+        this.supporting_doc_names.set(names);
+        model?.update((m) => ({
+            ...m,
+            attachments: urls,
+        }));
+        input.value = '';
+    }
+
+    public removeSupportingDoc(index: number) {
+        const model = this.model;
+        const names = [...this.supporting_doc_names()];
+        const urls = [...(model?.().attachments || [])];
+        if (index < 0 || index >= names.length) return;
+        names.splice(index, 1);
+        if (index < urls.length) urls.splice(index, 1);
+        this.supporting_doc_names.set(names);
+        model?.update((m) => ({
+            ...m,
+            attachments: urls,
+        }));
+    }
+
+    public previewSupportingDoc(index: number) {
+        const urls = [...(this.model?.().attachments || [])];
+        const url = urls[index];
+        if (!url) return;
+        this._dialog.open(FullscreenEmbedComponent, { data: url });
+    }
+
+    private _fileNameFromUrl(url: string): string {
+        const last_part = `${url || ''}`.split('/').pop() || '';
+        return decodeURIComponent(last_part || 'Uploaded file');
+    }
+
     public shiftTime(mins: number): number {
-        const raw_date = this.form()?.getRawValue()?.date || Date.now();
+        const raw_date = this.model?.()?.date || Date.now();
         const tz = this.timezone;
         return startOfDayInTimezone(raw_date, tz) + mins * 60 * 1000;
     }
@@ -1926,6 +2200,30 @@ export class ParkingRequestFormDetailsComponent
         return ids.size > 1;
     }
 
+    public trackById(item: { id?: string; value?: string; name?: string }) {
+        return item?.id || item?.value || item?.name || item;
+    }
+
+    public setPlateNumber(plate_number: string) {
+        const model = this.model;
+        if (!model || model().plate_number === plate_number) return;
+        model.update((m) => ({ ...m, plate_number }));
+    }
+
+    private _timeSync(model = this.model) {
+        return (
+            ((model as any)?._time_sync as
+                | ReturnType<typeof getFormTimeSyncHandle>
+                | undefined) || getFormTimeSyncHandle(this.form())
+        );
+    }
+
+    public showPlateNumberError() {
+        const field = this.form()?.plate_number;
+        const state = field?.();
+        return !!state?.touched?.() && !!state?.invalid?.();
+    }
+
     private _buildingForBookingZones(zones: string[], buildings: any[]) {
         const zone_ids = new Set((zones || []).filter((_) => !!_));
         return (buildings || []).find(
@@ -1936,9 +2234,14 @@ export class ParkingRequestFormDetailsComponent
     }
 
     private _updateFormTimes(start_mins: number, end_mins: number) {
-        const form = this.form();
-        if (!form) return;
-        const raw_date = form.getRawValue().date || Date.now();
+        const model = this.model;
+        if (!model) return;
+        // Read the current model value without creating a reactive dependency:
+        // `_updateFormTimes` is invoked from inside the preferred-shift
+        // `effect()`, and tracking `model()` here would make the effect
+        // re-run on its own write — an infinite loop.
+        const current = untracked(model);
+        const raw_date = current.date || Date.now();
         const tz = this.timezone;
         const day = startOfDayInTimezone(raw_date, tz);
         let new_date = day + start_mins * 60 * 1000;
@@ -1947,39 +2250,62 @@ export class ParkingRequestFormDetailsComponent
                 ? end_mins - start_mins
                 : end_mins + 1440 - start_mins;
         const duration = Math.max(raw_duration, 30);
+        this._selected_shift_duration.set(duration);
         // If the chosen shift would end in the past on this day, roll
         // forward by whole days until the window ends in the future, so the
         // `endInFuture` validator on `duration` passes. Only applied to new
         // bookings — existing ones may legitimately represent past windows.
-        if (!form.value.id) {
+        if (!current.id) {
             while (new_date + duration * 60 * 1000 <= Date.now()) {
                 new_date = addDays(new_date, 1).valueOf();
             }
         }
-        const was_disabled = form.controls.date.disabled;
-        if (was_disabled) form.controls.date.enable({ emitEvent: false });
-        // Clear `all_day` first so the booking-form time sync doesn't
-        // bail out of its date/duration handlers (which short-circuit when
-        // `all_day` is set) and so `postForm` doesn't substitute the
-        // building's all-day period for the shift window we're about to
-        // write. The parking shift _is_ the time window — it must win.
-        if (form.controls.all_day) {
-            form.controls.all_day.patchValue(false, { emitEvent: false });
+        const new_date_end = new_date + duration * 60 * 1000;
+        // Nothing to do if the window already matches — avoids redundant
+        // model writes that would needlessly re-trigger reactive consumers.
+        if (
+            current.all_day === false &&
+            current.date === new_date &&
+            current.date_end === new_date_end &&
+            current.duration === duration
+        ) {
+            return;
         }
-        // Patch `date` silently so the generic booking-form time sync does
-        // not snap shift start times earlier in the day back to `now` or
-        // realign them to bookable hours — the shift select must
-        // authoritatively set the form's start time and duration.
-        form.controls.date.patchValue(new_date, { emitEvent: false });
-        if (form.controls.date_end) {
-            form.controls.date_end.patchValue(new_date + duration * 60 * 1000, {
-                emitEvent: false,
-            });
-        }
-        // Patch `duration` loudly so downstream subscriptions (availability,
-        // asset lookups, etc.) see the updated window.
-        form.controls.duration.patchValue(duration);
-        if (was_disabled) form.controls.date.disable({ emitEvent: false });
+        // The parking shift _is_ the time window — it must win. Clear
+        // `all_day`, set the date window and duration in one update so the
+        // booking-form time sync doesn't substitute the building's all-day
+        // period for the shift window we're writing.
+        this._timeSync(model)?.updateOptions({
+            bookable_hours: null,
+            default_duration: duration,
+            timezone: this.timezone,
+        });
+        model.update((m) => ({
+            ...m,
+            ...(m.all_day ? { all_day: false } : {}),
+            date: new_date,
+            date_end: new_date_end,
+            duration,
+        }));
+        this.timeout(
+            'parking-request-shift-duration',
+            () => {
+                const value = untracked(model);
+                if (
+                    value.date !== new_date ||
+                    (value.duration === duration &&
+                        value.date_end === new_date_end)
+                ) {
+                    return;
+                }
+                model.update((m) => ({
+                    ...m,
+                    duration,
+                    date_end: new_date_end,
+                }));
+            },
+            0,
+        );
     }
 
     private _computeDaysBitmask(): number {
@@ -1989,25 +2315,29 @@ export class ParkingRequestFormDetailsComponent
     }
 
     private _updateRecurrenceDays() {
-        const form = this.form();
-        if (!form || this.booking_frequency() !== 'daily') return;
-        form.patchValue({ recurrence_days: this._computeDaysBitmask() });
+        const model = this.model;
+        if (!model || this.booking_frequency() !== 'daily') return;
+        model.update((m) => ({
+            ...m,
+            recurrence_days: this._computeDaysBitmask(),
+        }));
     }
 
     private _updateRecurrenceEnd() {
-        const form = this.form();
-        if (!form || this.booking_frequency() !== 'daily') return;
+        const model = this.model;
+        if (!model || this.booking_frequency() !== 'daily') return;
         const dates = this._computeRecurrenceDates();
         if (!dates.length) return;
-        form.patchValue({
+        model.update((m) => ({
+            ...m,
             recurrence_end: getUnixTime(endOfDay(dates[dates.length - 1])),
-        });
+        }));
     }
 
     private _computeRecurrenceDates(): number[] {
-        const form = this.form();
-        if (!form) return [];
-        const raw_date = form.getRawValue()?.date || Date.now();
+        const model = this.model;
+        if (!model) return [];
+        const raw_date = model()?.date || Date.now();
         const reference = startOfDay(raw_date);
         const latest_date = this.end_date();
         const ref_dow = reference.getDay() === 0 ? 7 : reference.getDay();
@@ -2123,18 +2453,18 @@ export class ParkingRequestFormDetailsComponent
      * pick the preferred shift for the active configuration. Called once
      * on initialisation.
      */
-    private _initShiftStateFromForm(form: FormGroup) {
+    private _initShiftStateFromForm(model: WritableSignal<BookingFormValue>) {
         const default_custom_shift = this._defaultCustomShift();
         this.custom_start_time_mins.set(default_custom_shift.start_time);
         this.custom_end_time_mins.set(default_custom_shift.end_time);
-        const date = form.getRawValue().date;
+        const date = model().date;
         if (date) {
             const { hours, minutes } = getTimeInTimezone(
                 date,
                 this.timezone || undefined,
             );
             const start = hours * 60 + minutes;
-            const duration = form.value.duration || DEFAULT_DAY_DURATION_MINS;
+            const duration = model().duration || DEFAULT_DAY_DURATION_MINS;
             this.start_time_mins.set(start);
             this.end_time_mins.set(start + duration);
             const { start_time, end_time } = this._normaliseShiftTime(
@@ -2167,10 +2497,12 @@ export class ParkingRequestFormDetailsComponent
             return;
         }
         if (this.has_preset_shifts()) {
-            const matching_preset = this.shift_options().find(
-                (_) =>
-                    _.start_time === this.start_time_mins() &&
-                    _.end_time === this.end_time_mins() % 1440,
+            const matching_preset = this.shift_options().find((_) =>
+                this._matchesShiftOption(
+                    _,
+                    this.start_time_mins(),
+                    this.end_time_mins(),
+                ),
             );
             this._applyShift((matching_preset || this.shift_options()[0]).id);
             return;
@@ -2215,10 +2547,8 @@ export class ParkingRequestFormDetailsComponent
         const preset =
             (shift.type !== CUSTOM_SHIFT_ID &&
                 this.shift_options().find((_) => _.id === shift.type)) ||
-            this.shift_options().find(
-                (_) =>
-                    _.start_time === shift.start_time &&
-                    _.end_time === shift.end_time % 1440,
+            this.shift_options().find((_) =>
+                this._matchesShiftOption(_, shift.start_time, shift.end_time),
             );
         if (preset) {
             this._applyShift(preset.id);
@@ -2238,19 +2568,37 @@ export class ParkingRequestFormDetailsComponent
         this._applyShift(CUSTOM_SHIFT_ID);
     }
 
-    private _syncRequestTypeUser(form: FormGroup) {
+    private _matchesShiftOption(
+        option: ParkingRequestShiftOption,
+        start_time: number,
+        end_time: number,
+    ) {
+        return (
+            option.start_time === start_time &&
+            this._shiftDuration(option.start_time, option.end_time) ===
+                this._shiftDuration(start_time, end_time)
+        );
+    }
+
+    private _shiftDuration(start_time: number, end_time: number) {
+        return end_time > start_time
+            ? end_time - start_time
+            : 1440 - start_time + end_time;
+    }
+
+    private _syncRequestTypeUser(model: WritableSignal<BookingFormValue>) {
         const current_user = currentUser();
-        const selected_user = form.getRawValue().user;
+        const selected_user = model().user;
         if (this.allow_any_host()) return;
         if (!this.can_book_for_anyone() || !this.host_book_as()) {
             if (this.force_show_host_select()) {
                 if (selected_user?.is_external) {
-                    form.patchValue({ user: current_user || null });
+                    model.update((m) => ({ ...m, user: current_user || null }));
                 }
                 return;
             }
             if (current_user && selected_user?.email !== current_user.email) {
-                form.patchValue({ user: current_user });
+                model.update((m) => ({ ...m, user: current_user }));
             }
             return;
         }
@@ -2258,38 +2606,36 @@ export class ParkingRequestFormDetailsComponent
             this.host_book_as() === 'externals' &&
             !selected_user?.is_external
         ) {
-            form.patchValue({ user: null });
+            model.update((m) => ({ ...m, user: null }));
             return;
         }
         if (this.host_book_as() === 'internals' && selected_user?.is_external) {
-            form.patchValue({ user: current_user || null });
+            model.update((m) => ({ ...m, user: current_user || null }));
         }
     }
 
-    private _syncPrefilledPlateNumber(form: FormGroup) {
-        this.subscription(
-            'prefilled_plate_number',
-            form.controls.plate_number.valueChanges
-                .pipe(startWith(form.getRawValue().plate_number))
-                .subscribe((plate_number) => {
-                    if (this._prefilled_plate_number) return;
-                    if (
-                        this._userEmail(form.getRawValue().user) !==
-                        this._userEmail(currentUser())
-                    ) {
-                        return;
-                    }
-                    if (!plate_number) return;
-                    this._prefilled_plate_number = plate_number;
-                }),
+    private _syncPrefilledPlateNumber(model: WritableSignal<BookingFormValue>) {
+        runInInjectionContext(this._injector, () =>
+            effect(() => {
+                const plate_number = model().plate_number;
+                if (this._prefilled_plate_number) return;
+                if (
+                    this._userEmail(model().user) !==
+                    this._userEmail(currentUser())
+                ) {
+                    return;
+                }
+                if (!plate_number) return;
+                this._prefilled_plate_number = plate_number;
+            }),
         );
     }
 
-    private _syncPlateNumberUser(form: FormGroup) {
-        let previous_email = this._userEmail(form.getRawValue().user);
-        this.subscription(
-            'plate_number_user',
-            form.controls.user.valueChanges.subscribe((selected_user) => {
+    private _syncPlateNumberUser(model: WritableSignal<BookingFormValue>) {
+        let previous_email = this._userEmail(model().user);
+        runInInjectionContext(this._injector, () =>
+            effect(() => {
+                const selected_user = model().user;
                 const current_email = this._userEmail(currentUser());
                 const selected_email = this._userEmail(selected_user);
                 const user_changed = selected_email !== previous_email;
@@ -2298,17 +2644,17 @@ export class ParkingRequestFormDetailsComponent
                 if (selected_email === current_email) {
                     if (
                         this._prefilled_plate_number &&
-                        form.getRawValue().plate_number !==
-                            this._prefilled_plate_number
+                        model().plate_number !== this._prefilled_plate_number
                     ) {
-                        form.patchValue({
+                        model.update((m) => ({
+                            ...m,
                             plate_number: this._prefilled_plate_number,
-                        });
+                        }));
                     }
                     return;
                 }
-                if (!form.getRawValue().plate_number) return;
-                form.patchValue({ plate_number: '' });
+                if (!model().plate_number) return;
+                model.update((m) => ({ ...m, plate_number: '' }));
             }),
         );
     }

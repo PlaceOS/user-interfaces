@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, input } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { downloadFile, jsonToCsv } from '@placeos/common';
@@ -152,9 +151,7 @@ export class AssetReportDailyUsageComponent {
 
     public readonly print = input(false);
     public readonly table_metric_guide = TABLE_METRIC_GUIDE;
-    private readonly _daily_stats = toSignal(this._state.daily_stats$, {
-        initialValue: {},
-    });
+    private readonly _daily_stats = this._state.daily_stats;
     public readonly daily_products = computed(() => {
         const days = this._daily_stats();
         let list = [];

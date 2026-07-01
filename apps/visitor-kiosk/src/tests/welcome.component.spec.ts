@@ -7,7 +7,7 @@ import {
     MockPipe,
     MockProvider,
 } from 'ng-mocks';
-import { of } from 'rxjs';
+import { signal } from '@angular/core';
 
 import { MatMenuModule } from '@angular/material/menu';
 import {
@@ -25,7 +25,7 @@ describe('WelcomeComponent', () => {
         providers: [
             MockProvider(SettingsService, {
                 get: jest.fn(),
-                listen: jest.fn(() => of()),
+                listen: jest.fn(() => signal('')),
             }),
         ],
         imports: [MockModule(MatMenuModule)],

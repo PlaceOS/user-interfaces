@@ -1,15 +1,14 @@
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
-import { BehaviorSubject } from 'rxjs';
 
+import { signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTabsModule } from '@angular/material/tabs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { OrganisationService, SettingsService } from '@placeos/common';
-import { of } from 'rxjs';
 import { ApplicationSidebarComponent } from '../../app/ui/app-sidebar.component';
 import { ApplicationTopbarComponent } from '../../app/ui/app-topbar.component';
 import { DateOptionsComponent } from '../../app/ui/date-options.component';
@@ -26,8 +25,8 @@ describe('VisitorsComponent', () => {
         component: VisitorsComponent,
         providers: [
             MockProvider(VisitorsStateService, {
-                loading: new BehaviorSubject(false),
-                filters: new BehaviorSubject({}),
+                loading: signal(false),
+                filters: signal({}),
                 poll: jest.fn(),
                 setFilters: jest.fn(),
                 setSearchString: jest.fn(),
@@ -43,8 +42,8 @@ describe('VisitorsComponent', () => {
             }),
             MockProvider(Router as any, { navigate: jest.fn() }),
             MockProvider(OrganisationService as any, {
-                active_building: of({}),
-                active_region: of({}),
+                active_building: signal({}),
+                active_region: signal({}),
                 levelsForBuilding: jest.fn(() => []),
                 levelsForRegion: jest.fn(() => []),
             }),

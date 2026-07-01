@@ -86,79 +86,79 @@ describe('ConciergeSettingsFormModalComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should have a form with expected controls', () => {
-        const form = spectator.component.form;
-        expect(form.get('logo_light')).toBeTruthy();
-        expect(form.get('logo_dark')).toBeTruthy();
-        expect(form.get('features')).toBeTruthy();
-        expect(form.get('default_route')).toBeTruthy();
-        expect(form.get('use_24_hour_time')).toBeTruthy();
-        expect(form.get('delegated')).toBeTruthy();
-        expect(form.get('week_start')).toBeTruthy();
-        expect(form.get('currency')).toBeTruthy();
+    it('should have a model with expected values', () => {
+        const model = spectator.component.model();
+        expect('logo_light' in model).toBe(true);
+        expect('logo_dark' in model).toBe(true);
+        expect('features' in model).toBe(true);
+        expect('default_route' in model).toBe(true);
+        expect('use_24_hour_time' in model).toBe(true);
+        expect('delegated' in model).toBe(true);
+        expect('week_start' in model).toBe(true);
+        expect('currency' in model).toBe(true);
     });
 
-    it('should have events form group', () => {
-        const events = spectator.component.form.get('events');
+    it('should have events model group', () => {
+        const events = spectator.component.model().events;
         expect(events).toBeTruthy();
-        expect(events.get('allow_all_day')).toBeTruthy();
-        expect(events.get('all_day_period')).toBeTruthy();
-        expect(events.get('bookable_hours')).toBeTruthy();
-        expect(events.get('day_timeline_view')).toBeTruthy();
-        expect(events.get('block_start')).toBeTruthy();
-        expect(events.get('block_end')).toBeTruthy();
-        expect(events.get('block_height')).toBeTruthy();
-        expect(events.get('max_duration')).toBeTruthy();
-        expect(events.get('available_period')).toBeTruthy();
+        expect('allow_all_day' in events).toBe(true);
+        expect('all_day_period' in events).toBe(true);
+        expect('bookable_hours' in events).toBe(true);
+        expect('day_timeline_view' in events).toBe(true);
+        expect('block_start' in events).toBe(true);
+        expect('block_end' in events).toBe(true);
+        expect('block_height' in events).toBe(true);
+        expect('max_duration' in events).toBe(true);
+        expect('available_period' in events).toBe(true);
     });
 
-    it('should have desks form group', () => {
-        const desks = spectator.component.form.get('desks');
+    it('should have desks model group', () => {
+        const desks = spectator.component.model().desks;
         expect(desks).toBeTruthy();
-        expect(desks.get('max_assigned_count')).toBeTruthy();
+        expect('max_assigned_count' in desks).toBe(true);
     });
 
-    it('should have visitors form group', () => {
-        const visitors = spectator.component.form.get('visitors');
+    it('should have visitors model group', () => {
+        const visitors = spectator.component.model().visitors;
         expect(visitors).toBeTruthy();
-        expect(visitors.get('bookable_hours')).toBeTruthy();
-        expect(visitors.get('has_parking')).toBeTruthy();
-        expect(visitors.get('allow_pass_number')).toBeTruthy();
-        expect(visitors.get('allow_printing_label')).toBeTruthy();
-        expect(visitors.get('all_visitors_action_window')).toBeTruthy();
+        expect('bookable_hours' in visitors).toBe(true);
+        expect('has_parking' in visitors).toBe(true);
+        expect('allow_pass_number' in visitors).toBe(true);
+        expect('allow_printing_label' in visitors).toBe(true);
+        expect('all_visitors_action_window' in visitors).toBe(true);
     });
 
-    it('should have bookings form group', () => {
-        const bookings = spectator.component.form.get('bookings');
+    it('should have bookings model group', () => {
+        const bookings = spectator.component.model().bookings;
         expect(bookings).toBeTruthy();
-        expect(bookings.get('allow_all_day')).toBeTruthy();
-        expect(bookings.get('all_day_period')).toBeTruthy();
-        expect(bookings.get('bookable_hours')).toBeTruthy();
-        expect(bookings.get('available_period')).toBeTruthy();
-        expect(bookings.get('max_duration')).toBeTruthy();
+        expect('allow_all_day' in bookings).toBe(true);
+        expect('all_day_period' in bookings).toBe(true);
+        expect('bookable_hours' in bookings).toBe(true);
+        expect('available_period' in bookings).toBe(true);
+        expect('max_duration' in bookings).toBe(true);
     });
 
-    it('should have parking form group', () => {
-        const parking = spectator.component.form.get('parking');
+    it('should have parking model group', () => {
+        const parking = spectator.component.model().parking;
         expect(parking).toBeTruthy();
-        expect(parking.get('allow_all_day')).toBeTruthy();
-        expect(parking.get('bookable_hours')).toBeTruthy();
-        expect(parking.get('show_users')).toBeTruthy();
-        expect(parking.get('show_status_details')).toBeTruthy();
-        expect(parking.get('disable_styles')).toBeTruthy();
-        expect(parking.get('disable_bookings')).toBeTruthy();
-        expect(parking.get('hide_level_selector_on_booking_list')).toBeTruthy();
-        expect(parking.get('allow_deleting')).toBeTruthy();
-        expect(parking.get('max_assigned_count')).toBeTruthy();
+        expect('allow_all_day' in parking).toBe(true);
+        expect('bookable_hours' in parking).toBe(true);
+        expect('show_users' in parking).toBe(true);
+        expect('show_status_details' in parking).toBe(true);
+        expect('disable_styles' in parking).toBe(true);
+        expect('disable_bookings' in parking).toBe(true);
+        expect('hide_level_selector_on_booking_list' in parking).toBe(true);
+        expect('allow_deleting' in parking).toBe(true);
+        expect('max_assigned_count' in parking).toBe(true);
     });
 
-    it('should have lockers form group', () => {
-        const lockers = spectator.component.form.get('lockers');
+    it('should have lockers model group', () => {
+        const lockers = spectator.component.model().lockers;
         expect(lockers).toBeTruthy();
-        expect(lockers.get('allow_all_day')).toBeTruthy();
-        expect(lockers.get('bookable_hours')).toBeTruthy();
-        expect(lockers.get('all_day_default')).toBeTruthy();
-        expect(lockers.get('show_calendar_links')).toBeTruthy();
+        expect('allow_all_day' in lockers).toBe(true);
+        expect('bookable_hours' in lockers).toBe(true);
+        expect('all_day_default' in lockers).toBe(true);
+        expect('show_calendar_links' in lockers).toBe(true);
     });
 
     it('should expose the zone from dialog data', () => {
@@ -232,9 +232,10 @@ describe('ConciergeSettingsFormModalComponent', () => {
 
     it('should save settings via updateMetadata', async () => {
         await spectator.component.ngOnInit();
-        spectator.component.form.patchValue({
+        spectator.component.model.update((m) => ({
+            ...m,
             default_route: '/custom-route',
-        });
+        }));
         await spectator.component.save();
         expect(ts_client.updateMetadata).toHaveBeenCalledWith(
             'zone-1',

@@ -1,17 +1,25 @@
-import { Injectable, inject } from '@angular/core';
+import {
+    Injectable,
+    Signal,
+    computed,
+    debounced,
+    inject,
+    resource,
+    signal,
+} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
     BuildingLevel,
     OrganisationService,
     i18n,
+    nextValueFrom,
     notifyError,
     notifySuccess,
 } from '@placeos/common';
 import { openConfirmModal } from '@placeos/components';
 import { requestSpacesForZone } from '@placeos/events';
 import { PlaceZone, removeZone } from '@placeos/ts-client';
-import { BehaviorSubject, combineLatest } from 'rxjs';
-import { shareReplay, switchMap } from 'rxjs/operators';
+import { LevelMapEditorModalComponent } from './level-map-editor-modal.component';
 import { LevelModalComponent } from './level-modal.component';
 
 export interface LevelListOptions {
@@ -26,20 +34,27 @@ export class LevelManagementService {
     private _org = inject(OrganisationService);
     private _dialog = inject(MatDialog);
 
-    private _options = new BehaviorSubject<LevelListOptions>({});
-    private _change = new BehaviorSubject(0);
+    private _options = signal<LevelListOptions>({});
 
-    public options = this._options.asObservable();
+    public readonly options = this._options.asReadonly();
 
     public readonly level_list = this._org.level_list;
+    private readonly _level_params = computed(() => ({
+        buildings: this._org.building_list(),
+        levels: this.level_list(),
+        options: this._options(),
+    }));
+    private readonly _level_params_debounced = debounced(
+        this._level_params,
+        300,
+    );
 
-    public readonly filtered_levels = combineLatest([
-        this._org.building_list,
-        this.level_list,
-        this._options,
-    ]).pipe(
-        switchMap(async ([buildings, list, options]) => {
-            list = list.filter((_) =>
+    private readonly _filtered_levels = resource({
+        params: () => this._level_params_debounced.value(),
+        defaultValue: [] as BuildingLevel[],
+        loader: async ({ params }) => {
+            const { buildings, options } = params;
+            let list = params.levels.filter((_) =>
                 buildings.find((bld) => bld.id === _.parent_id),
             );
             if (options.zone) {
@@ -58,25 +73,35 @@ export class LevelManagementService {
                     (level as any).building =
                         parent.display_name || parent.name;
                 }
-                (level as any).room_count = await requestSpacesForZone(level.id)
-                    .toPromise()
-                    .then((spaces) => spaces.length);
+                (level as any).room_count = await nextValueFrom(
+                    requestSpacesForZone(level.id),
+                ).then((spaces) => spaces.length);
             }
             return list;
-        }),
-        shareReplay(1),
-    );
+        },
+    });
+    public readonly filtered_levels: Signal<BuildingLevel[]> =
+        this._filtered_levels.value;
 
     public setFilters(options: Partial<LevelListOptions>) {
-        this._options.next({ ...this._options.getValue(), ...options });
+        this._options.update((current) => ({ ...current, ...options }));
     }
 
     public setSearchString(search: string) {
-        this._options.next({ ...this._options.getValue(), search });
+        this._options.update((current) => ({ ...current, search }));
     }
 
     public editLevel(level: PlaceZone = new PlaceZone()) {
         const ref = this._dialog.open(LevelModalComponent, {
+            data: level,
+        });
+        ref.afterClosed().subscribe((data) => {
+            if (data) this._org.addZone(data);
+        });
+    }
+
+    public editLevelMap(level: BuildingLevel) {
+        const ref = this._dialog.open(LevelMapEditorModalComponent, {
             data: level,
         });
         ref.afterClosed().subscribe((data) => {

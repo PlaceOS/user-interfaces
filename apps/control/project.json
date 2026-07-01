@@ -7,7 +7,7 @@
     "tags": [],
     "targets": {
         "build": {
-            "executor": "@angular-devkit/build-angular:application",
+            "executor": "@angular/build:application",
             "options": {
                 "baseHref": "./",
                 "outputPath": "dist/apps/control",
@@ -138,7 +138,7 @@
             }
         },
         "serve": {
-            "executor": "@angular-devkit/build-angular:dev-server",
+            "executor": "@angular/build:dev-server",
             "options": {
                 "proxyConfig": "config/proxy.conf.js",
                 "buildTarget": "control:build"
@@ -169,7 +169,7 @@
                 "parallel": false,
                 "commands": [
                     {
-                        "command": "npx nx build control --configuration=mobile"
+                        "command": "bunx nx build control --configuration=mobile"
                     },
                     {
                         "command": "node tools/capacitor/run.mjs sync control android"
@@ -184,7 +184,7 @@
                 "parallel": false,
                 "commands": [
                     {
-                        "command": "npx nx build control --configuration=mobile"
+                        "command": "bunx nx build control --configuration=mobile"
                     },
                     {
                         "command": "node tools/capacitor/run.mjs sync control ios"

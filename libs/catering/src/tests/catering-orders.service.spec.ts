@@ -1,6 +1,4 @@
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
-import { of } from 'rxjs';
-
 import { CateringOrdersService } from '../lib/catering-orders.service';
 
 jest.mock('libs/events/src/lib/events.fn');
@@ -23,7 +21,7 @@ describe('CateringOrdersService', () => {
     });
 
     it('should allow for polling of events', () => {
-        (event_fn as any).queryEvents = jest.fn(() => of([]));
+        (event_fn as any).queryEvents = jest.fn(() => Promise.resolve([]));
         // TODO: check querying updates the
     });
 });

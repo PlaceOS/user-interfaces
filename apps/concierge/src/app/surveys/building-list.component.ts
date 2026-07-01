@@ -21,7 +21,9 @@ import { SurveyService } from './survey.service';
                 {{
                     'APP.CONCIERGE.SURVEY_BUILDING_COUNT'
                         | translate
-                            : { count: buildings()?.length }
+                            : {
+                                  count: buildings()?.length,
+                              }
                             : buildings()?.length
                 }}
             </div>
@@ -137,7 +139,7 @@ export class BuildingListComponent extends AsyncHandler {
     private _org = inject(OrganisationService);
     private _survey = inject(SurveyService);
 
-    public readonly buildings = this._org.buildings_signal;
+    public readonly buildings = this._org.building_list;
     public readonly surveys = this._survey.survey_list;
     public readonly answers = this._survey.answer_list;
 

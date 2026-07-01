@@ -47,7 +47,6 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.component';
 import { SpacePipe } from 'libs/events/src/lib/space.pipe';
 import { UserPipe } from 'libs/users/src/lib/user.pipe';
-import { lastValueFrom } from 'rxjs';
 import { AttendeeListComponent } from './attendee-list.component';
 import { getEventMetadata } from './events.fn';
 
@@ -414,18 +413,15 @@ const EMPTY_ACTIONS: { id: string; name: string; icon: string }[] = [];
                                             matRipple
                                             class="print:hidden"
                                             [matTooltip]="
-                                                show_order[order.id]
+                                                show_order()[order.id]
                                                     ? 'Hide order items'
                                                     : 'Show order items'
                                             "
-                                            (click)="
-                                                show_order[order.id] =
-                                                    !show_order[order.id]
-                                            "
+                                            (click)="toggleOrder(order.id)"
                                         >
                                             <icon>
                                                 {{
-                                                    show_order[order.id]
+                                                    show_order()[order.id]
                                                         ? 'expand_less'
                                                         : 'expand_more'
                                                 }}
@@ -435,7 +431,7 @@ const EMPTY_ACTIONS: { id: string; name: string; icon: string }[] = [];
                                     <div
                                         class="divide-base-100 bg-base-200 flex flex-col divide-y"
                                         [@show]="
-                                            print || show_order[order.id]
+                                            print() || show_order()[order.id]
                                                 ? 'show'
                                                 : 'hide'
                                         "
@@ -553,10 +549,7 @@ const EMPTY_ACTIONS: { id: string; name: string; icon: string }[] = [];
                                     <button
                                         matRipple
                                         class="flex w-full items-center space-x-2 p-3"
-                                        (click)="
-                                            show_request[request.id] =
-                                                !show_request[request.id]
-                                        "
+                                        (click)="toggleRequest(request.id)"
                                     >
                                         <div class="flex-1 text-left">
                                             <div class="text-sm">
@@ -615,7 +608,7 @@ const EMPTY_ACTIONS: { id: string; name: string; icon: string }[] = [];
                                         >
                                             <icon class="text-2xl">
                                                 {{
-                                                    show_request[request.id]
+                                                    show_request()[request.id]
                                                         ? 'expand_less'
                                                         : 'expand_more'
                                                 }}
@@ -625,7 +618,8 @@ const EMPTY_ACTIONS: { id: string; name: string; icon: string }[] = [];
                                     <div
                                         class="divide-base-100 bg-base-200 flex flex-col divide-y"
                                         [@show]="
-                                            print || show_request[request.id]
+                                            print() ||
+                                            show_request()[request.id]
                                                 ? 'show'
                                                 : 'hide'
                                         "
@@ -693,17 +687,16 @@ const EMPTY_ACTIONS: { id: string; name: string; icon: string }[] = [];
                         </div>
                     </button>
                 }
-                <button
-                    mat-menu-item
-                    (click)="remove ? remove(event(), false) : ''"
-                >
-                    <div class="flex items-center space-x-2 pr-2 text-base">
-                        <icon class="text-error text-2xl">delete</icon>
-                        <div>
-                            {{ 'CALENDAR_EVENT.ACTION_DELETE' | translate }}
+                @if (event().state !== 'done') {
+                    <button mat-menu-item (click)="remove(event(), false)">
+                        <div class="flex items-center space-x-2 pr-2 text-base">
+                            <icon class="text-error text-2xl">delete</icon>
+                            <div>
+                                {{ 'CALENDAR_EVENT.ACTION_DELETE' | translate }}
+                            </div>
                         </div>
-                    </div>
-                </button>
+                    </button>
+                }
                 @if (is_concierge) {
                     <button mat-menu-item (click)="printEvent()">
                         <div class="flex items-center space-x-2 pr-2 text-base">
@@ -714,11 +707,8 @@ const EMPTY_ACTIONS: { id: string; name: string; icon: string }[] = [];
                         </div>
                     </button>
                 }
-                @if (event().recurring_event_id) {
-                    <button
-                        mat-menu-item
-                        (click)="remove ? remove(event(), true) : ''"
-                    >
+                @if (event().state !== 'done' && event().recurring_event_id) {
+                    <button mat-menu-item (click)="remove(event(), true)">
                         <div class="flex items-center space-x-2 pr-2 text-base">
                             <icon class="text-error text-2xl">delete</icon>
                             <div>
@@ -775,12 +765,11 @@ export class EventDetailsModalComponent implements OnInit {
 
     public readonly action = output<any>();
     public readonly edit = this._data.edit_fn;
-    public readonly remove = this._data.remove_fn;
 
     public readonly empty_notes =
         '<div class="p-4 w-full rounded-md bg-base-200 text-center"><span class="opacity-30">No notes</span></div>';
-    public readonly show_order = {};
-    public readonly show_request = {};
+    public readonly show_order = signal<Record<string, boolean>>({});
+    public readonly show_request = signal<Record<string, boolean>>({});
     public readonly room_status = signal('');
     public readonly hide_map = signal(false);
     public readonly hide_edit = signal(false);
@@ -797,6 +786,11 @@ export class EventDetailsModalComponent implements OnInit {
             content: MapPinComponent,
         },
     ]);
+
+    public remove(event: CalendarEvent, remove_series?: boolean) {
+        if (event?.state === 'done') return;
+        this._data.remove_fn(event, remove_series);
+    }
     public readonly has_catering = computed(
         () => this.event()?.ext('catering')?.length > 0,
     );
@@ -956,6 +950,20 @@ export class EventDetailsModalComponent implements OnInit {
         return item.option_list?.map((_) => _.name).join('\n');
     }
 
+    public toggleOrder(id: string) {
+        this.show_order.update((show_order) => ({
+            ...show_order,
+            [id]: !show_order[id],
+        }));
+    }
+
+    public toggleRequest(id: string) {
+        this.show_request.update((show_request) => ({
+            ...show_request,
+            [id]: !show_request[id],
+        }));
+    }
+
     public readonly recurr_tooltip = computed(
         () =>
             formatRecurrence(
@@ -990,9 +998,10 @@ export class EventDetailsModalComponent implements OnInit {
         ) {
             return;
         }
-        const metadata = await lastValueFrom(
-            getEventMetadata(this.event().id, this.space().id),
-        ).catch(() => null);
+        const metadata = await getEventMetadata(
+            this.event().id,
+            this.space().id,
+        );
         if (metadata) {
             this.event.set(
                 new CalendarEvent({
@@ -1023,9 +1032,12 @@ export class EventDetailsModalComponent implements OnInit {
     public viewLocation() {
         this.hide_map.set(true);
         const ref = this._dialog.open(MapLocateModalComponent, {
-            maxWidth: '95vw',
-            maxHeight: '95vh',
-            data: { item: this.space },
+            width: '100vw',
+            height: '100vh',
+            maxWidth: '100vw',
+            maxHeight: '100vh',
+            panelClass: 'fullscreen-dialog',
+            data: { item: this.space() },
         });
         ref.afterClosed().subscribe(() => this.hide_map.set(false));
     }

@@ -4,8 +4,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { OrganisationService } from '@placeos/common';
+import { signal } from '@angular/core';
 import { MockComponent } from 'ng-mocks';
-import { of } from 'rxjs';
 import { StaffStateService } from '../../app/staff/staff-state.service';
 import { StaffTopbarComponent } from '../../app/staff/staff-topbar.component';
 import { SearchbarComponent } from '../../app/ui/searchbar.component';
@@ -19,6 +19,7 @@ describe('StaffTopbarComponent', () => {
             {
                 provide: StaffStateService,
                 useValue: {
+                    filters: signal({}),
                     setFilters: jest.fn(),
                     setSearchString: jest.fn(),
                 },
@@ -26,8 +27,9 @@ describe('StaffTopbarComponent', () => {
             {
                 provide: OrganisationService,
                 useValue: {
-                    active_levels: of([]),
-                    initialised: of(true),
+                    active_levels: signal([]),
+                    initialised: signal(true),
+                    waitUntilInitialised: () => Promise.resolve(),
                     levelWithID: jest.fn(),
                     buildings: [],
                 },

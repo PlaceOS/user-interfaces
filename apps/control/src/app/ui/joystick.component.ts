@@ -3,14 +3,14 @@ import {
     computed,
     ElementRef,
     inject,
-    model,
+    input,
+    linkedSignal,
     output,
     Renderer2,
     viewChild,
 } from '@angular/core';
-import { AsyncHandler } from '@placeos/common';
+import { AsyncHandler, Point } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
-import { Point } from '@placeos/common';
 
 /**
  * Grab point details from mouse or touch event
@@ -87,8 +87,14 @@ export enum JoystickPan {
 export class JoystickComponent extends AsyncHandler {
     private _renderer = inject(Renderer2);
 
-    public readonly pan = model<JoystickPan>(JoystickPan.Stop);
-    public readonly tilt = model<JoystickTilt>(JoystickTilt.Stop);
+    public readonly panInput = input<JoystickPan>(JoystickPan.Stop, {
+        alias: 'pan',
+    });
+    public readonly pan = linkedSignal(this.panInput);
+    public readonly tiltInput = input<JoystickTilt>(JoystickTilt.Stop, {
+        alias: 'tilt',
+    });
+    public readonly tilt = linkedSignal(this.tiltInput);
 
     public readonly panChange = output<JoystickPan>();
     public readonly tiltChange = output<JoystickTilt>();

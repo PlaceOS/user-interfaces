@@ -77,32 +77,7 @@ import {
             </section>
         </main>
     `,
-    styles: [
-        `
-            :host {
-                display: block;
-                min-height: 100%;
-            }
-
-            .app-grid {
-                display: grid;
-                gap: 0.75rem;
-                grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
-            }
-
-            .app-name {
-                display: -webkit-box;
-                -webkit-box-orient: vertical;
-                -webkit-line-clamp: 2;
-                overflow: hidden;
-                font-size: 1rem;
-                font-weight: 600;
-                line-height: 1.35;
-                text-align: center;
-                word-break: break-word;
-            }
-        `,
-    ],
+    styles: [],
     providers: [SettingsService],
 })
 export class AppComponent implements OnInit {

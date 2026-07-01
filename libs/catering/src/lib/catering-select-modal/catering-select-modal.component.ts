@@ -1,7 +1,6 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     CateringItem,
     OrganisationService,
@@ -39,7 +38,7 @@ const EMPTY_FAVS: string[] = [];
             >
                 <div
                     class="border-base-300 h-full w-full overflow-x-hidden overflow-y-auto rounded-sm border shadow-sm sm:block sm:w-[20rem]"
-                    [class.hidden]="!show_filters"
+                    [class.hidden]="!show_filters()"
                 >
                     <catering-item-filters
                         [(at_time)]="exact_time"
@@ -49,47 +48,47 @@ const EMPTY_FAVS: string[] = [];
                 </div>
                 <div
                     class="border-base-300 bg-base-200 h-full w-full overflow-auto rounded-sm border sm:w-[20rem] lg:block"
-                    [class.hidden]="show_filters || displayed"
-                    [class.sm:hidden]="displayed"
-                    [class.md:block]="!displayed"
+                    [class.hidden]="show_filters() || displayed()"
+                    [class.sm:hidden]="displayed()"
+                    [class.md:block]="!displayed()"
                 >
                     <catering-item-list
-                        [active]="displayed?.custom_id"
-                        [selected]="selected_keys"
-                        [selected_items]="selected"
-                        [favorites]="favorites"
+                        [active]="displayed()?.custom_id"
+                        [selected]="selected_keys()"
+                        [selected_items]="selected()"
+                        [favorites]="favorites()"
                         (toggleFav)="toggleFavourite($event.id)"
-                        (onSelect)="displayed = $event"
+                        (onSelect)="displayed.set($event)"
                     ></catering-item-list>
                 </div>
                 <div
                     class="border-base-300 h-full w-full overflow-auto rounded-sm border shadow-sm sm:w-[20rem] lg:block"
-                    [class.hidden]="show_filters || !displayed"
-                    [class.sm:hidden]="!displayed"
-                    [class.md:block]="displayed"
+                    [class.hidden]="show_filters() || !displayed()"
+                    [class.sm:hidden]="!displayed()"
+                    [class.md:block]="displayed()"
                 >
                     <catering-item-details
-                        [item]="displayed!"
-                        [active]="displayed?.in_order"
-                        (activeChange)="setSelected(displayed!, $event)"
-                        [code]="code"
+                        [item]="displayed()!"
+                        [active]="displayed()?.in_order"
+                        (activeChange)="setSelected(displayed()!, $event)"
+                        [code]="code()"
                         [fav]="
-                            !!displayed &&
-                            this.favorites.includes(displayed?.id || '')
+                            !!displayed() &&
+                            favorites().includes(displayed()?.id || '')
                         "
-                        (toggleFav)="toggleFavourite(displayed!.id)"
-                        (close)="displayed = null"
+                        (toggleFav)="toggleFavourite(displayed()!.id)"
+                        (close)="displayed.set(null)"
                     ></catering-item-details>
                 </div>
-                @if (!displayed) {
+                @if (!displayed()) {
                     <button
                         icon
                         matRipple
                         class="border-base-200 bg-base-100 absolute top-3 right-2 z-20 border sm:hidden"
-                        (click)="show_filters = !show_filters"
+                        (click)="show_filters.update((_) => !_)"
                     >
                         <icon>{{
-                            show_filters ? 'close' : 'filter_list'
+                            show_filters() ? 'close' : 'filter_list'
                         }}</icon>
                     </button>
                 }
@@ -101,7 +100,7 @@ const EMPTY_FAVS: string[] = [];
                     btn
                     matRipple
                     name="catering-return"
-                    [mat-dialog-close]="selected"
+                    [mat-dialog-close]="selected()"
                     class="inverse bg-base-100 text-secondary"
                 >
                     <div class="flex items-center space-x-2">
@@ -115,17 +114,17 @@ const EMPTY_FAVS: string[] = [];
                     btn
                     matRipple
                     name="toggle-catering"
-                    [disabled]="!displayed"
-                    [class.inverse]="displayed?.in_order"
-                    (click)="setSelected(displayed, !displayed?.in_order)"
+                    [disabled]="!displayed()"
+                    [class.inverse]="displayed()?.in_order"
+                    (click)="setSelected(displayed(), !displayed()?.in_order)"
                 >
                     <div class="flex items-center">
                         <icon class="text-xl">{{
-                            displayed?.in_order ? 'remove' : 'add'
+                            displayed()?.in_order ? 'remove' : 'add'
                         }}</icon>
                         <div class="mr-1">
                             {{
-                                (displayed?.in_order
+                                (displayed()?.in_order
                                     ? 'CATERING.ORDER_ITEM_REMOVE'
                                     : 'CATERING.ORDER_ITEM_ADD'
                                 ) | translate
@@ -142,7 +141,6 @@ const EMPTY_FAVS: string[] = [];
         IconComponent,
         MatRippleModule,
         MatDialogModule,
-        MatTooltipModule,
         CateringItemListComponent,
         CateringItemDetailsComponent,
         CateringItemFiltersComponent,
@@ -161,11 +159,13 @@ export class CateringSelectModalComponent {
         caterer?: string;
     }>(MAT_DIALOG_DATA);
 
-    public displayed: CateringItem | null = null;
-    public selected: CateringItem[] = [...(this._data.items || [])];
-    public exact_time = this._data.exact_time ?? false;
-    public offset: number;
-    public offset_day: number;
+    public readonly displayed = signal<CateringItem | null>(null);
+    public readonly selected = signal<CateringItem[]>([
+        ...(this._data.items || []),
+    ]);
+    public readonly exact_time = signal(this._data.exact_time ?? false);
+    public readonly offset = signal(0);
+    public readonly offset_day = signal(0);
     private readonly _min_offset = this._settings.signal(
         'catering.min_offset',
         0,
@@ -174,9 +174,9 @@ export class CateringSelectModalComponent {
         'catering.end_offset',
         0,
     );
-    public show_filters = false;
+    public readonly show_filters = signal(false);
 
-    public get favorites() {
+    public readonly favorites = computed(() => {
         return (
             this._settings.signal<string[]>(
                 SETTING_KEYS.FAVORITE_DESKS,
@@ -184,28 +184,31 @@ export class CateringSelectModalComponent {
                 true,
             )() || EMPTY_FAVS
         );
-    }
+    });
 
-    public get selected_keys() {
-        return this.selected.map((_) => this.selectionKey(_));
-    }
+    public readonly selected_keys = computed(() =>
+        this.selected().map((_) => this.selectionKey(_)),
+    );
 
-    public get count() {
-        return this.selected.reduce((t, i) => t + i.quantity, 0);
-    }
+    public readonly count = computed(() =>
+        this.selected().reduce((t, i) => t + i.quantity, 0),
+    );
 
-    public get code() {
+    public readonly code = computed(() => {
+        this._org.active_building?.();
         return this._org.currency_code;
-    }
+    });
 
     constructor() {
         const { duration } = this._data.details;
         this._order.setFilters(this._data.details);
-        this.offset = Math.min(
-            Math.max(this._min_offset(), this._data.offset || 0),
-            (duration || 60) - this._end_offset(),
+        this.offset.set(
+            Math.min(
+                Math.max(this._min_offset(), this._data.offset || 0),
+                (duration || 60) - this._end_offset(),
+            ),
         );
-        this.offset_day = this._data.offset_day || 0;
+        this.offset_day.set(this._data.offset_day || 0);
         if (this._data.caterer) {
             this._order.setFilters({ caterer: this._data.caterer });
         }
@@ -222,30 +225,31 @@ export class CateringSelectModalComponent {
     public setSelected(item: CateringItem, state: boolean) {
         if (!item) return;
         const selection_key = this.selectionKey(item);
-        const existing_index = this.selected.findIndex(
+        const selected = this.selected();
+        const existing_index = selected.findIndex(
             (_) => this.selectionKey(_) === selection_key,
         );
-        const existing = this.selected.find(
+        const existing = selected.find(
             (_) => this.selectionKey(_) === selection_key,
         );
-        const list = this.selected.filter(
+        const list = selected.filter(
             (_) => this.selectionKey(_) !== selection_key,
         );
         if (!state) {
             if (
-                this.displayed &&
-                this.selectionKey(this.displayed) === selection_key
+                this.displayed() &&
+                this.selectionKey(this.displayed()) === selection_key
             ) {
-                this.displayed = null;
+                this.displayed.set(null);
             }
-            this.selected = list;
+            this.selected.set(list);
             return;
         }
         if (item.in_order) {
             const new_item = new CateringItem({ ...item, in_order: true });
             this.insertSelection(list, new_item, existing_index);
-            this.displayed = new_item;
-            this.selected = list;
+            this.displayed.set(new_item);
+            this.selected.set(list);
             return;
         }
         const new_item = new CateringItem({
@@ -255,8 +259,8 @@ export class CateringSelectModalComponent {
         });
         this.insertSelection(list, new_item, existing_index);
         this.resetMenuItem(item);
-        this.displayed = new_item;
-        this.selected = list;
+        this.displayed.set(new_item);
+        this.selected.set(list);
     }
 
     public insertSelection(
@@ -279,7 +283,7 @@ export class CateringSelectModalComponent {
     }
 
     public toggleFavourite(item: string) {
-        const fav_list = this.favorites;
+        const fav_list = this.favorites();
         const new_state = !fav_list.includes(item);
         if (new_state) {
             this._settings.saveUserSetting(SETTING_KEYS.FAVORITE_DESKS, [

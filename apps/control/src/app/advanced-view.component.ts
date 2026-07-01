@@ -1,7 +1,4 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { map } from 'rxjs/operators';
-
 import { MatRippleModule } from '@angular/material/core';
 import { TranslatePipe } from '@placeos/components';
 import { ControlStateService } from './control-state.service';
@@ -68,10 +65,7 @@ export class ControlAdvancedViewComponent {
 
     public readonly page = signal(0);
 
-    public readonly outputs = toSignal(
-        this._state.output_list.pipe(map((_) => _ || [])),
-        { initialValue: [] },
-    );
+    public readonly outputs = this._state.output_list;
 
     public readonly paged_outputs = computed(() => {
         const all = this.outputs();

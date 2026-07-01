@@ -1,9 +1,9 @@
+import { signal } from '@angular/core';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { ControlStateService } from '../../app/control-state.service';
 
 import { CustomTooltipData, SanitizePipe } from '@placeos/components';
 import { MockPipe, MockProvider } from 'ng-mocks';
-import { BehaviorSubject } from 'rxjs';
 import { PowerTooltipComponent } from '../../app/ui/power-tooltip.component';
 
 describe('PowerTooltipComponent', () => {
@@ -14,7 +14,7 @@ describe('PowerTooltipComponent', () => {
         providers: [
             MockProvider(ControlStateService, {
                 powerOff: jest.fn(),
-                joined: new BehaviorSubject([]),
+                joined: signal([]),
             } as any),
             MockProvider(CustomTooltipData, { close: jest.fn() }),
         ],

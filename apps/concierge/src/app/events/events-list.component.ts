@@ -1,5 +1,12 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import {
+    Component,
+    computed,
+    effect,
+    inject,
+    OnInit,
+    signal,
+    untracked,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -25,8 +32,6 @@ import {
     startOfWeek,
     subMonths,
 } from 'date-fns';
-import { combineLatest } from 'rxjs';
-import { distinctUntilChanged, map } from 'rxjs/operators';
 import { loadPersistedZones, persistZones } from '../ui/zone-persistence';
 import { EventCalendarComponent } from './event-calendar.component';
 import { EventListingComponent } from './event-listing.component';
@@ -181,13 +186,7 @@ export class EventsListComponent extends AsyncHandler implements OnInit {
     private _router = inject(Router);
     private _route = inject(ActivatedRoute);
 
-    public readonly period = toSignal(
-        this._state.options.pipe(
-            map((_) => _.period),
-            distinctUntilChanged(),
-        ),
-        { initialValue: this._state.period },
-    );
+    public readonly period = computed(() => this._state.options().period);
 
     public readonly view = signal<'list' | 'calendar'>('list');
     public readonly period_list = signal<any[]>([]);
@@ -195,19 +194,46 @@ export class EventsListComponent extends AsyncHandler implements OnInit {
     /** Currently selected level ids (empty = all levels) */
     public readonly zones = signal<string[]>([]);
     /** Levels available for the active building/region */
-    public readonly levels = toSignal(
-        combineLatest([
-            this._org.active_building,
-            this._org.active_region,
-        ]).pipe(
-            map(([bld, region]) =>
-                this._settings.get('app.use_region')
-                    ? this._org.levelsForRegion(region)
-                    : this._org.levelsForBuilding(bld),
-            ),
-        ),
-        { initialValue: [] },
-    );
+    public readonly levels = computed(() => {
+        const bld = this._org.active_building();
+        const region = this._org.active_region();
+        return this._settings.get('app.use_region')
+            ? this._org.levelsForRegion(region)
+            : this._org.levelsForBuilding(bld);
+    });
+
+    constructor() {
+        super();
+        // Regenerate periods whenever the period type (week/month) changes
+        effect(() => {
+            this.period();
+            untracked(() => {
+                this._generatePeriods();
+                this._initPeriod();
+            });
+        });
+        // Keep selected zones valid as the active building/region changes
+        effect(() => {
+            const levels = this.levels();
+            untracked(() => {
+                if (!levels.length) return;
+                const valid = this.zones().filter((zone) =>
+                    levels.find((lvl) => lvl.id === zone),
+                );
+                if (valid.length !== this.zones().length) {
+                    this._applyZones(valid, true);
+                    return;
+                }
+                if (this.zones().length) return;
+                // No selection yet: restore persisted zones (if any).
+                const persisted = loadPersistedZones(
+                    'events',
+                    this._persistScopeId(),
+                ).filter((zone) => levels.find((lvl) => lvl.id === zone));
+                if (persisted.length) this._applyZones(persisted, true);
+            });
+        });
+    }
 
     public get has_calendar() {
         return this._settings.get('app.group_events_calendar');
@@ -219,18 +245,6 @@ export class EventsListComponent extends AsyncHandler implements OnInit {
 
     public ngOnInit() {
         this.subscription('poll_events', this._state.startPolling());
-        this.subscription(
-            'period',
-            this._state.options
-                .pipe(
-                    map((_) => _.period),
-                    distinctUntilChanged(),
-                )
-                .subscribe(() => {
-                    this._generatePeriods();
-                    this._initPeriod();
-                }),
-        );
         this._generatePeriods();
         this._initPeriod();
         this.subscription(
@@ -276,30 +290,6 @@ export class EventsListComponent extends AsyncHandler implements OnInit {
                         if (range_id !== id) this.setPeriod(range_id);
                     });
                 }
-            }),
-        );
-        this.subscription(
-            'levels',
-            combineLatest([
-                this._org.active_building,
-                this._org.active_region,
-            ]).subscribe(() => {
-                const levels = this.levels();
-                if (!levels.length) return;
-                const valid = this.zones().filter((zone) =>
-                    levels.find((lvl) => lvl.id === zone),
-                );
-                if (valid.length !== this.zones().length) {
-                    this._applyZones(valid, true);
-                    return;
-                }
-                if (this.zones().length) return;
-                // No selection yet: restore persisted zones (if any).
-                const persisted = loadPersistedZones(
-                    'events',
-                    this._persistScopeId(),
-                ).filter((zone) => levels.find((lvl) => lvl.id === zone));
-                if (persisted.length) this._applyZones(persisted, true);
             }),
         );
     }

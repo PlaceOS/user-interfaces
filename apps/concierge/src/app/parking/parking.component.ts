@@ -1,5 +1,4 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatTabsModule } from '@angular/material/tabs';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { AsyncHandler, SettingsService, currentUser } from '@placeos/common';
@@ -39,7 +38,7 @@ import { ParkingTopbarComponent } from './parking-topbar.component';
                                         | translate
                                 }}
                             </a>
-                            @if (!hide_users_and_vehicles) {
+                            @if (!hide_users) {
                                 <a
                                     mat-tab-link
                                     [routerLink]="[
@@ -55,6 +54,8 @@ import { ParkingTopbarComponent } from './parking-topbar.component';
                                             | translate
                                     }}
                                 </a>
+                            }
+                            @if (!hide_vehicles) {
                                 <a
                                     mat-tab-link
                                     [routerLink]="[
@@ -89,12 +90,10 @@ import { ParkingTopbarComponent } from './parking-topbar.component';
                         <mat-tab-nav-panel #tabPanel></mat-tab-nav-panel>
                     </div>
                 }
-                <div class="relative h-1/2 w-full flex-1 overflow-auto px-8">
-                    <div class="h-full w-full overflow-auto">
-                        <router-outlet></router-outlet>
-                    </div>
+                <div class="relative h-1/2 w-full flex-1 overflow-auto">
+                    <router-outlet></router-outlet>
                 </div>
-                @if (!levels().length) {
+                @if (org_initialised() && !levels().length) {
                     <div
                         class="absolute inset-0 z-50 flex flex-col items-center justify-center"
                     >
@@ -149,7 +148,9 @@ export class ParkingComponent extends AsyncHandler implements OnInit {
     private _settings = inject(SettingsService);
 
     /** List of levels for the active building */
-    public readonly levels = toSignal(this._state.levels, { initialValue: [] });
+    public readonly levels = this._state.levels;
+    /** Whether the organisation data has finished loading */
+    public readonly org_initialised = this._state.org_initialised;
 
     public readonly section = signal<'events' | 'manage'>('events');
     public readonly view = signal<
@@ -162,6 +163,20 @@ export class ParkingComponent extends AsyncHandler implements OnInit {
 
     public get hide_users_and_vehicles() {
         return !!this._settings.get('app.parking.hide_users_and_vehicles');
+    }
+
+    public get hide_users() {
+        return (
+            this.hide_users_and_vehicles ||
+            !!this._settings.get('app.parking.hide_users')
+        );
+    }
+
+    public get hide_vehicles() {
+        return (
+            this.hide_users_and_vehicles ||
+            !!this._settings.get('app.parking.hide_vehicles')
+        );
     }
 
     public get is_admin() {
@@ -204,8 +219,8 @@ export class ParkingComponent extends AsyncHandler implements OnInit {
         this.section.set(section as any);
         if (
             section === 'manage' &&
-            this.hide_users_and_vehicles &&
-            ['fleet', 'users'].includes(current_view)
+            ((current_view === 'users' && this.hide_users) ||
+                (current_view === 'fleet' && this.hide_vehicles))
         ) {
             this.view.set('spaces');
             void this._router.navigate(

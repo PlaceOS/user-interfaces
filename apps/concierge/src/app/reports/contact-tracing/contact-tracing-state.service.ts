@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, resource, signal } from '@angular/core';
 import {
     OrganisationService,
     SettingsService,
@@ -6,24 +6,11 @@ import {
     currentUser,
     downloadFile,
     jsonToCsv,
-    nextValueFrom,
     notifyError,
     notifyWarn,
 } from '@placeos/common';
 import { getModule } from '@placeos/ts-client';
 import { endOfDay, format, getUnixTime, startOfDay } from 'date-fns';
-import { BehaviorSubject, from, of } from 'rxjs';
-import {
-    catchError,
-    filter,
-    finalize,
-    map,
-    shareReplay,
-    skip,
-    startWith,
-    switchMap,
-    takeUntil,
-} from 'rxjs/operators';
 import { ReportsStateService } from '../reports-state.service';
 import { GetUserPipe } from './get-user.pipe';
 
@@ -56,61 +43,60 @@ export class ContactTracingStateService {
     private _reports = inject(ReportsStateService);
     private _settings = inject(SettingsService);
 
-    private _loading = new BehaviorSubject<string>('');
-    private _generate = new BehaviorSubject<number>(0);
-    private _options = new BehaviorSubject<ContactTracingOptions>({
+    private _loading = signal<string>('');
+    private _generate = signal<number>(0);
+    private _options = signal<ContactTracingOptions>({
         start: startOfDay(Date.now()),
         end: endOfDay(Date.now()),
     });
 
-    public readonly events = this._generate.pipe(
-        filter((gen) => !!gen),
-        switchMap(() => {
-            const { start, end, user } = this._options.getValue();
-            if (!user) return of([]);
-            this._loading.next('Loading contact events...');
-
+    private readonly _events = resource({
+        params: () => this._generate(),
+        defaultValue: [] as ContactEvent[],
+        loader: async ({ params: gen }) => {
+            if (!gen) return [];
+            const { start, end, user } = this._options();
+            if (!user) return [];
+            this._loading.set('Loading contact events...');
             const mod = getModule(this.system_id, 'ContactTracing');
             const current_user = user || currentUser();
             GetUserPipe.addUser(current_user);
-            if (!this.system_id || !mod) return of([]);
-            return from(
-                mod.execute('close_contacts', [
+            if (!this.system_id || !mod) {
+                this._loading.set('');
+                return [];
+            }
+            try {
+                const list = await mod.execute('close_contacts', [
                     current_user.email,
                     current_user.username,
                     getUnixTime(start),
                     getUnixTime(end),
-                ]),
-            ).pipe(
-                catchError((err) => {
-                    notifyError(`${err?.msg || JSON.stringify(err)}`);
-                    return of([]);
-                }),
-                takeUntil(this._options.pipe(skip(1))),
-                finalize(() => this._loading.next('')),
-            );
-        }),
-        map((list) => {
-            const user = this._options.getValue().user || currentUser();
-            return list.map(
-                (_) =>
-                    ({
-                        mac_address: _.mac_address,
-                        date: _.contact_time * 1000,
-                        duration: Math.floor(_.duration / 60) || 0,
-                        user_id: user.id,
-                        user: user.name,
-                        contact_id: _.username,
-                        distance: 1,
-                    }) as ContactEvent,
-            );
-        }),
-        startWith([]),
-        shareReplay(1),
-    );
+                ]);
+                const person = this._options().user || currentUser();
+                return list.map(
+                    (_) =>
+                        ({
+                            mac_address: _.mac_address,
+                            date: _.contact_time * 1000,
+                            duration: Math.floor(_.duration / 60) || 0,
+                            user_id: person.id,
+                            user: person.name,
+                            contact_id: _.username,
+                            distance: 1,
+                        }) as ContactEvent,
+                );
+            } catch (err) {
+                notifyError(`${err?.msg || JSON.stringify(err)}`);
+                return [];
+            } finally {
+                this._loading.set('');
+            }
+        },
+    });
+    public readonly events = this._events.value;
 
-    public readonly options = this._options.asObservable();
-    public readonly loading = this._loading.asObservable();
+    public readonly options = this._options.asReadonly();
+    public readonly loading = this._loading.asReadonly();
 
     private get system_id() {
         const binding = this._org.binding('contact_tracing');
@@ -123,16 +109,16 @@ export class ContactTracingStateService {
     }
 
     public setOptions(options: Partial<ContactTracingOptions>) {
-        this._options.next({ ...this._options.getValue(), ...options });
+        this._options.set({ ...this._options(), ...options });
     }
 
     public generateReport() {
-        this._generate.next(Date.now());
+        this._generate.set(Date.now());
     }
 
     public async downloadReport() {
-        const { start, end } = await nextValueFrom(this._reports.options);
-        const events = await nextValueFrom(this.events);
+        const { start, end } = this._reports.options();
+        const events = this.events();
         const pipe = new GetUserPipe();
         const processed_events = await Promise.all(
             events.map(async (_) => ({
@@ -140,7 +126,7 @@ export class ContactTracingStateService {
                 Date: format(_.date, 'dd MMM yyyy, ' + this.time_format),
                 'User Name': _.user,
                 'Contact Name':
-                    (await pipe.transform(_.contact_id).toPromise())?.name ||
+                    (await pipe.transform(_.contact_id))?.name ||
                     (_.contact_id !== 'null' ? _.contact_id : null) ||
                     _.mac_address,
                 Duration: `${

@@ -1,5 +1,10 @@
-import { Component, computed, inject, input } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import {
+    Component,
+    computed,
+    inject,
+    input,
+    resource,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
@@ -16,8 +21,6 @@ import {
 } from '@placeos/components';
 import { SpacePipe } from '@placeos/events';
 import { differenceInDays } from 'date-fns';
-import { combineLatest } from 'rxjs';
-import { debounceTime, switchMap } from 'rxjs/operators';
 import {
     ReportMetricGuideComponent,
     ReportMetricGuideItem,
@@ -179,122 +182,122 @@ export class ReportSpacesSpaceListingComponent {
 
     private _space_pipe = new SpacePipe();
 
-    public readonly space_list = toSignal(
-        combineLatest([this._reports.stats, this._reports.options]).pipe(
-            debounceTime(300),
-            switchMap(async ([stats, { start, end }]) => {
-                const list = [];
-                let has_attendance = false;
-                const bookable_minutes = reportBookableMinutes(
-                    this._settings.get('app.events.bookable_hours') ||
-                        this._settings.get('app.bookings.bookable_hours'),
-                );
-                for (const booking of stats.events) {
-                    const space_list: Space[] = unique(
-                        booking.resources,
-                        'email',
-                    ) || [booking.system];
-                    const resources = [];
-                    for (const space of space_list) {
-                        const details = await this._space_pipe.transform(
-                            space.email || space.id,
-                        );
-                        resources.push(details);
-                    }
-                    for (const space of resources) {
-                        let details = list.find(
-                            (_) =>
-                                _.id === space.id ||
-                                _.id?.toLowerCase() ===
-                                    space.email.toLowerCase(),
-                        );
-                        if (!details) {
-                            details = {
-                                id: space.id || space.email,
-                                name: space.display_name || space.name,
-                                capacity: space.capacity,
-                                booking_count: 0,
-                                attendance: 0,
-                                avg_attendance: 0,
-                                min_attendance: 99,
-                                max_attendance: 0,
-                                attendees: 0,
-                                occupancy_attendees: 0,
-                                avg_attendees: 0,
-                                usage: 0,
-                                no_shows: 0,
-                                utilisation: 0,
-                                occupancy: 0,
-                            };
-                            if (!details.id || !details.name) continue;
-                            list.push(details);
-                        }
-                        if (booking.extension_data?.people_count?.max === 0) {
-                            details.no_shows += 1;
-                        }
-                        details.booking_count += 1;
-                        details.attendance +=
-                            booking.extension_data?.people_count?.max ?? 0;
-                        details.avg_attendance +=
-                            booking.extension_data?.people_count?.avg ?? 0;
-                        details.min_attendance = Math.min(
-                            details.max_attendance,
-                            booking.extension_data?.people_count?.max ?? 99,
-                        );
-                        details.max_attendance = Math.max(
-                            details.max_attendance,
-                            booking.extension_data?.people_count?.max ?? 0,
-                        );
-                        details.usage += reportBookingDuration(
-                            booking,
-                            bookable_minutes,
-                        );
-                        details.attendees += booking.attendees.length;
-                        details.occupancy_attendees +=
-                            cappedReportAttendeeCount(booking, space.capacity);
-                        has_attendance =
-                            has_attendance ||
-                            !!booking.extension_data.people_count;
-                    }
+    private readonly _space_list = resource({
+        params: () => ({
+            stats: this._reports.stats(),
+            options: this._reports.options(),
+        }),
+        defaultValue: [] as any[],
+        loader: async ({ params }) => {
+            const { stats } = params;
+            const { start, end } = params.options;
+            const list = [];
+            let has_attendance = false;
+            const bookable_minutes = reportBookableMinutes(
+                this._settings.get('app.events.bookable_hours') ||
+                    this._settings.get('app.bookings.bookable_hours'),
+            );
+            for (const booking of stats.events || []) {
+                const space_list: Space[] = unique(
+                    booking.resources,
+                    'email',
+                ) || [booking.system];
+                const resources = [];
+                for (const space of space_list) {
+                    const details = await this._space_pipe.transform(
+                        space.email || space.id,
+                    );
+                    resources.push(details);
                 }
-                const period_in_days = Math.max(
-                    1,
-                    differenceInDays(end, start) + 1,
-                );
-                for (const space of list) {
-                    space.avg_attendees =
-                        Math.floor(
-                            (space.attendees / space.booking_count) * 100,
-                        ) / 100;
-                    space.avg_attendance =
-                        Math.floor(
-                            (space.attendance / space.booking_count) * 100,
-                        ) / 100;
-                    space.utilisation = `${Math.floor(
-                        (space.usage / bookable_minutes / period_in_days) * 100,
-                    )}%`;
-                    space.min_attendance =
-                        space.min_attendance === 99
-                            ? '?'
-                            : space.min_attendance;
-                    space.occupancy = `${
-                        Math.floor(
-                            (space.occupancy_attendees /
-                                space.booking_count /
-                                Math.max(1, space.capacity)) *
-                                1000,
-                        ) / 10
-                    }%`;
-                    if (space.attendance < 0 || !has_attendance) {
-                        space.attendance = '?';
-                        space.avg_attendance = '?';
+                for (const space of resources) {
+                    let details = list.find(
+                        (_) =>
+                            _.id === space.id ||
+                            _.id?.toLowerCase() === space.email.toLowerCase(),
+                    );
+                    if (!details) {
+                        details = {
+                            id: space.id || space.email,
+                            name: space.display_name || space.name,
+                            capacity: space.capacity,
+                            booking_count: 0,
+                            attendance: 0,
+                            avg_attendance: 0,
+                            min_attendance: 99,
+                            max_attendance: 0,
+                            attendees: 0,
+                            occupancy_attendees: 0,
+                            avg_attendees: 0,
+                            usage: 0,
+                            no_shows: 0,
+                            utilisation: 0,
+                            occupancy: 0,
+                        };
+                        if (!details.id || !details.name) continue;
+                        list.push(details);
                     }
+                    if (booking.extension_data?.people_count?.max === 0) {
+                        details.no_shows += 1;
+                    }
+                    details.booking_count += 1;
+                    details.attendance +=
+                        booking.extension_data?.people_count?.max ?? 0;
+                    details.avg_attendance +=
+                        booking.extension_data?.people_count?.avg ?? 0;
+                    details.min_attendance = Math.min(
+                        details.max_attendance,
+                        booking.extension_data?.people_count?.max ?? 99,
+                    );
+                    details.max_attendance = Math.max(
+                        details.max_attendance,
+                        booking.extension_data?.people_count?.max ?? 0,
+                    );
+                    details.usage += reportBookingDuration(
+                        booking,
+                        bookable_minutes,
+                    );
+                    details.attendees += booking.attendees.length;
+                    details.occupancy_attendees += cappedReportAttendeeCount(
+                        booking,
+                        space.capacity,
+                    );
+                    has_attendance =
+                        has_attendance || !!booking.extension_data.people_count;
                 }
-                return list;
-            }),
-        ),
-        { initialValue: [] },
-    );
+            }
+            const period_in_days = Math.max(
+                1,
+                differenceInDays(end, start) + 1,
+            );
+            for (const space of list) {
+                space.avg_attendees =
+                    Math.floor((space.attendees / space.booking_count) * 100) /
+                    100;
+                space.avg_attendance =
+                    Math.floor((space.attendance / space.booking_count) * 100) /
+                    100;
+                space.utilisation = `${Math.floor(
+                    (space.usage / bookable_minutes / period_in_days) * 100,
+                )}%`;
+                space.min_attendance =
+                    space.min_attendance === 99 ? '?' : space.min_attendance;
+                space.occupancy = `${
+                    Math.floor(
+                        (space.occupancy_attendees /
+                            space.booking_count /
+                            Math.max(1, space.capacity)) *
+                            1000,
+                    ) / 10
+                }%`;
+                if (space.attendance < 0 || !has_attendance) {
+                    space.attendance = '?';
+                    space.avg_attendance = '?';
+                }
+            }
+            return list;
+        },
+    });
+    public readonly space_list = this._space_list.value;
 
     public readonly has_attendance = computed(
         () => !!this.space_list().find(({ attendance }) => attendance !== '?'),

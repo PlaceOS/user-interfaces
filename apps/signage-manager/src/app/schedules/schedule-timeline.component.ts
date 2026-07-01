@@ -2,8 +2,12 @@ import { Component, input, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
-import { DateFromPipe, IconComponent, TranslatePipe } from '@placeos/components';
 import { i18n } from '@placeos/common';
+import {
+    DateFromPipe,
+    IconComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { differenceInMinutes, format, startOfDay } from 'date-fns';
 import {
     MINUTES_PER_DAY,
@@ -68,18 +72,24 @@ import {
                     >
                         <div
                             class="bg-base-content/6 hidden h-8 w-8 shrink-0 items-center justify-center rounded-md sm:flex"
-                            [class.bg-success]="
+                            [class.bg-info]="
                                 displayRowStatus(row) === 'success'
                             "
                             [class.bg-error]="displayRowStatus(row) === 'error'"
+                            [class.text-info-content]="
+                                displayRowStatus(row) === 'success'
+                            "
+                            [class.text-error-content]="
+                                displayRowStatus(row) === 'error'
+                            "
                             [matTooltip]="
                                 displayRowStatus(row)
-                                    ? (row.updated_at * 1000 | dateFrom)
+                                    ? (row.signage_last_seen * 1000 | dateFrom)
                                     : ''
                             "
                             matTooltipPosition="right"
                         >
-                            <icon class="text-base-content/50 text-base">{{
+                            <icon class="text-base opacity-60">{{
                                 row.icon
                             }}</icon>
                         </div>
@@ -137,7 +147,10 @@ import {
                             [style.height]="row_height + 'rem'"
                         >
                             <icon class="text-sm">event_busy</icon>
-                            {{ 'SIGNAGE_MANAGER.NO_PLAYLISTS_SCHEDULED' | translate }}
+                            {{
+                                'SIGNAGE_MANAGER.NO_PLAYLISTS_SCHEDULED'
+                                    | translate
+                            }}
                         </div>
                     }
 
@@ -183,6 +196,7 @@ import {
                             >
                                 <div
                                     class="truncate text-[11px] leading-tight font-semibold"
+                                    [class.line-through]="!block.playlist.enabled"
                                 >
                                     {{ block.playlist.name }}
                                 </div>
@@ -317,7 +331,7 @@ export class ScheduleTimelineComponent {
     public displayRowStatus(row: ScheduleTimelineRow) {
         if (this.view_tab() !== 'displays') return '';
         const diff = Math.abs(
-            differenceInMinutes(row.updated_at * 1000, Date.now()),
+            differenceInMinutes(row.signage_last_seen * 1000, Date.now()),
         );
         return diff > 5 ? 'error' : 'success';
     }

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
@@ -36,13 +36,13 @@ import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.componen
             <h2 class="px-2 text-xl font-medium">
                 {{ 'COMMON.WORK_LOCATION_SETTINGS' | translate }}
             </h2>
-            @if (!loading) {
+            @if (!loading()) {
                 <button icon matRipple mat-dialog-close class="bg-base-200">
                     <icon>close</icon>
                 </button>
             }
         </header>
-        @if (!loading) {
+        @if (!loading()) {
             <main
                 class="relative flex max-h-[calc(100vh-9rem)] w-160 max-w-full flex-col space-y-2 overflow-x-hidden overflow-y-auto rounded-sm px-2 py-4 sm:max-h-[65vh] sm:p-4"
             >
@@ -55,8 +55,9 @@ import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.componen
                                 {{ day | date: 'EEE' }}
                             </div>
                             <mat-checkbox
-                                [(ngModel)]="weekdays_enabled[day.getDay()]"
+                                [ngModel]="weekdays_enabled()[day.getDay()]"
                                 (ngModelChange)="
+                                    setWeekdayEnabled(day.getDay(), $event);
                                     $event && initialiseDay(day.getDay())
                                 "
                             >
@@ -69,18 +70,18 @@ import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.componen
                         {{ 'COMMON.WORK_DAYS' | translate }}
                     </h3>
                 </div>
-                @if (has_working_days) {
+                @if (has_working_days()) {
                     <div
                         class="border-base-300 relative flex w-full flex-col items-center justify-between space-y-4 rounded-sm border px-2 pt-6 pb-4 sm:px-4"
                     >
                         @for (day of days; track day) {
-                            @if (weekdays_enabled[day.getDay()]) {
+                            @if (weekdays_enabled()[day.getDay()]) {
                                 <div
                                     class="border-base-200 relative flex w-full items-center justify-between space-x-2 rounded-sm border p-2"
                                 >
                                     <div class="w-1/2 flex-1 space-y-2 pt-2">
                                         @for (
-                                            block of settings[day.getDay()]
+                                            block of settings()[day.getDay()]
                                                 .blocks;
                                             track block;
                                             let i = $index
@@ -104,7 +105,7 @@ import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.componen
                                                     [from]="
                                                         timeFrom(
                                                             (i > 0
-                                                                ? settings[
+                                                                ? settings()[
                                                                       day.getDay()
                                                                   ].blocks[
                                                                       i - 1
@@ -145,7 +146,7 @@ import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.componen
                                                         "
                                                     >
                                                         @for (
-                                                            type of options;
+                                                            type of options();
                                                             track type
                                                         ) {
                                                             <mat-option
@@ -164,7 +165,7 @@ import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.componen
                                                         matRipple
                                                         (click)="
                                                             addBlock(
-                                                                settings[
+                                                                settings()[
                                                                     day.getDay()
                                                                 ],
                                                                 i
@@ -182,7 +183,7 @@ import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.componen
                                                         class="border-error text-error h-12 w-12 rounded-sm border"
                                                         (click)="
                                                             removeBlock(
-                                                                settings[
+                                                                settings()[
                                                                     day.getDay()
                                                                 ],
                                                                 i
@@ -231,7 +232,7 @@ import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.componen
                 </p>
             </div>
         }
-        @if (!loading) {
+        @if (!loading()) {
             <footer class="border-base-200 flex justify-end border-t px-4 py-2">
                 <button btn matRipple class="w-48" (click)="saveChanges()">
                     {{ 'COMMON.SAVE' | translate }}
@@ -262,52 +263,56 @@ export class WFHSettingsModalComponent implements OnInit {
     private _dialog_ref =
         inject<MatDialogRef<WFHSettingsModalComponent>>(MatDialogRef);
 
-    public options = [];
-    public option = '';
-    public settings: WorktimePreference[] = [];
-    public weekdays_enabled: Record<number, boolean> = {};
-    public changed = false;
-    public loading = false;
-    public readonly available_weekdays = [];
+    public readonly options = signal<
+        { id: string; name: string; icon: string }[]
+    >([]);
+    public readonly option = signal('');
+    public readonly settings = signal<WorktimePreference[]>([]);
+    public readonly weekdays_enabled = signal<Record<number, boolean>>({});
+    public readonly changed = signal(false);
+    public readonly loading = signal(false);
+    public readonly available_weekdays = signal([]);
     public readonly days = new Array(7)
         .fill(0)
         .map((_, idx) => addDays(startOfWeek(addDays(Date.now(), 30)), idx));
 
-    public get has_working_days() {
-        return Object.keys(this.weekdays_enabled).some(
-            (day) => this.weekdays_enabled[day],
+    public readonly has_working_days = computed(() => {
+        const weekdays_enabled = this.weekdays_enabled();
+        return Object.keys(weekdays_enabled).some(
+            (day) => weekdays_enabled[day],
         );
-    }
+    });
 
-    public get option_name() {
-        return this.options.find((_) => _.id === this.option)?.name || '';
-    }
+    public readonly option_name = computed(
+        () => this.options().find((_) => _.id === this.option())?.name || '',
+    );
 
-    public get now() {
-        return startOfMinute(Date.now()).getTime();
-    }
+    public readonly now = computed(() => startOfMinute(Date.now()).getTime());
 
     public ngOnInit() {
         const user = currentUser();
         const prefs = this._data?.local
             ? this._data.preferences
             : user.work_preferences;
-        this.settings = [
+        const settings = [
             ...(prefs || []).map((_) => ({
                 ..._,
                 blocks: [...(_?.blocks || [])],
             })),
         ];
-        for (const day of this.settings) {
-            if (day.blocks.length)
-                this.weekdays_enabled[day.day_of_week] = true;
+        const weekdays_enabled: Record<number, boolean> = {};
+        for (const day of settings) {
+            if (day.blocks.length) weekdays_enabled[day.day_of_week] = true;
         }
-        this.options = [
+        this.settings.set(settings);
+        this.weekdays_enabled.set(weekdays_enabled);
+        const options = [
             { id: 'wfo', name: i18n('COMMON.WORK_OFFICE'), icon: 'business' },
             { id: 'wfh', name: i18n('COMMON.WORK_HOME'), icon: 'home' },
             { id: 'aol', name: i18n('COMMON.WORK_LEAVE'), icon: 'event_busy' },
         ];
-        this.option = this.options[0].id;
+        this.options.set(options);
+        this.option.set(options[0].id);
     }
 
     public timeFrom(hours: number) {
@@ -325,12 +330,14 @@ export class WFHSettingsModalComponent implements OnInit {
     }
 
     public initialiseDay(day: number) {
-        if (!this.settings[day])
-            this.settings[day] = { day_of_week: day as any, blocks: [] };
-        if (!this.settings[day].blocks) this.settings[day].blocks = [];
-        if (this.settings[day].blocks.length === 0) {
-            this.addBlock(this.settings[day], 0);
+        const settings = this.settings();
+        if (!settings[day])
+            settings[day] = { day_of_week: day as any, blocks: [] };
+        if (!settings[day].blocks) settings[day].blocks = [];
+        if (settings[day].blocks.length === 0) {
+            this.addBlock(settings[day], 0);
         }
+        this.settings.set([...settings]);
     }
 
     public addBlock(pref: WorktimePreference, index: number) {
@@ -340,24 +347,28 @@ export class WFHSettingsModalComponent implements OnInit {
             location: 'wfo',
         });
         this.cleanupBlocks(pref);
+        this.settings.update((settings) => [...settings]);
     }
 
     public removeBlock(pref: WorktimePreference, index: number) {
         if (pref.blocks.length <= 1) return;
         pref.blocks.splice(index, 1);
+        this.settings.update((settings) => [...settings]);
     }
 
     public setEndTime(block: WorktimeBlock, day: number, time: number) {
         setTimeout(() => {
             block.end_time = this.fromTime(time);
-            this.cleanupBlocks(this.settings[day]);
+            this.cleanupBlocks(this.settings()[day]);
+            this.settings.update((settings) => [...settings]);
         }, 50);
     }
 
     public setStartTime(block: WorktimeBlock, day: number, time: number) {
         setTimeout(() => {
             block.start_time = this.fromTime(time);
-            this.cleanupBlocks(this.settings[day]);
+            this.cleanupBlocks(this.settings()[day]);
+            this.settings.update((settings) => [...settings]);
         }, 50);
     }
 
@@ -377,17 +388,17 @@ export class WFHSettingsModalComponent implements OnInit {
     }
 
     public async saveChanges(close = true) {
-        this.loading = true;
+        this.loading.set(true);
         this._dialog_ref.disableClose = true;
         const new_settings = new Array(7)
             .fill(0)
             .map((_, idx) => ({ day_of_week: idx, blocks: [] }));
         for (const day of this.days) {
             const day_of_week = day.getDay();
-            if (this.weekdays_enabled[day_of_week]) {
+            if (this.weekdays_enabled()[day_of_week]) {
                 new_settings[day_of_week] = {
                     day_of_week: day_of_week,
-                    blocks: this.settings[day_of_week].blocks,
+                    blocks: this.settings()[day_of_week].blocks,
                 };
             }
         }
@@ -398,17 +409,24 @@ export class WFHSettingsModalComponent implements OnInit {
                 groups: user.groups.filter((_) => !_.startsWith('placeos_')),
                 work_preferences: new_settings,
             } as any).catch((e) => {
-                this.loading = false;
+                this.loading.set(false);
                 this._dialog_ref.disableClose = false;
                 notifyError('Unable to save user work preferences.');
                 throw e;
             });
         }
-        this.loading = false;
+        this.loading.set(false);
         this._dialog_ref.disableClose = false;
         if (close) {
             if (!this._data?.local) reloadUserData();
             this._dialog_ref.close(new_settings);
         }
+    }
+
+    public setWeekdayEnabled(day: number, enabled: boolean) {
+        this.weekdays_enabled.update((current) => ({
+            ...current,
+            [day]: enabled,
+        }));
     }
 }

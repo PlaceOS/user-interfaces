@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { Component, computed, input, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { AuthenticatedImageDirective } from './authenticated-image.directive';
 import { IconComponent } from './icon.component';
@@ -12,7 +12,7 @@ import { TranslatePipe } from './translate.pipe';
                 <div
                     image
                     class="relative flex h-full min-w-full items-center justify-center overflow-hidden"
-                    [style.transform]="'translateX(-' + offset * 100 + '%)'"
+                    [style.transform]="offset_transform()"
                 >
                     @if (image) {
                         <img
@@ -34,8 +34,8 @@ import { TranslatePipe } from './translate.pipe';
             @if (images()?.length) {
                 <button
                     class="absolute inset-y-0 left-0 flex w-1/3 items-center justify-center opacity-0 hover:opacity-100"
-                    [disabled]="offset === 0"
-                    (click)="offset = offset - 1"
+                    [disabled]="offset() === 0"
+                    (click)="offset.update((value) => value - 1)"
                 >
                     <div
                         matRipple
@@ -48,8 +48,8 @@ import { TranslatePipe } from './translate.pipe';
             @if (images()?.length) {
                 <button
                     class="absolute inset-y-0 right-0 flex w-1/3 items-center justify-center text-white opacity-0 hover:opacity-100"
-                    [disabled]="offset >= images()?.length - 1"
-                    (click)="offset = offset + 1"
+                    [disabled]="offset() >= images()?.length - 1"
+                    (click)="offset.update((value) => value + 1)"
                 >
                     <div
                         matRipple
@@ -66,17 +66,17 @@ import { TranslatePipe } from './translate.pipe';
                     @for (img of images(); track img; let i = $index) {
                         <button
                             matRipple
-                            (click)="offset = i"
+                            (click)="offset.set(i)"
                             class="flex h-4 w-4 items-center justify-center"
                         >
                             <div
                                 class="bg-base-100 rounded-full shadow-sm transition-all"
-                                [class.opacity-30]="offset !== i"
-                                [class.h-2]="offset !== i"
-                                [class.w-2]="offset !== i"
-                                [class.h-4]="offset === i"
-                                [class.w-4]="offset === i"
-                                [class.opacity-80]="offset === i"
+                                [class.opacity-30]="offset() !== i"
+                                [class.h-2]="offset() !== i"
+                                [class.w-2]="offset() !== i"
+                                [class.h-4]="offset() === i"
+                                [class.w-4]="offset() === i"
+                                [class.opacity-80]="offset() === i"
                             ></div>
                         </button>
                     }
@@ -111,5 +111,8 @@ import { TranslatePipe } from './translate.pipe';
 export class ImageCarouselComponent {
     public readonly images = input<readonly string[]>([]);
 
-    public offset = 0;
+    public readonly offset = signal(0);
+    public readonly offset_transform = computed(
+        () => `translateX(-${this.offset() * 100}%)`,
+    );
 }

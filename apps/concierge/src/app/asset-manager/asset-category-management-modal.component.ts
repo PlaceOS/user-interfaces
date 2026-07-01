@@ -1,5 +1,4 @@
-import { Component, EventEmitter, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { Component, EventEmitter, Signal, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
@@ -10,7 +9,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { AssetCategory } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { removeAssetCategory } from '@placeos/ts-client';
-import { Observable } from 'rxjs';
 
 @Component({
     selector: 'asset-category-management-modal',
@@ -84,7 +82,7 @@ import { Observable } from 'rxjs';
 })
 export class AssetCategoryManagementModalComponent {
     private _data = inject<{
-        list: Observable<AssetCategory[]>;
+        list: Signal<AssetCategory[]>;
         edit: (i?) => any;
     }>(MAT_DIALOG_DATA);
     private _dialog_ref =
@@ -93,7 +91,7 @@ export class AssetCategoryManagementModalComponent {
         );
 
     public readonly changed = new EventEmitter();
-    public readonly list = toSignal(this._data.list, { initialValue: [] });
+    public readonly list = this._data.list;
     public readonly edit = this._data.edit;
 
     public readonly remove = async (category: AssetCategory) => {

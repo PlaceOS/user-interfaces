@@ -1,8 +1,9 @@
+import { inject, Injector, signal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatDialog } from '@angular/material/dialog';
 import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
-import { AssetListFieldComponent } from '@placeos/assets';
+import { AssetListFieldComponent, AssetStateService } from '@placeos/assets';
 import {
     CateringListFieldComponent,
     CateringOrderStateService,
@@ -18,7 +19,7 @@ import {
 } from '@placeos/form-fields';
 import { MeetingFlowFormComponent } from 'apps/workplace/src/app/book/meeting-flow/meeting-flow-form.component';
 import { MockProvider } from 'ng-mocks';
-import { BehaviorSubject, of } from 'rxjs';
+import { of } from 'rxjs';
 
 import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-details.component';
 
@@ -27,18 +28,30 @@ describe('MeetingFlowFormComponent', () => {
     const createComponent = createRoutingFactory({
         component: MeetingFlowFormComponent,
         providers: [
-            MockProvider(EventFormService, {
-                form: generateEventForm({
-                    host: 'test@test.com',
-                    title: 'Yep',
-                    creator: 'jim@j.com',
-                    date: Date.now(),
-                } as any),
-                resetForm: jest.fn(),
-            }),
+            MockProvider(AssetStateService, { setOptions: jest.fn() }),
+            {
+                provide: EventFormService,
+                useFactory: () => {
+                    const { model, form } = generateEventForm(
+                        {
+                            host: 'test@test.com',
+                            title: 'Yep',
+                            creator: 'jim@j.com',
+                            date: Date.now(),
+                        } as any,
+                        undefined,
+                        inject(Injector),
+                    );
+                    return {
+                        model,
+                        form,
+                        resetForm: jest.fn(),
+                    } as Partial<EventFormService>;
+                },
+            },
             MockProvider(CateringOrderStateService, {
-                available_menu: of([{ id: '1' }]),
-                charge_codes: of([]),
+                available_menu: signal([{ id: '1' }]),
+                charge_codes: signal([]),
             } as any),
             MockProvider(MatBottomSheet, {
                 open: jest.fn(() => ({
@@ -47,8 +60,8 @@ describe('MeetingFlowFormComponent', () => {
                 })),
             } as any),
             MockProvider(OrganisationService, {
-                initialised: of(true),
-                active_building: new BehaviorSubject(null),
+                initialised: signal(true),
+                active_building: signal(null),
             }),
             MockProvider(SettingsService, { get: jest.fn(() => false) } as any),
             MockProvider(MatDialog, {

@@ -1,5 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, input, output } from '@angular/core';
+import {
+    Component,
+    computed,
+    effect,
+    inject,
+    input,
+    model,
+    signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -34,7 +42,7 @@ import { AssetStateService } from '../asset-state.service';
                 <icon matPrefix class="text-xl">search</icon>
                 <input
                     matInput
-                    [ngModel]="search_value | async"
+                    [ngModel]="search_value()"
                     (ngModelChange)="setSearch($event)"
                     [placeholder]="'BOOKINGS.ASSETS_SEARCH' | translate"
                 />
@@ -48,12 +56,12 @@ import { AssetStateService } from '../asset-state.service';
         @if (!search()) {
             <div class="flex flex-col space-y-2 px-2">
                 <settings-toggle
-                    [name]="'BOOKINGS.ASSETS_DELIVER_TOGGLE' | translate"
+                    [label]="'BOOKINGS.ASSETS_DELIVER_TOGGLE' | translate"
                     [ngModel]="at_time()"
-                    (ngModelChange)="at_timeChange.emit($event)"
-                    [matTooltip]="exact_tooltip"
+                    (ngModelChange)="at_time.set($event)"
+                    [matTooltip]="exact_tooltip()"
                 ></settings-toggle>
-                @if (day_options.length > 1) {
+                @if (day_options().length > 1) {
                     <label>{{
                         'BOOKINGS.ASSETS_DELIVER_DATE' | translate
                     }}</label>
@@ -63,9 +71,9 @@ import { AssetStateService } from '../asset-state.service';
                     >
                         <mat-select
                             [ngModel]="offset_day()"
-                            (ngModelChange)="offset_dayChange.emit($event)"
+                            (ngModelChange)="offset_day.set($event)"
                         >
-                            @for (day of day_options; track day) {
+                            @for (day of day_options(); track day) {
                                 <mat-option [value]="day.id">
                                     {{ day.value | date: 'mediumDate' }}
                                 </mat-option>
@@ -76,15 +84,13 @@ import { AssetStateService } from '../asset-state.service';
                 <label>{{ 'BOOKINGS.ASSETS_DELIVER_TIME' | translate }}</label>
                 <a-duration-field
                     [ngModel]="offset()"
-                    (ngModelChange)="offsetChange.emit($event)"
+                    (ngModelChange)="offset.set($event)"
                     [time]="
-                        offset_day() > 0
-                            ? start_of_date
-                            : (options | async)?.date
+                        offset_day() > 0 ? start_of_date() : options()?.date
                     "
-                    [step]="step_interval"
-                    [min]="min_offset"
-                    [max]="max_offset - 1"
+                    [step]="step_interval()"
+                    [min]="min_offset()"
+                    [max]="max_offset() - 1"
                     [use_24hr]="use_24hr()"
                 ></a-duration-field>
             </div>
@@ -93,10 +99,10 @@ import { AssetStateService } from '../asset-state.service';
             {{ 'COMMON.CATEGORIES' | translate }}
         </h3>
         <div class="flex flex-col space-y-2 px-2">
-            @for (item of categories | async; track item.id) {
+            @for (item of categories(); track item.id) {
                 <settings-toggle
-                    [name]="item.name"
-                    [ngModel]="(category | async)?.includes(item.id)"
+                    [label]="item.name"
+                    [ngModel]="category()?.includes(item.id)"
                     (ngModelChange)="toggleCategory(item.id)"
                 ></settings-toggle>
             }
@@ -130,15 +136,12 @@ export class AssetFiltersComponent extends AsyncHandler {
 
     public readonly search = input(false);
 
-    public readonly at_time = input(false);
-    public readonly at_timeChange = output<boolean>();
-    public readonly offset = input(0);
-    public readonly offsetChange = output<number>();
-    public readonly offset_day = input(0);
-    public readonly offset_dayChange = output<number>();
+    public readonly at_time = model(false);
+    public readonly offset = model(0);
+    public readonly offset_day = model(0);
 
-    private _min_offset = 0;
-    private _max_offset = 60;
+    private readonly _min_offset = signal(0);
+    private readonly _max_offset = signal(60);
 
     public readonly search_value = this._state.search;
     public readonly category = this._state.category;
@@ -161,24 +164,23 @@ export class AssetFiltersComponent extends AsyncHandler {
         0,
     );
 
-    public readonly exact_tooltip =
-        'Deliver at exactly specified time. \nNote that changes to the booking will not be \nreflected in the order if this is set.';
+    public readonly exact_tooltip = signal(
+        'Deliver at exactly specified time. \nNote that changes to the booking will not be \nreflected in the order if this is set.',
+    );
 
-    public get start_of_date() {
-        return startOfDay(
+    public readonly start_of_date = computed(() =>
+        startOfDay(
             addDays(this._state.getOptions().date, this.offset_day()),
-        ).valueOf();
-    }
+        ).valueOf(),
+    );
 
-    public get min_offset() {
-        return this.offset_day() > 0 ? 0 : this._min_offset;
-    }
+    public readonly min_offset = computed(() =>
+        this.offset_day() > 0 ? 0 : this._min_offset(),
+    );
 
-    public get step_interval() {
-        return this._step_interval();
-    }
+    public readonly step_interval = computed(() => this._step_interval());
 
-    public get max_offset() {
+    public readonly max_offset = computed(() => {
         const end = Math.min(
             endOfDay(
                 addDays(this._state.getOptions().date, this.offset_day()),
@@ -189,48 +191,48 @@ export class AssetFiltersComponent extends AsyncHandler {
             ).valueOf(),
         );
         const diff = differenceInMinutes(end, this._state.getOptions().date);
-        return Math.min(diff, Math.min(24 * 60 - 1, this._max_offset));
-    }
+        return Math.min(diff, Math.min(24 * 60 - 1, this._max_offset()));
+    });
 
     public readonly use_24hr = this._use_24hr;
 
-    public day_options = [];
+    public readonly day_options = signal<{ id: number; value: number }[]>([]);
 
     public readonly setSearch = (s) => this._state.setSearch(s);
     public readonly toggleCategory = (c) => this._state.toggleCategory(c);
 
     constructor() {
         super();
-    }
-
-    public ngOnInit() {
-        this._min_offset = Math.max(this._min_offset_setting(), 0);
-        this.subscription(
-            'filters',
-            this._state.options.subscribe(() => {
-                this._max_offset = Math.max(
+        effect(() => {
+            this._state.options();
+            this._max_offset.set(
+                Math.max(
                     15,
                     (this._state.getOptions().duration || 60) -
                         this._end_offset(),
-                );
-                this._updateDayOptions();
-            }),
-        );
+                ),
+            );
+            this._updateDayOptions();
+        });
+    }
+
+    public ngOnInit() {
+        this._min_offset.set(Math.max(this._min_offset_setting(), 0));
         this._updateDayOptions();
     }
 
     private _updateDayOptions() {
         const { date, duration } = this._state.getOptions();
-        if (duration <= 24 * 60) return (this.day_options = []);
+        if (duration <= 24 * 60) return this.day_options.set([]);
         let day = startOfDay(date);
         let count = 0;
         const end = endOfDay(addMinutes(date, duration)).valueOf();
-        const options = [];
+        const options: { id: number; value: number }[] = [];
         while (day.valueOf() <= end) {
             options.push({ id: count, value: day.valueOf() });
             day = addDays(day, 1);
             count++;
         }
-        this.day_options = options;
+        this.day_options.set(options);
     }
 }

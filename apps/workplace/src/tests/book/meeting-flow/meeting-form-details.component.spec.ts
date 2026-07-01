@@ -1,16 +1,20 @@
-import {
-    FormControl,
-    FormGroup,
-    FormsModule,
-    ReactiveFormsModule,
-} from '@angular/forms';
+import { inject, Injector } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
-import { OrganisationService, SettingsService } from '@placeos/common';
+import {
+    currentUser,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
 import { mockComponent } from '@placeos/common/tests';
-import { EventFormService } from '@placeos/events';
+import {
+    EventFormService,
+    generateEventForm,
+    type EventFormRef,
+} from '@placeos/events';
 import {
     DateFieldComponent,
     DurationFieldComponent,
@@ -25,6 +29,7 @@ describe('MeetingFormDetailsComponent', () => {
     let spectator: Spectator<MeetingFormDetailsComponent>;
     const settings_values: Record<string, any> = {};
     const store_form = jest.fn();
+    let form_ref: EventFormRef;
     const lookup_setting = (key: string, fallback?) =>
         key in settings_values ? settings_values[key] : fallback;
     const createComponent = createRoutingFactory({
@@ -40,10 +45,31 @@ describe('MeetingFormDetailsComponent', () => {
             MockProvider(OrganisationService as any, {
                 building: { timezone: '' },
             }),
-            MockProvider(EventFormService, {
-                is_multiday: false,
-                storeForm: store_form,
-            }),
+            {
+                provide: EventFormService,
+                useFactory: () => {
+                    form_ref = generateEventForm(
+                        {
+                            host: 'selected@example.com',
+                            title: '',
+                            organiser: { email: 'selected@example.com' },
+                            user: { email: 'selected@example.com' },
+                            creator: 'selected@example.com',
+                            calendar: 'selected@example.com',
+                            all_day: false,
+                            visibility: 'normal',
+                        } as any,
+                        undefined,
+                        inject(Injector),
+                    );
+                    return {
+                        is_multiday: false,
+                        storeForm: store_form,
+                        form: form_ref.form,
+                        model: form_ref.model,
+                    } as Partial<EventFormService>;
+                },
+            },
         ],
         declarations: [
             mockComponent(DateFieldComponent),
@@ -55,7 +81,6 @@ describe('MeetingFormDetailsComponent', () => {
             MatFormFieldModule,
             MatInputModule,
             MatSelectModule,
-            ReactiveFormsModule,
             FormsModule,
         ],
     });
@@ -64,23 +89,7 @@ describe('MeetingFormDetailsComponent', () => {
         for (const key of Object.keys(settings_values))
             delete settings_values[key];
         spectator = createComponent();
-        spectator.setInput({
-            form: new FormGroup({
-                host: new FormControl('selected@example.com'),
-                title: new FormControl(),
-                date: new FormControl(),
-                date_end: new FormControl(),
-                duration: new FormControl(),
-                all_day: new FormControl(false),
-                organiser: new FormControl({ email: 'selected@example.com' }),
-                user: new FormControl({ email: 'selected@example.com' }),
-                creator: new FormControl('selected@example.com'),
-                calendar: new FormControl('selected@example.com'),
-                recurrence: new FormControl(),
-                update_master: new FormControl(false),
-                visibility: new FormControl('normal'),
-            }),
-        });
+        spectator.setInput({ form: form_ref.form });
         store_form.mockClear();
     });
 
@@ -88,16 +97,16 @@ describe('MeetingFormDetailsComponent', () => {
         expect(spectator.component).toBeTruthy());
 
     it('should allow for input of title', () =>
-        expect(spectator.query('input[name="title"]')).toExist());
+        expect(spectator.query('input#title')).toExist());
 
     it('should allow for setting the date', () =>
-        expect(spectator.query('[name="date"]')).toExist());
+        expect(spectator.query('#date')).toExist());
 
     it('should allow for setting the start time', () =>
         expect(spectator.query('[name="start-time"]')).toExist());
 
     it('should allow for setting the duration', () =>
-        expect(spectator.query('[name="end-time"]')).toExist());
+        expect(spectator.query('#end-time')).toExist());
 
     it('should allow customising the max duration', () => {
         expect(spectator.component.max_duration()).toBe(480);
@@ -107,11 +116,9 @@ describe('MeetingFormDetailsComponent', () => {
 
     it('should persist host reset after invalid book-as selection', () => {
         (spectator.component as any)._resetHostToCurrentUser();
-        expect(spectator.component.form().value.host).toBe(
-            '<empty>@dev.place.tech',
-        );
-        expect(spectator.component.form().value.organiser.email).toBe(
-            '<empty>@dev.place.tech',
+        expect(spectator.component.model().host).toBe(currentUser().email);
+        expect(spectator.component.model().organiser.email).toBe(
+            currentUser().email,
         );
         expect(store_form).toHaveBeenCalledTimes(1);
     });

@@ -12,6 +12,7 @@ import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
 import {
     IMAGE_STORE,
     loadAuthenticatedImage,
+    loadAuthenticatedImageWithHeader,
 } from './authenticated-image.pipe';
 
 @Directive({
@@ -42,10 +43,8 @@ export class AuthenticatedImageDirective
         if (!this._element || !authority()) {
             return this.timeout('load', () => this._loadImage(), 300);
         }
-        const is_upload = source.includes('/api/engine/v2/uploads');
-        const is_thumbnail = source.includes('/api/engine/v2/signage/media');
-        // If not an API call, just load the image
-        if (!is_upload && !is_thumbnail) {
+        // External URLs aren't authenticated against this origin
+        if (!this._isLocalUrl(source)) {
             this._element.nativeElement.src = source;
             return;
         }
@@ -54,18 +53,33 @@ export class AuthenticatedImageDirective
             this._element.nativeElement.src = IMAGE_STORE.get(source);
             return;
         }
-        const cookie_path = is_upload
-            ? '/api/engine/v2/uploads'
-            : '/api/engine/v2/signage';
+        const is_api =
+            source.includes('/api/engine/v2/uploads') ||
+            source.includes('/api/engine/v2/signage');
         try {
-            this._element.nativeElement.src = await loadAuthenticatedImage(
-                source,
-                cookie_path,
-            );
+            this._element.nativeElement.src = is_api
+                ? await loadAuthenticatedImage(source, this._cookiePath(source))
+                : await loadAuthenticatedImageWithHeader(source);
         } catch (error) {
             this._element.nativeElement.dispatchEvent(
                 new ErrorEvent('error', { error }),
             );
         }
+    }
+
+    /** Whether the source resolves to the current origin */
+    private _isLocalUrl(source: string): boolean {
+        try {
+            return new URL(source, location.href).origin === location.origin;
+        } catch {
+            return false;
+        }
+    }
+
+    /** Cookie path scoped to the resource so the auth cookie is sent on fetch */
+    private _cookiePath(source: string): string {
+        return source.includes('/api/engine/v2/uploads')
+            ? '/api/engine/v2/uploads'
+            : '/api/engine/v2/signage';
     }
 }

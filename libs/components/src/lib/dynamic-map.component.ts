@@ -1,5 +1,4 @@
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import {
     Component,
     computed,
@@ -16,9 +15,11 @@ import {
     signal,
     TemplateRef,
     Type,
+    untracked,
     viewChild,
     viewChildren,
 } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
     MAP_FEATURE_DATA,
@@ -44,6 +45,12 @@ import { SanitizePipe } from './sanitise.pipe';
 import { TranslatePipe } from './translate.pipe';
 
 type DebugSection = 'styles' | 'features' | 'labels' | 'actions';
+
+interface DebugDetailEntry {
+    text: string;
+    ref?: string;
+    missing?: boolean;
+}
 
 @Component({
     selector: 'dynamic-map',
@@ -81,9 +88,9 @@ type DebugSection = 'styles' | 'features' | 'labels' | 'actions';
             <div
                 class="absolute top-2 right-2 z-40 flex max-h-[80%] max-w-[32rem] flex-col rounded bg-black/80 font-mono text-[11px] leading-4 text-white"
             >
-                <div class="pointer-events-none p-2 whitespace-pre">{{
-                    debug_text()
-                }}</div>
+                <div class="pointer-events-none p-2 whitespace-pre">
+                    {{ debug_text() }}
+                </div>
                 <div class="flex gap-1 px-2 pb-2">
                     @for (section of debug_sections(); track section.key) {
                         <button
@@ -138,13 +145,34 @@ type DebugSection = 'styles' | 'features' | 'labels' | 'actions';
                                 }}</span>
                             }
                         } @else {
-                            <span>{{ debug_detail_text() }}</span>
+                            @for (
+                                entry of debug_detail_entries();
+                                track entry.text
+                            ) {
+                                <div
+                                    class="rounded px-1"
+                                    [class.bg-red-500/20]="entry.missing"
+                                    [class.text-red-200]="entry.missing"
+                                    [class.cursor-default]="entry.ref"
+                                    (mouseenter)="highlightDebugEntry(entry)"
+                                    (mouseleave)="clearDebugHighlight(entry)"
+                                >
+                                    <span>{{ entry.text }}</span>
+                                    @if (entry.missing) {
+                                        <span class="ml-1 text-red-300">
+                                            [missing on map]
+                                        </span>
+                                    }
+                                </div>
+                            } @empty {
+                                <span>{{ debug_detail_empty_text() }}</span>
+                            }
                         }
                     </div>
                 }
             </div>
         }
-        @if (injectors?.length) {
+        @if (injectors().length) {
             <div hidden>
                 @for (
                     element of features();
@@ -164,7 +192,7 @@ type DebugSection = 'styles' | 'features' | 'labels' | 'actions';
                                         <ng-container
                                             *ngComponentOutlet="
                                                 $any(element.content);
-                                                injector: injectors[i]
+                                                injector: injectors()[i]
                                             "
                                         ></ng-container>
                                     }
@@ -232,7 +260,12 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
     public src = input('');
     public zoom = model(1);
     public center = model<Point>({ x: 0.5, y: 0.5 });
-    public highResolution = input(false);
+    /**
+     * Override the texture budget for fixed (zoom-disabled) maps, in
+     * megapixels. Defaults to twice the container's pixel count when 0. Use a
+     * smaller value for maps rendered at a small fixed size.
+     */
+    public fixedResolution = input(0);
     /** Show debugging info over the map. Also toggled with Ctrl+Alt+Shift+G */
     public debug = model(false);
     public reset = model(0);
@@ -244,7 +277,7 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
     public focus = input('');
     public mapInfo = output<Record<string, MapElementBounds>>();
 
-    public injectors: Injector[] = [];
+    public injectors = signal<Injector[]>([]);
     public loading = signal(false);
     public error = signal(false);
 
@@ -261,6 +294,7 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
     /** Viewer state polled for the debug panel while debug mode is active */
     private _debug_state = signal<{
         texture: string;
+        texture_mode: string;
         aspect: string;
         view: string;
         pointer: string;
@@ -285,7 +319,7 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
             'MAP DEBUG (Ctrl+Alt+Shift+G)',
             `src:      ${this._middleTruncate(this.src().split('/').pop() || '—', 36)}`,
             `status:   ${status}`,
-            `texture:  ${state.texture}${this.highResolution() ? ' (high-res)' : ''}`,
+            `texture:  ${state.texture} (${state.texture_mode})`,
             `aspect:   ${state.aspect}`,
             `view:     ${state.view}`,
             `zoom:     ${this.zoom().toFixed(2)}`,
@@ -346,9 +380,9 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
         );
     });
 
-    public readonly debug_detail_text = computed(() => {
+    public readonly debug_detail_entries = computed(() => {
         const section = this.debug_section();
-        let entries: string[];
+        let entries: DebugDetailEntry[];
         switch (section) {
             case 'features':
                 entries = this._describeFeatures();
@@ -360,24 +394,37 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
                 entries = this._describeActions();
                 break;
             default:
-                return '';
+                return [];
         }
         const filter = this.debug_filter().trim().toLowerCase();
         if (filter) {
             entries = entries.filter((entry) =>
-                entry.toLowerCase().includes(filter),
+                entry.text.toLowerCase().includes(filter),
             );
         }
-        if (!entries.length) {
-            return filter ? 'No matches' : `No ${section}`;
-        }
-        return entries.join('\n');
+        return entries;
+    });
+
+    public readonly debug_detail_empty_text = computed(() => {
+        const section = this.debug_section();
+        const filter = this.debug_filter().trim();
+        return filter ? 'No matches' : `No ${section}`;
     });
 
     public toggleDebugSection(section: DebugSection) {
         this.debug_section.update((current) =>
             current === section ? null : section,
         );
+    }
+
+    public highlightDebugEntry(entry: DebugDetailEntry) {
+        if (!entry.ref || entry.missing) return;
+        this._map_viewer?.setDebugHighlight(entry.ref);
+    }
+
+    public clearDebugHighlight(entry: DebugDetailEntry) {
+        if (!entry.ref || entry.missing) return;
+        this._map_viewer?.setDebugHighlight('');
     }
 
     constructor() {
@@ -440,10 +487,10 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
             this._map_viewer?.setCenter({ ...center_val });
         });
 
-        // Effect to sync high resolution to MapViewer
+        // Effect to sync fixed-map resolution override to MapViewer
         effect(() => {
-            const high_res = this.highResolution() ?? false;
-            this._map_viewer?.setHighResolution(high_res);
+            const megapixels = this.fixedResolution() ?? 0;
+            this._map_viewer?.setFixedResolution(megapixels);
         });
 
         // Effect to sync interaction options to MapViewer
@@ -484,6 +531,7 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
                 const info = viewer.debug_info;
                 this._debug_state.set({
                     texture: image ? `${image.width}×${image.height}` : 'none',
+                    texture_mode: viewer.texture_mode,
                     aspect: (viewer.map?.aspect_ratio || 1).toFixed(3),
                     view: `${viewer.container.clientWidth}×${viewer.container.clientHeight}`,
                     pointer: info.pointer
@@ -753,81 +801,121 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
             : `${location.x.toFixed(3)}, ${location.y.toFixed(3)}`;
     }
 
-    private _describeFeatures(): string[] {
+    private _debugRef(ref: string | Point): {
+        ref?: string;
+        location: string;
+        missing: boolean;
+    } {
+        if (typeof ref !== 'string') {
+            return { location: this._formatLocation(ref), missing: false };
+        }
+        return {
+            ref,
+            location: this._formatLocation(ref),
+            missing:
+                !!this._element_mappings() && !this._element_mappings()?.[ref],
+        };
+    }
+
+    private _describeFeatures(): DebugDetailEntry[] {
         return (this.features() || []).map((feature, index) => {
+            const target = this._debugRef(feature.location);
             const content =
                 feature.content instanceof HTMLElement
                     ? 'element'
                     : feature.content
                       ? this.contentType(feature.content)
                       : 'none';
-            return [
-                `${index}: ${this._formatLocation(feature.location)}`,
-                feature.track_id ? `track: ${feature.track_id}` : '',
-                `content: ${content}`,
-                feature.hover ? 'hover' : '',
-                feature.full_size ? 'full-size' : '',
-                feature.z_index != null ? `z: ${feature.z_index}` : '',
-                feature.data && Object.keys(feature.data).length
-                    ? `data: ${Object.keys(feature.data).join(', ')}`
-                    : '',
-            ]
-                .filter(Boolean)
-                .join(' · ');
+            return {
+                ref: target.ref,
+                missing: target.missing,
+                text: [
+                    `${index}: ${target.location}`,
+                    feature.track_id ? `track: ${feature.track_id}` : '',
+                    `content: ${content}`,
+                    feature.hover ? 'hover' : '',
+                    feature.full_size ? 'full-size' : '',
+                    feature.z_index != null ? `z: ${feature.z_index}` : '',
+                    feature.data && Object.keys(feature.data).length
+                        ? `data: ${Object.keys(feature.data).join(', ')}`
+                        : '',
+                ]
+                    .filter(Boolean)
+                    .join(' · '),
+            };
         });
     }
 
-    private _describeLabels(): string[] {
-        return (this.labels() || []).map((label, index) =>
-            [
-                `${index}: ${this._formatLocation(label.location)}`,
-                `"${label.content}"`,
-                label.zoom_level != null ? `zoom ≥ ${label.zoom_level}` : '',
-                label.css_class?.length
-                    ? `class: ${label.css_class.join(' ')}`
-                    : '',
-                label.z_index != null ? `z: ${label.z_index}` : '',
-            ]
-                .filter(Boolean)
-                .join(' · '),
-        );
+    private _describeLabels(): DebugDetailEntry[] {
+        return (this.labels() || []).map((label, index) => {
+            const target = this._debugRef(label.location);
+            return {
+                ref: target.ref,
+                missing: target.missing,
+                text: [
+                    `${index}: ${target.location}`,
+                    `"${label.content}"`,
+                    label.zoom_level != null
+                        ? `zoom ≥ ${label.zoom_level}`
+                        : '',
+                    label.css_class?.length
+                        ? `class: ${label.css_class.join(' ')}`
+                        : '',
+                    label.z_index != null ? `z: ${label.z_index}` : '',
+                ]
+                    .filter(Boolean)
+                    .join(' · '),
+            };
+        });
     }
 
-    private _describeActions(): string[] {
+    private _describeActions(): DebugDetailEntry[] {
         return (this.actions() || []).map((action, index) => {
             const types = Array.isArray(action.action)
                 ? action.action
                 : [action.action];
-            return [
-                `${index}: #${action.id}`,
-                types.join(', '),
-                action.priority != null ? `priority: ${action.priority}` : '',
-                action.zone ? 'zone' : '',
-            ]
-                .filter(Boolean)
-                .join(' · ');
+            const target = this._debugRef(action.id);
+            return {
+                ref: target.ref,
+                missing: target.missing,
+                text: [
+                    `${index}: ${target.location}`,
+                    types.join(', '),
+                    action.priority != null
+                        ? `priority: ${action.priority}`
+                        : '',
+                    action.zone ? 'zone' : '',
+                ]
+                    .filter(Boolean)
+                    .join(' · '),
+            };
         });
     }
 
     private _updateInjectors() {
         const old_injectors = new Map(
-            (this.injectors || []).map((injector) => [
+            untracked(() => this.injectors()).map((injector) => [
                 injector.get(MAP_FEATURE_DATA)?.track_id,
                 injector,
             ]),
         );
-        this.injectors = (this.features() || []).map(
-            (f: any) =>
-                (f.track_id && old_injectors.get(f.track_id)) ||
-                Injector.create({
-                    providers: [
-                        {
-                            provide: MAP_FEATURE_DATA,
-                            useValue: { track_id: f.track_id, ...f.data },
-                        },
-                    ],
-                    parent: this._injector,
-                }),
+        this.injectors.set(
+            (this.features() || []).map(
+                (f: any) =>
+                    (f.track_id && old_injectors.get(f.track_id)) ||
+                    Injector.create({
+                        providers: [
+                            {
+                                provide: MAP_FEATURE_DATA,
+                                useValue: {
+                                    track_id: f.track_id,
+                                    ...f.data,
+                                },
+                            },
+                        ],
+                        parent: this._injector,
+                    }),
+            ),
         );
     }
 }

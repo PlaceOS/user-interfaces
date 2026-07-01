@@ -1,19 +1,25 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BookingFormService } from '@placeos/bookings';
+import {
+    BookingAsset,
+    BookingFormService,
+    findNearbyFeature,
+} from '@placeos/bookings';
 import {
     AsyncHandler,
-    firstTruthyValueFrom,
-    getInvalidFields,
+    currentUser,
+    flatten,
+    getInvalidSignalFields,
     i18n,
     notifyError,
     notifySuccess,
     OrganisationService,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
-import { firstValueFrom, map } from 'rxjs';
+import { SpacePipe } from '@placeos/events';
+import { listChildMetadata } from '@placeos/ts-client';
+import { set } from 'date-fns';
 import { DeskFlowAutoAssignComponent } from './desk-flow-auto-assign.component';
 import { DeskFlowDetailsComponent } from './desk-flow-details.component';
 import { DeskFlowSelectComponent } from './desk-flow-select.component';
@@ -24,10 +30,10 @@ import { NewDeskFlowSuccessComponent } from './desk-flow-success.component';
     template: `
         @if (view() !== 'success') {
             <div
-                class="bg-base-200 relative z-0 flex h-full w-full flex-col overflow-auto"
+                class="bg-base-200 relative flex h-full w-full flex-col overflow-auto"
             >
                 <div
-                    class="mx-auto min-h-full w-[80rem] max-w-full flex-1 space-y-4 px-4 pt-4"
+                    class="mx-auto min-h-full w-7xl max-w-full flex-1 space-y-4 px-4 pt-4"
                 >
                     @if (!is_edit_mode()) {
                         <desk-flow-auto-assign class="block" />
@@ -117,17 +123,13 @@ export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);
     private _router = inject(Router);
     private _route = inject(ActivatedRoute);
+    private _space_pipe: SpacePipe = new SpacePipe(this._org);
 
     public readonly view = this._booking_form.view;
     public readonly loading = signal(false);
-    public readonly options = toSignal(this._booking_form.options);
+    public readonly options = this._booking_form.options;
 
-    public readonly form_value = toSignal(
-        this._booking_form.form.valueChanges,
-        {
-            initialValue: this._booking_form.form.value,
-        },
-    );
+    public readonly form_value = this._booking_form.model;
 
     public readonly has_title = computed(
         () => !!this.form_value()?.title?.trim(),
@@ -142,11 +144,18 @@ export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
     public readonly is_edit_mode = computed(() => !!this.form_value()?.id);
 
     public ngOnInit() {
-        const { booking_type } = this._booking_form.form.getRawValue();
-        if (booking_type !== 'desk') {
-            this._booking_form.form.patchValue({ booking_type: 'desk' });
-            this._booking_form.setOptions({ type: 'desk' });
-        }
+        const { id, booking_type } = this._booking_form.model();
+        if (!id || booking_type !== 'desk') this._booking_form.newForm('desk');
+        this._booking_form.model.update((m) => ({
+            ...m,
+            booking_type: 'desk',
+        }));
+        this._booking_form.setOptions({ type: 'desk' });
+        if (!this._booking_form.model().id)
+            this._booking_form.model.update((m) => ({
+                ...m,
+                title: 'Booking',
+            }));
         this.subscription(
             'route.params',
             this._route.paramMap.subscribe((param) => {
@@ -157,52 +166,163 @@ export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe(async (params) => {
+                if (params.has('nearby_space')) {
+                    await this._initNearbyDeskBooking(
+                        params.get('nearby_space'),
+                        parseInt(params.get('date'), 10) || Date.now(),
+                    );
+                    return;
+                }
                 if (!params.has('asset_id')) return;
                 const asset_id = params.get('asset_id');
-                const form = this._booking_form.form.getRawValue();
+                const form = this._booking_form.model();
                 if (
                     asset_id === form.asset_id &&
                     (form.resources || []).some(({ id }) => id === asset_id)
                 ) {
                     return;
                 }
-                await firstTruthyValueFrom(
-                    this._booking_form.loading.pipe(map((_) => !_)),
-                );
-                const resources = await firstValueFrom(
-                    this._booking_form.resources,
-                );
-                const resource = resources.find((item) => item.id === asset_id);
+                await this._waitForLoaded();
+                if (!asset_id) return;
+                const resource = await this._findDeskResource(asset_id);
                 if (!resource) return;
                 const building = resource.zone?.parent_id
                     ? this._org.find(resource.zone.parent_id)
                     : null;
-                if (building) {
+                if (building && building.id !== this._org.building?.id) {
                     this._org.building = building;
                 }
                 this._booking_form.setOptions({
                     type: 'desk',
                     ...(resource.zone?.id ? { zones: [resource.zone.id] } : {}),
                 });
-                this._booking_form.form.patchValue({
+                this._booking_form.model.update((m) => ({
+                    ...m,
                     booking_type: 'desk',
                     resources: [resource],
                     asset_id: resource.id,
-                });
+                }));
             }),
         );
     }
 
-    public async confirmBooking() {
-        const { asset_id, resources } = this._booking_form.form.getRawValue();
-        if (resources?.length && asset_id !== resources[0].id) {
-            this._booking_form.form.patchValue({ asset_id: resources[0].id });
+    /** Resolve once the booking form has finished its current load */
+    private async _waitForLoaded() {
+        while (this._booking_form.loading()) {
+            await new Promise((resolve) => setTimeout(resolve, 50));
         }
-        this._booking_form.form.markAllAsTouched();
-        if (!this._booking_form.form.valid) {
+    }
+
+    private async _findDeskResource(
+        asset_id: string,
+    ): Promise<BookingAsset | null> {
+        const resource = await this._findDeskResourceFromStream(asset_id, 50);
+        if (resource) return resource;
+
+        const building_resource =
+            await this._findDeskResourceFromBuildings(asset_id);
+        return (
+            building_resource ||
+            (await this._findDeskResourceFromStream(asset_id, 5000))
+        );
+    }
+
+    private async _findDeskResourceFromStream(
+        asset_id: string,
+        wait_ms: number,
+    ): Promise<BookingAsset | null> {
+        const deadline = Date.now() + wait_ms;
+        do {
+            const resources = await this._booking_form.listResources();
+            const resource = resources.find((item) => item.id === asset_id);
+            if (resource) return resource;
+            if (Date.now() >= deadline) break;
+            await new Promise((resolve) => setTimeout(resolve, 50));
+        } while (Date.now() < deadline);
+        return null;
+    }
+
+    private async _findDeskResourceFromBuildings(
+        asset_id: string,
+    ): Promise<BookingAsset | null> {
+        for (const building of this._org.buildings || []) {
+            const data = await listChildMetadata(building.id, {
+                name: 'desks',
+            }).catch(() => []);
+            const resources = flatten<BookingAsset>(
+                data.map((metadata) =>
+                    (metadata?.metadata?.desks?.details instanceof Array
+                        ? metadata.metadata.desks.details
+                        : []
+                    ).map((desk) => ({
+                        ...desk,
+                        id: desk.id || desk.map_id,
+                        zone: metadata.zone,
+                    })),
+                ),
+            );
+            const resource = resources.find((item) => item.id === asset_id);
+            if (resource) return resource;
+        }
+        return null;
+    }
+
+    private async _initNearbyDeskBooking(space_id: string, event_date: number) {
+        const space = await this._space_pipe.transform(space_id);
+        const level = this._org.levelWithID(space?.zones);
+        this._booking_form.setOptions({ type: 'desk', zone_id: level?.id });
+        this._booking_form.model.update((m) => ({
+            ...m,
+            date: set(event_date, { hours: 8, minutes: 0 }).valueOf(),
+            duration: 10 * 60,
+            all_day: true,
+            booking_type: 'desk',
+            user: currentUser(),
+        }));
+        const resources = await this._booking_form.listAvailableResources();
+        const bookable_desks = resources
+            .map((_) => _.map_id || _.id)
+            .filter((i) => i);
+        const nearby = await findNearbyFeature(
+            level.map_id,
+            space?.map_id,
+            bookable_desks,
+        );
+        if (!nearby)
+            return notifyError(i18n('APP.WORKPLACE.MEETING_DESK_ERROR'));
+        const resource = resources.find(
+            (_) => _.map_id === nearby || _.id === nearby,
+        );
+        if (!resource)
+            return notifyError(i18n('APP.WORKPLACE.MEETING_DESK_ERROR'));
+        this._booking_form.model.update((m) => ({
+            ...m,
+            date: set(event_date, { hours: 8, minutes: 0 }).valueOf(),
+            duration: 10 * 60,
+            all_day: true,
+            booking_type: 'desk',
+            asset_id: resource.id,
+            asset_name: resource.name,
+            resources: [resource],
+        }));
+    }
+
+    public async confirmBooking() {
+        const { asset_id, resources } = this._booking_form.model();
+        if (resources?.length && asset_id !== resources[0].id) {
+            this._booking_form.model.update((m) => ({
+                ...m,
+                asset_id: resources[0].id,
+            }));
+        }
+        this._booking_form.form().markAsTouched();
+        if (!this._booking_form.form().valid()) {
             return notifyError(
                 i18n('FORM.INVALID_FIELDS', {
-                    field_list: getInvalidFields(this._booking_form.form)
+                    field_list: getInvalidSignalFields(
+                        this._booking_form.form,
+                        this._booking_form.model,
+                    )
                         .join(', ')
                         .replace('asset_id', i18n('RESOURCE.DESK')),
                 }),

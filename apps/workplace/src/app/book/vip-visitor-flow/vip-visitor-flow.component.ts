@@ -1,7 +1,13 @@
-import { AsyncPipe, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import {
+    FormControl,
+    FormGroup,
+    FormsModule,
+    ReactiveFormsModule,
+    Validators,
+} from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -30,7 +36,7 @@ import {
     TimeFieldComponent,
     UserSearchFieldComponent,
 } from '@placeos/form-fields';
-import { filter, lastValueFrom } from 'rxjs';
+import { filter } from 'rxjs';
 import {
     VipServicesData,
     VipVisitorFlowServicesComponent,
@@ -60,7 +66,7 @@ import {
                             </div>
                         </div>
                         <div class="w-full p-4" [formGroup]="form">
-                            @if (buildings && (buildings | async)?.length > 1) {
+                            @if (buildings().length > 1) {
                                 <div class="flex flex-col">
                                     <label
                                         >{{ 'RESOURCE.BUILDING' | translate
@@ -82,7 +88,7 @@ import {
                                             }"
                                         >
                                             @for (
-                                                bld of buildings | async;
+                                                bld of buildings();
                                                 track bld
                                             ) {
                                                 <mat-option [value]="bld.id">{{
@@ -423,7 +429,6 @@ import {
         `,
     ],
     imports: [
-        AsyncPipe,
         DatePipe,
         FormsModule,
         ReactiveFormsModule,
@@ -452,6 +457,18 @@ export class VipVisitorFlowComponent extends AsyncHandler implements OnInit {
     public readonly loading = signal(false);
     public readonly visitors = signal<any[]>([]);
     public readonly last_booking = signal<Booking>(null);
+    public readonly form = new FormGroup({
+        booking_type: new FormControl('vip-visitor'),
+        title: new FormControl('VIP Visit'),
+        date: new FormControl(Date.now(), Validators.required),
+        duration: new FormControl(60, Validators.required),
+        user: new FormControl(currentUser()),
+        asset_id: new FormControl('', [Validators.required, Validators.email]),
+        asset_name: new FormControl('', Validators.required),
+        company: new FormControl(''),
+        phone: new FormControl(''),
+        zones: new FormControl<string[]>([]),
+    });
 
     // VIP services data - stored here, passed to child component
     public readonly vip_data = signal<VipServicesData>({
@@ -470,8 +487,8 @@ export class VipVisitorFlowComponent extends AsyncHandler implements OnInit {
     });
 
     public readonly form_value = toSignal(
-        this._booking_form.form.valueChanges,
-        { initialValue: this._booking_form.form.value },
+        this.form.valueChanges,
+        { initialValue: this.form.value },
     );
     public readonly use_24hr = settingSignal('use_24_hour_time', false);
     public readonly can_book_for_others = settingSignal(
@@ -482,23 +499,17 @@ export class VipVisitorFlowComponent extends AsyncHandler implements OnInit {
 
     public readonly filtered_visitors = signal<any[]>([]);
     public readonly building = () => this._org.building;
-    public get form() {
-        return this._booking_form.form;
-    }
     public get time_format() {
         return this._settings.time_format;
     }
 
     public ngOnInit() {
-        this._booking_form.form.patchValue({
+        this.form.patchValue({
             booking_type: 'vip-visitor',
             title: 'VIP Visit',
             user: currentUser(),
         });
         this._booking_form.setOptions({ type: 'vip-visitor', group: false });
-        this.form
-            .get('asset_id')
-            ?.setValidators([Validators.required, Validators.email]);
 
         // Load visitor history
         const history = this._settings.get('visitor-invitees') || [];
@@ -534,7 +545,7 @@ export class VipVisitorFlowComponent extends AsyncHandler implements OnInit {
         // Set the active building zone on the form
         this.subscription(
             'building',
-            this._org.active_building
+            toObservable(this._org.active_building)
                 .pipe(filter((_) => !!_))
                 .subscribe((bld) => {
                     this.form.patchValue({ zones: [bld.id] });
@@ -633,7 +644,7 @@ export class VipVisitorFlowComponent extends AsyncHandler implements OnInit {
                 },
             });
 
-            const result = await lastValueFrom(saveBooking(booking));
+            const result = await saveBooking(booking);
             this._booking_form.last_success = result;
             this.last_booking.set(result);
             notifySuccess(

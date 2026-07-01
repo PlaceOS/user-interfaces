@@ -1,12 +1,6 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import {
-    FormControl,
-    FormGroup,
-    FormsModule,
-    ReactiveFormsModule,
-    Validators,
-} from '@angular/forms';
+import { FormsModule } from '@angular/forms';
+import { form, FormField, required } from '@angular/forms/signals';
 import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
@@ -21,8 +15,7 @@ import {
     AsyncHandler,
     Building,
     createShortURL,
-    getInvalidFields,
-    nextValueFrom,
+    getInvalidSignalFields,
     notifyError,
     OrganisationService,
     randomString,
@@ -46,7 +39,7 @@ import { PointOfInterest } from './poi-management.service';
     template: `
         <fullscreen-modal-shell
             [heading]="
-                (form.value.id
+                (model().id
                     ? 'APP.CONCIERGE.POI_EDIT'
                     : 'APP.CONCIERGE.POI_NEW'
                 ) | translate
@@ -56,26 +49,23 @@ import { PointOfInterest } from './poi-management.service';
                 loading() ? ('APP.CONCIERGE.POI_SAVING' | translate) : ''
             "
         >
-            <form [formGroup]="form">
+            <form>
                 <image-field
                     class="mb-4! block"
-                    formControlName="image"
+                    [formField]="form.image"
                 ></image-field>
-                @if (form.controls.name) {
-                    <div class="flex flex-col">
-                        <label for="name">
-                            {{ 'FORM.NAME' | translate }}<span>*</span>
-                        </label>
-                        <mat-form-field appearance="outline">
-                            <input
-                                matInput
-                                name="name"
-                                [placeholder]="'FORM.NAME' | translate"
-                                formControlName="name"
-                            />
-                        </mat-form-field>
-                    </div>
-                }
+                <div class="flex flex-col">
+                    <label for="name">
+                        {{ 'FORM.NAME' | translate }}<span>*</span>
+                    </label>
+                    <mat-form-field appearance="outline">
+                        <input
+                            matInput
+                            [placeholder]="'FORM.NAME' | translate"
+                            [formField]="form.name"
+                        />
+                    </mat-form-field>
+                </div>
                 @if (building_list().length > 1) {
                     <div class="flex flex-col">
                         <label for="building">
@@ -96,25 +86,23 @@ import { PointOfInterest } from './poi-management.service';
                         </mat-form-field>
                     </div>
                 }
-                @if (form.controls.level_id) {
-                    <div class="flex flex-col">
-                        <label for="level">
-                            {{ 'RESOURCE.LEVEL' | translate }}<span>*</span>
-                        </label>
-                        <mat-form-field appearance="outline">
-                            <mat-select
-                                formControlName="level_id"
-                                placeholder="Select Level"
-                            >
-                                @for (level of level_list(); track level) {
-                                    <mat-option [value]="level.id">
-                                        {{ level.display_name }}
-                                    </mat-option>
-                                }
-                            </mat-select>
-                        </mat-form-field>
-                    </div>
-                }
+                <div class="flex flex-col">
+                    <label for="level">
+                        {{ 'RESOURCE.LEVEL' | translate }}<span>*</span>
+                    </label>
+                    <mat-form-field appearance="outline">
+                        <mat-select
+                            [formField]="form.level_id"
+                            placeholder="Select Level"
+                        >
+                            @for (level of level_list(); track level) {
+                                <mat-option [value]="level.id">
+                                    {{ level.display_name }}
+                                </mat-option>
+                            }
+                        </mat-select>
+                    </mat-form-field>
+                </div>
                 <div class="flex flex-col">
                     <label for="location">
                         {{ 'COMMON.LOCATION' | translate }}<span>*</span>
@@ -141,9 +129,15 @@ import { PointOfInterest } from './poi-management.service';
                             >
                                 <input
                                     matInput
-                                    name="location"
                                     placeholder="Location"
-                                    formControlName="location"
+                                    [ngModel]="model().location"
+                                    (ngModelChange)="
+                                        model.update((m) => ({
+                                            ...m,
+                                            location: $event,
+                                        }))
+                                    "
+                                    [ngModelOptions]="{ standalone: true }"
                                 />
                             </mat-form-field>
                             <button
@@ -165,14 +159,15 @@ import { PointOfInterest } from './poi-management.service';
                                 <input
                                     matInput
                                     name="latitude"
-                                    [ngModel]="form.value.location[0]"
+                                    [ngModel]="model().location[0]"
                                     (ngModelChange)="
-                                        form.patchValue({
+                                        model.update((m) => ({
+                                            ...m,
                                             location: [
                                                 +$event,
-                                                +form.value.location[1],
+                                                +m.location[1],
                                             ],
-                                        })
+                                        }))
                                     "
                                     [ngModelOptions]="{ standalone: true }"
                                 />
@@ -181,14 +176,15 @@ import { PointOfInterest } from './poi-management.service';
                                 <input
                                     matInput
                                     name="longitude"
-                                    [ngModel]="form.value.location[1]"
+                                    [ngModel]="model().location[1]"
                                     (ngModelChange)="
-                                        form.patchValue({
+                                        model.update((m) => ({
+                                            ...m,
                                             location: [
-                                                +form.value.location[0],
+                                                +m.location[0],
                                                 +$event,
                                             ],
-                                        })
+                                        }))
                                     "
                                     [ngModelOptions]="{ standalone: true }"
                                 />
@@ -198,8 +194,8 @@ import { PointOfInterest } from './poi-management.service';
                     <div class="flex items-center space-x-4 pt-2">
                         <settings-toggle
                             class="flex-1"
-                            [name]="'APP.CONCIERGE.POI_SEARCHABLE' | translate"
-                            formControlName="can_search"
+                            [label]="'APP.CONCIERGE.POI_SEARCHABLE' | translate"
+                            [formField]="form.can_search"
                         >
                         </settings-toggle>
                     </div>
@@ -213,16 +209,16 @@ import { PointOfInterest } from './poi-management.service';
                         >
                             <input
                                 matInput
-                                formControlName="media_url"
+                                [formField]="form.media_url"
                                 [placeholder]="
                                     'APP.CONCIERGE.POI_MEDIA_URL' | translate
                                 "
                             />
                         </mat-form-field>
                         <upload-button
-                            [ngModel]="form.value.media_url"
+                            [ngModel]="model().media_url"
                             (ngModelChange)="
-                                form.patchValue({ media_url: $event })
+                                model.update((m) => ({ ...m, media_url: $event }))
                             "
                             [ngModelOptions]="{ standalone: true }"
                             [types]="['audio', 'video']"
@@ -232,7 +228,7 @@ import { PointOfInterest } from './poi-management.service';
                         {{ 'APP.CONCIERGE.POI_DETAILS' | translate }}
                     </label>
                     <div class="space-y-2">
-                        @for (value of extra_details; track $index) {
+                        @for (value of extra_details(); track $index) {
                             <div class="flex items-center space-x-2">
                                 <mat-form-field
                                     appearance="outline"
@@ -263,7 +259,7 @@ import { PointOfInterest } from './poi-management.service';
                         btn
                         matRipple
                         class="mt-2 mb-4 w-full"
-                        (click)="extra_details.push(['', ''])"
+                        (click)="extra_details.update((d) => [...d, ['', '']])"
                     >
                         Add Details Item
                     </button>
@@ -276,7 +272,7 @@ import { PointOfInterest } from './poi-management.service';
         TranslatePipe,
         IconComponent,
         FullscreenModalShellComponent,
-        ReactiveFormsModule,
+        FormField,
         ImageFieldComponent,
         MatRippleModule,
         MatFormFieldModule,
@@ -299,13 +295,11 @@ export class POIModalComponent extends AsyncHandler implements OnInit {
     public readonly location_type = signal(
         this._data?.location instanceof Array ? 'coordinates' : 'map_id',
     );
-    public readonly building_list = toSignal(this._org.building_list, {
-        initialValue: [],
-    });
-    public readonly level_list = toSignal(this._org.active_levels, {
-        initialValue: [],
-    });
-    public readonly extra_details = this._data?.extra_details || [];
+    public readonly building_list = this._org.building_list;
+    public readonly level_list = this._org.active_levels;
+    public readonly extra_details = signal<any[]>(
+        this._data?.extra_details || [],
+    );
 
     public get building() {
         return this._org.building;
@@ -315,26 +309,28 @@ export class POIModalComponent extends AsyncHandler implements OnInit {
         this._org.building = value;
     }
 
-    public readonly form = new FormGroup({
-        id: new FormControl(this._data?.id || ''),
-        name: new FormControl(this._data?.name || '', [Validators.required]),
-        level_id: new FormControl(this._data?.level_id || '', [
-            Validators.required,
-        ]),
-        location: new FormControl(this._data?.location || '', [
-            Validators.required,
-        ]),
-        can_search: new FormControl(this._data?.can_search ?? false),
-        image: new FormControl(this._data?.image || ''),
-        media_type: new FormControl(this._data?.media_type || 'audio'),
-        media_url: new FormControl(this._data?.media_url || ''),
-        extra_details: new FormControl(this._data?.extra_details || {}),
+    public readonly model = signal({
+        id: this._data?.id || '',
+        name: this._data?.name || '',
+        level_id: this._data?.level_id || '',
+        location: (this._data?.location || '') as string | number[],
+        can_search: (this._data?.can_search ?? false) as boolean,
+        image: (this._data?.image || '') as string,
+        media_type: (this._data?.media_type || 'audio') as string,
+        media_url: (this._data?.media_url || '') as string,
+        extra_details: (this._data?.extra_details || {}) as any,
+    });
+    public readonly form = form(this.model, (p) => {
+        required(p.name);
+        required(p.level_id);
+        required(p.location);
     });
 
     public async ngOnInit() {
-        if (!this.form.value.level_id) {
-            const levels = await nextValueFrom(this._org.active_levels);
-            if (levels.length) this.form.patchValue({ level_id: levels[0].id });
+        if (!this.model().level_id) {
+            const levels = this._org.active_levels();
+            if (levels.length)
+                this.model.update((m) => ({ ...m, level_id: levels[0].id }));
         }
     }
 
@@ -342,32 +338,36 @@ export class POIModalComponent extends AsyncHandler implements OnInit {
         const ref = this._dialog.open(SelectMapItemModalComponent, {
             data: {
                 ...this._data,
-                ...this.form.getRawValue(),
+                ...this.model(),
             },
         });
         ref.afterClosed().subscribe((d) => {
             if (!d) return;
-            this.form.patchValue({
+            this.model.update((m) => ({
+                ...m,
                 location: d,
                 level_id: ref.componentInstance.level()?.id,
-            });
+            }));
         });
     }
 
     public async save() {
-        if (!this.form.valid) {
+        this.form().markAsTouched();
+        if (!this.form().valid()) {
             return notifyError(
-                `Some form fields are invalid. [${getInvalidFields(
+                `Some form fields are invalid. [${getInvalidSignalFields(
                     this.form,
+                    this.model,
                 ).join(', ')}]`,
             );
         }
-        this.form.patchValue({
-            extra_details: this.extra_details.filter(
+        this.model.update((m) => ({
+            ...m,
+            extra_details: this.extra_details().filter(
                 ([key, value]) => key && value,
             ),
-        });
-        const data: any = this.form.getRawValue();
+        }));
+        const data: any = this.model();
         if (!data.id) data.id = `POI-${randomString(8)}`;
         data.short_link_id = this._data?.short_link_id;
         const path = this._settings.get('app.kiosk_url_path') || '/map-kiosk';

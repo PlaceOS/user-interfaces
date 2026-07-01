@@ -24,7 +24,7 @@ describe('NewDeskFlowComponent', () => {
                 last_success: null,
             } as any),
             MockProvider(OrganisationService, {
-                initialised: new BehaviorSubject(true),
+                initialised: signal(true),
             }),
         ],
         declarations: [

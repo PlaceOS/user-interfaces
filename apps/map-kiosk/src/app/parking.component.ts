@@ -1,10 +1,17 @@
-import { Component, computed, inject, OnInit } from '@angular/core';
+import {
+    Component,
+    computed,
+    effect,
+    inject,
+    OnInit,
+    signal,
+    untracked,
+} from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 
 import {
-    AsyncHandler,
-    firstTruthyValueFrom,
     log,
     OrganisationService,
     Point,
@@ -66,7 +73,7 @@ import {
     providers: [ExploreStateService, ExploreParkingService],
     imports: [InteractiveMapComponent, IconComponent],
 })
-export class ParkingComponent extends AsyncHandler implements OnInit {
+export class ParkingComponent implements OnInit {
     private _explore = inject(ExploreStateService);
     private _parking = inject(ExploreParkingService);
     private _route = inject(ActivatedRoute);
@@ -75,6 +82,18 @@ export class ParkingComponent extends AsyncHandler implements OnInit {
     private _router = inject(Router);
     private _spaces = inject(SpacesService);
     private _settings = inject(SettingsService);
+
+    /** Signal of the current route query parameters */
+    private readonly _query_params = toSignal(this._route.queryParamMap);
+    /** Whether the view is ready to react to route query parameters */
+    private readonly _ready = signal(false);
+
+    private readonly _handle_query_params = effect(() => {
+        if (!this._ready()) return;
+        const params = this._query_params();
+        if (!params) return;
+        untracked(() => this.handleQueryParams(params));
+    });
 
     /** Signal for the active map */
     public readonly url = this._explore.map_url;
@@ -115,29 +134,31 @@ export class ParkingComponent extends AsyncHandler implements OnInit {
         ) {
             this._explore.setOptions({ is_public: true });
         }
-        await firstTruthyValueFrom(this._spaces.initialised);
+        while (!this._spaces.initialised()) {
+            await new Promise((resolve) => setTimeout(resolve, 100));
+        }
         this.reset_delay =
             this._settings.get('app.inactivity_timeout_secs') || 180;
         this.resetKiosk(false);
         VirtualKeyboardComponent.enabled =
             localStorage.getItem('OSK.enabled') === 'true';
-        this.subscription(
-            'route.query',
-            this._route.queryParamMap.subscribe(async (params) => {
-                if (params.has('level')) {
-                    log('Explore', 'Level changed to:', params.get('level'));
-                    this._explore.setLevel(params.get('level'));
-                    const level = this._org.levelWithID([params.get('level')]);
-                    if (!level) return;
-                    const bld = this._org.buildings.find(
-                        (_) => level.parent_id === _.id,
-                    );
-                    if (!bld) return;
-                    this._org.building = bld;
-                }
-                this._explore.setFeatures('_located', []);
-            }),
-        );
+        this._ready.set(true);
+    }
+
+    /** React to changes in the route query parameters */
+    private handleQueryParams(params: ParamMap) {
+        if (params.has('level')) {
+            log('Explore', 'Level changed to:', params.get('level'));
+            this._explore.setLevel(params.get('level'));
+            const level = this._org.levelWithID([params.get('level')]);
+            if (!level) return;
+            const bld = this._org.buildings.find(
+                (_) => level.parent_id === _.id,
+            );
+            if (!bld) return;
+            this._org.building = bld;
+        }
+        this._explore.setFeatures('_located', []);
     }
 
     public updateZoom(zoom: number) {

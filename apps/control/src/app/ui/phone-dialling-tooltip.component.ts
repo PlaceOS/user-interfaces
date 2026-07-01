@@ -1,5 +1,4 @@
 import { Component, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -56,9 +55,7 @@ export class PhoneDiallingTooltipComponent {
     private _state = inject(ControlStateService);
 
     public readonly phone = signal('');
-    public readonly system = toSignal(this._state.system, {
-        initialValue: {} as any,
-    });
+    public readonly system = this._state.system;
 
     public get sys_id() {
         return this._state.id;

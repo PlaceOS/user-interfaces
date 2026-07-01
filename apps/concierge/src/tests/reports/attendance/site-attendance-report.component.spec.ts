@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
 import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
@@ -13,9 +14,9 @@ import { MockProvider } from 'ng-mocks';
 describe('SiteAttendanceReportComponent', () => {
     let spectator: Spectator<SiteAttendanceReportComponent>;
     let query_params: BehaviorSubject<any>;
-    let report: BehaviorSubject<any>;
-    let loading: BehaviorSubject<boolean>;
-    let active_building: BehaviorSubject<any>;
+    let report: ReturnType<typeof signal<any>>;
+    let loading: ReturnType<typeof signal<boolean>>;
+    let active_building: ReturnType<typeof signal<any>>;
 
     const createComponent = createComponentFactory({
         component: SiteAttendanceReportComponent,
@@ -23,8 +24,8 @@ describe('SiteAttendanceReportComponent', () => {
         detectChanges: false,
         providers: [
             MockProvider(SiteAttendanceReportService, {
-                report$: new BehaviorSubject(EMPTY_REPORT),
-                loading$: new BehaviorSubject(false),
+                report: signal(EMPTY_REPORT),
+                loading: signal(false),
                 setOptions: jest.fn(),
                 downloadReport: jest.fn(),
                 generateReport: jest.fn(),
@@ -40,9 +41,10 @@ describe('SiteAttendanceReportComponent', () => {
                 }),
             } as any),
             MockProvider(OrganisationService, {
-                initialised: new BehaviorSubject(true),
-                active_building: new BehaviorSubject({ id: 'building-1' }),
-                active_region: new BehaviorSubject({ id: 'region-1' }),
+                initialised: signal(true),
+                waitUntilInitialised: () => Promise.resolve(),
+                active_building: signal({ id: 'building-1' }),
+                active_region: signal({ id: 'region-1' }),
                 levelsForBuilding: jest.fn(() => []),
                 levelsForRegion: jest.fn(() => []),
                 levelWithID: jest.fn(() => ({ parent_id: 'building-1' })),
@@ -64,16 +66,16 @@ describe('SiteAttendanceReportComponent', () => {
                 zone_ids: 'level-1,level-2',
             }),
         );
-        report = new BehaviorSubject(EMPTY_REPORT);
-        loading = new BehaviorSubject(false);
-        active_building = new BehaviorSubject({ id: 'building-1' });
+        report = signal(EMPTY_REPORT);
+        loading = signal(false);
+        active_building = signal({ id: 'building-1' });
         spectator = createComponent({
             providers: [
                 {
                     provide: SiteAttendanceReportService,
                     useValue: {
-                        report$: report,
-                        loading$: loading,
+                        report,
+                        loading,
                         setOptions: jest.fn(),
                         downloadReport: jest.fn(),
                         generateReport: jest.fn(),
@@ -82,9 +84,10 @@ describe('SiteAttendanceReportComponent', () => {
                 {
                     provide: OrganisationService,
                     useValue: {
-                        initialised: new BehaviorSubject(true),
+                        initialised: signal(true),
+                        waitUntilInitialised: () => Promise.resolve(),
                         active_building,
-                        active_region: new BehaviorSubject({ id: 'region-1' }),
+                        active_region: signal({ id: 'region-1' }),
                         levelsForBuilding: jest.fn(() => []),
                         levelsForRegion: jest.fn(() => []),
                         levelWithID: jest.fn(() => ({
@@ -129,7 +132,7 @@ describe('SiteAttendanceReportComponent', () => {
     });
 
     it('should expose report state and has_data from the service', () => {
-        report.next({
+        report.set({
             business_days: 1,
             total_attendance: 8,
             total_bookings: 6,
@@ -146,7 +149,7 @@ describe('SiteAttendanceReportComponent', () => {
     });
 
     it('should expose loading state from the service', () => {
-        loading.next(true);
+        loading.set(true);
         spectator.detectChanges();
 
         expect(spectator.component.loading()).toBe(true);

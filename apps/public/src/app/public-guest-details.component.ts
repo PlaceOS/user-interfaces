@@ -1,4 +1,11 @@
-import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    DestroyRef,
+    OnInit,
+    inject,
+    signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
     FormControl,
@@ -14,6 +21,7 @@ import { PublicPageShellComponent } from './public-page-shell.component';
 @Component({
     selector: 'placeos-public-guest-details',
     imports: [ReactiveFormsModule, PublicPageShellComponent],
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `
         <placeos-public-page-shell
             [logo]="service.logo_url()"

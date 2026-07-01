@@ -1,7 +1,5 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { showMetadata } from '@placeos/ts-client';
-import { lastValueFrom } from 'rxjs';
 
 import { saveBooking } from '@placeos/bookings';
 import {
@@ -454,8 +452,8 @@ import { VisitorsStateService } from './visitors-state.service';
             </div>
         </ng-template>
         <ng-template #action_template let-row="row">
-            <div class="flex items-center justify-end px-2">
-                <button icon matRipple [matMenuTriggerFor]="guest_menu">
+            <div class="mx-auto flex items-center p-2">
+                <button icon default matRipple [matMenuTriggerFor]="guest_menu">
                     <icon>more_horiz</icon>
                 </button>
                 <mat-menu #guest_menu="matMenu">
@@ -672,10 +670,11 @@ import { VisitorsStateService } from './visitors-state.service';
                     "
                     matTooltipPosition="left"
                     icon
+                    default
                     matRipple
                     (click)="editVisitorNotes(row)"
                 >
-                    <icon class="text-2xl">edit_square</icon>
+                    <icon>edit_square</icon>
                 </button>
                 @if (row.extension_data?.notes?.length) {
                     <div
@@ -734,28 +733,22 @@ import { VisitorsStateService } from './visitors-state.service';
         UserLabelComponent,
     ],
 })
-export class GuestListingComponent extends AsyncHandler implements OnInit {
+export class GuestListingComponent extends AsyncHandler {
     private _state = inject(VisitorsStateService);
     private _parking = inject(ParkingStateService);
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
 
     public readonly printing = signal('');
-    public readonly guests = toSignal(this._state.filtered_bookings, {
-        initialValue: [],
-    });
+    public readonly guests = this._state.filtered_bookings;
     public readonly search = this._state.search;
-    public readonly filters = toSignal<any>(this._state.filters, {
-        initialValue: {} as any,
-    });
+    public readonly filters = this._state.filters;
     public readonly inductions_enabled = signal(false);
     public readonly qr_code = signal('');
     public readonly pass_number = signal('');
     public readonly user_pass = signal<UserDetails>({} as UserDetails);
     public readonly label_size = signal({ width: 25, height: 15, scale: 4 });
-    public readonly active_building = toSignal(this._org.active_building, {
-        initialValue: this._org.building,
-    });
+    public readonly active_building = this._org.active_building;
     public readonly timezone = computed(() => {
         this.active_building();
         const use_tz = this._settings.get('app.bookings.use_building_timezone');
@@ -887,36 +880,35 @@ export class GuestListingComponent extends AsyncHandler implements OnInit {
               : null;
     }
 
-    public ngOnInit() {
-        this.subscription(
-            'building',
-            this._org.active_building.subscribe(async (bld) => {
-                if (!bld) return;
-                const visitor_kiosk_app =
-                    this._settings.get('app.visitor_kiosk_app') ||
-                    'visitor-kiosk_app';
-                const metadata: any = await showMetadata(
-                    bld.id,
-                    visitor_kiosk_app,
-                );
-                const org_metadata: any = await showMetadata(
-                    this._org.organisation.id,
-                    visitor_kiosk_app,
-                );
-                const data = {
-                    ...(org_metadata.details || {}),
-                    ...(metadata.details || {}),
-                };
-                const label_size = data.visitor_label_size || {};
-                this.label_size.set({
-                    width: label_size.width || 25,
-                    height: label_size.height || 15,
-                    scale: label_size.scale || 4,
-                });
-                this.inductions_enabled.set(
-                    data?.induction_enabled && data?.induction_details,
-                );
-            }),
+    constructor() {
+        super();
+        effect(() => {
+            const bld = this._org.active_building();
+            if (!bld) return;
+            this._loadVisitorKioskConfig(bld);
+        });
+    }
+
+    private async _loadVisitorKioskConfig(bld: any) {
+        const visitor_kiosk_app =
+            this._settings.get('app.visitor_kiosk_app') || 'visitor-kiosk_app';
+        const metadata: any = await showMetadata(bld.id, visitor_kiosk_app);
+        const org_metadata: any = await showMetadata(
+            this._org.organisation.id,
+            visitor_kiosk_app,
+        );
+        const data = {
+            ...(org_metadata.details || {}),
+            ...(metadata.details || {}),
+        };
+        const label_size = data.visitor_label_size || {};
+        this.label_size.set({
+            width: label_size.width || 25,
+            height: label_size.height || 15,
+            scale: label_size.scale || 4,
+        });
+        this.inductions_enabled.set(
+            data?.induction_enabled && data?.induction_details,
         );
     }
 
@@ -929,19 +921,15 @@ export class GuestListingComponent extends AsyncHandler implements OnInit {
             external_user: true,
         });
         if (!id) return;
-        await lastValueFrom(
-            saveBooking(
-                new Booking({ ...item, parking_booking_id: id } as any),
-            ),
+        await saveBooking(
+            new Booking({ ...item, parking_booking_id: id } as any),
         );
         this._state.poll();
     }
 
     public async setPass(row: any, pass = '') {
         if (!pass) return;
-        await lastValueFrom(
-            saveBooking(new Booking({ ...row, pass_number: pass } as any)),
-        );
+        await saveBooking(new Booking({ ...row, pass_number: pass } as any));
         this._state.poll();
         this.pass_number.set('');
         notifySuccess(i18n('APP.CONCIERGE.VISITORS_SAVED_PASS'));

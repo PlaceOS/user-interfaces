@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -171,7 +170,7 @@ import { DealsService } from './deals.service';
                         }
                     </div>
                 } @else {
-                    <div class="mb-4 min-w-5xl">
+                    <div class="mb-4 min-w-7xl">
                         <simple-table
                             [data]="filtered_deals()"
                             class="text-sm"
@@ -206,7 +205,7 @@ import { DealsService } from './deals.service';
                                 {
                                     key: 'actions',
                                     name: ' ',
-                                    size: '3.5rem',
+                                    size: '3.25rem',
                                     content: actions_template,
                                     sortable: false,
                                 },
@@ -250,12 +249,12 @@ import { DealsService } from './deals.service';
                     </ng-template>
                     <ng-template #actions_template let-deal="row">
                         <div
-                            class="flex h-full w-full items-center justify-end p-1"
+                            class="flex h-full w-full items-center justify-end p-2"
                         >
                             <button
                                 icon
+                                default
                                 matRipple
-                                class="h-12 w-12 rounded-sm"
                                 [matMenuTriggerFor]="menu"
                             >
                                 <icon>more_vert</icon>
@@ -337,7 +336,7 @@ export class DealsListComponent {
     public readonly display = signal<'list' | 'grid'>('list');
     public readonly expires = signal(0);
     public readonly type = signal('');
-    public readonly deals = toSignal(this._deals.deals$, { initialValue: [] });
+    public readonly deals = this._deals.deals;
     public readonly types = computed(() =>
         unique(this.deals().map((d) => d.type)).filter((type) => !!type),
     );

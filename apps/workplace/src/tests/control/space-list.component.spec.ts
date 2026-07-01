@@ -5,8 +5,8 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { OrganisationService } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
 import { SpacesService } from '@placeos/events';
+import { signal } from '@angular/core';
 import { MockComponent, MockProvider } from 'ng-mocks';
-import { BehaviorSubject, of } from 'rxjs';
 import { ControlSpaceListItemComponent } from '../../app/control/list-item.component';
 import { ControlSpaceListComponent } from '../../app/control/space-list.component';
 
@@ -18,11 +18,11 @@ describe('ControlSpaceListComponent', () => {
             MockProvider(OrganisationService, {
                 navigate: jest.fn(),
                 buildings: [],
-                active_building: new BehaviorSubject({}),
+                active_building: signal({}),
             } as any),
             MockProvider(SpacesService, {
-                initialised: of(true),
-                all_spaces: of([
+                initialised: signal(true),
+                all_spaces: signal([
                     {
                         id: '1',
                         name: '1',

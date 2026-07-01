@@ -1,6 +1,9 @@
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { Injector, signal } from '@angular/core';
+import { email, form, required, validate } from '@angular/forms/signals';
 
 import { GuestUser, predictableRandomInt, unique, User } from '@placeos/common';
+
+const PHONE_PATTERN = /^\+?(\d[\d\s\-\(\)]{5,13}\d)$/;
 
 let USER_COUNT = 0;
 
@@ -67,57 +70,88 @@ export function generateMockUser(
     };
 }
 
+export interface UserFormValue {
+    name: string;
+    email: string;
+    organisation: string;
+    phone: string;
+    assistance_required: boolean;
+    visit_expected: boolean;
+}
+
+/** Signal-forms field tree for a user form */
+export type UserForm = ReturnType<typeof generateUserForm>;
+
 /**
- * Generate form fields for the given user
+ * Generate signal form fields for the given user
  * @param user User to generate form for
+ * @param injector Optional injector for use outside of an injection context
  */
-export function generateUserForm(user?: User) {
+export function generateUserForm(user?: User, injector?: Injector) {
     if (!user) {
         throw Error('No user passed');
     }
 
-    const fields = {
-        name: new FormControl(user.name || '', [Validators.required]),
-        email: new FormControl(user.email || '', [
-            Validators.email,
-            Validators.required,
-        ]),
-        organisation: new FormControl(
-            user.organisation || '',
-            Validators.required,
-        ),
-        phone: new FormControl(
-            user.phone || '',
-            Validators.pattern(/^\+?(\d[\d\s\-\(\)]{5,13}\d)$/),
-        ),
-        assistance_required: new FormControl(user.assistance_required || false),
-        visit_expected: new FormControl(user.visit_expected ?? true),
-    };
+    const model = signal<UserFormValue>({
+        name: user.name || '',
+        email: user.email || '',
+        organisation: user.organisation || '',
+        phone: user.phone || '',
+        assistance_required: user.assistance_required || false,
+        visit_expected: user.visit_expected ?? true,
+    });
 
-    // Generate form group for the user
-    const form = new FormGroup(fields);
-    return form;
+    return form(
+        model,
+        (p) => {
+            required(p.name);
+            required(p.email);
+            email(p.email);
+            required(p.organisation);
+            validate(p.phone, ({ value }) =>
+                value() && !PHONE_PATTERN.test(value())
+                    ? { kind: 'pattern' }
+                    : undefined,
+            );
+        },
+        injector ? { injector } : undefined,
+    );
 }
+
+export interface GuestFormValue {
+    name: string;
+    email: string;
+    organisation: string;
+    phone: string;
+    pass_number: string;
+    host: string;
+}
+
+/** Signal-forms field tree for a guest form */
+export type GuestForm = ReturnType<typeof generateGuestForm>;
 
 export function generateGuestForm(
     user: GuestUser = new GuestUser(),
     host: string = '',
+    injector?: Injector,
 ) {
-    const fields = {
-        name: new FormControl(user.name || ''),
-        email: new FormControl(user.email || '', [
-            Validators.email,
-            Validators.required,
-        ]),
-        organisation: new FormControl(
-            user.organisation || '',
-            Validators.required,
-        ),
-        phone: new FormControl(user.phone || ''),
-        pass_number: new FormControl(user.extension_data.pass_number || ''),
-        host: new FormControl(host || '', [Validators.required]),
-    };
-    // Generate form group for the guest
-    const form = new FormGroup(fields);
-    return form;
+    const model = signal<GuestFormValue>({
+        name: user.name || '',
+        email: user.email || '',
+        organisation: user.organisation || '',
+        phone: user.phone || '',
+        pass_number: user.extension_data.pass_number || '',
+        host: host || '',
+    });
+
+    return form(
+        model,
+        (p) => {
+            required(p.email);
+            email(p.email);
+            required(p.organisation);
+            required(p.host);
+        },
+        injector ? { injector } : undefined,
+    );
 }

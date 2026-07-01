@@ -9,13 +9,13 @@ import {
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
+import { humanReadableByteCount } from '@placeos/cloud-uploads';
 import {
     i18n,
     notifyError,
     notifySuccess,
     UploadPermissions,
 } from '@placeos/common';
-import { humanReadableByteCount } from '@placeos/cloud-uploads';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { SignageMedia } from '@placeos/ts-client';
 import { SignageMediaMetadata } from '../signage-media-upload.util';
@@ -123,7 +123,9 @@ function uploadErrorMessage(error: unknown) {
                     class="border-base-300 flex w-full items-center space-x-2 rounded-sm border p-2"
                 >
                     <icon class="text-base-content/60 shrink-0 text-2xl">
-                        {{ row.item.media_type === 'video' ? 'movie' : 'image' }}
+                        {{
+                            row.item.media_type === 'video' ? 'movie' : 'image'
+                        }}
                     </icon>
                     <div class="min-w-0 flex-1">
                         <div class="truncate">{{ row.item.file.name }}</div>

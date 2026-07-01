@@ -4,7 +4,6 @@ import { Router } from '@angular/router';
 import { MatRippleModule } from '@angular/material/core';
 import {
     Booking,
-    firstTruthyValueFrom,
     OrganisationService,
     settingSignal,
     SettingsService,
@@ -212,7 +211,7 @@ export class VisitorFlowSuccessComponent implements OnInit {
     }
 
     public async ngOnInit() {
-        await firstTruthyValueFrom(this._org.initialised);
+        await this._org.waitUntilInitialised();
         const last = this._form.last_success;
         if (last) {
             this.last_success.set(last);

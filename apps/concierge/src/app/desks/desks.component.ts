@@ -1,12 +1,14 @@
 import {
     Component,
     computed,
+    effect,
     inject,
     OnDestroy,
     OnInit,
+    resource,
     signal,
+    untracked,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import {
     ActivatedRoute,
@@ -46,8 +48,6 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { showMetadata } from '@placeos/ts-client';
-import { combineLatest, forkJoin, from, of } from 'rxjs';
-import { catchError, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
 import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
 import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
@@ -365,60 +365,67 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
     public readonly path = signal('');
     public readonly manage = computed(() => this.path() === 'manage');
     public readonly print_desk = this._state.print_desk;
-    private readonly _desk_levels_loaded = signal(false);
     /** Signal for filters */
     public readonly filters = this._state.filters;
     public readonly hide_user_list_download = settingSignal(
         'desks.hide_user_list_download',
     );
-    private readonly _all_levels$ = combineLatest([
-        this._org.active_building,
-        this._org.active_region,
-    ]).pipe(
-        map(([bld, region]) =>
+    /** All levels for the active building or region */
+    private readonly _all_levels = computed(
+        () =>
             this._settings.get('app.use_region')
-                ? this._org.levelsForRegion(region)
-                : this._org.levelsForBuilding(bld),
-        ),
-        shareReplay(1),
+                ? this._org.levelsForRegion(this._org.active_region())
+                : this._org.levelsForBuilding(this._org.active_building()),
+        {
+            equal: (a, b) =>
+                a.length === b.length &&
+                a.every((level, index) => level.id === b[index]?.id),
+        },
     );
-    private readonly _desk_levels$ = this._all_levels$.pipe(
-        switchMap((levels) => {
-            this._desk_levels_loaded.set(false);
-            if (!levels.length) return of([]);
-            return forkJoin(
-                levels.map((level) =>
-                    from(showMetadata(level.id, 'desks')).pipe(
-                        map((metadata) =>
-                            metadata.details instanceof Array &&
-                            metadata.details.length
-                                ? level
-                                : null,
-                        ),
-                        catchError(() => of(null)),
-                    ),
-                ),
+    /** Levels that have desk metadata configured */
+    private readonly _desk_levels = resource({
+        params: () => this._all_levels(),
+        defaultValue: [] as BuildingLevel[],
+        loader: async ({ params: levels }) => {
+            if (!levels.length) return [];
+            const results = await Promise.all(
+                levels.map(async (level) => {
+                    const metadata = await showMetadata(
+                        level.id,
+                        'desks',
+                    ).catch(() => null);
+                    return metadata?.details instanceof Array &&
+                        metadata.details.length
+                        ? level
+                        : null;
+                }),
             );
-        }),
-        map((levels) =>
-            levels.filter((level): level is BuildingLevel => !!level),
-        ),
-        tap(() => this._desk_levels_loaded.set(true)),
-        shareReplay(1),
-    );
-    private readonly _all_levels = toSignal(this._all_levels$, {
-        initialValue: [],
-    });
-    private readonly _desk_levels = toSignal(this._desk_levels$, {
-        initialValue: [],
+            return results.filter((level): level is BuildingLevel => !!level);
+        },
     });
     /** Signal for levels for the active building */
     public readonly levels = computed(() => {
-        const desk_levels = this._desk_levels();
-        return this.manage() || !this._desk_levels_loaded()
+        const resolved = this._desk_levels.status() === 'resolved';
+        return this.manage() || !resolved
             ? this._all_levels()
-            : desk_levels;
+            : this._desk_levels.value();
     });
+
+    constructor() {
+        super();
+        // Keep the active zone selection in sync with the available levels.
+        effect(() => {
+            const levels = this._all_levels();
+            untracked(() => this._syncZones(levels));
+        });
+        effect(() => {
+            if (this._desk_levels.status() !== 'resolved') return;
+            const levels = this._desk_levels.value();
+            untracked(() => {
+                if (!this.manage()) this._syncZones(levels);
+            });
+        });
+    }
     public readonly setDate = (date) => this._state.setFilters({ date });
     public readonly setFilters = (o) => this._state.setFilters(o);
     public readonly refresh = () => this._state.refresh();
@@ -482,16 +489,6 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
                 );
             }),
         );
-        this.subscription(
-            'level-changes',
-            this._all_levels$.subscribe((levels) => this._syncZones(levels)),
-        );
-        this.subscription(
-            'desk-level-changes',
-            this._desk_levels$.subscribe((levels) => {
-                if (!this.manage()) this._syncZones(levels);
-            }),
-        );
         const parts = this._router.url?.split('/') || [''];
         this.path.set(parts[parts.length - 1].split('?')[0]);
         this._updateView();
@@ -525,6 +522,7 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
             bookable: true,
             groups: ['test-desk-group', 'desk-bookers'],
             features: ['Standing Desk', 'Dual Monitor'],
+            tags: ['engineering', 'level-3'],
             homebase: 'Sydney HQ',
         }).toJSON();
         delete desk.images;

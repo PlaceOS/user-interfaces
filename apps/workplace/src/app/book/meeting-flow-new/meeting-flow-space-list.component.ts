@@ -7,7 +7,6 @@ import {
     output,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -289,16 +288,9 @@ export class MeetingFlowSpaceListComponent {
     public readonly selected_spaces = model<string[]>([]);
     public readonly space_selected = output<Space>();
 
-    public readonly loading = toSignal(this._event_form.loading$, {
-        initialValue: '',
-    });
-    public readonly available_spaces = toSignal(
-        this._event_form.available_spaces,
-        { initialValue: [] },
-    );
-    public readonly room_alerts = toSignal(this._event_form.room_alerts, {
-        initialValue: {},
-    });
+    public readonly loading = this._event_form.loading;
+    public readonly available_spaces = this._event_form.available_spaces;
+    public readonly room_alerts = this._event_form.room_alerts;
 
     public readonly page = signal(0);
     public readonly page_size = signal(10);

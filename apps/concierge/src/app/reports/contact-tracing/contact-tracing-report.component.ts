@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
     formatDuration,
@@ -13,7 +12,6 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { UserPipe } from '@placeos/users';
-import { debounceTime, map } from 'rxjs/operators';
 import {
     ReportMetricGuideComponent,
     ReportMetricGuideItem,
@@ -216,16 +214,10 @@ export class ContactTracingReportComponent {
     public readonly metric_guide = METRIC_GUIDE;
     public readonly table_metric_guide = TABLE_METRIC_GUIDE;
 
-    public readonly loading = toSignal(this._state.loading, {
-        initialValue: '',
-    });
-    public readonly options = toSignal(this._state.options, {
-        initialValue: {} as any,
-    });
+    public readonly loading = this._state.loading;
+    public readonly options = this._state.options;
     public readonly has_user = computed(() => !!this.options()?.user);
-    public readonly tracing_events = toSignal(this._state.events, {
-        initialValue: [],
-    });
+    public readonly tracing_events = this._state.events;
     public readonly setOptions = (_) => this._state.setOptions(_);
     public readonly downloadReport = () => this._state.downloadReport();
 
@@ -236,16 +228,12 @@ export class ContactTracingReportComponent {
         return this._settings.time_format;
     }
 
-    public readonly logo = toSignal(
-        this._org.active_building.pipe(
-            debounceTime(500),
-            map(
-                () =>
-                    (this._settings.theme === 'dark'
-                        ? this._settings.get('app.logo_dark')
-                        : this._settings.get('app.logo_light')) || {},
-            ),
-        ),
-        { initialValue: {} },
-    );
+    public readonly logo = computed(() => {
+        this._org.active_building();
+        return (
+            (this._settings.theme === 'dark'
+                ? this._settings.get('app.logo_dark')
+                : this._settings.get('app.logo_light')) || {}
+        );
+    });
 }

@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { Component, input, output, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { ApplicationIcon, AsyncHandler } from '@placeos/common';
 import { IconComponent } from './icon.component';
@@ -16,8 +16,8 @@ export interface PopoutAction extends ApplicationIcon {
                 icon
                 matRipple
                 class="small center absolute text-base shadow-sm"
-                [style.top]="show ? -110 * i - 60 + '%' : ''"
-                (click)="action.emit(item.id); show = false"
+                [style.top]="show() ? -110 * i - 60 + '%' : ''"
+                (click)="action.emit(item.id); show.set(false)"
             >
                 <icon [icon]="item"></icon>
             </button>
@@ -26,11 +26,11 @@ export interface PopoutAction extends ApplicationIcon {
             name="root"
             icon
             matRipple
-            [class.show]="show"
-            (click)="show = !show"
-            (window:click)="show ? close() : ''"
+            [class.show]="show()"
+            (click)="show.update((value) => !value)"
+            (window:click)="show() ? close() : ''"
         >
-            <icon>{{ show ? 'add' : 'more_vert' }}</icon>
+            <icon>{{ show() ? 'add' : 'more_vert' }}</icon>
         </button>
     `,
     styles: [
@@ -70,9 +70,9 @@ export class PopoutMenuComponent extends AsyncHandler {
     /** Emitter for user actions */
     public readonly action = output<string>();
     /** Whether actions should show */
-    public show: boolean;
+    public readonly show = signal(false);
 
     public close() {
-        this.timeout('close', () => (this.show = false));
+        this.timeout('close', () => this.show.set(false));
     }
 }

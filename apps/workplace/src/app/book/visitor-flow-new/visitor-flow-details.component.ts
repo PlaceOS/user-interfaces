@@ -1,4 +1,3 @@
-import { AsyncPipe } from '@angular/common';
 import {
     Component,
     computed,
@@ -7,8 +6,8 @@ import {
     OnInit,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
+import { FormField } from '@angular/forms/signals';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -26,6 +25,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
 import {
     DateFieldComponent,
     DurationFieldComponent,
+    HostSelectFieldComponent,
     TimeFieldComponent,
     UserSearchFieldComponent,
 } from '@placeos/form-fields';
@@ -105,8 +105,8 @@ type VisitorFormType = 'single' | 'group';
                     </button>
                 </div>
             }
-            <div class="mt-4" [formGroup]="form">
-                @if (buildings && (buildings | async)?.length > 1) {
+            <div class="mt-4">
+                @if (buildings()?.length > 1) {
                     <div class="flex flex-col">
                         <label for="building">
                             {{ 'RESOURCE.BUILDING' | translate }}<span>*</span>
@@ -121,7 +121,7 @@ type VisitorFormType = 'single' | 'group';
                                 name="building"
                                 placeholder="Select building"
                             >
-                                @for (bld of buildings | async; track bld) {
+                                @for (bld of buildings(); track bld) {
                                     <mat-option [value]="bld.id">
                                         {{ bld.display_name || bld.name }}
                                     </mat-option>
@@ -134,17 +134,19 @@ type VisitorFormType = 'single' | 'group';
                     <label for="date">
                         {{ 'FORM.DATE' | translate }}<span>*</span>
                     </label>
-                    <date-field name="date" formControlName="date"></date-field>
+                    <a-date-field
+                        [formField]="form.date"
+                    ></a-date-field>
                     @if (allow_all_day()) {
                         <mat-checkbox
-                            formControlName="all_day"
+                            [formField]="form.all_day"
                             class="absolute -top-2 right-2"
                         >
                             {{ 'COMMON.ALL_DAY' | translate }}
                         </mat-checkbox>
                     }
                 </div>
-                @if (!form_value().all_day) {
+                @if (!is_all_day()) {
                     <div
                         class="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2"
                     >
@@ -153,40 +155,52 @@ type VisitorFormType = 'single' | 'group';
                                 {{ 'FORM.TIME_START' | translate
                                 }}<span>*</span>
                             </label>
-                            <time-field
+                            <a-time-field
                                 name="time"
-                                [ngModel]="form_value().date"
+                                [ngModel]="model().date"
                                 (ngModelChange)="
-                                    form.patchValue({ date: $event })
+                                    model.update((m) => ({ ...m, date: $event }))
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                                 [disabled]="is_edit_in_progress()"
+                                [range]="effective_bookable_hours()"
                                 [use_24hr]="use_24hr()"
+                                [timezone]="timezone"
                             />
                         </div>
                         <div class="flex-1">
                             <label for="duration">
                                 {{ 'FORM.DURATION' | translate }}<span>*</span>
                             </label>
-                            <duration-field
-                                name="duration"
-                                formControlName="duration"
-                                [time]="form_value().date"
+                            <a-duration-field
+                                [formField]="form.duration"
+                                [time]="model().date"
                                 [max]="max_duration()"
+                                [end_time]="effective_bookable_hours()?.end"
                                 [use_24hr]="use_24hr()"
+                                [timezone]="timezone"
                             />
                         </div>
                     </div>
                 }
-                @if (can_book_for_others()) {
+                @if (can_book_for_anyone()) {
                     <div class="flex w-full flex-col">
                         <label for="host">
                             {{ 'FORM.HOST' | translate }}<span>*</span>
                         </label>
                         <a-user-search-field
-                            name="host"
-                            formControlName="user"
+                            class="mb-4"
+                            [formField]="form.user"
                         ></a-user-search-field>
+                    </div>
+                } @else if (can_book_for_others()) {
+                    <div class="flex w-full flex-col">
+                        <label for="host">
+                            {{ 'FORM.HOST' | translate }}<span>*</span>
+                        </label>
+                        <host-select-field
+                            [formField]="form.user"
+                        ></host-select-field>
                     </div>
                 }
                 <div class="flex flex-col">
@@ -195,9 +209,8 @@ type VisitorFormType = 'single' | 'group';
                     }}</label>
                     <mat-form-field appearance="outline" class="w-full">
                         <input
-                            name="reason"
                             matInput
-                            formControlName="title"
+                            [formField]="form.title"
                             [placeholder]="
                                 'BOOKINGS.VISITOR_REASON_PLACEHOLDER'
                                     | translate
@@ -210,7 +223,6 @@ type VisitorFormType = 'single' | 'group';
     `,
     styles: [``],
     imports: [
-        AsyncPipe,
         MatRippleModule,
         MatFormFieldModule,
         MatInputModule,
@@ -219,10 +231,11 @@ type VisitorFormType = 'single' | 'group';
         DurationFieldComponent,
         TimeFieldComponent,
         FormsModule,
-        ReactiveFormsModule,
+        FormField,
         TranslatePipe,
         IconComponent,
         UserSearchFieldComponent,
+        HostSelectFieldComponent,
         MatCheckboxModule,
     ],
 })
@@ -231,23 +244,13 @@ export class VisitorFlowDetailsComponent implements OnInit {
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
 
-    private _options = toSignal(this._booking_form.options, {
-        initialValue: { type: 'visitor' as const, group: false },
-    });
+    private _options = this._booking_form.options;
 
     private _sync_group = effect(() => {
         const is_group = this._options()?.group === true;
         if (is_group && this.active_form() !== 'group') {
             this.active_form.set('group');
         }
-    });
-    private _timing_fields_locked = false;
-    private _sync_timing_fields = effect(() => {
-        const should_disable = this.is_edit_in_progress();
-        if (this._timing_fields_locked === should_disable) return;
-        this._timing_fields_locked = should_disable;
-        const action = should_disable ? 'disable' : 'enable';
-        this.form.get('date')?.[action]({ emitEvent: false });
     });
 
     public readonly active_form = signal<VisitorFormType>('single');
@@ -256,22 +259,9 @@ export class VisitorFlowDetailsComponent implements OnInit {
         group: { icon: 'group', label: 'BOOKINGS.VISITOR_MULTIPLE' },
     });
 
-    public readonly form_value = toSignal(this.form.valueChanges, {
-        initialValue: this.form.value,
-    });
-    public readonly is_edit = computed(() => !!this.form_value()?.id);
-    public readonly is_edit_in_progress = computed(() => {
-        if (!this.is_edit()) return false;
-        const booking_date = Number(this.form_value()?.date || 0);
-        if (!booking_date) return false;
-        const duration = Number(this.form_value()?.duration || 0);
-        const end_date = this.form_value()?.all_day
-            ? addHours(booking_date, 24).valueOf()
-            : addMinutes(booking_date, duration).valueOf();
-        return Date.now() >= booking_date && Date.now() < end_date;
-    });
+    public readonly is_edit = computed(() => !!this.model()?.id);
     public readonly selected_building_id = computed(() => {
-        return this._resolveSelectedBuildingId(this.form_value()?.zones || []);
+        return this._resolveSelectedBuildingId(this.model()?.zones || []);
     });
 
     public readonly max_duration = computed(() =>
@@ -281,20 +271,59 @@ export class VisitorFlowDetailsComponent implements OnInit {
         ),
     );
 
+    public readonly bookable_hours = settingSignal<
+        { start: number; end: number } | undefined
+    >('visitors.bookable_hours', undefined);
+
+    private readonly _fallback_bookable_hours = settingSignal<
+        { start: number; end: number } | undefined
+    >('bookings.bookable_hours', undefined);
+
+    public readonly effective_bookable_hours = computed(
+        () => this.bookable_hours() ?? this._fallback_bookable_hours(),
+    );
+
     public readonly allow_all_day = settingSignal(
         'visitors.allow_all_day',
         false,
     );
-    public readonly can_book_for_others = settingSignal(
-        'bookings.can_book_for_others',
-        false,
+    public readonly is_all_day = computed(
+        () => this.allow_all_day() && !!this.model()?.all_day,
     );
+    public readonly is_edit_in_progress = computed(() => {
+        if (!this.is_edit()) return false;
+        const booking_date = Number(this.model()?.date || 0);
+        if (!booking_date) return false;
+        const duration = Number(this.model()?.duration || 0);
+        const end_date = this.is_all_day()
+            ? addHours(booking_date, 24).valueOf()
+            : addMinutes(booking_date, duration).valueOf();
+        return Date.now() >= booking_date && Date.now() < end_date;
+    });
+
+    public readonly can_book_for_others = computed(() => {
+        return (
+            settingSignal('visitors.can_book_for_others')() ??
+            settingSignal('bookings.can_book_for_others')()
+        );
+    });
+
+    public readonly can_book_for_anyone = computed(() => {
+        return (
+            settingSignal('visitors.can_book_for_anyone')() ??
+            settingSignal('bookings.can_book_for_anyone')()
+        );
+    });
 
     public readonly use_24hr = settingSignal('use_24_hour_time', false);
     public readonly buildings = this._org.active_buildings;
 
     public get form() {
         return this._booking_form.form;
+    }
+
+    public get model() {
+        return this._booking_form.model;
     }
 
     public get timezone() {
@@ -305,16 +334,21 @@ export class VisitorFlowDetailsComponent implements OnInit {
     }
 
     public ngOnInit() {
-        const value = this.form.getRawValue();
+        const value = this.model();
+        if (value.all_day && !this.allow_all_day()) {
+            this.model.update((m) => ({ ...m, all_day: false }));
+        }
         const has_assets = Array.isArray(value.assets) && value.assets.length;
         const is_group =
             !!value.asset_id &&
             (value.asset_id === 'multiple@place.tech' || has_assets > 1);
         this.active_form.set(is_group ? 'group' : 'single');
         this._booking_form.setOptions({ group: is_group });
-        const zones = this.form.value?.zones || [];
-        if (!this.form.value?.user_email) {
-            this.form.patchValue({ user: currentUser() });
+        const zones = this.model()?.zones || [];
+        if (!this.model().id)
+            this.model.update((m) => ({ ...m, title: 'Visit' }));
+        if (!this.model()?.user_email) {
+            this.model.update((m) => ({ ...m, user: currentUser() }));
         }
         if (!zones.length && this._org.building?.id) {
             const default_zones = [
@@ -322,7 +356,7 @@ export class VisitorFlowDetailsComponent implements OnInit {
                 this._org.region?.id,
                 this._org.building.id,
             ].filter((_) => _);
-            this.form.patchValue({ zones: default_zones });
+            this.model.update((m) => ({ ...m, zones: default_zones }));
             return;
         }
     }
@@ -331,14 +365,15 @@ export class VisitorFlowDetailsComponent implements OnInit {
         if (this.is_edit() || this.active_form() === form) return;
         this.active_form.set(form);
         this._booking_form.setOptions({ group: form === 'group' });
-        const value = this.form.getRawValue();
+        const value = this.model();
 
         if (form === 'single') {
             const [visitor] = (value.assets || []) as User[];
             const use_selected_visitor =
                 !!visitor?.email &&
                 (!value.asset_id || value.asset_id === 'multiple@place.tech');
-            this.form.patchValue({
+            this.model.update((m) => ({
+                ...m,
                 user: currentUser(),
                 assets: [],
                 asset_id: use_selected_visitor
@@ -355,7 +390,7 @@ export class VisitorFlowDetailsComponent implements OnInit {
                 phone: use_selected_visitor
                     ? visitor.phone || value.phone || ''
                     : value.phone || '',
-            });
+            }));
         } else {
             const assets = [...(value.assets || [])];
             if (value.asset_id && value.asset_id !== 'multiple@place.tech') {
@@ -373,17 +408,18 @@ export class VisitorFlowDetailsComponent implements OnInit {
                     !!item?.email &&
                     list.findIndex((_) => _.email === item.email) === index,
             );
-            this.form.patchValue({
+            this.model.update((m) => ({
+                ...m,
                 user: currentUser(),
                 asset_id: 'multiple@place.tech',
                 assets: unique_assets,
-            });
+            }));
         }
     }
 
     public setBuilding(building_id: string) {
         if (!building_id) {
-            this.form.patchValue({ zones: [] });
+            this.model.update((m) => ({ ...m, zones: [] }));
             return;
         }
         const building = this._org.find(building_id);
@@ -392,7 +428,7 @@ export class VisitorFlowDetailsComponent implements OnInit {
             building?.parent_id,
             building_id,
         ].filter((_) => _);
-        this.form.patchValue({ zones });
+        this.model.update((m) => ({ ...m, zones }));
     }
 
     private _resolveSelectedBuildingId(zone_list: string[]) {

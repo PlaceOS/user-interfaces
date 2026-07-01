@@ -6,7 +6,6 @@ import {
     resource,
     untracked,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { AsyncHandler, flatten, OrganisationService } from '@placeos/common';
 import { showMetadata } from '@placeos/ts-client';
 
@@ -26,9 +25,7 @@ export class ExplorePointOfInterestService extends AsyncHandler {
     private _explore = inject(ExploreStateService);
     private _dialog = inject(MatDialog);
 
-    private _building = toSignal(this._org.active_building, {
-        initialValue: null,
-    });
+    private _building = this._org.active_building;
 
     private _features = resource({
         params: () => this._building() || undefined,

@@ -1,5 +1,15 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, signal } from '@angular/core';
+import {
+    Component,
+    computed,
+    ElementRef,
+    inject,
+    OnInit,
+    QueryList,
+    resource,
+    signal,
+    ViewChildren,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import {
@@ -13,7 +23,9 @@ import { MatSelectModule } from '@angular/material/select';
 import { queryParkingSpaces } from '@placeos/assets';
 import {
     approveBooking,
+    findBookingClashes,
     queryBookings,
+    rejectOverlappingRecurringBookings,
     updateBooking,
 } from '@placeos/bookings';
 import {
@@ -21,9 +33,11 @@ import {
     Booking,
     BuildingLevel,
     i18n,
+    MapElementBounds,
     notifyError,
     notifySuccess,
     OrganisationService,
+    unique,
     ViewerFeature,
     ViewerStyles,
 } from '@placeos/common';
@@ -32,12 +46,43 @@ import {
     InteractiveMapComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
-import { ExploreParkingInfoComponent } from 'libs/explore/src/lib/explore-parking-info.component';
 import { PlaceAsset } from '@placeos/ts-client';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { BehaviorSubject, combineLatest, of } from 'rxjs';
-import { catchError, map, shareReplay, switchMap } from 'rxjs/operators';
+import { ExploreParkingInfoComponent } from 'libs/explore/src/lib/explore-parking-info.component';
+import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
+
+type BoundsMap = Record<string, MapElementBounds>;
+
+export function bookingZonesForLevel(
+    org: Pick<OrganisationService, 'organisation' | 'region'>,
+    level?: Pick<BuildingLevel, 'id' | 'parent_id'>,
+) {
+    return unique([
+        org.organisation?.id,
+        org.region?.id,
+        level?.parent_id,
+        level?.id,
+    ]).filter((_) => _);
+}
+
+export function mapLocationFromClick(e: any, map_info: BoundsMap = {}) {
+    const id = e?.properties?.externalId || e?.properties?.roomId || e?.id;
+    if (id) return id;
+    if (typeof e?.x !== 'number' || typeof e?.y !== 'number') return '';
+    const short_list: [string, number][] = [];
+    for (const [location, bbox] of Object.entries(map_info)) {
+        if (
+            bbox.x <= e.x &&
+            e.x <= bbox.x + bbox.w &&
+            bbox.y <= e.y &&
+            e.y <= bbox.y + bbox.h
+        ) {
+            short_list.push([location, bbox.h * bbox.w]);
+        }
+    }
+    short_list.sort((a, b) => a[1] - b[1]);
+    return short_list[0]?.[0] || '';
+}
 
 @Component({
     selector: 'parking-assign-space-modal',
@@ -55,16 +100,15 @@ import { catchError, map, shareReplay, switchMap } from 'rxjs/operators';
         <main
             class="flex h-[75vh] max-h-[75vh] max-w-[calc(100vw-2rem)] min-w-[80vw] space-x-2 overflow-hidden p-2 sm:max-w-5xl"
         >
-            <div
-                class="bg-base-200 relative h-full w-1/2 flex-1 rounded-lg"
-            >
+            <div class="bg-base-200 relative h-full w-1/2 flex-1 rounded-lg">
                 <interactive-map
-                    [src]="map_url | async"
-                    [styles]="map_styles | async"
-                    [features]="map_features | async"
+                    [src]="map_url()"
+                    [styles]="map_styles()"
+                    [features]="map_features()"
                     [actions]="map_actions"
                     [options]="{ controls: true }"
-                    [focus]="focus"
+                    [focus]="focus()"
+                    (mapInfo)="setMapInfo($any($event))"
                 ></interactive-map>
             </div>
             <div
@@ -77,10 +121,10 @@ import { catchError, map, shareReplay, switchMap } from 'rxjs/operators';
                     >
                         <mat-select
                             name="level"
-                            [ngModel]="selected_level | async"
+                            [ngModel]="selected_level()"
                             (ngModelChange)="selectLevel($event)"
                         >
-                            @for (lvl of levels; track lvl.id) {
+                            @for (lvl of levels(); track lvl.id) {
                                 <mat-option [value]="lvl">
                                     {{ lvl.display_name || lvl.name }}
                                 </mat-option>
@@ -94,22 +138,21 @@ import { catchError, map, shareReplay, switchMap } from 'rxjs/operators';
                     <div
                         class="bg-base-100 sticky top-0 z-10 w-full px-1 py-3 text-sm"
                     >
-                        {{ (available_spaces | async)?.length || 0 }}
+                        {{ available_spaces().length || 0 }}
                         {{
                             'APP.CONCIERGE.PARKING_TAB_SPACES'
                                 | translate
                                 | lowercase
                         }}
                     </div>
-                    @if ((available_spaces | async)?.length) {
-                        @for (
-                            space of available_spaces | async;
-                            track space.id
-                        ) {
+                    @if (available_spaces().length) {
+                        @for (space of available_spaces(); track space.id) {
                             <button
+                                #space_list_item
                                 btn
                                 matRipple
                                 class="clear hover:bg-base-200 flex w-full items-center rounded-sm text-left"
+                                [attr.data-space-id]="space.id"
                                 [class.bg-primary!]="
                                     space.id === selected_space()?.id
                                 "
@@ -186,17 +229,18 @@ export class ParkingAssignSpaceModalComponent
     private _data = inject<{ booking: Booking }>(MAT_DIALOG_DATA);
     private _dialog_ref = inject(MatDialogRef);
     private _org = inject(OrganisationService);
+    @ViewChildren('space_list_item')
+    private _space_list_items: QueryList<ElementRef<HTMLElement>>;
 
-    public levels: BuildingLevel[] = [];
-    public focus = '';
+    public readonly levels = signal<BuildingLevel[]>([]);
+    public readonly focus = signal('');
     public readonly selected_space = signal<PlaceAsset | null>(null);
     public readonly loading = signal(false);
-    public readonly selected_level = new BehaviorSubject<BuildingLevel | null>(
-        null,
-    );
+    public readonly selected_level = signal<BuildingLevel | null>(null);
+    public readonly map_info = signal<BoundsMap>({});
 
-    public readonly map_url = this.selected_level.pipe(
-        map((lvl) => lvl?.map_id || ''),
+    public readonly map_url = computed(
+        () => this.selected_level()?.map_id || '',
     );
 
     public readonly map_actions = [
@@ -207,143 +251,180 @@ export class ParkingAssignSpaceModalComponent
         },
     ];
 
-    /** Available spaces for the selected level, excluding those booked during the booking's time range */
-    public readonly available_spaces = this.selected_level.pipe(
-        switchMap((level) => {
-            if (!level) return of([] as PlaceAsset[]);
-            return combineLatest([
-                queryParkingSpaces(level.id).pipe(catchError(() => of([]))),
-                queryBookings({
-                    period_start: getUnixTime(
-                        startOfDay(this._data.booking.date),
-                    ),
-                    period_end: getUnixTime(endOfDay(this._data.booking.date)),
-                    type: 'parking',
-                    zones: level.id,
-                }).pipe(catchError(() => of([]))),
-            ]).pipe(
-                map(([spaces, bookings]) => {
-                    const booked_ids = new Set(
-                        bookings
-                            .filter(
-                                (b) =>
-                                    !b.asset_id?.startsWith('unallocated') &&
-                                    !b.rejected,
-                            )
-                            .map((b) => b.asset_id),
-                    );
-                    return spaces.filter(
-                        (s) => !booked_ids.has(s.id) && !s.assigned_to,
-                    );
-                }),
-            );
-        }),
-        shareReplay(1),
+    public readonly setMapInfo = (info: BoundsMap) => this.map_info.set(info);
+
+    private readonly _all_spaces_resource = resource({
+        params: () => this.selected_level(),
+        loader: ({ params: level }) =>
+            level
+                ? queryParkingSpaces(level.id).catch(() => [])
+                : Promise.resolve([]),
+    });
+    private readonly _all_spaces = computed(
+        () => this._all_spaces_resource.value() ?? [],
     );
+
+    private readonly _bookings_resource = resource({
+        params: () => this.selected_level(),
+        loader: ({ params: level }) =>
+            level
+                ? queryBookings({
+                      period_start: getUnixTime(
+                          startOfDay(this._data.booking.date),
+                      ),
+                      period_end: getUnixTime(endOfDay(this._data.booking.date)),
+                      type: 'parking',
+                      zones: level.id,
+                  }).catch(() => [] as Booking[])
+                : Promise.resolve([] as Booking[]),
+    });
+    private readonly _bookings = computed<Booking[]>(
+        () => this._bookings_resource.value() ?? [],
+    );
+
+    /**
+     * Asset ids that clash with the recurring booking series. For a recurring
+     * request a space can be free on the first instance but booked on a later
+     * one, so the single-day query above is not enough — ask the API which of
+     * the level's spaces clash across the whole series.
+     */
+    private readonly _recurring_clash_resource = resource({
+        params: () => {
+            const booking = this._data.booking;
+            const level = this.selected_level();
+            const spaces = this._all_spaces();
+            const is_recurring =
+                booking.recurrence_type &&
+                booking.recurrence_type !== 'none';
+            if (!level || !spaces.length || !is_recurring) return null;
+            return { level, space_ids: spaces.map((s) => s.id) };
+        },
+        loader: ({ params }) => {
+            if (!params) return Promise.resolve([] as string[]);
+            const booking = new Booking({
+                ...this._data.booking,
+                booking_type: 'parking',
+                zones: bookingZonesForLevel(this._org, params.level),
+                asset_ids: params.space_ids,
+            } as any);
+            return findBookingClashes(booking).catch(
+                () => [] as string[],
+            ) as Promise<string[]>;
+        },
+    });
+    private readonly _recurring_clash_ids = computed(
+        () => new Set(this._recurring_clash_resource.value() ?? []),
+    );
+
+    /** Available spaces for the selected level, excluding those booked during the booking's time range */
+    public readonly available_spaces = computed(() => {
+        const booked_ids = new Set(
+            this._bookings()
+                .filter(
+                    (booking) =>
+                        !booking.asset_id?.startsWith('unallocated') &&
+                        !booking.rejected,
+                )
+                .map((booking) => booking.asset_id),
+        );
+        const clash_ids = this._recurring_clash_ids();
+        return this._all_spaces().filter(
+            (space) =>
+                !booked_ids.has(space.id) &&
+                !clash_ids.has(space.id) &&
+                !space.assigned_to &&
+                space.bookable !== false,
+        );
+    });
 
     /** Map styles: green for available, amber for selected */
-    public readonly map_styles = combineLatest([
-        this.available_spaces,
-        this.selected_level.pipe(
-            switchMap((level) =>
-                level
-                    ? queryParkingSpaces(level.id).pipe(catchError(() => of([])))
-                    : of([]),
-            ),
-        ),
-    ]).pipe(
-        map(([available, all_spaces]) => {
-            const styles: ViewerStyles = {};
-            const available_ids = new Set(available.map((s) => s.id));
-            const selected = this.selected_space();
-            for (const space of all_spaces) {
-                const id = space.map_id || space.id;
-                if (selected && space.id === selected.id) {
-                    styles[`#${id}`] = {
-                        fill: DEFAULT_COLOURS['pending'],
-                        opacity: 0.6,
-                    };
-                } else if (available_ids.has(space.id)) {
-                    styles[`#${id}`] = {
-                        fill: DEFAULT_COLOURS['free'],
-                        opacity: 0.6,
-                    };
-                } else {
-                    styles[`#${id}`] = {
-                        fill: DEFAULT_COLOURS['busy'],
-                        opacity: 0.6,
-                    };
-                }
+    public readonly map_styles = computed(() => {
+        const styles: ViewerStyles = {};
+        const available_ids = new Set(this.available_spaces().map((s) => s.id));
+        const selected = this.selected_space();
+        for (const space of this._all_spaces()) {
+            const id = space.map_id || space.id;
+            if (selected && space.id === selected.id) {
+                styles[`#${id}`] = {
+                    fill: DEFAULT_COLOURS['pending'],
+                    opacity: 0.6,
+                };
+            } else if (available_ids.has(space.id)) {
+                styles[`#${id}`] = {
+                    fill: DEFAULT_COLOURS['free'],
+                    opacity: 0.6,
+                };
+            } else if (space.bookable === false) {
+                styles[`#${id}`] = {
+                    fill: DEFAULT_COLOURS['not-bookable'],
+                    opacity: 0.6,
+                };
+            } else {
+                styles[`#${id}`] = {
+                    fill: DEFAULT_COLOURS['busy'],
+                    opacity: 0.6,
+                };
             }
-            return styles;
-        }),
-    );
+        }
+        return styles;
+    });
 
     /** Map features: hover tooltips on spaces */
-    public readonly map_features = combineLatest([
-        this.available_spaces,
-        this.selected_level.pipe(
-            switchMap((level) =>
-                level
-                    ? queryParkingSpaces(level.id).pipe(catchError(() => of([])))
-                    : of([]),
-            ),
-        ),
-    ]).pipe(
-        map(([available, all_spaces]) => {
-            const features: ViewerFeature[] = [];
-            const available_ids = new Set(available.map((s) => s.id));
-            const selected = this.selected_space();
-            for (const space of all_spaces) {
-                const id = space.map_id || space.id;
-                const is_available = available_ids.has(space.id);
-                const is_selected = selected?.id === space.id;
-                features.push({
-                    location: `${id}`,
-                    content: ExploreParkingInfoComponent,
-                    z_index: 20,
-                    hover: true,
-                    data: {
-                        ...space,
-                        name: this.space_label(space),
-                        user: space.assigned_to || '',
-                        plate_number: '',
-                        status: is_selected
-                            ? 'reserved'
-                            : is_available
-                              ? 'free'
-                              : 'busy',
-                    },
-                });
-            }
-            return features;
-        }),
-    );
+    public readonly map_features = computed(() => {
+        const features: ViewerFeature[] = [];
+        const available_ids = new Set(this.available_spaces().map((s) => s.id));
+        const selected = this.selected_space();
+        for (const space of this._all_spaces()) {
+            const id = space.map_id || space.id;
+            const is_available = available_ids.has(space.id);
+            const is_selected = selected?.id === space.id;
+            features.push({
+                location: `${id}`,
+                content: ExploreParkingInfoComponent,
+                z_index: 20,
+                hover: true,
+                data: {
+                    ...space,
+                    name: this.space_label(space),
+                    user: space.assigned_to || '',
+                    plate_number: '',
+                    status: is_selected
+                        ? 'reserved'
+                        : space.bookable === false
+                          ? 'not-bookable'
+                          : is_available
+                            ? 'free'
+                            : 'busy',
+                },
+            });
+        }
+        return features;
+    });
 
     public ngOnInit() {
-        this.levels = this._org.levels.filter((_) =>
-            _.tags.includes('parking'),
+        this.levels.set(
+            this._org.levels.filter((_) => _.tags.includes('parking')),
         );
         const booking_zone = this._data.booking.zones?.find((z) =>
-            this.levels.some((l) => l.id === z),
+            this.levels().some((l) => l.id === z),
         );
         const initial_level = booking_zone
-            ? this.levels.find((l) => l.id === booking_zone)
-            : this.levels[0];
+            ? this.levels().find((l) => l.id === booking_zone)
+            : this.levels()[0];
         if (initial_level) {
-            this.selected_level.next(initial_level);
+            this.selected_level.set(initial_level);
         }
     }
 
     public selectLevel(level: BuildingLevel) {
-        this.selected_level.next(level);
+        this.selected_level.set(level);
         this.selected_space.set(null);
-        this.focus = '';
+        this.focus.set('');
     }
 
     public selectSpace(space: PlaceAsset) {
         this.selected_space.set(space);
-        this.focus = space.map_id || space.id;
+        this.focus.set(space.map_id || space.id);
         this._refreshStyles();
     }
 
@@ -357,22 +438,38 @@ export class ParkingAssignSpaceModalComponent
 
     public async confirmAssign() {
         const space = this.selected_space();
+        const level = this.selected_level();
         if (!space) return;
+        // Guard against assigning a space that clashes with the recurring
+        // series (e.g. selected before the clash check resolved).
+        if (!this.available_spaces().some((s) => s.id === space.id)) {
+            this.selected_space.set(null);
+            notifyError(i18n('APP.CONCIERGE.PARKING_ASSIGN_SPACE_CLASH'));
+            return;
+        }
         this.loading.set(true);
         try {
-            const asset_name = this.space_label(space);
+            const asset_name =
+                this.space_label(space) || space.name || space.id;
             await updateBooking(this._data.booking.id, {
                 asset_id: space.id,
                 asset_name,
+                zones: level
+                    ? bookingZonesForLevel(this._org, level)
+                    : this._data.booking.zones,
                 extension_data: {
                     ...this._data.booking.extension_data,
                     asset_name,
                 },
-            } as any).toPromise();
-            await approveBooking(this._data.booking.id).toPromise();
-            notifySuccess(
-                i18n('APP.CONCIERGE.PARKING_ASSIGN_SPACE_SUCCESS'),
-            );
+            } as any);
+            await approveBooking(this._data.booking.id);
+            // Reject the assignee's overlapping parking bookings over the next
+            // 4 weeks now that they have a recurring space assigned.
+            await rejectOverlappingRecurringBookings(
+                this._data.booking,
+                'parking',
+            ).catch(() => []);
+            notifySuccess(i18n('APP.CONCIERGE.PARKING_ASSIGN_SPACE_SUCCESS'));
             this._dialog_ref.close(true);
         } catch (e) {
             notifyError(
@@ -386,27 +483,42 @@ export class ParkingAssignSpaceModalComponent
 
     private _onMapClick(e: any) {
         this.timeout('map_click', async () => {
-            const id =
-                e?.properties?.externalId || e?.properties?.roomId || e?.id;
+            const id = mapLocationFromClick(e, this.map_info());
             if (!id) return;
-            const spaces =
-                (await this.available_spaces
-                    .pipe(map((_) => _))
-                    .toPromise()) || [];
-            const space = spaces.find(
+            const space = this.available_spaces().find(
                 (s) => s.id === id || s.map_id === id,
             );
             if (space) {
                 this.selectSpace(space);
+                this._scrollSelectedSpaceIntoView();
             }
         });
     }
 
+    private _scrollSelectedSpaceIntoView() {
+        const selected_id = this.selected_space()?.id;
+        if (!selected_id) return;
+        this.timeout(
+            'scroll_selected_space',
+            () => {
+                const item = this._space_list_items?.find(
+                    ({ nativeElement }) =>
+                        nativeElement.dataset.spaceId === selected_id,
+                );
+                item?.nativeElement.scrollIntoView({
+                    block: 'nearest',
+                    inline: 'nearest',
+                    behavior: 'smooth',
+                });
+            },
+            0,
+        );
+    }
+
     private _refreshStyles() {
-        // Trigger style recalculation by re-emitting the level
-        const current = this.selected_level.getValue();
-        if (current) {
-            this.selected_level.next({ ...current } as BuildingLevel);
+        const selected = this.selected_space();
+        if (selected) {
+            this.selected_space.set({ ...selected });
         }
     }
 }

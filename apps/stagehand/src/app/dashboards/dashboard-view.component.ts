@@ -1,5 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, signal } from '@angular/core';
+import {
+    Component,
+    inject,
+    OnInit,
+    signal,
+} from '@angular/core';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
@@ -87,16 +92,11 @@ export class DashboardViewComponent extends AsyncHandler implements OnInit {
     public readonly loading = signal(true);
 
     public ngOnInit() {
-        this.subscription(
-            'route.parms',
-            this._route.paramMap.subscribe((params) => {
-                if (params.has('id')) {
-                    this.setDashboard(params.get('id'));
-                    this.timeout('listen', () =>
-                        this._service.listenForDashboardAlerts(),
-                    );
-                }
-            }),
+        const id = this._route.snapshot.paramMap.get('id');
+        if (!id) return;
+        this.setDashboard(id);
+        this.timeout('listen', () =>
+            this._service.listenForDashboardAlerts(),
         );
     }
 }

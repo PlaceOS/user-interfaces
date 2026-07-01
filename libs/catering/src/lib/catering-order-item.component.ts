@@ -1,4 +1,4 @@
-import { Component, OnInit, input } from '@angular/core';
+import { Component, OnInit, computed, input, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { OrderCateringItem } from '@placeos/common';
 
@@ -22,12 +22,12 @@ const ACTIVE_ITEMS = new Set<string>();
                     icon
                     matRipple
                     class="text-dark-fade border-base-200 border-2 border-dashed p-2 text-xl"
-                    [class.bg-success]="active"
-                    [class.text-white]="active"
-                    [class.border-solid]="active"
+                    [class.bg-success]="active()"
+                    [class.text-white]="active()"
+                    [class.border-solid]="active()"
                     (click)="toggle()"
                 >
-                    <icon>{{ active ? 'done' : 'local_pizza' }}</icon>
+                    <icon>{{ active() ? 'done' : 'local_pizza' }}</icon>
                 </button>
             </div>
             <div
@@ -68,23 +68,23 @@ export class CateringOrderItemComponent implements OnInit {
     public readonly order_id = input<string>(undefined);
     public readonly item = input<OrderCateringItem>(undefined);
 
-    public active = false;
+    public readonly active = signal(false);
 
-    public get item_key() {
+    public readonly item_key = computed(() => {
         return `${this.order_id()}|${this.item()?.id}`;
-    }
+    });
 
     public ngOnInit() {
-        this.active = ACTIVE_ITEMS.has(this.item_key);
+        this.active.set(ACTIVE_ITEMS.has(this.item_key()));
     }
 
     public toggle() {
-        if (ACTIVE_ITEMS.has(this.item_key)) {
-            ACTIVE_ITEMS.delete(this.item_key);
-            this.active = false;
+        if (ACTIVE_ITEMS.has(this.item_key())) {
+            ACTIVE_ITEMS.delete(this.item_key());
+            this.active.set(false);
         } else {
-            ACTIVE_ITEMS.add(this.item_key);
-            this.active = true;
+            ACTIVE_ITEMS.add(this.item_key());
+            this.active.set(true);
         }
     }
 }

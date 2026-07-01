@@ -1,8 +1,8 @@
-import { Component, effect, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 
 import { MatMenuModule } from '@angular/material/menu';
+import { AsyncHandler } from '@placeos/common';
 import {
     BuildingPipe,
     IconComponent,
@@ -65,7 +65,7 @@ import { SurveyService } from './survey.service';
                         key: 'actions',
                         name: ' ',
                         content: action_template,
-                        size: '3.5rem',
+                        size: '3.25rem',
                         sortable: false,
                     },
                 ]"
@@ -89,11 +89,11 @@ import { SurveyService } from './survey.service';
             </div>
         </ng-template>
         <ng-template #action_template let-row="row">
-            <div class="mx-auto flex items-center space-x-2 p-1">
+            <div class="mx-auto flex items-center p-2">
                 <button
                     icon
+                    default
                     matRipple
-                    class="h-12 w-12 rounded-sm"
                     [matMenuTriggerFor]="actionsMenu"
                 >
                     <icon>more_vert</icon>
@@ -167,18 +167,21 @@ import { SurveyService } from './survey.service';
         BuildingPipe,
     ],
 })
-export class SurveyListingsComponent {
+export class SurveyListingsComponent extends AsyncHandler implements OnInit {
     private _route = inject(ActivatedRoute);
     private _survey = inject(SurveyService);
-    private readonly _params = toSignal(this._route.paramMap, {
-        initialValue: this._route.snapshot.paramMap,
-    });
-    private readonly _sync_building = effect(() => {
-        this._survey.setBuilding(this._params()?.get('id') || '');
-    });
 
     public readonly surveys = this._survey.building_surveys;
     public readonly building = this._survey.building;
+
+    public ngOnInit() {
+        this.subscription(
+            'params',
+            this._route.paramMap.subscribe((params) => {
+                this._survey.setBuilding(params.get('id') || '');
+            }),
+        );
+    }
 
     public async remove(survey: Survey) {
         await this._survey.removeSurvey(survey);

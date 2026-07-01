@@ -1,6 +1,5 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
@@ -9,6 +8,7 @@ import {
     getTimezoneOffsetInMinutes,
     getTimezoneOffsetString,
     i18n,
+    nextValueFrom,
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
@@ -26,9 +26,8 @@ import {
     startOfMinute,
     startOfWeek,
 } from 'date-fns';
-import { lastValueFrom } from 'rxjs';
 import { DateOptionsComponent } from '../ui/date-options.component';
-import { BookingUIOptions, EventsStateService } from './events-state.service';
+import { EventsStateService } from './events-state.service';
 import { RoomBookingSearchComponent } from './room-booking-search.component';
 import { isActiveRoomTimelineEvent } from './room-timeline.utilities';
 
@@ -56,7 +55,7 @@ import { isActiveRoomTimelineEvent } from './room-timeline.utilities';
             ></date-options>
             @if (this_week()) {
                 <div
-                    class="text-info absolute top-1/2 left-4 -translate-y-1/2 text-sm"
+                    class="text-info absolute top-1/2 left-10 -translate-y-1/2 text-sm"
                 >
                     {{ 'COMMON.WEEK_THIS' | translate }}
                 </div>
@@ -70,9 +69,9 @@ import { isActiveRoomTimelineEvent } from './room-timeline.utilities';
         <div timeline class="z-0 grid h-1/2 w-full flex-1 overflow-auto">
             <div
                 timezone
-                class="bg-base-100 sticky top-0 left-0 z-30 flex items-center justify-center"
+                class="bg-base-100 min-w-items-center sticky top-0 left-0 z-30 flex justify-center"
             >
-                <div class="text-xs opacity-30">
+                <div class="m-auto text-xs opacity-30">
                     {{ date() | date: 'zzzz' : tz }}
                 </div>
                 <div
@@ -127,7 +126,13 @@ import { isActiveRoomTimelineEvent } from './room-timeline.utilities';
                             <button
                                 matRipple
                                 class="hover:bg-base-200 flex w-full space-x-2 rounded-sm p-2 text-left"
-                                (click)="viewEvent(event, event.system?.id)"
+                                (click)="
+                                    viewEvent(
+                                        event,
+
+                                        event.system?.id
+                                    )
+                                "
                             >
                                 <div
                                     class="my-1.5 h-2 w-2 rounded-full"
@@ -186,7 +191,7 @@ import { isActiveRoomTimelineEvent } from './room-timeline.utilities';
             }
 
             [timeline] {
-                grid-template-columns: 4rem auto;
+                grid-template-columns: 5rem auto;
                 grid-template-rows: 3.5rem auto;
             }
         `,
@@ -208,19 +213,13 @@ export class RoomWeekBookingsTimelineComponent
     private _dialog = inject(MatDialog);
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
-    private _building = toSignal(this._org.active_building, {
-        initialValue: this._org.building,
-    });
-    private _filtered = toSignal(this._state.filtered, { initialValue: [] });
-    private _zones = toSignal(this._state.zones, { initialValue: [] });
+    private _building = this._org.active_building;
+    private _filtered = this._state.filtered;
+    private _zones = this._state.zones;
 
     public hours = Array.from({ length: 24 }, (_, i) => i);
-    public readonly ui_options = toSignal(this._state.options, {
-        initialValue: {} as BookingUIOptions,
-    });
-    public readonly date = toSignal(this._state.date, {
-        initialValue: this._state.getDate(),
-    });
+    public readonly ui_options = this._state.options;
+    public readonly date = this._state.date;
 
     public readonly remove = this._state.removeBooking;
 
@@ -390,7 +389,7 @@ export class RoomWeekBookingsTimelineComponent
                 const ref = this._dialog.open(SetupBreakdownModalComponent, {
                     data: event,
                 });
-                lastValueFrom(ref.afterClosed()).then((data) => {
+                nextValueFrom(ref.afterClosed()).then((data) => {
                     if (data) this._state.replace(data);
                 });
             }),

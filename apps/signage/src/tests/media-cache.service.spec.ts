@@ -286,7 +286,7 @@ describe('MediaCacheService', () => {
             configurable: true,
             value: fetch_spy,
         });
-        spectator.service['_file_cache_index'].next([
+        spectator.service['_file_cache_index'].set([
             {
                 id: 'missing-file',
                 url: '/stale.png',
@@ -345,7 +345,7 @@ describe('MediaCacheService', () => {
             configurable: true,
             value: fetch_spy,
         });
-        spectator.service['_file_cache_index'].next([
+        spectator.service['_file_cache_index'].set([
             {
                 id: 'blank-file',
                 url: '/blank.png',
@@ -422,7 +422,7 @@ describe('MediaCacheService', () => {
 
     it('should not start a duplicate download for media already loading', async () => {
         const on_change = new Subject<any>();
-        spectator.service['_file_cache_index'].next([
+        spectator.service['_file_cache_index'].set([
             {
                 id: 'loading-file',
                 url: '/loading.png',
@@ -559,7 +559,7 @@ describe('MediaCacheService', () => {
             owners: ['display-1'],
             file: make_file('stale-file'),
         });
-        spectator.service['_file_cache_index'].next([
+        spectator.service['_file_cache_index'].set([
             {
                 id: 'active-file',
                 url: '/active.png',
@@ -604,7 +604,7 @@ describe('MediaCacheService', () => {
             owners: ['nested-display'],
             file: make_file('nested-file'),
         });
-        spectator.service['_file_cache_index'].next([
+        spectator.service['_file_cache_index'].set([
             {
                 id: 'active-file',
                 url: '/active.png',
@@ -655,7 +655,7 @@ describe('MediaCacheService', () => {
             owners: ['nested-display'],
             file: make_file('nested-file'),
         });
-        spectator.service['_file_cache_index'].next([
+        spectator.service['_file_cache_index'].set([
             {
                 id: 'root-file',
                 url: '/root.png',

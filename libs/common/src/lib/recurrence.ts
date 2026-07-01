@@ -3,11 +3,14 @@ import {
     addMonths,
     addWeeks,
     addYears,
+    differenceInCalendarDays,
+    differenceInCalendarMonths,
     endOfDay,
     endOfMonth,
     endOfWeek,
     format,
     getUnixTime,
+    isSameDay,
 } from 'date-fns';
 import { RecurrenceDetails } from './formatting';
 
@@ -244,6 +247,51 @@ export function recurrenceEndDate(
     return endOfDay(addMonths(first_instance, interval * instances)).valueOf();
 }
 
+/**
+ * Whether a given date falls on an instance of a recurrence pattern. Compares
+ * at day granularity (time-of-day is ignored — check times separately).
+ * @param recurrence Recurrence pattern
+ * @param start_date Series start (ms epoch)
+ * @param candidate Date to test (ms epoch)
+ */
+export function isRecurrenceInstanceDate(
+    recurrence: Recurrence,
+    start_date: number,
+    candidate: number,
+): boolean {
+    if (!recurrence || recurrence.type === 'none') {
+        return isSameDay(start_date, candidate);
+    }
+    const interval = Math.max(recurrence.interval, 1);
+    const first = firstRecurrenceInstance(recurrence, start_date);
+    if (differenceInCalendarDays(candidate, first) < 0) return false;
+    if (recurrence.end_date && candidate > recurrence.end_date) return false;
+    if (recurrence.type === 'daily') {
+        return differenceInCalendarDays(candidate, first) % interval === 0;
+    }
+    if (recurrence.type === 'weekly') {
+        return isWeeklyInstance(
+            candidate,
+            start_date,
+            interval,
+            recurrence.weekdays,
+        );
+    }
+    if (
+        recurrence.type === 'monthly' &&
+        recurrence.monthly_type === 'day_of_week' &&
+        recurrence.weekdays?.size
+    ) {
+        const day = validWeekdays(recurrence.weekdays)[0];
+        const week = recurrence.week || weekOfMonth(candidate);
+        const instance = monthlyWeekdayStart(candidate, week, day);
+        if (!isSameDay(instance, candidate)) return false;
+        const months = differenceInCalendarMonths(candidate, first);
+        return months >= 0 && months % interval === 0;
+    }
+    return isSameDay(first, candidate);
+}
+
 export interface BookingRecurrence {
     /** Type of recurrence instance */
     recurrence_type: 'none' | 'daily' | 'weekly' | 'monthly';
@@ -355,7 +403,7 @@ export function toEventRecurrence(
         details.days_of_week = Array.from(r.weekdays);
         if (r.type === 'monthly') {
             details.pattern = 'monthly';
-            details.nth_of_month = r.week;
+            if (r.week) details.nth_of_month = r.week;
         }
     } else if (r.type === 'monthly') {
         details.days_of_week = [];

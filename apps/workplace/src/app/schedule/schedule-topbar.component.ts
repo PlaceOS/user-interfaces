@@ -1,7 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, model } from '@angular/core';
+import { Component, computed, inject, model } from '@angular/core';
+import { MatMenuModule } from '@angular/material/menu';
 import { RouterModule } from '@angular/router';
+import { SettingsService } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
+import { DateRangeCalendarComponent } from '@placeos/form-fields';
 import { addDays, isSameDay, subDays } from 'date-fns';
 
 @Component({
@@ -36,6 +39,39 @@ import { addDays, isSameDay, subDays } from 'date-fns';
                     >
                         <icon class="text-2xl">keyboard_arrow_right</icon>
                     </button>
+                } @else {
+                    <button
+                        btn
+                        matRipple
+                        class="inverse min-h-11 min-w-11 p-0 sm:hidden"
+                        [matMenuTriggerFor]="date_range_menu"
+                    >
+                        <icon class="text-2xl">calendar_month</icon>
+                    </button>
+                    <mat-menu
+                        #date_range_menu="matMenu"
+                        class="schedule-date-menu"
+                    >
+                        <div
+                            (click)="$event.stopPropagation()"
+                            class="w-72 space-y-2 p-2"
+                        >
+                            <date-range-calendar
+                                [from]="null"
+                                [start]="date()?.valueOf()"
+                                [end]="end_date()?.valueOf()"
+                                [offset_weekday]="offset_weekday"
+                                (startChange)="setStartDate($event)"
+                                (endChange)="end_date.set($event)"
+                            ></date-range-calendar>
+                            <div
+                                class="bg-info text-info-content rounded p-2 text-center text-xs"
+                            >
+                                Pick a date range selecting the start then end
+                                date.
+                            </div>
+                        </div>
+                    </mat-menu>
                 }
                 @if (has_date_range()) {
                     <div>
@@ -91,13 +127,40 @@ import { addDays, isSameDay, subDays } from 'date-fns';
             </div>
         </div>
     `,
-    styles: [``],
-    imports: [CommonModule, TranslatePipe, IconComponent, RouterModule],
+    styles: [
+        `
+            ::ng-deep .schedule-date-menu.mat-mdc-menu-panel {
+                max-width: none;
+            }
+            ::ng-deep .schedule-date-menu .mat-mdc-menu-content {
+                padding: 0;
+                overflow: hidden;
+            }
+        `,
+    ],
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        IconComponent,
+        RouterModule,
+        MatMenuModule,
+        DateRangeCalendarComponent,
+    ],
 })
 export class ScheduleTopbarComponent {
+    private _settings = inject(SettingsService);
     public readonly view = model<'day' | 'week' | 'list'>('list');
     public readonly date = model(Date.now());
     public readonly end_date = model<number | null>(null);
+
+    public get offset_weekday() {
+        return this._settings.get('app.week_start') || 0;
+    }
+
+    public readonly setStartDate = (d: number) => {
+        this.date.set(d);
+        this.end_date.set(null);
+    };
 
     public readonly has_date_range = computed(() => {
         const end = this.end_date();

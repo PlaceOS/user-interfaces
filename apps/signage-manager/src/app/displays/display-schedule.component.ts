@@ -1,6 +1,5 @@
 import { DatePipe } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
@@ -26,7 +25,9 @@ import { SignageService } from '../signage.service';
                     matRipple
                     [matTooltip]="'SIGNAGE_MANAGER.PREV_WEEK' | translate"
                     (click)="previousWeek()"
-                    [attr.aria-label]="'SIGNAGE_MANAGER.PREV_WEEK_ARIA' | translate"
+                    [attr.aria-label]="
+                        'SIGNAGE_MANAGER.PREV_WEEK_ARIA' | translate
+                    "
                 >
                     <icon>chevron_left</icon>
                 </button>
@@ -36,7 +37,9 @@ import { SignageService } from '../signage.service';
                     matRipple
                     [matTooltip]="'COMMON.WEEK_THIS' | translate"
                     (click)="goToToday()"
-                    [attr.aria-label]="'SIGNAGE_MANAGER.THIS_WEEK_ARIA' | translate"
+                    [attr.aria-label]="
+                        'SIGNAGE_MANAGER.THIS_WEEK_ARIA' | translate
+                    "
                 >
                     <icon>today</icon>
                 </button>
@@ -49,7 +52,9 @@ import { SignageService } from '../signage.service';
                     matRipple
                     [matTooltip]="'SIGNAGE_MANAGER.NEXT_WEEK' | translate"
                     (click)="nextWeek()"
-                    [attr.aria-label]="'SIGNAGE_MANAGER.NEXT_WEEK_ARIA' | translate"
+                    [attr.aria-label]="
+                        'SIGNAGE_MANAGER.NEXT_WEEK_ARIA' | translate
+                    "
                 >
                     <icon>chevron_right</icon>
                 </button>
@@ -139,6 +144,10 @@ import { SignageService } from '../signage.service';
                                                 <div class="min-w-0 flex-1">
                                                     <div
                                                         class="truncate text-[13px] leading-tight font-medium"
+                                                        [class.line-through]="
+                                                            !block.playlist
+                                                                .enabled
+                                                        "
                                                     >
                                                         {{
                                                             block.playlist.name
@@ -187,6 +196,10 @@ import { SignageService } from '../signage.service';
                                                 <div class="min-w-0 flex-1">
                                                     <div
                                                         class="truncate text-[13px] leading-tight"
+                                                        [class.line-through]="
+                                                            !block.playlist
+                                                                .enabled
+                                                        "
                                                     >
                                                         {{
                                                             block.playlist.name
@@ -262,9 +275,7 @@ export class DisplayScheduleComponent {
     private readonly _service = inject(SignageService);
 
     public readonly selected_display = this._service.selected_display;
-    private readonly _playlists = toSignal(this._service.playlists, {
-        initialValue: [],
-    });
+    private readonly _playlists = this._service.playlists;
 
     public readonly week_offset = signal(0);
 

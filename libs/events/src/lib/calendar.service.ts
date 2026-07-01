@@ -1,7 +1,5 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { addMinutes, endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { BehaviorSubject } from 'rxjs';
-import { first, shareReplay, tap } from 'rxjs/operators';
 
 import {
     AsyncHandler,
@@ -24,13 +22,11 @@ export class CalendarService extends AsyncHandler {
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
 
-    private readonly _calendars = new BehaviorSubject<Calendar[]>([]);
+    private readonly _calendars = signal<Calendar[]>([]);
+    private _calendars_request: Promise<void> = null;
 
-    /** Observable for the list of calendars */
-    public readonly calendar_list = queryCalendars().pipe(
-        tap((l) => this._calendars.next(l)),
-        shareReplay(1),
-    );
+    /** Signal for the list of calendars */
+    public readonly calendar_list = this._calendars.asReadonly();
 
     /* istanbul ignore next */
     public readonly query = () => queryCalendars();
@@ -43,9 +39,7 @@ export class CalendarService extends AsyncHandler {
 
     constructor() {
         super();
-        this._org.initialised
-            .pipe(first((_) => _))
-            .subscribe(() => this.init());
+        this._waitForOrg();
     }
 
     public async init() {
@@ -54,7 +48,7 @@ export class CalendarService extends AsyncHandler {
     }
 
     public get calendars(): Calendar[] {
-        return this._calendars.getValue();
+        return this._calendars();
     }
 
     /** Get Free busy for the selected day
@@ -83,7 +77,7 @@ export class CalendarService extends AsyncHandler {
             period_start,
             period_end,
             system_ids: system_ids.join(','),
-        }).toPromise();
+        });
         const start = new Date(old_booking?.date).valueOf();
         const end = addMinutes(start, old_booking?.duration).valueOf();
         const available = result.every((i) => {
@@ -102,5 +96,23 @@ export class CalendarService extends AsyncHandler {
             return !availability.length;
         });
         return !!available;
+    }
+
+    public async loadCalendars() {
+        if (this._calendars().length) return;
+        this._calendars_request =
+            this._calendars_request ||
+            queryCalendars()
+                .then((list) => this._calendars.set(list))
+                .finally(() => (this._calendars_request = null));
+        await this._calendars_request;
+    }
+
+    private _waitForOrg() {
+        const check = () => {
+            if (this._org.initialised()) return this.init();
+            this.timeout('init', check, 100);
+        };
+        check();
     }
 }

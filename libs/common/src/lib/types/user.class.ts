@@ -282,3 +282,14 @@ export class StaffUser extends User {
         this.work_overrides = data.work_overrides || ({} as any);
     }
 }
+
+/** Placeholder user used before the current user has loaded */
+export const EMPTY_USER = {
+    name: '<empty>',
+    email: '<empty>@app.user',
+} as StaffUser;
+
+/** Whether the given user is the empty/unloaded placeholder user */
+export function isEmptyUser(user?: Partial<StaffUser>): boolean {
+    return !user || !user.email || user.email === EMPTY_USER.email;
+}

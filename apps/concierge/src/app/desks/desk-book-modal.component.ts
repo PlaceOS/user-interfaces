@@ -4,7 +4,6 @@ import { BookingFormService } from '@placeos/bookings';
 import {
     DialogEvent,
     i18n,
-    nextValueFrom,
     notifyError,
     notifySuccess,
     SettingsService,
@@ -21,7 +20,7 @@ import { NewDeskFormDetailsComponent } from 'apps/workplace/src/app/book/desk-fl
     template: `
         <fullscreen-modal-shell
             [heading]="
-                (form.value.id
+                (model().id
                     ? 'APP.CONCIERGE.DESKS_BOOK_EDIT'
                     : 'APP.CONCIERGE.DESKS_BOOK_NEW'
                 ) | translate
@@ -33,7 +32,7 @@ import { NewDeskFormDetailsComponent } from 'apps/workplace/src/app/book/desk-fl
             "
             (confirm)="save()"
         >
-            <desk-form-details [form]="form" />
+            <desk-form-details [form]="form" [model_input]="model" />
         </fullscreen-modal-shell>
     `,
     styles: [``],
@@ -56,26 +55,32 @@ export class DeskBookModalComponent implements OnInit {
         return this._booking_form.form;
     }
 
+    public get model() {
+        return this._booking_form.model;
+    }
+
     public ngOnInit() {
         this._booking_form.newForm('desk');
-        if (!this.form.value.id) {
-            this.form.patchValue({
+        if (!this.model().id) {
+            this.model.update((m) => ({
+                ...m,
                 duration:
                     this._settings.get('app.desks.default_duration') || 60,
                 all_day: !!(
                     this._settings.get('app.desks.all_day_default') ??
                     this._settings.get('app.bookings.all_day_default')
                 ),
-            });
+            }));
             this._booking_form.applyDurationSettings();
         }
     }
 
     public async save() {
         this.loading.set(true);
-        this.form.patchValue({ booking_type: 'desk' });
+        this.model.update((m) => ({ ...m, booking_type: 'desk' }));
+        const is_group = !!this._booking_form.options()?.group;
         let method = () => this._booking_form.postForm();
-        if ((await nextValueFrom(this._booking_form.options))?.group) {
+        if (is_group) {
             method = () => this._booking_form.postFormForGroup();
         }
         const event = await method().catch((_) => {

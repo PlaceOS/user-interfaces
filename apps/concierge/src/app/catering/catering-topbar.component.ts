@@ -1,6 +1,5 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, effect, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { first, map } from 'rxjs/operators';
 
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
@@ -15,7 +14,6 @@ import {
 } from '@placeos/catering';
 import {
     AsyncHandler,
-    nextValueFrom,
     notifySuccess,
     OrganisationService,
     SettingsService,
@@ -26,7 +24,6 @@ import {
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { combineLatest } from 'rxjs';
 import { DateOptionsComponent } from '../ui/date-options.component';
 import { SearchbarComponent } from '../ui/searchbar.component';
 
@@ -249,10 +246,18 @@ export class CateringTopbarComponent extends AsyncHandler implements OnInit {
 
     constructor() {
         super();
+        effect(() => {
+            const bld = this._org.active_building();
+            const region = this._org.active_region();
+            const levels = this._settings.get('app.use_region')
+                ? this._org.levelsForRegion?.(region)
+                : this._org.levelsForBuilding?.(bld);
+            this.levels.set(levels || []);
+        });
     }
 
     public async ngOnInit() {
-        await this._org.initialised.pipe(first((_) => _)).toPromise();
+        await this._org.waitUntilInitialised();
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
@@ -275,44 +280,8 @@ export class CateringTopbarComponent extends AsyncHandler implements OnInit {
                 this.page.set(params?.get('view') || '');
             }),
         );
-        if (this._orders.order_filters?.subscribe) {
-            this.subscription(
-                'filters',
-                this._orders.order_filters.subscribe((filters) => {
-                    this.filters.set(filters || {});
-                }),
-            );
-        }
-        if (this._catering.caterers?.subscribe) {
-            this.subscription(
-                'caterers',
-                this._catering.caterers.subscribe((caterers) => {
-                    this.caterers.set(caterers || []);
-                }),
-            );
-        }
-        if (
-            this._org.active_building?.subscribe &&
-            this._org.active_region?.subscribe
-        ) {
-            this.subscription(
-                'levels',
-                combineLatest([
-                    this._org.active_building,
-                    this._org.active_region,
-                ])
-                    .pipe(
-                        map(([bld, region]) =>
-                            this._settings.get('app.use_region')
-                                ? this._org.levelsForRegion?.(region)
-                                : this._org.levelsForBuilding?.(bld),
-                        ),
-                    )
-                    .subscribe((levels) => {
-                        this.levels.set(levels || []);
-                    }),
-            );
-        }
+        this.filters.set(this._orders.order_filters() || {});
+        this.caterers.set(this._catering.caterers() || []);
         this._catering.zone =
             (this.filters()?.zones || [])[0] || this._org.building?.id;
     }
@@ -321,9 +290,7 @@ export class CateringTopbarComponent extends AsyncHandler implements OnInit {
         const ref = this._dialog.open(AvailableRoomsStateModalComponent, {
             data: {
                 type: 'Catering',
-                disabled_rooms: await nextValueFrom(
-                    this._catering.availability,
-                ),
+                disabled_rooms: this._catering.availability(),
             },
         });
         this.subscription(

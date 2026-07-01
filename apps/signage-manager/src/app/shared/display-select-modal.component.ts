@@ -1,5 +1,4 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -40,7 +39,9 @@ import { SignageService } from '../signage.service';
                     matInput
                     [ngModel]="search()"
                     (ngModelChange)="search.set($event)"
-                    [placeholder]="'SIGNAGE_MANAGER.SEARCH_DISPLAYS' | translate"
+                    [placeholder]="
+                        'SIGNAGE_MANAGER.SEARCH_DISPLAYS' | translate
+                    "
                     [attr.aria-label]="
                         'SIGNAGE_MANAGER.SEARCH_DISPLAYS' | translate
                     "
@@ -97,9 +98,7 @@ export class DisplaySelectModalComponent {
     private readonly _data: { zone_id: string } = inject(MAT_DIALOG_DATA);
     private readonly _service = inject(SignageService);
 
-    private readonly _displays = toSignal(this._service.displays, {
-        initialValue: [],
-    });
+    private readonly _displays = this._service.displays;
 
     public readonly search = signal('');
 

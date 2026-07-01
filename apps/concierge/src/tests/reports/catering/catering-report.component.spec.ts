@@ -11,7 +11,7 @@ import { CateringReportOverallComponent } from 'apps/concierge/src/app/reports/c
 import { CateringReportComponent } from 'apps/concierge/src/app/reports/catering/catering-report.component';
 import { ReportsOptionsComponent } from 'apps/concierge/src/app/reports/reports-options.component';
 import { ReportsStateService } from 'apps/concierge/src/app/reports/reports-state.service';
-import { BehaviorSubject } from 'rxjs';
+import { signal } from '@angular/core';
 
 describe('CateringReportComponent', () => {
     let spectator: SpectatorRouting<CateringReportComponent>;
@@ -26,8 +26,8 @@ describe('CateringReportComponent', () => {
         ],
         providers: [
             MockProvider(ReportsStateService, {
-                stats: new BehaviorSubject({ count: 0 }),
-                loading: new BehaviorSubject(true),
+                stats: signal({ count: 0 }),
+                loading: signal(true),
                 setOptions: jest.fn(),
             } as any),
             MockProvider(Router, {}),

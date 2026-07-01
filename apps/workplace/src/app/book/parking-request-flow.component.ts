@@ -10,7 +10,7 @@ import { ParkingRequestSuccessComponent } from './parking-request-flow/parking-r
 @Component({
     selector: 'placeos-parking-request-flow',
     template: `
-        @if (is_home_location | async) {
+        @if (is_home_location()) {
             <div
                 class="bg-base-100 z-50 flex h-full w-full flex-col items-center justify-center space-y-4"
             >
@@ -62,10 +62,11 @@ export class ParkingRequestFlowComponent
     public readonly view = this._state.view;
 
     public ngOnInit() {
-        this._state.loadForm();
+        this._parking.loadBookings();
+        this._state.loadForm('parking');
         this._state.setOptions({ type: 'parking' });
-        if (!this._state.form.value.id) this._state.newForm('parking');
-        this._state.form.patchValue({ booking_type: 'parking' });
+        if (!this._state.model().id) this._state.newForm('parking');
+        this._state.model.update((m) => ({ ...m, booking_type: 'parking' }));
         this.subscription(
             'route.params',
             this._route.paramMap.subscribe((param) => {

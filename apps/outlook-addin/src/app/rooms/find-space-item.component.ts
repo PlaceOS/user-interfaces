@@ -1,4 +1,10 @@
-import { Component, computed, inject, input, output } from '@angular/core';
+import {
+    Component,
+    computed,
+    inject,
+    input,
+    output,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { OrganisationService, Space } from '@placeos/common';
 import { IconComponent } from '@placeos/components';

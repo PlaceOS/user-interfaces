@@ -1,5 +1,10 @@
-import { Component, ViewEncapsulation, computed, inject } from '@angular/core';
-import { SettingsService } from '@placeos/common';
+import {
+    Component,
+    ViewEncapsulation,
+    computed,
+    inject,
+} from '@angular/core';
+import { Desk, SettingsService } from '@placeos/common';
 import { DesksStateService } from './desks-state.service';
 
 import { MatRippleModule } from '@angular/material/core';
@@ -122,7 +127,7 @@ export class DeskQrCodeModalComponent {
     public readonly desks = computed(() =>
         this._state.desks().map((_) => {
             this.loadQrCode(_);
-            return _;
+            return _ as Desk & { qr_link: string; qr_code: string };
         }),
     );
 

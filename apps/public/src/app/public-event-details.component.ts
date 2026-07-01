@@ -1,4 +1,10 @@
-import { Component, computed, input, output } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    input,
+    output,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
     eventDescription,
@@ -75,6 +81,7 @@ import { PublicEvent } from './public-events.service';
             }
         </section>
     `,
+    changeDetection: ChangeDetectionStrategy.Eager,
     styles: [
         `
             :host ::ng-deep .event-description p {

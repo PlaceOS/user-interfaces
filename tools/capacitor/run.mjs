@@ -303,7 +303,7 @@ function generateAssets(app_name, platform) {
     } else {
         args.push('--ios');
     }
-    runCommand('npx', args, app_root);
+    runCommand('bunx', args, app_root);
 }
 
 function buildAndroid(app_name) {
@@ -542,7 +542,7 @@ function getIosBuildArgs(ios_root) {
 
 function runCapacitor(app_name, cap_args) {
     const app_root = getAppRoot(app_name);
-    runCommand('npx', ['cap', ...cap_args], app_root);
+    runCommand('bunx', ['cap', ...cap_args], app_root);
 }
 
 function runCommand(command, args, cwd) {

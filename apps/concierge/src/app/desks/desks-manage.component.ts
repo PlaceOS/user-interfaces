@@ -1,6 +1,12 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 
-import { Component, computed, ElementRef, inject, signal } from '@angular/core';
+import {
+    Component,
+    computed,
+    ElementRef,
+    inject,
+    signal,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -64,6 +70,11 @@ const QR_CODES = {};
                     {
                         key: 'features',
                         name: 'COMMON.FEATURES' | translate,
+                        content: item_list_template,
+                    },
+                    {
+                        key: 'tags',
+                        name: 'COMMON.TAGS' | translate,
                         content: item_list_template,
                     },
                     {
@@ -153,6 +164,7 @@ const QR_CODES = {};
                 <div class="flex items-center justify-end space-x-2 p-2">
                     <button
                         icon
+                        default
                         matRipple
                         customTooltip
                         [content]="qr_menu"
@@ -165,6 +177,7 @@ const QR_CODES = {};
                     </button>
                     <button
                         icon
+                        default
                         matRipple
                         [matTooltip]="
                             'APP.CONCIERGE.DESKS_ACTION_EDIT' | translate
@@ -175,13 +188,15 @@ const QR_CODES = {};
                     </button>
                     <button
                         icon
+                        default
+                        error
                         matRipple
                         [matTooltip]="
                             'APP.CONCIERGE.DESKS_ACTION_REMOVE' | translate
                         "
                         (click)="removeDesk(row)"
                     >
-                        <icon class="text-error">delete</icon>
+                        <icon>delete</icon>
                     </button>
                     <ng-template #qr_menu>
                         <div class="bg-base-100 rounded-sm py-2 shadow-sm">

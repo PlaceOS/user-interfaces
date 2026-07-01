@@ -7,7 +7,6 @@ import {
     signal,
     untracked,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -16,7 +15,6 @@ import { RouterLink } from '@angular/router';
 import { OrganisationService } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { PlaceZone } from '@placeos/ts-client';
-import { lastValueFrom } from 'rxjs';
 import { SignageService } from '../signage.service';
 
 interface ZoneTreeNode {
@@ -43,7 +41,9 @@ interface FlatZoneTreeNode extends ZoneTreeNode {
                 >
                     <input
                         matInput
-                        [placeholder]="'SIGNAGE_MANAGER.SEARCH_ZONES' | translate"
+                        [placeholder]="
+                            'SIGNAGE_MANAGER.SEARCH_ZONES' | translate
+                        "
                         [ngModel]="search()"
                         (ngModelChange)="search.set($event)"
                         [attr.aria-label]="
@@ -71,7 +71,11 @@ interface FlatZoneTreeNode extends ZoneTreeNode {
                             [attr.aria-label]="
                                 'SIGNAGE_MANAGER.OPEN_ZONE'
                                     | translate
-                                        : { name: zone.display_name || zone.name }
+                                        : {
+                                              name:
+                                                  zone.display_name ||
+                                                  zone.name,
+                                          }
                             "
                             (click)="selectZone(zone)"
                         >
@@ -266,15 +270,9 @@ export class ZoneListComponent {
     private readonly _org = inject(OrganisationService);
     private readonly _service = inject(SignageService);
 
-    private readonly _org_initialised = toSignal(this._org.initialised, {
-        initialValue: false,
-    });
-    private readonly _all_zones = toSignal(this._service.all_zones, {
-        initialValue: [] as PlaceZone[],
-    });
-    private readonly _root_zones = toSignal(this._service.root_zones, {
-        initialValue: [] as PlaceZone[],
-    });
+    private readonly _org_initialised = this._org.initialised;
+    private readonly _all_zones = this._service.all_zones;
+    private readonly _root_zones = this._service.root_zones;
     private readonly _children_cache = this._service.zone_tree_children_cache;
 
     public readonly search = this._service.zone_search_term;
@@ -416,9 +414,9 @@ export class ZoneListComponent {
             this.applyLoadedChildren(zone_id, cached_children);
             return;
         }
-        const children = await lastValueFrom(
-            this._service.zoneChildren(zone_id),
-        ).catch(() => this.children_lookup()[zone_id] || []);
+        const children = await this._service
+            .zoneChildren(zone_id)
+            .catch(() => this.children_lookup()[zone_id] || []);
         this.cacheChildren(zone_id, children);
         this.applyLoadedChildren(zone_id, children);
     }

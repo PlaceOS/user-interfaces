@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { OrganisationService } from '@placeos/common';
 import { MockComponent } from 'ng-mocks';
@@ -13,7 +14,7 @@ describe('PointsTopbarComponent', () => {
             {
                 provide: OrganisationService,
                 useValue: {
-                    initialised: of(true),
+                    initialised: signal(true),
                 },
             },
         ],

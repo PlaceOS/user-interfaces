@@ -1,15 +1,13 @@
 import { Component, inject, signal } from '@angular/core';
-import {
-    FormControl,
-    FormGroup,
-    ReactiveFormsModule,
-    Validators,
-} from '@angular/forms';
+import { form, FormField, required, submit } from '@angular/forms/signals';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { FullscreenModalShellComponent , TranslatePipe } from '@placeos/components';
+import {
+    FullscreenModalShellComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { PlaceGroup } from '@placeos/ts-client';
 import { SignageService } from '../signage.service';
 
@@ -28,7 +26,7 @@ import { SignageService } from '../signage.service';
             "
             (confirm)="save()"
         >
-            <form [formGroup]="form" class="flex flex-col">
+            <form class="flex flex-col">
                 <label for="signage-group-name"
                     >{{ 'FORM.NAME' | translate }}<span required>*</span></label
                 >
@@ -36,21 +34,22 @@ import { SignageService } from '../signage.service';
                     <input
                         matInput
                         id="signage-group-name"
-                        name="signage-group-name"
                         [placeholder]="'FORM.NAME' | translate"
-                        formControlName="name"
-                        required
+                        [formField]="form.name"
                     />
-                    <mat-error>{{ 'SIGNAGE_MANAGER.NAME_REQUIRED' | translate }}</mat-error>
+                    <mat-error>{{
+                        'SIGNAGE_MANAGER.NAME_REQUIRED' | translate
+                    }}</mat-error>
                 </mat-form-field>
-                <label for="signage-group-description">{{ 'COMMON.DESCRIPTION' | translate }}</label>
+                <label for="signage-group-description">{{
+                    'COMMON.DESCRIPTION' | translate
+                }}</label>
                 <mat-form-field appearance="outline" class="w-full">
                     <textarea
                         matInput
                         id="signage-group-description"
-                        name="signage-group-description"
                         [placeholder]="'COMMON.DESCRIPTION' | translate"
-                        formControlName="description"
+                        [formField]="form.description"
                         class="min-h-32"
                     ></textarea>
                 </mat-form-field>
@@ -63,13 +62,15 @@ import { SignageService } from '../signage.service';
                 <mat-form-field appearance="outline" class="w-full">
                     <mat-select
                         id="signage-group-parent"
-                        name="signage-group-parent"
-                        [placeholder]="'SIGNAGE_MANAGER.SELECT_PARENT' | translate"
-                        formControlName="parent_id"
-                        [required]="!group.id"
+                        [placeholder]="
+                            'SIGNAGE_MANAGER.SELECT_PARENT' | translate
+                        "
+                        [formField]="form.parent_id"
                     >
                         @if (group.id) {
-                            <mat-option value="">{{ 'SIGNAGE_MANAGER.NO_PARENT' | translate }}</mat-option>
+                            <mat-option value="">{{
+                                'SIGNAGE_MANAGER.NO_PARENT' | translate
+                            }}</mat-option>
                         }
                         @for (parent of parent_groups(); track parent.id) {
                             <mat-option [value]="parent.id">
@@ -77,7 +78,9 @@ import { SignageService } from '../signage.service';
                             </mat-option>
                         }
                     </mat-select>
-                    <mat-error>{{ 'SIGNAGE_MANAGER.PARENT_REQUIRED' | translate }}</mat-error>
+                    <mat-error>{{
+                        'SIGNAGE_MANAGER.PARENT_REQUIRED' | translate
+                    }}</mat-error>
                 </mat-form-field>
             </form>
         </fullscreen-modal-shell>
@@ -85,7 +88,7 @@ import { SignageService } from '../signage.service';
     styles: [``],
     imports: [
         FullscreenModalShellComponent,
-        ReactiveFormsModule,
+        FormField,
         MatFormFieldModule,
         MatInputModule,
         MatSelectModule,
@@ -106,31 +109,31 @@ export class SignageGroupEditModalComponent {
         this._service
             .manageable_signage_groups()
             .filter((group) => group.id !== this.group.id);
-    public readonly form = new FormGroup({
-        name: new FormControl(this.group.name || '', [Validators.required]),
-        description: new FormControl(this.group.description || ''),
-        parent_id: new FormControl(
-            this.group.parent_id || '',
-            this.group.id ? [] : [Validators.required],
-        ),
+    public readonly model = signal({
+        name: this.group.name || '',
+        description: this.group.description || '',
+        parent_id: this.group.parent_id || '',
+    });
+    public readonly form = form(this.model, (path) => {
+        required(path.name);
+        if (!this.group.id) required(path.parent_id);
     });
 
     public async save() {
-        this.form.markAllAsTouched();
-        this.form.updateValueAndValidity();
-        if (!this.form.valid) return;
-        this.loading.set(true);
-        this._dialog_ref.disableClose = true;
-        try {
-            const result = await this._service.saveSignageGroup(
-                this.group,
-                this.form.getRawValue(),
-            );
-            this._dialog_ref.disableClose = false;
-            if (result) this._dialog_ref.close(result);
-        } catch {
-            this._dialog_ref.disableClose = false;
-            this.loading.set(false);
-        }
+        await submit(this.form, async () => {
+            this.loading.set(true);
+            this._dialog_ref.disableClose = true;
+            try {
+                const result = await this._service.saveSignageGroup(
+                    this.group,
+                    this.model(),
+                );
+                this._dialog_ref.disableClose = false;
+                if (result) this._dialog_ref.close(result);
+            } catch {
+                this._dialog_ref.disableClose = false;
+                this.loading.set(false);
+            }
+        });
     }
 }

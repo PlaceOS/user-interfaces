@@ -21,8 +21,12 @@ describe('ScheduleSidebarComponent', () => {
             MockProvider(ScheduleStateService, {
                 filters: signal({ shown_types: [] }),
                 date: signal(0),
+                end_date: signal(null),
+                week_date: signal(0),
+                week_options: signal([]),
                 toggleType: jest.fn(),
                 setDate: jest.fn(),
+                setEndDate: jest.fn(),
                 options: signal({ period: 'day' }),
                 getOptions: jest.fn(() => ({ period: 'day' })),
             } as any),

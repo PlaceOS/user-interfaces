@@ -6,8 +6,6 @@ import {
     queryAssetTypes,
     removeAsset,
 } from '@placeos/ts-client';
-import { defer, forkJoin, from, Observable, of } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
 import { saveAsset, saveAssetCategory, saveAssetType } from './assets.fn';
 
 const PARKING_CATEGORY_NAME = '_PARKING_';
@@ -80,7 +78,7 @@ async function ensure_hidden_category(name: string) {
         const category = await saveAssetCategory({
             name,
             hidden: true,
-        } as any).toPromise();
+        } as any);
         reset_hidden_categories_cache();
         return category;
     } catch (error) {
@@ -110,7 +108,7 @@ async function move_type_to_category(
             name,
             brand: type.brand || 'PlaceOS',
             category_id,
-        } as any).toPromise();
+        } as any);
         reset_types_cache([category_id]);
         return updated_type;
     } catch (error) {
@@ -142,7 +140,7 @@ async function ensure_type(
             name,
             brand: 'PlaceOS',
             category_id,
-        } as any).toPromise();
+        } as any);
         reset_types_cache([category_id]);
         return type;
     } catch (error) {
@@ -168,15 +166,15 @@ async function bootstrap_asset_type(type_name: string) {
  * Ensures the shared _PARKING_ category (hidden) and _PARKING_SPACES_ type
  * exist, migrating legacy parking categories when needed.
  */
-export function resolveParkingTypeId(): Observable<string> {
-    if (_parking_type_id) return of(_parking_type_id);
+export function resolveParkingTypeId(): Promise<string> {
+    if (_parking_type_id) return Promise.resolve(_parking_type_id);
     if (!_parking_type_id_promise) {
         _parking_type_id_promise = _bootstrapParkingType().then((id) => {
             _parking_type_id = id;
             return id;
         });
     }
-    return defer(() => from(_parking_type_id_promise));
+    return _parking_type_id_promise;
 }
 
 async function _bootstrapParkingType(): Promise<string> {
@@ -184,44 +182,39 @@ async function _bootstrapParkingType(): Promise<string> {
 }
 
 /** Query parking spaces for a single zone */
-export function queryParkingSpaces(zone_id: string): Observable<PlaceAsset[]> {
-    return resolveParkingTypeId().pipe(
-        switchMap((type_id) => queryAssets({ zone_id, type_id, limit: 500 })),
-        map((_) => _.data),
-    );
+export async function queryParkingSpaces(
+    zone_id: string,
+): Promise<PlaceAsset[]> {
+    const type_id = await resolveParkingTypeId();
+    const response = await queryAssets({ zone_id, type_id, limit: 500 });
+    return response.data;
 }
 
 /** Query parking spaces across multiple zones, flattening results */
-export function queryParkingSpacesForZones(
+export async function queryParkingSpacesForZones(
     zone_ids: string[],
-): Observable<PlaceAsset[]> {
-    if (!zone_ids?.length) return of([]);
-    return resolveParkingTypeId().pipe(
-        switchMap((type_id) =>
-            forkJoin(
-                zone_ids.map((zone_id) =>
-                    queryAssets({ zone_id, type_id, limit: 500 }).then(
-                        (_) => _.data,
-                    ),
-                ),
-            ),
+): Promise<PlaceAsset[]> {
+    if (!zone_ids?.length) return [];
+    const type_id = await resolveParkingTypeId();
+    const results = await Promise.all(
+        zone_ids.map((zone_id) =>
+            queryAssets({ zone_id, type_id, limit: 500 }).then((_) => _.data),
         ),
-        map((results) => flatten<PlaceAsset>(results)),
     );
+    return flatten<PlaceAsset>(results);
 }
 
 /** Save (create or update) a parking space asset */
-export function saveParkingSpace(
+export async function saveParkingSpace(
     space: Partial<PlaceAsset>,
-): Observable<PlaceAsset> {
-    return resolveParkingTypeId().pipe(
-        switchMap((type_id) => saveAsset({ ...space, asset_type_id: type_id })),
-    );
+): Promise<PlaceAsset> {
+    const type_id = await resolveParkingTypeId();
+    return saveAsset({ ...space, asset_type_id: type_id });
 }
 
 /** Delete a parking space asset by ID */
 export function deleteParkingSpace(id: string) {
-    return from(removeAsset(id));
+    return removeAsset(id);
 }
 
 export interface ParkingUser {
@@ -246,8 +239,8 @@ let _parking_user_type_id_promise: Promise<string> | null = null;
  * Ensures the shared _PARKING_ category (hidden) and _PARKING_USERS_ type
  * exist, migrating legacy parking categories when needed.
  */
-export function resolveParkingUserTypeId(): Observable<string> {
-    if (_parking_user_type_id) return of(_parking_user_type_id);
+export function resolveParkingUserTypeId(): Promise<string> {
+    if (_parking_user_type_id) return Promise.resolve(_parking_user_type_id);
     if (!_parking_user_type_id_promise) {
         _parking_user_type_id_promise = _bootstrapParkingUserType().then(
             (id) => {
@@ -256,7 +249,7 @@ export function resolveParkingUserTypeId(): Observable<string> {
             },
         );
     }
-    return defer(() => from(_parking_user_type_id_promise));
+    return _parking_user_type_id_promise;
 }
 
 async function _bootstrapParkingUserType(): Promise<string> {
@@ -304,27 +297,27 @@ export function fromParkingUser(
 }
 
 /** Query parking users for a zone */
-export function queryParkingUsers(zone_id: string): Observable<ParkingUser[]> {
-    return resolveParkingUserTypeId().pipe(
-        switchMap((type_id) => queryAssets({ zone_id, type_id, limit: 500 })),
-        map((assets) => assets.data.map(toParkingUser)),
-    );
+export async function queryParkingUsers(
+    zone_id: string,
+): Promise<ParkingUser[]> {
+    const type_id = await resolveParkingUserTypeId();
+    const assets = await queryAssets({ zone_id, type_id, limit: 500 });
+    return assets.data.map(toParkingUser);
 }
 
 /** Save (create or update) a parking user asset */
-export function saveParkingUser(
+export async function saveParkingUser(
     user: Partial<ParkingUser>,
     zone_id: string,
-): Observable<PlaceAsset> {
+): Promise<PlaceAsset> {
     const asset = fromParkingUser(user, zone_id);
-    return resolveParkingUserTypeId().pipe(
-        switchMap((type_id) => saveAsset({ ...asset, asset_type_id: type_id })),
-    );
+    const type_id = await resolveParkingUserTypeId();
+    return saveAsset({ ...asset, asset_type_id: type_id });
 }
 
 /** Delete a parking user asset by ID */
 export function deleteParkingUser(id: string) {
-    return from(removeAsset(id));
+    return removeAsset(id);
 }
 
 export interface ParkingFleetVehicle {
@@ -346,8 +339,8 @@ let _parking_fleet_type_id_promise: Promise<string> | null = null;
  * _PARKING_FLEET_VEHICLES_ type exist, migrating legacy parking categories
  * when needed.
  */
-export function resolveParkingFleetTypeId(): Observable<string> {
-    if (_parking_fleet_type_id) return of(_parking_fleet_type_id);
+export function resolveParkingFleetTypeId(): Promise<string> {
+    if (_parking_fleet_type_id) return Promise.resolve(_parking_fleet_type_id);
     if (!_parking_fleet_type_id_promise) {
         _parking_fleet_type_id_promise = _bootstrapParkingFleetType().then(
             (id) => {
@@ -356,7 +349,7 @@ export function resolveParkingFleetTypeId(): Observable<string> {
             },
         );
     }
-    return defer(() => from(_parking_fleet_type_id_promise));
+    return _parking_fleet_type_id_promise;
 }
 
 async function _bootstrapParkingFleetType(): Promise<string> {
@@ -396,27 +389,25 @@ export function fromParkingFleetVehicle(
 }
 
 /** Query fleet vehicles for a zone */
-export function queryParkingFleetVehicles(
+export async function queryParkingFleetVehicles(
     zone_id: string,
-): Observable<ParkingFleetVehicle[]> {
-    return resolveParkingFleetTypeId().pipe(
-        switchMap((type_id) => queryAssets({ zone_id, type_id, limit: 500 })),
-        map((assets) => assets.data.map(toParkingFleetVehicle)),
-    );
+): Promise<ParkingFleetVehicle[]> {
+    const type_id = await resolveParkingFleetTypeId();
+    const assets = await queryAssets({ zone_id, type_id, limit: 500 });
+    return assets.data.map(toParkingFleetVehicle);
 }
 
 /** Save (create or update) a fleet vehicle asset */
-export function saveParkingFleetVehicle(
+export async function saveParkingFleetVehicle(
     vehicle: Partial<ParkingFleetVehicle>,
     zone_id: string,
-): Observable<PlaceAsset> {
+): Promise<PlaceAsset> {
     const asset = fromParkingFleetVehicle(vehicle, zone_id);
-    return resolveParkingFleetTypeId().pipe(
-        switchMap((type_id) => saveAsset({ ...asset, asset_type_id: type_id })),
-    );
+    const type_id = await resolveParkingFleetTypeId();
+    return saveAsset({ ...asset, asset_type_id: type_id });
 }
 
 /** Delete a fleet vehicle asset by ID */
 export function deleteParkingFleetVehicle(id: string) {
-    return from(removeAsset(id));
+    return removeAsset(id);
 }

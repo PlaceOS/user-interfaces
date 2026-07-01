@@ -1,4 +1,3 @@
-import { ReactiveFormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -31,7 +30,6 @@ describe('BookingModalComponent', () => {
             MockModule(MatFormFieldModule),
             MockModule(MatInputModule),
             MatProgressSpinnerModule,
-            ReactiveFormsModule,
         ],
     });
 
@@ -49,10 +47,11 @@ describe('BookingModalComponent', () => {
     });
 
     it('should allow for submitting the form', () => {
-        spectator.component.form.patchValue({
+        spectator.component.model.update((m) => ({
+            ...m,
             title: 'Test title',
-            organiser: { email: 'j@b.com' },
-        });
+            organiser: { email: 'j@b.com' } as any,
+        }));
         const button: HTMLButtonElement = spectator.query(
             'button[name="save"]',
         );
@@ -65,6 +64,6 @@ describe('BookingModalComponent', () => {
     });
 
     it('should be closable', () => {
-        expect(spectator.query('button[mat-dialog-close]')).toBeTruthy();
+        expect(spectator.query('button[icon]')).toBeTruthy();
     });
 });

@@ -30,7 +30,7 @@ const GROUP_PERMISSION_FLAGS = [
             <div class="flex flex-col gap-3">
                 @for (permission of permissions; track permission.key) {
                     <settings-toggle
-                        [name]="permission.label | translate"
+                        [label]="permission.label | translate"
                         [ngModel]="hasPermission(permission.value)"
                         (ngModelChange)="
                             setPermission(permission.value, $event)
@@ -40,7 +40,7 @@ const GROUP_PERMISSION_FLAGS = [
                 @if (data.show_deny) {
                     <div class="border-base-300 mt-2 border-t pt-3">
                         <settings-toggle
-                            [name]="
+                            [label]="
                                 'SIGNAGE_MANAGER.PERM_DENY_SELECTED' | translate
                             "
                             [(ngModel)]="deny"
@@ -71,7 +71,7 @@ export class SignageGroupPermissionsModalComponent {
     }>(MAT_DIALOG_DATA);
     public readonly permissions = GROUP_PERMISSION_FLAGS;
     public readonly value = signal(+this.data.permissions || 0);
-    public deny = !!this.data.deny;
+    public readonly deny = signal(!!this.data.deny);
 
     public hasPermission(permission: number) {
         return (this.value() & permission) === permission;
@@ -83,7 +83,10 @@ export class SignageGroupPermissionsModalComponent {
     }
 
     public save() {
-        this._dialog_ref.close({ permissions: this.value(), deny: this.deny });
+        this._dialog_ref.close({
+            permissions: this.value(),
+            deny: this.deny(),
+        });
     }
 }
 

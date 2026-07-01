@@ -9,7 +9,6 @@ import {
     signal,
     viewChild,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import {
@@ -149,9 +148,7 @@ export class RoomBookingSearchComponent extends AsyncHandler implements OnInit {
     public readonly selected = output<CalendarEvent>();
     public readonly show = signal(false);
     public readonly search = signal('');
-    public readonly events = toSignal(this._state.filtered, {
-        initialValue: [],
-    });
+    public readonly events = this._state.filtered;
 
     public types: any[] = [
         { id: 'internal', name: 'Internal', color: '#D81B60' },

@@ -1,5 +1,12 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import {
+    Component,
+    effect,
+    inject,
+    Injector,
+    OnInit,
+    signal,
+} from '@angular/core';
+import { form, FormField, validate } from '@angular/forms/signals';
 import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
@@ -11,9 +18,10 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
     AsyncHandler,
-    getInvalidFields,
+    getInvalidSignalFields,
     notifyError,
     notifySuccess,
+    onFieldChange,
     UploadsService,
 } from '@placeos/common';
 import {
@@ -21,7 +29,7 @@ import {
     IconComponent,
     SettingsToggleComponent,
 } from '@placeos/components';
-import { validateURL } from '@placeos/events';
+import { isValidUrl } from '@placeos/events';
 import { DurationFieldComponent } from '@placeos/form-fields';
 import {
     addSettings,
@@ -44,7 +52,7 @@ import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
             [loading]="loading()"
             (confirm)="save()"
         >
-            <form [formGroup]="form" class="flex flex-col space-y-4">
+            <form class="flex flex-col space-y-4">
                 <div
                     class="border-base-300 relative mb-4 flex flex-col rounded-sm border p-2"
                 >
@@ -55,12 +63,12 @@ import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
                     </h4>
                     <div class="-mx-2 flex flex-wrap items-center">
                         <settings-toggle
-                            name="Disable booking"
-                            formControlName="disable_book_now"
+                            label="Disable booking"
+                            [formField]="form.disable_book_now"
                         ></settings-toggle>
                         <settings-toggle
-                            name="Hide booking host options"
-                            formControlName="disable_book_now_host"
+                            label="Hide booking host options"
+                            [formField]="form.disable_book_now_host"
                         ></settings-toggle>
                     </div>
                     <div class="flex space-x-4">
@@ -69,11 +77,10 @@ import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
                                 >Minimum Booking Duration</label
                             >
                             <a-duration-field
-                                name="min-duration"
-                                formControlName="min_duration"
+                                [formField]="form.min_duration"
                                 [min]="0"
-                                [step]="form.value.max_duration > 60 ? 15 : 5"
-                                [max]="form.value.max_duration"
+                                [step]="model().max_duration > 60 ? 15 : 5"
+                                [max]="model().max_duration"
                             ></a-duration-field>
                         </div>
                         <div class="h-20 flex-1">
@@ -81,12 +88,11 @@ import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
                                 >Maximum Booking Duration</label
                             >
                             <a-duration-field
-                                name="max-duration"
-                                formControlName="max_duration"
+                                [formField]="form.max_duration"
                                 [min]="
-                                    form.value.min_duration +
+                                    model().min_duration +
                                     15 -
-                                    (form.value.min_duration % 15)
+                                    (model().min_duration % 15)
                                 "
                                 [step]="15"
                                 [max]="480"
@@ -100,8 +106,7 @@ import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
                             >Allow check-in before meeting</label
                         >
                         <a-duration-field
-                            name="pending_before"
-                            formControlName="pending_before"
+                            [formField]="form.pending_before"
                             [min]="0"
                             [step]="5"
                             [max]="60"
@@ -112,8 +117,7 @@ import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
                             >Cancel not checked-in meetings after</label
                         >
                         <a-duration-field
-                            name="pending_period"
-                            formControlName="pending_period"
+                            [formField]="form.pending_period"
                             [min]="0"
                             [step]="5"
                             [max]="60"
@@ -122,32 +126,32 @@ import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
                 </div>
                 <div class="-mx-2 flex flex-wrap items-center">
                     <settings-toggle
-                        name="Disable auto-ending bookings"
-                        formControlName="disable_end_meeting"
+                        label="Disable auto-ending bookings"
+                        [formField]="form.disable_end_meeting"
                         info="Disable ending the current booking early when sensors
 don't detect presence in room after a period of time"
                     ></settings-toggle>
                     <settings-toggle
-                        name="Show button to end booking early"
-                        formControlName="enable_end_meeting_button"
+                        label="Show button to end booking early"
+                        [formField]="form.enable_end_meeting_button"
                     ></settings-toggle>
                     <settings-toggle
-                        name="Hide Meeting Details"
-                        formControlName="hide_meeting_details"
+                        label="Hide Meeting Details"
+                        [formField]="form.hide_meeting_details"
                         info="When enabled only shows the time of the current meeting"
                     ></settings-toggle>
                     <settings-toggle
-                        name="Hide Meeting Title"
-                        formControlName="hide_meeting_title"
+                        label="Hide Meeting Title"
+                        [formField]="form.hide_meeting_title"
                         info="When enabled only shows the time and host of the current meeting"
                     ></settings-toggle>
                     <settings-toggle
-                        name="Show Booking QR Code"
-                        formControlName="show_qr_code"
+                        label="Show Booking QR Code"
+                        [formField]="form.show_qr_code"
                     ></settings-toggle>
                     <settings-toggle
-                        name="Hide QR helper text"
-                        formControlName="hide_qr_text"
+                        label="Hide QR helper text"
+                        [formField]="form.hide_qr_text"
                     ></settings-toggle>
                 </div>
                 <div class="mb-2">
@@ -155,9 +159,8 @@ don't detect presence in room after a period of time"
                     <mat-form-field appearance="outline" class="w-full">
                         <input
                             matInput
-                            name="custom-qr-url"
                             placeholder="/workplace/#/book/room/?room_id=sys-123456"
-                            formControlName="custom_qr_url"
+                            [formField]="form.custom_qr_url"
                         />
                         <mat-error>
                             Custom QR Code URL must be a valid URL
@@ -173,9 +176,8 @@ don't detect presence in room after a period of time"
                     <mat-form-field appearance="outline" class="w-full">
                         <input
                             matInput
-                            name="custom-qr-color"
                             placeholder="#4A2C89"
-                            formControlName="custom_qr_color"
+                            [formField]="form.custom_qr_color"
                         />
                     </mat-form-field>
                 </div>
@@ -185,8 +187,7 @@ don't detect presence in room after a period of time"
                         <mat-form-field appearance="outline" class="w-full">
                             <input
                                 matInput
-                                name="control-ui"
-                                formControlName="control_ui"
+                                [formField]="form.control_ui"
                                 placeholder="https://control.example.com/..."
                             />
                             <mat-error
@@ -199,8 +200,7 @@ don't detect presence in room after a period of time"
                         <mat-form-field appearance="outline" class="w-full">
                             <input
                                 matInput
-                                name="catering-ui"
-                                formControlName="catering_ui"
+                                [formField]="form.catering_ui"
                                 placeholder="https://catering.example.com/..."
                             />
                             <mat-error>
@@ -219,9 +219,8 @@ don't detect presence in room after a period of time"
                             >
                                 <input
                                     matInput
-                                    name="room-image"
                                     placeholder="/assets/images/room_test1.png"
-                                    formControlName="room_image"
+                                    [formField]="form.room_image"
                                 />
                                 <mat-error>
                                     Room Image must be a valid URL
@@ -251,9 +250,8 @@ don't detect presence in room after a period of time"
                             >
                                 <input
                                     matInput
-                                    name="offline-image"
                                     placeholder="/assets/images/offline1.png"
-                                    formControlName="offline_image"
+                                    [formField]="form.offline_image"
                                 />
                                 <mat-error>
                                     Offline Image must be a valid URL
@@ -298,13 +296,14 @@ don't detect presence in room after a period of time"
         SettingsToggleComponent,
         DurationFieldComponent,
         MatDialogModule,
-        ReactiveFormsModule,
+        FormField,
     ],
 })
 export class BookingPanelSettingsModalComponent
     extends AsyncHandler
     implements OnInit
 {
+    private _injector = inject(Injector);
     private _uploads = inject(UploadsService);
     private _data = inject<{
         zone: PlaceZone;
@@ -315,25 +314,44 @@ export class BookingPanelSettingsModalComponent
     public loading = signal('');
     public uploading = signal(0);
     public readonly zone = this._data.zone;
-    public readonly form = new FormGroup({
-        control_ui: new FormControl('', validateURL),
-        catering_ui: new FormControl('', validateURL),
-        custom_qr_url: new FormControl('', validateURL),
-        custom_qr_color: new FormControl(''),
-        show_qr_code: new FormControl(true),
-        hide_qr_text: new FormControl(false),
-        disable_book_now: new FormControl(false),
-        disable_book_now_host: new FormControl(true),
-        disable_end_meeting: new FormControl(false),
-        enable_end_meeting_button: new FormControl(false),
-        hide_meeting_details: new FormControl(false),
-        hide_meeting_title: new FormControl(false),
-        min_duration: new FormControl(15),
-        max_duration: new FormControl(60),
-        pending_before: new FormControl(5),
-        pending_period: new FormControl(15),
-        room_image: new FormControl('', validateURL),
-        offline_image: new FormControl('', validateURL),
+
+    public readonly model = signal({
+        control_ui: '' as string,
+        catering_ui: '' as string,
+        custom_qr_url: '' as string,
+        custom_qr_color: '' as string,
+        show_qr_code: true as boolean,
+        hide_qr_text: false as boolean,
+        disable_book_now: false as boolean,
+        disable_book_now_host: true as boolean,
+        disable_end_meeting: false as boolean,
+        enable_end_meeting_button: false as boolean,
+        hide_meeting_details: false as boolean,
+        hide_meeting_title: false as boolean,
+        min_duration: 15 as number,
+        max_duration: 60 as number,
+        pending_before: 5 as number,
+        pending_period: 15 as number,
+        room_image: '' as string,
+        offline_image: '' as string,
+    });
+
+    public readonly form = form(this.model, (p) => {
+        validate(p.control_ui, ({ value }) =>
+            isValidUrl(value()) ? undefined : { kind: 'url' },
+        );
+        validate(p.catering_ui, ({ value }) =>
+            isValidUrl(value()) ? undefined : { kind: 'url' },
+        );
+        validate(p.custom_qr_url, ({ value }) =>
+            isValidUrl(value()) ? undefined : { kind: 'url' },
+        );
+        validate(p.room_image, ({ value }) =>
+            isValidUrl(value()) ? undefined : { kind: 'url' },
+        );
+        validate(p.offline_image, ({ value }) =>
+            isValidUrl(value()) ? undefined : { kind: 'url' },
+        );
     });
 
     private _defaults: Record<string, any> = {};
@@ -345,21 +363,22 @@ export class BookingPanelSettingsModalComponent
             );
             return;
         }
-        this.subscription(
-            'max_duration',
-            this.form.controls.max_duration.valueChanges.subscribe(
-                (max_duration) => {
-                    if (max_duration <= 60) return;
-                    this.form.patchValue({
-                        min_duration: Math.max(
-                            15,
-                            Math.floor(this.form.value.min_duration / 15) * 15,
-                        ),
-                    });
-                },
-            ),
+        onFieldChange(
+            this.model,
+            (m) => m.max_duration,
+            (max_duration) => {
+                if (max_duration <= 60) return;
+                this.model.update((m) => ({
+                    ...m,
+                    min_duration: Math.max(
+                        15,
+                        Math.floor(m.min_duration / 15) * 15,
+                    ),
+                }));
+            },
+            this._injector,
         );
-        this._defaults = { ...this.form.getRawValue() };
+        this._defaults = { ...this.model() };
         this.loading.set('Loading existing panel settings...');
         let settings: PlaceSettings[] = [];
         try {
@@ -376,7 +395,7 @@ export class BookingPanelSettingsModalComponent
         this.loading.set('Processing found panel settings...');
         const setting_value =
             parseYaml(unencrypted_settings.settings_string) || {};
-        this.form.patchValue(setting_value);
+        this.model.update((m) => ({ ...m, ...setting_value }));
         this.loading.set('');
     }
 
@@ -386,34 +405,44 @@ export class BookingPanelSettingsModalComponent
         if (!element?.files?.length) return;
         const files: FileList = element.files;
         const file = files[0];
-        const field = this.form.get(link_field);
-        if (!field) return;
         if (!file.type.includes('image')) {
             return notifyError('File is not an image');
         }
-        this._uploads.uploadFileWithProgress(file).subscribe({
-            next: (s) => {
+        const upload = this._uploads.uploadFileWithProgress(file);
+        const effect_ref = effect(
+            () => {
+                const s = upload();
                 this.uploading.set(s.progress);
+                if (s.error) {
+                    notifyError('Failed to upload image. Try again later');
+                    this.uploading.set(0);
+                    effect_ref.destroy();
+                    return;
+                }
                 if (s.link) {
                     this.uploading.set(0);
-                    field.setValue(s.link);
+                    this.model.update((m) => ({
+                        ...m,
+                        [link_field]: s.link,
+                    }));
+                    effect_ref.destroy();
                 }
             },
-            error: () => {
-                notifyError('Failed to upload image. Try again later');
-                this.uploading.set(0);
-            },
-        });
+            { injector: this._injector },
+        );
     }
 
     public async save() {
-        this.form.markAllAsTouched();
-        if (!this.form.valid) {
+        this.form().markAsTouched();
+        if (!this.form().valid()) {
             return notifyError(
-                `Some form fields are invalid. [${getInvalidFields(this.form)}]`,
+                `Some form fields are invalid. [${getInvalidSignalFields(
+                    this.form,
+                    this.model,
+                ).join(', ')}]`,
             );
         }
-        const form_value = this.form.getRawValue();
+        const form_value = this.model();
         this._dialog_ref.disableClose = true;
         this.loading.set('Loading existing booking panel settings...');
         let settings: PlaceSettings[] = [];

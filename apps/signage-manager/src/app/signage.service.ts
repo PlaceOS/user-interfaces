@@ -1,9 +1,15 @@
-import { computed, effect, inject, Injectable, signal } from '@angular/core';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import {
+    computed,
+    debounced,
+    effect,
+    inject,
+    Injectable,
+    resource,
+    signal,
+    untracked,
+} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
-    current_user,
-    currentUser,
     i18n,
     notifyError,
     notifyInfo,
@@ -13,6 +19,7 @@ import {
     SettingsService,
     UploadPermissions,
     UploadsService,
+    userSignal,
 } from '@placeos/common';
 import { openConfirmModal } from '@placeos/components';
 import {
@@ -23,6 +30,7 @@ import {
     addSignagePlaylist,
     apiEndpoint,
     currentGroups,
+    listSignageMediaTags,
     listSignagePlaylistApprovers,
     listSignagePlaylistMedia,
     mediaThumbnail,
@@ -36,6 +44,7 @@ import {
     queryGroups,
     queryGroupUsers,
     queryGroupZones,
+    type QueryResponse,
     querySignageMedia,
     querySignagePlaylists,
     querySignagePlugins,
@@ -63,22 +72,12 @@ import {
     updateSystem,
     updateZone,
 } from '@placeos/ts-client';
-import { BehaviorSubject, combineLatest, from, lastValueFrom, of } from 'rxjs';
-import {
-    catchError,
-    debounceTime,
-    filter,
-    map,
-    shareReplay,
-    startWith,
-    switchMap,
-    tap,
-} from 'rxjs/operators';
 import {
     BulkMediaUploadItem,
     BulkMediaUploadModalComponent,
     BulkMediaUploadModalData,
 } from './shared/bulk-media-upload-modal.component';
+import { decodeEntityNames } from './shared/decode-entity-names.util';
 import { DisplaySelectModalComponent } from './shared/display-select-modal.component';
 import { GroupSelectModalComponent } from './shared/group-select-modal.component';
 import { MediaEditModalComponent } from './shared/media-edit-modal.component';
@@ -135,6 +134,8 @@ interface PlaylistMetaState {
 
 const PLAYLIST_META_SESSION_KEY = 'PlaceOS.SIGNAGE:playlist-meta-cache:v1';
 const SIGNAGE_GROUP_STORAGE_KEY = 'PlaceOS.SIGNAGE:selected-group:v1';
+const SIGNAGE_VIEW_MODE_STORAGE_KEY = 'PlaceOS.SIGNAGE:media-view-mode:v1';
+type MediaViewMode = 'grid' | 'list' | 'folder';
 const SIGNAGE_GROUP_FIELDS = [
     'id',
     'name',
@@ -190,6 +191,25 @@ function loadSelectedGroupId() {
     }
 }
 
+function loadMediaViewMode(): MediaViewMode {
+    if (typeof localStorage === 'undefined') return 'grid';
+    try {
+        const stored = localStorage.getItem(SIGNAGE_VIEW_MODE_STORAGE_KEY);
+        return stored === 'list' || stored === 'folder' ? stored : 'grid';
+    } catch {
+        return 'grid';
+    }
+}
+
+function persistMediaViewMode(mode: MediaViewMode) {
+    if (typeof localStorage === 'undefined') return;
+    try {
+        localStorage.setItem(SIGNAGE_VIEW_MODE_STORAGE_KEY, mode);
+    } catch {
+        // Local storage can be unavailable in private browsing or restricted embeds.
+    }
+}
+
 function persistSelectedGroupId(group_id: string) {
     if (typeof localStorage === 'undefined') return;
     try {
@@ -203,6 +223,19 @@ function persistSelectedGroupId(group_id: string) {
     }
 }
 
+export function dialogClosed<T = unknown>(ref: {
+    afterClosed: () => {
+        subscribe: (handler: (value: T) => void) => { unsubscribe: () => void };
+    };
+}) {
+    return new Promise<T | undefined>((resolve) => {
+        const subscription = ref.afterClosed().subscribe((value) => {
+            subscription.unsubscribe();
+            resolve(value);
+        });
+    });
+}
+
 @Injectable({
     providedIn: 'root',
 })
@@ -211,66 +244,71 @@ export class SignageService {
     private readonly _settings = inject(SettingsService);
     private readonly _uploads = inject(UploadsService);
     private readonly _dialog = inject(MatDialog);
-    private readonly _change = new BehaviorSubject(Date.now());
-    private readonly _groups_change = new BehaviorSubject(Date.now());
+    private readonly _change = signal(Date.now());
+    private readonly _groups_change = signal(Date.now());
     private readonly _display_overrides = signal<Record<string, any>>({});
-    private readonly _display_overrides$ = toObservable(
-        this._display_overrides,
-    );
     private readonly _zone_overrides = signal<Record<string, any>>({});
-    private readonly _zone_overrides$ = toObservable(this._zone_overrides);
     public readonly media_upload_accept = SIGNAGE_MEDIA_PICKER_ACCEPT;
 
     public readonly search_term = signal('');
+    public readonly media_view_mode =
+        signal<MediaViewMode>(loadMediaViewMode());
     public readonly managed_group_id = signal('');
+    // Switching managed group refetches its users and zones; debounce so quick
+    // re-selection doesn't fire a pair of queries per change.
+    private readonly _managed_group_id_debounced = debounced(
+        this.managed_group_id,
+        300,
+    );
     public readonly managed_group_tab = signal<'users' | 'zones'>('users');
-    private search_term$ = toObservable(this.search_term);
-    private managed_group_id$ = toObservable(this.managed_group_id);
-    private readonly _current_user = toSignal(current_user, {
-        initialValue: currentUser(),
+    private readonly _current_user = userSignal();
+    private readonly _active_user = computed(() => {
+        const user = this._current_user();
+        return !!user?.email && user.email !== '<empty>@dev.place.tech'
+            ? user
+            : null;
     });
-    private readonly _active_user$ = current_user.pipe(
-        filter(
-            (user) => !!user?.email && user.email !== '<empty>@dev.place.tech',
-        ),
-    );
-    private readonly _signage_groups_loaded = signal(false);
-    public readonly signage_groups_loaded = computed(() =>
-        this._signage_groups_loaded(),
-    );
+    // Derived from the resource status (not a manually-set flag) so it stays in
+    // sync with signage_groups() — a separate flag flipped in the loader's
+    // finally block races ahead of the resource committing its value, which let
+    // the access guard read an empty group list and redirect permitted users.
+    public readonly signage_groups_loaded = computed(() => {
+        if (!this._active_user()?.email) return false;
+        const status = this._signage_groups.status();
+        return status === 'resolved' || status === 'local' || status === 'error';
+    });
     public readonly selected_group_id = signal(loadSelectedGroupId());
     public readonly signage_group_tree_expanded = signal<
         Record<string, boolean>
     >({});
-    public readonly signage_groups = toSignal(
-        combineLatest([this._active_user$, this._groups_change]).pipe(
-            switchMap(() =>
-                (this.is_sys_admin()
-                    ? this._queryManageableGroups().pipe(
-                          map((groups) =>
-                              groups.map(
-                                  (group) =>
-                                      ({
-                                          group,
-                                          permissions:
-                                              SignageGroupPermission.Manage,
-                                      }) as PlaceCurrentGroup,
-                              ),
-                          ),
+    private readonly _signage_groups = resource({
+        params: () => ({
+            user_email: this._active_user()?.email || '',
+            groups_change: this._groups_change(),
+            sys_admin: this.is_sys_admin(),
+        }),
+        loader: async ({ params }) => {
+            if (!params.user_email) return [] as PlaceCurrentGroup[];
+            try {
+                const groups = params.sys_admin
+                    ? (await this._queryManageableGroups()).map(
+                          (group) =>
+                              ({
+                                  group,
+                                  permissions: SignageGroupPermission.Manage,
+                              }) as PlaceCurrentGroup,
                       )
-                    : from(currentGroups({ subsystem: 'signage' }))
-                ).pipe(
-                    catchError(() => of([] as PlaceCurrentGroup[])),
-                    map((groups) =>
-                        groups.sort((a, b) =>
-                            a.group.name.localeCompare(b.group.name),
-                        ),
-                    ),
-                    tap(() => this._signage_groups_loaded.set(true)),
-                ),
-            ),
-        ),
-        { initialValue: [] as PlaceCurrentGroup[] },
+                    : await this._currentSignageGroups(params.groups_change);
+                return groups
+                    .map(decodeEntityNames)
+                    .sort((a, b) => a.group.name.localeCompare(b.group.name));
+            } catch {
+                return [] as PlaceCurrentGroup[];
+            }
+        },
+    });
+    public readonly signage_groups = computed(
+        () => this._signage_groups.value() || [],
     );
     public readonly selected_group = computed(() => {
         const group_id = this.selected_group_id();
@@ -297,46 +335,59 @@ export class SignageService {
     public readonly can_manage_all_groups = computed(
         () => this.is_sys_admin() || this.is_support(),
     );
-    public readonly manageable_signage_groups = toSignal(
-        combineLatest([this._active_user$, this._groups_change]).pipe(
-            switchMap(() =>
-                this.can_manage_all_groups()
-                    ? this._queryManageableGroups()
-                    : this._currentManageableGroups(),
-            ),
-            catchError(() => of([] as PlaceGroup[])),
-            map((groups) => this._sortGroups(groups)),
-            shareReplay(1),
-        ),
-        { initialValue: [] as PlaceGroup[] },
+    private readonly _manageable_signage_groups = resource({
+        params: () => ({
+            user_email: this._active_user()?.email || '',
+            groups_change: this._groups_change(),
+            can_manage_all: this.can_manage_all_groups(),
+        }),
+        loader: async ({ params }) => {
+            if (!params.user_email) return [] as PlaceGroup[];
+            try {
+                const groups = params.can_manage_all
+                    ? await this._queryManageableGroups()
+                    : await this._currentManageableGroups(params.groups_change);
+                return this._sortGroups(groups);
+            } catch {
+                return [] as PlaceGroup[];
+            }
+        },
+    });
+    public readonly manageable_signage_groups = computed(
+        () => this._manageable_signage_groups.value() || [],
     );
-    public readonly root_manageable_signage_groups = toSignal(
-        combineLatest([this._active_user$, this._groups_change]).pipe(
-            debounceTime(300),
-            switchMap(() =>
-                this.can_manage_all_groups()
-                    ? this._queryManageableGroups({
-                          parent_id: 'root',
-                          include_children_count: true,
-                      })
-                    : this._currentManageableGroups().pipe(
-                          map((groups) => {
-                              const group_ids = new Set(
-                                  groups.map((group) => group.id),
-                              );
-                              return groups.filter(
-                                  (group) =>
-                                      !group.parent_id ||
-                                      !group_ids.has(group.parent_id),
-                              );
-                          }),
-                      ),
-            ),
-            catchError(() => of([] as PlaceGroup[])),
-            map((groups) => this._sortGroups(groups)),
-            shareReplay(1),
-        ),
-        { initialValue: [] as PlaceGroup[] },
+    private readonly _root_manageable_signage_groups = resource({
+        params: () => ({
+            user_email: this._active_user()?.email || '',
+            groups_change: this._groups_change(),
+            can_manage_all: this.can_manage_all_groups(),
+        }),
+        loader: async ({ params }) => {
+            if (!params.user_email) return [] as PlaceGroup[];
+            try {
+                if (params.can_manage_all) {
+                    return this._queryManageableGroups({
+                        parent_id: 'root',
+                        include_children_count: true,
+                    });
+                }
+                const groups = await this._currentManageableGroups(
+                    params.groups_change,
+                );
+                const group_ids = new Set(groups.map((group) => group.id));
+                return this._sortGroups(
+                    groups.filter(
+                        (group) =>
+                            !group.parent_id || !group_ids.has(group.parent_id),
+                    ),
+                );
+            } catch {
+                return [] as PlaceGroup[];
+            }
+        },
+    });
+    public readonly root_manageable_signage_groups = computed(
+        () => this._root_manageable_signage_groups.value() || [],
     );
     public readonly managed_group = computed(() => {
         const group_id = this.managed_group_id();
@@ -345,13 +396,11 @@ export class SignageService {
         );
     });
 
-    public groupChildren(parent_id: string) {
+    public async groupChildren(parent_id: string) {
         if (!this.can_manage_all_groups()) {
-            return of(
-                this._sortGroups(
-                    this.manageable_signage_groups().filter(
-                        (group) => group.parent_id === parent_id,
-                    ),
+            return this._sortGroups(
+                this.manageable_signage_groups().filter(
+                    (group) => group.parent_id === parent_id,
                 ),
             );
         }
@@ -361,86 +410,122 @@ export class SignageService {
         });
     }
 
-    private _queryManageableGroups(params: Record<string, any> = {}) {
-        return from(
-            queryGroups({
-                limit: 1000,
-                fields: SIGNAGE_GROUP_FIELDS,
-                subsystem: 'signage',
-                ...params,
-            } as any),
-        ).pipe(
-            map(({ data }) =>
-                this._sortGroups(
-                    (data || []).filter((group) =>
-                        group.subsystems?.includes('signage'),
-                    ),
-                ),
+    private async _queryManageableGroups(params: Record<string, any> = {}) {
+        const { data } = await queryGroups({
+            limit: 200,
+            fields: SIGNAGE_GROUP_FIELDS,
+            subsystem: 'signage',
+            ...params,
+        } as any);
+        return this._sortGroups(
+            (data || []).filter((group) =>
+                group.subsystems?.includes('signage'),
             ),
         );
     }
 
-    private _currentManageableGroups() {
-        return from(currentGroups({ subsystem: 'signage' })).pipe(
-            map((groups) =>
-                groups
-                    .filter(
-                        (item) =>
-                            !!(
-                                item.permissions & SignageGroupPermission.Manage
-                            ),
-                    )
-                    .map((item) => item.group),
-            ),
-        );
+    // Several resources need the current user's signage groups on page load.
+    // Share a single in-flight request per `groups_change` so we hit the
+    // endpoint once instead of three times.
+    private _current_groups_request: {
+        key: number;
+        promise: Promise<PlaceCurrentGroup[]>;
+    } | null = null;
+
+    private _currentSignageGroups(groups_change: number) {
+        if (this._current_groups_request?.key === groups_change) {
+            return this._current_groups_request.promise;
+        }
+        const promise = currentGroups({ subsystem: 'signage' }).catch((err) => {
+            // Drop the cache on failure so a later trigger can retry.
+            if (this._current_groups_request?.key === groups_change) {
+                this._current_groups_request = null;
+            }
+            throw err;
+        });
+        this._current_groups_request = { key: groups_change, promise };
+        return promise;
+    }
+
+    private async _currentManageableGroups(groups_change: number) {
+        const groups = await this._currentSignageGroups(groups_change);
+        return groups
+            .filter(
+                (item) => !!(item.permissions & SignageGroupPermission.Manage),
+            )
+            .map((item) => decodeEntityNames(item.group));
     }
 
     private _sortGroups<T extends PlaceGroup>(groups: T[]) {
-        return [...groups].sort((a, b) => a.name.localeCompare(b.name));
+        return groups
+            .map(decodeEntityNames)
+            .sort((a, b) => a.name.localeCompare(b.name));
     }
 
-    public readonly managed_group_users = combineLatest([
-        this.managed_group_id$,
-        this._groups_change,
-    ]).pipe(
-        filter(([group_id]) => !!group_id),
-        switchMap(([group_id]) =>
-            from(queryGroupUsers({ group_id, limit: 1000 })).pipe(
-                catchError(() => of({ data: [] })),
-            ),
-        ),
-        map(({ data }) =>
-            data.sort((a, b) =>
-                (a.user?.name || a.user_id).localeCompare(
-                    b.user?.name || b.user_id,
-                ),
-            ),
-        ),
-        shareReplay(1),
+    private readonly _managed_group_users = resource({
+        params: () => ({
+            group_id: this._managed_group_id_debounced.value(),
+            groups_change: this._groups_change(),
+        }),
+        loader: async ({ params }) => {
+            if (!params.group_id) return [] as PlaceGroupUser[];
+            try {
+                const { data } = await queryGroupUsers({
+                    group_id: params.group_id,
+                    limit: 1000,
+                });
+                return data
+                    .map(decodeEntityNames)
+                    .sort((a, b) =>
+                        (a.user?.name || a.user_id).localeCompare(
+                            b.user?.name || b.user_id,
+                        ),
+                    );
+            } catch {
+                return [] as PlaceGroupUser[];
+            }
+        },
+    });
+    public readonly managed_group_users = computed(
+        () => this._managed_group_users.value() || [],
     );
-    public readonly managed_group_zones = combineLatest([
-        this.managed_group_id$,
-        this._groups_change,
-    ]).pipe(
-        filter(([group_id]) => !!group_id),
-        switchMap(([group_id]) =>
-            from(queryGroupZones({ group_id, limit: 1000 })).pipe(
-                catchError(() => of({ data: [] })),
-            ),
-        ),
-        map(({ data }) =>
-            data.sort((a, b) =>
-                (a.zone?.name || a.zone_id).localeCompare(
-                    b.zone?.name || b.zone_id,
-                ),
-            ),
-        ),
-        shareReplay(1),
+    private readonly _managed_group_zones = resource({
+        params: () => ({
+            group_id: this._managed_group_id_debounced.value(),
+            groups_change: this._groups_change(),
+        }),
+        loader: async ({ params }) => {
+            if (!params.group_id) return [] as PlaceGroupZone[];
+            try {
+                const { data } = await queryGroupZones({
+                    group_id: params.group_id,
+                    limit: 200,
+                });
+                return data
+                    .map(decodeEntityNames)
+                    .sort((a, b) =>
+                        (a.zone?.name || a.zone_id).localeCompare(
+                            b.zone?.name || b.zone_id,
+                        ),
+                    );
+            } catch {
+                return [] as PlaceGroupZone[];
+            }
+        },
+    });
+    public readonly managed_group_zones = computed(
+        () => this._managed_group_zones.value() || [],
     );
     private readonly _api_group_id = computed(
         () => this.selected_group()?.group.id || '',
     );
-    private readonly _api_group_id$ = toObservable(this._api_group_id);
+    // Group selection fans out to six heavy list queries (media, playlists,
+    // displays, zones...). Debounce so clicking through the group tree doesn't
+    // fire a full set of refetches per click.
+    private readonly _api_group_id_debounced = debounced(
+        this._api_group_id,
+        300,
+    );
     public readonly can_read = computed(() =>
         this._hasGroupPermission(SignageGroupPermission.Read),
     );
@@ -463,207 +548,386 @@ export class SignageService {
         this._hasGroupPermission(SignageGroupPermission.Manage),
     );
 
-    public readonly media = combineLatest([
-        this._org.initialised,
-        this._change,
-        this._api_group_id$,
-    ]).pipe(
-        filter(
-            ([initialised, , group_id]) =>
-                !!initialised && (this.is_sys_admin() || !!group_id),
-        ),
-        debounceTime(300),
-        switchMap(([, , group_id]) =>
-            from(
+    private readonly _can_query_group_data = computed(() => {
+        const group_id = this._api_group_id();
+        return this.is_sys_admin() || !!group_id;
+    });
+    // How many items to request per network page.
+    private static readonly PAGE_SIZE = 200;
+
+    // --- Media (paged incrementally as the user scrolls) ---
+    private readonly _media_items = signal<SignageMedia[]>([]);
+    private readonly _media_loading = signal(false);
+    private readonly _media_has_more = signal(false);
+    private _media_next: (() => QueryResponse<SignageMedia> | null) | null =
+        null;
+    // Bumped on every reset so in-flight pages from a stale query are discarded.
+    private _media_token = 0;
+
+    public readonly media = this._media_items.asReadonly();
+    public readonly media_loading = this._media_loading.asReadonly();
+    public readonly media_has_more = this._media_has_more.asReadonly();
+
+    // Reload the first page whenever the org/group/change inputs change.
+    private readonly _reload_media = effect(() => {
+        const initialised = this._org.initialised();
+        const can_query = this._can_query_group_data();
+        const group_id = this._api_group_id_debounced.value();
+        this._change();
+        untracked(() => {
+            const token = ++this._media_token;
+            this._media_items.set([]);
+            this._media_next = null;
+            this._media_has_more.set(false);
+            if (!initialised || !can_query) return;
+            this._fetchMediaPage(
                 querySignageMedia(
-                    this._orgZoneQueryParams({ limit: 2500 }, group_id),
-                ),
-            ).pipe(catchError(() => of({ data: [] }))),
-        ),
-        map((result: any) =>
-            (result.data || []).sort((a, b) => b.created_at - a.created_at),
-        ),
-        shareReplay(1),
-    );
-
-    public readonly filtered_media = combineLatest([
-        this.search_term$,
-        this.media,
-    ]).pipe(
-        map(([search, media]) => {
-            const term = search.trim().toLowerCase();
-            if (!term) return media;
-            return media.filter(
-                (media) =>
-                    media.name.toLowerCase().includes(term) ||
-                    (media.tags || []).some((tag) =>
-                        tag.toLowerCase().includes(term),
+                    this._orgZoneQueryParams(
+                        { limit: SignageService.PAGE_SIZE },
+                        group_id,
                     ),
+                ),
+                token,
             );
-        }),
-    );
+        });
+    });
 
-    public readonly playlists = combineLatest([
-        this._org.initialised,
-        this._change,
-        this._api_group_id$,
-    ]).pipe(
-        filter(
-            ([initialised, , group_id]) =>
-                !!initialised && (this.is_sys_admin() || !!group_id),
-        ),
-        debounceTime(300),
-        switchMap(([, , group_id]) =>
-            from(
-                querySignagePlaylists(
-                    this._orgZoneQueryParams({ limit: 500 }, group_id),
-                ),
-            ).pipe(catchError(() => of({ data: [] }))),
-        ),
-        map((result: any) =>
-            (result.data || []).sort((a, b) => a.name.localeCompare(b.name)),
-        ),
-        shareReplay(1),
-    );
-
-    public readonly displays = combineLatest([
-        combineLatest([this._org.initialised, this._change]).pipe(
-            filter(([initialised]) => !!initialised),
-            debounceTime(300),
-            switchMap(() => this._api_group_id$),
-            filter((group_id) => this.is_sys_admin() || !!group_id),
-            switchMap((group_id) =>
-                from(
-                    querySystems({
-                        ...this._orgZoneQueryParams({}, group_id),
-                        limit: 500,
-                        signage: true,
-                    } as any),
-                ).pipe(catchError(() => of({ data: [] }))),
-            ),
-            map((result: any) => (result.data || []).filter((s) => s.signage)),
-            startWith([]),
-        ),
-        this._display_overrides$,
-    ]).pipe(
-        map(([displays, overrides]) => this._mergeItems(displays, overrides)),
-        shareReplay(1),
-    );
-
-    public readonly zones = combineLatest([
-        combineLatest([this._org.initialised, this._change]).pipe(
-            filter(([initialised]) => !!initialised),
-            debounceTime(300),
-            switchMap(() => this._api_group_id$),
-            filter((group_id) => this.is_sys_admin() || !!group_id),
-            switchMap((group_id) =>
-                from(
-                    queryZones({
-                        limit: 250,
-                        tags: 'signage',
-                        ...(group_id ? { group_id } : {}),
-                    } as any),
-                ).pipe(catchError(() => of({ data: [] }))),
-            ),
-            map((result: any) => result.data || []),
-            startWith([]),
-        ),
-        this._zone_overrides$,
-    ]).pipe(
-        map(([zones, overrides]) => this._mergeItems(zones, overrides)),
-        shareReplay(1),
-    );
-
-    public readonly all_zones = combineLatest([
-        combineLatest([this._org.initialised, this._change]).pipe(
-            filter(([initialised]) => !!initialised),
-            debounceTime(300),
-            switchMap(() => this._api_group_id$),
-            filter((group_id) => this.is_sys_admin() || !!group_id),
-            switchMap((group_id) =>
-                from(
-                    queryZones(
-                        this._groupQueryParams(
-                            { limit: 2500, include_children_count: true },
-                            group_id,
-                        ),
-                    ),
-                ).pipe(catchError(() => of({ data: [] }))),
-            ),
-            map((result: any) => result.data || []),
-            startWith([]),
-        ),
-        this._zone_overrides$,
-    ]).pipe(
-        map(([zones, overrides]) => this._mergeItems(zones, overrides)),
-        shareReplay(1),
-    );
-
-    public readonly root_zones = combineLatest([
-        combineLatest([this._org.initialised, this._change]).pipe(
-            filter(([initialised]) => !!initialised),
-            debounceTime(300),
-            switchMap(() => this._api_group_id$),
-            filter((group_id) => this.is_sys_admin() || !!group_id),
-            switchMap((group_id) =>
-                from(
-                    queryZones({
-                        limit: 2500,
-                        include_children_count: true,
-                        ...(group_id ? { group_id } : { parent_id: 'root' }),
-                    } as any),
-                ).pipe(
-                    catchError(() => of({ data: [] })),
-                    map((result: any) => {
-                        const zones = result.data || [];
-                        const org_zone_id = this._org.organisation?.id;
-                        return org_zone_id && !group_id
-                            ? zones.filter((zone) => zone.id === org_zone_id)
-                            : zones;
-                    }),
-                ),
-            ),
-            startWith([]),
-        ),
-        this._zone_overrides$,
-    ]).pipe(
-        map(([zones, overrides]) => this._mergeItems(zones, overrides)),
-        shareReplay(1),
-    );
-
-    public zoneChildren(parent_id: string) {
-        return from(
-            queryZones({
-                parent_id,
-                limit: 2500,
-                include_children_count: true,
-            } as any),
-        ).pipe(map(({ data }) => data || []));
+    public loadMoreMedia() {
+        if (this._media_loading() || !this._media_has_more()) return;
+        const next = this._media_next?.();
+        if (!next) {
+            this._media_has_more.set(false);
+            return;
+        }
+        this._fetchMediaPage(next, this._media_token);
     }
 
-    public readonly plugins = combineLatest([
-        this._org.initialised,
-        this._change,
-    ]).pipe(
-        filter(([initialised]) => !!initialised),
-        debounceTime(300),
-        switchMap(() =>
-            from(
-                querySignagePlugins(this._orgZoneQueryParams({ limit: 500 })),
-            ).pipe(catchError(() => of({ data: [] }))),
-        ),
-        map((result: any) =>
-            (result.data || [])
-                .filter((p: SignagePlugin) => p.enabled)
-                .sort((a: SignagePlugin, b: SignagePlugin) =>
+    private async _fetchMediaPage(
+        query: QueryResponse<SignageMedia>,
+        token: number,
+    ) {
+        this._media_loading.set(true);
+        try {
+            const page = await query;
+            if (token !== this._media_token) return;
+            const items = (page.data || []).map(decodeEntityNames);
+            this._media_items.update((list) =>
+                [...list, ...items].sort((a, b) => b.created_at - a.created_at),
+            );
+            this._media_next = page.next;
+            this._media_has_more.set(this._media_items().length < page.total);
+        } catch {
+            if (token === this._media_token) this._media_has_more.set(false);
+        } finally {
+            if (token === this._media_token) this._media_loading.set(false);
+        }
+    }
+
+    public readonly filtered_media = computed(() => {
+        const term = this.search_term().trim().toLowerCase();
+        const media = this.media();
+        if (!term) return media;
+        return media.filter(
+            (item) =>
+                item.name.toLowerCase().includes(term) ||
+                (item.tags || []).some((tag) =>
+                    tag.toLowerCase().includes(term),
+                ),
+        );
+    });
+
+    // Distinct tags in use across the active group/zone's signage media. Sourced
+    // from the dedicated tags endpoint so the folder list stays complete no
+    // matter how many media pages have been loaded.
+    private readonly _media_tags = resource({
+        params: () => ({
+            initialised: this._org.initialised(),
+            can_query: this._can_query_group_data(),
+            group_id: this._api_group_id_debounced.value(),
+            change: this._change(),
+        }),
+        loader: async ({ params }) => {
+            if (!params.initialised || !params.can_query) return [] as string[];
+            try {
+                const tags = await listSignageMediaTags(
+                    this._orgZoneQueryParams({}, params.group_id),
+                );
+                return [...tags].sort((a, b) => a.localeCompare(b));
+            } catch {
+                return [] as string[];
+            }
+        },
+    });
+    public readonly media_tags = computed(() => this._media_tags.value() || []);
+
+    // --- Playlists (paged incrementally as the user scrolls) ---
+    private readonly _playlist_items = signal<SignagePlaylist[]>([]);
+    private readonly _playlists_loading = signal(false);
+    private readonly _playlists_has_more = signal(false);
+    private _playlists_next:
+        | (() => QueryResponse<SignagePlaylist> | null)
+        | null = null;
+    private _playlists_token = 0;
+
+    public readonly playlists = this._playlist_items.asReadonly();
+    public readonly playlists_loading = this._playlists_loading.asReadonly();
+    public readonly playlists_has_more = this._playlists_has_more.asReadonly();
+
+    private readonly _reload_playlists = effect(() => {
+        const initialised = this._org.initialised();
+        const can_query = this._can_query_group_data();
+        const group_id = this._api_group_id_debounced.value();
+        this._change();
+        untracked(() => {
+            const token = ++this._playlists_token;
+            this._playlist_items.set([]);
+            this._playlists_next = null;
+            this._playlists_has_more.set(false);
+            if (!initialised || !can_query) return;
+            this._fetchPlaylistPage(
+                querySignagePlaylists(
+                    this._orgZoneQueryParams(
+                        { limit: SignageService.PAGE_SIZE },
+                        group_id,
+                    ),
+                ),
+                token,
+            );
+        });
+    });
+
+    public loadMorePlaylists() {
+        if (this._playlists_loading() || !this._playlists_has_more()) return;
+        const next = this._playlists_next?.();
+        if (!next) {
+            this._playlists_has_more.set(false);
+            return;
+        }
+        this._fetchPlaylistPage(next, this._playlists_token);
+    }
+
+    private async _fetchPlaylistPage(
+        query: QueryResponse<SignagePlaylist>,
+        token: number,
+    ) {
+        this._playlists_loading.set(true);
+        try {
+            const page = await query;
+            if (token !== this._playlists_token) return;
+            const items = (page.data || []).map(decodeEntityNames);
+            this._playlist_items.update((list) =>
+                [...list, ...items].sort((a, b) =>
                     a.name.localeCompare(b.name),
                 ),
-        ),
-        startWith([]),
-        shareReplay(1),
+            );
+            this._playlists_next = page.next;
+            this._playlists_has_more.set(
+                this._playlist_items().length < page.total,
+            );
+        } catch {
+            if (token === this._playlists_token)
+                this._playlists_has_more.set(false);
+        } finally {
+            if (token === this._playlists_token)
+                this._playlists_loading.set(false);
+        }
+    }
+
+    // --- Displays (paged incrementally as the user scrolls) ---
+    private readonly _display_items = signal<any[]>([]);
+    private readonly _displays_loading = signal(false);
+    private readonly _displays_has_more = signal(false);
+    private _displays_next: (() => QueryResponse<any> | null) | null = null;
+    private _displays_token = 0;
+
+    public readonly displays = computed(() =>
+        this._mergeItems(this._display_items(), this._display_overrides()),
+    );
+    public readonly displays_loading = this._displays_loading.asReadonly();
+    public readonly displays_has_more = this._displays_has_more.asReadonly();
+
+    private readonly _reload_displays = effect(() => {
+        const initialised = this._org.initialised();
+        const can_query = this._can_query_group_data();
+        const group_id = this._api_group_id_debounced.value();
+        this._change();
+        untracked(() => {
+            const token = ++this._displays_token;
+            this._display_items.set([]);
+            this._displays_next = null;
+            this._displays_has_more.set(false);
+            if (!initialised || !can_query) return;
+            this._fetchDisplayPage(
+                querySystems({
+                    ...this._orgZoneQueryParams({}, group_id),
+                    limit: SignageService.PAGE_SIZE,
+                    signage: true,
+                } as any),
+                token,
+            );
+        });
+    });
+
+    public loadMoreDisplays() {
+        if (this._displays_loading() || !this._displays_has_more()) return;
+        const next = this._displays_next?.();
+        if (!next) {
+            this._displays_has_more.set(false);
+            return;
+        }
+        this._fetchDisplayPage(next, this._displays_token);
+    }
+
+    private async _fetchDisplayPage(query: QueryResponse<any>, token: number) {
+        this._displays_loading.set(true);
+        try {
+            const page = await query;
+            if (token !== this._displays_token) return;
+            const items = (page.data || [])
+                .filter((item) => item.signage)
+                .map(decodeEntityNames);
+            this._display_items.update((list) => [...list, ...items]);
+            this._displays_next = page.next;
+            this._displays_has_more.set(
+                this._display_items().length < page.total,
+            );
+        } catch {
+            if (token === this._displays_token)
+                this._displays_has_more.set(false);
+        } finally {
+            if (token === this._displays_token)
+                this._displays_loading.set(false);
+        }
+    }
+
+    private readonly _zone_list = resource({
+        params: () => ({
+            initialised: this._org.initialised(),
+            change: this._change(),
+            group_id: this._api_group_id_debounced.value(),
+            can_query: this._can_query_group_data(),
+        }),
+        loader: async ({ params }) => {
+            if (!params.initialised || !params.can_query) return [] as any[];
+            try {
+                const result = await queryZones({
+                    limit: 250,
+                    tags: 'signage',
+                    ...(params.group_id ? { group_id: params.group_id } : {}),
+                } as any);
+                return (result.data || []).map(decodeEntityNames);
+            } catch {
+                return [] as any[];
+            }
+        },
+    });
+    public readonly zones = computed(() =>
+        this._mergeItems(this._zone_list.value() || [], this._zone_overrides()),
     );
 
+    private readonly _all_zone_list = resource({
+        params: () => ({
+            initialised: this._org.initialised(),
+            change: this._change(),
+            group_id: this._api_group_id_debounced.value(),
+            can_query: this._can_query_group_data(),
+        }),
+        loader: async ({ params }) => {
+            if (!params.initialised || !params.can_query) return [] as any[];
+            try {
+                const result = await queryZones(
+                    this._groupQueryParams(
+                        { limit: 500, include_children_count: true },
+                        params.group_id,
+                    ),
+                );
+                return (result.data || []).map(decodeEntityNames);
+            } catch {
+                return [] as any[];
+            }
+        },
+    });
+    public readonly all_zones = computed(() =>
+        this._mergeItems(
+            this._all_zone_list.value() || [],
+            this._zone_overrides(),
+        ),
+    );
+
+    private readonly _root_zone_list = resource({
+        params: () => ({
+            initialised: this._org.initialised(),
+            change: this._change(),
+            group_id: this._api_group_id_debounced.value(),
+            can_query: this._can_query_group_data(),
+        }),
+        loader: async ({ params }) => {
+            if (!params.initialised || !params.can_query) return [] as any[];
+            try {
+                const result = await queryZones({
+                    limit: 500,
+                    include_children_count: true,
+                    ...(params.group_id
+                        ? { group_id: params.group_id }
+                        : { parent_id: 'root' }),
+                } as any);
+                const zones = (result.data || []).map(decodeEntityNames);
+                const org_zone_id = this._org.organisation?.id;
+                return org_zone_id && !params.group_id
+                    ? zones.filter((zone) => zone.id === org_zone_id)
+                    : zones;
+            } catch {
+                return [] as any[];
+            }
+        },
+    });
+    public readonly root_zones = computed(() =>
+        this._mergeItems(
+            this._root_zone_list.value() || [],
+            this._zone_overrides(),
+        ),
+    );
+
+    public async zoneChildren(parent_id: string) {
+        const { data } = await queryZones({
+            parent_id,
+            limit: 2500,
+            include_children_count: true,
+        } as any);
+        return (data || []).map(decodeEntityNames);
+    }
+
+    private readonly _plugins = resource({
+        params: () => ({
+            initialised: this._org.initialised(),
+            change: this._change(),
+        }),
+        loader: async ({ params }) => {
+            if (!params.initialised) return [] as SignagePlugin[];
+            try {
+                const result = await querySignagePlugins(
+                    this._orgZoneQueryParams({ limit: 500 }),
+                );
+                return (result.data || [])
+                    .filter((plugin: SignagePlugin) => plugin.enabled)
+                    .map(decodeEntityNames)
+                    .sort((a: SignagePlugin, b: SignagePlugin) =>
+                        a.name.localeCompare(b.name),
+                    );
+            } catch {
+                return [] as SignagePlugin[];
+            }
+        },
+    });
+    public readonly plugins = computed(() => this._plugins.value() || []);
+
     public readonly selected_playlist = signal<SignagePlaylist | null>(null);
+    // Selecting a playlist loads its media; debounce so arrowing through the
+    // playlist list doesn't fetch media for every intermediate selection.
+    private readonly _selected_playlist_debounced = debounced(
+        this.selected_playlist,
+        300,
+    );
     public readonly selected_playlist_item = signal<SignageMedia | null>(null);
     public readonly playlist_search_term = signal('');
 
@@ -685,13 +949,9 @@ export class SignageService {
     private readonly _playlist_meta_queue: Record<string, SignagePlaylist> = {};
     private _playlist_meta_processing = false;
 
-    private readonly _playlists = toSignal(this.playlists, {
-        initialValue: [] as SignagePlaylist[],
-    });
-
     public readonly filtered_playlists = computed(() => {
         const term = this.playlist_search_term().toLowerCase();
-        return this._playlists().filter((p) =>
+        return this.playlists().filter((p) =>
             p.name.toLowerCase().includes(term),
         );
     });
@@ -737,67 +997,57 @@ export class SignageService {
         return result;
     });
 
-    private readonly _zones = toSignal(this.zones, {
-        initialValue: [] as any[],
-    });
-    private readonly _all_zones = toSignal(this.all_zones, {
-        initialValue: [] as any[],
-    });
-
     public readonly filtered_zones = computed(() => {
         const term = this.zone_search_term().toLowerCase();
-        return this._all_zones().filter((z) =>
+        return this.all_zones().filter((z) =>
             (z.display_name || z.name).toLowerCase().includes(term),
         );
     });
 
-    private readonly _displays = toSignal(this.displays, {
-        initialValue: [] as any[],
-    });
-
     public readonly filtered_displays = computed(() => {
         const term = this.display_search_term().toLowerCase();
-        return this._displays().filter((d) =>
+        return this.displays().filter((d) =>
             (d.display_name || d.name).toLowerCase().includes(term),
         );
     });
 
-    private readonly _playlist_change = new BehaviorSubject(Date.now());
-    private readonly _selected_playlist$ = toObservable(this.selected_playlist);
+    private readonly _playlist_change = signal(Date.now());
     public readonly playlist_media_loading = signal(false);
 
-    public readonly playlist_media_items$ = combineLatest([
-        this._selected_playlist$,
-        this._playlist_change,
-    ]).pipe(
-        switchMap(([playlist]) => {
+    private readonly _playlist_media_items = resource({
+        params: () => ({
+            playlist: this._selected_playlist_debounced.value(),
+            playlist_change: this._playlist_change(),
+        }),
+        loader: async ({ params }) => {
+            const playlist = params.playlist;
             if (!playlist?.id) {
                 this.playlist_media_loading.set(false);
-                return of([]);
+                return [] as SignageMedia[];
             }
             this.playlist_media_loading.set(true);
-            return from(listSignagePlaylistMedia(playlist.id)).pipe(
-                map((result) => {
-                    this.playlist_media_loading.set(false);
-                    this._setPlaylistMediaState(
-                        playlist.id,
-                        result.items || [],
-                        result.approved,
-                    );
-                    return playlistMediaItems(result);
-                }),
-                catchError(() => {
-                    this.playlist_media_loading.set(false);
-                    return of([]);
-                }),
-            );
-        }),
-        shareReplay(1),
+            try {
+                const result = await listSignagePlaylistMedia(playlist.id);
+                this._setPlaylistMediaState(
+                    playlist.id,
+                    result.items || [],
+                    result.approved,
+                );
+                return playlistMediaItems(result);
+            } catch {
+                return [] as SignageMedia[];
+            } finally {
+                this.playlist_media_loading.set(false);
+            }
+        },
+    });
+    public readonly playlist_media_items = computed(
+        () => this._playlist_media_items.value() || [],
     );
 
     constructor() {
         effect(() => {
-            if (!this._signage_groups_loaded()) return;
+            if (!this.signage_groups_loaded()) return;
             const groups = this.signage_groups();
             const selected_group_id = this.selected_group_id();
             if (!groups.length) {
@@ -826,6 +1076,7 @@ export class SignageService {
         });
 
         effect(() => persistSelectedGroupId(this.selected_group_id()));
+        effect(() => persistMediaViewMode(this.media_view_mode()));
     }
 
     public async addPlaylist() {
@@ -844,7 +1095,7 @@ export class SignageService {
             },
             panelClass: 'mobile-fullscreen',
         });
-        const result = await lastValueFrom(ref.afterClosed());
+        const result = await dialogClosed(ref);
         if (result) {
             this.changed();
         }
@@ -877,7 +1128,7 @@ export class SignageService {
             },
             panelClass: 'mobile-fullscreen',
         });
-        const result = await lastValueFrom(ref.afterClosed());
+        const result = await dialogClosed(ref);
         if (result) {
             if (this.selected_playlist()?.id === playlist.id) {
                 this.selected_playlist.set(result);
@@ -975,7 +1226,7 @@ export class SignageService {
             panelClass: 'mobile-fullscreen',
         });
         const result: PlaylistRequestApprovalModalResult | undefined =
-            await lastValueFrom(ref.afterClosed());
+            await dialogClosed(ref);
         if (!result) return;
         await requestApprovalSignagePlaylist(
             playlist.id,
@@ -1014,7 +1265,7 @@ export class SignageService {
         await updateSignagePlaylistMedia(playlist_id, new_items);
         this._setPlaylistMediaState(playlist_id, new_items, false);
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_ITEM_REMOVED'));
-        this._playlist_change.next(Date.now());
+        this._playlist_change.set(Date.now());
         this.changed();
     }
 
@@ -1028,11 +1279,11 @@ export class SignageService {
             return;
         await updateSignagePlaylistMedia(playlist_id, items);
         this._setPlaylistMediaState(playlist_id, items, false);
-        this._playlist_change.next(Date.now());
+        this._playlist_change.set(Date.now());
     }
 
     public changed() {
-        this._change.next(Date.now());
+        this._change.set(Date.now());
     }
 
     public canManageSignageGroup(group_id = '') {
@@ -1065,7 +1316,7 @@ export class SignageService {
             notifyError(i18n('SIGNAGE_MANAGER.SVC_ERR_SAVE_GROUP'));
             throw error;
         });
-        this._groups_change.next(Date.now());
+        this._groups_change.set(Date.now());
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_GROUP_SAVED'));
         return result;
     }
@@ -1096,34 +1347,32 @@ export class SignageService {
         if (this.selected_group_id() === group.id) {
             this.selected_group_id.set('');
         }
-        this._groups_change.next(Date.now());
+        this._groups_change.set(Date.now());
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_GROUP_REMOVED'));
     }
 
-    public searchGroupUsers(search = '') {
+    public async searchGroupUsers(search = '') {
         const group = this.managed_group();
-        return from(
-            queryUsers({
-                q: search,
-                limit: 20,
-                ...(group?.authority_id
-                    ? { authority_id: group.authority_id }
-                    : {}),
-            }),
-        ).pipe(map(({ data }) => data));
+        const { data } = await queryUsers({
+            q: search,
+            limit: 20,
+            ...(group?.authority_id
+                ? { authority_id: group.authority_id }
+                : {}),
+        });
+        return data;
     }
 
-    public searchGroupZones(search = '') {
+    public async searchGroupZones(search = '') {
         const group = this.managed_group();
-        return from(
-            queryZones({
-                q: search,
-                limit: 20,
-                ...(group?.authority_id
-                    ? { authority_id: group.authority_id }
-                    : {}),
-            } as Record<string, unknown>),
-        ).pipe(map(({ data }) => data));
+        const { data } = await queryZones({
+            q: search,
+            limit: 20,
+            ...(group?.authority_id
+                ? { authority_id: group.authority_id }
+                : {}),
+        } as Record<string, unknown>);
+        return data;
     }
 
     public async addManagedGroupUser(user: PlaceUser) {
@@ -1137,7 +1386,7 @@ export class SignageService {
             notifyError(i18n('SIGNAGE_MANAGER.SVC_ERR_ADD_USER'));
             throw error;
         });
-        this._groups_change.next(Date.now());
+        this._groups_change.set(Date.now());
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_USER_ADDED'));
     }
 
@@ -1152,7 +1401,7 @@ export class SignageService {
             notifyError(i18n('SIGNAGE_MANAGER.SVC_ERR_UPDATE_USER'));
             throw error;
         });
-        this._groups_change.next(Date.now());
+        this._groups_change.set(Date.now());
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_USER_UPDATED'));
     }
 
@@ -1175,7 +1424,7 @@ export class SignageService {
             throw error;
         });
         result.close();
-        this._groups_change.next(Date.now());
+        this._groups_change.set(Date.now());
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_USER_REMOVED'));
     }
 
@@ -1190,7 +1439,7 @@ export class SignageService {
             notifyError(i18n('SIGNAGE_MANAGER.SVC_ERR_ADD_ZONE'));
             throw error;
         });
-        this._groups_change.next(Date.now());
+        this._groups_change.set(Date.now());
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_ZONE_ADDED'));
     }
 
@@ -1207,7 +1456,7 @@ export class SignageService {
             notifyError(i18n('SIGNAGE_MANAGER.SVC_ERR_UPDATE_ZONE'));
             throw error;
         });
-        this._groups_change.next(Date.now());
+        this._groups_change.set(Date.now());
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_ZONE_UPDATED'));
     }
 
@@ -1230,7 +1479,7 @@ export class SignageService {
             throw error;
         });
         result.close();
-        this._groups_change.next(Date.now());
+        this._groups_change.set(Date.now());
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_ZONE_REMOVED'));
     }
 
@@ -1344,7 +1593,7 @@ export class SignageService {
             },
             panelClass: 'mobile-fullscreen',
         });
-        const group_id = await lastValueFrom(ref.afterClosed());
+        const group_id = await dialogClosed(ref);
         if (!group_id) return false;
         const request =
             item_type === 'media'
@@ -1426,7 +1675,7 @@ export class SignageService {
         await updateSignagePlaylistMedia(playlist_id, list);
         this._setPlaylistMediaState(playlist_id, list, false);
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_UPDATED'));
-        this._playlist_change.next(Date.now());
+        this._playlist_change.set(Date.now());
         this.changed();
     }
 
@@ -1555,7 +1804,7 @@ export class SignageService {
         approval_requested = false,
     ) {
         const playlist =
-            this._playlists().find((item) => item.id === playlist_id) ||
+            this.playlists().find((item) => item.id === playlist_id) ||
             this.selected_playlist();
         const current_state = this._playlist_meta_state()[playlist_id];
         this._setPlaylistMeta(playlist_id, {
@@ -1574,7 +1823,7 @@ export class SignageService {
         approved?: boolean,
     ) {
         const playlist =
-            this._playlists().find((item) => item.id === playlist_id) ||
+            this.playlists().find((item) => item.id === playlist_id) ||
             this.selected_playlist();
         const current_state = this._playlist_meta_state()[playlist_id];
         this._setPlaylistMeta(playlist_id, {
@@ -1627,7 +1876,7 @@ export class SignageService {
         if (selected_item?.id && removed_ids.has(selected_item.id)) {
             this.selected_playlist_item.set(null);
         }
-        this._playlist_change.next(Date.now());
+        this._playlist_change.set(Date.now());
     }
 
     private _updatePlaylistMetaState(
@@ -1722,7 +1971,7 @@ export class SignageService {
             data,
             panelClass: 'mobile-fullscreen',
         });
-        await lastValueFrom(ref.afterClosed());
+        await dialogClosed(ref);
         this.changed();
     }
 
@@ -1837,12 +2086,8 @@ export class SignageService {
                 preview: (item) => this.previewMedia(item),
             },
         });
-        return new Promise<void>((resolve) => {
-            ref.afterClosed().subscribe(() => {
-                setTimeout(() => this.changed(), 500);
-                resolve();
-            });
-        });
+        await dialogClosed(ref);
+        setTimeout(() => this.changed(), 500);
     }
 
     private async _editMedia(id: string, data: any) {
@@ -1951,14 +2196,26 @@ export class SignageService {
         ).catch(() => null);
         let media_id: string;
         if (upload_options) {
-            const details = await lastValueFrom(
-                this._uploads
-                    .uploadFileWithProgress(
-                        upload_file,
-                        false,
-                        upload_options.permissions,
-                    )
-                    .pipe(tap((d) => upload_options.on_progress?.(d.progress))),
+            const upload = this._uploads.uploadFileWithProgress(
+                upload_file,
+                false,
+                upload_options.permissions,
+            );
+            const details = await new Promise<ReturnType<typeof upload>>(
+                (resolve, reject) => {
+                    const interval = setInterval(() => {
+                        const state = upload();
+                        upload_options.on_progress?.(state.progress);
+                        if (state.error) {
+                            clearInterval(interval);
+                            reject(state.error);
+                            return;
+                        }
+                        if (state.progress < 100) return;
+                        clearInterval(interval);
+                        resolve(state);
+                    }, 100);
+                },
             );
             media_id = details.upload_id || details.upload?.id || details.id;
             if (!media_id) {
@@ -2129,7 +2386,7 @@ export class SignageService {
             data: { media_id },
             panelClass: 'mobile-fullscreen',
         });
-        const playlist_id = await lastValueFrom(ref.afterClosed());
+        const playlist_id = await dialogClosed(ref);
         if (!playlist_id) return;
         await this.addMediaToPlaylist(playlist_id, media_id);
     }
@@ -2139,7 +2396,7 @@ export class SignageService {
             data: { media_ids },
             panelClass: 'mobile-fullscreen',
         });
-        const playlist_id = await lastValueFrom(ref.afterClosed());
+        const playlist_id = await dialogClosed(ref);
         if (!playlist_id) return false;
         return this.addMediaItemsToPlaylist(playlist_id, media_ids);
     }
@@ -2156,7 +2413,7 @@ export class SignageService {
             data: { zone_id: zone.id },
             panelClass: 'mobile-fullscreen',
         });
-        const playlist_id = await lastValueFrom(ref.afterClosed());
+        const playlist_id = await dialogClosed(ref);
         if (!playlist_id) return;
         if (zone.playlists?.includes(playlist_id)) {
             notifyError(i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_IN_ZONE'));
@@ -2208,9 +2465,9 @@ export class SignageService {
             data: { zone_id: zone.id },
             panelClass: 'mobile-fullscreen',
         });
-        const display_id = await lastValueFrom(ref.afterClosed());
+        const display_id = await dialogClosed(ref);
         if (!display_id) return;
-        const displays = this._displays();
+        const displays = this.displays();
         const display = displays.find((d: any) => d.id === display_id);
         if (!display) return;
         if (display.zones?.includes(zone.id)) {
@@ -2236,7 +2493,7 @@ export class SignageService {
             )
         )
             return;
-        const displays = this._displays();
+        const displays = this.displays();
         const display = displays.find((d: any) => d.id === display_id);
         if (!display) return;
         const zones = (display.zones || []).filter(
@@ -2264,7 +2521,7 @@ export class SignageService {
             data: { display_id: display.id },
             panelClass: 'mobile-fullscreen',
         });
-        const playlist_id = await lastValueFrom(ref.afterClosed());
+        const playlist_id = await dialogClosed(ref);
         if (!playlist_id) return;
         if (display.playlists?.includes(playlist_id)) {
             notifyError(i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_IN_DISPLAY'));
@@ -2294,9 +2551,9 @@ export class SignageService {
             data: { playlist_id: playlist.id },
             panelClass: 'mobile-fullscreen',
         });
-        const display_id = await lastValueFrom(ref.afterClosed());
+        const display_id = await dialogClosed(ref);
         if (!display_id) return;
-        const displays = this._displays();
+        const displays = this.displays();
         const display = displays.find((d: any) => d.id === display_id);
         if (!display) return;
         if (display.playlists?.includes(playlist.id)) {
@@ -2329,9 +2586,9 @@ export class SignageService {
             data: { playlist_id: playlist.id },
             panelClass: 'mobile-fullscreen',
         });
-        const zone_id = await lastValueFrom(ref.afterClosed());
+        const zone_id = await dialogClosed(ref);
         if (!zone_id) return;
-        const zones = this._zones();
+        const zones = this.zones();
         const zone = zones.find((z: any) => z.id === zone_id);
         if (!zone) return;
         if (zone.playlists?.includes(playlist.id)) {

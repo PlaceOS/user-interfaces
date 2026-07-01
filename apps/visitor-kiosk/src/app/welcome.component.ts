@@ -3,6 +3,7 @@ import {
     ChangeDetectorRef,
     Component,
     computed,
+    effect,
     inject,
     OnDestroy,
     OnInit,
@@ -199,6 +200,9 @@ export class WelcomeComponent
     public readonly now = signal(Date.now());
     /** Level to initially load on explore */
     public readonly level = signal('');
+    private readonly _level_sync = effect(() =>
+        this.level.set(this._settings.listen('KIOSK.level')()),
+    );
 
     public readonly hide_explore = settingSignal('hide_explore');
     public readonly background = settingSignal('welcome_background');
@@ -226,30 +230,17 @@ export class WelcomeComponent
 
     public ngOnInit() {
         this.interval('time', () => this.now.set(Date.now()), 30 * 1000);
-        this.subscription(
-            'level',
-            this._settings
-                .listen('KIOSK.level')
-                .subscribe((lvl) => this.level.set(lvl)),
-        );
         this.level.set(localStorage?.getItem('KIOSK.level'));
-        this.subscription(
-            'route.params',
-            this.route.paramMap.subscribe((params) => {
-                if (params.has('level')) {
-                    this.level.set(params.get('level'));
-                }
-            }),
-        );
-        this.subscription(
-            'route.query',
-            this.route.queryParamMap.subscribe((params) => {
-                if (!params.has('osk')) return;
-                const osk_enabled = params.get('osk') === 'true';
-                localStorage.setItem('OSK.enabled', `${osk_enabled}`);
-                VirtualKeyboardComponent.enabled = osk_enabled;
-            }),
-        );
+        const params = this.route.snapshot.paramMap;
+        if (params.has('level')) {
+            this.level.set(params.get('level'));
+        }
+        const query_params = this.route.snapshot.queryParamMap;
+        if (query_params.has('osk')) {
+            const osk_enabled = query_params.get('osk') === 'true';
+            localStorage.setItem('OSK.enabled', `${osk_enabled}`);
+            VirtualKeyboardComponent.enabled = osk_enabled;
+        }
         this.timeout('check', () => this._cdr.detectChanges(), 1000);
     }
 }

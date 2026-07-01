@@ -48,7 +48,7 @@ describe('CateringItemOptionModalComponent', () => {
 
     it('should show loading state', () => {
         expect('[loading]').not.toExist();
-        spectator.component.loading = true;
+        spectator.component.loading.set(true);
         spectator.detectChanges();
         expect('[loading]').toExist();
     });
@@ -60,7 +60,9 @@ describe('CateringItemOptionModalComponent', () => {
             expect(e.metadata.item.options[0].name).toBe('Test');
             done();
         });
-        spectator.typeInElement('Test', 'input[name="name"]');
+        const name_input =
+            spectator.queryAll<HTMLInputElement>('input[matInput]')[0];
+        spectator.typeInElement('Test', name_input);
         spectator.detectChanges();
         spectator.click('footer button');
     });

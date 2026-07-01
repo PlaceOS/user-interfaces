@@ -1,6 +1,5 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 import { Component, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { i18n, notifySuccess } from '@placeos/common';
@@ -47,7 +46,7 @@ import { LevelManagementService } from './level-management.service';
                         key: 'actions',
                         name: ' ',
                         content: action_template,
-                        size: '3.5rem',
+                        size: '3.25rem',
                         sortable: false,
                     },
                 ]"
@@ -76,13 +75,8 @@ import { LevelManagementService } from './level-management.service';
             }
         </ng-template>
         <ng-template #action_template let-row="row">
-            <div class="flex w-full justify-center space-x-2 p-1">
-                <button
-                    icon
-                    matRipple
-                    class="h-12 w-12 rounded-sm"
-                    [matMenuTriggerFor]="menu"
-                >
+            <div class="mx-auto flex items-center gap-2 p-2">
+                <button icon default matRipple [matMenuTriggerFor]="menu">
                     <icon>more_vert</icon>
                 </button>
                 <mat-menu #menu="matMenu">
@@ -92,6 +86,16 @@ import { LevelManagementService } from './level-management.service';
                             <span>{{
                                 'APP.CONCIERGE.LEVELS_EDIT' | translate
                             }}</span>
+                        </div>
+                    </button>
+                    <button
+                        mat-menu-item
+                        [disabled]="!row.map_id"
+                        (click)="editLevelMap(row)"
+                    >
+                        <div class="flex items-center space-x-2">
+                            <icon class="text-2xl">map</icon>
+                            <span>Edit SVG map</span>
                         </div>
                     </button>
                     <button
@@ -136,11 +140,10 @@ export class LevelListComponent {
     private _clipboard = inject(Clipboard);
     private _dialog = inject(MatDialog);
 
-    public readonly levels = toSignal(this._manager.filtered_levels, {
-        initialValue: [],
-    });
+    public readonly levels = this._manager.filtered_levels;
 
     public readonly editLevel = (level) => this._manager.editLevel(level);
+    public readonly editLevelMap = (level) => this._manager.editLevelMap(level);
     public readonly removeLevel = (level) => this._manager.removeLevel(level);
 
     public readonly copyToClipboard = (id: string) => {

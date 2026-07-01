@@ -1,22 +1,14 @@
 import { COMMA, ENTER, SPACE } from '@angular/cdk/keycodes';
 import {
     Component,
-    effect,
     EventEmitter,
     inject,
     OnInit,
     Output,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import {
-    AbstractControl,
-    FormControl,
-    FormGroup,
-    FormsModule,
-    ReactiveFormsModule,
-    Validators,
-} from '@angular/forms';
+import { FormsModule } from '@angular/forms';
+import { form, FormField, required, validate } from '@angular/forms/signals';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatRippleModule } from '@angular/material/core';
 import {
@@ -80,16 +72,12 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
                 }
             </header>
             @if (!loading()) {
-                <main
-                    class="flex max-h-[65vh] flex-col overflow-auto p-4"
-                    [formGroup]="form"
-                >
+                <main class="flex max-h-[65vh] flex-col overflow-auto p-4">
                     <label for="name">{{ 'FORM.NAME' | translate }}</label>
                     <mat-form-field appearance="outline">
                         <input
                             matInput
-                            name="name"
-                            formControlName="name"
+                            [formField]="form.name"
                             [placeholder]="'FORM.NAME' | translate"
                         />
                         <mat-error>{{
@@ -101,8 +89,7 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
                     }}</label>
                     <div class="mb-4 flex space-x-2">
                         <a-user-search-field
-                            name="user"
-                            formControlName="assigned_user"
+                            [formField]="form.assigned_user"
                             class="flex-1"
                         ></a-user-search-field>
                         <button
@@ -112,13 +99,7 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
                             [matTooltip]="
                                 'APP.CONCIERGE.USER_CLEAR' | translate
                             "
-                            (click)="
-                                form.patchValue({
-                                    assigned_user: null,
-                                    assigned_to: null,
-                                    assigned_name: null,
-                                })
-                            "
+                            (click)="clearUser()"
                         >
                             <icon className="material-symbols-outlined">
                                 person_cancel
@@ -128,29 +109,27 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
                     <div class="mb-4 flex space-x-4">
                         <settings-toggle
                             class="flex-1"
-                            [name]="
+                            [label]="
                                 'APP.CONCIERGE.LOCKERS_ACCESSIBLE' | translate
                             "
-                            formControlName="accessible"
+                            [formField]="form.accessible"
                         ></settings-toggle>
                         <settings-toggle
                             class="flex-1"
-                            [name]="'COMMON.BOOKABLE' | translate"
-                            formControlName="bookable"
+                            [label]="'COMMON.BOOKABLE' | translate"
+                            [formField]="form.bookable"
                         ></settings-toggle>
                     </div>
                     <div class="mb-1 flex space-x-4">
                         <div class="flex-1">
                             <label for="row">Start Column</label>
                             <a-counter
-                                [ngModel]="form.value.position[0] + 1"
+                                [ngModel]="model().position[0] + 1"
                                 (ngModelChange)="
-                                    form.patchValue({
-                                        position: [
-                                            $event - 1,
-                                            form.value.position[1],
-                                        ],
-                                    })
+                                    model.update((m) => ({
+                                        ...m,
+                                        position: [$event - 1, m.position[1]],
+                                    }))
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                                 [min]="1"
@@ -160,14 +139,12 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
                         <div class="flex-1">
                             <label for="column">Start Row</label>
                             <a-counter
-                                [ngModel]="form.value.position[1] + 1"
+                                [ngModel]="model().position[1] + 1"
                                 (ngModelChange)="
-                                    form.patchValue({
-                                        position: [
-                                            form.value.position[0],
-                                            $event - 1,
-                                        ],
-                                    })
+                                    model.update((m) => ({
+                                        ...m,
+                                        position: [m.position[0], $event - 1],
+                                    }))
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                                 [min]="1"
@@ -177,8 +154,8 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
                     </div>
                     <div
                         class="text-error mb-4 text-xs"
-                        [class.opacity-100]="form.get('position').invalid"
-                        [class.opacity-0]="!form.get('position').invalid"
+                        [class.opacity-100]="form.position().invalid()"
+                        [class.opacity-0]="!form.position().invalid()"
                     >
                         {{
                             'APP.CONCIERGE.LOCKERS_POSITION_INVALID' | translate
@@ -190,11 +167,12 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
                                 'COMMON.WIDTH' | translate
                             }}</label>
                             <a-counter
-                                [ngModel]="form.value.size[0]"
+                                [ngModel]="model().size[0]"
                                 (ngModelChange)="
-                                    form.patchValue({
-                                        size: [$event, form.value.size[1]],
-                                    })
+                                    model.update((m) => ({
+                                        ...m,
+                                        size: [$event, m.size[1]],
+                                    }))
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                                 [min]="1"
@@ -207,26 +185,24 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
                                 'COMMON.HEIGHT' | translate
                             }}</label>
                             <a-counter
-                                [ngModel]="form.value.size[1]"
+                                [ngModel]="model().size[1]"
                                 (ngModelChange)="
-                                    form.patchValue({
-                                        size: [form.value.size[0], $event],
-                                    })
+                                    model.update((m) => ({
+                                        ...m,
+                                        size: [m.size[0], $event],
+                                    }))
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                                 [min]="1"
-                                [max]="
-                                    (bank?.height || 10) -
-                                    form.value.position[1]
-                                "
+                                [max]="(bank?.height || 10) - model().position[1]"
                                 [render_fn]="render_fn"
                             ></a-counter>
                         </div>
                     </div>
                     <div
                         class="text-error mb-4 text-xs"
-                        [class.opacity-100]="form.get('size').invalid"
-                        [class.opacity-0]="!form.get('size').invalid"
+                        [class.opacity-100]="form.size().invalid()"
+                        [class.opacity-0]="!form.size().invalid()"
                     >
                         {{ 'APP.CONCIERGE.LOCKERS_SIZE_INVALID' | translate }}
                     </div>
@@ -234,8 +210,7 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
                     <mat-form-field appearance="outline">
                         <textarea
                             matInput
-                            name="notes"
-                            formControlName="notes"
+                            [formField]="form.notes"
                             [placeholder]="'FORM.NOTES' | translate"
                         ></textarea>
                     </mat-form-field>
@@ -301,7 +276,7 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
         MatInputModule,
         CounterComponent,
         FormsModule,
-        ReactiveFormsModule,
+        FormField,
         SettingsToggleComponent,
         MatTooltipModule,
         UserSearchFieldComponent,
@@ -337,86 +312,103 @@ export class LockerModalComponent extends AsyncHandler implements OnInit {
         return this.locker?.id || '';
     }
 
-    public readonly addTag = (e) =>
-        addChipItem(this.form.controls.features as any, e);
+    public readonly addTag = (e) => addChipItem(this._features_control as any, e);
     public readonly removeTag = (i) =>
-        removeChipItem(this.form.controls.features as any, i);
+        removeChipItem(this._features_control as any, i);
 
     public get tag_list(): string[] {
-        return this.form.controls.features.value;
+        return this.model().features;
     }
 
-    public readonly form: FormGroup = new FormGroup({
-        id: new FormControl(''),
-        name: new FormControl('', [Validators.required]),
-        assigned_user: new FormControl<User>(null),
-        assigned_to: new FormControl(''),
-        assigned_name: new FormControl(''),
-        position: new FormControl([0, 0], [(e) => this.validatePosition(e)]),
-        size: new FormControl([1, 1], [(e) => this.validateSize(e)]),
-        notes: new FormControl(''),
-        accessible: new FormControl(false),
-        bookable: new FormControl(false),
-        features: new FormControl([]),
+    public readonly model = signal({
+        id: '',
+        name: '',
+        assigned_user: null as User | null,
+        assigned_to: '',
+        assigned_name: '',
+        position: [0, 0] as number[],
+        size: [1, 1] as number[],
+        notes: '',
+        accessible: false,
+        bookable: false,
+        features: [] as string[],
     });
-    private readonly _position = toSignal(
-        this.form.controls.position.valueChanges,
-        {
-            initialValue: this.form.controls.position.value,
-        },
-    );
+    public readonly form = form(this.model, (p) => {
+        required(p.name);
+        validate(p.position, ({ value }) => {
+            const [x, y] = value();
+            return validateNoOverlap([x, y, 1, 1], this._locker_bounds)
+                ? undefined
+                : { kind: 'position' };
+        });
+        // Depends on `position` via valueOf, so size re-validates whenever the
+        // position changes — no manual re-trigger needed.
+        validate(p.size, ({ value, valueOf }) => {
+            const [x, y] = valueOf(p.position) || [0, 0];
+            const [w, h] = value();
+            return validateNoOverlap([x, y, w, h], this._locker_bounds)
+                ? undefined
+                : { kind: 'position' };
+        });
+    });
+
+    private get _features_control() {
+        return {
+            value: this.model().features,
+            setValue: (value: string[]) =>
+                this.model.update((m) => ({ ...m, features: value })),
+        };
+    }
 
     constructor() {
         super();
-        const _data = this._data;
-
+        const data = this._data.locker as any;
         this._locker_bounds = this._lockerBounds();
-        if (_data.locker) this.form.patchValue(_data.locker);
-        effect(() => {
-            this._position();
-            this.timeout(
-                'changed',
-                () =>
-                    this.form.controls.size.patchValue(
-                        this.form.controls.size.value,
-                    ),
-                50,
-            );
-        });
+        if (data) {
+            this.model.update((m) => ({
+                ...m,
+                id: data.id ?? m.id,
+                name: data.name ?? m.name,
+                assigned_to: data.assigned_to ?? m.assigned_to,
+                assigned_name: data.assigned_name ?? m.assigned_name,
+                position: data.position ?? m.position,
+                size: data.size ?? m.size,
+                notes: data.notes ?? m.notes,
+                accessible: data.accessible ?? m.accessible,
+                bookable: data.bookable ?? m.bookable,
+                features: data.features ?? m.features,
+            }));
+        }
     }
 
     public async ngOnInit() {
         if (this.locker?.assigned_to) {
-            const user = await showStaff(this.locker.assigned_to).toPromise();
+            const user = await showStaff(this.locker.assigned_to);
             if (user) {
-                this.form.patchValue({
+                this.model.update((m) => ({
+                    ...m,
                     assigned_user: user,
                     assigned_to: user.email,
                     assigned_name: user.name,
-                });
+                }));
             }
         }
     }
 
-    public validatePosition(control: AbstractControl) {
-        const [x, y] = control.value;
-        return validateNoOverlap([x, y, 1, 1], this._locker_bounds)
-            ? null
-            : { position: true };
-    }
-
-    public validateSize(control: AbstractControl) {
-        const [x, y] = this.form?.value?.position || [0, 0];
-        const [w, h] = control.value;
-        return validateNoOverlap([x, y, w, h], this._locker_bounds)
-            ? null
-            : { position: true };
+    public clearUser() {
+        this.model.update((m) => ({
+            ...m,
+            assigned_user: null,
+            assigned_to: '',
+            assigned_name: '',
+        }));
     }
 
     public postForm() {
-        if (!this.form.valid) return;
+        this.form().markAsTouched();
+        if (!this.form().valid()) return;
         this.loading.set(true);
-        const value = { ...this.form.getRawValue() };
+        const value: any = { ...this.model() };
         if (value.assigned_user) {
             value.assigned_to = value.assigned_user.email;
             value.assigned_name = value.assigned_user.name;

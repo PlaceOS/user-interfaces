@@ -1,17 +1,18 @@
 import { Component, input } from '@angular/core';
-import { FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormField } from '@angular/forms/signals';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { UserForm, UserFormValue } from './user.utilities';
 
 @Component({
     selector: 'user-form',
     template: `
         @if (form()) {
-            <form user-form [formGroup]="form()" class="w-full">
-                @if (form().controls.name) {
+            <form user-form class="w-full">
+                @if (form().name) {
                     <div class="flex w-full flex-col">
                         <label for="name" [class.error]="hasError('name')">
                             Name<span>*</span>:
@@ -19,15 +20,14 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                         <mat-form-field appearance="outline">
                             <input
                                 matInput
-                                name="name"
                                 placeholder="Name"
-                                formControlName="name"
+                                [formField]="form().name"
                             />
                             <mat-error>Name is required</mat-error>
                         </mat-form-field>
                     </div>
                 }
-                @if (form().controls.email) {
+                @if (form().email) {
                     <div class="flex w-full flex-col">
                         <label for="email" [class.error]="hasError('email')">
                             Email<span>*</span>:
@@ -35,15 +35,14 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                         <mat-form-field appearance="outline">
                             <input
                                 matInput
-                                name="email"
                                 placeholder="Email Address"
-                                formControlName="email"
+                                [formField]="form().email"
                             />
                             <mat-error>A valid email is required</mat-error>
                         </mat-form-field>
                     </div>
                 }
-                @if (form().controls.organisation) {
+                @if (form().organisation) {
                     <div class="flex w-full flex-col">
                         <label
                             for="org"
@@ -55,9 +54,8 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                         <mat-form-field appearance="outline">
                             <input
                                 matInput
-                                name="org"
                                 placeholder="e.g. Conteso"
-                                formControlName="organisation"
+                                [formField]="form().organisation"
                             />
                             <mat-error>
                                 {{ 'COMMON.ORGANISATION' | translate }} is
@@ -66,7 +64,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                         </mat-form-field>
                     </div>
                 }
-                @if (form().controls.phone) {
+                @if (form().phone) {
                     <div class="flex w-full flex-col">
                         <label for="phone" [class.error]="hasError('phone')">
                             Phone:
@@ -74,32 +72,29 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                         <mat-form-field appearance="outline">
                             <input
                                 matInput
-                                name="phone"
                                 type="tel"
                                 placeholder="Phone"
-                                formControlName="phone"
+                                [formField]="form().phone"
                             />
                             <mat-error>Phone format is invalid</mat-error>
                         </mat-form-field>
                     </div>
                 }
-                @if (form().controls.assistance_required) {
+                @if (form().assistance_required) {
                     <div class="flex w-full flex-col">
                         <mat-checkbox
-                            name="assistance-required"
                             color="primary"
-                            formControlName="assistance_required"
+                            [formField]="form().assistance_required"
                         >
                             Assistance required
                         </mat-checkbox>
                     </div>
                 }
-                @if (form().controls.visit_expected) {
+                @if (form().visit_expected) {
                     <div class="flex w-full flex-col">
                         <mat-checkbox
-                            name="visit-expected"
                             color="primary"
-                            formControlName="visit_expected"
+                            [formField]="form().visit_expected"
                         >
                             Visit expected
                         </mat-checkbox>
@@ -120,16 +115,16 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
         MatCheckboxModule,
         MatFormFieldModule,
         MatInputModule,
-        ReactiveFormsModule,
+        FormField,
         TranslatePipe,
     ],
 })
 export class UserFormComponent {
-    /** Group of form fields used for creating the system */
-    public readonly form = input<FormGroup>(undefined);
+    /** Signal-forms field tree used for editing the user */
+    public readonly form = input<UserForm>(undefined);
 
-    public hasError(name: string) {
-        const { invalid, touched } = this.form()?.controls[name] || {};
-        return invalid && touched;
+    public hasError(name: keyof UserFormValue) {
+        const field = this.form()?.[name];
+        return !!field && field().invalid() && field().touched();
     }
 }

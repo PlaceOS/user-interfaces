@@ -1,32 +1,34 @@
-import { computed, inject, Injectable, signal } from '@angular/core';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import {
+    computed,
+    debounced,
+    effect,
+    inject,
+    Injectable,
+    Injector,
+    signal,
+} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import {
     BookingFormService,
     checkinBooking,
-    loadLockerBanks,
-    loadLockers,
-    Locker,
-    LockerBank,
+    checkinBookingInstance,
+    loadLockerResources,
     ParkingService,
     queryBookings,
     removeBooking,
-    updateBooking,
-    updateBookingInstance,
 } from '@placeos/bookings';
 import {
     AsyncHandler,
     Booking,
     BookingType,
     CalendarEvent,
-    current_user,
     currentUser,
     flatten,
     i18n,
+    MINUTES,
     notifyError,
     notifySuccess,
-    observableFromSignal,
     OrganisationService,
     SettingsService,
     unique,
@@ -58,19 +60,6 @@ import {
     startOfMinute,
     startOfWeek,
 } from 'date-fns';
-import { combineLatest, interval, lastValueFrom, Observable, of } from 'rxjs';
-import {
-    catchError,
-    debounceTime,
-    distinctUntilChanged,
-    distinctUntilKeyChanged,
-    filter,
-    map,
-    shareReplay,
-    startWith,
-    switchMap,
-    tap,
-} from 'rxjs/operators';
 
 export type EventSource = 'api' | 'driver' | 'ws';
 
@@ -78,12 +67,6 @@ export interface ScheduleOptions {
     period: 'day' | 'week' | 'month' | 'range';
 }
 
-/**
- * De-duplicates events from multiple sources based on ical_uid.
- * Events from sources earlier in the list take priority.
- * @param events_by_source - Array of event arrays, ordered by priority (first = highest priority)
- * @returns De-duplicated array of events
- */
 function deduplicateEventsByIcalUid(
     events_by_source: CalendarEvent[][],
 ): CalendarEvent[] {
@@ -93,8 +76,6 @@ function deduplicateEventsByIcalUid(
     for (const events of events_by_source) {
         for (const event of events) {
             const uid = event.ical_uid;
-            // If no ical_uid, include the event (can't dedupe without it)
-            // If ical_uid exists and hasn't been seen, include and mark as seen
             if (!uid || !seen_ical_uids.has(uid)) {
                 if (uid) seen_ical_uids.add(uid);
                 result.push(event);
@@ -115,11 +96,11 @@ export class ScheduleStateService extends AsyncHandler {
     private _event_form = inject(EventFormService);
     private _booking_form = inject(BookingFormService);
     private _router = inject(Router);
-    private _parking = inject(ParkingService);
     private _spaces = inject(SpacesService);
+    private _injector = inject(Injector);
 
     private _poll = signal(0);
-    private _poll_type = signal<'api' | 'ws' | 'driver'>('api');
+    private _event_sources = signal<EventSource[]>(['api']);
     private _loading = signal(false);
     private _options = signal<ScheduleOptions>({ period: 'day' });
     private _filters = signal({
@@ -130,123 +111,73 @@ export class ScheduleStateService extends AsyncHandler {
             'visitor',
             'locker',
             'group-event',
-            'vip-visitor',
         ],
     });
     private _date = signal(Date.now());
     private _end_date = signal<number | null>(null);
-
     private _deleted: string[] = [];
+    private _ignore_cancel: string[] = [];
+    private _network_requested = false;
+    private _network_started = false;
+    private _booking_query_requests = new Map<string, Promise<Booking[]>>();
 
-    private _active_building = toSignal(
-        this._org.active_building.pipe(filter((_) => !!_)),
-        { requireSync: false },
-    );
+    private _space_bookings = signal<CalendarEvent[]>([]);
+    private _user_bookings = signal<CalendarEvent[]>([]);
+    private _api_events = signal<CalendarEvent[]>([]);
+    private _visitors = signal<Booking[]>([]);
+    private _desks = signal<Booking[]>([]);
+    private _parking_bookings = signal<Booking[]>([]);
+    private _locker_bookings = signal<Booking[]>([]);
+    private _lockers = signal<Booking[]>([]);
 
-    private _space_bookings: Observable<CalendarEvent[]> =
-        this._org.active_building.pipe(
-            filter((_) => !!_),
-            distinctUntilKeyChanged('id'),
-            debounceTime(300),
-            tap((_) => this.unsubWith('bind:')),
-            switchMap(({ id }) => {
-                this._loading.set(true);
-                return requestSpacesForZone(id);
-            }), // Get list of spaces for building
-            distinctUntilChanged(([s1], [s2]) => s1 !== s2),
-            switchMap((list) => {
-                this._loading.set(false);
-                return combineLatest(
-                    (list || []).map((space) => {
-                        const binding = getModule(
-                            space.id,
-                            'Bookings',
-                        ).variable('bookings');
-                        const obs = observableFromSignal(binding.listen()).pipe(
-                            map((event_list) =>
-                                (event_list || []).map(
-                                    (i) =>
-                                        new CalendarEvent({
-                                            ...i,
-                                            resources: i.attendees.filter(
-                                                (_) =>
-                                                    _.email === space.email ||
-                                                    _.resource,
-                                            ),
-                                            system: space,
-                                        }),
-                                ),
-                            ),
-                            catchError((_) => of([])),
-                        );
-                        if (!this.hasSubscription(`bind:${space.id}`)) {
-                            this.subscription(
-                                `bind:${space.id}`,
-                                binding.bind(),
-                            );
-                        }
-                        return obs;
-                    }),
-                );
-            }),
-            map((_) => flatten<CalendarEvent>(_)),
-            shareReplay(1),
+    private readonly _requests_ready = computed(() => {
+        const region = this._org.active_region();
+        const building = this._org.active_building();
+        const overrides = this._settings.overrides();
+        const required_overrides = (this._org.settings?.length || 0) + 2;
+        return (
+            this._org.initialised() &&
+            (!this._org.regions.length || !!region?.id) &&
+            !!building?.id &&
+            overrides.length >= required_overrides
         );
-
-    private _user_bookings: Observable<CalendarEvent[]> = combineLatest([
-        this._org.active_building,
-        toObservable(this._poll),
-    ]).pipe(
-        filter(([bld]) => !!bld),
-        debounceTime(300),
-        switchMap(() => {
-            this._loading.set(true);
-            const mod = this._org.module(
-                'location_services',
-                'LocationServices',
-            );
-            if (!mod?.system) return of([]);
-            return mod.execute('my_bookings').catch((_) => []);
-        }),
-        map((_) => (_ || []).map((_) => new CalendarEvent(_))),
-        shareReplay(1),
-    );
+    });
 
     public readonly options = this._options.asReadonly();
-    /** Currently selected date */
     public readonly filters = this._filters.asReadonly();
     /** Currently selected date (start date for range) */
     public readonly date = this._date.asReadonly();
     /** End date for range selection (list view only) */
     public readonly end_date = this._end_date.asReadonly();
-    /** Whether events and bookings are loading */
     public readonly loading = this._loading.asReadonly();
+    public readonly event_sources = this._event_sources.asReadonly();
 
-    public setOptions(options: ScheduleOptions) {
-        this._options.set(options);
-    }
-
-    public getOptions() {
-        return this._options();
-    }
-
-    public readonly week_date = computed(() => {
-        const building = this._active_building();
-        const date = this.date();
-        if (!building) return Date.now();
-        return startOfWeek(date, {
-            weekStartsOn: this.offset_weekday as any,
-        }).valueOf();
+    private readonly _query_params = computed(() => {
+        this._poll();
+        if (!this._requests_ready()) return undefined;
+        return {
+            date: this._date(),
+            end_date: this._end_date(),
+            period: this._options().period,
+        };
     });
+    private readonly _query_params_debounced = debounced(
+        this._query_params,
+        300,
+    );
+
+    public readonly week_date = computed(() =>
+        startOfWeek(this._date(), {
+            weekStartsOn: this.offset_weekday as any,
+        }).valueOf(),
+    );
 
     public readonly week_options = computed(() => {
-        const building = this._active_building();
-        const date = this.date();
-        if (!building) return [];
+        if (!this._org.active_building()) return [];
         const options = [];
-        const start_date = startOfDay(Date.now());
+        const date = startOfDay(Date.now());
         for (let i = -4; i < 48; i++) {
-            const day = addWeeks(start_date, i);
+            const day = addWeeks(date, i);
             const week_s_date = startOfWeek(day, {
                 weekStartsOn: this.offset_weekday,
             });
@@ -256,288 +187,100 @@ export class ScheduleStateService extends AsyncHandler {
             const this_week =
                 isAfter(Date.now(), week_s_date) &&
                 isBefore(Date.now(), week_e_date);
-            const week_start = format(week_s_date, 'dd MMM');
-            const week_end = format(week_e_date, 'dd MMM');
             options.push({
                 id: week_s_date.valueOf(),
-                name: `${week_start} - ${week_end}`,
+                name: `${format(week_s_date, 'dd MMM')} - ${format(
+                    week_e_date,
+                    'dd MMM',
+                )}`,
                 this_week,
             });
         }
         return options;
     });
 
-    private readonly _update$ = combineLatest([
-        toObservable(this._date),
-        toObservable(this._end_date),
-        toObservable(this._poll),
-    ]).pipe(
-        debounceTime(500),
-        tap((_) => this._loading.set(true)),
-    );
-
-    private readonly driver_events = toSignal(
-        combineLatest([this._user_bookings, this._update$]).pipe(
-            map(([_, [date, _end_date]]) => {
-                const user = currentUser();
-                return _.filter(
-                    (_) =>
-                        isSameDay(_.date, date) &&
-                        (_.host.toLowerCase() === user.email.toLowerCase() ||
-                            _.attendees.find(
-                                (a) =>
-                                    a.email.toLowerCase() ===
-                                    user.email.toLowerCase(),
-                            )) &&
-                        !_.linked_bookings?.find(
-                            (b) => b.booking_type === 'group-event',
-                        ),
-                );
-            }),
-        ),
-        { initialValue: [] },
-    );
-
-    private readonly ws_events = toSignal(
-        combineLatest([this._space_bookings, this._update$]).pipe(
-            map(([_, [date, _end_date]]) => {
-                const user = currentUser();
-                return _.filter(
-                    (_) =>
-                        isSameDay(_.date, date) &&
-                        (_.host.toLowerCase() === user.email.toLowerCase() ||
-                            _.attendees.find(
-                                (a) =>
-                                    a.email.toLowerCase() ===
-                                    user.email.toLowerCase(),
-                            )) &&
-                        !_.linked_bookings?.find(
-                            (b) => b.booking_type === 'group-event',
-                        ),
-                );
-            }),
-        ),
-        { initialValue: [] },
-    );
-    /** List of calendar events for the selected date */
-    private readonly api_events = toSignal(
-        combineLatest([this._update$, toObservable(this._options)]).pipe(
-            switchMap(([[date, end_date], options]) => {
-                const period = options.period;
-                const query = {
-                    period_start: getUnixTime(
-                        period === 'range'
-                            ? startOfDay(date)
-                            : period === 'day'
-                              ? startOfDay(date)
-                              : startOfWeek(date, {
-                                    weekStartsOn: this.offset_weekday as any,
-                                }),
-                    ),
-                    period_end: getUnixTime(
-                        period === 'range'
-                            ? endOfDay(end_date || date)
-                            : period === 'day'
-                              ? endOfDay(date)
-                              : endOfWeek(date, {
-                                    weekStartsOn: this.offset_weekday as any,
-                                }),
-                    ),
-                };
-                return this._settings.get('app.events.use_bookings')
-                    ? queryBookings({ ...query, type: 'room' }).pipe(
-                          map((_) =>
-                              _.map((i) => newCalendarEventFromBooking(i)),
-                          ),
-                          catchError((_) => of([])),
-                      )
-                    : queryEvents({ ...query }).pipe(catchError((_) => of([])));
-            }),
-            shareReplay(1),
-        ),
-        { initialValue: [] },
-    );
-    /** List of calendar events for the selected date */
-    public readonly raw_events = computed(() => {
-        const poll_type = this._poll_type();
-        const period = this._options().period;
-        const events =
-            poll_type === 'driver'
-                ? this.driver_events()
-                : poll_type === 'api' || period !== 'week'
-                  ? this.api_events()
-                  : this.ws_events();
-        this.timeout('end_loading', () => this._loading.set(false));
-        return events || [];
+    public readonly driver_events = computed(() => {
+        if (!this._hasFeature('spaces')) return [];
+        this._requestNetwork();
+        return this._filterUserEvents(this._user_bookings());
+    });
+    public readonly ws_events = computed(() => {
+        if (!this._hasFeature('spaces')) return [];
+        this._requestNetwork();
+        return this._filterUserEvents(this._space_bookings());
+    });
+    public readonly api_events = computed(() => {
+        if (!this._canLoadEvents()) return [];
+        this._requestNetwork();
+        return this._api_events();
     });
 
-    /** List of calendar events for the selected date */
+    public readonly raw_events = computed(() => {
+        const sources = this._event_sources();
+        if (!sources?.length) return [];
+        const events_by_source = sources.map((source) => {
+            switch (source) {
+                case 'driver':
+                    return this.driver_events();
+                case 'ws':
+                    return this.ws_events();
+                case 'api':
+                default:
+                    return this.api_events();
+            }
+        });
+        return deduplicateEventsByIcalUid(events_by_source);
+    });
     public readonly events = computed(() =>
         this.raw_events().filter((_) => !_.extension_data?.shared_event),
     );
-    /** List of VIP visitor bookings for the selected date */
-    public readonly vip_visitors = toSignal(
-        combineLatest([this._update$, toObservable(this.options)]).pipe(
-            switchMap(([[date, end_date], options]) =>
-                this._bookingQuery(
-                    'vip-visitor',
-                    options.period,
-                    date,
-                    end_date,
-                ),
-            ),
-            map((_) => _.filter((_) => !_.parent_id && !_.linked_event)),
-            tap(() =>
-                this.timeout('end_loading', () => this._loading.set(false)),
-            ),
-            shareReplay(1),
-        ),
-        { initialValue: [] },
-    );
-    /** List of visitor bookings for the selected date */
-    public readonly visitors = toSignal(
-        combineLatest([this._update$, toObservable(this.options)]).pipe(
-            switchMap(([[date, end_date], options]) =>
-                this._bookingQuery('visitor', options.period, date, end_date),
-            ),
-            map((_) => _.filter((_) => !_.linked_event)),
-            tap(() =>
-                this.timeout('end_loading', () => this._loading.set(false)),
-            ),
-            shareReplay(1),
-        ),
-        { initialValue: [] },
-    );
-    /** List of desk bookings for the selected date */
-    public readonly desks = toSignal(
-        combineLatest([this._update$, toObservable(this.options)]).pipe(
-            switchMap(([[date, end_date], options]) =>
-                this._bookingQuery('desk', options.period, date, end_date),
-            ),
-            map((_) => _.filter((item) => !item.linked_event)),
-            tap(() =>
-                this.timeout('end_loading', () => this._loading.set(false)),
-            ),
-            shareReplay(1),
-        ),
-        { initialValue: [] },
-    );
-    /** List of parking bookings for the selected date */
-    public readonly parking = toSignal(
-        combineLatest([this._update$, toObservable(this.options)]).pipe(
-            switchMap(([[date, end_date], options]) =>
-                this._bookingQuery('parking', options.period, date, end_date),
-            ),
-            tap(() =>
-                this.timeout('end_loading', () => this._loading.set(false)),
-            ),
-            shareReplay(1),
-        ),
-        { initialValue: [] },
-    );
-    /** List of calendar events for the selected date */
+    public readonly visitors = computed(() => {
+        if (!this._canLoadBookingType('visitor')) return [];
+        this._requestNetwork();
+        return this._visitors();
+    });
+    public readonly desks = computed(() => {
+        if (!this._canLoadBookingType('desk')) return [];
+        this._requestNetwork();
+        return this._desks();
+    });
+    public readonly parking = computed(() => {
+        if (!this._canLoadBookingType('parking')) return [];
+        this._requestNetwork();
+        return this._parking_bookings();
+    });
     public readonly group_events = computed(() =>
-        this.raw_events().filter((_) => _.extension_data?.shared_event),
+        this._hasFeature('group-events')
+            ? this.raw_events().filter((_) => _.extension_data?.shared_event)
+            : [],
     );
-    public readonly locker_bookings = toSignal(
-        combineLatest([this._update$, toObservable(this.options)]).pipe(
-            switchMap(([[date, end_date], options]) =>
-                this._bookingQuery('locker', options.period, date, end_date),
-            ),
-            tap(() =>
-                this.timeout('end_loading', () => this._loading.set(false)),
-            ),
-            shareReplay(1),
-        ),
-        { initialValue: [] },
-    );
-    private _lockers_banks: Observable<LockerBank[]> = loadLockerBanks(
-        this._org,
-        combineLatest([this._org.active_building, this._org.active_region]),
-        () => this._settings.get('app.use_region'),
-    );
-    private _lockers: Observable<Locker[]> = loadLockers(
-        this._org,
-        combineLatest([this._org.active_building, this._org.active_region]),
-        this._lockers_banks,
-        () => this._settings.get('app.use_region'),
-    );
-    /** List of parking bookings for the selected date */
-    public readonly lockers = toSignal(
-        combineLatest([
-            this._lockers,
-            this._org.active_building.pipe(
-                filter((_) => !!_),
-                distinctUntilKeyChanged('id'),
-            ),
-        ]).pipe(
-            debounceTime(300),
-            switchMap(async ([lockers]) => {
-                const mod = this._org.module('lockers', 'LockerLocations');
-                if (!mod) return [[], lockers];
-                const my_lockers = await mod
-                    .execute('lockers_allocated_to_me')
-                    .catch(() => []);
-                return [my_lockers, lockers];
-            }),
-            map(([my_lockers, lockers]) => {
-                return my_lockers
-                    .map((i) => {
-                        const locker = (lockers as Locker[]).find(
-                            (lkr) => lkr.id === i.locker_id,
-                        );
-                        if (!locker && (!i.level || !i.building)) return null;
-                        return new Booking({
-                            date: startOfDay(Date.now()).valueOf(),
-                            duration: 24 * 60 - 1,
-                            title: 'Locker Booking',
-                            description: i.locker_name,
-                            booking_type: 'locker',
-                            all_day: true,
-                            asset_id: locker.map_id,
-                            asset_name: i.locker_name,
-                            zones: [...(locker.bank?.zones || [])],
-                            extension_data: {
-                                // map_id: i.locker_id || locker.map_id,
-                            },
-                        });
-                    })
-                    .filter((item) => item);
-            }),
-            catchError((e) => {
-                console.error(e);
-                return of([]);
-            }),
-            tap(() =>
-                this.timeout('end_loading', () => this._loading.set(false)),
-            ),
-            shareReplay(1),
-        ),
-        { initialValue: [] },
-    );
+    public readonly locker_bookings = computed(() => {
+        if (!this._canLoadBookingType('locker')) return [];
+        this._requestNetwork();
+        return this._locker_bookings();
+    });
+    public readonly lockers = computed(() => {
+        if (!this._canLoadBookingType('locker')) return [];
+        this._requestNetwork();
+        return this._lockers();
+    });
 
-    /** List of events and bookings for the selected date */
     public readonly bookings = computed(() => {
-        const events = this.events() || [];
-        const visitors = this.visitors() || [];
-        const vip_visitors = this.vip_visitors() || [];
-        const desks = this.desks() || [];
-        const parking = this.parking() || [];
-        const lockers = this.lockers() || [];
-        const locker_bookings = this.locker_bookings() || [];
-        const group_events = this.group_events() || [];
-
+        const events = this.events();
+        const visitors = this.visitors();
+        const desks = this.desks();
+        const parking = this.parking();
+        const lockers = this.lockers();
+        const locker_bookings = this.locker_bookings();
+        const group_events = this.group_events();
         const filtered_events = events.filter(
             (ev) =>
-                !desks.find(
-                    (bkn) =>
-                        ev.meeting_id && `${ev.meeting_id}` === `${bkn.id}`,
-                ) && ev.linked_bookings[0]?.booking_type !== 'group-event',
+                !desks.find((bkn) => `${ev.meeting_id}` === `${bkn.id}`) &&
+                ev.linked_bookings[0]?.booking_type !== 'group-event',
         );
         return [
             ...filtered_events,
             ...visitors,
-            ...vip_visitors,
             ...desks,
             ...parking,
             ...lockers,
@@ -546,19 +289,18 @@ export class ScheduleStateService extends AsyncHandler {
         ].sort((a, b) => a.date - b.date);
     });
 
-    /** Filtered list of events and bookings for the selected date */
-    public readonly filtered_bookings = computed(() => {
-        const booking_list = this.bookings();
-        const filters = this.filters();
-        return booking_list.filter((_) => {
+    public readonly filtered_bookings = computed(() =>
+        this.bookings().filter((_) => {
+            const filters = this._filters();
             if (
                 this._deleted.includes(
                     (_ as any).instance
                         ? `${_.id}|${(_ as any).instance}`
                         : _.id,
                 )
-            )
+            ) {
                 return false;
+            }
             if (
                 _.extension_data?.shared_event &&
                 !filters?.shown_types?.includes('group-event')
@@ -571,111 +313,15 @@ export class ScheduleStateService extends AsyncHandler {
                 !filters?.shown_types?.includes('event')
             ) {
                 return false;
-            } else if (_ instanceof CalendarEvent) return true;
+            }
+            if (_ instanceof CalendarEvent) return true;
             return filters?.shown_types?.includes((_ as any).booking_type);
-        });
-    });
+        }),
+    );
 
     public get offset_weekday(): 0 | 1 | 2 | 3 | 4 | 5 | 6 {
         return this._settings.get('app.week_start') || 0;
     }
-
-    private _ignore_cancel: string[] = [];
-    private _checkCancel = combineLatest([
-        current_user,
-        interval(60 * 1000).pipe(startWith(0)),
-    ]).pipe(
-        filter(([u]) => !!u),
-        map(async ([user]) => {
-            const is_home = user.location !== 'wfo';
-            const auto_release = this._settings.get('app.auto_release');
-            if (
-                auto_release &&
-                is_home &&
-                (auto_release.time_after || auto_release.time_before) &&
-                auto_release.resources?.length
-            ) {
-                for (const type of auto_release.resources) {
-                    const time_after =
-                        auto_release[`${type}_time_after`] ||
-                        auto_release.time_after;
-                    const time_before = Math.min(
-                        60,
-                        auto_release[`${type}_time_before`] ||
-                            auto_release.time_before ||
-                            0,
-                    );
-                    const bookings = await lastValueFrom(
-                        queryBookings({
-                            period_start: getUnixTime(
-                                startOfMinute(Date.now()),
-                            ),
-                            period_end: getUnixTime(
-                                addMinutes(
-                                    Date.now(),
-                                    (time_after || 5) + time_before,
-                                ),
-                            ),
-                            type,
-                        }),
-                    );
-                    const check_block = (time_after || 0) + time_before;
-                    for (const booking of bookings) {
-                        if (
-                            this._ignore_cancel.includes(booking.id) ||
-                            booking.checked_in ||
-                            booking.rejected
-                        ) {
-                            continue;
-                        }
-                        const start_time = booking.is_all_day
-                            ? setHours(booking.date, auto_release.all_day_start)
-                            : booking.date;
-                        this._dialog.closeAll();
-                        const diff = differenceInMinutes(
-                            addMinutes(start_time, time_after || 0),
-                            Date.now(),
-                        );
-                        if (diff > check_block || diff < 0) continue;
-                        const time = addMinutes(start_time, time_after || 0);
-                        const close_after = differenceInMilliseconds(
-                            time.getTime() + 60 * 1000,
-                            Date.now(),
-                        );
-                        const wording =
-                            type === 'parking' ? 'reservation' : 'booking';
-                        const result = await openConfirmModal(
-                            {
-                                title: `Keep ${type} ${wording}`,
-                                content: `You have indicated you are not in the office.
-                                Your  ${wording} for "<i>${
-                                    booking.asset_name || booking.title
-                                }</i>" at ${format(
-                                    booking.date,
-                                    this._settings.time_format,
-                                )} will be cancelled at ${format(
-                                    time,
-                                    this._settings.time_format,
-                                )}.<br/><br/>
-                                Do you wish to keep this ${wording}?`,
-                                icon: { content: 'event_busy' },
-                                confirm_text: 'Keep',
-                                close_delay: close_after,
-                            },
-                            this._dialog,
-                        );
-                        if (result.reason !== 'done') {
-                            this._ignore_cancel.push(booking.id);
-                            continue;
-                        }
-                        result.loading('Checking in booking...');
-                        await lastValueFrom(checkinBooking(booking.id, true));
-                        result.close();
-                    }
-                }
-            }
-        }),
-    );
 
     public get dateValue() {
         return this._date();
@@ -683,35 +329,98 @@ export class ScheduleStateService extends AsyncHandler {
 
     constructor() {
         super();
-        this.subscription(
-            'poll_type',
-            this._org.active_building.subscribe(() =>
-                this._poll_type.set(
-                    this._settings.get('app.schedule.use_driver')
-                        ? 'driver'
-                        : this._settings.get('app.schedule.use_websocket')
-                          ? 'ws'
-                          : 'api',
-                ),
-            ),
-        );
-        this.subscription(
-            'chat_event',
-            this._settings
-                .listen('CHAT:task_complete')
-                .subscribe(() => this.triggerPoll()),
-        );
-        this.subscription('wfh_checks', this._checkCancel.subscribe());
         this._deleted = JSON.parse(
             sessionStorage.getItem('PLACEOS.events.deleted') || '[]',
         );
+        effect(() => {
+            this._org.active_building();
+            this._setConfiguredEventSources();
+        });
+        effect(() => {
+            this._settings.listen('CHAT:task_complete')();
+            this.triggerPoll();
+        });
+    }
+
+    private _requestNetwork() {
+        if (this._network_requested || this._network_started) return;
+        this._network_requested = true;
+        queueMicrotask(() => this._startNetwork());
+    }
+
+    private _startNetwork() {
+        if (this._network_started) return;
+        this._network_started = true;
+        this._loadSpaceBookings();
+        this._loadUserBookings();
+        this._loadApiEvents();
+        this._loadBookingType('visitor', this._visitors, (list) =>
+            list.filter((_) => !_.linked_event),
+        );
+        this._loadBookingType('desk', this._desks);
+        this._loadBookingType('parking', this._parking_bookings, (list) =>
+            this._resolveParkingNames(list),
+        );
+        this._loadBookingType('locker', this._locker_bookings);
+        this._loadLockers();
+        this.interval('wfh_checks', () => this._checkCancel(), 60 * 1000);
+        this._checkCancel();
+    }
+
+    private _hasFeature(feature: string) {
+        return (this._settings.get<string[]>('app.features') || []).includes(
+            feature,
+        );
+    }
+
+    private _canLoadEvents() {
+        return this._hasFeature('spaces') || this._hasFeature('group-events');
+    }
+
+    private _canLoadBookingType(type: BookingType) {
+        switch (type) {
+            case 'desk':
+                return this._hasFeature('desks');
+            case 'parking':
+                return (
+                    this._hasFeature('parking') ||
+                    this._hasFeature('parking-requests')
+                );
+            case 'visitor':
+                return this._hasFeature('visitor-invite');
+            case 'locker':
+                return this._hasFeature('lockers');
+            default:
+                return true;
+        }
+    }
+
+    public setOptions(options: ScheduleOptions) {
+        this._options.set(options);
+    }
+
+    public getOptions() {
+        return this._options();
+    }
+
+    public setEventSources(sources: EventSource[]) {
+        if (sources?.length) this._event_sources.set(sources);
+    }
+
+    public getEventSources(): EventSource[] {
+        return this._event_sources();
     }
 
     public triggerPoll() {
+        if (this._network_started) {
+            this._poll.set(Date.now());
+            return;
+        }
         this._poll.set(Date.now());
     }
 
-    public startPolling(delay = 60 * 1000) {
+    public startPolling(delay = 3 * MINUTES) {
+        this._startNetwork();
         this.interval('poll', () => this._poll.set(Date.now()), delay);
         return () => this.stopPolling();
     }
@@ -734,6 +443,7 @@ export class ScheduleStateService extends AsyncHandler {
     }
 
     public removeItem(item) {
+        this._startNetwork();
         this.setAsDeleted(
             item.instance ? `${item.id}|${item.instance}` : item.id,
         );
@@ -749,20 +459,17 @@ export class ScheduleStateService extends AsyncHandler {
     }
 
     public setType(name: string, state: boolean) {
-        const filters = this._filters();
+        const filters = this._filters() || { shown_types: [] };
         const { shown_types } = filters;
         if (shown_types.includes(name) === state) return;
         const new_types = state
             ? unique([...shown_types, name])
             : shown_types.filter((_) => _ !== name);
-        this._filters.set({
-            ...filters,
-            shown_types: new_types,
-        });
+        this._filters.set({ ...filters, shown_types: new_types });
     }
 
     public async toggleType(name: string, clear = false) {
-        const filters = this._filters();
+        const filters = this._filters() || { shown_types: [] };
         const { shown_types } = filters;
         if (shown_types && (shown_types.includes(name) || clear)) {
             this._filters.set({
@@ -777,21 +484,261 @@ export class ScheduleStateService extends AsyncHandler {
         }
     }
 
-    private _bookingQuery(
+    private _loadSpaceBookings() {
+        effect(
+            async (onCleanup) => {
+                const bld = this._org.active_building();
+                if (
+                    !this._hasFeature('spaces') ||
+                    !this._requests_ready() ||
+                    !bld?.id
+                ) {
+                    this._space_bookings.set([]);
+                    return;
+                }
+                let active = true;
+                const cleanups: (() => void)[] = [];
+                onCleanup(() => {
+                    active = false;
+                    for (const cleanup of cleanups) cleanup();
+                });
+                this._loading.set(true);
+                const spaces = await requestSpacesForZone(bld.id)
+                    .toPromise()
+                    .catch(() => []);
+                const events_by_space: CalendarEvent[][] = [];
+                for (const [idx, space] of (spaces || []).entries()) {
+                    const binding = getModule(space.id, 'Bookings').variable(
+                        'bookings',
+                    );
+                    cleanups.push(
+                        binding.bindThenSubscribe((event_list) => {
+                            events_by_space[idx] = (event_list || []).map(
+                                (i) =>
+                                    new CalendarEvent({
+                                        ...i,
+                                        resources: i.attendees.filter(
+                                            (_) =>
+                                                _.email === space.email ||
+                                                _.resource,
+                                        ),
+                                        system: space,
+                                    }),
+                            );
+                            if (active) {
+                                this._space_bookings.set(
+                                    flatten<CalendarEvent>(events_by_space),
+                                );
+                            }
+                        }),
+                    );
+                }
+                this._loading.set(false);
+            },
+            { injector: this._injector },
+        );
+    }
+
+    private _loadUserBookings() {
+        effect(
+            async () => {
+                const bld = this._org.active_building();
+                const query = this._query_params_debounced.value();
+                if (!this._hasFeature('spaces') || !query || !bld?.id) {
+                    this._user_bookings.set([]);
+                    return;
+                }
+                this._loading.set(true);
+                const mod = this._org.module(
+                    'location_services',
+                    'LocationServices',
+                );
+                const list = mod?.system
+                    ? await mod.execute('my_bookings').catch(() => [])
+                    : [];
+                this._user_bookings.set(
+                    (list || []).map((_) => new CalendarEvent(_)),
+                );
+                this._loading.set(false);
+            },
+            { injector: this._injector },
+        );
+    }
+
+    private _loadApiEvents() {
+        effect(
+            async () => {
+                const query_params = this._query_params_debounced.value();
+                if (!this._canLoadEvents() || !query_params) {
+                    this._api_events.set([]);
+                    return;
+                }
+                const { date, end_date, period } = query_params;
+                this._loading.set(true);
+                const query = this._periodQuery(period, date, end_date);
+                const list = this._settings.get('app.events.use_bookings')
+                    ? await queryBookings({ ...query, type: 'room' })
+                          .then((_) =>
+                              _.map((i) => newCalendarEventFromBooking(i)),
+                          )
+                          .catch(() => [])
+                    : await queryEvents({ ...query }).catch(() => []);
+                this._api_events.set(list);
+                this.timeout('end_loading', () => this._loading.set(false));
+            },
+            { injector: this._injector },
+        );
+    }
+
+    private _loadBookingType(
         type: BookingType,
+        target,
+        map_list: (list: Booking[]) => Booking[] = (list) => list,
+    ) {
+        effect(
+            async () => {
+                const query_params = this._query_params_debounced.value();
+                if (!this._canLoadBookingType(type) || !query_params) {
+                    target.set([]);
+                    return;
+                }
+                const { date, end_date, period } = query_params;
+                this._loading.set(true);
+                const list = await this._bookingQuery(
+                    type,
+                    period,
+                    date,
+                    end_date,
+                );
+                target.set(map_list(list));
+                this.timeout('end_loading', () => this._loading.set(false));
+            },
+            { injector: this._injector },
+        );
+    }
+
+    /**
+     * Replace the asset name of parking bookings with the human readable
+     * parking space name/identifier. Without this the booking falls back to
+     * showing the raw `asset_id` of the space.
+     */
+    private _resolveParkingNames(list: Booking[]): Booking[] {
+        const spaces = this._injector.get(ParkingService).spaces();
+        return list.map((booking) => {
+            // Already has a proper name, nothing to resolve
+            if (booking.asset_name && booking.asset_name !== booking.asset_id) {
+                return booking;
+            }
+            const space = spaces.find((_) => _.id === booking.asset_id);
+            const name = space?.name || space?.identifier;
+            if (!name) return booking;
+            return new Booking({ ...booking.toJSON(), asset_name: name });
+        });
+    }
+
+    private _loadLockers() {
+        effect(
+            async () => {
+                const bld = this._org.active_building();
+                const region = this._org.active_region();
+                if (
+                    !this._canLoadBookingType('locker') ||
+                    !this._requests_ready()
+                ) {
+                    this._lockers.set([]);
+                    return;
+                }
+                const scope_id = this._settings.get('app.use_region')
+                    ? region?.id || this._org.region?.id
+                    : bld?.id;
+                if (!scope_id) {
+                    this._lockers.set([]);
+                    return;
+                }
+                const lockers = await loadLockerResources(this._org, scope_id);
+                const mod = this._org.module('lockers', 'LockerLocations');
+                const my_lockers = mod
+                    ? await mod
+                          .execute('lockers_allocated_to_me')
+                          .catch(() => [])
+                    : [];
+                this._lockers.set(
+                    my_lockers
+                        .map((i) => {
+                            const locker = lockers.find(
+                                (lkr) => lkr.id === i.locker_id,
+                            );
+                            if (!locker && (!i.level || !i.building)) {
+                                return null;
+                            }
+                            return new Booking({
+                                date: startOfDay(Date.now()).valueOf(),
+                                duration: 24 * 60 - 1,
+                                title: 'Locker Booking',
+                                description: i.locker_name,
+                                booking_type: 'locker',
+                                all_day: true,
+                                asset_id: locker.map_id,
+                                asset_name: i.locker_name,
+                                zones: [...(locker.bank?.zones || [])],
+                                extension_data: {},
+                            });
+                        })
+                        .filter((item) => item),
+                );
+                this.timeout('end_loading', () => this._loading.set(false));
+            },
+            { injector: this._injector },
+        );
+    }
+
+    private _filterUserEvents(list: CalendarEvent[]) {
+        const user = currentUser();
+        const date = this._date();
+        return list.filter(
+            (_) =>
+                isSameDay(_.date, date) &&
+                (_.host.toLowerCase() === user.email.toLowerCase() ||
+                    _.attendees.find(
+                        (a) =>
+                            a.email.toLowerCase() === user.email.toLowerCase(),
+                    )) &&
+                !_.linked_bookings?.find(
+                    (b) => b.booking_type === 'group-event',
+                ),
+        );
+    }
+
+    private _setConfiguredEventSources() {
+        const sources_setting = this._settings.get(
+            'app.schedule.event_sources',
+        ) as EventSource[] | undefined;
+        if (sources_setting?.length) {
+            this._event_sources.set(sources_setting);
+        } else {
+            const legacy_source: EventSource = this._settings.get(
+                'app.schedule.use_driver',
+            )
+                ? 'driver'
+                : this._settings.get('app.schedule.use_websocket')
+                  ? 'ws'
+                  : 'api';
+            this._event_sources.set([legacy_source]);
+        }
+    }
+
+    private _periodQuery(
         period: 'day' | 'week' | 'month' | 'range',
         date: number,
         end_date?: number | null,
     ) {
-        return queryBookings({
+        return {
             period_start: getUnixTime(
-                period === 'range'
+                period === 'range' || period === 'day'
                     ? startOfDay(date)
-                    : period === 'day'
-                      ? startOfDay(date)
-                      : startOfWeek(date, {
-                            weekStartsOn: this.offset_weekday,
-                        }),
+                    : startOfWeek(date, {
+                          weekStartsOn: this.offset_weekday as any,
+                      }),
             ),
             period_end: getUnixTime(
                 period === 'range'
@@ -799,13 +746,117 @@ export class ScheduleStateService extends AsyncHandler {
                     : period === 'day'
                       ? endOfDay(date)
                       : endOfWeek(date, {
-                            weekStartsOn: this.offset_weekday,
+                            weekStartsOn: this.offset_weekday as any,
                         }),
             ),
+        };
+    }
+
+    private _bookingQuery(
+        type: BookingType,
+        period: 'day' | 'week' | 'month' | 'range',
+        date: number,
+        end_date?: number | null,
+    ) {
+        const query = {
+            ...this._periodQuery(period, date, end_date),
             type,
             include_checked_out: true,
-            include_deleted: 'recurring',
-        }).pipe(catchError(() => of([])));
+            include_booked_by: true,
+        };
+        const key = JSON.stringify(query);
+        const existing = this._booking_query_requests.get(key);
+        if (existing) return existing;
+        const request = queryBookings(query)
+            .catch(() => [])
+            .finally(() => this._booking_query_requests.delete(key));
+        this._booking_query_requests.set(key, request);
+        return request;
+    }
+
+    private async _checkCancel() {
+        const user = currentUser();
+        if (!user?.id) return;
+        const is_home = user.location !== 'wfo';
+        const auto_release = this._settings.get('app.auto_release');
+        if (
+            !auto_release ||
+            !is_home ||
+            !(auto_release.time_after || auto_release.time_before) ||
+            !auto_release.resources?.length
+        ) {
+            return;
+        }
+        for (const type of auto_release.resources) {
+            if (!this._canLoadBookingType(type)) continue;
+            const time_after =
+                auto_release[`${type}_time_after`] || auto_release.time_after;
+            const time_before = Math.min(
+                60,
+                auto_release[`${type}_time_before`] ||
+                    auto_release.time_before ||
+                    0,
+            );
+            const bookings = await queryBookings({
+                period_start: getUnixTime(startOfMinute(Date.now())),
+                period_end: getUnixTime(
+                    addMinutes(Date.now(), (time_after || 5) + time_before),
+                ),
+                type,
+            });
+            const check_block = (time_after || 0) + time_before;
+            for (const booking of bookings) {
+                if (
+                    this._ignore_cancel.includes(booking.id) ||
+                    booking.checked_in ||
+                    booking.rejected
+                ) {
+                    continue;
+                }
+                const start_time = booking.is_all_day
+                    ? setHours(booking.date, auto_release.all_day_start)
+                    : booking.date;
+                this._dialog.closeAll();
+                const diff = differenceInMinutes(
+                    addMinutes(start_time, time_after || 0),
+                    Date.now(),
+                );
+                if (diff > check_block || diff < 0) continue;
+                const time = addMinutes(start_time, time_after || 0);
+                const close_after = differenceInMilliseconds(
+                    time.getTime() + 60 * 1000,
+                    Date.now(),
+                );
+                const wording = type === 'parking' ? 'reservation' : 'booking';
+                const result = await openConfirmModal(
+                    {
+                        title: `Keep ${type} ${wording}`,
+                        content: `You have indicated you are not in the office.
+                                Your  ${wording} for "<i>${
+                                    booking.asset_name || booking.title
+                                }</i>" at ${format(
+                                    booking.date,
+                                    this._settings.time_format,
+                                )} will be cancelled at ${format(
+                                    time,
+                                    this._settings.time_format,
+                                )}.<br/><br/>
+                                Do you wish to keep this ${wording}?`,
+                        icon: { content: 'event_busy' },
+                        confirm_text: 'Keep',
+                        close_delay: close_after,
+                    },
+                    this._dialog,
+                );
+                if (result.reason !== 'done') {
+                    this._ignore_cancel.push(booking.id);
+                    continue;
+                }
+                result.loading('Checking in booking...');
+                await checkinBooking(booking.id, true);
+                result.close();
+            }
+        }
     }
 
     ///////////////////////////////////////////////////////////////
@@ -820,13 +871,18 @@ export class ScheduleStateService extends AsyncHandler {
                         period_start: event.event_start,
                         period_end: event.event_end,
                         ical_uid: event.ical_uid,
-                    }).toPromise()
+                    })
                 ).find((_) => _.ical_uid === event.ical_uid) || event;
         }
         // Load full space details for resources
-        if (event.resources?.length) {
+        const resources = event.resources?.length
+            ? event.resources
+            : event.system
+              ? [event.system]
+              : [];
+        if (resources.length) {
             const full_resources = await Promise.all(
-                event.resources.map(async (resource) => {
+                resources.map(async (resource) => {
                     // Use email or id as the lookup key
                     const lookup_key = resource.email || resource.id;
                     if (!lookup_key) return resource;
@@ -865,7 +921,8 @@ export class ScheduleStateService extends AsyncHandler {
         this._booking_form.newForm(booking_type as any, event);
         if (booking_type === 'visitor') return;
         setTimeout(() => {
-            this._booking_form.form.patchValue({
+            this._booking_form.model.update((m) => ({
+                ...m,
                 resources: [
                     {
                         id: event.asset_id,
@@ -873,7 +930,7 @@ export class ScheduleStateService extends AsyncHandler {
                     },
                 ],
                 asset_id: event.asset_id,
-            });
+            }));
         }, 100);
     }
 
@@ -908,7 +965,7 @@ export class ScheduleStateService extends AsyncHandler {
                         period_start: item.event_start,
                         period_end: item.event_end,
                         ical_uid: item.ical_uid,
-                    }).toPromise()
+                    })
                 ).find(
                     (_) => _.ical_uid === (item as CalendarEvent).ical_uid,
                 ) || item;
@@ -935,20 +992,18 @@ export class ScheduleStateService extends AsyncHandler {
                     ? (item as any).instance
                     : undefined,
             } as any,
-        )
-            .toPromise()
-            .catch((e) => {
-                notifyError(
-                    i18n(
-                        remove_series
-                            ? 'APP.WORKPLACE.SCHEDULE_REMOVE_SERIES_ERROR'
-                            : 'APP.WORKPLACE.SCHEDULE_REMOVE_ERROR',
-                        { error: e },
-                    ),
-                );
-                resp.close();
-                throw e;
-            });
+        ).catch((e) => {
+            notifyError(
+                i18n(
+                    remove_series
+                        ? 'APP.WORKPLACE.SCHEDULE_REMOVE_SERIES_ERROR'
+                        : 'APP.WORKPLACE.SCHEDULE_REMOVE_ERROR',
+                    { error: e },
+                ),
+            );
+            resp.close();
+            throw e;
+        });
         notifySuccess(
             i18n(
                 remove_series
@@ -975,7 +1030,7 @@ export class ScheduleStateService extends AsyncHandler {
             return this.remove(item);
         }
 
-        // Otherwise, update the end time to the current time
+        // Otherwise, check out the booking to end it now
         const time = `${format(item.date, 'dd MMM yyyy h:mma')}`;
         const resp = await openConfirmModal(
             {
@@ -991,26 +1046,18 @@ export class ScheduleStateService extends AsyncHandler {
 
         if (resp.reason !== 'done') return;
         resp.loading(i18n('APP.WORKPLACE.SCHEDULE_END_LOADING'));
-        const changes = {
-            booking_end: getUnixTime(now),
-            all_day: false,
-        };
         const promise = (
             item.instance
-                ? updateBookingInstance(item.id, item.instance, changes)
-                : updateBooking(item.id, changes)
-        )
-            .toPromise()
-            .catch((e) => {
-                notifyError(
-                    i18n('APP.WORKPLACE.SCHEDULE_END_ERROR', { error: e }),
-                );
-                resp.close();
-                throw e;
-            });
+                ? checkinBookingInstance(item.id, item.instance, false)
+                : checkinBooking(item.id, false)
+        ).catch((e) => {
+            notifyError(i18n('APP.WORKPLACE.SCHEDULE_END_ERROR', { error: e }));
+            resp.close();
+            throw e;
+        });
         await promise;
         notifySuccess(i18n('APP.WORKPLACE.SCHEDULE_END_SUCCESS'));
-        this._poll.set(Date.now());
+        this.triggerPoll();
         this._dialog.closeAll();
     }
 }

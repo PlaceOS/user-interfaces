@@ -17,7 +17,7 @@ describe('[Guest API]', () => {
         it('should perform GET on guests endpoint', async () => {
             const spy = jest.spyOn(ts_client, 'get');
             spy.mockResolvedValue([{ name: 'Jim' }] as any);
-            const list = await searchGuests('').toPromise();
+            const list = await searchGuests('');
             expect(list).toBeInstanceOf(Array);
             expect(spy).toHaveBeenCalledWith('/api/staff/v1/guests');
         });
@@ -25,7 +25,7 @@ describe('[Guest API]', () => {
         it('should return Guest objects', async () => {
             const spy = jest.spyOn(ts_client, 'get');
             spy.mockResolvedValue([{ name: 'Jim' }] as any);
-            const list = await searchGuests('').toPromise();
+            const list = await searchGuests('');
             expect(list).toBeInstanceOf(Array);
             expect(list[0]).toBeInstanceOf(GuestUser);
         });
@@ -33,7 +33,7 @@ describe('[Guest API]', () => {
         it('should allow filtering Guests', async () => {
             const spy = jest.spyOn(ts_client, 'get');
             spy.mockResolvedValue([{ name: 'Jim' }] as any);
-            await searchGuests('Jim').toPromise();
+            await searchGuests('Jim');
             expect(spy).toHaveBeenCalledWith('/api/staff/v1/guests?q=Jim');
         });
     });
@@ -82,7 +82,7 @@ describe('[Guest API]', () => {
         it('should GET guest', async () => {
             const spy = jest.spyOn(ts_client, 'get');
             spy.mockResolvedValue({ name: 'Jim' } as any);
-            const item = await showGuest('jim').toPromise();
+            const item = await showGuest('jim');
             expect(item).toBeInstanceOf(GuestUser);
             expect(spy).toHaveBeenCalledWith('/api/staff/v1/guests/jim');
         });
@@ -94,7 +94,7 @@ describe('[Guest API]', () => {
             spy.mockResolvedValue({ name: 'Jim' } as any);
             const item = await updateGuest('jim', {
                 name: 'James',
-            }).toPromise();
+            });
             expect(item).toBeInstanceOf(GuestUser);
             expect(spy).toHaveBeenCalledWith('/api/staff/v1/guests/jim', {
                 name: 'James',

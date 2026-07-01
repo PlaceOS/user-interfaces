@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import {
+    Component,
+    computed,
+    debounced,
+    inject,
+    resource,
+    signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -9,14 +16,6 @@ import { StaffUser } from '@placeos/common';
 import { queryUsers } from '@placeos/ts-client';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { BehaviorSubject, from, of } from 'rxjs';
-import {
-    catchError,
-    debounceTime,
-    map,
-    startWith,
-    switchMap,
-} from 'rxjs/operators';
 
 @Component({
     selector: `select-user-modal`,
@@ -40,12 +39,11 @@ import {
                 <input
                     matInput
                     [placeholder]="'COMMON.SELECT_USER_SEARCH' | translate"
-                    [ngModel]="search.value"
-                    (ngModelChange)="search.next($event)"
+                    [(ngModel)]="search"
                 />
             </mat-form-field>
             <div class="relative z-0 w-full space-y-2">
-                @for (user of users | async; track user) {
+                @for (user of users(); track user) {
                     <button
                         class="border-base-300 hover:bg-base-200 w-full rounded-sm border p-2 text-left"
                         matRipple
@@ -55,12 +53,12 @@ import {
                         <div class="text-xs opacity-30">{{ user.email }}</div>
                     </button>
                 }
-                @if (!(users | async).length) {
+                @if (!users().length) {
                     <div
                         class="flex h-32 w-full items-center justify-center p-8 opacity-30"
                     >
                         {{
-                            (search.value
+                            (search()
                                 ? 'COMMON.SELECT_USER_EMPTY_MATCHES'
                                 : 'COMMON.SELECT_USER_EMPTY'
                             ) | translate
@@ -86,18 +84,17 @@ export class SelectUserModalComponent {
     private _dialog_ref =
         inject<MatDialogRef<SelectUserModalComponent>>(MatDialogRef);
 
-    public readonly search = new BehaviorSubject('');
+    public readonly search = signal('');
 
-    public readonly users = this.search.pipe(
-        debounceTime(300),
-        switchMap((s) =>
-            from(queryUsers({ q: s })).pipe(
-                map((o) => o.data),
-                catchError(() => of([])),
-            ),
-        ),
-        startWith([]),
-    );
+    private readonly _debounced_search = debounced(this.search, 300);
+    private readonly _users = resource({
+        params: () => ({ q: this._debounced_search.value() }),
+        loader: ({ params: { q } }) =>
+            queryUsers({ q })
+                .then((o) => o.data.map((u) => new StaffUser(u)))
+                .catch(() => [] as StaffUser[]),
+    });
+    public readonly users = computed(() => this._users.value() ?? []);
 
     public select(user: StaffUser) {
         this._dialog_ref.close(user);
