@@ -1,7 +1,11 @@
 import {
+  decode_default,
+  generateQRCode
+} from "./chunk-R5XPVHHX.js";
+import {
   CheckinStateService,
   parseTokenFromUrl
-} from "./chunk-LDMVAJK4.js";
+} from "./chunk-HU6KLO7L.js";
 import {
   ActivatedRoute,
   AsyncHandler,
@@ -52,12 +56,10 @@ import {
   ViewEncapsulation,
   VirtualKeyboardComponent,
   computed,
-  decode_default,
   effect,
   email,
   flatten,
   form,
-  generateQRCode,
   getGuestCateringItem,
   hi,
   i18n,
@@ -126,7 +128,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-DS3EWMOE.js";
+} from "./chunk-C6FZ5V4Y.js";
 import {
   __spreadProps,
   __spreadValues
@@ -1001,7 +1003,7 @@ var CheckinDetailsComponent = class _CheckinDetailsComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CheckinDetailsComponent, selectors: [["", "checkin-details", ""]], decls: 2, vars: 1, consts: [[1, "bg-base-100", "relative", "flex", "w-xl", "flex-col", "items-center", "overflow-hidden", "rounded-sm", "p-4", "shadow-sm"], [1, "absolute", "inset-0", "flex", "flex-col", "items-center", "justify-center"], [1, "m-4", "text-2xl"], ["field", "", 1, "flex", "flex-col"], ["form", "host"], ["appearance", "outline"], ["keyboard", "", "matInput", "", 3, "formField", "placeholder"], ["form", "name"], ["form", "email"], ["keyboard", "", "matInput", "", "type", "tel", 3, "formField", "placeholder"], ["form", "org"], ["next", "", "btn", "", "matRipple", "", 3, "click"], ["icon", "", "matRipple", "", 1, "absolute", "top-0", "right-0", 3, "routerLink"], ["form", "pass"], ["appearance", "outline", 1, "w-full"], [1, "bg-base-100", "flex", "flex-col", "items-center", "space-y-2", "rounded-sm", "p-16", "shadow-sm"], [3, "diameter"], [1, "my-4", "text-lg"]], template: function CheckinDetailsComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CheckinDetailsComponent, selectors: [["", "checkin-details", ""]], decls: 2, vars: 1, consts: [[1, "bg-base-100", "relative", "flex", "w-xl", "flex-col", "items-center", "overflow-hidden", "rounded-sm", "p-4", "shadow-sm"], [1, "absolute", "inset-0", "flex", "flex-col", "items-center", "justify-center"], [1, "m-4", "text-2xl"], ["field", "", 1, "flex", "flex-col"], ["form", "host"], ["appearance", "outline"], ["keyboard", "", "matInput", "", 3, "formField", "placeholder"], ["form", "name"], ["form", "email"], ["keyboard", "", "matInput", "", "type", "tel", 3, "formField", "placeholder"], ["form", "org"], ["next", "", "type", "button", "btn", "", "matRipple", "", 3, "click"], ["icon", "", "matRipple", "", 1, "absolute", "top-0", "right-0", 3, "routerLink"], ["form", "pass"], ["appearance", "outline", 1, "w-full"], [1, "bg-base-100", "flex", "flex-col", "items-center", "space-y-2", "rounded-sm", "p-16", "shadow-sm"], [3, "diameter"], [1, "my-4", "text-lg"]], template: function CheckinDetailsComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275conditionalCreate(0, CheckinDetailsComponent_Conditional_0_Template, 53, 47, "form", 0)(1, CheckinDetailsComponent_Conditional_1_Template, 6, 4, "div", 1);
       }
@@ -1131,7 +1133,7 @@ var CheckinDetailsComponent = class _CheckinDetailsComponent {
                         </mat-form-field>
                     </div>
                 }
-                <button next btn matRipple (click)="updateGuest()">
+                <button next type="button" btn matRipple (click)="updateGuest()">
                     {{ 'APP.VISITOR_KIOSK.CONTINUE' | translate }}
                 </button>
                 <a
@@ -3296,4 +3298,4 @@ var ROUTES = [
 export {
   ROUTES
 };
-//# sourceMappingURL=checkin.routes-XSDNVGDF.js.map
+//# sourceMappingURL=checkin.routes-W2DWBOW6.js.map

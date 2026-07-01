@@ -11,11 +11,11 @@ import {
   generateMockSpace,
   setHours,
   setMinutes
-} from "./chunk-S5JZGZVL.js";
+} from "./chunk-NSE7MLLP.js";
 import {
   CheckinStateService,
   parseTokenFromUrl
-} from "./chunk-LDMVAJK4.js";
+} from "./chunk-HU6KLO7L.js";
 import {
   ANIMATION_MODULE_TYPE,
   AUTO_STYLE,
@@ -34,6 +34,7 @@ import {
   DefaultValueAccessor,
   DomRendererFactory2,
   Dr,
+  EMPTY_USER,
   ElementRef,
   ErrorHandler,
   EventEmitter,
@@ -146,8 +147,7 @@ import {
   provideZonelessChangeDetection,
   randomInt,
   randomString,
-  registerActiveLocale,
-  reloadOnChunkLoadError,
+  registerLocaleData,
   ri,
   sequence,
   serviceWorkerUpdate,
@@ -221,7 +221,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-DS3EWMOE.js";
+} from "./chunk-C6FZ5V4Y.js";
 import {
   __objRest,
   __spreadProps,
@@ -251,6 +251,82 @@ function subMinutes(date, amount, options2) {
 // node_modules/date-fns/subSeconds.js
 function subSeconds(date, amount, options2) {
   return addSeconds(date, -amount, options2);
+}
+
+// libs/common/src/lib/lazy-route-reload.ts
+var LAZY_ROUTE_RELOAD_KEY = "placeos.lazy_route_reload";
+var RELOAD_THROTTLE = 30 * 1e3;
+var LAZY_ROUTE_ERROR_PATTERNS = [
+  /ChunkLoadError/i,
+  /Loading chunk [\w-]+ failed/i,
+  /Failed to fetch dynamically imported module/i,
+  /Importing a module script failed/i,
+  /error loading dynamically imported module/i
+];
+function isLazyRouteLoadError(error) {
+  const message = getLazyRouteErrorMessage(error);
+  return LAZY_ROUTE_ERROR_PATTERNS.some((pattern) => pattern.test(message));
+}
+function reloadOnChunkLoadError(error, context = {}) {
+  if (!isLazyRouteLoadError(error))
+    throw error;
+  const online = context.online ?? (typeof navigator !== "undefined" ? navigator.onLine : true);
+  if (!online)
+    throw error;
+  const storage = context.storage ?? sessionStorage;
+  const location_ref = context.location ?? location;
+  const now = context.now ?? Date.now();
+  const signature = `${location_ref.pathname}${location_ref.search}${location_ref.hash}:${getLazyRouteErrorMessage(error)}`;
+  const reload_state = parseReloadState(storage.getItem(LAZY_ROUTE_RELOAD_KEY));
+  if (reload_state?.signature === signature && now - reload_state.timestamp < RELOAD_THROTTLE) {
+    throw error;
+  }
+  storage.setItem(LAZY_ROUTE_RELOAD_KEY, JSON.stringify({ signature, timestamp: now }));
+  log("ROUTER", "Lazy route load failed. Reloading application...", error, "warn", true);
+  location_ref.reload();
+}
+function getLazyRouteErrorMessage(error) {
+  if (typeof error === "string")
+    return error;
+  if (error instanceof Error) {
+    return `${error.name}: ${error.message}`;
+  }
+  if (error && typeof error === "object") {
+    const name = "name" in error ? `${error.name || ""}` : "";
+    const message = "message" in error ? `${error.message || ""}` : "";
+    return `${name}: ${message}`.trim();
+  }
+  return `${error || ""}`;
+}
+function parseReloadState(state) {
+  if (!state)
+    return null;
+  try {
+    const parsed_state = JSON.parse(state);
+    if (typeof parsed_state?.signature === "string" && typeof parsed_state?.timestamp === "number") {
+      return parsed_state;
+    }
+  } catch {
+  }
+  return null;
+}
+
+// libs/common/src/lib/locale-data.ts
+var SUPPORTED_LOCALES = {
+  ar: () => import("./ar-4OEKFYQ3.js"),
+  es: () => import("./es-E672VPW4.js"),
+  fr: () => import("./fr-62Q4VGQY.js"),
+  it: () => import("./it-OJSM6IJC.js"),
+  ja: () => import("./ja-5HQXGIBO.js"),
+  zh: () => import("./zh-A5WQQ6XL.js")
+};
+async function registerActiveLocale(locale) {
+  const short = (locale || "en").split("-")[0];
+  const loader = SUPPORTED_LOCALES[short];
+  if (!loader)
+    return;
+  const { default: data } = await loader();
+  registerLocaleData(data);
 }
 
 // node_modules/marked/lib/marked.esm.js
@@ -17883,7 +17959,9 @@ var VisitorRegistrationComponent = class _VisitorRegistrationComponent extends A
     );
   }
   setHost(user) {
-    this._booking_form.model.update((m) => __spreadProps(__spreadValues({}, m), { user }));
+    this._booking_form.model.update((m) => __spreadProps(__spreadValues({}, m), {
+      user: user || EMPTY_USER
+    }));
   }
   setDuration(duration) {
     this._booking_form.model.update((m) => __spreadProps(__spreadValues({}, m), { duration }));
@@ -17896,9 +17974,8 @@ var VisitorRegistrationComponent = class _VisitorRegistrationComponent extends A
     this._booking_form.model.update((m) => __spreadProps(__spreadValues({}, m), {
       booking_type: "visitor",
       title: "Visit",
-      // Always ask for the host - never inherit the logged-in user that
-      // the shared form factory seeds via currentUser().
-      user: null
+      // Always ask for the host; null is sanitized back to currentUser().
+      user: EMPTY_USER
     }));
     setTimeout(() => {
       if (this.allow_self_registration())
@@ -18213,7 +18290,7 @@ var VisitorRegistrationComponent = class _VisitorRegistrationComponent extends A
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(VisitorRegistrationComponent, { className: "VisitorRegistrationComponent", filePath: "apps/visitor-kiosk/src/app/visitor-registration.component.ts", lineNumber: 241 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(VisitorRegistrationComponent, { className: "VisitorRegistrationComponent", filePath: "apps/visitor-kiosk/src/app/visitor-registration.component.ts", lineNumber: 242 });
 })();
 
 // apps/visitor-kiosk/src/app/welcome.component.ts
@@ -18688,12 +18765,12 @@ var routes = [
   {
     path: "explore",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./explore.routes-53LI24AK.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./explore.routes-W6FLZ6QN.js").then((m) => m.ROUTES)
   },
   {
     path: "checkin",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./checkin.routes-XSDNVGDF.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./checkin.routes-W2DWBOW6.js").then((m) => m.ROUTES)
   },
   { path: "**", redirectTo: "bootstrap" }
 ];

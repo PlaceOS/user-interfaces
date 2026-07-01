@@ -1,7 +1,11 @@
 import {
+  generateQRCode
+} from "./chunk-R5XPVHHX.js";
+import {
   AssetStateService,
   BookingFormService,
   CalendarService,
+  Desk,
   DurationFieldComponent,
   MAT_DIALOG_DATA,
   MapViewer,
@@ -21,6 +25,7 @@ import {
   MatTooltipModule,
   UserSearchFieldComponent,
   endOfMinute,
+  filterResourcesFromRules,
   generateCalendarFileLink,
   generateGoogleCalendarLink,
   generateMicrosoftCalendarLink,
@@ -31,11 +36,12 @@ import {
   queryParkingUsers,
   querySpaceFreeBusy,
   requestSpacesForZone,
+  rulesForResource,
   searchStaff,
   setHours,
   setMinutes,
   showStaff
-} from "./chunk-S5JZGZVL.js";
+} from "./chunk-NSE7MLLP.js";
 import {
   ANIMATION_SHOW_CONTRACT_EXPAND,
   ActivatedRoute,
@@ -51,7 +57,6 @@ import {
   Component,
   DatePipe,
   DefaultValueAccessor,
-  Desk,
   DestroyRef,
   Ea,
   ElementRef,
@@ -150,6 +155,8 @@ import {
   constructFrom,
   createBookingsForEvent,
   currentUser,
+  currentUserIsLoaded,
+  currentUserLoaded,
   d,
   debounced,
   differenceInCalendarMonths,
@@ -161,7 +168,6 @@ import {
   endOfDay,
   endOfDayInTimezone,
   endOfMonth,
-  filterResourcesFromRules,
   firstValueWhere,
   flatten,
   form,
@@ -169,7 +175,6 @@ import {
   formatTimeInTimezone,
   forwardRef,
   fromZonedTime,
-  generateQRCode,
   getAllDayTimeRange,
   getDefaultOptions,
   getInvalidSignalFields,
@@ -205,7 +210,6 @@ import {
   required,
   resource,
   roundToNearestMinutes,
-  rulesForResource,
   sa,
   saveBooking,
   set,
@@ -228,7 +232,6 @@ import {
   toZonedTime,
   unique,
   untracked,
-  userSignal,
   validate,
   validateAssetRequestsForResource,
   viewChild,
@@ -304,7 +307,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-DS3EWMOE.js";
+} from "./chunk-C6FZ5V4Y.js";
 import {
   __spreadProps,
   __spreadValues
@@ -5052,7 +5055,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     this.init();
   }
   async init() {
-    await firstValueWhere(userSignal(), (user) => !isEmptyUser(user));
+    await currentUserLoaded();
     setDefaultCreator(currentUser());
     onFieldChange(this._model, (v) => v.date, (date) => this.setOptions({ date }), this._injector);
     onFieldChange(this._model, (v) => v.duration, (duration) => this.setOptions({ duration }), this._injector);
@@ -5171,6 +5174,10 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     this._options.set(__spreadValues(__spreadValues({}, this._options()), options));
   }
   newForm(event = new CalendarEvent()) {
+    if (!currentUserIsLoaded()) {
+      currentUserLoaded().then(() => this.newForm(event));
+      return;
+    }
     this._startNetwork();
     this._calendar.loadCalendars();
     this._loading.set("");
@@ -5187,6 +5194,10 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     this._event.set(event);
   }
   resetForm() {
+    if (!currentUserIsLoaded()) {
+      currentUserLoaded().then(() => this.resetForm());
+      return;
+    }
     this._model.set(eventFormValue(this._event() || new CalendarEvent()));
     this._form().reset();
   }
@@ -5196,13 +5207,17 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     });
   }
   loadForm() {
+    if (!currentUserIsLoaded()) {
+      currentUserLoaded().then(() => this.loadForm());
+      return;
+    }
     this._startNetwork();
     this._calendar.loadCalendars();
     const event_data = JSON.parse(sessionStorage.getItem("PLACEOS.event") || "{}");
     const event = new CalendarEvent(event_data);
     this._event.set(event);
     const form_data = JSON.parse(sessionStorage.getItem("PLACEOS.event_form") || "{}");
-    this._model.update((m) => __spreadValues(__spreadValues(__spreadValues({}, m), event), form_data));
+    this._model.update((m) => __spreadValues(__spreadValues(__spreadValues({}, m), eventFormValue(event)), form_data));
   }
   clearForm() {
     sessionStorage.removeItem("PLACEOS.event");
@@ -5335,7 +5350,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       if (this._model().host !== host)
         ext.host_override = this._model().host;
       const value = this._model();
-      const created_event = await this._performBooking(new CalendarEvent(__spreadProps(__spreadValues({}, this._model()), {
+      let created_event = await this._performBooking(new CalendarEvent(__spreadProps(__spreadValues({}, this._model()), {
         date: all_day_period.date,
         duration: all_day_period.duration,
         date_end: all_day_period.date_end,
@@ -5351,6 +5366,16 @@ var EventFormService = class _EventFormService extends AsyncHandler {
         assets: processed_assets,
         extension_data: ext
       })), query).catch(on_error);
+      const date_end = all_day_period.date_end || all_day_period.date + all_day_period.duration * 60 * 1e3;
+      created_event = new CalendarEvent(__spreadProps(__spreadValues({}, created_event), {
+        event_start: Math.floor(all_day_period.date / 1e3),
+        event_end: Math.floor(date_end / 1e3),
+        date: all_day_period.date,
+        duration: all_day_period.duration,
+        date_end,
+        resources: space_list,
+        system: space_list[0] || null
+      }));
       const domain = (currentUser()?.email || "@").split("@")[1];
       const visitors = this._model().attendees.filter((user) => user.is_external && user.email !== event.host && !user.email.includes(domain) && user.visit_expected);
       if (visitors.length) {
@@ -5382,7 +5407,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       }
       this.clearForm();
       sessionStorage.setItem("PLACEOS.last_modified_event", JSON.stringify(created_event.toJSON()));
-      this.loadLastSuccess();
+      this.last_success.set(created_event);
       return created_event;
     } catch (e) {
       this.removeLoadingTag(Tags.PostBooking);
@@ -12123,4 +12148,4 @@ var ROUTES = [
 export {
   ROUTES
 };
-//# sourceMappingURL=explore.routes-53LI24AK.js.map
+//# sourceMappingURL=explore.routes-W6FLZ6QN.js.map
