@@ -128,7 +128,7 @@ import { CheckinStateService } from './checkin-state.service';
                         </mat-form-field>
                     </div>
                 }
-                <button next btn matRipple (click)="updateGuest()">
+                <button next type="button" btn matRipple (click)="updateGuest()">
                     {{ 'APP.VISITOR_KIOSK.CONTINUE' | translate }}
                 </button>
                 <a
