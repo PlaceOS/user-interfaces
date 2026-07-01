@@ -1,69 +1,175 @@
 import {
-  AuthorisedUserGuard,
-  Cl,
+  AsyncHandler,
+  BidiModule,
+  ChangeDetectorRef,
   Component,
-  GlobalBannerComponent,
-  GlobalLoadingComponent,
-  Gr,
+  DOCUMENT,
+  DefaultValueAccessor,
+  Dr,
+  ElementRef,
+  EventEmitter,
+  FormsModule,
+  GroupPermission,
+  Hr,
+  IconComponent,
+  Injectable,
+  InjectionToken,
+  Input,
   LOCALE_ID,
   LocaleService,
+  MatFormField,
+  MatFormFieldModule,
+  MatInput,
+  MatInputModule,
+  MatPrefix,
+  MatRipple,
+  MatRippleModule,
+  MatTooltip,
+  MatTooltipModule,
+  NgControlStatus,
+  NgControlStatusGroup,
+  NgForm,
+  NgModel,
+  NgModule,
+  NgZone,
+  Nl,
+  OrganisationService,
+  Output,
   PlaceOS_Service,
+  Renderer2,
+  RequiredValidator,
   Router,
   RouterOutlet,
+  Rt,
+  SettingsService,
   SignageService,
   TranslatePipe,
-  UnauthorisedComponent,
   UploadsService,
-  __spreadProps,
-  __spreadValues,
+  V,
+  ViewEncapsulation,
+  Wr,
+  _getAnimationsState,
   addDays,
+  addMilliseconds,
   addMinutes,
   addMonths,
-  addSeconds,
+  autoConfirmNativeDomain,
   bootstrapApplication,
   capitalizeFirstLetter,
+  computed,
+  current_user,
   differenceInMinutes,
-  filter,
-  generateMockSpace,
+  effect,
+  firstTruthyValueFrom,
+  getLoadingMessage,
+  getNativeApiKey,
+  getNativeDomain,
+  getNativeEmail,
   getUnixTime,
+  hasPermission,
   inject,
+  input,
   isBefore,
-  map,
+  lookupNativeDomainByEmail,
+  mr,
+  nativeDomainError,
+  needsNativeDomain,
+  normaliseNativeDomain,
+  numberAttribute,
+  output,
   padString,
-  pr,
   predictableRandomInt,
+  provideAppInitializer,
   provideBrowserGlobalErrorListeners,
   provideRouter,
   provideServiceWorker,
   provideZonelessChangeDetection,
   randomInt,
   randomString,
-  registerLocaleData,
+  registerActiveLocale,
+  ri,
+  serviceWorkerUpdate,
   setClassMetadata,
-  setHours,
-  setMinutes,
   setMocks,
+  setNativeApiKey,
+  setNativeDomain,
+  setNativeEmail,
+  settingSignal,
+  signal,
   startOfDay,
-  take,
   timePeriodsIntersect,
-  toObservable,
+  toDate,
   unique,
+  untracked,
+  user_groups_loaded,
+  withComponentInputBinding,
   withHashLocation,
+  ɵNgNoValidate,
   ɵsetClassDebugInfo,
+  ɵɵInheritDefinitionFeature,
   ɵɵadvance,
+  ɵɵattribute,
+  ɵɵclassMap,
+  ɵɵclassProp,
+  ɵɵconditional,
+  ɵɵconditionalCreate,
+  ɵɵcontrol,
+  ɵɵcontrolCreate,
   ɵɵdefineComponent,
+  ɵɵdefineInjectable,
+  ɵɵdefineInjector,
+  ɵɵdefineNgModule,
+  ɵɵdomElement,
+  ɵɵdomElementEnd,
+  ɵɵdomElementStart,
   ɵɵelement,
   ɵɵelementEnd,
   ɵɵelementStart,
+  ɵɵgetCurrentView,
+  ɵɵgetInheritedFactory,
+  ɵɵlistener,
+  ɵɵnextContext,
   ɵɵpipe,
   ɵɵpipeBind1,
+  ɵɵproperty,
+  ɵɵresetView,
+  ɵɵresolveWindow,
+  ɵɵrestoreView,
+  ɵɵstyleProp,
   ɵɵtext,
-  ɵɵtextInterpolate
-} from "./chunk-U2N2LWN6.js";
+  ɵɵtextInterpolate,
+  ɵɵtextInterpolate1,
+  ɵɵtwoWayBindingSet,
+  ɵɵtwoWayListener,
+  ɵɵtwoWayProperty
+} from "./chunk-L2CIX5RA.js";
+import {
+  __spreadProps,
+  __spreadValues
+} from "./chunk-653SOEEV.js";
+
+// node_modules/date-fns/addSeconds.js
+function addSeconds(date, amount, options) {
+  return addMilliseconds(date, amount * 1e3, options);
+}
 
 // node_modules/date-fns/subDays.js
 function subDays(date, amount, options) {
   return addDays(date, -amount, options);
+}
+
+// node_modules/date-fns/setHours.js
+function setHours(date, hours, options) {
+  const _date = toDate(date, options?.in);
+  _date.setHours(hours);
+  return _date;
+}
+
+// node_modules/date-fns/setMinutes.js
+function setMinutes(date, minutes, options) {
+  const date_ = toDate(date, options?.in);
+  date_.setMinutes(minutes);
+  return date_;
 }
 
 // node_modules/date-fns/subMonths.js
@@ -80,6 +186,1344 @@ function subMinutes(date, amount, options) {
 function subSeconds(date, amount, options) {
   return addSeconds(date, -amount, options);
 }
+
+// libs/users/src/lib/user.utilities.ts
+var USER_DOMAIN = "@place.tech";
+
+// libs/events/src/lib/space.utilities.ts
+var SPACE_COUNT = 0;
+function generateMockSpace(overrides = {}) {
+  const id = `space-${SPACE_COUNT++}`;
+  const name = `Test Space ${SPACE_COUNT}`;
+  const linked = predictableRandomInt(99999) % 2 === 0 && SPACE_COUNT > 1;
+  const space = __spreadValues({
+    id,
+    name,
+    long_name: `${name} with an long name`,
+    map_id: `${SPACE_COUNT}`,
+    capacity: predictableRandomInt(21, 1) * 2,
+    email: `${name.toLowerCase().split(" ").join(".")}@${USER_DOMAIN}`,
+    type: "",
+    searchable: predictableRandomInt(99999) % 2 === 0,
+    controlable: predictableRandomInt(99999) % 2 === 0,
+    bookable: predictableRandomInt(99999) % 2 === 0,
+    cost_hour: predictableRandomInt(300) * 100,
+    setup: predictableRandomInt(6) * 5,
+    breakdown: predictableRandomInt(6) * 5,
+    zones: ["zone_lvl-0"],
+    support_url: `/control/#/panel/${id}`,
+    bookings: [],
+    //Array(10).fill(0).map(i => generateMockBooking()),
+    linked_rooms: linked ? [`space-${predictableRandomInt(SPACE_COUNT - 1)}`] : [],
+    image: ""
+  }, overrides);
+  if (space["configurations"] && space["configurations"].length > 0) {
+    space["configurations"].forEach((config) => config.capacity = predictableRandomInt(space.capacity) + 1);
+    space["configurations"][0].capacity = space.capacity;
+  }
+  return space;
+}
+
+// libs/components/src/lib/global-banner.component.ts
+function GlobalBannerComponent_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "div", 1)(1, "div", 2);
+  }
+  if (rf & 2) {
+    const bar_color_r1 = ctx;
+    \u0275\u0275styleProp("background-color", bar_color_r1);
+    \u0275\u0275advance();
+    \u0275\u0275styleProp("background-color", bar_color_r1);
+  }
+}
+function GlobalBannerComponent_Conditional_1_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r2 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 3)(1, "div", 4);
+    \u0275\u0275text(2);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "button", 5);
+    \u0275\u0275listener("click", function GlobalBannerComponent_Conditional_1_Template_button_click_3_listener() {
+      \u0275\u0275restoreView(_r2);
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.close());
+    });
+    \u0275\u0275elementStart(4, "icon");
+    \u0275\u0275text(5, "close");
+    \u0275\u0275elementEnd()()();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275classProp("bg-info", ctx_r2.banner().type === "info" || !ctx_r2.banner().type)("text-info-content", ctx_r2.banner().type === "info" || !ctx_r2.banner().type)("bg-warning", ctx_r2.banner().type === "warn")("text-warning-content", ctx_r2.banner().type === "warn")("bg-error", ctx_r2.banner().type === "error")("text-error-content", ctx_r2.banner().type === "error");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", ctx_r2.banner()?.content || ctx_r2.banner()?.message, " ");
+  }
+}
+var GlobalBannerComponent = class _GlobalBannerComponent {
+  constructor() {
+    this._org = inject(OrganisationService);
+    this._change = signal(
+      0,
+      ...ngDevMode ? [{ debugName: "_change" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.is_setup = signal(
+      false,
+      ...ngDevMode ? [{ debugName: "is_setup" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.banner = settingSignal("banner");
+    this.environment_bar = settingSignal("environment_bar");
+    this._environment_bar_padding = effect(
+      () => {
+        document.body.classList.toggle("has-environment-bar", !!this.environment_bar());
+      },
+      ...ngDevMode ? [{ debugName: "_environment_bar_padding" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.has_been_closed = computed(
+      () => {
+        if (!this.is_setup())
+          return true;
+        this._change();
+        return !this.banner()?.content && !this.banner()?.message || localStorage.getItem("PLACE.last_banner") === this.banner().id;
+      },
+      ...ngDevMode ? [{ debugName: "has_been_closed" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+  }
+  async ngOnInit() {
+    await this._org.waitUntilInitialised();
+    setTimeout(() => this.is_setup.set(true), 500);
+  }
+  async close() {
+    localStorage.setItem("PLACE.last_banner", this.banner()?.id || "");
+    this._change.set(Date.now());
+  }
+  static {
+    this.\u0275fac = function GlobalBannerComponent_Factory(__ngFactoryType__) {
+      return new (__ngFactoryType__ || _GlobalBannerComponent)();
+    };
+  }
+  static {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _GlobalBannerComponent, selectors: [["global-banner"]], decls: 2, vars: 2, consts: [[1, "flex", "w-full", "items-center", "space-x-4", "p-4", "print:hidden", 3, "bg-info", "text-info-content", "bg-warning", "text-warning-content", "bg-error", "text-error-content"], ["aria-hidden", "true", 1, "environment-bar", "top-0", "print:hidden"], ["aria-hidden", "true", 1, "environment-bar", "bottom-0", "print:hidden"], [1, "flex", "w-full", "items-center", "space-x-4", "p-4", "print:hidden"], [1, "flex-1"], ["icon", "", "matRipple", "", 3, "click"]], template: function GlobalBannerComponent_Template(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275conditionalCreate(0, GlobalBannerComponent_Conditional_0_Template, 2, 4);
+        \u0275\u0275conditionalCreate(1, GlobalBannerComponent_Conditional_1_Template, 6, 13, "div", 0);
+      }
+      if (rf & 2) {
+        let tmp_0_0;
+        \u0275\u0275conditional((tmp_0_0 = ctx.environment_bar()) ? 0 : -1, tmp_0_0);
+        \u0275\u0275advance();
+        \u0275\u0275conditional(!ctx.has_been_closed() && ctx.banner() ? 1 : -1);
+      }
+    }, dependencies: [IconComponent], styles: ["\n[_nghost-%COMP%] {\n  display: block;\n  width: 100%;\n}\n.environment-bar[_ngcontent-%COMP%] {\n  height: 0.5rem;\n  left: 0;\n  pointer-events: none;\n  position: fixed;\n  width: 100%;\n  z-index: 10000;\n}\n/*# sourceMappingURL=global-banner.component.css.map */"] });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(GlobalBannerComponent, [{
+    type: Component,
+    args: [{ selector: "global-banner", template: `
+        @if (environment_bar(); as bar_color) {
+            <div
+                aria-hidden="true"
+                class="environment-bar top-0 print:hidden"
+                [style.background-color]="bar_color"
+            ></div>
+            <div
+                aria-hidden="true"
+                class="environment-bar bottom-0 print:hidden"
+                [style.background-color]="bar_color"
+            ></div>
+        }
+        @if (!has_been_closed() && banner()) {
+            <div
+                class="flex w-full items-center space-x-4 p-4 print:hidden"
+                [class.bg-info]="banner().type === 'info' || !banner().type"
+                [class.text-info-content]="
+                    banner().type === 'info' || !banner().type
+                "
+                [class.bg-warning]="banner().type === 'warn'"
+                [class.text-warning-content]="banner().type === 'warn'"
+                [class.bg-error]="banner().type === 'error'"
+                [class.text-error-content]="banner().type === 'error'"
+            >
+                <div class="flex-1">
+                    {{ banner()?.content || banner()?.message }}
+                </div>
+                <button icon matRipple (click)="close()">
+                    <icon>close</icon>
+                </button>
+            </div>
+        }
+    `, imports: [IconComponent], styles: ["/* angular:styles/component:css;48adc7ab23f963363b839300791bbdc46c1dcce0d1cc0ea0f3bb781a20fc7fbc;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/global-banner.component.ts */\n:host {\n  display: block;\n  width: 100%;\n}\n.environment-bar {\n  height: 0.5rem;\n  left: 0;\n  pointer-events: none;\n  position: fixed;\n  width: 100%;\n  z-index: 10000;\n}\n/*# sourceMappingURL=global-banner.component.css.map */\n"] }]
+  }], null, null);
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(GlobalBannerComponent, { className: "GlobalBannerComponent", filePath: "libs/components/src/lib/global-banner.component.ts", lineNumber: 74 });
+})();
+
+// node_modules/@angular/material/fesm2022/progress-bar.mjs
+function MatProgressBar_Conditional_2_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275domElement(0, "div", 2);
+  }
+}
+var MAT_PROGRESS_BAR_DEFAULT_OPTIONS = new InjectionToken("MAT_PROGRESS_BAR_DEFAULT_OPTIONS");
+var MAT_PROGRESS_BAR_LOCATION = new InjectionToken("mat-progress-bar-location", {
+  providedIn: "root",
+  factory: () => {
+    const _document = inject(DOCUMENT);
+    const _location = _document ? _document.location : null;
+    return {
+      getPathname: () => _location ? _location.pathname + _location.search : ""
+    };
+  }
+});
+var MatProgressBar = class _MatProgressBar {
+  _elementRef = inject(ElementRef);
+  _ngZone = inject(NgZone);
+  _changeDetectorRef = inject(ChangeDetectorRef);
+  _renderer = inject(Renderer2);
+  _cleanupTransitionEnd;
+  constructor() {
+    const animationsState = _getAnimationsState();
+    const defaults = inject(MAT_PROGRESS_BAR_DEFAULT_OPTIONS, {
+      optional: true
+    });
+    this._isNoopAnimation = animationsState === "di-disabled";
+    if (animationsState === "reduced-motion") {
+      this._elementRef.nativeElement.classList.add("mat-progress-bar-reduced-motion");
+    }
+    if (defaults) {
+      if (defaults.color) {
+        this.color = this._defaultColor = defaults.color;
+      }
+      this.mode = defaults.mode || this.mode;
+    }
+  }
+  _isNoopAnimation;
+  get color() {
+    return this._color || this._defaultColor;
+  }
+  set color(value) {
+    this._color = value;
+  }
+  _color;
+  _defaultColor = "primary";
+  get value() {
+    return this._value;
+  }
+  set value(v) {
+    this._value = clamp(v || 0);
+    this._changeDetectorRef.markForCheck();
+  }
+  _value = 0;
+  get bufferValue() {
+    return this._bufferValue || 0;
+  }
+  set bufferValue(v) {
+    this._bufferValue = clamp(v || 0);
+    this._changeDetectorRef.markForCheck();
+  }
+  _bufferValue = 0;
+  animationEnd = new EventEmitter();
+  get mode() {
+    return this._mode;
+  }
+  set mode(value) {
+    this._mode = value;
+    this._changeDetectorRef.markForCheck();
+  }
+  _mode = "determinate";
+  ngAfterViewInit() {
+    this._ngZone.runOutsideAngular(() => {
+      this._cleanupTransitionEnd = this._renderer.listen(this._elementRef.nativeElement, "transitionend", this._transitionendHandler);
+    });
+  }
+  ngOnDestroy() {
+    this._cleanupTransitionEnd?.();
+  }
+  _getPrimaryBarTransform() {
+    return `scaleX(${this._isIndeterminate() ? 1 : this.value / 100})`;
+  }
+  _getBufferBarFlexBasis() {
+    return `${this.mode === "buffer" ? this.bufferValue : 100}%`;
+  }
+  _isIndeterminate() {
+    return this.mode === "indeterminate" || this.mode === "query";
+  }
+  _transitionendHandler = (event) => {
+    if (this.animationEnd.observers.length === 0 || !event.target || !event.target.classList.contains("mdc-linear-progress__primary-bar")) {
+      return;
+    }
+    if (this.mode === "determinate" || this.mode === "buffer") {
+      this._ngZone.run(() => this.animationEnd.next({
+        value: this.value
+      }));
+    }
+  };
+  static \u0275fac = function MatProgressBar_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _MatProgressBar)();
+  };
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
+    type: _MatProgressBar,
+    selectors: [["mat-progress-bar"]],
+    hostAttrs: ["role", "progressbar", "aria-valuemin", "0", "aria-valuemax", "100", "tabindex", "-1", 1, "mat-mdc-progress-bar", "mdc-linear-progress"],
+    hostVars: 10,
+    hostBindings: function MatProgressBar_HostBindings(rf, ctx) {
+      if (rf & 2) {
+        \u0275\u0275attribute("aria-valuenow", ctx._isIndeterminate() ? null : ctx.value)("mode", ctx.mode);
+        \u0275\u0275classMap("mat-" + ctx.color);
+        \u0275\u0275classProp("_mat-animation-noopable", ctx._isNoopAnimation)("mdc-linear-progress--animation-ready", !ctx._isNoopAnimation)("mdc-linear-progress--indeterminate", ctx._isIndeterminate());
+      }
+    },
+    inputs: {
+      color: "color",
+      value: [2, "value", "value", numberAttribute],
+      bufferValue: [2, "bufferValue", "bufferValue", numberAttribute],
+      mode: "mode"
+    },
+    outputs: {
+      animationEnd: "animationEnd"
+    },
+    exportAs: ["matProgressBar"],
+    decls: 7,
+    vars: 5,
+    consts: [["aria-hidden", "true", 1, "mdc-linear-progress__buffer"], [1, "mdc-linear-progress__buffer-bar"], [1, "mdc-linear-progress__buffer-dots"], ["aria-hidden", "true", 1, "mdc-linear-progress__bar", "mdc-linear-progress__primary-bar"], [1, "mdc-linear-progress__bar-inner"], ["aria-hidden", "true", 1, "mdc-linear-progress__bar", "mdc-linear-progress__secondary-bar"]],
+    template: function MatProgressBar_Template(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275domElementStart(0, "div", 0);
+        \u0275\u0275domElement(1, "div", 1);
+        \u0275\u0275conditionalCreate(2, MatProgressBar_Conditional_2_Template, 1, 0, "div", 2);
+        \u0275\u0275domElementEnd();
+        \u0275\u0275domElementStart(3, "div", 3);
+        \u0275\u0275domElement(4, "span", 4);
+        \u0275\u0275domElementEnd();
+        \u0275\u0275domElementStart(5, "div", 5);
+        \u0275\u0275domElement(6, "span", 4);
+        \u0275\u0275domElementEnd();
+      }
+      if (rf & 2) {
+        \u0275\u0275advance();
+        \u0275\u0275styleProp("flex-basis", ctx._getBufferBarFlexBasis());
+        \u0275\u0275advance();
+        \u0275\u0275conditional(ctx.mode === "buffer" ? 2 : -1);
+        \u0275\u0275advance();
+        \u0275\u0275styleProp("transform", ctx._getPrimaryBarTransform());
+      }
+    },
+    styles: [".mat-mdc-progress-bar {\n  --mat-progress-bar-animation-multiplier: 1;\n  display: block;\n  text-align: start;\n}\n.mat-mdc-progress-bar[mode=query] {\n  transform: scaleX(-1);\n}\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__buffer-dots,\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__primary-bar,\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__secondary-bar,\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__bar-inner.mdc-linear-progress__bar-inner {\n  animation: none;\n}\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__primary-bar,\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__buffer-bar {\n  transition: transform 1ms;\n}\n\n.mat-progress-bar-reduced-motion {\n  --mat-progress-bar-animation-multiplier: 2;\n}\n\n.mdc-linear-progress {\n  position: relative;\n  width: 100%;\n  transform: translateZ(0);\n  outline: 1px solid transparent;\n  overflow-x: hidden;\n  transition: opacity 250ms 0ms cubic-bezier(0.4, 0, 0.6, 1);\n  height: max(var(--mat-progress-bar-track-height, 4px), var(--mat-progress-bar-active-indicator-height, 4px));\n}\n@media (forced-colors: active) {\n  .mdc-linear-progress {\n    outline-color: CanvasText;\n  }\n}\n\n.mdc-linear-progress__bar {\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  margin: auto 0;\n  width: 100%;\n  animation: none;\n  transform-origin: top left;\n  transition: transform 250ms 0ms cubic-bezier(0.4, 0, 0.6, 1);\n  height: var(--mat-progress-bar-active-indicator-height, 4px);\n}\n.mdc-linear-progress--indeterminate .mdc-linear-progress__bar {\n  transition: none;\n}\n[dir=rtl] .mdc-linear-progress__bar {\n  right: 0;\n  transform-origin: center right;\n}\n\n.mdc-linear-progress__bar-inner {\n  display: inline-block;\n  position: absolute;\n  width: 100%;\n  animation: none;\n  border-top-style: solid;\n  border-color: var(--mat-progress-bar-active-indicator-color, var(--mat-sys-primary));\n  border-top-width: var(--mat-progress-bar-active-indicator-height, 4px);\n}\n\n.mdc-linear-progress__buffer {\n  display: flex;\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  margin: auto 0;\n  width: 100%;\n  overflow: hidden;\n  height: var(--mat-progress-bar-track-height, 4px);\n  border-radius: var(--mat-progress-bar-track-shape, var(--mat-sys-corner-none));\n}\n\n.mdc-linear-progress__buffer-dots {\n  background-image: radial-gradient(circle, var(--mat-progress-bar-track-color, var(--mat-sys-surface-variant)) calc(var(--mat-progress-bar-track-height, 4px) / 2), transparent 0);\n  background-repeat: repeat-x;\n  background-size: calc(calc(var(--mat-progress-bar-track-height, 4px) / 2) * 5);\n  background-position: left;\n  flex: auto;\n  transform: rotate(180deg);\n  animation: mdc-linear-progress-buffering calc(250ms * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n@media (forced-colors: active) {\n  .mdc-linear-progress__buffer-dots {\n    background-color: ButtonBorder;\n  }\n}\n[dir=rtl] .mdc-linear-progress__buffer-dots {\n  animation: mdc-linear-progress-buffering-reverse calc(250ms * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n  transform: rotate(0);\n}\n\n.mdc-linear-progress__buffer-bar {\n  flex: 0 1 100%;\n  transition: flex-basis 250ms 0ms cubic-bezier(0.4, 0, 0.6, 1);\n  background-color: var(--mat-progress-bar-track-color, var(--mat-sys-surface-variant));\n}\n\n.mdc-linear-progress__primary-bar {\n  transform: scaleX(0);\n}\n.mdc-linear-progress--indeterminate .mdc-linear-progress__primary-bar {\n  left: -145.166611%;\n}\n.mdc-linear-progress--indeterminate.mdc-linear-progress--animation-ready .mdc-linear-progress__primary-bar {\n  animation: mdc-linear-progress-primary-indeterminate-translate calc(2s * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n.mdc-linear-progress--indeterminate.mdc-linear-progress--animation-ready .mdc-linear-progress__primary-bar > .mdc-linear-progress__bar-inner {\n  animation: mdc-linear-progress-primary-indeterminate-scale calc(2s * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n[dir=rtl] .mdc-linear-progress.mdc-linear-progress--animation-ready .mdc-linear-progress__primary-bar {\n  animation-name: mdc-linear-progress-primary-indeterminate-translate-reverse;\n}\n[dir=rtl] .mdc-linear-progress.mdc-linear-progress--indeterminate .mdc-linear-progress__primary-bar {\n  right: -145.166611%;\n  left: auto;\n}\n\n.mdc-linear-progress__secondary-bar {\n  display: none;\n}\n.mdc-linear-progress--indeterminate .mdc-linear-progress__secondary-bar {\n  left: -54.888891%;\n  display: block;\n}\n.mdc-linear-progress--indeterminate.mdc-linear-progress--animation-ready .mdc-linear-progress__secondary-bar {\n  animation: mdc-linear-progress-secondary-indeterminate-translate calc(2s * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n.mdc-linear-progress--indeterminate.mdc-linear-progress--animation-ready .mdc-linear-progress__secondary-bar > .mdc-linear-progress__bar-inner {\n  animation: mdc-linear-progress-secondary-indeterminate-scale calc(2s * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n[dir=rtl] .mdc-linear-progress.mdc-linear-progress--animation-ready .mdc-linear-progress__secondary-bar {\n  animation-name: mdc-linear-progress-secondary-indeterminate-translate-reverse;\n}\n[dir=rtl] .mdc-linear-progress.mdc-linear-progress--indeterminate .mdc-linear-progress__secondary-bar {\n  right: -54.888891%;\n  left: auto;\n}\n\n@keyframes mdc-linear-progress-buffering {\n  from {\n    transform: rotate(180deg) translateX(calc(var(--mat-progress-bar-track-height, 4px) * -2.5));\n  }\n}\n@keyframes mdc-linear-progress-primary-indeterminate-translate {\n  0% {\n    transform: translateX(0);\n  }\n  20% {\n    animation-timing-function: cubic-bezier(0.5, 0, 0.701732, 0.495819);\n    transform: translateX(0);\n  }\n  59.15% {\n    animation-timing-function: cubic-bezier(0.302435, 0.381352, 0.55, 0.956352);\n    transform: translateX(83.67142%);\n  }\n  100% {\n    transform: translateX(200.611057%);\n  }\n}\n@keyframes mdc-linear-progress-primary-indeterminate-scale {\n  0% {\n    transform: scaleX(0.08);\n  }\n  36.65% {\n    animation-timing-function: cubic-bezier(0.334731, 0.12482, 0.785844, 1);\n    transform: scaleX(0.08);\n  }\n  69.15% {\n    animation-timing-function: cubic-bezier(0.06, 0.11, 0.6, 1);\n    transform: scaleX(0.661479);\n  }\n  100% {\n    transform: scaleX(0.08);\n  }\n}\n@keyframes mdc-linear-progress-secondary-indeterminate-translate {\n  0% {\n    animation-timing-function: cubic-bezier(0.15, 0, 0.515058, 0.409685);\n    transform: translateX(0);\n  }\n  25% {\n    animation-timing-function: cubic-bezier(0.31033, 0.284058, 0.8, 0.733712);\n    transform: translateX(37.651913%);\n  }\n  48.35% {\n    animation-timing-function: cubic-bezier(0.4, 0.627035, 0.6, 0.902026);\n    transform: translateX(84.386165%);\n  }\n  100% {\n    transform: translateX(160.277782%);\n  }\n}\n@keyframes mdc-linear-progress-secondary-indeterminate-scale {\n  0% {\n    animation-timing-function: cubic-bezier(0.205028, 0.057051, 0.57661, 0.453971);\n    transform: scaleX(0.08);\n  }\n  19.15% {\n    animation-timing-function: cubic-bezier(0.152313, 0.196432, 0.648374, 1.004315);\n    transform: scaleX(0.457104);\n  }\n  44.15% {\n    animation-timing-function: cubic-bezier(0.257759, -0.003163, 0.211762, 1.38179);\n    transform: scaleX(0.72796);\n  }\n  100% {\n    transform: scaleX(0.08);\n  }\n}\n@keyframes mdc-linear-progress-primary-indeterminate-translate-reverse {\n  0% {\n    transform: translateX(0);\n  }\n  20% {\n    animation-timing-function: cubic-bezier(0.5, 0, 0.701732, 0.495819);\n    transform: translateX(0);\n  }\n  59.15% {\n    animation-timing-function: cubic-bezier(0.302435, 0.381352, 0.55, 0.956352);\n    transform: translateX(-83.67142%);\n  }\n  100% {\n    transform: translateX(-200.611057%);\n  }\n}\n@keyframes mdc-linear-progress-secondary-indeterminate-translate-reverse {\n  0% {\n    animation-timing-function: cubic-bezier(0.15, 0, 0.515058, 0.409685);\n    transform: translateX(0);\n  }\n  25% {\n    animation-timing-function: cubic-bezier(0.31033, 0.284058, 0.8, 0.733712);\n    transform: translateX(-37.651913%);\n  }\n  48.35% {\n    animation-timing-function: cubic-bezier(0.4, 0.627035, 0.6, 0.902026);\n    transform: translateX(-84.386165%);\n  }\n  100% {\n    transform: translateX(-160.277782%);\n  }\n}\n@keyframes mdc-linear-progress-buffering-reverse {\n  from {\n    transform: translateX(-10px);\n  }\n}\n"],
+    encapsulation: 2
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatProgressBar, [{
+    type: Component,
+    args: [{
+      selector: "mat-progress-bar",
+      exportAs: "matProgressBar",
+      host: {
+        "role": "progressbar",
+        "aria-valuemin": "0",
+        "aria-valuemax": "100",
+        "tabindex": "-1",
+        "[attr.aria-valuenow]": "_isIndeterminate() ? null : value",
+        "[attr.mode]": "mode",
+        "class": "mat-mdc-progress-bar mdc-linear-progress",
+        "[class]": '"mat-" + color',
+        "[class._mat-animation-noopable]": "_isNoopAnimation",
+        "[class.mdc-linear-progress--animation-ready]": "!_isNoopAnimation",
+        "[class.mdc-linear-progress--indeterminate]": "_isIndeterminate()"
+      },
+      encapsulation: ViewEncapsulation.None,
+      template: `<!--
+  All children need to be hidden for screen readers in order to support ChromeVox.
+  More context in the issue: https://github.com/angular/components/issues/22165.
+-->
+<div class="mdc-linear-progress__buffer" aria-hidden="true">
+  <div
+    class="mdc-linear-progress__buffer-bar"
+    [style.flex-basis]="_getBufferBarFlexBasis()"></div>
+  <!-- Remove the dots outside of buffer mode since they can cause CSP issues (see #28938) -->
+  @if (mode === 'buffer') {
+    <div class="mdc-linear-progress__buffer-dots"></div>
+  }
+</div>
+<div
+  class="mdc-linear-progress__bar mdc-linear-progress__primary-bar"
+  aria-hidden="true"
+  [style.transform]="_getPrimaryBarTransform()">
+  <span class="mdc-linear-progress__bar-inner"></span>
+</div>
+<div class="mdc-linear-progress__bar mdc-linear-progress__secondary-bar" aria-hidden="true">
+  <span class="mdc-linear-progress__bar-inner"></span>
+</div>
+`,
+      styles: [".mat-mdc-progress-bar {\n  --mat-progress-bar-animation-multiplier: 1;\n  display: block;\n  text-align: start;\n}\n.mat-mdc-progress-bar[mode=query] {\n  transform: scaleX(-1);\n}\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__buffer-dots,\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__primary-bar,\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__secondary-bar,\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__bar-inner.mdc-linear-progress__bar-inner {\n  animation: none;\n}\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__primary-bar,\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__buffer-bar {\n  transition: transform 1ms;\n}\n\n.mat-progress-bar-reduced-motion {\n  --mat-progress-bar-animation-multiplier: 2;\n}\n\n.mdc-linear-progress {\n  position: relative;\n  width: 100%;\n  transform: translateZ(0);\n  outline: 1px solid transparent;\n  overflow-x: hidden;\n  transition: opacity 250ms 0ms cubic-bezier(0.4, 0, 0.6, 1);\n  height: max(var(--mat-progress-bar-track-height, 4px), var(--mat-progress-bar-active-indicator-height, 4px));\n}\n@media (forced-colors: active) {\n  .mdc-linear-progress {\n    outline-color: CanvasText;\n  }\n}\n\n.mdc-linear-progress__bar {\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  margin: auto 0;\n  width: 100%;\n  animation: none;\n  transform-origin: top left;\n  transition: transform 250ms 0ms cubic-bezier(0.4, 0, 0.6, 1);\n  height: var(--mat-progress-bar-active-indicator-height, 4px);\n}\n.mdc-linear-progress--indeterminate .mdc-linear-progress__bar {\n  transition: none;\n}\n[dir=rtl] .mdc-linear-progress__bar {\n  right: 0;\n  transform-origin: center right;\n}\n\n.mdc-linear-progress__bar-inner {\n  display: inline-block;\n  position: absolute;\n  width: 100%;\n  animation: none;\n  border-top-style: solid;\n  border-color: var(--mat-progress-bar-active-indicator-color, var(--mat-sys-primary));\n  border-top-width: var(--mat-progress-bar-active-indicator-height, 4px);\n}\n\n.mdc-linear-progress__buffer {\n  display: flex;\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  margin: auto 0;\n  width: 100%;\n  overflow: hidden;\n  height: var(--mat-progress-bar-track-height, 4px);\n  border-radius: var(--mat-progress-bar-track-shape, var(--mat-sys-corner-none));\n}\n\n.mdc-linear-progress__buffer-dots {\n  background-image: radial-gradient(circle, var(--mat-progress-bar-track-color, var(--mat-sys-surface-variant)) calc(var(--mat-progress-bar-track-height, 4px) / 2), transparent 0);\n  background-repeat: repeat-x;\n  background-size: calc(calc(var(--mat-progress-bar-track-height, 4px) / 2) * 5);\n  background-position: left;\n  flex: auto;\n  transform: rotate(180deg);\n  animation: mdc-linear-progress-buffering calc(250ms * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n@media (forced-colors: active) {\n  .mdc-linear-progress__buffer-dots {\n    background-color: ButtonBorder;\n  }\n}\n[dir=rtl] .mdc-linear-progress__buffer-dots {\n  animation: mdc-linear-progress-buffering-reverse calc(250ms * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n  transform: rotate(0);\n}\n\n.mdc-linear-progress__buffer-bar {\n  flex: 0 1 100%;\n  transition: flex-basis 250ms 0ms cubic-bezier(0.4, 0, 0.6, 1);\n  background-color: var(--mat-progress-bar-track-color, var(--mat-sys-surface-variant));\n}\n\n.mdc-linear-progress__primary-bar {\n  transform: scaleX(0);\n}\n.mdc-linear-progress--indeterminate .mdc-linear-progress__primary-bar {\n  left: -145.166611%;\n}\n.mdc-linear-progress--indeterminate.mdc-linear-progress--animation-ready .mdc-linear-progress__primary-bar {\n  animation: mdc-linear-progress-primary-indeterminate-translate calc(2s * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n.mdc-linear-progress--indeterminate.mdc-linear-progress--animation-ready .mdc-linear-progress__primary-bar > .mdc-linear-progress__bar-inner {\n  animation: mdc-linear-progress-primary-indeterminate-scale calc(2s * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n[dir=rtl] .mdc-linear-progress.mdc-linear-progress--animation-ready .mdc-linear-progress__primary-bar {\n  animation-name: mdc-linear-progress-primary-indeterminate-translate-reverse;\n}\n[dir=rtl] .mdc-linear-progress.mdc-linear-progress--indeterminate .mdc-linear-progress__primary-bar {\n  right: -145.166611%;\n  left: auto;\n}\n\n.mdc-linear-progress__secondary-bar {\n  display: none;\n}\n.mdc-linear-progress--indeterminate .mdc-linear-progress__secondary-bar {\n  left: -54.888891%;\n  display: block;\n}\n.mdc-linear-progress--indeterminate.mdc-linear-progress--animation-ready .mdc-linear-progress__secondary-bar {\n  animation: mdc-linear-progress-secondary-indeterminate-translate calc(2s * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n.mdc-linear-progress--indeterminate.mdc-linear-progress--animation-ready .mdc-linear-progress__secondary-bar > .mdc-linear-progress__bar-inner {\n  animation: mdc-linear-progress-secondary-indeterminate-scale calc(2s * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n[dir=rtl] .mdc-linear-progress.mdc-linear-progress--animation-ready .mdc-linear-progress__secondary-bar {\n  animation-name: mdc-linear-progress-secondary-indeterminate-translate-reverse;\n}\n[dir=rtl] .mdc-linear-progress.mdc-linear-progress--indeterminate .mdc-linear-progress__secondary-bar {\n  right: -54.888891%;\n  left: auto;\n}\n\n@keyframes mdc-linear-progress-buffering {\n  from {\n    transform: rotate(180deg) translateX(calc(var(--mat-progress-bar-track-height, 4px) * -2.5));\n  }\n}\n@keyframes mdc-linear-progress-primary-indeterminate-translate {\n  0% {\n    transform: translateX(0);\n  }\n  20% {\n    animation-timing-function: cubic-bezier(0.5, 0, 0.701732, 0.495819);\n    transform: translateX(0);\n  }\n  59.15% {\n    animation-timing-function: cubic-bezier(0.302435, 0.381352, 0.55, 0.956352);\n    transform: translateX(83.67142%);\n  }\n  100% {\n    transform: translateX(200.611057%);\n  }\n}\n@keyframes mdc-linear-progress-primary-indeterminate-scale {\n  0% {\n    transform: scaleX(0.08);\n  }\n  36.65% {\n    animation-timing-function: cubic-bezier(0.334731, 0.12482, 0.785844, 1);\n    transform: scaleX(0.08);\n  }\n  69.15% {\n    animation-timing-function: cubic-bezier(0.06, 0.11, 0.6, 1);\n    transform: scaleX(0.661479);\n  }\n  100% {\n    transform: scaleX(0.08);\n  }\n}\n@keyframes mdc-linear-progress-secondary-indeterminate-translate {\n  0% {\n    animation-timing-function: cubic-bezier(0.15, 0, 0.515058, 0.409685);\n    transform: translateX(0);\n  }\n  25% {\n    animation-timing-function: cubic-bezier(0.31033, 0.284058, 0.8, 0.733712);\n    transform: translateX(37.651913%);\n  }\n  48.35% {\n    animation-timing-function: cubic-bezier(0.4, 0.627035, 0.6, 0.902026);\n    transform: translateX(84.386165%);\n  }\n  100% {\n    transform: translateX(160.277782%);\n  }\n}\n@keyframes mdc-linear-progress-secondary-indeterminate-scale {\n  0% {\n    animation-timing-function: cubic-bezier(0.205028, 0.057051, 0.57661, 0.453971);\n    transform: scaleX(0.08);\n  }\n  19.15% {\n    animation-timing-function: cubic-bezier(0.152313, 0.196432, 0.648374, 1.004315);\n    transform: scaleX(0.457104);\n  }\n  44.15% {\n    animation-timing-function: cubic-bezier(0.257759, -0.003163, 0.211762, 1.38179);\n    transform: scaleX(0.72796);\n  }\n  100% {\n    transform: scaleX(0.08);\n  }\n}\n@keyframes mdc-linear-progress-primary-indeterminate-translate-reverse {\n  0% {\n    transform: translateX(0);\n  }\n  20% {\n    animation-timing-function: cubic-bezier(0.5, 0, 0.701732, 0.495819);\n    transform: translateX(0);\n  }\n  59.15% {\n    animation-timing-function: cubic-bezier(0.302435, 0.381352, 0.55, 0.956352);\n    transform: translateX(-83.67142%);\n  }\n  100% {\n    transform: translateX(-200.611057%);\n  }\n}\n@keyframes mdc-linear-progress-secondary-indeterminate-translate-reverse {\n  0% {\n    animation-timing-function: cubic-bezier(0.15, 0, 0.515058, 0.409685);\n    transform: translateX(0);\n  }\n  25% {\n    animation-timing-function: cubic-bezier(0.31033, 0.284058, 0.8, 0.733712);\n    transform: translateX(-37.651913%);\n  }\n  48.35% {\n    animation-timing-function: cubic-bezier(0.4, 0.627035, 0.6, 0.902026);\n    transform: translateX(-84.386165%);\n  }\n  100% {\n    transform: translateX(-160.277782%);\n  }\n}\n@keyframes mdc-linear-progress-buffering-reverse {\n  from {\n    transform: translateX(-10px);\n  }\n}\n"]
+    }]
+  }], () => [], {
+    color: [{
+      type: Input
+    }],
+    value: [{
+      type: Input,
+      args: [{
+        transform: numberAttribute
+      }]
+    }],
+    bufferValue: [{
+      type: Input,
+      args: [{
+        transform: numberAttribute
+      }]
+    }],
+    animationEnd: [{
+      type: Output
+    }],
+    mode: [{
+      type: Input
+    }]
+  });
+})();
+function clamp(v, min = 0, max = 100) {
+  return Math.max(min, Math.min(max, v));
+}
+var MatProgressBarModule = class _MatProgressBarModule {
+  static \u0275fac = function MatProgressBarModule_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _MatProgressBarModule)();
+  };
+  static \u0275mod = /* @__PURE__ */ \u0275\u0275defineNgModule({
+    type: _MatProgressBarModule,
+    imports: [MatProgressBar],
+    exports: [MatProgressBar, BidiModule]
+  });
+  static \u0275inj = /* @__PURE__ */ \u0275\u0275defineInjector({
+    imports: [BidiModule]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatProgressBarModule, [{
+    type: NgModule,
+    args: [{
+      imports: [MatProgressBar],
+      exports: [MatProgressBar, BidiModule]
+    }]
+  }], null, null);
+})();
+
+// libs/components/src/lib/native-domain-overlay.component.ts
+function NativeDomainOverlayComponent_Conditional_7_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275text(0, " Enter the address of your PlaceOS server to connect this app. ");
+  }
+}
+function NativeDomainOverlayComponent_Conditional_8_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275text(0, " Enter your work email to find your PlaceOS server and connect this app. ");
+  }
+}
+function NativeDomainOverlayComponent_Conditional_9_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "p", 6);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", ctx_r0.error(), " ");
+  }
+}
+function NativeDomainOverlayComponent_Conditional_10_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "p", 7);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" Settings provided by your administrator will be applied automatically in ", ctx_r0.auto_accept_in(), "s. ");
+  }
+}
+function NativeDomainOverlayComponent_Conditional_11_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r2 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 8)(1, "label", 12);
+    \u0275\u0275text(2, "Server Address");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "mat-form-field", 13)(4, "icon", 14);
+    \u0275\u0275text(5, "dns");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(6, "input", 15);
+    \u0275\u0275twoWayListener("ngModelChange", function NativeDomainOverlayComponent_Conditional_11_Template_input_ngModelChange_6_listener($event) {
+      \u0275\u0275restoreView(_r2);
+      const ctx_r0 = \u0275\u0275nextContext();
+      \u0275\u0275twoWayBindingSet(ctx_r0.server_address, $event) || (ctx_r0.server_address = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(7, "div", 8)(8, "label", 16);
+    \u0275\u0275text(9, "API Key (optional)");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(10, "mat-form-field", 13)(11, "icon", 14);
+    \u0275\u0275text(12, "key");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(13, "input", 17);
+    \u0275\u0275twoWayListener("ngModelChange", function NativeDomainOverlayComponent_Conditional_11_Template_input_ngModelChange_13_listener($event) {
+      \u0275\u0275restoreView(_r2);
+      const ctx_r0 = \u0275\u0275nextContext();
+      \u0275\u0275twoWayBindingSet(ctx_r0.api_key, $event) || (ctx_r0.api_key = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(14, "p", 18);
+    \u0275\u0275text(15, " When set, the app authenticates with this key instead of asking you to sign in. ");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275advance(6);
+    \u0275\u0275twoWayProperty("ngModel", ctx_r0.server_address);
+    \u0275\u0275property("disabled", ctx_r0.loading());
+    \u0275\u0275control();
+    \u0275\u0275advance(7);
+    \u0275\u0275twoWayProperty("ngModel", ctx_r0.api_key);
+    \u0275\u0275property("disabled", ctx_r0.loading());
+    \u0275\u0275control();
+  }
+}
+function NativeDomainOverlayComponent_Conditional_12_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r3 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 8)(1, "label", 19);
+    \u0275\u0275text(2, "Work Email");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "mat-form-field", 13)(4, "icon", 14);
+    \u0275\u0275text(5, "mail");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(6, "input", 20);
+    \u0275\u0275twoWayListener("ngModelChange", function NativeDomainOverlayComponent_Conditional_12_Template_input_ngModelChange_6_listener($event) {
+      \u0275\u0275restoreView(_r3);
+      const ctx_r0 = \u0275\u0275nextContext();
+      \u0275\u0275twoWayBindingSet(ctx_r0.email, $event) || (ctx_r0.email = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275advance(6);
+    \u0275\u0275twoWayProperty("ngModel", ctx_r0.email);
+    \u0275\u0275property("disabled", ctx_r0.loading());
+    \u0275\u0275control();
+  }
+}
+function NativeDomainOverlayComponent_Conditional_14_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275text(0, " Find my server using my work email ");
+  }
+}
+function NativeDomainOverlayComponent_Conditional_15_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275text(0, " Enter a server address manually ");
+  }
+}
+var AUTO_ACCEPT_SECONDS = 15;
+var NativeDomainOverlayComponent = class _NativeDomainOverlayComponent {
+  constructor() {
+    this.serverError = input(
+      "",
+      ...ngDevMode ? [{ debugName: "serverError" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.autoAccept = input(
+      false,
+      ...ngDevMode ? [{ debugName: "autoAccept" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.domainSet = output();
+    this.email = signal(
+      getNativeEmail() ?? "",
+      ...ngDevMode ? [{ debugName: "email" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.server_address = signal(
+      getNativeDomain() ?? "",
+      ...ngDevMode ? [{ debugName: "server_address" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.api_key = signal(
+      getNativeApiKey() ?? "",
+      ...ngDevMode ? [{ debugName: "api_key" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.manual_entry = signal(
+      !!getNativeDomain(),
+      ...ngDevMode ? [{ debugName: "manual_entry" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.error = signal(
+      "",
+      ...ngDevMode ? [{ debugName: "error" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.loading = signal(
+      false,
+      ...ngDevMode ? [{ debugName: "loading" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.auto_accept_in = signal(
+      0,
+      ...ngDevMode ? [{ debugName: "auto_accept_in" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._auto_accept_timer = null;
+    effect(() => {
+      const msg = this.serverError();
+      if (msg) {
+        this.error.set(msg);
+        untracked(() => this.stopAutoAccept());
+      }
+    });
+    effect(() => {
+      if (this.autoAccept() && untracked(this.server_address)) {
+        untracked(() => this.startAutoAccept());
+      }
+    });
+  }
+  ngOnDestroy() {
+    this.stopAutoAccept();
+  }
+  /** Restart the inactivity countdown — any user activity delays it. */
+  resetAutoAccept() {
+    if (!this._auto_accept_timer)
+      return;
+    this.auto_accept_in.set(AUTO_ACCEPT_SECONDS);
+  }
+  startAutoAccept() {
+    this.auto_accept_in.set(AUTO_ACCEPT_SECONDS);
+    if (this._auto_accept_timer)
+      return;
+    this._auto_accept_timer = setInterval(() => {
+      const remaining = this.auto_accept_in() - 1;
+      this.auto_accept_in.set(remaining);
+      if (remaining > 0)
+        return;
+      this.stopAutoAccept();
+      this.submit();
+    }, 1e3);
+  }
+  stopAutoAccept() {
+    if (this._auto_accept_timer)
+      clearInterval(this._auto_accept_timer);
+    this._auto_accept_timer = null;
+    this.auto_accept_in.set(0);
+  }
+  toggleManualEntry() {
+    if (this.loading())
+      return;
+    this.manual_entry.update((manual) => !manual);
+    this.error.set("");
+  }
+  async submit() {
+    if (this.loading())
+      return;
+    this.stopAutoAccept();
+    if (this.manual_entry())
+      return this.submitManual();
+    const raw = this.email().trim();
+    if (!raw) {
+      this.error.set("A work email is required.");
+      return;
+    }
+    this.loading.set(true);
+    this.error.set("");
+    try {
+      const domain = await lookupNativeDomainByEmail(raw);
+      setNativeEmail(raw);
+      setNativeDomain(domain);
+      setNativeApiKey("");
+      this.domainSet.emit(domain);
+    } catch {
+      this.error.set("Unable to find a server for this email address.");
+    } finally {
+      this.loading.set(false);
+    }
+  }
+  submitManual() {
+    const domain = normaliseNativeDomain(this.server_address());
+    if (!domain) {
+      this.error.set("A valid server address is required.");
+      return;
+    }
+    this.error.set("");
+    setNativeDomain(domain);
+    setNativeApiKey(this.api_key());
+    this.domainSet.emit(domain);
+  }
+  static {
+    this.\u0275fac = function NativeDomainOverlayComponent_Factory(__ngFactoryType__) {
+      return new (__ngFactoryType__ || _NativeDomainOverlayComponent)();
+    };
+  }
+  static {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NativeDomainOverlayComponent, selectors: [["native-domain-overlay"]], hostBindings: function NativeDomainOverlayComponent_HostBindings(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275listener("pointerdown", function NativeDomainOverlayComponent_pointerdown_HostBindingHandler() {
+          return ctx.resetAutoAccept();
+        }, \u0275\u0275resolveWindow)("keydown", function NativeDomainOverlayComponent_keydown_HostBindingHandler() {
+          return ctx.resetAutoAccept();
+        }, \u0275\u0275resolveWindow);
+      }
+    }, inputs: { serverError: [1, "serverError"], autoAccept: [1, "autoAccept"] }, outputs: { domainSet: "domainSet" }, decls: 19, vars: 8, consts: [[1, "bg-base-200", "pointer-events-auto", "fixed", "inset-0", "z-9999", "flex", "items-center", "justify-center", "p-4"], [1, "border-base-300", "bg-base-100", "flex", "w-full", "max-w-md", "flex-col", "rounded-sm", "border", "shadow-sm", 3, "ngSubmit"], [1, "bg-base-200", "m-2", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-xl", "font-medium"], [1, "flex", "flex-col", "space-y-4", "p-4"], [1, "text-sm", "opacity-60"], [1, "bg-error/10", "text-error", "rounded-sm", "px-3", "py-2", "text-xs"], [1, "bg-info/10", "text-info", "rounded-sm", "px-3", "py-2", "text-xs"], [1, "flex", "w-full", "flex-col"], ["type", "button", 1, "self-start", "text-sm", "underline", "opacity-60", 3, "click", "disabled"], [1, "bg-base-200", "m-2", "flex", "items-center", "justify-center", "space-x-2", "rounded-sm", "border-none", "p-2"], ["btn", "", "matRipple", "", "type", "submit", 1, "flex-1", 3, "disabled"], ["for", "server-address"], ["appearance", "outline", 1, "w-full"], ["matPrefix", ""], ["matInput", "", "name", "server-address", "placeholder", "placeos.company.com", "type", "text", "autocapitalize", "off", "autocomplete", "url", "spellcheck", "false", "required", "", 3, "ngModelChange", "ngModel", "disabled"], ["for", "api-key"], ["matInput", "", "name", "api-key", "placeholder", "Leave empty to sign in", "type", "password", "autocapitalize", "off", "autocomplete", "off", "spellcheck", "false", 3, "ngModelChange", "ngModel", "disabled"], [1, "text-xs", "opacity-60"], ["for", "email"], ["matInput", "", "name", "email", "placeholder", "name@company.com", "type", "email", "autocapitalize", "off", "autocomplete", "email", "spellcheck", "false", "required", "", 3, "ngModelChange", "ngModel", "disabled"]], template: function NativeDomainOverlayComponent_Template(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275elementStart(0, "div", 0)(1, "form", 1);
+        \u0275\u0275listener("ngSubmit", function NativeDomainOverlayComponent_Template_form_ngSubmit_1_listener() {
+          return ctx.submit();
+        });
+        \u0275\u0275elementStart(2, "header", 2)(3, "h2", 3);
+        \u0275\u0275text(4, "Connect to Server");
+        \u0275\u0275elementEnd()();
+        \u0275\u0275elementStart(5, "main", 4)(6, "p", 5);
+        \u0275\u0275conditionalCreate(7, NativeDomainOverlayComponent_Conditional_7_Template, 1, 0)(8, NativeDomainOverlayComponent_Conditional_8_Template, 1, 0);
+        \u0275\u0275elementEnd();
+        \u0275\u0275conditionalCreate(9, NativeDomainOverlayComponent_Conditional_9_Template, 2, 1, "p", 6);
+        \u0275\u0275conditionalCreate(10, NativeDomainOverlayComponent_Conditional_10_Template, 2, 1, "p", 7);
+        \u0275\u0275conditionalCreate(11, NativeDomainOverlayComponent_Conditional_11_Template, 16, 4)(12, NativeDomainOverlayComponent_Conditional_12_Template, 7, 2, "div", 8);
+        \u0275\u0275elementStart(13, "button", 9);
+        \u0275\u0275listener("click", function NativeDomainOverlayComponent_Template_button_click_13_listener() {
+          return ctx.toggleManualEntry();
+        });
+        \u0275\u0275conditionalCreate(14, NativeDomainOverlayComponent_Conditional_14_Template, 1, 0)(15, NativeDomainOverlayComponent_Conditional_15_Template, 1, 0);
+        \u0275\u0275elementEnd()();
+        \u0275\u0275elementStart(16, "footer", 10)(17, "button", 11);
+        \u0275\u0275text(18);
+        \u0275\u0275elementEnd()()()();
+      }
+      if (rf & 2) {
+        \u0275\u0275advance(7);
+        \u0275\u0275conditional(ctx.manual_entry() ? 7 : 8);
+        \u0275\u0275advance(2);
+        \u0275\u0275conditional(ctx.error() ? 9 : -1);
+        \u0275\u0275advance();
+        \u0275\u0275conditional(ctx.auto_accept_in() > 0 ? 10 : -1);
+        \u0275\u0275advance();
+        \u0275\u0275conditional(ctx.manual_entry() ? 11 : 12);
+        \u0275\u0275advance(2);
+        \u0275\u0275property("disabled", ctx.loading());
+        \u0275\u0275advance();
+        \u0275\u0275conditional(ctx.manual_entry() ? 14 : 15);
+        \u0275\u0275advance(3);
+        \u0275\u0275property("disabled", ctx.loading());
+        \u0275\u0275advance();
+        \u0275\u0275textInterpolate1(" ", ctx.loading() ? "Looking up..." : "Connect", " ");
+      }
+    }, dependencies: [
+      FormsModule,
+      \u0275NgNoValidate,
+      DefaultValueAccessor,
+      NgControlStatus,
+      NgControlStatusGroup,
+      RequiredValidator,
+      NgModel,
+      NgForm,
+      IconComponent,
+      MatFormFieldModule,
+      MatFormField,
+      MatPrefix,
+      MatInputModule,
+      MatInput,
+      MatRippleModule,
+      MatRipple
+    ], encapsulation: 2 });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(NativeDomainOverlayComponent, [{
+    type: Component,
+    args: [{
+      selector: "native-domain-overlay",
+      template: `
+        <div
+            class="bg-base-200 pointer-events-auto fixed inset-0 z-9999 flex items-center justify-center p-4"
+        >
+            <form
+                class="border-base-300 bg-base-100 flex w-full max-w-md flex-col rounded-sm border shadow-sm"
+                (ngSubmit)="submit()"
+            >
+                <header class="bg-base-200 m-2 rounded-sm border-none p-2">
+                    <h2 class="px-2 text-xl font-medium">Connect to Server</h2>
+                </header>
+                <main class="flex flex-col space-y-4 p-4">
+                    <p class="text-sm opacity-60">
+                        @if (manual_entry()) {
+                            Enter the address of your PlaceOS server to connect
+                            this app.
+                        } @else {
+                            Enter your work email to find your PlaceOS server
+                            and connect this app.
+                        }
+                    </p>
+                    @if (error()) {
+                        <p
+                            class="bg-error/10 text-error rounded-sm px-3 py-2 text-xs"
+                        >
+                            {{ error() }}
+                        </p>
+                    }
+                    @if (auto_accept_in() > 0) {
+                        <p
+                            class="bg-info/10 text-info rounded-sm px-3 py-2 text-xs"
+                        >
+                            Settings provided by your administrator will be
+                            applied automatically in {{ auto_accept_in() }}s.
+                        </p>
+                    }
+                    @if (manual_entry()) {
+                        <div class="flex w-full flex-col">
+                            <label for="server-address">Server Address</label>
+                            <mat-form-field appearance="outline" class="w-full">
+                                <icon matPrefix>dns</icon>
+                                <input
+                                    matInput
+                                    name="server-address"
+                                    [(ngModel)]="server_address"
+                                    placeholder="placeos.company.com"
+                                    type="text"
+                                    autocapitalize="off"
+                                    autocomplete="url"
+                                    spellcheck="false"
+                                    required
+                                    [disabled]="loading()"
+                                />
+                            </mat-form-field>
+                        </div>
+                        <div class="flex w-full flex-col">
+                            <label for="api-key">API Key (optional)</label>
+                            <mat-form-field appearance="outline" class="w-full">
+                                <icon matPrefix>key</icon>
+                                <input
+                                    matInput
+                                    name="api-key"
+                                    [(ngModel)]="api_key"
+                                    placeholder="Leave empty to sign in"
+                                    type="password"
+                                    autocapitalize="off"
+                                    autocomplete="off"
+                                    spellcheck="false"
+                                    [disabled]="loading()"
+                                />
+                            </mat-form-field>
+                            <p class="text-xs opacity-60">
+                                When set, the app authenticates with this key
+                                instead of asking you to sign in.
+                            </p>
+                        </div>
+                    } @else {
+                        <div class="flex w-full flex-col">
+                            <label for="email">Work Email</label>
+                            <mat-form-field appearance="outline" class="w-full">
+                                <icon matPrefix>mail</icon>
+                                <input
+                                    matInput
+                                    name="email"
+                                    [(ngModel)]="email"
+                                    placeholder="name@company.com"
+                                    type="email"
+                                    autocapitalize="off"
+                                    autocomplete="email"
+                                    spellcheck="false"
+                                    required
+                                    [disabled]="loading()"
+                                />
+                            </mat-form-field>
+                        </div>
+                    }
+                    <button
+                        type="button"
+                        class="self-start text-sm underline opacity-60"
+                        [disabled]="loading()"
+                        (click)="toggleManualEntry()"
+                    >
+                        @if (manual_entry()) {
+                            Find my server using my work email
+                        } @else {
+                            Enter a server address manually
+                        }
+                    </button>
+                </main>
+                <footer
+                    class="bg-base-200 m-2 flex items-center justify-center space-x-2 rounded-sm border-none p-2"
+                >
+                    <button
+                        btn
+                        matRipple
+                        type="submit"
+                        class="flex-1"
+                        [disabled]="loading()"
+                    >
+                        {{ loading() ? 'Looking up...' : 'Connect' }}
+                    </button>
+                </footer>
+            </form>
+        </div>
+    `,
+      imports: [
+        FormsModule,
+        IconComponent,
+        MatFormFieldModule,
+        MatInputModule,
+        MatRippleModule
+      ],
+      host: {
+        "(window:pointerdown)": "resetAutoAccept()",
+        "(window:keydown)": "resetAutoAccept()"
+      }
+    }]
+  }], () => [], { serverError: [{ type: Input, args: [{ isSignal: true, alias: "serverError", required: false }] }], autoAccept: [{ type: Input, args: [{ isSignal: true, alias: "autoAccept", required: false }] }], domainSet: [{ type: Output, args: ["domainSet"] }] });
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NativeDomainOverlayComponent, { className: "NativeDomainOverlayComponent", filePath: "libs/components/src/lib/native-domain-overlay.component.ts", lineNumber: 169 });
+})();
+
+// libs/components/src/lib/service-worker-update-card.component.ts
+function ServiceWorkerUpdateCardComponent_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r1 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "aside", 0)(1, "div", 1)(2, "h2", 2);
+    \u0275\u0275text(3);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "p", 3);
+    \u0275\u0275text(5);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(6, "button", 4);
+    \u0275\u0275listener("click", function ServiceWorkerUpdateCardComponent_Conditional_0_Template_button_click_6_listener() {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.reloadApp());
+    });
+    \u0275\u0275elementStart(7, "icon");
+    \u0275\u0275text(8, "refresh");
+    \u0275\u0275elementEnd()()();
+  }
+  if (rf & 2) {
+    const update_state_r3 = ctx;
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1(" ", update_state_r3.message || "Update available", " ");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", update_state_r3.details || "Refresh the page to get the new version of the application", " ");
+    \u0275\u0275advance();
+    \u0275\u0275property("matTooltip", update_state_r3.action || "Reload App");
+  }
+}
+var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
+  constructor() {
+    this.update = serviceWorkerUpdate();
+  }
+  reloadApp() {
+    location.reload();
+  }
+  static {
+    this.\u0275fac = function ServiceWorkerUpdateCardComponent_Factory(__ngFactoryType__) {
+      return new (__ngFactoryType__ || _ServiceWorkerUpdateCardComponent)();
+    };
+  }
+  static {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ServiceWorkerUpdateCardComponent, selectors: [["placeos-service-worker-update-card"]], decls: 1, vars: 1, consts: [["role", "status", "aria-live", "assertive", 1, "border-base-300", "bg-base-100", "text-base-content", "pointer-events-auto", "fixed", "right-4", "bottom-4", "z-9999", "flex", "w-[20rem]", "max-w-[calc(100vw-2rem)]", "items-center", "gap-3", "rounded-lg", "border", "p-4", "shadow-xl"], [1, "min-w-0", "flex-1"], [1, "m-0", "text-sm", "leading-tight", "font-medium"], [1, "m-0", "mt-1", "text-xs", "opacity-70"], ["icon", "", "default", "", 3, "click", "matTooltip"]], template: function ServiceWorkerUpdateCardComponent_Template(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275conditionalCreate(0, ServiceWorkerUpdateCardComponent_Conditional_0_Template, 9, 3, "aside", 0);
+      }
+      if (rf & 2) {
+        let tmp_0_0;
+        \u0275\u0275conditional((tmp_0_0 = ctx.update()) ? 0 : -1, tmp_0_0);
+      }
+    }, dependencies: [IconComponent, MatTooltipModule, MatTooltip], encapsulation: 2 });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(ServiceWorkerUpdateCardComponent, [{
+    type: Component,
+    args: [{
+      selector: "placeos-service-worker-update-card",
+      template: `
+        @if (update(); as update_state) {
+            <aside
+                role="status"
+                aria-live="assertive"
+                class="border-base-300 bg-base-100 text-base-content pointer-events-auto fixed right-4 bottom-4 z-9999 flex w-[20rem] max-w-[calc(100vw-2rem)] items-center gap-3 rounded-lg border p-4 shadow-xl"
+            >
+                <div class="min-w-0 flex-1">
+                    <h2 class="m-0 text-sm leading-tight font-medium">
+                        {{ update_state.message || 'Update available' }}
+                    </h2>
+                    <p class="m-0 mt-1 text-xs opacity-70">
+                        {{
+                            update_state.details ||
+                                'Refresh the page to get the new version of the application'
+                        }}
+                    </p>
+                </div>
+                <button
+                    icon
+                    default
+                    [matTooltip]="update_state.action || 'Reload App'"
+                    (click)="reloadApp()"
+                >
+                    <icon>refresh</icon>
+                </button>
+            </aside>
+        }
+    `,
+      imports: [IconComponent, MatTooltipModule]
+    }]
+  }], null, null);
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ServiceWorkerUpdateCardComponent, { className: "ServiceWorkerUpdateCardComponent", filePath: "libs/components/src/lib/service-worker-update-card.component.ts", lineNumber: 40 });
+})();
+
+// libs/components/src/lib/global-loading.component.ts
+function GlobalLoadingComponent_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r1 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "native-domain-overlay", 3);
+    \u0275\u0275listener("domainSet", function GlobalLoadingComponent_Conditional_0_Template_native_domain_overlay_domainSet_0_listener() {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.onDomainSet());
+    });
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275property("serverError", ctx_r1.domain_error())("autoAccept", ctx_r1.auto_confirm());
+  }
+}
+function GlobalLoadingComponent_Conditional_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 1);
+    \u0275\u0275text(1);
+    \u0275\u0275pipe(2, "translate");
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, "COMMON.SERVER_DOWN"), " ");
+  }
+}
+function GlobalLoadingComponent_Conditional_2_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 2)(1, "div", 4)(2, "p", 5);
+    \u0275\u0275text(3);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(4, "div", 6);
+    \u0275\u0275element(5, "mat-progress-bar", 7);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate(ctx_r1.message());
+  }
+}
+var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler {
+  constructor() {
+    super(...arguments);
+    this._org = inject(OrganisationService);
+    this._placeos = inject(PlaceOS_Service);
+    this._settings = inject(SettingsService);
+    this.loading = signal(
+      true,
+      ...ngDevMode ? [{ debugName: "loading" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.online = signal(
+      true,
+      ...ngDevMode ? [{ debugName: "online" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.message = getLoadingMessage();
+    this.show_domain_overlay = needsNativeDomain();
+    this.domain_error = nativeDomainError();
+    this.auto_confirm = autoConfirmNativeDomain();
+  }
+  onDomainSet() {
+    this._placeos.onNativeDomainSet();
+  }
+  async ngOnInit() {
+    this.loading.set(true);
+    await this._org.waitUntilInitialised();
+    await firstTruthyValueFrom(this._settings.initialised);
+    this.online.set(Dr());
+    this.interval("has_token", () => {
+      this.online.set(Dr());
+      if (!Rt() || !V())
+        return;
+      this.loading.set(false);
+      this.online.set(Dr());
+      this.clearInterval("has_token");
+    }, 1e3);
+  }
+  static {
+    this.\u0275fac = /* @__PURE__ */ (() => {
+      let \u0275GlobalLoadingComponent_BaseFactory;
+      return function GlobalLoadingComponent_Factory(__ngFactoryType__) {
+        return (\u0275GlobalLoadingComponent_BaseFactory || (\u0275GlobalLoadingComponent_BaseFactory = \u0275\u0275getInheritedFactory(_GlobalLoadingComponent)))(__ngFactoryType__ || _GlobalLoadingComponent);
+      };
+    })();
+  }
+  static {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _GlobalLoadingComponent, selectors: [["global-loading"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 4, vars: 3, consts: [[3, "serverError", "autoAccept"], [1, "bg-error", "fixed", "top-2", "left-1/2", "z-9999", "-translate-x-1/2", "rounded-3xl", "px-4", "py-2", "text-xs", "text-white", "shadow-sm"], ["loader", "", 1, "bg-base-300", "pointer-events-auto", "fixed", "inset-0", "z-9998", "flex", "flex-col", "items-center", "justify-end", "space-y-2", "p-4"], [3, "domainSet", "serverError", "autoAccept"], [1, "border-base-300", "bg-base-100", "w-[24rem]", "max-w-[calc(100vw-2rem)]", "rounded-lg", "border", "p-2", "text-center", "text-xs", "shadow-sm"], [1, "text-center", "font-mono"], [1, "border-base-300", "w-[24rem]", "max-w-[calc(100vw-2rem)]", "overflow-hidden", "rounded-full", "border", "shadow-sm"], ["mode", "indeterminate", 1, "scale-150", "rounded-sm"]], template: function GlobalLoadingComponent_Template(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275conditionalCreate(0, GlobalLoadingComponent_Conditional_0_Template, 1, 2, "native-domain-overlay", 0);
+        \u0275\u0275conditionalCreate(1, GlobalLoadingComponent_Conditional_1_Template, 3, 3, "div", 1);
+        \u0275\u0275conditionalCreate(2, GlobalLoadingComponent_Conditional_2_Template, 6, 1, "div", 2);
+        \u0275\u0275element(3, "placeos-service-worker-update-card");
+      }
+      if (rf & 2) {
+        \u0275\u0275conditional(ctx.show_domain_overlay() ? 0 : -1);
+        \u0275\u0275advance();
+        \u0275\u0275conditional(!ctx.online() ? 1 : -1);
+        \u0275\u0275advance();
+        \u0275\u0275conditional(ctx.loading() ? 2 : -1);
+      }
+    }, dependencies: [
+      MatProgressBarModule,
+      MatProgressBar,
+      NativeDomainOverlayComponent,
+      ServiceWorkerUpdateCardComponent,
+      TranslatePipe
+    ], styles: ["\n[_nghost-%COMP%] {\n  pointer-events: none;\n}\n[loader][_ngcontent-%COMP%] {\n  background-image:\n    linear-gradient(\n      to right,\n      #f9a825 0%,\n      #fdd835 100%);\n}\n/*# sourceMappingURL=global-loading.component.css.map */"] });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(GlobalLoadingComponent, [{
+    type: Component,
+    args: [{ selector: "global-loading", template: `
+        @if (show_domain_overlay()) {
+            <native-domain-overlay
+                [serverError]="domain_error()"
+                [autoAccept]="auto_confirm()"
+                (domainSet)="onDomainSet()"
+            ></native-domain-overlay>
+        }
+        @if (!online()) {
+            <div
+                class="bg-error fixed top-2 left-1/2 z-9999 -translate-x-1/2 rounded-3xl px-4 py-2 text-xs text-white shadow-sm"
+            >
+                {{ 'COMMON.SERVER_DOWN' | translate }}
+            </div>
+        }
+        @if (loading()) {
+            <div
+                loader
+                class="bg-base-300 pointer-events-auto fixed inset-0 z-9998 flex flex-col items-center justify-end space-y-2 p-4"
+            >
+                <div
+                    class="border-base-300 bg-base-100 w-[24rem] max-w-[calc(100vw-2rem)] rounded-lg border p-2 text-center text-xs shadow-sm"
+                >
+                    <p class="text-center font-mono">{{ message() }}</p>
+                </div>
+                <div
+                    class="border-base-300 w-[24rem] max-w-[calc(100vw-2rem)] overflow-hidden rounded-full border shadow-sm"
+                >
+                    <mat-progress-bar
+                        mode="indeterminate"
+                        class="scale-150 rounded-sm"
+                    ></mat-progress-bar>
+                </div>
+            </div>
+        }
+        <placeos-service-worker-update-card />
+    `, imports: [
+      MatProgressBarModule,
+      NativeDomainOverlayComponent,
+      ServiceWorkerUpdateCardComponent,
+      TranslatePipe
+    ], styles: ["/* angular:styles/component:css;f96722131b020a13ff012b787cd51bd578e7478e8507e3110ee0014c8bb70e6e;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/global-loading.component.ts */\n:host {\n  pointer-events: none;\n}\n[loader] {\n  background-image:\n    linear-gradient(\n      to right,\n      #f9a825 0%,\n      #fdd835 100%);\n}\n/*# sourceMappingURL=global-loading.component.css.map */\n"] }]
+  }], null, null);
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(GlobalLoadingComponent, { className: "GlobalLoadingComponent", filePath: "libs/components/src/lib/global-loading.component.ts", lineNumber: 81 });
+})();
+
+// libs/components/src/lib/unauthorised.component.ts
+var UnauthorisedComponent = class _UnauthorisedComponent {
+  static {
+    this.\u0275fac = function UnauthorisedComponent_Factory(__ngFactoryType__) {
+      return new (__ngFactoryType__ || _UnauthorisedComponent)();
+    };
+  }
+  static {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _UnauthorisedComponent, selectors: [["app-unauthorised"]], decls: 13, vars: 9, consts: [["unauthorised", "", 1, "absolute", "inset-0"], [1, "border-base-300", "bg-base-100", "text-base-content", "mx-auto", "my-4", "w-104", "max-w-[calc(100%-1rem)]", "rounded-xl", "border", "p-4", "text-center", "shadow-lg"], [1, "text-4xl"], [1, "py-4"]], template: function UnauthorisedComponent_Template(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275domElementStart(0, "div", 0)(1, "div", 1)(2, "h1", 2);
+        \u0275\u0275text(3, "403");
+        \u0275\u0275domElementEnd();
+        \u0275\u0275domElementStart(4, "h3");
+        \u0275\u0275text(5);
+        \u0275\u0275pipe(6, "translate");
+        \u0275\u0275domElementEnd();
+        \u0275\u0275domElementStart(7, "p", 3);
+        \u0275\u0275text(8);
+        \u0275\u0275pipe(9, "translate");
+        \u0275\u0275domElementEnd();
+        \u0275\u0275domElementStart(10, "p");
+        \u0275\u0275text(11);
+        \u0275\u0275pipe(12, "translate");
+        \u0275\u0275domElementEnd()()();
+      }
+      if (rf & 2) {
+        \u0275\u0275advance(5);
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(6, 3, "COMMON.FORBIDDEN"));
+        \u0275\u0275advance(3);
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(9, 5, "COMMON.INVALID_PAGE_PERMISSIONS"), " ");
+        \u0275\u0275advance(3);
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(12, 7, "COMMON.CONTACT_ADMIN"), " ");
+      }
+    }, dependencies: [TranslatePipe], styles: ["\n[_nghost-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n[unauthorised][_ngcontent-%COMP%] {\n  background-image:\n    linear-gradient(\n      to right,\n      #c62828 0%,\n      #ef5350 100%);\n}\n/*# sourceMappingURL=unauthorised.component.css.map */"] });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(UnauthorisedComponent, [{
+    type: Component,
+    args: [{ selector: "app-unauthorised", template: `
+        <div unauthorised class="absolute inset-0">
+            <div
+                class="border-base-300 bg-base-100 text-base-content mx-auto my-4 w-104 max-w-[calc(100%-1rem)] rounded-xl border p-4 text-center shadow-lg"
+            >
+                <h1 class="text-4xl">403</h1>
+                <h3>{{ 'COMMON.FORBIDDEN' | translate }}</h3>
+                <p class="py-4">
+                    {{ 'COMMON.INVALID_PAGE_PERMISSIONS' | translate }}
+                </p>
+                <p>
+                    {{ 'COMMON.CONTACT_ADMIN' | translate }}
+                </p>
+            </div>
+        </div>
+    `, imports: [TranslatePipe], styles: ["/* angular:styles/component:css;9e56e45d1ecd17d612bec636f553ceddd9b98cd2552edbd57d59534065beeefe;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/unauthorised.component.ts */\n:host {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n[unauthorised] {\n  background-image:\n    linear-gradient(\n      to right,\n      #c62828 0%,\n      #ef5350 100%);\n}\n/*# sourceMappingURL=unauthorised.component.css.map */\n"] }]
+  }], null, null);
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UnauthorisedComponent, { className: "UnauthorisedComponent", filePath: "libs/components/src/lib/unauthorised.component.ts", lineNumber: 41 });
+})();
+
+// libs/components/src/lib/authorised-user.guard.ts
+var PLACEOS_APP_ACCESS = class {
+};
+var AuthorisedUserGuard = class _AuthorisedUserGuard {
+  constructor() {
+    this._router = inject(Router);
+    this._settings = inject(SettingsService);
+    this._org = inject(OrganisationService);
+    this._access = inject(PLACEOS_APP_ACCESS, { optional: true });
+  }
+  async canActivate(next, state) {
+    return this.checkUser();
+  }
+  async canLoad(route, segments) {
+    return this.checkUser();
+  }
+  async canActivateChild(next, state) {
+    return this.checkUser();
+  }
+  async checkUser() {
+    const groups = this._access?.group ? [this._access.group] : this._settings.get("app.allow_access_groups") || [];
+    const use_group_subsystem_access = await this.useGroupSubsystemAccess();
+    let can_activate = false;
+    if (use_group_subsystem_access) {
+      await ri(Hr(), Boolean);
+      const user = await firstTruthyValueFrom(current_user);
+      can_activate = await this.checkSubsystemAccess(user);
+    } else if (!groups.length) {
+      can_activate = true;
+    } else {
+      await ri(Hr(), Boolean);
+      await this._org.waitUntilInitialised();
+      const user = await firstTruthyValueFrom(current_user);
+      can_activate = !!(user && groups.find((_) => user.groups.includes(_)));
+    }
+    if (!can_activate) {
+      this._router.navigate(["/unauthorised"]);
+    }
+    return !!can_activate;
+  }
+  async useGroupSubsystemAccess() {
+    const value = Rt()?.config?.["use_group_subsystem_access"];
+    return value === true || value === "true";
+  }
+  async checkSubsystemAccess(user) {
+    if (!user)
+      return false;
+    const app_name = `${this._settings.app_name || ""}`.trim().toLowerCase();
+    if (!app_name)
+      return false;
+    await this.waitForUserGroups();
+    return hasPermission(app_name, GroupPermission.Read);
+  }
+  async waitForUserGroups() {
+    for (let i = 0; i < 50; i++) {
+      if (user_groups_loaded())
+        return;
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+  }
+  static {
+    this.\u0275fac = function AuthorisedUserGuard_Factory(__ngFactoryType__) {
+      return new (__ngFactoryType__ || _AuthorisedUserGuard)();
+    };
+  }
+  static {
+    this.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _AuthorisedUserGuard, factory: _AuthorisedUserGuard.\u0275fac, providedIn: "root" });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(AuthorisedUserGuard, [{
+    type: Injectable,
+    args: [{
+      providedIn: "root"
+    }]
+  }], null, null);
+})();
 
 // libs/mocks/src/lib/api/common.mock.ts
 var DOMAIN = "place.tech";
@@ -1442,7 +2886,7 @@ var update = (dataset) => (id, data) => {
   return new_event;
 };
 function registerMockAssets() {
-  Gr({
+  Wr({
     path: `${BASE_PATH}/asset_categories`,
     metadata: {},
     method: "GET",
@@ -1455,7 +2899,7 @@ function registerMockAssets() {
       return results;
     }
   });
-  Gr({
+  Wr({
     path: `${BASE_PATH}/asset_categories/:id`,
     metadata: {},
     method: "GET",
@@ -1469,7 +2913,7 @@ function registerMockAssets() {
       return event;
     }
   });
-  Gr({
+  Wr({
     path: `${BASE_PATH}/asset_categories`,
     metadata: {},
     method: "POST",
@@ -1481,13 +2925,13 @@ function registerMockAssets() {
       return new_event;
     }
   });
-  Gr({
+  Wr({
     path: `${BASE_PATH}/asset_categories/:id`,
     metadata: {},
     method: "PUT",
     callback: (req) => update(MOCK_CATEGORIES)(req.route_params.id, __spreadValues({}, req.body))
   });
-  Gr({
+  Wr({
     path: `${BASE_PATH}/asset_categories/:id`,
     metadata: {},
     method: "DELETE",
@@ -1502,7 +2946,7 @@ function registerMockAssets() {
       return;
     }
   });
-  Gr({
+  Wr({
     path: `${BASE_PATH}/asset_types`,
     metadata: {},
     method: "GET",
@@ -1514,7 +2958,7 @@ function registerMockAssets() {
       return results;
     }
   });
-  Gr({
+  Wr({
     path: `${BASE_PATH}/asset_types/:id`,
     metadata: {},
     method: "GET",
@@ -1528,7 +2972,7 @@ function registerMockAssets() {
       return event;
     }
   });
-  Gr({
+  Wr({
     path: `${BASE_PATH}/asset_types`,
     metadata: {},
     method: "POST",
@@ -1540,13 +2984,13 @@ function registerMockAssets() {
       return new_event;
     }
   });
-  Gr({
+  Wr({
     path: `${BASE_PATH}/asset_types/:id`,
     metadata: {},
     method: "PUT",
     callback: (req) => update(MOCK_PRODUCTS)(req.route_params.id, __spreadValues({}, req.body))
   });
-  Gr({
+  Wr({
     path: `${BASE_PATH}/asset_types/:id`,
     metadata: {},
     method: "DELETE",
@@ -1561,7 +3005,7 @@ function registerMockAssets() {
       return;
     }
   });
-  Gr({
+  Wr({
     path: `${BASE_PATH}/asset_purchase_orders`,
     metadata: {},
     method: "GET",
@@ -1570,7 +3014,7 @@ function registerMockAssets() {
       return events;
     }
   });
-  Gr({
+  Wr({
     path: `${BASE_PATH}/asset_purchase_orders/:id`,
     metadata: {},
     method: "GET",
@@ -1584,7 +3028,7 @@ function registerMockAssets() {
       return event;
     }
   });
-  Gr({
+  Wr({
     path: `${BASE_PATH}/asset_purchase_orders`,
     metadata: {},
     method: "POST",
@@ -1596,13 +3040,13 @@ function registerMockAssets() {
       return new_event;
     }
   });
-  Gr({
+  Wr({
     path: `${BASE_PATH}/asset_purchase_orders/:id`,
     metadata: {},
     method: "PUT",
     callback: (req) => update(MOCK_PURCHASE_ORDERS)(req.route_params.id, __spreadValues({}, req.body))
   });
-  Gr({
+  Wr({
     path: `${BASE_PATH}/asset_purchase_orders/:id`,
     metadata: {},
     method: "DELETE",
@@ -1617,7 +3061,7 @@ function registerMockAssets() {
       return;
     }
   });
-  Gr({
+  Wr({
     path: `${BASE_PATH}/assets`,
     metadata: {},
     method: "GET",
@@ -1637,7 +3081,7 @@ function registerMockAssets() {
       return results;
     }
   });
-  Gr({
+  Wr({
     path: `${BASE_PATH}/assets/:id`,
     metadata: {},
     method: "GET",
@@ -1651,7 +3095,7 @@ function registerMockAssets() {
       return event;
     }
   });
-  Gr({
+  Wr({
     path: `${BASE_PATH}/assets`,
     metadata: {},
     method: "POST",
@@ -1663,13 +3107,13 @@ function registerMockAssets() {
       return new_event;
     }
   });
-  Gr({
+  Wr({
     path: `${BASE_PATH}/assets/:id`,
     metadata: {},
     method: "PUT",
     callback: (req) => update(MOCK_ASSETS)(req.route_params.id, __spreadValues({}, req.body))
   });
-  Gr({
+  Wr({
     path: `${BASE_PATH}/assets/:id`,
     metadata: {},
     method: "DELETE",
@@ -3309,7 +4753,7 @@ var MOCK_BOOKINGS = (() => {
   let bookingIndex = 0;
   for (let day = 0; day < 30; day++) {
     const dayBookings = [];
-    const staffWithoutActive = MOCK_STAFF.filter((u7) => u7.id !== ACTIVE_USER.id);
+    const staffWithoutActive = MOCK_STAFF.filter((u) => u.id !== ACTIVE_USER.id);
     const targetUserCount = Math.min(20, staffWithoutActive.length);
     const shuffled = [...staffWithoutActive];
     for (let i = shuffled.length - 1; i > 0; i--) {
@@ -3320,7 +4764,7 @@ var MOCK_BOOKINGS = (() => {
     }
     const selectedUsers = shuffled.slice(0, targetUserCount);
     {
-      const activeFromStaff = MOCK_STAFF.find((u7) => u7.id === ACTIVE_USER.id);
+      const activeFromStaff = MOCK_STAFF.find((u) => u.id === ACTIVE_USER.id);
       selectedUsers.push(activeFromStaff || __spreadProps(__spreadValues({}, ACTIVE_USER), {
         extension_data: {
           employee_id: "EMP0000",
@@ -3471,7 +4915,7 @@ var MOCK_CATERING_BOOKINGS = (() => {
 // libs/mocks/src/lib/api/bookings.mock.ts
 var ALL_BOOKINGS = [...MOCK_BOOKINGS, ...MOCK_CATERING_BOOKINGS];
 function registerMockBookings() {
-  Gr({
+  Wr({
     path: "/api/staff/v1/bookings",
     metadata: {},
     method: "GET",
@@ -3504,7 +4948,7 @@ function registerMockBookings() {
       return events;
     }
   });
-  Gr({
+  Wr({
     path: "/api/debug/bookings/distribution",
     metadata: {},
     method: "GET",
@@ -3539,7 +4983,7 @@ function registerMockBookings() {
       };
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/bookings/:id",
     metadata: {},
     method: "GET",
@@ -3553,7 +4997,7 @@ function registerMockBookings() {
       return event;
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/bookings/:id/guests/:email",
     metadata: {},
     method: "POST",
@@ -3574,7 +5018,7 @@ function registerMockBookings() {
       return user;
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/bookings/:id/guests/:email",
     metadata: {},
     method: "DELETE",
@@ -3597,7 +5041,7 @@ function registerMockBookings() {
       return guest;
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/bookings/:id/guests/:email/checkin",
     metadata: {},
     method: "POST",
@@ -3614,7 +5058,7 @@ function registerMockBookings() {
       return {};
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/bookings",
     metadata: {},
     method: "POST",
@@ -3637,13 +5081,13 @@ function registerMockBookings() {
     ALL_BOOKINGS.splice(index, 1, new_event);
     return new_event;
   };
-  Gr({
+  Wr({
     path: "/api/staff/v1/bookings/:id",
     metadata: {},
     method: "PATCH",
     callback: (req) => updateBooking(req.route_params.id, req.body)
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/bookings/:id/approve",
     metadata: {},
     method: "POST",
@@ -3659,7 +5103,7 @@ function registerMockBookings() {
       return booking;
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/bookings/:id/reject",
     metadata: {},
     method: "POST",
@@ -3675,7 +5119,7 @@ function registerMockBookings() {
       return booking;
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/bookings/:id/checkin",
     metadata: {},
     method: "POST",
@@ -3690,7 +5134,7 @@ function registerMockBookings() {
       return booking;
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/bookings/:id/update_induction",
     metadata: {},
     method: "POST",
@@ -3706,13 +5150,13 @@ function registerMockBookings() {
       return booking;
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/bookings/:id",
     metadata: {},
     method: "PUT",
     callback: (req) => updateBooking(req.route_params.id, req.body)
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/bookings/:id",
     metadata: {},
     method: "DELETE",
@@ -4065,7 +5509,7 @@ var event_spaces = MOCK_SPACES.map((space) => space.id);
 
 // libs/mocks/src/lib/api/calendars.mock.ts
 function registerMockCalendars() {
-  Gr({
+  Wr({
     path: "/api/staff/v1/calendars",
     metadata: {},
     method: "GET",
@@ -4120,7 +5564,7 @@ function registerMockCalendars() {
     });
     return spaces;
   };
-  Gr({
+  Wr({
     path: "/api/staff/v1/calendars/availability",
     metadata: {},
     method: "GET",
@@ -4128,7 +5572,7 @@ function registerMockCalendars() {
       resource: _
     }))
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/calendars/free_busy",
     metadata: {},
     method: "GET",
@@ -4140,7 +5584,7 @@ function registerMockCalendars() {
 
 // libs/mocks/src/lib/api/events.mock.ts
 function registerMockEvents() {
-  Gr({
+  Wr({
     path: "/api/staff/v1/events",
     metadata: {},
     method: "GET",
@@ -4157,7 +5601,7 @@ function registerMockEvents() {
       return events;
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/events",
     metadata: {},
     method: "POST",
@@ -4180,12 +5624,12 @@ function registerMockEvents() {
         ];
       }
       MOCK_EVENTS.push(new_event);
-      const system = pr(new_event.system?.id);
+      const system = mr(new_event.system?.id);
       system?.Bookings[0]?.$poll_bookings();
       return new_event;
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/events/:id",
     metadata: {},
     method: "GET",
@@ -4197,7 +5641,7 @@ function registerMockEvents() {
       throw { status: 404, message: "Event not found" };
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/events/:id",
     metadata: {},
     method: "DELETE",
@@ -4215,7 +5659,7 @@ function registerMockEvents() {
       throw { status: 404, message: "Event not found" };
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/events/:id",
     metadata: {},
     method: "PATCH",
@@ -4227,7 +5671,7 @@ function registerMockEvents() {
       throw { status: 404, message: "Event not found" };
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/events/:id/guests/:email/checkin",
     metadata: {},
     method: "POST",
@@ -4971,7 +6415,7 @@ function registerMockSignage() {
       });
     }
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/groups/current",
     metadata: {},
     method: "GET",
@@ -4982,13 +6426,13 @@ function registerMockSignage() {
       return [];
     }
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/groups",
     metadata: {},
     method: "GET",
     callback: (request) => listSignageMockGroups(request.query_params)
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/groups",
     metadata: {},
     method: "POST",
@@ -5003,7 +6447,7 @@ function registerMockSignage() {
       return group;
     }
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/groups/:id",
     metadata: {},
     method: "PATCH",
@@ -5017,7 +6461,7 @@ function registerMockSignage() {
       return item.group;
     }
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/groups/:id",
     metadata: {},
     method: "DELETE",
@@ -5028,13 +6472,13 @@ function registerMockSignage() {
       return {};
     }
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/group_users",
     metadata: {},
     method: "GET",
     callback: (request) => SIGNAGE_GROUP_USERS.filter((item) => item.group_id === request.query_params?.group_id)
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/group_users",
     metadata: {},
     method: "POST",
@@ -5051,7 +6495,7 @@ function registerMockSignage() {
       return item;
     }
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/group_users/:user_id/:group_id",
     metadata: {},
     method: "PATCH",
@@ -5067,7 +6511,7 @@ function registerMockSignage() {
       return item;
     }
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/group_users/:user_id/:group_id",
     metadata: {},
     method: "DELETE",
@@ -5080,13 +6524,13 @@ function registerMockSignage() {
       return {};
     }
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/group_zones",
     metadata: {},
     method: "GET",
     callback: (request) => SIGNAGE_GROUP_ZONES.filter((item) => item.group_id === request.query_params?.group_id)
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/group_zones",
     metadata: {},
     method: "POST",
@@ -5103,7 +6547,7 @@ function registerMockSignage() {
       return item;
     }
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/group_zones/:group_id/:zone_id",
     metadata: {},
     method: "PATCH",
@@ -5119,7 +6563,7 @@ function registerMockSignage() {
       return item;
     }
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/group_zones/:group_id/:zone_id",
     metadata: {},
     method: "DELETE",
@@ -5132,13 +6576,13 @@ function registerMockSignage() {
       return {};
     }
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/signage/media",
     metadata: {},
     method: "GET",
     callback: (request) => filterByGroup(MOCK_MEDIA, request.query_params?.group_id).map(toEngineMedia)
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/signage/media",
     metadata: {},
     method: "POST",
@@ -5148,7 +6592,7 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/signage/media/:id",
     metadata: {},
     method: "PATCH",
@@ -5156,25 +6600,25 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/signage/media/:id",
     metadata: {},
     method: "DELETE",
     callback: () => ({})
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/signage/media/share",
     metadata: {},
     method: "POST",
     callback: () => ({})
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/signage/playlists",
     metadata: {},
     method: "GET",
     callback: (request) => filterByGroup(MOCK_PLAYLISTS, request.query_params?.group_id).map(toEnginePlaylist)
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/signage/playlists/approvers",
     metadata: {},
     method: "GET",
@@ -5183,7 +6627,7 @@ function registerMockSignage() {
       name: item.user?.name || item.user_id
     }))
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/signage/playlists",
     metadata: {},
     method: "POST",
@@ -5193,7 +6637,7 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/signage/playlists/:id",
     metadata: {},
     method: "PATCH",
@@ -5201,19 +6645,19 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/signage/playlists/:id",
     metadata: {},
     method: "DELETE",
     callback: () => ({})
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/signage/playlists/:id/media",
     metadata: {},
     method: "GET",
     callback: (request) => playlistMediaResponse(request.route_params.id, false)
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/signage/playlists/:id/media",
     metadata: {},
     method: "POST",
@@ -5222,7 +6666,7 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/signage/playlists/:id/media/revisions",
     metadata: {},
     method: "GET",
@@ -5231,25 +6675,25 @@ function registerMockSignage() {
       playlistMediaResponse(request.route_params.id, true)
     ]
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/signage/playlists/:id/media/approve",
     metadata: {},
     method: "POST",
     callback: (request) => playlistMediaResponse(request.route_params.id, true)
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/signage/playlists/:id/media/request_approval",
     metadata: {},
     method: "POST",
     callback: () => ({})
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/signage/playlists/share",
     metadata: {},
     method: "POST",
     callback: () => ({})
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/signage-displays",
     metadata: {},
     method: "GET",
@@ -5275,7 +6719,7 @@ function registerMockSignage() {
       };
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/signage/displays/:id",
     metadata: {},
     method: "GET",
@@ -5286,7 +6730,7 @@ function registerMockSignage() {
       return display;
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/signage/media",
     metadata: {},
     method: "GET",
@@ -5316,7 +6760,7 @@ function registerMockSignage() {
       };
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/signage/playlists",
     metadata: {},
     method: "GET",
@@ -5338,7 +6782,7 @@ function registerMockSignage() {
       };
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/signage/playlists/:id",
     metadata: {},
     method: "GET",
@@ -5354,7 +6798,7 @@ function registerMockSignage() {
       return playlistWithMedia;
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/signage/triggers",
     metadata: {},
     method: "GET",
@@ -5377,7 +6821,7 @@ function registerMockSignage() {
       };
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/signage/displays/:id/content",
     metadata: {},
     method: "GET",
@@ -5404,7 +6848,7 @@ function registerMockSignage() {
       };
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/signage-analytics",
     metadata: {},
     method: "GET",
@@ -5449,7 +6893,7 @@ function registerMockSignage() {
       };
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/signage-displays/:id/control",
     metadata: {},
     method: "POST",
@@ -6048,7 +7492,7 @@ var MOCK_ANSWERS = [
   }
 ];
 function registerMockSurveys() {
-  Gr({
+  Wr({
     path: "/api/staff/v1/surveys",
     metadata: {},
     method: "GET",
@@ -6067,7 +7511,7 @@ function registerMockSurveys() {
       return filteredSurveys;
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/surveys/questions",
     metadata: {},
     method: "GET",
@@ -6092,7 +7536,7 @@ function registerMockSurveys() {
       return filteredQuestions;
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/surveys/questions/:id",
     metadata: {},
     method: "GET",
@@ -6107,7 +7551,7 @@ function registerMockSurveys() {
       return question;
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/surveys/answers",
     metadata: {},
     method: "GET",
@@ -6128,7 +7572,7 @@ function registerMockSurveys() {
       return filteredAnswers;
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/surveys/answers/:id",
     metadata: {},
     method: "GET",
@@ -6141,7 +7585,7 @@ function registerMockSurveys() {
       return answer;
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/surveys/:id",
     metadata: {},
     method: "GET",
@@ -6156,7 +7600,7 @@ function registerMockSurveys() {
       return survey;
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/surveys/answers",
     metadata: {},
     method: "POST",
@@ -6455,17 +7899,17 @@ Plug your laptop into the HDMI to stream it to the screen, or access the CMS to 
    * be interacting with an audio DSP to add a microphone feed to an output zone, or
    * connecting a USB HID input device with a specific output.
    **/
-  $route(input, output) {
-    if (this.inputs.includes(input) && this.outputs.includes(output)) {
-      this.$updateState(input, {
+  $route(input2, output2) {
+    if (this.inputs.includes(input2) && this.outputs.includes(output2)) {
+      this.$updateState(input2, {
         routes: unique([
-          ...this.input_list[input].routes || [],
-          output
+          ...this.input_list[input2].routes || [],
+          output2
         ])
       });
-      this.$updateState(output, {
-        source: input,
-        following: input
+      this.$updateState(output2, {
+        source: input2,
+        following: input2
       });
     }
   }
@@ -7142,7 +8586,7 @@ var MockBookingModule = class {
 };
 var createBookingsModule = (space, overrides = {}) => new MockBookingModule(space, overrides);
 function updateBookings(space, mod) {
-  const bookings = MOCK_EVENTS.filter((event) => event.attendees?.find((u7) => u7.email === space.email || u7.id === space.id || event.system?.id === space.id)) || [];
+  const bookings = MOCK_EVENTS.filter((event) => event.attendees?.find((u) => u.email === space.email || u.id === space.id || event.system?.id === space.id)) || [];
   bookings.sort((a, b) => a.event_start - b.event_start);
   mod.bookings = bookings;
   mod.current_booking = bookings.find((_) => timePeriodsIntersect(Date.now(), Date.now(), _.event_start * 1e3, _.event_end * 1e3));
@@ -7313,7 +8757,7 @@ var createVideoConferenceModule = (space = {}, overrides = {}) => new VideoConfe
 
 // libs/mocks/src/lib/systems-bindings.mock.ts
 function createSystem(space) {
-  Cl(space.id, {
+  Nl(space.id, {
     System: [createSystemModule(space)],
     Bookings: [createBookingsModule(space)],
     ContactTracing: [createContactTracingModule(space)],
@@ -7328,7 +8772,7 @@ function createSystem(space) {
     Payment: [createPaymentsModule(space)],
     LockerLocations: [createLockerLocationsModule()]
   });
-  const system = pr(space.id);
+  const system = mr(space.id);
   system.Bookings[0].$poll_bookings();
   setInterval(() => system.Bookings[0].$poll_bookings(), 30 * 1e3);
   system.AreaManagement[0].$update();
@@ -7338,7 +8782,7 @@ function createSystem(space) {
 // libs/mocks/src/lib/api/systems.mock.ts
 function registerMockSystems() {
   MOCK_SPACES.forEach((space, index) => createSystem(space));
-  Gr({
+  Wr({
     path: "/api/engine/v2/systems",
     metadata: {},
     method: "GET",
@@ -7355,7 +8799,7 @@ function registerMockSystems() {
       return systems;
     }
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/systems/:id",
     metadata: {},
     method: "GET",
@@ -7370,7 +8814,7 @@ function registerMockSystems() {
 
 // libs/mocks/src/lib/api/users.mock.ts
 function registerMockUsers() {
-  Gr({
+  Wr({
     path: "/api/engine/v2/users",
     metadata: {},
     method: "GET",
@@ -7382,7 +8826,7 @@ function registerMockUsers() {
       }).slice(0, limit);
     }
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/users/:id",
     metadata: {},
     method: "GET",
@@ -7403,7 +8847,7 @@ function registerMockUsers() {
       throw { status: 404, message: "User not found" };
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/people",
     metadata: {},
     method: "GET",
@@ -7417,7 +8861,7 @@ function registerMockUsers() {
       return MOCK_STAFF;
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/people/:id",
     metadata: {},
     method: "GET",
@@ -7432,7 +8876,7 @@ function registerMockUsers() {
       throw { status: 404, message: "User not found" };
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/guests",
     metadata: {},
     method: "GET",
@@ -7444,7 +8888,7 @@ function registerMockUsers() {
       return MOCK_STAFF;
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/guests/:email",
     metadata: {},
     method: "GET",
@@ -7456,7 +8900,7 @@ function registerMockUsers() {
       throw { status: 404, message: "Guest not found" };
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/guests/:email/meetings",
     metadata: {},
     method: "GET",
@@ -7485,10 +8929,10 @@ function registerMockUsers() {
     const level = MOCK_LEVELS[predictableRandomInt(MOCK_LEVELS.length)];
     const level_spaces = MOCK_SPACES.filter((s) => s.zones.includes(level.id));
     const space = level_spaces[predictableRandomInt(level_spaces.length)] || {};
-    const location = {};
+    const location2 = {};
     switch (type) {
       case "meeting":
-        location.meeting = {
+        location2.meeting = {
           building: level.parent_id,
           level: level.id,
           system: space.id,
@@ -7497,7 +8941,7 @@ function registerMockUsers() {
         };
         break;
       case "desk_id":
-        location.meeting = {
+        location2.meeting = {
           building: level.parent_id,
           level: level.id,
           map_id: space.map_id,
@@ -7506,7 +8950,7 @@ function registerMockUsers() {
         break;
       case "laptop":
       case "mobile":
-        location[type] = {
+        location2[type] = {
           building: level.parent_id,
           level: level.id,
           x: +predictableRandomInt(1e4),
@@ -7515,14 +8959,14 @@ function registerMockUsers() {
         };
         break;
       case "geo":
-        location.geo = {
+        location2.geo = {
           lat: predictableRandomInt(180) - 90,
           lon: predictableRandomInt(360) - 180,
           last_seen: getUnixTime(subMinutes(Date.now(), predictableRandomInt(60)))
         };
         break;
     }
-    return location;
+    return location2;
   }
 }
 
@@ -7560,7 +9004,7 @@ function registerMockZones() {
     ...MOCK_LEVELS,
     ...MOCK_ZONES
   ];
-  Gr({
+  Wr({
     path: "/api/engine/v2/zones",
     metadata: {},
     method: "GET",
@@ -7576,7 +9020,7 @@ function registerMockZones() {
       return zones;
     }
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/zones/:id",
     metadata: {},
     method: "GET",
@@ -7591,19 +9035,19 @@ function registerMockZones() {
       return zone;
     }
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/settings",
     metadata: {},
     method: "GET",
     callback: (request) => []
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/settings/:id",
     metadata: {},
     method: "GET",
     callback: (request) => ({})
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/metadata/:id",
     metadata: {},
     method: "GET",
@@ -7719,7 +9163,7 @@ function registerMockZones() {
       return {};
     }
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/metadata/:id",
     metadata: {},
     method: "PATCH",
@@ -7730,7 +9174,7 @@ function registerMockZones() {
       return request.body;
     }
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/metadata/:id",
     metadata: {},
     method: "PUT",
@@ -7783,7 +9227,7 @@ function registerMockZones() {
     }
     return LOCKERS[id];
   }
-  Gr({
+  Wr({
     path: "/api/engine/v2/metadata/:id/children",
     metadata: {},
     method: "GET",
@@ -7889,76 +9333,6 @@ var AppComponent = class _AppComponent {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AppComponent, { className: "AppComponent", filePath: "apps/signage-manager/src/app/app.component.ts", lineNumber: 45 });
 })();
 
-// node_modules/@angular/common/locales/ar.js
-var u = void 0;
-function plural(val) {
-  const n = val;
-  if (n === 0)
-    return 0;
-  if (n === 1)
-    return 1;
-  if (n === 2)
-    return 2;
-  if (n % 100 === Math.floor(n % 100) && (n % 100 >= 3 && n % 100 <= 10))
-    return 3;
-  if (n % 100 === Math.floor(n % 100) && (n % 100 >= 11 && n % 100 <= 99))
-    return 4;
-  return 5;
-}
-var ar_default = ["ar", [["\u0635", "\u0645"]], [["\u0635", "\u0645"], u, ["\u0635\u0628\u0627\u062D\u064B\u0627", "\u0645\u0633\u0627\u0621\u064B"]], [["\u062D", "\u0646", "\u062B", "\u0631", "\u062E", "\u062C", "\u0633"], ["\u0627\u0644\u0623\u062D\u062F", "\u0627\u0644\u0627\u062B\u0646\u064A\u0646", "\u0627\u0644\u062B\u0644\u0627\u062B\u0627\u0621", "\u0627\u0644\u0623\u0631\u0628\u0639\u0627\u0621", "\u0627\u0644\u062E\u0645\u064A\u0633", "\u0627\u0644\u062C\u0645\u0639\u0629", "\u0627\u0644\u0633\u0628\u062A"], u, ["\u0623\u062D\u062F", "\u0625\u062B\u0646\u064A\u0646", "\u062B\u0644\u0627\u062B\u0627\u0621", "\u0623\u0631\u0628\u0639\u0627\u0621", "\u062E\u0645\u064A\u0633", "\u062C\u0645\u0639\u0629", "\u0633\u0628\u062A"]], u, [["\u064A", "\u0641", "\u0645", "\u0623", "\u0648", "\u0646", "\u0644", "\u063A", "\u0633", "\u0643", "\u0628", "\u062F"], ["\u064A\u0646\u0627\u064A\u0631", "\u0641\u0628\u0631\u0627\u064A\u0631", "\u0645\u0627\u0631\u0633", "\u0623\u0628\u0631\u064A\u0644", "\u0645\u0627\u064A\u0648", "\u064A\u0648\u0646\u064A\u0648", "\u064A\u0648\u0644\u064A\u0648", "\u0623\u063A\u0633\u0637\u0633", "\u0633\u0628\u062A\u0645\u0628\u0631", "\u0623\u0643\u062A\u0648\u0628\u0631", "\u0646\u0648\u0641\u0645\u0628\u0631", "\u062F\u064A\u0633\u0645\u0628\u0631"]], u, [["\u0642.\u0645", "\u0645"], u, ["\u0642\u0628\u0644 \u0627\u0644\u0645\u064A\u0644\u0627\u062F", "\u0645\u064A\u0644\u0627\u062F\u064A"]], 6, [5, 6], ["d\u200F/M\u200F/y", "dd\u200F/MM\u200F/y", "d MMMM y", "EEEE\u060C d MMMM y"], ["h:mm a", "h:mm:ss a", "h:mm:ss a z", "h:mm:ss a zzzz"], ["{1}\u060C {0}", u, u, u], [".", ",", ";", "\u200E%\u200E", "\u200E+", "\u200E-", "E", "\xD7", "\u2030", "\u221E", "\u0644\u064A\u0633\xA0\u0631\u0642\u0645\u064B\u0627", ":"], ["#,##0.###", "#,##0%", "\u200F#,##0.00\xA0\xA4;\u200F-#,##0.00\xA0\xA4", "#E0"], "EGP", "\u062C.\u0645.\u200F", "\u062C\u0646\u064A\u0647 \u0645\u0635\u0631\u064A", { "AED": ["\u062F.\u0625.\u200F"], "ARS": [u, "AR$"], "AUD": ["AU$"], "BBD": [u, "BB$"], "BHD": ["\u062F.\u0628.\u200F"], "BMD": [u, "BM$"], "BND": [u, "BN$"], "BSD": [u, "BS$"], "BYN": [u, "\u0440."], "BZD": [u, "BZ$"], "CAD": ["CA$"], "CLP": [u, "CL$"], "CNY": ["CN\xA5"], "COP": [u, "CO$"], "CUP": [u, "CU$"], "DOP": [u, "DO$"], "DZD": ["\u062F.\u062C.\u200F"], "EGP": ["\u062C.\u0645.\u200F", "E\xA3"], "FJD": [u, "FJ$"], "GBP": ["UK\xA3"], "GYD": [u, "GY$"], "HKD": ["HK$"], "IQD": ["\u062F.\u0639.\u200F"], "IRR": ["\u0631.\u0625."], "JMD": [u, "JM$"], "JOD": ["\u062F.\u0623.\u200F"], "JPY": ["JP\xA5"], "KWD": ["\u062F.\u0643.\u200F"], "KYD": [u, "KY$"], "LBP": ["\u0644.\u0644.\u200F", "L\xA3"], "LRD": [u, "$LR"], "LYD": ["\u062F.\u0644.\u200F"], "MAD": ["\u062F.\u0645.\u200F"], "MRU": ["\u0623.\u0645."], "MXN": ["MX$"], "NZD": ["NZ$"], "OMR": ["\u0631.\u0639.\u200F"], "PHP": [u, "\u20B1"], "QAR": ["\u0631.\u0642.\u200F"], "SAR": ["\u0631.\u0633.\u200F"], "SBD": [u, "SB$"], "SDD": ["\u062F.\u0633.\u200F"], "SDG": ["\u062C.\u0633."], "SRD": [u, "SR$"], "SYP": ["\u0644.\u0633.\u200F", "\xA3"], "THB": ["\u0E3F"], "TND": ["\u062F.\u062A.\u200F"], "TTD": [u, "TT$"], "TWD": ["NT$"], "USD": ["US$"], "UYU": [u, "UY$"], "YER": ["\u0631.\u064A.\u200F"] }, "rtl", plural];
-
-// node_modules/@angular/common/locales/es.js
-var u2 = void 0;
-function plural2(val) {
-  const n = val, i = Math.floor(Math.abs(val)), v = val.toString().replace(/^[^.]*\.?/, "").length, e = parseInt(val.toString().replace(/^[^e]*(e([-+]?\d+))?/, "$2")) || 0;
-  if (n === 1)
-    return 1;
-  if (e === 0 && (!(i === 0) && (i % 1e6 === 0 && v === 0)) || !(e >= 0 && e <= 5))
-    return 4;
-  return 5;
-}
-var es_default = ["es", [["a.\u202Fm.", "p.\u202Fm."], u2, ["a.\xA0m.", "p.\xA0m."]], u2, [["D", "L", "M", "X", "J", "V", "S"], ["dom", "lun", "mar", "mi\xE9", "jue", "vie", "s\xE1b"], ["domingo", "lunes", "martes", "mi\xE9rcoles", "jueves", "viernes", "s\xE1bado"], ["DO", "LU", "MA", "MI", "JU", "VI", "SA"]], u2, [["E", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"], ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sept", "oct", "nov", "dic"], ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"]], u2, [["a. C.", "d. C."], u2, ["antes de Cristo", "despu\xE9s de Cristo"]], 1, [6, 0], ["d/M/yy", "d MMM y", "d 'de' MMMM 'de' y", "EEEE, d 'de' MMMM 'de' y"], ["H:mm", "H:mm:ss", "H:mm:ss z", "H:mm:ss (zzzz)"], ["{1}, {0}", u2, u2, u2], [",", ".", ";", "%", "+", "-", "E", "\xD7", "\u2030", "\u221E", "NaN", ":"], ["#,##0.###", "#,##0\xA0%", "#,##0.00\xA0\xA4", "#E0"], "EUR", "\u20AC", "euro", { "AUD": [u2, "$"], "BRL": [u2, "R$"], "BYN": [u2, "\u0440."], "CAD": [u2, "$"], "CNY": [u2, "\xA5"], "EGP": [u2, "EGP"], "ESP": ["\u20A7"], "GBP": [u2, "\xA3"], "HKD": [u2, "$"], "ILS": [u2, "\u20AA"], "INR": [u2, "\u20B9"], "JPY": [u2, "\xA5"], "KRW": [u2, "\u20A9"], "MXN": [u2, "$"], "NZD": [u2, "$"], "PHP": [u2, "\u20B1"], "RON": [u2, "L"], "THB": ["\u0E3F"], "TWD": [u2, "NT$"], "USD": ["US$", "$"], "XAF": [], "XCD": [u2, "$"], "XOF": [] }, "ltr", plural2];
-
-// node_modules/@angular/common/locales/fr.js
-var u3 = void 0;
-function plural3(val) {
-  const n = val, i = Math.floor(Math.abs(val)), v = val.toString().replace(/^[^.]*\.?/, "").length, e = parseInt(val.toString().replace(/^[^e]*(e([-+]?\d+))?/, "$2")) || 0;
-  if (i === 0 || i === 1)
-    return 1;
-  if (e === 0 && (!(i === 0) && (i % 1e6 === 0 && v === 0)) || !(e >= 0 && e <= 5))
-    return 4;
-  return 5;
-}
-var fr_default = ["fr", [["AM", "PM"]], u3, [["D", "L", "M", "M", "J", "V", "S"], ["dim.", "lun.", "mar.", "mer.", "jeu.", "ven.", "sam."], ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"], ["di", "lu", "ma", "me", "je", "ve", "sa"]], u3, [["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"], ["janv.", "f\xE9vr.", "mars", "avr.", "mai", "juin", "juil.", "ao\xFBt", "sept.", "oct.", "nov.", "d\xE9c."], ["janvier", "f\xE9vrier", "mars", "avril", "mai", "juin", "juillet", "ao\xFBt", "septembre", "octobre", "novembre", "d\xE9cembre"]], u3, [["av. J.-C.", "ap. J.-C."], u3, ["avant J\xE9sus-Christ", "apr\xE8s J\xE9sus-Christ"]], 1, [6, 0], ["dd/MM/y", "d MMM y", "d MMMM y", "EEEE d MMMM y"], ["HH:mm", "HH:mm:ss", "HH:mm:ss z", "HH:mm:ss zzzz"], ["{1} {0}", "{1}, {0}", u3, u3], [",", "\u202F", ";", "%", "+", "-", "E", "\xD7", "\u2030", "\u221E", "NaN", ":"], ["#,##0.###", "#,##0\xA0%", "#,##0.00\xA0\xA4", "#E0"], "EUR", "\u20AC", "euro", { "ARS": ["$AR", "$"], "AUD": ["$AU", "$"], "BEF": ["FB"], "BMD": ["$BM", "$"], "BND": ["$BN", "$"], "BYN": [u3, "\u0440."], "BZD": ["$BZ", "$"], "CAD": ["$CA", "$"], "CLP": ["$CL", "$"], "CNY": [u3, "\xA5"], "COP": ["$CO", "$"], "CYP": ["\xA3CY"], "EGP": [u3, "\xA3E"], "FJD": ["$FJ", "$"], "FKP": ["\xA3FK", "\xA3"], "FRF": ["F"], "GBP": ["\xA3GB", "\xA3"], "GIP": ["\xA3GI", "\xA3"], "HKD": [u3, "$"], "IEP": ["\xA3IE"], "ILP": ["\xA3IL"], "ITL": ["\u20A4IT"], "JPY": [u3, "\xA5"], "KMF": [u3, "FC"], "LBP": ["\xA3LB", "\xA3L"], "MTP": ["\xA3MT"], "MXN": ["$MX", "$"], "NAD": ["$NA", "$"], "NIO": [u3, "$C"], "NZD": ["$NZ", "$"], "PHP": [u3, "\u20B1"], "RHD": ["$RH"], "RON": [u3, "L"], "RWF": [u3, "FR"], "SBD": ["$SB", "$"], "SGD": ["$SG", "$"], "SRD": ["$SR", "$"], "TOP": [u3, "$T"], "TTD": ["$TT", "$"], "TWD": [u3, "NT$"], "USD": ["$US", "$"], "UYU": ["$UY", "$"], "WST": ["$WS"], "XCD": [u3, "$"], "XPF": ["FCFP"], "ZMW": [u3, "Kw"] }, "ltr", plural3];
-
-// node_modules/@angular/common/locales/it.js
-var u4 = void 0;
-function plural4(val) {
-  const n = val, i = Math.floor(Math.abs(val)), v = val.toString().replace(/^[^.]*\.?/, "").length, e = parseInt(val.toString().replace(/^[^e]*(e([-+]?\d+))?/, "$2")) || 0;
-  if (i === 1 && v === 0)
-    return 1;
-  if (e === 0 && (!(i === 0) && (i % 1e6 === 0 && v === 0)) || !(e >= 0 && e <= 5))
-    return 4;
-  return 5;
-}
-var it_default = ["it", [["m.", "p."], ["AM", "PM"]], u4, [["D", "L", "M", "M", "G", "V", "S"], ["dom", "lun", "mar", "mer", "gio", "ven", "sab"], ["domenica", "luned\xEC", "marted\xEC", "mercoled\xEC", "gioved\xEC", "venerd\xEC", "sabato"], ["dom", "lun", "mar", "mer", "gio", "ven", "sab"]], u4, [["G", "F", "M", "A", "M", "G", "L", "A", "S", "O", "N", "D"], ["gen", "feb", "mar", "apr", "mag", "giu", "lug", "ago", "set", "ott", "nov", "dic"], ["gennaio", "febbraio", "marzo", "aprile", "maggio", "giugno", "luglio", "agosto", "settembre", "ottobre", "novembre", "dicembre"]], u4, [["aC", "dC"], ["a.C.", "d.C."], ["avanti Cristo", "dopo Cristo"]], 1, [6, 0], ["dd/MM/yy", "d MMM y", "d MMMM y", "EEEE d MMMM y"], ["HH:mm", "HH:mm:ss", "HH:mm:ss z", "HH:mm:ss zzzz"], ["{1}, {0}", u4, "{1} {0}", u4], [",", ".", ";", "%", "+", "-", "E", "\xD7", "\u2030", "\u221E", "NaN", ":"], ["#,##0.###", "#,##0%", "#,##0.00\xA0\xA4", "#E0"], "EUR", "\u20AC", "euro", { "BRL": [u4, "R$"], "BYN": [u4, "Br"], "EGP": [u4, "\xA3E"], "HKD": [u4, "$"], "INR": [u4, "\u20B9"], "JPY": [u4, "\xA5"], "KRW": [u4, "\u20A9"], "MXN": [u4, "$"], "NOK": [u4, "NKr"], "THB": ["\u0E3F"], "TWD": [u4, "NT$"], "USD": [u4, "$"], "VND": [u4, "\u20AB"] }, "ltr", plural4];
-
-// node_modules/@angular/common/locales/ja.js
-var u5 = void 0;
-function plural5(val) {
-  const n = val;
-  return 5;
-}
-var ja_default = ["ja", [["\u5348\u524D", "\u5348\u5F8C"]], u5, [["\u65E5", "\u6708", "\u706B", "\u6C34", "\u6728", "\u91D1", "\u571F"], u5, ["\u65E5\u66DC\u65E5", "\u6708\u66DC\u65E5", "\u706B\u66DC\u65E5", "\u6C34\u66DC\u65E5", "\u6728\u66DC\u65E5", "\u91D1\u66DC\u65E5", "\u571F\u66DC\u65E5"], ["\u65E5", "\u6708", "\u706B", "\u6C34", "\u6728", "\u91D1", "\u571F"]], u5, [["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"], ["1\u6708", "2\u6708", "3\u6708", "4\u6708", "5\u6708", "6\u6708", "7\u6708", "8\u6708", "9\u6708", "10\u6708", "11\u6708", "12\u6708"]], u5, [["BC", "AD"], ["\u7D00\u5143\u524D", "\u897F\u66A6"]], 0, [6, 0], ["y/MM/dd", u5, "y\u5E74M\u6708d\u65E5", "y\u5E74M\u6708d\u65E5EEEE"], ["H:mm", "H:mm:ss", "H:mm:ss z", "H\u6642mm\u5206ss\u79D2 zzzz"], ["{1} {0}", u5, u5, u5], [".", ",", ";", "%", "+", "-", "E", "\xD7", "\u2030", "\u221E", "NaN", ":"], ["#,##0.###", "#,##0%", "\xA4#,##0.00", "#E0"], "JPY", "\uFFE5", "\u65E5\u672C\u5186", { "BYN": [u5, "\u0440."], "CNY": ["\u5143", "\uFFE5"], "JPY": ["\uFFE5"], "PHP": [u5, "\u20B1"], "RON": [u5, "\u30EC\u30A4"], "XXX": [] }, "ltr", plural5];
-
-// node_modules/@angular/common/locales/zh.js
-var u6 = void 0;
-function plural6(val) {
-  const n = val;
-  return 5;
-}
-var zh_default = ["zh", [["\u4E0A\u5348", "\u4E0B\u5348"]], u6, [["\u65E5", "\u4E00", "\u4E8C", "\u4E09", "\u56DB", "\u4E94", "\u516D"], ["\u5468\u65E5", "\u5468\u4E00", "\u5468\u4E8C", "\u5468\u4E09", "\u5468\u56DB", "\u5468\u4E94", "\u5468\u516D"], ["\u661F\u671F\u65E5", "\u661F\u671F\u4E00", "\u661F\u671F\u4E8C", "\u661F\u671F\u4E09", "\u661F\u671F\u56DB", "\u661F\u671F\u4E94", "\u661F\u671F\u516D"], ["\u5468\u65E5", "\u5468\u4E00", "\u5468\u4E8C", "\u5468\u4E09", "\u5468\u56DB", "\u5468\u4E94", "\u5468\u516D"]], u6, [["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"], ["1\u6708", "2\u6708", "3\u6708", "4\u6708", "5\u6708", "6\u6708", "7\u6708", "8\u6708", "9\u6708", "10\u6708", "11\u6708", "12\u6708"], ["\u4E00\u6708", "\u4E8C\u6708", "\u4E09\u6708", "\u56DB\u6708", "\u4E94\u6708", "\u516D\u6708", "\u4E03\u6708", "\u516B\u6708", "\u4E5D\u6708", "\u5341\u6708", "\u5341\u4E00\u6708", "\u5341\u4E8C\u6708"]], u6, [["\u516C\u5143\u524D", "\u516C\u5143"]], 1, [6, 0], ["y/M/d", "y\u5E74M\u6708d\u65E5", u6, "y\u5E74M\u6708d\u65E5EEEE"], ["HH:mm", "HH:mm:ss", "z HH:mm:ss", "zzzz HH:mm:ss"], ["{1} {0}", u6, u6, u6], [".", ",", ";", "%", "+", "-", "E", "\xD7", "\u2030", "\u221E", "NaN", ":"], ["#,##0.###", "#,##0%", "\xA4#,##0.00", "#E0"], "CNY", "\xA5", "\u4EBA\u6C11\u5E01", { "AUD": ["AU$", "$"], "BYN": [u6, "\u0440."], "CNY": ["\xA5"], "ILR": ["ILS"], "JPY": ["JP\xA5", "\xA5"], "PHP": [u6, "\u20B1"], "RUR": [u6, "\u0440."], "TWD": ["NT$"], "USD": ["US$", "$"], "XXX": [] }, "ltr", plural6];
-
 // apps/signage-manager/src/environments/environment.ts
 var environment = {
   production: false
@@ -7968,19 +9342,26 @@ var environment = {
 function canAccessSignageApp(can_manage_all_groups, group_count) {
   return can_manage_all_groups || group_count > 0;
 }
-var signageAccessGuard = () => {
+function waitForSignageGroups(service) {
+  return new Promise((resolve) => {
+    const check = () => {
+      if (service.signage_groups_loaded()) {
+        resolve();
+      } else {
+        setTimeout(check, 50);
+      }
+    };
+    check();
+  });
+}
+var signageAccessGuard = async () => {
   const service = inject(SignageService);
   const router = inject(Router);
-  return toObservable(service.signage_groups_loaded).pipe(filter(Boolean), take(1), map(() => canAccessSignageApp(service.can_manage_all_groups(), service.signage_groups().length) ? true : router.parseUrl("/unauthorised")));
+  await waitForSignageGroups(service);
+  return canAccessSignageApp(service.can_manage_all_groups(), service.signage_groups().length) ? true : router.parseUrl("/unauthorised");
 };
 
 // apps/signage-manager/src/app/app.config.ts
-registerLocaleData(fr_default);
-registerLocaleData(ar_default);
-registerLocaleData(ja_default);
-registerLocaleData(zh_default);
-registerLocaleData(es_default);
-registerLocaleData(it_default);
 var APP_ROUTES = [
   {
     path: "unauthorised",
@@ -7993,39 +9374,39 @@ var APP_ROUTES = [
     children: [
       {
         path: "media",
-        loadComponent: () => import("./media.component-TTAOAWZK.js").then((m) => m.MediaSectionComponent)
+        loadComponent: () => import("./media.component-K4TT5B3Y.js").then((m) => m.MediaSectionComponent)
       },
       {
         path: "playlists/:id",
-        loadComponent: () => import("./playlists.component-D6J7J4SW.js").then((m) => m.PlaylistsSectionComponent)
+        loadComponent: () => import("./playlists.component-PEMASLR7.js").then((m) => m.PlaylistsSectionComponent)
       },
       {
         path: "playlists",
-        loadComponent: () => import("./playlists.component-D6J7J4SW.js").then((m) => m.PlaylistsSectionComponent)
+        loadComponent: () => import("./playlists.component-PEMASLR7.js").then((m) => m.PlaylistsSectionComponent)
       },
       {
         path: "schedules",
-        loadComponent: () => import("./schedules.component-STJHAHWE.js").then((m) => m.SchedulesSectionComponent)
+        loadComponent: () => import("./schedules.component-X2FHTH5Y.js").then((m) => m.SchedulesSectionComponent)
       },
       {
         path: "displays/:id",
-        loadComponent: () => import("./displays.component-BSMAPGPT.js").then((m) => m.DisplaysSectionComponent)
+        loadComponent: () => import("./displays.component-B53GQMQP.js").then((m) => m.DisplaysSectionComponent)
       },
       {
         path: "displays",
-        loadComponent: () => import("./displays.component-BSMAPGPT.js").then((m) => m.DisplaysSectionComponent)
+        loadComponent: () => import("./displays.component-B53GQMQP.js").then((m) => m.DisplaysSectionComponent)
       },
       {
         path: "groups",
-        loadComponent: () => import("./groups.component-UUW5PWKQ.js").then((m) => m.GroupsSectionComponent)
+        loadComponent: () => import("./groups.component-BKRDUNEN.js").then((m) => m.GroupsSectionComponent)
       },
       {
         path: "zones/:id",
-        loadComponent: () => import("./zones.component-2NVB5FRG.js").then((m) => m.ZonesSectionComponent)
+        loadComponent: () => import("./zones.component-XBG3LXYK.js").then((m) => m.ZonesSectionComponent)
       },
       {
         path: "zones",
-        loadComponent: () => import("./zones.component-2NVB5FRG.js").then((m) => m.ZonesSectionComponent)
+        loadComponent: () => import("./zones.component-XBG3LXYK.js").then((m) => m.ZonesSectionComponent)
       },
       { path: "**", redirectTo: "media" }
     ]
@@ -8038,7 +9419,8 @@ var APP_CONFIG = {
       enabled: environment.production
     }),
     provideZonelessChangeDetection(),
-    provideRouter(APP_ROUTES, withHashLocation()),
+    provideAppInitializer(() => registerActiveLocale(inject(LocaleService).locale)),
+    provideRouter(APP_ROUTES, withHashLocation(), withComponentInputBinding()),
     // {
     //     provide: ErrorHandler,
     //     useValue: Sentry.createErrorHandler({
@@ -8059,20 +9441,4 @@ var APP_CONFIG = {
 
 // apps/signage-manager/src/main.ts
 bootstrapApplication(AppComponent, APP_CONFIG).catch((err) => console.error(err));
-/*! Bundled license information:
-
-@angular/common/locales/ar.js:
-@angular/common/locales/es.js:
-@angular/common/locales/fr.js:
-@angular/common/locales/it.js:
-@angular/common/locales/ja.js:
-@angular/common/locales/zh.js:
-  (**
-   * @license
-   * Copyright Google LLC All Rights Reserved.
-   *
-   * Use of this source code is governed by an MIT-style license that can be
-   * found in the LICENSE file at https://angular.dev/license
-   *)
-*/
 //# sourceMappingURL=main.js.map
