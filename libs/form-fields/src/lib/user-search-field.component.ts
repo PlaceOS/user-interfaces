@@ -256,7 +256,10 @@ export class UserSearchFieldComponent
     private readonly _search = resource({
         params: () => ({ term: this._debounced_term.value() }),
         loader: async ({ params: { term } }): Promise<User[]> => {
-            if (term && typeof term !== 'string') return [term as User];
+            if (term && typeof term !== 'string') {
+                const user = term as User;
+                return user.email === EMPTY_USER.email ? [] : [user];
+            }
             if (term === this.user()?.name) return [this.user()];
             if (this.disable_search()) return [];
             const s = `${term || ''}`.toLowerCase();

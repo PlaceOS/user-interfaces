@@ -155,6 +155,10 @@ describe('UserSearchFieldComponent', () => {
 
         expect(spectator.component.selected_user()).toBeNull();
         expect(spectator.component.displayFn(empty_user)).toBe('');
+        await new Promise((r) => setTimeout(r, 350)); // debounce window
+        spectator.detectChanges();
+        await spectator.fixture.whenStable();
+        expect(spectator.component.search_results()).toEqual([]);
 
         const spec = createComponent({
             props: {

@@ -17,6 +17,8 @@ import {
     BookingRuleset,
     CalendarEvent,
     currentUser,
+    currentUserIsLoaded,
+    currentUserLoaded,
     filterResourcesFromRules,
     firstValueWhere,
     flatten,
@@ -33,7 +35,6 @@ import {
     Space,
     unique,
     User,
-    userSignal,
 } from '@placeos/common';
 import { showMetadata } from '@placeos/ts-client';
 
@@ -405,7 +406,7 @@ export class EventFormService extends AsyncHandler {
     }
 
     public async init() {
-        await firstValueWhere(userSignal(), (user) => !isEmptyUser(user));
+        await currentUserLoaded();
         setDefaultCreator(currentUser());
         onFieldChange(
             this._model,
@@ -609,6 +610,10 @@ export class EventFormService extends AsyncHandler {
     }
 
     public newForm(event = new CalendarEvent()) {
+        if (!currentUserIsLoaded()) {
+            currentUserLoaded().then(() => this.newForm(event));
+            return;
+        }
         this._startNetwork();
         this._calendar.loadCalendars();
         this._loading.set('');
@@ -632,6 +637,10 @@ export class EventFormService extends AsyncHandler {
     }
 
     public resetForm() {
+        if (!currentUserIsLoaded()) {
+            currentUserLoaded().then(() => this.resetForm());
+            return;
+        }
         this._model.set(eventFormValue(this._event() || new CalendarEvent()));
         this._form().reset();
     }
@@ -646,6 +655,10 @@ export class EventFormService extends AsyncHandler {
     }
 
     public loadForm() {
+        if (!currentUserIsLoaded()) {
+            currentUserLoaded().then(() => this.loadForm());
+            return;
+        }
         this._startNetwork();
         this._calendar.loadCalendars();
         const event_data = JSON.parse(
