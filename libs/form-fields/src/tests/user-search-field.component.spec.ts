@@ -7,7 +7,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
-import { User } from '@placeos/common';
+import { EMPTY_USER, User } from '@placeos/common';
 import { showUser } from '@placeos/ts-client';
 import { generateMockUser } from '@placeos/users';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -148,6 +148,43 @@ describe('UserSearchFieldComponent', () => {
         expect(spectator.component.selected_user()).toEqual(user);
     }));
 
+    it('should not display the empty user', async () => {
+        const empty_user = EMPTY_USER as User;
+        spectator.component.writeValue(empty_user);
+        spectator.detectChanges();
+
+        expect(spectator.component.selected_user()).toBeNull();
+        expect(spectator.component.displayFn(empty_user)).toBe('');
+        await new Promise((r) => setTimeout(r, 350)); // debounce window
+        spectator.detectChanges();
+        await spectator.fixture.whenStable();
+        expect(spectator.component.search_results()).toEqual([]);
+
+        const spec = createComponent({
+            props: {
+                query_fn: () =>
+                    Promise.resolve([
+                        empty_user,
+                        new User({
+                            id: '1',
+                            name: 'Real User',
+                            email: 'real@example.com',
+                        }),
+                    ]),
+            },
+        });
+
+        spec.component.search_term.set('real' as any);
+        spec.detectChanges();
+        await new Promise((r) => setTimeout(r, 350)); // debounce window
+        spec.detectChanges();
+        await spec.fixture.whenStable();
+
+        expect(spec.component.search_results()).toEqual([
+            expect.objectContaining({ name: 'Real User' }),
+        ]);
+    });
+
     it('should show the selected user after selecting a user', fakeAsync(() => {
         const user = new User(generateMockUser());
 
@@ -231,6 +268,9 @@ describe('UserSearchFieldComponent', () => {
         spectator.tick(1);
 
         expect(blur_spy).toHaveBeenCalled();
+        expect(spectator.component.selected_user()?.name).toBe(
+            'External Person',
+        );
     }));
 
     it('should select all text when the input is focused', fakeAsync(() => {

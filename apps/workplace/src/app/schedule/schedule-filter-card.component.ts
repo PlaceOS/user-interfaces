@@ -5,8 +5,8 @@ import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import {
-    BOOKING_TYPE_COLORS,
     Booking,
+    BOOKING_TYPE_COLORS,
     CalendarEvent,
     SettingsService,
 } from '@placeos/common';
@@ -15,7 +15,10 @@ import {
     SettingsToggleComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { ScheduleStateService } from './schedule-state.service';
+import {
+    isBookingForOtherUser,
+    ScheduleStateService,
+} from './schedule-state.service';
 
 @Component({
     selector: 'schedule-filter-card',
@@ -56,6 +59,20 @@ import { ScheduleStateService } from './schedule-state.service';
                     </settings-toggle>
                 }
             }
+            <settings-toggle
+                [ngModel]="filters()?.show_bookings_for_others"
+                (click)="toggleBookingsForOthers()"
+            >
+                <div class="-my-2 -ml-2 flex items-center space-x-2">
+                    <div class="bg-base-300 rounded-full p-1 text-2xl">
+                        <icon>perm_contact_calendar</icon>
+                    </div>
+                    <div class="flex-1 font-medium">Bookings for Others</div>
+                    <div class="font-mono text-xs">
+                        {{ counts()['bookings-for-others'] || 0 }}
+                    </div>
+                </div>
+            </settings-toggle>
         </div>
         <div class="px-4 pb-4">
             <button
@@ -144,12 +161,18 @@ export class ScheduleFilterCardComponent {
             } else {
                 const type = bkn.booking_type;
                 mapping[type] = (mapping[type] || 0) + 1;
+                if (isBookingForOtherUser(bkn)) {
+                    mapping['bookings-for-others'] =
+                        (mapping['bookings-for-others'] || 0) + 1;
+                }
             }
         }
         return mapping;
     });
 
     public readonly toggleType = (t) => this._state.toggleType(t);
+    public readonly toggleBookingsForOthers = () =>
+        this._state.toggleBookingsForOthers();
     public readonly dismiss = () => this._sheet_ref.dismiss();
 
     public hasFeature(feature: string | string[]) {

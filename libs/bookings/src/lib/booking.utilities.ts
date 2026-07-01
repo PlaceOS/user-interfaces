@@ -265,11 +265,18 @@ export interface BookingFormValue {
     recurrence_end: any;
     recurrence_instances: any;
     notes: string;
-    p2_document_names: string[];
-    attachments: any[];
+    attachments: string[];
     update_master: boolean;
     self_registered: boolean;
     is_assgined: boolean;
+}
+
+export function bookingAttachments(booking: Booking = new Booking()): string[] {
+    booking = booking || new Booking();
+    return [
+        ...(booking.extension_data.attachments || []),
+        ...(booking.extension_data.p2_document_names || []),
+    ].filter((item) => !!item);
 }
 
 /** Build the raw booking form value from a booking. */
@@ -346,8 +353,7 @@ export function bookingFormValue(
         recurrence_end: booking.recurrence_end ?? 0,
         recurrence_instances: booking.extension_data.recurrence_instances ?? [],
         notes: booking.extension_data.notes || '',
-        p2_document_names: booking.extension_data.p2_document_names || [],
-        attachments: booking.extension_data.attachments || [],
+        attachments: bookingAttachments(booking),
         update_master: false,
         self_registered: false,
         is_assgined: false,

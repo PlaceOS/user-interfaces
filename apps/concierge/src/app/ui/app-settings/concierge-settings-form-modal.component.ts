@@ -1554,7 +1554,15 @@ import { UploadButtonComponent } from './upload-button.component';
                                         "
                                     ></settings-toggle>
                                     <settings-toggle
-                                        label="Hide users and vehicle tabs"
+                                        label="Hide user tab"
+                                        [formField]="form.parking.hide_users"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        label="Hide vehicle tab"
+                                        [formField]="form.parking.hide_vehicles"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        label="Hide user and vehicle tabs"
                                         [formField]="
                                             form.parking.hide_users_and_vehicles
                                         "
@@ -1927,6 +1935,8 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
             show_waitlist: true,
             hide_bay_number: false,
             hide_level_selector_on_booking_list: false,
+            hide_users: false,
+            hide_vehicles: false,
             hide_users_and_vehicles: false,
             hide_assign_space: false,
             allow_deleting: false,

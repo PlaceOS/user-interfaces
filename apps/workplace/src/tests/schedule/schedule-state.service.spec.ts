@@ -46,6 +46,7 @@ import {
     queryBookings,
 } from '@placeos/bookings';
 import { queryEvents, requestSpacesForZone } from '@placeos/events';
+import { isBookingForOtherUser } from '../../app/schedule/schedule-state.service';
 
 describe('ScheduleStateService', () => {
     let spectator: SpectatorService<ScheduleStateService>;
@@ -77,9 +78,12 @@ describe('ScheduleStateService', () => {
             MockProvider(EventFormService, event_form),
             MockProvider(BookingFormService, {
                 newForm: jest.fn(),
-                model: Object.assign(jest.fn(() => ({})), {
-                    update: jest.fn(),
-                }),
+                model: Object.assign(
+                    jest.fn(() => ({})),
+                    {
+                        update: jest.fn(),
+                    },
+                ),
             } as any),
             MockProvider(SpacesService, spaces),
             {
@@ -100,6 +104,7 @@ describe('ScheduleStateService', () => {
     });
 
     afterEach(() => {
+        jest.restoreAllMocks();
         jest.useRealTimers();
     });
 
@@ -116,9 +121,9 @@ describe('ScheduleStateService', () => {
                 asset_name: 'space-1',
             }),
         ];
-        const [allocated] = (
-            spectator.service as any
-        )._resolveParkingNames(list);
+        const [allocated] = (spectator.service as any)._resolveParkingNames(
+            list,
+        );
         expect(allocated.asset_name).toBe('Bay 1');
     });
 
@@ -233,6 +238,62 @@ describe('ScheduleStateService', () => {
             false,
         );
         expect((spectator.service as any)._canLoadEvents()).toBe(false);
+    });
+
+    it('should hide bookings made by me for others by default', () => {
+        const settings = spectator.inject(SettingsService) as any;
+        settings.get.mockImplementation((key: string) =>
+            key === 'app.features' ? ['desks'] : undefined,
+        );
+        const mine = new Booking({
+            id: 'mine',
+            booking_type: 'desk',
+            user_email: 'me@example.com',
+            booked_by_email: 'me@example.com',
+        });
+        const for_other = new Booking({
+            id: 'other',
+            booking_type: 'desk',
+            user_email: 'other@example.com',
+            booked_by_email: 'me@example.com',
+        });
+        jest.spyOn(
+            spectator.service,
+            'isBookingForOtherUser',
+        ).mockImplementation((item) => item === for_other);
+        (spectator.service as any)._desks.set([mine, for_other]);
+
+        expect(spectator.service.filtered_bookings()).toEqual([mine]);
+
+        spectator.service.toggleBookingsForOthers();
+
+        expect(spectator.service.filtered_bookings()).toEqual([
+            mine,
+            for_other,
+        ]);
+    });
+
+    it('should identify bookings made by the current user for someone else', () => {
+        expect(
+            isBookingForOtherUser(
+                new Booking({
+                    booking_type: 'desk',
+                    user_email: 'other@example.com',
+                    booked_by_email: 'me@example.com',
+                }),
+                'me@example.com',
+            ),
+        ).toBe(true);
+        expect(
+            isBookingForOtherUser(
+                new Booking({
+                    booking_type: 'desk',
+                    user_email: 'me@example.com',
+                    booked_by_email: 'me@example.com',
+                }),
+                'me@example.com',
+            ),
+        ).toBe(false);
     });
 
     it('should share identical in-flight booking queries', async () => {

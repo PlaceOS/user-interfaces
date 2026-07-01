@@ -11,6 +11,7 @@ import { startOfMinute } from 'date-fns';
 
 import {
     AsyncHandler,
+    EMPTY_USER,
     getInvalidSignalFields,
     i18n,
     isEmptyUser,
@@ -304,7 +305,10 @@ export class VisitorRegistrationComponent
     });
 
     public setHost(user: User | null) {
-        this._booking_form.model.update((m) => ({ ...m, user }));
+        this._booking_form.model.update((m) => ({
+            ...m,
+            user: user || EMPTY_USER,
+        }));
     }
 
     public setDuration(duration: number) {
@@ -324,6 +328,8 @@ export class VisitorRegistrationComponent
             ...m,
             booking_type: 'visitor',
             title: 'Visit',
+            // Always ask for the host; null is sanitized back to currentUser().
+            user: EMPTY_USER,
         }));
         setTimeout(() => {
             if (this.allow_self_registration()) return;
@@ -340,6 +346,13 @@ export class VisitorRegistrationComponent
                         this.form,
                         this._booking_form.model,
                     ).join(', '),
+                }),
+            );
+        }
+        if (!this.host()) {
+            return notifyError(
+                i18n('FORM.INVALID_FIELDS', {
+                    field_list: i18n('APP.VISITOR_KIOSK.HOST'),
                 }),
             );
         }

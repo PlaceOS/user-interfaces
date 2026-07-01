@@ -1721,10 +1721,9 @@ export class ParkingRequestFormDetailsComponent
         const model = this.model;
         if (!form || !model) return;
         this.supporting_doc_names.set(
-            model().p2_document_names ||
-                (model().attachments || []).map((url) =>
-                    this._fileNameFromUrl(url),
-                ),
+            (model().attachments || []).map((url) =>
+                this._fileNameFromUrl(url),
+            ),
         );
         runInInjectionContext(this._injector, () =>
             effect((onCleanup) => {
@@ -2129,7 +2128,7 @@ export class ParkingRequestFormDetailsComponent
         }
         const model = this.model;
         const existing_urls: string[] = model?.().attachments || [];
-        const existing_names: string[] = model?.().p2_document_names || [];
+        const existing_names = this.supporting_doc_names();
         const new_urls: string[] = [];
         const uploaded_names: string[] = [];
         for (const file of valid_files) {
@@ -2147,7 +2146,6 @@ export class ParkingRequestFormDetailsComponent
         this.supporting_doc_names.set(names);
         model?.update((m) => ({
             ...m,
-            p2_document_names: names,
             attachments: urls,
         }));
         input.value = '';
@@ -2155,7 +2153,7 @@ export class ParkingRequestFormDetailsComponent
 
     public removeSupportingDoc(index: number) {
         const model = this.model;
-        const names = [...(model?.().p2_document_names || [])];
+        const names = [...this.supporting_doc_names()];
         const urls = [...(model?.().attachments || [])];
         if (index < 0 || index >= names.length) return;
         names.splice(index, 1);
@@ -2163,7 +2161,6 @@ export class ParkingRequestFormDetailsComponent
         this.supporting_doc_names.set(names);
         model?.update((m) => ({
             ...m,
-            p2_document_names: names,
             attachments: urls,
         }));
     }
