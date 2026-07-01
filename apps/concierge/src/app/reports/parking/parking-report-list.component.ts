@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, computed, inject, input } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { ParkingSpacePipe } from '@placeos/assets';
 import { downloadFile, i18n, jsonToCsv } from '@placeos/common';
 import {
     IconComponent,
@@ -19,9 +20,9 @@ import { ParkingReportService } from './parking-report.service';
 
 const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
     {
-        label: 'Parking space',
+        label: 'Bay number',
         description:
-            'Uses asset name, extension asset name, description, then asset ID as fallback.',
+            'Resolves the booking asset ID to the parking space identifier.',
     },
     {
         label: 'Duration',
@@ -50,11 +51,7 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
             class="border-base-200 bg-base-100 m-4 overflow-hidden rounded-sm border"
         >
             <div class="border-base-200 flex items-center border-b px-4 py-2">
-                <h3 class="flex-1 text-xl font-bold">
-                    {{
-                        'APP.CONCIERGE.REPORTS_PARKING_UTIL_HEADER' | translate
-                    }}
-                </h3>
+                <h3 class="flex-1 text-xl font-bold">Parking Bookings</h3>
                 @if (!print()) {
                     <button
                         icon
@@ -79,8 +76,9 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                 [data]="parking_bookings()"
                 [columns]="[
                     {
-                        key: 'parking_name',
-                        name: 'RESOURCE.PARKING_SPACE' | translate,
+                        key: 'asset_id',
+                        name: 'APP.CONCIERGE.PARKING_BAY_NUMBER' | translate,
+                        content: bay_template,
                     },
                     {
                         key: 'date',
@@ -97,6 +95,10 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                         name: 'APP.CONCIERGE.PARKING_RESERVED_FOR' | translate,
                     },
                     {
+                        key: 'plate_number',
+                        name: 'EXPLORE.PARKING_PLATE_NUMBER' | translate,
+                    },
+                    {
                         key: 'checked_in',
                         name: 'COMMON.CHECKED_IN' | translate,
                     },
@@ -111,6 +113,17 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                     'APP.CONCIERGE.REPORTS_DAILY_EMPTY' | translate
                 "
             ></simple-table>
+            <ng-template #bay_template let-id="data">
+                <div class="p-4">
+                    @if (id) {
+                        {{ (id | parkingSpace | async)?.identifier || id }}
+                    } @else {
+                        <span class="opacity-30">
+                            {{ 'COMMON.EMPTY' | translate }}
+                        </span>
+                    }
+                </div>
+            </ng-template>
             <ng-template #date_template let-row="row">
                 <div class="p-4">
                     {{ row.date | date: 'mediumDate' }}
@@ -133,6 +146,7 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
         SimpleTableComponent,
         DurationPipe,
         TranslatePipe,
+        ParkingSpacePipe,
         IconComponent,
         MatRippleModule,
         MatTooltipModule,
@@ -150,15 +164,12 @@ export class ParkingReportListComponent {
         const list = [];
         for (const booking of this._bookings()) {
             list.push({
-                parking_name:
-                    booking.asset_name ||
-                    booking.extension_data?.asset_name ||
-                    booking.description ||
-                    booking.asset_id,
+                asset_id: booking.asset_id,
                 date: booking.date,
                 duration: booking.duration,
                 all_day: booking.all_day,
                 host: booking.user_name || booking.user_email,
+                plate_number: booking.extension_data?.plate_number || '',
                 checked_in: i18n(
                     booking.checked_in ? 'COMMON.TRUE' : 'COMMON.FALSE',
                 ),
