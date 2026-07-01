@@ -20,7 +20,9 @@ import {
     BookingClash,
     BookingRuleset,
     BookingType,
+    currentUserIsLoaded,
     currentUser,
+    currentUserLoaded,
     Desk,
     firstValueWhere,
     flatten,
@@ -808,6 +810,10 @@ export class BookingFormService extends AsyncHandler {
     }
 
     public newForm(type: BookingType, booking: Booking = new Booking({})) {
+        if (!currentUserIsLoaded()) {
+            currentUserLoaded().then(() => this.newForm(type, booking));
+            return;
+        }
         // Never apply an existing booking's edit state to a different type
         // (e.g. editing parking then opening the desk form).
         if (isCrossTypeEdit(booking, type)) booking = new Booking({});
@@ -985,6 +991,10 @@ export class BookingFormService extends AsyncHandler {
     }
 
     public resetForm() {
+        if (!currentUserIsLoaded()) {
+            currentUserLoaded().then(() => this.resetForm());
+            return;
+        }
         if (!sessionStorage.getItem(STORAGE_KEYS.booking_form)) {
             return this.newForm(this._options().type);
         }
@@ -1040,6 +1050,10 @@ export class BookingFormService extends AsyncHandler {
     }
 
     public loadForm(expected_type?: BookingType) {
+        if (!currentUserIsLoaded()) {
+            currentUserLoaded().then(() => this.loadForm(expected_type));
+            return;
+        }
         this._startNetwork();
         this._calendar.loadCalendars();
         const data = JSON.parse(
