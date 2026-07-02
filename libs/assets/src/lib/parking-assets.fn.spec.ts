@@ -6,6 +6,7 @@ jest.mock('@placeos/ts-client', () => ({
 }));
 
 jest.mock('./assets.fn', () => ({
+    findOldestByName: jest.requireActual('./assets.fn').findOldestByName,
     saveAsset: jest.fn(),
     saveAssetCategory: jest.fn(),
     saveAssetType: jest.fn(),
@@ -152,6 +153,42 @@ describe('[Parking Assets]', () => {
             brand: 'PlaceOS',
             category_id: 'cat-new',
         });
+    });
+
+    it('should resolve duplicate categories and types to the oldest item', async () => {
+        const { ts_client, assets_fn, parking_assets } = await load_modules();
+        ts_client.queryAssetCategories.mockReturnValue(
+            response([
+                { id: 'cat-new', name: '_PARKING_', created_at: 200 },
+                { id: 'cat-old', name: '_PARKING_', created_at: 100 },
+            ]),
+        );
+        ts_client.queryAssetTypes.mockImplementation(({ category_id }) =>
+            response(
+                category_id === 'cat-old'
+                    ? [
+                          {
+                              id: 'type-new',
+                              name: '_PARKING_SPACES_',
+                              category_id: 'cat-old',
+                              created_at: 200,
+                          },
+                          {
+                              id: 'type-old',
+                              name: '_PARKING_SPACES_',
+                              category_id: 'cat-old',
+                              created_at: 100,
+                          },
+                      ]
+                    : [],
+            ),
+        );
+
+        const type_id = await parking_assets.resolveParkingTypeId();
+
+        expect(type_id).toBe('type-old');
+        expect(assets_fn.saveAssetCategory).not.toHaveBeenCalled();
+        expect(assets_fn.saveAssetType).not.toHaveBeenCalled();
     });
 
     it('should ignore legacy user categories when resolving parking user types', async () => {

@@ -6,6 +6,7 @@ jest.mock('@placeos/ts-client', () => ({
 }));
 
 jest.mock('./assets.fn', () => ({
+    findOldestByName: jest.requireActual('./assets.fn').findOldestByName,
     saveAsset: jest.fn(),
     saveAssetCategory: jest.fn(),
     saveAssetType: jest.fn(),
@@ -50,6 +51,40 @@ describe('[Catering Assets]', () => {
         expect(
             catering_assets.fromCateringTypeName('CATERING:Acme Catering'),
         ).toBe('Acme Catering');
+    });
+
+    it('should resolve duplicate categories and types to the oldest item', async () => {
+        const { ts_client, assets_fn, catering_assets } = await load_modules();
+        ts_client.queryAssetCategories.mockReturnValue(
+            response([
+                { id: 'cat-new', name: '_CATERING_', created_at: 200 },
+                { id: 'cat-old', name: '_CATERING_', created_at: 100 },
+            ]),
+        );
+        ts_client.queryAssetTypes.mockImplementation(({ category_id }) =>
+            response(
+                category_id === 'cat-old'
+                    ? [
+                          {
+                              id: 'type-new',
+                              name: 'CATERING:Acme',
+                              created_at: 200,
+                          },
+                          {
+                              id: 'type-old',
+                              name: 'CATERING:Acme',
+                              created_at: 100,
+                          },
+                      ]
+                    : [],
+            ),
+        );
+
+        const type_id = await catering_assets.resolveCateringTypeId('Acme');
+
+        expect(type_id).toBe('type-old');
+        expect(assets_fn.saveAssetCategory).not.toHaveBeenCalled();
+        expect(assets_fn.saveAssetType).not.toHaveBeenCalled();
     });
 
     it('should create the hidden catering category and caterer type', async () => {
