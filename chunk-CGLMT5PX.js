@@ -10,7 +10,6 @@ import {
   Booking,
   BreakpointObserver,
   Breakpoints,
-  Ca,
   CdkPortalOutlet,
   CdkScrollable,
   CdkScrollableModule,
@@ -32,7 +31,6 @@ import {
   EMPTY_USER,
   ENTER,
   ESCAPE,
-  Ea,
   ElementRef,
   EnvironmentInjector,
   EventEmitter,
@@ -45,18 +43,19 @@ import {
   FormGroup,
   FormGroupDirective,
   FormsModule,
-  Gh,
   IconComponent,
   Injectable,
   InjectionToken,
   Injector,
   Input,
   InteractivityChecker,
+  Ju,
   Kt,
   LEFT_ARROW,
   MAT_FORM_FIELD,
   MAT_OPTGROUP,
   MAT_OPTION_PARENT_COMPONENT,
+  Ma,
   MatError,
   MatFormField,
   MatFormFieldModule,
@@ -80,6 +79,7 @@ import {
   MediaMatcher,
   NG_VALIDATORS,
   NG_VALUE_ACCESSOR,
+  Na,
   NavigationEnd,
   NgControlStatus,
   NgControlStatusGroup,
@@ -96,7 +96,6 @@ import {
   Pipe,
   Platform,
   PortalModule,
-  Qu,
   QueryList,
   RIGHT_ARROW,
   ReactiveFormsModule,
@@ -111,6 +110,7 @@ import {
   ScrollDispatcher,
   Service,
   SettingsService,
+  Sn,
   Space,
   StaffUser,
   Subject,
@@ -122,17 +122,17 @@ import {
   UP_ARROW,
   User,
   UserAvatarComponent,
-  V,
   Validators,
-  Vh,
   ViewChild,
   ViewContainerRef,
   ViewEncapsulation,
   ViewportRuler,
   VirtualKeyboardComponent,
-  Xh,
+  Vs,
+  Wu,
+  X,
   Ye,
-  Ys,
+  Zh,
   _CdkPrivateStyleLoader,
   _IdGenerator,
   _StructuralStylesLoader,
@@ -149,6 +149,7 @@ import {
   afterNextRender,
   bookedResourceList,
   booleanAttribute,
+  cl,
   coerceArray,
   coerceBooleanProperty,
   coerceNumberProperty,
@@ -162,7 +163,6 @@ import {
   currentUserIsLoaded,
   currentUserLoaded,
   current_user,
-  d,
   debounced,
   defer,
   delay,
@@ -171,8 +171,10 @@ import {
   effect,
   email,
   endOfDay,
+  f,
   filter,
   findBookingClashes,
+  findOldestByName,
   first,
   firstValueWhere,
   flatten,
@@ -190,6 +192,8 @@ import {
   guardModelUndefinedWrites,
   hasModifierKey,
   i18n,
+  ia,
+  il,
   inject,
   input,
   isAfter,
@@ -199,8 +203,6 @@ import {
   isFakeTouchstartFromScreenReader,
   isMobileSafari,
   isWithinBookableHours,
-  ju,
-  kn,
   localToTimezone,
   map,
   merge,
@@ -236,7 +238,6 @@ import {
   startOfMinute,
   startWith,
   switchMap,
-  ta,
   take,
   takeUntil,
   tap,
@@ -321,7 +322,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-C6FZ5V4Y.js";
+} from "./chunk-M2K6A665.js";
 import {
   __objRest,
   __spreadProps,
@@ -3234,7 +3235,7 @@ var Desk = class {
     for (const key of IGNORE_KEYS) {
       delete data[key];
     }
-    Ys(data, [void 0, null, []]);
+    Vs(data, [void 0, null, []]);
     return data;
   }
 };
@@ -3253,11 +3254,11 @@ async function searchStaff(q) {
       "department"
     ].join(",")
   });
-  const list = await d(`${STAFF_ENDPOINT}${q ? "?" + query : ""}`);
+  const list = await f(`${STAFF_ENDPOINT}${q ? "?" + query : ""}`);
   return list.map((item) => new StaffUser(item));
 }
 async function showStaff(id) {
-  return new StaffUser(await d(`${STAFF_ENDPOINT}/${encodeURIComponent(id)}`));
+  return new StaffUser(await f(`${STAFF_ENDPOINT}/${encodeURIComponent(id)}`));
 }
 
 // libs/components/src/lib/map-viewer.class.ts
@@ -3393,7 +3394,7 @@ var MapStore = class {
       await new Promise((resolve) => setTimeout(resolve, 300));
     }
     const options = {};
-    const tkn = V();
+    const tkn = X();
     const is_same_origin = new URL(path, location.origin).origin === location.origin;
     if (tkn && is_same_origin) {
       if (!isMobileSafari()) {
@@ -5162,7 +5163,7 @@ function normalise_name(name = "") {
 }
 async function query_hidden_categories() {
   if (!_hidden_categories_promise) {
-    _hidden_categories_promise = sl({
+    _hidden_categories_promise = cl({
       hidden: true,
       limit: 500
     }).then((_) => _.data).catch(() => []);
@@ -5171,7 +5172,7 @@ async function query_hidden_categories() {
 }
 async function query_types_for_category(category_id) {
   if (!_types_for_category_promises.has(category_id)) {
-    _types_for_category_promises.set(category_id, Vh({ category_id, limit: 500 }).then((_) => _.data).catch(() => []));
+    _types_for_category_promises.set(category_id, sl({ category_id, limit: 500 }).then((_) => _.data).catch(() => []));
   }
   return _types_for_category_promises.get(category_id);
 }
@@ -5186,12 +5187,11 @@ async function query_types_for_categories(category_ids) {
   return list.flat();
 }
 async function ensure_hidden_category(name) {
-  const match_name = normalise_name(name);
-  let category = (await query_hidden_categories()).find((_) => normalise_name(_.name) === match_name);
+  let category = findOldestByName(await query_hidden_categories(), name);
   if (category)
     return category;
   reset_hidden_categories_cache();
-  category = (await query_hidden_categories()).find((_) => normalise_name(_.name) === match_name);
+  category = findOldestByName(await query_hidden_categories(), name);
   if (category)
     return category;
   try {
@@ -5203,7 +5203,7 @@ async function ensure_hidden_category(name) {
     return category2;
   } catch (error) {
     reset_hidden_categories_cache();
-    category = (await query_hidden_categories()).find((_) => normalise_name(_.name) === match_name);
+    category = findOldestByName(await query_hidden_categories(), name);
     if (category)
       return category;
     throw error;
@@ -5225,18 +5225,17 @@ async function move_type_to_category(type, category_id, name) {
   } catch (error) {
     reset_types_cache([category_id]);
     const types = await query_types_for_category(category_id);
-    const existing_type = types.find((_) => normalise_name(_.name) === normalise_name(name));
+    const existing_type = findOldestByName(types, name);
     if (existing_type)
       return existing_type;
     throw error;
   }
 }
 async function ensure_type(category_id, name, legacy_category_ids = []) {
-  const match_name = normalise_name(name);
-  let type = (await query_types_for_categories([
+  let type = findOldestByName(await query_types_for_categories([
     category_id,
     ...legacy_category_ids.filter((_) => _ !== category_id)
-  ])).find((_) => normalise_name(_.name) === match_name);
+  ]), name);
   if (type)
     return move_type_to_category(type, category_id, name);
   try {
@@ -5249,10 +5248,10 @@ async function ensure_type(category_id, name, legacy_category_ids = []) {
     return type2;
   } catch (error) {
     reset_types_cache([category_id, ...legacy_category_ids]);
-    type = (await query_types_for_categories([
+    type = findOldestByName(await query_types_for_categories([
       category_id,
       ...legacy_category_ids.filter((_) => _ !== category_id)
-    ])).find((_) => normalise_name(_.name) === match_name);
+    ]), name);
     if (type)
       return move_type_to_category(type, category_id, name);
     throw error;
@@ -5281,7 +5280,7 @@ async function queryParkingSpacesForZones(zone_ids) {
   if (!zone_ids?.length)
     return [];
   const type_id = await resolveParkingTypeId();
-  const results = await Promise.all(zone_ids.map((zone_id) => Gh({ zone_id, type_id, limit: 500 }).then((_) => _.data)));
+  const results = await Promise.all(zone_ids.map((zone_id) => Zh({ zone_id, type_id, limit: 500 }).then((_) => _.data)));
   return flatten(results);
 }
 var PARKING_USER_TYPE_NAME = "_PARKING_USERS_";
@@ -5318,7 +5317,7 @@ function toParkingUser(asset) {
 }
 async function queryParkingUsers(zone_id) {
   const type_id = await resolveParkingUserTypeId();
-  const assets = await Gh({ zone_id, type_id, limit: 500 });
+  const assets = await Zh({ zone_id, type_id, limit: 500 });
   return assets.data.map(toParkingUser);
 }
 
@@ -5343,7 +5342,7 @@ var AssetGroupPipe = class _AssetGroupPipe {
     let asset_group = ASSET_GROUP_LIST.find(({ id }) => id === group_id);
     if (asset_group)
       return asset_group;
-    const group = await Xh(group_id).catch(() => null);
+    const group = await il(group_id).catch(() => null);
     if (group) {
       asset_group = __spreadValues({}, group);
       ASSET_GROUP_LIST.push(asset_group);
@@ -6222,7 +6221,7 @@ function getAssetRulesForZone(zone_id, fresh = false) {
   if (!zone_id)
     return Promise.resolve([]);
   if (!RULE_REQUESTS[zone_id] || fresh)
-    RULE_REQUESTS[zone_id] = ju(zone_id, "assets_config").then((_) => _.details instanceof Array ? _.details : []).catch(() => []);
+    RULE_REQUESTS[zone_id] = Wu(zone_id, "assets_config").then((_) => _.details instanceof Array ? _.details : []).catch(() => []);
   return RULE_REQUESTS[zone_id];
 }
 function assetAvailable(item, rules, event) {
@@ -6595,7 +6594,7 @@ var AssetStateService = class _AssetStateService {
   }
   async _loadSettings(building_id) {
     const existing = this._settings_requests.get(building_id);
-    const request = existing || ju(building_id, "assets-settings").then((metadata) => metadata.details || {}).catch(() => ({}));
+    const request = existing || Wu(building_id, "assets-settings").then((metadata) => metadata.details || {}).catch(() => ({}));
     if (!existing)
       this._settings_requests.set(building_id, request);
     this._settings.set(await request);
@@ -7120,12 +7119,9 @@ var _locker_type_id = null;
 var _locker_type_id_promise = null;
 var _hidden_categories_promise2 = null;
 var _types_for_category_promises2 = /* @__PURE__ */ new Map();
-function normalise_name2(name = "") {
-  return name.trim().toLowerCase();
-}
 async function query_hidden_categories2() {
   if (!_hidden_categories_promise2) {
-    _hidden_categories_promise2 = sl({
+    _hidden_categories_promise2 = cl({
       hidden: true,
       limit: 500
     }).then((_) => _.data).catch(() => []);
@@ -7134,17 +7130,16 @@ async function query_hidden_categories2() {
 }
 async function query_types_for_category2(category_id) {
   if (!_types_for_category_promises2.has(category_id)) {
-    _types_for_category_promises2.set(category_id, Vh({ category_id, limit: 500 }).then((_) => _.data).catch(() => []));
+    _types_for_category_promises2.set(category_id, sl({ category_id, limit: 500 }).then((_) => _.data).catch(() => []));
   }
   return _types_for_category_promises2.get(category_id);
 }
 async function ensure_hidden_category2(name) {
-  const match_name = normalise_name2(name);
-  let category = (await query_hidden_categories2()).find((_) => normalise_name2(_.name) === match_name);
+  let category = findOldestByName(await query_hidden_categories2(), name);
   if (category)
     return category;
   _hidden_categories_promise2 = null;
-  category = (await query_hidden_categories2()).find((_) => normalise_name2(_.name) === match_name);
+  category = findOldestByName(await query_hidden_categories2(), name);
   if (category)
     return category;
   const created = await saveAssetCategory({
@@ -7155,8 +7150,7 @@ async function ensure_hidden_category2(name) {
   return created;
 }
 async function ensure_type2(category_id, name) {
-  const match_name = normalise_name2(name);
-  let type = (await query_types_for_category2(category_id)).find((_) => normalise_name2(_.name) === match_name);
+  let type = findOldestByName(await query_types_for_category2(category_id), name);
   if (type)
     return type;
   const created = await saveAssetType({
@@ -7198,14 +7192,14 @@ async function queryLockerBankAssetsForZones(zone_ids) {
   if (!zone_ids?.length)
     return [];
   const type_id = await resolveLockerBankTypeId();
-  const results = await Promise.all(zone_ids.map((zone_id) => Gh({ zone_id, type_id, limit: 500 }).then((_) => _.data)));
+  const results = await Promise.all(zone_ids.map((zone_id) => Zh({ zone_id, type_id, limit: 500 }).then((_) => _.data)));
   return flatten(results);
 }
 async function queryLockerAssetsForZones(zone_ids) {
   if (!zone_ids?.length)
     return [];
   const type_id = await resolveLockerTypeId();
-  const results = await Promise.all(zone_ids.map((zone_id) => Gh({ zone_id, type_id, limit: 500 }).then((_) => _.data)));
+  const results = await Promise.all(zone_ids.map((zone_id) => Zh({ zone_id, type_id, limit: 500 }).then((_) => _.data)));
   return flatten(results);
 }
 
@@ -7428,12 +7422,12 @@ var RecurringClashModalComponent = class _RecurringClashModalComponent {
 // libs/events/src/lib/calendar.fn.ts
 var CALENDAR_ENDPOINT = "/api/staff/v1/calendars";
 async function queryCalendars() {
-  const list = await d(CALENDAR_ENDPOINT);
+  const list = await f(CALENDAR_ENDPOINT);
   return list.map((c) => new Calendar(c));
 }
 async function queryCalendarAvailability(q) {
   const query = toQueryString(q);
-  const list = await d(`${CALENDAR_ENDPOINT}/availability${query ? "?" + query : ""}`);
+  const list = await f(`${CALENDAR_ENDPOINT}/availability${query ? "?" + query : ""}`);
   return list.map((c) => new Calendar(c));
 }
 var calendarsToSpaces = (list, org) => list.filter((cal) => !!cal.resource).map((cal) => new Space(__spreadProps(__spreadValues({}, cal.resource), {
@@ -7442,7 +7436,7 @@ var calendarsToSpaces = (list, org) => list.filter((cal) => !!cal.resource).map(
 }))).filter((space) => space.bookable);
 async function querySpaceFreeBusy(q, org) {
   const query = toQueryString(q);
-  const list = await d(`${CALENDAR_ENDPOINT}/free_busy${query ? "?" + query : ""}`);
+  const list = await f(`${CALENDAR_ENDPOINT}/free_busy${query ? "?" + query : ""}`);
   return calendarsToSpaces(list.map((c) => new Calendar(c)), org);
 }
 
@@ -7791,7 +7785,7 @@ function requestSpacesForZone(id) {
     return of([]);
   if (SPACE_LIST_REQUESTS[id])
     return SPACE_LIST_REQUESTS[id];
-  SPACE_LIST_REQUESTS[id] = from(ta({
+  SPACE_LIST_REQUESTS[id] = from(ia({
     zone_id: id,
     limit: 500,
     signage: false
@@ -8263,9 +8257,9 @@ async function findNearbyFeature(map_url, centered_at, desk_ids = []) {
   let closest = "";
   for (const desk of desk_ids) {
     const { x, y } = centerOf(desk) || { x: 2, y: 2 };
-    const d2 = Math.sqrt((x - point.x) * (x - point.x) + (y - point.y) * (y - point.y));
-    if (d2 < dist) {
-      dist = d2;
+    const d = Math.sqrt((x - point.x) * (x - point.x) + (y - point.y) * (y - point.y));
+    if (d < dist) {
+      dist = d;
       closest = desk;
     }
   }
@@ -9626,7 +9620,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     if (!email2)
       return false;
     const map_metadata = (meta) => (meta?.metadata?.desks?.details instanceof Array ? meta.metadata.desks.details : []).map((desk) => new Desk(__spreadProps(__spreadValues({}, desk), { zone: meta.zone })));
-    const desk_lists = await Promise.all(buildings.map((building) => Qu(building.id, { name: "desks" }).then((data) => flatten(data.map(map_metadata))).catch(() => [])));
+    const desk_lists = await Promise.all(buildings.map((building) => Ju(building.id, { name: "desks" }).then((data) => flatten(data.map(map_metadata))).catch(() => [])));
     return flatten(desk_lists).some((desk) => desk.assigned_to?.toLowerCase() === email2);
   }
   /**
@@ -9667,7 +9661,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     const default_zone = (this._settings.get("app.use_region") ? this._org.region?.id : this._org.building?.id) || this._org.organisation.id;
     const zones = options.zones?.length ? options.zones.join(",") : options.zone_id || default_zone;
     let booked_ids = [];
-    if (!kn()) {
+    if (!Sn()) {
       booked_ids = await this._bookedResourceList({
         period_start: getUnixTime(date),
         period_end: getUnixTime(addMinutes(date, duration)),
@@ -9743,7 +9737,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     }
     this.model.set(bookingFormValue(new Booking()));
     this.form().reset();
-    this._patch(Ys(__spreadProps(__spreadValues(__spreadProps(__spreadValues({}, booking.extension_data), {
+    this._patch(Vs(__spreadProps(__spreadValues(__spreadProps(__spreadValues({}, booking.extension_data), {
       attachments: bookingAttachments(booking)
     }), booking), {
       _in_progress: booking.state === "started" || booking.state === "in_progress"
@@ -9936,7 +9930,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       params: () => this._network_consumed() && this._requests_ready() ? this._booking_rules_params_debounced.value() : void 0,
       loader: ({ params }) => {
         const { ids, type } = params;
-        return Promise.all(ids.map((id) => ju(id, `${type}_booking_rules`))).then((building_rules) => {
+        return Promise.all(ids.map((id) => Wu(id, `${type}_booking_rules`))).then((building_rules) => {
           const mapping = {};
           for (const rules of building_rules) {
             mapping[rules.id] = rules.details instanceof Array ? rules.details : [];
@@ -10129,7 +10123,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       booked_by: currentUser()
     }));
     this.form().reset();
-    this._patch(Ys(__spreadProps(__spreadValues(__spreadValues({}, booking || {}), booking?.extension_data || {}), {
+    this._patch(Vs(__spreadProps(__spreadValues(__spreadValues({}, booking || {}), booking?.extension_data || {}), {
       attachments: bookingAttachments(booking),
       _in_progress: booking?.state === "started"
     }), [null, void 0, ""]));
@@ -10145,7 +10139,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     sessionStorage.removeItem(STORAGE_KEYS.booking_form_filters);
   }
   storeForm() {
-    sessionStorage.setItem(STORAGE_KEYS.booking_form, JSON.stringify(__spreadValues(__spreadValues({}, this._booking()), Ys(__spreadValues({}, this.model()), [null, void 0, ""]))));
+    sessionStorage.setItem(STORAGE_KEYS.booking_form, JSON.stringify(__spreadValues(__spreadValues({}, this._booking()), Vs(__spreadValues({}, this.model()), [null, void 0, ""]))));
     sessionStorage.setItem(STORAGE_KEYS.booking_form_filters, JSON.stringify(this._options() || {}));
   }
   loadForm(expected_type) {
@@ -10165,7 +10159,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       booked_by: currentUser()
     }));
     this.form().reset();
-    const booking_data = Ys(__spreadProps(__spreadValues(__spreadValues(__spreadValues({}, data), booking || {}), booking?.extension_data || {}), {
+    const booking_data = Vs(__spreadProps(__spreadValues(__spreadValues(__spreadValues({}, data), booking || {}), booking?.extension_data || {}), {
       attachments: bookingAttachments(booking),
       _in_progress: booking?.state === "started"
     }), [null, void 0, ""]);
@@ -11022,7 +11016,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     if (this._useCurrentUserForBookingRules() || current_user2.email === host) {
       return current_user2;
     }
-    return Ca(host).catch(() => ({ email: host }));
+    return Na(host).catch(() => ({ email: host }));
   }
   /**
    * Check for clashing bookings in a recurring booking series
@@ -11103,8 +11097,8 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
   }
   async loadResourceList(type) {
     const use_region = this._settings.get("app.use_region");
-    const map_metadata = (_) => (_?.metadata[type]?.details instanceof Array ? _.metadata[type].details : []).map((d2) => __spreadProps(__spreadValues({}, d2), {
-      id: d2.id || d2.map_id,
+    const map_metadata = (_) => (_?.metadata[type]?.details instanceof Array ? _.metadata[type].details : []).map((d) => __spreadProps(__spreadValues({}, d), {
+      id: d.id || d.map_id,
       zone: _.zone
     }));
     const id = use_region ? this._org.building?.parent_id : this._org.building?.id;
@@ -11113,10 +11107,10 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     if (use_region) {
       const id2 = this._org.building.parent_id;
       const buildings = this._org.buildings.filter((_) => _.parent_id === id2);
-      const lists = await Promise.all(buildings.map((_) => Qu(_.id, { name: type }).then((data2) => flatten(data2.map(map_metadata)))));
+      const lists = await Promise.all(buildings.map((_) => Ju(_.id, { name: type }).then((data2) => flatten(data2.map(map_metadata)))));
       return flatten(lists);
     }
-    const data = await Qu(this._org.building.id, {
+    const data = await Ju(this._org.building.id, {
       name: type
     });
     return flatten(data.map(map_metadata));
@@ -11491,7 +11485,7 @@ var UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHand
         const guest_query = () => searchGuests(q).catch(() => []);
         if (this.guests_only())
           return guest_query();
-        const staff = this.use_basic_search() ? await Ea({ q, authority_id: Rt()?.id }).then((_) => _.data.map((u) => new User(u))).catch(() => []) : await searchStaff(q).catch(() => []);
+        const staff = this.use_basic_search() ? await Ma({ q, authority_id: Rt()?.id }).then((_) => _.data.map((u) => new User(u))).catch(() => []) : await searchStaff(q).catch(() => []);
         if (!this.guests())
           return staff;
         return [...staff, ...await guest_query()];
@@ -11559,7 +11553,7 @@ var UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHand
     this.user.set(value);
     this.search_term.set(value);
     if (typeof new_value !== "string" && !this.use_basic_search() && (value?.id || value?.email)) {
-      Ca(value.email || value.id).then((details) => {
+      Na(value.email || value.id).then((details) => {
         if (!details)
           return;
         const updated = new User(__spreadValues(__spreadValues({}, value), new User(details)));
@@ -11932,4 +11926,4 @@ export {
   CalendarService,
   BookingFormService
 };
-//# sourceMappingURL=chunk-NSE7MLLP.js.map
+//# sourceMappingURL=chunk-CGLMT5PX.js.map

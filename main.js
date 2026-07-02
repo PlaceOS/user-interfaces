@@ -11,12 +11,13 @@ import {
   generateMockSpace,
   setHours,
   setMinutes
-} from "./chunk-NSE7MLLP.js";
+} from "./chunk-CGLMT5PX.js";
 import {
   CheckinStateService,
   parseTokenFromUrl
-} from "./chunk-HU6KLO7L.js";
+} from "./chunk-LO3727U7.js";
 import {
+  $r,
   ANIMATION_MODULE_TYPE,
   AUTO_STYLE,
   ActivatedRoute,
@@ -33,7 +34,6 @@ import {
   DatePipe,
   DefaultValueAccessor,
   DomRendererFactory2,
-  Dr,
   EMPTY_USER,
   ElementRef,
   ErrorHandler,
@@ -41,8 +41,8 @@ import {
   Fl,
   FormField,
   FormsModule,
+  Fr,
   GroupPermission,
-  Hr,
   IconComponent,
   Inject,
   Injectable,
@@ -50,6 +50,7 @@ import {
   Input,
   LOCALE_ID,
   LocaleService,
+  Lr,
   MatCheckbox,
   MatCheckboxModule,
   MatError,
@@ -72,7 +73,6 @@ import {
   NgModel,
   NgModule,
   NgZone,
-  Nl,
   NoopAnimationPlayer,
   OrganisationService,
   Output,
@@ -92,13 +92,14 @@ import {
   TraceService,
   TranslatePipe,
   User,
-  V,
   VERSION,
   ViewChild,
   ViewEncapsulation,
   VirtualKeyboardComponent,
-  Wr,
+  Wl,
+  X,
   Ye,
+  Zr,
   _getAnimationsState,
   addDays,
   addMilliseconds,
@@ -131,12 +132,12 @@ import {
   isPublicMode,
   log,
   lookupNativeDomainByEmail,
-  mr,
   nativeDomainError,
   needsNativeDomain,
   normaliseNativeDomain,
   notifyError,
   numberAttribute,
+  oi,
   output,
   padString,
   performanceMarkFeature,
@@ -148,7 +149,6 @@ import {
   randomInt,
   randomString,
   registerLocaleData,
-  ri,
   sequence,
   serviceWorkerUpdate,
   setClassMetadata,
@@ -221,7 +221,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-C6FZ5V4Y.js";
+} from "./chunk-M2K6A665.js";
 import {
   __objRest,
   __spreadProps,
@@ -2680,7 +2680,7 @@ var ChatService = class _ChatService extends AsyncHandler {
     const id = this._chat_system();
     if (!id)
       return;
-    const auth = V() !== "x-api-key" ? `bearer_token=${encodeURIComponent(V())}` : `x-api-key=${Ye()}`;
+    const auth = X() !== "x-api-key" ? `bearer_token=${encodeURIComponent(X())}` : `x-api-key=${Ye()}`;
     const url = `ws${location.origin.replace("http", "")}/api/engine/v2/chatgpt/chat/${encodeURIComponent(id)}?${auth}${this._chat_id ? "&resume=" + encodeURIComponent(this._chat_id) : ""}`;
     log("CHAT", "Starting chat connection.");
     this._socket = new WebSocket(url);
@@ -2762,7 +2762,7 @@ var ChatService = class _ChatService extends AsyncHandler {
     this._timeoutSocket();
   }
   _bindHint(id) {
-    const mod = Fl(id, "LLM");
+    const mod = Wl(id, "LLM");
     const binding = mod.variable("user_hint");
     this.subscription(`binding:LLM:user_hint`, binding.bind());
     this.subscription(`listen:LLM:user_hint`, binding.listen().subscribe((value) => this.chat_hint.set(value)));
@@ -4439,13 +4439,13 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
     this.loading.set(true);
     await this._org.waitUntilInitialised();
     await firstTruthyValueFrom(this._settings.initialised);
-    this.online.set(Dr());
+    this.online.set(Fr());
     this.interval("has_token", () => {
-      this.online.set(Dr());
-      if (!Rt() || !V())
+      this.online.set(Fr());
+      if (!Rt() || !X())
         return;
       this.loading.set(false);
-      this.online.set(Dr());
+      this.online.set(Fr());
       this.clearInterval("has_token");
     }, 1e3);
   }
@@ -4533,6 +4533,7 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
 })();
 
 // libs/components/src/lib/unauthorised.component.ts
+var _c02 = () => ["/"];
 var UnauthorisedComponent = class _UnauthorisedComponent {
   static {
     this.\u0275fac = function UnauthorisedComponent_Factory(__ngFactoryType__) {
@@ -4540,33 +4541,38 @@ var UnauthorisedComponent = class _UnauthorisedComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _UnauthorisedComponent, selectors: [["app-unauthorised"]], decls: 13, vars: 9, consts: [["unauthorised", "", 1, "absolute", "inset-0"], [1, "border-base-300", "bg-base-100", "text-base-content", "mx-auto", "my-4", "w-104", "max-w-[calc(100%-1rem)]", "rounded-xl", "border", "p-4", "text-center", "shadow-lg"], [1, "text-4xl"], [1, "py-4"]], template: function UnauthorisedComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _UnauthorisedComponent, selectors: [["app-unauthorised"]], decls: 15, vars: 11, consts: [["unauthorised", "", 1, "absolute", "inset-0"], [1, "border-base-300", "bg-base-100", "text-base-content", "mx-auto", "my-4", "flex", "w-104", "max-w-[calc(100%-1rem)]", "flex-col", "gap-2", "rounded-xl", "border", "p-4", "text-center", "shadow-lg"], [1, "text-4xl"], [1, "py-4"], ["btn", "", 3, "routerLink"]], template: function UnauthorisedComponent_Template(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275domElementStart(0, "div", 0)(1, "div", 1)(2, "h1", 2);
+        \u0275\u0275elementStart(0, "div", 0)(1, "div", 1)(2, "h1", 2);
         \u0275\u0275text(3, "403");
-        \u0275\u0275domElementEnd();
-        \u0275\u0275domElementStart(4, "h3");
+        \u0275\u0275elementEnd();
+        \u0275\u0275elementStart(4, "h3");
         \u0275\u0275text(5);
         \u0275\u0275pipe(6, "translate");
-        \u0275\u0275domElementEnd();
-        \u0275\u0275domElementStart(7, "p", 3);
+        \u0275\u0275elementEnd();
+        \u0275\u0275elementStart(7, "p", 3);
         \u0275\u0275text(8);
         \u0275\u0275pipe(9, "translate");
-        \u0275\u0275domElementEnd();
-        \u0275\u0275domElementStart(10, "p");
+        \u0275\u0275elementEnd();
+        \u0275\u0275elementStart(10, "p");
         \u0275\u0275text(11);
         \u0275\u0275pipe(12, "translate");
-        \u0275\u0275domElementEnd()()();
+        \u0275\u0275elementEnd();
+        \u0275\u0275elementStart(13, "a", 4);
+        \u0275\u0275text(14, "Try Again");
+        \u0275\u0275elementEnd()()();
       }
       if (rf & 2) {
         \u0275\u0275advance(5);
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(6, 3, "COMMON.FORBIDDEN"));
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(6, 4, "COMMON.FORBIDDEN"));
         \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(9, 5, "COMMON.INVALID_PAGE_PERMISSIONS"), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(9, 6, "COMMON.INVALID_PAGE_PERMISSIONS"), " ");
         \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(12, 7, "COMMON.CONTACT_ADMIN"), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(12, 8, "COMMON.CONTACT_ADMIN"), " ");
+        \u0275\u0275advance(2);
+        \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(10, _c02));
       }
-    }, dependencies: [TranslatePipe], styles: ["\n[_nghost-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n[unauthorised][_ngcontent-%COMP%] {\n  background-image:\n    linear-gradient(\n      to right,\n      #c62828 0%,\n      #ef5350 100%);\n}\n/*# sourceMappingURL=unauthorised.component.css.map */"] });
+    }, dependencies: [RouterLink, TranslatePipe], styles: ["\n[_nghost-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n[unauthorised][_ngcontent-%COMP%] {\n  background-image:\n    linear-gradient(\n      to right,\n      #c62828 0%,\n      #ef5350 100%);\n}\n/*# sourceMappingURL=unauthorised.component.css.map */"] });
   }
 };
 (() => {
@@ -4575,7 +4581,7 @@ var UnauthorisedComponent = class _UnauthorisedComponent {
     args: [{ selector: "app-unauthorised", template: `
         <div unauthorised class="absolute inset-0">
             <div
-                class="border-base-300 bg-base-100 text-base-content mx-auto my-4 w-104 max-w-[calc(100%-1rem)] rounded-xl border p-4 text-center shadow-lg"
+                class="border-base-300 bg-base-100 text-base-content mx-auto my-4 flex w-104 max-w-[calc(100%-1rem)] flex-col gap-2 rounded-xl border p-4 text-center shadow-lg"
             >
                 <h1 class="text-4xl">403</h1>
                 <h3>{{ 'COMMON.FORBIDDEN' | translate }}</h3>
@@ -4585,13 +4591,14 @@ var UnauthorisedComponent = class _UnauthorisedComponent {
                 <p>
                     {{ 'COMMON.CONTACT_ADMIN' | translate }}
                 </p>
+                <a btn [routerLink]="['/']">Try Again</a>
             </div>
         </div>
-    `, imports: [TranslatePipe], styles: ["/* angular:styles/component:css;9e56e45d1ecd17d612bec636f553ceddd9b98cd2552edbd57d59534065beeefe;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/unauthorised.component.ts */\n:host {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n[unauthorised] {\n  background-image:\n    linear-gradient(\n      to right,\n      #c62828 0%,\n      #ef5350 100%);\n}\n/*# sourceMappingURL=unauthorised.component.css.map */\n"] }]
+    `, imports: [TranslatePipe, RouterLink], styles: ["/* angular:styles/component:css;9e56e45d1ecd17d612bec636f553ceddd9b98cd2552edbd57d59534065beeefe;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/unauthorised.component.ts */\n:host {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n[unauthorised] {\n  background-image:\n    linear-gradient(\n      to right,\n      #c62828 0%,\n      #ef5350 100%);\n}\n/*# sourceMappingURL=unauthorised.component.css.map */\n"] }]
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UnauthorisedComponent, { className: "UnauthorisedComponent", filePath: "libs/components/src/lib/unauthorised.component.ts", lineNumber: 41 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UnauthorisedComponent, { className: "UnauthorisedComponent", filePath: "libs/components/src/lib/unauthorised.component.ts", lineNumber: 43 });
 })();
 
 // libs/components/src/lib/authorised-user.guard.ts
@@ -4618,13 +4625,13 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
     const use_group_subsystem_access = await this.useGroupSubsystemAccess();
     let can_activate = false;
     if (use_group_subsystem_access) {
-      await ri(Hr(), Boolean);
+      await oi(Lr(), Boolean);
       const user = await firstTruthyValueFrom(current_user);
       can_activate = await this.checkSubsystemAccess(user);
     } else if (!groups.length) {
       can_activate = true;
     } else {
-      await ri(Hr(), Boolean);
+      await oi(Lr(), Boolean);
       await this._org.waitUntilInitialised();
       const user = await firstTruthyValueFrom(current_user);
       can_activate = !!(user && groups.find((_) => user.groups.includes(_)));
@@ -6033,7 +6040,7 @@ var update = (dataset) => (id, data) => {
   return new_event;
 };
 function registerMockAssets() {
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_categories`,
     metadata: {},
     method: "GET",
@@ -6046,7 +6053,7 @@ function registerMockAssets() {
       return results;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_categories/:id`,
     metadata: {},
     method: "GET",
@@ -6060,7 +6067,7 @@ function registerMockAssets() {
       return event;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_categories`,
     metadata: {},
     method: "POST",
@@ -6072,13 +6079,13 @@ function registerMockAssets() {
       return new_event;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_categories/:id`,
     metadata: {},
     method: "PUT",
     callback: (req) => update(MOCK_CATEGORIES)(req.route_params.id, __spreadValues({}, req.body))
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_categories/:id`,
     metadata: {},
     method: "DELETE",
@@ -6093,7 +6100,7 @@ function registerMockAssets() {
       return;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_types`,
     metadata: {},
     method: "GET",
@@ -6105,7 +6112,7 @@ function registerMockAssets() {
       return results;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_types/:id`,
     metadata: {},
     method: "GET",
@@ -6119,7 +6126,7 @@ function registerMockAssets() {
       return event;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_types`,
     metadata: {},
     method: "POST",
@@ -6131,13 +6138,13 @@ function registerMockAssets() {
       return new_event;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_types/:id`,
     metadata: {},
     method: "PUT",
     callback: (req) => update(MOCK_PRODUCTS)(req.route_params.id, __spreadValues({}, req.body))
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_types/:id`,
     metadata: {},
     method: "DELETE",
@@ -6152,7 +6159,7 @@ function registerMockAssets() {
       return;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_purchase_orders`,
     metadata: {},
     method: "GET",
@@ -6161,7 +6168,7 @@ function registerMockAssets() {
       return events;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_purchase_orders/:id`,
     metadata: {},
     method: "GET",
@@ -6175,7 +6182,7 @@ function registerMockAssets() {
       return event;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_purchase_orders`,
     metadata: {},
     method: "POST",
@@ -6187,13 +6194,13 @@ function registerMockAssets() {
       return new_event;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_purchase_orders/:id`,
     metadata: {},
     method: "PUT",
     callback: (req) => update(MOCK_PURCHASE_ORDERS)(req.route_params.id, __spreadValues({}, req.body))
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_purchase_orders/:id`,
     metadata: {},
     method: "DELETE",
@@ -6208,7 +6215,7 @@ function registerMockAssets() {
       return;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/assets`,
     metadata: {},
     method: "GET",
@@ -6228,7 +6235,7 @@ function registerMockAssets() {
       return results;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/assets/:id`,
     metadata: {},
     method: "GET",
@@ -6242,7 +6249,7 @@ function registerMockAssets() {
       return event;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/assets`,
     metadata: {},
     method: "POST",
@@ -6254,13 +6261,13 @@ function registerMockAssets() {
       return new_event;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/assets/:id`,
     metadata: {},
     method: "PUT",
     callback: (req) => update(MOCK_ASSETS)(req.route_params.id, __spreadValues({}, req.body))
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/assets/:id`,
     metadata: {},
     method: "DELETE",
@@ -8062,7 +8069,7 @@ var MOCK_CATERING_BOOKINGS = (() => {
 // libs/mocks/src/lib/api/bookings.mock.ts
 var ALL_BOOKINGS = [...MOCK_BOOKINGS, ...MOCK_CATERING_BOOKINGS];
 function registerMockBookings() {
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings",
     metadata: {},
     method: "GET",
@@ -8095,7 +8102,7 @@ function registerMockBookings() {
       return events;
     }
   });
-  Wr({
+  Zr({
     path: "/api/debug/bookings/distribution",
     metadata: {},
     method: "GET",
@@ -8130,7 +8137,7 @@ function registerMockBookings() {
       };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings/:id",
     metadata: {},
     method: "GET",
@@ -8144,7 +8151,7 @@ function registerMockBookings() {
       return event;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings/:id/guests/:email",
     metadata: {},
     method: "POST",
@@ -8165,7 +8172,7 @@ function registerMockBookings() {
       return user;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings/:id/guests/:email",
     metadata: {},
     method: "DELETE",
@@ -8188,7 +8195,7 @@ function registerMockBookings() {
       return guest;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings/:id/guests/:email/checkin",
     metadata: {},
     method: "POST",
@@ -8205,7 +8212,7 @@ function registerMockBookings() {
       return {};
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings",
     metadata: {},
     method: "POST",
@@ -8228,13 +8235,13 @@ function registerMockBookings() {
     ALL_BOOKINGS.splice(index, 1, new_event);
     return new_event;
   };
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings/:id",
     metadata: {},
     method: "PATCH",
     callback: (req) => updateBooking(req.route_params.id, req.body)
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings/:id/approve",
     metadata: {},
     method: "POST",
@@ -8250,7 +8257,7 @@ function registerMockBookings() {
       return booking;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings/:id/reject",
     metadata: {},
     method: "POST",
@@ -8266,7 +8273,7 @@ function registerMockBookings() {
       return booking;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings/:id/checkin",
     metadata: {},
     method: "POST",
@@ -8281,7 +8288,7 @@ function registerMockBookings() {
       return booking;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings/:id/update_induction",
     metadata: {},
     method: "POST",
@@ -8297,13 +8304,13 @@ function registerMockBookings() {
       return booking;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings/:id",
     metadata: {},
     method: "PUT",
     callback: (req) => updateBooking(req.route_params.id, req.body)
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings/:id",
     metadata: {},
     method: "DELETE",
@@ -8656,7 +8663,7 @@ var event_spaces = MOCK_SPACES.map((space) => space.id);
 
 // libs/mocks/src/lib/api/calendars.mock.ts
 function registerMockCalendars() {
-  Wr({
+  Zr({
     path: "/api/staff/v1/calendars",
     metadata: {},
     method: "GET",
@@ -8711,7 +8718,7 @@ function registerMockCalendars() {
     });
     return spaces;
   };
-  Wr({
+  Zr({
     path: "/api/staff/v1/calendars/availability",
     metadata: {},
     method: "GET",
@@ -8719,7 +8726,7 @@ function registerMockCalendars() {
       resource: _
     }))
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/calendars/free_busy",
     metadata: {},
     method: "GET",
@@ -8731,7 +8738,7 @@ function registerMockCalendars() {
 
 // libs/mocks/src/lib/api/events.mock.ts
 function registerMockEvents() {
-  Wr({
+  Zr({
     path: "/api/staff/v1/events",
     metadata: {},
     method: "GET",
@@ -8748,7 +8755,7 @@ function registerMockEvents() {
       return events;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/events",
     metadata: {},
     method: "POST",
@@ -8771,12 +8778,12 @@ function registerMockEvents() {
         ];
       }
       MOCK_EVENTS.push(new_event);
-      const system = mr(new_event.system?.id);
+      const system = $r(new_event.system?.id);
       system?.Bookings[0]?.$poll_bookings();
       return new_event;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/events/:id",
     metadata: {},
     method: "GET",
@@ -8788,7 +8795,7 @@ function registerMockEvents() {
       throw { status: 404, message: "Event not found" };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/events/:id",
     metadata: {},
     method: "DELETE",
@@ -8806,7 +8813,7 @@ function registerMockEvents() {
       throw { status: 404, message: "Event not found" };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/events/:id",
     metadata: {},
     method: "PATCH",
@@ -8818,7 +8825,7 @@ function registerMockEvents() {
       throw { status: 404, message: "Event not found" };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/events/:id/guests/:email/checkin",
     metadata: {},
     method: "POST",
@@ -9562,7 +9569,7 @@ function registerMockSignage() {
       });
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/groups/current",
     metadata: {},
     method: "GET",
@@ -9573,13 +9580,13 @@ function registerMockSignage() {
       return [];
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/groups",
     metadata: {},
     method: "GET",
     callback: (request) => listSignageMockGroups(request.query_params)
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/groups",
     metadata: {},
     method: "POST",
@@ -9594,7 +9601,7 @@ function registerMockSignage() {
       return group;
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/groups/:id",
     metadata: {},
     method: "PATCH",
@@ -9608,7 +9615,7 @@ function registerMockSignage() {
       return item.group;
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/groups/:id",
     metadata: {},
     method: "DELETE",
@@ -9619,13 +9626,13 @@ function registerMockSignage() {
       return {};
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/group_users",
     metadata: {},
     method: "GET",
     callback: (request) => SIGNAGE_GROUP_USERS.filter((item) => item.group_id === request.query_params?.group_id)
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/group_users",
     metadata: {},
     method: "POST",
@@ -9642,7 +9649,7 @@ function registerMockSignage() {
       return item;
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/group_users/:user_id/:group_id",
     metadata: {},
     method: "PATCH",
@@ -9658,7 +9665,7 @@ function registerMockSignage() {
       return item;
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/group_users/:user_id/:group_id",
     metadata: {},
     method: "DELETE",
@@ -9671,13 +9678,13 @@ function registerMockSignage() {
       return {};
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/group_zones",
     metadata: {},
     method: "GET",
     callback: (request) => SIGNAGE_GROUP_ZONES.filter((item) => item.group_id === request.query_params?.group_id)
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/group_zones",
     metadata: {},
     method: "POST",
@@ -9694,7 +9701,7 @@ function registerMockSignage() {
       return item;
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/group_zones/:group_id/:zone_id",
     metadata: {},
     method: "PATCH",
@@ -9710,7 +9717,7 @@ function registerMockSignage() {
       return item;
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/group_zones/:group_id/:zone_id",
     metadata: {},
     method: "DELETE",
@@ -9723,13 +9730,13 @@ function registerMockSignage() {
       return {};
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/media",
     metadata: {},
     method: "GET",
     callback: (request) => filterByGroup(MOCK_MEDIA, request.query_params?.group_id).map(toEngineMedia)
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/media",
     metadata: {},
     method: "POST",
@@ -9739,7 +9746,7 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/media/:id",
     metadata: {},
     method: "PATCH",
@@ -9747,25 +9754,25 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/media/:id",
     metadata: {},
     method: "DELETE",
     callback: () => ({})
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/media/share",
     metadata: {},
     method: "POST",
     callback: () => ({})
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/playlists",
     metadata: {},
     method: "GET",
     callback: (request) => filterByGroup(MOCK_PLAYLISTS, request.query_params?.group_id).map(toEnginePlaylist)
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/playlists/approvers",
     metadata: {},
     method: "GET",
@@ -9774,7 +9781,7 @@ function registerMockSignage() {
       name: item.user?.name || item.user_id
     }))
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/playlists",
     metadata: {},
     method: "POST",
@@ -9784,7 +9791,7 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/playlists/:id",
     metadata: {},
     method: "PATCH",
@@ -9792,19 +9799,19 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/playlists/:id",
     metadata: {},
     method: "DELETE",
     callback: () => ({})
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/playlists/:id/media",
     metadata: {},
     method: "GET",
     callback: (request) => playlistMediaResponse(request.route_params.id, false)
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/playlists/:id/media",
     metadata: {},
     method: "POST",
@@ -9813,7 +9820,7 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/playlists/:id/media/revisions",
     metadata: {},
     method: "GET",
@@ -9822,25 +9829,25 @@ function registerMockSignage() {
       playlistMediaResponse(request.route_params.id, true)
     ]
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/playlists/:id/media/approve",
     metadata: {},
     method: "POST",
     callback: (request) => playlistMediaResponse(request.route_params.id, true)
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/playlists/:id/media/request_approval",
     metadata: {},
     method: "POST",
     callback: () => ({})
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/playlists/share",
     metadata: {},
     method: "POST",
     callback: () => ({})
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/signage-displays",
     metadata: {},
     method: "GET",
@@ -9866,7 +9873,7 @@ function registerMockSignage() {
       };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/signage/displays/:id",
     metadata: {},
     method: "GET",
@@ -9877,7 +9884,7 @@ function registerMockSignage() {
       return display;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/signage/media",
     metadata: {},
     method: "GET",
@@ -9907,7 +9914,7 @@ function registerMockSignage() {
       };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/signage/playlists",
     metadata: {},
     method: "GET",
@@ -9929,7 +9936,7 @@ function registerMockSignage() {
       };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/signage/playlists/:id",
     metadata: {},
     method: "GET",
@@ -9945,7 +9952,7 @@ function registerMockSignage() {
       return playlistWithMedia;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/signage/triggers",
     metadata: {},
     method: "GET",
@@ -9968,7 +9975,7 @@ function registerMockSignage() {
       };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/signage/displays/:id/content",
     metadata: {},
     method: "GET",
@@ -9995,7 +10002,7 @@ function registerMockSignage() {
       };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/signage-analytics",
     metadata: {},
     method: "GET",
@@ -10040,7 +10047,7 @@ function registerMockSignage() {
       };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/signage-displays/:id/control",
     metadata: {},
     method: "POST",
@@ -10639,7 +10646,7 @@ var MOCK_ANSWERS = [
   }
 ];
 function registerMockSurveys() {
-  Wr({
+  Zr({
     path: "/api/staff/v1/surveys",
     metadata: {},
     method: "GET",
@@ -10658,7 +10665,7 @@ function registerMockSurveys() {
       return filteredSurveys;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/surveys/questions",
     metadata: {},
     method: "GET",
@@ -10683,7 +10690,7 @@ function registerMockSurveys() {
       return filteredQuestions;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/surveys/questions/:id",
     metadata: {},
     method: "GET",
@@ -10698,7 +10705,7 @@ function registerMockSurveys() {
       return question;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/surveys/answers",
     metadata: {},
     method: "GET",
@@ -10719,7 +10726,7 @@ function registerMockSurveys() {
       return filteredAnswers;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/surveys/answers/:id",
     metadata: {},
     method: "GET",
@@ -10732,7 +10739,7 @@ function registerMockSurveys() {
       return answer;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/surveys/:id",
     metadata: {},
     method: "GET",
@@ -10747,7 +10754,7 @@ function registerMockSurveys() {
       return survey;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/surveys/answers",
     metadata: {},
     method: "POST",
@@ -11904,7 +11911,7 @@ var createVideoConferenceModule = (space = {}, overrides = {}) => new VideoConfe
 
 // libs/mocks/src/lib/systems-bindings.mock.ts
 function createSystem(space) {
-  Nl(space.id, {
+  Fl(space.id, {
     System: [createSystemModule(space)],
     Bookings: [createBookingsModule(space)],
     ContactTracing: [createContactTracingModule(space)],
@@ -11919,7 +11926,7 @@ function createSystem(space) {
     Payment: [createPaymentsModule(space)],
     LockerLocations: [createLockerLocationsModule()]
   });
-  const system = mr(space.id);
+  const system = $r(space.id);
   system.Bookings[0].$poll_bookings();
   setInterval(() => system.Bookings[0].$poll_bookings(), 30 * 1e3);
   system.AreaManagement[0].$update();
@@ -11929,7 +11936,7 @@ function createSystem(space) {
 // libs/mocks/src/lib/api/systems.mock.ts
 function registerMockSystems() {
   MOCK_SPACES.forEach((space, index) => createSystem(space));
-  Wr({
+  Zr({
     path: "/api/engine/v2/systems",
     metadata: {},
     method: "GET",
@@ -11946,7 +11953,7 @@ function registerMockSystems() {
       return systems;
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/systems/:id",
     metadata: {},
     method: "GET",
@@ -11961,7 +11968,7 @@ function registerMockSystems() {
 
 // libs/mocks/src/lib/api/users.mock.ts
 function registerMockUsers() {
-  Wr({
+  Zr({
     path: "/api/engine/v2/users",
     metadata: {},
     method: "GET",
@@ -11973,7 +11980,7 @@ function registerMockUsers() {
       }).slice(0, limit);
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/users/:id",
     metadata: {},
     method: "GET",
@@ -11994,7 +12001,7 @@ function registerMockUsers() {
       throw { status: 404, message: "User not found" };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/people",
     metadata: {},
     method: "GET",
@@ -12008,7 +12015,7 @@ function registerMockUsers() {
       return MOCK_STAFF;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/people/:id",
     metadata: {},
     method: "GET",
@@ -12023,7 +12030,7 @@ function registerMockUsers() {
       throw { status: 404, message: "User not found" };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/guests",
     metadata: {},
     method: "GET",
@@ -12035,7 +12042,7 @@ function registerMockUsers() {
       return MOCK_STAFF;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/guests/:email",
     metadata: {},
     method: "GET",
@@ -12047,7 +12054,7 @@ function registerMockUsers() {
       throw { status: 404, message: "Guest not found" };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/guests/:email/meetings",
     metadata: {},
     method: "GET",
@@ -12151,7 +12158,7 @@ function registerMockZones() {
     ...MOCK_LEVELS,
     ...MOCK_ZONES
   ];
-  Wr({
+  Zr({
     path: "/api/engine/v2/zones",
     metadata: {},
     method: "GET",
@@ -12167,7 +12174,7 @@ function registerMockZones() {
       return zones;
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/zones/:id",
     metadata: {},
     method: "GET",
@@ -12182,19 +12189,19 @@ function registerMockZones() {
       return zone;
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/settings",
     metadata: {},
     method: "GET",
     callback: (request) => []
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/settings/:id",
     metadata: {},
     method: "GET",
     callback: (request) => ({})
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/metadata/:id",
     metadata: {},
     method: "GET",
@@ -12310,7 +12317,7 @@ function registerMockZones() {
       return {};
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/metadata/:id",
     metadata: {},
     method: "PATCH",
@@ -12321,7 +12328,7 @@ function registerMockZones() {
       return request.body;
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/metadata/:id",
     metadata: {},
     method: "PUT",
@@ -12374,7 +12381,7 @@ function registerMockZones() {
     }
     return LOCKERS[id];
   }
-  Wr({
+  Zr({
     path: "/api/engine/v2/metadata/:id/children",
     metadata: {},
     method: "GET",
@@ -17679,7 +17686,7 @@ var BootstrapComponent = class _BootstrapComponent extends AsyncHandler {
 })();
 
 // apps/visitor-kiosk/src/app/visitor-registration.component.ts
-var _c02 = () => ["/welcome"];
+var _c03 = () => ["/welcome"];
 function VisitorRegistrationComponent_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "img", 2);
@@ -17839,7 +17846,7 @@ function VisitorRegistrationComponent_Conditional_3_Template(rf, ctx) {
     \u0275\u0275advance(3);
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(4, 23, "APP.VISITOR_KIOSK.REGISTRATION"), " ");
     \u0275\u0275advance(2);
-    \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(47, _c02));
+    \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(47, _c03));
     \u0275\u0275advance(5);
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(11, 25, "APP.VISITOR_KIOSK.NAME"));
     \u0275\u0275advance(3);
@@ -18294,7 +18301,7 @@ var VisitorRegistrationComponent = class _VisitorRegistrationComponent extends A
 })();
 
 // apps/visitor-kiosk/src/app/welcome.component.ts
-var _c03 = () => ["/checkin"];
+var _c04 = () => ["/checkin"];
 var _c12 = () => ["/register"];
 var _c22 = (a0) => ["/explore", a0];
 function WelcomeComponent_Conditional_14_Template(rf, ctx) {
@@ -18550,7 +18557,7 @@ var WelcomeComponent = class _WelcomeComponent extends AsyncHandler {
         \u0275\u0275advance(2);
         \u0275\u0275property("innerHTML", \u0275\u0275pipeBind2(5, 13, ctx.welcome_message() || \u0275\u0275pipeBind1(4, 11, "APP.VISITOR_KIOSK.WELCOME_MESSAGE"), "html"), \u0275\u0275sanitizeHtml);
         \u0275\u0275advance(4);
-        \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(24, _c03));
+        \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(24, _c04));
         \u0275\u0275advance(3);
         \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(11, 16, "APP.VISITOR_KIOSK.CHECK_IN"), " ");
         \u0275\u0275advance(4);
@@ -18765,12 +18772,12 @@ var routes = [
   {
     path: "explore",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./explore.routes-W6FLZ6QN.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./explore.routes-K3MT4FBD.js").then((m) => m.ROUTES)
   },
   {
     path: "checkin",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./checkin.routes-W2DWBOW6.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./checkin.routes-YQGG2PSG.js").then((m) => m.ROUTES)
   },
   { path: "**", redirectTo: "bootstrap" }
 ];
