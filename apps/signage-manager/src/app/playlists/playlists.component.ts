@@ -53,16 +53,19 @@ function parsePlaylistTab(value: string | null): 'items' | 'details' {
                                 >
                                     <icon>arrow_back</icon>
                                 </button>
-                                <div
-                                    class="flex min-w-0 flex-1 items-center gap-2 px-2"
-                                >
-                                    <icon class="shrink-0 text-2xl opacity-60"
-                                        >playlist_play</icon
-                                    >
+                                <div class="flex w-1/2 flex-1 flex-col px-2">
                                     <h4 class="truncate text-lg font-medium">
                                         {{ selected_playlist().name }}
                                     </h4>
+                                    @if (selected_playlist().description) {
+                                        <div class="-mt-1 truncate text-xs">
+                                            {{
+                                                selected_playlist().description
+                                            }}
+                                        </div>
+                                    }
                                 </div>
+                                <div></div>
                                 @if (requires_approval()) {
                                     @if (can_approve()) {
                                         <button

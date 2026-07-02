@@ -308,7 +308,7 @@ import { SignageService } from '../signage.service';
                 </div>
             } @else if (items().length > 0) {
                 <div class="w-full flex-1 overflow-auto px-3 py-2" role="list">
-                    <div class="-mt-2 mb-2 flex justify-end">
+                    <div class="-mt-2 mb-2 flex justify-end lg:mt-0">
                         <button
                             type="button"
                             class="text-base-content/70 hover:bg-base-200 flex w-28 items-center justify-center gap-1 rounded px-2 py-1 text-xs font-medium"

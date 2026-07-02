@@ -268,7 +268,6 @@ export class UploadsService extends AsyncHandler {
                 let retried = false;
                 upload.state.subscribe(async (state) => {
                     upload_details.upload_id = upload.id;
-                    console.log('Upload:', state, upload);
                     if ((upload as any).access_url || state.progress >= 100) {
                         const local_url = `${
                             location.origin
