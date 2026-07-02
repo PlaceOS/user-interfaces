@@ -269,7 +269,6 @@ export class ScheduleComponent extends AsyncHandler implements OnInit {
     }
 
     public async edit(event: CalendarEvent) {
-        console.log('Edit Event:', event);
         this._router.navigate(['/book', 'meeting', 'form']);
         if (event.creator !== event.mailbox) {
             event =
@@ -285,7 +284,6 @@ export class ScheduleComponent extends AsyncHandler implements OnInit {
     }
 
     public editBooking(event: Booking) {
-        console.log('Edit Booking:', event.type);
         this._router.navigate(['/book', `${event.type}`]);
         this._booking_form.newForm(event.booking_type, event);
         if (event.booking_type === 'visitor') return;

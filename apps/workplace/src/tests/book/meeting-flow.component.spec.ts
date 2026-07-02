@@ -1,5 +1,4 @@
 import { signal } from '@angular/core';
-import { fakeAsync, flushMicrotasks } from '@angular/core/testing';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { Space } from '@placeos/common';
 import { mockComponent } from '@placeos/common/tests';
@@ -18,16 +17,19 @@ describe('BookMeetingFlowComponent', () => {
     const createComponent = createRoutingFactory({
         component: BookMeetingFlowComponent,
         providers: [
-            MockProvider(EventFormService, {
-                loadForm: jest.fn(),
-                newForm: jest.fn(),
-                setView: jest.fn(),
-                view,
-                listenForStatusChanges: jest.fn(),
-                last_success: signal(null),
-                available_spaces: signal([]),
-                model,
-            } as any),
+            {
+                provide: EventFormService,
+                useValue: {
+                    loadForm: jest.fn(),
+                    newForm: jest.fn(),
+                    setView: jest.fn(),
+                    view,
+                    listenForStatusChanges: jest.fn(),
+                    last_success: signal(null),
+                    available_spaces: signal([]),
+                    model,
+                },
+            },
         ],
         componentProviders: [
             MockProvider(SpacePipe, {
@@ -80,12 +82,13 @@ describe('BookMeetingFlowComponent', () => {
         expect(spectator.query('meeting-flow-success')).toExist();
     });
 
-    it('should set selected room based on query params', fakeAsync(() => {
+    it('should set selected room based on query params', async () => {
         const room = new Space({ id: 'space-1', email: 'space-1@placeos.com' });
-        transform_space.mockResolvedValue(room);
+        transform_space.mockReturnValue(room);
         spectator.setRouteQueryParam('space_id', 'space-1');
         spectator.detectChanges();
-        flushMicrotasks();
+        await new Promise((resolve) => setTimeout(resolve));
+        expect(transform_space).toHaveBeenCalledWith('space-1');
         expect(model().resources).toEqual([room]);
-    }));
+    });
 });

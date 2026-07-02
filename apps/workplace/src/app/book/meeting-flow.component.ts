@@ -57,11 +57,11 @@ export class BookMeetingFlowComponent extends AsyncHandler implements OnInit {
         );
         this.subscription(
             'route.query',
-            this._route.queryParamMap.subscribe(async (param) => {
-                if (param.has('success')) this._state.setView('success');
-                if (param.has('space_id')) {
+            this._route.queryParams.subscribe(async (param) => {
+                if ('success' in param) this._state.setView('success');
+                if (param.space_id) {
                     const space = await this._space_pipe.transform(
-                        param.get('space_id'),
+                        param.space_id,
                     );
                     if (!space?.id) {
                         return notifyInfo(
