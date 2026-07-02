@@ -1,0 +1,156 @@
+import { inject, Injector, signal } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { Booking, OrganisationService, SettingsService, User } from '@placeos/common';
+import { createSettingsServiceMock } from '@placeos/common/tests';
+import { MockModule, MockProvider, MockService } from 'ng-mocks';
+
+import { BookingFormService } from '../lib/booking-form.service';
+import { generateBookingForm } from '../lib/booking.utilities';
+import { VisitorInviteFormComponent } from '../lib/visitor-invite-form.component';
+
+const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+describe('VisitorInviteFormComponent', () => {
+    let spectator: SpectatorRouting<VisitorInviteFormComponent>;
+    const createComponent = createRoutingFactory({
+        component: VisitorInviteFormComponent,
+        shallow: true,
+        providers: [
+            {
+                provide: BookingFormService,
+                useFactory: () => {
+                    // `generateBookingForm` calls `form()` which uses
+                    // `inject()`, so it must run in an injection context.
+                    const { model, form } = generateBookingForm(
+                        new Booking(),
+                        inject(Injector),
+                    );
+                    return MockService(BookingFormService, {
+                        model,
+                        form,
+                        clearOldState: jest.fn(),
+                        loadForm: jest.fn(),
+                        setOptions: jest.fn(),
+                        newForm: jest.fn(),
+                        postForm: jest.fn(async () => new Booking()),
+                    });
+                },
+            },
+            MockProvider(
+                OrganisationService as any,
+                {
+                    waitUntilInitialised: jest.fn(async () => {}),
+                    active_buildings: signal([]),
+                    buildings: [{ id: 'bld-1', name: 'Building One' }],
+                    building: { id: 'bld-1', name: 'Building One' },
+                    region: { id: 'reg-1', name: 'Region One' },
+                } as any,
+            ),
+            MockProvider(SettingsService as any, createSettingsServiceMock()),
+        ],
+        imports: [
+            ReactiveFormsModule,
+            FormsModule,
+            MockModule(MatFormFieldModule),
+            MockModule(MatSelectModule),
+            MockModule(MatInputModule),
+            MockModule(MatAutocompleteModule),
+            MockModule(MatCheckboxModule),
+        ],
+    });
+
+    beforeEach(() => {
+        spectator = createComponent();
+    });
+
+    it('should create component', () =>
+        expect(spectator.component).toBeTruthy());
+
+    it('should filter visitor suggestions by the search term', () => {
+        spectator.component.visitors.set([
+            { email: 'alice@example.com', name: 'Alice', company: 'Acme' },
+            { email: 'bob@example.com', name: 'Bob', company: 'Globex' },
+        ] as any);
+
+        spectator.component.search_term.set('glob');
+        expect(spectator.component.filtered_visitors().map((v) => v.name)).toEqual([
+            'Bob',
+        ]);
+
+        spectator.component.search_term.set('alice');
+        expect(spectator.component.filtered_visitors().map((v) => v.name)).toEqual([
+            'Alice',
+        ]);
+    });
+
+    it('should populate the model when a suggested visitor is selected', () => {
+        const service = spectator.inject(BookingFormService);
+        spectator.component.setVisitor({
+            email: 'carol@example.com',
+            name: 'Carol',
+            company: 'Initech',
+            phone: '555',
+            international: true,
+        });
+        expect(service.model().asset_id).toBe('carol@example.com');
+        expect(service.model().asset_name).toBe('Carol');
+        expect(service.model().company).toBe('Initech');
+        expect(service.model().international).toBe(true);
+    });
+
+    it('should track international flag per visitor and update the assets', () => {
+        const service = spectator.inject(BookingFormService);
+        const visitor = new User({
+            email: 'dave@example.com',
+            name: 'Dave',
+        });
+        service.model.update((m) => ({ ...m, assets: [visitor] }));
+
+        spectator.component.setVisitorInternational(visitor, true);
+
+        expect(
+            spectator.component.visitor_international()['dave@example.com'],
+        ).toBe(true);
+        expect(
+            (service.model().assets[0] as any).extension_data?.international,
+        ).toBe(true);
+    });
+
+    it('should not send invite when required fields are missing', async () => {
+        const service = spectator.inject(BookingFormService);
+        const done = jest.fn();
+        spectator.component.done.subscribe(done);
+
+        await spectator.component.sendInvite();
+
+        expect(service.postForm).not.toHaveBeenCalled();
+        expect(done).not.toHaveBeenCalled();
+    });
+
+    it('should load saved visitor suggestions and default reason on init', async () => {
+        const settings = spectator.inject(SettingsService);
+        (settings.get as jest.Mock).mockImplementation((key: string) =>
+            key === 'visitor-invitees'
+                ? ['erin@example.com|Erin|Umbrella|1']
+                : undefined,
+        );
+
+        await spectator.component.ngOnInit();
+
+        expect(spectator.component.visitors()).toEqual([
+            {
+                email: 'erin@example.com',
+                name: 'Erin',
+                company: 'Umbrella',
+                international: true,
+            },
+        ]);
+        expect(spectator.inject(BookingFormService).model().title).toBe('Visit');
+    });
+});
