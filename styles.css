@@ -2717,6 +2717,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .-top-2 {
   top: calc(var(--spacing) * -2);
 }
+#placeos .-top-3 {
+  top: calc(var(--spacing) * -3);
+}
 #placeos .-top-12 {
   top: calc(var(--spacing) * -12);
 }
@@ -7830,6 +7833,11 @@ input:where([type=button], [type=reset], [type=submit]),
 @media (min-width: 48rem) {
   #placeos .md\:justify-between {
     justify-content: space-between;
+  }
+}
+@media (min-width: 64rem) {
+  #placeos .lg\:mt-0 {
+    margin-top: calc(var(--spacing) * 0);
   }
 }
 @media (min-width: 64rem) {

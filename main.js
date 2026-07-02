@@ -622,7 +622,7 @@ function isSignal(value) {
 }
 function installDevToolsSignalFormatter() {
   globalThis.devtoolsFormatters ?? (globalThis.devtoolsFormatters = []);
-  if (!globalThis.devtoolsFormatters.some((f) => f === formatter)) {
+  if (!globalThis.devtoolsFormatters.some((f2) => f2 === formatter)) {
     globalThis.devtoolsFormatters.push(formatter);
   }
 }
@@ -1886,19 +1886,19 @@ function __asyncGenerator(thisArg, _arguments, generator) {
   return i = Object.create((typeof AsyncIterator === "function" ? AsyncIterator : Object).prototype), verb("next"), verb("throw"), verb("return", awaitReturn), i[Symbol.asyncIterator] = function() {
     return this;
   }, i;
-  function awaitReturn(f) {
+  function awaitReturn(f2) {
     return function(v) {
-      return Promise.resolve(v).then(f, reject);
+      return Promise.resolve(v).then(f2, reject);
     };
   }
-  function verb(n, f) {
+  function verb(n, f2) {
     if (g2[n]) {
       i[n] = function(v) {
         return new Promise(function(a, b2) {
           q.push([n, v, a, b2]) > 1 || resume(n, v);
         });
       };
-      if (f) i[n] = f(i[n]);
+      if (f2) i[n] = f2(i[n]);
     }
   }
   function resume(n, v) {
@@ -1917,8 +1917,8 @@ function __asyncGenerator(thisArg, _arguments, generator) {
   function reject(value) {
     resume("throw", value);
   }
-  function settle(f, v) {
-    if (f(v), q.shift(), q.length) resume(q[0][0], q[0][1]);
+  function settle(f2, v) {
+    if (f2(v), q.shift(), q.length) resume(q[0][0], q[0][1]);
   }
 }
 function __asyncValues(o) {
@@ -1934,9 +1934,9 @@ function __asyncValues(o) {
       });
     };
   }
-  function settle(resolve, reject, d2, v) {
+  function settle(resolve, reject, d, v) {
     Promise.resolve(v).then(function(v2) {
-      resolve({ value: v2, done: d2 });
+      resolve({ value: v2, done: d });
     }, reject);
   }
 }
@@ -13879,7 +13879,7 @@ var ComponentFactory = class {
     const sharedStylesHost = rootViewInjector.get(SHARED_STYLES_HOST, null);
     const styleHost = getStyleHost(hostElement, () => rootViewInjector.get(DOCUMENT, null) ?? getDocument());
     if (sharedStylesHost) sharedStylesHost.addHost(styleHost);
-    const hasInputBindings = (componentBindings == null ? void 0 : componentBindings.some(isInputBinding)) || (directives == null ? void 0 : directives.some((d2) => typeof d2 !== "function" && d2.bindings.some(isInputBinding)));
+    const hasInputBindings = (componentBindings == null ? void 0 : componentBindings.some(isInputBinding)) || (directives == null ? void 0 : directives.some((d) => typeof d !== "function" && d.bindings.some(isInputBinding)));
     const rootLView = createLView(null, rootTView, null, 512 | getInitialLViewFlagsFromDef(cmpDef), null, null, environment2, hostRenderer, rootViewInjector, null, retrieveHydrationInfo(hostElement, rootViewInjector, true));
     if (sharedStylesHost && shadowRootSupported && styleHost instanceof ShadowRoot) {
       storeLViewOnDestroy(rootLView, () => {
@@ -21768,12 +21768,12 @@ function multiResolve(factories, result) {
   }
   return result;
 }
-function multiFactory(factoryFn, index, isViewProvider, isComponent2, f, provider) {
+function multiFactory(factoryFn, index, isViewProvider, isComponent2, f2, provider) {
   const factory = new NodeInjectorFactory(factoryFn, isViewProvider, \u0275\u0275directiveInject, ngDevMode ? providerName(provider) : null);
   factory.multi = [];
   factory.index = index;
   factory.componentProviders = 0;
-  multiFactoryAdd(factory, f, isComponent2 && !isViewProvider);
+  multiFactoryAdd(factory, f2, isComponent2 && !isViewProvider);
   return factory;
 }
 function providerName(provider) {
@@ -22859,7 +22859,7 @@ function getStandaloneDefFunctions(type, imports) {
       return [];
     }
     const scope = depsTracker.getStandaloneComponentScope(type, imports);
-    return [...scope.compilation.directives].map((p2) => getComponentDef(p2) || getDirectiveDef(p2)).filter((d2) => d2 !== null);
+    return [...scope.compilation.directives].map((p2) => getComponentDef(p2) || getDirectiveDef(p2)).filter((d) => d !== null);
   };
   const pipeDefs = () => {
     if (ngDevMode) {
@@ -22871,7 +22871,7 @@ function getStandaloneDefFunctions(type, imports) {
       return [];
     }
     const scope = depsTracker.getStandaloneComponentScope(type, imports);
-    return [...scope.compilation.pipes].map((p2) => getPipeDef(p2)).filter((d2) => d2 !== null);
+    return [...scope.compilation.pipes].map((p2) => getPipeDef(p2)).filter((d) => d !== null);
   };
   return {
     directiveDefs,
@@ -24860,7 +24860,7 @@ var IterableDiffers = class _IterableDiffers {
     };
   }
   find(iterable) {
-    const factory = this.factories.find((f) => f.supports(iterable));
+    const factory = this.factories.find((f2) => f2.supports(iterable));
     if (factory != null) {
       return factory;
     } else {
@@ -24904,7 +24904,7 @@ var KeyValueDiffers = class _KeyValueDiffers {
     };
   }
   find(kv) {
-    const factory = this.factories.find((f) => f.supports(kv));
+    const factory = this.factories.find((f2) => f2.supports(kv));
     if (factory) {
       return factory;
     }
@@ -25287,7 +25287,7 @@ function setModuleBootstrapImpl() {
 function _moduleDoBootstrap(moduleRef, allPlatformModules) {
   const appRef = moduleRef.injector.get(ApplicationRef);
   if (moduleRef._bootstrapComponents.length > 0) {
-    moduleRef._bootstrapComponents.forEach((f) => appRef.bootstrap(f));
+    moduleRef._bootstrapComponents.forEach((f2) => appRef.bootstrap(f2));
   } else if (moduleRef.instance.ngDoBootstrap) {
     moduleRef.instance.ngDoBootstrap(appRef);
   } else {
@@ -27455,8 +27455,8 @@ function toDate(value) {
   if (typeof value === "string") {
     value = value.trim();
     if (/^(\d{4}(-\d{1,2}(-\d{1,2})?)?)$/.test(value)) {
-      const [y, m2 = 1, d2 = 1] = value.split("-").map((val) => +val);
-      return createDate(y, m2 - 1, d2);
+      const [y, m2 = 1, d = 1] = value.split("-").map((val) => +val);
+      return createDate(y, m2 - 1, d);
     }
     const parsedNb = parseFloat(value);
     if (!isNaN(value - parsedNb)) {
@@ -27545,7 +27545,7 @@ function formatNumberToLocaleString(value, pattern, locale, groupSymbol, decimal
     let integerLen = parsedNumber.integerLen;
     const exponent = parsedNumber.exponent;
     let decimals = [];
-    isZero = digits.every((d2) => !d2);
+    isZero = digits.every((d) => !d);
     for (; integerLen < minInt; integerLen++) {
       digits.unshift(0);
     }
@@ -27734,9 +27734,9 @@ function roundNumber(parsedNumber, minFrac, maxFrac) {
   for (; fractionLen < Math.max(0, fractionSize); fractionLen++) digits.push(0);
   let dropTrailingZeros = fractionSize !== 0;
   const minLen = minFrac + parsedNumber.integerLen;
-  const carry = digits.reduceRight(function(carry2, d2, i, digits2) {
-    d2 = d2 + carry2;
-    digits2[i] = d2 < 10 ? d2 : d2 - 10;
+  const carry = digits.reduceRight(function(carry2, d, i, digits2) {
+    d = d + carry2;
+    digits2[i] = d < 10 ? d : d - 10;
     if (dropTrailingZeros) {
       if (digits2[i] === 0 && i >= minLen) {
         digits2.pop();
@@ -27744,7 +27744,7 @@ function roundNumber(parsedNumber, minFrac, maxFrac) {
         dropTrailingZeros = false;
       }
     }
-    return d2 >= 10 ? 1 : 0;
+    return d >= 10 ? 1 : 0;
   }, 0);
   if (carry) {
     digits.unshift(carry);
@@ -33643,7 +33643,7 @@ function makeHttpFeature(kind, providers) {
 }
 function provideHttpClient(...features) {
   if (ngDevMode) {
-    const featureKinds = new Set(features.map((f) => f.\u0275kind));
+    const featureKinds = new Set(features.map((f2) => f2.\u0275kind));
     if (featureKinds.has(HttpFeatureKind.NoXsrfProtection) && featureKinds.has(HttpFeatureKind.CustomXsrfConfiguration)) {
       throw new Error(ngDevMode ? `Configuration error: found both withXsrfConfiguration() and withNoXsrfProtection() in the same call to provideHttpClient(), which is a contradiction.` : "");
     }
@@ -35865,7 +35865,7 @@ var ActivatedRoute = class {
     this.outlet = outlet;
     this.component = component;
     this._futureSnapshot = futureSnapshot;
-    this.title = ((_a10 = this.dataSubject) == null ? void 0 : _a10.pipe(map((d2) => d2[RouteTitleKey]))) ?? of(void 0);
+    this.title = ((_a10 = this.dataSubject) == null ? void 0 : _a10.pipe(map((d) => d[RouteTitleKey]))) ?? of(void 0);
     this.url = urlSubject;
     this.params = paramsSubject;
     this.queryParams = queryParamsSubject;
@@ -36833,10 +36833,10 @@ function runCanActivate(futureRSS, futureARS) {
 function runCanActivateChild(futureRSS, path) {
   const futureARS = path[path.length - 1];
   const canActivateChildGuards = path.slice(0, path.length - 1).reverse().map((p2) => getCanActivateChild(p2)).filter((_2) => _2 !== null);
-  const canActivateChildGuardsMapped = canActivateChildGuards.map((d2) => {
+  const canActivateChildGuardsMapped = canActivateChildGuards.map((d) => {
     return defer(() => {
-      const guardsMapped = d2.guards.map((canActivateChild) => {
-        const closestInjector = d2.node._environmentInjector;
+      const guardsMapped = d.guards.map((canActivateChild) => {
+        const closestInjector = d.node._environmentInjector;
         const guard = getTokenOrFunctionIdentity(canActivateChild, closestInjector);
         const guardVal = isCanActivateChild(guard) ? guard.canActivateChild(futureARS, futureRSS) : runInInjectionContext(closestInjector, () => guard(futureARS, futureRSS));
         return wrapIntoObservable(guardVal).pipe(first());
@@ -38185,11 +38185,11 @@ var NavigationTransitions = class _NavigationTransitions {
               this.events.next(navigationError);
               throw e;
             }
-          } catch (ee) {
+          } catch (ee2) {
             if (this.options.resolveNavigationPromiseOnError) {
               overallTransitionState.resolve(false);
             } else {
-              overallTransitionState.reject(ee);
+              overallTransitionState.reject(ee2);
             }
           }
         }
@@ -38656,7 +38656,7 @@ var Router = class _Router {
       queryParamsHandling,
       preserveFragment
     } = navigationExtras;
-    const f = preserveFragment ? this.currentUrlTree.fragment : fragment;
+    const f2 = preserveFragment ? this.currentUrlTree.fragment : fragment;
     let q = null;
     switch (queryParamsHandling ?? this.options.defaultQueryParamsHandling) {
       case "merge":
@@ -38681,7 +38681,7 @@ var Router = class _Router {
       }
       relativeToUrlSegmentGroup = this.currentUrlTree.root;
     }
-    return createUrlTreeFromSegmentGroup(relativeToUrlSegmentGroup, commands, q, f ?? null, this.urlSerializer);
+    return createUrlTreeFromSegmentGroup(relativeToUrlSegmentGroup, commands, q, f2 ?? null, this.urlSerializer);
   }
   navigateByUrl(url, extras = {
     skipLocationChange: false
@@ -47838,10 +47838,10 @@ function validateTime(hours, minutes, seconds) {
 function toZonedTime(date, timeZone, options2) {
   date = toDate3(date, options2);
   const offsetMilliseconds = tzParseTimezone(timeZone, date, true);
-  const d2 = new Date(date.getTime() - offsetMilliseconds);
+  const d = new Date(date.getTime() - offsetMilliseconds);
   const resultDate = /* @__PURE__ */ new Date(0);
-  resultDate.setFullYear(d2.getUTCFullYear(), d2.getUTCMonth(), d2.getUTCDate());
-  resultDate.setHours(d2.getUTCHours(), d2.getUTCMinutes(), d2.getUTCSeconds(), d2.getUTCMilliseconds());
+  resultDate.setFullYear(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
+  resultDate.setHours(d.getUTCHours(), d.getUTCMinutes(), d.getUTCSeconds(), d.getUTCMilliseconds());
   return resultDate;
 }
 
@@ -48097,6 +48097,7 @@ var SIGNAGE_MANAGER = {
   PLAYLIST_COUNT_LABEL_N: "{{ count }} playlists",
   PLAYLIST_DESCRIPTION_ARIA: "Playlist description",
   PLAYLIST_DETAILS_TABS: "Playlist details tabs",
+  PLAYLIST_DISTRIBUTION: "Distribution Playlist",
   PLAYLIST_EDIT: "Edit Playlist",
   PLAYLIST_LABEL: "Playlist",
   PLAYLIST_NAME_ARIA: "Playlist name",
@@ -48144,6 +48145,9 @@ var SIGNAGE_MANAGER = {
   REQUEST_APPROVAL_SELECTED: "Request approval for selected playlist",
   REQUEST_PLAYLIST_APPROVAL_TOOLTIP: "Request playlist approval",
   SCHEDULE: "Schedule",
+  EDIT_SCHEDULE: "Edit Schedule",
+  ITEM_SCHEDULES: "Item Schedules",
+  NO_SCHEDULES: "No schedules",
   SCHEDULES_SUBTITLE: "Daily schedule timelines for signage displays and zones.",
   SCHEDULE_INTERVAL_ARIA: "Recurring schedule interval",
   SCHEDULE_NUMBER: "Schedule {{ number }}",
@@ -49532,7 +49536,7 @@ var APP = {
     MENU_REPORT_ROOMS: "Room Bookings",
     MENU_REPORT_SITE_ATTENDANCE: "Site Attendance",
     MENU_REPORT_DESKS: "Desk Bookings",
-    MENU_REPORT_PARKING: "Parking Reservations",
+    MENU_REPORT_PARKING: "Parking Bookings",
     MENU_REPORT_LOCKERS: "Locker Bookings",
     MENU_REPORT_CATERING: "Catering Orders",
     MENU_REPORT_CONTACT_TRACING: "Contact Tracing",
@@ -51060,7 +51064,7 @@ function Yn(t) {
     e += ue[t[n - 2] >> 2], e += ue[(t[n - 2] & 3) << 4 | t[n - 1] >> 4], e += ue[(t[n - 1] & 15) << 2 | t[n] >> 6], e += ue[t[n] & 63];
   return n === s + 1 && (e += ue[t[n - 2] >> 2], e += ue[(t[n - 2] & 3) << 4], e += "=="), n === s && (e += ue[t[n - 2] >> 2], e += ue[(t[n - 2] & 3) << 4 | t[n - 1] >> 4], e += ue[(t[n - 1] & 15) << 2], e += "="), e;
 }
-function Hs(t) {
+function zs(t) {
   if (t.length % 4 !== 0)
     throw new Error("Unable to parse base64 string.");
   const e = t.indexOf("=");
@@ -51071,13 +51075,13 @@ function Hs(t) {
     r = bt(t.charCodeAt(o)) << 18 | bt(t.charCodeAt(o + 1)) << 12 | bt(t.charCodeAt(o + 2)) << 6 | bt(t.charCodeAt(o + 3)), i[a] = r >> 16, i[a + 1] = r >> 8 & 255, i[a + 2] = r & 255;
   return i.subarray(0, i.length - n);
 }
-function zs(t, e = new TextEncoder()) {
+function Fs(t, e = new TextEncoder()) {
   return Yn(e.encode(t));
 }
 var vt = { exports: {} };
-var Fs = vt.exports;
+var Ls = vt.exports;
 var Fn;
-function Ls() {
+function js() {
   return Fn || (Fn = 1, (function(t) {
     (function(e, n) {
       var s = {};
@@ -51086,7 +51090,7 @@ function Ls() {
       for (var r in s)
         i[r] = s[r];
       t.exports = i;
-    })(Fs, function(e) {
+    })(Ls, function(e) {
       e.__esModule = true, e.digestLength = 32, e.blockSize = 64;
       var n = new Uint32Array([
         1116352408,
@@ -51154,17 +51158,17 @@ function Ls() {
         3204031479,
         3329325298
       ]);
-      function s(v, c2, h2, f, M2) {
+      function s(v, c2, l, d, M2) {
         for (var x, R2, k, Q2, D2, E2, se, H2, j, z, Be, We, $t; M2 >= 64; ) {
           for (x = c2[0], R2 = c2[1], k = c2[2], Q2 = c2[3], D2 = c2[4], E2 = c2[5], se = c2[6], H2 = c2[7], z = 0; z < 16; z++)
-            Be = f + z * 4, v[z] = (h2[Be] & 255) << 24 | (h2[Be + 1] & 255) << 16 | (h2[Be + 2] & 255) << 8 | h2[Be + 3] & 255;
+            Be = d + z * 4, v[z] = (l[Be] & 255) << 24 | (l[Be + 1] & 255) << 16 | (l[Be + 2] & 255) << 8 | l[Be + 3] & 255;
           for (z = 16; z < 64; z++)
             j = v[z - 2], We = (j >>> 17 | j << 15) ^ (j >>> 19 | j << 13) ^ j >>> 10, j = v[z - 15], $t = (j >>> 7 | j << 25) ^ (j >>> 18 | j << 14) ^ j >>> 3, v[z] = (We + v[z - 7] | 0) + ($t + v[z - 16] | 0);
           for (z = 0; z < 64; z++)
             We = (((D2 >>> 6 | D2 << 26) ^ (D2 >>> 11 | D2 << 21) ^ (D2 >>> 25 | D2 << 7)) + (D2 & E2 ^ ~D2 & se) | 0) + (H2 + (n[z] + v[z] | 0) | 0) | 0, $t = ((x >>> 2 | x << 30) ^ (x >>> 13 | x << 19) ^ (x >>> 22 | x << 10)) + (x & R2 ^ x & k ^ R2 & k) | 0, H2 = se, se = E2, E2 = D2, D2 = Q2 + We | 0, Q2 = k, k = R2, R2 = x, x = We + $t | 0;
-          c2[0] += x, c2[1] += R2, c2[2] += k, c2[3] += Q2, c2[4] += D2, c2[5] += E2, c2[6] += se, c2[7] += H2, f += 64, M2 -= 64;
+          c2[0] += x, c2[1] += R2, c2[2] += k, c2[3] += Q2, c2[4] += D2, c2[5] += E2, c2[6] += se, c2[7] += H2, d += 64, M2 -= 64;
         }
-        return f;
+        return d;
       }
       var i = (
         /** @class */
@@ -51180,23 +51184,23 @@ function Ls() {
             for (var c2 = 0; c2 < this.temp.length; c2++)
               this.temp[c2] = 0;
             this.reset();
-          }, v.prototype.update = function(c2, h2) {
-            if (h2 === void 0 && (h2 = c2.length), this.finished)
+          }, v.prototype.update = function(c2, l) {
+            if (l === void 0 && (l = c2.length), this.finished)
               throw new Error("SHA256: can't update because hash was finished.");
-            var f = 0;
-            if (this.bytesHashed += h2, this.bufferLength > 0) {
-              for (; this.bufferLength < 64 && h2 > 0; )
-                this.buffer[this.bufferLength++] = c2[f++], h2--;
+            var d = 0;
+            if (this.bytesHashed += l, this.bufferLength > 0) {
+              for (; this.bufferLength < 64 && l > 0; )
+                this.buffer[this.bufferLength++] = c2[d++], l--;
               this.bufferLength === 64 && (s(this.temp, this.state, this.buffer, 0, 64), this.bufferLength = 0);
             }
-            for (h2 >= 64 && (f = s(this.temp, this.state, c2, f, h2), h2 %= 64); h2 > 0; )
-              this.buffer[this.bufferLength++] = c2[f++], h2--;
+            for (l >= 64 && (d = s(this.temp, this.state, c2, d, l), l %= 64); l > 0; )
+              this.buffer[this.bufferLength++] = c2[d++], l--;
             return this;
           }, v.prototype.finish = function(c2) {
             if (!this.finished) {
-              var h2 = this.bytesHashed, f = this.bufferLength, M2 = h2 / 536870912 | 0, x = h2 << 3, R2 = h2 % 64 < 56 ? 64 : 128;
-              this.buffer[f] = 128;
-              for (var k = f + 1; k < R2 - 8; k++)
+              var l = this.bytesHashed, d = this.bufferLength, M2 = l / 536870912 | 0, x = l << 3, R2 = l % 64 < 56 ? 64 : 128;
+              this.buffer[d] = 128;
+              for (var k = d + 1; k < R2 - 8; k++)
                 this.buffer[k] = 0;
               this.buffer[R2 - 8] = M2 >>> 24 & 255, this.buffer[R2 - 7] = M2 >>> 16 & 255, this.buffer[R2 - 6] = M2 >>> 8 & 255, this.buffer[R2 - 5] = M2 >>> 0 & 255, this.buffer[R2 - 4] = x >>> 24 & 255, this.buffer[R2 - 3] = x >>> 16 & 255, this.buffer[R2 - 2] = x >>> 8 & 255, this.buffer[R2 - 1] = x >>> 0 & 255, s(this.temp, this.state, this.buffer, 0, R2), this.finished = true;
             }
@@ -51207,12 +51211,12 @@ function Ls() {
             var c2 = new Uint8Array(this.digestLength);
             return this.finish(c2), c2;
           }, v.prototype._saveState = function(c2) {
-            for (var h2 = 0; h2 < this.state.length; h2++)
-              c2[h2] = this.state[h2];
-          }, v.prototype._restoreState = function(c2, h2) {
-            for (var f = 0; f < this.state.length; f++)
-              this.state[f] = c2[f];
-            this.bytesHashed = h2, this.finished = false, this.bufferLength = 0;
+            for (var l = 0; l < this.state.length; l++)
+              c2[l] = this.state[l];
+          }, v.prototype._restoreState = function(c2, l) {
+            for (var d = 0; d < this.state.length; d++)
+              this.state[d] = c2[d];
+            this.bytesHashed = l, this.finished = false, this.bufferLength = 0;
           }, v;
         })()
       );
@@ -51222,20 +51226,20 @@ function Ls() {
         (function() {
           function v(c2) {
             this.inner = new i(), this.outer = new i(), this.blockSize = this.inner.blockSize, this.digestLength = this.inner.digestLength;
-            var h2 = new Uint8Array(this.blockSize);
+            var l = new Uint8Array(this.blockSize);
             if (c2.length > this.blockSize)
-              new i().update(c2).finish(h2).clean();
+              new i().update(c2).finish(l).clean();
             else
-              for (var f = 0; f < c2.length; f++)
-                h2[f] = c2[f];
-            for (var f = 0; f < h2.length; f++)
-              h2[f] ^= 54;
-            this.inner.update(h2);
-            for (var f = 0; f < h2.length; f++)
-              h2[f] ^= 106;
-            this.outer.update(h2), this.istate = new Uint32Array(8), this.ostate = new Uint32Array(8), this.inner._saveState(this.istate), this.outer._saveState(this.ostate);
-            for (var f = 0; f < h2.length; f++)
-              h2[f] = 0;
+              for (var d = 0; d < c2.length; d++)
+                l[d] = c2[d];
+            for (var d = 0; d < l.length; d++)
+              l[d] ^= 54;
+            this.inner.update(l);
+            for (var d = 0; d < l.length; d++)
+              l[d] ^= 106;
+            this.outer.update(l), this.istate = new Uint32Array(8), this.ostate = new Uint32Array(8), this.inner._saveState(this.istate), this.outer._saveState(this.ostate);
+            for (var d = 0; d < l.length; d++)
+              l[d] = 0;
           }
           return v.prototype.reset = function() {
             return this.inner._restoreState(this.istate, this.inner.blockSize), this.outer._restoreState(this.ostate, this.outer.blockSize), this;
@@ -51255,41 +51259,41 @@ function Ls() {
       );
       e.HMAC = r;
       function o(v) {
-        var c2 = new i().update(v), h2 = c2.digest();
-        return c2.clean(), h2;
+        var c2 = new i().update(v), l = c2.digest();
+        return c2.clean(), l;
       }
       e.hash = o, e.default = o;
       function a(v, c2) {
-        var h2 = new r(v).update(c2), f = h2.digest();
-        return h2.clean(), f;
+        var l = new r(v).update(c2), d = l.digest();
+        return l.clean(), d;
       }
       e.hmac = a;
-      function y(v, c2, h2, f) {
-        var M2 = f[0];
+      function y(v, c2, l, d) {
+        var M2 = d[0];
         if (M2 === 0)
           throw new Error("hkdf: cannot expand more");
-        c2.reset(), M2 > 1 && c2.update(v), h2 && c2.update(h2), c2.update(f), c2.finish(v), f[0]++;
+        c2.reset(), M2 > 1 && c2.update(v), l && c2.update(l), c2.update(d), c2.finish(v), d[0]++;
       }
       var L2 = new Uint8Array(e.digestLength);
-      function P2(v, c2, h2, f) {
-        c2 === void 0 && (c2 = L2), f === void 0 && (f = 32);
-        for (var M2 = new Uint8Array([1]), x = a(c2, v), R2 = new r(x), k = new Uint8Array(R2.digestLength), Q2 = k.length, D2 = new Uint8Array(f), E2 = 0; E2 < f; E2++)
-          Q2 === k.length && (y(k, R2, h2, M2), Q2 = 0), D2[E2] = k[Q2++];
+      function P2(v, c2, l, d) {
+        c2 === void 0 && (c2 = L2), d === void 0 && (d = 32);
+        for (var M2 = new Uint8Array([1]), x = a(c2, v), R2 = new r(x), k = new Uint8Array(R2.digestLength), Q2 = k.length, D2 = new Uint8Array(d), E2 = 0; E2 < d; E2++)
+          Q2 === k.length && (y(k, R2, l, M2), Q2 = 0), D2[E2] = k[Q2++];
         return R2.clean(), k.fill(0), M2.fill(0), D2;
       }
       e.hkdf = P2;
-      function W2(v, c2, h2, f) {
-        for (var M2 = new r(v), x = M2.digestLength, R2 = new Uint8Array(4), k = new Uint8Array(x), Q2 = new Uint8Array(x), D2 = new Uint8Array(f), E2 = 0; E2 * x < f; E2++) {
+      function W2(v, c2, l, d) {
+        for (var M2 = new r(v), x = M2.digestLength, R2 = new Uint8Array(4), k = new Uint8Array(x), Q2 = new Uint8Array(x), D2 = new Uint8Array(d), E2 = 0; E2 * x < d; E2++) {
           var se = E2 + 1;
           R2[0] = se >>> 24 & 255, R2[1] = se >>> 16 & 255, R2[2] = se >>> 8 & 255, R2[3] = se >>> 0 & 255, M2.reset(), M2.update(c2), M2.update(R2), M2.finish(Q2);
           for (var H2 = 0; H2 < x; H2++)
             k[H2] = Q2[H2];
-          for (var H2 = 2; H2 <= h2; H2++) {
+          for (var H2 = 2; H2 <= l; H2++) {
             M2.reset(), M2.update(Q2).finish(Q2);
             for (var j = 0; j < x; j++)
               k[j] ^= Q2[j];
           }
-          for (var H2 = 0; H2 < x && E2 * x + H2 < f; H2++)
+          for (var H2 = 0; H2 < x && E2 * x + H2 < d; H2++)
             D2[E2 * x + H2] = k[H2];
         }
         for (var E2 = 0; E2 < x; E2++)
@@ -51302,8 +51306,8 @@ function Ls() {
     });
   })(vt)), vt.exports;
 }
-var js = Ls();
-var Gs = new Int32Array(4);
+var Gs = js();
+var Bs = new Int32Array(4);
 var K = class _K {
   static hashStr(e, n = false) {
     return this.onePassHasher.start().appendStr(e).end(n);
@@ -51461,7 +51465,7 @@ var K = class _K {
       i[14] = o;
     else {
       const a = o.toString(16).match(/(.*?)(.{0,8})$/);
-      if (a === null) return e ? Gs : "";
+      if (a === null) return e ? Bs : "";
       const y = parseInt(a[2], 16), L2 = parseInt(a[1], 16) || 0;
       i[14] = y, i[15] = L2;
     }
@@ -51470,7 +51474,7 @@ var K = class _K {
 };
 if (K.hashStr("hello") !== "5d41402abc4b2a76b9719d911017c592")
   throw new Error("Md5 self test failed.");
-var Bs = 36e5;
+var Ws = 36e5;
 var Ln = /* @__PURE__ */ Symbol.for("constructDateFrom");
 function St(t, e) {
   return typeof t == "function" ? t(e) : t && typeof t == "object" && Ln in t ? t[Ln](e) : t instanceof Date ? new t.constructor(e) : new Date(e);
@@ -51478,7 +51482,7 @@ function St(t, e) {
 function Ze(t, e) {
   return St(t, t);
 }
-function Ws(t, e, n) {
+function Qs(t, e, n) {
   const s = Ze(t);
   if (isNaN(e)) return St(t, NaN);
   const i = s.getDate(), r = St(t, s.getTime());
@@ -51493,16 +51497,16 @@ function Ws(t, e, n) {
 function Vn(t, e, n) {
   return St(t, +Ze(t) + e);
 }
-function Qs(t, e, n) {
-  return Vn(t, e * Bs);
-}
 function Ks(t, e, n) {
-  return Vn(t, e * 1e3);
+  return Vn(t, e * Ws);
 }
 function Zs(t, e, n) {
-  return Ws(t, e * 12);
+  return Vn(t, e * 1e3);
 }
-function yn(t) {
+function Js(t, e, n) {
+  return Qs(t, e * 12);
+}
+function $n(t) {
   return Math.trunc(+Ze(t) / 1e3);
 }
 function Xn(t, e) {
@@ -51532,13 +51536,13 @@ function es() {
   if (t)
     if (t.indexOf("?") >= 0) {
       const i = t.split("?");
-      n = Ie(i[0]), e || (e = i[1]);
+      n = Te(i[0]), e || (e = i[1]);
     } else
-      n = Ie(t);
+      n = Te(t);
   let s = {};
-  return e && (s = Ie(e)), __spreadValues(__spreadValues({}, n), s);
+  return e && (s = Te(e)), __spreadValues(__spreadValues({}, n), s);
 }
-function Ie(t) {
+function Te(t) {
   const e = {}, n = t.split("&");
   for (const s of n) {
     const i = s.split("=");
@@ -51576,7 +51580,7 @@ function ie(t) {
     `${(_d2 = window.location) == null ? void 0 : _d2.pathname}${e}${n}`
   ));
 }
-function Js(t) {
+function Ys(t) {
   if (t.length === 0)
     throw new Error("Input must not be of zero length");
   const e = t.split(","), n = {};
@@ -51589,12 +51593,12 @@ function Js(t) {
   }
   return n;
 }
-function Ys(t, e) {
+function Vs(t, e) {
   for (const n in t)
     t.hasOwnProperty(n) && e.indexOf(t[n]) >= 0 && delete t[n];
   return t;
 }
-function Vs() {
+function Xs() {
   return [
     "iPad Simulator",
     "iPhone Simulator",
@@ -51605,13 +51609,13 @@ function Vs() {
   ].includes(navigator.platform) || // iPad on iOS 13 detection
   navigator.userAgent.includes("Mac") && "ontouchend" in document;
 }
-function Xs() {
+function ei() {
   return window.location !== window.parent.location;
 }
-function ei(t = Date.now(), e = 60 * 1e3) {
+function ti(t = Date.now(), e = 60 * 1e3) {
   return Math.floor(t / e);
 }
-var ti = class {
+var ni = class {
   abort() {
     xt("Stub", "Aborted");
   }
@@ -51628,7 +51632,7 @@ function b(t) {
 var xe = {};
 function re(t, e, n = 300) {
   if (t && e && e instanceof Function)
-    _e(t), xe[t] = setTimeout(() => {
+    me(t), xe[t] = setTimeout(() => {
       e(), delete xe[t];
     }, n);
   else
@@ -51636,7 +51640,7 @@ function re(t, e, n = 300) {
       t ? "Cannot create named timeout without a name" : "Cannot create a timeout without a callback"
     );
 }
-function _e(t) {
+function me(t) {
   xe[t] && (clearTimeout(xe[t]), delete xe[t]);
 }
 function ne(t) {
@@ -51653,7 +51657,7 @@ function ne(t) {
       o(e, r);
   }, s.update = (i) => s.set(i(e)), s.asReadonly = () => s, s;
 }
-function ri(t, e = Boolean) {
+function oi(t, e = Boolean) {
   return e(t.value) ? Promise.resolve(t.value) : new Promise((n) => {
     const s = t.subscribe(
       (i) => {
@@ -51663,10 +51667,10 @@ function ri(t, e = Boolean) {
     );
   });
 }
-function oi(t) {
+function ui(t) {
   return new Promise((e) => setTimeout(e, t));
 }
-var ui = {
+var ci = {
   id: "mock-authority",
   name: "localhost:4200",
   description: "",
@@ -51683,23 +51687,23 @@ var _ = {};
 var A = localStorage;
 var N;
 var m = {};
-var I = "";
-var me = "";
-var ge = ne("");
+var T = "";
+var ge = "";
+var ye = ne("");
 var Je = ne("");
-var bn = "/api/engine/v2";
-var pe = ne(false);
-var vn = ne(false);
+var vn = "/api/engine/v2";
+var _e = ne(false);
+var kn = ne(false);
 var qt = 0;
 function ns() {
   if (_.mock) return true;
   if (!A) return false;
   if (Ye() && !_.ignore_api_key) return true;
-  const t = A.getItem(`${I}_expires_at`) || "";
-  return Xn(+t, /* @__PURE__ */ new Date()) ? false : !!(ge.value || A.getItem(`${I}_access_token`));
+  const t = A.getItem(`${T}_expires_at`) || "";
+  return Xn(+t, /* @__PURE__ */ new Date()) ? false : !!(ye.value || A.getItem(`${T}_access_token`));
 }
-function Oe() {
-  vn.set(ns());
+function Ce() {
+  kn.set(ns());
 }
 function ss(t) {
   var _a10;
@@ -51713,29 +51717,29 @@ function u2() {
   return `${`${_.secure || ((_a10 = window.location) == null ? void 0 : _a10.protocol.indexOf("https")) >= 0 ? "https:" : "http:"}//${_.host || ((_b4 = window.location) == null ? void 0 : _b4.host)}`}${is()}`;
 }
 function is() {
-  return _.version === "ACA Engine" ? "/control/api" : bn;
-}
-function ci() {
-  return !!_.token_header;
+  return _.version === "ACA Engine" ? "/control/api" : vn;
 }
 function ai() {
-  return I;
+  return !!_.token_header;
 }
-function Nr(t, e = true) {
-  A.setItem(`${I}_x-api-key`, `${t}`), A.setItem("trusted", `${e}`), hi("x-api-key", Zs(/* @__PURE__ */ new Date(), 5).valueOf());
+function hi() {
+  return T;
+}
+function Hr(t, e = true) {
+  A.setItem(`${T}_x-api-key`, `${t}`), A.setItem("trusted", `${e}`), li("x-api-key", Js(/* @__PURE__ */ new Date(), 5).valueOf());
 }
 function Ye() {
   return Ut("x-api-key", false) || "";
 }
-function hi(t, e = Qs(/* @__PURE__ */ new Date(), 2).valueOf()) {
-  _.ignore_api_key && t === "x-api-key" || (A.setItem(`${I}_expires_at`, `${e}`), A.setItem(`${I}_access_token`, t), ge.set(t), Oe());
+function li(t, e = Ks(/* @__PURE__ */ new Date(), 2).valueOf()) {
+  _.ignore_api_key && t === "x-api-key" || (A.setItem(`${T}_expires_at`, `${e}`), A.setItem(`${T}_access_token`, t), ye.set(t), Ce());
 }
-function V(t = true) {
+function X(t = true) {
   if (_.mock) return "mock-token";
   if (!A) return "";
   if (Ye() && !_.ignore_api_key) return "x-api-key";
-  const e = A.getItem(`${I}_expires_at`) || "", n = ge.value;
-  return Xn(+e, /* @__PURE__ */ new Date()) && (p("Token expired. Requesting new token..."), An(), m.load_authority || (qt += 1, re(
+  const e = A.getItem(`${T}_expires_at`) || "", n = ye.value;
+  return Xn(+e, /* @__PURE__ */ new Date()) && (p("Token expired. Requesting new token..."), qn(), m.load_authority || (qt += 1, re(
     "re-authorise",
     async () => {
       delete m.authorise, await wt().catch(
@@ -51743,34 +51747,34 @@ function V(t = true) {
       );
     },
     200 * Math.min(20, qt)
-  )), !t) ? "" : n || A.getItem(`${I}_access_token`) || "";
+  )), !t) ? "" : n || A.getItem(`${T}_access_token`) || "";
 }
 function Pt() {
-  return Je.value || A.getItem(`${I}_refresh_token`) || "";
+  return Je.value || A.getItem(`${T}_refresh_token`) || "";
 }
-function $n() {
+function bn() {
   var _a10;
   return _.host || ((_a10 = window.location) == null ? void 0 : _a10.host);
 }
-function li() {
-  return Oe(), vn.asReadonly();
+function di() {
+  return Ce(), kn.asReadonly();
 }
 function Rt() {
   return N;
 }
-function Dr() {
-  return pe.value;
+function Fr() {
+  return _e.value;
 }
-function kn() {
+function Sn() {
   return !!_.mock;
 }
 function fi() {
   return !!_.secure;
 }
-function Hr() {
-  return pe.asReadonly();
+function Lr() {
+  return _e.asReadonly();
 }
-function Sn() {
+function xn() {
   return Ut("trust") === "true" || Ut("trusted") === "true";
 }
 function rs() {
@@ -51779,35 +51783,35 @@ function rs() {
 function Ut(t, e = true) {
   let s = es()[t];
   if (A) {
-    const i = `${ai()}_${t}`;
+    const i = `${hi()}_${t}`;
     s = s || A.getItem(i) || A.getItem(t) || "", e && A.setItem(i, `${s}`);
   }
   return s;
 }
-async function zr(t) {
-  return _ = t || _, _.token_header = _.token_header ?? Xs(), window.AbortController || (window.AbortController = ti), A = _.storage === "session" ? sessionStorage : localStorage, I = K.hashStr(_.redirect_uri, false), di(), _.delay && _.delay > 0 && await oi(_.delay), qn();
+async function jr(t) {
+  return _ = t || _, _.token_header = _.token_header ?? ei(), window.AbortController || (window.AbortController = ni), A = _.storage === "session" ? sessionStorage : localStorage, T = K.hashStr(_.redirect_uri, false), pi(), _.delay && _.delay > 0 && await ui(_.delay), Pn();
 }
-var Tt = false;
-function di() {
-  Tt || (Tt = true, window.addEventListener("focus", It), document.addEventListener("visibilitychange", It));
+var It = false;
+function pi() {
+  It || (It = true, window.addEventListener("focus", Tt), document.addEventListener("visibilitychange", Tt));
 }
-async function It() {
+async function Tt() {
   if (document.visibilityState === "hidden" || _.mock || !N || N.session || ns()) return;
-  if (delete m.check_params, await us().catch(() => false) || me || Pt()) {
-    p("Application focused with new credentials. Authorising..."), Ce = false, delete m.authorise, await wt().catch(
+  if (delete m.check_params, await us().catch(() => false) || ge || Pt()) {
+    p("Application focused with new credentials. Authorising..."), Oe = false, delete m.authorise, await wt().catch(
       (e) => p.error("Failed to authorise on focus:", e)
     );
     return;
   }
-  p("Application focused without a session. Reloading authority..."), Ce = false, xn().catch(
+  p("Application focused without a session. Reloading authority..."), Oe = false, An().catch(
     (e) => p.error("Failed to refresh authority:", e)
   );
 }
-function xn() {
-  return p("Refreshing authorty."), N = void 0, qn();
-}
 function An() {
-  p("Invalidating tokens."), A.removeItem(`${I}_access_token`), A.removeItem(`${I}_expires_at`), ge.value && ge.set(""), Oe();
+  return p("Refreshing authorty."), N = void 0, Pn();
+}
+function qn() {
+  p("Invalidating tokens."), A.removeItem(`${T}_access_token`), A.removeItem(`${T}_expires_at`), ye.value && ye.set(""), Ce();
 }
 function wt(t, e = N) {
   return m.authorise || (m.authorise = new Promise((n, s) => {
@@ -51815,29 +51819,29 @@ function wt(t, e = N) {
       return delete m.authorise, s("Authority is not loaded");
     p("Authorising user...");
     const i = () => {
-      if (V(false))
-        p("Valid token found."), delete m.authorise, n(V());
+      if (X(false))
+        p("Valid token found."), delete m.authorise, n(X());
       else {
         const r = [
           () => {
-            p("Successfully generated token."), n(V()), delete m.authorise;
+            p("Successfully generated token."), n(X()), delete m.authorise;
           },
           () => {
             p.error("Failed to generate token."), s("Failed to generate token"), setTimeout(() => delete m.authorise, 200);
           }
         ];
         if (_ && _.auth_type === "password")
-          p("Logging in with credentials."), ki(_).then(
+          p("Logging in with credentials."), Si(_).then(
             ...r
           ), qt = 0;
-        else if (me || Pt())
+        else if (ge || Pt())
           p(
-            `Generating token with ${me ? "code" : "refresh token"}`
+            `Generating token with ${ge ? "code" : "refresh token"}`
           ), cs().then(...r), qt = 0;
         else if (e.session)
           p(
             "Users has session. Authorising application..."
-          ), _i(t).then(...r);
+          ), mi(t).then(...r);
         else {
           p("No user session"), s("No user session"), setTimeout(() => delete m.authorise, 200);
           try {
@@ -51847,51 +51851,51 @@ function wt(t, e = N) {
         }
       }
     };
-    gi().then(i, i);
+    yi().then(i, i);
   })), m.authorise;
 }
-function qn(t = 0) {
+function Pn(t = 0) {
   return m.load_authority || (m.load_authority = new Promise((e) => {
     var _a10;
-    if (pe.set(false), _.mock) {
-      N = ui, p("System in mock mode"), pe.set(true), e();
+    if (_e.set(false), _.mock) {
+      N = ci, p("System in mock mode"), _e.set(true), e();
       return;
     }
-    p(`Fixed: ${rs()} | Trusted: ${Sn()}`), p("Loading authority...");
+    p(`Fixed: ${rs()} | Trusted: ${xn()}`), p("Loading authority...");
     const n = _.secure || ((_a10 = window.location) == null ? void 0 : _a10.protocol.indexOf("https")) >= 0, s = (i) => {
-      p.error(`Failed to load authority(${i})`), pe.set(false), re(
+      p.error(`Failed to load authority(${i})`), _e.set(false), re(
         "load_authority",
         () => {
-          delete m.load_authority, qn(t).then((r) => e());
+          delete m.load_authority, Pn(t).then((r) => e());
         },
         300 * Math.min(20, ++t)
       );
     };
-    fetch(`${n ? "https:" : "http:"}//${$n()}/auth/authority`, {
+    fetch(`${n ? "https:" : "http:"}//${bn()}/auth/authority`, {
       credentials: "same-origin"
     }).then(async (i) => {
       if (!i.ok)
         return s(await i.text().catch((o) => o));
-      N = await i.json(), bn = /[2-9]\.[0-9]+\.[0-9]+/g.test(
+      N = await i.json(), vn = /[2-9]\.[0-9]+\.[0-9]+/g.test(
         N.version || ""
       ) ? "/api/engine/v2" : "/control/api", p.group("Loaded authority."), N && (p(`Name: ${N.name}`), p(`Version: ${N.version}`), p(`Domain: ${N.domain}`), p(`Session: ${N.session}`), p(`Production: ${N.production}`), p(
         `Config Keys: ${Object.keys(N.config || {}).length}`
       )), p.groupEnd("");
       const r = () => {
-        pe.set(true), p("Application set online."), e();
+        _e.set(true), p("Application set online."), e();
       };
       delete m.load_authority, wt("").then(r, r);
     }, s);
   })), m.load_authority;
 }
-async function _i(t) {
+async function mi(t) {
   var _a10;
-  const e = yi(t);
+  const e = $i(t);
   if (_.use_iframe)
-    return mi(e);
+    return gi(e);
   (_a10 = window.location) == null ? void 0 : _a10.assign(e);
 }
-function mi(t) {
+function gi(t) {
   return m.iframe_auth || (m.iframe_auth = new Promise((e, n) => {
     p("Authorizing in an iFrame...");
     const s = document.createElement("iframe");
@@ -51900,11 +51904,11 @@ function mi(t) {
       var _a10;
       if (o.origin === ((_a10 = window.location) == null ? void 0 : _a10.origin) && o.data.type === "place-os") {
         const a = o.data;
-        if (p("Received credentials from iFrame..."), document.body.removeChild(s), _e("iframe_auth"), window.removeEventListener("message", i), delete m.iframe_auth, a.token)
-          return e(), Pn(__spreadValues({
+        if (p("Received credentials from iFrame..."), document.body.removeChild(s), me("iframe_auth"), window.removeEventListener("message", i), delete m.iframe_auth, a.token)
+          return e(), Rn(__spreadValues({
             access_token: a.token
           }, a));
-        me = a.code || "", cs().then(
+        ge = a.code || "", cs().then(
           (y) => e(y),
           (y) => n(y)
         );
@@ -51919,14 +51923,14 @@ function mi(t) {
       },
       15 * 1e3
     ), window.addEventListener("message", i), s.onerror = (o) => {
-      p.error("iFrame error.", o), _e("iframe_auth"), r(), n();
+      p.error("iFrame error.", o), me("iframe_auth"), r(), n();
     }, document.body.appendChild(s);
   })), m.iframe_auth;
 }
-var Ce = false;
+var Oe = false;
 function os(t) {
   var _a10, _b4;
-  if (_.handle_login !== false && !Ce) {
+  if (_.handle_login !== false && !Oe) {
     p("Redirecting to login page...");
     const e = ss(
       (_b4 = t.login_url) == null ? void 0 : _b4.replace(
@@ -51937,14 +51941,14 @@ function os(t) {
     throw setTimeout(() => {
       var _a11;
       return (_a11 = window.location) == null ? void 0 : _a11.assign(e);
-    }, 300), Ce = true, new Error("Redirecting to login page...");
+    }, 300), Oe = true, new Error("Redirecting to login page...");
   } else
     p("Login being handled locally.");
   delete m.authorise;
 }
-function gi() {
+function yi() {
   return m.check_token || (m.check_token = new Promise(async (t, e) => {
-    V() ? (p("Valid token found."), t(V())) : (p("No token. Checking URL for auth credentials..."), await us() ? t(true) : e()), delete m.check_token;
+    X() ? (p("Valid token found."), t(X())) : (p("No token. Checking URL for auth credentials..."), await us() ? t(true) : e()), delete m.check_token;
   })), m.check_token;
 }
 function us() {
@@ -51954,13 +51958,13 @@ function us() {
     if ((!e || Object.keys(e).length <= 0) && sessionStorage && (e = JSON.parse(
       sessionStorage.getItem("ENGINE.auth.params") || "{}"
     ), sessionStorage.removeItem("ENGINE.auth.params")), e && (e.code || e.access_token || e.refresh_token)) {
-      const n = A.getItem(`${I}_nonce`) || "", s = (e.state || "").split(";");
+      const n = A.getItem(`${T}_nonce`) || "", s = (e.state || "").split(";");
       ie("state"), ie("token_type");
       const i = s[0];
-      n === i ? (e.code && (me = e.code, ie("code")), e.refresh_token && (A.setItem(
-        `${I}_refresh_token`,
+      n === i ? (e.code && (ge = e.code, ie("code")), e.refresh_token && (A.setItem(
+        `${T}_refresh_token`,
         e.refresh_token
-      ), ie("refresh_token")), Pn(e), t(!!e.access_token)) : (ie("code"), ie("access_token"), ie("refresh_token"), t(false));
+      ), ie("refresh_token")), Rn(e), t(!!e.access_token)) : (ie("code"), ie("access_token"), ie("refresh_token"), t(false));
     } else
       t(false);
     re(
@@ -51970,38 +51974,38 @@ function us() {
     );
   })), m.check_params;
 }
-function yi(t) {
-  const e = Si();
+function $i(t) {
+  const e = xi();
   t = t ? `${e};${t}` : e;
-  const n = _ ? (_.auth_uri || "").indexOf("?") >= 0 : false, s = (_ ? _.auth_uri : null) || "/auth/oauth/authorize", i = Sn() || _.auth_type === "auth_code" ? "code" : "token";
-  let r = `${s}${n ? "&" : "?"}response_type=${encodeURIComponent(i)}&client_id=${encodeURIComponent(I)}&state=${encodeURIComponent(t)}&redirect_uri=${encodeURIComponent(_.redirect_uri)}&scope=${encodeURIComponent(_.scope)}`;
+  const n = _ ? (_.auth_uri || "").indexOf("?") >= 0 : false, s = (_ ? _.auth_uri : null) || "/auth/oauth/authorize", i = xn() || _.auth_type === "auth_code" ? "code" : "token";
+  let r = `${s}${n ? "&" : "?"}response_type=${encodeURIComponent(i)}&client_id=${encodeURIComponent(T)}&state=${encodeURIComponent(t)}&redirect_uri=${encodeURIComponent(_.redirect_uri)}&scope=${encodeURIComponent(_.scope)}`;
   if (_.auth_type === "auth_code") {
-    const { challenge: o, verify: a } = $i();
-    sessionStorage.setItem(`${I}_challenge`, o), r += "&code_challenge_method=S256", r += `&code_challenge=${a}`;
+    const { challenge: o, verify: a } = bi();
+    sessionStorage.setItem(`${T}_challenge`, o), r += "&code_challenge_method=S256", r += `&code_challenge=${a}`;
   }
   return r;
 }
-function $i(t = 43) {
-  const e = ts(t), n = Hs(zs(e)), s = Yn(js.hash(n)).split("=")[0].replace(/\//g, "_").replace(/\+/g, "-");
+function bi(t = 43) {
+  const e = ts(t), n = zs(Fs(e)), s = Yn(Gs.hash(n)).split("=")[0].replace(/\//g, "_").replace(/\+/g, "-");
   return { challenge: e, verify: s };
 }
-function bi() {
-  let e = (_.token_uri || "/auth/token") + `?client_id=${encodeURIComponent(I)}`, n = "";
+function vi() {
+  let e = (_.token_uri || "/auth/token") + `?client_id=${encodeURIComponent(T)}`, n = "";
   if (e += `&redirect_uri=${encodeURIComponent(_.redirect_uri)}`, Pt()) {
     e += `&refresh_token=${encodeURIComponent(Pt())}`, e += "&grant_type=refresh_token";
     const s = e.indexOf("?");
     n = e.slice(s + 1), e = e.slice(0, s);
   } else {
-    e += `&code=${encodeURIComponent(me)}`, e += "&grant_type=authorization_code";
-    const s = sessionStorage.getItem(`${I}_challenge`);
-    s && (e += `&code_verifier=${s}`, sessionStorage.removeItem(`${I}_challenge`)), me = "";
+    e += `&code=${encodeURIComponent(ge)}`, e += "&grant_type=authorization_code";
+    const s = sessionStorage.getItem(`${T}_challenge`);
+    s && (e += `&code_verifier=${s}`, sessionStorage.removeItem(`${T}_challenge`)), ge = "";
   }
   return [e, n];
 }
-function vi(t) {
+function ki(t) {
   const e = t.token_uri || "/auth/token", n = b({
     grant_type: "password",
-    client_id: I,
+    client_id: T,
     client_secret: t.client_secret,
     redirect_uri: t.redirect_uri,
     authority: N == null ? void 0 : N.id,
@@ -52012,16 +52016,16 @@ function vi(t) {
   return `${e}?${n}`;
 }
 function cs() {
-  return as(...bi());
+  return as(...vi());
 }
-function ki(t) {
-  return as(vi(t));
+function Si(t) {
+  return as(ki(t));
 }
 function as(t, e = "") {
   return m.generate_tokens || (m.generate_tokens = new Promise((n, s) => {
     p("Generating new token...");
     const i = (r) => {
-      p.error("Error generating new tokens:", r), r && r.status >= 400 && r.status < 500 && (A.removeItem(`${I}_refresh_token`), Je.set("")), Oe(), s(), delete m.generate_tokens;
+      p.error("Error generating new tokens:", r), r && r.status >= 400 && r.status < 500 && (A.removeItem(`${T}_refresh_token`), Je.set("")), Ce(), s(), delete m.generate_tokens;
     };
     fetch(t, {
       method: "POST",
@@ -52032,26 +52036,26 @@ function as(t, e = "") {
     }).then(async (r) => {
       if (!r.ok) return i(r);
       const o = await r.json();
-      Pn(o), n(), delete m.generate_tokens;
+      Rn(o), n(), delete m.generate_tokens;
     }, i);
   })), m.generate_tokens;
 }
-function Pn(t) {
-  const e = Ks(
+function Rn(t) {
+  const e = Zs(
     /* @__PURE__ */ new Date(),
     Math.max(60, parseInt(t.expires_in, 10) - 300)
   );
-  p("Tokens generated storing..."), Sn() && (t.access_token && (A.setItem(
-    `${I}_access_token`,
+  p("Tokens generated storing..."), xn() && (t.access_token && (A.setItem(
+    `${T}_access_token`,
     t.access_token
   ), ie("access_token")), t.refresh_token && (A.setItem(
-    `${I}_refresh_token`,
+    `${T}_refresh_token`,
     t.refresh_token
-  ), ie("refresh_token"))), t.expires_in && (A.setItem(`${I}_expires_at`, `${e.valueOf()}`), ie("expires_in")), pe.set(true), ge.set(t.access_token || ""), Je.set(t.refresh_token || ""), Oe();
+  ), ie("refresh_token"))), t.expires_in && (A.setItem(`${T}_expires_at`, `${e.valueOf()}`), ie("expires_in")), _e.set(true), ye.set(t.access_token || ""), Je.set(t.refresh_token || ""), Ce();
 }
-function Si() {
+function xi() {
   const t = ts();
-  return A.setItem(`${I}_nonce`, t), t;
+  return A.setItem(`${T}_nonce`, t), t;
 }
 var Ae = Nt("HTTP(M)");
 var Dt = {};
@@ -52059,8 +52063,8 @@ var hs = (t, e) => {
   const n = new Error(`Mock endpoint not found: ${t} ${e}`);
   return n.status = 404, Ae(`404 ${t}:`, e), Promise.reject(n);
 };
-function Wr(t, e = Dt) {
-  xi(t.method, t.path, e);
+function Zr(t, e = Dt) {
+  Ai(t.method, t.path, e);
   const n = `${t.method}|${t.path}`, s = t.path.replace(/(http|https):\/\/[a-zA-Z0-9.-]*:?([0-9]*)?/g, "").replace(/^\//, "").split("/"), i = __spreadProps(__spreadValues({}, t), {
     path_parts: s,
     path_structure: s.map(
@@ -52069,15 +52073,15 @@ function Wr(t, e = Dt) {
   });
   e[n] = i, Ae(`+ ${t.method} ${t.path}`);
 }
-function xi(t, e, n = Dt) {
+function Ai(t, e, n = Dt) {
   const s = `${t}|${e}`;
   n[s] && (delete n[s], Ae(`- ${t} ${e}`));
 }
-function Ai(t, e, n, s = Dt) {
-  const i = qi(t, e, s);
+function qi(t, e, n, s = Dt) {
+  const i = Pi(t, e, s);
   if (i) {
-    const r = Pi(e, i, n);
-    return Ri(i, r);
+    const r = Ri(e, i, n);
+    return Ui(i, r);
   }
   try {
     return hs(t, e);
@@ -52085,7 +52089,7 @@ function Ai(t, e, n, s = Dt) {
     return Ae.error(`ERROR ${t}:`, [e, r]), Promise.reject(r);
   }
 }
-function qi(t, e, n = Dt) {
+function Pi(t, e, n = Dt) {
   const i = e.replace(/(http|https):\/\/[a-zA-Z0-9.-]*:?([0-9]*)?/g, "").replace(/^\//, "").split("?")[0].split("/"), r = Object.keys(
     n
   ).reduce((o, a) => (a.indexOf(`${t}|`) === 0 && o.push(n[a]), o), []);
@@ -52102,8 +52106,8 @@ function qi(t, e, n = Dt) {
     }
   return null;
 }
-function Pi(t, e, n) {
-  const s = t.replace(/(http|https):\/\/[a-zA-Z0-9.-]*:?([0-9]*)?/g, "").split("?"), i = s[0].replace(/^\//, ""), r = s[1] || "", o = Ie(r), a = i.split("/"), y = {};
+function Ri(t, e, n) {
+  const s = t.replace(/(http|https):\/\/[a-zA-Z0-9.-]*:?([0-9]*)?/g, "").split("?"), i = s[0].replace(/^\//, ""), r = s[1] || "", o = Te(r), a = i.split("/"), y = {};
   for (let P2 = 0; P2 < e.path_structure.length; P2++) {
     const W2 = e.path_structure[P2];
     W2 && (y[W2] = a[P2]);
@@ -52119,7 +52123,7 @@ function Pi(t, e, n) {
   };
   return Ae(`MATCHED ${L2.method}:`, L2), L2;
 }
-function Ri(t, e) {
+function Ui(t, e) {
   let n;
   try {
     n = t.callback ? t.callback(e) : t.metadata;
@@ -52131,12 +52135,12 @@ function Ri(t, e) {
     setTimeout(() => o(n), Math.max(200, r));
   });
 }
-var Ui = Nt("HTTP");
+var Ii = Nt("HTTP");
 var ls = {};
 function Ti(t, e = ls) {
   return e[t] || {};
 }
-function d(t, e, n = Ve) {
+function f(t, e, n = Ve) {
   return e || (e = { response_type: "json" }), n("GET", t, __spreadValues({ response_type: "json" }, e));
 }
 function S(t, e, n, s = Ve) {
@@ -52145,13 +52149,13 @@ function S(t, e, n, s = Ve) {
 function ce(t, e, n, s = Ve) {
   return n || (n = { response_type: "json" }), s("PUT", t, __spreadValues({ body: e, response_type: "json" }, n));
 }
-function ye(t, e, n, s = Ve) {
+function ae(t, e, n, s = Ve) {
   return n || (n = { response_type: "json" }), s("PATCH", t, __spreadValues({ body: e, response_type: "json" }, n));
 }
-function X(t, e, n = Ve) {
+function ee(t, e, n = Ve) {
   return e || (e = { response_type: "void" }), n("DELETE", t, __spreadValues({ response_type: "void" }, e));
 }
-async function Ii(t, e, n = ls) {
+async function Ei(t, e, n = ls) {
   if (t.headers) {
     const s = {};
     t.headers.forEach ? t.headers.forEach((i, r) => s[r.toLowerCase()] = i) : Object.keys(t.headers).forEach(
@@ -52169,15 +52173,15 @@ async function Ii(t, e, n = ls) {
       return await t.json().catch(() => ({}));
   }
 }
-var fs = () => (An(), xn().then(
+var ds = () => (qn(), An().then(
   () => Promise.resolve(),
   () => new Promise((t) => {
     setTimeout(() => {
-      fs().then(() => t());
+      ds().then(() => t());
     }, 1e3);
   })
 ));
-function Ve(t, e, n, s = kn, i = Ai, r = Ii) {
+function Ve(t, e, n, s = Sn, i = qi, r = Ei) {
   if (s()) {
     const P2 = i(t, e, n == null ? void 0 : n.body);
     if (P2) return P2;
@@ -52190,7 +52194,7 @@ function Ve(t, e, n, s = kn, i = Ai, r = Ii) {
     });
     return delete P2.response_type, delete P2.skip_auth, delete P2.skip_auth_flow, ["POST", "PUT", "PATCH"].includes(t) && n.body !== void 0 && (P2.body = typeof n.body == "string" ? n.body : JSON.stringify(n.body)), fetch(e, P2);
   }, a = async () => {
-    n.skip_auth || (await ri(li(), Boolean), V() === "x-api-key" ? n.headers["X-API-Key"] = Ye() : n.headers.Authorization = `Bearer ${V()}`);
+    n.skip_auth || (await oi(di(), Boolean), X() === "x-api-key" ? n.headers["X-API-Key"] = Ye() : n.headers.Authorization = `Bearer ${X()}`);
     const P2 = await o();
     if (P2.ok) return r(P2, n.response_type);
     throw P2;
@@ -52203,7 +52207,7 @@ function Ve(t, e, n, s = kn, i = Ai, r = Ii) {
       if (W2.status === 511)
         throw os(Rt()), W2;
       if (W2.status !== 401) throw W2 || {};
-      return Ui.warn("Auth error:", W2), await fs().catch(() => {
+      return Ii.warn("Auth error:", W2), await ds().catch(() => {
         throw W2;
       }), L2(P2 + 1);
     }
@@ -52229,20 +52233,20 @@ var F = class {
    */
   toJSON() {
     const e = __spreadValues({}, this);
-    return e.version = this.version, delete e.created_at, Ys(e, [void 0, null, ""]);
+    return e.version = this.version, delete e.created_at, Vs(e, [void 0, null, ""]);
   }
 };
-var ds = {};
+var fs = {};
 var ps = {};
 var Bn = "";
 var zt = (t) => t;
-var Mi = 300;
-var Te = {};
+var Ni = 300;
+var Ie = {};
 function $(t) {
   const { query_params: e, fn: n, path: s, endpoint: i } = t, r = b(e), o = `${i || u2()}${s ? "/" + s : ""}${r ? "?" + r : ""}`;
-  if (Te[o]) return Te[o].promise;
-  const a = d(o).then((y) => {
-    const L2 = Ni(o, r, s);
+  if (Ie[o]) return Ie[o].promise;
+  const a = f(o).then((y) => {
+    const L2 = wi(o, r, s);
     return {
       total: L2.total || 0,
       next: L2.next ? () => $({
@@ -52254,27 +52258,27 @@ function $(t) {
       data: y && y instanceof Array ? y.map((P2) => (n || zt)(P2)) : y && !(y instanceof Array) && y.results ? y.results.map((P2) => P2) : []
     };
   });
-  return Te[o] = {
+  return Ie[o] = {
     promise: a,
-    timeout: setTimeout(() => delete Te[o], Mi)
+    timeout: setTimeout(() => delete Ie[o], Ni)
   }, a.catch(() => {
     var _a10;
-    clearTimeout((_a10 = Te[o]) == null ? void 0 : _a10.timeout), delete Te[o];
+    clearTimeout((_a10 = Ie[o]) == null ? void 0 : _a10.timeout), delete Ie[o];
   }), a;
 }
 function g(t) {
   const { query_params: e, id: n, path: s, fn: i, options: r } = t, o = b(e), a = `${u2()}/${s}/${n}${o ? "?" + o : ""}`;
-  return d(a, r).then((y) => (i || zt)(y));
+  return f(a, r).then((y) => (i || zt)(y));
 }
-function T(t) {
+function I(t) {
   const { id: e, query_params: n, form_data: s, method: i, path: r, fn: o } = t, a = b(__spreadProps(__spreadValues({}, n), {
     version: s.version || 0
   })), y = `${u2()}/${r}/${e}${a ? "?" + a : ""}`;
-  return (i === "put" ? ce : ye)(y, s).then(
+  return (i === "put" ? ce : ae)(y, s).then(
     (L2) => (o || zt)(L2)
   );
 }
-function Ni(t, e, n) {
+function wi(t, e, n) {
   const s = Ti(
     t[0] === "/" ? `${location.origin}${t}` : t
   ), i = {
@@ -52283,11 +52287,11 @@ function Ni(t, e, n) {
   };
   if (s && s["x-total-count"]) {
     const r = +(s["x-total-count"] || 0);
-    (e.length < 2 || e.length < 12 && e.indexOf("offset=") >= 0) && (ds[n] = r), ps[n] = r, i.total = r;
+    (e.length < 2 || e.length < 12 && e.indexOf("offset=") >= 0) && (fs[n] = r), ps[n] = r, i.total = r;
   }
-  return s && s.link && (Bn = Js(s.link || "").next, i.next = Ie(Bn.split("?")[1])), i;
+  return s && s.link && (Bn = Ys(s.link || "").next, i.next = Te(Bn.split("?")[1])), i;
 }
-var Rn = class extends F {
+var Un = class extends F {
   /** Hash of the email address of the user */
   email_digest;
   /** ID of the authority associated with the user */
@@ -52406,7 +52410,7 @@ var gs = class extends F {
       }));
   }
 };
-var Un = class {
+var In = class {
   /** ISO8601 timestamp of the creation time of the group */
   created_at;
   /** ISO8601 timestamp of the last update time of the group */
@@ -52431,18 +52435,18 @@ var Un = class {
 };
 var ze = "groups";
 function it(t) {
-  return new Un(t);
+  return new In(t);
 }
-function _u(t = {}) {
+function yu(t = {}) {
   const e = b(t), n = `${u2()}/${ze}/current${e ? "?" + e : ""}`;
-  return d(n).then(
+  return f(n).then(
     (s) => (s || []).map((i) => ({
       group: it(i.group || {}),
       permissions: i.permissions || 0
     }))
   );
 }
-var he = class extends F {
+var le = class extends F {
   /** Name of the system assocaited with the trigger */
   system_name;
   /** Number of times the trigger has been activated/triggered */
@@ -52551,7 +52555,7 @@ var Kt = class extends F {
         encryption_level: +n
       }));
     e.trigger_data && e.trigger_data instanceof Array && (this.trigger_list = e.trigger_data.map(
-      (n) => new he(n)
+      (n) => new le(n)
     ));
   }
 };
@@ -52588,7 +52592,7 @@ var $e = "metadata";
 function Fe(t) {
   return new vs(t);
 }
-function ju(t, e) {
+function Wu(t, e) {
   return g({
     id: t,
     query_params: { name: e },
@@ -52596,8 +52600,8 @@ function ju(t, e) {
     path: $e
   });
 }
-function Gu(t, e, n = "put") {
-  return T({
+function Qu(t, e, n = "put") {
+  return I({
     id: t,
     form_data: e,
     query_params: {},
@@ -52606,9 +52610,9 @@ function Gu(t, e, n = "put") {
     path: $e
   });
 }
-function Ku(t, e) {
+function Yu(t, e) {
   const n = b(e), s = `${u2()}/${$e}/${encodeURIComponent(t)}/bulk${n ? "?" + n : ""}`;
-  return d(s).then(
+  return f(s).then(
     (i) => Object.keys(i || {}).reduce(
       (r, o) => __spreadProps(__spreadValues({}, r), { [o]: Fe(i[o]) }),
       {}
@@ -52675,7 +52679,7 @@ var ks = class extends F {
   /** Orientation of the signage system */
   orientation;
   constructor(e = {}) {
-    super(e), this.display_name = e.display_name || "", this.description = e.description || "", this.email = e.email || "", this.code = e.code || "", this.capacity = e.capacity || 0, this.features = e.features || [], this.bookable = e.bookable || false, this.public = e.public ?? false, this.installed_ui_devices = e.installed_ui_devices || 0, this.support_url = e.support_url || "", this.camera_snapshot_url = e.camera_snapshot_url || "", this.camera_snapshot_urls = e.camera_snapshot_urls || [], this.camera_url = e.camera_url || "", this.timetable_url = e.timetable_url || "", this.room_booking_url = e.room_booking_url || "", this.map_id = e.map_id || "", this.modules = e.modules || [], this.images = e.images || [], this.zones = e.zones || [], this.settings = e.settings || [null, null, null, null], this.timezone = e.timezone || "", this.signage = e.signage || false, this.playlists = e.playlists || [], this.security_groups = e.security_groups || [], this.orientation = e.orientation || "unspecified", this.approval = e.approval || false, this.signage_last_seen = e.signage_last_seen || yn(Date.now()), typeof this.settings != "object" && (this.settings = [null, null, null, null]);
+    super(e), this.display_name = e.display_name || "", this.description = e.description || "", this.email = e.email || "", this.code = e.code || "", this.capacity = e.capacity || 0, this.features = e.features || [], this.bookable = e.bookable || false, this.public = e.public ?? false, this.installed_ui_devices = e.installed_ui_devices || 0, this.support_url = e.support_url || "", this.camera_snapshot_url = e.camera_snapshot_url || "", this.camera_snapshot_urls = e.camera_snapshot_urls || [], this.camera_url = e.camera_url || "", this.timetable_url = e.timetable_url || "", this.room_booking_url = e.room_booking_url || "", this.map_id = e.map_id || "", this.modules = e.modules || [], this.images = e.images || [], this.zones = e.zones || [], this.settings = e.settings || [null, null, null, null], this.timezone = e.timezone || "", this.signage = e.signage || false, this.playlists = e.playlists || [], this.security_groups = e.security_groups || [], this.orientation = e.orientation || "unspecified", this.approval = e.approval || false, this.signage_last_seen = e.signage_last_seen || $n(Date.now()), typeof this.settings != "object" && (this.settings = [null, null, null, null]);
     for (const n in He)
       !isNaN(Number(n)) && !this.settings[n] && (this.settings[n] = new qe({
         parent_id: this.id,
@@ -52753,47 +52757,47 @@ var Ss = class extends F {
     return (n.role !== Et.Logic && !e || !n.control_system_id) && delete n.control_system_id, delete n.driver, delete n.system, delete n.error_timestamp, delete n.has_runtime_error, n;
   }
 };
-var C = "systems";
+var O = "systems";
 function Pe(t) {
   return new ks(t);
 }
-function ta(t = {}) {
-  return $({ query_params: t, fn: Pe, path: C });
+function ia(t = {}) {
+  return $({ query_params: t, fn: Pe, path: O });
 }
-function na(t) {
-  return $({ query_params: t, fn: Pe, path: `${C}/with_emails` });
+function ra(t) {
+  return $({ query_params: t, fn: Pe, path: `${O}/with_emails` });
 }
-function sa(t, e = {}) {
-  return g({ id: t, query_params: e, fn: Pe, path: C });
+function oa(t, e = {}) {
+  return g({ id: t, query_params: e, fn: Pe, path: O });
 }
-var J = "users";
+var Y = "users";
 function Re(t) {
-  return new Rn(t);
+  return new Un(t);
 }
-function Ea(t = {}) {
-  return $({ query_params: t, fn: Re, path: J });
+function Ma(t = {}) {
+  return $({ query_params: t, fn: Re, path: Y });
 }
-function Ca(t, e = {}) {
-  return g({ id: t, query_params: e, fn: Re, path: J });
+function Na(t, e = {}) {
+  return g({ id: t, query_params: e, fn: Re, path: Y });
 }
-function Ma(t, e, n = "patch") {
-  return T({
+function Da(t, e, n = "patch") {
+  return I({
     id: t,
     form_data: e,
     query_params: {},
     method: n,
     fn: Re,
-    path: J
+    path: Y
   });
 }
-var le = "zones";
+var de = "zones";
 function nn(t) {
   return new Kt(t);
 }
-function Ba(t = {}) {
-  return $({ query_params: t, fn: nn, path: le });
+function Ka(t = {}) {
+  return $({ query_params: t, fn: nn, path: de });
 }
-var or = class {
+var ar = class {
   id;
   parent_category_id;
   name;
@@ -52805,7 +52809,7 @@ var or = class {
     this.id = e.id || "", this.parent_category_id = e.parent_category_id || "", this.name = e.name || "", this.description = e.description || "", this.hidden = e.hidden || false, this.created_at = e.created_at || 0, this.updated_at = e.updated_at || 0;
   }
 };
-var cr = class {
+var lr = class {
   id;
   category_id;
   name;
@@ -52819,7 +52823,7 @@ var cr = class {
     this.id = e.id || "", this.category_id = e.category_id || "", this.name = e.name || "", this.brand = e.brand || "", this.description = e.description || "", this.model_number = e.model_number || "", this.images = e.images || [], this.created_at = e.created_at || 0, this.updated_at = e.updated_at || 0;
   }
 };
-var ar = class {
+var dr = class {
   id;
   parent_id;
   asset_type_id;
@@ -52850,46 +52854,46 @@ var ar = class {
 };
 var ve = "assets";
 function Ue(t) {
-  return new ar(t);
+  return new dr(t);
 }
-function Gh(t = {}) {
+function Zh(t = {}) {
   return $({
     query_params: t,
     fn: Ue,
     path: ve
   });
 }
-var dt = "asset_types";
-function hn(t) {
-  return new cr(t);
-}
-function Vh(t = {}) {
-  return $({
-    query_params: t,
-    fn: hn,
-    path: dt
-  });
-}
-function Xh(t, e = {}) {
-  return g({
-    id: t,
-    query_params: e,
-    fn: hn,
-    path: dt
-  });
-}
-var pt = "asset_categories";
+var ft = "asset_types";
 function ln(t) {
-  return new or(t);
+  return new lr(t);
 }
 function sl(t = {}) {
   return $({
     query_params: t,
     fn: ln,
+    path: ft
+  });
+}
+function il(t, e = {}) {
+  return g({
+    id: t,
+    query_params: e,
+    fn: ln,
+    path: ft
+  });
+}
+var pt = "asset_categories";
+function dn(t) {
+  return new ar(t);
+}
+function cl(t = {}) {
+  return $({
+    query_params: t,
+    fn: dn,
     path: pt
   });
 }
-var Is = class {
+var Es = class {
   _listeners = /* @__PURE__ */ new Set();
   _error_listeners = /* @__PURE__ */ new Set();
   _complete_listeners = /* @__PURE__ */ new Set();
@@ -52919,7 +52923,7 @@ var Is = class {
     this._listeners.clear(), this._error_listeners.clear(), this._complete_listeners.clear();
   }
 };
-var fr = class extends Is {
+var _r = class extends Es {
   constructor(e) {
     super(), this._config = e, this._socket = new WebSocket(e.url), this._socket.onopen = () => {
       const n = [...this._queue];
@@ -52944,14 +52948,14 @@ var fr = class extends Is {
     return this._config.deserializer ? this._config.deserializer(e) : e.data;
   }
 };
-function dr(t) {
-  return new fr(
+function mr(t) {
+  return new _r(
     typeof t == "string" ? { url: t } : t
   );
 }
 var te = /* @__PURE__ */ ((t) => (t[t.PARSE_ERROR = 0] = "PARSE_ERROR", t[t.BAD_REQUEST = 1] = "BAD_REQUEST", t[t.ACCESS_DENIED = 2] = "ACCESS_DENIED", t[t.REQUEST_FAILED = 3] = "REQUEST_FAILED", t[t.UNKNOWN_CMD = 4] = "UNKNOWN_CMD", t[t.SYS_NOT_FOUND = 5] = "SYS_NOT_FOUND", t[t.MOD_NOT_FOUND = 6] = "MOD_NOT_FOUND", t[t.UNEXPECTED_FAILURE = 7] = "UNEXPECTED_FAILURE", t))(te || {});
-var Es = /* @__PURE__ */ ((t) => (t.Info = "info", t.Debug = "debug", t.Warning = "warn", t.Error = "error", t.Fatal = "fatal", t.Trace = "trace", t))(Es || {});
-var pr = class {
+var Os = /* @__PURE__ */ ((t) => (t.Info = "info", t.Debug = "debug", t.Warning = "warn", t.Error = "error", t.Fatal = "fatal", t.Trace = "trace", t))(Os || {});
+var gr = class {
   constructor(e, n) {
     this._system = e;
     const s = Object.getOwnPropertyNames(
@@ -52998,7 +53002,7 @@ var pr = class {
     });
   }
 };
-var _r = class {
+var yr = class {
   constructor(e) {
     for (const n in e)
       e.hasOwnProperty(n) && e[n] && e[n] instanceof Array && e[n].forEach((s) => {
@@ -53011,51 +53015,51 @@ var _r = class {
    * @param properties Properties of the new module
    */
   addModule(e, n) {
-    this[e] || (this[e] = []), this[e].push(new pr(this, n));
+    this[e] || (this[e] = []), this[e].push(new gr(this, n));
   }
 };
-var Ct = {};
-function Nl(t, e) {
-  return Ct[t] = new _r(e), Ct[t];
+var Ot = {};
+function Fl(t, e) {
+  return Ot[t] = new yr(e), Ot[t];
 }
-function mr(t) {
-  return Ct[t];
+function $r(t) {
+  return Ot[t];
 }
-var O = Nt("WS");
+var C = Nt("WS");
 var Cs = 15;
 var gt = 0;
-var Y;
-var Os = 0;
+var V;
+var Ms = 0;
 var G = {};
 var wn = {};
-var gr = {};
+var br = {};
 var Se = ne(false);
-var Ms = ne([0, 0]);
-var Ns = Date.now();
+var Ns = ne([0, 0]);
+var ws = Date.now();
 var Ee;
-var Ot = 0;
+var Ct = 0;
 var fe = null;
 var kt;
 var Dn = 0;
 var yt = 10 * 1e3;
-var yr = ne(null);
-function _n() {
+var vr = ne(null);
+function mn() {
   return u2().indexOf("/control/") >= 0 ? "/control/websocket" : `${is()}/systems/control`;
 }
-function ws() {
+function Ds() {
   return Se.value;
 }
-function $r() {
+function kr() {
   return Se.asReadonly();
 }
-function Dl() {
-  return Ms.asReadonly();
+function jl() {
+  return Ns.asReadonly();
 }
-function br(t, e = wn) {
+function Sr(t, e = wn) {
   const n = `${t.sys}|${t.mod}_${t.index}|${t.name}`;
   return e[n] || (e[n] = ne(void 0)), e[n].asReadonly();
 }
-function vr(t, e = wn) {
+function xr(t, e = wn) {
   const n = `${t.sys}|${t.mod}_${t.index}|${t.name}`;
   if (e[n])
     return e[n].value;
@@ -53067,14 +53071,14 @@ function Wn(t, e = 0, n = Ge) {
   }, t);
   return n(s, e);
 }
-function kr(t, e = 0, n = Ge) {
+function Ar(t, e = 0, n = Ge) {
   const s = __spreadValues({
     id: ++gt,
     cmd: "unbind"
   }, t);
   return n(s, e);
 }
-function Sr(t, e = yt, n = Ge) {
+function qr(t, e = yt, n = Ge) {
   const s = __spreadValues({
     id: ++gt,
     cmd: "exec"
@@ -53082,9 +53086,9 @@ function Sr(t, e = yt, n = Ge) {
   return n(s, e);
 }
 function Ge(t, e = yt, n = 0) {
-  const s = `${t.cmd}|${t.sys}|${t.mod}${t.index}|${t.name}|${t.args}|${ei()}`;
+  const s = `${t.cmd}|${t.sys}|${t.mod}${t.index}|${t.name}|${t.args}|${ti()}`;
   if (G[s])
-    O("Request already in progress. Waiting...", t);
+    C("Request already in progress. Waiting...", t);
   else {
     const i = __spreadProps(__spreadValues({}, t), { key: s });
     i.promise = new Promise((r, o) => {
@@ -53094,13 +53098,13 @@ function Ge(t, e = yt, n = 0) {
           (y) => o(y)
         );
       };
-      if (Y && ws()) {
-        kn() && Tr(t, Y, gr), i.resolve = r, i.reject = o;
+      if (V && Ds()) {
+        Sn() && Or(t, V, br), i.resolve = r, i.reject = o;
         const y = `${t.sys}, ${t.mod}_${t.index}, ${t.name}`;
-        O(
+        C(
           `[${t.cmd.toUpperCase()}](${t.id}) ${y}`,
           t.args
-        ), Y.next(t), e > 0 && re(
+        ), V.next(t), e > 0 && re(
           `${s}`,
           () => {
             o("Request timed out."), delete G[s], G[s] = null;
@@ -53112,32 +53116,32 @@ function Ge(t, e = yt, n = 0) {
   }
   return G[s].promise;
 }
-function Ds(t) {
+function Hs(t) {
   if (t !== "pong" && t instanceof Object) {
     if (t.type === "notify" && t.meta)
-      qr(t.meta, t.value);
+      Ur(t.meta, t.value);
     else if (t.type === "success")
-      xr(t);
+      Pr(t);
     else if (t.type === "debug") {
-      O(`[DEBUG] ${t.mod}${t.klass || ""} \u2192`, t.msg);
+      C(`[DEBUG] ${t.mod}${t.klass || ""} \u2192`, t.msg);
       const e = t.meta || { mod: "", index: "" };
-      yr.set({
+      vr.set({
         mod_id: t.mod || "<empty>",
         module: `${e.mod}_${e.index}`,
         class_name: t.klass || "<empty>",
         message: t.msg || "<empty>",
-        level: t.level || Es.Debug,
+        level: t.level || Os.Debug,
         time: Math.floor((/* @__PURE__ */ new Date()).getTime() / 1e3)
       });
-    } else t.type === "error" ? Ar(t) : t.cmd || O.error("Invalid websocket message", t);
-    _e(`${t.id}`);
-  } else t === "pong" && (Dn = Date.now(), O("Pong!"));
+    } else t.type === "error" ? Rr(t) : t.cmd || C.error("Invalid websocket message", t);
+    me(`${t.id}`);
+  } else t === "pong" && (Dn = Date.now(), C("Pong!"));
 }
-function xr(t) {
+function Pr(t) {
   const e = Object.keys(G).map((n) => G[n]).find((n) => (n == null ? void 0 : n.id) === t.id);
-  O(`[SUCCESS](${t.id})`), e && e.resolve && (e.resolve(t.value), delete G[e.key]);
+  C(`[SUCCESS](${t.id})`), e && e.resolve && (e.resolve(t.value), delete G[e.key]);
 }
-function Ar(t) {
+function Rr(t) {
   let e = "UNEXPECTED FAILURE";
   switch (t.code) {
     case te.ACCESS_DENIED:
@@ -53162,15 +53166,15 @@ function Ar(t) {
       e = "UNKNOWN COMMAND";
       break;
   }
-  O.error(`[ERROR] ${e}(${t.id}): ${t.msg}`);
+  C.error(`[ERROR] ${e}(${t.id}): ${t.msg}`);
   const n = Object.keys(G).map((s) => G[s]).filter((s) => s).find((s) => s.id === t.id);
-  n && n.reject && (n.reject(t), _e(`${n.key}`), delete G[n.key]);
+  n && n.reject && (n.reject(t), me(`${n.key}`), delete G[n.key]);
 }
-function qr(t, e, n = wn) {
+function Ur(t, e, n = wn) {
   const s = `${t.sys}|${t.mod}_${t.index}|${t.name}`;
   n[s] || (n[s] = ne(null));
   const i = `${t.sys}, ${t.mod}_${t.index}, ${t.name}`;
-  O(`[NOTIFY] ${i} changed`, [
+  C(`[NOTIFY] ${i} changed`, [
     n[s].value,
     "\u2192",
     e
@@ -53180,26 +53184,26 @@ function Hn(t = 0) {
   return fe == null && (fe = new Promise((e) => {
     if (t > 40)
       return location.reload();
-    Ot++, Ns = Date.now(), Y = kn() ? Ur() : Pr(), Y ? (O.debug("Authority:", Rt()), O("Connecting to websocket..."), Y.subscribe(
+    Ct++, ws = Date.now(), V = Sn() ? Er() : Ir(), V ? (C.debug("Authority:", Rt()), C("Connecting to websocket..."), V.subscribe(
       (n) => {
-        Se.value || (O("Connection established."), e()), Se.set(true), Ot = 0, mn(), Ds(n);
+        Se.value || (C("Connection established."), e()), Se.set(true), Ct = 0, gn(), Hs(n);
       },
       (n) => {
-        Y = void 0, fe = null, Zn(), mn(), Rr(n);
+        V = void 0, fe = null, Zn(), gn(), Tr(n);
       },
       () => {
-        Y = void 0, fe = null, Zn(), O("Connection closed by browser."), Se.set(false), Mt();
+        V = void 0, fe = null, Zn(), C("Connection closed by browser."), Se.set(false), Mt();
       }
     ), Ee && clearInterval(Ee), Dn = Date.now(), Qn(), Ee = setInterval(
       () => Qn(),
       Cs * 1e3
-    ), mn(), Os += 1, kt = setTimeout(() => {
-      O("Unhealthy connection. Reconnecting..."), Se.set(false), fe = null, Mt();
-    }, 30 * 1e3)) : (Y ? O(
+    ), gn(), Ms += 1, kt = setTimeout(() => {
+      C("Unhealthy connection. Reconnecting..."), Se.set(false), fe = null, Mt();
+    }, 30 * 1e3)) : (V ? C(
       `Waiting on auth(${t}). Retrying in ${1e3 * Math.min(10, t + 1)}ms...`,
-      [!!V(), !!Rt()],
+      [!!X(), !!Rt()],
       "info"
-    ) : O.error(
+    ) : C.error(
       `Failed to create websocket(${t}). Retrying in ${1e3 * Math.min(10, t + 1)}ms...`
     ), setTimeout(
       () => {
@@ -53209,15 +53213,15 @@ function Hn(t = 0) {
     ));
   })), fe;
 }
-function Pr() {
-  if (!Rt() || !V()) return null;
+function Ir() {
+  if (!Rt() || !X()) return null;
   const t = fi() || location.protocol.indexOf("https") >= 0;
-  let e = `ws${t ? "s" : ""}://${$n()}${_n()}${rs() ? "?fixed_device=true" : ""}`;
-  const n = V();
+  let e = `ws${t ? "s" : ""}://${bn()}${mn()}${rs() ? "?fixed_device=true" : ""}`;
+  const n = X();
   let s = n === "x-api-key" ? `api-key=${Ye()}` : `bearer_token=${n}`;
-  return !ci() && !Vs() ? (O("Authenticating through cookie..."), s += `;max-age=120;path=${_n()};`, s += `${t ? "secure;" : ""}samesite=strict`, document.cookie = s, O("Cookies:", [document.cookie, s])) : (O("Authenticating through URL query parameter..."), e += `${e.indexOf("?") >= 0 ? "&" : "?"}${s}`), O(
-    `Creating websocket connection to ws${t ? "s" : ""}://${$n()}${_n()}`
-  ), dr({
+  return !ai() && !Xs() ? (C("Authenticating through cookie..."), s += `;max-age=120;path=${mn()};`, s += `${t ? "secure;" : ""}samesite=strict`, document.cookie = s, C("Cookies:", [document.cookie, s])) : (C("Authenticating through URL query parameter..."), e += `${e.indexOf("?") >= 0 ? "&" : "?"}${s}`), C(
+    `Creating websocket connection to ws${t ? "s" : ""}://${bn()}${mn()}`
+  ), mr({
     url: e,
     serializer: (i) => typeof i == "object" ? JSON.stringify(i) : i,
     deserializer: (i) => {
@@ -53232,32 +53236,32 @@ function Pr() {
   });
 }
 function Mt() {
-  Ms.set([Os, Date.now() - Ns]), Y && ws() && (Y.complete(), Ee && (clearInterval(Ee), Ee = void 0)), O(
+  Ns.set([Ms, Date.now() - ws]), V && Ds() && (V.complete(), Ee && (clearInterval(Ee), Ee = void 0)), C(
     `Reconnecting in ${Math.min(
       5e3,
-      Ot * 300 || 1e3
+      Ct * 300 || 1e3
     )}ms...`
   ), re(
     "reconnect",
     () => Hn(),
-    Math.min(5e3, (Ot + 1) * 300 || 1e3)
+    Math.min(5e3, (Ct + 1) * 300 || 1e3)
   );
 }
 function Qn() {
   if (Date.now() - Dn > 4 * Cs * 1e3)
     return Mt();
-  Y == null ? void 0 : Y.next("ping");
+  V == null ? void 0 : V.next("ping");
 }
-function Rr(t) {
-  Se.set(false), O.error("Websocket error:", t), t.status === 401 && An(), xn(), Mt();
+function Tr(t) {
+  Se.set(false), C.error("Websocket error:", t), t.status === 401 && qn(), An(), Mt();
 }
-function mn() {
+function gn() {
   kt && (clearTimeout(kt), kt = void 0);
 }
-function Ur() {
-  const t = new Is();
+function Er() {
+  const t = new Es();
   return t.subscribe(
-    (e) => Ds(e)
+    (e) => Hs(e)
   ), t;
 }
 function Kn(t, e) {
@@ -53269,8 +53273,8 @@ function Kn(t, e) {
     msg: n
   };
 }
-function Tr(t, e, n) {
-  const s = `${t.sys}|${t.mod}_${t.index}|${t.name}`, i = mr(t.sys), r = i && i[t.mod] ? i[t.mod][t.index - 1 || 0] : null;
+function Or(t, e, n) {
+  const s = `${t.sys}|${t.mod}_${t.index}|${t.name}`, i = $r(t.sys), r = i && i[t.mod] ? i[t.mod][t.index - 1 || 0] : null;
   if (r) {
     try {
       switch (t.cmd) {
@@ -53290,11 +53294,11 @@ function Tr(t, e, n) {
           });
           break;
         case "unbind":
-          n[s] && (n[s](), delete n[s], _e(`${s}`));
+          n[s] && (n[s](), delete n[s], me(`${s}`));
           break;
       }
     } catch (o) {
-      O.error(`[MOCK ERROR](${t.id}) request failed`, o), re(
+      C.error(`[MOCK ERROR](${t.id}) request failed`, o), re(
         `${t.id}-error`,
         () => e.next(Kn(t, o)),
         10
@@ -53312,7 +53316,7 @@ function Tr(t, e, n) {
           };
           e.next(o);
         } catch (o) {
-          O.error(
+          C.error(
             `[MOCK ERROR](${t.id}) execute failed`,
             o
           ), e.next(Kn(t, o));
@@ -53337,8 +53341,8 @@ function Zn() {
 }
 var Jn = class {
   constructor(e, n) {
-    this._module = e, this.name = n, $r().subscribe((s, i) => {
-      s !== i && (s && (this._stale_bindings || this._pending === 1) ? (xt("VAR", "Re-binding to status variable", this.binding()), this.rebind()) : s || (_e(`rebind:${JSON.stringify(this.binding())}`), xt(
+    this._module = e, this.name = n, kr().subscribe((s, i) => {
+      s !== i && (s && (this._stale_bindings || this._pending === 1) ? (xt("VAR", "Re-binding to status variable", this.binding()), this.rebind()) : s || (me(`rebind:${JSON.stringify(this.binding())}`), xt(
         "VAR",
         "Binding dropped due to disconnection, re-binding when possible.",
         this.binding()
@@ -53359,13 +53363,13 @@ var Jn = class {
   }
   /** Current value of the binding */
   get value() {
-    return vr(this.binding());
+    return xr(this.binding());
   }
   /**
    * Get a signal that emits the current value of the binding
    */
   listen() {
-    return br(this.binding());
+    return Sr(this.binding());
   }
   /**
    * Subscribe to changes of the variable's binding value.
@@ -53406,7 +53410,7 @@ var Jn = class {
    * Unbind from status variable
    */
   unbind() {
-    this._binding_count === 1 && this._pending === 0 ? (this._pending = 2, kr(this.binding()).then(() => {
+    this._binding_count === 1 && this._pending === 0 ? (this._pending = 2, Ar(this.binding()).then(() => {
       this._pending === 2 && (this._pending = 0), this._binding_count--;
     })) : this._binding_count = Math.max(this._binding_count - 1, 0);
   }
@@ -53434,7 +53438,7 @@ var Jn = class {
     };
   }
 };
-var Ir = class {
+var Cr = class {
   constructor(e, n) {
     this._system = e, this._id = n;
   }
@@ -53478,7 +53482,7 @@ var Ir = class {
    * @param args Array of arguments to pass to the method
    */
   execute(e, n, s = yt) {
-    return Sr(
+    return qr(
       {
         sys: this._system.id,
         mod: this.name,
@@ -53490,7 +53494,7 @@ var Ir = class {
     );
   }
 };
-var Er = class {
+var Mr = class {
   /** Unique idetifier of the system */
   id;
   /** Mapping of engine modules within the system */
@@ -53511,7 +53515,7 @@ var Er = class {
     const i = s.join("_");
     for (this._module_list[i] || (this._module_list[i] = []); this._module_list[i].length < n; )
       this._module_list[i].push(
-        new Ir(
+        new Cr(
           this,
           `${i}_${this._module_list[i].length + 1}`
         )
@@ -53519,12 +53523,12 @@ var Er = class {
     return this._module_list[i][n - 1];
   }
 };
-var gn = {};
-function Cr(t) {
-  return gn[t] || (gn[t] = new Er(t)), gn[t];
+var yn = {};
+function Nr(t) {
+  return yn[t] || (yn[t] = new Mr(t)), yn[t];
 }
-function Fl(t, e, n = 1) {
-  return Cr(t).module(e, n);
+function Wl(t, e, n = 1) {
+  return Nr(t).module(e, n);
 }
 
 // libs/common/src/lib/locale.service.ts
@@ -53648,7 +53652,7 @@ var _LocaleService = class _LocaleService {
         return console.error(`Failed to loaded locale file for "${locale}".`, resp);
       }
       const locale_data = await resp.json();
-      const locale_override_data = this.zone_id ? await ju(this.zone_id, `locale_${locale}`) : { details: {} };
+      const locale_override_data = this.zone_id ? await Wu(this.zone_id, `locale_${locale}`) : { details: {} };
       const base_locale_values = removeNesting(locale_data);
       const override_locale_values = removeNesting(locale_override_data.details);
       this._locale_mappings[locale] = __spreadValues(__spreadValues({}, base_locale_values), override_locale_values);
@@ -53779,8 +53783,8 @@ function getTimezoneOffsetInMinutes(timeZone, date = /* @__PURE__ */ new Date())
 }
 function getTimeInTimezone(date, tz) {
   if (!tz) {
-    const d2 = new Date(date);
-    return { hours: d2.getHours(), minutes: d2.getMinutes() };
+    const d = new Date(date);
+    return { hours: d.getHours(), minutes: d.getMinutes() };
   }
   const zoned = toZonedTime(date, tz);
   return { hours: zoned.getHours(), minutes: zoned.getMinutes() };
@@ -53791,8 +53795,8 @@ function formatTimeInTimezone(date, tz) {
 }
 function setTimeInTimezone(date, hours, minutes, tz) {
   if (!tz) {
-    const d2 = set(new Date(date), { hours, minutes });
-    return startOfMinute(d2).valueOf();
+    const d = set(new Date(date), { hours, minutes });
+    return startOfMinute(d).valueOf();
   }
   const zoned = toZonedTime(date, tz);
   const adjusted = set(zoned, { hours, minutes });
@@ -53907,18 +53911,18 @@ function xmur3(str) {
     return (h2 ^= h2 >>> 16) >>> 0;
   };
 }
-function sfc32(a, b2, c2, d2) {
+function sfc32(a, b2, c2, d) {
   return function() {
     a >>>= 0;
     b2 >>>= 0;
     c2 >>>= 0;
-    d2 >>>= 0;
+    d >>>= 0;
     let t = a + b2 | 0;
     a = b2 ^ b2 >>> 9;
     b2 = c2 + (c2 << 3) | 0;
     c2 = c2 << 21 | c2 >>> 11;
-    d2 = d2 + 1 | 0;
-    t = t + d2 | 0;
+    d = d + 1 | 0;
+    t = t + d | 0;
     c2 = c2 + t | 0;
     return (t >>> 0) / 4294967296;
   };
@@ -54221,9 +54225,9 @@ function setupFormTimeSync(model2, options2 = {}, injector) {
     date_end = normaliseTimeValue(date_end);
     if (!date || !date_end)
       return false;
-    const d2 = timezone ? toZonedTime(date, timezone) : new Date(date);
+    const d = timezone ? toZonedTime(date, timezone) : new Date(date);
     const e = timezone ? toZonedTime(date_end, timezone) : new Date(date_end);
-    return !isSameDay(d2, e);
+    return !isSameDay(d, e);
   };
   const alignEndToBookableHours = (date_end) => {
     date_end = normaliseTimeValue(date_end);
@@ -54677,18 +54681,18 @@ var _GoogleAnalyticsService = class _GoogleAnalyticsService {
   init(tracking_id = "") {
     if (!window.gtag) {
       window.dataLayer = window.dataLayer || [];
-      (function(w, d2, s, l, i) {
+      (function(w, d, s, l, i) {
         w[l] = w[l] || [];
         w[l].push({
           "gtm.start": (/* @__PURE__ */ new Date()).getTime(),
           event: "gtm.js"
         });
-        const f = d2.getElementsByTagName(s)[0];
-        const j = d2.createElement(s);
+        const f2 = d.getElementsByTagName(s)[0];
+        const j = d.createElement(s);
         const dl = l != "dataLayer" ? "&l=" + l : "";
         j.async = true;
         j.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
-        f.parentNode.insertBefore(j, f);
+        f2.parentNode.insertBefore(j, f2);
       })(window, document, "script", "dataLayer", tracking_id);
       log("Analytics", "Service", "Injected Google Analytics into page");
     }
@@ -55028,7 +55032,7 @@ var CateringOrder = class {
     this.deliver_at_time = deliverAtTime2(this);
   }
   toJSON() {
-    const obj = Ys(__spreadValues({}, this), ["", null, void 0]);
+    const obj = Vs(__spreadValues({}, this), ["", null, void 0]);
     obj.status = obj._status;
     delete obj.event;
     delete obj._status;
@@ -55559,7 +55563,7 @@ var CalendarEvent = class _CalendarEvent {
   }
   /** List of external attendees associated with the event */
   get guests() {
-    return this.attendees.filter((f) => !!f.is_external);
+    return this.attendees.filter((f2) => !!f2.is_external);
   }
   /** Primary space associated with the booking */
   get space() {
@@ -55780,7 +55784,7 @@ async function loadUserGroups() {
     return;
   }
   try {
-    const groups = await _u({});
+    const groups = await yu({});
     user_groups.set(groups);
     console.log("Permissions:", user_permissions());
   } catch (error2) {
@@ -55798,7 +55802,7 @@ function initialiseUser() {
   }
   _current_user.subscribe((u3) => user_signal.set(u3));
   const is_public_mode = isPublicMode();
-  const user_request = combineLatest([Ca("current"), _change]).pipe(map(([i]) => new StaffUser(i)));
+  const user_request = combineLatest([Na("current"), _change]).pipe(map(([i]) => new StaffUser(i)));
   if (is_public_mode) {
     user_request.pipe(catchError((error2) => {
       console.warn("User loading failed in public mode, using local public user data.", error2);
@@ -55822,7 +55826,7 @@ function initialiseUser() {
 function reloadUserData() {
   setTimeout(async () => {
     try {
-      const p_user = await Ca("current");
+      const p_user = await Na("current");
       const user = new StaffUser(p_user);
       _current_user.next(user);
       setDefaultCreator(user);
@@ -55883,15 +55887,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "f0e9ff2",
-  "hash": "f0e9ff2",
+  "raw": "aa39f65",
+  "hash": "aa39f65",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "f0e9ff2",
+  "suffix": "aa39f65",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1782896703377
+  "time": 1782986491522
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -56020,7 +56024,7 @@ var _SettingsService = class _SettingsService extends AsyncHandler {
       window.setting = (key) => this.get(key);
     }
     const user = await this._currentUser();
-    const data = await ju(user.id, "settings");
+    const data = await Wu(user.id, "settings");
     this._user_settings.set(data.details || {});
     this.timeout("init", () => {
       this._initDarkMode();
@@ -56064,7 +56068,7 @@ var _SettingsService = class _SettingsService extends AsyncHandler {
     this.timeout("save_settings", () => this._savePendingChanges(), 2400);
   }
   async updateLocatable(locatable) {
-    await Ma(currentUser().id, { locatable }, "patch");
+    await Da(currentUser().id, { locatable }, "patch");
     reloadUserData();
   }
   overrideCssVariable(key, value, important = false) {
@@ -56103,7 +56107,7 @@ var _SettingsService = class _SettingsService extends AsyncHandler {
     if (!(user == null ? void 0 : user.id) || !Object.keys(this._pending_settings).length)
       return;
     this._updateSignals();
-    await Gu(user.id, {
+    await Qu(user.id, {
       name: "settings",
       description: "",
       details: __spreadValues(__spreadValues({}, this._user_settings()), this._pending_settings)
@@ -57310,7 +57314,7 @@ async function setupPlace(settings) {
   if (mock) {
     notifyInfo("Application in mock mode.");
   }
-  return zr(config2);
+  return jr(config2);
 }
 
 // libs/common/src/lib/signal.utilities.ts
@@ -59856,7 +59860,7 @@ var FOCUS_TRAP_INERT_STRATEGY = new InjectionToken("FOCUS_TRAP_INERT_STRATEGY");
 var FocusTrapManager = class _FocusTrapManager {
   _focusTrapStack = [];
   register(focusTrap) {
-    this._focusTrapStack = this._focusTrapStack.filter((ft) => ft !== focusTrap);
+    this._focusTrapStack = this._focusTrapStack.filter((ft2) => ft2 !== focusTrap);
     let stack = this._focusTrapStack;
     if (stack.length) {
       stack[stack.length - 1]._disable();
@@ -78438,7 +78442,7 @@ var _PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
       notifySuccess("Toggled dark mode.");
     });
     this._hotkey.listen(["Control", "Alt", "Shift", "KeyC"], () => {
-      this._clipboard.copy(`${V()}|${Pt()}`);
+      this._clipboard.copy(`${X()}|${Pt()}`);
       notifySuccess("Successfully copied token.");
     });
     this._hotkey.listen(["Control", "Alt", "Shift", "KeyV"], () => {
@@ -78461,7 +78465,7 @@ var _PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
         localStorage.setItem("PLACEOS.locale", locale);
       }
       if (params.has("x-api-key")) {
-        Nr(params.get("x-api-key"));
+        Hr(params.get("x-api-key"));
       }
       if (params.has("region_id")) {
         this._region = params.get("region_id");
@@ -78481,7 +78485,7 @@ var _PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
     settings.app_name = this._settings.get("app.name") || this._settings.get("app.short_name");
     settings.mock = !!this._settings.get("mock") || _mocks && location.origin.includes("demo.place.tech");
     if (START_QUERY) {
-      const query2 = Ie(START_QUERY.substring(1));
+      const query2 = Te(START_QUERY.substring(1));
       this._router.navigate([], {
         relativeTo: this._route,
         queryParams: query2
@@ -78531,15 +78535,15 @@ var _PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
       const auth_error = await setupPlace(settings).then(() => null).catch((_2) => _2);
       if (!auth_error) {
         const api_key = getNativeApiKey();
-        const client_key = `${ai()}_x-api-key`;
+        const client_key = `${hi()}_x-api-key`;
         if (api_key)
-          Nr(api_key);
+          Hr(api_key);
         else if (localStorage.getItem(client_key)) {
           localStorage.removeItem(client_key);
-          An();
+          qn();
         }
         if (intune_token)
-          hi(intune_token);
+          li(intune_token);
         break;
       }
       log("APP", "Auth failed, resetting domain.", auth_error, "warn");
@@ -78547,13 +78551,13 @@ var _PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
       clearNativeApiKey();
       DOMAIN_ERROR.set(`Unable to connect to "${domain}". The server may be unavailable, or the email address may be for a different server. Try again.`);
     }
-    if (isNativeApp() && !V(false)) {
+    if (isNativeApp() && !X(false)) {
       const boot_params = new URLSearchParams(START_QUERY);
       if (boot_params.has("code")) {
-        console.warn("[AUTH] Auth code was present on load but the token exchange did not complete.", `State: "${boot_params.get("state")}"`, `Nonce: "${localStorage.getItem(`${ai()}_nonce`)}"`);
+        console.warn("[AUTH] Auth code was present on load but the token exchange did not complete.", `State: "${boot_params.get("state")}"`, `Nonce: "${localStorage.getItem(`${hi()}_nonce`)}"`);
       }
     }
-    if (isNativeApp() && !V(false) && !Pt() && Rt()) {
+    if (isNativeApp() && !X(false) && !Pt() && Rt()) {
       const auth_error = consumeNativeAuthError();
       if (auth_error) {
         setLoadingMessage("Waiting for sign in...");
@@ -78562,7 +78566,7 @@ var _PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
         await new Promise((r) => this._domain_resolve = r);
       }
       setLoadingMessage("Opening sign in...");
-      const auth_url = await createNativeAuthUrl(settings, ai());
+      const auth_url = await createNativeAuthUrl(settings, hi());
       console.warn(`[AUTH] Opening sign in: ${auth_url}`);
       await openNativeBrowser(auth_url);
       return;
@@ -78572,7 +78576,7 @@ var _PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
       await setupPlace(settings).catch((_2) => console.error(_2));
     }
     if (this._initial_token)
-      hi(this._initial_token);
+      li(this._initial_token);
     await this._waitFor(() => this._org.initialised());
     if (this._locale) {
       this._locale.zone_id = this._org.organisation.id;
@@ -78598,15 +78602,15 @@ var _PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
   }
   onInitError() {
     var _a10;
-    if (kn() || ((_a10 = currentUser()) == null ? void 0 : _a10.is_logged_in))
+    if (Sn() || ((_a10 = currentUser()) == null ? void 0 : _a10.is_logged_in))
       return;
     if (isNativeApp() && getNativeApiKey()) {
       clearNativeApiKey();
       clearNativeDomain();
-      localStorage.removeItem(`${ai()}_x-api-key`);
-      An();
-    } else if (!V(false))
-      An();
+      localStorage.removeItem(`${hi()}_x-api-key`);
+      qn();
+    } else if (!X(false))
+      qn();
     location.reload();
   }
   _initAnalytics() {
@@ -78645,7 +78649,7 @@ var _PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
   }
   _pasteToken(tkn) {
     const parts = tkn.split("|");
-    const id = ai();
+    const id = hi();
     localStorage.setItem(`${id}_access_token`, `${parts[0]}`);
     localStorage.setItem(`${id}_refresh_token`, `${parts[1]}`);
     localStorage.setItem(`${id}_expires_at`, `${addHours(/* @__PURE__ */ new Date(), 6).valueOf()}`);
@@ -78821,7 +78825,7 @@ var _OrganisationService = class _OrganisationService {
     const binding = this.binding(name);
     const system_id = binding instanceof Object ? binding.id || binding.system_id : binding;
     const mod_id = (binding instanceof Object ? binding.mod || binding.module : "") || default_mod_id;
-    return !system_id || !mod_id ? null : Fl(system_id, mod_id);
+    return !system_id || !mod_id ? null : Wl(system_id, mod_id);
   }
   /** Get building by id */
   find(id) {
@@ -78941,7 +78945,7 @@ var _OrganisationService = class _OrganisationService {
     this._building_settings = {};
     this._skip_auto_selection = false;
     this._override_timer = null;
-    ri(Hr(), (_2) => _2).then(() => setTimeout(() => this.init(), 1e3));
+    oi(Lr(), (_2) => _2).then(() => setTimeout(() => this.init(), 1e3));
     effect(() => {
       this._active_region();
       const building = this._active_building();
@@ -79132,7 +79136,7 @@ var _OrganisationService = class _OrganisationService {
       const auth = Rt();
       const org = org_list.find((list2) => {
         var _a10;
-        return kn() || list2.id === ((_a10 = auth == null ? void 0 : auth.config) == null ? void 0 : _a10.org_zone);
+        return Sn() || list2.id === ((_a10 = auth == null ? void 0 : auth.config) == null ? void 0 : _a10.org_zone);
       }) || org_list[0];
       const load_metadata = !this._service.get("dont_load_metadata");
       const bindings = load_metadata ? (await this._bulkMetadataDetails("bindings", [org.id]))[org.id] : {};
@@ -79382,7 +79386,7 @@ var _OrganisationService = class _OrganisationService {
     const cached_metadata = this._getCachedItem(cache_key);
     if (cached_metadata)
       return cached_metadata;
-    const metadata2 = await Ku(name, { parent_ids }).catch(() => ({}));
+    const metadata2 = await Yu(name, { parent_ids }).catch(() => ({}));
     const metadata_details = ids.reduce((map2, id) => {
       var _a10;
       map2[id] = ((_a10 = metadata2[id]) == null ? void 0 : _a10.details) || {};
@@ -79396,7 +79400,7 @@ var _OrganisationService = class _OrganisationService {
     const cached_zones = this._getCachedItem(cache_key);
     if (cached_zones)
       return cached_zones;
-    const zones = (await Ba(__spreadProps(__spreadValues({}, params), {
+    const zones = (await Ka(__spreadProps(__spreadValues({}, params), {
       authority_id: Rt().id
     }))).data || [];
     this._setCachedItem(cache_key, zones);
@@ -79920,16 +79924,16 @@ var info = {
   formatMask: 21522,
   formatBits(ecc, maskIdx) {
     const data = info.ECCode[ecc] << 3 | maskIdx;
-    let d2 = data;
+    let d = data;
     for (let i = 0; i < 10; i++)
-      d2 = d2 << 1 ^ (d2 >> 9) * 1335;
-    return (data << 10 | d2) ^ info.formatMask;
+      d = d << 1 ^ (d >> 9) * 1335;
+    return (data << 10 | d) ^ info.formatMask;
   },
   versionBits(ver) {
-    let d2 = ver;
+    let d = ver;
     for (let i = 0; i < 12; i++)
-      d2 = d2 << 1 ^ (d2 >> 11) * 7973;
-    return ver << 12 | d2;
+      d = d << 1 ^ (d >> 11) * 7973;
+    return ver << 12 | d;
   },
   alphabet: {
     numeric: alphabet("0123456789"),
@@ -80146,10 +80150,10 @@ var GF = {
 function RS(eccWords) {
   return {
     encode(from2) {
-      const d2 = GF.divisorPoly(eccWords);
+      const d = GF.divisorPoly(eccWords);
       const pol = Array.from(from2);
-      pol.push(...d2.slice(0, -1).fill(0));
-      return Uint8Array.from(GF.remainderPoly(pol, d2));
+      pol.push(...d.slice(0, -1).fill(0));
+      return Uint8Array.from(GF.remainderPoly(pol, d));
     },
     decode(to) {
       const res = to.slice();
@@ -80837,11 +80841,11 @@ var _RemoteLoggingService = class _RemoteLoggingService extends AsyncHandler {
     if (!system_id)
       return;
     this._disable_handling = true;
-    Fl(system_id, "Logger").execute("post_event", [event]).catch().finally(() => this._disable_handling = false);
+    Wl(system_id, "Logger").execute("post_event", [event]).catch().finally(() => this._disable_handling = false);
   }
   /** List to binding */
   _bindTo(id, name, mod2 = "Logger") {
-    const module2 = Fl(id, mod2).variable(name);
+    const module2 = Wl(id, mod2).variable(name);
     this.subscription(`bind:${name}`, module2.bind());
     this.subscription(`listen:${name}`, module2.listen().subscribe((enabled) => {
       this._logging_system.set(enabled ? id : "");
@@ -83338,19 +83342,19 @@ var NativeDateAdapter = class _NativeDateAdapter extends DateAdapter {
     return new Date(date.getTime() + amount * 1e3);
   }
   _createDateWithOverflow(year, month, date) {
-    const d2 = /* @__PURE__ */ new Date();
-    d2.setFullYear(year, month, date);
-    d2.setHours(0, 0, 0, 0);
-    return d2;
+    const d = /* @__PURE__ */ new Date();
+    d.setFullYear(year, month, date);
+    d.setHours(0, 0, 0, 0);
+    return d;
   }
   _2digit(n) {
     return ("00" + n).slice(-2);
   }
   _format(dtf, date) {
-    const d2 = /* @__PURE__ */ new Date();
-    d2.setUTCFullYear(date.getFullYear(), date.getMonth(), date.getDate());
-    d2.setUTCHours(date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds());
-    return dtf.format(d2);
+    const d = /* @__PURE__ */ new Date();
+    d.setUTCFullYear(date.getFullYear(), date.getMonth(), date.getDate());
+    d.setUTCHours(date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds());
+    return dtf.format(d);
   }
   _parseTimeString(value) {
     const parsed = value.toUpperCase().match(TIME_REGEX);
@@ -89864,11 +89868,11 @@ async function storeSessionCachedResponse(source, response) {
   }
 }
 function setAuthCookie(cookie_path) {
-  const tkn = V();
+  const tkn = X();
   document.cookie = `${tkn === "x-api-key" ? "api-key=" + encodeURIComponent(Ye()) : "bearer_token=" + encodeURIComponent(tkn)};max-age=30;path=${cookie_path};samesite=strict;${location.protocol === "https:" ? "secure;" : ""}`;
 }
 function authHeaders() {
-  const tkn = V();
+  const tkn = X();
   return tkn === "x-api-key" ? { "X-API-Key": Ye() } : { Authorization: `Bearer ${tkn}` };
 }
 async function responseToObjectUrl(source, response) {
@@ -90078,8 +90082,8 @@ var BooleanOrLogic = class extends AbstractLogic {
     return false;
   }
   compute(arg) {
-    return this.fns.some((f) => {
-      const result = f(arg);
+    return this.fns.some((f2) => {
+      const result = f2(arg);
       return result && result !== IGNORED;
     });
   }
@@ -90097,8 +90101,8 @@ var ArrayMergeIgnoreLogic = class _ArrayMergeIgnoreLogic extends AbstractLogic {
     return [];
   }
   compute(arg) {
-    return this.fns.reduce((prev, f) => {
-      const value = f(arg);
+    return this.fns.reduce((prev, f2) => {
+      const value = f2(arg);
       if (value === void 0 || value === IGNORED) {
         return prev;
       } else if (isArray3(value)) {
@@ -92845,7 +92849,7 @@ var _SpacePipe = class _SpacePipe {
     if (ATTEMPT_COUNT[space_id])
       return EMPTY_SPACE;
     if (!is_email) {
-      const system = await sa(space_id).catch((_2) => null);
+      const system = await oa(space_id).catch((_2) => null);
       if (system) {
         space = new Space(__spreadProps(__spreadValues({}, system), {
           level: (_a10 = this.org) == null ? void 0 : _a10.levelWithID([...system.zones])
@@ -92854,7 +92858,7 @@ var _SpacePipe = class _SpacePipe {
         return space;
       }
     }
-    const systems = (await na({
+    const systems = (await ra({
       in: space_id
     })).data;
     if (systems.length === 1) {
@@ -92894,7 +92898,7 @@ function requestSpacesForZone(id) {
     return of([]);
   if (SPACE_LIST_REQUESTS[id])
     return SPACE_LIST_REQUESTS[id];
-  SPACE_LIST_REQUESTS[id] = from(ta({
+  SPACE_LIST_REQUESTS[id] = from(ia({
     zone_id: id,
     limit: 500,
     signage: false
@@ -95331,7 +95335,7 @@ var _ChatService = class _ChatService extends AsyncHandler {
     const id = this._chat_system();
     if (!id)
       return;
-    const auth = V() !== "x-api-key" ? `bearer_token=${encodeURIComponent(V())}` : `x-api-key=${Ye()}`;
+    const auth = X() !== "x-api-key" ? `bearer_token=${encodeURIComponent(X())}` : `x-api-key=${Ye()}`;
     const url = `ws${location.origin.replace("http", "")}/api/engine/v2/chatgpt/chat/${encodeURIComponent(id)}?${auth}${this._chat_id ? "&resume=" + encodeURIComponent(this._chat_id) : ""}`;
     log("CHAT", "Starting chat connection.");
     this._socket = new WebSocket(url);
@@ -95415,7 +95419,7 @@ var _ChatService = class _ChatService extends AsyncHandler {
     this._timeoutSocket();
   }
   _bindHint(id) {
-    const mod2 = Fl(id, "LLM");
+    const mod2 = Wl(id, "LLM");
     const binding = mod2.variable("user_hint");
     this.subscription(`binding:LLM:user_hint`, binding.bind());
     this.subscription(`listen:LLM:user_hint`, binding.listen().subscribe((value) => this.chat_hint.set(value)));
@@ -97310,13 +97314,13 @@ var _GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler
     this.loading.set(true);
     await this._org.waitUntilInitialised();
     await firstTruthyValueFrom(this._settings.initialised);
-    this.online.set(Dr());
+    this.online.set(Fr());
     this.interval("has_token", () => {
-      this.online.set(Dr());
-      if (!Rt() || !V())
+      this.online.set(Fr());
+      if (!Rt() || !X())
         return;
       this.loading.set(false);
-      this.online.set(Dr());
+      this.online.set(Fr());
       this.clearInterval("has_token");
     }, 1e3);
   }
@@ -97401,38 +97405,44 @@ var GlobalLoadingComponent = _GlobalLoadingComponent;
 })();
 
 // libs/components/src/lib/unauthorised.component.ts
+var _c013 = () => ["/"];
 var _UnauthorisedComponent = class _UnauthorisedComponent {
 };
 _UnauthorisedComponent.\u0275fac = function UnauthorisedComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _UnauthorisedComponent)();
 };
-_UnauthorisedComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _UnauthorisedComponent, selectors: [["app-unauthorised"]], decls: 13, vars: 9, consts: [["unauthorised", "", 1, "absolute", "inset-0"], [1, "border-base-300", "bg-base-100", "text-base-content", "mx-auto", "my-4", "w-104", "max-w-[calc(100%-1rem)]", "rounded-xl", "border", "p-4", "text-center", "shadow-lg"], [1, "text-4xl"], [1, "py-4"]], template: function UnauthorisedComponent_Template(rf, ctx) {
+_UnauthorisedComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _UnauthorisedComponent, selectors: [["app-unauthorised"]], decls: 15, vars: 11, consts: [["unauthorised", "", 1, "absolute", "inset-0"], [1, "border-base-300", "bg-base-100", "text-base-content", "mx-auto", "my-4", "flex", "w-104", "max-w-[calc(100%-1rem)]", "flex-col", "gap-2", "rounded-xl", "border", "p-4", "text-center", "shadow-lg"], [1, "text-4xl"], [1, "py-4"], ["btn", "", 3, "routerLink"]], template: function UnauthorisedComponent_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275domElementStart(0, "div", 0)(1, "div", 1)(2, "h1", 2);
+    \u0275\u0275elementStart(0, "div", 0)(1, "div", 1)(2, "h1", 2);
     \u0275\u0275text(3, "403");
-    \u0275\u0275domElementEnd();
-    \u0275\u0275domElementStart(4, "h3");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "h3");
     \u0275\u0275text(5);
     \u0275\u0275pipe(6, "translate");
-    \u0275\u0275domElementEnd();
-    \u0275\u0275domElementStart(7, "p", 3);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(7, "p", 3);
     \u0275\u0275text(8);
     \u0275\u0275pipe(9, "translate");
-    \u0275\u0275domElementEnd();
-    \u0275\u0275domElementStart(10, "p");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(10, "p");
     \u0275\u0275text(11);
     \u0275\u0275pipe(12, "translate");
-    \u0275\u0275domElementEnd()()();
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(13, "a", 4);
+    \u0275\u0275text(14, "Try Again");
+    \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
     \u0275\u0275advance(5);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(6, 3, "COMMON.FORBIDDEN"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(6, 4, "COMMON.FORBIDDEN"));
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(9, 5, "COMMON.INVALID_PAGE_PERMISSIONS"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(9, 6, "COMMON.INVALID_PAGE_PERMISSIONS"), " ");
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(12, 7, "COMMON.CONTACT_ADMIN"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(12, 8, "COMMON.CONTACT_ADMIN"), " ");
+    \u0275\u0275advance(2);
+    \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(10, _c013));
   }
-}, dependencies: [TranslatePipe], styles: ["\n[_nghost-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n[unauthorised][_ngcontent-%COMP%] {\n  background-image:\n    linear-gradient(\n      to right,\n      #c62828 0%,\n      #ef5350 100%);\n}\n/*# sourceMappingURL=unauthorised.component.css.map */"] });
+}, dependencies: [RouterLink, TranslatePipe], styles: ["\n[_nghost-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n[unauthorised][_ngcontent-%COMP%] {\n  background-image:\n    linear-gradient(\n      to right,\n      #c62828 0%,\n      #ef5350 100%);\n}\n/*# sourceMappingURL=unauthorised.component.css.map */"] });
 var UnauthorisedComponent = _UnauthorisedComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(UnauthorisedComponent, [{
@@ -97440,7 +97450,7 @@ var UnauthorisedComponent = _UnauthorisedComponent;
     args: [{ selector: "app-unauthorised", template: `
         <div unauthorised class="absolute inset-0">
             <div
-                class="border-base-300 bg-base-100 text-base-content mx-auto my-4 w-104 max-w-[calc(100%-1rem)] rounded-xl border p-4 text-center shadow-lg"
+                class="border-base-300 bg-base-100 text-base-content mx-auto my-4 flex w-104 max-w-[calc(100%-1rem)] flex-col gap-2 rounded-xl border p-4 text-center shadow-lg"
             >
                 <h1 class="text-4xl">403</h1>
                 <h3>{{ 'COMMON.FORBIDDEN' | translate }}</h3>
@@ -97450,13 +97460,14 @@ var UnauthorisedComponent = _UnauthorisedComponent;
                 <p>
                     {{ 'COMMON.CONTACT_ADMIN' | translate }}
                 </p>
+                <a btn [routerLink]="['/']">Try Again</a>
             </div>
         </div>
-    `, imports: [TranslatePipe], styles: ["/* angular:styles/component:css;9e56e45d1ecd17d612bec636f553ceddd9b98cd2552edbd57d59534065beeefe;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/unauthorised.component.ts */\n:host {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n[unauthorised] {\n  background-image:\n    linear-gradient(\n      to right,\n      #c62828 0%,\n      #ef5350 100%);\n}\n/*# sourceMappingURL=unauthorised.component.css.map */\n"] }]
+    `, imports: [TranslatePipe, RouterLink], styles: ["/* angular:styles/component:css;9e56e45d1ecd17d612bec636f553ceddd9b98cd2552edbd57d59534065beeefe;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/unauthorised.component.ts */\n:host {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n[unauthorised] {\n  background-image:\n    linear-gradient(\n      to right,\n      #c62828 0%,\n      #ef5350 100%);\n}\n/*# sourceMappingURL=unauthorised.component.css.map */\n"] }]
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UnauthorisedComponent, { className: "UnauthorisedComponent", filePath: "libs/components/src/lib/unauthorised.component.ts", lineNumber: 41 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UnauthorisedComponent, { className: "UnauthorisedComponent", filePath: "libs/components/src/lib/unauthorised.component.ts", lineNumber: 43 });
 })();
 
 // libs/components/src/lib/user-avatar.component.ts
@@ -97583,7 +97594,7 @@ var UserAvatarComponent = _UserAvatarComponent;
 })();
 
 // libs/form-fields/src/lib/time-field.component.ts
-var _c013 = ["*"];
+var _c014 = ["*"];
 var _forTrack0 = ($index, $item) => $item.id;
 function TimeFieldComponent_Conditional_5_Template(rf, ctx) {
   if (rf & 1) {
@@ -98091,7 +98102,7 @@ _TimeFieldComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ ty
     useExisting: forwardRef(() => _TimeFieldComponent),
     multi: true
   }
-]), \u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature], ngContentSelectors: _c013, decls: 15, vars: 12, consts: [["menu", "matMenu"], ["time-field", "", "matRipple", "", 1, "border-neutral", "flex", "h-12", "w-full", "items-center", "justify-between", "rounded-sm", "border", "px-2", 3, "disabled", "matMenuTriggerFor"], [1, "flex", "w-1/2", "flex-1", "flex-col", "px-2", "text-left", "leading-tight"], [1, "truncate"], [1, "truncate", "text-xs", "opacity-30"], [1, "text-2xl"], [1, "max-h-60", "min-w-[18rem]"], ["mat-menu-item", "", 1, "text-left", 3, "value"], ["mat-menu-item", "", "disabled", ""], ["mat-menu-item", "", 1, "text-left", 3, "click", "value"], [1, "flex", "items-center", "justify-between"], [1, "flex", "flex-col", "leading-tight"], [1, ""], [1, "text-xs", "opacity-30"], [1, "ml-2", "text-2xl"]], template: function TimeFieldComponent_Template(rf, ctx) {
+]), \u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature], ngContentSelectors: _c014, decls: 15, vars: 12, consts: [["menu", "matMenu"], ["time-field", "", "matRipple", "", 1, "border-neutral", "flex", "h-12", "w-full", "items-center", "justify-between", "rounded-sm", "border", "px-2", 3, "disabled", "matMenuTriggerFor"], [1, "flex", "w-1/2", "flex-1", "flex-col", "px-2", "text-left", "leading-tight"], [1, "truncate"], [1, "truncate", "text-xs", "opacity-30"], [1, "text-2xl"], [1, "max-h-60", "min-w-[18rem]"], ["mat-menu-item", "", 1, "text-left", 3, "value"], ["mat-menu-item", "", "disabled", ""], ["mat-menu-item", "", 1, "text-left", 3, "click", "value"], [1, "flex", "items-center", "justify-between"], [1, "flex", "flex-col", "leading-tight"], [1, ""], [1, "text-xs", "opacity-30"], [1, "ml-2", "text-2xl"]], template: function TimeFieldComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275projectionDef();
     \u0275\u0275elementStart(0, "button", 1)(1, "div", 2)(2, "div", 3);
@@ -98584,13 +98595,13 @@ var _AuthorisedUserGuard = class _AuthorisedUserGuard {
     const use_group_subsystem_access = await this.useGroupSubsystemAccess();
     let can_activate = false;
     if (use_group_subsystem_access) {
-      await ri(Hr(), Boolean);
+      await oi(Lr(), Boolean);
       const user = await firstTruthyValueFrom(current_user);
       can_activate = await this.checkSubsystemAccess(user);
     } else if (!groups.length) {
       can_activate = true;
     } else {
-      await ri(Hr(), Boolean);
+      await oi(Lr(), Boolean);
       await this._org.waitUntilInitialised();
       const user = await firstTruthyValueFrom(current_user);
       can_activate = !!(user && groups.find((_2) => user.groups.includes(_2)));
@@ -99998,7 +100009,7 @@ var update = (dataset) => (id, data) => {
   return new_event;
 };
 function registerMockAssets() {
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_categories`,
     metadata: {},
     method: "GET",
@@ -100012,7 +100023,7 @@ function registerMockAssets() {
       return results;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_categories/:id`,
     metadata: {},
     method: "GET",
@@ -100026,7 +100037,7 @@ function registerMockAssets() {
       return event;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_categories`,
     metadata: {},
     method: "POST",
@@ -100038,13 +100049,13 @@ function registerMockAssets() {
       return new_event;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_categories/:id`,
     metadata: {},
     method: "PUT",
     callback: (req) => update(MOCK_CATEGORIES)(req.route_params.id, __spreadValues({}, req.body))
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_categories/:id`,
     metadata: {},
     method: "DELETE",
@@ -100059,7 +100070,7 @@ function registerMockAssets() {
       return;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_types`,
     metadata: {},
     method: "GET",
@@ -100072,7 +100083,7 @@ function registerMockAssets() {
       return results;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_types/:id`,
     metadata: {},
     method: "GET",
@@ -100086,7 +100097,7 @@ function registerMockAssets() {
       return event;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_types`,
     metadata: {},
     method: "POST",
@@ -100098,13 +100109,13 @@ function registerMockAssets() {
       return new_event;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_types/:id`,
     metadata: {},
     method: "PUT",
     callback: (req) => update(MOCK_PRODUCTS)(req.route_params.id, __spreadValues({}, req.body))
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_types/:id`,
     metadata: {},
     method: "DELETE",
@@ -100119,7 +100130,7 @@ function registerMockAssets() {
       return;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_purchase_orders`,
     metadata: {},
     method: "GET",
@@ -100128,7 +100139,7 @@ function registerMockAssets() {
       return events;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_purchase_orders/:id`,
     metadata: {},
     method: "GET",
@@ -100142,7 +100153,7 @@ function registerMockAssets() {
       return event;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_purchase_orders`,
     metadata: {},
     method: "POST",
@@ -100154,13 +100165,13 @@ function registerMockAssets() {
       return new_event;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_purchase_orders/:id`,
     metadata: {},
     method: "PUT",
     callback: (req) => update(MOCK_PURCHASE_ORDERS)(req.route_params.id, __spreadValues({}, req.body))
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_purchase_orders/:id`,
     metadata: {},
     method: "DELETE",
@@ -100175,7 +100186,7 @@ function registerMockAssets() {
       return;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/assets`,
     metadata: {},
     method: "GET",
@@ -100196,7 +100207,7 @@ function registerMockAssets() {
       return results;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/assets/:id`,
     metadata: {},
     method: "GET",
@@ -100210,7 +100221,7 @@ function registerMockAssets() {
       return event;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/assets`,
     metadata: {},
     method: "POST",
@@ -100222,13 +100233,13 @@ function registerMockAssets() {
       return new_event;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/assets/:id`,
     metadata: {},
     method: "PUT",
     callback: (req) => update(MOCK_ASSETS)(req.route_params.id, __spreadValues({}, req.body))
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/assets/:id`,
     metadata: {},
     method: "DELETE",
@@ -100861,7 +100872,7 @@ var SUPPLIERS = [
   }
 ];
 function generateCateringOrder(event) {
-  var _a10, _b4, _c9, _d2, _e2, _f, _g, _h, _i2, _j, _k;
+  var _a10, _b4, _c9, _d2, _e2, _f, _g, _h, _i, _j, _k;
   const duration = Math.abs(differenceInMinutes(event.event_end * 1e3, event.event_start * 1e3));
   const attendeeCount = ((_a10 = event.attendees) == null ? void 0 : _a10.length) || predictableRandomInt(15, 5);
   let selectedItems = [];
@@ -100940,7 +100951,7 @@ function generateCateringOrder(event) {
     // 10% tax
     total: Math.floor(totalPrice * 1.1),
     // Special requirements
-    dietary_requirements: dietaryNeeds.map((d2) => d2.name),
+    dietary_requirements: dietaryNeeds.map((d) => d.name),
     special_instructions: predictableRandomInt(3) === 0 ? [
       "Please use company branded napkins",
       "Set up 15 minutes before event start",
@@ -100957,7 +100968,7 @@ function generateCateringOrder(event) {
     // Billing
     department: ((_g = event.extension_data) == null ? void 0 : _g.department) || "General",
     cost_center: ((_h = event.extension_data) == null ? void 0 : _h.cost_center) || "events",
-    project_code: ((_i2 = event.extension_data) == null ? void 0 : _i2.project_code) || null,
+    project_code: ((_i = event.extension_data) == null ? void 0 : _i.project_code) || null,
     // Metadata
     notes: [
       "Standard corporate catering order",
@@ -100985,12 +100996,12 @@ function generateCateringOrder(event) {
 // libs/events/src/lib/calendar.fn.ts
 var CALENDAR_ENDPOINT = "/api/staff/v1/calendars";
 async function queryCalendars() {
-  const list2 = await d(CALENDAR_ENDPOINT);
+  const list2 = await f(CALENDAR_ENDPOINT);
   return list2.map((c2) => new Calendar(c2));
 }
 async function queryCalendarAvailability(q) {
   const query2 = toQueryString(q);
-  const list2 = await d(`${CALENDAR_ENDPOINT}/availability${query2 ? "?" + query2 : ""}`);
+  const list2 = await f(`${CALENDAR_ENDPOINT}/availability${query2 ? "?" + query2 : ""}`);
   return list2.map((c2) => new Calendar(c2));
 }
 var calendarsToSpaces = (list2, org) => list2.filter((cal) => !!cal.resource).map((cal) => new Space(__spreadProps(__spreadValues({}, cal.resource), {
@@ -100999,7 +101010,7 @@ var calendarsToSpaces = (list2, org) => list2.filter((cal) => !!cal.resource).ma
 }))).filter((space) => space.bookable);
 async function querySpaceFreeBusy(q, org) {
   const query2 = toQueryString(q);
-  const list2 = await d(`${CALENDAR_ENDPOINT}/free_busy${query2 ? "?" + query2 : ""}`);
+  const list2 = await f(`${CALENDAR_ENDPOINT}/free_busy${query2 ? "?" + query2 : ""}`);
   return calendarsToSpaces(list2.map((c2) => new Calendar(c2)), org);
 }
 
@@ -101023,7 +101034,7 @@ async function createEvent(data) {
 }
 async function updateEvent(id, data, q = {}, method = "patch") {
   const query2 = toQueryString(q);
-  const item = await (method === "patch" ? ye : ce)(`${EVENTS_ENDPOINT}/${encodeURIComponent(id)}${query2 ? "?" + query2 : ""}`, new CalendarEvent(withAppVersion(data)).toJSON());
+  const item = await (method === "patch" ? ae : ce)(`${EVENTS_ENDPOINT}/${encodeURIComponent(id)}${query2 ? "?" + query2 : ""}`, new CalendarEvent(withAppVersion(data)).toJSON());
   return new CalendarEvent(item);
 }
 var saveEvent = async (data, q) => {
@@ -101033,7 +101044,7 @@ var saveEvent = async (data, q) => {
 };
 function removeEvent(id, q = {}) {
   const query2 = toQueryString(q);
-  return X(`${EVENTS_ENDPOINT}/${encodeURIComponent(id)}${query2 ? "?" + query2 : ""}`, {
+  return ee(`${EVENTS_ENDPOINT}/${encodeURIComponent(id)}${query2 ? "?" + query2 : ""}`, {
     response_type: "void"
   });
 }
@@ -101120,7 +101131,7 @@ function getNextFreeTimeSlot(list2, date = (/* @__PURE__ */ new Date()).valueOf(
 // libs/events/src/lib/utilities.ts
 var BOOKING_DATE = add(setMinutes(setHours(/* @__PURE__ */ new Date(), 6), 0), { days: -1 });
 function eventFormValue(event = new CalendarEvent()) {
-  var _a10, _b4, _c9, _d2, _e2, _f, _g, _h, _i2, _j, _k, _l, _m, _n2, _o, _p, _q, _r2, _s, _t, _u2;
+  var _a10, _b4, _c9, _d2, _e2, _f, _g, _h, _i, _j, _k, _l2, _m, _n, _o, _p, _q, _r2, _s, _t, _u;
   return {
     id: event.id || "",
     ical_uid: event.ical_uid || "",
@@ -101144,16 +101155,16 @@ function eventFormValue(event = new CalendarEvent()) {
     attachments: event.attachments ?? null,
     catering: ((_d2 = event.extension_data) == null ? void 0 : _d2.catering) || [],
     catering_notes: ((_g = (_f = (_e2 = event.extension_data) == null ? void 0 : _e2.catering) == null ? void 0 : _f[0]) == null ? void 0 : _g.notes) || "",
-    catering_charge_code: ((_j = (_i2 = (_h = event.extension_data) == null ? void 0 : _h.catering) == null ? void 0 : _i2[0]) == null ? void 0 : _j.charge_code) || "",
+    catering_charge_code: ((_j = (_i = (_h = event.extension_data) == null ? void 0 : _h.catering) == null ? void 0 : _i[0]) == null ? void 0 : _j.charge_code) || "",
     setup_time: event.setup_time || 0,
     breakdown_time: event.breakdown_time || 0,
     assets: ((_k = event.extension_data) == null ? void 0 : _k.assets) || [],
-    visitor_type: ((_l = event.extension_data) == null ? void 0 : _l.visitor_type) ?? null,
+    visitor_type: ((_l2 = event.extension_data) == null ? void 0 : _l2.visitor_type) ?? null,
     location: event.location || "",
     visibility: event.visibility || "normal",
     needs_space: true,
     needs_parking: ((_m = event.extension_data) == null ? void 0 : _m.needs_parking) || false,
-    event_type: ((_n2 = event.extension_data) == null ? void 0 : _n2.event_type) || "",
+    event_type: ((_n = event.extension_data) == null ? void 0 : _n.event_type) || "",
     category: ((_o = event.extension_data) == null ? void 0 : _o.category) || "",
     tags: ((_p = event.extension_data) == null ? void 0 : _p.tags) || [],
     update_master: false,
@@ -101163,7 +101174,7 @@ function eventFormValue(event = new CalendarEvent()) {
     shared_event: ((_r2 = event.extension_data) == null ? void 0 : _r2.shared_event) || false,
     view_access: ((_s = event.extension_data) == null ? void 0 : _s.view_access) || "OPEN",
     images: ((_t = event.extension_data) == null ? void 0 : _t.images) || [],
-    featured: ((_u2 = event.extension_data) == null ? void 0 : _u2.featured) || false,
+    featured: ((_u = event.extension_data) == null ? void 0 : _u.featured) || false,
     meeting_provider: event.meeting_provider || null
   };
 }
@@ -101287,7 +101298,7 @@ function withAppVersion2(data) {
 async function queryBookings(q) {
   const query2 = toQueryString(q);
   try {
-    const list2 = await d(`${BOOKINGS_ENDPOINT}${query2 ? "?" + query2 : ""}`);
+    const list2 = await f(`${BOOKINGS_ENDPOINT}${query2 ? "?" + query2 : ""}`);
     return list2.map((item) => new Booking(item));
   } catch (_2) {
     return [];
@@ -101298,10 +101309,10 @@ async function createBooking(data, q) {
   return new Booking(await S(`${BOOKINGS_ENDPOINT}${query2 ? "?" + query2 : ""}`, withAppVersion2(data)));
 }
 async function updateBooking(id, data, method = "patch") {
-  return new Booking(await (method === "patch" ? ye : ce)(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}`, withAppVersion2(data)));
+  return new Booking(await (method === "patch" ? ae : ce)(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}`, withAppVersion2(data)));
 }
 async function updateBookingInstance(id, start_time, data, method = "patch") {
-  return new Booking(await (method === "patch" ? ye : ce)(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/instance/${start_time}`, withAppVersion2(data)));
+  return new Booking(await (method === "patch" ? ae : ce)(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/instance/${start_time}`, withAppVersion2(data)));
 }
 var saveBooking = async (data, q) => {
   const id = data.id;
@@ -101309,18 +101320,18 @@ var saveBooking = async (data, q) => {
   const instance = q == null ? void 0 : q.instance;
   if (q)
     delete q.instance;
-  return id ? instance ? updateBookingInstance(id, data.instance || data.booking_start, data) : updateBooking(id, data) : createBooking(Ys(data, ["", null, void 0]) || {}, q);
+  return id ? instance ? updateBookingInstance(id, data.instance || data.booking_start, data) : updateBooking(id, data) : createBooking(Vs(data, ["", null, void 0]) || {}, q);
 };
 function removeBooking(id, q = {}) {
   if (q.instance) {
     return removeBookingInstance(id, q.start_time);
   }
-  return X(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}`, {
+  return ee(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}`, {
     response_type: "void"
   });
 }
 function removeBookingInstance(id, start_time) {
-  return X(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/instance/${start_time}`, {
+  return ee(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/instance/${start_time}`, {
     response_type: "void"
   });
 }
@@ -101372,7 +101383,7 @@ async function createBookingsForEvent(event, type, resources) {
 }
 
 // node_modules/@angular/material/fesm2022/autocomplete.mjs
-var _c014 = ["panel"];
+var _c015 = ["panel"];
 var _c19 = ["*"];
 function MatAutocomplete_ng_template_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -101533,7 +101544,7 @@ var MatAutocomplete = class _MatAutocomplete {
     },
     viewQuery: function MatAutocomplete_Query(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275viewQuery(TemplateRef, 7)(_c014, 5);
+        \u0275\u0275viewQuery(TemplateRef, 7)(_c015, 5);
       }
       if (rf & 2) {
         let _t;
@@ -102372,11 +102383,11 @@ var MatAutocompleteModule = class _MatAutocompleteModule {
 var GUEST_ENDPOINT = "/api/staff/v1/guests";
 async function searchGuests(q) {
   const query2 = toQueryString({ q });
-  const list2 = await d(`${GUEST_ENDPOINT}${q ? "?" + query2 : ""}`);
+  const list2 = await f(`${GUEST_ENDPOINT}${q ? "?" + query2 : ""}`);
   return list2.map((item) => new GuestUser(item));
 }
 async function showGuest(id) {
-  return new GuestUser(await d(`${GUEST_ENDPOINT}/${encodeURIComponent(id)}`));
+  return new GuestUser(await f(`${GUEST_ENDPOINT}/${encodeURIComponent(id)}`));
 }
 
 // libs/users/src/lib/staff.fn.ts
@@ -102393,15 +102404,15 @@ async function searchStaff(q) {
       "department"
     ].join(",")
   });
-  const list2 = await d(`${STAFF_ENDPOINT}${q ? "?" + query2 : ""}`);
+  const list2 = await f(`${STAFF_ENDPOINT}${q ? "?" + query2 : ""}`);
   return list2.map((item) => new StaffUser(item));
 }
 async function showStaff(id) {
-  return new StaffUser(await d(`${STAFF_ENDPOINT}/${encodeURIComponent(id)}`));
+  return new StaffUser(await f(`${STAFF_ENDPOINT}/${encodeURIComponent(id)}`));
 }
 
 // libs/form-fields/src/lib/user-search-field.component.ts
-var _c015 = ["input"];
+var _c016 = ["input"];
 var _c110 = (a0) => ({ name: a0 });
 function UserSearchFieldComponent_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -102666,7 +102677,7 @@ var _UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHan
         const guest_query = () => searchGuests(q).catch(() => []);
         if (this.guests_only())
           return guest_query();
-        const staff = this.use_basic_search() ? await Ea({ q, authority_id: (_a10 = Rt()) == null ? void 0 : _a10.id }).then((_2) => _2.data.map((u3) => new User(u3))).catch(() => []) : await searchStaff(q).catch(() => []);
+        const staff = this.use_basic_search() ? await Ma({ q, authority_id: (_a10 = Rt()) == null ? void 0 : _a10.id }).then((_2) => _2.data.map((u3) => new User(u3))).catch(() => []) : await searchStaff(q).catch(() => []);
         if (!this.guests())
           return staff;
         return [...staff, ...await guest_query()];
@@ -102735,7 +102746,7 @@ var _UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHan
     this.user.set(value);
     this.search_term.set(value);
     if (typeof new_value !== "string" && !this.use_basic_search() && ((value == null ? void 0 : value.id) || (value == null ? void 0 : value.email))) {
-      Ca(value.email || value.id).then((details) => {
+      Na(value.email || value.id).then((details) => {
         if (!details)
           return;
         const updated = new User(__spreadValues(__spreadValues({}, value), new User(details)));
@@ -102817,7 +102828,7 @@ _UserSearchFieldComponent.\u0275fac = /* @__PURE__ */ (() => {
 })();
 _UserSearchFieldComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _UserSearchFieldComponent, selectors: [["a-user-search-field"]], viewQuery: function UserSearchFieldComponent_Query(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275viewQuerySignal(ctx._input_el, _c015, 5, ElementRef)(ctx._autocomplete_trigger, MatAutocompleteTrigger, 5);
+    \u0275\u0275viewQuerySignal(ctx._input_el, _c016, 5, ElementRef)(ctx._autocomplete_trigger, MatAutocompleteTrigger, 5);
   }
   if (rf & 2) {
     \u0275\u0275queryAdvance(2);
@@ -103140,7 +103151,7 @@ var _AssetGroupPipe = class _AssetGroupPipe {
     let asset_group = ASSET_GROUP_LIST.find(({ id }) => id === group_id);
     if (asset_group)
       return asset_group;
-    const group2 = await Xh(group_id).catch(() => null);
+    const group2 = await il(group_id).catch(() => null);
     if (group2) {
       asset_group = __spreadValues({}, group2);
       ASSET_GROUP_LIST.push(asset_group);
@@ -103172,7 +103183,7 @@ function getAssetRulesForZone(zone_id, fresh = false) {
   if (!zone_id)
     return Promise.resolve([]);
   if (!RULE_REQUESTS[zone_id] || fresh)
-    RULE_REQUESTS[zone_id] = ju(zone_id, "assets_config").then((_2) => _2.details instanceof Array ? _2.details : []).catch(() => []);
+    RULE_REQUESTS[zone_id] = Wu(zone_id, "assets_config").then((_2) => _2.details instanceof Array ? _2.details : []).catch(() => []);
   return RULE_REQUESTS[zone_id];
 }
 function assetAvailable(item, rules, event) {
@@ -103222,21 +103233,21 @@ function filter_hidden_items(response) {
   });
 }
 async function visible_category_ids() {
-  const response = await sl({});
+  const response = await cl({});
   return new Set(response.data.filter((item) => !(item == null ? void 0 : item.hidden)).map((item) => item.id));
 }
 async function queryAssetCategories(query2 = {}) {
   if (query2.hidden === true)
-    return sl(query2);
+    return cl(query2);
   const _a10 = query2, { hidden } = _a10, rest = __objRest(_a10, ["hidden"]);
-  return filter_hidden_items(await sl(rest));
+  return filter_hidden_items(await cl(rest));
 }
 async function queryAssetTypes(query2 = {}) {
   if (query2.hidden === true)
-    return Vh(query2);
+    return sl(query2);
   const _a10 = query2, { hidden } = _a10, rest = __objRest(_a10, ["hidden"]);
   const [response, visible_ids] = await Promise.all([
-    Vh(rest),
+    sl(rest),
     visible_category_ids()
   ]);
   return __spreadProps(__spreadValues({}, response), {
@@ -103245,10 +103256,10 @@ async function queryAssetTypes(query2 = {}) {
 }
 async function queryAssets(query2 = {}) {
   if (query2.hidden === true)
-    return Gh(query2);
+    return Zh(query2);
   const _a10 = query2, { hidden } = _a10, rest = __objRest(_a10, ["hidden"]);
   const [response, types] = await Promise.all([
-    Gh(rest),
+    Zh(rest),
     queryAssetTypes(__spreadProps(__spreadValues({}, rest.zone_id ? { zone_id: rest.zone_id } : {}), {
       limit: 2e3
     }))
@@ -103261,7 +103272,7 @@ async function queryAssets(query2 = {}) {
 var _GROUPS_CACHE = /* @__PURE__ */ new Map();
 var REMOVE_QUERY_KEYS = ["period_start", "period_end", "type", "rejected"];
 async function queryAllAssetPages(query2 = {}) {
-  let response = await Gh(__spreadProps(__spreadValues({}, query2), {
+  let response = await Zh(__spreadProps(__spreadValues({}, query2), {
     limit: query2.limit || 500
   }));
   let total = response.total;
@@ -103296,7 +103307,7 @@ async function queryAssetGroupsExtended(query2 = {}) {
   if (q.zones)
     delete q.zones;
   const [types, assets] = await Promise.all([
-    Vh(q),
+    sl(q),
     queryAllAssetPages(q)
   ]);
   let groups = types.data.filter((item) => !(item == null ? void 0 : item.hidden));
@@ -103791,7 +103802,7 @@ var _AssetStateService = class _AssetStateService {
   }
   async _loadSettings(building_id) {
     const existing = this._settings_requests.get(building_id);
-    const request = existing || ju(building_id, "assets-settings").then((metadata2) => metadata2.details || {}).catch(() => ({}));
+    const request = existing || Wu(building_id, "assets-settings").then((metadata2) => metadata2.details || {}).catch(() => ({}));
     if (!existing)
       this._settings_requests.set(building_id, request);
     this._settings.set(await request);
@@ -103813,7 +103824,7 @@ var AssetStateService = _AssetStateService;
 })();
 
 // libs/form-fields/src/lib/duration-field.component.ts
-var _c016 = ["*"];
+var _c017 = ["*"];
 var _forTrack02 = ($index, $item) => $item.id;
 function DurationFieldComponent_Conditional_5_Template(rf, ctx) {
   var _a10;
@@ -104169,7 +104180,7 @@ _DurationFieldComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent(
     useExisting: forwardRef(() => _DurationFieldComponent),
     multi: true
   }
-]), \u0275\u0275NgOnChangesFeature], ngContentSelectors: _c016, decls: 15, vars: 12, consts: [["menu", "matMenu"], ["duration-field", "", "matRipple", "", 1, "border-neutral", "flex", "h-12", "w-full", "items-center", "justify-between", "rounded-sm", "border", "px-2", 3, "disabled", "matMenuTriggerFor"], [1, "flex", "w-1/2", "flex-1", "flex-col", "px-2", "text-left", "leading-tight"], [1, "truncate"], [1, "truncate", "text-xs", "opacity-30"], [1, "text-2xl"], [1, "max-h-60", "min-w-[18rem]"], ["mat-menu-item", "", 1, "text-left"], ["mat-menu-item", "", "disabled", ""], ["mat-menu-item", "", 1, "text-left", 3, "click"], [1, "flex", "items-center", "justify-between"], [1, "flex", "flex-col", "leading-tight"], [1, "ml-2", "text-2xl"]], template: function DurationFieldComponent_Template(rf, ctx) {
+]), \u0275\u0275NgOnChangesFeature], ngContentSelectors: _c017, decls: 15, vars: 12, consts: [["menu", "matMenu"], ["duration-field", "", "matRipple", "", 1, "border-neutral", "flex", "h-12", "w-full", "items-center", "justify-between", "rounded-sm", "border", "px-2", 3, "disabled", "matMenuTriggerFor"], [1, "flex", "w-1/2", "flex-1", "flex-col", "px-2", "text-left", "leading-tight"], [1, "truncate"], [1, "truncate", "text-xs", "opacity-30"], [1, "text-2xl"], [1, "max-h-60", "min-w-[18rem]"], ["mat-menu-item", "", 1, "text-left"], ["mat-menu-item", "", "disabled", ""], ["mat-menu-item", "", 1, "text-left", 3, "click"], [1, "flex", "items-center", "justify-between"], [1, "flex", "flex-col", "leading-tight"], [1, "ml-2", "text-2xl"]], template: function DurationFieldComponent_Template(rf, ctx) {
   var _a10, _b4, _c9, _d2, _e2;
   if (rf & 1) {
     \u0275\u0275projectionDef();
@@ -105083,7 +105094,7 @@ var _EventFormService = class _EventFormService extends AsyncHandler {
       },
       loader: ({ params: ids }) => {
         this.addLoadingTag(Tags.BookingRules);
-        return Promise.all(ids.map((id) => ju(id, "room_booking_rules").then((_2) => ({
+        return Promise.all(ids.map((id) => Wu(id, "room_booking_rules").then((_2) => ({
           id,
           details: _2.details instanceof Array ? _2.details : []
         })).catch(() => ({ id, details: [] })))).then((building_rules) => {
@@ -105149,7 +105160,7 @@ var _EventFormService = class _EventFormService extends AsyncHandler {
         var _a10;
         return this._network_consumed() && this._requests_ready() ? ((_a10 = this._org.organisation) == null ? void 0 : _a10.id) || void 0 : void 0;
       },
-      loader: ({ params: id }) => ju(id, "room_alerts").then((r) => r.details).catch(() => ({}))
+      loader: ({ params: id }) => Wu(id, "room_alerts").then((r) => r.details).catch(() => ({}))
     }));
     this.room_alerts = computed(
       () => {
@@ -105186,7 +105197,7 @@ var _EventFormService = class _EventFormService extends AsyncHandler {
           list2 = list2.filter(({ capacity }) => capacity < 0 || capacity >= range2.min && capacity <= range2.max);
         }
         if (filters.features) {
-          list2 = list2.filter(({ features }) => filters.features.every((f) => features.includes(f)));
+          list2 = list2.filter(({ features }) => filters.features.every((f2) => features.includes(f2)));
         }
         return list2.sort((a, b2) => {
           const cap_diff = (a.capacity || 0) - (b2.capacity || 0);
@@ -105427,12 +105438,12 @@ var _EventFormService = class _EventFormService extends AsyncHandler {
       return;
     const event = new CalendarEvent(__spreadProps(__spreadValues({}, this._model()), { assets: [] }));
     const ref = this._dialog.open(EventLinkModalComponent, { data: event });
-    ref.afterClosed().subscribe((d2) => d2 ? this._router.navigate(["/"]) : "");
+    ref.afterClosed().subscribe((d) => d ? this._router.navigate(["/"]) : "");
   }
   cancelPostForm() {
   }
   async postForm(force = false, ignore_space_check = [], ignore_owner = false, force_calendar = false) {
-    var _a10, _b4, _c9, _d2, _e2, _f, _g, _h, _i2, _j, _k, _l, _m, _n2, _o, _p, _q;
+    var _a10, _b4, _c9, _d2, _e2, _f, _g, _h, _i, _j, _k, _l2, _m, _n, _o, _p, _q;
     if (isEmptyUser({ email: this._model().host })) {
       this._model.update((m2) => __spreadProps(__spreadValues({}, m2), { host: currentUser().email }));
     }
@@ -105546,7 +105557,7 @@ var _EventFormService = class _EventFormService extends AsyncHandler {
       const processed_assets = (this._model().assets || []).map((_2) => new AssetRequest(_2).toJSON());
       const host = this._host(this._model().host, (_g = spaces[0]) == null ? void 0 : _g.email);
       const ext = {
-        department: ((_h = this._model().organiser) == null ? void 0 : _h.department) || ((_i2 = currentUser()) == null ? void 0 : _i2.department)
+        department: ((_h = this._model().organiser) == null ? void 0 : _h.department) || ((_i = currentUser()) == null ? void 0 : _i.department)
       };
       if (this._model().host !== host)
         ext.host_override = this._model().host;
@@ -105592,8 +105603,8 @@ var _EventFormService = class _EventFormService extends AsyncHandler {
           duration: all_day_period.duration,
           host: value.host,
           all_day: value.all_day,
-          location_name: ((_l = spaces[0]) == null ? void 0 : _l.display_name) || ((_m = spaces[0]) == null ? void 0 : _m.name) || "",
-          location_id: ((_n2 = spaces[0]) == null ? void 0 : _n2.id) || "",
+          location_name: ((_l2 = spaces[0]) == null ? void 0 : _l2.display_name) || ((_m = spaces[0]) == null ? void 0 : _m.name) || "",
+          location_id: ((_n = spaces[0]) == null ? void 0 : _n.id) || "",
           zones: unique([
             this._org.organisation.id,
             (_o = this._org.region) == null ? void 0 : _o.id,
@@ -105675,7 +105686,7 @@ var _EventFormService = class _EventFormService extends AsyncHandler {
       const bld = this._org.buildings.find((b2) => space.zones.includes(b2.id));
       if (!bld || rules[bld.id])
         continue;
-      const metadata2 = await ju(bld.id, "room_booking_rules").catch(() => ({ details: [] }));
+      const metadata2 = await Wu(bld.id, "room_booking_rules").catch(() => ({ details: [] }));
       rules[bld.id] = metadata2.details instanceof Array ? metadata2.details : [];
     }
     const space_rules = spaces.map((space) => {
@@ -105856,7 +105867,7 @@ var _SpacesService = class _SpacesService {
     return this.space_list.filter((_2) => predicate(_2));
   }
   async loadSpace(space_id) {
-    const system = await sa(space_id);
+    const system = await oa(space_id);
     const space = new Space(__spreadProps(__spreadValues({}, system), {
       level: this._org.levelWithID([...system.zones])
     }));
@@ -105871,7 +105882,7 @@ var _SpacesService = class _SpacesService {
   }
   async loadSpaces() {
     var _a10;
-    const systems = (await ta({
+    const systems = (await ia({
       zone_id: (_a10 = this._org.organisation) == null ? void 0 : _a10.id,
       limit: 5e3
     })).data;
@@ -106947,7 +106958,7 @@ var MOCK_CATERING_BOOKINGS = (() => {
 // libs/mocks/src/lib/api/bookings.mock.ts
 var ALL_BOOKINGS = [...MOCK_BOOKINGS, ...MOCK_CATERING_BOOKINGS];
 function registerMockBookings() {
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings",
     metadata: {},
     method: "GET",
@@ -106980,7 +106991,7 @@ function registerMockBookings() {
       return events;
     }
   });
-  Wr({
+  Zr({
     path: "/api/debug/bookings/distribution",
     metadata: {},
     method: "GET",
@@ -107015,7 +107026,7 @@ function registerMockBookings() {
       };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings/:id",
     metadata: {},
     method: "GET",
@@ -107029,7 +107040,7 @@ function registerMockBookings() {
       return event;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings/:id/guests/:email",
     metadata: {},
     method: "POST",
@@ -107050,7 +107061,7 @@ function registerMockBookings() {
       return user;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings/:id/guests/:email",
     metadata: {},
     method: "DELETE",
@@ -107073,7 +107084,7 @@ function registerMockBookings() {
       return guest;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings/:id/guests/:email/checkin",
     metadata: {},
     method: "POST",
@@ -107090,7 +107101,7 @@ function registerMockBookings() {
       return {};
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings",
     metadata: {},
     method: "POST",
@@ -107113,13 +107124,13 @@ function registerMockBookings() {
     ALL_BOOKINGS.splice(index, 1, new_event);
     return new_event;
   };
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings/:id",
     metadata: {},
     method: "PATCH",
     callback: (req) => updateBooking2(req.route_params.id, req.body)
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings/:id/approve",
     metadata: {},
     method: "POST",
@@ -107135,7 +107146,7 @@ function registerMockBookings() {
       return booking;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings/:id/reject",
     metadata: {},
     method: "POST",
@@ -107151,7 +107162,7 @@ function registerMockBookings() {
       return booking;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings/:id/checkin",
     metadata: {},
     method: "POST",
@@ -107166,7 +107177,7 @@ function registerMockBookings() {
       return booking;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings/:id/update_induction",
     metadata: {},
     method: "POST",
@@ -107182,13 +107193,13 @@ function registerMockBookings() {
       return booking;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings/:id",
     metadata: {},
     method: "PUT",
     callback: (req) => updateBooking2(req.route_params.id, req.body)
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings/:id",
     metadata: {},
     method: "DELETE",
@@ -107544,7 +107555,7 @@ var event_spaces = MOCK_SPACES.map((space) => space.id);
 
 // libs/mocks/src/lib/api/calendars.mock.ts
 function registerMockCalendars() {
-  Wr({
+  Zr({
     path: "/api/staff/v1/calendars",
     metadata: {},
     method: "GET",
@@ -107599,7 +107610,7 @@ function registerMockCalendars() {
     });
     return spaces;
   };
-  Wr({
+  Zr({
     path: "/api/staff/v1/calendars/availability",
     metadata: {},
     method: "GET",
@@ -107607,7 +107618,7 @@ function registerMockCalendars() {
       resource: _2
     }))
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/calendars/free_busy",
     metadata: {},
     method: "GET",
@@ -107619,7 +107630,7 @@ function registerMockCalendars() {
 
 // libs/mocks/src/lib/api/events.mock.ts
 function registerMockEvents() {
-  Wr({
+  Zr({
     path: "/api/staff/v1/events",
     metadata: {},
     method: "GET",
@@ -107636,7 +107647,7 @@ function registerMockEvents() {
       return events;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/events",
     metadata: {},
     method: "POST",
@@ -107660,12 +107671,12 @@ function registerMockEvents() {
         ];
       }
       MOCK_EVENTS.push(new_event);
-      const system = mr((_a10 = new_event.system) == null ? void 0 : _a10.id);
+      const system = $r((_a10 = new_event.system) == null ? void 0 : _a10.id);
       (_b4 = system == null ? void 0 : system.Bookings[0]) == null ? void 0 : _b4.$poll_bookings();
       return new_event;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/events/:id",
     metadata: {},
     method: "GET",
@@ -107677,7 +107688,7 @@ function registerMockEvents() {
       throw { status: 404, message: "Event not found" };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/events/:id",
     metadata: {},
     method: "DELETE",
@@ -107695,7 +107706,7 @@ function registerMockEvents() {
       throw { status: 404, message: "Event not found" };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/events/:id",
     metadata: {},
     method: "PATCH",
@@ -107707,7 +107718,7 @@ function registerMockEvents() {
       throw { status: 404, message: "Event not found" };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/events/:id/guests/:email/checkin",
     metadata: {},
     method: "POST",
@@ -108118,7 +108129,7 @@ function generateMockPlaylists(displays, media) {
   const playlists = [];
   let playlistId = 1;
   MOCK_BUILDINGS.forEach((building) => {
-    const buildingDisplays = displays.filter((d2) => d2.building_id === building.id);
+    const buildingDisplays = displays.filter((d) => d.building_id === building.id);
     const generalPlaylist = {
       id: `playlist-${String(playlistId).padStart(3, "0")}`,
       name: `${building.name} General Content`,
@@ -108149,7 +108160,7 @@ function generateMockPlaylists(displays, media) {
       },
       // Targeting
       target: {
-        displays: buildingDisplays.map((d2) => d2.id),
+        displays: buildingDisplays.map((d) => d.id),
         zones: [building.id],
         categories: ["lobby", "corridor", "general"]
       },
@@ -108187,7 +108198,7 @@ function generateMockPlaylists(displays, media) {
           end_date: mediaItem.scheduling.end_date
         })),
         target: {
-          displays: buildingDisplays.filter((d2) => d2.location.area.includes("Meeting")).map((d2) => d2.id),
+          displays: buildingDisplays.filter((d) => d.location.area.includes("Meeting")).map((d) => d.id),
           zones: [building.id],
           categories: ["meeting_room"]
         },
@@ -108219,7 +108230,7 @@ function generateMockPlaylists(displays, media) {
       duration_override: null
     })),
     target: {
-      displays: displays.map((d2) => d2.id),
+      displays: displays.map((d) => d.id),
       // All displays
       zones: ["zone-EmWFTjuYExK"],
       categories: ["emergency"]
@@ -108454,7 +108465,7 @@ function registerMockSignage() {
       });
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/groups/current",
     metadata: {},
     method: "GET",
@@ -108466,13 +108477,13 @@ function registerMockSignage() {
       return [];
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/groups",
     metadata: {},
     method: "GET",
     callback: (request) => listSignageMockGroups(request.query_params)
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/groups",
     metadata: {},
     method: "POST",
@@ -108488,7 +108499,7 @@ function registerMockSignage() {
       return group2;
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/groups/:id",
     metadata: {},
     method: "PATCH",
@@ -108502,7 +108513,7 @@ function registerMockSignage() {
       return item.group;
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/groups/:id",
     metadata: {},
     method: "DELETE",
@@ -108513,7 +108524,7 @@ function registerMockSignage() {
       return {};
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/group_users",
     metadata: {},
     method: "GET",
@@ -108522,7 +108533,7 @@ function registerMockSignage() {
       return item.group_id === ((_a10 = request.query_params) == null ? void 0 : _a10.group_id);
     })
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/group_users",
     metadata: {},
     method: "POST",
@@ -108539,7 +108550,7 @@ function registerMockSignage() {
       return item;
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/group_users/:user_id/:group_id",
     metadata: {},
     method: "PATCH",
@@ -108555,7 +108566,7 @@ function registerMockSignage() {
       return item;
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/group_users/:user_id/:group_id",
     metadata: {},
     method: "DELETE",
@@ -108568,7 +108579,7 @@ function registerMockSignage() {
       return {};
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/group_zones",
     metadata: {},
     method: "GET",
@@ -108577,7 +108588,7 @@ function registerMockSignage() {
       return item.group_id === ((_a10 = request.query_params) == null ? void 0 : _a10.group_id);
     })
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/group_zones",
     metadata: {},
     method: "POST",
@@ -108594,7 +108605,7 @@ function registerMockSignage() {
       return item;
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/group_zones/:group_id/:zone_id",
     metadata: {},
     method: "PATCH",
@@ -108610,7 +108621,7 @@ function registerMockSignage() {
       return item;
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/group_zones/:group_id/:zone_id",
     metadata: {},
     method: "DELETE",
@@ -108623,7 +108634,7 @@ function registerMockSignage() {
       return {};
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/media",
     metadata: {},
     method: "GET",
@@ -108632,7 +108643,7 @@ function registerMockSignage() {
       return filterByGroup(MOCK_MEDIA, (_a10 = request.query_params) == null ? void 0 : _a10.group_id).map(toEngineMedia);
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/media",
     metadata: {},
     method: "POST",
@@ -108642,7 +108653,7 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/media/:id",
     metadata: {},
     method: "PATCH",
@@ -108650,19 +108661,19 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/media/:id",
     metadata: {},
     method: "DELETE",
     callback: () => ({})
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/media/share",
     metadata: {},
     method: "POST",
     callback: () => ({})
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/playlists",
     metadata: {},
     method: "GET",
@@ -108671,7 +108682,7 @@ function registerMockSignage() {
       return filterByGroup(MOCK_PLAYLISTS, (_a10 = request.query_params) == null ? void 0 : _a10.group_id).map(toEnginePlaylist);
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/playlists/approvers",
     metadata: {},
     method: "GET",
@@ -108686,7 +108697,7 @@ function registerMockSignage() {
       };
     })
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/playlists",
     metadata: {},
     method: "POST",
@@ -108696,7 +108707,7 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/playlists/:id",
     metadata: {},
     method: "PATCH",
@@ -108704,19 +108715,19 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/playlists/:id",
     metadata: {},
     method: "DELETE",
     callback: () => ({})
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/playlists/:id/media",
     metadata: {},
     method: "GET",
     callback: (request) => playlistMediaResponse(request.route_params.id, false)
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/playlists/:id/media",
     metadata: {},
     method: "POST",
@@ -108725,7 +108736,7 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/playlists/:id/media/revisions",
     metadata: {},
     method: "GET",
@@ -108734,25 +108745,25 @@ function registerMockSignage() {
       playlistMediaResponse(request.route_params.id, true)
     ]
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/playlists/:id/media/approve",
     metadata: {},
     method: "POST",
     callback: (request) => playlistMediaResponse(request.route_params.id, true)
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/playlists/:id/media/request_approval",
     metadata: {},
     method: "POST",
     callback: () => ({})
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/playlists/share",
     metadata: {},
     method: "POST",
     callback: () => ({})
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/signage-displays",
     metadata: {},
     method: "GET",
@@ -108760,37 +108771,37 @@ function registerMockSignage() {
       var _a10, _b4, _c9;
       let displays = MOCK_DISPLAYS;
       if ((_a10 = request.query_params) == null ? void 0 : _a10.building_id) {
-        displays = displays.filter((d2) => d2.building_id === request.query_params.building_id);
+        displays = displays.filter((d) => d.building_id === request.query_params.building_id);
       }
       if ((_b4 = request.query_params) == null ? void 0 : _b4.status) {
-        displays = displays.filter((d2) => d2.status === request.query_params.status);
+        displays = displays.filter((d) => d.status === request.query_params.status);
       }
       if ((_c9 = request.query_params) == null ? void 0 : _c9.zone_id) {
-        displays = displays.filter((d2) => d2.zone_id === request.query_params.zone_id);
+        displays = displays.filter((d) => d.zone_id === request.query_params.zone_id);
       }
       return {
         data: displays,
         meta: {
           total: displays.length,
-          online: displays.filter((d2) => d2.status === "online").length,
-          offline: displays.filter((d2) => d2.status === "offline").length,
-          error: displays.filter((d2) => d2.status === "error").length
+          online: displays.filter((d) => d.status === "online").length,
+          offline: displays.filter((d) => d.status === "offline").length,
+          error: displays.filter((d) => d.status === "error").length
         }
       };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/signage/displays/:id",
     metadata: {},
     method: "GET",
     callback: (request) => {
-      const display = MOCK_DISPLAYS.find((d2) => d2.id === request.route_params.id);
+      const display = MOCK_DISPLAYS.find((d) => d.id === request.route_params.id);
       if (!display)
         throw { status: 404, message: "Display not found" };
       return display;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/signage/media",
     metadata: {},
     method: "GET",
@@ -108821,7 +108832,7 @@ function registerMockSignage() {
       };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/signage/playlists",
     metadata: {},
     method: "GET",
@@ -108844,7 +108855,7 @@ function registerMockSignage() {
       };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/signage/playlists/:id",
     metadata: {},
     method: "GET",
@@ -108860,7 +108871,7 @@ function registerMockSignage() {
       return playlistWithMedia;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/signage/triggers",
     metadata: {},
     method: "GET",
@@ -108884,12 +108895,12 @@ function registerMockSignage() {
       };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/signage/displays/:id/content",
     metadata: {},
     method: "GET",
     callback: (request) => {
-      const display = MOCK_DISPLAYS.find((d2) => d2.id === request.route_params.id);
+      const display = MOCK_DISPLAYS.find((d) => d.id === request.route_params.id);
       if (!display)
         throw { status: 404, message: "Display not found" };
       const activePlaylist = MOCK_PLAYLISTS.find((p2) => p2.status === "active" && p2.target.displays.includes(display.id));
@@ -108911,7 +108922,7 @@ function registerMockSignage() {
       };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/signage-analytics",
     metadata: {},
     method: "GET",
@@ -108921,14 +108932,14 @@ function registerMockSignage() {
       const building_id = (_b4 = request.query_params) == null ? void 0 : _b4.building_id;
       let displays = MOCK_DISPLAYS;
       if (building_id) {
-        displays = displays.filter((d2) => d2.building_id === building_id);
+        displays = displays.filter((d) => d.building_id === building_id);
       }
       return {
         timeframe,
         summary: {
           total_displays: displays.length,
-          online_displays: displays.filter((d2) => d2.status === "online").length,
-          total_impressions: displays.reduce((sum, d2) => sum + d2.analytics.daily_views, 0) * (timeframe === "7d" ? 7 : timeframe === "30d" ? 30 : 1),
+          online_displays: displays.filter((d) => d.status === "online").length,
+          total_impressions: displays.reduce((sum, d) => sum + d.analytics.daily_views, 0) * (timeframe === "7d" ? 7 : timeframe === "30d" ? 30 : 1),
           average_uptime: "99.2%",
           content_items_served: MOCK_MEDIA.length * displays.length * 24
         },
@@ -108947,7 +108958,7 @@ function registerMockSignage() {
           engagement_rate: media.performance.engagement_rate,
           average_view_time: media.performance.average_view_time
         })),
-        health_alerts: displays.filter((d2) => d2.status !== "online").map((display) => ({
+        health_alerts: displays.filter((d) => d.status !== "online").map((display) => ({
           display_id: display.id,
           display_name: display.name,
           alert_type: display.status,
@@ -108957,13 +108968,13 @@ function registerMockSignage() {
       };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/signage-displays/:id/control",
     metadata: {},
     method: "POST",
     callback: (request) => {
       var _a10;
-      const display = MOCK_DISPLAYS.find((d2) => d2.id === request.route_params.id);
+      const display = MOCK_DISPLAYS.find((d) => d.id === request.route_params.id);
       if (!display)
         throw { status: 404, message: "Display not found" };
       const action = (_a10 = request.body) == null ? void 0 : _a10.action;
@@ -109557,7 +109568,7 @@ var MOCK_ANSWERS = [
   }
 ];
 function registerMockSurveys() {
-  Wr({
+  Zr({
     path: "/api/staff/v1/surveys",
     metadata: {},
     method: "GET",
@@ -109576,7 +109587,7 @@ function registerMockSurveys() {
       return filteredSurveys;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/surveys/questions",
     metadata: {},
     method: "GET",
@@ -109601,7 +109612,7 @@ function registerMockSurveys() {
       return filteredQuestions;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/surveys/questions/:id",
     metadata: {},
     method: "GET",
@@ -109617,7 +109628,7 @@ function registerMockSurveys() {
       return question;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/surveys/answers",
     metadata: {},
     method: "GET",
@@ -109638,7 +109649,7 @@ function registerMockSurveys() {
       return filteredAnswers;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/surveys/answers/:id",
     metadata: {},
     method: "GET",
@@ -109652,7 +109663,7 @@ function registerMockSurveys() {
       return answer;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/surveys/:id",
     metadata: {},
     method: "GET",
@@ -109668,7 +109679,7 @@ function registerMockSurveys() {
       return survey;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/surveys/answers",
     metadata: {},
     method: "POST",
@@ -110833,7 +110844,7 @@ var createVideoConferenceModule = (space = {}, overrides = {}) => new VideoConfe
 
 // libs/mocks/src/lib/systems-bindings.mock.ts
 function createSystem(space) {
-  Nl(space.id, {
+  Fl(space.id, {
     System: [createSystemModule(space)],
     Bookings: [createBookingsModule(space)],
     ContactTracing: [createContactTracingModule(space)],
@@ -110848,7 +110859,7 @@ function createSystem(space) {
     Payment: [createPaymentsModule(space)],
     LockerLocations: [createLockerLocationsModule()]
   });
-  const system = mr(space.id);
+  const system = $r(space.id);
   system.Bookings[0].$poll_bookings();
   setInterval(() => system.Bookings[0].$poll_bookings(), 30 * 1e3);
   system.AreaManagement[0].$update();
@@ -110858,7 +110869,7 @@ function createSystem(space) {
 // libs/mocks/src/lib/api/systems.mock.ts
 function registerMockSystems() {
   MOCK_SPACES.forEach((space, index) => createSystem(space));
-  Wr({
+  Zr({
     path: "/api/engine/v2/systems",
     metadata: {},
     method: "GET",
@@ -110876,7 +110887,7 @@ function registerMockSystems() {
       return systems;
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/systems/:id",
     metadata: {},
     method: "GET",
@@ -110891,7 +110902,7 @@ function registerMockSystems() {
 
 // libs/mocks/src/lib/api/users.mock.ts
 function registerMockUsers() {
-  Wr({
+  Zr({
     path: "/api/engine/v2/users",
     metadata: {},
     method: "GET",
@@ -110903,7 +110914,7 @@ function registerMockUsers() {
       }).slice(0, limit);
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/users/:id",
     metadata: {},
     method: "GET",
@@ -110924,7 +110935,7 @@ function registerMockUsers() {
       throw { status: 404, message: "User not found" };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/people",
     metadata: {},
     method: "GET",
@@ -110938,7 +110949,7 @@ function registerMockUsers() {
       return MOCK_STAFF;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/people/:id",
     metadata: {},
     method: "GET",
@@ -110953,7 +110964,7 @@ function registerMockUsers() {
       throw { status: 404, message: "User not found" };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/guests",
     metadata: {},
     method: "GET",
@@ -110965,7 +110976,7 @@ function registerMockUsers() {
       return MOCK_STAFF;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/guests/:email",
     metadata: {},
     method: "GET",
@@ -110977,7 +110988,7 @@ function registerMockUsers() {
       throw { status: 404, message: "Guest not found" };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/guests/:email/meetings",
     metadata: {},
     method: "GET",
@@ -111081,7 +111092,7 @@ function registerMockZones() {
     ...MOCK_LEVELS,
     ...MOCK_ZONES
   ];
-  Wr({
+  Zr({
     path: "/api/engine/v2/zones",
     metadata: {},
     method: "GET",
@@ -111098,7 +111109,7 @@ function registerMockZones() {
       return zones;
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/zones/:id",
     metadata: {},
     method: "GET",
@@ -111113,19 +111124,19 @@ function registerMockZones() {
       return zone;
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/settings",
     metadata: {},
     method: "GET",
     callback: (request) => []
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/settings/:id",
     metadata: {},
     method: "GET",
     callback: (request) => ({})
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/metadata/:id",
     metadata: {},
     method: "GET",
@@ -111241,7 +111252,7 @@ function registerMockZones() {
       return {};
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/metadata/:id",
     metadata: {},
     method: "PATCH",
@@ -111252,7 +111263,7 @@ function registerMockZones() {
       return request.body;
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/metadata/:id",
     metadata: {},
     method: "PUT",
@@ -111305,7 +111316,7 @@ function registerMockZones() {
     }
     return LOCKERS[id];
   }
-  Wr({
+  Zr({
     path: "/api/engine/v2/metadata/:id/children",
     metadata: {},
     method: "GET",
@@ -113307,7 +113318,7 @@ var AnimationTrigger = class {
     return this.ast.queryCount > 0;
   }
   matchTransition(currentState, nextState, element, params) {
-    const entry = this.transitionFactories.find((f) => f.match(currentState, nextState, element, params));
+    const entry = this.transitionFactories.find((f2) => f2.match(currentState, nextState, element, params));
     return entry || null;
   }
   matchStyles(currentState, params, errors) {
@@ -115710,7 +115721,7 @@ var _BootstrapComponent = class _BootstrapComponent extends AsyncHandler {
       const search_id = ++this._search_id;
       this.timeout("system-search", async () => {
         this.loading.set("search");
-        const results = search.length < 2 ? { data: [] } : await ta({
+        const results = search.length < 2 ? { data: [] } : await ia({
           q: search,
           limit: 20,
           fields: [
@@ -116206,7 +116217,7 @@ var _BookingModalComponent = class _BookingModalComponent extends AsyncHandler {
     });
     this.searchStaff = async (q) => {
       var _a11;
-      const mod2 = Fl((_a11 = this._data.space) == null ? void 0 : _a11.id, "Bookings");
+      const mod2 = Wl((_a11 = this._data.space) == null ? void 0 : _a11.id, "Bookings");
       if (!mod2)
         return [];
       return mod2.execute("list_users", [q]).catch(() => []);
@@ -116751,7 +116762,7 @@ var _PanelStateService = class _PanelStateService extends AsyncHandler {
     await this._org.waitUntilInitialised();
     if (this._app_settings.get("app.refresh_when_websocket_unstable")) {
       let count = 0;
-      this.subscription("stability-check", Dl().subscribe(([_2, time]) => {
+      this.subscription("stability-check", jl().subscribe(([_2, time]) => {
         if (time >= 30 * 1e3)
           count = 0;
         else
@@ -116765,7 +116776,7 @@ var _PanelStateService = class _PanelStateService extends AsyncHandler {
     const load_id = ++this._load_id;
     this.timeout("load_system", async () => {
       log("Panel", `Loading system "${id}"...`);
-      const system = await sa(id).catch(({ status, message: message2 }) => {
+      const system = await oa(id).catch(({ status, message: message2 }) => {
         log("Panel", "Error loading system details:", [status, message2], "error");
         if (status === 404)
           this._router.navigate(["/bootstrap"]);
@@ -116856,7 +116867,7 @@ var _PanelStateService = class _PanelStateService extends AsyncHandler {
       return;
     ref.loading("Creating Meeting...");
     try {
-      const module2 = Fl(this.system, "Bookings");
+      const module2 = Wl(this.system, "Bookings");
       if (!module2)
         throw "Unable to find module";
       await module2.execute("book_now", [
@@ -116878,7 +116889,7 @@ var _PanelStateService = class _PanelStateService extends AsyncHandler {
     if (isAfter(details.date, addMinutes(Date.now(), 5)) || force_api) {
       await this._events.postForm(true);
     } else {
-      const module2 = Fl(this.system, "Bookings");
+      const module2 = Wl(this.system, "Bookings");
       if (!details || !module2)
         return;
       const use_as_host = this._app_settings.get("app.user_as_default_host");
@@ -116915,7 +116926,7 @@ var _PanelStateService = class _PanelStateService extends AsyncHandler {
       return notifyWarn("Current or upcoming meeting is not in a pending state.");
     }
     const meeting = this._current() || this._next();
-    const mod2 = Fl(this.system, "Bookings");
+    const mod2 = Wl(this.system, "Bookings");
     if (!meeting || !mod2)
       return;
     await mod2.execute("start_meeting", [getUnixTime(meeting.date)]).catch((e) => notifyError(`Error starting meeting. ${e}`));
@@ -116947,7 +116958,7 @@ var _PanelStateService = class _PanelStateService extends AsyncHandler {
    */
   async endCurrent(reason = "user_input") {
     const current = this._current();
-    const module2 = Fl(this.system, "Bookings");
+    const module2 = Wl(this.system, "Bookings");
     if (current && module2) {
       await module2.execute("end_meeting", [
         getUnixTime(current.date),
@@ -116972,7 +116983,7 @@ var _PanelStateService = class _PanelStateService extends AsyncHandler {
    * Execute the logic on the engine driver to call waiting staff
    */
   async checkin() {
-    const module2 = Fl(this.system, "Bookings");
+    const module2 = Wl(this.system, "Bookings");
     if (!module2)
       return;
     const time = startOfMinute(Date.now()).valueOf();
@@ -117004,14 +117015,14 @@ var _PanelStateService = class _PanelStateService extends AsyncHandler {
    * Execute the logic on the engine driver to call waiting staff
    */
   async callWaiter() {
-    const module2 = Fl(this.system, "Bookings");
+    const module2 = Wl(this.system, "Bookings");
     if (module2) {
       await module2.execute("waiter_call", [Date.now()]).catch((e) => notifyError(`Error calling waiter. ${e}`));
     }
   }
   /** List to binding */
   bindTo(id, name, mod2 = "Bookings", on_change = (v) => this.updateProperty(name, v)) {
-    const binding = Fl(id, mod2).variable(name);
+    const binding = Wl(id, mod2).variable(name);
     this.subscription(`listen:${name}`, binding.bindThenSubscribe(on_change));
   }
   /** Update properties of the system data */
@@ -117022,7 +117033,7 @@ var _PanelStateService = class _PanelStateService extends AsyncHandler {
     this._settings.set(__spreadProps(__spreadValues({}, item), { [name]: value }));
   }
   _listenToModuleBinding(id, name, update2, mod_name = "Bookings") {
-    const mod2 = Fl(id, mod_name);
+    const mod2 = Wl(id, mod_name);
     if (window.debug)
       window.panel_module = mod2;
     const binding = mod2.variable(name);
@@ -117286,7 +117297,7 @@ var CheckinTimetableComponent = _CheckinTimetableComponent;
 })();
 
 // apps/booking-panel/src/app/checkin/checkin-view.component.ts
-var _c017 = (a0, a1) => ({ hour: a0, minute: a1 });
+var _c018 = (a0, a1) => ({ hour: a0, minute: a1 });
 var _c111 = (a0) => ({ minute: a0 });
 function CheckinViewComponent_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
@@ -117305,7 +117316,7 @@ function CheckinViewComponent_Conditional_16_Conditional_0_Conditional_0_Templat
   }
   if (rf & 2) {
     const ctx_r0 = \u0275\u0275nextContext(3);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(1, 1, "APP.BOOKING_PANEL.FREE_IN_HOURS_AND_MINUTES", \u0275\u0275pureFunction2(4, _c017, (_a10 = ctx_r0.event_state()) == null ? void 0 : _a10.current[1], (_b4 = ctx_r0.event_state()) == null ? void 0 : _b4.current[2])), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(1, 1, "APP.BOOKING_PANEL.FREE_IN_HOURS_AND_MINUTES", \u0275\u0275pureFunction2(4, _c018, (_a10 = ctx_r0.event_state()) == null ? void 0 : _a10.current[1], (_b4 = ctx_r0.event_state()) == null ? void 0 : _b4.current[2])), " ");
   }
 }
 function CheckinViewComponent_Conditional_16_Conditional_0_Conditional_1_Template(rf, ctx) {
@@ -117352,7 +117363,7 @@ function CheckinViewComponent_Conditional_16_Conditional_1_Conditional_0_Templat
   }
   if (rf & 2) {
     const ctx_r0 = \u0275\u0275nextContext(3);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(1, 1, "APP.BOOKING_PANEL.FREE_FOR_HOURS_AND_MINUTES", \u0275\u0275pureFunction2(4, _c017, (_a10 = ctx_r0.event_state()) == null ? void 0 : _a10.current[1], (_b4 = ctx_r0.event_state()) == null ? void 0 : _b4.current[2])), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(1, 1, "APP.BOOKING_PANEL.FREE_FOR_HOURS_AND_MINUTES", \u0275\u0275pureFunction2(4, _c018, (_a10 = ctx_r0.event_state()) == null ? void 0 : _a10.current[1], (_b4 = ctx_r0.event_state()) == null ? void 0 : _b4.current[2])), " ");
   }
 }
 function CheckinViewComponent_Conditional_16_Conditional_1_Conditional_1_Template(rf, ctx) {
@@ -117556,12 +117567,12 @@ var _CheckinViewComponent = class _CheckinViewComponent extends AsyncHandler {
       )
     );
     this.checkInCurrent = () => this._state.startMeeting();
-    this.newBooking = (d2 = Date.now(), future = false) => {
+    this.newBooking = (d = Date.now(), future = false) => {
       if (!this.can_book())
         return;
-      this._state.newBooking(d2, this.has_user(), future, true);
+      this._state.newBooking(d, this.has_user(), future, true);
     };
-    this.bookSlot = (d2) => this.newBooking(d2, d2 > Date.now());
+    this.bookSlot = (d) => this.newBooking(d, d > Date.now());
     this.has_user = signal(
       true,
       ...ngDevMode ? [{ debugName: "has_user" }] : (
@@ -118575,7 +118586,7 @@ var PanelViewDetailsComponent = _PanelViewDetailsComponent;
 })();
 
 // apps/booking-panel/src/app/new-panel/panel-view-status.component.ts
-var _c018 = (a0, a1) => ({ hour: a0, minute: a1 });
+var _c019 = (a0, a1) => ({ hour: a0, minute: a1 });
 var _c112 = (a0) => ({ minute: a0 });
 function PanelViewStatusComponent_Conditional_10_Conditional_0_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -118585,7 +118596,7 @@ function PanelViewStatusComponent_Conditional_10_Conditional_0_Conditional_0_Tem
   if (rf & 2) {
     \u0275\u0275nextContext(3);
     const es_r1 = \u0275\u0275readContextLet(1);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(1, 1, "APP.BOOKING_PANEL.FREE_IN_HOURS_AND_MINUTES", \u0275\u0275pureFunction2(4, _c018, es_r1 == null ? void 0 : es_r1.current[1], es_r1 == null ? void 0 : es_r1.current[2])), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(1, 1, "APP.BOOKING_PANEL.FREE_IN_HOURS_AND_MINUTES", \u0275\u0275pureFunction2(4, _c019, es_r1 == null ? void 0 : es_r1.current[1], es_r1 == null ? void 0 : es_r1.current[2])), " ");
   }
 }
 function PanelViewStatusComponent_Conditional_10_Conditional_0_Conditional_1_Template(rf, ctx) {
@@ -118641,7 +118652,7 @@ function PanelViewStatusComponent_Conditional_10_Conditional_1_Conditional_1_Con
   if (rf & 2) {
     \u0275\u0275nextContext(4);
     const es_r1 = \u0275\u0275readContextLet(1);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(1, 1, "APP.BOOKING_PANEL.FREE_FOR_HOURS_AND_MINUTES", \u0275\u0275pureFunction2(4, _c018, es_r1 == null ? void 0 : es_r1.current[1], es_r1 == null ? void 0 : es_r1.current[2])), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(1, 1, "APP.BOOKING_PANEL.FREE_FOR_HOURS_AND_MINUTES", \u0275\u0275pureFunction2(4, _c019, es_r1 == null ? void 0 : es_r1.current[1], es_r1 == null ? void 0 : es_r1.current[2])), " ");
   }
 }
 function PanelViewStatusComponent_Conditional_10_Conditional_1_Conditional_1_Conditional_1_Template(rf, ctx) {
