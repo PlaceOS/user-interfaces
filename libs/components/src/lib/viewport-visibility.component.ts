@@ -49,7 +49,6 @@ export class ViewportVisibilityComponent implements OnInit, OnDestroy {
             entries.forEach((entry) => {
                 const is_visible = entry.isIntersecting;
                 this.visible.set(is_visible);
-                console.log('Visible:', is_visible);
 
                 // If not continuous, disconnect after first intersection
                 if (!this.continuous() && is_visible) {
