@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["signage.component.ts"],
-  "sourcesContent": ["\n        :host {\n            display: block;\n            height: 100%;\n            width: 100%;\n        }\n    "],
-  "mappings": "AACQ,MACI,QAAA,MACA,OAAA,KACA,MAAA,IACJ",
+  "sourcesContent": ["\n        :host {\n            display: block;\n            height: 100%;\n            width: 100%;\n        }\n\n        .stroke {\n            -webkit-text-stroke: 1px #000;\n        }\n    "],
+  "mappings": "AACQ,MACI,QAAA,MACA,OAAA,KACA,MAAA,IACJ,CAEA,CAAA,OACI,oBAAA,IAAA,IACJ",
   "names": []
 }
