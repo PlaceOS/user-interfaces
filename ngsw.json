@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1766826883367,
+  "timestamp": 1783005749451,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -11,10 +11,18 @@
         "ignoreVary": true
       },
       "urls": [
+        "./ar-AKMAIXIV.js",
+        "./es-3S2KYDHB.js",
         "./favicon.ico",
+        "./fr-OVUV6Z77.js",
         "./index.html",
+        "./it-VUH3KL7J.js",
+        "./ja-H7XTH7XL.js",
         "./main.js",
-        "./styles.css"
+        "./manifest.webmanifest",
+        "./squire-PAU4G32E.js",
+        "./styles.css",
+        "./zh-GIX7DQG7.js"
       ],
       "patterns": []
     },
@@ -26,8 +34,10 @@
         "ignoreVary": true
       },
       "urls": [
+        "./assets/favicon.svg",
         "./assets/icons/ai-avatar.jpg",
         "./assets/icons/amex.svg",
+        "./assets/icons/apple-touch-icon.png",
         "./assets/icons/asset-placeholder.svg",
         "./assets/icons/building-filled.svg",
         "./assets/icons/building-outline.svg",
@@ -44,6 +54,10 @@
         "./assets/icons/gcal.svg",
         "./assets/icons/home-filled.svg",
         "./assets/icons/home-outline.svg",
+        "./assets/icons/icon-192x192.png",
+        "./assets/icons/icon-512x512.png",
+        "./assets/icons/icon-maskable-192x192.png",
+        "./assets/icons/icon-maskable-512x512.png",
         "./assets/icons/locker-placeholder.svg",
         "./assets/icons/locker-success.svg",
         "./assets/icons/mastercard.svg",
@@ -113,13 +127,18 @@
         "./assets/yolov8x_web_model/metadata.yaml",
         "./assets/yolov8x_web_model/model.json"
       ],
-      "patterns": []
+      "patterns": [
+        "https:\\/\\/[^/]*\\.amazonaws\\.com\\/(?:.+\\/)?[^/]*\\.(eot|svg|cur|jpg|png|webp|gif|otf|ttf|woff|woff2|ani)"
+      ]
     }
   ],
   "dataGroups": [],
   "hashTable": {
+    "./ar-AKMAIXIV.js": "cc6cdc3ee098938f245f195a54c49ccb5c113ef0",
+    "./assets/favicon.svg": "796425d032b57687c752ea41cb46f0ab9410e3a9",
     "./assets/icons/ai-avatar.jpg": "97fe6757d753c8459e5bf3b5bedbea291e435fac",
     "./assets/icons/amex.svg": "3530eff717af33317b79bdd1d0ec96abfa884287",
+    "./assets/icons/apple-touch-icon.png": "130b631c754561276343748c3c95d6397c98566f",
     "./assets/icons/asset-placeholder.svg": "57d3c780a925b7434aadbe716a991457666eb450",
     "./assets/icons/building-filled.svg": "34585f7c33b655e2a69c1279c0ce2d7ce7c3dcea",
     "./assets/icons/building-outline.svg": "a5b27618ef63cc4fc16d334b480eef238b5a9d31",
@@ -136,6 +155,10 @@
     "./assets/icons/gcal.svg": "b8d23e34f4c427fd40b111f8b0dfaafbd1d1e77c",
     "./assets/icons/home-filled.svg": "96184359a17eaa01b3e50134124eb0034d3e4f34",
     "./assets/icons/home-outline.svg": "0a7375fdb84d3b06f05435c96448b64a3548d2fb",
+    "./assets/icons/icon-192x192.png": "4039346e3ea2e4a6305f2c63669ec9fe9b0e7b7a",
+    "./assets/icons/icon-512x512.png": "130b859d689c3000aa1dbe94e5dd3a9b242974f6",
+    "./assets/icons/icon-maskable-192x192.png": "7801d84f39336d8cdb82cab867b37233ad8904ea",
+    "./assets/icons/icon-maskable-512x512.png": "b3bcdece9699df2ceaf4d3e5d766f706a8a66e1f",
     "./assets/icons/locker-placeholder.svg": "6e84a00041c55c3e7153a52847b6d26810771078",
     "./assets/icons/locker-success.svg": "20169b2a608943dac0ecc2033b291e2127542326",
     "./assets/icons/mastercard.svg": "79fcc68055a5038b0ab81cecd407496fdfd350c9",
@@ -164,17 +187,17 @@
     "./assets/icons/user-avatar.jpg": "f757773a550a69b954c833376a6f1eed8ad4683c",
     "./assets/icons/visa.svg": "11187e2ea86894625af0aeb5b85c17bcbf8fe192",
     "./assets/icons/visitor-placeholder.svg": "744f6d0a7c3f96db704b4e4cc301aff7bed145d2",
-    "./assets/locale/ar.json": "274658d2c15db4e085cf32a56f4e42143dbe0d48",
-    "./assets/locale/en-AU.json": "514185bf66c9635cf0d5bcae7d4c8ff33e2e1ab4",
-    "./assets/locale/en-GB.json": "eaa6a9507920f58e405f7cc8effc4c7c200a4e2e",
-    "./assets/locale/en-US.json": "d4ae756529891887e1e07e97ed3ba0570531b656",
-    "./assets/locale/es.json": "41654559b6216787aabdfe5e0852cc8aec231012",
-    "./assets/locale/fr-CA.json": "d56d1b92bfcb430071e9a67e8a4c254102a9084d",
-    "./assets/locale/fr.json": "b51d20538d9a21a22fee03322ba5b799076da1da",
-    "./assets/locale/it.json": "760abdd6c9223b7ebb0441ad4eb6ad72b5aabe9f",
-    "./assets/locale/ja-JP.json": "93f58b7454909fe5247e7ab8c712369459042858",
-    "./assets/locale/pt.json": "e1a9ab852ac813cc268d5407bf95bf735f2d2328",
-    "./assets/locale/zh.json": "4f16ff9e8337f52c7e704d80c275e5e6ebf694a1",
+    "./assets/locale/ar.json": "5aa41e8a3040071f2a17f607857b858d76546c0c",
+    "./assets/locale/en-AU.json": "c2850f6a10153ed7a2523add4fdf05dc4b9ab727",
+    "./assets/locale/en-GB.json": "2989702e799304d4ca4eea64e8071d1fd3c63b25",
+    "./assets/locale/en-US.json": "de8182101bf07ed69e32d3dbd8640b0735152176",
+    "./assets/locale/es.json": "83223506b758f7adff9ff38c24ca81e88810cc2d",
+    "./assets/locale/fr-CA.json": "05290f7cbe1695d0cb68da0c7a5e0541a49c3686",
+    "./assets/locale/fr.json": "0ba43410638ebfb67d8cece21b935dc37eabbc5f",
+    "./assets/locale/it.json": "7a622eb90de12d6d369091a882cf2702678038cf",
+    "./assets/locale/ja-JP.json": "22ba2e147777938b247808fe3e1869f9f7a4fead",
+    "./assets/locale/pt.json": "53b8e73687786952968e90f4b7bfe9baa46cc61a",
+    "./assets/locale/zh.json": "a53f65f010b9698969936a466a223dc1b7c98e3a",
     "./assets/logo-dark.svg": "3c5dbbd620a781a0d1e3680cb697982dd44a1613",
     "./assets/logo-light.svg": "29908fafefe60c105f06b2f8d69f7c1eed436c17",
     "./assets/maps/level_1.svg": "ba165a2e4b967619f71aa625855113950c4cde53",
@@ -183,9 +206,9 @@
     "./assets/maps/level_G.svg": "34941af9a8f84b60d820fe3230f88d2c5374b8f1",
     "./assets/maps/level_P1.svg": "d143761b1d22330cb22c6d29ac1b0eb2dc37d29e",
     "./assets/maps/test.svg": "6b8cf2e8673469599a1a6d246b5e13650477aa2e",
-    "./assets/material-symbols-outlined.woff2": "bd542ec76d745a9c7f916eb2628c266e26daed5d",
-    "./assets/material-symbols-rounded.woff2": "81b53031546fbed2a135676294af73f9f1d74722",
-    "./assets/material-symbols-sharp.woff2": "ddf66c9927d80efeffc73c76472142cacaae7fba",
+    "./assets/material-symbols-outlined.woff2": "ff51fc73e84b98c595e2bf2ec5986bd9b539b35c",
+    "./assets/material-symbols-rounded.woff2": "e3cde5f70479792ad5e079d31b19bab1399b3059",
+    "./assets/material-symbols-sharp.woff2": "5355200b0a99b07120303aff433608bf01fd06ce",
     "./assets/material-symbols.css": "ef3b5b997fdbaa68f4530042143533b070895a29",
     "./assets/md5_worker.js": "60219890928275f63cd389150e22f36e8f397812",
     "./assets/mocks/building1.jpg": "9170087fb243e25d0dbd5a29c58aafd4e1a4daee",
@@ -204,10 +227,17 @@
     "./assets/yolov8x_web_model/group1-shard4of4.bin": "fe9f169f3635233b7fff9dff10587bd191ed1e6b",
     "./assets/yolov8x_web_model/metadata.yaml": "b1a29dc18ee0c4b5f0f7240d2d92cd8b2fa03318",
     "./assets/yolov8x_web_model/model.json": "9350bea46c5e709dcd9486a73d93db4b5d59abed",
-    "./favicon.ico": "4e23d0f9b6ddaf3c9ddef90dbaed2342941297b5",
-    "./index.html": "fcc3ef97de8d7c2c8bc6b7e27c8d38e63c0810a5",
-    "./main.js": "40efcbcc7691051f0005aaa90c2cfa952279cd43",
-    "./styles.css": "73fe56157b3b10f5b90c72b34c5fd071fcd8e9fd"
+    "./es-3S2KYDHB.js": "8c2c6028017e320e120bede25c9fd1758ae611cf",
+    "./favicon.ico": "4982786b7412938d9aac5f576c2430cd34c6d462",
+    "./fr-OVUV6Z77.js": "489db02b69234b375b619a526690a70d6bbafe7d",
+    "./index.html": "4c1e6104c1f3abdf60217c7da2274c082d8ca115",
+    "./it-VUH3KL7J.js": "9e61deeaf6d9d4248be875953f6c6103ea948402",
+    "./ja-H7XTH7XL.js": "4cace2c1fc78283b6fd07dc4536e9fbdd112b03e",
+    "./main.js": "70c34106af420b33aadb2d090598b726f6f2011f",
+    "./manifest.webmanifest": "047e55066e03de6e21fc077592da3b119c5ff5c8",
+    "./squire-PAU4G32E.js": "6edd33a25c63473ca2b0af5fff74b373cb57ba6c",
+    "./styles.css": "8d1214dede0a25f6fb6be07245469433f5de1e89",
+    "./zh-GIX7DQG7.js": "f947f283f9c83647317a079beeb4523ef1a3919c"
   },
   "navigationUrls": [
     {
