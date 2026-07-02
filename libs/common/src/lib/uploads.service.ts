@@ -223,9 +223,15 @@ export class UploadsService extends AsyncHandler {
         });
     }
 
-    private async _updateUploadToken() {
-        if (!token(false)) await authorise();
-        this._initUploads();
+    private _token_refresh: Promise<void> | null = null;
+
+    private _updateUploadToken() {
+        // ponytail: shared promise so concurrent failed uploads trigger one refresh
+        this._token_refresh ||= (async () => {
+            if (!token(false)) await authorise();
+            this._initUploads();
+        })().finally(() => (this._token_refresh = null));
+        return this._token_refresh;
     }
 
     /**
@@ -259,7 +265,8 @@ export class UploadsService extends AsyncHandler {
                     size: file.size,
                     upload,
                 };
-                upload.state.subscribe((state) => {
+                let retried = false;
+                upload.state.subscribe(async (state) => {
                     upload_details.upload_id = upload.id;
                     console.log('Upload:', state, upload);
                     if ((upload as any).access_url || state.progress >= 100) {
@@ -273,6 +280,13 @@ export class UploadsService extends AsyncHandler {
                     upload_details.progress = state.progress;
                     observer.next(upload_details);
                     if (state.status === 'FAILED') {
+                        if (!retried) {
+                            // token likely expired mid-upload; refresh and resume
+                            retried = true;
+                            await this._updateUploadToken();
+                            upload.resume();
+                            return;
+                        }
                         observer.error({
                             ...upload_details,
                             error: (state as any).error || 'Error',
