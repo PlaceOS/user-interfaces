@@ -3,7 +3,7 @@ import {
     DragDropModule,
     moveItemInArray,
 } from '@angular/cdk/drag-drop';
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -308,8 +308,27 @@ import { SignageService } from '../signage.service';
                 </div>
             } @else if (items().length > 0) {
                 <div class="w-full flex-1 overflow-auto px-3 py-2" role="list">
+                    <div class="mb-2 flex justify-end">
+                        <button
+                            type="button"
+                            class="text-base-content/70 hover:bg-base-200 flex items-center gap-1 rounded px-2 py-1 text-xs font-medium"
+                            matRipple
+                            (click)="toggleAllSchedules($event)"
+                        >
+                            <icon class="text-base">{{
+                                allSchedulesCollapsed()
+                                    ? 'unfold_more'
+                                    : 'unfold_less'
+                            }}</icon>
+                            <span class="mr-2">{{
+                                allSchedulesCollapsed()
+                                    ? 'Expand all'
+                                    : 'Collapse all'
+                            }}</span>
+                        </button>
+                    </div>
                     @for (item of items(); track item.id + '-' + $index) {
-                        @let schedule = itemSchedule(item);
+                        @let schedule = itemSchedule(item, $index);
                         <div
                             role="button"
                             tabindex="0"
@@ -479,29 +498,47 @@ import { SignageService } from '../signage.service';
                                 </mat-menu>
                             </div>
                             <div
-                                class="border-base-300 bg-base-100 relative mt-4 flex flex-col gap-1 rounded-lg border text-sm"
+                                class="border-base-300 bg-base-100 text-base-content relative mt-4 flex flex-col gap-1 rounded-lg border text-sm"
                             >
-                                <div
-                                    class="bg-base-100 absolute -top-2 left-4 rounded-lg px-2 text-xs font-medium"
+                                <button
+                                    type="button"
+                                    class="bg-base-100 absolute -top-3 left-4 flex items-center gap-1 rounded-lg px-2 text-xs font-medium"
+                                    (click)="
+                                        toggleSchedules($event, item, $index)
+                                    "
+                                    [attr.aria-expanded]="
+                                        schedulesOpen(item, $index)
+                                    "
                                 >
-                                    Schedules
-                                </div>
-                                @if (schedule?.schedules?.length) {
-                                    @for (
-                                        item_schedule of schedule.schedules;
-                                        track $index
-                                    ) {
-                                        <div class="rounded-md p-2">
-                                            {{ scheduleLabel(item_schedule) }}
+                                    <span>Schedules</span>
+                                    <icon class="text-base">{{
+                                        schedulesOpen(item, $index)
+                                            ? 'expand_less'
+                                            : 'expand_more'
+                                    }}</icon>
+                                </button>
+                                @if (schedulesOpen(item, $index)) {
+                                    @if (schedule?.schedules?.length) {
+                                        @for (
+                                            item_schedule of schedule.schedules;
+                                            track $index
+                                        ) {
+                                            <div class="rounded-md p-2">
+                                                {{
+                                                    scheduleLabel(item_schedule)
+                                                }}
+                                            </div>
+                                        }
+                                    } @else {
+                                        <div
+                                            class="text-base-content/60 rounded-md p-2"
+                                        >
+                                            {{
+                                                'SIGNAGE_MANAGER.NO_SCHEDULES'
+                                                    | translate
+                                            }}
                                         </div>
                                     }
-                                } @else {
-                                    <div class="text-base-content/60">
-                                        {{
-                                            'SIGNAGE_MANAGER.NO_SCHEDULES'
-                                                | translate
-                                        }}
-                                    </div>
                                 }
                             </div>
                         </div>
@@ -569,8 +606,11 @@ export class PlaylistItemsComponent {
         this._service.playlist_approval_request_loading;
     public readonly items = this._service.playlist_media_items;
     public readonly item_schedules = this._service.playlist_item_schedules;
+    public readonly item_schedule_list =
+        this._service.playlist_item_schedule_list;
     public readonly is_distribution = () =>
         !!this.selected_playlist()?.distribution;
+    public readonly collapsed_schedules = signal<Record<string, boolean>>({});
 
     public selectItem(item: SignageMedia) {
         this._service.selected_playlist_item.set(item);
@@ -584,7 +624,9 @@ export class PlaylistItemsComponent {
         return playlistMediaIcon(item);
     }
 
-    public itemSchedule(item: SignageMedia) {
+    public itemSchedule(item: SignageMedia, index = -1) {
+        const schedule = this.item_schedule_list()[index];
+        if (schedule?.media?.id === item.id) return schedule;
         return (
             this.item_schedules().get(item.id) ||
             new SignagePlaylistItemSchedule({
@@ -595,6 +637,47 @@ export class PlaylistItemsComponent {
     }
 
     public scheduleLabel = playlistScheduleLabel;
+
+    public scheduleKey(item: SignageMedia, index: number) {
+        const schedule = this.itemSchedule(item, index);
+        return `${schedule.id || schedule.item_id || item.id}:${index}`;
+    }
+
+    public schedulesOpen(item: SignageMedia, index: number) {
+        return !this.collapsed_schedules()[this.scheduleKey(item, index)];
+    }
+
+    public toggleSchedules(event: Event, item: SignageMedia, index: number) {
+        event.preventDefault();
+        event.stopPropagation();
+        const key = this.scheduleKey(item, index);
+        this.collapsed_schedules.update((state) => ({
+            ...state,
+            [key]: !state[key],
+        }));
+    }
+
+    public allSchedulesCollapsed() {
+        const items = this.items();
+        return (
+            items.length > 0 &&
+            items.every((item, index) => !this.schedulesOpen(item, index))
+        );
+    }
+
+    public toggleAllSchedules(event: Event) {
+        event.preventDefault();
+        event.stopPropagation();
+        if (this.allSchedulesCollapsed()) {
+            this.collapsed_schedules.set({});
+            return;
+        }
+        const collapsed: Record<string, boolean> = {};
+        this.items().forEach((item, index) => {
+            collapsed[this.scheduleKey(item, index)] = true;
+        });
+        this.collapsed_schedules.set(collapsed);
+    }
 
     public selectItemWithKeyboard(event: Event, item: SignageMedia) {
         event.preventDefault();

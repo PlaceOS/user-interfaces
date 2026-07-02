@@ -1057,6 +1057,9 @@ export class SignageService {
     public readonly playlist_item_schedules = computed(() =>
         playlistItemScheduleMap(this._playlist_media_items.value() || {}),
     );
+    public readonly playlist_item_schedule_list = computed(
+        () => this._playlist_media_items.value()?.schedules || [],
+    );
 
     constructor() {
         effect(() => {
