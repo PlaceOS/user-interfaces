@@ -1,0 +1,1 @@
+import {f$ as Kn,g0 as Mc,cS as Au}from'./main.js';var r="/api/staff/v1/guests";async function C(t){let s=Kn({q:t});return (await Mc(`${r}${t?"?"+s:""}`)).map(c=>new Au(c))}async function I(t){return new Au(await Mc(`${r}/${encodeURIComponent(t)}`))}export{C,I};//# sourceMappingURL=chunk-Pb7ZiWkR.js.map

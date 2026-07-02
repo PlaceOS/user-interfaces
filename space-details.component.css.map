@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["space-details.component.ts"],
-  "sourcesContent": ["\n            :host {\n                position: relative;\n                display: flex;\n                flex-direction: column;\n                width: 30%;\n                min-width: 20rem;\n                height: 100%;\n                min-height: 65vh;\n            }\n        "],
-  "mappings": "AACY,MACI,SAAA,SACA,QAAA,KACA,eAAA,OACA,MAAA,IACA,UAAA,MACA,OAAA,KACA,WAAA,IACJ",
-  "names": []
-}
