@@ -108,15 +108,16 @@ export class ParkingReportService {
         const options = this._options();
         const bookings = this.bookings();
         if (!bookings?.length) return;
-        const is_same = isSameDay(options.start, options.end);
+        const start = Number.isFinite(options.start)
+            ? options.start
+            : bookings[0].date;
+        const end = Number.isFinite(options.end) ? options.end : start;
+        const is_same = isSameDay(start, end);
         const date = is_same
-            ? format(options.start, 'yyyy-MM-dd')
-            : `${format(options.start, 'yyyy-MM-dd')}-${format(
-                  options.end,
-                  'yyyy-MM-dd',
-              )}`;
+            ? format(start, 'yyyy-MM-dd')
+            : `${format(start, 'yyyy-MM-dd')}-${format(end, 'yyyy-MM-dd')}`;
         downloadFile(
-            `report+assets+${date}.tsv`,
+            `report+parking+${date}.csv`,
             jsonToCsv(
                 bookings.map((booking) => {
                     const b: any = booking.toJSON();
@@ -126,7 +127,6 @@ export class ParkingReportService {
                     for (const key of REMOVE_KEYS) delete b[key];
                     return b;
                 }),
-                '\t',
             ),
         );
     }

@@ -20,7 +20,7 @@ import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
             <ng-container *ngTemplateOutlet="content()"></ng-container>
         </div>
 
-        <ng-template cdk-portal>
+        <ng-template cdkPortal>
             <div printable-view class="pointer-events-none hidden print:block">
                 <ng-container *ngTemplateOutlet="content()"></ng-container>
             </div>

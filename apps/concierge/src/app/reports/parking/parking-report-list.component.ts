@@ -177,6 +177,7 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
 export class ParkingReportListComponent {
     private _state = inject(ParkingReportService);
     private readonly _bookings = this._state.bookings;
+    private readonly _parking_space = new ParkingSpacePipe();
 
     public readonly print = input(false);
     public readonly table_metric_guide = TABLE_METRIC_GUIDE;
@@ -217,6 +218,25 @@ export class ParkingReportListComponent {
                 ? format(bkn.checked_in_at, 'yyyy-MM-dd HH:mm')
                 : '';
         }
-        downloadFile('report-parking-daily-usage.csv', jsonToCsv(data));
+        const rows = await Promise.all(
+            data.map(async (bkn) => ({
+                bay_number: await this._bayNumber(bkn.asset_id),
+                date: bkn.date,
+                duration: bkn.duration,
+                all_day: bkn.all_day,
+                host: bkn.host,
+                plate_number: bkn.plate_number,
+                checked_in: bkn.checked_in,
+                status: bkn.status,
+                self_registered: bkn.self_registered,
+            })),
+        );
+        downloadFile('report-parking-daily-usage.csv', jsonToCsv(rows));
     };
+
+    private async _bayNumber(asset_id: string) {
+        if (!asset_id) return '';
+        const space = await this._parking_space.transform(asset_id);
+        return space.identifier || asset_id;
+    }
 }
