@@ -28,7 +28,19 @@ import {
     Tooltip,
 } from 'chart.js';
 import { format, parse } from 'date-fns';
+import { activeReportBookings } from '../reports.utilities';
 import { ParkingReportService } from './parking-report.service';
+
+const LEVEL_COLORS = [
+    'rgb(59, 130, 246)',
+    'rgb(16, 185, 129)',
+    'rgb(245, 158, 11)',
+    'rgb(239, 68, 68)',
+    'rgb(139, 92, 246)',
+    'rgb(236, 72, 153)',
+    'rgb(20, 184, 166)',
+    'rgb(249, 115, 22)',
+];
 
 Chart.register(
     LineController,
@@ -54,7 +66,7 @@ Chart.register(
                 class="border-base-200 bg-base-100 h-72 w-1/2 flex-1 rounded-sm border"
             >
                 <div class="border-base-200 border-b p-4 text-xl font-bold">
-                    {{ 'APP.CONCIERGE.REPORTS_DAILY_HEADER' | translate }}
+                    Active bookings
                 </div>
                 <div class="mx-auto h-56 w-full max-w-full p-2">
                     <canvas #dailyChart></canvas>
@@ -92,33 +104,56 @@ export class ParkingReportChartsComponent
     private _state = inject(ParkingReportService);
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
-    private readonly _daily_stats = this._state.daily_stats;
+    private readonly _bookings = this._state.bookings;
     private readonly _counts = this._state.counts;
-    private readonly _options = this._state.options;
 
     public readonly print = input<boolean>(false);
-    public readonly day_list = computed(() => {
-        const days = this._daily_stats();
+
+    /** Parking level zone ids that have spaces (falls back to org levels) */
+    public readonly levels = computed(() => {
         const counts = this._counts();
-        const list = [];
-        const total_spaces = Object.values(counts).reduce(
-            (c, v) => c + (v || 0),
-            0,
-        );
-        for (const date in days) {
-            list.push({
-                date,
-                booking_count: unique(days[date].bookings, 'asset_id').length,
-                host_count: unique(days[date].bookings, 'user_email').length,
-                booked_count: days[date].bookings.length,
-                utilisation:
-                    days[date].bookings.reduce((c, v) => c + v.duration, 0) /
-                    total_spaces,
-            });
+        let zones = Object.keys(counts);
+        if (!zones.length) {
+            zones = (
+                this._settings.get('app.use_region')
+                    ? this._org.levelsForRegion()
+                    : this._org.levelsForBuilding()
+            )
+                .filter((_) => _.tags.includes('parking'))
+                .map((_) => _.id);
         }
-        return list.sort((a, b) => a.date.localeCompare(b.date));
+        return zones;
     });
-    public readonly stats = computed(() => [this._options(), this._counts()]);
+
+    /** Per-level daily count of active bookings */
+    public readonly daily_data = computed(() => {
+        const bookings = activeReportBookings(this._bookings());
+        const levels = this.levels();
+        const dates = unique(
+            bookings.map((b) => format(b.date, 'yyyy-MM-dd')),
+        ).sort();
+        const series = levels.map((level) => ({
+            level,
+            data: dates.map(
+                (date) =>
+                    bookings.filter(
+                        (b) =>
+                            format(b.date, 'yyyy-MM-dd') === date &&
+                            b.zones?.includes(level),
+                    ).length,
+            ),
+        }));
+        return { dates, series };
+    });
+
+    /** Active booking count per level for the pie chart */
+    public readonly level_counts = computed(() => {
+        const bookings = activeReportBookings(this._bookings());
+        return this.levels().map((level) => ({
+            level,
+            count: bookings.filter((b) => b.zones?.includes(level)).length,
+        }));
+    });
 
     private _daily_chart_el =
         viewChild<ElementRef<HTMLCanvasElement>>('dailyChart');
@@ -130,8 +165,8 @@ export class ParkingReportChartsComponent
     constructor() {
         super();
         effect(() => {
-            this.day_list();
-            this.stats();
+            this.daily_data();
+            this.level_counts();
             this.print();
             this._daily_chart_el();
             this._level_chart_el();
@@ -149,41 +184,43 @@ export class ParkingReportChartsComponent
         this.timeout(
             'update_charts',
             () => {
-                const day_list = this.day_list();
-                this.updateDailyChart(day_list);
-                const [mappings, counts] = this.stats();
-                this.updateLevelChart({ zones: mappings }, counts);
+                this.updateDailyChart(this.daily_data());
+                this.updateLevelChart(this.level_counts());
             },
             50,
         );
     }
 
-    public updateDailyChart(list) {
+    private levelName(id: string): string {
+        const level = this._org.levelWithID([id]);
+        return level?.display_name || level?.name || '';
+    }
+
+    public updateDailyChart({ dates, series }) {
         const el = this._daily_chart_el()?.nativeElement;
         if (!el) return;
         this._day_chart?.destroy();
         this._day_chart = new Chart(el, {
             type: 'line',
             data: {
-                labels: list.map((_) =>
-                    format(parse(_.date, 'yyyy-MM-dd', Date.now()), 'dd MMM'),
+                labels: dates.map((_) =>
+                    format(parse(_, 'yyyy-MM-dd', Date.now()), 'dd MMM'),
                 ),
-                datasets: [
-                    {
-                        data: list.map((_) => +_.utilisation),
-                        borderColor: 'rgb(59, 130, 246)',
-                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                        fill: true,
-                        tension: 0.3,
-                    },
-                ],
+                datasets: series.map((s, i) => ({
+                    label: this.levelName(s.level),
+                    data: s.data,
+                    borderColor: LEVEL_COLORS[i % LEVEL_COLORS.length],
+                    backgroundColor: LEVEL_COLORS[i % LEVEL_COLORS.length],
+                    fill: false,
+                    tension: 0.3,
+                })),
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 animation: this.print() ? false : undefined,
                 plugins: {
-                    legend: { display: false },
+                    legend: { display: true, position: 'bottom' },
                 },
                 scales: {
                     y: {
@@ -194,25 +231,17 @@ export class ParkingReportChartsComponent
         });
     }
 
-    public updateLevelChart(mapping, count) {
+    public updateLevelChart(level_counts) {
         const el = this._level_chart_el()?.nativeElement;
         if (!el) return;
-        let { zones } = mapping || { zones: [] };
-        if (!zones.length) {
-            zones = (
-                this._settings.get('app.use_region')
-                    ? this._org.levelsForRegion()
-                    : this._org.levelsForBuilding()
-            )
-                .filter((_) => _.tags.includes('parking'))
-                .map((_) => _.id);
-        }
-        const zone_list = (zones || []).filter((_) => (count[_] || 0) > 0);
-        const labels = zone_list.map((_) => {
-            const level = this._org.levelWithID([_]);
-            return level?.display_name || level.name || '';
-        });
-        const data = zone_list.map((_) => count[_] || 0);
+        const list = level_counts
+            .map((_, i) => ({
+                ..._,
+                color: LEVEL_COLORS[i % LEVEL_COLORS.length],
+            }))
+            .filter((_) => _.count > 0);
+        const labels = list.map((_) => this.levelName(_.level));
+        const data = list.map((_) => _.count);
         this._level_chart?.destroy();
         this._level_chart = new Chart(el, {
             type: 'pie',
@@ -221,16 +250,7 @@ export class ParkingReportChartsComponent
                 datasets: [
                     {
                         data,
-                        backgroundColor: [
-                            'rgb(59, 130, 246)',
-                            'rgb(16, 185, 129)',
-                            'rgb(245, 158, 11)',
-                            'rgb(239, 68, 68)',
-                            'rgb(139, 92, 246)',
-                            'rgb(236, 72, 153)',
-                            'rgb(20, 184, 166)',
-                            'rgb(249, 115, 22)',
-                        ],
+                        backgroundColor: list.map((_) => _.color),
                     },
                 ],
             },
