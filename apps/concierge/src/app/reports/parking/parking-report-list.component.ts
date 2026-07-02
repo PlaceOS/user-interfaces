@@ -142,7 +142,7 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
             <ng-template #checked_in_at_template let-row="row">
                 <div class="p-4">
                     @if (row.checked_in_at) {
-                        {{ row.checked_in_at * 1000 | date: 'short' }}
+                        {{ row.checked_in_at * 1000 | date: 'shortTime' }}
                     } @else {
                         <span class="opacity-30">
                             {{ 'COMMON.EMPTY' | translate }}
@@ -195,7 +195,7 @@ export class ParkingReportListComponent {
                     booking.checked_in ? 'COMMON.TRUE' : 'COMMON.FALSE',
                 ),
                 checked_in_at: booking.checked_in_at
-                    ? booking.checked_in_at * 1000
+                    ? booking.checked_in_at
                     : 0,
                 status: reportBookingStatus(booking),
                 self_registered: i18n(
