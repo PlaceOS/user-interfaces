@@ -1,0 +1,72 @@
+import { fakeAsync, tick } from '@angular/core/testing';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { MAP_FEATURE_DATA } from '@placeos/common';
+import { ngMocks } from 'ng-mocks';
+
+import { ExploreSensorInfoComponent } from '../lib/explore-sensor-info.component';
+
+describe('ExploreSensorInfoComponent', () => {
+    let spectator: Spectator<ExploreSensorInfoComponent>;
+    const createComponent = createComponentFactory({
+        component: ExploreSensorInfoComponent,
+        ...ngMocks.guts(null),
+        providers: [{ provide: MAP_FEATURE_DATA, useValue: {} }],
+    });
+
+    it('should create component', () => {
+        spectator = createComponent();
+        expect(spectator.component).toBeTruthy();
+    });
+
+    it('should fallback to default sensor values', () => {
+        spectator = createComponent();
+        expect(spectator.component.temp()).toBe(0);
+        expect(spectator.component.temp_unit()).toBe('C');
+        expect(spectator.component.humidity()).toBe(0);
+    });
+
+    it('should expose the provided sensor values', () => {
+        spectator = createComponent({
+            providers: [
+                {
+                    provide: MAP_FEATURE_DATA,
+                    useValue: {
+                        id: 'sensor-1',
+                        temp: 21,
+                        temp_unit: 'F',
+                        humidity: 40,
+                    },
+                },
+            ],
+        });
+        expect(spectator.component.temp()).toBe(21);
+        expect(spectator.component.temp_unit()).toBe('F');
+        expect(spectator.component.humidity()).toBe(40);
+    });
+
+    it('should not be shown for a sensor that is not the active one', () => {
+        spectator = createComponent({
+            providers: [
+                {
+                    provide: MAP_FEATURE_DATA,
+                    useValue: { id: 'inactive-sensor', temp: 10, humidity: 20 },
+                },
+            ],
+        });
+        expect(spectator.component.show()).toBe(false);
+    });
+
+    it('should be shown once set as the active sensor', fakeAsync(() => {
+        spectator = createComponent({
+            providers: [
+                {
+                    provide: MAP_FEATURE_DATA,
+                    useValue: { id: 'active-sensor', temp: 10, humidity: 20 },
+                },
+            ],
+        });
+        spectator.component.setShow(true);
+        tick(300);
+        expect(spectator.component.show()).toBe(true);
+    }));
+});
