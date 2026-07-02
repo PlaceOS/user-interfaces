@@ -14,7 +14,11 @@ import {
     MediaDurationPipe,
     TranslatePipe,
 } from '@placeos/components';
-import { SignageMedia } from '@placeos/ts-client';
+import { SignageMedia, SignagePlaylistItemSchedule } from '@placeos/ts-client';
+import {
+    playlistMediaIcon,
+    playlistScheduleLabel,
+} from '../signage-playlist.util';
 import { SignageService } from '../signage.service';
 
 @Component({
@@ -141,7 +145,7 @@ import { SignageService } from '../signage.service';
                         }}
                     </p>
                 </div>
-            } @else if (items().length > 0) {
+            } @else if (items().length > 0 && !is_distribution()) {
                 <div
                     class="w-full flex-1 overflow-auto px-3 py-2"
                     cdkDropList
@@ -302,6 +306,207 @@ import { SignageService } from '../signage.service';
                         </div>
                     }
                 </div>
+            } @else if (items().length > 0) {
+                <div class="w-full flex-1 overflow-auto px-3 py-2" role="list">
+                    @for (item of items(); track item.id + '-' + $index) {
+                        @let schedule = itemSchedule(item);
+                        <div
+                            role="button"
+                            tabindex="0"
+                            class="bg-base-100 border-base-300 mb-2 cursor-pointer rounded-lg border p-2 transition-colors"
+                            [class.bg-primary]="selected_item()?.id === item.id"
+                            [class.text-primary-content]="
+                                selected_item()?.id === item.id
+                            "
+                            [class.hover:bg-base-200]="
+                                selected_item()?.id !== item.id
+                            "
+                            (click)="selectItem(item)"
+                            (keydown.enter)="
+                                selectItemWithKeyboard($event, item)
+                            "
+                            (keydown.space)="
+                                selectItemWithKeyboard($event, item)
+                            "
+                            [attr.aria-label]="
+                                'SIGNAGE_MANAGER.SELECT_MEDIA_ITEM'
+                                    | translate: { name: item.name }
+                            "
+                        >
+                            <div class="flex items-start gap-3">
+                                <div
+                                    class="bg-base-300 h-12 w-16 shrink-0 overflow-hidden rounded"
+                                >
+                                    @let url = thumbnailURL(item);
+                                    @if (url && item.thumbnail_id) {
+                                        <img
+                                            auth
+                                            [source]="url"
+                                            [alt]="item.name + ' thumbnail'"
+                                            class="h-full w-full object-cover text-xs"
+                                        />
+                                    } @else {
+                                        <div
+                                            class="flex h-full w-full items-center justify-center"
+                                        >
+                                            <icon class="text-4xl opacity-30">{{
+                                                mediaIcon(item)
+                                            }}</icon>
+                                        </div>
+                                    }
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <div class="truncate text-sm font-medium">
+                                        {{ item.name }}
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span
+                                            class="rounded px-1.5 py-0.5 text-[10px] capitalize"
+                                            [class.bg-info]="
+                                                item.media_type === 'video'
+                                            "
+                                            [class.text-info-content]="
+                                                item.media_type === 'video'
+                                            "
+                                            [class.bg-warning]="
+                                                item.media_type === 'image'
+                                            "
+                                            [class.text-warning-content]="
+                                                item.media_type === 'image'
+                                            "
+                                            [class.bg-success]="
+                                                item.media_type === 'webpage'
+                                            "
+                                            [class.text-success-content]="
+                                                item.media_type === 'webpage'
+                                            "
+                                            [class.bg-error]="
+                                                item.media_type === 'plugin'
+                                            "
+                                            [class.text-error-content]="
+                                                item.media_type === 'plugin'
+                                            "
+                                        >
+                                            {{ item.media_type }}
+                                        </span>
+                                        @if (item.play_time) {
+                                            <span
+                                                class="font-mono text-[10px] opacity-60"
+                                            >
+                                                {{
+                                                    item.play_time / 1000
+                                                        | mediaDuration
+                                                }}
+                                            </span>
+                                        }
+                                    </div>
+                                </div>
+                                <button
+                                    icon
+                                    default
+                                    type="button"
+                                    matRipple
+                                    [matMenuTriggerFor]="distribution_item_menu"
+                                    (click)="$event.stopPropagation()"
+                                    [attr.aria-label]="
+                                        'SIGNAGE_MANAGER.ITEM_ACTIONS'
+                                            | translate
+                                    "
+                                >
+                                    <icon>more_vert</icon>
+                                </button>
+                                <mat-menu #distribution_item_menu="matMenu">
+                                    <button
+                                        type="button"
+                                        mat-menu-item
+                                        (click)="previewItem(item)"
+                                    >
+                                        <div
+                                            class="flex items-center space-x-2"
+                                        >
+                                            <icon class="text-2xl"
+                                                >visibility</icon
+                                            >
+                                            <div class="pr-2">
+                                                {{
+                                                    'COMMON.PREVIEW' | translate
+                                                }}
+                                            </div>
+                                        </div>
+                                    </button>
+                                    @if (can_update()) {
+                                        <button
+                                            type="button"
+                                            mat-menu-item
+                                            (click)="editItemSchedule(schedule)"
+                                        >
+                                            <div
+                                                class="flex items-center space-x-2"
+                                            >
+                                                <icon class="text-2xl"
+                                                    >edit_calendar</icon
+                                                >
+                                                <div class="pr-2">
+                                                    {{
+                                                        'SIGNAGE_MANAGER.EDIT_SCHEDULE'
+                                                            | translate
+                                                    }}
+                                                </div>
+                                            </div>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            mat-menu-item
+                                            (click)="removeItem(item, $index)"
+                                        >
+                                            <div
+                                                class="flex items-center space-x-2"
+                                            >
+                                                <icon
+                                                    class="text-error text-2xl"
+                                                >
+                                                    delete
+                                                </icon>
+                                                <div class="pr-2">
+                                                    {{
+                                                        'SIGNAGE_MANAGER.REMOVE_FROM_PLAYLIST'
+                                                            | translate
+                                                    }}
+                                                </div>
+                                            </div>
+                                        </button>
+                                    }
+                                </mat-menu>
+                            </div>
+                            <div
+                                class="border-base-300 bg-base-100 relative mt-4 flex flex-col gap-1 rounded-lg border text-sm"
+                            >
+                                <div
+                                    class="bg-base-100 absolute -top-2 left-4 rounded-lg px-2 text-xs font-medium"
+                                >
+                                    Schedules
+                                </div>
+                                @if (schedule?.schedules?.length) {
+                                    @for (
+                                        item_schedule of schedule.schedules;
+                                        track $index
+                                    ) {
+                                        <div class="rounded-md p-2">
+                                            {{ scheduleLabel(item_schedule) }}
+                                        </div>
+                                    }
+                                } @else {
+                                    <div class="text-base-content/60">
+                                        {{
+                                            'SIGNAGE_MANAGER.NO_SCHEDULES'
+                                                | translate
+                                        }}
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
             } @else {
                 <div
                     class="text-base-content/70 flex flex-1 flex-col items-center justify-center space-y-2 p-8"
@@ -363,6 +568,10 @@ export class PlaylistItemsComponent {
     public readonly approval_request_loading =
         this._service.playlist_approval_request_loading;
     public readonly items = this._service.playlist_media_items;
+    public readonly item_schedules = this._service.playlist_item_schedules;
+    public readonly is_distribution = () =>
+        !!this.selected_playlist()?.distribution;
+
     public selectItem(item: SignageMedia) {
         this._service.selected_playlist_item.set(item);
     }
@@ -370,6 +579,22 @@ export class PlaylistItemsComponent {
     public thumbnailURL(item: SignageMedia) {
         return `/api/engine/v2/signage/media/${item.id}/thumbnail`;
     }
+
+    public mediaIcon(item: SignageMedia) {
+        return playlistMediaIcon(item);
+    }
+
+    public itemSchedule(item: SignageMedia) {
+        return (
+            this.item_schedules().get(item.id) ||
+            new SignagePlaylistItemSchedule({
+                item_id: item.id,
+                media: item,
+            })
+        );
+    }
+
+    public scheduleLabel = playlistScheduleLabel;
 
     public selectItemWithKeyboard(event: Event, item: SignageMedia) {
         event.preventDefault();
@@ -379,6 +604,10 @@ export class PlaylistItemsComponent {
 
     public previewItem(item: SignageMedia) {
         this._service.previewMedia(item);
+    }
+
+    public editItemSchedule(schedule: SignagePlaylistItemSchedule) {
+        this._service.editPlaylistItemSchedule(schedule);
     }
 
     public editPlaylist() {
@@ -420,7 +649,7 @@ export class PlaylistItemsComponent {
     }
 
     public async onDrop(event: CdkDragDrop<SignageMedia[]>) {
-        if (!this.can_update()) return;
+        if (!this.can_update() || this.is_distribution()) return;
         const playlist = this.selected_playlist();
         if (!playlist?.id) return;
         const current_items = [...this.items()];

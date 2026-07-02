@@ -47,6 +47,7 @@ export interface PlaylistEditFormModel {
     name: string;
     description: string;
     enabled: boolean;
+    distribution: boolean;
     random: boolean;
     default_animation: MediaAnimation;
     orientation: string;
@@ -102,6 +103,18 @@ export interface PlaylistEditFormModel {
                     >
                     </settings-toggle>
                 </div>
+                @if (!playlist.id) {
+                    <div class="mb-4">
+                        <settings-toggle
+                            [label]="
+                                'SIGNAGE_MANAGER.PLAYLIST_DISTRIBUTION'
+                                    | translate
+                            "
+                            [formField]="form.distribution"
+                        >
+                        </settings-toggle>
+                    </div>
+                }
                 <div class="pt-2 pb-4">
                     <div class="border-base-300 relative rounded-sm border">
                         <label
@@ -311,6 +324,7 @@ export class PlaylistEditModalComponent {
         name: this.playlist.name || '',
         description: this.playlist.description || '',
         enabled: this.playlist.enabled ?? true,
+        distribution: !!this.playlist.distribution,
         random: !!this.playlist.random,
         default_animation:
             this.playlist.default_animation ?? MediaAnimation.Default,
