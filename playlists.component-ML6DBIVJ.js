@@ -8,14 +8,14 @@ import {
   MatTabLabel,
   MatTabsModule,
   moveItemInArray
-} from "./chunk-IGHTAKEK.js";
+} from "./chunk-N6GS45DB.js";
 import {
   IntersectDirective
-} from "./chunk-JXC4DM3H.js";
+} from "./chunk-247V4DCX.js";
 import {
   NavFooterComponent,
   NavSidebarComponent
-} from "./chunk-333IQK5R.js";
+} from "./chunk-SJHG5OBD.js";
 import {
   ActivatedRoute,
   AuthenticatedImageDirective,
@@ -51,6 +51,9 @@ import {
   effect,
   inject,
   input,
+  playlistMediaIcon,
+  playlistScheduleLabel,
+  rr,
   setClassMetadata,
   signal,
   ɵsetClassDebugInfo,
@@ -80,6 +83,7 @@ import {
   ɵɵrepeater,
   ɵɵrepeaterCreate,
   ɵɵrepeaterTrackByIdentity,
+  ɵɵrepeaterTrackByIndex,
   ɵɵresetView,
   ɵɵrestoreView,
   ɵɵstoreLet,
@@ -88,8 +92,11 @@ import {
   ɵɵtext,
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1
-} from "./chunk-IBMT4URR.js";
-import "./chunk-653SOEEV.js";
+} from "./chunk-U6C4N7EH.js";
+import {
+  __spreadProps,
+  __spreadValues
+} from "./chunk-653SOEEV.js";
 
 // apps/signage-manager/src/app/playlists/playlist-header.component.ts
 var _c0 = (a0) => ({ count: a0 });
@@ -1780,7 +1787,7 @@ var _forTrack02 = ($index, $item) => $item.id + "-" + $index;
 function PlaylistItemsComponent_Conditional_0_Conditional_6_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 11);
+    \u0275\u0275elementStart(0, "button", 13);
     \u0275\u0275pipe(1, "translate");
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_6_Conditional_0_Template_button_click_0_listener() {
@@ -1788,7 +1795,7 @@ function PlaylistItemsComponent_Conditional_0_Conditional_6_Conditional_0_Templa
       const ctx_r1 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r1.approvePlaylist());
     });
-    \u0275\u0275elementStart(3, "icon", 12);
+    \u0275\u0275elementStart(3, "icon", 14);
     \u0275\u0275text(4, "order_approve");
     \u0275\u0275elementEnd()();
   }
@@ -1799,12 +1806,12 @@ function PlaylistItemsComponent_Conditional_0_Conditional_6_Conditional_0_Templa
 }
 function PlaylistItemsComponent_Conditional_0_Conditional_6_Conditional_1_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275element(0, "mat-spinner", 14);
+    \u0275\u0275element(0, "mat-spinner", 16);
   }
 }
 function PlaylistItemsComponent_Conditional_0_Conditional_6_Conditional_1_Conditional_4_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "icon", 12);
+    \u0275\u0275elementStart(0, "icon", 14);
     \u0275\u0275text(1, "approval");
     \u0275\u0275elementEnd();
   }
@@ -1812,7 +1819,7 @@ function PlaylistItemsComponent_Conditional_0_Conditional_6_Conditional_1_Condit
 function PlaylistItemsComponent_Conditional_0_Conditional_6_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
     const _r3 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 13);
+    \u0275\u0275elementStart(0, "button", 15);
     \u0275\u0275pipe(1, "translate");
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_6_Conditional_1_Template_button_click_0_listener() {
@@ -1820,7 +1827,7 @@ function PlaylistItemsComponent_Conditional_0_Conditional_6_Conditional_1_Templa
       const ctx_r1 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r1.requestApproval());
     });
-    \u0275\u0275conditionalCreate(3, PlaylistItemsComponent_Conditional_0_Conditional_6_Conditional_1_Conditional_3_Template, 1, 0, "mat-spinner", 14)(4, PlaylistItemsComponent_Conditional_0_Conditional_6_Conditional_1_Conditional_4_Template, 2, 0, "icon", 12);
+    \u0275\u0275conditionalCreate(3, PlaylistItemsComponent_Conditional_0_Conditional_6_Conditional_1_Conditional_3_Template, 1, 0, "mat-spinner", 16)(4, PlaylistItemsComponent_Conditional_0_Conditional_6_Conditional_1_Conditional_4_Template, 2, 0, "icon", 14);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -1833,7 +1840,7 @@ function PlaylistItemsComponent_Conditional_0_Conditional_6_Conditional_1_Templa
 }
 function PlaylistItemsComponent_Conditional_0_Conditional_6_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275conditionalCreate(0, PlaylistItemsComponent_Conditional_0_Conditional_6_Conditional_0_Template, 5, 6, "button", 6)(1, PlaylistItemsComponent_Conditional_0_Conditional_6_Conditional_1_Template, 5, 8, "button", 10);
+    \u0275\u0275conditionalCreate(0, PlaylistItemsComponent_Conditional_0_Conditional_6_Conditional_0_Template, 5, 6, "button", 7)(1, PlaylistItemsComponent_Conditional_0_Conditional_6_Conditional_1_Template, 5, 8, "button", 12);
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext(2);
@@ -1843,7 +1850,7 @@ function PlaylistItemsComponent_Conditional_0_Conditional_6_Template(rf, ctx) {
 function PlaylistItemsComponent_Conditional_0_Conditional_7_Template(rf, ctx) {
   if (rf & 1) {
     const _r4 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 11);
+    \u0275\u0275elementStart(0, "button", 13);
     \u0275\u0275pipe(1, "translate");
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_7_Template_button_click_0_listener() {
@@ -1863,7 +1870,7 @@ function PlaylistItemsComponent_Conditional_0_Conditional_7_Template(rf, ctx) {
 function PlaylistItemsComponent_Conditional_0_Conditional_8_Template(rf, ctx) {
   if (rf & 1) {
     const _r5 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 11);
+    \u0275\u0275elementStart(0, "button", 13);
     \u0275\u0275pipe(1, "translate");
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_8_Template_button_click_0_listener() {
@@ -1883,7 +1890,7 @@ function PlaylistItemsComponent_Conditional_0_Conditional_8_Template(rf, ctx) {
 function PlaylistItemsComponent_Conditional_0_Conditional_9_Template(rf, ctx) {
   if (rf & 1) {
     const _r6 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 15);
+    \u0275\u0275elementStart(0, "button", 17);
     \u0275\u0275pipe(1, "translate");
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_9_Template_button_click_0_listener() {
@@ -1902,8 +1909,8 @@ function PlaylistItemsComponent_Conditional_0_Conditional_9_Template(rf, ctx) {
 }
 function PlaylistItemsComponent_Conditional_0_Conditional_10_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 8);
-    \u0275\u0275element(1, "mat-spinner", 16);
+    \u0275\u0275elementStart(0, "div", 9);
+    \u0275\u0275element(1, "mat-spinner", 18);
     \u0275\u0275elementStart(2, "p");
     \u0275\u0275text(3);
     \u0275\u0275pipe(4, "translate");
@@ -1916,7 +1923,7 @@ function PlaylistItemsComponent_Conditional_0_Conditional_10_Template(rf, ctx) {
 }
 function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Conditional_6_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275element(0, "img", 22);
+    \u0275\u0275element(0, "img", 24);
   }
   if (rf & 2) {
     const item_r9 = \u0275\u0275nextContext().$implicit;
@@ -1926,7 +1933,7 @@ function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Conditional_6
 }
 function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Conditional_7_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 23)(1, "icon", 34);
+    \u0275\u0275elementStart(0, "div", 25)(1, "icon", 36);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd()();
   }
@@ -1938,7 +1945,7 @@ function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Conditional_7
 }
 function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Conditional_14_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 27);
+    \u0275\u0275elementStart(0, "span", 29);
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "mediaDuration");
     \u0275\u0275elementEnd();
@@ -1952,7 +1959,7 @@ function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Conditional_1
 function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Conditional_28_Template(rf, ctx) {
   if (rf & 1) {
     const _r11 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 29);
+    \u0275\u0275elementStart(0, "button", 31);
     \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Conditional_28_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r11);
       const ctx_r11 = \u0275\u0275nextContext();
@@ -1961,10 +1968,10 @@ function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Conditional_2
       const ctx_r1 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r1.removeItem(item_r9, $index_r13));
     });
-    \u0275\u0275elementStart(1, "div", 30)(2, "icon", 35);
+    \u0275\u0275elementStart(1, "div", 32)(2, "icon", 37);
     \u0275\u0275text(3, " delete ");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "div", 32);
+    \u0275\u0275elementStart(4, "div", 34);
     \u0275\u0275text(5);
     \u0275\u0275pipe(6, "translate");
     \u0275\u0275elementEnd()()();
@@ -1977,7 +1984,7 @@ function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Conditional_2
 function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Template(rf, ctx) {
   if (rf & 1) {
     const _r8 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 19);
+    \u0275\u0275elementStart(0, "div", 21);
     \u0275\u0275pipe(1, "translate");
     \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Template_div_click_0_listener() {
       const item_r9 = \u0275\u0275restoreView(_r8).$implicit;
@@ -1992,22 +1999,22 @@ function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Template(rf, 
       const ctx_r1 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r1.selectItemWithKeyboard($event, item_r9));
     });
-    \u0275\u0275elementStart(2, "icon", 20);
+    \u0275\u0275elementStart(2, "icon", 22);
     \u0275\u0275text(3, "drag_indicator");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "div", 21);
+    \u0275\u0275elementStart(4, "div", 23);
     \u0275\u0275declareLet(5);
-    \u0275\u0275conditionalCreate(6, PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Conditional_6_Template, 1, 2, "img", 22)(7, PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Conditional_7_Template, 3, 1, "div", 23);
+    \u0275\u0275conditionalCreate(6, PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Conditional_6_Template, 1, 2, "img", 24)(7, PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Conditional_7_Template, 3, 1, "div", 25);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(8, "div", 4)(9, "div", 24);
+    \u0275\u0275elementStart(8, "div", 5)(9, "div", 26);
     \u0275\u0275text(10);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(11, "div", 25)(12, "span", 26);
+    \u0275\u0275elementStart(11, "div", 27)(12, "span", 28);
     \u0275\u0275text(13);
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(14, PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Conditional_14_Template, 3, 3, "span", 27);
+    \u0275\u0275conditionalCreate(14, PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Conditional_14_Template, 3, 3, "span", 29);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(15, "button", 28);
+    \u0275\u0275elementStart(15, "button", 30);
     \u0275\u0275pipe(16, "translate");
     \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Template_button_click_15_listener($event) {
       return $event.stopPropagation();
@@ -2015,20 +2022,20 @@ function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Template(rf, 
     \u0275\u0275elementStart(17, "icon");
     \u0275\u0275text(18, "more_vert");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(19, "mat-menu", null, 0)(21, "button", 29);
+    \u0275\u0275elementStart(19, "mat-menu", null, 0)(21, "button", 31);
     \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Template_button_click_21_listener() {
       const item_r9 = \u0275\u0275restoreView(_r8).$implicit;
       const ctx_r1 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r1.previewItem(item_r9));
     });
-    \u0275\u0275elementStart(22, "div", 30)(23, "icon", 31);
+    \u0275\u0275elementStart(22, "div", 32)(23, "icon", 33);
     \u0275\u0275text(24, "visibility");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(25, "div", 32);
+    \u0275\u0275elementStart(25, "div", 34);
     \u0275\u0275text(26);
     \u0275\u0275pipe(27, "translate");
     \u0275\u0275elementEnd()()();
-    \u0275\u0275conditionalCreate(28, PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Conditional_28_Template, 7, 3, "button", 33);
+    \u0275\u0275conditionalCreate(28, PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Conditional_28_Template, 7, 3, "button", 35);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
@@ -2061,13 +2068,13 @@ function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Template(rf, 
 function PlaylistItemsComponent_Conditional_0_Conditional_11_Template(rf, ctx) {
   if (rf & 1) {
     const _r7 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 17);
+    \u0275\u0275elementStart(0, "div", 19);
     \u0275\u0275listener("cdkDropListDropped", function PlaylistItemsComponent_Conditional_0_Conditional_11_Template_div_cdkDropListDropped_0_listener($event) {
       \u0275\u0275restoreView(_r7);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.onDrop($event));
     });
-    \u0275\u0275repeaterCreate(1, PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Template, 29, 41, "div", 18, _forTrack02);
+    \u0275\u0275repeaterCreate(1, PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Template, 29, 41, "div", 20, _forTrack02);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -2076,9 +2083,267 @@ function PlaylistItemsComponent_Conditional_0_Conditional_11_Template(rf, ctx) {
     \u0275\u0275repeater(ctx_r1.items());
   }
 }
+function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_6_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "img", 24);
+  }
+  if (rf & 2) {
+    const item_r18 = \u0275\u0275nextContext().$implicit;
+    const url_r19 = \u0275\u0275readContextLet(5);
+    \u0275\u0275property("source", url_r19)("alt", item_r18.name + " thumbnail");
+  }
+}
+function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_7_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 25)(1, "icon", 36);
+    \u0275\u0275text(2);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const item_r18 = \u0275\u0275nextContext().$implicit;
+    const ctx_r1 = \u0275\u0275nextContext(3);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(ctx_r1.mediaIcon(item_r18));
+  }
+}
+function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_14_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span", 29);
+    \u0275\u0275text(1);
+    \u0275\u0275pipe(2, "mediaDuration");
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const item_r18 = \u0275\u0275nextContext().$implicit;
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, item_r18.play_time / 1e3), " ");
+  }
+}
+function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_28_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r20 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 31);
+    \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_28_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r20);
+      \u0275\u0275nextContext();
+      const schedule_r21 = \u0275\u0275readContextLet(0);
+      const ctx_r1 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r1.editItemSchedule(schedule_r21));
+    });
+    \u0275\u0275elementStart(1, "div", 32)(2, "icon", 33);
+    \u0275\u0275text(3, "edit_calendar");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "div", 34);
+    \u0275\u0275text(5);
+    \u0275\u0275pipe(6, "translate");
+    \u0275\u0275elementEnd()()();
+    \u0275\u0275elementStart(7, "button", 31);
+    \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_28_Template_button_click_7_listener() {
+      \u0275\u0275restoreView(_r20);
+      const ctx_r21 = \u0275\u0275nextContext();
+      const item_r18 = ctx_r21.$implicit;
+      const $index_r23 = ctx_r21.$index;
+      const ctx_r1 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r1.removeItem(item_r18, $index_r23));
+    });
+    \u0275\u0275elementStart(8, "div", 32)(9, "icon", 37);
+    \u0275\u0275text(10, " delete ");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(11, "div", 34);
+    \u0275\u0275text(12);
+    \u0275\u0275pipe(13, "translate");
+    \u0275\u0275elementEnd()()();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance(5);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(6, 2, "SIGNAGE_MANAGER.EDIT_SCHEDULE"), " ");
+    \u0275\u0275advance(7);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(13, 4, "SIGNAGE_MANAGER.REMOVE_FROM_PLAYLIST"), " ");
+  }
+}
+function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_35_Conditional_0_For_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 48);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const item_schedule_r25 = ctx.$implicit;
+    const ctx_r1 = \u0275\u0275nextContext(6);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", ctx_r1.scheduleLabel(item_schedule_r25), " ");
+  }
+}
+function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_35_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275repeaterCreate(0, PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_35_Conditional_0_For_1_Template, 2, 1, "div", 48, \u0275\u0275repeaterTrackByIndex);
+  }
+  if (rf & 2) {
+    \u0275\u0275nextContext(2);
+    const schedule_r21 = \u0275\u0275readContextLet(0);
+    \u0275\u0275repeater(schedule_r21.schedules);
+  }
+}
+function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_35_Conditional_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 47);
+    \u0275\u0275text(1);
+    \u0275\u0275pipe(2, "translate");
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, "SIGNAGE_MANAGER.NO_SCHEDULES"), " ");
+  }
+}
+function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_35_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275conditionalCreate(0, PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_35_Conditional_0_Template, 2, 0)(1, PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_35_Conditional_1_Template, 3, 3, "div", 47);
+  }
+  if (rf & 2) {
+    \u0275\u0275nextContext();
+    const schedule_r21 = \u0275\u0275readContextLet(0);
+    \u0275\u0275conditional(schedule_r21?.schedules?.length ? 0 : 1);
+  }
+}
+function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r17 = \u0275\u0275getCurrentView();
+    \u0275\u0275declareLet(0);
+    \u0275\u0275elementStart(1, "div", 43);
+    \u0275\u0275pipe(2, "translate");
+    \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Template_div_click_1_listener() {
+      const item_r18 = \u0275\u0275restoreView(_r17).$implicit;
+      const ctx_r1 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r1.selectItem(item_r18));
+    })("keydown.enter", function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Template_div_keydown_enter_1_listener($event) {
+      const item_r18 = \u0275\u0275restoreView(_r17).$implicit;
+      const ctx_r1 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r1.selectItemWithKeyboard($event, item_r18));
+    })("keydown.space", function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Template_div_keydown_space_1_listener($event) {
+      const item_r18 = \u0275\u0275restoreView(_r17).$implicit;
+      const ctx_r1 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r1.selectItemWithKeyboard($event, item_r18));
+    });
+    \u0275\u0275elementStart(3, "div", 44)(4, "div", 23);
+    \u0275\u0275declareLet(5);
+    \u0275\u0275conditionalCreate(6, PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_6_Template, 1, 2, "img", 24)(7, PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_7_Template, 3, 1, "div", 25);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(8, "div", 5)(9, "div", 26);
+    \u0275\u0275text(10);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(11, "div", 27)(12, "span", 28);
+    \u0275\u0275text(13);
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(14, PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_14_Template, 3, 3, "span", 29);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(15, "button", 30);
+    \u0275\u0275pipe(16, "translate");
+    \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Template_button_click_15_listener($event) {
+      return $event.stopPropagation();
+    });
+    \u0275\u0275elementStart(17, "icon");
+    \u0275\u0275text(18, "more_vert");
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(19, "mat-menu", null, 1)(21, "button", 31);
+    \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Template_button_click_21_listener() {
+      const item_r18 = \u0275\u0275restoreView(_r17).$implicit;
+      const ctx_r1 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r1.previewItem(item_r18));
+    });
+    \u0275\u0275elementStart(22, "div", 32)(23, "icon", 33);
+    \u0275\u0275text(24, "visibility");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(25, "div", 34);
+    \u0275\u0275text(26);
+    \u0275\u0275pipe(27, "translate");
+    \u0275\u0275elementEnd()()();
+    \u0275\u0275conditionalCreate(28, PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_28_Template, 14, 6);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(29, "div", 45)(30, "button", 46);
+    \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Template_button_click_30_listener($event) {
+      const ctx_r23 = \u0275\u0275restoreView(_r17);
+      const item_r18 = ctx_r23.$implicit;
+      const $index_r23 = ctx_r23.$index;
+      const ctx_r1 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r1.toggleSchedules($event, item_r18, $index_r23));
+    });
+    \u0275\u0275elementStart(31, "span");
+    \u0275\u0275text(32, "Schedules");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(33, "icon", 40);
+    \u0275\u0275text(34);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275conditionalCreate(35, PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_35_Template, 2, 1);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const item_r18 = ctx.$implicit;
+    const $index_r23 = ctx.$index;
+    const distribution_item_menu_r26 = \u0275\u0275reference(20);
+    const ctx_r1 = \u0275\u0275nextContext(3);
+    \u0275\u0275storeLet(ctx_r1.itemSchedule(item_r18, $index_r23));
+    \u0275\u0275advance();
+    \u0275\u0275classProp("bg-primary", ctx_r1.selected_item()?.id === item_r18.id)("text-primary-content", ctx_r1.selected_item()?.id === item_r18.id)("hover:bg-base-200", ctx_r1.selected_item()?.id !== item_r18.id);
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(2, 35, "SIGNAGE_MANAGER.SELECT_MEDIA_ITEM", \u0275\u0275pureFunction1(43, _c03, item_r18.name)));
+    \u0275\u0275advance(4);
+    const url_r27 = \u0275\u0275storeLet(ctx_r1.thumbnailURL(item_r18));
+    \u0275\u0275advance();
+    \u0275\u0275conditional(url_r27 && item_r18.thumbnail_id ? 6 : 7);
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate1(" ", item_r18.name, " ");
+    \u0275\u0275advance(2);
+    \u0275\u0275classProp("bg-info", item_r18.media_type === "video")("text-info-content", item_r18.media_type === "video")("bg-warning", item_r18.media_type === "image")("text-warning-content", item_r18.media_type === "image")("bg-success", item_r18.media_type === "webpage")("text-success-content", item_r18.media_type === "webpage")("bg-error", item_r18.media_type === "plugin")("text-error-content", item_r18.media_type === "plugin");
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", item_r18.media_type, " ");
+    \u0275\u0275advance();
+    \u0275\u0275conditional(item_r18.play_time ? 14 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275property("matMenuTriggerFor", distribution_item_menu_r26);
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(16, 39, "SIGNAGE_MANAGER.ITEM_ACTIONS"));
+    \u0275\u0275advance(11);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(27, 41, "COMMON.PREVIEW"), " ");
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(ctx_r1.can_update() ? 28 : -1);
+    \u0275\u0275advance(2);
+    \u0275\u0275attribute("aria-expanded", ctx_r1.schedulesOpen(item_r18, $index_r23));
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate(ctx_r1.schedulesOpen(item_r18, $index_r23) ? "expand_less" : "expand_more");
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r1.schedulesOpen(item_r18, $index_r23) ? 35 : -1);
+  }
+}
 function PlaylistItemsComponent_Conditional_0_Conditional_12_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 1)(1, "icon", 36);
+    const _r16 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 11)(1, "div", 38)(2, "button", 39);
+    \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_12_Template_button_click_2_listener($event) {
+      \u0275\u0275restoreView(_r16);
+      const ctx_r1 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r1.toggleAllSchedules($event));
+    });
+    \u0275\u0275elementStart(3, "icon", 40);
+    \u0275\u0275text(4);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(5, "span", 41);
+    \u0275\u0275text(6);
+    \u0275\u0275elementEnd()()();
+    \u0275\u0275repeaterCreate(7, PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Template, 36, 45, "div", 42, _forTrack02);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate(ctx_r1.allSchedulesCollapsed() ? "unfold_more" : "unfold_less");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(ctx_r1.allSchedulesCollapsed() ? "Expand all" : "Collapse all");
+    \u0275\u0275advance();
+    \u0275\u0275repeater(ctx_r1.items());
+  }
+}
+function PlaylistItemsComponent_Conditional_0_Conditional_13_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 2)(1, "icon", 49);
     \u0275\u0275text(2, "queue_music");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(3, "p");
@@ -2093,18 +2358,18 @@ function PlaylistItemsComponent_Conditional_0_Conditional_12_Template(rf, ctx) {
 }
 function PlaylistItemsComponent_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 2)(1, "icon", 3);
+    \u0275\u0275elementStart(0, "div", 3)(1, "icon", 4);
     \u0275\u0275text(2, "playlist_play");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "div", 4)(4, "h4", 5);
+    \u0275\u0275elementStart(3, "div", 5)(4, "h4", 6);
     \u0275\u0275text(5);
     \u0275\u0275elementEnd()();
     \u0275\u0275conditionalCreate(6, PlaylistItemsComponent_Conditional_0_Conditional_6_Template, 2, 1);
-    \u0275\u0275conditionalCreate(7, PlaylistItemsComponent_Conditional_0_Conditional_7_Template, 5, 6, "button", 6);
-    \u0275\u0275conditionalCreate(8, PlaylistItemsComponent_Conditional_0_Conditional_8_Template, 5, 6, "button", 6);
-    \u0275\u0275conditionalCreate(9, PlaylistItemsComponent_Conditional_0_Conditional_9_Template, 5, 6, "button", 7);
+    \u0275\u0275conditionalCreate(7, PlaylistItemsComponent_Conditional_0_Conditional_7_Template, 5, 6, "button", 7);
+    \u0275\u0275conditionalCreate(8, PlaylistItemsComponent_Conditional_0_Conditional_8_Template, 5, 6, "button", 7);
+    \u0275\u0275conditionalCreate(9, PlaylistItemsComponent_Conditional_0_Conditional_9_Template, 5, 6, "button", 8);
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(10, PlaylistItemsComponent_Conditional_0_Conditional_10_Template, 5, 3, "div", 8)(11, PlaylistItemsComponent_Conditional_0_Conditional_11_Template, 3, 0, "div", 9)(12, PlaylistItemsComponent_Conditional_0_Conditional_12_Template, 6, 3, "div", 1);
+    \u0275\u0275conditionalCreate(10, PlaylistItemsComponent_Conditional_0_Conditional_10_Template, 5, 3, "div", 9)(11, PlaylistItemsComponent_Conditional_0_Conditional_11_Template, 3, 0, "div", 10)(12, PlaylistItemsComponent_Conditional_0_Conditional_12_Template, 9, 2, "div", 11)(13, PlaylistItemsComponent_Conditional_0_Conditional_13_Template, 6, 3, "div", 2);
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
@@ -2119,12 +2384,12 @@ function PlaylistItemsComponent_Conditional_0_Template(rf, ctx) {
     \u0275\u0275advance();
     \u0275\u0275conditional(ctx_r1.can_delete() ? 9 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r1.loading() ? 10 : ctx_r1.items().length > 0 ? 11 : 12);
+    \u0275\u0275conditional(ctx_r1.loading() ? 10 : ctx_r1.items().length > 0 && !ctx_r1.is_distribution() ? 11 : ctx_r1.items().length > 0 ? 12 : 13);
   }
 }
 function PlaylistItemsComponent_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 1)(1, "icon", 36);
+    \u0275\u0275elementStart(0, "div", 2)(1, "icon", 49);
     \u0275\u0275text(2, "playlist_play");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(3, "p");
@@ -2150,12 +2415,67 @@ var PlaylistItemsComponent = class _PlaylistItemsComponent {
     this.loading = this._service.playlist_media_loading;
     this.approval_request_loading = this._service.playlist_approval_request_loading;
     this.items = this._service.playlist_media_items;
+    this.item_schedules = this._service.playlist_item_schedules;
+    this.item_schedule_list = this._service.playlist_item_schedule_list;
+    this.is_distribution = () => !!this.selected_playlist()?.distribution;
+    this.collapsed_schedules = signal(
+      {},
+      ...ngDevMode ? [{ debugName: "collapsed_schedules" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.scheduleLabel = playlistScheduleLabel;
   }
   selectItem(item) {
     this._service.selected_playlist_item.set(item);
   }
   thumbnailURL(item) {
     return `/api/engine/v2/signage/media/${item.id}/thumbnail`;
+  }
+  mediaIcon(item) {
+    return playlistMediaIcon(item);
+  }
+  itemSchedule(item, index = -1) {
+    const schedule = this.item_schedule_list()[index];
+    if (schedule?.media?.id === item.id)
+      return schedule;
+    return this.item_schedules().get(item.id) || new rr({
+      item_id: item.id,
+      media: item
+    });
+  }
+  scheduleKey(item, index) {
+    const schedule = this.itemSchedule(item, index);
+    return `${schedule.id || schedule.item_id || item.id}:${index}`;
+  }
+  schedulesOpen(item, index) {
+    return !this.collapsed_schedules()[this.scheduleKey(item, index)];
+  }
+  toggleSchedules(event, item, index) {
+    event.preventDefault();
+    event.stopPropagation();
+    const key = this.scheduleKey(item, index);
+    this.collapsed_schedules.update((state) => __spreadProps(__spreadValues({}, state), {
+      [key]: !state[key]
+    }));
+  }
+  allSchedulesCollapsed() {
+    const items = this.items();
+    return items.length > 0 && items.every((item, index) => !this.schedulesOpen(item, index));
+  }
+  toggleAllSchedules(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    if (this.allSchedulesCollapsed()) {
+      this.collapsed_schedules.set({});
+      return;
+    }
+    const collapsed = {};
+    this.items().forEach((item, index) => {
+      collapsed[this.scheduleKey(item, index)] = true;
+    });
+    this.collapsed_schedules.set(collapsed);
   }
   selectItemWithKeyboard(event, item) {
     event.preventDefault();
@@ -2164,6 +2484,9 @@ var PlaylistItemsComponent = class _PlaylistItemsComponent {
   }
   previewItem(item) {
     this._service.previewMedia(item);
+  }
+  editItemSchedule(schedule) {
+    this._service.editPlaylistItemSchedule(schedule);
   }
   editPlaylist() {
     const playlist = this.selected_playlist();
@@ -2200,7 +2523,7 @@ var PlaylistItemsComponent = class _PlaylistItemsComponent {
     }
   }
   async onDrop(event) {
-    if (!this.can_update())
+    if (!this.can_update() || this.is_distribution())
       return;
     const playlist = this.selected_playlist();
     if (!playlist?.id)
@@ -2216,9 +2539,9 @@ var PlaylistItemsComponent = class _PlaylistItemsComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _PlaylistItemsComponent, selectors: [["playlist-items"]], decls: 2, vars: 1, consts: [["item_menu", "matMenu"], [1, "text-base-content/70", "flex", "flex-1", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], [1, "bg-base-100", "border-base-300", "mx-2", "hidden", "items-center", "gap-2", "rounded-b-lg", "border", "px-4", "py-3", "lg:flex"], [1, "shrink-0", "text-2xl", "opacity-60"], [1, "min-w-0", "flex-1"], [1, "truncate", "text-lg", "font-medium"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "matTooltip"], ["icon", "", "default", "", "error", "", "type", "button", "matRipple", "", 3, "matTooltip"], [1, "flex", "flex-1", "flex-col", "items-center", "justify-center", "space-y-3", "p-8", "opacity-70"], ["cdkDropList", "", "role", "list", 1, "w-full", "flex-1", "overflow-auto", "px-3", "py-2"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "matTooltip", "disabled"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "click", "matTooltip"], [1, "text-warning"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "click", "matTooltip", "disabled"], ["diameter", "20"], ["icon", "", "default", "", "error", "", "type", "button", "matRipple", "", 3, "click", "matTooltip"], ["diameter", "32"], ["cdkDropList", "", "role", "list", 1, "w-full", "flex-1", "overflow-auto", "px-3", "py-2", 3, "cdkDropListDropped"], ["cdkDrag", "", "role", "button", "tabindex", "0", 1, "bg-base-100", "border-base-300", "mb-2", "flex", "cursor-pointer", "items-center", "gap-3", "rounded-lg", "border", "p-2", "transition-colors", 3, "bg-primary", "text-primary-content", "hover:bg-base-200"], ["cdkDrag", "", "role", "button", "tabindex", "0", 1, "bg-base-100", "border-base-300", "mb-2", "flex", "cursor-pointer", "items-center", "gap-3", "rounded-lg", "border", "p-2", "transition-colors", 3, "click", "keydown.enter", "keydown.space"], ["cdkDragHandle", "", 1, "shrink-0", "cursor-grab", "opacity-40"], [1, "bg-base-300", "h-12", "w-16", "shrink-0", "overflow-hidden", "rounded"], ["auth", "", 1, "h-full", "w-full", "object-cover", "text-xs", 3, "source", "alt"], [1, "flex", "h-full", "w-full", "items-center", "justify-center"], [1, "truncate", "text-sm", "font-medium"], [1, "flex", "items-center", "gap-2"], [1, "rounded", "px-1.5", "py-0.5", "text-[10px]", "capitalize"], [1, "font-mono", "text-[10px]", "opacity-60"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "click", "matMenuTriggerFor"], ["type", "button", "mat-menu-item", "", 3, "click"], [1, "flex", "items-center", "space-x-2"], [1, "text-2xl"], [1, "pr-2"], ["type", "button", "mat-menu-item", ""], [1, "text-4xl", "opacity-30"], [1, "text-error", "text-2xl"], [1, "text-6xl"]], template: function PlaylistItemsComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _PlaylistItemsComponent, selectors: [["playlist-items"]], decls: 2, vars: 1, consts: [["item_menu", "matMenu"], ["distribution_item_menu", "matMenu"], [1, "text-base-content/70", "flex", "flex-1", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], [1, "bg-base-100", "border-base-300", "mx-2", "hidden", "items-center", "gap-2", "rounded-b-lg", "border", "px-4", "py-3", "lg:flex"], [1, "shrink-0", "text-2xl", "opacity-60"], [1, "min-w-0", "flex-1"], [1, "truncate", "text-lg", "font-medium"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "matTooltip"], ["icon", "", "default", "", "error", "", "type", "button", "matRipple", "", 3, "matTooltip"], [1, "flex", "flex-1", "flex-col", "items-center", "justify-center", "space-y-3", "p-8", "opacity-70"], ["cdkDropList", "", "role", "list", 1, "w-full", "flex-1", "overflow-auto", "px-3", "py-2"], ["role", "list", 1, "w-full", "flex-1", "overflow-auto", "px-3", "py-2"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "matTooltip", "disabled"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "click", "matTooltip"], [1, "text-warning"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "click", "matTooltip", "disabled"], ["diameter", "20"], ["icon", "", "default", "", "error", "", "type", "button", "matRipple", "", 3, "click", "matTooltip"], ["diameter", "32"], ["cdkDropList", "", "role", "list", 1, "w-full", "flex-1", "overflow-auto", "px-3", "py-2", 3, "cdkDropListDropped"], ["cdkDrag", "", "role", "button", "tabindex", "0", 1, "bg-base-100", "border-base-300", "mb-2", "flex", "cursor-pointer", "items-center", "gap-3", "rounded-lg", "border", "p-2", "transition-colors", 3, "bg-primary", "text-primary-content", "hover:bg-base-200"], ["cdkDrag", "", "role", "button", "tabindex", "0", 1, "bg-base-100", "border-base-300", "mb-2", "flex", "cursor-pointer", "items-center", "gap-3", "rounded-lg", "border", "p-2", "transition-colors", 3, "click", "keydown.enter", "keydown.space"], ["cdkDragHandle", "", 1, "shrink-0", "cursor-grab", "opacity-40"], [1, "bg-base-300", "h-12", "w-16", "shrink-0", "overflow-hidden", "rounded"], ["auth", "", 1, "h-full", "w-full", "object-cover", "text-xs", 3, "source", "alt"], [1, "flex", "h-full", "w-full", "items-center", "justify-center"], [1, "truncate", "text-sm", "font-medium"], [1, "flex", "items-center", "gap-2"], [1, "rounded", "px-1.5", "py-0.5", "text-[10px]", "capitalize"], [1, "font-mono", "text-[10px]", "opacity-60"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "click", "matMenuTriggerFor"], ["type", "button", "mat-menu-item", "", 3, "click"], [1, "flex", "items-center", "space-x-2"], [1, "text-2xl"], [1, "pr-2"], ["type", "button", "mat-menu-item", ""], [1, "text-4xl", "opacity-30"], [1, "text-error", "text-2xl"], [1, "-mt-2", "mb-2", "flex", "justify-end", "lg:mt-0"], ["type", "button", "matRipple", "", 1, "text-base-content/70", "hover:bg-base-200", "flex", "w-28", "items-center", "justify-center", "gap-1", "rounded", "px-2", "py-1", "text-xs", "font-medium", 3, "click"], [1, "text-base"], [1, "mr-2"], ["role", "button", "tabindex", "0", 1, "bg-base-100", "border-base-300", "mb-2", "cursor-pointer", "rounded-lg", "border", "p-2", "transition-colors", 3, "bg-primary", "text-primary-content", "hover:bg-base-200"], ["role", "button", "tabindex", "0", 1, "bg-base-100", "border-base-300", "mb-2", "cursor-pointer", "rounded-lg", "border", "p-2", "transition-colors", 3, "click", "keydown.enter", "keydown.space"], [1, "flex", "items-start", "gap-3"], [1, "border-base-300", "bg-base-100", "text-base-content", "relative", "mt-4", "flex", "flex-col", "gap-1", "rounded-lg", "border", "text-sm"], ["type", "button", 1, "bg-base-100", "absolute", "-top-3", "left-4", "flex", "items-center", "gap-1", "rounded-lg", "px-2", "text-xs", "font-medium", 3, "click"], [1, "text-base-content/60", "rounded-md", "p-2"], [1, "rounded-md", "p-2"], [1, "text-6xl"]], template: function PlaylistItemsComponent_Template(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275conditionalCreate(0, PlaylistItemsComponent_Conditional_0_Template, 13, 6)(1, PlaylistItemsComponent_Conditional_1_Template, 6, 3, "div", 1);
+        \u0275\u0275conditionalCreate(0, PlaylistItemsComponent_Conditional_0_Template, 14, 6)(1, PlaylistItemsComponent_Conditional_1_Template, 6, 3, "div", 2);
       }
       if (rf & 2) {
         \u0275\u0275conditional(ctx.selected_playlist() ? 0 : 1);
@@ -2370,7 +2693,7 @@ var PlaylistItemsComponent = class _PlaylistItemsComponent {
                         }}
                     </p>
                 </div>
-            } @else if (items().length > 0) {
+            } @else if (items().length > 0 && !is_distribution()) {
                 <div
                     class="w-full flex-1 overflow-auto px-3 py-2"
                     cdkDropList
@@ -2531,6 +2854,244 @@ var PlaylistItemsComponent = class _PlaylistItemsComponent {
                         </div>
                     }
                 </div>
+            } @else if (items().length > 0) {
+                <div class="w-full flex-1 overflow-auto px-3 py-2" role="list">
+                    <div class="-mt-2 mb-2 flex justify-end lg:mt-0">
+                        <button
+                            type="button"
+                            class="text-base-content/70 hover:bg-base-200 flex w-28 items-center justify-center gap-1 rounded px-2 py-1 text-xs font-medium"
+                            matRipple
+                            (click)="toggleAllSchedules($event)"
+                        >
+                            <icon class="text-base">{{
+                                allSchedulesCollapsed()
+                                    ? 'unfold_more'
+                                    : 'unfold_less'
+                            }}</icon>
+                            <span class="mr-2">{{
+                                allSchedulesCollapsed()
+                                    ? 'Expand all'
+                                    : 'Collapse all'
+                            }}</span>
+                        </button>
+                    </div>
+                    @for (item of items(); track item.id + '-' + $index) {
+                        @let schedule = itemSchedule(item, $index);
+                        <div
+                            role="button"
+                            tabindex="0"
+                            class="bg-base-100 border-base-300 mb-2 cursor-pointer rounded-lg border p-2 transition-colors"
+                            [class.bg-primary]="selected_item()?.id === item.id"
+                            [class.text-primary-content]="
+                                selected_item()?.id === item.id
+                            "
+                            [class.hover:bg-base-200]="
+                                selected_item()?.id !== item.id
+                            "
+                            (click)="selectItem(item)"
+                            (keydown.enter)="
+                                selectItemWithKeyboard($event, item)
+                            "
+                            (keydown.space)="
+                                selectItemWithKeyboard($event, item)
+                            "
+                            [attr.aria-label]="
+                                'SIGNAGE_MANAGER.SELECT_MEDIA_ITEM'
+                                    | translate: { name: item.name }
+                            "
+                        >
+                            <div class="flex items-start gap-3">
+                                <div
+                                    class="bg-base-300 h-12 w-16 shrink-0 overflow-hidden rounded"
+                                >
+                                    @let url = thumbnailURL(item);
+                                    @if (url && item.thumbnail_id) {
+                                        <img
+                                            auth
+                                            [source]="url"
+                                            [alt]="item.name + ' thumbnail'"
+                                            class="h-full w-full object-cover text-xs"
+                                        />
+                                    } @else {
+                                        <div
+                                            class="flex h-full w-full items-center justify-center"
+                                        >
+                                            <icon class="text-4xl opacity-30">{{
+                                                mediaIcon(item)
+                                            }}</icon>
+                                        </div>
+                                    }
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <div class="truncate text-sm font-medium">
+                                        {{ item.name }}
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span
+                                            class="rounded px-1.5 py-0.5 text-[10px] capitalize"
+                                            [class.bg-info]="
+                                                item.media_type === 'video'
+                                            "
+                                            [class.text-info-content]="
+                                                item.media_type === 'video'
+                                            "
+                                            [class.bg-warning]="
+                                                item.media_type === 'image'
+                                            "
+                                            [class.text-warning-content]="
+                                                item.media_type === 'image'
+                                            "
+                                            [class.bg-success]="
+                                                item.media_type === 'webpage'
+                                            "
+                                            [class.text-success-content]="
+                                                item.media_type === 'webpage'
+                                            "
+                                            [class.bg-error]="
+                                                item.media_type === 'plugin'
+                                            "
+                                            [class.text-error-content]="
+                                                item.media_type === 'plugin'
+                                            "
+                                        >
+                                            {{ item.media_type }}
+                                        </span>
+                                        @if (item.play_time) {
+                                            <span
+                                                class="font-mono text-[10px] opacity-60"
+                                            >
+                                                {{
+                                                    item.play_time / 1000
+                                                        | mediaDuration
+                                                }}
+                                            </span>
+                                        }
+                                    </div>
+                                </div>
+                                <button
+                                    icon
+                                    default
+                                    type="button"
+                                    matRipple
+                                    [matMenuTriggerFor]="distribution_item_menu"
+                                    (click)="$event.stopPropagation()"
+                                    [attr.aria-label]="
+                                        'SIGNAGE_MANAGER.ITEM_ACTIONS'
+                                            | translate
+                                    "
+                                >
+                                    <icon>more_vert</icon>
+                                </button>
+                                <mat-menu #distribution_item_menu="matMenu">
+                                    <button
+                                        type="button"
+                                        mat-menu-item
+                                        (click)="previewItem(item)"
+                                    >
+                                        <div
+                                            class="flex items-center space-x-2"
+                                        >
+                                            <icon class="text-2xl"
+                                                >visibility</icon
+                                            >
+                                            <div class="pr-2">
+                                                {{
+                                                    'COMMON.PREVIEW' | translate
+                                                }}
+                                            </div>
+                                        </div>
+                                    </button>
+                                    @if (can_update()) {
+                                        <button
+                                            type="button"
+                                            mat-menu-item
+                                            (click)="editItemSchedule(schedule)"
+                                        >
+                                            <div
+                                                class="flex items-center space-x-2"
+                                            >
+                                                <icon class="text-2xl"
+                                                    >edit_calendar</icon
+                                                >
+                                                <div class="pr-2">
+                                                    {{
+                                                        'SIGNAGE_MANAGER.EDIT_SCHEDULE'
+                                                            | translate
+                                                    }}
+                                                </div>
+                                            </div>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            mat-menu-item
+                                            (click)="removeItem(item, $index)"
+                                        >
+                                            <div
+                                                class="flex items-center space-x-2"
+                                            >
+                                                <icon
+                                                    class="text-error text-2xl"
+                                                >
+                                                    delete
+                                                </icon>
+                                                <div class="pr-2">
+                                                    {{
+                                                        'SIGNAGE_MANAGER.REMOVE_FROM_PLAYLIST'
+                                                            | translate
+                                                    }}
+                                                </div>
+                                            </div>
+                                        </button>
+                                    }
+                                </mat-menu>
+                            </div>
+                            <div
+                                class="border-base-300 bg-base-100 text-base-content relative mt-4 flex flex-col gap-1 rounded-lg border text-sm"
+                            >
+                                <button
+                                    type="button"
+                                    class="bg-base-100 absolute -top-3 left-4 flex items-center gap-1 rounded-lg px-2 text-xs font-medium"
+                                    (click)="
+                                        toggleSchedules($event, item, $index)
+                                    "
+                                    [attr.aria-expanded]="
+                                        schedulesOpen(item, $index)
+                                    "
+                                >
+                                    <span>Schedules</span>
+                                    <icon class="text-base">{{
+                                        schedulesOpen(item, $index)
+                                            ? 'expand_less'
+                                            : 'expand_more'
+                                    }}</icon>
+                                </button>
+                                @if (schedulesOpen(item, $index)) {
+                                    @if (schedule?.schedules?.length) {
+                                        @for (
+                                            item_schedule of schedule.schedules;
+                                            track $index
+                                        ) {
+                                            <div class="rounded-md p-2">
+                                                {{
+                                                    scheduleLabel(item_schedule)
+                                                }}
+                                            </div>
+                                        }
+                                    } @else {
+                                        <div
+                                            class="text-base-content/60 rounded-md p-2"
+                                        >
+                                            {{
+                                                'SIGNAGE_MANAGER.NO_SCHEDULES'
+                                                    | translate
+                                            }}
+                                        </div>
+                                    }
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
             } @else {
                 <div
                     class="text-base-content/70 flex flex-1 flex-col items-center justify-center space-y-2 p-8"
@@ -2561,7 +3122,7 @@ var PlaylistItemsComponent = class _PlaylistItemsComponent {
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(PlaylistItemsComponent, { className: "PlaylistItemsComponent", filePath: "apps/signage-manager/src/app/playlists/playlist-items.component.ts", lineNumber: 351 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(PlaylistItemsComponent, { className: "PlaylistItemsComponent", filePath: "apps/signage-manager/src/app/playlists/playlist-items.component.ts", lineNumber: 593 });
 })();
 
 // apps/signage-manager/src/app/playlists/playlist-list.component.ts
@@ -3044,6 +3605,18 @@ var PlaylistListComponent = class _PlaylistListComponent {
 })();
 
 // apps/signage-manager/src/app/playlists/playlists.component.ts
+function PlaylistsSectionComponent_Conditional_7_Conditional_8_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 13);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", ctx_r1.selected_playlist().description, " ");
+  }
+}
 function PlaylistsSectionComponent_Conditional_7_Conditional_10_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
     const _r3 = \u0275\u0275getCurrentView();
@@ -3180,12 +3753,12 @@ function PlaylistsSectionComponent_Conditional_7_Template(rf, ctx) {
     \u0275\u0275elementStart(3, "icon");
     \u0275\u0275text(4, "arrow_back");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(5, "div", 11)(6, "icon", 12);
-    \u0275\u0275text(7, "playlist_play");
+    \u0275\u0275elementStart(5, "div", 11)(6, "h4", 12);
+    \u0275\u0275text(7);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(8, "h4", 13);
-    \u0275\u0275text(9);
-    \u0275\u0275elementEnd()();
+    \u0275\u0275conditionalCreate(8, PlaylistsSectionComponent_Conditional_7_Conditional_8_Template, 2, 1, "div", 13);
+    \u0275\u0275elementEnd();
+    \u0275\u0275element(9, "div");
     \u0275\u0275conditionalCreate(10, PlaylistsSectionComponent_Conditional_7_Conditional_10_Template, 2, 1);
     \u0275\u0275conditionalCreate(11, PlaylistsSectionComponent_Conditional_7_Conditional_11_Template, 5, 6, "button", 14);
     \u0275\u0275conditionalCreate(12, PlaylistsSectionComponent_Conditional_7_Conditional_12_Template, 5, 6, "button", 14);
@@ -3215,10 +3788,12 @@ function PlaylistsSectionComponent_Conditional_7_Template(rf, ctx) {
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance();
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(2, 27, "SIGNAGE_MANAGER.BACK_TO_PLAYLISTS"));
-    \u0275\u0275advance(8);
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(2, 28, "SIGNAGE_MANAGER.BACK_TO_PLAYLISTS"));
+    \u0275\u0275advance(6);
     \u0275\u0275textInterpolate1(" ", ctx_r1.selected_playlist().name, " ");
     \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r1.selected_playlist().description ? 8 : -1);
+    \u0275\u0275advance(2);
     \u0275\u0275conditional(ctx_r1.requires_approval() ? 10 : -1);
     \u0275\u0275advance();
     \u0275\u0275conditional(ctx_r1.can_update() ? 11 : -1);
@@ -3227,17 +3802,17 @@ function PlaylistsSectionComponent_Conditional_7_Template(rf, ctx) {
     \u0275\u0275advance();
     \u0275\u0275conditional(ctx_r1.can_delete() ? 13 : -1);
     \u0275\u0275advance();
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(15, 29, "SIGNAGE_MANAGER.PLAYLIST_DETAILS_TABS"));
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(15, 30, "SIGNAGE_MANAGER.PLAYLIST_DETAILS_TABS"));
     \u0275\u0275advance(2);
     \u0275\u0275classProp("border-primary", ctx_r1.view_tab() === "items")("border-b-2", ctx_r1.view_tab() === "items")("text-primary", ctx_r1.view_tab() === "items")("opacity-60", ctx_r1.view_tab() !== "items");
     \u0275\u0275attribute("aria-selected", ctx_r1.view_tab() === "items");
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(18, 31, "SIGNAGE_MANAGER.TAB_ITEMS"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(18, 32, "SIGNAGE_MANAGER.TAB_ITEMS"), " ");
     \u0275\u0275advance(2);
     \u0275\u0275classProp("border-primary", ctx_r1.view_tab() === "details")("border-b-2", ctx_r1.view_tab() === "details")("text-primary", ctx_r1.view_tab() === "details")("opacity-60", ctx_r1.view_tab() !== "details");
     \u0275\u0275attribute("aria-selected", ctx_r1.view_tab() === "details");
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(21, 33, "COMMON.DETAILS"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(21, 34, "COMMON.DETAILS"), " ");
   }
 }
 var TAB_QUERY_PARAM = "tab";
@@ -3368,7 +3943,7 @@ var PlaylistsSectionComponent = class _PlaylistsSectionComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _PlaylistsSectionComponent, selectors: [["playlists-section"]], inputs: { id: [1, "id"], tab: [1, "tab"], item: [1, "item"] }, decls: 12, vars: 11, consts: [[1, "bg-base-200", "absolute", "inset-0", "flex", "flex-col", "sm:flex-row"], [1, "sm:h-full"], [1, "flex", "min-h-0", "flex-1", "flex-col"], [1, "relative", "z-10"], [1, "flex", "min-h-0", "flex-1", "flex-row"], [1, "mobile-full"], [1, "flex", "min-h-0", "w-px", "flex-1", "flex-col"], ["id", "playlist-items-panel", "role", "tabpanel", "aria-labelledby", "playlist-items-tab", 1, "w-px", "max-w-full", "flex-1"], ["id", "playlist-details-panel", "role", "tabpanel", "aria-labelledby", "playlist-details-tab", 1, "bg-base-100"], [1, "bg-base-100", "border-base-300", "mx-2", "hidden", "items-center", "gap-2", "rounded-b-lg", "border", "p-2", "max-lg:flex"], ["icon", "", "default", "", "type", "button", "matRipple", "", 1, "sm:hidden", 3, "click"], [1, "flex", "min-w-0", "flex-1", "items-center", "gap-2", "px-2"], [1, "shrink-0", "text-2xl", "opacity-60"], [1, "truncate", "text-lg", "font-medium"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "matTooltip"], ["icon", "", "default", "", "error", "", "type", "button", "matRipple", "", 3, "matTooltip"], ["role", "tablist", 1, "bg-base-100", "border-base-300", "mx-2", "my-2", "flex", "rounded-lg", "border", "lg:hidden"], ["type", "button", "role", "tab", "aria-controls", "playlist-items-panel", "id", "playlist-items-tab", 1, "flex-1", "px-4", "py-2.5", "text-sm", "font-medium", "transition-colors", 3, "click"], ["type", "button", "role", "tab", "aria-controls", "playlist-details-panel", "id", "playlist-details-tab", 1, "flex-1", "px-4", "py-2.5", "text-sm", "font-medium", "transition-colors", 3, "click"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "matTooltip", "disabled"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "click", "matTooltip"], [1, "text-warning"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "click", "matTooltip", "disabled"], ["diameter", "20"], ["icon", "", "default", "", "error", "", "type", "button", "matRipple", "", 3, "click", "matTooltip"]], template: function PlaylistsSectionComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _PlaylistsSectionComponent, selectors: [["playlists-section"]], inputs: { id: [1, "id"], tab: [1, "tab"], item: [1, "item"] }, decls: 12, vars: 11, consts: [[1, "bg-base-200", "absolute", "inset-0", "flex", "flex-col", "sm:flex-row"], [1, "sm:h-full"], [1, "flex", "min-h-0", "flex-1", "flex-col"], [1, "relative", "z-10"], [1, "flex", "min-h-0", "flex-1", "flex-row"], [1, "mobile-full"], [1, "flex", "min-h-0", "w-px", "flex-1", "flex-col"], ["id", "playlist-items-panel", "role", "tabpanel", "aria-labelledby", "playlist-items-tab", 1, "w-px", "max-w-full", "flex-1"], ["id", "playlist-details-panel", "role", "tabpanel", "aria-labelledby", "playlist-details-tab", 1, "bg-base-100"], [1, "bg-base-100", "border-base-300", "mx-2", "hidden", "items-center", "gap-2", "rounded-b-lg", "border", "p-2", "max-lg:flex"], ["icon", "", "default", "", "type", "button", "matRipple", "", 1, "sm:hidden", 3, "click"], [1, "flex", "w-1/2", "flex-1", "flex-col", "px-2"], [1, "truncate", "text-lg", "font-medium"], [1, "-mt-1", "truncate", "text-xs"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "matTooltip"], ["icon", "", "default", "", "error", "", "type", "button", "matRipple", "", 3, "matTooltip"], ["role", "tablist", 1, "bg-base-100", "border-base-300", "mx-2", "my-2", "flex", "rounded-lg", "border", "lg:hidden"], ["type", "button", "role", "tab", "aria-controls", "playlist-items-panel", "id", "playlist-items-tab", 1, "flex-1", "px-4", "py-2.5", "text-sm", "font-medium", "transition-colors", 3, "click"], ["type", "button", "role", "tab", "aria-controls", "playlist-details-panel", "id", "playlist-details-tab", 1, "flex-1", "px-4", "py-2.5", "text-sm", "font-medium", "transition-colors", 3, "click"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "matTooltip", "disabled"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "click", "matTooltip"], [1, "text-warning"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "click", "matTooltip", "disabled"], ["diameter", "20"], ["icon", "", "default", "", "error", "", "type", "button", "matRipple", "", 3, "click", "matTooltip"]], template: function PlaylistsSectionComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "div", 0);
         \u0275\u0275element(1, "nav-sidebar", 1);
@@ -3377,7 +3952,7 @@ var PlaylistsSectionComponent = class _PlaylistsSectionComponent {
         \u0275\u0275elementStart(4, "div", 4);
         \u0275\u0275element(5, "playlist-list", 5);
         \u0275\u0275elementStart(6, "div", 6);
-        \u0275\u0275conditionalCreate(7, PlaylistsSectionComponent_Conditional_7_Template, 22, 35);
+        \u0275\u0275conditionalCreate(7, PlaylistsSectionComponent_Conditional_7_Template, 22, 36);
         \u0275\u0275elementStart(8, "div", 4);
         \u0275\u0275element(9, "playlist-items", 7)(10, "playlist-item-details", 8);
         \u0275\u0275elementEnd()()()();
@@ -3449,16 +4024,19 @@ var PlaylistsSectionComponent = class _PlaylistsSectionComponent {
                                 >
                                     <icon>arrow_back</icon>
                                 </button>
-                                <div
-                                    class="flex min-w-0 flex-1 items-center gap-2 px-2"
-                                >
-                                    <icon class="shrink-0 text-2xl opacity-60"
-                                        >playlist_play</icon
-                                    >
+                                <div class="flex w-1/2 flex-1 flex-col px-2">
                                     <h4 class="truncate text-lg font-medium">
                                         {{ selected_playlist().name }}
                                     </h4>
+                                    @if (selected_playlist().description) {
+                                        <div class="-mt-1 truncate text-xs">
+                                            {{
+                                                selected_playlist().description
+                                            }}
+                                        </div>
+                                    }
                                 </div>
+                                <div></div>
                                 @if (requires_approval()) {
                                     @if (can_approve()) {
                                         <button
@@ -3664,9 +4242,9 @@ var PlaylistsSectionComponent = class _PlaylistsSectionComponent {
   }], () => [], { id: [{ type: Input, args: [{ isSignal: true, alias: "id", required: false }] }], tab: [{ type: Input, args: [{ isSignal: true, alias: "tab", required: false }] }], item: [{ type: Input, args: [{ isSignal: true, alias: "item", required: false }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(PlaylistsSectionComponent, { className: "PlaylistsSectionComponent", filePath: "apps/signage-manager/src/app/playlists/playlists.component.ts", lineNumber: 298 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(PlaylistsSectionComponent, { className: "PlaylistsSectionComponent", filePath: "apps/signage-manager/src/app/playlists/playlists.component.ts", lineNumber: 301 });
 })();
 export {
   PlaylistsSectionComponent
 };
-//# sourceMappingURL=playlists.component-3MMLXHMP.js.map
+//# sourceMappingURL=playlists.component-ML6DBIVJ.js.map

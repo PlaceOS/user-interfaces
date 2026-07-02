@@ -618,7 +618,7 @@ function isSignal(value) {
 }
 function installDevToolsSignalFormatter() {
   globalThis.devtoolsFormatters ??= [];
-  if (!globalThis.devtoolsFormatters.some((f2) => f2 === formatter)) {
+  if (!globalThis.devtoolsFormatters.some((f3) => f3 === formatter)) {
     globalThis.devtoolsFormatters.push(formatter);
   }
 }
@@ -1882,19 +1882,19 @@ function __asyncGenerator(thisArg, _arguments, generator) {
   return i = Object.create((typeof AsyncIterator === "function" ? AsyncIterator : Object).prototype), verb("next"), verb("throw"), verb("return", awaitReturn), i[Symbol.asyncIterator] = function() {
     return this;
   }, i;
-  function awaitReturn(f2) {
+  function awaitReturn(f3) {
     return function(v) {
-      return Promise.resolve(v).then(f2, reject);
+      return Promise.resolve(v).then(f3, reject);
     };
   }
-  function verb(n, f2) {
+  function verb(n, f3) {
     if (g2[n]) {
       i[n] = function(v) {
         return new Promise(function(a, b2) {
           q3.push([n, v, a, b2]) > 1 || resume(n, v);
         });
       };
-      if (f2) i[n] = f2(i[n]);
+      if (f3) i[n] = f3(i[n]);
     }
   }
   function resume(n, v) {
@@ -1913,8 +1913,8 @@ function __asyncGenerator(thisArg, _arguments, generator) {
   function reject(value) {
     resume("throw", value);
   }
-  function settle(f2, v) {
-    if (f2(v), q3.shift(), q3.length) resume(q3[0][0], q3[0][1]);
+  function settle(f3, v) {
+    if (f3(v), q3.shift(), q3.length) resume(q3[0][0], q3[0][1]);
   }
 }
 function __asyncValues(o) {
@@ -1930,9 +1930,9 @@ function __asyncValues(o) {
       });
     };
   }
-  function settle(resolve, reject, d3, v) {
+  function settle(resolve, reject, d2, v) {
     Promise.resolve(v).then(function(v2) {
-      resolve({ value: v2, done: d3 });
+      resolve({ value: v2, done: d2 });
     }, reject);
   }
 }
@@ -13829,7 +13829,7 @@ var ComponentFactory = class {
     const sharedStylesHost = rootViewInjector.get(SHARED_STYLES_HOST, null);
     const styleHost = getStyleHost(hostElement, () => rootViewInjector.get(DOCUMENT, null) ?? getDocument());
     if (sharedStylesHost) sharedStylesHost.addHost(styleHost);
-    const hasInputBindings = componentBindings?.some(isInputBinding) || directives?.some((d3) => typeof d3 !== "function" && d3.bindings.some(isInputBinding));
+    const hasInputBindings = componentBindings?.some(isInputBinding) || directives?.some((d2) => typeof d2 !== "function" && d2.bindings.some(isInputBinding));
     const rootLView = createLView(null, rootTView, null, 512 | getInitialLViewFlagsFromDef(cmpDef), null, null, environment, hostRenderer, rootViewInjector, null, retrieveHydrationInfo(hostElement, rootViewInjector, true));
     if (sharedStylesHost && shadowRootSupported && styleHost instanceof ShadowRoot) {
       storeLViewOnDestroy(rootLView, () => {
@@ -21686,12 +21686,12 @@ function multiResolve(factories, result) {
   }
   return result;
 }
-function multiFactory(factoryFn, index, isViewProvider, isComponent2, f2, provider) {
+function multiFactory(factoryFn, index, isViewProvider, isComponent2, f3, provider) {
   const factory = new NodeInjectorFactory(factoryFn, isViewProvider, \u0275\u0275directiveInject, ngDevMode ? providerName(provider) : null);
   factory.multi = [];
   factory.index = index;
   factory.componentProviders = 0;
-  multiFactoryAdd(factory, f2, isComponent2 && !isViewProvider);
+  multiFactoryAdd(factory, f3, isComponent2 && !isViewProvider);
   return factory;
 }
 function providerName(provider) {
@@ -22775,7 +22775,7 @@ function getStandaloneDefFunctions(type, imports) {
       return [];
     }
     const scope = depsTracker.getStandaloneComponentScope(type, imports);
-    return [...scope.compilation.directives].map((p2) => getComponentDef(p2) || getDirectiveDef(p2)).filter((d3) => d3 !== null);
+    return [...scope.compilation.directives].map((p2) => getComponentDef(p2) || getDirectiveDef(p2)).filter((d2) => d2 !== null);
   };
   const pipeDefs = () => {
     if (ngDevMode) {
@@ -22787,7 +22787,7 @@ function getStandaloneDefFunctions(type, imports) {
       return [];
     }
     const scope = depsTracker.getStandaloneComponentScope(type, imports);
-    return [...scope.compilation.pipes].map((p2) => getPipeDef(p2)).filter((d3) => d3 !== null);
+    return [...scope.compilation.pipes].map((p2) => getPipeDef(p2)).filter((d2) => d2 !== null);
   };
   return {
     directiveDefs,
@@ -24792,7 +24792,7 @@ var IterableDiffers = class _IterableDiffers {
     };
   }
   find(iterable) {
-    const factory = this.factories.find((f2) => f2.supports(iterable));
+    const factory = this.factories.find((f3) => f3.supports(iterable));
     if (factory != null) {
       return factory;
     } else {
@@ -24836,7 +24836,7 @@ var KeyValueDiffers = class _KeyValueDiffers {
     };
   }
   find(kv) {
-    const factory = this.factories.find((f2) => f2.supports(kv));
+    const factory = this.factories.find((f3) => f3.supports(kv));
     if (factory) {
       return factory;
     }
@@ -25213,7 +25213,7 @@ function setModuleBootstrapImpl() {
 function _moduleDoBootstrap(moduleRef, allPlatformModules) {
   const appRef = moduleRef.injector.get(ApplicationRef);
   if (moduleRef._bootstrapComponents.length > 0) {
-    moduleRef._bootstrapComponents.forEach((f2) => appRef.bootstrap(f2));
+    moduleRef._bootstrapComponents.forEach((f3) => appRef.bootstrap(f3));
   } else if (moduleRef.instance.ngDoBootstrap) {
     moduleRef.instance.ngDoBootstrap(appRef);
   } else {
@@ -26820,9 +26820,9 @@ function getLastDefinedValue(data, index) {
   throw new RuntimeError(2304, ngDevMode && "Locale data API: locale data undefined");
 }
 function extractTime(time) {
-  const [h, m2] = time.split(":");
+  const [h2, m2] = time.split(":");
   return {
-    hours: +h,
+    hours: +h2,
     minutes: +m2
   };
 }
@@ -27369,8 +27369,8 @@ function toDate(value) {
   if (typeof value === "string") {
     value = value.trim();
     if (/^(\d{4}(-\d{1,2}(-\d{1,2})?)?)$/.test(value)) {
-      const [y, m2 = 1, d3 = 1] = value.split("-").map((val) => +val);
-      return createDate(y, m2 - 1, d3);
+      const [y, m2 = 1, d2 = 1] = value.split("-").map((val) => +val);
+      return createDate(y, m2 - 1, d2);
     }
     const parsedNb = parseFloat(value);
     if (!isNaN(value - parsedNb)) {
@@ -27398,11 +27398,11 @@ function isoStringToDate(match3) {
     tzMin = Number(match3[9] + match3[11]);
   }
   dateSetter.call(date, Number(match3[1]), Number(match3[2]) - 1, Number(match3[3]));
-  const h = Number(match3[4] || 0) - tzHour;
+  const h2 = Number(match3[4] || 0) - tzHour;
   const m2 = Number(match3[5] || 0) - tzMin;
   const s = Number(match3[6] || 0);
   const ms = Math.floor(parseFloat("0." + (match3[7] || 0)) * 1e3);
-  timeSetter.call(date, h, m2, s, ms);
+  timeSetter.call(date, h2, m2, s, ms);
   return date;
 }
 function isDate(value) {
@@ -27459,7 +27459,7 @@ function formatNumberToLocaleString(value, pattern, locale, groupSymbol, decimal
     let integerLen = parsedNumber.integerLen;
     const exponent = parsedNumber.exponent;
     let decimals = [];
-    isZero = digits.every((d3) => !d3);
+    isZero = digits.every((d2) => !d2);
     for (; integerLen < minInt; integerLen++) {
       digits.unshift(0);
     }
@@ -27648,9 +27648,9 @@ function roundNumber(parsedNumber, minFrac, maxFrac) {
   for (; fractionLen < Math.max(0, fractionSize); fractionLen++) digits.push(0);
   let dropTrailingZeros = fractionSize !== 0;
   const minLen = minFrac + parsedNumber.integerLen;
-  const carry = digits.reduceRight(function(carry2, d3, i, digits2) {
-    d3 = d3 + carry2;
-    digits2[i] = d3 < 10 ? d3 : d3 - 10;
+  const carry = digits.reduceRight(function(carry2, d2, i, digits2) {
+    d2 = d2 + carry2;
+    digits2[i] = d2 < 10 ? d2 : d2 - 10;
     if (dropTrailingZeros) {
       if (digits2[i] === 0 && i >= minLen) {
         digits2.pop();
@@ -27658,7 +27658,7 @@ function roundNumber(parsedNumber, minFrac, maxFrac) {
         dropTrailingZeros = false;
       }
     }
-    return d3 >= 10 ? 1 : 0;
+    return d2 >= 10 ? 1 : 0;
   }, 0);
   if (carry) {
     digits.unshift(carry);
@@ -33537,7 +33537,7 @@ function makeHttpFeature(kind, providers) {
 }
 function provideHttpClient(...features) {
   if (ngDevMode) {
-    const featureKinds = new Set(features.map((f2) => f2.\u0275kind));
+    const featureKinds = new Set(features.map((f3) => f3.\u0275kind));
     if (featureKinds.has(HttpFeatureKind.NoXsrfProtection) && featureKinds.has(HttpFeatureKind.CustomXsrfConfiguration)) {
       throw new Error(ngDevMode ? `Configuration error: found both withXsrfConfiguration() and withNoXsrfProtection() in the same call to provideHttpClient(), which is a contradiction.` : "");
     }
@@ -35752,7 +35752,7 @@ var ActivatedRoute = class {
     this.outlet = outlet;
     this.component = component;
     this._futureSnapshot = futureSnapshot;
-    this.title = this.dataSubject?.pipe(map((d3) => d3[RouteTitleKey])) ?? of(void 0);
+    this.title = this.dataSubject?.pipe(map((d2) => d2[RouteTitleKey])) ?? of(void 0);
     this.url = urlSubject;
     this.params = paramsSubject;
     this.queryParams = queryParamsSubject;
@@ -36712,10 +36712,10 @@ function runCanActivate(futureRSS, futureARS) {
 function runCanActivateChild(futureRSS, path) {
   const futureARS = path[path.length - 1];
   const canActivateChildGuards = path.slice(0, path.length - 1).reverse().map((p2) => getCanActivateChild(p2)).filter((_3) => _3 !== null);
-  const canActivateChildGuardsMapped = canActivateChildGuards.map((d3) => {
+  const canActivateChildGuardsMapped = canActivateChildGuards.map((d2) => {
     return defer(() => {
-      const guardsMapped = d3.guards.map((canActivateChild) => {
-        const closestInjector = d3.node._environmentInjector;
+      const guardsMapped = d2.guards.map((canActivateChild) => {
+        const closestInjector = d2.node._environmentInjector;
         const guard = getTokenOrFunctionIdentity(canActivateChild, closestInjector);
         const guardVal = isCanActivateChild(guard) ? guard.canActivateChild(futureARS, futureRSS) : runInInjectionContext(closestInjector, () => guard(futureARS, futureRSS));
         return wrapIntoObservable(guardVal).pipe(first());
@@ -38520,7 +38520,7 @@ var Router = class _Router {
       queryParamsHandling,
       preserveFragment
     } = navigationExtras;
-    const f2 = preserveFragment ? this.currentUrlTree.fragment : fragment;
+    const f3 = preserveFragment ? this.currentUrlTree.fragment : fragment;
     let q3 = null;
     switch (queryParamsHandling ?? this.options.defaultQueryParamsHandling) {
       case "merge":
@@ -38545,7 +38545,7 @@ var Router = class _Router {
       }
       relativeToUrlSegmentGroup = this.currentUrlTree.root;
     }
-    return createUrlTreeFromSegmentGroup(relativeToUrlSegmentGroup, commands, q3, f2 ?? null, this.urlSerializer);
+    return createUrlTreeFromSegmentGroup(relativeToUrlSegmentGroup, commands, q3, f3 ?? null, this.urlSerializer);
   }
   navigateByUrl(url, extras = {
     skipLocationChange: false
@@ -40376,6 +40376,7 @@ var SIGNAGE_MANAGER = {
   PLAYLIST_COUNT_LABEL_N: "{{ count }} playlists",
   PLAYLIST_DESCRIPTION_ARIA: "Playlist description",
   PLAYLIST_DETAILS_TABS: "Playlist details tabs",
+  PLAYLIST_DISTRIBUTION: "Distribution Playlist",
   PLAYLIST_EDIT: "Edit Playlist",
   PLAYLIST_LABEL: "Playlist",
   PLAYLIST_NAME_ARIA: "Playlist name",
@@ -40423,6 +40424,9 @@ var SIGNAGE_MANAGER = {
   REQUEST_APPROVAL_SELECTED: "Request approval for selected playlist",
   REQUEST_PLAYLIST_APPROVAL_TOOLTIP: "Request playlist approval",
   SCHEDULE: "Schedule",
+  EDIT_SCHEDULE: "Edit Schedule",
+  ITEM_SCHEDULES: "Item Schedules",
+  NO_SCHEDULES: "No schedules",
   SCHEDULES_SUBTITLE: "Daily schedule timelines for signage displays and zones.",
   SCHEDULE_INTERVAL_ARIA: "Recurring schedule interval",
   SCHEDULE_NUMBER: "Schedule {{ number }}",
@@ -41811,7 +41815,7 @@ var APP = {
     MENU_REPORT_ROOMS: "Room Bookings",
     MENU_REPORT_SITE_ATTENDANCE: "Site Attendance",
     MENU_REPORT_DESKS: "Desk Bookings",
-    MENU_REPORT_PARKING: "Parking Reservations",
+    MENU_REPORT_PARKING: "Parking Bookings",
     MENU_REPORT_LOCKERS: "Locker Bookings",
     MENU_REPORT_CATERING: "Catering Orders",
     MENU_REPORT_CONTACT_TRACING: "Contact Tracing",
@@ -43339,7 +43343,7 @@ function Yn(t) {
     e += ue[t[n - 2] >> 2], e += ue[(t[n - 2] & 3) << 4 | t[n - 1] >> 4], e += ue[(t[n - 1] & 15) << 2 | t[n] >> 6], e += ue[t[n] & 63];
   return n === s + 1 && (e += ue[t[n - 2] >> 2], e += ue[(t[n - 2] & 3) << 4], e += "=="), n === s && (e += ue[t[n - 2] >> 2], e += ue[(t[n - 2] & 3) << 4 | t[n - 1] >> 4], e += ue[(t[n - 1] & 15) << 2], e += "="), e;
 }
-function Hs(t) {
+function zs(t) {
   if (t.length % 4 !== 0)
     throw new Error("Unable to parse base64 string.");
   const e = t.indexOf("=");
@@ -43350,13 +43354,13 @@ function Hs(t) {
     r = bt(t.charCodeAt(o)) << 18 | bt(t.charCodeAt(o + 1)) << 12 | bt(t.charCodeAt(o + 2)) << 6 | bt(t.charCodeAt(o + 3)), i[a] = r >> 16, i[a + 1] = r >> 8 & 255, i[a + 2] = r & 255;
   return i.subarray(0, i.length - n);
 }
-function zs(t, e = new TextEncoder()) {
+function Fs(t, e = new TextEncoder()) {
   return Yn(e.encode(t));
 }
 var vt = { exports: {} };
-var Fs = vt.exports;
+var Ls = vt.exports;
 var Fn;
-function Ls() {
+function js() {
   return Fn || (Fn = 1, (function(t) {
     (function(e, n) {
       var s = {};
@@ -43365,7 +43369,7 @@ function Ls() {
       for (var r in s)
         i[r] = s[r];
       t.exports = i;
-    })(Fs, function(e) {
+    })(Ls, function(e) {
       e.__esModule = true, e.digestLength = 32, e.blockSize = 64;
       var n = new Uint32Array([
         1116352408,
@@ -43433,17 +43437,17 @@ function Ls() {
         3204031479,
         3329325298
       ]);
-      function s(v, c, h, f2, M3) {
+      function s(v, c, l, d2, M3) {
         for (var x2, R3, k2, Q3, D2, E3, se2, H3, j2, z2, Be2, We, $t2; M3 >= 64; ) {
           for (x2 = c[0], R3 = c[1], k2 = c[2], Q3 = c[3], D2 = c[4], E3 = c[5], se2 = c[6], H3 = c[7], z2 = 0; z2 < 16; z2++)
-            Be2 = f2 + z2 * 4, v[z2] = (h[Be2] & 255) << 24 | (h[Be2 + 1] & 255) << 16 | (h[Be2 + 2] & 255) << 8 | h[Be2 + 3] & 255;
+            Be2 = d2 + z2 * 4, v[z2] = (l[Be2] & 255) << 24 | (l[Be2 + 1] & 255) << 16 | (l[Be2 + 2] & 255) << 8 | l[Be2 + 3] & 255;
           for (z2 = 16; z2 < 64; z2++)
             j2 = v[z2 - 2], We = (j2 >>> 17 | j2 << 15) ^ (j2 >>> 19 | j2 << 13) ^ j2 >>> 10, j2 = v[z2 - 15], $t2 = (j2 >>> 7 | j2 << 25) ^ (j2 >>> 18 | j2 << 14) ^ j2 >>> 3, v[z2] = (We + v[z2 - 7] | 0) + ($t2 + v[z2 - 16] | 0);
           for (z2 = 0; z2 < 64; z2++)
             We = (((D2 >>> 6 | D2 << 26) ^ (D2 >>> 11 | D2 << 21) ^ (D2 >>> 25 | D2 << 7)) + (D2 & E3 ^ ~D2 & se2) | 0) + (H3 + (n[z2] + v[z2] | 0) | 0) | 0, $t2 = ((x2 >>> 2 | x2 << 30) ^ (x2 >>> 13 | x2 << 19) ^ (x2 >>> 22 | x2 << 10)) + (x2 & R3 ^ x2 & k2 ^ R3 & k2) | 0, H3 = se2, se2 = E3, E3 = D2, D2 = Q3 + We | 0, Q3 = k2, k2 = R3, R3 = x2, x2 = We + $t2 | 0;
-          c[0] += x2, c[1] += R3, c[2] += k2, c[3] += Q3, c[4] += D2, c[5] += E3, c[6] += se2, c[7] += H3, f2 += 64, M3 -= 64;
+          c[0] += x2, c[1] += R3, c[2] += k2, c[3] += Q3, c[4] += D2, c[5] += E3, c[6] += se2, c[7] += H3, d2 += 64, M3 -= 64;
         }
-        return f2;
+        return d2;
       }
       var i = (
         /** @class */
@@ -43459,23 +43463,23 @@ function Ls() {
             for (var c = 0; c < this.temp.length; c++)
               this.temp[c] = 0;
             this.reset();
-          }, v.prototype.update = function(c, h) {
-            if (h === void 0 && (h = c.length), this.finished)
+          }, v.prototype.update = function(c, l) {
+            if (l === void 0 && (l = c.length), this.finished)
               throw new Error("SHA256: can't update because hash was finished.");
-            var f2 = 0;
-            if (this.bytesHashed += h, this.bufferLength > 0) {
-              for (; this.bufferLength < 64 && h > 0; )
-                this.buffer[this.bufferLength++] = c[f2++], h--;
+            var d2 = 0;
+            if (this.bytesHashed += l, this.bufferLength > 0) {
+              for (; this.bufferLength < 64 && l > 0; )
+                this.buffer[this.bufferLength++] = c[d2++], l--;
               this.bufferLength === 64 && (s(this.temp, this.state, this.buffer, 0, 64), this.bufferLength = 0);
             }
-            for (h >= 64 && (f2 = s(this.temp, this.state, c, f2, h), h %= 64); h > 0; )
-              this.buffer[this.bufferLength++] = c[f2++], h--;
+            for (l >= 64 && (d2 = s(this.temp, this.state, c, d2, l), l %= 64); l > 0; )
+              this.buffer[this.bufferLength++] = c[d2++], l--;
             return this;
           }, v.prototype.finish = function(c) {
             if (!this.finished) {
-              var h = this.bytesHashed, f2 = this.bufferLength, M3 = h / 536870912 | 0, x2 = h << 3, R3 = h % 64 < 56 ? 64 : 128;
-              this.buffer[f2] = 128;
-              for (var k2 = f2 + 1; k2 < R3 - 8; k2++)
+              var l = this.bytesHashed, d2 = this.bufferLength, M3 = l / 536870912 | 0, x2 = l << 3, R3 = l % 64 < 56 ? 64 : 128;
+              this.buffer[d2] = 128;
+              for (var k2 = d2 + 1; k2 < R3 - 8; k2++)
                 this.buffer[k2] = 0;
               this.buffer[R3 - 8] = M3 >>> 24 & 255, this.buffer[R3 - 7] = M3 >>> 16 & 255, this.buffer[R3 - 6] = M3 >>> 8 & 255, this.buffer[R3 - 5] = M3 >>> 0 & 255, this.buffer[R3 - 4] = x2 >>> 24 & 255, this.buffer[R3 - 3] = x2 >>> 16 & 255, this.buffer[R3 - 2] = x2 >>> 8 & 255, this.buffer[R3 - 1] = x2 >>> 0 & 255, s(this.temp, this.state, this.buffer, 0, R3), this.finished = true;
             }
@@ -43486,12 +43490,12 @@ function Ls() {
             var c = new Uint8Array(this.digestLength);
             return this.finish(c), c;
           }, v.prototype._saveState = function(c) {
-            for (var h = 0; h < this.state.length; h++)
-              c[h] = this.state[h];
-          }, v.prototype._restoreState = function(c, h) {
-            for (var f2 = 0; f2 < this.state.length; f2++)
-              this.state[f2] = c[f2];
-            this.bytesHashed = h, this.finished = false, this.bufferLength = 0;
+            for (var l = 0; l < this.state.length; l++)
+              c[l] = this.state[l];
+          }, v.prototype._restoreState = function(c, l) {
+            for (var d2 = 0; d2 < this.state.length; d2++)
+              this.state[d2] = c[d2];
+            this.bytesHashed = l, this.finished = false, this.bufferLength = 0;
           }, v;
         })()
       );
@@ -43501,20 +43505,20 @@ function Ls() {
         (function() {
           function v(c) {
             this.inner = new i(), this.outer = new i(), this.blockSize = this.inner.blockSize, this.digestLength = this.inner.digestLength;
-            var h = new Uint8Array(this.blockSize);
+            var l = new Uint8Array(this.blockSize);
             if (c.length > this.blockSize)
-              new i().update(c).finish(h).clean();
+              new i().update(c).finish(l).clean();
             else
-              for (var f2 = 0; f2 < c.length; f2++)
-                h[f2] = c[f2];
-            for (var f2 = 0; f2 < h.length; f2++)
-              h[f2] ^= 54;
-            this.inner.update(h);
-            for (var f2 = 0; f2 < h.length; f2++)
-              h[f2] ^= 106;
-            this.outer.update(h), this.istate = new Uint32Array(8), this.ostate = new Uint32Array(8), this.inner._saveState(this.istate), this.outer._saveState(this.ostate);
-            for (var f2 = 0; f2 < h.length; f2++)
-              h[f2] = 0;
+              for (var d2 = 0; d2 < c.length; d2++)
+                l[d2] = c[d2];
+            for (var d2 = 0; d2 < l.length; d2++)
+              l[d2] ^= 54;
+            this.inner.update(l);
+            for (var d2 = 0; d2 < l.length; d2++)
+              l[d2] ^= 106;
+            this.outer.update(l), this.istate = new Uint32Array(8), this.ostate = new Uint32Array(8), this.inner._saveState(this.istate), this.outer._saveState(this.ostate);
+            for (var d2 = 0; d2 < l.length; d2++)
+              l[d2] = 0;
           }
           return v.prototype.reset = function() {
             return this.inner._restoreState(this.istate, this.inner.blockSize), this.outer._restoreState(this.ostate, this.outer.blockSize), this;
@@ -43534,41 +43538,41 @@ function Ls() {
       );
       e.HMAC = r;
       function o(v) {
-        var c = new i().update(v), h = c.digest();
-        return c.clean(), h;
+        var c = new i().update(v), l = c.digest();
+        return c.clean(), l;
       }
       e.hash = o, e.default = o;
       function a(v, c) {
-        var h = new r(v).update(c), f2 = h.digest();
-        return h.clean(), f2;
+        var l = new r(v).update(c), d2 = l.digest();
+        return l.clean(), d2;
       }
       e.hmac = a;
-      function y(v, c, h, f2) {
-        var M3 = f2[0];
+      function y(v, c, l, d2) {
+        var M3 = d2[0];
         if (M3 === 0)
           throw new Error("hkdf: cannot expand more");
-        c.reset(), M3 > 1 && c.update(v), h && c.update(h), c.update(f2), c.finish(v), f2[0]++;
+        c.reset(), M3 > 1 && c.update(v), l && c.update(l), c.update(d2), c.finish(v), d2[0]++;
       }
       var L3 = new Uint8Array(e.digestLength);
-      function P3(v, c, h, f2) {
-        c === void 0 && (c = L3), f2 === void 0 && (f2 = 32);
-        for (var M3 = new Uint8Array([1]), x2 = a(c, v), R3 = new r(x2), k2 = new Uint8Array(R3.digestLength), Q3 = k2.length, D2 = new Uint8Array(f2), E3 = 0; E3 < f2; E3++)
-          Q3 === k2.length && (y(k2, R3, h, M3), Q3 = 0), D2[E3] = k2[Q3++];
+      function P3(v, c, l, d2) {
+        c === void 0 && (c = L3), d2 === void 0 && (d2 = 32);
+        for (var M3 = new Uint8Array([1]), x2 = a(c, v), R3 = new r(x2), k2 = new Uint8Array(R3.digestLength), Q3 = k2.length, D2 = new Uint8Array(d2), E3 = 0; E3 < d2; E3++)
+          Q3 === k2.length && (y(k2, R3, l, M3), Q3 = 0), D2[E3] = k2[Q3++];
         return R3.clean(), k2.fill(0), M3.fill(0), D2;
       }
       e.hkdf = P3;
-      function W3(v, c, h, f2) {
-        for (var M3 = new r(v), x2 = M3.digestLength, R3 = new Uint8Array(4), k2 = new Uint8Array(x2), Q3 = new Uint8Array(x2), D2 = new Uint8Array(f2), E3 = 0; E3 * x2 < f2; E3++) {
+      function W3(v, c, l, d2) {
+        for (var M3 = new r(v), x2 = M3.digestLength, R3 = new Uint8Array(4), k2 = new Uint8Array(x2), Q3 = new Uint8Array(x2), D2 = new Uint8Array(d2), E3 = 0; E3 * x2 < d2; E3++) {
           var se2 = E3 + 1;
           R3[0] = se2 >>> 24 & 255, R3[1] = se2 >>> 16 & 255, R3[2] = se2 >>> 8 & 255, R3[3] = se2 >>> 0 & 255, M3.reset(), M3.update(c), M3.update(R3), M3.finish(Q3);
           for (var H3 = 0; H3 < x2; H3++)
             k2[H3] = Q3[H3];
-          for (var H3 = 2; H3 <= h; H3++) {
+          for (var H3 = 2; H3 <= l; H3++) {
             M3.reset(), M3.update(Q3).finish(Q3);
             for (var j2 = 0; j2 < x2; j2++)
               k2[j2] ^= Q3[j2];
           }
-          for (var H3 = 0; H3 < x2 && E3 * x2 + H3 < f2; H3++)
+          for (var H3 = 0; H3 < x2 && E3 * x2 + H3 < d2; H3++)
             D2[E3 * x2 + H3] = k2[H3];
         }
         for (var E3 = 0; E3 < x2; E3++)
@@ -43581,8 +43585,8 @@ function Ls() {
     });
   })(vt)), vt.exports;
 }
-var js = Ls();
-var Gs = new Int32Array(4);
+var Gs = js();
+var Bs = new Int32Array(4);
 var K = class _K {
   static hashStr(e, n = false) {
     return this.onePassHasher.start().appendStr(e).end(n);
@@ -43740,7 +43744,7 @@ var K = class _K {
       i[14] = o;
     else {
       const a = o.toString(16).match(/(.*?)(.{0,8})$/);
-      if (a === null) return e ? Gs : "";
+      if (a === null) return e ? Bs : "";
       const y = parseInt(a[2], 16), L3 = parseInt(a[1], 16) || 0;
       i[14] = y, i[15] = L3;
     }
@@ -43749,7 +43753,7 @@ var K = class _K {
 };
 if (K.hashStr("hello") !== "5d41402abc4b2a76b9719d911017c592")
   throw new Error("Md5 self test failed.");
-var Bs = 36e5;
+var Ws = 36e5;
 var Ln = /* @__PURE__ */ Symbol.for("constructDateFrom");
 function St(t, e) {
   return typeof t == "function" ? t(e) : t && typeof t == "object" && Ln in t ? t[Ln](e) : t instanceof Date ? new t.constructor(e) : new Date(e);
@@ -43757,7 +43761,7 @@ function St(t, e) {
 function Ze(t, e) {
   return St(t, t);
 }
-function Ws(t, e, n) {
+function Qs(t, e, n) {
   const s = Ze(t);
   if (isNaN(e)) return St(t, NaN);
   const i = s.getDate(), r = St(t, s.getTime());
@@ -43772,16 +43776,16 @@ function Ws(t, e, n) {
 function Vn(t, e, n) {
   return St(t, +Ze(t) + e);
 }
-function Qs(t, e, n) {
-  return Vn(t, e * Bs);
-}
 function Ks(t, e, n) {
-  return Vn(t, e * 1e3);
+  return Vn(t, e * Ws);
 }
 function Zs(t, e, n) {
-  return Ws(t, e * 12);
+  return Vn(t, e * 1e3);
 }
-function yn(t) {
+function Js(t, e, n) {
+  return Qs(t, e * 12);
+}
+function $n(t) {
   return Math.trunc(+Ze(t) / 1e3);
 }
 function Xn(t, e) {
@@ -43810,13 +43814,13 @@ function es() {
   if (t)
     if (t.indexOf("?") >= 0) {
       const i = t.split("?");
-      n = Ie(i[0]), e || (e = i[1]);
+      n = Te(i[0]), e || (e = i[1]);
     } else
-      n = Ie(t);
+      n = Te(t);
   let s = {};
-  return e && (s = Ie(e)), __spreadValues(__spreadValues({}, n), s);
+  return e && (s = Te(e)), __spreadValues(__spreadValues({}, n), s);
 }
-function Ie(t) {
+function Te(t) {
   const e = {}, n = t.split("&");
   for (const s of n) {
     const i = s.split("=");
@@ -43853,7 +43857,7 @@ function ie(t) {
     `${window.location?.pathname}${e}${n}`
   );
 }
-function Js(t) {
+function Ys(t) {
   if (t.length === 0)
     throw new Error("Input must not be of zero length");
   const e = t.split(","), n = {};
@@ -43866,12 +43870,12 @@ function Js(t) {
   }
   return n;
 }
-function Ys(t, e) {
+function Vs(t, e) {
   for (const n in t)
     t.hasOwnProperty(n) && e.indexOf(t[n]) >= 0 && delete t[n];
   return t;
 }
-function Vs() {
+function Xs() {
   return [
     "iPad Simulator",
     "iPhone Simulator",
@@ -43882,13 +43886,13 @@ function Vs() {
   ].includes(navigator.platform) || // iPad on iOS 13 detection
   navigator.userAgent.includes("Mac") && "ontouchend" in document;
 }
-function Xs() {
+function ei() {
   return window.location !== window.parent.location;
 }
-function ei(t = Date.now(), e = 60 * 1e3) {
+function ti(t = Date.now(), e = 60 * 1e3) {
   return Math.floor(t / e);
 }
-var ti = class {
+var ni = class {
   abort() {
     xt("Stub", "Aborted");
   }
@@ -43905,7 +43909,7 @@ function b(t) {
 var xe = {};
 function re(t, e, n = 300) {
   if (t && e && e instanceof Function)
-    _e(t), xe[t] = setTimeout(() => {
+    me(t), xe[t] = setTimeout(() => {
       e(), delete xe[t];
     }, n);
   else
@@ -43913,7 +43917,7 @@ function re(t, e, n = 300) {
       t ? "Cannot create named timeout without a name" : "Cannot create a timeout without a callback"
     );
 }
-function _e(t) {
+function me(t) {
   xe[t] && (clearTimeout(xe[t]), delete xe[t]);
 }
 function ne(t) {
@@ -43930,7 +43934,7 @@ function ne(t) {
       o(e, r);
   }, s.update = (i) => s.set(i(e)), s.asReadonly = () => s, s;
 }
-function ri(t, e = Boolean) {
+function oi(t, e = Boolean) {
   return e(t.value) ? Promise.resolve(t.value) : new Promise((n) => {
     const s = t.subscribe(
       (i) => {
@@ -43940,10 +43944,10 @@ function ri(t, e = Boolean) {
     );
   });
 }
-function oi(t) {
+function ui(t) {
   return new Promise((e) => setTimeout(e, t));
 }
-var ui = {
+var ci = {
   id: "mock-authority",
   name: "localhost:4200",
   description: "",
@@ -43960,23 +43964,23 @@ var _ = {};
 var A = localStorage;
 var N;
 var m = {};
-var I = "";
-var me = "";
-var ge = ne("");
+var T = "";
+var ge = "";
+var ye = ne("");
 var Je = ne("");
-var bn = "/api/engine/v2";
-var pe = ne(false);
-var vn = ne(false);
+var vn = "/api/engine/v2";
+var _e = ne(false);
+var kn = ne(false);
 var qt = 0;
 function ns() {
   if (_.mock) return true;
   if (!A) return false;
   if (Ye() && !_.ignore_api_key) return true;
-  const t = A.getItem(`${I}_expires_at`) || "";
-  return Xn(+t, /* @__PURE__ */ new Date()) ? false : !!(ge.value || A.getItem(`${I}_access_token`));
+  const t = A.getItem(`${T}_expires_at`) || "";
+  return Xn(+t, /* @__PURE__ */ new Date()) ? false : !!(ye.value || A.getItem(`${T}_access_token`));
 }
-function Oe() {
-  vn.set(ns());
+function Ce() {
+  kn.set(ns());
 }
 function ss(t) {
   if (!t || t.startsWith("http://") || t.startsWith("https://"))
@@ -43988,29 +43992,29 @@ function u2() {
   return `${`${_.secure || window.location?.protocol.indexOf("https") >= 0 ? "https:" : "http:"}//${_.host || window.location?.host}`}${is()}`;
 }
 function is() {
-  return _.version === "ACA Engine" ? "/control/api" : bn;
-}
-function ci() {
-  return !!_.token_header;
+  return _.version === "ACA Engine" ? "/control/api" : vn;
 }
 function ai() {
-  return I;
+  return !!_.token_header;
 }
-function Nr(t, e = true) {
-  A.setItem(`${I}_x-api-key`, `${t}`), A.setItem("trusted", `${e}`), hi("x-api-key", Zs(/* @__PURE__ */ new Date(), 5).valueOf());
+function hi() {
+  return T;
+}
+function Hr(t, e = true) {
+  A.setItem(`${T}_x-api-key`, `${t}`), A.setItem("trusted", `${e}`), li("x-api-key", Js(/* @__PURE__ */ new Date(), 5).valueOf());
 }
 function Ye() {
   return Ut("x-api-key", false) || "";
 }
-function hi(t, e = Qs(/* @__PURE__ */ new Date(), 2).valueOf()) {
-  _.ignore_api_key && t === "x-api-key" || (A.setItem(`${I}_expires_at`, `${e}`), A.setItem(`${I}_access_token`, t), ge.set(t), Oe());
+function li(t, e = Ks(/* @__PURE__ */ new Date(), 2).valueOf()) {
+  _.ignore_api_key && t === "x-api-key" || (A.setItem(`${T}_expires_at`, `${e}`), A.setItem(`${T}_access_token`, t), ye.set(t), Ce());
 }
-function V(t = true) {
+function X(t = true) {
   if (_.mock) return "mock-token";
   if (!A) return "";
   if (Ye() && !_.ignore_api_key) return "x-api-key";
-  const e = A.getItem(`${I}_expires_at`) || "", n = ge.value;
-  return Xn(+e, /* @__PURE__ */ new Date()) && (p("Token expired. Requesting new token..."), An(), m.load_authority || (qt += 1, re(
+  const e = A.getItem(`${T}_expires_at`) || "", n = ye.value;
+  return Xn(+e, /* @__PURE__ */ new Date()) && (p("Token expired. Requesting new token..."), qn(), m.load_authority || (qt += 1, re(
     "re-authorise",
     async () => {
       delete m.authorise, await wt().catch(
@@ -44018,33 +44022,33 @@ function V(t = true) {
       );
     },
     200 * Math.min(20, qt)
-  )), !t) ? "" : n || A.getItem(`${I}_access_token`) || "";
+  )), !t) ? "" : n || A.getItem(`${T}_access_token`) || "";
 }
 function Pt() {
-  return Je.value || A.getItem(`${I}_refresh_token`) || "";
+  return Je.value || A.getItem(`${T}_refresh_token`) || "";
 }
-function $n() {
+function bn() {
   return _.host || window.location?.host;
 }
-function li() {
-  return Oe(), vn.asReadonly();
+function di() {
+  return Ce(), kn.asReadonly();
 }
 function Rt() {
   return N;
 }
-function Dr() {
-  return pe.value;
+function Fr() {
+  return _e.value;
 }
-function kn() {
+function Sn() {
   return !!_.mock;
 }
 function fi() {
   return !!_.secure;
 }
-function Hr() {
-  return pe.asReadonly();
+function Lr() {
+  return _e.asReadonly();
 }
-function Sn() {
+function xn() {
   return Ut("trust") === "true" || Ut("trusted") === "true";
 }
 function rs() {
@@ -44053,35 +44057,35 @@ function rs() {
 function Ut(t, e = true) {
   let s = es()[t];
   if (A) {
-    const i = `${ai()}_${t}`;
+    const i = `${hi()}_${t}`;
     s = s || A.getItem(i) || A.getItem(t) || "", e && A.setItem(i, `${s}`);
   }
   return s;
 }
-async function zr(t) {
-  return _ = t || _, _.token_header = _.token_header ?? Xs(), window.AbortController || (window.AbortController = ti), A = _.storage === "session" ? sessionStorage : localStorage, I = K.hashStr(_.redirect_uri, false), di(), _.delay && _.delay > 0 && await oi(_.delay), qn();
+async function jr(t) {
+  return _ = t || _, _.token_header = _.token_header ?? ei(), window.AbortController || (window.AbortController = ni), A = _.storage === "session" ? sessionStorage : localStorage, T = K.hashStr(_.redirect_uri, false), pi(), _.delay && _.delay > 0 && await ui(_.delay), Pn();
 }
-var Tt = false;
-function di() {
-  Tt || (Tt = true, window.addEventListener("focus", It), document.addEventListener("visibilitychange", It));
+var It = false;
+function pi() {
+  It || (It = true, window.addEventListener("focus", Tt), document.addEventListener("visibilitychange", Tt));
 }
-async function It() {
+async function Tt() {
   if (document.visibilityState === "hidden" || _.mock || !N || N.session || ns()) return;
-  if (delete m.check_params, await us().catch(() => false) || me || Pt()) {
-    p("Application focused with new credentials. Authorising..."), Ce = false, delete m.authorise, await wt().catch(
+  if (delete m.check_params, await us().catch(() => false) || ge || Pt()) {
+    p("Application focused with new credentials. Authorising..."), Oe = false, delete m.authorise, await wt().catch(
       (e) => p.error("Failed to authorise on focus:", e)
     );
     return;
   }
-  p("Application focused without a session. Reloading authority..."), Ce = false, xn().catch(
+  p("Application focused without a session. Reloading authority..."), Oe = false, An().catch(
     (e) => p.error("Failed to refresh authority:", e)
   );
 }
-function xn() {
-  return p("Refreshing authorty."), N = void 0, qn();
-}
 function An() {
-  p("Invalidating tokens."), A.removeItem(`${I}_access_token`), A.removeItem(`${I}_expires_at`), ge.value && ge.set(""), Oe();
+  return p("Refreshing authorty."), N = void 0, Pn();
+}
+function qn() {
+  p("Invalidating tokens."), A.removeItem(`${T}_access_token`), A.removeItem(`${T}_expires_at`), ye.value && ye.set(""), Ce();
 }
 function wt(t, e = N) {
   return m.authorise || (m.authorise = new Promise((n, s) => {
@@ -44089,29 +44093,29 @@ function wt(t, e = N) {
       return delete m.authorise, s("Authority is not loaded");
     p("Authorising user...");
     const i = () => {
-      if (V(false))
-        p("Valid token found."), delete m.authorise, n(V());
+      if (X(false))
+        p("Valid token found."), delete m.authorise, n(X());
       else {
         const r = [
           () => {
-            p("Successfully generated token."), n(V()), delete m.authorise;
+            p("Successfully generated token."), n(X()), delete m.authorise;
           },
           () => {
             p.error("Failed to generate token."), s("Failed to generate token"), setTimeout(() => delete m.authorise, 200);
           }
         ];
         if (_ && _.auth_type === "password")
-          p("Logging in with credentials."), ki(_).then(
+          p("Logging in with credentials."), Si(_).then(
             ...r
           ), qt = 0;
-        else if (me || Pt())
+        else if (ge || Pt())
           p(
-            `Generating token with ${me ? "code" : "refresh token"}`
+            `Generating token with ${ge ? "code" : "refresh token"}`
           ), cs().then(...r), qt = 0;
         else if (e.session)
           p(
             "Users has session. Authorising application..."
-          ), _i(t).then(...r);
+          ), mi(t).then(...r);
         else {
           p("No user session"), s("No user session"), setTimeout(() => delete m.authorise, 200);
           try {
@@ -44121,49 +44125,49 @@ function wt(t, e = N) {
         }
       }
     };
-    gi().then(i, i);
+    yi().then(i, i);
   })), m.authorise;
 }
-function qn(t = 0) {
+function Pn(t = 0) {
   return m.load_authority || (m.load_authority = new Promise((e) => {
-    if (pe.set(false), _.mock) {
-      N = ui, p("System in mock mode"), pe.set(true), e();
+    if (_e.set(false), _.mock) {
+      N = ci, p("System in mock mode"), _e.set(true), e();
       return;
     }
-    p(`Fixed: ${rs()} | Trusted: ${Sn()}`), p("Loading authority...");
+    p(`Fixed: ${rs()} | Trusted: ${xn()}`), p("Loading authority...");
     const n = _.secure || window.location?.protocol.indexOf("https") >= 0, s = (i) => {
-      p.error(`Failed to load authority(${i})`), pe.set(false), re(
+      p.error(`Failed to load authority(${i})`), _e.set(false), re(
         "load_authority",
         () => {
-          delete m.load_authority, qn(t).then((r) => e());
+          delete m.load_authority, Pn(t).then((r) => e());
         },
         300 * Math.min(20, ++t)
       );
     };
-    fetch(`${n ? "https:" : "http:"}//${$n()}/auth/authority`, {
+    fetch(`${n ? "https:" : "http:"}//${bn()}/auth/authority`, {
       credentials: "same-origin"
     }).then(async (i) => {
       if (!i.ok)
         return s(await i.text().catch((o) => o));
-      N = await i.json(), bn = /[2-9]\.[0-9]+\.[0-9]+/g.test(
+      N = await i.json(), vn = /[2-9]\.[0-9]+\.[0-9]+/g.test(
         N.version || ""
       ) ? "/api/engine/v2" : "/control/api", p.group("Loaded authority."), N && (p(`Name: ${N.name}`), p(`Version: ${N.version}`), p(`Domain: ${N.domain}`), p(`Session: ${N.session}`), p(`Production: ${N.production}`), p(
         `Config Keys: ${Object.keys(N.config || {}).length}`
       )), p.groupEnd("");
       const r = () => {
-        pe.set(true), p("Application set online."), e();
+        _e.set(true), p("Application set online."), e();
       };
       delete m.load_authority, wt("").then(r, r);
     }, s);
   })), m.load_authority;
 }
-async function _i(t) {
-  const e = yi(t);
+async function mi(t) {
+  const e = $i(t);
   if (_.use_iframe)
-    return mi(e);
+    return gi(e);
   window.location?.assign(e);
 }
-function mi(t) {
+function gi(t) {
   return m.iframe_auth || (m.iframe_auth = new Promise((e, n) => {
     p("Authorizing in an iFrame...");
     const s = document.createElement("iframe");
@@ -44171,11 +44175,11 @@ function mi(t) {
     const i = (o) => {
       if (o.origin === window.location?.origin && o.data.type === "place-os") {
         const a = o.data;
-        if (p("Received credentials from iFrame..."), document.body.removeChild(s), _e("iframe_auth"), window.removeEventListener("message", i), delete m.iframe_auth, a.token)
-          return e(), Pn(__spreadValues({
+        if (p("Received credentials from iFrame..."), document.body.removeChild(s), me("iframe_auth"), window.removeEventListener("message", i), delete m.iframe_auth, a.token)
+          return e(), Rn(__spreadValues({
             access_token: a.token
           }, a));
-        me = a.code || "", cs().then(
+        ge = a.code || "", cs().then(
           (y) => e(y),
           (y) => n(y)
         );
@@ -44190,13 +44194,13 @@ function mi(t) {
       },
       15 * 1e3
     ), window.addEventListener("message", i), s.onerror = (o) => {
-      p.error("iFrame error.", o), _e("iframe_auth"), r(), n();
+      p.error("iFrame error.", o), me("iframe_auth"), r(), n();
     }, document.body.appendChild(s);
   })), m.iframe_auth;
 }
-var Ce = false;
+var Oe = false;
 function os(t) {
-  if (_.handle_login !== false && !Ce) {
+  if (_.handle_login !== false && !Oe) {
     p("Redirecting to login page...");
     const e = ss(
       t.login_url?.replace(
@@ -44204,14 +44208,14 @@ function os(t) {
         encodeURIComponent(window.location?.href)
       )
     );
-    throw setTimeout(() => window.location?.assign(e), 300), Ce = true, new Error("Redirecting to login page...");
+    throw setTimeout(() => window.location?.assign(e), 300), Oe = true, new Error("Redirecting to login page...");
   } else
     p("Login being handled locally.");
   delete m.authorise;
 }
-function gi() {
+function yi() {
   return m.check_token || (m.check_token = new Promise(async (t, e) => {
-    V() ? (p("Valid token found."), t(V())) : (p("No token. Checking URL for auth credentials..."), await us() ? t(true) : e()), delete m.check_token;
+    X() ? (p("Valid token found."), t(X())) : (p("No token. Checking URL for auth credentials..."), await us() ? t(true) : e()), delete m.check_token;
   })), m.check_token;
 }
 function us() {
@@ -44221,13 +44225,13 @@ function us() {
     if ((!e || Object.keys(e).length <= 0) && sessionStorage && (e = JSON.parse(
       sessionStorage.getItem("ENGINE.auth.params") || "{}"
     ), sessionStorage.removeItem("ENGINE.auth.params")), e && (e.code || e.access_token || e.refresh_token)) {
-      const n = A.getItem(`${I}_nonce`) || "", s = (e.state || "").split(";");
+      const n = A.getItem(`${T}_nonce`) || "", s = (e.state || "").split(";");
       ie("state"), ie("token_type");
       const i = s[0];
-      n === i ? (e.code && (me = e.code, ie("code")), e.refresh_token && (A.setItem(
-        `${I}_refresh_token`,
+      n === i ? (e.code && (ge = e.code, ie("code")), e.refresh_token && (A.setItem(
+        `${T}_refresh_token`,
         e.refresh_token
-      ), ie("refresh_token")), Pn(e), t(!!e.access_token)) : (ie("code"), ie("access_token"), ie("refresh_token"), t(false));
+      ), ie("refresh_token")), Rn(e), t(!!e.access_token)) : (ie("code"), ie("access_token"), ie("refresh_token"), t(false));
     } else
       t(false);
     re(
@@ -44237,38 +44241,38 @@ function us() {
     );
   })), m.check_params;
 }
-function yi(t) {
-  const e = Si();
+function $i(t) {
+  const e = xi();
   t = t ? `${e};${t}` : e;
-  const n = _ ? (_.auth_uri || "").indexOf("?") >= 0 : false, s = (_ ? _.auth_uri : null) || "/auth/oauth/authorize", i = Sn() || _.auth_type === "auth_code" ? "code" : "token";
-  let r = `${s}${n ? "&" : "?"}response_type=${encodeURIComponent(i)}&client_id=${encodeURIComponent(I)}&state=${encodeURIComponent(t)}&redirect_uri=${encodeURIComponent(_.redirect_uri)}&scope=${encodeURIComponent(_.scope)}`;
+  const n = _ ? (_.auth_uri || "").indexOf("?") >= 0 : false, s = (_ ? _.auth_uri : null) || "/auth/oauth/authorize", i = xn() || _.auth_type === "auth_code" ? "code" : "token";
+  let r = `${s}${n ? "&" : "?"}response_type=${encodeURIComponent(i)}&client_id=${encodeURIComponent(T)}&state=${encodeURIComponent(t)}&redirect_uri=${encodeURIComponent(_.redirect_uri)}&scope=${encodeURIComponent(_.scope)}`;
   if (_.auth_type === "auth_code") {
-    const { challenge: o, verify: a } = $i();
-    sessionStorage.setItem(`${I}_challenge`, o), r += "&code_challenge_method=S256", r += `&code_challenge=${a}`;
+    const { challenge: o, verify: a } = bi();
+    sessionStorage.setItem(`${T}_challenge`, o), r += "&code_challenge_method=S256", r += `&code_challenge=${a}`;
   }
   return r;
 }
-function $i(t = 43) {
-  const e = ts(t), n = Hs(zs(e)), s = Yn(js.hash(n)).split("=")[0].replace(/\//g, "_").replace(/\+/g, "-");
+function bi(t = 43) {
+  const e = ts(t), n = zs(Fs(e)), s = Yn(Gs.hash(n)).split("=")[0].replace(/\//g, "_").replace(/\+/g, "-");
   return { challenge: e, verify: s };
 }
-function bi() {
-  let e = (_.token_uri || "/auth/token") + `?client_id=${encodeURIComponent(I)}`, n = "";
+function vi() {
+  let e = (_.token_uri || "/auth/token") + `?client_id=${encodeURIComponent(T)}`, n = "";
   if (e += `&redirect_uri=${encodeURIComponent(_.redirect_uri)}`, Pt()) {
     e += `&refresh_token=${encodeURIComponent(Pt())}`, e += "&grant_type=refresh_token";
     const s = e.indexOf("?");
     n = e.slice(s + 1), e = e.slice(0, s);
   } else {
-    e += `&code=${encodeURIComponent(me)}`, e += "&grant_type=authorization_code";
-    const s = sessionStorage.getItem(`${I}_challenge`);
-    s && (e += `&code_verifier=${s}`, sessionStorage.removeItem(`${I}_challenge`)), me = "";
+    e += `&code=${encodeURIComponent(ge)}`, e += "&grant_type=authorization_code";
+    const s = sessionStorage.getItem(`${T}_challenge`);
+    s && (e += `&code_verifier=${s}`, sessionStorage.removeItem(`${T}_challenge`)), ge = "";
   }
   return [e, n];
 }
-function vi(t) {
+function ki(t) {
   const e = t.token_uri || "/auth/token", n = b({
     grant_type: "password",
-    client_id: I,
+    client_id: T,
     client_secret: t.client_secret,
     redirect_uri: t.redirect_uri,
     authority: N?.id,
@@ -44279,16 +44283,16 @@ function vi(t) {
   return `${e}?${n}`;
 }
 function cs() {
-  return as(...bi());
+  return as(...vi());
 }
-function ki(t) {
-  return as(vi(t));
+function Si(t) {
+  return as(ki(t));
 }
 function as(t, e = "") {
   return m.generate_tokens || (m.generate_tokens = new Promise((n, s) => {
     p("Generating new token...");
     const i = (r) => {
-      p.error("Error generating new tokens:", r), r && r.status >= 400 && r.status < 500 && (A.removeItem(`${I}_refresh_token`), Je.set("")), Oe(), s(), delete m.generate_tokens;
+      p.error("Error generating new tokens:", r), r && r.status >= 400 && r.status < 500 && (A.removeItem(`${T}_refresh_token`), Je.set("")), Ce(), s(), delete m.generate_tokens;
     };
     fetch(t, {
       method: "POST",
@@ -44299,26 +44303,26 @@ function as(t, e = "") {
     }).then(async (r) => {
       if (!r.ok) return i(r);
       const o = await r.json();
-      Pn(o), n(), delete m.generate_tokens;
+      Rn(o), n(), delete m.generate_tokens;
     }, i);
   })), m.generate_tokens;
 }
-function Pn(t) {
-  const e = Ks(
+function Rn(t) {
+  const e = Zs(
     /* @__PURE__ */ new Date(),
     Math.max(60, parseInt(t.expires_in, 10) - 300)
   );
-  p("Tokens generated storing..."), Sn() && (t.access_token && (A.setItem(
-    `${I}_access_token`,
+  p("Tokens generated storing..."), xn() && (t.access_token && (A.setItem(
+    `${T}_access_token`,
     t.access_token
   ), ie("access_token")), t.refresh_token && (A.setItem(
-    `${I}_refresh_token`,
+    `${T}_refresh_token`,
     t.refresh_token
-  ), ie("refresh_token"))), t.expires_in && (A.setItem(`${I}_expires_at`, `${e.valueOf()}`), ie("expires_in")), pe.set(true), ge.set(t.access_token || ""), Je.set(t.refresh_token || ""), Oe();
+  ), ie("refresh_token"))), t.expires_in && (A.setItem(`${T}_expires_at`, `${e.valueOf()}`), ie("expires_in")), _e.set(true), ye.set(t.access_token || ""), Je.set(t.refresh_token || ""), Ce();
 }
-function Si() {
+function xi() {
   const t = ts();
-  return A.setItem(`${I}_nonce`, t), t;
+  return A.setItem(`${T}_nonce`, t), t;
 }
 var Ae = Nt("HTTP(M)");
 var Dt = {};
@@ -44326,8 +44330,8 @@ var hs = (t, e) => {
   const n = new Error(`Mock endpoint not found: ${t} ${e}`);
   return n.status = 404, Ae(`404 ${t}:`, e), Promise.reject(n);
 };
-function Wr(t, e = Dt) {
-  xi(t.method, t.path, e);
+function Zr(t, e = Dt) {
+  Ai(t.method, t.path, e);
   const n = `${t.method}|${t.path}`, s = t.path.replace(/(http|https):\/\/[a-zA-Z0-9.-]*:?([0-9]*)?/g, "").replace(/^\//, "").split("/"), i = __spreadProps(__spreadValues({}, t), {
     path_parts: s,
     path_structure: s.map(
@@ -44336,15 +44340,15 @@ function Wr(t, e = Dt) {
   });
   e[n] = i, Ae(`+ ${t.method} ${t.path}`);
 }
-function xi(t, e, n = Dt) {
+function Ai(t, e, n = Dt) {
   const s = `${t}|${e}`;
   n[s] && (delete n[s], Ae(`- ${t} ${e}`));
 }
-function Ai(t, e, n, s = Dt) {
-  const i = qi(t, e, s);
+function qi(t, e, n, s = Dt) {
+  const i = Pi(t, e, s);
   if (i) {
-    const r = Pi(e, i, n);
-    return Ri(i, r);
+    const r = Ri(e, i, n);
+    return Ui(i, r);
   }
   try {
     return hs(t, e);
@@ -44352,7 +44356,7 @@ function Ai(t, e, n, s = Dt) {
     return Ae.error(`ERROR ${t}:`, [e, r]), Promise.reject(r);
   }
 }
-function qi(t, e, n = Dt) {
+function Pi(t, e, n = Dt) {
   const i = e.replace(/(http|https):\/\/[a-zA-Z0-9.-]*:?([0-9]*)?/g, "").replace(/^\//, "").split("?")[0].split("/"), r = Object.keys(
     n
   ).reduce((o, a) => (a.indexOf(`${t}|`) === 0 && o.push(n[a]), o), []);
@@ -44369,8 +44373,8 @@ function qi(t, e, n = Dt) {
     }
   return null;
 }
-function Pi(t, e, n) {
-  const s = t.replace(/(http|https):\/\/[a-zA-Z0-9.-]*:?([0-9]*)?/g, "").split("?"), i = s[0].replace(/^\//, ""), r = s[1] || "", o = Ie(r), a = i.split("/"), y = {};
+function Ri(t, e, n) {
+  const s = t.replace(/(http|https):\/\/[a-zA-Z0-9.-]*:?([0-9]*)?/g, "").split("?"), i = s[0].replace(/^\//, ""), r = s[1] || "", o = Te(r), a = i.split("/"), y = {};
   for (let P3 = 0; P3 < e.path_structure.length; P3++) {
     const W3 = e.path_structure[P3];
     W3 && (y[W3] = a[P3]);
@@ -44386,7 +44390,7 @@ function Pi(t, e, n) {
   };
   return Ae(`MATCHED ${L3.method}:`, L3), L3;
 }
-function Ri(t, e) {
+function Ui(t, e) {
   let n;
   try {
     n = t.callback ? t.callback(e) : t.metadata;
@@ -44398,12 +44402,12 @@ function Ri(t, e) {
     setTimeout(() => o(n), Math.max(200, r));
   });
 }
-var Ui = Nt("HTTP");
+var Ii = Nt("HTTP");
 var ls = {};
 function Ti(t, e = ls) {
   return e[t] || {};
 }
-function d(t, e, n = Ve) {
+function f(t, e, n = Ve) {
   return e || (e = { response_type: "json" }), n("GET", t, __spreadValues({ response_type: "json" }, e));
 }
 function S(t, e, n, s = Ve) {
@@ -44412,13 +44416,13 @@ function S(t, e, n, s = Ve) {
 function ce(t, e, n, s = Ve) {
   return n || (n = { response_type: "json" }), s("PUT", t, __spreadValues({ body: e, response_type: "json" }, n));
 }
-function ye(t, e, n, s = Ve) {
+function ae(t, e, n, s = Ve) {
   return n || (n = { response_type: "json" }), s("PATCH", t, __spreadValues({ body: e, response_type: "json" }, n));
 }
-function X(t, e, n = Ve) {
+function ee(t, e, n = Ve) {
   return e || (e = { response_type: "void" }), n("DELETE", t, __spreadValues({ response_type: "void" }, e));
 }
-async function Ii(t, e, n = ls) {
+async function Ei(t, e, n = ls) {
   if (t.headers) {
     const s = {};
     t.headers.forEach ? t.headers.forEach((i, r) => s[r.toLowerCase()] = i) : Object.keys(t.headers).forEach(
@@ -44436,15 +44440,15 @@ async function Ii(t, e, n = ls) {
       return await t.json().catch(() => ({}));
   }
 }
-var fs = () => (An(), xn().then(
+var ds = () => (qn(), An().then(
   () => Promise.resolve(),
   () => new Promise((t) => {
     setTimeout(() => {
-      fs().then(() => t());
+      ds().then(() => t());
     }, 1e3);
   })
 ));
-function Ve(t, e, n, s = kn, i = Ai, r = Ii) {
+function Ve(t, e, n, s = Sn, i = qi, r = Ei) {
   if (s()) {
     const P3 = i(t, e, n?.body);
     if (P3) return P3;
@@ -44457,7 +44461,7 @@ function Ve(t, e, n, s = kn, i = Ai, r = Ii) {
     });
     return delete P3.response_type, delete P3.skip_auth, delete P3.skip_auth_flow, ["POST", "PUT", "PATCH"].includes(t) && n.body !== void 0 && (P3.body = typeof n.body == "string" ? n.body : JSON.stringify(n.body)), fetch(e, P3);
   }, a = async () => {
-    n.skip_auth || (await ri(li(), Boolean), V() === "x-api-key" ? n.headers["X-API-Key"] = Ye() : n.headers.Authorization = `Bearer ${V()}`);
+    n.skip_auth || (await oi(di(), Boolean), X() === "x-api-key" ? n.headers["X-API-Key"] = Ye() : n.headers.Authorization = `Bearer ${X()}`);
     const P3 = await o();
     if (P3.ok) return r(P3, n.response_type);
     throw P3;
@@ -44470,7 +44474,7 @@ function Ve(t, e, n, s = kn, i = Ai, r = Ii) {
       if (W3.status === 511)
         throw os(Rt()), W3;
       if (W3.status !== 401) throw W3 || {};
-      return Ui.warn("Auth error:", W3), await fs().catch(() => {
+      return Ii.warn("Auth error:", W3), await ds().catch(() => {
         throw W3;
       }), L3(P3 + 1);
     }
@@ -44496,20 +44500,20 @@ var F = class {
    */
   toJSON() {
     const e = __spreadValues({}, this);
-    return e.version = this.version, delete e.created_at, Ys(e, [void 0, null, ""]);
+    return e.version = this.version, delete e.created_at, Vs(e, [void 0, null, ""]);
   }
 };
-var ds = {};
+var fs = {};
 var ps = {};
 var Bn = "";
 var zt = (t) => t;
-var Mi = 300;
-var Te = {};
+var Ni = 300;
+var Ie = {};
 function $(t) {
   const { query_params: e, fn: n, path: s, endpoint: i } = t, r = b(e), o = `${i || u2()}${s ? "/" + s : ""}${r ? "?" + r : ""}`;
-  if (Te[o]) return Te[o].promise;
-  const a = d(o).then((y) => {
-    const L3 = Ni(o, r, s);
+  if (Ie[o]) return Ie[o].promise;
+  const a = f(o).then((y) => {
+    const L3 = wi(o, r, s);
     return {
       total: L3.total || 0,
       next: L3.next ? () => $({
@@ -44521,43 +44525,43 @@ function $(t) {
       data: y && y instanceof Array ? y.map((P3) => (n || zt)(P3)) : y && !(y instanceof Array) && y.results ? y.results.map((P3) => P3) : []
     };
   });
-  return Te[o] = {
+  return Ie[o] = {
     promise: a,
-    timeout: setTimeout(() => delete Te[o], Mi)
+    timeout: setTimeout(() => delete Ie[o], Ni)
   }, a.catch(() => {
-    clearTimeout(Te[o]?.timeout), delete Te[o];
+    clearTimeout(Ie[o]?.timeout), delete Ie[o];
   }), a;
 }
 function g(t) {
   const { query_params: e, id: n, path: s, fn: i, options: r } = t, o = b(e), a = `${u2()}/${s}/${n}${o ? "?" + o : ""}`;
-  return d(a, r).then((y) => (i || zt)(y));
+  return f(a, r).then((y) => (i || zt)(y));
 }
 function U(t) {
   const { query_params: e, form_data: n, path: s, fn: i } = t, r = b(e), o = `${u2()}/${s}${r ? "?" + r : ""}`;
   return S(o, n).then((a) => (i || zt)(a));
 }
-function l(t) {
+function h(t) {
   const { id: e, task_name: n, form_data: s, method: i, path: r, callback: o } = t, a = b(s), y = `${u2()}/${r}/${e}/${n}`;
-  return (i === "post" || i === "put" || !i ? (i === "put" ? ce : S)(y, s) : (i === "del" ? X : d)(
+  return (i === "post" || i === "put" || !i ? (i === "put" ? ce : S)(y, s) : (i === "del" ? ee : f)(
     `${y}${a ? "?" + a : ""}`,
     {
       response_type: "json"
     }
   )).then((P3) => (o || ((W3) => W3))(P3));
 }
-function T(t) {
+function I(t) {
   const { id: e, query_params: n, form_data: s, method: i, path: r, fn: o } = t, a = b(__spreadProps(__spreadValues({}, n), {
     version: s.version || 0
   })), y = `${u2()}/${r}/${e}${a ? "?" + a : ""}`;
-  return (i === "put" ? ce : ye)(y, s).then(
+  return (i === "put" ? ce : ae)(y, s).then(
     (L3) => (o || zt)(L3)
   );
 }
 function q(t) {
   const { id: e, query_params: n, path: s } = t, i = b(n), r = `${u2()}/${s}/${e}${i ? "?" + i : ""}`;
-  return X(r);
+  return ee(r);
 }
-function Ni(t, e, n) {
+function wi(t, e, n) {
   const s = Ti(
     t[0] === "/" ? `${location.origin}${t}` : t
   ), i = {
@@ -44566,11 +44570,11 @@ function Ni(t, e, n) {
   };
   if (s && s["x-total-count"]) {
     const r = +(s["x-total-count"] || 0);
-    (e.length < 2 || e.length < 12 && e.indexOf("offset=") >= 0) && (ds[n] = r), ps[n] = r, i.total = r;
+    (e.length < 2 || e.length < 12 && e.indexOf("offset=") >= 0) && (fs[n] = r), ps[n] = r, i.total = r;
   }
-  return s && s.link && (Bn = Js(s.link || "").next, i.next = Ie(Bn.split("?")[1])), i;
+  return s && s.link && (Bn = Ys(s.link || "").next, i.next = Te(Bn.split("?")[1])), i;
 }
-var Rn = class extends F {
+var Un = class extends F {
   /** Hash of the email address of the user */
   email_digest;
   /** ID of the authority associated with the user */
@@ -44689,7 +44693,7 @@ var gs = class extends F {
       }));
   }
 };
-var Un = class {
+var In = class {
   /** ISO8601 timestamp of the creation time of the group */
   created_at;
   /** ISO8601 timestamp of the last update time of the group */
@@ -44728,64 +44732,64 @@ var ys = class {
   /** User details included by the API when available */
   user;
   constructor(e = {}) {
-    this.created_at = e.created_at || "", this.updated_at = e.updated_at || "", this.user_id = e.user_id || "", this.group_id = e.group_id || "", this.permissions = e.permissions || 0, this.group = e.group ? new Un(e.group) : void 0, this.user = e.user ? new Rn(e.user) : void 0;
+    this.created_at = e.created_at || "", this.updated_at = e.updated_at || "", this.user_id = e.user_id || "", this.group_id = e.group_id || "", this.permissions = e.permissions || 0, this.group = e.group ? new In(e.group) : void 0, this.user = e.user ? new Un(e.user) : void 0;
   }
 };
 var ze = "groups";
 function it(t) {
-  return new Un(t);
+  return new In(t);
 }
-function du(t = {}) {
+function mu(t = {}) {
   return $({ query_params: t, fn: it, path: ze });
 }
-function _u(t = {}) {
+function yu(t = {}) {
   const e = b(t), n = `${u2()}/${ze}/current${e ? "?" + e : ""}`;
-  return d(n).then(
+  return f(n).then(
     (s) => (s || []).map((i) => ({
       group: it(i.group || {}),
       permissions: i.permissions || 0
     }))
   );
 }
-function mu(t) {
+function $u(t) {
   const e = `${u2()}/${ze}`;
   return S(e, t).then((n) => it(n));
 }
-function gu(t, e, n = "patch") {
+function bu(t, e, n = "patch") {
   const s = `${u2()}/${ze}/${encodeURIComponent(t)}`;
-  return (n === "put" ? ce : ye)(s, e).then(
+  return (n === "put" ? ce : ae)(s, e).then(
     (i) => it(i)
   );
 }
-function yu(t) {
+function vu(t) {
   const e = `${u2()}/${ze}/${encodeURIComponent(t)}`;
-  return X(e, { response_type: "void" });
+  return ee(e, { response_type: "void" });
 }
-var In = "group_users";
+var En = "group_users";
 function Qt(t) {
   return new ys(t);
 }
-function En(t, e) {
-  return `${In}/${encodeURIComponent(t)}/${encodeURIComponent(e)}`;
+function On(t, e) {
+  return `${En}/${encodeURIComponent(t)}/${encodeURIComponent(e)}`;
 }
-function qu(t = {}) {
-  return $({ query_params: t, fn: Qt, path: In });
+function Uu(t = {}) {
+  return $({ query_params: t, fn: Qt, path: En });
 }
-function Ru(t) {
-  const e = `${u2()}/${In}`;
+function Tu(t) {
+  const e = `${u2()}/${En}`;
   return S(e, t).then((n) => Qt(n));
 }
-function Uu(t, e, n, s = "patch") {
-  const i = `${u2()}/${En(t, e)}`;
-  return (s === "put" ? ce : ye)(i, n).then(
+function Eu(t, e, n, s = "patch") {
+  const i = `${u2()}/${On(t, e)}`;
+  return (s === "put" ? ce : ae)(i, n).then(
     (r) => Qt(r)
   );
 }
-function Tu(t, e) {
-  const n = `${u2()}/${En(t, e)}`;
-  return X(n, { response_type: "void" });
+function Ou(t, e) {
+  const n = `${u2()}/${On(t, e)}`;
+  return ee(n, { response_type: "void" });
 }
-var he = class extends F {
+var le = class extends F {
   /** Name of the system assocaited with the trigger */
   system_name;
   /** Number of times the trigger has been activated/triggered */
@@ -44894,11 +44898,11 @@ var Kt = class extends F {
         encryption_level: +n
       }));
     e.trigger_data && e.trigger_data instanceof Array && (this.trigger_list = e.trigger_data.map(
-      (n) => new he(n)
+      (n) => new le(n)
     ));
   }
 };
-var Wi = class {
+var Qi = class {
   /** ISO8601 timestamp of the creation time of the association */
   created_at;
   /** ISO8601 timestamp of the last update time of the association */
@@ -44916,32 +44920,32 @@ var Wi = class {
   /** Zone details included by the API when available */
   zone;
   constructor(e = {}) {
-    this.created_at = e.created_at || "", this.updated_at = e.updated_at || "", this.group_id = e.group_id || "", this.zone_id = e.zone_id || "", this.permissions = e.permissions || 0, this.deny = !!e.deny, this.group = e.group ? new Un(e.group) : void 0, this.zone = e.zone ? new Kt(e.zone) : void 0;
+    this.created_at = e.created_at || "", this.updated_at = e.updated_at || "", this.group_id = e.group_id || "", this.zone_id = e.zone_id || "", this.permissions = e.permissions || 0, this.deny = !!e.deny, this.group = e.group ? new In(e.group) : void 0, this.zone = e.zone ? new Kt(e.zone) : void 0;
   }
 };
 var Cn = "group_zones";
 function Zt(t) {
-  return new Wi(t);
+  return new Qi(t);
 }
-function On(t, e) {
+function Mn(t, e) {
   return `${Cn}/${encodeURIComponent(t)}/${encodeURIComponent(e)}`;
 }
-function Iu(t = {}) {
+function Cu(t = {}) {
   return $({ query_params: t, fn: Zt, path: Cn });
 }
-function Cu(t) {
+function Nu(t) {
   const e = `${u2()}/${Cn}`;
   return S(e, t).then((n) => Zt(n));
 }
-function Ou(t, e, n, s = "patch") {
-  const i = `${u2()}/${On(t, e)}`;
-  return (s === "put" ? ce : ye)(i, n).then(
+function wu(t, e, n, s = "patch") {
+  const i = `${u2()}/${Mn(t, e)}`;
+  return (s === "put" ? ce : ae)(i, n).then(
     (r) => Zt(r)
   );
 }
-function Mu(t, e) {
-  const n = `${u2()}/${On(t, e)}`;
-  return X(n, { response_type: "void" });
+function Du(t, e) {
+  const n = `${u2()}/${Mn(t, e)}`;
+  return ee(n, { response_type: "void" });
 }
 var vs = class {
   /** ID of the parent resource associated with the metadata */
@@ -44976,7 +44980,7 @@ var $e = "metadata";
 function Fe(t) {
   return new vs(t);
 }
-function ju(t, e) {
+function Wu(t, e) {
   return g({
     id: t,
     query_params: { name: e },
@@ -44984,8 +44988,8 @@ function ju(t, e) {
     path: $e
   });
 }
-function Gu(t, e, n = "put") {
-  return T({
+function Qu(t, e, n = "put") {
+  return I({
     id: t,
     form_data: e,
     query_params: {},
@@ -44994,9 +44998,9 @@ function Gu(t, e, n = "put") {
     path: $e
   });
 }
-function Ku(t, e) {
+function Yu(t, e) {
   const n = b(e), s = `${u2()}/${$e}/${encodeURIComponent(t)}/bulk${n ? "?" + n : ""}`;
-  return d(s).then(
+  return f(s).then(
     (i) => Object.keys(i || {}).reduce(
       (r, o) => __spreadProps(__spreadValues({}, r), { [o]: Fe(i[o]) }),
       {}
@@ -45063,7 +45067,7 @@ var ks = class extends F {
   /** Orientation of the signage system */
   orientation;
   constructor(e = {}) {
-    super(e), this.display_name = e.display_name || "", this.description = e.description || "", this.email = e.email || "", this.code = e.code || "", this.capacity = e.capacity || 0, this.features = e.features || [], this.bookable = e.bookable || false, this.public = e.public ?? false, this.installed_ui_devices = e.installed_ui_devices || 0, this.support_url = e.support_url || "", this.camera_snapshot_url = e.camera_snapshot_url || "", this.camera_snapshot_urls = e.camera_snapshot_urls || [], this.camera_url = e.camera_url || "", this.timetable_url = e.timetable_url || "", this.room_booking_url = e.room_booking_url || "", this.map_id = e.map_id || "", this.modules = e.modules || [], this.images = e.images || [], this.zones = e.zones || [], this.settings = e.settings || [null, null, null, null], this.timezone = e.timezone || "", this.signage = e.signage || false, this.playlists = e.playlists || [], this.security_groups = e.security_groups || [], this.orientation = e.orientation || "unspecified", this.approval = e.approval || false, this.signage_last_seen = e.signage_last_seen || yn(Date.now()), typeof this.settings != "object" && (this.settings = [null, null, null, null]);
+    super(e), this.display_name = e.display_name || "", this.description = e.description || "", this.email = e.email || "", this.code = e.code || "", this.capacity = e.capacity || 0, this.features = e.features || [], this.bookable = e.bookable || false, this.public = e.public ?? false, this.installed_ui_devices = e.installed_ui_devices || 0, this.support_url = e.support_url || "", this.camera_snapshot_url = e.camera_snapshot_url || "", this.camera_snapshot_urls = e.camera_snapshot_urls || [], this.camera_url = e.camera_url || "", this.timetable_url = e.timetable_url || "", this.room_booking_url = e.room_booking_url || "", this.map_id = e.map_id || "", this.modules = e.modules || [], this.images = e.images || [], this.zones = e.zones || [], this.settings = e.settings || [null, null, null, null], this.timezone = e.timezone || "", this.signage = e.signage || false, this.playlists = e.playlists || [], this.security_groups = e.security_groups || [], this.orientation = e.orientation || "unspecified", this.approval = e.approval || false, this.signage_last_seen = e.signage_last_seen || $n(Date.now()), typeof this.settings != "object" && (this.settings = [null, null, null, null]);
     for (const n in He)
       !isNaN(Number(n)) && !this.settings[n] && (this.settings[n] = new qe({
         parent_id: this.id,
@@ -45141,62 +45145,62 @@ var Ss = class extends F {
     return (n.role !== Et.Logic && !e || !n.control_system_id) && delete n.control_system_id, delete n.driver, delete n.system, delete n.error_timestamp, delete n.has_runtime_error, n;
   }
 };
-var C = "systems";
+var O = "systems";
 function Pe(t) {
   return new ks(t);
 }
-function ta(t = {}) {
-  return $({ query_params: t, fn: Pe, path: C });
+function ia(t = {}) {
+  return $({ query_params: t, fn: Pe, path: O });
 }
-function ia(t, e, n = "patch") {
-  return T({
+function ua(t, e, n = "patch") {
+  return I({
     id: t,
     form_data: e,
     query_params: {},
     method: n,
     fn: Pe,
-    path: C
+    path: O
   });
 }
-var J = "users";
+var Y = "users";
 function Re(t) {
-  return new Rn(t);
+  return new Un(t);
 }
-function Ea(t = {}) {
-  return $({ query_params: t, fn: Re, path: J });
+function Ma(t = {}) {
+  return $({ query_params: t, fn: Re, path: Y });
 }
-function Ca(t, e = {}) {
-  return g({ id: t, query_params: e, fn: Re, path: J });
+function Na(t, e = {}) {
+  return g({ id: t, query_params: e, fn: Re, path: Y });
 }
-function Ma(t, e, n = "patch") {
-  return T({
+function Da(t, e, n = "patch") {
+  return I({
     id: t,
     form_data: e,
     query_params: {},
     method: n,
     fn: Re,
-    path: J
+    path: Y
   });
 }
-var le = "zones";
+var de = "zones";
 function nn(t) {
   return new Kt(t);
 }
-function Ba(t = {}) {
-  return $({ query_params: t, fn: nn, path: le });
+function Ka(t = {}) {
+  return $({ query_params: t, fn: nn, path: de });
 }
-function Ka(t, e, n = "patch") {
-  return T({
+function Ya(t, e, n = "patch") {
+  return I({
     id: t,
     form_data: e,
     query_params: {},
     method: n,
     fn: nn,
-    path: le
+    path: de
   });
 }
-var Ps = /* @__PURE__ */ ((t) => (t[t.Default = 0] = "Default", t[t.Cut = 1] = "Cut", t[t.CrossFade = 2] = "CrossFade", t[t.SlideTop = 3] = "SlideTop", t[t.SlideLeft = 4] = "SlideLeft", t[t.SlideRight = 5] = "SlideRight", t[t.SlideBottom = 6] = "SlideBottom", t))(Ps || {});
-var sr = class {
+var Ps = /* @__PURE__ */ ((t) => (t.Default = "default", t.Cut = "cut", t.CrossFade = "cross_fade", t.SlideTop = "slide_top", t.SlideLeft = "slide_left", t.SlideRight = "slide_right", t.SlideBottom = "slide_bottom", t))(Ps || {});
+var Rs = class {
   id;
   created_at;
   updated_at;
@@ -45225,14 +45229,15 @@ var sr = class {
     return `/api/engine/v2/uploads/${this.thumbnail_id}/url`;
   }
   constructor(e) {
-    this.id = e.id || "", this.created_at = e.created_at || yn(Date.now()), this.updated_at = e.updated_at || yn(Date.now()), this.name = e.name || "", this.description = e.description || "", this.authority_id = e.authority_id || "", this.start_time = e.start_time || 0, this.play_time = e.play_time || 0, this.video_length = e.video_length || 0, this.animation = e.animation, this.media_type = e.media_type || "unknown", this.orientation = e.orientation || "unspecified", this.media_uri = e.media_uri || "", this.media_id = e.media_id || "", this.thumbnail_id = e.thumbnail_id || "", this.plugin_id = e.plugin_id || "", this.plugin_params = e.plugin_params || {}, this.play_count = e.play_count || 0, this.valid_from = e.valid_from, this.valid_until = e.valid_until, this.tags = e.tags || [];
+    this.id = e.id || "", this.created_at = e.created_at || $n(Date.now()), this.updated_at = e.updated_at || $n(Date.now()), this.name = e.name || "", this.description = e.description || "", this.authority_id = e.authority_id || "", this.start_time = e.start_time || 0, this.play_time = e.play_time || 0, this.video_length = e.video_length || 0, this.animation = e.animation, this.media_type = e.media_type || "unknown", this.orientation = e.orientation || "unspecified", this.media_uri = e.media_uri || "", this.media_id = e.media_id || "", this.thumbnail_id = e.thumbnail_id || "", this.plugin_id = e.plugin_id || "", this.plugin_params = e.plugin_params || {}, this.play_count = e.play_count || 0, this.valid_from = e.valid_from, this.valid_until = e.valid_until, this.tags = e.tags || [];
   }
 };
-var Nn = class {
+var ir = class {
   id;
   playlist_id;
   items;
   media;
+  schedules;
   created_at;
   updated_at;
   user_id;
@@ -45244,10 +45249,22 @@ var Nn = class {
   approved_by_email;
   approved_by_name;
   constructor(e = {}) {
-    this.id = e.id || "", this.playlist_id = e.playlist_id || "", this.created_at = e.created_at || 0, this.updated_at = e.updated_at || 0, this.items = e.items || [], this.media = e.media || [], this.approved = !!e.approved, this.approval_requested = !!e.approval_requested, this.approved_by_id = e.approved_by_id || "", this.approved_by_email = e.approved_by_email || "", this.approved_by_name = e.approved_by_name || "", this.user_id = e.user_id || "", this.user_name = e.user_name || "", this.user_email = e.user_email || "";
+    this.id = e.id || "", this.playlist_id = e.playlist_id || "", this.created_at = e.created_at || 0, this.updated_at = e.updated_at || 0, this.items = e.items || [], this.media = e.media || [], this.schedules = e.schedules || [], this.approved = !!e.approved, this.approval_requested = !!e.approval_requested, this.approved_by_id = e.approved_by_id || "", this.approved_by_email = e.approved_by_email || "", this.approved_by_name = e.approved_by_name || "", this.user_id = e.user_id || "", this.user_name = e.user_name || "", this.user_email = e.user_email || "";
   }
 };
-var ir = class {
+var rr = class {
+  id;
+  playlist_id;
+  item_id;
+  schedules;
+  created_at;
+  updated_at;
+  media;
+  constructor(e = {}) {
+    this.id = e.id || "", this.playlist_id = e.playlist_id || "", this.item_id = e.item_id || "", this.schedules = e.schedules || [], this.created_at = e.created_at || 0, this.updated_at = e.updated_at || 0, this.media = e.media || new Rs({});
+  }
+};
+var or = class {
   id;
   created_at;
   updated_at;
@@ -45260,15 +45277,16 @@ var ir = class {
   default_animation;
   random;
   enabled;
+  distribution;
   default_duration;
   schedules;
   valid_from;
   valid_until;
   constructor(e) {
-    this.id = e.id || "", this.created_at = e.created_at || 0, this.updated_at = e.updated_at || 0, this.name = e.name || "", this.description = e.description || "", this.authority_id = e.authority_id || "", this.orientation = e.orientation || "", this.play_count = e.play_count || 0, this.play_through_count = e.play_through_count || 0, this.default_animation = e.default_animation || Ps.Cut, this.random = e.random || false, this.enabled = e.enabled ?? true, this.default_duration = e.default_duration ?? 15 * 1e3, this.valid_from = e.valid_from, this.valid_until = e.valid_until, this.schedules = e.schedules || [];
+    this.id = e.id || "", this.created_at = e.created_at || 0, this.updated_at = e.updated_at || 0, this.name = e.name || "", this.description = e.description || "", this.authority_id = e.authority_id || "", this.orientation = e.orientation || "", this.play_count = e.play_count || 0, this.play_through_count = e.play_through_count || 0, this.default_animation = e.default_animation || Ps.Cut, this.random = e.random || false, this.enabled = e.enabled ?? true, this.distribution = e.distribution || false, this.default_duration = e.default_duration ?? 15 * 1e3, this.valid_from = e.valid_from, this.valid_until = e.valid_until, this.schedules = e.schedules || [];
   }
 };
-var rr = class {
+var ur = class {
   id;
   created_at;
   updated_at;
@@ -45286,12 +45304,12 @@ var rr = class {
 };
 var be = "signage/media";
 function sn(t) {
-  return new sr(t);
+  return new Rs(t);
 }
-function nh(t = {}) {
+function rh(t = {}) {
   return $({ query_params: t, fn: sn, path: be });
 }
-function sh(t = {}) {
+function oh(t = {}) {
   return g({
     id: "tags",
     query_params: t,
@@ -45299,8 +45317,8 @@ function sh(t = {}) {
     path: be
   });
 }
-function rh(t, e, n = "patch") {
-  return T({
+function ch(t, e, n = "patch") {
+  return I({
     id: t,
     form_data: e,
     query_params: {},
@@ -45309,7 +45327,7 @@ function rh(t, e, n = "patch") {
     path: be
   });
 }
-function oh(t) {
+function ah(t) {
   return U({
     form_data: t,
     query_params: {},
@@ -45317,117 +45335,137 @@ function oh(t) {
     path: be
   });
 }
-function uh(t, e = {}) {
+function hh(t, e = {}) {
   return q({ id: t, query_params: e, path: be });
 }
-function ch(t) {
+function lh(t) {
   return `${u2()}/${be}/${t}/thumbnail`;
 }
-function ah(t) {
+function dh(t) {
   const e = b(t);
   return S(`${u2()}/${be}/share${e ? "?" + e : ""}`, {});
 }
-var ee = "signage/playlists";
+var Z = "signage/playlists";
 function rn(t) {
+  return new or(t);
+}
+function on(t) {
   return new ir(t);
 }
-function hh(t = {}) {
-  return $({ query_params: t, fn: rn, path: ee });
+function cr(t) {
+  return new rr(t);
 }
-function fh(t, e, n = "patch") {
-  return T({
+function fh(t = {}) {
+  return $({ query_params: t, fn: rn, path: Z });
+}
+function _h(t, e, n = "patch") {
+  return I({
     id: t,
     form_data: e,
     query_params: {},
     method: n,
     fn: rn,
-    path: ee
+    path: Z
   });
 }
-function dh(t) {
+function mh(t) {
   return U({
     form_data: t,
     query_params: {},
     fn: rn,
-    path: ee
+    path: Z
   });
 }
-function ph(t, e = {}) {
-  return q({ id: t, query_params: e, path: ee });
+function gh(t, e = {}) {
+  return q({ id: t, query_params: e, path: Z });
 }
-function _h(t, e = {}) {
-  return l({
+function yh(t, e = {}) {
+  return h({
     id: t,
     task_name: "media",
     form_data: e,
     method: "get",
-    callback: (n) => new Nn(n),
-    path: ee
+    callback: on,
+    path: Z
   });
 }
-function mh(t, e = {}) {
-  return l({
+function $h(t, e = {}) {
+  return h({
     id: t,
     task_name: "media/revisions",
     form_data: e,
     method: "get",
-    callback: (n) => n.map(
-      (s) => new Nn(s)
-    ),
-    path: ee
+    callback: (n) => n.map(on),
+    path: Z
   });
 }
-function gh(t) {
-  return l({
+function bh(t) {
+  return h({
     id: t,
     task_name: "media/approve",
     method: "post",
-    path: ee
+    path: Z
   });
 }
-function yh(t, e, n = "", s = "") {
+function vh(t, e, n = "", s = "") {
   const i = b({ group_id: e, approver_id: s });
-  return l({
+  return h({
     id: t,
     task_name: `media/request_approval${i ? "?" + i : ""}`,
     method: "post",
-    path: ee,
+    path: Z,
     form_data: { message: n }
   });
 }
-function $h(t) {
+function kh(t) {
   return g({
     id: "approvers",
     query_params: { group_id: t },
     fn: (e) => e,
-    path: ee
+    path: Z
   });
 }
-function bh(t, e) {
-  return l({
+function Sh(t, e) {
+  return h({
     id: t,
     task_name: "media",
     form_data: e,
     method: "post",
-    path: ee,
-    callback: (n) => new Nn(n)
+    path: Z,
+    callback: on
   });
 }
-function vh(t) {
+function xh(t, e) {
+  return h({
+    id: t,
+    task_name: "media/schedule",
+    form_data: e,
+    method: "post",
+    path: Z,
+    callback: on
+  });
+}
+function Ah(t, e, n) {
+  return ae(
+    `${u2()}/${Z}/${t}/media/schedule/${e}`,
+    n
+  ).then(cr);
+}
+function qh(t) {
   const e = b(t);
   return S(
-    `${u2()}/${ee}/share${e ? "?" + e : ""}`,
+    `${u2()}/${Z}/share${e ? "?" + e : ""}`,
     {}
   );
 }
 var at = "signage/plugins";
-function on(t) {
-  return new rr(t);
+function un(t) {
+  return new ur(t);
 }
-function kh(t = {}) {
-  return $({ query_params: t, fn: on, path: at });
+function Ph(t = {}) {
+  return $({ query_params: t, fn: un, path: at });
 }
-var Is = class {
+var Es = class {
   _listeners = /* @__PURE__ */ new Set();
   _error_listeners = /* @__PURE__ */ new Set();
   _complete_listeners = /* @__PURE__ */ new Set();
@@ -45457,7 +45495,7 @@ var Is = class {
     this._listeners.clear(), this._error_listeners.clear(), this._complete_listeners.clear();
   }
 };
-var fr = class extends Is {
+var _r = class extends Es {
   constructor(e) {
     super(), this._config = e, this._socket = new WebSocket(e.url), this._socket.onopen = () => {
       const n = [...this._queue];
@@ -45482,14 +45520,14 @@ var fr = class extends Is {
     return this._config.deserializer ? this._config.deserializer(e) : e.data;
   }
 };
-function dr(t) {
-  return new fr(
+function mr(t) {
+  return new _r(
     typeof t == "string" ? { url: t } : t
   );
 }
 var te = /* @__PURE__ */ ((t) => (t[t.PARSE_ERROR = 0] = "PARSE_ERROR", t[t.BAD_REQUEST = 1] = "BAD_REQUEST", t[t.ACCESS_DENIED = 2] = "ACCESS_DENIED", t[t.REQUEST_FAILED = 3] = "REQUEST_FAILED", t[t.UNKNOWN_CMD = 4] = "UNKNOWN_CMD", t[t.SYS_NOT_FOUND = 5] = "SYS_NOT_FOUND", t[t.MOD_NOT_FOUND = 6] = "MOD_NOT_FOUND", t[t.UNEXPECTED_FAILURE = 7] = "UNEXPECTED_FAILURE", t))(te || {});
-var Es = /* @__PURE__ */ ((t) => (t.Info = "info", t.Debug = "debug", t.Warning = "warn", t.Error = "error", t.Fatal = "fatal", t.Trace = "trace", t))(Es || {});
-var pr = class {
+var Os = /* @__PURE__ */ ((t) => (t.Info = "info", t.Debug = "debug", t.Warning = "warn", t.Error = "error", t.Fatal = "fatal", t.Trace = "trace", t))(Os || {});
+var gr = class {
   constructor(e, n) {
     this._system = e;
     const s = Object.getOwnPropertyNames(
@@ -45536,7 +45574,7 @@ var pr = class {
     });
   }
 };
-var _r = class {
+var yr = class {
   constructor(e) {
     for (const n in e)
       e.hasOwnProperty(n) && e[n] && e[n] instanceof Array && e[n].forEach((s) => {
@@ -45549,48 +45587,48 @@ var _r = class {
    * @param properties Properties of the new module
    */
   addModule(e, n) {
-    this[e] || (this[e] = []), this[e].push(new pr(this, n));
+    this[e] || (this[e] = []), this[e].push(new gr(this, n));
   }
 };
-var Ct = {};
-function Nl(t, e) {
-  return Ct[t] = new _r(e), Ct[t];
+var Ot = {};
+function Fl(t, e) {
+  return Ot[t] = new yr(e), Ot[t];
 }
-function mr(t) {
-  return Ct[t];
+function $r(t) {
+  return Ot[t];
 }
-var O = Nt("WS");
+var C = Nt("WS");
 var Cs = 15;
 var gt = 0;
-var Y;
-var Os = 0;
+var V;
+var Ms = 0;
 var G = {};
 var wn = {};
-var gr = {};
+var br = {};
 var Se = ne(false);
-var Ms = ne([0, 0]);
-var Ns = Date.now();
+var Ns = ne([0, 0]);
+var ws = Date.now();
 var Ee;
-var Ot = 0;
+var Ct = 0;
 var fe = null;
 var kt;
 var Dn = 0;
 var yt = 10 * 1e3;
-var yr = ne(null);
-function _n() {
+var vr = ne(null);
+function mn() {
   return u2().indexOf("/control/") >= 0 ? "/control/websocket" : `${is()}/systems/control`;
 }
-function ws() {
+function Ds() {
   return Se.value;
 }
-function $r() {
+function kr() {
   return Se.asReadonly();
 }
-function br(t, e = wn) {
+function Sr(t, e = wn) {
   const n = `${t.sys}|${t.mod}_${t.index}|${t.name}`;
   return e[n] || (e[n] = ne(void 0)), e[n].asReadonly();
 }
-function vr(t, e = wn) {
+function xr(t, e = wn) {
   const n = `${t.sys}|${t.mod}_${t.index}|${t.name}`;
   if (e[n])
     return e[n].value;
@@ -45602,14 +45640,14 @@ function Wn(t, e = 0, n = Ge) {
   }, t);
   return n(s, e);
 }
-function kr(t, e = 0, n = Ge) {
+function Ar(t, e = 0, n = Ge) {
   const s = __spreadValues({
     id: ++gt,
     cmd: "unbind"
   }, t);
   return n(s, e);
 }
-function Sr(t, e = yt, n = Ge) {
+function qr(t, e = yt, n = Ge) {
   const s = __spreadValues({
     id: ++gt,
     cmd: "exec"
@@ -45617,9 +45655,9 @@ function Sr(t, e = yt, n = Ge) {
   return n(s, e);
 }
 function Ge(t, e = yt, n = 0) {
-  const s = `${t.cmd}|${t.sys}|${t.mod}${t.index}|${t.name}|${t.args}|${ei()}`;
+  const s = `${t.cmd}|${t.sys}|${t.mod}${t.index}|${t.name}|${t.args}|${ti()}`;
   if (G[s])
-    O("Request already in progress. Waiting...", t);
+    C("Request already in progress. Waiting...", t);
   else {
     const i = __spreadProps(__spreadValues({}, t), { key: s });
     i.promise = new Promise((r, o) => {
@@ -45629,13 +45667,13 @@ function Ge(t, e = yt, n = 0) {
           (y) => o(y)
         );
       };
-      if (Y && ws()) {
-        kn() && Tr(t, Y, gr), i.resolve = r, i.reject = o;
+      if (V && Ds()) {
+        Sn() && Or(t, V, br), i.resolve = r, i.reject = o;
         const y = `${t.sys}, ${t.mod}_${t.index}, ${t.name}`;
-        O(
+        C(
           `[${t.cmd.toUpperCase()}](${t.id}) ${y}`,
           t.args
-        ), Y.next(t), e > 0 && re(
+        ), V.next(t), e > 0 && re(
           `${s}`,
           () => {
             o("Request timed out."), delete G[s], G[s] = null;
@@ -45647,32 +45685,32 @@ function Ge(t, e = yt, n = 0) {
   }
   return G[s].promise;
 }
-function Ds(t) {
+function Hs(t) {
   if (t !== "pong" && t instanceof Object) {
     if (t.type === "notify" && t.meta)
-      qr(t.meta, t.value);
+      Ur(t.meta, t.value);
     else if (t.type === "success")
-      xr(t);
+      Pr(t);
     else if (t.type === "debug") {
-      O(`[DEBUG] ${t.mod}${t.klass || ""} \u2192`, t.msg);
+      C(`[DEBUG] ${t.mod}${t.klass || ""} \u2192`, t.msg);
       const e = t.meta || { mod: "", index: "" };
-      yr.set({
+      vr.set({
         mod_id: t.mod || "<empty>",
         module: `${e.mod}_${e.index}`,
         class_name: t.klass || "<empty>",
         message: t.msg || "<empty>",
-        level: t.level || Es.Debug,
+        level: t.level || Os.Debug,
         time: Math.floor((/* @__PURE__ */ new Date()).getTime() / 1e3)
       });
-    } else t.type === "error" ? Ar(t) : t.cmd || O.error("Invalid websocket message", t);
-    _e(`${t.id}`);
-  } else t === "pong" && (Dn = Date.now(), O("Pong!"));
+    } else t.type === "error" ? Rr(t) : t.cmd || C.error("Invalid websocket message", t);
+    me(`${t.id}`);
+  } else t === "pong" && (Dn = Date.now(), C("Pong!"));
 }
-function xr(t) {
+function Pr(t) {
   const e = Object.keys(G).map((n) => G[n]).find((n) => n?.id === t.id);
-  O(`[SUCCESS](${t.id})`), e && e.resolve && (e.resolve(t.value), delete G[e.key]);
+  C(`[SUCCESS](${t.id})`), e && e.resolve && (e.resolve(t.value), delete G[e.key]);
 }
-function Ar(t) {
+function Rr(t) {
   let e = "UNEXPECTED FAILURE";
   switch (t.code) {
     case te.ACCESS_DENIED:
@@ -45697,15 +45735,15 @@ function Ar(t) {
       e = "UNKNOWN COMMAND";
       break;
   }
-  O.error(`[ERROR] ${e}(${t.id}): ${t.msg}`);
+  C.error(`[ERROR] ${e}(${t.id}): ${t.msg}`);
   const n = Object.keys(G).map((s) => G[s]).filter((s) => s).find((s) => s.id === t.id);
-  n && n.reject && (n.reject(t), _e(`${n.key}`), delete G[n.key]);
+  n && n.reject && (n.reject(t), me(`${n.key}`), delete G[n.key]);
 }
-function qr(t, e, n = wn) {
+function Ur(t, e, n = wn) {
   const s = `${t.sys}|${t.mod}_${t.index}|${t.name}`;
   n[s] || (n[s] = ne(null));
   const i = `${t.sys}, ${t.mod}_${t.index}, ${t.name}`;
-  O(`[NOTIFY] ${i} changed`, [
+  C(`[NOTIFY] ${i} changed`, [
     n[s].value,
     "\u2192",
     e
@@ -45715,26 +45753,26 @@ function Hn(t = 0) {
   return fe == null && (fe = new Promise((e) => {
     if (t > 40)
       return location.reload();
-    Ot++, Ns = Date.now(), Y = kn() ? Ur() : Pr(), Y ? (O.debug("Authority:", Rt()), O("Connecting to websocket..."), Y.subscribe(
+    Ct++, ws = Date.now(), V = Sn() ? Er() : Ir(), V ? (C.debug("Authority:", Rt()), C("Connecting to websocket..."), V.subscribe(
       (n) => {
-        Se.value || (O("Connection established."), e()), Se.set(true), Ot = 0, mn(), Ds(n);
+        Se.value || (C("Connection established."), e()), Se.set(true), Ct = 0, gn(), Hs(n);
       },
       (n) => {
-        Y = void 0, fe = null, Zn(), mn(), Rr(n);
+        V = void 0, fe = null, Zn(), gn(), Tr(n);
       },
       () => {
-        Y = void 0, fe = null, Zn(), O("Connection closed by browser."), Se.set(false), Mt();
+        V = void 0, fe = null, Zn(), C("Connection closed by browser."), Se.set(false), Mt();
       }
     ), Ee && clearInterval(Ee), Dn = Date.now(), Qn(), Ee = setInterval(
       () => Qn(),
       Cs * 1e3
-    ), mn(), Os += 1, kt = setTimeout(() => {
-      O("Unhealthy connection. Reconnecting..."), Se.set(false), fe = null, Mt();
-    }, 30 * 1e3)) : (Y ? O(
+    ), gn(), Ms += 1, kt = setTimeout(() => {
+      C("Unhealthy connection. Reconnecting..."), Se.set(false), fe = null, Mt();
+    }, 30 * 1e3)) : (V ? C(
       `Waiting on auth(${t}). Retrying in ${1e3 * Math.min(10, t + 1)}ms...`,
-      [!!V(), !!Rt()],
+      [!!X(), !!Rt()],
       "info"
-    ) : O.error(
+    ) : C.error(
       `Failed to create websocket(${t}). Retrying in ${1e3 * Math.min(10, t + 1)}ms...`
     ), setTimeout(
       () => {
@@ -45744,15 +45782,15 @@ function Hn(t = 0) {
     ));
   })), fe;
 }
-function Pr() {
-  if (!Rt() || !V()) return null;
+function Ir() {
+  if (!Rt() || !X()) return null;
   const t = fi() || location.protocol.indexOf("https") >= 0;
-  let e = `ws${t ? "s" : ""}://${$n()}${_n()}${rs() ? "?fixed_device=true" : ""}`;
-  const n = V();
+  let e = `ws${t ? "s" : ""}://${bn()}${mn()}${rs() ? "?fixed_device=true" : ""}`;
+  const n = X();
   let s = n === "x-api-key" ? `api-key=${Ye()}` : `bearer_token=${n}`;
-  return !ci() && !Vs() ? (O("Authenticating through cookie..."), s += `;max-age=120;path=${_n()};`, s += `${t ? "secure;" : ""}samesite=strict`, document.cookie = s, O("Cookies:", [document.cookie, s])) : (O("Authenticating through URL query parameter..."), e += `${e.indexOf("?") >= 0 ? "&" : "?"}${s}`), O(
-    `Creating websocket connection to ws${t ? "s" : ""}://${$n()}${_n()}`
-  ), dr({
+  return !ai() && !Xs() ? (C("Authenticating through cookie..."), s += `;max-age=120;path=${mn()};`, s += `${t ? "secure;" : ""}samesite=strict`, document.cookie = s, C("Cookies:", [document.cookie, s])) : (C("Authenticating through URL query parameter..."), e += `${e.indexOf("?") >= 0 ? "&" : "?"}${s}`), C(
+    `Creating websocket connection to ws${t ? "s" : ""}://${bn()}${mn()}`
+  ), mr({
     url: e,
     serializer: (i) => typeof i == "object" ? JSON.stringify(i) : i,
     deserializer: (i) => {
@@ -45767,32 +45805,32 @@ function Pr() {
   });
 }
 function Mt() {
-  Ms.set([Os, Date.now() - Ns]), Y && ws() && (Y.complete(), Ee && (clearInterval(Ee), Ee = void 0)), O(
+  Ns.set([Ms, Date.now() - ws]), V && Ds() && (V.complete(), Ee && (clearInterval(Ee), Ee = void 0)), C(
     `Reconnecting in ${Math.min(
       5e3,
-      Ot * 300 || 1e3
+      Ct * 300 || 1e3
     )}ms...`
   ), re(
     "reconnect",
     () => Hn(),
-    Math.min(5e3, (Ot + 1) * 300 || 1e3)
+    Math.min(5e3, (Ct + 1) * 300 || 1e3)
   );
 }
 function Qn() {
   if (Date.now() - Dn > 4 * Cs * 1e3)
     return Mt();
-  Y?.next("ping");
+  V?.next("ping");
 }
-function Rr(t) {
-  Se.set(false), O.error("Websocket error:", t), t.status === 401 && An(), xn(), Mt();
+function Tr(t) {
+  Se.set(false), C.error("Websocket error:", t), t.status === 401 && qn(), An(), Mt();
 }
-function mn() {
+function gn() {
   kt && (clearTimeout(kt), kt = void 0);
 }
-function Ur() {
-  const t = new Is();
+function Er() {
+  const t = new Es();
   return t.subscribe(
-    (e) => Ds(e)
+    (e) => Hs(e)
   ), t;
 }
 function Kn(t, e) {
@@ -45804,8 +45842,8 @@ function Kn(t, e) {
     msg: n
   };
 }
-function Tr(t, e, n) {
-  const s = `${t.sys}|${t.mod}_${t.index}|${t.name}`, i = mr(t.sys), r = i && i[t.mod] ? i[t.mod][t.index - 1 || 0] : null;
+function Or(t, e, n) {
+  const s = `${t.sys}|${t.mod}_${t.index}|${t.name}`, i = $r(t.sys), r = i && i[t.mod] ? i[t.mod][t.index - 1 || 0] : null;
   if (r) {
     try {
       switch (t.cmd) {
@@ -45825,11 +45863,11 @@ function Tr(t, e, n) {
           });
           break;
         case "unbind":
-          n[s] && (n[s](), delete n[s], _e(`${s}`));
+          n[s] && (n[s](), delete n[s], me(`${s}`));
           break;
       }
     } catch (o) {
-      O.error(`[MOCK ERROR](${t.id}) request failed`, o), re(
+      C.error(`[MOCK ERROR](${t.id}) request failed`, o), re(
         `${t.id}-error`,
         () => e.next(Kn(t, o)),
         10
@@ -45847,7 +45885,7 @@ function Tr(t, e, n) {
           };
           e.next(o);
         } catch (o) {
-          O.error(
+          C.error(
             `[MOCK ERROR](${t.id}) execute failed`,
             o
           ), e.next(Kn(t, o));
@@ -45872,8 +45910,8 @@ function Zn() {
 }
 var Jn = class {
   constructor(e, n) {
-    this._module = e, this.name = n, $r().subscribe((s, i) => {
-      s !== i && (s && (this._stale_bindings || this._pending === 1) ? (xt("VAR", "Re-binding to status variable", this.binding()), this.rebind()) : s || (_e(`rebind:${JSON.stringify(this.binding())}`), xt(
+    this._module = e, this.name = n, kr().subscribe((s, i) => {
+      s !== i && (s && (this._stale_bindings || this._pending === 1) ? (xt("VAR", "Re-binding to status variable", this.binding()), this.rebind()) : s || (me(`rebind:${JSON.stringify(this.binding())}`), xt(
         "VAR",
         "Binding dropped due to disconnection, re-binding when possible.",
         this.binding()
@@ -45894,13 +45932,13 @@ var Jn = class {
   }
   /** Current value of the binding */
   get value() {
-    return vr(this.binding());
+    return xr(this.binding());
   }
   /**
    * Get a signal that emits the current value of the binding
    */
   listen() {
-    return br(this.binding());
+    return Sr(this.binding());
   }
   /**
    * Subscribe to changes of the variable's binding value.
@@ -45941,7 +45979,7 @@ var Jn = class {
    * Unbind from status variable
    */
   unbind() {
-    this._binding_count === 1 && this._pending === 0 ? (this._pending = 2, kr(this.binding()).then(() => {
+    this._binding_count === 1 && this._pending === 0 ? (this._pending = 2, Ar(this.binding()).then(() => {
       this._pending === 2 && (this._pending = 0), this._binding_count--;
     })) : this._binding_count = Math.max(this._binding_count - 1, 0);
   }
@@ -45969,7 +46007,7 @@ var Jn = class {
     };
   }
 };
-var Ir = class {
+var Cr = class {
   constructor(e, n) {
     this._system = e, this._id = n;
   }
@@ -46013,7 +46051,7 @@ var Ir = class {
    * @param args Array of arguments to pass to the method
    */
   execute(e, n, s = yt) {
-    return Sr(
+    return qr(
       {
         sys: this._system.id,
         mod: this.name,
@@ -46025,7 +46063,7 @@ var Ir = class {
     );
   }
 };
-var Er = class {
+var Mr = class {
   /** Unique idetifier of the system */
   id;
   /** Mapping of engine modules within the system */
@@ -46046,7 +46084,7 @@ var Er = class {
     const i = s.join("_");
     for (this._module_list[i] || (this._module_list[i] = []); this._module_list[i].length < n; )
       this._module_list[i].push(
-        new Ir(
+        new Cr(
           this,
           `${i}_${this._module_list[i].length + 1}`
         )
@@ -46054,12 +46092,12 @@ var Er = class {
     return this._module_list[i][n - 1];
   }
 };
-var gn = {};
-function Cr(t) {
-  return gn[t] || (gn[t] = new Er(t)), gn[t];
+var yn = {};
+function Nr(t) {
+  return yn[t] || (yn[t] = new Mr(t)), yn[t];
 }
-function Fl(t, e, n = 1) {
-  return Cr(t).module(e, n);
+function Wl(t, e, n = 1) {
+  return Nr(t).module(e, n);
 }
 
 // node_modules/@angular/forms/fesm2022/forms.mjs
@@ -53325,10 +53363,10 @@ function validateTime(hours, minutes, seconds) {
 function toZonedTime(date, timeZone, options) {
   date = toDate3(date, options);
   const offsetMilliseconds = tzParseTimezone(timeZone, date, true);
-  const d3 = new Date(date.getTime() - offsetMilliseconds);
+  const d2 = new Date(date.getTime() - offsetMilliseconds);
   const resultDate = /* @__PURE__ */ new Date(0);
-  resultDate.setFullYear(d3.getUTCFullYear(), d3.getUTCMonth(), d3.getUTCDate());
-  resultDate.setHours(d3.getUTCHours(), d3.getUTCMinutes(), d3.getUTCSeconds(), d3.getUTCMilliseconds());
+  resultDate.setFullYear(d2.getUTCFullYear(), d2.getUTCMonth(), d2.getUTCDate());
+  resultDate.setHours(d2.getUTCHours(), d2.getUTCMinutes(), d2.getUTCSeconds(), d2.getUTCMilliseconds());
   return resultDate;
 }
 
@@ -53441,8 +53479,8 @@ function getTimezoneOffsetInMinutes(timeZone, date = /* @__PURE__ */ new Date())
 }
 function getTimeInTimezone(date, tz) {
   if (!tz) {
-    const d3 = new Date(date);
-    return { hours: d3.getHours(), minutes: d3.getMinutes() };
+    const d2 = new Date(date);
+    return { hours: d2.getHours(), minutes: d2.getMinutes() };
   }
   const zoned = toZonedTime(date, tz);
   return { hours: zoned.getHours(), minutes: zoned.getMinutes() };
@@ -53453,8 +53491,8 @@ function formatTimeInTimezone(date, tz) {
 }
 function setTimeInTimezone(date, hours, minutes, tz) {
   if (!tz) {
-    const d3 = set(new Date(date), { hours, minutes });
-    return startOfMinute(d3).valueOf();
+    const d2 = set(new Date(date), { hours, minutes });
+    return startOfMinute(d2).valueOf();
   }
   const zoned = toZonedTime(date, tz);
   const adjusted = set(zoned, { hours, minutes });
@@ -53547,27 +53585,27 @@ function predictableRandomInt(ceil = 100, floor = 0) {
   return Math.floor(rand() * (ceil - floor)) + floor;
 }
 function xmur3(str) {
-  let h = 1779033703 ^ str.length;
+  let h2 = 1779033703 ^ str.length;
   for (let i = 0; i < str.length; i++)
-    h = Math.imul(h ^ str.charCodeAt(i), 3432918353), h = h << 13 | h >>> 19;
+    h2 = Math.imul(h2 ^ str.charCodeAt(i), 3432918353), h2 = h2 << 13 | h2 >>> 19;
   return function() {
-    h = Math.imul(h ^ h >>> 16, 2246822507);
-    h = Math.imul(h ^ h >>> 13, 3266489909);
-    return (h ^= h >>> 16) >>> 0;
+    h2 = Math.imul(h2 ^ h2 >>> 16, 2246822507);
+    h2 = Math.imul(h2 ^ h2 >>> 13, 3266489909);
+    return (h2 ^= h2 >>> 16) >>> 0;
   };
 }
-function sfc32(a, b2, c, d3) {
+function sfc32(a, b2, c, d2) {
   return function() {
     a >>>= 0;
     b2 >>>= 0;
     c >>>= 0;
-    d3 >>>= 0;
+    d2 >>>= 0;
     let t = a + b2 | 0;
     a = b2 ^ b2 >>> 9;
     b2 = c + (c << 3) | 0;
     c = c << 21 | c >>> 11;
-    d3 = d3 + 1 | 0;
-    t = t + d3 | 0;
+    d2 = d2 + 1 | 0;
+    t = t + d2 | 0;
     c = c + t | 0;
     return (t >>> 0) / 4294967296;
   };
@@ -53715,7 +53753,7 @@ var LocaleService = class _LocaleService {
         return console.error(`Failed to loaded locale file for "${locale}".`, resp);
       }
       const locale_data = await resp.json();
-      const locale_override_data = this.zone_id ? await ju(this.zone_id, `locale_${locale}`) : { details: {} };
+      const locale_override_data = this.zone_id ? await Wu(this.zone_id, `locale_${locale}`) : { details: {} };
       const base_locale_values = removeNesting(locale_data);
       const override_locale_values = removeNesting(locale_override_data.details);
       this._locale_mappings[locale] = __spreadValues(__spreadValues({}, base_locale_values), override_locale_values);
@@ -53915,18 +53953,18 @@ var GoogleAnalyticsService = class _GoogleAnalyticsService {
   init(tracking_id = "") {
     if (!window.gtag) {
       window.dataLayer = window.dataLayer || [];
-      (function(w2, d3, s, l2, i) {
-        w2[l2] = w2[l2] || [];
-        w2[l2].push({
+      (function(w2, d2, s, l, i) {
+        w2[l] = w2[l] || [];
+        w2[l].push({
           "gtm.start": (/* @__PURE__ */ new Date()).getTime(),
           event: "gtm.js"
         });
-        const f2 = d3.getElementsByTagName(s)[0];
-        const j2 = d3.createElement(s);
-        const dl = l2 != "dataLayer" ? "&l=" + l2 : "";
+        const f3 = d2.getElementsByTagName(s)[0];
+        const j2 = d2.createElement(s);
+        const dl = l != "dataLayer" ? "&l=" + l : "";
         j2.async = true;
         j2.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
-        f2.parentNode.insertBefore(j2, f2);
+        f3.parentNode.insertBefore(j2, f3);
       })(window, document, "script", "dataLayer", tracking_id);
       log("Analytics", "Service", "Injected Google Analytics into page");
     }
@@ -53990,8 +54028,8 @@ var GoogleAnalyticsService = class _GoogleAnalyticsService {
     }
     if (this.enabled) {
       this.timeout(`event|${category}|${action}|${label}|${value}`, () => {
-        const l2 = label ? ", " + label : "";
-        log("Analytics", "Service", `Event: ${category}, ${action}${l2}${value ? ", " + value : ""}`);
+        const l = label ? ", " + label : "";
+        log("Analytics", "Service", `Event: ${category}, ${action}${l}${value ? ", " + value : ""}`);
         this.push({
           event: "event",
           category,
@@ -54509,7 +54547,7 @@ async function loadUserGroups() {
     return;
   }
   try {
-    const groups = await _u({});
+    const groups = await yu({});
     user_groups.set(groups);
     console.log("Permissions:", user_permissions());
   } catch (error2) {
@@ -54527,7 +54565,7 @@ function initialiseUser() {
   }
   _current_user.subscribe((u4) => user_signal.set(u4));
   const is_public_mode = isPublicMode();
-  const user_request = combineLatest([Ca("current"), _change]).pipe(map(([i]) => new StaffUser(i)));
+  const user_request = combineLatest([Na("current"), _change]).pipe(map(([i]) => new StaffUser(i)));
   if (is_public_mode) {
     user_request.pipe(catchError((error2) => {
       console.warn("User loading failed in public mode, using local public user data.", error2);
@@ -54551,7 +54589,7 @@ function initialiseUser() {
 function reloadUserData() {
   setTimeout(async () => {
     try {
-      const p_user = await Ca("current");
+      const p_user = await Na("current");
       const user = new StaffUser(p_user);
       _current_user.next(user);
       setDefaultCreator(user);
@@ -54591,15 +54629,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "f0e9ff2",
-  "hash": "f0e9ff2",
+  "raw": "aa39f65",
+  "hash": "aa39f65",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "f0e9ff2",
+  "suffix": "aa39f65",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1782896710068
+  "time": 1782986435338
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -54726,7 +54764,7 @@ var SettingsService = class _SettingsService extends AsyncHandler {
       window.setting = (key) => this.get(key);
     }
     const user = await this._currentUser();
-    const data = await ju(user.id, "settings");
+    const data = await Wu(user.id, "settings");
     this._user_settings.set(data.details || {});
     this.timeout("init", () => {
       this._initDarkMode();
@@ -54770,7 +54808,7 @@ var SettingsService = class _SettingsService extends AsyncHandler {
     this.timeout("save_settings", () => this._savePendingChanges(), 2400);
   }
   async updateLocatable(locatable) {
-    await Ma(currentUser().id, { locatable }, "patch");
+    await Da(currentUser().id, { locatable }, "patch");
     reloadUserData();
   }
   overrideCssVariable(key, value, important = false) {
@@ -54809,7 +54847,7 @@ var SettingsService = class _SettingsService extends AsyncHandler {
     if (!user?.id || !Object.keys(this._pending_settings).length)
       return;
     this._updateSignals();
-    await Gu(user.id, {
+    await Qu(user.id, {
       name: "settings",
       description: "",
       details: __spreadValues(__spreadValues({}, this._user_settings()), this._pending_settings)
@@ -55096,7 +55134,7 @@ var DELETE = 46;
 var ZERO = 48;
 var NINE = 57;
 var A2 = 65;
-var Z = 90;
+var Z2 = 90;
 var META = 91;
 var COMMA = 188;
 var MAC_META = 224;
@@ -56667,7 +56705,7 @@ var Typeahead = class {
     const keyCode = event.keyCode;
     if (event.key && event.key.length === 1) {
       this._letterKeyStream.next(event.key.toLocaleUpperCase());
-    } else if (keyCode >= A2 && keyCode <= Z || keyCode >= ZERO && keyCode <= NINE) {
+    } else if (keyCode >= A2 && keyCode <= Z2 || keyCode >= ZERO && keyCode <= NINE) {
       this._letterKeyStream.next(String.fromCharCode(keyCode));
     }
   }
@@ -59107,7 +59145,7 @@ async function setupPlace(settings) {
   if (mock) {
     notifyInfo("Application in mock mode.");
   }
-  return zr(config2);
+  return jr(config2);
 }
 
 // libs/common/src/lib/signal.utilities.ts
@@ -76926,7 +76964,7 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
       notifySuccess("Toggled dark mode.");
     });
     this._hotkey.listen(["Control", "Alt", "Shift", "KeyC"], () => {
-      this._clipboard.copy(`${V()}|${Pt()}`);
+      this._clipboard.copy(`${X()}|${Pt()}`);
       notifySuccess("Successfully copied token.");
     });
     this._hotkey.listen(["Control", "Alt", "Shift", "KeyV"], () => {
@@ -76946,7 +76984,7 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
         localStorage.setItem("PLACEOS.locale", locale);
       }
       if (params.has("x-api-key")) {
-        Nr(params.get("x-api-key"));
+        Hr(params.get("x-api-key"));
       }
       if (params.has("region_id")) {
         this._region = params.get("region_id");
@@ -76966,7 +77004,7 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
     settings.app_name = this._settings.get("app.name") || this._settings.get("app.short_name");
     settings.mock = !!this._settings.get("mock") || _mocks && location.origin.includes("demo.place.tech");
     if (START_QUERY) {
-      const query = Ie(START_QUERY.substring(1));
+      const query = Te(START_QUERY.substring(1));
       this._router.navigate([], {
         relativeTo: this._route,
         queryParams: query
@@ -77016,15 +77054,15 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
       const auth_error = await setupPlace(settings).then(() => null).catch((_3) => _3);
       if (!auth_error) {
         const api_key = getNativeApiKey();
-        const client_key = `${ai()}_x-api-key`;
+        const client_key = `${hi()}_x-api-key`;
         if (api_key)
-          Nr(api_key);
+          Hr(api_key);
         else if (localStorage.getItem(client_key)) {
           localStorage.removeItem(client_key);
-          An();
+          qn();
         }
         if (intune_token)
-          hi(intune_token);
+          li(intune_token);
         break;
       }
       log("APP", "Auth failed, resetting domain.", auth_error, "warn");
@@ -77032,13 +77070,13 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
       clearNativeApiKey();
       DOMAIN_ERROR.set(`Unable to connect to "${domain}". The server may be unavailable, or the email address may be for a different server. Try again.`);
     }
-    if (isNativeApp() && !V(false)) {
+    if (isNativeApp() && !X(false)) {
       const boot_params = new URLSearchParams(START_QUERY);
       if (boot_params.has("code")) {
-        console.warn("[AUTH] Auth code was present on load but the token exchange did not complete.", `State: "${boot_params.get("state")}"`, `Nonce: "${localStorage.getItem(`${ai()}_nonce`)}"`);
+        console.warn("[AUTH] Auth code was present on load but the token exchange did not complete.", `State: "${boot_params.get("state")}"`, `Nonce: "${localStorage.getItem(`${hi()}_nonce`)}"`);
       }
     }
-    if (isNativeApp() && !V(false) && !Pt() && Rt()) {
+    if (isNativeApp() && !X(false) && !Pt() && Rt()) {
       const auth_error = consumeNativeAuthError();
       if (auth_error) {
         setLoadingMessage("Waiting for sign in...");
@@ -77047,7 +77085,7 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
         await new Promise((r) => this._domain_resolve = r);
       }
       setLoadingMessage("Opening sign in...");
-      const auth_url = await createNativeAuthUrl(settings, ai());
+      const auth_url = await createNativeAuthUrl(settings, hi());
       console.warn(`[AUTH] Opening sign in: ${auth_url}`);
       await openNativeBrowser(auth_url);
       return;
@@ -77057,7 +77095,7 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
       await setupPlace(settings).catch((_3) => console.error(_3));
     }
     if (this._initial_token)
-      hi(this._initial_token);
+      li(this._initial_token);
     await this._waitFor(() => this._org.initialised());
     if (this._locale) {
       this._locale.zone_id = this._org.organisation.id;
@@ -77082,15 +77120,15 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
     this._setZones();
   }
   onInitError() {
-    if (kn() || currentUser()?.is_logged_in)
+    if (Sn() || currentUser()?.is_logged_in)
       return;
     if (isNativeApp() && getNativeApiKey()) {
       clearNativeApiKey();
       clearNativeDomain();
-      localStorage.removeItem(`${ai()}_x-api-key`);
-      An();
-    } else if (!V(false))
-      An();
+      localStorage.removeItem(`${hi()}_x-api-key`);
+      qn();
+    } else if (!X(false))
+      qn();
     location.reload();
   }
   _initAnalytics() {
@@ -77128,7 +77166,7 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
   }
   _pasteToken(tkn) {
     const parts = tkn.split("|");
-    const id = ai();
+    const id = hi();
     localStorage.setItem(`${id}_access_token`, `${parts[0]}`);
     localStorage.setItem(`${id}_refresh_token`, `${parts[1]}`);
     localStorage.setItem(`${id}_expires_at`, `${addHours(/* @__PURE__ */ new Date(), 6).valueOf()}`);
@@ -77302,7 +77340,7 @@ var OrganisationService = class _OrganisationService {
     const binding = this.binding(name);
     const system_id = binding instanceof Object ? binding.id || binding.system_id : binding;
     const mod_id = (binding instanceof Object ? binding.mod || binding.module : "") || default_mod_id;
-    return !system_id || !mod_id ? null : Fl(system_id, mod_id);
+    return !system_id || !mod_id ? null : Wl(system_id, mod_id);
   }
   /** Get building by id */
   find(id) {
@@ -77421,7 +77459,7 @@ var OrganisationService = class _OrganisationService {
     this._building_settings = {};
     this._skip_auto_selection = false;
     this._override_timer = null;
-    ri(Hr(), (_3) => _3).then(() => setTimeout(() => this.init(), 1e3));
+    oi(Lr(), (_3) => _3).then(() => setTimeout(() => this.init(), 1e3));
     effect(() => {
       this._active_region();
       const building = this._active_building();
@@ -77609,7 +77647,7 @@ var OrganisationService = class _OrganisationService {
     });
     if (org_list.length) {
       const auth = Rt();
-      const org = org_list.find((list) => kn() || list.id === auth?.config?.org_zone) || org_list[0];
+      const org = org_list.find((list) => Sn() || list.id === auth?.config?.org_zone) || org_list[0];
       const load_metadata = !this._service.get("dont_load_metadata");
       const bindings = load_metadata ? (await this._bulkMetadataDetails("bindings", [org.id]))[org.id] : {};
       this._organisation = new Organisation(__spreadProps(__spreadValues({}, org), { bindings }));
@@ -77846,7 +77884,7 @@ var OrganisationService = class _OrganisationService {
     const cached_metadata = this._getCachedItem(cache_key);
     if (cached_metadata)
       return cached_metadata;
-    const metadata2 = await Ku(name, { parent_ids }).catch(() => ({}));
+    const metadata2 = await Yu(name, { parent_ids }).catch(() => ({}));
     const metadata_details = ids.reduce((map2, id) => {
       map2[id] = metadata2[id]?.details || {};
       return map2;
@@ -77859,7 +77897,7 @@ var OrganisationService = class _OrganisationService {
     const cached_zones = this._getCachedItem(cache_key);
     if (cached_zones)
       return cached_zones;
-    const zones = (await Ba(__spreadProps(__spreadValues({}, params), {
+    const zones = (await Ka(__spreadProps(__spreadValues({}, params), {
       authority_id: Rt().id
     }))).data || [];
     this._setCachedItem(cache_key, zones);
@@ -79383,7 +79421,7 @@ function ht(s, e) {
     0 <= t && s.splice(t, 1);
   }
 }
-var J3 = (function() {
+var J2 = (function() {
   function s(e) {
     this.initialTeardown = e, this.closed = false, this._parentage = null, this._finalizers = null;
   }
@@ -79395,15 +79433,15 @@ var J3 = (function() {
       if (o)
         if (this._parentage = null, Array.isArray(o))
           try {
-            for (var a = nt(o), h = a.next(); !h.done; h = a.next()) {
-              var c = h.value;
+            for (var a = nt(o), h2 = a.next(); !h2.done; h2 = a.next()) {
+              var c = h2.value;
               c.remove(this);
             }
           } catch (y) {
             e = { error: y };
           } finally {
             try {
-              h && !h.done && (t = a.return) && t.call(a);
+              h2 && !h2.done && (t = a.return) && t.call(a);
             } finally {
               if (e) throw e.error;
             }
@@ -79472,9 +79510,9 @@ var J3 = (function() {
     return e.closed = true, e;
   })(), s;
 })();
-var xt2 = J3.EMPTY;
+var xt2 = J2.EMPTY;
 function $t(s) {
-  return s instanceof J3 || s && "closed" in s && P2(s.remove) && P2(s.add) && P2(s.unsubscribe);
+  return s instanceof J2 || s && "closed" in s && P2(s.remove) && P2(s.add) && P2(s.unsubscribe);
 }
 function bt2(s) {
   P2(s) ? s() : s.unsubscribe();
@@ -79534,7 +79572,7 @@ var pt = (function(s) {
       this.unsubscribe();
     }
   }, e;
-})(J3);
+})(J2);
 var Xt = (function() {
   function s(e) {
     this.partialObserver = e;
@@ -79614,8 +79652,8 @@ var lt = (function() {
   }, s.prototype.subscribe = function(e, t, r) {
     var i = this, n = se(e) ? e : new ut(e, t, r);
     return B2(function() {
-      var o = i, a = o.operator, h = o.source;
-      n.add(a ? a.call(n, h) : h ? i._subscribe(n) : i._trySubscribe(n));
+      var o = i, a = o.operator, h2 = o.source;
+      n.add(a ? a.call(n, h2) : h2 ? i._subscribe(n) : i._trySubscribe(n));
     }), n;
   }, s.prototype._trySubscribe = function(e) {
     try {
@@ -79630,8 +79668,8 @@ var lt = (function() {
         next: function(a) {
           try {
             e(a);
-          } catch (h) {
-            n(h), o.unsubscribe();
+          } catch (h2) {
+            n(h2), o.unsubscribe();
           }
         },
         error: n,
@@ -79677,14 +79715,14 @@ function se(s) {
 var ie2 = (function(s) {
   L2(e, s);
   function e(t, r, i, n, o, a) {
-    var h = s.call(this, t) || this;
-    return h.onFinalize = o, h.shouldUnsubscribe = a, h._next = r ? function(c) {
+    var h2 = s.call(this, t) || this;
+    return h2.onFinalize = o, h2.shouldUnsubscribe = a, h2._next = r ? function(c) {
       try {
         r(c);
       } catch (m2) {
         t.error(m2);
       }
-    } : s.prototype._next, h._error = n ? function(c) {
+    } : s.prototype._next, h2._error = n ? function(c) {
       try {
         n(c);
       } catch (m2) {
@@ -79692,7 +79730,7 @@ var ie2 = (function(s) {
       } finally {
         this.unsubscribe();
       }
-    } : s.prototype._error, h._complete = i ? function() {
+    } : s.prototype._error, h2._complete = i ? function() {
       try {
         i();
       } catch (c) {
@@ -79700,7 +79738,7 @@ var ie2 = (function(s) {
       } finally {
         this.unsubscribe();
       }
-    } : s.prototype._complete, h;
+    } : s.prototype._complete, h2;
   }
   return e.prototype.unsubscribe = function() {
     var t;
@@ -79735,8 +79773,8 @@ var zt2 = (function(s) {
         r.currentObservers || (r.currentObservers = Array.from(r.observers));
         try {
           for (var o = nt(r.currentObservers), a = o.next(); !a.done; a = o.next()) {
-            var h = a.value;
-            h.next(t);
+            var h2 = a.value;
+            h2.next(t);
           }
         } catch (c) {
           i = { error: c };
@@ -79782,7 +79820,7 @@ var zt2 = (function(s) {
     return this._throwIfClosed(), this._checkFinalizedStatuses(t), this._innerSubscribe(t);
   }, e.prototype._innerSubscribe = function(t) {
     var r = this, i = this, n = i.hasError, o = i.isStopped, a = i.observers;
-    return n || o ? xt2 : (this.currentObservers = null, a.push(t), new J3(function() {
+    return n || o ? xt2 : (this.currentObservers = null, a.push(t), new J2(function() {
       r.currentObservers = null, ht(a, t);
     }));
   }, e.prototype._checkFinalizedStatuses = function(t) {
@@ -79815,7 +79853,7 @@ var wt2 = (function(s) {
     return (i = (r = this.source) === null || r === void 0 ? void 0 : r.subscribe(t)) !== null && i !== void 0 ? i : xt2;
   }, e;
 })(zt2);
-var ae = new lt(function(s) {
+var ae2 = new lt(function(s) {
   return s.complete();
 });
 var Ot2 = _t(function(s) {
@@ -79848,7 +79886,7 @@ var Lt = (function(s) {
   }, e;
 })(zt2);
 var _e2 = new Int32Array(4);
-var f = class _f {
+var f2 = class _f {
   static hashStr(e, t = false) {
     return this.onePassHasher.start().appendStr(e).end(t);
   }
@@ -80006,13 +80044,13 @@ var f = class _f {
     else {
       const a = o.toString(16).match(/(.*?)(.{0,8})$/);
       if (a === null) return e ? _e2 : "";
-      const h = parseInt(a[2], 16), c = parseInt(a[1], 16) || 0;
-      i[14] = h, i[15] = c;
+      const h2 = parseInt(a[2], 16), c = parseInt(a[1], 16) || 0;
+      i[14] = h2, i[15] = c;
     }
     return _f._md5cycle(this._state, i), e ? this._state : _f._hex(this._state);
   }
 };
-if (f.hashStr("hello") !== "5d41402abc4b2a76b9719d911017c592")
+if (f2.hashStr("hello") !== "5d41402abc4b2a76b9719d911017c592")
   throw new Error("Md5 self test failed.");
 var Ct2 = class {
   _queue = [];
@@ -80165,7 +80203,7 @@ async function $e2(s, e) {
     })).text();
     n = i.resume_id(a);
   } else
-    n = `${f.hashStr(`${Date.now()}|${e.name}`)}`;
+    n = `${f2.hashStr(`${Date.now()}|${e.name}`)}`;
   return console.debug(
     `[UPLOADS] Initialised upload for ${e.name} (${n})`
   ), kt2(r.upload_id, e, i, n, false);
@@ -80285,7 +80323,7 @@ function Bt(s, e, t) {
   const r = (e - 1) * t, i = Math.min(r + t, s.size);
   return s.slice(r, i);
 }
-function d2(s, e) {
+function d(s, e) {
   const t = s.state.getValue();
   s.state.next(__spreadValues(__spreadValues({}, t), e));
 }
@@ -80318,12 +80356,12 @@ async function Vt() {
     return;
   const s = w.shift();
   if (!s) return;
-  const e = Z2(s.upload_id);
+  const e = Z3(s.upload_id);
   if (!e || k.has(s.upload_id))
     return;
   st++;
   const t = e.state.getValue();
-  d2(e, {
+  d(e, {
     status: "UPLOADING",
     working: [...t.working, s.part]
   });
@@ -80355,16 +80393,16 @@ async function Vt() {
         g2
       );
     }
-    const h = Bt(
+    const h2 = Bt(
       e.file,
       s.part,
       e.provider.part_size
     );
-    await Re2(a, h);
+    await Re2(a, h2);
     const c = e.state.getValue(), m2 = [...c.completed, s.part].sort(
       (g2, v) => g2 - v
     ), A3 = c.working.filter((g2) => g2 !== s.part);
-    if (d2(e, {
+    if (d(e, {
       completed: m2,
       working: A3,
       progress: Math.round(m2.length / n * 100)
@@ -80372,7 +80410,7 @@ async function Vt() {
       try {
         await je(e);
       } catch (g2) {
-        E2(e.id), d2(e, { status: "FAILED" }), console.error(
+        E2(e.id), d(e, { status: "FAILED" }), console.error(
           `[UPLOADS] Finalization failed for ${e.file.name}:`,
           g2
         ), _2--, z();
@@ -80382,7 +80420,7 @@ async function Vt() {
     const n = e.state.getValue().working.filter((o) => o !== s.part);
     s.retries < u3.retries ? (console.warn(
       `Chunk upload failed for part ${s.part}, retrying (${s.retries + 1}/${u3.retries})...`
-    ), w.push(__spreadProps(__spreadValues({}, s), { retries: s.retries + 1 })), d2(e, { working: n })) : (E2(e.id), d2(e, {
+    ), w.push(__spreadProps(__spreadValues({}, s), { retries: s.retries + 1 })), d(e, { working: n })) : (E2(e.id), d(e, {
       status: "FAILED",
       working: n
     }), console.error(
@@ -80432,7 +80470,7 @@ async function je(s) {
       );
     }
   }
-  if (await Nt2(s.id), E2(s.id), d2(s, {
+  if (await Nt2(s.id), E2(s.id), d(s, {
     status: "COMPLETED",
     progress: 100
   }), _2--, z(), u3.auto_remove)
@@ -80449,17 +80487,17 @@ function z() {
     return;
   const s = x.shift();
   s && (_2++, s.is_direct ? Q2(s) : gt2(s).catch((e) => {
-    console.error("[UPLOADS] Failed to queue chunks:", e), E2(s.id), d2(s, { status: "FAILED" }), _2--;
+    console.error("[UPLOADS] Failed to queue chunks:", e), E2(s.id), d(s, { status: "FAILED" }), _2--;
   }));
 }
 async function Q2(s, e = 0) {
   if (!s.direct_signature) {
-    console.error(`[UPLOADS] Direct upload ${s.id} missing signature`), d2(s, { status: "FAILED" }), _2--, z();
+    console.error(`[UPLOADS] Direct upload ${s.id} missing signature`), d(s, { status: "FAILED" }), _2--, z();
     return;
   }
   console.debug(
     `[UPLOADS] Processing direct upload for ${s.file.name}...`
-  ), d2(s, { status: "UPLOADING", progress: 0 });
+  ), d(s, { status: "UPLOADING", progress: 0 });
   try {
     const t = await fetch(s.direct_signature.url, {
       method: s.direct_signature.verb,
@@ -80470,7 +80508,7 @@ async function Q2(s, e = 0) {
       throw new Error(`Upload failed with status ${t.status}`);
     if (console.debug(
       `[UPLOADS] Direct upload complete for ${s.file.name}, committing...`
-    ), await Nt2(s.id), d2(s, {
+    ), await Nt2(s.id), d(s, {
       status: "COMPLETED",
       progress: 100
     }), _2--, z(), u3.auto_remove)
@@ -80487,7 +80525,7 @@ async function Q2(s, e = 0) {
     ), Q2(s, e + 1)) : (console.error(
       `[UPLOADS] Direct upload failed for ${s.file.name} after ${u3.retries} retries:`,
       t
-    ), E2(s.id), d2(s, { status: "FAILED" }), _2--, z());
+    ), E2(s.id), d(s, { status: "FAILED" }), _2--, z());
   }
 }
 async function gt2(s, e = 1) {
@@ -80504,8 +80542,8 @@ async function gt2(s, e = 1) {
     `[UPLOADS] Queuing ${t} chunks for ${s.file.name} (part size: ${s.provider.part_size}, workers: ${i})`
   );
   const n = /* @__PURE__ */ new Set(), o = async (a) => {
-    const h = `${s.id}:${a}`;
-    if (!$2.has(h)) {
+    const h2 = `${s.id}:${a}`;
+    if (!$2.has(h2)) {
       console.debug(
         `[UPLOADS] Computing hash for part ${a}/${t}...`
       );
@@ -80514,7 +80552,7 @@ async function gt2(s, e = 1) {
         a,
         s.provider.part_size
       ), g2 = await qe2(A3);
-      $2.set(h, g2), console.debug(`[UPLOADS] Part ${a}/${t} hash cached`);
+      $2.set(h2, g2), console.debug(`[UPLOADS] Part ${a}/${t} hash cached`);
     }
     const c = (a - 1) * s.provider.part_size, m2 = Math.min(
       c + s.provider.part_size,
@@ -80530,16 +80568,16 @@ async function gt2(s, e = 1) {
   };
   for (let a = e; a <= t; a++) {
     if (r.completed.includes(a)) continue;
-    if (k.has(s.id) || !Z2(s.id)) {
+    if (k.has(s.id) || !Z3(s.id)) {
       console.debug(
         `[UPLOADS] Chunk queuing cancelled for ${s.file.name}`
       ), await Promise.all(n);
       return;
     }
-    const h = o(a).finally(() => {
-      n.delete(h);
+    const h2 = o(a).finally(() => {
+      n.delete(h2);
     });
-    n.add(h), n.size >= i && await Promise.race(n);
+    n.add(h2), n.size >= i && await Promise.race(n);
   }
   await Promise.all(n), console.debug(`[UPLOADS] All chunks queued for ${s.file.name}`);
 }
@@ -80547,7 +80585,7 @@ function Ne(s, e = []) {
   if (console.debug(
     `[UPLOADS] Adding upload to manager (${s.file.name})...`
   ), K3.push(s), k.delete(s.id), s.is_direct) {
-    if (console.debug(`[UPLOADS] Upload is direct (${s.file.name})`), d2(s, {
+    if (console.debug(`[UPLOADS] Upload is direct (${s.file.name})`), d(s, {
       status: u3.auto_start ? "UPLOADING" : "PAUSED",
       completed: [],
       pending_complete: [],
@@ -80556,7 +80594,7 @@ function Ne(s, e = []) {
     }), !u3.auto_start)
       return;
     if (_2 >= u3.simultaneous) {
-      x.push(s), d2(s, { status: "PAUSED" });
+      x.push(s), d(s, { status: "PAUSED" });
       return;
     }
     _2++, Q2(s);
@@ -80564,7 +80602,7 @@ function Ne(s, e = []) {
   }
   console.debug(`[UPLOADS] Upload is chunked (${s.file.name})`);
   const t = mt(s.file, s.provider.part_size), r = [...e].sort((o, a) => o - a), i = Math.round(r.length / t * 100);
-  if (d2(s, {
+  if (d(s, {
     status: u3.auto_start ? "UPLOADING" : "PAUSED",
     completed: r,
     pending_complete: [],
@@ -80573,7 +80611,7 @@ function Ne(s, e = []) {
   }), !u3.auto_start)
     return;
   if (console.debug(`[UPLOADS] Staring upload (${s.file.name})...`), _2 >= u3.simultaneous) {
-    x.push(s), d2(s, { status: "PAUSED" });
+    x.push(s), d(s, { status: "PAUSED" });
     return;
   }
   _2++, console.debug(
@@ -80581,18 +80619,18 @@ function Ne(s, e = []) {
   );
   const n = r.length > 0 ? Math.max(...r) + 1 : 1;
   gt2(s, n).catch((o) => {
-    console.error("[UPLOADS] Failed to queue chunks:", o), E2(s.id), d2(s, { status: "FAILED" }), _2--;
+    console.error("[UPLOADS] Failed to queue chunks:", o), E2(s.id), d(s, { status: "FAILED" }), _2--;
   });
 }
-function Z2(s) {
+function Z3(s) {
   return K3.find((e) => e.id === s);
 }
 function Fe2(s) {
-  const e = Z2(s);
-  e && (k.add(s), w = w.filter((t) => t.upload_id !== s), d2(e, { status: "PAUSED" }));
+  const e = Z3(s);
+  e && (k.add(s), w = w.filter((t) => t.upload_id !== s), d(e, { status: "PAUSED" }));
 }
 function He2(s) {
-  const e = Z2(s);
+  const e = Z3(s);
   if (e) {
     if (k.delete(s), _2 >= u3.simultaneous) {
       x.push(e);
@@ -80603,7 +80641,7 @@ function He2(s) {
     else {
       const t = e.state.getValue(), r = t.completed.length > 0 ? Math.max(...t.completed) + 1 : 1;
       gt2(e, r).catch((i) => {
-        console.error("[UPLOADS] Failed to queue chunks:", i), E2(e.id), d2(e, { status: "FAILED" }), _2--;
+        console.error("[UPLOADS] Failed to queue chunks:", i), E2(e.id), d(e, { status: "FAILED" }), _2--;
       });
     }
   }
@@ -80621,7 +80659,7 @@ function tr(s = {}) {
     simultaneous: n = 2,
     parallel: o = 3,
     retries: a = 3,
-    auto_start: h = true,
+    auto_start: h2 = true,
     auto_remove: c = false,
     remove_after_ms: m2 = -1
   } = s;
@@ -80629,7 +80667,7 @@ function tr(s = {}) {
     simultaneous: n,
     parallel: o,
     retries: a,
-    auto_start: h,
+    auto_start: h2,
     auto_remove: c,
     remove_after_ms: m2
   }), Le(r, i);
@@ -80688,6 +80726,7 @@ var UploadsService = class _UploadsService extends AsyncHandler {
       )
     );
     this.upload_list = this._upload_list.asReadonly();
+    this._token_refresh = null;
     if (localStorage) {
       this._upload_list.set(JSON.parse(localStorage.getItem("BACKOFFICE.uploads") || "[]"));
     }
@@ -80800,15 +80839,18 @@ var UploadsService = class _UploadsService extends AsyncHandler {
   _initUploads() {
     tr({
       auto_start: true,
-      token: V(),
+      token: X(),
       endpoint: "/api/engine/v2/uploads",
       worker_url: "assets/md5_worker.js"
     });
   }
-  async _updateUploadToken() {
-    if (!V(false))
-      await wt();
-    this._initUploads();
+  _updateUploadToken() {
+    this._token_refresh ||= (async () => {
+      if (!X(false))
+        await wt();
+      this._initUploads();
+    })().finally(() => this._token_refresh = null);
+    return this._token_refresh;
   }
   /**
    * Upload the given file to the cloud
@@ -80828,9 +80870,9 @@ var UploadsService = class _UploadsService extends AsyncHandler {
         size: file.size,
         upload
       };
-      upload.state.subscribe((state) => {
+      let retried = false;
+      upload.state.subscribe(async (state) => {
         upload_details.upload_id = upload.id;
-        console.log("Upload:", state, upload);
         if (upload.access_url || state.progress >= 100) {
           const local_url = `${location.origin}/api/engine/v2/uploads/${encodeURIComponent(upload_details.upload_id || upload.id)}/url`;
           upload_details.link = local_url;
@@ -80838,6 +80880,12 @@ var UploadsService = class _UploadsService extends AsyncHandler {
         upload_details.progress = state.progress;
         observer.next(upload_details);
         if (state.status === "FAILED") {
+          if (!retried) {
+            retried = true;
+            await this._updateUploadToken();
+            upload.resume();
+            return;
+          }
           observer.error(__spreadProps(__spreadValues({}, upload_details), {
             error: state.error || "Error"
           }));
@@ -81833,19 +81881,19 @@ var NativeDateAdapter = class _NativeDateAdapter extends DateAdapter {
     return new Date(date.getTime() + amount * 1e3);
   }
   _createDateWithOverflow(year, month, date) {
-    const d3 = /* @__PURE__ */ new Date();
-    d3.setFullYear(year, month, date);
-    d3.setHours(0, 0, 0, 0);
-    return d3;
+    const d2 = /* @__PURE__ */ new Date();
+    d2.setFullYear(year, month, date);
+    d2.setHours(0, 0, 0, 0);
+    return d2;
   }
   _2digit(n) {
     return ("00" + n).slice(-2);
   }
   _format(dtf, date) {
-    const d3 = /* @__PURE__ */ new Date();
-    d3.setUTCFullYear(date.getFullYear(), date.getMonth(), date.getDate());
-    d3.setUTCHours(date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds());
-    return dtf.format(d3);
+    const d2 = /* @__PURE__ */ new Date();
+    d2.setUTCFullYear(date.getFullYear(), date.getMonth(), date.getDate());
+    d2.setUTCHours(date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds());
+    return dtf.format(d2);
   }
   _parseTimeString(value) {
     const parsed = value.toUpperCase().match(TIME_REGEX);
@@ -88953,7 +89001,7 @@ var SettingsToggleComponent = class _SettingsToggleComponent {
         useExisting: forwardRef(() => _SettingsToggleComponent),
         multi: true
       }
-    ])], ngContentSelectors: _c014, decls: 9, vars: 8, consts: [["matRipple", "", 1, "hover:bg-base-200", "relative", "flex", "flex-1", "items-center", "space-x-2", "overflow-hidden", "rounded-sm", "border", "py-1", "pr-1", "pl-2", 3, "click"], [1, "z-10", "flex", "flex-1", "items-center", "space-x-2", "p-2", "text-left"], [1, "w-full"], [3, "matTooltip"], [1, "bg-info", "absolute", "inset-0", "z-0", "m-0!", "opacity-10"], [1, "px-2"], [1, "pointer-events-none", 3, "ngModel"], ["toggle", "", 1, "border-base-400", "relative", "h-8", "w-12", "rounded-full", "border-2"], [1, "absolute", "top-1/2", "flex", "h-6", "w-6", "-translate-x-0.5", "-translate-y-1/2", "items-center", "justify-center", "rounded-full", "text-black", "shadow-sm"], [1, "pointer-events-none", 3, "ngModelChange", "ngModel"]], template: function SettingsToggleComponent_Template(rf, ctx) {
+    ])], ngContentSelectors: _c014, decls: 9, vars: 8, consts: [["type", "button", "matRipple", "", 1, "hover:bg-base-200", "relative", "flex", "flex-1", "items-center", "space-x-2", "overflow-hidden", "rounded-sm", "border", "py-1", "pr-1", "pl-2", 3, "click"], [1, "z-10", "flex", "flex-1", "items-center", "space-x-2", "p-2", "text-left"], [1, "w-full"], [3, "matTooltip"], [1, "bg-info", "absolute", "inset-0", "z-0", "m-0!", "opacity-10"], [1, "px-2"], [1, "pointer-events-none", 3, "ngModel"], ["toggle", "", 1, "border-base-400", "relative", "h-8", "w-12", "rounded-full", "border-2"], [1, "absolute", "top-1/2", "flex", "h-6", "w-6", "-translate-x-0.5", "-translate-y-1/2", "items-center", "justify-center", "rounded-full", "text-black", "shadow-sm"], [1, "pointer-events-none", 3, "ngModelChange", "ngModel"]], template: function SettingsToggleComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275projectionDef();
         \u0275\u0275elementStart(0, "button", 0);
@@ -88989,6 +89037,7 @@ var SettingsToggleComponent = class _SettingsToggleComponent {
     type: Component,
     args: [{ selector: "settings-toggle", template: `
         <button
+            type="button"
             matRipple
             class="hover:bg-base-200 relative flex flex-1 items-center space-x-2 overflow-hidden rounded-sm border py-1 pr-1 pl-2"
             [class.border-base-300]="!value()"
@@ -89045,7 +89094,7 @@ var SettingsToggleComponent = class _SettingsToggleComponent {
   }], null, { toggle: [{ type: Input, args: [{ isSignal: true, alias: "toggle", required: false }] }], label: [{ type: Input, args: [{ isSignal: true, alias: "label", required: false }] }], info: [{ type: Input, args: [{ isSignal: true, alias: "info", required: false }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SettingsToggleComponent, { className: "SettingsToggleComponent", filePath: "libs/components/src/lib/settings-toggle.component.ts", lineNumber: 84 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SettingsToggleComponent, { className: "SettingsToggleComponent", filePath: "libs/components/src/lib/settings-toggle.component.ts", lineNumber: 85 });
 })();
 
 // libs/components/src/lib/authenticated-image.pipe.ts
@@ -89108,11 +89157,11 @@ async function storeSessionCachedResponse(source, response) {
   }
 }
 function setAuthCookie(cookie_path) {
-  const tkn = V();
+  const tkn = X();
   document.cookie = `${tkn === "x-api-key" ? "api-key=" + encodeURIComponent(Ye()) : "bearer_token=" + encodeURIComponent(tkn)};max-age=30;path=${cookie_path};samesite=strict;${location.protocol === "https:" ? "secure;" : ""}`;
 }
 function authHeaders() {
-  const tkn = V();
+  const tkn = X();
   return tkn === "x-api-key" ? { "X-API-Key": Ye() } : { Authorization: `Bearer ${tkn}` };
 }
 async function responseToObjectUrl(source, response) {
@@ -89328,8 +89377,8 @@ var BooleanOrLogic = class extends AbstractLogic {
     return false;
   }
   compute(arg) {
-    return this.fns.some((f2) => {
-      const result = f2(arg);
+    return this.fns.some((f3) => {
+      const result = f3(arg);
       return result && result !== IGNORED;
     });
   }
@@ -89347,8 +89396,8 @@ var ArrayMergeIgnoreLogic = class _ArrayMergeIgnoreLogic extends AbstractLogic {
     return [];
   }
   compute(arg) {
-    return this.fns.reduce((prev, f2) => {
-      const value = f2(arg);
+    return this.fns.reduce((prev, f3) => {
+      const value = f3(arg);
       if (value === void 0 || value === IGNORED) {
         return prev;
       } else if (isArray3(value)) {
@@ -99973,7 +100022,7 @@ var CounterComponent = class _CounterComponent {
     );
     this.registerOnChange = (fn) => this._onChange = fn;
     this.registerOnTouched = (fn) => this._onTouch = fn;
-    this.setDisabledState = (d3) => this.disabled.set(d3);
+    this.setDisabledState = (d2) => this.disabled.set(d2);
   }
   /**
    * Add the `step` to the current value
@@ -101945,6 +101994,16 @@ function readFileAsArrayBuffer(file) {
 }
 
 // apps/signage-manager/src/app/signage-playlist.util.ts
+var DEFAULT_PLAY_PERIOD_MINUTES = 24 * 60;
+var WEEKDAY_NAMES = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday"
+];
 function playlistMediaThumbnailUrl(item) {
   return item?.thumbnail_id ? `/api/engine/v2/signage/media/${item.id}/thumbnail` : item?.thumbnail_url || "";
 }
@@ -101952,9 +102011,165 @@ function playlistMediaIcon(item) {
   return item?.media_type === "video" ? "video_library" : item?.media_type === "webpage" ? "http" : item?.media_type === "plugin" ? "extension" : "image";
 }
 function playlistMediaItems(list) {
-  const media = list.media || [];
+  const scheduled_media = (list.schedules || []).map((item) => item.media).filter((item) => !!item?.id);
+  if (!list.media?.length && scheduled_media.length)
+    return scheduled_media;
+  const media = list.media?.length ? list.media : scheduled_media;
   const media_by_id = new Map(media.map((item) => [item.id, item]));
   return list.items?.length ? list.items.map((id) => media_by_id.get(id)).filter((item) => !!item) : media;
+}
+function playlistItemScheduleMap(list) {
+  const map2 = /* @__PURE__ */ new Map();
+  for (const item of list.schedules || []) {
+    if (item.item_id)
+      map2.set(item.item_id, item);
+    if (item.media?.id)
+      map2.set(item.media.id, item);
+  }
+  return map2;
+}
+function ordinal(value) {
+  if (value >= 11 && value <= 13)
+    return `${value}th`;
+  switch (value % 10) {
+    case 1:
+      return `${value}st`;
+    case 2:
+      return `${value}nd`;
+    case 3:
+      return `${value}rd`;
+    default:
+      return `${value}th`;
+  }
+}
+function formatCronTime(hour_part, minute_part) {
+  const date = /* @__PURE__ */ new Date();
+  date.setHours(+hour_part || 0, +minute_part || 0, 0, 0);
+  return date.toLocaleTimeString(void 0, {
+    hour: "numeric",
+    minute: "2-digit"
+  });
+}
+function durationLabel(duration_minutes) {
+  if (!duration_minutes)
+    return "one playlist pass";
+  if (duration_minutes < 60) {
+    return `${duration_minutes} minute${duration_minutes === 1 ? "" : "s"}`;
+  }
+  if (duration_minutes % 60 === 0) {
+    const hours2 = duration_minutes / 60;
+    return `${hours2} hour${hours2 === 1 ? "" : "s"}`;
+  }
+  const hours = Math.floor(duration_minutes / 60);
+  const minutes = duration_minutes % 60;
+  return `${hours} hr ${minutes} min`;
+}
+function parseCronList(value, min, max) {
+  const values = /* @__PURE__ */ new Set();
+  if (!value || value === "*")
+    return [];
+  for (const part of value.split(",")) {
+    if (part.includes("-")) {
+      const [start, end] = part.split("-").map(Number);
+      if (start < min || end > max || start > end)
+        return [];
+      for (let item = start; item <= end; item++)
+        values.add(item);
+    } else {
+      const item = Number(part);
+      if (item < min || item > max)
+        return [];
+      values.add(item);
+    }
+  }
+  return [...values].sort((a, b2) => a - b2);
+}
+function listText(values) {
+  if (values.length <= 1)
+    return values[0] || "";
+  if (values.length === 2)
+    return `${values[0]} and ${values[1]}`;
+  return `${values.slice(0, -1).join(", ")} and ${values.at(-1)}`;
+}
+function weekOfMonthLabel(day_part) {
+  const [start, end] = day_part.split("-").map(Number);
+  if (start === 1 && end === 7)
+    return "1st";
+  if (start === 8 && end === 14)
+    return "2nd";
+  if (start === 15 && end === 21)
+    return "3rd";
+  if (start === 22 && end === 28)
+    return "4th";
+  if (start === 29 && end === 31)
+    return "5th";
+  return "";
+}
+function weekOfMonthLabels(day_part) {
+  const labels = day_part.split(",").map((range2) => weekOfMonthLabel(range2));
+  return labels.every((label) => label) ? labels : [];
+}
+function isCronMonthlyWeekday(day_part, weekday_part) {
+  return /^\d+-\d+(,\d+-\d+)*$/.test(day_part || "") && weekday_part !== "*";
+}
+function humanizeCronSchedule(cron, duration_minutes) {
+  const parts = (cron || "0 0 * * *").trim().split(/\s+/);
+  if (parts.length !== 5)
+    return `Custom schedule (${cron})`;
+  const [minute, hour, day, month, day_of_week] = parts;
+  const duration = durationLabel(duration_minutes);
+  const suffix = ` for ${duration}`;
+  if (month !== "*")
+    return `Custom schedule (${cron})`;
+  const minute_interval = /^\*\/(\d+)$/.exec(minute)?.[1];
+  if (minute === "*" && hour === "*" && day === "*" && day_of_week === "*") {
+    return `Every minute${suffix}`;
+  }
+  if (minute_interval && hour === "*" && day === "*" && day_of_week === "*") {
+    return `Every ${minute_interval} minutes${suffix}`;
+  }
+  const hour_interval = /^\*\/(\d+)$/.exec(hour)?.[1];
+  if (minute === "0" && hour === "*" && day === "*" && day_of_week === "*") {
+    return `Every hour${suffix}`;
+  }
+  if (minute === "0" && hour_interval && day === "*" && day_of_week === "*") {
+    return `Every ${hour_interval} hours${suffix}`;
+  }
+  if (!/^\d+$/.test(minute) || !/^\d+$/.test(hour)) {
+    return `Custom schedule (${cron})`;
+  }
+  const time = formatCronTime(hour, minute);
+  if (day === "*" && day_of_week === "*") {
+    return `Every day at ${time}${suffix}`;
+  }
+  if (day === "*" && day_of_week === "1-5") {
+    return `Weekdays at ${time}${suffix}`;
+  }
+  if (day === "*" && day_of_week !== "*") {
+    const weekdays = parseCronList(day_of_week, 0, 6).map((day_value) => WEEKDAY_NAMES[day_value]);
+    return weekdays.length ? `Every ${listText(weekdays)} at ${time}${suffix}` : `Custom schedule (${cron})`;
+  }
+  if (day !== "*" && day_of_week === "*") {
+    const days = parseCronList(day, 1, 31).map((day_value) => ordinal(day_value));
+    return days.length ? `On the ${listText(days)} of each month at ${time}${suffix}` : `Custom schedule (${cron})`;
+  }
+  if (isCronMonthlyWeekday(day, day_of_week)) {
+    const weeks = weekOfMonthLabels(day);
+    const weekdays = parseCronList(day_of_week, 0, 6).map((day_value) => WEEKDAY_NAMES[day_value]);
+    return weeks.length && weekdays.length ? `On the ${listText(weeks)} ${listText(weekdays)} of each month at ${time}${suffix}` : `Custom schedule (${cron})`;
+  }
+  return `Custom schedule (${cron})`;
+}
+function schedulePeriod(schedule) {
+  return Number.isFinite(schedule.play_period) ? schedule.play_period || 0 : DEFAULT_PLAY_PERIOD_MINUTES;
+}
+function playlistScheduleLabel(schedule) {
+  const period = schedulePeriod(schedule);
+  if (schedule.play_at) {
+    const date = new Date(schedule.play_at > 1e12 ? schedule.play_at : schedule.play_at * 1e3);
+    return `Plays once on ${date.toLocaleString()} for ${durationLabel(period)}`;
+  }
+  return `${humanizeCronSchedule(schedule.play_cron || "0 0 * * *", period)}${schedule.play_takeover ? " \xB7 takeover" : ""}`;
 }
 
 // apps/signage-manager/src/app/shared/media-edit-modal.component.ts
@@ -102354,7 +102569,7 @@ var MediaEditModalComponent = class _MediaEditModalComponent {
         if (this.item.id) {
           await this._data.onEdit(this.item.id, new_media);
         } else {
-          await this._data.onAdd(this.file, new sr(new_media), this._data.file_metadata);
+          await this._data.onAdd(this.file, new Rs(new_media), this._data.file_metadata);
         }
       } catch (error2) {
         notifyError(i18n("SIGNAGE_MANAGER.MEDIA_SAVE_ERROR", {
@@ -102928,13 +103143,13 @@ function MediaPreviewModalComponent_Conditional_10_Template(rf, ctx) {
 }
 function MediaPreviewModalComponent_Conditional_11_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 7)(1, "icon", 22);
+    \u0275\u0275elementStart(0, "div", 7)(1, "icon", 23);
     \u0275\u0275text(2, "error");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "p", 23);
+    \u0275\u0275elementStart(3, "p", 24);
     \u0275\u0275text(4, " Failed to load media preview. ");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(5, "p", 24);
+    \u0275\u0275elementStart(5, "p", 25);
     \u0275\u0275text(6);
     \u0275\u0275pipe(7, "translate");
     \u0275\u0275elementEnd()();
@@ -102947,8 +103162,8 @@ function MediaPreviewModalComponent_Conditional_11_Template(rf, ctx) {
 function MediaPreviewModalComponent_Conditional_12_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 8);
-    \u0275\u0275element(1, "mat-spinner", 25);
-    \u0275\u0275elementStart(2, "span", 26);
+    \u0275\u0275element(1, "mat-spinner", 26);
+    \u0275\u0275elementStart(2, "span", 27);
     \u0275\u0275text(3);
     \u0275\u0275pipe(4, "translate");
     \u0275\u0275elementEnd()();
@@ -102963,7 +103178,7 @@ function MediaPreviewModalComponent_Conditional_12_Template(rf, ctx) {
 function MediaPreviewModalComponent_Conditional_13_Template(rf, ctx) {
   if (rf & 1) {
     const _r2 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "img", 27);
+    \u0275\u0275elementStart(0, "img", 28);
     \u0275\u0275listener("load", function MediaPreviewModalComponent_Conditional_13_Template_img_load_0_listener() {
       \u0275\u0275restoreView(_r2);
       const ctx_r0 = \u0275\u0275nextContext();
@@ -102984,7 +103199,7 @@ function MediaPreviewModalComponent_Conditional_13_Template(rf, ctx) {
 function MediaPreviewModalComponent_Conditional_14_Template(rf, ctx) {
   if (rf & 1) {
     const _r3 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "video", 28);
+    \u0275\u0275elementStart(0, "video", 29);
     \u0275\u0275listener("loadeddata", function MediaPreviewModalComponent_Conditional_14_Template_video_loadeddata_0_listener() {
       \u0275\u0275restoreView(_r3);
       const ctx_r0 = \u0275\u0275nextContext();
@@ -103006,7 +103221,7 @@ function MediaPreviewModalComponent_Conditional_14_Template(rf, ctx) {
 function MediaPreviewModalComponent_Conditional_15_Template(rf, ctx) {
   if (rf & 1) {
     const _r4 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "iframe", 29);
+    \u0275\u0275elementStart(0, "iframe", 30);
     \u0275\u0275listener("load", function MediaPreviewModalComponent_Conditional_15_Template_iframe_load_0_listener() {
       \u0275\u0275restoreView(_r4);
       const ctx_r0 = \u0275\u0275nextContext();
@@ -103031,7 +103246,7 @@ function MediaPreviewModalComponent_Conditional_16_Template(rf, ctx) {
 }
 function MediaPreviewModalComponent_Conditional_17_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 13)(1, "icon", 30);
+    \u0275\u0275elementStart(0, "div", 13)(1, "icon", 31);
     \u0275\u0275text(2, "hide_image");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(3, "p");
@@ -103044,13 +103259,13 @@ function MediaPreviewModalComponent_Conditional_17_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(5, 1, "SIGNAGE_MANAGER.PREVIEW_UNAVAILABLE"), " ");
   }
 }
-function MediaPreviewModalComponent_Conditional_20_Template(rf, ctx) {
+function MediaPreviewModalComponent_Conditional_24_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div")(1, "div", 16);
+    \u0275\u0275elementStart(0, "div")(1, "div", 17);
     \u0275\u0275text(2);
     \u0275\u0275pipe(3, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "div", 18);
+    \u0275\u0275elementStart(4, "div", 19);
     \u0275\u0275text(5);
     \u0275\u0275elementEnd()();
   }
@@ -103062,13 +103277,13 @@ function MediaPreviewModalComponent_Conditional_20_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", ctx_r0.item.description, " ");
   }
 }
-function MediaPreviewModalComponent_Conditional_28_Template(rf, ctx) {
+function MediaPreviewModalComponent_Conditional_32_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div")(1, "div", 16);
+    \u0275\u0275elementStart(0, "div")(1, "div", 17);
     \u0275\u0275text(2);
     \u0275\u0275pipe(3, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "div", 31);
+    \u0275\u0275elementStart(4, "div", 32);
     \u0275\u0275text(5);
     \u0275\u0275pipe(6, "mediaDuration");
     \u0275\u0275elementEnd()();
@@ -103081,9 +103296,9 @@ function MediaPreviewModalComponent_Conditional_28_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(6, 4, ctx_r0.item.play_time / 1e3), " ");
   }
 }
-function MediaPreviewModalComponent_Conditional_47_Template(rf, ctx) {
+function MediaPreviewModalComponent_Conditional_51_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 20);
+    \u0275\u0275elementStart(0, "div", 21);
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275elementEnd();
@@ -103093,12 +103308,12 @@ function MediaPreviewModalComponent_Conditional_47_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, "COMMON.LOADING"), " ");
   }
 }
-function MediaPreviewModalComponent_Conditional_48_For_2_Template(rf, ctx) {
+function MediaPreviewModalComponent_Conditional_52_For_2_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "a", 32)(1, "icon", 33);
+    \u0275\u0275elementStart(0, "a", 33)(1, "icon", 34);
     \u0275\u0275text(2, "playlist_play");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "span", 18);
+    \u0275\u0275elementStart(3, "span", 19);
     \u0275\u0275text(4);
     \u0275\u0275elementEnd()();
   }
@@ -103110,10 +103325,10 @@ function MediaPreviewModalComponent_Conditional_48_For_2_Template(rf, ctx) {
     \u0275\u0275textInterpolate(playlist_r5.name);
   }
 }
-function MediaPreviewModalComponent_Conditional_48_Template(rf, ctx) {
+function MediaPreviewModalComponent_Conditional_52_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 21);
-    \u0275\u0275repeaterCreate(1, MediaPreviewModalComponent_Conditional_48_For_2_Template, 5, 7, "a", 32, _forTrack08);
+    \u0275\u0275elementStart(0, "div", 22);
+    \u0275\u0275repeaterCreate(1, MediaPreviewModalComponent_Conditional_52_For_2_Template, 5, 7, "a", 33, _forTrack08);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -103122,9 +103337,9 @@ function MediaPreviewModalComponent_Conditional_48_Template(rf, ctx) {
     \u0275\u0275repeater(ctx_r0.containing_playlists());
   }
 }
-function MediaPreviewModalComponent_Conditional_49_Template(rf, ctx) {
+function MediaPreviewModalComponent_Conditional_53_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 20);
+    \u0275\u0275elementStart(0, "div", 21);
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275elementEnd();
@@ -103134,13 +103349,13 @@ function MediaPreviewModalComponent_Conditional_49_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, "SIGNAGE_MANAGER.NOT_IN_PLAYLISTS"), " ");
   }
 }
-function MediaPreviewModalComponent_Conditional_50_Template(rf, ctx) {
+function MediaPreviewModalComponent_Conditional_54_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div")(1, "div", 16);
+    \u0275\u0275elementStart(0, "div")(1, "div", 17);
     \u0275\u0275text(2);
     \u0275\u0275pipe(3, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "div", 19);
+    \u0275\u0275elementStart(4, "div", 20);
     \u0275\u0275text(5);
     \u0275\u0275elementEnd()();
   }
@@ -103152,13 +103367,13 @@ function MediaPreviewModalComponent_Conditional_50_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", ctx_r0.item.play_count || "0", " ");
   }
 }
-function MediaPreviewModalComponent_Conditional_51_Template(rf, ctx) {
+function MediaPreviewModalComponent_Conditional_55_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div")(1, "div", 16);
+    \u0275\u0275elementStart(0, "div")(1, "div", 17);
     \u0275\u0275text(2);
     \u0275\u0275pipe(3, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "div", 19);
+    \u0275\u0275elementStart(4, "div", 20);
     \u0275\u0275text(5);
     \u0275\u0275pipe(6, "date");
     \u0275\u0275elementEnd()();
@@ -103171,13 +103386,13 @@ function MediaPreviewModalComponent_Conditional_51_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(6, 4, ctx_r0.item.valid_from * 1e3, "mediumDate"), " ");
   }
 }
-function MediaPreviewModalComponent_Conditional_52_Template(rf, ctx) {
+function MediaPreviewModalComponent_Conditional_56_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div")(1, "div", 16);
+    \u0275\u0275elementStart(0, "div")(1, "div", 17);
     \u0275\u0275text(2);
     \u0275\u0275pipe(3, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "div", 19);
+    \u0275\u0275elementStart(4, "div", 20);
     \u0275\u0275text(5);
     \u0275\u0275pipe(6, "date");
     \u0275\u0275elementEnd()();
@@ -103227,6 +103442,7 @@ var MediaPreviewModalComponent = class _MediaPreviewModalComponent {
         []
       )
     );
+    this.edit = () => this._service.editMedia(this.item);
     this.safe_url = computed(
       () => {
         if (this.item.media_type === "webpage") {
@@ -103307,7 +103523,7 @@ var MediaPreviewModalComponent = class _MediaPreviewModalComponent {
     const matching = [];
     for (const playlist of all_playlists) {
       try {
-        const media_list = await _h(playlist.id);
+        const media_list = await yh(playlist.id);
         if (media_list.items?.includes(this.item.id)) {
           matching.push(playlist);
         }
@@ -103334,7 +103550,7 @@ var MediaPreviewModalComponent = class _MediaPreviewModalComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MediaPreviewModalComponent, selectors: [["media-preview-modal"]], decls: 53, vars: 50, consts: [[1, "bg-base-100", "flex", "h-full", "flex-col", "items-center", "overflow-auto"], [1, "bg-base-200", "sticky", "top-0", "z-10", "m-2", "w-[calc(100%-1rem)]", "rounded-sm", "border-none", "p-2"], [1, "truncate", "text-xl", "font-medium"], ["icon", "", "type", "button", "matRipple", "", "mat-dialog-close", ""], [1, "bg-base-100", "z-0", "mx-2", "mb-2", "flex", "w-[calc(100%-1rem)]", "flex-1", "gap-2", "overflow-hidden", "rounded-sm", "max-md:flex-col"], [1, "bg-base-200", "border-base-300", "relative", "flex", "flex-1", "items-center", "justify-center", "overflow-hidden", "rounded-lg", "border"], ["auth", "", 1, "absolute", "inset-0", "h-full", "w-full", "object-contain", 3, "source", "alt"], ["aria-live", "assertive", 1, "bg-base-200/80", "absolute", "inset-0", "z-10", "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-4", "text-center"], ["aria-live", "polite", 1, "bg-base-200/60", "absolute", "inset-0", "z-10", "flex", "items-center", "justify-center"], ["auth", "", 1, "h-full", "max-h-full", "w-full", "max-w-full", "object-contain", 3, "source", "alt", "opacity-0"], ["auth", "", "controls", "", 1, "h-full", "max-h-full", "w-full", "max-w-full", "object-contain", 3, "source", "opacity-0"], [1, "h-full", "w-full", "border-0", "bg-white", 3, "src", "title", "opacity-0"], [1, "h-full", "w-full", 3, "plugin", "config", "auto_play"], [1, "text-base-content/70", "flex", "flex-col", "items-center", "justify-center", "space-y-2"], [1, "border-base-300", "bg-base-100", "w-72", "shrink-0", "overflow-y-auto", "rounded-lg", "border", "max-md:w-full"], [1, "space-y-5", "p-5"], [1, "text-base-content/70", "mb-1", "text-xs", "font-medium", "tracking-wider", "uppercase"], [1, "rounded-lg", "px-2", "py-1", "font-mono", "text-xs", "capitalize"], [1, "text-sm"], [1, "text-sm", "capitalize"], [1, "text-base-content/70", "text-sm"], [1, "space-y-1"], [1, "text-error", "text-6xl"], [1, "text-base", "font-medium"], [1, "text-base-content/70", "max-w-sm", "text-sm"], [3, "diameter"], [1, "sr-only"], ["auth", "", 1, "h-full", "max-h-full", "w-full", "max-w-full", "object-contain", 3, "load", "error", "source", "alt"], ["auth", "", "controls", "", 1, "h-full", "max-h-full", "w-full", "max-w-full", "object-contain", 3, "loadeddata", "error", "source"], [1, "h-full", "w-full", "border-0", "bg-white", 3, "load", "src", "title"], [1, "text-8xl"], [1, "font-mono", "text-sm"], ["matRipple", "", "mat-dialog-close", "", 1, "hover:bg-base-200", "flex", "items-center", "space-x-2", "rounded", "px-2", "py-1", "no-underline", 3, "routerLink", "queryParams"], [1, "text-base-content/60", "text-xl"]], template: function MediaPreviewModalComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MediaPreviewModalComponent, selectors: [["media-preview-modal"]], decls: 57, vars: 53, consts: [[1, "bg-base-100", "flex", "h-full", "flex-col", "items-center", "overflow-auto"], [1, "bg-base-200", "sticky", "top-0", "z-10", "m-2", "w-[calc(100%-1rem)]", "rounded-sm", "border-none", "p-2"], [1, "truncate", "text-xl", "font-medium"], ["icon", "", "type", "button", "matRipple", "", "mat-dialog-close", ""], [1, "bg-base-100", "z-0", "mx-2", "mb-2", "flex", "w-[calc(100%-1rem)]", "flex-1", "gap-2", "overflow-hidden", "rounded-sm", "max-md:flex-col"], [1, "bg-base-200", "border-base-300", "relative", "flex", "flex-1", "items-center", "justify-center", "overflow-hidden", "rounded-lg", "border"], ["auth", "", 1, "absolute", "inset-0", "h-full", "w-full", "object-contain", 3, "source", "alt"], ["aria-live", "assertive", 1, "bg-base-200/80", "absolute", "inset-0", "z-10", "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-4", "text-center"], ["aria-live", "polite", 1, "bg-base-200/60", "absolute", "inset-0", "z-10", "flex", "items-center", "justify-center"], ["auth", "", 1, "h-full", "max-h-full", "w-full", "max-w-full", "object-contain", 3, "source", "alt", "opacity-0"], ["auth", "", "controls", "", 1, "h-full", "max-h-full", "w-full", "max-w-full", "object-contain", 3, "source", "opacity-0"], [1, "h-full", "w-full", "border-0", "bg-white", 3, "src", "title", "opacity-0"], [1, "h-full", "w-full", 3, "plugin", "config", "auto_play"], [1, "text-base-content/70", "flex", "flex-col", "items-center", "justify-center", "space-y-2"], [1, "border-base-300", "bg-base-100", "w-72", "shrink-0", "overflow-y-auto", "rounded-lg", "border", "max-md:w-full"], [1, "relative", "space-y-5", "p-5"], ["icon", "", "default", "", "matTooltipPosition", "left", 1, "absolute", "top-2", "right-2", 3, "click", "matTooltip"], [1, "text-base-content/70", "mb-1", "text-xs", "font-medium", "tracking-wider", "uppercase"], [1, "rounded-lg", "px-2", "py-1", "font-mono", "text-xs", "capitalize"], [1, "text-sm"], [1, "text-sm", "capitalize"], [1, "text-base-content/70", "text-sm"], [1, "space-y-1"], [1, "text-error", "text-6xl"], [1, "text-base", "font-medium"], [1, "text-base-content/70", "max-w-sm", "text-sm"], [3, "diameter"], [1, "sr-only"], ["auth", "", 1, "h-full", "max-h-full", "w-full", "max-w-full", "object-contain", 3, "load", "error", "source", "alt"], ["auth", "", "controls", "", 1, "h-full", "max-h-full", "w-full", "max-w-full", "object-contain", 3, "loadeddata", "error", "source"], [1, "h-full", "w-full", "border-0", "bg-white", 3, "load", "src", "title"], [1, "text-8xl"], [1, "font-mono", "text-sm"], ["matRipple", "", "mat-dialog-close", "", 1, "hover:bg-base-200", "flex", "items-center", "space-x-2", "rounded", "px-2", "py-1", "no-underline", 3, "routerLink", "queryParams"], [1, "text-base-content/60", "text-xl"]], template: function MediaPreviewModalComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "div", 0)(1, "header", 1)(2, "h2", 2);
         \u0275\u0275text(3);
@@ -103349,49 +103565,56 @@ var MediaPreviewModalComponent = class _MediaPreviewModalComponent {
         \u0275\u0275conditionalCreate(11, MediaPreviewModalComponent_Conditional_11_Template, 8, 3, "div", 7)(12, MediaPreviewModalComponent_Conditional_12_Template, 5, 4, "div", 8);
         \u0275\u0275conditionalCreate(13, MediaPreviewModalComponent_Conditional_13_Template, 1, 4, "img", 9)(14, MediaPreviewModalComponent_Conditional_14_Template, 1, 4, "video", 10)(15, MediaPreviewModalComponent_Conditional_15_Template, 1, 4, "iframe", 11)(16, MediaPreviewModalComponent_Conditional_16_Template, 1, 3, "plugin-embed", 12)(17, MediaPreviewModalComponent_Conditional_17_Template, 6, 3, "div", 13);
         \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(18, "aside", 14)(19, "div", 15);
-        \u0275\u0275conditionalCreate(20, MediaPreviewModalComponent_Conditional_20_Template, 6, 4, "div");
-        \u0275\u0275elementStart(21, "div")(22, "div", 16);
-        \u0275\u0275text(23);
-        \u0275\u0275pipe(24, "translate");
-        \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(25, "span", 17);
-        \u0275\u0275text(26);
-        \u0275\u0275pipe(27, "translate");
+        \u0275\u0275elementStart(18, "aside", 14)(19, "div", 15)(20, "button", 16);
+        \u0275\u0275pipe(21, "translate");
+        \u0275\u0275listener("click", function MediaPreviewModalComponent_Template_button_click_20_listener() {
+          return ctx.edit();
+        });
+        \u0275\u0275elementStart(22, "icon");
+        \u0275\u0275text(23, "edit");
         \u0275\u0275elementEnd()();
-        \u0275\u0275conditionalCreate(28, MediaPreviewModalComponent_Conditional_28_Template, 7, 6, "div");
-        \u0275\u0275elementStart(29, "div")(30, "div", 16);
-        \u0275\u0275text(31);
-        \u0275\u0275pipe(32, "translate");
+        \u0275\u0275conditionalCreate(24, MediaPreviewModalComponent_Conditional_24_Template, 6, 4, "div");
+        \u0275\u0275elementStart(25, "div")(26, "div", 17);
+        \u0275\u0275text(27);
+        \u0275\u0275pipe(28, "translate");
         \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(33, "div", 18);
-        \u0275\u0275text(34);
-        \u0275\u0275pipe(35, "translate");
+        \u0275\u0275elementStart(29, "span", 18);
+        \u0275\u0275text(30);
+        \u0275\u0275pipe(31, "translate");
         \u0275\u0275elementEnd()();
-        \u0275\u0275elementStart(36, "div")(37, "div", 16);
+        \u0275\u0275conditionalCreate(32, MediaPreviewModalComponent_Conditional_32_Template, 7, 6, "div");
+        \u0275\u0275elementStart(33, "div")(34, "div", 17);
+        \u0275\u0275text(35);
+        \u0275\u0275pipe(36, "translate");
+        \u0275\u0275elementEnd();
+        \u0275\u0275elementStart(37, "div", 19);
         \u0275\u0275text(38);
         \u0275\u0275pipe(39, "translate");
-        \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(40, "div", 19);
-        \u0275\u0275text(41);
-        \u0275\u0275pipe(42, "translate");
         \u0275\u0275elementEnd()();
-        \u0275\u0275elementStart(43, "div")(44, "div", 16);
+        \u0275\u0275elementStart(40, "div")(41, "div", 17);
+        \u0275\u0275text(42);
+        \u0275\u0275pipe(43, "translate");
+        \u0275\u0275elementEnd();
+        \u0275\u0275elementStart(44, "div", 20);
         \u0275\u0275text(45);
         \u0275\u0275pipe(46, "translate");
+        \u0275\u0275elementEnd()();
+        \u0275\u0275elementStart(47, "div")(48, "div", 17);
+        \u0275\u0275text(49);
+        \u0275\u0275pipe(50, "translate");
         \u0275\u0275elementEnd();
-        \u0275\u0275conditionalCreate(47, MediaPreviewModalComponent_Conditional_47_Template, 3, 3, "div", 20)(48, MediaPreviewModalComponent_Conditional_48_Template, 3, 0, "div", 21)(49, MediaPreviewModalComponent_Conditional_49_Template, 3, 3, "div", 20);
+        \u0275\u0275conditionalCreate(51, MediaPreviewModalComponent_Conditional_51_Template, 3, 3, "div", 21)(52, MediaPreviewModalComponent_Conditional_52_Template, 3, 0, "div", 22)(53, MediaPreviewModalComponent_Conditional_53_Template, 3, 3, "div", 21);
         \u0275\u0275elementEnd();
-        \u0275\u0275conditionalCreate(50, MediaPreviewModalComponent_Conditional_50_Template, 6, 4, "div");
-        \u0275\u0275conditionalCreate(51, MediaPreviewModalComponent_Conditional_51_Template, 7, 7, "div");
-        \u0275\u0275conditionalCreate(52, MediaPreviewModalComponent_Conditional_52_Template, 7, 7, "div");
+        \u0275\u0275conditionalCreate(54, MediaPreviewModalComponent_Conditional_54_Template, 6, 4, "div");
+        \u0275\u0275conditionalCreate(55, MediaPreviewModalComponent_Conditional_55_Template, 7, 7, "div");
+        \u0275\u0275conditionalCreate(56, MediaPreviewModalComponent_Conditional_56_Template, 7, 7, "div");
         \u0275\u0275elementEnd()()()();
       }
       if (rf & 2) {
         \u0275\u0275advance(3);
         \u0275\u0275textInterpolate(ctx.item.name);
         \u0275\u0275advance();
-        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(5, 34, "SIGNAGE_MANAGER.CLOSE_MEDIA_PREVIEW"));
+        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(5, 35, "SIGNAGE_MANAGER.CLOSE_MEDIA_PREVIEW"));
         \u0275\u0275advance(6);
         \u0275\u0275conditional(ctx.thumbnail_url && (ctx.media_loading() || ctx.media_error()) ? 10 : -1);
         \u0275\u0275advance();
@@ -103399,33 +103622,35 @@ var MediaPreviewModalComponent = class _MediaPreviewModalComponent {
         \u0275\u0275advance(2);
         \u0275\u0275conditional(ctx.item.media_type === "image" ? 13 : ctx.item.media_type === "video" ? 14 : ctx.item.media_type === "webpage" ? 15 : ctx.item.media_type === "plugin" && ctx.plugin ? 16 : 17);
         \u0275\u0275advance(7);
-        \u0275\u0275conditional(ctx.item.description ? 20 : -1);
+        \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(21, 37, "SIGNAGE_MANAGER.MEDIA_EDIT"));
+        \u0275\u0275advance(4);
+        \u0275\u0275conditional(ctx.item.description ? 24 : -1);
         \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(24, 36, "COMMON.TYPE"), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(28, 39, "COMMON.TYPE"), " ");
         \u0275\u0275advance(2);
         \u0275\u0275classProp("bg-info", ctx.item.media_type === "video")("text-info-content", ctx.item.media_type === "video")("bg-warning", ctx.item.media_type === "image")("text-warning-content", ctx.item.media_type === "image")("bg-success", ctx.item.media_type === "webpage")("text-success-content", ctx.item.media_type === "webpage")("bg-error", ctx.item.media_type === "plugin")("text-error-content", ctx.item.media_type === "plugin");
         \u0275\u0275advance();
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(27, 38, ctx.type_label()), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(31, 41, ctx.type_label()), " ");
         \u0275\u0275advance(2);
-        \u0275\u0275conditional(ctx.item.play_time ? 28 : -1);
+        \u0275\u0275conditional(ctx.item.play_time ? 32 : -1);
         \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(32, 40, "SIGNAGE_MANAGER.ANIMATION"), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(36, 43, "SIGNAGE_MANAGER.ANIMATION"), " ");
         \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(35, 42, ctx.animation_label()), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(39, 45, ctx.animation_label()), " ");
         \u0275\u0275advance(4);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(39, 44, "SIGNAGE_MANAGER.ORIENTATION"), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(43, 47, "SIGNAGE_MANAGER.ORIENTATION"), " ");
         \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate1(" ", ctx.item.orientation || \u0275\u0275pipeBind1(42, 46, "COMMON.LOCATION_UNSPECIFIED"), " ");
+        \u0275\u0275textInterpolate1(" ", ctx.item.orientation || \u0275\u0275pipeBind1(46, 49, "COMMON.LOCATION_UNSPECIFIED"), " ");
         \u0275\u0275advance(4);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(46, 48, "SIGNAGE_MANAGER.NAV_PLAYLISTS"), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(50, 51, "SIGNAGE_MANAGER.NAV_PLAYLISTS"), " ");
         \u0275\u0275advance(2);
-        \u0275\u0275conditional(ctx.loading_playlists() ? 47 : ctx.containing_playlists().length > 0 ? 48 : 49);
+        \u0275\u0275conditional(ctx.loading_playlists() ? 51 : ctx.containing_playlists().length > 0 ? 52 : 53);
         \u0275\u0275advance(3);
-        \u0275\u0275conditional(ctx.item.play_count ? 50 : -1);
+        \u0275\u0275conditional(ctx.item.play_count ? 54 : -1);
         \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.item.valid_from ? 51 : -1);
+        \u0275\u0275conditional(ctx.item.valid_from ? 55 : -1);
         \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.item.valid_until ? 52 : -1);
+        \u0275\u0275conditional(ctx.item.valid_until ? 56 : -1);
       }
     }, dependencies: [
       MatRippleModule,
@@ -103438,6 +103663,7 @@ var MediaPreviewModalComponent = class _MediaPreviewModalComponent {
       IconComponent,
       AuthenticatedImageDirective,
       PluginEmbedComponent,
+      MatTooltip,
       DatePipe,
       MediaDurationPipe,
       TranslatePipe
@@ -103561,7 +103787,19 @@ var MediaPreviewModalComponent = class _MediaPreviewModalComponent {
                 <aside
                     class="border-base-300 bg-base-100 w-72 shrink-0 overflow-y-auto rounded-lg border max-md:w-full"
                 >
-                    <div class="space-y-5 p-5">
+                    <div class="relative space-y-5 p-5">
+                        <button
+                            icon
+                            default
+                            class="absolute top-2 right-2"
+                            [matTooltip]="
+                                'SIGNAGE_MANAGER.MEDIA_EDIT' | translate
+                            "
+                            matTooltipPosition="left"
+                            (click)="edit()"
+                        >
+                            <icon>edit</icon>
+                        </button>
                         @if (item.description) {
                             <div>
                                 <div
@@ -103750,12 +103988,13 @@ var MediaPreviewModalComponent = class _MediaPreviewModalComponent {
       DatePipe,
       MediaDurationPipe,
       PluginEmbedComponent,
-      TranslatePipe
+      TranslatePipe,
+      MatTooltip
     ], styles: ["/* angular:styles/component:css;62f1948e80f1d37fbfc7dd0fe5a3ff76993e7e5f074002a0c62e64986fc743cb;/home/runner/work/user-interfaces/user-interfaces/apps/signage-manager/src/app/shared/media-preview-modal.component.ts */\n:host {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n}\n/*# sourceMappingURL=media-preview-modal.component.css.map */\n"] }]
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(MediaPreviewModalComponent, { className: "MediaPreviewModalComponent", filePath: "apps/signage-manager/src/app/shared/media-preview-modal.component.ts", lineNumber: 349 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(MediaPreviewModalComponent, { className: "MediaPreviewModalComponent", filePath: "apps/signage-manager/src/app/shared/media-preview-modal.component.ts", lineNumber: 363 });
 })();
 
 // apps/signage-manager/src/app/shared/playlist-approval-preview.component.ts
@@ -104236,7 +104475,7 @@ var PlaylistApproveModalComponent = class _PlaylistApproveModalComponent {
           return [];
         this.loading.set(i18n("SIGNAGE_MANAGER.LOADING_VERSIONS"));
         try {
-          const versions = await mh(params, { limit: 2 });
+          const versions = await $h(params, { limit: 2 });
           this.has_previous_version.set(versions.length > 1);
           return versions;
         } finally {
@@ -104258,7 +104497,7 @@ var PlaylistApproveModalComponent = class _PlaylistApproveModalComponent {
     this.loading.set(i18n("SIGNAGE_MANAGER.UNDOING_CHANGES"));
     this._dialog_ref.disableClose = true;
     try {
-      await bh(this._data.playlist.id, previous_version.items);
+      await Sh(this._data.playlist.id, previous_version.items);
       this._service.setPlaylistApprovalStatus(this._data.playlist.id, false);
       notifySuccess(i18n("SIGNAGE_MANAGER.PLAYLIST_REVERTED"));
       this._dialog_ref.close(true);
@@ -104274,7 +104513,7 @@ var PlaylistApproveModalComponent = class _PlaylistApproveModalComponent {
     this.loading.set(i18n("SIGNAGE_MANAGER.APPROVING_PLAYLIST"));
     this._dialog_ref.disableClose = true;
     try {
-      await gh(this._data.playlist.id);
+      await bh(this._data.playlist.id);
       this._service.setPlaylistApprovalStatus(this._data.playlist.id, true);
       notifySuccess(i18n("SIGNAGE_MANAGER.PLAYLIST_APPROVED"));
       this._dialog_ref.close(true);
@@ -104844,7 +105083,7 @@ var FULL_DAY_START_MINUTES = 0;
 var FULL_DAY_END_MINUTES = 23 * 60 + 59;
 var DEFAULT_RECURRING_TIME = "00:00";
 var DEFAULT_RECURRING_CRON = "0 0 * * *";
-var DEFAULT_PLAY_PERIOD_MINUTES = 24 * 60;
+var DEFAULT_PLAY_PERIOD_MINUTES2 = 24 * 60;
 var WEEKDAY_OPTIONS = [
   { value: 1 },
   { value: 2 },
@@ -104865,7 +105104,7 @@ function timeToMinutes(value) {
   const [hours, minutes] = (value || "").split(":").map((_3) => +_3 || 0);
   return Math.max(FULL_DAY_START_MINUTES, Math.min(FULL_DAY_END_MINUTES, hours * 60 + minutes));
 }
-function ordinal(value) {
+function ordinal2(value) {
   if (value >= 11 && value <= 13)
     return `${value}th`;
   switch (value % 10) {
@@ -104980,7 +105219,7 @@ function parseCronMonthDays(value) {
   }
   return normaliseMonthDays([...days]);
 }
-function isCronMonthlyWeekday(day_part, weekday_part) {
+function isCronMonthlyWeekday2(day_part, weekday_part) {
   return !!parseCronWeeksOfMonth(day_part)?.length && !!parseCronWeekdays(weekday_part)?.length;
 }
 function parseRecurringCron(value) {
@@ -105020,7 +105259,7 @@ function parseRecurringCron(value) {
     });
   }
   const weekdays = parseCronWeekdays(weekday_part);
-  if (isCronMonthlyWeekday(day_part, weekday_part)) {
+  if (isCronMonthlyWeekday2(day_part, weekday_part)) {
     const month_weekdays = parseCronWeekdays(weekday_part) || [1];
     return __spreadProps(__spreadValues({}, custom), {
       recurrence_type: "monthly_weekday",
@@ -105082,7 +105321,7 @@ function buildRecurringCron(value) {
   return `${minute} ${hour} * * *`;
 }
 function playlistPlayPeriod(schedule) {
-  return Number.isFinite(schedule.play_period) ? Math.max(0, schedule.play_period) : DEFAULT_PLAY_PERIOD_MINUTES;
+  return Number.isFinite(schedule.play_period) ? Math.max(0, schedule.play_period) : DEFAULT_PLAY_PERIOD_MINUTES2;
 }
 function scheduleTypeFor(schedule) {
   return schedule.play_at ? "play_at" : "play_cron";
@@ -105135,7 +105374,7 @@ function doesCronMatchDate(cron, date) {
     return day_matches;
   if (day === "*" && day_of_week !== "*")
     return weekday_matches;
-  if (isCronMonthlyWeekday(day, day_of_week)) {
+  if (isCronMonthlyWeekday2(day, day_of_week)) {
     return day_matches && weekday_matches;
   }
   return day_matches || weekday_matches;
@@ -105270,7 +105509,7 @@ var PlaylistScheduleFormComponent = class _PlaylistScheduleFormComponent {
     this.weekday_options = WEEKDAY_OPTIONS;
     this.week_of_month_options = WEEK_OF_MONTH_OPTIONS;
     this.month_days = Array.from({ length: 31 }, (_3, index) => index + 1);
-    this.ordinal = ordinal;
+    this.ordinal = ordinal2;
     this.value = computed(
       () => this.schedule()().value(),
       ...ngDevMode ? [{ debugName: "value" }] : (
@@ -105289,7 +105528,7 @@ var PlaylistScheduleFormComponent = class _PlaylistScheduleFormComponent {
     const value = this.value();
     if (value.schedule_type !== "play_cron")
       return [];
-    return nextCronPlayTimes(buildRecurringCron(value), value.play_period ?? DEFAULT_PLAY_PERIOD_MINUTES);
+    return nextCronPlayTimes(buildRecurringCron(value), value.play_period ?? DEFAULT_PLAY_PERIOD_MINUTES2);
   }
   recurringScheduleSummary() {
     const value = this.value();
@@ -105298,7 +105537,7 @@ var PlaylistScheduleFormComponent = class _PlaylistScheduleFormComponent {
     }
     const interval2 = value.recurrence_interval || 1;
     const start_time = this.formatPlayHour(value.play_start);
-    const period = value.play_period ?? DEFAULT_PLAY_PERIOD_MINUTES;
+    const period = value.play_period ?? DEFAULT_PLAY_PERIOD_MINUTES2;
     const duration = formatMinutes(period) || i18n("SIGNAGE_MANAGER.ONE_PLAYLIST_PASS");
     if (value.recurrence_type === "minutes") {
       return i18n("SIGNAGE_MANAGER.SUMMARY_EVERY_MINUTE", { interval: interval2 }, interval2);
@@ -105323,7 +105562,7 @@ var PlaylistScheduleFormComponent = class _PlaylistScheduleFormComponent {
     if (value.recurrence_type === "monthly") {
       const days = normaliseMonthDays(value.recurrence_day_of_month);
       return i18n("SIGNAGE_MANAGER.SUMMARY_MONTHLY", {
-        days: (days.length ? days : [1]).map((day) => ordinal(day)).join(", "),
+        days: (days.length ? days : [1]).map((day) => ordinal2(day)).join(", "),
         time: start_time,
         duration
       });
@@ -105331,7 +105570,7 @@ var PlaylistScheduleFormComponent = class _PlaylistScheduleFormComponent {
     if (value.recurrence_type === "monthly_weekday") {
       const weeks = normaliseWeeksOfMonth(value.recurrence_week_of_month);
       return i18n("SIGNAGE_MANAGER.SUMMARY_MONTHLY_WEEKDAY", {
-        weeks: (weeks.length ? weeks : [1]).map((week) => ordinal(week)).join(", "),
+        weeks: (weeks.length ? weeks : [1]).map((week) => ordinal2(week)).join(", "),
         days: this._weekdayNames(value.recurrence_weekdays),
         time: start_time,
         duration
@@ -105344,7 +105583,7 @@ var PlaylistScheduleFormComponent = class _PlaylistScheduleFormComponent {
   }
   scheduleSummary() {
     const value = this.value();
-    const period = value.play_period ?? DEFAULT_PLAY_PERIOD_MINUTES;
+    const period = value.play_period ?? DEFAULT_PLAY_PERIOD_MINUTES2;
     const duration = formatMinutes(period) || i18n("SIGNAGE_MANAGER.ONE_PLAYLIST_PASS");
     const takeover = value.play_takeover ? i18n("SIGNAGE_MANAGER.TAKEOVER_SUFFIX") : "";
     if (value.schedule_type === "play_at") {
@@ -105947,26 +106186,41 @@ var PlaylistScheduleFormComponent = class _PlaylistScheduleFormComponent {
 })();
 
 // apps/signage-manager/src/app/shared/playlist-edit-modal.component.ts
-function PlaylistEditModalComponent_For_107_Template(rf, ctx) {
+function PlaylistEditModalComponent_Conditional_21_Template(rf, ctx) {
   if (rf & 1) {
-    const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "playlist-schedule-form", 34);
-    \u0275\u0275listener("toggle", function PlaylistEditModalComponent_For_107_Template_playlist_schedule_form_toggle_0_listener() {
-      const \u0275$index_158_r2 = \u0275\u0275restoreView(_r1).$index;
-      const ctx_r2 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r2.openSchedule(\u0275$index_158_r2));
-    })("remove", function PlaylistEditModalComponent_For_107_Template_playlist_schedule_form_remove_0_listener($event) {
-      const \u0275$index_158_r2 = \u0275\u0275restoreView(_r1).$index;
-      const ctx_r2 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r2.removeSchedule($event, \u0275$index_158_r2));
+    \u0275\u0275elementStart(0, "div", 7);
+    \u0275\u0275element(1, "settings-toggle", 35);
+    \u0275\u0275pipe(2, "translate");
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275property("label", \u0275\u0275pipeBind1(2, 2, "SIGNAGE_MANAGER.PLAYLIST_DISTRIBUTION"))("formField", ctx_r0.form.distribution);
+    \u0275\u0275control();
+  }
+}
+function PlaylistEditModalComponent_For_108_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r2 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "playlist-schedule-form", 36);
+    \u0275\u0275listener("toggle", function PlaylistEditModalComponent_For_108_Template_playlist_schedule_form_toggle_0_listener() {
+      const \u0275$index_164_r3 = \u0275\u0275restoreView(_r2).$index;
+      const ctx_r0 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r0.openSchedule(\u0275$index_164_r3));
+    })("remove", function PlaylistEditModalComponent_For_108_Template_playlist_schedule_form_remove_0_listener($event) {
+      const \u0275$index_164_r3 = \u0275\u0275restoreView(_r2).$index;
+      const ctx_r0 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r0.removeSchedule($event, \u0275$index_164_r3));
     });
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
     const schedule_r4 = ctx.$implicit;
-    const \u0275$index_158_r2 = ctx.$index;
-    const ctx_r2 = \u0275\u0275nextContext();
-    \u0275\u0275property("schedule", schedule_r4)("index", \u0275$index_158_r2)("open", ctx_r2.isScheduleOpen(\u0275$index_158_r2))("can_remove", ctx_r2.model().schedules.length > 1);
+    const \u0275$index_164_r3 = ctx.$index;
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275property("schedule", schedule_r4)("index", \u0275$index_164_r3)("open", ctx_r0.isScheduleOpen(\u0275$index_164_r3))("can_remove", ctx_r0.model().schedules.length > 1);
   }
 }
 var PlaylistEditModalComponent = class _PlaylistEditModalComponent {
@@ -105993,6 +106247,7 @@ var PlaylistEditModalComponent = class _PlaylistEditModalComponent {
         name: this.playlist.name || "",
         description: this.playlist.description || "",
         enabled: this.playlist.enabled ?? true,
+        distribution: !!this.playlist.distribution,
         random: !!this.playlist.random,
         default_animation: this.playlist.default_animation ?? Ps.Default,
         orientation: this.playlist.orientation || "unspecified",
@@ -106059,9 +106314,9 @@ var PlaylistEditModalComponent = class _PlaylistEditModalComponent {
       try {
         let result;
         if (this.playlist.id) {
-          result = this._data.onEdit ? await this._data.onEdit(this.playlist.id, data) : await fh(this.playlist.id, data);
+          result = this._data.onEdit ? await this._data.onEdit(this.playlist.id, data) : await _h(this.playlist.id, data);
         } else {
-          result = this._data.onAdd ? await this._data.onAdd(data) : await dh(data);
+          result = this._data.onAdd ? await this._data.onAdd(data) : await mh(data);
         }
         this._dialog_ref.disableClose = false;
         this._dialog_ref.close(result);
@@ -106080,7 +106335,7 @@ var PlaylistEditModalComponent = class _PlaylistEditModalComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _PlaylistEditModalComponent, selectors: [["playlist-edit-modal"]], decls: 111, vars: 121, consts: [[3, "confirm", "heading", "loading"], ["for", "name"], ["required", ""], ["appearance", "outline", 1, "w-full"], ["matInput", "", 3, "placeholder", "formField"], [1, "mb-4", "flex", "items-center", "space-x-4"], [1, "flex-1", 3, "label", "formField"], [1, "pt-2", "pb-4"], [1, "border-base-300", "relative", "rounded-sm", "border"], ["for", "default-duration", 1, "bg-base-100", "absolute", "top-0", "left-2", "m-0", "flex", "w-auto", "min-w-0", "-translate-y-1/2", "items-center", "space-x-2", "px-2"], [1, "flex", "items-center", "px-2", "pt-2"], ["min", "5000", "max", "300000", "step", "1000", 1, "flex-1"], ["matSliderThumb", "", 3, "formField"], [1, "w-16", "px-2", "text-right", "font-mono", "text-xs"], [1, "flex", "space-x-2"], [1, "flex-1"], ["for", "orientation"], [3, "formField", "placeholder"], ["value", "unspecified"], ["value", "landscape"], ["value", "portrait"], ["value", "square"], ["for", "animation"], [3, "value"], ["for", "description"], ["matInput", "", 1, "min-h-32", 3, "placeholder", "formField"], [1, "flex", "space-x-4"], ["for", "valid-from"], ["name", "valid-from", 3, "formField", "clear"], ["for", "valid-until"], ["name", "valid-until", 3, "from", "formField", "clear"], [1, "mt-2", "flex", "flex-col", "gap-4"], [3, "schedule", "index", "open", "can_remove"], ["type", "button", 1, "border-primary", "text-primary", "hover:bg-primary/10", "rounded", "border", "px-3", "py-2", "text-sm", "font-medium", 3, "click"], [3, "toggle", "remove", "schedule", "index", "open", "can_remove"]], template: function PlaylistEditModalComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _PlaylistEditModalComponent, selectors: [["playlist-edit-modal"]], decls: 112, vars: 122, consts: [[3, "confirm", "heading", "loading"], ["for", "name"], ["required", ""], ["appearance", "outline", 1, "w-full"], ["matInput", "", 3, "placeholder", "formField"], [1, "mb-4", "flex", "items-center", "space-x-4"], [1, "flex-1", 3, "label", "formField"], [1, "mb-4"], [1, "pt-2", "pb-4"], [1, "border-base-300", "relative", "rounded-sm", "border"], ["for", "default-duration", 1, "bg-base-100", "absolute", "top-0", "left-2", "m-0", "flex", "w-auto", "min-w-0", "-translate-y-1/2", "items-center", "space-x-2", "px-2"], [1, "flex", "items-center", "px-2", "pt-2"], ["min", "5000", "max", "300000", "step", "1000", 1, "flex-1"], ["matSliderThumb", "", 3, "formField"], [1, "w-16", "px-2", "text-right", "font-mono", "text-xs"], [1, "flex", "space-x-2"], [1, "flex-1"], ["for", "orientation"], [3, "formField", "placeholder"], ["value", "unspecified"], ["value", "landscape"], ["value", "portrait"], ["value", "square"], ["for", "animation"], [3, "value"], ["for", "description"], ["matInput", "", 1, "min-h-32", 3, "placeholder", "formField"], [1, "flex", "space-x-4"], ["for", "valid-from"], ["name", "valid-from", 3, "formField", "clear"], ["for", "valid-until"], ["name", "valid-until", 3, "from", "formField", "clear"], [1, "mt-2", "flex", "flex-col", "gap-4"], [3, "schedule", "index", "open", "can_remove"], ["type", "button", 1, "border-primary", "text-primary", "hover:bg-primary/10", "rounded", "border", "px-3", "py-2", "text-sm", "font-medium", 3, "click"], [3, "label", "formField"], [3, "toggle", "remove", "schedule", "index", "open", "can_remove"]], template: function PlaylistEditModalComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "fullscreen-modal-shell", 0);
         \u0275\u0275pipe(1, "translate");
@@ -106111,211 +106366,214 @@ var PlaylistEditModalComponent = class _PlaylistEditModalComponent {
         \u0275\u0275pipe(20, "translate");
         \u0275\u0275controlCreate();
         \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(21, "div", 7)(22, "div", 8)(23, "label", 9)(24, "div");
-        \u0275\u0275text(25);
-        \u0275\u0275pipe(26, "translate");
+        \u0275\u0275conditionalCreate(21, PlaylistEditModalComponent_Conditional_21_Template, 3, 4, "div", 7);
+        \u0275\u0275elementStart(22, "div", 8)(23, "div", 9)(24, "label", 10)(25, "div");
+        \u0275\u0275text(26);
+        \u0275\u0275pipe(27, "translate");
         \u0275\u0275elementEnd()();
-        \u0275\u0275elementStart(27, "div", 10)(28, "mat-slider", 11);
-        \u0275\u0275element(29, "input", 12);
+        \u0275\u0275elementStart(28, "div", 11)(29, "mat-slider", 12);
+        \u0275\u0275element(30, "input", 13);
         \u0275\u0275controlCreate();
         \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(30, "div", 13);
-        \u0275\u0275text(31);
-        \u0275\u0275pipe(32, "mediaDuration");
+        \u0275\u0275elementStart(31, "div", 14);
+        \u0275\u0275text(32);
+        \u0275\u0275pipe(33, "mediaDuration");
         \u0275\u0275elementEnd()()()();
-        \u0275\u0275elementStart(33, "div", 14)(34, "div", 15)(35, "label", 16);
-        \u0275\u0275text(36);
-        \u0275\u0275pipe(37, "translate");
+        \u0275\u0275elementStart(34, "div", 15)(35, "div", 16)(36, "label", 17);
+        \u0275\u0275text(37);
+        \u0275\u0275pipe(38, "translate");
         \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(38, "mat-form-field", 3)(39, "mat-select", 17);
-        \u0275\u0275pipe(40, "translate");
+        \u0275\u0275elementStart(39, "mat-form-field", 3)(40, "mat-select", 18);
         \u0275\u0275pipe(41, "translate");
-        \u0275\u0275elementStart(42, "mat-option", 18);
-        \u0275\u0275text(43);
-        \u0275\u0275pipe(44, "translate");
+        \u0275\u0275pipe(42, "translate");
+        \u0275\u0275elementStart(43, "mat-option", 19);
+        \u0275\u0275text(44);
+        \u0275\u0275pipe(45, "translate");
         \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(45, "mat-option", 19);
-        \u0275\u0275text(46);
-        \u0275\u0275pipe(47, "translate");
+        \u0275\u0275elementStart(46, "mat-option", 20);
+        \u0275\u0275text(47);
+        \u0275\u0275pipe(48, "translate");
         \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(48, "mat-option", 20);
-        \u0275\u0275text(49);
-        \u0275\u0275pipe(50, "translate");
+        \u0275\u0275elementStart(49, "mat-option", 21);
+        \u0275\u0275text(50);
+        \u0275\u0275pipe(51, "translate");
         \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(51, "mat-option", 21);
-        \u0275\u0275text(52);
-        \u0275\u0275pipe(53, "translate");
+        \u0275\u0275elementStart(52, "mat-option", 22);
+        \u0275\u0275text(53);
+        \u0275\u0275pipe(54, "translate");
         \u0275\u0275elementEnd()();
         \u0275\u0275controlCreate();
         \u0275\u0275elementEnd()();
-        \u0275\u0275elementStart(54, "div", 15)(55, "label", 22);
-        \u0275\u0275text(56);
-        \u0275\u0275pipe(57, "translate");
+        \u0275\u0275elementStart(55, "div", 16)(56, "label", 23);
+        \u0275\u0275text(57);
+        \u0275\u0275pipe(58, "translate");
         \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(58, "mat-form-field", 3)(59, "mat-select", 17);
-        \u0275\u0275pipe(60, "translate");
+        \u0275\u0275elementStart(59, "mat-form-field", 3)(60, "mat-select", 18);
         \u0275\u0275pipe(61, "translate");
-        \u0275\u0275elementStart(62, "mat-option", 23);
-        \u0275\u0275text(63);
-        \u0275\u0275pipe(64, "translate");
+        \u0275\u0275pipe(62, "translate");
+        \u0275\u0275elementStart(63, "mat-option", 24);
+        \u0275\u0275text(64);
+        \u0275\u0275pipe(65, "translate");
         \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(65, "mat-option", 23);
-        \u0275\u0275text(66);
-        \u0275\u0275pipe(67, "translate");
+        \u0275\u0275elementStart(66, "mat-option", 24);
+        \u0275\u0275text(67);
+        \u0275\u0275pipe(68, "translate");
         \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(68, "mat-option", 23);
-        \u0275\u0275text(69);
-        \u0275\u0275pipe(70, "translate");
+        \u0275\u0275elementStart(69, "mat-option", 24);
+        \u0275\u0275text(70);
+        \u0275\u0275pipe(71, "translate");
         \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(71, "mat-option", 23);
-        \u0275\u0275text(72);
-        \u0275\u0275pipe(73, "translate");
+        \u0275\u0275elementStart(72, "mat-option", 24);
+        \u0275\u0275text(73);
+        \u0275\u0275pipe(74, "translate");
         \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(74, "mat-option", 23);
-        \u0275\u0275text(75);
-        \u0275\u0275pipe(76, "translate");
+        \u0275\u0275elementStart(75, "mat-option", 24);
+        \u0275\u0275text(76);
+        \u0275\u0275pipe(77, "translate");
         \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(77, "mat-option", 23);
-        \u0275\u0275text(78);
-        \u0275\u0275pipe(79, "translate");
+        \u0275\u0275elementStart(78, "mat-option", 24);
+        \u0275\u0275text(79);
+        \u0275\u0275pipe(80, "translate");
         \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(80, "mat-option", 23);
-        \u0275\u0275text(81);
-        \u0275\u0275pipe(82, "translate");
+        \u0275\u0275elementStart(81, "mat-option", 24);
+        \u0275\u0275text(82);
+        \u0275\u0275pipe(83, "translate");
         \u0275\u0275elementEnd()();
         \u0275\u0275controlCreate();
         \u0275\u0275elementEnd()()();
-        \u0275\u0275elementStart(83, "label", 24);
-        \u0275\u0275text(84);
-        \u0275\u0275pipe(85, "translate");
+        \u0275\u0275elementStart(84, "label", 25);
+        \u0275\u0275text(85);
+        \u0275\u0275pipe(86, "translate");
         \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(86, "mat-form-field", 3);
-        \u0275\u0275element(87, "textarea", 25);
-        \u0275\u0275pipe(88, "translate");
+        \u0275\u0275elementStart(87, "mat-form-field", 3);
+        \u0275\u0275element(88, "textarea", 26);
         \u0275\u0275pipe(89, "translate");
+        \u0275\u0275pipe(90, "translate");
         \u0275\u0275controlCreate();
         \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(90, "div", 26)(91, "div", 15)(92, "label", 27);
-        \u0275\u0275text(93);
-        \u0275\u0275pipe(94, "translate");
+        \u0275\u0275elementStart(91, "div", 27)(92, "div", 16)(93, "label", 28);
+        \u0275\u0275text(94);
+        \u0275\u0275pipe(95, "translate");
         \u0275\u0275elementEnd();
-        \u0275\u0275element(95, "a-date-field", 28);
+        \u0275\u0275element(96, "a-date-field", 29);
         \u0275\u0275controlCreate();
         \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(96, "div", 15)(97, "label", 29);
-        \u0275\u0275text(98);
-        \u0275\u0275pipe(99, "translate");
+        \u0275\u0275elementStart(97, "div", 16)(98, "label", 30);
+        \u0275\u0275text(99);
+        \u0275\u0275pipe(100, "translate");
         \u0275\u0275elementEnd();
-        \u0275\u0275element(100, "a-date-field", 30);
+        \u0275\u0275element(101, "a-date-field", 31);
         \u0275\u0275controlCreate();
         \u0275\u0275elementEnd()();
-        \u0275\u0275elementStart(101, "div", 7)(102, "label");
-        \u0275\u0275text(103);
-        \u0275\u0275pipe(104, "translate");
+        \u0275\u0275elementStart(102, "div", 8)(103, "label");
+        \u0275\u0275text(104);
+        \u0275\u0275pipe(105, "translate");
         \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(105, "div", 31);
-        \u0275\u0275repeaterCreate(106, PlaylistEditModalComponent_For_107_Template, 1, 4, "playlist-schedule-form", 32, \u0275\u0275repeaterTrackByIndex);
-        \u0275\u0275elementStart(108, "button", 33);
-        \u0275\u0275listener("click", function PlaylistEditModalComponent_Template_button_click_108_listener() {
+        \u0275\u0275elementStart(106, "div", 32);
+        \u0275\u0275repeaterCreate(107, PlaylistEditModalComponent_For_108_Template, 1, 4, "playlist-schedule-form", 33, \u0275\u0275repeaterTrackByIndex);
+        \u0275\u0275elementStart(109, "button", 34);
+        \u0275\u0275listener("click", function PlaylistEditModalComponent_Template_button_click_109_listener() {
           return ctx.addSchedule();
         });
-        \u0275\u0275text(109);
-        \u0275\u0275pipe(110, "translate");
+        \u0275\u0275text(110);
+        \u0275\u0275pipe(111, "translate");
         \u0275\u0275elementEnd()()()()();
       }
       if (rf & 2) {
-        \u0275\u0275property("heading", \u0275\u0275pipeBind1(1, 53, ctx.playlist.id ? "SIGNAGE_MANAGER.PLAYLIST_EDIT" : "SIGNAGE_MANAGER.NEW_PLAYLIST"))("loading", ctx.loading() ? \u0275\u0275pipeBind1(2, 55, "SIGNAGE_MANAGER.PLAYLIST_SAVING") : "");
+        \u0275\u0275property("heading", \u0275\u0275pipeBind1(1, 54, ctx.playlist.id ? "SIGNAGE_MANAGER.PLAYLIST_EDIT" : "SIGNAGE_MANAGER.NEW_PLAYLIST"))("loading", ctx.loading() ? \u0275\u0275pipeBind1(2, 56, "SIGNAGE_MANAGER.PLAYLIST_SAVING") : "");
         \u0275\u0275advance(5);
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(6, 57, "FORM.NAME"));
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(6, 58, "FORM.NAME"));
         \u0275\u0275advance(5);
-        \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(11, 59, "FORM.NAME"))("formField", ctx.form.name);
-        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(12, 61, "SIGNAGE_MANAGER.PLAYLIST_NAME_ARIA"));
+        \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(11, 60, "FORM.NAME"))("formField", ctx.form.name);
+        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(12, 62, "SIGNAGE_MANAGER.PLAYLIST_NAME_ARIA"));
         \u0275\u0275control();
         \u0275\u0275advance(4);
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(15, 63, "FORM.NAME_REQUIRED"));
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(15, 64, "FORM.NAME_REQUIRED"));
         \u0275\u0275advance(3);
-        \u0275\u0275property("label", \u0275\u0275pipeBind1(18, 65, "COMMON.ENABLED"))("formField", ctx.form.enabled);
+        \u0275\u0275property("label", \u0275\u0275pipeBind1(18, 66, "COMMON.ENABLED"))("formField", ctx.form.enabled);
         \u0275\u0275control();
         \u0275\u0275advance(2);
-        \u0275\u0275property("label", \u0275\u0275pipeBind1(20, 67, "SIGNAGE_MANAGER.PLAYLIST_SHUFFLE"))("formField", ctx.form.random);
+        \u0275\u0275property("label", \u0275\u0275pipeBind1(20, 68, "SIGNAGE_MANAGER.PLAYLIST_SHUFFLE"))("formField", ctx.form.random);
         \u0275\u0275control();
-        \u0275\u0275advance(6);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(26, 69, "SIGNAGE_MANAGER.DEFAULT_PLAY_TIME"), " ");
+        \u0275\u0275advance(2);
+        \u0275\u0275conditional(!ctx.playlist.id ? 21 : -1);
+        \u0275\u0275advance(5);
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(27, 70, "SIGNAGE_MANAGER.DEFAULT_PLAY_TIME"), " ");
         \u0275\u0275advance(4);
         \u0275\u0275property("formField", ctx.form.default_duration);
         \u0275\u0275control();
         \u0275\u0275advance(2);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(32, 71, ctx.model().default_duration / 1e3), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(33, 72, ctx.model().default_duration / 1e3), " ");
         \u0275\u0275advance(5);
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(37, 73, "SIGNAGE_MANAGER.ORIENTATION"));
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(38, 74, "SIGNAGE_MANAGER.ORIENTATION"));
         \u0275\u0275advance(3);
-        \u0275\u0275property("formField", ctx.form.orientation)("placeholder", \u0275\u0275pipeBind1(40, 75, "COMMON.LOCATION_UNSPECIFIED"));
-        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(41, 77, "SIGNAGE_MANAGER.PLAYLIST_ORIENTATION_ARIA"));
+        \u0275\u0275property("formField", ctx.form.orientation)("placeholder", \u0275\u0275pipeBind1(41, 76, "COMMON.LOCATION_UNSPECIFIED"));
+        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(42, 78, "SIGNAGE_MANAGER.PLAYLIST_ORIENTATION_ARIA"));
         \u0275\u0275control();
         \u0275\u0275advance(4);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(44, 79, "COMMON.LOCATION_UNSPECIFIED"), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(45, 80, "COMMON.LOCATION_UNSPECIFIED"), " ");
         \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(47, 81, "SIGNAGE_MANAGER.ORIENTATION_LANDSCAPE"));
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(48, 82, "SIGNAGE_MANAGER.ORIENTATION_LANDSCAPE"));
         \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(50, 83, "SIGNAGE_MANAGER.ORIENTATION_PORTRAIT"));
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(51, 84, "SIGNAGE_MANAGER.ORIENTATION_PORTRAIT"));
         \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(53, 85, "SIGNAGE_MANAGER.ORIENTATION_SQUARE"));
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(54, 86, "SIGNAGE_MANAGER.ORIENTATION_SQUARE"));
         \u0275\u0275advance(4);
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(57, 87, "SIGNAGE_MANAGER.ANIMATION"));
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(58, 88, "SIGNAGE_MANAGER.ANIMATION"));
         \u0275\u0275advance(3);
-        \u0275\u0275property("formField", ctx.form.default_animation)("placeholder", \u0275\u0275pipeBind1(60, 89, "COMMON.DEFAULT"));
-        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(61, 91, "SIGNAGE_MANAGER.DEFAULT_ANIMATION"));
+        \u0275\u0275property("formField", ctx.form.default_animation)("placeholder", \u0275\u0275pipeBind1(61, 90, "COMMON.DEFAULT"));
+        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(62, 92, "SIGNAGE_MANAGER.DEFAULT_ANIMATION"));
         \u0275\u0275control();
         \u0275\u0275advance(3);
         \u0275\u0275property("value", 0);
         \u0275\u0275advance();
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(64, 93, "COMMON.DEFAULT"));
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(65, 94, "COMMON.DEFAULT"));
         \u0275\u0275advance(2);
         \u0275\u0275property("value", 1);
         \u0275\u0275advance();
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(67, 95, "SIGNAGE_MANAGER.ANIM_CUT"));
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(68, 96, "SIGNAGE_MANAGER.ANIM_CUT"));
         \u0275\u0275advance(2);
         \u0275\u0275property("value", 2);
         \u0275\u0275advance();
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(70, 97, "SIGNAGE_MANAGER.ANIM_CROSS_FADE"));
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(71, 98, "SIGNAGE_MANAGER.ANIM_CROSS_FADE"));
         \u0275\u0275advance(2);
         \u0275\u0275property("value", 3);
         \u0275\u0275advance();
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(73, 99, "SIGNAGE_MANAGER.ANIM_SLIDE_TOP"));
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(74, 100, "SIGNAGE_MANAGER.ANIM_SLIDE_TOP"));
         \u0275\u0275advance(2);
         \u0275\u0275property("value", 4);
         \u0275\u0275advance();
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(76, 101, "SIGNAGE_MANAGER.ANIM_SLIDE_LEFT"));
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(77, 102, "SIGNAGE_MANAGER.ANIM_SLIDE_LEFT"));
         \u0275\u0275advance(2);
         \u0275\u0275property("value", 5);
         \u0275\u0275advance();
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(79, 103, "SIGNAGE_MANAGER.ANIM_SLIDE_RIGHT"));
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(80, 104, "SIGNAGE_MANAGER.ANIM_SLIDE_RIGHT"));
         \u0275\u0275advance(2);
         \u0275\u0275property("value", 6);
         \u0275\u0275advance();
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(82, 105, "SIGNAGE_MANAGER.ANIM_SLIDE_BOTTOM"));
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(83, 106, "SIGNAGE_MANAGER.ANIM_SLIDE_BOTTOM"));
         \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(85, 107, "COMMON.DESCRIPTION"));
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(86, 108, "COMMON.DESCRIPTION"));
         \u0275\u0275advance(3);
-        \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(88, 109, "COMMON.DESCRIPTION"))("formField", ctx.form.description);
-        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(89, 111, "SIGNAGE_MANAGER.PLAYLIST_DESCRIPTION_ARIA"));
+        \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(89, 110, "COMMON.DESCRIPTION"))("formField", ctx.form.description);
+        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(90, 112, "SIGNAGE_MANAGER.PLAYLIST_DESCRIPTION_ARIA"));
         \u0275\u0275control();
         \u0275\u0275advance(6);
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(94, 113, "SIGNAGE_MANAGER.VALID_FROM"));
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(95, 114, "SIGNAGE_MANAGER.VALID_FROM"));
         \u0275\u0275advance(2);
         \u0275\u0275property("formField", ctx.form.valid_from)("clear", true);
         \u0275\u0275control();
         \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(99, 115, "FORM.EXPIRES_AT"));
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(100, 116, "FORM.EXPIRES_AT"));
         \u0275\u0275advance(2);
         \u0275\u0275property("from", ctx.model().valid_from)("formField", ctx.form.valid_until)("clear", true);
         \u0275\u0275control();
         \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(104, 117, "SIGNAGE_MANAGER.PLAYLIST_SCHEDULES"));
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(105, 118, "SIGNAGE_MANAGER.PLAYLIST_SCHEDULES"));
         \u0275\u0275advance(3);
         \u0275\u0275repeater(ctx.form.schedules);
         \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(110, 119, "SIGNAGE_MANAGER.ADD_SCHEDULE"), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(111, 120, "SIGNAGE_MANAGER.ADD_SCHEDULE"), " ");
       }
     }, dependencies: [
       FullscreenModalShellComponent,
@@ -106386,6 +106644,18 @@ var PlaylistEditModalComponent = class _PlaylistEditModalComponent {
                     >
                     </settings-toggle>
                 </div>
+                @if (!playlist.id) {
+                    <div class="mb-4">
+                        <settings-toggle
+                            [label]="
+                                'SIGNAGE_MANAGER.PLAYLIST_DISTRIBUTION'
+                                    | translate
+                            "
+                            [formField]="form.distribution"
+                        >
+                        </settings-toggle>
+                    </div>
+                }
                 <div class="pt-2 pb-4">
                     <div class="border-base-300 relative rounded-sm border">
                         <label
@@ -106583,7 +106853,187 @@ var PlaylistEditModalComponent = class _PlaylistEditModalComponent {
   }], () => [], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(PlaylistEditModalComponent, { className: "PlaylistEditModalComponent", filePath: "apps/signage-manager/src/app/shared/playlist-edit-modal.component.ts", lineNumber: 302 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(PlaylistEditModalComponent, { className: "PlaylistEditModalComponent", filePath: "apps/signage-manager/src/app/shared/playlist-edit-modal.component.ts", lineNumber: 315 });
+})();
+
+// apps/signage-manager/src/app/shared/playlist-item-schedule-modal.component.ts
+function PlaylistItemScheduleModalComponent_For_5_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r1 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "playlist-schedule-form", 4);
+    \u0275\u0275listener("toggle", function PlaylistItemScheduleModalComponent_For_5_Template_playlist_schedule_form_toggle_0_listener() {
+      const \u0275$index_7_r2 = \u0275\u0275restoreView(_r1).$index;
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.openSchedule(\u0275$index_7_r2));
+    })("remove", function PlaylistItemScheduleModalComponent_For_5_Template_playlist_schedule_form_remove_0_listener($event) {
+      const \u0275$index_7_r2 = \u0275\u0275restoreView(_r1).$index;
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.removeSchedule($event, \u0275$index_7_r2));
+    });
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const schedule_r4 = ctx.$implicit;
+    const \u0275$index_7_r2 = ctx.$index;
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275property("schedule", schedule_r4)("index", \u0275$index_7_r2)("open", ctx_r2.isScheduleOpen(\u0275$index_7_r2))("can_remove", ctx_r2.model().schedules.length > 1);
+  }
+}
+var PlaylistItemScheduleModalComponent = class _PlaylistItemScheduleModalComponent {
+  constructor() {
+    this._data = inject2(MAT_DIALOG_DATA);
+    this._dialog_ref = inject2(MatDialogRef);
+    this.loading = signal(
+      false,
+      ...ngDevMode ? [{ debugName: "loading" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.active_schedule_index = signal(
+      0,
+      ...ngDevMode ? [{ debugName: "active_schedule_index" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.model = signal(
+      {
+        schedules: (this._data.item.schedules?.length ? this._data.item.schedules : [{}]).map((schedule) => createPlaylistScheduleModel(schedule))
+      },
+      ...ngDevMode ? [{ debugName: "model" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.form_model = form(this.model, (path) => {
+      minLength(path.schedules, 1);
+    });
+  }
+  addSchedule() {
+    this.model.update((model2) => ({
+      schedules: [...model2.schedules, createPlaylistScheduleModel()]
+    }));
+    this.active_schedule_index.set(this.model().schedules.length - 1);
+  }
+  removeSchedule(event, index) {
+    event.preventDefault();
+    event.stopPropagation();
+    if (this.model().schedules.length <= 1)
+      return;
+    this.model.update((model2) => ({
+      schedules: model2.schedules.filter((_3, item_index) => item_index !== index)
+    }));
+  }
+  openSchedule(index) {
+    this.active_schedule_index.update((active_index) => active_index === index ? null : index);
+  }
+  isScheduleOpen(index) {
+    return this.active_schedule_index() === index;
+  }
+  async saveSchedule() {
+    await submit(this.form_model, async () => {
+      this.loading.set(true);
+      this._dialog_ref.disableClose = true;
+      try {
+        await this._data.save(this._data.item.item_id, this.model().schedules.map((schedule) => playlistSchedulePayload(schedule)));
+        this._dialog_ref.disableClose = false;
+        this._dialog_ref.close(true);
+        notifySuccess(i18n("SIGNAGE_MANAGER.SVC_PLAYLIST_UPDATED"));
+      } catch (e) {
+        this._dialog_ref.disableClose = false;
+        this.loading.set(false);
+        notifyError(i18n("SIGNAGE_MANAGER.PLAYLIST_SAVE_ERROR"));
+        throw e;
+      }
+    });
+  }
+  static {
+    this.\u0275fac = function PlaylistItemScheduleModalComponent_Factory(__ngFactoryType__) {
+      return new (__ngFactoryType__ || _PlaylistItemScheduleModalComponent)();
+    };
+  }
+  static {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _PlaylistItemScheduleModalComponent, selectors: [["playlist-item-schedule-modal"]], decls: 9, vars: 9, consts: [[3, "confirm", "heading", "loading"], [1, "flex", "flex-col", "gap-4"], [3, "schedule", "index", "open", "can_remove"], ["type", "button", 1, "border-primary", "text-primary", "hover:bg-primary/10", "rounded", "border", "px-3", "py-2", "text-sm", "font-medium", 3, "click"], [3, "toggle", "remove", "schedule", "index", "open", "can_remove"]], template: function PlaylistItemScheduleModalComponent_Template(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275elementStart(0, "fullscreen-modal-shell", 0);
+        \u0275\u0275pipe(1, "translate");
+        \u0275\u0275pipe(2, "translate");
+        \u0275\u0275listener("confirm", function PlaylistItemScheduleModalComponent_Template_fullscreen_modal_shell_confirm_0_listener() {
+          return ctx.saveSchedule();
+        });
+        \u0275\u0275elementStart(3, "div", 1);
+        \u0275\u0275repeaterCreate(4, PlaylistItemScheduleModalComponent_For_5_Template, 1, 4, "playlist-schedule-form", 2, \u0275\u0275repeaterTrackByIndex);
+        \u0275\u0275elementStart(6, "button", 3);
+        \u0275\u0275listener("click", function PlaylistItemScheduleModalComponent_Template_button_click_6_listener() {
+          return ctx.addSchedule();
+        });
+        \u0275\u0275text(7);
+        \u0275\u0275pipe(8, "translate");
+        \u0275\u0275elementEnd()()();
+      }
+      if (rf & 2) {
+        \u0275\u0275property("heading", \u0275\u0275pipeBind1(1, 3, "SIGNAGE_MANAGER.ITEM_SCHEDULES"))("loading", ctx.loading() ? \u0275\u0275pipeBind1(2, 5, "SIGNAGE_MANAGER.PLAYLIST_SAVING") : "");
+        \u0275\u0275advance(4);
+        \u0275\u0275repeater(ctx.form_model.schedules);
+        \u0275\u0275advance(3);
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(8, 7, "SIGNAGE_MANAGER.ADD_SCHEDULE"), " ");
+      }
+    }, dependencies: [
+      FullscreenModalShellComponent,
+      PlaylistScheduleFormComponent,
+      TranslatePipe
+    ], encapsulation: 2 });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(PlaylistItemScheduleModalComponent, [{
+    type: Component,
+    args: [{
+      selector: "playlist-item-schedule-modal",
+      template: `
+        <fullscreen-modal-shell
+            [heading]="'SIGNAGE_MANAGER.ITEM_SCHEDULES' | translate"
+            (confirm)="saveSchedule()"
+            [loading]="
+                loading() ? ('SIGNAGE_MANAGER.PLAYLIST_SAVING' | translate) : ''
+            "
+        >
+            <div class="flex flex-col gap-4">
+                @for (
+                    schedule of form_model.schedules;
+                    track index;
+                    let index = $index
+                ) {
+                    <playlist-schedule-form
+                        [schedule]="schedule"
+                        [index]="index"
+                        [open]="isScheduleOpen(index)"
+                        [can_remove]="model().schedules.length > 1"
+                        (toggle)="openSchedule(index)"
+                        (remove)="removeSchedule($event, index)"
+                    />
+                }
+                <button
+                    type="button"
+                    class="border-primary text-primary hover:bg-primary/10 rounded border px-3 py-2 text-sm font-medium"
+                    (click)="addSchedule()"
+                >
+                    {{ 'SIGNAGE_MANAGER.ADD_SCHEDULE' | translate }}
+                </button>
+            </div>
+        </fullscreen-modal-shell>
+    `,
+      imports: [
+        FullscreenModalShellComponent,
+        PlaylistScheduleFormComponent,
+        TranslatePipe
+      ]
+    }]
+  }], null, null);
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(PlaylistItemScheduleModalComponent, { className: "PlaylistItemScheduleModalComponent", filePath: "apps/signage-manager/src/app/shared/playlist-item-schedule-modal.component.ts", lineNumber: 69 });
 })();
 
 // apps/signage-manager/src/app/shared/playlist-request-approval-modal.component.ts
@@ -106880,7 +107330,7 @@ var PlaylistRequestApprovalModalComponent = class _PlaylistRequestApprovalModalC
       return [];
     this.loading.set(i18n("SIGNAGE_MANAGER.LOADING_VERSIONS"));
     try {
-      const versions = await mh(playlist_id, { limit: 2 });
+      const versions = await $h(playlist_id, { limit: 2 });
       this.playlist_versions.set(versions);
       this.has_previous_version.set(versions.length > 1);
       return versions;
@@ -106905,7 +107355,7 @@ var PlaylistRequestApprovalModalComponent = class _PlaylistRequestApprovalModalC
     this.loading.set(i18n("SIGNAGE_MANAGER.UNDOING_CHANGES"));
     this._dialog_ref.disableClose = true;
     try {
-      await bh(this.data.playlist.id, previous_version.items);
+      await Sh(this.data.playlist.id, previous_version.items);
       this._service.setPlaylistApprovalStatus(this.data.playlist.id, false);
       notifySuccess(i18n("SIGNAGE_MANAGER.PLAYLIST_REVERTED"));
       this._dialog_ref.close();
@@ -107729,7 +108179,7 @@ var SignageService = class _SignageService {
     });
   }
   async _queryManageableGroups(params = {}) {
-    const { data } = await du(__spreadValues({
+    const { data } = await mu(__spreadValues({
       limit: 200,
       fields: SIGNAGE_GROUP_FIELDS,
       subsystem: "signage"
@@ -107740,7 +108190,7 @@ var SignageService = class _SignageService {
     if (this._current_groups_request?.key === groups_change) {
       return this._current_groups_request.promise;
     }
-    const promise = _u({ subsystem: "signage" }).catch((err) => {
+    const promise = yu({ subsystem: "signage" }).catch((err) => {
       if (this._current_groups_request?.key === groups_change) {
         this._current_groups_request = null;
       }
@@ -107844,7 +108294,7 @@ var SignageService = class _SignageService {
     }
   }
   async zoneChildren(parent_id) {
-    const { data } = await Ba({
+    const { data } = await Ka({
       parent_id,
       limit: 2500,
       include_children_count: true
@@ -108102,7 +108552,7 @@ var SignageService = class _SignageService {
         if (!params.group_id)
           return [];
         try {
-          const { data } = await qu({
+          const { data } = await Uu({
             group_id: params.group_id,
             limit: 1e3
           });
@@ -108131,7 +108581,7 @@ var SignageService = class _SignageService {
         if (!params.group_id)
           return [];
         try {
-          const { data } = await Iu({
+          const { data } = await Cu({
             group_id: params.group_id,
             limit: 200
           });
@@ -108275,7 +108725,7 @@ var SignageService = class _SignageService {
           this._media_has_more.set(false);
           if (!initialised || !can_query)
             return;
-          this._fetchMediaPage(nh(this._orgZoneQueryParams({ limit: _SignageService.PAGE_SIZE }, group_id)), token);
+          this._fetchMediaPage(rh(this._orgZoneQueryParams({ limit: _SignageService.PAGE_SIZE }, group_id)), token);
         });
       },
       ...ngDevMode ? [{ debugName: "_reload_media" }] : (
@@ -108310,7 +108760,7 @@ var SignageService = class _SignageService {
         if (!params.initialised || !params.can_query)
           return [];
         try {
-          const tags = await sh(this._orgZoneQueryParams({}, params.group_id));
+          const tags = await oh(this._orgZoneQueryParams({}, params.group_id));
           return [...tags].sort((a, b2) => a.localeCompare(b2));
         } catch {
           return [];
@@ -108363,7 +108813,7 @@ var SignageService = class _SignageService {
           this._playlists_has_more.set(false);
           if (!initialised || !can_query)
             return;
-          this._fetchPlaylistPage(hh(this._orgZoneQueryParams({ limit: _SignageService.PAGE_SIZE }, group_id)), token);
+          this._fetchPlaylistPage(fh(this._orgZoneQueryParams({ limit: _SignageService.PAGE_SIZE }, group_id)), token);
         });
       },
       ...ngDevMode ? [{ debugName: "_reload_playlists" }] : (
@@ -108416,7 +108866,7 @@ var SignageService = class _SignageService {
           this._displays_has_more.set(false);
           if (!initialised || !can_query)
             return;
-          this._fetchDisplayPage(ta(__spreadProps(__spreadValues({}, this._orgZoneQueryParams({}, group_id)), {
+          this._fetchDisplayPage(ia(__spreadProps(__spreadValues({}, this._orgZoneQueryParams({}, group_id)), {
             limit: _SignageService.PAGE_SIZE,
             signage: true
           })), token);
@@ -108441,7 +108891,7 @@ var SignageService = class _SignageService {
         if (!params.initialised || !params.can_query)
           return [];
         try {
-          const result = await Ba(__spreadValues({
+          const result = await Ka(__spreadValues({
             limit: 250,
             tags: "signage"
           }, params.group_id ? { group_id: params.group_id } : {}));
@@ -108472,7 +108922,7 @@ var SignageService = class _SignageService {
         if (!params.initialised || !params.can_query)
           return [];
         try {
-          const result = await Ba(this._groupQueryParams({ limit: 500, include_children_count: true }, params.group_id));
+          const result = await Ka(this._groupQueryParams({ limit: 500, include_children_count: true }, params.group_id));
           return (result.data || []).map(decodeEntityNames);
         } catch {
           return [];
@@ -108500,7 +108950,7 @@ var SignageService = class _SignageService {
         if (!params.initialised || !params.can_query)
           return [];
         try {
-          const result = await Ba(__spreadValues({
+          const result = await Ka(__spreadValues({
             limit: 500,
             include_children_count: true
           }, params.group_id ? { group_id: params.group_id } : { parent_id: "root" }));
@@ -108531,7 +108981,7 @@ var SignageService = class _SignageService {
         if (!params.initialised)
           return [];
         try {
-          const result = await kh(this._orgZoneQueryParams({ limit: 500 }));
+          const result = await Ph(this._orgZoneQueryParams({ limit: 500 }));
           return (result.data || []).filter((plugin) => plugin.enabled).map(decodeEntityNames).sort((a, b2) => a.name.localeCompare(b2.name));
         } catch {
           return [];
@@ -108689,7 +109139,7 @@ var SignageService = class _SignageService {
       () => {
         const result = {};
         for (const [playlist_id, data] of Object.entries(this._playlist_meta_state())) {
-          result[playlist_id] = (data.media_ids || []).map((id) => ch(id));
+          result[playlist_id] = (data.media_ids || []).map((id) => lh(id));
         }
         return result;
       },
@@ -108711,7 +109161,7 @@ var SignageService = class _SignageService {
     this.filtered_displays = computed(
       () => {
         const term = this.display_search_term().toLowerCase();
-        return this.displays().filter((d3) => (d3.display_name || d3.name).toLowerCase().includes(term));
+        return this.displays().filter((d2) => (d2.display_name || d2.name).toLowerCase().includes(term));
       },
       ...ngDevMode ? [{ debugName: "filtered_displays" }] : (
         /* istanbul ignore next */
@@ -108744,23 +109194,37 @@ var SignageService = class _SignageService {
         const playlist = params.playlist;
         if (!playlist?.id) {
           this.playlist_media_loading.set(false);
-          return [];
+          return null;
         }
         this.playlist_media_loading.set(true);
         try {
-          const result = await _h(playlist.id);
+          const result = await yh(playlist.id);
           this._setPlaylistMediaState(playlist.id, result.items || [], result.approved);
-          return playlistMediaItems(result);
+          return result;
         } catch {
-          return [];
+          return null;
         } finally {
           this.playlist_media_loading.set(false);
         }
       }
     }));
     this.playlist_media_items = computed(
-      () => this._playlist_media_items.value() || [],
+      () => playlistMediaItems(this._playlist_media_items.value() || {}),
       ...ngDevMode ? [{ debugName: "playlist_media_items" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.playlist_item_schedules = computed(
+      () => playlistItemScheduleMap(this._playlist_media_items.value() || {}),
+      ...ngDevMode ? [{ debugName: "playlist_item_schedules" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.playlist_item_schedule_list = computed(
+      () => this._playlist_media_items.value()?.schedules || [],
+      ...ngDevMode ? [{ debugName: "playlist_item_schedule_list" }] : (
         /* istanbul ignore next */
         []
       )
@@ -108796,7 +109260,7 @@ var SignageService = class _SignageService {
       return;
     const ref = this._dialog.open(PlaylistEditModalComponent, {
       data: {
-        playlist: new ir({}),
+        playlist: new or({}),
         onAdd: (data) => this._addSignagePlaylist(data)
       },
       panelClass: "mobile-fullscreen"
@@ -108822,7 +109286,7 @@ var SignageService = class _SignageService {
     const ref = this._dialog.open(PlaylistEditModalComponent, {
       data: {
         playlist,
-        onEdit: (id, data) => fh(id, data)
+        onEdit: (id, data) => _h(id, data)
       },
       panelClass: "mobile-fullscreen"
     });
@@ -108848,7 +109312,7 @@ var SignageService = class _SignageService {
     }, this._dialog);
     if (result.reason !== "done")
       return;
-    await ph(playlist.id);
+    await gh(playlist.id);
     if (this.selected_playlist()?.id === playlist.id) {
       this.selected_playlist.set(null);
       this.selected_playlist_item.set(null);
@@ -108893,7 +109357,7 @@ var SignageService = class _SignageService {
       }
       const selected_group_id = this._api_group_id();
       group = groups.find((item) => item.group.id === selected_group_id) || groups[0];
-      approvers = await $h(group.group.id) || [];
+      approvers = await kh(group.group.id) || [];
     } catch {
       notifyWarn(i18n("SIGNAGE_MANAGER.SVC_NO_APPROVERS"));
     } finally {
@@ -108911,14 +109375,14 @@ var SignageService = class _SignageService {
     const result = await dialogClosed(ref);
     if (!result)
       return;
-    await yh(playlist.id, group.group.id, result.message || "", result.approver_id || "");
+    await vh(playlist.id, group.group.id, result.message || "", result.approver_id || "");
     this.setPlaylistApprovalStatus(playlist.id, false, true);
     notifySuccess(i18n("SIGNAGE_MANAGER.SVC_APPROVAL_REQUESTED"));
   }
   async removeMediaFromPlaylist(playlist_id, media_id, item_index) {
     if (!this._requirePermission(this.can_update(), i18n("SIGNAGE_MANAGER.SVC_NO_UPDATE_PLAYLISTS")))
       return;
-    const media_list = await _h(playlist_id);
+    const media_list = await yh(playlist_id);
     const new_items = [...media_list.items || []];
     if (typeof item_index === "number" && new_items[item_index] === media_id) {
       new_items.splice(item_index, 1);
@@ -108928,7 +109392,7 @@ var SignageService = class _SignageService {
         return;
       new_items.splice(index, 1);
     }
-    await bh(playlist_id, new_items);
+    await Sh(playlist_id, new_items);
     this._setPlaylistMediaState(playlist_id, new_items, false);
     notifySuccess(i18n("SIGNAGE_MANAGER.SVC_ITEM_REMOVED"));
     this._playlist_change.set(Date.now());
@@ -108937,9 +109401,53 @@ var SignageService = class _SignageService {
   async reorderPlaylistMedia(playlist_id, items) {
     if (!this._requirePermission(this.can_update(), i18n("SIGNAGE_MANAGER.SVC_NO_UPDATE_PLAYLISTS")))
       return;
-    await bh(playlist_id, items);
+    await Sh(playlist_id, items);
     this._setPlaylistMediaState(playlist_id, items, false);
     this._playlist_change.set(Date.now());
+  }
+  async editPlaylistItemSchedule(item) {
+    const playlist = this.selected_playlist();
+    if (!playlist?.id || !item?.item_id)
+      return;
+    if (!this._requirePermission(this.can_update(), i18n("SIGNAGE_MANAGER.SVC_NO_UPDATE_PLAYLISTS")))
+      return;
+    const ref = this._dialog.open(PlaylistItemScheduleModalComponent, {
+      data: {
+        item,
+        save: (item_id, schedules) => Ah(playlist.id, item_id, {
+          item_id,
+          schedules
+        })
+      },
+      panelClass: "mobile-fullscreen"
+    });
+    const result = await dialogClosed(ref);
+    if (result) {
+      this._playlist_change.set(Date.now());
+      this.changed();
+    }
+  }
+  async _scheduleMediaForDistributionPlaylist(playlist_id, media_id) {
+    const media = this.media().find((item) => item.id === media_id);
+    const ref = this._dialog.open(PlaylistItemScheduleModalComponent, {
+      data: {
+        item: new rr({
+          item_id: media_id,
+          media
+        }),
+        save: (item_id, schedules) => xh(playlist_id, {
+          item_id,
+          schedules
+        })
+      },
+      panelClass: "mobile-fullscreen"
+    });
+    const result = await dialogClosed(ref);
+    if (!result)
+      return false;
+    this._playlist_change.set(Date.now());
+    this.changed();
+    return true;
   }
   changed() {
     this._change.set(Date.now());
@@ -108959,7 +109467,7 @@ var SignageService = class _SignageService {
     const payload = __spreadProps(__spreadValues(__spreadValues({}, group), data), {
       subsystems: Array.from(/* @__PURE__ */ new Set([...group.subsystems || [], "signage"]))
     });
-    const result = await (group.id ? gu(group.id, payload) : mu(payload)).catch((error2) => {
+    const result = await (group.id ? bu(group.id, payload) : $u(payload)).catch((error2) => {
       notifyError(i18n("SIGNAGE_MANAGER.SVC_ERR_SAVE_GROUP"));
       throw error2;
     });
@@ -108983,7 +109491,7 @@ var SignageService = class _SignageService {
     }, this._dialog);
     if (result.reason !== "done")
       return;
-    await yu(group.id).catch((error2) => {
+    await vu(group.id).catch((error2) => {
       result.close();
       notifyError(i18n("SIGNAGE_MANAGER.SVC_ERR_REMOVE_GROUP"));
       throw error2;
@@ -108997,7 +109505,7 @@ var SignageService = class _SignageService {
   }
   async searchGroupUsers(search = "") {
     const group = this.managed_group();
-    const { data } = await Ea(__spreadValues({
+    const { data } = await Ma(__spreadValues({
       q: search,
       limit: 20
     }, group?.authority_id ? { authority_id: group.authority_id } : {}));
@@ -109005,7 +109513,7 @@ var SignageService = class _SignageService {
   }
   async searchGroupZones(search = "") {
     const group = this.managed_group();
-    const { data } = await Ba(__spreadValues({
+    const { data } = await Ka(__spreadValues({
       q: search,
       limit: 20
     }, group?.authority_id ? { authority_id: group.authority_id } : {}));
@@ -109015,7 +109523,7 @@ var SignageService = class _SignageService {
     const group_id = this.managed_group_id();
     if (!user?.id || !this.canManageSignageGroup(group_id))
       return;
-    await Ru({
+    await Tu({
       group_id,
       user_id: user.id,
       permissions: 0
@@ -109029,7 +109537,7 @@ var SignageService = class _SignageService {
   async updateManagedGroupUser(item, permissions) {
     if (!this.canManageSignageGroup(item.group_id))
       return;
-    await Uu(item.user_id, item.group_id, {
+    await Eu(item.user_id, item.group_id, {
       permissions
     }).catch((error2) => {
       notifyError(i18n("SIGNAGE_MANAGER.SVC_ERR_UPDATE_USER"));
@@ -109050,7 +109558,7 @@ var SignageService = class _SignageService {
     }, this._dialog);
     if (result.reason !== "done")
       return;
-    await Tu(item.user_id, item.group_id).catch((error2) => {
+    await Ou(item.user_id, item.group_id).catch((error2) => {
       result.close();
       notifyError(i18n("SIGNAGE_MANAGER.SVC_ERR_REMOVE_USER"));
       throw error2;
@@ -109063,7 +109571,7 @@ var SignageService = class _SignageService {
     const group_id = this.managed_group_id();
     if (!zone?.id || !this.canManageSignageGroup(group_id))
       return;
-    await Cu({
+    await Nu({
       group_id,
       zone_id: zone.id,
       permissions: 0
@@ -109077,7 +109585,7 @@ var SignageService = class _SignageService {
   async updateManagedGroupZone(item, permissions, deny) {
     if (!this.canManageSignageGroup(item.group_id))
       return;
-    await Ou(item.group_id, item.zone_id, {
+    await wu(item.group_id, item.zone_id, {
       permissions,
       deny
     }).catch((error2) => {
@@ -109099,7 +109607,7 @@ var SignageService = class _SignageService {
     }, this._dialog);
     if (result.reason !== "done")
       return;
-    await Mu(item.group_id, item.zone_id).catch((error2) => {
+    await Du(item.group_id, item.zone_id).catch((error2) => {
       result.close();
       notifyError(i18n("SIGNAGE_MANAGER.SVC_ERR_REMOVE_ZONE"));
       throw error2;
@@ -109156,14 +109664,14 @@ var SignageService = class _SignageService {
   _addSignageMedia(form_data) {
     const group_id = this._api_group_id();
     if (!group_id)
-      return oh(form_data);
-    return S(`${u2()}/signage/media?group_id=${encodeURIComponent(group_id)}`, form_data).then((resp) => new sr(resp));
+      return ah(form_data);
+    return S(`${u2()}/signage/media?group_id=${encodeURIComponent(group_id)}`, form_data).then((resp) => new Rs(resp));
   }
   _addSignagePlaylist(form_data) {
     const group_id = this._api_group_id();
     if (!group_id)
-      return dh(form_data);
-    return S(`${u2()}/signage/playlists?group_id=${encodeURIComponent(group_id)}`, form_data).then((resp) => new ir(resp));
+      return mh(form_data);
+    return S(`${u2()}/signage/playlists?group_id=${encodeURIComponent(group_id)}`, form_data).then((resp) => new or(resp));
   }
   async _shareSignageItems(item_type, item_ids) {
     if (!this._requirePermission(this.can_share(), i18n("SIGNAGE_MANAGER.SVC_NO_SHARE_ITEMS")))
@@ -109184,7 +109692,7 @@ var SignageService = class _SignageService {
     const group_id = await dialogClosed(ref);
     if (!group_id)
       return false;
-    const request = item_type === "media" ? ah({ items: item_ids.join(","), to: group_id }) : vh({
+    const request = item_type === "media" ? dh({ items: item_ids.join(","), to: group_id }) : qh({
       items: item_ids.join(","),
       to: group_id
     });
@@ -109204,7 +109712,7 @@ var SignageService = class _SignageService {
         continue;
       }
       try {
-        const result = await hh({
+        const result = await fh({
           group_id: group.group.id,
           limit: 500
         });
@@ -109241,7 +109749,7 @@ var SignageService = class _SignageService {
   async updatePlaylistMedia(playlist_id, list) {
     if (!this._requirePermission(this.can_update(), i18n("SIGNAGE_MANAGER.SVC_NO_UPDATE_PLAYLISTS")))
       return;
-    await bh(playlist_id, list);
+    await Sh(playlist_id, list);
     this._setPlaylistMediaState(playlist_id, list, false);
     notifySuccess(i18n("SIGNAGE_MANAGER.SVC_PLAYLIST_UPDATED"));
     this._playlist_change.set(Date.now());
@@ -109250,7 +109758,7 @@ var SignageService = class _SignageService {
   async addMediaToPlaylist(playlist_id, media_id) {
     if (!this._requirePermission(this.can_update(), i18n("SIGNAGE_MANAGER.SVC_NO_UPDATE_PLAYLISTS")))
       return;
-    const media_list = await _h(playlist_id);
+    const media_list = await yh(playlist_id);
     if (media_list.items?.includes(media_id)) {
       const result = await openConfirmModal({
         title: i18n("SIGNAGE_MANAGER.SVC_ADD_DUPLICATE_TITLE"),
@@ -109261,7 +109769,12 @@ var SignageService = class _SignageService {
         return;
       result.close();
     }
+    const playlist = this.playlists().find((item) => item.id === playlist_id);
     const new_items = [...media_list.items || [], media_id];
+    if (playlist?.distribution) {
+      await this._scheduleMediaForDistributionPlaylist(playlist_id, media_id);
+      return;
+    }
     await this.updatePlaylistMedia(playlist_id, new_items);
   }
   async addMediaItemsToPlaylist(playlist_id, media_ids) {
@@ -109270,12 +109783,21 @@ var SignageService = class _SignageService {
     const unique_media_ids = [...new Set(media_ids)].filter(Boolean);
     if (!playlist_id || !unique_media_ids.length)
       return false;
-    const media_list = await _h(playlist_id);
+    const playlist = this.playlists().find((item) => item.id === playlist_id);
+    const media_list = await yh(playlist_id);
     const existing_items = media_list.items || [];
     const new_media_ids = unique_media_ids.filter((id) => !existing_items.includes(id));
     if (!new_media_ids.length) {
       notifyWarn(i18n("SIGNAGE_MANAGER.SVC_MEDIA_ALREADY_IN"));
       return false;
+    }
+    if (playlist?.distribution) {
+      for (const media_id of new_media_ids) {
+        const added = await this._scheduleMediaForDistributionPlaylist(playlist_id, media_id);
+        if (!added)
+          return false;
+      }
+      return true;
     }
     await this.updatePlaylistMedia(playlist_id, [
       ...existing_items,
@@ -109303,7 +109825,7 @@ var SignageService = class _SignageService {
           [next_playlist.id]: true
         }));
         try {
-          const media = await _h(next_playlist.id);
+          const media = await yh(next_playlist.id);
           const media_ids = media.items || [];
           this._setPlaylistMeta(next_playlist.id, {
             media_ids: media_ids.slice(0, 3),
@@ -109371,11 +109893,11 @@ var SignageService = class _SignageService {
       return;
     for (const playlist_id of linked_playlist_ids) {
       const cached_items = cached_state[playlist_id]?.item_ids;
-      const current_items = cached_items || (await _h(playlist_id)).items || [];
+      const current_items = cached_items || (await yh(playlist_id)).items || [];
       const updated_items = current_items.filter((id) => !removed_ids.has(id));
       if (updated_items.length === current_items.length)
         continue;
-      await bh(playlist_id, updated_items);
+      await Sh(playlist_id, updated_items);
       this._setPlaylistMediaState(playlist_id, updated_items, false);
     }
     const selected_item = this.selected_playlist_item();
@@ -109422,7 +109944,7 @@ var SignageService = class _SignageService {
       const prepared = await this._prepareUploadMedia(file);
       if (!prepared)
         continue;
-      await this.editMedia(new sr({}), prepared.file, playlist_id, prepared.metadata);
+      await this.editMedia(new Rs({}), prepared.file, playlist_id, prepared.metadata);
     }
   }
   async bulkUploadMedia(files, playlist_id = "") {
@@ -109438,7 +109960,7 @@ var SignageService = class _SignageService {
       return;
     const data = {
       items,
-      onUpload: (item, permissions, on_progress) => this._addMedia(item.file, new sr({}), playlist_id, item.metadata, void 0, { permissions, on_progress })
+      onUpload: (item, permissions, on_progress) => this._addMedia(item.file, new Rs({}), playlist_id, item.metadata, void 0, { permissions, on_progress })
     };
     const ref = this._dialog.open(BulkMediaUploadModalComponent, {
       data,
@@ -109451,7 +109973,7 @@ var SignageService = class _SignageService {
     if (!this._requirePermission(this.can_create(), i18n("SIGNAGE_MANAGER.SVC_NO_CREATE_MEDIA")))
       return;
     const url_obj = new URL(url);
-    const media = new sr({
+    const media = new Rs({
       name: url_obj.hostname,
       media_uri: url,
       media_type: "webpage",
@@ -109462,7 +109984,7 @@ var SignageService = class _SignageService {
   async addMediaFromPlugin(plugin) {
     if (!this._requirePermission(this.can_create(), i18n("SIGNAGE_MANAGER.SVC_NO_CREATE_MEDIA")))
       return;
-    const media = new sr({
+    const media = new Rs({
       name: "",
       media_uri: plugin.uri,
       media_type: "plugin",
@@ -109471,7 +109993,7 @@ var SignageService = class _SignageService {
     });
     await this.editMedia(media, void 0, "", void 0, plugin);
   }
-  async editMedia(media = new sr({}), file, playlist_id = "", prepared_file_metadata, plugin) {
+  async editMedia(media = new Rs({}), file, playlist_id = "", prepared_file_metadata, plugin) {
     if (media.id) {
       if (!this._requirePermission(this.can_update(), i18n("SIGNAGE_MANAGER.SVC_NO_UPDATE_MEDIA")))
         return;
@@ -109503,7 +110025,7 @@ var SignageService = class _SignageService {
         playlist_id,
         plugin,
         loadPlugin: load_plugin,
-        onAdd: (f2, m2, file_metadata2) => this._addMedia(f2, m2, playlist_id, file_metadata2, file_thumbnail),
+        onAdd: (f3, m2, file_metadata2) => this._addMedia(f3, m2, playlist_id, file_metadata2, file_thumbnail),
         onEdit: (id, data) => this._editMedia(id, data),
         preview: (item) => this.previewMedia(item)
       }
@@ -109514,14 +110036,14 @@ var SignageService = class _SignageService {
   async _editMedia(id, data) {
     if (!this._requirePermission(this.can_update(), i18n("SIGNAGE_MANAGER.SVC_NO_UPDATE_MEDIA")))
       return;
-    await rh(id, data);
+    await ch(id, data);
     this.changed();
   }
   async _resolvePlugin(plugin_id) {
     if (!plugin_id)
       return void 0;
     try {
-      const result = await kh({
+      const result = await Ph({
         limit: 500
       }).catch(() => ({ data: [] }));
       const all_plugins = result.data || [];
@@ -109543,7 +110065,7 @@ var SignageService = class _SignageService {
           return "";
         });
       }
-      const data = __spreadValues({}, new sr(__spreadProps(__spreadValues({}, media_item), {
+      const data = __spreadValues({}, new Rs(__spreadProps(__spreadValues({}, media_item), {
         thumbnail_id: thumbnail_id || void 0
       })));
       for (const key in data) {
@@ -109553,14 +110075,14 @@ var SignageService = class _SignageService {
       result = await this._addSignageMedia(data);
     }
     if (playlist_id && result?.id) {
-      const media_list = await _h(playlist_id);
+      const media_list = await yh(playlist_id);
       const new_media_list = [...media_list.items, result.id];
       await this.updatePlaylistMedia(playlist_id, new_media_list);
     }
     this.changed();
     return result;
   }
-  async addMedia(file, media_item = new sr({}), file_metadata, upload_options) {
+  async addMedia(file, media_item = new Rs({}), file_metadata, upload_options) {
     if (!this._requirePermission(this.can_create(), i18n("SIGNAGE_MANAGER.SVC_NO_CREATE_MEDIA"))) {
       throw new Error(i18n("SIGNAGE_MANAGER.SVC_PERMISSION_DENIED"));
     }
@@ -109607,7 +110129,7 @@ var SignageService = class _SignageService {
         return "";
       });
     }
-    const data = __spreadValues({}, new sr(__spreadProps(__spreadValues({}, media_item), {
+    const data = __spreadValues({}, new Rs(__spreadProps(__spreadValues({}, media_item), {
       name: media_item.name || upload_file.name,
       media_id,
       media_uri: media_url,
@@ -109672,7 +110194,7 @@ var SignageService = class _SignageService {
     if (result.reason !== "done")
       return;
     await this._removeMediaFromCachedPlaylists([item.id]);
-    await uh(item.id);
+    await hh(item.id);
     this.changed();
     notifySuccess(i18n("SIGNAGE_MANAGER.SVC_MEDIA_REMOVED"));
     result.close();
@@ -109691,7 +110213,7 @@ var SignageService = class _SignageService {
     if (result.reason !== "done")
       return false;
     await this._removeMediaFromCachedPlaylists(media_items.map((item) => item.id));
-    await Promise.all(media_items.map((item) => uh(item.id)));
+    await Promise.all(media_items.map((item) => hh(item.id)));
     this.changed();
     notifySuccess(i18n("SIGNAGE_MANAGER.SVC_MEDIA_REMOVED"));
     result.close();
@@ -109743,7 +110265,7 @@ var SignageService = class _SignageService {
       return;
     }
     const playlists = [...zone.playlists || [], playlist_id];
-    const updated = await Ka(zone.id, { playlists, version: zone.version }, "patch");
+    const updated = await Ya(zone.id, { playlists, version: zone.version }, "patch");
     this._cacheZone(updated);
     this.selected_zone.set(updated);
     this.changed();
@@ -109753,7 +110275,7 @@ var SignageService = class _SignageService {
     if (!this._requirePermission(this.can_update(), i18n("SIGNAGE_MANAGER.SVC_NO_UPDATE_ASSIGNMENTS")))
       return;
     const playlists = (zone.playlists || []).filter((id) => id !== playlist_id);
-    const updated = await Ka(zone.id, { playlists, version: zone.version }, "patch");
+    const updated = await Ya(zone.id, { playlists, version: zone.version }, "patch");
     this._cacheZone(updated);
     this.selected_zone.set(updated);
     this.changed();
@@ -109770,7 +110292,7 @@ var SignageService = class _SignageService {
     if (!display_id)
       return;
     const displays = this.displays();
-    const display = displays.find((d3) => d3.id === display_id);
+    const display = displays.find((d2) => d2.id === display_id);
     if (!display)
       return;
     if (display.zones?.includes(zone.id)) {
@@ -109778,7 +110300,7 @@ var SignageService = class _SignageService {
       return;
     }
     const zones = [...display.zones || [], zone.id];
-    const updated = await ia(display.id, { zones, version: display.version }, "patch");
+    const updated = await ua(display.id, { zones, version: display.version }, "patch");
     this._cacheDisplay(updated);
     this.changed();
     notifySuccess(i18n("SIGNAGE_MANAGER.SVC_DISPLAY_ADDED_ZONE"));
@@ -109787,11 +110309,11 @@ var SignageService = class _SignageService {
     if (!this._requirePermission(this.can_update(), i18n("SIGNAGE_MANAGER.SVC_NO_UPDATE_ASSIGNMENTS")))
       return;
     const displays = this.displays();
-    const display = displays.find((d3) => d3.id === display_id);
+    const display = displays.find((d2) => d2.id === display_id);
     if (!display)
       return;
     const zones = (display.zones || []).filter((id) => id !== zone.id);
-    const updated = await ia(display.id, { zones, version: display.version }, "patch");
+    const updated = await ua(display.id, { zones, version: display.version }, "patch");
     this._cacheDisplay(updated);
     this.changed();
     notifySuccess(i18n("SIGNAGE_MANAGER.SVC_DISPLAY_REMOVED_ZONE"));
@@ -109811,7 +110333,7 @@ var SignageService = class _SignageService {
       return;
     }
     const playlists = [...display.playlists || [], playlist_id];
-    const updated = await ia(display.id, { playlists, version: display.version }, "patch");
+    const updated = await ua(display.id, { playlists, version: display.version }, "patch");
     this._cacheDisplay(updated);
     this.selected_display.set(updated);
     this.changed();
@@ -109828,7 +110350,7 @@ var SignageService = class _SignageService {
     if (!display_id)
       return;
     const displays = this.displays();
-    const display = displays.find((d3) => d3.id === display_id);
+    const display = displays.find((d2) => d2.id === display_id);
     if (!display)
       return;
     if (display.playlists?.includes(playlist.id)) {
@@ -109836,7 +110358,7 @@ var SignageService = class _SignageService {
       return;
     }
     const playlists = [...display.playlists || [], playlist.id];
-    const updated = await ia(display.id, { playlists, version: display.version }, "patch");
+    const updated = await ua(display.id, { playlists, version: display.version }, "patch");
     this._cacheDisplay(updated);
     if (this.selected_display()?.id === display.id) {
       this.selected_display.set(updated);
@@ -109863,7 +110385,7 @@ var SignageService = class _SignageService {
       return;
     }
     const playlists = [...zone.playlists || [], playlist.id];
-    const updated = await Ka(zone.id, { playlists, version: zone.version }, "patch");
+    const updated = await Ya(zone.id, { playlists, version: zone.version }, "patch");
     this._cacheZone(updated);
     if (this.selected_zone()?.id === zone.id) {
       this.selected_zone.set(updated);
@@ -109875,7 +110397,7 @@ var SignageService = class _SignageService {
     if (!this._requirePermission(this.can_update(), i18n("SIGNAGE_MANAGER.SVC_NO_UPDATE_ASSIGNMENTS")))
       return;
     const playlists = (display.playlists || []).filter((id) => id !== playlist.id);
-    const updated = await ia(display.id, { playlists, version: display.version }, "patch");
+    const updated = await ua(display.id, { playlists, version: display.version }, "patch");
     this._cacheDisplay(updated);
     if (this.selected_display()?.id === display.id) {
       this.selected_display.set(updated);
@@ -109887,7 +110409,7 @@ var SignageService = class _SignageService {
     if (!this._requirePermission(this.can_update(), i18n("SIGNAGE_MANAGER.SVC_NO_UPDATE_ASSIGNMENTS")))
       return;
     const playlists = (zone.playlists || []).filter((id) => id !== playlist.id);
-    const updated = await Ka(zone.id, { playlists, version: zone.version }, "patch");
+    const updated = await Ya(zone.id, { playlists, version: zone.version }, "patch");
     this._cacheZone(updated);
     if (this.selected_zone()?.id === zone.id) {
       this.selected_zone.set(updated);
@@ -109899,7 +110421,7 @@ var SignageService = class _SignageService {
     if (!this._requirePermission(this.can_update(), i18n("SIGNAGE_MANAGER.SVC_NO_UPDATE_ASSIGNMENTS")))
       return;
     const playlists = (display.playlists || []).filter((id) => id !== playlist_id);
-    const updated = await ia(display.id, { playlists, version: display.version }, "patch");
+    const updated = await ua(display.id, { playlists, version: display.version }, "patch");
     this._cacheDisplay(updated);
     this.selected_display.set(updated);
     this.changed();
@@ -110201,6 +110723,7 @@ export {
   ɵɵattribute,
   ɵɵconditionalCreate,
   ɵɵconditional,
+  ɵɵrepeaterTrackByIndex,
   ɵɵrepeaterTrackByIdentity,
   ɵɵrepeaterCreate,
   ɵɵrepeater,
@@ -110301,15 +110824,16 @@ export {
   NgModel,
   ɵNgNoValidate,
   FormsModule,
-  ri,
-  V,
+  oi,
+  X,
   Rt,
-  Dr,
-  Hr,
-  Wr,
+  Fr,
+  Lr,
+  Zr,
   Ps,
-  Nl,
-  mr,
+  rr,
+  Fl,
+  $r,
   i18n,
   LocaleService,
   notifyError,
@@ -110422,7 +110946,9 @@ export {
   MediaDurationPipe,
   GroupSelectModalComponent,
   playlistMediaThumbnailUrl,
+  playlistMediaIcon,
+  playlistScheduleLabel,
   dialogClosed,
   SignageService
 };
-//# sourceMappingURL=chunk-IBMT4URR.js.map
+//# sourceMappingURL=chunk-U6C4N7EH.js.map
