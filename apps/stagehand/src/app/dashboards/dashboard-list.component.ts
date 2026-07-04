@@ -22,7 +22,7 @@ import { DashboardsService } from './dashboards.service';
         <div class="p-4">
             <mat-progress-bar
                 class="w-full"
-                [class.opacity-0]="loading.length <= 0"
+                [class.opacity-0]="loading().length <= 0"
             />
             <simple-table
                 class="bg-base-100 block min-w-3xl"
