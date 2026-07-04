@@ -68047,15 +68047,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION4 = {
   "dirty": false,
-  "raw": "aa39f65",
-  "hash": "aa39f65",
+  "raw": "d68f7e6",
+  "hash": "d68f7e6",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "aa39f65",
+  "suffix": "d68f7e6",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1782986507269
+  "time": 1783148517153
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -142825,7 +142825,6 @@ var MeetingFlowConfirmComponent = class _MeetingFlowConfirmComponent extends Asy
     return building?.address || building?.display_name || building?.name;
   }
   async ngOnInit() {
-    console.log("Event:", this.event.resources[0]);
     this._space = await this._space_pipe.transform(this.event.resources[0]?.email) || this._space;
   }
   optionList(item) {
