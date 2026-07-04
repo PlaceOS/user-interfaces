@@ -289,7 +289,6 @@ export class MeetingFlowConfirmComponent
     }
 
     public async ngOnInit() {
-        console.log('Event:', this.event.resources[0]);
         this._space =
             (await this._space_pipe.transform(
                 this.event.resources[0]?.email,

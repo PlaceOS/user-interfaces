@@ -285,9 +285,9 @@ export class VerticalTimelineComponent
         const date = this.date();
         const end = addMinutes(this.date(), this.duration());
         const duration = formatDuration({ minutes: this.duration() });
-        return `${format(date, 'hh:mm A')} - ${format(
+        return `${format(date, 'hh:mm a')} - ${format(
             end,
-            'hh:mm A',
+            'hh:mm a',
         )} (${duration})`;
     }
 
