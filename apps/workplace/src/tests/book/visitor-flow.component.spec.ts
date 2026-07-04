@@ -1,17 +1,22 @@
-import { Injector, signal, WritableSignal } from '@angular/core';
+import { Injector, WritableSignal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
+import { ActivatedRoute, Router } from '@angular/router';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import {
     BookingForm,
     BookingFormValue,
     BookingFormService,
     generateBookingForm,
+    InviteVisitorFormComponent,
 } from '@placeos/bookings';
 import { SettingsService } from '@placeos/common';
-import { ActivatedRoute } from '@angular/router';
+import { mockComponent } from '@placeos/common/tests';
+import { MockProvider } from 'ng-mocks';
 import { NEVER, of } from 'rxjs';
-import { VisitorFlowNewComponent } from 'apps/workplace/src/app/book/visitor-flow-new/visitor-flow.component';
+
+import { VisitorFlowComponent } from '../../app/book/visitor-flow.component';
+import { VisitorFlowNewComponent } from '../../app/book/visitor-flow-new/visitor-flow.component';
 
 describe('VisitorFlowNewComponent', () => {
     let spectator: SpectatorRouting<VisitorFlowNewComponent>;
@@ -162,5 +167,33 @@ describe('VisitorFlowNewComponent', () => {
         await expect(spectator.component.canDeactivate()).resolves.toBe(false);
 
         expect(clear_form).not.toHaveBeenCalled();
+    });
+});
+
+describe('VisitorFlowComponent', () => {
+    let spectator: SpectatorRouting<VisitorFlowComponent>;
+    const createComponent = createRoutingFactory({
+        component: VisitorFlowComponent,
+        providers: [MockProvider(Router, { navigate: jest.fn() })],
+        declarations: [mockComponent(InviteVisitorFormComponent)],
+    });
+
+    beforeEach(() => (spectator = createComponent()));
+
+    it('should create component', () =>
+        expect(spectator.component).toBeTruthy());
+
+    it('should render the invite visitor form', () =>
+        expect(spectator.query('invite-visitor-form')).toExist());
+
+    it('should navigate home when the form completes', () => {
+        spectator.component.onDone();
+        expect(spectator.inject(Router).navigate).toHaveBeenCalledWith(['/']);
+    });
+
+    it('should navigate home when the form emits done', () => {
+        const form = spectator.query(InviteVisitorFormComponent);
+        form!.done.emit();
+        expect(spectator.inject(Router).navigate).toHaveBeenCalledWith(['/']);
     });
 });

@@ -215,7 +215,7 @@ export class ParkingReportListComponent {
         for (const bkn of data) {
             bkn.date = format(bkn.date, 'yyyy-MM-dd HH:mm');
             bkn.checked_in_at = bkn.checked_in_at
-                ? format(bkn.checked_in_at, 'yyyy-MM-dd HH:mm')
+                ? format(bkn.checked_in_at * 1000, 'yyyy-MM-dd HH:mm')
                 : '';
         }
         const rows = await Promise.all(
@@ -227,6 +227,7 @@ export class ParkingReportListComponent {
                 host: bkn.host,
                 plate_number: bkn.plate_number,
                 checked_in: bkn.checked_in,
+                checked_in_at: bkn.checked_in_at,
                 status: bkn.status,
                 self_registered: bkn.self_registered,
             })),

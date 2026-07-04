@@ -468,13 +468,9 @@ export class AlertConditionTimeFormComponent
         if (form && form.cron) {
             const hour = this.cron_hour();
             const minute = this.cron_minute() % 60;
-            const day_of_week = this.days_of_week().indexOf(
-                this.cron_day() as any,
-            );
+            const day_of_week = this.cron_day();
             const day_of_month = this.cron_date();
-            const month = this.months_of_year().indexOf(
-                this.cron_month() as any,
-            );
+            const month = this.cron_month();
             let cron_str = '* * * * *';
             switch (this.cron_period()) {
                 case 'minute':
@@ -518,7 +514,7 @@ export class AlertConditionTimeFormComponent
         this.cron_hour.set(+hour || 0);
         this.cron_day.set(+weekday || 0);
         this.cron_date.set(+hour || 1);
-        this.cron_month.set(+month - 1);
+        this.cron_month.set(+month || 1);
         this.cron_period.set('minute');
         if (month !== '*') {
             this.cron_period.set('month');

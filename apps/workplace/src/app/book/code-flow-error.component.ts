@@ -5,10 +5,8 @@ import { BookingFormService } from '@placeos/bookings';
 import { AsyncHandler } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
 
-const VALID_TYPES = ['not_started', 'wrong_resource', 'other'];
-
 @Component({
-    selector: 'code-flow-success',
+    selector: 'code-flow-error',
     template: `
         <div class="bg-base-100 z-50 flex h-full w-full flex-col">
             <main
