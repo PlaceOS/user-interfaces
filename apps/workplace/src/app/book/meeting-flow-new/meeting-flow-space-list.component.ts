@@ -313,7 +313,6 @@ export class MeetingFlowSpaceListComponent {
 
     public toggleFavourite(space: Space) {
         const existing = this.favourites();
-        console.log('Toggle Favourites:', space, existing);
         const updated = existing.find((id) => space.id === id)
             ? existing.filter((id) => id !== space.id)
             : [...existing, space.id];
