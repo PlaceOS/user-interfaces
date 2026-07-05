@@ -1,5 +1,5 @@
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 import { SettingsService } from '@placeos/common';
 import { BookingAsset } from 'libs/bookings/src/lib/booking-form.service';
 import { MockProvider, ngMocks } from 'ng-mocks';
@@ -14,7 +14,7 @@ describe('SetDatetimeModalComponent', () => {
     const createComponent = createComponentFactory({
         component: SetDatetimeModalComponent,
         ...ngMocks.guts(null),
-        providers: [MockProvider(SettingsService, { get: jest.fn() })],
+        providers: [MockProvider(SettingsService, { get: vi.fn() })],
     });
 
     function setup(data: Record<string, unknown> = {}) {

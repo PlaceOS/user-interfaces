@@ -6,7 +6,7 @@ import { of } from 'rxjs';
 
 import { ExploreStateService } from '../lib/explore-state.service';
 
-jest.mock('@placeos/ts-client');
+vi.mock('@placeos/ts-client');
 
 import { MockProvider } from 'ng-mocks';
 
@@ -19,11 +19,11 @@ describe('ExploreStateService', () => {
             MockProvider(OrganisationService, {
                 initialised: signal(true),
                 active_building: signal({ id: 'bld-1' }),
-                levelsForBuilding: jest.fn(() => [
+                levelsForBuilding: vi.fn(() => [
                     { id: 'lvl-1' },
                     { id: 'lvl-2' },
                 ]),
-                levelWithID: jest.fn((l) =>
+                levelWithID: vi.fn((l) =>
                     [{ id: 'lvl-1' }, { id: 'lvl-2' }].find((lvl) =>
                         l.includes(lvl.id),
                     ),
@@ -40,7 +40,7 @@ describe('ExploreStateService', () => {
                 ]),
             } as any),
             MockProvider(SettingsService, {
-                get: jest.fn(),
+                get: vi.fn(),
                 overrides: settings_overrides,
             }),
         ],
@@ -58,13 +58,13 @@ describe('ExploreStateService', () => {
     // it('should list spaces for active level', async () => {
     //     const space = new Space({ id: 'space-1', zones: ['bld-1', 'lvl-1'] });
     //     const space2 = new Space({ id: 'space-2', zones: ['bld-2', 'lvl-2'] });
-    //     (client.querySystems as any) = jest.fn(() => of({ data: [space] }));
+    //     (client.querySystems as any) = vi.fn(() => of({ data: [space] }));
     //     let level = spectator.service.level();
     //     expect(level).toEqual({ id: 'lvl-1' });
     //     let spaces = spectator.service.spaces();
     //     expect(spaces).toHaveLength(1);
     //     expect(spaces[0]).toEqual(space);
-    //     (client.querySystems as any) = jest.fn(() => of({ data: [space2] }));
+    //     (client.querySystems as any) = vi.fn(() => of({ data: [space2] }));
     //     spectator.service.setLevel('lvl-2');
     //     level = spectator.service.level();
     //     expect(level).toEqual({ id: 'lvl-2' });
@@ -126,7 +126,7 @@ describe('ExploreStateService', () => {
     });
 
     it('should retain disabled styles after reset', async () => {
-        (spectator.inject(SettingsService) as any).get = jest.fn(
+        (spectator.inject(SettingsService) as any).get = vi.fn(
             (name: string) =>
                 name === 'app.explore.disable_styles' ? 'parking' : undefined,
         );
@@ -144,7 +144,7 @@ describe('ExploreStateService', () => {
     });
 
     it('should apply disabled actions from settings', async () => {
-        (spectator.inject(SettingsService) as any).get = jest.fn(
+        (spectator.inject(SettingsService) as any).get = vi.fn(
             (name: string) =>
                 name === 'app.explore.disable_actions' ? 'parking' : undefined,
         );
@@ -155,7 +155,7 @@ describe('ExploreStateService', () => {
     });
 
     it('should apply disabled features from settings', async () => {
-        (spectator.inject(SettingsService) as any).get = jest.fn(
+        (spectator.inject(SettingsService) as any).get = vi.fn(
             (name: string) =>
                 name === 'app.explore.disable_features' ? 'parking' : undefined,
         );
@@ -166,7 +166,7 @@ describe('ExploreStateService', () => {
     });
 
     it('should apply disabled labels from settings', async () => {
-        (spectator.inject(SettingsService) as any).get = jest.fn(
+        (spectator.inject(SettingsService) as any).get = vi.fn(
             (name: string) =>
                 name === 'app.explore.disable_labels' ? 'parking' : undefined,
         );
@@ -177,7 +177,7 @@ describe('ExploreStateService', () => {
     });
 
     it('should retain disabled actions after reset', async () => {
-        (spectator.inject(SettingsService) as any).get = jest.fn(
+        (spectator.inject(SettingsService) as any).get = vi.fn(
             (name: string) =>
                 name === 'app.explore.disable_actions' ? 'parking' : undefined,
         );
@@ -190,7 +190,7 @@ describe('ExploreStateService', () => {
 
     it('should apply disabled styles when settings overrides change', async () => {
         let disable_styles;
-        (spectator.inject(SettingsService) as any).get = jest.fn(
+        (spectator.inject(SettingsService) as any).get = vi.fn(
             (name: string) =>
                 name === 'app.explore.disable_styles'
                     ? disable_styles

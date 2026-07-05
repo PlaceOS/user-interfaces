@@ -1,5 +1,5 @@
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 import { SettingsService } from '@placeos/common';
 import { MockProvider, ngMocks } from 'ng-mocks';
 
@@ -14,7 +14,7 @@ describe('ExploreBookQrComponent', () => {
             MockProvider(MAT_DIALOG_DATA, {
                 space: { id: 'space-1', name: 'Test Space', email: 'space-1' },
             }),
-            MockProvider(SettingsService, { get: jest.fn(() => '') }),
+            MockProvider(SettingsService, { get: vi.fn(() => '') } as any),
         ],
     });
 
@@ -50,8 +50,8 @@ describe('ExploreBookQrComponent', () => {
                     space: { id: 'abc', name: 'Custom', email: 'abc' },
                 }),
                 MockProvider(SettingsService, {
-                    get: jest.fn(() => 'custom/#/book?space={{id}}'),
-                }),
+                    get: vi.fn(() => 'custom/#/book?space={{id}}'),
+                } as any),
             ],
         });
         // The generated QR code encodes the resolved link, so it should

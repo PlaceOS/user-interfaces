@@ -1,9 +1,8 @@
 import { signal } from '@angular/core';
-import { fakeAsync } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { SpectatorRouting, createRoutingFactory } from '@ngneat/spectator/jest';
+import { SpectatorRouting, createRoutingFactory } from '@ngneat/spectator/vitest';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
@@ -25,16 +24,19 @@ import { ExploreStateService } from '../lib/explore-state.service';
 import { ExploreZonesService } from '../lib/explore-zones.service';
 import { ExploreZoomControlComponent } from '../lib/explore-zoom-control.component';
 
-jest.mock('@placeos/ts-client', () => ({
-    ...jest.requireActual('@placeos/ts-client'),
-    getModule: jest.fn(),
-}));
-jest.mock('libs/users/src/lib/staff.fn');
-jest.mock('libs/common/src/lib/notifications');
+// staff.fn and notifications run for real: showStaff hits the stubbed
+// ts-client `get`, and notifications render through a fake snackbar outlet.
+vi.mock('@placeos/ts-client', { spy: true });
 
 import * as ts_client from '@placeos/ts-client';
-import * as common_mod from 'libs/common/src/lib/notifications';
-import * as user_mod from 'libs/users/src/lib/staff.fn';
+import { setNotifyOutlet } from 'libs/common/src/lib/notifications';
+
+const fake_snackbar = {
+    open: vi.fn(() => ({
+        onAction: () => of(),
+        dismiss: vi.fn(),
+    })),
+};
 
 describe('ExploreMapViewComponent', () => {
     let spectator: SpectatorRouting<ExploreMapViewComponent>;
@@ -53,7 +55,7 @@ describe('ExploreMapViewComponent', () => {
             MockProvider(ExploreParkingService),
             MockProvider(ExploreLockersService),
             MockProvider(ExplorePointOfInterestService),
-            MockProvider(SpacePipe, { transform: jest.fn(() => ({})) } as any),
+            MockProvider(SpacePipe, { transform: vi.fn(() => ({})) } as any),
         ],
         providers: [
             MockProvider(MapsPeopleService, {
@@ -61,12 +63,13 @@ describe('ExploreMapViewComponent', () => {
             } as any),
             MockProvider(OrganisationService, {
                 initialised: signal(true),
-                levelWithID: jest.fn(),
-                binding: jest.fn(() => 'sys'),
+                levelWithID: vi.fn(),
+                module: vi.fn(),
+                binding: vi.fn(() => 'sys'),
                 active_levels: signal([]),
                 active_building: signal({ id: 'bld-1' }),
             } as any),
-            MockProvider(SpacesService, { initialised: of(true) }),
+            MockProvider(SpacesService, { initialised: signal(true) }),
             MockProvider(ExploreStateService, {
                 level: signal({ id: 'lvl-1' }),
                 options: signal({ is_public: true }),
@@ -77,14 +80,14 @@ describe('ExploreMapViewComponent', () => {
                 map_actions: signal([]),
                 map_labels: signal([]),
                 message: signal(''),
-                reset: jest.fn(),
-                setLevel: jest.fn(),
-                setFeatures: jest.fn(),
-                setOptions: jest.fn(),
+                reset: vi.fn(),
+                setLevel: vi.fn(),
+                setFeatures: vi.fn(),
+                setOptions: vi.fn(),
             } as any),
             MockProvider(SettingsService, {
-                value: jest.fn(),
-                get: jest.fn(() => false),
+                value: vi.fn(),
+                get: vi.fn(() => false),
             } as any),
         ],
         imports: [
@@ -95,7 +98,10 @@ describe('ExploreMapViewComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
+        vi.mocked(ts_client.get).mockResolvedValue({
+            email: 'jim@jim.com',
+        } as any);
         spectator = createComponent();
     });
 
@@ -128,37 +134,45 @@ describe('ExploreMapViewComponent', () => {
         expect(state.setLevel).toHaveBeenCalledWith('lvl-1');
     });
 
-    it('should handle locating users', fakeAsync(() => {
+    it('should handle locating users', async () => {
         const state = spectator.inject(ExploreStateService);
-        jest.mocked(ts_client.getModule).mockReturnValue({
-            execute: jest.fn(() => [{}]),
-        } as any);
-        (common_mod as any).notifyError = jest.fn();
-        (user_mod as any).showStaff = jest.fn(() => of({}));
+        const org = spectator.inject(OrganisationService);
+        const execute = vi.fn(async () => [
+            { position: 'desk-1', level: 'lvl-1' },
+        ]);
+        vi.mocked(org.module).mockReturnValue({ execute } as any);
+        setNotifyOutlet(fake_snackbar as any, true);
+        fake_snackbar.open.mockClear();
+        vi.useFakeTimers();
         spectator.setRouteQueryParam('user', 'jim@jim.com');
-        spectator.tick(1000);
-        expect(state.setFeatures).toHaveBeenCalledTimes(2);
-        jest.mocked(ts_client.getModule).mockReturnValue({
-            execute: jest.fn(() => []),
-        } as any);
-        expect(common_mod.notifyError).not.toHaveBeenCalled();
+        await vi.advanceTimersByTimeAsync(1000);
+        // showStaff ran for real against the stubbed ts-client `get`
+        expect(execute).toHaveBeenCalled();
+        expect(fake_snackbar.open).not.toHaveBeenCalled();
+        expect(state.setFeatures).toHaveBeenCalledWith('_located', [
+            expect.objectContaining({
+                track_id: expect.stringContaining('locate-'),
+            }),
+        ]);
+        // No locations found -> user is notified of the failure
+        execute.mockResolvedValue([]);
         spectator.setRouteQueryParam('user', 'jim2@jim.com');
         spectator.detectChanges();
-        spectator.tick(1000);
-        // expect(common_mod.notifyError).toHaveBeenCalled();
-        expect(state.setFeatures).toHaveBeenCalledTimes(3);
-    }));
+        await vi.advanceTimersByTimeAsync(1000);
+        expect(fake_snackbar.open).toHaveBeenCalled();
+        vi.useRealTimers();
+    });
 
-    it('should handle location spaces', fakeAsync(() => {
+    it('should handle location spaces', () => {
         const state = spectator.inject(ExploreStateService);
         const spaces = spectator.inject(SpacesService);
-        (spaces as any).find = jest.fn(() => ({}));
+        (spaces as any).find = vi.fn(() => ({}));
         spectator.setRouteQueryParam('space', 'space-1');
         spectator.detectChanges();
         expect(state.setFeatures).toHaveBeenCalledTimes(2);
-        (spaces as any).find = jest.fn(() => null);
+        (spaces as any).find = vi.fn(() => null);
         spectator.setRouteQueryParam('space', 'space-2');
         spectator.detectChanges();
         expect(state.setFeatures).toHaveBeenCalledTimes(3);
-    }));
+    });
 });

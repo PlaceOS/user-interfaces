@@ -1,5 +1,5 @@
 import { MatDialog } from '@angular/material/dialog';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MAP_FEATURE_DATA } from '@placeos/common';
 import { MockProvider, ngMocks } from 'ng-mocks';
 
@@ -20,7 +20,7 @@ describe('ExploreLockerBankInfoComponent', () => {
         in_use_count: 2,
         locker_count: 3,
     };
-    const open = jest.fn();
+    const open = vi.fn();
     const createComponent = createComponentFactory({
         component: ExploreLockerBankInfoComponent,
         ...ngMocks.guts(null),

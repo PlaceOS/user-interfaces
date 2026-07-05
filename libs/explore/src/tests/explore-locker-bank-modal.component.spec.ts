@@ -1,6 +1,6 @@
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Locker, LockerBank } from '@placeos/bookings';
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 import { LockerGridComponent } from 'libs/bookings/src/lib/locker-grid.component';
 import { MockProvider, ngMocks } from 'ng-mocks';
 

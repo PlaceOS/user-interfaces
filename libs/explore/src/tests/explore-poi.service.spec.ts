@@ -8,10 +8,7 @@ import { ExplorePointOfInterestModalComponent } from '../lib/explore-poi-modal.c
 import { ExplorePointOfInterestService } from '../lib/explore-poi.service';
 import { ExploreStateService } from '../lib/explore-state.service';
 
-jest.mock('@placeos/ts-client', () => ({
-    ...jest.requireActual('@placeos/ts-client'),
-    showMetadata: jest.fn(),
-}));
+vi.mock('@placeos/ts-client', { spy: true });
 
 import * as ts_client from '@placeos/ts-client';
 
@@ -22,22 +19,22 @@ describe('ExplorePointOfInterestService', () => {
         providers: [
             MockProvider(ExploreStateService, {
                 level: signal({ id: 'lvl-1' }) as any,
-                setActions: jest.fn(),
-                setFeatures: jest.fn(),
+                setActions: vi.fn(),
+                setFeatures: vi.fn(),
             }),
             MockProvider(OrganisationService, {
                 organisation: { id: 'org-1' } as any,
                 building: { id: 'bld-1' } as any,
                 active_building: signal({ id: 'bld-1' }) as any,
-                levelsForBuilding: jest.fn(() => [{ id: 'lvl-1' }]) as any,
+                levelsForBuilding: vi.fn(() => [{ id: 'lvl-1' }]) as any,
             }),
-            MockProvider(MatDialog, { open: jest.fn() }),
+            MockProvider(MatDialog, { open: vi.fn() }),
         ],
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
-        jest.mocked(ts_client.showMetadata).mockResolvedValue({
+        vi.clearAllMocks();
+        vi.mocked(ts_client.showMetadata).mockResolvedValue({
             details: {},
         } as any);
         spectator = createService();
@@ -68,9 +65,9 @@ describe('ExplorePointOfInterestService', () => {
                 expect.objectContaining({ id: 'poi-1', action: 'touchend' }),
             ]),
         );
-        const [, actions] = jest.mocked(state.setActions).mock.calls[0];
+        const [, actions] = vi.mocked(state.setActions).mock.calls[0];
         expect(actions.length).toBe(4);
-        const [, features] = jest.mocked(state.setFeatures).mock.calls[0];
+        const [, features] = vi.mocked(state.setFeatures).mock.calls[0];
         expect(features.length).toBe(1);
         expect(features[0].location).toBe('poi-1');
     });
@@ -80,8 +77,8 @@ describe('ExplorePointOfInterestService', () => {
         (spectator.service as any)._updateMapDetails([
             { name: 'No location', extra_details: [{ label: 'a' }] },
         ]);
-        const [, actions] = jest.mocked(state.setActions).mock.calls[0];
-        const [, features] = jest.mocked(state.setFeatures).mock.calls[0];
+        const [, actions] = vi.mocked(state.setActions).mock.calls[0];
+        const [, features] = vi.mocked(state.setFeatures).mock.calls[0];
         expect(actions.length).toBe(0);
         expect(features.length).toBe(0);
     });
@@ -91,8 +88,8 @@ describe('ExplorePointOfInterestService', () => {
         (spectator.service as any)._updateMapDetails([
             { location: 'poi-1', name: 'Empty' },
         ]);
-        const [, actions] = jest.mocked(state.setActions).mock.calls[0];
-        const [, features] = jest.mocked(state.setFeatures).mock.calls[0];
+        const [, actions] = vi.mocked(state.setActions).mock.calls[0];
+        const [, features] = vi.mocked(state.setFeatures).mock.calls[0];
         expect(actions.length).toBe(0);
         expect(features.length).toBe(0);
     });
@@ -102,7 +99,7 @@ describe('ExplorePointOfInterestService', () => {
         (spectator.service as any)._updateMapDetails([
             { location: 'poi-1', name: 'Photo', image: 'http://img' },
         ]);
-        const [, features] = jest.mocked(state.setFeatures).mock.calls[0];
+        const [, features] = vi.mocked(state.setFeatures).mock.calls[0];
         expect(features.length).toBe(1);
     });
 
@@ -125,9 +122,9 @@ describe('ExplorePointOfInterestService', () => {
             extra_details: [{ label: 'Info' }],
         };
         (spectator.service as any)._updateMapDetails([item]);
-        const [, actions] = jest.mocked(state.setActions).mock.calls[0];
+        const [, actions] = vi.mocked(state.setActions).mock.calls[0];
         const mouseup = actions.find((_: any) => _.action === 'mouseup');
-        mouseup.callback();
+        mouseup.callback(new Event('mouseup'));
         expect(dialog.open).toHaveBeenCalledWith(
             ExplorePointOfInterestModalComponent,
             { data: item },

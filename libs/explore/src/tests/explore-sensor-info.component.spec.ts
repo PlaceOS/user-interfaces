@@ -1,5 +1,4 @@
-import { fakeAsync, tick } from '@angular/core/testing';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MAP_FEATURE_DATA } from '@placeos/common';
 import { ngMocks } from 'ng-mocks';
 
@@ -56,7 +55,8 @@ describe('ExploreSensorInfoComponent', () => {
         expect(spectator.component.show()).toBe(false);
     });
 
-    it('should be shown once set as the active sensor', fakeAsync(() => {
+    it('should be shown once set as the active sensor', async () => {
+        vi.useFakeTimers();
         spectator = createComponent({
             providers: [
                 {
@@ -66,7 +66,8 @@ describe('ExploreSensorInfoComponent', () => {
             ],
         });
         spectator.component.setShow(true);
-        tick(300);
+        await vi.advanceTimersByTimeAsync(300);
         expect(spectator.component.show()).toBe(true);
-    }));
+        vi.useRealTimers();
+    });
 });
