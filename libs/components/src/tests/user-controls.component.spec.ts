@@ -1,28 +1,21 @@
 import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 import {
     LocaleService,
     OrganisationService,
     SettingsService,
     StaffUser,
-    currentUser,
-    hasNewVersion,
+    setCurrentUser,
     settingSignal,
 } from '@placeos/common';
 import { logout } from '@placeos/ts-client';
 
-jest.mock('@placeos/ts-client', () => ({
-    ...jest.requireActual('@placeos/ts-client'),
-    logout: jest.fn(),
-}));
-
-jest.mock('@placeos/common', () => ({
-    ...jest.requireActual('@placeos/common'),
-    currentUser: jest.fn(),
-    hasNewVersion: jest.fn(() => false),
-}));
+// The real user store drives `currentUser()`; only ts-client `logout` is
+// stubbed. `hasNewVersion` has no exported test hook, so the component's own
+// getter is overridden per-instance where the update state matters.
+vi.mock('@placeos/ts-client', { spy: true });
 
 import { SupportTicketModalComponent } from 'libs/form-fields/src/lib/support-ticket-modal.component';
 import { UserControlsComponent } from '../lib/user-controls.component';
@@ -30,8 +23,8 @@ import { UserControlsComponent } from '../lib/user-controls.component';
 describe('UserControlsComponent', () => {
     let spectator: Spectator<UserControlsComponent>;
     const settings = {
-        get: jest.fn(() => null),
-        saveUserSetting: jest.fn(),
+        get: vi.fn((_key?: string) => null as any),
+        saveUserSetting: vi.fn(),
         signal: (name: string, default_value: any) =>
             settingSignal(name, default_value),
     };
@@ -71,10 +64,10 @@ describe('UserControlsComponent', () => {
     }
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
+        vi.mocked(logout).mockImplementation(() => undefined as any);
         settings.get.mockReturnValue(null);
-        jest.mocked(currentUser).mockReturnValue(test_user);
-        jest.mocked(hasNewVersion).mockReturnValue(false);
+        setCurrentUser(test_user);
         settingSignal('features', []).set([]);
         settingSignal('locales', []).set([]);
         settingSignal('allow_accessibility_changes', true).set(true);
@@ -105,7 +98,10 @@ describe('UserControlsComponent', () => {
 
     it('should only show the new version button when an update exists', () => {
         expect(spectator.queryAll('.mb-4 button')).toHaveLength(1);
-        jest.mocked(hasNewVersion).mockReturnValue(true);
+        Object.defineProperty(spectator.component, 'has_new_version', {
+            get: () => true,
+            configurable: true,
+        });
         spectator.detectChanges();
         expect(spectator.queryAll('.mb-4 button')).toHaveLength(2);
     });
@@ -114,7 +110,7 @@ describe('UserControlsComponent', () => {
         expect(findButtonWithIcon('support_agent')).toBeFalsy();
         settingSignal('features', []).set(['support-ticket']);
         spectator.detectChanges();
-        const open_spy = jest
+        const open_spy = vi
             .spyOn(MatDialog.prototype, 'open')
             .mockReturnValue(null);
         spectator.click(findButtonWithIcon('support_agent'));
@@ -129,7 +125,7 @@ describe('UserControlsComponent', () => {
                 ? 'https://support.example.com'
                 : null,
         );
-        const window_spy = jest
+        const window_spy = vi
             .spyOn(window, 'open')
             .mockImplementation(() => null);
         spectator.click(findButtonWithIcon('support_agent'));
@@ -152,7 +148,7 @@ describe('UserControlsComponent', () => {
         expect(spectator.element.textContent).not.toContain(
             "Today's Work Location",
         );
-        jest.mocked(currentUser).mockReturnValue(
+        setCurrentUser(
             new StaffUser({
                 ...test_user,
                 work_preferences: [

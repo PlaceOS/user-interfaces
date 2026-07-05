@@ -1,10 +1,9 @@
 import { OverlayModule } from '@angular/cdk/overlay';
 import { PortalModule } from '@angular/cdk/portal';
-import { fakeAsync } from '@angular/core/testing';
 import {
     createDirectiveFactory,
     SpectatorDirective,
-} from '@ngneat/spectator/jest';
+} from '@ngneat/spectator/vitest';
 import { VirtualKeyboardComponent } from '../lib/virtual-keyboard.component';
 
 describe('VirtualKeyboardComponent', () => {
@@ -28,10 +27,11 @@ describe('VirtualKeyboardComponent', () => {
         expect(spectator.directive).toBeTruthy();
     });
 
-    it('show keyboard on input focus', fakeAsync(() => {
+    it('show keyboard on input focus', async () => {
+        vi.useFakeTimers();
         const input = spectator.query('input');
-        const open_spy = jest.spyOn(spectator.directive, 'open');
-        const close_spy = jest.spyOn(spectator.directive, 'close');
+        const open_spy = vi.spyOn(spectator.directive, 'open');
+        const close_spy = vi.spyOn(spectator.directive, 'close');
         spectator.focus(input);
         spectator.detectChanges();
         expect(open_spy).not.toHaveBeenCalled();
@@ -41,31 +41,36 @@ describe('VirtualKeyboardComponent', () => {
         spectator.detectChanges();
         expect(open_spy).toHaveBeenCalled();
         spectator.blur(input);
-        spectator.tick(500);
+        await vi.advanceTimersByTimeAsync(500);
         expect(close_spy).toHaveBeenCalled();
-    }));
+        vi.useRealTimers();
+    });
 
-    it('should update input value on key presses', fakeAsync(() => {
+    it('should update input value on key presses', async () => {
+        vi.useFakeTimers();
         VirtualKeyboardComponent.enabled = true;
         const input = spectator.query('input');
         spectator.focus(input);
         spectator.detectChanges();
         expect(input).toHaveValue('');
         spectator.directive.handleKeyPress('a');
-        spectator.tick(100);
+        await vi.advanceTimersByTimeAsync(100);
         expect(input).toHaveValue('a');
-    }));
+        vi.useRealTimers();
+    });
 
-    it('should keep input field focused', fakeAsync(() => {
+    it('should keep input field focused', async () => {
+        vi.useFakeTimers();
         VirtualKeyboardComponent.enabled = true;
         const input: HTMLInputElement = spectator.query('input');
         spectator.focus(input);
         spectator.detectChanges();
         expect(input).toBeFocused();
         spectator.directive.handleKeyPress('q');
-        spectator.tick(100);
+        await vi.advanceTimersByTimeAsync(100);
         expect(input).toBeFocused();
-    }));
+        vi.useRealTimers();
+    });
 
     it('should allow customising the displayed keys', () => {
         VirtualKeyboardComponent.enabled = true;
@@ -110,7 +115,7 @@ describe('VirtualKeyboardComponent', () => {
     it('should position keyboard below inputs with more space below', () => {
         VirtualKeyboardComponent.enabled = true;
         const input: HTMLInputElement = spectator.query('input');
-        jest.spyOn(input, 'getBoundingClientRect').mockReturnValue({
+        vi.spyOn(input, 'getBoundingClientRect').mockReturnValue({
             top: 100,
             bottom: 120,
             height: 20,
@@ -133,7 +138,7 @@ describe('VirtualKeyboardComponent', () => {
     it('should position keyboard above inputs with more space above', () => {
         VirtualKeyboardComponent.enabled = true;
         const input: HTMLInputElement = spectator.query('input');
-        jest.spyOn(input, 'getBoundingClientRect').mockReturnValue({
+        vi.spyOn(input, 'getBoundingClientRect').mockReturnValue({
             top: 880,
             bottom: 900,
             height: 20,
@@ -153,7 +158,8 @@ describe('VirtualKeyboardComponent', () => {
         expect((spectator.directive as any)._position).toBe('top');
     });
 
-    it('should handle special keys', fakeAsync(() => {
+    it('should handle special keys', async () => {
+        vi.useFakeTimers();
         VirtualKeyboardComponent.enabled = true;
         const input: HTMLInputElement = spectator.query('input');
         input.value = 'Testing';
@@ -161,19 +167,20 @@ describe('VirtualKeyboardComponent', () => {
         spectator.detectChanges();
         expect(input).toHaveValue('Testing');
         spectator.directive.handleKeyPress('{backspace}');
-        spectator.tick(100);
+        await vi.advanceTimersByTimeAsync(100);
         expect(input).toHaveValue('Testin');
         spectator.directive.handleKeyPress('{space}');
-        spectator.tick(100);
+        await vi.advanceTimersByTimeAsync(100);
         expect(input).toHaveValue('Testin ');
         expect(spectator.directive.keyset().flat()).not.toContain('A');
         spectator.directive.handleKeyPress('{caps}');
-        spectator.tick(100);
+        await vi.advanceTimersByTimeAsync(100);
         expect(input).toHaveValue('Testin ');
         expect(spectator.directive.keyset().flat()).toContain('A');
         spectator.directive.handleKeyPress('{caps}');
-        spectator.tick(100);
+        await vi.advanceTimersByTimeAsync(100);
         expect(input).toHaveValue('Testin ');
         expect(spectator.directive.keyset().flat()).not.toContain('A');
-    }));
+        vi.useRealTimers();
+    });
 });

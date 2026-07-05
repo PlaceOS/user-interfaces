@@ -1,4 +1,4 @@
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 import { MockComponent } from 'ng-mocks';
 
 import { IconComponent } from '../lib/icon.component';
@@ -23,7 +23,7 @@ describe('SettingsToggleComponent', () => {
     });
 
     it('should toggle the value and notify the form control on click', () => {
-        const on_change = jest.fn();
+        const on_change = vi.fn();
         spectator.component.registerOnChange(on_change);
         spectator.click('button');
         expect(on_change).toHaveBeenCalledWith(true);

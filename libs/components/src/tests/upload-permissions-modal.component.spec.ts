@@ -1,6 +1,6 @@
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 import { MockComponent } from 'ng-mocks';
 
 import { IconComponent } from '../lib/icon.component';
@@ -9,7 +9,7 @@ import { UploadPermissionsModalComponent } from '../lib/upload-permissions-modal
 describe('UploadPermissionsModalComponent', () => {
     let spectator: Spectator<UploadPermissionsModalComponent>;
     const test_file = new File(['contents'], 'report.pdf');
-    const close_spy = jest.fn();
+    const close_spy = vi.fn();
     const createComponent = createComponentFactory({
         component: UploadPermissionsModalComponent,
         declarations: [MockComponent(IconComponent)],

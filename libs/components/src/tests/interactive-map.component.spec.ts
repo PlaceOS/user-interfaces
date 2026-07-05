@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 import {
     OrganisationService,
     SettingsService,
@@ -18,14 +18,14 @@ import { MapsIndoorsComponent } from '../lib/maps-indoors.component';
 describe('InteractiveMapComponent', () => {
     let spectator: Spectator<InteractiveMapComponent>;
     const available = signal(false);
-    const explore = { setLevel: jest.fn() };
+    const explore = { setLevel: vi.fn() };
     const createComponent = createComponentFactory({
         component: InteractiveMapComponent,
         providers: [
             {
                 provide: SettingsService,
                 useValue: {
-                    get: jest.fn(() => null),
+                    get: vi.fn(() => null),
                     signal: (name: string, default_value: any) =>
                         settingSignal(name, default_value),
                 },
@@ -65,7 +65,7 @@ describe('InteractiveMapComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         available.set(false);
         settingSignal('explore.cisco_maps.enabled', false).set(false);
         spectator = createComponent();

@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { AssetGroup } from '@placeos/common';
 import { ImageCarouselComponent } from 'libs/components/src/lib/image-carousel.component';
 import { CounterComponent } from 'libs/form-fields/src/lib/counter.component';
@@ -74,13 +74,13 @@ describe('AssetDetailsComponent', () => {
         const item = { id: '1', name: 'Projector', assets: [{}] } as AssetGroup;
         spectator.setInput('item', item);
         spectator.detectChanges();
-        TestBed.flushEffects();
+        TestBed.tick();
 
         expect(item.quantity).toBe(1);
     });
 
     it('should emit close when the back button is clicked', () => {
-        const on_close = jest.fn();
+        const on_close = vi.fn();
         spectator.output('close').subscribe(on_close);
         spectator.setInput('item', {
             id: '1',
@@ -95,7 +95,7 @@ describe('AssetDetailsComponent', () => {
     });
 
     it('should emit toggleFav when the favourite button is clicked', () => {
-        const on_toggle = jest.fn();
+        const on_toggle = vi.fn();
         spectator.output('toggleFav').subscribe(on_toggle);
         spectator.setInput('item', {
             id: '1',

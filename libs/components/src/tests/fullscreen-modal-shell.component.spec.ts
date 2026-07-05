@@ -1,5 +1,5 @@
 import { MatDialogRef } from '@angular/material/dialog';
-import { SpectatorRouting, createRoutingFactory } from '@ngneat/spectator/jest';
+import { SpectatorRouting, createRoutingFactory } from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
 
 import { LocaleService } from 'libs/common/src/lib/locale.service';
@@ -11,7 +11,7 @@ describe('FullscreenModalShellComponent', () => {
         component: FullscreenModalShellComponent,
         providers: [
             MockProvider(LocaleService),
-            { provide: MatDialogRef, useValue: { close: jest.fn() } },
+            { provide: MatDialogRef, useValue: { close: vi.fn() } },
         ],
     });
 
@@ -40,7 +40,7 @@ describe('FullscreenModalShellComponent', () => {
     });
 
     it('should emit confirm when the confirm button is pressed', () => {
-        const spy = jest.spyOn(spectator.component.confirm, 'emit');
+        const spy = vi.spyOn(spectator.component.confirm, 'emit');
         spectator.setInput({ confirm_text: 'Apply' });
         spectator.detectChanges();
         expect('footer button').toContainText('Apply');

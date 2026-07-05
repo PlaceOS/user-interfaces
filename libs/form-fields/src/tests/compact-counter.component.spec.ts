@@ -1,5 +1,5 @@
 import { FormsModule } from '@angular/forms';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent } from 'ng-mocks';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -24,7 +24,7 @@ describe('CompactCounterComponent', () => {
     });
 
     it('should emit the value when a step is added', () => {
-        const on_change = jest.fn();
+        const on_change = vi.fn();
         spectator.component.registerOnChange(on_change);
         spectator.click('button[increase]');
         expect(spectator.component.value()).toBe(1);
@@ -32,7 +32,7 @@ describe('CompactCounterComponent', () => {
     });
 
     it('should emit the value when a step is removed', () => {
-        const on_change = jest.fn();
+        const on_change = vi.fn();
         spectator.component.value.set(5);
         spectator.detectChanges();
         spectator.component.registerOnChange(on_change);

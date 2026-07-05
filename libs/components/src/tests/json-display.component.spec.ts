@@ -1,4 +1,4 @@
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 
 import { CustomTooltipData } from '../lib/custom-tooltip.component';
 import { JsonDisplayComponent } from '../lib/json-display.component';
@@ -10,7 +10,7 @@ describe('JsonDisplayComponent', () => {
         providers: [
             {
                 provide: CustomTooltipData,
-                useValue: { data: { from_tooltip: true }, close: jest.fn() },
+                useValue: { data: { from_tooltip: true }, close: vi.fn() },
             },
         ],
     });

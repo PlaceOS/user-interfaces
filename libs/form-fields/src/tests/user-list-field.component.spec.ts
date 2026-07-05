@@ -1,24 +1,21 @@
 import { FormsModule } from '@angular/forms';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDialog } from '@angular/material/dialog';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { SettingsService, User } from '@placeos/common';
 import { generateMockUser } from '@placeos/users';
 import { MockComponent, MockPipe, MockProvider } from 'ng-mocks';
 
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import {
+    MatAutocompleteModule,
+    MatAutocompleteTrigger,
+} from '@angular/material/autocomplete';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.component';
 import { PlaceUserPipe } from '../lib/place-user.pipe';
 import { UserListFieldComponent } from '../lib/user-list-field.component';
 import { UserSearchFieldComponent } from '../lib/user-search-field.component';
-
-jest.mock('@placeos/common', () => ({
-    ...jest.requireActual('@placeos/common'),
-    notifyError: jest.fn(),
-    csvToJson: jest.fn(),
-}));
 
 describe('UserListFieldComponent', () => {
     let spectator: Spectator<UserListFieldComponent>;
@@ -31,8 +28,8 @@ describe('UserListFieldComponent', () => {
             MockPipe(PlaceUserPipe),
         ],
         providers: [
-            MockProvider(MatDialog, { open: jest.fn(() => ({})) } as any),
-            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(MatDialog, { open: vi.fn(() => ({})) } as any),
+            MockProvider(SettingsService, { get: vi.fn() }),
         ],
         imports: [
             MatChipsModule,
@@ -40,6 +37,29 @@ describe('UserListFieldComponent', () => {
             MatTooltipModule,
             MatAutocompleteModule,
         ],
+    });
+
+    // The search input is a chip input (no `matInput`), so MatAutocompleteTrigger
+    // is its sole value accessor. On teardown its `writeValue` schedules a
+    // microtask that runs `_updateNativeInputValue` against the already-destroyed
+    // view, producing a benign "Cannot set properties of undefined (setting
+    // 'value')" rejection. Null-guard the write so it no-ops once the host input
+    // is gone.
+    const trigger_proto = MatAutocompleteTrigger.prototype as any;
+    const original_write = trigger_proto.writeValue;
+    beforeAll(() => {
+        trigger_proto.writeValue = function (value: any) {
+            Promise.resolve(null).then(() => {
+                try {
+                    this._assignOptionValue(value);
+                } catch {
+                    /* view already destroyed */
+                }
+            });
+        };
+    });
+    afterAll(() => {
+        trigger_proto.writeValue = original_write;
     });
 
     beforeEach(() => (spectator = createComponent()));
@@ -72,24 +92,9 @@ describe('UserListFieldComponent', () => {
     });
 
     it('should allow adding users from a CSV file', () => {
-        const { csvToJson } = require('@placeos/common');
-        (csvToJson as jest.Mock).mockReturnValue([
-            {
-                organisation: 'Fake Org',
-                first_name: 'John',
-                last_name: 'Smith',
-                email: 'john.smith@example.com',
-                phone: '01234567898',
-            },
-            {
-                organisation: 'Fake Org',
-                first_name: 'Johnny',
-                last_name: 'Smith',
-                email: 'johnny.smith@example.com',
-                phone: '01234567898',
-            },
-        ]);
-        jest.spyOn(spectator.component, 'addUser');
+        // The real csvToJson parses the CSV string produced by the mocked
+        // FileReader below into two user rows.
+        vi.spyOn(spectator.component, 'addUser');
         const eventListener = (type, callback) => {
             if (type === 'load') {
                 callback({
@@ -106,9 +111,9 @@ describe('UserListFieldComponent', () => {
             addEventListener: eventListener,
             readAsText: () => null,
         };
-        jest.spyOn(window, 'FileReader').mockReturnValue(
-            mock_file_reader as any,
-        );
+        vi.spyOn(window, 'FileReader').mockImplementation(function () {
+            return mock_file_reader as any;
+        } as any);
         spectator.component.addUsersFromFile({
             target: {
                 files: [{ id: 0, type: 'text/csv', size: 1, name: 'File.csv' }],

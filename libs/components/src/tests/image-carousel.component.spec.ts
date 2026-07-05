@@ -1,7 +1,7 @@
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
 
-jest.mock('@placeos/ts-client');
+vi.mock('@placeos/ts-client', { spy: true });
 
 import { authority } from '@placeos/ts-client';
 
@@ -22,7 +22,7 @@ describe('ImageCarouselComponent', () => {
     });
 
     beforeEach(() => {
-        (authority as jest.Mock).mockReturnValue({ id: 'test' });
+        vi.mocked(authority).mockReturnValue({ id: 'test' } as any);
         spectator = createComponent();
     });
 

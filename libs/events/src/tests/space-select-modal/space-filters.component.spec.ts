@@ -1,5 +1,5 @@
 import { inject, Injector, signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
     Building,
     BuildingLevel,
@@ -54,9 +54,9 @@ describe('SpaceFiltersComponent', () => {
         buildings: [building],
         building: null as any,
         region: null as any,
-        levelsForBuilding: jest.fn(() => [level_2, level_1, parking]),
-        levelsForRegion: jest.fn(() => []),
-        levelWithID: jest.fn(),
+        levelsForBuilding: vi.fn(() => [level_2, level_1, parking]),
+        levelsForRegion: vi.fn(() => []),
+        levelWithID: vi.fn(),
     };
     const createComponent = createComponentFactory({
         component: SpaceFiltersComponent,
@@ -77,8 +77,8 @@ describe('SpaceFiltersComponent', () => {
                         filters: filters as any,
                         spaces: spaces as any,
                         available_spaces: available_spaces as any,
-                        setOptions: jest.fn(),
-                        setFilters: jest.fn(),
+                        setOptions: vi.fn(),
+                        setFilters: vi.fn(),
                     } as Partial<EventFormService>;
                 },
             },

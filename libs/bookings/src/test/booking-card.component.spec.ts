@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { createSettingsServiceMock } from '@placeos/common/tests';
 import { addHours, set } from 'date-fns';
 import { MockComponent, MockProvider } from 'ng-mocks';
@@ -23,13 +23,13 @@ describe('BookingCardComponent', () => {
         ],
         providers: [
             MockProvider(OrganisationService as any, {
-                levelWithID: jest.fn(),
+                levelWithID: vi.fn(),
                 active_building: signal({}),
                 level_list: signal([]),
                 building_list: signal([]),
-                buildingsForRegion: jest.fn(() => []),
+                buildingsForRegion: vi.fn(() => []),
             }),
-            MockProvider(MatDialog, { open: jest.fn() }),
+            MockProvider(MatDialog, { open: vi.fn() }),
             MockProvider(SettingsService as any, settings_service),
         ],
     });

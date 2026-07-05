@@ -1,5 +1,6 @@
+import type { Mock } from 'vitest';
 import { MatDialog } from '@angular/material/dialog';
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 import { createSettingsServiceMock } from '@placeos/common/tests';
 import { MockComponent, MockDirective, MockPipe } from 'ng-mocks';
 import { of } from 'rxjs';
@@ -19,7 +20,7 @@ describe('ParkingSpaceListFieldComponent', () => {
             {
                 provide: MatDialog,
                 useValue: {
-                    open: jest.fn(() => ({
+                    open: vi.fn(() => ({
                         afterClosed: () => of([{ id: '1', name: 'Bay 1' }]),
                     })),
                 },
@@ -37,7 +38,7 @@ describe('ParkingSpaceListFieldComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         spectator = createComponent();
     });
 
@@ -50,12 +51,12 @@ describe('ParkingSpaceListFieldComponent', () => {
         spectator.click('button[add-space]');
         const dialog = spectator.inject(MatDialog);
         expect(dialog.open).toHaveBeenCalledTimes(1);
-        const config = (dialog.open as jest.Mock).mock.calls[0][1];
+        const config = (dialog.open as Mock).mock.calls[0][1];
         expect(config.data.options.capacity).toBe(3);
     });
 
     it('should update the value with spaces returned from the dialog', () => {
-        const on_change = jest.fn();
+        const on_change = vi.fn();
         spectator.component.registerOnChange(on_change);
         spectator.click('button[add-space]');
         spectator.detectChanges();
@@ -65,7 +66,7 @@ describe('ParkingSpaceListFieldComponent', () => {
 
     it('should not overwrite the value when the dialog is dismissed', () => {
         const dialog = spectator.inject(MatDialog);
-        (dialog.open as jest.Mock).mockReturnValueOnce({
+        (dialog.open as Mock).mockReturnValueOnce({
             afterClosed: () => of(undefined),
         });
         spectator.component.setValue([{ id: 'existing' } as any]);
@@ -109,7 +110,7 @@ describe('ParkingSpaceListFieldComponent', () => {
 
     it('should remove a space from favourites when toggled off', () => {
         const settings = spectator.inject(SettingsService);
-        (settings.get as jest.Mock).mockImplementation((key: string) =>
+        (settings.get as Mock).mockImplementation((key: string) =>
             key === FAV_PARKING_KEY ? ['space-1', 'space-2'] : undefined,
         );
         spectator.detectChanges();

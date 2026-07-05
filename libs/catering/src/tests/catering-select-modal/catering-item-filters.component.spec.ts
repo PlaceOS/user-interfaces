@@ -4,7 +4,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { SettingsService } from '@placeos/common';
 import { createSettingsServiceMock } from '@placeos/common/tests';
 import { addDays, addMinutes, startOfDay } from 'date-fns';
@@ -26,8 +26,8 @@ describe('CateringItemFiltersComponent', () => {
         tags: [],
         categories: [],
     });
-    const setFilters = jest.fn((f) => filters.set({ ...filters(), ...f }));
-    const getFilters = jest.fn(() => ({ ...filters() }));
+    const setFilters = vi.fn((f) => filters.set({ ...filters(), ...f }));
+    const getFilters = vi.fn(() => ({ ...filters() }));
     const categories = signal<string[]>(['Drinks', 'Snacks']);
     const caterers = signal<string[]>(['Cafe']);
 

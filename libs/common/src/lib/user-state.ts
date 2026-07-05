@@ -197,6 +197,12 @@ export function currentUser() {
     return _current_user.getValue() || EMPTY_USER;
 }
 
+/** Override the current user store. Intended for tests seeding a loaded user. */
+export function setCurrentUser(user: StaffUser) {
+    _current_user.next(user);
+    user_signal.set(user);
+}
+
 export function currentUserIsLoaded() {
     if (!isEmptyUser(currentUser())) return true;
     try {

@@ -1,20 +1,13 @@
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
+import { signal } from '@angular/core';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 import { MockComponent } from 'ng-mocks';
 
-jest.mock('@placeos/common', () => {
-    const { signal } = require('@angular/core');
-    const update_state = signal(null);
-    return {
-        __update_state: update_state,
-        serviceWorkerUpdate: () => update_state.asReadonly(),
-    };
-});
-
-import * as common from '@placeos/common';
 import { IconComponent } from '../lib/icon.component';
 import { ServiceWorkerUpdateCardComponent } from '../lib/service-worker-update-card.component';
 
-const update_state = (common as any).__update_state;
+// The service-worker update state signal is module-private with no exported
+// setter, so drive the component's own `update` signal directly.
+const update_state = signal<any>(null);
 
 describe('ServiceWorkerUpdateCardComponent', () => {
     let spectator: Spectator<ServiceWorkerUpdateCardComponent>;
@@ -26,6 +19,8 @@ describe('ServiceWorkerUpdateCardComponent', () => {
     beforeEach(() => {
         update_state.set(null);
         spectator = createComponent();
+        (spectator.component as any).update = update_state;
+        spectator.detectChanges();
     });
 
     it('should create component', () => {
@@ -58,7 +53,7 @@ describe('ServiceWorkerUpdateCardComponent', () => {
     });
 
     it('should reload the application when the action is pressed', () => {
-        const spy = jest
+        const spy = vi
             .spyOn(spectator.component, 'reloadApp')
             .mockImplementation(() => null);
         update_state.set({

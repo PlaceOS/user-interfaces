@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { CateringItem } from '@placeos/common';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
@@ -54,7 +54,7 @@ describe('CateringItemListComponent', () => {
     });
 
     it('should emit selected item and clear option active state', () => {
-        const spy = jest.fn();
+        const spy = vi.fn();
         spectator.component.onSelect.subscribe(spy);
         const item = new CateringItem({
             id: '1',

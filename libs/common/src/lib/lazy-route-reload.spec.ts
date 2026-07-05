@@ -1,3 +1,5 @@
+import type { Mock } from 'vitest';
+
 import {
     isLazyRouteLoadError,
     LazyRouteReloadContext,
@@ -10,21 +12,21 @@ function createContext(
     location: {
         hash: string;
         pathname: string;
-        reload: jest.Mock;
+        reload: Mock;
         search: string;
     };
 } {
     return {
         storage: {
-            getItem: jest.fn((key: string) => state.get(key) || null),
-            setItem: jest.fn((key: string, value: string) =>
+            getItem: vi.fn((key: string) => state.get(key) || null),
+            setItem: vi.fn((key: string, value: string) =>
                 state.set(key, value),
             ),
         },
         location: {
             hash: '#/book',
             pathname: '/workplace',
-            reload: jest.fn(),
+            reload: vi.fn(),
             search: '?debug=true',
         },
         now: 1000,
@@ -34,10 +36,10 @@ function createContext(
 
 describe('lazy route reload', () => {
     beforeEach(() =>
-        jest.spyOn(console, 'warn').mockImplementation(() => null),
+        vi.spyOn(console, 'warn').mockImplementation(() => null),
     );
 
-    afterEach(() => jest.restoreAllMocks());
+    afterEach(() => vi.restoreAllMocks());
 
     it('detects chunk load failures', () => {
         expect(

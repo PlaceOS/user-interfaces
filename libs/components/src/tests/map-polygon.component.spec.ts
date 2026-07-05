@@ -1,4 +1,4 @@
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 import { MAP_FEATURE_DATA } from '@placeos/common';
 
 import { MapPolygonComponent } from '../lib/map-polygon.component';

@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
 import { OrganisationService, SettingsService } from '@placeos/common';
@@ -11,11 +11,9 @@ import { DateFieldComponent } from '../lib/date-field.component';
 import { DurationFieldComponent } from '../lib/duration-field.component';
 import { ItemListFieldComponent } from '../lib/item-list-field.component';
 
-jest.mock('@placeos/ts-client', () => ({
-    __esModule: true,
-    ...jest.requireActual('@placeos/ts-client'),
-    queryZones: jest.fn(() => Promise.resolve({ data: [] })),
-}));
+vi.mock('@placeos/ts-client', { spy: true });
+
+import * as ts_client from '@placeos/ts-client';
 
 describe('BookingRulesFormComponent', () => {
     let spectator: Spectator<BookingRulesFormComponent>;
@@ -30,7 +28,7 @@ describe('BookingRulesFormComponent', () => {
         providers: [
             MockProvider(OrganisationService, {
                 active_building: signal(null) as any,
-                module: jest.fn(),
+                module: vi.fn(),
             }),
             MockProvider(SettingsService, {
                 time_format_signal: signal('h:mm a') as any,
@@ -39,7 +37,13 @@ describe('BookingRulesFormComponent', () => {
         imports: [MatFormFieldModule, MatSelectModule],
     });
 
-    beforeEach(() => (spectator = createComponent()));
+    beforeEach(() => {
+        vi.clearAllMocks();
+        vi.mocked(ts_client.queryZones).mockResolvedValue({
+            data: [],
+        } as any);
+        spectator = createComponent();
+    });
 
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();
@@ -64,7 +68,7 @@ describe('BookingRulesFormComponent', () => {
     });
 
     it('should not emit and should warn when the form is invalid', () => {
-        const on_change = jest.fn();
+        const on_change = vi.fn();
         spectator.component.rulesetChange.subscribe(on_change);
         spectator.component.form.controls.name.setValue('');
 
@@ -74,7 +78,7 @@ describe('BookingRulesFormComponent', () => {
     });
 
     it('should emit only the active conditions when posting a valid form', () => {
-        const on_change = jest.fn();
+        const on_change = vi.fn();
         spectator.component.rulesetChange.subscribe(on_change);
         spectator.component.available_conditions.set(['groups']);
         spectator.component.form.patchValue({
@@ -119,7 +123,7 @@ describe('BookingRulesFormComponent', () => {
     });
 
     it('should post when the save input toggles', () => {
-        const post_spy = jest.spyOn(spectator.component, 'post');
+        const post_spy = vi.spyOn(spectator.component, 'post');
         spectator.setInput('save', false);
         spectator.detectChanges();
         expect(post_spy).not.toHaveBeenCalled();

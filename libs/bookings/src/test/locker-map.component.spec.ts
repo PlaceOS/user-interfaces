@@ -2,7 +2,7 @@ import { signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { createSettingsServiceMock } from '@placeos/common/tests';
 import { MockComponent, MockModule, MockPipe } from 'ng-mocks';
@@ -19,8 +19,8 @@ describe('LockerMapComponent', () => {
     const loading = signal<string[]>([]);
     const active_region = signal<any>(null);
     const active_building = signal<any>({ id: 'bld-1' });
-    const set_options = jest.fn();
-    const resource_user_name = jest.fn(() => '');
+    const set_options = vi.fn();
+    const resource_user_name = vi.fn(() => '');
 
     const levels = [
         {
@@ -72,9 +72,9 @@ describe('LockerMapComponent', () => {
                     buildings: [
                         { id: 'bld-1', location: '10.5,20.5' },
                     ],
-                    levelsForRegion: jest.fn(() => levels),
-                    levelsForBuilding: jest.fn(() => levels),
-                    levelWithID: jest.fn((ids: string[]) =>
+                    levelsForRegion: vi.fn(() => levels),
+                    levelsForBuilding: vi.fn(() => levels),
+                    levelWithID: vi.fn((ids: string[]) =>
                         ids?.[0]
                             ? levels.find((_) => _.id === ids[0]) || null
                             : null,
@@ -89,7 +89,7 @@ describe('LockerMapComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         options.set({});
         available_resources.set([]);
         loading.set([]);

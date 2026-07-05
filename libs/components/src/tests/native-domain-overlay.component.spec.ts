@@ -1,5 +1,4 @@
-import { fakeAsync } from '@angular/core/testing';
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 
 import { NativeDomainOverlayComponent } from '../lib/native-domain-overlay.component';
 
@@ -69,7 +68,7 @@ describe('NativeDomainOverlayComponent', () => {
     });
 
     it('should lookup and persist the domain for an email', async () => {
-        (global as any).fetch = jest.fn(async () => ({
+        (global as any).fetch = vi.fn(async () => ({
             ok: true,
             text: async () => '"placeos.example.com"',
         }));
@@ -85,7 +84,7 @@ describe('NativeDomainOverlayComponent', () => {
     });
 
     it('should show an error when the email lookup fails', async () => {
-        (global as any).fetch = jest.fn(async () => ({ ok: false }));
+        (global as any).fetch = vi.fn(async () => ({ ok: false }));
         create();
         spectator.component.email.set('user@company.com');
         await spectator.component.submit();
@@ -130,19 +129,21 @@ describe('NativeDomainOverlayComponent', () => {
         );
     });
 
-    it('should auto-accept stored settings after a period of inactivity', fakeAsync(() => {
+    it('should auto-accept stored settings after a period of inactivity', async () => {
+        vi.useFakeTimers();
         localStorage.setItem(DOMAIN_KEY, 'placeos.company.com');
         create();
         spectator.setInput('autoAccept', true);
         expect(spectator.component.auto_accept_in()).toBe(15);
-        spectator.tick(14000);
+        await vi.advanceTimersByTimeAsync(14000);
         expect(spectator.component.auto_accept_in()).toBe(1);
         expect(emitted_domains).toEqual([]);
         // Activity resets the countdown
         spectator.component.resetAutoAccept();
         expect(spectator.component.auto_accept_in()).toBe(15);
-        spectator.tick(15000);
+        await vi.advanceTimersByTimeAsync(15000);
         expect(emitted_domains).toEqual(['placeos.company.com']);
         expect(spectator.component.auto_accept_in()).toBe(0);
-    }));
+        vi.useRealTimers();
+    });
 });

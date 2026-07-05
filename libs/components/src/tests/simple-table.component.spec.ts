@@ -1,4 +1,4 @@
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 import { MockComponent } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 
@@ -131,7 +131,7 @@ describe('SimpleTableComponent', () => {
     });
 
     it('should emit the hovered row index on click', () => {
-        const spy = jest.spyOn(spectator.component.rowClicked, 'emit');
+        const spy = vi.spyOn(spectator.component.rowClicked, 'emit');
         spectator.setInput({ columns: COLUMNS, data: DATA });
         spectator.component.active_row.set(1);
         spectator.click('[role="table"]');

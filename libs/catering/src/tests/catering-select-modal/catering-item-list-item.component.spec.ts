@@ -1,5 +1,5 @@
 import { MatRippleModule } from '@angular/material/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { CateringItem } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { MockComponent, MockDirective } from 'ng-mocks';
@@ -48,14 +48,14 @@ describe('CateringItemListItemComponent', () => {
     });
 
     it('should emit select when the item is clicked', () => {
-        const spy = jest.fn();
+        const spy = vi.fn();
         spectator.component.select.subscribe(spy);
         spectator.click('button[name="select-catering-item"]');
         expect(spy).toHaveBeenCalled();
     });
 
     it('should emit toggleFav when the favourite button is clicked', () => {
-        const spy = jest.fn();
+        const spy = vi.fn();
         spectator.component.toggleFav.subscribe(spy);
         spectator.click('button[name="toggle-catering-item-favourite"]');
         expect(spy).toHaveBeenCalled();

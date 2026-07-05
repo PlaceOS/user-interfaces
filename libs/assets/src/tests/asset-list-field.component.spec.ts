@@ -1,4 +1,4 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { AssetRequest, LocaleService, SettingsService } from '@placeos/common';
 import { createSettingsServiceMock } from '@placeos/common/tests';
 import { MockProvider } from 'ng-mocks';
@@ -11,7 +11,7 @@ describe('AssetListFieldComponent', () => {
     let spectator: Spectator<AssetListFieldComponent>;
     let settings_mock: any;
     let dialog_result: any[] | undefined;
-    const open_dialog = jest.fn(() => ({
+    const open_dialog = vi.fn(() => ({
         afterClosed: () => of(dialog_result),
         componentInstance: {
             offset: () => 0,
@@ -27,8 +27,8 @@ describe('AssetListFieldComponent', () => {
                 provide: SettingsService,
                 useFactory: () => settings_mock,
             },
-            MockProvider(AssetStateService, { setOptions: jest.fn() }),
-            MockProvider(LocaleService, { get: jest.fn((value) => value) }),
+            MockProvider(AssetStateService, { setOptions: vi.fn() }),
+            MockProvider(LocaleService, { get: vi.fn((value) => value) }),
         ],
     });
 
@@ -64,7 +64,7 @@ describe('AssetListFieldComponent', () => {
     });
 
     it('should notify the form control when the value changes', () => {
-        const on_change = jest.fn();
+        const on_change = vi.fn();
         spectator.component.registerOnChange(on_change);
         const request = new AssetRequest({ id: 'req-1', items: [] });
 

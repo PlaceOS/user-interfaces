@@ -1,10 +1,7 @@
 import { CalendarEvent, CateringItem } from '@placeos/common';
 import { AttachedResourceRuleset } from '@placeos/components';
 
-jest.mock('@placeos/ts-client', () => ({
-    ...jest.requireActual('@placeos/ts-client'),
-    showMetadata: jest.fn(),
-}));
+vi.mock('@placeos/ts-client', { spy: true });
 
 import * as ts_client from '@placeos/ts-client';
 import {
@@ -23,7 +20,7 @@ const makeEvent = (overrides: Record<string, any> = {}) =>
     }) as any as CalendarEvent;
 
 describe('catering utilities', () => {
-    beforeEach(() => jest.clearAllMocks());
+    beforeEach(() => vi.clearAllMocks());
 
     describe('getCateringRulesForZone', () => {
         it('should resolve empty for missing zone id', async () => {
@@ -34,7 +31,7 @@ describe('catering utilities', () => {
 
         it('should return the rules from zone metadata', async () => {
             const details = [{ name: '*', rules: [] }];
-            jest.mocked(ts_client.showMetadata).mockResolvedValue({
+            vi.mocked(ts_client.showMetadata).mockResolvedValue({
                 details,
             } as any);
             const rules = await getCateringRulesForZone('zone-a');
@@ -46,7 +43,7 @@ describe('catering utilities', () => {
         });
 
         it('should cache requests per zone', async () => {
-            jest.mocked(ts_client.showMetadata).mockResolvedValue({
+            vi.mocked(ts_client.showMetadata).mockResolvedValue({
                 details: [],
             } as any);
             await getCateringRulesForZone('zone-b');
@@ -57,7 +54,7 @@ describe('catering utilities', () => {
         });
 
         it('should resolve empty when metadata request fails', async () => {
-            jest.mocked(ts_client.showMetadata).mockRejectedValue(
+            vi.mocked(ts_client.showMetadata).mockRejectedValue(
                 new Error('nope'),
             );
             const rules = await getCateringRulesForZone('zone-c');
@@ -65,7 +62,7 @@ describe('catering utilities', () => {
         });
 
         it('should coerce non-array details to empty', async () => {
-            jest.mocked(ts_client.showMetadata).mockResolvedValue({
+            vi.mocked(ts_client.showMetadata).mockResolvedValue({
                 details: { not: 'an array' },
             } as any);
             const rules = await getCateringRulesForZone('zone-d');

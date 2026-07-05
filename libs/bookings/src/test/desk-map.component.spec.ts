@@ -2,7 +2,7 @@ import { signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { createSettingsServiceMock } from '@placeos/common/tests';
 import { MockComponent, MockModule, MockPipe } from 'ng-mocks';
@@ -19,7 +19,7 @@ describe('DeskMapComponent', () => {
     const resources = signal<any[]>([]);
     const options = signal<any>({});
     const loading = signal<string>('');
-    const set_options = jest.fn((o) => options.update((v) => ({ ...v, ...o })));
+    const set_options = vi.fn((o) => options.update((v) => ({ ...v, ...o })));
 
     const levels = [
         {
@@ -51,9 +51,9 @@ describe('DeskMapComponent', () => {
     const org_mock = {
         active_region: signal({ id: 'reg-1' }),
         active_building: signal({ id: 'bld-1' }),
-        levelsForRegion: jest.fn(() => levels),
-        levelsForBuilding: jest.fn(() => levels),
-        levelWithID: jest.fn(() => undefined),
+        levelsForRegion: vi.fn(() => levels),
+        levelsForBuilding: vi.fn(() => levels),
+        levelWithID: vi.fn(() => undefined),
         buildings: [{ id: 'bld-1', location: '1.23,4.56' }],
     };
 
@@ -68,7 +68,7 @@ describe('DeskMapComponent', () => {
                     loading,
                     options,
                     setOptions: set_options,
-                    resourceUserName: jest.fn(() => ''),
+                    resourceUserName: vi.fn(() => ''),
                 },
             },
             {
@@ -90,7 +90,7 @@ describe('DeskMapComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         available_resources.set([]);
         resources.set([]);
         options.set({});

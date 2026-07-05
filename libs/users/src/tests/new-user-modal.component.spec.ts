@@ -3,7 +3,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent } from 'ng-mocks';
 import { NewUserModalComponent } from '../lib/new-user-modal.component';
 import { UserFormComponent } from '../lib/user-form.component';
@@ -39,20 +39,21 @@ describe('NewUserModalComponent', () => {
         expect('footer button').toHaveLength(2);
     });
 
-    it('should emit user details on save', (done) => {
+    it('should emit user details on save', async () => {
         expect('footer button:not([mat-dialog-close])').toExist();
         const form = spectator.component.form();
         form.name().value.set('support');
         form.organisation().value.set('placeOS');
         form.email().value.set('support@aca.im');
-        spectator.component.event.subscribe((event) => {
-            if (event.reason === 'done') {
-                expect(event.metadata.name).toBe('support');
-                expect(event.metadata.organisation).toBe('placeOS');
-                expect(event.metadata.email).toBe('support@aca.im');
-                done();
-            }
+        const event = new Promise<any>((resolve) => {
+            spectator.component.event.subscribe((event) => {
+                if (event.reason === 'done') resolve(event);
+            });
         });
         spectator.click('footer button:not([mat-dialog-close])');
+        const result = await event;
+        expect(result.metadata.name).toBe('support');
+        expect(result.metadata.organisation).toBe('placeOS');
+        expect(result.metadata.email).toBe('support@aca.im');
     });
 });

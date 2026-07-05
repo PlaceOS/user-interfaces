@@ -1,8 +1,8 @@
-import { fakeAsync } from '@angular/core/testing';
+import type { Mock } from 'vitest';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialog } from '@angular/material/dialog';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { createSettingsServiceMock } from '@placeos/common/tests';
 import { SETTING_KEYS } from '@placeos/common';
 import { MockComponent, MockDirective, MockModule, MockPipe } from 'ng-mocks';
@@ -24,7 +24,7 @@ describe('LockerListFieldComponent', () => {
             {
                 provide: MatDialog,
                 useValue: {
-                    open: jest.fn(() => ({
+                    open: vi.fn(() => ({
                         afterClosed: () => of([{ id: `1` }]),
                         componentInstance: { selected: signal([]) },
                     })),
@@ -74,36 +74,34 @@ describe('LockerListFieldComponent', () => {
         expect(spectator.queryAll('div[locker]').length).toBe(0);
     });
 
-    it('should apply the dialog result on change', fakeAsync(() => {
+    it('should apply the dialog result on change', () => {
         (spectator.inject(MatDialog).open as any).mockImplementation(() => ({
             afterClosed: () => of([{ id: 'x' }, { id: 'y' }]),
             componentInstance: { selected: signal([]) },
         }));
         spectator.click('button[name="add-locker"]');
-        spectator.tick(1);
         spectator.detectChanges();
         expect(spectator.queryAll('div[locker]').length).toBe(2);
         expect(spectator.component.items().map((_) => _.id)).toEqual([
             'x',
             'y',
         ]);
-    }));
+    });
 
-    it('should fall back to component selection when dialog returns nothing', fakeAsync(() => {
+    it('should fall back to component selection when dialog returns nothing', () => {
         (spectator.inject(MatDialog).open as any).mockImplementation(() => ({
             afterClosed: () => of(undefined),
             componentInstance: { selected: signal([{ id: 'fallback' }]) },
         }));
         spectator.click('button[name="add-locker"]');
-        spectator.tick(1);
         spectator.detectChanges();
         expect(spectator.component.items().map((_) => _.id)).toEqual([
             'fallback',
         ]);
-    }));
+    });
 
     it('should notify the form control when the value changes', () => {
-        const on_change = jest.fn();
+        const on_change = vi.fn();
         spectator.component.registerOnChange(on_change);
         spectator.component.setValue([{ id: 'a' }] as any);
         expect(on_change).toHaveBeenCalledWith([{ id: 'a' }]);
@@ -149,7 +147,7 @@ describe('LockerListFieldComponent', () => {
 
     it('should remove a favourite when toggling a favourited locker', () => {
         const settings = spectator.inject(SettingsService);
-        (settings.get as jest.Mock).mockReturnValue(['a', 'b']);
+        (settings.get as Mock).mockReturnValue(['a', 'b']);
         spectator.component.toggleFavourite({ id: 'a' } as any);
         expect(settings.saveUserSetting).toHaveBeenCalledWith(
             SETTING_KEYS.FAVORITE_LOCKERS,

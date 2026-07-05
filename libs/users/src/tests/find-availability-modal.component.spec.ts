@@ -1,10 +1,10 @@
-jest.mock('libs/events/src/lib/calendar.fn');
+vi.mock('@placeos/ts-client');
 
 import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { User } from '@placeos/common';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import * as calendar_fn from 'libs/events/src/lib/calendar.fn';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
+import * as ts_client from '@placeos/ts-client';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -18,7 +18,7 @@ const HOST = new User({ email: 'host@place.tech', name: 'Host' });
 
 describe('FindAvailabilityModalComponent', () => {
     let spectator: Spectator<FindAvailabilityModalComponent>;
-    const close_fn = jest.fn();
+    const close_fn = vi.fn();
     const createComponent = createComponentFactory({
         component: FindAvailabilityModalComponent,
         declarations: [
@@ -47,9 +47,7 @@ describe('FindAvailabilityModalComponent', () => {
 
     beforeEach(() => {
         close_fn.mockClear();
-        (calendar_fn.queryUserFreeBusy as any) = jest.fn(() =>
-            Promise.resolve([]),
-        );
+        vi.mocked(ts_client.get).mockResolvedValue([] as any);
         spectator = createComponent();
     });
 

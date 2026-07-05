@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { BuildingLevel, OrganisationService } from '@placeos/common';
 import { mockComponent } from 'libs/common/src/tests/test-helpers';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -25,10 +25,10 @@ describe('SpaceFiltersDisplayComponent', () => {
                 options: options as any,
                 filters: filters as any,
                 model: model as any,
-                setFilters: jest.fn(),
+                setFilters: vi.fn(),
             }),
             MockProvider(OrganisationService, {
-                levelWithID: jest.fn((zones: string[]) =>
+                levelWithID: vi.fn((zones: string[]) =>
                     zones?.includes('lvl-1') ? level : null,
                 ),
             }),

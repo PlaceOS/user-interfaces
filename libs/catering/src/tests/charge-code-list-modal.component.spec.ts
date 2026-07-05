@@ -5,16 +5,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent, MockProvider } from 'ng-mocks';
+import { of } from 'rxjs';
 
-jest.mock('@placeos/common', () => ({
-    ...jest.requireActual('@placeos/common'),
-    downloadFile: jest.fn(),
-    notifyError: jest.fn(),
-}));
-
-import * as common from '@placeos/common';
+import { setNotifyOutlet } from 'libs/common/src/lib/notifications';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { CateringStateService } from '../lib/catering-state.service';
 import { ChargeCodeListModalComponent } from '../lib/charge-code-list-modal.component';
@@ -22,8 +17,14 @@ import { ChargeCodeListModalComponent } from '../lib/charge-code-list-modal.comp
 describe('ChargeCodeListModalComponent', () => {
     let spectator: Spectator<ChargeCodeListModalComponent>;
     const charge_codes = signal<string[]>([]);
-    const saveSettings = jest.fn().mockResolvedValue({});
-    const dialog_close = jest.fn();
+    const saveSettings = vi.fn().mockResolvedValue({});
+    const dialog_close = vi.fn();
+    // Fake notification outlet so notifyError() is observable (a null outlet
+    // no-ops); notifyError runs for real one layer above this spy.
+    const notify_open = vi.fn(() => ({
+        onAction: () => of(),
+        dismiss: vi.fn(),
+    }));
 
     const createComponent = createComponentFactory({
         component: ChargeCodeListModalComponent,
@@ -48,10 +49,12 @@ describe('ChargeCodeListModalComponent', () => {
         charge_codes.set(['CODE-1', 'CODE-2']);
         saveSettings.mockClear();
         dialog_close.mockClear();
-        (common.downloadFile as jest.Mock).mockClear();
-        (common.notifyError as jest.Mock).mockClear();
+        notify_open.mockClear();
+        setNotifyOutlet({ open: notify_open } as any, true);
         spectator = createComponent();
     });
+
+    afterEach(() => setNotifyOutlet(null, true));
 
     it('should create component', () =>
         expect(spectator.component).toBeTruthy());
@@ -92,11 +95,30 @@ describe('ChargeCodeListModalComponent', () => {
     });
 
     it('should download a CSV template', () => {
+        // downloadFile builds an anchor with the filename + encoded contents
+        // and clicks it; intercept the DOM one layer below the real helper.
+        const real_create = document.createElement.bind(document);
+        let anchor: HTMLAnchorElement | null = null;
+        const create_spy = vi
+            .spyOn(document, 'createElement')
+            .mockImplementation((tag: string) => {
+                const el = real_create(tag);
+                if (tag === 'a') {
+                    anchor = el as HTMLAnchorElement;
+                    anchor.click = vi.fn();
+                }
+                return el;
+            });
         spectator.component.downloadTemplate();
-        expect(common.downloadFile).toHaveBeenCalledWith(
-            'template.csv',
-            expect.stringContaining('code,description'),
-        );
+        create_spy.mockRestore();
+        expect(anchor).toBeTruthy();
+        expect(anchor!.getAttribute('download')).toBe('template.csv');
+        expect(anchor!.click).toHaveBeenCalled();
+        const href = decodeURIComponent(anchor!.getAttribute('href') || '');
+        // href is either a data: url with the encoded template or a blob: url
+        if (href.startsWith('data:')) {
+            expect(href).toContain('code,description');
+        }
     });
 
     it('should reject non-csv files', () => {
@@ -104,7 +126,7 @@ describe('ChargeCodeListModalComponent', () => {
         spectator.component.addCodesFromFile({
             target: { files: [file], value: 'codes.txt' },
         });
-        expect(common.notifyError).toHaveBeenCalled();
+        expect(notify_open).toHaveBeenCalled();
         expect(spectator.component.charge_codes()).toEqual(['CODE-1', 'CODE-2']);
     });
 

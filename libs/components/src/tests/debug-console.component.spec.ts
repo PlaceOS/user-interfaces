@@ -1,5 +1,5 @@
 import { WritableSignal, signal } from '@angular/core';
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { HotkeysService } from 'libs/common/src/lib/hotkeys.service';
@@ -17,15 +17,15 @@ describe('DebugConsoleComponent', () => {
     const org_mock = {
         initialised: signal(true),
         active_building: signal(null),
-        binding: jest.fn(() => 'sys-1'),
+        binding: vi.fn(() => 'sys-1'),
     };
     const logging_mock = {
         history: history.asReadonly(),
-        setSystem: jest.fn(),
+        setSystem: vi.fn(),
     };
     let setting_signals: Record<string, WritableSignal<any>> = {};
     const settings_mock = {
-        signal: jest.fn((name: string, default_value?: any) => {
+        signal: vi.fn((name: string, default_value?: any) => {
             if (!setting_signals[name]) {
                 setting_signals[name] = signal(default_value);
             }
@@ -51,9 +51,9 @@ describe('DebugConsoleComponent', () => {
             {
                 provide: HotkeysService,
                 useValue: {
-                    listen: jest.fn((_combo, next: () => void) => {
+                    listen: vi.fn((_combo, next: () => void) => {
                         hotkey_callback = next;
-                        return { unsubscribe: jest.fn() };
+                        return { unsubscribe: vi.fn() };
                     }),
                 },
             },
@@ -61,14 +61,14 @@ describe('DebugConsoleComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         setting_signals = {};
         history.set([]);
         org_mock.initialised.set(true);
         spectator = createComponent();
     });
 
-    afterEach(() => jest.useRealTimers());
+    afterEach(() => vi.useRealTimers());
 
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();
@@ -119,16 +119,16 @@ describe('DebugConsoleComponent', () => {
     });
 
     it('should show the console after holding the activation button', () => {
-        jest.useFakeTimers();
+        vi.useFakeTimers();
         spectator.component.onStart();
-        jest.advanceTimersByTime(5000);
+        vi.advanceTimersByTime(5000);
         expect(spectator.component.show()).toBe(true);
         // Releasing early should cancel showing the console
         spectator.component.show.set(false);
         spectator.component.onStart();
-        jest.advanceTimersByTime(2000);
+        vi.advanceTimersByTime(2000);
         spectator.component.onEnd();
-        jest.advanceTimersByTime(5000);
+        vi.advanceTimersByTime(5000);
         expect(spectator.component.show()).toBe(false);
     });
 

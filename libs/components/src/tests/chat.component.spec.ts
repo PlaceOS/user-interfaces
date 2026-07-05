@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
 
 import { SettingsService, settingSignal } from '@placeos/common';
@@ -15,9 +15,9 @@ describe('ChatComponent', () => {
         messages: signal<ChatMessage[]>([]),
         progress: signal<ChatMessage | null>(null),
         connected: true,
-        startChat: jest.fn(),
-        sendMessage: jest.fn(),
-        close: jest.fn(),
+        startChat: vi.fn(),
+        sendMessage: vi.fn(),
+        close: vi.fn(),
     };
 
     const createComponent = createComponentFactory({
@@ -29,7 +29,7 @@ describe('ChatComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         chat_enabled.set(false);
         chat_mock.connected = true;
         chat_mock.chat_hint.set('');
@@ -38,7 +38,7 @@ describe('ChatComponent', () => {
         spectator = createComponent();
     });
 
-    afterEach(() => jest.useRealTimers());
+    afterEach(() => vi.useRealTimers());
 
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();
@@ -65,7 +65,7 @@ describe('ChatComponent', () => {
     });
 
     it('should send messages to the chat service', () => {
-        jest.useFakeTimers();
+        vi.useFakeTimers();
         chat_enabled.set(true);
         spectator.component.show.set(true);
         spectator.detectChanges();
@@ -73,11 +73,11 @@ describe('ChatComponent', () => {
         spectator.component.sendMessage();
         expect(chat_mock.sendMessage).toHaveBeenCalledWith('Hello there');
         expect(spectator.component.message()).toBe('');
-        jest.advanceTimersByTime(200);
+        vi.advanceTimersByTime(200);
     });
 
     it('should start a chat before sending when not connected', () => {
-        jest.useFakeTimers();
+        vi.useFakeTimers();
         chat_mock.connected = false;
         spectator.component.message.set('Hello there');
         spectator.component.sendMessage();

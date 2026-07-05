@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 
 import { OrganisationService } from '@placeos/common';
 import { BuildingSelectComponent } from '../lib/building-select.component';
@@ -15,9 +15,9 @@ describe('BuildingSelectComponent', () => {
     const org_mock = {
         active_buildings: signal(buildings),
         active_building: signal(buildings[0]),
-        setBuilding: jest.fn(),
+        setBuilding: vi.fn(),
     };
-    const tooltip_mock = { data: null, close: jest.fn() };
+    const tooltip_mock = { data: null, close: vi.fn() };
 
     const createComponent = createComponentFactory({
         component: BuildingSelectComponent,
@@ -28,7 +28,7 @@ describe('BuildingSelectComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         org_mock.active_building.set(buildings[0]);
         spectator = createComponent();
     });

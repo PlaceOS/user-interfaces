@@ -1,4 +1,4 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent } from 'ng-mocks';
 import {
     addDays,
@@ -34,7 +34,7 @@ describe('DateRangeCalendarComponent', () => {
     });
 
     it('should set the start date on the first selection', () => {
-        const start_change = jest.fn();
+        const start_change = vi.fn();
         spectator.component.startChange.subscribe(start_change);
         const day = addDays(month, 4).valueOf();
         spectator.component.selectDate(day);
@@ -43,7 +43,7 @@ describe('DateRangeCalendarComponent', () => {
     });
 
     it('should set the end date on a later second selection', () => {
-        const end_change = jest.fn();
+        const end_change = vi.fn();
         spectator.component.endChange.subscribe(end_change);
         const start = addDays(month, 4).valueOf();
         const end = addDays(month, 8).valueOf();
@@ -54,7 +54,7 @@ describe('DateRangeCalendarComponent', () => {
     });
 
     it('should restart the range when selecting a date before the start', () => {
-        const start_change = jest.fn();
+        const start_change = vi.fn();
         spectator.component.startChange.subscribe(start_change);
         const first = addDays(month, 10).valueOf();
         const earlier = addDays(month, 3).valueOf();

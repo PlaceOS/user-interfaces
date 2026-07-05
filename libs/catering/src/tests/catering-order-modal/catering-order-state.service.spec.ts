@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
+import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
@@ -11,12 +11,12 @@ describe('CateringOrderStateService', () => {
     const createService = createServiceFactory({
         service: CateringOrderStateService,
         providers: [
-            MockProvider(MatDialog, { open: jest.fn() } as any),
+            MockProvider(MatDialog, { open: vi.fn() } as any),
             MockProvider(OrganisationService, {
                 building: { id: '' },
                 active_building: signal({}),
             } as any),
-            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(SettingsService, { get: vi.fn() }),
         ],
     });
 

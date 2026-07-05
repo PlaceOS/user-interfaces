@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
     Building,
     BuildingLevel,
@@ -47,9 +47,9 @@ describe('SpaceMapComponent', () => {
         active_region: signal(null),
         active_building: signal(building),
         buildings: [building],
-        levelsForBuilding: jest.fn(() => [level_2, level_1, parking]),
-        levelsForRegion: jest.fn(() => []),
-        levelWithID: jest.fn((zones: string[] = []) =>
+        levelsForBuilding: vi.fn(() => [level_2, level_1, parking]),
+        levelsForRegion: vi.fn(() => []),
+        levelWithID: vi.fn((zones: string[] = []) =>
             zones.includes('lvl-2') ? level_2 : null,
         ),
     };
@@ -61,9 +61,9 @@ describe('SpaceMapComponent', () => {
                 options: options as any,
                 spaces: spaces as any,
                 available_spaces: available_spaces as any,
-                setOptions: jest.fn(),
+                setOptions: vi.fn(),
             }),
-            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(SettingsService, { get: vi.fn() }),
         ],
         declarations: [mockComponent(InteractiveMapComponent)],
     });

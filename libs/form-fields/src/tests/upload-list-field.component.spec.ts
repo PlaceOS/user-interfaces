@@ -1,4 +1,4 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent } from 'ng-mocks';
 
 import { Attachment } from '@placeos/common';
@@ -39,7 +39,7 @@ describe('UploadListFieldComponent', () => {
     });
 
     it('should only keep completed files with a url when setting value', () => {
-        const on_change = jest.fn();
+        const on_change = vi.fn();
         spectator.component.registerOnChange(on_change);
         spectator.component.setValue([
             attachment({ id: 'done', progress: 100, url: 'x' }),
@@ -53,7 +53,7 @@ describe('UploadListFieldComponent', () => {
     });
 
     it('should remove a file by id', () => {
-        const on_change = jest.fn();
+        const on_change = vi.fn();
         spectator.component.setValue([
             attachment({ id: 'one', url: 'a' }),
             attachment({ id: 'two', url: 'b' }),
@@ -76,7 +76,7 @@ describe('UploadListFieldComponent', () => {
     });
 
     it('should ignore file events without any files', () => {
-        const on_change = jest.fn();
+        const on_change = vi.fn();
         spectator.component.registerOnChange(on_change);
         spectator.component.onFileEvent({ target: { files: [] } });
         expect(on_change).not.toHaveBeenCalled();

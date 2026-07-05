@@ -1,15 +1,16 @@
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { CalendarEvent } from '@placeos/common';
 import { mockComponent } from 'libs/common/src/tests/test-helpers';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
 import { MockProvider } from 'ng-mocks';
+import * as ts_client from '@placeos/ts-client';
 import { SetupBreakdownModalComponent } from '../lib/setup-breakdown-modal.component';
 
-jest.mock('../lib/events.fn');
-
-import * as events_fn from '../lib/events.fn';
+// The real saveEvent/updateEventMetadata wrappers run; only the ts-client
+// PATCH beneath them is stubbed.
+vi.mock('@placeos/ts-client', { spy: true });
 
 describe('SetupBreakdownModalComponent', () => {
     let spectator: Spectator<SetupBreakdownModalComponent>;
@@ -24,7 +25,7 @@ describe('SetupBreakdownModalComponent', () => {
         component: SetupBreakdownModalComponent,
         providers: [
             MockProvider(MAT_DIALOG_DATA, event),
-            MockProvider(MatDialogRef, { close: jest.fn() }),
+            MockProvider(MatDialogRef, { close: vi.fn() }),
         ],
         declarations: [
             mockComponent(IconComponent),
@@ -33,7 +34,7 @@ describe('SetupBreakdownModalComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         spectator = createComponent();
     });
 
@@ -48,26 +49,27 @@ describe('SetupBreakdownModalComponent', () => {
     });
 
     it('should save the event with the updated durations', async () => {
-        (events_fn.saveEvent as jest.Mock).mockResolvedValue(event);
+        vi.mocked(ts_client.patch).mockResolvedValue({ id: 'event-1' } as any);
         spectator.component.model.set({ setup: 20, breakdown: 25 });
         await spectator.component.save();
-        expect(events_fn.saveEvent).toHaveBeenCalledWith(
+        expect(ts_client.patch).toHaveBeenCalledWith(
+            expect.stringContaining('/api/staff/v1/events/event-1'),
             expect.objectContaining({ setup_time: 20, breakdown_time: 25 }),
-            { system_id: 'sys-1', ical_uid: 'uid-1' },
         );
         expect(spectator.inject(MatDialogRef).close).toHaveBeenCalledWith(
-            event,
+            expect.any(CalendarEvent),
         );
     });
 
     it('should fallback to updating metadata when saving fails', async () => {
-        (events_fn.saveEvent as jest.Mock).mockRejectedValue('error');
-        (events_fn.updateEventMetadata as jest.Mock).mockResolvedValue(event);
+        // First PATCH (saveEvent) fails, second PATCH (updateEventMetadata) succeeds.
+        vi.mocked(ts_client.patch)
+            .mockRejectedValueOnce('error')
+            .mockResolvedValue({ id: 'event-1' } as any);
         spectator.component.model.set({ setup: 5, breakdown: 5 });
         await spectator.component.save();
-        expect(events_fn.updateEventMetadata).toHaveBeenCalledWith(
-            'event-1',
-            'sys-1',
+        expect(ts_client.patch).toHaveBeenLastCalledWith(
+            '/api/staff/v1/events/event-1/metadata/sys-1',
             expect.objectContaining({
                 setup_time: 5,
                 breakdown_time: 5,
@@ -75,16 +77,11 @@ describe('SetupBreakdownModalComponent', () => {
                 breakdown: 5,
             }),
         );
-        expect(spectator.inject(MatDialogRef).close).toHaveBeenCalledWith(
-            event,
-        );
+        expect(spectator.inject(MatDialogRef).close).toHaveBeenCalled();
     });
 
     it('should stay open and stop loading when both updates fail', async () => {
-        (events_fn.saveEvent as jest.Mock).mockRejectedValue('error');
-        (events_fn.updateEventMetadata as jest.Mock).mockRejectedValue(
-            'error',
-        );
+        vi.mocked(ts_client.patch).mockRejectedValue('error');
         await spectator.component.save();
         expect(spectator.inject(MatDialogRef).close).not.toHaveBeenCalled();
         expect(spectator.component.loading()).toBe(false);

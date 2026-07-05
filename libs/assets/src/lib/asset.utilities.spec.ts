@@ -1,8 +1,3 @@
-jest.mock('@placeos/ts-client', () => ({
-    ...jest.requireActual('@placeos/ts-client'),
-    showMetadata: jest.fn(),
-}));
-
 import { Injector } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { CalendarEvent } from '@placeos/common';
@@ -18,12 +13,14 @@ import {
     getAssetRulesForZone,
 } from './asset.utilities';
 
+vi.mock('@placeos/ts-client', { spy: true });
+
 describe('asset.utilities', () => {
     let injector: Injector;
 
     beforeEach(() => {
         injector = TestBed.inject(Injector);
-        jest.clearAllMocks();
+        vi.clearAllMocks();
     });
 
     describe('generateAssetCategoryForm', () => {
@@ -131,9 +128,9 @@ describe('asset.utilities', () => {
         });
 
         it('should return the metadata details and cache the request', async () => {
-            (ts_client.showMetadata as jest.Mock).mockResolvedValue({
+            vi.mocked(ts_client.showMetadata).mockResolvedValue({
                 details: [{ name: '*', rules: [] }],
-            });
+            } as any);
 
             const rules = await getAssetRulesForZone('zone-cache');
             expect(rules).toEqual([{ name: '*', rules: [] }]);
@@ -150,14 +147,14 @@ describe('asset.utilities', () => {
         });
 
         it('should resolve an empty list when details are not an array', async () => {
-            (ts_client.showMetadata as jest.Mock).mockResolvedValue({
+            vi.mocked(ts_client.showMetadata).mockResolvedValue({
                 details: { name: '*' },
-            });
+            } as any);
             expect(await getAssetRulesForZone('zone-nonarray')).toEqual([]);
         });
 
         it('should resolve an empty list when the request errors', async () => {
-            (ts_client.showMetadata as jest.Mock).mockRejectedValue(
+            vi.mocked(ts_client.showMetadata).mockRejectedValue(
                 new Error('nope'),
             );
             expect(await getAssetRulesForZone('zone-error')).toEqual([]);

@@ -1,14 +1,13 @@
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
-import { of } from 'rxjs';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 
 import { OrganisationService } from '@placeos/common';
 
-jest.mock('libs/events/src/lib/space.utilities', () => ({
-    requestSpacesForZone: jest.fn(),
-}));
+// `requestSpacesForZone` runs for real; only the ts-client query beneath it is
+// stubbed so the real Space mapping/state logic is exercised.
+vi.mock('@placeos/ts-client', { spy: true });
 
-import { requestSpacesForZone } from 'libs/events/src/lib/space.utilities';
+import * as ts_client from '@placeos/ts-client';
 import { AvailableRoomsStateModalComponent } from '../lib/available-rooms-state-modal.component';
 
 describe('AvailableRoomsStateModalComponent', () => {
@@ -24,7 +23,7 @@ describe('AvailableRoomsStateModalComponent', () => {
         component: AvailableRoomsStateModalComponent,
         providers: [
             { provide: MAT_DIALOG_DATA, useValue: dialog_data },
-            { provide: MatDialogRef, useValue: { close: jest.fn() } },
+            { provide: MatDialogRef, useValue: { close: vi.fn() } },
             {
                 provide: OrganisationService,
                 useValue: { building: { id: 'bld-1' } },
@@ -33,7 +32,9 @@ describe('AvailableRoomsStateModalComponent', () => {
     });
 
     beforeEach(() => {
-        jest.mocked(requestSpacesForZone).mockReturnValue(of(spaces));
+        vi.mocked(ts_client.querySystems).mockReturnValue(
+            Promise.resolve({ data: spaces, total: spaces.length }) as any,
+        );
         dialog_data.disabled_rooms = ['space-2'];
         spectator = createComponent();
     });
@@ -74,7 +75,7 @@ describe('AvailableRoomsStateModalComponent', () => {
     });
 
     it('should emit updated disabled list when enabling selected rooms', async () => {
-        const spy = jest.fn();
+        const spy = vi.fn();
         spectator.component.change.subscribe(spy);
         await spectator.component.toggleRoom('space-2');
         await spectator.component.enableSelected();
@@ -85,7 +86,7 @@ describe('AvailableRoomsStateModalComponent', () => {
     });
 
     it('should emit updated disabled list when disabling selected rooms', async () => {
-        const spy = jest.fn();
+        const spy = vi.fn();
         spectator.component.change.subscribe(spy);
         await spectator.component.toggleRoom('space-1');
         await spectator.component.toggleRoom('space-2');

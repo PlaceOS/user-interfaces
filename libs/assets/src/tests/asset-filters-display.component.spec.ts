@@ -1,4 +1,4 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 
 import { AssetFiltersDisplayComponent } from '../lib/asset-select-modal/asset-filters-display.component';
 

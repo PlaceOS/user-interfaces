@@ -1,30 +1,15 @@
 import { signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
-import { lastValueFrom, of } from 'rxjs';
-import { first } from 'rxjs/operators';
+import {
+    createServiceFactory,
+    SpectatorService,
+} from '@ngneat/spectator/vitest';
+import { setCurrentUser } from '@placeos/common';
+import { of } from 'rxjs';
 
-let mock_current_user = of(null);
-
-// Mock modules before importing
-jest.mock('@placeos/ts-client', () => ({
-    ...jest.requireActual('@placeos/ts-client'),
-    authority: jest.fn(),
-    currentGroups: jest.fn(),
-    onlineState: jest.fn(),
-    waitForSignal: jest.fn(),
-}));
-jest.mock('@placeos/common', () => ({
-    ...jest.requireActual('@placeos/common'),
-    get current_user() {
-        return mock_current_user;
-    },
-    firstTruthyValueFrom: jest.fn((obs) =>
-        obs
-            ? lastValueFrom(obs.pipe(first((_) => !!_)))
-            : Promise.resolve(null),
-    ),
-}));
+// The real `current_user` store and user-groups signals run for real (driven
+// via `setCurrentUser` / `user_groups`); only ts-client helpers are stubbed.
+vi.mock('@placeos/ts-client', { spy: true });
 
 import * as common_lib from '@placeos/common';
 import * as ts_client from '@placeos/ts-client';
@@ -42,13 +27,13 @@ describe('AuthorisedUserGuard', () => {
     const access_mock = { group: '' };
     const settings_mock = {
         app_name: 'workplace',
-        get: jest.fn(() => []),
+        get: vi.fn(() => []),
     };
 
     const createService = createServiceFactory({
         service: AuthorisedUserGuard,
         providers: [
-            MockProvider(Router, { navigate: jest.fn() }),
+            MockProvider(Router, { navigate: vi.fn() }),
             {
                 provide: PLACEOS_APP_ACCESS,
                 useValue: access_mock,
@@ -62,15 +47,15 @@ describe('AuthorisedUserGuard', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         access_mock.group = '';
         settings_mock.app_name = 'workplace';
         settings_mock.get.mockReturnValue([]);
-        mock_current_user = of(null);
-        jest.mocked(ts_client.authority).mockReturnValue(undefined);
-        jest.mocked(ts_client.currentGroups).mockReturnValue(of([]) as any);
-        jest.mocked(ts_client.onlineState).mockReturnValue(of(true) as any);
-        jest.mocked(ts_client.waitForSignal).mockResolvedValue(true as any);
+        setCurrentUser({ groups: [] } as any);
+        vi.mocked(ts_client.authority).mockReturnValue(undefined);
+        vi.mocked(ts_client.currentGroups).mockReturnValue(of([]) as any);
+        vi.mocked(ts_client.onlineState).mockReturnValue(of(true) as any);
+        vi.mocked(ts_client.waitForSignal).mockResolvedValue(true as any);
         common_lib.user_groups.set([]);
         common_lib.user_groups_loaded.set(true);
         spectator = createService();
@@ -82,7 +67,7 @@ describe('AuthorisedUserGuard', () => {
 
     it('should check if logged in user can activate a route', async () => {
         // Setup mocks
-        mock_current_user = of({ groups: [] } as any);
+        setCurrentUser({ groups: [] } as any);
 
         // With no required groups, user should be allowed
         let can_activate = await spectator.service.canActivate();
@@ -94,7 +79,7 @@ describe('AuthorisedUserGuard', () => {
         expect(can_activate).toBeFalsy();
 
         // User with 'Admin' group should be allowed
-        mock_current_user = of({ groups: ['Admin'] } as any);
+        setCurrentUser({ groups: ['Admin'] } as any);
         can_activate = await spectator.service.canActivate();
         expect(can_activate).toBeTruthy();
 
@@ -104,7 +89,7 @@ describe('AuthorisedUserGuard', () => {
 
     it('should check if logged in user can load a route', async () => {
         // Setup mocks
-        mock_current_user = of({ groups: [] } as any);
+        setCurrentUser({ groups: [] } as any);
 
         // With no required groups, user should be allowed
         let can_load = await spectator.service.canLoad();
@@ -116,16 +101,16 @@ describe('AuthorisedUserGuard', () => {
         expect(can_load).toBeFalsy();
 
         // User with 'Admin' group should be allowed
-        mock_current_user = of({ groups: ['Admin'] } as any);
+        setCurrentUser({ groups: ['Admin'] } as any);
         can_load = await spectator.service.canLoad();
         expect(can_load).toBeTruthy();
     });
 
     it('should require read access to the app subsystem when enabled', async () => {
-        jest.mocked(ts_client.authority).mockReturnValue({
+        vi.mocked(ts_client.authority).mockReturnValue({
             config: { use_group_subsystem_access: true },
         } as any);
-        mock_current_user = of({ groups: [] } as any);
+        setCurrentUser({ groups: [] } as any);
         common_lib.user_groups.set([
             {
                 group: { subsystems: ['workplace'] },
@@ -138,10 +123,10 @@ describe('AuthorisedUserGuard', () => {
     });
 
     it('should block users without read access to the app subsystem', async () => {
-        jest.mocked(ts_client.authority).mockReturnValue({
+        vi.mocked(ts_client.authority).mockReturnValue({
             config: { use_group_subsystem_access: true },
         } as any);
-        mock_current_user = of({ groups: [] } as any);
+        setCurrentUser({ groups: [] } as any);
         common_lib.user_groups.set([
             {
                 group: { subsystems: ['workplace'] },

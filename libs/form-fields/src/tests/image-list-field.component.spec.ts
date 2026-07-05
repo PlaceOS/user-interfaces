@@ -2,7 +2,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
 import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
@@ -28,14 +28,14 @@ describe('ImageListFieldComponent', () => {
         ],
         providers: [
             MockProvider(UploadsService, {
-                uploadFileWithPermissions: jest.fn(() =>
+                uploadFileWithPermissions: vi.fn(() =>
                     Promise.resolve('upload-1'),
                 ),
                 upload_list: (() => []) as any,
             }),
-            MockProvider(Clipboard, { copy: jest.fn(() => true) }),
+            MockProvider(Clipboard, { copy: vi.fn(() => true) }),
             MockProvider(MatDialog, {
-                open: jest.fn(() => ({ afterClosed: () => of(null) })),
+                open: vi.fn(() => ({ afterClosed: () => of(null) })),
             } as any),
         ],
         imports: [MatChipsModule, MatFormFieldModule],
@@ -60,7 +60,7 @@ describe('ImageListFieldComponent', () => {
     });
 
     it('should add a url via the chip input', () => {
-        const on_change = jest.fn();
+        const on_change = vi.fn();
         spectator.component.registerOnChange(on_change);
         spectator.component.addImage(chipEvent('new.png'));
         expect(spectator.component.list()).toEqual(['new.png']);
@@ -74,7 +74,7 @@ describe('ImageListFieldComponent', () => {
     });
 
     it('should remove an image and emit the change', () => {
-        const on_change = jest.fn();
+        const on_change = vi.fn();
         spectator.component.writeValue(['a.png', 'b.png']);
         spectator.component.registerOnChange(on_change);
         spectator.component.removeImage('a.png');

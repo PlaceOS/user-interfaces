@@ -1,12 +1,12 @@
-import { SpectatorHost, createHostFactory } from '@ngneat/spectator/jest';
+import { SpectatorHost, createHostFactory } from '@ngneat/spectator/vitest';
 
 import { ViewportVisibilityComponent } from '../lib/viewport-visibility.component';
 
 class MockIntersectionObserver {
     public static instances: MockIntersectionObserver[] = [];
-    public observe = jest.fn();
-    public disconnect = jest.fn();
-    public unobserve = jest.fn();
+    public observe = vi.fn();
+    public disconnect = vi.fn();
+    public unobserve = vi.fn();
 
     constructor(
         public callback: IntersectionObserverCallback,
@@ -35,10 +35,10 @@ describe('ViewportVisibilityComponent', () => {
 
     beforeEach(() => {
         MockIntersectionObserver.instances = [];
-        jest.spyOn(console, 'log').mockImplementation(() => null);
+        vi.spyOn(console, 'log').mockImplementation(() => null);
     });
 
-    afterEach(() => jest.restoreAllMocks());
+    afterEach(() => vi.restoreAllMocks());
 
     it('should create component and observe the host element', () => {
         spectator = createHost(

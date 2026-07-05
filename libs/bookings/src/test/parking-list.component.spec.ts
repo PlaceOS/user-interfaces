@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatRippleModule } from '@angular/material/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent, MockDirective, MockModule, MockProvider } from 'ng-mocks';
 
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';

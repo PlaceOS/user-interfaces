@@ -1,7 +1,7 @@
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { MatRadioModule } from '@angular/material/radio';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { CateringItem, OrderCateringItem } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { ImageCarouselComponent } from 'libs/components/src/lib/image-carousel.component';
@@ -179,8 +179,8 @@ describe('CateringItemDetailsComponent', () => {
     });
 
     it('should emit toggleFav and close outputs', () => {
-        const fav = jest.fn();
-        const close = jest.fn();
+        const fav = vi.fn();
+        const close = vi.fn();
         spectator.component.toggleFav.subscribe(fav);
         spectator.component.close.subscribe(close);
         spectator.setInput({ item: makeItem({ id: '1' }) });

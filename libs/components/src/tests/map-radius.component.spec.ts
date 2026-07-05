@@ -1,5 +1,4 @@
-import { fakeAsync } from '@angular/core/testing';
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 import { getUnixTime, subMinutes } from 'date-fns';
 
 import { MAP_FEATURE_DATA } from '@placeos/common';
@@ -25,16 +24,16 @@ describe('MapRadiusComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should show a radius circle', fakeAsync(() => {
+    it('should show a radius circle', () => {
         spectator.component.show.set(false);
         spectator.detectChanges();
         expect('[radius]').not.toExist();
         spectator.component.show.set(true);
         spectator.detectChanges();
         expect('[radius]').toExist();
-    }));
+    });
 
-    it('should show a message', fakeAsync(() => {
+    it('should show a message', () => {
         spectator.component.show.set(true);
         spectator.component.show_message.set(false);
         spectator.detectChanges();
@@ -43,9 +42,9 @@ describe('MapRadiusComponent', () => {
         spectator.detectChanges();
         expect('[message]').toExist();
         expect('[message]').toContainText('Test');
-    }));
+    });
 
-    it('should show a last seen if set', fakeAsync(() => {
+    it('should show a last seen if set', () => {
         spectator.component.show.set(true);
         spectator.component.show_message.set(true);
         spectator.detectChanges();
@@ -55,5 +54,5 @@ describe('MapRadiusComponent', () => {
         spectator.detectChanges();
         expect('[message] span').toExist();
         expect('[message] span').toContainText('1 hour ago');
-    }));
+    });
 });

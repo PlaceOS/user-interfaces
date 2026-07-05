@@ -1,24 +1,24 @@
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
-import { LocaleService, SettingsService, notifySuccess } from '@placeos/common';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
+import { LocaleService, SettingsService } from '@placeos/common';
+import { setNotifyOutlet } from 'libs/common/src/lib/notifications';
 import { of } from 'rxjs';
-
-jest.mock('@placeos/common', () => ({
-    ...jest.requireActual('@placeos/common'),
-    notifySuccess: jest.fn(),
-}));
 
 import { CustomTooltipData } from '../lib/custom-tooltip.component';
 import { UserParkingTooltipComponent } from '../lib/user-parking-tooltip.component';
+
+// `notifySuccess` is a real workspace fn that opens on the notify outlet; a
+// fake outlet lets us assert that a success notification was raised.
+const notify_open = vi.fn(() => ({ onAction: () => of(), dismiss: vi.fn() }));
 
 describe('UserParkingTooltipComponent', () => {
     let spectator: Spectator<UserParkingTooltipComponent>;
     const settings = {
         initialised: of(true),
-        get: jest.fn(() => 'ABC-123'),
-        saveUserSetting: jest.fn(),
+        get: vi.fn(() => 'ABC-123'),
+        saveUserSetting: vi.fn(),
     };
-    const tooltip = { data: null, close: jest.fn() };
+    const tooltip = { data: null, close: vi.fn() };
     const createComponent = createComponentFactory({
         component: UserParkingTooltipComponent,
         providers: [
@@ -30,9 +30,14 @@ describe('UserParkingTooltipComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
+        setNotifyOutlet({ open: notify_open } as any, true);
         settings.get.mockReturnValue('ABC-123');
         spectator = createComponent();
+    });
+
+    afterEach(() => {
+        setNotifyOutlet(null, true);
     });
 
     it('should create component', () => {
@@ -53,7 +58,7 @@ describe('UserParkingTooltipComponent', () => {
             'plate_number',
             'XYZ-789',
         );
-        expect(notifySuccess).toHaveBeenCalled();
+        expect(notify_open).toHaveBeenCalled();
         expect(tooltip.close).toHaveBeenCalled();
     });
 
@@ -63,7 +68,7 @@ describe('UserParkingTooltipComponent', () => {
         spectator.component.plate_number.set('');
         spectator.click('button[btn]');
         expect(settings.saveUserSetting).not.toHaveBeenCalled();
-        expect(notifySuccess).toHaveBeenCalled();
+        expect(notify_open).toHaveBeenCalled();
         expect(tooltip.close).toHaveBeenCalled();
     });
 });

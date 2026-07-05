@@ -1,4 +1,4 @@
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 import { MockComponent, MockPipe } from 'ng-mocks';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -18,15 +18,21 @@ describe('ActionFieldComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should emit user click actions', (done) => {
-        spectator.component.on_action.subscribe(() => done());
-        expect('[placeholder]').toExist();
-        spectator.click('[placeholder]');
-    });
+    it('should emit user click actions', () =>
+        new Promise<void>((done) => {
+            spectator.component.on_action.subscribe(() => done());
+            expect('[placeholder]').toExist();
+            spectator.click('[placeholder]');
+        }));
 
-    it('should emit user enter keypress ', (done) => {
-        spectator.component.on_action.subscribe(() => done());
-        expect('[form-field]').toExist();
-        spectator.dispatchKeyboardEvent('[form-field]', 'keydown', 'Enter');
-    });
+    it('should emit user enter keypress ', () =>
+        new Promise<void>((done) => {
+            spectator.component.on_action.subscribe(() => done());
+            expect('[form-field]').toExist();
+            spectator
+                .query('[form-field]')
+                .dispatchEvent(
+                    new KeyboardEvent('keydown', { key: 'Enter' }),
+                );
+        }));
 });

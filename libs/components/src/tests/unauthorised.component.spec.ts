@@ -1,5 +1,5 @@
 import { provideRouter } from '@angular/router';
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 
 import { UnauthorisedComponent } from '../lib/unauthorised.component';
 

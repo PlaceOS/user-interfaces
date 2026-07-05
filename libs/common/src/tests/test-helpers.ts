@@ -8,6 +8,20 @@ import {
 } from 'ng-mocks';
 import { of } from 'rxjs';
 
+// Runner-agnostic spy factory: this helper is shared by vitest-based specs
+// (libs) and jest-based specs (apps). `vi` lives on globalThis (globals:
+// true) while jest injects `jest` into each module's scope rather than the
+// global object, so both must be resolved lazily via typeof at call time.
+declare let jest: any;
+declare let vi: any;
+const test_mock = {
+    fn(impl?: any) {
+        if (typeof vi !== 'undefined') return vi.fn(impl);
+        if (typeof jest !== 'undefined') return jest.fn(impl);
+        throw new Error('No test runner mock factory found');
+    },
+};
+
 interface PropDecoratorFactory {
     type?: { prototype: { ngMetadataName?: string } };
     args: (Type<any> | string | { isSignal?: boolean })[];
@@ -88,7 +102,7 @@ export const createQuerySignalMock = (): Signal<undefined> => {
     const theSignal = signal(undefined);
     const signalSymbol = Object.getOwnPropertySymbols(theSignal)[0];
     if (signalSymbol) {
-        (theSignal as any)[signalSymbol]._dirtyCounter = { update: jest.fn() }; // Mock the update method to avoid errors in tests;
+        (theSignal as any)[signalSymbol]._dirtyCounter = { update: test_mock.fn() }; // Mock the update method to avoid errors in tests;
     }
     return theSignal;
 };
@@ -155,7 +169,7 @@ export const createSettingsServiceMock = (
     overrides: Record<string, any> = {},
 ) => {
     const version = signal(0);
-    const get = jest.fn(<T = any>(_: string): T => undefined as T);
+    const get = test_mock.fn(<T = any>(_: string): T => undefined as T);
     const bump = () => version.update((value) => value + 1);
     const mock_implementation = get.mockImplementation.bind(get);
     const mock_return_value = get.mockReturnValue.bind(get);
@@ -169,19 +183,19 @@ export const createSettingsServiceMock = (
     }) as any;
     return {
         get,
-        saveUserSetting: jest.fn(),
+        saveUserSetting: test_mock.fn(),
         initialised: of(true),
         overrides$: of([]),
-        signal: jest.fn((name: string, default_value?: any, root = false) =>
+        signal: test_mock.fn((name: string, default_value?: any, root = false) =>
             computed(() => {
                 version();
                 return get(root ? name : `app.${name}`) ?? default_value;
             }),
         ),
-        time_format_signal: jest.fn(() =>
+        time_format_signal: test_mock.fn(() =>
             get('app.use_24_hour_time') ? 'HH:mm' : 'h:mm a',
         ),
-        theme_signal: jest.fn(() => get('theme') || 'light'),
+        theme_signal: test_mock.fn(() => get('theme') || 'light'),
         ...overrides,
     } as any;
 };

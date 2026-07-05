@@ -1,4 +1,4 @@
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 
 import {
     PluginConfigPayload,
@@ -34,7 +34,7 @@ describe('PluginEmbedComponent', () => {
             uri: '/plugins/weather/index.html',
         });
         const iframe = spectator.query('iframe') as HTMLIFrameElement;
-        const post_message = jest.fn();
+        const post_message = vi.fn();
         Object.defineProperty(iframe, 'contentWindow', {
             configurable: true,
             value: { postMessage: post_message },
@@ -49,7 +49,7 @@ describe('PluginEmbedComponent', () => {
     });
 
     it('should emit loaded when the plugin iframe loads', () => {
-        const loaded_spy = jest.spyOn(spectator.component.loaded, 'emit');
+        const loaded_spy = vi.spyOn(spectator.component.loaded, 'emit');
         spectator.setInput('plugin', {
             id: 'plugin-1',
             name: 'Local Plugin',
@@ -62,7 +62,7 @@ describe('PluginEmbedComponent', () => {
     });
 
     it('should emit a fatal plugin error when the iframe errors', () => {
-        const error_spy = jest.spyOn(spectator.component.plugin_error, 'emit');
+        const error_spy = vi.spyOn(spectator.component.plugin_error, 'emit');
         spectator.setInput('plugin', {
             id: 'plugin-1',
             name: 'Local Plugin',

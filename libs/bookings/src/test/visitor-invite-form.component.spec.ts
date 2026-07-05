@@ -1,3 +1,4 @@
+import type { Mock } from 'vitest';
 import { inject, Injector, signal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -5,7 +6,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { Booking, OrganisationService, SettingsService, User } from '@placeos/common';
 import { createSettingsServiceMock } from '@placeos/common/tests';
 import { MockModule, MockProvider, MockService } from 'ng-mocks';
@@ -34,18 +35,18 @@ describe('VisitorInviteFormComponent', () => {
                     return MockService(BookingFormService, {
                         model,
                         form,
-                        clearOldState: jest.fn(),
-                        loadForm: jest.fn(),
-                        setOptions: jest.fn(),
-                        newForm: jest.fn(),
-                        postForm: jest.fn(async () => new Booking()),
+                        clearOldState: vi.fn(),
+                        loadForm: vi.fn(),
+                        setOptions: vi.fn(),
+                        newForm: vi.fn(),
+                        postForm: vi.fn(async () => new Booking()),
                     });
                 },
             },
             MockProvider(
                 OrganisationService as any,
                 {
-                    waitUntilInitialised: jest.fn(async () => {}),
+                    waitUntilInitialised: vi.fn(async () => {}),
                     active_buildings: signal([]),
                     buildings: [{ id: 'bld-1', name: 'Building One' }],
                     building: { id: 'bld-1', name: 'Building One' },
@@ -124,7 +125,7 @@ describe('VisitorInviteFormComponent', () => {
 
     it('should not send invite when required fields are missing', async () => {
         const service = spectator.inject(BookingFormService);
-        const done = jest.fn();
+        const done = vi.fn();
         spectator.component.done.subscribe(done);
 
         await spectator.component.sendInvite();
@@ -135,7 +136,7 @@ describe('VisitorInviteFormComponent', () => {
 
     it('should load saved visitor suggestions and default reason on init', async () => {
         const settings = spectator.inject(SettingsService);
-        (settings.get as jest.Mock).mockImplementation((key: string) =>
+        (settings.get as Mock).mockImplementation((key: string) =>
             key === 'visitor-invitees'
                 ? ['erin@example.com|Erin|Umbrella|1']
                 : undefined,

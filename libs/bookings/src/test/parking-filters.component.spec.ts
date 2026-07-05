@@ -1,10 +1,11 @@
+import type { Mock } from 'vitest';
 import { signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 import { OrganisationService } from '@placeos/common';
 import { createSettingsServiceMock } from '@placeos/common/tests';
 import { MockComponent, MockModule, MockPipe } from 'ng-mocks';
@@ -28,8 +29,8 @@ describe('ParkingFiltersComponent', () => {
         duration: 120,
         all_day: false,
     });
-    const setOptions = jest.fn();
-    const setFeature = jest.fn();
+    const setOptions = vi.fn();
+    const setFeature = vi.fn();
     const state_mock = {
         options,
         features,
@@ -54,8 +55,8 @@ describe('ParkingFiltersComponent', () => {
             { id: 'reg-1', display_name: 'Region One', name: 'reg-1' },
         ]),
         active_region: signal({ id: 'reg-1', display_name: 'Region One', name: 'reg-1' }),
-        levelsForRegion: jest.fn(() => levels),
-        levelsForBuilding: jest.fn(() => levels),
+        levelsForRegion: vi.fn(() => levels),
+        levelsForBuilding: vi.fn(() => levels),
         building: null,
         region: null,
     };
@@ -85,7 +86,7 @@ describe('ParkingFiltersComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         options.set({ zone_id: 'lvl-a', show_fav: false, features: [] });
         features.set(['EV', 'Accessible']);
         org_mock.building = null;
@@ -108,7 +109,7 @@ describe('ParkingFiltersComponent', () => {
 
     it('should show the region selector when regions are used', () => {
         const settings = spectator.inject(SettingsService);
-        (settings.get as jest.Mock).mockImplementation((key: string) =>
+        (settings.get as Mock).mockImplementation((key: string) =>
             key === 'app.use_region' ? true : undefined,
         );
         spectator.detectChanges();

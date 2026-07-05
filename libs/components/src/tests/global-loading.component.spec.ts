@@ -1,8 +1,8 @@
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
-jest.mock('@placeos/ts-client');
+vi.mock('@placeos/ts-client', { spy: true });
 
 import {
     needsNativeDomain,
@@ -28,11 +28,11 @@ describe('GlobalLoadingComponent', () => {
         detectChanges: false,
         providers: [
             MockProvider(OrganisationService, {
-                waitUntilInitialised: jest.fn().mockResolvedValue(undefined),
+                waitUntilInitialised: vi.fn().mockResolvedValue(undefined),
             } as any),
             MockProvider(SettingsService, { initialised: of(true) } as any),
             MockProvider(PlaceOS_Service, {
-                onNativeDomainSet: jest.fn(),
+                onNativeDomainSet: vi.fn(),
             } as any),
             MockProvider(LocaleService),
         ],
@@ -58,9 +58,9 @@ describe('GlobalLoadingComponent', () => {
     });
 
     beforeEach(() => {
-        (authority as jest.Mock).mockReturnValue(undefined);
-        (token as jest.Mock).mockReturnValue(undefined);
-        (isOnline as jest.Mock).mockReturnValue(true);
+        vi.mocked(authority).mockReturnValue(undefined);
+        vi.mocked(token).mockReturnValue(undefined);
+        vi.mocked(isOnline).mockReturnValue(true);
         needsNativeDomain().set(false);
         setLoadingMessage('Loading...');
         spectator = createComponent();
@@ -78,8 +78,8 @@ describe('GlobalLoadingComponent', () => {
     });
 
     it('should hide the loading overlay once authenticated', async () => {
-        (authority as jest.Mock).mockReturnValue({ id: 'test' });
-        (token as jest.Mock).mockReturnValue('test-token');
+        vi.mocked(authority).mockReturnValue({ id: 'test' } as any);
+        vi.mocked(token).mockReturnValue('test-token');
         spectator.detectChanges();
         expect('[loader]').toExist();
         await sleep(1200);
@@ -89,9 +89,9 @@ describe('GlobalLoadingComponent', () => {
     });
 
     it('should show a server down message while offline', async () => {
-        (authority as jest.Mock).mockReturnValue({ id: 'test' });
-        (token as jest.Mock).mockReturnValue('test-token');
-        (isOnline as jest.Mock).mockReturnValue(false);
+        vi.mocked(authority).mockReturnValue({ id: 'test' } as any);
+        vi.mocked(token).mockReturnValue('test-token');
+        vi.mocked(isOnline).mockReturnValue(false);
         spectator.detectChanges();
         await sleep(1200);
         spectator.detectChanges();

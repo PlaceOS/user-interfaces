@@ -1,3 +1,4 @@
+import type { Mock } from 'vitest';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
@@ -7,7 +8,7 @@ import {
     MatDialogModule,
     MatDialogRef,
 } from '@angular/material/dialog';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { createSettingsServiceMock } from '@placeos/common/tests';
 import { MockModule, MockProvider } from 'ng-mocks';
@@ -16,10 +17,10 @@ import { DeskSettingsModalComponent } from '../lib/desk-settings-modal.component
 
 describe('DeskSettingsModalComponent', () => {
     let spectator: Spectator<DeskSettingsModalComponent>;
-    const dialog_ref = { close: jest.fn() };
-    const desk_module = { execute: jest.fn(async () => true) };
+    const dialog_ref = { close: vi.fn() };
+    const desk_module = { execute: vi.fn(async () => true) };
     const org = {
-        module: jest.fn(() => desk_module),
+        module: vi.fn(() => desk_module),
     };
     const createComponent = createComponentFactory({
         component: DeskSettingsModalComponent,
@@ -43,7 +44,7 @@ describe('DeskSettingsModalComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         localStorage.clear();
         spectator = createComponent();
     });
@@ -57,7 +58,7 @@ describe('DeskSettingsModalComponent', () => {
 
     it('should apply the standing preset height when selected', () => {
         const settings = spectator.inject(SettingsService);
-        (settings.get as jest.Mock).mockImplementation((key: string) =>
+        (settings.get as Mock).mockImplementation((key: string) =>
             key === 'desk_standing_height' ? 105 : undefined,
         );
         spectator.component.setPreset('standing');
@@ -67,7 +68,7 @@ describe('DeskSettingsModalComponent', () => {
 
     it('should apply the sitting preset height when selected', () => {
         const settings = spectator.inject(SettingsService);
-        (settings.get as jest.Mock).mockImplementation((key: string) =>
+        (settings.get as Mock).mockImplementation((key: string) =>
             key === 'desk_sitting_height' ? 68 : undefined,
         );
         spectator.component.setPreset('sitting');
@@ -83,7 +84,7 @@ describe('DeskSettingsModalComponent', () => {
 
     it('should mark height as matching preset when updated to preset value', () => {
         const settings = spectator.inject(SettingsService);
-        (settings.get as jest.Mock).mockImplementation((key: string) =>
+        (settings.get as Mock).mockImplementation((key: string) =>
             key === 'desk_standing_height' ? 102 : undefined,
         );
         spectator.component.updateHeight(102);

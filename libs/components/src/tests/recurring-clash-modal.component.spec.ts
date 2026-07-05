@@ -1,5 +1,5 @@
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 import { DialogEvent } from '@placeos/common';
 
 import { RecurringClashModalComponent } from '../lib/recurring-clash-modal.component';
@@ -19,7 +19,7 @@ describe('RecurringClashModalComponent', () => {
             booking_end: toUnix(new Date(2026, 2, 11, 10, 0)),
         },
     ] as any[];
-    const dialog_ref = { close: jest.fn() };
+    const dialog_ref = { close: vi.fn() };
 
     const createComponent = createComponentFactory({
         component: RecurringClashModalComponent,
@@ -29,7 +29,7 @@ describe('RecurringClashModalComponent', () => {
         ],
     });
 
-    beforeEach(() => jest.clearAllMocks());
+    beforeEach(() => vi.clearAllMocks());
 
     it('should create component', () => {
         spectator = createComponent();

@@ -1,21 +1,20 @@
-jest.mock('@placeos/ts-client', () => ({
-    showAssetType: jest.fn(),
-}));
+import * as ts_client from '@placeos/ts-client';
+
+vi.mock('@placeos/ts-client', { spy: true });
 
 async function load_modules() {
-    const ts_client = (await import('@placeos/ts-client')) as any;
     const pipe_module = (await import('./asset-group.pipe')) as any;
-    return { ts_client, pipe_module };
+    return { pipe_module };
 }
 
 describe('[AssetGroupPipe]', () => {
     beforeEach(() => {
-        jest.resetModules();
-        jest.clearAllMocks();
+        vi.resetModules();
+        vi.clearAllMocks();
     });
 
     it('should return an empty group for an empty id', async () => {
-        const { ts_client, pipe_module } = await load_modules();
+        const { pipe_module } = await load_modules();
         const pipe = new pipe_module.AssetGroupPipe();
 
         expect(await pipe.transform('')).toEqual({});
@@ -23,11 +22,11 @@ describe('[AssetGroupPipe]', () => {
     });
 
     it('should resolve a group from the API and cache it', async () => {
-        const { ts_client, pipe_module } = await load_modules();
-        ts_client.showAssetType.mockResolvedValue({
+        const { pipe_module } = await load_modules();
+        vi.mocked(ts_client.showAssetType).mockResolvedValue({
             id: 'grp-1',
             name: 'Chairs',
-        });
+        } as any);
         const pipe = new pipe_module.AssetGroupPipe();
 
         const group = await pipe.transform('grp-1');
@@ -40,7 +39,7 @@ describe('[AssetGroupPipe]', () => {
     });
 
     it('should return a preloaded group without querying the API', async () => {
-        const { ts_client, pipe_module } = await load_modules();
+        const { pipe_module } = await load_modules();
         const pipe = new pipe_module.AssetGroupPipe();
         pipe.updateAssetGroupList([{ id: 'grp-2', name: 'Desks' }]);
 
@@ -50,15 +49,17 @@ describe('[AssetGroupPipe]', () => {
     });
 
     it('should return an empty group when the API errors', async () => {
-        const { ts_client, pipe_module } = await load_modules();
-        ts_client.showAssetType.mockRejectedValue(new Error('nope'));
+        const { pipe_module } = await load_modules();
+        vi.mocked(ts_client.showAssetType).mockRejectedValue(
+            new Error('nope'),
+        );
         const pipe = new pipe_module.AssetGroupPipe();
 
         expect(await pipe.transform('missing')).toEqual({});
     });
 
     it('should ignore duplicate ids when updating the group list', async () => {
-        const { ts_client, pipe_module } = await load_modules();
+        const { pipe_module } = await load_modules();
         pipe_module.updateAssetGroupList([{ id: 'grp-3', name: 'First' }]);
         pipe_module.updateAssetGroupList([{ id: 'grp-3', name: 'Second' }]);
         const pipe = new pipe_module.AssetGroupPipe();

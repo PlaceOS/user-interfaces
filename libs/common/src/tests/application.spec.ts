@@ -1,28 +1,30 @@
 import { Subject } from 'rxjs';
 
+import * as app from '../lib/application';
+
 describe('application cache handling', () => {
-    let app: typeof import('../lib/application');
     let version_updates: Subject<any>;
     let unrecoverable: Subject<any>;
     let cache: any;
 
     beforeEach(() => {
-        jest.useFakeTimers();
-        jest.resetModules();
-        app = require('../lib/application');
+        vi.useFakeTimers();
+        // `clearCacheCheck` fully resets the module-level cache state between
+        // tests (the native builder shares module instances across specs).
+        app.clearCacheCheck();
         version_updates = new Subject();
         unrecoverable = new Subject();
         cache = {
             isEnabled: true,
             versionUpdates: version_updates.asObservable(),
             unrecoverable: unrecoverable.asObservable(),
-            checkForUpdate: jest.fn(async () => false),
+            checkForUpdate: vi.fn(async () => false),
         };
     });
 
     afterEach(() => {
         app.clearCacheCheck();
-        jest.useRealTimers();
+        vi.useRealTimers();
     });
 
     it('should have no new version by default', () => {
@@ -32,15 +34,15 @@ describe('application cache handling', () => {
 
     it('should do nothing when the service worker is disabled', () => {
         app.setupCache({ ...cache, isEnabled: false });
-        jest.advanceTimersByTime(10_000);
+        vi.advanceTimersByTime(10_000);
         expect(cache.checkForUpdate).not.toHaveBeenCalled();
     });
 
     it('should periodically check for updates', () => {
         app.setupCache(cache);
-        jest.advanceTimersByTime(3000);
+        vi.advanceTimersByTime(3000);
         expect(cache.checkForUpdate).toHaveBeenCalledTimes(1);
-        jest.advanceTimersByTime(5 * 60 * 1000);
+        vi.advanceTimersByTime(5 * 60 * 1000);
         expect(cache.checkForUpdate).toHaveBeenCalledTimes(2);
     });
 
@@ -62,7 +64,7 @@ describe('application cache handling', () => {
     it('should stop polling once a new version is found', () => {
         app.setupCache(cache);
         version_updates.next({ type: 'VERSION_READY' });
-        jest.advanceTimersByTime(30 * 60 * 1000);
+        vi.advanceTimersByTime(30 * 60 * 1000);
         expect(cache.checkForUpdate).not.toHaveBeenCalled();
     });
 

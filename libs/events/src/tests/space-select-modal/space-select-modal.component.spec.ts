@@ -4,7 +4,7 @@ import {
     MatDialogModule,
     MatDialogRef,
 } from '@angular/material/dialog';
-import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
+import { createRoutingFactory, Spectator } from '@ngneat/spectator/vitest';
 import { SettingsService, Space } from '@placeos/common';
 import { EventFormService, generateEventForm } from '@placeos/events';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
@@ -22,11 +22,11 @@ describe('SpaceSelectModalComponent', () => {
         component: SpaceSelectModalComponent,
         providers: [
             MockProvider(SettingsService, {
-                get: jest.fn(),
-                saveUserSetting: jest.fn(),
+                get: vi.fn(),
+                saveUserSetting: vi.fn(),
             }),
             MockProvider(MAT_DIALOG_DATA, []),
-            MockProvider(MatDialogRef, { close: jest.fn() }),
+            MockProvider(MatDialogRef, { close: vi.fn() }),
             {
                 provide: EventFormService,
                 useFactory: () => {
@@ -45,10 +45,10 @@ describe('SpaceSelectModalComponent', () => {
                         model,
                         form,
                         filters: {},
-                        setOptions: jest.fn(),
-                        setFilters: jest.fn(),
-                        setView: jest.fn(),
-                    } as Partial<EventFormService>;
+                        setOptions: vi.fn(),
+                        setFilters: vi.fn(),
+                        setView: vi.fn(),
+                    } as unknown as Partial<EventFormService>;
                 },
             },
         ],
@@ -112,13 +112,13 @@ describe('SpaceSelectModalComponent (with favourites)', () => {
         component: SpaceSelectModalComponent,
         providers: [
             MockProvider(SettingsService, {
-                get: jest.fn((key: string) =>
+                get: vi.fn((key: string) =>
                     key === 'favourite_spaces' ? ['1'] : undefined,
                 ) as any,
-                saveUserSetting: jest.fn(),
+                saveUserSetting: vi.fn(),
             }),
             MockProvider(MAT_DIALOG_DATA, []),
-            MockProvider(MatDialogRef, { close: jest.fn() }),
+            MockProvider(MatDialogRef, { close: vi.fn() }),
             {
                 provide: EventFormService,
                 useFactory: () => {
@@ -137,10 +137,10 @@ describe('SpaceSelectModalComponent (with favourites)', () => {
                         model,
                         form,
                         filters: {},
-                        setOptions: jest.fn(),
-                        setFilters: jest.fn(),
-                        setView: jest.fn(),
-                    } as Partial<EventFormService>;
+                        setOptions: vi.fn(),
+                        setFilters: vi.fn(),
+                        setView: vi.fn(),
+                    } as unknown as Partial<EventFormService>;
                 },
             },
         ],

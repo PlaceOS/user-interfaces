@@ -1,4 +1,4 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
     Booking,
     OrganisationService,
@@ -88,14 +88,14 @@ describe('VisitorInviteSuccessComponent', () => {
     });
 
     it('should emit done when the finished button is clicked', () => {
-        const done = jest.fn();
+        const done = vi.fn();
         spectator.component.done.subscribe(done);
         spectator.click('.border-t button:first-of-type');
         expect(done).toHaveBeenCalled();
     });
 
     it('should emit another when the book-another button is clicked', () => {
-        const another = jest.fn();
+        const another = vi.fn();
         spectator.component.another.subscribe(another);
         spectator.click('.border-t button:last-of-type');
         expect(another).toHaveBeenCalled();

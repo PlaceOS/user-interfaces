@@ -91,7 +91,7 @@ describe('user-state', () => {
                 new StaffUser({
                     email: 'admin@dev.place.tech',
                     sys_admin: true,
-                }),
+                } as any),
             );
             expect(hasPermission('anything', GroupPermission.Manage)).toBe(
                 true,

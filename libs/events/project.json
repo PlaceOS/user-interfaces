@@ -11,11 +11,26 @@
             "outputs": ["{options.outputFile}"]
         },
         "test": {
-            "executor": "@nx/jest:jest",
+            "executor": "@angular/build:unit-test",
             "outputs": ["{workspaceRoot}/coverage/libs/events"],
             "options": {
-                "jestConfig": "libs/events/jest.config.ts",
-                "tsConfig": "libs/events/tsconfig.spec.json"
+                "tsConfig": "libs/events/tsconfig.spec.json",
+                "setupFiles": ["libs/events/src/test-setup.ts"],
+                "isolate": true,
+                "watch": false,
+                "buildTarget": "events:test-build:development"
+            }
+        },
+        "test-build": {
+            "executor": "@angular/build:application",
+            "options": {
+                "outputPath": "dist/libs/events",
+                "browser": "libs/events/src/index.ts",
+                "tsConfig": "libs/events/tsconfig.spec.json",
+                "polyfills": []
+            },
+            "configurations": {
+                "development": {}
             }
         }
     }
