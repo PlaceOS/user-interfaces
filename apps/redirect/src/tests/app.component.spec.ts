@@ -1,38 +1,23 @@
 import { ActivatedRoute } from '@angular/router';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import {
-    currentUser,
-    firstTruthyValueFrom,
-    setupPlace,
-    SettingsService,
-} from '@placeos/common';
-import { authority, setAPI_Key } from '@placeos/ts-client';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
+import { setCurrentUser, SettingsService } from '@placeos/common';
+import { authority, setAPI_Key, setup } from '@placeos/ts-client';
+import { BehaviorSubject } from 'rxjs';
 
 import { AppComponent } from '../app/app.component';
 
-jest.mock('@placeos/common', () => {
-    const actual = jest.requireActual('@placeos/common');
-    const settings_get = jest.fn();
-    class SettingsService {
-        public initialised = true;
-        public get = settings_get;
-    }
-    (SettingsService as any).get_mock = settings_get;
-    return {
-        ...actual,
-        SettingsService,
-        firstTruthyValueFrom: jest.fn(() => Promise.resolve(true)),
-        setupPlace: jest.fn(() => Promise.resolve()),
-        currentUser: jest.fn(() => ({ email: 'user@example.com' })),
-        current_user: { subscribe: () => ({ unsubscribe: jest.fn() }) },
-    };
-});
+// Workspace modules run for real under the zoneless unit-test builder — only
+// the external `@placeos/ts-client` package can be intercepted. `setupPlace()`
+// runs for real and ultimately calls `setup(config)`, so we stub `setup` (and
+// assert the resolved `mock` flag on the config it receives) instead of spying
+// the workspace `setupPlace`. The current user is seeded via `setCurrentUser`.
+vi.mock('@placeos/ts-client', { spy: true });
 
-jest.mock('@placeos/ts-client', () => ({
-    ...jest.requireActual('@placeos/ts-client'),
-    authority: jest.fn(),
-    setAPI_Key: jest.fn(),
-}));
+const settings_get = vi.fn();
+const settings_mock = {
+    initialised: new BehaviorSubject<boolean>(true),
+    get: settings_get,
+};
 
 function query_map(params: Record<string, string>): any {
     return {
@@ -48,37 +33,39 @@ function query_map(params: Record<string, string>): any {
 
 describe('AppComponent', () => {
     let spectator: Spectator<AppComponent>;
-    let log_spy: jest.SpyInstance;
+    let log_spy: ReturnType<typeof vi.spyOn>;
 
-    const settings_get = (SettingsService as any).get_mock as jest.Mock;
     const route_stub: any = { snapshot: { queryParamMap: query_map({}) } };
 
     // The component logs `console.log('Redirect:', url)` immediately before
     // assigning `location.href`, so this reflects the computed redirect target.
     function redirect_url(): string | undefined {
         const call = log_spy.mock.calls.find((c) => c[0] === 'Redirect:');
-        return call?.[1];
+        return call?.[1] as string | undefined;
     }
 
     const create_component = createComponentFactory({
         component: AppComponent,
         detectChanges: false,
         providers: [{ provide: ActivatedRoute, useValue: route_stub }],
+        componentProviders: [
+            { provide: SettingsService, useValue: settings_mock },
+        ],
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
-        log_spy = jest.spyOn(console, 'log').mockImplementation(() => void 0);
+        vi.clearAllMocks();
+        localStorage.clear();
+        log_spy = vi.spyOn(console, 'log').mockImplementation(() => void 0);
         route_stub.snapshot.queryParamMap = query_map({});
+        settings_mock.initialised = new BehaviorSubject<boolean>(true);
         settings_get.mockImplementation((key: string) =>
             key === 'composer' ? {} : undefined,
         );
-        (firstTruthyValueFrom as jest.Mock).mockResolvedValue(true);
-        (setupPlace as jest.Mock).mockResolvedValue(undefined);
-        (currentUser as jest.Mock).mockReturnValue({
-            email: 'user@example.com',
-        });
-        (authority as jest.Mock).mockReturnValue(undefined);
+        vi.mocked(setup).mockResolvedValue(undefined as any);
+        vi.mocked(setAPI_Key).mockReturnValue(undefined as any);
+        vi.mocked(authority).mockReturnValue(undefined as any);
+        setCurrentUser({ email: 'user@example.com' } as any);
         spectator = create_component();
     });
 
@@ -98,11 +85,11 @@ describe('AppComponent', () => {
     });
 
     it('should initialise PlaceOS before checking redirects on init', async () => {
-        (authority as jest.Mock).mockReturnValue({ config: {} });
+        vi.mocked(authority).mockReturnValue({ config: {} } as any);
         await spectator.component.ngOnInit();
-        expect(setupPlace).toHaveBeenCalledTimes(1);
+        expect(setup).toHaveBeenCalledTimes(1);
         // No mapping: user stays on the current host (jsdom default localhost)
-        expect(redirect_url()).toBe('http://localhost');
+        expect(redirect_url()).toBe('http://localhost:3000');
     });
 
     describe('query parameter handling', () => {
@@ -110,31 +97,31 @@ describe('AppComponent', () => {
             route_stub.snapshot.queryParamMap = query_map({
                 continue: '/bookings',
             });
-            (authority as jest.Mock).mockReturnValue({ config: {} });
+            vi.mocked(authority).mockReturnValue({ config: {} } as any);
             await spectator.component.ngOnInit();
-            expect(redirect_url()).toBe('http://localhost/bookings');
+            expect(redirect_url()).toBe('http://localhost:3000/bookings');
         });
 
         it('should ignore a "continue" value that is not a path (open redirect guard)', async () => {
             route_stub.snapshot.queryParamMap = query_map({
                 continue: 'https://evil.example.com',
             });
-            (authority as jest.Mock).mockReturnValue({ config: {} });
+            vi.mocked(authority).mockReturnValue({ config: {} } as any);
             await spectator.component.ngOnInit();
-            expect(redirect_url()).toBe('http://localhost');
+            expect(redirect_url()).toBe('http://localhost:3000');
         });
 
         it('should set the API key when x-api-key is provided', async () => {
             route_stub.snapshot.queryParamMap = query_map({
                 'x-api-key': 'secret-key',
             });
-            (authority as jest.Mock).mockReturnValue({ config: {} });
+            vi.mocked(authority).mockReturnValue({ config: {} } as any);
             await spectator.component.ngOnInit();
             expect(setAPI_Key).toHaveBeenCalledWith('secret-key');
         });
 
         it('should not set the API key when x-api-key is absent', async () => {
-            (authority as jest.Mock).mockReturnValue({ config: {} });
+            vi.mocked(authority).mockReturnValue({ config: {} } as any);
             await spectator.component.ngOnInit();
             expect(setAPI_Key).not.toHaveBeenCalled();
         });
@@ -148,14 +135,14 @@ describe('AppComponent', () => {
                 return undefined;
             });
             await spectator.component.ngOnInit();
-            expect(setupPlace).toHaveBeenCalledWith(
-                expect.objectContaining({ foo: 'bar', mock: true }),
+            expect(setup).toHaveBeenCalledWith(
+                expect.objectContaining({ mock: true }),
             );
         });
 
         it('should leave mock mode disabled when the setting is falsy and not on the demo domain', async () => {
             await spectator.component.ngOnInit();
-            expect(setupPlace).toHaveBeenCalledWith(
+            expect(setup).toHaveBeenCalledWith(
                 expect.objectContaining({ mock: false }),
             );
         });
@@ -163,52 +150,46 @@ describe('AppComponent', () => {
 
     describe('domain redirects', () => {
         it('should not redirect when there is no authority', async () => {
-            (authority as jest.Mock).mockReturnValue(undefined);
+            vi.mocked(authority).mockReturnValue(undefined as any);
             await spectator.component.ngOnInit();
             expect(redirect_url()).toBeUndefined();
         });
 
         it('should redirect to the mapped domain for the user email domain', async () => {
-            (currentUser as jest.Mock).mockReturnValue({
-                email: 'alice@acme.com',
-            });
-            (authority as jest.Mock).mockReturnValue({
+            setCurrentUser({ email: 'alice@acme.com' } as any);
+            vi.mocked(authority).mockReturnValue({
                 config: {
                     redirect_mappings: { 'acme.com': 'acme.place.tech' },
                 },
-            });
+            } as any);
             await spectator.component.ngOnInit();
             expect(redirect_url()).toBe('http://acme.place.tech');
         });
 
         it('should fall back to the current host when no domain mapping matches', async () => {
-            (currentUser as jest.Mock).mockReturnValue({
-                email: 'alice@other.com',
-            });
-            (authority as jest.Mock).mockReturnValue({
+            setCurrentUser({ email: 'alice@other.com' } as any);
+            vi.mocked(authority).mockReturnValue({
                 config: {
                     redirect_mappings: { 'acme.com': 'acme.place.tech' },
                 },
-            });
+            } as any);
             await spectator.component.ngOnInit();
-            expect(redirect_url()).toBe('http://localhost');
+            expect(redirect_url()).toBe('http://localhost:3000');
         });
 
         it('should apply path mappings for the resolved domain', async () => {
             route_stub.snapshot.queryParamMap = query_map({
                 continue: '/old/path',
             });
-            (currentUser as jest.Mock).mockReturnValue({
-                email: 'alice@acme.com',
-            });
-            (authority as jest.Mock).mockReturnValue({
+            setCurrentUser({ email: 'alice@acme.com' } as any);
+            vi.mocked(authority).mockReturnValue({
                 config: {
                     redirect_mappings: { 'acme.com': 'acme.place.tech' },
                     path_mappings: {
                         'acme.place.tech': { '/old': '/new' },
                     },
                 },
-            });
+            } as any);
             await spectator.component.ngOnInit();
             expect(redirect_url()).toBe('http://acme.place.tech/new/path');
         });
@@ -217,14 +198,12 @@ describe('AppComponent', () => {
             route_stub.snapshot.queryParamMap = query_map({
                 continue: '/desks',
             });
-            (currentUser as jest.Mock).mockReturnValue({
-                email: 'alice@acme.com',
-            });
-            (authority as jest.Mock).mockReturnValue({
+            setCurrentUser({ email: 'alice@acme.com' } as any);
+            vi.mocked(authority).mockReturnValue({
                 config: {
                     redirect_mappings: { 'acme.com': 'acme.place.tech' },
                 },
-            });
+            } as any);
             await spectator.component.ngOnInit();
             expect(redirect_url()).toBe('http://acme.place.tech/desks');
         });

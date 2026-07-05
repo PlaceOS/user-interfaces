@@ -1,5 +1,5 @@
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { BookingCardComponent } from '@placeos/bookings';
 import { CalendarEvent } from '@placeos/common';
 import { EventCardComponent } from '@placeos/events';
@@ -21,8 +21,8 @@ describe('UpcomingBookingsComponent', () => {
                 useValue: {
                     loading: signal(false),
                     filtered_bookings: signal([]),
-                    toggleType: jest.fn(),
-                    startPolling: jest.fn(),
+                    toggleType: vi.fn(),
+                    startPolling: vi.fn(),
                 },
             },
         ],

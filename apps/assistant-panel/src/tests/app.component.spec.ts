@@ -2,7 +2,7 @@ import { signal, WritableSignal } from '@angular/core';
 import {
     createRoutingFactory,
     SpectatorRouting,
-} from '@ngneat/spectator/jest';
+} from '@ngneat/spectator/vitest';
 import { PlaceOS_Service, SettingsService } from '@placeos/common';
 import {
     ChatComponent,
@@ -16,7 +16,7 @@ import { AppComponent } from '../app/app.component';
 describe('AppComponent', () => {
     let spectator: SpectatorRouting<AppComponent>;
     let chat_enabled: WritableSignal<boolean>;
-    const placeos_service = { init: jest.fn() };
+    const placeos_service = { init: vi.fn() };
 
     const create_component = createRoutingFactory({
         component: AppComponent,
@@ -36,7 +36,7 @@ describe('AppComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         chat_enabled = signal(false);
         placeos_service.init.mockResolvedValue(undefined);
         spectator = create_component();

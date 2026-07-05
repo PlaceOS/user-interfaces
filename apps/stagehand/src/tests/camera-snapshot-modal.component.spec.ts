@@ -1,5 +1,5 @@
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
 
 import {
@@ -9,11 +9,9 @@ import {
 
 // Avoid the dynamic `import('mpegts.js')` inside the stream player ever
 // touching a real module during tests.
-jest.mock(
-    'mpegts.js',
-    () => ({ default: { isSupported: () => false, createPlayer: jest.fn() } }),
-    { virtual: true },
-);
+vi.mock('mpegts.js', () => ({
+    default: { isSupported: () => false, createPlayer: vi.fn() },
+}));
 
 describe('CameraSnapshotModalComponent', () => {
     let spectator: Spectator<CameraSnapshotModalComponent>;

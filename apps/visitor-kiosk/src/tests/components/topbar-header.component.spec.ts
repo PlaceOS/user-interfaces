@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { SpectatorRouting, createRoutingFactory } from '@ngneat/spectator/jest';
+import { SpectatorRouting, createRoutingFactory } from '@ngneat/spectator/vitest';
 import { SettingsService } from '@placeos/common';
 import { AuthenticatedImageDirective } from '@placeos/components';
 import { MockDirective, MockProvider } from 'ng-mocks';
@@ -11,7 +11,7 @@ describe('TopbarHeaderComponent', () => {
         component: TopbarHeaderComponent,
         providers: [
             MockProvider(SettingsService, {
-                get: jest.fn(),
+                get: vi.fn(),
                 theme_signal: signal('light'),
             }),
         ],

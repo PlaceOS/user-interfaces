@@ -1,4 +1,4 @@
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { mockComponent } from '@placeos/common/tests';
 
 import { SpaceEventDetailsComponent } from '../app/space-event-details.component';

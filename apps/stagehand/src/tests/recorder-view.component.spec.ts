@@ -1,4 +1,7 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import {
+    createComponentFactory,
+    Spectator,
+} from '@ngneat/spectator/vitest';
 import { OrganisationService } from '@placeos/common';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
@@ -6,10 +9,7 @@ import * as ts_client from '@placeos/ts-client';
 import { RecorderGridViewComponent } from '../app/recorder-view.component';
 import { SidebarComponent } from '../app/ui/sidebar.component';
 
-jest.mock('@placeos/ts-client', () => ({
-    ...jest.requireActual('@placeos/ts-client'),
-    showMetadata: jest.fn(),
-}));
+vi.mock('@placeos/ts-client', { spy: true });
 
 const flush = async () => {
     for (let i = 0; i < 8; i++) await Promise.resolve();
@@ -32,8 +32,8 @@ describe('RecorderGridViewComponent', () => {
     });
 
     beforeEach(() => {
-        jest.useFakeTimers();
-        (ts_client.showMetadata as jest.Mock).mockResolvedValue({
+        vi.useFakeTimers();
+        vi.mocked(ts_client.showMetadata).mockResolvedValue({
             details: {
                 domain: 'recorder.example.com',
                 api_path: '/snapshot/{IP_ADDRESS}/{DEVICE_ID}',
@@ -42,13 +42,13 @@ describe('RecorderGridViewComponent', () => {
                     { name: 'Camera B', ip_address: '10.0.0.2', id: 'dev-b' },
                 ],
             },
-        });
+        } as any);
     });
 
     afterEach(() => {
         spectator?.fixture.destroy();
-        jest.clearAllTimers();
-        jest.useRealTimers();
+        vi.clearAllTimers();
+        vi.useRealTimers();
     });
 
     it('should load recorder metadata and build stream image entries', async () => {

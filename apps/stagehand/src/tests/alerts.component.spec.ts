@@ -1,18 +1,17 @@
+import type { Mock } from 'vitest';
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { ActivatedRoute, Router } from '@angular/router';
 import { OrganisationService } from '@placeos/common';
 import { IconComponent, SimpleTableComponent } from '@placeos/components';
+import { showSystem } from '@placeos/ts-client';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
 import { AlertsComponent } from '../app/alerts.component';
 import { DashboardsService } from '../app/dashboards/dashboards.service';
 import { SidebarComponent } from '../app/ui/sidebar.component';
 
-jest.mock('@placeos/ts-client', () => ({
-    ...jest.requireActual('@placeos/ts-client'),
-    showSystem: jest.fn(() => Promise.resolve(null)),
-}));
+vi.mock('@placeos/ts-client', { spy: true });
 
 const make_alert = (overrides: Record<string, any> = {}) => ({
     id: 'a-1',
@@ -33,7 +32,7 @@ describe('AlertsComponent', () => {
     let dashboard_list: ReturnType<typeof signal<any[]>>;
     let region_id: ReturnType<typeof signal<string>>;
     let building_id: ReturnType<typeof signal<string>>;
-    let router: { navigate: jest.Mock };
+    let router: { navigate: Mock };
     let route: any;
     let dashboards_service: any;
     let org: any;
@@ -49,15 +48,16 @@ describe('AlertsComponent', () => {
     });
 
     const build = (query_params: Record<string, string> = {}, id = null) => {
+        vi.mocked(showSystem).mockReturnValue(Promise.resolve(null) as any);
         dashboard_alerts = signal<any[]>([]);
         dashboard_list = signal<any[]>([]);
         region_id = signal('');
         building_id = signal('');
-        router = { navigate: jest.fn() };
+        router = { navigate: vi.fn() };
         route = {
             snapshot: {
                 queryParams: query_params,
-                paramMap: { get: jest.fn(() => id) },
+                paramMap: { get: vi.fn(() => id) },
             },
         };
         dashboards_service = {
@@ -65,10 +65,10 @@ describe('AlertsComponent', () => {
             dashboard_list,
             region_id,
             building_id,
-            loadDashboards: jest.fn(),
-            setDashboard: jest.fn(() => Promise.resolve()),
-            listenForDashboardAlerts: jest.fn(),
-            setRegionFromParams: jest.fn(),
+            loadDashboards: vi.fn(),
+            setDashboard: vi.fn(() => Promise.resolve()),
+            listenForDashboardAlerts: vi.fn(),
+            setRegionFromParams: vi.fn(),
         };
         org = { regions: [], buildings: [], region: null, building: null };
         return create_component({
@@ -181,12 +181,12 @@ describe('AlertsComponent', () => {
     });
 
     it('should navigate to the selected dashboard route', () => {
-        jest.useFakeTimers();
+        vi.useFakeTimers();
         spectator = build();
         spectator.component.setDashboard('dash-9');
-        jest.advanceTimersByTime(100);
+        vi.advanceTimersByTime(100);
         expect(router.navigate).toHaveBeenCalledWith(['/alerts', 'dash-9']);
-        jest.clearAllTimers();
-        jest.useRealTimers();
+        vi.clearAllTimers();
+        vi.useRealTimers();
     });
 });

@@ -1,7 +1,7 @@
 import {
     createServiceFactory,
     SpectatorService,
-} from '@ngneat/spectator/jest';
+} from '@ngneat/spectator/vitest';
 
 import { AlertNotificationService } from '../app/push-notification.service';
 
@@ -89,7 +89,7 @@ describe('AlertNotificationService', () => {
     it('should not build a notification for a suppressed severity', () => {
         build();
         service.permission.set('granted');
-        const notify = jest
+        const notify = vi
             .spyOn(service, 'notify')
             .mockReturnValue({} as any);
         service.setConfig({
@@ -112,7 +112,7 @@ describe('AlertNotificationService', () => {
     it('should format the alert title and append location/device', () => {
         build();
         service.permission.set('granted');
-        const notify = jest
+        const notify = vi
             .spyOn(service, 'notify')
             .mockReturnValue({} as any);
 
@@ -136,7 +136,7 @@ describe('AlertNotificationService', () => {
     it('should not require interaction for non-critical alerts', () => {
         build();
         service.permission.set('granted');
-        const notify = jest
+        const notify = vi
             .spyOn(service, 'notify')
             .mockReturnValue({} as any);
         service.setConfig({

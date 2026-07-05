@@ -1,8 +1,7 @@
 import { signal } from '@angular/core';
-import { fakeAsync, tick } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { SettingsService } from '@placeos/common';
 import { MockModule, MockProvider } from 'ng-mocks';
 
@@ -21,23 +20,25 @@ describe('AccessibilityControlsComponent', () => {
         component: AccessibilityControlsComponent,
         providers: [
             MockProvider(SettingsService, {
-                signal: jest.fn((name: string) => setting_signals[name]) as any,
+                signal: vi.fn((name: string) => setting_signals[name]) as any,
                 theme_signal: theme as any,
-                setTheme: jest.fn(),
-                saveUserSetting: jest.fn(),
+                setTheme: vi.fn(),
+                saveUserSetting: vi.fn(),
             }),
         ],
         imports: [MockModule(MatSlideToggleModule), FormsModule],
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         setting_signals.allow_dark_mode.set(false);
         setting_signals.accessible.set(false);
         setting_signals.font_size.set(16);
         theme.set('light');
         spectator = createComponent();
     });
+
+    afterEach(() => vi.useRealTimers());
 
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();
@@ -65,42 +66,46 @@ describe('AccessibilityControlsComponent', () => {
         expect(spectator.component.dark_mode()).toBe(false);
     });
 
-    it('should enable dark mode when toggled on', fakeAsync(() => {
+    it('should enable dark mode when toggled on', async () => {
+        vi.useFakeTimers();
         const settings = spectator.inject(SettingsService);
         setting_signals.allow_dark_mode.set(true);
         theme.set('light');
         spectator.detectChanges();
         spectator.component.setDarkMode(true);
         expect(settings.setTheme).not.toHaveBeenCalled();
-        tick(100);
+        await vi.advanceTimersByTimeAsync(100);
         expect(settings.setTheme).toHaveBeenCalledWith('dark');
-    }));
+    });
 
-    it('should disable dark mode when toggled off', fakeAsync(() => {
+    it('should disable dark mode when toggled off', async () => {
+        vi.useFakeTimers();
         const settings = spectator.inject(SettingsService);
         setting_signals.allow_dark_mode.set(true);
         theme.set('dark');
         spectator.detectChanges();
         spectator.component.setDarkMode(false);
-        tick(100);
+        await vi.advanceTimersByTimeAsync(100);
         expect(settings.setTheme).toHaveBeenCalledWith('light');
-    }));
+    });
 
-    it('should not change theme when already in the requested state', fakeAsync(() => {
+    it('should not change theme when already in the requested state', async () => {
+        vi.useFakeTimers();
         const settings = spectator.inject(SettingsService);
         theme.set('dark');
         spectator.component.setDarkMode(true);
-        tick(100);
+        await vi.advanceTimersByTimeAsync(100);
         expect(settings.setTheme).not.toHaveBeenCalled();
-    }));
+    });
 
-    it('should save user settings after a delay', fakeAsync(() => {
+    it('should save user settings after a delay', async () => {
+        vi.useFakeTimers();
         const settings = spectator.inject(SettingsService);
         spectator.component.applySetting('font_size', 20);
         expect(settings.saveUserSetting).not.toHaveBeenCalled();
-        tick(1000);
+        await vi.advanceTimersByTimeAsync(1000);
         expect(settings.saveUserSetting).toHaveBeenCalledWith('font_size', 20);
-    }));
+    });
 
     it('should fall back to a default font size', () => {
         setting_signals.font_size.set(0);

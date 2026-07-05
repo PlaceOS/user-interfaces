@@ -121,11 +121,26 @@
             "outputs": ["{options.outputFile}"]
         },
         "test": {
-            "executor": "@nx/jest:jest",
+            "executor": "@angular/build:unit-test",
             "outputs": ["{workspaceRoot}/coverage/apps/signage"],
             "options": {
-                "jestConfig": "apps/signage/jest.config.ts",
-                "tsConfig": "apps/signage/tsconfig.spec.json"
+                "tsConfig": "apps/signage/tsconfig.spec.json",
+                "setupFiles": ["apps/signage/src/test-setup.ts"],
+                "isolate": true,
+                "watch": false,
+                "buildTarget": "signage:test-build:development"
+            }
+        },
+        "test-build": {
+            "executor": "@angular/build:application",
+            "options": {
+                "outputPath": "dist/apps/signage-test",
+                "browser": "apps/signage/src/main.ts",
+                "tsConfig": "apps/signage/tsconfig.spec.json",
+                "polyfills": []
+            },
+            "configurations": {
+                "development": {}
             }
         }
     }

@@ -1,5 +1,6 @@
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { ComponentFixtureAutoDetect } from '@angular/core/testing';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { TIMEZONES_IANA } from '@placeos/common';
 import { TriggerTimeConditionType } from '@placeos/ts-client';
 
@@ -38,17 +39,22 @@ describe('AlertConditionTimeFormComponent', () => {
     const create_component = createComponentFactory({
         component: AlertConditionTimeFormComponent,
         shallow: true,
+        // Disable the zoneless auto-tick: these tests assert on component
+        // signals/methods, not the DOM. Auto change-detection would render the
+        // experimental signal-forms + mat-select template and emit benign async
+        // rxjs/material errors that vitest reports as unhandled.
+        providers: [{ provide: ComponentFixtureAutoDetect, useValue: false }],
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         spectator = create_component({ detectChanges: false });
         spectator.component.ngOnInit();
     });
 
     afterEach(() => {
-        jest.useRealTimers();
-        jest.restoreAllMocks();
+        vi.useRealTimers();
+        vi.restoreAllMocks();
     });
 
     describe('numberToPosition', () => {
@@ -184,14 +190,14 @@ describe('AlertConditionTimeFormComponent', () => {
     });
 
     it('saves a custom cron string to the form after a debounce', () => {
-        jest.useFakeTimers();
+        vi.useFakeTimers();
         const form = makeTimeForm();
         spectator.fixture.componentRef.setInput('form', form);
 
         spectator.component.saveCRON('*/5 * * * *');
         expect(form.cron().value()).toBe('');
 
-        jest.advanceTimersByTime(1000);
+        vi.advanceTimersByTime(1000);
         expect(form.cron().value()).toBe('*/5 * * * *');
     });
 

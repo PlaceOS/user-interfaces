@@ -1,4 +1,4 @@
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { PlaceOS_Service } from '@placeos/common';
 import { mockComponent } from '@placeos/common/tests';
 import {
@@ -17,7 +17,7 @@ describe('AppComponent', () => {
             mockComponent(GlobalBannerComponent),
             mockComponent(GlobalLoadingComponent),
         ],
-        providers: [MockProvider(PlaceOS_Service, { init: jest.fn() })],
+        providers: [MockProvider(PlaceOS_Service, { init: vi.fn() })],
     });
 
     beforeEach(() => (spectator = createComponent()));

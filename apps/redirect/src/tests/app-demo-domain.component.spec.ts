@@ -1,46 +1,29 @@
 /**
- * @jest-environment jsdom
- * @jest-environment-options {"url": "https://demo.place.tech/"}
+ * @vitest-environment jsdom
+ * @vitest-environment-options { "url": "https://demo.place.tech/" }
  */
 import { ActivatedRoute } from '@angular/router';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import {
-    currentUser,
-    firstTruthyValueFrom,
-    setupPlace,
-    SettingsService,
-} from '@placeos/common';
-import { authority } from '@placeos/ts-client';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
+import { setCurrentUser, SettingsService } from '@placeos/common';
+import { authority, setup } from '@placeos/ts-client';
+import { BehaviorSubject } from 'rxjs';
 
 import { AppComponent } from '../app/app.component';
 
-jest.mock('@placeos/common', () => {
-    const actual = jest.requireActual('@placeos/common');
-    const settings_get = jest.fn();
-    class SettingsService {
-        public initialised = true;
-        public get = settings_get;
-    }
-    (SettingsService as any).get_mock = settings_get;
-    return {
-        ...actual,
-        SettingsService,
-        firstTruthyValueFrom: jest.fn(() => Promise.resolve(true)),
-        setupPlace: jest.fn(() => Promise.resolve()),
-        currentUser: jest.fn(() => ({ email: 'user@example.com' })),
-        current_user: { subscribe: () => ({ unsubscribe: jest.fn() }) },
-    };
-});
+// Only `@placeos/ts-client` can be intercepted under the zoneless unit-test
+// builder; `setupPlace()` runs for real and calls `setup(config)`, so we assert
+// the resolved `mock` flag on that config. The demo-origin branch relies on the
+// jsdom `url` set by the `@vitest-environment-options` docblock above.
+vi.mock('@placeos/ts-client', { spy: true });
 
-jest.mock('@placeos/ts-client', () => ({
-    ...jest.requireActual('@placeos/ts-client'),
-    authority: jest.fn(),
-    setAPI_Key: jest.fn(),
-}));
+const settings_get = vi.fn();
+const settings_mock = {
+    initialised: new BehaviorSubject<boolean>(true),
+    get: settings_get,
+};
 
 describe('AppComponent (demo domain)', () => {
     let spectator: Spectator<AppComponent>;
-    const settings_get = (SettingsService as any).get_mock as jest.Mock;
     const route_stub: any = {
         snapshot: {
             queryParamMap: {
@@ -56,21 +39,22 @@ describe('AppComponent (demo domain)', () => {
         component: AppComponent,
         detectChanges: false,
         providers: [{ provide: ActivatedRoute, useValue: route_stub }],
+        componentProviders: [
+            { provide: SettingsService, useValue: settings_mock },
+        ],
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
-        jest.spyOn(console, 'log').mockImplementation(() => void 0);
+        vi.clearAllMocks();
+        localStorage.clear();
+        vi.spyOn(console, 'log').mockImplementation(() => void 0);
         // mock setting explicitly disabled so only the demo origin can enable it
         settings_get.mockImplementation((key: string) =>
             key === 'composer' ? {} : undefined,
         );
-        (firstTruthyValueFrom as jest.Mock).mockResolvedValue(true);
-        (setupPlace as jest.Mock).mockResolvedValue(undefined);
-        (currentUser as jest.Mock).mockReturnValue({
-            email: 'user@example.com',
-        });
-        (authority as jest.Mock).mockReturnValue(undefined);
+        vi.mocked(setup).mockResolvedValue(undefined as any);
+        vi.mocked(authority).mockReturnValue(undefined as any);
+        setCurrentUser({ email: 'user@example.com' } as any);
         spectator = create_component();
     });
 
@@ -80,7 +64,7 @@ describe('AppComponent (demo domain)', () => {
 
     it('should enable mock mode on the demo domain even when the setting is off', async () => {
         await spectator.component.ngOnInit();
-        expect(setupPlace).toHaveBeenCalledWith(
+        expect(setup).toHaveBeenCalledWith(
             expect.objectContaining({ mock: true }),
         );
     });

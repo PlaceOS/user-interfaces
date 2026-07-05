@@ -2,7 +2,7 @@ import { signal } from '@angular/core';
 import {
     createRoutingFactory,
     SpectatorRouting,
-} from '@ngneat/spectator/jest';
+} from '@ngneat/spectator/vitest';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
 import { DashboardAlertListComponent } from '../../app/dashboards/dashboard-alert-list.component';
@@ -40,8 +40,8 @@ describe('DashboardAlertListComponent', () => {
                 { id: 'a-2', name: 'Overheat', enabled: false },
             ]),
             loading: signal<string[]>([]),
-            setDashboard: jest.fn(),
-            removeDashboardAlert: jest.fn(),
+            setDashboard: vi.fn(),
+            removeDashboardAlert: vi.fn(),
         };
     });
 

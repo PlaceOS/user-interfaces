@@ -1,4 +1,4 @@
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { SettingsService } from '@placeos/common';
 import {
     MockComponent,
@@ -24,8 +24,8 @@ describe('WelcomeComponent', () => {
         component: WelcomeComponent,
         providers: [
             MockProvider(SettingsService, {
-                get: jest.fn(),
-                listen: jest.fn(() => signal('')),
+                get: vi.fn(),
+                listen: vi.fn(() => signal('')) as any,
             }),
         ],
         imports: [MockModule(MatMenuModule)],

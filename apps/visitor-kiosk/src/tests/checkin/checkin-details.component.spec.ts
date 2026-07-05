@@ -1,11 +1,10 @@
 import { signal } from '@angular/core';
-import { fakeAsync } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router } from '@angular/router';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { mockComponent } from '@placeos/common/tests';
 import { IconComponent } from '@placeos/components';
 import { MockProvider } from 'ng-mocks';
@@ -21,8 +20,8 @@ describe('CheckinDetailsComponent', () => {
         declarations: [mockComponent(IconComponent)],
         providers: [
             MockProvider(CheckinStateService, {
-                updateGuest: jest.fn(),
-                checkinGuest: jest.fn(async () => null),
+                updateGuest: vi.fn(),
+                checkinGuest: vi.fn(async () => null),
                 form: signal({
                     host: '',
                     name: '',
@@ -33,7 +32,7 @@ describe('CheckinDetailsComponent', () => {
                 }),
                 event: signal({}),
             } as any),
-            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(SettingsService, { get: vi.fn() }),
         ],
         imports: [
             MatFormFieldModule,
@@ -49,12 +48,12 @@ describe('CheckinDetailsComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should allow updating guest details', fakeAsync(async () => {
+    it('should allow updating guest details', async () => {
         const service = spectator.inject(CheckinStateService);
         expect(service.updateGuest).not.toHaveBeenCalled();
         expect(service.checkinGuest).not.toHaveBeenCalled();
         spectator.click('button[next]');
-        spectator.tick(2000);
+        await new Promise((resolve) => setTimeout(resolve, 0));
         await spectator.fixture.whenStable();
         // expect(service.updateGuest).toHaveBeenCalledTimes(1);
         expect(service.checkinGuest).toHaveBeenCalledTimes(1);
@@ -62,5 +61,5 @@ describe('CheckinDetailsComponent', () => {
             '/checkin',
             'scan',
         ]);
-    }));
+    });
 });

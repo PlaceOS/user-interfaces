@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { MatDialog } from '@angular/material/dialog';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { mockComponent } from '@placeos/common/tests';
@@ -22,10 +22,10 @@ const state_mock = {
     map_labels: signal([]),
     options: signal({}),
     positions: { zoom: 1, center: { x: 0.5, y: 0.5 } },
-    setPositions: jest.fn(),
-    setFeatures: jest.fn(),
-    setOptions: jest.fn(),
-    setLevel: jest.fn(),
+    setPositions: vi.fn(),
+    setFeatures: vi.fn(),
+    setOptions: vi.fn(),
+    setLevel: vi.fn(),
     building: null as any,
 };
 
@@ -47,20 +47,20 @@ describe('ParkingComponent', () => {
             { provide: ExploreParkingService, useValue: parking_mock },
         ],
         providers: [
-            { provide: MatDialog, useValue: { closeAll: jest.fn() } },
+            { provide: MatDialog, useValue: { closeAll: vi.fn() } },
             {
                 provide: SpacesService,
                 useValue: { initialised: signal(true) },
             },
             {
                 provide: SettingsService,
-                useValue: { get: jest.fn(() => 180) },
+                useValue: { get: vi.fn(() => 180) },
             },
             {
                 provide: OrganisationService,
                 useValue: {
                     buildings: [{ id: 'bld-1' }],
-                    levelWithID: jest.fn(() => ({
+                    levelWithID: vi.fn(() => ({
                         id: 'lvl-1',
                         parent_id: 'bld-1',
                     })),
@@ -70,7 +70,7 @@ describe('ParkingComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         state_mock.building = null;
         parking_mock.active_spaces.set([{}, {}, {}]);
         parking_mock.available_spaces.set([{}, {}]);

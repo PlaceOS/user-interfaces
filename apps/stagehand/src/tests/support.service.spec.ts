@@ -1,14 +1,14 @@
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
+import {
+    createServiceFactory,
+    SpectatorService,
+} from '@ngneat/spectator/vitest';
 import { OrganisationService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
 import * as ts_client from '@placeos/ts-client';
 import { SupportService } from '../app/support.service';
 
-jest.mock('@placeos/ts-client', () => ({
-    ...jest.requireActual('@placeos/ts-client'),
-    querySystems: jest.fn(),
-}));
+vi.mock('@placeos/ts-client', { spy: true });
 
 /** Flush the chained awaits inside `_loadSpaces` */
 const flush = async () => {
@@ -29,12 +29,11 @@ describe('SupportService', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
     });
 
     it('should query systems scoped to the active organisation zone', async () => {
-        (ts_client.querySystems as jest.Mock).mockReturnValue(
-            Promise.resolve({ data: [] }),
+        (ts_client.querySystems as any).mockReturnValue(Promise.resolve({ data: [] }),
         );
         spectator = createService();
         await flush();
@@ -45,8 +44,7 @@ describe('SupportService', () => {
     });
 
     it('should keep only systems that expose a support surface', async () => {
-        (ts_client.querySystems as jest.Mock).mockReturnValue(
-            Promise.resolve({
+        (ts_client.querySystems as any).mockReturnValue(Promise.resolve({
                 data: [
                     { id: 'support', support_url: 'http://x' },
                     { id: 'camera', camera_url: 'http://cam' },
@@ -64,8 +62,7 @@ describe('SupportService', () => {
     });
 
     it('should normalise camera snapshot urls, dropping empty entries', async () => {
-        (ts_client.querySystems as jest.Mock).mockReturnValue(
-            Promise.resolve({
+        (ts_client.querySystems as any).mockReturnValue(Promise.resolve({
                 data: [
                     {
                         id: 'snapshot',
@@ -83,7 +80,7 @@ describe('SupportService', () => {
     });
 
     it('should leave the space list empty when the query fails', async () => {
-        (ts_client.querySystems as jest.Mock).mockReturnValue(
+        (ts_client.querySystems as any).mockReturnValue(
             Promise.reject(new Error('boom')),
         );
         spectator = createService();

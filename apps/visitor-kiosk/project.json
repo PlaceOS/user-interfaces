@@ -121,11 +121,26 @@
             "outputs": ["{options.outputFile}"]
         },
         "test": {
-            "executor": "@nx/jest:jest",
+            "executor": "@angular/build:unit-test",
             "outputs": ["{workspaceRoot}/coverage/apps/visitor-kiosk"],
             "options": {
-                "jestConfig": "apps/visitor-kiosk/jest.config.ts",
-                "tsConfig": "apps/visitor-kiosk/tsconfig.spec.json"
+                "tsConfig": "apps/visitor-kiosk/tsconfig.spec.json",
+                "setupFiles": ["apps/visitor-kiosk/src/test-setup.ts"],
+                "isolate": true,
+                "watch": false,
+                "buildTarget": "visitor-kiosk:test-build:development"
+            }
+        },
+        "test-build": {
+            "executor": "@angular/build:application",
+            "options": {
+                "outputPath": "dist/apps/visitor-kiosk-test",
+                "browser": "apps/visitor-kiosk/src/main.ts",
+                "tsConfig": "apps/visitor-kiosk/tsconfig.spec.json",
+                "polyfills": []
+            },
+            "configurations": {
+                "development": {}
             }
         }
     }

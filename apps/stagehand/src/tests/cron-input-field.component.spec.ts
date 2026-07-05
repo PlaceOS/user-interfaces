@@ -1,4 +1,4 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 
 import { CronInputFieldComponent } from '../app/dashboards/cron-input-field.component';
 
@@ -55,7 +55,7 @@ describe('CronInputFieldComponent', () => {
     });
 
     it('should emit the joined CRON string when the form is valid', () => {
-        const on_change = jest.fn();
+        const on_change = vi.fn();
         component.registerOnChange(on_change);
         component.model.set({
             minute: '5',
@@ -72,7 +72,7 @@ describe('CronInputFieldComponent', () => {
     });
 
     it('should not emit while the form is invalid', () => {
-        const on_change = jest.fn();
+        const on_change = vi.fn();
         component.registerOnChange(on_change);
         // hour 99 is outside the 0-23 range -> invalid
         component.model.set({
@@ -89,7 +89,7 @@ describe('CronInputFieldComponent', () => {
     });
 
     it('should call the registered change handler on setValue', () => {
-        const on_change = jest.fn();
+        const on_change = vi.fn();
         component.registerOnChange(on_change);
         component.setValue('* * * * *');
         expect(on_change).toHaveBeenCalledWith('* * * * *');
@@ -99,7 +99,7 @@ describe('CronInputFieldComponent', () => {
     it('should block keystrokes that are not valid CRON characters', () => {
         const event = {
             key: 'a',
-            preventDefault: jest.fn(),
+            preventDefault: vi.fn(),
         } as unknown as KeyboardEvent;
         component.preventInvalidCharacters(event);
         expect(event.preventDefault).toHaveBeenCalled();
@@ -108,7 +108,7 @@ describe('CronInputFieldComponent', () => {
     it('should allow valid CRON characters through', () => {
         const event = {
             key: '5',
-            preventDefault: jest.fn(),
+            preventDefault: vi.fn(),
         } as unknown as KeyboardEvent;
         component.preventInvalidCharacters(event);
         expect(event.preventDefault).not.toHaveBeenCalled();

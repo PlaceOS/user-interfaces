@@ -1,4 +1,4 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MediaAnimation } from '@placeos/ts-client';
 
 import { setMockTime } from '../app/media-helpers';
@@ -34,6 +34,7 @@ describe('MediaPlayerComponent', () => {
     beforeEach(() => {
         Object.defineProperty(window, 'requestAnimationFrame', {
             configurable: true,
+            writable: true,
             value: (fn: FrameRequestCallback) => {
                 fn(0);
                 return 1;
@@ -41,23 +42,23 @@ describe('MediaPlayerComponent', () => {
         });
         Object.defineProperty(HTMLMediaElement.prototype, 'play', {
             configurable: true,
-            value: jest.fn().mockResolvedValue(undefined),
+            value: vi.fn().mockResolvedValue(undefined),
         });
         Object.defineProperty(HTMLMediaElement.prototype, 'pause', {
             configurable: true,
-            value: jest.fn(),
+            value: vi.fn(),
         });
         Object.defineProperty(URL, 'revokeObjectURL', {
             configurable: true,
-            value: jest.fn(),
+            value: vi.fn(),
         });
         spectator = create_component();
     });
 
     afterEach(() => {
         setMockTime(0);
-        jest.useRealTimers();
-        jest.restoreAllMocks();
+        vi.useRealTimers();
+        vi.restoreAllMocks();
     });
 
     function load_playlist(items: MediaPlayerItem[]) {
@@ -70,7 +71,7 @@ describe('MediaPlayerComponent', () => {
     });
 
     it('should toggle mute state and update the video element', () => {
-        const emit_spy = jest.spyOn(spectator.component.mutedChange, 'emit');
+        const emit_spy = vi.spyOn(spectator.component.mutedChange, 'emit');
 
         spectator.component.toggleMuted();
 
@@ -123,7 +124,7 @@ describe('MediaPlayerComponent', () => {
         spectator.component.index.set(0);
         spectator.component.hold_over_item.set(false);
         spectator.component.loop.set('ONE');
-        const transition_spy = jest.spyOn(
+        const transition_spy = vi.spyOn(
             spectator.component as any,
             '_transition',
         );
@@ -228,7 +229,7 @@ describe('MediaPlayerComponent', () => {
     });
 
     it('should emit playlist metrics from the active playlist order', async () => {
-        const event_spy = jest.spyOn(spectator.component.event, 'emit');
+        const event_spy = vi.spyOn(spectator.component.event, 'emit');
         const items = [
             create_item('media-1', { playlist: 'playlist-1' }),
             create_item('media-2', { playlist: 'playlist-1' }),
@@ -252,8 +253,8 @@ describe('MediaPlayerComponent', () => {
     });
 
     it('should progress playback using simulated time speed', () => {
-        jest.useFakeTimers();
-        jest.setSystemTime(0);
+        vi.useFakeTimers();
+        vi.setSystemTime(0);
         setMockTime(1_000, 16);
         const item = create_item('media-1', { duration: 15_000 });
         load_playlist([item]);
@@ -261,9 +262,9 @@ describe('MediaPlayerComponent', () => {
         spectator.component.state.set('PLAYING');
         spectator.component.hold_over_item.set(false);
         spectator.component['_item_start'] = 1_000;
-        const next_item_spy = jest.spyOn(spectator.component, 'nextItem');
+        const next_item_spy = vi.spyOn(spectator.component, 'nextItem');
 
-        jest.setSystemTime(1_001);
+        vi.setSystemTime(1_001);
         spectator.component['_updateItem']();
 
         expect(next_item_spy).toHaveBeenCalled();
@@ -308,7 +309,7 @@ describe('MediaPlayerComponent', () => {
     it('should pause video playback when simulated time is static', () => {
         setMockTime(1_000, 0);
         const item = create_item('video-1', { type: 'video' });
-        const pause_spy = jest.spyOn(HTMLMediaElement.prototype, 'pause');
+        const pause_spy = vi.spyOn(HTMLMediaElement.prototype, 'pause');
         load_playlist([item]);
         spectator.component.index.set(0);
         spectator.component.state.set('PLAYING');
@@ -328,7 +329,7 @@ describe('MediaPlayerComponent', () => {
         spectator.component['_output_items'] = [video_item, image_item];
         spectator.component['_item_output'].set('video-1', 0);
         spectator.component['_item_output'].set('image-1', 1);
-        const video_pause = jest.fn();
+        const video_pause = vi.fn();
         Object.defineProperty(
             spectator.component['_video_element'](0).nativeElement,
             'pause',
@@ -344,7 +345,7 @@ describe('MediaPlayerComponent', () => {
     });
 
     it('should emit playlist metrics when advancing from the last valid playlist item', async () => {
-        const event_spy = jest.spyOn(spectator.component.event, 'emit');
+        const event_spy = vi.spyOn(spectator.component.event, 'emit');
         const items = [
             create_item('media-1', { playlist: 'playlist-1' }),
             create_item('media-2', { playlist: 'playlist-2' }),
@@ -366,7 +367,7 @@ describe('MediaPlayerComponent', () => {
     });
 
     it('should emit playlist metrics when a single looping playlist wraps to its start', async () => {
-        const event_spy = jest.spyOn(spectator.component.event, 'emit');
+        const event_spy = vi.spyOn(spectator.component.event, 'emit');
         const items = [
             create_item('media-1', { playlist: 'playlist-1' }),
             create_item('media-2', { playlist: 'playlist-1' }),
@@ -388,7 +389,7 @@ describe('MediaPlayerComponent', () => {
     });
 
     it('should emit playlist metrics for a single-item playlist on every loop', async () => {
-        const event_spy = jest.spyOn(spectator.component.event, 'emit');
+        const event_spy = vi.spyOn(spectator.component.event, 'emit');
         load_playlist([create_item('media-1', { playlist: 'playlist-1' })]);
         spectator.component.index.set(0);
         spectator.component.progress.set(75);
@@ -406,7 +407,7 @@ describe('MediaPlayerComponent', () => {
     });
 
     it('should emit media and playlist metrics when a NONE loop reaches the end', () => {
-        const event_spy = jest.spyOn(spectator.component.event, 'emit');
+        const event_spy = vi.spyOn(spectator.component.event, 'emit');
         const items = [
             create_item('media-1', { playlist: 'playlist-1' }),
             create_item('media-2', { playlist: 'playlist-1' }),
@@ -460,7 +461,7 @@ describe('MediaPlayerComponent', () => {
         ]);
         spectator.component.index.set(0);
         spectator.component.hold_over_item.set(false);
-        const transition_spy = jest.spyOn(
+        const transition_spy = vi.spyOn(
             spectator.component as any,
             '_transition',
         );
@@ -479,8 +480,8 @@ describe('MediaPlayerComponent', () => {
         load_playlist([item]);
         spectator.component.index.set(0);
         spectator.component.hold_over_item.set(false);
-        const set_item_spy = jest.spyOn(spectator.component, 'setPlaylistItem');
-        const transition_spy = jest.spyOn(
+        const set_item_spy = vi.spyOn(spectator.component, 'setPlaylistItem');
+        const transition_spy = vi.spyOn(
             spectator.component as any,
             '_transition',
         );
@@ -505,8 +506,8 @@ describe('MediaPlayerComponent', () => {
         load_playlist([item]);
         spectator.component.index.set(0);
         spectator.component.hold_over_item.set(false);
-        const set_item_spy = jest.spyOn(spectator.component, 'setPlaylistItem');
-        const transition_spy = jest.spyOn(
+        const set_item_spy = vi.spyOn(spectator.component, 'setPlaylistItem');
+        const transition_spy = vi.spyOn(
             spectator.component as any,
             '_transition',
         );
@@ -532,7 +533,7 @@ describe('MediaPlayerComponent', () => {
         spectator.component.index.set(0);
         spectator.component.state.set('PLAYING');
         spectator.component['_item_start'] = Date.now() - 10_001;
-        const next_item_spy = jest.spyOn(spectator.component, 'nextItem');
+        const next_item_spy = vi.spyOn(spectator.component, 'nextItem');
 
         spectator.component['_updateItem']();
 
@@ -555,9 +556,9 @@ describe('MediaPlayerComponent', () => {
         spectator.component.state.set('PLAYING');
         spectator.component['_web_waiting_item_id'] = 'webpage-1';
         spectator.component['_item_start'] = Date.now() - 20_000;
-        const next_item_spy = jest.spyOn(spectator.component, 'nextItem');
+        const next_item_spy = vi.spyOn(spectator.component, 'nextItem');
         let hold_delay_callback: () => void = () => undefined;
-        const timeout_spy = jest
+        const timeout_spy = vi
             .spyOn(spectator.component as any, 'timeout')
             .mockImplementation(
                 (name: string, fn: () => void, delay: number) => {
@@ -594,7 +595,7 @@ describe('MediaPlayerComponent', () => {
     });
 
     it('should keep the previous item visible while a webpage loads', () => {
-        jest.useFakeTimers();
+        vi.useFakeTimers();
         const items = [
             create_item('media-1'),
             create_item('webpage-1', {
@@ -611,7 +612,7 @@ describe('MediaPlayerComponent', () => {
         spectator.component.hold_over_item.set(false);
         spectator.component.state.set('PLAYING');
         spectator.component['clearTimeout']('wait-for-url');
-        const transition_spy = jest.spyOn(
+        const transition_spy = vi.spyOn(
             spectator.component as any,
             '_transition',
         );
@@ -623,12 +624,12 @@ describe('MediaPlayerComponent', () => {
         expect(transition_spy).not.toHaveBeenCalled();
 
         spectator.component.onWebpageLoad();
-        jest.advanceTimersByTime(1999);
+        vi.advanceTimersByTime(1999);
         expect(spectator.component.defer_reveal()).toBe(true);
         expect(spectator.component.waiting_for_item()).toBe(true);
         expect(transition_spy).not.toHaveBeenCalled();
 
-        jest.advanceTimersByTime(1);
+        vi.advanceTimersByTime(1);
         expect(spectator.component.defer_reveal()).toBe(false);
         expect(spectator.component.waiting_for_item()).toBe(false);
         expect(transition_spy).toHaveBeenCalled();
@@ -665,8 +666,8 @@ describe('MediaPlayerComponent', () => {
     });
 
     it('should not preload upcoming interactive media early when debug time is fast', () => {
-        jest.useFakeTimers();
-        jest.setSystemTime(1_000);
+        vi.useFakeTimers();
+        vi.setSystemTime(1_000);
         setMockTime(10_000, 16);
         const items = [
             create_item('webpage-1', {
@@ -813,10 +814,10 @@ describe('MediaPlayerComponent', () => {
         spectator.component.index.set(0);
         spectator.component.hold_over_item.set(false);
         spectator.component.loop.set('ONE');
-        const next_item_spy = jest.spyOn(spectator.component, 'nextItem');
+        const next_item_spy = vi.spyOn(spectator.component, 'nextItem');
         Object.defineProperty(HTMLMediaElement.prototype, 'play', {
             configurable: true,
-            value: jest
+            value: vi
                 .fn()
                 .mockRejectedValue(new Error('Playback blocked by browser')),
         });
@@ -828,7 +829,7 @@ describe('MediaPlayerComponent', () => {
     });
 
     it('should configure plugins when they report ready status and reveal them after two seconds', () => {
-        jest.useFakeTimers();
+        vi.useFakeTimers();
         const plugin_item = create_item('plugin-1', {
             type: 'plugin',
             duration: 20000,
@@ -849,16 +850,16 @@ describe('MediaPlayerComponent', () => {
         expect(spectator.component.defer_reveal()).toBe(true);
         expect(spectator.component.plugin_play()).toBe(0);
 
-        jest.advanceTimersByTime(2000);
+        vi.advanceTimersByTime(2000);
         expect(spectator.component.defer_reveal()).toBe(false);
 
-        jest.advanceTimersByTime(101);
+        vi.advanceTimersByTime(101);
         expect(spectator.component.plugin_play()).toBeGreaterThan(0);
-        jest.useRealTimers();
+        vi.useRealTimers();
     });
 
     it('should configure and reveal plugins when the iframe loads without ready status', () => {
-        jest.useFakeTimers();
+        vi.useFakeTimers();
         const plugin_item = create_item('plugin-1', {
             type: 'plugin',
             duration: 20000,
@@ -878,16 +879,16 @@ describe('MediaPlayerComponent', () => {
             timing: { scheduled_duration_ms: 20000 },
         });
 
-        jest.advanceTimersByTime(2000);
+        vi.advanceTimersByTime(2000);
         expect(spectator.component.defer_reveal()).toBe(false);
 
-        jest.advanceTimersByTime(101);
+        vi.advanceTimersByTime(101);
         expect(spectator.component.plugin_play()).toBeGreaterThan(0);
-        jest.useRealTimers();
+        vi.useRealTimers();
     });
 
     it('should continue plugin playback when the plugin never reports load or ready', () => {
-        jest.useFakeTimers();
+        vi.useFakeTimers();
         const plugin_item = create_item('plugin-1', {
             type: 'plugin',
             duration: 20000,
@@ -903,7 +904,7 @@ describe('MediaPlayerComponent', () => {
         spectator.component.setPlaylistItem(0);
         expect(spectator.component.defer_reveal()).toBe(true);
 
-        jest.advanceTimersByTime(15_000);
+        vi.advanceTimersByTime(15_000);
 
         expect(spectator.component.plugin_config()).toEqual({
             instance_id: 'plugin-1',
@@ -911,17 +912,17 @@ describe('MediaPlayerComponent', () => {
             timing: { scheduled_duration_ms: 20000 },
         });
 
-        jest.advanceTimersByTime(2000);
+        vi.advanceTimersByTime(2000);
         expect(spectator.component.defer_reveal()).toBe(false);
 
-        jest.advanceTimersByTime(101);
+        vi.advanceTimersByTime(101);
         expect(spectator.component.plugin_play()).toBeGreaterThan(0);
-        jest.useRealTimers();
+        vi.useRealTimers();
     });
 
     it('should reset plugin playback when requested by a plugin interaction', () => {
-        jest.useFakeTimers();
-        jest.setSystemTime(10_000);
+        vi.useFakeTimers();
+        vi.setSystemTime(10_000);
         const plugin_item = create_item('plugin-1', {
             type: 'plugin',
             duration: 20_000,
@@ -931,7 +932,7 @@ describe('MediaPlayerComponent', () => {
                 playback_type: 'interactive',
             } as any,
         });
-        const next_item_spy = jest.spyOn(spectator.component, 'nextItem');
+        const next_item_spy = vi.spyOn(spectator.component, 'nextItem');
 
         load_playlist([plugin_item, create_item('media-1')]);
         spectator.component.index.set(0);
@@ -950,11 +951,11 @@ describe('MediaPlayerComponent', () => {
         expect(spectator.component.progress()).toBe(0);
         expect(spectator.component.duration()).toBe(0);
 
-        jest.setSystemTime(39_999);
+        vi.setSystemTime(39_999);
         spectator.component['_updateItem']();
         expect(next_item_spy).not.toHaveBeenCalled();
 
-        jest.setSystemTime(40_001);
+        vi.setSystemTime(40_001);
         spectator.component['_updateItem']();
         expect(next_item_spy).toHaveBeenCalled();
     });
@@ -1010,7 +1011,7 @@ describe('MediaPlayerComponent', () => {
     });
 
     it('should clear the plugin output and skip on a fatal plugin error', () => {
-        jest.useFakeTimers();
+        vi.useFakeTimers();
         const plugin_item = create_item('plugin-1', {
             type: 'plugin',
             plugin: {
@@ -1034,13 +1035,13 @@ describe('MediaPlayerComponent', () => {
         expect(spectator.component.output_plugins()[0]).toBeNull();
         expect(spectator.component.defer_reveal()).toBe(false);
 
-        jest.advanceTimersByTime(1000);
+        vi.advanceTimersByTime(1000);
         expect(spectator.component.index()).toBe(1);
-        jest.useRealTimers();
+        vi.useRealTimers();
     });
 
     it('should clear inactive webpage content after moving to another item', () => {
-        jest.useFakeTimers();
+        vi.useFakeTimers();
         const web_item = create_item('webpage-1', {
             type: 'webpage',
         });
@@ -1053,7 +1054,7 @@ describe('MediaPlayerComponent', () => {
 
         spectator.component.setPlaylistItem(0);
         spectator.component.onWebpageLoad(0);
-        jest.advanceTimersByTime(2000);
+        vi.advanceTimersByTime(2000);
         expect(
             spectator.component['_web_element'](0).nativeElement.getAttribute(
                 'src',
@@ -1061,18 +1062,18 @@ describe('MediaPlayerComponent', () => {
         ).toBe('https://example.com/page');
 
         spectator.component.setPlaylistItem(1);
-        jest.advanceTimersByTime(500);
+        vi.advanceTimersByTime(500);
 
         expect(
             spectator.component['_web_element'](0).nativeElement.getAttribute(
                 'src',
             ),
         ).toBeNull();
-        jest.useRealTimers();
+        vi.useRealTimers();
     });
 
     it('should clear inactive plugin content after moving to another item', () => {
-        jest.useFakeTimers();
+        vi.useFakeTimers();
         const plugin_item = create_item('plugin-1', {
             type: 'plugin',
             plugin: {
@@ -1085,16 +1086,16 @@ describe('MediaPlayerComponent', () => {
 
         spectator.component.setPlaylistItem(0);
         spectator.component.onPluginLoad(0);
-        jest.advanceTimersByTime(2000);
+        vi.advanceTimersByTime(2000);
         expect(spectator.component.output_plugins()[0]).toBe(
             plugin_item.plugin,
         );
 
         spectator.component.setPlaylistItem(1);
-        jest.advanceTimersByTime(500);
+        vi.advanceTimersByTime(500);
 
         expect(spectator.component.output_plugins()[0]).toBeNull();
-        jest.useRealTimers();
+        vi.useRealTimers();
     });
 
     it('should keep skipping a broken item each time the playlist loops back to it', () => {
@@ -1104,9 +1105,9 @@ describe('MediaPlayerComponent', () => {
             create_item('bad-1'),
             create_item('good-2'),
         ]);
-        const next_item_spy = jest.spyOn(spectator.component, 'nextItem');
+        const next_item_spy = vi.spyOn(spectator.component, 'nextItem');
         let skip_callback: () => void = () => undefined;
-        const timeout_spy = jest
+        const timeout_spy = vi
             .spyOn(spectator.component as any, 'timeout')
             .mockImplementation(
                 (name: string, fn: () => void, delay: number) => {
@@ -1155,8 +1156,8 @@ describe('MediaPlayerComponent', () => {
             create_item('bad-1'),
             create_item('good-2'),
         ]);
-        const next_item_spy = jest.spyOn(spectator.component, 'nextItem');
-        const timeout_spy = jest
+        const next_item_spy = vi.spyOn(spectator.component, 'nextItem');
+        const timeout_spy = vi
             .spyOn(spectator.component as any, 'timeout')
             .mockImplementation(() => undefined);
         spectator.component['_item_urls'] = {
@@ -1184,8 +1185,8 @@ describe('MediaPlayerComponent', () => {
             create_item('b'),
             create_item('c'),
         ]);
-        const next_item_spy = jest.spyOn(spectator.component, 'nextItem');
-        const timeout_spy = jest
+        const next_item_spy = vi.spyOn(spectator.component, 'nextItem');
+        const timeout_spy = vi
             .spyOn(spectator.component as any, 'timeout')
             .mockImplementation(() => undefined);
 

@@ -3,10 +3,10 @@ import { Router } from '@angular/router';
 import {
     createRoutingFactory,
     SpectatorRouting,
-} from '@ngneat/spectator/jest';
+} from '@ngneat/spectator/vitest';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
-import { notifyError } from '@placeos/common';
+import { setNotifyOutlet } from 'libs/common/src/lib/notifications';
 import { addAlertDashboard, updateAlertDashboard } from '@placeos/ts-client';
 
 import { DashboardManageComponent } from '../../app/dashboards/dashboard-mange.component';
@@ -14,20 +14,12 @@ import { DashboardsService } from '../../app/dashboards/dashboards.service';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
 
-jest.mock('@placeos/common', () => ({
-    ...jest.requireActual('@placeos/common'),
-    notifyError: jest.fn(),
-}));
-
-jest.mock('@placeos/ts-client', () => ({
-    ...jest.requireActual('@placeos/ts-client'),
-    addAlertDashboard: jest.fn(),
-    updateAlertDashboard: jest.fn(),
-}));
+vi.mock('@placeos/ts-client', { spy: true });
 
 describe('DashboardManageComponent', () => {
     let spectator: SpectatorRouting<DashboardManageComponent>;
     let service: any;
+    let notify_open: ReturnType<typeof vi.fn>;
 
     const create_component = createRoutingFactory({
         component: DashboardManageComponent,
@@ -49,13 +41,20 @@ describe('DashboardManageComponent', () => {
     }
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
+        notify_open = vi.fn(() => ({
+            onAction: () => ({ subscribe: () => undefined }),
+            dismiss: () => undefined,
+        }));
+        setNotifyOutlet({ open: notify_open } as any, true);
         service = {
             dashboard: signal<any>(undefined),
-            setDashboard: jest.fn(),
-            loadDashboards: jest.fn(),
+            setDashboard: vi.fn(),
+            loadDashboards: vi.fn(),
         };
     });
+
+    afterEach(() => setNotifyOutlet(null as any, true));
 
     it('should reject saving when the name is missing', async () => {
         build();
@@ -68,13 +67,13 @@ describe('DashboardManageComponent', () => {
 
         await spectator.component.save();
 
-        expect(notifyError).toHaveBeenCalled();
+        expect(notify_open).toHaveBeenCalled();
         expect(addAlertDashboard).not.toHaveBeenCalled();
         expect(updateAlertDashboard).not.toHaveBeenCalled();
     });
 
     it('should create a new dashboard and navigate to it on save', async () => {
-        (addAlertDashboard as jest.Mock).mockResolvedValue({ id: 'new-1' });
+        vi.mocked(addAlertDashboard).mockResolvedValue({ id: 'new-1' } as any);
         build();
         spectator.component.model.set({
             id: '',
@@ -97,7 +96,7 @@ describe('DashboardManageComponent', () => {
     });
 
     it('should update an existing dashboard on save', async () => {
-        (updateAlertDashboard as jest.Mock).mockResolvedValue({ id: 'dash-1' });
+        vi.mocked(updateAlertDashboard).mockResolvedValue({ id: 'dash-1' } as any);
         service.dashboard.set({ id: 'dash-1', name: 'Old' });
         build();
         spectator.component.model.set({
@@ -117,7 +116,7 @@ describe('DashboardManageComponent', () => {
     });
 
     it('should not navigate when the save request fails', async () => {
-        (addAlertDashboard as jest.Mock).mockRejectedValue(
+        vi.mocked(addAlertDashboard).mockRejectedValue(
             new Error('nope'),
         );
         build();

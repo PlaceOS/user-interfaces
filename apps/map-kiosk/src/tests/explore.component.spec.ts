@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import {
     Building,
     MapsPeopleService,
@@ -47,14 +47,14 @@ describe('ExploreComponent', () => {
         ],
         componentProviders: [
             MockProvider(ExploreSpacesService),
-            MockProvider(ExploreDesksService, { setOptions: jest.fn() }),
+            MockProvider(ExploreDesksService, { setOptions: vi.fn() }),
             MockProvider(ExploreZonesService),
             MockProvider(ExploreParkingService),
 
-            MockProvider(SpacePipe, { transform: jest.fn(() => ({})) } as any),
+            MockProvider(SpacePipe, { transform: vi.fn(() => ({})) } as any),
         ],
         providers: [
-            MockProvider(MatDialog, { open: jest.fn(), closeAll: jest.fn() }),
+            MockProvider(MatDialog, { open: vi.fn(), closeAll: vi.fn() }),
             MockProvider(ExploreStateService, {
                 options: signal({}),
                 level: signal({}) as any,
@@ -65,31 +65,31 @@ describe('ExploreComponent', () => {
                 map_features: signal([]),
                 map_actions: signal([]),
                 map_labels: signal([]),
-                setPositions: jest.fn(),
-                setFeatures: jest.fn(),
-                setOptions: jest.fn(),
-                setLevel: jest.fn(),
+                setPositions: vi.fn(),
+                setFeatures: vi.fn(),
+                setOptions: vi.fn(),
+                setLevel: vi.fn(),
             } as any),
             MockProvider(SettingsService, {
-                get: jest.fn(),
+                get: vi.fn(),
                 initialised: of(true),
                 theme_signal: signal('light'),
-                signal: jest.fn(() => signal(undefined)),
+                signal: vi.fn(() => signal(undefined)),
             }),
             MockProvider(SpacesService, {
                 initialised: signal(true),
-                get: jest.fn(),
+                get: vi.fn(),
             } as any),
             MockProvider(OrganisationService, {
                 initialised: signal(true),
                 buildings: [new Building({ id: '1' })],
-                levelsForBuilding: jest.fn(() => []),
+                levelsForBuilding: vi.fn(() => []),
                 active_region: signal(new Region({})),
                 active_building: signal(new Building({ id: '1' })),
                 active_levels: signal([]),
             }),
             MockProvider(MapsPeopleService, {
-                available$: of(false),
+                available: signal(false),
             }),
         ],
         imports: [MockModule(MatSlideToggleModule), FormsModule, MatMenuModule],

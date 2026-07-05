@@ -1,10 +1,11 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { ComponentFixtureAutoDetect } from '@angular/core/testing';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import {
     TriggerConditionOperator,
     TriggerTimeConditionType,
 } from '@placeos/ts-client';
-import { MockProvider } from 'ng-mocks';
+import { MockComponent, MockProvider } from 'ng-mocks';
 
 import {
     AlertConditionModalComponent,
@@ -80,13 +81,20 @@ describe('validateCompareValue', () => {
 
 describe('AlertConditionModalComponent', () => {
     let spectator: Spectator<AlertConditionModalComponent>;
-    const dialog_close = jest.fn();
+    const dialog_close = vi.fn();
 
     const create_component = createComponentFactory({
         component: AlertConditionModalComponent,
         shallow: true,
         detectChanges: false,
-        providers: [MockProvider(MatDialogRef, { close: dialog_close } as any)],
+        // Disable the zoneless auto-tick: these tests assert on component
+        // signals/methods, not the DOM. Auto change-detection would render the
+        // experimental signal-forms + mat-select template and emit benign async
+        // rxjs/material errors that vitest reports as unhandled.
+        providers: [
+            MockProvider(MatDialogRef, { close: dialog_close } as any),
+            { provide: ComponentFixtureAutoDetect, useValue: false },
+        ],
     });
 
     const base_alert = () => ({

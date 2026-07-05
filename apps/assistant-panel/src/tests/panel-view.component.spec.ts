@@ -2,8 +2,8 @@ import { signal } from '@angular/core';
 import {
     createRoutingFactory,
     SpectatorRouting,
-} from '@ngneat/spectator/jest';
-import { OrganisationService } from '@placeos/common';
+} from '@ngneat/spectator/vitest';
+import { OrganisationService, setCurrentUser } from '@placeos/common';
 import {
     ChatService,
     UserAvatarComponent,
@@ -14,25 +14,14 @@ import { PanelViewComponent } from '../app/panel-view.component';
 
 // TensorFlow is only exercised in the webcam/model pipeline which the
 // behaviour tests never drive; stub it so the module import stays cheap.
-jest.mock('@tensorflow/tfjs', () => ({
-    setBackend: jest.fn(),
-    loadGraphModel: jest.fn(),
-    tidy: jest.fn(),
-    cast: jest.fn(),
-    scalar: jest.fn(),
-    browser: { fromPixels: jest.fn() },
+vi.mock('@tensorflow/tfjs', () => ({
+    setBackend: vi.fn(),
+    loadGraphModel: vi.fn(),
+    tidy: vi.fn(),
+    cast: vi.fn(),
+    scalar: vi.fn(),
+    browser: { fromPixels: vi.fn() },
 }));
-
-jest.mock('@placeos/common', () => {
-    const actual = jest.requireActual('@placeos/common');
-    return {
-        ...actual,
-        currentUser: jest.fn(() => ({ id: 'user-1', name: 'Tester' })),
-    };
-});
-
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const common_mod = require('@placeos/common');
 
 interface MockMessage {
     id: string;
@@ -61,9 +50,9 @@ describe('PanelViewComponent', () => {
     let chat: {
         messages: ReturnType<typeof signal<MockMessage[]>>;
         progress: ReturnType<typeof signal<any>>;
-        startChat: jest.Mock;
-        sendMessage: jest.Mock;
-        close: jest.Mock;
+        startChat: ReturnType<typeof vi.fn>;
+        sendMessage: ReturnType<typeof vi.fn>;
+        close: ReturnType<typeof vi.fn>;
     };
 
     const create_component = createRoutingFactory({
@@ -80,34 +69,31 @@ describe('PanelViewComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
-        (common_mod.currentUser as jest.Mock).mockReturnValue({
-            id: 'user-1',
-            name: 'Tester',
-        });
+        vi.clearAllMocks();
+        setCurrentUser({ id: 'user-1', name: 'Tester' } as any);
         // ngOnInit wires up webcam/model/voice pipelines that use browser APIs
         // missing under jsdom. Stub the canvas context and the Vosklet global
         // so the window click listener it installs does not throw when tests
         // dispatch clicks; the pipelines themselves stay dormant.
         (globalThis as any).loadVosklet = false;
-        HTMLCanvasElement.prototype.getContext = jest.fn(
+        HTMLCanvasElement.prototype.getContext = vi.fn(
             () =>
                 ({
-                    drawImage: jest.fn(),
-                    getImageData: jest.fn(),
-                    clearRect: jest.fn(),
-                    beginPath: jest.fn(),
-                    moveTo: jest.fn(),
-                    lineTo: jest.fn(),
-                    stroke: jest.fn(),
+                    drawImage: vi.fn(),
+                    getImageData: vi.fn(),
+                    clearRect: vi.fn(),
+                    beginPath: vi.fn(),
+                    moveTo: vi.fn(),
+                    lineTo: vi.fn(),
+                    stroke: vi.fn(),
                 }) as any,
-        );
+        ) as any;
         // Provide speech synthesis stubs so the "speak on new message" effect
         // does not flag an unsupported-synthesis error under jsdom.
         (window as any).speechSynthesis = {
-            cancel: jest.fn(),
-            speak: jest.fn(),
-            getVoices: jest.fn(() => []),
+            cancel: vi.fn(),
+            speak: vi.fn(),
+            getVoices: vi.fn(() => []),
             onvoiceschanged: null,
         };
         (window as any).SpeechSynthesisUtterance = class {
@@ -119,9 +105,9 @@ describe('PanelViewComponent', () => {
         chat = {
             messages: signal<MockMessage[]>([]),
             progress: signal<any>(null),
-            startChat: jest.fn(),
-            sendMessage: jest.fn(),
-            close: jest.fn(),
+            startChat: vi.fn(),
+            sendMessage: vi.fn(),
+            close: vi.fn(),
         };
         spectator = create_component({
             providers: [{ provide: ChatService, useValue: chat }],
@@ -160,7 +146,7 @@ describe('PanelViewComponent', () => {
     });
 
     it('should not start listening without a person in view', () => {
-        const recognition = { start: jest.fn(), stop: jest.fn() };
+        const recognition = { start: vi.fn(), stop: vi.fn() };
         (spectator.component as any)._recognition = recognition;
         spectator.component.person_in_view.set(false);
 
@@ -171,7 +157,7 @@ describe('PanelViewComponent', () => {
     });
 
     it('should start listening when a person is in view', () => {
-        const recognition = { start: jest.fn(), stop: jest.fn() };
+        const recognition = { start: vi.fn(), stop: vi.fn() };
         (spectator.component as any)._recognition = recognition;
         spectator.component.person_in_view.set(true);
 
@@ -182,7 +168,7 @@ describe('PanelViewComponent', () => {
     });
 
     it('should not restart recognition while already listening', () => {
-        const recognition = { start: jest.fn(), stop: jest.fn() };
+        const recognition = { start: vi.fn(), stop: vi.fn() };
         (spectator.component as any)._recognition = recognition;
         spectator.component.person_in_view.set(true);
         spectator.component.listening.set(true);
@@ -193,7 +179,7 @@ describe('PanelViewComponent', () => {
     });
 
     it('should tear down the session and close the chat on endService', () => {
-        const recognition = { start: jest.fn(), stop: jest.fn() };
+        const recognition = { start: vi.fn(), stop: vi.fn() };
         (spectator.component as any)._recognition = recognition;
         spectator.component.setup.set(true);
         spectator.component.listening.set(true);

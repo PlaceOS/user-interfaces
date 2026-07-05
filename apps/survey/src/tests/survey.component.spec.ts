@@ -1,7 +1,7 @@
 import {
     createRoutingFactory,
     SpectatorRouting,
-} from '@ngneat/spectator/jest';
+} from '@ngneat/spectator/vitest';
 import { SurveyOutletComponent } from '@placeos/components';
 import { MockComponent } from 'ng-mocks';
 
@@ -29,7 +29,7 @@ describe('SurveyComponent', () => {
     });
 
     it('should navigate to the not-found route when the outlet reports a miss', () => {
-        const navigate = jest.spyOn(spectator.router, 'navigate');
+        const navigate = vi.spyOn(spectator.router, 'navigate');
 
         spectator.component.notFound();
 
@@ -37,10 +37,10 @@ describe('SurveyComponent', () => {
     });
 
     it('should navigate to not-found when the outlet emits not_found', () => {
-        const navigate = jest.spyOn(spectator.router, 'navigate');
+        const navigate = vi.spyOn(spectator.router, 'navigate');
         const outlet = spectator.query(SurveyOutletComponent);
 
-        outlet.not_found.emit();
+        outlet.not_found.emit(true);
 
         expect(navigate).toHaveBeenCalledWith(['/not-found']);
     });

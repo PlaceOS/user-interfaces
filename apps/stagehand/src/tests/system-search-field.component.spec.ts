@@ -1,16 +1,10 @@
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { PlaceSystem } from '@placeos/ts-client';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
+import { PlaceSystem, querySystems } from '@placeos/ts-client';
 
 import { SystemSearchFieldComponent } from '../app/dashboards/system-search-field.component';
 
-jest.mock('@placeos/ts-client', () => {
-    const actual = jest.requireActual('@placeos/ts-client');
-    return {
-        ...actual,
-        querySystems: jest.fn(async () => ({ data: [] })),
-    };
-});
+vi.mock('@placeos/ts-client', { spy: true });
 
 function makeSystem(data: Partial<PlaceSystem>): PlaceSystem {
     return new PlaceSystem(data as any);
@@ -27,6 +21,7 @@ describe('SystemSearchFieldComponent', () => {
     });
 
     beforeEach(() => {
+        vi.mocked(querySystems).mockResolvedValue({ data: [] } as any);
         spectator = create_component();
         component = spectator.component;
     });
@@ -58,7 +53,7 @@ describe('SystemSearchFieldComponent', () => {
     });
 
     it('should update the value and notify the change handler on selection', () => {
-        const on_change = jest.fn();
+        const on_change = vi.fn();
         component.registerOnChange(on_change);
         const item = makeSystem({ id: 'sys-1', name: 'Boardroom' });
 
@@ -76,8 +71,7 @@ describe('SystemSearchFieldComponent', () => {
     });
 
     it('should filter loaded results by the current search string', async () => {
-        const query_fn = jest
-            .fn()
+        const query_fn = vi.fn()
             .mockResolvedValue([
                 makeSystem({ id: 'sys-1', name: 'Meeting Room' }),
                 makeSystem({ id: 'sys-2', name: 'Lobby' }),
@@ -92,7 +86,7 @@ describe('SystemSearchFieldComponent', () => {
     });
 
     it('should skip the server query when below the minimum length', async () => {
-        const query_fn = jest.fn().mockResolvedValue([]);
+        const query_fn = vi.fn().mockResolvedValue([]);
         spectator.setInput('query_fn', query_fn as any);
         spectator.setInput('minLength', 3);
         component.search_str.set('me');

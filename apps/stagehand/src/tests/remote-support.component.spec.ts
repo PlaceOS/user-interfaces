@@ -1,10 +1,11 @@
+import type { Mock } from 'vitest';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { OrganisationService } from '@placeos/common';
-import { MockProvider } from 'ng-mocks';
+import { MockComponent, MockProvider } from 'ng-mocks';
 
 import { CameraSnapshotModalComponent } from '../app/camera-snapshot-modal.component';
 import { DashboardsService } from '../app/dashboards/dashboards.service';
@@ -27,8 +28,8 @@ describe('RemoteSupportComponent', () => {
     let building_id: any;
     let dashboard_alerts: any;
     let space_list: any;
-    let dialog_open: jest.Mock;
-    let navigate: jest.Mock;
+    let dialog_open: Mock;
+    let navigate: Mock;
 
     const createComponent = createComponentFactory({
         component: RemoteSupportComponent,
@@ -57,8 +58,8 @@ describe('RemoteSupportComponent', () => {
         building_id = signal('');
         dashboard_alerts = signal<any[]>([]);
         space_list = signal<any[]>([]);
-        dialog_open = jest.fn();
-        navigate = jest.fn();
+        dialog_open = vi.fn();
+        navigate = vi.fn();
         spectator = createComponent({
             providers: [
                 {
@@ -67,9 +68,9 @@ describe('RemoteSupportComponent', () => {
                         region_id,
                         building_id,
                         dashboard_alerts,
-                        setDashboard: jest.fn(),
-                        listenForDashboardAlerts: jest.fn(),
-                        setRegionFromParams: jest.fn(),
+                        setDashboard: vi.fn(),
+                        listenForDashboardAlerts: vi.fn(),
+                        setRegionFromParams: vi.fn(),
                     },
                 },
                 { provide: SupportService, useValue: { space_list } },

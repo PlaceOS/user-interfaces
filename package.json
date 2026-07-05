@@ -51,7 +51,7 @@
         "help": "nx help",
         "version": "node ./tools/apply-version.js && bunx standard-version",
         "build-all": "nx run-many --target=build --parallel=4 --stats-json",
-        "test-all": "nx run-many --target=test --runInBand --parallel=4",
+        "test-all": "nx run-many --target=test --parallel=4",
         "e2e-all": "nx run-many --target=e2e",
         "sentry:sourcemaps": "sentry-cli sourcemaps inject --org place-technology --project placeos-dev ./dist/apps && sentry-cli sourcemaps upload --org place-technology --project placeos-dev ./dist/apps"
     },

@@ -3,20 +3,14 @@ import { Router } from '@angular/router';
 import {
     createRoutingFactory,
     SpectatorRouting,
-} from '@ngneat/spectator/jest';
+} from '@ngneat/spectator/vitest';
 import { OrganisationService } from '@placeos/common';
 import * as ts_client from '@placeos/ts-client';
 import { MockProvider } from 'ng-mocks';
 
 import { BootstrapComponent } from '../app/bootstrap.component';
 
-jest.mock('@placeos/ts-client', () => {
-    const actual = jest.requireActual('@placeos/ts-client');
-    return {
-        ...actual,
-        querySystems: jest.fn(),
-    };
-});
+vi.mock('@placeos/ts-client', { spy: true });
 
 const SYS_ID_KEY = 'PLACEOS.ASSISTANT.system';
 
@@ -31,30 +25,28 @@ describe('BootstrapComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         localStorage.clear();
         sessionStorage.clear();
         org_service = {
             initialised: signal(true),
             organisation: { id: 'org-1' },
-            waitUntilInitialised: jest.fn(() => Promise.resolve()),
+            waitUntilInitialised: vi.fn(() => Promise.resolve()),
         };
-        (ts_client.querySystems as jest.Mock).mockReturnValue(
-            Promise.resolve({
-                data: [
-                    {
-                        id: 'sys-1',
-                        name: 'Panel 1',
-                        display_name: 'Panel One',
-                    },
-                ],
-            } as any),
-        );
+        vi.mocked(ts_client.querySystems).mockResolvedValue({
+            data: [
+                {
+                    id: 'sys-1',
+                    name: 'Panel 1',
+                    display_name: 'Panel One',
+                },
+            ],
+        } as any);
     });
 
     afterEach(() => {
-        jest.useRealTimers();
-        jest.restoreAllMocks();
+        vi.useRealTimers();
+        vi.restoreAllMocks();
     });
 
     function build_component() {
@@ -73,7 +65,9 @@ describe('BootstrapComponent', () => {
         const app_ref = spectator.inject(ApplicationRef);
         spectator.component.system_id.set('pan');
         spectator.detectChanges();
-        // Wait for the 300ms search debounce and query to settle
+        // The 300ms debounce is a real timer scheduled by an effect, so wait
+        // real time for it to fire, then let the resource query settle.
+        await new Promise((r) => setTimeout(r, 350));
         await app_ref.whenStable();
         spectator.detectChanges();
         await app_ref.whenStable();
@@ -95,6 +89,7 @@ describe('BootstrapComponent', () => {
         const app_ref = spectator.inject(ApplicationRef);
         spectator.component.system_id.set('p');
         spectator.detectChanges();
+        await new Promise((r) => setTimeout(r, 350));
         await app_ref.whenStable();
 
         expect(ts_client.querySystems).not.toHaveBeenCalled();
@@ -104,7 +99,7 @@ describe('BootstrapComponent', () => {
     it('should store the selected system and navigate to the panel', () => {
         build_component();
         const router = spectator.inject(Router);
-        const set_item_spy = jest.spyOn(Storage.prototype, 'setItem');
+        const set_item_spy = vi.spyOn(Storage.prototype, 'setItem');
         spectator.component.system_id.set('sys-1');
 
         spectator.component.bootstrap();
@@ -134,7 +129,7 @@ describe('BootstrapComponent', () => {
 
     it('should bootstrap from the system_id query parameter', () => {
         build_component();
-        const bootstrap_spy = jest.spyOn(spectator.component, 'bootstrap');
+        const bootstrap_spy = vi.spyOn(spectator.component, 'bootstrap');
 
         spectator.setRouteQueryParam('system_id', 'sys-2');
         spectator.detectChanges();
@@ -145,7 +140,7 @@ describe('BootstrapComponent', () => {
 
     it('should bootstrap from the legacy sys_id query parameter', () => {
         build_component();
-        const bootstrap_spy = jest.spyOn(spectator.component, 'bootstrap');
+        const bootstrap_spy = vi.spyOn(spectator.component, 'bootstrap');
 
         spectator.setRouteQueryParam('sys_id', 'sys-3');
         spectator.detectChanges();

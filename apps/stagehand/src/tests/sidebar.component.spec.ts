@@ -1,9 +1,11 @@
+import { MockComponent } from 'ng-mocks';
+import type { Mock } from 'vitest';
 import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
     createRoutingFactory,
     SpectatorRouting,
-} from '@ngneat/spectator/jest';
+} from '@ngneat/spectator/vitest';
 import { OrganisationService, SettingsService } from '@placeos/common';
 
 import { DashboardsService } from '../app/dashboards/dashboards.service';
@@ -17,7 +19,7 @@ describe('SidebarComponent', () => {
 
     let allow_dark_mode: ReturnType<typeof signal<boolean>>;
     let theme: ReturnType<typeof signal<string>>;
-    let dialog: { open: jest.Mock };
+    let dialog: { open: Mock };
     let settings: any;
     let org: any;
     let dash: any;
@@ -31,13 +33,13 @@ describe('SidebarComponent', () => {
     beforeEach(() => {
         allow_dark_mode = signal(false);
         theme = signal('light');
-        dialog = { open: jest.fn() };
+        dialog = { open: vi.fn() };
         settings = {
-            signal: jest.fn((key: string, def: any) =>
+            signal: vi.fn((key: string, def: any) =>
                 key === 'allow_dark_mode' ? allow_dark_mode : signal(def),
             ),
             theme_signal: theme,
-            setTheme: jest.fn(),
+            setTheme: vi.fn(),
         };
         org = {
             region_list: signal([{ id: 'reg-1', name: 'Region 1' }]),
@@ -60,7 +62,7 @@ describe('SidebarComponent', () => {
         dash = {
             region_id: signal(''),
             building_id: signal(''),
-            listenForDashboardAlerts: jest.fn(),
+            listenForDashboardAlerts: vi.fn(),
         };
         push = {
             enabled: signal(false),

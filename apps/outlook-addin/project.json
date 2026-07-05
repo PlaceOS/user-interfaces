@@ -144,11 +144,26 @@
             "outputs": ["{options.outputFile}"]
         },
         "test": {
-            "executor": "@nx/jest:jest",
+            "executor": "@angular/build:unit-test",
             "outputs": ["{workspaceRoot}/coverage/apps/outlook-addin"],
             "options": {
-                "jestConfig": "apps/outlook-addin/jest.config.ts",
-                "tsConfig": "apps/outlook-addin/tsconfig.spec.json"
+                "tsConfig": "apps/outlook-addin/tsconfig.spec.json",
+                "setupFiles": ["apps/outlook-addin/src/test-setup.ts"],
+                "isolate": true,
+                "watch": false,
+                "buildTarget": "outlook-addin:test-build:development"
+            }
+        },
+        "test-build": {
+            "executor": "@angular/build:application",
+            "options": {
+                "outputPath": "dist/apps/outlook-addin-test",
+                "browser": "apps/outlook-addin/src/main.ts",
+                "tsConfig": "apps/outlook-addin/tsconfig.spec.json",
+                "polyfills": []
+            },
+            "configurations": {
+                "development": {}
             }
         }
     }

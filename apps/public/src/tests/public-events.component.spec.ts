@@ -21,9 +21,9 @@ function makeService() {
         guest: signal<{ name: string; email: string } | null>(null),
         authenticated: signal(false),
         default_system_id: signal(''),
-        init: jest.fn().mockResolvedValue(undefined),
-        loadEvents: jest.fn().mockResolvedValue(undefined),
-        register: jest.fn().mockResolvedValue(undefined),
+        init: vi.fn().mockResolvedValue(undefined),
+        loadEvents: vi.fn().mockResolvedValue(undefined),
+        register: vi.fn().mockResolvedValue(undefined),
     };
 }
 
@@ -31,11 +31,11 @@ describe('PublicEventsComponent', () => {
     let param_map$: BehaviorSubject<ParamMap>;
     let query_map$: BehaviorSubject<ParamMap>;
     let route: any;
-    let router: { navigate: jest.Mock };
+    let router: { navigate: ReturnType<typeof vi.fn> };
     let service: ReturnType<typeof makeService>;
 
     beforeEach(async () => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         param_map$ = new BehaviorSubject<ParamMap>(convertToParamMap({}));
         query_map$ = new BehaviorSubject<ParamMap>(convertToParamMap({}));
         route = {
@@ -46,7 +46,7 @@ describe('PublicEventsComponent', () => {
                 queryParams: {},
             },
         };
-        router = { navigate: jest.fn().mockResolvedValue(true) };
+        router = { navigate: vi.fn().mockResolvedValue(true) };
         service = makeService();
 
         await TestBed.configureTestingModule({

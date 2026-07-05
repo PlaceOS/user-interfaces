@@ -1,4 +1,4 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MediaAnimation } from '@placeos/ts-client';
 
 import { PlaylistDisplayComponent } from '../app/playlist-display.component';
@@ -74,7 +74,7 @@ describe('PlaylistDisplayComponent', () => {
     });
 
     it('should emit the selected playlist index', () => {
-        const emit_spy = jest.spyOn(spectator.component.selected, 'emit');
+        const emit_spy = vi.spyOn(spectator.component.selected, 'emit');
         spectator.setInput('playlist', [
             create_item('media-1'),
             create_item('media-2'),
@@ -129,7 +129,7 @@ describe('PlaylistDisplayComponent', () => {
     });
 
     it('should not emit when selecting invalid or active playlist items', () => {
-        const emit_spy = jest.spyOn(spectator.component.selected, 'emit');
+        const emit_spy = vi.spyOn(spectator.component.selected, 'emit');
         spectator.setInput('playlist', [
             create_item('active-media'),
             create_item('invalid-media', {

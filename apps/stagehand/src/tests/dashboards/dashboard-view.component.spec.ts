@@ -2,7 +2,7 @@ import { signal } from '@angular/core';
 import {
     createRoutingFactory,
     SpectatorRouting,
-} from '@ngneat/spectator/jest';
+} from '@ngneat/spectator/vitest';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
 import { DashboardViewComponent } from '../../app/dashboards/dashboard-view.component';
@@ -37,12 +37,12 @@ describe('DashboardViewComponent', () => {
             dashboard_alerts: signal([
                 { id: 'a-1', name: 'Offline', time: 1710000000 },
             ]),
-            setDashboard: jest.fn(),
-            listenForDashboardAlerts: jest.fn(),
+            setDashboard: vi.fn(),
+            listenForDashboardAlerts: vi.fn(),
         };
     });
 
-    afterEach(() => jest.useRealTimers());
+    afterEach(() => vi.useRealTimers());
 
     it('should select the dashboard from the route id', () => {
         build({ params: { id: 'dash-9' } });
@@ -57,11 +57,11 @@ describe('DashboardViewComponent', () => {
     });
 
     it('should start listening for dashboard alerts after init', () => {
-        jest.useFakeTimers();
+        vi.useFakeTimers();
         build({ params: { id: 'dash-9' } });
 
         expect(service.listenForDashboardAlerts).not.toHaveBeenCalled();
-        jest.advanceTimersByTime(300);
+        vi.advanceTimersByTime(300);
 
         expect(service.listenForDashboardAlerts).toHaveBeenCalled();
     });

@@ -7,7 +7,7 @@ import { Router } from '@angular/router';
 import {
     createRoutingFactory,
     SpectatorRouting,
-} from '@ngneat/spectator/jest';
+} from '@ngneat/spectator/vitest';
 import {
     CateringOrdersService,
     CateringStateService,
@@ -36,10 +36,10 @@ class StateServiceStub {
     public readonly caterers = signal<string[]>([]);
     public readonly availability = signal<string[]>(['room-1']);
     public zone = '';
-    public addItem = jest.fn();
-    public editConfig = jest.fn();
-    public importMenu = jest.fn();
-    public saveSettings = jest.fn().mockResolvedValue(undefined);
+    public addItem = vi.fn();
+    public editConfig = vi.fn();
+    public importMenu = vi.fn();
+    public saveSettings = vi.fn().mockResolvedValue(undefined);
 }
 
 class OrgServiceStub {
@@ -48,9 +48,9 @@ class OrgServiceStub {
     public readonly active_building = signal<any>({ id: 'bld-1' });
     public building: any = { id: 'bld-1' };
     public buildings: any[] = [{ id: 'bld-1' }, { id: 'bld-2' }];
-    public levelsForRegion = jest.fn().mockReturnValue([]);
-    public levelsForBuilding = jest.fn().mockReturnValue([]);
-    public levelWithID = jest.fn();
+    public levelsForRegion = vi.fn().mockReturnValue([]);
+    public levelsForBuilding = vi.fn().mockReturnValue([]);
+    public levelWithID = vi.fn();
 }
 
 describe('CateringTopbarComponent', () => {
@@ -58,7 +58,7 @@ describe('CateringTopbarComponent', () => {
     let orders: OrdersServiceStub;
     let state: StateServiceStub;
     let org: OrgServiceStub;
-    let dialog: { open: jest.Mock };
+    let dialog: { open: ReturnType<typeof vi.fn> };
     let dialog_ref: any;
 
     const create_component = createRoutingFactory({
@@ -74,7 +74,7 @@ describe('CateringTopbarComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         settingSignal('use_region', false).set(false);
         dialog_ref = {
             componentInstance: {
@@ -82,7 +82,7 @@ describe('CateringTopbarComponent', () => {
                 loading: signal(true),
             },
         };
-        dialog = { open: jest.fn().mockReturnValue(dialog_ref) };
+        dialog = { open: vi.fn().mockReturnValue(dialog_ref) };
         spectator = create_component();
         orders = spectator.inject(CateringOrdersService) as any;
         state = spectator.inject(CateringStateService) as any;
@@ -137,7 +137,7 @@ describe('CateringTopbarComponent', () => {
 
     it('should update zones filter, catering zone and navigate on updateZones', () => {
         const router = spectator.inject(Router);
-        const navigate = jest.spyOn(router, 'navigate');
+        const navigate = vi.spyOn(router, 'navigate');
         spectator.component.updateZones(['zone-1', 'zone-2']);
 
         expect(orders.filters).toEqual({ zones: ['zone-1', 'zone-2'] });
@@ -195,7 +195,9 @@ describe('CateringTopbarComponent', () => {
         );
 
         dialog_ref.componentInstance.change.next(['room-2']);
-        await Promise.resolve();
+        // The change handler awaits saveSettings().catch() before clearing the
+        // loading flag, so flush all pending microtasks before asserting.
+        await new Promise((r) => setTimeout(r, 0));
 
         expect(state.saveSettings).toHaveBeenCalledWith({
             disabled_rooms: ['room-2'],

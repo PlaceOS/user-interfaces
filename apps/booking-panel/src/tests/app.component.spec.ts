@@ -1,4 +1,4 @@
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
 
 import { mockComponent } from '@placeos/common/tests';
@@ -22,7 +22,7 @@ describe('AppComponent', () => {
         providers: [
             MockProvider(PlaceOS_Service, {
                 has_chat: false,
-                init: jest.fn().mockResolvedValue(undefined),
+                init: vi.fn().mockResolvedValue(undefined),
             } as any),
         ],
     });

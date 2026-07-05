@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { IconComponent } from '@placeos/components';
 import { MockComponent } from 'ng-mocks';
 
@@ -29,8 +29,8 @@ describe('PushNotificationSettingsComponent', () => {
                 medium: false,
                 low: false,
             }),
-            requestPermission: jest.fn().mockResolvedValue(true),
-            setSeverityEnabled: jest.fn(),
+            requestPermission: vi.fn().mockResolvedValue(true),
+            setSeverityEnabled: vi.fn(),
         };
         spectator = create_component({
             providers: [

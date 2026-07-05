@@ -2,7 +2,7 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import {
     createRoutingFactory,
     SpectatorRouting,
-} from '@ngneat/spectator/jest';
+} from '@ngneat/spectator/vitest';
 import { settingSignal } from '@placeos/common';
 import { IconComponent, SafePipe } from '@placeos/components';
 import { MockComponent } from 'ng-mocks';

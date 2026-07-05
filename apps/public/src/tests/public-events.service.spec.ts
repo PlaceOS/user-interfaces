@@ -9,13 +9,13 @@ import {
 } from '@placeos/ts-client';
 import { PublicEventsService } from '../app/public-events.service';
 
-jest.mock('@placeos/ts-client', () => ({
-    listPublicEvents: jest.fn(),
-    publicEventGuestToken: jest.fn(),
-    registerPublicEvent: jest.fn(),
-    setStorage: jest.fn(),
-    setToken: jest.fn(),
-    token: jest.fn(),
+vi.mock('@placeos/ts-client', () => ({
+    listPublicEvents: vi.fn(),
+    publicEventGuestToken: vi.fn(),
+    registerPublicEvent: vi.fn(),
+    setStorage: vi.fn(),
+    setToken: vi.fn(),
+    token: vi.fn(),
 }));
 
 describe('PublicEventsService', () => {
@@ -25,17 +25,17 @@ describe('PublicEventsService', () => {
         TestBed.resetTestingModule();
         localStorage.clear();
         sessionStorage.clear();
-        jest.clearAllMocks();
-        jest.mocked(token).mockReturnValue('guest-token');
-        jest.mocked(publicEventGuestToken).mockResolvedValue('new-token');
-        jest.mocked(listPublicEvents).mockResolvedValue([]);
-        jest.mocked(registerPublicEvent).mockResolvedValue({});
+        vi.clearAllMocks();
+        vi.mocked(token).mockReturnValue('guest-token');
+        vi.mocked(publicEventGuestToken).mockResolvedValue('new-token');
+        vi.mocked(listPublicEvents).mockResolvedValue([]);
+        vi.mocked(registerPublicEvent).mockResolvedValue({});
     });
 
     it('should refresh guest access before loading events when the token is missing', async () => {
         sessionStorage.setItem('PLACEOS.public.guest', JSON.stringify(guest));
-        jest.mocked(token).mockReturnValue('');
-        jest.mocked(listPublicEvents).mockResolvedValue([
+        vi.mocked(token).mockReturnValue('');
+        vi.mocked(listPublicEvents).mockResolvedValue([
             { id: 'setup', is_system_event: true },
             { id: 'event-1', title: 'Public Event' },
         ]);
@@ -58,7 +58,7 @@ describe('PublicEventsService', () => {
 
     it('should use an existing guest token when loading events', async () => {
         sessionStorage.setItem('PLACEOS.public.guest', JSON.stringify(guest));
-        jest.mocked(token).mockReturnValue('guest-token');
+        vi.mocked(token).mockReturnValue('guest-token');
 
         const service = TestBed.inject(PublicEventsService);
 
@@ -72,7 +72,7 @@ describe('PublicEventsService', () => {
 
     it('should refresh guest access before registering when the token is missing', async () => {
         localStorage.setItem('PLACEOS.public.guest', JSON.stringify(guest));
-        jest.mocked(token).mockReturnValue('');
+        vi.mocked(token).mockReturnValue('');
 
         const service = TestBed.inject(PublicEventsService);
 

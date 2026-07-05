@@ -2,18 +2,26 @@ import { signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { Router } from '@angular/router';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 
-jest.mock('@placeos/common', () => ({
-    ...jest.requireActual('@placeos/common'),
-    notifyError: jest.fn(),
-    notifyInfo: jest.fn(),
-    notifySuccess: jest.fn(),
-}));
-
-import * as common_mod from '@placeos/common';
-import { OrganisationService, settingSignal } from '@placeos/common';
+import {
+    OrganisationService,
+    setNotifyOutlet,
+    settingSignal,
+} from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
+
+// Workspace modules cannot be intercepted by the native unit-test builder, so
+// instead of mocking `notify*` we spy on the snackbar outlet they route to
+// (`panelClass` carries the notification type: info/success/error).
+function createSnackbarSpy() {
+    return {
+        open: vi.fn(() => ({
+            onAction: () => ({ subscribe: () => undefined }),
+            dismiss: () => undefined,
+        })),
+    };
+}
 
 import { CheckinInductionComponent } from '../../app/checkin/checkin-induction.component';
 import { CheckinStateService } from '../../app/checkin/checkin-state.service';
@@ -29,6 +37,7 @@ function resetSettings() {
 
 describe('CheckinInductionComponent', () => {
     let spectator: SpectatorRouting<CheckinInductionComponent>;
+    let snackbar: ReturnType<typeof createSnackbarSpy>;
     const createComponent = createRoutingFactory({
         component: CheckinInductionComponent,
         detectChanges: false,
@@ -37,9 +46,9 @@ describe('CheckinInductionComponent', () => {
                 provide: CheckinStateService,
                 useValue: {
                     event: signal<any>({ induction: 'pending' }),
-                    declineInduction: jest.fn(async () => null),
-                    completeInduction: jest.fn(async () => null),
-                    setError: jest.fn(),
+                    declineInduction: vi.fn(async () => null),
+                    completeInduction: vi.fn(async () => null),
+                    setError: vi.fn(),
                 },
             },
             MockProvider(OrganisationService, {
@@ -50,15 +59,14 @@ describe('CheckinInductionComponent', () => {
     });
 
     beforeEach(() => {
-        (common_mod.notifyError as jest.Mock).mockClear();
-        (common_mod.notifyInfo as jest.Mock).mockClear();
-        (common_mod.notifySuccess as jest.Mock).mockClear();
+        snackbar = createSnackbarSpy();
+        setNotifyOutlet(snackbar as any, true);
         resetSettings();
         spectator = createComponent();
-        spectator
-            .inject(CheckinStateService)
-            .event.set({ induction: 'pending' });
+        (spectator.inject(CheckinStateService) as any).event.set({ induction: 'pending' });
     });
+
+    afterEach(() => setNotifyOutlet(null as any, true));
 
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();
@@ -66,7 +74,7 @@ describe('CheckinInductionComponent', () => {
 
     describe('ngOnInit navigation', () => {
         it('redirects to checkin when there is no event', async () => {
-            spectator.inject(CheckinStateService).event.set(null);
+            (spectator.inject(CheckinStateService) as any).event.set(null);
             await spectator.component.ngOnInit();
             expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
                 '/checkin',
@@ -93,9 +101,7 @@ describe('CheckinInductionComponent', () => {
         it('redirects past induction when it has already been accepted', async () => {
             settingSignal('induction_enabled', false).set(true);
             settingSignal('induction_details').set('Terms and conditions');
-            spectator
-                .inject(CheckinStateService)
-                .event.set({ induction: 'accepted' });
+            (spectator.inject(CheckinStateService) as any).event.set({ induction: 'accepted' });
             await spectator.component.ngOnInit();
             expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
                 '/checkin',
@@ -106,9 +112,7 @@ describe('CheckinInductionComponent', () => {
         it('stays on the induction when enabled and not yet accepted', async () => {
             settingSignal('induction_enabled', false).set(true);
             settingSignal('induction_details').set('Terms and conditions');
-            spectator
-                .inject(CheckinStateService)
-                .event.set({ induction: 'pending' });
+            (spectator.inject(CheckinStateService) as any).event.set({ induction: 'pending' });
             await spectator.component.ngOnInit();
             expect(spectator.inject(Router).navigate).not.toHaveBeenCalled();
         });
@@ -133,7 +137,11 @@ describe('CheckinInductionComponent', () => {
             expect(state.setError).toHaveBeenCalledWith(
                 'You have declined the induction.',
             );
-            expect(common_mod.notifyInfo).toHaveBeenCalled();
+            expect(snackbar.open).toHaveBeenCalledWith(
+                expect.anything(),
+                expect.anything(),
+                expect.objectContaining({ panelClass: ['info'] }),
+            );
             expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
                 '/checkin',
                 'error',
@@ -146,7 +154,11 @@ describe('CheckinInductionComponent', () => {
             const state = spectator.inject(CheckinStateService);
             await spectator.component.continue();
             expect(state.completeInduction).toHaveBeenCalledTimes(1);
-            expect(common_mod.notifySuccess).toHaveBeenCalled();
+            expect(snackbar.open).toHaveBeenCalledWith(
+                expect.anything(),
+                expect.anything(),
+                expect.objectContaining({ panelClass: ['success'] }),
+            );
             expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
                 '/checkin',
                 'details',
@@ -178,9 +190,7 @@ describe('CheckinInductionComponent', () => {
         it('declines when the decline button is clicked', async () => {
             settingSignal('induction_enabled', false).set(true);
             settingSignal('induction_details').set('Terms');
-            spectator
-                .inject(CheckinStateService)
-                .event.set({ induction: 'pending' });
+            (spectator.inject(CheckinStateService) as any).event.set({ induction: 'pending' });
             spectator.detectChanges();
             await spectator.fixture.whenStable();
             spectator.click('button.clear');

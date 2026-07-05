@@ -1,32 +1,21 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
+import { setCurrentUser, SettingsService } from '@placeos/common';
+import { authority, queryApplications, setAPI_Key, setup } from '@placeos/ts-client';
 import { BehaviorSubject } from 'rxjs';
-
-jest.mock('@placeos/common', () => {
-    const actual = jest.requireActual('@placeos/common');
-    const { of } = require('rxjs');
-    return {
-        ...actual,
-        setupPlace: jest.fn(() => Promise.resolve()),
-        current_user: of({ id: 'user-1', groups: [] }),
-        currentUser: jest.fn(() => ({ id: 'user-1', groups: [] })),
-    };
-});
-
-jest.mock('@placeos/ts-client', () => ({
-    authority: jest.fn(() => ({ id: 'auth-1' })),
-    queryApplications: jest.fn(() => Promise.resolve({ data: [] })),
-    setAPI_Key: jest.fn(),
-}));
-
-import { currentUser, setupPlace, SettingsService } from '@placeos/common';
-import { authority, queryApplications, setAPI_Key } from '@placeos/ts-client';
 
 import { AppComponent } from './app.component';
 import { LauncherApplication } from './application-loader.util';
 
+// Only the external `@placeos/ts-client` package can be intercepted under the
+// zoneless unit-test builder; workspace modules (`@placeos/common`) run for
+// real. `setupPlace()` ultimately calls `setup()`, so stubbing `setup` keeps
+// the real setup flow from touching the network. The current user is seeded
+// through the `setCurrentUser` test seam rather than mocking the store.
+vi.mock('@placeos/ts-client', { spy: true });
+
 const settings_mock = {
     initialised: new BehaviorSubject<boolean>(false),
-    get: jest.fn(),
+    get: vi.fn(),
 };
 
 function makeApp(overrides: Partial<LauncherApplication> = {}): LauncherApplication {
@@ -59,7 +48,7 @@ describe('AppComponent', () => {
     }
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         settings_mock.initialised = new BehaviorSubject<boolean>(false);
         settings_mock.get.mockImplementation((key: string) => {
             if (key === 'composer') return {};
@@ -67,10 +56,11 @@ describe('AppComponent', () => {
             if (key === 'app.application_restrictions') return [];
             return undefined;
         });
-        (authority as jest.Mock).mockReturnValue({ id: 'auth-1' });
-        (queryApplications as jest.Mock).mockResolvedValue({ data: [] });
-        (setupPlace as jest.Mock).mockResolvedValue(undefined);
-        (currentUser as jest.Mock).mockReturnValue({ id: 'user-1', groups: [] });
+        vi.mocked(authority).mockReturnValue({ id: 'auth-1' } as any);
+        vi.mocked(queryApplications).mockResolvedValue({ data: [] } as any);
+        vi.mocked(setup).mockResolvedValue(undefined as any);
+        vi.mocked(setAPI_Key).mockReturnValue(undefined as any);
+        setCurrentUser({ id: 'user-1', groups: [] } as any);
         window.history.replaceState({}, '', '/');
         spectator = create_component();
     });
@@ -90,7 +80,7 @@ describe('AppComponent', () => {
     });
 
     it('renders a launcher tile per resolved application, sorted by name', async () => {
-        (queryApplications as jest.Mock).mockResolvedValue({
+        vi.mocked(queryApplications).mockResolvedValue({
             data: [
                 {
                     id: 'workplace',
@@ -103,7 +93,7 @@ describe('AppComponent', () => {
                     redirect_uri: 'https://example.com/concierge/',
                 },
             ],
-        });
+        } as any);
 
         await runInit();
 
@@ -115,7 +105,7 @@ describe('AppComponent', () => {
     });
 
     it('links each tile to its redirect uri', async () => {
-        (queryApplications as jest.Mock).mockResolvedValue({
+        vi.mocked(queryApplications).mockResolvedValue({
             data: [
                 {
                     id: 'workplace',
@@ -123,7 +113,7 @@ describe('AppComponent', () => {
                     redirect_uri: 'https://example.com/workplace/',
                 },
             ],
-        });
+        } as any);
 
         await runInit();
 
@@ -139,8 +129,8 @@ describe('AppComponent', () => {
                 return [{ id: 'admin', groups: ['admins'] }];
             return undefined;
         });
-        (currentUser as jest.Mock).mockReturnValue({ id: 'u', groups: ['staff'] });
-        (queryApplications as jest.Mock).mockResolvedValue({
+        setCurrentUser({ id: 'u', groups: ['staff'] } as any);
+        vi.mocked(queryApplications).mockResolvedValue({
             data: [
                 {
                     id: 'admin',
@@ -153,7 +143,7 @@ describe('AppComponent', () => {
                     redirect_uri: 'https://example.com/workplace/',
                 },
             ],
-        });
+        } as any);
 
         await runInit();
 
@@ -162,7 +152,7 @@ describe('AppComponent', () => {
     });
 
     it('shows an empty-state message when no applications are configured', async () => {
-        (queryApplications as jest.Mock).mockResolvedValue({ data: [] });
+        vi.mocked(queryApplications).mockResolvedValue({ data: [] } as any);
 
         await runInit();
 
@@ -173,7 +163,7 @@ describe('AppComponent', () => {
     });
 
     it('shows the empty-state message when there is no active authority', async () => {
-        (authority as jest.Mock).mockReturnValue(null);
+        vi.mocked(authority).mockReturnValue(null as any);
 
         await runInit();
 
@@ -184,8 +174,8 @@ describe('AppComponent', () => {
     });
 
     it('surfaces an error message when setup fails', async () => {
-        jest.spyOn(console, 'error').mockImplementation(() => undefined);
-        (setupPlace as jest.Mock).mockRejectedValue(new Error('boom'));
+        vi.spyOn(console, 'error').mockImplementation(() => undefined);
+        vi.mocked(setup).mockRejectedValue(new Error('boom'));
 
         await runInit();
 
@@ -276,7 +266,7 @@ describe('AppComponent', () => {
             const image = spectator.query('.app-grid img') as HTMLImageElement;
             expect(image.getAttribute('src')).toBe('https://example.com/a.svg');
 
-            spectator.dispatchFakeEvent(image, 'error');
+            image.dispatchEvent(new Event('error'));
             spectator.detectChanges();
 
             expect(spectator.component.applications()[0].icon_index).toBe(1);
