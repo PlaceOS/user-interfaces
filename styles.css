@@ -2927,6 +2927,12 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .z-0 {
   z-index: 0;
 }
+#placeos .z-1 {
+  z-index: 1;
+}
+#placeos .z-2 {
+  z-index: 2;
+}
 #placeos .z-10 {
   z-index: 10;
 }
@@ -2977,6 +2983,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .col-start-2 {
   grid-column-start: 2;
+}
+#placeos .row-1 {
+  grid-row: 1;
 }
 #placeos .row-start-2 {
   grid-row-start: 2;
@@ -3335,6 +3344,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .inline-flex {
   display: inline-flex;
+}
+#placeos .list-item {
+  display: list-item;
 }
 #placeos .table {
   display: table;
@@ -5886,11 +5898,20 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .pl-4 {
   padding-left: calc(var(--spacing) * 4);
 }
+#placeos .pl-5 {
+  padding-left: calc(var(--spacing) * 5);
+}
 #placeos .pl-6 {
   padding-left: calc(var(--spacing) * 6);
 }
 #placeos .pl-7 {
   padding-left: calc(var(--spacing) * 7);
+}
+#placeos .pl-8 {
+  padding-left: calc(var(--spacing) * 8);
+}
+#placeos .pl-9 {
+  padding-left: calc(var(--spacing) * 9);
 }
 #placeos .pl-10 {
   padding-left: calc(var(--spacing) * 10);
