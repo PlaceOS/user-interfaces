@@ -12,9 +12,9 @@ describe('DisplayContentComponent', () => {
     const playlist_approval_status = signal<Record<string, boolean>>({});
     const playlist_thumbnail_media = signal<Record<string, string[]>>({});
     const can_update = signal(true);
-    const queue_meta = jest.fn();
-    const add_playlist = jest.fn();
-    const remove_playlist = jest.fn();
+    const queue_meta = vi.fn();
+    const add_playlist = vi.fn();
+    const remove_playlist = vi.fn();
     const service_stub = {
         selected_display,
         playlists,
@@ -41,7 +41,7 @@ describe('DisplayContentComponent', () => {
     }
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         selected_display.set(null);
         playlists.set([]);
         zones.set([]);
@@ -120,8 +120,8 @@ describe('DisplayContentComponent', () => {
         selected_display.set(display);
         const component = await make();
         const event = {
-            preventDefault: jest.fn(),
-            stopPropagation: jest.fn(),
+            preventDefault: vi.fn(),
+            stopPropagation: vi.fn(),
         };
 
         component.removePlaylist(event as any, 'p1');

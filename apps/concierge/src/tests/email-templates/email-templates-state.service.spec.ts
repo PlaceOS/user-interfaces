@@ -1,35 +1,23 @@
 import { signal } from '@angular/core';
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
-import { OrganisationService, SettingsService } from '@placeos/common';
+import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
+import {
+    OrganisationService,
+    SettingsService,
+    setNotifyOutlet,
+} from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
 import * as ts_client from '@placeos/ts-client';
-import * as common_mod from '@placeos/common';
 import {
     EmailTemplate,
     EmailTemplatesStateService,
 } from '../../app/email-templates/email-templates-state.service';
 
-jest.mock('@placeos/ts-client', () => {
-    const actual = jest.requireActual('@placeos/ts-client');
-    return {
-        ...actual,
-        showMetadata: jest.fn(() => Promise.resolve({ details: [] })),
-        updateMetadata: jest.fn(() => Promise.resolve()),
-    };
-});
-
-jest.mock('@placeos/common', () => {
-    const actual = jest.requireActual('@placeos/common');
-    return {
-        ...actual,
-        notifyError: jest.fn(),
-        notifySuccess: jest.fn(),
-    };
-});
+vi.mock('@placeos/ts-client', { spy: true });
 
 describe('EmailTemplatesStateService', () => {
     let spectator: SpectatorService<EmailTemplatesStateService>;
+    let notify_open: ReturnType<typeof vi.fn>;
     const active_building = signal<any>({ id: 'bld-1' });
     const active_region = signal<any>(null);
 
@@ -41,19 +29,28 @@ describe('EmailTemplatesStateService', () => {
                 active_building,
                 active_region,
             } as any),
-            MockProvider(SettingsService, { get: jest.fn() } as any),
+            MockProvider(SettingsService, { get: vi.fn() } as any),
         ],
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
+        notify_open = vi.fn(() => ({
+            onAction: () => ({ subscribe: () => undefined }),
+            dismiss: () => undefined,
+        }));
+        setNotifyOutlet({ open: notify_open } as any, true);
         active_building.set({ id: 'bld-1' });
         active_region.set(null);
-        (ts_client.showMetadata as jest.Mock).mockResolvedValue({
+        (ts_client.showMetadata as any).mockResolvedValue({
             details: [],
         });
-        (ts_client.updateMetadata as jest.Mock).mockResolvedValue(undefined);
+        (ts_client.updateMetadata as any).mockResolvedValue(undefined);
         spectator = createService();
+    });
+
+    afterEach(() => {
+        setNotifyOutlet(null as any, true);
     });
 
     it('should reject templates that have no building zone', async () => {
@@ -82,11 +79,15 @@ describe('EmailTemplatesStateService', () => {
                 details: expect.arrayContaining([template]),
             }),
         );
-        expect(common_mod.notifySuccess).toHaveBeenCalled();
+        expect(notify_open).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['success'] }),
+        );
     });
 
     it('should strip a template from its previous zone when moved', async () => {
-        (ts_client.showMetadata as jest.Mock).mockResolvedValue({
+        (ts_client.showMetadata as any).mockResolvedValue({
             details: [{ id: 'template-1', zone_id: 'bld-0' }],
             description: 'old',
         });
@@ -108,7 +109,7 @@ describe('EmailTemplatesStateService', () => {
     });
 
     it('should remove a template from its zone metadata', async () => {
-        (ts_client.showMetadata as jest.Mock).mockImplementation((zone) =>
+        (ts_client.showMetadata as any).mockImplementation((zone) =>
             Promise.resolve(
                 zone === 'bld-1'
                     ? {
@@ -132,11 +133,15 @@ describe('EmailTemplatesStateService', () => {
                 details: [{ id: 'keep', zone_id: 'bld-1' }],
             }),
         );
-        expect(common_mod.notifySuccess).toHaveBeenCalled();
+        expect(notify_open).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['success'] }),
+        );
     });
 
     it('should load a template by id from the merged zone list', async () => {
-        (ts_client.showMetadata as jest.Mock).mockImplementation((zone) =>
+        (ts_client.showMetadata as any).mockImplementation((zone) =>
             Promise.resolve(
                 zone === 'bld-1'
                     ? { details: [{ id: 'target', subject: 'Found' }] }

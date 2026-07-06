@@ -59,7 +59,7 @@ class NavFooterStubComponent {}
 class IconStubComponent {}
 
 describe('MediaSectionComponent', () => {
-    const preview_files = jest.fn();
+    const preview_files = vi.fn();
     const service_stub = {
         playlists: signal([]),
         previewFiles: preview_files,
@@ -89,7 +89,7 @@ describe('MediaSectionComponent', () => {
     it('shows the upload overlay for file drags', () => {
         const fixture = TestBed.createComponent(MediaSectionComponent);
         const component = fixture.componentInstance;
-        const prevent_default = jest.fn();
+        const prevent_default = vi.fn();
 
         component.handleDragEnter({
             dataTransfer: { types: ['Files'] },
@@ -103,7 +103,7 @@ describe('MediaSectionComponent', () => {
     it('ignores drags that do not contain files', () => {
         const fixture = TestBed.createComponent(MediaSectionComponent);
         const component = fixture.componentInstance;
-        const prevent_default = jest.fn();
+        const prevent_default = vi.fn();
 
         component.handleDragEnter({
             dataTransfer: { types: ['text/plain'] },
@@ -119,7 +119,7 @@ describe('MediaSectionComponent', () => {
         const component = fixture.componentInstance;
         component.handleDragEnter({
             dataTransfer: { types: ['Files'] },
-            preventDefault: jest.fn(),
+            preventDefault: vi.fn(),
         } as any);
 
         component.handleDragLeave({
@@ -134,8 +134,8 @@ describe('MediaSectionComponent', () => {
     it('forwards dropped files to the signage service', async () => {
         const fixture = TestBed.createComponent(MediaSectionComponent);
         const component = fixture.componentInstance;
-        const prevent_default = jest.fn();
-        const stop_propagation = jest.fn();
+        const prevent_default = vi.fn();
+        const stop_propagation = vi.fn();
         const files = {
             0: new File(['image'], 'poster.png', { type: 'image/png' }),
             length: 1,

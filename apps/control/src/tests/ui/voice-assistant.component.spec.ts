@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { IconComponent } from '@placeos/components';
 import { MockComponent } from 'ng-mocks';
 
@@ -25,13 +25,13 @@ describe('VoiceAssistantComponent', () => {
         error = signal<any>({});
         enabled = signal(true);
         service = {
-            activate: jest.fn(),
+            activate: vi.fn(),
             active,
             progress,
             error,
             enabled,
-            setBinding: jest.fn(),
-            setEnabled: jest.fn(),
+            setBinding: vi.fn(),
+            setEnabled: vi.fn(),
         };
         spectator = createComponent({
             providers: [

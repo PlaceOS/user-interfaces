@@ -1,7 +1,7 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 import { signal } from '@angular/core';
 import { MatMenuModule } from '@angular/material/menu';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { IconComponent, SimpleTableComponent } from '@placeos/components';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
@@ -11,7 +11,7 @@ import { LockerStateService } from '../../app/lockers/locker-state.service';
 describe('LockerListComponent', () => {
     let spectator: Spectator<LockerListComponent>;
     let state: any;
-    let clipboard: { copy: jest.Mock };
+    let clipboard: { copy: any };
 
     const createComponent = createComponentFactory({
         component: LockerListComponent,
@@ -23,7 +23,7 @@ describe('LockerListComponent', () => {
     });
 
     beforeEach(() => {
-        clipboard = { copy: jest.fn(() => true) };
+        clipboard = { copy: vi.fn(() => true) };
         state = {
             filtered_banks: signal([]),
             filtered_lockers: signal([
@@ -42,9 +42,9 @@ describe('LockerListComponent', () => {
                 { asset_id: 'l4', user_email: 'e@x.com', status: 'approved' },
             ]),
             has_driver: true,
-            editLocker: jest.fn(),
-            editLockerBank: jest.fn(),
-            releaseLocker: jest.fn(),
+            editLocker: vi.fn(),
+            editLockerBank: vi.fn(),
+            releaseLocker: vi.fn(),
         };
         spectator = createComponent({
             providers: [

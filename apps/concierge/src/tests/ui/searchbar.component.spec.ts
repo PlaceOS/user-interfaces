@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { createHostFactory, SpectatorHost } from '@ngneat/spectator/jest';
+import { createHostFactory, SpectatorHost } from '@ngneat/spectator/vitest';
 
 import { SearchbarComponent } from '../../app/ui/searchbar.component';
 
@@ -40,9 +40,14 @@ describe('SearchbarComponent', () => {
     it('should keep local input state when no model is bound', async () => {
         spectator = createHost(`<searchbar></searchbar>`);
 
-        spectator.typeInElement('Locker 2', spectator.query('input'));
+        // Flush NgModel's deferred control setup before typing so its initial
+        // writeValue('') does not later clobber the value we type in.
         await spectator.fixture.whenStable();
 
+        spectator.typeInElement('Locker 2', spectator.query('input'));
+        spectator.detectChanges();
+
+        expect(spectator.component.value()).toBe('Locker 2');
         expect((spectator.query('input') as HTMLInputElement).value).toBe(
             'Locker 2',
         );

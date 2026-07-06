@@ -1,31 +1,32 @@
 import { signal } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
-import { OrganisationService, SettingsService } from '@placeos/common';
+import { createRoutingFactory, Spectator } from '@ngneat/spectator/vitest';
+import {
+    OrganisationService,
+    SettingsService,
+    setNotifyOutlet,
+} from '@placeos/common';
 import { EventFormService, SpacePipe } from '@placeos/events';
 import { MockProvider } from 'ng-mocks';
+import { NEVER, of } from 'rxjs';
 
 import { MeetingFlowConfirmModalComponent } from '../../../app/book/meeting-flow/meeting-flow-confirm-modal.component';
 
-jest.mock('@placeos/components', () => ({
-    ...jest.requireActual('@placeos/components'),
-    openConfirmModal: jest.fn(() =>
-        Promise.resolve({ reason: 'done', close: jest.fn() }),
-    ),
+// `openConfirmModal` is a workspace named export and cannot be module-mocked
+// under the native builder, so drive its real implementation by mocking the
+// injected `MatDialog`. `confirm_reason` controls the confirm result and
+// `confirm_modal_close` captures the `result.close()` call.
+let confirm_reason = 'done';
+const confirm_modal_close = vi.fn();
+const dialog_open = vi.fn(() => ({
+    componentInstance: { event: NEVER, loading: vi.fn() },
+    afterClosed: () => of({ reason: confirm_reason }),
+    close: confirm_modal_close,
 }));
-
-jest.mock('@placeos/common', () => ({
-    ...jest.requireActual('@placeos/common'),
-    notifyError: jest.fn(),
-}));
-
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { openConfirmModal } = require('@placeos/components');
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { notifyError } = require('@placeos/common');
 
 describe('MeetingFlowConfirmModalComponent', () => {
     let spectator: Spectator<MeetingFlowConfirmModalComponent>;
+    let notify_open: any;
 
     const now = Date.now();
     const base_event = () => ({
@@ -53,9 +54,9 @@ describe('MeetingFlowConfirmModalComponent', () => {
 
     const model = signal<any>(base_event());
     const loading = signal<string>('');
-    const post_form = jest.fn(() => Promise.resolve(true));
-    const close = jest.fn();
-    const transform = jest.fn(() =>
+    const post_form = vi.fn(() => Promise.resolve(true));
+    const close = vi.fn();
+    const transform = vi.fn(() =>
         Promise.resolve({
             id: 'room-1',
             email: 'room@x.com',
@@ -76,13 +77,13 @@ describe('MeetingFlowConfirmModalComponent', () => {
                     loading,
                     event: null,
                     postForm: post_form,
-                    cancelPostForm: jest.fn(),
+                    cancelPostForm: vi.fn(),
                 },
             },
             { provide: MatDialogRef, useValue: { close } },
-            MockProvider(MatDialog, { open: jest.fn() }),
+            MockProvider(MatDialog, { open: dialog_open } as any),
             MockProvider(OrganisationService, {
-                levelWithID: jest.fn(() => ({
+                levelWithID: vi.fn(() => ({
                     display_name: 'Level 1',
                     name: 'Level 1',
                 })),
@@ -96,9 +97,9 @@ describe('MeetingFlowConfirmModalComponent', () => {
                 ] as any,
                 building: { id: 'level-1', timezone: 'Australia/Sydney' } as any,
                 currency_code: 'USD',
-            }),
+            } as any),
             MockProvider(SettingsService, {
-                get: jest.fn((k: string) => settings_config[k]),
+                get: vi.fn((k: string) => settings_config[k]),
                 time_format: 'h:mm a',
             } as any),
         ],
@@ -107,6 +108,10 @@ describe('MeetingFlowConfirmModalComponent', () => {
 
     const init = async () => {
         spectator = createComponent();
+        // The component imports MatDialogModule, so its injector shadows the
+        // TestBed-level MatDialog mock — spy on the instance it actually gets.
+        const dialog = spectator.fixture.debugElement.injector.get(MatDialog);
+        vi.spyOn(dialog, 'open').mockImplementation(dialog_open as any);
         await spectator.fixture.whenStable();
         spectator.detectChanges();
     };
@@ -118,14 +123,18 @@ describe('MeetingFlowConfirmModalComponent', () => {
         post_form.mockClear();
         post_form.mockResolvedValue(true);
         close.mockClear();
-        (openConfirmModal as jest.Mock).mockClear();
-        (openConfirmModal as jest.Mock).mockResolvedValue({
-            reason: 'done',
-            close: jest.fn(),
-        });
-        (notifyError as jest.Mock).mockClear();
+        confirm_reason = 'done';
+        dialog_open.mockClear();
+        confirm_modal_close.mockClear();
+        notify_open = vi.fn(() => ({
+            onAction: () => ({ subscribe: () => undefined }),
+            dismiss: () => undefined,
+        }));
+        setNotifyOutlet({ open: notify_open } as any, true);
         transform.mockClear();
     });
+
+    afterEach(() => setNotifyOutlet(null as any, true));
 
     it('should create component', async () => {
         await init();
@@ -150,7 +159,7 @@ describe('MeetingFlowConfirmModalComponent', () => {
     it('should post the form directly and close when a room is selected', async () => {
         await init();
         await spectator.component.postForm();
-        expect(openConfirmModal).not.toHaveBeenCalled();
+        expect(dialog_open).not.toHaveBeenCalled();
         expect(post_form).toHaveBeenCalledTimes(1);
         expect(close).toHaveBeenCalledWith(true);
     });
@@ -162,25 +171,17 @@ describe('MeetingFlowConfirmModalComponent', () => {
     });
 
     it('should confirm before posting when no room is selected', async () => {
-        const confirm_close = jest.fn();
-        (openConfirmModal as jest.Mock).mockResolvedValueOnce({
-            reason: 'done',
-            close: confirm_close,
-        });
         model.set({ ...base_event(), resources: [] });
         await init();
         await spectator.component.postForm();
-        expect(openConfirmModal).toHaveBeenCalledTimes(1);
-        expect(confirm_close).toHaveBeenCalledTimes(1);
+        expect(dialog_open).toHaveBeenCalledTimes(1);
+        expect(confirm_modal_close).toHaveBeenCalledTimes(1);
         expect(post_form).toHaveBeenCalledTimes(1);
         expect(close).toHaveBeenCalledWith(true);
     });
 
     it('should abort posting when the no-room confirmation is cancelled', async () => {
-        (openConfirmModal as jest.Mock).mockResolvedValueOnce({
-            reason: 'cancel',
-            close: jest.fn(),
-        });
+        confirm_reason = 'cancel';
         model.set({ ...base_event(), resources: [] });
         await init();
         await spectator.component.postForm();
@@ -192,7 +193,7 @@ describe('MeetingFlowConfirmModalComponent', () => {
         await init();
         post_form.mockRejectedValueOnce(new Error('boom'));
         await spectator.component.postForm();
-        expect(notifyError).toHaveBeenCalled();
+        expect(notify_open).toHaveBeenCalled();
         expect(close).not.toHaveBeenCalled();
     });
 

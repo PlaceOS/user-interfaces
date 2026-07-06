@@ -1,20 +1,19 @@
 import { TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { notifyError, notifySuccess } from '@placeos/common';
+import { setNotifyOutlet } from '@placeos/common';
 import {
     PlaylistItemScheduleModalComponent,
     PlaylistItemScheduleModalData,
 } from '../../app/shared/playlist-item-schedule-modal.component';
 
-jest.mock('@placeos/common', () => ({
-    ...jest.requireActual('@placeos/common'),
-    notifyError: jest.fn(),
-    notifySuccess: jest.fn(),
+const notify_open = vi.fn(() => ({
+    onAction: () => ({ subscribe: () => ({ unsubscribe: () => {} }) }),
+    dismiss: vi.fn(),
 }));
 
 describe('PlaylistItemScheduleModalComponent', () => {
-    const dialog_ref = { close: jest.fn(), disableClose: false };
-    const save = jest.fn();
+    const dialog_ref = { close: vi.fn(), disableClose: false };
+    const save = vi.fn();
     let modal_data: PlaylistItemScheduleModalData;
 
     async function createComponent() {
@@ -34,7 +33,8 @@ describe('PlaylistItemScheduleModalComponent', () => {
     }
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
+        setNotifyOutlet({ open: notify_open } as any, true);
         dialog_ref.disableClose = false;
         save.mockResolvedValue(undefined);
         modal_data = {
@@ -63,7 +63,7 @@ describe('PlaylistItemScheduleModalComponent', () => {
 
     it('removes a schedule but keeps at least one', async () => {
         const component = await createComponent();
-        const event = { preventDefault: jest.fn(), stopPropagation: jest.fn() };
+        const event = { preventDefault: vi.fn(), stopPropagation: vi.fn() };
         component.addSchedule();
 
         component.removeSchedule(event as any, 1);
@@ -100,7 +100,11 @@ describe('PlaylistItemScheduleModalComponent', () => {
         );
         expect(dialog_ref.close).toHaveBeenCalledWith(true);
         expect(dialog_ref.disableClose).toBe(false);
-        expect(notifySuccess).toHaveBeenCalled();
+        expect(notify_open).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['success'] }),
+        );
     });
 
     it('keeps the dialog open and resets loading when saving fails', async () => {
@@ -112,6 +116,10 @@ describe('PlaylistItemScheduleModalComponent', () => {
         expect(component.loading()).toBe(false);
         expect(dialog_ref.disableClose).toBe(false);
         expect(dialog_ref.close).not.toHaveBeenCalled();
-        expect(notifyError).toHaveBeenCalled();
+        expect(notify_open).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['error'] }),
+        );
     });
 });

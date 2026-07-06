@@ -1,27 +1,21 @@
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
 
 import * as ts_client_mod from '@placeos/ts-client';
 import { SignageMediaModalComponent } from '../../app/signage/signage-media-modal.component';
 
-jest.mock('@placeos/ts-client', () => {
-    const actual = jest.requireActual('@placeos/ts-client');
-    return {
-        ...actual,
-        updateSignageMedia: jest.fn(async () => ({})),
-    };
-});
+vi.mock('@placeos/ts-client', { spy: true });
 
 describe('SignageMediaModalComponent', () => {
     let spectator: Spectator<SignageMediaModalComponent>;
     let data: any;
-    let on_add: jest.Mock;
+    let on_add: any;
 
     const createComponent = createComponentFactory({
         component: SignageMediaModalComponent,
         detectChanges: false,
-        providers: [MockProvider(MatDialogRef, { close: jest.fn() })],
+        providers: [MockProvider(MatDialogRef, { close: vi.fn() })],
     });
 
     function build() {
@@ -31,8 +25,10 @@ describe('SignageMediaModalComponent', () => {
     }
 
     beforeEach(() => {
-        jest.clearAllMocks();
-        on_add = jest.fn(async () => ({ id: 'media-new' }));
+        vi.clearAllMocks();
+        // `spy: true` keeps real ts-client impls, which hang on live HTTP.
+        (ts_client_mod.updateSignageMedia as any).mockResolvedValue({});
+        on_add = vi.fn(async () => ({ id: 'media-new' }));
         data = {
             media: {
                 id: '',
@@ -43,7 +39,7 @@ describe('SignageMediaModalComponent', () => {
             },
             file: undefined,
             onAdd: on_add,
-            preview: jest.fn(),
+            preview: vi.fn(),
         };
     });
 

@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { MatMenuModule } from '@angular/material/menu';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { mockComponent, mockDirective } from '@placeos/common/tests';
 import { MockProvider } from 'ng-mocks';
@@ -24,7 +24,7 @@ describe('TopbarHeaderComponent', () => {
             mockDirective(AuthenticatedImageDirective),
         ],
         providers: [
-            MockProvider(SettingsService, { get: jest.fn(), theme: 'light' }),
+            MockProvider(SettingsService, { get: vi.fn(), theme: 'light' }),
             MockProvider(OrganisationService, {
                 active_building: signal({} as any),
             } as any),
@@ -43,7 +43,7 @@ describe('TopbarHeaderComponent', () => {
                 hide_join_button: signal(false),
                 help_items: signal({}),
                 room_accessories: signal([]),
-                powerOff: jest.fn(),
+                powerOff: vi.fn(),
             } as any),
             MockProvider(VideoCallStateService, {
                 call: signal(null),

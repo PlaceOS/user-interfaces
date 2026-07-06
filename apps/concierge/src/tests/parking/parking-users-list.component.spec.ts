@@ -1,6 +1,6 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
 
 import { ParkingUsersListComponent } from '../../app/parking/parking-users-list.component';
@@ -8,9 +8,9 @@ import { ParkingStateService } from '../../app/parking/parking-state.service';
 
 describe('ParkingUsersListComponent', () => {
     let spectator: Spectator<ParkingUsersListComponent>;
-    const edit_user = jest.fn();
-    const remove_user = jest.fn();
-    const copy = jest.fn(() => true);
+    const edit_user = vi.fn();
+    const remove_user = vi.fn();
+    const copy = vi.fn(() => true);
     const users = signal([
         {
             id: 'user-1',

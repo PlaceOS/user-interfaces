@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { IconComponent, SimpleTableComponent } from '@placeos/components';
 import { MockComponent, MockProvider } from 'ng-mocks';
@@ -9,14 +9,11 @@ import { ReportDesksLevelListComponent } from 'apps/concierge/src/app/reports/de
 import { ReportMetricGuideComponent } from 'apps/concierge/src/app/reports/report-metric-guide.component';
 import { ReportsStateService } from 'apps/concierge/src/app/reports/reports-state.service';
 
-jest.mock('@placeos/common', () => ({
-    ...jest.requireActual('@placeos/common'),
-    downloadFile: jest.fn(),
-}));
-import { downloadFile } from '@placeos/common';
+import { captureDownloads } from '../download-capture.helper';
 
 describe('ReportDesksLevelListComponent', () => {
     let spectator: Spectator<ReportDesksLevelListComponent>;
+    let downloads: ReturnType<typeof captureDownloads>;
     let options: ReturnType<typeof signal<any>>;
     let stats: ReturnType<typeof signal<any>>;
     let counts: ReturnType<typeof signal<any>>;
@@ -34,18 +31,20 @@ describe('ReportDesksLevelListComponent', () => {
         providers: [
             MockProvider(ReportsStateService, {} as any),
             MockProvider(SettingsService, {
-                get: jest.fn(() => false),
+                get: vi.fn(() => false),
             } as any),
             MockProvider(OrganisationService, {
-                levelWithID: jest.fn(() => ({ display_name: 'Level 1' })),
-                levelsForBuilding: jest.fn(() => []),
-                levelsForRegion: jest.fn(() => []),
+                levelWithID: vi.fn(() => ({ display_name: 'Level 1' })),
+                levelsForBuilding: vi.fn(() => []),
+                levelsForRegion: vi.fn(() => []),
             } as any),
         ],
     });
 
+    afterEach(() => downloads.restore());
+
     beforeEach(() => {
-        (downloadFile as jest.Mock).mockClear();
+        downloads = captureDownloads();
         options = signal({ zones: ['level-1'], start: day, end: day });
         stats = signal({
             events: [
@@ -88,9 +87,6 @@ describe('ReportDesksLevelListComponent', () => {
 
     it('should download the level usage table on request', async () => {
         await spectator.component.download();
-        expect(downloadFile).toHaveBeenCalledWith(
-            'desks-levels-usage.csv',
-            expect.any(String),
-        );
+        expect(downloads.filename).toBe('desks-levels-usage.csv');
     });
 });

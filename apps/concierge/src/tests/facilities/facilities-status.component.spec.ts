@@ -1,4 +1,4 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { IconComponent } from '@placeos/components';
 import { MockComponent } from 'ng-mocks';
 

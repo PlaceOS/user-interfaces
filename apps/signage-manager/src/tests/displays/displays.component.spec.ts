@@ -9,7 +9,7 @@ describe('DisplaysSectionComponent', () => {
     const displays = signal<any[]>([]);
     const playlists = signal<any[]>([]);
     const zones = signal<any[]>([]);
-    const navigate = jest.fn();
+    const navigate = vi.fn();
     const service_stub = { selected_display, displays, playlists, zones };
     const router_stub = { navigate };
 
@@ -33,7 +33,7 @@ describe('DisplaysSectionComponent', () => {
     }
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         selected_display.set(null);
         displays.set([]);
         playlists.set([]);

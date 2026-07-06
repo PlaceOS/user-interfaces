@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { mockComponent, mockDirective } from '@placeos/common/tests';
 import { MockPipe, MockProvider } from 'ng-mocks';
 
@@ -42,10 +42,10 @@ describe('TabOutletComponent', () => {
                 tabs: signal([]),
                 available_inputs: signal([]),
                 help_items: signal([]),
-                setOutputSource: jest.fn(),
-                setSelectedInput: jest.fn(),
-                routeToAll: jest.fn(),
-                viewHelp: jest.fn(),
+                setOutputSource: vi.fn(),
+                setSelectedInput: vi.fn(),
+                routeToAll: vi.fn(),
+                viewHelp: vi.fn(),
             } as any),
             MockProvider(VideoCallStateService, {
                 call: signal(null),
@@ -55,7 +55,7 @@ describe('TabOutletComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         spectator = createComponent();
     });
 

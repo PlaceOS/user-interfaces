@@ -3,8 +3,8 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { UploadsService } from '@placeos/common';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
+import { setNotifyOutlet, UploadsService } from '@placeos/common';
 import { mockComponent } from '@placeos/common/tests';
 import {
     FullscreenModalShellComponent,
@@ -17,22 +17,13 @@ import { Subject } from 'rxjs';
 
 import { BookingPanelSettingsModalComponent } from '../../../app/ui/app-settings/booking-panel-settings-modal.component';
 
-import * as common_mod from '@placeos/common';
 import * as ts_client from '@placeos/ts-client';
 
-jest.mock('@placeos/ts-client', () => {
-    const actual = jest.requireActual('@placeos/ts-client');
-    return {
-        ...actual,
-        querySettings: jest.fn(),
-        addSettings: jest.fn(),
-        updateSettings: jest.fn(),
-    };
-});
-jest.mock('@placeos/common');
+vi.mock('@placeos/ts-client', { spy: true });
 
 describe('BookingPanelSettingsModalComponent', () => {
     let spectator: Spectator<BookingPanelSettingsModalComponent>;
+    let notify_open: ReturnType<typeof vi.fn>;
 
     const mock_zone = {
         id: 'zone-1',
@@ -54,11 +45,11 @@ describe('BookingPanelSettingsModalComponent', () => {
         providers: [
             MockProvider(MAT_DIALOG_DATA, { zone: mock_zone }),
             MockProvider(MatDialogRef, {
-                close: jest.fn(),
+                close: vi.fn(),
                 disableClose: false,
             }),
             MockProvider(UploadsService, {
-                uploadFileWithProgress: jest.fn(),
+                uploadFileWithProgress: vi.fn(),
             }),
         ],
         imports: [
@@ -70,19 +61,22 @@ describe('BookingPanelSettingsModalComponent', () => {
     });
 
     beforeEach(() => {
-        jest.spyOn(ts_client, 'querySettings').mockResolvedValue({
+        notify_open = vi.fn(() => ({
+            onAction: () => ({ subscribe: () => undefined }),
+            dismiss: () => undefined,
+        }));
+        setNotifyOutlet({ open: notify_open } as any, true);
+        vi.mocked(ts_client.querySettings).mockResolvedValue({
             data: [],
         } as never);
-        jest.spyOn(ts_client, 'addSettings').mockResolvedValue({} as never);
-        jest.spyOn(ts_client, 'updateSettings').mockResolvedValue({} as never);
-        (common_mod as any).notifySuccess = jest.fn();
-        (common_mod as any).notifyError = jest.fn();
-        (common_mod as any).getInvalidFields = jest.fn(() => []);
+        vi.mocked(ts_client.addSettings).mockResolvedValue({} as never);
+        vi.mocked(ts_client.updateSettings).mockResolvedValue({} as never);
         spectator = createComponent();
     });
 
     afterEach(() => {
-        jest.restoreAllMocks();
+        setNotifyOutlet(null as any, true);
+        vi.restoreAllMocks();
     });
 
     it('should create component', () => {
@@ -154,14 +148,16 @@ describe('BookingPanelSettingsModalComponent', () => {
         (spectator.component as any)._data = { zone: {} };
         (spectator.component as any).zone = {};
         await spectator.component.ngOnInit();
-        expect(common_mod.notifyError).toHaveBeenCalledWith(
+        expect(notify_open).toHaveBeenCalledWith(
             'Opened booking panel settings modal with invalid zone',
+            'OK',
+            expect.objectContaining({ panelClass: ['error'] }),
         );
     });
 
     it('should save new settings via addSettings when no existing settings', async () => {
         // querySettings returns empty on both init load and save load
-        (ts_client.querySettings as jest.Mock).mockResolvedValueOnce({
+        (ts_client.querySettings as any).mockResolvedValueOnce({
             data: [],
         });
         await spectator.component.ngOnInit();
@@ -170,7 +166,7 @@ describe('BookingPanelSettingsModalComponent', () => {
     });
 
     it('should save existing settings via updateSettings when settings exist', async () => {
-        (ts_client.querySettings as jest.Mock).mockResolvedValue({
+        (ts_client.querySettings as any).mockResolvedValue({
             data: [
                 {
                     id: 'setting-1',
@@ -185,7 +181,7 @@ describe('BookingPanelSettingsModalComponent', () => {
     });
 
     it('should close dialog after save with existing settings', async () => {
-        (ts_client.querySettings as jest.Mock).mockResolvedValue({
+        (ts_client.querySettings as any).mockResolvedValue({
             data: [
                 {
                     id: 'setting-1',
@@ -201,7 +197,7 @@ describe('BookingPanelSettingsModalComponent', () => {
     });
 
     it('should show error when save fails', async () => {
-        (ts_client.querySettings as jest.Mock).mockResolvedValue({
+        (ts_client.querySettings as any).mockResolvedValue({
             data: [
                 {
                     id: 'setting-1',
@@ -210,18 +206,22 @@ describe('BookingPanelSettingsModalComponent', () => {
                 },
             ],
         });
-        (ts_client.updateSettings as jest.Mock).mockRejectedValueOnce(
+        (ts_client.updateSettings as any).mockRejectedValueOnce(
             new Error('Save failed') as never,
         );
         await spectator.component.ngOnInit();
         await spectator.component.save().catch(() => {});
-        expect(common_mod.notifyError).toHaveBeenCalled();
+        expect(notify_open).toHaveBeenCalledWith(
+            expect.anything(),
+            'OK',
+            expect.objectContaining({ panelClass: ['error'] }),
+        );
     });
 
     it('should handle image upload', () => {
         const upload_subject = new Subject();
         const uploads = spectator.inject(UploadsService);
-        (uploads.uploadFileWithProgress as jest.Mock).mockReturnValue(
+        (uploads.uploadFileWithProgress as any).mockReturnValue(
             upload_subject.asObservable(),
         );
         const file = new File(['test'], 'test.png', { type: 'image/png' });
@@ -244,14 +244,16 @@ describe('BookingPanelSettingsModalComponent', () => {
         } as Event;
 
         spectator.component.uploadImage(event, 'room_image');
-        expect(common_mod.notifyError).toHaveBeenCalledWith(
+        expect(notify_open).toHaveBeenCalledWith(
             'File is not an image',
+            'OK',
+            expect.objectContaining({ panelClass: ['error'] }),
         );
     });
 
     it('should do nothing when no files selected for upload', () => {
         const uploads = spectator.inject(UploadsService);
-        (uploads.uploadFileWithProgress as jest.Mock).mockClear();
+        (uploads.uploadFileWithProgress as any).mockClear();
 
         const event = {
             target: {

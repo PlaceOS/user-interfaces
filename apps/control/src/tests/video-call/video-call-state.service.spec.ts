@@ -1,17 +1,17 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
+import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
 
 import { ControlStateService } from '../../app/control-state.service';
 import { VideoCallStateService } from '../../app/video-call/video-call-state.service';
 
-jest.mock('@placeos/ts-client', () => ({ getModule: jest.fn() }));
+vi.mock('@placeos/ts-client', { spy: true });
 
 import * as client from '@placeos/ts-client';
 
 describe('VideoCallStateService', () => {
     let spectator: SpectatorService<VideoCallStateService>;
-    let execute_spy: jest.Mock;
+    let execute_spy: any;
     let variable_values: Record<string, any>;
     const system_id = signal('sys-1');
     const control_mock: any = { id: 'sys-1', system_id };
@@ -23,10 +23,10 @@ describe('VideoCallStateService', () => {
 
     beforeEach(() => {
         variable_values = {};
-        execute_spy = jest.fn().mockResolvedValue('done');
+        execute_spy = vi.fn().mockResolvedValue('done');
         system_id.set('sys-1');
         control_mock.id = 'sys-1';
-        (client.getModule as jest.Mock).mockImplementation(() => ({
+        (client.getModule as any).mockImplementation(() => ({
             execute: execute_spy,
             variable: (name: string) => {
                 const listener: any = () => variable_values[name] ?? null;

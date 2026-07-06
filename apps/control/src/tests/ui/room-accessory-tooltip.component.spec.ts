@@ -1,8 +1,8 @@
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent, MockModule } from 'ng-mocks';
 
-jest.mock('@placeos/ts-client', () => ({ getModule: jest.fn() }));
+vi.mock('@placeos/ts-client', { spy: true });
 
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { CustomTooltipData, IconComponent } from '@placeos/components';
@@ -13,8 +13,8 @@ import { RoomAccessoryTooltipComponent } from '../../app/ui/room-accessory-toolt
 describe('RoomAccessoryTooltipComponent', () => {
     let spectator: Spectator<RoomAccessoryTooltipComponent>;
     const room_accessories = signal<any[]>([]);
-    const close_fn = jest.fn();
-    const execute_fn = jest.fn(async () => null);
+    const close_fn = vi.fn();
+    const execute_fn = vi.fn(async () => null);
     const createComponent = createComponentFactory({
         component: RoomAccessoryTooltipComponent,
         declarations: [MockComponent(IconComponent)],
@@ -38,7 +38,7 @@ describe('RoomAccessoryTooltipComponent', () => {
         room_accessories.set([]);
         close_fn.mockClear();
         execute_fn.mockClear();
-        (client.getModule as jest.Mock).mockReturnValue({ execute: execute_fn });
+        (client.getModule as any).mockReturnValue({ execute: execute_fn });
         spectator = createComponent();
     });
 
@@ -84,7 +84,7 @@ describe('RoomAccessoryTooltipComponent', () => {
     });
 
     it('should not execute when module is missing', () => {
-        (client.getModule as jest.Mock).mockReturnValue(null);
+        (client.getModule as any).mockReturnValue(null);
         spectator.component.performAction('Blinds', 'Open');
         expect(execute_fn).not.toHaveBeenCalled();
     });

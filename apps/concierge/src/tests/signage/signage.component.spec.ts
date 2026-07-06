@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
@@ -18,9 +18,9 @@ describe('SignageComponent', () => {
         providers: [
             MockProvider(SignageStateService, {
                 loading: signal(false) as any,
-                editPlaylist: jest.fn(async () => ({ id: 'pl-1' }) as any),
-                editDisplay: jest.fn(async () => ({ id: 'disp-1' }) as any),
-                previewFileFromInput: jest.fn(),
+                editPlaylist: vi.fn(async () => ({ id: 'pl-1' }) as any),
+                editDisplay: vi.fn(async () => ({ id: 'disp-1' }) as any),
+                previewFileFromInput: vi.fn(),
             }),
             MockProvider(ActivatedRoute, {
                 queryParamMap: of({ get: () => null }) as any,
@@ -32,7 +32,7 @@ describe('SignageComponent', () => {
         router = {
             url,
             events: of({}),
-            navigate: jest.fn(),
+            navigate: vi.fn(),
         };
         spectator = createComponent({
             providers: [MockProvider(Router, router)],

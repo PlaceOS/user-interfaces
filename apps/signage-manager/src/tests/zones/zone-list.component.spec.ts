@@ -13,7 +13,7 @@ describe('ZoneListComponent', () => {
     const zone_search_term = signal('');
     const zone_tree_expanded = signal<Record<string, boolean>>({});
     const zone_tree_children_cache = signal<Record<string, any[]>>({});
-    const zone_children = jest.fn();
+    const zone_children = vi.fn();
     const org_stub = { initialised };
     const service_stub = {
         all_zones,
@@ -43,7 +43,7 @@ describe('ZoneListComponent', () => {
     }
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         initialised.set(true);
         all_zones.set([]);
         root_zones.set([]);

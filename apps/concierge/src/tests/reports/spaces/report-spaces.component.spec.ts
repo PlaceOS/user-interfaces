@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent, MockDirective, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 
@@ -22,9 +22,9 @@ describe('ReportSpacesComponent', () => {
     let query_params: BehaviorSubject<any>;
     let stats: ReturnType<typeof signal<any>>;
     let loading: ReturnType<typeof signal<string>>;
-    let set_options: jest.Mock;
-    let generate: jest.Mock;
-    let download: jest.Mock;
+    let set_options: any;
+    let generate: any;
+    let download: any;
 
     const createComponent = createComponentFactory({
         component: ReportSpacesComponent,
@@ -43,11 +43,11 @@ describe('ReportSpacesComponent', () => {
             MockProvider(ReportsStateService, {
                 stats: signal<any>({ count: 0 }),
                 loading: signal(''),
-                setOptions: jest.fn(),
-                generateReport: jest.fn(),
-                downloadReport: jest.fn(),
+                setOptions: vi.fn(),
+                generateReport: vi.fn(),
+                downloadReport: vi.fn(),
             } as any),
-            MockProvider(SettingsService, { theme: 'light', get: jest.fn() }),
+            MockProvider(SettingsService, { theme: 'light', get: vi.fn() }),
             MockProvider(OrganisationService, {
                 active_building: signal({ id: 'building-1' }),
             } as any),
@@ -67,9 +67,9 @@ describe('ReportSpacesComponent', () => {
         );
         stats = signal<any>({ count: 0 });
         loading = signal('');
-        set_options = jest.fn();
-        generate = jest.fn();
-        download = jest.fn();
+        set_options = vi.fn();
+        generate = vi.fn();
+        download = vi.fn();
         spectator = createComponent({
             providers: [
                 {
@@ -86,7 +86,7 @@ describe('ReportSpacesComponent', () => {
                     provide: SettingsService,
                     useValue: {
                         theme: 'light',
-                        get: jest.fn((key: string) =>
+                        get: vi.fn((key: string) =>
                             key === 'app.logo_light'
                                 ? { src: 'light.svg' }
                                 : undefined,

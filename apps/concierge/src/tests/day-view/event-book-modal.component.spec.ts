@@ -1,9 +1,10 @@
+import { ComponentFixtureAutoDetect } from '@angular/core/testing';
 import { inject, Injector, signal } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import {
     createRoutingFactory,
     SpectatorRouting,
-} from '@ngneat/spectator/jest';
+} from '@ngneat/spectator/vitest';
 import { SettingsService } from '@placeos/common';
 import { CateringOrderStateService } from '@placeos/catering';
 import { EventFormService, generateEventForm } from '@placeos/events';
@@ -16,18 +17,19 @@ describe('EventBookModalComponent', () => {
     const settings_values: Record<string, any> = {};
     const charge_codes = signal<string[]>([]);
     const available_menu = signal<any[]>([]);
-    let post_form: jest.Mock;
-    let new_form: jest.Mock;
+    let post_form: any;
+    let new_form: any;
 
     const createComponent = createRoutingFactory({
         component: EventBookModalComponent,
         shallow: true,
         detectChanges: false,
         providers: [
+            { provide: ComponentFixtureAutoDetect, useValue: false },
             MockProvider(MAT_DIALOG_DATA, { event: undefined }),
-            MockProvider(MatDialogRef, { close: jest.fn() }),
+            MockProvider(MatDialogRef, { close: vi.fn() }),
             MockProvider(SettingsService, {
-                get: jest.fn((key: string) => settings_values[key]),
+                get: vi.fn((key: string) => settings_values[key]),
             } as any),
             MockProvider(CateringOrderStateService, {
                 charge_codes,
@@ -41,15 +43,15 @@ describe('EventBookModalComponent', () => {
                         undefined,
                         inject(Injector),
                     );
-                    post_form = jest.fn(async () => ({ id: 'evt-1' }));
-                    new_form = jest.fn();
+                    post_form = vi.fn(async () => ({ id: 'evt-1' }));
+                    new_form = vi.fn();
                     return {
                         model,
                         form,
                         is_multiday: false,
                         newForm: new_form,
                         postForm: post_form,
-                    } as Partial<EventFormService>;
+                    } as any;
                 },
             },
         ],
@@ -99,7 +101,7 @@ describe('EventBookModalComponent', () => {
             ...m,
             host: 'host@b.com',
         }));
-        const emit = jest.spyOn(spectator.component.event, 'emit');
+        const emit = vi.spyOn(spectator.component.event, 'emit');
         await spectator.component.save();
         expect(post_form).toHaveBeenCalled();
         expect(emit).toHaveBeenCalledWith(

@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MockProvider } from 'ng-mocks';
 
@@ -11,9 +11,9 @@ describe('RoleManagementModalComponent', () => {
     let dialog_ref: { disableClose: boolean };
     const service = {
         roles: signal(['Fire Warden']),
-        removeRole: jest.fn(() => Promise.resolve(true)),
-        renameRole: jest.fn(() => Promise.resolve(true)),
-        addRole: jest.fn(() => Promise.resolve(true)),
+        removeRole: vi.fn(() => Promise.resolve(true)),
+        renameRole: vi.fn(() => Promise.resolve(true)),
+        addRole: vi.fn(() => Promise.resolve(true)),
     };
 
     const createComponent = createComponentFactory({
@@ -39,7 +39,7 @@ describe('RoleManagementModalComponent', () => {
             providers: [{ provide: MatDialogRef, useValue: dialog_ref }],
         });
         // Stub the tooltip view child used to dismiss the inline form.
-        (spectator.component as any)._tooltip = () => ({ close: jest.fn() });
+        (spectator.component as any)._tooltip = () => ({ close: vi.fn() });
     });
 
     it('should expose roles from the contacts service', () => {

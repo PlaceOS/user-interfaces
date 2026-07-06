@@ -1,11 +1,11 @@
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 
 import { DealModalComponent } from '../../app/deals/deal-modal.component';
 
 describe('DealModalComponent', () => {
     let spectator: SpectatorRouting<DealModalComponent>;
-    let dialog_ref: { close: jest.Mock };
+    let dialog_ref: { close: any };
 
     const deal = {
         id: 'deal-1',
@@ -23,7 +23,7 @@ describe('DealModalComponent', () => {
             { provide: MAT_DIALOG_DATA, useValue: deal },
             {
                 provide: MatDialogRef,
-                useFactory: () => (dialog_ref = { close: jest.fn() }),
+                useFactory: () => (dialog_ref = { close: vi.fn() }),
             },
         ],
     });
@@ -41,7 +41,7 @@ describe('DealModalComponent', () => {
     });
 
     it('should emit remove when the remove button is clicked', () => {
-        const remove_spy = jest.fn();
+        const remove_spy = vi.fn();
         spectator.component.remove.subscribe(remove_spy);
 
         spectator.click('button.error');

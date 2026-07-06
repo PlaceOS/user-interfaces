@@ -1,9 +1,10 @@
 import { signal } from '@angular/core';
+import { ComponentFixtureAutoDetect } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import {
     createRoutingFactory,
     SpectatorRouting,
-} from '@ngneat/spectator/jest';
+} from '@ngneat/spectator/vitest';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 import { Subscription } from 'rxjs';
@@ -17,7 +18,7 @@ describe('EventsListComponent', () => {
     const active_building = signal<any>({ id: 'bld-1' });
     const active_region = signal<any>({ id: 'reg-1' });
     const settings_values: Record<string, any> = {};
-    const set_options = jest.fn();
+    const set_options = vi.fn();
     const building_levels = [{ id: 'lvl-b', parent_id: 'bld-1' }];
     const region_levels = [{ id: 'lvl-r', parent_id: 'bld-2' }];
 
@@ -26,8 +27,9 @@ describe('EventsListComponent', () => {
         shallow: true,
         detectChanges: false,
         providers: [
+            { provide: ComponentFixtureAutoDetect, useValue: false },
             MockProvider(SettingsService, {
-                get: jest.fn((key: string) => settings_values[key]),
+                get: vi.fn((key: string) => settings_values[key]),
             } as any),
             {
                 provide: EventStateService,
@@ -35,7 +37,7 @@ describe('EventsListComponent', () => {
                     options,
                     period: 'week',
                     setOptions: set_options,
-                    startPolling: jest.fn(() => new Subscription()),
+                    startPolling: vi.fn(() => new Subscription()),
                 },
             },
             MockProvider(OrganisationService, {
@@ -43,8 +45,8 @@ describe('EventsListComponent', () => {
                 active_region,
                 building: { id: 'bld-1' },
                 region: { id: 'reg-1' },
-                levelsForBuilding: jest.fn(() => building_levels),
-                levelsForRegion: jest.fn(() => region_levels),
+                levelsForBuilding: vi.fn(() => building_levels),
+                levelsForRegion: vi.fn(() => region_levels),
             } as any),
         ],
     });
@@ -79,7 +81,7 @@ describe('EventsListComponent', () => {
 
     it('should switch the view and update the route', () => {
         const router = spectator.inject(Router);
-        const navigate = jest.spyOn(router, 'navigate');
+        const navigate = vi.spyOn(router, 'navigate');
         spectator.component.setView('calendar');
         expect(spectator.component.view()).toBe('calendar');
         expect(navigate).toHaveBeenCalledWith(
@@ -93,7 +95,7 @@ describe('EventsListComponent', () => {
 
     it('should change the period type via the state service', () => {
         const router = spectator.inject(Router);
-        const navigate = jest.spyOn(router, 'navigate');
+        const navigate = vi.spyOn(router, 'navigate');
         spectator.component.setPeriodType('month');
         expect(set_options).toHaveBeenCalledWith({ period: 'month' });
         expect(navigate).toHaveBeenCalledWith(
@@ -104,7 +106,7 @@ describe('EventsListComponent', () => {
 
     it('should apply selected zones and persist them to the route', () => {
         const router = spectator.inject(Router);
-        const navigate = jest.spyOn(router, 'navigate');
+        const navigate = vi.spyOn(router, 'navigate');
         spectator.component.updateZones(['lvl-b']);
         expect(spectator.component.zones()).toEqual(['lvl-b']);
         expect(set_options).toHaveBeenCalledWith({ zone_ids: ['lvl-b'] });
@@ -119,7 +121,7 @@ describe('EventsListComponent', () => {
 
     it('should clear the zone query param when no zones remain', () => {
         const router = spectator.inject(Router);
-        const navigate = jest.spyOn(router, 'navigate');
+        const navigate = vi.spyOn(router, 'navigate');
         spectator.component.updateZones([]);
         expect(spectator.component.zones()).toEqual([]);
         expect(navigate).toHaveBeenCalledWith(

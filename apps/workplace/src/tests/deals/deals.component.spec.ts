@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
@@ -19,8 +19,8 @@ const future = (offset = 100000) => NOW + offset;
 describe('DealsComponent', () => {
     let spectator: SpectatorRouting<DealsComponent>;
     const deals = signal<any[]>([]);
-    const view_deal = jest.fn();
-    const settings_get = jest.fn();
+    const view_deal = vi.fn();
+    const settings_get = vi.fn();
     const createComponent = createRoutingFactory({
         component: DealsComponent,
         declarations: [
@@ -35,7 +35,7 @@ describe('DealsComponent', () => {
                 viewDeal: view_deal,
             } as any),
             MockProvider(OrganisationService, {
-                waitUntilInitialised: jest.fn(() => Promise.resolve()),
+                waitUntilInitialised: vi.fn(() => Promise.resolve()),
             } as any),
             MockProvider(SettingsService, {
                 initialised: of(true),
@@ -46,7 +46,7 @@ describe('DealsComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         deals.set([]);
         spectator = createComponent();
     });
@@ -125,7 +125,7 @@ describe('DealsComponent', () => {
     it('should redirect to home when the deals feature is disabled', async () => {
         settings_get.mockReturnValue(['some-other-feature']);
         const router = spectator.inject(Router);
-        const navigate = jest.spyOn(router, 'navigate').mockResolvedValue(true);
+        const navigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);
 
         await spectator.component.ngOnInit();
 
@@ -135,7 +135,7 @@ describe('DealsComponent', () => {
     it('should stay on the page when the deals feature is enabled', async () => {
         settings_get.mockReturnValue(['deals-n-offers']);
         const router = spectator.inject(Router);
-        const navigate = jest.spyOn(router, 'navigate').mockResolvedValue(true);
+        const navigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);
 
         await spectator.component.ngOnInit();
 

@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { IconComponent, SimpleTableComponent } from '@placeos/components';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
@@ -8,14 +8,11 @@ import { LockersReportDailyUsageComponent } from 'apps/concierge/src/app/reports
 import { LockersReportService } from 'apps/concierge/src/app/reports/lockers/lockers-report.service';
 import { ReportMetricGuideComponent } from 'apps/concierge/src/app/reports/report-metric-guide.component';
 
-jest.mock('@placeos/common', () => ({
-    ...jest.requireActual('@placeos/common'),
-    downloadFile: jest.fn(),
-}));
-import { downloadFile } from '@placeos/common';
+import { captureDownloads } from '../download-capture.helper';
 
 describe('LockersReportDailyUsageComponent', () => {
     let spectator: Spectator<LockersReportDailyUsageComponent>;
+    let downloads: ReturnType<typeof captureDownloads>;
     let daily_stats: ReturnType<typeof signal<any>>;
 
     const day = new Date('2026-04-06T00:00:00').valueOf();
@@ -31,8 +28,10 @@ describe('LockersReportDailyUsageComponent', () => {
         providers: [MockProvider(LockersReportService, {} as any)],
     });
 
+    afterEach(() => downloads.restore());
+
     beforeEach(() => {
-        (downloadFile as jest.Mock).mockClear();
+        downloads = captureDownloads();
         daily_stats = signal({
             '2026-04-07': {
                 date: day,
@@ -99,9 +98,6 @@ describe('LockersReportDailyUsageComponent', () => {
 
     it('should download the daily usage table on request', async () => {
         await spectator.component.download();
-        expect(downloadFile).toHaveBeenCalledWith(
-            'report-lockers-daily-usage.csv',
-            expect.any(String),
-        );
+        expect(downloads.filename).toBe('report-lockers-daily-usage.csv');
     });
 });

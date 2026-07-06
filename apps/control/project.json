@@ -155,11 +155,26 @@
             "outputs": ["{options.outputFile}"]
         },
         "test": {
-            "executor": "@nx/jest:jest",
+            "executor": "@angular/build:unit-test",
             "outputs": ["{workspaceRoot}/coverage/apps/control"],
             "options": {
-                "jestConfig": "apps/control/jest.config.ts",
-                "tsConfig": "apps/control/tsconfig.spec.json"
+                "tsConfig": "apps/control/tsconfig.spec.json",
+                "setupFiles": ["apps/control/src/test-setup.ts"],
+                "isolate": true,
+                "watch": false,
+                "buildTarget": "control:test-build:development"
+            }
+        },
+        "test-build": {
+            "executor": "@angular/build:application",
+            "options": {
+                "outputPath": "dist/apps/control-test",
+                "browser": "apps/control/src/main.ts",
+                "tsConfig": "apps/control/tsconfig.spec.json",
+                "polyfills": []
+            },
+            "configurations": {
+                "development": {}
             }
         },
         "mobile:sync:android": {

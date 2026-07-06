@@ -1,29 +1,21 @@
 import { signal } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { Router } from '@angular/router';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { BookingFormService } from '@placeos/bookings';
-import { notifyError, OrganisationService } from '@placeos/common';
+import { OrganisationService, setNotifyOutlet } from '@placeos/common';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 import { BookLockerFlowFormComponent } from '../../../app/book/locker-flow/locker-flow-form.component';
 import { LockerFormDetailsComponent } from '../../../app/book/locker-flow/locker-form-details.component';
 
-jest.mock('@placeos/common', () => {
-    const actual = jest.requireActual('@placeos/common');
-    return {
-        ...actual,
-        notifyError: jest.fn(),
-        getInvalidSignalFields: jest.fn(() => ['date']),
-    };
-});
-
 describe('BookLockerFlowFormComponent', () => {
     let spectator: SpectatorRouting<BookLockerFlowFormComponent>;
+    let notify_open: any;
     let model: ReturnType<typeof signal<Record<string, any>>>;
     let form_valid: boolean;
     let after_dismissed_value: any;
-    let sheet_open: jest.Mock;
+    let sheet_open: any;
     let show_close: ReturnType<typeof signal<boolean>>;
 
     const createComponent = createRoutingFactory({
@@ -33,16 +25,20 @@ describe('BookLockerFlowFormComponent', () => {
         providers: [
             MockProvider(OrganisationService, {
                 building: { id: 'bld-1' },
-                waitUntilInitialised: jest.fn(() => Promise.resolve()),
+                waitUntilInitialised: vi.fn(() => Promise.resolve()),
                 active_levels: signal([{ id: 'lvl-1' }]),
-                levelsForBuilding: jest.fn(() => []),
+                levelsForBuilding: vi.fn(() => []),
             } as any),
-            MockProvider(Router, { navigate: jest.fn() }),
+            MockProvider(Router, { navigate: vi.fn() }),
         ],
     });
 
     beforeEach(() => {
-        (notifyError as jest.Mock).mockClear();
+        notify_open = vi.fn(() => ({
+            onAction: () => ({ subscribe: () => undefined }),
+            dismiss: () => undefined,
+        }));
+        setNotifyOutlet({ open: notify_open } as any, true);
         model = signal<Record<string, any>>({
             id: '',
             date: Date.now() + 60 * 60 * 1000,
@@ -51,7 +47,7 @@ describe('BookLockerFlowFormComponent', () => {
         form_valid = true;
         after_dismissed_value = true;
         show_close = signal(false);
-        sheet_open = jest.fn(() => ({
+        sheet_open = vi.fn(() => ({
             instance: { show_close },
             afterDismissed: () => of(after_dismissed_value),
         }));
@@ -60,12 +56,14 @@ describe('BookLockerFlowFormComponent', () => {
                 MockProvider(BookingFormService, {
                     form: () => ({ valid: () => form_valid }),
                     model,
-                    setView: jest.fn(),
+                    setView: vi.fn(),
                 } as any),
                 MockProvider(MatBottomSheet, { open: sheet_open } as any),
             ],
         });
     });
+
+    afterEach(() => setNotifyOutlet(null as any, true));
 
     it('should create', () => expect(spectator.component).toBeTruthy());
 
@@ -73,13 +71,13 @@ describe('BookLockerFlowFormComponent', () => {
         spectator.component.viewConfirm();
         expect(sheet_open).toHaveBeenCalled();
         expect(show_close()).toBe(true);
-        expect(notifyError).not.toHaveBeenCalled();
+        expect(notify_open).not.toHaveBeenCalled();
     });
 
     it('should block confirmation and notify when the form is invalid', () => {
         form_valid = false;
         spectator.component.viewConfirm();
-        expect(notifyError).toHaveBeenCalled();
+        expect(notify_open).toHaveBeenCalled();
         expect(sheet_open).not.toHaveBeenCalled();
     });
 

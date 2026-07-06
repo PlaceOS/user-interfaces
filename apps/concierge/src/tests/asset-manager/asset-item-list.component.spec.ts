@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
 
 import { AssetManagerStateService } from '../../app/asset-manager/asset-manager-state.service';

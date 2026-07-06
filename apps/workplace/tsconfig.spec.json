@@ -3,12 +3,12 @@
     "compilerOptions": {
         "outDir": "../../dist/out-tsc",
         "module": "preserve",
-        "types": ["jest", "node", "google.maps"],
+        "types": ["vitest/globals", "node", "google.maps"],
         "moduleResolution": "bundler",
         "isolatedModules": true
     },
     "files": ["src/test-setup.ts"],
-    "include": ["**/*.spec.ts", "**/*.d.ts", "jest.config.ts"],
+    "include": ["**/*.spec.ts", "**/*.d.ts"],
     "angularCompilerOptions": {
         "extendedDiagnostics": {
             "checks": {

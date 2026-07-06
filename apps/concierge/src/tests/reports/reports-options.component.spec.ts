@@ -1,4 +1,4 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { signal } from '@angular/core';
 import { MockComponent, MockPipe } from 'ng-mocks';
 
@@ -10,7 +10,7 @@ import { ReportsOptionsComponent } from 'apps/concierge/src/app/reports/reports-
 
 describe('ReportsOptionsComponent', () => {
     let spectator: Spectator<ReportsOptionsComponent>;
-    let navigate: jest.Mock;
+    let navigate: any;
     let query_params: Record<string, any>;
     let settings_map: Record<string, any>;
     const createComponent = createComponentFactory({
@@ -27,9 +27,9 @@ describe('ReportsOptionsComponent', () => {
                 useValue: {
                     active_building: signal({ id: 'bld-1' }),
                     active_region: signal({ id: 'region-1' }),
-                    levelsForBuilding: jest.fn(() => [{ id: 'lvl-1' }]),
-                    levelsForRegion: jest.fn(() => []),
-                    waitUntilInitialised: jest.fn(() => Promise.resolve()),
+                    levelsForBuilding: vi.fn(() => [{ id: 'lvl-1' }]),
+                    levelsForRegion: vi.fn(() => []),
+                    waitUntilInitialised: vi.fn(() => Promise.resolve()),
                 },
             },
             {
@@ -44,14 +44,14 @@ describe('ReportsOptionsComponent', () => {
                 provide: ActivatedRoute,
                 useValue: {
                     snapshot: { queryParams: query_params },
-                    queryParamMap: { subscribe: jest.fn() },
+                    queryParamMap: { subscribe: vi.fn() },
                 },
             },
         ],
     });
 
     beforeEach(() => {
-        navigate = jest.fn();
+        navigate = vi.fn();
         query_params = {};
         settings_map = { 'app.use_region': false, 'app.week_start': 1 };
         spectator = createComponent({
@@ -61,7 +61,7 @@ describe('ReportsOptionsComponent', () => {
                     provide: ActivatedRoute,
                     useValue: {
                         snapshot: { queryParams: query_params },
-                        queryParamMap: { subscribe: jest.fn() },
+                        queryParamMap: { subscribe: vi.fn() },
                     },
                 },
             ],
@@ -115,20 +115,20 @@ describe('ReportsOptionsComponent', () => {
     });
 
     it('should toggle the printing state around window.print', () => {
-        jest.useFakeTimers();
-        const print_spy = jest
+        vi.useFakeTimers();
+        const print_spy = vi
             .spyOn(window, 'print')
             .mockImplementation(() => undefined);
-        const printing = jest.fn();
+        const printing = vi.fn();
         spectator.component.printing.subscribe(printing);
 
         spectator.component.print();
         expect(printing).toHaveBeenNthCalledWith(1, true);
         expect(print_spy).not.toHaveBeenCalled();
 
-        jest.advanceTimersByTime(300);
+        vi.advanceTimersByTime(300);
         expect(print_spy).toHaveBeenCalled();
         expect(printing).toHaveBeenNthCalledWith(2, false);
-        jest.useRealTimers();
+        vi.useRealTimers();
     });
 });

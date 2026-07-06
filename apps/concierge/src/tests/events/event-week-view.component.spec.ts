@@ -2,7 +2,7 @@ import { signal } from '@angular/core';
 import {
     createRoutingFactory,
     SpectatorRouting,
-} from '@ngneat/spectator/jest';
+} from '@ngneat/spectator/vitest';
 import { startOfDay } from 'date-fns';
 
 import { EventWeekViewComponent } from '../../app/events/event-week-view.component';
@@ -12,7 +12,7 @@ describe('EventWeekViewComponent', () => {
     let spectator: SpectatorRouting<EventWeekViewComponent>;
     const options = signal<any>({ period: 'week', date: 0 });
     const event_day_map = signal<any>({});
-    const view_event = jest.fn();
+    const view_event = vi.fn();
 
     const createComponent = createRoutingFactory({
         component: EventWeekViewComponent,

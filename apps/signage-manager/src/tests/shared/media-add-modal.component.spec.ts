@@ -1,25 +1,25 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { notifyError } from '@placeos/common';
+import { setNotifyOutlet } from '@placeos/common';
 import {
     MediaAddModalComponent,
     MediaAddModalData,
 } from '../../app/shared/media-add-modal.component';
 import { SignageService } from '../../app/signage.service';
 
-jest.mock('@placeos/common', () => ({
-    ...jest.requireActual('@placeos/common'),
-    notifyError: jest.fn(),
+const notify_open = vi.fn(() => ({
+    onAction: () => ({ subscribe: () => ({ unsubscribe: () => {} }) }),
+    dismiss: vi.fn(),
 }));
 
 describe('MediaAddModalComponent', () => {
-    const dialog_ref = { close: jest.fn() };
+    const dialog_ref = { close: vi.fn() };
     const plugins = signal<any[]>([]);
     const service = {
         plugins,
-        addMediaFromLink: jest.fn().mockResolvedValue(undefined),
-        addMediaFromPlugin: jest.fn().mockResolvedValue(undefined),
+        addMediaFromLink: vi.fn().mockResolvedValue(undefined),
+        addMediaFromPlugin: vi.fn().mockResolvedValue(undefined),
     };
 
     async function createComponent(data: MediaAddModalData) {
@@ -39,7 +39,8 @@ describe('MediaAddModalComponent', () => {
     }
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
+        setNotifyOutlet({ open: notify_open } as any, true);
         plugins.set([]);
         TestBed.resetTestingModule();
     });
@@ -62,7 +63,11 @@ describe('MediaAddModalComponent', () => {
 
         await component.add();
 
-        expect(notifyError).toHaveBeenCalled();
+        expect(notify_open).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['error'] }),
+        );
         expect(dialog_ref.close).not.toHaveBeenCalled();
         expect(service.addMediaFromLink).not.toHaveBeenCalled();
     });
@@ -77,7 +82,11 @@ describe('MediaAddModalComponent', () => {
         expect(service.addMediaFromLink).toHaveBeenCalledWith(
             'https://example.com/promo',
         );
-        expect(notifyError).not.toHaveBeenCalled();
+        expect(notify_open).not.toHaveBeenCalledWith(
+            expect.anything(),
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['error'] }),
+        );
     });
 
     it('enables the add action once a plugin is selected', async () => {

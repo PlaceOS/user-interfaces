@@ -1,27 +1,17 @@
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { OrganisationService } from '@placeos/common';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
+import { OrganisationService, setNotifyOutlet } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
 import { BuildingFormComponent } from '../../app/building-manager/building-form.component';
 
-import * as common_mod from '@placeos/common';
 import * as ts_client from '@placeos/ts-client';
 
-jest.mock('@placeos/common', () => ({
-    ...jest.requireActual('@placeos/common'),
-    notifySuccess: jest.fn(),
-    notifyError: jest.fn(),
-}));
-jest.mock('@placeos/ts-client', () => ({
-    ...jest.requireActual('@placeos/ts-client'),
-    authority: jest.fn(() => ({ description: 'ACME' })),
-    addZone: jest.fn(),
-    updateZone: jest.fn(),
-}));
+vi.mock('@placeos/ts-client', { spy: true });
 
 describe('BuildingFormComponent', () => {
     let spectator: Spectator<BuildingFormComponent>;
+    let notify_open: ReturnType<typeof vi.fn>;
 
     const createComponent = createComponentFactory({
         component: BuildingFormComponent,
@@ -45,16 +35,23 @@ describe('BuildingFormComponent', () => {
     };
 
     beforeEach(() => {
-        (common_mod.notifySuccess as jest.Mock).mockClear();
-        (common_mod.notifyError as jest.Mock).mockClear();
-        (ts_client.addZone as jest.Mock).mockReset();
-        (ts_client.updateZone as jest.Mock).mockReset();
-        (ts_client.addZone as jest.Mock).mockResolvedValue({ id: 'new-bld' });
-        (ts_client.updateZone as jest.Mock).mockResolvedValue({ id: 'b1' });
+        notify_open = vi.fn(() => ({
+            onAction: () => ({ subscribe: () => undefined }),
+            dismiss: () => undefined,
+        }));
+        setNotifyOutlet({ open: notify_open } as any, true);
+        (ts_client.authority as any).mockReturnValue({ description: 'ACME' });
+        (ts_client.addZone as any).mockReset();
+        (ts_client.updateZone as any).mockReset();
+        (ts_client.addZone as any).mockResolvedValue({ id: 'new-bld' });
+        (ts_client.updateZone as any).mockResolvedValue({ id: 'b1' });
         spectator = createComponent();
     });
 
-    afterEach(() => jest.restoreAllMocks());
+    afterEach(() => {
+        setNotifyOutlet(null as any, true);
+        vi.restoreAllMocks();
+    });
 
     it('should default the parent to the organisation and now-timezone', () => {
         const model = spectator.component.model();
@@ -93,7 +90,11 @@ describe('BuildingFormComponent', () => {
 
         await spectator.component.saveChanges();
 
-        expect(common_mod.notifyError).toHaveBeenCalled();
+        expect(notify_open).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['error'] }),
+        );
         expect(ts_client.addZone).not.toHaveBeenCalled();
         expect(ts_client.updateZone).not.toHaveBeenCalled();
     });
@@ -116,7 +117,11 @@ describe('BuildingFormComponent', () => {
                 display_name: 'New Tower',
             }),
         );
-        expect(common_mod.notifySuccess).toHaveBeenCalled();
+        expect(notify_open).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['success'] }),
+        );
         expect(emitted).toEqual({ id: 'new-bld' });
         expect(spectator.component.loading()).toBe(false);
     });
@@ -138,7 +143,7 @@ describe('BuildingFormComponent', () => {
     });
 
     it('should reset loading and surface an error when the save request fails', async () => {
-        (ts_client.addZone as jest.Mock).mockRejectedValue({ message: 'nope' });
+        (ts_client.addZone as any).mockRejectedValue({ message: 'nope' });
         spectator.component.model.update((m) => ({
             ...m,
             id: '',
@@ -147,7 +152,11 @@ describe('BuildingFormComponent', () => {
 
         await spectator.component.saveChanges().catch(() => undefined);
 
-        expect(common_mod.notifyError).toHaveBeenCalled();
+        expect(notify_open).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['error'] }),
+        );
         expect(spectator.component.loading()).toBe(false);
     });
 });

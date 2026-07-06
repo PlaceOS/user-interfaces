@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 import { Subject } from 'rxjs';
@@ -11,7 +11,7 @@ import { AssetManagerTopbarComponent } from '../../app/asset-manager/asset-manag
 describe('AssetManagerTopbarComponent', () => {
     let spectator: Spectator<AssetManagerTopbarComponent>;
     let org: any;
-    let save_settings: jest.Mock;
+    let save_settings: any;
 
     const createComponent = createComponentFactory({
         component: AssetManagerTopbarComponent,
@@ -20,20 +20,20 @@ describe('AssetManagerTopbarComponent', () => {
             MockProvider(AssetManagerStateService, {
                 base_route: '/book/assets',
                 options: signal({ view: 'grid', search: '' }),
-                setOptions: jest.fn(),
-                manageCategories: jest.fn(),
-                editConfig: jest.fn(),
+                setOptions: vi.fn(),
+                manageCategories: vi.fn(),
+                editConfig: vi.fn(),
                 availability: () => ['room-1'],
                 saveSettings: (...args: any[]) => save_settings(...args),
             } as any),
             MockProvider(OrganisationService, {} as any),
-            MockProvider(SettingsService, { get: jest.fn() } as any),
-            MockProvider(MatDialog, { open: jest.fn() }),
+            MockProvider(SettingsService, { get: vi.fn() } as any),
+            MockProvider(MatDialog, { open: vi.fn() }),
         ],
     });
 
     beforeEach(() => {
-        save_settings = jest.fn(async () => ({}));
+        save_settings = vi.fn(async () => ({}));
         org = spectatorSetup();
     });
 
@@ -62,8 +62,8 @@ describe('AssetManagerTopbarComponent', () => {
 
     it('should save room availability changes from the modal', async () => {
         const change = new Subject<string[]>();
-        const loading = { set: jest.fn() };
-        (spectator.inject(MatDialog).open as jest.Mock).mockReturnValue({
+        const loading = { set: vi.fn() };
+        (spectator.inject(MatDialog).open as any).mockReturnValue({
             componentInstance: { change, loading },
         });
 

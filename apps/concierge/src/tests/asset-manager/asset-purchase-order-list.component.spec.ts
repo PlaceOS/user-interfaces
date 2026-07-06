@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { SimpleTableComponent } from '@placeos/components';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
@@ -24,7 +24,7 @@ describe('AssetPurchaseOrderListComponent', () => {
                 options: options_signal,
                 purchase_orders: signal(purchase_orders),
             } as any),
-            MockProvider(Router, { navigate: jest.fn() }),
+            MockProvider(Router, { navigate: vi.fn() }),
         ],
         declarations: [MockComponent(SimpleTableComponent)],
     });

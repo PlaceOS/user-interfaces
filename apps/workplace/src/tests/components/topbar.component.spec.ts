@@ -1,5 +1,5 @@
 import { MatMenuModule } from '@angular/material/menu';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import {
     Building,
     OrganisationService,
@@ -24,7 +24,7 @@ describe('TopbarComponent', () => {
     const createComponent = createRoutingFactory({
         component: TopbarComponent,
         providers: [
-            MockProvider(SettingsService, { get: jest.fn(), value: jest.fn() }),
+            MockProvider(SettingsService, { get: vi.fn(), value: vi.fn() }),
             MockProvider(OrganisationService, {
                 active_building: signal(new Building()),
                 active_region: signal(null),

@@ -2,7 +2,7 @@ import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { CateringOrdersService, CateringStateService } from '@placeos/catering';
 import { OrganisationService } from '@placeos/common';
 import { MockComponent, MockProvider } from 'ng-mocks';
@@ -22,7 +22,7 @@ describe('CateringTopbarComponent', () => {
             MockProvider(OrganisationService, {
                 initialised: signal(true),
                 active_levels: signal([]),
-                levelWithID: jest.fn(),
+                levelWithID: vi.fn(),
                 active_building: signal({}),
                 active_region: signal({}),
             } as any),
@@ -33,8 +33,8 @@ describe('CateringTopbarComponent', () => {
                 filters: new BehaviorSubject({}),
                 order_filters: signal({}),
             } as any),
-            MockProvider(MatDialog, { open: jest.fn() }),
-            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(MatDialog, { open: vi.fn() }),
+            MockProvider(SettingsService, { get: vi.fn() }),
         ],
         declarations: [
             MockComponent(DateOptionsComponent),

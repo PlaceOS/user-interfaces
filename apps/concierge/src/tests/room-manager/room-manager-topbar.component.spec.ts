@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { of, timer } from 'rxjs';
@@ -23,16 +23,16 @@ describe('RoomManagerTopbarComponent', () => {
         providers: [
             MockProvider(RoomManagementService, {
                 options: signal({}),
-                setFilters: jest.fn(),
-                setSearchString: jest.fn(),
-                editRoom: jest.fn(),
+                setFilters: vi.fn(),
+                setSearchString: vi.fn(),
+                editRoom: vi.fn(),
             } as any),
             MockProvider(OrganisationService, {
                 active_building: signal({ id: 'bld-1' }),
                 active_region: signal({ id: 'region-1' }),
-                levelsForBuilding: jest.fn(() => [{ id: 'lvl-1' }]),
-                levelsForRegion: jest.fn(() => []),
-                waitUntilInitialised: jest.fn(() => Promise.resolve()),
+                levelsForBuilding: vi.fn(() => [{ id: 'lvl-1' }]),
+                levelsForRegion: vi.fn(() => []),
+                waitUntilInitialised: vi.fn(() => Promise.resolve()),
                 building: { id: 'bld-1' },
                 region: { id: 'region-1' },
             } as any),
@@ -40,7 +40,7 @@ describe('RoomManagerTopbarComponent', () => {
                 get: ((name: string) => settings_map[name]) as any,
             } as any),
             MockProvider(MatDialog, {
-                open: jest.fn(() => ({ afterClosed: () => of() }) as any),
+                open: vi.fn(() => ({ afterClosed: () => of() }) as any),
             }),
         ],
         imports: [MatFormFieldModule, MatSelectModule, FormsModule],

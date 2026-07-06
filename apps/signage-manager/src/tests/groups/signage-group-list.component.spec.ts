@@ -21,7 +21,7 @@ describe('SignageGroupListComponent', () => {
     const root_manageable_signage_groups = signal<any[]>([]);
     const managed_group = signal<any>(undefined);
     const signage_group_tree_expanded = signal<Record<string, boolean>>({});
-    const group_children = jest.fn();
+    const group_children = vi.fn();
     const managed_group_id = signal('');
     const service_stub = {
         manageable_signage_groups,
@@ -43,7 +43,7 @@ describe('SignageGroupListComponent', () => {
     }
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         group_children.mockResolvedValue([]);
         managed_group.set(undefined);
         managed_group_id.set('');

@@ -1,5 +1,5 @@
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { DialogEvent } from '@placeos/common';
 
 import { ParkingUserModalComponent } from '../../app/parking/parking-user-modal.component';

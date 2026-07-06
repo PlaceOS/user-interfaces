@@ -1,32 +1,25 @@
 import { signal } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { BookingFormService } from '@placeos/bookings';
 import {
-    notifyError,
     OrganisationService,
     SettingsService,
+    setNotifyOutlet,
 } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 import { NewDeskFlowConfirmComponent } from '../../../app/book/desk-flow/desk-flow-confirm.component';
 
-jest.mock('@placeos/common', () => {
-    const actual = jest.requireActual('@placeos/common');
-    return {
-        ...actual,
-        notifyError: jest.fn(),
-    };
-});
-
 describe('NewDeskFlowConfirmComponent', () => {
     let spectator: Spectator<NewDeskFlowConfirmComponent>;
+    let notify_open: any;
     let model: ReturnType<typeof signal<Record<string, any>>>;
     let options: ReturnType<typeof signal<Record<string, any>>>;
-    let post_form: jest.Mock;
-    let post_form_group: jest.Mock;
-    let edit_group: jest.Mock;
-    let load_siblings: jest.Mock;
-    let dismiss: jest.Mock;
+    let post_form: any;
+    let post_form_group: any;
+    let edit_group: any;
+    let load_siblings: any;
+    let dismiss: any;
 
     const base_model = () => ({
         id: '',
@@ -46,7 +39,7 @@ describe('NewDeskFlowConfirmComponent', () => {
         detectChanges: false,
         providers: [
             MockProvider(SettingsService, {
-                get: jest.fn(() => undefined),
+                get: vi.fn(() => undefined),
                 time_format: 'h:mm a',
             } as any),
             MockProvider(OrganisationService, {
@@ -61,25 +54,29 @@ describe('NewDeskFlowConfirmComponent', () => {
                 levels: [{ id: 'lvl-1', name: 'Level 1', display_name: 'L1' }],
                 building: { id: 'bld-1', timezone: 'Australia/Sydney' },
             } as any),
-            MockProvider(MatBottomSheetRef, { dismiss: jest.fn() }),
+            MockProvider(MatBottomSheetRef, { dismiss: vi.fn() }),
         ],
     });
 
     beforeEach(() => {
-        (notifyError as jest.Mock).mockClear();
+        notify_open = vi.fn(() => ({
+            onAction: () => ({ subscribe: () => undefined }),
+            dismiss: () => undefined,
+        }));
+        setNotifyOutlet({ open: notify_open } as any, true);
         model = signal(base_model());
         options = signal<Record<string, any>>({ type: 'desk', group: false });
-        post_form = jest.fn(() => Promise.resolve());
-        post_form_group = jest.fn(() => Promise.resolve());
-        edit_group = jest.fn(() => Promise.resolve());
-        load_siblings = jest.fn(() => Promise.resolve([]));
+        post_form = vi.fn(() => Promise.resolve());
+        post_form_group = vi.fn(() => Promise.resolve());
+        edit_group = vi.fn(() => Promise.resolve());
+        load_siblings = vi.fn(() => Promise.resolve([]));
         spectator = createComponent({
             providers: [
                 MockProvider(BookingFormService, {
                     model,
                     options,
                     loading: signal(false),
-                    listResources: jest.fn(() =>
+                    listResources: vi.fn(() =>
                         Promise.resolve([
                             {
                                 id: 'desk-1',
@@ -96,9 +93,16 @@ describe('NewDeskFlowConfirmComponent', () => {
                 } as any),
             ],
         });
-        dismiss = spectator.inject(MatBottomSheetRef).dismiss as jest.Mock;
+        dismiss = spectator.inject(MatBottomSheetRef).dismiss as any;
         dismiss.mockClear();
+        // The SettingsService mock lives on the component factory, so its
+        // `get` spy is shared across every test. Reset it here so an impl set
+        // by an earlier test (e.g. enabling `app.desks.can_book_lockers`)
+        // cannot leak into a later one and flip `needs_locker`.
+        vi.mocked(spectator.inject(SettingsService).get).mockReset();
     });
+
+    afterEach(() => setNotifyOutlet(null as any, true));
 
     it('should create', () => expect(spectator.component).toBeTruthy());
 
@@ -150,7 +154,7 @@ describe('NewDeskFlowConfirmComponent', () => {
 
         await spectator.component.postForm();
 
-        expect(notifyError).toHaveBeenCalled();
+        expect(notify_open).toHaveBeenCalled();
         expect(dismiss).not.toHaveBeenCalledWith(true);
     });
 
@@ -159,7 +163,11 @@ describe('NewDeskFlowConfirmComponent', () => {
 
         await spectator.component.postForm();
 
-        expect(notifyError).toHaveBeenCalledWith('Desk taken');
+        expect(notify_open).toHaveBeenCalledWith(
+            'Desk taken',
+            expect.anything(),
+            expect.anything(),
+        );
     });
 
     it('should mark the booking as a group booking from options', () => {
@@ -193,9 +201,18 @@ describe('NewDeskFlowConfirmComponent', () => {
     });
 
     it('should flag when a locker is required', () => {
+        const settings = spectator.inject(SettingsService);
+        vi.mocked(settings.get).mockImplementation(
+            (key: string) => key === 'app.desks.can_book_lockers',
+        );
         expect(spectator.component.needs_locker).toBe(false);
         model.update((m) => ({ ...m, secondary_resource: 'locker' }));
         expect(spectator.component.needs_locker).toBe(true);
+    });
+
+    it('should not require a locker when locker booking is disabled', () => {
+        model.update((m) => ({ ...m, secondary_resource: 'locker' }));
+        expect(spectator.component.needs_locker).toBeFalsy();
     });
 
     it('should build the desk location from building and level', () => {

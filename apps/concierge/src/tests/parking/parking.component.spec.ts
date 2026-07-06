@@ -1,6 +1,6 @@
 import { Router } from '@angular/router';
-import { SpectatorRouting, createRoutingFactory } from '@ngneat/spectator/jest';
-import { SettingsService, currentUser } from '@placeos/common';
+import { SpectatorRouting, createRoutingFactory } from '@ngneat/spectator/vitest';
+import { SettingsService, setCurrentUser, StaffUser } from '@placeos/common';
 import { signal } from '@angular/core';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
@@ -9,14 +9,6 @@ import { ParkingTopbarComponent } from '../../app/parking/parking-topbar.compone
 import { ParkingComponent } from '../../app/parking/parking.component';
 import { ApplicationSidebarComponent } from '../../app/ui/app-sidebar.component';
 import { ApplicationTopbarComponent } from '../../app/ui/app-topbar.component';
-
-jest.mock('@placeos/common', () => {
-    const actual = jest.requireActual('@placeos/common');
-    return {
-        ...actual,
-        currentUser: jest.fn(() => ({ groups: ['staff'] })),
-    };
-});
 
 describe('ParkingComponent', () => {
     let spectator: SpectatorRouting<ParkingComponent>;
@@ -28,11 +20,11 @@ describe('ParkingComponent', () => {
             MockProvider(ParkingStateService, {
                 levels: signal([]),
                 org_initialised: signal(true),
-                startPolling: jest.fn(),
-                setOptions: jest.fn(),
+                startPolling: vi.fn(),
+                setOptions: vi.fn(),
             } as any),
             MockProvider(SettingsService, {
-                get: jest.fn((name: string) => settings_map[name]),
+                get: vi.fn((name: string) => settings_map[name]),
             }),
         ],
         declarations: [
@@ -51,17 +43,15 @@ describe('ParkingComponent', () => {
             'app.feature_groups': { 'parking-requests': ['parking-team'] },
             'app.admin_group': 'admin',
         };
-        (currentUser as jest.Mock).mockReturnValue({
-            groups: ['staff'],
-        } as any);
+        // currentUser() is a workspace-lib fn (not spyable under the bundling
+        // builder); seed the real user store instead.
+        setCurrentUser(new StaffUser({ groups: ['staff'] } as any));
         spectator = createComponent();
     });
 
     afterEach(() => {
-        jest.restoreAllMocks();
-        (currentUser as jest.Mock).mockReturnValue({
-            groups: ['staff'],
-        } as any);
+        vi.restoreAllMocks();
+        setCurrentUser(new StaffUser({ groups: ['staff'] } as any));
     });
 
     it('should create component', () => {
@@ -73,9 +63,7 @@ describe('ParkingComponent', () => {
     });
 
     it('should allow admins to view requests', () => {
-        (currentUser as jest.Mock).mockReturnValue({
-            groups: ['admin'],
-        } as any);
+        setCurrentUser(new StaffUser({ groups: ['admin'] } as any));
 
         expect(spectator.component.can_view_requests).toBe(true);
     });
@@ -83,7 +71,7 @@ describe('ParkingComponent', () => {
     it('should redirect blocked users from the requests route', () => {
         const router = spectator.inject(Router);
         const state = spectator.inject(ParkingStateService);
-        jest.spyOn(router, 'navigate').mockResolvedValue(true);
+        vi.spyOn(router, 'navigate').mockResolvedValue(true);
         Object.defineProperty(router, 'url', {
             value: '/book/parking/events/requests',
             configurable: true,
@@ -103,7 +91,7 @@ describe('ParkingComponent', () => {
 
     it('should redirect hidden user management tab to spaces', () => {
         const router = spectator.inject(Router);
-        jest.spyOn(router, 'navigate').mockResolvedValue(true);
+        vi.spyOn(router, 'navigate').mockResolvedValue(true);
         settings_map['app.parking.hide_users'] = true;
         Object.defineProperty(router, 'url', {
             value: '/book/parking/manage/users',
@@ -121,7 +109,7 @@ describe('ParkingComponent', () => {
 
     it('should redirect hidden vehicle management tab to spaces', () => {
         const router = spectator.inject(Router);
-        jest.spyOn(router, 'navigate').mockResolvedValue(true);
+        vi.spyOn(router, 'navigate').mockResolvedValue(true);
         settings_map['app.parking.hide_vehicles'] = true;
         Object.defineProperty(router, 'url', {
             value: '/book/parking/manage/fleet',
@@ -139,7 +127,7 @@ describe('ParkingComponent', () => {
 
     it('should keep the combined user and vehicle tab setting working', () => {
         const router = spectator.inject(Router);
-        jest.spyOn(router, 'navigate').mockResolvedValue(true);
+        vi.spyOn(router, 'navigate').mockResolvedValue(true);
         settings_map['app.parking.hide_users_and_vehicles'] = true;
         Object.defineProperty(router, 'url', {
             value: '/book/parking/manage/fleet',

@@ -9,7 +9,7 @@ describe('ZonesSectionComponent', () => {
     const all_zones = signal<any[]>([]);
     const playlists = signal<any[]>([]);
     const displays = signal<any[]>([]);
-    const navigate = jest.fn();
+    const navigate = vi.fn();
     const service_stub = {
         selected_zone,
         all_zones,
@@ -38,7 +38,7 @@ describe('ZonesSectionComponent', () => {
     }
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         selected_zone.set(null);
         all_zones.set([]);
         playlists.set([]);

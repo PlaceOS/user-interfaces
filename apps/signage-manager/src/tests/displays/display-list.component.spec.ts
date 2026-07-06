@@ -8,7 +8,7 @@ describe('DisplayListComponent', () => {
     const filtered_displays = signal<any[]>([]);
     const selected_display = signal<any>(null);
     const displays_has_more = signal(false);
-    const load_more = jest.fn();
+    const load_more = vi.fn();
     const service_stub = {
         display_search_term,
         filtered_displays,

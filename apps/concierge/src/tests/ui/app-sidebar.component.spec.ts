@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
@@ -7,7 +7,7 @@ import { ApplicationSidebarComponent } from '../../app/ui/app-sidebar.component'
 
 describe('ApplicationSidebarComponent', () => {
     let spectator: Spectator<ApplicationSidebarComponent>;
-    const settings = { get: jest.fn() };
+    const settings = { get: vi.fn() };
     const createComponent = createComponentFactory({
         component: ApplicationSidebarComponent,
         shallow: true,

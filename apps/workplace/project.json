@@ -160,11 +160,26 @@
             "outputs": ["{options.outputFile}"]
         },
         "test": {
-            "executor": "@nx/jest:jest",
+            "executor": "@angular/build:unit-test",
             "outputs": ["{workspaceRoot}/coverage/apps/workplace"],
             "options": {
-                "jestConfig": "apps/workplace/jest.config.ts",
-                "tsConfig": "apps/workplace/tsconfig.spec.json"
+                "tsConfig": "apps/workplace/tsconfig.spec.json",
+                "setupFiles": ["apps/workplace/src/test-setup.ts"],
+                "isolate": true,
+                "watch": false,
+                "buildTarget": "workplace:test-build:development"
+            }
+        },
+        "test-build": {
+            "executor": "@angular/build:application",
+            "options": {
+                "outputPath": "dist/apps/workplace-test",
+                "browser": "apps/workplace/src/main.ts",
+                "tsConfig": "apps/workplace/tsconfig.spec.json",
+                "polyfills": []
+            },
+            "configurations": {
+                "development": {}
             }
         },
         "mobile:sync:android": {

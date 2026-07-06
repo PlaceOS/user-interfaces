@@ -1,5 +1,5 @@
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { Booking } from '@placeos/common';
 
 import { ParkingSpecialRequestModalComponent } from '../../app/parking/parking-special-request-modal.component';

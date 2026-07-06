@@ -1,34 +1,52 @@
 import { signal, WritableSignal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
-import { SpectatorService, createServiceFactory } from '@ngneat/spectator/jest';
-import { Booking, OrganisationService, SettingsService } from '@placeos/common';
-import { addMinutes, endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { of } from 'rxjs';
+import { SpectatorService, createServiceFactory } from '@ngneat/spectator/vitest';
+import {
+    Booking,
+    OrganisationService,
+    SettingsService,
+    setNotifyOutlet,
+    setTimeInTimezone,
+} from '@placeos/common';
+import { addHours, addMinutes, endOfDay, getUnixTime, startOfDay } from 'date-fns';
+import { NEVER, of } from 'rxjs';
 
-import * as assets_mod from '@placeos/assets';
-import * as booking_mod from '@placeos/bookings';
-import * as common_mod from '@placeos/common';
-import * as component_mod from '@placeos/components';
+import * as ts_client from '@placeos/ts-client';
 import { UserPipe } from '@placeos/users';
 import { MockProvider } from 'ng-mocks';
 import { ParkingStateService } from '../../app/parking/parking-state.service';
 import { ParkingBookingModalComponent } from '../../app/parking/parking-booking-modal.component';
 import { ParkingRequestModalComponent } from '../../app/parking/parking-request-modal.component';
 
-jest.mock('@placeos/assets');
-jest.mock('@placeos/bookings');
-jest.mock('@placeos/components');
-jest.mock('@placeos/common', () => {
-    const actual = jest.requireActual('@placeos/common');
-    return {
-        ...actual,
-        getTimezoneDifferenceInHours: jest.fn(() => 0),
-        loadTextFileFromInputEvent: jest.fn(),
-        notifyError: jest.fn(),
-        notifySuccess: jest.fn(),
-    };
-});
+vi.mock('@placeos/ts-client', { spy: true });
+
+const CATEGORY_STUB = {
+    data: [{ id: 'cat-parking', name: '_PARKING_', hidden: true }],
+    total: 1,
+    next: null,
+};
+const TYPE_STUB = {
+    data: [
+        {
+            id: 'type-parking-spaces',
+            name: '_PARKING_SPACES_',
+            category_id: 'cat-parking',
+        },
+        {
+            id: 'type-parking-users',
+            name: '_PARKING_USERS_',
+            category_id: 'cat-parking',
+        },
+        {
+            id: 'type-parking-fleet',
+            name: '_PARKING_FLEET_VEHICLES_',
+            category_id: 'cat-parking',
+        },
+    ],
+    total: 3,
+    next: null,
+};
 
 describe('ParkingStateService', () => {
     let spectator: SpectatorService<ParkingStateService>;
@@ -36,14 +54,15 @@ describe('ParkingStateService', () => {
     let active_region: WritableSignal<any>;
     let current_building: any;
     let settings_map: Record<string, any>;
+    let notify_open: ReturnType<typeof vi.fn>;
 
     const organisation_service: any = {
         organisation: { id: 'org-1' },
         region: { id: 'region-1' },
         initialised: signal(true),
         levels: [],
-        buildingsForRegion: jest.fn(() => []),
-        levelsForBuilding: jest.fn((bld) =>
+        buildingsForRegion: vi.fn(() => []),
+        levelsForBuilding: vi.fn((bld) =>
             organisation_service.levels.filter(
                 (level) => level.parent_id === (bld || current_building)?.id,
             ),
@@ -56,10 +75,10 @@ describe('ParkingStateService', () => {
     const createService = createServiceFactory({
         service: ParkingStateService,
         providers: [
-            MockProvider(MatDialog, { open: jest.fn() }),
+            MockProvider(MatDialog, { open: vi.fn() }),
             MockProvider(SettingsService, {
-                get: jest.fn((name: string) => settings_map[name]) as any,
-                signal: jest.fn((name: string, default_value: any) =>
+                get: vi.fn((name: string) => settings_map[name]) as any,
+                signal: vi.fn((name: string, default_value: any) =>
                     signal(settings_map[`app.${name}`] ?? default_value),
                 ) as any,
             } as any),
@@ -67,7 +86,58 @@ describe('ParkingStateService', () => {
         ],
     });
 
+    /** Reset ts-client boundary spies with safe defaults for service bootstrap */
+    const stubTsClient = () => {
+        (ts_client.queryAssetCategories as any).mockReset();
+        (ts_client.queryAssetCategories as any).mockResolvedValue(CATEGORY_STUB);
+        (ts_client.queryAssetTypes as any).mockReset();
+        (ts_client.queryAssetTypes as any).mockResolvedValue(TYPE_STUB);
+        (ts_client.queryAssets as any).mockReset();
+        (ts_client.queryAssets as any).mockResolvedValue({
+            data: [],
+            total: 0,
+            next: null,
+        });
+        (ts_client.get as any).mockReset();
+        (ts_client.get as any).mockResolvedValue([]);
+        (ts_client.query as any).mockReset();
+        (ts_client.query as any).mockResolvedValue({
+            data: [],
+            total: 0,
+            next: null,
+        });
+        (ts_client.post as any).mockReset();
+        (ts_client.post as any).mockResolvedValue({});
+        (ts_client.patch as any).mockReset();
+        (ts_client.patch as any).mockResolvedValue({});
+        (ts_client.put as any).mockReset();
+        (ts_client.put as any).mockResolvedValue({});
+        (ts_client.del as any).mockReset();
+        (ts_client.del as any).mockResolvedValue(undefined);
+        (ts_client.addAsset as any).mockReset();
+        (ts_client.addAsset as any).mockResolvedValue({ id: 'new-asset' });
+        (ts_client.updateAsset as any).mockReset();
+        (ts_client.updateAsset as any).mockResolvedValue({ id: 'updated-asset' });
+        (ts_client.removeAsset as any).mockReset();
+        (ts_client.removeAsset as any).mockResolvedValue(undefined);
+    };
+
+    /** URL of the most recent booking listing request (queryBookings -> get) */
+    const lastBookingsUrl = () => {
+        const calls = (ts_client.get as any).mock.calls.filter(
+            (c: any[]) => typeof c[0] === 'string' && c[0].includes('/bookings'),
+        );
+        return calls.length ? calls[calls.length - 1][0] : '';
+    };
+    const bookingsParams = () =>
+        new URLSearchParams((lastBookingsUrl().split('?')[1] as string) || '');
+
     beforeEach(() => {
+        notify_open = vi.fn(() => ({
+            onAction: () => ({ subscribe: () => undefined }),
+            dismiss: () => undefined,
+        }));
+        setNotifyOutlet({ open: notify_open } as any, true);
         current_building = { id: 'bld-1', timezone: 'Australia/Sydney' };
         settings_map = {
             'app.use_region': false,
@@ -79,158 +149,124 @@ describe('ParkingStateService', () => {
         organisation_service.active_building = active_building;
         organisation_service.active_region = active_region;
         organisation_service.levels = [];
-        (assets_mod as any).queryParkingUsers = jest.fn(() =>
-            Promise.resolve([]),
-        );
-        (assets_mod as any).queryParkingFleetVehicles = jest.fn(() =>
-            Promise.resolve([]),
-        );
-        (assets_mod as any).queryParkingSpaces = jest.fn(() =>
-            Promise.resolve([]),
-        );
-        (assets_mod as any).queryParkingSpacesForZones = jest.fn(() =>
-            Promise.resolve([]),
-        );
-        (booking_mod as any).bookedResourceList = jest.fn(() =>
-            Promise.resolve([]),
-        );
-        (booking_mod as any).queryBookings = jest.fn(() => Promise.resolve([]));
-        (booking_mod as any).saveBooking = jest.fn(() => Promise.resolve({}));
-        (booking_mod as any).updateBooking = jest.fn(() =>
-            Promise.resolve({}),
-        );
-        (booking_mod as any).updateBookingInstance = jest.fn(() =>
-            Promise.resolve({}),
-        );
-        (booking_mod as any).approveBooking = jest.fn(() =>
-            Promise.resolve({}),
-        );
-        (booking_mod as any).approveBookingInstance = jest.fn(() =>
-            Promise.resolve({}),
-        );
-        (booking_mod as any).removeBooking = jest.fn(() =>
-            Promise.resolve({}),
-        );
-        (component_mod as any).openConfirmModal = jest.fn(async () => ({
-            reason: 'done',
-            loading: jest.fn(),
-            close: jest.fn(),
-        }));
-        jest.clearAllMocks();
-        (common_mod.getTimezoneDifferenceInHours as jest.Mock).mockReturnValue(
-            2,
-        );
+        stubTsClient();
         spectator = createService();
     });
 
-    afterEach(() => jest.restoreAllMocks());
+    afterEach(() => {
+        setNotifyOutlet(null as any, true);
+        vi.restoreAllMocks();
+    });
 
     it('should apply building timezone to parking booking listing requests', async () => {
-        jest.useFakeTimers();
+        vi.useFakeTimers();
         const date = new Date('2026-06-15T12:00:00').valueOf();
 
         spectator.service.setOptions({ date });
         TestBed.flushEffects();
-        await jest.advanceTimersByTimeAsync(1100);
+        await vi.advanceTimersByTimeAsync(1100);
         TestBed.flushEffects();
+        await vi.advanceTimersByTimeAsync(1100);
 
-        expect(booking_mod.queryBookings).toHaveBeenLastCalledWith(
-            expect.objectContaining({
-                period_start: getUnixTime(addMinutes(startOfDay(date), 120)),
-                period_end: getUnixTime(addMinutes(endOfDay(date), 120)),
-            }),
+        const offset = spectator.service.tz_offset;
+        const params = bookingsParams();
+        expect(params.get('period_start')).toBe(
+            String(getUnixTime(addMinutes(startOfDay(date), offset * 60))),
+        );
+        expect(params.get('period_end')).toBe(
+            String(getUnixTime(addMinutes(endOfDay(date), offset * 60))),
         );
 
-        jest.useRealTimers();
+        vi.useRealTimers();
     });
 
     it('should apply parking timezone setting to booking listing requests', async () => {
-        jest.useFakeTimers();
+        vi.useFakeTimers();
         settings_map['app.bookings.use_building_timezone'] = false;
         settings_map['app.parking.use_building_timezone'] = true;
         const date = new Date('2026-06-15T12:00:00').valueOf();
 
         spectator.service.setOptions({ date });
         TestBed.flushEffects();
-        await jest.advanceTimersByTimeAsync(1100);
+        await vi.advanceTimersByTimeAsync(1100);
         TestBed.flushEffects();
+        await vi.advanceTimersByTimeAsync(1100);
 
-        expect(booking_mod.queryBookings).toHaveBeenLastCalledWith(
-            expect.objectContaining({
-                period_start: getUnixTime(addMinutes(startOfDay(date), 120)),
-                period_end: getUnixTime(addMinutes(endOfDay(date), 120)),
-            }),
+        const offset = spectator.service.tz_offset;
+        const params = bookingsParams();
+        expect(params.get('period_start')).toBe(
+            String(getUnixTime(addMinutes(startOfDay(date), offset * 60))),
+        );
+        expect(params.get('period_end')).toBe(
+            String(getUnixTime(addMinutes(endOfDay(date), offset * 60))),
         );
 
-        jest.useRealTimers();
+        vi.useRealTimers();
     });
 
     it('should filter booking listings by selected levels for all bookings', async () => {
-        jest.useFakeTimers();
+        vi.useFakeTimers();
 
         spectator.service.setOptions({
             request_filter: 'all',
             zones: ['lvl-1', 'lvl-2'],
         });
         TestBed.flushEffects();
-        await jest.advanceTimersByTimeAsync(1100);
+        await vi.advanceTimersByTimeAsync(1100);
         TestBed.flushEffects();
+        await vi.advanceTimersByTimeAsync(1100);
 
-        expect(booking_mod.queryBookings).toHaveBeenLastCalledWith(
-            expect.objectContaining({
-                zones: 'lvl-1,lvl-2',
-            }),
-        );
+        expect(bookingsParams().get('zones')).toBe('lvl-1,lvl-2');
 
-        jest.useRealTimers();
+        vi.useRealTimers();
     });
 
     it('should filter request listings by the building zone when levels are disabled', async () => {
-        jest.useFakeTimers();
+        vi.useFakeTimers();
 
         spectator.service.setOptions({
             request_filter: 'requests',
             zones: ['lvl-1', 'lvl-2'],
         });
         TestBed.flushEffects();
-        await jest.advanceTimersByTimeAsync(1100);
+        await vi.advanceTimersByTimeAsync(1100);
         TestBed.flushEffects();
+        await vi.advanceTimersByTimeAsync(1100);
 
-        expect(booking_mod.queryBookings).toHaveBeenLastCalledWith(
-            expect.objectContaining({
-                zones: 'bld-1',
-            }),
-        );
+        expect(bookingsParams().get('zones')).toBe('bld-1');
 
-        jest.useRealTimers();
+        vi.useRealTimers();
     });
 
     it('should wait for parking users before loading bookings', async () => {
-        jest.useFakeTimers();
-        let resolve_users: (users: any[]) => void;
-        (assets_mod.queryParkingUsers as jest.Mock).mockReturnValue(
-            new Promise((resolve) => (resolve_users = resolve)),
+        vi.restoreAllMocks();
+        stubTsClient();
+        let resolve_assets: (value: any) => void;
+        (ts_client.queryAssets as any).mockReturnValue(
+            new Promise((resolve) => (resolve_assets = resolve)),
         );
+        vi.useFakeTimers();
         spectator = createService();
 
         TestBed.flushEffects();
-        await jest.advanceTimersByTimeAsync(1100);
+        await vi.advanceTimersByTimeAsync(1100);
         TestBed.flushEffects();
-        expect(booking_mod.queryBookings).not.toHaveBeenCalled();
+        expect(lastBookingsUrl()).toBe('');
 
-        resolve_users([]);
+        resolve_assets({ data: [], total: 0, next: null });
         await Promise.resolve();
         TestBed.flushEffects();
-        await jest.advanceTimersByTimeAsync(1100);
+        await vi.advanceTimersByTimeAsync(1100);
         TestBed.flushEffects();
+        await vi.advanceTimersByTimeAsync(1100);
 
-        expect(booking_mod.queryBookings).toHaveBeenCalledTimes(1);
-        jest.useRealTimers();
+        expect(lastBookingsUrl()).not.toBe('');
+        vi.useRealTimers();
     });
 
     it('should use the building timezone for assigned parking bookings', async () => {
         const mock_now = new Date('2026-06-15T12:00:00Z').valueOf();
-        const assigned_start = common_mod.setTimeInTimezone(
+        const assigned_start = setTimeInTimezone(
             mock_now,
             1,
             0,
@@ -248,28 +284,35 @@ describe('ParkingStateService', () => {
                 }),
             componentInstance: {
                 event: of({ reason: 'done' }),
-                loading: { set: jest.fn() },
+                loading: { set: vi.fn() },
             },
-            close: jest.fn(),
+            close: vi.fn(),
         };
         (spectator.inject(MatDialog).open as any).mockReturnValue(dialog_ref);
-        (assets_mod.saveParkingSpace as jest.Mock).mockReturnValue(
-            Promise.resolve({ id: 'space-1', name: 'Bay 1' }),
-        );
-        jest.spyOn(UserPipe.prototype, 'transform').mockResolvedValue({
+        (ts_client.updateAsset as any).mockResolvedValue({
+            id: 'space-1',
+            name: 'Bay 1',
+        });
+        vi.spyOn(UserPipe.prototype, 'transform').mockResolvedValue({
             id: 'user-1',
             name: 'Staff Name',
         } as any);
-        jest.spyOn(Date, 'now').mockReturnValue(mock_now);
+        vi.spyOn(Date, 'now').mockReturnValue(mock_now);
 
         await spectator.service.editSpace({ id: 'space-0' } as any);
 
-        expect(booking_mod.saveBooking).toHaveBeenCalledWith(
+        // saveBooking(no id) -> createBooking -> post(url, data)
+        const booking_post = (ts_client.post as any).mock.calls.find(
+            (c: any[]) =>
+                typeof c[0] === 'string' &&
+                c[0].includes('/bookings') &&
+                !c[0].includes('/approve'),
+        );
+        expect(booking_post).toBeTruthy();
+        expect(booking_post[1]).toEqual(
             expect.objectContaining({
                 booking_start: getUnixTime(assigned_start),
-                booking_end: getUnixTime(
-                    assigned_start + 22 * 60 * 60 * 1000,
-                ),
+                booking_end: getUnixTime(assigned_start + 22 * 60 * 60 * 1000),
             }),
         );
     });
@@ -301,9 +344,6 @@ describe('ParkingStateService', () => {
         organisation_service.levels = [
             { id: 'lvl-1', parent_id: 'bld-1', tags: ['parking'] },
         ];
-        (assets_mod.queryParkingSpacesForZones as jest.Mock).mockReturnValue(
-            of([{ id: 'space-1' }]),
-        );
         const dialog_ref = {
             afterClosed: () => of('booking-1'),
         };
@@ -326,34 +366,48 @@ describe('ParkingStateService', () => {
     });
 
     it('should load spaces for all selected parking levels', async () => {
-        jest.useFakeTimers();
+        vi.useFakeTimers();
         organisation_service.levels = [
             { id: 'lvl-1', parent_id: 'bld-1', tags: ['parking'] },
             { id: 'lvl-2', parent_id: 'bld-1', tags: ['parking'] },
         ];
-        (assets_mod as any).queryParkingSpacesForZones = jest.fn(() =>
-            Promise.resolve([
-                { id: 'space-1', zone_id: 'lvl-1' },
-                { id: 'space-2', zone_id: 'lvl-2' },
-            ]),
-        );
+        (ts_client.queryAssets as any).mockImplementation((q: any) => {
+            if (q?.zone_id === 'lvl-1') {
+                return Promise.resolve({
+                    data: [{ id: 'space-1', zone_id: 'lvl-1' }],
+                    total: 1,
+                    next: null,
+                });
+            }
+            if (q?.zone_id === 'lvl-2') {
+                return Promise.resolve({
+                    data: [{ id: 'space-2', zone_id: 'lvl-2' }],
+                    total: 1,
+                    next: null,
+                });
+            }
+            return Promise.resolve({ data: [], total: 0, next: null });
+        });
 
         spectator.service.setOptions({ zones: ['lvl-1', 'lvl-2'] });
         TestBed.flushEffects();
-        await jest.advanceTimersByTimeAsync(400);
+        await vi.advanceTimersByTimeAsync(400);
         TestBed.flushEffects();
-        await jest.advanceTimersByTimeAsync(0);
+        await vi.advanceTimersByTimeAsync(50);
+        TestBed.flushEffects();
 
-        expect(assets_mod.queryParkingSpacesForZones).toHaveBeenCalledWith([
-            'lvl-1',
-            'lvl-2',
-        ]);
+        expect(ts_client.queryAssets).toHaveBeenCalledWith(
+            expect.objectContaining({ zone_id: 'lvl-1' }),
+        );
+        expect(ts_client.queryAssets).toHaveBeenCalledWith(
+            expect.objectContaining({ zone_id: 'lvl-2' }),
+        );
         expect(spectator.service.spaces()).toEqual([
             expect.objectContaining({ id: 'space-1', zone_id: 'lvl-1' }),
             expect.objectContaining({ id: 'space-2', zone_id: 'lvl-2' }),
         ]);
 
-        jest.useRealTimers();
+        vi.useRealTimers();
     });
 
     it('should not filter requests by approver group in event lists', () => {
@@ -551,19 +605,27 @@ describe('ParkingStateService', () => {
         organisation_service.levels = [
             { id: 'lvl-1', parent_id: 'bld-1', tags: ['parking'] },
         ];
-        (assets_mod as any).queryParkingSpaces = jest.fn(() =>
-            Promise.resolve([
-                {
-                    id: 'space-1',
-                    name: 'Bay 1',
-                    zone_id: 'lvl-1',
-                    bookable: true,
-                },
-            ]),
+        (ts_client.queryAssets as any).mockImplementation((q: any) =>
+            q?.zone_id === 'lvl-1'
+                ? Promise.resolve({
+                      data: [
+                          {
+                              id: 'space-1',
+                              name: 'Bay 1',
+                              zone_id: 'lvl-1',
+                              bookable: true,
+                          },
+                      ],
+                      total: 1,
+                      next: null,
+                  })
+                : Promise.resolve({ data: [], total: 0, next: null }),
         );
-        (booking_mod as any).bookedResourceList = jest.fn(() =>
-            Promise.resolve([]),
-        );
+        (ts_client.query as any).mockResolvedValue({
+            data: [],
+            total: 0,
+            next: null,
+        });
         const request = {
             id: 'req-1',
             asset_id: 'unallocated-1',
@@ -575,22 +637,38 @@ describe('ParkingStateService', () => {
 
         await spectator.service.approveBooking(request);
 
-        expect(booking_mod.bookedResourceList).toHaveBeenCalledWith(
-            expect.objectContaining({ zones: 'bld-1', type: 'parking' }),
+        // bookedResourceList -> query({ query_params, path: 'booked' })
+        expect(ts_client.query).toHaveBeenCalledWith(
+            expect.objectContaining({
+                path: 'booked',
+                query_params: expect.objectContaining({
+                    zones: 'bld-1',
+                    type: 'parking',
+                }),
+            }),
         );
-        expect(assets_mod.queryParkingSpaces).toHaveBeenCalledWith('lvl-1');
-        expect(booking_mod.updateBooking).toHaveBeenCalledWith(
-            'req-1',
+        expect(ts_client.queryAssets).toHaveBeenCalledWith(
+            expect.objectContaining({ zone_id: 'lvl-1' }),
+        );
+        // updateBooking('req-1', patch) -> patch(url, data)
+        const patch_call = (ts_client.patch as any).mock.calls.find(
+            (c: any[]) =>
+                typeof c[0] === 'string' && c[0].includes('/bookings/req-1'),
+        );
+        expect(patch_call).toBeTruthy();
+        expect(patch_call[1]).toEqual(
             expect.objectContaining({
                 asset_id: 'space-1',
                 asset_name: 'Bay 1',
                 zones: ['org-1', 'region-1', 'bld-1', 'lvl-1'],
-                extension_data: expect.objectContaining({
-                    asset_name: 'Bay 1',
-                }),
+                extension_data: expect.objectContaining({ asset_name: 'Bay 1' }),
             }),
         );
-        expect(booking_mod.approveBooking).toHaveBeenCalledWith('req-1');
+        // approveBooking('req-1') -> post(url/approve, '')
+        expect(ts_client.post).toHaveBeenCalledWith(
+            expect.stringContaining('/bookings/req-1/approve'),
+            '',
+        );
     });
 
     it('should error instead of approving when no spaces are available', async () => {
@@ -598,19 +676,28 @@ describe('ParkingStateService', () => {
         organisation_service.levels = [
             { id: 'lvl-1', parent_id: 'bld-1', tags: ['parking'] },
         ];
-        (assets_mod as any).queryParkingSpaces = jest.fn(() =>
-            Promise.resolve([
-                {
-                    id: 'space-1',
-                    name: 'Bay 1',
-                    zone_id: 'lvl-1',
-                    bookable: true,
-                },
-            ]),
+        (ts_client.queryAssets as any).mockImplementation((q: any) =>
+            q?.zone_id === 'lvl-1'
+                ? Promise.resolve({
+                      data: [
+                          {
+                              id: 'space-1',
+                              name: 'Bay 1',
+                              zone_id: 'lvl-1',
+                              bookable: true,
+                          },
+                      ],
+                      total: 1,
+                      next: null,
+                  })
+                : Promise.resolve({ data: [], total: 0, next: null }),
         );
-        (booking_mod as any).bookedResourceList = jest.fn(() =>
-            Promise.resolve(['space-1']),
-        );
+        // Every available space is already booked
+        (ts_client.query as any).mockResolvedValue({
+            data: ['space-1'],
+            total: 1,
+            next: null,
+        });
         const request = {
             id: 'req-1',
             asset_id: 'unallocated-1',
@@ -622,12 +709,28 @@ describe('ParkingStateService', () => {
 
         await spectator.service.approveBooking(request);
 
-        expect(booking_mod.updateBooking).not.toHaveBeenCalled();
-        expect(booking_mod.approveBooking).not.toHaveBeenCalled();
-        expect(common_mod.notifyError).toHaveBeenCalled();
+        expect(ts_client.patch).not.toHaveBeenCalled();
+        expect(ts_client.post).not.toHaveBeenCalledWith(
+            expect.stringContaining('/approve'),
+            expect.anything(),
+        );
+        expect(notify_open).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['error'] }),
+        );
     });
 
     it('should delete parking bookings after confirmation', async () => {
+        const confirm_ref = {
+            componentInstance: {
+                event: NEVER,
+                loading: { set: vi.fn() },
+            },
+            afterClosed: () => of({ reason: 'done' }),
+            close: vi.fn(),
+        };
+        (spectator.inject(MatDialog).open as any).mockReturnValue(confirm_ref);
         const booking = {
             id: 'booking-1',
             asset_name: 'Bay 1',
@@ -638,9 +741,16 @@ describe('ParkingStateService', () => {
 
         await spectator.service.removeBooking(booking);
 
-        expect(component_mod.openConfirmModal).toHaveBeenCalled();
-        expect(booking_mod.removeBooking).toHaveBeenCalledWith('booking-1', {});
-        expect(common_mod.notifySuccess).toHaveBeenCalled();
+        expect(spectator.inject(MatDialog).open).toHaveBeenCalled();
+        expect(ts_client.del).toHaveBeenCalledWith(
+            expect.stringContaining('/bookings/booking-1'),
+            expect.anything(),
+        );
+        expect(notify_open).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['success'] }),
+        );
     });
 
     it('should block assigned parking when the limit is reached', async () => {
@@ -648,13 +758,19 @@ describe('ParkingStateService', () => {
         organisation_service.levels = [
             { id: 'lvl-1', parent_id: 'bld-1', tags: ['parking'] },
         ];
-        (assets_mod as any).queryParkingSpacesForZones = jest.fn(() =>
-            Promise.resolve([
-                {
-                    id: 'space-existing',
-                    assigned_to: 'staff@example.com',
-                },
-            ]),
+        (ts_client.queryAssets as any).mockImplementation((q: any) =>
+            q?.zone_id === 'lvl-1'
+                ? Promise.resolve({
+                      data: [
+                          {
+                              id: 'space-existing',
+                              assigned_to: 'staff@example.com',
+                          },
+                      ],
+                      total: 1,
+                      next: null,
+                  })
+                : Promise.resolve({ data: [], total: 0, next: null }),
         );
         const dialog_ref = {
             afterClosed: () =>
@@ -669,19 +785,27 @@ describe('ParkingStateService', () => {
                 }),
             componentInstance: {
                 event: of({ reason: 'done' }),
-                loading: { set: jest.fn() },
+                loading: { set: vi.fn() },
             },
-            close: jest.fn(),
+            close: vi.fn(),
         };
         (spectator.inject(MatDialog).open as any).mockReturnValue(dialog_ref);
 
-        await spectator.service.editSpace({ id: 'space-other' } as any).catch(() => undefined);
+        await spectator.service
+            .editSpace({ id: 'space-other' } as any)
+            .catch(() => undefined);
 
-        expect(common_mod.notifyError).toHaveBeenCalledWith(
+        expect(notify_open).toHaveBeenCalledWith(
             'Users can only have 1 assigned parking space at a time.',
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['error'] }),
         );
-        expect(assets_mod.saveParkingSpace).not.toHaveBeenCalled();
-        expect(booking_mod.saveBooking).not.toHaveBeenCalled();
+        expect(ts_client.addAsset).not.toHaveBeenCalled();
+        expect(ts_client.updateAsset).not.toHaveBeenCalled();
+        expect(ts_client.post).not.toHaveBeenCalledWith(
+            expect.stringContaining('/bookings'),
+            expect.anything(),
+        );
         expect(dialog_ref.componentInstance.loading.set).toHaveBeenCalledWith(
             false,
         );
@@ -708,55 +832,59 @@ describe('ParkingStateService', () => {
                 }),
             componentInstance: {
                 event: of({ reason: 'done' }),
-                loading: { set: jest.fn() },
+                loading: { set: vi.fn() },
             },
-            close: jest.fn(),
+            close: vi.fn(),
         };
         (spectator.inject(MatDialog).open as any).mockReturnValue(dialog_ref);
-        (booking_mod.queryBookings as jest.Mock).mockReturnValue(
-            Promise.resolve([
-                {
-                    id: 'booking-1',
-                    asset_id: 'space-1',
-                },
-            ]),
-        );
-        (assets_mod.saveParkingSpace as jest.Mock)
+        // _clearAssignedBooking -> queryBookings -> get -> existing booking
+        (ts_client.get as any).mockResolvedValue([
+            { id: 'booking-1', asset_id: 'space-1' },
+        ]);
+        // saveParkingSpace -> updateAsset (space has id)
+        (ts_client.updateAsset as any)
             .mockResolvedValueOnce({ id: 'space-1', name: 'Bay 1' })
             .mockResolvedValueOnce(original_space);
-        (booking_mod.saveBooking as jest.Mock)
+        // saveBooking -> createBooking -> post: first attempt fails, restore succeeds
+        (ts_client.post as any)
             .mockRejectedValueOnce({ status: 409 })
             .mockResolvedValueOnce({});
-        jest.spyOn(UserPipe.prototype, 'transform').mockResolvedValue({
+        vi.spyOn(UserPipe.prototype, 'transform').mockResolvedValue({
             id: 'user-1',
             name: 'Staff Name',
         } as any);
 
         await spectator.service.editSpace(original_space).catch(() => undefined);
 
-        expect(booking_mod.removeBooking).toHaveBeenCalledWith('booking-1');
-        expect(assets_mod.saveParkingSpace).toHaveBeenCalledTimes(2);
-        expect(assets_mod.saveParkingSpace).toHaveBeenNthCalledWith(
-            2,
-            expect.objectContaining({
-                id: 'space-1',
-                assigned_to: 'old.staff@example.com',
-            }),
+        expect(ts_client.del).toHaveBeenCalledWith(
+            expect.stringContaining('/bookings/booking-1'),
+            expect.anything(),
         );
-        expect(booking_mod.saveBooking).toHaveBeenCalledTimes(2);
-        expect(booking_mod.saveBooking).toHaveBeenNthCalledWith(
+        expect(ts_client.updateAsset).toHaveBeenCalledTimes(2);
+        expect(ts_client.updateAsset).toHaveBeenNthCalledWith(
             2,
+            'space-1',
+            expect.objectContaining({ assigned_to: 'old.staff@example.com' }),
+        );
+        const booking_posts = (ts_client.post as any).mock.calls.filter(
+            (c: any[]) =>
+                typeof c[0] === 'string' &&
+                c[0].includes('/bookings') &&
+                !c[0].includes('/approve'),
+        );
+        expect(booking_posts).toHaveLength(2);
+        expect(booking_posts[1][1]).toEqual(
             expect.objectContaining({
                 user_email: 'old.staff@example.com',
                 asset_id: 'space-1',
                 asset_name: 'Bay 1',
-                extension_data: expect.objectContaining({
-                    is_assigned: true,
-                }),
+                extension_data: expect.objectContaining({ is_assigned: true }),
             }),
         );
-        expect(common_mod.notifyError).toHaveBeenCalledWith(
+        expect(notify_open).toHaveBeenCalledWith(
             'APP.CONCIERGE.PARKING_ASSIGN_SPACE_ERROR',
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['error'] }),
         );
         expect(dialog_ref.componentInstance.loading.set).toHaveBeenCalledWith(
             false,
@@ -768,15 +896,17 @@ describe('ParkingStateService', () => {
         organisation_service.levels = [
             { id: 'lvl-1', parent_id: 'bld-1', tags: ['parking'] },
         ];
-        (common_mod.loadTextFileFromInputEvent as jest.Mock).mockResolvedValue(
+        const csv =
             'identifier,map_id,bookable,place_groups,features,notes\n' +
-                'G.123,G.123,true,,"Maximum Height 2.3m,Open Ground Level",Car',
-        );
-        (assets_mod.saveParkingSpace as jest.Mock).mockReturnValue(of({}));
+            'G.123,G.123,true,,"Maximum Height 2.3m,Open Ground Level",Car';
+        const file = new File([csv], 'spaces.csv', { type: 'text/csv' });
+        const event = {
+            target: { files: [file], value: '' },
+        } as unknown as InputEvent;
 
-        await spectator.service.uploadSpacesCSV({} as InputEvent);
+        await spectator.service.uploadSpacesCSV(event);
 
-        expect(assets_mod.saveParkingSpace).toHaveBeenCalledWith(
+        expect(ts_client.addAsset).toHaveBeenCalledWith(
             expect.objectContaining({
                 identifier: 'G.123',
                 features: ['Maximum Height 2.3m', 'Open Ground Level'],

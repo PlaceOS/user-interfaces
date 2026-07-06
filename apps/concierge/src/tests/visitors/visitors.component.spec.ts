@@ -1,5 +1,5 @@
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 
 import { signal } from '@angular/core';
@@ -27,11 +27,11 @@ describe('VisitorsComponent', () => {
             MockProvider(VisitorsStateService, {
                 loading: signal(false),
                 filters: signal({}),
-                poll: jest.fn(),
-                setFilters: jest.fn(),
-                setSearchString: jest.fn(),
-                startPolling: jest.fn(),
-                stopPolling: jest.fn(),
+                poll: vi.fn(),
+                setFilters: vi.fn(),
+                setSearchString: vi.fn(),
+                startPolling: vi.fn(),
+                stopPolling: vi.fn(),
             }),
             MockProvider(ActivatedRoute as any, {
                 snapshot: {
@@ -40,14 +40,14 @@ describe('VisitorsComponent', () => {
                     },
                 },
             }),
-            MockProvider(Router as any, { navigate: jest.fn() }),
+            MockProvider(Router as any, { navigate: vi.fn() }),
             MockProvider(OrganisationService as any, {
                 active_building: signal({}),
                 active_region: signal({}),
-                levelsForBuilding: jest.fn(() => []),
-                levelsForRegion: jest.fn(() => []),
+                levelsForBuilding: vi.fn(() => []),
+                levelsForRegion: vi.fn(() => []),
             }),
-            MockProvider(SettingsService as any, { get: jest.fn() }),
+            MockProvider(SettingsService as any, { get: vi.fn() }),
         ],
         declarations: [
             MockComponent(ApplicationTopbarComponent),
@@ -89,7 +89,7 @@ describe('VisitorsComponent', () => {
     it('should reset the visitor list to today when the route has no date', () => {
         const now = new Date('2026-06-15T12:00:00').valueOf();
         const service = spectator.inject(VisitorsStateService) as any;
-        const date_now = jest.spyOn(Date, 'now').mockReturnValue(now);
+        const date_now = vi.spyOn(Date, 'now').mockReturnValue(now);
 
         spectator.component.ngOnInit();
 

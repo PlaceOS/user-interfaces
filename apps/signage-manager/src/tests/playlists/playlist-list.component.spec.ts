@@ -10,8 +10,8 @@ describe('PlaylistListComponent', () => {
         {},
     );
     const playlists_has_more = signal(false);
-    const queue_meta = jest.fn();
-    const load_more = jest.fn();
+    const queue_meta = vi.fn();
+    const load_more = vi.fn();
 
     const service_stub = {
         playlist_search_term: signal(''),
@@ -23,8 +23,8 @@ describe('PlaylistListComponent', () => {
         playlists_has_more,
         queuePlaylistMeta: queue_meta,
         loadMorePlaylists: load_more,
-        editPlaylist: jest.fn(),
-        removePlaylist: jest.fn(),
+        editPlaylist: vi.fn(),
+        removePlaylist: vi.fn(),
     };
 
     async function make() {
@@ -40,7 +40,7 @@ describe('PlaylistListComponent', () => {
     }
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         filtered_playlists.set([]);
         playlist_approval_status.set({});
         playlist_approval_requested_status.set({});

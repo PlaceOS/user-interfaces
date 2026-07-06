@@ -1,34 +1,29 @@
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { OrganisationService, SettingsService } from '@placeos/common';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
+import {
+    OrganisationService,
+    SettingsService,
+    setNotifyOutlet,
+} from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
 import { InductionSettingsModalComponent } from '../../app/building-manager/induction-settings-modal.component';
 
-import * as common_mod from '@placeos/common';
 import * as ts_client from '@placeos/ts-client';
 
-jest.mock('@placeos/common', () => ({
-    ...jest.requireActual('@placeos/common'),
-    notifySuccess: jest.fn(),
-    notifyError: jest.fn(),
-}));
-jest.mock('@placeos/ts-client', () => ({
-    ...jest.requireActual('@placeos/ts-client'),
-    showMetadata: jest.fn(),
-    updateMetadata: jest.fn(),
-}));
+vi.mock('@placeos/ts-client', { spy: true });
 
 describe('InductionSettingsModalComponent', () => {
     let spectator: Spectator<InductionSettingsModalComponent>;
+    let notify_open: ReturnType<typeof vi.fn>;
 
     const createComponent = createComponentFactory({
         component: InductionSettingsModalComponent,
         detectChanges: false,
         providers: [
-            MockProvider(MAT_DIALOG_DATA, 'bld-1'),
-            MockProvider(MatDialogRef, { close: jest.fn() }),
-            MockProvider(SettingsService, { get: jest.fn(() => undefined) }),
+            MockProvider(MAT_DIALOG_DATA, 'bld-1' as any),
+            MockProvider(MatDialogRef, { close: vi.fn() }),
+            MockProvider(SettingsService, { get: vi.fn(() => undefined) }),
             MockProvider(OrganisationService, {
                 organisation: { id: 'org-1' } as any,
             }),
@@ -36,19 +31,25 @@ describe('InductionSettingsModalComponent', () => {
     });
 
     beforeEach(() => {
-        (common_mod.notifySuccess as jest.Mock).mockClear();
-        (common_mod.notifyError as jest.Mock).mockClear();
-        (ts_client.showMetadata as jest.Mock).mockReset();
-        (ts_client.updateMetadata as jest.Mock).mockReset();
-        (ts_client.updateMetadata as jest.Mock).mockResolvedValue({ id: 'meta' });
+        notify_open = vi.fn(() => ({
+            onAction: () => ({ subscribe: () => undefined }),
+            dismiss: () => undefined,
+        }));
+        setNotifyOutlet({ open: notify_open } as any, true);
+        (ts_client.showMetadata as any).mockReset();
+        (ts_client.updateMetadata as any).mockReset();
+        (ts_client.updateMetadata as any).mockResolvedValue({ id: 'meta' });
         spectator = createComponent();
-        (spectator.inject(MatDialogRef).close as jest.Mock).mockClear();
+        (spectator.inject(MatDialogRef).close as any).mockClear();
     });
 
-    afterEach(() => jest.restoreAllMocks());
+    afterEach(() => {
+        setNotifyOutlet(null as any, true);
+        vi.restoreAllMocks();
+    });
 
     it('should merge org and building metadata with the building taking precedence', async () => {
-        (ts_client.showMetadata as jest.Mock).mockImplementation((zone) => {
+        (ts_client.showMetadata as any).mockImplementation((zone) => {
             if (zone === 'bld-1') {
                 return Promise.resolve({
                     details: {
@@ -75,7 +76,7 @@ describe('InductionSettingsModalComponent', () => {
     });
 
     it('should default to empty details and disabled when metadata is empty', async () => {
-        (ts_client.showMetadata as jest.Mock).mockResolvedValue({ details: {} });
+        (ts_client.showMetadata as any).mockResolvedValue({ details: {} });
 
         await spectator.component.loadSettings();
 
@@ -84,7 +85,7 @@ describe('InductionSettingsModalComponent', () => {
     });
 
     it('should write induction details to both visitor-kiosk and concierge metadata on save', async () => {
-        (ts_client.showMetadata as jest.Mock).mockResolvedValue({
+        (ts_client.showMetadata as any).mockResolvedValue({
             name: '',
             description: '',
             details: {},
@@ -95,29 +96,37 @@ describe('InductionSettingsModalComponent', () => {
         await spectator.component.save();
 
         expect(ts_client.updateMetadata).toHaveBeenCalledTimes(2);
-        const bodies = (ts_client.updateMetadata as jest.Mock).mock.calls.map(
+        const bodies = (ts_client.updateMetadata as any).mock.calls.map(
             (_) => _[1].details,
         );
         for (const details of bodies) {
             expect(details.induction_details).toBe('Please sign in at reception');
             expect(details.induction_enabled).toBe(true);
         }
-        expect(common_mod.notifySuccess).toHaveBeenCalled();
+        expect(notify_open).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['success'] }),
+        );
         expect(spectator.inject(MatDialogRef).close).toHaveBeenCalled();
     });
 
     it('should notify error and keep the dialog open when saving fails', async () => {
-        (ts_client.showMetadata as jest.Mock).mockResolvedValue({
+        (ts_client.showMetadata as any).mockResolvedValue({
             name: '',
             description: '',
             details: {},
         });
-        (ts_client.updateMetadata as jest.Mock).mockRejectedValue('failure');
-        jest.spyOn(console, 'error').mockImplementation(() => undefined);
+        (ts_client.updateMetadata as any).mockRejectedValue('failure');
+        vi.spyOn(console, 'error').mockImplementation(() => undefined);
 
         await spectator.component.save();
 
-        expect(common_mod.notifyError).toHaveBeenCalled();
+        expect(notify_open).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['error'] }),
+        );
         expect(spectator.inject(MatDialogRef).close).not.toHaveBeenCalled();
     });
 });

@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { SettingsService, ShortURL } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
@@ -16,12 +16,12 @@ describe('UrlListComponent', () => {
             MockProvider(UrlManagementService, {
                 url_list: signal([]),
                 qr_codes: signal({}),
-                editURL: jest.fn(),
-                removeURL: jest.fn(),
-                loadQrCode: jest.fn(),
+                editURL: vi.fn(),
+                removeURL: vi.fn(),
+                loadQrCode: vi.fn(),
             } as any),
             MockProvider(SettingsService, {
-                get: jest.fn(() => '/kiosk'),
+                get: vi.fn(() => '/kiosk'),
             } as any),
         ],
     });
@@ -48,7 +48,7 @@ describe('UrlListComponent', () => {
     });
 
     it('should trigger printing of the window', () => {
-        const print_spy = jest
+        const print_spy = vi
             .spyOn(window, 'print')
             .mockImplementation(() => undefined);
         spectator.component.print();

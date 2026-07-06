@@ -1,30 +1,18 @@
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
+import { setNotifyOutlet } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
-import * as common_mod from '@placeos/common';
 import * as ts_client_mod from '@placeos/ts-client';
 import { SignageMediaListComponent } from '../../app/signage/signage-media-list.component';
 import { SignageStateService } from '../../app/signage/signage-state.service';
 
-jest.mock('@placeos/common', () => {
-    const actual = jest.requireActual('@placeos/common');
-    return { ...actual, notifyError: jest.fn(), notifySuccess: jest.fn() };
-});
-
-jest.mock('@placeos/ts-client', () => {
-    const actual = jest.requireActual('@placeos/ts-client');
-    return {
-        ...actual,
-        listSignagePlaylistMedia: jest.fn(async () => ({
-            items: ['existing'],
-        })),
-    };
-});
+vi.mock('@placeos/ts-client', { spy: true });
 
 describe('SignageMediaListComponent', () => {
     let spectator: Spectator<SignageMediaListComponent>;
     let state: any;
+    let notify_open: ReturnType<typeof vi.fn>;
 
     const createComponent = createComponentFactory({
         component: SignageMediaListComponent,
@@ -39,20 +27,29 @@ describe('SignageMediaListComponent', () => {
                     { id: 'm1', name: 'Sunset' },
                     { id: 'm2', name: 'Logo' },
                 ]) as any,
-                addMediaFromLink: jest.fn(async () => ({}) as any),
-                updatePlaylistMedia: jest.fn(async () => undefined),
-                previewFileFromInput: jest.fn(),
+                addMediaFromLink: vi.fn(async () => ({}) as any),
+                updatePlaylistMedia: vi.fn(async () => undefined),
+                previewFileFromInput: vi.fn(),
             }),
         ],
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
-        (ts_client_mod.listSignagePlaylistMedia as jest.Mock).mockResolvedValue(
+        vi.clearAllMocks();
+        notify_open = vi.fn(() => ({
+            onAction: () => ({ subscribe: () => undefined }),
+            dismiss: () => undefined,
+        }));
+        setNotifyOutlet({ open: notify_open } as any, true);
+        (ts_client_mod.listSignagePlaylistMedia as any).mockResolvedValue(
             { items: ['existing'] },
         );
         spectator = createComponent();
         state = spectator.inject(SignageStateService) as any;
+    });
+
+    afterEach(() => {
+        setNotifyOutlet(null as any, true);
     });
 
     it('should filter the media list by search term', () => {
@@ -84,7 +81,11 @@ describe('SignageMediaListComponent', () => {
     it('should reject an invalid link before adding media', async () => {
         await spectator.component.addFromLink('not a url');
 
-        expect(common_mod.notifyError).toHaveBeenCalled();
+        expect(notify_open).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['error'] }),
+        );
         expect(state.addMediaFromLink).not.toHaveBeenCalled();
     });
 

@@ -1,4 +1,4 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { DesksService } from '@placeos/bookings';
 import { ExploreMapViewComponent } from '@placeos/explore';
 import { MockComponent } from 'ng-mocks';

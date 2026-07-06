@@ -1,28 +1,17 @@
 import { TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 
 import * as ts_client_mod from '@placeos/ts-client';
 import { ZoneSelectModalComponent } from '../../app/signage/zone-select-modal.component';
 
-jest.mock('@placeos/ts-client', () => {
-    const actual = jest.requireActual('@placeos/ts-client');
-    return {
-        ...actual,
-        queryZones: jest.fn(async () => ({
-            data: [
-                { id: 'z1', name: 'Lobby', tags: [] },
-                { id: 'z2', name: 'Kitchen', tags: [] },
-            ],
-        })),
-    };
-});
+vi.mock('@placeos/ts-client', { spy: true });
 
 async function flush() {
-    TestBed.flushEffects();
-    await Promise.resolve();
-    await Promise.resolve();
-    TestBed.flushEffects();
+    for (let i = 0; i < 6; i++) {
+        TestBed.flushEffects();
+        await Promise.resolve();
+    }
 }
 
 describe('ZoneSelectModalComponent', () => {
@@ -41,7 +30,10 @@ describe('ZoneSelectModalComponent', () => {
     }
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
+        (ts_client_mod.queryZones as any).mockResolvedValue({
+            data: [{ id: 'z1' }, { id: 'z2' }],
+        });
         data = { ignore: ['z2'], query: { tags: 'signage' } };
     });
 

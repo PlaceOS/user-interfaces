@@ -1,32 +1,38 @@
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
-import { OrganisationService, SettingsService } from '@placeos/common';
+import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
+import {
+    OrganisationService,
+    SettingsService,
+    setNotifyOutlet,
+} from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
-import { firstValueFrom, of } from 'rxjs';
 
-import * as asset_mod from '@placeos/assets';
-import * as booking_mod from '@placeos/bookings';
-import * as common_mod from '@placeos/common';
-import * as event_mod from '@placeos/events';
 import * as ts_client_mod from '@placeos/ts-client';
 import { SiteAttendanceReportService } from 'apps/concierge/src/app/reports/attendance/site-attendance-report.service';
+import { captureDownloads } from '../download-capture.helper';
 
-jest.mock('@placeos/assets');
-jest.mock('@placeos/bookings');
-jest.mock('@placeos/common');
-jest.mock('@placeos/events');
-jest.mock('@placeos/ts-client');
+vi.mock('@placeos/ts-client', { spy: true });
 
 describe('SiteAttendanceReportService', () => {
     let spectator: SpectatorService<SiteAttendanceReportService>;
     let features: string[];
     let attendance_include_weekends: boolean;
+    let notify_open: ReturnType<typeof vi.fn>;
+    let downloads: ReturnType<typeof captureDownloads>;
+    // Booking payloads keyed by the `type` passed to `queryAllBookings`, and
+    // the event payload for `queryAllEvents`. Both aggregation functions run
+    // for real; only the underlying ts-client `query` seam is stubbed here.
+    let booking_data: Record<string, any[]>;
+    let event_data: any[];
+    let space_systems: any[];
+
     const day_1 = new Date('2026-04-06T12:00:00').valueOf();
     const day_2 = new Date('2026-04-07T12:00:00').valueOf();
+
     const createService = createServiceFactory({
         service: SiteAttendanceReportService,
         providers: [
             MockProvider(SettingsService, {
-                get: jest.fn((name: string) => {
+                get: vi.fn((name: string) => {
                     if (name === 'app.use_region') return false;
                     if (name === 'app.features') return features;
                     if (name === 'app.group_events_calendar') {
@@ -41,11 +47,11 @@ describe('SiteAttendanceReportService', () => {
             MockProvider(OrganisationService, {
                 building: { id: 'building-1' },
                 region: { id: 'region-1' },
-                levelsForBuilding: jest.fn(() => [
+                levelsForBuilding: vi.fn(() => [
                     { id: 'level-1' },
                     { id: 'level-2' },
                 ]),
-                levelsForRegion: jest.fn(() => [
+                levelsForRegion: vi.fn(() => [
                     { id: 'region-level-1' },
                     { id: 'region-level-2' },
                 ]),
@@ -54,126 +60,165 @@ describe('SiteAttendanceReportService', () => {
     });
 
     beforeEach(() => {
+        vi.clearAllMocks();
         features = ['spaces', 'desks', 'parking', 'lockers', 'visitors'];
         attendance_include_weekends = false;
-        (booking_mod.queryAllBookings as jest.Mock).mockImplementation(
-            ({ type }) => {
-                if (type === 'desk') {
-                    return Promise.resolve([
-                        {
-                            asset_id: 'desk-1',
-                            user_email: 'desk.user@example.com',
-                            date: day_1,
-                            duration: 480,
-                            checked_in: true,
-                        },
-                    ]);
-                }
-                if (type === 'parking') {
-                    return Promise.resolve([
-                        {
-                            asset_id: 'parking-1',
-                            user_email: 'parking.user@example.com',
-                            date: day_1,
-                            duration: 480,
-                            checked_in: false,
-                        },
-                    ]);
-                }
-                if (type === 'locker') {
-                    return Promise.resolve([
-                        {
-                            asset_id: 'locker-1',
-                            user_email: 'locker.user@example.com',
-                            date: day_1,
-                            duration: 1440,
-                            checked_in: true,
-                        },
-                    ]);
-                }
-                if (type === 'visitor') {
-                    return Promise.resolve([
-                        {
-                            asset_id: 'visitor-1@example.com',
-                            user_email: 'visitor.host@example.com',
-                            extension_data: {},
-                            date: day_1,
-                            duration: 60,
-                            checked_in: true,
-                        },
-                    ]);
-                }
-                return Promise.resolve([]);
-            },
-        );
-        (event_mod.queryAllEvents as jest.Mock).mockReturnValue(
-            Promise.resolve([
+        notify_open = vi.fn(() => ({
+            onAction: () => ({ subscribe: () => undefined }),
+            dismiss: () => undefined,
+        }));
+        setNotifyOutlet({ open: notify_open } as any, true);
+        downloads = captureDownloads();
+
+        booking_data = {
+            desk: [
                 {
-                    host: 'host-1@example.com',
+                    asset_id: 'desk-1',
+                    user_email: 'desk.user@example.com',
+                    date: day_1,
+                    duration: 480,
+                    checked_in: true,
+                },
+            ],
+            parking: [
+                {
+                    asset_id: 'parking-1',
+                    user_email: 'parking.user@example.com',
+                    date: day_1,
+                    duration: 480,
+                    checked_in: false,
+                },
+            ],
+            locker: [
+                {
+                    asset_id: 'locker-1',
+                    user_email: 'locker.user@example.com',
+                    date: day_1,
+                    duration: 1440,
+                    checked_in: true,
+                },
+            ],
+            visitor: [
+                {
+                    asset_id: 'visitor-1@example.com',
+                    user_email: 'visitor.host@example.com',
+                    extension_data: {},
                     date: day_1,
                     duration: 60,
-                    attendees: [
-                        { email: 'a' },
-                        { email: 'b' },
-                        { email: 'room-1@example.com' },
-                    ],
-                    extension_data: { people_count: { max: 4 } },
-                    system: { id: 'room-1', email: 'room-1@example.com' },
-                    location: 'Room 1',
+                    checked_in: true,
                 },
-                {
-                    host: 'host-2@example.com',
-                    date: day_1,
-                    duration: 30,
-                    attendees: [],
-                    extension_data: { people_count: { max: 0 } },
-                    system: { id: 'room-2' },
-                    location: 'Room 2',
+            ],
+        };
+        event_data = [
+            {
+                host: 'host-1@example.com',
+                date: day_1,
+                duration: 60,
+                attendees: [
+                    { email: 'a' },
+                    { email: 'b' },
+                    { email: 'room-1@example.com' },
+                ],
+                extension_data: { people_count: { max: 4 } },
+                system: { id: 'room-1', email: 'room-1@example.com' },
+                location: 'Room 1',
+            },
+            {
+                host: 'host-2@example.com',
+                date: day_1,
+                duration: 30,
+                attendees: [],
+                extension_data: { people_count: { max: 0 } },
+                system: { id: 'room-2' },
+                location: 'Room 2',
+            },
+            {
+                calendar: 'group-events@example.com',
+                host: 'group.host@example.com',
+                date: day_1,
+                duration: 120,
+                attendees: [{ email: 'group.attendee@example.com' }],
+                extension_data: {
+                    people_count: { max: 99 },
+                    shared_event: true,
                 },
-                {
-                    calendar: 'group-events@example.com',
-                    host: 'group.host@example.com',
-                    date: day_1,
-                    duration: 120,
-                    attendees: [{ email: 'group.attendee@example.com' }],
-                    extension_data: {
-                        people_count: { max: 99 },
-                        shared_event: true,
-                    },
-                    system: { id: 'room-3' },
-                    location: 'Room 3',
-                },
-            ]),
+                system: { id: 'room-3' },
+                location: 'Room 3',
+            },
+        ];
+        space_systems = [{ id: 'room-1' }, { id: 'room-2' }, { id: 'room-3' }];
+
+        // `query` backs both `queryAllBookings` (has query_params.type) and
+        // `queryAllEvents` (no type). Add a synthetic id so the real
+        // `unique(list, 'id')` in `queryAllBookings` keeps every row.
+        vi.mocked(ts_client_mod.query).mockImplementation((req: any) => {
+            const params = req?.query_params || {};
+            if (params.type) {
+                const list = booking_data[params.type] || [];
+                return Promise.resolve({
+                    data: list.map((item, index) => ({
+                        id: item.id ?? `${params.type}-${index}`,
+                        ...item,
+                    })),
+                    next: undefined,
+                }) as any;
+            }
+            return Promise.resolve({ data: event_data, next: undefined }) as any;
+        });
+        // requestSpacesForZone -> querySystems
+        vi.mocked(ts_client_mod.querySystems).mockResolvedValue({
+            data: space_systems,
+            next: undefined,
+        } as any);
+        // parking/locker asset bootstrap + counts
+        vi.mocked(ts_client_mod.queryAssetCategories).mockResolvedValue({
+            data: [
+                { id: 'cat-park', name: '_PARKING_', hidden: true },
+                { id: 'cat-lock', name: '_LOCKERS_', hidden: true },
+            ],
+            next: undefined,
+        } as any);
+        vi.mocked(ts_client_mod.queryAssetTypes).mockImplementation(
+            ({ category_id }: any) =>
+                Promise.resolve({
+                    data:
+                        category_id === 'cat-park'
+                            ? [
+                                  {
+                                      id: 'type-park',
+                                      name: '_PARKING_SPACES_',
+                                      category_id,
+                                  },
+                              ]
+                            : [
+                                  {
+                                      id: 'type-lock',
+                                      name: '_LOCKERS_',
+                                      category_id,
+                                  },
+                              ],
+                    next: undefined,
+                }) as any,
         );
-        (event_mod.requestSpacesForZone as jest.Mock).mockReturnValue(
-            of([{ id: 'room-1' }, { id: 'room-2' }, { id: 'room-3' }]),
-        );
-        (asset_mod.queryParkingSpaces as jest.Mock).mockReturnValue(
-            Promise.resolve([{ id: 'park-1' }, { id: 'park-2' }]),
-        );
-        (asset_mod.queryLockerAssets as jest.Mock).mockReturnValue(
-            Promise.resolve([{ id: 'locker-a' }]),
-        );
-        (ts_client_mod.showMetadata as jest.Mock).mockImplementation(
+        vi.mocked(ts_client_mod.queryAssets).mockResolvedValue({
+            data: [],
+            next: undefined,
+        } as any);
+        vi.mocked(ts_client_mod.showMetadata).mockImplementation(
             (_zone: string, key: string) =>
                 Promise.resolve({
                     details:
                         key === 'desks'
                             ? [{ id: 'desk-a' }, { id: 'desk-b' }]
                             : [{ id: 'locker-a' }],
-                }),
+                }) as any,
         );
-        (common_mod.nextValueFrom as jest.Mock).mockImplementation((source) =>
-            firstValueFrom(source),
-        );
-        (common_mod.formatDuration as jest.Mock).mockImplementation(
-            ({ minutes }) => `${minutes}m`,
-        );
-        (common_mod.downloadFile as jest.Mock).mockImplementation(() => null);
-        (common_mod.jsonToCsv as jest.Mock).mockImplementation(() => 'csv');
-        (common_mod.notifyError as jest.Mock).mockImplementation(() => null);
-        (common_mod.i18n as jest.Mock).mockImplementation((key) => key);
         spectator = createService();
+    });
+
+    afterEach(() => {
+        downloads.restore();
+        setNotifyOutlet(null as any, true);
     });
 
     it('should create service', () => {
@@ -189,22 +234,31 @@ describe('SiteAttendanceReportService', () => {
         await spectator.service.generateReport();
         const report = spectator.service.report();
 
-        expect(event_mod.queryAllEvents).toHaveBeenCalledWith(
-            expect.objectContaining({ zone_ids: 'building-1', limit: 1000 }),
-        );
-        expect(booking_mod.queryAllBookings).toHaveBeenCalledWith(
+        expect(ts_client_mod.query).toHaveBeenCalledWith(
             expect.objectContaining({
-                zones: 'building-1',
-                type: 'desk',
-                include_checked_out: true,
+                query_params: expect.objectContaining({
+                    zone_ids: 'building-1',
+                    limit: 1000,
+                }),
             }),
         );
-        expect(booking_mod.queryAllBookings).toHaveBeenCalledWith(
+        expect(ts_client_mod.query).toHaveBeenCalledWith(
             expect.objectContaining({
-                zones: 'building-1',
-                type: 'visitor',
-                include_checked_out: true,
-                limit: 1000,
+                query_params: expect.objectContaining({
+                    zones: 'building-1',
+                    type: 'desk',
+                    include_checked_out: true,
+                }),
+            }),
+        );
+        expect(ts_client_mod.query).toHaveBeenCalledWith(
+            expect.objectContaining({
+                query_params: expect.objectContaining({
+                    zones: 'building-1',
+                    type: 'visitor',
+                    include_checked_out: true,
+                    limit: 1000,
+                }),
             }),
         );
         expect(report.total_attendance).toBe(9);
@@ -280,29 +334,25 @@ describe('SiteAttendanceReportService', () => {
     });
 
     it('should notify when no bookings are found', async () => {
-        (booking_mod.queryAllBookings as jest.Mock).mockReturnValue(
-            Promise.resolve([]),
-        );
-        (event_mod.queryAllEvents as jest.Mock).mockReturnValue(
-            Promise.resolve([]),
-        );
-        (event_mod.requestSpacesForZone as jest.Mock).mockReturnValue(of([]));
-        (asset_mod.queryParkingSpaces as jest.Mock).mockReturnValue(
-            Promise.resolve([]),
-        );
-        (asset_mod.queryLockerAssets as jest.Mock).mockReturnValue(
-            Promise.resolve([]),
-        );
-        (ts_client_mod.showMetadata as jest.Mock).mockReturnValue(
-            Promise.resolve({ details: [] }),
-        );
+        booking_data = { desk: [], parking: [], locker: [], visitor: [] };
+        event_data = [];
+        space_systems = [];
+        vi.mocked(ts_client_mod.querySystems).mockResolvedValue({
+            data: [],
+            next: undefined,
+        } as any);
+        vi.mocked(ts_client_mod.showMetadata).mockResolvedValue({
+            details: [],
+        } as any);
 
         await spectator.service.generateReport();
         const report = spectator.service.report();
 
         expect(report.total_bookings).toBe(0);
-        expect(common_mod.notifyError).toHaveBeenCalledWith(
-            'APP.CONCIERGE.REPORTS_LOAD_ERROR',
+        expect(notify_open).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['error'] }),
         );
     });
 
@@ -311,19 +361,17 @@ describe('SiteAttendanceReportService', () => {
         spectator = createService();
         const start = new Date('2026-04-06T08:00:00').valueOf();
         const end = new Date('2026-04-06T18:00:00').valueOf();
-        (booking_mod.queryAllBookings as jest.Mock).mockReturnValue(
-            Promise.resolve([
-                {
-                    all_day: true,
-                    asset_id: 'desk-1',
-                    user_email: 'desk.user@example.com',
-                    date: start,
-                    date_end: end,
-                    duration: 24 * 60,
-                    checked_in: true,
-                },
-            ]),
-        );
+        booking_data.desk = [
+            {
+                all_day: true,
+                asset_id: 'desk-1',
+                user_email: 'desk.user@example.com',
+                date: start,
+                date_end: end,
+                duration: 24 * 60,
+                checked_in: true,
+            },
+        ];
         spectator.service.setOptions({ start, end });
 
         await spectator.service.generateReport();
@@ -331,7 +379,7 @@ describe('SiteAttendanceReportService', () => {
 
         expect(report.cards.find((card) => card.id === 'desks')).toEqual(
             expect.objectContaining({
-                average_length: '600m',
+                average_length: '600 minutes',
                 bookings: 1,
             }),
         );
@@ -340,28 +388,26 @@ describe('SiteAttendanceReportService', () => {
     it('should exclude system events from site attendance', async () => {
         features = ['spaces'];
         spectator = createService();
-        (event_mod.queryAllEvents as jest.Mock).mockReturnValue(
-            Promise.resolve([
-                {
-                    host: 'host@example.com',
-                    date: day_1,
-                    duration: 60,
-                    attendees: [{ email: 'attendee@example.com' }],
-                    extension_data: { people_count: { max: 2 } },
-                    system: { id: 'room-1' },
-                },
-                {
-                    host: 'setup@example.com',
-                    date: day_1,
-                    duration: 30,
-                    attendees: [{ email: 'setup.attendee@example.com' }],
-                    extension_data: { people_count: { max: 2 } },
-                    is_system_event: true,
-                    system: { id: 'room-1' },
-                    title: 'Setup',
-                },
-            ]),
-        );
+        event_data = [
+            {
+                host: 'host@example.com',
+                date: day_1,
+                duration: 60,
+                attendees: [{ email: 'attendee@example.com' }],
+                extension_data: { people_count: { max: 2 } },
+                system: { id: 'room-1' },
+            },
+            {
+                host: 'setup@example.com',
+                date: day_1,
+                duration: 30,
+                attendees: [{ email: 'setup.attendee@example.com' }],
+                extension_data: { people_count: { max: 2 } },
+                is_system_event: true,
+                system: { id: 'room-1' },
+                title: 'Setup',
+            },
+        ];
 
         await spectator.service.generateReport();
         const report = spectator.service.report();
@@ -383,60 +429,56 @@ describe('SiteAttendanceReportService', () => {
     it('should exclude rejected bookings and events from site attendance', async () => {
         features = ['spaces', 'desks'];
         spectator = createService();
-        (booking_mod.queryAllBookings as jest.Mock).mockReturnValue(
-            Promise.resolve([
-                {
-                    asset_id: 'desk-1',
-                    user_email: 'desk.user@example.com',
-                    date: day_1,
-                    duration: 480,
-                },
-                {
-                    asset_id: 'desk-2',
-                    user_email: 'rejected.desk@example.com',
-                    date: day_1,
-                    duration: 480,
-                    rejected: true,
-                },
-                {
-                    asset_id: 'desk-3',
-                    user_email: 'cancelled.desk@example.com',
-                    date: day_1,
-                    duration: 480,
-                    status: 'cancelled',
-                },
-            ]),
-        );
-        (event_mod.queryAllEvents as jest.Mock).mockReturnValue(
-            Promise.resolve([
-                {
-                    host: 'host@example.com',
-                    date: day_1,
-                    duration: 60,
-                    attendees: [{ email: 'attendee@example.com' }],
-                    extension_data: { people_count: { max: 2 } },
-                    system: { id: 'room-1' },
-                },
-                {
-                    host: 'rejected.host@example.com',
-                    date: day_1,
-                    duration: 60,
-                    attendees: [{ email: 'rejected.attendee@example.com' }],
-                    extension_data: { people_count: { max: 2 } },
-                    rejected: true,
-                    system: { id: 'room-2' },
-                },
-                {
-                    host: 'cancelled.host@example.com',
-                    date: day_1,
-                    duration: 60,
-                    attendees: [{ email: 'cancelled.attendee@example.com' }],
-                    extension_data: { people_count: { max: 2 } },
-                    status: 'cancelled',
-                    system: { id: 'room-3' },
-                },
-            ]),
-        );
+        booking_data.desk = [
+            {
+                asset_id: 'desk-1',
+                user_email: 'desk.user@example.com',
+                date: day_1,
+                duration: 480,
+            },
+            {
+                asset_id: 'desk-2',
+                user_email: 'rejected.desk@example.com',
+                date: day_1,
+                duration: 480,
+                rejected: true,
+            },
+            {
+                asset_id: 'desk-3',
+                user_email: 'cancelled.desk@example.com',
+                date: day_1,
+                duration: 480,
+                status: 'cancelled',
+            },
+        ];
+        event_data = [
+            {
+                host: 'host@example.com',
+                date: day_1,
+                duration: 60,
+                attendees: [{ email: 'attendee@example.com' }],
+                extension_data: { people_count: { max: 2 } },
+                system: { id: 'room-1' },
+            },
+            {
+                host: 'rejected.host@example.com',
+                date: day_1,
+                duration: 60,
+                attendees: [{ email: 'rejected.attendee@example.com' }],
+                extension_data: { people_count: { max: 2 } },
+                rejected: true,
+                system: { id: 'room-2' },
+            },
+            {
+                host: 'cancelled.host@example.com',
+                date: day_1,
+                duration: 60,
+                attendees: [{ email: 'cancelled.attendee@example.com' }],
+                extension_data: { people_count: { max: 2 } },
+                status: 'cancelled',
+                system: { id: 'room-3' },
+            },
+        ];
 
         await spectator.service.generateReport();
         const report = spectator.service.report();
@@ -462,16 +504,28 @@ describe('SiteAttendanceReportService', () => {
     it('should only request enabled resource bookings', async () => {
         features = ['desks'];
         spectator = createService();
-        jest.clearAllMocks();
+        vi.clearAllMocks();
 
         await spectator.service.generateReport();
         const report = spectator.service.report();
 
-        expect(event_mod.queryAllEvents).not.toHaveBeenCalled();
-        expect(booking_mod.queryAllBookings).not.toHaveBeenCalledWith(
-            expect.objectContaining({ type: 'visitor' }),
+        // events disabled -> query only ever called for the desk bookings
+        expect(ts_client_mod.query).toHaveBeenCalledTimes(1);
+        expect(ts_client_mod.query).toHaveBeenCalledWith(
+            expect.objectContaining({
+                query_params: expect.objectContaining({
+                    type: 'desk',
+                    include_checked_out: true,
+                }),
+            }),
         );
-        expect(asset_mod.queryParkingSpaces).not.toHaveBeenCalled();
+        expect(ts_client_mod.query).not.toHaveBeenCalledWith(
+            expect.objectContaining({
+                query_params: expect.objectContaining({ type: 'visitor' }),
+            }),
+        );
+        // parking disabled -> parking asset lookup never runs
+        expect(ts_client_mod.queryAssets).not.toHaveBeenCalled();
         expect(ts_client_mod.showMetadata).toHaveBeenCalledWith(
             'level-1',
             'desks',
@@ -484,70 +538,59 @@ describe('SiteAttendanceReportService', () => {
             expect.any(String),
             'lockers-spaces',
         );
-        expect(booking_mod.queryAllBookings).toHaveBeenCalledTimes(1);
-        expect(booking_mod.queryAllBookings).toHaveBeenCalledWith(
-            expect.objectContaining({
-                type: 'desk',
-                include_checked_out: true,
-            }),
-        );
         expect(report.cards.map((card) => card.id)).toEqual(['desks']);
     });
 
     it('should sum unique site attendance per day', async () => {
         features = ['spaces', 'desks'];
         spectator = createService();
-        (booking_mod.queryAllBookings as jest.Mock).mockReturnValue(
-            Promise.resolve([
-                {
-                    asset_id: 'desk-1',
-                    user_email: 'same.user@example.com',
-                    date: day_1,
-                    duration: 480,
-                },
-                {
-                    asset_id: 'desk-2',
-                    user_email: 'same.user@example.com',
-                    date: day_2,
-                    duration: 480,
-                },
-                {
-                    asset_id: 'desk-3',
-                    user_email: 'desk.owner@example.com',
-                    date: day_1,
-                    duration: 480,
-                    attendees: [{ email: 'attendee@example.com' }],
-                },
-            ]),
-        );
-        (event_mod.queryAllEvents as jest.Mock).mockReturnValue(
-            Promise.resolve([
-                {
-                    host: 'same.user@example.com',
-                    date: day_1,
-                    duration: 60,
-                    attendees: [{ email: 'attendee@example.com' }],
-                    extension_data: {},
-                    system: { id: 'room-1' },
-                },
-                {
-                    host: 'same.user@example.com',
-                    date: day_1,
-                    duration: 60,
-                    attendees: [{ email: 'attendee@example.com' }],
-                    extension_data: {},
-                    system: { id: 'room-2' },
-                },
-                {
-                    host: 'same.user@example.com',
-                    date: day_2,
-                    duration: 60,
-                    attendees: [{ email: 'attendee@example.com' }],
-                    extension_data: {},
-                    system: { id: 'room-1' },
-                },
-            ]),
-        );
+        booking_data.desk = [
+            {
+                asset_id: 'desk-1',
+                user_email: 'same.user@example.com',
+                date: day_1,
+                duration: 480,
+            },
+            {
+                asset_id: 'desk-2',
+                user_email: 'same.user@example.com',
+                date: day_2,
+                duration: 480,
+            },
+            {
+                asset_id: 'desk-3',
+                user_email: 'desk.owner@example.com',
+                date: day_1,
+                duration: 480,
+                attendees: [{ email: 'attendee@example.com' }],
+            },
+        ];
+        event_data = [
+            {
+                host: 'same.user@example.com',
+                date: day_1,
+                duration: 60,
+                attendees: [{ email: 'attendee@example.com' }],
+                extension_data: {},
+                system: { id: 'room-1' },
+            },
+            {
+                host: 'same.user@example.com',
+                date: day_1,
+                duration: 60,
+                attendees: [{ email: 'attendee@example.com' }],
+                extension_data: {},
+                system: { id: 'room-2' },
+            },
+            {
+                host: 'same.user@example.com',
+                date: day_2,
+                duration: 60,
+                attendees: [{ email: 'attendee@example.com' }],
+                extension_data: {},
+                system: { id: 'room-1' },
+            },
+        ];
         spectator.service.setOptions({ start: day_1, end: day_2 });
 
         await spectator.service.generateReport();
@@ -565,22 +608,20 @@ describe('SiteAttendanceReportService', () => {
         spectator = createService();
         const saturday = new Date('2026-04-11T12:00:00').valueOf();
         const sunday = new Date('2026-04-12T12:00:00').valueOf();
-        (booking_mod.queryAllBookings as jest.Mock).mockReturnValue(
-            Promise.resolve([
-                {
-                    asset_id: 'desk-1',
-                    user_email: 'saturday.user@example.com',
-                    date: saturday,
-                    duration: 480,
-                },
-                {
-                    asset_id: 'desk-2',
-                    user_email: 'sunday.user@example.com',
-                    date: sunday,
-                    duration: 480,
-                },
-            ]),
-        );
+        booking_data.desk = [
+            {
+                asset_id: 'desk-1',
+                user_email: 'saturday.user@example.com',
+                date: saturday,
+                duration: 480,
+            },
+            {
+                asset_id: 'desk-2',
+                user_email: 'sunday.user@example.com',
+                date: sunday,
+                duration: 480,
+            },
+        ];
         spectator.service.setOptions({ start: saturday, end: sunday });
 
         await spectator.service.generateReport();
@@ -598,22 +639,20 @@ describe('SiteAttendanceReportService', () => {
         spectator = createService();
         const saturday = new Date('2026-04-11T12:00:00').valueOf();
         const sunday = new Date('2026-04-12T12:00:00').valueOf();
-        (booking_mod.queryAllBookings as jest.Mock).mockReturnValue(
-            Promise.resolve([
-                {
-                    asset_id: 'desk-1',
-                    user_email: 'saturday.user@example.com',
-                    date: saturday,
-                    duration: 480,
-                },
-                {
-                    asset_id: 'desk-2',
-                    user_email: 'sunday.user@example.com',
-                    date: sunday,
-                    duration: 480,
-                },
-            ]),
-        );
+        booking_data.desk = [
+            {
+                asset_id: 'desk-1',
+                user_email: 'saturday.user@example.com',
+                date: saturday,
+                duration: 480,
+            },
+            {
+                asset_id: 'desk-2',
+                user_email: 'sunday.user@example.com',
+                date: sunday,
+                duration: 480,
+            },
+        ];
         spectator.service.setOptions({ start: saturday, end: sunday });
 
         await spectator.service.generateReport();
@@ -656,10 +695,8 @@ describe('SiteAttendanceReportService', () => {
 
         spectator.service.downloadReport();
 
-        expect(common_mod.jsonToCsv).toHaveBeenCalled();
-        expect(common_mod.downloadFile).toHaveBeenCalledWith(
-            expect.stringMatching(/^report\+site-attendance\+2026-04-06/),
-            'csv',
+        expect(downloads.filename).toMatch(
+            /^report\+site-attendance\+2026-04-06/,
         );
     });
 });

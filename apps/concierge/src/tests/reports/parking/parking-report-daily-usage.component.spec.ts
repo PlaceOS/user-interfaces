@@ -1,21 +1,16 @@
 import { signal } from '@angular/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent } from 'ng-mocks';
 
 import { IconComponent, SimpleTableComponent } from '@placeos/components';
-import * as common_mod from '@placeos/common';
+import { captureDownloads } from '../download-capture.helper';
 import { ParkingReportDailyUsageComponent } from 'apps/concierge/src/app/reports/parking/parking-report-daily-usage.component';
 import { ParkingReportService } from 'apps/concierge/src/app/reports/parking/parking-report.service';
 
-jest.mock('@placeos/common', () => ({
-    ...jest.requireActual('@placeos/common'),
-    downloadFile: jest.fn(),
-    jsonToCsv: jest.fn(() => 'csv-data'),
-}));
-
 describe('ParkingReportDailyUsageComponent', () => {
     let spectator: Spectator<ParkingReportDailyUsageComponent>;
+    let downloads: ReturnType<typeof captureDownloads>;
     let daily_stats: ReturnType<typeof signal<any>>;
 
     const day = new Date('2026-04-06T09:00:00').valueOf();
@@ -35,9 +30,11 @@ describe('ParkingReportDailyUsageComponent', () => {
         ],
     });
 
+    afterEach(() => downloads.restore());
+
     beforeEach(() => {
         daily_stats = signal<any>({});
-        (common_mod.downloadFile as jest.Mock).mockClear();
+        downloads = captureDownloads();
         spectator = createComponent({
             providers: [
                 { provide: ParkingReportService, useValue: { daily_stats } },
@@ -93,9 +90,6 @@ describe('ParkingReportDailyUsageComponent', () => {
             },
         });
         await spectator.component.download();
-        expect(common_mod.downloadFile).toHaveBeenCalledWith(
-            'report-parking-daily-usage.csv',
-            'csv-data',
-        );
+        expect(downloads.filename).toBe('report-parking-daily-usage.csv');
     });
 });

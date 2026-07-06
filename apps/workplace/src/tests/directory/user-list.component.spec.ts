@@ -1,23 +1,23 @@
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { SettingsService, User } from '@placeos/common';
 import { IconComponent, UserAvatarComponent } from '@placeos/components';
+import * as ts_client from '@placeos/ts-client';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
-jest.mock('@placeos/users', () => ({
-    ...jest.requireActual('@placeos/users'),
-    searchStaff: jest.fn(() => Promise.resolve([])),
-}));
-
-import { searchStaff } from '@placeos/users';
 import { FooterMenuComponent } from '../../app/components/footer-menu.component';
 import { TopbarComponent } from '../../app/components/topbar.component';
 import { DirectoryUserListComponent } from '../../app/directory/user-list.component';
+
+// Native vitest cannot module-mock the @placeos/users workspace package.
+// `searchStaff` is the real function; it calls @placeos/ts-client `get`
+// (the only mockable layer), stubbed below.
+vi.mock('@placeos/ts-client', { spy: true });
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 describe('DirectoryUserListComponent', () => {
     let spectator: SpectatorRouting<DirectoryUserListComponent>;
-    const settings_get = jest.fn();
+    const settings_get = vi.fn();
     const createComponent = createRoutingFactory({
         component: DirectoryUserListComponent,
         declarations: [
@@ -33,8 +33,8 @@ describe('DirectoryUserListComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
-        (searchStaff as jest.Mock).mockResolvedValue([]);
+        vi.clearAllMocks();
+        vi.mocked(ts_client.get).mockResolvedValue([] as any);
         settings_get.mockReturnValue(undefined);
         spectator = createComponent();
     });
@@ -71,7 +71,8 @@ describe('DirectoryUserListComponent', () => {
         spectator.detectChanges();
         await wait(450);
 
-        expect(searchStaff).not.toHaveBeenCalled();
+        // Below the minimum => the component never reaches the query layer.
+        expect(ts_client.get).not.toHaveBeenCalled();
         expect(spectator.component.search_results()).toEqual([]);
     });
 
@@ -79,15 +80,24 @@ describe('DirectoryUserListComponent', () => {
         settings_get.mockImplementation((key: string) =>
             key === 'app.users.min_search_length' ? 3 : undefined,
         );
-        const results = [{ name: 'Jane', email: 'jane@x.com' }] as User[];
-        (searchStaff as jest.Mock).mockResolvedValue(results);
+        vi.mocked(ts_client.get).mockResolvedValue([
+            { name: 'Jane', email: 'jane@x.com' },
+        ] as any);
 
         spectator.component.search.set('jane');
         spectator.detectChanges();
         await wait(450);
 
-        expect(searchStaff).toHaveBeenCalledWith('jane');
-        expect(spectator.component.search_results()).toEqual(results);
+        // `searchStaff` (workspace fn) cannot be spied; assert the ts-client GET
+        // it issues carries the search query. It wraps results in `StaffUser`,
+        // so assert the mapped fields rather than object identity.
+        expect(ts_client.get).toHaveBeenCalled();
+        const [url] = vi.mocked(ts_client.get).mock.calls[0];
+        expect(url).toContain('jane');
+        const list = spectator.component.search_results();
+        expect(list).toHaveLength(1);
+        expect(list[0].name).toBe('Jane');
+        expect(list[0].email).toBe('jane@x.com');
         expect(spectator.component.loading()).toBe(false);
     });
 
@@ -95,7 +105,7 @@ describe('DirectoryUserListComponent', () => {
         settings_get.mockImplementation((key: string) =>
             key === 'app.users.min_search_length' ? 3 : undefined,
         );
-        (searchStaff as jest.Mock).mockRejectedValue(new Error('boom'));
+        vi.mocked(ts_client.get).mockRejectedValue(new Error('boom'));
 
         spectator.component.search.set('jane');
         spectator.detectChanges();

@@ -1,23 +1,8 @@
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { BookingFormService } from '@placeos/bookings';
 import { OrganisationService, SettingsService } from '@placeos/common';
-import {
-    generateCalendarFileLink,
-    generateGoogleCalendarLink,
-    generateMicrosoftCalendarLink,
-} from '@placeos/events';
 import { MockProvider } from 'ng-mocks';
 import { BookLockerFlowSuccessComponent } from '../../../app/book/locker-flow/locker-flow-success.component';
-
-jest.mock('@placeos/events', () => {
-    const actual = jest.requireActual('@placeos/events');
-    return {
-        ...actual,
-        generateMicrosoftCalendarLink: jest.fn(() => 'https://outlook/link'),
-        generateGoogleCalendarLink: jest.fn(() => 'https://google/link'),
-        generateCalendarFileLink: jest.fn(() => 'blob:ical/link'),
-    };
-});
 
 describe('BookLockerFlowSuccessComponent', () => {
     let spectator: SpectatorRouting<BookLockerFlowSuccessComponent>;
@@ -36,17 +21,17 @@ describe('BookLockerFlowSuccessComponent', () => {
         providers: [
             MockProvider(BookingFormService, {
                 last_success,
-                openBookingLinkModal: jest.fn(),
+                openBookingLinkModal: vi.fn(),
             } as any),
             MockProvider(SettingsService, {
-                get: jest.fn((key: string) => settings[key]),
+                get: vi.fn((key: string) => settings[key]),
                 time_format: 'h:mm a',
             } as any),
             MockProvider(OrganisationService, {
                 buildings: [
                     { id: 'bld-1', name: 'HQ', display_name: 'Headquarters' },
                 ],
-                levelWithID: jest.fn(() => ({
+                levelWithID: vi.fn(() => ({
                     id: 'lvl-1',
                     name: 'Level 1',
                     display_name: 'L1',
@@ -57,7 +42,6 @@ describe('BookLockerFlowSuccessComponent', () => {
 
     beforeEach(() => {
         settings = {};
-        (generateMicrosoftCalendarLink as jest.Mock).mockClear();
         spectator = createComponent();
     });
 
@@ -65,9 +49,11 @@ describe('BookLockerFlowSuccessComponent', () => {
 
     it('should populate calendar links on init', () => {
         spectator.component.ngOnInit();
-        expect(spectator.component.outlook_link()).toBe('https://outlook/link');
-        expect(spectator.component.google_link()).toBe('https://google/link');
-        expect(spectator.component.ical_link()).toBe('blob:ical/link');
+        // The real link builders run (they are pure string builders), so assert
+        // each surfaces a truthy link rather than a stubbed URL.
+        expect(spectator.component.outlook_link()).toBeTruthy();
+        expect(spectator.component.google_link()).toContain('google.com');
+        expect(spectator.component.ical_link()).toContain('text/calendar');
     });
 
     it('should build the location from building and level', () => {

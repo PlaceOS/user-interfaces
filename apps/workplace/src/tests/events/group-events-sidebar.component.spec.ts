@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { SettingsService } from '@placeos/common';
 import { DateCalendarComponent } from '@placeos/form-fields';
 import { differenceInDays } from 'date-fns';
@@ -14,8 +14,8 @@ describe('GroupEventsSidebarComponent', () => {
     const options = signal<any>({ date: Date.now() });
     const filters = signal<any>({ categories: [], tags: [] });
     const tags = signal<string[]>([]);
-    const set_options = jest.fn();
-    const set_filters = jest.fn();
+    const set_options = vi.fn();
+    const set_filters = vi.fn();
     const createComponent = createComponentFactory({
         component: GroupEventsSidebarComponent,
         declarations: [MockComponent(DateCalendarComponent)],
@@ -27,14 +27,14 @@ describe('GroupEventsSidebarComponent', () => {
                 setOptions: set_options,
                 setFilters: set_filters,
             } as any),
-            MockProvider(SettingsService, { get: jest.fn(() => 0) } as any),
+            MockProvider(SettingsService, { get: vi.fn(() => 0) } as any),
         ],
         imports: [MatCheckboxModule, FormsModule],
         detectChanges: false,
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         options.set({ date: Date.now() });
         filters.set({ categories: [], tags: [] });
         tags.set([]);

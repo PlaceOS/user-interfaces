@@ -1,70 +1,68 @@
 import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
-import { OrganisationService } from '@placeos/common';
+import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
+import { OrganisationService, setNotifyOutlet } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
+import { NEVER, of } from 'rxjs';
 
 import * as ts_client from '@placeos/ts-client';
-import * as components_mod from '@placeos/components';
-import * as common_mod from '@placeos/common';
 import { SurveyService } from '../../app/surveys/survey.service';
 
-jest.mock('@placeos/ts-client', () => {
-    const actual = jest.requireActual('@placeos/ts-client');
-    return {
-        ...actual,
-        querySurveys: jest.fn(() => Promise.resolve([])),
-        queryAnswers: jest.fn(() => Promise.resolve([])),
-        queryQuestions: jest.fn(() => Promise.resolve([])),
-        showSurvey: jest.fn(),
-        removeSurvey: jest.fn(() => Promise.resolve()),
-        removeQuestion: jest.fn(() => Promise.resolve()),
-    };
-});
+vi.mock('@placeos/ts-client', { spy: true });
 
-jest.mock('@placeos/components', () => {
-    const actual = jest.requireActual('@placeos/components');
-    return {
-        ...actual,
-        openConfirmModal: jest.fn(),
-    };
-});
+const { Survey, SurveyQuestion } = ts_client;
 
-jest.mock('@placeos/common', () => {
-    const actual = jest.requireActual('@placeos/common');
-    return {
-        ...actual,
-        notifySuccess: jest.fn(),
-    };
+/** Fake dialog ref shaped for `openConfirmModal` driven via MatDialog. */
+const makeConfirmRef = (reason: string) => ({
+    componentInstance: { event: NEVER, loading: { set: vi.fn() } },
+    afterClosed: () => of({ reason }),
+    close: vi.fn(),
 });
-
-const { Survey, SurveyQuestion } = jest.requireActual('@placeos/ts-client');
 
 describe('SurveyService', () => {
     let spectator: SpectatorService<SurveyService>;
     let building_list: ReturnType<typeof signal<any[] | null>>;
+    let dialog_open: any;
+    let notify_open: ReturnType<typeof vi.fn>;
 
     const createService = createServiceFactory({
         service: SurveyService,
         providers: [
-            MockProvider(MatDialog, { open: jest.fn() }),
+            MockProvider(MatDialog, { open: vi.fn() }),
             MockProvider(OrganisationService, {
-                waitUntilInitialised: jest.fn(() => Promise.resolve()),
+                waitUntilInitialised: vi.fn(() => Promise.resolve()),
                 building_list: null as any,
             }),
         ],
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
+        notify_open = vi.fn(() => ({
+            onAction: () => ({ subscribe: () => undefined }),
+            dismiss: () => undefined,
+        }));
+        setNotifyOutlet({ open: notify_open } as any, true);
+        vi.mocked(ts_client.removeSurvey).mockResolvedValue(undefined as never);
+        vi.mocked(ts_client.removeQuestion).mockResolvedValue(
+            undefined as never,
+        );
+        dialog_open = vi.fn(() => ({ afterClosed: () => of(true) }));
         building_list = signal<any[] | null>(null);
         const org: any = {
-            waitUntilInitialised: jest.fn(() => Promise.resolve()),
+            waitUntilInitialised: vi.fn(() => Promise.resolve()),
             building_list,
         };
         spectator = createService({
-            providers: [MockProvider(OrganisationService, org)],
+            providers: [
+                MockProvider(OrganisationService, org),
+                MockProvider(MatDialog, { open: dialog_open } as any),
+            ],
         });
+    });
+
+    afterEach(() => {
+        setNotifyOutlet(null as any, true);
     });
 
     it('should filter surveys and answers by the active building', () => {
@@ -123,7 +121,7 @@ describe('SurveyService', () => {
     });
 
     it('should load the active survey and set its building', async () => {
-        (ts_client.showSurvey as jest.Mock).mockResolvedValue(
+        (ts_client.showSurvey as any).mockResolvedValue(
             new Survey({ id: 9, building_id: 'bld-9' }),
         );
 
@@ -136,32 +134,27 @@ describe('SurveyService', () => {
     });
 
     it('should remove a survey after confirmation and notify', async () => {
-        const close = jest.fn();
-        const loading = jest.fn();
-        (components_mod.openConfirmModal as jest.Mock).mockResolvedValue({
-            reason: 'done',
-            loading,
-            close,
-        });
+        const ref = makeConfirmRef('done');
+        dialog_open.mockReturnValue(ref);
 
         await spectator.service.removeSurvey(new Survey({ id: 7 }));
 
         expect(ts_client.removeSurvey).toHaveBeenCalledWith('7');
-        expect(close).toHaveBeenCalled();
-        expect(common_mod.notifySuccess).toHaveBeenCalled();
+        expect(ref.close).toHaveBeenCalled();
+        expect(notify_open).toHaveBeenCalledWith(
+            expect.anything(),
+            'OK',
+            expect.objectContaining({ panelClass: ['success'] }),
+        );
     });
 
     it('should not remove a survey when confirmation is cancelled', async () => {
-        (components_mod.openConfirmModal as jest.Mock).mockResolvedValue({
-            reason: 'cancel',
-            loading: jest.fn(),
-            close: jest.fn(),
-        });
+        dialog_open.mockReturnValue(makeConfirmRef('cancel'));
 
         await spectator.service.removeSurvey(new Survey({ id: 7 }));
 
         expect(ts_client.removeSurvey).not.toHaveBeenCalled();
-        expect(common_mod.notifySuccess).not.toHaveBeenCalled();
+        expect(notify_open).not.toHaveBeenCalled();
     });
 
     it('should remove a question without confirmation when requested', async () => {
@@ -171,6 +164,10 @@ describe('SurveyService', () => {
         );
 
         expect(ts_client.removeQuestion).toHaveBeenCalledWith('4');
-        expect(common_mod.notifySuccess).toHaveBeenCalled();
+        expect(notify_open).toHaveBeenCalledWith(
+            expect.anything(),
+            'OK',
+            expect.objectContaining({ panelClass: ['success'] }),
+        );
     });
 });

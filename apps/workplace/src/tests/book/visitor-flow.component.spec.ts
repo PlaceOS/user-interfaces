@@ -1,4 +1,4 @@
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { InviteVisitorFormComponent } from '@placeos/bookings';
 import { mockComponent } from '@placeos/common/tests';
 import { Router } from '@angular/router';
@@ -10,7 +10,7 @@ describe('VisitorFlowComponent', () => {
     let spectator: SpectatorRouting<VisitorFlowComponent>;
     const createComponent = createRoutingFactory({
         component: VisitorFlowComponent,
-        providers: [MockProvider(Router, { navigate: jest.fn() })],
+        providers: [MockProvider(Router, { navigate: vi.fn() })],
         declarations: [mockComponent(InviteVisitorFormComponent)],
     });
 

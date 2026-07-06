@@ -1,15 +1,21 @@
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
-import * as events_mod from '@placeos/events';
+import * as ts_client from '@placeos/ts-client';
 import { RoomBookingHistoryModalComponent } from '../../app/room-manager/room-booking-history-modal.component';
 
-jest.mock('@placeos/events');
+// `@placeos/events` is a workspace lib that gets inlined by the bundling test
+// builder, so its exports cannot be intercepted directly. Instead we mock the
+// `@placeos/ts-client` HTTP boundary (`get`) that its `queryEvents` /
+// `queryEventHistory` helpers call underneath.
+vi.mock('@placeos/ts-client', { spy: true });
 
 describe('RoomBookingHistoryModalComponent', () => {
     let spectator: Spectator<RoomBookingHistoryModalComponent>;
+    let events_data: any[];
+    let history_data: any[];
 
     const createComponent = createComponentFactory({
         component: RoomBookingHistoryModalComponent,
@@ -23,9 +29,14 @@ describe('RoomBookingHistoryModalComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
-        (events_mod.queryEvents as jest.Mock).mockResolvedValue([]);
-        (events_mod.queryEventHistory as jest.Mock).mockResolvedValue([]);
+        vi.clearAllMocks();
+        events_data = [];
+        history_data = [];
+        (ts_client.get as any).mockImplementation((url: string) =>
+            Promise.resolve(
+                url.includes('/history') ? history_data : events_data,
+            ),
+        );
         spectator = createComponent({ detectChanges: false });
     });
 
@@ -38,11 +49,13 @@ describe('RoomBookingHistoryModalComponent', () => {
     });
 
     it('should sort bookings by date descending and add attendee counts', async () => {
-        (events_mod.queryEvents as jest.Mock).mockResolvedValue([
-            { id: 'e1', date: 100, attendees: [{}, {}] },
-            { id: 'e2', date: 300 },
-            { id: 'e3', date: 200, attendees: [{}] },
-        ]);
+        // `queryEvents` wraps raw payloads in `CalendarEvent`, whose `date` is
+        // derived from `event_start` (seconds -> ms).
+        events_data = [
+            { id: 'e1', event_start: 100, attendees: [{}, {}] },
+            { id: 'e2', event_start: 300 },
+            { id: 'e3', event_start: 200, attendees: [{}] },
+        ];
 
         await spectator.component.loadHistory();
 
@@ -53,29 +66,29 @@ describe('RoomBookingHistoryModalComponent', () => {
     });
 
     it('should reload events when the period changes', async () => {
-        expect(events_mod.queryEvents).toHaveBeenCalledTimes(1);
+        expect(ts_client.get).toHaveBeenCalledTimes(1);
         await spectator.component.setPeriod('month');
         expect(spectator.component.period()).toBe('month');
-        expect(events_mod.queryEvents).toHaveBeenCalledTimes(2);
+        expect(ts_client.get).toHaveBeenCalledTimes(2);
     });
 
     it('should not reload events when re-selecting the current period', async () => {
         await spectator.component.setPeriod('week');
-        expect(events_mod.queryEvents).toHaveBeenCalledTimes(1);
+        expect(ts_client.get).toHaveBeenCalledTimes(1);
     });
 
     it('should load row change history on first expand', async () => {
-        (events_mod.queryEventHistory as jest.Mock).mockResolvedValue([
+        history_data = [
             { id: 'c1', updated_at: 10 },
             { id: 'c2', updated_at: 30 },
-        ]);
+        ];
 
         spectator.component.toggleRow({ id: 'e1' });
         await new Promise((r) => setTimeout(r, 5));
 
         expect(spectator.component.expanded()['e1']).toBe(true);
-        expect(events_mod.queryEventHistory).toHaveBeenCalledWith(
-            expect.objectContaining({ system_ids: 'sys-1' }),
+        expect(ts_client.get).toHaveBeenCalledWith(
+            expect.stringContaining('system_ids=sys-1'),
         );
         expect(
             spectator.component.histories()['e1'].map((c) => c.id),

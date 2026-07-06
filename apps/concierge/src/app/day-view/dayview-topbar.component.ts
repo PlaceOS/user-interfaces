@@ -1,4 +1,9 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import {
@@ -7,6 +12,12 @@ import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
+import {
+    IconComponent,
+    SettingsToggleComponent,
+    TranslatePipe,
+} from '@placeos/components';
+import { DateOptionsComponent } from '../ui/date-options.component';
 import { BookingUIOptions, EventsStateService } from './events-state.service';
 
 @Component({
@@ -94,7 +105,17 @@ import { BookingUIOptions, EventsStateService } from './events-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        IconComponent,
+        SettingsToggleComponent,
+        DateOptionsComponent,
+        TranslatePipe,
+        MatFormFieldModule,
+        MatSelectModule,
+        MatSlideToggleModule,
+        MatRippleModule,
+        FormsModule,
+    ],
 })
 export class DayviewTopbarComponent extends AsyncHandler implements OnInit {
     private _state = inject(EventsStateService);

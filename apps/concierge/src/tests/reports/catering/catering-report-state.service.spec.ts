@@ -1,18 +1,12 @@
 import {
     createServiceFactory,
     SpectatorService,
-} from '@ngneat/spectator/jest';
+} from '@ngneat/spectator/vitest';
 import { signal, WritableSignal } from '@angular/core';
 
-import * as common_mod from '@placeos/common';
 import { CateringReportStateService } from 'apps/concierge/src/app/reports/catering/catering-report-state.service';
 import { ReportsStateService } from 'apps/concierge/src/app/reports/reports-state.service';
-
-jest.mock('@placeos/common', () => ({
-    ...jest.requireActual('@placeos/common'),
-    downloadFile: jest.fn(),
-    jsonToCsv: jest.fn(() => 'tsv'),
-}));
+import { captureDownloads } from '../download-capture.helper';
 
 function bookingWithOrder(date: number, overrides: any = {}) {
     // A plain (non-CalendarEvent) booking routes through the CateringOrder
@@ -40,6 +34,7 @@ describe('CateringReportStateService', () => {
     let spectator: SpectatorService<CateringReportStateService>;
     let options: WritableSignal<any>;
     let bookings: WritableSignal<any[]>;
+    let downloads: ReturnType<typeof captureDownloads>;
     const in_range = new Date('2026-04-06T10:00:00').valueOf();
     const createService = createServiceFactory({
         service: CateringReportStateService,
@@ -57,10 +52,11 @@ describe('CateringReportStateService', () => {
             end: new Date('2026-04-06T23:59:59').valueOf(),
         });
         bookings = signal<any[]>([]);
+        downloads = captureDownloads();
         spectator = createService();
-        (common_mod.downloadFile as jest.Mock).mockClear();
-        (common_mod.jsonToCsv as jest.Mock).mockClear();
     });
+
+    afterEach(() => downloads.restore());
 
     it('should collect in-range, non-cancelled catering orders', () => {
         const out_of_range = new Date('2026-04-20T10:00:00').valueOf();
@@ -114,10 +110,6 @@ describe('CateringReportStateService', () => {
 
         await spectator.service.downloadOrders();
 
-        expect(common_mod.jsonToCsv).toHaveBeenCalled();
-        expect(common_mod.downloadFile).toHaveBeenCalledWith(
-            'catering-orders.tsv',
-            'tsv',
-        );
+        expect(downloads.filename).toBe('catering-orders.tsv');
     });
 });

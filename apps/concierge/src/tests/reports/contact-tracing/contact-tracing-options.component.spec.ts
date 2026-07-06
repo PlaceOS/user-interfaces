@@ -1,4 +1,4 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { signal, WritableSignal } from '@angular/core';
 import { MockComponent } from 'ng-mocks';
 
@@ -16,7 +16,7 @@ import { ContactTracingStateService } from 'apps/concierge/src/app/reports/conta
 describe('ContactTracingOptionsComponent', () => {
     let spectator: Spectator<ContactTracingOptionsComponent>;
     let options: WritableSignal<any>;
-    let set_options: jest.Mock;
+    let set_options: any;
     const createComponent = createComponentFactory({
         component: ContactTracingOptionsComponent,
         declarations: [
@@ -30,7 +30,7 @@ describe('ContactTracingOptionsComponent', () => {
                 useFactory: () => ({
                     options,
                     setOptions: set_options,
-                    generateReport: jest.fn(),
+                    generateReport: vi.fn(),
                 }),
             },
             {
@@ -43,7 +43,7 @@ describe('ContactTracingOptionsComponent', () => {
 
     beforeEach(() => {
         options = signal({ start: 0, end: 0 });
-        set_options = jest.fn();
+        set_options = vi.fn();
         spectator = createComponent();
     });
 
@@ -64,7 +64,7 @@ describe('ContactTracingOptionsComponent', () => {
     it('should emit download when the download button is clicked', () => {
         options.set({ start: 0, end: 0, user: { id: 'u1' } });
         spectator.detectChanges();
-        const download = jest.fn();
+        const download = vi.fn();
         spectator.component.download.subscribe(download);
         spectator.click('button[icon]');
         expect(download).toHaveBeenCalled();
@@ -76,20 +76,20 @@ describe('ContactTracingOptionsComponent', () => {
     });
 
     it('should toggle printing state around window.print', () => {
-        jest.useFakeTimers();
-        const print_spy = jest
+        vi.useFakeTimers();
+        const print_spy = vi
             .spyOn(window, 'print')
             .mockImplementation(() => undefined);
-        const printing = jest.fn();
+        const printing = vi.fn();
         spectator.component.printing.subscribe(printing);
 
         spectator.component.print();
         expect(printing).toHaveBeenNthCalledWith(1, true);
         expect(print_spy).not.toHaveBeenCalled();
 
-        jest.advanceTimersByTime(300);
+        vi.advanceTimersByTime(300);
         expect(print_spy).toHaveBeenCalled();
         expect(printing).toHaveBeenNthCalledWith(2, false);
-        jest.useRealTimers();
+        vi.useRealTimers();
     });
 });

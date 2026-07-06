@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { IconComponent, SimpleTableComponent } from '@placeos/components';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
@@ -8,14 +8,11 @@ import { AssetReportExpiredItemsComponent } from 'apps/concierge/src/app/reports
 import { AssetsReportService } from 'apps/concierge/src/app/reports/assets/assets-report.service';
 import { ReportMetricGuideComponent } from 'apps/concierge/src/app/reports/report-metric-guide.component';
 
-jest.mock('@placeos/common', () => ({
-    ...jest.requireActual('@placeos/common'),
-    downloadFile: jest.fn(),
-}));
-import { downloadFile } from '@placeos/common';
+import { captureDownloads } from '../download-capture.helper';
 
 describe('AssetReportExpiredItemsComponent', () => {
     let spectator: Spectator<AssetReportExpiredItemsComponent>;
+    let downloads: ReturnType<typeof captureDownloads>;
     let expired_items: ReturnType<typeof signal<any>>;
 
     const createComponent = createComponentFactory({
@@ -29,8 +26,10 @@ describe('AssetReportExpiredItemsComponent', () => {
         providers: [MockProvider(AssetsReportService, {} as any)],
     });
 
+    afterEach(() => downloads.restore());
+
     beforeEach(() => {
-        (downloadFile as jest.Mock).mockClear();
+        downloads = captureDownloads();
         expired_items = signal([
             { purchase_order_number: 'PO-1', invoice_number: 'INV-1' },
         ]);
@@ -53,9 +52,6 @@ describe('AssetReportExpiredItemsComponent', () => {
 
     it('should download the expired items table on request', async () => {
         await spectator.component.download();
-        expect(downloadFile).toHaveBeenCalledWith(
-            'report-assets-expired-items.csv',
-            expect.any(String),
-        );
+        expect(downloads.filename).toBe('report-assets-expired-items.csv');
     });
 });

@@ -1,6 +1,7 @@
+import { ComponentFixtureAutoDetect } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
@@ -8,13 +9,7 @@ import * as ts_client_mod from '@placeos/ts-client';
 import { SignageMediaComponent } from '../../app/signage/signage-media.component';
 import { SignageStateService } from '../../app/signage/signage-state.service';
 
-jest.mock('@placeos/ts-client', () => {
-    const actual = jest.requireActual('@placeos/ts-client');
-    return {
-        ...actual,
-        listSignagePlaylistMedia: jest.fn(async () => ({ items: ['a'] })),
-    };
-});
+vi.mock('@placeos/ts-client', { spy: true });
 
 describe('SignageMediaComponent', () => {
     let spectator: Spectator<SignageMediaComponent>;
@@ -25,16 +20,17 @@ describe('SignageMediaComponent', () => {
         component: SignageMediaComponent,
         detectChanges: false,
         providers: [
+            { provide: ComponentFixtureAutoDetect, useValue: false },
             MockProvider(SignageStateService, {
                 loading: signal(false) as any,
                 playlists: signal([
                     { id: 'p1', name: 'News' },
                     { id: 'p2', name: 'Ads' },
                 ]) as any,
-                editPlaylist: jest.fn(async () => ({ id: 'new' }) as any),
-                updatePlaylistMedia: jest.fn(async () => undefined),
-                previewFileFromInput: jest.fn(),
-                previewMedia: jest.fn(),
+                editPlaylist: vi.fn(async () => ({ id: 'new' }) as any),
+                updatePlaylistMedia: vi.fn(async () => undefined),
+                previewFileFromInput: vi.fn(),
+                previewMedia: vi.fn(),
             }),
             MockProvider(ActivatedRoute, {
                 queryParamMap: of({ get: () => null }) as any,
@@ -43,8 +39,12 @@ describe('SignageMediaComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
-        router = { navigate: jest.fn() };
+        vi.clearAllMocks();
+        // `spy: true` keeps real ts-client impls, which hang on live HTTP.
+        (ts_client_mod.listSignagePlaylistMedia as any).mockResolvedValue({
+            items: ['a'],
+        });
+        router = { navigate: vi.fn() };
         spectator = createComponent({
             providers: [MockProvider(Router, router)],
         });
@@ -76,16 +76,16 @@ describe('SignageMediaComponent', () => {
     });
 
     it('should hide the dropzone after leaving', () => {
-        jest.useFakeTimers();
+        vi.useFakeTimers();
         spectator.component.show_dropzone.set(true);
-        const event = { preventDefault: jest.fn(), target: {} };
+        const event = { preventDefault: vi.fn(), target: {} };
 
         spectator.component.hideOverlay(event);
-        jest.runOnlyPendingTimers();
+        vi.runOnlyPendingTimers();
 
         expect(event.preventDefault).toHaveBeenCalled();
         expect(spectator.component.show_dropzone()).toBe(false);
-        jest.useRealTimers();
+        vi.useRealTimers();
     });
 
     it('should append dropped media into the target playlist', async () => {

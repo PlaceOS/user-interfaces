@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
+import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { PlaceSystem } from '@placeos/ts-client';
 import { MockProvider } from 'ng-mocks';
@@ -13,18 +13,18 @@ import { RoomAlertModalComponent } from '../../app/room-manager/room-alert-modal
 import { RoomBookingHistoryModalComponent } from '../../app/room-manager/room-booking-history-modal.component';
 import { RoomModalComponent } from '../../app/room-manager/room-modal.component';
 
-jest.mock('@placeos/ts-client');
+vi.mock('@placeos/ts-client', { spy: true });
 
 describe('RoomManagementService', () => {
     let spectator: SpectatorService<RoomManagementService>;
-    let dialog_open: jest.Mock;
+    let dialog_open: any;
     let settings_map: Record<string, any>;
 
     const organisation_service: any = {
         organisation: { id: 'org-1' },
         active_building: signal({ id: 'bld-1' }),
         active_region: signal({ id: 'region-1' }),
-        levelWithID: jest.fn(() => ({ id: 'lvl-1' })),
+        levelWithID: vi.fn(() => ({ id: 'lvl-1' })),
     };
 
     const createService = createServiceFactory({
@@ -42,12 +42,12 @@ describe('RoomManagementService', () => {
         settings_map = { 'app.use_region': false };
         organisation_service.active_building = signal({ id: 'bld-1' });
         organisation_service.active_region = signal({ id: 'region-1' });
-        dialog_open = jest.fn(() => ({ afterClosed: () => of(null) }) as any);
-        jest.clearAllMocks();
-        (ts_client_mod.showMetadata as jest.Mock).mockResolvedValue({
+        dialog_open = vi.fn(() => ({ afterClosed: () => of(null) }) as any);
+        vi.clearAllMocks();
+        (ts_client_mod.showMetadata as any).mockResolvedValue({
             details: {},
         });
-        (ts_client_mod.querySystems as jest.Mock).mockReturnValue(
+        (ts_client_mod.querySystems as any).mockReturnValue(
             Promise.resolve({ data: [] }),
         );
         spectator = createService();
@@ -100,10 +100,10 @@ describe('RoomManagementService', () => {
     });
 
     it('should apply search and zone filters to the loaded room list', async () => {
-        (ts_client_mod.showMetadata as jest.Mock).mockResolvedValue({
+        (ts_client_mod.showMetadata as any).mockResolvedValue({
             details: {},
         });
-        (ts_client_mod.querySystems as jest.Mock).mockReturnValue(
+        (ts_client_mod.querySystems as any).mockReturnValue(
             Promise.resolve({
                 data: [
                     { id: 'a', name: 'Alpha', zones: ['bld-1', 'lvl-1'] },
@@ -132,10 +132,10 @@ describe('RoomManagementService', () => {
     });
 
     it('should apply saved alerts onto matching rooms in the list', async () => {
-        (ts_client_mod.showMetadata as jest.Mock).mockResolvedValue({
+        (ts_client_mod.showMetadata as any).mockResolvedValue({
             details: { a: ['warn', 'Closed for maintenance'] },
         });
-        (ts_client_mod.querySystems as jest.Mock).mockReturnValue(
+        (ts_client_mod.querySystems as any).mockReturnValue(
             Promise.resolve({
                 data: [{ id: 'a', name: 'Alpha', zones: ['bld-1'] }],
             }),

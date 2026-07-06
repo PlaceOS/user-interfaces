@@ -1,4 +1,4 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { signal } from '@angular/core';
 
@@ -21,10 +21,10 @@ describe('CateringReportOrdersComponent', () => {
         providers: [
             MockProvider(CateringReportStateService, {
                 catering_orders: signal({}),
-                downloadOrders: jest.fn(),
+                downloadOrders: vi.fn(),
             } as any),
             MockProvider(Router, {}),
-            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(SettingsService, { get: vi.fn() }),
         ],
         imports: [MockModule(MatTooltipModule)],
     });

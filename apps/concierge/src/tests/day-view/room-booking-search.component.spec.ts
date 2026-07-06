@@ -2,7 +2,7 @@ import { signal } from '@angular/core';
 import {
     createRoutingFactory,
     SpectatorRouting,
-} from '@ngneat/spectator/jest';
+} from '@ngneat/spectator/vitest';
 import { SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
@@ -88,13 +88,13 @@ describe('RoomBookingSearchComponent', () => {
     });
 
     it('should hide the search field after a delay', () => {
-        jest.useFakeTimers();
+        vi.useFakeTimers();
         spectator.component.show.set(true);
         spectator.component.hideSearch();
         expect(spectator.component.show()).toBe(true);
-        jest.advanceTimersByTime(1000);
+        vi.advanceTimersByTime(1000);
         expect(spectator.component.show()).toBe(false);
-        jest.useRealTimers();
+        vi.useRealTimers();
     });
 
     it('should resolve type colours with a fallback', () => {

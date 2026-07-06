@@ -12,10 +12,10 @@ describe('ZoneContentComponent', () => {
     const playlist_approval_status = signal<Record<string, boolean>>({});
     const playlist_thumbnail_media = signal<Record<string, string[]>>({});
     const can_update = signal(true);
-    const queue_meta = jest.fn();
-    const add_playlist = jest.fn();
-    const remove_playlist = jest.fn();
-    const add_display = jest.fn();
+    const queue_meta = vi.fn();
+    const add_playlist = vi.fn();
+    const remove_playlist = vi.fn();
+    const add_display = vi.fn();
     const service_stub = {
         selected_zone,
         playlists,
@@ -42,7 +42,7 @@ describe('ZoneContentComponent', () => {
     }
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         selected_zone.set(null);
         playlists.set([]);
         displays.set([]);
@@ -91,8 +91,8 @@ describe('ZoneContentComponent', () => {
         selected_zone.set(zone);
         const component = await make();
         const event = {
-            preventDefault: jest.fn(),
-            stopPropagation: jest.fn(),
+            preventDefault: vi.fn(),
+            stopPropagation: vi.fn(),
         };
 
         component.addPlaylist();

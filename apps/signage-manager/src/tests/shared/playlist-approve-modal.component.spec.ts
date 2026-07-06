@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { notifyError, notifyWarn } from '@placeos/common';
+import { setNotifyOutlet } from '@placeos/common';
 import {
     approveSignagePlaylist,
     listSignagePlaylistMediaRevisions,
@@ -10,38 +10,32 @@ import {
 import { PlaylistApproveModalComponent } from '../../app/shared/playlist-approve-modal.component';
 import { SignageService } from '../../app/signage.service';
 
-jest.mock('@placeos/common', () => ({
-    ...jest.requireActual('@placeos/common'),
-    notifyError: jest.fn(),
-    notifySuccess: jest.fn(),
-    notifyWarn: jest.fn(),
-}));
+vi.mock('@placeos/ts-client', { spy: true });
 
-jest.mock('@placeos/ts-client', () => ({
-    ...jest.requireActual('@placeos/ts-client'),
-    approveSignagePlaylist: jest.fn(),
-    listSignagePlaylistMediaRevisions: jest.fn(),
-    updateSignagePlaylistMedia: jest.fn(),
+const notify_open = vi.fn(() => ({
+    onAction: () => ({ subscribe: () => ({ unsubscribe: () => {} }) }),
+    dismiss: vi.fn(),
 }));
 
 describe('PlaylistApproveModalComponent', () => {
     const dialog_ref = {
-        close: jest.fn(),
+        close: vi.fn(),
         disableClose: false,
     };
     const service = {
-        changed: jest.fn(),
+        changed: vi.fn(),
         can_update: signal(true),
         media: signal([]),
-        previewMedia: jest.fn(),
-        setPlaylistApprovalStatus: jest.fn(),
+        previewMedia: vi.fn(),
+        setPlaylistApprovalStatus: vi.fn(),
     };
 
     beforeEach(async () => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
+        setNotifyOutlet({ open: notify_open } as any, true);
         dialog_ref.disableClose = false;
         service.can_update.set(true);
-        (listSignagePlaylistMediaRevisions as jest.Mock).mockResolvedValue([
+        (listSignagePlaylistMediaRevisions as any).mockResolvedValue([
             {
                 id: 'current-version',
                 items: ['media-1', 'media-3'],
@@ -79,7 +73,7 @@ describe('PlaylistApproveModalComponent', () => {
     });
 
     it('resets loading state when approval fails', async () => {
-        (approveSignagePlaylist as jest.Mock).mockRejectedValue(
+        (approveSignagePlaylist as any).mockRejectedValue(
             new Error('Approval failed'),
         );
         const fixture = TestBed.createComponent(PlaylistApproveModalComponent);
@@ -91,7 +85,11 @@ describe('PlaylistApproveModalComponent', () => {
         expect(dialog_ref.disableClose).toBe(false);
         expect(service.setPlaylistApprovalStatus).not.toHaveBeenCalled();
         expect(dialog_ref.close).not.toHaveBeenCalled();
-        expect(notifyError).toHaveBeenCalledWith('Error approving playlist');
+        expect(notify_open).toHaveBeenCalledWith(
+            'Error approving playlist',
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['error'] }),
+        );
     });
 
     it('shows undo changes when user has update permissions', async () => {
@@ -125,8 +123,10 @@ describe('PlaylistApproveModalComponent', () => {
         await component.undoChanges();
 
         expect(updateSignagePlaylistMedia).not.toHaveBeenCalled();
-        expect(notifyWarn).toHaveBeenCalledWith(
+        expect(notify_open).toHaveBeenCalledWith(
             'You cannot update playlists in this group.',
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['warn'] }),
         );
     });
 

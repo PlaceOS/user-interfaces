@@ -1,12 +1,12 @@
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { OrganisationService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
 import * as ts_client_mod from '@placeos/ts-client';
 import { RoomAlertModalComponent } from '../../app/room-manager/room-alert-modal.component';
 
-jest.mock('@placeos/ts-client');
+vi.mock('@placeos/ts-client', { spy: true });
 
 describe('RoomAlertModalComponent', () => {
     let spectator: Spectator<RoomAlertModalComponent>;
@@ -26,13 +26,13 @@ describe('RoomAlertModalComponent', () => {
 
     const build = (room: any) => {
         dialog_data = { room };
-        dialog_ref = { close: jest.fn() };
+        dialog_ref = { close: vi.fn() };
         spectator = createComponent({ detectChanges: false });
     };
 
     beforeEach(() => {
-        jest.clearAllMocks();
-        (ts_client_mod.updateMetadata as jest.Mock).mockResolvedValue({});
+        vi.clearAllMocks();
+        (ts_client_mod.updateMetadata as any).mockResolvedValue({});
     });
 
     it('should pre-fill the form from an existing room alert', () => {
@@ -47,7 +47,7 @@ describe('RoomAlertModalComponent', () => {
     });
 
     it('should write the alert to metadata and close on save', async () => {
-        (ts_client_mod.showMetadata as jest.Mock).mockResolvedValue({
+        (ts_client_mod.showMetadata as any).mockResolvedValue({
             details: {},
             editors: [],
         });
@@ -70,7 +70,7 @@ describe('RoomAlertModalComponent', () => {
     });
 
     it('should remove the alert entry when the status is cleared', async () => {
-        (ts_client_mod.showMetadata as jest.Mock).mockResolvedValue({
+        (ts_client_mod.showMetadata as any).mockResolvedValue({
             details: { 'sys-1': ['warn', 'old'] },
             editors: [],
         });

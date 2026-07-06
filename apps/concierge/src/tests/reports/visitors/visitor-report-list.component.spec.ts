@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent } from 'ng-mocks';
 
 import { SettingsService } from '@placeos/common';
@@ -30,7 +30,7 @@ describe('VisitorReportListComponent', () => {
             {
                 provide: SettingsService,
                 useValue: {
-                    get: jest.fn(() => allow_international),
+                    get: vi.fn(() => allow_international),
                 },
             },
         ],
@@ -44,7 +44,7 @@ describe('VisitorReportListComponent', () => {
                 { provide: VisitorsReportService, useValue: { bookings } },
                 {
                     provide: SettingsService,
-                    useValue: { get: jest.fn(() => allow_international) },
+                    useValue: { get: vi.fn(() => allow_international) },
                 },
             ],
         });

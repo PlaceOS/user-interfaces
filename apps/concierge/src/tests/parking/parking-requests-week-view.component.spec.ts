@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { Booking, SettingsService } from '@placeos/common';
 import { isSameDay } from 'date-fns';
 import { MockProvider } from 'ng-mocks';
@@ -28,17 +28,17 @@ describe('ParkingRequestsWeekViewComponent', () => {
                 options: options as any,
                 bookings: (() => bookings) as any,
                 week_start: 1,
-                startPolling: jest.fn(() => () => null),
-                filterEventSearch: jest.fn((list: Booking[]) => list),
-                rejectBooking: jest.fn(),
-                approveBooking: jest.fn(),
-                editReservation: jest.fn(),
-                assignSpace: jest.fn(),
-                canApproveBooking: jest.fn(() => true),
+                startPolling: vi.fn(() => () => null),
+                filterEventSearch: vi.fn((list: Booking[]) => list),
+                rejectBooking: vi.fn(),
+                approveBooking: vi.fn(),
+                editReservation: vi.fn(),
+                assignSpace: vi.fn(),
+                canApproveBooking: vi.fn(() => true),
                 timezone: 'Australia/Perth',
             } as any),
             MockProvider(SettingsService as any, {
-                get: jest.fn((name: string) =>
+                get: vi.fn((name: string) =>
                     name === 'app.parking.show_waitlist' ? show_waitlist : false,
                 ),
                 time_format: 'h:mm a',

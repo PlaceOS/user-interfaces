@@ -1,31 +1,28 @@
 import { signal } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
 
 import * as ts_client from '@placeos/ts-client';
 import { AssetCategoryManagementModalComponent } from '../../app/asset-manager/asset-category-management-modal.component';
 
-jest.mock('@placeos/ts-client', () => {
-    const actual = jest.requireActual('@placeos/ts-client');
-    return { ...actual, removeAssetCategory: jest.fn(async () => ({})) };
-});
+vi.mock('@placeos/ts-client', { spy: true });
 
 describe('AssetCategoryManagementModalComponent', () => {
     let spectator: Spectator<AssetCategoryManagementModalComponent>;
-    let edit: jest.Mock;
+    let edit: any;
 
     const createComponent = createComponentFactory({
         component: AssetCategoryManagementModalComponent,
         detectChanges: false,
         providers: [
-            MockProvider(MatDialogRef, { close: jest.fn() }),
+            MockProvider(MatDialogRef, { close: vi.fn() }),
         ],
     });
 
     beforeEach(() => {
-        edit = jest.fn();
-        (ts_client.removeAssetCategory as jest.Mock).mockClear();
+        edit = vi.fn();
+        (ts_client.removeAssetCategory as any).mockClear();
         spectator = createComponent({
             providers: [
                 {
@@ -48,7 +45,8 @@ describe('AssetCategoryManagementModalComponent', () => {
     });
 
     it('should remove a category and emit a change event', async () => {
-        const changed = jest.fn();
+        vi.mocked(ts_client.removeAssetCategory).mockResolvedValue({} as any);
+        const changed = vi.fn();
         spectator.component.changed.subscribe(changed);
 
         await spectator.component.remove({ id: 'c1' } as any);

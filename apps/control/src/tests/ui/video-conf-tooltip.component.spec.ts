@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { CustomTooltipData } from '@placeos/components';
 import { MockComponent } from 'ng-mocks';
 
@@ -24,7 +24,7 @@ describe('VideoConferenceTooltipComponent', () => {
             },
             {
                 provide: CustomTooltipData,
-                useValue: { close: jest.fn() },
+                useValue: { close: vi.fn() },
             },
         ],
     });

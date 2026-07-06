@@ -19,9 +19,9 @@ describe('PlaylistItemsComponent', () => {
         [],
     );
     const can_update = signal(true);
-    const reorder = jest.fn();
-    const remove_media = jest.fn().mockResolvedValue(undefined);
-    const preview_media = jest.fn();
+    const reorder = vi.fn();
+    const remove_media = vi.fn().mockResolvedValue(undefined);
+    const preview_media = vi.fn();
 
     const service_stub = {
         selected_playlist,
@@ -39,12 +39,12 @@ describe('PlaylistItemsComponent', () => {
         reorderPlaylistMedia: reorder,
         removeMediaFromPlaylist: remove_media,
         previewMedia: preview_media,
-        editPlaylistItemSchedule: jest.fn(),
-        editPlaylist: jest.fn(),
-        removePlaylist: jest.fn(),
-        approvePlaylist: jest.fn(),
-        requestPlaylistApproval: jest.fn(),
-        sharePlaylist: jest.fn(),
+        editPlaylistItemSchedule: vi.fn(),
+        editPlaylist: vi.fn(),
+        removePlaylist: vi.fn(),
+        approvePlaylist: vi.fn(),
+        requestPlaylistApproval: vi.fn(),
+        sharePlaylist: vi.fn(),
     };
 
     async function make() {
@@ -60,7 +60,7 @@ describe('PlaylistItemsComponent', () => {
     }
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         selected_playlist.set(null);
         selected_playlist_item.set(null);
         playlist_media_items.set([]);
@@ -118,7 +118,7 @@ describe('PlaylistItemsComponent', () => {
         const item = media('a');
         playlist_media_items.set([item]);
         const component = await make();
-        const event = { preventDefault: jest.fn(), stopPropagation: jest.fn() };
+        const event = { preventDefault: vi.fn(), stopPropagation: vi.fn() };
         // Schedules default to open.
         expect(component.schedulesOpen(item, 0)).toBe(true);
         component.toggleSchedules(event as any, item, 0);
@@ -129,7 +129,7 @@ describe('PlaylistItemsComponent', () => {
         const items = [media('a'), media('b')];
         playlist_media_items.set(items);
         const component = await make();
-        const event = { preventDefault: jest.fn(), stopPropagation: jest.fn() };
+        const event = { preventDefault: vi.fn(), stopPropagation: vi.fn() };
 
         expect(component.allSchedulesCollapsed()).toBe(false);
         component.toggleAllSchedules(event as any);

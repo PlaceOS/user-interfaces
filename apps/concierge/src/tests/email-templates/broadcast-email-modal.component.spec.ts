@@ -1,36 +1,28 @@
+import { ComponentFixtureAutoDetect } from '@angular/core/testing';
 import { MatDialogRef } from '@angular/material/dialog';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { OrganisationService, SettingsService } from '@placeos/common';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
+import {
+    OrganisationService,
+    SettingsService,
+    setNotifyOutlet,
+} from '@placeos/common';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
-import * as bookings_mod from '@placeos/bookings';
-import * as events_mod from '@placeos/events';
-import * as common_mod from '@placeos/common';
+import * as ts_client from '@placeos/ts-client';
 import { FullscreenModalShellComponent } from '@placeos/components';
 import { UserListFieldComponent } from '@placeos/form-fields';
 import { BroadcastEmailModalComponent } from '../../app/email-templates/broadcast-email-modal.component';
 
-jest.mock('@placeos/bookings', () => ({
-    queryAllBookings: jest.fn(() => Promise.resolve([])),
-}));
-jest.mock('@placeos/events', () => ({
-    queryAllEvents: jest.fn(() => Promise.resolve([])),
-}));
-jest.mock('@placeos/common', () => {
-    const actual = jest.requireActual('@placeos/common');
-    return {
-        ...actual,
-        notifyError: jest.fn(),
-        notifySuccess: jest.fn(),
-        getTimezoneDifferenceInHours: jest.fn(() => 0),
-    };
-});
+// `queryAllEvents` (from the inlined `@placeos/events` lib) resolves through the
+// `@placeos/ts-client` `query` boundary, which is the interceptable layer.
+vi.mock('@placeos/ts-client', { spy: true });
 
 describe('BroadcastEmailModalComponent', () => {
     let spectator: Spectator<BroadcastEmailModalComponent>;
-    const dialog_close = jest.fn();
-    const module_execute = jest.fn(() => Promise.resolve());
+    const dialog_close = vi.fn();
+    const module_execute = vi.fn(() => Promise.resolve());
     let smtp_module: any;
+    let notify_open: ReturnType<typeof vi.fn>;
 
     const createComponent = createComponentFactory({
         component: BroadcastEmailModalComponent,
@@ -40,23 +32,33 @@ describe('BroadcastEmailModalComponent', () => {
             MockComponent(UserListFieldComponent),
         ],
         providers: [
+            { provide: ComponentFixtureAutoDetect, useValue: false },
             MockProvider(MatDialogRef, { close: dialog_close } as any),
             MockProvider(OrganisationService, {
-                module: jest.fn(() => smtp_module),
+                module: vi.fn(() => smtp_module),
                 building: { id: 'bld-1', timezone: 'Australia/Sydney' },
                 region: { id: 'reg-1' },
-                buildingsForRegion: jest.fn(() => [{ id: 'bld-1' }]),
+                buildingsForRegion: vi.fn(() => [{ id: 'bld-1' }]),
             } as any),
             MockProvider(SettingsService, {
-                get: jest.fn(() => false),
+                get: vi.fn(() => false),
             } as any),
         ],
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
+        notify_open = vi.fn(() => ({
+            onAction: () => ({ subscribe: () => undefined }),
+            dismiss: () => undefined,
+        }));
+        setNotifyOutlet({ open: notify_open } as any, true);
         smtp_module = { execute: module_execute };
         spectator = createComponent();
+    });
+
+    afterEach(() => {
+        setNotifyOutlet(null as any, true);
     });
 
     it('should resolve, normalise and de-duplicate custom recipients', async () => {
@@ -78,12 +80,15 @@ describe('BroadcastEmailModalComponent', () => {
     });
 
     it('should resolve room hosts and attendees for the rooms group', async () => {
-        (events_mod.queryAllEvents as jest.Mock).mockResolvedValue([
-            {
-                host: 'host@example.com',
-                attendees: [{ email: 'guest@example.com' }],
-            },
-        ]);
+        (ts_client.query as any).mockResolvedValue({
+            data: [
+                {
+                    host: 'host@example.com',
+                    attendees: [{ email: 'guest@example.com' }],
+                },
+            ],
+            next: undefined,
+        });
         spectator.component.model.update((m) => ({
             ...m,
             recipient_group: 'rooms',
@@ -91,7 +96,7 @@ describe('BroadcastEmailModalComponent', () => {
 
         await spectator.component.updateRecipients();
 
-        expect(events_mod.queryAllEvents).toHaveBeenCalled();
+        expect(ts_client.query).toHaveBeenCalled();
         expect(spectator.component.recipients().sort()).toEqual([
             'guest@example.com',
             'host@example.com',
@@ -110,7 +115,11 @@ describe('BroadcastEmailModalComponent', () => {
 
         await spectator.component.sendEmail();
 
-        expect(common_mod.notifyError).toHaveBeenCalled();
+        expect(notify_open).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['error'] }),
+        );
         expect(module_execute).not.toHaveBeenCalled();
     });
 
@@ -130,7 +139,11 @@ describe('BroadcastEmailModalComponent', () => {
             'Hello',
             'Body',
         ]);
-        expect(common_mod.notifySuccess).toHaveBeenCalled();
+        expect(notify_open).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['success'] }),
+        );
         expect(dialog_close).toHaveBeenCalledWith(true);
     });
 

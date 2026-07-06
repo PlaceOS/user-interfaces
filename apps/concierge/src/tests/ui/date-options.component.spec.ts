@@ -1,5 +1,5 @@
 import { convertToParamMap } from '@angular/router';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
 import { defer, of } from 'rxjs';
 
@@ -13,7 +13,7 @@ describe('DateOptionsComponent', () => {
         component: DateOptionsComponent,
         providers: [
             MockProvider(Router, {
-                navigate: jest.fn(),
+                navigate: vi.fn(),
             }),
             MockProvider(ActivatedRoute, {
                 queryParamMap: defer(() => of(convertToParamMap(query_params))),
@@ -22,13 +22,13 @@ describe('DateOptionsComponent', () => {
     });
 
     beforeEach(() => {
-        jest.useFakeTimers();
-        jest.setSystemTime(new Date(2026, 3, 22, 12));
+        vi.useFakeTimers();
+        vi.setSystemTime(new Date(2026, 3, 22, 12));
         query_params = {};
         spectator = createComponent();
     });
 
-    afterEach(() => jest.useRealTimers());
+    afterEach(() => vi.useRealTimers());
 
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();
@@ -57,7 +57,7 @@ describe('DateOptionsComponent', () => {
     it('should ignore invalid date query params', () => {
         query_params = { date: 'invalid' };
         spectator = createComponent();
-        jest.runOnlyPendingTimers();
+        vi.runOnlyPendingTimers();
         spectator.detectChanges();
 
         expect(spectator.query('.display')).toHaveText('Apr 22, 2026');

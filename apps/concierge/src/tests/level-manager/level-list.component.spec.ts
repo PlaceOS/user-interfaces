@@ -1,24 +1,20 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
+
+import { setNotifyOutlet } from '@placeos/common';
 
 import { LevelListComponent } from '../../app/level-manager/level-list.component';
 import { LevelManagementService } from '../../app/level-manager/level-management.service';
 import { BookingPanelSettingsModalComponent } from '../../app/ui/app-settings/booking-panel-settings-modal.component';
 
-import * as common_mod from '@placeos/common';
-
-jest.mock('@placeos/common', () => ({
-    ...jest.requireActual('@placeos/common'),
-    notifySuccess: jest.fn(),
-}));
-
 describe('LevelListComponent', () => {
     let spectator: Spectator<LevelListComponent>;
     let manager: any;
-    let copy: jest.Mock;
+    let copy: any;
+    let notify_open: ReturnType<typeof vi.fn>;
 
     const createComponent = createComponentFactory({
         component: LevelListComponent,
@@ -27,27 +23,33 @@ describe('LevelListComponent', () => {
         providers: [
             MockProvider(LevelManagementService, {}),
             MockProvider(Clipboard, {}),
-            MockProvider(MatDialog, { open: jest.fn() }),
+            MockProvider(MatDialog, { open: vi.fn() }),
         ],
     });
 
     beforeEach(() => {
-        (common_mod.notifySuccess as jest.Mock).mockClear();
+        notify_open = vi.fn(() => ({
+            onAction: () => ({ subscribe: () => undefined }),
+            dismiss: () => undefined,
+        }));
+        setNotifyOutlet({ open: notify_open } as any, true);
         manager = {
             filtered_levels: signal([{ id: 'lvl-1' }]),
-            editLevel: jest.fn(),
-            editLevelMap: jest.fn(),
-            removeLevel: jest.fn(),
+            editLevel: vi.fn(),
+            editLevelMap: vi.fn(),
+            removeLevel: vi.fn(),
         };
-        copy = jest.fn(() => true);
+        copy = vi.fn(() => true);
         spectator = createComponent({
             providers: [
                 { provide: LevelManagementService, useValue: manager },
                 { provide: Clipboard, useValue: { copy } },
-                { provide: MatDialog, useValue: { open: jest.fn() } },
+                { provide: MatDialog, useValue: { open: vi.fn() } },
             ],
         });
     });
+
+    afterEach(() => setNotifyOutlet(null as any, true));
 
     it('should expose the filtered levels from the manager', () => {
         expect(spectator.component.levels()).toEqual([{ id: 'lvl-1' }]);
@@ -65,12 +67,16 @@ describe('LevelListComponent', () => {
 
     it('should notify only when the id copy succeeds', () => {
         spectator.component.copyToClipboard('lvl-1');
-        expect(common_mod.notifySuccess).toHaveBeenCalled();
+        expect(notify_open).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['success'] }),
+        );
 
-        (common_mod.notifySuccess as jest.Mock).mockClear();
+        notify_open.mockClear();
         copy.mockReturnValue(false);
         spectator.component.copyToClipboard('lvl-1');
-        expect(common_mod.notifySuccess).not.toHaveBeenCalled();
+        expect(notify_open).not.toHaveBeenCalled();
     });
 
     it('should open the booking panel settings modal for the level', () => {

@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 
 import { VisitorReportOverallComponent } from 'apps/concierge/src/app/reports/visitors/visitor-report-overall.component';
 import { VisitorsReportService } from 'apps/concierge/src/app/reports/visitors/visitors-report.service';

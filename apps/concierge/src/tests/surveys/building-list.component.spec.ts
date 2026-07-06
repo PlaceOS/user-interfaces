@@ -1,5 +1,6 @@
+import { ComponentFixtureAutoDetect } from '@angular/core/testing';
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { OrganisationService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
@@ -17,6 +18,7 @@ describe('BuildingListComponent', () => {
         shallow: true,
         detectChanges: false,
         providers: [
+            { provide: ComponentFixtureAutoDetect, useValue: false },
             MockProvider(OrganisationService, { building_list } as any),
             MockProvider(SurveyService, {
                 survey_list,

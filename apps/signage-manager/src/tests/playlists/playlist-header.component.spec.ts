@@ -6,7 +6,7 @@ import { SignageService } from '../../app/signage.service';
 describe('PlaylistHeaderComponent', () => {
     const filtered_playlists = signal<any[]>([]);
     const can_create = signal(false);
-    const add_playlist = jest.fn();
+    const add_playlist = vi.fn();
     const service_stub = {
         filtered_playlists,
         can_create,
@@ -27,7 +27,7 @@ describe('PlaylistHeaderComponent', () => {
     }
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         filtered_playlists.set([]);
         can_create.set(false);
     });

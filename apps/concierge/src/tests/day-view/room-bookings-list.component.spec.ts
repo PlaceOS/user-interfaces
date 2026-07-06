@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { CalendarEvent, SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
@@ -25,18 +25,18 @@ describe('RoomBookingsListComponent', () => {
                 period: signal<'day' | 'week' | 'month'>('day'),
                 spaces,
                 loading,
-                setDate: jest.fn(),
-                newBooking: jest.fn(),
-                removeBooking: jest.fn(),
-                replace: jest.fn(),
+                setDate: vi.fn(),
+                newBooking: vi.fn(),
+                removeBooking: vi.fn(),
+                replace: vi.fn(),
             } as any),
             MockProvider(SettingsService, {
                 app_name: 'concierge',
-                get: jest.fn(),
+                get: vi.fn(),
                 time_format: 'h:mm a',
             } as any),
-            MockProvider(MatDialog, { open: jest.fn() }),
-            MockProvider(Router, { navigate: jest.fn() }),
+            MockProvider(MatDialog, { open: vi.fn() }),
+            MockProvider(Router, { navigate: vi.fn() }),
             MockProvider(ActivatedRoute, {
                 queryParamMap: of(convertToParamMap({})),
             }),

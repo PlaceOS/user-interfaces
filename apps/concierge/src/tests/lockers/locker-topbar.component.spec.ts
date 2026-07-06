@@ -2,7 +2,7 @@ import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { signal } from '@angular/core';
 import { MockComponent, MockProvider } from 'ng-mocks';
@@ -27,25 +27,25 @@ describe('LockersTopbarComponent', () => {
                 bookable_levels: signal([]),
                 filters: signal({}),
                 search: signal(''),
-                setFilters: jest.fn(),
-                setSearch: jest.fn(),
-                editLockerBank: jest.fn(),
-                releaseAllLockers: jest.fn(),
+                setFilters: vi.fn(),
+                setSearch: vi.fn(),
+                editLockerBank: vi.fn(),
+                releaseAllLockers: vi.fn(),
             } as any),
             MockProvider(OrganisationService, {
                 initialised: signal(true),
                 active_region: signal(null),
                 active_building: signal({ id: 'bld-1', timezone: 'UTC' }),
-                levelWithID: jest.fn(),
+                levelWithID: vi.fn(),
                 buildings: [],
                 building: { id: 'bld-1', timezone: 'UTC' },
                 region: null,
             } as any),
             MockProvider(SettingsService, {
-                get: jest.fn(() => false),
+                get: vi.fn(() => false),
             } as any),
             MockProvider(MatDialog, {
-                open: jest.fn(),
+                open: vi.fn(),
             }),
         ],
         imports: [MatFormFieldModule, MatSelectModule, FormsModule],

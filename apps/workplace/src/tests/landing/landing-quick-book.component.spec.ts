@@ -1,42 +1,51 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { Router } from '@angular/router';
 import { MockProvider } from 'ng-mocks';
 
-jest.mock('@placeos/common', () => ({
-    ...jest.requireActual('@placeos/common'),
-    notifyError: jest.fn(),
-}));
-
 import { BookingFormService } from '@placeos/bookings';
-import { notifyError, settingSignal, SettingsService } from '@placeos/common';
+import {
+    setNotifyOutlet,
+    settingSignal,
+    SettingsService,
+} from '@placeos/common';
 import { LandingQuickBookComponent } from '../../app/landing/landing-quick-book.component';
 
 describe('LandingQuickBookComponent', () => {
     let spectator: Spectator<LandingQuickBookComponent>;
+    let notify_open: ReturnType<typeof vi.fn>;
     const createComponent = createComponentFactory({
         component: LandingQuickBookComponent,
         detectChanges: false,
         providers: [
-            MockProvider(SettingsService, { get: jest.fn() }),
-            MockProvider(Router, { navigate: jest.fn() }),
+            MockProvider(SettingsService, { get: vi.fn() }),
+            MockProvider(Router, { navigate: vi.fn() }),
             MockProvider(BookingFormService, {
-                newForm: jest.fn(),
-                setOptions: jest.fn(),
-                listAvailableResources: jest.fn(() => Promise.resolve([])),
-                confirmPost: jest.fn(() => Promise.resolve({} as any)),
-                resetForm: jest.fn(),
-                model: Object.assign(jest.fn(() => ({})), {
-                    update: jest.fn(),
-                    set: jest.fn(),
+                newForm: vi.fn(),
+                setOptions: vi.fn(),
+                listAvailableResources: vi.fn(() => Promise.resolve([])),
+                confirmPost: vi.fn(() => Promise.resolve({} as any)),
+                resetForm: vi.fn(),
+                model: Object.assign(vi.fn(() => ({})), {
+                    update: vi.fn(),
+                    set: vi.fn(),
                 }),
             } as any),
         ],
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
+        notify_open = vi.fn(() => ({
+            onAction: () => ({ subscribe: () => undefined }),
+            dismiss: () => undefined,
+        }));
+        setNotifyOutlet({ open: notify_open } as any, true);
         settingSignal<string[]>('features', []).set(['desks', 'parking']);
         spectator = createComponent();
+    });
+
+    afterEach(() => {
+        setNotifyOutlet(null as any, true);
     });
 
     it('exposes enabled features from settings', () => {
@@ -59,11 +68,12 @@ describe('LandingQuickBookComponent', () => {
 
     it('notifies and resets loading when no resources are available', async () => {
         const form = spectator.inject(BookingFormService);
-        (form.listAvailableResources as jest.Mock).mockResolvedValue([]);
+        (form.listAvailableResources as any).mockResolvedValue([]);
         await spectator.component.book('desk');
         expect(form.newForm).toHaveBeenCalledWith('desk');
         expect(form.setOptions).toHaveBeenCalledWith({ type: 'desk' });
-        expect(notifyError).toHaveBeenCalledWith(
+        expect(notify_open).toHaveBeenCalled();
+        expect(notify_open.mock.calls[0][0]).toBe(
             'No desk available for the current building',
         );
         expect(form.confirmPost).not.toHaveBeenCalled();
@@ -74,12 +84,12 @@ describe('LandingQuickBookComponent', () => {
         const form = spectator.inject(BookingFormService);
         const router = spectator.inject(Router);
         const resource = { id: 'desk-1', name: 'Desk 1' };
-        (form.listAvailableResources as jest.Mock).mockResolvedValue([
+        (form.listAvailableResources as any).mockResolvedValue([
             resource,
         ]);
         await spectator.component.book('desk');
         expect(form.model.update).toHaveBeenCalled();
-        const update_fn = (form.model.update as jest.Mock).mock.calls[0][0];
+        const update_fn = (form.model.update as any).mock.calls[0][0];
         expect(update_fn({ existing: true })).toEqual({
             existing: true,
             resources: [resource],
@@ -93,16 +103,16 @@ describe('LandingQuickBookComponent', () => {
             'success',
         ]);
         expect(form.resetForm).toHaveBeenCalled();
-        expect(notifyError).not.toHaveBeenCalled();
+        expect(notify_open).not.toHaveBeenCalled();
     });
 
     it('resets the form without navigating when confirmation fails', async () => {
         const form = spectator.inject(BookingFormService);
         const router = spectator.inject(Router);
-        (form.listAvailableResources as jest.Mock).mockResolvedValue([
+        (form.listAvailableResources as any).mockResolvedValue([
             { id: 'desk-1', name: 'Desk 1' },
         ]);
-        (form.confirmPost as jest.Mock).mockRejectedValue(new Error('nope'));
+        (form.confirmPost as any).mockRejectedValue(new Error('nope'));
         await spectator.component.book('desk');
         expect(router.navigate).not.toHaveBeenCalled();
         expect(form.resetForm).toHaveBeenCalled();

@@ -1,26 +1,23 @@
 import { signal } from '@angular/core';
+import { ComponentFixtureAutoDetect } from '@angular/core/testing';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { Router } from '@angular/router';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { BookingFormService, ParkingService } from '@placeos/bookings';
-import { SettingsService } from '@placeos/common';
+import {
+    SettingsService,
+    setCurrentUser,
+    setNotifyOutlet,
+    StaffUser,
+} from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
 import { ParkingFlowFormComponent } from '../../../app/book/parking-flow/parking-flow-form.component';
-import * as common from '@placeos/common';
-
-jest.mock('@placeos/common', () => {
-    const actual = jest.requireActual('@placeos/common');
-    return {
-        ...actual,
-        notifyError: jest.fn(),
-        currentUser: jest.fn(() => ({ email: 'me@test.com', name: 'Me' })),
-    };
-});
 
 describe('ParkingFlowFormComponent', () => {
     let spectator: Spectator<ParkingFlowFormComponent>;
+    let notify_open: any;
     let model: ReturnType<typeof signal<Record<string, any>>>;
     let valid_flag: boolean;
     let form: any;
@@ -33,6 +30,12 @@ describe('ParkingFlowFormComponent', () => {
         detectChanges: false,
         shallow: true,
         providers: [
+            // This spec drives the component's methods directly and never
+            // asserts on the DOM. Left on, zoneless auto-detect renders the
+            // signal-forms `[formField]` template against the hand-mocked form
+            // (whose fields aren't callable), throwing `this.field(...) is not
+            // a function` asynchronously. Disable it so no template renders.
+            { provide: ComponentFixtureAutoDetect, useValue: false },
             MockProvider(BookingFormService, {} as any),
             MockProvider(SettingsService, {} as any),
             MockProvider(ParkingService, {} as any),
@@ -42,7 +45,18 @@ describe('ParkingFlowFormComponent', () => {
     });
 
     beforeEach(() => {
-        (common.notifyError as jest.Mock).mockClear();
+        notify_open = vi.fn(() => ({
+            onAction: () => ({ subscribe: () => undefined }),
+            dismiss: () => undefined,
+        }));
+        setNotifyOutlet({ open: notify_open } as any, true);
+        setCurrentUser(
+            new StaffUser({
+                id: 'me',
+                email: 'me@test.com',
+                name: 'Me',
+            } as any),
+        );
         valid_flag = true;
         model = signal({
             id: '',
@@ -57,7 +71,7 @@ describe('ParkingFlowFormComponent', () => {
         user_details = signal<any>(null);
         dismiss_value = true;
         open_result = {
-            instance: { show_close: { set: jest.fn() } },
+            instance: { show_close: { set: vi.fn() } },
             afterDismissed: () => of(dismiss_value),
         };
         spectator = createComponent({
@@ -65,23 +79,25 @@ describe('ParkingFlowFormComponent', () => {
                 MockProvider(BookingFormService, {
                     form,
                     model,
-                    setOptions: jest.fn(),
-                    setView: jest.fn(),
-                    resetForm: jest.fn(),
+                    setOptions: vi.fn(),
+                    setView: vi.fn(),
+                    resetForm: vi.fn(),
                 } as any),
                 MockProvider(SettingsService, {
-                    get: jest.fn(() => undefined),
+                    get: vi.fn(() => undefined),
                 } as any),
                 MockProvider(ParkingService, {
                     user_details,
                 } as any),
                 MockProvider(MatBottomSheet, {
-                    open: jest.fn(() => open_result),
+                    open: vi.fn(() => open_result),
                 } as any),
-                MockProvider(Router, { navigate: jest.fn() }),
+                MockProvider(Router, { navigate: vi.fn() }),
             ],
         });
     });
+
+    afterEach(() => setNotifyOutlet(null as any, true));
 
     it('should notify the user and not open the confirm sheet when the form is invalid', () => {
         valid_flag = false;
@@ -89,9 +105,13 @@ describe('ParkingFlowFormComponent', () => {
 
         spectator.component.viewConfirm();
 
-        expect(common.notifyError).toHaveBeenCalledWith(
-            expect.stringContaining('Some fields are invalid.'),
-        );
+        expect(
+            notify_open.mock.calls.some(
+                (c) =>
+                    typeof c[0] === 'string' &&
+                    c[0].includes('Some fields are invalid.'),
+            ),
+        ).toBe(true);
         expect(sheet.open).not.toHaveBeenCalled();
     });
 
@@ -162,7 +182,8 @@ describe('ParkingFlowFormComponent', () => {
         await spectator.component.ngOnInit();
 
         expect(model().plate_number).toBe('XYZ789');
-        expect(model().user).toEqual({ email: 'me@test.com', name: 'Me' });
+        expect(model().user.email).toBe('me@test.com');
+        expect(model().user.name).toBe('Me');
     });
 
     it('should prefer the configured plate number setting over the user details', async () => {

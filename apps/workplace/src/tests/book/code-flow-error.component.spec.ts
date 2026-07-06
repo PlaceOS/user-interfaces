@@ -1,4 +1,4 @@
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { BookingFormService } from '@placeos/bookings';
 import { MockProvider } from 'ng-mocks';
 

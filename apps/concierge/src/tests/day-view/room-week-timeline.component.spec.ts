@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import {
     createRoutingFactory,
     SpectatorRouting,
-} from '@ngneat/spectator/jest';
+} from '@ngneat/spectator/vitest';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { setHours, startOfDay, subWeeks } from 'date-fns';
 import { MockProvider } from 'ng-mocks';
@@ -18,7 +18,7 @@ describe('RoomWeekBookingsTimelineComponent', () => {
     const zones = signal<string[]>([]);
     const date = signal<number>(startOfDay(Date.now()).valueOf());
     const settings_values: Record<string, any> = {};
-    let dialog_open: jest.Mock;
+    let dialog_open: any;
 
     const createComponent = createRoutingFactory({
         component: RoomWeekBookingsTimelineComponent,
@@ -32,15 +32,15 @@ describe('RoomWeekBookingsTimelineComponent', () => {
                     zones,
                     date,
                     options: signal({}),
-                    newBooking: jest.fn(),
-                    setDate: jest.fn(),
-                    removeBooking: jest.fn(),
-                    poll: jest.fn(() => new Subscription()),
-                    replace: jest.fn(),
+                    newBooking: vi.fn(),
+                    setDate: vi.fn(),
+                    removeBooking: vi.fn(),
+                    poll: vi.fn(() => new Subscription()),
+                    replace: vi.fn(),
                 },
             },
             MockProvider(SettingsService, {
-                get: jest.fn((key: string) => settings_values[key]),
+                get: vi.fn((key: string) => settings_values[key]),
                 time_format: 'shortTime',
             } as any),
             MockProvider(OrganisationService, {
@@ -56,7 +56,7 @@ describe('RoomWeekBookingsTimelineComponent', () => {
         filtered.set([]);
         zones.set([]);
         date.set(startOfDay(Date.now()).valueOf());
-        dialog_open = jest.fn(() => ({
+        dialog_open = vi.fn(() => ({
             componentInstance: {
                 hide_edit: signal(false),
                 action: new Subject(),

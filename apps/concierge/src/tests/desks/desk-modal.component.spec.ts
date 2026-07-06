@@ -1,17 +1,14 @@
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { OrganisationService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
 import { DeskModalComponent } from '../../app/desks/desk-modal.component';
 
-jest.mock('@placeos/users');
-jest.mock('@placeos/bookings');
-
 describe('DeskModalComponent', () => {
     let spectator: Spectator<DeskModalComponent>;
     let dialog_data: any;
-    let dialog_ref: { close: jest.Mock; disableClose: boolean };
+    let dialog_ref: { close: any; disableClose: boolean };
 
     const createComponent = createComponentFactory({
         component: DeskModalComponent,
@@ -22,12 +19,12 @@ describe('DeskModalComponent', () => {
                 organisation: { id: 'org-1' },
                 building: { id: 'bld-1', parent_id: 'region-1' },
             } as any),
-            MockProvider(MatDialog, { open: jest.fn() } as any),
+            MockProvider(MatDialog, { open: vi.fn() } as any),
         ],
     });
 
     beforeEach(() => {
-        dialog_ref = { close: jest.fn(), disableClose: false };
+        dialog_ref = { close: vi.fn(), disableClose: false };
         dialog_data = { desk: undefined };
         (createComponent as any).__ref = dialog_ref;
     });
@@ -90,7 +87,7 @@ describe('DeskModalComponent', () => {
             },
         };
         spectator = build();
-        const emit = jest.spyOn(spectator.component.event, 'emit');
+        const emit = vi.spyOn(spectator.component.event, 'emit');
 
         spectator.component.postForm();
 
@@ -112,7 +109,7 @@ describe('DeskModalComponent', () => {
             },
         };
         spectator = build();
-        const emit = jest.spyOn(spectator.component.event, 'emit');
+        const emit = vi.spyOn(spectator.component.event, 'emit');
         spectator.component.model.update((m) => ({ ...m, name: 'Renamed' }));
 
         spectator.component.postForm();

@@ -1,12 +1,12 @@
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
 
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { ParkingReportChartsComponent } from 'apps/concierge/src/app/reports/parking/parking-report-charts.component';
 import { ParkingReportService } from 'apps/concierge/src/app/reports/parking/parking-report.service';
 
-jest.mock('chart.js');
+vi.mock('chart.js');
 
 describe('ParkingReportChartsComponent', () => {
     let spectator: Spectator<ParkingReportChartsComponent>;
@@ -31,11 +31,11 @@ describe('ParkingReportChartsComponent', () => {
                     counts: (counts = signal<Record<string, number>>({})),
                 },
             },
-            MockProvider(SettingsService, { get: jest.fn(() => false) } as any),
+            MockProvider(SettingsService, { get: vi.fn(() => false) } as any),
             MockProvider(OrganisationService, {
-                levelsForBuilding: jest.fn(() => org_levels),
-                levelsForRegion: jest.fn(() => org_levels),
-                levelWithID: jest.fn(([id]) =>
+                levelsForBuilding: vi.fn(() => org_levels),
+                levelsForRegion: vi.fn(() => org_levels),
+                levelWithID: vi.fn(([id]) =>
                     org_levels.find((l) => l.id === id),
                 ),
             } as any),

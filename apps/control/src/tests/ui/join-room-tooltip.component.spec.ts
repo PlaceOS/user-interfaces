@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 
 import { ControlStateService } from '../../app/control-state.service';
 import { JoinRoomTooltipComponent } from '../../app/ui/join-room-tooltip.component';
@@ -8,7 +8,7 @@ describe('JoinRoomTooltipComponent', () => {
     let spectator: Spectator<JoinRoomTooltipComponent>;
     const join_modes = signal<Record<string, any>>({});
     const joined_id = signal<string>('');
-    const join_fn = jest.fn();
+    const join_fn = vi.fn();
     const createComponent = createComponentFactory({
         component: JoinRoomTooltipComponent,
         providers: [

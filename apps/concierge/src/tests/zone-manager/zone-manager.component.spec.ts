@@ -1,6 +1,7 @@
+import { ComponentFixtureAutoDetect } from '@angular/core/testing';
 import { convertToParamMap, ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { OrganisationService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
@@ -16,7 +17,7 @@ describe('ZoneManagerComponent', () => {
     let region_service: any;
     let building_service: any;
     let level_service: any;
-    let router_navigate: jest.Mock;
+    let router_navigate: any;
     let query_param_map: any;
 
     const createComponent = createComponentFactory({
@@ -24,10 +25,11 @@ describe('ZoneManagerComponent', () => {
         shallow: true,
         detectChanges: false,
         providers: [
+            { provide: ComponentFixtureAutoDetect, useValue: false },
             MockProvider(RegionManagementService, {}),
             MockProvider(BuildingManagementService, {}),
             MockProvider(LevelManagementService, {}),
-            MockProvider(MatDialog, { open: jest.fn() }),
+            MockProvider(MatDialog, { open: vi.fn() }),
             MockProvider(OrganisationService, {}),
             MockProvider(ActivatedRoute, {}),
             MockProvider(Router, {}),
@@ -35,21 +37,21 @@ describe('ZoneManagerComponent', () => {
     });
 
     beforeEach(() => {
-        region_service = { editRegion: jest.fn() };
-        building_service = { editBuilding: jest.fn() };
-        level_service = { editLevel: jest.fn() };
-        router_navigate = jest.fn();
+        region_service = { editRegion: vi.fn() };
+        building_service = { editBuilding: vi.fn() };
+        level_service = { editLevel: vi.fn() };
+        router_navigate = vi.fn();
         query_param_map = of(convertToParamMap({}));
         spectator = createComponent({
             providers: [
                 { provide: RegionManagementService, useValue: region_service },
                 { provide: BuildingManagementService, useValue: building_service },
                 { provide: LevelManagementService, useValue: level_service },
-                { provide: MatDialog, useValue: { open: jest.fn() } },
+                { provide: MatDialog, useValue: { open: vi.fn() } },
                 {
                     provide: OrganisationService,
                     useValue: {
-                        waitUntilInitialised: jest.fn(() => Promise.resolve()),
+                        waitUntilInitialised: vi.fn(() => Promise.resolve()),
                         organisation: { id: 'org-1' },
                     },
                 },

@@ -1,9 +1,10 @@
+import { ComponentFixtureAutoDetect } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { Router } from '@angular/router';
 import {
     createRoutingFactory,
     SpectatorRouting,
-} from '@ngneat/spectator/jest';
+} from '@ngneat/spectator/vitest';
 import { addWeeks, startOfDay } from 'date-fns';
 
 import { EventCalendarComponent } from '../../app/events/event-calendar.component';
@@ -12,13 +13,14 @@ import { EventStateService } from '../../app/events/event-state.service';
 describe('EventCalendarComponent', () => {
     let spectator: SpectatorRouting<EventCalendarComponent>;
     const options = signal<any>({ period: 'week' });
-    const set_options = jest.fn();
+    const set_options = vi.fn();
 
     const createComponent = createRoutingFactory({
         component: EventCalendarComponent,
         shallow: true,
         detectChanges: false,
         providers: [
+            { provide: ComponentFixtureAutoDetect, useValue: false },
             {
                 provide: EventStateService,
                 useValue: { options, setOptions: set_options },
@@ -55,7 +57,7 @@ describe('EventCalendarComponent', () => {
 
     it('should set the period and update the route', () => {
         const router = spectator.inject(Router);
-        const navigate = jest.spyOn(router, 'navigate');
+        const navigate = vi.spyOn(router, 'navigate');
         spectator.component.setPeriod('month');
         expect(set_options).toHaveBeenCalledWith({ period: 'month' });
         expect(navigate).toHaveBeenCalledWith(
@@ -71,7 +73,7 @@ describe('EventCalendarComponent', () => {
         const date = startOfDay(Date.now()).valueOf();
         options.set({ period: 'week', date, end: date });
         const router = spectator.inject(Router);
-        const navigate = jest.spyOn(router, 'navigate');
+        const navigate = vi.spyOn(router, 'navigate');
         spectator.component.nextPeriod();
         expect(navigate).toHaveBeenCalledWith(
             [],
@@ -85,7 +87,7 @@ describe('EventCalendarComponent', () => {
         const date = startOfDay(Date.now()).valueOf();
         options.set({ period: 'week', date, end: date });
         const router = spectator.inject(Router);
-        const navigate = jest.spyOn(router, 'navigate');
+        const navigate = vi.spyOn(router, 'navigate');
         spectator.component.previousPeriod();
         expect(navigate).toHaveBeenCalledWith(
             [],

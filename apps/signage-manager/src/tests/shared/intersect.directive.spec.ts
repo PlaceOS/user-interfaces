@@ -15,12 +15,12 @@ class HostComponent {
 describe('IntersectDirective', () => {
     let observer_callback: ObserverCallback;
     let observer_options: IntersectionObserverInit | undefined;
-    const observe = jest.fn();
-    const disconnect = jest.fn();
+    const observe = vi.fn();
+    const disconnect = vi.fn();
     const original_observer = (global as any).IntersectionObserver;
 
     beforeEach(async () => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         (global as any).IntersectionObserver = class {
             constructor(
                 callback: ObserverCallback,

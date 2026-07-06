@@ -1,42 +1,31 @@
+import { ComponentFixtureAutoDetect } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
+import { setNotifyOutlet } from '@placeos/common';
+
 import * as ts_client from '@placeos/ts-client';
-import * as common_mod from '@placeos/common';
 import { QuestionModalComponent } from '../../app/surveys/question-modal.component';
 import { QuestionComponent } from '../../app/surveys/question.component';
 
-jest.mock('@placeos/ts-client', () => {
-    const actual = jest.requireActual('@placeos/ts-client');
-    return {
-        ...actual,
-        addQuestion: jest.fn(() => Promise.resolve()),
-        updateQuestion: jest.fn(() => Promise.resolve()),
-    };
-});
+vi.mock('@placeos/ts-client', { spy: true });
 
-jest.mock('@placeos/common', () => {
-    const actual = jest.requireActual('@placeos/common');
-    return {
-        ...actual,
-        notifySuccess: jest.fn(),
-    };
-});
-
-const { SurveyQuestion } = jest.requireActual('@placeos/ts-client');
+const { SurveyQuestion } = ts_client;
 
 describe('QuestionModalComponent', () => {
     let spectator: Spectator<QuestionModalComponent>;
     let dialog_data: any;
-    const dialog_close = jest.fn();
+    let notify_open: ReturnType<typeof vi.fn>;
+    const dialog_close = vi.fn();
 
     const createComponent = createComponentFactory({
         component: QuestionModalComponent,
         detectChanges: false,
         declarations: [MockComponent(QuestionComponent)],
         providers: [
+            { provide: ComponentFixtureAutoDetect, useValue: false },
             { provide: MAT_DIALOG_DATA, useFactory: () => dialog_data },
             MockProvider(MatDialogRef, { close: dialog_close } as any),
         ],
@@ -49,8 +38,23 @@ describe('QuestionModalComponent', () => {
     }
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
+        notify_open = vi.fn(() => ({
+            onAction: () => ({ subscribe: () => undefined }),
+            dismiss: () => undefined,
+        }));
+        setNotifyOutlet({ open: notify_open } as any, true);
+        vi.mocked(ts_client.addQuestion).mockResolvedValue(
+            new SurveyQuestion({}) as never,
+        );
+        vi.mocked(ts_client.updateQuestion).mockResolvedValue(
+            new SurveyQuestion({}) as never,
+        );
         dialog_data = null;
+    });
+
+    afterEach(() => {
+        setNotifyOutlet(null as any, true);
     });
 
     it('should treat existing questions as edits', () => {
@@ -83,7 +87,11 @@ describe('QuestionModalComponent', () => {
         expect(ts_client.addQuestion).toHaveBeenCalledWith(question);
         expect(ts_client.updateQuestion).not.toHaveBeenCalled();
         expect(dialog_close).toHaveBeenCalledWith(true);
-        expect(common_mod.notifySuccess).toHaveBeenCalled();
+        expect(notify_open).toHaveBeenCalledWith(
+            expect.anything(),
+            'OK',
+            expect.objectContaining({ panelClass: ['success'] }),
+        );
     });
 
     it('should update an existing question on save', async () => {

@@ -10,10 +10,10 @@ describe('PlaylistItemDetailsComponent', () => {
     const displays = signal<any[]>([]);
     const zones = signal<any[]>([]);
     const can_update = signal(true);
-    const add_display = jest.fn();
-    const add_zone = jest.fn();
-    const remove_display = jest.fn();
-    const remove_zone = jest.fn();
+    const add_display = vi.fn();
+    const add_zone = vi.fn();
+    const remove_display = vi.fn();
+    const remove_zone = vi.fn();
 
     const service_stub = {
         selected_playlist,
@@ -41,7 +41,7 @@ describe('PlaylistItemDetailsComponent', () => {
     }
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         selected_playlist.set(null);
         playlist_media_items.set([]);
         displays.set([]);
@@ -161,7 +161,7 @@ describe('PlaylistItemDetailsComponent', () => {
         selected_playlist.set(playlist);
         const component = await make();
         const display = { id: 'd-1' };
-        const event = { preventDefault: jest.fn(), stopPropagation: jest.fn() };
+        const event = { preventDefault: vi.fn(), stopPropagation: vi.fn() };
 
         component.addDisplay();
         component.removeDisplay(event as any, display);
@@ -177,7 +177,7 @@ describe('PlaylistItemDetailsComponent', () => {
         selected_playlist.set(playlist);
         const component = await make();
         const zone = { id: 'z-1' };
-        const event = { preventDefault: jest.fn(), stopPropagation: jest.fn() };
+        const event = { preventDefault: vi.fn(), stopPropagation: vi.fn() };
 
         component.addZone();
         component.removeZone(event as any, zone);

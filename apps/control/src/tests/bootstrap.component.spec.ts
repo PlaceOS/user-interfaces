@@ -4,7 +4,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router } from '@angular/router';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { MockModule, MockProvider } from 'ng-mocks';
 
 import { SettingsService } from '@placeos/common';
@@ -21,7 +21,7 @@ describe('BootstrapComponent', () => {
                 initialised: of(true),
                 space_list: [{ id: '1', name: 'Space 1' }],
             } as any),
-            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(SettingsService, { get: vi.fn() }),
         ],
         imports: [
             FormsModule,
@@ -33,13 +33,13 @@ describe('BootstrapComponent', () => {
     });
 
     beforeEach(() => {
-        jest.useFakeTimers();
+        vi.useFakeTimers();
         spectator = createComponent();
     });
 
     afterEach(() => {
         localStorage.clear();
-        jest.useRealTimers();
+        vi.useRealTimers();
     });
 
     it('should create the bootstrap', () => {
@@ -81,7 +81,7 @@ describe('BootstrapComponent', () => {
     it('should auto bootstrap if there is a system query parameter', () => {
         spectator.setRouteQueryParam('system_id', 'sys-B0');
         spectator.detectChanges();
-        jest.runOnlyPendingTimers();
+        vi.runOnlyPendingTimers();
         const router = spectator.inject(Router);
         expect(router.navigate).toHaveBeenCalledWith(['/tabbed', 'sys-B0'], {
             queryParamsHandling: 'preserve',
@@ -92,7 +92,7 @@ describe('BootstrapComponent', () => {
         localStorage.setItem('PLACEOS.CONTROL.system', 'sys-B0');
         spectator.setRouteQueryParam('clear', 'true');
         spectator.detectChanges();
-        jest.runOnlyPendingTimers();
+        vi.runOnlyPendingTimers();
         expect(localStorage.getItem('PLACEOS.CONTROL.system')).toBeFalsy();
     });
 });

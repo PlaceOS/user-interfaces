@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
@@ -18,7 +18,7 @@ const ITEMS = [
 
 const settingsMock = (theme: string) => ({
     theme,
-    get: jest.fn((key: string) =>
+    get: vi.fn((key: string) =>
         key === 'app.logo_light' ? { src: 'light.png' } : { src: 'dark.png' },
     ),
 });

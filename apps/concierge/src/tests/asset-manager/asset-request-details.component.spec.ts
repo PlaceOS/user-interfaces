@@ -1,4 +1,4 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
@@ -7,8 +7,8 @@ import { AssetRequestDetailsComponent } from '../../app/asset-manager/asset-requ
 
 describe('AssetRequestDetailsComponent', () => {
     let spectator: Spectator<AssetRequestDetailsComponent>;
-    let set_status: jest.Mock;
-    let set_tracking: jest.Mock;
+    let set_status: any;
+    let set_tracking: any;
 
     const createComponent = createComponentFactory({
         component: AssetRequestDetailsComponent,
@@ -19,15 +19,15 @@ describe('AssetRequestDetailsComponent', () => {
                 setTracking: (...args: any[]) => set_tracking(...args),
             } as any),
             MockProvider(OrganisationService, {
-                levelWithID: jest.fn(),
+                levelWithID: vi.fn(),
             } as any),
             MockProvider(SettingsService, { time_format: 'h:mm a' } as any),
         ],
     });
 
     beforeEach(() => {
-        set_status = jest.fn(async () => ({}));
-        set_tracking = jest.fn(async () => ({}));
+        set_status = vi.fn(async () => ({}));
+        set_tracking = vi.fn(async () => ({}));
         spectator = createComponent();
     });
 

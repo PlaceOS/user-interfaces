@@ -1,12 +1,11 @@
 import { signal } from '@angular/core';
-import { fakeAsync, tick } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent, MockModule } from 'ng-mocks';
 
-jest.mock('@placeos/ts-client', () => ({ getModule: jest.fn() }));
+vi.mock('@placeos/ts-client', { spy: true });
 
 import { IconComponent } from '@placeos/components';
 import * as client from '@placeos/ts-client';
@@ -21,7 +20,7 @@ describe('CameraControlsComponent', () => {
     let spectator: Spectator<CameraControlsComponent>;
     const camera_list = signal<any[]>([]);
     const selected_camera = signal<string>('');
-    const execute_fn = jest.fn(async () => null);
+    const execute_fn = vi.fn(async () => null);
     const createComponent = createComponentFactory({
         component: CameraControlsComponent,
         declarations: [
@@ -49,7 +48,7 @@ describe('CameraControlsComponent', () => {
         camera_list.set([]);
         selected_camera.set('');
         execute_fn.mockClear();
-        (client.getModule as jest.Mock).mockReturnValue({ execute: execute_fn });
+        (client.getModule as any).mockReturnValue({ execute: execute_fn });
         spectator = createComponent();
     });
 
@@ -138,12 +137,12 @@ describe('CameraControlsComponent', () => {
         expect(execute_fn).not.toHaveBeenCalledWith('pan', expect.anything());
     });
 
-    it('should not move when no active camera', fakeAsync(() => {
+    it('should not move when no active camera', async () => {
         spectator.component.active_camera.set(undefined);
         spectator.component.moveCamera();
-        tick(50);
+        await new Promise((r) => setTimeout(r, 70));
         expect(execute_fn).not.toHaveBeenCalled();
-    }));
+    });
 
     it('should set zoom direction and execute zoom on start', async () => {
         spectator.component.active_camera.set({
@@ -158,7 +157,7 @@ describe('CameraControlsComponent', () => {
         expect(execute_fn).toHaveBeenCalledWith('zoom', [ZoomDirection.In]);
     });
 
-    it('should reset zoom to stop and execute on stopZoom', fakeAsync(() => {
+    it('should reset zoom to stop and execute on stopZoom', async () => {
         spectator.component.active_camera.set({
             id: 'cam1',
             name: 'Camera 1',
@@ -166,17 +165,17 @@ describe('CameraControlsComponent', () => {
         } as any);
         spectator.component.zoom.set(ZoomDirection.In);
         spectator.component.stopZoom();
-        tick(50);
+        await new Promise((r) => setTimeout(r, 70));
         expect(spectator.component.zoom()).toBe(ZoomDirection.Stop);
         expect(execute_fn).toHaveBeenCalledWith('zoom', [ZoomDirection.Stop]);
-    }));
+    });
 
-    it('should do nothing on stopZoom when already stopped', fakeAsync(() => {
+    it('should do nothing on stopZoom when already stopped', async () => {
         spectator.component.zoom.set(ZoomDirection.Stop);
         spectator.component.stopZoom();
-        tick(50);
+        await new Promise((r) => setTimeout(r, 70));
         expect(execute_fn).not.toHaveBeenCalled();
-    }));
+    });
 
     it('should not render controls when camera list is empty', () => {
         spectator.detectChanges();

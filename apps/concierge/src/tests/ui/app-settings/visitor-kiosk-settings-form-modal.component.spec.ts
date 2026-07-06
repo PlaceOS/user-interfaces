@@ -4,8 +4,14 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { OrganisationService, SettingsService } from '@placeos/common';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
+import {
+    OrganisationService,
+    SettingsService,
+    setCurrentUser,
+    setNotifyOutlet,
+    StaffUser,
+} from '@placeos/common';
 import { mockComponent } from '@placeos/common/tests';
 import {
     FullscreenModalShellComponent,
@@ -16,14 +22,13 @@ import { MockProvider } from 'ng-mocks';
 import { UploadButtonComponent } from '../../../app/ui/app-settings/upload-button.component';
 import { VisitorKioskSettingsFormModalComponent } from '../../../app/ui/app-settings/visitor-kiosk-settings-form-modal.component';
 
-import * as common_mod from '@placeos/common';
 import * as ts_client from '@placeos/ts-client';
 
-jest.mock('@placeos/ts-client');
-jest.mock('@placeos/common');
+vi.mock('@placeos/ts-client', { spy: true });
 
 describe('VisitorKioskSettingsFormModalComponent', () => {
     let spectator: Spectator<VisitorKioskSettingsFormModalComponent>;
+    let notify_open: ReturnType<typeof vi.fn>;
 
     const mock_zone = {
         id: 'zone-1',
@@ -42,9 +47,9 @@ describe('VisitorKioskSettingsFormModalComponent', () => {
         ],
         providers: [
             MockProvider(MAT_DIALOG_DATA, { zone: mock_zone }),
-            MockProvider(MatDialogRef, { close: jest.fn() }),
+            MockProvider(MatDialogRef, { close: vi.fn() }),
             MockProvider(SettingsService, {
-                get: jest.fn(() => 'visitor-kiosk_app'),
+                get: vi.fn(() => 'visitor-kiosk_app'),
             } as any),
             MockProvider(OrganisationService, {
                 organisation: { id: 'org-1' },
@@ -61,24 +66,30 @@ describe('VisitorKioskSettingsFormModalComponent', () => {
     });
 
     beforeEach(() => {
-        jest.spyOn(ts_client, 'showMetadata').mockResolvedValue({
+        vi.mocked(ts_client.showMetadata).mockResolvedValue({
             details: {},
         } as never);
-        jest.spyOn(ts_client, 'updateMetadata').mockResolvedValue({} as never);
-        (common_mod as any).notifySuccess = jest.fn();
-        (common_mod as any).notifyError = jest.fn();
-        (common_mod as any).currentUser = jest.fn(() => ({
-            id: 'user-1',
-            name: 'Test User',
-            email: 'test@example.com',
-            groups: ['placeos_admin'],
+        vi.mocked(ts_client.updateMetadata).mockResolvedValue({} as never);
+        notify_open = vi.fn(() => ({
+            onAction: () => ({ subscribe: () => undefined }),
+            dismiss: () => undefined,
         }));
-        (common_mod as any).VERSION = { hash: 'test-hash' };
+        setNotifyOutlet({ open: notify_open } as any, true);
+        setCurrentUser(
+            new StaffUser({
+                id: 'user-1',
+                name: 'Test User',
+                email: 'test@example.com',
+                groups: ['placeos_admin'],
+            }) as any,
+        );
         spectator = createComponent();
     });
 
     afterEach(() => {
-        jest.restoreAllMocks();
+        setNotifyOutlet(null as any, true);
+        setCurrentUser(null as any);
+        vi.restoreAllMocks();
     });
 
     it('should create component', () => {
@@ -165,7 +176,7 @@ describe('VisitorKioskSettingsFormModalComponent', () => {
     });
 
     it('should skip parent metadata when parent is same as org', async () => {
-        (ts_client.showMetadata as jest.Mock).mockClear();
+        (ts_client.showMetadata as any).mockClear();
         // Override the zone to have parent_id === org id
         (spectator.component as any).zone = {
             ...mock_zone,
@@ -204,18 +215,24 @@ describe('VisitorKioskSettingsFormModalComponent', () => {
     it('should show success notification after save', async () => {
         await spectator.component.ngOnInit();
         await spectator.component.save();
-        expect(common_mod.notifySuccess).toHaveBeenCalledWith(
+        expect(notify_open).toHaveBeenCalledWith(
             'Successfully saved visitor kiosk app settings',
+            'OK',
+            expect.objectContaining({ panelClass: ['success'] }),
         );
     });
 
     it('should show error notification when save fails', async () => {
-        (ts_client.updateMetadata as jest.Mock).mockRejectedValueOnce({
+        (ts_client.updateMetadata as any).mockRejectedValueOnce({
             message: 'Network error',
         } as never);
         await spectator.component.ngOnInit();
         await spectator.component.save().catch(() => {});
-        expect(common_mod.notifyError).toHaveBeenCalled();
+        expect(notify_open).toHaveBeenCalledWith(
+            expect.anything(),
+            'OK',
+            expect.objectContaining({ panelClass: ['error'] }),
+        );
     });
 
     it('should add legend item', () => {

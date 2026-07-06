@@ -2,8 +2,8 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import {
-    notifyWarn,
     OrganisationService,
+    setNotifyOutlet,
     SettingsService,
     UploadsService,
 } from '@placeos/common';
@@ -17,56 +17,52 @@ import {
 import { PlaylistItemScheduleModalComponent } from '../app/shared/playlist-item-schedule-modal.component';
 import { SignageService } from '../app/signage.service';
 
-type SignageServiceTestAccess = SignageService & Record<string, jest.Mock>;
+type SignageServiceTestAccess = SignageService & Record<string, any>;
 
-jest.mock('@placeos/common', () => ({
-    ...jest.requireActual('@placeos/common'),
-    notifyWarn: jest.fn(),
-}));
+vi.mock('@placeos/ts-client', { spy: true });
 
-jest.mock('@placeos/ts-client', () => ({
-    ...jest.requireActual('@placeos/ts-client'),
-    addSignageMedia: jest.fn(),
-    listSignagePlaylistMedia: jest.fn(),
-    scheduleSignagePlaylistMedia: jest.fn(),
+const notify_open = vi.fn(() => ({
+    onAction: () => ({ subscribe: () => ({ unsubscribe: () => {} }) }),
+    dismiss: vi.fn(),
 }));
 
 describe('SignageService media uploads', () => {
     const uploads = {
-        uploadFileWithPermissionsToCompletion: jest.fn(),
-        uploadFileToCompletion: jest.fn(),
+        uploadFileWithPermissionsToCompletion: vi.fn(),
+        uploadFileToCompletion: vi.fn(),
     };
     const settings = {
-        get: jest.fn(),
+        get: vi.fn(),
     };
     const org = {
         initialised: signal(true),
         organisation: { id: 'org-1' },
     };
     const dialog = {
-        open: jest.fn(),
+        open: vi.fn(),
     };
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
+        setNotifyOutlet({ open: notify_open } as any, true);
         uploads.uploadFileWithPermissionsToCompletion.mockResolvedValue(
             'media-upload-1',
         );
         uploads.uploadFileToCompletion.mockResolvedValue('thumbnail-upload-1');
         settings.get.mockReturnValue(false);
-        (addSignageMedia as jest.Mock).mockImplementation((data) =>
+        (addSignageMedia as any).mockImplementation((data) =>
             Promise.resolve(new SignageMedia({ id: 'media-1', ...data })),
         );
-        (listSignagePlaylistMedia as jest.Mock).mockResolvedValue({
+        (listSignagePlaylistMedia as any).mockResolvedValue({
             items: [],
             media: [],
         });
-        (scheduleSignagePlaylistMedia as jest.Mock).mockResolvedValue({});
+        (scheduleSignagePlaylistMedia as any).mockResolvedValue({});
         dialog.open.mockReturnValue({
             afterClosed: () => ({
                 subscribe: (handler: (value?: unknown) => void) => {
                     Promise.resolve().then(() => handler(undefined));
-                    return { unsubscribe: jest.fn() };
+                    return { unsubscribe: vi.fn() };
                 },
             }),
         });
@@ -84,8 +80,8 @@ describe('SignageService media uploads', () => {
     function createService() {
         const service = TestBed.inject(SignageService);
         const test_service = service as unknown as SignageServiceTestAccess;
-        test_service['_requirePermission'] = jest.fn(() => true);
-        test_service['_generateThumbnail'] = jest.fn().mockResolvedValue('');
+        test_service['_requirePermission'] = vi.fn(() => true);
+        test_service['_generateThumbnail'] = vi.fn().mockResolvedValue('');
         return service;
     }
 
@@ -149,7 +145,7 @@ describe('SignageService media uploads', () => {
     it('saves media without a thumbnail when the thumbnail upload fails', async () => {
         const service = createService();
         const test_service = service as unknown as SignageServiceTestAccess;
-        (test_service['_generateThumbnail'] as jest.Mock).mockResolvedValue(
+        (test_service['_generateThumbnail'] as any).mockResolvedValue(
             'data:image/jpeg;base64,aW1hZ2U=',
         );
         uploads.uploadFileToCompletion.mockRejectedValue({
@@ -167,8 +163,10 @@ describe('SignageService media uploads', () => {
             },
         );
 
-        expect(notifyWarn).toHaveBeenCalledWith(
+        expect(notify_open).toHaveBeenCalledWith(
             'Media uploaded, but its thumbnail could not be saved.',
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['warn'] }),
         );
         expect(addSignageMedia).toHaveBeenCalledWith(
             expect.not.objectContaining({ thumbnail_id: expect.anything() }),

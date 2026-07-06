@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { IconComponent, SimpleTableComponent } from '@placeos/components';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
@@ -8,15 +8,12 @@ import { AssetReportDailyUsageComponent } from 'apps/concierge/src/app/reports/a
 import { AssetsReportService } from 'apps/concierge/src/app/reports/assets/assets-report.service';
 import { ReportMetricGuideComponent } from 'apps/concierge/src/app/reports/report-metric-guide.component';
 
-jest.mock('@placeos/common', () => ({
-    ...jest.requireActual('@placeos/common'),
-    downloadFile: jest.fn(),
-}));
-import { downloadFile } from '@placeos/common';
+import { captureDownloads } from '../download-capture.helper';
 
 describe('AssetReportDailyUsageComponent', () => {
     let spectator: Spectator<AssetReportDailyUsageComponent>;
     let daily_stats: ReturnType<typeof signal<any>>;
+    let downloads: ReturnType<typeof captureDownloads>;
 
     const createComponent = createComponentFactory({
         component: AssetReportDailyUsageComponent,
@@ -29,8 +26,10 @@ describe('AssetReportDailyUsageComponent', () => {
         providers: [MockProvider(AssetsReportService, {} as any)],
     });
 
+    afterEach(() => downloads.restore());
+
     beforeEach(() => {
-        (downloadFile as jest.Mock).mockClear();
+        downloads = captureDownloads();
         daily_stats = signal({
             '2026-04-06': {
                 all_bookings: [
@@ -85,9 +84,6 @@ describe('AssetReportDailyUsageComponent', () => {
 
     it('should download the daily usage table on request', async () => {
         await spectator.component.download();
-        expect(downloadFile).toHaveBeenCalledWith(
-            'report-assets-daily-usage.csv',
-            expect.any(String),
-        );
+        expect(downloads.filename).toBe('report-assets-daily-usage.csv');
     });
 });

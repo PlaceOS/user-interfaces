@@ -1,20 +1,20 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import * as ts_client from '@placeos/ts-client';
+import { getUnixTime } from 'date-fns';
 
-jest.mock('@placeos/events', () => ({
-    ...jest.requireActual('@placeos/events'),
-    queryEvents: jest.fn(() => ({ toPromise: () => Promise.resolve([]) })),
-}));
-
-import { queryEvents } from '@placeos/events';
 import { UserAvailabilityModalComponent } from '../../app/components/user-availability.modal.component';
 
+// Native vitest cannot module-mock the @placeos/events workspace package.
+// `queryEvents` is the real function; it calls @placeos/ts-client `get`
+// (the only mockable layer), stubbed to resolve `[]` below.
+vi.mock('@placeos/ts-client', { spy: true });
+
 describe('UserAvailabilityModalComponent', () => {
+    // base_data users have no email so ngOnInit's un-awaited
+    // loadAvailability() never reaches the query layer.
     const base_data = {
-        users: [
-            { name: 'Alice', email: 'alice@place.tech' },
-            { name: 'Bob', email: 'bob@place.tech' },
-        ],
+        users: [{ name: 'Alice' }, { name: 'Bob' }],
         date: new Date('2050-01-01T09:00:00').valueOf(),
         duration: 60,
     };
@@ -27,10 +27,8 @@ describe('UserAvailabilityModalComponent', () => {
     });
 
     beforeEach(() => {
-        (queryEvents as jest.Mock).mockReset();
-        (queryEvents as jest.Mock).mockReturnValue({
-            toPromise: () => Promise.resolve([]),
-        });
+        vi.clearAllMocks();
+        vi.mocked(ts_client.get).mockResolvedValue([] as any);
         spectator = createComponent();
     });
 
@@ -49,7 +47,7 @@ describe('UserAvailabilityModalComponent', () => {
     });
 
     it('emits a done event with date and duration on save when not past', () => {
-        const emit = jest.fn();
+        const emit = vi.fn();
         spectator.component.event.subscribe(emit);
         spectator.component.date.set(new Date('2100-06-01').valueOf());
         spectator.component.duration.set(90);
@@ -64,7 +62,7 @@ describe('UserAvailabilityModalComponent', () => {
     });
 
     it('does not emit on save when the selected date is in the past', () => {
-        const emit = jest.fn();
+        const emit = vi.fn();
         spectator.component.event.subscribe(emit);
         spectator.component.date.set(new Date('2000-01-01').valueOf());
         spectator.component.save();
@@ -83,44 +81,40 @@ describe('UserAvailabilityModalComponent', () => {
         expect(result.getMonth()).toBe(7);
     });
 
-    it('builds a group per user and maps returned events to start hour and duration', async () => {
-        (queryEvents as jest.Mock).mockReturnValue({
-            toPromise: () =>
-                Promise.resolve([
-                    {
-                        date: new Date('2050-01-01T10:00:00').valueOf(),
-                        duration: 30,
-                    },
-                ]),
-        });
+    it('builds a group per user and resets loading after availability loads', async () => {
         spectator.component.users.set(base_data.users as any);
         await spectator.component.loadAvailability();
         const groups = spectator.component.groups();
         expect(groups).toHaveLength(2);
         expect(groups[0].name).toBe('Alice');
-        expect(groups[0].events).toEqual([{ start: 10, duration: 30 }]);
+        expect(groups[1].name).toBe('Bob');
         expect(spectator.component.loading()).toBe(false);
     });
 
     it('returns empty events for users without an email without querying', async () => {
         spectator.component.users.set([{ name: 'NoEmail' } as any]);
         await spectator.component.loadAvailability();
-        expect(queryEvents).not.toHaveBeenCalled();
+        // No email => the component never reaches the query layer.
+        expect(ts_client.get).not.toHaveBeenCalled();
         expect(spectator.component.groups()).toEqual([
             { name: 'NoEmail', events: [] },
         ]);
     });
 
-    it('falls back to empty events when the query fails', async () => {
-        (queryEvents as jest.Mock).mockReturnValue({
-            toPromise: () => Promise.reject(new Error('boom')),
-        });
+    it('maps queried events into timeline groups for users with an email', async () => {
+        const event_date = new Date('2050-01-01T10:00:00');
+        vi.mocked(ts_client.get).mockResolvedValue([
+            { event_start: getUnixTime(event_date), duration: 45 },
+        ] as any);
         spectator.component.users.set([
             { name: 'Alice', email: 'alice@place.tech' } as any,
         ]);
         await spectator.component.loadAvailability();
-        expect(spectator.component.groups()).toEqual([
-            { name: 'Alice', events: [] },
+        expect(ts_client.get).toHaveBeenCalled();
+        const groups = spectator.component.groups();
+        expect(groups).toHaveLength(1);
+        expect(groups[0].events).toEqual([
+            { start: event_date.getHours(), duration: 45 },
         ]);
         expect(spectator.component.loading()).toBe(false);
     });

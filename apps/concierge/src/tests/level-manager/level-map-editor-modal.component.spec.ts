@@ -1,6 +1,6 @@
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { UploadsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
@@ -8,10 +8,7 @@ import { LevelMapEditorModalComponent } from '../../app/level-manager/level-map-
 
 import * as ts_client from '@placeos/ts-client';
 
-jest.mock('@placeos/ts-client', () => ({
-    authority: jest.fn(() => ({ description: 'TEST' })),
-    updateZone: jest.fn(),
-}));
+vi.mock('@placeos/ts-client', { spy: true });
 
 describe('LevelMapEditorModalComponent', () => {
     let spectator: Spectator<LevelMapEditorModalComponent>;
@@ -49,9 +46,9 @@ describe('LevelMapEditorModalComponent', () => {
         shallow: true,
         providers: [
             MockProvider(MAT_DIALOG_DATA, level),
-            MockProvider(MatDialogRef, { close: jest.fn() }),
+            MockProvider(MatDialogRef, { close: vi.fn() }),
             MockProvider(UploadsService, {
-                uploadFileToCompletion: jest.fn(),
+                uploadFileToCompletion: vi.fn(),
             }),
         ],
         imports: [NoopAnimationsModule],
@@ -59,16 +56,16 @@ describe('LevelMapEditorModalComponent', () => {
 
     beforeEach(() => {
         Object.defineProperty(URL, 'createObjectURL', {
-            value: jest.fn(() => 'blob:preview'),
+            value: vi.fn(() => 'blob:preview'),
             writable: true,
         });
         Object.defineProperty(URL, 'revokeObjectURL', {
-            value: jest.fn(),
+            value: vi.fn(),
             writable: true,
         });
-        jest.spyOn(console, 'debug').mockImplementation(() => undefined);
-        jest.spyOn(console, 'warn').mockImplementation(() => undefined);
-        (ts_client.updateZone as jest.Mock).mockResolvedValue({
+        vi.spyOn(console, 'debug').mockImplementation(() => undefined);
+        vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+        (ts_client.updateZone as any).mockResolvedValue({
             id: 'level-1',
             tags: ['level'],
         });
@@ -76,7 +73,7 @@ describe('LevelMapEditorModalComponent', () => {
     });
 
     afterEach(() => {
-        jest.restoreAllMocks();
+        vi.restoreAllMocks();
     });
 
     it('loads editable SVG elements', () => {
@@ -299,7 +296,7 @@ describe('LevelMapEditorModalComponent', () => {
         spectator.component.applySelectedChanges();
 
         const uploads = spectator.inject(UploadsService);
-        (uploads.uploadFileToCompletion as jest.Mock).mockResolvedValue(
+        (uploads.uploadFileToCompletion as any).mockResolvedValue(
             'upload-1',
         );
 
@@ -308,7 +305,7 @@ describe('LevelMapEditorModalComponent', () => {
         expect(uploads.uploadFileToCompletion).toHaveBeenCalledWith(
             expect.any(File),
         );
-        const file = (uploads.uploadFileToCompletion as jest.Mock).mock
+        const file = (uploads.uploadFileToCompletion as any).mock
             .calls[0][0] as File;
         expect(file.name).toBe('level-1.svg');
         expect(file.type).toBe('image/svg+xml');

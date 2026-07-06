@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { Booking, OrganisationService, SettingsService } from '@placeos/common';
 import { SimpleTableComponent } from '@placeos/components';
 import { startOfDay } from 'date-fns';
@@ -15,9 +15,9 @@ const options_signal = signal<any>({ view: 'grid', search: '', date: 0 });
 
 describe('AssetRequestListComponent', () => {
     let spectator: Spectator<AssetRequestListComponent>;
-    let set_status: jest.Mock;
-    let set_tracking: jest.Mock;
-    let level_with_id: jest.Mock;
+    let set_status: any;
+    let set_tracking: any;
+    let level_with_id: any;
 
     const createComponent = createComponentFactory({
         component: AssetRequestListComponent,
@@ -25,8 +25,8 @@ describe('AssetRequestListComponent', () => {
             MockProvider(AssetManagerStateService, {
                 filtered_requests,
                 options: options_signal,
-                setOptions: jest.fn(),
-                startPolling: jest.fn(() => jest.fn()),
+                setOptions: vi.fn(),
+                startPolling: vi.fn(() => vi.fn()),
                 setStatus: (...args: any[]) => set_status(...args),
                 setTracking: (...args: any[]) => set_tracking(...args),
             } as any),
@@ -45,9 +45,9 @@ describe('AssetRequestListComponent', () => {
     beforeEach(() => {
         filtered_requests.set([]);
         options_signal.set({ view: 'grid', search: '', date: 0 });
-        set_status = jest.fn(async () => ({}));
-        set_tracking = jest.fn(async () => ({}));
-        level_with_id = jest.fn();
+        set_status = vi.fn(async () => ({}));
+        set_tracking = vi.fn(async () => ({}));
+        level_with_id = vi.fn();
         spectator = createComponent();
     });
 

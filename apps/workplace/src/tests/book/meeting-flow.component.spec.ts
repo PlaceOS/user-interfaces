@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { Space } from '@placeos/common';
 import { mockComponent } from '@placeos/common/tests';
 import { EventFormService, SpacePipe } from '@placeos/events';
@@ -13,18 +13,18 @@ describe('BookMeetingFlowComponent', () => {
     let spectator: SpectatorRouting<BookMeetingFlowComponent>;
     const view = signal('form');
     const model = signal({ resources: [] });
-    const transform_space = jest.fn();
+    const transform_space = vi.fn();
     const createComponent = createRoutingFactory({
         component: BookMeetingFlowComponent,
         providers: [
             {
                 provide: EventFormService,
                 useValue: {
-                    loadForm: jest.fn(),
-                    newForm: jest.fn(),
-                    setView: jest.fn(),
+                    loadForm: vi.fn(),
+                    newForm: vi.fn(),
+                    setView: vi.fn(),
                     view,
-                    listenForStatusChanges: jest.fn(),
+                    listenForStatusChanges: vi.fn(),
                     last_success: signal(null),
                     available_spaces: signal([]),
                     model,

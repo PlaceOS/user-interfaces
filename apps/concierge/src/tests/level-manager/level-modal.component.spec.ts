@@ -1,27 +1,18 @@
 import { signal } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { OrganisationService } from '@placeos/common';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
+import { OrganisationService, setNotifyOutlet } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
 import { LevelModalComponent } from '../../app/level-manager/level-modal.component';
 
-import * as common_mod from '@placeos/common';
 import * as ts_client from '@placeos/ts-client';
 
-jest.mock('@placeos/common', () => ({
-    ...jest.requireActual('@placeos/common'),
-    notifyError: jest.fn(),
-}));
-jest.mock('@placeos/ts-client', () => ({
-    ...jest.requireActual('@placeos/ts-client'),
-    authority: jest.fn(() => ({ description: 'ACME' })),
-    addZone: jest.fn(),
-    updateZone: jest.fn(),
-}));
+vi.mock('@placeos/ts-client', { spy: true });
 
 describe('LevelModalComponent', () => {
     let spectator: Spectator<LevelModalComponent>;
+    let notify_open: ReturnType<typeof vi.fn>;
 
     const createComponent = createComponentFactory({
         component: LevelModalComponent,
@@ -29,7 +20,7 @@ describe('LevelModalComponent', () => {
         detectChanges: false,
         providers: [
             MockProvider(MAT_DIALOG_DATA, null),
-            MockProvider(MatDialogRef, { close: jest.fn() }),
+            MockProvider(MatDialogRef, { close: vi.fn() }),
             MockProvider(OrganisationService, {
                 building_list: signal([
                     { id: 'bld-1', name: 'Alpha', display_name: 'Alpha' },
@@ -44,14 +35,22 @@ describe('LevelModalComponent', () => {
         });
 
     beforeEach(() => {
-        (common_mod.notifyError as jest.Mock).mockClear();
-        (ts_client.addZone as jest.Mock).mockReset();
-        (ts_client.updateZone as jest.Mock).mockReset();
-        (ts_client.addZone as jest.Mock).mockResolvedValue({ id: 'lvl-new' });
-        (ts_client.updateZone as jest.Mock).mockResolvedValue({ id: 'lvl-1' });
+        notify_open = vi.fn(() => ({
+            onAction: () => ({ subscribe: () => undefined }),
+            dismiss: () => undefined,
+        }));
+        setNotifyOutlet({ open: notify_open } as any, true);
+        (ts_client.authority as any).mockReturnValue({ description: 'ACME' });
+        (ts_client.addZone as any).mockReset();
+        (ts_client.updateZone as any).mockReset();
+        (ts_client.addZone as any).mockResolvedValue({ id: 'lvl-new' });
+        (ts_client.updateZone as any).mockResolvedValue({ id: 'lvl-1' });
     });
 
-    afterEach(() => jest.restoreAllMocks());
+    afterEach(() => {
+        setNotifyOutlet(null as any, true);
+        vi.restoreAllMocks();
+    });
 
     it('should seed the model from the injected level including parking tag', () => {
         spectator = buildLevel({
@@ -73,7 +72,11 @@ describe('LevelModalComponent', () => {
 
         await spectator.component.save();
 
-        expect(common_mod.notifyError).toHaveBeenCalled();
+        expect(notify_open).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['error'] }),
+        );
         expect(ts_client.addZone).not.toHaveBeenCalled();
     });
 

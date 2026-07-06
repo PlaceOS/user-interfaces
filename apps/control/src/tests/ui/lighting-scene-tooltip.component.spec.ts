@@ -1,8 +1,8 @@
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent } from 'ng-mocks';
 
-jest.mock('@placeos/ts-client', () => ({ getModule: jest.fn() }));
+vi.mock('@placeos/ts-client', { spy: true });
 
 import { CustomTooltipData, IconComponent } from '@placeos/components';
 import * as client from '@placeos/ts-client';
@@ -13,8 +13,8 @@ describe('LightingSceneTooltipComponent', () => {
     let spectator: Spectator<LightingSceneTooltipComponent>;
     const lighting_scene = signal<number | undefined>(undefined);
     const lighting_scenes = signal<any[]>([]);
-    const close_fn = jest.fn();
-    const execute_fn = jest.fn(async () => null);
+    const close_fn = vi.fn();
+    const execute_fn = vi.fn(async () => null);
     const createComponent = createComponentFactory({
         component: LightingSceneTooltipComponent,
         declarations: [MockComponent(IconComponent)],
@@ -39,7 +39,7 @@ describe('LightingSceneTooltipComponent', () => {
         lighting_scenes.set([]);
         close_fn.mockClear();
         execute_fn.mockClear();
-        (client.getModule as jest.Mock).mockReturnValue({ execute: execute_fn });
+        (client.getModule as any).mockReturnValue({ execute: execute_fn });
         spectator = createComponent();
     });
 
@@ -89,7 +89,7 @@ describe('LightingSceneTooltipComponent', () => {
     });
 
     it('should not execute when module is missing', () => {
-        (client.getModule as jest.Mock).mockReturnValue(null);
+        (client.getModule as any).mockReturnValue(null);
         spectator.component.setScene('Bright');
         expect(execute_fn).not.toHaveBeenCalled();
     });

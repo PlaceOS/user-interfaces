@@ -5,8 +5,8 @@ import { SignageGroupEditModalComponent } from '../../app/groups/signage-group-e
 import { SignageService } from '../../app/signage.service';
 
 describe('SignageGroupEditModalComponent', () => {
-    const dialog_ref = { close: jest.fn(), disableClose: false };
-    const save_signage_group = jest.fn();
+    const dialog_ref = { close: vi.fn(), disableClose: false };
+    const save_signage_group = vi.fn();
     const manageable_signage_groups = signal<any[]>([]);
     const service_stub = {
         manageable_signage_groups,
@@ -29,7 +29,7 @@ describe('SignageGroupEditModalComponent', () => {
     }
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         dialog_ref.disableClose = false;
         save_signage_group.mockResolvedValue({ id: 'group-1' });
         manageable_signage_groups.set([

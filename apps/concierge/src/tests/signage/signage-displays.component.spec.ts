@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
@@ -10,15 +10,7 @@ import * as ts_client_mod from '@placeos/ts-client';
 import { SignageDisplaysComponent } from '../../app/signage/signage-displays.component';
 import { SignageStateService } from '../../app/signage/signage-state.service';
 
-jest.mock('@placeos/ts-client', () => {
-    const actual = jest.requireActual('@placeos/ts-client');
-    return {
-        ...actual,
-        updateSystem: jest.fn(async () => ({})),
-        updateTrigger: jest.fn(async () => ({})),
-        listSystemTriggers: jest.fn(async () => ({ data: [] })),
-    };
-});
+vi.mock('@placeos/ts-client', { spy: true });
 
 describe('SignageDisplaysComponent', () => {
     let spectator: Spectator<SignageDisplaysComponent>;
@@ -39,11 +31,11 @@ describe('SignageDisplaysComponent', () => {
                     { id: 'p1', name: 'News' },
                     { id: 'p2', name: 'Ads' },
                 ]) as any,
-                changed: jest.fn(),
-                removeDisplay: jest.fn(),
+                changed: vi.fn(),
+                removeDisplay: vi.fn(),
             }),
-            MockProvider(SettingsService, { get: jest.fn(() => '') } as any),
-            MockProvider(MatDialog, { open: jest.fn() }),
+            MockProvider(SettingsService, { get: vi.fn(() => '') } as any),
+            MockProvider(MatDialog, { open: vi.fn() }),
             MockProvider(ActivatedRoute, {
                 queryParamMap: of({ get: () => null }) as any,
             }),
@@ -51,7 +43,9 @@ describe('SignageDisplaysComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
+        // `spy: true` keeps real ts-client impls, which hang on live HTTP.
+        (ts_client_mod.updateSystem as any).mockResolvedValue({});
         spectator = createComponent();
         state = spectator.inject(SignageStateService) as any;
     });

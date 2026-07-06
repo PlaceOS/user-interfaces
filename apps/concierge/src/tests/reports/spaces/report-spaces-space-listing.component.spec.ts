@@ -1,28 +1,15 @@
 import { ApplicationRef, signal } from '@angular/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent } from 'ng-mocks';
 
 import { SettingsService } from '@placeos/common';
 import { IconComponent, SimpleTableComponent } from '@placeos/components';
+import * as ts_client from '@placeos/ts-client';
 import { ReportSpacesSpaceListingComponent } from 'apps/concierge/src/app/reports/spaces/report-spaces-space-listing.component';
 import { ReportsStateService } from 'apps/concierge/src/app/reports/reports-state.service';
 
-jest.mock('@placeos/events', () => ({
-    SpacePipe: class {
-        public async transform(key: string) {
-            return {
-                id: key,
-                email: key,
-                name: `Room ${key}`,
-                display_name: `Room ${key}`,
-                capacity: 4,
-            };
-        }
-    },
-    queryAllEvents: jest.fn(),
-    requestSpacesForZone: jest.fn(),
-}));
+vi.mock('@placeos/ts-client', { spy: true });
 
 describe('ReportSpacesSpaceListingComponent', () => {
     let spectator: Spectator<ReportSpacesSpaceListingComponent>;
@@ -49,7 +36,7 @@ describe('ReportSpacesSpaceListingComponent', () => {
             },
             {
                 provide: SettingsService,
-                useValue: { get: jest.fn(() => undefined) },
+                useValue: { get: vi.fn(() => undefined) },
             },
         ],
     });
@@ -61,6 +48,19 @@ describe('ReportSpacesSpaceListingComponent', () => {
     }
 
     beforeEach(() => {
+        (ts_client.showSystem as any).mockImplementation((id: string) =>
+            Promise.resolve({
+                id,
+                name: id,
+                display_name: id,
+                email: id,
+                capacity: 4,
+                zones: [],
+            }),
+        );
+        (ts_client.querySystemsWithEmails as any).mockResolvedValue({
+            data: [],
+        });
         stats = signal<any>({ events: [] });
         options = signal<any>({ start, end });
         spectator = createComponent({
@@ -71,7 +71,7 @@ describe('ReportSpacesSpaceListingComponent', () => {
                 },
                 {
                     provide: SettingsService,
-                    useValue: { get: jest.fn(() => undefined) },
+                    useValue: { get: vi.fn(() => undefined) },
                 },
             ],
         });

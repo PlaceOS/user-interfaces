@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { MockComponent, MockPipe } from 'ng-mocks';
 
 import { TranslatePipe } from '@placeos/components';
@@ -15,9 +15,9 @@ describe('ControlVideoCallViewComponent', () => {
     const state_mock = {
         system: signal<any>({}),
         system_id: signal('sys-1'),
-        powerOn: jest.fn(),
-        setID: jest.fn(),
-        selectMeeting: jest.fn(),
+        powerOn: vi.fn(),
+        setID: vi.fn(),
+        selectMeeting: vi.fn(),
     };
 
     const createComponent = createRoutingFactory({

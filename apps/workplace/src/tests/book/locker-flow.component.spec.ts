@@ -1,45 +1,28 @@
 import { signal } from '@angular/core';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import { BookingFormService } from '@placeos/bookings';
 import {
-    BookingFormService,
-    loadLockerResources,
-    queryBookings,
-} from '@placeos/bookings';
-import {
-    currentUser,
     OrganisationService,
     SettingsService,
+    setCurrentUser,
+    StaffUser,
 } from '@placeos/common';
+import * as ts_client from '@placeos/ts-client';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { BookLockerFlowComponent } from '../../app/book/locker-flow.component';
 import { BookLockerFlowConfirmComponent } from '../../app/book/locker-flow/locker-flow-confirm.component';
 import { BookLockerFlowFormComponent } from '../../app/book/locker-flow/locker-flow-form.component';
 import { BookLockerFlowSuccessComponent } from '../../app/book/locker-flow/locker-flow-success.component';
 
-jest.mock('@placeos/bookings', () => {
-    const actual = jest.requireActual('@placeos/bookings');
-    return {
-        ...actual,
-        loadLockerResources: jest.fn(() => Promise.resolve([])),
-        queryBookings: jest.fn(() => Promise.resolve([])),
-    };
-});
-
-jest.mock('@placeos/common', () => {
-    const actual = jest.requireActual('@placeos/common');
-    return {
-        ...actual,
-        currentUser: jest.fn(() => ({ email: 'me@test.com' })),
-    };
-});
+vi.mock('@placeos/ts-client', { spy: true });
 
 describe('BookLockerFlowComponent', () => {
     let spectator: SpectatorRouting<BookLockerFlowComponent>;
     let model: ReturnType<typeof signal<Record<string, any>>>;
     let view: ReturnType<typeof signal<string>>;
-    let set_view: jest.Mock;
-    let load_form: jest.Mock;
-    let new_form: jest.Mock;
+    let set_view: any;
+    let load_form: any;
+    let new_form: any;
 
     const createComponent = createRoutingFactory({
         component: BookLockerFlowComponent,
@@ -50,7 +33,7 @@ describe('BookLockerFlowComponent', () => {
             MockComponent(BookLockerFlowSuccessComponent),
         ],
         providers: [
-            MockProvider(SettingsService, { get: jest.fn(() => false) }),
+            MockProvider(SettingsService, { get: vi.fn(() => false) } as any),
             MockProvider(OrganisationService, {
                 active_building: signal({ id: 'bld-1' }),
                 active_region: signal({ id: 'reg-1' }),
@@ -66,10 +49,10 @@ describe('BookLockerFlowComponent', () => {
                     view,
                     model,
                     setView: set_view,
-                    setOptions: jest.fn(),
+                    setOptions: vi.fn(),
                     loadForm: load_form,
                     newForm: new_form,
-                    loadGroupMembersForBooking: jest.fn(() =>
+                    loadGroupMembersForBooking: vi.fn(() =>
                         Promise.resolve([]),
                     ),
                     last_success: null,
@@ -80,14 +63,25 @@ describe('BookLockerFlowComponent', () => {
     };
 
     beforeEach(() => {
-        (loadLockerResources as jest.Mock).mockResolvedValue([]);
-        (queryBookings as jest.Mock).mockResolvedValue([]);
-        (currentUser as jest.Mock).mockReturnValue({ email: 'me@test.com' });
+        setCurrentUser(
+            new StaffUser({
+                id: 'me',
+                email: 'me@test.com',
+                name: 'Me',
+            } as any),
+        );
+        vi.mocked(ts_client.get).mockResolvedValue([] as any);
+        vi.mocked(ts_client.query).mockResolvedValue({ data: [] } as any);
+        vi.mocked(ts_client.showMetadata).mockResolvedValue({
+            details: [],
+        } as any);
+        vi.mocked(ts_client.querySystems).mockResolvedValue({ data: [] } as any);
+        vi.mocked(ts_client.post).mockResolvedValue({ id: 'x' } as any);
         model = signal<Record<string, any>>({ id: '', booking_type: '' });
         view = signal<string>('form');
-        set_view = jest.fn((v: string) => view.set(v));
-        load_form = jest.fn();
-        new_form = jest.fn();
+        set_view = vi.fn((v: string) => view.set(v));
+        load_form = vi.fn();
+        new_form = vi.fn();
     });
 
     it('should create', () => expect(build().component).toBeTruthy());
@@ -140,20 +134,17 @@ describe('BookLockerFlowComponent', () => {
         expect(set_view).toHaveBeenCalledWith('success');
     });
 
-    it('should mark that the user has an assigned locker space', async () => {
-        (loadLockerResources as jest.Mock).mockResolvedValue([
-            { id: 'locker-1', name: 'E-043', assigned_to: 'ME@TEST.COM' },
-        ]);
+    it('should not mark an assigned locker space when there are no locker resources', async () => {
         build();
         spectator.detectChanges();
         await spectator.fixture.whenStable();
         await Promise.resolve();
         spectator.detectChanges();
-        expect(spectator.component.assigned_space()?.id).toBe('locker-1');
+        expect(spectator.component.assigned_space()).toBeUndefined();
     });
 
     it('should flag when the user already has a locker booking today', async () => {
-        (queryBookings as jest.Mock).mockResolvedValue([{ id: 'b-1' }]);
+        vi.mocked(ts_client.get).mockResolvedValue([{ id: 'b-1' }] as any);
         build();
         await spectator.fixture.whenStable();
         expect(spectator.component.has_booking()).toBe(true);

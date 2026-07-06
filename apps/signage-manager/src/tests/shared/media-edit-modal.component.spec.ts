@@ -1,29 +1,29 @@
 import { TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { notifyError, notifySuccess } from '@placeos/common';
+import { setNotifyOutlet } from '@placeos/common';
 import { SignageMedia, SignagePlugin } from '@placeos/ts-client';
 import {
     MediaEditModalComponent,
     MediaEditModalData,
 } from '../../app/shared/media-edit-modal.component';
 
-jest.mock('@placeos/common', () => ({
-    ...jest.requireActual('@placeos/common'),
-    notifyError: jest.fn(),
-    notifySuccess: jest.fn(),
+const notify_open = vi.fn(() => ({
+    onAction: () => ({ subscribe: () => ({ unsubscribe: () => {} }) }),
+    dismiss: vi.fn(),
 }));
 
 describe('MediaEditModalComponent', () => {
     const dialog_ref = {
-        close: jest.fn(),
+        close: vi.fn(),
         disableClose: false,
     };
-    const onAdd = jest.fn();
-    const onEdit = jest.fn();
+    const onAdd = vi.fn();
+    const onEdit = vi.fn();
     let modal_data: MediaEditModalData;
 
     beforeEach(async () => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
+        setNotifyOutlet({ open: notify_open } as any, true);
         dialog_ref.disableClose = false;
         onAdd.mockResolvedValue(new SignageMedia({ id: 'media-1' }));
         onEdit.mockResolvedValue(undefined);
@@ -38,7 +38,7 @@ describe('MediaEditModalComponent', () => {
             },
             onAdd,
             onEdit,
-            preview: jest.fn(),
+            preview: vi.fn(),
         };
         await TestBed.configureTestingModule({
             imports: [MediaEditModalComponent],
@@ -63,9 +63,15 @@ describe('MediaEditModalComponent', () => {
         expect(component.loading()).toBe(false);
         expect(dialog_ref.disableClose).toBe(false);
         expect(dialog_ref.close).not.toHaveBeenCalled();
-        expect(notifySuccess).not.toHaveBeenCalled();
-        expect(notifyError).toHaveBeenCalledWith(
+        expect(notify_open).not.toHaveBeenCalledWith(
+            expect.anything(),
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['success'] }),
+        );
+        expect(notify_open).toHaveBeenCalledWith(
             'Failed to save media item. Error: Upload failed',
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['error'] }),
         );
     });
 
@@ -77,8 +83,10 @@ describe('MediaEditModalComponent', () => {
         await component.saveMedia();
 
         expect(dialog_ref.close).not.toHaveBeenCalled();
-        expect(notifyError).toHaveBeenCalledWith(
+        expect(notify_open).toHaveBeenCalledWith(
             'Failed to save media item. Error: Media upload was cancelled.',
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['error'] }),
         );
     });
 

@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { IconComponent, SimpleTableComponent } from '@placeos/components';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
@@ -8,14 +8,11 @@ import { AssetReportUsersComponent } from 'apps/concierge/src/app/reports/assets
 import { AssetsReportService } from 'apps/concierge/src/app/reports/assets/assets-report.service';
 import { ReportMetricGuideComponent } from 'apps/concierge/src/app/reports/report-metric-guide.component';
 
-jest.mock('@placeos/common', () => ({
-    ...jest.requireActual('@placeos/common'),
-    downloadFile: jest.fn(),
-}));
-import { downloadFile } from '@placeos/common';
+import { captureDownloads } from '../download-capture.helper';
 
 describe('AssetReportUsersComponent', () => {
     let spectator: Spectator<AssetReportUsersComponent>;
+    let downloads: ReturnType<typeof captureDownloads>;
     let stats: ReturnType<typeof signal<any>>;
 
     const createComponent = createComponentFactory({
@@ -29,8 +26,10 @@ describe('AssetReportUsersComponent', () => {
         providers: [MockProvider(AssetsReportService, {} as any)],
     });
 
+    afterEach(() => downloads.restore());
+
     beforeEach(() => {
-        (downloadFile as jest.Mock).mockClear();
+        downloads = captureDownloads();
         stats = signal({
             events: [
                 { host: 'h1', organiser: { name: 'Alice', email: 'alice@x' } },
@@ -84,9 +83,6 @@ describe('AssetReportUsersComponent', () => {
 
     it('should download the current user report on request', async () => {
         await spectator.component.download();
-        expect(downloadFile).toHaveBeenCalledWith(
-            'report-assets-users.csv',
-            expect.any(String),
-        );
+        expect(downloads.filename).toBe('report-assets-users.csv');
     });
 });

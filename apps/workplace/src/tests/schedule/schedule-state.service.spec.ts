@@ -1,39 +1,26 @@
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
+import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
 import { signal } from '@angular/core';
 import { MockProvider } from 'ng-mocks';
-import { of } from 'rxjs';
+
+vi.mock('@placeos/ts-client', { spy: true });
 
 import { OrganisationService, SettingsService } from '@placeos/common';
+import * as ts_client from '@placeos/ts-client';
+import { ParkingService } from '@placeos/bookings';
 import { ScheduleStateService } from '../../app/schedule/schedule-state.service';
-
-jest.mock('@placeos/bookings', () => ({
-    ...jest.requireActual('@placeos/bookings'),
-    loadLockerResources: jest.fn(() => Promise.resolve([])),
-    queryBookings: jest.fn(() => Promise.resolve([])),
-}));
-
-jest.mock('@placeos/events', () => ({
-    ...jest.requireActual('@placeos/events'),
-    queryEvents: jest.fn(() => Promise.resolve([])),
-    requestSpacesForZone: jest.fn(() => jest.requireActual('rxjs').of([])),
-}));
-
-import {
-    loadLockerResources,
-    ParkingService,
-    queryBookings,
-} from '@placeos/bookings';
-import { queryEvents, requestSpacesForZone } from '@placeos/events';
 
 describe('ScheduleStateService', () => {
     let spectator: SpectatorService<ScheduleStateService>;
-    const parking_factory = jest.fn(() => ({}));
+    const parking_factory = vi.fn(() => ({}));
     const createService = createServiceFactory({
         service: ScheduleStateService,
         providers: [
             MockProvider(SettingsService, {
-                get: jest.fn(),
-                listen: jest.fn(() => of(0)),
+                get: vi.fn(),
+                // `listen` returns a WritableSignal in production; the service
+                // invokes its result (`listen(name)()`), so the mock must hand
+                // back a callable signal, not an observable.
+                listen: vi.fn(() => signal(0)),
             } as any),
             MockProvider(OrganisationService, {
                 active_building: signal({} as any),
@@ -48,7 +35,15 @@ describe('ScheduleStateService', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
+        // The schedule fns (queryBookings/queryEvents/requestSpacesForZone/
+        // loadLockerResources) are workspace fns that can't be spied; they all
+        // funnel into ts-client `get`/`querySystems`, so stub + assert one
+        // layer down.
+        vi.mocked(ts_client.get).mockResolvedValue([] as any);
+        vi.mocked(ts_client.querySystems).mockResolvedValue({
+            data: [],
+        } as any);
         spectator = createService();
     });
 
@@ -58,19 +53,15 @@ describe('ScheduleStateService', () => {
 
     it('should not make schedule requests before schedule data is consumed', () => {
         expect(parking_factory).not.toHaveBeenCalled();
-        expect(queryBookings).not.toHaveBeenCalled();
-        expect(queryEvents).not.toHaveBeenCalled();
-        expect(requestSpacesForZone).not.toHaveBeenCalled();
-        expect(loadLockerResources).not.toHaveBeenCalled();
+        expect(ts_client.get).not.toHaveBeenCalled();
+        expect(ts_client.querySystems).not.toHaveBeenCalled();
     });
 
     it('should not make schedule requests for disabled features when consumed', () => {
         spectator.service.bookings();
 
-        expect(queryBookings).not.toHaveBeenCalled();
-        expect(queryEvents).not.toHaveBeenCalled();
-        expect(requestSpacesForZone).not.toHaveBeenCalled();
-        expect(loadLockerResources).not.toHaveBeenCalled();
+        expect(ts_client.get).not.toHaveBeenCalled();
+        expect(ts_client.querySystems).not.toHaveBeenCalled();
     });
 
     it('should only mark enabled feature booking types as loadable', () => {
@@ -102,6 +93,6 @@ describe('ScheduleStateService', () => {
             (spectator.service as any)._bookingQuery('desk', 'day', date),
         ]);
 
-        expect(queryBookings).toHaveBeenCalledTimes(1);
+        expect(ts_client.get).toHaveBeenCalledTimes(1);
     });
 });

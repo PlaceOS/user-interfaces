@@ -1,40 +1,27 @@
 import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
-import { OrganisationService } from '@placeos/common';
-import { of } from 'rxjs';
+import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
+import { OrganisationService, setNotifyOutlet } from '@placeos/common';
+import { NEVER, of } from 'rxjs';
 
 import { RegionManagementService } from '../../app/region-manager/region-management.service';
 
-import * as common_mod from '@placeos/common';
-import * as component_mod from '@placeos/components';
 import * as ts_client from '@placeos/ts-client';
 
-jest.mock('@placeos/common', () => ({
-    ...jest.requireActual('@placeos/common'),
-    notifySuccess: jest.fn(),
-    notifyError: jest.fn(),
-}));
-jest.mock('@placeos/components', () => ({
-    ...jest.requireActual('@placeos/components'),
-    openConfirmModal: jest.fn(),
-}));
-jest.mock('@placeos/ts-client', () => ({
-    ...jest.requireActual('@placeos/ts-client'),
-    removeZone: jest.fn(() => Promise.resolve()),
-}));
+vi.mock('@placeos/ts-client', { spy: true });
 
 describe('RegionManagementService', () => {
     let spectator: SpectatorService<RegionManagementService>;
     let building_list: ReturnType<typeof signal<any[]>>;
     let region_list: ReturnType<typeof signal<any[]>>;
     let org: any;
-    let dialog_open: jest.Mock;
+    let dialog_open: any;
+    let notify_open: ReturnType<typeof vi.fn>;
 
     const createService = createServiceFactory({
         service: RegionManagementService,
         providers: [
-            { provide: MatDialog, useValue: { open: jest.fn() } },
+            { provide: MatDialog, useValue: { open: vi.fn() } },
             { provide: OrganisationService, useValue: {} },
         ],
     });
@@ -52,22 +39,39 @@ describe('RegionManagementService', () => {
         org = {
             building_list,
             region_list,
-            addZone: jest.fn(),
-            removeZone: jest.fn(),
+            addZone: vi.fn(),
+            removeZone: vi.fn(),
         };
-        (common_mod.notifySuccess as jest.Mock).mockClear();
-        (common_mod.notifyError as jest.Mock).mockClear();
-        (ts_client.removeZone as jest.Mock).mockClear();
-        (ts_client.removeZone as jest.Mock).mockResolvedValue(undefined);
-        (component_mod.openConfirmModal as jest.Mock).mockReset();
+        notify_open = vi.fn(() => ({
+            onAction: () => ({ subscribe: () => undefined }),
+            dismiss: () => undefined,
+        }));
+        setNotifyOutlet({ open: notify_open } as any, true);
+        (ts_client.removeZone as any).mockClear();
+        (ts_client.removeZone as any).mockResolvedValue(undefined);
         spectator = createService({
             providers: [
                 { provide: OrganisationService, useValue: org },
-                { provide: MatDialog, useValue: { open: jest.fn() } },
+                { provide: MatDialog, useValue: { open: vi.fn() } },
             ],
         });
-        dialog_open = spectator.inject(MatDialog).open as jest.Mock;
+        dialog_open = spectator.inject(MatDialog).open as any;
     });
+
+    afterEach(() => {
+        setNotifyOutlet(null as any, true);
+        vi.restoreAllMocks();
+    });
+
+    const confirmRef = (reason: string) => {
+        const close = vi.fn();
+        dialog_open.mockReturnValue({
+            componentInstance: { event: NEVER, loading: { set: vi.fn() } },
+            afterClosed: () => of({ reason }),
+            close,
+        });
+        return close;
+    };
 
     it('should count the buildings belonging to each region', () => {
         const list = spectator.service.filtered_regions();
@@ -88,8 +92,7 @@ describe('RegionManagementService', () => {
     });
 
     it('should remove the region when the confirmation is accepted', async () => {
-        const ref = { reason: 'done', loading: jest.fn(), close: jest.fn() };
-        (component_mod.openConfirmModal as jest.Mock).mockResolvedValue(ref);
+        const close = confirmRef('done');
 
         await spectator.service.removeRegion({ id: 'r1', name: 'North Region' } as any);
 
@@ -97,18 +100,21 @@ describe('RegionManagementService', () => {
         expect(org.removeZone).toHaveBeenCalledWith(
             expect.objectContaining({ id: 'r1', tags: ['region'] }),
         );
-        expect(common_mod.notifySuccess).toHaveBeenCalled();
-        expect(ref.close).toHaveBeenCalled();
+        expect(notify_open).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['success'] }),
+        );
+        expect(close).toHaveBeenCalled();
     });
 
     it('should abort removal when the confirmation is cancelled', async () => {
-        const ref = { reason: 'cancel', loading: jest.fn(), close: jest.fn() };
-        (component_mod.openConfirmModal as jest.Mock).mockResolvedValue(ref);
+        const close = confirmRef('cancel');
 
         await spectator.service.removeRegion({ id: 'r1', name: 'North Region' } as any);
 
         expect(ts_client.removeZone).not.toHaveBeenCalled();
         expect(org.removeZone).not.toHaveBeenCalled();
-        expect(ref.close).toHaveBeenCalled();
+        expect(close).toHaveBeenCalled();
     });
 });

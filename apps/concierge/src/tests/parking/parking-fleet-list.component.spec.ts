@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
 
 import { ParkingFleetListComponent } from '../../app/parking/parking-fleet-list.component';
@@ -7,8 +7,8 @@ import { ParkingStateService } from '../../app/parking/parking-state.service';
 
 describe('ParkingFleetListComponent', () => {
     let spectator: Spectator<ParkingFleetListComponent>;
-    const edit_fleet_vehicle = jest.fn();
-    const remove_fleet_vehicle = jest.fn();
+    const edit_fleet_vehicle = vi.fn();
+    const remove_fleet_vehicle = vi.fn();
     const fleet_vehicles = signal([
         {
             id: 'vehicle-1',

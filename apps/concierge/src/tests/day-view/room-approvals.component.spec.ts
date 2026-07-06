@@ -1,4 +1,4 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
     CalendarEvent,
     OrganisationService,
@@ -13,8 +13,8 @@ import { RoomBookingsApprovalsComponent } from '../../app/day-view/room-approval
 describe('RoomBookingsApprovalsComponent', () => {
     let spectator: Spectator<RoomBookingsApprovalsComponent>;
     const pending = signal<CalendarEvent[]>([]);
-    const execute = jest.fn(() => Promise.resolve());
-    const replace = jest.fn();
+    const execute = vi.fn(() => Promise.resolve());
+    const replace = vi.fn();
     const createComponent = createComponentFactory({
         component: RoomBookingsApprovalsComponent,
         shallow: true,
@@ -23,10 +23,10 @@ describe('RoomBookingsApprovalsComponent', () => {
             MockProvider(EventsStateService, { pending, replace } as any),
             MockProvider(OrganisationService, {
                 building: { timezone: 'Australia/Sydney' },
-                module: jest.fn(() => ({ execute })),
+                module: vi.fn(() => ({ execute })),
             } as any),
             MockProvider(SettingsService, {
-                get: jest.fn(() => false),
+                get: vi.fn(() => false),
                 time_format: 'h:mm a',
             } as any),
         ],

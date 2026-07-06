@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { BookingFormService } from '@placeos/bookings';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { addDays, endOfDay } from 'date-fns';
@@ -32,7 +32,7 @@ describe('ParkingFormDetailsComponent', () => {
                     model: signal({ all_day: false }),
                 } as any),
                 MockProvider(SettingsService, {
-                    get: jest.fn((key: string) => settings[key]),
+                    get: vi.fn((key: string) => settings[key]),
                 } as any),
                 MockProvider(OrganisationService, {
                     active_building: signal({ id: 'bld-1' }),

@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { Booking, settingSignal, SettingsService } from '@placeos/common';
 import { addDays, isSameDay, startOfWeek } from 'date-fns';
 import { MockProvider } from 'ng-mocks';
@@ -11,8 +11,8 @@ describe('ParkingBookingsWeekViewComponent', () => {
     let spectator: Spectator<ParkingBookingsWeekViewComponent>;
     let bookings: Booking[] = [];
     let show_waitlist = true;
-    const reject_booking = jest.fn();
-    const approve_booking = jest.fn();
+    const reject_booking = vi.fn();
+    const approve_booking = vi.fn();
     const options = signal({
         date: Date.now(),
         search: '',
@@ -30,25 +30,25 @@ describe('ParkingBookingsWeekViewComponent', () => {
                 options: options as any,
                 bookings: (() => bookings) as any,
                 week_start: 1,
-                startPolling: jest.fn(() => () => null),
-                filterEventList: jest.fn((list: Booking[]) => list),
-                filterEventSearch: jest.fn((list: Booking[]) => list),
+                startPolling: vi.fn(() => () => null),
+                filterEventList: vi.fn((list: Booking[]) => list),
+                filterEventSearch: vi.fn((list: Booking[]) => list),
                 rejectBooking: reject_booking,
                 approveBooking: approve_booking,
-                editReservation: jest.fn(),
-                assignSpace: jest.fn(),
-                removeBooking: jest.fn(),
-                isRequest: jest.fn((b: Booking) =>
+                editReservation: vi.fn(),
+                assignSpace: vi.fn(),
+                removeBooking: vi.fn(),
+                isRequest: vi.fn((b: Booking) =>
                     b.asset_id?.startsWith('unallocated'),
                 ),
-                isWaitlisted: jest.fn(
+                isWaitlisted: vi.fn(
                     (b: Booking) => b.id === 'waitlisted',
                 ),
-                canApproveBooking: jest.fn(() => true),
+                canApproveBooking: vi.fn(() => true),
                 timezone: 'Australia/Perth',
             } as any),
             MockProvider(SettingsService as any, {
-                get: jest.fn((name: string) =>
+                get: vi.fn((name: string) =>
                     name === 'app.parking.show_waitlist' ? show_waitlist : false,
                 ),
                 time_format: 'h:mm a',
@@ -115,7 +115,7 @@ describe('ParkingBookingsWeekViewComponent', () => {
         expect(
             component.statusLabel({
                 extension_data: { is_assigned: true },
-            } as Booking),
+            } as any),
         ).toBe('APP.CONCIERGE.BOOKING_STATUS_ASSIGNED');
         expect(
             component.statusLabel({ deleted: true } as Booking),
@@ -154,7 +154,7 @@ describe('ParkingBookingsWeekViewComponent', () => {
         expect(
             component.isStatusActionDisabled({
                 extension_data: { is_assigned: true },
-            } as Booking),
+            } as any),
         ).toBe(true);
         expect(
             component.isStatusActionDisabled({ deleted: true } as Booking),

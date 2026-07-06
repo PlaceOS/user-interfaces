@@ -1,10 +1,14 @@
 import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
-import { OrganisationService } from '@placeos/common';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    OrganisationService,
+    StaffUser,
+    setCurrentUser,
+    setNotifyOutlet,
+} from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
-import * as common_mod from '@placeos/common';
 import { BroadcastEmailModalComponent } from '../../app/email-templates/broadcast-email-modal.component';
 import { EmailTemplatesListComponent } from '../../app/email-templates/email-templates-list.component';
 import {
@@ -12,24 +16,15 @@ import {
     EmailTemplatesStateService,
 } from '../../app/email-templates/email-templates-state.service';
 
-jest.mock('@placeos/common', () => {
-    const actual = jest.requireActual('@placeos/common');
-    return {
-        ...actual,
-        currentUser: jest.fn(() => ({ email: 'me@example.com' })),
-        notifyError: jest.fn(),
-        notifySuccess: jest.fn(),
-    };
-});
-
 describe('EmailTemplatesListComponent', () => {
     let spectator: SpectatorRouting<EmailTemplatesListComponent>;
-    const removeTemplate = jest.fn();
-    const setFilters = jest.fn();
-    const dialog_open = jest.fn();
-    const module_execute = jest.fn(() => Promise.resolve());
+    const removeTemplate = vi.fn();
+    const setFilters = vi.fn();
+    const dialog_open = vi.fn();
+    const module_execute = vi.fn(() => Promise.resolve());
     let smtp_module: any;
     let smtp_binding: any;
+    let notify_open: ReturnType<typeof vi.fn>;
 
     const createComponent = createRoutingFactory({
         component: EmailTemplatesListComponent,
@@ -43,18 +38,28 @@ describe('EmailTemplatesListComponent', () => {
                 setFilters,
             } as any),
             MockProvider(OrganisationService, {
-                binding: jest.fn(() => smtp_binding),
-                module: jest.fn(() => smtp_module),
+                binding: vi.fn(() => smtp_binding),
+                module: vi.fn(() => smtp_module),
             } as any),
             MockProvider(MatDialog, { open: dialog_open } as any),
         ],
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
+        notify_open = vi.fn(() => ({
+            onAction: () => ({ subscribe: () => undefined }),
+            dismiss: () => undefined,
+        }));
+        setNotifyOutlet({ open: notify_open } as any, true);
+        setCurrentUser(new StaffUser({ email: 'me@example.com' }) as any);
         smtp_module = { execute: module_execute };
         smtp_binding = { name: 'smtp' };
         spectator = createComponent();
+    });
+
+    afterEach(() => {
+        setNotifyOutlet(null as any, true);
     });
 
     it('should reflect whether a mailing binding exists', () => {
@@ -90,7 +95,11 @@ describe('EmailTemplatesListComponent', () => {
                 '<p>Hi</p>',
             ]),
         );
-        expect(common_mod.notifySuccess).toHaveBeenCalled();
+        expect(notify_open).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['success'] }),
+        );
         expect(spectator.component.sending_email).toBeNull();
     });
 
@@ -101,7 +110,11 @@ describe('EmailTemplatesListComponent', () => {
             id: 'template-1',
         } as EmailTemplate);
 
-        expect(common_mod.notifyError).toHaveBeenCalled();
+        expect(notify_open).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['error'] }),
+        );
         expect(module_execute).not.toHaveBeenCalled();
     });
 

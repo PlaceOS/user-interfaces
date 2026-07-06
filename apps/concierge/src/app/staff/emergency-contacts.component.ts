@@ -25,7 +25,7 @@ import {
 } from './emergency-contacts.service';
 import { RoleManagementModalComponent } from './role-management-modal.component';
 
-export { EmergencyContact } from './emergency-contacts.service';
+export type { EmergencyContact } from './emergency-contacts.service';
 
 @Component({
     selector: '[app-emergency-contacts]',

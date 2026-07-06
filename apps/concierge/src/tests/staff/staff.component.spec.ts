@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { mockComponent } from '@placeos/common/tests';
 import { StaffListingComponent } from '../../app/staff/staff-listing.component';
 import { StaffStateService } from '../../app/staff/staff-state.service';
@@ -18,8 +18,8 @@ describe('StaffComponent', () => {
                 provide: StaffStateService,
                 useValue: {
                     loading: signal(false),
-                    startPolling: jest.fn(),
-                    stopPolling: jest.fn(),
+                    startPolling: vi.fn(),
+                    stopPolling: vi.fn(),
                 },
             },
         ],

@@ -1,25 +1,19 @@
 import {
     createServiceFactory,
     SpectatorService,
-} from '@ngneat/spectator/jest';
+} from '@ngneat/spectator/vitest';
 import { signal } from '@angular/core';
 
-import * as common_mod from '@placeos/common';
-import { OrganisationService, SettingsService } from '@placeos/common';
+import { OrganisationService, SettingsService, setNotifyOutlet } from '@placeos/common';
 import { ContactTracingStateService } from 'apps/concierge/src/app/reports/contact-tracing/contact-tracing-state.service';
 import { ReportsStateService } from 'apps/concierge/src/app/reports/reports-state.service';
-
-jest.mock('@placeos/common', () => ({
-    ...jest.requireActual('@placeos/common'),
-    downloadFile: jest.fn(),
-    jsonToCsv: jest.fn(() => 'csv'),
-    notifyError: jest.fn(),
-    notifyWarn: jest.fn(),
-}));
+import { captureDownloads } from '../download-capture.helper';
 
 describe('ContactTracingStateService', () => {
     let spectator: SpectatorService<ContactTracingStateService>;
     let binding: any;
+    let notify_open: ReturnType<typeof vi.fn>;
+    let downloads: ReturnType<typeof captureDownloads>;
     const createService = createServiceFactory({
         service: ContactTracingStateService,
         providers: [
@@ -42,9 +36,18 @@ describe('ContactTracingStateService', () => {
 
     beforeEach(() => {
         binding = { id: 'sys-1' };
-        (common_mod.downloadFile as jest.Mock).mockClear();
-        (common_mod.notifyWarn as jest.Mock).mockClear();
+        notify_open = vi.fn(() => ({
+            onAction: () => ({ subscribe: () => undefined }),
+            dismiss: () => undefined,
+        }));
+        setNotifyOutlet({ open: notify_open } as any, true);
+        downloads = captureDownloads();
         spectator = createService();
+    });
+
+    afterEach(() => {
+        downloads.restore();
+        setNotifyOutlet(null as any, true);
     });
 
     it('should merge partial option updates', () => {
@@ -70,9 +73,11 @@ describe('ContactTracingStateService', () => {
 
     it('should warn and skip download when there are no events', async () => {
         await spectator.service.downloadReport();
-        expect(common_mod.notifyWarn).toHaveBeenCalledWith(
+        expect(notify_open).toHaveBeenCalledWith(
             'No events to download.',
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['warn'] }),
         );
-        expect(common_mod.downloadFile).not.toHaveBeenCalled();
+        expect(downloads.last).toBeNull();
     });
 });

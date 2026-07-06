@@ -1,10 +1,8 @@
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
 
 import { LockerModalComponent } from '../../app/lockers/locker-modal.component';
-
-jest.mock('@placeos/users');
 
 describe('LockerModalComponent', () => {
     let spectator: Spectator<LockerModalComponent>;
@@ -60,7 +58,7 @@ describe('LockerModalComponent', () => {
 
     it('should not emit when the required name is missing', () => {
         spectator = createComponent();
-        const emit = jest.spyOn(spectator.component.event, 'emit');
+        const emit = vi.spyOn(spectator.component.event, 'emit');
 
         spectator.component.postForm();
 
@@ -70,7 +68,7 @@ describe('LockerModalComponent', () => {
 
     it('should emit a done event stripping unassigned user fields', () => {
         spectator = createComponent();
-        const emit = jest.spyOn(spectator.component.event, 'emit');
+        const emit = vi.spyOn(spectator.component.event, 'emit');
         spectator.component.model.update((m) => ({ ...m, name: 'Locker A' }));
 
         spectator.component.postForm();

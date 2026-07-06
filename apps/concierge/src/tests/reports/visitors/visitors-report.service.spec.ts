@@ -1,23 +1,19 @@
-import { ApplicationRef, signal } from '@angular/core';
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
-import { OrganisationService, SettingsService } from '@placeos/common';
+import { ApplicationRef } from '@angular/core';
+import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
+import { OrganisationService, SettingsService, setNotifyOutlet } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
-import * as booking_mod from '@placeos/bookings';
-import * as common_mod from '@placeos/common';
+import * as ts_client from '@placeos/ts-client';
 import { VisitorsReportService } from 'apps/concierge/src/app/reports/visitors/visitors-report.service';
+import { captureDownloads } from '../download-capture.helper';
 
-jest.mock('@placeos/bookings');
-jest.mock('@placeos/common', () => ({
-    ...jest.requireActual('@placeos/common'),
-    downloadFile: jest.fn(),
-    jsonToCsv: jest.fn(() => 'csv-data'),
-    notifyError: jest.fn(),
-}));
+vi.mock('@placeos/ts-client', { spy: true });
 
 describe('VisitorsReportService', () => {
     let spectator: SpectatorService<VisitorsReportService>;
     let allow_international: boolean;
+    let notify_open: ReturnType<typeof vi.fn>;
+    let downloads: ReturnType<typeof captureDownloads>;
 
     const day_1 = new Date('2026-04-06T09:00:00').valueOf();
     const day_2 = new Date('2026-04-07T09:00:00').valueOf();
@@ -26,7 +22,7 @@ describe('VisitorsReportService', () => {
         service: VisitorsReportService,
         providers: [
             MockProvider(SettingsService, {
-                get: jest.fn((name: string) => {
+                get: vi.fn((name: string) => {
                     if (name === 'app.visitors.allow_international') {
                         return allow_international;
                     }
@@ -46,19 +42,22 @@ describe('VisitorsReportService', () => {
     }
 
     beforeEach(() => {
+        vi.clearAllMocks();
         allow_international = false;
-        (booking_mod.queryBookings as jest.Mock).mockResolvedValue([
+        notify_open = vi.fn(() => ({
+            onAction: () => ({ subscribe: () => undefined }),
+            dismiss: () => undefined,
+        }));
+        setNotifyOutlet({ open: notify_open } as any, true);
+        downloads = captureDownloads();
+        // queryBookings -> get (ts-client)
+        (ts_client.get as any).mockResolvedValue([
             {
                 asset_id: 'v1',
                 user_email: 'host@x.com',
                 date: day_1,
                 duration: 60,
                 extension_data: {},
-                toJSON: () => ({
-                    booking_start: day_1 / 1000,
-                    booking_end: day_1 / 1000 + 3600,
-                    asset_id: 'v1',
-                }),
             },
             {
                 asset_id: 'v2',
@@ -66,16 +65,14 @@ describe('VisitorsReportService', () => {
                 date: day_1,
                 duration: 120,
                 extension_data: {},
-                toJSON: () => ({
-                    booking_start: day_1 / 1000,
-                    booking_end: day_1 / 1000 + 7200,
-                    asset_id: 'v2',
-                }),
             },
         ]);
-        (common_mod.downloadFile as jest.Mock).mockClear();
-        (common_mod.notifyError as jest.Mock).mockClear();
         spectator = createService();
+    });
+
+    afterEach(() => {
+        downloads.restore();
+        setNotifyOutlet(null as any, true);
     });
 
     it('should create service', () => {
@@ -84,7 +81,7 @@ describe('VisitorsReportService', () => {
 
     it('should not load bookings until a report is requested', async () => {
         await settle();
-        expect(booking_mod.queryBookings).not.toHaveBeenCalled();
+        expect(ts_client.get).not.toHaveBeenCalled();
         expect(spectator.service.bookings()).toEqual([]);
     });
 
@@ -92,12 +89,9 @@ describe('VisitorsReportService', () => {
         spectator.service.setOptions({ start: day_1, end: day_1 });
         spectator.service.generateReport();
         await settle();
-        expect(booking_mod.queryBookings).toHaveBeenCalledWith(
-            expect.objectContaining({
-                type: 'visitor',
-                zones: 'building-1',
-            }),
-        );
+        const url = (ts_client.get as any).mock.calls[0][0];
+        expect(url).toContain('type=visitor');
+        expect(url).toContain('zones=building-1');
         expect(spectator.service.bookings()).toHaveLength(2);
     });
 
@@ -110,10 +104,14 @@ describe('VisitorsReportService', () => {
     });
 
     it('should notify an error when no visitor bookings are returned', async () => {
-        (booking_mod.queryBookings as jest.Mock).mockResolvedValue([]);
+        (ts_client.get as any).mockResolvedValue([]);
         spectator.service.generateReport();
         await settle();
-        expect(common_mod.notifyError).toHaveBeenCalled();
+        expect(notify_open).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['error'] }),
+        );
     });
 
     it('should download visitor bookings as a tsv named for the range', async () => {
@@ -121,10 +119,8 @@ describe('VisitorsReportService', () => {
         spectator.service.generateReport();
         await settle();
         await spectator.service.downloadReport();
-        expect(common_mod.jsonToCsv).toHaveBeenCalled();
-        expect(common_mod.downloadFile).toHaveBeenCalledWith(
-            expect.stringMatching(/^report\+assets\+2026-04-06-2026-04-07\.tsv$/),
-            'csv-data',
+        expect(downloads.filename).toMatch(
+            /^report\+assets\+2026-04-06-2026-04-07\.tsv$/,
         );
     });
 });

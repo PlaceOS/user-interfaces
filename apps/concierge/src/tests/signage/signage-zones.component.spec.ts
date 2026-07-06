@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
@@ -8,15 +8,7 @@ import * as ts_client_mod from '@placeos/ts-client';
 import { SignageZonesComponent } from '../../app/signage/signage-zones.component';
 import { SignageStateService } from '../../app/signage/signage-state.service';
 
-jest.mock('@placeos/ts-client', () => {
-    const actual = jest.requireActual('@placeos/ts-client');
-    return {
-        ...actual,
-        updateZone: jest.fn(async () => ({})),
-        updateTrigger: jest.fn(async () => ({})),
-        listZoneTriggers: jest.fn(async () => ({ data: [] })),
-    };
-});
+vi.mock('@placeos/ts-client', { spy: true });
 
 describe('SignageZonesComponent', () => {
     let spectator: Spectator<SignageZonesComponent>;
@@ -37,7 +29,7 @@ describe('SignageZonesComponent', () => {
                     { id: 'p1', name: 'News' },
                     { id: 'p2', name: 'Ads' },
                 ]) as any,
-                changed: jest.fn(),
+                changed: vi.fn(),
             }),
             MockProvider(ActivatedRoute, {
                 queryParamMap: of({ get: () => null }) as any,
@@ -46,7 +38,9 @@ describe('SignageZonesComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
+        // `spy: true` keeps real ts-client impls, which hang on live HTTP.
+        (ts_client_mod.updateZone as any).mockResolvedValue({});
         spectator = createComponent();
         state = spectator.inject(SignageStateService) as any;
     });

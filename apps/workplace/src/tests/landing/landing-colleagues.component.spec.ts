@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { FormGroup, FormsModule } from '@angular/forms';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
 import { SettingsService } from '@placeos/common';
@@ -24,13 +24,13 @@ describe('LandingColleaguesComponent', () => {
                 search_results: signal([]),
                 options: signal({ search: '' }),
                 loading: signal(false),
-                addContact: jest.fn(),
-                removeContact: jest.fn(),
-                setOptions: jest.fn(),
-            }),
-            MockProvider(SettingsService, { get: jest.fn() }),
+                addContact: vi.fn(),
+                removeContact: vi.fn(),
+                setOptions: vi.fn(),
+            } as any),
+            MockProvider(SettingsService, { get: vi.fn() }),
             MockProvider(EventFormService, {
-                newForm: jest.fn(),
+                newForm: vi.fn(),
                 form: new FormGroup({}) as any,
             }),
         ],

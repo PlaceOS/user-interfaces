@@ -1,5 +1,5 @@
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { signal } from '@angular/core';
 
@@ -17,10 +17,10 @@ describe('CateringReportItemsComponent', () => {
         providers: [
             MockProvider(CateringReportStateService, {
                 catering_items: signal({}),
-                downloadOrders: jest.fn(),
+                downloadOrders: vi.fn(),
             } as any),
             MockProvider(Router, {}),
-            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(SettingsService, { get: vi.fn() }),
         ],
         imports: [MatTooltipModule],
     });

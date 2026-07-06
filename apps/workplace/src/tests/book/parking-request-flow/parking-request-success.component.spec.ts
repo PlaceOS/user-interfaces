@@ -1,4 +1,4 @@
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { BookingFormService } from '@placeos/bookings';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
@@ -29,7 +29,7 @@ describe('ParkingRequestSuccessComponent', () => {
                 ],
             } as any),
             MockProvider(SettingsService, {
-                get: jest.fn(() => show_links),
+                get: vi.fn(() => show_links),
                 time_format: 'h:mm a',
             } as any),
         ],

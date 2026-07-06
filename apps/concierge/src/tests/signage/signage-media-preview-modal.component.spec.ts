@@ -1,5 +1,5 @@
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 
 import { SignageMediaPreviewModalComponent } from '../../app/signage/signage-media-preview-modal.component';
 
@@ -52,7 +52,7 @@ describe('SignageMediaPreviewModalComponent', () => {
 
     it('should emit the save event when triggered', () => {
         build();
-        const on_save = jest.fn();
+        const on_save = vi.fn();
         spectator.component.save.subscribe(on_save);
 
         spectator.component.save.emit(true);

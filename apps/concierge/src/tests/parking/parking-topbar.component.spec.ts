@@ -4,7 +4,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
@@ -38,41 +38,41 @@ describe('ParkingTopbarComponent', () => {
                 spaces: signal([]),
                 bookings: signal([]),
                 period: signal('day'),
-                setOptions: jest.fn(),
-                setPeriod: jest.fn(),
-                activeBookings: jest.fn((list) => list || []),
-                editSpace: jest.fn(),
-                downloadSpacesCSV: jest.fn(),
-                uploadSpacesCSV: jest.fn(),
-                editUser: jest.fn(),
-                editFleetVehicle: jest.fn(),
-                editReservation: jest.fn(),
+                setOptions: vi.fn(),
+                setPeriod: vi.fn(),
+                activeBookings: vi.fn((list) => list || []),
+                editSpace: vi.fn(),
+                downloadSpacesCSV: vi.fn(),
+                uploadSpacesCSV: vi.fn(),
+                editUser: vi.fn(),
+                editFleetVehicle: vi.fn(),
+                editReservation: vi.fn(),
             } as any),
             MockProvider(OrganisationService, {
                 active_region: signal(null),
                 active_building: signal({ id: 'bld-1', timezone: 'UTC' }),
                 initialised: signal(true),
-                levelWithID: jest.fn(),
+                levelWithID: vi.fn(),
                 buildings: [],
                 building: { id: 'bld-1', timezone: 'UTC' },
                 region: null,
             } as any),
             MockProvider(SettingsService, {
-                get: jest.fn((name: string) =>
+                get: vi.fn((name: string) =>
                     name === 'app.parking.hide_level_selector_on_booking_list'
                         ? hide_level_selector_on_booking_list()
                         : name === 'app.parking.show_requests'
                           ? false
                           : false,
                 ),
-                signal: jest.fn((name: string, default_value: any) =>
+                signal: vi.fn((name: string, default_value: any) =>
                     name === 'parking.hide_level_selector_on_booking_list'
                         ? hide_level_selector_on_booking_list
                         : signal(default_value),
                 ),
             } as any),
             MockProvider(MatDialog, {
-                open: jest.fn(),
+                open: vi.fn(),
             }),
         ],
         imports: [MatFormFieldModule, MatSelectModule, FormsModule],
@@ -187,7 +187,7 @@ describe('ParkingTopbarComponent', () => {
             value: '/parking/events/map',
             configurable: true,
         });
-        jest.spyOn(router, 'navigate').mockResolvedValue(true);
+        vi.spyOn(router, 'navigate').mockResolvedValue(true);
 
         spectator.component.updateZones(['lvl-1', 'lvl-2']);
 
@@ -208,7 +208,7 @@ describe('ParkingTopbarComponent', () => {
         setOptions({ request_filter: 'all', zones: [] });
         spectator.component.section.set('events');
         spectator.component.view.set('list');
-        (spectator.inject(OrganisationService) as any).levelWithID = jest.fn(
+        (spectator.inject(OrganisationService) as any).levelWithID = vi.fn(
             () => ({
                 id: 'lvl-1',
                 parent_id: 'bld-1',
@@ -218,7 +218,7 @@ describe('ParkingTopbarComponent', () => {
             { id: 'bld-1' },
         ];
         (
-            spectator.inject(ParkingStateService).setOptions as jest.Mock
+            spectator.inject(ParkingStateService).setOptions as any
         ).mockClear();
 
         (spectator.component as any)._applyQueryZones(['lvl-1']);
@@ -243,9 +243,9 @@ describe('ParkingTopbarComponent', () => {
             value: '/parking/events/list?zone_ids=lvl-1',
             configurable: true,
         });
-        jest.spyOn(router, 'navigate').mockResolvedValue(true);
+        vi.spyOn(router, 'navigate').mockResolvedValue(true);
         (
-            spectator.inject(ParkingStateService).setOptions as jest.Mock
+            spectator.inject(ParkingStateService).setOptions as any
         ).mockClear();
 
         spectator.component.updateZones(['lvl-1']);
@@ -268,7 +268,7 @@ describe('ParkingTopbarComponent', () => {
             value: '/parking/events/list',
             configurable: true,
         });
-        jest.spyOn(router, 'navigate').mockResolvedValue(true);
+        vi.spyOn(router, 'navigate').mockResolvedValue(true);
 
         spectator.component.updateZones(['lvl-1']);
 
@@ -293,7 +293,7 @@ describe('ParkingTopbarComponent', () => {
             value: '/parking/events/list',
             configurable: true,
         });
-        jest.spyOn(router, 'navigate').mockResolvedValue(true);
+        vi.spyOn(router, 'navigate').mockResolvedValue(true);
 
         spectator.component.updateZones(['lvl-1']);
 
@@ -314,7 +314,7 @@ describe('ParkingTopbarComponent', () => {
             value: '/parking/events/list',
             configurable: true,
         });
-        jest.spyOn(router, 'navigate').mockResolvedValue(true);
+        vi.spyOn(router, 'navigate').mockResolvedValue(true);
         spectator.component.updateZones(['lvl-1']);
         expect(spectator.component.zones()).toEqual(['lvl-1']);
 

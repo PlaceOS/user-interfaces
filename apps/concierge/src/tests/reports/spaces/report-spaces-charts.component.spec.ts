@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
 
 import { OrganisationService, SettingsService } from '@placeos/common';
@@ -8,7 +8,7 @@ import { ReportsStateService } from 'apps/concierge/src/app/reports/reports-stat
 
 import * as chart_mod from 'chart.js';
 
-jest.mock('chart.js');
+vi.mock('chart.js');
 
 describe('ReportSpacesChartsComponent', () => {
     let spectator: Spectator<ReportSpacesChartsComponent>;
@@ -32,11 +32,11 @@ describe('ReportSpacesChartsComponent', () => {
                     counts: (counts = signal<Record<string, number>>({})),
                 },
             },
-            MockProvider(SettingsService, { get: jest.fn(() => false) } as any),
+            MockProvider(SettingsService, { get: vi.fn(() => false) } as any),
             MockProvider(OrganisationService, {
-                levelsForBuilding: jest.fn(() => org_levels),
-                levelsForRegion: jest.fn(() => org_levels),
-                levelWithID: jest.fn(([id]) =>
+                levelsForBuilding: vi.fn(() => org_levels),
+                levelsForRegion: vi.fn(() => org_levels),
+                levelWithID: vi.fn(([id]) =>
                     org_levels.find((l) => l.id === id),
                 ),
             } as any),
@@ -44,7 +44,7 @@ describe('ReportSpacesChartsComponent', () => {
     });
 
     beforeEach(() => {
-        (chart_mod.Chart as unknown as jest.Mock).mockClear();
+        (chart_mod.Chart as unknown as any).mockClear();
         day_list = signal<any[]>([]);
         options = signal<any>({ zones: [] });
         counts = signal<Record<string, number>>({});
@@ -70,9 +70,9 @@ describe('ReportSpacesChartsComponent', () => {
             { date: new Date('2026-04-06T09:00:00').valueOf(), utilisation: '30' },
             { date: new Date('2026-04-07T09:00:00').valueOf(), utilisation: '55' },
         ]);
-        (chart_mod.Chart as unknown as jest.Mock).mockClear();
+        (chart_mod.Chart as unknown as any).mockClear();
         spectator.component.updateDailyChart(spectator.component.day_list());
-        const [, config] = (chart_mod.Chart as unknown as jest.Mock).mock
+        const [, config] = (chart_mod.Chart as unknown as any).mock
             .calls[0];
         expect(config.type).toBe('line');
         expect(config.data.datasets[0].data).toEqual([30, 55]);
@@ -80,12 +80,12 @@ describe('ReportSpacesChartsComponent', () => {
 
     it('should only chart levels that have bookings', () => {
         counts.set({ 'lvl-1': 3, 'lvl-2': 0 });
-        (chart_mod.Chart as unknown as jest.Mock).mockClear();
+        (chart_mod.Chart as unknown as any).mockClear();
         spectator.component.updateLevelChart({ zones: ['lvl-1', 'lvl-2'] }, {
             'lvl-1': 3,
             'lvl-2': 0,
         });
-        const [, config] = (chart_mod.Chart as unknown as jest.Mock).mock
+        const [, config] = (chart_mod.Chart as unknown as any).mock
             .calls[0];
         expect(config.type).toBe('pie');
         expect(config.data.labels).toEqual(['Level 1']);

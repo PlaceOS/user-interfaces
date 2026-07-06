@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { OrganisationService } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
 import { DateFieldComponent } from '@placeos/form-fields';
@@ -12,8 +12,8 @@ import { UploadButtonComponent } from '../../app/ui/app-settings/upload-button.c
 
 describe('DealsManageComponent', () => {
     let spectator: SpectatorRouting<DealsManageComponent>;
-    let get_deals: jest.Mock;
-    let save_deal: jest.Mock;
+    let get_deals: any;
+    let save_deal: any;
 
     const createComponent = createRoutingFactory({
         component: DealsManageComponent,
@@ -36,8 +36,8 @@ describe('DealsManageComponent', () => {
     });
 
     beforeEach(() => {
-        get_deals = jest.fn(async () => []);
-        save_deal = jest.fn(async (deal: any) => deal);
+        get_deals = vi.fn(async () => []);
+        save_deal = vi.fn(async (deal: any) => deal);
         spectator = createComponent();
     });
 
@@ -54,7 +54,7 @@ describe('DealsManageComponent', () => {
     });
 
     it('should save and navigate when the form is valid', async () => {
-        const navigate = jest.spyOn(spectator.router, 'navigate');
+        const navigate = vi.spyOn(spectator.router, 'navigate');
         spectator.component.model.update((m) => ({
             ...m,
             name: 'Coffee Deal',

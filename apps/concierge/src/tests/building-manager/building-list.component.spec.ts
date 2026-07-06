@@ -1,24 +1,20 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
+
+import { setNotifyOutlet } from '@placeos/common';
 
 import { BuildingListComponent } from '../../app/building-manager/building-list.component';
 import { BuildingManagementService } from '../../app/building-manager/building-management.service';
 import { WorkplaceSettingsFormModalComponent } from '../../app/ui/app-settings/workplace-settings-form-modal.component';
 
-import * as common_mod from '@placeos/common';
-
-jest.mock('@placeos/common', () => ({
-    ...jest.requireActual('@placeos/common'),
-    notifySuccess: jest.fn(),
-}));
-
 describe('BuildingListComponent', () => {
     let spectator: Spectator<BuildingListComponent>;
     let manager: any;
-    let copy: jest.Mock;
+    let copy: any;
+    let notify_open: ReturnType<typeof vi.fn>;
 
     const createComponent = createComponentFactory({
         component: BuildingListComponent,
@@ -27,30 +23,36 @@ describe('BuildingListComponent', () => {
         providers: [
             MockProvider(BuildingManagementService, {}),
             MockProvider(Clipboard, {}),
-            MockProvider(MatDialog, { open: jest.fn() }),
+            MockProvider(MatDialog, { open: vi.fn() }),
         ],
     });
 
     beforeEach(() => {
-        (common_mod.notifySuccess as jest.Mock).mockClear();
+        notify_open = vi.fn(() => ({
+            onAction: () => ({ subscribe: () => undefined }),
+            dismiss: () => undefined,
+        }));
+        setNotifyOutlet({ open: notify_open } as any, true);
         manager = {
             filtered_buildings: signal([{ id: 'b1' }]),
-            editBuilding: jest.fn(),
-            editBuildingMetadata: jest.fn(),
-            removeBuilding: jest.fn(),
-            setAutoRelease: jest.fn(),
-            setInduction: jest.fn(),
-            setSupportIssueTypes: jest.fn(),
+            editBuilding: vi.fn(),
+            editBuildingMetadata: vi.fn(),
+            removeBuilding: vi.fn(),
+            setAutoRelease: vi.fn(),
+            setInduction: vi.fn(),
+            setSupportIssueTypes: vi.fn(),
         };
-        copy = jest.fn(() => true);
+        copy = vi.fn(() => true);
         spectator = createComponent({
             providers: [
                 { provide: BuildingManagementService, useValue: manager },
                 { provide: Clipboard, useValue: { copy } },
-                { provide: MatDialog, useValue: { open: jest.fn() } },
+                { provide: MatDialog, useValue: { open: vi.fn() } },
             ],
         });
     });
+
+    afterEach(() => setNotifyOutlet(null as any, true));
 
     it('should expose the filtered buildings from the manager', () => {
         expect(spectator.component.buildings()).toEqual([{ id: 'b1' }]);
@@ -59,12 +61,16 @@ describe('BuildingListComponent', () => {
     it('should notify only when the id is copied successfully', () => {
         spectator.component.copyToClipboard('b1');
         expect(copy).toHaveBeenCalledWith('b1');
-        expect(common_mod.notifySuccess).toHaveBeenCalled();
+        expect(notify_open).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['success'] }),
+        );
 
-        (common_mod.notifySuccess as jest.Mock).mockClear();
+        notify_open.mockClear();
         copy.mockReturnValue(false);
         spectator.component.copyToClipboard('b1');
-        expect(common_mod.notifySuccess).not.toHaveBeenCalled();
+        expect(notify_open).not.toHaveBeenCalled();
     });
 
     it('should delegate row actions to the management service', () => {

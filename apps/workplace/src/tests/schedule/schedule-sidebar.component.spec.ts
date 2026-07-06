@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { SettingsService } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
 import { DateCalendarComponent } from '@placeos/form-fields';
@@ -23,12 +23,12 @@ describe('ScheduleSidebarComponent', () => {
                 date: signal(0),
                 week_date: signal(0),
                 week_options: signal([]),
-                toggleType: jest.fn(),
-                setDate: jest.fn(),
+                toggleType: vi.fn(),
+                setDate: vi.fn(),
                 options: signal({ period: 'day' }),
-                getOptions: jest.fn(() => ({ period: 'day' })),
+                getOptions: vi.fn(() => ({ period: 'day' })),
             } as any),
-            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(SettingsService, { get: vi.fn() }),
         ],
         imports: [MatCheckboxModule, FormsModule],
     });

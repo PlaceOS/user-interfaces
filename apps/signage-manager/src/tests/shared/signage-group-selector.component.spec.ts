@@ -10,7 +10,7 @@ function group(id: string, name: string, parent_id?: string) {
 
 describe('SignageGroupSelectorComponent', () => {
     let closed_value: unknown;
-    const setSelectedGroup = jest.fn();
+    const setSelectedGroup = vi.fn();
     const signage_groups = signal<any[]>([]);
     const selected_group = signal<any>(null);
     const selected_group_id = signal('');
@@ -23,11 +23,11 @@ describe('SignageGroupSelectorComponent', () => {
         setSelectedGroup,
     };
     const dialog = {
-        open: jest.fn().mockReturnValue({
+        open: vi.fn().mockReturnValue({
             afterClosed: () => ({
                 subscribe: (handler: (value: unknown) => void) => {
                     Promise.resolve().then(() => handler(closed_value));
-                    return { unsubscribe: jest.fn() };
+                    return { unsubscribe: vi.fn() };
                 },
             }),
         }),
@@ -50,7 +50,7 @@ describe('SignageGroupSelectorComponent', () => {
     }
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         closed_value = undefined;
         signage_groups.set([]);
         selected_group.set(null);

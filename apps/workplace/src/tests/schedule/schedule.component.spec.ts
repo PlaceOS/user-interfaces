@@ -3,12 +3,13 @@ import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { Router } from '@angular/router';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { BookingCardComponent, BookingFormService } from '@placeos/bookings';
-import * as bookings from '@placeos/bookings';
 import { Booking, SettingsService } from '@placeos/common';
 import { EventCardComponent, EventFormService } from '@placeos/events';
+import * as ts_client from '@placeos/ts-client';
 import { MockComponent, MockProvider } from 'ng-mocks';
+import { of } from 'rxjs';
 import { FooterMenuComponent } from '../../app/components/footer-menu.component';
 import { TopbarComponent } from '../../app/components/topbar.component';
 import { ScheduleFiltersComponent } from '../../app/schedule/schedule-filters.component';
@@ -17,22 +18,12 @@ import { ScheduleSidebarComponent } from '../../app/schedule/schedule-sidebar.co
 import { ScheduleStateService } from '../../app/schedule/schedule-state.service';
 import { ScheduleComponent } from '../../app/schedule/schedule.component';
 
-jest.mock('@placeos/bookings', () => ({
-    ...jest.requireActual('@placeos/bookings'),
-    checkinBooking: jest.fn(() => Promise.resolve({})),
-    checkinBookingInstance: jest.fn(() => Promise.resolve({})),
-}));
-
-jest.mock('@placeos/components', () => ({
-    ...jest.requireActual('@placeos/components'),
-    openConfirmModal: jest.fn(() =>
-        Promise.resolve({
-            reason: 'done',
-            loading: jest.fn(),
-            close: jest.fn(),
-        }),
-    ),
-}));
+// Native vitest cannot module-mock workspace packages. `checkinBooking`
+// (from @placeos/bookings) and `openConfirmModal` (from @placeos/components)
+// are real functions here; `checkinBooking` calls @placeos/ts-client `post`
+// (the only mockable layer) and `openConfirmModal` consumes the injected
+// MatDialog, both of which are stubbed below.
+vi.mock('@placeos/ts-client', { spy: true });
 
 describe('ScheduleComponent', () => {
     let spectator: SpectatorRouting<ScheduleComponent>;
@@ -52,30 +43,35 @@ describe('ScheduleComponent', () => {
                 filtered_bookings: signal([]),
                 loading: signal(false),
                 date: signal(0),
-                toggleType: jest.fn(),
-                setDate: jest.fn(),
-                getOptions: jest.fn(() => ({ period: 'day' })),
-                removeItem: jest.fn(),
-                triggerPoll: jest.fn(),
+                toggleType: vi.fn(),
+                setDate: vi.fn(),
+                getOptions: vi.fn(() => ({ period: 'day' })),
+                removeItem: vi.fn(),
+                triggerPoll: vi.fn(),
             } as any),
-            MockProvider(EventFormService, { newForm: jest.fn() }),
+            MockProvider(EventFormService, { newForm: vi.fn() }),
             MockProvider(BookingFormService, {
-                newForm: jest.fn(),
-                model: Object.assign(jest.fn(() => ({})), {
-                    set: jest.fn(),
-                    update: jest.fn(),
+                newForm: vi.fn(),
+                model: Object.assign(vi.fn(() => ({})), {
+                    set: vi.fn(),
+                    update: vi.fn(),
                 }),
             } as any),
-            MockProvider(Router, { navigate: jest.fn() }),
-            MockProvider(MatDialog, { open: jest.fn(), closeAll: jest.fn() }),
-            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(Router, { navigate: vi.fn() }),
+            MockProvider(MatDialog, { open: vi.fn(), closeAll: vi.fn() }),
+            MockProvider(SettingsService, { get: vi.fn() }),
         ],
         imports: [MatProgressBarModule, FormsModule],
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
+        vi.mocked(ts_client.post).mockResolvedValue({} as any);
         spectator = createComponent();
+    });
+
+    afterEach(() => {
+        vi.useRealTimers();
     });
 
     it('should create component', () => {
@@ -83,7 +79,7 @@ describe('ScheduleComponent', () => {
     });
 
     it('should not patch resources when editing visitor bookings', () => {
-        jest.useFakeTimers();
+        vi.useFakeTimers();
         const booking_form = spectator.inject(BookingFormService);
         const booking = new Booking({
             booking_type: 'visitor',
@@ -93,15 +89,15 @@ describe('ScheduleComponent', () => {
         } as any);
 
         spectator.component.editBooking(booking);
-        jest.runAllTimers();
+        vi.runAllTimers();
 
         expect(booking_form.newForm).toHaveBeenCalledWith('visitor', booking);
         expect(booking_form.model.update).not.toHaveBeenCalled();
-        jest.useRealTimers();
+        vi.useRealTimers();
     });
 
     it('should patch resources when editing non-visitor bookings', () => {
-        jest.useFakeTimers();
+        vi.useFakeTimers();
         const booking_form = spectator.inject(BookingFormService);
         const booking = new Booking({
             booking_type: 'desk',
@@ -111,20 +107,32 @@ describe('ScheduleComponent', () => {
         } as any);
 
         spectator.component.editBooking(booking);
-        jest.runAllTimers();
+        vi.runAllTimers();
 
         expect(booking_form.model.update).toHaveBeenCalled();
-        const updater = (booking_form.model.update as jest.Mock).mock
+        const updater = (booking_form.model.update as any).mock
             .calls[0][0];
         expect(updater({})).toEqual({
             resources: [{ id: 'desk-1', name: 'Desk 1' }],
             asset_id: 'desk-1',
         });
-        jest.useRealTimers();
+        vi.useRealTimers();
     });
 
     it('should refresh ended bookings without hiding them as deleted', async () => {
         const state = spectator.inject(ScheduleStateService);
+        // The component imports MatDialogModule, so its injector shadows the
+        // TestBed-level MatDialog mock — spy on the instance it actually gets.
+        const dialog = spectator.fixture.debugElement.injector.get(MatDialog);
+        // Shape returned so the real `openConfirmModal` resolves with reason 'done'.
+        vi.spyOn(dialog, 'open').mockReturnValue({
+            afterClosed: () => of({ reason: 'done' }),
+            componentInstance: {
+                event: of({ reason: 'done' }),
+                loading: { set: vi.fn() },
+            },
+            close: vi.fn(),
+        } as any);
         const booking = new Booking({
             id: 'booking-1',
             booking_type: 'desk',
@@ -135,10 +143,12 @@ describe('ScheduleComponent', () => {
 
         await spectator.component.end(booking);
 
-        expect(bookings.checkinBooking).toHaveBeenCalledWith(
-            'booking-1',
-            false,
-        );
+        // `checkinBooking` (workspace fn) cannot be spied; assert the underlying
+        // ts-client POST it issues to the booking check-in endpoint instead.
+        expect(ts_client.post).toHaveBeenCalled();
+        const [url] = vi.mocked(ts_client.post).mock.calls[0];
+        expect(url).toContain('booking-1');
+        expect(url).toContain('check_in');
         expect(state.triggerPoll).toHaveBeenCalled();
         expect(state.removeItem).not.toHaveBeenCalled();
     });
