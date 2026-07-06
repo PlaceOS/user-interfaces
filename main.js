@@ -55880,15 +55880,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "aa39f65",
-  "hash": "aa39f65",
+  "raw": "c4f5699",
+  "hash": "c4f5699",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "aa39f65",
+  "suffix": "c4f5699",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1782986431890
+  "time": 1783316880600
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -82040,6 +82040,7 @@ var Booking = class {
     this.images = data.images || [];
     this.all_day = !!data.all_day || custom_all_day || this.duration >= 24 * 60;
     this.induction = data.induction || void 0;
+    this.created_at = data.created_at || Date.now();
     if (this.all_day) {
       if (!data.duration && !data.date_end && !data.booking_end) {
         this.date = startOfDayInTimezone(this.date, this.timezone);
@@ -82094,6 +82095,7 @@ var Booking = class {
     data.zones = data.zones.filter((_2) => _2);
     delete data.date;
     delete data.duration;
+    delete data.created_at;
     delete data.process_state;
     removeEmptyFields(data);
     return data;
