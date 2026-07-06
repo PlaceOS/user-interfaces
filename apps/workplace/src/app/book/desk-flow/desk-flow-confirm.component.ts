@@ -1,11 +1,5 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import {
-    Component,
-    computed,
-    inject,
-    model,
-    signal,
-} from '@angular/core';
+import { Component, computed, inject, model, signal } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -325,6 +319,10 @@ export class NewDeskFlowConfirmComponent extends AsyncHandler {
             : '';
     }
 
+    public get can_book_lockers() {
+        return this._settings.get('app.desks.can_book_lockers');
+    }
+
     public get tz() {
         const tz = this.timezone;
         if (!tz) return '';
@@ -336,7 +334,7 @@ export class NewDeskFlowConfirmComponent extends AsyncHandler {
     }
 
     public get needs_locker() {
-        return !!this.booking.secondary_resource;
+        return !!this.booking.secondary_resource && this.can_book_lockers;
     }
 
     public get assets_count() {
@@ -367,8 +365,6 @@ export class NewDeskFlowConfirmComponent extends AsyncHandler {
     public async ngOnInit() {
         const resources = await this._state.listResources();
         const asset = this.booking.booking_asset;
-        this.booking_asset.set(
-            resources.find((_) => _.id == asset.id) as Desk,
-        );
+        this.booking_asset.set(resources.find((_) => _.id == asset.id) as Desk);
     }
 }
