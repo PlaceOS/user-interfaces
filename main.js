@@ -144,7 +144,7 @@ import {
   ɵɵtwoWayBindingSet,
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty
-} from "./chunk-U6C4N7EH.js";
+} from "./chunk-EQD7B7AG.js";
 import {
   __spreadProps,
   __spreadValues
@@ -9383,39 +9383,39 @@ var APP_ROUTES = [
     children: [
       {
         path: "media",
-        loadComponent: () => import("./media.component-6I7FHQBP.js").then((m) => m.MediaSectionComponent)
+        loadComponent: () => import("./media.component-7RHHTWSI.js").then((m) => m.MediaSectionComponent)
       },
       {
         path: "playlists/:id",
-        loadComponent: () => import("./playlists.component-ML6DBIVJ.js").then((m) => m.PlaylistsSectionComponent)
+        loadComponent: () => import("./playlists.component-E6WG56L7.js").then((m) => m.PlaylistsSectionComponent)
       },
       {
         path: "playlists",
-        loadComponent: () => import("./playlists.component-ML6DBIVJ.js").then((m) => m.PlaylistsSectionComponent)
+        loadComponent: () => import("./playlists.component-E6WG56L7.js").then((m) => m.PlaylistsSectionComponent)
       },
       {
         path: "schedules",
-        loadComponent: () => import("./schedules.component-PJJEYOYE.js").then((m) => m.SchedulesSectionComponent)
+        loadComponent: () => import("./schedules.component-Q7M3RG56.js").then((m) => m.SchedulesSectionComponent)
       },
       {
         path: "displays/:id",
-        loadComponent: () => import("./displays.component-XQZZ7NAB.js").then((m) => m.DisplaysSectionComponent)
+        loadComponent: () => import("./displays.component-BNAXK45F.js").then((m) => m.DisplaysSectionComponent)
       },
       {
         path: "displays",
-        loadComponent: () => import("./displays.component-XQZZ7NAB.js").then((m) => m.DisplaysSectionComponent)
+        loadComponent: () => import("./displays.component-BNAXK45F.js").then((m) => m.DisplaysSectionComponent)
       },
       {
         path: "groups",
-        loadComponent: () => import("./groups.component-HGSNXELQ.js").then((m) => m.GroupsSectionComponent)
+        loadComponent: () => import("./groups.component-FIFP5R4C.js").then((m) => m.GroupsSectionComponent)
       },
       {
         path: "zones/:id",
-        loadComponent: () => import("./zones.component-RDCZXRBO.js").then((m) => m.ZonesSectionComponent)
+        loadComponent: () => import("./zones.component-2DS2PNTP.js").then((m) => m.ZonesSectionComponent)
       },
       {
         path: "zones",
-        loadComponent: () => import("./zones.component-RDCZXRBO.js").then((m) => m.ZonesSectionComponent)
+        loadComponent: () => import("./zones.component-2DS2PNTP.js").then((m) => m.ZonesSectionComponent)
       },
       { path: "**", redirectTo: "media" }
     ]

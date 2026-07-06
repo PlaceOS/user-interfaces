@@ -54629,15 +54629,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "aa39f65",
-  "hash": "aa39f65",
+  "raw": "c4f5699",
+  "hash": "c4f5699",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "aa39f65",
+  "suffix": "c4f5699",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1782986435338
+  "time": 1783316877079
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -110951,4 +110951,4 @@ export {
   dialogClosed,
   SignageService
 };
-//# sourceMappingURL=chunk-U6C4N7EH.js.map
+//# sourceMappingURL=chunk-EQD7B7AG.js.map
