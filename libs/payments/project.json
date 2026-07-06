@@ -7,11 +7,30 @@
     "tags": [],
     "targets": {
         "test": {
-            "executor": "@nx/jest:jest",
-            "outputs": ["{workspaceRoot}/coverage/libs/payments"],
+            "executor": "@angular/build:unit-test",
+            "outputs": [
+                "{workspaceRoot}/coverage/libs/payments"
+            ],
             "options": {
-                "jestConfig": "libs/payments/jest.config.ts",
-                "tsConfig": "libs/payments/tsconfig.spec.json"
+                "tsConfig": "libs/payments/tsconfig.spec.json",
+                "setupFiles": [
+                    "libs/payments/src/test-setup.ts"
+                ],
+                "isolate": true,
+                "watch": false,
+                "buildTarget": "payments:test-build:development"
+            }
+        },
+        "test-build": {
+            "executor": "@angular/build:application",
+            "options": {
+                "outputPath": "dist/libs/payments",
+                "browser": "libs/payments/src/index.ts",
+                "tsConfig": "libs/payments/tsconfig.spec.json",
+                "polyfills": []
+            },
+            "configurations": {
+                "development": {}
             }
         },
         "lint": {

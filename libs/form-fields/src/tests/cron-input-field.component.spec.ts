@@ -1,4 +1,4 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 
 import { CronInputFieldComponent } from '../lib/cron-input-field.component';
 
@@ -32,7 +32,7 @@ describe('CronInputFieldComponent', () => {
     });
 
     it('should emit the cron string when a valid field changes', () => {
-        const on_change = jest.fn();
+        const on_change = vi.fn();
         spectator.component.registerOnChange(on_change);
         spectator.component.form.controls.hour.setValue('9');
         expect(on_change).toHaveBeenCalledWith('* 9 * * *');
@@ -40,14 +40,14 @@ describe('CronInputFieldComponent', () => {
     });
 
     it('should not emit when a field value is invalid', () => {
-        const on_change = jest.fn();
+        const on_change = vi.fn();
         spectator.component.registerOnChange(on_change);
         spectator.component.form.controls.hour.setValue('99');
         expect(on_change).not.toHaveBeenCalled();
     });
 
     it('should apply presets and emit the value', () => {
-        const on_change = jest.fn();
+        const on_change = vi.fn();
         spectator.component.registerOnChange(on_change);
         spectator.component.setPreset('0 9 * * 1-5');
         expect(spectator.component.cron_string).toBe('0 9 * * 1-5');
@@ -73,7 +73,7 @@ describe('CronInputFieldComponent', () => {
             key: 'a',
             ctrlKey: false,
             metaKey: false,
-            preventDefault: jest.fn(),
+            preventDefault: vi.fn(),
         } as unknown as KeyboardEvent;
         spectator.component.preventInvalidCharacters(letter);
         expect(letter.preventDefault).toHaveBeenCalled();
@@ -82,7 +82,7 @@ describe('CronInputFieldComponent', () => {
             key: '5',
             ctrlKey: false,
             metaKey: false,
-            preventDefault: jest.fn(),
+            preventDefault: vi.fn(),
         } as unknown as KeyboardEvent;
         spectator.component.preventInvalidCharacters(digit);
         expect(digit.preventDefault).not.toHaveBeenCalled();

@@ -1,6 +1,6 @@
 import { signal, WritableSignal } from '@angular/core';
 import { OrganisationService } from '@placeos/common';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
 import { SettingsService } from 'libs/common/src/lib/settings.service';
@@ -18,7 +18,7 @@ describe('UserLabelComponent', () => {
         declarations: [MockComponent(UserAvatarComponent)],
         providers: [
             MockProvider(OrganisationService, {
-                levelWithID: jest.fn(() => undefined as any),
+                levelWithID: vi.fn(() => undefined as any),
             }),
         ],
     });
@@ -29,7 +29,7 @@ describe('UserLabelComponent', () => {
             providers: [
                 MockProvider(SettingsService, {
                     theme_signal: theme_sig,
-                    signal: jest.fn((key: string) =>
+                    signal: vi.fn((key: string) =>
                         key === 'logo_dark'
                             ? signal('dark-logo.png')
                             : signal('light-logo.png'),

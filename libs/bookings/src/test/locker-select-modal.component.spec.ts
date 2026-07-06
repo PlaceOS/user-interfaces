@@ -4,7 +4,7 @@ import {
     MatDialogModule,
     MatDialogRef,
 } from '@angular/material/dialog';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { SETTING_KEYS, SettingsService } from '@placeos/common';
 import { createSettingsServiceMock } from '@placeos/common/tests';
 import { MockComponent, MockModule } from 'ng-mocks';
@@ -21,8 +21,8 @@ import { LockerSelectModalComponent } from '../lib/locker-select-modal/locker-se
 describe('LockerSelectModalComponent', () => {
     let spectator: Spectator<LockerSelectModalComponent>;
     const options = signal<any>({ group: false });
-    const dialog_ref = { close: jest.fn() };
-    const set_options = jest.fn();
+    const dialog_ref = { close: vi.fn() };
+    const set_options = vi.fn();
     let dialog_data: any;
 
     const createComponent = createComponentFactory({
@@ -54,7 +54,7 @@ describe('LockerSelectModalComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         options.set({ group: false });
         dialog_data = {
             items: [{ id: 'locker-1', name: 'Locker 1' }],

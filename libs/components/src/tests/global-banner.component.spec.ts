@@ -1,4 +1,4 @@
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
 
 import { OrganisationService } from '@placeos/common';
@@ -10,7 +10,7 @@ describe('GlobalBannerComponent', () => {
         component: GlobalBannerComponent,
         providers: [
             MockProvider(OrganisationService, {
-                waitUntilInitialised: jest.fn().mockResolvedValue(undefined),
+                waitUntilInitialised: vi.fn().mockResolvedValue(undefined),
             } as any),
         ],
     });

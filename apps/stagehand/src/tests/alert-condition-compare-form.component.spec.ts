@@ -1,19 +1,12 @@
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { ComponentFixtureAutoDetect } from '@angular/core/testing';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { TriggerConditionOperator } from '@placeos/ts-client';
 
-jest.mock('@placeos/common', () => ({
-    ...jest.requireActual('@placeos/common'),
-    notifyError: jest.fn(),
-}));
+import { setNotifyOutlet } from 'libs/common/src/lib/notifications';
 
-jest.mock('@placeos/ts-client', () => ({
-    ...jest.requireActual('@placeos/ts-client'),
-    queryModules: jest.fn(),
-    systemModuleState: jest.fn(),
-}));
+vi.mock('@placeos/ts-client', { spy: true });
 
-import { notifyError } from '@placeos/common';
 import { queryModules, systemModuleState } from '@placeos/ts-client';
 
 import {
@@ -47,19 +40,30 @@ const flush = () => new Promise((resolve) => setTimeout(resolve));
 
 describe('AlertConditionComparisonFormComponent', () => {
     let spectator: Spectator<AlertConditionComparisonFormComponent>;
+    let notify_open: ReturnType<typeof vi.fn>;
 
     const create_component = createComponentFactory({
         component: AlertConditionComparisonFormComponent,
         shallow: true,
+        // Disable the zoneless auto-tick: these tests assert on component
+        // signals/methods, not the DOM. Auto change-detection would render the
+        // experimental signal-forms + mat-select template and emit benign async
+        // rxjs/material errors that vitest reports as unhandled.
+        providers: [{ provide: ComponentFixtureAutoDetect, useValue: false }],
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
+        notify_open = vi.fn(() => ({
+            onAction: () => ({ subscribe: () => undefined }),
+            dismiss: () => undefined,
+        }));
+        setNotifyOutlet({ open: notify_open } as any, true);
         spectator = create_component({ detectChanges: false });
         spectator.component.ngOnInit();
     });
 
-    afterEach(() => jest.restoreAllMocks());
+    afterEach(() => setNotifyOutlet(null as any, true));
 
     describe('calculateModuleIndex', () => {
         it('numbers modules that share a class in list order', () => {
@@ -164,7 +168,7 @@ describe('AlertConditionComparisonFormComponent', () => {
         });
 
         it('maps returned state keys into selectable status variables', async () => {
-            (systemModuleState as jest.Mock).mockResolvedValue({
+            vi.mocked(systemModuleState).mockResolvedValue({
                 power: true,
                 volume: 50,
             });
@@ -179,7 +183,7 @@ describe('AlertConditionComparisonFormComponent', () => {
         });
 
         it('falls back to a connected variable when the module has no state', async () => {
-            (systemModuleState as jest.Mock).mockResolvedValue({});
+            vi.mocked(systemModuleState).mockResolvedValue({});
 
             spectator.component.loadSystemStatusVariables('Display_1', 'left');
             await flush();
@@ -195,23 +199,23 @@ describe('AlertConditionComparisonFormComponent', () => {
         });
 
         it('notifies the user when state loading fails', async () => {
-            (systemModuleState as jest.Mock).mockRejectedValue(new Error('nope'));
+            vi.mocked(systemModuleState).mockRejectedValue(new Error('nope'));
 
             spectator.component.loadSystemStatusVariables('Display_1', 'left');
             await flush();
 
-            expect(notifyError).toHaveBeenCalled();
+            expect(notify_open).toHaveBeenCalled();
         });
     });
 
     it('builds the selectable module list from the system modules on change', async () => {
-        (queryModules as jest.Mock).mockResolvedValue({
+        vi.mocked(queryModules).mockResolvedValue({
             data: [
                 { id: 'mod-1', name: 'Display' },
                 { id: 'mod-2', name: 'Display' },
                 { id: 'mod-3', custom_name: 'Bookings' },
             ],
-        });
+        } as any);
         const form = makeCompareForm({ left: '', right: '' });
         spectator.fixture.componentRef.setInput('form', form);
         spectator.fixture.componentRef.setInput('system', {

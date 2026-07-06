@@ -1,5 +1,5 @@
 import { MatDialog } from '@angular/material/dialog';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
     CalendarEvent,
     OrganisationService,
@@ -10,21 +10,12 @@ import { mockComponent } from 'libs/common/src/tests/test-helpers';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { MockDirective, MockProvider } from 'ng-mocks';
+import * as ts_client from '@placeos/ts-client';
 import { GroupEventCardComponent } from '../lib/group-event-card.component';
 import { GroupEventDetailsModalComponent } from '../lib/group-event-details-modal.component';
 
-jest.mock('../lib/space.pipe', () => ({
-    updateSpaceList: jest.fn(),
-    SpacePipe: jest.fn().mockImplementation(() => ({
-        org: null,
-        transform: jest.fn(async () =>
-            new (jest.requireActual('@placeos/common').Space)({
-                id: 'space-1',
-                name: 'Space One',
-            }),
-        ),
-    })),
-}));
+// The real SpacePipe runs; only the ts-client system lookup beneath it is stubbed.
+vi.mock('@placeos/ts-client', { spy: true });
 
 describe('GroupEventCardComponent', () => {
     let spectator: Spectator<GroupEventCardComponent>;
@@ -44,10 +35,10 @@ describe('GroupEventCardComponent', () => {
         component: GroupEventCardComponent,
         providers: [
             MockProvider(OrganisationService, {
-                levelWithID: jest.fn(),
+                levelWithID: vi.fn(),
                 buildings: [],
             }),
-            MockProvider(MatDialog, { open: jest.fn() }),
+            MockProvider(MatDialog, { open: vi.fn() }),
         ],
         declarations: [
             mockComponent(IconComponent),
@@ -57,6 +48,12 @@ describe('GroupEventCardComponent', () => {
     });
 
     beforeEach(() => {
+        vi.clearAllMocks();
+        vi.mocked(ts_client.showSystem).mockResolvedValue({
+            id: 'space-1',
+            name: 'Space One',
+            zones: [],
+        } as any);
         settingSignal('group_events_calendar').set('calendar@place.tech');
         spectator = createComponent({ props: { event } as any });
         spectator.detectChanges();

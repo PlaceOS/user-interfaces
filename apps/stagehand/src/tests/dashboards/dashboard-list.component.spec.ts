@@ -2,7 +2,7 @@ import { signal } from '@angular/core';
 import {
     createRoutingFactory,
     SpectatorRouting,
-} from '@ngneat/spectator/jest';
+} from '@ngneat/spectator/vitest';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
 import { DashboardListComponent } from '../../app/dashboards/dashboard-list.component';
@@ -39,10 +39,10 @@ describe('DashboardListComponent', () => {
             ]),
             dashboard_alert_map: signal<Record<string, any[]>>({}),
             loading: signal<string[]>([]),
-            loadDashboards: jest.fn(),
-            loadDashboardAlerts: jest.fn().mockResolvedValue(undefined),
-            removeDashboard: jest.fn(),
-            removeDashboardAlert: jest.fn(),
+            loadDashboards: vi.fn(),
+            loadDashboardAlerts: vi.fn().mockResolvedValue(undefined),
+            removeDashboard: vi.fn(),
+            removeDashboardAlert: vi.fn(),
         };
     });
 

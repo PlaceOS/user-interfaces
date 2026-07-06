@@ -1,11 +1,11 @@
-jest.mock('@placeos/ts-client');
+vi.mock('@placeos/ts-client');
 
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatDialogRef } from '@angular/material/dialog';
 import { StaffUser } from '@placeos/common';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import * as ts_client from '@placeos/ts-client';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
@@ -14,7 +14,7 @@ import { SelectUserModalComponent } from '../lib/select-user-modal.component';
 
 describe('SelectUserModalComponent', () => {
     let spectator: Spectator<SelectUserModalComponent>;
-    const close_fn = jest.fn();
+    const close_fn = vi.fn();
     const createComponent = createComponentFactory({
         component: SelectUserModalComponent,
         declarations: [MockComponent(IconComponent)],
@@ -28,7 +28,7 @@ describe('SelectUserModalComponent', () => {
 
     beforeEach(() => {
         close_fn.mockClear();
-        jest.spyOn(ts_client, 'queryUsers').mockResolvedValue({
+        vi.spyOn(ts_client, 'queryUsers').mockResolvedValue({
             data: [],
         } as any);
         spectator = createComponent();

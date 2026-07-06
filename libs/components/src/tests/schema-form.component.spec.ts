@@ -1,4 +1,4 @@
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 import { Validators } from '@angular/forms';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
@@ -107,7 +107,7 @@ describe('SchemaFormComponent', () => {
     });
 
     it('should propagate form value changes to the registered handler', () => {
-        const on_change = jest.fn();
+        const on_change = vi.fn();
         spectator.component.registerOnChange(on_change);
         spectator.setInput({ schema: SCHEMA });
         spectator.typeInElement('New Name', 'input[name="title"]');
@@ -117,7 +117,7 @@ describe('SchemaFormComponent', () => {
     });
 
     it('should patch the form when a value is written without emitting', () => {
-        const on_change = jest.fn();
+        const on_change = vi.fn();
         spectator.component.registerOnChange(on_change);
         spectator.setInput({ schema: SCHEMA });
         spectator.component.writeValue({ title: 'Existing', count: 2 });

@@ -1,5 +1,6 @@
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subject } from 'rxjs';
+import type { Mock } from 'vitest';
 
 import {
     notify,
@@ -13,15 +14,15 @@ import {
 describe('notifications', () => {
     let snackbar: MatSnackBar;
     let on_action: Subject<void>;
-    let snackbar_ref: { onAction: jest.Mock; dismiss: jest.Mock };
+    let snackbar_ref: { onAction: Mock; dismiss: Mock };
 
     beforeEach(() => {
         on_action = new Subject();
         snackbar_ref = {
-            onAction: jest.fn(() => on_action.asObservable()),
-            dismiss: jest.fn(),
+            onAction: vi.fn(() => on_action.asObservable()),
+            dismiss: vi.fn(),
         };
-        snackbar = { open: jest.fn(() => snackbar_ref) } as any;
+        snackbar = { open: vi.fn(() => snackbar_ref) } as any;
         setNotifyOutlet(snackbar, true);
     });
 
@@ -49,7 +50,7 @@ describe('notifications', () => {
     });
 
     it('should call the action callback when the action is triggered', () => {
-        const callback = jest.fn();
+        const callback = vi.fn();
         notify('info', 'Message', 'Undo', callback);
         on_action.next();
         expect(callback).toHaveBeenCalled();
@@ -71,7 +72,7 @@ describe('notifications', () => {
         notifyError('Error');
         notifyWarn('Warn');
         notifyInfo('Info');
-        const types = (snackbar.open as jest.Mock).mock.calls.map(
+        const types = vi.mocked(snackbar.open).mock.calls.map(
             ([, , config]) => config.panelClass[0],
         );
         expect(types).toEqual(['success', 'error', 'warn', 'info']);

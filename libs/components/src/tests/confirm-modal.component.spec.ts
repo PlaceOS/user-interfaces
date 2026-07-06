@@ -1,6 +1,6 @@
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 import { MockComponent } from 'ng-mocks';
 
 import { ConfirmModalComponent } from '../lib/confirm-modal.component';
@@ -13,7 +13,7 @@ describe('ConfirmModalComponent', () => {
         component: ConfirmModalComponent,
         declarations: [MockComponent(IconComponent), SafePipe],
         providers: [
-            { provide: MatDialogRef, useValue: { close: jest.fn() } },
+            { provide: MatDialogRef, useValue: { close: vi.fn() } },
             { provide: MAT_DIALOG_DATA, useValue: {} },
         ],
         imports: [MatProgressSpinnerModule],

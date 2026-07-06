@@ -1,4 +1,4 @@
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { PlaceOS_Service, settingSignal } from '@placeos/common';
 import { mockComponent } from '@placeos/common/tests';
 import {
@@ -13,8 +13,8 @@ import { AppComponent } from '../app/app.component';
 describe('AppComponent', () => {
     let spectator: SpectatorRouting<AppComponent>;
     let placeos: {
-        init: jest.Mock;
-        setInitialToken: jest.Mock;
+        init: any;
+        setInitialToken: any;
     };
 
     const createComponent = createRoutingFactory({
@@ -36,7 +36,7 @@ describe('AppComponent', () => {
         VirtualKeyboardComponent.enabled = false;
         settingSignal<boolean>('chat.enabled', false).set(false);
         setLocationHref('/');
-        placeos = { init: jest.fn(), setInitialToken: jest.fn() };
+        placeos = { init: vi.fn(), setInitialToken: vi.fn() };
         spectator = createComponent({
             providers: [MockProvider(PlaceOS_Service, placeos as any)],
         });

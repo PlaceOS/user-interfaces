@@ -1,5 +1,5 @@
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { CalendarEvent } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 import { EventLinkModalComponent } from '../lib/event-link-modal.component';
@@ -17,7 +17,7 @@ describe('EventLinkModalComponent', () => {
                     duration: 60,
                 }),
             ),
-            MockProvider(MatDialogRef, { close: jest.fn() }),
+            MockProvider(MatDialogRef, { close: vi.fn() }),
         ],
     });
 

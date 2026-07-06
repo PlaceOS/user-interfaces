@@ -1,21 +1,22 @@
 import { signal } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
 
 import { OrganisationService, SettingsService } from '@placeos/common';
+import type { Mock } from 'vitest';
 import { SupportTicketModalComponent } from '../lib/support-ticket-modal.component';
 
 describe('SupportTicketModalComponent', () => {
     let spectator: Spectator<SupportTicketModalComponent>;
-    let execute_spy: jest.Mock;
-    let close_spy: jest.Mock;
+    let execute_spy: Mock;
+    let close_spy: Mock;
 
     const createComponent = createComponentFactory({
         component: SupportTicketModalComponent,
         shallow: true,
         providers: [
-            MockProvider(MatDialogRef, { close: jest.fn() } as any),
+            MockProvider(MatDialogRef, { close: vi.fn() } as any),
             MockProvider(SettingsService, {
                 signal: ((_: string, def: any) => signal(def)) as any,
             }),
@@ -28,18 +29,18 @@ describe('SupportTicketModalComponent', () => {
                     name: 'HQ',
                     display_name: 'Head Office',
                 } as any,
-                module: jest.fn(),
+                module: vi.fn(),
             }),
         ],
     });
 
     beforeEach(() => {
         spectator = createComponent();
-        close_spy = spectator.inject(MatDialogRef).close as jest.Mock;
-        execute_spy = jest.fn(() => Promise.resolve());
-        (
-            spectator.inject(OrganisationService).module as jest.Mock
-        ).mockReturnValue({ execute: execute_spy });
+        close_spy = spectator.inject(MatDialogRef).close as unknown as Mock;
+        execute_spy = vi.fn(() => Promise.resolve());
+        vi.mocked(
+            spectator.inject(OrganisationService).module,
+        ).mockReturnValue({ execute: execute_spy } as any);
         spectator.detectChanges();
     });
 

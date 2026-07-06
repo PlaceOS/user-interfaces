@@ -1,5 +1,4 @@
-import { fakeAsync, tick } from '@angular/core/testing';
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
+import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
 
 import { HotkeysService } from '../lib/hotkeys.service';
 
@@ -18,47 +17,52 @@ describe('HotkeysService', () => {
     let spectator: SpectatorService<HotkeysService>;
     const createService = createServiceFactory(HotkeysService);
 
-    beforeEach(() => (spectator = createService()));
+    beforeEach(() => {
+        vi.useFakeTimers();
+        spectator = createService();
+    });
 
-    it('should emit hotkey events', fakeAsync(() => {
-        const spy = jest.fn();
+    afterEach(() => vi.useRealTimers());
+
+    it('should emit hotkey events', () => {
+        const spy = vi.fn();
         const sub = spectator.service.listen(['Alt', 'KeyK'], spy);
         keypress('AltLeft');
         keypress('KeyK');
-        tick(100);
+        vi.advanceTimersByTime(100);
         sub.unsubscribe();
         expect(spy).toHaveBeenCalledTimes(1);
         spectator.service.listen(['Alt', 'Shift', 'KeyK'], spy);
         keypress('AltLeft');
         keypress('ShiftLeft');
         keypress('KeyK');
-        tick(100);
+        vi.advanceTimersByTime(100);
         expect(spy).toHaveBeenCalledTimes(2);
-    }));
+    });
 
-    it('should emit hotkey events only if the keys are pressed in the correct order', fakeAsync(() => {
-        const spy = jest.fn();
+    it('should emit hotkey events only if the keys are pressed in the correct order', () => {
+        const spy = vi.fn();
         spectator.service.listen(['Alt', 'KeyK'], spy);
         keypress('KeyK');
         keypress('AltLeft', 150);
-        tick(100);
+        vi.advanceTimersByTime(100);
         expect(spy).toHaveBeenCalledTimes(0);
         keypress('KeyK');
-        tick(100);
+        vi.advanceTimersByTime(100);
         expect(spy).toHaveBeenCalledTimes(1);
-    }));
+    });
 
-    it('should not allow invalid key combinations', fakeAsync(() => {
-        const spy = jest.fn();
+    it('should not allow invalid key combinations', () => {
+        const spy = vi.fn();
         spectator.service.listen(['Alt', 'Shift'], spy);
         keypress('AltLeft');
         keypress('ShiftLeft');
-        tick(100);
+        vi.advanceTimersByTime(100);
         expect(spy).toHaveBeenCalledTimes(0);
         spectator.service.listen(['Alt', 'KeyK'], spy);
         keypress('AltLeft');
         keypress('KeyK');
-        tick(100);
+        vi.advanceTimersByTime(100);
         expect(spy).toHaveBeenCalledTimes(1);
-    }));
+    });
 });

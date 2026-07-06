@@ -1,27 +1,12 @@
-jest.mock('@placeos/ts-client', () => ({
-    addAsset: jest.fn(),
-    addAssetCategory: jest.fn(),
-    addAssetPurchaseOrder: jest.fn(),
-    addAssets: jest.fn(),
-    addAssetType: jest.fn(),
-    queryAssetCategories: jest.fn(),
-    queryAssetPurchaseOrders: jest.fn(),
-    queryAssets: jest.fn(),
-    queryAssetTypes: jest.fn(),
-    showAssetType: jest.fn(),
-    updateAsset: jest.fn(),
-    updateAssetCategory: jest.fn(),
-    updateAssetPurchaseOrder: jest.fn(),
-    updateAssets: jest.fn(),
-    updateAssetType: jest.fn(),
-}));
+import * as ts_client from '@placeos/ts-client';
 
-jest.mock('libs/bookings/src/lib/bookings.fn', () => ({
-    bookedResourceList: jest.fn(),
-    createBooking: jest.fn(),
-    queryBookings: jest.fn(),
-    removeBooking: jest.fn(),
-}));
+// Workspace modules (bookings.fn) run for real; only the ts-client API layer
+// beneath them is stubbed. Booking assertions that used to target
+// bookings.fn now target the ts-client calls those helpers make:
+//   bookings.queryBookings     -> ts_client.get
+//   bookings.bookedResourceList -> ts_client.query
+//   bookings.removeBooking     -> ts_client.del
+vi.mock('@placeos/ts-client', { spy: true });
 
 function response(data: any[]) {
     return Promise.resolve({
@@ -32,18 +17,22 @@ function response(data: any[]) {
 }
 
 async function load_modules() {
-    const ts_client = (await import('@placeos/ts-client')) as any;
-    const bookings = (await import(
-        'libs/bookings/src/lib/bookings.fn'
-    )) as any;
     const assets_fn = (await import('./assets.fn')) as any;
-    return { ts_client, bookings, assets_fn };
+    return { assets_fn };
 }
 
 describe('[Assets]', () => {
     beforeEach(() => {
-        jest.resetModules();
-        jest.clearAllMocks();
+        vi.resetModules();
+        vi.clearAllMocks();
+        // Sensible defaults for the ts-client layer used by bookings.fn.
+        vi.mocked(ts_client.get).mockResolvedValue([] as any);
+        vi.mocked(ts_client.query).mockResolvedValue({
+            data: [],
+            next: undefined,
+            total: 0,
+        } as any);
+        vi.mocked(ts_client.del).mockResolvedValue(undefined as any);
     });
 
     describe('findOldestByName', () => {
@@ -68,8 +57,8 @@ describe('[Assets]', () => {
 
     describe('queryAssetCategories', () => {
         it('should pass through when explicitly querying hidden categories', async () => {
-            const { ts_client, assets_fn } = await load_modules();
-            ts_client.queryAssetCategories.mockReturnValue(
+            const { assets_fn } = await load_modules();
+            vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
                 response([{ id: 'c1', hidden: true }]),
             );
 
@@ -81,8 +70,8 @@ describe('[Assets]', () => {
         });
 
         it('should filter out hidden categories by default', async () => {
-            const { ts_client, assets_fn } = await load_modules();
-            ts_client.queryAssetCategories.mockReturnValue(
+            const { assets_fn } = await load_modules();
+            vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
                 response([{ id: 'c1' }, { id: 'c2', hidden: true }]),
             );
 
@@ -93,15 +82,15 @@ describe('[Assets]', () => {
 
     describe('queryAssetTypes', () => {
         it('should filter out hidden types and types in hidden categories', async () => {
-            const { ts_client, assets_fn } = await load_modules();
-            ts_client.queryAssetTypes.mockReturnValue(
+            const { assets_fn } = await load_modules();
+            vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
                 response([
                     { id: 't1', category_id: 'c1' },
                     { id: 't2', category_id: 'c2' },
                     { id: 't3', category_id: 'c1', hidden: true },
                 ]),
             );
-            ts_client.queryAssetCategories.mockReturnValue(
+            vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
                 response([
                     { id: 'c1', name: 'A' },
                     { id: 'c2', name: 'B', hidden: true },
@@ -115,18 +104,18 @@ describe('[Assets]', () => {
 
     describe('queryAssets', () => {
         it('should filter out hidden assets and assets on hidden types', async () => {
-            const { ts_client, assets_fn } = await load_modules();
-            ts_client.queryAssets.mockReturnValue(
+            const { assets_fn } = await load_modules();
+            vi.mocked(ts_client.queryAssets).mockReturnValue(
                 response([
                     { id: 'a1', asset_type_id: 't1' },
                     { id: 'a2', asset_type_id: 't2' },
                     { id: 'a3', asset_type_id: 't1', hidden: true },
                 ]),
             );
-            ts_client.queryAssetTypes.mockReturnValue(
+            vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
                 response([{ id: 't1', category_id: 'c1' }]),
             );
-            ts_client.queryAssetCategories.mockReturnValue(
+            vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
                 response([{ id: 'c1' }]),
             );
 
@@ -137,8 +126,8 @@ describe('[Assets]', () => {
 
     describe('queryAssetPurchaseOrders', () => {
         it('should delegate to the API with the given query', async () => {
-            const { ts_client, assets_fn } = await load_modules();
-            ts_client.queryAssetPurchaseOrders.mockReturnValue(
+            const { assets_fn } = await load_modules();
+            vi.mocked(ts_client.queryAssetPurchaseOrders).mockReturnValue(
                 response([{ id: 'po1' }]),
             );
 
@@ -152,7 +141,7 @@ describe('[Assets]', () => {
 
     describe('save helpers', () => {
         it('should update when an id is present and add otherwise', async () => {
-            const { ts_client, assets_fn } = await load_modules();
+            const { assets_fn } = await load_modules();
 
             assets_fn.saveAssetCategory({ id: 'c1', name: 'A' });
             expect(ts_client.updateAssetCategory).toHaveBeenCalledWith('c1', {
@@ -197,8 +186,8 @@ describe('[Assets]', () => {
         });
 
         it('should update in bulk when every asset has an id', async () => {
-            const { ts_client, assets_fn } = await load_modules();
-            ts_client.updateAssets.mockResolvedValue(['ok']);
+            const { assets_fn } = await load_modules();
+            vi.mocked(ts_client.updateAssets).mockResolvedValue(['ok'] as any);
 
             await assets_fn.saveAssetsInBulk([{ id: 'a' }, { id: 'b' }]);
             expect(ts_client.updateAssets).toHaveBeenCalled();
@@ -206,8 +195,8 @@ describe('[Assets]', () => {
         });
 
         it('should add in bulk when any asset is new', async () => {
-            const { ts_client, assets_fn } = await load_modules();
-            ts_client.addAssets.mockResolvedValue(['ok']);
+            const { assets_fn } = await load_modules();
+            vi.mocked(ts_client.addAssets).mockResolvedValue(['ok'] as any);
 
             await assets_fn.saveAssetsInBulk([{ id: 'a' }, { name: 'new' }]);
             expect(ts_client.addAssets).toHaveBeenCalled();
@@ -217,11 +206,11 @@ describe('[Assets]', () => {
 
     describe('getGroupsWithAssets', () => {
         it('should delegate to the filtered asset type query', async () => {
-            const { ts_client, assets_fn } = await load_modules();
-            ts_client.queryAssetTypes.mockReturnValue(
+            const { assets_fn } = await load_modules();
+            vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
                 response([{ id: 't1', category_id: 'c1' }]),
             );
-            ts_client.queryAssetCategories.mockReturnValue(
+            vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
                 response([{ id: 'c1' }]),
             );
 
@@ -232,14 +221,14 @@ describe('[Assets]', () => {
 
     describe('queryAssetGroupsExtended', () => {
         it('should group visible assets under their visible types', async () => {
-            const { ts_client, assets_fn } = await load_modules();
-            ts_client.queryAssetTypes.mockReturnValue(
+            const { assets_fn } = await load_modules();
+            vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
                 response([
                     { id: 't1', name: 'Chairs' },
                     { id: 't2', name: 'Hidden', hidden: true },
                 ]),
             );
-            ts_client.queryAssets.mockReturnValue(
+            vi.mocked(ts_client.queryAssets).mockReturnValue(
                 response([
                     { id: 'a1', asset_type_id: 't1' },
                     { id: 'a2', asset_type_id: 't1' },
@@ -261,7 +250,8 @@ describe('[Assets]', () => {
                 'a2',
             ]);
 
-            const query = ts_client.queryAssetTypes.mock.calls[0][0];
+            const query = vi.mocked(ts_client.queryAssetTypes).mock
+                .calls[0][0] as any;
             expect(query.zone_id).toBe('zone-1');
             expect(query.zones).toBeUndefined();
             expect(query.period_start).toBeUndefined();
@@ -270,11 +260,11 @@ describe('[Assets]', () => {
         });
 
         it('should cache results by query', async () => {
-            const { ts_client, assets_fn } = await load_modules();
-            ts_client.queryAssetTypes.mockReturnValue(
+            const { assets_fn } = await load_modules();
+            vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
                 response([{ id: 't1', name: 'Chairs' }]),
             );
-            ts_client.queryAssets.mockReturnValue(response([]));
+            vi.mocked(ts_client.queryAssets).mockReturnValue(response([]));
 
             await assets_fn.queryAssetGroupsExtended({ zone_id: 'z' });
             await assets_fn.queryAssetGroupsExtended({ zone_id: 'z' });
@@ -284,24 +274,24 @@ describe('[Assets]', () => {
 
     describe('showGroupFull', () => {
         it('should assemble the group with its category, assets and purchase orders', async () => {
-            const { ts_client, assets_fn } = await load_modules();
-            ts_client.showAssetType.mockResolvedValue({
+            const { assets_fn } = await load_modules();
+            vi.mocked(ts_client.showAssetType).mockResolvedValue({
                 id: 'g1',
                 category_id: 'c1',
                 name: 'Chairs',
-            });
-            ts_client.queryAssetCategories.mockReturnValue(
+            } as any);
+            vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
                 response([{ id: 'c1', name: 'Furniture' }]),
             );
-            ts_client.queryAssetTypes.mockReturnValue(
+            vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
                 response([{ id: 'g1', category_id: 'c1' }]),
             );
-            ts_client.queryAssets.mockReturnValue(
+            vi.mocked(ts_client.queryAssets).mockReturnValue(
                 response([
                     { id: 'a1', asset_type_id: 'g1', purchase_order_id: 'po1' },
                 ]),
             );
-            ts_client.queryAssetPurchaseOrders.mockReturnValue(
+            vi.mocked(ts_client.queryAssetPurchaseOrders).mockReturnValue(
                 response([{ id: 'po1', purchase_order_number: 'PO-1' }]),
             );
 
@@ -321,20 +311,25 @@ describe('[Assets]', () => {
 
     describe('queryAvailableAssets', () => {
         it('should exclude booked assets but keep ignored ones', async () => {
-            const { ts_client, bookings, assets_fn } = await load_modules();
-            ts_client.queryAssets.mockReturnValue(
+            const { assets_fn } = await load_modules();
+            vi.mocked(ts_client.queryAssets).mockReturnValue(
                 response([
                     { id: 'a1', asset_type_id: 't1' },
                     { id: 'a2', asset_type_id: 't1' },
                 ]),
             );
-            ts_client.queryAssetTypes.mockReturnValue(
+            vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
                 response([{ id: 't1', category_id: 'c1' }]),
             );
-            ts_client.queryAssetCategories.mockReturnValue(
+            vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
                 response([{ id: 'c1' }]),
             );
-            bookings.bookedResourceList.mockResolvedValue(['a1']);
+            // bookedResourceList -> ts_client.query returns ['a1'] as booked
+            vi.mocked(ts_client.query).mockResolvedValue({
+                data: ['a1'],
+                next: undefined,
+                total: 1,
+            } as any);
 
             const available = await assets_fn.queryAvailableAssets({
                 period_start: 1,
@@ -352,20 +347,21 @@ describe('[Assets]', () => {
 
     describe('queryGroupAvailability', () => {
         it('should drop assets referenced by active bookings', async () => {
-            const { ts_client, bookings, assets_fn } = await load_modules();
-            ts_client.queryAssetTypes.mockReturnValue(
+            const { assets_fn } = await load_modules();
+            vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
                 response([{ id: 't1', name: 'Chairs' }]),
             );
-            ts_client.queryAssets.mockReturnValue(
+            vi.mocked(ts_client.queryAssets).mockReturnValue(
                 response([
                     { id: 'a1', asset_type_id: 't1' },
                     { id: 'a2', asset_type_id: 't1' },
                 ]),
             );
-            bookings.queryBookings.mockResolvedValue([
+            // queryBookings -> ts_client.get returns the raw booking list
+            vi.mocked(ts_client.get).mockResolvedValue([
                 { id: 'b1', status: 'approved', asset_id: 'a1' },
                 { id: 'b2', status: 'cancelled', asset_id: 'a2' },
-            ]);
+            ] as any);
 
             const groups = await assets_fn.queryGroupAvailability({
                 period_start: 1,
@@ -377,18 +373,29 @@ describe('[Assets]', () => {
 
     describe('removeAssetRequests', () => {
         it('should remove bookings referencing the asset by id or ids', async () => {
-            const { bookings, assets_fn } = await load_modules();
-            bookings.queryBookings.mockResolvedValue([
+            const { assets_fn } = await load_modules();
+            // queryBookings -> ts_client.get returns the raw booking list
+            vi.mocked(ts_client.get).mockResolvedValue([
                 { id: 'b1', asset_id: 'x' },
                 { id: 'b2', asset_ids: ['x', 'y'] },
                 { id: 'b3', asset_id: 'z' },
-            ]);
-            bookings.removeBooking.mockResolvedValue(true);
+            ] as any);
+            vi.mocked(ts_client.del).mockResolvedValue(true as any);
 
             await assets_fn.removeAssetRequests('x');
-            expect(bookings.removeBooking).toHaveBeenCalledWith('b1');
-            expect(bookings.removeBooking).toHaveBeenCalledWith('b2');
-            expect(bookings.removeBooking).not.toHaveBeenCalledWith('b3');
+            // removeBooking -> ts_client.del(`/api/staff/v1/bookings/<id>`)
+            expect(ts_client.del).toHaveBeenCalledWith(
+                expect.stringContaining('/b1'),
+                expect.anything(),
+            );
+            expect(ts_client.del).toHaveBeenCalledWith(
+                expect.stringContaining('/b2'),
+                expect.anything(),
+            );
+            expect(ts_client.del).not.toHaveBeenCalledWith(
+                expect.stringContaining('/b3'),
+                expect.anything(),
+            );
         });
     });
 

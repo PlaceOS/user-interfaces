@@ -74,17 +74,17 @@ describe('time helpers', () => {
     });
 
     it('returns a progressing mocked time when progress is enabled', () => {
-        jest.spyOn(Date, 'now').mockReturnValue(2000);
+        vi.spyOn(Date, 'now').mockReturnValue(2000);
         setMockTime(1000, true);
-        jest.spyOn(Date, 'now').mockReturnValue(2600);
+        vi.spyOn(Date, 'now').mockReturnValue(2600);
 
         expect(time()).toBe(1600);
     });
 
     it('returns a progressing mocked time at the selected speed', () => {
-        jest.spyOn(Date, 'now').mockReturnValue(2000);
+        vi.spyOn(Date, 'now').mockReturnValue(2000);
         setMockTime(1000, 4);
-        jest.spyOn(Date, 'now').mockReturnValue(2600);
+        vi.spyOn(Date, 'now').mockReturnValue(2600);
 
         expect(time()).toBe(3400);
     });

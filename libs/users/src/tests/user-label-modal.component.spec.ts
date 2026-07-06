@@ -1,5 +1,5 @@
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent } from 'ng-mocks';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -61,8 +61,8 @@ describe('UserLabelModalComponent', () => {
     });
 
     it('should persist settings and trigger printing on print', () => {
-        jest.useFakeTimers();
-        const print_spy = jest
+        vi.useFakeTimers();
+        const print_spy = vi
             .spyOn(window, 'print')
             .mockImplementation(() => undefined);
         spectator.component.scale.set(6);
@@ -71,9 +71,9 @@ describe('UserLabelModalComponent', () => {
         spectator.component.print();
         const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) as string);
         expect(stored).toEqual({ scale: 6, width: 40, height: 20 });
-        jest.runOnlyPendingTimers();
+        vi.runOnlyPendingTimers();
         expect(print_spy).toHaveBeenCalled();
-        jest.useRealTimers();
+        vi.useRealTimers();
         print_spy.mockRestore();
     });
 });

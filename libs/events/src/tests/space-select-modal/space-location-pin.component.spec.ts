@@ -1,4 +1,4 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MAP_FEATURE_DATA } from 'libs/common/src/lib/types';
 import { mockComponent } from 'libs/common/src/tests/test-helpers';
 import { IconComponent } from 'libs/components/src/lib/icon.component';

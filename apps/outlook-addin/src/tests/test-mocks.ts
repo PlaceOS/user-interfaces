@@ -10,7 +10,7 @@ export const mockForm = {
     date: [0, Validators.required],
     duration: 0,
     attendees: '' as any,
-    markAllAsTouched: jest.fn(() => {}),
+    markAllAsTouched: vi.fn(() => {}),
 };
 
 export const mockGenerateEventForm = (event: any) => {

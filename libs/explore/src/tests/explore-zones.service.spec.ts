@@ -10,10 +10,7 @@ import {
 import { ExploreStateService } from '../lib/explore-state.service';
 import { ExploreZonesService } from '../lib/explore-zones.service';
 
-jest.mock('@placeos/ts-client', () => ({
-    ...jest.requireActual('@placeos/ts-client'),
-    showMetadata: jest.fn(),
-}));
+vi.mock('@placeos/ts-client', { spy: true });
 
 import * as ts_client from '@placeos/ts-client';
 import { MockProvider } from 'ng-mocks';
@@ -26,13 +23,13 @@ describe('ExploreStateService', () => {
             MockProvider(ExploreStateService, {
                 level: signal({ id: 'lvl-1' }) as any,
                 options: signal({ is_public: false }) as any,
-                setFeatures: jest.fn(),
-                setLabels: jest.fn(),
-                setStyles: jest.fn(),
+                setFeatures: vi.fn(),
+                setLabels: vi.fn(),
+                setStyles: vi.fn(),
             }),
             MockProvider(OrganisationService, {
                 organisation: new Organisation(),
-                binding: jest.fn(),
+                binding: vi.fn(),
                 initialised: signal(true),
                 levels: [],
                 buildings: [],
@@ -40,13 +37,13 @@ describe('ExploreStateService', () => {
                     id: 'bld-1',
                 } as any),
             }),
-            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(SettingsService, { get: vi.fn() }),
         ],
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
-        jest.mocked(ts_client.showMetadata).mockResolvedValue({} as any);
+        vi.clearAllMocks();
+        vi.mocked(ts_client.showMetadata).mockResolvedValue({} as any);
         spectator = createService();
     });
 
@@ -55,9 +52,9 @@ describe('ExploreStateService', () => {
     });
 
     // it('should bind to zone area management', async () => {
-    //     const bind = jest.fn();
-    //     const binding = jest.fn(() => ({ listen: () => of(), bind }));
-    //     (ts_client as any).getModule = jest.fn(() => ({ binding }));
+    //     const bind = vi.fn();
+    //     const binding = vi.fn(() => ({ listen: () => of(), bind }));
+    //     (ts_client as any).getModule = vi.fn(() => ({ binding }));
     //     const state = spectator.inject(ExploreStateService);
     //     const org = spectator.inject(OrganisationService);
     //     (state.level as any).next({});

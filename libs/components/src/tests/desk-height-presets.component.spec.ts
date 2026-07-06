@@ -1,4 +1,4 @@
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 
 import { SettingsService } from '@placeos/common';
 import { DeskHeightPresetsComponent } from '../lib/desk-height-presets.component';
@@ -7,8 +7,8 @@ describe('DeskHeightPresetsComponent', () => {
     let spectator: Spectator<DeskHeightPresetsComponent>;
 
     const settings_mock = {
-        get: jest.fn(),
-        saveUserSetting: jest.fn(),
+        get: vi.fn(),
+        saveUserSetting: vi.fn(),
     };
 
     const createComponent = createComponentFactory({
@@ -17,7 +17,7 @@ describe('DeskHeightPresetsComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         settings_mock.get.mockReturnValue(undefined);
     });
 
@@ -53,7 +53,7 @@ describe('DeskHeightPresetsComponent', () => {
 
     it('should save heights and emit close on save', () => {
         spectator = createComponent({ props: { show_close: true } });
-        const spy = jest.fn();
+        const spy = vi.fn();
         spectator.component.close.subscribe(spy);
         spectator.component.desk_sitting_height.set(72.5);
         spectator.component.desk_standing_height.set(105);

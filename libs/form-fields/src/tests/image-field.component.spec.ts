@@ -1,5 +1,5 @@
 import { Clipboard } from '@angular/cdk/clipboard';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
 import { UploadsService } from '@placeos/common';
@@ -18,12 +18,12 @@ describe('ImageFieldComponent', () => {
         ],
         providers: [
             MockProvider(UploadsService, {
-                uploadFileWithPermissions: jest.fn(() =>
+                uploadFileWithPermissions: vi.fn(() =>
                     Promise.resolve('upload-1'),
                 ),
                 upload_list: (() => []) as any,
             }),
-            MockProvider(Clipboard, { copy: jest.fn(() => true) }),
+            MockProvider(Clipboard, { copy: vi.fn(() => true) }),
         ],
     });
 
@@ -45,7 +45,7 @@ describe('ImageFieldComponent', () => {
     });
 
     it('should emit changes when the value is set', async () => {
-        const on_change = jest.fn();
+        const on_change = vi.fn();
         spectator.component.registerOnChange(on_change);
         await spectator.component.setValue('https://example.com/new.png');
         expect(on_change).toHaveBeenCalledWith('https://example.com/new.png');

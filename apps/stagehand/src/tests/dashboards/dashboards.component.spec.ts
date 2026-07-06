@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
 import { DashboardsComponent } from '../../app/dashboards/dashboards.component';

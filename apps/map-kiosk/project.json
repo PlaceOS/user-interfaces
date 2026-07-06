@@ -121,11 +121,26 @@
             "outputs": ["{options.outputFile}"]
         },
         "test": {
-            "executor": "@nx/jest:jest",
+            "executor": "@angular/build:unit-test",
             "outputs": ["{workspaceRoot}/coverage/apps/map-kiosk"],
             "options": {
-                "jestConfig": "apps/map-kiosk/jest.config.ts",
-                "tsConfig": "apps/map-kiosk/tsconfig.spec.json"
+                "tsConfig": "apps/map-kiosk/tsconfig.spec.json",
+                "setupFiles": ["apps/map-kiosk/src/test-setup.ts"],
+                "isolate": true,
+                "watch": false,
+                "buildTarget": "map-kiosk:test-build:development"
+            }
+        },
+        "test-build": {
+            "executor": "@angular/build:application",
+            "options": {
+                "outputPath": "dist/apps/map-kiosk-test",
+                "browser": "apps/map-kiosk/src/main.ts",
+                "tsConfig": "apps/map-kiosk/tsconfig.spec.json",
+                "polyfills": []
+            },
+            "configurations": {
+                "development": {}
             }
         }
     }

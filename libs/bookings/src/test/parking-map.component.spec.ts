@@ -1,8 +1,9 @@
+import type { Mock } from 'vitest';
 import { signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { createSettingsServiceMock } from '@placeos/common/tests';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
@@ -39,10 +40,10 @@ describe('ParkingMapComponent', () => {
     const available = signal<BookingAsset[]>([]);
     const options = signal<any>({});
     const loading = signal('');
-    const set_options = jest.fn();
-    const resource_user_name = jest.fn((_: string) => '');
-    const levels_for_building = jest.fn(() => [] as any[]);
-    const level_with_id = jest.fn(() => undefined);
+    const set_options = vi.fn();
+    const resource_user_name = vi.fn((_: string) => '');
+    const levels_for_building = vi.fn(() => [] as any[]);
+    const level_with_id = vi.fn(() => undefined);
 
     const createComponent = createComponentFactory({
         component: ParkingMapComponent,
@@ -63,7 +64,7 @@ describe('ParkingMapComponent', () => {
                 active_region: signal(undefined) as any,
                 active_building: signal({ id: 'bld-1' }) as any,
                 levelsForBuilding: levels_for_building as any,
-                levelsForRegion: jest.fn(() => []) as any,
+                levelsForRegion: vi.fn(() => []) as any,
                 levelWithID: level_with_id as any,
                 buildings: [{ id: 'bld-1', location: '1.0,2.0' }] as any,
             }),
@@ -171,7 +172,7 @@ describe('ParkingMapComponent', () => {
         available.set([asset({ id: 'p1', map_id: 'm-1' })]);
         spectator = createComponent();
         const settings_service = spectator.inject(SettingsService);
-        (settings_service.get as jest.Mock).mockImplementation((key: string) =>
+        (settings_service.get as Mock).mockImplementation((key: string) =>
             key === 'app.explore.colors'
                 ? { 'parking-pending': '#123456' }
                 : undefined,
@@ -199,7 +200,7 @@ describe('ParkingMapComponent', () => {
     it('should hide features when hide_user setting is enabled', () => {
         spectator = createComponent();
         const settings_service = spectator.inject(SettingsService);
-        (settings_service.get as jest.Mock).mockImplementation(
+        (settings_service.get as Mock).mockImplementation(
             (key: string) => key === 'app.parkings.hide_user',
         );
         // Change resources after setting the mock so the `features` computed

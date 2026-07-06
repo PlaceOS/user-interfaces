@@ -7,11 +7,26 @@
     "tags": [],
     "targets": {
         "test": {
-            "executor": "@nx/jest:jest",
+            "executor": "@angular/build:unit-test",
             "outputs": ["{workspaceRoot}/coverage/libs/assets"],
             "options": {
-                "jestConfig": "libs/assets/jest.config.ts",
-                "tsConfig": "libs/assets/tsconfig.spec.json"
+                "tsConfig": "libs/assets/tsconfig.spec.json",
+                "setupFiles": ["libs/assets/src/test-setup.ts"],
+                "isolate": true,
+                "watch": false,
+                "buildTarget": "assets:test-build:development"
+            }
+        },
+        "test-build": {
+            "executor": "@angular/build:application",
+            "options": {
+                "outputPath": "dist/libs/assets",
+                "browser": "libs/assets/src/index.ts",
+                "tsConfig": "libs/assets/tsconfig.spec.json",
+                "polyfills": []
+            },
+            "configurations": {
+                "development": {}
             }
         },
         "lint": {

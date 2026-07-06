@@ -1,4 +1,4 @@
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 import { OrganisationService } from '@placeos/common';
 import { MockComponent, MockPipe } from 'ng-mocks';
 
@@ -12,7 +12,7 @@ import { ParkingDetailsComponent } from '../lib/parking-select-modal/parking-det
 describe('ParkingDetailsComponent', () => {
     let spectator: Spectator<ParkingDetailsComponent>;
     const org_mock = {
-        levelWithID: jest.fn((ids: string[]) =>
+        levelWithID: vi.fn((ids: string[]) =>
             ids?.[0]
                 ? {
                       id: ids[0],
@@ -45,7 +45,7 @@ describe('ParkingDetailsComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         spectator = createComponent();
     });
 
@@ -71,7 +71,7 @@ describe('ParkingDetailsComponent', () => {
     });
 
     it('should emit close when the back button is clicked', () => {
-        const close = jest.fn();
+        const close = vi.fn();
         spectator.component.close.subscribe(close);
         spectator.setInput('space', { id: 'space-1', name: 'Bay' } as any);
         spectator.detectChanges();
@@ -80,7 +80,7 @@ describe('ParkingDetailsComponent', () => {
     });
 
     it('should emit toggleFav when the favourite button is clicked', () => {
-        const toggle = jest.fn();
+        const toggle = vi.fn();
         spectator.component.toggleFav.subscribe(toggle);
         spectator.setInput('space', { id: 'space-1', name: 'Bay' } as any);
         spectator.detectChanges();

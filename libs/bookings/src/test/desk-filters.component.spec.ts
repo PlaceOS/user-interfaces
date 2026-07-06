@@ -1,10 +1,11 @@
+import type { Mock } from 'vitest';
 import { Injector, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 import { Booking, OrganisationService, SettingsService } from '@placeos/common';
 import { createSettingsServiceMock } from '@placeos/common/tests';
 import { MockComponent, MockModule, MockPipe } from 'ng-mocks';
@@ -27,8 +28,8 @@ describe('DeskFiltersComponent', () => {
         { id: 'd1', zone: { id: 'lvl-a' } },
         { id: 'd2', zone: { id: 'lvl-b' } },
     ]);
-    const set_options = jest.fn((o) => options.update((v) => ({ ...v, ...o })));
-    const set_feature = jest.fn();
+    const set_options = vi.fn((o) => options.update((v) => ({ ...v, ...o })));
+    const set_feature = vi.fn();
 
     const levels = [
         { id: 'lvl-b', parent_id: 'bld-1', display_name: 'B', name: 'B', tags: [] },
@@ -50,8 +51,8 @@ describe('DeskFiltersComponent', () => {
             { id: 'reg-1', display_name: 'Region One', name: 'reg-1' },
         ]),
         active_region: signal({ id: 'reg-1', display_name: 'Region One' }),
-        levelsForRegion: jest.fn(() => levels),
-        levelsForBuilding: jest.fn(() => levels),
+        levelsForRegion: vi.fn(() => levels),
+        levelsForBuilding: vi.fn(() => levels),
         get building() {
             return this._building;
         },
@@ -110,7 +111,7 @@ describe('DeskFiltersComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         options.set({ zone_id: 'lvl-a', show_fav: false, features: [] });
         features.set(['sit-stand', 'monitor']);
         resources.set([
@@ -161,7 +162,7 @@ describe('DeskFiltersComponent', () => {
 
     it('should show the region selector when regions are used', () => {
         const settings = spectator.inject(SettingsService);
-        (settings.get as jest.Mock).mockImplementation((key: string) =>
+        (settings.get as Mock).mockImplementation((key: string) =>
             key === 'app.use_region' ? true : undefined,
         );
         spectator.detectChanges();
@@ -192,7 +193,7 @@ describe('DeskFiltersComponent', () => {
 
     it('should only allow all-day bookings when both settings are enabled', () => {
         const settings = spectator.inject(SettingsService);
-        (settings.get as jest.Mock).mockImplementation((key: string) =>
+        (settings.get as Mock).mockImplementation((key: string) =>
             key === 'app.desks.allow_time_changes' ||
             key === 'app.desks.allow_all_day'
                 ? true

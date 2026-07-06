@@ -1,16 +1,10 @@
-jest.mock('@placeos/ts-client', () => ({
-    queryAssetCategories: jest.fn(),
-    queryAssetTypes: jest.fn(),
-    queryAssets: jest.fn(),
-    removeAsset: jest.fn(),
-}));
+import * as ts_client from '@placeos/ts-client';
 
-jest.mock('./assets.fn', () => ({
-    findOldestByName: jest.requireActual('./assets.fn').findOldestByName,
-    saveAsset: jest.fn(),
-    saveAssetCategory: jest.fn(),
-    saveAssetType: jest.fn(),
-}));
+// The real assets.fn save helpers run; only the ts-client add/update/query
+// layer beneath them is stubbed. Assertions that used to target
+// assets_fn.saveAssetCategory / saveAssetType / saveAsset now target the
+// ts-client add/update calls those helpers make.
+vi.mock('@placeos/ts-client', { spy: true });
 
 function response(data: any[]) {
     return Promise.resolve({
@@ -21,25 +15,27 @@ function response(data: any[]) {
 }
 
 async function load_modules() {
-    const ts_client = (await import('@placeos/ts-client')) as any;
-    const assets_fn = (await import('./assets.fn')) as any;
     const locker = (await import('./locker-assets.fn')) as any;
-    return { ts_client, assets_fn, locker };
+    return { locker };
 }
 
 describe('[Locker Assets]', () => {
     beforeEach(() => {
-        jest.resetModules();
-        jest.clearAllMocks();
+        vi.resetModules();
+        vi.clearAllMocks();
+        vi.mocked(ts_client.addAssetCategory).mockResolvedValue({} as any);
+        vi.mocked(ts_client.addAssetType).mockResolvedValue({} as any);
+        vi.mocked(ts_client.addAsset).mockResolvedValue({} as any);
+        vi.mocked(ts_client.removeAsset).mockResolvedValue(undefined as any);
     });
 
     describe('resolveLockerBankTypeId', () => {
         it('should reuse the existing hidden category and bank type', async () => {
-            const { ts_client, assets_fn, locker } = await load_modules();
-            ts_client.queryAssetCategories.mockReturnValue(
+            const { locker } = await load_modules();
+            vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
                 response([{ id: 'cat-1', name: '_LOCKERS_' }]),
             );
-            ts_client.queryAssetTypes.mockReturnValue(
+            vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
                 response([
                     {
                         id: 'type-1',
@@ -51,30 +47,32 @@ describe('[Locker Assets]', () => {
 
             const type_id = await locker.resolveLockerBankTypeId();
             expect(type_id).toBe('type-1');
-            expect(assets_fn.saveAssetCategory).not.toHaveBeenCalled();
-            expect(assets_fn.saveAssetType).not.toHaveBeenCalled();
+            expect(ts_client.addAssetCategory).not.toHaveBeenCalled();
+            expect(ts_client.addAssetType).not.toHaveBeenCalled();
         });
 
         it('should create the hidden category and bank type when missing', async () => {
-            const { ts_client, assets_fn, locker } = await load_modules();
-            ts_client.queryAssetCategories.mockReturnValue(response([]));
-            ts_client.queryAssetTypes.mockReturnValue(response([]));
-            assets_fn.saveAssetCategory.mockResolvedValue({
+            const { locker } = await load_modules();
+            vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
+                response([]),
+            );
+            vi.mocked(ts_client.queryAssetTypes).mockReturnValue(response([]));
+            vi.mocked(ts_client.addAssetCategory).mockResolvedValue({
                 id: 'cat-1',
                 name: '_LOCKERS_',
-            });
-            assets_fn.saveAssetType.mockResolvedValue({
+            } as any);
+            vi.mocked(ts_client.addAssetType).mockResolvedValue({
                 id: 'type-1',
                 name: '_LOCKER_BANKS_',
-            });
+            } as any);
 
             const type_id = await locker.resolveLockerBankTypeId();
             expect(type_id).toBe('type-1');
-            expect(assets_fn.saveAssetCategory).toHaveBeenCalledWith({
+            expect(ts_client.addAssetCategory).toHaveBeenCalledWith({
                 name: '_LOCKERS_',
                 hidden: true,
             });
-            expect(assets_fn.saveAssetType).toHaveBeenCalledWith({
+            expect(ts_client.addAssetType).toHaveBeenCalledWith({
                 name: '_LOCKER_BANKS_',
                 brand: 'PlaceOS',
                 category_id: 'cat-1',
@@ -82,17 +80,17 @@ describe('[Locker Assets]', () => {
         });
 
         it('should memoise the resolved bank type id', async () => {
-            const { ts_client, locker } = await load_modules();
-            ts_client.queryAssetCategories.mockReturnValue(
+            const { locker } = await load_modules();
+            vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
                 response([{ id: 'cat-1', name: '_LOCKERS_' }]),
             );
-            ts_client.queryAssetTypes.mockReturnValue(
+            vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
                 response([{ id: 'type-1', name: '_LOCKER_BANKS_' }]),
             );
 
             const first = await locker.resolveLockerBankTypeId();
-            ts_client.queryAssetCategories.mockClear();
-            ts_client.queryAssetTypes.mockClear();
+            vi.mocked(ts_client.queryAssetCategories).mockClear();
+            vi.mocked(ts_client.queryAssetTypes).mockClear();
             const second = await locker.resolveLockerBankTypeId();
 
             expect(second).toBe(first);
@@ -103,11 +101,11 @@ describe('[Locker Assets]', () => {
 
     describe('resolveLockerTypeId', () => {
         it('should reuse the existing hidden category and locker type', async () => {
-            const { ts_client, assets_fn, locker } = await load_modules();
-            ts_client.queryAssetCategories.mockReturnValue(
+            const { locker } = await load_modules();
+            vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
                 response([{ id: 'cat-1', name: '_LOCKERS_' }]),
             );
-            ts_client.queryAssetTypes.mockReturnValue(
+            vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
                 response([
                     { id: 'type-2', name: '_LOCKERS_', category_id: 'cat-1' },
                 ]),
@@ -115,20 +113,20 @@ describe('[Locker Assets]', () => {
 
             const type_id = await locker.resolveLockerTypeId();
             expect(type_id).toBe('type-2');
-            expect(assets_fn.saveAssetType).not.toHaveBeenCalled();
+            expect(ts_client.addAssetType).not.toHaveBeenCalled();
         });
     });
 
     describe('queryLockerBankAssets', () => {
         it('should query assets for the zone and bank type', async () => {
-            const { ts_client, locker } = await load_modules();
-            ts_client.queryAssetCategories.mockReturnValue(
+            const { locker } = await load_modules();
+            vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
                 response([{ id: 'cat-1', name: '_LOCKERS_' }]),
             );
-            ts_client.queryAssetTypes.mockReturnValue(
+            vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
                 response([{ id: 'type-1', name: '_LOCKER_BANKS_' }]),
             );
-            ts_client.queryAssets.mockReturnValue(
+            vi.mocked(ts_client.queryAssets).mockReturnValue(
                 response([{ id: 'a1' }, { id: 'a2' }]),
             );
 
@@ -149,15 +147,15 @@ describe('[Locker Assets]', () => {
         });
 
         it('should flatten the per-zone results', async () => {
-            const { ts_client, locker } = await load_modules();
-            ts_client.queryAssetCategories.mockReturnValue(
+            const { locker } = await load_modules();
+            vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
                 response([{ id: 'cat-1', name: '_LOCKERS_' }]),
             );
-            ts_client.queryAssetTypes.mockReturnValue(
+            vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
                 response([{ id: 'type-1', name: '_LOCKER_BANKS_' }]),
             );
-            ts_client.queryAssets.mockImplementation(({ zone_id }: any) =>
-                response([{ id: `${zone_id}-a` }]),
+            vi.mocked(ts_client.queryAssets).mockImplementation(
+                ({ zone_id }: any) => response([{ id: `${zone_id}-a` }]),
             );
 
             const list = await locker.queryLockerBankAssetsForZones([
@@ -170,17 +168,17 @@ describe('[Locker Assets]', () => {
 
     describe('saveLockerBankAsset', () => {
         it('should save the asset stamped with the bank type id', async () => {
-            const { ts_client, assets_fn, locker } = await load_modules();
-            ts_client.queryAssetCategories.mockReturnValue(
+            const { locker } = await load_modules();
+            vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
                 response([{ id: 'cat-1', name: '_LOCKERS_' }]),
             );
-            ts_client.queryAssetTypes.mockReturnValue(
+            vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
                 response([{ id: 'type-1', name: '_LOCKER_BANKS_' }]),
             );
-            assets_fn.saveAsset.mockResolvedValue({ id: 'a1' });
+            vi.mocked(ts_client.addAsset).mockResolvedValue({ id: 'a1' } as any);
 
             const res = await locker.saveLockerBankAsset({ name: 'Bank 1' });
-            expect(assets_fn.saveAsset).toHaveBeenCalledWith({
+            expect(ts_client.addAsset).toHaveBeenCalledWith({
                 name: 'Bank 1',
                 asset_type_id: 'type-1',
             });
@@ -190,17 +188,17 @@ describe('[Locker Assets]', () => {
 
     describe('saveLockerAsset', () => {
         it('should save the asset stamped with the locker type id', async () => {
-            const { ts_client, assets_fn, locker } = await load_modules();
-            ts_client.queryAssetCategories.mockReturnValue(
+            const { locker } = await load_modules();
+            vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
                 response([{ id: 'cat-1', name: '_LOCKERS_' }]),
             );
-            ts_client.queryAssetTypes.mockReturnValue(
+            vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
                 response([{ id: 'type-2', name: '_LOCKERS_' }]),
             );
-            assets_fn.saveAsset.mockResolvedValue({ id: 'l1' });
+            vi.mocked(ts_client.addAsset).mockResolvedValue({ id: 'l1' } as any);
 
             const res = await locker.saveLockerAsset({ name: 'Locker 1' });
-            expect(assets_fn.saveAsset).toHaveBeenCalledWith({
+            expect(ts_client.addAsset).toHaveBeenCalledWith({
                 name: 'Locker 1',
                 asset_type_id: 'type-2',
             });
@@ -210,8 +208,8 @@ describe('[Locker Assets]', () => {
 
     describe('delete helpers', () => {
         it('should remove the given asset id for banks and lockers', async () => {
-            const { ts_client, locker } = await load_modules();
-            ts_client.removeAsset.mockResolvedValue(true);
+            const { locker } = await load_modules();
+            vi.mocked(ts_client.removeAsset).mockResolvedValue(true as any);
 
             locker.deleteLockerBankAsset('bank-1');
             expect(ts_client.removeAsset).toHaveBeenCalledWith('bank-1');

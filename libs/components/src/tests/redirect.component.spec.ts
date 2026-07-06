@@ -1,5 +1,5 @@
 import { Router } from '@angular/router';
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 import { OrganisationService } from '@placeos/common';
 import { createSettingsServiceMock } from '@placeos/common/tests';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
@@ -11,19 +11,19 @@ describe('RedirectComponent', () => {
     let spectator: Spectator<RedirectComponent>;
 
     const settings_mock = createSettingsServiceMock();
-    const org_mock = { waitUntilInitialised: jest.fn() };
+    const org_mock = { waitUntilInitialised: vi.fn() };
 
     const createComponent = createComponentFactory({
         component: RedirectComponent,
         providers: [
             { provide: SettingsService, useValue: settings_mock },
             { provide: OrganisationService, useValue: org_mock },
-            MockProvider(Router, { navigate: jest.fn() }),
+            MockProvider(Router, { navigate: vi.fn() }),
         ],
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         settings_mock.get.mockReturnValue(undefined);
         org_mock.waitUntilInitialised.mockResolvedValue(undefined);
         spectator = createComponent({ detectChanges: false });

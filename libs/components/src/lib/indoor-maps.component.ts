@@ -26,6 +26,8 @@ import {
 import { MapService } from 'libs/common/src/lib/mapspeople.service';
 import { ExploreStateService } from '../../../explore/src/lib/explore-state.service';
 import { IconComponent } from './icon.component';
+import { TranslatePipe } from './translate.pipe';
+import { SlicePipe } from '@angular/common';
 
 declare let mapsindoors: any;
 declare let google: any;
@@ -202,6 +204,8 @@ function degreesToRadians(degrees: number): number {
         IconComponent,
         MatFormFieldModule,
         MatSelectModule,
+        TranslatePipe,
+        SlicePipe,
     ],
 })
 export class IndoorMapsComponent

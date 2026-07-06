@@ -1,17 +1,17 @@
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockModule } from 'ng-mocks';
 
 import { StaffUser } from '@placeos/common';
 import { HostSelectFieldComponent } from '../lib/host-select-field.component';
 
-jest.mock('@placeos/users');
-jest.mock('@placeos/events');
+// queryCalendars (libs/events) runs for real; only the ts-client `get` it
+// calls beneath is stubbed.
+vi.mock('@placeos/ts-client', { spy: true });
 
-import * as cal_fns from '@placeos/events';
-import * as user_mod from '@placeos/users';
+import * as ts_client from '@placeos/ts-client';
 
 describe('HostSelectFieldComponent', () => {
     let spectator: Spectator<HostSelectFieldComponent>;
@@ -27,10 +27,8 @@ describe('HostSelectFieldComponent', () => {
     });
 
     beforeEach(() => {
-        (user_mod.showStaff as any) = jest.fn((id) =>
-            Promise.resolve(new StaffUser({ id })),
-        );
-        (cal_fns.queryCalendars as any) = jest.fn(() => Promise.resolve([{}]));
+        vi.clearAllMocks();
+        vi.mocked(ts_client.get).mockResolvedValue([{}] as any);
         spectator = createComponent();
     });
 
@@ -48,7 +46,7 @@ describe('HostSelectFieldComponent', () => {
     // it('should handle internal value changes', async () => {
     //     expect(spectator.component.item).toBeUndefined();
     //     const user = new StaffUser({ email: 'test@t.com' });
-    //     const spy = jest.fn();
+    //     const spy = vi.fn();
     //     spectator.component.registerOnChange(spy);
     //     await spectator.component.setValue(user.email);
     //     expect(spectator.component.item.email).toBe(user.email);

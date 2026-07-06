@@ -1,7 +1,7 @@
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { SETTING_KEYS, SettingsService } from '@placeos/common';
 import { createSettingsServiceMock } from '@placeos/common/tests';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
@@ -23,7 +23,7 @@ const asset = (id: string): BookingAsset =>
 
 describe('ParkingSelectModalComponent', () => {
     let spectator: Spectator<ParkingSelectModalComponent>;
-    const dialog_ref = { close: jest.fn() };
+    const dialog_ref = { close: vi.fn() };
     let dialog_data: any;
 
     const createComponent = createComponentFactory({
@@ -31,7 +31,7 @@ describe('ParkingSelectModalComponent', () => {
         providers: [
             { provide: MatDialogRef, useValue: dialog_ref },
             { provide: MAT_DIALOG_DATA, useFactory: () => dialog_data },
-            MockProvider(BookingFormService, { setOptions: jest.fn() }),
+            MockProvider(BookingFormService, { setOptions: vi.fn() }),
             {
                 provide: SettingsService,
                 useFactory: () => createSettingsServiceMock(),

@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 
 import { OrganisationService } from '@placeos/common';
 import { ExploreStateService } from '@placeos/explore';
@@ -15,7 +15,7 @@ describe('ExploreLevelSelectComponent', () => {
                 provide: ExploreStateService,
                 useValue: {
                     level: signal({ id: 'lvl-2' }),
-                    setLevel: jest.fn(),
+                    setLevel: vi.fn(),
                 },
             },
             {

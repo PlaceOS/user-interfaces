@@ -1,5 +1,5 @@
 import { MatDialog } from '@angular/material/dialog';
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
+import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
 import { OrganisationService } from '@placeos/common';
 import { PaymentsService } from '../lib/payments.service';
 
@@ -14,7 +14,7 @@ describe('PaymentsService', () => {
             },
             {
                 provide: MatDialog,
-                useValue: { open: jest.fn() },
+                useValue: { open: vi.fn() },
             },
         ],
     });

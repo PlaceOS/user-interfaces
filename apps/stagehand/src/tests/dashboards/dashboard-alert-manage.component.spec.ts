@@ -1,14 +1,15 @@
 import { signal } from '@angular/core';
+import { ComponentFixtureAutoDetect } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import {
     createRoutingFactory,
     SpectatorRouting,
-} from '@ngneat/spectator/jest';
+} from '@ngneat/spectator/vitest';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { delay, of } from 'rxjs';
 
-import { notifyError } from '@placeos/common';
+import { setNotifyOutlet } from 'libs/common/src/lib/notifications';
 import { addAlert, updateAlert } from '@placeos/ts-client';
 
 import { DashboardAlertManageComponent } from '../../app/dashboards/dashboard-alert-manage.component';
@@ -18,21 +19,13 @@ import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle
 import { SimpleTableComponent } from 'libs/components/src/lib/simple-table.component';
 import { SystemSearchFieldComponent } from '../../app/dashboards/system-search-field.component';
 
-jest.mock('@placeos/common', () => ({
-    ...jest.requireActual('@placeos/common'),
-    notifyError: jest.fn(),
-}));
-
-jest.mock('@placeos/ts-client', () => ({
-    ...jest.requireActual('@placeos/ts-client'),
-    addAlert: jest.fn(),
-    updateAlert: jest.fn(),
-}));
+vi.mock('@placeos/ts-client', { spy: true });
 
 describe('DashboardAlertManageComponent', () => {
     let spectator: SpectatorRouting<DashboardAlertManageComponent>;
     let service: any;
     let dialog: any;
+    let notify_open: ReturnType<typeof vi.fn>;
 
     const create_component = createRoutingFactory({
         component: DashboardAlertManageComponent,
@@ -44,7 +37,15 @@ describe('DashboardAlertManageComponent', () => {
             MockComponent(SimpleTableComponent),
             MockComponent(SystemSearchFieldComponent),
         ],
-        providers: [MockProvider(DashboardsService), MockProvider(MatDialog)],
+        // Disable the zoneless auto-tick: these tests assert on component
+        // signals/methods, not the DOM. Auto change-detection would render the
+        // experimental signal-forms + mat-select template and emit benign async
+        // rxjs/material errors that vitest reports as unhandled.
+        providers: [
+            MockProvider(DashboardsService),
+            MockProvider(MatDialog),
+            { provide: ComponentFixtureAutoDetect, useValue: false },
+        ],
     });
 
     function build(route_options = {}) {
@@ -59,14 +60,24 @@ describe('DashboardAlertManageComponent', () => {
     }
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
+        notify_open = vi.fn(() => ({
+            onAction: () => ({ subscribe: () => undefined }),
+            dismiss: () => undefined,
+        }));
+        setNotifyOutlet({ open: notify_open } as any, true);
         service = {
             dashboard: signal<any>({ id: 'dash-1', name: 'Lobby' }),
             alert: signal<any>(undefined),
-            setDashboard: jest.fn(),
-            setAlert: jest.fn(),
+            setDashboard: vi.fn(),
+            setAlert: vi.fn(),
         };
-        dialog = { open: jest.fn() };
+        dialog = { open: vi.fn() };
+    });
+
+    afterEach(() => {
+        spectator?.fixture?.destroy();
+        setNotifyOutlet(null as any, true);
     });
 
     it('should reject saving when the name is missing', async () => {
@@ -75,7 +86,7 @@ describe('DashboardAlertManageComponent', () => {
 
         await spectator.component.save();
 
-        expect(notifyError).toHaveBeenCalled();
+        expect(notify_open).toHaveBeenCalled();
         expect(addAlert).not.toHaveBeenCalled();
         expect(updateAlert).not.toHaveBeenCalled();
     });
@@ -92,7 +103,7 @@ describe('DashboardAlertManageComponent', () => {
     });
 
     it('should create a new alert against the active dashboard and navigate', async () => {
-        (addAlert as jest.Mock).mockResolvedValue({ id: 'alert-1' });
+        vi.mocked(addAlert).mockResolvedValue({ id: 'alert-1' } as any);
         build();
         spectator.component.model.update((m) => ({ ...m, name: 'Overheat' }));
 
@@ -113,7 +124,7 @@ describe('DashboardAlertManageComponent', () => {
     });
 
     it('should update an existing alert on save', async () => {
-        (updateAlert as jest.Mock).mockResolvedValue({ id: 'alert-9' });
+        vi.mocked(updateAlert).mockResolvedValue({ id: 'alert-9' } as any);
         service.alert.set({ id: 'alert-9', name: 'Old' });
         build();
         spectator.component.model.update((m) => ({

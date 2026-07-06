@@ -1,6 +1,5 @@
-import { fakeAsync, tick } from '@angular/core/testing';
 import { Router } from '@angular/router';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { SettingsService } from '@placeos/common';
 import { MockComponent } from 'ng-mocks';
 
@@ -13,8 +12,8 @@ describe('DeskBookingComponent', () => {
         component: DeskBookingComponent,
         declarations: [MockComponent(FooterMenuComponent)],
         providers: [
-            { provide: SettingsService, useValue: { get: jest.fn() } },
-            { provide: Router, useValue: { navigate: jest.fn() } },
+            { provide: SettingsService, useValue: { get: vi.fn() } },
+            { provide: Router, useValue: { navigate: vi.fn() } },
         ],
     });
 
@@ -26,12 +25,14 @@ describe('DeskBookingComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should reset to map after time', fakeAsync(() => {
+    it('should reset to map after time', async () => {
+        vi.useFakeTimers();
         const router = spectator.inject(Router);
         spectator.component.countdown_time.set(5);
         spectator.component.resetCountdown();
         expect(router.navigate).not.toHaveBeenCalled();
-        tick(5);
+        await vi.advanceTimersByTimeAsync(5);
         expect(router.navigate).toHaveBeenCalledWith(['/explore']);
-    }));
+        vi.useRealTimers();
+    });
 });

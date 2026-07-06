@@ -11,7 +11,7 @@ describe('DynamicMapComponent', () => {
             providers: [
                 {
                     provide: HotkeysService,
-                    useValue: { listen: jest.fn(() => new Subscription()) },
+                    useValue: { listen: vi.fn(() => new Subscription()) },
                 },
             ],
         });

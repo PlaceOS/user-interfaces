@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { SettingsService } from '@placeos/common';
 import { createSettingsServiceMock } from '@placeos/common/tests';
 import { endOfDay } from 'date-fns';
@@ -17,8 +17,8 @@ describe('LockerFiltersDisplayComponent', () => {
         duration: 60,
         all_day: false,
     });
-    const set_options = jest.fn();
-    const set_feature = jest.fn();
+    const set_options = vi.fn();
+    const set_feature = vi.fn();
 
     const createComponent = createComponentFactory({
         component: LockerFiltersDisplayComponent,
@@ -41,7 +41,7 @@ describe('LockerFiltersDisplayComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         options.set({ features: [] });
         model.set({
             date: new Date(2026, 5, 1, 9, 0, 0).valueOf(),

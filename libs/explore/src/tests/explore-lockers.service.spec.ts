@@ -4,20 +4,14 @@ import { createServiceFactory, SpectatorService } from '@ngneat/spectator';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
+import * as ts_client from '@placeos/ts-client';
+
 import { ExploreLockersService } from '../lib/explore-lockers.service';
 import { DEFAULT_COLOURS } from '../lib/explore-spaces.service';
 import { ExploreStateService } from '../lib/explore-state.service';
 
-jest.mock('@placeos/assets', () => ({
-    ...jest.requireActual('@placeos/assets'),
-    queryLockerAssetsForZones: jest.fn(),
-    queryLockerBankAssetsForZones: jest.fn(),
-}));
-
-import {
-    queryLockerAssetsForZones,
-    queryLockerBankAssetsForZones,
-} from '@placeos/assets';
+// Locker asset fns run for real; only the ts-client API layer is stubbed.
+vi.mock('@placeos/ts-client', { spy: true });
 
 describe('ExploreLockersService', () => {
     let spectator: SpectatorService<ExploreLockersService>;
@@ -27,25 +21,43 @@ describe('ExploreLockersService', () => {
             MockProvider(ExploreStateService, {
                 level: signal({ id: 'lvl-1' }) as any,
                 options: signal({ is_public: false }) as any,
-                setStyles: jest.fn(),
-                setFeatures: jest.fn(),
+                setStyles: vi.fn(),
+                setFeatures: vi.fn(),
             }),
             MockProvider(OrganisationService, {
                 active_building: signal({ id: 'bld-1' }) as any,
                 active_region: signal({ id: 'region-1' }) as any,
                 region: { id: 'region-1' } as any,
-                levelWithID: jest.fn() as any,
-                module: jest.fn(() => null) as any,
-                binding: jest.fn(() => 'sys-1') as any,
+                levelWithID: vi.fn() as any,
+                module: vi.fn(() => null) as any,
+                binding: vi.fn(() => 'sys-1') as any,
             }),
-            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(SettingsService, { get: vi.fn() }),
         ],
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
-        jest.mocked(queryLockerAssetsForZones).mockResolvedValue([] as any);
-        jest.mocked(queryLockerBankAssetsForZones).mockResolvedValue([] as any);
+        vi.clearAllMocks();
+        vi.mocked(ts_client.queryAssetCategories).mockResolvedValue({
+            data: [{ id: 'cat-lockers', name: '_LOCKERS_', hidden: true }],
+        } as any);
+        vi.mocked(ts_client.queryAssetTypes).mockResolvedValue({
+            data: [
+                {
+                    id: 'type-lockers',
+                    name: '_LOCKERS_',
+                    category_id: 'cat-lockers',
+                },
+                {
+                    id: 'type-banks',
+                    name: '_LOCKER_BANKS_',
+                    category_id: 'cat-lockers',
+                },
+            ],
+        } as any);
+        vi.mocked(ts_client.queryAssets).mockResolvedValue({
+            data: [],
+        } as any);
         spectator = createService();
     });
 
@@ -102,7 +114,7 @@ describe('ExploreLockersService', () => {
         expect(state.setStyles).toHaveBeenCalledWith('lockers', {
             '#m1': { fill: DEFAULT_COLOURS['free'] },
         });
-        const feature_call = jest
+        const feature_call = vi
             .mocked(state.setFeatures)
             .mock.calls.find((_) => _[0] === 'lockers');
         expect(feature_call).toBeTruthy();

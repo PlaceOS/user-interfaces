@@ -1,21 +1,20 @@
-jest.mock('@placeos/ts-client', () => ({
-    showAsset: jest.fn(),
-}));
+import * as ts_client from '@placeos/ts-client';
+
+vi.mock('@placeos/ts-client', { spy: true });
 
 async function load_modules() {
-    const ts_client = (await import('@placeos/ts-client')) as any;
     const pipe_module = (await import('./parking-space.pipe')) as any;
-    return { ts_client, pipe_module };
+    return { pipe_module };
 }
 
 describe('[ParkingSpacePipe]', () => {
     beforeEach(() => {
-        jest.resetModules();
-        jest.clearAllMocks();
+        vi.resetModules();
+        vi.clearAllMocks();
     });
 
     it('should return an empty space for an empty id', async () => {
-        const { ts_client, pipe_module } = await load_modules();
+        const { pipe_module } = await load_modules();
         const pipe = new pipe_module.ParkingSpacePipe();
 
         expect(await pipe.transform('')).toEqual({});
@@ -23,7 +22,7 @@ describe('[ParkingSpacePipe]', () => {
     });
 
     it('should return the unallocated placeholder for unallocated ids', async () => {
-        const { ts_client, pipe_module } = await load_modules();
+        const { pipe_module } = await load_modules();
         const pipe = new pipe_module.ParkingSpacePipe();
 
         const space = await pipe.transform('unallocated-3');
@@ -32,11 +31,11 @@ describe('[ParkingSpacePipe]', () => {
     });
 
     it('should resolve a space from the API and cache it', async () => {
-        const { ts_client, pipe_module } = await load_modules();
-        ts_client.showAsset.mockResolvedValue({
+        const { pipe_module } = await load_modules();
+        vi.mocked(ts_client.showAsset).mockResolvedValue({
             id: 'space-1',
             identifier: 'A-01',
-        });
+        } as any);
         const pipe = new pipe_module.ParkingSpacePipe();
 
         const space = await pipe.transform('space-1');
@@ -49,7 +48,7 @@ describe('[ParkingSpacePipe]', () => {
     });
 
     it('should return a preloaded space without querying the API', async () => {
-        const { ts_client, pipe_module } = await load_modules();
+        const { pipe_module } = await load_modules();
         pipe_module.updateParkingSpaceList([
             { id: 'space-2', identifier: 'B-02' },
         ]);
@@ -61,15 +60,15 @@ describe('[ParkingSpacePipe]', () => {
     });
 
     it('should return an empty space when the API errors', async () => {
-        const { ts_client, pipe_module } = await load_modules();
-        ts_client.showAsset.mockRejectedValue(new Error('nope'));
+        const { pipe_module } = await load_modules();
+        vi.mocked(ts_client.showAsset).mockRejectedValue(new Error('nope'));
         const pipe = new pipe_module.ParkingSpacePipe();
 
         expect(await pipe.transform('missing')).toEqual({});
     });
 
     it('should ignore duplicate ids when updating the space list', async () => {
-        const { ts_client, pipe_module } = await load_modules();
+        const { pipe_module } = await load_modules();
         pipe_module.updateParkingSpaceList([
             { id: 'space-3', identifier: 'First' },
         ]);

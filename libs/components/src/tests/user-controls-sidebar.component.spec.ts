@@ -1,4 +1,4 @@
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 import { MockComponent } from 'ng-mocks';
 
 import { IconComponent } from '../lib/icon.component';
@@ -26,11 +26,11 @@ describe('UserControlsSidebarComponent', () => {
     });
 
     beforeEach(() => {
-        jest.useFakeTimers();
+        vi.useFakeTimers();
         spectator = createComponent();
     });
 
-    afterEach(() => jest.useRealTimers());
+    afterEach(() => vi.useRealTimers());
 
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();
@@ -42,20 +42,20 @@ describe('UserControlsSidebarComponent', () => {
         spectator.detectChanges();
         expect(spectator.component.is_rendered()).toBe(true);
         expect('user-controls').toExist();
-        jest.advanceTimersByTime(32);
+        vi.advanceTimersByTime(32);
         spectator.detectChanges();
         expect(spectator.component.is_open()).toBe(true);
     });
 
     it('should close the sidebar when the backdrop is pressed', () => {
         spectator.component.open();
-        jest.advanceTimersByTime(32);
+        vi.advanceTimersByTime(32);
         spectator.detectChanges();
         spectator.click('button[aria-label="Close user controls"]');
         spectator.detectChanges();
         expect(spectator.component.is_open()).toBe(false);
         expect('user-controls').toExist();
-        jest.advanceTimersByTime(200);
+        vi.advanceTimersByTime(200);
         spectator.detectChanges();
         expect(spectator.component.is_rendered()).toBe(false);
         expect('user-controls').not.toExist();
@@ -63,26 +63,24 @@ describe('UserControlsSidebarComponent', () => {
 
     it('should close the sidebar on escape', () => {
         spectator.component.open();
-        jest.advanceTimersByTime(32);
+        vi.advanceTimersByTime(32);
         spectator.detectChanges();
-        spectator.dispatchKeyboardEvent(
-            document.documentElement,
-            'keydown',
-            'Escape',
+        document.documentElement.dispatchEvent(
+            new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }),
         );
         spectator.detectChanges();
         expect(spectator.component.is_open()).toBe(false);
-        jest.advanceTimersByTime(200);
+        vi.advanceTimersByTime(200);
         expect(spectator.component.is_rendered()).toBe(false);
     });
 
     it('should cancel pending removal when re-opened during close', () => {
         spectator.component.open();
-        jest.advanceTimersByTime(32);
+        vi.advanceTimersByTime(32);
         spectator.component.close();
-        jest.advanceTimersByTime(100);
+        vi.advanceTimersByTime(100);
         spectator.component.open();
-        jest.advanceTimersByTime(300);
+        vi.advanceTimersByTime(300);
         spectator.detectChanges();
         expect(spectator.component.is_rendered()).toBe(true);
         expect('user-controls').toExist();

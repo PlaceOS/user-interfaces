@@ -1,7 +1,7 @@
 import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { OrganisationService } from '@placeos/common';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 
@@ -22,8 +22,8 @@ describe('MapLocateModalComponent', () => {
             MockProvider(MAT_DIALOG_DATA, {
                 item: { map_id: '1', name: 'Item 1', level: {} },
             }),
-            MockProvider(OrganisationService, { levelWithID: jest.fn() }),
-            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(OrganisationService, { levelWithID: vi.fn() }),
+            MockProvider(SettingsService, { get: vi.fn() }),
         ],
         imports: [MockModule(MatProgressSpinnerModule), FormsModule],
     });

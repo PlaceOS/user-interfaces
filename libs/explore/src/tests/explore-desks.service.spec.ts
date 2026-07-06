@@ -1,5 +1,4 @@
 import { Injector, signal } from '@angular/core';
-import { fakeAsync } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator';
 import {
@@ -16,11 +15,7 @@ import { DesksService } from 'libs/bookings/src/lib/desk.service';
 import { ExploreDesksService } from '../lib/explore-desks.service';
 import { ExploreStateService } from '../lib/explore-state.service';
 
-jest.mock('@placeos/ts-client', () => ({
-    ...jest.requireActual('@placeos/ts-client'),
-    showMetadata: jest.fn(),
-}));
-jest.mock('@placeos/bookings');
+vi.mock('@placeos/ts-client', { spy: true });
 
 import * as ts_client from '@placeos/ts-client';
 import { MockProvider } from 'ng-mocks';
@@ -33,27 +28,27 @@ describe('ExploreDesksService', () => {
             MockProvider(ExploreStateService, {
                 level: signal(null) as any,
                 options: signal({ is_public: false }) as any,
-                setFeatures: jest.fn(),
-                setStyles: jest.fn(),
-                setActions: jest.fn(),
+                setFeatures: vi.fn(),
+                setStyles: vi.fn(),
+                setActions: vi.fn(),
             }),
             MockProvider(OrganisationService, {
-                binding: jest.fn(() => 'sys-1'),
+                binding: vi.fn(() => 'sys-1'),
                 active_building: signal(new Building()),
                 initialised: signal(true),
                 levels: [],
                 buildings: [],
             }),
-            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(SettingsService, { get: vi.fn() }),
             MockProvider(DesksService, {}),
             MockProvider(BookingFormService, {}),
-            MockProvider(MatDialog, { open: jest.fn() }),
+            MockProvider(MatDialog, { open: vi.fn() }),
         ],
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
-        jest.mocked(ts_client.showMetadata).mockImplementation(
+        vi.clearAllMocks();
+        vi.mocked(ts_client.showMetadata).mockImplementation(
             (_, name) =>
                 Promise.resolve(
                     `${name}`.includes('restrictions')
@@ -73,12 +68,12 @@ describe('ExploreDesksService', () => {
         expect(spectator.service).toBeTruthy();
     });
 
-    it('should bind to AreaManagement driver', fakeAsync(() => {
+    it('should bind to AreaManagement driver', () => {
         // TODO: Fix this test
-        // (booking_mod as any).queryBookings = jest.fn(() => of([]));
-        // const bind = jest.fn();
-        // const binding = jest.fn(() => ({ listen: () => of(), bind }));
-        // (ts_client.getModule as any) = jest.fn(() => () => null);
+        // (booking_mod as any).queryBookings = vi.fn(() => of([]));
+        // const bind = vi.fn();
+        // const binding = vi.fn(() => ({ listen: () => of(), bind }));
+        // (ts_client.getModule as any) = vi.fn(() => () => null);
         // (ts_client.getModule as any).mockImplementation(() => ({ binding }));
         // const state = spectator.inject(ExploreStateService);
         // expect(ts_client.getModule).not.toHaveBeenCalled();
@@ -92,12 +87,12 @@ describe('ExploreDesksService', () => {
         // );
         // expect(bind).toHaveBeenCalledTimes(1);
         // expect(binding).toHaveBeenCalledWith('lvl-1');
-    }));
+    });
 
     it('should handle binding changes', () => {
         expect(spectator.service).toBeTruthy();
         // TODO: Fix this test
-        // jest.useFakeTimers();
+        // vi.useFakeTimers();
         // const state = spectator.inject(ExploreStateService);
         // (state.setActions as any).mockReset();
         // (state.setFeatures as any).mockReset();
@@ -111,8 +106,8 @@ describe('ExploreDesksService', () => {
         //     },
         //     'sys-1'
         // );
-        // jest.runOnlyPendingTimers();
-        // jest.runOnlyPendingTimers();
+        // vi.runOnlyPendingTimers();
+        // vi.runOnlyPendingTimers();
         // expect(state.setActions).toHaveBeenCalled();
         // expect(state.setFeatures).toHaveBeenCalled();
         // expect(state.setStyles).toHaveBeenCalledWith('desks', {
@@ -120,7 +115,7 @@ describe('ExploreDesksService', () => {
         //     '#desk-2': { fill: DEFAULT_COLOURS['not-bookable'] },
         // });
         // // TODO: Test various desk states
-        // jest.useRealTimers();
+        // vi.useRealTimers();
     });
 
     it('should use the desk map id as the asset id when booking a map-only desk', async () => {
@@ -136,9 +131,9 @@ describe('ExploreDesksService', () => {
             date: Date.now() + 60 * 60 * 1000,
             duration: 60,
         }));
-        booking_service.newForm = jest.fn();
-        booking_service.setOptions = jest.fn();
-        booking_service.confirmPost = jest.fn().mockResolvedValue({});
+        booking_service.newForm = vi.fn();
+        booking_service.setOptions = vi.fn();
+        booking_service.confirmPost = vi.fn().mockResolvedValue({});
         (spectator.service as any)._statuses['map-desk-1'] = signal('free');
 
         await (spectator.service as any)._bookDesk(

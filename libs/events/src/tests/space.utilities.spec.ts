@@ -6,7 +6,7 @@ import {
     requestSpacesForZone,
 } from '../lib/space.utilities';
 
-jest.mock('@placeos/ts-client');
+vi.mock('@placeos/ts-client', { spy: true });
 
 import * as ts_client from '@placeos/ts-client';
 
@@ -94,7 +94,7 @@ describe('generateSystemsFormFields', () => {
 });
 
 describe('requestSpacesForZone', () => {
-    beforeEach(() => jest.clearAllMocks());
+    beforeEach(() => vi.clearAllMocks());
 
     it('should return an empty list for a falsy zone ID', async () => {
         const spaces = await requestSpacesForZone('').toPromise();
@@ -103,7 +103,7 @@ describe('requestSpacesForZone', () => {
     });
 
     it('should query and map systems in the zone to spaces', async () => {
-        (ts_client.querySystems as jest.Mock).mockResolvedValue({
+        (ts_client.querySystems as any).mockResolvedValue({
             data: [{ id: 'sys-zone-1', name: 'Space 1' }],
         });
         const spaces = await requestSpacesForZone('zone-a').toPromise();
@@ -117,7 +117,7 @@ describe('requestSpacesForZone', () => {
     });
 
     it('should reuse the request for repeated calls with the same zone', async () => {
-        (ts_client.querySystems as jest.Mock).mockResolvedValue({ data: [] });
+        (ts_client.querySystems as any).mockResolvedValue({ data: [] });
         await requestSpacesForZone('zone-b').toPromise();
         await requestSpacesForZone('zone-b').toPromise();
         expect(ts_client.querySystems).toHaveBeenCalledTimes(1);

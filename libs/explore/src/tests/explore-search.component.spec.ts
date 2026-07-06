@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 
@@ -18,9 +18,9 @@ describe('ExploreSearchComponent', () => {
             MockProvider(ExploreSearchService, {
                 search_results: signal(null),
                 loading: signal(false),
-                setFilter: jest.fn(),
+                setFilter: vi.fn(),
             } as any),
-            MockProvider(Router, { navigate: jest.fn() }),
+            MockProvider(Router, { navigate: vi.fn() }),
             MockProvider(ActivatedRoute, {}),
         ],
         declarations: [MockComponent(IconComponent)],
@@ -63,7 +63,7 @@ describe('ExploreSearchComponent', () => {
         ]);
         spectator.detectChanges();
         expect('mat-option').toExist();
-        const spy = jest.spyOn(spectator.component, 'select');
+        const spy = vi.spyOn(spectator.component, 'select');
         spectator.click('mat-option');
         spectator.detectChanges();
         expect(spy).toHaveBeenCalledWith({ id: '1', name: 'First' });

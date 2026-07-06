@@ -1,6 +1,7 @@
+import type { Mock } from 'vitest';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
     currentUser,
     MapsPeopleService,
@@ -18,14 +19,19 @@ import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map
 import { StatusPillComponent } from 'libs/components/src/lib/status-pill.component';
 import { BehaviorSubject } from 'rxjs';
 import { BookingDetailsModalComponent } from '../lib/booking-details-modal.component';
-import * as bookings_fn from '../lib/bookings.fn';
+
+// `checkinBooking` runs for real; only the ts-client `post` beneath it is
+// stubbed so the check-in request resolves.
+vi.mock('@placeos/ts-client', { spy: true });
+
+import * as ts_client from '@placeos/ts-client';
 
 describe('BookingDetailsModalComponent', () => {
     let spectator: Spectator<BookingDetailsModalComponent>;
-    const refresh_fn = jest.fn();
-    const edit_fn = jest.fn();
-    const remove_fn = jest.fn();
-    const end_fn = jest.fn();
+    const refresh_fn = vi.fn();
+    const edit_fn = vi.fn();
+    const remove_fn = vi.fn();
+    const end_fn = vi.fn();
     const createComponent = createComponentFactory({
         component: BookingDetailsModalComponent,
         providers: [
@@ -46,7 +52,7 @@ describe('BookingDetailsModalComponent', () => {
                 refresh_fn,
             }),
             MockProvider(OrganisationService as any, {
-                levelWithID: jest.fn(),
+                levelWithID: vi.fn(),
                 buildings: [],
             }),
             MockProvider(SettingsService as any, createSettingsServiceMock()),
@@ -65,7 +71,7 @@ describe('BookingDetailsModalComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         spectator = createComponent();
     });
 
@@ -135,14 +141,10 @@ describe('BookingDetailsModalComponent', () => {
     });
 
     it('should refresh parent state after toggling checked in', async () => {
-        jest.spyOn(bookings_fn, 'checkinBooking').mockReturnValue(
-            Promise.resolve(
-                new Booking({
-                    id: 'booking-1',
-                    checked_in: true,
-                } as any),
-            ) as any,
-        );
+        vi.mocked(ts_client.post).mockResolvedValue({
+            id: 'booking-1',
+            checked_in: true,
+        } as any);
 
         await spectator.component.toggleCheckedIn();
 
@@ -181,7 +183,7 @@ describe('BookingDetailsModalComponent', () => {
 
     it('should hide waitlisted status for parking requests when waitlist display is disabled', () => {
         const settings = spectator.inject(SettingsService);
-        (settings.get as jest.Mock).mockImplementation((name: string) =>
+        (settings.get as Mock).mockImplementation((name: string) =>
             name === 'app.parking.show_waitlist' ? false : undefined,
         );
         spectator = createComponent();
@@ -200,7 +202,7 @@ describe('BookingDetailsModalComponent', () => {
 
     it('should hide selected parking space when enabled', () => {
         const settings = spectator.inject(SettingsService);
-        (settings.get as jest.Mock).mockImplementation((name: string) =>
+        (settings.get as Mock).mockImplementation((name: string) =>
             name === 'app.parking.hide_selected_space' ? true : undefined,
         );
         spectator = createComponent();

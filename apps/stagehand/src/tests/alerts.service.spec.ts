@@ -1,30 +1,39 @@
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
+import {
+    createServiceFactory,
+    SpectatorService,
+} from '@ngneat/spectator/vitest';
 import { OrganisationService } from '@placeos/common';
+import { token } from '@placeos/ts-client';
 import { MockProvider } from 'ng-mocks';
 
 import { AlertsService } from '../app/alerts.service';
 
-const mock_mqtt_handlers: Record<string, (...args: any[]) => void> = {};
-const mock_mqtt_client = {
-    on: jest.fn((event: string, cb: (...args: any[]) => void) => {
-        mock_mqtt_handlers[event] = cb;
-        return mock_mqtt_client;
-    }),
-    subscribe: jest.fn(),
-    unsubscribe: jest.fn(),
-    end: jest.fn(),
-};
-const mock_mqtt_connect = jest.fn(() => mock_mqtt_client);
+const { mock_mqtt_handlers, mock_mqtt_client, mock_mqtt_connect } = vi.hoisted(
+    () => {
+        const handlers: Record<string, (...args: any[]) => void> = {};
+        const client: any = {
+            on: vi.fn((event: string, cb: (...args: any[]) => void) => {
+                handlers[event] = cb;
+                return client;
+            }),
+            subscribe: vi.fn(),
+            unsubscribe: vi.fn(),
+            end: vi.fn(),
+        };
+        const connect = vi.fn(() => client);
+        return {
+            mock_mqtt_handlers: handlers,
+            mock_mqtt_client: client,
+            mock_mqtt_connect: connect,
+        };
+    },
+);
 
-jest.mock('mqtt', () => ({
-    __esModule: true,
-    default: { connect: (...args: any[]) => mock_mqtt_connect(...args) },
+vi.mock('mqtt', () => ({
+    default: { connect: mock_mqtt_connect },
 }));
 
-jest.mock('@placeos/ts-client', () => ({
-    ...jest.requireActual('@placeos/ts-client'),
-    token: jest.fn(() => 'jwt-token'),
-}));
+vi.mock('@placeos/ts-client', { spy: true });
 
 /** Flush the chained awaits inside AlertsService.init() */
 const flush = async () => {
@@ -52,6 +61,7 @@ describe('AlertsService', () => {
     });
 
     beforeEach(() => {
+        vi.mocked(token).mockReturnValue('jwt-token');
         for (const key of Object.keys(mock_mqtt_handlers))
             delete mock_mqtt_handlers[key];
         mock_mqtt_connect.mockClear();

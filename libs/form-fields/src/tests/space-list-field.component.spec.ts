@@ -1,7 +1,7 @@
 import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatRadioModule } from '@angular/material/radio';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
@@ -16,10 +16,10 @@ describe('SpaceListFieldComponent', () => {
         component: SpaceListFieldComponent,
         providers: [
             MockProvider(MatDialog, {
-                open: jest.fn(() => ({ afterClosed: () => of([{}]) })),
+                open: vi.fn(() => ({ afterClosed: () => of([{}]) })),
             } as any),
-            MockProvider(SettingsService, { get: jest.fn() }),
-            MockProvider(OrganisationService, { levelWithID: jest.fn() }),
+            MockProvider(SettingsService, { get: vi.fn() }),
+            MockProvider(OrganisationService, { levelWithID: vi.fn() }),
         ],
         declarations: [MockComponent(IconComponent)],
         imports: [MockModule(MatRadioModule), FormsModule],

@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { SettingsService } from '@placeos/common';
 import { createSettingsServiceMock } from '@placeos/common/tests';
 import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
@@ -13,8 +13,8 @@ import { AssetStateService } from '../lib/asset-state.service';
 describe('AssetFiltersComponent', () => {
     let spectator: Spectator<AssetFiltersComponent>;
     let state_options: { date: number; duration: number };
-    const set_search = jest.fn();
-    const toggle_category = jest.fn();
+    const set_search = vi.fn();
+    const toggle_category = vi.fn();
     const category_list = signal<{ id: string; name: string }[]>([]);
     const options = signal<any>({});
 
@@ -75,7 +75,7 @@ describe('AssetFiltersComponent', () => {
 
     it('should not generate day options for single-day durations', () => {
         spectator.detectChanges();
-        TestBed.flushEffects();
+        TestBed.tick();
 
         expect(spectator.component.day_options()).toEqual([]);
     });
@@ -86,7 +86,7 @@ describe('AssetFiltersComponent', () => {
         spectator.setInput('search', true);
         state_options.duration = 3 * 24 * 60;
         options.set({ ...state_options });
-        TestBed.flushEffects();
+        TestBed.tick();
 
         expect(spectator.component.day_options().length).toBeGreaterThan(1);
     });

@@ -1,10 +1,11 @@
+import type { Mock } from 'vitest';
 import { Injector, runInInjectionContext, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FormField } from '@angular/forms/signals';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { Booking, OrganisationService, SettingsService } from '@placeos/common';
 import { createSettingsServiceMock } from '@placeos/common/tests';
 import { addDays, endOfDay } from 'date-fns';
@@ -27,8 +28,8 @@ describe('LockerFiltersComponent', () => {
     const active_building = signal<any>({ id: 'bld-1' });
     const region_list = signal<any[]>([]);
     const active_region = signal<any>(null);
-    const set_options = jest.fn();
-    const set_feature = jest.fn();
+    const set_options = vi.fn();
+    const set_feature = vi.fn();
     let org_building_setter: any = null;
     let org_region_setter: any = null;
 
@@ -90,8 +91,8 @@ describe('LockerFiltersComponent', () => {
                     active_building,
                     region_list,
                     active_region,
-                    levelsForRegion: jest.fn(() => levels),
-                    levelsForBuilding: jest.fn(() => levels),
+                    levelsForRegion: vi.fn(() => levels),
+                    levelsForBuilding: vi.fn(() => levels),
                     set building(value: any) {
                         org_building_setter = value;
                     },
@@ -108,7 +109,7 @@ describe('LockerFiltersComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         options.set({ zone_id: '' });
         features.set([]);
         active_buildings.set([{ id: 'bld-1' }, { id: 'bld-2' }]);
@@ -138,7 +139,7 @@ describe('LockerFiltersComponent', () => {
     it('should only allow all-day when both time changes and all-day are enabled', () => {
         const settings = spectator.inject(SettingsService);
         expect(spectator.component.allow_all_day()).toBe(false);
-        (settings.get as jest.Mock).mockImplementation((key: string) => {
+        (settings.get as Mock).mockImplementation((key: string) => {
             if (key === 'app.lockers.allow_time_changes') return true;
             if (key === 'app.lockers.allow_all_day') return true;
             return undefined;

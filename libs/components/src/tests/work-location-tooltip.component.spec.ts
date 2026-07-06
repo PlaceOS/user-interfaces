@@ -1,25 +1,16 @@
 import { MatDialog } from '@angular/material/dialog';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
-import {
-    LocaleService,
-    StaffUser,
-    currentUser,
-    reloadUserData,
-} from '@placeos/common';
-import { updateUser } from '@placeos/ts-client';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
+import { LocaleService, StaffUser, setCurrentUser } from '@placeos/common';
 import { format } from 'date-fns';
 
-jest.mock('@placeos/ts-client', () => ({
-    ...jest.requireActual('@placeos/ts-client'),
-    updateUser: jest.fn(async () => ({})),
-}));
+// The real user store drives `currentUser()`. `reloadUserData()` is a real
+// workspace fn that reloads via ts-client `showUser('current')`, so we stub
+// that call and assert on it as the reload proxy.
+vi.mock('@placeos/ts-client', { spy: true });
 
-jest.mock('@placeos/common', () => ({
-    ...jest.requireActual('@placeos/common'),
-    currentUser: jest.fn(),
-    reloadUserData: jest.fn(),
-}));
+import * as ts_client from '@placeos/ts-client';
+import { updateUser } from '@placeos/ts-client';
 
 import { WFHSettingsModalComponent } from 'libs/users/src/lib/wfh-settings-modal.component';
 import { WorkLocationTooltipComponent } from '../lib/work-location-tooltip.component';
@@ -51,8 +42,12 @@ describe('WorkLocationTooltipComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
-        jest.mocked(currentUser).mockReturnValue(test_user);
+        vi.clearAllMocks();
+        vi.mocked(updateUser).mockResolvedValue({} as any);
+        // Resolve reloads with the same user so the real user pipeline stays
+        // consistent instead of erroring on a rejected request.
+        vi.mocked(ts_client.showUser).mockResolvedValue(test_user as any);
+        setCurrentUser(test_user);
         spectator = createComponent();
     });
 
@@ -67,7 +62,10 @@ describe('WorkLocationTooltipComponent', () => {
     });
 
     it('should show an empty state when today has no work blocks', () => {
-        jest.mocked(currentUser).mockReturnValue(
+        // Tear down the block-populated fixture before rendering the empty one
+        // so the shared user store change is not checked against the old view.
+        spectator.fixture.destroy();
+        setCurrentUser(
             new StaffUser({
                 id: 'user-1',
                 work_preferences: [],
@@ -81,7 +79,7 @@ describe('WorkLocationTooltipComponent', () => {
     });
 
     it('should open the WFH settings modal to edit preferences', () => {
-        const open_spy = jest
+        const open_spy = vi
             .spyOn(MatDialog.prototype, 'open')
             .mockReturnValue(null);
         spectator.click('button[icon]');
@@ -89,6 +87,7 @@ describe('WorkLocationTooltipComponent', () => {
     });
 
     it('should save a location override for the selected block', async () => {
+        vi.mocked(ts_client.showUser).mockClear();
         await spectator.component.setLocation(1, 'sick');
         const date = format(Date.now(), 'yyyy-MM-dd');
         expect(spectator.component.overrides()[date].blocks[1].location).toBe(
@@ -105,11 +104,13 @@ describe('WorkLocationTooltipComponent', () => {
                 }),
             }),
         );
-        expect(reloadUserData).toHaveBeenCalled();
+        // `reloadUserData()` reloads via `showUser('current')` after a delay.
+        await new Promise((resolve) => setTimeout(resolve, 350));
+        expect(ts_client.showUser).toHaveBeenCalledWith('current');
     });
 
     it('should prune stale overrides when saving a new one', async () => {
-        jest.mocked(currentUser).mockReturnValue(
+        setCurrentUser(
             new StaffUser({
                 ...test_user,
                 work_overrides: {

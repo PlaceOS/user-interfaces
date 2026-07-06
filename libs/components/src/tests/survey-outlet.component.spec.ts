@@ -1,17 +1,11 @@
 import { signal } from '@angular/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 import { SettingsService } from '@placeos/common';
 import { of } from 'rxjs';
 
-jest.mock('@placeos/ts-client', () => ({
-    ...jest.requireActual('@placeos/ts-client'),
-    addAnswer: jest.fn(),
-    authority: jest.fn(),
-    showQuestion: jest.fn(),
-    showSurvey: jest.fn(),
-}));
+vi.mock('@placeos/ts-client', { spy: true });
 
 import * as ts_client from '@placeos/ts-client';
 import { SurveyOutletComponent } from '../lib/survey-outlet.component';
@@ -50,7 +44,7 @@ describe('SurveyOutletComponent', () => {
                 provide: SettingsService,
                 useValue: {
                     theme_signal: signal('light'),
-                    signal: jest.fn(() => signal(null)),
+                    signal: vi.fn(() => signal(null)),
                 },
             },
         ],
@@ -62,12 +56,12 @@ describe('SurveyOutletComponent', () => {
     }
 
     beforeEach(() => {
-        jest.clearAllMocks();
-        jest.mocked(ts_client.showSurvey).mockResolvedValue(SURVEY);
-        jest.mocked(ts_client.showQuestion).mockImplementation(
+        vi.clearAllMocks();
+        vi.mocked(ts_client.showSurvey).mockResolvedValue(SURVEY);
+        vi.mocked(ts_client.showQuestion).mockImplementation(
             (id) => Promise.resolve({ ...QUESTIONS[+id] }) as any,
         );
-        jest.mocked(ts_client.addAnswer).mockResolvedValue([] as any);
+        vi.mocked(ts_client.addAnswer).mockResolvedValue([] as any);
     });
 
     it('should create component', () => {
@@ -172,11 +166,11 @@ describe('SurveyOutletComponent', () => {
     });
 
     it('should emit not_found when the survey fails to load', async () => {
-        jest.mocked(ts_client.showSurvey).mockRejectedValue(
+        vi.mocked(ts_client.showSurvey).mockRejectedValue(
             new Error('404'),
         );
         spectator = createComponent();
-        const emitted = jest.fn();
+        const emitted = vi.fn();
         spectator.component.not_found.subscribe(emitted);
         spectator.setInput({ survey_id: 'missing' });
         await settle();

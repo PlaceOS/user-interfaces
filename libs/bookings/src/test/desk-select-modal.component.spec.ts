@@ -1,4 +1,4 @@
-import { fakeAsync, tick } from '@angular/core/testing';
+import type { Mock } from 'vitest';
 import {
     MAT_DIALOG_DATA,
     MatDialogModule,
@@ -6,7 +6,7 @@ import {
 } from '@angular/material/dialog';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 import { SettingsService } from '@placeos/common';
 import { createSettingsServiceMock } from '@placeos/common/tests';
 import { MockComponent, MockModule, MockPipe } from 'ng-mocks';
@@ -23,7 +23,7 @@ import { DeskSelectModalComponent } from '../lib/desk-select-modal/desk-select-m
 
 describe('DeskSelectModalComponent', () => {
     let spectator: Spectator<DeskSelectModalComponent>;
-    const dialog_ref = { close: jest.fn() };
+    const dialog_ref = { close: vi.fn() };
     let data: any;
     let settings: any;
 
@@ -34,7 +34,7 @@ describe('DeskSelectModalComponent', () => {
             { provide: MatDialogRef, useValue: dialog_ref },
             {
                 provide: BookingFormService,
-                useValue: { setOptions: jest.fn() },
+                useValue: { setOptions: vi.fn() },
             },
             { provide: SettingsService, useFactory: () => settings },
         ],
@@ -55,7 +55,7 @@ describe('DeskSelectModalComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         data = {
             items: [{ id: 'd1', name: 'Desk One' }],
             options: {},
@@ -107,7 +107,7 @@ describe('DeskSelectModalComponent', () => {
     });
 
     it('should default to map view when the setting is enabled', () => {
-        (settings.get as jest.Mock).mockImplementation(
+        (settings.get as Mock).mockImplementation(
             (key: string) => key === 'app.desks.default_select_as_map',
         );
         spectator = createComponent();
@@ -127,26 +127,30 @@ describe('DeskSelectModalComponent', () => {
         expect(spectator.query('button[name="desk-return"]')).toExist();
     });
 
-    it('should close the dialog after selecting a desk in single mode', fakeAsync(() => {
+    it('should close the dialog after selecting a desk in single mode', async () => {
         spectator = createComponent();
+        vi.useFakeTimers();
         const desk = { id: 'd2', name: 'Desk Two' } as any;
         spectator.component.displayed.set(desk);
         spectator.component.setSelected(desk, true);
         expect(spectator.component.displayed()).toBeNull();
         expect(dialog_ref.close).not.toHaveBeenCalled();
-        tick(60);
+        await vi.advanceTimersByTimeAsync(60);
         expect(dialog_ref.close).toHaveBeenCalledWith([desk]);
-    }));
+        vi.useRealTimers();
+    });
 
-    it('should not close the dialog when selecting in multi-select mode', fakeAsync(() => {
+    it('should not close the dialog when selecting in multi-select mode', async () => {
         data = { items: [], options: { group: 'grp-1' } };
         spectator = createComponent();
+        vi.useFakeTimers();
         const desk = { id: 'd2', name: 'Desk Two' } as any;
         spectator.component.setSelected(desk, true);
-        tick(60);
+        await vi.advanceTimersByTimeAsync(60);
         expect(dialog_ref.close).not.toHaveBeenCalled();
         expect(spectator.component.isSelected('d2')).toBe(true);
-    }));
+        vi.useRealTimers();
+    });
 
     it('should toggle the displayed desk selection', () => {
         data = { items: [], options: { group: 'grp-1' } };

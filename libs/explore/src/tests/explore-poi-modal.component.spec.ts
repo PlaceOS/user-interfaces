@@ -1,5 +1,5 @@
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 import { ngMocks } from 'ng-mocks';
 
 import {
@@ -93,8 +93,8 @@ describe('ExplorePointOfInterestModalComponent', () => {
         );
         const media_el = spectator.query('video') as HTMLVideoElement;
         // jsdom does not implement media playback, stub it out.
-        media_el.play = jest.fn(() => Promise.resolve());
-        media_el.pause = jest.fn();
+        media_el.play = vi.fn(() => Promise.resolve());
+        media_el.pause = vi.fn();
 
         expect(spectator.component.playing()).toBe(false);
         spectator.component.togglePlay();

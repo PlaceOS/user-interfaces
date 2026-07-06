@@ -1,5 +1,6 @@
 import { signal } from '@angular/core';
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
+import type { Mock } from 'vitest';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 import { OrganisationService } from '@placeos/common';
 import { MockComponent } from 'ng-mocks';
 
@@ -10,7 +11,7 @@ import { RegionSelectComponent } from '../lib/region-select.component';
 describe('RegionSelectComponent', () => {
     let spectator: Spectator<RegionSelectComponent>;
     let org: any;
-    let tooltip: { data: any; close: jest.Mock };
+    let tooltip: { data: any; close: Mock };
 
     const REGIONS = [
         { id: 'region-1', name: 'Asia Pacific' },
@@ -27,10 +28,10 @@ describe('RegionSelectComponent', () => {
             region_list: signal(REGIONS),
             active_region: signal(REGIONS[0]),
             building: { id: 'bld-1' },
-            setRegion: jest.fn().mockResolvedValue(undefined),
-            setBuilding: jest.fn(),
+            setRegion: vi.fn().mockResolvedValue(undefined),
+            setBuilding: vi.fn(),
         };
-        tooltip = { data: null, close: jest.fn() };
+        tooltip = { data: null, close: vi.fn() };
         spectator = createComponent({
             providers: [
                 { provide: OrganisationService, useValue: org },

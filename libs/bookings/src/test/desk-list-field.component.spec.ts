@@ -1,8 +1,7 @@
-import { fakeAsync } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatRadioModule } from '@angular/material/radio';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { createSettingsServiceMock } from '@placeos/common/tests';
 import { MockComponent, MockModule } from 'ng-mocks';
 import { of } from 'rxjs';
@@ -19,7 +18,7 @@ describe('DeskListFieldComponent', () => {
             {
                 provide: MatDialog,
                 useValue: {
-                    open: jest.fn(() => ({
+                    open: vi.fn(() => ({
                         afterClosed: () => of([{ id: `1` }]),
                     })),
                 },
@@ -53,7 +52,7 @@ describe('DeskListFieldComponent', () => {
         expect(spectator.queryAll('div[desk]').length).toBe(0);
     });
 
-    it('should handle desk changes', fakeAsync(() => {
+    it('should handle desk changes', () => {
         let count = 0;
         (spectator.inject(MatDialog).open as any).mockImplementation(
             (_, config) => {
@@ -68,7 +67,6 @@ describe('DeskListFieldComponent', () => {
             },
         );
         spectator.click('button[name="add-desk"]');
-        spectator.tick(1001);
         spectator.detectChanges();
         expect(spectator.queryAll('div[desk]').length).toBe(1);
         spectator.click('button[name="add-desk"]');
@@ -77,7 +75,7 @@ describe('DeskListFieldComponent', () => {
         spectator.click('button[name="edit-desk"]');
         spectator.detectChanges();
         expect(spectator.queryAll('div[desk]').length).toBe(3);
-    }));
+    });
 
     it('should display selected desks', () => {
         expect(spectator.query('div[desk]')).not.toExist();

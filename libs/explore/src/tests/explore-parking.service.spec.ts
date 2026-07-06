@@ -10,23 +10,11 @@ import { ExploreParkingService } from '../lib/explore-parking.service';
 import { DEFAULT_COLOURS } from '../lib/explore-spaces.service';
 import { ExploreStateService } from '../lib/explore-state.service';
 
-jest.mock('@placeos/ts-client', () => ({
-    ...jest.requireActual('@placeos/ts-client'),
-    showMetadata: jest.fn(),
-}));
-jest.mock('@placeos/assets', () => ({
-    ...jest.requireActual('@placeos/assets'),
-    queryParkingSpacesForZones: jest.fn(),
-}));
-jest.mock('libs/bookings/src/lib/bookings.fn', () => ({
-    ...jest.requireActual('libs/bookings/src/lib/bookings.fn'),
-    queryBookings: jest.fn(),
-}));
-jest.mock('libs/common/src/lib/notifications');
+// Workspace modules (@placeos/assets, bookings.fn, notifications) run for
+// real; only the ts-client API layer beneath them is stubbed.
+vi.mock('@placeos/ts-client', { spy: true });
 
-import { queryParkingSpacesForZones } from '@placeos/assets';
 import * as ts_client from '@placeos/ts-client';
-import { queryBookings } from 'libs/bookings/src/lib/bookings.fn';
 
 describe('ExploreParkingService', () => {
     let spectator: SpectatorService<ExploreParkingService>;
@@ -36,29 +24,29 @@ describe('ExploreParkingService', () => {
             MockProvider(ExploreStateService, {
                 level: signal({ id: 'lvl-1' }) as any,
                 options: signal({ is_public: false }) as any,
-                setActions: jest.fn(),
-                setStyles: jest.fn(),
-                setFeatures: jest.fn(),
+                setActions: vi.fn(),
+                setStyles: vi.fn(),
+                setFeatures: vi.fn(),
             }),
             MockProvider(OrganisationService, {
                 active_building: signal({ id: 'bld-1' }) as any,
                 active_levels: signal([]) as any,
                 organisation: { id: 'org-1' } as any,
                 region: { id: 'region-1' } as any,
-                levelWithID: jest.fn(() => ({
+                levelWithID: vi.fn(() => ({
                     id: 'lvl-1',
                     parent_id: 'bld-1',
                 })) as any,
             }),
             MockProvider(SettingsService, {
-                get: jest.fn(),
+                get: vi.fn(),
                 app_name: 'workplace',
             }),
             MockProvider(BookingFormService, {
-                newForm: jest.fn(),
-                setOptions: jest.fn(),
+                newForm: vi.fn(),
+                setOptions: vi.fn(),
                 model: signal({}) as any,
-                confirmPost: jest.fn().mockResolvedValue({}),
+                confirmPost: vi.fn().mockResolvedValue({}),
             }),
             MockProvider(ParkingService, {
                 users: signal([]) as any,
@@ -70,12 +58,26 @@ describe('ExploreParkingService', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
-        jest.mocked(ts_client.showMetadata).mockResolvedValue({
+        vi.clearAllMocks();
+        vi.mocked(ts_client.showMetadata).mockResolvedValue({
             details: [],
         } as any);
-        jest.mocked(queryParkingSpacesForZones).mockResolvedValue([] as any);
-        jest.mocked(queryBookings).mockResolvedValue([] as any);
+        vi.mocked(ts_client.get).mockResolvedValue([] as any);
+        vi.mocked(ts_client.queryAssetCategories).mockResolvedValue({
+            data: [{ id: 'cat-parking', name: '_PARKING_', hidden: true }],
+        } as any);
+        vi.mocked(ts_client.queryAssetTypes).mockResolvedValue({
+            data: [
+                {
+                    id: 'type-parking',
+                    name: '_PARKING_SPACES_',
+                    category_id: 'cat-parking',
+                },
+            ],
+        } as any);
+        vi.mocked(ts_client.queryAssets).mockResolvedValue({
+            data: [],
+        } as any);
         spectator = createService();
     });
 
@@ -129,10 +131,10 @@ describe('ExploreParkingService', () => {
         expect(state.setStyles).toHaveBeenCalledWith('parking', {
             '#p1': { fill: DEFAULT_COLOURS['free'], opacity: 0.6 },
         });
-        const [, features] = jest.mocked(state.setFeatures).mock.calls[0];
+        const [, features] = vi.mocked(state.setFeatures).mock.calls[0];
         expect(features.length).toBe(1);
         expect(features[0].location).toBe('p1');
-        const [, actions] = jest.mocked(state.setActions).mock.calls[0];
+        const [, actions] = vi.mocked(state.setActions).mock.calls[0];
         expect(actions.length).toBe(1);
         expect(actions[0].id).toBe('p1');
     });
@@ -150,7 +152,7 @@ describe('ExploreParkingService', () => {
         expect(state.setStyles).toHaveBeenCalledWith('parking', {
             '#p1': { fill: DEFAULT_COLOURS['not-bookable'], opacity: 0.6 },
         });
-        const [, actions] = jest.mocked(state.setActions).mock.calls[0];
+        const [, actions] = vi.mocked(state.setActions).mock.calls[0];
         expect(actions.length).toBe(0);
     });
 
@@ -163,11 +165,11 @@ describe('ExploreParkingService', () => {
             bookable: true,
             zone_id: 'lvl-1',
         };
-        const on_book = jest.fn().mockResolvedValue(undefined);
+        const on_book = vi.fn().mockResolvedValue(undefined);
         spectator.service.on_book = on_book;
         (spectator.service as any)._updateParkingSpaces([space], [space]);
-        const [, actions] = jest.mocked(state.setActions).mock.calls[0];
-        await actions[0].callback();
+        const [, actions] = vi.mocked(state.setActions).mock.calls[0];
+        await actions[0].callback(new Event('mouseup'));
         expect(on_book).toHaveBeenCalledWith(space);
     });
 

@@ -1,4 +1,4 @@
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 import { LocaleService } from '@placeos/common';
 import { createSettingsServiceMock } from '@placeos/common/tests';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
@@ -17,8 +17,8 @@ describe('LanguageSelectComponent', () => {
     settings_mock.get.mockImplementation((key: string) =>
         key === 'app.locales' ? LOCALES : undefined,
     );
-    const tooltip_data = { close: jest.fn() };
-    const locale_mock = { locale: 'en', setLocale: jest.fn() };
+    const tooltip_data = { close: vi.fn() };
+    const locale_mock = { locale: 'en', setLocale: vi.fn() };
 
     const createComponent = createComponentFactory({
         component: LanguageSelectComponent,
@@ -30,7 +30,7 @@ describe('LanguageSelectComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         localStorage.clear();
         spectator = createComponent();
     });
@@ -55,7 +55,7 @@ describe('LanguageSelectComponent', () => {
     });
 
     it('should set and persist the locale on selection', () => {
-        const timeout_spy = jest
+        const timeout_spy = vi
             .spyOn(window, 'setTimeout')
             .mockReturnValue(0 as any);
         spectator.click(spectator.queryAll('button')[1]);

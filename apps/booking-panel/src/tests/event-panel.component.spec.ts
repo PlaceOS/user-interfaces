@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
 
 import { OrganisationService, SettingsService } from '@placeos/common';
@@ -12,7 +12,7 @@ describe('EventPanelComponent', () => {
     const next = signal<any>(null);
     const space = signal<any>(null);
     const settings = signal<any>({});
-    const state_setting = jest.fn();
+    const state_setting = vi.fn();
 
     const createComponent = createRoutingFactory({
         component: EventPanelComponent,
@@ -30,13 +30,13 @@ describe('EventPanelComponent', () => {
                 },
             },
             MockProvider(SettingsService, {
-                get: jest.fn(() => undefined),
-                overrideCssVariable: jest.fn(),
+                get: vi.fn(() => undefined),
+                overrideCssVariable: vi.fn(),
                 theme: false,
             } as any),
             MockProvider(OrganisationService, {
                 active_building: signal(null),
-                waitUntilInitialised: jest.fn().mockResolvedValue(true),
+                waitUntilInitialised: vi.fn().mockResolvedValue(true),
             } as any),
         ],
     });

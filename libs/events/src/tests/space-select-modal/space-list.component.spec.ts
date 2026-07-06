@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { OrganisationService, Space } from '@placeos/common';
 import { mockComponent } from 'libs/common/src/tests/test-helpers';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
@@ -24,9 +24,9 @@ describe('SpaceListComponent', () => {
                 loading: loading as any,
                 available_spaces: available_spaces as any,
                 room_alerts: room_alerts as any,
-                setView: jest.fn(),
+                setView: vi.fn(),
             }),
-            MockProvider(OrganisationService, { levelWithID: jest.fn() }),
+            MockProvider(OrganisationService, { levelWithID: vi.fn() }),
         ],
         declarations: [
             mockComponent(IconComponent),
@@ -61,7 +61,7 @@ describe('SpaceListComponent', () => {
     it('should emit the selected space', () => {
         available_spaces.set(spaces);
         spectator.detectChanges();
-        const emit = jest.fn();
+        const emit = vi.fn();
         spectator.component.onSelect.subscribe(emit);
         spectator.click('[name="select-space"]');
         expect(emit).toHaveBeenCalledWith(spaces[0]);
@@ -70,7 +70,7 @@ describe('SpaceListComponent', () => {
     it('should emit favourite toggles for a space', () => {
         available_spaces.set(spaces);
         spectator.detectChanges();
-        const emit = jest.fn();
+        const emit = vi.fn();
         spectator.component.toggleFav.subscribe(emit);
         spectator.click('[name="toggle-space-favourite"]');
         expect(emit).toHaveBeenCalledWith(spaces[0]);

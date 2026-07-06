@@ -1,5 +1,5 @@
 import { WritableSignal, signal } from '@angular/core';
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 
 import { SettingsService } from '@placeos/common';
 import { AccessibilityTooltipComponent } from '../lib/accessibility-tooltip.component';
@@ -11,18 +11,18 @@ describe('AccessibilityTooltipComponent', () => {
     const theme = signal<string>('light');
     let setting_signals: Record<string, WritableSignal<any>> = {};
     const settings_mock = {
-        signal: jest.fn((name: string, default_value?: any) => {
+        signal: vi.fn((name: string, default_value?: any) => {
             if (!setting_signals[name]) {
                 setting_signals[name] = signal(default_value);
             }
             return setting_signals[name];
         }),
         theme_signal: theme,
-        setTheme: jest.fn((t: string) => theme.set(t)),
-        saveUserSetting: jest.fn(),
-        updateLocatable: jest.fn(),
+        setTheme: vi.fn((t: string) => theme.set(t)),
+        saveUserSetting: vi.fn(),
+        updateLocatable: vi.fn(),
     };
-    const tooltip_mock = { data: null, close: jest.fn() };
+    const tooltip_mock = { data: null, close: vi.fn() };
 
     const createComponent = createComponentFactory({
         component: AccessibilityTooltipComponent,
@@ -33,13 +33,13 @@ describe('AccessibilityTooltipComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         setting_signals = {};
         theme.set('light');
         spectator = createComponent();
     });
 
-    afterEach(() => jest.useRealTimers());
+    afterEach(() => vi.useRealTimers());
 
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();
@@ -63,10 +63,10 @@ describe('AccessibilityTooltipComponent', () => {
     });
 
     it('should save accessible setting and show text size options', () => {
-        jest.useFakeTimers();
+        vi.useFakeTimers();
         expect('mat-slider').not.toExist();
         spectator.component.applySetting('accessible', true);
-        jest.advanceTimersByTime(500);
+        vi.advanceTimersByTime(500);
         expect(settings_mock.saveUserSetting).toHaveBeenCalledWith(
             'accessible',
             true,

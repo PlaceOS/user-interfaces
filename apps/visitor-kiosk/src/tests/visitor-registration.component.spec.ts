@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
-import { fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { BookingFormService } from '@placeos/bookings';
 import {
     EMPTY_USER,
@@ -27,12 +27,12 @@ describe('VisitorRegistrationComponent', () => {
                 building: { id: 'bld-1' },
                 initialised: signal(true),
                 active_building: signal({ id: 'bld-1' }),
-                waitUntilInitialised: jest.fn(() => Promise.resolve()),
+                waitUntilInitialised: vi.fn(() => Promise.resolve()),
             } as any),
             MockProvider(SettingsService, {
-                get: jest.fn(),
+                get: vi.fn(),
                 overrides: settings_overrides,
-                signal: jest.fn(() => signal(undefined)),
+                signal: vi.fn(() => signal(undefined)),
             } as any),
         ],
     });
@@ -44,13 +44,14 @@ describe('VisitorRegistrationComponent', () => {
         spectator = createComponent({ detectChanges: false });
     });
 
-    it('should keep registration form fields bindable after initialisation', fakeAsync(() => {
-        const console_error = jest
+    it('should keep registration form fields bindable after initialisation', async () => {
+        const console_error = vi
             .spyOn(console, 'error')
             .mockImplementation(() => undefined);
+        vi.useFakeTimers();
         TestBed.runInInjectionContext(() => spectator.component.ngOnInit());
         spectator.detectChanges();
-        tick(350);
+        await vi.advanceTimersByTimeAsync(350);
         spectator.detectChanges();
 
         expect(typeof spectator.component.form.asset_name).toBe('function');
@@ -73,7 +74,8 @@ describe('VisitorRegistrationComponent', () => {
         expect(spectator.inject(Router).navigate).not.toHaveBeenCalled();
         expect(console_error).not.toHaveBeenCalled();
         console_error.mockRestore();
-    }));
+        vi.useRealTimers();
+    });
 
     it('should expose a selected host after one is chosen', () => {
         const host = new User({
@@ -95,10 +97,11 @@ describe('VisitorRegistrationComponent', () => {
         expect(spectator.component.host()).toBeNull();
     });
 
-    it('should keep the host field bindable when the user value is cleared', fakeAsync(() => {
-        const console_error = jest
+    it('should keep the host field bindable when the user value is cleared', async () => {
+        const console_error = vi
             .spyOn(console, 'error')
             .mockImplementation(() => undefined);
+        vi.useFakeTimers();
         TestBed.runInInjectionContext(() => spectator.component.ngOnInit());
         spectator.detectChanges();
 
@@ -106,30 +109,33 @@ describe('VisitorRegistrationComponent', () => {
             ...value,
             user: null as any,
         }));
-        tick(350);
+        await vi.advanceTimersByTimeAsync(350);
         spectator.detectChanges();
 
         expect(typeof spectator.component.form.user).toBe('function');
         expect(console_error).not.toHaveBeenCalled();
         console_error.mockRestore();
-    }));
+        vi.useRealTimers();
+    });
 
-    it('should keep registration fields bindable when settings overrides change', fakeAsync(() => {
-        const console_error = jest
+    it('should keep registration fields bindable when settings overrides change', async () => {
+        const console_error = vi
             .spyOn(console, 'error')
             .mockImplementation(() => undefined);
+        vi.useFakeTimers();
         TestBed.runInInjectionContext(() => spectator.component.ngOnInit());
         spectator.detectChanges();
 
         settings_overrides.set([
             { name: 'bookings.default_duration', value: 90 },
         ]);
-        tick(350);
+        await vi.advanceTimersByTimeAsync(350);
         spectator.detectChanges();
 
         expect(typeof spectator.component.form.user).toBe('function');
         expect(typeof spectator.component.form.duration).toBe('function');
         expect(console_error).not.toHaveBeenCalled();
         console_error.mockRestore();
-    }));
+        vi.useRealTimers();
+    });
 });

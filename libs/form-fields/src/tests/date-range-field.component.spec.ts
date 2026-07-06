@@ -1,5 +1,5 @@
 import { FormsModule } from '@angular/forms';
-import { createHostFactory, SpectatorHost } from '@ngneat/spectator/jest';
+import { createHostFactory, SpectatorHost } from '@ngneat/spectator/vitest';
 import { MockComponent } from 'ng-mocks';
 
 import { mockComponent } from '@placeos/common/tests';

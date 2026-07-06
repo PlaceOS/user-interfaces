@@ -1,4 +1,5 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import type { Mock } from 'vitest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { createSettingsServiceMock } from '@placeos/common/tests';
 import { SettingsService } from '@placeos/common';
 
@@ -70,7 +71,7 @@ describe('LockerGridComponent', () => {
     it('should emit clicked with the locker when a button is pressed', () => {
         const locker = makeLocker({ id: 'a' });
         spectator.setInput('bank', makeBank([locker]));
-        const spy = jest.fn();
+        const spy = vi.fn();
         spectator.output('clicked').subscribe(spy);
         spectator.detectChanges();
         spectator.click('button');
@@ -157,7 +158,7 @@ describe('LockerGridComponent', () => {
     describe('color()', () => {
         it('should prefer configured locker specific colours', () => {
             const settings = spectator.inject(SettingsService);
-            (settings.get as jest.Mock).mockReturnValue({
+            (settings.get as Mock).mockReturnValue({
                 'lockers-free': '#123456',
             });
             expect(spectator.component.color('free')).toBe('#123456');
@@ -165,7 +166,7 @@ describe('LockerGridComponent', () => {
 
         it('should fall back to generic configured colours', () => {
             const settings = spectator.inject(SettingsService);
-            (settings.get as jest.Mock).mockReturnValue({ free: '#abcdef' });
+            (settings.get as Mock).mockReturnValue({ free: '#abcdef' });
             expect(spectator.component.color('free')).toBe('#abcdef');
         });
     });

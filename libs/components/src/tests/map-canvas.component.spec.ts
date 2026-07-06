@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 import { MAP_FEATURE_DATA } from 'libs/common/src/lib/types';
 
 import { MapCanvasComponent, Polygon } from '../lib/map-canvas.component';
@@ -9,15 +9,15 @@ describe('MapCanvasComponent', () => {
     let spectator: Spectator<MapCanvasComponent>;
     const polygons = signal<Polygon[]>([]);
     const context = {
-        clearRect: jest.fn(),
-        beginPath: jest.fn(),
-        moveTo: jest.fn(),
-        lineTo: jest.fn(),
-        closePath: jest.fn(),
-        fill: jest.fn(),
-        stroke: jest.fn(),
-        arc: jest.fn(),
-        fillText: jest.fn(),
+        clearRect: vi.fn(),
+        beginPath: vi.fn(),
+        moveTo: vi.fn(),
+        lineTo: vi.fn(),
+        closePath: vi.fn(),
+        fill: vi.fn(),
+        stroke: vi.fn(),
+        arc: vi.fn(),
+        fillText: vi.fn(),
     };
     const test_polygon: Polygon = {
         name: 'Zone A',
@@ -39,15 +39,15 @@ describe('MapCanvasComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         polygons.set([]);
-        jest.spyOn(
+        vi.spyOn(
             HTMLCanvasElement.prototype,
             'getContext',
         ).mockReturnValue(context as any);
     });
 
-    afterEach(() => jest.restoreAllMocks());
+    afterEach(() => vi.restoreAllMocks());
 
     it('should create component', () => {
         spectator = createComponent();

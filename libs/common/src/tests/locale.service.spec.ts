@@ -1,4 +1,4 @@
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
+import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
 
 import { LocaleService } from '../lib/locale.service';
 
@@ -21,14 +21,14 @@ describe('LocaleService', () => {
 
     beforeEach(() => {
         localStorage.clear();
-        (global as any).fetch = jest.fn(async () => ({ ok: false }));
-        jest.spyOn(console, 'error').mockImplementation(() => undefined);
+        (global as any).fetch = vi.fn(async () => ({ ok: false }));
+        vi.spyOn(console, 'error').mockImplementation(() => undefined);
         spectator = createService();
     });
 
     afterEach(() => {
         delete (global as any).fetch;
-        jest.restoreAllMocks();
+        vi.restoreAllMocks();
     });
 
     it('should default to en-AU', () => {
@@ -65,7 +65,7 @@ describe('LocaleService', () => {
     });
 
     it('should fetch locale mappings when not cached', async () => {
-        (global as any).fetch = jest.fn(async () => ({
+        (global as any).fetch = vi.fn(async () => ({
             ok: true,
             json: async () => ({ COMMON: { HELLO: 'Hola' } }),
         }));

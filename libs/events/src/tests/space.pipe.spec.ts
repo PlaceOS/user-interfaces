@@ -1,7 +1,7 @@
 import { Space } from '@placeos/common';
 import { SpacePipe, updateSpaceList } from '../lib/space.pipe';
 
-jest.mock('@placeos/ts-client');
+vi.mock('@placeos/ts-client', { spy: true });
 
 import * as ts_client from '@placeos/ts-client';
 
@@ -9,7 +9,7 @@ describe('SpacePipe', () => {
     let pipe: SpacePipe;
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         pipe = new SpacePipe();
         pipe.org = null;
     });
@@ -20,7 +20,7 @@ describe('SpacePipe', () => {
     });
 
     it('should load spaces by ID from the API and cache them', async () => {
-        (ts_client.showSystem as jest.Mock).mockResolvedValue({
+        (ts_client.showSystem as any).mockResolvedValue({
             id: 'sys-by-id',
             name: 'System 1',
             zones: [],
@@ -34,7 +34,7 @@ describe('SpacePipe', () => {
     });
 
     it('should load spaces by email using a system query', async () => {
-        (ts_client.querySystemsWithEmails as jest.Mock).mockResolvedValue({
+        (ts_client.querySystemsWithEmails as any).mockResolvedValue({
             data: [
                 { id: 'sys-by-email', email: 'room@place.tech', zones: [] },
             ],
@@ -48,7 +48,7 @@ describe('SpacePipe', () => {
     });
 
     it('should return an empty space when no unique match is found', async () => {
-        (ts_client.querySystemsWithEmails as jest.Mock).mockResolvedValue({
+        (ts_client.querySystemsWithEmails as any).mockResolvedValue({
             data: [{ id: '1' }, { id: '2' }],
         });
         const space = await pipe.transform('shared@place.tech');
@@ -56,8 +56,8 @@ describe('SpacePipe', () => {
     });
 
     it('should fallback to an email query when the ID lookup fails', async () => {
-        (ts_client.showSystem as jest.Mock).mockRejectedValue('404');
-        (ts_client.querySystemsWithEmails as jest.Mock).mockResolvedValue({
+        (ts_client.showSystem as any).mockRejectedValue('404');
+        (ts_client.querySystemsWithEmails as any).mockResolvedValue({
             data: [{ id: 'sys-fallback', zones: [] }],
         });
         const space = await pipe.transform('missing-id');
@@ -78,8 +78,8 @@ describe('SpacePipe', () => {
 
     it('should wait for the org service to initialise when set', async () => {
         const org: any = {
-            waitUntilInitialised: jest.fn().mockResolvedValue(undefined),
-            levelWithID: jest.fn(),
+            waitUntilInitialised: vi.fn().mockResolvedValue(undefined),
+            levelWithID: vi.fn(),
         };
         pipe.org = org;
         await pipe.transform('');

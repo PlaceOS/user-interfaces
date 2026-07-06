@@ -1,5 +1,5 @@
 import { Router } from '@angular/router';
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
+import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
 
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { FeatureAvailableGuard } from '../lib/feature-available.guard';
@@ -8,7 +8,7 @@ import { createSettingsServiceMock } from './test-helpers';
 describe('FeatureAvailableGuard', () => {
     let spectator: SpectatorService<FeatureAvailableGuard>;
     const settings = createSettingsServiceMock();
-    const router = { url: '/catering/orders', navigate: jest.fn() };
+    const router = { url: '/catering/orders', navigate: vi.fn() };
 
     const createService = createServiceFactory({
         service: FeatureAvailableGuard,
@@ -17,7 +17,7 @@ describe('FeatureAvailableGuard', () => {
             { provide: SettingsService, useValue: settings },
             {
                 provide: OrganisationService,
-                useValue: { waitUntilInitialised: jest.fn(async () => null) },
+                useValue: { waitUntilInitialised: vi.fn(async () => null) },
             },
         ],
     });

@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { mockComponent } from '@placeos/common/tests';
 import { IconComponent } from '@placeos/components';
 
@@ -15,9 +15,9 @@ describe('CheckinViewComponent', () => {
     const bookings = signal<any[]>([]);
     const current = signal<any>(null);
     const next = signal<any>(null);
-    const setting = jest.fn<any, [string]>();
-    const start_meeting = jest.fn();
-    const new_booking = jest.fn();
+    const setting = vi.fn<(key: string) => any>();
+    const start_meeting = vi.fn();
+    const new_booking = vi.fn();
 
     const state_service: any = {
         status,

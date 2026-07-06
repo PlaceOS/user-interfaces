@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { AssetGroup } from '@placeos/common';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { MockDirective, MockProvider } from 'ng-mocks';
@@ -74,7 +74,7 @@ describe('AssetListComponent', () => {
         ]);
         spectator.setInput('requested', { '1': 2 });
         spectator.detectChanges();
-        TestBed.flushEffects();
+        TestBed.tick();
 
         expect((spectator.component.assets()[0] as any).available).toBe(1);
     });
@@ -85,13 +85,13 @@ describe('AssetListComponent', () => {
         ]);
         spectator.setInput('requested', { '1': 2 });
         spectator.detectChanges();
-        TestBed.flushEffects();
+        TestBed.tick();
 
         expect(spectator.component.assets()).toHaveLength(0);
     });
 
     it('should emit onSelect when an asset is clicked', () => {
-        const selected = jest.fn();
+        const selected = vi.fn();
         filtered_assets.set([
             { id: '1', name: 'Projector', assets: [{}] } as AssetGroup,
         ]);
@@ -106,7 +106,7 @@ describe('AssetListComponent', () => {
     });
 
     it('should emit toggleFav when the favourite button is clicked', () => {
-        const on_toggle = jest.fn();
+        const on_toggle = vi.fn();
         filtered_assets.set([
             { id: '1', name: 'Projector', assets: [{}] } as AssetGroup,
         ]);

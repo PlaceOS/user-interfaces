@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
 
 import { ApplicationLink, SettingsService } from '@placeos/common';
@@ -15,11 +15,11 @@ describe('HelpTooltipComponent', () => {
         providers: [
             {
                 provide: CustomTooltipData,
-                useValue: { data: null, close: jest.fn() },
+                useValue: { data: null, close: vi.fn() },
             },
             {
                 provide: SettingsService,
-                useValue: { signal: jest.fn(() => help_tiles) },
+                useValue: { signal: vi.fn(() => help_tiles) },
             },
             MockProvider(LocaleService),
         ],

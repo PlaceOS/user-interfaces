@@ -1,4 +1,4 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent } from 'ng-mocks';
 
 import { Attachment } from '@placeos/common';
@@ -37,7 +37,7 @@ describe('UploadFileFieldComponent', () => {
     });
 
     it('should emit changes when the value is set', () => {
-        const on_change = jest.fn();
+        const on_change = vi.fn();
         const item = attachment();
         spectator.component.registerOnChange(on_change);
         spectator.component.setValue(item);
@@ -46,7 +46,7 @@ describe('UploadFileFieldComponent', () => {
     });
 
     it('should clear the value when removed', () => {
-        const on_change = jest.fn();
+        const on_change = vi.fn();
         spectator.component.writeValue(attachment());
         spectator.detectChanges();
         spectator.component.registerOnChange(on_change);
@@ -61,7 +61,7 @@ describe('UploadFileFieldComponent', () => {
     });
 
     it('should ignore file events without any files', () => {
-        const on_change = jest.fn();
+        const on_change = vi.fn();
         spectator.component.registerOnChange(on_change);
         spectator.component.onFileEvent({ target: { files: [] } });
         expect(on_change).not.toHaveBeenCalled();

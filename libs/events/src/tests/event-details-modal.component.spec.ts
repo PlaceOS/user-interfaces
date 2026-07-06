@@ -1,6 +1,6 @@
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
     CalendarEvent,
     OrganisationService,
@@ -24,8 +24,8 @@ import { EventDetailsModalComponent } from '../lib/event-details-modal.component
 
 describe('EventDetailsModalComponent', () => {
     let spectator: Spectator<EventDetailsModalComponent>;
-    const edit_fn = jest.fn();
-    const remove_fn = jest.fn();
+    const edit_fn = vi.fn();
+    const remove_fn = vi.fn();
     const createComponent = createComponentFactory({
         component: EventDetailsModalComponent,
         providers: [
@@ -35,19 +35,19 @@ describe('EventDetailsModalComponent', () => {
                 remove_fn,
             }),
             MockProvider(OrganisationService, {
-                levelWithID: jest.fn(),
+                levelWithID: vi.fn(),
                 buildings: [],
                 building: { timezone: 'UTC' } as any,
             }),
             MockProvider(SettingsService, {
-                get: jest.fn(),
+                get: vi.fn(),
                 time_format: 'h:mm a',
                 app_name: 'test',
             }),
         ],
         componentProviders: [
             MockProvider(SpacePipe, {
-                transform: jest.fn(async () => new Space()),
+                transform: vi.fn(async () => new Space()),
             }),
         ],
         declarations: [
@@ -68,7 +68,7 @@ describe('EventDetailsModalComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         spectator = createComponent();
     });
 

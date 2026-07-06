@@ -1,10 +1,10 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 import { MatDialog, MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
     CalendarEvent,
-    currentUser,
     OrganisationService,
+    setCurrentUser,
     settingSignal,
 } from '@placeos/common';
 import { mockComponent } from 'libs/common/src/tests/test-helpers';
@@ -12,35 +12,17 @@ import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticat
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
 import { MockDirective, MockProvider } from 'ng-mocks';
+import * as ts_client from '@placeos/ts-client';
 import { AttendeeListComponent } from '../lib/attendee-list.component';
 import { GroupEventDetailsModalComponent } from '../lib/group-event-details-modal.component';
 
-jest.mock('@placeos/common', () => ({
-    ...jest.requireActual('@placeos/common'),
-    currentUser: jest.fn(),
-}));
-
-jest.mock('../lib/space.pipe', () => ({
-    updateSpaceList: jest.fn(),
-    SpacePipe: jest.fn().mockImplementation(() => ({
-        org: null,
-        transform: jest.fn(async () =>
-            new (jest.requireActual('@placeos/common').Space)({
-                id: 'space-1',
-                name: 'Space One',
-                zones: ['zone-1'],
-            }),
-        ),
-    })),
-}));
-
-jest.mock('../lib/events.fn');
-
-import * as events_fn from '../lib/events.fn';
+// The real SpacePipe and events.fn wrappers run; only the ts-client API layer
+// beneath them is stubbed.
+vi.mock('@placeos/ts-client', { spy: true });
 
 describe('GroupEventDetailsModalComponent', () => {
     let spectator: Spectator<GroupEventDetailsModalComponent>;
-    const remove_fn = jest.fn();
+    const remove_fn = vi.fn();
     const event = new CalendarEvent({
         id: 'event-1',
         title: 'Group Event',
@@ -62,11 +44,11 @@ describe('GroupEventDetailsModalComponent', () => {
                 remove_fn,
                 concierge: false,
             }),
-            MockProvider(MatDialogRef, { close: jest.fn() }),
-            MockProvider(MatDialog, { open: jest.fn() }),
-            MockProvider(Clipboard, { copy: jest.fn(() => true) }),
+            MockProvider(MatDialogRef, { close: vi.fn() }),
+            MockProvider(MatDialog, { open: vi.fn() }),
+            MockProvider(Clipboard, { copy: vi.fn(() => true) }),
             MockProvider(OrganisationService, {
-                levelWithID: jest.fn(),
+                levelWithID: vi.fn(),
                 buildings: [],
                 building: { id: 'bld-1' } as any,
             }),
@@ -81,11 +63,26 @@ describe('GroupEventDetailsModalComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         settingSignal('group_events_calendar', '').set('calendar@place.tech');
-        jest.mocked(currentUser).mockReturnValue({
+        setCurrentUser({
             email: 'me@place.tech',
             name: 'Me',
+        } as any);
+        // Real SpacePipe resolves spaces through these ts-client lookups.
+        vi.mocked(ts_client.showSystem).mockResolvedValue({
+            id: 'space-1',
+            name: 'Space One',
+            zones: ['zone-1'],
+        } as any);
+        vi.mocked(ts_client.querySystemsWithEmails).mockResolvedValue({
+            data: [
+                {
+                    id: 'space-1',
+                    email: 'calendar@place.tech',
+                    zones: ['zone-1'],
+                },
+            ],
         } as any);
         spectator = createComponent();
     });
@@ -146,17 +143,24 @@ describe('GroupEventDetailsModalComponent', () => {
     });
 
     it('should register interest for the current user', async () => {
-        (events_fn.addEventGuest as jest.Mock).mockResolvedValue({
+        // addEventGuest runs for real; its POST returns the added guest.
+        vi.mocked(ts_client.post).mockResolvedValue({
             email: 'me@place.tech',
-        });
+        } as any);
         expect(spectator.component.is_interested()).toBe(false);
         await spectator.component.toggleInterest();
-        expect(events_fn.addEventGuest).toHaveBeenCalled();
+        expect(ts_client.post).toHaveBeenCalledWith(
+            expect.stringContaining('/attendee'),
+            expect.anything(),
+        );
         expect(spectator.component.is_interested()).toBe(true);
     });
 
     it('should remove interest when already interested', async () => {
-        (events_fn.removeEventGuest as jest.Mock).mockResolvedValue(undefined);
+        // removeEventGuest runs for real; its DELETE resolves the removed guest.
+        vi.mocked(ts_client.del).mockResolvedValue({
+            email: 'me@place.tech',
+        } as any);
         spectator.component.event.set(
             new CalendarEvent({
                 ...event,
@@ -165,23 +169,24 @@ describe('GroupEventDetailsModalComponent', () => {
         );
         expect(spectator.component.is_interested()).toBe(true);
         await spectator.component.toggleInterest();
-        expect(events_fn.removeEventGuest).toHaveBeenCalled();
+        expect(ts_client.del).toHaveBeenCalledWith(
+            expect.stringContaining('/attendee/'),
+        );
         expect(spectator.component.is_interested()).toBe(false);
     });
 
     it('should check in the current user when toggling attendance', async () => {
-        (events_fn.addEventGuest as jest.Mock).mockResolvedValue({
+        // addEventGuest + checkinEventGuest both run for real; the POST beneath
+        // them returns the current user as the guest.
+        vi.mocked(ts_client.post).mockResolvedValue({
             email: 'me@place.tech',
-        });
-        (events_fn.checkinEventGuest as jest.Mock).mockResolvedValue(
-            undefined,
-        );
+        } as any);
         await spectator.component.toggleAttendance();
-        expect(events_fn.checkinEventGuest).toHaveBeenCalledWith(
-            'event-1',
-            'me@place.tech',
-            true,
-            expect.any(Object),
+        expect(ts_client.post).toHaveBeenCalledWith(
+            expect.stringMatching(
+                /\/guests\/me@place\.tech\/checkin\?.*state=true/,
+            ),
+            '',
         );
         expect(spectator.component.is_going()).toBe(true);
     });

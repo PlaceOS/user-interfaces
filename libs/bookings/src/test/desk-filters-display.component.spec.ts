@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 import { SettingsService } from '@placeos/common';
 import { createSettingsServiceMock } from '@placeos/common/tests';
 import { MockComponent, MockPipe } from 'ng-mocks';
@@ -13,8 +13,8 @@ describe('DeskFiltersDisplayComponent', () => {
     let spectator: Spectator<DeskFiltersDisplayComponent>;
     const options = signal<any>({});
     const model = signal<any>({ date: 0, duration: 60, all_day: false });
-    const set_options = jest.fn((o) => options.update((v) => ({ ...v, ...o })));
-    const set_feature = jest.fn();
+    const set_options = vi.fn((o) => options.update((v) => ({ ...v, ...o })));
+    const set_feature = vi.fn();
 
     const createComponent = createComponentFactory({
         component: DeskFiltersDisplayComponent,
@@ -40,7 +40,7 @@ describe('DeskFiltersDisplayComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         options.set({});
         model.set({ date: 0, duration: 60, all_day: false });
         spectator = createComponent();

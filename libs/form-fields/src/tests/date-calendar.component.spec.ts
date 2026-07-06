@@ -1,4 +1,4 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
 
 import { SettingsService } from '@placeos/common';
@@ -10,18 +10,18 @@ describe('DateCalendarComponent', () => {
         component: DateCalendarComponent,
         providers: [
             MockProvider(SettingsService, {
-                signal: jest.fn((_: string, fallback: number) => () => fallback),
+                signal: vi.fn((_: string, fallback: number) => () => fallback) as any,
             }),
         ],
     });
 
     beforeEach(() => {
-        jest.useFakeTimers();
-        jest.setSystemTime(new Date(2026, 3, 22, 12));
+        vi.useFakeTimers();
+        vi.setSystemTime(new Date(2026, 3, 22, 12));
         spectator = createComponent();
     });
 
-    afterEach(() => jest.useRealTimers());
+    afterEach(() => vi.useRealTimers());
 
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();

@@ -1,5 +1,5 @@
 import { MatDialog } from '@angular/material/dialog';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import {
     CalendarEvent,
     OrganisationService,
@@ -23,11 +23,11 @@ describe('EventCardComponent', () => {
         ],
         providers: [
             MockProvider(OrganisationService, {
-                levelWithID: jest.fn(),
+                levelWithID: vi.fn(),
                 buildings: [],
                 active_building: signal(null),
             }),
-            MockProvider(MatDialog, { open: jest.fn() }),
+            MockProvider(MatDialog, { open: vi.fn() }),
             MockProvider(SettingsService, { time_format: 'h:mm a' }),
         ],
         componentProviders: [MockProvider(SpacePipe)],

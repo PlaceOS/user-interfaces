@@ -1,5 +1,5 @@
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 
 import { ChangelogModalComponent } from '../lib/changelog-modal.component';
 
@@ -10,7 +10,7 @@ describe('ChangelogModalComponent', () => {
         component: ChangelogModalComponent,
         providers: [
             { provide: MAT_DIALOG_DATA, useValue: { changelog: '' } },
-            { provide: MatDialogRef, useValue: { close: jest.fn() } },
+            { provide: MatDialogRef, useValue: { close: vi.fn() } },
         ],
     });
 

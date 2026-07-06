@@ -1,4 +1,4 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 
 import {
     MediaControlsComponent,
@@ -33,7 +33,7 @@ describe('MediaControlsComponent', () => {
     });
 
     it('should emit PREVIOUS when the previous control is clicked', () => {
-        const emit_spy = jest.spyOn(spectator.component.event, 'emit');
+        const emit_spy = vi.spyOn(spectator.component.event, 'emit');
         const buttons = spectator.queryAll('button') as HTMLButtonElement[];
 
         buttons[0].click();
@@ -42,7 +42,7 @@ describe('MediaControlsComponent', () => {
     });
 
     it('should emit NEXT when the next control is clicked', () => {
-        const emit_spy = jest.spyOn(spectator.component.event, 'emit');
+        const emit_spy = vi.spyOn(spectator.component.event, 'emit');
         const buttons = spectator.queryAll('button') as HTMLButtonElement[];
 
         buttons[2].click();
@@ -51,7 +51,7 @@ describe('MediaControlsComponent', () => {
     });
 
     it('should emit MUTE when the volume control is clicked', () => {
-        const emit_spy = jest.spyOn(spectator.component.event, 'emit');
+        const emit_spy = vi.spyOn(spectator.component.event, 'emit');
         const buttons = spectator.queryAll('button') as HTMLButtonElement[];
 
         buttons[3].click();
@@ -60,7 +60,7 @@ describe('MediaControlsComponent', () => {
     });
 
     it('should emit LOOP when the loop control is clicked', () => {
-        const emit_spy = jest.spyOn(spectator.component.event, 'emit');
+        const emit_spy = vi.spyOn(spectator.component.event, 'emit');
         const buttons = spectator.queryAll('button') as HTMLButtonElement[];
 
         buttons[4].click();
@@ -69,7 +69,7 @@ describe('MediaControlsComponent', () => {
     });
 
     it('should emit SHUFFLE when the shuffle control is clicked', () => {
-        const emit_spy = jest.spyOn(spectator.component.event, 'emit');
+        const emit_spy = vi.spyOn(spectator.component.event, 'emit');
         const buttons = spectator.queryAll('button') as HTMLButtonElement[];
 
         buttons[5].click();
@@ -78,7 +78,7 @@ describe('MediaControlsComponent', () => {
     });
 
     it('should emit PAUSE from the play/pause control when a state is set', () => {
-        const emit_spy = jest.spyOn(spectator.component.event, 'emit');
+        const emit_spy = vi.spyOn(spectator.component.event, 'emit');
         spectator.component.state.set('PLAYING');
         spectator.detectChanges();
         const buttons = spectator.queryAll('button') as HTMLButtonElement[];
@@ -107,11 +107,11 @@ describe('MediaControlsComponent (icons)', () => {
 
     beforeEach(() => {
         // Keep the progress bar animation loop from scheduling real frames.
-        jest.spyOn(window, 'requestAnimationFrame').mockReturnValue(0 as any);
+        vi.spyOn(window, 'requestAnimationFrame').mockReturnValue(0 as any);
         spectator = create_component();
     });
 
-    afterEach(() => jest.restoreAllMocks());
+    afterEach(() => vi.restoreAllMocks());
 
     const icon_text = (button_index: number) => {
         const buttons = spectator.queryAll('button') as HTMLButtonElement[];
@@ -193,13 +193,16 @@ describe('MediaProgressBarComponent', () => {
     beforeEach(() => {
         // Return a stable frame id and never invoke the callback so the
         // update loop stays deterministic within each test.
-        jest.spyOn(window, 'requestAnimationFrame').mockReturnValue(42 as any);
+        vi.spyOn(window, 'requestAnimationFrame').mockReturnValue(42 as any);
     });
 
-    afterEach(() => jest.restoreAllMocks());
+    afterEach(() => {
+        media_helpers.setMockTime(0);
+        vi.restoreAllMocks();
+    });
 
     it('should render playback progress from the elapsed play time', () => {
-        jest.spyOn(media_helpers, 'time').mockReturnValue(6000);
+        media_helpers.setMockTime(6000, 0);
         spectator = create_component({
             props: {
                 state: 'PLAYING',
@@ -229,7 +232,7 @@ describe('MediaProgressBarComponent', () => {
     });
 
     it('should fall back to the progress input while waiting', () => {
-        jest.spyOn(media_helpers, 'time').mockReturnValue(9000);
+        media_helpers.setMockTime(9000, 0);
         spectator = create_component({
             props: {
                 state: 'PLAYING',
@@ -246,7 +249,7 @@ describe('MediaProgressBarComponent', () => {
     });
 
     it('should clamp computed progress above 100 to full', () => {
-        jest.spyOn(media_helpers, 'time').mockReturnValue(50000);
+        media_helpers.setMockTime(50000, 0);
         spectator = create_component({
             props: {
                 state: 'PLAYING',
@@ -261,7 +264,7 @@ describe('MediaProgressBarComponent', () => {
     });
 
     it('should clamp negative progress to empty', () => {
-        jest.spyOn(media_helpers, 'time').mockReturnValue(500);
+        media_helpers.setMockTime(500, 0);
         spectator = create_component({
             props: {
                 state: 'PLAYING',
@@ -287,7 +290,7 @@ describe('MediaProgressBarComponent', () => {
     });
 
     it('should cancel the pending animation frame on destroy', () => {
-        const cancel_spy = jest.spyOn(window, 'cancelAnimationFrame');
+        const cancel_spy = vi.spyOn(window, 'cancelAnimationFrame');
         spectator = create_component({ props: { progress: 10 } as any });
         spectator.detectChanges();
         spectator.component['_updateProgress']();

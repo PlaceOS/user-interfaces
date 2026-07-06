@@ -2,18 +2,14 @@ import { showUser } from '@placeos/ts-client';
 
 import { PlaceUserPipe } from '../lib/place-user.pipe';
 
-jest.mock('@placeos/ts-client', () => ({
-    __esModule: true,
-    ...jest.requireActual('@placeos/ts-client'),
-    showUser: jest.fn(),
-}));
+vi.mock('@placeos/ts-client', { spy: true });
 
 describe('PlaceUserPipe', () => {
     let pipe: PlaceUserPipe;
 
     beforeEach(() => {
         pipe = new PlaceUserPipe();
-        (showUser as jest.Mock).mockReset();
+        vi.mocked(showUser).mockReset();
     });
 
     it('should return an empty user for empty identifiers', async () => {
@@ -23,11 +19,11 @@ describe('PlaceUserPipe', () => {
     });
 
     it('should look up and return a user by id', async () => {
-        (showUser as jest.Mock).mockResolvedValue({
+        vi.mocked(showUser).mockResolvedValue({
             id: 'user-lookup-1',
             email: 'lookup1@place.tech',
             name: 'Lookup One',
-        });
+        } as any);
 
         const user = await pipe.transform('user-lookup-1');
 
@@ -37,11 +33,11 @@ describe('PlaceUserPipe', () => {
     });
 
     it('should cache looked up users to avoid repeat requests', async () => {
-        (showUser as jest.Mock).mockResolvedValue({
+        vi.mocked(showUser).mockResolvedValue({
             id: 'user-lookup-2',
             email: 'lookup2@place.tech',
             name: 'Lookup Two',
-        });
+        } as any);
 
         await pipe.transform('user-lookup-2');
         expect(showUser).toHaveBeenCalledTimes(1);
@@ -52,7 +48,7 @@ describe('PlaceUserPipe', () => {
     });
 
     it('should return an empty user when the lookup fails', async () => {
-        (showUser as jest.Mock).mockRejectedValue(new Error('not found'));
+        vi.mocked(showUser).mockRejectedValue(new Error('not found'));
 
         const user = await pipe.transform('user-missing-1');
 

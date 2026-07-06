@@ -1,4 +1,4 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
     Building,
     BuildingLevel,
@@ -33,7 +33,7 @@ describe('SpaceDetailsComponent', () => {
         component: SpaceDetailsComponent,
         providers: [
             MockProvider(OrganisationService, {
-                levelWithID: jest.fn((zones: string[]) =>
+                levelWithID: vi.fn((zones: string[]) =>
                     zones?.includes('lvl-1') ? level : null,
                 ),
                 buildings: [building],
@@ -84,7 +84,7 @@ describe('SpaceDetailsComponent', () => {
     it('should emit when favourite is toggled', () => {
         spectator.setInput({ space });
         spectator.detectChanges();
-        const emit = jest.fn();
+        const emit = vi.fn();
         spectator.component.toggleFav.subscribe(emit);
         spectator.click('[name="toggle-space-favourite-details"]');
         expect(emit).toHaveBeenCalled();
@@ -93,7 +93,7 @@ describe('SpaceDetailsComponent', () => {
     it('should emit when close is pressed', () => {
         spectator.setInput({ space });
         spectator.detectChanges();
-        const emit = jest.fn();
+        const emit = vi.fn();
         spectator.component.close.subscribe(emit);
         spectator.click('[name="close-space-details"]');
         expect(emit).toHaveBeenCalled();

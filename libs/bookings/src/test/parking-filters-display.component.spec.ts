@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 import { OrganisationService } from '@placeos/common';
 import { createSettingsServiceMock } from '@placeos/common/tests';
 import { MockComponent } from 'ng-mocks';
@@ -14,10 +14,10 @@ describe('ParkingFiltersDisplayComponent', () => {
     const base_date = new Date(2026, 5, 15, 9, 0, 0, 0).valueOf();
     const options = signal<any>({ zone_id: 'lvl-1', features: [] });
     const model = signal<any>({ date: base_date, duration: 120 });
-    const setOptions = jest.fn((value) => options.set(value));
+    const setOptions = vi.fn((value) => options.set(value));
 
     const org_mock = {
-        levelWithID: jest.fn((ids: string[]) =>
+        levelWithID: vi.fn((ids: string[]) =>
             ids?.[0] === 'lvl-1'
                 ? { id: 'lvl-1', display_name: 'Level One', name: 'lvl-1' }
                 : null,
@@ -39,7 +39,7 @@ describe('ParkingFiltersDisplayComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         options.set({ zone_id: 'lvl-1', features: [] });
         model.set({ date: base_date, duration: 120 });
         spectator = createComponent();

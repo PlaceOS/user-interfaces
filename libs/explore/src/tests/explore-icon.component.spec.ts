@@ -1,4 +1,4 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MAP_FEATURE_DATA } from '@placeos/common';
 import { ngMocks } from 'ng-mocks';
 
@@ -52,7 +52,7 @@ describe('ExploreIconComponent', () => {
             ],
         });
         spectator.detectChanges();
-        const container = spectator.query('div');
+        const container = spectator.query<HTMLElement>('div');
         expect(container?.style.backgroundColor).toBe('rgb(255, 0, 0)');
         expect(container?.style.color).toBe('rgb(0, 0, 0)');
     });

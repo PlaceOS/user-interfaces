@@ -80,11 +80,26 @@
             "executor": "@nx/eslint:lint"
         },
         "test": {
-            "executor": "@nx/jest:jest",
-            "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+            "executor": "@angular/build:unit-test",
+            "outputs": ["{workspaceRoot}/coverage/apps/redirect"],
             "options": {
-                "jestConfig": "apps/redirect/jest.config.ts",
-                "tsConfig": "apps/redirect/tsconfig.spec.json"
+                "tsConfig": "apps/redirect/tsconfig.spec.json",
+                "setupFiles": ["apps/redirect/src/test-setup.ts"],
+                "isolate": true,
+                "watch": false,
+                "buildTarget": "redirect:test-build:development"
+            }
+        },
+        "test-build": {
+            "executor": "@angular/build:application",
+            "options": {
+                "outputPath": "dist/apps/redirect-test",
+                "browser": "apps/redirect/src/main.ts",
+                "tsConfig": "apps/redirect/tsconfig.spec.json",
+                "polyfills": []
+            },
+            "configurations": {
+                "development": {}
             }
         },
         "serve-static": {

@@ -1,4 +1,4 @@
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
+import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
 import * as ts_client from '@placeos/ts-client';
 import { MediaAnimation } from '@placeos/ts-client';
 import { MockProvider } from 'ng-mocks';
@@ -16,17 +16,7 @@ const flush = async () => {
     for (let i = 0; i < 8; i++) await Promise.resolve();
 };
 
-jest.mock('@placeos/ts-client', () => {
-    const actual = jest.requireActual('@placeos/ts-client');
-    return {
-        ...actual,
-        showSignage: jest.fn(),
-        querySignagePlugins: jest.fn(),
-        responseHeaders: jest.fn(),
-        getModule: jest.fn(),
-        post: jest.fn(),
-    };
-});
+vi.mock('@placeos/ts-client', { spy: true });
 
 describe('SignageService', () => {
     let spectator: SpectatorService<SignageService>;
@@ -144,30 +134,30 @@ describe('SignageService', () => {
     });
 
     beforeEach(() => {
-        jest.useFakeTimers();
+        vi.useFakeTimers();
         localStorage.clear();
         media_cache = {
-            availableFiles: jest.fn(() => ['/stale-file.jpg']),
-            requestFilesToCache: jest.fn(() => Promise.resolve(false)),
-            invalidateFile: jest.fn(),
-            getFile: jest.fn(() => Promise.resolve(new File([], 'cached'))),
+            availableFiles: vi.fn(() => ['/stale-file.jpg']),
+            requestFilesToCache: vi.fn(() => Promise.resolve(false)),
+            invalidateFile: vi.fn(),
+            getFile: vi.fn(() => Promise.resolve(new File([], 'cached'))),
         };
-        (ts_client.showSignage as jest.Mock).mockReturnValue(
+        (ts_client.showSignage as any).mockReturnValue(
             Promise.resolve(create_display() as any),
         );
-        (ts_client.querySignagePlugins as jest.Mock).mockReturnValue(
+        (ts_client.querySignagePlugins as any).mockReturnValue(
             Promise.resolve({ data: [] } as any),
         );
-        (ts_client.responseHeaders as jest.Mock).mockReturnValue({
+        (ts_client.responseHeaders as any).mockReturnValue({
             'last-modified': new Date().toUTCString(),
         } as any);
         trigger_binding = {
-            bindThenSubscribe: jest.fn(() => ({ unsubscribe: jest.fn() })),
+            bindThenSubscribe: vi.fn(() => ({ unsubscribe: vi.fn() })),
         };
-        (ts_client.getModule as jest.Mock).mockReturnValue({
-            variable: jest.fn(() => trigger_binding),
+        (ts_client.getModule as any).mockReturnValue({
+            variable: vi.fn(() => trigger_binding),
         });
-        (ts_client.post as jest.Mock).mockReturnValue(Promise.resolve({} as any));
+        (ts_client.post as any).mockReturnValue(Promise.resolve({} as any));
         spectator = create_service({
             providers: [MockProvider(MediaCacheService, media_cache)],
         });
@@ -176,8 +166,8 @@ describe('SignageService', () => {
     afterEach(() => {
         if (spectator?.service) spectator.service.ngOnDestroy();
         setMockTime(0);
-        jest.useRealTimers();
-        jest.restoreAllMocks();
+        vi.useRealTimers();
+        vi.restoreAllMocks();
     });
 
     it('should create the service', () => {
@@ -222,7 +212,7 @@ describe('SignageService', () => {
     });
 
     it('should resolve plugin media URLs from the plugin catalogue', async () => {
-        (ts_client.showSignage as jest.Mock).mockReturnValue(
+        (ts_client.showSignage as any).mockReturnValue(
             Promise.resolve(
                 create_display({
                     playlist_mappings: {
@@ -256,7 +246,7 @@ describe('SignageService', () => {
                 }) as any,
             ),
         );
-        (ts_client.querySignagePlugins as jest.Mock).mockReturnValue(
+        (ts_client.querySignagePlugins as any).mockReturnValue(
             Promise.resolve({
                 data: [
                     {
@@ -285,7 +275,7 @@ describe('SignageService', () => {
     it('should track whether playlist or media validity controls the item window', async () => {
         const now = Date.UTC(2026, 0, 1, 10, 0, 0);
         setMockTime(now);
-        (ts_client.showSignage as jest.Mock).mockReturnValue(
+        (ts_client.showSignage as any).mockReturnValue(
             Promise.resolve(
                 create_display({
                     playlist_mappings: {
@@ -354,7 +344,7 @@ describe('SignageService', () => {
     });
 
     it('should not allow embedded players to prune other display caches', async () => {
-        jest.spyOn(
+        vi.spyOn(
             spectator.service as any,
             '_isNestedPlayerWindow',
         ).mockReturnValue(true);
@@ -373,7 +363,7 @@ describe('SignageService', () => {
             'PlaceOS.SIGNAGE.display_details.display-1',
             JSON.stringify(create_display()),
         );
-        (ts_client.showSignage as jest.Mock).mockImplementation(() =>
+        (ts_client.showSignage as any).mockImplementation(() =>
             Promise.reject(new Error('display unavailable')),
         );
         spectator.service.setDisplay('display-2');
@@ -399,10 +389,10 @@ describe('SignageService', () => {
     });
 
     it('should not prune media cache when display loading has no matching fallback', async () => {
-        (ts_client.showSignage as jest.Mock).mockImplementation(() =>
+        (ts_client.showSignage as any).mockImplementation(() =>
             Promise.reject(new Error('display unavailable')),
         );
-        (ts_client.responseHeaders as jest.Mock).mockReturnValue({});
+        (ts_client.responseHeaders as any).mockReturnValue({});
         media_cache.availableFiles.mockClear();
         media_cache.requestFilesToCache.mockClear();
         media_cache.invalidateFile.mockClear();
@@ -417,16 +407,16 @@ describe('SignageService', () => {
 
     it('should preserve last modified time when display loading falls back to cache', async () => {
         const last_modified = Date.UTC(2026, 0, 1, 10, 0, 0);
-        (ts_client.responseHeaders as jest.Mock).mockReturnValueOnce({
+        (ts_client.responseHeaders as any).mockReturnValueOnce({
             'last-modified': new Date(last_modified).toUTCString(),
         } as any);
         spectator.service.setDisplay('display-1');
         await flush();
 
-        (ts_client.showSignage as jest.Mock).mockImplementation(() =>
+        (ts_client.showSignage as any).mockImplementation(() =>
             Promise.reject(new Error('display unavailable')),
         );
-        (ts_client.responseHeaders as jest.Mock).mockReturnValue({});
+        (ts_client.responseHeaders as any).mockReturnValue({});
 
         spectator.service.setDisplay('display-1');
         await flush();
@@ -444,7 +434,7 @@ describe('SignageService', () => {
     });
 
     it('should not include signage media that embeds the same display', async () => {
-        (ts_client.showSignage as jest.Mock).mockReturnValue(
+        (ts_client.showSignage as any).mockReturnValue(
             Promise.resolve(
                 create_display({
                     playlist_mappings: {
@@ -485,11 +475,11 @@ describe('SignageService', () => {
     });
 
     it('should not include signage media inside an embedded signage player', async () => {
-        jest.spyOn(
+        vi.spyOn(
             spectator.service as any,
             '_isNestedPlayerWindow',
         ).mockReturnValue(true);
-        (ts_client.showSignage as jest.Mock).mockReturnValue(
+        (ts_client.showSignage as any).mockReturnValue(
             Promise.resolve(
                 create_display({
                     playlist_mappings: {
@@ -559,8 +549,8 @@ describe('SignageService', () => {
 
     it('should update non-takeover scheduled playlists on the schedule timer', async () => {
         const now = new Date('2026-01-01T10:00:00Z');
-        jest.setSystemTime(now);
-        (ts_client.showSignage as jest.Mock).mockReturnValue(
+        vi.setSystemTime(now);
+        (ts_client.showSignage as any).mockReturnValue(
             Promise.resolve(
                 create_display({
                     playlist_mappings: {
@@ -600,7 +590,7 @@ describe('SignageService', () => {
             'media-1',
         ]);
 
-        jest.advanceTimersByTime(15_000);
+        vi.advanceTimersByTime(15_000);
         await flush();
 
         expect(spectator.service.playlist().map((_) => _.id)).toEqual([
@@ -611,9 +601,9 @@ describe('SignageService', () => {
 
     it('should update scheduled playlists quickly while debug time is fast-forwarding', async () => {
         const now = new Date('2026-01-01T10:00:00Z');
-        jest.setSystemTime(now);
+        vi.setSystemTime(now);
         setMockTime(now.getTime(), 64);
-        (ts_client.showSignage as jest.Mock).mockReturnValue(
+        (ts_client.showSignage as any).mockReturnValue(
             Promise.resolve(
                 create_display({
                     playlist_mappings: {
@@ -653,7 +643,7 @@ describe('SignageService', () => {
             'media-1',
         ]);
 
-        jest.advanceTimersByTime(250);
+        vi.advanceTimersByTime(250);
         await flush();
 
         expect(spectator.service.playlist().map((_) => _.id)).toEqual([
@@ -664,8 +654,8 @@ describe('SignageService', () => {
 
     it('should end late-detected scheduled overrides at the schedule end time', async () => {
         const starts_at = new Date('2026-01-01T10:00:00Z').getTime();
-        jest.setSystemTime(starts_at + 5 * 60 * 1000);
-        (ts_client.showSignage as jest.Mock).mockReturnValue(
+        vi.setSystemTime(starts_at + 5 * 60 * 1000);
+        (ts_client.showSignage as any).mockReturnValue(
             Promise.resolve(
                 create_display({
                     playlist_config: {
@@ -704,9 +694,9 @@ describe('SignageService', () => {
     it('should activate an in-progress cron takeover detected after it fired', async () => {
         const fired_at = new Date('2026-01-01T09:00:00');
         // Boot the display two hours into an eight-hour takeover window.
-        jest.setSystemTime(fired_at.getTime() + 2 * 60 * 60 * 1000);
+        vi.setSystemTime(fired_at.getTime() + 2 * 60 * 60 * 1000);
         const cron = `${fired_at.getMinutes()} ${fired_at.getHours()} * * *`;
-        (ts_client.showSignage as jest.Mock).mockReturnValue(
+        (ts_client.showSignage as any).mockReturnValue(
             Promise.resolve(
                 create_display({
                     playlist_config: {
@@ -747,8 +737,8 @@ describe('SignageService', () => {
 
     it('should not retrigger completed single-pass scheduled overrides', async () => {
         const now = new Date('2026-01-01T10:00:00Z').getTime();
-        jest.setSystemTime(now);
-        (ts_client.showSignage as jest.Mock).mockReturnValue(
+        vi.setSystemTime(now);
+        (ts_client.showSignage as any).mockReturnValue(
             Promise.resolve(
                 create_display({
                     playlist_config: {
@@ -781,14 +771,14 @@ describe('SignageService', () => {
         expect(spectator.service.override_playlist().playlist).toHaveLength(1);
 
         spectator.service.clearPlaylistOverride();
-        jest.advanceTimersByTime(15_000);
+        vi.advanceTimersByTime(15_000);
         await flush();
 
         expect(spectator.service.override_playlist().playlist).toHaveLength(0);
     });
 
     it('should store metric events and ignore playlist counts for random playlists', async () => {
-        (ts_client.showSignage as jest.Mock).mockReturnValue(
+        (ts_client.showSignage as any).mockReturnValue(
             Promise.resolve(
                 create_display({
                     playlist_mappings: {
@@ -846,7 +836,7 @@ describe('SignageService', () => {
         });
 
         (spectator.service as any)._postMetrics();
-        jest.runOnlyPendingTimers();
+        vi.runOnlyPendingTimers();
         await Promise.resolve();
 
         expect(ts_client.post).toHaveBeenCalledWith(

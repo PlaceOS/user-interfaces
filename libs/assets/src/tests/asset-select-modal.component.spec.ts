@@ -1,5 +1,5 @@
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { AssetGroup, SettingsService } from '@placeos/common';
 import { createSettingsServiceMock } from '@placeos/common/tests';
 import { MockComponent, MockProvider } from 'ng-mocks';
@@ -15,7 +15,7 @@ describe('AssetSelectModalComponent', () => {
     let spectator: Spectator<AssetSelectModalComponent>;
     let settings_mock: any;
     let dialog_data: any;
-    const set_options = jest.fn();
+    const set_options = vi.fn();
 
     const createComponent = createComponentFactory({
         component: AssetSelectModalComponent,

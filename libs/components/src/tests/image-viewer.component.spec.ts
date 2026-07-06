@@ -1,7 +1,7 @@
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 
-jest.mock('@placeos/ts-client');
+vi.mock('@placeos/ts-client', { spy: true });
 
 import { authority } from '@placeos/ts-client';
 
@@ -15,12 +15,12 @@ describe('ImageViewerComponent', () => {
         component: ImageViewerComponent,
         providers: [
             { provide: MAT_DIALOG_DATA, useValue: TEST_URL },
-            { provide: MatDialogRef, useValue: { close: jest.fn() } },
+            { provide: MatDialogRef, useValue: { close: vi.fn() } },
         ],
     });
 
     beforeEach(() => {
-        (authority as jest.Mock).mockReturnValue({ id: 'test' });
+        vi.mocked(authority).mockReturnValue({ id: 'test' } as any);
         spectator = createComponent();
     });
 

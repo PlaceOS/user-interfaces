@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { mockComponent } from '@placeos/common/tests';
 
 import { PanelViewDetailsComponent } from '../../app/new-panel/panel-view-details.component';
@@ -21,7 +21,7 @@ describe('PanelViewComponent', () => {
                 provide: PanelStateService,
                 useValue: {
                     space: signal(null),
-                    setting: jest.fn(() => false),
+                    setting: vi.fn(() => false),
                     system: '',
                 },
             },

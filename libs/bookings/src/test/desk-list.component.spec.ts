@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 import { MockComponent, MockDirective, MockPipe } from 'ng-mocks';
 
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';

@@ -229,7 +229,7 @@ describe('CalendarEvent', () => {
 
     it('should store unknown fields in extension data', () => {
         const event = new CalendarEvent({ custom_field: 'value' } as any);
-        expect(event.extension_data.custom_field).toBe('value');
+        expect((event.extension_data as any).custom_field).toBe('value');
         expect(event.ext('custom_field' as any)).toBe('value');
     });
 
