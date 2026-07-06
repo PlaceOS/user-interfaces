@@ -45,6 +45,7 @@ interface ParkingBookingColumnTemplates {
     plate_template: TemplateRef<any>;
     notes_template: TemplateRef<any>;
     status_template: TemplateRef<any>;
+    requested_at_template: TemplateRef<any>;
     user_groups_template: TemplateRef<any>;
     action_template: TemplateRef<any>;
     status_busy_label: string;
@@ -84,6 +85,7 @@ interface ParkingBookingColumnTemplates {
                             plate_template,
                             notes_template,
                             status_template,
+                            requested_at_template,
                             user_groups_template,
                             action_template,
                             status_busy_label: 'COMMON.STATUS_BUSY' | translate,
@@ -450,6 +452,20 @@ interface ParkingBookingColumnTemplates {
                         }
                     </mat-menu>
                 </ng-template>
+                <ng-template #requested_at_template let-row="row">
+                    <div class="px-4 py-2">
+                        @if (row.created_at) {
+                            {{
+                                row.created_at
+                                    | date: 'MMM d, ' + time_format : timezone
+                            }}
+                        } @else {
+                            <span class="opacity-30">
+                                {{ 'COMMON.EMPTY' | translate }}
+                            </span>
+                        }
+                    </div>
+                </ng-template>
                 <ng-template #user_groups_template let-row="row">
                     <div class="px-4 py-2">{{ row.user_groups }}</div>
                 </ng-template>
@@ -560,6 +576,7 @@ export class ParkingBookingsListComponent
                 notes: booking.extension_data?.notes || '',
                 // Surface plate number as a root field so the table can sort by it
                 plate_number: booking.extension_data?.plate_number || '',
+                created_at: ((booking as any).created_at || 0) * 1000,
                 // Resolve the human-readable bay identifier onto the row so the
                 // table's built-in search matches it (the `asset_id` field only
                 // holds the space id, not the bay number/name).
@@ -798,6 +815,12 @@ export class ParkingBookingsListComponent
                 name: templates.status_label,
                 content: templates.status_template,
                 size: '9.5rem',
+            },
+            {
+                key: 'created_at',
+                name: 'Requested at',
+                content: templates.requested_at_template,
+                size: '10rem',
             },
             {
                 key: 'user_groups',

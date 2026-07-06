@@ -116,8 +116,28 @@ describe('ParkingBookingsListComponent', () => {
             'booked_by_name',
             'plate_number',
             'status',
+            'created_at',
             'actions',
         ]);
+    });
+
+    it('should expose requested at from booking created_at', () => {
+        bookings = [
+            {
+                id: 'booking-1',
+                asset_id: 'bay-1',
+                status: 'approved',
+                date: Date.now(),
+                date_end: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                created_at: 1_700_000_000,
+            } as unknown as Booking,
+        ];
+        spectator = createComponent();
+
+        expect(spectator.component.filtered_events()[0]).toMatchObject({
+            created_at: 1_700_000_000_000,
+        });
     });
 
     it('should hide the vehicle type column when requests are disabled', () => {
