@@ -3345,6 +3345,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .inline-flex {
   display: inline-flex;
 }
+#placeos .list-item {
+  display: list-item;
+}
 #placeos .table {
   display: table;
 }
