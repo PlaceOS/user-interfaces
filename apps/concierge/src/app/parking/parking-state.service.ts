@@ -109,6 +109,14 @@ function csvList(value: unknown): string[] {
     return list.map((_) => String(_).trim()).filter(Boolean);
 }
 
+function csvString(value: unknown): string {
+    return value === null || value === undefined ? '' : String(value).trim();
+}
+
+function csvBoolean(value: unknown): boolean {
+    return value === true || csvString(value).toLowerCase() === 'true';
+}
+
 @Injectable({
     providedIn: 'root',
 })
@@ -635,19 +643,18 @@ export class ParkingStateService extends AsyncHandler {
             for (const row of rows) {
                 try {
                     const space_data: Partial<ParkingSpace> = {
-                        ...(row.id ? { id: row.id } : {}),
-                        identifier: row.identifier || '',
-                        map_id: row.map_id || '',
-                        assigned_to: row.assigned_to || '',
-                        assigned_name: row.assigned_name || '',
-                        bookable:
-                            row.bookable === true ||
-                            row.bookable === 'true' ||
-                            row.bookable === 'TRUE',
+                        ...(csvString(row.id)
+                            ? { id: csvString(row.id) }
+                            : {}),
+                        identifier: csvString(row.identifier),
+                        map_id: csvString(row.map_id),
+                        assigned_to: csvString(row.assigned_to),
+                        assigned_name: csvString(row.assigned_name),
+                        bookable: csvBoolean(row.bookable),
                         place_groups: csvList(row.place_groups),
                         features: csvList(row.features),
-                        notes: row.notes || '',
-                        ...(!row.id ? { zone_id } : {}),
+                        notes: csvString(row.notes),
+                        ...(!csvString(row.id) ? { zone_id } : {}),
                     };
                     if (space_data.assigned_to) {
                         await this._checkAssignedParkingLimit(

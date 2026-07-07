@@ -18,6 +18,7 @@ import { MockProvider } from 'ng-mocks';
 import { ParkingStateService } from '../../app/parking/parking-state.service';
 import { ParkingBookingModalComponent } from '../../app/parking/parking-booking-modal.component';
 import { ParkingRequestModalComponent } from '../../app/parking/parking-request-modal.component';
+import { captureDownloads } from '../reports/download-capture.helper';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
@@ -914,5 +915,43 @@ describe('ParkingStateService', () => {
                 zone_id: 'lvl-1',
             }),
         );
+    });
+
+    it('should upload numeric parking space identifiers as strings', async () => {
+        organisation_service.levels = [
+            { id: 'lvl-1', parent_id: 'bld-1', tags: ['parking'] },
+        ];
+        const csv =
+            'identifier,map_id,bookable\n' +
+            '123,G.123,true';
+        const file = new File([csv], 'spaces.csv', { type: 'text/csv' });
+        const event = {
+            target: { files: [file], value: '' },
+        } as unknown as InputEvent;
+
+        await spectator.service.uploadSpacesCSV(event);
+
+        expect(ts_client.addAsset).toHaveBeenCalledWith(
+            expect.objectContaining({
+                identifier: '123',
+                map_id: 'G.123',
+                zone_id: 'lvl-1',
+            }),
+        );
+    });
+
+    it('should download a parking spaces template with parking columns', async () => {
+        const downloads = captureDownloads();
+        try {
+            await spectator.service.downloadSpacesCSV();
+            const csv = await downloads.text();
+
+            expect(downloads.filename).toBe('parking-spaces.csv');
+            expect(csv.replace(/^\uFEFF/, '').split(/\r?\n/)[0]).toBe(
+                'id,identifier,map_id,assigned_to,assigned_name,bookable,place_groups,features,notes',
+            );
+        } finally {
+            downloads.restore();
+        }
     });
 });
