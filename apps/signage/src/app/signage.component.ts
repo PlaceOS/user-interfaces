@@ -62,6 +62,9 @@ function isDebugEnabled(value: string | null) {
                 class="text-base-100/60 absolute bottom-1 right-1 font-mono text-[0.625rem] bg-base-content/40 rounded px-2 py-1"
             >
                 {{ playing_id() }}
+                @if (!playing_id()) {
+                    <span>No item playing</span>
+                }
             </div>
         }
     `,
