@@ -27,6 +27,7 @@ describe('PlaylistApproveModalComponent', () => {
         can_update: signal(true),
         media: signal([]),
         previewMedia: vi.fn(),
+        refreshPlaylist: vi.fn(),
         setPlaylistApprovalStatus: vi.fn(),
     };
 
@@ -35,6 +36,8 @@ describe('PlaylistApproveModalComponent', () => {
         setNotifyOutlet({ open: notify_open } as any, true);
         dialog_ref.disableClose = false;
         service.can_update.set(true);
+        service.refreshPlaylist.mockReset();
+        (updateSignagePlaylistMedia as any).mockResolvedValue({});
         (listSignagePlaylistMediaRevisions as any).mockResolvedValue([
             {
                 id: 'current-version',
@@ -128,6 +131,22 @@ describe('PlaylistApproveModalComponent', () => {
             expect.anything(),
             expect.objectContaining({ panelClass: ['warn'] }),
         );
+    });
+
+    it('refreshes selected playlist data after undoing changes', async () => {
+        const fixture = TestBed.createComponent(PlaylistApproveModalComponent);
+        const component = fixture.componentInstance;
+        (component as any).playlist_versions = () => [
+            { id: 'current-version', items: ['media-1'] },
+            { id: 'previous-version', items: ['media-2'] },
+        ];
+
+        await component.undoChanges();
+
+        expect(updateSignagePlaylistMedia).toHaveBeenCalledWith('playlist-1', [
+            'media-2',
+        ]);
+        expect(service.refreshPlaylist).toHaveBeenCalledWith('playlist-1');
     });
 
     it('shows fallback icons in preview lists', async () => {

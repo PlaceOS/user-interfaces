@@ -75,6 +75,14 @@ describe('MediaEditModalComponent', () => {
         );
     });
 
+    it('starts blank validity dates as empty values', () => {
+        const fixture = TestBed.createComponent(MediaEditModalComponent);
+        const component = fixture.componentInstance;
+
+        expect(component.model().valid_from).toBeNull();
+        expect(component.model().valid_until).toBeNull();
+    });
+
     it('shows a readable message when the upload is cancelled', async () => {
         onAdd.mockRejectedValue(undefined);
         const fixture = TestBed.createComponent(MediaEditModalComponent);

@@ -130,6 +130,23 @@ describe('PlaylistItemDetailsComponent', () => {
         expect(labels[0]).toContain('for 3 hours');
     });
 
+    it('hides playlist-level schedule labels for distribution playlists', async () => {
+        selected_playlist.set({
+            id: 'pl-1',
+            distribution: true,
+            schedules: [
+                {
+                    play_cron: '0 9 * * *',
+                    play_period: 180,
+                },
+            ],
+        });
+        const component = await make();
+
+        expect(component.schedule_labels()).toEqual([]);
+        expect(component.next_play_sessions()).toEqual([]);
+    });
+
     it('lists the next upcoming play sessions for a recurring schedule', async () => {
         selected_playlist.set({
             id: 'pl-1',

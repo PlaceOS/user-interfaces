@@ -156,7 +156,7 @@ export class PlaylistApproveModalComponent {
             );
             notifySuccess(i18n('SIGNAGE_MANAGER.PLAYLIST_REVERTED'));
             this._dialog_ref.close(true);
-            this._service.changed();
+            this._service.refreshPlaylist(this._data.playlist.id);
         } catch (e) {
             notifyError(i18n('SIGNAGE_MANAGER.PLAYLIST_REVERT_ERROR'));
         } finally {

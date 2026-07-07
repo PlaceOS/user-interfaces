@@ -106,6 +106,7 @@ import {
 } from './signage-media-upload.util';
 import {
     playlistItemScheduleMap,
+    playlistMediaIds,
     playlistMediaItems,
 } from './signage-playlist.util';
 
@@ -1330,6 +1331,15 @@ export class SignageService {
         }
     }
 
+    public refreshPlaylist(playlist_id: string) {
+        if (!playlist_id) return;
+        this._removePlaylistMediaState(playlist_id);
+        if (this.selected_playlist()?.id === playlist_id) {
+            this._playlist_change.set(Date.now());
+        }
+        this.changed();
+    }
+
     private async _scheduleMediaForDistributionPlaylist(
         playlist_id: string,
         media_id: string,
@@ -1863,10 +1873,10 @@ export class SignageService {
                     const media = await listSignagePlaylistMedia(
                         next_playlist.id,
                     );
-                    const media_ids = media.items || [];
+                    const media_ids = playlistMediaIds(media);
                     this._setPlaylistMeta(next_playlist.id, {
                         media_ids: media_ids.slice(0, 3),
-                        item_ids: media_ids,
+                        item_ids: media.items || media_ids,
                         updated_at: playlist_updated_at,
                         approved: media.approved,
                         approval_requested: media.approval_requested,

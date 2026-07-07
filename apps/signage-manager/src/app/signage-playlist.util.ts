@@ -49,6 +49,14 @@ export function playlistMediaItems(list: {
         : media;
 }
 
+export function playlistMediaIds(list: {
+    items?: string[];
+    media?: SignageMedia[];
+    schedules?: SignagePlaylistItemSchedule[];
+}) {
+    return playlistMediaItems(list).map((item) => item.id);
+}
+
 export function playlistItemScheduleMap(list: {
     schedules?: SignagePlaylistItemSchedule[];
 }) {

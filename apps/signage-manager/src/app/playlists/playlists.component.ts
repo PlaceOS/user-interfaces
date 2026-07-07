@@ -337,10 +337,7 @@ export class PlaylistsSectionComponent {
             if (!list.length) return;
             if (id) {
                 const match = list.find((p) => p.id === id);
-                if (
-                    match &&
-                    this._service.selected_playlist()?.id !== match.id
-                ) {
+                if (match && this._service.selected_playlist() !== match) {
                     this._service.selected_playlist.set(match);
                     this._service.selected_playlist_item.set(null);
                 }

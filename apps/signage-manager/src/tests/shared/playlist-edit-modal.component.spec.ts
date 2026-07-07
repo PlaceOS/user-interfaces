@@ -100,6 +100,32 @@ describe('PlaylistEditModalComponent', () => {
         );
     });
 
+    it('starts blank validity dates as empty values', () => {
+        const fixture = TestBed.createComponent(PlaylistEditModalComponent);
+        const component = fixture.componentInstance;
+
+        expect(component.model().valid_from).toBeNull();
+        expect(component.model().valid_until).toBeNull();
+    });
+
+    it('does not save playlist-level schedules for distribution playlists', async () => {
+        const fixture = TestBed.createComponent(PlaylistEditModalComponent);
+        const component = fixture.componentInstance;
+
+        component.model.update((model) => ({
+            ...model,
+            distribution: true,
+            name: 'Playlist 1',
+        }));
+
+        await component.savePlaylist();
+
+        expect(onEdit).toHaveBeenCalledWith(
+            'playlist-1',
+            expect.not.objectContaining({ schedules: expect.anything() }),
+        );
+    });
+
     it('saves multiple schedules', async () => {
         const fixture = TestBed.createComponent(PlaylistEditModalComponent);
         const component = fixture.componentInstance;

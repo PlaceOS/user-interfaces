@@ -1,5 +1,6 @@
 import {
     playlistItemScheduleMap,
+    playlistMediaIds,
     playlistMediaItems,
     playlistScheduleNextPlayLabels,
     playlistScheduleLabel,
@@ -27,6 +28,17 @@ describe('signage playlist util', () => {
                 ] as any,
             }).map((item) => item.id),
         ).toEqual(['media-1', 'media-2']);
+    });
+
+    it('resolves thumbnail media ids from distribution schedule media', () => {
+        expect(
+            playlistMediaIds({
+                items: ['schedule-1'],
+                schedules: [
+                    { item_id: 'media-1', media: { id: 'media-1' } },
+                ] as any,
+            }),
+        ).toEqual(['media-1']);
     });
 
     it('maps distribution schedules by nested media id', () => {
