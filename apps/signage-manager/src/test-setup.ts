@@ -1,3 +1,4 @@
+import { installTestStorage } from 'libs/common/src/test-storage';
 import { defineGlobalsInjections, Spectator } from '@ngneat/spectator';
 import {
     LocaleService,
@@ -10,6 +11,7 @@ import { TextDecoder, TextEncoder } from 'util';
 
 global.TextEncoder = TextEncoder;
 global.TextDecoder = TextDecoder as any;
+installTestStorage();
 
 // jsdom's `matchMedia` returns a MediaQueryList without the deprecated
 // `addListener`/`removeListener` methods that Angular CDK's BreakpointObserver

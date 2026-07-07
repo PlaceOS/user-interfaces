@@ -1,3 +1,4 @@
+import { installTestStorage } from 'libs/common/src/test-storage';
 import { defineGlobalsInjections, Spectator } from '@ngneat/spectator';
 // Deep imports, not the @placeos/* barrels: importing a barrel here preloads
 // every module it re-exports (e.g. shorten.fn) and binds their ts-client
@@ -10,6 +11,7 @@ import { TextDecoder, TextEncoder } from 'util';
 
 global.TextEncoder = TextEncoder;
 global.TextDecoder = TextDecoder as any;
+installTestStorage();
 
 // Under the zoneless unit-test builder, `fixture.detectChanges()` only
 // refreshes views that were explicitly marked dirty. Plain host-property

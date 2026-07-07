@@ -1,3 +1,4 @@
+import { installTestStorage } from 'libs/common/src/test-storage';
 import { defineGlobalsInjections } from '@ngneat/spectator';
 import { MockPipe } from 'ng-mocks';
 import { TextDecoder, TextEncoder } from 'util';
@@ -7,6 +8,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 
 global.TextEncoder = TextEncoder;
 global.TextDecoder = TextDecoder as any;
+installTestStorage();
 
 setNotifyOutlet(null, true);
 

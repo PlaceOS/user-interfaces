@@ -1,3 +1,4 @@
+import { installTestStorage } from 'libs/common/src/test-storage';
 import { defineGlobalsInjections, Spectator } from '@ngneat/spectator';
 import { setNotifyOutlet } from 'libs/common/src/lib/notifications';
 import { MockPipe } from 'ng-mocks';
@@ -6,6 +7,7 @@ import { TranslatePipe } from './lib/translate.pipe';
 
 global.TextEncoder = TextEncoder;
 global.TextDecoder = TextDecoder as any;
+installTestStorage();
 
 // Under the zoneless unit-test builder, `fixture.detectChanges()` only
 // refreshes views that were explicitly marked dirty. Plain host-property
