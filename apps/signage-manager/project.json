@@ -147,6 +147,14 @@
             "configurations": {
                 "development": {}
             }
+        },
+        "e2e": {
+            "executor": "@nx/playwright:playwright",
+            "dependsOn": ["build"],
+            "outputs": ["{workspaceRoot}/dist/.playwright/apps/signage-manager"],
+            "options": {
+                "config": "apps/signage-manager/playwright.config.ts"
+            }
         }
     }
 }
