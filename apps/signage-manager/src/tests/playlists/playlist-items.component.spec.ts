@@ -138,6 +138,15 @@ describe('PlaylistItemsComponent', () => {
         expect(component.allSchedulesCollapsed()).toBe(false);
     });
 
+    it('builds a tooltip with the next play blocks for a schedule', async () => {
+        const component = await make();
+        const tooltip = component.scheduleTooltip({
+            play_cron: '0 9 * * *',
+            play_period: 30,
+        });
+        expect(tooltip).toContain('–');
+    });
+
     it('reorders media on drop when updates are permitted', async () => {
         const items = [media('a'), media('b'), media('c')];
         playlist_media_items.set(items);

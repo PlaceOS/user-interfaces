@@ -1,6 +1,7 @@
 import {
     playlistItemScheduleMap,
     playlistMediaItems,
+    playlistScheduleNextPlayLabels,
     playlistScheduleLabel,
 } from '../app/signage-playlist.util';
 
@@ -52,5 +53,14 @@ describe('signage playlist util', () => {
                 play_period: 30,
             }),
         ).toContain('for 30 minutes');
+    });
+
+    it('lists the next five play blocks for a recurring schedule', () => {
+        const labels = playlistScheduleNextPlayLabels({
+            play_cron: '0 9 * * *',
+            play_period: 30,
+        });
+        expect(labels).toHaveLength(5);
+        expect(labels[0]).toContain('–');
     });
 });
