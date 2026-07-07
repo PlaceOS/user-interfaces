@@ -52,15 +52,14 @@ function isDebugEnabled(value: string | null) {
         @if (debug()) {
             <div
                 stroke
-                class="text-base-400 absolute bottom-2 left-2 font-mono text-xs text-shadow-lg"
-            >
-                {{ version_hash }} <br />
+                class="text-base-100/60 absolute bottom-1 left-1 font-mono text-[0.625rem] px-2 rounded py-1 bg-base-content/40">
                 {{ version_date | date: 'mediumDate' }} &ndash;
                 {{ version_date | date: 'shortTime' }}
+                <span class="opacity-50">|</span>&nbsp;<span class="select-all">{{version_hash}}</span>
             </div>
             <div
                 stroke
-                class="text-base-400 absolute right-2 bottom-2 font-mono text-xs text-shadow-lg"
+                class="text-base-100/60 absolute bottom-1 right-1 font-mono text-[0.625rem] bg-base-content/40 rounded px-2 py-1"
             >
                 {{ playing_id() }}
             </div>
