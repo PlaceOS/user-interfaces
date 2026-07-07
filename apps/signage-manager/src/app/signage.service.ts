@@ -1311,11 +1311,15 @@ export class SignageService {
         const ref = this._dialog.open(PlaylistItemScheduleModalComponent, {
             data: {
                 item,
-                save: (item_id, schedules) =>
-                    updateSignagePlaylistMediaSchedule(playlist.id, item_id, {
-                        item_id,
-                        schedules,
-                    }),
+                save: (schedule_id, schedules) =>
+                    updateSignagePlaylistMediaSchedule(
+                        playlist.id,
+                        schedule_id,
+                        {
+                            item_id: item.item_id,
+                            schedules,
+                        },
+                    ),
             },
             panelClass: 'mobile-fullscreen',
         });

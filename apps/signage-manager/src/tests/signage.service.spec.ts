@@ -13,6 +13,7 @@ import {
     scheduleSignagePlaylistMedia,
     SignageMedia,
     SignagePlaylist,
+    updateSignagePlaylistMediaSchedule,
 } from '@placeos/ts-client';
 import { PlaylistItemScheduleModalComponent } from '../app/shared/playlist-item-schedule-modal.component';
 import { SignageService } from '../app/signage.service';
@@ -113,6 +114,35 @@ describe('SignageService media uploads', () => {
 
         expect(scheduleSignagePlaylistMedia).toHaveBeenCalledWith(
             'playlist-1',
+            {
+                item_id: 'media-1',
+                schedules: [{ play_cron: '0 9 * * *', play_period: 30 }],
+            },
+        );
+    });
+
+    it('updates distribution playlist item schedules by schedule id', async () => {
+        const service = createService();
+        service.selected_playlist.set(
+            new SignagePlaylist({
+                id: 'playlist-1',
+                distribution: true,
+            }),
+        );
+        (updateSignagePlaylistMediaSchedule as any).mockResolvedValue({});
+
+        await service.editPlaylistItemSchedule({
+            id: 'schedule-1',
+            item_id: 'media-1',
+            schedules: [],
+        } as any);
+
+        const save = dialog.open.mock.calls[0][1].data.save;
+        await save('schedule-1', [{ play_cron: '0 9 * * *', play_period: 30 }]);
+
+        expect(updateSignagePlaylistMediaSchedule).toHaveBeenCalledWith(
+            'playlist-1',
+            'schedule-1',
             {
                 item_id: 'media-1',
                 schedules: [{ play_cron: '0 9 * * *', play_period: 30 }],

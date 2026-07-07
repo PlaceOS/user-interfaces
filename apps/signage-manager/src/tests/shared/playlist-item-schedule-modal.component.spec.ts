@@ -107,6 +107,19 @@ describe('PlaylistItemScheduleModalComponent', () => {
         );
     });
 
+    it('saves existing schedule entries by schedule id', async () => {
+        modal_data.item = {
+            id: 'schedule-1',
+            item_id: 'media-1',
+            schedules: [],
+        } as any;
+        const component = await createComponent();
+
+        await component.saveSchedule();
+
+        expect(save.mock.calls[0][0]).toBe('schedule-1');
+    });
+
     it('keeps the dialog open and resets loading when saving fails', async () => {
         save.mockRejectedValue(new Error('nope'));
         const component = await createComponent();
