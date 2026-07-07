@@ -3,6 +3,7 @@ import {
     LOAD_TIMEOUT,
     MOCK_SYSTEM_ID,
     SIGNAGE_SYSTEM_URL,
+    clickMuteToggle,
     clickPlayPause,
     navigateWithConfig,
     openTimeControls,
@@ -62,6 +63,18 @@ test.describe('US-SIG-022: Enable Debug Mode', () => {
         );
         expect(debug_state).toBe('false');
     });
+
+    test('stores mute state for the browser session', async ({ page }) => {
+        await navigateWithConfig(page, SIGNAGE_DEBUG_URL);
+        await waitForDebugControls(page);
+
+        await clickMuteToggle(page);
+
+        const muted_state = await page.evaluate(() =>
+            sessionStorage.getItem('SIGNAGE.muted'),
+        );
+        expect(muted_state).toBe('false');
+    });
 });
 
 test.describe('US-SIG-023: Override Time in Debug', () => {
@@ -79,10 +92,10 @@ test.describe('US-SIG-023: Override Time in Debug', () => {
         await expect(page.locator('text=Progression')).toBeVisible();
         await expect(page.locator('button:has-text("16x")')).toBeVisible();
         await expect(
-            page.locator('button[btn]:has-text("Clear")'),
+            page.locator('button:has(icon:has-text("delete_sweep"))'),
         ).toBeVisible();
         await expect(
-            page.locator('button[btn]:has-text("Save")'),
+            page.locator('button:has(icon:has-text("save"))'),
         ).toBeVisible();
     });
 });
