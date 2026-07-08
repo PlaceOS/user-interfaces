@@ -152,10 +152,10 @@ const PEOPLE_TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                         [items]="metric_guide"
                     />
                     <div
-                        class="grid grid-cols-1 gap-4 px-4 pb-4 md:grid-cols-2 xl:grid-cols-5"
+                        class="grid grid-cols-1 gap-4 px-4 pb-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
                     >
                         <div
-                            class="border-base-200 bg-base-100 rounded-sm border p-4"
+                            class="border-base-300 bg-base-100 rounded-sm border p-4 shadow"
                         >
                             <h3 class="text-sm opacity-60">
                                 {{
@@ -168,7 +168,7 @@ const PEOPLE_TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                             </p>
                         </div>
                         <div
-                            class="border-base-200 bg-base-100 rounded-sm border p-4"
+                            class="border-base-300 bg-base-100 rounded-sm border p-4 shadow"
                         >
                             <h3 class="text-sm opacity-60">
                                 {{
@@ -181,7 +181,7 @@ const PEOPLE_TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                             </p>
                         </div>
                         <div
-                            class="border-base-200 bg-base-100 rounded-sm border p-4"
+                            class="border-base-300 bg-base-100 rounded-sm border p-4 shadow"
                         >
                             <h3 class="text-sm opacity-60">
                                 {{
@@ -194,7 +194,7 @@ const PEOPLE_TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                             </p>
                         </div>
                         <div
-                            class="border-base-200 bg-base-100 rounded-sm border p-4"
+                            class="border-base-300 bg-base-100 rounded-sm border p-4 shadow"
                         >
                             <h3 class="text-sm opacity-60">
                                 {{
@@ -207,7 +207,7 @@ const PEOPLE_TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                             </p>
                         </div>
                         <div
-                            class="border-base-200 bg-base-100 rounded-sm border p-4"
+                            class="border-base-300 bg-base-100 rounded-sm border p-4 shadow"
                         >
                             <h3 class="text-sm opacity-60">
                                 {{
