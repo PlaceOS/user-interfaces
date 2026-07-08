@@ -1,16 +1,10 @@
 import { signal } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
-import { notifyError, notifySuccess } from '@placeos/common';
+import { setNotifyOutlet } from '@placeos/common';
 import { LandingStateService } from '../../app/landing/landing-state.service';
 import { AddColleaguesModalComponent } from '../../app/landing-new/add-colleagues-modal.component';
-
-jest.mock('@placeos/common', () => ({
-    ...jest.requireActual('@placeos/common'),
-    notifyError: jest.fn(),
-    notifySuccess: jest.fn(),
-}));
 
 const user_a = { name: 'Alice', email: 'alice@example.com' };
 const user_b = { name: 'Bob', email: 'bob@example.com' };
@@ -24,10 +18,16 @@ describe('AddColleaguesModalComponent', () => {
         search_results,
         loading,
         contacts,
-        setOptions: jest.fn(),
-        addContacts: jest.fn(() => Promise.resolve()),
+        setOptions: vi.fn(),
+        addContacts: vi.fn(() => Promise.resolve()),
     };
-    const dialog_ref = { close: jest.fn() };
+    const dialog_ref = { close: vi.fn() };
+    const snackbar = {
+        open: vi.fn(() => ({
+            dismiss: vi.fn(),
+            onAction: () => ({ subscribe: vi.fn() }),
+        })),
+    };
     const createComponent = createComponentFactory({
         component: AddColleaguesModalComponent,
         detectChanges: false,
@@ -38,10 +38,12 @@ describe('AddColleaguesModalComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         search_results.set([]);
         loading.set('');
         contacts.set([]);
+        snackbar.open.mockClear();
+        setNotifyOutlet(snackbar as any, true);
         state.addContacts.mockResolvedValue(undefined);
         spectator = createComponent();
     });
@@ -86,8 +88,10 @@ describe('AddColleaguesModalComponent', () => {
         spectator.component.selected_users.set([user_a] as any);
         await spectator.component.confirm();
         expect(state.addContacts).toHaveBeenCalledWith([user_a]);
-        expect(notifySuccess).toHaveBeenCalledWith(
+        expect(snackbar.open).toHaveBeenCalledWith(
             'Colleague added successfully',
+            'OK',
+            expect.objectContaining({ panelClass: ['success'] }),
         );
         expect(dialog_ref.close).toHaveBeenCalledWith(true);
         expect(spectator.component.loading()).toBe(false);
@@ -96,18 +100,22 @@ describe('AddColleaguesModalComponent', () => {
     it('should pluralise the success message for multiple colleagues', async () => {
         spectator.component.selected_users.set([user_a, user_b] as any);
         await spectator.component.confirm();
-        expect(notifySuccess).toHaveBeenCalledWith(
+        expect(snackbar.open).toHaveBeenCalledWith(
             '2 colleagues added successfully',
+            'OK',
+            expect.objectContaining({ panelClass: ['success'] }),
         );
     });
 
     it('should notify and stay open when adding fails', async () => {
         state.addContacts.mockRejectedValueOnce(new Error('nope'));
-        jest.spyOn(console, 'error').mockImplementation(() => undefined);
+        vi.spyOn(console, 'error').mockImplementation(() => undefined);
         spectator.component.selected_users.set([user_a] as any);
         await spectator.component.confirm();
-        expect(notifyError).toHaveBeenCalledWith(
+        expect(snackbar.open).toHaveBeenCalledWith(
             'Failed to add colleagues. Please try again.',
+            'OK',
+            expect.objectContaining({ panelClass: ['error'] }),
         );
         expect(dialog_ref.close).not.toHaveBeenCalledWith(true);
         expect(spectator.component.loading()).toBe(false);

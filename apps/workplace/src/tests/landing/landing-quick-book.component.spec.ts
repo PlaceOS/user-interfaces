@@ -12,7 +12,7 @@ import { LandingQuickBookComponent } from '../../app/landing/landing-quick-book.
 
 describe('LandingQuickBookComponent', () => {
     let spectator: Spectator<LandingQuickBookComponent>;
-    let notify_open: ReturnType<typeof vi.fn>;
+    let notify_open: any;
     const createComponent = createComponentFactory({
         component: LandingQuickBookComponent,
         detectChanges: false,

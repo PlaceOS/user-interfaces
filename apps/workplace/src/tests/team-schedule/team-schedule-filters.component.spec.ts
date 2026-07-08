@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
 import { Subject } from 'rxjs';
 import { TeamScheduleFiltersComponent } from '../../app/team-schedule/team-schedule-filters.component';
@@ -9,9 +9,9 @@ import { TeamScheduleService } from '../../app/team-schedule/team-schedule.servi
 describe('TeamScheduleFiltersComponent', () => {
     let spectator: Spectator<TeamScheduleFiltersComponent>;
     const query_params = new Subject<any>();
-    const set_filters = jest.fn();
-    const previous_week = jest.fn();
-    const next_week = jest.fn();
+    const set_filters = vi.fn();
+    const previous_week = vi.fn();
+    const next_week = vi.fn();
 
     const createComponent = createComponentFactory({
         component: TeamScheduleFiltersComponent,
@@ -41,7 +41,7 @@ describe('TeamScheduleFiltersComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         spectator = createComponent();
     });
 

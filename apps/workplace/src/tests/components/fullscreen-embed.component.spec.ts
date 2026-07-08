@@ -1,4 +1,4 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { IconComponent, SafePipe } from '@placeos/components';
 import { MockComponent } from 'ng-mocks';

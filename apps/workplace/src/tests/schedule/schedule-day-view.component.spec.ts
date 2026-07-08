@@ -1,4 +1,4 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MatDialog } from '@angular/material/dialog';
 import {
     Booking,
@@ -45,22 +45,22 @@ describe('ScheduleDayViewComponent', () => {
         component: ScheduleDayViewComponent,
         declarations: [MockPipe(UserPipe, (value) => value as any)],
         providers: [
-            MockProvider(MatDialog, { open: jest.fn(), closeAll: jest.fn() }),
-            MockProvider(OrganisationService, { levelWithID: jest.fn() }),
+            MockProvider(MatDialog, { open: vi.fn(), closeAll: vi.fn() }),
+            MockProvider(OrganisationService, { levelWithID: vi.fn() }),
             {
                 provide: ScheduleStateService,
                 useValue: {
-                    edit: jest.fn(),
-                    editBooking: jest.fn(),
-                    remove: jest.fn(),
-                    end: jest.fn(),
+                    edit: vi.fn(),
+                    editBooking: vi.fn(),
+                    remove: vi.fn(),
+                    end: vi.fn(),
                 },
             },
         ],
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         spectator = createComponent({ props: { date: the_day } });
         dialog = spectator.inject(MatDialog);
     });
@@ -268,7 +268,7 @@ describe('ScheduleDayViewComponent', () => {
                 booked_by_email: 'me@place.tech',
                 user_email: 'other@place.tech',
             });
-            jest.spyOn(
+            vi.spyOn(
                 spectator.component,
                 'isBookingForOtherUser',
             ).mockReturnValue(true as any);

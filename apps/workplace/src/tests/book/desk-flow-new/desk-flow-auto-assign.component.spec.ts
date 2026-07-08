@@ -1,7 +1,7 @@
 import { signal, WritableSignal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { BookingFormService } from '@placeos/bookings';
 import { MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
@@ -12,13 +12,13 @@ import { AutoAssignedDeskModalComponent } from '../../../app/book/desk-flow/auto
 describe('DeskFlowAutoAssignComponent', () => {
     let spectator: Spectator<DeskFlowAutoAssignComponent>;
     let model: WritableSignal<any>;
-    let set_view: jest.Mock;
-    let dialog_open: jest.Mock;
+    let set_view: any;
+    let dialog_open: any;
     let after_closed_value: any;
     let component_instance: {
-        show_close: { set: jest.Mock };
-        date: { set: jest.Mock };
-        duration: { set: jest.Mock };
+        show_close: { set: any };
+        date: { set: any };
+        duration: { set: any };
     };
 
     const createComponent = createComponentFactory({
@@ -28,25 +28,25 @@ describe('DeskFlowAutoAssignComponent', () => {
         providers: [
             MockProvider(BookingFormService, {} as any),
             MockProvider(MatDialog, {} as any),
-            MockProvider(Router, { navigate: jest.fn() }),
+            MockProvider(Router, { navigate: vi.fn() }),
         ],
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         model = signal<any>({ date: Date.now(), duration: 60 });
-        set_view = jest.fn();
+        set_view = vi.fn();
         after_closed_value = false;
         component_instance = {
-            show_close: { set: jest.fn() },
-            date: { set: jest.fn() },
-            duration: { set: jest.fn() },
+            show_close: { set: vi.fn() },
+            date: { set: vi.fn() },
+            duration: { set: vi.fn() },
         };
         const dialog_ref = {
             componentInstance: component_instance,
-            afterClosed: jest.fn(() => of(after_closed_value)),
+            afterClosed: vi.fn(() => of(after_closed_value)),
         };
-        dialog_open = jest.fn(() => dialog_ref);
+        dialog_open = vi.fn(() => dialog_ref);
         spectator = createComponent({
             providers: [
                 MockProvider(BookingFormService, {

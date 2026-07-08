@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { Router } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
 import { OrganisationService, SettingsService } from '@placeos/common';
@@ -21,27 +21,27 @@ describe('LandingFavouritesNewComponent', () => {
                 active_building: signal({ id: 'bld-1' }),
             } as any),
             MockProvider(SettingsService, {
-                get: jest.fn(),
-                saveUserSetting: jest.fn(),
+                get: vi.fn(),
+                saveUserSetting: vi.fn(),
             }),
             MockProvider(EventFormService, {
                 spaces: signal([]),
-                newForm: jest.fn(),
+                newForm: vi.fn(),
                 model: signal<any>({}),
             } as any),
             MockProvider(BookingFormService, {
-                loadResourceList: jest.fn((type: string) =>
+                loadResourceList: vi.fn((type: string) =>
                     Promise.resolve(
                         type === 'parking-spaces'
                             ? [{ id: 'park-123', name: 'Parking 123', zones: [] }]
                             : [],
                     ),
                 ),
-                newForm: jest.fn(),
-                setOptions: jest.fn(),
+                newForm: vi.fn(),
+                setOptions: vi.fn(),
                 model: booking_model,
             } as any),
-            MockProvider(Router, { navigate: jest.fn() }),
+            MockProvider(Router, { navigate: vi.fn() }),
         ],
     });
 
@@ -54,7 +54,7 @@ describe('LandingFavouritesNewComponent', () => {
         const router = spectator.inject(Router);
         const settings = spectator.inject(SettingsService);
         const booking_form = spectator.inject(BookingFormService);
-        (settings.get as jest.Mock).mockReturnValue(true);
+        (settings.get as any).mockReturnValue(true);
 
         spectator.component.bookResource({
             id: 'desk-123',
@@ -75,7 +75,7 @@ describe('LandingFavouritesNewComponent', () => {
         const router = spectator.inject(Router);
         const settings = spectator.inject(SettingsService);
         const booking_form = spectator.inject(BookingFormService);
-        (settings.get as jest.Mock).mockReturnValue(true);
+        (settings.get as any).mockReturnValue(true);
         const parking = {
             id: 'park-123',
             name: 'Parking 123',

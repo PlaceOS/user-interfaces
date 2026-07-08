@@ -1,20 +1,20 @@
-import { signal } from '@angular/core';
+import { Injector, signal } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
-    notifyError,
     OrganisationService,
+    setNotifyOutlet,
     settingSignal,
     SettingsService,
 } from '@placeos/common';
-import { EventFormService, SpacesService } from '@placeos/events';
+import {
+    EventFormService,
+    generateEventForm,
+    SpacesService,
+} from '@placeos/events';
 import { MockProvider } from 'ng-mocks';
 import { MeetingFlowSpaceSelectComponent } from '../../../app/book/meeting-flow-new/meeting-flow-space-select.component';
-
-jest.mock('@placeos/common', () => ({
-    ...jest.requireActual('@placeos/common'),
-    notifyError: jest.fn(),
-}));
 
 describe('MeetingFlowSpaceSelectComponent', () => {
     let spectator: Spectator<MeetingFlowSpaceSelectComponent>;
@@ -23,11 +23,17 @@ describe('MeetingFlowSpaceSelectComponent', () => {
     let filters: ReturnType<typeof signal<any>>;
     let spaces: ReturnType<typeof signal<any[]>>;
     let available_spaces: ReturnType<typeof signal<any[]>>;
-    let set_options: jest.Mock;
-    let set_filters: jest.Mock;
-    let navigate: jest.Mock;
-    let settings_get: jest.Mock;
+    let set_options: any;
+    let set_filters: any;
+    let navigate: any;
+    let settings_get: any;
     let org: any;
+    const snackbar = {
+        open: vi.fn(() => ({
+            dismiss: vi.fn(),
+            onAction: () => ({ subscribe: vi.fn() }),
+        })),
+    };
 
     const level_1 = {
         id: 'level-1',
@@ -57,30 +63,39 @@ describe('MeetingFlowSpaceSelectComponent', () => {
         providers: [
             {
                 provide: EventFormService,
-                useFactory: () => ({
-                    model,
-                    form: {},
-                    options,
-                    filters,
-                    spaces,
-                    available_spaces,
-                    loading: signal(false),
-                    room_alerts: signal({}),
-                    setOptions: (set_options = jest.fn()),
-                    setFilters: (set_filters = jest.fn()),
-                }),
+                useFactory: () => {
+                    const injector = TestBed.inject(Injector);
+                    const refs = TestBed.runInInjectionContext(() =>
+                        generateEventForm(undefined, undefined, injector),
+                    );
+                    refs.model.set({ ...refs.model(), ...model() });
+                    model = refs.model as any;
+                    return {
+                        model,
+                        form: refs.form,
+                        options,
+                        filters,
+                        spaces,
+                        available_spaces,
+                        loading: signal(false),
+                        room_alerts: signal({}),
+                        setOptions: (set_options = vi.fn()),
+                        setFilters: (set_filters = vi.fn()),
+                    };
+                },
             },
             MockProvider(OrganisationService, {
                 active_building: signal({ id: 'bld-1' }) as any,
                 active_buildings: signal([{ id: 'bld-1' }]) as any,
+                buildings: [{ id: 'bld-1' }] as any,
                 active_region: signal(null) as any,
                 region_list: signal([]) as any,
-                levelsForBuilding: jest.fn(() => [
+                levelsForBuilding: vi.fn(() => [
                     level_1,
                     level_2,
                     parking_level,
                 ]),
-                levelsForRegion: jest.fn(() => []),
+                levelsForRegion: vi.fn(() => []),
                 get building() {
                     return { id: 'bld-1', timezone: '' };
                 },
@@ -91,18 +106,19 @@ describe('MeetingFlowSpaceSelectComponent', () => {
                 set region(_v) {},
             } as any),
             MockProvider(SettingsService, {
-                get: (settings_get = jest.fn(() => false)),
+                get: (settings_get = vi.fn(() => false)),
             } as any),
             MockProvider(SpacesService, {
                 features: signal(['whiteboard']) as any,
             } as any),
-            MockProvider(Router, { navigate: (navigate = jest.fn()) }),
+            MockProvider(Router, { navigate: (navigate = vi.fn()) } as any),
             MockProvider(ActivatedRoute, {}),
         ],
     });
 
     beforeEach(() => {
-        (notifyError as jest.Mock).mockClear();
+        snackbar.open.mockClear();
+        setNotifyOutlet(snackbar as any, true);
         model = signal({
             date: Date.now(),
             duration: 60,
@@ -219,14 +235,14 @@ describe('MeetingFlowSpaceSelectComponent', () => {
     it('should block continuing without a selected space', () => {
         model.set({ resources: [] });
         spectator.component.continue();
-        expect(notifyError).toHaveBeenCalled();
+        expect(snackbar.open).toHaveBeenCalled();
         expect(navigate).not.toHaveBeenCalled();
     });
 
     it('should navigate to the confirm step once a space is selected', () => {
         model.set({ resources: [{ id: 'space-1' }] });
         spectator.component.continue();
-        expect(notifyError).not.toHaveBeenCalled();
+        expect(snackbar.open).not.toHaveBeenCalled();
         expect(navigate).toHaveBeenCalledWith(
             [],
             expect.objectContaining({ queryParams: { view: 2 } }),
@@ -234,8 +250,8 @@ describe('MeetingFlowSpaceSelectComponent', () => {
     });
 
     it('should assign the active building and region through setters', () => {
-        const building_spy = jest.spyOn(org, 'building', 'set');
-        const region_spy = jest.spyOn(org, 'region', 'set');
+        const building_spy = vi.spyOn(org, 'building', 'set');
+        const region_spy = vi.spyOn(org, 'region', 'set');
         spectator.component.setBuilding({ id: 'bld-2' });
         spectator.component.setRegion({ id: 'reg-1' });
         expect(building_spy).toHaveBeenCalledWith({ id: 'bld-2' });

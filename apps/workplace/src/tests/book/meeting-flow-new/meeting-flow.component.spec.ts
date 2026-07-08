@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
-import { notifyError } from '@placeos/common';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import { setNotifyOutlet } from '@placeos/common';
 import { mockComponent } from '@placeos/common/tests';
 import { EventFormService } from '@placeos/events';
 import { MeetingFlowNewComponent } from '../../../app/book/meeting-flow-new/meeting-flow.component';
@@ -10,15 +10,16 @@ import { MeetingFlowOptionsComponent } from '../../../app/book/meeting-flow-new/
 import { MeetingFlowSpaceSelectComponent } from '../../../app/book/meeting-flow-new/meeting-flow-space-select.component';
 import { MeetingFlowSuccessComponent } from '../../../app/book/meeting-flow/meeting-flow-success.component';
 
-jest.mock('@placeos/common', () => ({
-    ...jest.requireActual('@placeos/common'),
-    notifyError: jest.fn(),
-}));
-
 describe('MeetingFlowNewComponent', () => {
     let spectator: SpectatorRouting<MeetingFlowNewComponent>;
     let flow_view: ReturnType<typeof signal<string>>;
     let model: ReturnType<typeof signal<any>>;
+    const snackbar = {
+        open: vi.fn(() => ({
+            dismiss: vi.fn(),
+            onAction: () => ({ subscribe: vi.fn() }),
+        })),
+    };
 
     const createComponent = createRoutingFactory({
         component: MeetingFlowNewComponent,
@@ -34,19 +35,20 @@ describe('MeetingFlowNewComponent', () => {
                 useFactory: () => ({
                     view: flow_view,
                     model,
-                    loadForm: jest.fn(),
-                    setView: jest.fn(),
+                    loadForm: vi.fn(),
+                    setView: vi.fn(),
                 }),
             },
         ],
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
+        setNotifyOutlet(snackbar as any, true);
         flow_view = signal('form');
         model = signal({ title: 'Weekly Sync', resources: [] });
         spectator = createComponent();
-        jest.spyOn(spectator.inject(Router), 'navigate').mockResolvedValue(
+        vi.spyOn(spectator.inject(Router), 'navigate').mockResolvedValue(
             true,
         );
     });
@@ -82,13 +84,13 @@ describe('MeetingFlowNewComponent', () => {
     it('should block navigating to room selection without a title', () => {
         model.set({ title: '   ', resources: [] });
         spectator.component.navigateToView(1);
-        expect(notifyError).toHaveBeenCalled();
+        expect(snackbar.open).toHaveBeenCalled();
         expect(spectator.inject(Router).navigate).not.toHaveBeenCalled();
     });
 
     it('should allow navigating to room selection when a title is set', () => {
         spectator.component.navigateToView(1);
-        expect(notifyError).not.toHaveBeenCalled();
+        expect(snackbar.open).not.toHaveBeenCalled();
         expect(spectator.inject(Router).navigate).toHaveBeenCalledWith(
             [],
             expect.objectContaining({ queryParams: { view: 1 } }),
@@ -97,14 +99,14 @@ describe('MeetingFlowNewComponent', () => {
 
     it('should block navigating to confirm without a selected space', () => {
         spectator.component.navigateToView(2);
-        expect(notifyError).toHaveBeenCalled();
+        expect(snackbar.open).toHaveBeenCalled();
         expect(spectator.inject(Router).navigate).not.toHaveBeenCalled();
     });
 
     it('should allow navigating to confirm once a space is selected', () => {
         model.set({ title: 'Sync', resources: [{ id: 'space-1' }] });
         spectator.component.navigateToView(2);
-        expect(notifyError).not.toHaveBeenCalled();
+        expect(snackbar.open).not.toHaveBeenCalled();
         expect(spectator.inject(Router).navigate).toHaveBeenCalledWith(
             [],
             expect.objectContaining({ queryParams: { view: 2 } }),

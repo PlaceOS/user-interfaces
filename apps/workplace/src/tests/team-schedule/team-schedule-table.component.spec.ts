@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
 import { TeamMember } from '../../app/team-schedule/common';
 import { TeamScheduleTableComponent } from '../../app/team-schedule/team-schedule-table.component';
@@ -21,19 +21,19 @@ describe('TeamScheduleTableComponent', () => {
         { date: 1000, is_today: false },
         { date: 2000, is_today: true },
     ]);
-    const toggle_selection = jest.fn();
-    const is_selected = jest.fn(() => false);
-    const toggle_favorite = jest.fn();
-    const get_style = jest.fn(() => ({ icon: 'home' }) as any);
+    const toggle_selection = vi.fn();
+    const is_selected = vi.fn(() => false);
+    const toggle_favorite = vi.fn();
+    const get_style = vi.fn(() => ({ icon: 'home' }) as any);
 
     const component_instance = {
-        show_close: { set: jest.fn() },
-        date: { set: jest.fn() },
-        nearby_desk_id: { set: jest.fn() },
-        level_id: { set: jest.fn() },
-        duration: { set: jest.fn() },
+        show_close: { set: vi.fn() },
+        date: { set: vi.fn() },
+        nearby_desk_id: { set: vi.fn() },
+        level_id: { set: vi.fn() },
+        duration: { set: vi.fn() },
     };
-    const dialog_open = jest.fn(() => ({ componentInstance: component_instance }));
+    const dialog_open = vi.fn(() => ({ componentInstance: component_instance }));
 
     const createComponent = createComponentFactory({
         component: TeamScheduleTableComponent,
@@ -56,7 +56,7 @@ describe('TeamScheduleTableComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         spectator = createComponent();
     });
 

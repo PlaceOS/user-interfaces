@@ -1,16 +1,10 @@
-jest.mock('@placeos/common', () => ({
-    ...jest.requireActual('@placeos/common'),
-    currentUser: jest.fn(() => ({ id: 'me', email: 'me@example.com' })),
-    settingSignal: jest.fn(() => () => []),
-}));
-
 import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
 import { BookingFormService } from '@placeos/bookings';
-import { currentUser } from '@placeos/common';
+import { setCurrentUser } from '@placeos/common';
 import { TeamQuickActionsComponent } from '../../app/team-schedule/team-quick-actions.component';
 import { TeamScheduleService } from '../../app/team-schedule/team-schedule.service';
 
@@ -18,17 +12,17 @@ describe('TeamQuickActionsComponent', () => {
     let spectator: Spectator<TeamQuickActionsComponent>;
     const select_mode = signal(false);
     const selected_count = signal(0);
-    const set_options = jest.fn();
-    const navigate = jest.fn();
-    const clear_selection = jest.fn();
-    const toggle_select_mode = jest.fn(() => select_mode.set(!select_mode()));
-    const selected_members = jest.fn(() => [] as any[]);
-    const get_team_members = jest.fn(() => [] as any[]);
+    const set_options = vi.fn();
+    const navigate = vi.fn();
+    const clear_selection = vi.fn();
+    const toggle_select_mode = vi.fn(() => select_mode.set(!select_mode()));
+    const selected_members = vi.fn(() => [] as any[]);
+    const get_team_members = vi.fn(() => [] as any[]);
 
     const createComponent = createComponentFactory({
         component: TeamQuickActionsComponent,
         providers: [
-            MockProvider(MatDialog, { open: jest.fn() }),
+            MockProvider(MatDialog, { open: vi.fn() }),
             MockProvider(Router, { navigate } as any),
             MockProvider(BookingFormService, { setOptions: set_options } as any),
             MockProvider(TeamScheduleService, {
@@ -44,8 +38,6 @@ describe('TeamQuickActionsComponent', () => {
     });
 
     beforeEach(() => {
-        // NOTE: jest.clearAllMocks() wipes the module-factory implementation of
-        // currentUser here, so clear the individual spies instead.
         [
             set_options,
             navigate,
@@ -54,10 +46,10 @@ describe('TeamQuickActionsComponent', () => {
             selected_members,
             get_team_members,
         ].forEach((fn) => fn.mockClear());
-        (currentUser as jest.Mock).mockImplementation(() => ({
+        setCurrentUser({
             id: 'me',
             email: 'me@example.com',
-        }));
+        } as any);
         selected_members.mockReturnValue([]);
         get_team_members.mockReturnValue([]);
         select_mode.set(false);
@@ -117,10 +109,10 @@ describe('TeamQuickActionsComponent', () => {
     });
 
     it('should not duplicate the current user if already in the group', () => {
-        (currentUser as jest.Mock).mockReturnValue({
+        setCurrentUser({
             id: 'me',
             email: 'me@example.com',
-        });
+        } as any);
         get_team_members.mockReturnValue([
             { user: { email: 'me@example.com', name: 'Me' } } as any,
         ]);

@@ -1,18 +1,24 @@
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { Component } from '@angular/core';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { ChatViewComponent } from '../../app/landing-new/chat-view.component';
+
+@Component({ template: '' })
+class BlankRouteComponent {}
 
 describe('ChatViewComponent', () => {
     let spectator: SpectatorRouting<ChatViewComponent>;
-    const bottom_ref = { dismiss: jest.fn() };
+    const bottom_ref = { dismiss: vi.fn() };
     const createComponent = createRoutingFactory({
         component: ChatViewComponent,
         stubsEnabled: false,
+        declarations: [BlankRouteComponent],
+        routes: [{ path: '**', component: BlankRouteComponent }],
         providers: [{ provide: MatBottomSheetRef, useValue: bottom_ref }],
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         spectator = createComponent();
     });
 

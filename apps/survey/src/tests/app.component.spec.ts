@@ -76,6 +76,7 @@ describe('AppComponent', () => {
         vi.clearAllMocks();
         listens.length = 0;
         localStorage.clear();
+        vi.mocked(ts_client.setAPI_Key).mockReturnValue(undefined as any);
         spectator = create_component();
     });
 

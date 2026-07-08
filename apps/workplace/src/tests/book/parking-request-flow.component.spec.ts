@@ -1,6 +1,6 @@
 import { signal, WritableSignal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { BookingFormService, ParkingService } from '@placeos/bookings';
 import { MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
@@ -12,11 +12,11 @@ describe('ParkingRequestFlowComponent', () => {
     let model: WritableSignal<any>;
     let view: WritableSignal<string>;
     let is_home_location: WritableSignal<boolean>;
-    let load_bookings: jest.Mock;
-    let load_form: jest.Mock;
-    let new_form: jest.Mock;
-    let set_view: jest.Mock;
-    let set_options: jest.Mock;
+    let load_bookings: any;
+    let load_form: any;
+    let new_form: any;
+    let set_view: any;
+    let set_options: any;
     let param_map: any;
     let query_param_map: any;
 
@@ -55,15 +55,15 @@ describe('ParkingRequestFlowComponent', () => {
     }
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         model = signal<any>({ id: '', booking_type: '' });
         view = signal('form');
         is_home_location = signal(false);
-        load_bookings = jest.fn();
-        load_form = jest.fn();
-        new_form = jest.fn();
-        set_view = jest.fn();
-        set_options = jest.fn();
+        load_bookings = vi.fn();
+        load_form = vi.fn();
+        new_form = vi.fn();
+        set_view = vi.fn();
+        set_options = vi.fn();
         param_map = { has: () => false, get: () => null };
         query_param_map = { has: () => false, get: () => null };
     });

@@ -1,4 +1,4 @@
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
+import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
 import {
     addDays,
@@ -8,25 +8,15 @@ import {
     subWeeks,
 } from 'date-fns';
 
-jest.mock('@placeos/bookings', () => ({
-    ...jest.requireActual('@placeos/bookings'),
-    queryBookings: jest.fn(() => Promise.resolve([])),
-}));
+vi.mock('@placeos/ts-client', { spy: true });
 
-jest.mock('@placeos/ts-client', () => ({
-    ...jest.requireActual('@placeos/ts-client'),
-    showMetadata: jest.fn(() => Promise.resolve({ details: [] })),
-    showUser: jest.fn((email: string) => Promise.resolve({ email })),
-}));
-
-jest.mock('@placeos/common', () => ({
-    ...jest.requireActual('@placeos/common'),
-    currentUser: jest.fn(() => ({ id: 'me', email: 'me@example.com' })),
-}));
-
-import { queryBookings } from '@placeos/bookings';
-import { OrganisationService, SettingsService, StaffUser } from '@placeos/common';
-import { showMetadata, showUser } from '@placeos/ts-client';
+import {
+    OrganisationService,
+    setCurrentUser,
+    SettingsService,
+    StaffUser,
+} from '@placeos/common';
+import { get, showMetadata, showUser } from '@placeos/ts-client';
 import { TeamScheduleService } from '../../app/team-schedule/team-schedule.service';
 import { TeamMember } from '../../app/team-schedule/common';
 
@@ -51,7 +41,7 @@ describe('TeamScheduleService', () => {
     let spectator: SpectatorService<TeamScheduleService>;
     let service: TeamScheduleService;
     let settings_store: Record<string, any>;
-    const save_setting = jest.fn(
+    const save_setting = vi.fn(
         (key: string, value: any) => (settings_store[key] = value),
     );
 
@@ -59,7 +49,7 @@ describe('TeamScheduleService', () => {
         service: TeamScheduleService,
         providers: [
             MockProvider(OrganisationService, {
-                waitUntilInitialised: jest.fn(() => Promise.resolve()),
+                waitUntilInitialised: vi.fn(() => Promise.resolve()),
                 building: null,
                 buildings: [
                     {
@@ -71,20 +61,21 @@ describe('TeamScheduleService', () => {
                 levels: [{ id: 'zone-lvl' }],
             } as any),
             MockProvider(SettingsService, {
-                get: jest.fn((key: string) => settings_store[key]),
+                get: vi.fn((key: string) => settings_store[key]),
                 saveUserSetting: save_setting,
             } as any),
         ],
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         settings_store = {};
-        (showMetadata as jest.Mock).mockResolvedValue({ details: [] });
-        (showUser as jest.Mock).mockImplementation((email: string) =>
+        setCurrentUser({ id: 'me', email: 'me@example.com' } as any);
+        (showMetadata as any).mockResolvedValue({ details: [] });
+        (showUser as any).mockImplementation((email: string) =>
             Promise.resolve({ email }),
         );
-        (queryBookings as jest.Mock).mockResolvedValue([]);
+        vi.mocked(get).mockResolvedValue([] as any);
         spectator = createService();
         service = spectator.service;
     });
@@ -396,8 +387,8 @@ describe('TeamScheduleService', () => {
         });
 
         it('should toggle favourites based on current state', () => {
-            const add_spy = jest.spyOn(service, 'addFavorite');
-            const remove_spy = jest.spyOn(service, 'removeFavorite');
+            const add_spy = vi.spyOn(service, 'addFavorite');
+            const remove_spy = vi.spyOn(service, 'removeFavorite');
             service.toggleFavoriteByUser(user);
             expect(add_spy).toHaveBeenCalled();
             (service as any)._favorite_ids.set(new Set(['fav@example.com']));
@@ -406,8 +397,8 @@ describe('TeamScheduleService', () => {
         });
 
         it('should toggle a member favourite using is_favorite flag', () => {
-            const add_spy = jest.spyOn(service, 'addFavorite');
-            const remove_spy = jest.spyOn(service, 'removeFavorite');
+            const add_spy = vi.spyOn(service, 'addFavorite');
+            const remove_spy = vi.spyOn(service, 'removeFavorite');
             service.toggleFavorite(makeMember({ is_favorite: false }));
             expect(add_spy).toHaveBeenCalled();
             service.toggleFavorite(makeMember({ is_favorite: true }));
@@ -415,8 +406,8 @@ describe('TeamScheduleService', () => {
         });
 
         it('should toggle team membership using is_my_team flag', () => {
-            const add_spy = jest.spyOn(service, 'addTeamMember');
-            const remove_spy = jest.spyOn(service, 'removeTeamMember');
+            const add_spy = vi.spyOn(service, 'addTeamMember');
+            const remove_spy = vi.spyOn(service, 'removeTeamMember');
             service.toggleTeamMember(makeMember({ is_my_team: false }));
             expect(add_spy).toHaveBeenCalled();
             service.toggleTeamMember(makeMember({ is_my_team: true }));
@@ -471,11 +462,11 @@ describe('TeamScheduleService', () => {
         });
 
         const setupColleagues = (users: any[]) => {
-            (showMetadata as jest.Mock).mockResolvedValue({
+            (showMetadata as any).mockResolvedValue({
                 details: users.map((u) => ({ email: u.email })),
             });
             const by_email = new Map(users.map((u) => [u.email, u]));
-            (showUser as jest.Mock).mockImplementation((email: string) =>
+            (showUser as any).mockImplementation((email: string) =>
                 Promise.resolve(by_email.get(email) || { email }),
             );
         };
@@ -574,7 +565,7 @@ describe('TeamScheduleService', () => {
                     })),
                 },
             ]);
-            (queryBookings as jest.Mock).mockResolvedValue([
+            vi.mocked(get).mockResolvedValue([
                 {
                     date: monday + 9 * 3600 * 1000,
                     duration: 480,
@@ -583,7 +574,7 @@ describe('TeamScheduleService', () => {
                     asset_id: 'desk-42',
                     description: '',
                 },
-            ]);
+            ] as any);
 
             await service.refresh();
             await wait();

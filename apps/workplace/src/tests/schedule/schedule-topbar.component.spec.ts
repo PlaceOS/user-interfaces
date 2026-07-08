@@ -1,7 +1,7 @@
 import {
     createRoutingFactory,
     SpectatorRouting,
-} from '@ngneat/spectator/jest';
+} from '@ngneat/spectator/vitest';
 import { SettingsService } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { DateRangeCalendarComponent } from '@placeos/form-fields';
@@ -11,7 +11,7 @@ import { ScheduleTopbarComponent } from '../../app/schedule/schedule-topbar.comp
 
 describe('ScheduleTopbarComponent', () => {
     let spectator: SpectatorRouting<ScheduleTopbarComponent>;
-    const settings_get = jest.fn();
+    const settings_get = vi.fn();
 
     const fixed_day = startOfDay(new Date('2026-05-14T00:00:00')).valueOf();
 
@@ -26,7 +26,7 @@ describe('ScheduleTopbarComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         spectator = createComponent({ props: { date: fixed_day } });
     });
 

@@ -1,42 +1,35 @@
-import { signal } from '@angular/core';
+import { Injector, signal } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { CateringOrderStateService } from '@placeos/catering';
 import {
-    currentUser,
-    notifyError,
-    notifySuccess,
     OrganisationService,
+    setCurrentUser,
+    setNotifyOutlet,
     settingSignal,
     SettingsService,
 } from '@placeos/common';
-import { openConfirmModal } from '@placeos/components';
-import { EventFormService } from '@placeos/events';
+import { EventFormService, generateEventForm } from '@placeos/events';
 import { MockProvider } from 'ng-mocks';
-import { of } from 'rxjs';
+import { NEVER, of } from 'rxjs';
 import { MeetingFlowOptionsComponent } from '../../../app/book/meeting-flow-new/meeting-flow-options.component';
-
-jest.mock('@placeos/common', () => ({
-    ...jest.requireActual('@placeos/common'),
-    notifyError: jest.fn(),
-    notifySuccess: jest.fn(),
-    currentUser: jest.fn(() => ({ email: 'me@example.com' })),
-}));
-
-jest.mock('@placeos/components', () => ({
-    ...jest.requireActual('@placeos/components'),
-    openConfirmModal: jest.fn(),
-}));
 
 describe('MeetingFlowOptionsComponent', () => {
     let spectator: Spectator<MeetingFlowOptionsComponent>;
     let model: ReturnType<typeof signal<any>>;
     let available_menu: ReturnType<typeof signal<any[]>>;
     let charge_codes: ReturnType<typeof signal<string[]>>;
-    let post_form: jest.Mock;
-    let navigate: jest.Mock;
-    let dialog_open: jest.Mock;
+    let post_form: any;
+    let navigate: any;
+    let dialog_open: any;
+    const snackbar = {
+        open: vi.fn(() => ({
+            dismiss: vi.fn(),
+            onAction: () => ({ subscribe: vi.fn() }),
+        })),
+    };
 
     const createComponent = createComponentFactory({
         component: MeetingFlowOptionsComponent,
@@ -44,11 +37,19 @@ describe('MeetingFlowOptionsComponent', () => {
         providers: [
             {
                 provide: EventFormService,
-                useFactory: () => ({
-                    model,
-                    form: {},
-                    postForm: (post_form = jest.fn(() => Promise.resolve())),
-                }),
+                useFactory: () => {
+                    const injector = TestBed.inject(Injector);
+                    const refs = TestBed.runInInjectionContext(() =>
+                        generateEventForm(undefined, undefined, injector),
+                    );
+                    refs.model.set({ ...refs.model(), ...model() });
+                    model = refs.model as any;
+                    return {
+                        model,
+                        form: refs.form,
+                        postForm: (post_form = vi.fn(() => Promise.resolve())),
+                    };
+                },
             },
             {
                 provide: CateringOrderStateService,
@@ -58,11 +59,11 @@ describe('MeetingFlowOptionsComponent', () => {
                 }),
             },
             MockProvider(SettingsService, {
-                get: jest.fn(() => false),
+                get: vi.fn(() => false),
                 time_format: 'h:mm a',
             } as any),
             MockProvider(OrganisationService, {
-                levelWithID: jest.fn((ids: string[]) =>
+                levelWithID: vi.fn((ids: string[]) =>
                     ids?.includes('level-1')
                         ? { id: 'level-1', display_name: 'Level 1' }
                         : null,
@@ -74,12 +75,14 @@ describe('MeetingFlowOptionsComponent', () => {
                     return { timezone: 'Australia/Sydney' };
                 },
             } as any),
-            MockProvider(Router, { navigate: (navigate = jest.fn()) }),
+            MockProvider(Router, { navigate: (navigate = vi.fn()) } as any),
         ],
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
+        setCurrentUser({ email: 'me@example.com' } as any);
+        setNotifyOutlet(snackbar as any, true);
         model = signal({
             title: 'Sync',
             host: 'host@example.com',
@@ -97,7 +100,7 @@ describe('MeetingFlowOptionsComponent', () => {
         spectator = createComponent();
         // A component-imported dialog module provides a real MatDialog that
         // shadows a root mock, so spy on the actual injected instance.
-        dialog_open = jest
+        dialog_open = vi
             .spyOn(
                 spectator.fixture.componentRef.injector.get(MatDialog),
                 'open',
@@ -156,20 +159,34 @@ describe('MeetingFlowOptionsComponent', () => {
             recurrence: { pattern: 'daily' },
         }));
         await spectator.component.confirmBooking();
-        expect(notifyError).toHaveBeenCalled();
+        expect(snackbar.open).toHaveBeenCalled();
         expect(post_form).not.toHaveBeenCalled();
     });
 
     it('should confirm before booking a meeting without a room', async () => {
-        (openConfirmModal as jest.Mock).mockResolvedValue({ reason: 'done' });
+        dialog_open.mockReturnValue({
+            componentInstance: {
+                event: of({ reason: 'done' }),
+                loading: signal(''),
+            },
+            afterClosed: () => of(null),
+            close: vi.fn(),
+        });
         model.update((m) => ({ ...m, resources: [] }));
         await spectator.component.confirmBooking();
-        expect(openConfirmModal).toHaveBeenCalled();
+        expect(dialog_open).toHaveBeenCalled();
         expect(post_form).toHaveBeenCalled();
     });
 
     it('should abort a room-less booking if the confirmation is dismissed', async () => {
-        (openConfirmModal as jest.Mock).mockResolvedValue({ reason: 'cancel' });
+        dialog_open.mockReturnValue({
+            componentInstance: {
+                event: NEVER,
+                loading: signal(''),
+            },
+            afterClosed: () => of({ reason: 'cancel' }),
+            close: vi.fn(),
+        });
         model.update((m) => ({ ...m, resources: [] }));
         await spectator.component.confirmBooking();
         expect(post_form).not.toHaveBeenCalled();
@@ -179,14 +196,18 @@ describe('MeetingFlowOptionsComponent', () => {
         await spectator.component.confirmBooking();
         expect(post_form).toHaveBeenCalled();
         expect(navigate).toHaveBeenCalledWith(['/book', 'meeting', 'success']);
-        expect(notifySuccess).toHaveBeenCalled();
+        expect(snackbar.open).toHaveBeenCalled();
         expect(spectator.component.loading()).toBe(false);
     });
 
     it('should surface an error and reset loading when posting fails', async () => {
         post_form.mockRejectedValue('boom');
         await expect(spectator.component.confirmBooking()).rejects.toBeDefined();
-        expect(notifyError).toHaveBeenCalledWith('boom');
+        expect(snackbar.open).toHaveBeenCalledWith(
+            'boom',
+            'OK',
+            expect.objectContaining({ panelClass: ['error'] }),
+        );
         expect(navigate).not.toHaveBeenCalled();
         expect(spectator.component.loading()).toBe(false);
     });

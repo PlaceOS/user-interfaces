@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { SETTING_KEYS, settingSignal, SettingsService } from '@placeos/common';
 import { LevelPipe } from '@placeos/components';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
@@ -13,7 +13,7 @@ describe('MeetingFlowSpaceListComponent', () => {
     let loading: ReturnType<typeof signal<boolean>>;
     let available_spaces: ReturnType<typeof signal<any[]>>;
     let room_alerts: ReturnType<typeof signal<Record<string, any>>>;
-    let save_user_setting: jest.Mock;
+    let save_user_setting: any;
 
     const makeSpaces = (count: number) =>
         Array.from({ length: count }, (_, i) => ({
@@ -39,7 +39,7 @@ describe('MeetingFlowSpaceListComponent', () => {
                         imports: [
                             MockPipe(LevelPipe, () => ({
                                 display_name: 'Level 1',
-                            })) as any,
+                            }) as any) as any,
                             mockDirective(AuthenticatedImageDirective as any),
                         ],
                     },
@@ -56,13 +56,13 @@ describe('MeetingFlowSpaceListComponent', () => {
                 }),
             },
             MockProvider(SettingsService, {
-                saveUserSetting: (save_user_setting = jest.fn()),
+                saveUserSetting: (save_user_setting = vi.fn()),
             } as any),
         ],
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         loading = signal(false);
         available_spaces = signal(makeSpaces(3));
         room_alerts = signal({});

@@ -1,4 +1,4 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { mockComponent } from '@placeos/common/tests';
 import { MockProvider } from 'ng-mocks';
 import { Subscription } from 'rxjs';
@@ -16,7 +16,7 @@ import { LandingUpcomingBookingComponent } from '../../app/landing-new/landing-u
 
 describe('LandingNewComponent', () => {
     let spectator: Spectator<LandingNewComponent>;
-    const poll_upcoming_events = jest.fn(() => new Subscription());
+    const poll_upcoming_events = vi.fn(() => new Subscription());
     const createComponent = createComponentFactory({
         component: LandingNewComponent,
         declarations: [
@@ -38,7 +38,7 @@ describe('LandingNewComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         spectator = createComponent();
     });
 
@@ -70,7 +70,7 @@ describe('LandingNewComponent', () => {
     });
 
     it('should stop polling when destroyed', () => {
-        const unsub_spy = jest.fn();
+        const unsub_spy = vi.fn();
         poll_upcoming_events.mockReturnValueOnce({
             unsubscribe: unsub_spy,
         } as any);

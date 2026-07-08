@@ -9,6 +9,14 @@ global.TextEncoder = TextEncoder;
 global.TextDecoder = TextDecoder as any;
 installTestStorage();
 
+if (!Element.prototype.scrollTo) {
+    Element.prototype.scrollTo = vi.fn();
+}
+
+if (!Element.prototype.scrollIntoView) {
+    Element.prototype.scrollIntoView = vi.fn();
+}
+
 // Under the zoneless unit-test builder, `fixture.detectChanges()` only
 // refreshes views that were explicitly marked dirty. Plain host-property
 // changes (`setHostInput`), overridden getters and reassigned signals do not

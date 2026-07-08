@@ -1,7 +1,7 @@
 import { Injector, signal, WritableSignal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
     BookingForm,
     BookingFormValue,
@@ -25,13 +25,13 @@ describe('DeskFlowDetailsComponent', () => {
     let form: BookingForm;
     let model: WritableSignal<BookingFormValue>;
     let options: WritableSignal<any>;
-    let set_options: jest.Mock;
-    let dialog_open: jest.Mock;
+    let set_options: any;
+    let dialog_open: any;
     let after_closed_value: any;
     let dialog_instance: {
-        date: jest.Mock;
-        duration: jest.Mock;
-        users: jest.Mock;
+        date: any;
+        duration: any;
+        users: any;
     };
 
     const createComponent = createComponentFactory({
@@ -57,7 +57,7 @@ describe('DeskFlowDetailsComponent', () => {
                         attendees: [],
                     }));
                     options = signal<any>({ type: 'desk' });
-                    set_options = jest.fn((update: any) =>
+                    set_options = vi.fn((update: any) =>
                         options.update((o) => ({ ...o, ...update })),
                     );
                     return {
@@ -72,25 +72,25 @@ describe('DeskFlowDetailsComponent', () => {
                 building: { id: 'bld-1', timezone: 'Australia/Sydney' },
             } as any),
             MockProvider(SettingsService, {
-                get: jest.fn(() => false),
-            }),
+                get: vi.fn(() => false),
+            } as any),
             MockProvider(MatDialog, {} as any),
         ],
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         after_closed_value = null;
         dialog_instance = {
-            date: jest.fn(() => 5000),
-            duration: jest.fn(() => 45),
-            users: jest.fn(() => [{ email: 'user@a.com' }]),
+            date: vi.fn(() => 5000),
+            duration: vi.fn(() => 45),
+            users: vi.fn(() => [{ email: 'user@a.com' }]),
         };
         const dialog_ref = {
             componentInstance: dialog_instance,
-            afterClosed: jest.fn(() => of(after_closed_value)),
+            afterClosed: vi.fn(() => of(after_closed_value)),
         };
-        dialog_open = jest.fn(() => dialog_ref);
+        dialog_open = vi.fn(() => dialog_ref);
         spectator = createComponent({
             providers: [
                 { provide: MatDialog, useValue: { open: dialog_open } },
@@ -219,13 +219,13 @@ describe('DeskFlowDetailsComponent', () => {
 
     it('should use the building timezone only when the building-timezone setting is enabled', () => {
         const settings = spectator.inject(SettingsService);
-        (settings.get as jest.Mock).mockImplementation(
+        (settings.get as any).mockImplementation(
             (key: string) => key === 'app.desks.use_building_timezone',
         );
 
         expect(spectator.component.timezone).toBe('Australia/Sydney');
 
-        (settings.get as jest.Mock).mockReturnValue(false);
+        (settings.get as any).mockReturnValue(false);
         expect(spectator.component.timezone).toBe('');
     });
 });

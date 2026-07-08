@@ -51,8 +51,8 @@ describe('LandingUpcomingComponent', () => {
     it('should not patch resources when editing visitor bookings', () => {
         vi.useFakeTimers();
         const booking_form = spectator.inject(BookingFormService);
-        (booking_form.newForm as jest.Mock).mockClear();
-        (booking_form.model.update as jest.Mock).mockClear();
+        (booking_form.newForm as any).mockClear();
+        (booking_form.model.update as any).mockClear();
         const booking = new Booking({
             booking_type: 'visitor',
             type: 'visitor',
@@ -69,10 +69,10 @@ describe('LandingUpcomingComponent', () => {
     });
 
     it('should not patch resources when editing visitor bookings with only type set', () => {
-        jest.useFakeTimers();
+        vi.useFakeTimers();
         const booking_form = spectator.inject(BookingFormService);
-        (booking_form.newForm as jest.Mock).mockClear();
-        (booking_form.model.update as jest.Mock).mockClear();
+        (booking_form.newForm as any).mockClear();
+        (booking_form.model.update as any).mockClear();
         const booking = new Booking({
             booking_type: ' ',
             type: 'visitor',
@@ -81,14 +81,14 @@ describe('LandingUpcomingComponent', () => {
         } as any);
 
         spectator.component.editBooking(booking);
-        jest.runAllTimers();
+        vi.runAllTimers();
 
         expect(booking_form.newForm).toHaveBeenLastCalledWith(
             'visitor',
             expect.objectContaining({ type: 'visitor' }),
         );
         expect(booking_form.model.update).not.toHaveBeenCalled();
-        jest.useRealTimers();
+        vi.useRealTimers();
     });
 
     it('should show a prompt when the upcoming list is truncated', () => {

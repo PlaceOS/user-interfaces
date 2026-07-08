@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
     OrganisationService,
     settingSignal,
@@ -17,8 +17,8 @@ describe('MeetingFlowSpaceMapComponent', () => {
     let spaces: ReturnType<typeof signal<any[]>>;
     let available_spaces: ReturnType<typeof signal<any[]>>;
     let options: ReturnType<typeof signal<any>>;
-    let set_options: jest.Mock;
-    let settings_get: jest.Mock;
+    let set_options: any;
+    let settings_get: any;
 
     const level_1 = {
         id: 'level-1',
@@ -50,27 +50,27 @@ describe('MeetingFlowSpaceMapComponent', () => {
                     spaces,
                     available_spaces,
                     options,
-                    setOptions: (set_options = jest.fn()),
+                    setOptions: (set_options = vi.fn()),
                 }),
             },
             MockProvider(OrganisationService, {
                 active_region: signal(null) as any,
                 active_building: signal({ id: 'bld-1' }) as any,
-                levelsForRegion: jest.fn(() => [level_1, parking_level]),
-                levelsForBuilding: jest.fn(() => [level_1, parking_level]),
-                levelWithID: jest.fn((zones: string[] = []) =>
+                levelsForRegion: vi.fn(() => [level_1, parking_level]),
+                levelsForBuilding: vi.fn(() => [level_1, parking_level]),
+                levelWithID: vi.fn((zones: string[] = []) =>
                     zones?.includes('level-1') ? level_1 : null,
                 ),
                 buildings: [{ id: 'bld-1', location: '5,6' }] as any,
             } as any),
             MockProvider(SettingsService, {
-                get: (settings_get = jest.fn(() => ({}))),
+                get: (settings_get = vi.fn(() => ({}))),
             } as any),
         ],
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         spaces = signal([
             { id: 'space-1', map_id: 'sp-1', zones: ['level-1'] },
             { id: 'space-2', map_id: 'sp-2', zones: ['level-1'] },

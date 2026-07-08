@@ -297,7 +297,7 @@ describe('DesksStateService', () => {
     });
 
     it('should persist homebase when editing desks', async () => {
-        jest.spyOn(ts_client_mod, 'updateMetadata').mockReturnValue(
+        vi.spyOn(ts_client_mod, 'updateMetadata').mockReturnValue(
             of({}) as any,
         );
         const dialog_ref = {
@@ -313,9 +313,9 @@ describe('DesksStateService', () => {
                 }),
             componentInstance: {
                 event: new EventEmitter<any>(),
-                loading: { set: jest.fn() },
+                loading: { set: vi.fn() },
             },
-            close: jest.fn(),
+            close: vi.fn(),
         };
         (spectator.inject(MatDialog).open as any).mockReturnValue(dialog_ref);
         spectator.service.setFilters({ zones: ['level-1'] });

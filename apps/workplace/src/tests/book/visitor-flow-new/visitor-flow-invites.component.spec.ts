@@ -1,6 +1,6 @@
 import { Injector, signal, WritableSignal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
     BookingForm,
     BookingFormValue,
@@ -19,7 +19,7 @@ describe('VisitorFlowInvitesComponent', () => {
     let form: BookingForm;
     let model: WritableSignal<BookingFormValue>;
     let stored_visitors: string[];
-    let save_user_setting: jest.Mock;
+    let save_user_setting: any;
 
     const createComponent = createComponentFactory({
         component: VisitorFlowInvitesComponent,
@@ -28,7 +28,7 @@ describe('VisitorFlowInvitesComponent', () => {
             {
                 provide: SettingsService,
                 useValue: {
-                    get: jest.fn((key: string) =>
+                    get: vi.fn((key: string) =>
                         key === 'visitor-invitees' ? stored_visitors : undefined,
                     ),
                     saveUserSetting: (...args: any[]) =>
@@ -63,9 +63,9 @@ describe('VisitorFlowInvitesComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         stored_visitors = [];
-        save_user_setting = jest.fn();
+        save_user_setting = vi.fn();
         settingSignal('visitors.allow_pass_number', false).set(false);
         settingSignal('bookings.multiple_visitors', false).set(false);
         spectator = createComponent({ detectChanges: false });

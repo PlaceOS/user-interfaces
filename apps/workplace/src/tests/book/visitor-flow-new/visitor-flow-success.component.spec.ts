@@ -1,4 +1,4 @@
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { Router } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
 import {
@@ -14,7 +14,7 @@ import { VisitorFlowSuccessComponent } from '../../../app/book/visitor-flow-new/
 
 describe('VisitorFlowSuccessComponent', () => {
     let spectator: SpectatorRouting<VisitorFlowSuccessComponent>;
-    let clear_form: jest.Mock;
+    let clear_form: any;
     const buildings = [
         { id: 'bld-1', name: 'HQ', display_name: 'Head Office' },
         { id: 'bld-2', name: 'Annex', display_name: 'The Annex' },
@@ -44,7 +44,7 @@ describe('VisitorFlowSuccessComponent', () => {
             {
                 provide: OrganisationService,
                 useValue: {
-                    waitUntilInitialised: jest.fn(() => Promise.resolve()),
+                    waitUntilInitialised: vi.fn(() => Promise.resolve()),
                     building: buildings[0],
                     buildings,
                 },
@@ -65,8 +65,8 @@ describe('VisitorFlowSuccessComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
-        clear_form = jest.fn();
+        vi.clearAllMocks();
+        clear_form = vi.fn();
         last_success = makeBooking();
         last_count = 3;
         settingSignal('bookings.multiple_visitors', false).set(false);
@@ -139,14 +139,14 @@ describe('VisitorFlowSuccessComponent', () => {
 
     it('navigates home when finishing', () => {
         const router = spectator.inject(Router);
-        const navigate = jest.spyOn(router, 'navigate').mockResolvedValue(true);
+        const navigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);
         spectator.component.done();
         expect(navigate).toHaveBeenCalledWith(['/']);
     });
 
     it('clears the form and restarts the flow when booking another', () => {
         const router = spectator.inject(Router);
-        const navigate = jest.spyOn(router, 'navigate').mockResolvedValue(true);
+        const navigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);
         spectator.component.bookAnother();
         expect(clear_form).toHaveBeenCalled();
         expect(navigate).toHaveBeenCalledWith(['/book/visitor/form']);

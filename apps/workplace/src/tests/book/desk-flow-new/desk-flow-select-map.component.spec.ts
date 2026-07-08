@@ -1,6 +1,6 @@
 import { signal, WritableSignal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { BookingFormService } from '@placeos/bookings';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { InteractiveMapComponent } from '@placeos/components';
@@ -17,8 +17,8 @@ describe('DeskFlowSelectMapComponent', () => {
     let model: WritableSignal<any>;
     let options: WritableSignal<any>;
     let use_region: WritableSignal<boolean>;
-    let set_options: jest.Mock;
-    let settings_get: jest.Mock;
+    let set_options: any;
+    let settings_get: any;
 
     const level_1 = {
         id: 'level-1',
@@ -63,36 +63,36 @@ describe('DeskFlowSelectMapComponent', () => {
                     available_resources,
                     model,
                     options,
-                    setOptions: (set_options = jest.fn()),
+                    setOptions: (set_options = vi.fn()),
                 }),
             },
             MockProvider(OrganisationService, {
                 active_region: signal(null) as any,
                 active_building: signal({ id: 'bld-1' }) as any,
-                levelsForRegion: jest.fn(() => [
+                levelsForRegion: vi.fn(() => [
                     level_1,
                     parking_level,
                     level_2,
                 ]),
-                levelsForBuilding: jest.fn(() => [
+                levelsForBuilding: vi.fn(() => [
                     level_1,
                     parking_level,
                     level_2,
                 ]),
-                levelWithID: jest.fn((zones: string[] = []) =>
+                levelWithID: vi.fn((zones: string[] = []) =>
                     zones?.includes('level-1') ? level_1 : null,
                 ),
                 buildings: [{ id: 'bld-1', location: '5,6' }] as any,
             } as any),
             MockProvider(SettingsService, {
-                get: (settings_get = jest.fn(() => ({}))),
+                get: (settings_get = vi.fn(() => ({}))),
                 signal: ((_key: string, _def: boolean) => use_region) as any,
             } as any),
         ],
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         use_region = signal(false);
         resources = signal<any[]>([desk_1, desk_2]);
         available_resources = signal<any[]>([desk_1]);

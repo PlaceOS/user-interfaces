@@ -1,10 +1,9 @@
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
     BookingDetailsModalComponent,
     BookingFormService,
-    queryBookings,
 } from '@placeos/bookings';
 import {
     Booking,
@@ -20,33 +19,29 @@ import {
     getDay,
     startOfWeek,
 } from 'date-fns';
+import * as ts_client from '@placeos/ts-client';
 import { ScheduleStateService } from '../../app/schedule/schedule-state.service';
 import { LandingDeskWeekComponent } from '../../app/landing-new/landing-desk-week.component';
 
-jest.mock('@placeos/bookings', () => ({
-    ...jest.requireActual('@placeos/bookings'),
-    queryBookings: jest.fn(() => Promise.resolve([])),
-}));
+vi.mock('@placeos/ts-client', { spy: true });
 
-const query_bookings = queryBookings as jest.MockedFunction<
-    typeof queryBookings
->;
+const query_bookings = vi.mocked(ts_client.get) as any;
 
 describe('LandingDeskWeekComponent', () => {
     let spectator: Spectator<LandingDeskWeekComponent>;
-    const dialog = { open: jest.fn() };
-    const router = { navigate: jest.fn() };
-    const booking_form = { newForm: jest.fn() };
+    const dialog = { open: vi.fn() };
+    const router = { navigate: vi.fn() };
+    const booking_form = { newForm: vi.fn() };
     const schedule = {
-        editBooking: jest.fn(),
-        remove: jest.fn(() => Promise.resolve()),
-        end: jest.fn(),
+        editBooking: vi.fn(),
+        remove: vi.fn(() => Promise.resolve()),
+        end: vi.fn(),
     };
     const org = {
-        levelWithID: jest.fn(),
+        levelWithID: vi.fn(),
         buildings: [] as any[],
     };
-    const settings = { signal: jest.fn(() => ({})) };
+    const settings = { signal: vi.fn(() => ({})) };
     const createComponent = createComponentFactory({
         component: LandingDeskWeekComponent,
         detectChanges: false,
@@ -61,7 +56,7 @@ describe('LandingDeskWeekComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         query_bookings.mockResolvedValue([]);
         org.levelWithID.mockReturnValue(null);
         org.buildings = [];
@@ -216,16 +211,16 @@ describe('LandingDeskWeekComponent', () => {
     });
 
     it('should navigate and prepare a new desk form when booking', () => {
-        jest.useFakeTimers();
+        vi.useFakeTimers();
         const date = Date.now();
         spectator.component.bookDesk(date);
         expect(router.navigate).toHaveBeenCalledWith(['/book', 'desk', 'form']);
-        jest.runAllTimers();
+        vi.runAllTimers();
         expect(booking_form.newForm).toHaveBeenCalledWith(
             'desk',
             expect.objectContaining({ booking_type: 'desk', date }),
         );
-        jest.useRealTimers();
+        vi.useRealTimers();
     });
 
     it('should ignore desk bookings beyond the available window', () => {

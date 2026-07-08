@@ -1,4 +1,4 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MatDialog } from '@angular/material/dialog';
 import { settingSignal } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
@@ -9,7 +9,7 @@ import { SidebarEmbedComponent } from '../../app/components/sidebar-embed.compon
 
 describe('VirtualConciergeButtonComponent', () => {
     let spectator: Spectator<VirtualConciergeButtonComponent>;
-    let open: jest.Mock;
+    let open: any;
 
     const createComponent = createComponentFactory({
         component: VirtualConciergeButtonComponent,
@@ -31,7 +31,7 @@ describe('VirtualConciergeButtonComponent', () => {
         setDisplay('fullscreen');
         setSide('left');
         spectator = createComponent();
-        open = jest.fn();
+        open = vi.fn();
         (spectator.inject(MatDialog) as any).open = open;
     });
 

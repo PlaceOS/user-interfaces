@@ -1,5 +1,5 @@
 import { signal, WritableSignal } from '@angular/core';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { BookingFormService } from '@placeos/bookings';
 import { SettingsService } from '@placeos/common';
 import { VisitorFlowRecentComponent } from 'apps/workplace/src/app/book/visitor-flow-new/visitor-flow-recent.component';
@@ -8,7 +8,7 @@ import { MockProvider } from 'ng-mocks';
 describe('VisitorFlowRecentComponent', () => {
     let spectator: SpectatorRouting<VisitorFlowRecentComponent>;
     let model: WritableSignal<any>;
-    let get_setting: jest.Mock;
+    let get_setting: any;
 
     const createComponent = createRoutingFactory({
         component: VisitorFlowRecentComponent,
@@ -44,7 +44,7 @@ describe('VisitorFlowRecentComponent', () => {
     });
 
     beforeEach(() => {
-        get_setting = jest.fn(() => []);
+        get_setting = vi.fn(() => []);
         spectator = createComponent();
     });
 

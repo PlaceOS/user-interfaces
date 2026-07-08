@@ -1,13 +1,13 @@
 import { signal } from '@angular/core';
 import { SettingsService } from '@placeos/common';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { LandingVirtualConciergeComponent } from '../../app/landing-new/landing-virtual-concierge.component';
 
 describe('LandingVirtualConciergeComponent', () => {
     let spectator: SpectatorRouting<LandingVirtualConciergeComponent>;
     const prompt_config = signal<any>(null);
     const settings_service = {
-        signal: jest.fn((key: string) =>
+        signal: vi.fn((key: string) =>
             key === 'virtual_concierge.prompts' ? prompt_config : signal(null),
         ),
     };
@@ -19,7 +19,7 @@ describe('LandingVirtualConciergeComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         prompt_config.set(null);
         spectator = createComponent();
         spectator.component.features.set([]);

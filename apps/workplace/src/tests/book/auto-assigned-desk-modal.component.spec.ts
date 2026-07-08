@@ -1,7 +1,7 @@
 import { signal, WritableSignal } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { BookingFormService } from '@placeos/bookings';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
@@ -26,11 +26,11 @@ describe('AutoAssignedDeskModalComponent', () => {
         shallow: true,
         providers: [
             MockProvider(BookingFormService, {
-                setOptions: jest.fn(),
-                postForm: jest.fn(() => Promise.resolve()) as any,
-                postFormForGroup: jest.fn(() => Promise.resolve()) as any,
-                listResources: jest.fn(async () => [desk_resource]) as any,
-                listAvailableResources: jest.fn(
+                setOptions: vi.fn(),
+                postForm: vi.fn(() => Promise.resolve()) as any,
+                postFormForGroup: vi.fn(() => Promise.resolve()) as any,
+                listResources: vi.fn(async () => [desk_resource]) as any,
+                listAvailableResources: vi.fn(
                     async () => [desk_resource],
                 ) as any,
                 options: signal({ type: 'desk' }),
@@ -51,18 +51,18 @@ describe('AutoAssignedDeskModalComponent', () => {
             MockProvider(OrganisationService, {
                 buildings: [{ id: 'building-1', name: 'Building 1' }],
                 levels: [{ id: 'level-1', name: 'Level 1' }],
-                levelWithID: jest.fn(() => ({ id: 'level-1' })),
+                levelWithID: vi.fn(() => ({ id: 'level-1' })),
             } as any),
             MockProvider(SettingsService, {
-                get: jest.fn((key: string) =>
+                get: vi.fn((key: string) =>
                     key === 'app.desks.default_duration' ? 60 : undefined,
                 ),
-            }),
+            } as any),
             MockProvider(Router, {
-                navigate: jest.fn(() => Promise.resolve(true)),
+                navigate: vi.fn(() => Promise.resolve(true)),
             }),
             MockProvider(MatDialogRef, {
-                close: jest.fn(),
+                close: vi.fn(),
             }),
         ],
     });

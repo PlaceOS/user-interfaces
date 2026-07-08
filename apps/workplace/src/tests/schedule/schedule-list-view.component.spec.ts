@@ -1,4 +1,4 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { Booking, CalendarEvent } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
 import { BookingCardComponent } from '@placeos/bookings';
@@ -11,10 +11,10 @@ import { ScheduleListViewComponent } from '../../app/schedule/schedule-list-view
 describe('ScheduleListViewComponent', () => {
     let spectator: Spectator<ScheduleListViewComponent>;
     const state = {
-        edit: jest.fn(),
-        editBooking: jest.fn(),
-        remove: jest.fn(),
-        end: jest.fn(),
+        edit: vi.fn(),
+        editBooking: vi.fn(),
+        remove: vi.fn(),
+        end: vi.fn(),
     };
 
     const day_one = startOfDay(new Date('2026-05-14T00:00:00')).valueOf();
@@ -39,7 +39,7 @@ describe('ScheduleListViewComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         spectator = createComponent({ props: { date: day_one } });
     });
 

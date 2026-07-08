@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { BookingDetailsModalComponent } from '@placeos/bookings';
 import { Booking, CalendarEvent, OrganisationService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
@@ -24,9 +24,9 @@ describe('LandingUpcomingBookingComponent', () => {
             status: 'approved',
         } as any),
     ]);
-    const refreshUpcomingEvents = jest.fn();
+    const refreshUpcomingEvents = vi.fn();
     const dialog = {
-        open: jest.fn(),
+        open: vi.fn(),
     };
     const createComponent = createRoutingFactory({
         component: LandingUpcomingBookingComponent,
@@ -45,14 +45,14 @@ describe('LandingUpcomingBookingComponent', () => {
             {
                 provide: ScheduleStateService,
                 useValue: {
-                    edit: jest.fn(),
-                    editBooking: jest.fn(),
-                    remove: jest.fn(),
-                    end: jest.fn(),
+                    edit: vi.fn(),
+                    editBooking: vi.fn(),
+                    remove: vi.fn(),
+                    end: vi.fn(),
                 },
             },
             MockProvider(OrganisationService, {
-                levelWithID: jest.fn(),
+                levelWithID: vi.fn(),
                 buildings: [],
                 initialised: signal(true),
             } as any),
@@ -60,9 +60,9 @@ describe('LandingUpcomingBookingComponent', () => {
     });
 
     beforeEach(() => {
-        jest.restoreAllMocks();
-        jest.clearAllMocks();
-        jest.spyOn(SpacePipe.prototype, 'transform').mockImplementation(
+        vi.restoreAllMocks();
+        vi.clearAllMocks();
+        vi.spyOn(SpacePipe.prototype, 'transform').mockImplementation(
             async (id: string) => ({ id }) as any,
         );
         upcoming_events.set([
@@ -82,10 +82,10 @@ describe('LandingUpcomingBookingComponent', () => {
     });
 
     it('should pass a refresh callback to booking details modal', () => {
-        jest.useFakeTimers();
+        vi.useFakeTimers();
 
         spectator.component.viewDetails();
-        jest.runAllTimers();
+        vi.runAllTimers();
 
         expect(dialog.open).toHaveBeenCalledWith(
             BookingDetailsModalComponent,
@@ -99,7 +99,7 @@ describe('LandingUpcomingBookingComponent', () => {
         dialog.open.mock.calls[0][1].data.refresh_fn();
 
         expect(refreshUpcomingEvents).toHaveBeenCalled();
-        jest.useRealTimers();
+        vi.useRealTimers();
     });
 
     it('should disable edit when the booking details modal cannot edit', () => {
@@ -205,7 +205,7 @@ describe('LandingUpcomingBookingComponent', () => {
     });
 
     it('should update checked in state immediately for room events', () => {
-        jest.useFakeTimers();
+        vi.useFakeTimers();
         const date = Date.now();
         upcoming_events.set([
             new CalendarEvent({
@@ -226,16 +226,16 @@ describe('LandingUpcomingBookingComponent', () => {
         spectator.component.room_booking_start.set(date / 1000);
 
         spectator.detectChanges();
-        jest.runOnlyPendingTimers();
+        vi.runOnlyPendingTimers();
         spectator.detectChanges();
 
         expect(spectator.component.isCheckedIn()).toBe(true);
         expect(spectator.query('button[btn]')).toBeDisabled();
-        jest.useRealTimers();
+        vi.useRealTimers();
     });
 
     it('should not show checked in for room events when the driver booking start does not match', () => {
-        jest.useFakeTimers();
+        vi.useFakeTimers();
         const date = Date.now();
         upcoming_events.set([
             new CalendarEvent({
@@ -252,11 +252,11 @@ describe('LandingUpcomingBookingComponent', () => {
         spectator.component.room_booking_start.set(date / 1000 + 61);
 
         spectator.detectChanges();
-        jest.runOnlyPendingTimers();
+        vi.runOnlyPendingTimers();
         spectator.detectChanges();
 
         expect(spectator.component.isCheckedIn()).toBe(false);
-        jest.useRealTimers();
+        vi.useRealTimers();
     });
 
     it('should preserve room status when the same room event refreshes', async () => {
@@ -291,8 +291,7 @@ describe('LandingUpcomingBookingComponent', () => {
     });
 
     it('should resolve the room system id like the details modal', async () => {
-        const transform_spy = SpacePipe.prototype
-            .transform as jest.MockedFunction<any>;
+        const transform_spy = SpacePipe.prototype.transform as any;
         transform_spy.mockResolvedValue({ id: 'room-system-1' } as any);
         upcoming_events.set([
             new CalendarEvent({

@@ -1,12 +1,12 @@
 import { MatDialog } from '@angular/material/dialog';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { LandingQuickActionsComponent } from '../../app/landing-new/landing-quick-actions.component';
 
 describe('LandingQuickActionsComponent', () => {
     let spectator: SpectatorRouting<LandingQuickActionsComponent>;
-    const show_close = { set: jest.fn() };
+    const show_close = { set: vi.fn() };
     const dialog = {
-        open: jest.fn(() => ({ componentInstance: { show_close } })),
+        open: vi.fn(() => ({ componentInstance: { show_close } })),
     };
     const createComponent = createRoutingFactory({
         component: LandingQuickActionsComponent,
@@ -16,7 +16,7 @@ describe('LandingQuickActionsComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         spectator = createComponent();
         spectator.component.features.set([]);
     });

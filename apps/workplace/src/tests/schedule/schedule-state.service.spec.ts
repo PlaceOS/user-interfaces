@@ -11,6 +11,7 @@ import {
 } from '@placeos/common';
 import { EventFormService, SpacesService } from '@placeos/events';
 import { MockProvider } from 'ng-mocks';
+import { of } from 'rxjs';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
@@ -48,7 +49,17 @@ describe('ScheduleStateService', () => {
                 level_list: signal([]),
                 module: vi.fn(() => null),
             } as any),
-            MockProvider(MatDialog, { closeAll: vi.fn() }),
+            MockProvider(MatDialog, {
+                closeAll: vi.fn(),
+                open: vi.fn(() => ({
+                    componentInstance: {
+                        event: of({ reason: 'done' }),
+                        loading: signal(''),
+                    },
+                    afterClosed: () => of(null),
+                    close: vi.fn(),
+                })) as any,
+            } as any),
             MockProvider(Router, router),
             MockProvider(EventFormService, event_form),
             MockProvider(BookingFormService, {
