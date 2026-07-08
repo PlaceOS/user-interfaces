@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1782882947112,
+  "timestamp": 1783504083769,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -20,7 +20,7 @@
         "./chunk-Y4R37YMA.js",
         "./favicon.ico",
         "./index.html",
-        "./main-GOMYWDX3.js",
+        "./main-3R726CAR.js",
         "./manifest.webmanifest",
         "./styles-26FQVELD.css"
       ],
@@ -216,8 +216,8 @@
     "./chunk-JAODHKFU.js": "343d60170d3300e18a18901ad9438872649d8a26",
     "./chunk-Y4R37YMA.js": "e9e66716ac39c24be247b6e391868c43816126e9",
     "./favicon.ico": "bac75d7f037be9da4c9e2b32506e7f0beaf970a2",
-    "./index.html": "f113a5749ed3927f57c4474bb2e22474d0ac7e0a",
-    "./main-GOMYWDX3.js": "4b32338e32f3b18f2e62bd7bb96ee30d592394f0",
+    "./index.html": "ad76feb07ffbf0a04ca10541584647f89ca11319",
+    "./main-3R726CAR.js": "a5b0f3be008a8ad1f1212b3cecf32c544bbbc1e1",
     "./manifest.webmanifest": "52303dac8925303543586afc1ce6fc2a5af2c4b2",
     "./styles-26FQVELD.css": "e3c56745cdaf4b997b70cb792c220981c25020cc"
   },
