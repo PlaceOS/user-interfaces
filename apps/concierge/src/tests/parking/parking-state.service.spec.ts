@@ -1,7 +1,10 @@
-import { signal, WritableSignal } from '@angular/core';
+import { WritableSignal, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
-import { SpectatorService, createServiceFactory } from '@ngneat/spectator/vitest';
+import {
+    SpectatorService,
+    createServiceFactory,
+} from '@ngneat/spectator/vitest';
 import {
     Booking,
     OrganisationService,
@@ -9,15 +12,15 @@ import {
     setNotifyOutlet,
     setTimeInTimezone,
 } from '@placeos/common';
-import { addHours, addMinutes, endOfDay, getUnixTime, startOfDay } from 'date-fns';
+import { addMinutes, endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { NEVER, of } from 'rxjs';
 
 import * as ts_client from '@placeos/ts-client';
 import { UserPipe } from '@placeos/users';
 import { MockProvider } from 'ng-mocks';
-import { ParkingStateService } from '../../app/parking/parking-state.service';
 import { ParkingBookingModalComponent } from '../../app/parking/parking-booking-modal.component';
 import { ParkingRequestModalComponent } from '../../app/parking/parking-request-modal.component';
+import { ParkingStateService } from '../../app/parking/parking-state.service';
 import { captureDownloads } from '../reports/download-capture.helper';
 
 vi.mock('@placeos/ts-client', { spy: true });
@@ -90,7 +93,9 @@ describe('ParkingStateService', () => {
     /** Reset ts-client boundary spies with safe defaults for service bootstrap */
     const stubTsClient = () => {
         (ts_client.queryAssetCategories as any).mockReset();
-        (ts_client.queryAssetCategories as any).mockResolvedValue(CATEGORY_STUB);
+        (ts_client.queryAssetCategories as any).mockResolvedValue(
+            CATEGORY_STUB,
+        );
         (ts_client.queryAssetTypes as any).mockReset();
         (ts_client.queryAssetTypes as any).mockResolvedValue(TYPE_STUB);
         (ts_client.queryAssets as any).mockReset();
@@ -118,17 +123,25 @@ describe('ParkingStateService', () => {
         (ts_client.addAsset as any).mockReset();
         (ts_client.addAsset as any).mockResolvedValue({ id: 'new-asset' });
         (ts_client.updateAsset as any).mockReset();
-        (ts_client.updateAsset as any).mockResolvedValue({ id: 'updated-asset' });
+        (ts_client.updateAsset as any).mockResolvedValue({
+            id: 'updated-asset',
+        });
         (ts_client.removeAsset as any).mockReset();
         (ts_client.removeAsset as any).mockResolvedValue(undefined);
     };
 
-    /** URL of the most recent booking listing request (queryBookings -> get) */
+    /** URL of the most recent booking listing request (queryPagedBookings -> query) */
     const lastBookingsUrl = () => {
-        const calls = (ts_client.get as any).mock.calls.filter(
-            (c: any[]) => typeof c[0] === 'string' && c[0].includes('/bookings'),
+        const calls = (ts_client.query as any).mock.calls.filter((c: any[]) =>
+            String(c[0]?.endpoint || '').includes('/bookings'),
         );
-        return calls.length ? calls[calls.length - 1][0] : '';
+        if (!calls.length) return '';
+        const { endpoint, query_params } = calls[calls.length - 1][0];
+        const params = new URLSearchParams();
+        for (const key of Object.keys(query_params || {})) {
+            params.set(key, String(query_params[key]));
+        }
+        return `${endpoint}?${params.toString()}`;
     };
     const bookingsParams = () =>
         new URLSearchParams((lastBookingsUrl().split('?')[1] as string) || '');
@@ -437,9 +450,9 @@ describe('ParkingStateService', () => {
             extension_data: {},
         } as any;
 
-        expect(spectator.service.filterEventList([request], 'waitlist')).toEqual([
-            request,
-        ]);
+        expect(
+            spectator.service.filterEventList([request], 'waitlist'),
+        ).toEqual([request]);
     });
 
     it('should include waitlisted requests in pending filtering when waitlist display is disabled', () => {
@@ -453,9 +466,9 @@ describe('ParkingStateService', () => {
             extension_data: {},
         } as any;
 
-        expect(spectator.service.filterEventList([request], 'pending')).toEqual([
-            request,
-        ]);
+        expect(spectator.service.filterEventList([request], 'pending')).toEqual(
+            [request],
+        );
     });
 
     it('should not treat waiting approval parking requests as waitlisted', () => {
@@ -482,12 +495,12 @@ describe('ParkingStateService', () => {
             extension_data: {},
         } as any;
 
-        expect(spectator.service.filterEventList([request], 'waitlist')).toEqual(
-            [],
+        expect(
+            spectator.service.filterEventList([request], 'waitlist'),
+        ).toEqual([]);
+        expect(spectator.service.filterEventList([request], 'pending')).toEqual(
+            [request],
         );
-        expect(spectator.service.filterEventList([request], 'pending')).toEqual([
-            request,
-        ]);
     });
 
     it('should only allow approval for matching approver groups', () => {
@@ -662,7 +675,9 @@ describe('ParkingStateService', () => {
                 asset_id: 'space-1',
                 asset_name: 'Bay 1',
                 zones: ['org-1', 'region-1', 'bld-1', 'lvl-1'],
-                extension_data: expect.objectContaining({ asset_name: 'Bay 1' }),
+                extension_data: expect.objectContaining({
+                    asset_name: 'Bay 1',
+                }),
             }),
         );
         // approveBooking('req-1') -> post(url/approve, '')
@@ -855,7 +870,9 @@ describe('ParkingStateService', () => {
             name: 'Staff Name',
         } as any);
 
-        await spectator.service.editSpace(original_space).catch(() => undefined);
+        await spectator.service
+            .editSpace(original_space)
+            .catch(() => undefined);
 
         expect(ts_client.del).toHaveBeenCalledWith(
             expect.stringContaining('/bookings/booking-1'),
@@ -897,6 +914,7 @@ describe('ParkingStateService', () => {
         organisation_service.levels = [
             { id: 'lvl-1', parent_id: 'bld-1', tags: ['parking'] },
         ];
+        spectator.service.setOptions({ zones: ['lvl-1'] });
         const csv =
             'identifier,map_id,bookable,place_groups,features,notes\n' +
             'G.123,G.123,true,,"Maximum Height 2.3m,Open Ground Level",Car';
@@ -921,9 +939,8 @@ describe('ParkingStateService', () => {
         organisation_service.levels = [
             { id: 'lvl-1', parent_id: 'bld-1', tags: ['parking'] },
         ];
-        const csv =
-            'identifier,map_id,bookable\n' +
-            '123,G.123,true';
+        spectator.service.setOptions({ zones: ['lvl-1'] });
+        const csv = 'identifier,map_id,bookable\n' + '123,G.123,true';
         const file = new File([csv], 'spaces.csv', { type: 'text/csv' });
         const event = {
             target: { files: [file], value: '' },

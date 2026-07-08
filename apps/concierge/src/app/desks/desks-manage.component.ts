@@ -1,12 +1,6 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 
-import {
-    Component,
-    computed,
-    ElementRef,
-    inject,
-    signal,
-} from '@angular/core';
+import { Component, computed, ElementRef, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -309,11 +303,20 @@ export class DesksManageComponent extends AsyncHandler {
         if (resp.reason !== 'done') return;
         resp.close();
         const desks = this.desks();
-        const updated_desks = desks.filter((_) => _.id !== desk.id);
         const filters = this.filters();
-        const level = this._org.levelWithID(filters.zones);
+        // Target the desk's own level so removing while viewing all levels
+        // only rewrites the metadata of the zone the desk belongs to.
+        const zone_id =
+            desk.zone?.id || this._org.levelWithID(filters.zones)?.id;
+        if (!zone_id) {
+            notifyError(i18n('APP.CONCIERGE.DESKS_SELECT_LEVEL'));
+            return;
+        }
+        const updated_desks = desks.filter(
+            (_) => (_.zone?.id || zone_id) === zone_id && _.id !== desk.id,
+        );
         this.loading.set(i18n('APP.CONCIERGE.DESKS_REMOVE_LOADING'));
-        await updateMetadata(level.id, {
+        await updateMetadata(zone_id, {
             name: 'desks',
             description: 'desks',
             details: updated_desks,

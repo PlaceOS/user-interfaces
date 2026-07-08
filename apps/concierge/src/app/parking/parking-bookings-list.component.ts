@@ -61,11 +61,38 @@ interface ParkingBookingColumnTemplates {
     selector: '[parking-bookings-list]',
     template: `
         <div class="w-fit px-8">
+            <div
+                class="bg-base-100 border-base-300 fixed right-8 bottom-4 flex items-center justify-end gap-2 rounded-xl border px-2 py-1 shadow-lg"
+            >
+                <span class="mr-8 text-xs opacity-60">
+                    {{
+                        'COMMON.LAST_UPDATED'
+                            | translate
+                                : {
+                                      time:
+                                          (last_updated()
+                                          | date: time_format : timezone),
+                                  }
+                    }}
+                </span>
+                <button
+                    icon
+                    default
+                    matRipple
+                    class="absolute top-1/2 -right-2 -translate-y-1/2"
+                    [disabled]="loading().includes('[BOOKINGS]')"
+                    [matTooltip]="'COMMON.REFRESH' | translate"
+                    (click)="refresh()"
+                >
+                    <icon>refresh</icon>
+                </button>
+            </div>
             @if (period() === 'week') {
                 <parking-bookings-week-view />
             } @else {
                 <mat-progress-bar
                     [class.opacity-0]="!loading().includes('[BOOKINGS]')"
+                    mode="indeterminate"
                     class="sticky left-0 w-full"
                 />
                 <simple-table
@@ -508,6 +535,16 @@ interface ParkingBookingColumnTemplates {
                 </ng-template>
                 <div class="h-20 w-full"></div>
             }
+            @if (!loading().includes('[BOOKINGS]') && has_more_pages()) {
+                <button
+                    matRipple
+                    class="border-base-300 bg-base-100 fixed bottom-2 left-1/2 flex items-center gap-2 rounded-full border px-3 py-2 text-sm shadow-xl"
+                    (click)="loadMore()"
+                >
+                    <icon>arrow_cool_down</icon>
+                    <div class="pr-1">{{ 'COMMON.LOAD_MORE' | translate }}</div>
+                </button>
+            }
         </div>
     `,
     styles: [``],
@@ -536,6 +573,10 @@ export class ParkingBookingsListComponent
     public readonly options = this._state.options;
     public readonly loading = this._state.loading;
     public readonly period = this._state.period;
+    public readonly has_more_pages = this._state.has_more_pages;
+    public readonly last_updated = this._state.last_updated;
+    public readonly loadMore = () => this._state.nextPage();
+    public readonly refresh = () => this._state.refresh();
 
     public readonly filtered_events = computed(() => {
         const { search, request_filter } = this.options();
@@ -797,7 +838,7 @@ export class ParkingBookingsListComponent
     }
 
     public ngOnInit() {
-        this.subscription('poll', this._state.startPolling());
+        this._state.refresh();
     }
 
     private customExtensionColumnKey(field: string) {

@@ -22,6 +22,31 @@ import { isParkingAllDayBooking } from './parking.utilities';
     selector: 'parking-requests-list',
     template: `
         <div class="w-fit px-8">
+            <div class="flex items-center justify-end gap-2 px-2 py-1 text-xs">
+                @if (last_updated()) {
+                    <span class="opacity-60">
+                        {{
+                            'COMMON.LAST_UPDATED'
+                                | translate
+                                    : {
+                                          time:
+                                              (last_updated()
+                                              | date: time_format : timezone),
+                                      }
+                        }}
+                    </span>
+                }
+                <button
+                    icon
+                    default
+                    matRipple
+                    [disabled]="loading().includes('[BOOKINGS]')"
+                    [matTooltip]="'COMMON.REFRESH' | translate"
+                    (click)="refresh()"
+                >
+                    <icon>refresh</icon>
+                </button>
+            </div>
             @if (period() === 'week') {
                 <parking-requests-week-view />
             } @else {
@@ -315,6 +340,11 @@ import { isParkingAllDayBooking } from './parking.utilities';
                 </ng-template>
                 <div class="h-20 w-full"></div>
             }
+            @if (!loading().includes('[BOOKINGS]') && has_more_pages()) {
+                <button btn matRipple class="mb-4 w-32" (click)="loadMore()">
+                    {{ 'COMMON.LOAD_MORE' | translate }}
+                </button>
+            }
         </div>
     `,
     styles: [``],
@@ -341,6 +371,10 @@ export class ParkingRequestsListComponent
     public readonly options = this._state.options;
     public readonly loading = this._state.loading;
     public readonly period = this._state.period;
+    public readonly has_more_pages = this._state.has_more_pages;
+    public readonly last_updated = this._state.last_updated;
+    public readonly loadMore = () => this._state.nextPage();
+    public readonly refresh = () => this._state.refresh();
 
     public readonly filtered_events = computed(() => {
         const { search, request_filter } = this.options();
@@ -433,6 +467,6 @@ export class ParkingRequestsListComponent
     }
 
     public ngOnInit() {
-        this.subscription('poll', this._state.startPolling());
+        this._state.refresh();
     }
 }

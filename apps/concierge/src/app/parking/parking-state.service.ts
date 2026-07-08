@@ -4,7 +4,6 @@ import {
     effect,
     inject,
     Injectable,
-    linkedSignal,
     resource,
     signal,
     untracked,
@@ -32,6 +31,7 @@ import {
     checkinBooking,
     checkinBookingInstance,
     queryBookings,
+    queryPagedBookings,
     rejectBooking,
     rejectBookingInstance,
     removeBooking as removeBookingApi,
@@ -49,7 +49,6 @@ import {
     i18n,
     jsonToCsv,
     loadTextFileFromInputEvent,
-    MINUTES,
     notifyError,
     notifySuccess,
     OrganisationService,
@@ -60,7 +59,7 @@ import {
     User,
 } from '@placeos/common';
 import { openConfirmModal } from '@placeos/components';
-import { PlaceAsset } from '@placeos/ts-client';
+import { PlaceAsset, QueryResponse } from '@placeos/ts-client';
 import { UserPipe } from '@placeos/users';
 import {
     addHours,
@@ -210,11 +209,10 @@ export class ParkingStateService extends AsyncHandler {
         () => {
             const levels = this.levels();
             const options = this._options();
+            // No selection means all levels for the building.
             const zone_ids = options.zones.length
                 ? options.zones
-                : levels[0]?.id
-                  ? [levels[0].id]
-                  : [];
+                : levels.map((lvl) => lvl.id);
             return zone_ids.length ? { zone_ids } : undefined;
         },
         {
@@ -253,6 +251,15 @@ export class ParkingStateService extends AsyncHandler {
 
     constructor() {
         super();
+        // Rebuild the bookings paging query whenever the options, building or
+        // user list change. Debounced to collapse rapid updates.
+        effect(() => {
+            const params = this._bookings_params_debounced.value();
+            if (!params) return;
+            this._first_page = this._buildFirstPage(params.options, params.bld);
+            this._next_page_fn = this._first_page;
+            this._loadPage(true);
+        });
         // Resolve bay identifiers for the loaded bookings so they can be
         // searched by bay number/name. Uses the ParkingSpacePipe (shared asset
         // cache, with a per-id fetch fallback) so resolution matches the
@@ -345,55 +352,123 @@ export class ParkingStateService extends AsyncHandler {
         this._bookings_params,
         500,
     );
-    /** Resource resolving the parking bookings for the current selection */
-    private readonly _bookings_resource = resource({
-        params: () => this._bookings_params_debounced.value(),
-        loader: async ({ params: { bld, options, users } }) => {
-            const week_start = this._settings.get('app.week_start') || 0;
-            const range_start =
-                options.period === 'week'
-                    ? startOfWeek(options.date, { weekStartsOn: week_start })
-                    : startOfDay(options.date);
-            const range_end =
-                options.period === 'week'
-                    ? endOfWeek(options.date, { weekStartsOn: week_start })
-                    : endOfDay(options.date);
-            const period_start = addMinutes(range_start, this.tz_offset * 60);
-            const period_end = addMinutes(range_end, this.tz_offset * 60);
-            const list = await queryBookings({
+    /** Accumulated paged parking bookings for the current selection */
+    private readonly _bookings_state = signal<{
+        list: Booking[];
+        total: number;
+        has_next: boolean;
+    }>({ list: [], total: 0, has_next: false });
+    /** Query for the first page of bookings for the active options */
+    private _first_page: (() => QueryResponse<Booking>) | null = null;
+    /** Query for the next page of bookings */
+    private _next_page_fn: (() => QueryResponse<Booking> | null) | null = null;
+    /** Token used to discard responses from superseded page loads */
+    private _load_token = 0;
+    private readonly _bookings_loading = signal(false);
+    /** Time the booking list last finished loading from the server */
+    private readonly _last_updated = signal(0);
+    public readonly last_updated = this._last_updated.asReadonly();
+    public readonly has_more_pages = computed(
+        () => this._bookings_state().has_next,
+    );
+    /**
+     * List of parking bookings for the current building/level. The previously
+     * loaded list stays visible while a new first page is loading (polling,
+     * filter/date change, etc.) instead of momentarily collapsing to `[]` and
+     * flickering the table.
+     */
+    public readonly bookings = computed(() => this._bookings_state().list);
+
+    public nextPage() {
+        this._loadPage(false);
+    }
+
+    /** Reload the first page of bookings for the active options */
+    public refresh() {
+        this._next_page_fn = this._first_page;
+        this._loadPage(true);
+    }
+
+    /** Build the first page query function for the given options */
+    private _buildFirstPage(
+        options: ParkingOptions,
+        bld: { id?: string },
+    ): () => QueryResponse<Booking> {
+        const week_start = this._settings.get('app.week_start') || 0;
+        const range_start =
+            options.period === 'week'
+                ? startOfWeek(options.date, { weekStartsOn: week_start })
+                : startOfDay(options.date);
+        const range_end =
+            options.period === 'week'
+                ? endOfWeek(options.date, { weekStartsOn: week_start })
+                : endOfDay(options.date);
+        const period_start = addMinutes(range_start, this.tz_offset * 60);
+        const period_end = addMinutes(range_end, this.tz_offset * 60);
+        return () =>
+            queryPagedBookings({
                 period_start: getUnixTime(period_start),
                 period_end: getUnixTime(period_end),
                 type: 'parking',
                 zones: this._bookingQueryZone(options, bld),
                 include_checked_out: true,
-                limit: 1000,
-            });
-            for (const booking of list) {
-                const user = users.find(
-                    (_) =>
-                        _.email.toLowerCase() ===
-                        booking.user_email.toLowerCase(),
-                );
-                if (user) {
-                    booking.extension_data.plate_number =
-                        booking.extension_data.plate_number ||
-                        user.plate_number;
-                }
-            }
-            return list;
-        },
-    });
+                limit: 500,
+            } as any);
+    }
+
     /**
-     * List of parking bookings for the current building/level.
-     *
-     * Backed by a linkedSignal so the previously loaded list stays visible
-     * while the resource is reloading (polling, filter/date change, etc.)
-     * instead of momentarily collapsing to `[]` and flickering the table.
+     * Load a page of parking bookings, either resetting the list or appending
+     * the next page. Stale responses are discarded if a newer load started.
      */
-    public readonly bookings = linkedSignal<Booking[] | undefined, Booking[]>({
-        source: () => this._bookings_resource.value(),
-        computation: (value, previous) => value ?? previous?.value ?? [],
-    });
+    private async _loadPage(reset: boolean) {
+        const fetch = reset ? this._first_page : this._next_page_fn;
+        if (!fetch) {
+            if (reset) {
+                this._bookings_state.set({
+                    list: [],
+                    total: 0,
+                    has_next: false,
+                });
+            }
+            return;
+        }
+        const token = ++this._load_token;
+        this._bookings_loading.set(true);
+        const resp: any = await Promise.resolve(fetch()).catch(() => ({
+            data: [],
+            total: 0,
+            next: null,
+        }));
+        if (token !== this._load_token) return;
+        const { data = [], total = 0, next = null } = resp || {};
+        const users = this._users_resource.value() || [];
+        for (const booking of data) {
+            const user = users.find(
+                (_) =>
+                    _.email.toLowerCase() === booking.user_email.toLowerCase(),
+            );
+            if (user) {
+                booking.extension_data.plate_number =
+                    booking.extension_data.plate_number || user.plate_number;
+            }
+        }
+        this._next_page_fn = next;
+        this._bookings_state.update((acc) =>
+            reset
+                ? {
+                      list: data,
+                      total,
+                      has_next: data.length < total && !!next,
+                  }
+                : {
+                      list: [...acc.list, ...data],
+                      total,
+                      has_next: !!next,
+                  },
+        );
+        this._bookings_loading.set(false);
+        this._last_updated.set(Date.now());
+    }
 
     /** List of loading state tokens for the active parking resources */
     public readonly loading = computed(() => {
@@ -401,7 +476,7 @@ export class ParkingStateService extends AsyncHandler {
         if (this._spaces_resource.isLoading()) list.push('spaces');
         if (this._users_resource.isLoading()) list.push('users');
         if (this._fleet_resource.isLoading()) list.push('fleet');
-        if (this._bookings_resource.isLoading()) list.push('[BOOKINGS]');
+        if (this._bookings_loading()) list.push('[BOOKINGS]');
         return list;
     });
 
@@ -426,7 +501,7 @@ export class ParkingStateService extends AsyncHandler {
         this._spaces_resource.reload();
         this._users_resource.reload();
         this._fleet_resource.reload();
-        this._bookings_resource.reload();
+        this.refresh();
     }
 
     /**
@@ -572,21 +647,6 @@ export class ParkingStateService extends AsyncHandler {
         return list.filter((booking) => !this.isRequest(booking));
     }
 
-    public startPolling(delay = 3 * MINUTES) {
-        const poll_delay = Math.max(delay, 3 * MINUTES);
-        this._bookings_resource.reload();
-        this.interval(
-            'poll',
-            () => this._bookings_resource.reload(),
-            poll_delay,
-        );
-        return () => this.stopPolling();
-    }
-
-    public stopPolling() {
-        this.clearInterval('poll');
-    }
-
     /** Download current parking spaces as a CSV file */
     public async downloadSpacesCSV() {
         const spaces = this.spaces();
@@ -631,10 +691,11 @@ export class ParkingStateService extends AsyncHandler {
                 notifyError(i18n('APP.CONCIERGE.PARKING_CSV_EMPTY'));
                 return;
             }
-            const zone_id =
-                this._options().zones[0] ||
-                this._org.levelsForBuilding()[0]?.id;
-            if (!zone_id) {
+            const zone_id = this._options().zones[0] || '';
+            // New spaces (rows without an id) need a level to be created on,
+            // so require a specific level selection for them.
+            const has_new_spaces = rows.some((row) => !csvString(row.id));
+            if (has_new_spaces && !zone_id) {
                 notifyError(i18n('APP.CONCIERGE.PARKING_CSV_NO_ZONE'));
                 return;
             }
@@ -643,9 +704,7 @@ export class ParkingStateService extends AsyncHandler {
             for (const row of rows) {
                 try {
                     const space_data: Partial<ParkingSpace> = {
-                        ...(csvString(row.id)
-                            ? { id: csvString(row.id) }
-                            : {}),
+                        ...(csvString(row.id) ? { id: csvString(row.id) } : {}),
                         identifier: csvString(row.identifier),
                         map_id: csvString(row.map_id),
                         assigned_to: csvString(row.assigned_to),
@@ -697,9 +756,11 @@ export class ParkingStateService extends AsyncHandler {
         });
         const state = await this._waitForModalResult(ref);
         if (state?.reason !== 'done') return;
+        // Keep the space on its own level when no specific level is selected
+        // (viewing all levels), otherwise use the selected level.
         const zone_id =
-            this._options().zones[0] ||
             space.zone_id ||
+            this._options().zones[0] ||
             this._org.levelsForBuilding()[0]?.id;
         const asset_data: Partial<ParkingSpace> = {
             ...state.metadata,
@@ -938,7 +999,7 @@ export class ParkingStateService extends AsyncHandler {
                 ref.afterClosed().subscribe((id) => {
                     resolve(id);
                     if (id) this._reloadResources();
-                    else this._bookings_resource.reload();
+                    else this.refresh();
                 });
             });
         }
@@ -963,7 +1024,7 @@ export class ParkingStateService extends AsyncHandler {
             });
             ref.afterClosed().subscribe((id) => {
                 resolve(id);
-                this._bookings_resource.reload();
+                this.refresh();
             });
         });
     }

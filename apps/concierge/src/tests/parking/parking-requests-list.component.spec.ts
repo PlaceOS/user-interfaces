@@ -27,7 +27,10 @@ describe('ParkingRequestsListComponent', () => {
                 })) as any,
                 loading: (() => []) as any,
                 period: (() => 'day') as any,
-                startPolling: vi.fn(() => () => null),
+                has_more_pages: (() => false) as any,
+                last_updated: (() => 0) as any,
+                nextPage: vi.fn(),
+                refresh: vi.fn(),
                 filterEventSearch: vi.fn((list: Booking[]) => list),
                 rejectBooking: vi.fn(),
                 approveBooking: vi.fn(),
@@ -45,9 +48,7 @@ describe('ParkingRequestsListComponent', () => {
                         ? show_waitlist
                         : false,
                 ),
-                signal: vi.fn((_: string, initial: boolean) =>
-                    signal(initial),
-                ),
+                signal: vi.fn((_: string, initial: boolean) => signal(initial)),
                 time_format: 'h:mm a',
             }),
         ],
