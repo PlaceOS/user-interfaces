@@ -50871,6 +50871,7 @@ var COMMON = {
   BUILDING_ANY: "Any Building",
   BUILDING_ALL: "All Buildings",
   LEVEL_ANY: "Any Level",
+  LAST_UPDATED: "Updated {{ time }}",
   LEVEL_ALL: "All Levels",
   LEVEL_EMPTY: "No Level",
   ROOM_EMPTY: "No Room",
@@ -51919,6 +51920,7 @@ var APP = {
     DESKS_NAME: "Desk Name",
     DESKS_SAVING: "Saving desk details...",
     DESKS_SAVE_ERROR: "Failed to save desk details. Error: {{ error }}",
+    DESKS_SELECT_LEVEL: "Select a level before modifying desks.",
     DESKS_ASSIGN_CONFLICT_ERROR: "This desk is currently booked. Please cancel the existing booking before assigning it.",
     DESKS_ASSIGN_LIMIT_ERROR_1: "Users can only have 1 assigned desk at a time.",
     DESKS_ASSIGN_LIMIT_ERROR_N: "Users can only have {{ count }} assigned desks at a time.",
@@ -52767,6 +52769,9 @@ var APP = {
     REPORTS_PRINT: "Print Report",
     REPORTS_EMPTY: "Select level(s) and date range to generate the report",
     REPORTS_BUSINESS_DAYS: "Business Days",
+    REPORTS_ALLOCATIONS: "Allocations",
+    REPORTS_REJECTED: "Rejected",
+    REPORTS_CANCELLED: "Cancelled",
     REPORTS_TOTAL_BOOKINGS: "Total Bookings",
     REPORTS_TOTAL_SITE_ATTENDANCE: "Total Site Attendance",
     REPORTS_TOTAL_RESERVATIONS: "Requests",
@@ -56833,15 +56838,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "c4f5699",
-  "hash": "c4f5699",
+  "raw": "6a57422",
+  "hash": "6a57422",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "c4f5699",
+  "suffix": "6a57422",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1783316876591
+  "time": 1783528871625
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -79266,7 +79271,7 @@ var log3 = scoped_log("ORG");
 var ORG_CACHE_PREFIX = "PLACEOS.org";
 var ZONE_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.zones`;
 var METADATA_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.metadata`;
-var DEFAULT_CACHE_DURATION = 5 * 60 * 1e3;
+var DEFAULT_CACHE_DURATION = 2 * 60 * 1e3;
 var OrganisationService = class _OrganisationService {
   /** Mapping of organisation settings overrides */
   get settings() {
@@ -79908,13 +79913,23 @@ var OrganisationService = class _OrganisationService {
     const cached_metadata = this._getCachedItem(cache_key);
     if (cached_metadata)
       return cached_metadata;
-    const metadata = await Yu(name, { parent_ids }).catch(() => ({}));
+    const metadata = await Yu(name, { parent_ids }).catch((err) => err?.status === 404 ? this._individualMetadata(name, ids) : {});
     const metadata_details = ids.reduce((map2, id) => {
       map2[id] = metadata[id]?.details || {};
       return map2;
     }, {});
     this._setCachedItem(cache_key, metadata_details);
     return metadata_details;
+  }
+  /** Fallback for backends without the bulk metadata endpoint (404) */
+  async _individualMetadata(name, ids) {
+    const items = await Promise.all(ids.filter(Boolean).map((id) => Wu(id, name).then((item) => [id, item], () => [id, null])));
+    const metadata = {};
+    for (const [id, item] of items) {
+      if (item)
+        metadata[id] = item;
+    }
+    return metadata;
   }
   async _queryZones(params) {
     const cache_key = this._zoneCacheKey(params);
