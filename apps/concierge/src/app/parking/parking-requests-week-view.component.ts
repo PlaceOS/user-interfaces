@@ -1,5 +1,5 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, computed, inject, OnInit } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -298,10 +298,7 @@ import { isParkingAllDayBooking } from './parking.utilities';
         TranslatePipe,
     ],
 })
-export class ParkingRequestsWeekViewComponent
-    extends AsyncHandler
-    implements OnInit
-{
+export class ParkingRequestsWeekViewComponent extends AsyncHandler {
     private _state = inject(ParkingStateService);
     private _settings = inject(SettingsService);
     private _date_pipe = new DatePipe('en');
@@ -434,9 +431,5 @@ export class ParkingRequestsWeekViewComponent
 
     public isToday(date: number) {
         return isSameDay(date, Date.now());
-    }
-
-    public ngOnInit() {
-        this.subscription('poll', this._state.startPolling());
     }
 }

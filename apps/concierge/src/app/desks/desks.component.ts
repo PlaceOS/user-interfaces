@@ -200,16 +200,6 @@ import { DesksStateService } from './desks-state.service';
                             icon
                             default
                             matRipple
-                            [matTooltip]="'COMMON.REFRESH' | translate"
-                            (click)="refresh()"
-                            [disabled]="loading()"
-                        >
-                            <icon>refresh</icon>
-                        </button>
-                        <button
-                            icon
-                            default
-                            matRipple
                             [matTooltip]="
                                 'APP.CONCIERGE.REJECT_ALL' | translate
                             "

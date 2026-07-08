@@ -201,7 +201,7 @@ export class DesksTopbarComponent extends AsyncHandler implements OnInit {
                             levels.find((lvl) => lvl.id === zone) ||
                             zone === 'All',
                     ) || [];
-                if (!zones.length && levels.length) zones.push(levels[0].id);
+                if (!zones.length && levels.length) zones.push('All');
                 this.updateZones(zones);
             });
         });

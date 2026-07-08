@@ -12,7 +12,10 @@ import {
     ReportMetricGuideComponent,
     ReportMetricGuideItem,
 } from '../report-metric-guide.component';
-import { formatReportPercentage } from '../reports.utilities';
+import {
+    formatReportPercentage,
+    noShowReportBookings,
+} from '../reports.utilities';
 import { ParkingReportService } from './parking-report.service';
 
 const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
@@ -35,6 +38,11 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
             'Displayed as count and percentage of total bookings for that day.',
     },
     {
+        label: 'No shows',
+        description:
+            'Active bookings on the day that ended without a check-in; shown as count and percentage of active bookings.',
+    },
+    {
         label: 'Booking count',
         description: 'Total parking bookings recorded for the day.',
     },
@@ -44,7 +52,7 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
     selector: 'parking-report-daily-usage',
     template: `
         <div
-            class="border-base-200 bg-base-100 m-4 overflow-hidden rounded-sm border"
+            class="border-base-300 bg-base-100 m-4 overflow-hidden rounded-sm border shadow"
         >
             <div class="border-base-200 flex items-center border-b px-4 py-2">
                 <h3 class="flex-1 text-xl font-bold">
@@ -70,7 +78,7 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                 />
             </div>
             <simple-table
-                class="block w-full text-sm"
+                class="-mx-px block w-[calc(100%+2px)] text-sm"
                 [data]="daily_stats()"
                 [columns]="[
                     {
@@ -103,6 +111,11 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                         content: booking_percent_template,
                     },
                     {
+                        key: 'no_show_count',
+                        name: 'APP.CONCIERGE.REPORTS_NO_SHOWS' | translate,
+                        content: no_show_percent_template,
+                    },
+                    {
                         key: 'booked_count',
                         name:
                             'APP.CONCIERGE.REPORTS_BOOKING_COUNT_HEADER'
@@ -127,6 +140,15 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
             >
                 <div class="p-4">
                     {{ formatPercent(data, row.booked_count) }}
+                </div>
+            </ng-template>
+            <ng-template
+                #no_show_percent_template
+                let-data="data"
+                let-row="row"
+            >
+                <div class="p-4">
+                    {{ formatPercent(data, row.active_count) }}
                 </div>
             </ng-template>
         </div>
@@ -168,6 +190,7 @@ export class ParkingReportDailyUsageComponent {
                 deleted_count: days[date].bookings.filter(
                     (booking) => booking.deleted,
                 ).length,
+                no_show_count: noShowReportBookings(days[date].bookings).length,
                 booked_count: days[date].bookings.length,
             });
         }
@@ -185,6 +208,10 @@ export class ParkingReportDailyUsageComponent {
             deleted_count: formatReportPercentage(
                 booking.deleted_count,
                 booking.booked_count,
+            ),
+            no_show_count: formatReportPercentage(
+                booking.no_show_count,
+                booking.active_count,
             ),
         }));
         downloadFile('report-parking-daily-usage.csv', jsonToCsv(data));

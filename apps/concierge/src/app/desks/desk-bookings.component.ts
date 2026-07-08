@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
@@ -332,14 +332,36 @@ import { DesksStateService } from './desks-state.service';
         </div>
         @if (!loading() && has_more_pages()) {
             <button
-                btn
                 matRipple
-                class="absolute bottom-2 left-4 z-20 w-32"
+                class="border-base-300 bg-base-100 fixed bottom-2 left-1/2 flex items-center gap-2 rounded-full border px-3 py-2 text-sm shadow-xl"
                 (click)="loadMore()"
             >
-                {{ 'COMMON.LOAD_MORE' | translate }}
+                <icon>arrow_cool_down</icon>
+                <div class="pr-1">{{ 'COMMON.LOAD_MORE' | translate }}</div>
             </button>
         }
+        <div
+            class="bg-base-100 border-base-300 fixed right-8 bottom-4 flex items-center justify-end gap-2 rounded-xl border px-2 py-1 shadow-lg"
+        >
+            <span class="mr-8 text-xs opacity-60">
+                {{
+                    'COMMON.LAST_UPDATED'
+                        | translate
+                            : { time: (last_updated() | date: time_format) }
+                }}
+            </span>
+            <button
+                icon
+                default
+                matRipple
+                class="absolute top-1/2 -right-2 -translate-y-1/2"
+                [disabled]="state_loading()"
+                [matTooltip]="'COMMON.REFRESH' | translate"
+                (click)="refresh()"
+            >
+                <icon>refresh</icon>
+            </button>
+        </div>
     `,
     styles: [
         `
@@ -363,7 +385,7 @@ import { DesksStateService } from './desks-state.service';
         UserPipe,
     ],
 })
-export class DeskBookingsComponent {
+export class DeskBookingsComponent implements OnInit {
     private _state = inject(DesksStateService);
     private _settings = inject(SettingsService);
 
@@ -389,6 +411,13 @@ export class DeskBookingsComponent {
     public readonly cancel = (b) => this._state.cancelBooking(b);
     public readonly cancelSeries = (b) => this._state.cancelBooking(b, true);
     public readonly loadMore = () => this._state.nextPage();
+    public readonly last_updated = this._state.last_updated;
+    public readonly state_loading = this._state.loading;
+    public readonly refresh = () => this._state.refresh();
+
+    public ngOnInit() {
+        this._state.refresh();
+    }
 
     public get columns() {
         return [
