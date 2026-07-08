@@ -2798,6 +2798,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .-right-1 {
   right: calc(var(--spacing) * -1);
 }
+#placeos .-right-2 {
+  right: calc(var(--spacing) * -2);
+}
 #placeos .-right-4 {
   right: calc(var(--spacing) * -4);
 }
@@ -3228,6 +3231,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .mr-4\! {
   margin-right: calc(var(--spacing) * 4) !important;
 }
+#placeos .mr-8 {
+  margin-right: calc(var(--spacing) * 8);
+}
 #placeos .mr-10 {
   margin-right: calc(var(--spacing) * 10);
 }
@@ -3609,11 +3615,17 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .h-\[calc\(100vh-5rem\)\] {
   height: calc(100vh - 5rem);
 }
+#placeos .h-\[calc\(100vh-8rem\)\] {
+  height: calc(100vh - 8rem);
+}
 #placeos .h-\[calc\(100vh-9rem\)\] {
   height: calc(100vh - 9rem);
 }
 #placeos .h-\[calc\(100vh-10rem\)\] {
   height: calc(100vh - 10rem);
+}
+#placeos .h-\[calc\(100vh-12rem\)\] {
+  height: calc(100vh - 12rem);
 }
 #placeos .h-full {
   height: 100%;
@@ -4106,6 +4118,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .w-\[calc\(100\%\+1rem\)\] {
   width: calc(100% + 1rem);
+}
+#placeos .w-\[calc\(100\%\+2px\)\] {
+  width: calc(100% + 2px);
 }
 #placeos .w-\[calc\(100\%\+2rem\)\] {
   width: calc(100% + 2rem);
@@ -5419,6 +5434,14 @@ input:where([type=button], [type=reset], [type=submit]),
     background-color: color-mix(in oklab, var(--base-content) 10%, transparent);
   }
 }
+#placeos .bg-base-content\/40 {
+  background-color: var(--base-content);
+}
+@supports (color: color-mix(in lab, red, red)) {
+  #placeos .bg-base-content\/40 {
+    background-color: color-mix(in oklab, var(--base-content) 40%, transparent);
+  }
+}
 #placeos .bg-black {
   background-color: #000000;
 }
@@ -6149,6 +6172,14 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .text-base-100 {
   color: var(--base-100);
 }
+#placeos .text-base-100\/60 {
+  color: var(--base-100);
+}
+@supports (color: color-mix(in lab, red, red)) {
+  #placeos .text-base-100\/60 {
+    color: color-mix(in oklab, var(--base-100) 60%, transparent);
+  }
+}
 #placeos .text-base-200 {
   color: var(--base-200);
 }
@@ -6659,12 +6690,6 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .select-text {
   -webkit-user-select: text;
   user-select: text;
-}
-#placeos .text-shadow-lg {
-  text-shadow:
-    0px 1px 2px var(--tw-text-shadow-color, rgb(0 0 0 / 0.1)),
-    0px 3px 2px var(--tw-text-shadow-color, rgb(0 0 0 / 0.1)),
-    0px 4px 8px var(--tw-text-shadow-color, rgb(0 0 0 / 0.1));
 }
 @media (hover: hover) {
   #placeos .group-hover\:bg-base-200\/50:is(:where(.group):hover *) {
@@ -8140,8 +8165,6 @@ body {
 @property --tw-backdrop-sepia { syntax: "*"; inherits: false; }
 @property --tw-duration { syntax: "*"; inherits: false; }
 @property --tw-ease { syntax: "*"; inherits: false; }
-@property --tw-text-shadow-color { syntax: "*"; inherits: false; }
-@property --tw-text-shadow-alpha { syntax: "<percentage>"; inherits: false; initial-value: 100%; }
 @keyframes spin {
   to {
     transform: rotate(360deg);
@@ -8242,8 +8265,6 @@ body {
       --tw-backdrop-sepia: initial;
       --tw-duration: initial;
       --tw-ease: initial;
-      --tw-text-shadow-color: initial;
-      --tw-text-shadow-alpha: 100%;
     }
   }
 }
