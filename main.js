@@ -48023,6 +48023,7 @@ var COMMON = {
   BUILDING_ANY: "Any Building",
   BUILDING_ALL: "All Buildings",
   LEVEL_ANY: "Any Level",
+  LAST_UPDATED: "Updated {{ time }}",
   LEVEL_ALL: "All Levels",
   LEVEL_EMPTY: "No Level",
   ROOM_EMPTY: "No Room",
@@ -49071,6 +49072,7 @@ var APP = {
     DESKS_NAME: "Desk Name",
     DESKS_SAVING: "Saving desk details...",
     DESKS_SAVE_ERROR: "Failed to save desk details. Error: {{ error }}",
+    DESKS_SELECT_LEVEL: "Select a level before modifying desks.",
     DESKS_ASSIGN_CONFLICT_ERROR: "This desk is currently booked. Please cancel the existing booking before assigning it.",
     DESKS_ASSIGN_LIMIT_ERROR_1: "Users can only have 1 assigned desk at a time.",
     DESKS_ASSIGN_LIMIT_ERROR_N: "Users can only have {{ count }} assigned desks at a time.",
@@ -49919,6 +49921,9 @@ var APP = {
     REPORTS_PRINT: "Print Report",
     REPORTS_EMPTY: "Select level(s) and date range to generate the report",
     REPORTS_BUSINESS_DAYS: "Business Days",
+    REPORTS_ALLOCATIONS: "Allocations",
+    REPORTS_REJECTED: "Rejected",
+    REPORTS_CANCELLED: "Cancelled",
     REPORTS_TOTAL_BOOKINGS: "Total Bookings",
     REPORTS_TOTAL_SITE_ATTENDANCE: "Total Site Attendance",
     REPORTS_TOTAL_RESERVATIONS: "Requests",
@@ -54194,15 +54199,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "c4f5699",
-  "hash": "c4f5699",
+  "raw": "6a57422",
+  "hash": "6a57422",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "c4f5699",
+  "suffix": "6a57422",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1783316873522
+  "time": 1783528876050
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -76391,7 +76396,7 @@ var log3 = scoped_log("ORG");
 var ORG_CACHE_PREFIX = "PLACEOS.org";
 var ZONE_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.zones`;
 var METADATA_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.metadata`;
-var DEFAULT_CACHE_DURATION = 5 * 60 * 1e3;
+var DEFAULT_CACHE_DURATION = 2 * 60 * 1e3;
 var OrganisationService = class _OrganisationService {
   /** Mapping of organisation settings overrides */
   get settings() {
@@ -77033,13 +77038,23 @@ var OrganisationService = class _OrganisationService {
     const cached_metadata = this._getCachedItem(cache_key);
     if (cached_metadata)
       return cached_metadata;
-    const metadata = await Yu(name, { parent_ids }).catch(() => ({}));
+    const metadata = await Yu(name, { parent_ids }).catch((err) => err?.status === 404 ? this._individualMetadata(name, ids) : {});
     const metadata_details = ids.reduce((map2, id) => {
       map2[id] = metadata[id]?.details || {};
       return map2;
     }, {});
     this._setCachedItem(cache_key, metadata_details);
     return metadata_details;
+  }
+  /** Fallback for backends without the bulk metadata endpoint (404) */
+  async _individualMetadata(name, ids) {
+    const items = await Promise.all(ids.filter(Boolean).map((id) => Wu(id, name).then((item) => [id, item], () => [id, null])));
+    const metadata = {};
+    for (const [id, item] of items) {
+      if (item)
+        metadata[id] = item;
+    }
+    return metadata;
   }
   async _queryZones(params) {
     const cache_key = this._zoneCacheKey(params);
@@ -90948,6 +90963,32 @@ function generateMockTriggers() {
 var MOCK_DISPLAYS = generateMockDisplays();
 var MOCK_MEDIA = generateMockMedia();
 var MOCK_PLAYLISTS = generateMockPlaylists(MOCK_DISPLAYS, MOCK_MEDIA);
+var MOCK_PLUGINS = [
+  {
+    id: "weather",
+    name: "Weather",
+    description: "Current weather signage widget",
+    uri: "/plugins/weather/index.html",
+    enabled: true,
+    defaults: { units: "metric" },
+    params: {
+      location: {
+        type: "string",
+        title: "Location",
+        default: "Sydney"
+      }
+    }
+  },
+  {
+    id: "clock",
+    name: "Clock",
+    description: "Clock signage widget",
+    uri: "/plugins/clock/index.html",
+    enabled: true,
+    defaults: { format: "24h" },
+    params: {}
+  }
+];
 var MOCK_TRIGGERS = generateMockTriggers();
 var SIGNAGE_GROUPS = [
   {
@@ -91031,7 +91072,8 @@ function toEngineMedia(item) {
     created_at: item.created_at,
     updated_at: item.updated_at,
     valid_from: item.scheduling?.start_date,
-    valid_until: item.scheduling?.end_date
+    valid_until: item.scheduling?.end_date,
+    tags: item.tags || []
   };
 }
 function toEnginePlaylist(item) {
@@ -91055,9 +91097,42 @@ function playlistMediaResponse(playlist_id, approved = false) {
     id: `${playlist_id}-media`,
     playlist_id,
     items: (playlist?.items || []).map((item) => item.media_id),
+    schedules: (playlist?.items || []).map((item) => ({
+      id: item.id,
+      item_id: item.media_id,
+      schedules: []
+    })),
     approved,
     approval_requested: false,
     updated_at: playlist?.updated_at || getUnixTime(Date.now())
+  };
+}
+function signageDisplay(display_id) {
+  if (display_id === "display-1") {
+    throw { status: 404, message: "Display not found" };
+  }
+  const display = MOCK_DISPLAYS.find((item) => item.id === display_id) || MOCK_DISPLAYS[0];
+  const playlists = MOCK_PLAYLISTS.filter((playlist) => playlist.target?.displays?.includes(display.id) || playlist.target?.zones?.includes(display.zone_id)).slice(0, 3);
+  const mapped_playlists = playlists.length ? playlists : MOCK_PLAYLISTS.slice(0, 2);
+  const media_ids = [
+    ...new Set(mapped_playlists.flatMap((playlist) => playlist.items.map((item) => item.media_id)))
+  ];
+  return {
+    id: display_id,
+    zones: [display.zone_id, display.building_id].filter(Boolean),
+    playlist_mappings: {
+      [display_id]: mapped_playlists.map((playlist) => playlist.id),
+      [display.zone_id]: []
+    },
+    playlist_config: Object.fromEntries(mapped_playlists.map((playlist) => [
+      playlist.id,
+      [
+        toEnginePlaylist(playlist),
+        playlist.items.map((item) => item.media_id)
+      ]
+    ])),
+    playlist_media: media_ids.map((id) => MOCK_MEDIA.find((item) => item.id === id)).filter((item) => !!item).map(toEngineMedia),
+    plugins: MOCK_PLUGINS
   };
 }
 function registerMockSignage() {
@@ -91245,6 +91320,14 @@ function registerMockSignage() {
     callback: (request) => filterByGroup(MOCK_MEDIA, request.query_params?.group_id).map(toEngineMedia)
   });
   Zr({
+    path: "/api/engine/v2/signage/media/tags",
+    metadata: {},
+    method: "GET",
+    callback: (request) => [
+      ...new Set(filterByGroup(MOCK_MEDIA, request.query_params?.group_id).flatMap((item) => item.tags || []).filter((tag) => !!tag))
+    ]
+  });
+  Zr({
     path: "/api/engine/v2/signage/media",
     metadata: {},
     method: "POST",
@@ -91253,6 +91336,12 @@ function registerMockSignage() {
       created_at: getUnixTime(Date.now()),
       updated_at: getUnixTime(Date.now())
     })
+  });
+  Zr({
+    path: "/api/engine/v2/signage/media/:id",
+    metadata: {},
+    method: "GET",
+    callback: (request) => toEngineMedia(MOCK_MEDIA.find((item) => item.id === request.route_params.id))
   });
   Zr({
     path: "/api/engine/v2/signage/media/:id",
@@ -91269,10 +91358,28 @@ function registerMockSignage() {
     callback: () => ({})
   });
   Zr({
+    path: "/api/engine/v2/signage/media/:id/thumbnail",
+    metadata: {},
+    method: "GET",
+    callback: () => ({})
+  });
+  Zr({
     path: "/api/engine/v2/signage/media/share",
     metadata: {},
     method: "POST",
     callback: () => ({})
+  });
+  Zr({
+    path: "/api/engine/v2/signage/plugins",
+    metadata: {},
+    method: "GET",
+    callback: () => MOCK_PLUGINS
+  });
+  Zr({
+    path: "/api/engine/v2/signage/plugins/:id",
+    metadata: {},
+    method: "GET",
+    callback: (request) => MOCK_PLUGINS.find((plugin) => plugin.id === request.route_params.id) || {}
   });
   Zr({
     path: "/api/engine/v2/signage/playlists",
@@ -91329,6 +91436,30 @@ function registerMockSignage() {
     })
   });
   Zr({
+    path: "/api/engine/v2/signage/playlists/:id/media/schedule",
+    metadata: {},
+    method: "POST",
+    callback: (request) => __spreadProps(__spreadValues({}, playlistMediaResponse(request.route_params.id, false)), {
+      schedules: [
+        {
+          id: `schedule-${Date.now()}`,
+          item_id: request.body?.item_id,
+          schedules: request.body?.schedules || []
+        }
+      ]
+    })
+  });
+  Zr({
+    path: "/api/engine/v2/signage/playlists/:id/media/schedule/:item_id",
+    metadata: {},
+    method: "PATCH",
+    callback: (request) => ({
+      id: request.route_params.item_id,
+      item_id: request.body?.item_id || request.route_params.item_id,
+      schedules: request.body?.schedules || []
+    })
+  });
+  Zr({
     path: "/api/engine/v2/signage/playlists/:id/media/revisions",
     metadata: {},
     method: "GET",
@@ -91351,6 +91482,18 @@ function registerMockSignage() {
   });
   Zr({
     path: "/api/engine/v2/signage/playlists/share",
+    metadata: {},
+    method: "POST",
+    callback: () => ({})
+  });
+  Zr({
+    path: "/api/engine/v2/signage/:id",
+    metadata: {},
+    method: "GET",
+    callback: (request) => signageDisplay(request.route_params.id)
+  });
+  Zr({
+    path: "/api/engine/v2/signage/:id/metrics",
     metadata: {},
     method: "POST",
     callback: () => ({})
@@ -96594,6 +96737,7 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
   }
   setPlaylistItem(index, resume_if_paused = true) {
     if (!this._hasValidPlaylistItem()) {
+      this._clearActiveItem();
       return this.timeout("retry_set_item", () => this.setPlaylistItem(index, resume_if_paused), 5e3);
     }
     this.clearTimeout("retry_set_item");
@@ -96729,7 +96873,8 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
   _clearOutput(output2) {
     const item = this._output_items[output2];
     this._hideMediaElements(output2);
-    this._pauseOutputVideo(output2);
+    if (item?.type === "video")
+      this._pauseOutputVideo(output2);
     this._web_element(output2).nativeElement.removeAttribute("src");
     if (item) {
       this._item_output.delete(item.id);
@@ -97039,6 +97184,23 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
       delete this._item_urls[key];
     }
     this._preloadUpcomingInteractiveContent(current_index);
+  }
+  _clearActiveItem() {
+    if (this.index() !== -1) {
+      this.index.set(-1);
+      this.indexChange.emit(-1);
+    }
+    this.playing_id.emit("");
+    this._item_start = 0;
+    this._item_progress = 0;
+    this._item_real_start = 0;
+    this._item_real_progress = 0;
+    this.progress.set(0);
+    this.duration.set(0);
+    this.progress_start.set(0);
+    this._clearDeferredReveal();
+    this._clearOutput(0);
+    this._clearOutput(1);
   }
   _preloadUpcomingInteractiveContent(current_index) {
     if (!this._shouldPreloadUpcomingInteractiveContent())
@@ -98704,27 +98866,41 @@ function SignagePanelComponent_Conditional_1_Template(rf, ctx) {
     \u0275\u0275property("playlist", ctx_r1.override_playlist().playlist)("controls", ctx_r1.debug())("can_close", true)("muted", ctx_r1.muted())("animation_time", ctx_r1.animation_time);
   }
 }
+function SignagePanelComponent_Conditional_2_Conditional_11_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span");
+    \u0275\u0275text(1, "No item playing");
+    \u0275\u0275elementEnd();
+  }
+}
 function SignagePanelComponent_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 3);
     \u0275\u0275text(1);
-    \u0275\u0275element(2, "br");
-    \u0275\u0275text(3);
-    \u0275\u0275pipe(4, "date");
-    \u0275\u0275pipe(5, "date");
+    \u0275\u0275pipe(2, "date");
+    \u0275\u0275pipe(3, "date");
+    \u0275\u0275elementStart(4, "span", 4);
+    \u0275\u0275text(5, "|");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(6, "div", 4);
-    \u0275\u0275text(7);
+    \u0275\u0275text(6, "\xA0");
+    \u0275\u0275elementStart(7, "span", 5);
+    \u0275\u0275text(8);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(9, "div", 6);
+    \u0275\u0275text(10);
+    \u0275\u0275conditionalCreate(11, SignagePanelComponent_Conditional_2_Conditional_11_Template, 2, 0, "span");
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", ctx_r1.version_hash, " ");
+    \u0275\u0275textInterpolate2(" ", \u0275\u0275pipeBind2(2, 5, ctx_r1.version_date, "mediumDate"), " \u2013 ", \u0275\u0275pipeBind2(3, 8, ctx_r1.version_date, "shortTime"), " ");
+    \u0275\u0275advance(7);
+    \u0275\u0275textInterpolate(ctx_r1.version_hash);
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate2(" ", \u0275\u0275pipeBind2(4, 4, ctx_r1.version_date, "mediumDate"), " \u2013 ", \u0275\u0275pipeBind2(5, 7, ctx_r1.version_date, "shortTime"), " ");
-    \u0275\u0275advance(4);
     \u0275\u0275textInterpolate1(" ", ctx_r1.playing_id(), " ");
+    \u0275\u0275advance();
+    \u0275\u0275conditional(!ctx_r1.playing_id() ? 11 : -1);
   }
 }
 var REMOTE_PAUSE = "signage:pause";
@@ -98842,7 +99018,7 @@ var SignagePanelComponent = class _SignagePanelComponent extends AsyncHandler {
       if (rf & 2) {
         \u0275\u0275queryAdvance();
       }
-    }, features: [\u0275\u0275InheritDefinitionFeature], decls: 3, vars: 7, consts: [[1, "z-0", 3, "playing_id", "event", "mutedChange", "playlist", "controls", "muted", "override", "animation_time"], [1, "absolute", "inset-0", "z-10", 3, "playlist", "controls", "can_close", "muted", "animation_time"], [1, "absolute", "inset-0", "z-10", 3, "playing_id", "event", "mutedChange", "closed", "playlist", "controls", "can_close", "muted", "animation_time"], ["stroke", "", 1, "text-base-400", "absolute", "bottom-2", "left-2", "font-mono", "text-xs", "text-shadow-lg"], ["stroke", "", 1, "text-base-400", "absolute", "right-2", "bottom-2", "font-mono", "text-xs", "text-shadow-lg"]], template: function SignagePanelComponent_Template(rf, ctx) {
+    }, features: [\u0275\u0275InheritDefinitionFeature], decls: 3, vars: 7, consts: [[1, "z-0", 3, "playing_id", "event", "mutedChange", "playlist", "controls", "muted", "override", "animation_time"], [1, "absolute", "inset-0", "z-10", 3, "playlist", "controls", "can_close", "muted", "animation_time"], [1, "absolute", "inset-0", "z-10", 3, "playing_id", "event", "mutedChange", "closed", "playlist", "controls", "can_close", "muted", "animation_time"], ["stroke", "", 1, "text-base-100/60", "absolute", "bottom-1", "left-1", "font-mono", "text-[0.625rem]", "px-2", "rounded", "py-1", "bg-base-content/40"], [1, "opacity-50"], [1, "select-all"], ["stroke", "", 1, "text-base-100/60", "absolute", "bottom-1", "right-1", "font-mono", "text-[0.625rem]", "bg-base-content/40", "rounded", "px-2", "py-1"]], template: function SignagePanelComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "media-player", 0);
         \u0275\u0275listener("playing_id", function SignagePanelComponent_Template_media_player_playing_id_0_listener($event) {
@@ -98854,7 +99030,7 @@ var SignagePanelComponent = class _SignagePanelComponent extends AsyncHandler {
         });
         \u0275\u0275elementEnd();
         \u0275\u0275conditionalCreate(1, SignagePanelComponent_Conditional_1_Template, 1, 5, "media-player", 1);
-        \u0275\u0275conditionalCreate(2, SignagePanelComponent_Conditional_2_Template, 8, 10);
+        \u0275\u0275conditionalCreate(2, SignagePanelComponent_Conditional_2_Template, 12, 11);
       }
       if (rf & 2) {
         \u0275\u0275property("playlist", ctx.playlist())("controls", ctx.debug())("muted", ctx.muted())("override", ctx.override_playlist().playlist.length > 0)("animation_time", ctx.animation_time);
@@ -98898,24 +99074,26 @@ var SignagePanelComponent = class _SignagePanelComponent extends AsyncHandler {
         @if (debug()) {
             <div
                 stroke
-                class="text-base-400 absolute bottom-2 left-2 font-mono text-xs text-shadow-lg"
-            >
-                {{ version_hash }} <br />
+                class="text-base-100/60 absolute bottom-1 left-1 font-mono text-[0.625rem] px-2 rounded py-1 bg-base-content/40">
                 {{ version_date | date: 'mediumDate' }} &ndash;
                 {{ version_date | date: 'shortTime' }}
+                <span class="opacity-50">|</span>&nbsp;<span class="select-all">{{version_hash}}</span>
             </div>
             <div
                 stroke
-                class="text-base-400 absolute right-2 bottom-2 font-mono text-xs text-shadow-lg"
+                class="text-base-100/60 absolute bottom-1 right-1 font-mono text-[0.625rem] bg-base-content/40 rounded px-2 py-1"
             >
                 {{ playing_id() }}
+                @if (!playing_id()) {
+                    <span>No item playing</span>
+                }
             </div>
         }
     `, imports: [DatePipe, MediaPlayerComponent], styles: ["/* angular:styles/component:css;cd55edd5bec2e27ad72dbab2cf735c69f9dbe31aab8da774385fbf5fd5fffa9b;/home/runner/work/user-interfaces/user-interfaces/apps/signage/src/app/signage.component.ts */\n:host {\n  display: block;\n  height: 100%;\n  width: 100%;\n}\n.stroke {\n  -webkit-text-stroke: 1px #000;\n}\n/*# sourceMappingURL=signage.component.css.map */\n"] }]
   }], null, { _players: [{ type: ViewChildren, args: [forwardRef(() => MediaPlayerComponent), { isSignal: true }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SignagePanelComponent, { className: "SignagePanelComponent", filePath: "apps/signage/src/app/signage.component.ts", lineNumber: 82 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SignagePanelComponent, { className: "SignagePanelComponent", filePath: "apps/signage/src/app/signage.component.ts", lineNumber: 84 });
 })();
 
 // apps/signage/src/app/app.routes.ts
