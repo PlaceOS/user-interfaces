@@ -40804,6 +40804,7 @@ var COMMON = {
   BUILDING_ANY: "Any Building",
   BUILDING_ALL: "All Buildings",
   LEVEL_ANY: "Any Level",
+  LAST_UPDATED: "Updated {{ time }}",
   LEVEL_ALL: "All Levels",
   LEVEL_EMPTY: "No Level",
   ROOM_EMPTY: "No Room",
@@ -41852,6 +41853,7 @@ var APP = {
     DESKS_NAME: "Desk Name",
     DESKS_SAVING: "Saving desk details...",
     DESKS_SAVE_ERROR: "Failed to save desk details. Error: {{ error }}",
+    DESKS_SELECT_LEVEL: "Select a level before modifying desks.",
     DESKS_ASSIGN_CONFLICT_ERROR: "This desk is currently booked. Please cancel the existing booking before assigning it.",
     DESKS_ASSIGN_LIMIT_ERROR_1: "Users can only have 1 assigned desk at a time.",
     DESKS_ASSIGN_LIMIT_ERROR_N: "Users can only have {{ count }} assigned desks at a time.",
@@ -42700,6 +42702,9 @@ var APP = {
     REPORTS_PRINT: "Print Report",
     REPORTS_EMPTY: "Select level(s) and date range to generate the report",
     REPORTS_BUSINESS_DAYS: "Business Days",
+    REPORTS_ALLOCATIONS: "Allocations",
+    REPORTS_REJECTED: "Rejected",
+    REPORTS_CANCELLED: "Cancelled",
     REPORTS_TOTAL_BOOKINGS: "Total Bookings",
     REPORTS_TOTAL_SITE_ATTENDANCE: "Total Site Attendance",
     REPORTS_TOTAL_RESERVATIONS: "Requests",
@@ -54629,15 +54634,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "c4f5699",
-  "hash": "c4f5699",
+  "raw": "6a57422",
+  "hash": "6a57422",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "c4f5699",
+  "suffix": "6a57422",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1783316877079
+  "time": 1783528887476
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -77242,7 +77247,7 @@ var log3 = scoped_log("ORG");
 var ORG_CACHE_PREFIX = "PLACEOS.org";
 var ZONE_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.zones`;
 var METADATA_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.metadata`;
-var DEFAULT_CACHE_DURATION = 5 * 60 * 1e3;
+var DEFAULT_CACHE_DURATION = 2 * 60 * 1e3;
 var OrganisationService = class _OrganisationService {
   /** Mapping of organisation settings overrides */
   get settings() {
@@ -77884,13 +77889,23 @@ var OrganisationService = class _OrganisationService {
     const cached_metadata = this._getCachedItem(cache_key);
     if (cached_metadata)
       return cached_metadata;
-    const metadata2 = await Yu(name, { parent_ids }).catch(() => ({}));
+    const metadata2 = await Yu(name, { parent_ids }).catch((err) => err?.status === 404 ? this._individualMetadata(name, ids) : {});
     const metadata_details = ids.reduce((map2, id) => {
       map2[id] = metadata2[id]?.details || {};
       return map2;
     }, {});
     this._setCachedItem(cache_key, metadata_details);
     return metadata_details;
+  }
+  /** Fallback for backends without the bulk metadata endpoint (404) */
+  async _individualMetadata(name, ids) {
+    const items = await Promise.all(ids.filter(Boolean).map((id) => Wu(id, name).then((item) => [id, item], () => [id, null])));
+    const metadata2 = {};
+    for (const [id, item] of items) {
+      if (item)
+        metadata2[id] = item;
+    }
+    return metadata2;
   }
   async _queryZones(params) {
     const cache_key = this._zoneCacheKey(params);
@@ -102018,6 +102033,9 @@ function playlistMediaItems(list) {
   const media_by_id = new Map(media.map((item) => [item.id, item]));
   return list.items?.length ? list.items.map((id) => media_by_id.get(id)).filter((item) => !!item) : media;
 }
+function playlistMediaIds(list) {
+  return playlistMediaItems(list).map((item) => item.id);
+}
 function playlistItemScheduleMap(list) {
   const map2 = /* @__PURE__ */ new Map();
   for (const item of list.schedules || []) {
@@ -102170,6 +102188,97 @@ function playlistScheduleLabel(schedule) {
     return `Plays once on ${date.toLocaleString()} for ${durationLabel(period)}`;
   }
   return `${humanizeCronSchedule(schedule.play_cron || "0 0 * * *", period)}${schedule.play_takeover ? " \xB7 takeover" : ""}`;
+}
+function matchesCronPart(value, cron_part) {
+  if (cron_part === "*")
+    return true;
+  if (cron_part.includes(",")) {
+    return cron_part.split(",").some((item) => matchesCronPart(value, item));
+  }
+  if (cron_part.includes("/")) {
+    const [base, step] = cron_part.split("/");
+    return !!+step && value % +step === 0 && matchesCronPart(value, base);
+  }
+  if (cron_part.includes("-")) {
+    const [start, end] = cron_part.split("-").map(Number);
+    return value >= start && value <= end;
+  }
+  return Number(cron_part) === value;
+}
+function doesCronMatchDate(cron, date) {
+  const parts = cron.trim().split(/\s+/);
+  if (parts.length !== 5)
+    return false;
+  const [minute, hour, day, month, day_of_week] = parts;
+  if (!matchesCronPart(date.getMinutes(), minute))
+    return false;
+  if (!matchesCronPart(date.getHours(), hour))
+    return false;
+  if (!matchesCronPart(date.getMonth() + 1, month))
+    return false;
+  const day_matches = matchesCronPart(date.getDate(), day);
+  const weekday_matches = matchesCronPart(date.getDay(), day_of_week);
+  if (day === "*" && day_of_week === "*")
+    return true;
+  if (day !== "*" && day_of_week === "*")
+    return day_matches;
+  if (day === "*" && day_of_week !== "*")
+    return weekday_matches;
+  if (isCronMonthlyWeekday(day, day_of_week)) {
+    return day_matches && weekday_matches;
+  }
+  return day_matches || weekday_matches;
+}
+function formatPlayDateTime(date) {
+  return date.toLocaleString(void 0, {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit"
+  });
+}
+function formatPlayTime(date) {
+  return date.toLocaleTimeString(void 0, {
+    hour: "numeric",
+    minute: "2-digit"
+  });
+}
+function formatPlayDateTimeRange(start, duration_minutes) {
+  const end = new Date(start);
+  end.setMinutes(end.getMinutes() + Math.max(0, duration_minutes || 0));
+  if (duration_minutes > 0)
+    end.setSeconds(end.getSeconds() - 1);
+  const end_text = start.toDateString() === end.toDateString() ? formatPlayTime(end) : formatPlayDateTime(end);
+  return `${formatPlayDateTime(start)} \u2013 ${end_text}`;
+}
+function nextCronPlayDates(cron, count) {
+  const result = [];
+  if (!cron?.trim())
+    return result;
+  const date = /* @__PURE__ */ new Date();
+  date.setSeconds(0, 0);
+  date.setMinutes(date.getMinutes() + 1);
+  const end = new Date(date);
+  end.setFullYear(end.getFullYear() + 2);
+  while (date <= end && result.length < count) {
+    if (doesCronMatchDate(cron, date))
+      result.push(new Date(date));
+    date.setMinutes(date.getMinutes() + 1);
+  }
+  return result;
+}
+function playlistScheduleNextPlayLabels(schedule, count = 5) {
+  const period = schedulePeriod(schedule);
+  if (schedule.play_at) {
+    const start = new Date(schedule.play_at > 1e12 ? schedule.play_at : schedule.play_at * 1e3);
+    const end = new Date(start);
+    end.setMinutes(end.getMinutes() + Math.max(0, period || 0));
+    if (period > 0)
+      end.setSeconds(end.getSeconds() - 1);
+    return end >= /* @__PURE__ */ new Date() ? [formatPlayDateTimeRange(start, period)] : [];
+  }
+  return nextCronPlayDates(schedule.play_cron || "0 0 * * *", count).map((start) => formatPlayDateTimeRange(start, period));
 }
 
 // apps/signage-manager/src/app/shared/media-edit-modal.component.ts
@@ -102449,8 +102558,8 @@ var MediaEditModalComponent = class _MediaEditModalComponent {
         play_time: this._data.media.play_time || 0,
         tags: this._data.media.tags || [],
         plugin_params: this._data.media.plugin_params || {},
-        valid_from: this._data.media.valid_from ? this._data.media.valid_from * 1e3 : 0,
-        valid_until: this._data.media.valid_until ? this._data.media.valid_until * 1e3 : 0
+        valid_from: this._data.media.valid_from ? this._data.media.valid_from * 1e3 : null,
+        valid_until: this._data.media.valid_until ? this._data.media.valid_until * 1e3 : null
       },
       ...ngDevMode ? [{ debugName: "model" }] : (
         /* istanbul ignore next */
@@ -104501,7 +104610,7 @@ var PlaylistApproveModalComponent = class _PlaylistApproveModalComponent {
       this._service.setPlaylistApprovalStatus(this._data.playlist.id, false);
       notifySuccess(i18n("SIGNAGE_MANAGER.PLAYLIST_REVERTED"));
       this._dialog_ref.close(true);
-      this._service.changed();
+      this._service.refreshPlaylist(this._data.playlist.id);
     } catch (e) {
       notifyError(i18n("SIGNAGE_MANAGER.PLAYLIST_REVERT_ERROR"));
     } finally {
@@ -105339,15 +105448,15 @@ function playlistSchedules(playlist) {
   const schedule = currentPlaylistSchedule(playlist);
   return playlist.schedules?.length ? playlist.schedules : [schedule];
 }
-function matchesCronPart(value, cron_part) {
+function matchesCronPart2(value, cron_part) {
   if (cron_part === "*")
     return true;
   if (cron_part.includes(",")) {
-    return cron_part.split(",").some((item) => matchesCronPart(value, item));
+    return cron_part.split(",").some((item) => matchesCronPart2(value, item));
   }
   if (cron_part.includes("/")) {
     const [base, step] = cron_part.split("/");
-    return !!+step && value % +step === 0 && matchesCronPart(value, base);
+    return !!+step && value % +step === 0 && matchesCronPart2(value, base);
   }
   if (cron_part.includes("-")) {
     const [start, end] = cron_part.split("-").map(Number);
@@ -105355,19 +105464,19 @@ function matchesCronPart(value, cron_part) {
   }
   return Number(cron_part) === value;
 }
-function doesCronMatchDate(cron, date) {
+function doesCronMatchDate2(cron, date) {
   const parts = cron.trim().split(/\s+/);
   if (parts.length !== 5)
     return false;
   const [minute, hour, day, month, day_of_week] = parts;
-  if (!matchesCronPart(date.getMinutes(), minute))
+  if (!matchesCronPart2(date.getMinutes(), minute))
     return false;
-  if (!matchesCronPart(date.getHours(), hour))
+  if (!matchesCronPart2(date.getHours(), hour))
     return false;
-  if (!matchesCronPart(date.getMonth() + 1, month))
+  if (!matchesCronPart2(date.getMonth() + 1, month))
     return false;
-  const day_matches = matchesCronPart(date.getDate(), day);
-  const weekday_matches = matchesCronPart(date.getDay(), day_of_week);
+  const day_matches = matchesCronPart2(date.getDate(), day);
+  const weekday_matches = matchesCronPart2(date.getDay(), day_of_week);
   if (day === "*" && day_of_week === "*")
     return true;
   if (day !== "*" && day_of_week === "*")
@@ -105379,7 +105488,7 @@ function doesCronMatchDate(cron, date) {
   }
   return day_matches || weekday_matches;
 }
-function formatPlayDateTime(date) {
+function formatPlayDateTime2(date) {
   return date.toLocaleString(void 0, {
     weekday: "short",
     month: "short",
@@ -105388,19 +105497,19 @@ function formatPlayDateTime(date) {
     minute: "2-digit"
   });
 }
-function formatPlayTime(date) {
+function formatPlayTime2(date) {
   return date.toLocaleTimeString(void 0, {
     hour: "numeric",
     minute: "2-digit"
   });
 }
-function formatPlayDateTimeRange(start, duration_minutes) {
+function formatPlayDateTimeRange2(start, duration_minutes) {
   const end = new Date(start);
   end.setMinutes(end.getMinutes() + Math.max(0, duration_minutes || 0));
   if (duration_minutes > 0)
     end.setSeconds(end.getSeconds() - 1);
-  const end_text = start.toDateString() === end.toDateString() ? formatPlayTime(end) : formatPlayDateTime(end);
-  return `${formatPlayDateTime(start)} \u2013 ${end_text}`;
+  const end_text = start.toDateString() === end.toDateString() ? formatPlayTime2(end) : formatPlayDateTime2(end);
+  return `${formatPlayDateTime2(start)} \u2013 ${end_text}`;
 }
 function formatMinutes(value) {
   const total_minutes = Math.max(0, Math.round(value || 0));
@@ -105435,8 +105544,8 @@ function nextCronPlayTimes(cron, duration_minutes) {
   const end = new Date(date);
   end.setFullYear(end.getFullYear() + 2);
   while (date <= end && result.length < 5) {
-    if (doesCronMatchDate(cron, date)) {
-      result.push(formatPlayDateTimeRange(date, duration_minutes));
+    if (doesCronMatchDate2(cron, date)) {
+      result.push(formatPlayDateTimeRange2(date, duration_minutes));
     }
     date.setMinutes(date.getMinutes() + 1);
   }
@@ -105589,7 +105698,7 @@ var PlaylistScheduleFormComponent = class _PlaylistScheduleFormComponent {
     if (value.schedule_type === "play_at") {
       const date = new Date(value.play_at || Date.now());
       return `${i18n("SIGNAGE_MANAGER.SUMMARY_PLAY_ONCE", {
-        datetime: formatPlayDateTime(date),
+        datetime: formatPlayDateTime2(date),
         duration
       })}${takeover}`;
     }
@@ -106189,7 +106298,7 @@ var PlaylistScheduleFormComponent = class _PlaylistScheduleFormComponent {
 function PlaylistEditModalComponent_Conditional_21_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 7);
-    \u0275\u0275element(1, "settings-toggle", 35);
+    \u0275\u0275element(1, "settings-toggle", 32);
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275controlCreate();
     \u0275\u0275elementEnd();
@@ -106201,26 +106310,55 @@ function PlaylistEditModalComponent_Conditional_21_Template(rf, ctx) {
     \u0275\u0275control();
   }
 }
-function PlaylistEditModalComponent_For_108_Template(rf, ctx) {
+function PlaylistEditModalComponent_Conditional_102_For_6_Template(rf, ctx) {
   if (rf & 1) {
-    const _r2 = \u0275\u0275getCurrentView();
+    const _r3 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "playlist-schedule-form", 36);
-    \u0275\u0275listener("toggle", function PlaylistEditModalComponent_For_108_Template_playlist_schedule_form_toggle_0_listener() {
-      const \u0275$index_164_r3 = \u0275\u0275restoreView(_r2).$index;
-      const ctx_r0 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r0.openSchedule(\u0275$index_164_r3));
-    })("remove", function PlaylistEditModalComponent_For_108_Template_playlist_schedule_form_remove_0_listener($event) {
-      const \u0275$index_164_r3 = \u0275\u0275restoreView(_r2).$index;
-      const ctx_r0 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r0.removeSchedule($event, \u0275$index_164_r3));
+    \u0275\u0275listener("toggle", function PlaylistEditModalComponent_Conditional_102_For_6_Template_playlist_schedule_form_toggle_0_listener() {
+      const \u0275$index_165_r4 = \u0275\u0275restoreView(_r3).$index;
+      const ctx_r0 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r0.openSchedule(\u0275$index_165_r4));
+    })("remove", function PlaylistEditModalComponent_Conditional_102_For_6_Template_playlist_schedule_form_remove_0_listener($event) {
+      const \u0275$index_165_r4 = \u0275\u0275restoreView(_r3).$index;
+      const ctx_r0 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r0.removeSchedule($event, \u0275$index_165_r4));
     });
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const schedule_r4 = ctx.$implicit;
-    const \u0275$index_164_r3 = ctx.$index;
+    const schedule_r5 = ctx.$implicit;
+    const \u0275$index_165_r4 = ctx.$index;
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275property("schedule", schedule_r5)("index", \u0275$index_165_r4)("open", ctx_r0.isScheduleOpen(\u0275$index_165_r4))("can_remove", ctx_r0.model().schedules.length > 1);
+  }
+}
+function PlaylistEditModalComponent_Conditional_102_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r2 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 8)(1, "label");
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "div", 33);
+    \u0275\u0275repeaterCreate(5, PlaylistEditModalComponent_Conditional_102_For_6_Template, 1, 4, "playlist-schedule-form", 34, \u0275\u0275repeaterTrackByIndex);
+    \u0275\u0275elementStart(7, "button", 35);
+    \u0275\u0275listener("click", function PlaylistEditModalComponent_Conditional_102_Template_button_click_7_listener() {
+      \u0275\u0275restoreView(_r2);
+      const ctx_r0 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r0.addSchedule());
+    });
+    \u0275\u0275text(8);
+    \u0275\u0275pipe(9, "translate");
+    \u0275\u0275elementEnd()()();
+  }
+  if (rf & 2) {
     const ctx_r0 = \u0275\u0275nextContext();
-    \u0275\u0275property("schedule", schedule_r4)("index", \u0275$index_164_r3)("open", ctx_r0.isScheduleOpen(\u0275$index_164_r3))("can_remove", ctx_r0.model().schedules.length > 1);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(3, 2, "SIGNAGE_MANAGER.PLAYLIST_SCHEDULES"));
+    \u0275\u0275advance(3);
+    \u0275\u0275repeater(ctx_r0.form.schedules);
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(9, 4, "SIGNAGE_MANAGER.ADD_SCHEDULE"), " ");
   }
 }
 var PlaylistEditModalComponent = class _PlaylistEditModalComponent {
@@ -106253,8 +106391,8 @@ var PlaylistEditModalComponent = class _PlaylistEditModalComponent {
         orientation: this.playlist.orientation || "unspecified",
         default_duration: this.playlist.default_duration || 15e3,
         schedules: playlistSchedules(this.playlist).map((schedule) => createPlaylistScheduleModel(schedule)),
-        valid_from: this.playlist.valid_from ? this.playlist.valid_from * 1e3 : 0,
-        valid_until: this.playlist.valid_until ? this.playlist.valid_until * 1e3 : 0
+        valid_from: this.playlist.valid_from ? this.playlist.valid_from * 1e3 : null,
+        valid_until: this.playlist.valid_until ? this.playlist.valid_until * 1e3 : null
       },
       ...ngDevMode ? [{ debugName: "model" }] : (
         /* istanbul ignore next */
@@ -106265,8 +106403,9 @@ var PlaylistEditModalComponent = class _PlaylistEditModalComponent {
       required(path.name);
       minLength(path.schedules, 1);
     });
-    if (!this.model().schedules.length)
+    if (!this.model().distribution && !this.model().schedules.length) {
       this.addSchedule();
+    }
   }
   addSchedule() {
     this.model.update((model2) => __spreadProps(__spreadValues({}, model2), {
@@ -106302,7 +106441,11 @@ var PlaylistEditModalComponent = class _PlaylistEditModalComponent {
       this._dialog_ref.disableClose = true;
       const form_value = this.model();
       const data = __spreadValues({}, form_value);
-      data.schedules = form_value.schedules.map((schedule) => playlistSchedulePayload(schedule));
+      if (data.distribution) {
+        delete data.schedules;
+      } else {
+        data.schedules = form_value.schedules.map((schedule) => playlistSchedulePayload(schedule));
+      }
       if (data.valid_from) {
         data.valid_from = getUnixTime(startOfDay(data.valid_from));
       } else
@@ -106335,7 +106478,7 @@ var PlaylistEditModalComponent = class _PlaylistEditModalComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _PlaylistEditModalComponent, selectors: [["playlist-edit-modal"]], decls: 112, vars: 122, consts: [[3, "confirm", "heading", "loading"], ["for", "name"], ["required", ""], ["appearance", "outline", 1, "w-full"], ["matInput", "", 3, "placeholder", "formField"], [1, "mb-4", "flex", "items-center", "space-x-4"], [1, "flex-1", 3, "label", "formField"], [1, "mb-4"], [1, "pt-2", "pb-4"], [1, "border-base-300", "relative", "rounded-sm", "border"], ["for", "default-duration", 1, "bg-base-100", "absolute", "top-0", "left-2", "m-0", "flex", "w-auto", "min-w-0", "-translate-y-1/2", "items-center", "space-x-2", "px-2"], [1, "flex", "items-center", "px-2", "pt-2"], ["min", "5000", "max", "300000", "step", "1000", 1, "flex-1"], ["matSliderThumb", "", 3, "formField"], [1, "w-16", "px-2", "text-right", "font-mono", "text-xs"], [1, "flex", "space-x-2"], [1, "flex-1"], ["for", "orientation"], [3, "formField", "placeholder"], ["value", "unspecified"], ["value", "landscape"], ["value", "portrait"], ["value", "square"], ["for", "animation"], [3, "value"], ["for", "description"], ["matInput", "", 1, "min-h-32", 3, "placeholder", "formField"], [1, "flex", "space-x-4"], ["for", "valid-from"], ["name", "valid-from", 3, "formField", "clear"], ["for", "valid-until"], ["name", "valid-until", 3, "from", "formField", "clear"], [1, "mt-2", "flex", "flex-col", "gap-4"], [3, "schedule", "index", "open", "can_remove"], ["type", "button", 1, "border-primary", "text-primary", "hover:bg-primary/10", "rounded", "border", "px-3", "py-2", "text-sm", "font-medium", 3, "click"], [3, "label", "formField"], [3, "toggle", "remove", "schedule", "index", "open", "can_remove"]], template: function PlaylistEditModalComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _PlaylistEditModalComponent, selectors: [["playlist-edit-modal"]], decls: 103, vars: 117, consts: [[3, "confirm", "heading", "loading"], ["for", "name"], ["required", ""], ["appearance", "outline", 1, "w-full"], ["matInput", "", 3, "placeholder", "formField"], [1, "mb-4", "flex", "items-center", "space-x-4"], [1, "flex-1", 3, "label", "formField"], [1, "mb-4"], [1, "pt-2", "pb-4"], [1, "border-base-300", "relative", "rounded-sm", "border"], ["for", "default-duration", 1, "bg-base-100", "absolute", "top-0", "left-2", "m-0", "flex", "w-auto", "min-w-0", "-translate-y-1/2", "items-center", "space-x-2", "px-2"], [1, "flex", "items-center", "px-2", "pt-2"], ["min", "5000", "max", "300000", "step", "1000", 1, "flex-1"], ["matSliderThumb", "", 3, "formField"], [1, "w-16", "px-2", "text-right", "font-mono", "text-xs"], [1, "flex", "space-x-2"], [1, "flex-1"], ["for", "orientation"], [3, "formField", "placeholder"], ["value", "unspecified"], ["value", "landscape"], ["value", "portrait"], ["value", "square"], ["for", "animation"], [3, "value"], ["for", "description"], ["matInput", "", 1, "min-h-32", 3, "placeholder", "formField"], [1, "flex", "space-x-4"], ["for", "valid-from"], ["name", "valid-from", 3, "formField", "clear"], ["for", "valid-until"], ["name", "valid-until", 3, "from", "formField", "clear"], [3, "label", "formField"], [1, "mt-2", "flex", "flex-col", "gap-4"], [3, "schedule", "index", "open", "can_remove"], ["type", "button", 1, "border-primary", "text-primary", "hover:bg-primary/10", "rounded", "border", "px-3", "py-2", "text-sm", "font-medium", 3, "click"], [3, "toggle", "remove", "schedule", "index", "open", "can_remove"]], template: function PlaylistEditModalComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "fullscreen-modal-shell", 0);
         \u0275\u0275pipe(1, "translate");
@@ -106465,115 +106608,100 @@ var PlaylistEditModalComponent = class _PlaylistEditModalComponent {
         \u0275\u0275element(101, "a-date-field", 31);
         \u0275\u0275controlCreate();
         \u0275\u0275elementEnd()();
-        \u0275\u0275elementStart(102, "div", 8)(103, "label");
-        \u0275\u0275text(104);
-        \u0275\u0275pipe(105, "translate");
-        \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(106, "div", 32);
-        \u0275\u0275repeaterCreate(107, PlaylistEditModalComponent_For_108_Template, 1, 4, "playlist-schedule-form", 33, \u0275\u0275repeaterTrackByIndex);
-        \u0275\u0275elementStart(109, "button", 34);
-        \u0275\u0275listener("click", function PlaylistEditModalComponent_Template_button_click_109_listener() {
-          return ctx.addSchedule();
-        });
-        \u0275\u0275text(110);
-        \u0275\u0275pipe(111, "translate");
-        \u0275\u0275elementEnd()()()()();
+        \u0275\u0275conditionalCreate(102, PlaylistEditModalComponent_Conditional_102_Template, 10, 6, "div", 8);
+        \u0275\u0275elementEnd()();
       }
       if (rf & 2) {
-        \u0275\u0275property("heading", \u0275\u0275pipeBind1(1, 54, ctx.playlist.id ? "SIGNAGE_MANAGER.PLAYLIST_EDIT" : "SIGNAGE_MANAGER.NEW_PLAYLIST"))("loading", ctx.loading() ? \u0275\u0275pipeBind1(2, 56, "SIGNAGE_MANAGER.PLAYLIST_SAVING") : "");
+        \u0275\u0275property("heading", \u0275\u0275pipeBind1(1, 53, ctx.playlist.id ? "SIGNAGE_MANAGER.PLAYLIST_EDIT" : "SIGNAGE_MANAGER.NEW_PLAYLIST"))("loading", ctx.loading() ? \u0275\u0275pipeBind1(2, 55, "SIGNAGE_MANAGER.PLAYLIST_SAVING") : "");
         \u0275\u0275advance(5);
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(6, 58, "FORM.NAME"));
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(6, 57, "FORM.NAME"));
         \u0275\u0275advance(5);
-        \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(11, 60, "FORM.NAME"))("formField", ctx.form.name);
-        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(12, 62, "SIGNAGE_MANAGER.PLAYLIST_NAME_ARIA"));
+        \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(11, 59, "FORM.NAME"))("formField", ctx.form.name);
+        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(12, 61, "SIGNAGE_MANAGER.PLAYLIST_NAME_ARIA"));
         \u0275\u0275control();
         \u0275\u0275advance(4);
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(15, 64, "FORM.NAME_REQUIRED"));
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(15, 63, "FORM.NAME_REQUIRED"));
         \u0275\u0275advance(3);
-        \u0275\u0275property("label", \u0275\u0275pipeBind1(18, 66, "COMMON.ENABLED"))("formField", ctx.form.enabled);
+        \u0275\u0275property("label", \u0275\u0275pipeBind1(18, 65, "COMMON.ENABLED"))("formField", ctx.form.enabled);
         \u0275\u0275control();
         \u0275\u0275advance(2);
-        \u0275\u0275property("label", \u0275\u0275pipeBind1(20, 68, "SIGNAGE_MANAGER.PLAYLIST_SHUFFLE"))("formField", ctx.form.random);
+        \u0275\u0275property("label", \u0275\u0275pipeBind1(20, 67, "SIGNAGE_MANAGER.PLAYLIST_SHUFFLE"))("formField", ctx.form.random);
         \u0275\u0275control();
         \u0275\u0275advance(2);
         \u0275\u0275conditional(!ctx.playlist.id ? 21 : -1);
         \u0275\u0275advance(5);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(27, 70, "SIGNAGE_MANAGER.DEFAULT_PLAY_TIME"), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(27, 69, "SIGNAGE_MANAGER.DEFAULT_PLAY_TIME"), " ");
         \u0275\u0275advance(4);
         \u0275\u0275property("formField", ctx.form.default_duration);
         \u0275\u0275control();
         \u0275\u0275advance(2);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(33, 72, ctx.model().default_duration / 1e3), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(33, 71, ctx.model().default_duration / 1e3), " ");
         \u0275\u0275advance(5);
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(38, 74, "SIGNAGE_MANAGER.ORIENTATION"));
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(38, 73, "SIGNAGE_MANAGER.ORIENTATION"));
         \u0275\u0275advance(3);
-        \u0275\u0275property("formField", ctx.form.orientation)("placeholder", \u0275\u0275pipeBind1(41, 76, "COMMON.LOCATION_UNSPECIFIED"));
-        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(42, 78, "SIGNAGE_MANAGER.PLAYLIST_ORIENTATION_ARIA"));
+        \u0275\u0275property("formField", ctx.form.orientation)("placeholder", \u0275\u0275pipeBind1(41, 75, "COMMON.LOCATION_UNSPECIFIED"));
+        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(42, 77, "SIGNAGE_MANAGER.PLAYLIST_ORIENTATION_ARIA"));
         \u0275\u0275control();
         \u0275\u0275advance(4);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(45, 80, "COMMON.LOCATION_UNSPECIFIED"), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(45, 79, "COMMON.LOCATION_UNSPECIFIED"), " ");
         \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(48, 82, "SIGNAGE_MANAGER.ORIENTATION_LANDSCAPE"));
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(48, 81, "SIGNAGE_MANAGER.ORIENTATION_LANDSCAPE"));
         \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(51, 84, "SIGNAGE_MANAGER.ORIENTATION_PORTRAIT"));
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(51, 83, "SIGNAGE_MANAGER.ORIENTATION_PORTRAIT"));
         \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(54, 86, "SIGNAGE_MANAGER.ORIENTATION_SQUARE"));
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(54, 85, "SIGNAGE_MANAGER.ORIENTATION_SQUARE"));
         \u0275\u0275advance(4);
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(58, 88, "SIGNAGE_MANAGER.ANIMATION"));
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(58, 87, "SIGNAGE_MANAGER.ANIMATION"));
         \u0275\u0275advance(3);
-        \u0275\u0275property("formField", ctx.form.default_animation)("placeholder", \u0275\u0275pipeBind1(61, 90, "COMMON.DEFAULT"));
-        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(62, 92, "SIGNAGE_MANAGER.DEFAULT_ANIMATION"));
+        \u0275\u0275property("formField", ctx.form.default_animation)("placeholder", \u0275\u0275pipeBind1(61, 89, "COMMON.DEFAULT"));
+        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(62, 91, "SIGNAGE_MANAGER.DEFAULT_ANIMATION"));
         \u0275\u0275control();
         \u0275\u0275advance(3);
         \u0275\u0275property("value", 0);
         \u0275\u0275advance();
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(65, 94, "COMMON.DEFAULT"));
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(65, 93, "COMMON.DEFAULT"));
         \u0275\u0275advance(2);
         \u0275\u0275property("value", 1);
         \u0275\u0275advance();
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(68, 96, "SIGNAGE_MANAGER.ANIM_CUT"));
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(68, 95, "SIGNAGE_MANAGER.ANIM_CUT"));
         \u0275\u0275advance(2);
         \u0275\u0275property("value", 2);
         \u0275\u0275advance();
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(71, 98, "SIGNAGE_MANAGER.ANIM_CROSS_FADE"));
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(71, 97, "SIGNAGE_MANAGER.ANIM_CROSS_FADE"));
         \u0275\u0275advance(2);
         \u0275\u0275property("value", 3);
         \u0275\u0275advance();
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(74, 100, "SIGNAGE_MANAGER.ANIM_SLIDE_TOP"));
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(74, 99, "SIGNAGE_MANAGER.ANIM_SLIDE_TOP"));
         \u0275\u0275advance(2);
         \u0275\u0275property("value", 4);
         \u0275\u0275advance();
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(77, 102, "SIGNAGE_MANAGER.ANIM_SLIDE_LEFT"));
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(77, 101, "SIGNAGE_MANAGER.ANIM_SLIDE_LEFT"));
         \u0275\u0275advance(2);
         \u0275\u0275property("value", 5);
         \u0275\u0275advance();
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(80, 104, "SIGNAGE_MANAGER.ANIM_SLIDE_RIGHT"));
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(80, 103, "SIGNAGE_MANAGER.ANIM_SLIDE_RIGHT"));
         \u0275\u0275advance(2);
         \u0275\u0275property("value", 6);
         \u0275\u0275advance();
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(83, 106, "SIGNAGE_MANAGER.ANIM_SLIDE_BOTTOM"));
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(83, 105, "SIGNAGE_MANAGER.ANIM_SLIDE_BOTTOM"));
         \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(86, 108, "COMMON.DESCRIPTION"));
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(86, 107, "COMMON.DESCRIPTION"));
         \u0275\u0275advance(3);
-        \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(89, 110, "COMMON.DESCRIPTION"))("formField", ctx.form.description);
-        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(90, 112, "SIGNAGE_MANAGER.PLAYLIST_DESCRIPTION_ARIA"));
+        \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(89, 109, "COMMON.DESCRIPTION"))("formField", ctx.form.description);
+        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(90, 111, "SIGNAGE_MANAGER.PLAYLIST_DESCRIPTION_ARIA"));
         \u0275\u0275control();
         \u0275\u0275advance(6);
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(95, 114, "SIGNAGE_MANAGER.VALID_FROM"));
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(95, 113, "SIGNAGE_MANAGER.VALID_FROM"));
         \u0275\u0275advance(2);
         \u0275\u0275property("formField", ctx.form.valid_from)("clear", true);
         \u0275\u0275control();
         \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(100, 116, "FORM.EXPIRES_AT"));
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(100, 115, "FORM.EXPIRES_AT"));
         \u0275\u0275advance(2);
         \u0275\u0275property("from", ctx.model().valid_from)("formField", ctx.form.valid_until)("clear", true);
         \u0275\u0275control();
-        \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(105, 118, "SIGNAGE_MANAGER.PLAYLIST_SCHEDULES"));
-        \u0275\u0275advance(3);
-        \u0275\u0275repeater(ctx.form.schedules);
-        \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(111, 120, "SIGNAGE_MANAGER.ADD_SCHEDULE"), " ");
+        \u0275\u0275advance();
+        \u0275\u0275conditional(!ctx.model().distribution ? 102 : -1);
       }
     }, dependencies: [
       FullscreenModalShellComponent,
@@ -106807,34 +106935,36 @@ var PlaylistEditModalComponent = class _PlaylistEditModalComponent {
                         ></a-date-field>
                     </div>
                 </div>
-                <div class="pt-2 pb-4">
-                    <label>{{
-                        'SIGNAGE_MANAGER.PLAYLIST_SCHEDULES' | translate
-                    }}</label>
-                    <div class="mt-2 flex flex-col gap-4">
-                        @for (
-                            schedule of form.schedules;
-                            track index;
-                            let index = $index
-                        ) {
-                            <playlist-schedule-form
-                                [schedule]="schedule"
-                                [index]="index"
-                                [open]="isScheduleOpen(index)"
-                                [can_remove]="model().schedules.length > 1"
-                                (toggle)="openSchedule(index)"
-                                (remove)="removeSchedule($event, index)"
-                            />
-                        }
-                        <button
-                            type="button"
-                            class="border-primary text-primary hover:bg-primary/10 rounded border px-3 py-2 text-sm font-medium"
-                            (click)="addSchedule()"
-                        >
-                            {{ 'SIGNAGE_MANAGER.ADD_SCHEDULE' | translate }}
-                        </button>
+                @if (!model().distribution) {
+                    <div class="pt-2 pb-4">
+                        <label>{{
+                            'SIGNAGE_MANAGER.PLAYLIST_SCHEDULES' | translate
+                        }}</label>
+                        <div class="mt-2 flex flex-col gap-4">
+                            @for (
+                                schedule of form.schedules;
+                                track index;
+                                let index = $index
+                            ) {
+                                <playlist-schedule-form
+                                    [schedule]="schedule"
+                                    [index]="index"
+                                    [open]="isScheduleOpen(index)"
+                                    [can_remove]="model().schedules.length > 1"
+                                    (toggle)="openSchedule(index)"
+                                    (remove)="removeSchedule($event, index)"
+                                />
+                            }
+                            <button
+                                type="button"
+                                class="border-primary text-primary hover:bg-primary/10 rounded border px-3 py-2 text-sm font-medium"
+                                (click)="addSchedule()"
+                            >
+                                {{ 'SIGNAGE_MANAGER.ADD_SCHEDULE' | translate }}
+                            </button>
+                        </div>
                     </div>
-                </div>
+                }
             </form>
         </fullscreen-modal-shell>
     `, imports: [
@@ -106853,7 +106983,7 @@ var PlaylistEditModalComponent = class _PlaylistEditModalComponent {
   }], () => [], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(PlaylistEditModalComponent, { className: "PlaylistEditModalComponent", filePath: "apps/signage-manager/src/app/shared/playlist-edit-modal.component.ts", lineNumber: 315 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(PlaylistEditModalComponent, { className: "PlaylistEditModalComponent", filePath: "apps/signage-manager/src/app/shared/playlist-edit-modal.component.ts", lineNumber: 317 });
 })();
 
 // apps/signage-manager/src/app/shared/playlist-item-schedule-modal.component.ts
@@ -106936,7 +107066,7 @@ var PlaylistItemScheduleModalComponent = class _PlaylistItemScheduleModalCompone
       this.loading.set(true);
       this._dialog_ref.disableClose = true;
       try {
-        await this._data.save(this._data.item.item_id, this.model().schedules.map((schedule) => playlistSchedulePayload(schedule)));
+        await this._data.save(this._data.item.id || this._data.item.item_id, this.model().schedules.map((schedule) => playlistSchedulePayload(schedule)));
         this._dialog_ref.disableClose = false;
         this._dialog_ref.close(true);
         notifySuccess(i18n("SIGNAGE_MANAGER.SVC_PLAYLIST_UPDATED"));
@@ -109414,8 +109544,8 @@ var SignageService = class _SignageService {
     const ref = this._dialog.open(PlaylistItemScheduleModalComponent, {
       data: {
         item,
-        save: (item_id, schedules) => Ah(playlist.id, item_id, {
-          item_id,
+        save: (schedule_id, schedules) => Ah(playlist.id, schedule_id, {
+          item_id: item.item_id,
           schedules
         })
       },
@@ -109426,6 +109556,15 @@ var SignageService = class _SignageService {
       this._playlist_change.set(Date.now());
       this.changed();
     }
+  }
+  refreshPlaylist(playlist_id) {
+    if (!playlist_id)
+      return;
+    this._removePlaylistMediaState(playlist_id);
+    if (this.selected_playlist()?.id === playlist_id) {
+      this._playlist_change.set(Date.now());
+    }
+    this.changed();
   }
   async _scheduleMediaForDistributionPlaylist(playlist_id, media_id) {
     const media = this.media().find((item) => item.id === media_id);
@@ -109826,10 +109965,10 @@ var SignageService = class _SignageService {
         }));
         try {
           const media = await yh(next_playlist.id);
-          const media_ids = media.items || [];
+          const media_ids = playlistMediaIds(media);
           this._setPlaylistMeta(next_playlist.id, {
             media_ids: media_ids.slice(0, 3),
-            item_ids: media_ids,
+            item_ids: media.items || media_ids,
             updated_at: playlist_updated_at,
             approved: media.approved,
             approval_requested: media.approval_requested
@@ -110948,7 +111087,8 @@ export {
   playlistMediaThumbnailUrl,
   playlistMediaIcon,
   playlistScheduleLabel,
+  playlistScheduleNextPlayLabels,
   dialogClosed,
   SignageService
 };
-//# sourceMappingURL=chunk-EQD7B7AG.js.map
+//# sourceMappingURL=chunk-GSYPF65K.js.map
