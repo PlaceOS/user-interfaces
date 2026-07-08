@@ -932,7 +932,6 @@ export class BookingFormService extends AsyncHandler {
             this.timezone,
             period?.start,
             period?.end,
-            this.model().id ? undefined : Date.now(),
         );
     }
 

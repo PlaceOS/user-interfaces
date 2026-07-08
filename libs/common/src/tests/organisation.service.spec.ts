@@ -193,8 +193,8 @@ describe('OrganisationService', () => {
     });
 
     it('should fall back to individual metadata requests when bulk returns 404', async () => {
-        jest.mocked(ts_client.bulkMetadata).mockRejectedValue({ status: 404 });
-        jest.mocked(ts_client.showMetadata).mockImplementation(
+        vi.mocked(ts_client.bulkMetadata).mockRejectedValue({ status: 404 });
+        vi.mocked(ts_client.showMetadata).mockImplementation(
             (id, name) =>
                 Promise.resolve({ details: { name } }) as any,
         );
@@ -216,7 +216,7 @@ describe('OrganisationService', () => {
     });
 
     it('should not fall back to individual requests on non-404 bulk errors', async () => {
-        jest.mocked(ts_client.bulkMetadata).mockRejectedValue({ status: 500 });
+        vi.mocked(ts_client.bulkMetadata).mockRejectedValue({ status: 500 });
 
         await spectator.service.loadBuildingData({ id: 'bld_1' } as any);
 

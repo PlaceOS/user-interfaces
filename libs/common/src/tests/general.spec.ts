@@ -751,7 +751,7 @@ describe('General Methods', () => {
             );
         });
 
-        it('should clamp current-day all-day bookings to the current time for new items', () => {
+        it('should use the all-day period start for current-day all-day bookings', () => {
             vi.useFakeTimers();
             vi.setSystemTime(new Date(2028, 5, 15, 10, 2, 0, 0));
             try {
@@ -771,9 +771,9 @@ describe('General Methods', () => {
                 setField(form, { all_day: true });
 
                 expect(form().date).toBe(
-                    new Date(2028, 5, 15, 10, 5, 0, 0).valueOf(),
+                    new Date(2028, 5, 15, 9, 0, 0, 0).valueOf(),
                 );
-                expect(form().duration).toBe(415);
+                expect(form().duration).toBe(8 * 60);
                 expect(form().date_end).toBe(
                     new Date(2028, 5, 15, 17, 0, 0, 0).valueOf(),
                 );
@@ -806,9 +806,9 @@ describe('General Methods', () => {
                 });
 
                 expect(form().date).toBe(
-                    new Date(2028, 5, 15, 10, 5, 0, 0).valueOf(),
+                    new Date(2028, 5, 15, 9, 0, 0, 0).valueOf(),
                 );
-                expect(form().duration).toBe(415);
+                expect(form().duration).toBe(8 * 60);
                 expect(form().date_end).toBe(
                     new Date(2028, 5, 15, 17, 0, 0, 0).valueOf(),
                 );

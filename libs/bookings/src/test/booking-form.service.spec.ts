@@ -1281,7 +1281,7 @@ describe('BookingFormService', () => {
         expect(spectator.service.model().user_email).toBe(current_user.email);
     });
 
-    it('should clamp current-day all-day bookings before posting', async () => {
+    it('should post current-day all-day bookings from the all-day period start', async () => {
         vi.useFakeTimers();
         vi.setSystemTime(new Date(2026, 2, 20, 10, 2, 0, 0));
         try {
@@ -1309,7 +1309,7 @@ describe('BookingFormService', () => {
             expect(savedBookings()[0]).toMatchObject({
                 all_day: true,
                 booking_start: Math.floor(
-                    new Date(2026, 2, 20, 10, 5, 0, 0).valueOf() / 1000,
+                    new Date(2026, 2, 20, 9, 0, 0, 0).valueOf() / 1000,
                 ),
                 booking_end: Math.floor(
                     new Date(2026, 2, 20, 17, 0, 0, 0).valueOf() / 1000,
