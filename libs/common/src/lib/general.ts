@@ -716,43 +716,20 @@ export function getAllDayTimeRange(
     timezone = '',
     start?: number | null,
     end?: number | null,
-    min_date?: number | null,
 ) {
     const day_start = startOfDayInTimezone(date, timezone);
-    const clampStart = (period_start: number, period_end: number) => {
-        if (!min_date) return period_start;
-        const minimum = roundToNearestMinutes(min_date, {
-            nearestTo: 5,
-            roundingMethod: 'ceil',
-        }).valueOf();
-        const same_day = isSameDay(
-            timezone ? toZonedTime(minimum, timezone) : new Date(minimum),
-            timezone
-                ? toZonedTime(period_start, timezone)
-                : new Date(period_start),
-        );
-        if (!same_day || minimum <= period_start) return period_start;
-        return Math.min(period_end, minimum);
-    };
     if (start == null || end == null) {
         const period_end = endOfDayInTimezone(day_start, timezone);
-        const period_start = clampStart(day_start, period_end);
         return {
-            date: period_start,
-            duration: Math.max(
-                0,
-                differenceInMinutes(period_end, period_start),
-            ),
+            date: day_start,
+            duration: Math.max(0, differenceInMinutes(period_end, day_start)),
             date_end: period_end,
         };
     }
     const range_start = Math.max(0, Math.min(23, start));
     const range_end = Math.max(range_start + 1, Math.min(24, end));
     const period_end = addHours(day_start, range_end).valueOf();
-    const period_start = clampStart(
-        addHours(day_start, range_start).valueOf(),
-        period_end,
-    );
+    const period_start = addHours(day_start, range_start).valueOf();
     return {
         date: period_start,
         duration: Math.max(0, differenceInMinutes(period_end, period_start)),
@@ -1258,8 +1235,6 @@ export function setupFormTimeSync<T extends TimeSyncModel>(
             roundingMethod: 'ceil',
         }).valueOf();
 
-    const allDayMinDate = () => (snap().id ? undefined : Date.now());
-
     /**
      * Minutes remaining in the bookable window from `start` until the end of
      * bookable hours on the same day. Returns `Infinity` when no bookable
@@ -1525,6 +1500,8 @@ export function setupFormTimeSync<T extends TimeSyncModel>(
             const is_all_day = snap().all_day;
             const has_id = !!snap().id;
             if (is_all_day && effective < Date.now() && !has_id) {
+                // Keep new all-day bookings off past days; the time range
+                // below still resolves to the start of the day.
                 const snapped = roundCeil(Date.now());
                 effective = alignToBookableHours(snapped) || snapped;
             }
@@ -1535,7 +1512,6 @@ export function setupFormTimeSync<T extends TimeSyncModel>(
                         timezone,
                         all_day_start,
                         all_day_end,
-                        allDayMinDate(),
                     ) as Partial<T>,
                 );
                 on_change?.();
@@ -1615,7 +1591,6 @@ export function setupFormTimeSync<T extends TimeSyncModel>(
                         timezone,
                         all_day_start,
                         all_day_end,
-                        allDayMinDate(),
                     ) as Partial<T>,
                 );
             } else {
@@ -1667,7 +1642,6 @@ export function setupFormTimeSync<T extends TimeSyncModel>(
                         timezone,
                         all_day_start,
                         all_day_end,
-                        allDayMinDate(),
                     ) as Partial<T>,
                 );
                 on_change?.();
