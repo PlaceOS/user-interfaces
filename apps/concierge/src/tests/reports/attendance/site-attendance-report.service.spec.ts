@@ -1,8 +1,11 @@
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
+import {
+    createServiceFactory,
+    SpectatorService,
+} from '@ngneat/spectator/vitest';
 import {
     OrganisationService,
-    SettingsService,
     setNotifyOutlet,
+    SettingsService,
 } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
@@ -163,7 +166,10 @@ describe('SiteAttendanceReportService', () => {
                     next: undefined,
                 }) as any;
             }
-            return Promise.resolve({ data: event_data, next: undefined }) as any;
+            return Promise.resolve({
+                data: event_data,
+                next: undefined,
+            }) as any;
         });
         // requestSpacesForZone -> querySystems
         vi.mocked(ts_client_mod.querySystems).mockResolvedValue({
@@ -542,7 +548,7 @@ describe('SiteAttendanceReportService', () => {
     });
 
     it('should sum unique site attendance per day', async () => {
-        features = ['spaces', 'desks'];
+        features = ['spaces', 'desks', 'parking'];
         spectator = createService();
         booking_data.desk = [
             {
@@ -563,6 +569,14 @@ describe('SiteAttendanceReportService', () => {
                 date: day_1,
                 duration: 480,
                 attendees: [{ email: 'attendee@example.com' }],
+            },
+        ];
+        booking_data.parking = [
+            {
+                asset_id: 'parking-1',
+                user_email: 'parking.user@example.com',
+                date: day_1,
+                duration: 480,
             },
         ];
         event_data = [
@@ -596,11 +610,29 @@ describe('SiteAttendanceReportService', () => {
         await spectator.service.generateReport();
         const report = spectator.service.report();
 
-        expect(report.unique_people).toBe(3);
-        expect(report.total_attendance).toBe(5);
+        expect(report.unique_people).toBe(4);
+        expect(report.total_attendance).toBe(6);
         expect(report.cards.find((card) => card.id === 'events')).toEqual(
             expect.objectContaining({ attendance: 4, daily_average: 2 }),
         );
+        expect(report.daily_attendance).toEqual([
+            {
+                date: '2026-04-06',
+                events: 2,
+                desks: 3,
+                parking: 1,
+                visitors: 0,
+                total: 4,
+            },
+            {
+                date: '2026-04-07',
+                events: 2,
+                desks: 1,
+                parking: 0,
+                visitors: 0,
+                total: 2,
+            },
+        ]);
     });
 
     it('should exclude weekends from business days by default', async () => {

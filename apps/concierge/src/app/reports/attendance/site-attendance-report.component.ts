@@ -17,6 +17,7 @@ import {
     ReportMetricGuideItem,
 } from '../report-metric-guide.component';
 import { ReportsOptionsComponent } from '../reports-options.component';
+import { SiteAttendanceReportChartComponent } from './site-attendance-report-chart.component';
 import { SiteAttendanceReportService } from './site-attendance-report.service';
 
 const CARD_DETAILS = {
@@ -218,6 +219,13 @@ const PEOPLE_TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                                 {{ report().business_days }}
                             </p>
                         </div>
+                    </div>
+
+                    <div class="px-4 pb-4">
+                        <site-attendance-report-chart
+                            [daily_attendance]="report().daily_attendance"
+                            [show_parking]="hasResource('parking')"
+                        />
                     </div>
 
                     <div
@@ -575,6 +583,7 @@ const PEOPLE_TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
         MatProgressSpinnerModule,
         TranslatePipe,
         ReportMetricGuideComponent,
+        SiteAttendanceReportChartComponent,
     ],
 })
 export class SiteAttendanceReportComponent extends AsyncHandler {

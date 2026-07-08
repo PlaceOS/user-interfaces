@@ -138,6 +138,7 @@ describe('SiteAttendanceReportComponent', () => {
             total_bookings: 6,
             active_types: 5,
             unique_people: 6,
+            daily_attendance: [],
             cards: [],
             hosts: [],
             attendees: [],
