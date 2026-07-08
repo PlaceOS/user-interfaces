@@ -196,6 +196,38 @@ describe('OrganisationService', () => {
         expect(ts_client.showMetadata).not.toHaveBeenCalled();
     });
 
+    it('should fall back to individual metadata requests when bulk returns 404', async () => {
+        jest.mocked(ts_client.bulkMetadata).mockRejectedValue({ status: 404 });
+        jest.mocked(ts_client.showMetadata).mockImplementation(
+            (id, name) =>
+                Promise.resolve({ details: { name } }) as any,
+        );
+
+        await spectator.service.loadBuildingData({ id: 'bld_1' } as any);
+
+        expect(ts_client.showMetadata).toHaveBeenCalledWith(
+            'bld_1',
+            'workplace_app',
+        );
+        expect(ts_client.showMetadata).toHaveBeenCalledWith('bld_1', 'bindings');
+        expect(ts_client.showMetadata).toHaveBeenCalledWith(
+            'bld_1',
+            'booking_rules',
+        );
+        expect(spectator.service.buildingSettings('bld_1')).toEqual({
+            name: 'workplace_app',
+        });
+    });
+
+    it('should not fall back to individual requests on non-404 bulk errors', async () => {
+        jest.mocked(ts_client.bulkMetadata).mockRejectedValue({ status: 500 });
+
+        await spectator.service.loadBuildingData({ id: 'bld_1' } as any);
+
+        expect(ts_client.showMetadata).not.toHaveBeenCalled();
+        expect(spectator.service.buildingSettings('bld_1')).toEqual({});
+    });
+
     it('should initialise the active building from local storage', async () => {
         const region = new Region({ id: 'region-1', tags: ['region'] });
         const first_building = new Building({
