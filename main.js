@@ -2,33 +2,33 @@ import {
   MatProgressBar,
   MatProgressBarModule,
   subDays
-} from "./chunk-WAI3CG33.js";
+} from "./chunk-KVGKWA4M.js";
 import {
   FooterMenuComponent,
   TopbarComponent,
   parse2 as parse
-} from "./chunk-HQZBTCJC.js";
+} from "./chunk-3ZR7PVZ3.js";
 import {
   subMinutes
-} from "./chunk-GN5GTAVS.js";
-import "./chunk-7MEHU575.js";
-import "./chunk-IOOSAJDU.js";
-import "./chunk-DNCFUH6Z.js";
-import "./chunk-UJXCO43T.js";
-import "./chunk-V3XK2DJW.js";
+} from "./chunk-Y6FTFYNN.js";
+import "./chunk-TCY777MT.js";
+import "./chunk-ZTFRHJOM.js";
+import "./chunk-U2R7WFK7.js";
+import "./chunk-43RWY2RD.js";
+import "./chunk-ZKI7TCAW.js";
 import {
   generateMockSpace,
   setMinutes
-} from "./chunk-LZDWE3FE.js";
-import "./chunk-XCXAJWMP.js";
-import "./chunk-V43HZUGR.js";
-import "./chunk-2IRTWNBP.js";
-import "./chunk-AJB5XFAI.js";
+} from "./chunk-IYGZAJLJ.js";
+import "./chunk-JH24K2YX.js";
+import "./chunk-DTTT4HSU.js";
+import "./chunk-RLSL53A7.js";
+import "./chunk-A6N767CA.js";
 import {
   MatTooltip,
   MatTooltipModule
-} from "./chunk-4MZBQ2PR.js";
-import "./chunk-XKRKRAER.js";
+} from "./chunk-ET3DYPJ5.js";
+import "./chunk-X2T2PM7H.js";
 import {
   AUTO_STYLE,
   AnimationGroupPlayer,
@@ -83,7 +83,7 @@ import {
   style,
   user_groups_loaded,
   ɵPRE_STYLE
-} from "./chunk-BRZ7RIDW.js";
+} from "./chunk-WCUPG3VD.js";
 import {
   $r,
   ANIMATION_MODULE_TYPE,
@@ -210,7 +210,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-W6ACSYVL.js";
+} from "./chunk-HEM6NEPK.js";
 import {
   __objRest,
   __spreadProps,
@@ -6947,6 +6947,32 @@ function generateMockTriggers() {
 var MOCK_DISPLAYS = generateMockDisplays();
 var MOCK_MEDIA = generateMockMedia();
 var MOCK_PLAYLISTS = generateMockPlaylists(MOCK_DISPLAYS, MOCK_MEDIA);
+var MOCK_PLUGINS = [
+  {
+    id: "weather",
+    name: "Weather",
+    description: "Current weather signage widget",
+    uri: "/plugins/weather/index.html",
+    enabled: true,
+    defaults: { units: "metric" },
+    params: {
+      location: {
+        type: "string",
+        title: "Location",
+        default: "Sydney"
+      }
+    }
+  },
+  {
+    id: "clock",
+    name: "Clock",
+    description: "Clock signage widget",
+    uri: "/plugins/clock/index.html",
+    enabled: true,
+    defaults: { format: "24h" },
+    params: {}
+  }
+];
 var MOCK_TRIGGERS = generateMockTriggers();
 var SIGNAGE_GROUPS = [
   {
@@ -7030,7 +7056,8 @@ function toEngineMedia(item) {
     created_at: item.created_at,
     updated_at: item.updated_at,
     valid_from: item.scheduling?.start_date,
-    valid_until: item.scheduling?.end_date
+    valid_until: item.scheduling?.end_date,
+    tags: item.tags || []
   };
 }
 function toEnginePlaylist(item) {
@@ -7054,9 +7081,42 @@ function playlistMediaResponse(playlist_id, approved = false) {
     id: `${playlist_id}-media`,
     playlist_id,
     items: (playlist?.items || []).map((item) => item.media_id),
+    schedules: (playlist?.items || []).map((item) => ({
+      id: item.id,
+      item_id: item.media_id,
+      schedules: []
+    })),
     approved,
     approval_requested: false,
     updated_at: playlist?.updated_at || getUnixTime(Date.now())
+  };
+}
+function signageDisplay(display_id) {
+  if (display_id === "display-1") {
+    throw { status: 404, message: "Display not found" };
+  }
+  const display = MOCK_DISPLAYS.find((item) => item.id === display_id) || MOCK_DISPLAYS[0];
+  const playlists = MOCK_PLAYLISTS.filter((playlist) => playlist.target?.displays?.includes(display.id) || playlist.target?.zones?.includes(display.zone_id)).slice(0, 3);
+  const mapped_playlists = playlists.length ? playlists : MOCK_PLAYLISTS.slice(0, 2);
+  const media_ids = [
+    ...new Set(mapped_playlists.flatMap((playlist) => playlist.items.map((item) => item.media_id)))
+  ];
+  return {
+    id: display_id,
+    zones: [display.zone_id, display.building_id].filter(Boolean),
+    playlist_mappings: {
+      [display_id]: mapped_playlists.map((playlist) => playlist.id),
+      [display.zone_id]: []
+    },
+    playlist_config: Object.fromEntries(mapped_playlists.map((playlist) => [
+      playlist.id,
+      [
+        toEnginePlaylist(playlist),
+        playlist.items.map((item) => item.media_id)
+      ]
+    ])),
+    playlist_media: media_ids.map((id) => MOCK_MEDIA.find((item) => item.id === id)).filter((item) => !!item).map(toEngineMedia),
+    plugins: MOCK_PLUGINS
   };
 }
 function registerMockSignage() {
@@ -7244,6 +7304,14 @@ function registerMockSignage() {
     callback: (request) => filterByGroup(MOCK_MEDIA, request.query_params?.group_id).map(toEngineMedia)
   });
   Zr({
+    path: "/api/engine/v2/signage/media/tags",
+    metadata: {},
+    method: "GET",
+    callback: (request) => [
+      ...new Set(filterByGroup(MOCK_MEDIA, request.query_params?.group_id).flatMap((item) => item.tags || []).filter((tag) => !!tag))
+    ]
+  });
+  Zr({
     path: "/api/engine/v2/signage/media",
     metadata: {},
     method: "POST",
@@ -7252,6 +7320,12 @@ function registerMockSignage() {
       created_at: getUnixTime(Date.now()),
       updated_at: getUnixTime(Date.now())
     })
+  });
+  Zr({
+    path: "/api/engine/v2/signage/media/:id",
+    metadata: {},
+    method: "GET",
+    callback: (request) => toEngineMedia(MOCK_MEDIA.find((item) => item.id === request.route_params.id))
   });
   Zr({
     path: "/api/engine/v2/signage/media/:id",
@@ -7268,10 +7342,28 @@ function registerMockSignage() {
     callback: () => ({})
   });
   Zr({
+    path: "/api/engine/v2/signage/media/:id/thumbnail",
+    metadata: {},
+    method: "GET",
+    callback: () => ({})
+  });
+  Zr({
     path: "/api/engine/v2/signage/media/share",
     metadata: {},
     method: "POST",
     callback: () => ({})
+  });
+  Zr({
+    path: "/api/engine/v2/signage/plugins",
+    metadata: {},
+    method: "GET",
+    callback: () => MOCK_PLUGINS
+  });
+  Zr({
+    path: "/api/engine/v2/signage/plugins/:id",
+    metadata: {},
+    method: "GET",
+    callback: (request) => MOCK_PLUGINS.find((plugin) => plugin.id === request.route_params.id) || {}
   });
   Zr({
     path: "/api/engine/v2/signage/playlists",
@@ -7328,6 +7420,30 @@ function registerMockSignage() {
     })
   });
   Zr({
+    path: "/api/engine/v2/signage/playlists/:id/media/schedule",
+    metadata: {},
+    method: "POST",
+    callback: (request) => __spreadProps(__spreadValues({}, playlistMediaResponse(request.route_params.id, false)), {
+      schedules: [
+        {
+          id: `schedule-${Date.now()}`,
+          item_id: request.body?.item_id,
+          schedules: request.body?.schedules || []
+        }
+      ]
+    })
+  });
+  Zr({
+    path: "/api/engine/v2/signage/playlists/:id/media/schedule/:item_id",
+    metadata: {},
+    method: "PATCH",
+    callback: (request) => ({
+      id: request.route_params.item_id,
+      item_id: request.body?.item_id || request.route_params.item_id,
+      schedules: request.body?.schedules || []
+    })
+  });
+  Zr({
     path: "/api/engine/v2/signage/playlists/:id/media/revisions",
     metadata: {},
     method: "GET",
@@ -7350,6 +7466,18 @@ function registerMockSignage() {
   });
   Zr({
     path: "/api/engine/v2/signage/playlists/share",
+    metadata: {},
+    method: "POST",
+    callback: () => ({})
+  });
+  Zr({
+    path: "/api/engine/v2/signage/:id",
+    metadata: {},
+    method: "GET",
+    callback: (request) => signageDisplay(request.route_params.id)
+  });
+  Zr({
+    path: "/api/engine/v2/signage/:id/metrics",
     metadata: {},
     method: "POST",
     callback: () => ({})
@@ -14262,62 +14390,62 @@ var routes = [
     title: "Book",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./book.routes-Q3HITHKX.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./book.routes-IYQPXVHC.js").then((m) => m.ROUTES)
   },
   {
     path: "explore",
     title: "Explore",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./explore.routes-SKCYL2XT.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./explore.routes-AC3CJEWT.js").then((m) => m.ROUTES)
   },
   {
     path: "control",
     title: "Control",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./control.routes-UWE72BQG.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./control.routes-V33KGQDB.js").then((m) => m.ROUTES)
   },
   {
     path: "directory",
     title: "Directory",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./directory.routes-USQVYXOM.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./directory.routes-C3NSQBBO.js").then((m) => m.ROUTES)
   },
   {
     path: "your-bookings",
     title: "Your Bookings",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./schedule.routes-E6T3NHIG.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./schedule.routes-DO7SD4OZ.js").then((m) => m.ROUTES)
   },
   {
     path: "group-events",
     title: "Group Events",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./group-events.routes-B7K6PDSY.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./group-events.routes-3TDFIFMW.js").then((m) => m.ROUTES)
   },
   {
     path: "deals-n-offers",
     title: "Deals & Offers",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./deals.routes-HZ7XGR4N.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./deals.routes-KGJFAZH5.js").then((m) => m.ROUTES)
   },
   {
     path: "landing",
     title: "Home",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadComponent: () => import("./landing-new.component-WCZ3OYC6.js").then((m) => m.LandingNewComponent)
+    loadComponent: () => import("./landing-new.component-R7MKYATF.js").then((m) => m.LandingNewComponent)
   },
   {
     path: "team-schedule",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadComponent: () => import("./team-schedule.component-6VKLDEIX.js").then((m) => m.TeamScheduleComponent)
+    loadComponent: () => import("./team-schedule.component-I7UWZJ37.js").then((m) => m.TeamScheduleComponent)
   },
   {
     path: "embedded/:id",
