@@ -60532,6 +60532,7 @@ var COMMON = {
   BUILDING_ANY: "Any Building",
   BUILDING_ALL: "All Buildings",
   LEVEL_ANY: "Any Level",
+  LAST_UPDATED: "Updated {{ time }}",
   LEVEL_ALL: "All Levels",
   LEVEL_EMPTY: "No Level",
   ROOM_EMPTY: "No Room",
@@ -61580,6 +61581,7 @@ var APP = {
     DESKS_NAME: "Desk Name",
     DESKS_SAVING: "Saving desk details...",
     DESKS_SAVE_ERROR: "Failed to save desk details. Error: {{ error }}",
+    DESKS_SELECT_LEVEL: "Select a level before modifying desks.",
     DESKS_ASSIGN_CONFLICT_ERROR: "This desk is currently booked. Please cancel the existing booking before assigning it.",
     DESKS_ASSIGN_LIMIT_ERROR_1: "Users can only have 1 assigned desk at a time.",
     DESKS_ASSIGN_LIMIT_ERROR_N: "Users can only have {{ count }} assigned desks at a time.",
@@ -62428,6 +62430,9 @@ var APP = {
     REPORTS_PRINT: "Print Report",
     REPORTS_EMPTY: "Select level(s) and date range to generate the report",
     REPORTS_BUSINESS_DAYS: "Business Days",
+    REPORTS_ALLOCATIONS: "Allocations",
+    REPORTS_REJECTED: "Rejected",
+    REPORTS_CANCELLED: "Cancelled",
     REPORTS_TOTAL_BOOKINGS: "Total Bookings",
     REPORTS_TOTAL_SITE_ATTENDANCE: "Total Site Attendance",
     REPORTS_TOTAL_RESERVATIONS: "Requests",
@@ -66014,33 +66019,20 @@ function formatDuration2({ days, hours, minutes, seconds }, { zero } = {}) {
 function firstTruthyValueFrom(obs) {
   return obs ? lastValueFrom(obs.pipe(first((_3) => !!_3))) : Promise.resolve(null);
 }
-function getAllDayTimeRange(date, timezone = "", start, end, min_date) {
+function getAllDayTimeRange(date, timezone = "", start, end) {
   const day_start = startOfDayInTimezone(date, timezone);
-  const clampStart = (period_start2, period_end2) => {
-    if (!min_date)
-      return period_start2;
-    const minimum = roundToNearestMinutes(min_date, {
-      nearestTo: 5,
-      roundingMethod: "ceil"
-    }).valueOf();
-    const same_day = isSameDay(timezone ? toZonedTime(minimum, timezone) : new Date(minimum), timezone ? toZonedTime(period_start2, timezone) : new Date(period_start2));
-    if (!same_day || minimum <= period_start2)
-      return period_start2;
-    return Math.min(period_end2, minimum);
-  };
   if (start == null || end == null) {
     const period_end2 = endOfDayInTimezone(day_start, timezone);
-    const period_start2 = clampStart(day_start, period_end2);
     return {
-      date: period_start2,
-      duration: Math.max(0, differenceInMinutes(period_end2, period_start2)),
+      date: day_start,
+      duration: Math.max(0, differenceInMinutes(period_end2, day_start)),
       date_end: period_end2
     };
   }
   const range_start = Math.max(0, Math.min(23, start));
   const range_end = Math.max(range_start + 1, Math.min(24, end));
   const period_end = addHours(day_start, range_end).valueOf();
-  const period_start = clampStart(addHours(day_start, range_start).valueOf(), period_end);
+  const period_start = addHours(day_start, range_start).valueOf();
   return {
     date: period_start,
     duration: Math.max(0, differenceInMinutes(period_end, period_start)),
@@ -66233,7 +66225,6 @@ function setupFormTimeSync(model2, options = {}, injector) {
     nearestTo: round_to,
     roundingMethod: "ceil"
   }).valueOf();
-  const allDayMinDate = () => snap().id ? void 0 : Date.now();
   const bookableWindowRemaining = (start) => {
     start = normaliseTimeValue(start);
     if (!bookable_hours || !start || snap().id)
@@ -66415,7 +66406,7 @@ function setupFormTimeSync(model2, options = {}, injector) {
       effective = alignToBookableHours(snapped) || snapped;
     }
     if (is_all_day) {
-      applyPatch(getAllDayTimeRange(effective, timezone, all_day_start, all_day_end, allDayMinDate()));
+      applyPatch(getAllDayTimeRange(effective, timezone, all_day_start, all_day_end));
       on_change?.();
       return;
     }
@@ -66466,7 +66457,7 @@ function setupFormTimeSync(model2, options = {}, injector) {
   fieldEffect((v) => v.all_day, () => {
     const all_day = snap().all_day;
     if (all_day) {
-      applyPatch(getAllDayTimeRange(normaliseTimeValue(snap().date), timezone, all_day_start, all_day_end, allDayMinDate()));
+      applyPatch(getAllDayTimeRange(normaliseTimeValue(snap().date), timezone, all_day_start, all_day_end));
     } else {
       const date = normaliseTimeValue(snap().date);
       const duration = normaliseTimeValue(snap().duration);
@@ -66505,7 +66496,7 @@ function setupFormTimeSync(model2, options = {}, injector) {
       if (patch.all_day_end !== void 0)
         all_day_end = patch.all_day_end;
       if (snap().all_day && snap().date) {
-        applyPatch(getAllDayTimeRange(normaliseTimeValue(snap().date), timezone, all_day_start, all_day_end, allDayMinDate()));
+        applyPatch(getAllDayTimeRange(normaliseTimeValue(snap().date), timezone, all_day_start, all_day_end));
         on_change?.();
         return;
       }
@@ -68047,15 +68038,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION4 = {
   "dirty": false,
-  "raw": "c4f5699",
-  "hash": "c4f5699",
+  "raw": "6a57422",
+  "hash": "6a57422",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "c4f5699",
+  "suffix": "6a57422",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1783316877258
+  "time": 1783528890631
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -81441,7 +81432,7 @@ var log3 = scoped_log("ORG");
 var ORG_CACHE_PREFIX = "PLACEOS.org";
 var ZONE_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.zones`;
 var METADATA_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.metadata`;
-var DEFAULT_CACHE_DURATION = 5 * 60 * 1e3;
+var DEFAULT_CACHE_DURATION = 2 * 60 * 1e3;
 var OrganisationService = class _OrganisationService {
   /** Mapping of organisation settings overrides */
   get settings() {
@@ -82083,13 +82074,23 @@ var OrganisationService = class _OrganisationService {
     const cached_metadata = this._getCachedItem(cache_key);
     if (cached_metadata)
       return cached_metadata;
-    const metadata2 = await Yu(name, { parent_ids }).catch(() => ({}));
+    const metadata2 = await Yu(name, { parent_ids }).catch((err) => err?.status === 404 ? this._individualMetadata(name, ids) : {});
     const metadata_details = ids.reduce((map2, id) => {
       map2[id] = metadata2[id]?.details || {};
       return map2;
     }, {});
     this._setCachedItem(cache_key, metadata_details);
     return metadata_details;
+  }
+  /** Fallback for backends without the bulk metadata endpoint (404) */
+  async _individualMetadata(name, ids) {
+    const items = await Promise.all(ids.filter(Boolean).map((id) => Wu(id, name).then((item) => [id, item], () => [id, null])));
+    const metadata2 = {};
+    for (const [id, item] of items) {
+      if (item)
+        metadata2[id] = item;
+    }
+    return metadata2;
   }
   async _queryZones(params) {
     const cache_key = this._zoneCacheKey(params);
@@ -127641,7 +127642,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
   }
   _allDayTimeRange(date) {
     const period = this.setting("all_day_period");
-    return getAllDayTimeRange(date, this.timezone, period?.start, period?.end, this.model().id ? void 0 : Date.now());
+    return getAllDayTimeRange(date, this.timezone, period?.start, period?.end);
   }
   /**
    * Re-apply the supplied booking window after async form setup only if no
@@ -131480,7 +131481,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
   }
   _allDayTimeRange(date) {
     const period = this._settings.get("app.events.all_day_period");
-    return getAllDayTimeRange(date, this.timezone, period?.start, period?.end, this._model().id ? void 0 : Date.now());
+    return getAllDayTimeRange(date, this.timezone, period?.start, period?.end);
   }
   /** Resolve the bookable space list for the given zone */
   _requestSpaces(zone_id) {
