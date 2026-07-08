@@ -1,0 +1,1 @@
+import {m as m$1,h as hd,dw as Kn}from'./main.js';var f=(()=>{class t{constructor(){this._org=m$1(hd);}transform(e){return this._org.levelWithID(e instanceof Array?e:[e])}static{this.\u0275fac=function(n){return new(n||t)};}static{this.\u0275pipe=Kn({name:"level",type:t,pure:true});}}return t})();export{f};//# sourceMappingURL=chunk-C2Z9vwbz.js.map
