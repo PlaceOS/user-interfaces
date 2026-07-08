@@ -70247,15 +70247,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION4 = {
   "dirty": false,
-  "raw": "8fa649b",
-  "hash": "8fa649b",
+  "raw": "73959d8",
+  "hash": "73959d8",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "8fa649b",
+  "suffix": "73959d8",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1782882880208
+  "time": 1783504045685
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -84611,7 +84611,7 @@ var log3 = scoped_log("ORG");
 var ORG_CACHE_PREFIX = "PLACEOS.org";
 var ZONE_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.zones`;
 var METADATA_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.metadata`;
-var DEFAULT_CACHE_DURATION = 5 * 60 * 1e3;
+var DEFAULT_CACHE_DURATION = 2 * 60 * 1e3;
 var _OrganisationService = class _OrganisationService {
   /** Mapping of organisation settings overrides */
   get settings() {
@@ -85275,7 +85275,7 @@ var _OrganisationService = class _OrganisationService {
     const cached_metadata = this._getCachedItem(cache_key);
     if (cached_metadata)
       return cached_metadata;
-    const metadata = await Ku(name, { parent_ids }).catch(() => ({}));
+    const metadata = await Ku(name, { parent_ids }).catch((err) => (err == null ? void 0 : err.status) === 404 ? this._individualMetadata(name, ids) : {});
     const metadata_details = ids.reduce((map2, id) => {
       var _a10;
       map2[id] = ((_a10 = metadata[id]) == null ? void 0 : _a10.details) || {};
@@ -85283,6 +85283,16 @@ var _OrganisationService = class _OrganisationService {
     }, {});
     this._setCachedItem(cache_key, metadata_details);
     return metadata_details;
+  }
+  /** Fallback for backends without the bulk metadata endpoint (404) */
+  async _individualMetadata(name, ids) {
+    const items = await Promise.all(ids.filter(Boolean).map((id) => ju(id, name).then((item) => [id, item], () => [id, null])));
+    const metadata = {};
+    for (const [id, item] of items) {
+      if (item)
+        metadata[id] = item;
+    }
+    return metadata;
   }
   async _queryZones(params) {
     const cache_key = this._zoneCacheKey(params);
