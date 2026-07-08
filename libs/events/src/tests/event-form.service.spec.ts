@@ -493,7 +493,7 @@ describe('EventFormService', () => {
         );
     });
 
-    it('should clamp current-day all-day meetings before posting', async () => {
+    it('should post current-day all-day meetings from the all-day period start', async () => {
         vi.useFakeTimers();
         vi.setSystemTime(new Date(2028, 5, 15, 10, 2, 0, 0));
         try {
@@ -512,8 +512,8 @@ describe('EventFormService', () => {
                         organiser: { email: 'host@test.com' } as any,
                         creator: 'host@test.com',
                         title: 'All day meeting',
-                        date: new Date(2028, 5, 15, 10, 5, 0, 0).valueOf(),
-                        duration: 415,
+                        date: new Date(2028, 5, 15, 9, 0, 0, 0).valueOf(),
+                        duration: 480,
                         date_end: new Date(2028, 5, 15, 17, 0, 0, 0).valueOf(),
                         attendees: [],
                         resources: [],
@@ -537,8 +537,8 @@ describe('EventFormService', () => {
             expect(perform_booking_spy).toHaveBeenCalledWith(
                 expect.objectContaining({
                     all_day: true,
-                    date: new Date(2028, 5, 15, 10, 5, 0, 0).valueOf(),
-                    duration: 415,
+                    date: new Date(2028, 5, 15, 9, 0, 0, 0).valueOf(),
+                    duration: 480,
                     date_end: new Date(2028, 5, 15, 17, 0, 0, 0).valueOf(),
                 }),
                 expect.anything(),
