@@ -1,9 +1,11 @@
+import { installTestStorage } from 'libs/common/src/test-storage';
 import { Spectator } from '@ngneat/spectator';
 import { setNotifyOutlet } from '@placeos/common';
 import { TextDecoder, TextEncoder } from 'util';
 
 global.TextEncoder = TextEncoder;
 global.TextDecoder = TextDecoder as any;
+installTestStorage();
 
 // Under the zoneless unit-test builder, `fixture.detectChanges()` only
 // refreshes views that were explicitly marked dirty. Plain host-property

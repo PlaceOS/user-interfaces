@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatSliderModule } from '@angular/material/slider';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { mockComponent, mockDirective } from '@placeos/common/tests';
 import { MockModule, MockPipe, MockProvider } from 'ng-mocks';
 import { ControlStateService } from '../app/control-state.service';
@@ -30,8 +30,8 @@ describe('ControlStatusBarComponent', () => {
                 system: signal({}),
                 capture_list: signal([]),
                 has_master_audio: signal(true),
-                setVolume: jest.fn(),
-                setMute: jest.fn(),
+                setVolume: vi.fn(),
+                setMute: vi.fn(),
             }),
         ],
         imports: [MockModule(MatSliderModule), MockModule(FormsModule)],

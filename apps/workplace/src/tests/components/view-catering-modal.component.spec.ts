@@ -1,4 +1,4 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { MockComponent, MockProvider } from 'ng-mocks';
@@ -22,7 +22,7 @@ describe('ViewCateringModalComponent', () => {
         detectChanges: false,
         providers: [
             { provide: MAT_DIALOG_DATA, useValue: data },
-            MockProvider(Router, { navigate: jest.fn() }),
+            MockProvider(Router, { navigate: vi.fn() }),
         ],
     });
 
@@ -41,7 +41,7 @@ describe('ViewCateringModalComponent', () => {
         spectator.detectChanges();
         const dialog =
             spectator.fixture.componentRef.injector.get(MatDialog);
-        const close_all = jest.spyOn(dialog, 'closeAll').mockImplementation();
+        const close_all = vi.spyOn(dialog, 'closeAll').mockImplementation(() => undefined);
         const router = spectator.inject(Router);
         spectator.component.edit();
         expect(close_all).toHaveBeenCalled();

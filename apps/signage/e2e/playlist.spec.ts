@@ -8,6 +8,7 @@ import {
     clickShuffleToggle,
     clickSkipNext,
     getPlaylistItemCount,
+    mockDistributionDisplay,
     navigateWithConfig,
     waitForDebugControls,
     waitForMediaPlayer,
@@ -23,14 +24,18 @@ test.describe('US-SIG-012: Cycle Through Playlist Items', () => {
         await waitForDebugControls(page);
 
         await expect(
-            page.locator('playlist-display button').first().locator('icon'),
-        ).toContainText('play_arrow');
+            page
+                .locator('playlist-display button')
+                .first()
+                .locator('icon')
+                .first(),
+        ).toContainText('image');
 
         await clickSkipNext(page);
 
         await expect(
             page.locator('playlist-display button').nth(1).locator('icon'),
-        ).toContainText('play_arrow', { timeout: LOAD_TIMEOUT });
+        ).toContainText('http', { timeout: LOAD_TIMEOUT });
     });
 });
 
@@ -119,6 +124,23 @@ test.describe('US-SIG-016: View and Select Playlist Items', () => {
         expect(await getPlaylistItemCount(page)).toBe(3);
     });
 
+    test('shows item detail tooltip and cached media indicator', async ({
+        page,
+    }) => {
+        await navigateWithConfig(page, SIGNAGE_DEBUG_URL);
+        await waitForMediaPlayer(page);
+
+        await page.locator('playlist-display button').first().hover();
+
+        await expect(page.locator('body')).toContainText('Type', {
+            timeout: LOAD_TIMEOUT,
+        });
+        await expect(page.locator('body')).toContainText('Cache');
+        await expect(
+            page.locator('[data-testid="cached-media-icon"]').first(),
+        ).toBeVisible({ timeout: LOAD_TIMEOUT });
+    });
+
     test('highlights the current item and jumps to a selected valid item', async ({
         page,
     }) => {
@@ -126,8 +148,12 @@ test.describe('US-SIG-016: View and Select Playlist Items', () => {
         await waitForMediaPlayer(page);
 
         await expect(
-            page.locator('playlist-display button').first().locator('icon'),
-        ).toContainText('play_arrow');
+            page
+                .locator('playlist-display button')
+                .first()
+                .locator('icon')
+                .first(),
+        ).toContainText('image');
 
         await clickPlaylistItem(page, 1);
 
@@ -137,7 +163,7 @@ test.describe('US-SIG-016: View and Select Playlist Items', () => {
         );
         await expect(
             page.locator('playlist-display button').nth(1).locator('icon'),
-        ).toContainText('play_arrow');
+        ).toContainText('http');
     });
 
     test('toggles the playlist sidebar with the queue button', async ({
@@ -153,5 +179,23 @@ test.describe('US-SIG-016: View and Select Playlist Items', () => {
 
         await page.locator('media-player > div > button').click();
         await expect(page.locator('playlist-display')).toBeVisible();
+    });
+});
+
+test.describe('US-SIG-018: Run Scheduled Non-Takeover Playlists', () => {
+    test('shows currently scheduled distribution media in the player queue', async ({
+        page,
+    }) => {
+        await navigateWithConfig(page, SIGNAGE_DEBUG_URL, {
+            display_details: mockDistributionDisplay(MOCK_SYSTEM_ID),
+        });
+        await waitForMediaPlayer(page);
+
+        const playlist = page.locator('playlist-display');
+        await expect(playlist).toContainText('Scheduled Distribution Notice', {
+            timeout: LOAD_TIMEOUT,
+        });
+        await expect(playlist).toContainText('Live Distribution Playlist');
+        await expect(playlist).not.toContainText('Future Distribution Notice');
     });
 });

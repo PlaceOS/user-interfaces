@@ -1,5 +1,5 @@
 import { signal, SimpleChange } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { BookingFormService } from '@placeos/bookings';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
@@ -9,7 +9,7 @@ describe('NewDeskFormDetailsComponent', () => {
     let spectator: Spectator<NewDeskFormDetailsComponent>;
     let model: ReturnType<typeof signal<Record<string, any>>>;
     let settings: Record<string, any>;
-    let set_options: jest.Mock;
+    let set_options: any;
 
     const createComponent = createComponentFactory({
         component: NewDeskFormDetailsComponent,
@@ -25,7 +25,7 @@ describe('NewDeskFormDetailsComponent', () => {
 
     beforeEach(() => {
         settings = {};
-        set_options = jest.fn();
+        set_options = vi.fn();
         model = signal<Record<string, any>>({
             id: '',
             date: Date.now(),
@@ -36,13 +36,13 @@ describe('NewDeskFormDetailsComponent', () => {
         spectator = createComponent({
             providers: [
                 MockProvider(SettingsService, {
-                    get: jest.fn((key: string) => settings[key]),
+                    get: vi.fn((key: string) => settings[key]),
                 } as any),
                 MockProvider(BookingFormService, {
                     options: signal({ type: 'desk', group: false }),
                     features: signal([]),
                     setOptions: set_options,
-                    setFeature: jest.fn(),
+                    setFeature: vi.fn(),
                     model,
                     get auto_allocation() {
                         return !!settings['app.desks.auto_allocation'];

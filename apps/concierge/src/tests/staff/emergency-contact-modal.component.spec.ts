@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { OrganisationService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
@@ -9,12 +9,12 @@ import { EmergencyContactsService } from '../../app/staff/emergency-contacts.ser
 
 describe('EmergencyContactModalComponent', () => {
     let spectator: Spectator<EmergencyContactModalComponent>;
-    let dialog_ref: { close: jest.Mock; disableClose: boolean };
+    let dialog_ref: { close: any; disableClose: boolean };
     const service = {
         roles: signal(['Fire Warden']),
-        generateContactId: jest.fn(() => 'contact-generated'),
-        addRole: jest.fn(() => Promise.resolve(true)),
-        saveContact: jest.fn(() => Promise.resolve(true)),
+        generateContactId: vi.fn(() => 'contact-generated'),
+        addRole: vi.fn(() => Promise.resolve(true)),
+        saveContact: vi.fn(() => Promise.resolve(true)),
     };
 
     const existing_contact = {
@@ -39,7 +39,7 @@ describe('EmergencyContactModalComponent', () => {
             {
                 provide: MatDialogRef,
                 useValue: (dialog_ref = {
-                    close: jest.fn(),
+                    close: vi.fn(),
                     disableClose: false,
                 }),
             },
@@ -51,11 +51,11 @@ describe('EmergencyContactModalComponent', () => {
         service.saveContact.mockClear();
         service.saveContact.mockResolvedValue(true);
         service.roles.set(['Fire Warden']);
-        dialog_ref = { close: jest.fn(), disableClose: false };
+        dialog_ref = { close: vi.fn(), disableClose: false };
         spectator = createComponent({
             providers: [{ provide: MatDialogRef, useValue: dialog_ref }],
         });
-        (spectator.component as any)._tooltip = () => ({ close: jest.fn() });
+        (spectator.component as any)._tooltip = () => ({ close: vi.fn() });
     });
 
     it('should seed the model from the provided contact', () => {

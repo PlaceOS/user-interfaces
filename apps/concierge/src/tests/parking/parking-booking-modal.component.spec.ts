@@ -1,6 +1,6 @@
 import { inject, Injector, signal } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { BookingFormService, generateBookingForm } from '@placeos/bookings';
 import { SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
@@ -13,8 +13,8 @@ describe('ParkingBookingModalComponent', () => {
     let data: any;
     let model: BookingFormService['model'];
     let form: BookingFormService['form'];
-    const post_form = jest.fn(async () => ({ id: 'new-booking' }));
-    const close = jest.fn();
+    const post_form = vi.fn(async () => ({ id: 'new-booking' }));
+    const close = vi.fn();
 
     const createComponent = createComponentFactory({
         component: ParkingBookingModalComponent,
@@ -33,15 +33,15 @@ describe('ParkingBookingModalComponent', () => {
                     return {
                         model: ref.model,
                         form: ref.form,
-                        newForm: jest.fn(),
-                        setOptions: jest.fn(),
+                        newForm: vi.fn(),
+                        setOptions: vi.fn(),
                         postForm: post_form,
-                    } as Partial<BookingFormService>;
+                    } as any;
                 },
             },
             MockProvider(MatDialogRef, { close } as any),
             MockProvider(SettingsService as any, {
-                get: jest.fn((key: string) => settings[key]),
+                get: vi.fn((key: string) => settings[key]),
             }),
         ],
     });

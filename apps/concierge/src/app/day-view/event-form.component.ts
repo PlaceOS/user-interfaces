@@ -116,8 +116,6 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                     <div class="mb-4 flex flex-1 flex-col">
                         <label for="space">Assets:</label>
                         <asset-list-field
-                            [date]="model().date"
-                            [duration]="model().duration"
                             [formField]="form().assets"
                         ></asset-list-field>
                     </div>

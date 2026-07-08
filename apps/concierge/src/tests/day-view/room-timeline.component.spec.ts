@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import {
     createRoutingFactory,
     SpectatorRouting,
-} from '@ngneat/spectator/jest';
+} from '@ngneat/spectator/vitest';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { setHours, startOfDay, subDays } from 'date-fns';
 import { MockProvider } from 'ng-mocks';
@@ -18,7 +18,7 @@ describe('RoomBookingsTimelineComponent', () => {
     const spaces = signal<any[]>([]);
     const date = signal<number>(startOfDay(Date.now()).valueOf());
     const settings_values: Record<string, any> = {};
-    let dialog_open: jest.Mock;
+    let dialog_open: any;
 
     const createComponent = createRoutingFactory({
         component: RoomBookingsTimelineComponent,
@@ -32,17 +32,17 @@ describe('RoomBookingsTimelineComponent', () => {
                     spaces,
                     date,
                     options: signal({}),
-                    newBooking: jest.fn(),
-                    setDate: jest.fn(),
-                    getDate: jest.fn(() => startOfDay(Date.now()).valueOf()),
-                    startPolling: jest.fn(() => new Subscription()),
-                    replace: jest.fn(),
-                    remove: jest.fn(),
-                    restore: jest.fn(),
+                    newBooking: vi.fn(),
+                    setDate: vi.fn(),
+                    getDate: vi.fn(() => startOfDay(Date.now()).valueOf()),
+                    startPolling: vi.fn(() => new Subscription()),
+                    replace: vi.fn(),
+                    remove: vi.fn(),
+                    restore: vi.fn(),
                 },
             },
             MockProvider(SettingsService, {
-                get: jest.fn((key: string) => settings_values[key]),
+                get: vi.fn((key: string) => settings_values[key]),
                 time_format: 'shortTime',
             } as any),
             MockProvider(OrganisationService, {
@@ -58,7 +58,7 @@ describe('RoomBookingsTimelineComponent', () => {
         filtered.set([]);
         spaces.set([]);
         date.set(startOfDay(Date.now()).valueOf());
-        dialog_open = jest.fn(() => ({
+        dialog_open = vi.fn(() => ({
             componentInstance: {
                 hide_edit: signal(false),
                 action: new Subject(),

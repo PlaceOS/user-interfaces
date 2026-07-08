@@ -3,11 +3,11 @@ import { PlaceOS_Service, UploadsService } from '@placeos/common';
 import { AppComponent } from '../app/app.component';
 
 describe('AppComponent', () => {
-    const placeos = { init: jest.fn() };
-    const uploads = { init: jest.fn() };
+    const placeos = { init: vi.fn() };
+    const uploads = { init: vi.fn() };
 
     beforeEach(async () => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         placeos.init.mockResolvedValue(undefined);
         await TestBed.configureTestingModule({
             imports: [AppComponent],

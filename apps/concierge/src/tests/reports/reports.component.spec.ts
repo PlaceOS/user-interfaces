@@ -1,4 +1,4 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { Component } from '@angular/core';
 import { MockComponent } from 'ng-mocks';
 import { RouterModule } from '@angular/router';

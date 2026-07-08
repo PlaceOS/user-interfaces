@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { IconComponent, SimpleTableComponent } from '@placeos/components';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
@@ -8,15 +8,11 @@ import { LockersReportListComponent } from 'apps/concierge/src/app/reports/locke
 import { LockersReportService } from 'apps/concierge/src/app/reports/lockers/lockers-report.service';
 import { ReportMetricGuideComponent } from 'apps/concierge/src/app/reports/report-metric-guide.component';
 
-jest.mock('@placeos/common', () => ({
-    ...jest.requireActual('@placeos/common'),
-    downloadFile: jest.fn(),
-    i18n: jest.fn((key: string) => key),
-}));
-import { downloadFile } from '@placeos/common';
+import { captureDownloads } from '../download-capture.helper';
 
 describe('LockersReportListComponent', () => {
     let spectator: Spectator<LockersReportListComponent>;
+    let downloads: ReturnType<typeof captureDownloads>;
     let bookings: ReturnType<typeof signal<any>>;
 
     const createComponent = createComponentFactory({
@@ -30,8 +26,10 @@ describe('LockersReportListComponent', () => {
         providers: [MockProvider(LockersReportService, {} as any)],
     });
 
+    afterEach(() => downloads.restore());
+
     beforeEach(() => {
-        (downloadFile as jest.Mock).mockClear();
+        downloads = captureDownloads();
         bookings = signal([
             {
                 asset_name: 'Locker A',
@@ -99,9 +97,6 @@ describe('LockersReportListComponent', () => {
 
     it('should download the locker bookings table on request', async () => {
         await spectator.component.download();
-        expect(downloadFile).toHaveBeenCalledWith(
-            'report-lockers-daily-usage.csv',
-            expect.any(String),
-        );
+        expect(downloads.filename).toBe('report-lockers-daily-usage.csv');
     });
 });

@@ -1,7 +1,7 @@
 import {
     createRoutingFactory,
     SpectatorRouting,
-} from '@ngneat/spectator/jest';
+} from '@ngneat/spectator/vitest';
 import { settingSignal } from '@placeos/common';
 import { mockComponent } from '@placeos/common/tests';
 import { SafePipe } from '@placeos/components';

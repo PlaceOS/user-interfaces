@@ -1,9 +1,9 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 
 import { QuestionComponent } from '../../app/surveys/question.component';
 import { QuestionType } from '../../app/surveys/types';
 
-const { SurveyQuestion } = jest.requireActual('@placeos/ts-client');
+import { SurveyQuestion } from '@placeos/ts-client';
 
 describe('QuestionComponent', () => {
     let spectator: Spectator<QuestionComponent>;

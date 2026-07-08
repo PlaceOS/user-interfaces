@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { OrganisationService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
@@ -24,7 +24,7 @@ describe('SignageTopbarComponent', () => {
     function build(level_lookup: any = null) {
         org = {
             active_levels,
-            levelWithID: jest.fn(() => level_lookup),
+            levelWithID: vi.fn(() => level_lookup),
             buildings: [{ id: 'bld-1' }],
             building: null,
         };
@@ -34,7 +34,7 @@ describe('SignageTopbarComponent', () => {
                 MockProvider(ActivatedRoute, {
                     queryParamMap: of(query_params) as any,
                 }),
-                MockProvider(Router, { navigate: jest.fn() }),
+                MockProvider(Router, { navigate: vi.fn() }),
             ],
         });
     }

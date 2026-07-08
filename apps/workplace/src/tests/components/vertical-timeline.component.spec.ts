@@ -1,4 +1,4 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { set } from 'date-fns';
 
 import { VerticalTimelineComponent } from '../../app/components/vertical-timeline.component';
@@ -77,7 +77,7 @@ describe('VerticalTimelineComponent', () => {
     it('does not emit date changes while dragging is inactive', async () => {
         spectator.component.active_move = '';
         let emitted = false;
-        spectator.component.dateChange.subscribe(() => (emitted = true));
+        spectator.component.date.subscribe(() => (emitted = true));
 
         spectator.component.move({ clientX: 10, clientY: 10 });
         await wait(20);

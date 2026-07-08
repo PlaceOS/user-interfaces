@@ -1,7 +1,7 @@
 import {
     createRoutingFactory,
     SpectatorRouting,
-} from '@ngneat/spectator/jest';
+} from '@ngneat/spectator/vitest';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
@@ -21,10 +21,10 @@ describe('EventViewComponent', () => {
         imports: [MatProgressSpinnerModule],
         providers: [
             MockProvider(OrganisationService, {
-                waitUntilInitialised: jest.fn(() => Promise.resolve()),
+                waitUntilInitialised: vi.fn(() => Promise.resolve()),
             } as any),
             MockProvider(SettingsService, {
-                get: jest.fn(() => ''),
+                get: vi.fn(() => ''),
             } as any),
         ],
     });

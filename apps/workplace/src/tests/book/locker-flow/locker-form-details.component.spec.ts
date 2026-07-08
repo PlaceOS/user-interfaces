@@ -1,5 +1,5 @@
 import { signal, SimpleChange } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { BookingFormService } from '@placeos/bookings';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
@@ -18,7 +18,7 @@ describe('LockerFormDetailsComponent', () => {
             MockProvider(OrganisationService, {
                 building_list: signal([]),
                 active_levels: signal([]),
-                waitUntilInitialised: jest.fn(() => Promise.resolve()),
+                waitUntilInitialised: vi.fn(() => Promise.resolve()),
             } as any),
         ],
     });
@@ -36,14 +36,14 @@ describe('LockerFormDetailsComponent', () => {
         spectator = createComponent({
             providers: [
                 MockProvider(SettingsService, {
-                    get: jest.fn((key: string) => settings[key]),
+                    get: vi.fn((key: string) => settings[key]),
                 } as any),
                 MockProvider(BookingFormService, {
                     model,
                     options: signal({ type: 'locker', group: false }),
                     features: signal([]),
-                    setOptions: jest.fn(),
-                    setFeature: jest.fn(),
+                    setOptions: vi.fn(),
+                    setFeature: vi.fn(),
                 } as any),
             ],
         });

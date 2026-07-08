@@ -8,8 +8,8 @@ import { SignageService } from '../../app/signage.service';
 describe('SignageGroupDetailHeaderComponent', () => {
     const managed_group = signal<any>({ id: 'group-1', name: 'Group 1' });
     const managed_group_id = signal('group-1');
-    const remove_signage_group = jest.fn();
-    const dialog = { open: jest.fn() };
+    const remove_signage_group = vi.fn();
+    const dialog = { open: vi.fn() };
     const service_stub = {
         managed_group,
         managed_group_id,

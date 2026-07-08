@@ -1,4 +1,4 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MAP_FEATURE_DATA } from '@placeos/common';
 
 import { MapShowElementComponent } from '../../app/poi-manager/map-show-element.component';

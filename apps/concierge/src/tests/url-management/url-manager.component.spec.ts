@@ -1,4 +1,4 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
 import { ApplicationSidebarComponent } from '../../app/ui/app-sidebar.component';
@@ -20,8 +20,8 @@ describe('UrlManagerComponent', () => {
         ],
         providers: [
             MockProvider(UrlManagementService, {
-                editURL: jest.fn(),
-                setSearchString: jest.fn(),
+                editURL: vi.fn(),
+                setSearchString: vi.fn(),
             } as any),
         ],
     });

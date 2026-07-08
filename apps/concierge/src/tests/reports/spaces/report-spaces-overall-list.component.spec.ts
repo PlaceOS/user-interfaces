@@ -1,21 +1,16 @@
 import { signal } from '@angular/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent } from 'ng-mocks';
 
 import { IconComponent, SimpleTableComponent } from '@placeos/components';
-import * as common_mod from '@placeos/common';
+import { captureDownloads } from '../download-capture.helper';
 import { ReportSpacesOverallListComponent } from 'apps/concierge/src/app/reports/spaces/report-spaces-overall-list.component';
 import { ReportsStateService } from 'apps/concierge/src/app/reports/reports-state.service';
 
-jest.mock('@placeos/common', () => ({
-    ...jest.requireActual('@placeos/common'),
-    downloadFile: jest.fn(),
-    jsonToCsv: jest.fn(() => 'csv-data'),
-}));
-
 describe('ReportSpacesOverallListComponent', () => {
     let spectator: Spectator<ReportSpacesOverallListComponent>;
+    let downloads: ReturnType<typeof captureDownloads>;
     let day_list: ReturnType<typeof signal<any[]>>;
 
     const day = new Date('2026-04-06T09:00:00').valueOf();
@@ -35,9 +30,11 @@ describe('ReportSpacesOverallListComponent', () => {
         ],
     });
 
+    afterEach(() => downloads.restore());
+
     beforeEach(() => {
         day_list = signal<any[]>([]);
-        (common_mod.downloadFile as jest.Mock).mockClear();
+        downloads = captureDownloads();
         spectator = createComponent({
             providers: [
                 { provide: ReportsStateService, useValue: { day_list } },
@@ -61,13 +58,9 @@ describe('ReportSpacesOverallListComponent', () => {
             { date: day, approved: 3, count: 4, cancelled: 1, deleted: 0 },
         ]);
         await spectator.component.download();
-        expect(common_mod.jsonToCsv).toHaveBeenCalled();
-        const [rows] = (common_mod.jsonToCsv as jest.Mock).mock.calls[0];
-        expect(rows[0].cancelled).toBe('1 (25%)');
-        expect(rows[0].deleted).toBe('0 (0%)');
-        expect(common_mod.downloadFile).toHaveBeenCalledWith(
-            'spaces-usage.csv',
-            'csv-data',
-        );
+        const csv = await downloads.text();
+        expect(csv).toContain('1 (25%)');
+        expect(csv).toContain('0 (0%)');
+        expect(downloads.filename).toBe('spaces-usage.csv');
     });
 });

@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
@@ -17,18 +17,18 @@ describe('ReportDesksChartsComponent', () => {
         providers: [
             MockProvider(ReportsStateService, {} as any),
             MockProvider(SettingsService, {
-                get: jest.fn(() => false),
+                get: vi.fn(() => false),
             } as any),
             MockProvider(OrganisationService, {
-                levelsForBuilding: jest.fn(() => []),
-                levelsForRegion: jest.fn(() => []),
-                levelWithID: jest.fn(() => ({ display_name: 'Level 1' })),
+                levelsForBuilding: vi.fn(() => []),
+                levelsForRegion: vi.fn(() => []),
+                levelWithID: vi.fn(() => ({ display_name: 'Level 1' })),
             } as any),
         ],
     });
 
     beforeEach(() => {
-        jest.useFakeTimers();
+        vi.useFakeTimers();
         options = signal({ zones: ['level-1'] });
         counts = signal({ 'level-1': 4 });
         day_list = signal([
@@ -45,8 +45,8 @@ describe('ReportDesksChartsComponent', () => {
     });
 
     afterEach(() => {
-        jest.clearAllTimers();
-        jest.useRealTimers();
+        vi.clearAllTimers();
+        vi.useRealTimers();
     });
 
     it('should create component', () => {

@@ -1,4 +1,4 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { set } from 'date-fns';
 
 import { EventTimelineComponent } from '../../app/components/event-timeline.component';
@@ -45,7 +45,7 @@ describe('EventTimelineComponent', () => {
     it('selects a time when a block is clicked and emits the change', () => {
         spectator.setInput('date', at(9, 0));
         let emitted: number | undefined;
-        spectator.component.dateChange.subscribe((v) => (emitted = v));
+        spectator.component.date.subscribe((v) => (emitted = v));
 
         spectator.component.setTime({ id: '10:15' } as any);
 
@@ -118,7 +118,7 @@ describe('EventTimelineComponent', () => {
     it('does not emit date changes while dragging is inactive', async () => {
         spectator.component.model.move = '';
         let emitted = false;
-        spectator.component.dateChange.subscribe(() => (emitted = true));
+        spectator.component.date.subscribe(() => (emitted = true));
 
         spectator.component.move({ clientX: 10, clientY: 10 });
         await wait(20);

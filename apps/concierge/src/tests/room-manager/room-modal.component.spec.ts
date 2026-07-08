@@ -1,14 +1,14 @@
 import { COMMA, ENTER, SPACE } from '@angular/cdk/keycodes';
 import { signal } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { OrganisationService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
 import * as ts_client_mod from '@placeos/ts-client';
 import { RoomModalComponent } from '../../app/room-manager/room-modal.component';
 
-jest.mock('@placeos/ts-client');
+vi.mock('@placeos/ts-client', { spy: true });
 
 describe('RoomModalComponent', () => {
     let spectator: Spectator<RoomModalComponent>;
@@ -18,12 +18,12 @@ describe('RoomModalComponent', () => {
         component: RoomModalComponent,
         providers: [
             { provide: MAT_DIALOG_DATA, useFactory: () => dialog_data },
-            MockProvider(MatDialogRef, { close: jest.fn() } as any),
+            MockProvider(MatDialogRef, { close: vi.fn() } as any),
             MockProvider(OrganisationService, {
                 organisation: { id: 'org-1' },
                 building: { id: 'bld-1', parent_id: 'region-1' },
                 active_levels: signal([{ id: 'lvl-1' }]),
-                levelWithID: jest.fn(),
+                levelWithID: vi.fn(),
             } as any),
             MockProvider(MatDialog, {} as any),
         ],
@@ -35,8 +35,8 @@ describe('RoomModalComponent', () => {
     };
 
     beforeEach(() => {
-        jest.clearAllMocks();
-        (ts_client_mod.showMetadata as jest.Mock).mockResolvedValue({
+        vi.clearAllMocks();
+        (ts_client_mod.showMetadata as any).mockResolvedValue({
             details: {},
         });
     });

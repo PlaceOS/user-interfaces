@@ -10,10 +10,10 @@ describe('PlaylistSidebarComponent', () => {
         {},
     );
     const playlists_has_more = signal(false);
-    const queue_meta = jest.fn();
-    const load_more = jest.fn();
-    const add_playlist = jest.fn();
-    const add_media_to_playlist = jest.fn().mockResolvedValue(undefined);
+    const queue_meta = vi.fn();
+    const load_more = vi.fn();
+    const add_playlist = vi.fn();
+    const add_media_to_playlist = vi.fn().mockResolvedValue(undefined);
 
     const service_stub = {
         playlists,
@@ -43,7 +43,7 @@ describe('PlaylistSidebarComponent', () => {
     }
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         playlists.set([]);
         playlist_approval_status.set({});
         playlist_approval_requested_status.set({});

@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { DesksService } from '@placeos/bookings';
 import { OrganisationService } from '@placeos/common';
 import { mockComponent } from '@placeos/common/tests';
@@ -21,7 +21,7 @@ describe('ExploreComponent', () => {
                 upcoming_events,
             }),
             MockProvider(ExploreStateService, {}),
-            MockProvider(OrganisationService, { levelWithID: jest.fn() }),
+            MockProvider(OrganisationService, { levelWithID: vi.fn() }),
         ],
         declarations: [
             mockComponent(TopbarComponent),

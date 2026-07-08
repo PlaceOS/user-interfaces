@@ -1,21 +1,38 @@
 import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
+import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
 import { OrganisationService } from '@placeos/common';
-import * as components_mod from '@placeos/components';
 import * as ts_client_mod from '@placeos/ts-client';
 import { MockProvider } from 'ng-mocks';
-import { Subject } from 'rxjs';
+import { NEVER, of, Subject } from 'rxjs';
 
 import { DealsService } from '../../app/deals/deals.service';
 
-jest.mock('@placeos/ts-client');
-jest.mock('@placeos/components');
+vi.mock('@placeos/ts-client', { spy: true });
+
+/**
+ * `openConfirmModal` is a workspace wrapper (unspyable under this builder) that
+ * simply opens `ConfirmModalComponent` through the injected `MatDialog` and
+ * resolves from the dialog ref. We drive it entirely through the injected
+ * dialog fake below.
+ */
+const makeConfirmRef = () => ({
+    componentInstance: { event: of({ reason: 'done' }), loading: { set: vi.fn() } },
+    afterClosed: () => of({ reason: 'done' }),
+    close: vi.fn(),
+});
+
+const makeDismissRef = () => ({
+    // `event` never emits `done`; the dialog closes with a non-done reason.
+    componentInstance: { event: NEVER, loading: { set: vi.fn() } },
+    afterClosed: () => of({ reason: 'cancel' }),
+    close: vi.fn(),
+});
 
 describe('DealsService', () => {
     let spectator: SpectatorService<DealsService>;
     let stored_deals: any[];
-    let dialog_open: jest.Mock;
+    let dialog_open: any;
 
     const organisation_service: any = {
         active_building: signal(undefined),
@@ -33,22 +50,18 @@ describe('DealsService', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         stored_deals = [];
-        dialog_open = jest.fn();
-        jest.spyOn(ts_client_mod, 'showMetadata').mockImplementation(
+        dialog_open = vi.fn();
+        vi.mocked(ts_client_mod.showMetadata).mockImplementation(
             async () => ({ details: stored_deals }) as any,
         );
-        jest.spyOn(ts_client_mod, 'updateMetadata').mockImplementation(
+        vi.mocked(ts_client_mod.updateMetadata).mockImplementation(
             async (_id: string, metadata: any) => {
                 stored_deals = metadata.details;
                 return {} as any;
             },
         );
-        (components_mod as any).openConfirmModal = jest.fn(async () => ({
-            reason: 'done',
-            close: jest.fn(),
-        }));
         spectator = createService();
     });
 
@@ -93,19 +106,20 @@ describe('DealsService', () => {
 
     it('should remove a deal after confirmation and persist the change', async () => {
         stored_deals = [{ id: 'deal-1' }, { id: 'deal-2' }];
+        dialog_open.mockReturnValue(makeConfirmRef());
 
         const result = await spectator.service.removeDeal({ id: 'deal-1' } as any);
 
         expect(result).toBe(true);
-        expect(components_mod.openConfirmModal).toHaveBeenCalled();
+        // Confirmation dialog was opened...
+        expect(dialog_open).toHaveBeenCalled();
+        // ...and the change was persisted through ts-client metadata.
+        expect(ts_client_mod.updateMetadata).toHaveBeenCalled();
         expect(stored_deals).toEqual([{ id: 'deal-2' }]);
     });
 
     it('should abort removal when the confirmation is dismissed', async () => {
-        (components_mod.openConfirmModal as jest.Mock).mockResolvedValue({
-            reason: 'cancel',
-            close: jest.fn(),
-        });
+        dialog_open.mockReturnValue(makeDismissRef());
         stored_deals = [{ id: 'deal-1' }];
 
         const result = await spectator.service.removeDeal({ id: 'deal-1' } as any);
@@ -124,16 +138,23 @@ describe('DealsService', () => {
         );
 
         expect(result).toBe(true);
-        expect(components_mod.openConfirmModal).not.toHaveBeenCalled();
+        expect(dialog_open).not.toHaveBeenCalled();
+        expect(ts_client_mod.updateMetadata).toHaveBeenCalled();
         expect(stored_deals).toEqual([]);
     });
 
     it('should remove and close the modal when the view dialog emits remove', async () => {
         const remove = new Subject<void>();
         const after_closed = new Subject<void>();
-        const close = jest.fn();
+        const close = vi.fn();
+        // The same ref serves both the view dialog (exposes `remove`) and the
+        // confirmation dialog opened by `removeDeal` (exposes `event`).
         dialog_open.mockReturnValue({
-            componentInstance: { remove },
+            componentInstance: {
+                remove,
+                event: of({ reason: 'done' }),
+                loading: { set: vi.fn() },
+            },
             afterClosed: () => after_closed,
             close,
         });
@@ -145,5 +166,7 @@ describe('DealsService', () => {
 
         expect(dialog_open).toHaveBeenCalled();
         expect(close).toHaveBeenCalled();
+        // The deal was removed as part of the flow.
+        expect(stored_deals).toEqual([]);
     });
 });

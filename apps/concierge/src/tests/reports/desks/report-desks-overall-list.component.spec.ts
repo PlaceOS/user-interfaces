@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { IconComponent, SimpleTableComponent } from '@placeos/components';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
@@ -8,14 +8,11 @@ import { ReportDesksOverallListComponent } from 'apps/concierge/src/app/reports/
 import { ReportMetricGuideComponent } from 'apps/concierge/src/app/reports/report-metric-guide.component';
 import { ReportsStateService } from 'apps/concierge/src/app/reports/reports-state.service';
 
-jest.mock('@placeos/common', () => ({
-    ...jest.requireActual('@placeos/common'),
-    downloadFile: jest.fn(),
-}));
-import { downloadFile } from '@placeos/common';
+import { captureDownloads } from '../download-capture.helper';
 
 describe('ReportDesksOverallListComponent', () => {
     let spectator: Spectator<ReportDesksOverallListComponent>;
+    let downloads: ReturnType<typeof captureDownloads>;
     let day_list: ReturnType<typeof signal<any>>;
 
     const createComponent = createComponentFactory({
@@ -29,8 +26,10 @@ describe('ReportDesksOverallListComponent', () => {
         providers: [MockProvider(ReportsStateService, {} as any)],
     });
 
+    afterEach(() => downloads.restore());
+
     beforeEach(() => {
-        (downloadFile as jest.Mock).mockClear();
+        downloads = captureDownloads();
         day_list = signal([
             {
                 date: new Date('2026-04-06T00:00:00').valueOf(),
@@ -62,9 +61,6 @@ describe('ReportDesksOverallListComponent', () => {
 
     it('should download the daily usage table on request', async () => {
         await spectator.component.download();
-        expect(downloadFile).toHaveBeenCalledWith(
-            'desks-usage.csv',
-            expect.any(String),
-        );
+        expect(downloads.filename).toBe('desks-usage.csv');
     });
 });

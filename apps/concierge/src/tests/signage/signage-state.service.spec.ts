@@ -1,61 +1,28 @@
 import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
+import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
 import {
     OrganisationService,
     SettingsService,
     UploadsService,
+    setNotifyOutlet,
 } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
-import { of } from 'rxjs';
+import { NEVER, of } from 'rxjs';
 
-import * as common_mod from '@placeos/common';
-import * as component_mod from '@placeos/components';
 import * as ts_client_mod from '@placeos/ts-client';
 import { SignageStateService } from '../../app/signage/signage-state.service';
 
-jest.mock('@placeos/components', () => ({
-    openConfirmModal: jest.fn(),
-}));
-
-jest.mock('@placeos/cloud-uploads', () => ({
-    SignedRequest: { setToken: jest.fn() },
-}));
-
-jest.mock('@placeos/common', () => {
-    const actual = jest.requireActual('@placeos/common');
-    return {
-        ...actual,
-        notifyError: jest.fn(),
-        notifySuccess: jest.fn(),
-    };
-});
-
-jest.mock('@placeos/ts-client', () => {
-    const actual = jest.requireActual('@placeos/ts-client');
-    return {
-        ...actual,
-        querySignageMedia: jest.fn(async () => ({ data: [] })),
-        querySignagePlaylists: jest.fn(async () => ({ data: [] })),
-        querySystems: jest.fn(async () => ({ data: [] })),
-        queryZones: jest.fn(async () => ({ data: [] })),
-        addSignageMedia: jest.fn(async () => ({ id: 'media-1' })),
-        addSignagePlaylist: jest.fn(async () => ({ id: 'pl-1' })),
-        updateSignagePlaylist: jest.fn(async () => ({ id: 'pl-1' })),
-        removeSignagePlaylist: jest.fn(async () => undefined),
-        updateSignageMedia: jest.fn(async () => ({})),
-        removeSignageMedia: jest.fn(async () => undefined),
-        updateSignagePlaylistMedia: jest.fn(async () => undefined),
-        listSignagePlaylistMedia: jest.fn(async () => ({ items: ['a', 'b'] })),
-        updateSystem: jest.fn(async () => ({})),
-        removeSystem: jest.fn(async () => undefined),
-        token: jest.fn(() => 'token-value'),
-    };
-});
+vi.mock('@placeos/ts-client', { spy: true });
 
 describe('SignageStateService', () => {
     let spectator: SpectatorService<SignageStateService>;
-    let dialog_open: jest.Mock;
+    let dialog_open: any;
+    let dialog_close: ReturnType<typeof vi.fn>;
+    let notify_open: ReturnType<typeof vi.fn>;
+    // Controls the outcome that the real `openConfirmModal` resolves to, driven
+    // entirely through the injected `MatDialog` fake below.
+    let confirm_reason: 'done' | 'cancel';
 
     const organisation_service: any = {
         active_building: signal({ id: 'bld-1' }),
@@ -66,30 +33,72 @@ describe('SignageStateService', () => {
         service: SignageStateService,
         providers: [
             MockProvider(OrganisationService, organisation_service),
-            MockProvider(SettingsService, { get: jest.fn(() => false) } as any),
+            MockProvider(SettingsService, { get: vi.fn(() => false) } as any),
             MockProvider(UploadsService, {
                 upload_list: signal([]),
-                uploadFile: jest.fn(),
-                uploadFileWithPermissions: jest.fn(),
+                uploadFile: vi.fn(),
+                uploadFileWithPermissions: vi.fn(),
             } as any),
         ],
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
-        dialog_open = jest.fn(() => ({
-            afterClosed: () => of(null),
-            componentInstance: {},
-            close: jest.fn(),
+        vi.clearAllMocks();
+        confirm_reason = 'done';
+        notify_open = vi.fn(() => ({
+            onAction: () => ({ subscribe: () => undefined }),
+            dismiss: () => undefined,
         }));
+        setNotifyOutlet({ open: notify_open } as any, true);
+        dialog_close = vi.fn();
+        dialog_open = vi.fn(() => ({
+            componentInstance: {
+                event: confirm_reason === 'done' ? of({ reason: 'done' }) : NEVER,
+                loading: { set: vi.fn() },
+            },
+            afterClosed: () =>
+                confirm_reason === 'done'
+                    ? NEVER
+                    : of({ reason: confirm_reason }),
+            close: dialog_close,
+        }));
+        // `spy: true` keeps the real ts-client implementations, which would try
+        // to make live HTTP calls and hang. Stub every call these tests touch so
+        // the awaited paths resolve.
+        (ts_client_mod.addSignagePlaylist as any).mockResolvedValue({});
+        (ts_client_mod.updateSignagePlaylist as any).mockResolvedValue({});
+        (ts_client_mod.removeSignagePlaylist as any).mockResolvedValue(
+            undefined,
+        );
+        (ts_client_mod.updateSignagePlaylistMedia as any).mockResolvedValue(
+            undefined,
+        );
+        (ts_client_mod.listSignagePlaylistMedia as any).mockResolvedValue({
+            items: ['a', 'b'],
+        });
+        (ts_client_mod.addSignageMedia as any).mockResolvedValue({});
+        (ts_client_mod.removeSignageMedia as any).mockResolvedValue(undefined);
+        (ts_client_mod.updateSignageMedia as any).mockResolvedValue({});
+        (ts_client_mod.updateSystem as any).mockResolvedValue({});
+        (ts_client_mod.removeSystem as any).mockResolvedValue(undefined);
+        (ts_client_mod.querySignageMedia as any).mockResolvedValue({ data: [] });
+        (ts_client_mod.querySignagePlaylists as any).mockResolvedValue({
+            data: [],
+        });
+        (ts_client_mod.querySystems as any).mockResolvedValue({ data: [] });
+        (ts_client_mod.queryZones as any).mockResolvedValue({ data: [] });
         spectator = createService({
             providers: [MockProvider(MatDialog, { open: dialog_open })],
         });
     });
 
+    afterEach(() => {
+        setNotifyOutlet(null as any, true);
+    });
+
     it('should mark state as changed with a fresh timestamp', () => {
         const now = 1_700_000_000_000;
-        jest.spyOn(Date, 'now').mockReturnValue(now);
+        vi.spyOn(Date, 'now').mockReturnValue(now);
 
         spectator.service.changed();
 
@@ -103,7 +112,11 @@ describe('SignageStateService', () => {
             name: 'My Playlist',
         });
         expect(ts_client_mod.updateSignagePlaylist).not.toHaveBeenCalled();
-        expect(common_mod.notifySuccess).toHaveBeenCalled();
+        expect(notify_open).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['success'] }),
+        );
     });
 
     it('should update an existing playlist and strip blank fields', async () => {
@@ -123,11 +136,7 @@ describe('SignageStateService', () => {
     });
 
     it('should soft-disable displays that still have linked resources', async () => {
-        (component_mod.openConfirmModal as jest.Mock).mockResolvedValue({
-            reason: 'done',
-            loading: jest.fn(),
-            close: jest.fn(),
-        });
+        confirm_reason = 'done';
 
         await spectator.service.removeDisplay({
             id: 'sys-1',
@@ -143,11 +152,7 @@ describe('SignageStateService', () => {
     });
 
     it('should fully remove displays with no linked resources', async () => {
-        (component_mod.openConfirmModal as jest.Mock).mockResolvedValue({
-            reason: 'done',
-            loading: jest.fn(),
-            close: jest.fn(),
-        });
+        confirm_reason = 'done';
 
         await spectator.service.removeDisplay({
             id: 'sys-2',
@@ -162,11 +167,7 @@ describe('SignageStateService', () => {
     });
 
     it('should not remove a display when the confirmation is cancelled', async () => {
-        (component_mod.openConfirmModal as jest.Mock).mockResolvedValue({
-            reason: 'cancel',
-            loading: jest.fn(),
-            close: jest.fn(),
-        });
+        confirm_reason = 'cancel';
 
         await spectator.service.removeDisplay({
             id: 'sys-3',
@@ -181,17 +182,12 @@ describe('SignageStateService', () => {
     it('should ignore playlist removal when there is no id', async () => {
         await spectator.service.removePlaylist({} as any);
 
-        expect(component_mod.openConfirmModal).not.toHaveBeenCalled();
+        expect(dialog_open).not.toHaveBeenCalled();
         expect(ts_client_mod.removeSignagePlaylist).not.toHaveBeenCalled();
     });
 
     it('should remove a playlist after confirmation', async () => {
-        const close = jest.fn();
-        (component_mod.openConfirmModal as jest.Mock).mockResolvedValue({
-            reason: 'done',
-            loading: jest.fn(),
-            close,
-        });
+        confirm_reason = 'done';
 
         await spectator.service.removePlaylist({
             id: 'pl-3',
@@ -201,7 +197,7 @@ describe('SignageStateService', () => {
         expect(ts_client_mod.removeSignagePlaylist).toHaveBeenCalledWith(
             'pl-3',
         );
-        expect(close).toHaveBeenCalled();
+        expect(dialog_close).toHaveBeenCalled();
     });
 
     it('should persist playlist media ordering and flag changes', async () => {
@@ -211,7 +207,11 @@ describe('SignageStateService', () => {
             'pl-4',
             ['m1', 'm2'],
         );
-        expect(common_mod.notifySuccess).toHaveBeenCalled();
+        expect(notify_open).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['success'] }),
+        );
     });
 
     it('should return the media items for a playlist', async () => {
@@ -234,11 +234,15 @@ describe('SignageStateService', () => {
                 orientation: 'landscape',
             }),
         );
-        expect(common_mod.notifySuccess).toHaveBeenCalled();
+        expect(notify_open).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['success'] }),
+        );
     });
 
     it('should open the media modal for supported dropped files', async () => {
-        const editMedia = jest
+        const editMedia = vi
             .spyOn(spectator.service, 'editMedia')
             .mockResolvedValue(null as any);
         const file = new File([''], 'clip.mp4', { type: 'video/mp4' });
@@ -248,11 +252,11 @@ describe('SignageStateService', () => {
         } as any);
 
         expect(editMedia).toHaveBeenCalledWith(undefined, file, '');
-        expect(common_mod.notifyError).not.toHaveBeenCalled();
+        expect(notify_open).not.toHaveBeenCalled();
     });
 
     it('should reject dropped files that are not images or videos', () => {
-        const editMedia = jest
+        const editMedia = vi
             .spyOn(spectator.service, 'editMedia')
             .mockResolvedValue(null as any);
         const file = new File([''], 'notes.txt', { type: 'text/plain' });
@@ -262,7 +266,11 @@ describe('SignageStateService', () => {
         } as any);
 
         expect(editMedia).not.toHaveBeenCalled();
-        expect(common_mod.notifyError).toHaveBeenCalled();
+        expect(notify_open).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['error'] }),
+        );
     });
 
     it('should open the approve playlist modal', async () => {

@@ -1,6 +1,6 @@
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { IconComponent } from '@placeos/components';
 import { EventFormService } from '@placeos/events';
 import { MockComponent, MockProvider } from 'ng-mocks';
@@ -22,7 +22,7 @@ describe('BookingModalComponent', () => {
         providers: [
             MockProvider(MAT_DIALOG_DATA, {}),
             MockProvider(MatDialogRef, {
-                close: jest.fn(),
+                close: vi.fn(),
             }),
             {
                 provide: EventFormService,
@@ -35,13 +35,13 @@ describe('BookingModalComponent', () => {
                     return {
                         model,
                         form,
-                        newForm: jest.fn(),
-                        postForm: jest.fn(async () => null),
+                        newForm: vi.fn(),
+                        postForm: vi.fn(async () => null),
                         loading: signal(''),
-                    } as Partial<EventFormService>;
+                    } as any;
                 },
             },
-            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(SettingsService, { get: vi.fn() }),
         ],
         imports: [MatProgressSpinnerModule],
     });

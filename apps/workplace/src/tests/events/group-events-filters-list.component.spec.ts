@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { IconComponent } from '@placeos/components';
 import { addDays, startOfDay } from 'date-fns';
 import { MockComponent, MockProvider } from 'ng-mocks';
@@ -10,7 +10,7 @@ describe('GroupEventsFiltersListComponent', () => {
     let spectator: Spectator<GroupEventsFiltersListComponent>;
     const options = signal<any>({ date: Date.now(), end: undefined });
     const filters = signal<any>({ categories: [], tags: [] });
-    const set_filters = jest.fn();
+    const set_filters = vi.fn();
     const createComponent = createComponentFactory({
         component: GroupEventsFiltersListComponent,
         declarations: [MockComponent(IconComponent)],
@@ -25,7 +25,7 @@ describe('GroupEventsFiltersListComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         options.set({ date: Date.now(), end: undefined });
         filters.set({ categories: [], tags: [] });
         spectator = createComponent();

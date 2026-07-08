@@ -10,13 +10,10 @@ import {
 import { MediaPreviewModalComponent } from '../../app/shared/media-preview-modal.component';
 import { SignageService } from '../../app/signage.service';
 
-jest.mock('@placeos/ts-client', () => ({
-    ...jest.requireActual('@placeos/ts-client'),
-    listSignagePlaylistMedia: jest.fn(),
-}));
+vi.mock('@placeos/ts-client', { spy: true });
 
 describe('MediaPreviewModalComponent', () => {
-    const editMedia = jest.fn();
+    const editMedia = vi.fn();
     const playlists = signal<any[]>([]);
     const service = { playlists, editMedia };
 
@@ -43,9 +40,9 @@ describe('MediaPreviewModalComponent', () => {
     }
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         playlists.set([]);
-        (listSignagePlaylistMedia as jest.Mock).mockResolvedValue({
+        (listSignagePlaylistMedia as any).mockResolvedValue({
             items: [],
         });
         TestBed.resetTestingModule();
@@ -140,7 +137,7 @@ describe('MediaPreviewModalComponent', () => {
             { id: 'p2', name: 'Two' },
             { id: 'p3', name: 'Three' },
         ]);
-        (listSignagePlaylistMedia as jest.Mock).mockImplementation(
+        (listSignagePlaylistMedia as any).mockImplementation(
             async (id: string) => ({
                 items: id === 'p2' ? ['other', 'm1'] : ['other'],
             }),
@@ -166,7 +163,7 @@ describe('MediaPreviewModalComponent', () => {
             { id: 'p1', name: 'One' },
             { id: 'p2', name: 'Two' },
         ]);
-        (listSignagePlaylistMedia as jest.Mock).mockImplementation(
+        (listSignagePlaylistMedia as any).mockImplementation(
             async (id: string) => {
                 if (id === 'p1') throw new Error('boom');
                 return { items: ['m1'] };

@@ -11,7 +11,7 @@ function dialogRef(value: unknown) {
         afterClosed: () => ({
             subscribe: (handler: (value: unknown) => void) => {
                 Promise.resolve().then(() => handler(value));
-                return { unsubscribe: jest.fn() };
+                return { unsubscribe: vi.fn() };
             },
         }),
     };
@@ -19,10 +19,10 @@ function dialogRef(value: unknown) {
 
 describe('SignageGroupZonesComponent', () => {
     const managed_group_zones = signal<any[]>([]);
-    const add_zone = jest.fn();
-    const update_zone = jest.fn();
-    const remove_zone = jest.fn();
-    const dialog = { open: jest.fn() };
+    const add_zone = vi.fn();
+    const update_zone = vi.fn();
+    const remove_zone = vi.fn();
+    const dialog = { open: vi.fn() };
     const service_stub = {
         managed_group_zones,
         addManagedGroupZone: add_zone,
@@ -44,7 +44,7 @@ describe('SignageGroupZonesComponent', () => {
     }
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         managed_group_zones.set([
             { zone_id: 'zone-1', permissions: 1, deny: false },
             { zone_id: 'zone-2', permissions: 0, deny: true },

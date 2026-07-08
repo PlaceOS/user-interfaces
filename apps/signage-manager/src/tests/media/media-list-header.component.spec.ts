@@ -1,14 +1,14 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
-import { notifyError } from '@placeos/common';
+import { setNotifyOutlet } from '@placeos/common';
 import { MediaListHeaderComponent } from '../../app/media/media-list-header.component';
 import { MediaAddModalComponent } from '../../app/shared/media-add-modal.component';
 import { SignageService } from '../../app/signage.service';
 
-jest.mock('@placeos/common', () => ({
-    ...jest.requireActual('@placeos/common'),
-    notifyError: jest.fn(),
+const notify_open = vi.fn(() => ({
+    onAction: () => ({ subscribe: () => ({ unsubscribe: () => {} }) }),
+    dismiss: vi.fn(),
 }));
 
 describe('MediaListHeaderComponent', () => {
@@ -17,10 +17,10 @@ describe('MediaListHeaderComponent', () => {
     const plugins = signal<any[]>([]);
     const search_term = signal('');
     const media_view_mode = signal<'grid' | 'list' | 'folder'>('grid');
-    const add_from_link = jest.fn().mockResolvedValue(undefined);
-    const add_from_plugin = jest.fn().mockResolvedValue(undefined);
-    const preview_file = jest.fn();
-    const dialog_open = jest.fn();
+    const add_from_link = vi.fn().mockResolvedValue(undefined);
+    const add_from_plugin = vi.fn().mockResolvedValue(undefined);
+    const preview_file = vi.fn();
+    const dialog_open = vi.fn();
 
     const service_stub = {
         filtered_media,
@@ -52,7 +52,8 @@ describe('MediaListHeaderComponent', () => {
     }
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
+        setNotifyOutlet({ open: notify_open } as any, true);
         filtered_media.set([]);
         media.set([]);
         plugins.set([]);
@@ -80,7 +81,11 @@ describe('MediaListHeaderComponent', () => {
         const component = await make();
         component.link.set('not a url');
         await component.addFromLink();
-        expect(notifyError).toHaveBeenCalled();
+        expect(notify_open).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['error'] }),
+        );
         expect(add_from_link).not.toHaveBeenCalled();
     });
 
@@ -89,7 +94,11 @@ describe('MediaListHeaderComponent', () => {
         component.link.set('   ');
         await component.addFromLink();
         expect(add_from_link).not.toHaveBeenCalled();
-        expect(notifyError).not.toHaveBeenCalled();
+        expect(notify_open).not.toHaveBeenCalledWith(
+            expect.anything(),
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['error'] }),
+        );
     });
 
     it('adds media from the selected plugin and resets the selection', async () => {

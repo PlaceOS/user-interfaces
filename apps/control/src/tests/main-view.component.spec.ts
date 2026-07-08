@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { ControlStateService } from '../app/control-state.service';
 
@@ -24,9 +24,9 @@ describe('ControlMainViewComponent', () => {
         providers: [
             MockProvider(MatDialog),
             MockProvider(ControlStateService, {
-                powerOn: jest.fn(),
+                powerOn: vi.fn(),
                 system: signal({}),
-                setID: jest.fn(),
+                setID: vi.fn(),
             }),
         ],
     });

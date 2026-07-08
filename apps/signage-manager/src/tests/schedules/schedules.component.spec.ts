@@ -9,7 +9,7 @@ describe('SchedulesSectionComponent', () => {
     const playlists = signal<any[]>([]);
     const displays = signal<any[]>([]);
     const zones = signal<any[]>([]);
-    const navigate = jest.fn();
+    const navigate = vi.fn();
 
     const service_stub = {
         playlists,
@@ -38,7 +38,7 @@ describe('SchedulesSectionComponent', () => {
     }
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         playlists.set([]);
         displays.set([
             { id: 'd-1', name: 'Foyer', zones: [], updated_at: 1 },

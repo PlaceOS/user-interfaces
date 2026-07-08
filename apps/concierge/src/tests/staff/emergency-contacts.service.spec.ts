@@ -1,14 +1,12 @@
 import { signal } from '@angular/core';
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
+import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
 import { OrganisationService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
 import { EmergencyContactsService } from '../../app/staff/emergency-contacts.service';
 
-jest.mock('@placeos/assets');
-jest.mock('@placeos/ts-client');
+vi.mock('@placeos/ts-client', { spy: true });
 
-import * as assets_mod from '@placeos/assets';
 import * as ts_client from '@placeos/ts-client';
 
 describe('EmergencyContactsService', () => {
@@ -21,30 +19,46 @@ describe('EmergencyContactsService', () => {
                 building: { id: 'bld-1' },
                 organisation: { id: 'org-1' },
                 region: { id: 'reg-1' },
-                levelWithID: jest.fn(() => ({ id: 'lvl-1' })),
+                levelWithID: vi.fn(() => ({ id: 'lvl-1' })),
                 waitUntilInitialised: () => Promise.resolve(),
             } as any),
         ],
     });
 
-    beforeEach(() => {
-        (assets_mod.queryAssets as jest.Mock).mockResolvedValue({ data: [] });
-        (assets_mod.saveAsset as jest.Mock).mockResolvedValue({});
-        (assets_mod.saveAssetCategory as jest.Mock).mockResolvedValue({});
-        (assets_mod.saveAssetType as jest.Mock).mockResolvedValue({ id: 'at1' });
-        (ts_client.cleanObject as jest.Mock).mockImplementation((x: any) => x);
-        (ts_client.queryAssetCategories as jest.Mock).mockResolvedValue({
+    beforeEach(async () => {
+        // @placeos/assets wraps these ts-client primitives; only ts-client can
+        // be spied under the bundling builder, so stub at that boundary.
+        vi.mocked(ts_client.queryAssets).mockResolvedValue({ data: [] } as any);
+        vi.mocked(ts_client.queryAssetCategories).mockResolvedValue({
             data: [],
-        });
-        (ts_client.queryAssetTypes as jest.Mock).mockResolvedValue({
+        } as any);
+        vi.mocked(ts_client.queryAssetTypes).mockResolvedValue({
             data: [],
-        });
-        (ts_client.removeAsset as jest.Mock).mockResolvedValue({});
-        (ts_client.showMetadata as jest.Mock).mockResolvedValue({
+        } as any);
+        vi.mocked(ts_client.addAsset).mockResolvedValue({} as any);
+        vi.mocked(ts_client.updateAsset).mockResolvedValue({} as any);
+        vi.mocked(ts_client.addAssetCategory).mockResolvedValue({} as any);
+        vi.mocked(ts_client.updateAssetCategory).mockResolvedValue({} as any);
+        vi.mocked(ts_client.addAssetType).mockResolvedValue({ id: 'at1' } as any);
+        vi.mocked(ts_client.updateAssetType).mockResolvedValue({
+            id: 'at1',
+        } as any);
+        vi.mocked(ts_client.removeAsset).mockResolvedValue({} as any);
+        vi.mocked(ts_client.showMetadata).mockResolvedValue({
             details: {},
-        });
-        (ts_client.updateMetadata as jest.Mock).mockResolvedValue({});
+        } as any);
+        vi.mocked(ts_client.updateMetadata).mockResolvedValue({} as any);
         spectator = createService();
+        // Let the constructor's ensureCategoryAndTypeExist() chain settle so
+        // its write calls don't leak into the per-test assertions.
+        await new Promise((r) => setTimeout(r));
+        vi.mocked(ts_client.addAsset).mockClear();
+        vi.mocked(ts_client.updateAsset).mockClear();
+        vi.mocked(ts_client.addAssetCategory).mockClear();
+        vi.mocked(ts_client.updateAssetCategory).mockClear();
+        vi.mocked(ts_client.addAssetType).mockClear();
+        vi.mocked(ts_client.updateAssetType).mockClear();
+        vi.mocked(ts_client.removeAsset).mockClear();
     });
 
     it('should generate prefixed contact ids', () => {
@@ -62,7 +76,8 @@ describe('EmergencyContactsService', () => {
             zone: 'lvl-1',
         });
         expect(ok).toBe(true);
-        expect(assets_mod.saveAsset).toHaveBeenCalledWith(
+        // contact id starts with `contact-` => new asset => addAsset
+        expect(ts_client.addAsset).toHaveBeenCalledWith(
             expect.objectContaining({
                 asset_type_id: 'at1',
                 identifier: 'Jane',
@@ -78,19 +93,23 @@ describe('EmergencyContactsService', () => {
 
     it('should skip persisting a role that already exists', async () => {
         spectator.service.roles.set(['Warden']);
-        (assets_mod.saveAssetCategory as jest.Mock).mockClear();
+        vi.mocked(ts_client.addAssetCategory).mockClear();
+        vi.mocked(ts_client.updateAssetCategory).mockClear();
         const ok = await spectator.service.addRole('Warden');
         expect(ok).toBe(true);
-        expect(assets_mod.saveAssetCategory).not.toHaveBeenCalled();
+        expect(ts_client.addAssetCategory).not.toHaveBeenCalled();
+        expect(ts_client.updateAssetCategory).not.toHaveBeenCalled();
     });
 
     it('should persist a new sorted role list on add', async () => {
         spectator.service.category.set({ id: 'cat-1' } as any);
         spectator.service.roles.set(['Warden']);
-        (assets_mod.saveAssetCategory as jest.Mock).mockClear();
+        vi.mocked(ts_client.updateAssetCategory).mockClear();
         const ok = await spectator.service.addRole('Aider');
         expect(ok).toBe(true);
-        expect(assets_mod.saveAssetCategory).toHaveBeenCalledWith(
+        // category has an id => saveAssetCategory => updateAssetCategory
+        expect(ts_client.updateAssetCategory).toHaveBeenCalledWith(
+            'cat-1',
             expect.objectContaining({
                 description: JSON.stringify({ roles: ['Aider', 'Warden'] }),
             }),

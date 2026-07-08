@@ -4,7 +4,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { Router } from '@angular/router';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent, MockModule, MockPipe } from 'ng-mocks';
 
 import { IconComponent, TranslatePipe } from '@placeos/components';
@@ -13,14 +13,14 @@ import { DialpadComponent } from '../../app/ui/dialpad.component';
 import { VideoCallPageComponent } from '../../app/video-call/video-call-page.component';
 import { VideoCallStateService } from '../../app/video-call/video-call-state.service';
 
-jest.mock('@placeos/ts-client', () => ({ getModule: jest.fn() }));
+vi.mock('@placeos/ts-client', { spy: true });
 
 import * as client from '@placeos/ts-client';
 
 describe('VideoCallPageComponent', () => {
     let spectator: Spectator<VideoCallPageComponent>;
-    let execute_spy: jest.Mock;
-    const router_mock = { navigate: jest.fn() };
+    let execute_spy: any;
+    const router_mock = { navigate: vi.fn() };
     const mic_mute = signal<any>(null);
     const show_camera_pip = signal<any>(null);
 
@@ -30,20 +30,20 @@ describe('VideoCallPageComponent', () => {
         mic_mute,
         presentation_mode: signal('None'),
         video_layout: signal('Auto'),
-        sendDTMF: jest.fn(),
-        setPresentationMode: jest.fn(),
-        setVideoLayout: jest.fn(),
-        showCameraPIP: jest.fn(),
-        muteMicrophone: jest.fn(),
-        toggleCallOnHold: jest.fn(),
-        hangup: jest.fn().mockResolvedValue(null),
+        sendDTMF: vi.fn(),
+        setPresentationMode: vi.fn(),
+        setVideoLayout: vi.fn(),
+        showCameraPIP: vi.fn(),
+        muteMicrophone: vi.fn(),
+        toggleCallOnHold: vi.fn(),
+        hangup: vi.fn().mockResolvedValue(null),
     };
     const control_state: any = {
         id: 'sys-1',
         presentables: signal([]),
         camera_list: signal([]),
         selected_camera: signal(''),
-        setRoute: jest.fn(),
+        setRoute: vi.fn(),
     };
 
     const createComponent = createComponentFactory({
@@ -67,7 +67,7 @@ describe('VideoCallPageComponent', () => {
     });
 
     beforeEach(() => {
-        execute_spy = jest.fn().mockResolvedValue(null);
+        execute_spy = vi.fn().mockResolvedValue(null);
         mic_mute.set(null);
         show_camera_pip.set(null);
         call_state.call.set({ Status: 'Connected' });
@@ -77,7 +77,7 @@ describe('VideoCallPageComponent', () => {
         );
         call_state.hangup.mockResolvedValue(null);
         control_state.setRoute.mockClear();
-        (client.getModule as jest.Mock).mockImplementation(() => ({
+        (client.getModule as any).mockImplementation(() => ({
             execute: execute_spy,
         }));
         spectator = createComponent();
@@ -166,7 +166,7 @@ describe('VideoCallPageComponent', () => {
     });
 
     it('should not execute when the System module is unavailable', () => {
-        (client.getModule as jest.Mock).mockReturnValue(null);
+        (client.getModule as any).mockReturnValue(null);
         spectator.component.selectCamera('cam-1');
         expect(execute_spy).not.toHaveBeenCalled();
     });

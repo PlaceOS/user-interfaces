@@ -4,7 +4,7 @@ import { SignageGroupUserSelectModalComponent } from '../../app/groups/signage-g
 import { SignageService } from '../../app/signage.service';
 
 describe('SignageGroupUserSelectModalComponent', () => {
-    const search_group_users = jest.fn();
+    const search_group_users = vi.fn();
     const service_stub = { searchGroupUsers: search_group_users };
     let modal_data: { exclude_ids?: string[] };
 
@@ -22,7 +22,7 @@ describe('SignageGroupUserSelectModalComponent', () => {
     }
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         search_group_users.mockResolvedValue([]);
         modal_data = {};
     });

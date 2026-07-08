@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { BookingFormService } from '@placeos/bookings';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
@@ -29,14 +29,14 @@ describe('ParkingFlowSuccessComponent', () => {
                 buildings: [
                     { id: 'bld-1', name: 'HQ', display_name: 'Headquarters' },
                 ],
-                levelWithID: jest.fn(() => ({
+                levelWithID: vi.fn(() => ({
                     id: 'lvl-1',
                     name: 'L1',
                     display_name: 'Level 1',
                 })),
             } as any),
             MockProvider(SettingsService, {
-                get: jest.fn(() => show_links),
+                get: vi.fn(() => show_links),
                 time_format: 'h:mm a',
             } as any),
         ],

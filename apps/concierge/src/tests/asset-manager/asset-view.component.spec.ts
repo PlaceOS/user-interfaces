@@ -2,7 +2,7 @@ import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { of } from 'rxjs';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { OrganisationService } from '@placeos/common';
 import { addMinutes } from 'date-fns';
 import { MockProvider } from 'ng-mocks';
@@ -17,7 +17,7 @@ const active_product_requests = signal<any[]>([]);
 
 describe('AssetViewComponent', () => {
     let spectator: Spectator<AssetViewComponent>;
-    let delete_active: jest.Mock;
+    let delete_active: any;
 
     const createComponent = createComponentFactory({
         component: AssetViewComponent,
@@ -29,11 +29,11 @@ describe('AssetViewComponent', () => {
                 extra_assets,
                 active_product_requests,
                 deleteActiveProduct: (...args: any[]) => delete_active(...args),
-                setOptions: jest.fn(),
+                setOptions: vi.fn(),
             } as any),
             MockProvider(OrganisationService, { currency_code: 'AUD' } as any),
-            MockProvider(MatDialog, { open: jest.fn() }),
-            MockProvider(Router, { navigate: jest.fn() }),
+            MockProvider(MatDialog, { open: vi.fn() }),
+            MockProvider(Router, { navigate: vi.fn() }),
             MockProvider(ActivatedRoute, { paramMap: of(new Map()) } as any),
         ],
     });
@@ -42,7 +42,7 @@ describe('AssetViewComponent', () => {
         active_product.set({ id: 'g1', name: 'Chair', assets: [{ id: 'a1' }] });
         extra_assets.set([]);
         active_product_requests.set([]);
-        delete_active = jest.fn(async () => ({}));
+        delete_active = vi.fn(async () => ({}));
         spectator = createComponent();
     });
 

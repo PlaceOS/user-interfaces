@@ -2,7 +2,7 @@ import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { OrganisationService } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
 import { signal } from '@angular/core';
@@ -21,15 +21,15 @@ describe('DayviewTopbarComponent', () => {
             MockProvider(OrganisationService, {
                 initialised: signal(true),
                 active_levels: signal([]),
-                levelWithID: jest.fn(),
+                levelWithID: vi.fn(),
             }),
             MockProvider(EventsStateService, {
                 levels: signal([]),
                 options: signal({}),
-                setFilters: jest.fn(),
-                setDate: jest.fn(),
-                setZones: jest.fn(),
-                newBooking: jest.fn(),
+                setFilters: vi.fn(),
+                setDate: vi.fn(),
+                setZones: vi.fn(),
+                newBooking: vi.fn(),
             }),
             MockProvider(SettingsService, { time_format: 'h:mm a' }),
         ],

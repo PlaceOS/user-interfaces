@@ -8,15 +8,21 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { i18n } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
     IconComponent,
     MediaDurationPipe,
     TranslatePipe,
 } from '@placeos/components';
-import { SignageMedia, SignagePlaylistItemSchedule } from '@placeos/ts-client';
+import {
+    SignageMedia,
+    SignagePlaylistItemSchedule,
+    type SignagePlaylistSchedule,
+} from '@placeos/ts-client';
 import {
     playlistMediaIcon,
+    playlistScheduleNextPlayLabels,
     playlistScheduleLabel,
 } from '../signage-playlist.util';
 import { SignageService } from '../signage.service';
@@ -523,7 +529,15 @@ import { SignageService } from '../signage.service';
                                             item_schedule of schedule.schedules;
                                             track $index
                                         ) {
-                                            <div class="rounded-md p-2">
+                                            <div
+                                                class="rounded-md p-2"
+                                                [matTooltip]="
+                                                    scheduleTooltip(
+                                                        item_schedule
+                                                    )
+                                                "
+                                                matTooltipClass="playlist-schedule-tooltip"
+                                            >
                                                 {{
                                                     scheduleLabel(item_schedule)
                                                 }}
@@ -575,6 +589,10 @@ import { SignageService } from '../signage.service';
 
             .cdk-drag-placeholder {
                 opacity: 0.3;
+            }
+
+            ::ng-deep .playlist-schedule-tooltip .mdc-tooltip__surface {
+                white-space: pre-line;
             }
         `,
     ],
@@ -637,6 +655,16 @@ export class PlaylistItemsComponent {
     }
 
     public scheduleLabel = playlistScheduleLabel;
+
+    public scheduleTooltip(schedule: Partial<SignagePlaylistSchedule>) {
+        const labels = playlistScheduleNextPlayLabels(schedule);
+        return [
+            `-- ${i18n('SIGNAGE_MANAGER.NEXT_5_PLAYS')} --`,
+            ...(labels.length
+                ? labels
+                : [i18n('SIGNAGE_MANAGER.NO_UPCOMING_PLAY_TIMES')]),
+        ].join('\n');
+    }
 
     public scheduleKey(item: SignageMedia, index: number) {
         const schedule = this.itemSchedule(item, index);

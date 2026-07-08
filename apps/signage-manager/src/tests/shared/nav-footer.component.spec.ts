@@ -6,7 +6,7 @@ import { SignageService } from '../../app/signage.service';
 
 describe('NavFooterComponent', () => {
     let closed_value: unknown;
-    const setSelectedGroup = jest.fn();
+    const setSelectedGroup = vi.fn();
     const can_manage_all_groups = signal(false);
     const manageable_signage_groups = signal<any[]>([]);
     const signage_groups = signal<any[]>([]);
@@ -23,11 +23,11 @@ describe('NavFooterComponent', () => {
         setSelectedGroup,
     };
     const dialog = {
-        open: jest.fn().mockReturnValue({
+        open: vi.fn().mockReturnValue({
             afterClosed: () => ({
                 subscribe: (handler: (value: unknown) => void) => {
                     Promise.resolve().then(() => handler(closed_value));
-                    return { unsubscribe: jest.fn() };
+                    return { unsubscribe: vi.fn() };
                 },
             }),
         }),
@@ -49,7 +49,7 @@ describe('NavFooterComponent', () => {
     }
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         closed_value = undefined;
         can_manage_all_groups.set(false);
         manageable_signage_groups.set([]);

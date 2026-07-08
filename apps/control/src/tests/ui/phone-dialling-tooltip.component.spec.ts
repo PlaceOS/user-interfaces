@@ -2,10 +2,10 @@ import { signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent, MockModule } from 'ng-mocks';
 
-jest.mock('@placeos/ts-client', () => ({ getModule: jest.fn() }));
+vi.mock('@placeos/ts-client', { spy: true });
 
 import { IconComponent } from '@placeos/components';
 import * as client from '@placeos/ts-client';
@@ -15,7 +15,7 @@ import { PhoneDiallingTooltipComponent } from '../../app/ui/phone-dialling-toolt
 
 describe('PhoneDiallingTooltipComponent', () => {
     let spectator: Spectator<PhoneDiallingTooltipComponent>;
-    let execute: jest.Mock;
+    let execute: any;
     const createComponent = createComponentFactory({
         component: PhoneDiallingTooltipComponent,
         declarations: [
@@ -39,7 +39,7 @@ describe('PhoneDiallingTooltipComponent', () => {
     });
 
     beforeEach(() => {
-        execute = jest.fn().mockResolvedValue(null);
+        execute = vi.fn().mockResolvedValue(null);
         (client.getModule as any).mockImplementation(() => ({ execute }));
         spectator = createComponent();
     });

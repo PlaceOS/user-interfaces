@@ -23,7 +23,7 @@ async function createComponent(data: GroupSelectModalData) {
 
 describe('GroupSelectModalComponent', () => {
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         TestBed.resetTestingModule();
     });
 

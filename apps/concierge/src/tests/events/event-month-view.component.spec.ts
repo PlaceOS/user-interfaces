@@ -2,7 +2,7 @@ import { signal } from '@angular/core';
 import {
     createRoutingFactory,
     SpectatorRouting,
-} from '@ngneat/spectator/jest';
+} from '@ngneat/spectator/vitest';
 import { SettingsService } from '@placeos/common';
 import { format, startOfDay } from 'date-fns';
 import { MockProvider } from 'ng-mocks';
@@ -14,7 +14,7 @@ describe('EventMonthViewComponent', () => {
     let spectator: SpectatorRouting<EventMonthViewComponent>;
     const options = signal<any>({ period: 'month', date: Date.now() });
     const event_day_map = signal<any>({});
-    const view_event = jest.fn();
+    const view_event = vi.fn();
 
     const createComponent = createRoutingFactory({
         component: EventMonthViewComponent,
@@ -30,7 +30,7 @@ describe('EventMonthViewComponent', () => {
                 },
             },
             MockProvider(SettingsService, {
-                get: jest.fn(() => 0),
+                get: vi.fn(() => 0),
             } as any),
         ],
     });

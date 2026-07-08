@@ -1,28 +1,17 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
+import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
 
-jest.mock('@placeos/common', () => ({
-    ...jest.requireActual('@placeos/common'),
-    currentUser: jest.fn(() => ({ email: 'me@example.com' })),
-}));
+vi.mock('@placeos/ts-client', { spy: true });
 
-jest.mock('@placeos/events', () => ({
-    ...jest.requireActual('@placeos/events'),
-    queryEvents: jest.fn(() => Promise.resolve([])),
-}));
-
-jest.mock('@placeos/ts-client', () => ({
-    ...jest.requireActual('@placeos/ts-client'),
-    querySystemsWithEmails: jest.fn(() =>
-        Promise.resolve({ data: [{ id: 'sys-1' }] }),
-    ),
-}));
-
-import { OrganisationService, SettingsService } from '@placeos/common';
-import { queryEvents } from '@placeos/events';
-import { querySystemsWithEmails } from '@placeos/ts-client';
+import {
+    OrganisationService,
+    setCurrentUser,
+    SettingsService,
+    StaffUser,
+} from '@placeos/common';
+import * as ts_client from '@placeos/ts-client';
 import { GroupEventsStateService } from '../../app/events/group-events-state.service';
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -42,7 +31,7 @@ const buildEvent = (overrides: any = {}) => ({
 describe('GroupEventsStateService', () => {
     let spectator: SpectatorService<GroupEventsStateService>;
     const active_building = signal<any>({ id: 'bld-1' });
-    const settings_get = jest.fn((key: string) =>
+    const settings_get = vi.fn((key: string) =>
         key === 'app.group_events_calendar' ? 'events@example.com' : undefined,
     );
     const createService = createServiceFactory({
@@ -54,13 +43,29 @@ describe('GroupEventsStateService', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
+        // Seed the current user; under vitest the jest-only auto-load path is
+        // gone, so `currentUser()` would otherwise be undefined.
+        setCurrentUser(
+            new StaffUser({
+                id: 'me',
+                email: 'me@example.com',
+                name: 'Me',
+            }) as any,
+        );
         active_building.set({ id: 'bld-1' });
-        (querySystemsWithEmails as jest.Mock).mockResolvedValue({
+        vi.mocked(ts_client.querySystemsWithEmails).mockResolvedValue({
             data: [{ id: 'sys-1' }],
-        });
-        (queryEvents as jest.Mock).mockResolvedValue([]);
+        } as any);
+        // `queryEvents` (a workspace fn that can't be spied) fetches via
+        // ts-client `get` and wraps the result in CalendarEvent, so control
+        // the event list one layer down.
+        vi.mocked(ts_client.get).mockResolvedValue([] as any);
         spectator = createService();
+    });
+
+    afterEach(() => {
+        setCurrentUser(null as any);
     });
 
     it('should create service', () => {
@@ -72,21 +77,23 @@ describe('GroupEventsStateService', () => {
         TestBed.flushEffects();
         await wait(10);
 
-        expect(queryEvents).not.toHaveBeenCalled();
+        expect(ts_client.get).not.toHaveBeenCalled();
         expect(spectator.service.events()).toEqual([]);
     });
 
     it('should clear events when no matching system exists', async () => {
-        (querySystemsWithEmails as jest.Mock).mockResolvedValue({ data: [] });
+        vi.mocked(ts_client.querySystemsWithEmails).mockResolvedValue({
+            data: [],
+        } as any);
         TestBed.flushEffects();
         await wait(10);
 
-        expect(queryEvents).not.toHaveBeenCalled();
+        expect(ts_client.get).not.toHaveBeenCalled();
         expect(spectator.service.events()).toEqual([]);
     });
 
     it('should keep only shared, visible events and collect their tags', async () => {
-        (queryEvents as jest.Mock).mockResolvedValue([
+        vi.mocked(ts_client.get).mockResolvedValue([
             buildEvent({ id: 'shared', extension_data: { shared_event: true, tags: ['music'] } }),
             buildEvent({ id: 'not-shared', extension_data: { shared_event: false, tags: ['x'] } }),
             buildEvent({
@@ -97,18 +104,18 @@ describe('GroupEventsStateService', () => {
                 mailbox: 'someone@example.com',
                 extension_data: { shared_event: true, tags: ['secret'] },
             }),
-        ]);
+        ] as any);
 
         TestBed.flushEffects();
         await wait(10);
 
-        expect(queryEvents).toHaveBeenCalled();
+        expect(ts_client.get).toHaveBeenCalled();
         expect(spectator.service.events().map((_) => _.id)).toEqual(['shared']);
         expect(spectator.service.tags()).toEqual(['music']);
     });
 
     it('should include private events owned by the current user', async () => {
-        (queryEvents as jest.Mock).mockResolvedValue([
+        vi.mocked(ts_client.get).mockResolvedValue([
             buildEvent({
                 id: 'mine',
                 permission: 'private',
@@ -117,7 +124,7 @@ describe('GroupEventsStateService', () => {
                 mailbox: 'other@example.com',
                 extension_data: { shared_event: true, tags: [] },
             }),
-        ]);
+        ] as any);
 
         TestBed.flushEffects();
         await wait(10);
@@ -126,11 +133,11 @@ describe('GroupEventsStateService', () => {
     });
 
     it('should filter events by selected tags and future end date', async () => {
-        (queryEvents as jest.Mock).mockResolvedValue([
+        vi.mocked(ts_client.get).mockResolvedValue([
             buildEvent({ id: 'music-future', extension_data: { shared_event: true, tags: ['Music'] } }),
             buildEvent({ id: 'music-past', date_end: Date.now() - 1000, extension_data: { shared_event: true, tags: ['Music'] } }),
             buildEvent({ id: 'no-tag', extension_data: { shared_event: true, tags: [] } }),
-        ]);
+        ] as any);
 
         TestBed.flushEffects();
         await wait(10);

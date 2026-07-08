@@ -1,26 +1,21 @@
 import { signal } from '@angular/core';
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
+import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
 import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
-import * as common_mod from '@placeos/common';
 import { ParkingReportService } from 'apps/concierge/src/app/reports/parking/parking-report.service';
 import { ReportsStateService } from 'apps/concierge/src/app/reports/reports-state.service';
-
-jest.mock('@placeos/common', () => ({
-    ...jest.requireActual('@placeos/common'),
-    downloadFile: jest.fn(),
-    jsonToCsv: jest.fn(() => 'csv-data'),
-}));
+import { captureDownloads } from '../download-capture.helper';
 
 describe('ParkingReportService', () => {
     let spectator: SpectatorService<ParkingReportService>;
     let bookings: ReturnType<typeof signal<any[]>>;
-    let report_set_options: jest.Mock;
-    let report_generate: jest.Mock;
+    let report_set_options: any;
+    let report_generate: any;
+    let downloads: ReturnType<typeof captureDownloads>;
 
     const day_1 = new Date('2026-04-06T09:00:00').valueOf();
     const day_2 = new Date('2026-04-07T09:00:00').valueOf();
@@ -29,21 +24,24 @@ describe('ParkingReportService', () => {
         service: ParkingReportService,
         providers: [
             MockProvider(SettingsService, {
-                get: jest.fn(() => false),
+                get: vi.fn(() => false),
             } as any),
             MockProvider(OrganisationService, {
                 building: { id: 'building-1' },
                 region: { id: 'region-1' },
-                levelsForBuilding: jest.fn(() => []),
-                levelsForRegion: jest.fn(() => []),
+                levelsForBuilding: vi.fn(() => []),
+                levelsForRegion: vi.fn(() => []),
             } as any),
         ],
     });
 
+    afterEach(() => downloads.restore());
+
     beforeEach(() => {
+        downloads = captureDownloads();
         bookings = signal<any[]>([]);
-        report_set_options = jest.fn();
-        report_generate = jest.fn();
+        report_set_options = vi.fn();
+        report_generate = vi.fn();
         spectator = createService({
             providers: [
                 {
@@ -96,7 +94,7 @@ describe('ParkingReportService', () => {
     it('should not download when there are no bookings', async () => {
         bookings.set([]);
         await spectator.service.downloadReport();
-        expect(common_mod.downloadFile).not.toHaveBeenCalled();
+        expect(downloads.last).toBeNull();
     });
 
     it('should download a parking csv named for the report date range', async () => {
@@ -113,10 +111,6 @@ describe('ParkingReportService', () => {
             },
         ]);
         await spectator.service.downloadReport();
-        expect(common_mod.jsonToCsv).toHaveBeenCalled();
-        expect(common_mod.downloadFile).toHaveBeenCalledWith(
-            expect.stringMatching(/^report\+parking\+2026-04-06\.csv$/),
-            'csv-data',
-        );
+        expect(downloads.filename).toMatch(/^report\+parking\+2026-04-06\.csv$/);
     });
 });

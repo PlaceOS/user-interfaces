@@ -6,7 +6,7 @@ import {
 } from '../../app/groups/signage-group-permissions-modal.component';
 
 describe('SignageGroupPermissionsModalComponent', () => {
-    const dialog_ref = { close: jest.fn() };
+    const dialog_ref = { close: vi.fn() };
     let modal_data: {
         title?: string;
         permissions: number;

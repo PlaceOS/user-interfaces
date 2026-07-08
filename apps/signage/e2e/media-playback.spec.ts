@@ -7,6 +7,7 @@ import {
     TEST_IMAGE_URL,
     TEST_WEBPAGE_URL,
     clickSkipNext,
+    displayDetailsKey,
     navigateWithConfig,
     waitForDebugControls,
     waitForMediaPlayer,
@@ -30,10 +31,11 @@ test.describe('US-SIG-004: Redirect Uninitialised Displays', () => {
         page,
     }) => {
         await page.goto('/?mock=true');
-        await page.evaluate(() => {
+        await page.evaluate((display_details_key) => {
             localStorage.removeItem('PlaceOS.SIGNAGE.display');
-            localStorage.removeItem('PlaceOS.SIGNAGE.display_details');
-        });
+            localStorage.removeItem(display_details_key);
+            localStorage.removeItem(`${display_details_key}.display-1`);
+        }, STORE_DISPLAY_DETAILS_KEY);
 
         await page.goto('/#/signage?mock=true');
 
@@ -52,7 +54,7 @@ test.describe('US-SIG-005: Load Display Configuration', () => {
 
         const display_details = await page.evaluate((key) => {
             return JSON.parse(localStorage.getItem(key) || '{}');
-        }, STORE_DISPLAY_DETAILS_KEY);
+        }, displayDetailsKey(MOCK_SYSTEM_ID));
 
         expect(display_details.id).toBe(MOCK_SYSTEM_ID);
         expect(display_details.playlist_mappings[MOCK_SYSTEM_ID]).toContain(

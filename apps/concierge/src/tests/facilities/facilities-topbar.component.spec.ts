@@ -1,6 +1,7 @@
+import { ComponentFixtureAutoDetect } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { OrganisationService } from '@placeos/common';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
@@ -10,8 +11,8 @@ import { SearchbarComponent } from '../../app/ui/searchbar.component';
 
 describe('FacilitiesTopbarComponent', () => {
     let spectator: SpectatorRouting<FacilitiesTopbarComponent>;
-    let set_zones: jest.Mock;
-    let set_filters: jest.Mock;
+    let set_zones: any;
+    let set_filters: any;
 
     const createComponent = createRoutingFactory({
         component: FacilitiesTopbarComponent,
@@ -19,28 +20,29 @@ describe('FacilitiesTopbarComponent', () => {
         imports: [NoopAnimationsModule],
         declarations: [MockComponent(SearchbarComponent)],
         providers: [
+            { provide: ComponentFixtureAutoDetect, useValue: false },
             MockProvider(EventsStateService, {
                 setZones: (...args: any[]) => set_zones(...args),
                 setFilters: (...args: any[]) => set_filters(...args),
-                setDate: jest.fn(),
+                setDate: vi.fn(),
             } as any),
             MockProvider(OrganisationService, {
                 waitUntilInitialised: () => Promise.resolve(),
                 active_levels: signal([]) as any,
-                levelWithID: jest.fn(),
+                levelWithID: vi.fn(),
                 buildings: [],
             } as any),
         ],
     });
 
     beforeEach(() => {
-        set_zones = jest.fn();
-        set_filters = jest.fn();
+        set_zones = vi.fn();
+        set_filters = vi.fn();
         spectator = createComponent();
     });
 
     it('should update the zone selection and state when zones change', () => {
-        const navigate = jest.spyOn(spectator.router, 'navigate');
+        const navigate = vi.spyOn(spectator.router, 'navigate');
         spectator.component.updateZones(['level-1', 'level-2']);
 
         expect(spectator.component.zones()).toEqual(['level-1', 'level-2']);

@@ -457,8 +457,6 @@ export class EventTimelineComponent
     public readonly klass = input<string>(undefined);
 
     /** Output emitter */
-    public readonly dateChange = output<number>();
-    public readonly durationChange = output<number>();
     public readonly groupsChange = output<ITimelineEventGroup[]>();
 
     public vertical = false;
@@ -650,7 +648,6 @@ export class EventTimelineComponent
             minutes: +parts[1],
         });
         this.date.set(time.valueOf());
-        this.dateChange.emit(this.date());
         this.updatePeriod();
     }
 
@@ -707,7 +704,6 @@ export class EventTimelineComponent
                             this.duration.set(
                                 Math.max(60, duration || block_size),
                             );
-                            this.durationChange.emit(this.duration());
                         }
                     } else if (this.model.move === 'start') {
                         const date = set(this.date(), {
@@ -716,7 +712,6 @@ export class EventTimelineComponent
                         });
                         this.date.set(date.valueOf());
                     }
-                    this.dateChange.emit(this.date());
                     this.updatePeriod();
                 }
             },

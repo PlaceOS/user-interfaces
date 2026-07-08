@@ -1,4 +1,4 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
@@ -6,7 +6,7 @@ import { VisitorInductionModalComponent } from '../../app/visitors/visitor-induc
 
 describe('VisitorInductionModalComponent', () => {
     let spectator: Spectator<VisitorInductionModalComponent>;
-    const settings = { get: jest.fn() };
+    const settings = { get: vi.fn() };
     const createComponent = createComponentFactory({
         component: VisitorInductionModalComponent,
         shallow: true,

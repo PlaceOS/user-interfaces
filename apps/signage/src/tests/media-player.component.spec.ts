@@ -199,6 +199,28 @@ describe('MediaPlayerComponent', () => {
         expect(spectator.component.state()).toBe('PAUSED');
     });
 
+    it('should clear the active output when the playlist has no playable items', () => {
+        const item = create_item('media-1');
+        const playing_spy = vi.spyOn(spectator.component.playing_id, 'emit');
+        vi.spyOn(spectator.component as any, 'timeout').mockImplementation(
+            () => undefined,
+        );
+        load_playlist([item]);
+        spectator.component.index.set(0);
+        spectator.component['_output_items'] = [item, null];
+        spectator.component['_image_element'](0).nativeElement.classList.remove(
+            'hidden',
+        );
+
+        load_playlist([]);
+
+        expect(spectator.component.index()).toBe(-1);
+        expect(playing_spy).toHaveBeenCalledWith('');
+        expect(
+            spectator.component['_image_element'](0).nativeElement.classList,
+        ).toContain('hidden');
+    });
+
     it('should reset playback when the same media id changes source', () => {
         const items = [create_item('media-1', { url: 'old-url' })];
         load_playlist(items);

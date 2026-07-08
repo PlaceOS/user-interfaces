@@ -1,4 +1,4 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { signal, WritableSignal } from '@angular/core';
 import { MockComponent, MockDirective, MockPipe } from 'ng-mocks';
 
@@ -92,7 +92,7 @@ describe('ContactTracingReportComponent', () => {
     it('should pick the logo matching the active theme', () => {
         expect(spectator.component.logo()).toEqual({ src: 'light.png' });
         theme = 'dark';
-        spectator.inject(OrganisationService).active_building.set({
+        (spectator.inject(OrganisationService).active_building as any).set({
             id: 'bld-2',
         });
         expect(spectator.component.logo()).toEqual({ src: 'dark.png' });

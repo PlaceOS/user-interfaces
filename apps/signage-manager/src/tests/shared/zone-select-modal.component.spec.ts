@@ -8,7 +8,7 @@ describe('ZoneSelectModalComponent', () => {
     const service = { zones };
 
     beforeEach(async () => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         zones.set([
             { id: 'z1', name: 'level-1', display_name: 'Level 1' },
             { id: 'z2', name: 'Level 2', description: 'Second floor' },

@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
@@ -22,9 +22,9 @@ describe('LockersComponent', () => {
         ],
         providers: [
             MockProvider(ActivatedRoute, {} as any),
-            MockProvider(MatDialog, { open: jest.fn() } as any),
+            MockProvider(MatDialog, { open: vi.fn() } as any),
             MockProvider(SettingsService, {
-                get: jest.fn(() => false),
+                get: vi.fn(() => false),
             } as any),
         ],
     });
@@ -33,15 +33,15 @@ describe('LockersComponent', () => {
         router = {
             events: of({}),
             url: '/lockers/events',
-            navigate: jest.fn(),
+            navigate: vi.fn(),
         };
         state = {
             loading: signal(''),
             filters: signal({}),
             levels: signal([]),
-            refresh: jest.fn(),
-            setFilters: jest.fn(),
-            rejectAllLockers: jest.fn(),
+            refresh: vi.fn(),
+            setFilters: vi.fn(),
+            rejectAllLockers: vi.fn(),
         };
         spectator = createComponent({
             providers: [

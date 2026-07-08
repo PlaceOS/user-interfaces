@@ -1,4 +1,4 @@
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { PlaceOS_Service, UploadsService } from '@placeos/common';
 import {
     ChatComponent,
@@ -12,7 +12,7 @@ import { AppComponent } from '../app/app.component';
 describe('AppComponent', () => {
     let spectator: SpectatorRouting<AppComponent>;
     let placeos: any;
-    let uploads_init: jest.Mock;
+    let uploads_init: any;
 
     const createComponent = createRoutingFactory({
         component: AppComponent,
@@ -38,11 +38,11 @@ describe('AppComponent', () => {
     });
 
     beforeEach(() => {
-        uploads_init = jest.fn();
+        uploads_init = vi.fn();
         placeos = {
             has_chat: false,
             has_uploads: false,
-            init: jest.fn(async () => undefined),
+            init: vi.fn(async () => undefined),
         };
         spectator = createComponent();
     });

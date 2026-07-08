@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { Booking, settingSignal, SettingsService } from '@placeos/common';
 import { SimpleTableComponent } from '@placeos/components';
 import { MockProvider } from 'ng-mocks';
@@ -33,31 +33,31 @@ describe('ParkingBookingsListComponent', () => {
                 })) as any,
                 loading: (() => []) as any,
                 period: (() => 'day') as any,
-                startPolling: jest.fn(() => () => null),
-                filterEventList: jest.fn((list: Booking[]) => list),
-                filterEventSearch: jest.fn((list: Booking[]) => list),
-                rejectBooking: jest.fn(),
-                approveBooking: jest.fn(),
-                editReservation: jest.fn(),
-                assignSpace: jest.fn(),
-                removeBooking: jest.fn(),
-                isRequest: jest.fn((booking: Booking) =>
+                startPolling: vi.fn(() => () => null),
+                filterEventList: vi.fn((list: Booking[]) => list),
+                filterEventSearch: vi.fn((list: Booking[]) => list),
+                rejectBooking: vi.fn(),
+                approveBooking: vi.fn(),
+                editReservation: vi.fn(),
+                assignSpace: vi.fn(),
+                removeBooking: vi.fn(),
+                isRequest: vi.fn((booking: Booking) =>
                     booking.asset_id?.startsWith('unallocated'),
                 ),
-                isManualRequest: jest.fn(
+                isManualRequest: vi.fn(
                     (booking: Booking) =>
                         !!booking.extension_data?.approver_group,
                 ),
-                isWaitlisted: jest.fn(
+                isWaitlisted: vi.fn(
                     (booking: Booking) => booking.id === 'waitlisted',
                 ),
-                canApproveBooking: jest.fn(() => can_approve),
+                canApproveBooking: vi.fn(() => can_approve),
                 get timezone() {
                     return timezone;
                 },
             } as any),
             MockProvider(SettingsService as any, {
-                get: jest.fn((name: string) =>
+                get: vi.fn((name: string) =>
                     name === 'app.parking.show_requests'
                         ? show_requests
                         : name === 'app.parking.show_waitlist'
@@ -70,7 +70,7 @@ describe('ParkingBookingsListComponent', () => {
                                 ? custom_booking_columns
                                 : false,
                 ),
-                signal: jest.fn((_: string, initial: boolean) =>
+                signal: vi.fn((_: string, initial: boolean) =>
                     signal(initial),
                 ),
                 time_format: 'h:mm a',

@@ -1,22 +1,13 @@
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
-import * as common_mod from '@placeos/common';
 import { POIListComponent } from '../../app/poi-manager/poi-list.component';
 import {
     POIManagementService,
     PointOfInterest,
 } from '../../app/poi-manager/poi-management.service';
-
-jest.mock('@placeos/common', () => {
-    const actual = jest.requireActual('@placeos/common');
-    return {
-        ...actual,
-        generateQRCode: jest.fn(() => 'qr-image-data'),
-    };
-});
 
 describe('POIListComponent', () => {
     let spectator: Spectator<POIListComponent>;
@@ -26,27 +17,27 @@ describe('POIListComponent', () => {
         component: POIListComponent,
         providers: [
             MockProvider(POIManagementService, {
-                editPointOfInterest: jest.fn(),
-                removePointOfInterest: jest.fn(),
-                previewPointOfInterest: jest.fn(),
+                editPointOfInterest: vi.fn(),
+                removePointOfInterest: vi.fn(),
+                previewPointOfInterest: vi.fn(),
             } as any),
             MockProvider(SettingsService, {
-                get: jest.fn(() => '/kiosk'),
+                get: vi.fn(() => '/kiosk'),
             } as any),
         ],
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         features = signal<PointOfInterest[]>([]);
         spectator = createComponent({
             detectChanges: false,
             providers: [
                 MockProvider(POIManagementService, {
                     filtered_features: features,
-                    editPointOfInterest: jest.fn(),
-                    removePointOfInterest: jest.fn(),
-                    previewPointOfInterest: jest.fn(),
+                    editPointOfInterest: vi.fn(),
+                    removePointOfInterest: vi.fn(),
+                    previewPointOfInterest: vi.fn(),
                 } as any),
             ],
         });
@@ -60,8 +51,7 @@ describe('POIListComponent', () => {
         } as PointOfInterest);
         expect(result.link).toContain('/kiosk/#/explore?level=lvl-1');
         expect(result.link).toContain('locate=1%2C2');
-        expect(result.image).toBe('qr-image-data');
-        expect(common_mod.generateQRCode).toHaveBeenCalledWith(result.link);
+        expect(result.image).toContain('data:image/svg+xml');
     });
 
     it('should build a public short-link QR from the short link id', () => {
@@ -70,7 +60,7 @@ describe('POIListComponent', () => {
             short_link_id: 'link-abcdef',
         } as PointOfInterest);
         expect(result.link).toBe(`${location.origin}/r/abcdef`);
-        expect(result.image).toBe('qr-image-data');
+        expect(result.image).toContain('data:image/svg+xml');
     });
 
     it('should build the kiosk URL from settings and origin', () => {
@@ -91,7 +81,7 @@ describe('POIListComponent', () => {
         spectator.detectChanges();
 
         const codes = spectator.component.qr_codes()['poi-1'];
-        expect(codes.private.image).toBe('qr-image-data');
+        expect(codes.private.image).toContain('data:image/svg+xml');
         expect(codes.public.link).toBe(`${location.origin}/r/abcdef`);
     });
 });

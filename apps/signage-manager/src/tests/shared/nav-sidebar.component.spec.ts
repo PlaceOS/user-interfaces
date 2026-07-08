@@ -10,15 +10,15 @@ describe('NavSidebarComponent', () => {
     const can_manage_all_groups = signal(false);
     const manageable_signage_groups = signal<any[]>([]);
     const settings = {
-        signal: jest.fn((key: string) =>
+        signal: vi.fn((key: string) =>
             key === 'locales' ? locales_signal : show_locale_signal,
         ),
-        get: jest.fn(),
+        get: vi.fn(),
         theme: 'light',
     };
     const locale = {
         locale: 'en',
-        setLocale: jest.fn(),
+        setLocale: vi.fn(),
     };
     const service = { can_manage_all_groups, manageable_signage_groups };
 
@@ -39,7 +39,7 @@ describe('NavSidebarComponent', () => {
     }
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         locales_signal.set([]);
         show_locale_signal.set(false);
         can_manage_all_groups.set(false);
@@ -108,7 +108,7 @@ describe('NavSidebarComponent', () => {
     });
 
     it('applies and persists a new locale selection', async () => {
-        const set_item = jest.spyOn(Storage.prototype, 'setItem');
+        const set_item = vi.spyOn(Storage.prototype, 'setItem');
         const component = await createComponent();
 
         component.setLocale('fr');

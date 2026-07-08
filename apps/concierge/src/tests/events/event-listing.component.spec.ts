@@ -2,7 +2,7 @@ import { signal } from '@angular/core';
 import {
     createRoutingFactory,
     SpectatorRouting,
-} from '@ngneat/spectator/jest';
+} from '@ngneat/spectator/vitest';
 import { SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
@@ -15,8 +15,8 @@ describe('EventListingComponent', () => {
     let spectator: SpectatorRouting<EventListingComponent>;
     const loading = signal('');
     const event_list = signal<any[]>([]);
-    const view_event = jest.fn();
-    const remove_event = jest.fn();
+    const view_event = vi.fn();
+    const remove_event = vi.fn();
 
     const createComponent = createRoutingFactory({
         component: EventListingComponent,

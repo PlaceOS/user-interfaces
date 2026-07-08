@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { mockComponent, mockDirective } from '@placeos/common/tests';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { MockPipe, MockProvider } from 'ng-mocks';
@@ -34,8 +34,8 @@ describe('ControlTabbedViewComponent', () => {
         ],
         imports: [MatProgressSpinnerModule],
         providers: [
-            MockProvider(MatDialog, { open: jest.fn() }),
-            MockProvider(SettingsService, { get: jest.fn(), theme: 'light' }),
+            MockProvider(MatDialog, { open: vi.fn() }),
+            MockProvider(SettingsService, { get: vi.fn(), theme: 'light' }),
             MockProvider(OrganisationService, {
                 active_building: signal({} as any),
             } as any),
@@ -43,9 +43,9 @@ describe('ControlTabbedViewComponent', () => {
                 system: signal({}),
                 join_status: signal([false, false]),
                 system_id: signal('space-0'),
-                powerOn: jest.fn(),
-                setID: jest.fn(),
-                selectMeeting: jest.fn(),
+                powerOn: vi.fn(),
+                setID: vi.fn(),
+                selectMeeting: vi.fn(),
             } as any),
         ],
     });
@@ -111,7 +111,7 @@ describe('ControlTabbedViewComponent', () => {
 
     it('should open the changelog modal on view changelog', async () => {
         const dialog = spectator.inject(MatDialog);
-        (global as any).fetch = jest.fn(() =>
+        (global as any).fetch = vi.fn(() =>
             Promise.resolve({ text: () => Promise.resolve('# Changelog') }),
         );
         await spectator.component.viewChangelog();

@@ -1,4 +1,4 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { mockDirective } from '@placeos/common/tests';
 import { getModule } from '@placeos/ts-client';
 
@@ -11,13 +11,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { ControlStateService } from '../../app/control-state.service';
 import { TVControlsComponent } from '../../app/tabbed-view/tv-controls.component';
 
-jest.mock('@placeos/ts-client', () => {
-    const actual = jest.requireActual('@placeos/ts-client');
-    return {
-        ...actual,
-        getModule: jest.fn(),
-    };
-});
+vi.mock('@placeos/ts-client', { spy: true });
 
 describe('TVControlsComponent', () => {
     let spectator: Spectator<TVControlsComponent>;
@@ -37,7 +31,7 @@ describe('TVControlsComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         spectator = createComponent();
     });
 
@@ -72,8 +66,8 @@ describe('TVControlsComponent', () => {
     });
 
     it('should execute the channel command on the mod when clicked', () => {
-        const execute = jest.fn();
-        (getModule as jest.Mock).mockReturnValue({ execute });
+        const execute = vi.fn();
+        (getModule as any).mockReturnValue({ execute });
         spectator.setInput('mod', 'IPTV');
         spectator.component.channel_list = [{ name: 'BBC', channel: 'bbc' }];
         spectator.detectChanges();

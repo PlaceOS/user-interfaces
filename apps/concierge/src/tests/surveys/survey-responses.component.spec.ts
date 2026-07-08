@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
@@ -8,19 +8,13 @@ import { of } from 'rxjs';
 import { SurveyResponsesComponent } from '../../app/surveys/survey-responses.component';
 import { NewSurveyService } from '../../app/surveys/new-survey.service';
 
-jest.mock('@placeos/ts-client', () => {
-    const actual = jest.requireActual('@placeos/ts-client');
-    return {
-        ...actual,
-        queryAnswers: jest.fn(() => Promise.resolve([])),
-    };
-});
+vi.mock('@placeos/ts-client', { spy: true });
 
-const { Survey } = jest.requireActual('@placeos/ts-client');
+import { Survey } from '@placeos/ts-client';
 
 describe('SurveyResponsesComponent', () => {
     let spectator: Spectator<SurveyResponsesComponent>;
-    const setSurvey = jest.fn();
+    const setSurvey = vi.fn();
     const survey = signal<any>(null);
     const survey_questions = signal<any[]>([]);
     let param_map: any;
@@ -36,7 +30,7 @@ describe('SurveyResponsesComponent', () => {
                 setSurvey,
             } as any),
             MockProvider(SettingsService, {
-                get: jest.fn(() => 1),
+                get: vi.fn(() => 1),
             } as any),
             MockProvider(ActivatedRoute, {
                 get paramMap() {
@@ -47,7 +41,7 @@ describe('SurveyResponsesComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         survey.set(null);
         survey_questions.set([]);
         param_map = of(convertToParamMap({ id: 'survey-1' }));

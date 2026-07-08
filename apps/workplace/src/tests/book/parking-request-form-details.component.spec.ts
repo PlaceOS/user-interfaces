@@ -1,6 +1,6 @@
 import { Injector, signal, WritableSignal } from '@angular/core';
-import { TestBed } from '@angular/core/testing';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { ComponentFixtureAutoDetect, TestBed } from '@angular/core/testing';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
     BookingForm,
     BookingFormValue,
@@ -8,45 +8,34 @@ import {
     ParkingService,
 } from '@placeos/bookings';
 import {
-    currentUser,
     OrganisationService,
+    setCurrentUser,
     SettingsService,
+    StaffUser,
 } from '@placeos/common';
 import { endOfDay, startOfDay } from 'date-fns';
 import { MockProvider } from 'ng-mocks';
 import { ParkingRequestFormDetailsComponent } from '../../app/book/parking-request-flow/parking-request-form-details.component';
 
+vi.mock('@placeos/ts-client', { spy: true });
+
 import * as ts_client from '@placeos/ts-client';
-
-jest.mock('@placeos/ts-client', () => {
-    const actual = jest.requireActual('@placeos/ts-client');
-    return {
-        ...actual,
-        get: jest.fn(() => Promise.resolve([])),
-    };
-});
-
-jest.mock('@placeos/common', () => {
-    const actual = jest.requireActual('@placeos/common');
-    return {
-        ...actual,
-        currentUser: jest.fn(() => ({ email: 'me@test.com', groups: [] })),
-    };
-});
 
 describe('ParkingRequestFormDetailsComponent', () => {
     let spectator: Spectator<ParkingRequestFormDetailsComponent>;
-    let now_spy: jest.SpyInstance | null = null;
+    let now_spy: any | null = null;
     const setNow = (time: number) => {
         now_spy?.mockRestore();
-        now_spy = jest.spyOn(Date, 'now').mockReturnValue(time);
+        now_spy = vi.spyOn(Date, 'now').mockReturnValue(time);
     };
 
     /** Drain signal effects and any async work they schedule. */
     const flush = async () => {
         for (let i = 0; i < 5; i++) {
-            spectator.detectChanges();
-            await spectator.fixture.whenStable();
+            TestBed.flushEffects();
+            // Macrotask so any effect-scheduled async work (setTimeout debounce,
+            // awaited ts-client calls) drains between rounds.
+            await new Promise((resolve) => setTimeout(resolve));
             await Promise.resolve();
         }
     };
@@ -79,18 +68,29 @@ describe('ParkingRequestFormDetailsComponent', () => {
             approver_group: '',
             ...values,
         }));
-        spectator.setInput('form', form);
-        spectator.setInput('model_input', model);
+        // Set the inputs via the component ref (not `spectator.setInput`, which
+        // runs the test-setup-patched `detectChanges`) and drive the component's
+        // reactive logic with `TestBed.flushEffects()`. Combined with the empty
+        // template override (see `beforeEach`), this exercises the component's
+        // effects/computeds without rendering the signal-forms + mat-select
+        // template.
+        spectator.fixture.componentRef.setInput('form', form);
+        spectator.fixture.componentRef.setInput('model_input', model);
+        TestBed.flushEffects();
         return { form, model };
     };
     const createComponent = createComponentFactory({
         component: ParkingRequestFormDetailsComponent,
         providers: [
+            // Manual-CD harness: this spec renders experimental signal-forms
+            // `[formField]` + mat-select, which under auto-detect emit benign
+            // async material errors that vitest reports as unhandled.
+            { provide: ComponentFixtureAutoDetect, useValue: false },
             MockProvider(ParkingService, {
                 spaces: signal([]),
             }),
             MockProvider(SettingsService as any, {
-                get: jest.fn(
+                get: vi.fn(
                     (key: string) =>
                         key === 'app.bookings.use_building_timezone' ||
                         key === 'app.parking.use_building_timezone',
@@ -108,26 +108,45 @@ describe('ParkingRequestFormDetailsComponent', () => {
     });
 
     afterEach(() => {
-        jest.restoreAllMocks();
-        (ts_client.get as jest.Mock).mockReset();
-        (ts_client.get as jest.Mock).mockResolvedValue([]);
+        vi.restoreAllMocks();
+        (ts_client.get as any).mockReset();
+        (ts_client.get as any).mockResolvedValue([]);
         now_spy = null;
     });
 
     beforeEach(() => {
-        (currentUser as jest.Mock).mockReturnValue({
-            email: 'me@test.com',
-            groups: [],
-        });
+        setCurrentUser(
+            new StaffUser({
+                id: 'me',
+                email: 'me@test.com',
+                name: 'Me',
+                groups: [],
+            } as any),
+        );
+        vi.mocked(ts_client.get).mockResolvedValue([] as any);
         // Pin "now" to a moment before the form's default date so that the
         // shift-applies-to-form helpers don't roll the booking forward into
         // tomorrow on tests that don't care about that behaviour.
         setNow(new Date('2026-04-08T07:00:00.000Z').valueOf());
-        spectator = createComponent();
-        attachForm({
-            date: new Date('2026-04-08T08:00:00.000Z').valueOf(),
-            duration: 240,
+        // Render the component with an empty template. Every assertion in this
+        // spec reads component signals / signal-forms field state directly and
+        // never touches the DOM, so the real signal-forms + mat-select template
+        // is unnecessary — and rendering it is what lets a few tests that mutate
+        // shift state and then flush trip checkNoChanges (NG0100). With no
+        // template, the component's effects still run (driving the logic under
+        // test) but there is nothing to re-render mid-flush.
+        TestBed.overrideComponent(ParkingRequestFormDetailsComponent, {
+            set: { template: '' },
         });
+        spectator = createComponent();
+        // Configure the parking settings BEFORE building/attaching the form.
+        // `settingSignal` values live in a module-global cache that survives
+        // TestBed teardown, so whatever window a previous test wrote (e.g. a
+        // cross-midnight shift) is still in place here. `attachForm` flushes the
+        // component's effects, and if it runs against those stale settings the
+        // shift/duration/time-sync effects oscillate and blow past change
+        // detection's iteration cap (NG0103). Seeding the settings first means
+        // the form is only ever flushed against this test's known-good config.
         spectator.component.require_plate_number.set(false);
         spectator.component.shift_options_setting.set([
             {
@@ -167,6 +186,10 @@ describe('ParkingRequestFormDetailsComponent', () => {
         ]);
         spectator.component.hide_custom_shift.set(false);
         spectator.component.default_location_from_desk_booking.set(false);
+        attachForm({
+            date: new Date('2026-04-08T08:00:00.000Z').valueOf(),
+            duration: 240,
+        });
     });
 
     it('should apply shift times even when the start is earlier than now', () => {
@@ -236,7 +259,7 @@ describe('ParkingRequestFormDetailsComponent', () => {
                 end_time: 1020,
             },
         ]);
-        spectator.detectChanges();
+        TestBed.flushEffects();
 
         expect(spectator.component.shift_type()).toBe('afternoon');
     });
@@ -273,7 +296,7 @@ describe('ParkingRequestFormDetailsComponent', () => {
                 end_time: 1020,
             },
         ]);
-        spectator.detectChanges();
+        TestBed.flushEffects();
 
         const base_day = new Date('2026-04-08T00:00:00.000Z').valueOf();
         expect(spectator.component.shift_type()).toBe('morning');
@@ -319,7 +342,7 @@ describe('ParkingRequestFormDetailsComponent', () => {
             { id: 'lvl-2', parent_id: 'bld-2', tags: ['parking'] },
         ]);
         org.building = { id: 'bld-1', timezone: 'UTC' };
-        (ts_client.get as jest.Mock).mockResolvedValue([
+        (ts_client.get as any).mockResolvedValue([
             {
                 id: 'desk-booking-1',
                 booking_type: 'desk',
@@ -388,12 +411,12 @@ describe('ParkingRequestFormDetailsComponent', () => {
             { id: 'lvl-2', parent_id: 'bld-2', tags: ['parking'] },
         ]);
         org.building = { id: 'bld-1', timezone: 'UTC' };
-        (ts_client.get as jest.Mock).mockResolvedValue([]);
+        (ts_client.get as any).mockResolvedValue([]);
         await spectator.component.ngOnInit();
         await flush();
         expect(org.building.id).toBe('bld-1');
 
-        (ts_client.get as jest.Mock).mockResolvedValue([
+        (ts_client.get as any).mockResolvedValue([
             {
                 id: 'current-user-desk',
                 booking_type: 'desk',
@@ -414,7 +437,7 @@ describe('ParkingRequestFormDetailsComponent', () => {
 
         spectator.component.model.update((m) => ({
             ...m,
-            user: { email: 'other@test.com', name: 'Other' },
+            user: { email: 'other@test.com', name: 'Other' } as any,
         }));
         await flush();
 
@@ -441,7 +464,7 @@ describe('ParkingRequestFormDetailsComponent', () => {
             { id: 'lvl-2', parent_id: 'bld-2', tags: ['parking'] },
         ]);
         org.building = bld_1;
-        (ts_client.get as jest.Mock).mockResolvedValue([
+        (ts_client.get as any).mockResolvedValue([
             {
                 id: 'desk-booking-1',
                 booking_type: 'desk',
@@ -488,13 +511,13 @@ describe('ParkingRequestFormDetailsComponent', () => {
             { id: 'lvl-2', parent_id: 'bld-2', tags: ['parking'] },
         ]);
         spectator.component.hidden_buildings.set(['bld-1']);
-        spectator.detectChanges();
+        TestBed.flushEffects();
 
         const buildings = spectator.component.building_list();
 
         expect(buildings.map((_) => _.id)).toEqual(['bld-2']);
         spectator.component.hidden_buildings.set([]);
-        spectator.detectChanges();
+        TestBed.flushEffects();
     });
 
     it('should switch the active building when the selected building is not a valid parking location', async () => {
@@ -595,7 +618,7 @@ describe('ParkingRequestFormDetailsComponent', () => {
         // would fail the booking-form `duration` validator.
         setNow(new Date('2026-04-08T14:00:00.000Z').valueOf());
         spectator.component.setShiftType('morning');
-        spectator.detectChanges();
+        TestBed.flushEffects();
         const next_day = new Date('2026-04-09T00:00:00.000Z').valueOf();
         expect(spectator.component.model().date).toBe(
             next_day + 480 * 60 * 1000,
@@ -637,7 +660,7 @@ describe('ParkingRequestFormDetailsComponent', () => {
                 bookable_hours: { start: 7, end: 17 },
             },
         );
-        spectator.detectChanges();
+        TestBed.flushEffects();
         spectator.component.shift_options_setting.set([
             {
                 id: 'overnight',
@@ -740,7 +763,7 @@ describe('ParkingRequestFormDetailsComponent', () => {
         spectator.component.hide_custom_shift.set(true);
 
         await spectator.component.ngOnInit();
-        spectator.detectChanges();
+        TestBed.flushEffects();
 
         expect(spectator.component.is_all_day_forced()).toBe(true);
         expect(spectator.component.shift_type()).toBe('all_day');
@@ -752,10 +775,14 @@ describe('ParkingRequestFormDetailsComponent', () => {
     });
 
     it('should show restricted shift presets for users in the configured group', async () => {
-        (currentUser as jest.Mock).mockReturnValue({
-            email: 'me@test.com',
-            groups: ['PlaceOS P1 Parking'],
-        });
+        setCurrentUser(
+            new StaffUser({
+                id: 'me',
+                email: 'me@test.com',
+                name: 'Me',
+                groups: ['PlaceOS P1 Parking'],
+            } as any),
+        );
         spectator.component.shift_options_setting.set([
             {
                 id: 'day_worker',
@@ -785,14 +812,14 @@ describe('ParkingRequestFormDetailsComponent', () => {
     it('should clear the plate number when the selected host changes away from the current user', async () => {
         spectator.component.model.update((m) => ({
             ...m,
-            user: { email: 'me@test.com', name: 'Me' },
+            user: { email: 'me@test.com', name: 'Me' } as any,
             plate_number: 'ABC123',
         }));
         await spectator.component.ngOnInit();
 
         spectator.component.model.update((m) => ({
             ...m,
-            user: { email: 'other@test.com', name: 'Other User' },
+            user: { email: 'other@test.com', name: 'Other User' } as any,
         }));
         await flush();
 
@@ -802,14 +829,14 @@ describe('ParkingRequestFormDetailsComponent', () => {
     it('should keep the plate number when the selected host remains the current user', async () => {
         spectator.component.model.update((m) => ({
             ...m,
-            user: { email: 'me@test.com', name: 'Me' },
+            user: { email: 'me@test.com', name: 'Me' } as any,
             plate_number: 'ABC123',
         }));
         await spectator.component.ngOnInit();
 
         spectator.component.model.update((m) => ({
             ...m,
-            user: { email: 'me@test.com', name: 'Me Again' },
+            user: { email: 'me@test.com', name: 'Me Again' } as any,
         }));
         await flush();
 
@@ -819,7 +846,7 @@ describe('ParkingRequestFormDetailsComponent', () => {
     it('should restore the prefilled plate number when the selected host changes back to the current user', async () => {
         spectator.component.model.update((m) => ({
             ...m,
-            user: { email: 'me@test.com', name: 'Me' },
+            user: { email: 'me@test.com', name: 'Me' } as any,
             plate_number: 'ABC123',
         }));
         await spectator.component.ngOnInit();
@@ -829,7 +856,7 @@ describe('ParkingRequestFormDetailsComponent', () => {
 
         spectator.component.model.update((m) => ({
             ...m,
-            user: { email: 'other@test.com', name: 'Other User' },
+            user: { email: 'other@test.com', name: 'Other User' } as any,
         }));
         await flush();
         spectator.component.model.update((m) => ({
@@ -840,7 +867,7 @@ describe('ParkingRequestFormDetailsComponent', () => {
 
         spectator.component.model.update((m) => ({
             ...m,
-            user: { email: 'me@test.com', name: 'Me' },
+            user: { email: 'me@test.com', name: 'Me' } as any,
         }));
         await flush();
 
@@ -856,6 +883,7 @@ describe('ParkingRequestFormDetailsComponent', () => {
             plate_number: '',
         });
         spectator.detectChanges();
+        TestBed.flushEffects();
 
         const errors = spectator.component.form().plate_number().errors();
         expect(errors.some((e) => e.kind === 'required')).toBe(true);
@@ -865,7 +893,7 @@ describe('ParkingRequestFormDetailsComponent', () => {
         spectator.component.model.update((m) => ({ ...m, plate_number: '' }));
 
         spectator.component.require_plate_number.set(false);
-        spectator.detectChanges();
+        TestBed.flushEffects();
 
         expect(spectator.component.form().plate_number().valid()).toBe(true);
         const errors = spectator.component.form().plate_number().errors();
@@ -875,7 +903,7 @@ describe('ParkingRequestFormDetailsComponent', () => {
     it('should not clear the plate number for an existing booking already opened for another host', async () => {
         spectator.component.model.update((m) => ({
             ...m,
-            user: { email: 'other@test.com', name: 'Other User' },
+            user: { email: 'other@test.com', name: 'Other User' } as any,
             plate_number: 'ABC123',
         }));
 

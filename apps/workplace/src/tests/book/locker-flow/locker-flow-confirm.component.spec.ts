@@ -1,32 +1,25 @@
 import { signal } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { BookingFormService } from '@placeos/bookings';
 import {
-    notifyError,
     OrganisationService,
     SettingsService,
+    setNotifyOutlet,
 } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 import { BookLockerFlowConfirmComponent } from '../../../app/book/locker-flow/locker-flow-confirm.component';
 
-jest.mock('@placeos/common', () => {
-    const actual = jest.requireActual('@placeos/common');
-    return {
-        ...actual,
-        notifyError: jest.fn(),
-    };
-});
-
 describe('BookLockerFlowConfirmComponent', () => {
     let spectator: Spectator<BookLockerFlowConfirmComponent>;
+    let notify_open: any;
     let model: ReturnType<typeof signal<Record<string, any>>>;
     let options: ReturnType<typeof signal<Record<string, any>>>;
-    let post_form: jest.Mock;
-    let post_form_group: jest.Mock;
-    let edit_group: jest.Mock;
-    let load_siblings: jest.Mock;
-    let dismiss: jest.Mock;
+    let post_form: any;
+    let post_form_group: any;
+    let edit_group: any;
+    let load_siblings: any;
+    let dismiss: any;
 
     const base_model = () => ({
         id: '',
@@ -48,7 +41,7 @@ describe('BookLockerFlowConfirmComponent', () => {
         detectChanges: false,
         providers: [
             MockProvider(SettingsService, {
-                get: jest.fn(() => undefined),
+                get: vi.fn(() => undefined),
                 time_format: 'h:mm a',
             } as any),
             MockProvider(OrganisationService, {
@@ -60,24 +53,28 @@ describe('BookLockerFlowConfirmComponent', () => {
                         address: '1 Main St',
                     },
                 ],
-                levelWithID: jest.fn(() => ({
+                levelWithID: vi.fn(() => ({
                     id: 'lvl-1',
                     name: 'Level 1',
                     display_name: 'L1',
                 })),
             } as any),
-            MockProvider(MatBottomSheetRef, { dismiss: jest.fn() }),
+            MockProvider(MatBottomSheetRef, { dismiss: vi.fn() }),
         ],
     });
 
     beforeEach(() => {
-        (notifyError as jest.Mock).mockClear();
+        notify_open = vi.fn(() => ({
+            onAction: () => ({ subscribe: () => undefined }),
+            dismiss: () => undefined,
+        }));
+        setNotifyOutlet({ open: notify_open } as any, true);
         model = signal(base_model());
         options = signal<Record<string, any>>({ type: 'locker', group: false });
-        post_form = jest.fn(() => Promise.resolve());
-        post_form_group = jest.fn(() => Promise.resolve());
-        edit_group = jest.fn(() => Promise.resolve());
-        load_siblings = jest.fn(() => Promise.resolve([]));
+        post_form = vi.fn(() => Promise.resolve());
+        post_form_group = vi.fn(() => Promise.resolve());
+        edit_group = vi.fn(() => Promise.resolve());
+        load_siblings = vi.fn(() => Promise.resolve([]));
         spectator = createComponent({
             providers: [
                 MockProvider(BookingFormService, {
@@ -91,9 +88,11 @@ describe('BookLockerFlowConfirmComponent', () => {
                 } as any),
             ],
         });
-        dismiss = spectator.inject(MatBottomSheetRef).dismiss as jest.Mock;
+        dismiss = spectator.inject(MatBottomSheetRef).dismiss as any;
         dismiss.mockClear();
     });
+
+    afterEach(() => setNotifyOutlet(null as any, true));
 
     it('should create', () => expect(spectator.component).toBeTruthy());
 
@@ -125,7 +124,9 @@ describe('BookLockerFlowConfirmComponent', () => {
     it('should notify the user with the raw error on failure', async () => {
         post_form.mockRejectedValueOnce('Locker unavailable');
         await spectator.component.postForm();
-        expect(notifyError).toHaveBeenCalledWith('Locker unavailable');
+        expect(
+            notify_open.mock.calls.some((c) => c[0] === 'Locker unavailable'),
+        ).toBe(true);
         expect(dismiss).not.toHaveBeenCalledWith(true);
     });
 

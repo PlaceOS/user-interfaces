@@ -1,27 +1,18 @@
 import { signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { OrganisationService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
-import * as assets_mod from '@placeos/assets';
 import * as ts_client from '@placeos/ts-client';
 import { AssetManagerStateService } from '../../app/asset-manager/asset-manager-state.service';
 import { AssetBulkFormComponent } from '../../app/asset-manager/asset-bulk-form.component';
 
-jest.mock('@placeos/assets');
-jest.mock('@placeos/ts-client', () => {
-    const actual = jest.requireActual('@placeos/ts-client');
-    return {
-        ...actual,
-        addAssets: jest.fn(async () => [{ id: 'a-1' }, { id: 'a-2' }]),
-    };
-});
+vi.mock('@placeos/ts-client', { spy: true });
 
 describe('AssetBulkFormComponent', () => {
     let spectator: Spectator<AssetBulkFormComponent>;
-    let model_data: Record<string, any>;
 
     const createComponent = createComponentFactory({
         component: AssetBulkFormComponent,
@@ -30,14 +21,14 @@ describe('AssetBulkFormComponent', () => {
             MockProvider(AssetManagerStateService, {
                 base_route: '/book/assets',
                 purchase_orders: signal([]),
-                postChange: jest.fn(),
-                setExtraAssets: jest.fn(),
-                setOptions: jest.fn(),
+                postChange: vi.fn(),
+                setExtraAssets: vi.fn(),
+                setOptions: vi.fn(),
             } as any),
             MockProvider(OrganisationService, {
                 building: { id: 'bld-1' },
             } as any),
-            MockProvider(Router, { navigate: jest.fn() }),
+            MockProvider(Router, { navigate: vi.fn() }),
             MockProvider(ActivatedRoute, {
                 queryParamMap: of(new Map()),
             } as any),
@@ -45,13 +36,22 @@ describe('AssetBulkFormComponent', () => {
     });
 
     beforeEach(() => {
-        model_data = { id: '', identifier: 'Chair' };
-        (assets_mod as any).generateAssetForm = jest.fn(() => ({
-            form: signal({ valid: () => true, reset: jest.fn() }),
-            model: signal(model_data),
-        }));
-        (ts_client.addAssets as jest.Mock).mockClear();
+        (ts_client.addAssets as any).mockReset();
+        (ts_client.addAssets as any).mockResolvedValue([
+            { id: 'a1' },
+            { id: 'a2' },
+        ]);
         spectator = createComponent();
+        spectator.component.model.set({
+            id: '',
+            asset_type_id: 'g1',
+            name: 'Chair',
+            serial_number: '',
+            barcode: '',
+            identifier: 'Chair',
+            other_data: {},
+            purchase_order_id: '',
+        } as any);
     });
 
     it('should reject an invalid count without creating assets', async () => {
@@ -68,7 +68,7 @@ describe('AssetBulkFormComponent', () => {
 
         await spectator.component.save();
 
-        const list = (ts_client.addAssets as jest.Mock).mock.calls[0][0];
+        const list = (ts_client.addAssets as any).mock.calls[0][0];
         expect(list).toHaveLength(2);
         expect(list[0]).toEqual(
             expect.objectContaining({ identifier: 'Chair', zone_id: 'bld-1' }),

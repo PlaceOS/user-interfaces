@@ -1,24 +1,21 @@
 import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
-import * as assets_mod from '@placeos/assets';
+import * as ts_client from '@placeos/ts-client';
 import { AssetManagerStateService } from '../../app/asset-manager/asset-manager-state.service';
 import { AssetGroupFormComponent } from '../../app/asset-manager/asset-group-form.component';
 
-jest.mock('@placeos/assets');
+vi.mock('@placeos/ts-client', { spy: true });
 
 describe('AssetGroupFormComponent', () => {
     let spectator: Spectator<AssetGroupFormComponent>;
-    let model_data: Record<string, any>;
-    let edit_category: jest.Mock;
+    let edit_category: any;
 
-    const categories = signal<any[]>([
-        { id: 'c1', name: 'Furniture' },
-    ]);
+    const categories = signal<any[]>([{ id: 'c1', name: 'Furniture' }]);
 
     const createComponent = createComponentFactory({
         component: AssetGroupFormComponent,
@@ -27,11 +24,11 @@ describe('AssetGroupFormComponent', () => {
             MockProvider(AssetManagerStateService, {
                 base_route: '/book/assets',
                 categories,
-                postChange: jest.fn(),
+                postChange: vi.fn(),
                 editCategory: (...args: any[]) => edit_category(...args),
             } as any),
-            MockProvider(Router, { navigate: jest.fn() }),
-            MockProvider(MatDialog, { open: jest.fn() }),
+            MockProvider(Router, { navigate: vi.fn() }),
+            MockProvider(MatDialog, { open: vi.fn() }),
             MockProvider(ActivatedRoute, {
                 queryParamMap: of(new Map()),
             } as any),
@@ -39,16 +36,18 @@ describe('AssetGroupFormComponent', () => {
     });
 
     beforeEach(() => {
-        model_data = { id: '', name: 'Desk', category_id: '' };
-        edit_category = jest.fn(async () => null);
-        (assets_mod as any).generateAssetGroupForm = jest.fn(() => ({
-            form: signal({ valid: () => true, reset: jest.fn() }),
-            model: signal(model_data),
-        }));
-        (assets_mod as any).saveAssetType = jest.fn(async () => ({
-            id: 'g-1',
-        }));
+        edit_category = vi.fn(async () => null);
+        (ts_client.addAssetType as any).mockReset();
+        (ts_client.addAssetType as any).mockResolvedValue({ id: 'g-1' });
         spectator = createComponent();
+        spectator.component.model.set({
+            id: '',
+            name: 'Desk',
+            category_id: 'c1',
+            images: [],
+            brand: '',
+            description: '',
+        } as any);
     });
 
     it('should append a newly created category to the option list', () => {
@@ -77,7 +76,9 @@ describe('AssetGroupFormComponent', () => {
     it('should save the product then navigate to its detail view', async () => {
         await spectator.component.save();
 
-        expect(assets_mod.saveAssetType).toHaveBeenCalledWith(model_data);
+        expect(ts_client.addAssetType).toHaveBeenCalledWith(
+            expect.objectContaining({ name: 'Desk', category_id: 'c1' }),
+        );
         expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
             '/book/assets',
             'view',

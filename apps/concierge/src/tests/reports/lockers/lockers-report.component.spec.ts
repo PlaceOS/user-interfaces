@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { AuthenticatedImageDirective } from '@placeos/components';
 import { BehaviorSubject } from 'rxjs';
@@ -22,9 +22,9 @@ describe('LockersReportComponent', () => {
     let bookings: ReturnType<typeof signal<any>>;
     let loading: ReturnType<typeof signal<string>>;
     let active_building: ReturnType<typeof signal<any>>;
-    let set_options: jest.Mock;
-    let generate_report: jest.Mock;
-    let download_report: jest.Mock;
+    let set_options: any;
+    let generate_report: any;
+    let download_report: any;
 
     const createComponent = createComponentFactory({
         component: LockersReportComponent,
@@ -52,9 +52,9 @@ describe('LockersReportComponent', () => {
         bookings = signal([]);
         loading = signal('');
         active_building = signal({ id: 'building-1' });
-        set_options = jest.fn();
-        generate_report = jest.fn();
-        download_report = jest.fn();
+        set_options = vi.fn();
+        generate_report = vi.fn();
+        download_report = vi.fn();
         spectator = createComponent({
             providers: [
                 {
@@ -71,7 +71,7 @@ describe('LockersReportComponent', () => {
                     provide: SettingsService,
                     useValue: {
                         theme: 'dark',
-                        get: jest.fn((key: string) => {
+                        get: vi.fn((key: string) => {
                             if (key === 'app.logo_light')
                                 return { src: 'light-logo.svg' };
                             if (key === 'app.logo_dark')

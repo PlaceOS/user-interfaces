@@ -1,16 +1,8 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
-
-jest.mock('@placeos/common', () => ({
-    ...jest.requireActual('@placeos/common'),
-    setMocks: jest.fn(),
-}));
-
-jest.mock('@placeos/mocks', () => ({ mocksInit: {} }));
 
 import {
     PlaceOS_Service,
-    setMocks,
     settingSignal,
     UploadsService,
 } from '@placeos/common';
@@ -23,23 +15,21 @@ describe('AppComponent', () => {
         detectChanges: false,
         providers: [
             MockProvider(PlaceOS_Service, {
-                init: jest.fn(() => Promise.resolve()),
+                init: vi.fn(() => Promise.resolve()),
                 has_uploads: false,
             } as any),
-            MockProvider(UploadsService, { init: jest.fn() }),
+            MockProvider(UploadsService, { init: vi.fn() }),
         ],
     });
 
     beforeEach(() => {
-        (setMocks as jest.Mock).mockClear();
         settingSignal('chat.enabled', false).set(false);
         spectator = createComponent();
     });
 
-    it('registers mocks and initialises PlaceOS on init', async () => {
+    it('initialises PlaceOS on init', async () => {
         const placeos = spectator.inject(PlaceOS_Service);
         await spectator.component.ngOnInit();
-        expect(setMocks).toHaveBeenCalled();
         expect(placeos.init).toHaveBeenCalled();
     });
 

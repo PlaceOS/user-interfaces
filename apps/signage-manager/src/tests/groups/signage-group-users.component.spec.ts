@@ -11,7 +11,7 @@ function dialogRef(value: unknown) {
         afterClosed: () => ({
             subscribe: (handler: (value: unknown) => void) => {
                 Promise.resolve().then(() => handler(value));
-                return { unsubscribe: jest.fn() };
+                return { unsubscribe: vi.fn() };
             },
         }),
     };
@@ -19,10 +19,10 @@ function dialogRef(value: unknown) {
 
 describe('SignageGroupUsersComponent', () => {
     const managed_group_users = signal<any[]>([]);
-    const add_user = jest.fn();
-    const update_user = jest.fn();
-    const remove_user = jest.fn();
-    const dialog = { open: jest.fn() };
+    const add_user = vi.fn();
+    const update_user = vi.fn();
+    const remove_user = vi.fn();
+    const dialog = { open: vi.fn() };
     const service_stub = {
         managed_group_users,
         addManagedGroupUser: add_user,
@@ -44,7 +44,7 @@ describe('SignageGroupUsersComponent', () => {
     }
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         managed_group_users.set([
             { user_id: 'user-1', permissions: 1 },
             { user_id: 'user-2', permissions: 0 },

@@ -1,34 +1,24 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 import { signal } from '@angular/core';
 import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { OrganisationService } from '@placeos/common';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
+import { OrganisationService, setNotifyOutlet } from '@placeos/common';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
-import * as common_mod from '@placeos/common';
 import { RichTextInputComponent } from '@placeos/form-fields';
 import { EmailTemplateManageComponent } from '../../app/email-templates/email-template-manage.component';
 import { EmailTemplatesStateService } from '../../app/email-templates/email-templates-state.service';
 
-jest.mock('@placeos/common', () => {
-    const actual = jest.requireActual('@placeos/common');
-    return {
-        ...actual,
-        notifyError: jest.fn(),
-        notifySuccess: jest.fn(),
-        extractTextFromHTML: jest.fn((html: string) => `text:${html}`),
-    };
-});
-
 describe('EmailTemplateManageComponent', () => {
     let spectator: Spectator<EmailTemplateManageComponent>;
-    const saveTemplate = jest.fn(() => Promise.resolve());
-    const loadTemplate = jest.fn(() => Promise.resolve(null as any));
-    const navigate = jest.fn();
-    const clipboard_copy = jest.fn();
+    const saveTemplate = vi.fn(() => Promise.resolve());
+    const loadTemplate = vi.fn(() => Promise.resolve(null as any));
+    const navigate = vi.fn();
+    const clipboard_copy = vi.fn();
     const template_groups = signal<any[]>([]);
     let param_map: any;
+    let notify_open: ReturnType<typeof vi.fn>;
 
     const createComponent = createComponentFactory({
         component: EmailTemplateManageComponent,
@@ -55,16 +45,29 @@ describe('EmailTemplateManageComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
+        notify_open = vi.fn(() => ({
+            onAction: () => ({ subscribe: () => undefined }),
+            dismiss: () => undefined,
+        }));
+        setNotifyOutlet({ open: notify_open } as any, true);
         template_groups.set([]);
         param_map = of(convertToParamMap({}));
         spectator = createComponent();
     });
 
+    afterEach(() => {
+        setNotifyOutlet(null as any, true);
+    });
+
     it('should copy a placeholder token and notify', () => {
         spectator.component.copyField('booking_ref');
         expect(clipboard_copy).toHaveBeenCalledWith('%{booking_ref}');
-        expect(common_mod.notifySuccess).toHaveBeenCalled();
+        expect(notify_open).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['success'] }),
+        );
     });
 
     it('should resolve the active trigger from the template groups', () => {
@@ -98,7 +101,7 @@ describe('EmailTemplateManageComponent', () => {
             expect.objectContaining({
                 subject: 'Subject',
                 html: '<p>Body</p>',
-                text: 'text:<p>Body</p>',
+                text: 'Body',
                 zone_id: 'bld-1',
             }),
             undefined,

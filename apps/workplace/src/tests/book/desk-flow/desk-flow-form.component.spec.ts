@@ -1,38 +1,30 @@
 import { signal } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { Router } from '@angular/router';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { BookingFormService } from '@placeos/bookings';
 import {
-    notifyError,
     OrganisationService,
     SettingsService,
+    setNotifyOutlet,
 } from '@placeos/common';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 import { NewDeskFlowFormComponent } from '../../../app/book/desk-flow/desk-flow-form.component';
 import { NewDeskFormDetailsComponent } from '../../../app/book/desk-flow/desk-form-details.component';
 
-jest.mock('@placeos/common', () => {
-    const actual = jest.requireActual('@placeos/common');
-    return {
-        ...actual,
-        notifyError: jest.fn(),
-        getInvalidSignalFields: jest.fn(() => ['title']),
-    };
-});
-
 describe('NewDeskFlowFormComponent', () => {
     let spectator: SpectatorRouting<NewDeskFlowFormComponent>;
+    let notify_open: any;
     let model: ReturnType<typeof signal<Record<string, any>>>;
     let form_valid: boolean;
     let has_assigned_desk: ReturnType<typeof signal<boolean>>;
-    let allows_reserved: jest.Mock;
+    let allows_reserved: any;
     let auto_allocation: boolean;
-    let auto_allocate: jest.Mock;
-    let set_view: jest.Mock;
+    let auto_allocate: any;
+    let set_view: any;
     let after_dismissed_value: any;
-    let sheet_open: jest.Mock;
+    let sheet_open: any;
     let show_close: ReturnType<typeof signal<boolean>>;
 
     const createComponent = createRoutingFactory({
@@ -40,19 +32,23 @@ describe('NewDeskFlowFormComponent', () => {
         detectChanges: false,
         declarations: [MockComponent(NewDeskFormDetailsComponent)],
         providers: [
-            MockProvider(SettingsService, { get: jest.fn(() => undefined) }),
+            MockProvider(SettingsService, { get: vi.fn(() => undefined) }),
             MockProvider(OrganisationService, {
                 building: { id: 'bld-1' },
-                waitUntilInitialised: jest.fn(() => Promise.resolve()),
+                waitUntilInitialised: vi.fn(() => Promise.resolve()),
                 active_levels: signal([{ id: 'lvl-1' }]),
-                levelsForBuilding: jest.fn(() => []),
+                levelsForBuilding: vi.fn(() => []),
             } as any),
-            MockProvider(Router, { navigate: jest.fn() }),
+            MockProvider(Router, { navigate: vi.fn() }),
         ],
     });
 
     beforeEach(() => {
-        (notifyError as jest.Mock).mockClear();
+        notify_open = vi.fn(() => ({
+            onAction: () => ({ subscribe: () => undefined }),
+            dismiss: () => undefined,
+        }));
+        setNotifyOutlet({ open: notify_open } as any, true);
         model = signal<Record<string, any>>({
             id: '',
             title: 'Desk',
@@ -63,13 +59,13 @@ describe('NewDeskFlowFormComponent', () => {
         });
         form_valid = true;
         has_assigned_desk = signal(false);
-        allows_reserved = jest.fn(() => true);
+        allows_reserved = vi.fn(() => true);
         auto_allocation = false;
-        auto_allocate = jest.fn(() => Promise.resolve());
-        set_view = jest.fn();
+        auto_allocate = vi.fn(() => Promise.resolve());
+        set_view = vi.fn();
         after_dismissed_value = true;
         show_close = signal(false);
-        sheet_open = jest.fn(() => ({
+        sheet_open = vi.fn(() => ({
             instance: { show_close },
             afterDismissed: () => of(after_dismissed_value),
         }));
@@ -87,13 +83,15 @@ describe('NewDeskFlowFormComponent', () => {
                         },
                         autoAllocateDesk: auto_allocate,
                         setView: set_view,
-                        setOptions: jest.fn(),
+                        setOptions: vi.fn(),
                     },
                 },
                 MockProvider(MatBottomSheet, { open: sheet_open } as any),
             ],
         });
     });
+
+    afterEach(() => setNotifyOutlet(null as any, true));
 
     it('should create', () => expect(spectator.component).toBeTruthy());
 
@@ -113,7 +111,7 @@ describe('NewDeskFlowFormComponent', () => {
         await spectator.component.viewConfirm();
         expect(sheet_open).toHaveBeenCalled();
         expect(show_close()).toBe(true);
-        expect(notifyError).not.toHaveBeenCalled();
+        expect(notify_open).not.toHaveBeenCalled();
     });
 
     it('should default the asset_id from the first available resource', async () => {
@@ -125,7 +123,7 @@ describe('NewDeskFlowFormComponent', () => {
     it('should block confirmation and notify when the form is invalid', async () => {
         form_valid = false;
         await spectator.component.viewConfirm();
-        expect(notifyError).toHaveBeenCalled();
+        expect(notify_open).toHaveBeenCalled();
         expect(sheet_open).not.toHaveBeenCalled();
     });
 
@@ -157,7 +155,11 @@ describe('NewDeskFlowFormComponent', () => {
         auto_allocation = true;
         auto_allocate.mockRejectedValueOnce('No desks available');
         await spectator.component.viewConfirm();
-        expect(notifyError).toHaveBeenCalledWith('No desks available');
+        expect(notify_open).toHaveBeenCalledWith(
+            'No desks available',
+            expect.anything(),
+            expect.anything(),
+        );
         expect(sheet_open).not.toHaveBeenCalled();
     });
 });

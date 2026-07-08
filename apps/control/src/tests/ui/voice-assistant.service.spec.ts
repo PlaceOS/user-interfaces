@@ -1,17 +1,10 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
+import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
 import { ChatService } from '@placeos/components';
 
-import * as common_mod from '@placeos/common';
+import { setCurrentUser } from '@placeos/common';
 import { VoiceAssistantService } from '../../app/ui/voice-assistant.service';
-
-jest.mock('@placeos/common', () => ({
-    ...jest.requireActual('@placeos/common'),
-    currentUser: jest.fn(() => ({ id: 'user-1' })),
-    log: jest.fn(),
-    randomInt: jest.fn(() => 0),
-}));
 
 class MockSpeechRecognition {
     public continuous = false;
@@ -21,8 +14,8 @@ class MockSpeechRecognition {
     public onresult: any = null;
     public onerror: any = null;
     public onend: any = null;
-    public start = jest.fn();
-    public stop = jest.fn();
+    public start = vi.fn();
+    public stop = vi.fn();
 }
 
 describe('VoiceAssistantService', () => {
@@ -38,9 +31,10 @@ describe('VoiceAssistantService', () => {
     });
 
     beforeEach(() => {
-        jest.useFakeTimers();
+        setCurrentUser({ id: 'user-1' } as any);
+        vi.useFakeTimers();
         recognition_instances = [];
-        (window as any).SpeechRecognition = jest.fn(() => {
+        (window as any).SpeechRecognition = vi.fn(function () {
             const instance = new MockSpeechRecognition();
             recognition_instances.push(instance);
             return instance;
@@ -51,9 +45,9 @@ describe('VoiceAssistantService', () => {
             messages,
             progress,
             connected: true,
-            setBinding: jest.fn(),
-            startChat: jest.fn(),
-            sendMessage: jest.fn(),
+            setBinding: vi.fn(),
+            startChat: vi.fn(),
+            sendMessage: vi.fn(),
         };
         spectator = createService({
             providers: [{ provide: ChatService, useValue: chat }],
@@ -61,7 +55,7 @@ describe('VoiceAssistantService', () => {
     });
 
     afterEach(() => {
-        jest.useRealTimers();
+        vi.useRealTimers();
         delete (window as any).SpeechRecognition;
     });
 
@@ -86,7 +80,7 @@ describe('VoiceAssistantService', () => {
     it('should enable after the debounce and initialise speech recognition', () => {
         spectator.service.setEnabled(true);
         expect(spectator.service.enabled()).toBe(false);
-        jest.advanceTimersByTime(300);
+        vi.advanceTimersByTime(300);
         TestBed.flushEffects();
         expect(spectator.service.enabled()).toBe(true);
         expect(recognition_instances).toHaveLength(1);
@@ -95,11 +89,11 @@ describe('VoiceAssistantService', () => {
 
     it('should stop speech recognition when disabled', () => {
         spectator.service.setEnabled(true);
-        jest.advanceTimersByTime(300);
+        vi.advanceTimersByTime(300);
         TestBed.flushEffects();
         const instance = recognition_instances[0];
         spectator.service.setEnabled(false);
-        jest.advanceTimersByTime(300);
+        vi.advanceTimersByTime(300);
         TestBed.flushEffects();
         expect(spectator.service.enabled()).toBe(false);
         expect(instance.stop).toHaveBeenCalled();
@@ -108,7 +102,7 @@ describe('VoiceAssistantService', () => {
     it('should activate and auto-deactivate after the timeout', () => {
         spectator.service.activate();
         expect(spectator.service.active()).toBe(true);
-        jest.advanceTimersByTime(5000);
+        vi.advanceTimersByTime(5000);
         expect(spectator.service.active()).toBe(false);
     });
 

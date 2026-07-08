@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { ControlStateService } from '../../app/control-state.service';
 
 import { CustomTooltipData, SanitizePipe } from '@placeos/components';
@@ -20,7 +20,7 @@ describe('HelpTooltipComponent', () => {
             },
             {
                 provide: CustomTooltipData,
-                useValue: { close: jest.fn() },
+                useValue: { close: vi.fn() },
             },
         ],
     });

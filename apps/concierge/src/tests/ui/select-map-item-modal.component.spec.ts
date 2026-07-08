@@ -1,5 +1,6 @@
+import { ComponentFixtureAutoDetect } from '@angular/core/testing';
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import {
     BuildingLevel,
@@ -22,11 +23,13 @@ describe('SelectMapItemModalComponent', () => {
         shallow: true,
         detectChanges: false,
         providers: [
+            { provide: ComponentFixtureAutoDetect, useValue: false },
             MockProvider(MAT_DIALOG_DATA, {}),
             MockProvider(MapsPeopleService, {
                 available: signal(false),
             } as any),
             MockProvider(OrganisationService, {
+                initialised: signal(false),
                 active_levels: levels,
             } as any),
         ],

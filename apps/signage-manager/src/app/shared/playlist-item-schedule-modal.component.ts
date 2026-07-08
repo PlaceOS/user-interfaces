@@ -118,7 +118,7 @@ export class PlaylistItemScheduleModalComponent {
             this._dialog_ref.disableClose = true;
             try {
                 await this._data.save(
-                    this._data.item.item_id,
+                    this._data.item.id || this._data.item.item_id,
                     this.model().schedules.map((schedule) =>
                         playlistSchedulePayload(schedule),
                     ),

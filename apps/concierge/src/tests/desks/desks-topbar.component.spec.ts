@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { OrganisationService } from '@placeos/common';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { of, timer } from 'rxjs';
@@ -13,10 +13,11 @@ import { DesksTopbarComponent } from '../../app/desks/desks-topbar.component';
 import { DateOptionsComponent } from '../../app/ui/date-options.component';
 import { SearchbarComponent } from '../../app/ui/searchbar.component';
 
-jest.mock('@placeos/bookings');
-
 import { MatDialog } from '@angular/material/dialog';
-import * as booking_mod from '@placeos/bookings';
+
+vi.mock('@placeos/ts-client', { spy: true });
+
+import * as ts_client from '@placeos/ts-client';
 
 describe('DesksTopbarComponent', () => {
     let spectator: SpectatorRouting<DesksTopbarComponent>;
@@ -30,19 +31,19 @@ describe('DesksTopbarComponent', () => {
             MockProvider(DesksStateService, {
                 filters: signal({}),
                 levels: signal([]),
-                setFilters: jest.fn(),
-                approveDesk: jest.fn(),
-                rejectDesk: jest.fn(),
+                setFilters: vi.fn(),
+                approveDesk: vi.fn(),
+                rejectDesk: vi.fn(),
             } as any),
             MockProvider(OrganisationService, {
                 active_levels: signal([]),
                 initialised: signal(true),
-                levelWithID: jest.fn(),
+                levelWithID: vi.fn(),
                 buildings: [],
             }),
             MockProvider(MatDialog, {
-                open: jest.fn(
-                    () => ({ afterClosed: jest.fn(() => of()) }) as any,
+                open: vi.fn(
+                    () => ({ afterClosed: vi.fn(() => of()) }) as any,
                 ),
             }),
         ],
@@ -54,14 +55,19 @@ describe('DesksTopbarComponent', () => {
         ],
     });
 
-    beforeEach(() => (spectator = createComponent()));
+    beforeEach(() => {
+        // showBooking() reads via ts-client `get`; resolve a booking so the
+        // approve/reject flow reaches the state service.
+        vi.mocked(ts_client.get).mockResolvedValue({ id: 'bkn-123' } as any);
+        spectator = createComponent();
+    });
 
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();
     });
 
     it('should handle zone_ids query param', async () => {
-        jest.spyOn(spectator.component, 'updateZones');
+        vi.spyOn(spectator.component, 'updateZones');
         expect(spectator.component.updateZones).not.toHaveBeenCalled();
         spectator.setRouteQueryParam('zone_ids', 'zone-1234,zone-2345');
         spectator.detectChanges();
@@ -73,7 +79,6 @@ describe('DesksTopbarComponent', () => {
     });
 
     it('should handle approve query param', async () => {
-        (booking_mod.showBooking as any) = jest.fn(() => of({}));
         spectator.setRouteQueryParam('approve', 'bkn-123');
         spectator.detectChanges();
         await timer(5).toPromise();
@@ -83,7 +88,6 @@ describe('DesksTopbarComponent', () => {
     });
 
     it('should handle reject query param', async () => {
-        (booking_mod.showBooking as any) = jest.fn(() => of({}));
         spectator.setRouteQueryParam('reject', 'bkn-123');
         spectator.detectChanges();
         await timer(5).toPromise();

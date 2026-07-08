@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { MatMenuModule } from '@angular/material/menu';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { SettingsService } from '@placeos/common';
 import { IconComponent, SimpleTableComponent } from '@placeos/components';
 import { MockComponent, MockProvider } from 'ng-mocks';
@@ -32,10 +32,10 @@ describe('LockerBookingsComponent', () => {
             filtered_bookings: signal([
                 { id: 'bk-1', date: 1_000, duration: 30 },
             ]),
-            nextPage: jest.fn(),
-            checkinLocker: jest.fn(async () => null),
-            approveLocker: jest.fn(async () => null),
-            rejectLocker: jest.fn(async () => null),
+            nextPage: vi.fn(),
+            checkinLocker: vi.fn(async () => null),
+            approveLocker: vi.fn(async () => null),
+            rejectLocker: vi.fn(async () => null),
         };
         spectator = createComponent({
             providers: [{ provide: LockerStateService, useValue: state }],

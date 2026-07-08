@@ -1,9 +1,10 @@
+import { ComponentFixtureAutoDetect } from '@angular/core/testing';
 import { inject, Injector, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import {
     createRoutingFactory,
     SpectatorRouting,
-} from '@ngneat/spectator/jest';
+} from '@ngneat/spectator/vitest';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { EventFormService, generateEventForm } from '@placeos/events';
 import { addMinutes, startOfDay } from 'date-fns';
@@ -17,13 +18,14 @@ describe('EventManageComponent', () => {
     const settings_values: Record<string, any> = {};
     const form_options = signal<any>({ zones: [] });
     const building = { id: 'bld-1', display_name: 'HQ', parent_id: 'reg-1' };
-    let set_options: jest.Mock;
+    let set_options: any;
 
     const createComponent = createRoutingFactory({
         component: EventManageComponent,
         shallow: true,
         detectChanges: false,
         providers: [
+            { provide: ComponentFixtureAutoDetect, useValue: false },
             {
                 provide: EventFormService,
                 useFactory: () => {
@@ -32,24 +34,24 @@ describe('EventManageComponent', () => {
                         undefined,
                         inject(Injector),
                     );
-                    set_options = jest.fn((o) => form_options.set(o));
+                    set_options = vi.fn((o) => form_options.set(o));
                     return {
                         model,
                         form,
                         options: form_options,
                         available_spaces: signal([]),
-                        newForm: jest.fn(),
+                        newForm: vi.fn(),
                         setOptions: set_options,
-                        postForm: jest.fn(async () => ({ id: 'e1' })),
-                    } as Partial<EventFormService>;
+                        postForm: vi.fn(async () => ({ id: 'e1' })),
+                    } as any;
                 },
             },
             MockProvider(EventStateService, {
                 calendar: 'group@events.com',
-                changed: jest.fn(),
+                changed: vi.fn(),
             } as any),
             MockProvider(SettingsService, {
-                get: jest.fn((key: string) => settings_values[key]),
+                get: vi.fn((key: string) => settings_values[key]),
             } as any),
             MockProvider(OrganisationService, {
                 building_list: signal([]),
@@ -57,11 +59,11 @@ describe('EventManageComponent', () => {
                 building,
                 buildings: [building],
                 organisation: { id: 'org-1' },
-                levelWithID: jest.fn(() => ({
+                levelWithID: vi.fn(() => ({
                     id: 'lvl-1',
                     parent_id: 'bld-1',
                 })),
-                waitUntilInitialised: jest.fn(() => Promise.resolve()),
+                waitUntilInitialised: vi.fn(() => Promise.resolve()),
             } as any),
         ],
     });

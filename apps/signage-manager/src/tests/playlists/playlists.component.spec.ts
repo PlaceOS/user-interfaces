@@ -9,7 +9,7 @@ describe('PlaylistsSectionComponent', () => {
     const selected_playlist_item = signal<any>(null);
     const playlists = signal<any[]>([]);
     const playlist_media_items = signal<any[]>([]);
-    const navigate = jest.fn();
+    const navigate = vi.fn();
 
     const service_stub = {
         selected_playlist,
@@ -22,11 +22,11 @@ describe('PlaylistsSectionComponent', () => {
         playlist_approval_request_loading: signal(false),
         playlists,
         playlist_media_items,
-        editPlaylist: jest.fn(),
-        removePlaylist: jest.fn(),
-        approvePlaylist: jest.fn(),
-        requestPlaylistApproval: jest.fn(),
-        sharePlaylist: jest.fn(),
+        editPlaylist: vi.fn(),
+        removePlaylist: vi.fn(),
+        approvePlaylist: vi.fn(),
+        requestPlaylistApproval: vi.fn(),
+        sharePlaylist: vi.fn(),
     };
 
     let fixture: ComponentFixture<PlaylistsSectionComponent>;
@@ -49,7 +49,7 @@ describe('PlaylistsSectionComponent', () => {
     }
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         selected_playlist.set(null);
         selected_playlist_item.set(null);
         playlists.set([]);

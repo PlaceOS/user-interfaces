@@ -1,20 +1,16 @@
 import { ApplicationRef, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
+import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
-import * as asset_mod from '@placeos/assets';
+import * as ts_client_mod from '@placeos/ts-client';
 import { LockersReportService } from 'apps/concierge/src/app/reports/lockers/lockers-report.service';
 import { ReportsStateService } from 'apps/concierge/src/app/reports/reports-state.service';
 
-jest.mock('@placeos/assets');
-jest.mock('@placeos/common', () => ({
-    ...jest.requireActual('@placeos/common'),
-    downloadFile: jest.fn(),
-    jsonToCsv: jest.fn(() => 'csv'),
-}));
-import { downloadFile, jsonToCsv } from '@placeos/common';
+import { captureDownloads } from '../download-capture.helper';
+
+vi.mock('@placeos/ts-client', { spy: true });
 
 const day_1 = new Date('2026-04-06T09:00:00').valueOf();
 const day_2 = new Date('2026-04-07T09:00:00').valueOf();
@@ -22,22 +18,24 @@ const day_2 = new Date('2026-04-07T09:00:00').valueOf();
 describe('LockersReportService', () => {
     let spectator: SpectatorService<LockersReportService>;
     let report_bookings: ReturnType<typeof signal<any>>;
-    let report_set_options: jest.Mock;
-    let report_generate: jest.Mock;
+    let report_set_options: any;
+    let report_generate: any;
+    let downloads: ReturnType<typeof captureDownloads>;
+    let locker_assets: any[];
 
     const createService = createServiceFactory({
         service: LockersReportService,
         providers: [
             MockProvider(SettingsService, {
-                get: jest.fn(() => false),
+                get: vi.fn(() => false),
             } as any),
             MockProvider(OrganisationService, {
                 building: { id: 'building-1' },
                 region: { id: 'region-1' },
-                levelsForBuilding: jest.fn(() => [
+                levelsForBuilding: vi.fn(() => [
                     { id: 'level-1', tags: ['lockers'] },
                 ]),
-                levelsForRegion: jest.fn(() => []),
+                levelsForRegion: vi.fn(() => []),
             } as any),
         ],
     });
@@ -47,16 +45,31 @@ describe('LockersReportService', () => {
     }
 
     beforeEach(() => {
-        (downloadFile as jest.Mock).mockClear();
-        (jsonToCsv as jest.Mock).mockClear();
+        vi.clearAllMocks();
         report_bookings = signal([]);
-        report_set_options = jest.fn();
-        report_generate = jest.fn();
-        (asset_mod.queryLockerAssetsForZones as jest.Mock).mockResolvedValue([
+        report_set_options = vi.fn();
+        report_generate = vi.fn();
+        downloads = captureDownloads();
+        locker_assets = [
             { zones: ['level-1'] },
             { zones: ['level-1'] },
             { zones: ['level-2'] },
-        ]);
+        ];
+        // queryLockerAssetsForZones -> (bootstrap) + queryAssets one layer down
+        vi.mocked(ts_client_mod.queryAssetCategories).mockResolvedValue({
+            data: [{ id: 'cat-lock', name: '_LOCKERS_', hidden: true }],
+            next: undefined,
+        } as any);
+        vi.mocked(ts_client_mod.queryAssetTypes).mockResolvedValue({
+            data: [
+                { id: 'type-lock', name: '_LOCKERS_', category_id: 'cat-lock' },
+            ],
+            next: undefined,
+        } as any);
+        vi.mocked(ts_client_mod.queryAssets).mockImplementation(
+            () =>
+                Promise.resolve({ data: locker_assets, next: undefined }) as any,
+        );
         spectator = createService({
             providers: [
                 {
@@ -70,6 +83,10 @@ describe('LockersReportService', () => {
                 },
             ],
         });
+    });
+
+    afterEach(() => {
+        downloads.restore();
     });
 
     it('should create service', () => {
@@ -104,7 +121,7 @@ describe('LockersReportService', () => {
 
     it('should not download when there are no bookings', async () => {
         await spectator.service.downloadReport();
-        expect(downloadFile).not.toHaveBeenCalled();
+        expect(downloads.filename).toBeNull();
     });
 
     it('should download the bookings as a tsv file', async () => {
@@ -114,11 +131,7 @@ describe('LockersReportService', () => {
         spectator.service.setOptions({ start: day_1, end: day_1 });
 
         await spectator.service.downloadReport();
-        expect(jsonToCsv).toHaveBeenCalled();
-        expect(downloadFile).toHaveBeenCalledWith(
-            expect.stringMatching(/^report\+assets\+2026-04-06\.tsv$/),
-            'csv',
-        );
+        expect(downloads.filename).toMatch(/^report\+assets\+2026-04-06\.tsv$/);
     });
 
     it('should count available lockers per zone', async () => {

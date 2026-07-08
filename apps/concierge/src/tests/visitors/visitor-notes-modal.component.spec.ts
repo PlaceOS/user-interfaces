@@ -1,15 +1,18 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MockProvider } from 'ng-mocks';
 
+import { setNotifyOutlet } from '@placeos/common';
+
 import { VisitorNotesModalComponent } from '../../app/visitors/visitor-notes-modal.component';
 
-jest.mock('@placeos/bookings');
-import * as booking_mod from '@placeos/bookings';
+vi.mock('@placeos/ts-client', { spy: true });
+
+import * as ts_client from '@placeos/ts-client';
 
 describe('VisitorNotesModalComponent', () => {
     let spectator: Spectator<VisitorNotesModalComponent>;
-    let dialog_ref: { close: jest.Mock; disableClose: boolean };
+    let dialog_ref: { close: any; disableClose: boolean };
 
     const item = {
         id: 'booking-1',
@@ -27,7 +30,7 @@ describe('VisitorNotesModalComponent', () => {
             {
                 provide: MatDialogRef,
                 useValue: (dialog_ref = {
-                    close: jest.fn(),
+                    close: vi.fn(),
                     disableClose: false,
                 }),
             },
@@ -35,12 +38,16 @@ describe('VisitorNotesModalComponent', () => {
     });
 
     beforeEach(() => {
-        (booking_mod as any).updateBooking = jest.fn(() => Promise.resolve({}));
-        dialog_ref = { close: jest.fn(), disableClose: false };
+        vi.clearAllMocks();
+        vi.mocked(ts_client.patch).mockResolvedValue({} as any);
+        setNotifyOutlet(null as any, true);
+        dialog_ref = { close: vi.fn(), disableClose: false };
         spectator = createComponent({
             providers: [{ provide: MatDialogRef, useValue: dialog_ref }],
         });
     });
+
+    afterEach(() => setNotifyOutlet(null as any, true));
 
     it('should seed notes from the booking extension data', () => {
         expect(spectator.component.notes()).toBe('existing note');
@@ -50,8 +57,9 @@ describe('VisitorNotesModalComponent', () => {
         spectator.component.notes.set('updated note');
         await spectator.component.save();
 
-        expect(booking_mod.updateBooking).toHaveBeenCalledWith(
-            'booking-1',
+        // updateBooking -> ts-client `patch` at the API boundary
+        expect(ts_client.patch).toHaveBeenCalledWith(
+            expect.stringContaining('booking-1'),
             expect.objectContaining({
                 extension_data: expect.objectContaining({
                     notes: 'updated note',
@@ -64,9 +72,7 @@ describe('VisitorNotesModalComponent', () => {
     });
 
     it('should restore state and rethrow when saving fails', async () => {
-        (booking_mod as any).updateBooking = jest.fn(() =>
-            Promise.reject(new Error('nope')),
-        );
+        vi.mocked(ts_client.patch).mockRejectedValue(new Error('nope'));
 
         await expect(spectator.component.save()).rejects.toThrow('nope');
         expect(dialog_ref.close).not.toHaveBeenCalled();

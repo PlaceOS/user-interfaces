@@ -2,7 +2,7 @@ import { signal } from '@angular/core';
 import {
     createRoutingFactory,
     SpectatorRouting,
-} from '@ngneat/spectator/jest';
+} from '@ngneat/spectator/vitest';
 import { Building, OrganisationService, SettingsService } from '@placeos/common';
 import { mockComponent } from '@placeos/common/tests';
 import { IconComponent, TranslatePipe } from '@placeos/components';
@@ -16,7 +16,7 @@ describe('FooterMenuComponent', () => {
         component: FooterMenuComponent,
         providers: [
             MockProvider(SettingsService, {
-                get: jest.fn(),
+                get: vi.fn(),
                 theme: 'light' as any,
             }),
             MockProvider(OrganisationService, {
@@ -32,7 +32,7 @@ describe('FooterMenuComponent', () => {
 
     const setSettings = (map: Record<string, any>) => {
         const settings = spectator.inject(SettingsService);
-        (settings.get as jest.Mock).mockImplementation((key: string) => map[key]);
+        (settings.get as any).mockImplementation((key: string) => map[key]);
     };
 
     beforeEach(() => (spectator = createComponent()));

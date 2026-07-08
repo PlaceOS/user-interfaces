@@ -2,7 +2,7 @@ import {
     MAT_DIALOG_DATA,
     MatDialogRef,
 } from '@angular/material/dialog';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
     AuthenticatedImageDirective,
     IconComponent,
@@ -12,7 +12,7 @@ import { DealDetailsModalComponent } from '../../app/deals/deal-details-modal.co
 
 describe('DealDetailsModalComponent', () => {
     let spectator: Spectator<DealDetailsModalComponent>;
-    const dialog_ref = { close: jest.fn() };
+    const dialog_ref = { close: vi.fn() };
     const deal = {
         id: 'deal-1',
         name: 'Coffee Deal',
@@ -36,7 +36,7 @@ describe('DealDetailsModalComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         spectator = createComponent();
     });
 

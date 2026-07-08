@@ -1,25 +1,29 @@
 import {
     createServiceFactory,
     SpectatorService,
-} from '@ngneat/spectator/jest';
+} from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
-import { of } from 'rxjs';
 
-import * as booking_mod from '@placeos/bookings';
-import * as common_mod from '@placeos/common';
-import { OrganisationService, SettingsService } from '@placeos/common';
-import * as event_mod from '@placeos/events';
+import {
+    OrganisationService,
+    SettingsService,
+    setNotifyOutlet,
+} from '@placeos/common';
+import * as ts_client_mod from '@placeos/ts-client';
 import { ReportsStateService } from 'apps/concierge/src/app/reports/reports-state.service';
 
-jest.mock('@placeos/assets');
-jest.mock('@placeos/bookings');
-jest.mock('@placeos/common');
-jest.mock('@placeos/events');
-jest.mock('@placeos/ts-client');
+import { captureDownloads } from './download-capture.helper';
+
+vi.mock('@placeos/ts-client', { spy: true });
 
 describe('ReportsStateService', () => {
     let spectator: SpectatorService<ReportsStateService>;
     let settings_map: Record<string, any>;
+    let booking_data: any[];
+    let event_data: any[];
+    let notify_open: ReturnType<typeof vi.fn>;
+    let downloads: ReturnType<typeof captureDownloads>;
+
     const createService = createServiceFactory({
         service: ReportsStateService,
         providers: [
@@ -29,21 +33,64 @@ describe('ReportsStateService', () => {
             MockProvider(OrganisationService, {
                 building: { id: 'bld-1', parent_id: 'region-1' },
                 region: { id: 'region-1' },
-                levelsForBuilding: jest.fn(() => [
+                levels: [],
+                levelsForBuilding: vi.fn(() => [
                     { id: 'lvl-1' },
                     { id: 'lvl-2' },
                 ]),
-                levelsForRegion: jest.fn(() => []),
+                levelsForRegion: vi.fn(() => []),
             } as any),
         ],
     });
 
     beforeEach(() => {
+        vi.clearAllMocks();
         settings_map = { 'app.use_region': false };
-        (event_mod.requestSpacesForZone as jest.Mock).mockReturnValue(of([]));
-        (booking_mod.queryAllBookings as jest.Mock).mockResolvedValue([]);
-        (event_mod.queryAllEvents as jest.Mock).mockResolvedValue([]);
+        booking_data = [];
+        event_data = [];
+        notify_open = vi.fn(() => ({
+            onAction: () => ({ subscribe: () => undefined }),
+            dismiss: () => undefined,
+        }));
+        setNotifyOutlet({ open: notify_open } as any, true);
+        downloads = captureDownloads();
+
+        // queryAllBookings (query_params.type) / queryAllEvents (no type),
+        // both routed through the ts-client `query` seam one layer down.
+        vi.mocked(ts_client_mod.query).mockImplementation((req: any) => {
+            const params = req?.query_params || {};
+            const data = params.type ? booking_data : event_data;
+            return Promise.resolve({ data, next: undefined }) as any;
+        });
+        // Defensive stubs so any resource loaders that fire never hit real HTTP.
+        vi.mocked(ts_client_mod.querySystems).mockResolvedValue({
+            data: [],
+            next: undefined,
+        } as any);
+        vi.mocked(ts_client_mod.queryAssets).mockResolvedValue({
+            data: [],
+            next: undefined,
+        } as any);
+        vi.mocked(ts_client_mod.queryAssetCategories).mockResolvedValue({
+            data: [
+                { id: 'cat-park', name: '_PARKING_', hidden: true },
+                { id: 'cat-lock', name: '_LOCKERS_', hidden: true },
+            ],
+            next: undefined,
+        } as any);
+        vi.mocked(ts_client_mod.queryAssetTypes).mockResolvedValue({
+            data: [],
+            next: undefined,
+        } as any);
+        vi.mocked(ts_client_mod.showMetadata).mockResolvedValue({
+            details: [],
+        } as any);
         spectator = createService();
+    });
+
+    afterEach(() => {
+        downloads.restore();
+        setNotifyOutlet(null as any, true);
     });
 
     it('should expand an "All" zone selection to every building level', () => {
@@ -112,9 +159,7 @@ describe('ReportsStateService', () => {
             date: new Date('2026-04-06T12:00:00').valueOf(),
             toJSON: () => ({}),
         };
-        (booking_mod.queryAllBookings as jest.Mock).mockResolvedValue([
-            booking,
-        ]);
+        booking_data = [booking];
         spectator.service.setOptions({
             type: 'desks',
             zones: ['z1'],
@@ -124,14 +169,20 @@ describe('ReportsStateService', () => {
 
         await (spectator.service as any)._loadBookings();
 
-        expect(booking_mod.queryAllBookings).toHaveBeenCalledWith(
-            expect.objectContaining({ type: 'desk', zones: 'z1', limit: 1000 }),
+        expect(ts_client_mod.query).toHaveBeenCalledWith(
+            expect.objectContaining({
+                query_params: expect.objectContaining({
+                    type: 'desk',
+                    zones: 'z1',
+                    limit: 1000,
+                }),
+            }),
         );
         expect(spectator.service.bookings()).toEqual([booking]);
     });
 
     it('should notify when a load returns no bookings', async () => {
-        (booking_mod.queryAllBookings as jest.Mock).mockResolvedValue([]);
+        booking_data = [];
         spectator.service.setOptions({
             type: 'desks',
             zones: ['z1'],
@@ -141,13 +192,15 @@ describe('ReportsStateService', () => {
 
         await (spectator.service as any)._loadBookings();
 
-        expect(common_mod.notifyError).toHaveBeenCalledWith(
+        expect(notify_open).toHaveBeenCalledWith(
             'No bookings for the selected levels and period',
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['error'] }),
         );
     });
 
     it('should schedule report generation on a debounce timer', () => {
-        const timeout_spy = jest
+        const timeout_spy = vi
             .spyOn(spectator.service as any, 'timeout')
             .mockImplementation(() => undefined);
 
@@ -160,7 +213,7 @@ describe('ReportsStateService', () => {
         );
     });
 
-    it('should export the active bookings as a tsv file', () => {
+    it('should export the active bookings as a tsv file', async () => {
         spectator.service.setOptions({
             type: 'desks',
             zones: ['z1'],
@@ -181,14 +234,12 @@ describe('ReportsStateService', () => {
 
         spectator.service.downloadReport();
 
-        expect(common_mod.jsonToCsv).toHaveBeenCalled();
-        const exported = (common_mod.jsonToCsv as jest.Mock).mock.calls[0][0];
-        expect(exported[0].keep).toBe('value');
-        expect(exported[0].zones).toBeUndefined();
-        expect(exported[0].system).toBeUndefined();
-        expect(common_mod.downloadFile).toHaveBeenCalledWith(
-            expect.stringMatching(/^report\+desks\+2026-04-06/),
-            undefined,
-        );
+        expect(downloads.filename).toMatch(/^report\+desks\+2026-04-06/);
+        const text = await downloads.text();
+        // `keep` survives the export; `zones`/`system` are stripped out.
+        expect(text).toContain('keep');
+        expect(text).toContain('value');
+        expect(text).not.toContain('zones');
+        expect(text).not.toContain('system');
     });
 });

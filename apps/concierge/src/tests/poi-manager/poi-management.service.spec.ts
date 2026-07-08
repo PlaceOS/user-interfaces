@@ -1,13 +1,11 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
-import { OrganisationService } from '@placeos/common';
+import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
+import { OrganisationService, setNotifyOutlet } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
-import { of } from 'rxjs';
+import { NEVER, of } from 'rxjs';
 
-import * as common_mod from '@placeos/common';
-import * as component_mod from '@placeos/components';
 import * as ts_client_mod from '@placeos/ts-client';
 import {
     POIManagementService,
@@ -15,25 +13,17 @@ import {
 } from '../../app/poi-manager/poi-management.service';
 import { POIModalComponent } from '../../app/poi-manager/poi-modal.component';
 
-jest.mock('@placeos/components');
-jest.mock('@placeos/ts-client');
-jest.mock('@placeos/common', () => {
-    const actual = jest.requireActual('@placeos/common');
-    return {
-        ...actual,
-        notifyError: jest.fn(),
-        notifySuccess: jest.fn(),
-    };
-});
+vi.mock('@placeos/ts-client', { spy: true });
 
 describe('POIManagementService', () => {
     let spectator: SpectatorService<POIManagementService>;
-    let dialog_open: jest.Mock;
+    let dialog_open: any;
     let active_building: any;
+    let notify_open: ReturnType<typeof vi.fn>;
 
     const organisation_service: any = {
         organisation: { id: 'org-1' },
-        levelsForBuilding: jest.fn(() => [{ id: 'lvl-1' }, { id: 'lvl-2' }]),
+        levelsForBuilding: vi.fn(() => [{ id: 'lvl-1' }, { id: 'lvl-2' }]),
         get building() {
             return active_building();
         },
@@ -50,25 +40,37 @@ describe('POIManagementService', () => {
     beforeEach(() => {
         active_building = signal({ id: 'bld-1' });
         organisation_service.active_building = active_building;
-        dialog_open = jest.fn(() => ({ afterClosed: () => of(true) }) as any);
-        (component_mod as any).openConfirmModal = jest.fn(async () => ({
-            reason: 'done',
-            loading: jest.fn(),
-            close: jest.fn(),
+        dialog_open = vi.fn(() => ({ afterClosed: () => of(true) }) as any);
+        vi.clearAllMocks();
+        notify_open = vi.fn(() => ({
+            onAction: () => ({ subscribe: () => undefined }),
+            dismiss: () => undefined,
         }));
-        jest.clearAllMocks();
-        (ts_client_mod.showMetadata as jest.Mock).mockResolvedValue({
+        setNotifyOutlet({ open: notify_open } as any, true);
+        (ts_client_mod.showMetadata as any).mockResolvedValue({
             details: {},
         });
-        (ts_client_mod.updateMetadata as jest.Mock).mockResolvedValue({
+        (ts_client_mod.updateMetadata as any).mockResolvedValue({
             id: 'meta-1',
         });
         spectator = createService();
         (spectator.inject(MatDialog) as any).open = dialog_open;
     });
 
+    afterEach(() => setNotifyOutlet(null as any, true));
+
+    const confirmRef = (reason: string) => {
+        const close = vi.fn();
+        dialog_open.mockReturnValue({
+            componentInstance: { event: NEVER, loading: { set: vi.fn() } },
+            afterClosed: () => of({ reason }),
+            close,
+        });
+        return close;
+    };
+
     it('should load points of interest for the active building levels', async () => {
-        (ts_client_mod.showMetadata as jest.Mock).mockResolvedValue({
+        (ts_client_mod.showMetadata as any).mockResolvedValue({
             details: {
                 'lvl-1': [{ id: 'poi-1', name: 'Foyer', level_id: 'lvl-1' }],
                 'lvl-2': [{ id: 'poi-2', name: 'Cafe', level_id: 'lvl-2' }],
@@ -84,7 +86,7 @@ describe('POIManagementService', () => {
     });
 
     it('should filter features by the search string', async () => {
-        (ts_client_mod.showMetadata as jest.Mock).mockResolvedValue({
+        (ts_client_mod.showMetadata as any).mockResolvedValue({
             details: {
                 'lvl-1': [
                     { id: 'poi-1', name: 'Foyer', level_id: 'lvl-1' },
@@ -112,7 +114,8 @@ describe('POIManagementService', () => {
     });
 
     it('should remove a point of interest from every level in the metadata', async () => {
-        (ts_client_mod.showMetadata as jest.Mock).mockResolvedValue({
+        confirmRef('done');
+        (ts_client_mod.showMetadata as any).mockResolvedValue({
             details: {
                 'lvl-1': [{ id: 'poi-1' }, { id: 'poi-2' }],
                 'lvl-2': [{ id: 'poi-1' }],
@@ -134,15 +137,15 @@ describe('POIManagementService', () => {
                 },
             }),
         );
-        expect(common_mod.notifySuccess).toHaveBeenCalled();
+        expect(notify_open).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['success'] }),
+        );
     });
 
     it('should not modify metadata when removal is cancelled', async () => {
-        (component_mod.openConfirmModal as jest.Mock).mockResolvedValue({
-            reason: 'cancel',
-            loading: jest.fn(),
-            close: jest.fn(),
-        });
+        confirmRef('cancel');
 
         await spectator.service.removePointOfInterest({
             id: 'poi-1',

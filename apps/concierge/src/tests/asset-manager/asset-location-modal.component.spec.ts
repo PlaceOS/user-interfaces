@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { OrganisationService } from '@placeos/common';
 import { SpacePipe } from '@placeos/events';
 import { MockProvider } from 'ng-mocks';
@@ -9,8 +9,8 @@ import { AssetLocationModalComponent } from '../../app/asset-manager/asset-locat
 
 describe('AssetLocationModalComponent', () => {
     let spectator: Spectator<AssetLocationModalComponent>;
-    let set_tracking: jest.Mock;
-    let level_with_id: jest.Mock;
+    let set_tracking: any;
+    let level_with_id: any;
 
     const createComponent = createComponentFactory({
         component: AssetLocationModalComponent,
@@ -28,8 +28,8 @@ describe('AssetLocationModalComponent', () => {
     });
 
     beforeEach(() => {
-        set_tracking = jest.fn(async () => ({}));
-        level_with_id = jest.fn();
+        set_tracking = vi.fn(async () => ({}));
+        level_with_id = vi.fn();
         spectator = createComponent();
     });
 
@@ -41,7 +41,7 @@ describe('AssetLocationModalComponent', () => {
     });
 
     it('should build a map pin feature for the selected space', async () => {
-        jest.spyOn(SpacePipe.prototype, 'transform').mockResolvedValue({
+        vi.spyOn(SpacePipe.prototype, 'transform').mockResolvedValue({
             map_id: 'map-1',
             display_name: 'Room 1',
             name: 'Room 1',

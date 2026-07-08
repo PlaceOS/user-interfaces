@@ -1,31 +1,20 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
 
 import * as ts_client_mod from '@placeos/ts-client';
 import { SignageApprovePlaylistModalComponent } from '../../app/signage/signage-approve-playlist-modal.component';
 import { SignageStateService } from '../../app/signage/signage-state.service';
 
-jest.mock('@placeos/ts-client', () => {
-    const actual = jest.requireActual('@placeos/ts-client');
-    return {
-        ...actual,
-        approveSignagePlaylist: jest.fn(async () => ({})),
-        updateSignagePlaylistMedia: jest.fn(async () => undefined),
-        listSignagePlaylistMediaRevisions: jest.fn(async () => [
-            { items: ['a'], updated_at: 2 },
-            { items: ['b'], updated_at: 1 },
-        ]),
-    };
-});
+vi.mock('@placeos/ts-client', { spy: true });
 
 async function flush() {
-    TestBed.flushEffects();
-    await Promise.resolve();
-    await Promise.resolve();
-    TestBed.flushEffects();
+    for (let i = 0; i < 6; i++) {
+        TestBed.flushEffects();
+        await Promise.resolve();
+    }
 }
 
 describe('SignageApprovePlaylistModalComponent', () => {
@@ -43,15 +32,26 @@ describe('SignageApprovePlaylistModalComponent', () => {
                     { id: 'a', name: 'A', thumbnail_url: '' },
                     { id: 'b', name: 'B', thumbnail_url: '' },
                 ]) as any,
-                previewMedia: jest.fn(),
-                changed: jest.fn(),
+                previewMedia: vi.fn(),
+                changed: vi.fn(),
             }),
         ],
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
-        dialog_ref = { close: jest.fn(), disableClose: false };
+        vi.clearAllMocks();
+        // `spy: true` keeps real ts-client impls, which hang on live HTTP. Stub
+        // the calls these tests exercise.
+        (ts_client_mod.listSignagePlaylistMediaRevisions as any).mockResolvedValue(
+            [{ items: ['a'] }, { items: ['b'] }],
+        );
+        (ts_client_mod.approveSignagePlaylist as any).mockResolvedValue(
+            undefined,
+        );
+        (ts_client_mod.updateSignagePlaylistMedia as any).mockResolvedValue(
+            undefined,
+        );
+        dialog_ref = { close: vi.fn(), disableClose: false };
         spectator = createComponent({
             providers: [MockProvider(MatDialogRef, dialog_ref)],
         });

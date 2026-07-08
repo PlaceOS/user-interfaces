@@ -1,5 +1,5 @@
 import { Router } from '@angular/router';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { MockComponent } from 'ng-mocks';
 
 import { AssetManagerComponent } from '../../app/asset-manager/asset-manager.component';

@@ -4,21 +4,15 @@ import {
     updateQuestionMap,
 } from '../../app/surveys/question.pipe';
 
-jest.mock('@placeos/ts-client', () => {
-    const actual = jest.requireActual('@placeos/ts-client');
-    return {
-        ...actual,
-        showQuestion: jest.fn(),
-    };
-});
+vi.mock('@placeos/ts-client', { spy: true });
 
-const { SurveyQuestion } = jest.requireActual('@placeos/ts-client');
+const { SurveyQuestion } = ts_client;
 
 describe('QuestionPipe', () => {
     let pipe: QuestionPipe;
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         pipe = new QuestionPipe();
     });
 
@@ -35,7 +29,7 @@ describe('QuestionPipe', () => {
     it('should query and cache unknown questions', async () => {
         const question = new SurveyQuestion({ id: 200, title: 'Loaded' });
         let resolve_question: (q: any) => void;
-        (ts_client.showQuestion as jest.Mock).mockReturnValue(
+        (ts_client.showQuestion as any).mockReturnValue(
             new Promise((resolve) => (resolve_question = resolve)),
         );
 

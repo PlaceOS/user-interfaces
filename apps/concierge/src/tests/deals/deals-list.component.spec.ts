@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import {
     AuthenticatedImageDirective,
     IconComponent,
@@ -15,8 +15,8 @@ import { DealsService } from '../../app/deals/deals.service';
 describe('DealsListComponent', () => {
     let spectator: SpectatorRouting<DealsListComponent>;
     let deals: ReturnType<typeof signal<any[]>>;
-    let remove_deal: jest.Mock;
-    let view_deal: jest.Mock;
+    let remove_deal: any;
+    let view_deal: any;
 
     const createComponent = createRoutingFactory({
         component: DealsListComponent,
@@ -38,8 +38,8 @@ describe('DealsListComponent', () => {
     });
 
     beforeEach(() => {
-        remove_deal = jest.fn();
-        view_deal = jest.fn();
+        remove_deal = vi.fn();
+        view_deal = vi.fn();
         deals = signal([
             {
                 id: 'deal-1',

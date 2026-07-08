@@ -3,63 +3,57 @@ import {
     MatDialog,
     MatDialogRef,
 } from '@angular/material/dialog';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { SettingsService } from '@placeos/common';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
+import { SettingsService, setNotifyOutlet } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 import { getHours, getMinutes } from 'date-fns';
 import { stringify as stringifyYaml } from 'yaml';
 
 import { AutoReleaseSettingsModalComponent } from '../../app/building-manager/auto-release-settings-modal.component';
 
-import * as common_mod from '@placeos/common';
 import * as ts_client from '@placeos/ts-client';
 
-jest.mock('@placeos/common', () => ({
-    ...jest.requireActual('@placeos/common'),
-    notifySuccess: jest.fn(),
-    notifyError: jest.fn(),
-}));
-jest.mock('@placeos/ts-client', () => ({
-    ...jest.requireActual('@placeos/ts-client'),
-    querySettings: jest.fn(),
-    addSettings: jest.fn(),
-    updateSettings: jest.fn(),
-    showMetadata: jest.fn(),
-    updateMetadata: jest.fn(),
-}));
+vi.mock('@placeos/ts-client', { spy: true });
 
 describe('AutoReleaseSettingsModalComponent', () => {
     let spectator: Spectator<AutoReleaseSettingsModalComponent>;
+    let notify_open: ReturnType<typeof vi.fn>;
 
     const createComponent = createComponentFactory({
         component: AutoReleaseSettingsModalComponent,
         detectChanges: false,
         providers: [
-            MockProvider(MAT_DIALOG_DATA, 'bld-1'),
-            MockProvider(MatDialogRef, { close: jest.fn() }),
-            MockProvider(MatDialog, { open: jest.fn() }),
-            MockProvider(SettingsService, { get: jest.fn(() => undefined) }),
+            MockProvider(MAT_DIALOG_DATA, 'bld-1' as any),
+            MockProvider(MatDialogRef, { close: vi.fn() }),
+            MockProvider(MatDialog, { open: vi.fn() }),
+            MockProvider(SettingsService, { get: vi.fn(() => undefined) }),
         ],
     });
 
     beforeEach(() => {
-        (common_mod.notifySuccess as jest.Mock).mockClear();
-        (common_mod.notifyError as jest.Mock).mockClear();
-        (ts_client.querySettings as jest.Mock).mockReset();
-        (ts_client.addSettings as jest.Mock).mockReset();
-        (ts_client.updateSettings as jest.Mock).mockReset();
-        (ts_client.showMetadata as jest.Mock).mockReset();
-        (ts_client.updateMetadata as jest.Mock).mockReset();
-        (ts_client.querySettings as jest.Mock).mockResolvedValue({ data: [] });
-        (ts_client.addSettings as jest.Mock).mockResolvedValue({ id: 'set-1' });
-        (ts_client.updateSettings as jest.Mock).mockResolvedValue({ id: 'set-1' });
-        (ts_client.showMetadata as jest.Mock).mockResolvedValue({ details: {} });
-        (ts_client.updateMetadata as jest.Mock).mockResolvedValue({ id: 'meta' });
+        notify_open = vi.fn(() => ({
+            onAction: () => ({ subscribe: () => undefined }),
+            dismiss: () => undefined,
+        }));
+        setNotifyOutlet({ open: notify_open } as any, true);
+        (ts_client.querySettings as any).mockReset();
+        (ts_client.addSettings as any).mockReset();
+        (ts_client.updateSettings as any).mockReset();
+        (ts_client.showMetadata as any).mockReset();
+        (ts_client.updateMetadata as any).mockReset();
+        (ts_client.querySettings as any).mockResolvedValue({ data: [] });
+        (ts_client.addSettings as any).mockResolvedValue({ id: 'set-1' });
+        (ts_client.updateSettings as any).mockResolvedValue({ id: 'set-1' });
+        (ts_client.showMetadata as any).mockResolvedValue({ details: {} });
+        (ts_client.updateMetadata as any).mockResolvedValue({ id: 'meta' });
         spectator = createComponent();
-        (spectator.inject(MatDialogRef).close as jest.Mock).mockClear();
+        (spectator.inject(MatDialogRef).close as any).mockClear();
     });
 
-    afterEach(() => jest.restoreAllMocks());
+    afterEach(() => {
+        setNotifyOutlet(null as any, true);
+        vi.restoreAllMocks();
+    });
 
     it('should enable a custom resource and seed its timings from the defaults', () => {
         spectator.component.setSetting('time_before', 10);
@@ -112,7 +106,7 @@ describe('AutoReleaseSettingsModalComponent', () => {
     });
 
     it('should load existing auto_release settings from unencrypted yaml', async () => {
-        (ts_client.querySettings as jest.Mock).mockResolvedValue({
+        (ts_client.querySettings as any).mockResolvedValue({
             data: [
                 {
                     id: 'set-1',
@@ -143,9 +137,13 @@ describe('AutoReleaseSettingsModalComponent', () => {
         expect(ts_client.addSettings).toHaveBeenCalled();
         expect(ts_client.updateMetadata).toHaveBeenCalled();
         // the `custom` helper key must be stripped from persisted metadata
-        const [, meta_body] = (ts_client.updateMetadata as jest.Mock).mock.calls[0];
+        const [, meta_body] = (ts_client.updateMetadata as any).mock.calls[0];
         expect('custom' in meta_body.details.auto_release).toBe(false);
-        expect(common_mod.notifySuccess).toHaveBeenCalled();
+        expect(notify_open).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['success'] }),
+        );
         expect(spectator.inject(MatDialogRef).close).toHaveBeenCalled();
     });
 });

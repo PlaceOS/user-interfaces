@@ -1,7 +1,7 @@
 import {
     createRoutingFactory,
     SpectatorRouting,
-} from '@ngneat/spectator/jest';
+} from '@ngneat/spectator/vitest';
 import { signal, WritableSignal } from '@angular/core';
 import { MockComponent, MockPipe } from 'ng-mocks';
 

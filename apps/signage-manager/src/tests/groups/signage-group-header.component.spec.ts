@@ -8,7 +8,7 @@ import { SignageService } from '../../app/signage.service';
 describe('SignageGroupHeaderComponent', () => {
     const manageable_signage_groups = signal<any[]>([]);
     const can_manage_all_groups = signal(true);
-    const dialog = { open: jest.fn() };
+    const dialog = { open: vi.fn() };
     const service_stub = {
         manageable_signage_groups,
         can_manage_all_groups,

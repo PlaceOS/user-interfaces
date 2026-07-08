@@ -1,4 +1,4 @@
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 
 import { settingSignal } from '@placeos/common';
 import { LandingQuickLinksComponent } from '../../app/landing/landing-quick-links.component';

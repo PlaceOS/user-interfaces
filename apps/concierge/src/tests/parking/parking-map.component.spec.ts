@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { mockComponent } from '@placeos/common/tests';
 import { InteractiveMapComponent } from '@placeos/components';
@@ -29,10 +29,10 @@ describe('ParkingMapComponent', () => {
                 useValue: {
                     initialised: signal(true),
                     waitUntilInitialised: () => Promise.resolve(),
-                    levelsForBuilding: jest.fn(() => [
+                    levelsForBuilding: vi.fn(() => [
                         { id: 'level-1', tags: ['parking'] },
                     ]),
-                    levelWithID: jest.fn(),
+                    levelWithID: vi.fn(),
                 },
             },
             {
@@ -45,7 +45,7 @@ describe('ParkingMapComponent', () => {
                         period: 'day',
                         request_filter: 'all',
                     }),
-                    editReservation: jest.fn(),
+                    editReservation: vi.fn(),
                 },
             },
             {
@@ -56,13 +56,13 @@ describe('ParkingMapComponent', () => {
                     map_features: signal(feature_list),
                     map_actions: signal([]),
                     map_labels: signal([]),
-                    setLevel: jest.fn(),
+                    setLevel: vi.fn(),
                 },
             },
             {
                 provide: SettingsService,
                 useValue: {
-                    signal: jest.fn((name: string, default_value: any) =>
+                    signal: vi.fn((name: string, default_value: any) =>
                         name === 'parking.disable_styles'
                             ? disable_styles
                             : signal(default_value),
@@ -74,8 +74,8 @@ describe('ParkingMapComponent', () => {
             {
                 provide: ExploreParkingService,
                 useValue: {
-                    setOptions: jest.fn(),
-                    startPolling: jest.fn(() => () => null),
+                    setOptions: vi.fn(),
+                    startPolling: vi.fn(() => () => null),
                 },
             },
         ],

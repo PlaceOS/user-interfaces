@@ -1,18 +1,18 @@
 import { signal } from '@angular/core';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
 import { SurveyListingsComponent } from '../../app/surveys/survey-listings.component';
 import { SurveyService } from '../../app/surveys/survey.service';
 
-const { Survey } = jest.requireActual('@placeos/ts-client');
+import { Survey } from '@placeos/ts-client';
 
 describe('SurveyListingsComponent', () => {
     let spectator: Spectator<SurveyListingsComponent>;
-    const setBuilding = jest.fn();
-    const removeSurvey = jest.fn(() => Promise.resolve());
+    const setBuilding = vi.fn();
+    const removeSurvey = vi.fn(() => Promise.resolve());
     let param_map: any;
 
     const createComponent = createComponentFactory({
@@ -35,7 +35,7 @@ describe('SurveyListingsComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         param_map = of(convertToParamMap({ id: 'bld-9' }));
         spectator = createComponent();
     });

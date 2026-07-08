@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { mockComponent } from '@placeos/common/tests';
 import { MockPipe } from 'ng-mocks';
 
@@ -22,10 +22,10 @@ describe('DeviceOutputListItemComponent', () => {
                 useValue: {
                     available_inputs: signal([]),
                     system: signal({}),
-                    setVolume: jest.fn(),
-                    setRoute: jest.fn(),
-                    unroute: jest.fn(),
-                    setOutput: jest.fn(),
+                    setVolume: vi.fn(),
+                    setRoute: vi.fn(),
+                    unroute: vi.fn(),
+                    setOutput: vi.fn(),
                 },
             },
         ],
@@ -33,7 +33,7 @@ describe('DeviceOutputListItemComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         spectator = createComponent();
     });
 

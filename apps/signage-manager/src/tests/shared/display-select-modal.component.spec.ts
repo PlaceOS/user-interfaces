@@ -9,7 +9,7 @@ describe('DisplaySelectModalComponent', () => {
     const service = { displays };
 
     beforeEach(async () => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         displays.set([
             { id: 'd1', name: 'Lobby', display_name: 'Lobby Screen' },
             { id: 'd2', name: 'Cafe', description: 'Ground floor' },

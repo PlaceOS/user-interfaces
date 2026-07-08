@@ -94,7 +94,7 @@ import { DesksStateService } from './desks-state.service';
                     <input
                         type="file"
                         class="absolute inset-0 opacity-0"
-                        (change)="loadCSVData($event)"
+                        (change)="loadCSVData($any($event))"
                     />
                 </button>
             }

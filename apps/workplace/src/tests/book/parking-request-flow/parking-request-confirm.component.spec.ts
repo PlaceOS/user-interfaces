@@ -1,27 +1,23 @@
 import { signal } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { BookingFormService } from '@placeos/bookings';
-import { OrganisationService, SettingsService } from '@placeos/common';
+import {
+    OrganisationService,
+    SettingsService,
+    setNotifyOutlet,
+} from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
 import { ParkingRequestConfirmComponent } from '../../../app/book/parking-request-flow/parking-request-confirm.component';
-import * as common from '@placeos/common';
-
-jest.mock('@placeos/common', () => {
-    const actual = jest.requireActual('@placeos/common');
-    return {
-        ...actual,
-        notifyError: jest.fn(),
-    };
-});
 
 describe('ParkingRequestConfirmComponent', () => {
     let spectator: Spectator<ParkingRequestConfirmComponent>;
+    let notify_open: any;
     let model: ReturnType<typeof signal<Record<string, any>>>;
     let loading: ReturnType<typeof signal<boolean>>;
-    let post_form: jest.Mock;
-    let dismiss: jest.Mock;
+    let post_form: any;
+    let dismiss: any;
 
     const createComponent = createComponentFactory({
         component: ParkingRequestConfirmComponent,
@@ -35,7 +31,11 @@ describe('ParkingRequestConfirmComponent', () => {
     });
 
     beforeEach(() => {
-        (common.notifyError as jest.Mock).mockClear();
+        notify_open = vi.fn(() => ({
+            onAction: () => ({ subscribe: () => undefined }),
+            dismiss: () => undefined,
+        }));
+        setNotifyOutlet({ open: notify_open } as any, true);
         model = signal({
             title: 'Parking Request',
             date: Date.now(),
@@ -48,8 +48,8 @@ describe('ParkingRequestConfirmComponent', () => {
             extra_space_restrictions: [],
         });
         loading = signal(false);
-        post_form = jest.fn(() => Promise.resolve({ id: 'req-1' }));
-        dismiss = jest.fn();
+        post_form = vi.fn(() => Promise.resolve({ id: 'req-1' }));
+        dismiss = vi.fn();
         spectator = createComponent({
             providers: [
                 MockProvider(BookingFormService, {
@@ -70,12 +70,14 @@ describe('ParkingRequestConfirmComponent', () => {
         });
     });
 
+    afterEach(() => setNotifyOutlet(null as any, true));
+
     it('should dismiss with a truthy value when the request is posted successfully', async () => {
         await spectator.component.postForm();
 
         expect(post_form).toHaveBeenCalled();
         expect(dismiss).toHaveBeenCalledWith(true);
-        expect(common.notifyError).not.toHaveBeenCalled();
+        expect(notify_open).not.toHaveBeenCalled();
     });
 
     it('should not dismiss when postForm resolves without a booking', async () => {
@@ -91,8 +93,10 @@ describe('ParkingRequestConfirmComponent', () => {
 
         await spectator.component.postForm();
 
-        expect(common.notifyError).toHaveBeenCalledWith(
+        expect(notify_open).toHaveBeenCalledWith(
             expect.stringContaining('Unable to submit parking request.'),
+            expect.anything(),
+            expect.anything(),
         );
         expect(dismiss).not.toHaveBeenCalled();
     });

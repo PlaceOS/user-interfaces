@@ -3,7 +3,7 @@ import { signal } from '@angular/core';
 import {
     createRoutingFactory,
     SpectatorRouting,
-} from '@ngneat/spectator/jest';
+} from '@ngneat/spectator/vitest';
 import { OrganisationService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
@@ -19,15 +19,15 @@ describe('EmergencyContactsComponent', () => {
     let spectator: SpectatorRouting<EmergencyContactsComponent>;
     const contacts = signal<any[]>([]);
     const dialog = {
-        open: jest.fn(() => ({ afterClosed: () => of(true) })),
+        open: vi.fn(() => ({ afterClosed: () => of(true) })),
     };
-    const clipboard = { copy: jest.fn(() => true) };
+    const clipboard = { copy: vi.fn(() => true) };
     const service = {
         roles: signal<string[]>(['Fire Warden']),
         contacts,
-        refresh: jest.fn(),
-        needsMigration: jest.fn(() => Promise.resolve(false)),
-        deleteContact: jest.fn(() => Promise.resolve(true)),
+        refresh: vi.fn(),
+        needsMigration: vi.fn(() => Promise.resolve(false)),
+        deleteContact: vi.fn(() => Promise.resolve(true)),
     };
 
     const createComponent = createRoutingFactory({

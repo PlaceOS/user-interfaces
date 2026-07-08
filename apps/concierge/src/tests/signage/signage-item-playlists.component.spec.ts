@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
@@ -22,17 +22,17 @@ describe('SignageItemPlaylistsComponent', () => {
                     { id: 'p2', name: 'Ads', updated_at: 1 },
                 ]) as any,
                 has_changed: signal(0) as any,
-                getPlaylistMedia: jest.fn(async () => ['m1', 'm2', 'm3', 'm4']),
+                getPlaylistMedia: vi.fn(async () => ['m1', 'm2', 'm3', 'm4']),
             }),
             MockProvider(ActivatedRoute, {
                 queryParamMap: of({ get: () => null }) as any,
             }),
-            MockProvider(Router, { navigate: jest.fn() }),
+            MockProvider(Router, { navigate: vi.fn() }),
         ],
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         spectator = createComponent();
         state = spectator.inject(SignageStateService) as any;
         spectator.component.playlist_count.set({});

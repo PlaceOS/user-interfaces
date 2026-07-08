@@ -1,7 +1,7 @@
 import {
     createRoutingFactory,
     SpectatorRouting,
-} from '@ngneat/spectator/jest';
+} from '@ngneat/spectator/vitest';
 
 import { EventsComponent } from '../../app/events/events.component';
 

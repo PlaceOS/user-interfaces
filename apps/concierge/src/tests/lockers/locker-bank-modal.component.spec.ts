@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
@@ -22,17 +22,17 @@ describe('LockerBankModalComponent', () => {
             MockProvider(MatDialogRef, { disableClose: false } as any),
             MockProvider(OrganisationService, {
                 level_list,
-                buildingsForRegion: jest.fn(() => [{ id: 'bld-1' }]),
+                buildingsForRegion: vi.fn(() => [{ id: 'bld-1' }]),
                 building: { id: 'bld-1' },
                 organisation: { id: 'org-1' },
                 region: { id: 'region-1' },
-                levelWithID: jest.fn(() => ({
+                levelWithID: vi.fn(() => ({
                     id: 'lvl-1',
                     parent_id: 'bld-1',
                 })),
             } as any),
             MockProvider(SettingsService, {
-                get: jest.fn((key: string) => settings[key]),
+                get: vi.fn((key: string) => settings[key]),
             } as any),
         ],
     });
@@ -61,7 +61,7 @@ describe('LockerBankModalComponent', () => {
 
     it('should not emit when the form is invalid', () => {
         spectator = createComponent();
-        const emit = jest.spyOn(spectator.component.event, 'emit');
+        const emit = vi.spyOn(spectator.component.event, 'emit');
         spectator.component.model.update((m) => ({
             ...m,
             level_id: 'lvl-1',
@@ -77,7 +77,7 @@ describe('LockerBankModalComponent', () => {
 
     it('should emit a done event with computed zones when valid', () => {
         spectator = createComponent();
-        const emit = jest.spyOn(spectator.component.event, 'emit');
+        const emit = vi.spyOn(spectator.component.event, 'emit');
         spectator.component.model.update((m) => ({
             ...m,
             level_id: 'lvl-1',

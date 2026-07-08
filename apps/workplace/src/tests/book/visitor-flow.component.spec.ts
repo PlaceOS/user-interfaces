@@ -2,7 +2,7 @@ import { Injector, WritableSignal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import {
     BookingForm,
     BookingFormValue,
@@ -22,10 +22,10 @@ describe('VisitorFlowNewComponent', () => {
     let spectator: SpectatorRouting<VisitorFlowNewComponent>;
     let form: BookingForm;
     let model: WritableSignal<BookingFormValue>;
-    let save_user_setting: jest.Mock;
-    let clear_form: jest.Mock;
-    let dialog_open: jest.Mock;
-    let dialog_close: jest.Mock;
+    let save_user_setting: any;
+    let clear_form: any;
+    let dialog_open: any;
+    let dialog_close: any;
 
     const createComponent = createRoutingFactory({
         component: VisitorFlowNewComponent,
@@ -59,17 +59,17 @@ describe('VisitorFlowNewComponent', () => {
                         view: () => 'details',
                         booking: null,
                         last_count: 0,
-                        setOptions: jest.fn(),
-                        setView: jest.fn(),
+                        setOptions: vi.fn(),
+                        setView: vi.fn(),
                         clearForm: (...args: any[]) => clear_form(...args),
-                        loadGroupSiblings: jest.fn(async () => []),
+                        loadGroupSiblings: vi.fn(async () => []),
                     };
                 },
             },
             {
                 provide: SettingsService,
                 useValue: {
-                    get: jest.fn(() => []),
+                    get: vi.fn(() => []),
                     saveUserSetting: (...args: any[]) =>
                         save_user_setting(...args),
                 },
@@ -94,10 +94,10 @@ describe('VisitorFlowNewComponent', () => {
     });
 
     beforeEach(() => {
-        save_user_setting = jest.fn();
-        clear_form = jest.fn();
-        dialog_close = jest.fn();
-        dialog_open = jest.fn(() => ({
+        save_user_setting = vi.fn();
+        clear_form = vi.fn();
+        dialog_close = vi.fn();
+        dialog_open = vi.fn(() => ({
             componentInstance: { event: of({ reason: 'done' }) },
             afterClosed: () => NEVER,
             close: dialog_close,
@@ -159,7 +159,7 @@ describe('VisitorFlowNewComponent', () => {
         dialog_open.mockReturnValue({
             componentInstance: { event: NEVER },
             afterClosed: () => of(null),
-            close: jest.fn(),
+            close: vi.fn(),
         });
         model.update((m) => ({ ...m, id: 'visitor-booking-3' }));
         form().markAsDirty();
@@ -174,7 +174,7 @@ describe('VisitorFlowComponent', () => {
     let spectator: SpectatorRouting<VisitorFlowComponent>;
     const createComponent = createRoutingFactory({
         component: VisitorFlowComponent,
-        providers: [MockProvider(Router, { navigate: jest.fn() })],
+        providers: [MockProvider(Router, { navigate: vi.fn() })],
         declarations: [mockComponent(InviteVisitorFormComponent)],
     });
 

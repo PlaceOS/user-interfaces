@@ -1,38 +1,41 @@
 import { StaffUser } from '@placeos/common';
-import * as users_mod from '@placeos/users';
+import * as ts_client from '@placeos/ts-client';
 
 import { GetUserPipe } from 'apps/concierge/src/app/reports/contact-tracing/get-user.pipe';
 
-jest.mock('@placeos/users');
+vi.mock('@placeos/ts-client', { spy: true });
 
 describe('GetUserPipe', () => {
     let pipe: GetUserPipe;
 
     beforeEach(() => {
+        vi.clearAllMocks();
         pipe = new GetUserPipe();
-        (users_mod.searchStaff as jest.Mock).mockReset();
     });
 
     it('should resolve null for empty identifiers', async () => {
         await expect(pipe.transform('')).resolves.toBeNull();
-        expect(users_mod.searchStaff).not.toHaveBeenCalled();
+        expect(ts_client.get).not.toHaveBeenCalled();
     });
 
     it('should look up staff and cache the result', async () => {
-        const staff = new StaffUser({ id: 'user-1', name: 'User One' });
-        (users_mod.searchStaff as jest.Mock).mockResolvedValue([staff]);
+        (ts_client.get as any).mockResolvedValue([
+            { id: 'user-1', name: 'User One' },
+        ]);
 
         const first = await pipe.transform('user-1');
         const second = await pipe.transform('user-1');
 
-        expect(first).toBe(staff);
-        expect(second).toBe(staff);
-        // Second lookup should hit the cache, not the API
-        expect(users_mod.searchStaff).toHaveBeenCalledTimes(1);
+        expect(first).toBeInstanceOf(StaffUser);
+        expect(first.id).toBe('user-1');
+        expect(first.name).toBe('User One');
+        // Second lookup should hit the cache, returning the same instance
+        expect(second).toBe(first);
+        expect(ts_client.get).toHaveBeenCalledTimes(1);
     });
 
     it('should fall back to a placeholder user when no staff match', async () => {
-        (users_mod.searchStaff as jest.Mock).mockResolvedValue([]);
+        (ts_client.get as any).mockResolvedValue([]);
 
         const result = await pipe.transform('unknown-2');
 
@@ -42,9 +45,7 @@ describe('GetUserPipe', () => {
     });
 
     it('should fall back to a placeholder user when the lookup fails', async () => {
-        (users_mod.searchStaff as jest.Mock).mockRejectedValue(
-            new Error('nope'),
-        );
+        (ts_client.get as any).mockRejectedValue(new Error('nope'));
 
         const result = await pipe.transform('error-3');
 
@@ -59,6 +60,6 @@ describe('GetUserPipe', () => {
         const result = await pipe.transform('seed-4');
 
         expect(result).toBe(staff);
-        expect(users_mod.searchStaff).not.toHaveBeenCalled();
+        expect(ts_client.get).not.toHaveBeenCalled();
     });
 });

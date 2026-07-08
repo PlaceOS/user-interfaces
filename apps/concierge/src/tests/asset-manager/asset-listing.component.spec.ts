@@ -1,4 +1,5 @@
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { ComponentFixtureAutoDetect } from '@angular/core/testing';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
 import { AssetManagerStateService } from '../../app/asset-manager/asset-manager-state.service';
@@ -11,6 +12,7 @@ describe('AssetListingComponent', () => {
         component: AssetListingComponent,
         detectChanges: false,
         providers: [
+            { provide: ComponentFixtureAutoDetect, useValue: false },
             MockProvider(AssetManagerStateService, {
                 base_route: '/book/assets',
             } as any),

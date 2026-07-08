@@ -1,16 +1,15 @@
 import { TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { notifyError, notifySuccess } from '@placeos/common';
+import { setNotifyOutlet } from '@placeos/common';
 import { SignageMedia } from '@placeos/ts-client';
 import {
     BulkMediaUploadModalComponent,
     BulkMediaUploadModalData,
 } from '../../app/shared/bulk-media-upload-modal.component';
 
-jest.mock('@placeos/common', () => ({
-    ...jest.requireActual('@placeos/common'),
-    notifyError: jest.fn(),
-    notifySuccess: jest.fn(),
+const notify_open = vi.fn(() => ({
+    onAction: () => ({ subscribe: () => ({ unsubscribe: () => {} }) }),
+    dismiss: vi.fn(),
 }));
 
 function uploadItem(name: string) {
@@ -23,14 +22,15 @@ function uploadItem(name: string) {
 
 describe('BulkMediaUploadModalComponent', () => {
     const dialog_ref = {
-        close: jest.fn(),
+        close: vi.fn(),
         disableClose: false,
     };
-    const onUpload = jest.fn();
+    const onUpload = vi.fn();
     let modal_data: BulkMediaUploadModalData;
 
     beforeEach(async () => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
+        setNotifyOutlet({ open: notify_open } as any, true);
         dialog_ref.disableClose = false;
         onUpload.mockResolvedValue(new SignageMedia({ id: 'media-1' }));
         modal_data = {
@@ -64,7 +64,11 @@ describe('BulkMediaUploadModalComponent', () => {
             expect.any(Function),
         );
         expect(component.done_count()).toBe(2);
-        expect(notifySuccess).toHaveBeenCalled();
+        expect(notify_open).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['success'] }),
+        );
         expect(dialog_ref.close).toHaveBeenCalledWith(2);
         expect(dialog_ref.disableClose).toBe(false);
     });
@@ -81,7 +85,11 @@ describe('BulkMediaUploadModalComponent', () => {
         expect(component.error_count()).toBe(1);
         expect(component.done_count()).toBe(1);
         expect(component.rows()[0].error).toBe('Network error');
-        expect(notifyError).toHaveBeenCalled();
+        expect(notify_open).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['error'] }),
+        );
         expect(dialog_ref.close).not.toHaveBeenCalled();
 
         await component.uploadAll();

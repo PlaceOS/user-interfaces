@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { GroupEventCardComponent } from '@placeos/events';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { FooterMenuComponent } from '../../app/components/footer-menu.component';

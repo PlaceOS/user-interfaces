@@ -1,6 +1,7 @@
+import { ComponentFixtureAutoDetect } from '@angular/core/testing';
 import { inject, Injector, signal } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
     BookingFormService,
     generateBookingForm,
@@ -17,15 +18,16 @@ describe('ParkingRequestModalComponent', () => {
     let settings: Record<string, unknown>;
     let user_details: any;
     let model: BookingFormService['model'];
-    const post_form = jest.fn(async () => ({ id: 'req-1', status: 'approved' }));
-    const clear_form = jest.fn();
-    const close = jest.fn();
+    const post_form = vi.fn(async () => ({ id: 'req-1', status: 'approved' }));
+    const clear_form = vi.fn();
+    const close = vi.fn();
 
     const createComponent = createComponentFactory({
         component: ParkingRequestModalComponent,
         shallow: true,
         detectChanges: false,
         providers: [
+            { provide: ComponentFixtureAutoDetect, useValue: false },
             { provide: MAT_DIALOG_DATA, useFactory: () => data },
             {
                 provide: BookingFormService,
@@ -38,15 +40,15 @@ describe('ParkingRequestModalComponent', () => {
                     return {
                         model: ref.model,
                         form: ref.form,
-                        newForm: jest.fn(),
-                        setOptions: jest.fn(),
+                        newForm: vi.fn(),
+                        setOptions: vi.fn(),
                         postForm: post_form,
                         clearForm: clear_form,
-                    } as Partial<BookingFormService>;
+                    } as any;
                 },
             },
             MockProvider(ParkingService, {
-                loadBookings: jest.fn(),
+                loadBookings: vi.fn(),
                 user_details: (() => user_details) as any,
             }),
             MockProvider(OrganisationService, {
@@ -56,7 +58,7 @@ describe('ParkingRequestModalComponent', () => {
             } as any),
             MockProvider(MatDialogRef, { close } as any),
             MockProvider(SettingsService as any, {
-                get: jest.fn((key: string) => settings[key]),
+                get: vi.fn((key: string) => settings[key]),
             }),
         ],
     });

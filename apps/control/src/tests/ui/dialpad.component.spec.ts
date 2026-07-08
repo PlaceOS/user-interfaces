@@ -1,4 +1,4 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 
 import { DialpadComponent } from '../../app/ui/dialpad.component';
 
@@ -43,7 +43,7 @@ describe('DialpadComponent', () => {
     });
 
     it('should emit a backspace character when the backspace button is clicked', () => {
-        const spy = jest.fn();
+        const spy = vi.fn();
         spectator.component.pressed.subscribe(spy);
         const buttons = spectator.queryAll('button[digit]');
         spectator.click(buttons[buttons.length - 1]);

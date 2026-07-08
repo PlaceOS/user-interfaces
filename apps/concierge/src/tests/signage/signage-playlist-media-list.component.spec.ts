@@ -1,29 +1,25 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 import { signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { SettingsService } from '@placeos/common';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
+import {
+    SettingsService,
+    StaffUser,
+    setCurrentUser,
+    setNotifyOutlet,
+} from '@placeos/common';
 import { MediaAnimation } from '@placeos/ts-client';
 import { MockProvider } from 'ng-mocks';
 
-import * as common_mod from '@placeos/common';
 import { SignagePlaylistMediaListComponent } from '../../app/signage/signage-playlist-media-list.component';
 import { SignageStateService } from '../../app/signage/signage-state.service';
-
-jest.mock('@placeos/common', () => {
-    const actual = jest.requireActual('@placeos/common');
-    return {
-        ...actual,
-        currentUser: jest.fn(() => ({ groups: [] })),
-        notifyInfo: jest.fn(),
-    };
-});
 
 describe('SignagePlaylistMediaListComponent', () => {
     let spectator: Spectator<SignagePlaylistMediaListComponent>;
     let state: any;
     let router: any;
     let settings_map: Record<string, any>;
+    let notify_open: ReturnType<typeof vi.fn>;
 
     const createComponent = createComponentFactory({
         component: SignagePlaylistMediaListComponent,
@@ -33,28 +29,38 @@ describe('SignagePlaylistMediaListComponent', () => {
                 playlists: signal([{ id: 'p1', name: 'News' }]) as any,
                 media: signal([]) as any,
                 has_changed: signal(0) as any,
-                editPlaylist: jest.fn(),
-                removePlaylist: jest.fn(),
-                updatePlaylistMedia: jest.fn(async () => undefined),
-                previewMedia: jest.fn(),
-                editMedia: jest.fn(),
-                approvePlaylist: jest.fn(async () => undefined),
+                editPlaylist: vi.fn(),
+                removePlaylist: vi.fn(),
+                updatePlaylistMedia: vi.fn(async () => undefined),
+                previewMedia: vi.fn(),
+                editMedia: vi.fn(),
+                approvePlaylist: vi.fn(async () => undefined),
             }),
-            MockProvider(Clipboard, { copy: jest.fn() }),
+            MockProvider(Clipboard, { copy: vi.fn() }),
             MockProvider(SettingsService, {
-                get: jest.fn((key: string) => settings_map[key]),
+                get: vi.fn((key: string) => settings_map[key]),
             } as any),
         ],
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
+        notify_open = vi.fn(() => ({
+            onAction: () => ({ subscribe: () => undefined }),
+            dismiss: () => undefined,
+        }));
+        setNotifyOutlet({ open: notify_open } as any, true);
+        setCurrentUser(new StaffUser({ groups: [] }) as any);
         settings_map = { 'app.admin_group': 'signage-admin' };
-        router = { navigate: jest.fn() };
+        router = { navigate: vi.fn() };
         spectator = createComponent({
             providers: [MockProvider(Router, router)],
         });
         state = spectator.inject(SignageStateService) as any;
+    });
+
+    afterEach(() => {
+        setNotifyOutlet(null as any, true);
     });
 
     it('should map animation enum values to labels', () => {
@@ -68,25 +74,19 @@ describe('SignagePlaylistMediaListComponent', () => {
     });
 
     it('should treat members of the admin group as admins', () => {
-        (common_mod.currentUser as jest.Mock).mockReturnValue({
-            groups: ['signage-admin'],
-        });
+        setCurrentUser(new StaffUser({ groups: ['signage-admin'] }) as any);
 
         expect(spectator.component.is_admin).toBe(true);
     });
 
     it('should treat placeos_admin members as admins', () => {
-        (common_mod.currentUser as jest.Mock).mockReturnValue({
-            groups: ['placeos_admin'],
-        });
+        setCurrentUser(new StaffUser({ groups: ['placeos_admin'] }) as any);
 
         expect(spectator.component.is_admin).toBe(true);
     });
 
     it('should deny admin for users without the group', () => {
-        (common_mod.currentUser as jest.Mock).mockReturnValue({
-            groups: ['staff'],
-        });
+        setCurrentUser(new StaffUser({ groups: ['staff'] }) as any);
 
         expect(spectator.component.is_admin).toBe(false);
     });
@@ -109,7 +109,11 @@ describe('SignagePlaylistMediaListComponent', () => {
         await spectator.component.copyID('p1');
 
         expect(spectator.inject(Clipboard).copy).toHaveBeenCalledWith('p1');
-        expect(common_mod.notifyInfo).toHaveBeenCalled();
+        expect(notify_open).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['info'] }),
+        );
     });
 
     it('should skip reordering when the drop does not move the item', async () => {

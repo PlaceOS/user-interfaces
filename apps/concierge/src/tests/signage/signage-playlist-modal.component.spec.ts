@@ -1,6 +1,7 @@
+import { ComponentFixtureAutoDetect } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
 
 import { SignagePlaylistModalComponent } from '../../app/signage/signage-playlist-modal.component';
@@ -9,18 +10,19 @@ import { SignageStateService } from '../../app/signage/signage-state.service';
 describe('SignagePlaylistModalComponent', () => {
     let spectator: Spectator<SignagePlaylistModalComponent>;
     let data: any;
-    let save_playlist: jest.Mock;
+    let save_playlist: any;
 
     const createComponent = createComponentFactory({
         component: SignagePlaylistModalComponent,
         detectChanges: false,
         providers: [
-            MockProvider(MatDialogRef, { close: jest.fn() }),
+            { provide: ComponentFixtureAutoDetect, useValue: false },
+            MockProvider(MatDialogRef, { close: vi.fn() }),
         ],
     });
 
     function build() {
-        save_playlist = jest.fn(async () => undefined);
+        save_playlist = vi.fn(async () => undefined);
         spectator = createComponent({
             providers: [
                 { provide: MAT_DIALOG_DATA, useValue: data },
@@ -33,7 +35,7 @@ describe('SignagePlaylistModalComponent', () => {
     }
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         data = { id: 'pl-1', name: 'Promos', play_cron: '', play_at: 0 };
     });
 

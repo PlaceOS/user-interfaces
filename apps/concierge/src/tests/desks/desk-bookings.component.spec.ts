@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { MatMenuModule } from '@angular/material/menu';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { ActionIconComponent } from '@placeos/components';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
@@ -15,12 +15,12 @@ describe('DeskBookingsComponent', () => {
         component: DeskBookingsComponent,
         providers: [
             MockProvider(DesksStateService, {
-                setFilters: jest.fn(),
+                setFilters: vi.fn(),
                 bookings: signal([]),
                 filters: signal({}),
                 has_more_pages: signal(false),
                 loading: signal(false),
-                nextPage: jest.fn(),
+                nextPage: vi.fn(),
             } as any),
             MockProvider(SettingsService, { time_format: 'h:mm a' }),
         ],

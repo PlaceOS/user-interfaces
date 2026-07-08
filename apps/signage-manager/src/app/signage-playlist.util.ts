@@ -49,6 +49,14 @@ export function playlistMediaItems(list: {
         : media;
 }
 
+export function playlistMediaIds(list: {
+    items?: string[];
+    media?: SignageMedia[];
+    schedules?: SignagePlaylistItemSchedule[];
+}) {
+    return playlistMediaItems(list).map((item) => item.id);
+}
+
 export function playlistItemScheduleMap(list: {
     schedules?: SignagePlaylistItemSchedule[];
 }) {
@@ -219,4 +227,106 @@ export function playlistScheduleLabel(
     return `${humanizeCronSchedule(schedule.play_cron || '0 0 * * *', period)}${
         schedule.play_takeover ? ' · takeover' : ''
     }`;
+}
+
+function matchesCronPart(value: number, cron_part: string) {
+    if (cron_part === '*') return true;
+    if (cron_part.includes(',')) {
+        return cron_part
+            .split(',')
+            .some((item) => matchesCronPart(value, item));
+    }
+    if (cron_part.includes('/')) {
+        const [base, step] = cron_part.split('/');
+        return !!+step && value % +step === 0 && matchesCronPart(value, base);
+    }
+    if (cron_part.includes('-')) {
+        const [start, end] = cron_part.split('-').map(Number);
+        return value >= start && value <= end;
+    }
+    return Number(cron_part) === value;
+}
+
+function doesCronMatchDate(cron: string, date: Date) {
+    const parts = cron.trim().split(/\s+/);
+    if (parts.length !== 5) return false;
+    const [minute, hour, day, month, day_of_week] = parts;
+    if (!matchesCronPart(date.getMinutes(), minute)) return false;
+    if (!matchesCronPart(date.getHours(), hour)) return false;
+    if (!matchesCronPart(date.getMonth() + 1, month)) return false;
+    const day_matches = matchesCronPart(date.getDate(), day);
+    const weekday_matches = matchesCronPart(date.getDay(), day_of_week);
+    if (day === '*' && day_of_week === '*') return true;
+    if (day !== '*' && day_of_week === '*') return day_matches;
+    if (day === '*' && day_of_week !== '*') return weekday_matches;
+    if (isCronMonthlyWeekday(day, day_of_week)) {
+        return day_matches && weekday_matches;
+    }
+    return day_matches || weekday_matches;
+}
+
+function formatPlayDateTime(date: Date) {
+    return date.toLocaleString(undefined, {
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+    });
+}
+
+function formatPlayTime(date: Date) {
+    return date.toLocaleTimeString(undefined, {
+        hour: 'numeric',
+        minute: '2-digit',
+    });
+}
+
+function formatPlayDateTimeRange(start: Date, duration_minutes: number) {
+    const end = new Date(start);
+    end.setMinutes(end.getMinutes() + Math.max(0, duration_minutes || 0));
+    if (duration_minutes > 0) end.setSeconds(end.getSeconds() - 1);
+    const end_text =
+        start.toDateString() === end.toDateString()
+            ? formatPlayTime(end)
+            : formatPlayDateTime(end);
+    return `${formatPlayDateTime(start)} – ${end_text}`;
+}
+
+function nextCronPlayDates(cron: string, count: number) {
+    const result: Date[] = [];
+    if (!cron?.trim()) return result;
+    const date = new Date();
+    date.setSeconds(0, 0);
+    date.setMinutes(date.getMinutes() + 1);
+    const end = new Date(date);
+    end.setFullYear(end.getFullYear() + 2);
+    while (date <= end && result.length < count) {
+        if (doesCronMatchDate(cron, date)) result.push(new Date(date));
+        date.setMinutes(date.getMinutes() + 1);
+    }
+    return result;
+}
+
+export function playlistScheduleNextPlayLabels(
+    schedule: Partial<SignagePlaylistSchedule>,
+    count = 5,
+) {
+    const period = schedulePeriod(schedule);
+    if (schedule.play_at) {
+        const start = new Date(
+            schedule.play_at > 1_000_000_000_000
+                ? schedule.play_at
+                : schedule.play_at * 1000,
+        );
+        const end = new Date(start);
+        end.setMinutes(end.getMinutes() + Math.max(0, period || 0));
+        if (period > 0) end.setSeconds(end.getSeconds() - 1);
+        return end >= new Date()
+            ? [formatPlayDateTimeRange(start, period)]
+            : [];
+    }
+    return nextCronPlayDates(schedule.play_cron || '0 0 * * *', count).map(
+        (start) => formatPlayDateTimeRange(start, period),
+    );
 }

@@ -1,4 +1,5 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { ComponentFixtureAutoDetect } from '@angular/core/testing';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
@@ -8,17 +9,18 @@ import { EventsStateService } from '../../app/day-view/events-state.service';
 describe('ViewEventDetailsComponent', () => {
     let spectator: Spectator<ViewEventDetailsComponent>;
     const state = {
-        setEvent: jest.fn(),
-        newBooking: jest.fn(),
-        removeBooking: jest.fn(() => Promise.resolve(true)),
+        setEvent: vi.fn(),
+        newBooking: vi.fn(),
+        removeBooking: vi.fn(() => Promise.resolve(true)),
     };
-    const settings = { get: jest.fn(), time_format: 'h:mm a' };
+    const settings = { get: vi.fn(), time_format: 'h:mm a' };
 
     const createComponent = createComponentFactory({
         component: ViewEventDetailsComponent,
         shallow: true,
         detectChanges: false,
         providers: [
+            { provide: ComponentFixtureAutoDetect, useValue: false },
             MockProvider(EventsStateService, state as any),
             MockProvider(SettingsService, settings as any),
             MockProvider(OrganisationService, {

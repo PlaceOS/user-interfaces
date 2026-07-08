@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
+import { createRoutingFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
     BuildingLevel,
     OrganisationService,
@@ -18,7 +18,7 @@ describe('MeetingFlowSuccessComponent', () => {
         display_name: 'Level 2',
     } as any);
     const create_settings = () => ({
-        get: jest.fn((key: string) => {
+        get: vi.fn((key: string) => {
             if (key === 'app.features') return ['desks'];
             if (key === 'app.events.hide_nearby_desks')
                 return hide_nearby_desks;
@@ -46,14 +46,14 @@ describe('MeetingFlowSuccessComponent', () => {
                 },
             },
             MockProvider(OrganisationService, {
-                levelWithID: jest.fn((zones = []) =>
+                levelWithID: vi.fn((zones = []) =>
                     zones.includes('level-2') ? level_2 : null,
                 ),
             } as any),
         ],
         componentProviders: [
             MockProvider(SpacePipe, {
-                transform: jest.fn(() =>
+                transform: vi.fn(() =>
                     Promise.resolve({
                         email: 'room@placeos.test',
                         id: 'room-1',

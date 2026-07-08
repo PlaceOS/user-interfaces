@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
@@ -16,7 +16,7 @@ describe('DeskQrCodeModalComponent', () => {
         detectChanges: false,
         providers: [
             MockProvider(SettingsService, {
-                get: jest.fn((key: string) => settings[key]),
+                get: vi.fn((key: string) => settings[key]),
             } as any),
             MockProvider(DesksStateService, { desks } as any),
         ],
@@ -56,10 +56,10 @@ describe('DeskQrCodeModalComponent', () => {
     });
 
     it('should print directly when no qr list element is present', () => {
-        const print_spy = jest
+        const print_spy = vi
             .spyOn(window, 'print')
             .mockImplementation(() => undefined);
-        jest.spyOn(document, 'querySelector').mockReturnValue(null);
+        vi.spyOn(document, 'querySelector').mockReturnValue(null);
 
         spectator.component.print();
 

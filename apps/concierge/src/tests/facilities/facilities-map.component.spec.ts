@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { InteractiveMapComponent } from '@placeos/components';
 import {
     ExploreStateService,
@@ -13,7 +13,7 @@ import { FacilitiesMapComponent } from '../../app/facilities/facilities-map.comp
 describe('FacilitiesMapComponent', () => {
     let spectator: Spectator<FacilitiesMapComponent>;
     let zones: ReturnType<typeof signal<string[]>>;
-    let set_level: jest.Mock;
+    let set_level: any;
 
     const createComponent = createComponentFactory({
         component: FacilitiesMapComponent,
@@ -39,7 +39,7 @@ describe('FacilitiesMapComponent', () => {
     });
 
     beforeEach(() => {
-        set_level = jest.fn();
+        set_level = vi.fn();
         zones = signal([]);
         spectator = createComponent();
     });

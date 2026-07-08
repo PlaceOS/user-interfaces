@@ -2,28 +2,28 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { form } from '@angular/forms/signals';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { notifySuccess } from '@placeos/common';
+import { setNotifyOutlet } from '@placeos/common';
 import { PlaylistEditModalComponent } from '../../app/shared/playlist-edit-modal.component';
 import {
     createPlaylistScheduleModel,
     PlaylistScheduleFormComponent,
 } from '../../app/shared/playlist-schedule-form.component';
 
-jest.mock('@placeos/common', () => ({
-    ...jest.requireActual('@placeos/common'),
-    notifyError: jest.fn(),
-    notifySuccess: jest.fn(),
+const notify_open = vi.fn(() => ({
+    onAction: () => ({ subscribe: () => ({ unsubscribe: () => {} }) }),
+    dismiss: vi.fn(),
 }));
 
 describe('PlaylistEditModalComponent', () => {
     const dialog_ref = {
-        close: jest.fn(),
+        close: vi.fn(),
         disableClose: false,
     };
-    const onEdit = jest.fn();
+    const onEdit = vi.fn();
 
     beforeEach(async () => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
+        setNotifyOutlet({ open: notify_open } as any, true);
         dialog_ref.disableClose = false;
         onEdit.mockResolvedValue({ id: 'playlist-1' });
         await TestBed.configureTestingModule({
@@ -93,7 +93,37 @@ describe('PlaylistEditModalComponent', () => {
             }),
         );
         expect(dialog_ref.close).toHaveBeenCalledWith({ id: 'playlist-1' });
-        expect(notifySuccess).toHaveBeenCalledWith('Playlist saved');
+        expect(notify_open).toHaveBeenCalledWith(
+            'Playlist saved',
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['success'] }),
+        );
+    });
+
+    it('starts blank validity dates as empty values', () => {
+        const fixture = TestBed.createComponent(PlaylistEditModalComponent);
+        const component = fixture.componentInstance;
+
+        expect(component.model().valid_from).toBeNull();
+        expect(component.model().valid_until).toBeNull();
+    });
+
+    it('does not save playlist-level schedules for distribution playlists', async () => {
+        const fixture = TestBed.createComponent(PlaylistEditModalComponent);
+        const component = fixture.componentInstance;
+
+        component.model.update((model) => ({
+            ...model,
+            distribution: true,
+            name: 'Playlist 1',
+        }));
+
+        await component.savePlaylist();
+
+        expect(onEdit).toHaveBeenCalledWith(
+            'playlist-1',
+            expect.not.objectContaining({ schedules: expect.anything() }),
+        );
     });
 
     it('saves multiple schedules', async () => {
@@ -155,7 +185,7 @@ describe('PlaylistEditModalComponent', () => {
     it('keeps at least one schedule', () => {
         const fixture = TestBed.createComponent(PlaylistEditModalComponent);
         const component = fixture.componentInstance;
-        const event = { preventDefault: jest.fn(), stopPropagation: jest.fn() };
+        const event = { preventDefault: vi.fn(), stopPropagation: vi.fn() };
 
         component.removeSchedule(event as any, 0);
 

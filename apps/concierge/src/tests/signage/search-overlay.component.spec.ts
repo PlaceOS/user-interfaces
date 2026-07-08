@@ -1,4 +1,4 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 
 import { SearchOverlayComponent } from '../../app/signage/search-overlay.component';
 
@@ -38,7 +38,7 @@ describe('SearchOverlayComponent', () => {
     it('should emit the selected item when a result is chosen', () => {
         const item = { id: '2', name: 'Beta' };
         spectator.setInput('item_list', [item]);
-        const selected = jest.fn();
+        const selected = vi.fn();
         spectator.component.selected.subscribe(selected);
 
         spectator.component.selected.emit(item);

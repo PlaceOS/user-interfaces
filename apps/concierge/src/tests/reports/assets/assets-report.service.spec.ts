@@ -1,22 +1,13 @@
 import { ApplicationRef } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
-import { OrganisationService, SettingsService } from '@placeos/common';
+import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
+import { OrganisationService, SettingsService, setNotifyOutlet } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
-import * as asset_mod from '@placeos/assets';
-import * as booking_mod from '@placeos/bookings';
+import * as ts_client from '@placeos/ts-client';
 import { AssetsReportService } from 'apps/concierge/src/app/reports/assets/assets-report.service';
 
-jest.mock('@placeos/assets');
-jest.mock('@placeos/bookings');
-jest.mock('@placeos/common', () => ({
-    ...jest.requireActual('@placeos/common'),
-    downloadFile: jest.fn(),
-    jsonToCsv: jest.fn(() => 'csv'),
-    notifyError: jest.fn(),
-}));
-import { downloadFile, jsonToCsv, notifyError } from '@placeos/common';
+vi.mock('@placeos/ts-client', { spy: true });
 
 const day_1 = new Date('2026-04-06T09:00:00').valueOf();
 
@@ -28,20 +19,25 @@ function makeBooking(overrides: any = {}) {
         status: 'approved',
         asset_id: 'a1',
         asset_ids: [],
+        booking_start: 1,
+        booking_end: 2,
         linked_event: null,
         linked_bookings: [],
-        toJSON: () => ({ booking_start: 1, booking_end: 2 }),
         ...overrides,
     };
 }
 
 describe('AssetsReportService', () => {
     let spectator: SpectatorService<AssetsReportService>;
+    let notify_open: ReturnType<typeof vi.fn>;
+    let last_anchor: HTMLAnchorElement | null;
+    let create_spy: any;
+
     const createService = createServiceFactory({
         service: AssetsReportService,
         providers: [
             MockProvider(SettingsService, {
-                get: jest.fn(() => false),
+                get: vi.fn(() => false),
             } as any),
             MockProvider(OrganisationService, {
                 building: { id: 'building-1' },
@@ -55,20 +51,50 @@ describe('AssetsReportService', () => {
     }
 
     beforeEach(() => {
-        (downloadFile as jest.Mock).mockClear();
-        (jsonToCsv as jest.Mock).mockClear();
-        (notifyError as jest.Mock).mockClear();
-        (asset_mod.queryAssetGroupsExtended as jest.Mock).mockResolvedValue([
-            { name: 'Laptop', assets: [{ id: 'a1' }, { id: 'a2' }] },
-        ]);
-        (asset_mod.queryAssetPurchaseOrders as jest.Mock).mockResolvedValue({
+        vi.clearAllMocks();
+        notify_open = vi.fn(() => ({
+            onAction: () => ({ subscribe: () => undefined }),
+            dismiss: () => undefined,
+        }));
+        setNotifyOutlet({ open: notify_open } as any, true);
+
+        last_anchor = null;
+        const real_create = Document.prototype.createElement;
+        create_spy = vi
+            .spyOn(document, 'createElement')
+            .mockImplementation(function (this: any, tag: any, opts?: any) {
+                const el = real_create.call(document, tag, opts);
+                if (String(tag).toLowerCase() === 'a') last_anchor = el;
+                return el;
+            });
+
+        // queryAssetGroupsExtended -> queryAssetTypes + queryAssets (ts-client)
+        (ts_client.queryAssetTypes as any).mockResolvedValue({
+            data: [{ id: 't1', name: 'Laptop' }],
+            total: 1,
+        });
+        (ts_client.queryAssets as any).mockResolvedValue({
+            data: [
+                { id: 'a1', asset_type_id: 't1' },
+                { id: 'a2', asset_type_id: 't1' },
+            ],
+            total: 2,
+        });
+        // queryAssetPurchaseOrders (ts-client)
+        (ts_client.queryAssetPurchaseOrders as any).mockResolvedValue({
             data: [{ expected_service_end_date: 100 }],
         });
-        (booking_mod.queryBookings as jest.Mock).mockResolvedValue([
+        // queryBookings -> get (ts-client)
+        (ts_client.get as any).mockResolvedValue([
             makeBooking({ asset_ids: ['a1'] }),
             makeBooking({ asset_ids: ['a2'], status: 'cancelled' }),
         ]);
         spectator = createService();
+    });
+
+    afterEach(() => {
+        create_spy?.mockRestore();
+        setNotifyOutlet(null as any, true);
     });
 
     it('should create service', () => {
@@ -86,13 +112,10 @@ describe('AssetsReportService', () => {
         spectator.service.generateReport();
         await settle();
 
-        expect(booking_mod.queryBookings).toHaveBeenCalledWith(
-            expect.objectContaining({
-                type: 'asset-request',
-                include_checked_out: true,
-                zones: 'building-1',
-            }),
-        );
+        const url = (ts_client.get as any).mock.calls[0][0];
+        expect(url).toContain('type=asset-request');
+        expect(url).toContain('include_checked_out=true');
+        expect(url).toContain('zones=building-1');
         expect(spectator.service.bookings()).toHaveLength(2);
         expect(spectator.service.products()).toHaveLength(1);
     });
@@ -109,16 +132,20 @@ describe('AssetsReportService', () => {
     });
 
     it('should notify when no bookings are returned', async () => {
-        (booking_mod.queryBookings as jest.Mock).mockResolvedValue([]);
+        (ts_client.get as any).mockResolvedValue([]);
         spectator.service.generateReport();
         await settle();
 
-        expect(notifyError).toHaveBeenCalled();
+        expect(notify_open).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['error'] }),
+        );
     });
 
     it('should not download when there are no bookings', async () => {
         await spectator.service.downloadReport();
-        expect(downloadFile).not.toHaveBeenCalled();
+        expect(last_anchor).toBeNull();
     });
 
     it('should download the loaded bookings as a tsv file', async () => {
@@ -127,10 +154,9 @@ describe('AssetsReportService', () => {
         await settle();
 
         await spectator.service.downloadReport();
-        expect(jsonToCsv).toHaveBeenCalled();
-        expect(downloadFile).toHaveBeenCalledWith(
-            expect.stringMatching(/^report\+assets\+2026-04-06\.tsv$/),
-            'csv',
+        expect(last_anchor).not.toBeNull();
+        expect(last_anchor?.getAttribute('download')).toMatch(
+            /^report\+assets\+2026-04-06\.tsv$/,
         );
     });
 });

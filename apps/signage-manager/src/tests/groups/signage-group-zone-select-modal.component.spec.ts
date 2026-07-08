@@ -4,7 +4,7 @@ import { SignageGroupZoneSelectModalComponent } from '../../app/groups/signage-g
 import { SignageService } from '../../app/signage.service';
 
 describe('SignageGroupZoneSelectModalComponent', () => {
-    const search_group_zones = jest.fn();
+    const search_group_zones = vi.fn();
     const service_stub = { searchGroupZones: search_group_zones };
     let modal_data: { exclude_ids?: string[] };
 
@@ -22,7 +22,7 @@ describe('SignageGroupZoneSelectModalComponent', () => {
     }
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         search_group_zones.mockResolvedValue([]);
         modal_data = {};
     });

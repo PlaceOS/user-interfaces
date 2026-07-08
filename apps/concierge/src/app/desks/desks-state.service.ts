@@ -457,7 +457,7 @@ export class DesksStateService extends AsyncHandler {
             new_desk.assigned_to
         ) {
             const created = await saveBooking(
-                this._createAssignedBooking(new_desk, zone),
+                this._createAssignedBooking(new_desk, zone).toJSON(),
             ).catch(async (e) => {
                 await this._rollbackMetadata(zone, original_desk_list);
                 if (recreate) {
@@ -605,7 +605,7 @@ export class DesksStateService extends AsyncHandler {
 
     public async giveAccess(desk: Booking) {
         const status: any = await saveBooking(
-            new Booking({ ...desk, access: true }),
+            new Booking({ ...desk, access: true }).toJSON(),
         ).catch((_) => ({ failed: true, error: _ }));
         if (status.failed) {
             return notifyError(
@@ -778,7 +778,7 @@ export class DesksStateService extends AsyncHandler {
 
     private async _restoreAssignedBooking(desk: Desk, zone?: string) {
         if (!desk.assigned_to) return;
-        await saveBooking(this._createAssignedBooking(desk, zone));
+        await saveBooking(this._createAssignedBooking(desk, zone).toJSON());
     }
 
     private async _clearAssignedBooking(desk: Desk) {

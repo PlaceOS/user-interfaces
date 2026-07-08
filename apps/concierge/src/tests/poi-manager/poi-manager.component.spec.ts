@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { Building, OrganisationService, SettingsService } from '@placeos/common';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
@@ -25,7 +25,7 @@ describe('POIManagerComponent', () => {
         ],
         providers: [
             MockProvider(POIManagementService, {
-                editPointOfInterest: jest.fn(),
+                editPointOfInterest: vi.fn(),
             } as any),
             MockProvider(SettingsService, {
                 get: ((name: string) => settings_map[name]) as any,

@@ -1,5 +1,5 @@
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
 
 import { BuildingModalComponent } from '../../app/building-manager/building-modal.component';
@@ -13,7 +13,7 @@ describe('BuildingModalComponent', () => {
         detectChanges: false,
         providers: [
             MockProvider(MAT_DIALOG_DATA, { id: 'b1', display_name: 'Tower' }),
-            MockProvider(MatDialogRef, { close: jest.fn() }),
+            MockProvider(MatDialogRef, { close: vi.fn() }),
         ],
     });
 

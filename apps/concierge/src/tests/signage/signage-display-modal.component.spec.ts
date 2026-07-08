@@ -1,19 +1,12 @@
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { OrganisationService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
 import * as ts_client_mod from '@placeos/ts-client';
 import { SignageDisplayModalComponent } from '../../app/signage/signage-display-modal.component';
 
-jest.mock('@placeos/ts-client', () => {
-    const actual = jest.requireActual('@placeos/ts-client');
-    return {
-        ...actual,
-        addSystem: jest.fn(async () => ({ id: 'sys-new' })),
-        updateSystem: jest.fn(async () => ({ id: 'sys-1' })),
-    };
-});
+vi.mock('@placeos/ts-client', { spy: true });
 
 describe('SignageDisplayModalComponent', () => {
     let spectator: Spectator<SignageDisplayModalComponent>;
@@ -23,7 +16,7 @@ describe('SignageDisplayModalComponent', () => {
         component: SignageDisplayModalComponent,
         detectChanges: false,
         providers: [
-            MockProvider(MatDialogRef, { close: jest.fn() }),
+            MockProvider(MatDialogRef, { close: vi.fn() }),
             MockProvider(OrganisationService, {
                 organisation: { id: 'org-1' } as any,
                 region: { id: 'region-1' } as any,
@@ -39,7 +32,10 @@ describe('SignageDisplayModalComponent', () => {
     }
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
+        // `spy: true` keeps real ts-client impls, which hang on live HTTP.
+        (ts_client_mod.addSystem as any).mockResolvedValue({ id: 'sys-new' });
+        (ts_client_mod.updateSystem as any).mockResolvedValue({ id: 'sys-1' });
         display = { id: '', zones: [] };
     });
 

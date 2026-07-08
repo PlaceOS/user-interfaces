@@ -1,12 +1,12 @@
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { OrganisationService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
 import { BookingRulesModalComponent } from '../../app/ui/booking-rules-modal.component';
 
-jest.mock('@placeos/ts-client');
+vi.mock('@placeos/ts-client', { spy: true });
 import * as ts_client from '@placeos/ts-client';
 
 describe('BookingRulesModalComponent', () => {
@@ -18,7 +18,7 @@ describe('BookingRulesModalComponent', () => {
         detectChanges: false,
         providers: [
             MockProvider(MAT_DIALOG_DATA, { type: 'desk' }),
-            MockProvider(MatDialog, { open: jest.fn() } as any),
+            MockProvider(MatDialog, { open: vi.fn() } as any),
             MockProvider(OrganisationService, {
                 active_building: signal({ id: 'bld-1' }),
                 building: { id: 'bld-1' },
@@ -27,10 +27,10 @@ describe('BookingRulesModalComponent', () => {
     });
 
     beforeEach(() => {
-        (ts_client.showMetadata as jest.Mock).mockResolvedValue({
+        (ts_client.showMetadata as any).mockResolvedValue({
             details: [],
         });
-        (ts_client.updateMetadata as jest.Mock).mockResolvedValue({});
+        (ts_client.updateMetadata as any).mockResolvedValue({});
         spectator = createComponent();
     });
 

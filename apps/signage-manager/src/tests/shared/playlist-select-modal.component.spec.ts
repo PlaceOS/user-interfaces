@@ -9,7 +9,7 @@ describe('PlaylistSelectModalComponent', () => {
     const service = { playlists };
 
     beforeEach(async () => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         playlists.set([
             { id: 'p1', name: 'Morning Loop' },
             { id: 'p2', name: 'Evening News', description: 'After hours' },

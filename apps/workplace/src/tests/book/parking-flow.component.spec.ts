@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { BookingFormService, ParkingService } from '@placeos/bookings';
 import { OrganisationService } from '@placeos/common';
 import { MockComponent, MockProvider } from 'ng-mocks';
@@ -48,20 +48,20 @@ describe('NewParkingFlowComponent', () => {
                     view,
                     model,
                     last_success: null,
-                    loadForm: jest.fn(),
-                    newForm: jest.fn(),
-                    setOptions: jest.fn(),
-                    setView: jest.fn(),
+                    loadForm: vi.fn(),
+                    newForm: vi.fn(),
+                    setOptions: vi.fn(),
+                    setView: vi.fn(),
                 } as any),
                 MockProvider(ParkingService, {
                     deny_parking_access,
                     assigned_space,
                     has_booking,
                     is_home_location,
-                    loadBookings: jest.fn(),
+                    loadBookings: vi.fn(),
                 } as any),
                 MockProvider(OrganisationService, {
-                    waitUntilInitialised: jest.fn(() => Promise.resolve()),
+                    waitUntilInitialised: vi.fn(() => Promise.resolve()),
                 } as any),
             ],
         });
