@@ -1,27 +1,27 @@
 import {
   subMinutes
-} from "./chunk-22AGXRUW.js";
+} from "./chunk-F2HAW2T6.js";
 import {
   subDays
-} from "./chunk-5BRUZ6J6.js";
+} from "./chunk-4PO5JCWE.js";
 import {
   subMonths
-} from "./chunk-WWABVAGU.js";
+} from "./chunk-QXKZHMHC.js";
 import {
   setMinutes
-} from "./chunk-HTNYJQB3.js";
+} from "./chunk-46YJ2BRF.js";
 import {
   MatProgressBar,
   MatProgressBarModule
-} from "./chunk-WL6UUIE2.js";
+} from "./chunk-VNKVI5DM.js";
 import {
   setHours
-} from "./chunk-WYIGRJIP.js";
+} from "./chunk-YUC3ZSOC.js";
 import {
   generateMockSpace
-} from "./chunk-GVWIFEHT.js";
-import "./chunk-QH2JDXCP.js";
-import "./chunk-2ZFYIAAG.js";
+} from "./chunk-NX4KDQXQ.js";
+import "./chunk-ZN3NLR67.js";
+import "./chunk-IYBKNLIN.js";
 import {
   $r,
   ANIMATION_MODULE_TYPE,
@@ -200,7 +200,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-QTFLBZF7.js";
+} from "./chunk-3VEZ5YST.js";
 import {
   __objRest,
   __spreadProps,
@@ -6875,6 +6875,32 @@ function generateMockTriggers() {
 var MOCK_DISPLAYS = generateMockDisplays();
 var MOCK_MEDIA = generateMockMedia();
 var MOCK_PLAYLISTS = generateMockPlaylists(MOCK_DISPLAYS, MOCK_MEDIA);
+var MOCK_PLUGINS = [
+  {
+    id: "weather",
+    name: "Weather",
+    description: "Current weather signage widget",
+    uri: "/plugins/weather/index.html",
+    enabled: true,
+    defaults: { units: "metric" },
+    params: {
+      location: {
+        type: "string",
+        title: "Location",
+        default: "Sydney"
+      }
+    }
+  },
+  {
+    id: "clock",
+    name: "Clock",
+    description: "Clock signage widget",
+    uri: "/plugins/clock/index.html",
+    enabled: true,
+    defaults: { format: "24h" },
+    params: {}
+  }
+];
 var MOCK_TRIGGERS = generateMockTriggers();
 var SIGNAGE_GROUPS = [
   {
@@ -6958,7 +6984,8 @@ function toEngineMedia(item) {
     created_at: item.created_at,
     updated_at: item.updated_at,
     valid_from: item.scheduling?.start_date,
-    valid_until: item.scheduling?.end_date
+    valid_until: item.scheduling?.end_date,
+    tags: item.tags || []
   };
 }
 function toEnginePlaylist(item) {
@@ -6982,9 +7009,42 @@ function playlistMediaResponse(playlist_id, approved = false) {
     id: `${playlist_id}-media`,
     playlist_id,
     items: (playlist?.items || []).map((item) => item.media_id),
+    schedules: (playlist?.items || []).map((item) => ({
+      id: item.id,
+      item_id: item.media_id,
+      schedules: []
+    })),
     approved,
     approval_requested: false,
     updated_at: playlist?.updated_at || getUnixTime(Date.now())
+  };
+}
+function signageDisplay(display_id) {
+  if (display_id === "display-1") {
+    throw { status: 404, message: "Display not found" };
+  }
+  const display = MOCK_DISPLAYS.find((item) => item.id === display_id) || MOCK_DISPLAYS[0];
+  const playlists = MOCK_PLAYLISTS.filter((playlist) => playlist.target?.displays?.includes(display.id) || playlist.target?.zones?.includes(display.zone_id)).slice(0, 3);
+  const mapped_playlists = playlists.length ? playlists : MOCK_PLAYLISTS.slice(0, 2);
+  const media_ids = [
+    ...new Set(mapped_playlists.flatMap((playlist) => playlist.items.map((item) => item.media_id)))
+  ];
+  return {
+    id: display_id,
+    zones: [display.zone_id, display.building_id].filter(Boolean),
+    playlist_mappings: {
+      [display_id]: mapped_playlists.map((playlist) => playlist.id),
+      [display.zone_id]: []
+    },
+    playlist_config: Object.fromEntries(mapped_playlists.map((playlist) => [
+      playlist.id,
+      [
+        toEnginePlaylist(playlist),
+        playlist.items.map((item) => item.media_id)
+      ]
+    ])),
+    playlist_media: media_ids.map((id) => MOCK_MEDIA.find((item) => item.id === id)).filter((item) => !!item).map(toEngineMedia),
+    plugins: MOCK_PLUGINS
   };
 }
 function registerMockSignage() {
@@ -7172,6 +7232,14 @@ function registerMockSignage() {
     callback: (request) => filterByGroup(MOCK_MEDIA, request.query_params?.group_id).map(toEngineMedia)
   });
   Zr({
+    path: "/api/engine/v2/signage/media/tags",
+    metadata: {},
+    method: "GET",
+    callback: (request) => [
+      ...new Set(filterByGroup(MOCK_MEDIA, request.query_params?.group_id).flatMap((item) => item.tags || []).filter((tag) => !!tag))
+    ]
+  });
+  Zr({
     path: "/api/engine/v2/signage/media",
     metadata: {},
     method: "POST",
@@ -7180,6 +7248,12 @@ function registerMockSignage() {
       created_at: getUnixTime(Date.now()),
       updated_at: getUnixTime(Date.now())
     })
+  });
+  Zr({
+    path: "/api/engine/v2/signage/media/:id",
+    metadata: {},
+    method: "GET",
+    callback: (request) => toEngineMedia(MOCK_MEDIA.find((item) => item.id === request.route_params.id))
   });
   Zr({
     path: "/api/engine/v2/signage/media/:id",
@@ -7196,10 +7270,28 @@ function registerMockSignage() {
     callback: () => ({})
   });
   Zr({
+    path: "/api/engine/v2/signage/media/:id/thumbnail",
+    metadata: {},
+    method: "GET",
+    callback: () => ({})
+  });
+  Zr({
     path: "/api/engine/v2/signage/media/share",
     metadata: {},
     method: "POST",
     callback: () => ({})
+  });
+  Zr({
+    path: "/api/engine/v2/signage/plugins",
+    metadata: {},
+    method: "GET",
+    callback: () => MOCK_PLUGINS
+  });
+  Zr({
+    path: "/api/engine/v2/signage/plugins/:id",
+    metadata: {},
+    method: "GET",
+    callback: (request) => MOCK_PLUGINS.find((plugin) => plugin.id === request.route_params.id) || {}
   });
   Zr({
     path: "/api/engine/v2/signage/playlists",
@@ -7256,6 +7348,30 @@ function registerMockSignage() {
     })
   });
   Zr({
+    path: "/api/engine/v2/signage/playlists/:id/media/schedule",
+    metadata: {},
+    method: "POST",
+    callback: (request) => __spreadProps(__spreadValues({}, playlistMediaResponse(request.route_params.id, false)), {
+      schedules: [
+        {
+          id: `schedule-${Date.now()}`,
+          item_id: request.body?.item_id,
+          schedules: request.body?.schedules || []
+        }
+      ]
+    })
+  });
+  Zr({
+    path: "/api/engine/v2/signage/playlists/:id/media/schedule/:item_id",
+    metadata: {},
+    method: "PATCH",
+    callback: (request) => ({
+      id: request.route_params.item_id,
+      item_id: request.body?.item_id || request.route_params.item_id,
+      schedules: request.body?.schedules || []
+    })
+  });
+  Zr({
     path: "/api/engine/v2/signage/playlists/:id/media/revisions",
     metadata: {},
     method: "GET",
@@ -7278,6 +7394,18 @@ function registerMockSignage() {
   });
   Zr({
     path: "/api/engine/v2/signage/playlists/share",
+    metadata: {},
+    method: "POST",
+    callback: () => ({})
+  });
+  Zr({
+    path: "/api/engine/v2/signage/:id",
+    metadata: {},
+    method: "GET",
+    callback: (request) => signageDisplay(request.route_params.id)
+  });
+  Zr({
+    path: "/api/engine/v2/signage/:id/metrics",
     metadata: {},
     method: "POST",
     callback: () => ({})
@@ -14059,105 +14187,105 @@ var routes = [
   {
     path: "book/rooms",
     title: "Room Bookings",
-    loadChildren: () => import("./day-view.routes-NGUXH676.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./day-view.routes-4QXQFP4D.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "facilities",
     title: "Facilities",
-    loadChildren: () => import("./facilities.routes-KSA6HT3Q.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./facilities.routes-DT7OZ3K2.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "book/visitors",
     title: "Visitors",
-    loadChildren: () => import("./visitors.routes-7BAKKEMU.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./visitors.routes-RAGU2G3Q.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "book/assets",
     title: "Assets",
-    loadChildren: () => import("./asset-manager.routes-AF6ZZRFD.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./asset-manager.routes-UOA2X4RW.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "book/desks",
     title: "Desk Bookings",
-    loadChildren: () => import("./desks.routes-EFQBKSI7.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./desks.routes-EZI4CGVL.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "book/lockers",
     title: "Locker Bookings",
-    loadChildren: () => import("./lockers.routes-VSOWSFGD.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./lockers.routes-ZSPPULNA.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "reports",
     title: "Reports",
-    loadChildren: () => import("./reports.routes-TCSA5B7R.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./reports.routes-ULZJOSSO.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "entertainment/events",
     title: "Events",
-    loadChildren: () => import("./events.routes-EVSFQI3A.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./events.routes-M2IZQVVK.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "users/staff",
     title: "Staff",
-    loadChildren: () => import("./staff.routes-OEMQE2JH.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./staff.routes-4SQC664J.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "book/catering",
     title: "Catering",
-    loadChildren: () => import("./catering.routes-FBXQVD2P.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./catering.routes-Y7LOTVAY.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "points-management",
     title: "Points Management",
-    loadChildren: () => import("./points.routes-RFQH6I67.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./points.routes-7W3XLZTG.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "book/parking",
     title: "Parking Bookings",
-    loadChildren: () => import("./parking.routes-QAIBIGW3.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./parking.routes-BVA5H5YN.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "surveys",
     title: "Surveys",
-    loadChildren: () => import("./surveys.routes-E57GYCH6.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./surveys.routes-YGKSGKRO.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "room-management",
     title: "Room Management",
-    loadChildren: () => import("./room-manager.routes-YSHEGRWH.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./room-manager.routes-IU3UA7GQ.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "zone-management",
     title: "Zone Management",
-    loadChildren: () => import("./zone-manager.routes-5IGEEKZY.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./zone-manager.routes-THXSNENM.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
@@ -14176,31 +14304,31 @@ var routes = [
   {
     path: "email-templates",
     title: "Email Templates",
-    loadChildren: () => import("./email-templates.routes-ADBQPHQ4.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./email-templates.routes-4PCO4ZSU.js").then((m) => m.ROUTES)
   },
   {
     path: "deals-n-offers",
     title: "Deals & Offers",
-    loadChildren: () => import("./deals.routes-JGGN2FGW.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./deals.routes-WIMV2PJN.js").then((m) => m.ROUTES)
   },
   {
     path: "points-of-interest",
     title: "Points of Interest",
-    loadChildren: () => import("./poi-manager.routes-Q46GXT3Q.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./poi-manager.routes-JHUIF6WE.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "url-management",
     title: "URL Management",
-    loadChildren: () => import("./url-manager.routes-BGMSRYYA.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./url-manager.routes-EUBD4PHR.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "signage",
     title: "Signage",
-    loadChildren: () => import("./signage.routes-4HTHFY3R.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./signage.routes-Y35E47RL.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
