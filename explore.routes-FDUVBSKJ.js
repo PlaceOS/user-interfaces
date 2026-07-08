@@ -41,7 +41,7 @@ import {
   setHours,
   setMinutes,
   showStaff
-} from "./chunk-TMNGW7OA.js";
+} from "./chunk-QT3A4SDR.js";
 import {
   ANIMATION_SHOW_CONTRACT_EXPAND,
   ActivatedRoute,
@@ -307,7 +307,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-ZI4LL6SP.js";
+} from "./chunk-BSATCDHV.js";
 import {
   __spreadProps,
   __spreadValues
@@ -5097,7 +5097,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
   }
   _allDayTimeRange(date) {
     const period = this._settings.get("app.events.all_day_period");
-    return getAllDayTimeRange(date, this.timezone, period?.start, period?.end, this._model().id ? void 0 : Date.now());
+    return getAllDayTimeRange(date, this.timezone, period?.start, period?.end);
   }
   /** Resolve the bookable space list for the given zone */
   _requestSpaces(zone_id) {
@@ -12148,4 +12148,4 @@ var ROUTES = [
 export {
   ROUTES
 };
-//# sourceMappingURL=explore.routes-PQMFYM2X.js.map
+//# sourceMappingURL=explore.routes-FDUVBSKJ.js.map

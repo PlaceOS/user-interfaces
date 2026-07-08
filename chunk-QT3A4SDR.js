@@ -322,7 +322,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-ZI4LL6SP.js";
+} from "./chunk-BSATCDHV.js";
 import {
   __objRest,
   __spreadProps,
@@ -10071,7 +10071,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
   }
   _allDayTimeRange(date) {
     const period = this.setting("all_day_period");
-    return getAllDayTimeRange(date, this.timezone, period?.start, period?.end, this.model().id ? void 0 : Date.now());
+    return getAllDayTimeRange(date, this.timezone, period?.start, period?.end);
   }
   /**
    * Re-apply the supplied booking window after async form setup only if no
@@ -11926,4 +11926,4 @@ export {
   CalendarService,
   BookingFormService
 };
-//# sourceMappingURL=chunk-TMNGW7OA.js.map
+//# sourceMappingURL=chunk-QT3A4SDR.js.map
