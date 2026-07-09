@@ -539,6 +539,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .bottom-16 {
   bottom: calc(var(--spacing) * 16);
 }
+#placeos .bottom-123 {
+  bottom: calc(var(--spacing) * 123);
+}
 #placeos .bottom-\[1em\] {
   bottom: 1em;
 }
@@ -1542,6 +1545,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .w-3\/4 {
   width: calc(3 / 4 * 100%);
 }
+#placeos .w-3\/5 {
+  width: calc(3 / 5 * 100%);
+}
 #placeos .w-3xl {
   width: var(--container-3xl);
 }
@@ -1926,6 +1932,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .max-w-\[85vw\] {
   max-width: 85vw;
 }
+#placeos .max-w-\[90vw\] {
+  max-width: 90vw;
+}
 #placeos .max-w-\[100vw\] {
   max-width: 100vw;
 }
@@ -2242,6 +2251,10 @@ input:where([type=button], [type=reset], [type=submit]),
   --tw-translate-x: calc(1 / 2 * 100%);
   translate: var(--tw-translate-x) var(--tw-translate-y);
 }
+#placeos .translate-x-4 {
+  --tw-translate-x: calc(var(--spacing) * 4);
+  translate: var(--tw-translate-x) var(--tw-translate-y);
+}
 #placeos .translate-x-14 {
   --tw-translate-x: calc(var(--spacing) * 14);
   translate: var(--tw-translate-x) var(--tw-translate-y);
@@ -2286,6 +2299,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .-rotate-90 {
   rotate: calc(90deg * -1);
+}
+#placeos .rotate-90 {
+  rotate: 90deg;
 }
 #placeos .transform {
   transform: var(--tw-rotate-x,) var(--tw-rotate-y,) var(--tw-rotate-z,) var(--tw-skew-x,) var(--tw-skew-y,);
@@ -2954,6 +2970,14 @@ input:where([type=button], [type=reset], [type=submit]),
 @supports (color: color-mix(in lab, red, red)) {
   #placeos .bg-base-100\/10 {
     background-color: color-mix(in oklab, var(--base-100) 10%, transparent);
+  }
+}
+#placeos .bg-base-100\/50 {
+  background-color: var(--base-100);
+}
+@supports (color: color-mix(in lab, red, red)) {
+  #placeos .bg-base-100\/50 {
+    background-color: color-mix(in oklab, var(--base-100) 50%, transparent);
   }
 }
 #placeos .bg-base-100\/60 {
@@ -3714,6 +3738,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .text-\[0\.6rem\] {
   font-size: 0.6rem;
+}
+#placeos .text-\[0\.65rem\] {
+  font-size: 0.65rem;
 }
 #placeos .text-\[0\.75em\] {
   font-size: 0.75em;
