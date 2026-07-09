@@ -1043,6 +1043,7 @@ export class SignageService {
                     playlist.id,
                     result.items || [],
                     result.approved,
+                    result.schedules,
                 );
                 return result;
             } catch {
@@ -1280,7 +1281,12 @@ export class SignageService {
             new_items.splice(index, 1);
         }
         await updateSignagePlaylistMedia(playlist_id, new_items);
-        this._setPlaylistMediaState(playlist_id, new_items, false);
+        this._setPlaylistMediaState(
+            playlist_id,
+            new_items,
+            false,
+            media_list.schedules,
+        );
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_ITEM_REMOVED'));
         this._playlist_change.set(Date.now());
         this.changed();
@@ -1926,16 +1932,26 @@ export class SignageService {
 
     private _setPlaylistMediaState(
         playlist_id: string,
-        media_ids: string[],
+        item_ids: string[],
         approved?: boolean,
+        schedules?: SignagePlaylistItemSchedule[],
     ) {
+        // Distribution playlist items are schedule item ids; map them to the
+        // scheduled media ids so thumbnail URLs resolve.
+        const schedule_map = playlistItemScheduleMap({
+            schedules:
+                schedules || this._playlist_media_items.value()?.schedules,
+        });
+        const media_ids = item_ids.map(
+            (id) => schedule_map.get(id)?.media?.id || id,
+        );
         const playlist =
             this.playlists().find((item) => item.id === playlist_id) ||
             this.selected_playlist();
         const current_state = this._playlist_meta_state()[playlist_id];
         this._setPlaylistMeta(playlist_id, {
             media_ids: media_ids.slice(0, 3),
-            item_ids: media_ids,
+            item_ids: item_ids,
             updated_at:
                 current_state?.updated_at || playlist?.updated_at || Date.now(),
             approved: approved ?? current_state?.approved,

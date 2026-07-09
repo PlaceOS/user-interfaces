@@ -41,6 +41,19 @@ describe('signage playlist util', () => {
         ).toEqual(['media-1']);
     });
 
+    it('resolves distribution media when media list is also populated', () => {
+        expect(
+            playlistMediaIds({
+                items: ['schedule-1', 'schedule-2'],
+                media: [{ id: 'media-1' }, { id: 'media-2' }] as any,
+                schedules: [
+                    { item_id: 'schedule-1', media: { id: 'media-1' } },
+                    { item_id: 'schedule-2', media: { id: 'media-2' } },
+                ] as any,
+            }),
+        ).toEqual(['media-1', 'media-2']);
+    });
+
     it('maps distribution schedules by nested media id', () => {
         const item = {
             item_id: 'schedule-1',
