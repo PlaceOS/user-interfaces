@@ -62444,9 +62444,6 @@ var APP = {
     REPORTS_NO_SHOWS_PERCENT: "% of No shows",
     REPORTS_TOTAL_ATTENDEES: "Total Room Attendees",
     REPORTS_ACTIVE_BOOKINGS_HEADER: "Active Bookings",
-    REPORTS_ALLOCATIONS: "Allocations",
-    REPORTS_REJECTED: "Rejected",
-    REPORTS_CANCELLED: "Cancelled",
     REPORTS_DAILY_HEADER: "Daily Utilisation",
     REPORTS_DAILY_EMPTY: "No bookings for the select date range",
     REPORTS_APPROVED: "Approved Bookings",
@@ -68038,20 +68035,33 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION4 = {
   "dirty": false,
-  "raw": "6a57422",
-  "hash": "6a57422",
+  "raw": "4049a57",
+  "hash": "4049a57",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "6a57422",
+  "suffix": "4049a57",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1783528890631
+  "time": 1783596526081
 };
 
 // libs/common/src/lib/settings.service.ts
 var _service3;
 var _setting_signals = {};
+var DEBUG_OVERRIDES_KEY = "PLACEOS.setting_overrides";
+function loadDebugOverrides() {
+  try {
+    const overrides = JSON.parse(localStorage.getItem(DEBUG_OVERRIDES_KEY) || "{}");
+    for (const key in overrides) {
+      if (!key.startsWith("app."))
+        delete overrides[key];
+    }
+    return overrides;
+  } catch {
+    return {};
+  }
+}
 function setting(key) {
   return _service3 ? _service3.get(key) : void 0;
 }
@@ -68068,6 +68078,30 @@ var SettingsService = class _SettingsService extends AsyncHandler {
    */
   setOverrides(value) {
     this._overrides.set(value);
+    this._refreshSettings();
+  }
+  /** Set a local debug override for an `app.*` setting. `undefined` clears the key. */
+  setDebugOverride(key, value) {
+    if (!key.startsWith("app."))
+      return;
+    const overrides = __spreadValues({}, this._debug_overrides());
+    if (value === void 0)
+      delete overrides[key];
+    else
+      overrides[key] = value;
+    this._debug_overrides.set(overrides);
+    if (Object.keys(overrides).length) {
+      localStorage.setItem(DEBUG_OVERRIDES_KEY, JSON.stringify(overrides));
+    } else
+      localStorage.removeItem(DEBUG_OVERRIDES_KEY);
+    this._refreshSettings();
+  }
+  clearDebugOverrides() {
+    this._debug_overrides.set({});
+    localStorage.removeItem(DEBUG_OVERRIDES_KEY);
+    this._refreshSettings();
+  }
+  _refreshSettings() {
     this._applyCssVariables();
     this._updateSignals();
     this._applyTheme();
@@ -68127,6 +68161,14 @@ var SettingsService = class _SettingsService extends AsyncHandler {
         []
       )
     );
+    this._debug_overrides = signal(
+      loadDebugOverrides(),
+      ...ngDevMode ? [{ debugName: "_debug_overrides" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.debug_overrides = this._debug_overrides.asReadonly();
     this._subjects = {};
     this._pending_settings = {};
     this.theme_signal = computed(
@@ -68195,6 +68237,9 @@ var SettingsService = class _SettingsService extends AsyncHandler {
    * @param key Name of the setting. i.e. nested items can be grabbed using `.` to seperate key names
    */
   get(key) {
+    const debug_overrides = this._debug_overrides();
+    if (key in debug_overrides)
+      return debug_overrides[key];
     const keys = key.split(".");
     if (keys[0] !== "app") {
       return getItemWithKeys(keys, this._pending_settings) ?? getItemWithKeys(keys, this._user_settings()) ?? getItemWithKeys(keys, DEFAULT_SETTINGS);
@@ -95928,1279 +95973,6 @@ var CustomTooltipComponent = class _CustomTooltipComponent extends AsyncHandler 
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CustomTooltipComponent, { className: "CustomTooltipComponent", filePath: "libs/components/src/lib/custom-tooltip.component.ts", lineNumber: 64 });
 })();
 
-// node_modules/@angular/material/fesm2022/progress-bar.mjs
-function MatProgressBar_Conditional_2_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275domElement(0, "div", 2);
-  }
-}
-var MAT_PROGRESS_BAR_DEFAULT_OPTIONS = new InjectionToken("MAT_PROGRESS_BAR_DEFAULT_OPTIONS");
-var MAT_PROGRESS_BAR_LOCATION = new InjectionToken("mat-progress-bar-location", {
-  providedIn: "root",
-  factory: () => {
-    const _document2 = inject2(DOCUMENT);
-    const _location = _document2 ? _document2.location : null;
-    return {
-      getPathname: () => _location ? _location.pathname + _location.search : ""
-    };
-  }
-});
-var MatProgressBar = class _MatProgressBar {
-  _elementRef = inject2(ElementRef);
-  _ngZone = inject2(NgZone);
-  _changeDetectorRef = inject2(ChangeDetectorRef);
-  _renderer = inject2(Renderer2);
-  _cleanupTransitionEnd;
-  constructor() {
-    const animationsState = _getAnimationsState();
-    const defaults2 = inject2(MAT_PROGRESS_BAR_DEFAULT_OPTIONS, {
-      optional: true
-    });
-    this._isNoopAnimation = animationsState === "di-disabled";
-    if (animationsState === "reduced-motion") {
-      this._elementRef.nativeElement.classList.add("mat-progress-bar-reduced-motion");
-    }
-    if (defaults2) {
-      if (defaults2.color) {
-        this.color = this._defaultColor = defaults2.color;
-      }
-      this.mode = defaults2.mode || this.mode;
-    }
-  }
-  _isNoopAnimation;
-  get color() {
-    return this._color || this._defaultColor;
-  }
-  set color(value) {
-    this._color = value;
-  }
-  _color;
-  _defaultColor = "primary";
-  get value() {
-    return this._value;
-  }
-  set value(v) {
-    this._value = clamp(v || 0);
-    this._changeDetectorRef.markForCheck();
-  }
-  _value = 0;
-  get bufferValue() {
-    return this._bufferValue || 0;
-  }
-  set bufferValue(v) {
-    this._bufferValue = clamp(v || 0);
-    this._changeDetectorRef.markForCheck();
-  }
-  _bufferValue = 0;
-  animationEnd = new EventEmitter();
-  get mode() {
-    return this._mode;
-  }
-  set mode(value) {
-    this._mode = value;
-    this._changeDetectorRef.markForCheck();
-  }
-  _mode = "determinate";
-  ngAfterViewInit() {
-    this._ngZone.runOutsideAngular(() => {
-      this._cleanupTransitionEnd = this._renderer.listen(this._elementRef.nativeElement, "transitionend", this._transitionendHandler);
-    });
-  }
-  ngOnDestroy() {
-    this._cleanupTransitionEnd?.();
-  }
-  _getPrimaryBarTransform() {
-    return `scaleX(${this._isIndeterminate() ? 1 : this.value / 100})`;
-  }
-  _getBufferBarFlexBasis() {
-    return `${this.mode === "buffer" ? this.bufferValue : 100}%`;
-  }
-  _isIndeterminate() {
-    return this.mode === "indeterminate" || this.mode === "query";
-  }
-  _transitionendHandler = (event) => {
-    if (this.animationEnd.observers.length === 0 || !event.target || !event.target.classList.contains("mdc-linear-progress__primary-bar")) {
-      return;
-    }
-    if (this.mode === "determinate" || this.mode === "buffer") {
-      this._ngZone.run(() => this.animationEnd.next({
-        value: this.value
-      }));
-    }
-  };
-  static \u0275fac = function MatProgressBar_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _MatProgressBar)();
-  };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
-    type: _MatProgressBar,
-    selectors: [["mat-progress-bar"]],
-    hostAttrs: ["role", "progressbar", "aria-valuemin", "0", "aria-valuemax", "100", "tabindex", "-1", 1, "mat-mdc-progress-bar", "mdc-linear-progress"],
-    hostVars: 10,
-    hostBindings: function MatProgressBar_HostBindings(rf, ctx) {
-      if (rf & 2) {
-        \u0275\u0275attribute("aria-valuenow", ctx._isIndeterminate() ? null : ctx.value)("mode", ctx.mode);
-        \u0275\u0275classMap("mat-" + ctx.color);
-        \u0275\u0275classProp("_mat-animation-noopable", ctx._isNoopAnimation)("mdc-linear-progress--animation-ready", !ctx._isNoopAnimation)("mdc-linear-progress--indeterminate", ctx._isIndeterminate());
-      }
-    },
-    inputs: {
-      color: "color",
-      value: [2, "value", "value", numberAttribute],
-      bufferValue: [2, "bufferValue", "bufferValue", numberAttribute],
-      mode: "mode"
-    },
-    outputs: {
-      animationEnd: "animationEnd"
-    },
-    exportAs: ["matProgressBar"],
-    decls: 7,
-    vars: 5,
-    consts: [["aria-hidden", "true", 1, "mdc-linear-progress__buffer"], [1, "mdc-linear-progress__buffer-bar"], [1, "mdc-linear-progress__buffer-dots"], ["aria-hidden", "true", 1, "mdc-linear-progress__bar", "mdc-linear-progress__primary-bar"], [1, "mdc-linear-progress__bar-inner"], ["aria-hidden", "true", 1, "mdc-linear-progress__bar", "mdc-linear-progress__secondary-bar"]],
-    template: function MatProgressBar_Template(rf, ctx) {
-      if (rf & 1) {
-        \u0275\u0275domElementStart(0, "div", 0);
-        \u0275\u0275domElement(1, "div", 1);
-        \u0275\u0275conditionalCreate(2, MatProgressBar_Conditional_2_Template, 1, 0, "div", 2);
-        \u0275\u0275domElementEnd();
-        \u0275\u0275domElementStart(3, "div", 3);
-        \u0275\u0275domElement(4, "span", 4);
-        \u0275\u0275domElementEnd();
-        \u0275\u0275domElementStart(5, "div", 5);
-        \u0275\u0275domElement(6, "span", 4);
-        \u0275\u0275domElementEnd();
-      }
-      if (rf & 2) {
-        \u0275\u0275advance();
-        \u0275\u0275styleProp("flex-basis", ctx._getBufferBarFlexBasis());
-        \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.mode === "buffer" ? 2 : -1);
-        \u0275\u0275advance();
-        \u0275\u0275styleProp("transform", ctx._getPrimaryBarTransform());
-      }
-    },
-    styles: [".mat-mdc-progress-bar {\n  --mat-progress-bar-animation-multiplier: 1;\n  display: block;\n  text-align: start;\n}\n.mat-mdc-progress-bar[mode=query] {\n  transform: scaleX(-1);\n}\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__buffer-dots,\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__primary-bar,\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__secondary-bar,\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__bar-inner.mdc-linear-progress__bar-inner {\n  animation: none;\n}\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__primary-bar,\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__buffer-bar {\n  transition: transform 1ms;\n}\n\n.mat-progress-bar-reduced-motion {\n  --mat-progress-bar-animation-multiplier: 2;\n}\n\n.mdc-linear-progress {\n  position: relative;\n  width: 100%;\n  transform: translateZ(0);\n  outline: 1px solid transparent;\n  overflow-x: hidden;\n  transition: opacity 250ms 0ms cubic-bezier(0.4, 0, 0.6, 1);\n  height: max(var(--mat-progress-bar-track-height, 4px), var(--mat-progress-bar-active-indicator-height, 4px));\n}\n@media (forced-colors: active) {\n  .mdc-linear-progress {\n    outline-color: CanvasText;\n  }\n}\n\n.mdc-linear-progress__bar {\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  margin: auto 0;\n  width: 100%;\n  animation: none;\n  transform-origin: top left;\n  transition: transform 250ms 0ms cubic-bezier(0.4, 0, 0.6, 1);\n  height: var(--mat-progress-bar-active-indicator-height, 4px);\n}\n.mdc-linear-progress--indeterminate .mdc-linear-progress__bar {\n  transition: none;\n}\n[dir=rtl] .mdc-linear-progress__bar {\n  right: 0;\n  transform-origin: center right;\n}\n\n.mdc-linear-progress__bar-inner {\n  display: inline-block;\n  position: absolute;\n  width: 100%;\n  animation: none;\n  border-top-style: solid;\n  border-color: var(--mat-progress-bar-active-indicator-color, var(--mat-sys-primary));\n  border-top-width: var(--mat-progress-bar-active-indicator-height, 4px);\n}\n\n.mdc-linear-progress__buffer {\n  display: flex;\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  margin: auto 0;\n  width: 100%;\n  overflow: hidden;\n  height: var(--mat-progress-bar-track-height, 4px);\n  border-radius: var(--mat-progress-bar-track-shape, var(--mat-sys-corner-none));\n}\n\n.mdc-linear-progress__buffer-dots {\n  background-image: radial-gradient(circle, var(--mat-progress-bar-track-color, var(--mat-sys-surface-variant)) calc(var(--mat-progress-bar-track-height, 4px) / 2), transparent 0);\n  background-repeat: repeat-x;\n  background-size: calc(calc(var(--mat-progress-bar-track-height, 4px) / 2) * 5);\n  background-position: left;\n  flex: auto;\n  transform: rotate(180deg);\n  animation: mdc-linear-progress-buffering calc(250ms * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n@media (forced-colors: active) {\n  .mdc-linear-progress__buffer-dots {\n    background-color: ButtonBorder;\n  }\n}\n[dir=rtl] .mdc-linear-progress__buffer-dots {\n  animation: mdc-linear-progress-buffering-reverse calc(250ms * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n  transform: rotate(0);\n}\n\n.mdc-linear-progress__buffer-bar {\n  flex: 0 1 100%;\n  transition: flex-basis 250ms 0ms cubic-bezier(0.4, 0, 0.6, 1);\n  background-color: var(--mat-progress-bar-track-color, var(--mat-sys-surface-variant));\n}\n\n.mdc-linear-progress__primary-bar {\n  transform: scaleX(0);\n}\n.mdc-linear-progress--indeterminate .mdc-linear-progress__primary-bar {\n  left: -145.166611%;\n}\n.mdc-linear-progress--indeterminate.mdc-linear-progress--animation-ready .mdc-linear-progress__primary-bar {\n  animation: mdc-linear-progress-primary-indeterminate-translate calc(2s * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n.mdc-linear-progress--indeterminate.mdc-linear-progress--animation-ready .mdc-linear-progress__primary-bar > .mdc-linear-progress__bar-inner {\n  animation: mdc-linear-progress-primary-indeterminate-scale calc(2s * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n[dir=rtl] .mdc-linear-progress.mdc-linear-progress--animation-ready .mdc-linear-progress__primary-bar {\n  animation-name: mdc-linear-progress-primary-indeterminate-translate-reverse;\n}\n[dir=rtl] .mdc-linear-progress.mdc-linear-progress--indeterminate .mdc-linear-progress__primary-bar {\n  right: -145.166611%;\n  left: auto;\n}\n\n.mdc-linear-progress__secondary-bar {\n  display: none;\n}\n.mdc-linear-progress--indeterminate .mdc-linear-progress__secondary-bar {\n  left: -54.888891%;\n  display: block;\n}\n.mdc-linear-progress--indeterminate.mdc-linear-progress--animation-ready .mdc-linear-progress__secondary-bar {\n  animation: mdc-linear-progress-secondary-indeterminate-translate calc(2s * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n.mdc-linear-progress--indeterminate.mdc-linear-progress--animation-ready .mdc-linear-progress__secondary-bar > .mdc-linear-progress__bar-inner {\n  animation: mdc-linear-progress-secondary-indeterminate-scale calc(2s * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n[dir=rtl] .mdc-linear-progress.mdc-linear-progress--animation-ready .mdc-linear-progress__secondary-bar {\n  animation-name: mdc-linear-progress-secondary-indeterminate-translate-reverse;\n}\n[dir=rtl] .mdc-linear-progress.mdc-linear-progress--indeterminate .mdc-linear-progress__secondary-bar {\n  right: -54.888891%;\n  left: auto;\n}\n\n@keyframes mdc-linear-progress-buffering {\n  from {\n    transform: rotate(180deg) translateX(calc(var(--mat-progress-bar-track-height, 4px) * -2.5));\n  }\n}\n@keyframes mdc-linear-progress-primary-indeterminate-translate {\n  0% {\n    transform: translateX(0);\n  }\n  20% {\n    animation-timing-function: cubic-bezier(0.5, 0, 0.701732, 0.495819);\n    transform: translateX(0);\n  }\n  59.15% {\n    animation-timing-function: cubic-bezier(0.302435, 0.381352, 0.55, 0.956352);\n    transform: translateX(83.67142%);\n  }\n  100% {\n    transform: translateX(200.611057%);\n  }\n}\n@keyframes mdc-linear-progress-primary-indeterminate-scale {\n  0% {\n    transform: scaleX(0.08);\n  }\n  36.65% {\n    animation-timing-function: cubic-bezier(0.334731, 0.12482, 0.785844, 1);\n    transform: scaleX(0.08);\n  }\n  69.15% {\n    animation-timing-function: cubic-bezier(0.06, 0.11, 0.6, 1);\n    transform: scaleX(0.661479);\n  }\n  100% {\n    transform: scaleX(0.08);\n  }\n}\n@keyframes mdc-linear-progress-secondary-indeterminate-translate {\n  0% {\n    animation-timing-function: cubic-bezier(0.15, 0, 0.515058, 0.409685);\n    transform: translateX(0);\n  }\n  25% {\n    animation-timing-function: cubic-bezier(0.31033, 0.284058, 0.8, 0.733712);\n    transform: translateX(37.651913%);\n  }\n  48.35% {\n    animation-timing-function: cubic-bezier(0.4, 0.627035, 0.6, 0.902026);\n    transform: translateX(84.386165%);\n  }\n  100% {\n    transform: translateX(160.277782%);\n  }\n}\n@keyframes mdc-linear-progress-secondary-indeterminate-scale {\n  0% {\n    animation-timing-function: cubic-bezier(0.205028, 0.057051, 0.57661, 0.453971);\n    transform: scaleX(0.08);\n  }\n  19.15% {\n    animation-timing-function: cubic-bezier(0.152313, 0.196432, 0.648374, 1.004315);\n    transform: scaleX(0.457104);\n  }\n  44.15% {\n    animation-timing-function: cubic-bezier(0.257759, -0.003163, 0.211762, 1.38179);\n    transform: scaleX(0.72796);\n  }\n  100% {\n    transform: scaleX(0.08);\n  }\n}\n@keyframes mdc-linear-progress-primary-indeterminate-translate-reverse {\n  0% {\n    transform: translateX(0);\n  }\n  20% {\n    animation-timing-function: cubic-bezier(0.5, 0, 0.701732, 0.495819);\n    transform: translateX(0);\n  }\n  59.15% {\n    animation-timing-function: cubic-bezier(0.302435, 0.381352, 0.55, 0.956352);\n    transform: translateX(-83.67142%);\n  }\n  100% {\n    transform: translateX(-200.611057%);\n  }\n}\n@keyframes mdc-linear-progress-secondary-indeterminate-translate-reverse {\n  0% {\n    animation-timing-function: cubic-bezier(0.15, 0, 0.515058, 0.409685);\n    transform: translateX(0);\n  }\n  25% {\n    animation-timing-function: cubic-bezier(0.31033, 0.284058, 0.8, 0.733712);\n    transform: translateX(-37.651913%);\n  }\n  48.35% {\n    animation-timing-function: cubic-bezier(0.4, 0.627035, 0.6, 0.902026);\n    transform: translateX(-84.386165%);\n  }\n  100% {\n    transform: translateX(-160.277782%);\n  }\n}\n@keyframes mdc-linear-progress-buffering-reverse {\n  from {\n    transform: translateX(-10px);\n  }\n}\n"],
-    encapsulation: 2
-  });
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatProgressBar, [{
-    type: Component,
-    args: [{
-      selector: "mat-progress-bar",
-      exportAs: "matProgressBar",
-      host: {
-        "role": "progressbar",
-        "aria-valuemin": "0",
-        "aria-valuemax": "100",
-        "tabindex": "-1",
-        "[attr.aria-valuenow]": "_isIndeterminate() ? null : value",
-        "[attr.mode]": "mode",
-        "class": "mat-mdc-progress-bar mdc-linear-progress",
-        "[class]": '"mat-" + color',
-        "[class._mat-animation-noopable]": "_isNoopAnimation",
-        "[class.mdc-linear-progress--animation-ready]": "!_isNoopAnimation",
-        "[class.mdc-linear-progress--indeterminate]": "_isIndeterminate()"
-      },
-      encapsulation: ViewEncapsulation.None,
-      template: `<!--
-  All children need to be hidden for screen readers in order to support ChromeVox.
-  More context in the issue: https://github.com/angular/components/issues/22165.
--->
-<div class="mdc-linear-progress__buffer" aria-hidden="true">
-  <div
-    class="mdc-linear-progress__buffer-bar"
-    [style.flex-basis]="_getBufferBarFlexBasis()"></div>
-  <!-- Remove the dots outside of buffer mode since they can cause CSP issues (see #28938) -->
-  @if (mode === 'buffer') {
-    <div class="mdc-linear-progress__buffer-dots"></div>
-  }
-</div>
-<div
-  class="mdc-linear-progress__bar mdc-linear-progress__primary-bar"
-  aria-hidden="true"
-  [style.transform]="_getPrimaryBarTransform()">
-  <span class="mdc-linear-progress__bar-inner"></span>
-</div>
-<div class="mdc-linear-progress__bar mdc-linear-progress__secondary-bar" aria-hidden="true">
-  <span class="mdc-linear-progress__bar-inner"></span>
-</div>
-`,
-      styles: [".mat-mdc-progress-bar {\n  --mat-progress-bar-animation-multiplier: 1;\n  display: block;\n  text-align: start;\n}\n.mat-mdc-progress-bar[mode=query] {\n  transform: scaleX(-1);\n}\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__buffer-dots,\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__primary-bar,\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__secondary-bar,\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__bar-inner.mdc-linear-progress__bar-inner {\n  animation: none;\n}\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__primary-bar,\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__buffer-bar {\n  transition: transform 1ms;\n}\n\n.mat-progress-bar-reduced-motion {\n  --mat-progress-bar-animation-multiplier: 2;\n}\n\n.mdc-linear-progress {\n  position: relative;\n  width: 100%;\n  transform: translateZ(0);\n  outline: 1px solid transparent;\n  overflow-x: hidden;\n  transition: opacity 250ms 0ms cubic-bezier(0.4, 0, 0.6, 1);\n  height: max(var(--mat-progress-bar-track-height, 4px), var(--mat-progress-bar-active-indicator-height, 4px));\n}\n@media (forced-colors: active) {\n  .mdc-linear-progress {\n    outline-color: CanvasText;\n  }\n}\n\n.mdc-linear-progress__bar {\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  margin: auto 0;\n  width: 100%;\n  animation: none;\n  transform-origin: top left;\n  transition: transform 250ms 0ms cubic-bezier(0.4, 0, 0.6, 1);\n  height: var(--mat-progress-bar-active-indicator-height, 4px);\n}\n.mdc-linear-progress--indeterminate .mdc-linear-progress__bar {\n  transition: none;\n}\n[dir=rtl] .mdc-linear-progress__bar {\n  right: 0;\n  transform-origin: center right;\n}\n\n.mdc-linear-progress__bar-inner {\n  display: inline-block;\n  position: absolute;\n  width: 100%;\n  animation: none;\n  border-top-style: solid;\n  border-color: var(--mat-progress-bar-active-indicator-color, var(--mat-sys-primary));\n  border-top-width: var(--mat-progress-bar-active-indicator-height, 4px);\n}\n\n.mdc-linear-progress__buffer {\n  display: flex;\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  margin: auto 0;\n  width: 100%;\n  overflow: hidden;\n  height: var(--mat-progress-bar-track-height, 4px);\n  border-radius: var(--mat-progress-bar-track-shape, var(--mat-sys-corner-none));\n}\n\n.mdc-linear-progress__buffer-dots {\n  background-image: radial-gradient(circle, var(--mat-progress-bar-track-color, var(--mat-sys-surface-variant)) calc(var(--mat-progress-bar-track-height, 4px) / 2), transparent 0);\n  background-repeat: repeat-x;\n  background-size: calc(calc(var(--mat-progress-bar-track-height, 4px) / 2) * 5);\n  background-position: left;\n  flex: auto;\n  transform: rotate(180deg);\n  animation: mdc-linear-progress-buffering calc(250ms * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n@media (forced-colors: active) {\n  .mdc-linear-progress__buffer-dots {\n    background-color: ButtonBorder;\n  }\n}\n[dir=rtl] .mdc-linear-progress__buffer-dots {\n  animation: mdc-linear-progress-buffering-reverse calc(250ms * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n  transform: rotate(0);\n}\n\n.mdc-linear-progress__buffer-bar {\n  flex: 0 1 100%;\n  transition: flex-basis 250ms 0ms cubic-bezier(0.4, 0, 0.6, 1);\n  background-color: var(--mat-progress-bar-track-color, var(--mat-sys-surface-variant));\n}\n\n.mdc-linear-progress__primary-bar {\n  transform: scaleX(0);\n}\n.mdc-linear-progress--indeterminate .mdc-linear-progress__primary-bar {\n  left: -145.166611%;\n}\n.mdc-linear-progress--indeterminate.mdc-linear-progress--animation-ready .mdc-linear-progress__primary-bar {\n  animation: mdc-linear-progress-primary-indeterminate-translate calc(2s * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n.mdc-linear-progress--indeterminate.mdc-linear-progress--animation-ready .mdc-linear-progress__primary-bar > .mdc-linear-progress__bar-inner {\n  animation: mdc-linear-progress-primary-indeterminate-scale calc(2s * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n[dir=rtl] .mdc-linear-progress.mdc-linear-progress--animation-ready .mdc-linear-progress__primary-bar {\n  animation-name: mdc-linear-progress-primary-indeterminate-translate-reverse;\n}\n[dir=rtl] .mdc-linear-progress.mdc-linear-progress--indeterminate .mdc-linear-progress__primary-bar {\n  right: -145.166611%;\n  left: auto;\n}\n\n.mdc-linear-progress__secondary-bar {\n  display: none;\n}\n.mdc-linear-progress--indeterminate .mdc-linear-progress__secondary-bar {\n  left: -54.888891%;\n  display: block;\n}\n.mdc-linear-progress--indeterminate.mdc-linear-progress--animation-ready .mdc-linear-progress__secondary-bar {\n  animation: mdc-linear-progress-secondary-indeterminate-translate calc(2s * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n.mdc-linear-progress--indeterminate.mdc-linear-progress--animation-ready .mdc-linear-progress__secondary-bar > .mdc-linear-progress__bar-inner {\n  animation: mdc-linear-progress-secondary-indeterminate-scale calc(2s * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n[dir=rtl] .mdc-linear-progress.mdc-linear-progress--animation-ready .mdc-linear-progress__secondary-bar {\n  animation-name: mdc-linear-progress-secondary-indeterminate-translate-reverse;\n}\n[dir=rtl] .mdc-linear-progress.mdc-linear-progress--indeterminate .mdc-linear-progress__secondary-bar {\n  right: -54.888891%;\n  left: auto;\n}\n\n@keyframes mdc-linear-progress-buffering {\n  from {\n    transform: rotate(180deg) translateX(calc(var(--mat-progress-bar-track-height, 4px) * -2.5));\n  }\n}\n@keyframes mdc-linear-progress-primary-indeterminate-translate {\n  0% {\n    transform: translateX(0);\n  }\n  20% {\n    animation-timing-function: cubic-bezier(0.5, 0, 0.701732, 0.495819);\n    transform: translateX(0);\n  }\n  59.15% {\n    animation-timing-function: cubic-bezier(0.302435, 0.381352, 0.55, 0.956352);\n    transform: translateX(83.67142%);\n  }\n  100% {\n    transform: translateX(200.611057%);\n  }\n}\n@keyframes mdc-linear-progress-primary-indeterminate-scale {\n  0% {\n    transform: scaleX(0.08);\n  }\n  36.65% {\n    animation-timing-function: cubic-bezier(0.334731, 0.12482, 0.785844, 1);\n    transform: scaleX(0.08);\n  }\n  69.15% {\n    animation-timing-function: cubic-bezier(0.06, 0.11, 0.6, 1);\n    transform: scaleX(0.661479);\n  }\n  100% {\n    transform: scaleX(0.08);\n  }\n}\n@keyframes mdc-linear-progress-secondary-indeterminate-translate {\n  0% {\n    animation-timing-function: cubic-bezier(0.15, 0, 0.515058, 0.409685);\n    transform: translateX(0);\n  }\n  25% {\n    animation-timing-function: cubic-bezier(0.31033, 0.284058, 0.8, 0.733712);\n    transform: translateX(37.651913%);\n  }\n  48.35% {\n    animation-timing-function: cubic-bezier(0.4, 0.627035, 0.6, 0.902026);\n    transform: translateX(84.386165%);\n  }\n  100% {\n    transform: translateX(160.277782%);\n  }\n}\n@keyframes mdc-linear-progress-secondary-indeterminate-scale {\n  0% {\n    animation-timing-function: cubic-bezier(0.205028, 0.057051, 0.57661, 0.453971);\n    transform: scaleX(0.08);\n  }\n  19.15% {\n    animation-timing-function: cubic-bezier(0.152313, 0.196432, 0.648374, 1.004315);\n    transform: scaleX(0.457104);\n  }\n  44.15% {\n    animation-timing-function: cubic-bezier(0.257759, -0.003163, 0.211762, 1.38179);\n    transform: scaleX(0.72796);\n  }\n  100% {\n    transform: scaleX(0.08);\n  }\n}\n@keyframes mdc-linear-progress-primary-indeterminate-translate-reverse {\n  0% {\n    transform: translateX(0);\n  }\n  20% {\n    animation-timing-function: cubic-bezier(0.5, 0, 0.701732, 0.495819);\n    transform: translateX(0);\n  }\n  59.15% {\n    animation-timing-function: cubic-bezier(0.302435, 0.381352, 0.55, 0.956352);\n    transform: translateX(-83.67142%);\n  }\n  100% {\n    transform: translateX(-200.611057%);\n  }\n}\n@keyframes mdc-linear-progress-secondary-indeterminate-translate-reverse {\n  0% {\n    animation-timing-function: cubic-bezier(0.15, 0, 0.515058, 0.409685);\n    transform: translateX(0);\n  }\n  25% {\n    animation-timing-function: cubic-bezier(0.31033, 0.284058, 0.8, 0.733712);\n    transform: translateX(-37.651913%);\n  }\n  48.35% {\n    animation-timing-function: cubic-bezier(0.4, 0.627035, 0.6, 0.902026);\n    transform: translateX(-84.386165%);\n  }\n  100% {\n    transform: translateX(-160.277782%);\n  }\n}\n@keyframes mdc-linear-progress-buffering-reverse {\n  from {\n    transform: translateX(-10px);\n  }\n}\n"]
-    }]
-  }], () => [], {
-    color: [{
-      type: Input
-    }],
-    value: [{
-      type: Input,
-      args: [{
-        transform: numberAttribute
-      }]
-    }],
-    bufferValue: [{
-      type: Input,
-      args: [{
-        transform: numberAttribute
-      }]
-    }],
-    animationEnd: [{
-      type: Output
-    }],
-    mode: [{
-      type: Input
-    }]
-  });
-})();
-function clamp(v, min = 0, max = 100) {
-  return Math.max(min, Math.min(max, v));
-}
-var MatProgressBarModule = class _MatProgressBarModule {
-  static \u0275fac = function MatProgressBarModule_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _MatProgressBarModule)();
-  };
-  static \u0275mod = /* @__PURE__ */ \u0275\u0275defineNgModule({
-    type: _MatProgressBarModule,
-    imports: [MatProgressBar],
-    exports: [MatProgressBar, BidiModule]
-  });
-  static \u0275inj = /* @__PURE__ */ \u0275\u0275defineInjector({
-    imports: [BidiModule]
-  });
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatProgressBarModule, [{
-    type: NgModule,
-    args: [{
-      imports: [MatProgressBar],
-      exports: [MatProgressBar, BidiModule]
-    }]
-  }], null, null);
-})();
-
-// libs/components/src/lib/native-domain-overlay.component.ts
-function NativeDomainOverlayComponent_Conditional_7_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275text(0, " Enter the address of your PlaceOS server to connect this app. ");
-  }
-}
-function NativeDomainOverlayComponent_Conditional_8_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275text(0, " Enter your work email to find your PlaceOS server and connect this app. ");
-  }
-}
-function NativeDomainOverlayComponent_Conditional_9_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "p", 6);
-    \u0275\u0275text(1);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r0 = \u0275\u0275nextContext();
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", ctx_r0.error(), " ");
-  }
-}
-function NativeDomainOverlayComponent_Conditional_10_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "p", 7);
-    \u0275\u0275text(1);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r0 = \u0275\u0275nextContext();
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" Settings provided by your administrator will be applied automatically in ", ctx_r0.auto_accept_in(), "s. ");
-  }
-}
-function NativeDomainOverlayComponent_Conditional_11_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r2 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 8)(1, "label", 12);
-    \u0275\u0275text(2, "Server Address");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "mat-form-field", 13)(4, "icon", 14);
-    \u0275\u0275text(5, "dns");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(6, "input", 15);
-    \u0275\u0275twoWayListener("ngModelChange", function NativeDomainOverlayComponent_Conditional_11_Template_input_ngModelChange_6_listener($event) {
-      \u0275\u0275restoreView(_r2);
-      const ctx_r0 = \u0275\u0275nextContext();
-      \u0275\u0275twoWayBindingSet(ctx_r0.server_address, $event) || (ctx_r0.server_address = $event);
-      return \u0275\u0275resetView($event);
-    });
-    \u0275\u0275elementEnd();
-    \u0275\u0275controlCreate();
-    \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(7, "div", 8)(8, "label", 16);
-    \u0275\u0275text(9, "API Key (optional)");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(10, "mat-form-field", 13)(11, "icon", 14);
-    \u0275\u0275text(12, "key");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(13, "input", 17);
-    \u0275\u0275twoWayListener("ngModelChange", function NativeDomainOverlayComponent_Conditional_11_Template_input_ngModelChange_13_listener($event) {
-      \u0275\u0275restoreView(_r2);
-      const ctx_r0 = \u0275\u0275nextContext();
-      \u0275\u0275twoWayBindingSet(ctx_r0.api_key, $event) || (ctx_r0.api_key = $event);
-      return \u0275\u0275resetView($event);
-    });
-    \u0275\u0275elementEnd();
-    \u0275\u0275controlCreate();
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(14, "p", 18);
-    \u0275\u0275text(15, " When set, the app authenticates with this key instead of asking you to sign in. ");
-    \u0275\u0275elementEnd()();
-  }
-  if (rf & 2) {
-    const ctx_r0 = \u0275\u0275nextContext();
-    \u0275\u0275advance(6);
-    \u0275\u0275twoWayProperty("ngModel", ctx_r0.server_address);
-    \u0275\u0275property("disabled", ctx_r0.loading());
-    \u0275\u0275control();
-    \u0275\u0275advance(7);
-    \u0275\u0275twoWayProperty("ngModel", ctx_r0.api_key);
-    \u0275\u0275property("disabled", ctx_r0.loading());
-    \u0275\u0275control();
-  }
-}
-function NativeDomainOverlayComponent_Conditional_12_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r3 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 8)(1, "label", 19);
-    \u0275\u0275text(2, "Work Email");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "mat-form-field", 13)(4, "icon", 14);
-    \u0275\u0275text(5, "mail");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(6, "input", 20);
-    \u0275\u0275twoWayListener("ngModelChange", function NativeDomainOverlayComponent_Conditional_12_Template_input_ngModelChange_6_listener($event) {
-      \u0275\u0275restoreView(_r3);
-      const ctx_r0 = \u0275\u0275nextContext();
-      \u0275\u0275twoWayBindingSet(ctx_r0.email, $event) || (ctx_r0.email = $event);
-      return \u0275\u0275resetView($event);
-    });
-    \u0275\u0275elementEnd();
-    \u0275\u0275controlCreate();
-    \u0275\u0275elementEnd()();
-  }
-  if (rf & 2) {
-    const ctx_r0 = \u0275\u0275nextContext();
-    \u0275\u0275advance(6);
-    \u0275\u0275twoWayProperty("ngModel", ctx_r0.email);
-    \u0275\u0275property("disabled", ctx_r0.loading());
-    \u0275\u0275control();
-  }
-}
-function NativeDomainOverlayComponent_Conditional_14_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275text(0, " Find my server using my work email ");
-  }
-}
-function NativeDomainOverlayComponent_Conditional_15_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275text(0, " Enter a server address manually ");
-  }
-}
-var AUTO_ACCEPT_SECONDS = 15;
-var NativeDomainOverlayComponent = class _NativeDomainOverlayComponent {
-  constructor() {
-    this.serverError = input(
-      "",
-      ...ngDevMode ? [{ debugName: "serverError" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.autoAccept = input(
-      false,
-      ...ngDevMode ? [{ debugName: "autoAccept" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.domainSet = output();
-    this.email = signal(
-      getNativeEmail() ?? "",
-      ...ngDevMode ? [{ debugName: "email" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.server_address = signal(
-      getNativeDomain() ?? "",
-      ...ngDevMode ? [{ debugName: "server_address" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.api_key = signal(
-      getNativeApiKey() ?? "",
-      ...ngDevMode ? [{ debugName: "api_key" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.manual_entry = signal(
-      !!getNativeDomain(),
-      ...ngDevMode ? [{ debugName: "manual_entry" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.error = signal(
-      "",
-      ...ngDevMode ? [{ debugName: "error" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.loading = signal(
-      false,
-      ...ngDevMode ? [{ debugName: "loading" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.auto_accept_in = signal(
-      0,
-      ...ngDevMode ? [{ debugName: "auto_accept_in" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this._auto_accept_timer = null;
-    effect(() => {
-      const msg = this.serverError();
-      if (msg) {
-        this.error.set(msg);
-        untracked2(() => this.stopAutoAccept());
-      }
-    });
-    effect(() => {
-      if (this.autoAccept() && untracked2(this.server_address)) {
-        untracked2(() => this.startAutoAccept());
-      }
-    });
-  }
-  ngOnDestroy() {
-    this.stopAutoAccept();
-  }
-  /** Restart the inactivity countdown — any user activity delays it. */
-  resetAutoAccept() {
-    if (!this._auto_accept_timer)
-      return;
-    this.auto_accept_in.set(AUTO_ACCEPT_SECONDS);
-  }
-  startAutoAccept() {
-    this.auto_accept_in.set(AUTO_ACCEPT_SECONDS);
-    if (this._auto_accept_timer)
-      return;
-    this._auto_accept_timer = setInterval(() => {
-      const remaining = this.auto_accept_in() - 1;
-      this.auto_accept_in.set(remaining);
-      if (remaining > 0)
-        return;
-      this.stopAutoAccept();
-      this.submit();
-    }, 1e3);
-  }
-  stopAutoAccept() {
-    if (this._auto_accept_timer)
-      clearInterval(this._auto_accept_timer);
-    this._auto_accept_timer = null;
-    this.auto_accept_in.set(0);
-  }
-  toggleManualEntry() {
-    if (this.loading())
-      return;
-    this.manual_entry.update((manual) => !manual);
-    this.error.set("");
-  }
-  async submit() {
-    if (this.loading())
-      return;
-    this.stopAutoAccept();
-    if (this.manual_entry())
-      return this.submitManual();
-    const raw = this.email().trim();
-    if (!raw) {
-      this.error.set("A work email is required.");
-      return;
-    }
-    this.loading.set(true);
-    this.error.set("");
-    try {
-      const domain = await lookupNativeDomainByEmail(raw);
-      setNativeEmail(raw);
-      setNativeDomain(domain);
-      setNativeApiKey("");
-      this.domainSet.emit(domain);
-    } catch {
-      this.error.set("Unable to find a server for this email address.");
-    } finally {
-      this.loading.set(false);
-    }
-  }
-  submitManual() {
-    const domain = normaliseNativeDomain(this.server_address());
-    if (!domain) {
-      this.error.set("A valid server address is required.");
-      return;
-    }
-    this.error.set("");
-    setNativeDomain(domain);
-    setNativeApiKey(this.api_key());
-    this.domainSet.emit(domain);
-  }
-  static {
-    this.\u0275fac = function NativeDomainOverlayComponent_Factory(__ngFactoryType__) {
-      return new (__ngFactoryType__ || _NativeDomainOverlayComponent)();
-    };
-  }
-  static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NativeDomainOverlayComponent, selectors: [["native-domain-overlay"]], hostBindings: function NativeDomainOverlayComponent_HostBindings(rf, ctx) {
-      if (rf & 1) {
-        \u0275\u0275listener("pointerdown", function NativeDomainOverlayComponent_pointerdown_HostBindingHandler() {
-          return ctx.resetAutoAccept();
-        }, \u0275\u0275resolveWindow)("keydown", function NativeDomainOverlayComponent_keydown_HostBindingHandler() {
-          return ctx.resetAutoAccept();
-        }, \u0275\u0275resolveWindow);
-      }
-    }, inputs: { serverError: [1, "serverError"], autoAccept: [1, "autoAccept"] }, outputs: { domainSet: "domainSet" }, decls: 19, vars: 8, consts: [[1, "bg-base-200", "pointer-events-auto", "fixed", "inset-0", "z-9999", "flex", "items-center", "justify-center", "p-4"], [1, "border-base-300", "bg-base-100", "flex", "w-full", "max-w-md", "flex-col", "rounded-sm", "border", "shadow-sm", 3, "ngSubmit"], [1, "bg-base-200", "m-2", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-xl", "font-medium"], [1, "flex", "flex-col", "space-y-4", "p-4"], [1, "text-sm", "opacity-60"], [1, "bg-error/10", "text-error", "rounded-sm", "px-3", "py-2", "text-xs"], [1, "bg-info/10", "text-info", "rounded-sm", "px-3", "py-2", "text-xs"], [1, "flex", "w-full", "flex-col"], ["type", "button", 1, "self-start", "text-sm", "underline", "opacity-60", 3, "click", "disabled"], [1, "bg-base-200", "m-2", "flex", "items-center", "justify-center", "space-x-2", "rounded-sm", "border-none", "p-2"], ["btn", "", "matRipple", "", "type", "submit", 1, "flex-1", 3, "disabled"], ["for", "server-address"], ["appearance", "outline", 1, "w-full"], ["matPrefix", ""], ["matInput", "", "name", "server-address", "placeholder", "placeos.company.com", "type", "text", "autocapitalize", "off", "autocomplete", "url", "spellcheck", "false", "required", "", 3, "ngModelChange", "ngModel", "disabled"], ["for", "api-key"], ["matInput", "", "name", "api-key", "placeholder", "Leave empty to sign in", "type", "password", "autocapitalize", "off", "autocomplete", "off", "spellcheck", "false", 3, "ngModelChange", "ngModel", "disabled"], [1, "text-xs", "opacity-60"], ["for", "email"], ["matInput", "", "name", "email", "placeholder", "name@company.com", "type", "email", "autocapitalize", "off", "autocomplete", "email", "spellcheck", "false", "required", "", 3, "ngModelChange", "ngModel", "disabled"]], template: function NativeDomainOverlayComponent_Template(rf, ctx) {
-      if (rf & 1) {
-        \u0275\u0275elementStart(0, "div", 0)(1, "form", 1);
-        \u0275\u0275listener("ngSubmit", function NativeDomainOverlayComponent_Template_form_ngSubmit_1_listener() {
-          return ctx.submit();
-        });
-        \u0275\u0275elementStart(2, "header", 2)(3, "h2", 3);
-        \u0275\u0275text(4, "Connect to Server");
-        \u0275\u0275elementEnd()();
-        \u0275\u0275elementStart(5, "main", 4)(6, "p", 5);
-        \u0275\u0275conditionalCreate(7, NativeDomainOverlayComponent_Conditional_7_Template, 1, 0)(8, NativeDomainOverlayComponent_Conditional_8_Template, 1, 0);
-        \u0275\u0275elementEnd();
-        \u0275\u0275conditionalCreate(9, NativeDomainOverlayComponent_Conditional_9_Template, 2, 1, "p", 6);
-        \u0275\u0275conditionalCreate(10, NativeDomainOverlayComponent_Conditional_10_Template, 2, 1, "p", 7);
-        \u0275\u0275conditionalCreate(11, NativeDomainOverlayComponent_Conditional_11_Template, 16, 4)(12, NativeDomainOverlayComponent_Conditional_12_Template, 7, 2, "div", 8);
-        \u0275\u0275elementStart(13, "button", 9);
-        \u0275\u0275listener("click", function NativeDomainOverlayComponent_Template_button_click_13_listener() {
-          return ctx.toggleManualEntry();
-        });
-        \u0275\u0275conditionalCreate(14, NativeDomainOverlayComponent_Conditional_14_Template, 1, 0)(15, NativeDomainOverlayComponent_Conditional_15_Template, 1, 0);
-        \u0275\u0275elementEnd()();
-        \u0275\u0275elementStart(16, "footer", 10)(17, "button", 11);
-        \u0275\u0275text(18);
-        \u0275\u0275elementEnd()()()();
-      }
-      if (rf & 2) {
-        \u0275\u0275advance(7);
-        \u0275\u0275conditional(ctx.manual_entry() ? 7 : 8);
-        \u0275\u0275advance(2);
-        \u0275\u0275conditional(ctx.error() ? 9 : -1);
-        \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.auto_accept_in() > 0 ? 10 : -1);
-        \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.manual_entry() ? 11 : 12);
-        \u0275\u0275advance(2);
-        \u0275\u0275property("disabled", ctx.loading());
-        \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.manual_entry() ? 14 : 15);
-        \u0275\u0275advance(3);
-        \u0275\u0275property("disabled", ctx.loading());
-        \u0275\u0275advance();
-        \u0275\u0275textInterpolate1(" ", ctx.loading() ? "Looking up..." : "Connect", " ");
-      }
-    }, dependencies: [
-      FormsModule,
-      \u0275NgNoValidate,
-      DefaultValueAccessor,
-      NgControlStatus,
-      NgControlStatusGroup,
-      RequiredValidator,
-      NgModel,
-      NgForm,
-      IconComponent,
-      MatFormFieldModule,
-      MatFormField,
-      MatPrefix,
-      MatInputModule,
-      MatInput,
-      MatRippleModule,
-      MatRipple
-    ], encapsulation: 2 });
-  }
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(NativeDomainOverlayComponent, [{
-    type: Component,
-    args: [{
-      selector: "native-domain-overlay",
-      template: `
-        <div
-            class="bg-base-200 pointer-events-auto fixed inset-0 z-9999 flex items-center justify-center p-4"
-        >
-            <form
-                class="border-base-300 bg-base-100 flex w-full max-w-md flex-col rounded-sm border shadow-sm"
-                (ngSubmit)="submit()"
-            >
-                <header class="bg-base-200 m-2 rounded-sm border-none p-2">
-                    <h2 class="px-2 text-xl font-medium">Connect to Server</h2>
-                </header>
-                <main class="flex flex-col space-y-4 p-4">
-                    <p class="text-sm opacity-60">
-                        @if (manual_entry()) {
-                            Enter the address of your PlaceOS server to connect
-                            this app.
-                        } @else {
-                            Enter your work email to find your PlaceOS server
-                            and connect this app.
-                        }
-                    </p>
-                    @if (error()) {
-                        <p
-                            class="bg-error/10 text-error rounded-sm px-3 py-2 text-xs"
-                        >
-                            {{ error() }}
-                        </p>
-                    }
-                    @if (auto_accept_in() > 0) {
-                        <p
-                            class="bg-info/10 text-info rounded-sm px-3 py-2 text-xs"
-                        >
-                            Settings provided by your administrator will be
-                            applied automatically in {{ auto_accept_in() }}s.
-                        </p>
-                    }
-                    @if (manual_entry()) {
-                        <div class="flex w-full flex-col">
-                            <label for="server-address">Server Address</label>
-                            <mat-form-field appearance="outline" class="w-full">
-                                <icon matPrefix>dns</icon>
-                                <input
-                                    matInput
-                                    name="server-address"
-                                    [(ngModel)]="server_address"
-                                    placeholder="placeos.company.com"
-                                    type="text"
-                                    autocapitalize="off"
-                                    autocomplete="url"
-                                    spellcheck="false"
-                                    required
-                                    [disabled]="loading()"
-                                />
-                            </mat-form-field>
-                        </div>
-                        <div class="flex w-full flex-col">
-                            <label for="api-key">API Key (optional)</label>
-                            <mat-form-field appearance="outline" class="w-full">
-                                <icon matPrefix>key</icon>
-                                <input
-                                    matInput
-                                    name="api-key"
-                                    [(ngModel)]="api_key"
-                                    placeholder="Leave empty to sign in"
-                                    type="password"
-                                    autocapitalize="off"
-                                    autocomplete="off"
-                                    spellcheck="false"
-                                    [disabled]="loading()"
-                                />
-                            </mat-form-field>
-                            <p class="text-xs opacity-60">
-                                When set, the app authenticates with this key
-                                instead of asking you to sign in.
-                            </p>
-                        </div>
-                    } @else {
-                        <div class="flex w-full flex-col">
-                            <label for="email">Work Email</label>
-                            <mat-form-field appearance="outline" class="w-full">
-                                <icon matPrefix>mail</icon>
-                                <input
-                                    matInput
-                                    name="email"
-                                    [(ngModel)]="email"
-                                    placeholder="name@company.com"
-                                    type="email"
-                                    autocapitalize="off"
-                                    autocomplete="email"
-                                    spellcheck="false"
-                                    required
-                                    [disabled]="loading()"
-                                />
-                            </mat-form-field>
-                        </div>
-                    }
-                    <button
-                        type="button"
-                        class="self-start text-sm underline opacity-60"
-                        [disabled]="loading()"
-                        (click)="toggleManualEntry()"
-                    >
-                        @if (manual_entry()) {
-                            Find my server using my work email
-                        } @else {
-                            Enter a server address manually
-                        }
-                    </button>
-                </main>
-                <footer
-                    class="bg-base-200 m-2 flex items-center justify-center space-x-2 rounded-sm border-none p-2"
-                >
-                    <button
-                        btn
-                        matRipple
-                        type="submit"
-                        class="flex-1"
-                        [disabled]="loading()"
-                    >
-                        {{ loading() ? 'Looking up...' : 'Connect' }}
-                    </button>
-                </footer>
-            </form>
-        </div>
-    `,
-      imports: [
-        FormsModule,
-        IconComponent,
-        MatFormFieldModule,
-        MatInputModule,
-        MatRippleModule
-      ],
-      host: {
-        "(window:pointerdown)": "resetAutoAccept()",
-        "(window:keydown)": "resetAutoAccept()"
-      }
-    }]
-  }], () => [], { serverError: [{ type: Input, args: [{ isSignal: true, alias: "serverError", required: false }] }], autoAccept: [{ type: Input, args: [{ isSignal: true, alias: "autoAccept", required: false }] }], domainSet: [{ type: Output, args: ["domainSet"] }] });
-})();
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NativeDomainOverlayComponent, { className: "NativeDomainOverlayComponent", filePath: "libs/components/src/lib/native-domain-overlay.component.ts", lineNumber: 169 });
-})();
-
-// libs/components/src/lib/service-worker-update-card.component.ts
-function ServiceWorkerUpdateCardComponent_Conditional_0_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "aside", 0)(1, "div", 1)(2, "h2", 2);
-    \u0275\u0275text(3);
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "p", 3);
-    \u0275\u0275text(5);
-    \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(6, "button", 4);
-    \u0275\u0275listener("click", function ServiceWorkerUpdateCardComponent_Conditional_0_Template_button_click_6_listener() {
-      \u0275\u0275restoreView(_r1);
-      const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.reloadApp());
-    });
-    \u0275\u0275elementStart(7, "icon");
-    \u0275\u0275text(8, "refresh");
-    \u0275\u0275elementEnd()()();
-  }
-  if (rf & 2) {
-    const update_state_r3 = ctx;
-    \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1(" ", update_state_r3.message || "Update available", " ");
-    \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", update_state_r3.details || "Refresh the page to get the new version of the application", " ");
-    \u0275\u0275advance();
-    \u0275\u0275property("matTooltip", update_state_r3.action || "Reload App");
-  }
-}
-var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
-  constructor() {
-    this.update = serviceWorkerUpdate();
-  }
-  reloadApp() {
-    location.reload();
-  }
-  static {
-    this.\u0275fac = function ServiceWorkerUpdateCardComponent_Factory(__ngFactoryType__) {
-      return new (__ngFactoryType__ || _ServiceWorkerUpdateCardComponent)();
-    };
-  }
-  static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ServiceWorkerUpdateCardComponent, selectors: [["placeos-service-worker-update-card"]], decls: 1, vars: 1, consts: [["role", "status", "aria-live", "assertive", 1, "border-base-300", "bg-base-100", "text-base-content", "pointer-events-auto", "fixed", "right-4", "bottom-4", "z-9999", "flex", "w-[20rem]", "max-w-[calc(100vw-2rem)]", "items-center", "gap-3", "rounded-lg", "border", "p-4", "shadow-xl"], [1, "min-w-0", "flex-1"], [1, "m-0", "text-sm", "leading-tight", "font-medium"], [1, "m-0", "mt-1", "text-xs", "opacity-70"], ["icon", "", "default", "", 3, "click", "matTooltip"]], template: function ServiceWorkerUpdateCardComponent_Template(rf, ctx) {
-      if (rf & 1) {
-        \u0275\u0275conditionalCreate(0, ServiceWorkerUpdateCardComponent_Conditional_0_Template, 9, 3, "aside", 0);
-      }
-      if (rf & 2) {
-        let tmp_0_0;
-        \u0275\u0275conditional((tmp_0_0 = ctx.update()) ? 0 : -1, tmp_0_0);
-      }
-    }, dependencies: [IconComponent, MatTooltipModule, MatTooltip], encapsulation: 2 });
-  }
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(ServiceWorkerUpdateCardComponent, [{
-    type: Component,
-    args: [{
-      selector: "placeos-service-worker-update-card",
-      template: `
-        @if (update(); as update_state) {
-            <aside
-                role="status"
-                aria-live="assertive"
-                class="border-base-300 bg-base-100 text-base-content pointer-events-auto fixed right-4 bottom-4 z-9999 flex w-[20rem] max-w-[calc(100vw-2rem)] items-center gap-3 rounded-lg border p-4 shadow-xl"
-            >
-                <div class="min-w-0 flex-1">
-                    <h2 class="m-0 text-sm leading-tight font-medium">
-                        {{ update_state.message || 'Update available' }}
-                    </h2>
-                    <p class="m-0 mt-1 text-xs opacity-70">
-                        {{
-                            update_state.details ||
-                                'Refresh the page to get the new version of the application'
-                        }}
-                    </p>
-                </div>
-                <button
-                    icon
-                    default
-                    [matTooltip]="update_state.action || 'Reload App'"
-                    (click)="reloadApp()"
-                >
-                    <icon>refresh</icon>
-                </button>
-            </aside>
-        }
-    `,
-      imports: [IconComponent, MatTooltipModule]
-    }]
-  }], null, null);
-})();
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ServiceWorkerUpdateCardComponent, { className: "ServiceWorkerUpdateCardComponent", filePath: "libs/components/src/lib/service-worker-update-card.component.ts", lineNumber: 40 });
-})();
-
-// libs/components/src/lib/global-loading.component.ts
-function GlobalLoadingComponent_Conditional_0_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "native-domain-overlay", 3);
-    \u0275\u0275listener("domainSet", function GlobalLoadingComponent_Conditional_0_Template_native_domain_overlay_domainSet_0_listener() {
-      \u0275\u0275restoreView(_r1);
-      const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.onDomainSet());
-    });
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275property("serverError", ctx_r1.domain_error())("autoAccept", ctx_r1.auto_confirm());
-  }
-}
-function GlobalLoadingComponent_Conditional_1_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 1);
-    \u0275\u0275text(1);
-    \u0275\u0275pipe(2, "translate");
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, "COMMON.SERVER_DOWN"), " ");
-  }
-}
-function GlobalLoadingComponent_Conditional_2_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 2)(1, "div", 4)(2, "p", 5);
-    \u0275\u0275text(3);
-    \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(4, "div", 6);
-    \u0275\u0275element(5, "mat-progress-bar", 7);
-    \u0275\u0275elementEnd()();
-  }
-  if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate(ctx_r1.message());
-  }
-}
-var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler {
-  constructor() {
-    super(...arguments);
-    this._org = inject2(OrganisationService);
-    this._placeos = inject2(PlaceOS_Service);
-    this._settings = inject2(SettingsService);
-    this.loading = signal(
-      true,
-      ...ngDevMode ? [{ debugName: "loading" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.online = signal(
-      true,
-      ...ngDevMode ? [{ debugName: "online" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.message = getLoadingMessage();
-    this.show_domain_overlay = needsNativeDomain();
-    this.domain_error = nativeDomainError();
-    this.auto_confirm = autoConfirmNativeDomain();
-  }
-  onDomainSet() {
-    this._placeos.onNativeDomainSet();
-  }
-  async ngOnInit() {
-    this.loading.set(true);
-    await this._org.waitUntilInitialised();
-    await firstTruthyValueFrom(this._settings.initialised);
-    this.online.set(Fr());
-    this.interval("has_token", () => {
-      this.online.set(Fr());
-      if (!Rt() || !X2())
-        return;
-      this.loading.set(false);
-      this.online.set(Fr());
-      this.clearInterval("has_token");
-    }, 1e3);
-  }
-  static {
-    this.\u0275fac = /* @__PURE__ */ (() => {
-      let \u0275GlobalLoadingComponent_BaseFactory;
-      return function GlobalLoadingComponent_Factory(__ngFactoryType__) {
-        return (\u0275GlobalLoadingComponent_BaseFactory || (\u0275GlobalLoadingComponent_BaseFactory = \u0275\u0275getInheritedFactory(_GlobalLoadingComponent)))(__ngFactoryType__ || _GlobalLoadingComponent);
-      };
-    })();
-  }
-  static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _GlobalLoadingComponent, selectors: [["global-loading"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 4, vars: 3, consts: [[3, "serverError", "autoAccept"], [1, "bg-error", "fixed", "top-2", "left-1/2", "z-9999", "-translate-x-1/2", "rounded-3xl", "px-4", "py-2", "text-xs", "text-white", "shadow-sm"], ["loader", "", 1, "bg-base-300", "pointer-events-auto", "fixed", "inset-0", "z-9998", "flex", "flex-col", "items-center", "justify-end", "space-y-2", "p-4"], [3, "domainSet", "serverError", "autoAccept"], [1, "border-base-300", "bg-base-100", "w-[24rem]", "max-w-[calc(100vw-2rem)]", "rounded-lg", "border", "p-2", "text-center", "text-xs", "shadow-sm"], [1, "text-center", "font-mono"], [1, "border-base-300", "w-[24rem]", "max-w-[calc(100vw-2rem)]", "overflow-hidden", "rounded-full", "border", "shadow-sm"], ["mode", "indeterminate", 1, "scale-150", "rounded-sm"]], template: function GlobalLoadingComponent_Template(rf, ctx) {
-      if (rf & 1) {
-        \u0275\u0275conditionalCreate(0, GlobalLoadingComponent_Conditional_0_Template, 1, 2, "native-domain-overlay", 0);
-        \u0275\u0275conditionalCreate(1, GlobalLoadingComponent_Conditional_1_Template, 3, 3, "div", 1);
-        \u0275\u0275conditionalCreate(2, GlobalLoadingComponent_Conditional_2_Template, 6, 1, "div", 2);
-        \u0275\u0275element(3, "placeos-service-worker-update-card");
-      }
-      if (rf & 2) {
-        \u0275\u0275conditional(ctx.show_domain_overlay() ? 0 : -1);
-        \u0275\u0275advance();
-        \u0275\u0275conditional(!ctx.online() ? 1 : -1);
-        \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.loading() ? 2 : -1);
-      }
-    }, dependencies: [
-      MatProgressBarModule,
-      MatProgressBar,
-      NativeDomainOverlayComponent,
-      ServiceWorkerUpdateCardComponent,
-      TranslatePipe
-    ], styles: ["\n[_nghost-%COMP%] {\n  pointer-events: none;\n}\n[loader][_ngcontent-%COMP%] {\n  background-image:\n    linear-gradient(\n      to right,\n      #f15b55 0%,\n      #f68c50 100%);\n}\n/*# sourceMappingURL=global-loading.component.css.map */"] });
-  }
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(GlobalLoadingComponent, [{
-    type: Component,
-    args: [{ selector: "global-loading", template: `
-        @if (show_domain_overlay()) {
-            <native-domain-overlay
-                [serverError]="domain_error()"
-                [autoAccept]="auto_confirm()"
-                (domainSet)="onDomainSet()"
-            ></native-domain-overlay>
-        }
-        @if (!online()) {
-            <div
-                class="bg-error fixed top-2 left-1/2 z-9999 -translate-x-1/2 rounded-3xl px-4 py-2 text-xs text-white shadow-sm"
-            >
-                {{ 'COMMON.SERVER_DOWN' | translate }}
-            </div>
-        }
-        @if (loading()) {
-            <div
-                loader
-                class="bg-base-300 pointer-events-auto fixed inset-0 z-9998 flex flex-col items-center justify-end space-y-2 p-4"
-            >
-                <div
-                    class="border-base-300 bg-base-100 w-[24rem] max-w-[calc(100vw-2rem)] rounded-lg border p-2 text-center text-xs shadow-sm"
-                >
-                    <p class="text-center font-mono">{{ message() }}</p>
-                </div>
-                <div
-                    class="border-base-300 w-[24rem] max-w-[calc(100vw-2rem)] overflow-hidden rounded-full border shadow-sm"
-                >
-                    <mat-progress-bar
-                        mode="indeterminate"
-                        class="scale-150 rounded-sm"
-                    ></mat-progress-bar>
-                </div>
-            </div>
-        }
-        <placeos-service-worker-update-card />
-    `, imports: [
-      MatProgressBarModule,
-      NativeDomainOverlayComponent,
-      ServiceWorkerUpdateCardComponent,
-      TranslatePipe
-    ], styles: ["/* angular:styles/component:css;cc9c8858f40050cbf899d1698bf5ddc695ecfe0c7e714e2a22cee15289062064;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/global-loading.component.ts */\n:host {\n  pointer-events: none;\n}\n[loader] {\n  background-image:\n    linear-gradient(\n      to right,\n      #f15b55 0%,\n      #f68c50 100%);\n}\n/*# sourceMappingURL=global-loading.component.css.map */\n"] }]
-  }], null, null);
-})();
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(GlobalLoadingComponent, { className: "GlobalLoadingComponent", filePath: "libs/components/src/lib/global-loading.component.ts", lineNumber: 81 });
-})();
-
-// libs/components/src/lib/image-carousel.component.ts
-function ImageCarouselComponent_For_2_Conditional_1_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275element(0, "img", 7);
-  }
-  if (rf & 2) {
-    const image_r1 = \u0275\u0275nextContext().$implicit;
-    \u0275\u0275property("source", image_r1?.url || image_r1);
-  }
-}
-function ImageCarouselComponent_For_2_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 6);
-    \u0275\u0275conditionalCreate(1, ImageCarouselComponent_For_2_Conditional_1_Template, 1, 1, "img", 7);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const image_r1 = ctx.$implicit;
-    const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275styleProp("transform", ctx_r1.offset_transform());
-    \u0275\u0275advance();
-    \u0275\u0275conditional(image_r1 ? 1 : -1);
-  }
-}
-function ImageCarouselComponent_Conditional_3_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 2)(1, "icon", 8);
-    \u0275\u0275text(2, "image");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "p");
-    \u0275\u0275text(4);
-    \u0275\u0275pipe(5, "translate");
-    \u0275\u0275elementEnd()();
-  }
-  if (rf & 2) {
-    \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(5, 1, "COMMON.IMAGES_EMPTY"));
-  }
-}
-function ImageCarouselComponent_Conditional_4_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r3 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 9);
-    \u0275\u0275listener("click", function ImageCarouselComponent_Conditional_4_Template_button_click_0_listener() {
-      \u0275\u0275restoreView(_r3);
-      const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.offset.update((value) => value - 1));
-    });
-    \u0275\u0275elementStart(1, "div", 10)(2, "icon", 11);
-    \u0275\u0275text(3, "chevron_left");
-    \u0275\u0275elementEnd()()();
-  }
-  if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275property("disabled", ctx_r1.offset() === 0);
-  }
-}
-function ImageCarouselComponent_Conditional_5_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r4 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 12);
-    \u0275\u0275listener("click", function ImageCarouselComponent_Conditional_5_Template_button_click_0_listener() {
-      \u0275\u0275restoreView(_r4);
-      const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.offset.update((value) => value + 1));
-    });
-    \u0275\u0275elementStart(1, "div", 13)(2, "icon", 11);
-    \u0275\u0275text(3, "chevron_right");
-    \u0275\u0275elementEnd()()();
-  }
-  if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275property("disabled", ctx_r1.offset() >= ctx_r1.images()?.length - 1);
-  }
-}
-function ImageCarouselComponent_Conditional_6_For_2_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r5 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 15);
-    \u0275\u0275listener("click", function ImageCarouselComponent_Conditional_6_For_2_Template_button_click_0_listener() {
-      const \u0275$index_38_r6 = \u0275\u0275restoreView(_r5).$index;
-      const ctx_r1 = \u0275\u0275nextContext(2);
-      return \u0275\u0275resetView(ctx_r1.offset.set(\u0275$index_38_r6));
-    });
-    \u0275\u0275element(1, "div", 16);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const \u0275$index_38_r6 = ctx.$index;
-    const ctx_r1 = \u0275\u0275nextContext(2);
-    \u0275\u0275advance();
-    \u0275\u0275classProp("opacity-30", ctx_r1.offset() !== \u0275$index_38_r6)("h-2", ctx_r1.offset() !== \u0275$index_38_r6)("w-2", ctx_r1.offset() !== \u0275$index_38_r6)("h-4", ctx_r1.offset() === \u0275$index_38_r6)("w-4", ctx_r1.offset() === \u0275$index_38_r6)("opacity-80", ctx_r1.offset() === \u0275$index_38_r6);
-  }
-}
-function ImageCarouselComponent_Conditional_6_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 5);
-    \u0275\u0275repeaterCreate(1, ImageCarouselComponent_Conditional_6_For_2_Template, 2, 12, "button", 14, \u0275\u0275repeaterTrackByIdentity);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275advance();
-    \u0275\u0275repeater(ctx_r1.images());
-  }
-}
-var ImageCarouselComponent = class _ImageCarouselComponent {
-  constructor() {
-    this.images = input(
-      [],
-      ...ngDevMode ? [{ debugName: "images" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.offset = signal(
-      0,
-      ...ngDevMode ? [{ debugName: "offset" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.offset_transform = computed(
-      () => `translateX(-${this.offset() * 100}%)`,
-      ...ngDevMode ? [{ debugName: "offset_transform" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-  }
-  static {
-    this.\u0275fac = function ImageCarouselComponent_Factory(__ngFactoryType__) {
-      return new (__ngFactoryType__ || _ImageCarouselComponent)();
-    };
-  }
-  static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ImageCarouselComponent, selectors: [["image-carousel"]], inputs: { images: [1, "images"] }, decls: 7, vars: 4, consts: [[1, "relative", "flex", "h-full", "w-full", "overflow-hidden"], ["image", "", 1, "relative", "flex", "h-full", "min-w-full", "items-center", "justify-center", "overflow-hidden", 3, "transform"], [1, "relative", "flex", "h-full", "w-full", "flex-col", "items-center", "justify-center", "space-y-2", "opacity-30"], [1, "absolute", "inset-y-0", "left-0", "flex", "w-1/3", "items-center", "justify-center", "opacity-0", "hover:opacity-100", 3, "disabled"], [1, "absolute", "inset-y-0", "right-0", "flex", "w-1/3", "items-center", "justify-center", "text-white", "opacity-0", "hover:opacity-100", 3, "disabled"], [1, "absolute", "bottom-2", "left-1/2", "flex", "-translate-x-1/2", "items-center", "space-x-2", "text-sm"], ["image", "", 1, "relative", "flex", "h-full", "min-w-full", "items-center", "justify-center", "overflow-hidden"], ["auth", "", 1, "h-full", "object-contain", 3, "source"], [1, "text-6xl"], [1, "absolute", "inset-y-0", "left-0", "flex", "w-1/3", "items-center", "justify-center", "opacity-0", "hover:opacity-100", 3, "click", "disabled"], ["matRipple", "", 1, "border-base-300", "bg-base-100", "text-base-content", "absolute", "top-1/2", "left-4", "h-10", "w-10", "-translate-y-1/2", "rounded-full", "border", "shadow-sm"], [1, "text-3xl"], [1, "absolute", "inset-y-0", "right-0", "flex", "w-1/3", "items-center", "justify-center", "text-white", "opacity-0", "hover:opacity-100", 3, "click", "disabled"], ["matRipple", "", 1, "border-base-300", "bg-base-100", "text-base-content", "absolute", "top-1/2", "right-4", "h-10", "w-10", "-translate-y-1/2", "rounded-full", "border", "shadow-sm"], ["matRipple", "", 1, "flex", "h-4", "w-4", "items-center", "justify-center"], ["matRipple", "", 1, "flex", "h-4", "w-4", "items-center", "justify-center", 3, "click"], [1, "bg-base-100", "rounded-full", "shadow-sm", "transition-all"]], template: function ImageCarouselComponent_Template(rf, ctx) {
-      if (rf & 1) {
-        \u0275\u0275elementStart(0, "div", 0);
-        \u0275\u0275repeaterCreate(1, ImageCarouselComponent_For_2_Template, 2, 3, "div", 1, \u0275\u0275repeaterTrackByIdentity);
-        \u0275\u0275conditionalCreate(3, ImageCarouselComponent_Conditional_3_Template, 6, 3, "div", 2);
-        \u0275\u0275conditionalCreate(4, ImageCarouselComponent_Conditional_4_Template, 4, 1, "button", 3);
-        \u0275\u0275conditionalCreate(5, ImageCarouselComponent_Conditional_5_Template, 4, 1, "button", 4);
-        \u0275\u0275conditionalCreate(6, ImageCarouselComponent_Conditional_6_Template, 3, 0, "div", 5);
-        \u0275\u0275elementEnd();
-      }
-      if (rf & 2) {
-        \u0275\u0275advance();
-        \u0275\u0275repeater(ctx.images());
-        \u0275\u0275advance(2);
-        \u0275\u0275conditional(!ctx.images()?.length ? 3 : -1);
-        \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.images()?.length ? 4 : -1);
-        \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.images()?.length ? 5 : -1);
-        \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.images()?.length ? 6 : -1);
-      }
-    }, dependencies: [
-      MatRippleModule,
-      MatRipple,
-      AuthenticatedImageDirective,
-      IconComponent,
-      TranslatePipe
-    ], styles: ["\n[_nghost-%COMP%] {\n  display: block;\n  height: 100%;\n  width: 100%;\n}\n[image][_ngcontent-%COMP%] {\n  transition: transform 300ms;\n}\nbutton[disabled][_ngcontent-%COMP%] {\n  pointer-events: none;\n}\n/*# sourceMappingURL=image-carousel.component.css.map */"] });
-  }
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(ImageCarouselComponent, [{
-    type: Component,
-    args: [{ selector: "image-carousel", template: `
-        <div class="relative flex h-full w-full overflow-hidden">
-            @for (image of images(); track image) {
-                <div
-                    image
-                    class="relative flex h-full min-w-full items-center justify-center overflow-hidden"
-                    [style.transform]="offset_transform()"
-                >
-                    @if (image) {
-                        <img
-                            auth
-                            class="h-full object-contain"
-                            [source]="$any(image)?.url || image"
-                        />
-                    }
-                </div>
-            }
-            @if (!images()?.length) {
-                <div
-                    class="relative flex h-full w-full flex-col items-center justify-center space-y-2 opacity-30"
-                >
-                    <icon class="text-6xl">image</icon>
-                    <p>{{ 'COMMON.IMAGES_EMPTY' | translate }}</p>
-                </div>
-            }
-            @if (images()?.length) {
-                <button
-                    class="absolute inset-y-0 left-0 flex w-1/3 items-center justify-center opacity-0 hover:opacity-100"
-                    [disabled]="offset() === 0"
-                    (click)="offset.update((value) => value - 1)"
-                >
-                    <div
-                        matRipple
-                        class="border-base-300 bg-base-100 text-base-content absolute top-1/2 left-4 h-10 w-10 -translate-y-1/2 rounded-full border shadow-sm"
-                    >
-                        <icon class="text-3xl">chevron_left</icon>
-                    </div>
-                </button>
-            }
-            @if (images()?.length) {
-                <button
-                    class="absolute inset-y-0 right-0 flex w-1/3 items-center justify-center text-white opacity-0 hover:opacity-100"
-                    [disabled]="offset() >= images()?.length - 1"
-                    (click)="offset.update((value) => value + 1)"
-                >
-                    <div
-                        matRipple
-                        class="border-base-300 bg-base-100 text-base-content absolute top-1/2 right-4 h-10 w-10 -translate-y-1/2 rounded-full border shadow-sm"
-                    >
-                        <icon class="text-3xl">chevron_right</icon>
-                    </div>
-                </button>
-            }
-            @if (images()?.length) {
-                <div
-                    class="absolute bottom-2 left-1/2 flex -translate-x-1/2 items-center space-x-2 text-sm"
-                >
-                    @for (img of images(); track img; let i = $index) {
-                        <button
-                            matRipple
-                            (click)="offset.set(i)"
-                            class="flex h-4 w-4 items-center justify-center"
-                        >
-                            <div
-                                class="bg-base-100 rounded-full shadow-sm transition-all"
-                                [class.opacity-30]="offset() !== i"
-                                [class.h-2]="offset() !== i"
-                                [class.w-2]="offset() !== i"
-                                [class.h-4]="offset() === i"
-                                [class.w-4]="offset() === i"
-                                [class.opacity-80]="offset() === i"
-                            ></div>
-                        </button>
-                    }
-                </div>
-            }
-        </div>
-    `, imports: [
-      MatRippleModule,
-      TranslatePipe,
-      AuthenticatedImageDirective,
-      IconComponent
-    ], styles: ["/* angular:styles/component:css;689216c244746a44ce8495e5ddc0d8a4ad407f0899332d9a6e20f4c6e02d0df2;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/image-carousel.component.ts */\n:host {\n  display: block;\n  height: 100%;\n  width: 100%;\n}\n[image] {\n  transition: transform 300ms;\n}\nbutton[disabled] {\n  pointer-events: none;\n}\n/*# sourceMappingURL=image-carousel.component.css.map */\n"] }]
-  }], null, { images: [{ type: Input, args: [{ isSignal: true, alias: "images", required: false }] }] });
-})();
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ImageCarouselComponent, { className: "ImageCarouselComponent", filePath: "libs/components/src/lib/image-carousel.component.ts", lineNumber: 111 });
-})();
-
 // libs/components/src/lib/map-viewer.class.ts
 var MAX_ZOOM = 10;
 var MIN_ZOOM = 1;
@@ -99399,6 +98171,1279 @@ var DynamicMapComponent = class _DynamicMapComponent {
 })();
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DynamicMapComponent, { className: "DynamicMapComponent", filePath: "libs/components/src/lib/dynamic-map.component.ts", lineNumber: 247 });
+})();
+
+// node_modules/@angular/material/fesm2022/progress-bar.mjs
+function MatProgressBar_Conditional_2_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275domElement(0, "div", 2);
+  }
+}
+var MAT_PROGRESS_BAR_DEFAULT_OPTIONS = new InjectionToken("MAT_PROGRESS_BAR_DEFAULT_OPTIONS");
+var MAT_PROGRESS_BAR_LOCATION = new InjectionToken("mat-progress-bar-location", {
+  providedIn: "root",
+  factory: () => {
+    const _document2 = inject2(DOCUMENT);
+    const _location = _document2 ? _document2.location : null;
+    return {
+      getPathname: () => _location ? _location.pathname + _location.search : ""
+    };
+  }
+});
+var MatProgressBar = class _MatProgressBar {
+  _elementRef = inject2(ElementRef);
+  _ngZone = inject2(NgZone);
+  _changeDetectorRef = inject2(ChangeDetectorRef);
+  _renderer = inject2(Renderer2);
+  _cleanupTransitionEnd;
+  constructor() {
+    const animationsState = _getAnimationsState();
+    const defaults2 = inject2(MAT_PROGRESS_BAR_DEFAULT_OPTIONS, {
+      optional: true
+    });
+    this._isNoopAnimation = animationsState === "di-disabled";
+    if (animationsState === "reduced-motion") {
+      this._elementRef.nativeElement.classList.add("mat-progress-bar-reduced-motion");
+    }
+    if (defaults2) {
+      if (defaults2.color) {
+        this.color = this._defaultColor = defaults2.color;
+      }
+      this.mode = defaults2.mode || this.mode;
+    }
+  }
+  _isNoopAnimation;
+  get color() {
+    return this._color || this._defaultColor;
+  }
+  set color(value) {
+    this._color = value;
+  }
+  _color;
+  _defaultColor = "primary";
+  get value() {
+    return this._value;
+  }
+  set value(v) {
+    this._value = clamp(v || 0);
+    this._changeDetectorRef.markForCheck();
+  }
+  _value = 0;
+  get bufferValue() {
+    return this._bufferValue || 0;
+  }
+  set bufferValue(v) {
+    this._bufferValue = clamp(v || 0);
+    this._changeDetectorRef.markForCheck();
+  }
+  _bufferValue = 0;
+  animationEnd = new EventEmitter();
+  get mode() {
+    return this._mode;
+  }
+  set mode(value) {
+    this._mode = value;
+    this._changeDetectorRef.markForCheck();
+  }
+  _mode = "determinate";
+  ngAfterViewInit() {
+    this._ngZone.runOutsideAngular(() => {
+      this._cleanupTransitionEnd = this._renderer.listen(this._elementRef.nativeElement, "transitionend", this._transitionendHandler);
+    });
+  }
+  ngOnDestroy() {
+    this._cleanupTransitionEnd?.();
+  }
+  _getPrimaryBarTransform() {
+    return `scaleX(${this._isIndeterminate() ? 1 : this.value / 100})`;
+  }
+  _getBufferBarFlexBasis() {
+    return `${this.mode === "buffer" ? this.bufferValue : 100}%`;
+  }
+  _isIndeterminate() {
+    return this.mode === "indeterminate" || this.mode === "query";
+  }
+  _transitionendHandler = (event) => {
+    if (this.animationEnd.observers.length === 0 || !event.target || !event.target.classList.contains("mdc-linear-progress__primary-bar")) {
+      return;
+    }
+    if (this.mode === "determinate" || this.mode === "buffer") {
+      this._ngZone.run(() => this.animationEnd.next({
+        value: this.value
+      }));
+    }
+  };
+  static \u0275fac = function MatProgressBar_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _MatProgressBar)();
+  };
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
+    type: _MatProgressBar,
+    selectors: [["mat-progress-bar"]],
+    hostAttrs: ["role", "progressbar", "aria-valuemin", "0", "aria-valuemax", "100", "tabindex", "-1", 1, "mat-mdc-progress-bar", "mdc-linear-progress"],
+    hostVars: 10,
+    hostBindings: function MatProgressBar_HostBindings(rf, ctx) {
+      if (rf & 2) {
+        \u0275\u0275attribute("aria-valuenow", ctx._isIndeterminate() ? null : ctx.value)("mode", ctx.mode);
+        \u0275\u0275classMap("mat-" + ctx.color);
+        \u0275\u0275classProp("_mat-animation-noopable", ctx._isNoopAnimation)("mdc-linear-progress--animation-ready", !ctx._isNoopAnimation)("mdc-linear-progress--indeterminate", ctx._isIndeterminate());
+      }
+    },
+    inputs: {
+      color: "color",
+      value: [2, "value", "value", numberAttribute],
+      bufferValue: [2, "bufferValue", "bufferValue", numberAttribute],
+      mode: "mode"
+    },
+    outputs: {
+      animationEnd: "animationEnd"
+    },
+    exportAs: ["matProgressBar"],
+    decls: 7,
+    vars: 5,
+    consts: [["aria-hidden", "true", 1, "mdc-linear-progress__buffer"], [1, "mdc-linear-progress__buffer-bar"], [1, "mdc-linear-progress__buffer-dots"], ["aria-hidden", "true", 1, "mdc-linear-progress__bar", "mdc-linear-progress__primary-bar"], [1, "mdc-linear-progress__bar-inner"], ["aria-hidden", "true", 1, "mdc-linear-progress__bar", "mdc-linear-progress__secondary-bar"]],
+    template: function MatProgressBar_Template(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275domElementStart(0, "div", 0);
+        \u0275\u0275domElement(1, "div", 1);
+        \u0275\u0275conditionalCreate(2, MatProgressBar_Conditional_2_Template, 1, 0, "div", 2);
+        \u0275\u0275domElementEnd();
+        \u0275\u0275domElementStart(3, "div", 3);
+        \u0275\u0275domElement(4, "span", 4);
+        \u0275\u0275domElementEnd();
+        \u0275\u0275domElementStart(5, "div", 5);
+        \u0275\u0275domElement(6, "span", 4);
+        \u0275\u0275domElementEnd();
+      }
+      if (rf & 2) {
+        \u0275\u0275advance();
+        \u0275\u0275styleProp("flex-basis", ctx._getBufferBarFlexBasis());
+        \u0275\u0275advance();
+        \u0275\u0275conditional(ctx.mode === "buffer" ? 2 : -1);
+        \u0275\u0275advance();
+        \u0275\u0275styleProp("transform", ctx._getPrimaryBarTransform());
+      }
+    },
+    styles: [".mat-mdc-progress-bar {\n  --mat-progress-bar-animation-multiplier: 1;\n  display: block;\n  text-align: start;\n}\n.mat-mdc-progress-bar[mode=query] {\n  transform: scaleX(-1);\n}\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__buffer-dots,\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__primary-bar,\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__secondary-bar,\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__bar-inner.mdc-linear-progress__bar-inner {\n  animation: none;\n}\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__primary-bar,\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__buffer-bar {\n  transition: transform 1ms;\n}\n\n.mat-progress-bar-reduced-motion {\n  --mat-progress-bar-animation-multiplier: 2;\n}\n\n.mdc-linear-progress {\n  position: relative;\n  width: 100%;\n  transform: translateZ(0);\n  outline: 1px solid transparent;\n  overflow-x: hidden;\n  transition: opacity 250ms 0ms cubic-bezier(0.4, 0, 0.6, 1);\n  height: max(var(--mat-progress-bar-track-height, 4px), var(--mat-progress-bar-active-indicator-height, 4px));\n}\n@media (forced-colors: active) {\n  .mdc-linear-progress {\n    outline-color: CanvasText;\n  }\n}\n\n.mdc-linear-progress__bar {\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  margin: auto 0;\n  width: 100%;\n  animation: none;\n  transform-origin: top left;\n  transition: transform 250ms 0ms cubic-bezier(0.4, 0, 0.6, 1);\n  height: var(--mat-progress-bar-active-indicator-height, 4px);\n}\n.mdc-linear-progress--indeterminate .mdc-linear-progress__bar {\n  transition: none;\n}\n[dir=rtl] .mdc-linear-progress__bar {\n  right: 0;\n  transform-origin: center right;\n}\n\n.mdc-linear-progress__bar-inner {\n  display: inline-block;\n  position: absolute;\n  width: 100%;\n  animation: none;\n  border-top-style: solid;\n  border-color: var(--mat-progress-bar-active-indicator-color, var(--mat-sys-primary));\n  border-top-width: var(--mat-progress-bar-active-indicator-height, 4px);\n}\n\n.mdc-linear-progress__buffer {\n  display: flex;\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  margin: auto 0;\n  width: 100%;\n  overflow: hidden;\n  height: var(--mat-progress-bar-track-height, 4px);\n  border-radius: var(--mat-progress-bar-track-shape, var(--mat-sys-corner-none));\n}\n\n.mdc-linear-progress__buffer-dots {\n  background-image: radial-gradient(circle, var(--mat-progress-bar-track-color, var(--mat-sys-surface-variant)) calc(var(--mat-progress-bar-track-height, 4px) / 2), transparent 0);\n  background-repeat: repeat-x;\n  background-size: calc(calc(var(--mat-progress-bar-track-height, 4px) / 2) * 5);\n  background-position: left;\n  flex: auto;\n  transform: rotate(180deg);\n  animation: mdc-linear-progress-buffering calc(250ms * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n@media (forced-colors: active) {\n  .mdc-linear-progress__buffer-dots {\n    background-color: ButtonBorder;\n  }\n}\n[dir=rtl] .mdc-linear-progress__buffer-dots {\n  animation: mdc-linear-progress-buffering-reverse calc(250ms * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n  transform: rotate(0);\n}\n\n.mdc-linear-progress__buffer-bar {\n  flex: 0 1 100%;\n  transition: flex-basis 250ms 0ms cubic-bezier(0.4, 0, 0.6, 1);\n  background-color: var(--mat-progress-bar-track-color, var(--mat-sys-surface-variant));\n}\n\n.mdc-linear-progress__primary-bar {\n  transform: scaleX(0);\n}\n.mdc-linear-progress--indeterminate .mdc-linear-progress__primary-bar {\n  left: -145.166611%;\n}\n.mdc-linear-progress--indeterminate.mdc-linear-progress--animation-ready .mdc-linear-progress__primary-bar {\n  animation: mdc-linear-progress-primary-indeterminate-translate calc(2s * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n.mdc-linear-progress--indeterminate.mdc-linear-progress--animation-ready .mdc-linear-progress__primary-bar > .mdc-linear-progress__bar-inner {\n  animation: mdc-linear-progress-primary-indeterminate-scale calc(2s * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n[dir=rtl] .mdc-linear-progress.mdc-linear-progress--animation-ready .mdc-linear-progress__primary-bar {\n  animation-name: mdc-linear-progress-primary-indeterminate-translate-reverse;\n}\n[dir=rtl] .mdc-linear-progress.mdc-linear-progress--indeterminate .mdc-linear-progress__primary-bar {\n  right: -145.166611%;\n  left: auto;\n}\n\n.mdc-linear-progress__secondary-bar {\n  display: none;\n}\n.mdc-linear-progress--indeterminate .mdc-linear-progress__secondary-bar {\n  left: -54.888891%;\n  display: block;\n}\n.mdc-linear-progress--indeterminate.mdc-linear-progress--animation-ready .mdc-linear-progress__secondary-bar {\n  animation: mdc-linear-progress-secondary-indeterminate-translate calc(2s * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n.mdc-linear-progress--indeterminate.mdc-linear-progress--animation-ready .mdc-linear-progress__secondary-bar > .mdc-linear-progress__bar-inner {\n  animation: mdc-linear-progress-secondary-indeterminate-scale calc(2s * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n[dir=rtl] .mdc-linear-progress.mdc-linear-progress--animation-ready .mdc-linear-progress__secondary-bar {\n  animation-name: mdc-linear-progress-secondary-indeterminate-translate-reverse;\n}\n[dir=rtl] .mdc-linear-progress.mdc-linear-progress--indeterminate .mdc-linear-progress__secondary-bar {\n  right: -54.888891%;\n  left: auto;\n}\n\n@keyframes mdc-linear-progress-buffering {\n  from {\n    transform: rotate(180deg) translateX(calc(var(--mat-progress-bar-track-height, 4px) * -2.5));\n  }\n}\n@keyframes mdc-linear-progress-primary-indeterminate-translate {\n  0% {\n    transform: translateX(0);\n  }\n  20% {\n    animation-timing-function: cubic-bezier(0.5, 0, 0.701732, 0.495819);\n    transform: translateX(0);\n  }\n  59.15% {\n    animation-timing-function: cubic-bezier(0.302435, 0.381352, 0.55, 0.956352);\n    transform: translateX(83.67142%);\n  }\n  100% {\n    transform: translateX(200.611057%);\n  }\n}\n@keyframes mdc-linear-progress-primary-indeterminate-scale {\n  0% {\n    transform: scaleX(0.08);\n  }\n  36.65% {\n    animation-timing-function: cubic-bezier(0.334731, 0.12482, 0.785844, 1);\n    transform: scaleX(0.08);\n  }\n  69.15% {\n    animation-timing-function: cubic-bezier(0.06, 0.11, 0.6, 1);\n    transform: scaleX(0.661479);\n  }\n  100% {\n    transform: scaleX(0.08);\n  }\n}\n@keyframes mdc-linear-progress-secondary-indeterminate-translate {\n  0% {\n    animation-timing-function: cubic-bezier(0.15, 0, 0.515058, 0.409685);\n    transform: translateX(0);\n  }\n  25% {\n    animation-timing-function: cubic-bezier(0.31033, 0.284058, 0.8, 0.733712);\n    transform: translateX(37.651913%);\n  }\n  48.35% {\n    animation-timing-function: cubic-bezier(0.4, 0.627035, 0.6, 0.902026);\n    transform: translateX(84.386165%);\n  }\n  100% {\n    transform: translateX(160.277782%);\n  }\n}\n@keyframes mdc-linear-progress-secondary-indeterminate-scale {\n  0% {\n    animation-timing-function: cubic-bezier(0.205028, 0.057051, 0.57661, 0.453971);\n    transform: scaleX(0.08);\n  }\n  19.15% {\n    animation-timing-function: cubic-bezier(0.152313, 0.196432, 0.648374, 1.004315);\n    transform: scaleX(0.457104);\n  }\n  44.15% {\n    animation-timing-function: cubic-bezier(0.257759, -0.003163, 0.211762, 1.38179);\n    transform: scaleX(0.72796);\n  }\n  100% {\n    transform: scaleX(0.08);\n  }\n}\n@keyframes mdc-linear-progress-primary-indeterminate-translate-reverse {\n  0% {\n    transform: translateX(0);\n  }\n  20% {\n    animation-timing-function: cubic-bezier(0.5, 0, 0.701732, 0.495819);\n    transform: translateX(0);\n  }\n  59.15% {\n    animation-timing-function: cubic-bezier(0.302435, 0.381352, 0.55, 0.956352);\n    transform: translateX(-83.67142%);\n  }\n  100% {\n    transform: translateX(-200.611057%);\n  }\n}\n@keyframes mdc-linear-progress-secondary-indeterminate-translate-reverse {\n  0% {\n    animation-timing-function: cubic-bezier(0.15, 0, 0.515058, 0.409685);\n    transform: translateX(0);\n  }\n  25% {\n    animation-timing-function: cubic-bezier(0.31033, 0.284058, 0.8, 0.733712);\n    transform: translateX(-37.651913%);\n  }\n  48.35% {\n    animation-timing-function: cubic-bezier(0.4, 0.627035, 0.6, 0.902026);\n    transform: translateX(-84.386165%);\n  }\n  100% {\n    transform: translateX(-160.277782%);\n  }\n}\n@keyframes mdc-linear-progress-buffering-reverse {\n  from {\n    transform: translateX(-10px);\n  }\n}\n"],
+    encapsulation: 2
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatProgressBar, [{
+    type: Component,
+    args: [{
+      selector: "mat-progress-bar",
+      exportAs: "matProgressBar",
+      host: {
+        "role": "progressbar",
+        "aria-valuemin": "0",
+        "aria-valuemax": "100",
+        "tabindex": "-1",
+        "[attr.aria-valuenow]": "_isIndeterminate() ? null : value",
+        "[attr.mode]": "mode",
+        "class": "mat-mdc-progress-bar mdc-linear-progress",
+        "[class]": '"mat-" + color',
+        "[class._mat-animation-noopable]": "_isNoopAnimation",
+        "[class.mdc-linear-progress--animation-ready]": "!_isNoopAnimation",
+        "[class.mdc-linear-progress--indeterminate]": "_isIndeterminate()"
+      },
+      encapsulation: ViewEncapsulation.None,
+      template: `<!--
+  All children need to be hidden for screen readers in order to support ChromeVox.
+  More context in the issue: https://github.com/angular/components/issues/22165.
+-->
+<div class="mdc-linear-progress__buffer" aria-hidden="true">
+  <div
+    class="mdc-linear-progress__buffer-bar"
+    [style.flex-basis]="_getBufferBarFlexBasis()"></div>
+  <!-- Remove the dots outside of buffer mode since they can cause CSP issues (see #28938) -->
+  @if (mode === 'buffer') {
+    <div class="mdc-linear-progress__buffer-dots"></div>
+  }
+</div>
+<div
+  class="mdc-linear-progress__bar mdc-linear-progress__primary-bar"
+  aria-hidden="true"
+  [style.transform]="_getPrimaryBarTransform()">
+  <span class="mdc-linear-progress__bar-inner"></span>
+</div>
+<div class="mdc-linear-progress__bar mdc-linear-progress__secondary-bar" aria-hidden="true">
+  <span class="mdc-linear-progress__bar-inner"></span>
+</div>
+`,
+      styles: [".mat-mdc-progress-bar {\n  --mat-progress-bar-animation-multiplier: 1;\n  display: block;\n  text-align: start;\n}\n.mat-mdc-progress-bar[mode=query] {\n  transform: scaleX(-1);\n}\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__buffer-dots,\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__primary-bar,\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__secondary-bar,\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__bar-inner.mdc-linear-progress__bar-inner {\n  animation: none;\n}\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__primary-bar,\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__buffer-bar {\n  transition: transform 1ms;\n}\n\n.mat-progress-bar-reduced-motion {\n  --mat-progress-bar-animation-multiplier: 2;\n}\n\n.mdc-linear-progress {\n  position: relative;\n  width: 100%;\n  transform: translateZ(0);\n  outline: 1px solid transparent;\n  overflow-x: hidden;\n  transition: opacity 250ms 0ms cubic-bezier(0.4, 0, 0.6, 1);\n  height: max(var(--mat-progress-bar-track-height, 4px), var(--mat-progress-bar-active-indicator-height, 4px));\n}\n@media (forced-colors: active) {\n  .mdc-linear-progress {\n    outline-color: CanvasText;\n  }\n}\n\n.mdc-linear-progress__bar {\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  margin: auto 0;\n  width: 100%;\n  animation: none;\n  transform-origin: top left;\n  transition: transform 250ms 0ms cubic-bezier(0.4, 0, 0.6, 1);\n  height: var(--mat-progress-bar-active-indicator-height, 4px);\n}\n.mdc-linear-progress--indeterminate .mdc-linear-progress__bar {\n  transition: none;\n}\n[dir=rtl] .mdc-linear-progress__bar {\n  right: 0;\n  transform-origin: center right;\n}\n\n.mdc-linear-progress__bar-inner {\n  display: inline-block;\n  position: absolute;\n  width: 100%;\n  animation: none;\n  border-top-style: solid;\n  border-color: var(--mat-progress-bar-active-indicator-color, var(--mat-sys-primary));\n  border-top-width: var(--mat-progress-bar-active-indicator-height, 4px);\n}\n\n.mdc-linear-progress__buffer {\n  display: flex;\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  margin: auto 0;\n  width: 100%;\n  overflow: hidden;\n  height: var(--mat-progress-bar-track-height, 4px);\n  border-radius: var(--mat-progress-bar-track-shape, var(--mat-sys-corner-none));\n}\n\n.mdc-linear-progress__buffer-dots {\n  background-image: radial-gradient(circle, var(--mat-progress-bar-track-color, var(--mat-sys-surface-variant)) calc(var(--mat-progress-bar-track-height, 4px) / 2), transparent 0);\n  background-repeat: repeat-x;\n  background-size: calc(calc(var(--mat-progress-bar-track-height, 4px) / 2) * 5);\n  background-position: left;\n  flex: auto;\n  transform: rotate(180deg);\n  animation: mdc-linear-progress-buffering calc(250ms * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n@media (forced-colors: active) {\n  .mdc-linear-progress__buffer-dots {\n    background-color: ButtonBorder;\n  }\n}\n[dir=rtl] .mdc-linear-progress__buffer-dots {\n  animation: mdc-linear-progress-buffering-reverse calc(250ms * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n  transform: rotate(0);\n}\n\n.mdc-linear-progress__buffer-bar {\n  flex: 0 1 100%;\n  transition: flex-basis 250ms 0ms cubic-bezier(0.4, 0, 0.6, 1);\n  background-color: var(--mat-progress-bar-track-color, var(--mat-sys-surface-variant));\n}\n\n.mdc-linear-progress__primary-bar {\n  transform: scaleX(0);\n}\n.mdc-linear-progress--indeterminate .mdc-linear-progress__primary-bar {\n  left: -145.166611%;\n}\n.mdc-linear-progress--indeterminate.mdc-linear-progress--animation-ready .mdc-linear-progress__primary-bar {\n  animation: mdc-linear-progress-primary-indeterminate-translate calc(2s * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n.mdc-linear-progress--indeterminate.mdc-linear-progress--animation-ready .mdc-linear-progress__primary-bar > .mdc-linear-progress__bar-inner {\n  animation: mdc-linear-progress-primary-indeterminate-scale calc(2s * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n[dir=rtl] .mdc-linear-progress.mdc-linear-progress--animation-ready .mdc-linear-progress__primary-bar {\n  animation-name: mdc-linear-progress-primary-indeterminate-translate-reverse;\n}\n[dir=rtl] .mdc-linear-progress.mdc-linear-progress--indeterminate .mdc-linear-progress__primary-bar {\n  right: -145.166611%;\n  left: auto;\n}\n\n.mdc-linear-progress__secondary-bar {\n  display: none;\n}\n.mdc-linear-progress--indeterminate .mdc-linear-progress__secondary-bar {\n  left: -54.888891%;\n  display: block;\n}\n.mdc-linear-progress--indeterminate.mdc-linear-progress--animation-ready .mdc-linear-progress__secondary-bar {\n  animation: mdc-linear-progress-secondary-indeterminate-translate calc(2s * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n.mdc-linear-progress--indeterminate.mdc-linear-progress--animation-ready .mdc-linear-progress__secondary-bar > .mdc-linear-progress__bar-inner {\n  animation: mdc-linear-progress-secondary-indeterminate-scale calc(2s * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n[dir=rtl] .mdc-linear-progress.mdc-linear-progress--animation-ready .mdc-linear-progress__secondary-bar {\n  animation-name: mdc-linear-progress-secondary-indeterminate-translate-reverse;\n}\n[dir=rtl] .mdc-linear-progress.mdc-linear-progress--indeterminate .mdc-linear-progress__secondary-bar {\n  right: -54.888891%;\n  left: auto;\n}\n\n@keyframes mdc-linear-progress-buffering {\n  from {\n    transform: rotate(180deg) translateX(calc(var(--mat-progress-bar-track-height, 4px) * -2.5));\n  }\n}\n@keyframes mdc-linear-progress-primary-indeterminate-translate {\n  0% {\n    transform: translateX(0);\n  }\n  20% {\n    animation-timing-function: cubic-bezier(0.5, 0, 0.701732, 0.495819);\n    transform: translateX(0);\n  }\n  59.15% {\n    animation-timing-function: cubic-bezier(0.302435, 0.381352, 0.55, 0.956352);\n    transform: translateX(83.67142%);\n  }\n  100% {\n    transform: translateX(200.611057%);\n  }\n}\n@keyframes mdc-linear-progress-primary-indeterminate-scale {\n  0% {\n    transform: scaleX(0.08);\n  }\n  36.65% {\n    animation-timing-function: cubic-bezier(0.334731, 0.12482, 0.785844, 1);\n    transform: scaleX(0.08);\n  }\n  69.15% {\n    animation-timing-function: cubic-bezier(0.06, 0.11, 0.6, 1);\n    transform: scaleX(0.661479);\n  }\n  100% {\n    transform: scaleX(0.08);\n  }\n}\n@keyframes mdc-linear-progress-secondary-indeterminate-translate {\n  0% {\n    animation-timing-function: cubic-bezier(0.15, 0, 0.515058, 0.409685);\n    transform: translateX(0);\n  }\n  25% {\n    animation-timing-function: cubic-bezier(0.31033, 0.284058, 0.8, 0.733712);\n    transform: translateX(37.651913%);\n  }\n  48.35% {\n    animation-timing-function: cubic-bezier(0.4, 0.627035, 0.6, 0.902026);\n    transform: translateX(84.386165%);\n  }\n  100% {\n    transform: translateX(160.277782%);\n  }\n}\n@keyframes mdc-linear-progress-secondary-indeterminate-scale {\n  0% {\n    animation-timing-function: cubic-bezier(0.205028, 0.057051, 0.57661, 0.453971);\n    transform: scaleX(0.08);\n  }\n  19.15% {\n    animation-timing-function: cubic-bezier(0.152313, 0.196432, 0.648374, 1.004315);\n    transform: scaleX(0.457104);\n  }\n  44.15% {\n    animation-timing-function: cubic-bezier(0.257759, -0.003163, 0.211762, 1.38179);\n    transform: scaleX(0.72796);\n  }\n  100% {\n    transform: scaleX(0.08);\n  }\n}\n@keyframes mdc-linear-progress-primary-indeterminate-translate-reverse {\n  0% {\n    transform: translateX(0);\n  }\n  20% {\n    animation-timing-function: cubic-bezier(0.5, 0, 0.701732, 0.495819);\n    transform: translateX(0);\n  }\n  59.15% {\n    animation-timing-function: cubic-bezier(0.302435, 0.381352, 0.55, 0.956352);\n    transform: translateX(-83.67142%);\n  }\n  100% {\n    transform: translateX(-200.611057%);\n  }\n}\n@keyframes mdc-linear-progress-secondary-indeterminate-translate-reverse {\n  0% {\n    animation-timing-function: cubic-bezier(0.15, 0, 0.515058, 0.409685);\n    transform: translateX(0);\n  }\n  25% {\n    animation-timing-function: cubic-bezier(0.31033, 0.284058, 0.8, 0.733712);\n    transform: translateX(-37.651913%);\n  }\n  48.35% {\n    animation-timing-function: cubic-bezier(0.4, 0.627035, 0.6, 0.902026);\n    transform: translateX(-84.386165%);\n  }\n  100% {\n    transform: translateX(-160.277782%);\n  }\n}\n@keyframes mdc-linear-progress-buffering-reverse {\n  from {\n    transform: translateX(-10px);\n  }\n}\n"]
+    }]
+  }], () => [], {
+    color: [{
+      type: Input
+    }],
+    value: [{
+      type: Input,
+      args: [{
+        transform: numberAttribute
+      }]
+    }],
+    bufferValue: [{
+      type: Input,
+      args: [{
+        transform: numberAttribute
+      }]
+    }],
+    animationEnd: [{
+      type: Output
+    }],
+    mode: [{
+      type: Input
+    }]
+  });
+})();
+function clamp(v, min = 0, max = 100) {
+  return Math.max(min, Math.min(max, v));
+}
+var MatProgressBarModule = class _MatProgressBarModule {
+  static \u0275fac = function MatProgressBarModule_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _MatProgressBarModule)();
+  };
+  static \u0275mod = /* @__PURE__ */ \u0275\u0275defineNgModule({
+    type: _MatProgressBarModule,
+    imports: [MatProgressBar],
+    exports: [MatProgressBar, BidiModule]
+  });
+  static \u0275inj = /* @__PURE__ */ \u0275\u0275defineInjector({
+    imports: [BidiModule]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatProgressBarModule, [{
+    type: NgModule,
+    args: [{
+      imports: [MatProgressBar],
+      exports: [MatProgressBar, BidiModule]
+    }]
+  }], null, null);
+})();
+
+// libs/components/src/lib/native-domain-overlay.component.ts
+function NativeDomainOverlayComponent_Conditional_7_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275text(0, " Enter the address of your PlaceOS server to connect this app. ");
+  }
+}
+function NativeDomainOverlayComponent_Conditional_8_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275text(0, " Enter your work email to find your PlaceOS server and connect this app. ");
+  }
+}
+function NativeDomainOverlayComponent_Conditional_9_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "p", 6);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", ctx_r0.error(), " ");
+  }
+}
+function NativeDomainOverlayComponent_Conditional_10_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "p", 7);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" Settings provided by your administrator will be applied automatically in ", ctx_r0.auto_accept_in(), "s. ");
+  }
+}
+function NativeDomainOverlayComponent_Conditional_11_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r2 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 8)(1, "label", 12);
+    \u0275\u0275text(2, "Server Address");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "mat-form-field", 13)(4, "icon", 14);
+    \u0275\u0275text(5, "dns");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(6, "input", 15);
+    \u0275\u0275twoWayListener("ngModelChange", function NativeDomainOverlayComponent_Conditional_11_Template_input_ngModelChange_6_listener($event) {
+      \u0275\u0275restoreView(_r2);
+      const ctx_r0 = \u0275\u0275nextContext();
+      \u0275\u0275twoWayBindingSet(ctx_r0.server_address, $event) || (ctx_r0.server_address = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(7, "div", 8)(8, "label", 16);
+    \u0275\u0275text(9, "API Key (optional)");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(10, "mat-form-field", 13)(11, "icon", 14);
+    \u0275\u0275text(12, "key");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(13, "input", 17);
+    \u0275\u0275twoWayListener("ngModelChange", function NativeDomainOverlayComponent_Conditional_11_Template_input_ngModelChange_13_listener($event) {
+      \u0275\u0275restoreView(_r2);
+      const ctx_r0 = \u0275\u0275nextContext();
+      \u0275\u0275twoWayBindingSet(ctx_r0.api_key, $event) || (ctx_r0.api_key = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(14, "p", 18);
+    \u0275\u0275text(15, " When set, the app authenticates with this key instead of asking you to sign in. ");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275advance(6);
+    \u0275\u0275twoWayProperty("ngModel", ctx_r0.server_address);
+    \u0275\u0275property("disabled", ctx_r0.loading());
+    \u0275\u0275control();
+    \u0275\u0275advance(7);
+    \u0275\u0275twoWayProperty("ngModel", ctx_r0.api_key);
+    \u0275\u0275property("disabled", ctx_r0.loading());
+    \u0275\u0275control();
+  }
+}
+function NativeDomainOverlayComponent_Conditional_12_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r3 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 8)(1, "label", 19);
+    \u0275\u0275text(2, "Work Email");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "mat-form-field", 13)(4, "icon", 14);
+    \u0275\u0275text(5, "mail");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(6, "input", 20);
+    \u0275\u0275twoWayListener("ngModelChange", function NativeDomainOverlayComponent_Conditional_12_Template_input_ngModelChange_6_listener($event) {
+      \u0275\u0275restoreView(_r3);
+      const ctx_r0 = \u0275\u0275nextContext();
+      \u0275\u0275twoWayBindingSet(ctx_r0.email, $event) || (ctx_r0.email = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275advance(6);
+    \u0275\u0275twoWayProperty("ngModel", ctx_r0.email);
+    \u0275\u0275property("disabled", ctx_r0.loading());
+    \u0275\u0275control();
+  }
+}
+function NativeDomainOverlayComponent_Conditional_14_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275text(0, " Find my server using my work email ");
+  }
+}
+function NativeDomainOverlayComponent_Conditional_15_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275text(0, " Enter a server address manually ");
+  }
+}
+var AUTO_ACCEPT_SECONDS = 15;
+var NativeDomainOverlayComponent = class _NativeDomainOverlayComponent {
+  constructor() {
+    this.serverError = input(
+      "",
+      ...ngDevMode ? [{ debugName: "serverError" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.autoAccept = input(
+      false,
+      ...ngDevMode ? [{ debugName: "autoAccept" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.domainSet = output();
+    this.email = signal(
+      getNativeEmail() ?? "",
+      ...ngDevMode ? [{ debugName: "email" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.server_address = signal(
+      getNativeDomain() ?? "",
+      ...ngDevMode ? [{ debugName: "server_address" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.api_key = signal(
+      getNativeApiKey() ?? "",
+      ...ngDevMode ? [{ debugName: "api_key" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.manual_entry = signal(
+      !!getNativeDomain(),
+      ...ngDevMode ? [{ debugName: "manual_entry" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.error = signal(
+      "",
+      ...ngDevMode ? [{ debugName: "error" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.loading = signal(
+      false,
+      ...ngDevMode ? [{ debugName: "loading" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.auto_accept_in = signal(
+      0,
+      ...ngDevMode ? [{ debugName: "auto_accept_in" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._auto_accept_timer = null;
+    effect(() => {
+      const msg = this.serverError();
+      if (msg) {
+        this.error.set(msg);
+        untracked2(() => this.stopAutoAccept());
+      }
+    });
+    effect(() => {
+      if (this.autoAccept() && untracked2(this.server_address)) {
+        untracked2(() => this.startAutoAccept());
+      }
+    });
+  }
+  ngOnDestroy() {
+    this.stopAutoAccept();
+  }
+  /** Restart the inactivity countdown — any user activity delays it. */
+  resetAutoAccept() {
+    if (!this._auto_accept_timer)
+      return;
+    this.auto_accept_in.set(AUTO_ACCEPT_SECONDS);
+  }
+  startAutoAccept() {
+    this.auto_accept_in.set(AUTO_ACCEPT_SECONDS);
+    if (this._auto_accept_timer)
+      return;
+    this._auto_accept_timer = setInterval(() => {
+      const remaining = this.auto_accept_in() - 1;
+      this.auto_accept_in.set(remaining);
+      if (remaining > 0)
+        return;
+      this.stopAutoAccept();
+      this.submit();
+    }, 1e3);
+  }
+  stopAutoAccept() {
+    if (this._auto_accept_timer)
+      clearInterval(this._auto_accept_timer);
+    this._auto_accept_timer = null;
+    this.auto_accept_in.set(0);
+  }
+  toggleManualEntry() {
+    if (this.loading())
+      return;
+    this.manual_entry.update((manual) => !manual);
+    this.error.set("");
+  }
+  async submit() {
+    if (this.loading())
+      return;
+    this.stopAutoAccept();
+    if (this.manual_entry())
+      return this.submitManual();
+    const raw = this.email().trim();
+    if (!raw) {
+      this.error.set("A work email is required.");
+      return;
+    }
+    this.loading.set(true);
+    this.error.set("");
+    try {
+      const domain = await lookupNativeDomainByEmail(raw);
+      setNativeEmail(raw);
+      setNativeDomain(domain);
+      setNativeApiKey("");
+      this.domainSet.emit(domain);
+    } catch {
+      this.error.set("Unable to find a server for this email address.");
+    } finally {
+      this.loading.set(false);
+    }
+  }
+  submitManual() {
+    const domain = normaliseNativeDomain(this.server_address());
+    if (!domain) {
+      this.error.set("A valid server address is required.");
+      return;
+    }
+    this.error.set("");
+    setNativeDomain(domain);
+    setNativeApiKey(this.api_key());
+    this.domainSet.emit(domain);
+  }
+  static {
+    this.\u0275fac = function NativeDomainOverlayComponent_Factory(__ngFactoryType__) {
+      return new (__ngFactoryType__ || _NativeDomainOverlayComponent)();
+    };
+  }
+  static {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NativeDomainOverlayComponent, selectors: [["native-domain-overlay"]], hostBindings: function NativeDomainOverlayComponent_HostBindings(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275listener("pointerdown", function NativeDomainOverlayComponent_pointerdown_HostBindingHandler() {
+          return ctx.resetAutoAccept();
+        }, \u0275\u0275resolveWindow)("keydown", function NativeDomainOverlayComponent_keydown_HostBindingHandler() {
+          return ctx.resetAutoAccept();
+        }, \u0275\u0275resolveWindow);
+      }
+    }, inputs: { serverError: [1, "serverError"], autoAccept: [1, "autoAccept"] }, outputs: { domainSet: "domainSet" }, decls: 19, vars: 8, consts: [[1, "bg-base-200", "pointer-events-auto", "fixed", "inset-0", "z-9999", "flex", "items-center", "justify-center", "p-4"], [1, "border-base-300", "bg-base-100", "flex", "w-full", "max-w-md", "flex-col", "rounded-sm", "border", "shadow-sm", 3, "ngSubmit"], [1, "bg-base-200", "m-2", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-xl", "font-medium"], [1, "flex", "flex-col", "space-y-4", "p-4"], [1, "text-sm", "opacity-60"], [1, "bg-error/10", "text-error", "rounded-sm", "px-3", "py-2", "text-xs"], [1, "bg-info/10", "text-info", "rounded-sm", "px-3", "py-2", "text-xs"], [1, "flex", "w-full", "flex-col"], ["type", "button", 1, "self-start", "text-sm", "underline", "opacity-60", 3, "click", "disabled"], [1, "bg-base-200", "m-2", "flex", "items-center", "justify-center", "space-x-2", "rounded-sm", "border-none", "p-2"], ["btn", "", "matRipple", "", "type", "submit", 1, "flex-1", 3, "disabled"], ["for", "server-address"], ["appearance", "outline", 1, "w-full"], ["matPrefix", ""], ["matInput", "", "name", "server-address", "placeholder", "placeos.company.com", "type", "text", "autocapitalize", "off", "autocomplete", "url", "spellcheck", "false", "required", "", 3, "ngModelChange", "ngModel", "disabled"], ["for", "api-key"], ["matInput", "", "name", "api-key", "placeholder", "Leave empty to sign in", "type", "password", "autocapitalize", "off", "autocomplete", "off", "spellcheck", "false", 3, "ngModelChange", "ngModel", "disabled"], [1, "text-xs", "opacity-60"], ["for", "email"], ["matInput", "", "name", "email", "placeholder", "name@company.com", "type", "email", "autocapitalize", "off", "autocomplete", "email", "spellcheck", "false", "required", "", 3, "ngModelChange", "ngModel", "disabled"]], template: function NativeDomainOverlayComponent_Template(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275elementStart(0, "div", 0)(1, "form", 1);
+        \u0275\u0275listener("ngSubmit", function NativeDomainOverlayComponent_Template_form_ngSubmit_1_listener() {
+          return ctx.submit();
+        });
+        \u0275\u0275elementStart(2, "header", 2)(3, "h2", 3);
+        \u0275\u0275text(4, "Connect to Server");
+        \u0275\u0275elementEnd()();
+        \u0275\u0275elementStart(5, "main", 4)(6, "p", 5);
+        \u0275\u0275conditionalCreate(7, NativeDomainOverlayComponent_Conditional_7_Template, 1, 0)(8, NativeDomainOverlayComponent_Conditional_8_Template, 1, 0);
+        \u0275\u0275elementEnd();
+        \u0275\u0275conditionalCreate(9, NativeDomainOverlayComponent_Conditional_9_Template, 2, 1, "p", 6);
+        \u0275\u0275conditionalCreate(10, NativeDomainOverlayComponent_Conditional_10_Template, 2, 1, "p", 7);
+        \u0275\u0275conditionalCreate(11, NativeDomainOverlayComponent_Conditional_11_Template, 16, 4)(12, NativeDomainOverlayComponent_Conditional_12_Template, 7, 2, "div", 8);
+        \u0275\u0275elementStart(13, "button", 9);
+        \u0275\u0275listener("click", function NativeDomainOverlayComponent_Template_button_click_13_listener() {
+          return ctx.toggleManualEntry();
+        });
+        \u0275\u0275conditionalCreate(14, NativeDomainOverlayComponent_Conditional_14_Template, 1, 0)(15, NativeDomainOverlayComponent_Conditional_15_Template, 1, 0);
+        \u0275\u0275elementEnd()();
+        \u0275\u0275elementStart(16, "footer", 10)(17, "button", 11);
+        \u0275\u0275text(18);
+        \u0275\u0275elementEnd()()()();
+      }
+      if (rf & 2) {
+        \u0275\u0275advance(7);
+        \u0275\u0275conditional(ctx.manual_entry() ? 7 : 8);
+        \u0275\u0275advance(2);
+        \u0275\u0275conditional(ctx.error() ? 9 : -1);
+        \u0275\u0275advance();
+        \u0275\u0275conditional(ctx.auto_accept_in() > 0 ? 10 : -1);
+        \u0275\u0275advance();
+        \u0275\u0275conditional(ctx.manual_entry() ? 11 : 12);
+        \u0275\u0275advance(2);
+        \u0275\u0275property("disabled", ctx.loading());
+        \u0275\u0275advance();
+        \u0275\u0275conditional(ctx.manual_entry() ? 14 : 15);
+        \u0275\u0275advance(3);
+        \u0275\u0275property("disabled", ctx.loading());
+        \u0275\u0275advance();
+        \u0275\u0275textInterpolate1(" ", ctx.loading() ? "Looking up..." : "Connect", " ");
+      }
+    }, dependencies: [
+      FormsModule,
+      \u0275NgNoValidate,
+      DefaultValueAccessor,
+      NgControlStatus,
+      NgControlStatusGroup,
+      RequiredValidator,
+      NgModel,
+      NgForm,
+      IconComponent,
+      MatFormFieldModule,
+      MatFormField,
+      MatPrefix,
+      MatInputModule,
+      MatInput,
+      MatRippleModule,
+      MatRipple
+    ], encapsulation: 2 });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(NativeDomainOverlayComponent, [{
+    type: Component,
+    args: [{
+      selector: "native-domain-overlay",
+      template: `
+        <div
+            class="bg-base-200 pointer-events-auto fixed inset-0 z-9999 flex items-center justify-center p-4"
+        >
+            <form
+                class="border-base-300 bg-base-100 flex w-full max-w-md flex-col rounded-sm border shadow-sm"
+                (ngSubmit)="submit()"
+            >
+                <header class="bg-base-200 m-2 rounded-sm border-none p-2">
+                    <h2 class="px-2 text-xl font-medium">Connect to Server</h2>
+                </header>
+                <main class="flex flex-col space-y-4 p-4">
+                    <p class="text-sm opacity-60">
+                        @if (manual_entry()) {
+                            Enter the address of your PlaceOS server to connect
+                            this app.
+                        } @else {
+                            Enter your work email to find your PlaceOS server
+                            and connect this app.
+                        }
+                    </p>
+                    @if (error()) {
+                        <p
+                            class="bg-error/10 text-error rounded-sm px-3 py-2 text-xs"
+                        >
+                            {{ error() }}
+                        </p>
+                    }
+                    @if (auto_accept_in() > 0) {
+                        <p
+                            class="bg-info/10 text-info rounded-sm px-3 py-2 text-xs"
+                        >
+                            Settings provided by your administrator will be
+                            applied automatically in {{ auto_accept_in() }}s.
+                        </p>
+                    }
+                    @if (manual_entry()) {
+                        <div class="flex w-full flex-col">
+                            <label for="server-address">Server Address</label>
+                            <mat-form-field appearance="outline" class="w-full">
+                                <icon matPrefix>dns</icon>
+                                <input
+                                    matInput
+                                    name="server-address"
+                                    [(ngModel)]="server_address"
+                                    placeholder="placeos.company.com"
+                                    type="text"
+                                    autocapitalize="off"
+                                    autocomplete="url"
+                                    spellcheck="false"
+                                    required
+                                    [disabled]="loading()"
+                                />
+                            </mat-form-field>
+                        </div>
+                        <div class="flex w-full flex-col">
+                            <label for="api-key">API Key (optional)</label>
+                            <mat-form-field appearance="outline" class="w-full">
+                                <icon matPrefix>key</icon>
+                                <input
+                                    matInput
+                                    name="api-key"
+                                    [(ngModel)]="api_key"
+                                    placeholder="Leave empty to sign in"
+                                    type="password"
+                                    autocapitalize="off"
+                                    autocomplete="off"
+                                    spellcheck="false"
+                                    [disabled]="loading()"
+                                />
+                            </mat-form-field>
+                            <p class="text-xs opacity-60">
+                                When set, the app authenticates with this key
+                                instead of asking you to sign in.
+                            </p>
+                        </div>
+                    } @else {
+                        <div class="flex w-full flex-col">
+                            <label for="email">Work Email</label>
+                            <mat-form-field appearance="outline" class="w-full">
+                                <icon matPrefix>mail</icon>
+                                <input
+                                    matInput
+                                    name="email"
+                                    [(ngModel)]="email"
+                                    placeholder="name@company.com"
+                                    type="email"
+                                    autocapitalize="off"
+                                    autocomplete="email"
+                                    spellcheck="false"
+                                    required
+                                    [disabled]="loading()"
+                                />
+                            </mat-form-field>
+                        </div>
+                    }
+                    <button
+                        type="button"
+                        class="self-start text-sm underline opacity-60"
+                        [disabled]="loading()"
+                        (click)="toggleManualEntry()"
+                    >
+                        @if (manual_entry()) {
+                            Find my server using my work email
+                        } @else {
+                            Enter a server address manually
+                        }
+                    </button>
+                </main>
+                <footer
+                    class="bg-base-200 m-2 flex items-center justify-center space-x-2 rounded-sm border-none p-2"
+                >
+                    <button
+                        btn
+                        matRipple
+                        type="submit"
+                        class="flex-1"
+                        [disabled]="loading()"
+                    >
+                        {{ loading() ? 'Looking up...' : 'Connect' }}
+                    </button>
+                </footer>
+            </form>
+        </div>
+    `,
+      imports: [
+        FormsModule,
+        IconComponent,
+        MatFormFieldModule,
+        MatInputModule,
+        MatRippleModule
+      ],
+      host: {
+        "(window:pointerdown)": "resetAutoAccept()",
+        "(window:keydown)": "resetAutoAccept()"
+      }
+    }]
+  }], () => [], { serverError: [{ type: Input, args: [{ isSignal: true, alias: "serverError", required: false }] }], autoAccept: [{ type: Input, args: [{ isSignal: true, alias: "autoAccept", required: false }] }], domainSet: [{ type: Output, args: ["domainSet"] }] });
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NativeDomainOverlayComponent, { className: "NativeDomainOverlayComponent", filePath: "libs/components/src/lib/native-domain-overlay.component.ts", lineNumber: 169 });
+})();
+
+// libs/components/src/lib/service-worker-update-card.component.ts
+function ServiceWorkerUpdateCardComponent_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r1 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "aside", 0)(1, "div", 1)(2, "h2", 2);
+    \u0275\u0275text(3);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "p", 3);
+    \u0275\u0275text(5);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(6, "button", 4);
+    \u0275\u0275listener("click", function ServiceWorkerUpdateCardComponent_Conditional_0_Template_button_click_6_listener() {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.reloadApp());
+    });
+    \u0275\u0275elementStart(7, "icon");
+    \u0275\u0275text(8, "refresh");
+    \u0275\u0275elementEnd()()();
+  }
+  if (rf & 2) {
+    const update_state_r3 = ctx;
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1(" ", update_state_r3.message || "Update available", " ");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", update_state_r3.details || "Refresh the page to get the new version of the application", " ");
+    \u0275\u0275advance();
+    \u0275\u0275property("matTooltip", update_state_r3.action || "Reload App");
+  }
+}
+var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
+  constructor() {
+    this.update = serviceWorkerUpdate();
+  }
+  reloadApp() {
+    location.reload();
+  }
+  static {
+    this.\u0275fac = function ServiceWorkerUpdateCardComponent_Factory(__ngFactoryType__) {
+      return new (__ngFactoryType__ || _ServiceWorkerUpdateCardComponent)();
+    };
+  }
+  static {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ServiceWorkerUpdateCardComponent, selectors: [["placeos-service-worker-update-card"]], decls: 1, vars: 1, consts: [["role", "status", "aria-live", "assertive", 1, "border-base-300", "bg-base-100", "text-base-content", "pointer-events-auto", "fixed", "right-4", "bottom-4", "z-9999", "flex", "w-[20rem]", "max-w-[calc(100vw-2rem)]", "items-center", "gap-3", "rounded-lg", "border", "p-4", "shadow-xl"], [1, "min-w-0", "flex-1"], [1, "m-0", "text-sm", "leading-tight", "font-medium"], [1, "m-0", "mt-1", "text-xs", "opacity-70"], ["icon", "", "default", "", 3, "click", "matTooltip"]], template: function ServiceWorkerUpdateCardComponent_Template(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275conditionalCreate(0, ServiceWorkerUpdateCardComponent_Conditional_0_Template, 9, 3, "aside", 0);
+      }
+      if (rf & 2) {
+        let tmp_0_0;
+        \u0275\u0275conditional((tmp_0_0 = ctx.update()) ? 0 : -1, tmp_0_0);
+      }
+    }, dependencies: [IconComponent, MatTooltipModule, MatTooltip], encapsulation: 2 });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(ServiceWorkerUpdateCardComponent, [{
+    type: Component,
+    args: [{
+      selector: "placeos-service-worker-update-card",
+      template: `
+        @if (update(); as update_state) {
+            <aside
+                role="status"
+                aria-live="assertive"
+                class="border-base-300 bg-base-100 text-base-content pointer-events-auto fixed right-4 bottom-4 z-9999 flex w-[20rem] max-w-[calc(100vw-2rem)] items-center gap-3 rounded-lg border p-4 shadow-xl"
+            >
+                <div class="min-w-0 flex-1">
+                    <h2 class="m-0 text-sm leading-tight font-medium">
+                        {{ update_state.message || 'Update available' }}
+                    </h2>
+                    <p class="m-0 mt-1 text-xs opacity-70">
+                        {{
+                            update_state.details ||
+                                'Refresh the page to get the new version of the application'
+                        }}
+                    </p>
+                </div>
+                <button
+                    icon
+                    default
+                    [matTooltip]="update_state.action || 'Reload App'"
+                    (click)="reloadApp()"
+                >
+                    <icon>refresh</icon>
+                </button>
+            </aside>
+        }
+    `,
+      imports: [IconComponent, MatTooltipModule]
+    }]
+  }], null, null);
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ServiceWorkerUpdateCardComponent, { className: "ServiceWorkerUpdateCardComponent", filePath: "libs/components/src/lib/service-worker-update-card.component.ts", lineNumber: 40 });
+})();
+
+// libs/components/src/lib/global-loading.component.ts
+function GlobalLoadingComponent_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r1 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "native-domain-overlay", 3);
+    \u0275\u0275listener("domainSet", function GlobalLoadingComponent_Conditional_0_Template_native_domain_overlay_domainSet_0_listener() {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.onDomainSet());
+    });
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275property("serverError", ctx_r1.domain_error())("autoAccept", ctx_r1.auto_confirm());
+  }
+}
+function GlobalLoadingComponent_Conditional_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 1);
+    \u0275\u0275text(1);
+    \u0275\u0275pipe(2, "translate");
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, "COMMON.SERVER_DOWN"), " ");
+  }
+}
+function GlobalLoadingComponent_Conditional_2_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 2)(1, "div", 4)(2, "p", 5);
+    \u0275\u0275text(3);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(4, "div", 6);
+    \u0275\u0275element(5, "mat-progress-bar", 7);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate(ctx_r1.message());
+  }
+}
+var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler {
+  constructor() {
+    super(...arguments);
+    this._org = inject2(OrganisationService);
+    this._placeos = inject2(PlaceOS_Service);
+    this._settings = inject2(SettingsService);
+    this.loading = signal(
+      true,
+      ...ngDevMode ? [{ debugName: "loading" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.online = signal(
+      true,
+      ...ngDevMode ? [{ debugName: "online" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.message = getLoadingMessage();
+    this.show_domain_overlay = needsNativeDomain();
+    this.domain_error = nativeDomainError();
+    this.auto_confirm = autoConfirmNativeDomain();
+  }
+  onDomainSet() {
+    this._placeos.onNativeDomainSet();
+  }
+  async ngOnInit() {
+    this.loading.set(true);
+    await this._org.waitUntilInitialised();
+    await firstTruthyValueFrom(this._settings.initialised);
+    this.online.set(Fr());
+    this.interval("has_token", () => {
+      this.online.set(Fr());
+      if (!Rt() || !X2())
+        return;
+      this.loading.set(false);
+      this.online.set(Fr());
+      this.clearInterval("has_token");
+    }, 1e3);
+  }
+  static {
+    this.\u0275fac = /* @__PURE__ */ (() => {
+      let \u0275GlobalLoadingComponent_BaseFactory;
+      return function GlobalLoadingComponent_Factory(__ngFactoryType__) {
+        return (\u0275GlobalLoadingComponent_BaseFactory || (\u0275GlobalLoadingComponent_BaseFactory = \u0275\u0275getInheritedFactory(_GlobalLoadingComponent)))(__ngFactoryType__ || _GlobalLoadingComponent);
+      };
+    })();
+  }
+  static {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _GlobalLoadingComponent, selectors: [["global-loading"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 4, vars: 3, consts: [[3, "serverError", "autoAccept"], [1, "bg-error", "fixed", "top-2", "left-1/2", "z-9999", "-translate-x-1/2", "rounded-3xl", "px-4", "py-2", "text-xs", "text-white", "shadow-sm"], ["loader", "", 1, "bg-base-300", "pointer-events-auto", "fixed", "inset-0", "z-9998", "flex", "flex-col", "items-center", "justify-end", "space-y-2", "p-4"], [3, "domainSet", "serverError", "autoAccept"], [1, "border-base-300", "bg-base-100", "w-[24rem]", "max-w-[calc(100vw-2rem)]", "rounded-lg", "border", "p-2", "text-center", "text-xs", "shadow-sm"], [1, "text-center", "font-mono"], [1, "border-base-300", "w-[24rem]", "max-w-[calc(100vw-2rem)]", "overflow-hidden", "rounded-full", "border", "shadow-sm"], ["mode", "indeterminate", 1, "scale-150", "rounded-sm"]], template: function GlobalLoadingComponent_Template(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275conditionalCreate(0, GlobalLoadingComponent_Conditional_0_Template, 1, 2, "native-domain-overlay", 0);
+        \u0275\u0275conditionalCreate(1, GlobalLoadingComponent_Conditional_1_Template, 3, 3, "div", 1);
+        \u0275\u0275conditionalCreate(2, GlobalLoadingComponent_Conditional_2_Template, 6, 1, "div", 2);
+        \u0275\u0275element(3, "placeos-service-worker-update-card");
+      }
+      if (rf & 2) {
+        \u0275\u0275conditional(ctx.show_domain_overlay() ? 0 : -1);
+        \u0275\u0275advance();
+        \u0275\u0275conditional(!ctx.online() ? 1 : -1);
+        \u0275\u0275advance();
+        \u0275\u0275conditional(ctx.loading() ? 2 : -1);
+      }
+    }, dependencies: [
+      MatProgressBarModule,
+      MatProgressBar,
+      NativeDomainOverlayComponent,
+      ServiceWorkerUpdateCardComponent,
+      TranslatePipe
+    ], styles: ["\n[_nghost-%COMP%] {\n  pointer-events: none;\n}\n[loader][_ngcontent-%COMP%] {\n  background-image:\n    linear-gradient(\n      to right,\n      #f15b55 0%,\n      #f68c50 100%);\n}\n/*# sourceMappingURL=global-loading.component.css.map */"] });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(GlobalLoadingComponent, [{
+    type: Component,
+    args: [{ selector: "global-loading", template: `
+        @if (show_domain_overlay()) {
+            <native-domain-overlay
+                [serverError]="domain_error()"
+                [autoAccept]="auto_confirm()"
+                (domainSet)="onDomainSet()"
+            ></native-domain-overlay>
+        }
+        @if (!online()) {
+            <div
+                class="bg-error fixed top-2 left-1/2 z-9999 -translate-x-1/2 rounded-3xl px-4 py-2 text-xs text-white shadow-sm"
+            >
+                {{ 'COMMON.SERVER_DOWN' | translate }}
+            </div>
+        }
+        @if (loading()) {
+            <div
+                loader
+                class="bg-base-300 pointer-events-auto fixed inset-0 z-9998 flex flex-col items-center justify-end space-y-2 p-4"
+            >
+                <div
+                    class="border-base-300 bg-base-100 w-[24rem] max-w-[calc(100vw-2rem)] rounded-lg border p-2 text-center text-xs shadow-sm"
+                >
+                    <p class="text-center font-mono">{{ message() }}</p>
+                </div>
+                <div
+                    class="border-base-300 w-[24rem] max-w-[calc(100vw-2rem)] overflow-hidden rounded-full border shadow-sm"
+                >
+                    <mat-progress-bar
+                        mode="indeterminate"
+                        class="scale-150 rounded-sm"
+                    ></mat-progress-bar>
+                </div>
+            </div>
+        }
+        <placeos-service-worker-update-card />
+    `, imports: [
+      MatProgressBarModule,
+      NativeDomainOverlayComponent,
+      ServiceWorkerUpdateCardComponent,
+      TranslatePipe
+    ], styles: ["/* angular:styles/component:css;cc9c8858f40050cbf899d1698bf5ddc695ecfe0c7e714e2a22cee15289062064;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/global-loading.component.ts */\n:host {\n  pointer-events: none;\n}\n[loader] {\n  background-image:\n    linear-gradient(\n      to right,\n      #f15b55 0%,\n      #f68c50 100%);\n}\n/*# sourceMappingURL=global-loading.component.css.map */\n"] }]
+  }], null, null);
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(GlobalLoadingComponent, { className: "GlobalLoadingComponent", filePath: "libs/components/src/lib/global-loading.component.ts", lineNumber: 81 });
+})();
+
+// libs/components/src/lib/image-carousel.component.ts
+function ImageCarouselComponent_For_2_Conditional_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "img", 7);
+  }
+  if (rf & 2) {
+    const image_r1 = \u0275\u0275nextContext().$implicit;
+    \u0275\u0275property("source", image_r1?.url || image_r1);
+  }
+}
+function ImageCarouselComponent_For_2_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 6);
+    \u0275\u0275conditionalCreate(1, ImageCarouselComponent_For_2_Conditional_1_Template, 1, 1, "img", 7);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const image_r1 = ctx.$implicit;
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275styleProp("transform", ctx_r1.offset_transform());
+    \u0275\u0275advance();
+    \u0275\u0275conditional(image_r1 ? 1 : -1);
+  }
+}
+function ImageCarouselComponent_Conditional_3_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 2)(1, "icon", 8);
+    \u0275\u0275text(2, "image");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "p");
+    \u0275\u0275text(4);
+    \u0275\u0275pipe(5, "translate");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(5, 1, "COMMON.IMAGES_EMPTY"));
+  }
+}
+function ImageCarouselComponent_Conditional_4_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r3 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 9);
+    \u0275\u0275listener("click", function ImageCarouselComponent_Conditional_4_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r3);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.offset.update((value) => value - 1));
+    });
+    \u0275\u0275elementStart(1, "div", 10)(2, "icon", 11);
+    \u0275\u0275text(3, "chevron_left");
+    \u0275\u0275elementEnd()()();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275property("disabled", ctx_r1.offset() === 0);
+  }
+}
+function ImageCarouselComponent_Conditional_5_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r4 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 12);
+    \u0275\u0275listener("click", function ImageCarouselComponent_Conditional_5_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r4);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.offset.update((value) => value + 1));
+    });
+    \u0275\u0275elementStart(1, "div", 13)(2, "icon", 11);
+    \u0275\u0275text(3, "chevron_right");
+    \u0275\u0275elementEnd()()();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275property("disabled", ctx_r1.offset() >= ctx_r1.images()?.length - 1);
+  }
+}
+function ImageCarouselComponent_Conditional_6_For_2_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r5 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 15);
+    \u0275\u0275listener("click", function ImageCarouselComponent_Conditional_6_For_2_Template_button_click_0_listener() {
+      const \u0275$index_38_r6 = \u0275\u0275restoreView(_r5).$index;
+      const ctx_r1 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r1.offset.set(\u0275$index_38_r6));
+    });
+    \u0275\u0275element(1, "div", 16);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const \u0275$index_38_r6 = ctx.$index;
+    const ctx_r1 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance();
+    \u0275\u0275classProp("opacity-30", ctx_r1.offset() !== \u0275$index_38_r6)("h-2", ctx_r1.offset() !== \u0275$index_38_r6)("w-2", ctx_r1.offset() !== \u0275$index_38_r6)("h-4", ctx_r1.offset() === \u0275$index_38_r6)("w-4", ctx_r1.offset() === \u0275$index_38_r6)("opacity-80", ctx_r1.offset() === \u0275$index_38_r6);
+  }
+}
+function ImageCarouselComponent_Conditional_6_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 5);
+    \u0275\u0275repeaterCreate(1, ImageCarouselComponent_Conditional_6_For_2_Template, 2, 12, "button", 14, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275repeater(ctx_r1.images());
+  }
+}
+var ImageCarouselComponent = class _ImageCarouselComponent {
+  constructor() {
+    this.images = input(
+      [],
+      ...ngDevMode ? [{ debugName: "images" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.offset = signal(
+      0,
+      ...ngDevMode ? [{ debugName: "offset" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.offset_transform = computed(
+      () => `translateX(-${this.offset() * 100}%)`,
+      ...ngDevMode ? [{ debugName: "offset_transform" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+  }
+  static {
+    this.\u0275fac = function ImageCarouselComponent_Factory(__ngFactoryType__) {
+      return new (__ngFactoryType__ || _ImageCarouselComponent)();
+    };
+  }
+  static {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ImageCarouselComponent, selectors: [["image-carousel"]], inputs: { images: [1, "images"] }, decls: 7, vars: 4, consts: [[1, "relative", "flex", "h-full", "w-full", "overflow-hidden"], ["image", "", 1, "relative", "flex", "h-full", "min-w-full", "items-center", "justify-center", "overflow-hidden", 3, "transform"], [1, "relative", "flex", "h-full", "w-full", "flex-col", "items-center", "justify-center", "space-y-2", "opacity-30"], [1, "absolute", "inset-y-0", "left-0", "flex", "w-1/3", "items-center", "justify-center", "opacity-0", "hover:opacity-100", 3, "disabled"], [1, "absolute", "inset-y-0", "right-0", "flex", "w-1/3", "items-center", "justify-center", "text-white", "opacity-0", "hover:opacity-100", 3, "disabled"], [1, "absolute", "bottom-2", "left-1/2", "flex", "-translate-x-1/2", "items-center", "space-x-2", "text-sm"], ["image", "", 1, "relative", "flex", "h-full", "min-w-full", "items-center", "justify-center", "overflow-hidden"], ["auth", "", 1, "h-full", "object-contain", 3, "source"], [1, "text-6xl"], [1, "absolute", "inset-y-0", "left-0", "flex", "w-1/3", "items-center", "justify-center", "opacity-0", "hover:opacity-100", 3, "click", "disabled"], ["matRipple", "", 1, "border-base-300", "bg-base-100", "text-base-content", "absolute", "top-1/2", "left-4", "h-10", "w-10", "-translate-y-1/2", "rounded-full", "border", "shadow-sm"], [1, "text-3xl"], [1, "absolute", "inset-y-0", "right-0", "flex", "w-1/3", "items-center", "justify-center", "text-white", "opacity-0", "hover:opacity-100", 3, "click", "disabled"], ["matRipple", "", 1, "border-base-300", "bg-base-100", "text-base-content", "absolute", "top-1/2", "right-4", "h-10", "w-10", "-translate-y-1/2", "rounded-full", "border", "shadow-sm"], ["matRipple", "", 1, "flex", "h-4", "w-4", "items-center", "justify-center"], ["matRipple", "", 1, "flex", "h-4", "w-4", "items-center", "justify-center", 3, "click"], [1, "bg-base-100", "rounded-full", "shadow-sm", "transition-all"]], template: function ImageCarouselComponent_Template(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275elementStart(0, "div", 0);
+        \u0275\u0275repeaterCreate(1, ImageCarouselComponent_For_2_Template, 2, 3, "div", 1, \u0275\u0275repeaterTrackByIdentity);
+        \u0275\u0275conditionalCreate(3, ImageCarouselComponent_Conditional_3_Template, 6, 3, "div", 2);
+        \u0275\u0275conditionalCreate(4, ImageCarouselComponent_Conditional_4_Template, 4, 1, "button", 3);
+        \u0275\u0275conditionalCreate(5, ImageCarouselComponent_Conditional_5_Template, 4, 1, "button", 4);
+        \u0275\u0275conditionalCreate(6, ImageCarouselComponent_Conditional_6_Template, 3, 0, "div", 5);
+        \u0275\u0275elementEnd();
+      }
+      if (rf & 2) {
+        \u0275\u0275advance();
+        \u0275\u0275repeater(ctx.images());
+        \u0275\u0275advance(2);
+        \u0275\u0275conditional(!ctx.images()?.length ? 3 : -1);
+        \u0275\u0275advance();
+        \u0275\u0275conditional(ctx.images()?.length ? 4 : -1);
+        \u0275\u0275advance();
+        \u0275\u0275conditional(ctx.images()?.length ? 5 : -1);
+        \u0275\u0275advance();
+        \u0275\u0275conditional(ctx.images()?.length ? 6 : -1);
+      }
+    }, dependencies: [
+      MatRippleModule,
+      MatRipple,
+      AuthenticatedImageDirective,
+      IconComponent,
+      TranslatePipe
+    ], styles: ["\n[_nghost-%COMP%] {\n  display: block;\n  height: 100%;\n  width: 100%;\n}\n[image][_ngcontent-%COMP%] {\n  transition: transform 300ms;\n}\nbutton[disabled][_ngcontent-%COMP%] {\n  pointer-events: none;\n}\n/*# sourceMappingURL=image-carousel.component.css.map */"] });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(ImageCarouselComponent, [{
+    type: Component,
+    args: [{ selector: "image-carousel", template: `
+        <div class="relative flex h-full w-full overflow-hidden">
+            @for (image of images(); track image) {
+                <div
+                    image
+                    class="relative flex h-full min-w-full items-center justify-center overflow-hidden"
+                    [style.transform]="offset_transform()"
+                >
+                    @if (image) {
+                        <img
+                            auth
+                            class="h-full object-contain"
+                            [source]="$any(image)?.url || image"
+                        />
+                    }
+                </div>
+            }
+            @if (!images()?.length) {
+                <div
+                    class="relative flex h-full w-full flex-col items-center justify-center space-y-2 opacity-30"
+                >
+                    <icon class="text-6xl">image</icon>
+                    <p>{{ 'COMMON.IMAGES_EMPTY' | translate }}</p>
+                </div>
+            }
+            @if (images()?.length) {
+                <button
+                    class="absolute inset-y-0 left-0 flex w-1/3 items-center justify-center opacity-0 hover:opacity-100"
+                    [disabled]="offset() === 0"
+                    (click)="offset.update((value) => value - 1)"
+                >
+                    <div
+                        matRipple
+                        class="border-base-300 bg-base-100 text-base-content absolute top-1/2 left-4 h-10 w-10 -translate-y-1/2 rounded-full border shadow-sm"
+                    >
+                        <icon class="text-3xl">chevron_left</icon>
+                    </div>
+                </button>
+            }
+            @if (images()?.length) {
+                <button
+                    class="absolute inset-y-0 right-0 flex w-1/3 items-center justify-center text-white opacity-0 hover:opacity-100"
+                    [disabled]="offset() >= images()?.length - 1"
+                    (click)="offset.update((value) => value + 1)"
+                >
+                    <div
+                        matRipple
+                        class="border-base-300 bg-base-100 text-base-content absolute top-1/2 right-4 h-10 w-10 -translate-y-1/2 rounded-full border shadow-sm"
+                    >
+                        <icon class="text-3xl">chevron_right</icon>
+                    </div>
+                </button>
+            }
+            @if (images()?.length) {
+                <div
+                    class="absolute bottom-2 left-1/2 flex -translate-x-1/2 items-center space-x-2 text-sm"
+                >
+                    @for (img of images(); track img; let i = $index) {
+                        <button
+                            matRipple
+                            (click)="offset.set(i)"
+                            class="flex h-4 w-4 items-center justify-center"
+                        >
+                            <div
+                                class="bg-base-100 rounded-full shadow-sm transition-all"
+                                [class.opacity-30]="offset() !== i"
+                                [class.h-2]="offset() !== i"
+                                [class.w-2]="offset() !== i"
+                                [class.h-4]="offset() === i"
+                                [class.w-4]="offset() === i"
+                                [class.opacity-80]="offset() === i"
+                            ></div>
+                        </button>
+                    }
+                </div>
+            }
+        </div>
+    `, imports: [
+      MatRippleModule,
+      TranslatePipe,
+      AuthenticatedImageDirective,
+      IconComponent
+    ], styles: ["/* angular:styles/component:css;689216c244746a44ce8495e5ddc0d8a4ad407f0899332d9a6e20f4c6e02d0df2;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/image-carousel.component.ts */\n:host {\n  display: block;\n  height: 100%;\n  width: 100%;\n}\n[image] {\n  transition: transform 300ms;\n}\nbutton[disabled] {\n  pointer-events: none;\n}\n/*# sourceMappingURL=image-carousel.component.css.map */\n"] }]
+  }], null, { images: [{ type: Input, args: [{ isSignal: true, alias: "images", required: false }] }] });
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ImageCarouselComponent, { className: "ImageCarouselComponent", filePath: "libs/components/src/lib/image-carousel.component.ts", lineNumber: 111 });
 })();
 
 // libs/explore/src/lib/explore-state.service.ts
@@ -122473,6 +122518,7 @@ function generateBookingForm(booking = new Booking(), injector) {
         return booking_type === "parking" && require_plate_number();
       }
     });
+    validate(p2.plate_number, ({ value, valueOf }) => valueOf(p2.booking_type) === "parking" && require_plate_number() && !`${value() || ""}`.trim() ? { kind: "required" } : void 0);
     validate(p2.duration, ({ value, valueOf }) => {
       const date = valueOf(p2.date);
       if (value() <= 0)
