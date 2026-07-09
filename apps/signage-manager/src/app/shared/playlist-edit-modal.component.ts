@@ -243,30 +243,30 @@ export interface PlaylistEditFormModel {
                         "
                     ></textarea>
                 </mat-form-field>
-                <div class="flex space-x-4">
-                    <div class="flex-1">
-                        <label for="valid-from">{{
-                            'SIGNAGE_MANAGER.VALID_FROM' | translate
-                        }}</label>
-                        <a-date-field
-                            name="valid-from"
-                            [formField]="form.valid_from"
-                            [clear]="true"
-                        ></a-date-field>
-                    </div>
-                    <div class="flex-1">
-                        <label for="valid-until">{{
-                            'FORM.EXPIRES_AT' | translate
-                        }}</label>
-                        <a-date-field
-                            name="valid-until"
-                            [from]="model().valid_from"
-                            [formField]="form.valid_until"
-                            [clear]="true"
-                        ></a-date-field>
-                    </div>
-                </div>
                 @if (!model().distribution) {
+                    <div class="flex space-x-4">
+                        <div class="flex-1">
+                            <label for="valid-from">{{
+                                'SIGNAGE_MANAGER.VALID_FROM' | translate
+                            }}</label>
+                            <a-date-field
+                                name="valid-from"
+                                [formField]="form.valid_from"
+                                [clear]="true"
+                            ></a-date-field>
+                        </div>
+                        <div class="flex-1">
+                            <label for="valid-until">{{
+                                'FORM.EXPIRES_AT' | translate
+                            }}</label>
+                            <a-date-field
+                                name="valid-until"
+                                [from]="model().valid_from"
+                                [formField]="form.valid_until"
+                                [clear]="true"
+                            ></a-date-field>
+                        </div>
+                    </div>
                     <div class="pt-2 pb-4">
                         <label>{{
                             'SIGNAGE_MANAGER.PLAYLIST_SCHEDULES' | translate
