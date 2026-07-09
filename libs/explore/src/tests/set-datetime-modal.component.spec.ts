@@ -27,6 +27,7 @@ describe('SetDatetimeModalComponent', () => {
                         duration: 60,
                         until: base_date.valueOf() + 60 * 60 * 1000,
                         host: false,
+                        resource_type: 'Desk',
                         resource: { name: 'Desk 42' } as BookingAsset,
                         ...data,
                     },
@@ -51,6 +52,11 @@ describe('SetDatetimeModalComponent', () => {
     it('should display the resource name', () => {
         setup();
         expect(spectator.query('main')).toContainText('Desk 42');
+    });
+
+    it('should use the resource type as the resource label', () => {
+        setup();
+        expect(spectator.query('main label')).toContainText('Desk:');
     });
 
     it('should fall back to the map id when the resource has no name', () => {
@@ -88,10 +94,14 @@ describe('SetDatetimeModalComponent', () => {
         expect(spectator.component.form.controls.duration.disabled).toBe(false);
 
         spectator.component.form.controls.all_day.setValue(true);
+        spectator.detectChanges();
         expect(spectator.component.form.controls.duration.disabled).toBe(true);
+        expect(spectator.query('a-time-field')).toBeFalsy();
 
         spectator.component.form.controls.all_day.setValue(false);
+        spectator.detectChanges();
         expect(spectator.component.form.controls.duration.disabled).toBe(false);
+        expect(spectator.query('a-time-field')).toBeTruthy();
     });
 
     it('should start with the duration disabled when data marks it all-day', () => {

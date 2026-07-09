@@ -150,4 +150,37 @@ describe('ExploreDesksService', () => {
         expect(booking_service.model().resources[0].id).toBe('map-desk-1');
         expect(booking_service.confirmPost).toHaveBeenCalled();
     });
+
+    it('should preserve the all-day default when booking a desk from the map', async () => {
+        const booking_service = spectator.inject(BookingFormService) as any;
+        const { model, form } = generateBookingForm(
+            undefined,
+            spectator.inject(Injector),
+        );
+        booking_service.model = model;
+        booking_service.form = form;
+        booking_service.newForm = vi.fn(() =>
+            model.update((m: any) => ({
+                ...m,
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                all_day: true,
+            })),
+        );
+        booking_service.setOptions = vi.fn();
+        booking_service.confirmPost = vi.fn().mockResolvedValue({});
+        (spectator.service as any)._statuses['desk-1'] = signal('free');
+
+        await (spectator.service as any)._bookDesk(
+            new Desk({
+                id: 'desk-1',
+                name: 'Desk 1',
+                bookable: true,
+                zone: { id: 'lvl-1', parent_id: 'bld-1' } as any,
+            }),
+            {},
+        );
+
+        expect(booking_service.model().all_day).toBe(true);
+    });
 });

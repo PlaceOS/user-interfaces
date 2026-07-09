@@ -43,7 +43,7 @@ import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-f
                         class="mx-auto flex w-[640px] max-w-[calc(100%-2rem)] flex-col space-x-0 sm:flex-row sm:space-x-2"
                     >
                         <div class="mb-2 flex w-full flex-1 flex-col sm:w-1/4">
-                            <label>Resource:</label>
+                            <label>{{ resource_type() }}:</label>
                             <div
                                 class="border-base-200 mb-4 w-full rounded-sm border px-4 py-3"
                             >
@@ -82,20 +82,33 @@ import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-f
                         </a-date-field>
                     </div>
                 </div>
-                <div
-                    class="mx-auto flex w-[640px] max-w-[calc(100%-2rem)] flex-col space-x-0 sm:flex-row sm:space-x-2"
-                >
-                    <div class="flex w-full flex-1 flex-col sm:w-1/3">
-                        <label>Start Time</label>
-                        <a-time-field
-                            [ngModel]="form.value.date"
-                            (ngModelChange)="form.patchValue({ date: $event })"
-                            [ngModelOptions]="{ standalone: true }"
-                            [range]="bookable_hours()"
-                            [use_24hr]="use_24hr_time()"
-                        ></a-time-field>
+                @if (allow_all_day()) {
+                    <div
+                        class="mx-auto flex w-[640px] max-w-[calc(100%-2rem)] justify-end"
+                        [class.-mb-7]="!form.value.all_day"
+                        [class.mb-2]="form.value.all_day"
+                    >
+                        <mat-checkbox formControlName="all_day">
+                            {{ 'COMMON.ALL_DAY' | translate }}
+                        </mat-checkbox>
                     </div>
-                    @if (!all_day()) {
+                }
+                @if (!all_day()) {
+                    <div
+                        class="mx-auto flex w-[640px] max-w-[calc(100%-2rem)] flex-col space-x-0 sm:flex-row sm:space-x-2"
+                    >
+                        <div class="flex w-full flex-1 flex-col sm:w-1/3">
+                            <label>Start Time</label>
+                            <a-time-field
+                                [ngModel]="form.value.date"
+                                (ngModelChange)="
+                                    form.patchValue({ date: $event })
+                                "
+                                [ngModelOptions]="{ standalone: true }"
+                                [range]="bookable_hours()"
+                                [use_24hr]="use_24hr_time()"
+                            ></a-time-field>
+                        </div>
                         <div class="flex w-full flex-1 flex-col sm:w-1/3">
                             <label>End Time</label>
                             <a-duration-field
@@ -109,15 +122,6 @@ import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-f
                             >
                             </a-duration-field>
                         </div>
-                    }
-                </div>
-                @if (allow_all_day()) {
-                    <div
-                        class="mx-auto flex w-[640px] max-w-[calc(100%-2rem)] justify-end"
-                    >
-                        <mat-checkbox formControlName="all_day">
-                            {{ 'COMMON.ALL_DAY' | translate }}
-                        </mat-checkbox>
                     </div>
                 }
             </main>
@@ -152,6 +156,7 @@ export class SetDatetimeModalComponent implements OnInit {
         until: number;
         host: boolean;
         user?: User;
+        resource_type?: string;
         resource: BookingAsset;
         all_day?: boolean;
         allow_all_day?: boolean;
@@ -168,6 +173,9 @@ export class SetDatetimeModalComponent implements OnInit {
     });
 
     public readonly book_until = signal(this._data.until);
+    public readonly resource_type = signal(
+        this._data.resource_type || 'Resource',
+    );
     public readonly resource = signal(this._data.resource);
     public readonly allow_all_day = signal(this._data.allow_all_day ?? false);
     public readonly bookable_hours = signal(this._data.bookable_hours ?? null);
