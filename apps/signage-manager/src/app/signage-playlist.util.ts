@@ -21,6 +21,12 @@ export function playlistMediaThumbnailUrl(item: SignageMedia) {
         : item?.thumbnail_url || '';
 }
 
+export function playlistMediaUrl(item: SignageMedia) {
+    return item?.media_id
+        ? `/api/engine/v2/uploads/${item.media_id}/url`
+        : item?.media_uri || '';
+}
+
 export function playlistMediaIcon(item: SignageMedia) {
     return item?.media_type === 'video'
         ? 'video_library'
@@ -42,6 +48,14 @@ export function playlistMediaItems(list: {
     if (!list.media?.length && scheduled_media.length) return scheduled_media;
     const media = list.media?.length ? list.media : scheduled_media;
     const media_by_id = new Map(media.map((item) => [item.id, item]));
+    // Distribution playlist items reference schedule item ids, not media ids
+    for (const schedule of list.schedules || []) {
+        if (!schedule.media?.id) continue;
+        if (schedule.id) media_by_id.set(schedule.id, schedule.media);
+        if (schedule.item_id) {
+            media_by_id.set(schedule.item_id, schedule.media);
+        }
+    }
     return list.items?.length
         ? list.items
               .map((id) => media_by_id.get(id))
@@ -62,6 +76,7 @@ export function playlistItemScheduleMap(list: {
 }) {
     const map = new Map<string, SignagePlaylistItemSchedule>();
     for (const item of list.schedules || []) {
+        if (item.id) map.set(item.id, item);
         if (item.item_id) map.set(item.item_id, item);
         if (item.media?.id) map.set(item.media.id, item);
     }

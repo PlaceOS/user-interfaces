@@ -1,7 +1,9 @@
-import { signal } from '@angular/core';
+import { ApplicationRef, signal } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator';
-import { OrganisationService, SettingsService } from '@placeos/common';
+import { Booking, OrganisationService, SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
+import { addMinutes, getUnixTime } from 'date-fns';
 
 import { BookingFormService } from 'libs/bookings/src/lib/booking-form.service';
 import { ParkingService } from 'libs/bookings/src/lib/parking.service';
@@ -18,11 +20,12 @@ import * as ts_client from '@placeos/ts-client';
 
 describe('ExploreParkingService', () => {
     let spectator: SpectatorService<ExploreParkingService>;
+    const active_level = signal({ id: 'lvl-1' }) as any;
     const createService = createServiceFactory({
         service: ExploreParkingService,
         providers: [
             MockProvider(ExploreStateService, {
-                level: signal({ id: 'lvl-1' }) as any,
+                level: active_level,
                 options: signal({ is_public: false }) as any,
                 setActions: vi.fn(),
                 setStyles: vi.fn(),
@@ -59,10 +62,16 @@ describe('ExploreParkingService', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
+        active_level.set({ id: 'lvl-1' });
         vi.mocked(ts_client.showMetadata).mockResolvedValue({
             details: [],
         } as any);
         vi.mocked(ts_client.get).mockResolvedValue([] as any);
+        vi.mocked(ts_client.query).mockResolvedValue({
+            data: [],
+            total: 0,
+            next: null,
+        } as any);
         vi.mocked(ts_client.queryAssetCategories).mockResolvedValue({
             data: [{ id: 'cat-parking', name: '_PARKING_', hidden: true }],
         } as any);
@@ -93,6 +102,91 @@ describe('ExploreParkingService', () => {
         spectator.service.setOptions({ date: 123, custom: true });
         expect(spectator.service.options().date).toBe(123);
         expect(spectator.service.options().custom).toBe(true);
+    });
+
+    it('should query parking bookings around the set time', async () => {
+        const date = new Date('2026-07-09T13:45:00+10:00').valueOf();
+        vi.mocked(ts_client.query).mockClear();
+
+        spectator.service.setOptions({ date });
+        TestBed.flushEffects();
+        await TestBed.inject(ApplicationRef).whenStable();
+
+        const call = vi
+            .mocked(ts_client.query)
+            .mock.calls.find(
+                ([options]) => (options as any).query_params?.type === 'parking',
+            );
+        expect(call).toBeTruthy();
+        const params = (call[0] as any).query_params;
+        expect(params.period_start).toBe(getUnixTime(addMinutes(date, -15)));
+        expect(params.period_end).toBe(getUnixTime(addMinutes(date, 30)));
+        expect(params.zones).toBe('lvl-1');
+    });
+
+    it('should query parking status bookings for the active map level', async () => {
+        active_level.set({ id: 'lvl-2' });
+        vi.mocked(ts_client.query).mockClear();
+
+        spectator.service.setOptions({ date: 123 });
+        TestBed.flushEffects();
+        await TestBed.inject(ApplicationRef).whenStable();
+
+        const call = vi
+            .mocked(ts_client.query)
+            .mock.calls.find(
+                ([options]) => (options as any).query_params?.type === 'parking',
+            );
+        expect(call).toBeTruthy();
+        expect((call[0] as any).query_params.zones).toBe('lvl-2');
+    });
+
+    it('should load every page of parking status bookings', async () => {
+        const next = vi.fn().mockResolvedValue({
+            data: [new Booking({ id: 'b2', asset_id: 'p2' })],
+            total: 2,
+            next: null,
+        });
+        vi.mocked(ts_client.query).mockResolvedValue({
+            data: [new Booking({ id: 'b1', asset_id: 'p1' })],
+            total: 2,
+            next,
+        } as any);
+
+        spectator.service.setOptions({ date: 123 });
+        TestBed.flushEffects();
+        await TestBed.inject(ApplicationRef).whenStable();
+
+        expect(next).toHaveBeenCalled();
+        expect(spectator.service.events().map((_) => _.asset_id)).toEqual([
+            'p1',
+            'p2',
+        ]);
+    });
+
+    it('should default the parking status query to the current time', async () => {
+        const now = new Date('2026-07-09T13:45:00+10:00');
+        const date_now = vi.spyOn(Date, 'now').mockReturnValue(now.valueOf());
+        vi.mocked(ts_client.query).mockClear();
+
+        spectator.service.setOptions({ date: undefined });
+        TestBed.flushEffects();
+        await TestBed.inject(ApplicationRef).whenStable();
+        date_now.mockRestore();
+
+        const call = vi
+            .mocked(ts_client.query)
+            .mock.calls.find(
+                ([options]) => (options as any).query_params?.type === 'parking',
+            );
+        expect(call).toBeTruthy();
+        const params = (call[0] as any).query_params;
+        expect(params.period_start).toBe(
+            getUnixTime(addMinutes(now.valueOf(), -15)),
+        );
+        expect(params.period_end).toBe(
+            getUnixTime(addMinutes(now.valueOf(), 30)),
+        );
     });
 
     it('should only expose levels tagged as parking', () => {

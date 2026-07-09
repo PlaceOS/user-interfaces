@@ -1,0 +1,82 @@
+{
+    "type": "object",
+    "description": "Customisable settings for the booking-panel app",
+    "properties": {
+        "name": {
+            "type": "string",
+            "description": "Name of the application. Used for the page title and as a fallback application name for API requests."
+        },
+        "title": {
+            "type": "string",
+            "description": "Title for the application"
+        },
+        "description": {
+            "type": "string",
+            "description": "Description of the application"
+        },
+        "short_name": {
+            "type": "string",
+            "description": "Short name for the application. Used as the application name for API requests."
+        },
+        "logo_light": {
+            "$ref": "#/$defs/logo",
+            "description": "Logo displayed on the event panel when the light theme is active. Either an image URL string or an object with a `src` image URL."
+        },
+        "logo_dark": {
+            "$ref": "#/$defs/logo",
+            "description": "Logo displayed on the event panel when the dark theme is active. Either an image URL string or an object with a `src` image URL."
+        },
+        "general": {
+            "type": "object",
+            "description": "General settings associated with the app"
+        },
+        "prevent_space_init": {
+            "type": "boolean",
+            "description": "Whether to prevent the spaces service from loading the full list of bookable spaces on startup"
+        },
+        "allow_dark_mode": {
+            "type": "boolean",
+            "description": "Whether the user is allowed to switch the app between light and dark themes. When disabled the app is locked to the light theme."
+        },
+        "text_color": {
+            "type": "string",
+            "description": "CSS colour for text on the event panel view. Defaults to `#FFFFFF`."
+        },
+        "background_color": {
+            "type": "string",
+            "description": "CSS colour for the background of the event panel view. Defaults to `#483285`."
+        },
+        "background_image": {
+            "type": "string",
+            "description": "URL of the background image to render on the event panel view"
+        },
+        "refresh_when_websocket_unstable": {
+            "type": "boolean",
+            "description": "Whether to reload the page when the websocket connection to the PlaceOS backend is repeatedly dropping"
+        },
+        "user_as_default_host": {
+            "type": "boolean",
+            "description": "Whether the signed-in user's email should be used as the host for `book_now` bookings when no host is set"
+        }
+    },
+    "$defs": {
+        "logo": {
+            "anyOf": [
+                {
+                    "type": "string",
+                    "description": "URL of the logo image"
+                },
+                {
+                    "type": "object",
+                    "required": ["src"],
+                    "properties": {
+                        "src": {
+                            "type": "string",
+                            "description": "URL of the logo image"
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

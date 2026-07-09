@@ -409,6 +409,13 @@ export function generateBookingForm(
                     );
                 },
             });
+            validate(p.plate_number, ({ value, valueOf }) =>
+                valueOf(p.booking_type) === 'parking' &&
+                require_plate_number() &&
+                !`${value() || ''}`.trim()
+                    ? { kind: 'required' }
+                    : undefined,
+            );
             validate(p.duration, ({ value, valueOf }) => {
                 const date = valueOf(p.date);
                 if (value() <= 0) return { kind: 'duration' };
