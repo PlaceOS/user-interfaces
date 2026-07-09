@@ -21,7 +21,7 @@ import {
     SignagePlaylist,
     SignagePlugin,
 } from '@placeos/ts-client';
-import { playlistMediaThumbnailUrl } from '../signage-playlist.util';
+import { playlistMediaThumbnailUrl, playlistMediaUrl } from '../signage-playlist.util';
 import { SignageService } from '../signage.service';
 
 interface MediaPreviewModalData {
@@ -367,7 +367,7 @@ export class MediaPreviewModalComponent implements OnInit {
 
     public readonly item = this._data.media;
     public readonly plugin = this._data.plugin;
-    public readonly media_url = this.item.media_url || this.item.media_uri;
+    public readonly media_url = playlistMediaUrl(this.item);
     public readonly thumbnail_url = playlistMediaThumbnailUrl(this.item);
     public readonly media_loading = signal(this._hasLoadableMedia());
     public readonly media_error = signal(false);
