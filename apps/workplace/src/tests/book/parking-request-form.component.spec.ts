@@ -60,6 +60,7 @@ describe('ParkingRequestFormComponent', () => {
             zones: [],
             location: '',
             extension_data: {},
+            plate_number: ' ABC123 ',
         });
         form = () => ({ valid: () => true });
         post_form = vi.fn(() => Promise.resolve({ id: 'booking-1' }));
@@ -85,6 +86,7 @@ describe('ParkingRequestFormComponent', () => {
         expect(model().zones).toEqual(['org-1', 'reg-1', 'bld-1']);
         expect(model().location).toBe('Headquarters');
         expect(model().extension_data.location).toBe('Headquarters');
+        expect(model().plate_number).toBe('ABC123');
         expect(post_form).toHaveBeenCalled();
     });
 });

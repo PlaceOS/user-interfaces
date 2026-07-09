@@ -227,6 +227,7 @@ export class ParkingRequestFormComponent
             asset_name: 'Parking Request',
             description: 'Parking Request',
             title: m.title || 'Parking Request',
+            plate_number: `${m.plate_number || ''}`.trim(),
         }));
         const building = this._org.building;
         const location =
