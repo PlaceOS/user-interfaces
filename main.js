@@ -4,6 +4,7 @@ import {
   BidiModule,
   ChangeDetectorRef,
   Component,
+  DEFAULT_SETTINGS,
   DOCUMENT,
   DefaultValueAccessor,
   ElementRef,
@@ -12,6 +13,7 @@ import {
   FormsModule,
   Fr,
   GroupPermission,
+  HotkeysService,
   IconComponent,
   Injectable,
   InjectionToken,
@@ -33,7 +35,9 @@ import {
   NgForm,
   NgModel,
   NgModule,
+  NgSelectOption,
   NgZone,
+  NumberValueAccessor,
   OrganisationService,
   Output,
   PlaceOS_Service,
@@ -43,6 +47,7 @@ import {
   RouterLink,
   RouterOutlet,
   Rt,
+  SelectControlValueAccessor,
   SettingsService,
   SignageService,
   TranslatePipe,
@@ -106,6 +111,7 @@ import {
   withComponentInputBinding,
   withHashLocation,
   ɵNgNoValidate,
+  ɵNgSelectMultipleOption,
   ɵsetClassDebugInfo,
   ɵɵInheritDefinitionFeature,
   ɵɵadvance,
@@ -134,6 +140,10 @@ import {
   ɵɵpipeBind1,
   ɵɵproperty,
   ɵɵpureFunction0,
+  ɵɵrepeater,
+  ɵɵrepeaterCreate,
+  ɵɵrepeaterTrackByIdentity,
+  ɵɵrepeaterTrackByIndex,
   ɵɵresetView,
   ɵɵresolveWindow,
   ɵɵrestoreView,
@@ -144,8 +154,9 @@ import {
   ɵɵtwoWayBindingSet,
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty
-} from "./chunk-GSYPF65K.js";
+} from "./chunk-3ITSEBHD.js";
 import {
+  __export,
   __spreadProps,
   __spreadValues
 } from "./chunk-653SOEEV.js";
@@ -1385,6 +1396,836 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
 })();
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(GlobalLoadingComponent, { className: "GlobalLoadingComponent", filePath: "libs/components/src/lib/global-loading.component.ts", lineNumber: 81 });
+})();
+
+// libs/components/src/lib/settings-debug-panel.component.ts
+function SettingsDebugPanelComponent_Conditional_0_Conditional_5_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r2 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 13);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_Conditional_5_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r2);
+      const ctx_r2 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r2.clearAll());
+    });
+    \u0275\u0275text(1, " Clear all overrides ");
+    \u0275\u0275elementEnd();
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_0_Conditional_7_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span", 20);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const group_r5 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", group_r5.overridden, " overridden ");
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r4 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 16);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_0_Template_button_click_0_listener() {
+      const group_r5 = \u0275\u0275restoreView(_r4);
+      const ctx_r2 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r2.toggleGroup(group_r5.name));
+    });
+    \u0275\u0275elementStart(1, "icon", 17);
+    \u0275\u0275text(2, " chevron_right ");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "span", 18);
+    \u0275\u0275text(4);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(5, "span", 19);
+    \u0275\u0275text(6);
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(7, SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_0_Conditional_7_Template, 2, 1, "span", 20);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const group_r5 = ctx;
+    const ctx_r2 = \u0275\u0275nextContext(3);
+    \u0275\u0275advance();
+    \u0275\u0275classProp("rotate-90", ctx_r2.filter() || ctx_r2.expanded()[group_r5.name]);
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate(group_r5.name);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" (", group_r5.count, ") ");
+    \u0275\u0275advance();
+    \u0275\u0275conditional(group_r5.overridden ? 7 : -1);
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Conditional_4_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 24);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const row_r6 = \u0275\u0275nextContext();
+    \u0275\u0275property("title", row_r6.description);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", row_r6.description, " ");
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_5_For_2_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "option", 26);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const option_r8 = ctx.$implicit;
+    \u0275\u0275property("value", option_r8);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", option_r8, " ");
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_5_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r7 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "select", 25);
+    \u0275\u0275twoWayListener("ngModelChange", function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_5_Template_select_ngModelChange_0_listener($event) {
+      \u0275\u0275restoreView(_r7);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      \u0275\u0275twoWayBindingSet(ctx_r2.edit_value, $event) || (ctx_r2.edit_value = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275listener("keydown.escape", function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_5_Template_select_keydown_escape_0_listener() {
+      \u0275\u0275restoreView(_r7);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      return \u0275\u0275resetView(ctx_r2.editing_key.set(""));
+    });
+    \u0275\u0275repeaterCreate(1, SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_5_For_2_Template, 2, 2, "option", 26, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementStart(3, "button", 27);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_5_Template_button_click_3_listener() {
+      \u0275\u0275restoreView(_r7);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      return \u0275\u0275resetView(ctx_r2.saveEdit());
+    });
+    \u0275\u0275elementStart(4, "icon", 28);
+    \u0275\u0275text(5, "check");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const row_r6 = \u0275\u0275nextContext();
+    const ctx_r2 = \u0275\u0275nextContext(3);
+    \u0275\u0275twoWayProperty("ngModel", ctx_r2.edit_value);
+    \u0275\u0275control();
+    \u0275\u0275advance();
+    \u0275\u0275repeater(row_r6.options);
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_6_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r9 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "input", 29);
+    \u0275\u0275twoWayListener("ngModelChange", function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_6_Template_input_ngModelChange_0_listener($event) {
+      \u0275\u0275restoreView(_r9);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      \u0275\u0275twoWayBindingSet(ctx_r2.edit_value, $event) || (ctx_r2.edit_value = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275listener("keydown.enter", function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_6_Template_input_keydown_enter_0_listener() {
+      \u0275\u0275restoreView(_r9);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      return \u0275\u0275resetView(ctx_r2.saveEdit());
+    })("keydown.escape", function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_6_Template_input_keydown_escape_0_listener() {
+      \u0275\u0275restoreView(_r9);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      return \u0275\u0275resetView(ctx_r2.editing_key.set(""));
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementStart(1, "button", 27);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_6_Template_button_click_1_listener() {
+      \u0275\u0275restoreView(_r9);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      return \u0275\u0275resetView(ctx_r2.saveEdit());
+    });
+    \u0275\u0275elementStart(2, "icon", 28);
+    \u0275\u0275text(3, "check");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext(4);
+    \u0275\u0275twoWayProperty("ngModel", ctx_r2.edit_value);
+    \u0275\u0275control();
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_7_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r10 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "input", 30);
+    \u0275\u0275twoWayListener("ngModelChange", function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_7_Template_input_ngModelChange_0_listener($event) {
+      \u0275\u0275restoreView(_r10);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      \u0275\u0275twoWayBindingSet(ctx_r2.edit_value, $event) || (ctx_r2.edit_value = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275listener("keydown.enter", function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_7_Template_input_keydown_enter_0_listener() {
+      \u0275\u0275restoreView(_r10);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      return \u0275\u0275resetView(ctx_r2.saveEdit());
+    })("keydown.escape", function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_7_Template_input_keydown_escape_0_listener() {
+      \u0275\u0275restoreView(_r10);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      return \u0275\u0275resetView(ctx_r2.editing_key.set(""));
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementStart(1, "button", 27);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_7_Template_button_click_1_listener() {
+      \u0275\u0275restoreView(_r10);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      return \u0275\u0275resetView(ctx_r2.saveEdit());
+    });
+    \u0275\u0275elementStart(2, "icon", 28);
+    \u0275\u0275text(3, "check");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext(4);
+    \u0275\u0275twoWayProperty("ngModel", ctx_r2.edit_value);
+    \u0275\u0275control();
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_8_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r11 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 31)(1, "button", 34);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_8_Conditional_0_Template_button_click_1_listener() {
+      \u0275\u0275restoreView(_r11);
+      const row_r6 = \u0275\u0275nextContext(2);
+      const ctx_r2 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r2.toggleValue(row_r6));
+    });
+    \u0275\u0275element(2, "div", 35);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const row_r6 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance();
+    \u0275\u0275classProp("bg-info", row_r6.value)("bg-base-300", !row_r6.value);
+    \u0275\u0275property("title", row_r6.display);
+    \u0275\u0275advance();
+    \u0275\u0275classProp("translate-x-4", row_r6.value);
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_8_Conditional_1_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r12 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 36);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_8_Conditional_1_Template_div_click_0_listener() {
+      \u0275\u0275restoreView(_r12);
+      const row_r6 = \u0275\u0275nextContext(2);
+      const ctx_r2 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r2.startEdit(row_r6));
+    });
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const row_r6 = \u0275\u0275nextContext(2);
+    \u0275\u0275classMap(row_r6.display ? "opacity-80" : "italic opacity-40");
+    \u0275\u0275property("title", row_r6.display || "unset");
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", row_r6.display || "unset", " ");
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_8_Conditional_2_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r13 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 37);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_8_Conditional_2_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r13);
+      const row_r6 = \u0275\u0275nextContext(2);
+      const ctx_r2 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r2.clearOverride(row_r6.key));
+    });
+    \u0275\u0275elementStart(1, "icon", 28);
+    \u0275\u0275text(2, "undo");
+    \u0275\u0275elementEnd()();
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_8_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275conditionalCreate(0, SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_8_Conditional_0_Template, 3, 7, "div", 31)(1, SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_8_Conditional_1_Template, 2, 4, "div", 32);
+    \u0275\u0275conditionalCreate(2, SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_8_Conditional_2_Template, 3, 0, "button", 33);
+  }
+  if (rf & 2) {
+    const row_r6 = \u0275\u0275nextContext();
+    \u0275\u0275conditional(row_r6.control === "toggle" ? 0 : 1);
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(row_r6.overridden ? 2 : -1);
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 21)(1, "div", 22)(2, "div", 23);
+    \u0275\u0275text(3);
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(4, SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Conditional_4_Template, 2, 2, "div", 24);
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(5, SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_5_Template, 6, 1)(6, SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_6_Template, 4, 1)(7, SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_7_Template, 4, 1)(8, SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_8_Template, 3, 2);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    let tmp_19_0;
+    const row_r6 = ctx;
+    const entry_r14 = \u0275\u0275nextContext().$implicit;
+    const ctx_r2 = \u0275\u0275nextContext(2);
+    \u0275\u0275classProp("pl-8", entry_r14.grouped)("pl-2", !entry_r14.grouped)("bg-warning-light", row_r6.overridden);
+    \u0275\u0275advance(2);
+    \u0275\u0275property("title", row_r6.label);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", row_r6.label, " ");
+    \u0275\u0275advance();
+    \u0275\u0275conditional(row_r6.description ? 4 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional((tmp_19_0 = ctx_r2.editing_key() === row_r6.key ? row_r6.control : "") === "select" ? 5 : tmp_19_0 === "number" ? 6 : tmp_19_0 === "text" ? 7 : 8);
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_16_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275conditionalCreate(0, SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_0_Template, 8, 5, "button", 14);
+    \u0275\u0275conditionalCreate(1, SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Template, 9, 10, "div", 15);
+  }
+  if (rf & 2) {
+    let tmp_11_0;
+    let tmp_12_0;
+    const entry_r14 = ctx.$implicit;
+    \u0275\u0275conditional((tmp_11_0 = entry_r14.header) ? 0 : -1, tmp_11_0);
+    \u0275\u0275advance();
+    \u0275\u0275conditional((tmp_12_0 = entry_r14.row) ? 1 : -1, tmp_12_0);
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_ForEmpty_17_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 11);
+    \u0275\u0275text(1, " No matching settings ");
+    \u0275\u0275elementEnd();
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r1 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 0)(1, "div", 1)(2, "div", 2);
+    \u0275\u0275text(3, "Settings Viewer");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "div", 3);
+    \u0275\u0275conditionalCreate(5, SettingsDebugPanelComponent_Conditional_0_Conditional_5_Template, 2, 0, "button", 4);
+    \u0275\u0275elementStart(6, "button", 5);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_Template_button_click_6_listener() {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.show.set(false));
+    });
+    \u0275\u0275elementStart(7, "icon");
+    \u0275\u0275text(8, "close");
+    \u0275\u0275elementEnd()()()()();
+    \u0275\u0275elementStart(9, "div", 6)(10, "div", 7)(11, "input", 8);
+    \u0275\u0275twoWayListener("ngModelChange", function SettingsDebugPanelComponent_Conditional_0_Template_input_ngModelChange_11_listener($event) {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r2 = \u0275\u0275nextContext();
+      \u0275\u0275twoWayBindingSet(ctx_r2.filter, $event) || (ctx_r2.filter = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementStart(12, "icon", 9);
+    \u0275\u0275text(13, "search");
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(14, "div", 10);
+    \u0275\u0275repeaterCreate(15, SettingsDebugPanelComponent_Conditional_0_For_16_Template, 2, 2, null, null, \u0275\u0275repeaterTrackByIndex, false, SettingsDebugPanelComponent_Conditional_0_ForEmpty_17_Template, 2, 0, "div", 11);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(18, "div", 12);
+    \u0275\u0275text(19, " Click a value to override it. Text values are parsed as JSON, falling back to plain strings. Overrides are stored locally in this browser. ");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275advance(5);
+    \u0275\u0275conditional(ctx_r2.has_overrides() ? 5 : -1);
+    \u0275\u0275advance(6);
+    \u0275\u0275twoWayProperty("ngModel", ctx_r2.filter);
+    \u0275\u0275control();
+    \u0275\u0275advance(4);
+    \u0275\u0275repeater(ctx_r2.entries());
+  }
+}
+function flattenKeys(map, prefix, keys) {
+  for (const key in map) {
+    const full_key = prefix ? `${prefix}.${key}` : key;
+    const value = map[key];
+    if (value && typeof value === "object" && !Array.isArray(value)) {
+      flattenKeys(value, full_key, keys);
+    } else
+      keys.add(full_key);
+  }
+}
+function resolveRef(root, node) {
+  const ref = node?.["$ref"];
+  if (!ref?.startsWith("#/"))
+    return node;
+  let target = root;
+  for (const part of ref.slice(2).split("/"))
+    target = target?.[part];
+  return target || node;
+}
+function schemaNode(root, key) {
+  if (!root || !key.startsWith("app."))
+    return null;
+  let node = root;
+  for (const part of key.slice(4).split(".")) {
+    node = resolveRef(root, node)?.properties?.[part];
+    if (!node)
+      return null;
+  }
+  return resolveRef(root, node);
+}
+function flattenSchemaKeys(root, node, prefix, keys, depth = 0) {
+  if (depth > 8)
+    return;
+  node = resolveRef(root, node);
+  if (!node?.properties) {
+    if (prefix)
+      keys.add(prefix);
+    return;
+  }
+  for (const key in node.properties) {
+    flattenSchemaKeys(root, node.properties[key], prefix ? `${prefix}.${key}` : key, keys, depth + 1);
+  }
+}
+var SettingsDebugPanelComponent = class _SettingsDebugPanelComponent extends AsyncHandler {
+  constructor() {
+    super(...arguments);
+    this._settings = inject(SettingsService);
+    this._hotkey = inject(HotkeysService);
+    this.schema = input(
+      null,
+      ...ngDevMode ? [{ debugName: "schema" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.show = signal(
+      false,
+      ...ngDevMode ? [{ debugName: "show" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.filter = signal(
+      "",
+      ...ngDevMode ? [{ debugName: "filter" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.editing_key = signal(
+      "",
+      ...ngDevMode ? [{ debugName: "editing_key" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.expanded = signal(
+      {},
+      ...ngDevMode ? [{ debugName: "expanded" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.edit_value = "";
+    this.has_overrides = computed(
+      () => Object.keys(this._settings.debug_overrides()).length > 0,
+      ...ngDevMode ? [{ debugName: "has_overrides" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.rows = computed(
+      () => {
+        const schema = this.schema();
+        const debug_overrides = this._settings.debug_overrides();
+        const keys = /* @__PURE__ */ new Set();
+        flattenKeys({ app: DEFAULT_SETTINGS.app }, "", keys);
+        for (const layer of this._settings.overrides()) {
+          flattenKeys({ app: layer }, "", keys);
+        }
+        if (schema)
+          flattenSchemaKeys(schema, schema, "app", keys);
+        for (const key in debug_overrides)
+          keys.add(key);
+        const search = this.filter().toLowerCase();
+        return [...keys].filter((key) => key.slice(4).toLowerCase().includes(search)).sort().map((key) => {
+          const node = schemaNode(schema, key);
+          const value = this._settings.get(key);
+          let control = "text";
+          if (node?.enum?.length)
+            control = "select";
+          else if (node?.type === "boolean" || typeof value === "boolean") {
+            control = "toggle";
+          } else if (node?.type === "number" || node?.type === "integer" || typeof value === "number") {
+            control = "number";
+          }
+          return {
+            key,
+            label: key.slice(4),
+            value,
+            display: JSON.stringify(value) ?? "",
+            overridden: key in debug_overrides,
+            description: node?.description || "",
+            control,
+            options: node?.enum
+          };
+        });
+      },
+      ...ngDevMode ? [{ debugName: "rows" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.entries = computed(
+      () => {
+        const show_all = !!this.filter();
+        const expanded = this.expanded();
+        const entries = [];
+        let header = null;
+        for (const row of this.rows()) {
+          const index = row.label.indexOf(".");
+          if (index < 0) {
+            header = null;
+            entries.push({ row });
+            continue;
+          }
+          const group = row.label.slice(0, index);
+          if (!header || header.name !== group) {
+            header = { name: group, count: 0, overridden: 0 };
+            entries.push({ header });
+          }
+          header.count += 1;
+          if (row.overridden)
+            header.overridden += 1;
+          if (show_all || expanded[group]) {
+            entries.push({
+              row: __spreadProps(__spreadValues({}, row), { label: row.label.slice(index + 1) }),
+              grouped: true
+            });
+          }
+        }
+        return entries;
+      },
+      ...ngDevMode ? [{ debugName: "entries" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+  }
+  toggleGroup(name) {
+    this.expanded.update((state) => __spreadProps(__spreadValues({}, state), { [name]: !state[name] }));
+  }
+  ngOnInit() {
+    this.subscription("toggle", this._hotkey.listen(["Control", "Alt", "Shift", "KeyS"], () => this.show.set(!this.show())));
+  }
+  startEdit(row) {
+    this.editing_key.set(row.key);
+    this.edit_value = row.control === "text" ? row.display : `${row.value ?? ""}`;
+  }
+  toggleValue(row) {
+    this._settings.setDebugOverride(row.key, !row.value);
+  }
+  saveEdit() {
+    const key = this.editing_key();
+    const row = this.rows().find((_) => _.key === key);
+    if (!row)
+      return;
+    let value = this.edit_value;
+    if (row.control === "number") {
+      value = parseFloat(this.edit_value);
+      if (isNaN(value))
+        return;
+    } else if (row.control === "text") {
+      try {
+        value = JSON.parse(this.edit_value);
+      } catch {
+      }
+    }
+    this._settings.setDebugOverride(key, value);
+    this.editing_key.set("");
+  }
+  clearOverride(key) {
+    this._settings.setDebugOverride(key, void 0);
+  }
+  clearAll() {
+    this._settings.clearDebugOverrides();
+  }
+  static {
+    this.\u0275fac = /* @__PURE__ */ (() => {
+      let \u0275SettingsDebugPanelComponent_BaseFactory;
+      return function SettingsDebugPanelComponent_Factory(__ngFactoryType__) {
+        return (\u0275SettingsDebugPanelComponent_BaseFactory || (\u0275SettingsDebugPanelComponent_BaseFactory = \u0275\u0275getInheritedFactory(_SettingsDebugPanelComponent)))(__ngFactoryType__ || _SettingsDebugPanelComponent);
+      };
+    })();
+  }
+  static {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SettingsDebugPanelComponent, selectors: [["settings-debug-panel"]], inputs: { schema: [1, "schema"] }, features: [\u0275\u0275InheritDefinitionFeature], decls: 1, vars: 1, consts: [[1, "flex", "flex-col", "gap-2"], [1, "border-base-300", "bg-base-100", "text-base-content", "fixed", "bottom-123", "left-2", "z-998", "flex", "w-160", "max-w-[90vw]", "items-center", "overflow-hidden", "rounded-lg", "border", "p-1", "shadow-sm"], [1, "flex-1", "px-3", "font-medium"], [1, "flex", "items-center"], ["matRipple", "", 1, "text-error", "px-2", "py-1", "text-xs", "underline"], ["icon", "", "default", "", "matRipple", "", 1, "text-sm", 3, "click"], [1, "border-base-300", "bg-base-200", "text-base-content", "fixed", "bottom-2", "left-2", "z-998", "flex", "h-120", "max-h-[80vh]", "w-160", "max-w-[90vw]", "flex-col", "overflow-hidden", "rounded-xl", "border", "shadow-sm"], [1, "relative", "m-1", "flex"], ["name", "setting-filter", "placeholder", "Filter settings...", 1, "border-base-300", "bg-base-100", "w-full", "rounded-lg", "border", "px-8", "py-2", "pr-2", "font-mono", "text-sm", "shadow", 3, "ngModelChange", "ngModel"], [1, "absolute", "top-1/2", "left-1", "-translate-y-1/2", "text-xl"], [1, "flex-1", "overflow-auto"], [1, "p-4", "text-center", "opacity-30"], [1, "border-base-300", "bg-base-100", "border-t", "p-2", "text-xs", "opacity-60"], ["matRipple", "", 1, "text-error", "px-2", "py-1", "text-xs", "underline", 3, "click"], [1, "border-base-300", "bg-base-100/50", "hover:bg-base-100", "flex", "min-h-8", "w-full", "items-center", "gap-1", "border-b", "px-2", "py-1", "text-left", "text-xs"], [1, "border-base-300", "flex", "min-h-8", "items-center", "border-b", "py-1", "pr-2", "text-xs", 3, "pl-8", "pl-2", "bg-warning-light"], [1, "border-base-300", "bg-base-100/50", "hover:bg-base-100", "flex", "min-h-8", "w-full", "items-center", "gap-1", "border-b", "px-2", "py-1", "text-left", "text-xs", 3, "click"], [1, "text-sm", "transition-transform"], [1, "font-mono"], [1, "opacity-40"], [1, "bg-warning-light", "rounded-sm", "px-1", "text-[0.65rem]", "text-black"], [1, "border-base-300", "flex", "min-h-8", "items-center", "border-b", "py-1", "pr-2", "text-xs"], [1, "w-3/5", "min-w-0", "pr-2"], [1, "truncate", "font-mono", 3, "title"], [1, "truncate", "text-[0.65rem]", "opacity-60", 3, "title"], ["name", "setting-value", 1, "bg-base-100", "flex-1", "rounded-sm", "border", "px-1", "py-0.5", "font-mono", 3, "ngModelChange", "keydown.escape", "ngModel"], [3, "value"], ["icon", "", "matRipple", "", "title", "Save override", 3, "click"], [1, "text-sm"], ["name", "setting-value", "type", "number", 1, "bg-base-100", "flex-1", "rounded-sm", "border", "px-1", "py-0.5", "font-mono", 3, "ngModelChange", "keydown.enter", "keydown.escape", "ngModel"], ["name", "setting-value", 1, "bg-base-100", "flex-1", "rounded-sm", "border", "px-1", "py-0.5", "font-mono", 3, "ngModelChange", "keydown.enter", "keydown.escape", "ngModel"], [1, "flex", "flex-1"], [1, "flex-1", "cursor-pointer", "truncate", "font-mono", 3, "class", "title"], ["icon", "", "matRipple", "", "title", "Clear override"], [1, "relative", "h-4", "w-8", "rounded-full", "transition-colors", 3, "click", "title"], [1, "absolute", "top-0.5", "left-0.5", "h-3", "w-3", "rounded-full", "bg-white", "shadow-sm", "transition-transform"], [1, "flex-1", "cursor-pointer", "truncate", "font-mono", 3, "click", "title"], ["icon", "", "matRipple", "", "title", "Clear override", 3, "click"]], template: function SettingsDebugPanelComponent_Template(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275conditionalCreate(0, SettingsDebugPanelComponent_Conditional_0_Template, 20, 3);
+      }
+      if (rf & 2) {
+        \u0275\u0275conditional(ctx.show() ? 0 : -1);
+      }
+    }, dependencies: [FormsModule, NgSelectOption, \u0275NgSelectMultipleOption, DefaultValueAccessor, NumberValueAccessor, SelectControlValueAccessor, NgControlStatus, NgModel, MatRippleModule, MatRipple, IconComponent], encapsulation: 2 });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(SettingsDebugPanelComponent, [{
+    type: Component,
+    args: [{
+      selector: "settings-debug-panel",
+      template: `
+        @if (show()) {
+            <div class="flex flex-col gap-2">
+                <div
+                    class="border-base-300 bg-base-100 text-base-content fixed bottom-123 left-2 z-998 flex w-160 max-w-[90vw] items-center overflow-hidden rounded-lg border p-1 shadow-sm"
+                >
+                    <div class="flex-1 px-3 font-medium">Settings Viewer</div>
+                    <div class="flex items-center">
+                        @if (has_overrides()) {
+                            <button
+                                matRipple
+                                class="text-error px-2 py-1 text-xs underline"
+                                (click)="clearAll()"
+                            >
+                                Clear all overrides
+                            </button>
+                        }
+                        <button
+                            icon
+                            default
+                            matRipple
+                            class="text-sm"
+                            (click)="show.set(false)"
+                        >
+                            <icon>close</icon>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div
+                class="border-base-300 bg-base-200 text-base-content fixed bottom-2 left-2 z-998 flex h-120 max-h-[80vh] w-160 max-w-[90vw] flex-col overflow-hidden rounded-xl border shadow-sm"
+            >
+                <div class="relative m-1 flex">
+                    <input
+                        name="setting-filter"
+                        [(ngModel)]="filter"
+                        placeholder="Filter settings..."
+                        class="border-base-300 bg-base-100 w-full rounded-lg border px-8 py-2 pr-2 font-mono text-sm shadow"
+                    />
+                    <icon
+                        class="absolute top-1/2 left-1 -translate-y-1/2 text-xl"
+                        >search</icon
+                    >
+                </div>
+                <div class="flex-1 overflow-auto">
+                    @for (entry of entries(); track $index) {
+                        @if (entry.header; as group) {
+                            <button
+                                class="border-base-300 bg-base-100/50 hover:bg-base-100 flex min-h-8 w-full items-center gap-1 border-b px-2 py-1 text-left text-xs"
+                                (click)="toggleGroup(group.name)"
+                            >
+                                <icon
+                                    class="text-sm transition-transform"
+                                    [class.rotate-90]="
+                                        filter() || expanded()[group.name]
+                                    "
+                                >
+                                    chevron_right
+                                </icon>
+                                <span class="font-mono">{{ group.name }}</span>
+                                <span class="opacity-40">
+                                    ({{ group.count }})
+                                </span>
+                                @if (group.overridden) {
+                                    <span
+                                        class="bg-warning-light rounded-sm px-1 text-[0.65rem] text-black"
+                                    >
+                                        {{ group.overridden }} overridden
+                                    </span>
+                                }
+                            </button>
+                        }
+                        @if (entry.row; as row) {
+                            <div
+                                class="border-base-300 flex min-h-8 items-center border-b py-1 pr-2 text-xs"
+                                [class.pl-8]="entry.grouped"
+                                [class.pl-2]="!entry.grouped"
+                                [class.bg-warning-light]="row.overridden"
+                            >
+                                <div class="w-3/5 min-w-0 pr-2">
+                                    <div
+                                        class="truncate font-mono"
+                                        [title]="row.label"
+                                    >
+                                        {{ row.label }}
+                                    </div>
+                                    @if (row.description) {
+                                        <div
+                                            class="truncate text-[0.65rem] opacity-60"
+                                            [title]="row.description"
+                                        >
+                                            {{ row.description }}
+                                        </div>
+                                    }
+                                </div>
+                                @switch (
+                                    editing_key() === row.key ? row.control : ''
+                                ) {
+                                    @case ('select') {
+                                        <select
+                                            name="setting-value"
+                                            class="bg-base-100 flex-1 rounded-sm border px-1 py-0.5 font-mono"
+                                            [(ngModel)]="edit_value"
+                                            (keydown.escape)="
+                                                editing_key.set('')
+                                            "
+                                        >
+                                            @for (
+                                                option of row.options;
+                                                track option
+                                            ) {
+                                                <option [value]="option">
+                                                    {{ option }}
+                                                </option>
+                                            }
+                                        </select>
+                                        <button
+                                            icon
+                                            matRipple
+                                            title="Save override"
+                                            (click)="saveEdit()"
+                                        >
+                                            <icon class="text-sm">check</icon>
+                                        </button>
+                                    }
+                                    @case ('number') {
+                                        <input
+                                            name="setting-value"
+                                            type="number"
+                                            class="bg-base-100 flex-1 rounded-sm border px-1 py-0.5 font-mono"
+                                            [(ngModel)]="edit_value"
+                                            (keydown.enter)="saveEdit()"
+                                            (keydown.escape)="
+                                                editing_key.set('')
+                                            "
+                                        />
+                                        <button
+                                            icon
+                                            matRipple
+                                            title="Save override"
+                                            (click)="saveEdit()"
+                                        >
+                                            <icon class="text-sm">check</icon>
+                                        </button>
+                                    }
+                                    @case ('text') {
+                                        <input
+                                            name="setting-value"
+                                            class="bg-base-100 flex-1 rounded-sm border px-1 py-0.5 font-mono"
+                                            [(ngModel)]="edit_value"
+                                            (keydown.enter)="saveEdit()"
+                                            (keydown.escape)="
+                                                editing_key.set('')
+                                            "
+                                        />
+                                        <button
+                                            icon
+                                            matRipple
+                                            title="Save override"
+                                            (click)="saveEdit()"
+                                        >
+                                            <icon class="text-sm">check</icon>
+                                        </button>
+                                    }
+                                    @default {
+                                        @if (row.control === 'toggle') {
+                                            <div class="flex flex-1">
+                                                <button
+                                                    class="relative h-4 w-8 rounded-full transition-colors"
+                                                    [class.bg-info]="row.value"
+                                                    [class.bg-base-300]="
+                                                        !row.value
+                                                    "
+                                                    [title]="row.display"
+                                                    (click)="toggleValue(row)"
+                                                >
+                                                    <div
+                                                        class="absolute top-0.5 left-0.5 h-3 w-3 rounded-full bg-white shadow-sm transition-transform"
+                                                        [class.translate-x-4]="
+                                                            row.value
+                                                        "
+                                                    ></div>
+                                                </button>
+                                            </div>
+                                        } @else {
+                                            <div
+                                                class="flex-1 cursor-pointer truncate font-mono"
+                                                [class]="
+                                                    row.display
+                                                        ? 'opacity-80'
+                                                        : 'italic opacity-40'
+                                                "
+                                                [title]="row.display || 'unset'"
+                                                (click)="startEdit(row)"
+                                            >
+                                                {{ row.display || 'unset' }}
+                                            </div>
+                                        }
+                                        @if (row.overridden) {
+                                            <button
+                                                icon
+                                                matRipple
+                                                title="Clear override"
+                                                (click)="clearOverride(row.key)"
+                                            >
+                                                <icon class="text-sm"
+                                                    >undo</icon
+                                                >
+                                            </button>
+                                        }
+                                    }
+                                }
+                            </div>
+                        }
+                    } @empty {
+                        <div class="p-4 text-center opacity-30">
+                            No matching settings
+                        </div>
+                    }
+                </div>
+                <div
+                    class="border-base-300 bg-base-100 border-t p-2 text-xs opacity-60"
+                >
+                    Click a value to override it. Text values are parsed as
+                    JSON, falling back to plain strings. Overrides are stored
+                    locally in this browser.
+                </div>
+            </div>
+        }
+    `,
+      imports: [FormsModule, MatRippleModule, IconComponent]
+    }]
+  }], null, { schema: [{ type: Input, args: [{ isSignal: true, alias: "schema", required: false }] }] });
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SettingsDebugPanelComponent, { className: "SettingsDebugPanelComponent", filePath: "libs/components/src/lib/settings-debug-panel.component.ts", lineNumber: 324 });
 })();
 
 // libs/components/src/lib/unauthorised.component.ts
@@ -4689,7 +5530,7 @@ var MOCK_SPACES = rawSpaces.map((space) => generateMockSpace(__spreadProps(__spr
 
 // libs/mocks/src/lib/api/bookings.data.ts
 var TRACKING = ["in_storage", "in_transit", "at_location"];
-var generateBookingForDay = (day, type, index, user) => {
+var generateBookingForDay = (day, type2, index, user) => {
   const bld = MOCK_BUILDINGS[predictableRandomInt(MOCK_BUILDINGS.length)];
   const lvls = MOCK_LEVELS.filter((_) => _.parent_id === bld?.id);
   const lvl = lvls[predictableRandomInt(lvls.length)];
@@ -4710,17 +5551,17 @@ var generateBookingForDay = (day, type, index, user) => {
     booking_start,
     booking_end,
     timezone: "Australia/Sydney",
-    title: capitalizeFirstLetter(`${type.replace("-", " ")} booking ${index}`),
+    title: capitalizeFirstLetter(`${type2.replace("-", " ")} booking ${index}`),
     event_start: booking_start,
     event_end: booking_end,
-    asset_ids: type === "asset-request" ? [...Array(asset_count)].map((_, i) => MOCK_ASSETS[predictableRandomInt(MOCK_ASSETS.length, i + 1)].id) : [
-      type === "visitor" ? guest.email : `${type}-${bld?.id}-${lvl?.id}-${position}`
+    asset_ids: type2 === "asset-request" ? [...Array(asset_count)].map((_, i) => MOCK_ASSETS[predictableRandomInt(MOCK_ASSETS.length, i + 1)].id) : [
+      type2 === "visitor" ? guest.email : `${type2}-${bld?.id}-${lvl?.id}-${position}`
     ],
-    asset_id: type === "visitor" ? guest.email : `${type}-${bld?.id}-${lvl?.id}-${position}`,
-    asset_name: type === "visitor" ? guest.name : `${bld?.name}-${position}`,
-    description: type === "visitor" ? guest.name : `${capitalizeFirstLetter(type.replace("-", " "))} in ${bld?.name}`,
-    booking_type: type,
-    type,
+    asset_id: type2 === "visitor" ? guest.email : `${type2}-${bld?.id}-${lvl?.id}-${position}`,
+    asset_name: type2 === "visitor" ? guest.name : `${bld?.name}-${position}`,
+    description: type2 === "visitor" ? guest.name : `${capitalizeFirstLetter(type2.replace("-", " "))} in ${bld?.name}`,
+    booking_type: type2,
+    type: type2,
     user_id: user.id,
     user_name: user.name,
     user_email: user.email,
@@ -4732,11 +5573,11 @@ var generateBookingForDay = (day, type, index, user) => {
     rejected: predictableRandomInt(12) === 0,
     approved: approved !== 0,
     access: approved !== 0,
-    permission: type === "group-event" ? "OPEN" : "PRIVATE",
+    permission: type2 === "group-event" ? "OPEN" : "PRIVATE",
     approver_id: approved ? approver.id : "",
     approver_name: approved ? approver.name : "",
     approver_email: approved ? approver.email : "",
-    process_state: type === "asset-request" ? TRACKING[predictableRandomInt(TRACKING.length, index)] : "",
+    process_state: type2 === "asset-request" ? TRACKING[predictableRandomInt(TRACKING.length, index)] : "",
     last_changed: booking_start,
     created: booking_start - 3600,
     created_by_id: user.id,
@@ -4744,11 +5585,11 @@ var generateBookingForDay = (day, type, index, user) => {
     created_by_email: user.email,
     zones: [
       bld?.id,
-      type === "parking" ? MOCK_LEVELS.find((l) => l.parent_id === bld?.id && l.type === "parking")?.id : lvl?.id
+      type2 === "parking" ? MOCK_LEVELS.find((l) => l.parent_id === bld?.id && l.type === "parking")?.id : lvl?.id
     ].filter(Boolean),
     extension_data: {
       map_id: `table-${bld?.id}.${position}`,
-      note: capitalizeFirstLetter(`${type.replace("-", " ")} booking ${index}`),
+      note: capitalizeFirstLetter(`${type2.replace("-", " ")} booking ${index}`),
       plate_number: randomString(8, "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"),
       tracking: approved ? "at_location" : "in_storage",
       space_id: lvl_spaces.length ? lvl_spaces[predictableRandomInt(lvl_spaces.length)].id : `space-${index}`,
@@ -8780,9 +9621,9 @@ var createMicrophoneModule = (space, overrides = {}) => new MicrophoneModule(__s
 
 // libs/mocks/src/lib/realtime/payments.ts
 var PaymentsModule = class {
-  $list_payment_methods(type) {
+  $list_payment_methods(type2) {
   }
-  $add_payment_method(type, details) {
+  $add_payment_method(type2, details) {
   }
   $get_product_prices(id, period) {
     return [12e3, 60];
@@ -9062,12 +9903,12 @@ function registerMockUsers() {
     "none"
   ];
   function generateLocation2() {
-    const type = LOCATION_TYPES[predictableRandomInt(LOCATION_TYPES.length)];
+    const type2 = LOCATION_TYPES[predictableRandomInt(LOCATION_TYPES.length)];
     const level = MOCK_LEVELS[predictableRandomInt(MOCK_LEVELS.length)];
     const level_spaces = MOCK_SPACES.filter((s) => s.zones.includes(level.id));
     const space = level_spaces[predictableRandomInt(level_spaces.length)] || {};
     const location2 = {};
-    switch (type) {
+    switch (type2) {
       case "meeting":
         location2.meeting = {
           building: level.parent_id,
@@ -9087,7 +9928,7 @@ function registerMockUsers() {
         break;
       case "laptop":
       case "mobile":
-        location2[type] = {
+        location2[type2] = {
           building: level.parent_id,
           level: level.id,
           x: +predictableRandomInt(1e4),
@@ -9400,9 +10241,117 @@ function mocksInit() {
   registerMockZones();
 }
 
+// apps/signage-manager/src/environments/settings.schema.json
+var settings_schema_exports = {};
+__export(settings_schema_exports, {
+  $defs: () => $defs,
+  default: () => settings_schema_default,
+  description: () => description,
+  properties: () => properties,
+  type: () => type
+});
+var type = "object";
+var description = "Customisable settings for the signage-manager app";
+var properties = {
+  name: {
+    type: "string",
+    description: "Name of the application. Used as the browser tab title when no short name is set."
+  },
+  title: {
+    type: "string",
+    description: "Title for the application"
+  },
+  description: {
+    type: "string",
+    description: "Description of the application"
+  },
+  short_name: {
+    type: "string",
+    description: "Short name for the application. Used as the browser tab title prefix and as the application name passed to the PlaceOS API client."
+  },
+  logo_light: {
+    $ref: "#/$defs/logo",
+    description: "Logo shown in the navigation sidebar when using the light theme. Either a URL string or an object with a `src` URL."
+  },
+  logo_dark: {
+    $ref: "#/$defs/logo",
+    description: "Logo shown in the navigation sidebar when using the dark theme. Either a URL string or an object with a `src` URL."
+  },
+  diagnostics: {
+    type: "boolean",
+    description: "Whether diagnostics are enabled for the application"
+  },
+  show_locale_selector: {
+    type: "boolean",
+    description: "Whether to show the locale (language) selector in the navigation sidebar. The selector is only rendered when more than one locale is configured."
+  },
+  locales: {
+    type: "array",
+    description: "List of locales available in the navigation sidebar locale selector.",
+    items: { $ref: "#/$defs/locale" }
+  },
+  default_animation_time: {
+    type: "number",
+    description: "Default duration for UI animations in milliseconds"
+  },
+  media_allow_extended_video_codecs: {
+    type: "boolean",
+    description: "Whether media upload validation accepts extended video codecs \u2014 AV1 (`av01`/`V_AV1`) and HEVC (`hev1`/`hvc1`) \u2014 in MP4 and WebM files, in addition to the default allowed codec set."
+  },
+  signage_path: {
+    type: "string",
+    description: "Base URL path of the signage viewer application, used to build display preview links. Defaults to `/signage`."
+  }
+};
+var $defs = {
+  logo: {
+    anyOf: [
+      {
+        type: "string",
+        description: "URL of the logo image"
+      },
+      {
+        type: "object",
+        required: ["src"],
+        properties: {
+          src: {
+            type: "string",
+            description: "URL of the logo image"
+          }
+        }
+      }
+    ]
+  },
+  locale: {
+    type: "object",
+    required: ["id", "name"],
+    properties: {
+      id: {
+        type: "string",
+        description: "Locale code, e.g. `en` or `fr`. Persisted to local storage when selected."
+      },
+      name: {
+        type: "string",
+        description: "Display name for the locale. Supports translation keys."
+      },
+      local: {
+        type: "string",
+        description: "Name of the locale in its own language, shown alongside the translated name."
+      }
+    }
+  }
+};
+var settings_schema_default = {
+  type,
+  description,
+  properties,
+  $defs
+};
+
 // apps/signage-manager/src/app/app.component.ts
 var AppComponent = class _AppComponent {
   constructor() {
+    this.settings_schema = settings_schema_exports;
     this._placeos = inject(PlaceOS_Service);
     this._uploads = inject(UploadsService);
   }
@@ -9417,7 +10366,7 @@ var AppComponent = class _AppComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AppComponent, selectors: [["app-root"]], decls: 7, vars: 3, consts: [["href", "#main-content", 1, "skip-link"], ["id", "main-content", "tabindex", "-1", 1, "relative", "h-1/2", "w-full", "flex-1"]], template: function AppComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AppComponent, selectors: [["app-root"]], decls: 8, vars: 4, consts: [["href", "#main-content", 1, "skip-link"], ["id", "main-content", "tabindex", "-1", 1, "relative", "h-1/2", "w-full", "flex-1"], [3, "schema"]], template: function AppComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "a", 0);
         \u0275\u0275text(1);
@@ -9427,16 +10376,19 @@ var AppComponent = class _AppComponent {
         \u0275\u0275elementStart(4, "main", 1);
         \u0275\u0275element(5, "router-outlet");
         \u0275\u0275elementEnd();
-        \u0275\u0275element(6, "global-loading");
+        \u0275\u0275element(6, "global-loading")(7, "settings-debug-panel", 2);
       }
       if (rf & 2) {
         \u0275\u0275advance();
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(2, 1, "SIGNAGE_MANAGER.SKIP_TO_CONTENT"));
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(2, 2, "SIGNAGE_MANAGER.SKIP_TO_CONTENT"));
+        \u0275\u0275advance(6);
+        \u0275\u0275property("schema", ctx.settings_schema);
       }
     }, dependencies: [
       GlobalBannerComponent,
       RouterOutlet,
       GlobalLoadingComponent,
+      SettingsDebugPanelComponent,
       TranslatePipe
     ], styles: ["\n[_nghost-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n  width: 100%;\n}\n/*# sourceMappingURL=app.component.css.map */"] });
   }
@@ -9457,17 +10409,18 @@ var AppComponent = class _AppComponent {
             <router-outlet></router-outlet>
         </main>
         <global-loading />
-        <!-- <debug-console *ngIf="debug"></debug-console> -->
+        <settings-debug-panel [schema]="settings_schema" />
     `, imports: [
       GlobalBannerComponent,
       RouterOutlet,
       GlobalLoadingComponent,
+      SettingsDebugPanelComponent,
       TranslatePipe
     ], styles: ["/* angular:styles/component:css;2c590c9e56511a088a1469fe4b227d8190323c208f95620a03712f1a8f5bae8d;/home/runner/work/user-interfaces/user-interfaces/apps/signage-manager/src/app/app.component.ts */\n:host {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n  width: 100%;\n}\n/*# sourceMappingURL=app.component.css.map */\n"] }]
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AppComponent, { className: "AppComponent", filePath: "apps/signage-manager/src/app/app.component.ts", lineNumber: 45 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AppComponent, { className: "AppComponent", filePath: "apps/signage-manager/src/app/app.component.ts", lineNumber: 49 });
 })();
 
 // apps/signage-manager/src/environments/environment.ts
@@ -9511,39 +10464,39 @@ var APP_ROUTES = [
     children: [
       {
         path: "media",
-        loadComponent: () => import("./media.component-YVT2OPJ6.js").then((m) => m.MediaSectionComponent)
+        loadComponent: () => import("./media.component-ZXXIWMM2.js").then((m) => m.MediaSectionComponent)
       },
       {
         path: "playlists/:id",
-        loadComponent: () => import("./playlists.component-V6CFLVVK.js").then((m) => m.PlaylistsSectionComponent)
+        loadComponent: () => import("./playlists.component-KY556UWY.js").then((m) => m.PlaylistsSectionComponent)
       },
       {
         path: "playlists",
-        loadComponent: () => import("./playlists.component-V6CFLVVK.js").then((m) => m.PlaylistsSectionComponent)
+        loadComponent: () => import("./playlists.component-KY556UWY.js").then((m) => m.PlaylistsSectionComponent)
       },
       {
         path: "schedules",
-        loadComponent: () => import("./schedules.component-ZZWFEXRQ.js").then((m) => m.SchedulesSectionComponent)
+        loadComponent: () => import("./schedules.component-7OYZKSQJ.js").then((m) => m.SchedulesSectionComponent)
       },
       {
         path: "displays/:id",
-        loadComponent: () => import("./displays.component-QEFRM6VN.js").then((m) => m.DisplaysSectionComponent)
+        loadComponent: () => import("./displays.component-JHZVF3NS.js").then((m) => m.DisplaysSectionComponent)
       },
       {
         path: "displays",
-        loadComponent: () => import("./displays.component-QEFRM6VN.js").then((m) => m.DisplaysSectionComponent)
+        loadComponent: () => import("./displays.component-JHZVF3NS.js").then((m) => m.DisplaysSectionComponent)
       },
       {
         path: "groups",
-        loadComponent: () => import("./groups.component-OBZ5334R.js").then((m) => m.GroupsSectionComponent)
+        loadComponent: () => import("./groups.component-2P5QDL7S.js").then((m) => m.GroupsSectionComponent)
       },
       {
         path: "zones/:id",
-        loadComponent: () => import("./zones.component-YAKWHHHQ.js").then((m) => m.ZonesSectionComponent)
+        loadComponent: () => import("./zones.component-GAWMAYHK.js").then((m) => m.ZonesSectionComponent)
       },
       {
         path: "zones",
-        loadComponent: () => import("./zones.component-YAKWHHHQ.js").then((m) => m.ZonesSectionComponent)
+        loadComponent: () => import("./zones.component-GAWMAYHK.js").then((m) => m.ZonesSectionComponent)
       },
       { path: "**", redirectTo: "media" }
     ]

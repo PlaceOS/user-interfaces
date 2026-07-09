@@ -7,14 +7,14 @@ import {
   MatTabNav,
   MatTabNavPanel,
   MatTabsModule
-} from "./chunk-F5RRALRV.js";
+} from "./chunk-LZKAI2J3.js";
 import {
   IntersectDirective
-} from "./chunk-QG6X5ZFI.js";
+} from "./chunk-NAIJNDCR.js";
 import {
   NavFooterComponent,
   NavSidebarComponent
-} from "./chunk-HEXGF6T3.js";
+} from "./chunk-C3V4ITDF.js";
 import {
   AuthenticatedImageDirective,
   Component,
@@ -103,7 +103,7 @@ import {
   ɵɵtwoWayBindingSet,
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty
-} from "./chunk-GSYPF65K.js";
+} from "./chunk-3ITSEBHD.js";
 import "./chunk-653SOEEV.js";
 
 // apps/signage-manager/src/app/shared/media-add-modal.component.ts
@@ -2932,7 +2932,7 @@ function PlaylistSidebarComponent_Conditional_10_Template(rf, ctx) {
 }
 function PlaylistSidebarComponent_Conditional_16_For_1_Conditional_4_For_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275element(0, "img", 29);
+    \u0275\u0275element(0, "img", 30);
   }
   if (rf & 2) {
     const media_r5 = ctx.$implicit;
@@ -2944,7 +2944,7 @@ function PlaylistSidebarComponent_Conditional_16_For_1_Conditional_4_For_1_Templ
 }
 function PlaylistSidebarComponent_Conditional_16_For_1_Conditional_4_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275repeaterCreate(0, PlaylistSidebarComponent_Conditional_16_For_1_Conditional_4_For_1_Template, 1, 7, "img", 28, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275repeaterCreate(0, PlaylistSidebarComponent_Conditional_16_For_1_Conditional_4_For_1_Template, 1, 7, "img", 29, \u0275\u0275repeaterTrackByIdentity);
   }
   if (rf & 2) {
     const playlist_r4 = \u0275\u0275nextContext().$implicit;
@@ -2954,7 +2954,7 @@ function PlaylistSidebarComponent_Conditional_16_For_1_Conditional_4_Template(rf
 }
 function PlaylistSidebarComponent_Conditional_16_For_1_Conditional_5_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 18)(1, "icon", 30);
+    \u0275\u0275elementStart(0, "div", 18)(1, "icon", 31);
     \u0275\u0275text(2, " playlist_play ");
     \u0275\u0275elementEnd()();
   }
@@ -3031,6 +3031,13 @@ function PlaylistSidebarComponent_Conditional_16_For_1_Conditional_15_Template(r
     \u0275\u0275textInterpolate1(" ", playlist_r4.description, " ");
   }
 }
+function PlaylistSidebarComponent_Conditional_16_For_1_Conditional_16_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "icon", 28);
+    \u0275\u0275text(1, "p2p");
+    \u0275\u0275elementEnd();
+  }
+}
 function PlaylistSidebarComponent_Conditional_16_For_1_Template(rf, ctx) {
   if (rf & 1) {
     const _r3 = \u0275\u0275getCurrentView();
@@ -3053,17 +3060,19 @@ function PlaylistSidebarComponent_Conditional_16_For_1_Template(rf, ctx) {
     \u0275\u0275conditionalCreate(11, PlaylistSidebarComponent_Conditional_16_For_1_Case_11_Template, 3, 3, "span", 23)(12, PlaylistSidebarComponent_Conditional_16_For_1_Case_12_Template, 3, 3, "span", 24)(13, PlaylistSidebarComponent_Conditional_16_For_1_Case_13_Template, 3, 3, "span", 25)(14, PlaylistSidebarComponent_Conditional_16_For_1_Case_14_Template, 3, 3, "span", 26);
     \u0275\u0275elementEnd();
     \u0275\u0275conditionalCreate(15, PlaylistSidebarComponent_Conditional_16_For_1_Conditional_15_Template, 2, 1, "div", 27);
-    \u0275\u0275elementEnd()()();
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(16, PlaylistSidebarComponent_Conditional_16_For_1_Conditional_16_Template, 2, 0, "icon", 28);
+    \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     let tmp_19_0;
     const playlist_r4 = ctx.$implicit;
     const $index_r8 = ctx.$index;
     const ctx_r1 = \u0275\u0275nextContext(2);
-    \u0275\u0275property("routerLink", \u0275\u0275pureFunction1(13, _c03, playlist_r4.id));
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(1, 10, "SIGNAGE_MANAGER.OPEN_PLAYLIST", \u0275\u0275pureFunction1(15, _c12, playlist_r4.name)));
+    \u0275\u0275property("routerLink", \u0275\u0275pureFunction1(14, _c03, playlist_r4.id));
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(1, 11, "SIGNAGE_MANAGER.OPEN_PLAYLIST", \u0275\u0275pureFunction1(16, _c12, playlist_r4.name)));
     \u0275\u0275advance(2);
-    \u0275\u0275property("id", "playlist-" + $index_r8)("cdkDropListConnectedTo", \u0275\u0275pureFunction0(17, _c22))("cdkDropListData", playlist_r4);
+    \u0275\u0275property("id", "playlist-" + $index_r8)("cdkDropListConnectedTo", \u0275\u0275pureFunction0(18, _c22))("cdkDropListData", playlist_r4);
     \u0275\u0275advance(2);
     \u0275\u0275conditional(ctx_r1.playlist_thumbnail_media()[playlist_r4.id]?.length ? 4 : 5);
     \u0275\u0275advance(4);
@@ -3074,12 +3083,14 @@ function PlaylistSidebarComponent_Conditional_16_For_1_Template(rf, ctx) {
     \u0275\u0275conditional((tmp_19_0 = ctx_r1.getStatus(playlist_r4)) === "expired" ? 11 : tmp_19_0 === "pending" ? 12 : tmp_19_0 === "awaiting_review" ? 13 : tmp_19_0 === "awaiting_approval" ? 14 : -1);
     \u0275\u0275advance(4);
     \u0275\u0275conditional(playlist_r4.description ? 15 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(playlist_r4.distribution ? 16 : -1);
   }
 }
 function PlaylistSidebarComponent_Conditional_16_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
     const _r9 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 31);
+    \u0275\u0275elementStart(0, "div", 32);
     \u0275\u0275listener("intersect", function PlaylistSidebarComponent_Conditional_16_Conditional_2_Template_div_intersect_0_listener() {
       \u0275\u0275restoreView(_r9);
       const ctx_r1 = \u0275\u0275nextContext(2);
@@ -3102,7 +3113,7 @@ function PlaylistSidebarComponent_Conditional_16_Conditional_3_Template(rf, ctx)
 }
 function PlaylistSidebarComponent_Conditional_16_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275repeaterCreate(0, PlaylistSidebarComponent_Conditional_16_For_1_Template, 16, 18, "a", 13, _forTrack04);
+    \u0275\u0275repeaterCreate(0, PlaylistSidebarComponent_Conditional_16_For_1_Template, 17, 19, "a", 13, _forTrack04);
     \u0275\u0275conditionalCreate(2, PlaylistSidebarComponent_Conditional_16_Conditional_2_Template, 1, 0, "div", 14)(3, PlaylistSidebarComponent_Conditional_16_Conditional_3_Template, 3, 3, "div", 15);
   }
   if (rf & 2) {
@@ -3115,16 +3126,16 @@ function PlaylistSidebarComponent_Conditional_16_Template(rf, ctx) {
 function PlaylistSidebarComponent_Conditional_17_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 10);
-    \u0275\u0275element(1, "mat-spinner", 32);
+    \u0275\u0275element(1, "mat-spinner", 33);
     \u0275\u0275elementEnd();
   }
 }
 function PlaylistSidebarComponent_Conditional_18_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 11)(1, "icon", 33);
+    \u0275\u0275elementStart(0, "div", 11)(1, "icon", 34);
     \u0275\u0275text(2, "playlist_play");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "p", 34);
+    \u0275\u0275elementStart(3, "p", 35);
     \u0275\u0275text(4);
     \u0275\u0275pipe(5, "translate");
     \u0275\u0275elementEnd()();
@@ -3206,7 +3217,7 @@ var PlaylistSidebarComponent = class _PlaylistSidebarComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _PlaylistSidebarComponent, selectors: [["playlist-sidebar"]], decls: 19, vars: 15, consts: [[1, "border-base-300", "bg-base-100", "rounded-ld", "m-2", "hidden", "h-[calc(100%-1rem)]", "w-72", "shrink-0", "flex-col", "rounded-lg", "border", "md:flex"], [1, "border-base-300", "border-b", "p-2"], [1, "flex", "justify-between"], [1, "px-2"], [1, "text-lg", "font-medium"], [1, "mb-2", "text-xs", "opacity-60"], ["icon", "", "default", "", "type", "button", "matRipple", "", "matTooltipPosition", "right", 3, "matTooltip"], ["appearance", "outline", 1, "no-subscript", "w-full"], ["matInput", "", 3, "ngModelChange", "placeholder", "ngModel"], [1, "flex-1", "overflow-auto", "p-2"], [1, "flex", "items-center", "justify-center", "p-8"], [1, "text-base-content/70", "flex", "flex-col", "items-center", "justify-center", "p-8"], ["icon", "", "default", "", "type", "button", "matRipple", "", "matTooltipPosition", "right", 3, "click", "matTooltip"], [3, "routerLink"], ["intersect", "", 1, "h-px", "w-full"], [1, "text-base-content/50", "bg-base-content/10", "col-span-full", "rounded-lg", "p-2", "text-center", "text-xs"], ["cdkDropList", "", "matRipple", "", 1, "border-base-300", "mb-2", "flex", "items-center", "gap-3", "rounded-lg", "border", "p-0.5", "transition-colors", 3, "cdkDropListDropped", "id", "cdkDropListConnectedTo", "cdkDropListData"], [1, "relative", "h-12", "w-12", "shrink-0", "overflow-hidden", "rounded-md"], [1, "text-base-content/35", "flex", "h-full", "w-full", "items-center", "justify-center"], [1, "min-w-0", "flex-1"], [1, "truncate", "text-sm", "font-medium"], [1, "flex", "flex-wrap", "gap-1", "text-[0.625rem]"], [1, "bg-base-200", "shrink-0", "rounded", "px-1.5", "py-0.5", "font-bold", "uppercase"], [1, "bg-error", "text-error-content", "shrink-0", "rounded", "px-1.5", "py-0.5", "font-bold", "uppercase"], [1, "bg-info", "text-info-content", "shrink-0", "rounded", "px-1.5", "py-0.5", "font-bold", "uppercase"], [1, "bg-base-300", "shrink-0", "rounded", "px-1.5", "py-0.5", "font-bold", "uppercase"], [1, "bg-warning", "text-warning-content", "shrink-0", "rounded", "px-1.5", "py-0.5", "font-bold", "uppercase"], [1, "text-base-content/70", "mt-0.5", "truncate", "text-xs"], ["auth", "", "alt", "", 1, "border-base-300", "bg-base-200", "absolute", "h-9", "w-9", "rounded-sm", "border", "object-cover", "shadow", 3, "source", "top", "left", "z-index"], ["auth", "", "alt", "", 1, "border-base-300", "bg-base-200", "absolute", "h-9", "w-9", "rounded-sm", "border", "object-cover", "shadow", 3, "source"], [1, "text-2xl"], ["intersect", "", 1, "h-px", "w-full", 3, "intersect"], ["diameter", "32"], [1, "text-4xl"], [1, "mt-2", "text-sm"]], template: function PlaylistSidebarComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _PlaylistSidebarComponent, selectors: [["playlist-sidebar"]], decls: 19, vars: 15, consts: [[1, "border-base-300", "bg-base-100", "rounded-ld", "m-2", "hidden", "h-[calc(100%-1rem)]", "w-72", "shrink-0", "flex-col", "rounded-lg", "border", "md:flex"], [1, "border-base-300", "border-b", "p-2"], [1, "flex", "justify-between"], [1, "px-2"], [1, "text-lg", "font-medium"], [1, "mb-2", "text-xs", "opacity-60"], ["icon", "", "default", "", "type", "button", "matRipple", "", "matTooltipPosition", "right", 3, "matTooltip"], ["appearance", "outline", 1, "no-subscript", "w-full"], ["matInput", "", 3, "ngModelChange", "placeholder", "ngModel"], [1, "flex-1", "overflow-auto", "p-2"], [1, "flex", "items-center", "justify-center", "p-8"], [1, "text-base-content/70", "flex", "flex-col", "items-center", "justify-center", "p-8"], ["icon", "", "default", "", "type", "button", "matRipple", "", "matTooltipPosition", "right", 3, "click", "matTooltip"], [3, "routerLink"], ["intersect", "", 1, "h-px", "w-full"], [1, "text-base-content/50", "bg-base-content/10", "col-span-full", "rounded-lg", "p-2", "text-center", "text-xs"], ["cdkDropList", "", "matRipple", "", 1, "border-base-300", "mb-2", "flex", "items-center", "gap-3", "rounded-lg", "border", "p-0.5", "transition-colors", 3, "cdkDropListDropped", "id", "cdkDropListConnectedTo", "cdkDropListData"], [1, "relative", "h-12", "w-12", "shrink-0", "overflow-hidden", "rounded-md"], [1, "text-base-content/35", "flex", "h-full", "w-full", "items-center", "justify-center"], [1, "min-w-0", "flex-1"], [1, "truncate", "text-sm", "font-medium"], [1, "flex", "flex-wrap", "gap-1", "text-[0.625rem]"], [1, "bg-base-200", "shrink-0", "rounded", "px-1.5", "py-0.5", "font-bold", "uppercase"], [1, "bg-error", "text-error-content", "shrink-0", "rounded", "px-1.5", "py-0.5", "font-bold", "uppercase"], [1, "bg-info", "text-info-content", "shrink-0", "rounded", "px-1.5", "py-0.5", "font-bold", "uppercase"], [1, "bg-base-300", "shrink-0", "rounded", "px-1.5", "py-0.5", "font-bold", "uppercase"], [1, "bg-warning", "text-warning-content", "shrink-0", "rounded", "px-1.5", "py-0.5", "font-bold", "uppercase"], [1, "text-base-content/70", "mt-0.5", "truncate", "text-xs"], [1, "mx-2"], ["auth", "", "alt", "", 1, "border-base-300", "bg-base-200", "absolute", "h-9", "w-9", "rounded-sm", "border", "object-cover", "shadow", 3, "source", "top", "left", "z-index"], ["auth", "", "alt", "", 1, "border-base-300", "bg-base-200", "absolute", "h-9", "w-9", "rounded-sm", "border", "object-cover", "shadow", 3, "source"], [1, "text-2xl"], ["intersect", "", 1, "h-px", "w-full", 3, "intersect"], ["diameter", "32"], [1, "text-4xl"], [1, "mt-2", "text-sm"]], template: function PlaylistSidebarComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "div", 0)(1, "div", 1)(2, "div", 2)(3, "div", 3)(4, "h4", 4);
         \u0275\u0275text(5);
@@ -3456,6 +3467,9 @@ var PlaylistSidebarComponent = class _PlaylistSidebarComponent {
                                         </div>
                                     }
                                 </div>
+                                @if (playlist.distribution) {
+                                    <icon class="mx-2">p2p</icon>
+                                }
                             </div>
                         </a>
                     }
@@ -3507,7 +3521,7 @@ var PlaylistSidebarComponent = class _PlaylistSidebarComponent {
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(PlaylistSidebarComponent, { className: "PlaylistSidebarComponent", filePath: "apps/signage-manager/src/app/media/playlist-sidebar.component.ts", lineNumber: 278 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(PlaylistSidebarComponent, { className: "PlaylistSidebarComponent", filePath: "apps/signage-manager/src/app/media/playlist-sidebar.component.ts", lineNumber: 281 });
 })();
 
 // apps/signage-manager/src/app/media/media.component.ts
@@ -3713,4 +3727,4 @@ var MediaSectionComponent = class _MediaSectionComponent {
 export {
   MediaSectionComponent
 };
-//# sourceMappingURL=media.component-YVT2OPJ6.js.map
+//# sourceMappingURL=media.component-ZXXIWMM2.js.map

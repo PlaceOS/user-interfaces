@@ -42716,9 +42716,6 @@ var APP = {
     REPORTS_NO_SHOWS_PERCENT: "% of No shows",
     REPORTS_TOTAL_ATTENDEES: "Total Room Attendees",
     REPORTS_ACTIVE_BOOKINGS_HEADER: "Active Bookings",
-    REPORTS_ALLOCATIONS: "Allocations",
-    REPORTS_REJECTED: "Rejected",
-    REPORTS_CANCELLED: "Cancelled",
     REPORTS_DAILY_HEADER: "Daily Utilisation",
     REPORTS_DAILY_EMPTY: "No bookings for the select date range",
     REPORTS_APPROVED: "Approved Bookings",
@@ -54634,20 +54631,33 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "6a57422",
-  "hash": "6a57422",
+  "raw": "d394f5c",
+  "hash": "d394f5c",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "6a57422",
+  "suffix": "d394f5c",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1783528887476
+  "time": 1783578393666
 };
 
 // libs/common/src/lib/settings.service.ts
 var _service3;
 var _setting_signals = {};
+var DEBUG_OVERRIDES_KEY = "PLACEOS.setting_overrides";
+function loadDebugOverrides() {
+  try {
+    const overrides = JSON.parse(localStorage.getItem(DEBUG_OVERRIDES_KEY) || "{}");
+    for (const key in overrides) {
+      if (!key.startsWith("app."))
+        delete overrides[key];
+    }
+    return overrides;
+  } catch {
+    return {};
+  }
+}
 function setting(key) {
   return _service3 ? _service3.get(key) : void 0;
 }
@@ -54664,6 +54674,30 @@ var SettingsService = class _SettingsService extends AsyncHandler {
    */
   setOverrides(value) {
     this._overrides.set(value);
+    this._refreshSettings();
+  }
+  /** Set a local debug override for an `app.*` setting. `undefined` clears the key. */
+  setDebugOverride(key, value) {
+    if (!key.startsWith("app."))
+      return;
+    const overrides = __spreadValues({}, this._debug_overrides());
+    if (value === void 0)
+      delete overrides[key];
+    else
+      overrides[key] = value;
+    this._debug_overrides.set(overrides);
+    if (Object.keys(overrides).length) {
+      localStorage.setItem(DEBUG_OVERRIDES_KEY, JSON.stringify(overrides));
+    } else
+      localStorage.removeItem(DEBUG_OVERRIDES_KEY);
+    this._refreshSettings();
+  }
+  clearDebugOverrides() {
+    this._debug_overrides.set({});
+    localStorage.removeItem(DEBUG_OVERRIDES_KEY);
+    this._refreshSettings();
+  }
+  _refreshSettings() {
     this._applyCssVariables();
     this._updateSignals();
     this._applyTheme();
@@ -54723,6 +54757,14 @@ var SettingsService = class _SettingsService extends AsyncHandler {
         []
       )
     );
+    this._debug_overrides = signal(
+      loadDebugOverrides(),
+      ...ngDevMode ? [{ debugName: "_debug_overrides" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.debug_overrides = this._debug_overrides.asReadonly();
     this._subjects = {};
     this._pending_settings = {};
     this.theme_signal = computed(
@@ -54791,6 +54833,9 @@ var SettingsService = class _SettingsService extends AsyncHandler {
    * @param key Name of the setting. i.e. nested items can be grabbed using `.` to seperate key names
    */
   get(key) {
+    const debug_overrides = this._debug_overrides();
+    if (key in debug_overrides)
+      return debug_overrides[key];
     const keys = key.split(".");
     if (keys[0] !== "app") {
       return getItemWithKeys(keys, this._pending_settings) ?? getItemWithKeys(keys, this._user_settings()) ?? getItemWithKeys(keys, DEFAULT_SETTINGS);
@@ -102022,6 +102067,9 @@ var WEEKDAY_NAMES = [
 function playlistMediaThumbnailUrl(item) {
   return item?.thumbnail_id ? `/api/engine/v2/signage/media/${item.id}/thumbnail` : item?.thumbnail_url || "";
 }
+function playlistMediaUrl(item) {
+  return item?.media_id ? `/api/engine/v2/uploads/${item.media_id}/url` : item?.media_uri || "";
+}
 function playlistMediaIcon(item) {
   return item?.media_type === "video" ? "video_library" : item?.media_type === "webpage" ? "http" : item?.media_type === "plugin" ? "extension" : "image";
 }
@@ -102031,6 +102079,15 @@ function playlistMediaItems(list) {
     return scheduled_media;
   const media = list.media?.length ? list.media : scheduled_media;
   const media_by_id = new Map(media.map((item) => [item.id, item]));
+  for (const schedule of list.schedules || []) {
+    if (!schedule.media?.id)
+      continue;
+    if (schedule.id)
+      media_by_id.set(schedule.id, schedule.media);
+    if (schedule.item_id) {
+      media_by_id.set(schedule.item_id, schedule.media);
+    }
+  }
   return list.items?.length ? list.items.map((id) => media_by_id.get(id)).filter((item) => !!item) : media;
 }
 function playlistMediaIds(list) {
@@ -102039,6 +102096,8 @@ function playlistMediaIds(list) {
 function playlistItemScheduleMap(list) {
   const map2 = /* @__PURE__ */ new Map();
   for (const item of list.schedules || []) {
+    if (item.id)
+      map2.set(item.id, item);
     if (item.item_id)
       map2.set(item.item_id, item);
     if (item.media?.id)
@@ -103521,7 +103580,7 @@ var MediaPreviewModalComponent = class _MediaPreviewModalComponent {
     this._sanitizer = inject2(DomSanitizer);
     this.item = this._data.media;
     this.plugin = this._data.plugin;
-    this.media_url = this.item.media_url || this.item.media_uri;
+    this.media_url = playlistMediaUrl(this.item);
     this.thumbnail_url = playlistMediaThumbnailUrl(this.item);
     this.media_loading = signal(
       this._hasLoadableMedia(),
@@ -106298,7 +106357,7 @@ var PlaylistScheduleFormComponent = class _PlaylistScheduleFormComponent {
 function PlaylistEditModalComponent_Conditional_21_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 7);
-    \u0275\u0275element(1, "settings-toggle", 32);
+    \u0275\u0275element(1, "settings-toggle", 27);
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275controlCreate();
     \u0275\u0275elementEnd();
@@ -106310,15 +106369,15 @@ function PlaylistEditModalComponent_Conditional_21_Template(rf, ctx) {
     \u0275\u0275control();
   }
 }
-function PlaylistEditModalComponent_Conditional_102_For_6_Template(rf, ctx) {
+function PlaylistEditModalComponent_Conditional_91_For_17_Template(rf, ctx) {
   if (rf & 1) {
     const _r3 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "playlist-schedule-form", 36);
-    \u0275\u0275listener("toggle", function PlaylistEditModalComponent_Conditional_102_For_6_Template_playlist_schedule_form_toggle_0_listener() {
+    \u0275\u0275listener("toggle", function PlaylistEditModalComponent_Conditional_91_For_17_Template_playlist_schedule_form_toggle_0_listener() {
       const \u0275$index_165_r4 = \u0275\u0275restoreView(_r3).$index;
       const ctx_r0 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r0.openSchedule(\u0275$index_165_r4));
-    })("remove", function PlaylistEditModalComponent_Conditional_102_For_6_Template_playlist_schedule_form_remove_0_listener($event) {
+    })("remove", function PlaylistEditModalComponent_Conditional_91_For_17_Template_playlist_schedule_form_remove_0_listener($event) {
       const \u0275$index_165_r4 = \u0275\u0275restoreView(_r3).$index;
       const ctx_r0 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r0.removeSchedule($event, \u0275$index_165_r4));
@@ -106332,33 +106391,57 @@ function PlaylistEditModalComponent_Conditional_102_For_6_Template(rf, ctx) {
     \u0275\u0275property("schedule", schedule_r5)("index", \u0275$index_165_r4)("open", ctx_r0.isScheduleOpen(\u0275$index_165_r4))("can_remove", ctx_r0.model().schedules.length > 1);
   }
 }
-function PlaylistEditModalComponent_Conditional_102_Template(rf, ctx) {
+function PlaylistEditModalComponent_Conditional_91_Template(rf, ctx) {
   if (rf & 1) {
     const _r2 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 8)(1, "label");
-    \u0275\u0275text(2);
-    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275elementStart(0, "div", 28)(1, "div", 16)(2, "label", 29);
+    \u0275\u0275text(3);
+    \u0275\u0275pipe(4, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "div", 33);
-    \u0275\u0275repeaterCreate(5, PlaylistEditModalComponent_Conditional_102_For_6_Template, 1, 4, "playlist-schedule-form", 34, \u0275\u0275repeaterTrackByIndex);
-    \u0275\u0275elementStart(7, "button", 35);
-    \u0275\u0275listener("click", function PlaylistEditModalComponent_Conditional_102_Template_button_click_7_listener() {
+    \u0275\u0275element(5, "a-date-field", 30);
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(6, "div", 16)(7, "label", 31);
+    \u0275\u0275text(8);
+    \u0275\u0275pipe(9, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275element(10, "a-date-field", 32);
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(11, "div", 8)(12, "label");
+    \u0275\u0275text(13);
+    \u0275\u0275pipe(14, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(15, "div", 33);
+    \u0275\u0275repeaterCreate(16, PlaylistEditModalComponent_Conditional_91_For_17_Template, 1, 4, "playlist-schedule-form", 34, \u0275\u0275repeaterTrackByIndex);
+    \u0275\u0275elementStart(18, "button", 35);
+    \u0275\u0275listener("click", function PlaylistEditModalComponent_Conditional_91_Template_button_click_18_listener() {
       \u0275\u0275restoreView(_r2);
       const ctx_r0 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r0.addSchedule());
     });
-    \u0275\u0275text(8);
-    \u0275\u0275pipe(9, "translate");
+    \u0275\u0275text(19);
+    \u0275\u0275pipe(20, "translate");
     \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
     const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(4, 9, "SIGNAGE_MANAGER.VALID_FROM"));
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(3, 2, "SIGNAGE_MANAGER.PLAYLIST_SCHEDULES"));
+    \u0275\u0275property("formField", ctx_r0.form.valid_from)("clear", true);
+    \u0275\u0275control();
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(9, 11, "FORM.EXPIRES_AT"));
+    \u0275\u0275advance(2);
+    \u0275\u0275property("from", ctx_r0.model().valid_from)("formField", ctx_r0.form.valid_until)("clear", true);
+    \u0275\u0275control();
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(14, 13, "SIGNAGE_MANAGER.PLAYLIST_SCHEDULES"));
     \u0275\u0275advance(3);
     \u0275\u0275repeater(ctx_r0.form.schedules);
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(9, 4, "SIGNAGE_MANAGER.ADD_SCHEDULE"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(20, 15, "SIGNAGE_MANAGER.ADD_SCHEDULE"), " ");
   }
 }
 var PlaylistEditModalComponent = class _PlaylistEditModalComponent {
@@ -106478,7 +106561,7 @@ var PlaylistEditModalComponent = class _PlaylistEditModalComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _PlaylistEditModalComponent, selectors: [["playlist-edit-modal"]], decls: 103, vars: 117, consts: [[3, "confirm", "heading", "loading"], ["for", "name"], ["required", ""], ["appearance", "outline", 1, "w-full"], ["matInput", "", 3, "placeholder", "formField"], [1, "mb-4", "flex", "items-center", "space-x-4"], [1, "flex-1", 3, "label", "formField"], [1, "mb-4"], [1, "pt-2", "pb-4"], [1, "border-base-300", "relative", "rounded-sm", "border"], ["for", "default-duration", 1, "bg-base-100", "absolute", "top-0", "left-2", "m-0", "flex", "w-auto", "min-w-0", "-translate-y-1/2", "items-center", "space-x-2", "px-2"], [1, "flex", "items-center", "px-2", "pt-2"], ["min", "5000", "max", "300000", "step", "1000", 1, "flex-1"], ["matSliderThumb", "", 3, "formField"], [1, "w-16", "px-2", "text-right", "font-mono", "text-xs"], [1, "flex", "space-x-2"], [1, "flex-1"], ["for", "orientation"], [3, "formField", "placeholder"], ["value", "unspecified"], ["value", "landscape"], ["value", "portrait"], ["value", "square"], ["for", "animation"], [3, "value"], ["for", "description"], ["matInput", "", 1, "min-h-32", 3, "placeholder", "formField"], [1, "flex", "space-x-4"], ["for", "valid-from"], ["name", "valid-from", 3, "formField", "clear"], ["for", "valid-until"], ["name", "valid-until", 3, "from", "formField", "clear"], [3, "label", "formField"], [1, "mt-2", "flex", "flex-col", "gap-4"], [3, "schedule", "index", "open", "can_remove"], ["type", "button", 1, "border-primary", "text-primary", "hover:bg-primary/10", "rounded", "border", "px-3", "py-2", "text-sm", "font-medium", 3, "click"], [3, "toggle", "remove", "schedule", "index", "open", "can_remove"]], template: function PlaylistEditModalComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _PlaylistEditModalComponent, selectors: [["playlist-edit-modal"]], decls: 92, vars: 106, consts: [[3, "confirm", "heading", "loading"], ["for", "name"], ["required", ""], ["appearance", "outline", 1, "w-full"], ["matInput", "", 3, "placeholder", "formField"], [1, "mb-4", "flex", "items-center", "space-x-4"], [1, "flex-1", 3, "label", "formField"], [1, "mb-4"], [1, "pt-2", "pb-4"], [1, "border-base-300", "relative", "rounded-sm", "border"], ["for", "default-duration", 1, "bg-base-100", "absolute", "top-0", "left-2", "m-0", "flex", "w-auto", "min-w-0", "-translate-y-1/2", "items-center", "space-x-2", "px-2"], [1, "flex", "items-center", "px-2", "pt-2"], ["min", "5000", "max", "300000", "step", "1000", 1, "flex-1"], ["matSliderThumb", "", 3, "formField"], [1, "w-16", "px-2", "text-right", "font-mono", "text-xs"], [1, "flex", "space-x-2"], [1, "flex-1"], ["for", "orientation"], [3, "formField", "placeholder"], ["value", "unspecified"], ["value", "landscape"], ["value", "portrait"], ["value", "square"], ["for", "animation"], [3, "value"], ["for", "description"], ["matInput", "", 1, "min-h-32", 3, "placeholder", "formField"], [3, "label", "formField"], [1, "flex", "space-x-4"], ["for", "valid-from"], ["name", "valid-from", 3, "formField", "clear"], ["for", "valid-until"], ["name", "valid-until", 3, "from", "formField", "clear"], [1, "mt-2", "flex", "flex-col", "gap-4"], [3, "schedule", "index", "open", "can_remove"], ["type", "button", 1, "border-primary", "text-primary", "hover:bg-primary/10", "rounded", "border", "px-3", "py-2", "text-sm", "font-medium", 3, "click"], [3, "toggle", "remove", "schedule", "index", "open", "can_remove"]], template: function PlaylistEditModalComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "fullscreen-modal-shell", 0);
         \u0275\u0275pipe(1, "translate");
@@ -106594,114 +106677,90 @@ var PlaylistEditModalComponent = class _PlaylistEditModalComponent {
         \u0275\u0275pipe(90, "translate");
         \u0275\u0275controlCreate();
         \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(91, "div", 27)(92, "div", 16)(93, "label", 28);
-        \u0275\u0275text(94);
-        \u0275\u0275pipe(95, "translate");
-        \u0275\u0275elementEnd();
-        \u0275\u0275element(96, "a-date-field", 29);
-        \u0275\u0275controlCreate();
-        \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(97, "div", 16)(98, "label", 30);
-        \u0275\u0275text(99);
-        \u0275\u0275pipe(100, "translate");
-        \u0275\u0275elementEnd();
-        \u0275\u0275element(101, "a-date-field", 31);
-        \u0275\u0275controlCreate();
-        \u0275\u0275elementEnd()();
-        \u0275\u0275conditionalCreate(102, PlaylistEditModalComponent_Conditional_102_Template, 10, 6, "div", 8);
+        \u0275\u0275conditionalCreate(91, PlaylistEditModalComponent_Conditional_91_Template, 21, 17);
         \u0275\u0275elementEnd()();
       }
       if (rf & 2) {
-        \u0275\u0275property("heading", \u0275\u0275pipeBind1(1, 53, ctx.playlist.id ? "SIGNAGE_MANAGER.PLAYLIST_EDIT" : "SIGNAGE_MANAGER.NEW_PLAYLIST"))("loading", ctx.loading() ? \u0275\u0275pipeBind1(2, 55, "SIGNAGE_MANAGER.PLAYLIST_SAVING") : "");
+        \u0275\u0275property("heading", \u0275\u0275pipeBind1(1, 46, ctx.playlist.id ? "SIGNAGE_MANAGER.PLAYLIST_EDIT" : "SIGNAGE_MANAGER.NEW_PLAYLIST"))("loading", ctx.loading() ? \u0275\u0275pipeBind1(2, 48, "SIGNAGE_MANAGER.PLAYLIST_SAVING") : "");
         \u0275\u0275advance(5);
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(6, 57, "FORM.NAME"));
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(6, 50, "FORM.NAME"));
         \u0275\u0275advance(5);
-        \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(11, 59, "FORM.NAME"))("formField", ctx.form.name);
-        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(12, 61, "SIGNAGE_MANAGER.PLAYLIST_NAME_ARIA"));
+        \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(11, 52, "FORM.NAME"))("formField", ctx.form.name);
+        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(12, 54, "SIGNAGE_MANAGER.PLAYLIST_NAME_ARIA"));
         \u0275\u0275control();
         \u0275\u0275advance(4);
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(15, 63, "FORM.NAME_REQUIRED"));
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(15, 56, "FORM.NAME_REQUIRED"));
         \u0275\u0275advance(3);
-        \u0275\u0275property("label", \u0275\u0275pipeBind1(18, 65, "COMMON.ENABLED"))("formField", ctx.form.enabled);
+        \u0275\u0275property("label", \u0275\u0275pipeBind1(18, 58, "COMMON.ENABLED"))("formField", ctx.form.enabled);
         \u0275\u0275control();
         \u0275\u0275advance(2);
-        \u0275\u0275property("label", \u0275\u0275pipeBind1(20, 67, "SIGNAGE_MANAGER.PLAYLIST_SHUFFLE"))("formField", ctx.form.random);
+        \u0275\u0275property("label", \u0275\u0275pipeBind1(20, 60, "SIGNAGE_MANAGER.PLAYLIST_SHUFFLE"))("formField", ctx.form.random);
         \u0275\u0275control();
         \u0275\u0275advance(2);
         \u0275\u0275conditional(!ctx.playlist.id ? 21 : -1);
         \u0275\u0275advance(5);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(27, 69, "SIGNAGE_MANAGER.DEFAULT_PLAY_TIME"), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(27, 62, "SIGNAGE_MANAGER.DEFAULT_PLAY_TIME"), " ");
         \u0275\u0275advance(4);
         \u0275\u0275property("formField", ctx.form.default_duration);
         \u0275\u0275control();
         \u0275\u0275advance(2);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(33, 71, ctx.model().default_duration / 1e3), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(33, 64, ctx.model().default_duration / 1e3), " ");
         \u0275\u0275advance(5);
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(38, 73, "SIGNAGE_MANAGER.ORIENTATION"));
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(38, 66, "SIGNAGE_MANAGER.ORIENTATION"));
         \u0275\u0275advance(3);
-        \u0275\u0275property("formField", ctx.form.orientation)("placeholder", \u0275\u0275pipeBind1(41, 75, "COMMON.LOCATION_UNSPECIFIED"));
-        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(42, 77, "SIGNAGE_MANAGER.PLAYLIST_ORIENTATION_ARIA"));
+        \u0275\u0275property("formField", ctx.form.orientation)("placeholder", \u0275\u0275pipeBind1(41, 68, "COMMON.LOCATION_UNSPECIFIED"));
+        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(42, 70, "SIGNAGE_MANAGER.PLAYLIST_ORIENTATION_ARIA"));
         \u0275\u0275control();
         \u0275\u0275advance(4);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(45, 79, "COMMON.LOCATION_UNSPECIFIED"), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(45, 72, "COMMON.LOCATION_UNSPECIFIED"), " ");
         \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(48, 81, "SIGNAGE_MANAGER.ORIENTATION_LANDSCAPE"));
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(48, 74, "SIGNAGE_MANAGER.ORIENTATION_LANDSCAPE"));
         \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(51, 83, "SIGNAGE_MANAGER.ORIENTATION_PORTRAIT"));
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(51, 76, "SIGNAGE_MANAGER.ORIENTATION_PORTRAIT"));
         \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(54, 85, "SIGNAGE_MANAGER.ORIENTATION_SQUARE"));
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(54, 78, "SIGNAGE_MANAGER.ORIENTATION_SQUARE"));
         \u0275\u0275advance(4);
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(58, 87, "SIGNAGE_MANAGER.ANIMATION"));
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(58, 80, "SIGNAGE_MANAGER.ANIMATION"));
         \u0275\u0275advance(3);
-        \u0275\u0275property("formField", ctx.form.default_animation)("placeholder", \u0275\u0275pipeBind1(61, 89, "COMMON.DEFAULT"));
-        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(62, 91, "SIGNAGE_MANAGER.DEFAULT_ANIMATION"));
+        \u0275\u0275property("formField", ctx.form.default_animation)("placeholder", \u0275\u0275pipeBind1(61, 82, "COMMON.DEFAULT"));
+        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(62, 84, "SIGNAGE_MANAGER.DEFAULT_ANIMATION"));
         \u0275\u0275control();
         \u0275\u0275advance(3);
         \u0275\u0275property("value", 0);
         \u0275\u0275advance();
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(65, 93, "COMMON.DEFAULT"));
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(65, 86, "COMMON.DEFAULT"));
         \u0275\u0275advance(2);
         \u0275\u0275property("value", 1);
         \u0275\u0275advance();
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(68, 95, "SIGNAGE_MANAGER.ANIM_CUT"));
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(68, 88, "SIGNAGE_MANAGER.ANIM_CUT"));
         \u0275\u0275advance(2);
         \u0275\u0275property("value", 2);
         \u0275\u0275advance();
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(71, 97, "SIGNAGE_MANAGER.ANIM_CROSS_FADE"));
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(71, 90, "SIGNAGE_MANAGER.ANIM_CROSS_FADE"));
         \u0275\u0275advance(2);
         \u0275\u0275property("value", 3);
         \u0275\u0275advance();
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(74, 99, "SIGNAGE_MANAGER.ANIM_SLIDE_TOP"));
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(74, 92, "SIGNAGE_MANAGER.ANIM_SLIDE_TOP"));
         \u0275\u0275advance(2);
         \u0275\u0275property("value", 4);
         \u0275\u0275advance();
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(77, 101, "SIGNAGE_MANAGER.ANIM_SLIDE_LEFT"));
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(77, 94, "SIGNAGE_MANAGER.ANIM_SLIDE_LEFT"));
         \u0275\u0275advance(2);
         \u0275\u0275property("value", 5);
         \u0275\u0275advance();
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(80, 103, "SIGNAGE_MANAGER.ANIM_SLIDE_RIGHT"));
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(80, 96, "SIGNAGE_MANAGER.ANIM_SLIDE_RIGHT"));
         \u0275\u0275advance(2);
         \u0275\u0275property("value", 6);
         \u0275\u0275advance();
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(83, 105, "SIGNAGE_MANAGER.ANIM_SLIDE_BOTTOM"));
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(83, 98, "SIGNAGE_MANAGER.ANIM_SLIDE_BOTTOM"));
         \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(86, 107, "COMMON.DESCRIPTION"));
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(86, 100, "COMMON.DESCRIPTION"));
         \u0275\u0275advance(3);
-        \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(89, 109, "COMMON.DESCRIPTION"))("formField", ctx.form.description);
-        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(90, 111, "SIGNAGE_MANAGER.PLAYLIST_DESCRIPTION_ARIA"));
-        \u0275\u0275control();
-        \u0275\u0275advance(6);
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(95, 113, "SIGNAGE_MANAGER.VALID_FROM"));
-        \u0275\u0275advance(2);
-        \u0275\u0275property("formField", ctx.form.valid_from)("clear", true);
+        \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(89, 102, "COMMON.DESCRIPTION"))("formField", ctx.form.description);
+        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(90, 104, "SIGNAGE_MANAGER.PLAYLIST_DESCRIPTION_ARIA"));
         \u0275\u0275control();
         \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(100, 115, "FORM.EXPIRES_AT"));
-        \u0275\u0275advance(2);
-        \u0275\u0275property("from", ctx.model().valid_from)("formField", ctx.form.valid_until)("clear", true);
-        \u0275\u0275control();
-        \u0275\u0275advance();
-        \u0275\u0275conditional(!ctx.model().distribution ? 102 : -1);
+        \u0275\u0275conditional(!ctx.model().distribution ? 91 : -1);
       }
     }, dependencies: [
       FullscreenModalShellComponent,
@@ -106912,30 +106971,30 @@ var PlaylistEditModalComponent = class _PlaylistEditModalComponent {
                         "
                     ></textarea>
                 </mat-form-field>
-                <div class="flex space-x-4">
-                    <div class="flex-1">
-                        <label for="valid-from">{{
-                            'SIGNAGE_MANAGER.VALID_FROM' | translate
-                        }}</label>
-                        <a-date-field
-                            name="valid-from"
-                            [formField]="form.valid_from"
-                            [clear]="true"
-                        ></a-date-field>
-                    </div>
-                    <div class="flex-1">
-                        <label for="valid-until">{{
-                            'FORM.EXPIRES_AT' | translate
-                        }}</label>
-                        <a-date-field
-                            name="valid-until"
-                            [from]="model().valid_from"
-                            [formField]="form.valid_until"
-                            [clear]="true"
-                        ></a-date-field>
-                    </div>
-                </div>
                 @if (!model().distribution) {
+                    <div class="flex space-x-4">
+                        <div class="flex-1">
+                            <label for="valid-from">{{
+                                'SIGNAGE_MANAGER.VALID_FROM' | translate
+                            }}</label>
+                            <a-date-field
+                                name="valid-from"
+                                [formField]="form.valid_from"
+                                [clear]="true"
+                            ></a-date-field>
+                        </div>
+                        <div class="flex-1">
+                            <label for="valid-until">{{
+                                'FORM.EXPIRES_AT' | translate
+                            }}</label>
+                            <a-date-field
+                                name="valid-until"
+                                [from]="model().valid_from"
+                                [formField]="form.valid_until"
+                                [clear]="true"
+                            ></a-date-field>
+                        </div>
+                    </div>
                     <div class="pt-2 pb-4">
                         <label>{{
                             'SIGNAGE_MANAGER.PLAYLIST_SCHEDULES' | translate
@@ -109329,7 +109388,7 @@ var SignageService = class _SignageService {
         this.playlist_media_loading.set(true);
         try {
           const result = await yh(playlist.id);
-          this._setPlaylistMediaState(playlist.id, result.items || [], result.approved);
+          this._setPlaylistMediaState(playlist.id, result.items || [], result.approved, result.schedules);
           return result;
         } catch {
           return null;
@@ -109523,7 +109582,7 @@ var SignageService = class _SignageService {
       new_items.splice(index, 1);
     }
     await Sh(playlist_id, new_items);
-    this._setPlaylistMediaState(playlist_id, new_items, false);
+    this._setPlaylistMediaState(playlist_id, new_items, false, media_list.schedules);
     notifySuccess(i18n("SIGNAGE_MANAGER.SVC_ITEM_REMOVED"));
     this._playlist_change.set(Date.now());
     this.changed();
@@ -110004,12 +110063,16 @@ var SignageService = class _SignageService {
       approval_requested
     });
   }
-  _setPlaylistMediaState(playlist_id, media_ids, approved) {
+  _setPlaylistMediaState(playlist_id, item_ids, approved, schedules) {
+    const schedule_map = playlistItemScheduleMap({
+      schedules: schedules || this._playlist_media_items.value()?.schedules
+    });
+    const media_ids = item_ids.map((id) => schedule_map.get(id)?.media?.id || id);
     const playlist = this.playlists().find((item) => item.id === playlist_id) || this.selected_playlist();
     const current_state = this._playlist_meta_state()[playlist_id];
     this._setPlaylistMeta(playlist_id, {
       media_ids: media_ids.slice(0, 3),
-      item_ids: media_ids,
+      item_ids,
       updated_at: current_state?.updated_at || playlist?.updated_at || Date.now(),
       approved: approved ?? current_state?.approved,
       approval_requested: approved === false ? false : current_state?.approval_requested ?? false
@@ -110962,6 +111025,10 @@ export {
   NgForm,
   NgModel,
   ɵNgNoValidate,
+  NumberValueAccessor,
+  SelectControlValueAccessor,
+  NgSelectOption,
+  ɵNgSelectMultipleOption,
   FormsModule,
   oi,
   X,
@@ -110984,6 +111051,8 @@ export {
   predictableRandomInt,
   capitalizeFirstLetter,
   firstTruthyValueFrom,
+  HotkeysService,
+  DEFAULT_SETTINGS,
   GroupPermission,
   current_user,
   user_groups_loaded,
@@ -111091,4 +111160,4 @@ export {
   dialogClosed,
   SignageService
 };
-//# sourceMappingURL=chunk-GSYPF65K.js.map
+//# sourceMappingURL=chunk-3ITSEBHD.js.map
