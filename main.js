@@ -3158,8 +3158,8 @@ function forwardRef(forwardRefFn) {
   }
   return forwardRefFn;
 }
-function resolveForwardRef(type) {
-  return isForwardRef(type) ? type() : type;
+function resolveForwardRef(type2) {
+  return isForwardRef(type2) ? type2() : type2;
 }
 function isForwardRef(fn) {
   return typeof fn === "function" && fn.hasOwnProperty(__forward_ref__) && fn.__forward_ref__ === forwardRef;
@@ -3272,27 +3272,27 @@ function \u0275\u0275defineInjector(options2) {
     imports: options2.imports || []
   };
 }
-function getInjectableDef(type) {
-  return getOwnDefinition(type, NG_PROV_DEF);
+function getInjectableDef(type2) {
+  return getOwnDefinition(type2, NG_PROV_DEF);
 }
-function isInjectable(type) {
-  return getInjectableDef(type) !== null;
+function isInjectable(type2) {
+  return getInjectableDef(type2) !== null;
 }
-function getOwnDefinition(type, field) {
-  return type.hasOwnProperty(field) && type[field] || null;
+function getOwnDefinition(type2, field) {
+  return type2.hasOwnProperty(field) && type2[field] || null;
 }
-function getInheritedInjectableDef(type) {
-  const def2 = (type == null ? void 0 : type[NG_PROV_DEF]) ?? null;
+function getInheritedInjectableDef(type2) {
+  const def2 = (type2 == null ? void 0 : type2[NG_PROV_DEF]) ?? null;
   if (def2) {
-    ngDevMode && console.warn(`DEPRECATED: DI is instantiating a token "${type.name}" that inherits its @Injectable decorator but does not provide one itself.
-This will become an error in a future version of Angular. Please add @Injectable() to the "${type.name}" class.`);
+    ngDevMode && console.warn(`DEPRECATED: DI is instantiating a token "${type2.name}" that inherits its @Injectable decorator but does not provide one itself.
+This will become an error in a future version of Angular. Please add @Injectable() to the "${type2.name}" class.`);
     return def2;
   } else {
     return null;
   }
 }
-function getInjectorDef(type) {
-  return type && type.hasOwnProperty(NG_INJ_DEF) ? type[NG_INJ_DEF] : null;
+function getInjectorDef(type2) {
+  return type2 && type2.hasOwnProperty(NG_INJ_DEF) ? type2[NG_INJ_DEF] : null;
 }
 var NG_PROV_DEF = getClosureSafeProperty({
   \u0275prov: getClosureSafeProperty
@@ -3470,43 +3470,43 @@ var NG_ELEMENT_ID = getClosureSafeProperty({
 var NG_ENV_ID = getClosureSafeProperty({
   __NG_ENV_ID__: getClosureSafeProperty
 });
-function getNgModuleDef(type) {
-  assertTypeDefined(type, "@NgModule");
-  return type[NG_MOD_DEF] || null;
+function getNgModuleDef(type2) {
+  assertTypeDefined(type2, "@NgModule");
+  return type2[NG_MOD_DEF] || null;
 }
-function getNgModuleDefOrThrow(type) {
-  const ngModuleDef = getNgModuleDef(type);
+function getNgModuleDefOrThrow(type2) {
+  const ngModuleDef = getNgModuleDef(type2);
   if (!ngModuleDef) {
-    throw new RuntimeError(915, (typeof ngDevMode === "undefined" || ngDevMode) && `Type ${stringify(type)} does not have '\u0275mod' property.`);
+    throw new RuntimeError(915, (typeof ngDevMode === "undefined" || ngDevMode) && `Type ${stringify(type2)} does not have '\u0275mod' property.`);
   }
   return ngModuleDef;
 }
-function getComponentDef(type) {
-  assertTypeDefined(type, "@Component");
-  return type[NG_COMP_DEF] || null;
+function getComponentDef(type2) {
+  assertTypeDefined(type2, "@Component");
+  return type2[NG_COMP_DEF] || null;
 }
-function getDirectiveDefOrThrow(type) {
-  const def2 = getDirectiveDef(type);
+function getDirectiveDefOrThrow(type2) {
+  const def2 = getDirectiveDef(type2);
   if (!def2) {
-    throw new RuntimeError(916, (typeof ngDevMode === "undefined" || ngDevMode) && `Type ${stringify(type)} does not have '\u0275dir' property.`);
+    throw new RuntimeError(916, (typeof ngDevMode === "undefined" || ngDevMode) && `Type ${stringify(type2)} does not have '\u0275dir' property.`);
   }
   return def2;
 }
-function getDirectiveDef(type) {
-  assertTypeDefined(type, "@Directive");
-  return type[NG_DIR_DEF] || null;
+function getDirectiveDef(type2) {
+  assertTypeDefined(type2, "@Directive");
+  return type2[NG_DIR_DEF] || null;
 }
-function getPipeDef(type) {
-  assertTypeDefined(type, "@Pipe");
-  return type[NG_PIPE_DEF] || null;
+function getPipeDef(type2) {
+  assertTypeDefined(type2, "@Pipe");
+  return type2[NG_PIPE_DEF] || null;
 }
-function assertTypeDefined(type, symbolType) {
-  if (type == null) {
+function assertTypeDefined(type2, symbolType) {
+  if (type2 == null) {
     throw new RuntimeError(-919, (typeof ngDevMode === "undefined" || ngDevMode) && `Cannot read ${symbolType} metadata. This can indicate a runtime circular dependency in your app that needs to be resolved.`);
   }
 }
-function isStandalone(type) {
-  const def2 = getComponentDef(type) || getDirectiveDef(type) || getPipeDef(type);
+function isStandalone(type2) {
+  const def2 = getComponentDef(type2) || getDirectiveDef(type2) || getPipeDef(type2);
   return def2 !== null && def2.standalone;
 }
 function renderStringify(value) {
@@ -3521,12 +3521,12 @@ function stringifyForError(value) {
   }
   return renderStringify(value);
 }
-function debugStringifyTypeForError(type) {
-  const componentDef = getComponentDef(type);
+function debugStringifyTypeForError(type2) {
+  const componentDef = getComponentDef(type2);
   if (componentDef !== null && componentDef.debugInfo) {
     return stringifyTypeFromDebugInfo(componentDef.debugInfo);
   }
-  return stringifyForError(type);
+  return stringifyForError(type2);
 }
 function stringifyTypeFromDebugInfo(debugInfo) {
   if (!debugInfo.filePath || !debugInfo.lineNumber) {
@@ -3738,22 +3738,22 @@ function injectArgs(types) {
       if (arg.length === 0) {
         throw new RuntimeError(900, ngDevMode && "Arguments array must have arguments.");
       }
-      let type = void 0;
+      let type2 = void 0;
       let flags = 0;
       for (let j = 0; j < arg.length; j++) {
         const meta = arg[j];
         const flag = getInjectFlag(meta);
         if (typeof flag === "number") {
           if (flag === -1) {
-            type = meta.token;
+            type2 = meta.token;
           } else {
             flags |= flag;
           }
         } else {
-          type = meta;
+          type2 = meta;
         }
       }
-      args.push(\u0275\u0275inject(type, flags));
+      args.push(\u0275\u0275inject(type2, flags));
     } else {
       args.push(\u0275\u0275inject(arg));
     }
@@ -3768,12 +3768,12 @@ function attachInjectFlag(decorator, flag) {
 function getInjectFlag(token) {
   return token[DI_DECORATOR_FLAG];
 }
-function getFactoryDef(type, throwNotFound) {
-  const hasFactoryDef = type.hasOwnProperty(NG_FACTORY_DEF);
+function getFactoryDef(type2, throwNotFound) {
+  const hasFactoryDef = type2.hasOwnProperty(NG_FACTORY_DEF);
   if (!hasFactoryDef && throwNotFound === true && ngDevMode) {
-    throw new Error(`Type ${stringify(type)} does not have '\u0275fac' property.`);
+    throw new Error(`Type ${stringify(type2)} does not have '\u0275fac' property.`);
   }
-  return hasFactoryDef ? type[NG_FACTORY_DEF] : null;
+  return hasFactoryDef ? type2[NG_FACTORY_DEF] : null;
 }
 function arrayEquals(a, b2, identityAccessor) {
   if (a.length !== b2.length) return false;
@@ -6373,9 +6373,9 @@ function assertTNodeType(tNode, expectedTypes, message2) {
     throwError2(message2 || `Expected [${toTNodeTypeAsString(expectedTypes)}] but got ${toTNodeTypeAsString(tNode.type)}.`);
   }
 }
-function assertPureTNodeType(type) {
-  if (!(type === 2 || type === 1 || type === 4 || type === 8 || type === 32 || type === 16 || type === 64 || type === 128)) {
-    throwError2(`Expected TNodeType to have only a single type selected, but got ${toTNodeTypeAsString(type)}.`);
+function assertPureTNodeType(type2) {
+  if (!(type2 === 2 || type2 === 1 || type2 === 4 || type2 === 8 || type2 === 32 || type2 === 16 || type2 === 64 || type2 === 128)) {
+    throwError2(`Expected TNodeType to have only a single type selected, but got ${toTNodeTypeAsString(type2)}.`);
   }
 }
 function setUpAttributes(renderer, native, attrs) {
@@ -6510,16 +6510,16 @@ var BLOOM_MASK = BLOOM_SIZE - 1;
 var BLOOM_BUCKET_BITS = 5;
 var nextNgElementId = 0;
 var NOT_FOUND2 = {};
-function bloomAdd(injectorIndex, tView, type) {
+function bloomAdd(injectorIndex, tView, type2) {
   ngDevMode && assertEqual(tView.firstCreatePass, true, "expected firstCreatePass to be true");
   let id;
-  if (typeof type === "string") {
-    id = type.charCodeAt(0) || 0;
-  } else if (type.hasOwnProperty(NG_ELEMENT_ID)) {
-    id = type[NG_ELEMENT_ID];
+  if (typeof type2 === "string") {
+    id = type2.charCodeAt(0) || 0;
+  } else if (type2.hasOwnProperty(NG_ELEMENT_ID)) {
+    id = type2[NG_ELEMENT_ID];
   }
   if (id == null) {
-    id = type[NG_ELEMENT_ID] = nextNgElementId++;
+    id = type2[NG_ELEMENT_ID] = nextNgElementId++;
   }
   const bloomHash = id & BLOOM_MASK;
   const mask = 1 << bloomHash;
@@ -6849,12 +6849,12 @@ var NodeInjector = class {
 function createNodeInjector() {
   return new NodeInjector(getCurrentTNode(), getLView());
 }
-function \u0275\u0275getInheritedFactory(type) {
+function \u0275\u0275getInheritedFactory(type2) {
   return noSideEffects(() => {
-    const ownConstructor = type.prototype.constructor;
+    const ownConstructor = type2.prototype.constructor;
     const ownFactory = ownConstructor[NG_FACTORY_DEF] || getFactoryOf(ownConstructor);
     const objectPrototype = Object.prototype;
-    let parent = Object.getPrototypeOf(type.prototype).constructor;
+    let parent = Object.getPrototypeOf(type2.prototype).constructor;
     while (parent && parent !== objectPrototype) {
       const factory = parent[NG_FACTORY_DEF] || getFactoryOf(parent);
       if (factory && factory !== ownFactory) {
@@ -6865,14 +6865,14 @@ function \u0275\u0275getInheritedFactory(type) {
     return (t) => new t();
   });
 }
-function getFactoryOf(type) {
-  if (isForwardRef(type)) {
+function getFactoryOf(type2) {
+  if (isForwardRef(type2)) {
     return () => {
-      const factory = getFactoryOf(resolveForwardRef(type));
+      const factory = getFactoryOf(resolveForwardRef(type2));
       return factory && factory();
     };
   }
-  return getFactoryDef(type);
+  return getFactoryDef(type2);
 }
 function lookupTokenUsingEmbeddedInjector(tNode, lView, token, flags, notFoundValue) {
   let currentTNode = tNode;
@@ -7110,34 +7110,34 @@ var ReflectionCapabilities = class {
     }
     return result;
   }
-  _ownParameters(type, parentCtor) {
-    const typeStr = type.toString();
+  _ownParameters(type2, parentCtor) {
+    const typeStr = type2.toString();
     if (isDelegateCtor(typeStr)) {
       return null;
     }
-    if (type.parameters && type.parameters !== parentCtor.parameters) {
-      return type.parameters;
+    if (type2.parameters && type2.parameters !== parentCtor.parameters) {
+      return type2.parameters;
     }
-    const tsickleCtorParams = type.ctorParameters;
+    const tsickleCtorParams = type2.ctorParameters;
     if (tsickleCtorParams && tsickleCtorParams !== parentCtor.ctorParameters) {
       const ctorParameters = typeof tsickleCtorParams === "function" ? tsickleCtorParams() : tsickleCtorParams;
       const paramTypes2 = ctorParameters.map((ctorParam) => ctorParam && ctorParam.type);
       const paramAnnotations2 = ctorParameters.map((ctorParam) => ctorParam && convertTsickleDecoratorIntoMetadata(ctorParam.decorators));
       return this._zipTypesAndAnnotations(paramTypes2, paramAnnotations2);
     }
-    const paramAnnotations = type.hasOwnProperty(PARAMETERS) && type[PARAMETERS];
-    const paramTypes = this._reflect && this._reflect.getOwnMetadata && this._reflect.getOwnMetadata("design:paramtypes", type);
+    const paramAnnotations = type2.hasOwnProperty(PARAMETERS) && type2[PARAMETERS];
+    const paramTypes = this._reflect && this._reflect.getOwnMetadata && this._reflect.getOwnMetadata("design:paramtypes", type2);
     if (paramTypes || paramAnnotations) {
       return this._zipTypesAndAnnotations(paramTypes, paramAnnotations);
     }
-    return newArray(type.length);
+    return newArray(type2.length);
   }
-  parameters(type) {
-    if (!isType(type)) {
+  parameters(type2) {
+    if (!isType(type2)) {
       return [];
     }
-    const parentCtor = getParentCtor(type);
-    let parameters = this._ownParameters(type, parentCtor);
+    const parentCtor = getParentCtor(type2);
+    let parameters = this._ownParameters(type2, parentCtor);
     if (!parameters && parentCtor !== Object) {
       parameters = this.parameters(parentCtor);
     }
@@ -7220,8 +7220,8 @@ var ReflectionCapabilities = class {
     }
     return this._ownPropMetadata(typeOrFunc, getParentCtor(typeOrFunc)) || {};
   }
-  hasLifecycleHook(type, lcProperty) {
-    return type instanceof Type && lcProperty in type.prototype;
+  hasLifecycleHook(type2, lcProperty) {
+    return type2 instanceof Type && lcProperty in type2.prototype;
   }
 };
 function convertTsickleDecoratorIntoMetadata(decoratorInvocations) {
@@ -7255,8 +7255,8 @@ var _reflect = null;
 function getReflect() {
   return _reflect = _reflect || new ReflectionCapabilities();
 }
-function reflectDependencies(type) {
-  return convertDependencies(getReflect().parameters(type));
+function reflectDependencies(type2) {
+  return convertDependencies(getReflect().parameters(type2));
 }
 function convertDependencies(deps) {
   return deps.map((dep) => reflectDependency(dep));
@@ -7303,38 +7303,38 @@ function reflectDependency(dep) {
   }
   return meta;
 }
-function compileInjectable(type, meta) {
+function compileInjectable(type2, meta) {
   let ngInjectableDef = null;
   let ngFactoryDef = null;
-  if (!type.hasOwnProperty(NG_PROV_DEF)) {
-    Object.defineProperty(type, NG_PROV_DEF, {
+  if (!type2.hasOwnProperty(NG_PROV_DEF)) {
+    Object.defineProperty(type2, NG_PROV_DEF, {
       get: () => {
         if (ngInjectableDef === null) {
           const compiler = getCompilerFacade({
             usage: 0,
             kind: "injectable",
-            type
+            type: type2
           });
-          ngInjectableDef = compiler.compileInjectable(angularCoreDiEnv, `ng:///${type.name}/\u0275prov.js`, getInjectableMetadata(type, meta));
+          ngInjectableDef = compiler.compileInjectable(angularCoreDiEnv, `ng:///${type2.name}/\u0275prov.js`, getInjectableMetadata(type2, meta));
         }
         return ngInjectableDef;
       }
     });
   }
-  if (!type.hasOwnProperty(NG_FACTORY_DEF)) {
-    Object.defineProperty(type, NG_FACTORY_DEF, {
+  if (!type2.hasOwnProperty(NG_FACTORY_DEF)) {
+    Object.defineProperty(type2, NG_FACTORY_DEF, {
       get: () => {
         if (ngFactoryDef === null) {
           const compiler = getCompilerFacade({
             usage: 0,
             kind: "injectable",
-            type
+            type: type2
           });
-          ngFactoryDef = compiler.compileFactory(angularCoreDiEnv, `ng:///${type.name}/\u0275fac.js`, {
-            name: type.name,
-            type,
+          ngFactoryDef = compiler.compileFactory(angularCoreDiEnv, `ng:///${type2.name}/\u0275fac.js`, {
+            name: type2.name,
+            type: type2,
             typeArgumentCount: 0,
-            deps: reflectDependencies(type),
+            deps: reflectDependencies(type2),
             target: compiler.FactoryTarget.Injectable
           });
         }
@@ -7360,13 +7360,13 @@ function isUseFactoryProvider(meta) {
 function isUseExistingProvider(meta) {
   return meta.useExisting !== void 0;
 }
-function getInjectableMetadata(type, srcMeta) {
+function getInjectableMetadata(type2, srcMeta) {
   const meta = srcMeta || {
     providedIn: null
   };
   const compilerMeta = {
-    name: type.name,
-    type,
+    name: type2.name,
+    type: type2,
     typeArgumentCount: 0,
     providedIn: meta.providedIn
   };
@@ -7384,39 +7384,39 @@ function getInjectableMetadata(type, srcMeta) {
   }
   return compilerMeta;
 }
-var Injectable = makeDecorator("Injectable", void 0, void 0, void 0, (type, meta) => compileInjectable(type, meta));
-function compileService(type, meta) {
+var Injectable = makeDecorator("Injectable", void 0, void 0, void 0, (type2, meta) => compileInjectable(type2, meta));
+function compileService(type2, meta) {
   let def2 = null;
   let factoryDef = null;
-  if (!type.hasOwnProperty(NG_PROV_DEF)) {
-    Object.defineProperty(type, NG_PROV_DEF, {
+  if (!type2.hasOwnProperty(NG_PROV_DEF)) {
+    Object.defineProperty(type2, NG_PROV_DEF, {
       get: () => {
         if (def2 === null) {
           const compiler = getCompilerFacade({
             usage: 0,
             kind: "service",
-            type
+            type: type2
           });
-          def2 = compiler.compileService(angularCoreDiEnv, `ng:///${type.name}/\u0275prov.js`, getServiceMetadata(type, meta));
+          def2 = compiler.compileService(angularCoreDiEnv, `ng:///${type2.name}/\u0275prov.js`, getServiceMetadata(type2, meta));
         }
         return def2;
       }
     });
   }
-  if (!type.hasOwnProperty(NG_FACTORY_DEF)) {
-    Object.defineProperty(type, NG_FACTORY_DEF, {
+  if (!type2.hasOwnProperty(NG_FACTORY_DEF)) {
+    Object.defineProperty(type2, NG_FACTORY_DEF, {
       get: () => {
         if (factoryDef === null) {
           const compiler = getCompilerFacade({
             usage: 0,
             kind: "service",
-            type
+            type: type2
           });
-          factoryDef = compiler.compileFactory(angularCoreDiEnv, `ng:///${type.name}/\u0275fac.js`, {
-            name: type.name,
-            type,
+          factoryDef = compiler.compileFactory(angularCoreDiEnv, `ng:///${type2.name}/\u0275fac.js`, {
+            name: type2.name,
+            type: type2,
             typeArgumentCount: 0,
-            deps: reflectDependencies(type),
+            deps: reflectDependencies(type2),
             target: compiler.FactoryTarget.Service
           });
         }
@@ -7426,17 +7426,17 @@ function compileService(type, meta) {
     });
   }
 }
-function getServiceMetadata(type, srcMeta) {
+function getServiceMetadata(type2, srcMeta) {
   const compilerMeta = {
-    name: type.name,
-    type,
+    name: type2.name,
+    type: type2,
     typeArgumentCount: 0,
     autoProvided: srcMeta == null ? void 0 : srcMeta.autoProvided,
     factory: srcMeta == null ? void 0 : srcMeta.factory
   };
   return compilerMeta;
 }
-var Service = makeDecorator("Service", void 0, void 0, void 0, (type, meta) => compileService(type, meta));
+var Service = makeDecorator("Service", void 0, void 0, void 0, (type2, meta) => compileService(type2, meta));
 function injectElementRef() {
   return createElementRef(getCurrentTNode(), getLView());
 }
@@ -7956,7 +7956,7 @@ function getListeners(element) {
         const listenerElement = unwrapRNode(lView[secondParam]);
         const callback = lCleanup[tCleanup[i++]];
         const useCaptureOrIndx = tCleanup[i++];
-        const type = typeof useCaptureOrIndx === "boolean" || useCaptureOrIndx >= 0 ? "dom" : "output";
+        const type2 = typeof useCaptureOrIndx === "boolean" || useCaptureOrIndx >= 0 ? "dom" : "output";
         const useCapture = typeof useCaptureOrIndx === "boolean" ? useCaptureOrIndx : false;
         if (element == listenerElement) {
           listeners.push({
@@ -7964,7 +7964,7 @@ function getListeners(element) {
             name,
             callback,
             useCapture,
-            type
+            type: type2
           });
         }
       }
@@ -8698,13 +8698,13 @@ var SafeResourceUrlImpl = class extends SafeValueImpl {
 function unwrapSafeValue(value) {
   return value instanceof SafeValueImpl ? value.changingThisBreaksApplicationSecurity : value;
 }
-function allowSanitizationBypassAndThrow(value, type) {
+function allowSanitizationBypassAndThrow(value, type2) {
   const actualType = getSanitizationBypassType(value);
-  if (actualType != null && actualType !== type) {
-    if (actualType === "ResourceURL" && type === "URL") return true;
-    throw new Error(`Required a safe ${type}, got a ${actualType} (see ${XSS_SECURITY_URL})`);
+  if (actualType != null && actualType !== type2) {
+    if (actualType === "ResourceURL" && type2 === "URL") return true;
+    throw new Error(`Required a safe ${type2}, got a ${actualType} (see ${XSS_SECURITY_URL})`);
   }
-  return actualType === type;
+  return actualType === type2;
 }
 function getSanitizationBypassType(value) {
   return value instanceof SafeValueImpl && value.getTypeName() || null;
@@ -9285,16 +9285,16 @@ function maybeUnwrapFn(value) {
   }
 }
 var VALUE_STRING_LENGTH_LIMIT = 200;
-function assertStandaloneComponentType(type) {
-  assertComponentDef(type);
-  const componentDef = getComponentDef(type);
+function assertStandaloneComponentType(type2) {
+  assertComponentDef(type2);
+  const componentDef = getComponentDef(type2);
   if (!componentDef.standalone) {
-    throw new RuntimeError(907, `The ${stringifyForError(type)} component is not marked as standalone, but Angular expects to have a standalone component here. Please make sure the ${stringifyForError(type)} component does not have the \`standalone: false\` flag in the decorator.`);
+    throw new RuntimeError(907, `The ${stringifyForError(type2)} component is not marked as standalone, but Angular expects to have a standalone component here. Please make sure the ${stringifyForError(type2)} component does not have the \`standalone: false\` flag in the decorator.`);
   }
 }
-function assertComponentDef(type) {
-  if (!getComponentDef(type)) {
-    throw new RuntimeError(906, `The ${stringifyForError(type)} is not an Angular component, make sure it has the \`@Component\` decorator.`);
+function assertComponentDef(type2) {
+  if (!getComponentDef(type2)) {
+    throw new RuntimeError(906, `The ${stringifyForError(type2)} is not an Angular component, make sure it has the \`@Component\` decorator.`);
   }
 }
 function throwMultipleComponentError(tNode, first2, second) {
@@ -10759,13 +10759,13 @@ function applyStyling(renderer, isClassBased, rNode, prop, value) {
     }
   }
 }
-function createTView(type, declTNode, templateFn, decls, vars, directives, pipes, viewQuery, schemas, constsOrFactory, ssrId) {
+function createTView(type2, declTNode, templateFn, decls, vars, directives, pipes, viewQuery, schemas, constsOrFactory, ssrId) {
   const bindingStartIndex = HEADER_OFFSET + decls;
   const initialViewLength = bindingStartIndex + vars;
   const blueprint = createViewBlueprint(bindingStartIndex, initialViewLength);
   const consts = typeof constsOrFactory === "function" ? constsOrFactory() : constsOrFactory;
   const tView = blueprint[TVIEW] = {
-    type,
+    type: type2,
     blueprint,
     template: templateFn,
     queries: null,
@@ -12269,17 +12269,17 @@ function processI18nInsertBefore(renderer, childTNode, lView, childRNode, parent
     }
   }
 }
-function getOrCreateTNode(tView, index, type, name, attrs) {
+function getOrCreateTNode(tView, index, type2, name, attrs) {
   ngDevMode && index !== 0 && assertGreaterThanOrEqual(index, HEADER_OFFSET, "TNodes can't be in the LView header.");
-  ngDevMode && assertPureTNodeType(type);
+  ngDevMode && assertPureTNodeType(type2);
   let tNode = tView.data[index];
   if (tNode === null) {
-    tNode = createTNodeAtIndex(tView, index, type, name, attrs);
+    tNode = createTNodeAtIndex(tView, index, type2, name, attrs);
     if (isInI18nBlock()) {
       tNode.flags |= 32;
     }
   } else if (tNode.type & 64) {
-    tNode.type = type;
+    tNode.type = type2;
     tNode.value = name;
     tNode.attrs = attrs;
     const parent = getCurrentParentTNode();
@@ -12290,11 +12290,11 @@ function getOrCreateTNode(tView, index, type, name, attrs) {
   setCurrentTNode(tNode, true);
   return tNode;
 }
-function createTNodeAtIndex(tView, index, type, name, attrs) {
+function createTNodeAtIndex(tView, index, type2, name, attrs) {
   const currentTNode = getCurrentTNodePlaceholderOk();
   const isParent = isCurrentTNodeParent();
   const parent = isParent ? currentTNode : currentTNode && currentTNode.parent;
-  const tNode = tView.data[index] = createTNode(tView, parent, type, index, name, attrs);
+  const tNode = tView.data[index] = createTNode(tView, parent, type2, index, name, attrs);
   linkTNodeInTView(tView, tNode, currentTNode, isParent);
   return tNode;
 }
@@ -12315,7 +12315,7 @@ function linkTNodeInTView(tView, tNode, currentTNode, isParent) {
     }
   }
 }
-function createTNode(tView, tParent, type, index, value, attrs) {
+function createTNode(tView, tParent, type2, index, value, attrs) {
   ngDevMode && index !== 0 && assertGreaterThanOrEqual(index, HEADER_OFFSET, "TNodes can't be in the LView header.");
   ngDevMode && assertNotSame(attrs, void 0, "'undefined' is not valid value for 'attrs'");
   ngDevMode && tParent && assertTNodeForTView(tParent, tView);
@@ -12325,7 +12325,7 @@ function createTNode(tView, tParent, type, index, value, attrs) {
     flags |= 128;
   }
   const tNode = {
-    type,
+    type: type2,
     index,
     insertBeforeIndex: null,
     injectorIndex,
@@ -12700,10 +12700,10 @@ function isDirective(value) {
 function isComponent(value) {
   return !!getComponentDef(value);
 }
-function getDependencyTypeForError(type) {
-  if (getComponentDef(type)) return "component";
-  if (getDirectiveDef(type)) return "directive";
-  if (getPipeDef(type)) return "pipe";
+function getDependencyTypeForError(type2) {
+  if (getComponentDef(type2)) return "component";
+  if (getDirectiveDef(type2)) return "directive";
+  if (getPipeDef(type2)) return "pipe";
   return "type";
 }
 function verifyStandaloneImport(depType, importingType) {
@@ -12717,8 +12717,8 @@ function verifyStandaloneImport(depType, importingType) {
     const def2 = getComponentDef(depType) || getDirectiveDef(depType) || getPipeDef(depType);
     if (def2 != null) {
       if (!def2.standalone) {
-        const type = getDependencyTypeForError(depType);
-        throw new Error(`The "${stringifyForError(depType)}" ${type}, imported from "${stringifyForError(importingType)}", is not standalone. Does the ${type} have the standalone: false flag?`);
+        const type2 = getDependencyTypeForError(depType);
+        throw new Error(`The "${stringifyForError(depType)}" ${type2}, imported from "${stringifyForError(importingType)}", is not standalone. Does the ${type2} have the standalone: false flag?`);
       }
     } else {
       if (isModuleWithProviders(depType)) {
@@ -12750,14 +12750,14 @@ var DepsTracker = class {
     }
     this.ngModulesWithSomeUnresolvedDecls.clear();
   }
-  getComponentDependencies(type, rawImports) {
+  getComponentDependencies(type2, rawImports) {
     this.resolveNgModulesDecls();
-    const def2 = getComponentDef(type);
+    const def2 = getComponentDef(type2);
     if (def2 === null) {
-      throw new Error(`Attempting to get component dependencies for a type that is not a component: ${type}`);
+      throw new Error(`Attempting to get component dependencies for a type that is not a component: ${type2}`);
     }
     if (def2.standalone) {
-      const scope = this.getStandaloneComponentScope(type, rawImports);
+      const scope = this.getStandaloneComponentScope(type2, rawImports);
       if (scope.compilation.isPoisoned) {
         return {
           dependencies: []
@@ -12767,12 +12767,12 @@ var DepsTracker = class {
         dependencies: [...scope.compilation.directives, ...scope.compilation.pipes, ...scope.compilation.ngModules]
       };
     } else {
-      if (!this.ownerNgModule.has(type)) {
+      if (!this.ownerNgModule.has(type2)) {
         return {
           dependencies: []
         };
       }
-      const scope = this.getNgModuleScope(this.ownerNgModule.get(type));
+      const scope = this.getNgModuleScope(this.ownerNgModule.get(type2));
       if (scope.compilation.isPoisoned) {
         return {
           dependencies: []
@@ -12783,26 +12783,26 @@ var DepsTracker = class {
       };
     }
   }
-  registerNgModule(type, scopeInfo) {
-    if (!isNgModule(type)) {
-      throw new Error(`Attempting to register a Type which is not NgModule as NgModule: ${type}`);
+  registerNgModule(type2, scopeInfo) {
+    if (!isNgModule(type2)) {
+      throw new Error(`Attempting to register a Type which is not NgModule as NgModule: ${type2}`);
     }
-    this.ngModulesWithSomeUnresolvedDecls.add(type);
+    this.ngModulesWithSomeUnresolvedDecls.add(type2);
   }
-  clearScopeCacheFor(type) {
-    this.ngModulesScopeCache.delete(type);
-    this.standaloneComponentsScopeCache.delete(type);
+  clearScopeCacheFor(type2) {
+    this.ngModulesScopeCache.delete(type2);
+    this.standaloneComponentsScopeCache.delete(type2);
   }
-  getNgModuleScope(type) {
-    if (this.ngModulesScopeCache.has(type)) {
-      return this.ngModulesScopeCache.get(type);
+  getNgModuleScope(type2) {
+    if (this.ngModulesScopeCache.has(type2)) {
+      return this.ngModulesScopeCache.get(type2);
     }
-    const scope = this.computeNgModuleScope(type);
-    this.ngModulesScopeCache.set(type, scope);
+    const scope = this.computeNgModuleScope(type2);
+    this.ngModulesScopeCache.set(type2, scope);
     return scope;
   }
-  computeNgModuleScope(type) {
-    const def2 = getNgModuleDefOrThrow(type);
+  computeNgModuleScope(type2) {
+    const def2 = getNgModuleDefOrThrow(type2);
     const scope = {
       exported: {
         directives: /* @__PURE__ */ new Set(),
@@ -12859,18 +12859,18 @@ var DepsTracker = class {
     }
     return scope;
   }
-  getStandaloneComponentScope(type, rawImports) {
-    if (this.standaloneComponentsScopeCache.has(type)) {
-      return this.standaloneComponentsScopeCache.get(type);
+  getStandaloneComponentScope(type2, rawImports) {
+    if (this.standaloneComponentsScopeCache.has(type2)) {
+      return this.standaloneComponentsScopeCache.get(type2);
     }
-    const ans = this.computeStandaloneComponentScope(type, rawImports);
-    this.standaloneComponentsScopeCache.set(type, ans);
+    const ans = this.computeStandaloneComponentScope(type2, rawImports);
+    this.standaloneComponentsScopeCache.set(type2, ans);
     return ans;
   }
-  computeStandaloneComponentScope(type, rawImports) {
+  computeStandaloneComponentScope(type2, rawImports) {
     const ans = {
       compilation: {
-        directives: /* @__PURE__ */ new Set([type]),
+        directives: /* @__PURE__ */ new Set([type2]),
         pipes: /* @__PURE__ */ new Set(),
         ngModules: /* @__PURE__ */ new Set()
       }
@@ -12878,7 +12878,7 @@ var DepsTracker = class {
     for (const rawImport of flatten(rawImports ?? [])) {
       const imported = resolveForwardRef(rawImport);
       try {
-        verifyStandaloneImport(imported, type);
+        verifyStandaloneImport(imported, type2);
       } catch (e) {
         ans.compilation.isPoisoned = true;
         return ans;
@@ -13709,12 +13709,12 @@ function assertNoDuplicateDirectives(directives) {
     seenDirectives.add(current);
   }
 }
-function directiveHostFirstCreatePass(index, lView, type, name, directiveMatcher, bindingsEnabled, attrsIndex, localRefsIndex) {
+function directiveHostFirstCreatePass(index, lView, type2, name, directiveMatcher, bindingsEnabled, attrsIndex, localRefsIndex) {
   const tView = lView[TVIEW];
   ngDevMode && assertFirstCreatePass(tView);
   const tViewConsts = tView.consts;
   const attrs = getConstant(tViewConsts, attrsIndex);
-  const tNode = getOrCreateTNode(tView, index, type, name, attrs);
+  const tNode = getOrCreateTNode(tView, index, type2, name, attrs);
   if (bindingsEnabled) {
     resolveDirectives(tView, lView, tNode, getConstant(tViewConsts, localRefsIndex), directiveMatcher);
   }
@@ -13737,11 +13737,11 @@ function directiveHostEndFirstCreatePass(tView, tNode) {
     tView.queries.elementEnd(tNode);
   }
 }
-function domOnlyFirstCreatePass(index, tView, type, name, attrsIndex, localRefsIndex) {
+function domOnlyFirstCreatePass(index, tView, type2, name, attrsIndex, localRefsIndex) {
   ngDevMode && assertFirstCreatePass(tView);
   const tViewConsts = tView.consts;
   const attrs = getConstant(tViewConsts, attrsIndex);
-  const tNode = getOrCreateTNode(tView, index, type, name, attrs);
+  const tNode = getOrCreateTNode(tView, index, type2, name, attrs);
   tNode.mergedAttrs = mergeHostAttrs(tNode.mergedAttrs, tNode.attrs);
   if (localRefsIndex != null) {
     const refs = getConstant(tViewConsts, localRefsIndex);
@@ -14830,8 +14830,8 @@ function \u0275\u0275defineComponent(componentDefinition) {
     return def2;
   });
 }
-function extractDirectiveDef(type) {
-  return getComponentDef(type) || getDirectiveDef(type);
+function extractDirectiveDef(type2) {
+  return getComponentDef(type2) || getDirectiveDef(type2);
 }
 function \u0275\u0275defineNgModule(def2) {
   return noSideEffects(() => {
@@ -14978,9 +14978,9 @@ function getComponentId(componentDef) {
   }
   return compId;
 }
-function setClassMetadata(type, decorators, ctorParameters, propDecorators) {
+function setClassMetadata(type2, decorators, ctorParameters, propDecorators) {
   return noSideEffects(() => {
-    const clazz = type;
+    const clazz = type2;
     if (decorators !== null) {
       if (clazz.hasOwnProperty("decorators") && clazz.decorators !== void 0) {
         clazz.decorators.push(...decorators);
@@ -15087,7 +15087,7 @@ async function resolveComponentResources(resourceResolver) {
     urlCache.set(url, promise);
     return promise;
   }
-  const resolutionPromises = Array.from(currentQueue).map(async ([type, component]) => {
+  const resolutionPromises = Array.from(currentQueue).map(async ([type2, component]) => {
     var _a11;
     if (component.styleUrl && ((_a11 = component.styleUrls) == null ? void 0 : _a11.length)) {
       throw new Error("@Component cannot define both `styleUrl` and `styleUrls`. Use `styleUrl` if the component has one stylesheet, or `styleUrls` if it has multiple");
@@ -15116,14 +15116,14 @@ async function resolveComponentResources(resourceResolver) {
       componentTasks.push(allFetched);
     }
     await Promise.all(componentTasks);
-    componentDefPendingResolution.delete(type);
+    componentDefPendingResolution.delete(type2);
   });
   await Promise.all(resolutionPromises);
 }
-function maybeQueueResolutionOfComponentResources(type, metadata2) {
+function maybeQueueResolutionOfComponentResources(type2, metadata2) {
   if (componentNeedsResolution(metadata2)) {
-    componentResourceResolutionQueue.set(type, metadata2);
-    componentDefPendingResolution.add(type);
+    componentResourceResolutionQueue.set(type2, metadata2);
+    componentDefPendingResolution.add(type2);
   }
 }
 function componentNeedsResolution(component) {
@@ -15144,9 +15144,9 @@ async function unwrapResponse(url, response) {
 }
 var modules = /* @__PURE__ */ new Map();
 var checkForDuplicateNgModules = true;
-function assertSameOrNotExisting(id, type, incoming) {
-  if (type && type !== incoming && checkForDuplicateNgModules) {
-    throw new RuntimeError(921, ngDevMode && `Duplicate module registered for ${id} - ${stringify(type)} vs ${stringify(type.name)}`);
+function assertSameOrNotExisting(id, type2, incoming) {
+  if (type2 && type2 !== incoming && checkForDuplicateNgModules) {
+    throw new RuntimeError(921, ngDevMode && `Duplicate module registered for ${id} - ${stringify(type2)} vs ${stringify(type2.name)}`);
   }
 }
 function registerNgModuleType(ngModuleType, id) {
@@ -15286,12 +15286,12 @@ function patchDeclaredInputs(declaredInputs, exposedInputs) {
   }
 }
 function validateHostDirective(hostDirectiveConfig, directiveDef) {
-  const type = hostDirectiveConfig.directive;
+  const type2 = hostDirectiveConfig.directive;
   if (directiveDef === null) {
-    if (getComponentDef(type) !== null) {
-      throw new RuntimeError(310, `Host directive ${type.name} cannot be a component.`);
+    if (getComponentDef(type2) !== null) {
+      throw new RuntimeError(310, `Host directive ${type2.name} cannot be a component.`);
     }
-    throw new RuntimeError(307, `Could not resolve metadata for host directive ${type.name}. Make sure that the ${type.name} class is annotated with an @Directive decorator.`);
+    throw new RuntimeError(307, `Could not resolve metadata for host directive ${type2.name}. Make sure that the ${type2.name} class is annotated with an @Directive decorator.`);
   }
   if (!directiveDef.standalone) {
     throw new RuntimeError(308, `Host directive ${directiveDef.type.name} must be standalone.`);
@@ -15314,8 +15314,8 @@ function validateMappings(bindingType, def2, hostDirectiveBindings) {
     }
   }
 }
-function getSuperType(type) {
-  return Object.getPrototypeOf(type.prototype).constructor;
+function getSuperType(type2) {
+  return Object.getPrototypeOf(type2.prototype).constructor;
 }
 function \u0275\u0275InheritDefinitionFeature(definition) {
   let superType = getSuperType(definition.type);
@@ -15553,15 +15553,15 @@ var DeferBlockBehavior;
   DeferBlockBehavior2[DeferBlockBehavior2["Manual"] = 0] = "Manual";
   DeferBlockBehavior2[DeferBlockBehavior2["Playthrough"] = 1] = "Playthrough";
 })(DeferBlockBehavior || (DeferBlockBehavior = {}));
-function storeTriggerCleanupFn(type, lDetails, cleanupFn) {
-  const key = getCleanupFnKeyByType(type);
+function storeTriggerCleanupFn(type2, lDetails, cleanupFn) {
+  const key = getCleanupFnKeyByType(type2);
   if (lDetails[key] === null) {
     lDetails[key] = [];
   }
   lDetails[key].push(cleanupFn);
 }
-function invokeTriggerCleanupFns(type, lDetails) {
-  const key = getCleanupFnKeyByType(type);
+function invokeTriggerCleanupFns(type2, lDetails) {
+  const key = getCleanupFnKeyByType(type2);
   const cleanupFns = lDetails[key];
   if (cleanupFns !== null) {
     for (const cleanupFn of cleanupFns) {
@@ -15575,11 +15575,11 @@ function invokeAllTriggerCleanupFns(lDetails) {
   invokeTriggerCleanupFns(0, lDetails);
   invokeTriggerCleanupFns(2, lDetails);
 }
-function getCleanupFnKeyByType(type) {
+function getCleanupFnKeyByType(type2) {
   let key = TRIGGER_CLEANUP_FNS;
-  if (type === 1) {
+  if (type2 === 1) {
     key = PREFETCH_TRIGGER_CLEANUP_FNS;
-  } else if (type === 2) {
+  } else if (type2 === 2) {
     key = HYDRATE_TRIGGER_CLEANUP_FNS;
   }
   return key;
@@ -16027,8 +16027,8 @@ function getTriggerElement(triggerLView, triggerIndex) {
   ngDevMode && assertElement(element);
   return element;
 }
-function registerDomTrigger(initialLView, tNode, triggerIndex, walkUpTimes, registerFn, callback, type, options2) {
-  if (!shouldTriggerDeferBlock(type, initialLView)) {
+function registerDomTrigger(initialLView, tNode, triggerIndex, walkUpTimes, registerFn, callback, type2, options2) {
+  if (!shouldTriggerDeferBlock(type2, initialLView)) {
     return;
   }
   const injector = initialLView[INJECTOR];
@@ -16065,7 +16065,7 @@ function registerDomTrigger(initialLView, tNode, triggerIndex, walkUpTimes, regi
     if (initialLView !== triggerLView) {
       storeLViewOnDestroy(triggerLView, cleanup);
     }
-    storeTriggerCleanupFn(type, lDetails, cleanup);
+    storeTriggerCleanupFn(type2, lDetails, cleanup);
   }
   poll = afterEveryRender({
     read: pollDomTrigger
@@ -16119,17 +16119,17 @@ function setupFrameworkInjectorProfiler() {
 function injectorProfilerEventHandler(injectorProfilerEvent) {
   const {
     context: context2,
-    type
+    type: type2
   } = injectorProfilerEvent;
-  if (type === 0) {
+  if (type2 === 0) {
     handleInjectEvent(context2, injectorProfilerEvent.service);
-  } else if (type === 1) {
+  } else if (type2 === 1) {
     handleInstanceCreatedByInjectorEvent(context2, injectorProfilerEvent.instance);
-  } else if (type === 2) {
+  } else if (type2 === 2) {
     handleProviderConfiguredEvent(context2, injectorProfilerEvent.providerRecord);
-  } else if (type === 3) {
+  } else if (type2 === 3) {
     handleEffectCreatedEvent(context2, injectorProfilerEvent.effect);
-  } else if (type === 4) {
+  } else if (type2 === 4) {
     handleEffectCreatedEvent(context2, injectorProfilerEvent.effectPhase);
   }
 }
@@ -20073,8 +20073,8 @@ function i18nStartFirstCreatePass(tView, parentTNodeIndex, lView, index, message
       }
     } else {
       const isClosing = value.charCodeAt(0) === 47;
-      const type = value.charCodeAt(isClosing ? 1 : 0);
-      ngDevMode && assertOneOf(type, 42, 35);
+      const type2 = value.charCodeAt(isClosing ? 1 : 0);
+      ngDevMode && assertOneOf(type2, 42, 35);
       const index2 = HEADER_OFFSET + Number.parseInt(value.substring(isClosing ? 2 : 1));
       if (isClosing) {
         existingTNodeStack.shift();
@@ -20088,7 +20088,7 @@ function i18nStartFirstCreatePass(tView, parentTNodeIndex, lView, index, message
           kind: 2,
           index: index2,
           children: [],
-          type: type === 35 ? 0 : 1
+          type: type2 === 35 ? 0 : 1
         };
         astStack[0].push(placeholderNode);
         astStack.unshift(placeholderNode.children);
@@ -20278,8 +20278,8 @@ function parseICUBlock(pattern) {
   const values = [];
   let icuType = 1;
   let mainBinding = 0;
-  pattern = pattern.replace(ICU_BLOCK_REGEXP, function(str, binding, type) {
-    if (type === "select") {
+  pattern = pattern.replace(ICU_BLOCK_REGEXP, function(str, binding, type2) {
+    if (type2 === "select") {
       icuType = 0;
     } else {
       icuType = 1;
@@ -21814,21 +21814,21 @@ function \u0275\u0275ExternalStylesFeature(styleUrls) {
     };
   };
 }
-function \u0275\u0275setComponentScope(type, directives, pipes) {
-  const def2 = type.\u0275cmp;
+function \u0275\u0275setComponentScope(type2, directives, pipes) {
+  const def2 = type2.\u0275cmp;
   def2.directiveDefs = extractDefListOrFactory(directives, extractDirectiveDef);
   def2.pipeDefs = extractDefListOrFactory(pipes, getPipeDef);
 }
-function \u0275\u0275setNgModuleScope(type, scope) {
+function \u0275\u0275setNgModuleScope(type2, scope) {
   return noSideEffects(() => {
-    const ngModuleDef = getNgModuleDefOrThrow(type);
+    const ngModuleDef = getNgModuleDefOrThrow(type2);
     ngModuleDef.declarations = convertToTypeArray(scope.declarations || EMPTY_ARRAY);
     ngModuleDef.imports = convertToTypeArray(scope.imports || EMPTY_ARRAY);
     ngModuleDef.exports = convertToTypeArray(scope.exports || EMPTY_ARRAY);
     if (scope.bootstrap) {
       ngModuleDef.bootstrap = convertToTypeArray(scope.bootstrap);
     }
-    depsTracker.registerNgModule(type, scope);
+    depsTracker.registerNgModule(type2, scope);
   });
 }
 function convertToTypeArray(values) {
@@ -22046,18 +22046,18 @@ function isPure(lView, index) {
 function \u0275\u0275templateRefExtractor(tNode, lView) {
   return createTemplateRef(tNode, lView);
 }
-function \u0275\u0275getComponentDepsFactory(type, rawImports) {
+function \u0275\u0275getComponentDepsFactory(type2, rawImports) {
   return () => {
     try {
-      return depsTracker.getComponentDependencies(type, rawImports).dependencies;
+      return depsTracker.getComponentDependencies(type2, rawImports).dependencies;
     } catch (e) {
-      console.error(`Computing dependencies in local compilation mode for the component "${type.name}" failed with the exception:`, e);
+      console.error(`Computing dependencies in local compilation mode for the component "${type2.name}" failed with the exception:`, e);
       throw e;
     }
   };
 }
-function \u0275setClassDebugInfo(type, debugInfo) {
-  const def2 = getComponentDef(type);
+function \u0275setClassDebugInfo(type2, debugInfo) {
+  const def2 = getComponentDef(type2);
   if (def2 !== null) {
     def2.debugInfo = debugInfo;
   }
@@ -22066,15 +22066,15 @@ function \u0275\u0275getReplaceMetadataURL(id, timestamp, base) {
   const url = `./@ng/component?c=${id}&t=${encodeURIComponent(timestamp)}`;
   return new URL(url, base).href;
 }
-function \u0275\u0275replaceMetadata(type, applyMetadata, namespaces, locals, importMeta = null, id = null) {
-  ngDevMode && assertComponentDef(type);
-  const currentDef = getComponentDef(type);
-  applyMetadata.apply(null, [type, namespaces, ...locals]);
+function \u0275\u0275replaceMetadata(type2, applyMetadata, namespaces, locals, importMeta = null, id = null) {
+  ngDevMode && assertComponentDef(type2);
+  const currentDef = getComponentDef(type2);
+  applyMetadata.apply(null, [type2, namespaces, ...locals]);
   const {
     newDef,
     oldDef
-  } = mergeWithExistingDefinition(currentDef, getComponentDef(type));
-  type[NG_COMP_DEF] = newDef;
+  } = mergeWithExistingDefinition(currentDef, getComponentDef(type2));
+  type2[NG_COMP_DEF] = newDef;
   if (oldDef.tView) {
     const trackedViews = getTrackedLViews().values();
     for (const root of trackedViews) {
@@ -22518,9 +22518,9 @@ function compileNgModuleDefs(moduleType, ngModule, allowDuplicateDeclarationsInR
     configurable: !!ngDevMode
   });
 }
-function generateStandaloneInDeclarationsError(type, location2) {
-  const prefix = `Unexpected "${stringifyForError(type)}" found in the "declarations" array of the`;
-  const suffix = `"${stringifyForError(type)}" is marked as standalone and can't be declared in any NgModule - did you intend to import it instead (by adding it to the "imports" array)?`;
+function generateStandaloneInDeclarationsError(type2, location2) {
+  const prefix = `Unexpected "${stringifyForError(type2)}" found in the "declarations" array of the`;
+  const suffix = `"${stringifyForError(type2)}" is marked as standalone and can't be declared in any NgModule - did you intend to import it instead (by adding it to the "imports" array)?`;
   return `${prefix} ${location2}, ${suffix}`;
 }
 function verifySemanticsOfNgModuleDef(moduleType, allowDuplicateDeclarationsInRoot, importingModule) {
@@ -22563,74 +22563,74 @@ function verifySemanticsOfNgModuleDef(moduleType, allowDuplicateDeclarationsInRo
   if (errors.length) {
     throw new Error(errors.join("\n"));
   }
-  function verifyDeclarationsHaveDefinitions(type) {
-    type = resolveForwardRef(type);
-    const def2 = getComponentDef(type) || getDirectiveDef(type) || getPipeDef(type);
+  function verifyDeclarationsHaveDefinitions(type2) {
+    type2 = resolveForwardRef(type2);
+    const def2 = getComponentDef(type2) || getDirectiveDef(type2) || getPipeDef(type2);
     if (!def2) {
-      errors.push(`Unexpected value '${stringifyForError(type)}' declared by the module '${stringifyForError(moduleType)}'. Please add a @Pipe/@Directive/@Component annotation.`);
+      errors.push(`Unexpected value '${stringifyForError(type2)}' declared by the module '${stringifyForError(moduleType)}'. Please add a @Pipe/@Directive/@Component annotation.`);
     }
   }
-  function verifyDirectivesHaveSelector(type) {
-    type = resolveForwardRef(type);
-    const def2 = getDirectiveDef(type);
-    if (!getComponentDef(type) && def2 && def2.selectors.length == 0) {
-      errors.push(`Directive ${stringifyForError(type)} has no selector, please add it!`);
+  function verifyDirectivesHaveSelector(type2) {
+    type2 = resolveForwardRef(type2);
+    const def2 = getDirectiveDef(type2);
+    if (!getComponentDef(type2) && def2 && def2.selectors.length == 0) {
+      errors.push(`Directive ${stringifyForError(type2)} has no selector, please add it!`);
     }
   }
-  function verifyNotStandalone(type, moduleType2) {
-    type = resolveForwardRef(type);
-    const def2 = getComponentDef(type) || getDirectiveDef(type) || getPipeDef(type);
+  function verifyNotStandalone(type2, moduleType2) {
+    type2 = resolveForwardRef(type2);
+    const def2 = getComponentDef(type2) || getDirectiveDef(type2) || getPipeDef(type2);
     if (def2 == null ? void 0 : def2.standalone) {
       const location2 = `"${stringifyForError(moduleType2)}" NgModule`;
-      errors.push(generateStandaloneInDeclarationsError(type, location2));
+      errors.push(generateStandaloneInDeclarationsError(type2, location2));
     }
   }
-  function verifyExportsAreDeclaredOrReExported(type) {
-    type = resolveForwardRef(type);
-    const kind = getComponentDef(type) && "component" || getDirectiveDef(type) && "directive" || getPipeDef(type) && "pipe";
+  function verifyExportsAreDeclaredOrReExported(type2) {
+    type2 = resolveForwardRef(type2);
+    const kind = getComponentDef(type2) && "component" || getDirectiveDef(type2) && "directive" || getPipeDef(type2) && "pipe";
     if (kind) {
-      if (combinedDeclarations.lastIndexOf(type) === -1) {
-        errors.push(`Can't export ${kind} ${stringifyForError(type)} from ${stringifyForError(moduleType)} as it was neither declared nor imported!`);
+      if (combinedDeclarations.lastIndexOf(type2) === -1) {
+        errors.push(`Can't export ${kind} ${stringifyForError(type2)} from ${stringifyForError(moduleType)} as it was neither declared nor imported!`);
       }
     }
   }
-  function verifyDeclarationIsUnique(type, suppressErrors) {
-    type = resolveForwardRef(type);
-    const existingModule = ownerNgModule.get(type);
+  function verifyDeclarationIsUnique(type2, suppressErrors) {
+    type2 = resolveForwardRef(type2);
+    const existingModule = ownerNgModule.get(type2);
     if (existingModule && existingModule !== moduleType) {
       if (!suppressErrors) {
         const modules2 = [existingModule, moduleType].map(stringifyForError).sort();
-        errors.push(`Type ${stringifyForError(type)} is part of the declarations of 2 modules: ${modules2[0]} and ${modules2[1]}! Please consider moving ${stringifyForError(type)} to a higher module that imports ${modules2[0]} and ${modules2[1]}. You can also create a new NgModule that exports and includes ${stringifyForError(type)} then import that NgModule in ${modules2[0]} and ${modules2[1]}.`);
+        errors.push(`Type ${stringifyForError(type2)} is part of the declarations of 2 modules: ${modules2[0]} and ${modules2[1]}! Please consider moving ${stringifyForError(type2)} to a higher module that imports ${modules2[0]} and ${modules2[1]}. You can also create a new NgModule that exports and includes ${stringifyForError(type2)} then import that NgModule in ${modules2[0]} and ${modules2[1]}.`);
       }
     } else {
-      ownerNgModule.set(type, moduleType);
+      ownerNgModule.set(type2, moduleType);
     }
   }
-  function verifyComponentIsPartOfNgModule(type) {
-    type = resolveForwardRef(type);
-    const existingModule = ownerNgModule.get(type);
-    if (!existingModule && !isStandalone(type)) {
-      errors.push(`Component ${stringifyForError(type)} is not part of any NgModule or the module has not been imported into your module.`);
+  function verifyComponentIsPartOfNgModule(type2) {
+    type2 = resolveForwardRef(type2);
+    const existingModule = ownerNgModule.get(type2);
+    if (!existingModule && !isStandalone(type2)) {
+      errors.push(`Component ${stringifyForError(type2)} is not part of any NgModule or the module has not been imported into your module.`);
     }
   }
-  function verifyCorrectBootstrapType(type) {
-    type = resolveForwardRef(type);
-    if (!getComponentDef(type)) {
-      errors.push(`${stringifyForError(type)} cannot be used as an entry component.`);
+  function verifyCorrectBootstrapType(type2) {
+    type2 = resolveForwardRef(type2);
+    if (!getComponentDef(type2)) {
+      errors.push(`${stringifyForError(type2)} cannot be used as an entry component.`);
     }
-    if (isStandalone(type)) {
-      errors.push(`The \`${stringifyForError(type)}\` class is a standalone component, which can not be used in the \`@NgModule.bootstrap\` array. Use the \`bootstrapApplication\` function for bootstrap instead.`);
+    if (isStandalone(type2)) {
+      errors.push(`The \`${stringifyForError(type2)}\` class is a standalone component, which can not be used in the \`@NgModule.bootstrap\` array. Use the \`bootstrapApplication\` function for bootstrap instead.`);
     }
   }
-  function verifySemanticsOfNgModuleImport(type, importingModule2) {
-    type = resolveForwardRef(type);
-    const directiveDef = getComponentDef(type) || getDirectiveDef(type);
+  function verifySemanticsOfNgModuleImport(type2, importingModule2) {
+    type2 = resolveForwardRef(type2);
+    const directiveDef = getComponentDef(type2) || getDirectiveDef(type2);
     if (directiveDef !== null && !directiveDef.standalone) {
-      throw new Error(`Unexpected directive '${type.name}' imported by the module '${importingModule2.name}'. Please add an @NgModule annotation.`);
+      throw new Error(`Unexpected directive '${type2.name}' imported by the module '${importingModule2.name}'. Please add an @NgModule annotation.`);
     }
-    const pipeDef = getPipeDef(type);
+    const pipeDef = getPipeDef(type2);
     if (pipeDef !== null && !pipeDef.standalone) {
-      throw new Error(`Unexpected pipe '${type.name}' imported by the module '${importingModule2.name}'. Please add an @NgModule annotation.`);
+      throw new Error(`Unexpected pipe '${type2.name}' imported by the module '${importingModule2.name}'. Please add an @NgModule annotation.`);
     }
   }
 }
@@ -22638,10 +22638,10 @@ function unwrapModuleWithProvidersImports(typeOrWithProviders) {
   typeOrWithProviders = resolveForwardRef(typeOrWithProviders);
   return typeOrWithProviders.ngModule || typeOrWithProviders;
 }
-function getAnnotation(type, name) {
+function getAnnotation(type2, name) {
   let annotation = null;
-  collect(type.__annotations__);
-  collect(type.decorators);
+  collect(type2.__annotations__);
+  collect(type2.decorators);
   return annotation;
   function collect(annotations) {
     if (annotations) {
@@ -22664,19 +22664,19 @@ function getAnnotation(type, name) {
 }
 var ownerNgModule = /* @__PURE__ */ new WeakMap();
 var verifiedNgModule = /* @__PURE__ */ new WeakMap();
-function computeCombinedExports(type) {
-  type = resolveForwardRef(type);
-  const ngModuleDef = getNgModuleDef(type);
+function computeCombinedExports(type2) {
+  type2 = resolveForwardRef(type2);
+  const ngModuleDef = getNgModuleDef(type2);
   if (ngModuleDef === null) {
-    return [type];
+    return [type2];
   }
-  return flatten(maybeUnwrapFn(ngModuleDef.exports).map((type2) => {
-    const ngModuleDef2 = getNgModuleDef(type2);
+  return flatten(maybeUnwrapFn(ngModuleDef.exports).map((type3) => {
+    const ngModuleDef2 = getNgModuleDef(type3);
     if (ngModuleDef2) {
-      verifySemanticsOfNgModuleDef(type2, false);
-      return computeCombinedExports(type2);
+      verifySemanticsOfNgModuleDef(type3, false);
+      return computeCombinedExports(type3);
     } else {
-      return type2;
+      return type3;
     }
   }));
 }
@@ -22700,15 +22700,15 @@ function patchComponentDefWithScope(componentDef, transitiveScopes) {
   componentDef.schemas = transitiveScopes.schemas;
   componentDef.tView = null;
 }
-function transitiveScopesFor(type) {
-  if (isNgModule(type)) {
-    const scope = depsTracker.getNgModuleScope(type);
-    const def2 = getNgModuleDefOrThrow(type);
+function transitiveScopesFor(type2) {
+  if (isNgModule(type2)) {
+    const scope = depsTracker.getNgModuleScope(type2);
+    const def2 = getNgModuleDefOrThrow(type2);
     return __spreadValues({
       schemas: def2.schemas || null
     }, scope);
-  } else if (isStandalone(type)) {
-    const directiveDef = getComponentDef(type) || getDirectiveDef(type);
+  } else if (isStandalone(type2)) {
+    const directiveDef = getComponentDef(type2) || getDirectiveDef(type2);
     if (directiveDef !== null) {
       return {
         schemas: null,
@@ -22717,12 +22717,12 @@ function transitiveScopesFor(type) {
           pipes: /* @__PURE__ */ new Set()
         },
         exported: {
-          directives: /* @__PURE__ */ new Set([type]),
+          directives: /* @__PURE__ */ new Set([type2]),
           pipes: /* @__PURE__ */ new Set()
         }
       };
     }
-    const pipeDef = getPipeDef(type);
+    const pipeDef = getPipeDef(type2);
     if (pipeDef !== null) {
       return {
         schemas: null,
@@ -22732,12 +22732,12 @@ function transitiveScopesFor(type) {
         },
         exported: {
           directives: /* @__PURE__ */ new Set(),
-          pipes: /* @__PURE__ */ new Set([type])
+          pipes: /* @__PURE__ */ new Set([type2])
         }
       };
     }
   }
-  throw new Error(`${type.name} does not have a module def (\u0275mod property)`);
+  throw new Error(`${type2.name} does not have a module def (\u0275mod property)`);
 }
 function expandModuleWithProviders(value) {
   if (isModuleWithProviders(value)) {
@@ -22746,21 +22746,21 @@ function expandModuleWithProviders(value) {
   return value;
 }
 var compilationDepth = 0;
-function compileComponent(type, metadata2) {
+function compileComponent(type2, metadata2) {
   (typeof ngDevMode === "undefined" || ngDevMode) && initNgDevMode();
   let ngComponentDef = null;
-  maybeQueueResolutionOfComponentResources(type, metadata2);
-  addDirectiveFactoryDef(type, metadata2);
-  Object.defineProperty(type, NG_COMP_DEF, {
+  maybeQueueResolutionOfComponentResources(type2, metadata2);
+  addDirectiveFactoryDef(type2, metadata2);
+  Object.defineProperty(type2, NG_COMP_DEF, {
     get: () => {
       if (ngComponentDef === null) {
         const compiler = getCompilerFacade({
           usage: 0,
           kind: "component",
-          type
+          type: type2
         });
         if (componentNeedsResolution(metadata2)) {
-          const error2 = [`Component '${type.name}' is not resolved:`];
+          const error2 = [`Component '${type2.name}' is not resolved:`];
           if (metadata2.templateUrl) {
             error2.push(` - templateUrl: ${metadata2.templateUrl}`);
           }
@@ -22790,10 +22790,10 @@ function compileComponent(type, metadata2) {
             encapsulation = ViewEncapsulation.Emulated;
           }
         }
-        const templateUrl = metadata2.templateUrl || `ng:///${type.name}/template.html`;
-        const baseMeta = directiveMetadata(type, metadata2);
+        const templateUrl = metadata2.templateUrl || `ng:///${type2.name}/template.html`;
+        const baseMeta = directiveMetadata(type2, metadata2);
         const meta = __spreadProps(__spreadValues({}, baseMeta), {
-          typeSourceSpan: compiler.createParseSourceSpan("Component", type.name, templateUrl),
+          typeSourceSpan: compiler.createParseSourceSpan("Component", type2.name, templateUrl),
           template: metadata2.template || "",
           preserveWhitespaces,
           styles: typeof metadata2.styles === "string" ? [metadata2.styles] : metadata2.styles || EMPTY_ARRAY,
@@ -22807,7 +22807,7 @@ function compileComponent(type, metadata2) {
         compilationDepth++;
         try {
           if (meta.usesInheritance) {
-            addDirectiveDefToUndecoratedParents(type);
+            addDirectiveDefToUndecoratedParents(type2);
           }
           ngComponentDef = compiler.compileComponent(angularCoreEnv, templateUrl, meta);
           if (meta.isStandalone) {
@@ -22815,7 +22815,7 @@ function compileComponent(type, metadata2) {
             const {
               directiveDefs,
               pipeDefs
-            } = getStandaloneDefFunctions(type, imports);
+            } = getStandaloneDefFunctions(type2, imports);
             ngComponentDef.directiveDefs = directiveDefs;
             ngComponentDef.pipeDefs = pipeDefs;
             ngComponentDef.dependencies = () => imports.map(resolveForwardRef);
@@ -22826,15 +22826,15 @@ function compileComponent(type, metadata2) {
         if (compilationDepth === 0) {
           flushModuleScopingQueueAsMuchAsPossible();
         }
-        if (hasSelectorScope(type)) {
-          const scopes = transitiveScopesFor(type.ngSelectorScope);
+        if (hasSelectorScope(type2)) {
+          const scopes = transitiveScopesFor(type2.ngSelectorScope);
           patchComponentDefWithScope(ngComponentDef, scopes);
         }
         if (metadata2.schemas) {
           if (meta.isStandalone) {
             ngComponentDef.schemas = metadata2.schemas;
           } else {
-            throw new Error(`The 'schemas' was specified for the ${stringifyForError(type)} but is only valid on a component that is standalone.`);
+            throw new Error(`The 'schemas' was specified for the ${stringifyForError(type2)} but is only valid on a component that is standalone.`);
           }
         } else if (meta.isStandalone) {
           ngComponentDef.schemas = [];
@@ -22848,29 +22848,29 @@ function compileComponent(type, metadata2) {
     configurable: !!ngDevMode
   });
 }
-function getStandaloneDefFunctions(type, imports) {
+function getStandaloneDefFunctions(type2, imports) {
   const directiveDefs = () => {
     if (ngDevMode) {
       for (const rawDep of imports) {
-        verifyStandaloneImport(rawDep, type);
+        verifyStandaloneImport(rawDep, type2);
       }
     }
-    if (!isComponent(type)) {
+    if (!isComponent(type2)) {
       return [];
     }
-    const scope = depsTracker.getStandaloneComponentScope(type, imports);
+    const scope = depsTracker.getStandaloneComponentScope(type2, imports);
     return [...scope.compilation.directives].map((p2) => getComponentDef(p2) || getDirectiveDef(p2)).filter((d) => d !== null);
   };
   const pipeDefs = () => {
     if (ngDevMode) {
       for (const rawDep of imports) {
-        verifyStandaloneImport(rawDep, type);
+        verifyStandaloneImport(rawDep, type2);
       }
     }
-    if (!isComponent(type)) {
+    if (!isComponent(type2)) {
       return [];
     }
-    const scope = depsTracker.getStandaloneComponentScope(type, imports);
+    const scope = depsTracker.getStandaloneComponentScope(type2, imports);
     return [...scope.compilation.pipes].map((p2) => getPipeDef(p2)).filter((d) => d !== null);
   };
   return {
@@ -22881,17 +22881,17 @@ function getStandaloneDefFunctions(type, imports) {
 function hasSelectorScope(component) {
   return component.ngSelectorScope !== void 0;
 }
-function compileDirective(type, directive) {
+function compileDirective(type2, directive) {
   let ngDirectiveDef = null;
-  addDirectiveFactoryDef(type, directive || {});
-  Object.defineProperty(type, NG_DIR_DEF, {
+  addDirectiveFactoryDef(type2, directive || {});
+  Object.defineProperty(type2, NG_DIR_DEF, {
     get: () => {
       if (ngDirectiveDef === null) {
-        const meta = getDirectiveMetadata(type, directive || {});
+        const meta = getDirectiveMetadata(type2, directive || {});
         const compiler = getCompilerFacade({
           usage: 0,
           kind: "directive",
-          type
+          type: type2
         });
         ngDirectiveDef = compiler.compileDirective(angularCoreEnv, meta.sourceMapUrl, meta.metadata);
       }
@@ -22900,40 +22900,40 @@ function compileDirective(type, directive) {
     configurable: !!ngDevMode
   });
 }
-function getDirectiveMetadata(type, metadata2) {
-  const name = type && type.name;
+function getDirectiveMetadata(type2, metadata2) {
+  const name = type2 && type2.name;
   const sourceMapUrl = `ng:///${name}/\u0275dir.js`;
   const compiler = getCompilerFacade({
     usage: 0,
     kind: "directive",
-    type
+    type: type2
   });
-  const facade = directiveMetadata(type, metadata2);
+  const facade = directiveMetadata(type2, metadata2);
   facade.typeSourceSpan = compiler.createParseSourceSpan("Directive", name, sourceMapUrl);
   if (facade.usesInheritance) {
-    addDirectiveDefToUndecoratedParents(type);
+    addDirectiveDefToUndecoratedParents(type2);
   }
   return {
     metadata: facade,
     sourceMapUrl
   };
 }
-function addDirectiveFactoryDef(type, metadata2) {
+function addDirectiveFactoryDef(type2, metadata2) {
   let ngFactoryDef = null;
-  Object.defineProperty(type, NG_FACTORY_DEF, {
+  Object.defineProperty(type2, NG_FACTORY_DEF, {
     get: () => {
       if (ngFactoryDef === null) {
-        const meta = getDirectiveMetadata(type, metadata2);
+        const meta = getDirectiveMetadata(type2, metadata2);
         const compiler = getCompilerFacade({
           usage: 0,
           kind: "directive",
-          type
+          type: type2
         });
-        ngFactoryDef = compiler.compileFactory(angularCoreEnv, `ng:///${type.name}/\u0275fac.js`, {
+        ngFactoryDef = compiler.compileFactory(angularCoreEnv, `ng:///${type2.name}/\u0275fac.js`, {
           name: meta.metadata.name,
           type: meta.metadata.type,
           typeArgumentCount: 0,
-          deps: reflectDependencies(type),
+          deps: reflectDependencies(type2),
           target: compiler.FactoryTarget.Directive
         });
       }
@@ -22942,34 +22942,34 @@ function addDirectiveFactoryDef(type, metadata2) {
     configurable: !!ngDevMode
   });
 }
-function extendsDirectlyFromObject(type) {
-  return Object.getPrototypeOf(type.prototype) === Object.prototype;
+function extendsDirectlyFromObject(type2) {
+  return Object.getPrototypeOf(type2.prototype) === Object.prototype;
 }
-function directiveMetadata(type, metadata2) {
+function directiveMetadata(type2, metadata2) {
   var _a11;
   const reflect = getReflect();
-  const propMetadata = reflect.ownPropMetadata(type);
+  const propMetadata = reflect.ownPropMetadata(type2);
   return {
-    name: type.name,
+    name: type2.name,
     legacyOptionalChaining: false,
-    type,
+    type: type2,
     selector: metadata2.selector !== void 0 ? metadata2.selector : null,
     host: metadata2.host || EMPTY_OBJ,
     propMetadata,
     inputs: metadata2.inputs || EMPTY_ARRAY,
     outputs: metadata2.outputs || EMPTY_ARRAY,
-    queries: extractQueriesMetadata(type, propMetadata, isContentQuery),
+    queries: extractQueriesMetadata(type2, propMetadata, isContentQuery),
     lifecycle: {
-      usesOnChanges: reflect.hasLifecycleHook(type, "ngOnChanges")
+      usesOnChanges: reflect.hasLifecycleHook(type2, "ngOnChanges")
     },
-    controlCreate: reflect.hasLifecycleHook(type, "\u0275ngControlCreate") ? {
+    controlCreate: reflect.hasLifecycleHook(type2, "\u0275ngControlCreate") ? {
       passThroughInput: null
     } : null,
     typeSourceSpan: null,
-    usesInheritance: !extendsDirectlyFromObject(type),
+    usesInheritance: !extendsDirectlyFromObject(type2),
     exportAs: extractExportAs(metadata2.exportAs),
     providers: metadata2.providers || null,
-    viewQueries: extractQueriesMetadata(type, propMetadata, isViewQuery),
+    viewQueries: extractQueriesMetadata(type2, propMetadata, isViewQuery),
     isStandalone: metadata2.standalone === void 0 ? true : !!metadata2.standalone,
     isSignal: !!metadata2.signals,
     hostDirectives: ((_a11 = metadata2.hostDirectives) == null ? void 0 : _a11.map((directive) => typeof directive === "function" ? {
@@ -22977,9 +22977,9 @@ function directiveMetadata(type, metadata2) {
     } : directive)) || null
   };
 }
-function addDirectiveDefToUndecoratedParents(type) {
+function addDirectiveDefToUndecoratedParents(type2) {
   const objPrototype = Object.prototype;
-  let parent = Object.getPrototypeOf(type.prototype).constructor;
+  let parent = Object.getPrototypeOf(type2.prototype).constructor;
   while (parent && parent !== objPrototype) {
     if (!getDirectiveDef(parent) && !getComponentDef(parent) && shouldAddAbstractDirective(parent)) {
       compileDirective(parent, null);
@@ -23002,7 +23002,7 @@ function convertToR3QueryMetadata(propertyName, ann) {
     isSignal: !!ann.isSignal
   };
 }
-function extractQueriesMetadata(type, propMetadata, isQueryAnn) {
+function extractQueriesMetadata(type2, propMetadata, isQueryAnn) {
   const signalQueriesMeta = [];
   const decoratorQueriesMeta = [];
   for (const field in propMetadata) {
@@ -23011,7 +23011,7 @@ function extractQueriesMetadata(type, propMetadata, isQueryAnn) {
       annotations.forEach((ann) => {
         if (isQueryAnn(ann)) {
           if (!ann.selector) {
-            throw new Error(`Can't construct a query for the property "${field}" of "${stringifyForError(type)}" since the query selector wasn't defined.`);
+            throw new Error(`Can't construct a query for the property "${field}" of "${stringifyForError(type2)}" since the query selector wasn't defined.`);
           }
           if (annotations.some(isInputAnnotation)) {
             throw new Error(`Cannot combine @Input decorators with query decorators`);
@@ -23046,12 +23046,12 @@ function splitByComma(value) {
   return value.split(",").map((piece) => piece.trim());
 }
 var LIFECYCLE_HOOKS = ["ngOnChanges", "ngOnInit", "ngOnDestroy", "ngDoCheck", "ngAfterViewInit", "ngAfterViewChecked", "ngAfterContentInit", "ngAfterContentChecked"];
-function shouldAddAbstractDirective(type) {
+function shouldAddAbstractDirective(type2) {
   const reflect = getReflect();
-  if (LIFECYCLE_HOOKS.some((hookName) => reflect.hasLifecycleHook(type, hookName))) {
+  if (LIFECYCLE_HOOKS.some((hookName) => reflect.hasLifecycleHook(type2, hookName))) {
     return true;
   }
-  const propMetadata = reflect.propMetadata(type);
+  const propMetadata = reflect.propMetadata(type2);
   for (const field in propMetadata) {
     const annotations = propMetadata[field];
     for (let i = 0; i < annotations.length; i++) {
@@ -23064,13 +23064,13 @@ function shouldAddAbstractDirective(type) {
   }
   return false;
 }
-function compilePipe(type, meta) {
+function compilePipe(type2, meta) {
   let ngPipeDef = null;
   let ngFactoryDef = null;
-  Object.defineProperty(type, NG_FACTORY_DEF, {
+  Object.defineProperty(type2, NG_FACTORY_DEF, {
     get: () => {
       if (ngFactoryDef === null) {
-        const metadata2 = getPipeMetadata(type, meta);
+        const metadata2 = getPipeMetadata(type2, meta);
         const compiler = getCompilerFacade({
           usage: 0,
           kind: "pipe",
@@ -23080,7 +23080,7 @@ function compilePipe(type, meta) {
           name: metadata2.name,
           type: metadata2.type,
           typeArgumentCount: 0,
-          deps: reflectDependencies(type),
+          deps: reflectDependencies(type2),
           target: compiler.FactoryTarget.Pipe
         });
       }
@@ -23088,10 +23088,10 @@ function compilePipe(type, meta) {
     },
     configurable: !!ngDevMode
   });
-  Object.defineProperty(type, NG_PIPE_DEF, {
+  Object.defineProperty(type2, NG_PIPE_DEF, {
     get: () => {
       if (ngPipeDef === null) {
-        const metadata2 = getPipeMetadata(type, meta);
+        const metadata2 = getPipeMetadata(type2, meta);
         const compiler = getCompilerFacade({
           usage: 0,
           kind: "pipe",
@@ -23104,22 +23104,22 @@ function compilePipe(type, meta) {
     configurable: !!ngDevMode
   });
 }
-function getPipeMetadata(type, meta) {
+function getPipeMetadata(type2, meta) {
   return {
-    type,
-    name: type.name,
+    type: type2,
+    name: type2.name,
     pipeName: meta.name,
     pure: meta.pure !== void 0 ? meta.pure : true,
     isStandalone: meta.standalone === void 0 ? true : !!meta.standalone
   };
 }
-var Directive = makeDecorator("Directive", (dir = {}) => dir, void 0, void 0, (type, meta) => compileDirective(type, meta));
+var Directive = makeDecorator("Directive", (dir = {}) => dir, void 0, void 0, (type2, meta) => compileDirective(type2, meta));
 var Component = makeDecorator("Component", (c2 = {}) => __spreadValues({
   changeDetection: ChangeDetectionStrategy.Eager
-}, c2), Directive, void 0, (type, meta) => compileComponent(type, meta));
+}, c2), Directive, void 0, (type2, meta) => compileComponent(type2, meta));
 var Pipe = makeDecorator("Pipe", (p2) => __spreadValues({
   pure: true
-}, p2), void 0, void 0, (type, meta) => compilePipe(type, meta));
+}, p2), void 0, void 0, (type2, meta) => compilePipe(type2, meta));
 var Input = makePropDecorator("Input", (arg) => {
   if (!arg) {
     return {};
@@ -23138,7 +23138,7 @@ var HostListener = makePropDecorator("HostListener", (eventName, args) => ({
   eventName,
   args
 }));
-var NgModule = makeDecorator("NgModule", (ngModule) => ngModule, void 0, void 0, (type, meta) => compileNgModule(type, meta));
+var NgModule = makeDecorator("NgModule", (ngModule) => ngModule, void 0, void 0, (type2, meta) => compileNgModule(type2, meta));
 var CONSECUTIVE_MICROTASK_NOTIFICATION_LIMIT = 100;
 var consecutiveMicrotaskNotifications = 0;
 var stackFromLastFewNotifications = [];
@@ -23365,7 +23365,7 @@ var Compiler = class _Compiler {
   }
   clearCache() {
   }
-  clearCacheFor(type) {
+  clearCacheFor(type2) {
   }
   getModuleId(moduleType) {
     return void 0;
@@ -24868,8 +24868,8 @@ var IterableDiffers = class _IterableDiffers {
     }
   }
 };
-function getTypeNameForDebugging(type) {
-  return type["name"] || typeof type;
+function getTypeNameForDebugging(type2) {
+  return type2["name"] || typeof type2;
 }
 function defaultKeyValueDiffersFactory() {
   return new KeyValueDiffers([new DefaultKeyValueDifferFactory()]);
@@ -26865,9 +26865,9 @@ function getLocaleNumberSymbol(locale, symbol) {
   }
   return res;
 }
-function getLocaleNumberFormat(locale, type) {
+function getLocaleNumberFormat(locale, type2) {
   const data = findLocaleData(locale);
-  return data[LocaleDataIndex.NumberFormats][type];
+  return data[LocaleDataIndex.NumberFormats][type2];
 }
 function getLocaleCurrencies(locale) {
   const data = findLocaleData(locale);
@@ -28221,8 +28221,8 @@ var NgForOf = class _NgForOf {
 function applyViewChange(view, record) {
   view.context.$implicit = record.item;
 }
-function getTypeName(type) {
-  return type["name"] || typeof type;
+function getTypeName(type2) {
+  return type2["name"] || typeof type2;
 }
 var NgIf = class _NgIf {
   _viewContainer;
@@ -28736,8 +28736,8 @@ var NgTemplateOutlet = class _NgTemplateOutlet {
   });
 })();
 var COMMON_DIRECTIVES = [NgClass, NgComponentOutlet, NgForOf, NgIf, NgTemplateOutlet, NgStyle, NgSwitch, NgSwitchCase, NgSwitchDefault, NgPlural, NgPluralCase];
-function invalidPipeArgumentError(type, value) {
-  return new RuntimeError(2100, ngDevMode && `InvalidPipeArgument: '${value}' for pipe '${stringify(type)}'`);
+function invalidPipeArgumentError(type2, value) {
+  return new RuntimeError(2100, ngDevMode && `InvalidPipeArgument: '${value}' for pipe '${stringify(type2)}'`);
 }
 function warnIfSignal(pipeName, value) {
   if (isSignal2(value)) {
@@ -31077,16 +31077,16 @@ var DomRendererFactory2 = class _DomRendererFactory2 {
     this.tracingService = tracingService;
     this.defaultRenderer = new DefaultDomRenderer2(eventManager, doc, ngZone, this.tracingService);
   }
-  createRenderer(element, type) {
-    if (!element || !type) {
+  createRenderer(element, type2) {
+    if (!element || !type2) {
       return this.defaultRenderer;
     }
     if (false) {
-      type = __spreadProps(__spreadValues({}, type), {
+      type2 = __spreadProps(__spreadValues({}, type2), {
         encapsulation: ViewEncapsulation.Emulated
       });
     }
-    const renderer = this.getOrCreateRenderer(element, type);
+    const renderer = this.getOrCreateRenderer(element, type2);
     if (renderer instanceof EmulatedEncapsulationDomRenderer2) {
       renderer.applyToHost(element);
     } else if (renderer instanceof NoneEncapsulationDomRenderer) {
@@ -31094,9 +31094,9 @@ var DomRendererFactory2 = class _DomRendererFactory2 {
     }
     return renderer;
   }
-  getOrCreateRenderer(element, type) {
+  getOrCreateRenderer(element, type2) {
     const rendererByCompId = this.rendererByCompId;
-    let renderer = rendererByCompId.get(type.id);
+    let renderer = rendererByCompId.get(type2.id);
     if (!renderer) {
       const doc = this.doc;
       const ngZone = this.ngZone;
@@ -31104,19 +31104,19 @@ var DomRendererFactory2 = class _DomRendererFactory2 {
       const sharedStylesHost = this.sharedStylesHost;
       const removeStylesOnCompDestroy = this.removeStylesOnCompDestroy;
       const tracingService = this.tracingService;
-      switch (type.encapsulation) {
+      switch (type2.encapsulation) {
         case ViewEncapsulation.Emulated:
-          renderer = new EmulatedEncapsulationDomRenderer2(eventManager, sharedStylesHost, type, this.appId, removeStylesOnCompDestroy, doc, ngZone, tracingService);
+          renderer = new EmulatedEncapsulationDomRenderer2(eventManager, sharedStylesHost, type2, this.appId, removeStylesOnCompDestroy, doc, ngZone, tracingService);
           break;
         case ViewEncapsulation.ShadowDom:
-          return new ShadowDomRenderer(eventManager, element, type, doc, ngZone, this.nonce, tracingService, sharedStylesHost);
+          return new ShadowDomRenderer(eventManager, element, type2, doc, ngZone, this.nonce, tracingService, sharedStylesHost);
         case ViewEncapsulation.ExperimentalIsolatedShadowDom:
-          return new ShadowDomRenderer(eventManager, element, type, doc, ngZone, this.nonce, tracingService);
+          return new ShadowDomRenderer(eventManager, element, type2, doc, ngZone, this.nonce, tracingService);
         default:
-          renderer = new NoneEncapsulationDomRenderer(eventManager, sharedStylesHost, type, removeStylesOnCompDestroy, doc, ngZone, tracingService);
+          renderer = new NoneEncapsulationDomRenderer(eventManager, sharedStylesHost, type2, removeStylesOnCompDestroy, doc, ngZone, tracingService);
           break;
       }
-      rendererByCompId.set(type.id, renderer);
+      rendererByCompId.set(type2.id, renderer);
     }
     return renderer;
   }
@@ -43553,8 +43553,8 @@ function elementAcceptsMinMax(element) {
   if (element.tagName !== "INPUT") {
     return false;
   }
-  const type = element.type;
-  return type === "number" || type === "range" || type === "date" || type === "month";
+  const type2 = element.type;
+  return type2 === "number" || type2 === "range" || type2 === "date" || type2 === "month";
 }
 function isTextualFormElement(element) {
   return element.tagName === "INPUT" || element.tagName === "TEXTAREA";
@@ -44232,11 +44232,11 @@ function removeListItem$1(list2, el2) {
   const index = list2.indexOf(el2);
   if (index > -1) list2.splice(index, 1);
 }
-function _ngModelWarning(name, type, instance, warningConfig) {
+function _ngModelWarning(name, type2, instance, warningConfig) {
   if (warningConfig === "never") return;
-  if ((warningConfig === null || warningConfig === "once") && !type._ngModelWarningSentOnce || warningConfig === "always" && !instance._ngModelWarningSent) {
+  if ((warningConfig === null || warningConfig === "once") && !type2._ngModelWarningSentOnce || warningConfig === "always" && !instance._ngModelWarningSent) {
     console.warn(ngModelWarning(name));
-    type._ngModelWarningSentOnce = true;
+    type2._ngModelWarningSentOnce = true;
     instance._ngModelWarningSent = true;
   }
 }
@@ -50437,9 +50437,6 @@ var APP = {
     REPORTS_NO_SHOWS_PERCENT: "% of No shows",
     REPORTS_TOTAL_ATTENDEES: "Total Room Attendees",
     REPORTS_ACTIVE_BOOKINGS_HEADER: "Active Bookings",
-    REPORTS_ALLOCATIONS: "Allocations",
-    REPORTS_REJECTED: "Rejected",
-    REPORTS_CANCELLED: "Cancelled",
     REPORTS_DAILY_HEADER: "Daily Utilisation",
     REPORTS_DAILY_EMPTY: "No bookings for the select date range",
     REPORTS_APPROVED: "Approved Bookings",
@@ -53697,12 +53694,12 @@ function setNotifyOutlet(snackbar, disable_logging = false) {
   _service2 = snackbar;
   _disable_logging = disable_logging;
 }
-function notify(type, message2, action = "OK", on_action, config2 = {}) {
+function notify(type2, message2, action = "OK", on_action, config2 = {}) {
   if (!_service2) {
     return !_disable_logging && console.warn("Snackbar service hasn't been initialised");
   }
   const snackbar_ref = _service2.open(message2, action, __spreadValues({
-    panelClass: [type],
+    panelClass: [type2],
     duration: 5e3
   }, config2));
   if (action) {
@@ -53821,7 +53818,7 @@ var _app_name = "APP";
 function setAppName(name) {
   _app_name = name;
 }
-function log(type, msg, args, stream = "debug", force = false, app_name = _app_name) {
+function log(type2, msg, args, stream = "debug", force = false, app_name = _app_name) {
   if (window.jest)
     return;
   if (window.debug || force) {
@@ -53831,9 +53828,9 @@ function log(type, msg, args, stream = "debug", force = false, app_name = _app_n
       "color: default"
     ];
     if (args) {
-      console[stream](`%c[${app_name}]%c[${type}] %c${msg}`, ...colors, args);
+      console[stream](`%c[${app_name}]%c[${type2}] %c${msg}`, ...colors, args);
     } else {
-      console[stream](`%c[${app_name}]%c[${type}] %c${msg}`, ...colors);
+      console[stream](`%c[${app_name}]%c[${type2}] %c${msg}`, ...colors);
     }
   }
 }
@@ -54722,12 +54719,12 @@ var _GoogleAnalyticsService = class _GoogleAnalyticsService {
       }, 100);
     }
   }
-  send(type, value) {
+  send(type2, value) {
     if (!this.service) {
       throw new Error("Google Analytics hasn't been installed on this page");
     }
     if (this.enabled) {
-      this.timeout(`end|${type}`, () => {
+      this.timeout(`end|${type2}`, () => {
         this.push(__spreadProps(__spreadValues({}, value), {
           event: "event"
         }));
@@ -55878,20 +55875,33 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "6a57422",
-  "hash": "6a57422",
+  "raw": "d394f5c",
+  "hash": "d394f5c",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "6a57422",
+  "suffix": "d394f5c",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1783528886665
+  "time": 1783578395955
 };
 
 // libs/common/src/lib/settings.service.ts
 var _service3;
 var _setting_signals = {};
+var DEBUG_OVERRIDES_KEY = "PLACEOS.setting_overrides";
+function loadDebugOverrides() {
+  try {
+    const overrides = JSON.parse(localStorage.getItem(DEBUG_OVERRIDES_KEY) || "{}");
+    for (const key in overrides) {
+      if (!key.startsWith("app."))
+        delete overrides[key];
+    }
+    return overrides;
+  } catch {
+    return {};
+  }
+}
 function setting(key) {
   return _service3 ? _service3.get(key) : void 0;
 }
@@ -55908,6 +55918,30 @@ var _SettingsService = class _SettingsService extends AsyncHandler {
    */
   setOverrides(value) {
     this._overrides.set(value);
+    this._refreshSettings();
+  }
+  /** Set a local debug override for an `app.*` setting. `undefined` clears the key. */
+  setDebugOverride(key, value) {
+    if (!key.startsWith("app."))
+      return;
+    const overrides = __spreadValues({}, this._debug_overrides());
+    if (value === void 0)
+      delete overrides[key];
+    else
+      overrides[key] = value;
+    this._debug_overrides.set(overrides);
+    if (Object.keys(overrides).length) {
+      localStorage.setItem(DEBUG_OVERRIDES_KEY, JSON.stringify(overrides));
+    } else
+      localStorage.removeItem(DEBUG_OVERRIDES_KEY);
+    this._refreshSettings();
+  }
+  clearDebugOverrides() {
+    this._debug_overrides.set({});
+    localStorage.removeItem(DEBUG_OVERRIDES_KEY);
+    this._refreshSettings();
+  }
+  _refreshSettings() {
     this._applyCssVariables();
     this._updateSignals();
     this._applyTheme();
@@ -55968,6 +56002,14 @@ var _SettingsService = class _SettingsService extends AsyncHandler {
         []
       )
     );
+    this._debug_overrides = signal(
+      loadDebugOverrides(),
+      ...ngDevMode ? [{ debugName: "_debug_overrides" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.debug_overrides = this._debug_overrides.asReadonly();
     this._subjects = {};
     this._pending_settings = {};
     this.theme_signal = computed(
@@ -56037,6 +56079,9 @@ var _SettingsService = class _SettingsService extends AsyncHandler {
    * @param key Name of the setting. i.e. nested items can be grabbed using `.` to seperate key names
    */
   get(key) {
+    const debug_overrides = this._debug_overrides();
+    if (key in debug_overrides)
+      return debug_overrides[key];
     const keys = key.split(".");
     if (keys[0] !== "app") {
       return getItemWithKeys(keys, this._pending_settings) ?? getItemWithKeys(keys, this._user_settings()) ?? getItemWithKeys(keys, DEFAULT_SETTINGS);
@@ -56740,17 +56785,17 @@ function issueAnimationCommand(renderer, element, id, command, args) {
   renderer.setProperty(element, `@@${id}:${command}`, args);
 }
 function unwrapAnimationRenderer(renderer) {
-  const type = renderer.\u0275type;
-  if (type === 0) {
+  const type2 = renderer.\u0275type;
+  if (type2 === 0) {
     return renderer;
-  } else if (type === 1) {
+  } else if (type2 === 1) {
     return renderer.animationRenderer;
   }
   return null;
 }
 function isAnimationRenderer(renderer) {
-  const type = renderer.\u0275type;
-  return type === 0 || type === 1;
+  const type2 = renderer.\u0275type;
+  return type2 === 0 || type2 === 1;
 }
 
 // libs/common/src/lib/api.ts
@@ -64723,8 +64768,8 @@ var RippleRenderer = class _RippleRenderer {
     }
     this._removeTriggerEvents();
     this._triggerElement = element;
-    pointerDownEvents.forEach((type) => {
-      _RippleRenderer._eventManager.addHandler(this._ngZone, type, element, this);
+    pointerDownEvents.forEach((type2) => {
+      _RippleRenderer._eventManager.addHandler(this._ngZone, type2, element, this);
     });
   }
   handleEvent(event) {
@@ -64737,8 +64782,8 @@ var RippleRenderer = class _RippleRenderer {
     }
     if (!this._pointerUpEventsRegistered) {
       this._ngZone.runOutsideAngular(() => {
-        pointerUpEvents.forEach((type) => {
-          this._triggerElement.addEventListener(type, this, passiveCapturingEventOptions);
+        pointerUpEvents.forEach((type2) => {
+          this._triggerElement.addEventListener(type2, this, passiveCapturingEventOptions);
         });
       });
       this._pointerUpEventsRegistered = true;
@@ -64818,9 +64863,9 @@ var RippleRenderer = class _RippleRenderer {
   _removeTriggerEvents() {
     const trigger2 = this._triggerElement;
     if (trigger2) {
-      pointerDownEvents.forEach((type) => _RippleRenderer._eventManager.removeHandler(type, trigger2, this));
+      pointerDownEvents.forEach((type2) => _RippleRenderer._eventManager.removeHandler(type2, trigger2, this));
       if (this._pointerUpEventsRegistered) {
-        pointerUpEvents.forEach((type) => trigger2.removeEventListener(type, this, passiveCapturingEventOptions));
+        pointerUpEvents.forEach((type2) => trigger2.removeEventListener(type2, this, passiveCapturingEventOptions));
         this._pointerUpEventsRegistered = false;
       }
     }
@@ -66606,25 +66651,25 @@ var NgswCommChannel = class {
       });
     });
   }
-  postMessageWithOperation(type, payload, operationNonce) {
+  postMessageWithOperation(type2, payload, operationNonce) {
     const waitForOperationCompleted = this.waitForOperationCompleted(operationNonce);
-    const postMessage = this.postMessage(type, payload);
+    const postMessage = this.postMessage(type2, payload);
     return Promise.all([postMessage, waitForOperationCompleted]).then(([, result]) => result);
   }
   generateNonce() {
     return Math.round(Math.random() * 1e7);
   }
-  eventsOfType(type) {
+  eventsOfType(type2) {
     let filterFn2;
-    if (typeof type === "string") {
-      filterFn2 = (event) => event.type === type;
+    if (typeof type2 === "string") {
+      filterFn2 = (event) => event.type === type2;
     } else {
-      filterFn2 = (event) => type.includes(event.type);
+      filterFn2 = (event) => type2.includes(event.type);
     }
     return this.events.pipe(filter(filterFn2));
   }
-  nextEventOfType(type) {
-    return this.eventsOfType(type).pipe(take(1));
+  nextEventOfType(type2) {
+    return this.eventsOfType(type2).pipe(take(1));
   }
   waitForOperationCompleted(nonce) {
     return new Promise((resolve, reject) => {
@@ -67118,22 +67163,22 @@ function getVueInternalName(value) {
 // node_modules/@sentry/core/build/esm/instrument/handlers.js
 var handlers = {};
 var instrumented = {};
-function addHandler(type, handler) {
-  handlers[type] = handlers[type] || [];
-  handlers[type].push(handler);
+function addHandler(type2, handler) {
+  handlers[type2] = handlers[type2] || [];
+  handlers[type2].push(handler);
 }
-function maybeInstrument(type, instrumentFn) {
-  if (!instrumented[type]) {
-    instrumented[type] = true;
+function maybeInstrument(type2, instrumentFn) {
+  if (!instrumented[type2]) {
+    instrumented[type2] = true;
     try {
       instrumentFn();
     } catch (e) {
-      DEBUG_BUILD && debug.error(`Error while instrumenting ${type}`, e);
+      DEBUG_BUILD && debug.error(`Error while instrumenting ${type2}`, e);
     }
   }
 }
-function triggerHandlers(type, data) {
-  const typeHandlers = type && handlers[type];
+function triggerHandlers(type2, data) {
+  const typeHandlers = type2 && handlers[type2];
   if (!typeHandlers) {
     return;
   }
@@ -67143,7 +67188,7 @@ function triggerHandlers(type, data) {
     } catch (e) {
       DEBUG_BUILD && debug.error(
         `Error while triggering instrumentation handler.
-Type: ${type}
+Type: ${type2}
 Name: ${getFunctionName(handler)}
 Error:`,
         e
@@ -67155,9 +67200,9 @@ Error:`,
 // node_modules/@sentry/core/build/esm/instrument/globalError.js
 var _oldOnErrorHandler = null;
 function addGlobalErrorInstrumentationHandler(handler) {
-  const type = "error";
-  addHandler(type, handler);
-  maybeInstrument(type, instrumentError);
+  const type2 = "error";
+  addHandler(type2, handler);
+  maybeInstrument(type2, instrumentError);
 }
 function instrumentError() {
   _oldOnErrorHandler = GLOBAL_OBJ.onerror;
@@ -67181,9 +67226,9 @@ function instrumentError() {
 // node_modules/@sentry/core/build/esm/instrument/globalUnhandledRejection.js
 var _oldOnUnhandledRejectionHandler = null;
 function addGlobalUnhandledRejectionInstrumentationHandler(handler) {
-  const type = "unhandledrejection";
-  addHandler(type, handler);
-  maybeInstrument(type, instrumentUnhandledRejection);
+  const type2 = "unhandledrejection";
+  addHandler(type2, handler);
+  maybeInstrument(type2, instrumentUnhandledRejection);
 }
 function instrumentUnhandledRejection() {
   _oldOnUnhandledRejectionHandler = GLOBAL_OBJ.onunhandledrejection;
@@ -67561,7 +67606,7 @@ function getEventDescription(event) {
   }
   return eventId || "<unknown>";
 }
-function addExceptionTypeValue(event, value, type) {
+function addExceptionTypeValue(event, value, type2) {
   const exception = event.exception = event.exception || {};
   const values = exception.values = exception.values || [];
   const firstException = values[0] = values[0] || {};
@@ -67569,7 +67614,7 @@ function addExceptionTypeValue(event, value, type) {
     firstException.value = value || "";
   }
   if (!firstException.type) {
-    firstException.type = type || "Error";
+    firstException.type = type2 || "Error";
   }
 }
 function addExceptionMechanism(event, newMechanism) {
@@ -69551,7 +69596,7 @@ function forEachEnvelopeItem(envelope, callback) {
   return false;
 }
 function envelopeContainsItemType(envelope, types) {
-  return forEachEnvelopeItem(envelope, (_2, type) => types.includes(type));
+  return forEachEnvelopeItem(envelope, (_2, type2) => types.includes(type2));
 }
 function encodeUTF8(input2) {
   const carrier = getSentryCarrier(GLOBAL_OBJ);
@@ -69628,11 +69673,11 @@ var DATA_CATEGORY_OVERRIDES = {
   log: "log_item",
   trace_metric: "metric"
 };
-function _isOverriddenType(type) {
-  return type in DATA_CATEGORY_OVERRIDES;
+function _isOverriddenType(type2) {
+  return type2 in DATA_CATEGORY_OVERRIDES;
 }
-function envelopeItemTypeToDataCategory(type) {
-  return _isOverriddenType(type) ? DATA_CATEGORY_OVERRIDES[type] : type;
+function envelopeItemTypeToDataCategory(type2) {
+  return _isOverriddenType(type2) ? DATA_CATEGORY_OVERRIDES[type2] : type2;
 }
 function getSdkMetadataForEnvelopeHeader(metadataOrEvent) {
   if (!(metadataOrEvent == null ? void 0 : metadataOrEvent.sdk)) {
@@ -69723,24 +69768,24 @@ function createSpanEnvelope(spans, client) {
 // node_modules/@sentry/core/build/esm/tracing/logSpans.js
 function logSpanStart(span) {
   if (!DEBUG_BUILD) return;
-  const { description = "< unknown name >", op = "< unknown op >", parent_span_id: parentSpanId } = spanToJSON(span);
+  const { description: description2 = "< unknown name >", op = "< unknown op >", parent_span_id: parentSpanId } = spanToJSON(span);
   const { spanId } = span.spanContext();
   const sampled = spanIsSampled(span);
   const rootSpan = getRootSpan(span);
   const isRootSpan = rootSpan === span;
   const header = `[Tracing] Starting ${sampled ? "sampled" : "unsampled"} ${isRootSpan ? "root " : ""}span`;
-  const infoParts = [`op: ${op}`, `name: ${description}`, `ID: ${spanId}`];
+  const infoParts = [`op: ${op}`, `name: ${description2}`, `ID: ${spanId}`];
   if (parentSpanId) {
     infoParts.push(`parent ID: ${parentSpanId}`);
   }
   if (!isRootSpan) {
-    const { op: op2, description: description2 } = spanToJSON(rootSpan);
+    const { op: op2, description: description3 } = spanToJSON(rootSpan);
     infoParts.push(`root ID: ${rootSpan.spanContext().spanId}`);
     if (op2) {
       infoParts.push(`root op: ${op2}`);
     }
-    if (description2) {
-      infoParts.push(`root description: ${description2}`);
+    if (description3) {
+      infoParts.push(`root description: ${description3}`);
     }
   }
   debug.log(`${header}
@@ -69748,11 +69793,11 @@ function logSpanStart(span) {
 }
 function logSpanEnd(span) {
   if (!DEBUG_BUILD) return;
-  const { description = "< unknown name >", op = "< unknown op >" } = spanToJSON(span);
+  const { description: description2 = "< unknown name >", op = "< unknown op >" } = spanToJSON(span);
   const { spanId } = span.spanContext();
   const rootSpan = getRootSpan(span);
   const isRootSpan = rootSpan === span;
-  const msg = `[Tracing] Finishing "${op}" ${isRootSpan ? "root " : ""}span "${description}" with ID ${spanId}`;
+  const msg = `[Tracing] Finishing "${op}" ${isRootSpan ? "root " : ""}span "${description2}" with ID ${spanId}`;
   debug.log(msg);
 }
 
@@ -71516,8 +71561,8 @@ function createTransport(options2, makeRequest, buffer = makePromiseBuffer(
   const flush2 = (timeout) => buffer.drain(timeout);
   function send(envelope) {
     const filteredEnvelopeItems = [];
-    forEachEnvelopeItem(envelope, (item, type) => {
-      const dataCategory = envelopeItemTypeToDataCategory(type);
+    forEachEnvelopeItem(envelope, (item, type2) => {
+      const dataCategory = envelopeItemTypeToDataCategory(type2);
       if (isRateLimited(rateLimits, dataCategory)) {
         options2.recordDroppedEvent("ratelimit_backoff", dataCategory);
       } else {
@@ -71533,8 +71578,8 @@ function createTransport(options2, makeRequest, buffer = makePromiseBuffer(
         DEBUG_BUILD && debug.warn(`Dropping client report. Will not send outcomes (reason: ${reason}).`);
         return;
       }
-      forEachEnvelopeItem(filteredEnvelope, (item, type) => {
-        options2.recordDroppedEvent(reason, envelopeItemTypeToDataCategory(type));
+      forEachEnvelopeItem(filteredEnvelope, (item, type2) => {
+        options2.recordDroppedEvent(reason, envelopeItemTypeToDataCategory(type2));
       });
     };
     const requestTask = () => makeRequest({ body: serializeEnvelope(filteredEnvelope) }).then(
@@ -72318,8 +72363,8 @@ Reason: ${reason}`
    * Creates an {@link Event} from all inputs to `captureException` and non-primitive inputs to `captureMessage`.
    */
 };
-function getDataCategoryByType(type) {
-  return type === "replay_event" ? "replay" : type || "error";
+function getDataCategoryByType(type2) {
+  return type2 === "replay_event" ? "replay" : type2 || "error";
 }
 function _validateBeforeSendResult(beforeSendResult, beforeSendLabel) {
   const invalidValueError = `${beforeSendLabel} must return \`null\` or a valid event.`;
@@ -72934,9 +72979,9 @@ function applyExceptionGroupFieldsForChildException(exception, source, exception
 
 // node_modules/@sentry/core/build/esm/instrument/console.js
 function addConsoleInstrumentationHandler(handler) {
-  const type = "console";
-  addHandler(type, handler);
-  maybeInstrument(type, instrumentConsole);
+  const type2 = "console";
+  addHandler(type2, handler);
+  maybeInstrument(type2, instrumentConsole);
 }
 function instrumentConsole() {
   if (!("console" in GLOBAL_OBJ)) {
@@ -73364,14 +73409,14 @@ function supportsNativeFetch() {
 
 // node_modules/@sentry/core/build/esm/instrument/fetch.js
 function addFetchInstrumentationHandler(handler, skipNativeFetchCheck) {
-  const type = "fetch";
-  addHandler(type, handler);
-  maybeInstrument(type, () => instrumentFetch(void 0, skipNativeFetchCheck));
+  const type2 = "fetch";
+  addHandler(type2, handler);
+  maybeInstrument(type2, () => instrumentFetch(void 0, skipNativeFetchCheck));
 }
 function addFetchEndInstrumentationHandler(handler) {
-  const type = "fetch-body-resolved";
-  addHandler(type, handler);
-  maybeInstrument(type, () => instrumentFetch(streamHandler));
+  const type2 = "fetch-body-resolved";
+  addHandler(type2, handler);
+  maybeInstrument(type2, () => instrumentFetch(streamHandler));
 }
 function instrumentFetch(onFetchResolved, skipNativeFetchCheck = false) {
   if (skipNativeFetchCheck && !supportsNativeFetch()) {
@@ -73997,14 +74042,14 @@ var getActivationStart = () => {
 };
 
 // node_modules/@sentry-internal/browser-utils/build/esm/metrics/web-vitals/lib/globalListeners.js
-function addPageListener(type, listener, options2) {
+function addPageListener(type2, listener, options2) {
   if (WINDOW4.document) {
-    WINDOW4.addEventListener(type, listener, options2);
+    WINDOW4.addEventListener(type2, listener, options2);
   }
 }
-function removePageListener(type, listener, options2) {
+function removePageListener(type2, listener, options2) {
   if (WINDOW4.document) {
-    WINDOW4.removeEventListener(type, listener, options2);
+    WINDOW4.removeEventListener(type2, listener, options2);
   }
 }
 
@@ -74130,15 +74175,15 @@ var LayoutShiftManager = class _LayoutShiftManager {
 };
 
 // node_modules/@sentry-internal/browser-utils/build/esm/metrics/web-vitals/lib/observe.js
-var observe = (type, callback, opts = {}) => {
+var observe = (type2, callback, opts = {}) => {
   try {
-    if (PerformanceObserver.supportedEntryTypes.includes(type)) {
+    if (PerformanceObserver.supportedEntryTypes.includes(type2)) {
       const po2 = new PerformanceObserver((list2) => {
         Promise.resolve().then(() => {
           callback(list2.getEntries());
         });
       });
-      po2.observe(__spreadValues({ type, buffered: true }, opts));
+      po2.observe(__spreadValues({ type: type2, buffered: true }, opts));
       return po2;
     }
   } catch {
@@ -74454,8 +74499,8 @@ var onLCP = (onReport, opts = {}) => {
           });
         }
       };
-      for (const type of ["keydown", "click", "visibilitychange"]) {
-        addPageListener(type, stopListeningWrapper, {
+      for (const type2 of ["keydown", "click", "visibilitychange"]) {
+        addPageListener(type2, stopListeningWrapper, {
           capture: true
         });
       }
@@ -74507,16 +74552,16 @@ function addTtfbInstrumentationHandler(callback) {
 function addInpInstrumentationHandler(callback) {
   return addMetricObserver("inp", callback, instrumentInp, _previousInp);
 }
-function addPerformanceInstrumentationHandler(type, callback) {
-  addHandler2(type, callback);
-  if (!instrumented2[type]) {
-    instrumentPerformanceObserver(type);
-    instrumented2[type] = true;
+function addPerformanceInstrumentationHandler(type2, callback) {
+  addHandler2(type2, callback);
+  if (!instrumented2[type2]) {
+    instrumentPerformanceObserver(type2);
+    instrumented2[type2] = true;
   }
-  return getCleanupCallback(type, callback);
+  return getCleanupCallback(type2, callback);
 }
-function triggerHandlers2(type, data) {
-  const typeHandlers = handlers2[type];
+function triggerHandlers2(type2, data) {
+  const typeHandlers = handlers2[type2];
   if (!(typeHandlers == null ? void 0 : typeHandlers.length)) {
     return;
   }
@@ -74526,7 +74571,7 @@ function triggerHandlers2(type, data) {
     } catch (e) {
       DEBUG_BUILD2 && debug.error(
         `Error while triggering instrumentation handler.
-Type: ${type}
+Type: ${type2}
 Name: ${getFunctionName(handler)}
 Error:`,
         e
@@ -74576,41 +74621,41 @@ function instrumentInp() {
     _previousInp = metric;
   });
 }
-function addMetricObserver(type, callback, instrumentFn, previousValue, stopOnCallback = false) {
-  addHandler2(type, callback);
+function addMetricObserver(type2, callback, instrumentFn, previousValue, stopOnCallback = false) {
+  addHandler2(type2, callback);
   let stopListening;
-  if (!instrumented2[type]) {
+  if (!instrumented2[type2]) {
     stopListening = instrumentFn();
-    instrumented2[type] = true;
+    instrumented2[type2] = true;
   }
   if (previousValue) {
     callback({ metric: previousValue });
   }
-  return getCleanupCallback(type, callback, stopOnCallback ? stopListening : void 0);
+  return getCleanupCallback(type2, callback, stopOnCallback ? stopListening : void 0);
 }
-function instrumentPerformanceObserver(type) {
+function instrumentPerformanceObserver(type2) {
   const options2 = {};
-  if (type === "event") {
+  if (type2 === "event") {
     options2.durationThreshold = 0;
   }
   observe(
-    type,
+    type2,
     (entries) => {
-      triggerHandlers2(type, { entries });
+      triggerHandlers2(type2, { entries });
     },
     options2
   );
 }
-function addHandler2(type, handler) {
-  handlers2[type] = handlers2[type] || [];
-  handlers2[type].push(handler);
+function addHandler2(type2, handler) {
+  handlers2[type2] = handlers2[type2] || [];
+  handlers2[type2].push(handler);
 }
-function getCleanupCallback(type, callback, stopListening) {
+function getCleanupCallback(type2, callback, stopListening) {
   return () => {
     if (stopListening) {
       stopListening();
     }
-    const typeHandlers = handlers2[type];
+    const typeHandlers = handlers2[type2];
     if (!typeHandlers) {
       return;
     }
@@ -75388,8 +75433,8 @@ function _setWebVitalAttributes(span, options2) {
     );
   }
 }
-function _setResourceRequestAttributes(entry, attributes, properties) {
-  properties.forEach(([entryKey, attributeKey]) => {
+function _setResourceRequestAttributes(entry, attributes, properties2) {
+  properties2.forEach(([entryKey, attributeKey]) => {
     const entryVal = entry[entryKey];
     if (entryVal != null && (typeof entryVal === "number" && entryVal < MAX_INT_AS_BYTES || typeof entryVal === "string")) {
       attributes[attributeKey] = entryVal;
@@ -75753,9 +75798,9 @@ var debounceTimerID;
 var lastCapturedEventType;
 var lastCapturedEventTargetId;
 function addClickKeypressInstrumentationHandler(handler) {
-  const type = "dom";
-  addHandler(type, handler);
-  maybeInstrument(type, instrumentDOM);
+  const type2 = "dom";
+  addHandler(type2, handler);
+  maybeInstrument(type2, instrumentDOM);
 }
 function instrumentDOM() {
   if (!WINDOW4.document) {
@@ -75773,38 +75818,38 @@ function instrumentDOM() {
       return;
     }
     fill(proto, "addEventListener", function(originalAddEventListener) {
-      return function(type, listener, options2) {
-        if (type === "click" || type == "keypress") {
+      return function(type2, listener, options2) {
+        if (type2 === "click" || type2 == "keypress") {
           try {
             const handlers3 = this.__sentry_instrumentation_handlers__ = this.__sentry_instrumentation_handlers__ || {};
-            const handlerForType = handlers3[type] = handlers3[type] || { refCount: 0 };
+            const handlerForType = handlers3[type2] = handlers3[type2] || { refCount: 0 };
             if (!handlerForType.handler) {
               const handler = makeDOMEventHandler(triggerDOMHandler);
               handlerForType.handler = handler;
-              originalAddEventListener.call(this, type, handler, options2);
+              originalAddEventListener.call(this, type2, handler, options2);
             }
             handlerForType.refCount++;
           } catch {
           }
         }
-        return originalAddEventListener.call(this, type, listener, options2);
+        return originalAddEventListener.call(this, type2, listener, options2);
       };
     });
     fill(
       proto,
       "removeEventListener",
       function(originalRemoveEventListener) {
-        return function(type, listener, options2) {
-          if (type === "click" || type == "keypress") {
+        return function(type2, listener, options2) {
+          if (type2 === "click" || type2 == "keypress") {
             try {
               const handlers3 = this.__sentry_instrumentation_handlers__ || {};
-              const handlerForType = handlers3[type];
+              const handlerForType = handlers3[type2];
               if (handlerForType) {
                 handlerForType.refCount--;
                 if (handlerForType.refCount <= 0) {
-                  originalRemoveEventListener.call(this, type, handlerForType.handler, options2);
+                  originalRemoveEventListener.call(this, type2, handlerForType.handler, options2);
                   handlerForType.handler = void 0;
-                  delete handlers3[type];
+                  delete handlers3[type2];
                 }
                 if (Object.keys(handlers3).length === 0) {
                   delete this.__sentry_instrumentation_handlers__;
@@ -75813,7 +75858,7 @@ function instrumentDOM() {
             } catch {
             }
           }
-          return originalRemoveEventListener.call(this, type, listener, options2);
+          return originalRemoveEventListener.call(this, type2, listener, options2);
         };
       }
     );
@@ -75881,9 +75926,9 @@ function getEventTarget2(event) {
 // node_modules/@sentry-internal/browser-utils/build/esm/instrument/history.js
 var lastHref;
 function addHistoryInstrumentationHandler(handler) {
-  const type = "history";
-  addHandler(type, handler);
-  maybeInstrument(type, instrumentHistory);
+  const type2 = "history";
+  addHandler(type2, handler);
+  maybeInstrument(type2, instrumentHistory);
 }
 function instrumentHistory() {
   WINDOW4.addEventListener("popstate", () => {
@@ -75965,9 +76010,9 @@ function clearCachedImplementation(name) {
 // node_modules/@sentry-internal/browser-utils/build/esm/instrument/xhr.js
 var SENTRY_XHR_DATA_KEY = "__sentry_xhr_v3__";
 function addXhrInstrumentationHandler(handler) {
-  const type = "xhr";
-  addHandler(type, handler);
-  maybeInstrument(type, instrumentXHR);
+  const type2 = "xhr";
+  addHandler(type2, handler);
+  maybeInstrument(type2, instrumentXHR);
 }
 function instrumentXHR() {
   if (!WINDOW4.XMLHttpRequest) {
@@ -76810,8 +76855,8 @@ function _enhanceEventWithInitialFrame(event, url, lineno, colno) {
   }
   return event;
 }
-function globalHandlerLog(type) {
-  DEBUG_BUILD3 && debug.log(`Global Handler attached: ${type}`);
+function globalHandlerLog(type2) {
+  DEBUG_BUILD3 && debug.log(`Global Handler attached: ${type2}`);
 }
 function getOptions() {
   const client = getClient();
@@ -76927,7 +76972,7 @@ var spotlightBrowserIntegration = defineIntegration(_spotlightIntegration);
 function isSpotlightInteraction(event) {
   var _a11;
   return Boolean(
-    event.type === "transaction" && event.spans && ((_a11 = event.contexts) == null ? void 0 : _a11.trace) && event.contexts.trace.op === "ui.action.click" && event.spans.some(({ description }) => description == null ? void 0 : description.includes("#sentry-spotlight"))
+    event.type === "transaction" && event.spans && ((_a11 = event.contexts) == null ? void 0 : _a11.trace) && event.contexts.trace.op === "ui.action.click" && event.spans.some(({ description: description2 }) => description2 == null ? void 0 : description2.includes("#sentry-spotlight"))
   );
 }
 
@@ -79941,7 +79986,7 @@ var info = {
     alphanumerc: alphabet("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:")
   },
   // as Record<EncodingType, ReturnType<typeof alphabet>>,
-  lengthBits(ver, type) {
+  lengthBits(ver, type2) {
     const table = {
       numeric: [10, 12, 14],
       alphanumeric: [9, 11, 13],
@@ -79949,7 +79994,7 @@ var info = {
       kanji: [8, 10, 12],
       eci: [0, 0, 0]
     };
-    return table[type][info.sizeType(ver)];
+    return table[type2][info.sizeType(ver)];
   },
   modeBits: {
     numeric: "0001",
@@ -80313,25 +80358,25 @@ function zigzag(tpl, maskIdx, fn) {
   }
 }
 function detectType(str) {
-  let type = "numeric";
+  let type2 = "numeric";
   for (let x of str) {
     if (info.alphabet.numeric.has(x))
       continue;
-    type = "alphanumeric";
+    type2 = "alphanumeric";
     if (!info.alphabet.alphanumerc.has(x))
       return "byte";
   }
-  return type;
+  return type2;
 }
 function utf8ToBytes(str) {
   if (typeof str !== "string")
     throw new Error(`utf8ToBytes expected string, got ${typeof str}`);
   return new Uint8Array(new TextEncoder().encode(str));
 }
-function encode(ver, ecc, data, type) {
+function encode(ver, ecc, data, type2) {
   let encoded = "";
   let dataLen = data.length;
-  if (type === "numeric") {
+  if (type2 === "numeric") {
     const t = info.alphabet.numeric.decode(data.split(""));
     const n = t.length;
     for (let i = 0; i < n - 2; i += 3)
@@ -80341,14 +80386,14 @@ function encode(ver, ecc, data, type) {
     } else if (n % 3 === 2) {
       encoded += bin(t[n - 2] * 10 + t[n - 1], 7);
     }
-  } else if (type === "alphanumeric") {
+  } else if (type2 === "alphanumeric") {
     const t = info.alphabet.alphanumerc.decode(data.split(""));
     const n = t.length;
     for (let i = 0; i < n - 1; i += 2)
       encoded += bin(t[i] * 45 + t[i + 1], 11);
     if (n % 2 == 1)
       encoded += bin(t[n - 1], 6);
-  } else if (type === "byte") {
+  } else if (type2 === "byte") {
     const utf8 = utf8ToBytes(data);
     dataLen = utf8.length;
     encoded = Array.from(utf8).map((i) => bin(i, 8)).join("");
@@ -80356,8 +80401,8 @@ function encode(ver, ecc, data, type) {
     throw new Error("encode: unsupported type");
   }
   const { capacity } = info.capacity(ver, ecc);
-  const len = bin(dataLen, info.lengthBits(ver, type));
-  let bits = info.modeBits[type] + len + encoded;
+  const len = bin(dataLen, info.lengthBits(ver, type2));
+  let bits = info.modeBits[type2] + len + encoded;
   if (bits.length > capacity)
     throw new Error("Capacity overflow");
   bits += "0".repeat(Math.min(4, Math.max(0, capacity - bits.length)));
@@ -80824,7 +80869,7 @@ var _RemoteLoggingService = class _RemoteLoggingService extends AsyncHandler {
       hookMethod(console, key, (...args) => this._handleEvent(key, args));
     }
   }
-  _handleEvent(type, data, event_type = "console") {
+  _handleEvent(type2, data, event_type = "console") {
     if (data.includes('"Logger"') || this._disable_handling)
       return;
     const blob = [...data[0]];
@@ -80833,7 +80878,7 @@ var _RemoteLoggingService = class _RemoteLoggingService extends AsyncHandler {
       id: `${event_type}-${randomInt(9999999999)}`,
       device_id: DEVICE_ID,
       type: event_type,
-      subtype: type,
+      subtype: type2,
       timestamp: Date.now(),
       raw: data,
       data: blob.filter((_2) => typeof _2 !== "string" || !_2.startsWith("color:")),
@@ -83753,8 +83798,8 @@ var _SafePipe = class _SafePipe {
    * @param value String to sanitize
    * @param type Type of value to sanitise. `resource`, `url`, `script`, `style` or `html`
    */
-  transform(value, type = "html") {
-    switch (type) {
+  transform(value, type2 = "html") {
+    switch (type2) {
       case "resource":
         return this.sanitizer.bypassSecurityTrustResourceUrl(value);
       case "url":
@@ -85722,8 +85767,8 @@ var TextFieldModule = class _TextFieldModule {
 var MAT_INPUT_VALUE_ACCESSOR = new InjectionToken("MAT_INPUT_VALUE_ACCESSOR");
 
 // node_modules/@angular/material/fesm2022/input.mjs
-function getMatInputUnsupportedTypeError(type) {
-  return Error(`Input type "${type}" isn't supported by matInput.`);
+function getMatInputUnsupportedTypeError(type2) {
+  return Error(`Input type "${type2}" isn't supported by matInput.`);
 }
 var MAT_INPUT_INVALID_TYPES = ["button", "checkbox", "file", "hidden", "image", "radio", "range", "reset", "submit"];
 var MAT_INPUT_CONFIG = new InjectionToken("MAT_INPUT_CONFIG");
@@ -92239,18 +92284,18 @@ function isInput(element) {
 function inputRequiresValidityTracking(input2) {
   return input2.type === "date" || input2.type === "datetime-local" || input2.type === "month" || input2.type === "time" || input2.type === "week";
 }
-function formatDateForInput(date, type) {
+function formatDateForInput(date, type2) {
   const year = date.getUTCFullYear();
   const month = String(date.getUTCMonth() + 1).padStart(2, "0");
-  if (type === "month") {
+  if (type2 === "month") {
     return `${year}-${month}`;
   }
   const day = String(date.getUTCDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
 }
-function formatDateForMinMax(name, value, type) {
-  if (value instanceof Date && (name === "min" || name === "max") && (type === "date" || type === "month")) {
-    return formatDateForInput(value, type);
+function formatDateForMinMax(name, value, type2) {
+  if (value instanceof Date && (name === "min" || name === "max") && (type2 === "date" || type2 === "month")) {
+    return formatDateForInput(value, type2);
   }
   return value;
 }
@@ -94332,9 +94377,9 @@ ${body}</blockquote>
       const item = token.items[j];
       body += this.listitem(item);
     }
-    const type = ordered ? "ol" : "ul";
+    const type2 = ordered ? "ol" : "ul";
     const startAttr = ordered && start !== 1 ? ' start="' + start + '"' : "";
-    return "<" + type + startAttr + ">\n" + body + "</" + type + ">\n";
+    return "<" + type2 + startAttr + ">\n" + body + "</" + type2 + ">\n";
   }
   listitem(item) {
     let itemBody = "";
@@ -94395,9 +94440,9 @@ ${text}</tr>
   }
   tablecell(token) {
     const content = this.parser.parseInline(token.tokens);
-    const type = token.header ? "th" : "td";
-    const tag2 = token.align ? `<${type} align="${token.align}">` : `<${type}>`;
-    return tag2 + content + `</${type}>
+    const type2 = token.header ? "th" : "td";
+    const tag2 = token.align ? `<${type2} align="${token.align}">` : `<${type2}>`;
+    return tag2 + content + `</${type2}>
 `;
   }
   /**
@@ -95201,8 +95246,8 @@ var _SanitizePipe = class _SanitizePipe {
   constructor() {
     this.sanitizer = inject2(DomSanitizer);
   }
-  transform(value, type = "html") {
-    switch (type) {
+  transform(value, type2 = "html") {
+    switch (type2) {
       case "resource":
         return this.sanitizer.sanitize(SecurityContext2.RESOURCE_URL, value);
       case "url":
@@ -97407,6 +97452,835 @@ var GlobalLoadingComponent = _GlobalLoadingComponent;
 })();
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(GlobalLoadingComponent, { className: "GlobalLoadingComponent", filePath: "libs/components/src/lib/global-loading.component.ts", lineNumber: 81 });
+})();
+
+// libs/components/src/lib/settings-debug-panel.component.ts
+function SettingsDebugPanelComponent_Conditional_0_Conditional_5_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r2 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 13);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_Conditional_5_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r2);
+      const ctx_r2 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r2.clearAll());
+    });
+    \u0275\u0275text(1, " Clear all overrides ");
+    \u0275\u0275elementEnd();
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_0_Conditional_7_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span", 20);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const group_r5 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", group_r5.overridden, " overridden ");
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r4 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 16);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_0_Template_button_click_0_listener() {
+      const group_r5 = \u0275\u0275restoreView(_r4);
+      const ctx_r2 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r2.toggleGroup(group_r5.name));
+    });
+    \u0275\u0275elementStart(1, "icon", 17);
+    \u0275\u0275text(2, " chevron_right ");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "span", 18);
+    \u0275\u0275text(4);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(5, "span", 19);
+    \u0275\u0275text(6);
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(7, SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_0_Conditional_7_Template, 2, 1, "span", 20);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const group_r5 = ctx;
+    const ctx_r2 = \u0275\u0275nextContext(3);
+    \u0275\u0275advance();
+    \u0275\u0275classProp("rotate-90", ctx_r2.filter() || ctx_r2.expanded()[group_r5.name]);
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate(group_r5.name);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" (", group_r5.count, ") ");
+    \u0275\u0275advance();
+    \u0275\u0275conditional(group_r5.overridden ? 7 : -1);
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Conditional_4_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 24);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const row_r6 = \u0275\u0275nextContext();
+    \u0275\u0275property("title", row_r6.description);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", row_r6.description, " ");
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_5_For_2_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "option", 26);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const option_r8 = ctx.$implicit;
+    \u0275\u0275property("value", option_r8);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", option_r8, " ");
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_5_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r7 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "select", 25);
+    \u0275\u0275twoWayListener("ngModelChange", function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_5_Template_select_ngModelChange_0_listener($event) {
+      \u0275\u0275restoreView(_r7);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      \u0275\u0275twoWayBindingSet(ctx_r2.edit_value, $event) || (ctx_r2.edit_value = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275listener("keydown.escape", function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_5_Template_select_keydown_escape_0_listener() {
+      \u0275\u0275restoreView(_r7);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      return \u0275\u0275resetView(ctx_r2.editing_key.set(""));
+    });
+    \u0275\u0275repeaterCreate(1, SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_5_For_2_Template, 2, 2, "option", 26, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementStart(3, "button", 27);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_5_Template_button_click_3_listener() {
+      \u0275\u0275restoreView(_r7);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      return \u0275\u0275resetView(ctx_r2.saveEdit());
+    });
+    \u0275\u0275elementStart(4, "icon", 28);
+    \u0275\u0275text(5, "check");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const row_r6 = \u0275\u0275nextContext();
+    const ctx_r2 = \u0275\u0275nextContext(3);
+    \u0275\u0275twoWayProperty("ngModel", ctx_r2.edit_value);
+    \u0275\u0275control();
+    \u0275\u0275advance();
+    \u0275\u0275repeater(row_r6.options);
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_6_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r9 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "input", 29);
+    \u0275\u0275twoWayListener("ngModelChange", function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_6_Template_input_ngModelChange_0_listener($event) {
+      \u0275\u0275restoreView(_r9);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      \u0275\u0275twoWayBindingSet(ctx_r2.edit_value, $event) || (ctx_r2.edit_value = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275listener("keydown.enter", function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_6_Template_input_keydown_enter_0_listener() {
+      \u0275\u0275restoreView(_r9);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      return \u0275\u0275resetView(ctx_r2.saveEdit());
+    })("keydown.escape", function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_6_Template_input_keydown_escape_0_listener() {
+      \u0275\u0275restoreView(_r9);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      return \u0275\u0275resetView(ctx_r2.editing_key.set(""));
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementStart(1, "button", 27);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_6_Template_button_click_1_listener() {
+      \u0275\u0275restoreView(_r9);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      return \u0275\u0275resetView(ctx_r2.saveEdit());
+    });
+    \u0275\u0275elementStart(2, "icon", 28);
+    \u0275\u0275text(3, "check");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext(4);
+    \u0275\u0275twoWayProperty("ngModel", ctx_r2.edit_value);
+    \u0275\u0275control();
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_7_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r10 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "input", 30);
+    \u0275\u0275twoWayListener("ngModelChange", function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_7_Template_input_ngModelChange_0_listener($event) {
+      \u0275\u0275restoreView(_r10);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      \u0275\u0275twoWayBindingSet(ctx_r2.edit_value, $event) || (ctx_r2.edit_value = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275listener("keydown.enter", function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_7_Template_input_keydown_enter_0_listener() {
+      \u0275\u0275restoreView(_r10);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      return \u0275\u0275resetView(ctx_r2.saveEdit());
+    })("keydown.escape", function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_7_Template_input_keydown_escape_0_listener() {
+      \u0275\u0275restoreView(_r10);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      return \u0275\u0275resetView(ctx_r2.editing_key.set(""));
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementStart(1, "button", 27);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_7_Template_button_click_1_listener() {
+      \u0275\u0275restoreView(_r10);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      return \u0275\u0275resetView(ctx_r2.saveEdit());
+    });
+    \u0275\u0275elementStart(2, "icon", 28);
+    \u0275\u0275text(3, "check");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext(4);
+    \u0275\u0275twoWayProperty("ngModel", ctx_r2.edit_value);
+    \u0275\u0275control();
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_8_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r11 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 31)(1, "button", 34);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_8_Conditional_0_Template_button_click_1_listener() {
+      \u0275\u0275restoreView(_r11);
+      const row_r6 = \u0275\u0275nextContext(2);
+      const ctx_r2 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r2.toggleValue(row_r6));
+    });
+    \u0275\u0275element(2, "div", 35);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const row_r6 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance();
+    \u0275\u0275classProp("bg-info", row_r6.value)("bg-base-300", !row_r6.value);
+    \u0275\u0275property("title", row_r6.display);
+    \u0275\u0275advance();
+    \u0275\u0275classProp("translate-x-4", row_r6.value);
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_8_Conditional_1_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r12 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 36);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_8_Conditional_1_Template_div_click_0_listener() {
+      \u0275\u0275restoreView(_r12);
+      const row_r6 = \u0275\u0275nextContext(2);
+      const ctx_r2 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r2.startEdit(row_r6));
+    });
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const row_r6 = \u0275\u0275nextContext(2);
+    \u0275\u0275classMap(row_r6.display ? "opacity-80" : "italic opacity-40");
+    \u0275\u0275property("title", row_r6.display || "unset");
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", row_r6.display || "unset", " ");
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_8_Conditional_2_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r13 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 37);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_8_Conditional_2_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r13);
+      const row_r6 = \u0275\u0275nextContext(2);
+      const ctx_r2 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r2.clearOverride(row_r6.key));
+    });
+    \u0275\u0275elementStart(1, "icon", 28);
+    \u0275\u0275text(2, "undo");
+    \u0275\u0275elementEnd()();
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_8_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275conditionalCreate(0, SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_8_Conditional_0_Template, 3, 7, "div", 31)(1, SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_8_Conditional_1_Template, 2, 4, "div", 32);
+    \u0275\u0275conditionalCreate(2, SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_8_Conditional_2_Template, 3, 0, "button", 33);
+  }
+  if (rf & 2) {
+    const row_r6 = \u0275\u0275nextContext();
+    \u0275\u0275conditional(row_r6.control === "toggle" ? 0 : 1);
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(row_r6.overridden ? 2 : -1);
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 21)(1, "div", 22)(2, "div", 23);
+    \u0275\u0275text(3);
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(4, SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Conditional_4_Template, 2, 2, "div", 24);
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(5, SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_5_Template, 6, 1)(6, SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_6_Template, 4, 1)(7, SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_7_Template, 4, 1)(8, SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_8_Template, 3, 2);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    let tmp_19_0;
+    const row_r6 = ctx;
+    const entry_r14 = \u0275\u0275nextContext().$implicit;
+    const ctx_r2 = \u0275\u0275nextContext(2);
+    \u0275\u0275classProp("pl-8", entry_r14.grouped)("pl-2", !entry_r14.grouped)("bg-warning-light", row_r6.overridden);
+    \u0275\u0275advance(2);
+    \u0275\u0275property("title", row_r6.label);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", row_r6.label, " ");
+    \u0275\u0275advance();
+    \u0275\u0275conditional(row_r6.description ? 4 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional((tmp_19_0 = ctx_r2.editing_key() === row_r6.key ? row_r6.control : "") === "select" ? 5 : tmp_19_0 === "number" ? 6 : tmp_19_0 === "text" ? 7 : 8);
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_16_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275conditionalCreate(0, SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_0_Template, 8, 5, "button", 14);
+    \u0275\u0275conditionalCreate(1, SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Template, 9, 10, "div", 15);
+  }
+  if (rf & 2) {
+    let tmp_11_0;
+    let tmp_12_0;
+    const entry_r14 = ctx.$implicit;
+    \u0275\u0275conditional((tmp_11_0 = entry_r14.header) ? 0 : -1, tmp_11_0);
+    \u0275\u0275advance();
+    \u0275\u0275conditional((tmp_12_0 = entry_r14.row) ? 1 : -1, tmp_12_0);
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_ForEmpty_17_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 11);
+    \u0275\u0275text(1, " No matching settings ");
+    \u0275\u0275elementEnd();
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r1 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 0)(1, "div", 1)(2, "div", 2);
+    \u0275\u0275text(3, "Settings Viewer");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "div", 3);
+    \u0275\u0275conditionalCreate(5, SettingsDebugPanelComponent_Conditional_0_Conditional_5_Template, 2, 0, "button", 4);
+    \u0275\u0275elementStart(6, "button", 5);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_Template_button_click_6_listener() {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.show.set(false));
+    });
+    \u0275\u0275elementStart(7, "icon");
+    \u0275\u0275text(8, "close");
+    \u0275\u0275elementEnd()()()()();
+    \u0275\u0275elementStart(9, "div", 6)(10, "div", 7)(11, "input", 8);
+    \u0275\u0275twoWayListener("ngModelChange", function SettingsDebugPanelComponent_Conditional_0_Template_input_ngModelChange_11_listener($event) {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r2 = \u0275\u0275nextContext();
+      \u0275\u0275twoWayBindingSet(ctx_r2.filter, $event) || (ctx_r2.filter = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementStart(12, "icon", 9);
+    \u0275\u0275text(13, "search");
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(14, "div", 10);
+    \u0275\u0275repeaterCreate(15, SettingsDebugPanelComponent_Conditional_0_For_16_Template, 2, 2, null, null, \u0275\u0275repeaterTrackByIndex, false, SettingsDebugPanelComponent_Conditional_0_ForEmpty_17_Template, 2, 0, "div", 11);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(18, "div", 12);
+    \u0275\u0275text(19, " Click a value to override it. Text values are parsed as JSON, falling back to plain strings. Overrides are stored locally in this browser. ");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275advance(5);
+    \u0275\u0275conditional(ctx_r2.has_overrides() ? 5 : -1);
+    \u0275\u0275advance(6);
+    \u0275\u0275twoWayProperty("ngModel", ctx_r2.filter);
+    \u0275\u0275control();
+    \u0275\u0275advance(4);
+    \u0275\u0275repeater(ctx_r2.entries());
+  }
+}
+function flattenKeys(map2, prefix, keys) {
+  for (const key in map2) {
+    const full_key = prefix ? `${prefix}.${key}` : key;
+    const value = map2[key];
+    if (value && typeof value === "object" && !Array.isArray(value)) {
+      flattenKeys(value, full_key, keys);
+    } else
+      keys.add(full_key);
+  }
+}
+function resolveRef(root, node) {
+  const ref = node == null ? void 0 : node["$ref"];
+  if (!(ref == null ? void 0 : ref.startsWith("#/")))
+    return node;
+  let target = root;
+  for (const part of ref.slice(2).split("/"))
+    target = target == null ? void 0 : target[part];
+  return target || node;
+}
+function schemaNode(root, key) {
+  var _a11, _b4;
+  if (!root || !key.startsWith("app."))
+    return null;
+  let node = root;
+  for (const part of key.slice(4).split(".")) {
+    node = (_b4 = (_a11 = resolveRef(root, node)) == null ? void 0 : _a11.properties) == null ? void 0 : _b4[part];
+    if (!node)
+      return null;
+  }
+  return resolveRef(root, node);
+}
+function flattenSchemaKeys(root, node, prefix, keys, depth = 0) {
+  if (depth > 8)
+    return;
+  node = resolveRef(root, node);
+  if (!(node == null ? void 0 : node.properties)) {
+    if (prefix)
+      keys.add(prefix);
+    return;
+  }
+  for (const key in node.properties) {
+    flattenSchemaKeys(root, node.properties[key], prefix ? `${prefix}.${key}` : key, keys, depth + 1);
+  }
+}
+var _SettingsDebugPanelComponent = class _SettingsDebugPanelComponent extends AsyncHandler {
+  constructor() {
+    super(...arguments);
+    this._settings = inject2(SettingsService);
+    this._hotkey = inject2(HotkeysService);
+    this.schema = input(
+      null,
+      ...ngDevMode ? [{ debugName: "schema" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.show = signal(
+      false,
+      ...ngDevMode ? [{ debugName: "show" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.filter = signal(
+      "",
+      ...ngDevMode ? [{ debugName: "filter" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.editing_key = signal(
+      "",
+      ...ngDevMode ? [{ debugName: "editing_key" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.expanded = signal(
+      {},
+      ...ngDevMode ? [{ debugName: "expanded" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.edit_value = "";
+    this.has_overrides = computed(
+      () => Object.keys(this._settings.debug_overrides()).length > 0,
+      ...ngDevMode ? [{ debugName: "has_overrides" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.rows = computed(
+      () => {
+        const schema2 = this.schema();
+        const debug_overrides = this._settings.debug_overrides();
+        const keys = /* @__PURE__ */ new Set();
+        flattenKeys({ app: DEFAULT_SETTINGS.app }, "", keys);
+        for (const layer of this._settings.overrides()) {
+          flattenKeys({ app: layer }, "", keys);
+        }
+        if (schema2)
+          flattenSchemaKeys(schema2, schema2, "app", keys);
+        for (const key in debug_overrides)
+          keys.add(key);
+        const search = this.filter().toLowerCase();
+        return [...keys].filter((key) => key.slice(4).toLowerCase().includes(search)).sort().map((key) => {
+          var _a11;
+          const node = schemaNode(schema2, key);
+          const value = this._settings.get(key);
+          let control = "text";
+          if ((_a11 = node == null ? void 0 : node.enum) == null ? void 0 : _a11.length)
+            control = "select";
+          else if ((node == null ? void 0 : node.type) === "boolean" || typeof value === "boolean") {
+            control = "toggle";
+          } else if ((node == null ? void 0 : node.type) === "number" || (node == null ? void 0 : node.type) === "integer" || typeof value === "number") {
+            control = "number";
+          }
+          return {
+            key,
+            label: key.slice(4),
+            value,
+            display: JSON.stringify(value) ?? "",
+            overridden: key in debug_overrides,
+            description: (node == null ? void 0 : node.description) || "",
+            control,
+            options: node == null ? void 0 : node.enum
+          };
+        });
+      },
+      ...ngDevMode ? [{ debugName: "rows" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.entries = computed(
+      () => {
+        const show_all = !!this.filter();
+        const expanded = this.expanded();
+        const entries = [];
+        let header = null;
+        for (const row of this.rows()) {
+          const index = row.label.indexOf(".");
+          if (index < 0) {
+            header = null;
+            entries.push({ row });
+            continue;
+          }
+          const group2 = row.label.slice(0, index);
+          if (!header || header.name !== group2) {
+            header = { name: group2, count: 0, overridden: 0 };
+            entries.push({ header });
+          }
+          header.count += 1;
+          if (row.overridden)
+            header.overridden += 1;
+          if (show_all || expanded[group2]) {
+            entries.push({
+              row: __spreadProps(__spreadValues({}, row), { label: row.label.slice(index + 1) }),
+              grouped: true
+            });
+          }
+        }
+        return entries;
+      },
+      ...ngDevMode ? [{ debugName: "entries" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+  }
+  toggleGroup(name) {
+    this.expanded.update((state2) => __spreadProps(__spreadValues({}, state2), { [name]: !state2[name] }));
+  }
+  ngOnInit() {
+    this.subscription("toggle", this._hotkey.listen(["Control", "Alt", "Shift", "KeyS"], () => this.show.set(!this.show())));
+  }
+  startEdit(row) {
+    this.editing_key.set(row.key);
+    this.edit_value = row.control === "text" ? row.display : `${row.value ?? ""}`;
+  }
+  toggleValue(row) {
+    this._settings.setDebugOverride(row.key, !row.value);
+  }
+  saveEdit() {
+    const key = this.editing_key();
+    const row = this.rows().find((_2) => _2.key === key);
+    if (!row)
+      return;
+    let value = this.edit_value;
+    if (row.control === "number") {
+      value = parseFloat(this.edit_value);
+      if (isNaN(value))
+        return;
+    } else if (row.control === "text") {
+      try {
+        value = JSON.parse(this.edit_value);
+      } catch {
+      }
+    }
+    this._settings.setDebugOverride(key, value);
+    this.editing_key.set("");
+  }
+  clearOverride(key) {
+    this._settings.setDebugOverride(key, void 0);
+  }
+  clearAll() {
+    this._settings.clearDebugOverrides();
+  }
+};
+_SettingsDebugPanelComponent.\u0275fac = /* @__PURE__ */ (() => {
+  let \u0275SettingsDebugPanelComponent_BaseFactory;
+  return function SettingsDebugPanelComponent_Factory(__ngFactoryType__) {
+    return (\u0275SettingsDebugPanelComponent_BaseFactory || (\u0275SettingsDebugPanelComponent_BaseFactory = \u0275\u0275getInheritedFactory(_SettingsDebugPanelComponent)))(__ngFactoryType__ || _SettingsDebugPanelComponent);
+  };
+})();
+_SettingsDebugPanelComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SettingsDebugPanelComponent, selectors: [["settings-debug-panel"]], inputs: { schema: [1, "schema"] }, features: [\u0275\u0275InheritDefinitionFeature], decls: 1, vars: 1, consts: [[1, "flex", "flex-col", "gap-2"], [1, "border-base-300", "bg-base-100", "text-base-content", "fixed", "bottom-123", "left-2", "z-998", "flex", "w-160", "max-w-[90vw]", "items-center", "overflow-hidden", "rounded-lg", "border", "p-1", "shadow-sm"], [1, "flex-1", "px-3", "font-medium"], [1, "flex", "items-center"], ["matRipple", "", 1, "text-error", "px-2", "py-1", "text-xs", "underline"], ["icon", "", "default", "", "matRipple", "", 1, "text-sm", 3, "click"], [1, "border-base-300", "bg-base-200", "text-base-content", "fixed", "bottom-2", "left-2", "z-998", "flex", "h-120", "max-h-[80vh]", "w-160", "max-w-[90vw]", "flex-col", "overflow-hidden", "rounded-xl", "border", "shadow-sm"], [1, "relative", "m-1", "flex"], ["name", "setting-filter", "placeholder", "Filter settings...", 1, "border-base-300", "bg-base-100", "w-full", "rounded-lg", "border", "px-8", "py-2", "pr-2", "font-mono", "text-sm", "shadow", 3, "ngModelChange", "ngModel"], [1, "absolute", "top-1/2", "left-1", "-translate-y-1/2", "text-xl"], [1, "flex-1", "overflow-auto"], [1, "p-4", "text-center", "opacity-30"], [1, "border-base-300", "bg-base-100", "border-t", "p-2", "text-xs", "opacity-60"], ["matRipple", "", 1, "text-error", "px-2", "py-1", "text-xs", "underline", 3, "click"], [1, "border-base-300", "bg-base-100/50", "hover:bg-base-100", "flex", "min-h-8", "w-full", "items-center", "gap-1", "border-b", "px-2", "py-1", "text-left", "text-xs"], [1, "border-base-300", "flex", "min-h-8", "items-center", "border-b", "py-1", "pr-2", "text-xs", 3, "pl-8", "pl-2", "bg-warning-light"], [1, "border-base-300", "bg-base-100/50", "hover:bg-base-100", "flex", "min-h-8", "w-full", "items-center", "gap-1", "border-b", "px-2", "py-1", "text-left", "text-xs", 3, "click"], [1, "text-sm", "transition-transform"], [1, "font-mono"], [1, "opacity-40"], [1, "bg-warning-light", "rounded-sm", "px-1", "text-[0.65rem]", "text-black"], [1, "border-base-300", "flex", "min-h-8", "items-center", "border-b", "py-1", "pr-2", "text-xs"], [1, "w-3/5", "min-w-0", "pr-2"], [1, "truncate", "font-mono", 3, "title"], [1, "truncate", "text-[0.65rem]", "opacity-60", 3, "title"], ["name", "setting-value", 1, "bg-base-100", "flex-1", "rounded-sm", "border", "px-1", "py-0.5", "font-mono", 3, "ngModelChange", "keydown.escape", "ngModel"], [3, "value"], ["icon", "", "matRipple", "", "title", "Save override", 3, "click"], [1, "text-sm"], ["name", "setting-value", "type", "number", 1, "bg-base-100", "flex-1", "rounded-sm", "border", "px-1", "py-0.5", "font-mono", 3, "ngModelChange", "keydown.enter", "keydown.escape", "ngModel"], ["name", "setting-value", 1, "bg-base-100", "flex-1", "rounded-sm", "border", "px-1", "py-0.5", "font-mono", 3, "ngModelChange", "keydown.enter", "keydown.escape", "ngModel"], [1, "flex", "flex-1"], [1, "flex-1", "cursor-pointer", "truncate", "font-mono", 3, "class", "title"], ["icon", "", "matRipple", "", "title", "Clear override"], [1, "relative", "h-4", "w-8", "rounded-full", "transition-colors", 3, "click", "title"], [1, "absolute", "top-0.5", "left-0.5", "h-3", "w-3", "rounded-full", "bg-white", "shadow-sm", "transition-transform"], [1, "flex-1", "cursor-pointer", "truncate", "font-mono", 3, "click", "title"], ["icon", "", "matRipple", "", "title", "Clear override", 3, "click"]], template: function SettingsDebugPanelComponent_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275conditionalCreate(0, SettingsDebugPanelComponent_Conditional_0_Template, 20, 3);
+  }
+  if (rf & 2) {
+    \u0275\u0275conditional(ctx.show() ? 0 : -1);
+  }
+}, dependencies: [FormsModule, NgSelectOption, \u0275NgSelectMultipleOption, DefaultValueAccessor, NumberValueAccessor, SelectControlValueAccessor, NgControlStatus, NgModel, MatRippleModule, MatRipple, IconComponent], encapsulation: 2 });
+var SettingsDebugPanelComponent = _SettingsDebugPanelComponent;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(SettingsDebugPanelComponent, [{
+    type: Component,
+    args: [{
+      selector: "settings-debug-panel",
+      template: `
+        @if (show()) {
+            <div class="flex flex-col gap-2">
+                <div
+                    class="border-base-300 bg-base-100 text-base-content fixed bottom-123 left-2 z-998 flex w-160 max-w-[90vw] items-center overflow-hidden rounded-lg border p-1 shadow-sm"
+                >
+                    <div class="flex-1 px-3 font-medium">Settings Viewer</div>
+                    <div class="flex items-center">
+                        @if (has_overrides()) {
+                            <button
+                                matRipple
+                                class="text-error px-2 py-1 text-xs underline"
+                                (click)="clearAll()"
+                            >
+                                Clear all overrides
+                            </button>
+                        }
+                        <button
+                            icon
+                            default
+                            matRipple
+                            class="text-sm"
+                            (click)="show.set(false)"
+                        >
+                            <icon>close</icon>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div
+                class="border-base-300 bg-base-200 text-base-content fixed bottom-2 left-2 z-998 flex h-120 max-h-[80vh] w-160 max-w-[90vw] flex-col overflow-hidden rounded-xl border shadow-sm"
+            >
+                <div class="relative m-1 flex">
+                    <input
+                        name="setting-filter"
+                        [(ngModel)]="filter"
+                        placeholder="Filter settings..."
+                        class="border-base-300 bg-base-100 w-full rounded-lg border px-8 py-2 pr-2 font-mono text-sm shadow"
+                    />
+                    <icon
+                        class="absolute top-1/2 left-1 -translate-y-1/2 text-xl"
+                        >search</icon
+                    >
+                </div>
+                <div class="flex-1 overflow-auto">
+                    @for (entry of entries(); track $index) {
+                        @if (entry.header; as group) {
+                            <button
+                                class="border-base-300 bg-base-100/50 hover:bg-base-100 flex min-h-8 w-full items-center gap-1 border-b px-2 py-1 text-left text-xs"
+                                (click)="toggleGroup(group.name)"
+                            >
+                                <icon
+                                    class="text-sm transition-transform"
+                                    [class.rotate-90]="
+                                        filter() || expanded()[group.name]
+                                    "
+                                >
+                                    chevron_right
+                                </icon>
+                                <span class="font-mono">{{ group.name }}</span>
+                                <span class="opacity-40">
+                                    ({{ group.count }})
+                                </span>
+                                @if (group.overridden) {
+                                    <span
+                                        class="bg-warning-light rounded-sm px-1 text-[0.65rem] text-black"
+                                    >
+                                        {{ group.overridden }} overridden
+                                    </span>
+                                }
+                            </button>
+                        }
+                        @if (entry.row; as row) {
+                            <div
+                                class="border-base-300 flex min-h-8 items-center border-b py-1 pr-2 text-xs"
+                                [class.pl-8]="entry.grouped"
+                                [class.pl-2]="!entry.grouped"
+                                [class.bg-warning-light]="row.overridden"
+                            >
+                                <div class="w-3/5 min-w-0 pr-2">
+                                    <div
+                                        class="truncate font-mono"
+                                        [title]="row.label"
+                                    >
+                                        {{ row.label }}
+                                    </div>
+                                    @if (row.description) {
+                                        <div
+                                            class="truncate text-[0.65rem] opacity-60"
+                                            [title]="row.description"
+                                        >
+                                            {{ row.description }}
+                                        </div>
+                                    }
+                                </div>
+                                @switch (
+                                    editing_key() === row.key ? row.control : ''
+                                ) {
+                                    @case ('select') {
+                                        <select
+                                            name="setting-value"
+                                            class="bg-base-100 flex-1 rounded-sm border px-1 py-0.5 font-mono"
+                                            [(ngModel)]="edit_value"
+                                            (keydown.escape)="
+                                                editing_key.set('')
+                                            "
+                                        >
+                                            @for (
+                                                option of row.options;
+                                                track option
+                                            ) {
+                                                <option [value]="option">
+                                                    {{ option }}
+                                                </option>
+                                            }
+                                        </select>
+                                        <button
+                                            icon
+                                            matRipple
+                                            title="Save override"
+                                            (click)="saveEdit()"
+                                        >
+                                            <icon class="text-sm">check</icon>
+                                        </button>
+                                    }
+                                    @case ('number') {
+                                        <input
+                                            name="setting-value"
+                                            type="number"
+                                            class="bg-base-100 flex-1 rounded-sm border px-1 py-0.5 font-mono"
+                                            [(ngModel)]="edit_value"
+                                            (keydown.enter)="saveEdit()"
+                                            (keydown.escape)="
+                                                editing_key.set('')
+                                            "
+                                        />
+                                        <button
+                                            icon
+                                            matRipple
+                                            title="Save override"
+                                            (click)="saveEdit()"
+                                        >
+                                            <icon class="text-sm">check</icon>
+                                        </button>
+                                    }
+                                    @case ('text') {
+                                        <input
+                                            name="setting-value"
+                                            class="bg-base-100 flex-1 rounded-sm border px-1 py-0.5 font-mono"
+                                            [(ngModel)]="edit_value"
+                                            (keydown.enter)="saveEdit()"
+                                            (keydown.escape)="
+                                                editing_key.set('')
+                                            "
+                                        />
+                                        <button
+                                            icon
+                                            matRipple
+                                            title="Save override"
+                                            (click)="saveEdit()"
+                                        >
+                                            <icon class="text-sm">check</icon>
+                                        </button>
+                                    }
+                                    @default {
+                                        @if (row.control === 'toggle') {
+                                            <div class="flex flex-1">
+                                                <button
+                                                    class="relative h-4 w-8 rounded-full transition-colors"
+                                                    [class.bg-info]="row.value"
+                                                    [class.bg-base-300]="
+                                                        !row.value
+                                                    "
+                                                    [title]="row.display"
+                                                    (click)="toggleValue(row)"
+                                                >
+                                                    <div
+                                                        class="absolute top-0.5 left-0.5 h-3 w-3 rounded-full bg-white shadow-sm transition-transform"
+                                                        [class.translate-x-4]="
+                                                            row.value
+                                                        "
+                                                    ></div>
+                                                </button>
+                                            </div>
+                                        } @else {
+                                            <div
+                                                class="flex-1 cursor-pointer truncate font-mono"
+                                                [class]="
+                                                    row.display
+                                                        ? 'opacity-80'
+                                                        : 'italic opacity-40'
+                                                "
+                                                [title]="row.display || 'unset'"
+                                                (click)="startEdit(row)"
+                                            >
+                                                {{ row.display || 'unset' }}
+                                            </div>
+                                        }
+                                        @if (row.overridden) {
+                                            <button
+                                                icon
+                                                matRipple
+                                                title="Clear override"
+                                                (click)="clearOverride(row.key)"
+                                            >
+                                                <icon class="text-sm"
+                                                    >undo</icon
+                                                >
+                                            </button>
+                                        }
+                                    }
+                                }
+                            </div>
+                        }
+                    } @empty {
+                        <div class="p-4 text-center opacity-30">
+                            No matching settings
+                        </div>
+                    }
+                </div>
+                <div
+                    class="border-base-300 bg-base-100 border-t p-2 text-xs opacity-60"
+                >
+                    Click a value to override it. Text values are parsed as
+                    JSON, falling back to plain strings. Overrides are stored
+                    locally in this browser.
+                </div>
+            </div>
+        }
+    `,
+      imports: [FormsModule, MatRippleModule, IconComponent]
+    }]
+  }], null, { schema: [{ type: Input, args: [{ isSignal: true, alias: "schema", required: false }] }] });
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SettingsDebugPanelComponent, { className: "SettingsDebugPanelComponent", filePath: "libs/components/src/lib/settings-debug-panel.component.ts", lineNumber: 324 });
 })();
 
 // libs/components/src/lib/unauthorised.component.ts
@@ -101053,7 +101927,7 @@ function removeEvent(id, q = {}) {
     response_type: "void"
   });
 }
-async function querySpaceAvailability(id_list, start, duration, ignore, type, ignore_period = [0, 0]) {
+async function querySpaceAvailability(id_list, start, duration, ignore, type2, ignore_period = [0, 0]) {
   const end = addMinutes(start, duration).valueOf();
   const [spaces, ignore_check] = await Promise.all([
     queryCalendarAvailability({
@@ -101340,23 +102214,23 @@ function removeBookingInstance(id, start_time) {
     response_type: "void"
   });
 }
-async function queryResourceAvailability(id_list, start, duration, ignore, type = "room") {
+async function queryResourceAvailability(id_list, start, duration, ignore, type2 = "room") {
   const bookings = await queryBookings({
-    type,
+    type: type2,
     period_start: getUnixTime(start),
     period_end: getUnixTime(addMinutes(start, duration))
   });
   return id_list.map((id) => !bookings.find((b2) => b2.asset_id === id && (!ignore || ignore !== b2.id)));
 }
-async function createBookingsForEvent(event, type, resources) {
+async function createBookingsForEvent(event, type2, resources) {
   var _a11;
   const bookings = (await queryBookings({
-    type,
+    type: type2,
     period_start: getUnixTime(event.date),
     period_end: getUnixTime(addMinutes(event.date, event.duration))
   })).filter((_2) => _2.parent_id === event.id);
   await Promise.all(bookings.map((_2) => removeBooking(_2.id)));
-  await Promise.all(event.linked_bookings.filter((_2) => _2.booking_type === type).map((_2) => removeBooking(_2.id)));
+  await Promise.all(event.linked_bookings.filter((_2) => _2.booking_type === type2).map((_2) => removeBooking(_2.id)));
   const zones = ((_a11 = event.system) == null ? void 0 : _a11.zones) || unique(flatten2(event.resources.map((_2) => _2.zones))) || [];
   await Promise.all(resources.map((item) => {
     const booking = bookings.find((_2) => _2.asset_ids.find((id) => {
@@ -101364,8 +102238,8 @@ async function createBookingsForEvent(event, type, resources) {
       return (_a12 = item.items) == null ? void 0 : _a12.find((i) => i.item_ids.includes(id));
     }));
     return createBooking(new Booking({
-      type,
-      booking_type: type,
+      type: type2,
+      booking_type: type2,
       date: event.date,
       duration: event.duration,
       description: event.title || item.name,
@@ -104582,7 +105456,7 @@ function generateCalendarFileLink(event) {
   if (!event)
     return "data:text/calendar;charset=utf8,";
   const chunks = [];
-  const description = escapeText(`${event.body || ""}${event.id ? "\n\n[ID|" + event.id + "]" : ""}`);
+  const description2 = escapeText(`${event.body || ""}${event.id ? "\n\n[ID|" + event.id + "]" : ""}`);
   const location2 = escapeText(`${event.location}`);
   chunks.push(["BEGIN", "VCALENDAR"]);
   chunks.push(["VERSION", "2.0"]);
@@ -104603,7 +105477,7 @@ function generateCalendarFileLink(event) {
     ]);
   }
   chunks.push(["SUMMARY", escapeText(event.title)]);
-  chunks.push(["DESCRIPTION", description]);
+  chunks.push(["DESCRIPTION", description2]);
   chunks.push(["LOCATION", location2]);
   const hostEmail = event.host || event.user_email || `no-reply@place.tech`;
   const hostName = ((_a11 = event.organiser) == null ? void 0 : _a11.name) || hostEmail.split("@")[0] || "Staff";
@@ -104637,7 +105511,7 @@ function generateGoogleCalendarLink(event) {
 function dateToISO(date) {
   return `${format(date, "yyyy-MM-dd")}T${format(date, "HH:mm:ss")}`;
 }
-function generateMicrosoftCalendarLink(event, type = "office", status = "free") {
+function generateMicrosoftCalendarLink(event, type2 = "office", status = "free") {
   var _a11;
   if (!event.date)
     event.date = Date.now();
@@ -104659,7 +105533,7 @@ function generateMicrosoftCalendarLink(event, type = "office", status = "free") 
   const resources = ((((_a11 = event.resources) == null ? void 0 : _a11.length) ? event.resources : null) || [event.system]).map((_2) => (_2 == null ? void 0 : _2.email) || _2);
   if (emails.length || resources.length)
     data.to = unique([...emails, ...resources]).filter((_2) => !!_2).join(",");
-  return type === "office" ? `https://outlook.office.com/calendar/deeplink/compose?${toQueryString(data)}` : `https://outlook.live.com/calendar/deeplink/compose?${toQueryString(data)}`;
+  return type2 === "office" ? `https://outlook.office.com/calendar/deeplink/compose?${toQueryString(data)}` : `https://outlook.live.com/calendar/deeplink/compose?${toQueryString(data)}`;
 }
 
 // libs/events/src/lib/event-link-modal.component.ts
@@ -106727,7 +107601,7 @@ var MOCK_SPACES = rawSpaces.map((space) => generateMockSpace(__spreadProps(__spr
 
 // libs/mocks/src/lib/api/bookings.data.ts
 var TRACKING = ["in_storage", "in_transit", "at_location"];
-var generateBookingForDay = (day, type, index, user) => {
+var generateBookingForDay = (day, type2, index, user) => {
   var _a11;
   const bld = MOCK_BUILDINGS[predictableRandomInt(MOCK_BUILDINGS.length)];
   const lvls = MOCK_LEVELS.filter((_2) => _2.parent_id === (bld == null ? void 0 : bld.id));
@@ -106749,17 +107623,17 @@ var generateBookingForDay = (day, type, index, user) => {
     booking_start,
     booking_end,
     timezone: "Australia/Sydney",
-    title: capitalizeFirstLetter(`${type.replace("-", " ")} booking ${index}`),
+    title: capitalizeFirstLetter(`${type2.replace("-", " ")} booking ${index}`),
     event_start: booking_start,
     event_end: booking_end,
-    asset_ids: type === "asset-request" ? [...Array(asset_count)].map((_2, i) => MOCK_ASSETS[predictableRandomInt(MOCK_ASSETS.length, i + 1)].id) : [
-      type === "visitor" ? guest.email : `${type}-${bld == null ? void 0 : bld.id}-${lvl == null ? void 0 : lvl.id}-${position}`
+    asset_ids: type2 === "asset-request" ? [...Array(asset_count)].map((_2, i) => MOCK_ASSETS[predictableRandomInt(MOCK_ASSETS.length, i + 1)].id) : [
+      type2 === "visitor" ? guest.email : `${type2}-${bld == null ? void 0 : bld.id}-${lvl == null ? void 0 : lvl.id}-${position}`
     ],
-    asset_id: type === "visitor" ? guest.email : `${type}-${bld == null ? void 0 : bld.id}-${lvl == null ? void 0 : lvl.id}-${position}`,
-    asset_name: type === "visitor" ? guest.name : `${bld == null ? void 0 : bld.name}-${position}`,
-    description: type === "visitor" ? guest.name : `${capitalizeFirstLetter(type.replace("-", " "))} in ${bld == null ? void 0 : bld.name}`,
-    booking_type: type,
-    type,
+    asset_id: type2 === "visitor" ? guest.email : `${type2}-${bld == null ? void 0 : bld.id}-${lvl == null ? void 0 : lvl.id}-${position}`,
+    asset_name: type2 === "visitor" ? guest.name : `${bld == null ? void 0 : bld.name}-${position}`,
+    description: type2 === "visitor" ? guest.name : `${capitalizeFirstLetter(type2.replace("-", " "))} in ${bld == null ? void 0 : bld.name}`,
+    booking_type: type2,
+    type: type2,
     user_id: user.id,
     user_name: user.name,
     user_email: user.email,
@@ -106771,11 +107645,11 @@ var generateBookingForDay = (day, type, index, user) => {
     rejected: predictableRandomInt(12) === 0,
     approved: approved !== 0,
     access: approved !== 0,
-    permission: type === "group-event" ? "OPEN" : "PRIVATE",
+    permission: type2 === "group-event" ? "OPEN" : "PRIVATE",
     approver_id: approved ? approver.id : "",
     approver_name: approved ? approver.name : "",
     approver_email: approved ? approver.email : "",
-    process_state: type === "asset-request" ? TRACKING[predictableRandomInt(TRACKING.length, index)] : "",
+    process_state: type2 === "asset-request" ? TRACKING[predictableRandomInt(TRACKING.length, index)] : "",
     last_changed: booking_start,
     created: booking_start - 3600,
     created_by_id: user.id,
@@ -106783,11 +107657,11 @@ var generateBookingForDay = (day, type, index, user) => {
     created_by_email: user.email,
     zones: [
       bld == null ? void 0 : bld.id,
-      type === "parking" ? (_a11 = MOCK_LEVELS.find((l) => l.parent_id === (bld == null ? void 0 : bld.id) && l.type === "parking")) == null ? void 0 : _a11.id : lvl == null ? void 0 : lvl.id
+      type2 === "parking" ? (_a11 = MOCK_LEVELS.find((l) => l.parent_id === (bld == null ? void 0 : bld.id) && l.type === "parking")) == null ? void 0 : _a11.id : lvl == null ? void 0 : lvl.id
     ].filter(Boolean),
     extension_data: {
       map_id: `table-${bld == null ? void 0 : bld.id}.${position}`,
-      note: capitalizeFirstLetter(`${type.replace("-", " ")} booking ${index}`),
+      note: capitalizeFirstLetter(`${type2.replace("-", " ")} booking ${index}`),
       plate_number: randomString(8, "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"),
       tracking: approved ? "at_location" : "in_storage",
       space_id: lvl_spaces.length ? lvl_spaces[predictableRandomInt(lvl_spaces.length)].id : `space-${index}`,
@@ -110875,9 +111749,9 @@ var createMicrophoneModule = (space, overrides = {}) => new MicrophoneModule(__s
 
 // libs/mocks/src/lib/realtime/payments.ts
 var PaymentsModule = class {
-  $list_payment_methods(type) {
+  $list_payment_methods(type2) {
   }
-  $add_payment_method(type, details) {
+  $add_payment_method(type2, details) {
   }
   $get_product_prices(id, period) {
     return [12e3, 60];
@@ -111158,12 +112032,12 @@ function registerMockUsers() {
     "none"
   ];
   function generateLocation2() {
-    const type = LOCATION_TYPES[predictableRandomInt(LOCATION_TYPES.length)];
+    const type2 = LOCATION_TYPES[predictableRandomInt(LOCATION_TYPES.length)];
     const level = MOCK_LEVELS[predictableRandomInt(MOCK_LEVELS.length)];
     const level_spaces = MOCK_SPACES.filter((s) => s.zones.includes(level.id));
     const space = level_spaces[predictableRandomInt(level_spaces.length)] || {};
     const location2 = {};
-    switch (type) {
+    switch (type2) {
       case "meeting":
         location2.meeting = {
           building: level.parent_id,
@@ -111183,7 +112057,7 @@ function registerMockUsers() {
         break;
       case "laptop":
       case "mobile":
-        location2[type] = {
+        location2[type2] = {
           building: level.parent_id,
           level: level.id,
           x: +predictableRandomInt(1e4),
@@ -111497,6 +112371,102 @@ function mocksInit() {
   registerMockZones();
 }
 
+// apps/booking-panel/src/environments/settings.schema.json
+var settings_schema_exports = {};
+__export(settings_schema_exports, {
+  $defs: () => $defs,
+  default: () => settings_schema_default,
+  description: () => description,
+  properties: () => properties,
+  type: () => type
+});
+var type = "object";
+var description = "Customisable settings for the booking-panel app";
+var properties = {
+  name: {
+    type: "string",
+    description: "Name of the application. Used for the page title and as a fallback application name for API requests."
+  },
+  title: {
+    type: "string",
+    description: "Title for the application"
+  },
+  description: {
+    type: "string",
+    description: "Description of the application"
+  },
+  short_name: {
+    type: "string",
+    description: "Short name for the application. Used as the application name for API requests."
+  },
+  logo_light: {
+    $ref: "#/$defs/logo",
+    description: "Logo displayed on the event panel when the light theme is active. Either an image URL string or an object with a `src` image URL."
+  },
+  logo_dark: {
+    $ref: "#/$defs/logo",
+    description: "Logo displayed on the event panel when the dark theme is active. Either an image URL string or an object with a `src` image URL."
+  },
+  general: {
+    type: "object",
+    description: "General settings associated with the app"
+  },
+  prevent_space_init: {
+    type: "boolean",
+    description: "Whether to prevent the spaces service from loading the full list of bookable spaces on startup"
+  },
+  allow_dark_mode: {
+    type: "boolean",
+    description: "Whether the user is allowed to switch the app between light and dark themes. When disabled the app is locked to the light theme."
+  },
+  text_color: {
+    type: "string",
+    description: "CSS colour for text on the event panel view. Defaults to `#FFFFFF`."
+  },
+  background_color: {
+    type: "string",
+    description: "CSS colour for the background of the event panel view. Defaults to `#483285`."
+  },
+  background_image: {
+    type: "string",
+    description: "URL of the background image to render on the event panel view"
+  },
+  refresh_when_websocket_unstable: {
+    type: "boolean",
+    description: "Whether to reload the page when the websocket connection to the PlaceOS backend is repeatedly dropping"
+  },
+  user_as_default_host: {
+    type: "boolean",
+    description: "Whether the signed-in user's email should be used as the host for `book_now` bookings when no host is set"
+  }
+};
+var $defs = {
+  logo: {
+    anyOf: [
+      {
+        type: "string",
+        description: "URL of the logo image"
+      },
+      {
+        type: "object",
+        required: ["src"],
+        properties: {
+          src: {
+            type: "string",
+            description: "URL of the logo image"
+          }
+        }
+      }
+    ]
+  }
+};
+var settings_schema_default = {
+  type,
+  description,
+  properties,
+  $defs
+};
+
 // apps/booking-panel/src/app/app.component.ts
 function AppComponent_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -111505,6 +112475,7 @@ function AppComponent_Conditional_3_Template(rf, ctx) {
 }
 var _AppComponent = class _AppComponent {
   constructor() {
+    this.settings_schema = settings_schema_exports;
     this._placeos = inject2(PlaceOS_Service);
   }
   get has_chat() {
@@ -111518,24 +112489,27 @@ var _AppComponent = class _AppComponent {
 _AppComponent.\u0275fac = function AppComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _AppComponent)();
 };
-_AppComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AppComponent, selectors: [["app-root"]], decls: 5, vars: 1, consts: [[1, "relative", "h-1/2", "w-full", "flex-1"]], template: function AppComponent_Template(rf, ctx) {
+_AppComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AppComponent, selectors: [["app-root"]], decls: 6, vars: 2, consts: [[1, "relative", "h-1/2", "w-full", "flex-1"], [3, "schema"]], template: function AppComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "global-banner");
     \u0275\u0275elementStart(1, "div", 0);
     \u0275\u0275element(2, "router-outlet");
     \u0275\u0275elementEnd();
     \u0275\u0275conditionalCreate(3, AppComponent_Conditional_3_Template, 1, 0, "global-chat");
-    \u0275\u0275element(4, "global-loading");
+    \u0275\u0275element(4, "global-loading")(5, "settings-debug-panel", 1);
   }
   if (rf & 2) {
     \u0275\u0275advance(3);
     \u0275\u0275conditional(ctx.has_chat ? 3 : -1);
+    \u0275\u0275advance(2);
+    \u0275\u0275property("schema", ctx.settings_schema);
   }
 }, dependencies: [
   RouterOutlet,
   ChatComponent,
   GlobalBannerComponent,
-  GlobalLoadingComponent
+  GlobalLoadingComponent,
+  SettingsDebugPanelComponent
 ], styles: ["\n[_nghost-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n  width: 100%;\n}\n/*# sourceMappingURL=app.component.css.map */"], changeDetection: 1 });
 var AppComponent = _AppComponent;
 (() => {
@@ -111545,7 +112519,8 @@ var AppComponent = _AppComponent;
       RouterOutlet,
       ChatComponent,
       GlobalBannerComponent,
-      GlobalLoadingComponent
+      GlobalLoadingComponent,
+      SettingsDebugPanelComponent
     ], template: `
         <global-banner />
         <div class="relative h-1/2 w-full flex-1">
@@ -111555,12 +112530,12 @@ var AppComponent = _AppComponent;
             <global-chat />
         }
         <global-loading />
-        <!-- <debug-console *ngIf="debug"></debug-console> -->
+        <settings-debug-panel [schema]="settings_schema" />
     `, changeDetection: ChangeDetectionStrategy.Eager, styles: ["/* angular:styles/component:css;2c590c9e56511a088a1469fe4b227d8190323c208f95620a03712f1a8f5bae8d;/home/runner/work/user-interfaces/user-interfaces/apps/booking-panel/src/app/app.component.ts */\n:host {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n  width: 100%;\n}\n/*# sourceMappingURL=app.component.css.map */\n"] }]
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AppComponent, { className: "AppComponent", filePath: "apps/booking-panel/src/app/app.component.ts", lineNumber: 47 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AppComponent, { className: "AppComponent", filePath: "apps/booking-panel/src/app/app.component.ts", lineNumber: 51 });
 })();
 
 // node_modules/@angular/animations/fesm2022/_util-chunk.mjs
@@ -113166,11 +114141,11 @@ var TimelineBuilder = class _TimelineBuilder {
     return this._keyframes.get(this.duration);
   }
   get properties() {
-    const properties = [];
+    const properties2 = [];
     for (let prop in this._currentKeyframe) {
-      properties.push(prop);
+      properties2.push(prop);
     }
-    return properties;
+    return properties2;
   }
   mergeTimelineCollectedStyles(timeline) {
     timeline._styleSummary.forEach((details1, prop) => {
@@ -115486,11 +116461,11 @@ var AnimationRendererFactory = class {
       delegate2 == null ? void 0 : delegate2.removeChild(null, element);
     };
   }
-  createRenderer(hostElement, type) {
+  createRenderer(hostElement, type2) {
     var _a11;
     const EMPTY_NAMESPACE_ID = "";
-    const delegate = this.delegate.createRenderer(hostElement, type);
-    if (!hostElement || !((_a11 = type == null ? void 0 : type.data) == null ? void 0 : _a11["animation"])) {
+    const delegate = this.delegate.createRenderer(hostElement, type2);
+    if (!hostElement || !((_a11 = type2 == null ? void 0 : type2.data) == null ? void 0 : _a11["animation"])) {
       const cache = this._rendererCache;
       let renderer = cache.get(delegate);
       if (!renderer) {
@@ -115500,8 +116475,8 @@ var AnimationRendererFactory = class {
       }
       return renderer;
     }
-    const componentId = type.id;
-    const namespaceId = type.id + "-" + this._currentId;
+    const componentId = type2.id;
+    const namespaceId = type2.id + "-" + this._currentId;
     this._currentId++;
     this.engine.register(namespaceId, hostElement);
     const registerTrigger = (trigger2) => {
@@ -115511,7 +116486,7 @@ var AnimationRendererFactory = class {
         this.engine.registerTrigger(componentId, namespaceId, hostElement, trigger2.name, trigger2);
       }
     };
-    const animationTriggers = type.data["animation"];
+    const animationTriggers = type2.data["animation"];
     animationTriggers.forEach(registerTrigger);
     return new AnimationRenderer(this, namespaceId, delegate, this.engine);
   }
