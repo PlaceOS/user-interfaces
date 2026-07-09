@@ -23,8 +23,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { queryParkingSpaces } from '@placeos/assets';
 import {
     approveBooking,
+    bookedResourceList,
     findBookingClashes,
-    queryBookings,
     rejectOverlappingRecurringBookings,
     updateBooking,
 } from '@placeos/bookings';
@@ -47,7 +47,6 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { PlaceAsset } from '@placeos/ts-client';
-import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { ExploreParkingInfoComponent } from 'libs/explore/src/lib/explore-parking-info.component';
 import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
 
@@ -82,6 +81,35 @@ export function mapLocationFromClick(e: any, map_info: BoundsMap = {}) {
     }
     short_list.sort((a, b) => a[1] - b[1]);
     return short_list[0]?.[0] || '';
+}
+
+export function availableParkingSpaces(
+    spaces: PlaceAsset[],
+    booked_ids: Set<string>,
+    clash_ids: Set<string>,
+) {
+    return spaces.filter(
+        (space) =>
+            !booked_ids.has(space.id) &&
+            !clash_ids.has(space.id) &&
+            !space.assigned_to &&
+            space.bookable !== false,
+    );
+}
+
+export function bookedResourcePeriodForBooking(booking: Booking) {
+    const start = booking.booking_start || Math.floor(booking.date / 1000);
+    const end =
+        booking.booking_end ||
+        Math.floor(
+            (booking.date_end ||
+                booking.date + (booking.duration || 0) * 60 * 1000) /
+                1000,
+        );
+    return {
+        period_start: start - 5 * 60,
+        period_end: end + 5 * 60,
+    };
 }
 
 @Component({
@@ -264,22 +292,19 @@ export class ParkingAssignSpaceModalComponent
         () => this._all_spaces_resource.value() ?? [],
     );
 
-    private readonly _bookings_resource = resource({
+    private readonly _booked_ids_resource = resource({
         params: () => this.selected_level(),
         loader: ({ params: level }) =>
             level
-                ? queryBookings({
-                      period_start: getUnixTime(
-                          startOfDay(this._data.booking.date),
-                      ),
-                      period_end: getUnixTime(endOfDay(this._data.booking.date)),
+                ? bookedResourceList({
+                      ...bookedResourcePeriodForBooking(this._data.booking),
                       type: 'parking',
-                      zones: level.id,
-                  }).catch(() => [] as Booking[])
-                : Promise.resolve([] as Booking[]),
+                      zones: bookingZonesForLevel(this._org, level).join(','),
+                  }).catch(() => [] as string[])
+                : Promise.resolve([] as string[]),
     });
-    private readonly _bookings = computed<Booking[]>(
-        () => this._bookings_resource.value() ?? [],
+    private readonly _booked_ids = computed(
+        () => new Set(this._booked_ids_resource.value() ?? []),
     );
 
     /**
@@ -317,25 +342,13 @@ export class ParkingAssignSpaceModalComponent
     );
 
     /** Available spaces for the selected level, excluding those booked during the booking's time range */
-    public readonly available_spaces = computed(() => {
-        const booked_ids = new Set(
-            this._bookings()
-                .filter(
-                    (booking) =>
-                        !booking.asset_id?.startsWith('unallocated') &&
-                        !booking.rejected,
-                )
-                .map((booking) => booking.asset_id),
-        );
-        const clash_ids = this._recurring_clash_ids();
-        return this._all_spaces().filter(
-            (space) =>
-                !booked_ids.has(space.id) &&
-                !clash_ids.has(space.id) &&
-                !space.assigned_to &&
-                space.bookable !== false,
-        );
-    });
+    public readonly available_spaces = computed(() =>
+        availableParkingSpaces(
+            this._all_spaces(),
+            this._booked_ids(),
+            this._recurring_clash_ids(),
+        ),
+    );
 
     /** Map styles: green for available, amber for selected */
     public readonly map_styles = computed(() => {
