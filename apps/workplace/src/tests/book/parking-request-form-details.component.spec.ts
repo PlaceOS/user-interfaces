@@ -111,6 +111,8 @@ describe('ParkingRequestFormDetailsComponent', () => {
         vi.restoreAllMocks();
         (ts_client.get as any).mockReset();
         (ts_client.get as any).mockResolvedValue([]);
+        (ts_client.query as any).mockReset();
+        (ts_client.query as any).mockResolvedValue({ data: [] });
         now_spy = null;
     });
 
@@ -124,6 +126,7 @@ describe('ParkingRequestFormDetailsComponent', () => {
             } as any),
         );
         vi.mocked(ts_client.get).mockResolvedValue([] as any);
+        vi.mocked(ts_client.query).mockResolvedValue({ data: [] } as any);
         // Pin "now" to a moment before the form's default date so that the
         // shift-applies-to-form helpers don't roll the booking forward into
         // tomorrow on tests that don't care about that behaviour.
@@ -733,6 +736,20 @@ describe('ParkingRequestFormDetailsComponent', () => {
         expect(spectator.component.shift_type()).toBe('custom');
         expect(spectator.component.show_shift_select()).toBe(false);
         expect(spectator.component.show_custom_time_inputs()).toBe(true);
+    });
+
+    it('should not request availability when the counter is hidden', async () => {
+        spectator.component.hide_availability_counter.set(true);
+        (spectator.inject(ParkingService).spaces as any).set([
+            { id: 'space-1', bookable: true },
+        ]);
+
+        await spectator.component.ngOnInit();
+        await new Promise((resolve) => setTimeout(resolve, 350));
+
+        expect(ts_client.query).not.toHaveBeenCalledWith(
+            expect.objectContaining({ path: 'booked' }),
+        );
     });
 
     it('should force an all-day booking when neither presets nor custom are allowed', async () => {

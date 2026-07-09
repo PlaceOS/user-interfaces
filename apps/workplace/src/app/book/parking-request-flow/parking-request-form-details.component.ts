@@ -1599,6 +1599,10 @@ export class ParkingRequestFormDetailsComponent
         );
         runInInjectionContext(this._injector, () =>
             effect((onCleanup) => {
+                if (this.hide_availability_counter()) {
+                    this.availability_loading.set(false);
+                    return;
+                }
                 const bld = this.building();
                 const spaces = this._parking.spaces();
                 const { date, duration } = availability_window();
