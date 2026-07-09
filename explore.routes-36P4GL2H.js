@@ -24,7 +24,6 @@ import {
   MatTooltip,
   MatTooltipModule,
   UserSearchFieldComponent,
-  endOfMinute,
   filterResourcesFromRules,
   generateCalendarFileLink,
   generateGoogleCalendarLink,
@@ -41,7 +40,7 @@ import {
   setHours,
   setMinutes,
   showStaff
-} from "./chunk-QT3A4SDR.js";
+} from "./chunk-NPOA3V6I.js";
 import {
   ANIMATION_SHOW_CONTRACT_EXPAND,
   ActivatedRoute,
@@ -208,6 +207,7 @@ import {
   oa,
   onFieldChange,
   output,
+  queryAllBookings,
   queryBookings,
   queryResourceAvailability,
   required,
@@ -307,7 +307,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-BSATCDHV.js";
+} from "./chunk-VRXV3RDZ.js";
 import {
   __spreadProps,
   __spreadValues
@@ -9105,18 +9105,21 @@ var ExploreParkingService = class _ExploreParkingService extends AsyncHandler {
       {}
     )), {
       params: () => ({
-        bld: this._building(),
         is_public: this._state.options().is_public,
+        level_id: this._state.level()?.id,
         date: this._options().date,
         poll: this._poll()
       }),
-      loader: ({ params: { bld, is_public, date } }) => is_public ? Promise.resolve([]) : queryBookings({
-        period_start: getUnixTime(startOfMinute(date || Date.now())),
-        period_end: getUnixTime(endOfMinute(date || Date.now())),
-        type: "parking",
-        zones: this._settings.get("app.use_region") ? bld?.parent_id : bld?.id,
-        rejected: false
-      }).catch(() => [])
+      loader: ({ params: { is_public, level_id, date } }) => {
+        const time = date ?? Date.now();
+        return is_public || !level_id ? Promise.resolve([]) : queryAllBookings({
+          period_start: getUnixTime(addMinutes(time, -15)),
+          period_end: getUnixTime(addMinutes(time, 30)),
+          type: "parking",
+          zones: level_id,
+          rejected: false
+        }).catch(() => []);
+      }
     }));
     this.events = computed(
       () => this._events.value() ?? [],
@@ -12148,4 +12151,4 @@ var ROUTES = [
 export {
   ROUTES
 };
-//# sourceMappingURL=explore.routes-FDUVBSKJ.js.map
+//# sourceMappingURL=explore.routes-36P4GL2H.js.map

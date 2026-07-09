@@ -322,7 +322,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-BSATCDHV.js";
+} from "./chunk-VRXV3RDZ.js";
 import {
   __objRest,
   __spreadProps,
@@ -8209,6 +8209,7 @@ function generateBookingForm(booking = new Booking(), injector) {
         return booking_type === "parking" && require_plate_number();
       }
     });
+    validate(p.plate_number, ({ value, valueOf }) => valueOf(p.booking_type) === "parking" && require_plate_number() && !`${value() || ""}`.trim() ? { kind: "required" } : void 0);
     validate(p.duration, ({ value, valueOf }) => {
       const date = valueOf(p.date);
       if (value() <= 0)
@@ -11885,7 +11886,6 @@ var UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHand
 })();
 
 export {
-  endOfMinute,
   setHours,
   setMinutes,
   filterResourcesFromRules,
@@ -11926,4 +11926,4 @@ export {
   CalendarService,
   BookingFormService
 };
-//# sourceMappingURL=chunk-QT3A4SDR.js.map
+//# sourceMappingURL=chunk-NPOA3V6I.js.map
