@@ -91,9 +91,10 @@ function flattenSchemaKeys(
     selector: 'settings-debug-panel',
     template: `
         @if (show()) {
+            <div class=" fixed bottom-2 left-2 z-998 w-160 max-w-[90vw]">
             <div class="flex flex-col gap-2">
                 <div
-                    class="border-base-300 bg-base-100 text-base-content fixed bottom-123 left-2 z-998 flex w-160 max-w-[90vw] items-center overflow-hidden rounded-lg border p-1 shadow-sm"
+                    class="-mb-2 border-base-300 bg-base-100 text-base-content flex w-[calc(100%-0.5rem)] mx-1 items-center overflow-hidden rounded-b-lg rounded-t-xl border p-1 shadow-sm"
                 >
                     <div class="flex-1 px-3 font-medium">Settings Viewer</div>
                     <div class="flex items-center">
@@ -119,7 +120,7 @@ function flattenSchemaKeys(
                 </div>
             </div>
             <div
-                class="border-base-300 bg-base-200 text-base-content fixed bottom-2 left-2 z-998 flex h-120 max-h-[80vh] w-160 max-w-[90vw] flex-col overflow-hidden rounded-xl border shadow-sm"
+                class="border-base-300 bg-base-200 text-base-content flex h-120 flex-col overflow-hidden rounded-xl border shadow-sm pt-2"
             >
                 <div class="relative m-1 flex">
                     <input
@@ -316,6 +317,7 @@ function flattenSchemaKeys(
                     JSON, falling back to plain strings. Overrides are stored
                     locally in this browser.
                 </div>
+            </div>
             </div>
         }
     `,
