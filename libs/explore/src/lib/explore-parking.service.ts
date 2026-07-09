@@ -23,8 +23,8 @@ import {
 } from '@placeos/common';
 import { PlaceAsset, showMetadata } from '@placeos/ts-client';
 import {
+    addMinutes,
     endOfDay,
-    endOfMinute,
     getUnixTime,
     isSameDay,
     setHours,
@@ -35,7 +35,10 @@ import {
 import { queryParkingSpacesForZones } from '@placeos/assets';
 import { OrganisationService } from '@placeos/common';
 import { BookingFormService } from 'libs/bookings/src/lib/booking-form.service';
-import { queryBookings } from 'libs/bookings/src/lib/bookings.fn';
+import {
+    queryAllBookings,
+    queryBookings,
+} from 'libs/bookings/src/lib/bookings.fn';
 import { ParkingService } from 'libs/bookings/src/lib/parking.service';
 import { ExploreParkingInfoComponent } from './explore-parking-info.component';
 import { DEFAULT_COLOURS } from './explore-spaces.service';
@@ -95,30 +98,28 @@ export class ExploreParkingService extends AsyncHandler {
         () => this._booking_rules.value() ?? [],
     );
 
-    /** List of current bookings for the current building */
+    /** List of current bookings for the current map level */
     private _events = resource({
         params: () => ({
-            bld: this._building(),
             is_public: this._state.options().is_public,
+            level_id: this._state.level()?.id,
             date: this._options().date,
             poll: this._poll(),
         }),
-        loader: ({ params: { bld, is_public, date } }) =>
-            is_public
+        loader: ({ params: { is_public, level_id, date } }) => {
+            const time = date ?? Date.now();
+            return is_public || !level_id
                 ? Promise.resolve([])
-                : queryBookings({
-                      period_start: getUnixTime(
-                          startOfMinute(date || Date.now()),
-                      ),
-                      period_end: getUnixTime(endOfMinute(date || Date.now())),
+                : queryAllBookings({
+                      period_start: getUnixTime(addMinutes(time, -15)),
+                      period_end: getUnixTime(addMinutes(time, 30)),
                       type: 'parking',
-                      zones: this._settings.get('app.use_region')
-                          ? bld?.parent_id
-                          : bld?.id,
+                      zones: level_id,
                       rejected: false,
-                  }).catch(() => []),
+                  }).catch(() => []);
+        },
     });
-    /** List of current bookings for the current building */
+    /** List of current bookings for the current map level */
     public readonly events = computed(() => this._events.value() ?? []);
 
     /** Any event that the selected user has for the current date */
