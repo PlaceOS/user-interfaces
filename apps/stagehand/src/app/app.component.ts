@@ -1,8 +1,4 @@
-import {
-    Component,
-    inject,
-    OnInit,
-} from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { PlaceOS_Service, setMocks } from '@placeos/common';
 import { mocksInit } from '@placeos/mocks';
@@ -10,6 +6,9 @@ import { mocksInit } from '@placeos/mocks';
 import { ChatComponent } from 'libs/components/src/lib/chat/chat.component';
 import { GlobalBannerComponent } from 'libs/components/src/lib/global-banner.component';
 import { GlobalLoadingComponent } from 'libs/components/src/lib/global-loading.component';
+import { SettingsDebugPanelComponent } from 'libs/components/src/lib/settings-debug-panel.component';
+
+import * as SETTINGS_SCHEMA from '../environments/settings.schema.json';
 
 @Component({
     selector: 'app-root',
@@ -25,7 +24,7 @@ import { GlobalLoadingComponent } from 'libs/components/src/lib/global-loading.c
             <global-chat />
         }
         <global-loading />
-        <!-- <debug-console *ngIf="debug"></debug-console> -->
+        <settings-debug-panel [schema]="settings_schema" />
     `,
     styles: [
         `
@@ -42,9 +41,12 @@ import { GlobalLoadingComponent } from 'libs/components/src/lib/global-loading.c
         ChatComponent,
         GlobalBannerComponent,
         GlobalLoadingComponent,
+        SettingsDebugPanelComponent,
     ],
 })
 export class AppComponent implements OnInit {
+    public readonly settings_schema = SETTINGS_SCHEMA as any;
+
     private _placeos = inject(PlaceOS_Service);
 
     public get has_chat(): boolean {

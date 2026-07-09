@@ -1,0 +1,93 @@
+{
+    "type": "object",
+    "description": "Customisable settings for the signage-manager app",
+    "properties": {
+        "name": {
+            "type": "string",
+            "description": "Name of the application. Used as the browser tab title when no short name is set."
+        },
+        "title": {
+            "type": "string",
+            "description": "Title for the application"
+        },
+        "description": {
+            "type": "string",
+            "description": "Description of the application"
+        },
+        "short_name": {
+            "type": "string",
+            "description": "Short name for the application. Used as the browser tab title prefix and as the application name passed to the PlaceOS API client."
+        },
+        "logo_light": {
+            "$ref": "#/$defs/logo",
+            "description": "Logo shown in the navigation sidebar when using the light theme. Either a URL string or an object with a `src` URL."
+        },
+        "logo_dark": {
+            "$ref": "#/$defs/logo",
+            "description": "Logo shown in the navigation sidebar when using the dark theme. Either a URL string or an object with a `src` URL."
+        },
+        "diagnostics": {
+            "type": "boolean",
+            "description": "Whether diagnostics are enabled for the application"
+        },
+        "show_locale_selector": {
+            "type": "boolean",
+            "description": "Whether to show the locale (language) selector in the navigation sidebar. The selector is only rendered when more than one locale is configured."
+        },
+        "locales": {
+            "type": "array",
+            "description": "List of locales available in the navigation sidebar locale selector.",
+            "items": { "$ref": "#/$defs/locale" }
+        },
+        "default_animation_time": {
+            "type": "number",
+            "description": "Default duration for UI animations in milliseconds"
+        },
+        "media_allow_extended_video_codecs": {
+            "type": "boolean",
+            "description": "Whether media upload validation accepts extended video codecs — AV1 (`av01`/`V_AV1`) and HEVC (`hev1`/`hvc1`) — in MP4 and WebM files, in addition to the default allowed codec set."
+        },
+        "signage_path": {
+            "type": "string",
+            "description": "Base URL path of the signage viewer application, used to build display preview links. Defaults to `/signage`."
+        }
+    },
+    "$defs": {
+        "logo": {
+            "anyOf": [
+                {
+                    "type": "string",
+                    "description": "URL of the logo image"
+                },
+                {
+                    "type": "object",
+                    "required": ["src"],
+                    "properties": {
+                        "src": {
+                            "type": "string",
+                            "description": "URL of the logo image"
+                        }
+                    }
+                }
+            ]
+        },
+        "locale": {
+            "type": "object",
+            "required": ["id", "name"],
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "Locale code, e.g. `en` or `fr`. Persisted to local storage when selected."
+                },
+                "name": {
+                    "type": "string",
+                    "description": "Display name for the locale. Supports translation keys."
+                },
+                "local": {
+                    "type": "string",
+                    "description": "Name of the locale in its own language, shown alongside the translated name."
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,104 @@
+{
+    "type": "object",
+    "description": "Customisable settings for the timetable app",
+    "properties": {
+        "name": {
+            "type": "string",
+            "description": "Name of the application. Used in page titles when no short name is set"
+        },
+        "title": {
+            "type": "string",
+            "description": "Display title for the application"
+        },
+        "description": {
+            "type": "string",
+            "description": "Description of the application"
+        },
+        "short_name": {
+            "type": "string",
+            "description": "Short name for the application. Used in page titles and API request headers"
+        },
+        "logo_light": {
+            "description": "Logo displayed in the top bar when the light theme is active. Either an image URL string or an icon object with a `src`",
+            "anyOf": [{ "type": "string" }, { "$ref": "#/$defs/icon" }]
+        },
+        "logo_dark": {
+            "description": "Logo displayed in the top bar when the dark theme is active. Either an image URL string or an icon object with a `src`",
+            "anyOf": [{ "type": "string" }, { "$ref": "#/$defs/icon" }]
+        },
+        "features": {
+            "type": "array",
+            "description": "List of feature flags enabled for the application",
+            "items": { "type": "string" }
+        },
+        "block_start": {
+            "type": "number",
+            "description": "First hour of the day (0-24) displayed on the timetable grid. Defaults to `0`"
+        },
+        "block_end": {
+            "type": "number",
+            "description": "Last hour of the day (0-24) displayed on the timetable grid. Defaults to `24`"
+        },
+        "can_deliver": {
+            "type": "boolean",
+            "description": "Whether delivery options are available"
+        },
+        "hide_contacts": {
+            "type": "boolean",
+            "description": "Whether to hide contact details in the app"
+        },
+        "desks": {
+            "type": "object",
+            "description": "Data associated with desk booking flow",
+            "properties": {
+                "can_book_for_others": {
+                    "type": "boolean",
+                    "description": "Whether user is allowed to make desk bookings on behalf of other users"
+                },
+                "allow_groups": {
+                    "type": "boolean",
+                    "description": "Whether users are allowed to make group desk bookings"
+                }
+            }
+        },
+        "analytics": {
+            "type": "object",
+            "description": "Google Analytics settings",
+            "properties": {
+                "enabled": {
+                    "type": "boolean",
+                    "description": "Whether Google Analytics tracking is enabled"
+                },
+                "tracking_id": {
+                    "type": "string",
+                    "description": "Google Analytics tracking ID. Analytics is only initialised when this is set"
+                }
+            }
+        }
+    },
+    "$defs": {
+        "icon": {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "enum": ["img", "icon"],
+                    "description": "Type of icon to render. Either `img` or `icon`"
+                },
+                "src": {
+                    "type": "string",
+                    "description": "URL of the image icon to display"
+                },
+                "class": {
+                    "type": "string",
+                    "description": "CSS class to apply to icon container element"
+                },
+                "content": {
+                    "type": "string",
+                    "description": "Content to add to the icon container element"
+                }
+            }
+        }
+    }
+}

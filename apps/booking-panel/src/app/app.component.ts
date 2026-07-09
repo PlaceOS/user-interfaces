@@ -10,8 +10,11 @@ import {
     ChatComponent,
     GlobalBannerComponent,
     GlobalLoadingComponent,
+    SettingsDebugPanelComponent,
 } from '@placeos/components';
 import { mocksInit } from '@placeos/mocks';
+
+import * as SETTINGS_SCHEMA from '../environments/settings.schema.json';
 
 @Component({
     selector: 'app-root',
@@ -20,6 +23,7 @@ import { mocksInit } from '@placeos/mocks';
         ChatComponent,
         GlobalBannerComponent,
         GlobalLoadingComponent,
+        SettingsDebugPanelComponent,
     ],
     template: `
         <global-banner />
@@ -30,7 +34,7 @@ import { mocksInit } from '@placeos/mocks';
             <global-chat />
         }
         <global-loading />
-        <!-- <debug-console *ngIf="debug"></debug-console> -->
+        <settings-debug-panel [schema]="settings_schema" />
     `,
     styles: [
         `
@@ -45,6 +49,8 @@ import { mocksInit } from '@placeos/mocks';
     changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class AppComponent implements OnInit {
+    public readonly settings_schema = SETTINGS_SCHEMA as any;
+
     private _placeos = inject(PlaceOS_Service);
 
     public get has_chat(): boolean {
