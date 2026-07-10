@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["new-desk-select-modal.component.ts"],
-  "sourcesContent": ["\n            @media screen and (max-width: 640px) {\n                [list] {\n                    width: 100% !important;\n                }\n            }\n        "],
-  "mappings": "AACY,OAAA,OAAA,IAAA,CAAA,SAAA,EAAA,OACI,CAAA,MACI,MAAA,cACJ,CACJ",
-  "names": []
-}
