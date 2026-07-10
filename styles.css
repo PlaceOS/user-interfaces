@@ -2855,9 +2855,6 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .bottom-16 {
   bottom: calc(var(--spacing) * 16);
 }
-#placeos .bottom-123 {
-  bottom: calc(var(--spacing) * 123);
-}
 #placeos .bottom-\[1em\] {
   bottom: 1em;
 }
@@ -3216,8 +3213,14 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .mr-auto {
   margin-right: auto;
 }
+#placeos .-mb-2 {
+  margin-bottom: calc(var(--spacing) * -2);
+}
 #placeos .-mb-4 {
   margin-bottom: calc(var(--spacing) * -4);
+}
+#placeos .-mb-7 {
+  margin-bottom: calc(var(--spacing) * -7);
 }
 #placeos .mb-0 {
   margin-bottom: calc(var(--spacing) * 0);
@@ -4691,6 +4694,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .grid-cols-\[auto_1fr\] {
   grid-template-columns: auto 1fr;
 }
+#placeos .grid-cols-\[max-content_1fr\] {
+  grid-template-columns: max-content 1fr;
+}
 #placeos .grid-rows-7 {
   grid-template-rows: repeat(7, minmax(0, 1fr));
 }
@@ -4708,9 +4714,6 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .place-items-center {
   place-items: center;
-}
-#placeos .items-baseline {
-  align-items: baseline;
 }
 #placeos .items-center {
   align-items: center;
@@ -4810,9 +4813,6 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .gap-x-4 {
   column-gap: calc(var(--spacing) * 4);
-}
-#placeos .gap-x-8 {
-  column-gap: calc(var(--spacing) * 8);
 }
 :where(#placeos .space-x-0 > :not(:last-child)) {
   --tw-space-x-reverse: 0;
@@ -6147,6 +6147,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .tracking-wider {
   --tw-tracking: var(--tracking-wider);
   letter-spacing: var(--tracking-wider);
+}
+#placeos .break-words {
+  overflow-wrap: break-word;
 }
 #placeos .wrap-break-word {
   overflow-wrap: break-word;
