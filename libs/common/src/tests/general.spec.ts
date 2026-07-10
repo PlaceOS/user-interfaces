@@ -5,6 +5,7 @@ import {
     alignDateToBookableHours,
     csvToJson,
     downloadFile,
+    getItemWithKeys,
     getNextBookableTime,
     isWithinBookableHours,
     jsonToCsv,
@@ -15,6 +16,16 @@ import {
 import * as notifications from '../lib/notifications';
 
 describe('General Methods', () => {
+    describe('getItemWithKeys', () => {
+        it('should stop when an intermediate value is not an object', () => {
+            expect(
+                getItemWithKeys(['logo_dark', 'src'], {
+                    logo_dark: 'assets/logo-dark.svg',
+                }),
+            ).toBeNull();
+        });
+    });
+
     describe('timePeriodsIntersect', () => {
         it('should handle start overlapping other period', () => {
             expect(timePeriodsIntersect(2, 10, 1, 5)).toBe(true);
