@@ -340,11 +340,13 @@ export class PlaylistsSectionComponent {
                 if (match && this._service.selected_playlist() !== match) {
                     this._service.selected_playlist.set(match);
                     this._service.selected_playlist_item.set(null);
+                    this._service.selected_playlist_item_index.set(null);
                 }
                 this._route_resolved = true;
             } else if (this._route_resolved) {
                 this._service.selected_playlist.set(null);
                 this._service.selected_playlist_item.set(null);
+                this._service.selected_playlist_item_index.set(null);
             }
         });
 
@@ -354,8 +356,12 @@ export class PlaylistsSectionComponent {
             if (!item_id) return;
             const items = this._playlist_items();
             if (!items.length) return;
-            const matched_item = items.find((item) => item.id === item_id);
+            const matched_index = items.findIndex((item) => item.id === item_id);
+            const matched_item = items[matched_index];
             this._service.selected_playlist_item.set(matched_item || null);
+            this._service.selected_playlist_item_index.set(
+                matched_item ? matched_index : null,
+            );
         });
     }
 
@@ -387,6 +393,7 @@ export class PlaylistsSectionComponent {
     public deselectPlaylist() {
         this._service.selected_playlist.set(null);
         this._service.selected_playlist_item.set(null);
+        this._service.selected_playlist_item_index.set(null);
         this._router.navigate(['/playlists'], {});
     }
 

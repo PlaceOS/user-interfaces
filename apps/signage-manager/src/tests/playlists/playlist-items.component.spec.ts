@@ -11,6 +11,7 @@ function media(id: string, media_type = 'image') {
 describe('PlaylistItemsComponent', () => {
     const selected_playlist = signal<any>(null);
     const selected_playlist_item = signal<any>(null);
+    const selected_playlist_item_index = signal<number | null>(null);
     const playlist_media_items = signal<any[]>([]);
     const playlist_item_schedules = signal(
         new Map<string, SignagePlaylistItemSchedule>(),
@@ -26,6 +27,7 @@ describe('PlaylistItemsComponent', () => {
     const service_stub = {
         selected_playlist,
         selected_playlist_item,
+        selected_playlist_item_index,
         selected_playlist_requires_approval: signal(false),
         can_approve: signal(false),
         can_update,
@@ -63,6 +65,7 @@ describe('PlaylistItemsComponent', () => {
         vi.clearAllMocks();
         selected_playlist.set(null);
         selected_playlist_item.set(null);
+        selected_playlist_item_index.set(null);
         playlist_media_items.set([]);
         playlist_item_schedules.set(new Map());
         playlist_item_schedule_list.set([]);
@@ -72,8 +75,19 @@ describe('PlaylistItemsComponent', () => {
     it('selects an item through the shared service signal', async () => {
         const component = await make();
         const item = media('a');
-        component.selectItem(item);
+        component.selectItem(item, 0);
         expect(selected_playlist_item()).toBe(item);
+        expect(selected_playlist_item_index()).toBe(0);
+    });
+
+    it('selects only one occurrence when the playlist contains duplicates', async () => {
+        const item = media('a');
+        const component = await make();
+
+        component.selectItem(item, 1);
+
+        expect(component.isItemSelected(item, 0)).toBe(false);
+        expect(component.isItemSelected(item, 1)).toBe(true);
     });
 
     it('exposes the signage thumbnail endpoint and media icon', async () => {
@@ -175,11 +189,13 @@ describe('PlaylistItemsComponent', () => {
         const item = media('a');
         selected_playlist.set({ id: 'pl-1' });
         selected_playlist_item.set(item);
+        selected_playlist_item_index.set(3);
         const component = await make();
 
         await component.removeItem(item, 3);
 
         expect(remove_media).toHaveBeenCalledWith('pl-1', 'a', 3);
         expect(selected_playlist_item()).toBeNull();
+        expect(selected_playlist_item_index()).toBeNull();
     });
 });

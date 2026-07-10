@@ -164,19 +164,19 @@ import { SignageService } from '../signage.service';
                             role="button"
                             tabindex="0"
                             class="bg-base-100 border-base-300 mb-2 flex cursor-pointer items-center gap-3 rounded-lg border p-2 transition-colors"
-                            [class.bg-primary]="selected_item()?.id === item.id"
+                            [class.bg-primary]="isItemSelected(item, $index)"
                             [class.text-primary-content]="
-                                selected_item()?.id === item.id
+                                isItemSelected(item, $index)
                             "
                             [class.hover:bg-base-200]="
-                                selected_item()?.id !== item.id
+                                !isItemSelected(item, $index)
                             "
-                            (click)="selectItem(item)"
+                            (click)="selectItem(item, $index)"
                             (keydown.enter)="
-                                selectItemWithKeyboard($event, item)
+                                selectItemWithKeyboard($event, item, $index)
                             "
                             (keydown.space)="
-                                selectItemWithKeyboard($event, item)
+                                selectItemWithKeyboard($event, item, $index)
                             "
                             [attr.aria-label]="
                                 'SIGNAGE_MANAGER.SELECT_MEDIA_ITEM'
@@ -339,19 +339,19 @@ import { SignageService } from '../signage.service';
                             role="button"
                             tabindex="0"
                             class="bg-base-100 border-base-300 mb-2 cursor-pointer rounded-lg border p-2 transition-colors"
-                            [class.bg-primary]="selected_item()?.id === item.id"
+                            [class.bg-primary]="isItemSelected(item, $index)"
                             [class.text-primary-content]="
-                                selected_item()?.id === item.id
+                                isItemSelected(item, $index)
                             "
                             [class.hover:bg-base-200]="
-                                selected_item()?.id !== item.id
+                                !isItemSelected(item, $index)
                             "
-                            (click)="selectItem(item)"
+                            (click)="selectItem(item, $index)"
                             (keydown.enter)="
-                                selectItemWithKeyboard($event, item)
+                                selectItemWithKeyboard($event, item, $index)
                             "
                             (keydown.space)="
-                                selectItemWithKeyboard($event, item)
+                                selectItemWithKeyboard($event, item, $index)
                             "
                             [attr.aria-label]="
                                 'SIGNAGE_MANAGER.SELECT_MEDIA_ITEM'
@@ -613,6 +613,8 @@ export class PlaylistItemsComponent {
 
     public readonly selected_playlist = this._service.selected_playlist;
     public readonly selected_item = this._service.selected_playlist_item;
+    public readonly selected_item_index =
+        this._service.selected_playlist_item_index;
     public readonly requires_approval =
         this._service.selected_playlist_requires_approval;
     public readonly can_approve = this._service.can_approve;
@@ -630,8 +632,16 @@ export class PlaylistItemsComponent {
         !!this.selected_playlist()?.distribution;
     public readonly collapsed_schedules = signal<Record<string, boolean>>({});
 
-    public selectItem(item: SignageMedia) {
+    public selectItem(item: SignageMedia, index: number) {
         this._service.selected_playlist_item.set(item);
+        this._service.selected_playlist_item_index.set(index);
+    }
+
+    public isItemSelected(item: SignageMedia, index: number) {
+        return (
+            this.selected_item()?.id === item.id &&
+            this.selected_item_index() === index
+        );
     }
 
     public thumbnailURL(item: SignageMedia) {
@@ -707,10 +717,14 @@ export class PlaylistItemsComponent {
         this.collapsed_schedules.set(collapsed);
     }
 
-    public selectItemWithKeyboard(event: Event, item: SignageMedia) {
+    public selectItemWithKeyboard(
+        event: Event,
+        item: SignageMedia,
+        index: number,
+    ) {
         event.preventDefault();
         event.stopPropagation();
-        this.selectItem(item);
+        this.selectItem(item, index);
     }
 
     public previewItem(item: SignageMedia) {
@@ -754,8 +768,9 @@ export class PlaylistItemsComponent {
             item.id,
             item_index,
         );
-        if (this.selected_item()?.id === item.id) {
+        if (this.isItemSelected(item, item_index)) {
             this._service.selected_playlist_item.set(null);
+            this._service.selected_playlist_item_index.set(null);
         }
     }
 

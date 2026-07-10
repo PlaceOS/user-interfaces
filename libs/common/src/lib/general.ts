@@ -139,7 +139,7 @@ export function padLength(
  */
 export function getItemWithKeys(keys: string[], map: HashMap) {
     const key = keys[0];
-    if (map && key in map) {
+    if (map && typeof map === 'object' && key in map) {
         return keys.length > 1
             ? getItemWithKeys(keys.slice(1), map[key] || {})
             : map[key];

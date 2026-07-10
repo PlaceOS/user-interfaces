@@ -7,6 +7,7 @@ import { SignageService } from '../../app/signage.service';
 describe('PlaylistsSectionComponent', () => {
     const selected_playlist = signal<any>(null);
     const selected_playlist_item = signal<any>(null);
+    const selected_playlist_item_index = signal<number | null>(null);
     const playlists = signal<any[]>([]);
     const playlist_media_items = signal<any[]>([]);
     const navigate = vi.fn();
@@ -14,6 +15,7 @@ describe('PlaylistsSectionComponent', () => {
     const service_stub = {
         selected_playlist,
         selected_playlist_item,
+        selected_playlist_item_index,
         selected_playlist_requires_approval: signal(false),
         can_approve: signal(false),
         can_update: signal(true),
@@ -52,6 +54,7 @@ describe('PlaylistsSectionComponent', () => {
         vi.clearAllMocks();
         selected_playlist.set(null);
         selected_playlist_item.set(null);
+        selected_playlist_item_index.set(null);
         playlists.set([]);
         playlist_media_items.set([]);
     });
@@ -93,6 +96,7 @@ describe('PlaylistsSectionComponent', () => {
         fixture.componentRef.setInput('item', 'm-2');
         fixture.detectChanges();
         expect(selected_playlist_item()).toBe(item);
+        expect(selected_playlist_item_index()).toBe(1);
     });
 
     it('navigates when switching the view tab', async () => {
