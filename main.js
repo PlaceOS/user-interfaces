@@ -53850,7 +53850,7 @@ function padLength(value, length = 2, character = "0") {
 }
 function getItemWithKeys(keys, map2) {
   const key = keys[0];
-  if (map2 && key in map2) {
+  if (map2 && typeof map2 === "object" && key in map2) {
     return keys.length > 1 ? getItemWithKeys(keys.slice(1), map2[key] || {}) : map2[key];
   }
   return null;
@@ -55875,15 +55875,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "d394f5c",
-  "hash": "d394f5c",
+  "raw": "3ceaa31",
+  "hash": "3ceaa31",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "d394f5c",
+  "suffix": "3ceaa31",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1783578395955
+  "time": 1783664543124
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -96301,6 +96301,307 @@ var ConfirmModalComponent = _ConfirmModalComponent;
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ConfirmModalComponent, { className: "ConfirmModalComponent", filePath: "libs/components/src/lib/confirm-modal.component.ts", lineNumber: 123 });
 })();
 
+// libs/components/src/lib/custom-tooltip.component.ts
+var _c013 = ["portal_content"];
+var _c19 = ["*"];
+function CustomTooltipComponent_ng_template_1_Case_1_ng_container_0_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementContainer(0);
+  }
+}
+function CustomTooltipComponent_ng_template_1_Case_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275template(0, CustomTooltipComponent_ng_template_1_Case_1_ng_container_0_Template, 1, 0, "ng-container", 3);
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275property("ngComponentOutlet", ctx_r0.component())("ngComponentOutletInjector", ctx_r0.injector);
+  }
+}
+function CustomTooltipComponent_ng_template_1_Case_2_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "div", 2);
+    \u0275\u0275pipe(1, "sanitize");
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275property("innerHTML", \u0275\u0275pipeBind1(1, 1, ctx_r0.html()), \u0275\u0275sanitizeHtml);
+  }
+}
+function CustomTooltipComponent_ng_template_1_Case_3_ng_container_0_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementContainer(0);
+  }
+}
+function CustomTooltipComponent_ng_template_1_Case_3_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275template(0, CustomTooltipComponent_ng_template_1_Case_3_ng_container_0_Template, 1, 0, "ng-container", 4);
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275property("ngTemplateOutlet", ctx_r0.template())("ngTemplateOutletContext", ctx_r0.data());
+  }
+}
+function CustomTooltipComponent_ng_template_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 1);
+    \u0275\u0275conditionalCreate(1, CustomTooltipComponent_ng_template_1_Case_1_Template, 1, 2, "ng-container")(2, CustomTooltipComponent_ng_template_1_Case_2_Template, 2, 3, "div", 2)(3, CustomTooltipComponent_ng_template_1_Case_3_Template, 1, 2, "ng-container");
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    let tmp_2_0;
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275conditional((tmp_2_0 = ctx_r0.type()) === "component" ? 1 : tmp_2_0 === "html" ? 2 : 3);
+  }
+}
+var _CustomTooltipData = class _CustomTooltipData {
+};
+_CustomTooltipData.\u0275fac = function CustomTooltipData_Factory(__ngFactoryType__) {
+  return new (__ngFactoryType__ || _CustomTooltipData)();
+};
+_CustomTooltipData.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _CustomTooltipData, factory: _CustomTooltipData.\u0275fac });
+var CustomTooltipData = _CustomTooltipData;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(CustomTooltipData, [{
+    type: Injectable
+  }], null, null);
+})();
+var _CustomTooltipComponent = class _CustomTooltipComponent extends AsyncHandler {
+  constructor() {
+    super(...arguments);
+    this._element = inject2(ElementRef);
+    this._overlay = inject2(Overlay);
+    this._injector = inject2(Injector);
+    this._view_container_ref = inject2(ViewContainerRef);
+    this.x_pos = input("end", __spreadProps(__spreadValues({}, ngDevMode ? { debugName: "x_pos" } : (
+      /* istanbul ignore next */
+      {}
+    )), { alias: "xPosition" }));
+    this.y_pos = input("top", __spreadProps(__spreadValues({}, ngDevMode ? { debugName: "y_pos" } : (
+      /* istanbul ignore next */
+      {}
+    )), { alias: "yPosition" }));
+    this.content = input(
+      void 0,
+      ...ngDevMode ? [{ debugName: "content" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.data = input(
+      void 0,
+      ...ngDevMode ? [{ debugName: "data" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.backdrop = input(
+      true,
+      ...ngDevMode ? [{ debugName: "backdrop" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.hover = input(
+      false,
+      ...ngDevMode ? [{ debugName: "hover" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.delay = input(
+      0,
+      ...ngDevMode ? [{ debugName: "delay" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.x_offset = input(0, __spreadProps(__spreadValues({}, ngDevMode ? { debugName: "x_offset" } : (
+      /* istanbul ignore next */
+      {}
+    )), { alias: "xOffset" }));
+    this.y_offset = input(0, __spreadProps(__spreadValues({}, ngDevMode ? { debugName: "y_offset" } : (
+      /* istanbul ignore next */
+      {}
+    )), { alias: "yOffset" }));
+    this.type = computed(
+      () => this.content() instanceof TemplateRef ? "template" : this.content() instanceof Type ? "component" : "html",
+      ...ngDevMode ? [{ debugName: "type" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.template = computed(
+      () => {
+        return this.content();
+      },
+      ...ngDevMode ? [{ debugName: "template" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.html = computed(
+      () => {
+        return this.content();
+      },
+      ...ngDevMode ? [{ debugName: "html" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.component = computed(
+      () => {
+        return this.content();
+      },
+      ...ngDevMode ? [{ debugName: "component" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._overlay_ref = null;
+    this._portal_content = viewChild.required("portal_content", {
+      read: TemplateRef
+    });
+    this._update_injector = effect(
+      () => {
+        this.injector = Injector.create({
+          providers: [
+            {
+              provide: CustomTooltipData,
+              useValue: { data: this.data(), close: () => this.close() }
+            }
+          ],
+          parent: this._injector
+        });
+      },
+      ...ngDevMode ? [{ debugName: "_update_injector" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+  }
+  ngOnInit() {
+    const open = () => !this.hover() ? this.open() : "";
+    const hover_open = (event) => this._canOpenHoverTooltip(event) ? this.open() : "";
+    const hover_close = (event) => this._canOpenHoverTooltip(event) ? this.close() : "";
+    this._element.nativeElement.addEventListener("click", open);
+    this._element.nativeElement.addEventListener("touchend", open);
+    this._element.nativeElement.addEventListener("pointerenter", hover_open);
+    this._element.nativeElement.addEventListener("pointerleave", hover_close);
+    this.subscription("click", () => this._element.nativeElement.removeEventListener("click", open));
+    this.subscription("touchend", () => this._element.nativeElement.removeEventListener("touchend", open));
+    this.subscription("pointerenter", () => this._element.nativeElement.removeEventListener("pointerenter", hover_open));
+    this.subscription("pointerleave", () => this._element.nativeElement.removeEventListener("pointerleave", hover_close));
+  }
+  ngOnChanges(changes) {
+    if (this._overlay_ref && (changes.x_pos || changes.y_pos || changes.x_offset || changes.y_offset || changes.content)) {
+      this.open();
+    }
+  }
+  ngOnDestroy() {
+    super.ngOnDestroy();
+    this.close();
+  }
+  open() {
+    if (!this.content())
+      return;
+    this.timeout("open", () => {
+      const hover = this.hover();
+      const delay2 = this.delay();
+      if (hover && delay2) {
+        this.timeout("onclose", () => this.close(), delay2);
+      }
+      if (this._overlay_ref)
+        this.close();
+      const portal = new TemplatePortal(this._portal_content(), this._view_container_ref);
+      const default_x = "end";
+      const default_y = "top";
+      const y_pos = this.y_pos();
+      this._overlay_ref = this._overlay.create({
+        hasBackdrop: !!this.backdrop() && !hover,
+        positionStrategy: this._overlay.position().flexibleConnectedTo(this._element).withDefaultOffsetX(this.x_offset()).withDefaultOffsetY(this.y_offset()).withPositions([
+          {
+            originX: this.x_pos() || default_x,
+            originY: (y_pos === "top" ? "bottom" : y_pos == "bottom" ? "top" : y_pos) || default_y,
+            overlayX: this.x_pos() || default_x,
+            overlayY: this.y_pos() || default_y
+          }
+        ])
+      });
+      this._overlay_ref.attach(portal);
+      if (this.backdrop()) {
+        this.subscription("backdrop", this._overlay_ref.backdropClick().subscribe(() => this.close()));
+      }
+    }, 50);
+  }
+  close() {
+    this.clearTimeout("open");
+    if (this._overlay_ref) {
+      this._overlay_ref.dispose();
+      this._overlay_ref = null;
+    }
+  }
+  _canOpenHoverTooltip(event) {
+    if (!this.hover())
+      return false;
+    return !("pointerType" in event) || event.pointerType !== "touch";
+  }
+};
+_CustomTooltipComponent.\u0275fac = /* @__PURE__ */ (() => {
+  let \u0275CustomTooltipComponent_BaseFactory;
+  return function CustomTooltipComponent_Factory(__ngFactoryType__) {
+    return (\u0275CustomTooltipComponent_BaseFactory || (\u0275CustomTooltipComponent_BaseFactory = \u0275\u0275getInheritedFactory(_CustomTooltipComponent)))(__ngFactoryType__ || _CustomTooltipComponent);
+  };
+})();
+_CustomTooltipComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CustomTooltipComponent, selectors: [["", "customTooltip", ""]], viewQuery: function CustomTooltipComponent_Query(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275viewQuerySignal(ctx._portal_content, _c013, 5, TemplateRef);
+  }
+  if (rf & 2) {
+    \u0275\u0275queryAdvance();
+  }
+}, inputs: { x_pos: [1, "xPosition", "x_pos"], y_pos: [1, "yPosition", "y_pos"], content: [1, "content"], data: [1, "data"], backdrop: [1, "backdrop"], hover: [1, "hover"], delay: [1, "delay"], x_offset: [1, "xOffset", "x_offset"], y_offset: [1, "yOffset", "y_offset"] }, features: [\u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature], ngContentSelectors: _c19, decls: 3, vars: 0, consts: [["portal_content", ""], ["custom-tooltip", "", 1, "relative", "print:hidden"], [3, "innerHTML"], [4, "ngComponentOutlet", "ngComponentOutletInjector"], [4, "ngTemplateOutlet", "ngTemplateOutletContext"]], template: function CustomTooltipComponent_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275projectionDef();
+    \u0275\u0275projection(0);
+    \u0275\u0275template(1, CustomTooltipComponent_ng_template_1_Template, 4, 1, "ng-template", null, 0, \u0275\u0275templateRefExtractor);
+  }
+}, dependencies: [CommonModule, NgComponentOutlet, NgTemplateOutlet, SanitizePipe], styles: ["\n[_nghost-%COMP%] {\n  pointer-events: auto !important;\n}\n/*# sourceMappingURL=custom-tooltip.component.css.map */"] });
+var CustomTooltipComponent = _CustomTooltipComponent;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(CustomTooltipComponent, [{
+    type: Component,
+    args: [{ selector: "[customTooltip]", template: `
+        <ng-content />
+        <ng-template #portal_content>
+            <div custom-tooltip class="relative print:hidden">
+                @switch (type()) {
+                    @case ('component') {
+                        <ng-container
+                            *ngComponentOutlet="component(); injector: injector"
+                        ></ng-container>
+                    }
+                    @case ('html') {
+                        <div [innerHTML]="html() | sanitize"></div>
+                    }
+                    @default {
+                        <ng-container
+                            *ngTemplateOutlet="template(); context: data()"
+                        ></ng-container>
+                    }
+                }
+            </div>
+        </ng-template>
+    `, imports: [CommonModule, SanitizePipe], styles: ["/* angular:styles/component:css;9f88acd9967d2b0ebf3bc5241107eaa7c3672b233611fbb42832362998689b5f;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/custom-tooltip.component.ts */\n:host {\n  pointer-events: auto !important;\n}\n/*# sourceMappingURL=custom-tooltip.component.css.map */\n"] }]
+  }], null, { x_pos: [{ type: Input, args: [{ isSignal: true, alias: "xPosition", required: false }] }], y_pos: [{ type: Input, args: [{ isSignal: true, alias: "yPosition", required: false }] }], content: [{ type: Input, args: [{ isSignal: true, alias: "content", required: false }] }], data: [{ type: Input, args: [{ isSignal: true, alias: "data", required: false }] }], backdrop: [{ type: Input, args: [{ isSignal: true, alias: "backdrop", required: false }] }], hover: [{ type: Input, args: [{ isSignal: true, alias: "hover", required: false }] }], delay: [{ type: Input, args: [{ isSignal: true, alias: "delay", required: false }] }], x_offset: [{ type: Input, args: [{ isSignal: true, alias: "xOffset", required: false }] }], y_offset: [{ type: Input, args: [{ isSignal: true, alias: "yOffset", required: false }] }], _portal_content: [{ type: ViewChild, args: ["portal_content", __spreadProps(__spreadValues({}, {
+    read: TemplateRef
+  }), { isSignal: true })] }] });
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CustomTooltipComponent, { className: "CustomTooltipComponent", filePath: "libs/components/src/lib/custom-tooltip.component.ts", lineNumber: 64 });
+})();
+
 // libs/components/src/lib/global-banner.component.ts
 function GlobalBannerComponent_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -97455,11 +97756,13 @@ var GlobalLoadingComponent = _GlobalLoadingComponent;
 })();
 
 // libs/components/src/lib/settings-debug-panel.component.ts
-function SettingsDebugPanelComponent_Conditional_0_Conditional_5_Template(rf, ctx) {
+var _c014 = (a0) => ({ zones: a0 });
+var _forTrack0 = ($index, $item) => $item.type + $item.id;
+function SettingsDebugPanelComponent_Conditional_0_Conditional_6_Template(rf, ctx) {
   if (rf & 1) {
     const _r2 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 13);
-    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_Conditional_5_Template_button_click_0_listener() {
+    \u0275\u0275elementStart(0, "button", 15);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_Conditional_6_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r2);
       const ctx_r2 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r2.clearAll());
@@ -97468,9 +97771,9 @@ function SettingsDebugPanelComponent_Conditional_0_Conditional_5_Template(rf, ct
     \u0275\u0275elementEnd();
   }
 }
-function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_0_Conditional_7_Template(rf, ctx) {
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_0_Conditional_7_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 20);
+    \u0275\u0275elementStart(0, "span", 22);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -97480,25 +97783,25 @@ function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_0_Conditio
     \u0275\u0275textInterpolate1(" ", group_r5.overridden, " overridden ");
   }
 }
-function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_0_Template(rf, ctx) {
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
     const _r4 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 16);
-    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_0_Template_button_click_0_listener() {
+    \u0275\u0275elementStart(0, "button", 18);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_0_Template_button_click_0_listener() {
       const group_r5 = \u0275\u0275restoreView(_r4);
       const ctx_r2 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r2.toggleGroup(group_r5.name));
     });
-    \u0275\u0275elementStart(1, "icon", 17);
+    \u0275\u0275elementStart(1, "icon", 19);
     \u0275\u0275text(2, " chevron_right ");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "span", 18);
+    \u0275\u0275elementStart(3, "span", 20);
     \u0275\u0275text(4);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(5, "span", 19);
+    \u0275\u0275elementStart(5, "span", 21);
     \u0275\u0275text(6);
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(7, SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_0_Conditional_7_Template, 2, 1, "span", 20);
+    \u0275\u0275conditionalCreate(7, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_0_Conditional_7_Template, 2, 1, "span", 22);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -97514,9 +97817,9 @@ function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_0_Template
     \u0275\u0275conditional(group_r5.overridden ? 7 : -1);
   }
 }
-function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Conditional_4_Template(rf, ctx) {
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Conditional_8_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 24);
+    \u0275\u0275elementStart(0, "div", 29);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -97527,9 +97830,9 @@ function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Conditio
     \u0275\u0275textInterpolate1(" ", row_r6.description, " ");
   }
 }
-function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_5_For_2_Template(rf, ctx) {
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_9_For_2_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "option", 26);
+    \u0275\u0275elementStart(0, "option", 31);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -97540,31 +97843,31 @@ function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_5_F
     \u0275\u0275textInterpolate1(" ", option_r8, " ");
   }
 }
-function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_5_Template(rf, ctx) {
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_9_Template(rf, ctx) {
   if (rf & 1) {
     const _r7 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "select", 25);
-    \u0275\u0275twoWayListener("ngModelChange", function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_5_Template_select_ngModelChange_0_listener($event) {
+    \u0275\u0275elementStart(0, "select", 30);
+    \u0275\u0275twoWayListener("ngModelChange", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_9_Template_select_ngModelChange_0_listener($event) {
       \u0275\u0275restoreView(_r7);
       const ctx_r2 = \u0275\u0275nextContext(4);
       \u0275\u0275twoWayBindingSet(ctx_r2.edit_value, $event) || (ctx_r2.edit_value = $event);
       return \u0275\u0275resetView($event);
     });
-    \u0275\u0275listener("keydown.escape", function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_5_Template_select_keydown_escape_0_listener() {
+    \u0275\u0275listener("keydown.escape", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_9_Template_select_keydown_escape_0_listener() {
       \u0275\u0275restoreView(_r7);
       const ctx_r2 = \u0275\u0275nextContext(4);
       return \u0275\u0275resetView(ctx_r2.editing_key.set(""));
     });
-    \u0275\u0275repeaterCreate(1, SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_5_For_2_Template, 2, 2, "option", 26, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275repeaterCreate(1, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_9_For_2_Template, 2, 2, "option", 31, \u0275\u0275repeaterTrackByIdentity);
     \u0275\u0275elementEnd();
     \u0275\u0275controlCreate();
-    \u0275\u0275elementStart(3, "button", 27);
-    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_5_Template_button_click_3_listener() {
+    \u0275\u0275elementStart(3, "button", 32);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_9_Template_button_click_3_listener() {
       \u0275\u0275restoreView(_r7);
       const ctx_r2 = \u0275\u0275nextContext(4);
       return \u0275\u0275resetView(ctx_r2.saveEdit());
     });
-    \u0275\u0275elementStart(4, "icon", 28);
+    \u0275\u0275elementStart(4, "icon", 33);
     \u0275\u0275text(5, "check");
     \u0275\u0275elementEnd()();
   }
@@ -97577,34 +97880,34 @@ function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_5_T
     \u0275\u0275repeater(row_r6.options);
   }
 }
-function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_6_Template(rf, ctx) {
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_10_Template(rf, ctx) {
   if (rf & 1) {
     const _r9 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "input", 29);
-    \u0275\u0275twoWayListener("ngModelChange", function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_6_Template_input_ngModelChange_0_listener($event) {
+    \u0275\u0275elementStart(0, "input", 34);
+    \u0275\u0275twoWayListener("ngModelChange", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_10_Template_input_ngModelChange_0_listener($event) {
       \u0275\u0275restoreView(_r9);
       const ctx_r2 = \u0275\u0275nextContext(4);
       \u0275\u0275twoWayBindingSet(ctx_r2.edit_value, $event) || (ctx_r2.edit_value = $event);
       return \u0275\u0275resetView($event);
     });
-    \u0275\u0275listener("keydown.enter", function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_6_Template_input_keydown_enter_0_listener() {
+    \u0275\u0275listener("keydown.enter", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_10_Template_input_keydown_enter_0_listener() {
       \u0275\u0275restoreView(_r9);
       const ctx_r2 = \u0275\u0275nextContext(4);
       return \u0275\u0275resetView(ctx_r2.saveEdit());
-    })("keydown.escape", function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_6_Template_input_keydown_escape_0_listener() {
+    })("keydown.escape", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_10_Template_input_keydown_escape_0_listener() {
       \u0275\u0275restoreView(_r9);
       const ctx_r2 = \u0275\u0275nextContext(4);
       return \u0275\u0275resetView(ctx_r2.editing_key.set(""));
     });
     \u0275\u0275elementEnd();
     \u0275\u0275controlCreate();
-    \u0275\u0275elementStart(1, "button", 27);
-    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_6_Template_button_click_1_listener() {
+    \u0275\u0275elementStart(1, "button", 32);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_10_Template_button_click_1_listener() {
       \u0275\u0275restoreView(_r9);
       const ctx_r2 = \u0275\u0275nextContext(4);
       return \u0275\u0275resetView(ctx_r2.saveEdit());
     });
-    \u0275\u0275elementStart(2, "icon", 28);
+    \u0275\u0275elementStart(2, "icon", 33);
     \u0275\u0275text(3, "check");
     \u0275\u0275elementEnd()();
   }
@@ -97614,34 +97917,34 @@ function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_6_T
     \u0275\u0275control();
   }
 }
-function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_7_Template(rf, ctx) {
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_11_Template(rf, ctx) {
   if (rf & 1) {
     const _r10 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "input", 30);
-    \u0275\u0275twoWayListener("ngModelChange", function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_7_Template_input_ngModelChange_0_listener($event) {
+    \u0275\u0275elementStart(0, "input", 35);
+    \u0275\u0275twoWayListener("ngModelChange", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_11_Template_input_ngModelChange_0_listener($event) {
       \u0275\u0275restoreView(_r10);
       const ctx_r2 = \u0275\u0275nextContext(4);
       \u0275\u0275twoWayBindingSet(ctx_r2.edit_value, $event) || (ctx_r2.edit_value = $event);
       return \u0275\u0275resetView($event);
     });
-    \u0275\u0275listener("keydown.enter", function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_7_Template_input_keydown_enter_0_listener() {
+    \u0275\u0275listener("keydown.enter", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_11_Template_input_keydown_enter_0_listener() {
       \u0275\u0275restoreView(_r10);
       const ctx_r2 = \u0275\u0275nextContext(4);
       return \u0275\u0275resetView(ctx_r2.saveEdit());
-    })("keydown.escape", function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_7_Template_input_keydown_escape_0_listener() {
+    })("keydown.escape", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_11_Template_input_keydown_escape_0_listener() {
       \u0275\u0275restoreView(_r10);
       const ctx_r2 = \u0275\u0275nextContext(4);
       return \u0275\u0275resetView(ctx_r2.editing_key.set(""));
     });
     \u0275\u0275elementEnd();
     \u0275\u0275controlCreate();
-    \u0275\u0275elementStart(1, "button", 27);
-    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_7_Template_button_click_1_listener() {
+    \u0275\u0275elementStart(1, "button", 32);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_11_Template_button_click_1_listener() {
       \u0275\u0275restoreView(_r10);
       const ctx_r2 = \u0275\u0275nextContext(4);
       return \u0275\u0275resetView(ctx_r2.saveEdit());
     });
-    \u0275\u0275elementStart(2, "icon", 28);
+    \u0275\u0275elementStart(2, "icon", 33);
     \u0275\u0275text(3, "check");
     \u0275\u0275elementEnd()();
   }
@@ -97651,17 +97954,17 @@ function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_7_T
     \u0275\u0275control();
   }
 }
-function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_8_Conditional_0_Template(rf, ctx) {
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
     const _r11 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 31)(1, "button", 34);
-    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_8_Conditional_0_Template_button_click_1_listener() {
+    \u0275\u0275elementStart(0, "div", 36)(1, "button", 39);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_0_Template_button_click_1_listener() {
       \u0275\u0275restoreView(_r11);
       const row_r6 = \u0275\u0275nextContext(2);
       const ctx_r2 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r2.toggleValue(row_r6));
     });
-    \u0275\u0275element(2, "div", 35);
+    \u0275\u0275element(2, "div", 40);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
@@ -97673,11 +97976,11 @@ function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_8_C
     \u0275\u0275classProp("translate-x-4", row_r6.value);
   }
 }
-function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_8_Conditional_1_Template(rf, ctx) {
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
     const _r12 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 36);
-    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_8_Conditional_1_Template_div_click_0_listener() {
+    \u0275\u0275elementStart(0, "div", 41);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_1_Template_div_click_0_listener() {
       \u0275\u0275restoreView(_r12);
       const row_r6 = \u0275\u0275nextContext(2);
       const ctx_r2 = \u0275\u0275nextContext(3);
@@ -97694,25 +97997,25 @@ function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_8_C
     \u0275\u0275textInterpolate1(" ", row_r6.display || "unset", " ");
   }
 }
-function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_8_Conditional_2_Template(rf, ctx) {
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
     const _r13 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 37);
-    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_8_Conditional_2_Template_button_click_0_listener() {
+    \u0275\u0275elementStart(0, "button", 42);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_2_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r13);
       const row_r6 = \u0275\u0275nextContext(2);
       const ctx_r2 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r2.clearOverride(row_r6.key));
     });
-    \u0275\u0275elementStart(1, "icon", 28);
+    \u0275\u0275elementStart(1, "icon", 33);
     \u0275\u0275text(2, "undo");
     \u0275\u0275elementEnd()();
   }
 }
-function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_8_Template(rf, ctx) {
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275conditionalCreate(0, SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_8_Conditional_0_Template, 3, 7, "div", 31)(1, SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_8_Conditional_1_Template, 2, 4, "div", 32);
-    \u0275\u0275conditionalCreate(2, SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_8_Conditional_2_Template, 3, 0, "button", 33);
+    \u0275\u0275conditionalCreate(0, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_0_Template, 3, 7, "div", 36)(1, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_1_Template, 2, 4, "div", 37);
+    \u0275\u0275conditionalCreate(2, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_2_Template, 3, 0, "button", 38);
   }
   if (rf & 2) {
     const row_r6 = \u0275\u0275nextContext();
@@ -97721,49 +98024,53 @@ function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_8_T
     \u0275\u0275conditional(row_r6.overridden ? 2 : -1);
   }
 }
-function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Template(rf, ctx) {
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 21)(1, "div", 22)(2, "div", 23);
-    \u0275\u0275text(3);
+    \u0275\u0275elementStart(0, "div", 23)(1, "div", 24)(2, "div", 25)(3, "span", 26);
+    \u0275\u0275text(4);
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(4, SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Conditional_4_Template, 2, 2, "div", 24);
+    \u0275\u0275elementStart(5, "span", 27)(6, "icon", 28);
+    \u0275\u0275text(7, "info");
+    \u0275\u0275elementEnd()()();
+    \u0275\u0275conditionalCreate(8, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Conditional_8_Template, 2, 2, "div", 29);
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(5, SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_5_Template, 6, 1)(6, SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_6_Template, 4, 1)(7, SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_7_Template, 4, 1)(8, SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_8_Template, 3, 2);
+    \u0275\u0275conditionalCreate(9, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_9_Template, 6, 1)(10, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_10_Template, 4, 1)(11, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_11_Template, 4, 1)(12, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Template, 3, 2);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    let tmp_19_0;
+    let tmp_24_0;
     const row_r6 = ctx;
     const entry_r14 = \u0275\u0275nextContext().$implicit;
     const ctx_r2 = \u0275\u0275nextContext(2);
+    const zone_tooltip_r15 = \u0275\u0275reference(2);
     \u0275\u0275classProp("pl-8", entry_r14.grouped)("pl-2", !entry_r14.grouped)("bg-warning-light", row_r6.overridden);
-    \u0275\u0275advance(2);
-    \u0275\u0275property("title", row_r6.label);
-    \u0275\u0275advance();
+    \u0275\u0275advance(4);
     \u0275\u0275textInterpolate1(" ", row_r6.label, " ");
     \u0275\u0275advance();
-    \u0275\u0275conditional(row_r6.description ? 4 : -1);
+    \u0275\u0275property("content", zone_tooltip_r15)("data", \u0275\u0275pureFunction1(14, _c014, row_r6.zones))("hover", true)("backdrop", false)("xOffset", 20);
+    \u0275\u0275advance(3);
+    \u0275\u0275conditional(row_r6.description ? 8 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional((tmp_19_0 = ctx_r2.editing_key() === row_r6.key ? row_r6.control : "") === "select" ? 5 : tmp_19_0 === "number" ? 6 : tmp_19_0 === "text" ? 7 : 8);
+    \u0275\u0275conditional((tmp_24_0 = ctx_r2.editing_key() === row_r6.key ? row_r6.control : "") === "select" ? 9 : tmp_24_0 === "number" ? 10 : tmp_24_0 === "text" ? 11 : 12);
   }
 }
-function SettingsDebugPanelComponent_Conditional_0_For_16_Template(rf, ctx) {
+function SettingsDebugPanelComponent_Conditional_0_For_17_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275conditionalCreate(0, SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_0_Template, 8, 5, "button", 14);
-    \u0275\u0275conditionalCreate(1, SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Template, 9, 10, "div", 15);
+    \u0275\u0275conditionalCreate(0, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_0_Template, 8, 5, "button", 16);
+    \u0275\u0275conditionalCreate(1, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Template, 13, 16, "div", 17);
   }
   if (rf & 2) {
-    let tmp_11_0;
     let tmp_12_0;
+    let tmp_13_0;
     const entry_r14 = ctx.$implicit;
-    \u0275\u0275conditional((tmp_11_0 = entry_r14.header) ? 0 : -1, tmp_11_0);
+    \u0275\u0275conditional((tmp_12_0 = entry_r14.header) ? 0 : -1, tmp_12_0);
     \u0275\u0275advance();
-    \u0275\u0275conditional((tmp_12_0 = entry_r14.row) ? 1 : -1, tmp_12_0);
+    \u0275\u0275conditional((tmp_13_0 = entry_r14.row) ? 1 : -1, tmp_13_0);
   }
 }
-function SettingsDebugPanelComponent_Conditional_0_ForEmpty_17_Template(rf, ctx) {
+function SettingsDebugPanelComponent_Conditional_0_ForEmpty_18_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 11);
+    \u0275\u0275elementStart(0, "div", 13);
     \u0275\u0275text(1, " No matching settings ");
     \u0275\u0275elementEnd();
   }
@@ -97771,22 +98078,22 @@ function SettingsDebugPanelComponent_Conditional_0_ForEmpty_17_Template(rf, ctx)
 function SettingsDebugPanelComponent_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 0)(1, "div", 1)(2, "div", 2);
-    \u0275\u0275text(3, "Settings Viewer");
+    \u0275\u0275elementStart(0, "div", 1)(1, "div", 2)(2, "div", 3)(3, "div", 4);
+    \u0275\u0275text(4, "Settings Viewer");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "div", 3);
-    \u0275\u0275conditionalCreate(5, SettingsDebugPanelComponent_Conditional_0_Conditional_5_Template, 2, 0, "button", 4);
-    \u0275\u0275elementStart(6, "button", 5);
-    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_Template_button_click_6_listener() {
+    \u0275\u0275elementStart(5, "div", 5);
+    \u0275\u0275conditionalCreate(6, SettingsDebugPanelComponent_Conditional_0_Conditional_6_Template, 2, 0, "button", 6);
+    \u0275\u0275elementStart(7, "button", 7);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_Template_button_click_7_listener() {
       \u0275\u0275restoreView(_r1);
       const ctx_r2 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r2.show.set(false));
     });
-    \u0275\u0275elementStart(7, "icon");
-    \u0275\u0275text(8, "close");
+    \u0275\u0275elementStart(8, "icon");
+    \u0275\u0275text(9, "close");
     \u0275\u0275elementEnd()()()()();
-    \u0275\u0275elementStart(9, "div", 6)(10, "div", 7)(11, "input", 8);
-    \u0275\u0275twoWayListener("ngModelChange", function SettingsDebugPanelComponent_Conditional_0_Template_input_ngModelChange_11_listener($event) {
+    \u0275\u0275elementStart(10, "div", 8)(11, "div", 9)(12, "input", 10);
+    \u0275\u0275twoWayListener("ngModelChange", function SettingsDebugPanelComponent_Conditional_0_Template_input_ngModelChange_12_listener($event) {
       \u0275\u0275restoreView(_r1);
       const ctx_r2 = \u0275\u0275nextContext();
       \u0275\u0275twoWayBindingSet(ctx_r2.filter, $event) || (ctx_r2.filter = $event);
@@ -97794,25 +98101,69 @@ function SettingsDebugPanelComponent_Conditional_0_Template(rf, ctx) {
     });
     \u0275\u0275elementEnd();
     \u0275\u0275controlCreate();
-    \u0275\u0275elementStart(12, "icon", 9);
-    \u0275\u0275text(13, "search");
+    \u0275\u0275elementStart(13, "icon", 11);
+    \u0275\u0275text(14, "search");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(14, "div", 10);
-    \u0275\u0275repeaterCreate(15, SettingsDebugPanelComponent_Conditional_0_For_16_Template, 2, 2, null, null, \u0275\u0275repeaterTrackByIndex, false, SettingsDebugPanelComponent_Conditional_0_ForEmpty_17_Template, 2, 0, "div", 11);
+    \u0275\u0275elementStart(15, "div", 12);
+    \u0275\u0275repeaterCreate(16, SettingsDebugPanelComponent_Conditional_0_For_17_Template, 2, 2, null, null, \u0275\u0275repeaterTrackByIndex, false, SettingsDebugPanelComponent_Conditional_0_ForEmpty_18_Template, 2, 0, "div", 13);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(18, "div", 12);
-    \u0275\u0275text(19, " Click a value to override it. Text values are parsed as JSON, falling back to plain strings. Overrides are stored locally in this browser. ");
-    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(19, "div", 14);
+    \u0275\u0275text(20, " Click a value to override it. Text values are parsed as JSON, falling back to plain strings. Overrides are stored locally in this browser. ");
+    \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
     const ctx_r2 = \u0275\u0275nextContext();
-    \u0275\u0275advance(5);
-    \u0275\u0275conditional(ctx_r2.has_overrides() ? 5 : -1);
+    \u0275\u0275advance(6);
+    \u0275\u0275conditional(ctx_r2.has_overrides() ? 6 : -1);
     \u0275\u0275advance(6);
     \u0275\u0275twoWayProperty("ngModel", ctx_r2.filter);
     \u0275\u0275control();
     \u0275\u0275advance(4);
     \u0275\u0275repeater(ctx_r2.entries());
+  }
+}
+function SettingsDebugPanelComponent_ng_template_1_For_5_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 46)(1, "div", 48)(2, "div", 49);
+    \u0275\u0275text(3);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "div", 50);
+    \u0275\u0275text(5);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(6, "span", 51);
+    \u0275\u0275text(7);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const zone_r16 = ctx.$implicit;
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1(" ", zone_r16.name, " ");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", zone_r16.id, " ");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", zone_r16.type, " ");
+  }
+}
+function SettingsDebugPanelComponent_ng_template_1_ForEmpty_6_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 47);
+    \u0275\u0275text(1, " No zone metadata value ");
+    \u0275\u0275elementEnd();
+  }
+}
+function SettingsDebugPanelComponent_ng_template_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 43)(1, "div", 44);
+    \u0275\u0275text(2, " Setting sources ");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "div", 45);
+    \u0275\u0275repeaterCreate(4, SettingsDebugPanelComponent_ng_template_1_For_5_Template, 8, 3, "div", 46, _forTrack0, false, SettingsDebugPanelComponent_ng_template_1_ForEmpty_6_Template, 2, 0, "div", 47);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const zones_r17 = ctx.zones;
+    \u0275\u0275advance(4);
+    \u0275\u0275repeater(zones_r17);
   }
 }
 function flattenKeys(map2, prefix, keys) {
@@ -97824,6 +98175,12 @@ function flattenKeys(map2, prefix, keys) {
     } else
       keys.add(full_key);
   }
+}
+function hasSetting(map2, key) {
+  let value = map2;
+  for (const part of key.slice(4).split("."))
+    value = value == null ? void 0 : value[part];
+  return value != null;
 }
 function resolveRef(root, node) {
   const ref = node == null ? void 0 : node["$ref"];
@@ -97864,6 +98221,7 @@ var _SettingsDebugPanelComponent = class _SettingsDebugPanelComponent extends As
     super(...arguments);
     this._settings = inject2(SettingsService);
     this._hotkey = inject2(HotkeysService);
+    this._org = inject2(OrganisationService);
     this.schema = input(
       null,
       ...ngDevMode ? [{ debugName: "schema" }] : (
@@ -97940,6 +98298,7 @@ var _SettingsDebugPanelComponent = class _SettingsDebugPanelComponent extends As
             display: JSON.stringify(value) ?? "",
             overridden: key in debug_overrides,
             description: (node == null ? void 0 : node.description) || "",
+            zones: this._zoneTooltip(key),
             control,
             options: node == null ? void 0 : node.enum
           };
@@ -97986,6 +98345,25 @@ var _SettingsDebugPanelComponent = class _SettingsDebugPanelComponent extends As
       )
     );
   }
+  _zoneTooltip(key) {
+    const zones = [];
+    const add_zone = (type2, id, name, settings) => {
+      if (!id || !settings.some((_2) => hasSetting(_2, key)))
+        return;
+      zones.push({ type: type2, id, name: name || id });
+    };
+    for (const [id, settings] of Object.entries(this._org.building_settings)) {
+      const building = this._org.buildings.find((_2) => _2.id === id);
+      add_zone("Building", id, (building == null ? void 0 : building.display_name) || (building == null ? void 0 : building.name) || "", [settings]);
+    }
+    for (const [id, settings] of Object.entries(this._org.region_settings)) {
+      const region = this._org.regions.find((_2) => _2.id === id);
+      add_zone("Region", id, (region == null ? void 0 : region.display_name) || (region == null ? void 0 : region.name) || "", [settings]);
+    }
+    const organisation = this._org.organisation;
+    add_zone("ORG", organisation.id, organisation.name, this._org.settings);
+    return zones;
+  }
   toggleGroup(name) {
     this.expanded.update((state2) => __spreadProps(__spreadValues({}, state2), { [name]: !state2[name] }));
   }
@@ -98031,14 +98409,28 @@ _SettingsDebugPanelComponent.\u0275fac = /* @__PURE__ */ (() => {
     return (\u0275SettingsDebugPanelComponent_BaseFactory || (\u0275SettingsDebugPanelComponent_BaseFactory = \u0275\u0275getInheritedFactory(_SettingsDebugPanelComponent)))(__ngFactoryType__ || _SettingsDebugPanelComponent);
   };
 })();
-_SettingsDebugPanelComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SettingsDebugPanelComponent, selectors: [["settings-debug-panel"]], inputs: { schema: [1, "schema"] }, features: [\u0275\u0275InheritDefinitionFeature], decls: 1, vars: 1, consts: [[1, "flex", "flex-col", "gap-2"], [1, "border-base-300", "bg-base-100", "text-base-content", "fixed", "bottom-123", "left-2", "z-998", "flex", "w-160", "max-w-[90vw]", "items-center", "overflow-hidden", "rounded-lg", "border", "p-1", "shadow-sm"], [1, "flex-1", "px-3", "font-medium"], [1, "flex", "items-center"], ["matRipple", "", 1, "text-error", "px-2", "py-1", "text-xs", "underline"], ["icon", "", "default", "", "matRipple", "", 1, "text-sm", 3, "click"], [1, "border-base-300", "bg-base-200", "text-base-content", "fixed", "bottom-2", "left-2", "z-998", "flex", "h-120", "max-h-[80vh]", "w-160", "max-w-[90vw]", "flex-col", "overflow-hidden", "rounded-xl", "border", "shadow-sm"], [1, "relative", "m-1", "flex"], ["name", "setting-filter", "placeholder", "Filter settings...", 1, "border-base-300", "bg-base-100", "w-full", "rounded-lg", "border", "px-8", "py-2", "pr-2", "font-mono", "text-sm", "shadow", 3, "ngModelChange", "ngModel"], [1, "absolute", "top-1/2", "left-1", "-translate-y-1/2", "text-xl"], [1, "flex-1", "overflow-auto"], [1, "p-4", "text-center", "opacity-30"], [1, "border-base-300", "bg-base-100", "border-t", "p-2", "text-xs", "opacity-60"], ["matRipple", "", 1, "text-error", "px-2", "py-1", "text-xs", "underline", 3, "click"], [1, "border-base-300", "bg-base-100/50", "hover:bg-base-100", "flex", "min-h-8", "w-full", "items-center", "gap-1", "border-b", "px-2", "py-1", "text-left", "text-xs"], [1, "border-base-300", "flex", "min-h-8", "items-center", "border-b", "py-1", "pr-2", "text-xs", 3, "pl-8", "pl-2", "bg-warning-light"], [1, "border-base-300", "bg-base-100/50", "hover:bg-base-100", "flex", "min-h-8", "w-full", "items-center", "gap-1", "border-b", "px-2", "py-1", "text-left", "text-xs", 3, "click"], [1, "text-sm", "transition-transform"], [1, "font-mono"], [1, "opacity-40"], [1, "bg-warning-light", "rounded-sm", "px-1", "text-[0.65rem]", "text-black"], [1, "border-base-300", "flex", "min-h-8", "items-center", "border-b", "py-1", "pr-2", "text-xs"], [1, "w-3/5", "min-w-0", "pr-2"], [1, "truncate", "font-mono", 3, "title"], [1, "truncate", "text-[0.65rem]", "opacity-60", 3, "title"], ["name", "setting-value", 1, "bg-base-100", "flex-1", "rounded-sm", "border", "px-1", "py-0.5", "font-mono", 3, "ngModelChange", "keydown.escape", "ngModel"], [3, "value"], ["icon", "", "matRipple", "", "title", "Save override", 3, "click"], [1, "text-sm"], ["name", "setting-value", "type", "number", 1, "bg-base-100", "flex-1", "rounded-sm", "border", "px-1", "py-0.5", "font-mono", 3, "ngModelChange", "keydown.enter", "keydown.escape", "ngModel"], ["name", "setting-value", 1, "bg-base-100", "flex-1", "rounded-sm", "border", "px-1", "py-0.5", "font-mono", 3, "ngModelChange", "keydown.enter", "keydown.escape", "ngModel"], [1, "flex", "flex-1"], [1, "flex-1", "cursor-pointer", "truncate", "font-mono", 3, "class", "title"], ["icon", "", "matRipple", "", "title", "Clear override"], [1, "relative", "h-4", "w-8", "rounded-full", "transition-colors", 3, "click", "title"], [1, "absolute", "top-0.5", "left-0.5", "h-3", "w-3", "rounded-full", "bg-white", "shadow-sm", "transition-transform"], [1, "flex-1", "cursor-pointer", "truncate", "font-mono", 3, "click", "title"], ["icon", "", "matRipple", "", "title", "Clear override", 3, "click"]], template: function SettingsDebugPanelComponent_Template(rf, ctx) {
+_SettingsDebugPanelComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SettingsDebugPanelComponent, selectors: [["settings-debug-panel"]], inputs: { schema: [1, "schema"] }, features: [\u0275\u0275InheritDefinitionFeature], decls: 3, vars: 1, consts: [["zone_tooltip", ""], [1, "fixed", "bottom-2", "left-2", "z-998", "w-160", "max-w-[90vw]"], [1, "flex", "flex-col", "gap-2"], [1, "-mb-2", "border-base-300", "bg-base-100", "text-base-content", "flex", "w-[calc(100%-0.5rem)]", "mx-1", "items-center", "overflow-hidden", "rounded-b-lg", "rounded-t-xl", "border", "p-1", "shadow-sm"], [1, "flex-1", "px-3", "font-medium"], [1, "flex", "items-center"], ["matRipple", "", 1, "text-error", "px-2", "py-1", "text-xs", "underline"], ["icon", "", "default", "", "matRipple", "", 1, "text-sm", 3, "click"], [1, "border-base-300", "bg-base-200", "text-base-content", "flex", "h-120", "flex-col", "overflow-hidden", "rounded-xl", "border", "shadow-sm", "pt-2"], [1, "relative", "m-1", "flex"], ["name", "setting-filter", "placeholder", "Filter settings...", 1, "border-base-300", "bg-base-100", "w-full", "rounded-lg", "border", "px-8", "py-2", "pr-2", "font-mono", "text-sm", "shadow", 3, "ngModelChange", "ngModel"], [1, "absolute", "top-1/2", "left-1", "-translate-y-1/2", "text-xl"], [1, "flex-1", "overflow-auto"], [1, "p-4", "text-center", "opacity-30"], [1, "border-base-300", "bg-base-100", "border-t", "p-2", "text-xs", "opacity-60"], ["matRipple", "", 1, "text-error", "px-2", "py-1", "text-xs", "underline", 3, "click"], [1, "border-base-300", "bg-base-100/50", "hover:bg-base-100", "flex", "min-h-8", "w-full", "items-center", "gap-1", "border-b", "px-2", "py-1", "text-left", "text-xs"], [1, "border-base-300", "flex", "min-h-8", "items-center", "border-b", "py-1", "pr-2", "text-xs", 3, "pl-8", "pl-2", "bg-warning-light"], [1, "border-base-300", "bg-base-100/50", "hover:bg-base-100", "flex", "min-h-8", "w-full", "items-center", "gap-1", "border-b", "px-2", "py-1", "text-left", "text-xs", 3, "click"], [1, "text-sm", "transition-transform"], [1, "font-mono"], [1, "opacity-40"], [1, "bg-warning-light", "rounded-sm", "px-1", "text-[0.65rem]", "text-black"], [1, "border-base-300", "flex", "min-h-8", "items-center", "border-b", "py-1", "pr-2", "text-xs"], [1, "w-3/5", "min-w-0", "pr-2"], [1, "flex", "min-w-0", "items-center", "gap-1", "font-mono"], [1, "truncate"], ["customTooltip", "", "xPosition", "start", "yPosition", "center", 1, "shrink-0", 3, "content", "data", "hover", "backdrop", "xOffset"], [1, "text-sm", "opacity-60"], [1, "truncate", "text-[0.65rem]", "opacity-60", 3, "title"], ["name", "setting-value", 1, "bg-base-100", "flex-1", "rounded-sm", "border", "px-1", "py-0.5", "font-mono", 3, "ngModelChange", "keydown.escape", "ngModel"], [3, "value"], ["icon", "", "matRipple", "", "title", "Save override", 3, "click"], [1, "text-sm"], ["name", "setting-value", "type", "number", 1, "bg-base-100", "flex-1", "rounded-sm", "border", "px-1", "py-0.5", "font-mono", 3, "ngModelChange", "keydown.enter", "keydown.escape", "ngModel"], ["name", "setting-value", 1, "bg-base-100", "flex-1", "rounded-sm", "border", "px-1", "py-0.5", "font-mono", 3, "ngModelChange", "keydown.enter", "keydown.escape", "ngModel"], [1, "flex", "flex-1"], [1, "flex-1", "cursor-pointer", "truncate", "font-mono", 3, "class", "title"], ["icon", "", "matRipple", "", "title", "Clear override"], [1, "relative", "h-4", "w-8", "rounded-full", "transition-colors", 3, "click", "title"], [1, "absolute", "top-0.5", "left-0.5", "h-3", "w-3", "rounded-full", "bg-white", "shadow-sm", "transition-transform"], [1, "flex-1", "cursor-pointer", "truncate", "font-mono", 3, "click", "title"], ["icon", "", "matRipple", "", "title", "Clear override", 3, "click"], [1, "border-base-300", "bg-base-100", "text-base-content", "min-w-64", "rounded-lg", "border", "p-2", "shadow-lg"], [1, "border-base-300", "border-b", "px-1", "pb-2", "text-base", "font-medium"], [1, "flex", "flex-col", "gap-1", "pt-2"], [1, "bg-base-200", "flex", "items-start", "gap-2", "rounded-sm", "p-2"], [1, "px-1", "py-2", "text-xs", "opacity-60"], [1, "min-w-0", "flex-1", "w-1/2"], [1, "truncate", "text-base", "font-medium"], [1, "truncate", "font-mono", "text-[0.625rem]", "opacity-60"], [1, "bg-base-300", "rounded-sm", "px-1.5", "py-0.5", "text-[0.625rem]", "font-medium"]], template: function SettingsDebugPanelComponent_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275conditionalCreate(0, SettingsDebugPanelComponent_Conditional_0_Template, 20, 3);
+    \u0275\u0275conditionalCreate(0, SettingsDebugPanelComponent_Conditional_0_Template, 21, 3, "div", 1);
+    \u0275\u0275template(1, SettingsDebugPanelComponent_ng_template_1_Template, 7, 1, "ng-template", null, 0, \u0275\u0275templateRefExtractor);
   }
   if (rf & 2) {
     \u0275\u0275conditional(ctx.show() ? 0 : -1);
   }
-}, dependencies: [FormsModule, NgSelectOption, \u0275NgSelectMultipleOption, DefaultValueAccessor, NumberValueAccessor, SelectControlValueAccessor, NgControlStatus, NgModel, MatRippleModule, MatRipple, IconComponent], encapsulation: 2 });
+}, dependencies: [
+  FormsModule,
+  NgSelectOption,
+  \u0275NgSelectMultipleOption,
+  DefaultValueAccessor,
+  NumberValueAccessor,
+  SelectControlValueAccessor,
+  NgControlStatus,
+  NgModel,
+  MatRippleModule,
+  MatRipple,
+  CustomTooltipComponent,
+  IconComponent
+], encapsulation: 2 });
 var SettingsDebugPanelComponent = _SettingsDebugPanelComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(SettingsDebugPanelComponent, [{
@@ -98047,9 +98439,10 @@ var SettingsDebugPanelComponent = _SettingsDebugPanelComponent;
       selector: "settings-debug-panel",
       template: `
         @if (show()) {
+            <div class=" fixed bottom-2 left-2 z-998 w-160 max-w-[90vw]">
             <div class="flex flex-col gap-2">
                 <div
-                    class="border-base-300 bg-base-100 text-base-content fixed bottom-123 left-2 z-998 flex w-160 max-w-[90vw] items-center overflow-hidden rounded-lg border p-1 shadow-sm"
+                    class="-mb-2 border-base-300 bg-base-100 text-base-content flex w-[calc(100%-0.5rem)] mx-1 items-center overflow-hidden rounded-b-lg rounded-t-xl border p-1 shadow-sm"
                 >
                     <div class="flex-1 px-3 font-medium">Settings Viewer</div>
                     <div class="flex items-center">
@@ -98075,7 +98468,7 @@ var SettingsDebugPanelComponent = _SettingsDebugPanelComponent;
                 </div>
             </div>
             <div
-                class="border-base-300 bg-base-200 text-base-content fixed bottom-2 left-2 z-998 flex h-120 max-h-[80vh] w-160 max-w-[90vw] flex-col overflow-hidden rounded-xl border shadow-sm"
+                class="border-base-300 bg-base-200 text-base-content flex h-120 flex-col overflow-hidden rounded-xl border shadow-sm pt-2"
             >
                 <div class="relative m-1 flex">
                     <input
@@ -98126,10 +98519,26 @@ var SettingsDebugPanelComponent = _SettingsDebugPanelComponent;
                             >
                                 <div class="w-3/5 min-w-0 pr-2">
                                     <div
-                                        class="truncate font-mono"
-                                        [title]="row.label"
+                                        class="flex min-w-0 items-center gap-1 font-mono"
                                     >
-                                        {{ row.label }}
+                                        <span class="truncate">
+                                            {{ row.label }}
+                                        </span>
+                                        <span
+                                            customTooltip
+                                            class="shrink-0"
+                                            [content]="zone_tooltip"
+                                            [data]="{ zones: row.zones }"
+                                            [hover]="true"
+                                            [backdrop]="false"
+                                            xPosition="start"
+                                            yPosition="center"
+                                            [xOffset]="20"
+                                        >
+                                            <icon class="text-sm opacity-60"
+                                                >info</icon
+                                            >
+                                        </span>
                                     </div>
                                     @if (row.description) {
                                         <div
@@ -98273,18 +98682,56 @@ var SettingsDebugPanelComponent = _SettingsDebugPanelComponent;
                     locally in this browser.
                 </div>
             </div>
+            </div>
         }
+        <ng-template #zone_tooltip let-zones="zones">
+            <div
+                class="border-base-300 bg-base-100 text-base-content min-w-64 rounded-lg border p-2 shadow-lg"
+            >
+                <div class="border-base-300 border-b px-1 pb-2 text-base font-medium">
+                    Setting sources
+                </div>
+                <div class="flex flex-col gap-1 pt-2">
+                    @for (zone of zones; track zone.type + zone.id) {
+                        <div class="bg-base-200 flex items-start gap-2 rounded-sm p-2">
+                            <div class="min-w-0 flex-1 w-1/2">
+                                <div class="truncate text-base font-medium">
+                                    {{ zone.name }}
+                                </div>
+                                <div class="truncate font-mono text-[0.625rem] opacity-60">
+                                    {{ zone.id }}
+                                </div>
+                            </div>
+                            <span
+                                class="bg-base-300 rounded-sm px-1.5 py-0.5 text-[0.625rem] font-medium"
+                            >
+                                {{ zone.type }}
+                            </span>
+                        </div>
+                    } @empty {
+                        <div class="px-1 py-2 text-xs opacity-60">
+                            No zone metadata value
+                        </div>
+                    }
+                </div>
+            </div>
+        </ng-template>
     `,
-      imports: [FormsModule, MatRippleModule, IconComponent]
+      imports: [
+        FormsModule,
+        MatRippleModule,
+        CustomTooltipComponent,
+        IconComponent
+      ]
     }]
   }], null, { schema: [{ type: Input, args: [{ isSignal: true, alias: "schema", required: false }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SettingsDebugPanelComponent, { className: "SettingsDebugPanelComponent", filePath: "libs/components/src/lib/settings-debug-panel.component.ts", lineNumber: 324 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SettingsDebugPanelComponent, { className: "SettingsDebugPanelComponent", filePath: "libs/components/src/lib/settings-debug-panel.component.ts", lineNumber: 394 });
 })();
 
 // libs/components/src/lib/unauthorised.component.ts
-var _c013 = () => ["/"];
+var _c015 = () => ["/"];
 var _UnauthorisedComponent = class _UnauthorisedComponent {
 };
 _UnauthorisedComponent.\u0275fac = function UnauthorisedComponent_Factory(__ngFactoryType__) {
@@ -98319,7 +98766,7 @@ _UnauthorisedComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
     \u0275\u0275advance(3);
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(12, 8, "COMMON.CONTACT_ADMIN"), " ");
     \u0275\u0275advance(2);
-    \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(10, _c013));
+    \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(10, _c015));
   }
 }, dependencies: [RouterLink, TranslatePipe], styles: ["\n[_nghost-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n[unauthorised][_ngcontent-%COMP%] {\n  background-image:\n    linear-gradient(\n      to right,\n      #c62828 0%,\n      #ef5350 100%);\n}\n/*# sourceMappingURL=unauthorised.component.css.map */"] });
 var UnauthorisedComponent = _UnauthorisedComponent;
@@ -98473,8 +98920,8 @@ var UserAvatarComponent = _UserAvatarComponent;
 })();
 
 // libs/form-fields/src/lib/time-field.component.ts
-var _c014 = ["*"];
-var _forTrack0 = ($index, $item) => $item.id;
+var _c016 = ["*"];
+var _forTrack02 = ($index, $item) => $item.id;
 function TimeFieldComponent_Conditional_5_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 4);
@@ -98981,7 +99428,7 @@ _TimeFieldComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ ty
     useExisting: forwardRef(() => _TimeFieldComponent),
     multi: true
   }
-]), \u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature], ngContentSelectors: _c014, decls: 15, vars: 12, consts: [["menu", "matMenu"], ["time-field", "", "matRipple", "", 1, "border-neutral", "flex", "h-12", "w-full", "items-center", "justify-between", "rounded-sm", "border", "px-2", 3, "disabled", "matMenuTriggerFor"], [1, "flex", "w-1/2", "flex-1", "flex-col", "px-2", "text-left", "leading-tight"], [1, "truncate"], [1, "truncate", "text-xs", "opacity-30"], [1, "text-2xl"], [1, "max-h-60", "min-w-[18rem]"], ["mat-menu-item", "", 1, "text-left", 3, "value"], ["mat-menu-item", "", "disabled", ""], ["mat-menu-item", "", 1, "text-left", 3, "click", "value"], [1, "flex", "items-center", "justify-between"], [1, "flex", "flex-col", "leading-tight"], [1, ""], [1, "text-xs", "opacity-30"], [1, "ml-2", "text-2xl"]], template: function TimeFieldComponent_Template(rf, ctx) {
+]), \u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature], ngContentSelectors: _c016, decls: 15, vars: 12, consts: [["menu", "matMenu"], ["time-field", "", "matRipple", "", 1, "border-neutral", "flex", "h-12", "w-full", "items-center", "justify-between", "rounded-sm", "border", "px-2", 3, "disabled", "matMenuTriggerFor"], [1, "flex", "w-1/2", "flex-1", "flex-col", "px-2", "text-left", "leading-tight"], [1, "truncate"], [1, "truncate", "text-xs", "opacity-30"], [1, "text-2xl"], [1, "max-h-60", "min-w-[18rem]"], ["mat-menu-item", "", 1, "text-left", 3, "value"], ["mat-menu-item", "", "disabled", ""], ["mat-menu-item", "", 1, "text-left", 3, "click", "value"], [1, "flex", "items-center", "justify-between"], [1, "flex", "flex-col", "leading-tight"], [1, ""], [1, "text-xs", "opacity-30"], [1, "ml-2", "text-2xl"]], template: function TimeFieldComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275projectionDef();
     \u0275\u0275elementStart(0, "button", 1)(1, "div", 2)(2, "div", 3);
@@ -98995,7 +99442,7 @@ _TimeFieldComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ ty
     \u0275\u0275elementEnd()();
     \u0275\u0275elementStart(8, "mat-menu", 6, 0);
     \u0275\u0275conditionalCreate(10, TimeFieldComponent_Conditional_10_Template, 8, 7, "button", 7);
-    \u0275\u0275repeaterCreate(11, TimeFieldComponent_For_12_Template, 8, 9, "button", 7, _forTrack0, false, TimeFieldComponent_ForEmpty_13_Template, 2, 0, "div", 8);
+    \u0275\u0275repeaterCreate(11, TimeFieldComponent_For_12_Template, 8, 9, "button", 7, _forTrack02, false, TimeFieldComponent_ForEmpty_13_Template, 2, 0, "div", 8);
     \u0275\u0275elementEnd();
     \u0275\u0275conditionalCreate(14, TimeFieldComponent_Conditional_14_Template, 2, 0, "mat-error");
   }
@@ -102262,8 +102709,8 @@ async function createBookingsForEvent(event, type2, resources) {
 }
 
 // node_modules/@angular/material/fesm2022/autocomplete.mjs
-var _c015 = ["panel"];
-var _c19 = ["*"];
+var _c017 = ["panel"];
+var _c110 = ["*"];
 function MatAutocomplete_ng_template_0_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275domElementStart(0, "div", 1, 0);
@@ -102423,7 +102870,7 @@ var MatAutocomplete = class _MatAutocomplete {
     },
     viewQuery: function MatAutocomplete_Query(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275viewQuery(TemplateRef, 7)(_c015, 5);
+        \u0275\u0275viewQuery(TemplateRef, 7)(_c017, 5);
       }
       if (rf & 2) {
         let _t;
@@ -102455,7 +102902,7 @@ var MatAutocomplete = class _MatAutocomplete {
       provide: MAT_OPTION_PARENT_COMPONENT,
       useExisting: _MatAutocomplete
     }])],
-    ngContentSelectors: _c19,
+    ngContentSelectors: _c110,
     decls: 1,
     vars: 0,
     consts: [["panel", ""], ["role", "listbox", 1, "mat-mdc-autocomplete-panel", "mdc-menu-surface", "mdc-menu-surface--open", 3, "id"]],
@@ -103291,8 +103738,8 @@ async function showStaff(id) {
 }
 
 // libs/form-fields/src/lib/user-search-field.component.ts
-var _c016 = ["input"];
-var _c110 = (a0) => ({ name: a0 });
+var _c018 = ["input"];
+var _c111 = (a0) => ({ name: a0 });
 function UserSearchFieldComponent_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "a-user-avatar", 5);
@@ -103363,7 +103810,7 @@ function UserSearchFieldComponent_Conditional_14_Template(rf, ctx) {
     \u0275\u0275nextContext();
     const term_r4 = \u0275\u0275readContextLet(11);
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(4, 1, "FORM.USER_ADD_EXTERNAL", \u0275\u0275pureFunction1(4, _c110, term_r4)), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(4, 1, "FORM.USER_ADD_EXTERNAL", \u0275\u0275pureFunction1(4, _c111, term_r4)), " ");
   }
 }
 function UserSearchFieldComponent_Conditional_15_Template(rf, ctx) {
@@ -103393,7 +103840,7 @@ function UserSearchFieldComponent_Conditional_15_Template(rf, ctx) {
     \u0275\u0275nextContext();
     const term_r4 = \u0275\u0275readContextLet(11);
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(3, 1, "FORM.USER_SET_EXTERNAL", \u0275\u0275pureFunction1(4, _c110, term_r4)), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(3, 1, "FORM.USER_SET_EXTERNAL", \u0275\u0275pureFunction1(4, _c111, term_r4)), " ");
   }
 }
 function UserSearchFieldComponent_Conditional_16_Template(rf, ctx) {
@@ -103707,7 +104154,7 @@ _UserSearchFieldComponent.\u0275fac = /* @__PURE__ */ (() => {
 })();
 _UserSearchFieldComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _UserSearchFieldComponent, selectors: [["a-user-search-field"]], viewQuery: function UserSearchFieldComponent_Query(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275viewQuerySignal(ctx._input_el, _c016, 5, ElementRef)(ctx._autocomplete_trigger, MatAutocompleteTrigger, 5);
+    \u0275\u0275viewQuerySignal(ctx._input_el, _c018, 5, ElementRef)(ctx._autocomplete_trigger, MatAutocompleteTrigger, 5);
   }
   if (rf & 2) {
     \u0275\u0275queryAdvance(2);
@@ -104703,8 +105150,8 @@ var AssetStateService = _AssetStateService;
 })();
 
 // libs/form-fields/src/lib/duration-field.component.ts
-var _c017 = ["*"];
-var _forTrack02 = ($index, $item) => $item.id;
+var _c019 = ["*"];
+var _forTrack03 = ($index, $item) => $item.id;
 function DurationFieldComponent_Conditional_5_Template(rf, ctx) {
   var _a11;
   if (rf & 1) {
@@ -105059,7 +105506,7 @@ _DurationFieldComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent(
     useExisting: forwardRef(() => _DurationFieldComponent),
     multi: true
   }
-]), \u0275\u0275NgOnChangesFeature], ngContentSelectors: _c017, decls: 15, vars: 12, consts: [["menu", "matMenu"], ["duration-field", "", "matRipple", "", 1, "border-neutral", "flex", "h-12", "w-full", "items-center", "justify-between", "rounded-sm", "border", "px-2", 3, "disabled", "matMenuTriggerFor"], [1, "flex", "w-1/2", "flex-1", "flex-col", "px-2", "text-left", "leading-tight"], [1, "truncate"], [1, "truncate", "text-xs", "opacity-30"], [1, "text-2xl"], [1, "max-h-60", "min-w-[18rem]"], ["mat-menu-item", "", 1, "text-left"], ["mat-menu-item", "", "disabled", ""], ["mat-menu-item", "", 1, "text-left", 3, "click"], [1, "flex", "items-center", "justify-between"], [1, "flex", "flex-col", "leading-tight"], [1, "ml-2", "text-2xl"]], template: function DurationFieldComponent_Template(rf, ctx) {
+]), \u0275\u0275NgOnChangesFeature], ngContentSelectors: _c019, decls: 15, vars: 12, consts: [["menu", "matMenu"], ["duration-field", "", "matRipple", "", 1, "border-neutral", "flex", "h-12", "w-full", "items-center", "justify-between", "rounded-sm", "border", "px-2", 3, "disabled", "matMenuTriggerFor"], [1, "flex", "w-1/2", "flex-1", "flex-col", "px-2", "text-left", "leading-tight"], [1, "truncate"], [1, "truncate", "text-xs", "opacity-30"], [1, "text-2xl"], [1, "max-h-60", "min-w-[18rem]"], ["mat-menu-item", "", 1, "text-left"], ["mat-menu-item", "", "disabled", ""], ["mat-menu-item", "", 1, "text-left", 3, "click"], [1, "flex", "items-center", "justify-between"], [1, "flex", "flex-col", "leading-tight"], [1, "ml-2", "text-2xl"]], template: function DurationFieldComponent_Template(rf, ctx) {
   var _a11, _b4, _c9, _d2, _e2;
   if (rf & 1) {
     \u0275\u0275projectionDef();
@@ -105073,7 +105520,7 @@ _DurationFieldComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent(
     \u0275\u0275text(7, "arrow_drop_down");
     \u0275\u0275elementEnd()();
     \u0275\u0275elementStart(8, "mat-menu", 6, 0);
-    \u0275\u0275repeaterCreate(10, DurationFieldComponent_For_11_Template, 6, 3, "button", 7, _forTrack02, false, DurationFieldComponent_ForEmpty_12_Template, 2, 0, "div", 8);
+    \u0275\u0275repeaterCreate(10, DurationFieldComponent_For_11_Template, 6, 3, "button", 7, _forTrack03, false, DurationFieldComponent_ForEmpty_12_Template, 2, 0, "div", 8);
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(13, "mat-error");
     \u0275\u0275projection(14);
@@ -105215,7 +105662,7 @@ function newBookingFromCalendarEvent(event) {
 }
 
 // libs/components/src/lib/recurring-clash-modal.component.ts
-var _forTrack03 = ($index, $item) => $item.booking_start;
+var _forTrack04 = ($index, $item) => $item.booking_start;
 function RecurringClashModalComponent_For_24_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "tr", 10)(1, "td", 15);
@@ -105284,7 +105731,7 @@ _RecurringClashModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComp
     \u0275\u0275pipe(21, "translate");
     \u0275\u0275elementEnd()()();
     \u0275\u0275elementStart(22, "tbody");
-    \u0275\u0275repeaterCreate(23, RecurringClashModalComponent_For_24_Template, 8, 12, "tr", 10, _forTrack03);
+    \u0275\u0275repeaterCreate(23, RecurringClashModalComponent_For_24_Template, 8, 12, "tr", 10, _forTrack04);
     \u0275\u0275elementEnd()()();
     \u0275\u0275elementStart(25, "p", 11);
     \u0275\u0275text(26);
@@ -116670,7 +117117,7 @@ var environment = {
 };
 
 // apps/booking-panel/src/app/bootstrap.component.ts
-var _forTrack04 = ($index, $item) => $item.id;
+var _forTrack05 = ($index, $item) => $item.id;
 function BootstrapComponent_Conditional_11_Conditional_9_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "mat-spinner", 13);
@@ -116750,7 +117197,7 @@ function BootstrapComponent_Conditional_11_Template(rf, ctx) {
     \u0275\u0275conditionalCreate(9, BootstrapComponent_Conditional_11_Conditional_9_Template, 1, 1, "mat-spinner", 13);
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(10, "mat-autocomplete", null, 0);
-    \u0275\u0275repeaterCreate(12, BootstrapComponent_Conditional_11_For_13_Template, 8, 4, "mat-option", 14, _forTrack04);
+    \u0275\u0275repeaterCreate(12, BootstrapComponent_Conditional_11_For_13_Template, 8, 4, "mat-option", 14, _forTrack05);
     \u0275\u0275conditionalCreate(14, BootstrapComponent_Conditional_11_Conditional_14_Template, 3, 3, "mat-option", 15);
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(15, "button", 16);
@@ -118417,8 +118864,8 @@ var CheckinTimetableComponent = _CheckinTimetableComponent;
 })();
 
 // apps/booking-panel/src/app/checkin/checkin-view.component.ts
-var _c018 = (a0, a1) => ({ hour: a0, minute: a1 });
-var _c111 = (a0) => ({ minute: a0 });
+var _c020 = (a0, a1) => ({ hour: a0, minute: a1 });
+var _c112 = (a0) => ({ minute: a0 });
 function CheckinViewComponent_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "div", 18);
@@ -118436,7 +118883,7 @@ function CheckinViewComponent_Conditional_16_Conditional_0_Conditional_0_Templat
   }
   if (rf & 2) {
     const ctx_r0 = \u0275\u0275nextContext(3);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(1, 1, "APP.BOOKING_PANEL.FREE_IN_HOURS_AND_MINUTES", \u0275\u0275pureFunction2(4, _c018, (_a11 = ctx_r0.event_state()) == null ? void 0 : _a11.current[1], (_b4 = ctx_r0.event_state()) == null ? void 0 : _b4.current[2])), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(1, 1, "APP.BOOKING_PANEL.FREE_IN_HOURS_AND_MINUTES", \u0275\u0275pureFunction2(4, _c020, (_a11 = ctx_r0.event_state()) == null ? void 0 : _a11.current[1], (_b4 = ctx_r0.event_state()) == null ? void 0 : _b4.current[2])), " ");
   }
 }
 function CheckinViewComponent_Conditional_16_Conditional_0_Conditional_1_Template(rf, ctx) {
@@ -118447,7 +118894,7 @@ function CheckinViewComponent_Conditional_16_Conditional_0_Conditional_1_Templat
   }
   if (rf & 2) {
     const ctx_r0 = \u0275\u0275nextContext(3);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(1, 1, "APP.BOOKING_PANEL.FREE_IN_MINUTES", \u0275\u0275pureFunction1(4, _c111, (_a11 = ctx_r0.event_state()) == null ? void 0 : _a11.current[2])), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(1, 1, "APP.BOOKING_PANEL.FREE_IN_MINUTES", \u0275\u0275pureFunction1(4, _c112, (_a11 = ctx_r0.event_state()) == null ? void 0 : _a11.current[2])), " ");
   }
 }
 function CheckinViewComponent_Conditional_16_Conditional_0_Conditional_2_Template(rf, ctx) {
@@ -118483,7 +118930,7 @@ function CheckinViewComponent_Conditional_16_Conditional_1_Conditional_0_Templat
   }
   if (rf & 2) {
     const ctx_r0 = \u0275\u0275nextContext(3);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(1, 1, "APP.BOOKING_PANEL.FREE_FOR_HOURS_AND_MINUTES", \u0275\u0275pureFunction2(4, _c018, (_a11 = ctx_r0.event_state()) == null ? void 0 : _a11.current[1], (_b4 = ctx_r0.event_state()) == null ? void 0 : _b4.current[2])), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(1, 1, "APP.BOOKING_PANEL.FREE_FOR_HOURS_AND_MINUTES", \u0275\u0275pureFunction2(4, _c020, (_a11 = ctx_r0.event_state()) == null ? void 0 : _a11.current[1], (_b4 = ctx_r0.event_state()) == null ? void 0 : _b4.current[2])), " ");
   }
 }
 function CheckinViewComponent_Conditional_16_Conditional_1_Conditional_1_Template(rf, ctx) {
@@ -118494,7 +118941,7 @@ function CheckinViewComponent_Conditional_16_Conditional_1_Conditional_1_Templat
   }
   if (rf & 2) {
     const ctx_r0 = \u0275\u0275nextContext(3);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(1, 1, "APP.BOOKING_PANEL.FREE_FOR_MINUTES", \u0275\u0275pureFunction1(4, _c111, (_a11 = ctx_r0.event_state()) == null ? void 0 : _a11.current[2])), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(1, 1, "APP.BOOKING_PANEL.FREE_FOR_MINUTES", \u0275\u0275pureFunction1(4, _c112, (_a11 = ctx_r0.event_state()) == null ? void 0 : _a11.current[2])), " ");
   }
 }
 function CheckinViewComponent_Conditional_16_Conditional_1_Conditional_2_Template(rf, ctx) {
@@ -119706,8 +120153,8 @@ var PanelViewDetailsComponent = _PanelViewDetailsComponent;
 })();
 
 // apps/booking-panel/src/app/new-panel/panel-view-status.component.ts
-var _c019 = (a0, a1) => ({ hour: a0, minute: a1 });
-var _c112 = (a0) => ({ minute: a0 });
+var _c021 = (a0, a1) => ({ hour: a0, minute: a1 });
+var _c113 = (a0) => ({ minute: a0 });
 function PanelViewStatusComponent_Conditional_10_Conditional_0_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275text(0);
@@ -119716,7 +120163,7 @@ function PanelViewStatusComponent_Conditional_10_Conditional_0_Conditional_0_Tem
   if (rf & 2) {
     \u0275\u0275nextContext(3);
     const es_r1 = \u0275\u0275readContextLet(1);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(1, 1, "APP.BOOKING_PANEL.FREE_IN_HOURS_AND_MINUTES", \u0275\u0275pureFunction2(4, _c019, es_r1 == null ? void 0 : es_r1.current[1], es_r1 == null ? void 0 : es_r1.current[2])), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(1, 1, "APP.BOOKING_PANEL.FREE_IN_HOURS_AND_MINUTES", \u0275\u0275pureFunction2(4, _c021, es_r1 == null ? void 0 : es_r1.current[1], es_r1 == null ? void 0 : es_r1.current[2])), " ");
   }
 }
 function PanelViewStatusComponent_Conditional_10_Conditional_0_Conditional_1_Template(rf, ctx) {
@@ -119727,7 +120174,7 @@ function PanelViewStatusComponent_Conditional_10_Conditional_0_Conditional_1_Tem
   if (rf & 2) {
     \u0275\u0275nextContext(3);
     const es_r1 = \u0275\u0275readContextLet(1);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(1, 1, "APP.BOOKING_PANEL.FREE_IN_MINUTES", \u0275\u0275pureFunction1(4, _c112, es_r1 == null ? void 0 : es_r1.current[2])), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(1, 1, "APP.BOOKING_PANEL.FREE_IN_MINUTES", \u0275\u0275pureFunction1(4, _c113, es_r1 == null ? void 0 : es_r1.current[2])), " ");
   }
 }
 function PanelViewStatusComponent_Conditional_10_Conditional_0_Conditional_2_Template(rf, ctx) {
@@ -119772,7 +120219,7 @@ function PanelViewStatusComponent_Conditional_10_Conditional_1_Conditional_1_Con
   if (rf & 2) {
     \u0275\u0275nextContext(4);
     const es_r1 = \u0275\u0275readContextLet(1);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(1, 1, "APP.BOOKING_PANEL.FREE_FOR_HOURS_AND_MINUTES", \u0275\u0275pureFunction2(4, _c019, es_r1 == null ? void 0 : es_r1.current[1], es_r1 == null ? void 0 : es_r1.current[2])), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(1, 1, "APP.BOOKING_PANEL.FREE_FOR_HOURS_AND_MINUTES", \u0275\u0275pureFunction2(4, _c021, es_r1 == null ? void 0 : es_r1.current[1], es_r1 == null ? void 0 : es_r1.current[2])), " ");
   }
 }
 function PanelViewStatusComponent_Conditional_10_Conditional_1_Conditional_1_Conditional_1_Template(rf, ctx) {
@@ -119783,7 +120230,7 @@ function PanelViewStatusComponent_Conditional_10_Conditional_1_Conditional_1_Con
   if (rf & 2) {
     \u0275\u0275nextContext(4);
     const es_r1 = \u0275\u0275readContextLet(1);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(1, 1, "APP.BOOKING_PANEL.FREE_FOR_MINUTES", \u0275\u0275pureFunction1(4, _c112, es_r1 == null ? void 0 : es_r1.current[2])), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(1, 1, "APP.BOOKING_PANEL.FREE_FOR_MINUTES", \u0275\u0275pureFunction1(4, _c113, es_r1 == null ? void 0 : es_r1.current[2])), " ");
   }
 }
 function PanelViewStatusComponent_Conditional_10_Conditional_1_Conditional_1_Conditional_2_Template(rf, ctx) {
