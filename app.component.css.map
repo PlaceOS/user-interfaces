@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["app.component.ts"],
-  "sourcesContent": ["\n            :host {\n                display: flex;\n                flex-direction: column;\n                height: 100%;\n                width: 100%;\n            }\n        "],
-  "mappings": "AACY,MACI,QAAA,KACA,eAAA,OACA,OAAA,KACA,MAAA,IACJ",
+  "sourcesContent": ["\n            :host {\n                display: flex;\n                flex-direction: column;\n                height: 100%;\n                width: 100%;\n                overflow: hidden;\n            }\n\n            [content] > * {\n                overflow: hidden;\n            }\n        "],
+  "mappings": "AACY,MACI,QAAA,KACA,eAAA,OACA,OAAA,KACA,MAAA,KACA,SAAA,MACJ,CAEA,CAAA,QAAA,CAAA,EACI,SAAA,MACJ",
   "names": []
 }
