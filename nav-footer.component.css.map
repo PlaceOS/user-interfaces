@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["nav-footer.component.ts"],
+  "sourcesContent": ["\n            a [active] {\n                transition: opacity 300ms;\n            }\n\n            a:not(.active) [active] {\n                opacity: 0;\n            }\n\n            a.active [active] {\n                opacity: 1;\n            }\n        "],
+  "mappings": "AACY,EAAA,CAAA,QACI,WAAA,QAAA,GACJ,CAEA,CAAA,KAAA,CAAA,QAAA,CAAA,QACI,QAAA,CACJ,CAEA,CAAA,CAJA,OAIA,CAAA,QACI,QAAA,CACJ",
+  "names": []
+}

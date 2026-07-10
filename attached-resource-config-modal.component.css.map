@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["attached-resource-config-modal.component.ts"],
+  "sourcesContent": ["\n            [name='rules'] {\n                transition: height 200ms;\n            }\n        "],
+  "mappings": "AACY,CAAA,YACI,WAAA,OAAA,GACJ",
+  "names": []
+}
