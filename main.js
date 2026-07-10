@@ -65840,7 +65840,7 @@ function padLength(value, length = 2, character = "0") {
 }
 function getItemWithKeys(keys, map2) {
   const key = keys[0];
-  if (map2 && key in map2) {
+  if (map2 && typeof map2 === "object" && key in map2) {
     return keys.length > 1 ? getItemWithKeys(keys.slice(1), map2[key] || {}) : map2[key];
   }
   return null;
@@ -68035,15 +68035,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION4 = {
   "dirty": false,
-  "raw": "4049a57",
-  "hash": "4049a57",
+  "raw": "3ceaa31",
+  "hash": "3ceaa31",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "4049a57",
+  "suffix": "3ceaa31",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1783596526081
+  "time": 1783664534063
 };
 
 // libs/common/src/lib/settings.service.ts
