@@ -8,14 +8,14 @@ import {
   MatTabLabel,
   MatTabsModule,
   moveItemInArray
-} from "./chunk-LZKAI2J3.js";
+} from "./chunk-KIH5WIDU.js";
 import {
   IntersectDirective
-} from "./chunk-NAIJNDCR.js";
+} from "./chunk-6RD7FRJT.js";
 import {
   NavFooterComponent,
   NavSidebarComponent
-} from "./chunk-C3V4ITDF.js";
+} from "./chunk-C4JYY6GN.js";
 import {
   ActivatedRoute,
   AuthenticatedImageDirective,
@@ -94,7 +94,7 @@ import {
   ɵɵtext,
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1
-} from "./chunk-3ITSEBHD.js";
+} from "./chunk-3JID3UK7.js";
 import {
   __spreadProps,
   __spreadValues
@@ -1940,9 +1940,9 @@ function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Conditional_6
     \u0275\u0275element(0, "img", 24);
   }
   if (rf & 2) {
-    const item_r9 = \u0275\u0275nextContext().$implicit;
-    const url_r10 = \u0275\u0275readContextLet(5);
-    \u0275\u0275property("source", url_r10)("alt", item_r9.name + " thumbnail");
+    const item_r10 = \u0275\u0275nextContext().$implicit;
+    const url_r14 = \u0275\u0275readContextLet(5);
+    \u0275\u0275property("source", url_r14)("alt", item_r10.name + " thumbnail");
   }
 }
 function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Conditional_7_Template(rf, ctx) {
@@ -1952,9 +1952,9 @@ function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Conditional_7
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    const item_r9 = \u0275\u0275nextContext().$implicit;
+    const item_r10 = \u0275\u0275nextContext().$implicit;
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate(item_r9.media_type === "video" ? "video_library" : item_r9.media_type === "webpage" ? "http" : item_r9.media_type === "plugin" ? "extension" : "image");
+    \u0275\u0275textInterpolate(item_r10.media_type === "video" ? "video_library" : item_r10.media_type === "webpage" ? "http" : item_r10.media_type === "plugin" ? "extension" : "image");
   }
 }
 function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Conditional_14_Template(rf, ctx) {
@@ -1965,22 +1965,22 @@ function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Conditional_1
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const item_r9 = \u0275\u0275nextContext().$implicit;
+    const item_r10 = \u0275\u0275nextContext().$implicit;
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, item_r9.play_time / 1e3), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, item_r10.play_time / 1e3), " ");
   }
 }
 function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Conditional_28_Template(rf, ctx) {
   if (rf & 1) {
-    const _r11 = \u0275\u0275getCurrentView();
+    const _r15 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "button", 31);
     \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Conditional_28_Template_button_click_0_listener() {
-      \u0275\u0275restoreView(_r11);
-      const ctx_r11 = \u0275\u0275nextContext();
-      const item_r9 = ctx_r11.$implicit;
-      const $index_r13 = ctx_r11.$index;
+      \u0275\u0275restoreView(_r15);
+      const ctx_r15 = \u0275\u0275nextContext();
+      const item_r10 = ctx_r15.$implicit;
+      const $index_r11 = ctx_r15.$index;
       const ctx_r1 = \u0275\u0275nextContext(3);
-      return \u0275\u0275resetView(ctx_r1.removeItem(item_r9, $index_r13));
+      return \u0275\u0275resetView(ctx_r1.removeItem(item_r10, $index_r11));
     });
     \u0275\u0275elementStart(1, "div", 32)(2, "icon", 37);
     \u0275\u0275text(3, " delete ");
@@ -2001,17 +2001,23 @@ function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Template(rf, 
     \u0275\u0275elementStart(0, "div", 21);
     \u0275\u0275pipe(1, "translate");
     \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Template_div_click_0_listener() {
-      const item_r9 = \u0275\u0275restoreView(_r8).$implicit;
+      const ctx_r8 = \u0275\u0275restoreView(_r8);
+      const item_r10 = ctx_r8.$implicit;
+      const $index_r11 = ctx_r8.$index;
       const ctx_r1 = \u0275\u0275nextContext(3);
-      return \u0275\u0275resetView(ctx_r1.selectItem(item_r9));
+      return \u0275\u0275resetView(ctx_r1.selectItem(item_r10, $index_r11));
     })("keydown.enter", function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Template_div_keydown_enter_0_listener($event) {
-      const item_r9 = \u0275\u0275restoreView(_r8).$implicit;
+      const ctx_r11 = \u0275\u0275restoreView(_r8);
+      const item_r10 = ctx_r11.$implicit;
+      const $index_r11 = ctx_r11.$index;
       const ctx_r1 = \u0275\u0275nextContext(3);
-      return \u0275\u0275resetView(ctx_r1.selectItemWithKeyboard($event, item_r9));
+      return \u0275\u0275resetView(ctx_r1.selectItemWithKeyboard($event, item_r10, $index_r11));
     })("keydown.space", function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Template_div_keydown_space_0_listener($event) {
-      const item_r9 = \u0275\u0275restoreView(_r8).$implicit;
+      const ctx_r12 = \u0275\u0275restoreView(_r8);
+      const item_r10 = ctx_r12.$implicit;
+      const $index_r11 = ctx_r12.$index;
       const ctx_r1 = \u0275\u0275nextContext(3);
-      return \u0275\u0275resetView(ctx_r1.selectItemWithKeyboard($event, item_r9));
+      return \u0275\u0275resetView(ctx_r1.selectItemWithKeyboard($event, item_r10, $index_r11));
     });
     \u0275\u0275elementStart(2, "icon", 22);
     \u0275\u0275text(3, "drag_indicator");
@@ -2038,9 +2044,9 @@ function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Template(rf, 
     \u0275\u0275elementEnd()();
     \u0275\u0275elementStart(19, "mat-menu", null, 0)(21, "button", 31);
     \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Template_button_click_21_listener() {
-      const item_r9 = \u0275\u0275restoreView(_r8).$implicit;
+      const item_r10 = \u0275\u0275restoreView(_r8).$implicit;
       const ctx_r1 = \u0275\u0275nextContext(3);
-      return \u0275\u0275resetView(ctx_r1.previewItem(item_r9));
+      return \u0275\u0275resetView(ctx_r1.previewItem(item_r10));
     });
     \u0275\u0275elementStart(22, "div", 32)(23, "icon", 33);
     \u0275\u0275text(24, "visibility");
@@ -2053,25 +2059,26 @@ function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Template(rf, 
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    const item_r9 = ctx.$implicit;
-    const item_menu_r14 = \u0275\u0275reference(20);
+    const item_r10 = ctx.$implicit;
+    const $index_r11 = ctx.$index;
+    const item_menu_r17 = \u0275\u0275reference(20);
     const ctx_r1 = \u0275\u0275nextContext(3);
-    \u0275\u0275classProp("bg-primary", ctx_r1.selected_item()?.id === item_r9.id)("text-primary-content", ctx_r1.selected_item()?.id === item_r9.id)("hover:bg-base-200", ctx_r1.selected_item()?.id !== item_r9.id);
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(1, 31, "SIGNAGE_MANAGER.SELECT_MEDIA_ITEM", \u0275\u0275pureFunction1(39, _c03, item_r9.name)));
+    \u0275\u0275classProp("bg-primary", ctx_r1.isItemSelected(item_r10, $index_r11))("text-primary-content", ctx_r1.isItemSelected(item_r10, $index_r11))("hover:bg-base-200", !ctx_r1.isItemSelected(item_r10, $index_r11));
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(1, 31, "SIGNAGE_MANAGER.SELECT_MEDIA_ITEM", \u0275\u0275pureFunction1(39, _c03, item_r10.name)));
     \u0275\u0275advance(5);
-    const url_r15 = \u0275\u0275storeLet(ctx_r1.thumbnailURL(item_r9));
+    const url_r18 = \u0275\u0275storeLet(ctx_r1.thumbnailURL(item_r10));
     \u0275\u0275advance();
-    \u0275\u0275conditional(url_r15 && item_r9.thumbnail_id ? 6 : 7);
+    \u0275\u0275conditional(url_r18 && item_r10.thumbnail_id ? 6 : 7);
     \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate1(" ", item_r9.name, " ");
+    \u0275\u0275textInterpolate1(" ", item_r10.name, " ");
     \u0275\u0275advance(2);
-    \u0275\u0275classProp("bg-info", item_r9.media_type === "video")("text-info-content", item_r9.media_type === "video")("bg-warning", item_r9.media_type === "image")("text-warning-content", item_r9.media_type === "image")("bg-success", item_r9.media_type === "webpage")("text-success-content", item_r9.media_type === "webpage")("bg-error", item_r9.media_type === "plugin")("text-error-content", item_r9.media_type === "plugin");
+    \u0275\u0275classProp("bg-info", item_r10.media_type === "video")("text-info-content", item_r10.media_type === "video")("bg-warning", item_r10.media_type === "image")("text-warning-content", item_r10.media_type === "image")("bg-success", item_r10.media_type === "webpage")("text-success-content", item_r10.media_type === "webpage")("bg-error", item_r10.media_type === "plugin")("text-error-content", item_r10.media_type === "plugin");
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", item_r9.media_type, " ");
+    \u0275\u0275textInterpolate1(" ", item_r10.media_type, " ");
     \u0275\u0275advance();
-    \u0275\u0275conditional(item_r9.play_time ? 14 : -1);
+    \u0275\u0275conditional(item_r10.play_time ? 14 : -1);
     \u0275\u0275advance();
-    \u0275\u0275property("matMenuTriggerFor", item_menu_r14);
+    \u0275\u0275property("matMenuTriggerFor", item_menu_r17);
     \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(16, 35, "SIGNAGE_MANAGER.ITEM_ACTIONS"));
     \u0275\u0275advance(11);
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(27, 37, "COMMON.PREVIEW"), " ");
@@ -2102,9 +2109,9 @@ function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_6
     \u0275\u0275element(0, "img", 24);
   }
   if (rf & 2) {
-    const item_r18 = \u0275\u0275nextContext().$implicit;
-    const url_r19 = \u0275\u0275readContextLet(5);
-    \u0275\u0275property("source", url_r19)("alt", item_r18.name + " thumbnail");
+    const item_r22 = \u0275\u0275nextContext().$implicit;
+    const url_r26 = \u0275\u0275readContextLet(5);
+    \u0275\u0275property("source", url_r26)("alt", item_r22.name + " thumbnail");
   }
 }
 function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_7_Template(rf, ctx) {
@@ -2114,10 +2121,10 @@ function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_7
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    const item_r18 = \u0275\u0275nextContext().$implicit;
+    const item_r22 = \u0275\u0275nextContext().$implicit;
     const ctx_r1 = \u0275\u0275nextContext(3);
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate(ctx_r1.mediaIcon(item_r18));
+    \u0275\u0275textInterpolate(ctx_r1.mediaIcon(item_r22));
   }
 }
 function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_14_Template(rf, ctx) {
@@ -2128,21 +2135,21 @@ function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_1
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const item_r18 = \u0275\u0275nextContext().$implicit;
+    const item_r22 = \u0275\u0275nextContext().$implicit;
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, item_r18.play_time / 1e3), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, item_r22.play_time / 1e3), " ");
   }
 }
 function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_28_Template(rf, ctx) {
   if (rf & 1) {
-    const _r20 = \u0275\u0275getCurrentView();
+    const _r27 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "button", 31);
     \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_28_Template_button_click_0_listener() {
-      \u0275\u0275restoreView(_r20);
+      \u0275\u0275restoreView(_r27);
       \u0275\u0275nextContext();
-      const schedule_r21 = \u0275\u0275readContextLet(0);
+      const schedule_r28 = \u0275\u0275readContextLet(0);
       const ctx_r1 = \u0275\u0275nextContext(3);
-      return \u0275\u0275resetView(ctx_r1.editItemSchedule(schedule_r21));
+      return \u0275\u0275resetView(ctx_r1.editItemSchedule(schedule_r28));
     });
     \u0275\u0275elementStart(1, "div", 32)(2, "icon", 33);
     \u0275\u0275text(3, "edit_calendar");
@@ -2153,12 +2160,12 @@ function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_2
     \u0275\u0275elementEnd()()();
     \u0275\u0275elementStart(7, "button", 31);
     \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_28_Template_button_click_7_listener() {
-      \u0275\u0275restoreView(_r20);
-      const ctx_r21 = \u0275\u0275nextContext();
-      const item_r18 = ctx_r21.$implicit;
-      const $index_r23 = ctx_r21.$index;
+      \u0275\u0275restoreView(_r27);
+      const ctx_r28 = \u0275\u0275nextContext();
+      const item_r22 = ctx_r28.$implicit;
+      const $index_r23 = ctx_r28.$index;
       const ctx_r1 = \u0275\u0275nextContext(3);
-      return \u0275\u0275resetView(ctx_r1.removeItem(item_r18, $index_r23));
+      return \u0275\u0275resetView(ctx_r1.removeItem(item_r22, $index_r23));
     });
     \u0275\u0275elementStart(8, "div", 32)(9, "icon", 37);
     \u0275\u0275text(10, " delete ");
@@ -2182,11 +2189,11 @@ function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_3
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const item_schedule_r25 = ctx.$implicit;
+    const item_schedule_r31 = ctx.$implicit;
     const ctx_r1 = \u0275\u0275nextContext(6);
-    \u0275\u0275property("matTooltip", ctx_r1.scheduleTooltip(item_schedule_r25));
+    \u0275\u0275property("matTooltip", ctx_r1.scheduleTooltip(item_schedule_r31));
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", ctx_r1.scheduleLabel(item_schedule_r25), " ");
+    \u0275\u0275textInterpolate1(" ", ctx_r1.scheduleLabel(item_schedule_r31), " ");
   }
 }
 function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_35_Conditional_0_Template(rf, ctx) {
@@ -2195,8 +2202,8 @@ function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_3
   }
   if (rf & 2) {
     \u0275\u0275nextContext(2);
-    const schedule_r21 = \u0275\u0275readContextLet(0);
-    \u0275\u0275repeater(schedule_r21.schedules);
+    const schedule_r28 = \u0275\u0275readContextLet(0);
+    \u0275\u0275repeater(schedule_r28.schedules);
   }
 }
 function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_35_Conditional_1_Template(rf, ctx) {
@@ -2217,28 +2224,34 @@ function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_3
   }
   if (rf & 2) {
     \u0275\u0275nextContext();
-    const schedule_r21 = \u0275\u0275readContextLet(0);
-    \u0275\u0275conditional(schedule_r21?.schedules?.length ? 0 : 1);
+    const schedule_r28 = \u0275\u0275readContextLet(0);
+    \u0275\u0275conditional(schedule_r28?.schedules?.length ? 0 : 1);
   }
 }
 function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Template(rf, ctx) {
   if (rf & 1) {
-    const _r17 = \u0275\u0275getCurrentView();
+    const _r20 = \u0275\u0275getCurrentView();
     \u0275\u0275declareLet(0);
     \u0275\u0275elementStart(1, "div", 43);
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Template_div_click_1_listener() {
-      const item_r18 = \u0275\u0275restoreView(_r17).$implicit;
+      const ctx_r20 = \u0275\u0275restoreView(_r20);
+      const item_r22 = ctx_r20.$implicit;
+      const $index_r23 = ctx_r20.$index;
       const ctx_r1 = \u0275\u0275nextContext(3);
-      return \u0275\u0275resetView(ctx_r1.selectItem(item_r18));
+      return \u0275\u0275resetView(ctx_r1.selectItem(item_r22, $index_r23));
     })("keydown.enter", function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Template_div_keydown_enter_1_listener($event) {
-      const item_r18 = \u0275\u0275restoreView(_r17).$implicit;
+      const ctx_r23 = \u0275\u0275restoreView(_r20);
+      const item_r22 = ctx_r23.$implicit;
+      const $index_r23 = ctx_r23.$index;
       const ctx_r1 = \u0275\u0275nextContext(3);
-      return \u0275\u0275resetView(ctx_r1.selectItemWithKeyboard($event, item_r18));
+      return \u0275\u0275resetView(ctx_r1.selectItemWithKeyboard($event, item_r22, $index_r23));
     })("keydown.space", function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Template_div_keydown_space_1_listener($event) {
-      const item_r18 = \u0275\u0275restoreView(_r17).$implicit;
+      const ctx_r24 = \u0275\u0275restoreView(_r20);
+      const item_r22 = ctx_r24.$implicit;
+      const $index_r23 = ctx_r24.$index;
       const ctx_r1 = \u0275\u0275nextContext(3);
-      return \u0275\u0275resetView(ctx_r1.selectItemWithKeyboard($event, item_r18));
+      return \u0275\u0275resetView(ctx_r1.selectItemWithKeyboard($event, item_r22, $index_r23));
     });
     \u0275\u0275elementStart(3, "div", 44)(4, "div", 23);
     \u0275\u0275declareLet(5);
@@ -2262,9 +2275,9 @@ function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Template(rf, 
     \u0275\u0275elementEnd()();
     \u0275\u0275elementStart(19, "mat-menu", null, 1)(21, "button", 31);
     \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Template_button_click_21_listener() {
-      const item_r18 = \u0275\u0275restoreView(_r17).$implicit;
+      const item_r22 = \u0275\u0275restoreView(_r20).$implicit;
       const ctx_r1 = \u0275\u0275nextContext(3);
-      return \u0275\u0275resetView(ctx_r1.previewItem(item_r18));
+      return \u0275\u0275resetView(ctx_r1.previewItem(item_r22));
     });
     \u0275\u0275elementStart(22, "div", 32)(23, "icon", 33);
     \u0275\u0275text(24, "visibility");
@@ -2277,11 +2290,11 @@ function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Template(rf, 
     \u0275\u0275elementEnd()();
     \u0275\u0275elementStart(29, "div", 45)(30, "button", 46);
     \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Template_button_click_30_listener($event) {
-      const ctx_r23 = \u0275\u0275restoreView(_r17);
-      const item_r18 = ctx_r23.$implicit;
-      const $index_r23 = ctx_r23.$index;
+      const ctx_r29 = \u0275\u0275restoreView(_r20);
+      const item_r22 = ctx_r29.$implicit;
+      const $index_r23 = ctx_r29.$index;
       const ctx_r1 = \u0275\u0275nextContext(3);
-      return \u0275\u0275resetView(ctx_r1.toggleSchedules($event, item_r18, $index_r23));
+      return \u0275\u0275resetView(ctx_r1.toggleSchedules($event, item_r22, $index_r23));
     });
     \u0275\u0275elementStart(31, "span");
     \u0275\u0275text(32, "Schedules");
@@ -2293,47 +2306,47 @@ function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Template(rf, 
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    const item_r18 = ctx.$implicit;
+    const item_r22 = ctx.$implicit;
     const $index_r23 = ctx.$index;
-    const distribution_item_menu_r26 = \u0275\u0275reference(20);
+    const distribution_item_menu_r32 = \u0275\u0275reference(20);
     const ctx_r1 = \u0275\u0275nextContext(3);
-    \u0275\u0275storeLet(ctx_r1.itemSchedule(item_r18, $index_r23));
+    \u0275\u0275storeLet(ctx_r1.itemSchedule(item_r22, $index_r23));
     \u0275\u0275advance();
-    \u0275\u0275classProp("bg-primary", ctx_r1.selected_item()?.id === item_r18.id)("text-primary-content", ctx_r1.selected_item()?.id === item_r18.id)("hover:bg-base-200", ctx_r1.selected_item()?.id !== item_r18.id);
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(2, 35, "SIGNAGE_MANAGER.SELECT_MEDIA_ITEM", \u0275\u0275pureFunction1(43, _c03, item_r18.name)));
+    \u0275\u0275classProp("bg-primary", ctx_r1.isItemSelected(item_r22, $index_r23))("text-primary-content", ctx_r1.isItemSelected(item_r22, $index_r23))("hover:bg-base-200", !ctx_r1.isItemSelected(item_r22, $index_r23));
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(2, 35, "SIGNAGE_MANAGER.SELECT_MEDIA_ITEM", \u0275\u0275pureFunction1(43, _c03, item_r22.name)));
     \u0275\u0275advance(4);
-    const url_r27 = \u0275\u0275storeLet(ctx_r1.thumbnailURL(item_r18));
+    const url_r33 = \u0275\u0275storeLet(ctx_r1.thumbnailURL(item_r22));
     \u0275\u0275advance();
-    \u0275\u0275conditional(url_r27 && item_r18.thumbnail_id ? 6 : 7);
+    \u0275\u0275conditional(url_r33 && item_r22.thumbnail_id ? 6 : 7);
     \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate1(" ", item_r18.name, " ");
+    \u0275\u0275textInterpolate1(" ", item_r22.name, " ");
     \u0275\u0275advance(2);
-    \u0275\u0275classProp("bg-info", item_r18.media_type === "video")("text-info-content", item_r18.media_type === "video")("bg-warning", item_r18.media_type === "image")("text-warning-content", item_r18.media_type === "image")("bg-success", item_r18.media_type === "webpage")("text-success-content", item_r18.media_type === "webpage")("bg-error", item_r18.media_type === "plugin")("text-error-content", item_r18.media_type === "plugin");
+    \u0275\u0275classProp("bg-info", item_r22.media_type === "video")("text-info-content", item_r22.media_type === "video")("bg-warning", item_r22.media_type === "image")("text-warning-content", item_r22.media_type === "image")("bg-success", item_r22.media_type === "webpage")("text-success-content", item_r22.media_type === "webpage")("bg-error", item_r22.media_type === "plugin")("text-error-content", item_r22.media_type === "plugin");
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", item_r18.media_type, " ");
+    \u0275\u0275textInterpolate1(" ", item_r22.media_type, " ");
     \u0275\u0275advance();
-    \u0275\u0275conditional(item_r18.play_time ? 14 : -1);
+    \u0275\u0275conditional(item_r22.play_time ? 14 : -1);
     \u0275\u0275advance();
-    \u0275\u0275property("matMenuTriggerFor", distribution_item_menu_r26);
+    \u0275\u0275property("matMenuTriggerFor", distribution_item_menu_r32);
     \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(16, 39, "SIGNAGE_MANAGER.ITEM_ACTIONS"));
     \u0275\u0275advance(11);
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(27, 41, "COMMON.PREVIEW"), " ");
     \u0275\u0275advance(2);
     \u0275\u0275conditional(ctx_r1.can_update() ? 28 : -1);
     \u0275\u0275advance(2);
-    \u0275\u0275attribute("aria-expanded", ctx_r1.schedulesOpen(item_r18, $index_r23));
+    \u0275\u0275attribute("aria-expanded", ctx_r1.schedulesOpen(item_r22, $index_r23));
     \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate(ctx_r1.schedulesOpen(item_r18, $index_r23) ? "expand_less" : "expand_more");
+    \u0275\u0275textInterpolate(ctx_r1.schedulesOpen(item_r22, $index_r23) ? "expand_less" : "expand_more");
     \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r1.schedulesOpen(item_r18, $index_r23) ? 35 : -1);
+    \u0275\u0275conditional(ctx_r1.schedulesOpen(item_r22, $index_r23) ? 35 : -1);
   }
 }
 function PlaylistItemsComponent_Conditional_0_Conditional_12_Template(rf, ctx) {
   if (rf & 1) {
-    const _r16 = \u0275\u0275getCurrentView();
+    const _r19 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 11)(1, "div", 38)(2, "button", 39);
     \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_12_Template_button_click_2_listener($event) {
-      \u0275\u0275restoreView(_r16);
+      \u0275\u0275restoreView(_r19);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.toggleAllSchedules($event));
     });
@@ -2422,6 +2435,7 @@ var PlaylistItemsComponent = class _PlaylistItemsComponent {
     this._service = inject(SignageService);
     this.selected_playlist = this._service.selected_playlist;
     this.selected_item = this._service.selected_playlist_item;
+    this.selected_item_index = this._service.selected_playlist_item_index;
     this.requires_approval = this._service.selected_playlist_requires_approval;
     this.can_approve = this._service.can_approve;
     this.can_update = this._service.can_update;
@@ -2442,8 +2456,12 @@ var PlaylistItemsComponent = class _PlaylistItemsComponent {
     );
     this.scheduleLabel = playlistScheduleLabel;
   }
-  selectItem(item) {
+  selectItem(item, index) {
     this._service.selected_playlist_item.set(item);
+    this._service.selected_playlist_item_index.set(index);
+  }
+  isItemSelected(item, index) {
+    return this.selected_item()?.id === item.id && this.selected_item_index() === index;
   }
   thumbnailURL(item) {
     return `/api/engine/v2/signage/media/${item.id}/thumbnail`;
@@ -2499,10 +2517,10 @@ var PlaylistItemsComponent = class _PlaylistItemsComponent {
     });
     this.collapsed_schedules.set(collapsed);
   }
-  selectItemWithKeyboard(event, item) {
+  selectItemWithKeyboard(event, item, index) {
     event.preventDefault();
     event.stopPropagation();
-    this.selectItem(item);
+    this.selectItem(item, index);
   }
   previewItem(item) {
     this._service.previewMedia(item);
@@ -2540,8 +2558,9 @@ var PlaylistItemsComponent = class _PlaylistItemsComponent {
     if (!playlist?.id || !item?.id)
       return;
     await this._service.removeMediaFromPlaylist(playlist.id, item.id, item_index);
-    if (this.selected_item()?.id === item.id) {
+    if (this.isItemSelected(item, item_index)) {
       this._service.selected_playlist_item.set(null);
+      this._service.selected_playlist_item_index.set(null);
     }
   }
   async onDrop(event) {
@@ -2728,19 +2747,19 @@ var PlaylistItemsComponent = class _PlaylistItemsComponent {
                             role="button"
                             tabindex="0"
                             class="bg-base-100 border-base-300 mb-2 flex cursor-pointer items-center gap-3 rounded-lg border p-2 transition-colors"
-                            [class.bg-primary]="selected_item()?.id === item.id"
+                            [class.bg-primary]="isItemSelected(item, $index)"
                             [class.text-primary-content]="
-                                selected_item()?.id === item.id
+                                isItemSelected(item, $index)
                             "
                             [class.hover:bg-base-200]="
-                                selected_item()?.id !== item.id
+                                !isItemSelected(item, $index)
                             "
-                            (click)="selectItem(item)"
+                            (click)="selectItem(item, $index)"
                             (keydown.enter)="
-                                selectItemWithKeyboard($event, item)
+                                selectItemWithKeyboard($event, item, $index)
                             "
                             (keydown.space)="
-                                selectItemWithKeyboard($event, item)
+                                selectItemWithKeyboard($event, item, $index)
                             "
                             [attr.aria-label]="
                                 'SIGNAGE_MANAGER.SELECT_MEDIA_ITEM'
@@ -2903,19 +2922,19 @@ var PlaylistItemsComponent = class _PlaylistItemsComponent {
                             role="button"
                             tabindex="0"
                             class="bg-base-100 border-base-300 mb-2 cursor-pointer rounded-lg border p-2 transition-colors"
-                            [class.bg-primary]="selected_item()?.id === item.id"
+                            [class.bg-primary]="isItemSelected(item, $index)"
                             [class.text-primary-content]="
-                                selected_item()?.id === item.id
+                                isItemSelected(item, $index)
                             "
                             [class.hover:bg-base-200]="
-                                selected_item()?.id !== item.id
+                                !isItemSelected(item, $index)
                             "
-                            (click)="selectItem(item)"
+                            (click)="selectItem(item, $index)"
                             (keydown.enter)="
-                                selectItemWithKeyboard($event, item)
+                                selectItemWithKeyboard($event, item, $index)
                             "
                             (keydown.space)="
-                                selectItemWithKeyboard($event, item)
+                                selectItemWithKeyboard($event, item, $index)
                             "
                             [attr.aria-label]="
                                 'SIGNAGE_MANAGER.SELECT_MEDIA_ITEM'
@@ -3922,11 +3941,13 @@ var PlaylistsSectionComponent = class _PlaylistsSectionComponent {
         if (match && this._service.selected_playlist() !== match) {
           this._service.selected_playlist.set(match);
           this._service.selected_playlist_item.set(null);
+          this._service.selected_playlist_item_index.set(null);
         }
         this._route_resolved = true;
       } else if (this._route_resolved) {
         this._service.selected_playlist.set(null);
         this._service.selected_playlist_item.set(null);
+        this._service.selected_playlist_item_index.set(null);
       }
     });
     effect(() => {
@@ -3936,8 +3957,10 @@ var PlaylistsSectionComponent = class _PlaylistsSectionComponent {
       const items = this._playlist_items();
       if (!items.length)
         return;
-      const matched_item = items.find((item) => item.id === item_id);
+      const matched_index = items.findIndex((item) => item.id === item_id);
+      const matched_item = items[matched_index];
       this._service.selected_playlist_item.set(matched_item || null);
+      this._service.selected_playlist_item_index.set(matched_item ? matched_index : null);
     });
   }
   editPlaylist() {
@@ -3968,6 +3991,7 @@ var PlaylistsSectionComponent = class _PlaylistsSectionComponent {
   deselectPlaylist() {
     this._service.selected_playlist.set(null);
     this._service.selected_playlist_item.set(null);
+    this._service.selected_playlist_item_index.set(null);
     this._router.navigate(["/playlists"], {});
   }
   setViewTab(tab) {
@@ -4291,4 +4315,4 @@ var PlaylistsSectionComponent = class _PlaylistsSectionComponent {
 export {
   PlaylistsSectionComponent
 };
-//# sourceMappingURL=playlists.component-KY556UWY.js.map
+//# sourceMappingURL=playlists.component-D2MJX7J2.js.map

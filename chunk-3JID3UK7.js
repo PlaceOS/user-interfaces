@@ -53546,7 +53546,7 @@ function padLength(value, length = 2, character = "0") {
 }
 function getItemWithKeys(keys, map2) {
   const key = keys[0];
-  if (map2 && key in map2) {
+  if (map2 && typeof map2 === "object" && key in map2) {
     return keys.length > 1 ? getItemWithKeys(keys.slice(1), map2[key] || {}) : map2[key];
   }
   return null;
@@ -54631,15 +54631,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "d394f5c",
-  "hash": "d394f5c",
+  "raw": "3ceaa31",
+  "hash": "3ceaa31",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "d394f5c",
+  "suffix": "3ceaa31",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1783578393666
+  "time": 1783664541737
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -109199,6 +109199,13 @@ var SignageService = class _SignageService {
         []
       )
     );
+    this.selected_playlist_item_index = signal(
+      null,
+      ...ngDevMode ? [{ debugName: "selected_playlist_item_index" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
     this.playlist_search_term = signal(
       "",
       ...ngDevMode ? [{ debugName: "playlist_search_term" }] : (
@@ -109505,6 +109512,7 @@ var SignageService = class _SignageService {
     if (this.selected_playlist()?.id === playlist.id) {
       this.selected_playlist.set(null);
       this.selected_playlist_item.set(null);
+      this.selected_playlist_item_index.set(null);
     }
     this._removePlaylistMediaState(playlist.id);
     this.changed();
@@ -109819,6 +109827,7 @@ var SignageService = class _SignageService {
       this.selected_group_id.set("");
       this.selected_playlist.set(null);
       this.selected_playlist_item.set(null);
+      this.selected_playlist_item_index.set(null);
       this.selected_zone.set(null);
       this.selected_display.set(null);
       this.changed();
@@ -109830,6 +109839,7 @@ var SignageService = class _SignageService {
     this.selected_group_id.set(group_id);
     this.selected_playlist.set(null);
     this.selected_playlist_item.set(null);
+    this.selected_playlist_item_index.set(null);
     this.selected_zone.set(null);
     this.selected_display.set(null);
     this.changed();
@@ -110105,6 +110115,7 @@ var SignageService = class _SignageService {
     const selected_item = this.selected_playlist_item();
     if (selected_item?.id && removed_ids.has(selected_item.id)) {
       this.selected_playlist_item.set(null);
+      this.selected_playlist_item_index.set(null);
     }
     this._playlist_change.set(Date.now());
   }
@@ -111160,4 +111171,4 @@ export {
   dialogClosed,
   SignageService
 };
-//# sourceMappingURL=chunk-3ITSEBHD.js.map
+//# sourceMappingURL=chunk-3JID3UK7.js.map
