@@ -53805,7 +53805,7 @@ function padLength(value, length = 2, character = "0") {
 }
 function getItemWithKeys(keys, map2) {
   const key = keys[0];
-  if (map2 && key in map2) {
+  if (map2 && typeof map2 === "object" && key in map2) {
     return keys.length > 1 ? getItemWithKeys(keys.slice(1), map2[key] || {}) : map2[key];
   }
   return null;
@@ -55868,15 +55868,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "d394f5c",
-  "hash": "d394f5c",
+  "raw": "3ceaa31",
+  "hash": "3ceaa31",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "d394f5c",
+  "suffix": "3ceaa31",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1783578336889
+  "time": 1783664533342
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -102198,11 +102198,13 @@ var MapRadiusComponent = class _MapRadiusComponent {
 })();
 
 // libs/components/src/lib/settings-debug-panel.component.ts
-function SettingsDebugPanelComponent_Conditional_0_Conditional_5_Template(rf, ctx) {
+var _c021 = (a0) => ({ zones: a0 });
+var _forTrack02 = ($index, $item) => $item.type + $item.id;
+function SettingsDebugPanelComponent_Conditional_0_Conditional_6_Template(rf, ctx) {
   if (rf & 1) {
     const _r2 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 13);
-    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_Conditional_5_Template_button_click_0_listener() {
+    \u0275\u0275elementStart(0, "button", 15);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_Conditional_6_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r2);
       const ctx_r2 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r2.clearAll());
@@ -102211,9 +102213,9 @@ function SettingsDebugPanelComponent_Conditional_0_Conditional_5_Template(rf, ct
     \u0275\u0275elementEnd();
   }
 }
-function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_0_Conditional_7_Template(rf, ctx) {
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_0_Conditional_7_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 20);
+    \u0275\u0275elementStart(0, "span", 22);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -102223,25 +102225,25 @@ function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_0_Conditio
     \u0275\u0275textInterpolate1(" ", group_r5.overridden, " overridden ");
   }
 }
-function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_0_Template(rf, ctx) {
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
     const _r4 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 16);
-    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_0_Template_button_click_0_listener() {
+    \u0275\u0275elementStart(0, "button", 18);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_0_Template_button_click_0_listener() {
       const group_r5 = \u0275\u0275restoreView(_r4);
       const ctx_r2 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r2.toggleGroup(group_r5.name));
     });
-    \u0275\u0275elementStart(1, "icon", 17);
+    \u0275\u0275elementStart(1, "icon", 19);
     \u0275\u0275text(2, " chevron_right ");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "span", 18);
+    \u0275\u0275elementStart(3, "span", 20);
     \u0275\u0275text(4);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(5, "span", 19);
+    \u0275\u0275elementStart(5, "span", 21);
     \u0275\u0275text(6);
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(7, SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_0_Conditional_7_Template, 2, 1, "span", 20);
+    \u0275\u0275conditionalCreate(7, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_0_Conditional_7_Template, 2, 1, "span", 22);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -102257,9 +102259,9 @@ function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_0_Template
     \u0275\u0275conditional(group_r5.overridden ? 7 : -1);
   }
 }
-function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Conditional_4_Template(rf, ctx) {
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Conditional_8_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 24);
+    \u0275\u0275elementStart(0, "div", 29);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -102270,9 +102272,9 @@ function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Conditio
     \u0275\u0275textInterpolate1(" ", row_r6.description, " ");
   }
 }
-function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_5_For_2_Template(rf, ctx) {
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_9_For_2_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "option", 26);
+    \u0275\u0275elementStart(0, "option", 31);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -102283,31 +102285,31 @@ function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_5_F
     \u0275\u0275textInterpolate1(" ", option_r8, " ");
   }
 }
-function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_5_Template(rf, ctx) {
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_9_Template(rf, ctx) {
   if (rf & 1) {
     const _r7 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "select", 25);
-    \u0275\u0275twoWayListener("ngModelChange", function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_5_Template_select_ngModelChange_0_listener($event) {
+    \u0275\u0275elementStart(0, "select", 30);
+    \u0275\u0275twoWayListener("ngModelChange", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_9_Template_select_ngModelChange_0_listener($event) {
       \u0275\u0275restoreView(_r7);
       const ctx_r2 = \u0275\u0275nextContext(4);
       \u0275\u0275twoWayBindingSet(ctx_r2.edit_value, $event) || (ctx_r2.edit_value = $event);
       return \u0275\u0275resetView($event);
     });
-    \u0275\u0275listener("keydown.escape", function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_5_Template_select_keydown_escape_0_listener() {
+    \u0275\u0275listener("keydown.escape", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_9_Template_select_keydown_escape_0_listener() {
       \u0275\u0275restoreView(_r7);
       const ctx_r2 = \u0275\u0275nextContext(4);
       return \u0275\u0275resetView(ctx_r2.editing_key.set(""));
     });
-    \u0275\u0275repeaterCreate(1, SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_5_For_2_Template, 2, 2, "option", 26, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275repeaterCreate(1, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_9_For_2_Template, 2, 2, "option", 31, \u0275\u0275repeaterTrackByIdentity);
     \u0275\u0275elementEnd();
     \u0275\u0275controlCreate();
-    \u0275\u0275elementStart(3, "button", 27);
-    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_5_Template_button_click_3_listener() {
+    \u0275\u0275elementStart(3, "button", 32);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_9_Template_button_click_3_listener() {
       \u0275\u0275restoreView(_r7);
       const ctx_r2 = \u0275\u0275nextContext(4);
       return \u0275\u0275resetView(ctx_r2.saveEdit());
     });
-    \u0275\u0275elementStart(4, "icon", 28);
+    \u0275\u0275elementStart(4, "icon", 33);
     \u0275\u0275text(5, "check");
     \u0275\u0275elementEnd()();
   }
@@ -102320,34 +102322,34 @@ function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_5_T
     \u0275\u0275repeater(row_r6.options);
   }
 }
-function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_6_Template(rf, ctx) {
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_10_Template(rf, ctx) {
   if (rf & 1) {
     const _r9 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "input", 29);
-    \u0275\u0275twoWayListener("ngModelChange", function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_6_Template_input_ngModelChange_0_listener($event) {
+    \u0275\u0275elementStart(0, "input", 34);
+    \u0275\u0275twoWayListener("ngModelChange", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_10_Template_input_ngModelChange_0_listener($event) {
       \u0275\u0275restoreView(_r9);
       const ctx_r2 = \u0275\u0275nextContext(4);
       \u0275\u0275twoWayBindingSet(ctx_r2.edit_value, $event) || (ctx_r2.edit_value = $event);
       return \u0275\u0275resetView($event);
     });
-    \u0275\u0275listener("keydown.enter", function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_6_Template_input_keydown_enter_0_listener() {
+    \u0275\u0275listener("keydown.enter", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_10_Template_input_keydown_enter_0_listener() {
       \u0275\u0275restoreView(_r9);
       const ctx_r2 = \u0275\u0275nextContext(4);
       return \u0275\u0275resetView(ctx_r2.saveEdit());
-    })("keydown.escape", function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_6_Template_input_keydown_escape_0_listener() {
+    })("keydown.escape", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_10_Template_input_keydown_escape_0_listener() {
       \u0275\u0275restoreView(_r9);
       const ctx_r2 = \u0275\u0275nextContext(4);
       return \u0275\u0275resetView(ctx_r2.editing_key.set(""));
     });
     \u0275\u0275elementEnd();
     \u0275\u0275controlCreate();
-    \u0275\u0275elementStart(1, "button", 27);
-    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_6_Template_button_click_1_listener() {
+    \u0275\u0275elementStart(1, "button", 32);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_10_Template_button_click_1_listener() {
       \u0275\u0275restoreView(_r9);
       const ctx_r2 = \u0275\u0275nextContext(4);
       return \u0275\u0275resetView(ctx_r2.saveEdit());
     });
-    \u0275\u0275elementStart(2, "icon", 28);
+    \u0275\u0275elementStart(2, "icon", 33);
     \u0275\u0275text(3, "check");
     \u0275\u0275elementEnd()();
   }
@@ -102357,34 +102359,34 @@ function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_6_T
     \u0275\u0275control();
   }
 }
-function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_7_Template(rf, ctx) {
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_11_Template(rf, ctx) {
   if (rf & 1) {
     const _r10 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "input", 30);
-    \u0275\u0275twoWayListener("ngModelChange", function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_7_Template_input_ngModelChange_0_listener($event) {
+    \u0275\u0275elementStart(0, "input", 35);
+    \u0275\u0275twoWayListener("ngModelChange", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_11_Template_input_ngModelChange_0_listener($event) {
       \u0275\u0275restoreView(_r10);
       const ctx_r2 = \u0275\u0275nextContext(4);
       \u0275\u0275twoWayBindingSet(ctx_r2.edit_value, $event) || (ctx_r2.edit_value = $event);
       return \u0275\u0275resetView($event);
     });
-    \u0275\u0275listener("keydown.enter", function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_7_Template_input_keydown_enter_0_listener() {
+    \u0275\u0275listener("keydown.enter", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_11_Template_input_keydown_enter_0_listener() {
       \u0275\u0275restoreView(_r10);
       const ctx_r2 = \u0275\u0275nextContext(4);
       return \u0275\u0275resetView(ctx_r2.saveEdit());
-    })("keydown.escape", function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_7_Template_input_keydown_escape_0_listener() {
+    })("keydown.escape", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_11_Template_input_keydown_escape_0_listener() {
       \u0275\u0275restoreView(_r10);
       const ctx_r2 = \u0275\u0275nextContext(4);
       return \u0275\u0275resetView(ctx_r2.editing_key.set(""));
     });
     \u0275\u0275elementEnd();
     \u0275\u0275controlCreate();
-    \u0275\u0275elementStart(1, "button", 27);
-    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_7_Template_button_click_1_listener() {
+    \u0275\u0275elementStart(1, "button", 32);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_11_Template_button_click_1_listener() {
       \u0275\u0275restoreView(_r10);
       const ctx_r2 = \u0275\u0275nextContext(4);
       return \u0275\u0275resetView(ctx_r2.saveEdit());
     });
-    \u0275\u0275elementStart(2, "icon", 28);
+    \u0275\u0275elementStart(2, "icon", 33);
     \u0275\u0275text(3, "check");
     \u0275\u0275elementEnd()();
   }
@@ -102394,17 +102396,17 @@ function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_7_T
     \u0275\u0275control();
   }
 }
-function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_8_Conditional_0_Template(rf, ctx) {
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
     const _r11 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 31)(1, "button", 34);
-    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_8_Conditional_0_Template_button_click_1_listener() {
+    \u0275\u0275elementStart(0, "div", 36)(1, "button", 39);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_0_Template_button_click_1_listener() {
       \u0275\u0275restoreView(_r11);
       const row_r6 = \u0275\u0275nextContext(2);
       const ctx_r2 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r2.toggleValue(row_r6));
     });
-    \u0275\u0275element(2, "div", 35);
+    \u0275\u0275element(2, "div", 40);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
@@ -102416,11 +102418,11 @@ function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_8_C
     \u0275\u0275classProp("translate-x-4", row_r6.value);
   }
 }
-function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_8_Conditional_1_Template(rf, ctx) {
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
     const _r12 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 36);
-    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_8_Conditional_1_Template_div_click_0_listener() {
+    \u0275\u0275elementStart(0, "div", 41);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_1_Template_div_click_0_listener() {
       \u0275\u0275restoreView(_r12);
       const row_r6 = \u0275\u0275nextContext(2);
       const ctx_r2 = \u0275\u0275nextContext(3);
@@ -102437,25 +102439,25 @@ function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_8_C
     \u0275\u0275textInterpolate1(" ", row_r6.display || "unset", " ");
   }
 }
-function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_8_Conditional_2_Template(rf, ctx) {
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
     const _r13 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 37);
-    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_8_Conditional_2_Template_button_click_0_listener() {
+    \u0275\u0275elementStart(0, "button", 42);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_2_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r13);
       const row_r6 = \u0275\u0275nextContext(2);
       const ctx_r2 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r2.clearOverride(row_r6.key));
     });
-    \u0275\u0275elementStart(1, "icon", 28);
+    \u0275\u0275elementStart(1, "icon", 33);
     \u0275\u0275text(2, "undo");
     \u0275\u0275elementEnd()();
   }
 }
-function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_8_Template(rf, ctx) {
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275conditionalCreate(0, SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_8_Conditional_0_Template, 3, 7, "div", 31)(1, SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_8_Conditional_1_Template, 2, 4, "div", 32);
-    \u0275\u0275conditionalCreate(2, SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_8_Conditional_2_Template, 3, 0, "button", 33);
+    \u0275\u0275conditionalCreate(0, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_0_Template, 3, 7, "div", 36)(1, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_1_Template, 2, 4, "div", 37);
+    \u0275\u0275conditionalCreate(2, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_2_Template, 3, 0, "button", 38);
   }
   if (rf & 2) {
     const row_r6 = \u0275\u0275nextContext();
@@ -102464,49 +102466,53 @@ function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_8_T
     \u0275\u0275conditional(row_r6.overridden ? 2 : -1);
   }
 }
-function SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Template(rf, ctx) {
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 21)(1, "div", 22)(2, "div", 23);
-    \u0275\u0275text(3);
+    \u0275\u0275elementStart(0, "div", 23)(1, "div", 24)(2, "div", 25)(3, "span", 26);
+    \u0275\u0275text(4);
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(4, SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Conditional_4_Template, 2, 2, "div", 24);
+    \u0275\u0275elementStart(5, "span", 27)(6, "icon", 28);
+    \u0275\u0275text(7, "info");
+    \u0275\u0275elementEnd()()();
+    \u0275\u0275conditionalCreate(8, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Conditional_8_Template, 2, 2, "div", 29);
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(5, SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_5_Template, 6, 1)(6, SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_6_Template, 4, 1)(7, SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_7_Template, 4, 1)(8, SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Case_8_Template, 3, 2);
+    \u0275\u0275conditionalCreate(9, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_9_Template, 6, 1)(10, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_10_Template, 4, 1)(11, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_11_Template, 4, 1)(12, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Template, 3, 2);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    let tmp_19_0;
+    let tmp_24_0;
     const row_r6 = ctx;
     const entry_r14 = \u0275\u0275nextContext().$implicit;
     const ctx_r2 = \u0275\u0275nextContext(2);
+    const zone_tooltip_r15 = \u0275\u0275reference(2);
     \u0275\u0275classProp("pl-8", entry_r14.grouped)("pl-2", !entry_r14.grouped)("bg-warning-light", row_r6.overridden);
-    \u0275\u0275advance(2);
-    \u0275\u0275property("title", row_r6.label);
-    \u0275\u0275advance();
+    \u0275\u0275advance(4);
     \u0275\u0275textInterpolate1(" ", row_r6.label, " ");
     \u0275\u0275advance();
-    \u0275\u0275conditional(row_r6.description ? 4 : -1);
+    \u0275\u0275property("content", zone_tooltip_r15)("data", \u0275\u0275pureFunction1(14, _c021, row_r6.zones))("hover", true)("backdrop", false)("xOffset", 20);
+    \u0275\u0275advance(3);
+    \u0275\u0275conditional(row_r6.description ? 8 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional((tmp_19_0 = ctx_r2.editing_key() === row_r6.key ? row_r6.control : "") === "select" ? 5 : tmp_19_0 === "number" ? 6 : tmp_19_0 === "text" ? 7 : 8);
+    \u0275\u0275conditional((tmp_24_0 = ctx_r2.editing_key() === row_r6.key ? row_r6.control : "") === "select" ? 9 : tmp_24_0 === "number" ? 10 : tmp_24_0 === "text" ? 11 : 12);
   }
 }
-function SettingsDebugPanelComponent_Conditional_0_For_16_Template(rf, ctx) {
+function SettingsDebugPanelComponent_Conditional_0_For_17_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275conditionalCreate(0, SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_0_Template, 8, 5, "button", 14);
-    \u0275\u0275conditionalCreate(1, SettingsDebugPanelComponent_Conditional_0_For_16_Conditional_1_Template, 9, 10, "div", 15);
+    \u0275\u0275conditionalCreate(0, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_0_Template, 8, 5, "button", 16);
+    \u0275\u0275conditionalCreate(1, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Template, 13, 16, "div", 17);
   }
   if (rf & 2) {
-    let tmp_11_0;
     let tmp_12_0;
+    let tmp_13_0;
     const entry_r14 = ctx.$implicit;
-    \u0275\u0275conditional((tmp_11_0 = entry_r14.header) ? 0 : -1, tmp_11_0);
+    \u0275\u0275conditional((tmp_12_0 = entry_r14.header) ? 0 : -1, tmp_12_0);
     \u0275\u0275advance();
-    \u0275\u0275conditional((tmp_12_0 = entry_r14.row) ? 1 : -1, tmp_12_0);
+    \u0275\u0275conditional((tmp_13_0 = entry_r14.row) ? 1 : -1, tmp_13_0);
   }
 }
-function SettingsDebugPanelComponent_Conditional_0_ForEmpty_17_Template(rf, ctx) {
+function SettingsDebugPanelComponent_Conditional_0_ForEmpty_18_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 11);
+    \u0275\u0275elementStart(0, "div", 13);
     \u0275\u0275text(1, " No matching settings ");
     \u0275\u0275elementEnd();
   }
@@ -102514,22 +102520,22 @@ function SettingsDebugPanelComponent_Conditional_0_ForEmpty_17_Template(rf, ctx)
 function SettingsDebugPanelComponent_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 0)(1, "div", 1)(2, "div", 2);
-    \u0275\u0275text(3, "Settings Viewer");
+    \u0275\u0275elementStart(0, "div", 1)(1, "div", 2)(2, "div", 3)(3, "div", 4);
+    \u0275\u0275text(4, "Settings Viewer");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "div", 3);
-    \u0275\u0275conditionalCreate(5, SettingsDebugPanelComponent_Conditional_0_Conditional_5_Template, 2, 0, "button", 4);
-    \u0275\u0275elementStart(6, "button", 5);
-    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_Template_button_click_6_listener() {
+    \u0275\u0275elementStart(5, "div", 5);
+    \u0275\u0275conditionalCreate(6, SettingsDebugPanelComponent_Conditional_0_Conditional_6_Template, 2, 0, "button", 6);
+    \u0275\u0275elementStart(7, "button", 7);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_Template_button_click_7_listener() {
       \u0275\u0275restoreView(_r1);
       const ctx_r2 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r2.show.set(false));
     });
-    \u0275\u0275elementStart(7, "icon");
-    \u0275\u0275text(8, "close");
+    \u0275\u0275elementStart(8, "icon");
+    \u0275\u0275text(9, "close");
     \u0275\u0275elementEnd()()()()();
-    \u0275\u0275elementStart(9, "div", 6)(10, "div", 7)(11, "input", 8);
-    \u0275\u0275twoWayListener("ngModelChange", function SettingsDebugPanelComponent_Conditional_0_Template_input_ngModelChange_11_listener($event) {
+    \u0275\u0275elementStart(10, "div", 8)(11, "div", 9)(12, "input", 10);
+    \u0275\u0275twoWayListener("ngModelChange", function SettingsDebugPanelComponent_Conditional_0_Template_input_ngModelChange_12_listener($event) {
       \u0275\u0275restoreView(_r1);
       const ctx_r2 = \u0275\u0275nextContext();
       \u0275\u0275twoWayBindingSet(ctx_r2.filter, $event) || (ctx_r2.filter = $event);
@@ -102537,25 +102543,69 @@ function SettingsDebugPanelComponent_Conditional_0_Template(rf, ctx) {
     });
     \u0275\u0275elementEnd();
     \u0275\u0275controlCreate();
-    \u0275\u0275elementStart(12, "icon", 9);
-    \u0275\u0275text(13, "search");
+    \u0275\u0275elementStart(13, "icon", 11);
+    \u0275\u0275text(14, "search");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(14, "div", 10);
-    \u0275\u0275repeaterCreate(15, SettingsDebugPanelComponent_Conditional_0_For_16_Template, 2, 2, null, null, \u0275\u0275repeaterTrackByIndex, false, SettingsDebugPanelComponent_Conditional_0_ForEmpty_17_Template, 2, 0, "div", 11);
+    \u0275\u0275elementStart(15, "div", 12);
+    \u0275\u0275repeaterCreate(16, SettingsDebugPanelComponent_Conditional_0_For_17_Template, 2, 2, null, null, \u0275\u0275repeaterTrackByIndex, false, SettingsDebugPanelComponent_Conditional_0_ForEmpty_18_Template, 2, 0, "div", 13);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(18, "div", 12);
-    \u0275\u0275text(19, " Click a value to override it. Text values are parsed as JSON, falling back to plain strings. Overrides are stored locally in this browser. ");
-    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(19, "div", 14);
+    \u0275\u0275text(20, " Click a value to override it. Text values are parsed as JSON, falling back to plain strings. Overrides are stored locally in this browser. ");
+    \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
     const ctx_r2 = \u0275\u0275nextContext();
-    \u0275\u0275advance(5);
-    \u0275\u0275conditional(ctx_r2.has_overrides() ? 5 : -1);
+    \u0275\u0275advance(6);
+    \u0275\u0275conditional(ctx_r2.has_overrides() ? 6 : -1);
     \u0275\u0275advance(6);
     \u0275\u0275twoWayProperty("ngModel", ctx_r2.filter);
     \u0275\u0275control();
     \u0275\u0275advance(4);
     \u0275\u0275repeater(ctx_r2.entries());
+  }
+}
+function SettingsDebugPanelComponent_ng_template_1_For_5_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 46)(1, "div", 48)(2, "div", 49);
+    \u0275\u0275text(3);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "div", 50);
+    \u0275\u0275text(5);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(6, "span", 51);
+    \u0275\u0275text(7);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const zone_r16 = ctx.$implicit;
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1(" ", zone_r16.name, " ");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", zone_r16.id, " ");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", zone_r16.type, " ");
+  }
+}
+function SettingsDebugPanelComponent_ng_template_1_ForEmpty_6_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 47);
+    \u0275\u0275text(1, " No zone metadata value ");
+    \u0275\u0275elementEnd();
+  }
+}
+function SettingsDebugPanelComponent_ng_template_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 43)(1, "div", 44);
+    \u0275\u0275text(2, " Setting sources ");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "div", 45);
+    \u0275\u0275repeaterCreate(4, SettingsDebugPanelComponent_ng_template_1_For_5_Template, 8, 3, "div", 46, _forTrack02, false, SettingsDebugPanelComponent_ng_template_1_ForEmpty_6_Template, 2, 0, "div", 47);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const zones_r17 = ctx.zones;
+    \u0275\u0275advance(4);
+    \u0275\u0275repeater(zones_r17);
   }
 }
 function flattenKeys(map2, prefix, keys) {
@@ -102567,6 +102617,12 @@ function flattenKeys(map2, prefix, keys) {
     } else
       keys.add(full_key);
   }
+}
+function hasSetting(map2, key) {
+  let value = map2;
+  for (const part of key.slice(4).split("."))
+    value = value?.[part];
+  return value != null;
 }
 function resolveRef(root, node) {
   const ref = node?.["$ref"];
@@ -102606,6 +102662,7 @@ var SettingsDebugPanelComponent = class _SettingsDebugPanelComponent extends Asy
     super(...arguments);
     this._settings = inject2(SettingsService);
     this._hotkey = inject2(HotkeysService);
+    this._org = inject2(OrganisationService);
     this.schema = input(
       null,
       ...ngDevMode ? [{ debugName: "schema" }] : (
@@ -102681,6 +102738,7 @@ var SettingsDebugPanelComponent = class _SettingsDebugPanelComponent extends Asy
             display: JSON.stringify(value) ?? "",
             overridden: key in debug_overrides,
             description: node?.description || "",
+            zones: this._zoneTooltip(key),
             control,
             options: node?.enum
           };
@@ -102726,6 +102784,25 @@ var SettingsDebugPanelComponent = class _SettingsDebugPanelComponent extends Asy
         []
       )
     );
+  }
+  _zoneTooltip(key) {
+    const zones = [];
+    const add_zone = (type2, id, name, settings) => {
+      if (!id || !settings.some((_2) => hasSetting(_2, key)))
+        return;
+      zones.push({ type: type2, id, name: name || id });
+    };
+    for (const [id, settings] of Object.entries(this._org.building_settings)) {
+      const building = this._org.buildings.find((_2) => _2.id === id);
+      add_zone("Building", id, building?.display_name || building?.name || "", [settings]);
+    }
+    for (const [id, settings] of Object.entries(this._org.region_settings)) {
+      const region = this._org.regions.find((_2) => _2.id === id);
+      add_zone("Region", id, region?.display_name || region?.name || "", [settings]);
+    }
+    const organisation = this._org.organisation;
+    add_zone("ORG", organisation.id, organisation.name, this._org.settings);
+    return zones;
   }
   toggleGroup(name) {
     this.expanded.update((state2) => __spreadProps(__spreadValues({}, state2), { [name]: !state2[name] }));
@@ -102774,14 +102851,28 @@ var SettingsDebugPanelComponent = class _SettingsDebugPanelComponent extends Asy
     })();
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SettingsDebugPanelComponent, selectors: [["settings-debug-panel"]], inputs: { schema: [1, "schema"] }, features: [\u0275\u0275InheritDefinitionFeature], decls: 1, vars: 1, consts: [[1, "flex", "flex-col", "gap-2"], [1, "border-base-300", "bg-base-100", "text-base-content", "fixed", "bottom-123", "left-2", "z-998", "flex", "w-160", "max-w-[90vw]", "items-center", "overflow-hidden", "rounded-lg", "border", "p-1", "shadow-sm"], [1, "flex-1", "px-3", "font-medium"], [1, "flex", "items-center"], ["matRipple", "", 1, "text-error", "px-2", "py-1", "text-xs", "underline"], ["icon", "", "default", "", "matRipple", "", 1, "text-sm", 3, "click"], [1, "border-base-300", "bg-base-200", "text-base-content", "fixed", "bottom-2", "left-2", "z-998", "flex", "h-120", "max-h-[80vh]", "w-160", "max-w-[90vw]", "flex-col", "overflow-hidden", "rounded-xl", "border", "shadow-sm"], [1, "relative", "m-1", "flex"], ["name", "setting-filter", "placeholder", "Filter settings...", 1, "border-base-300", "bg-base-100", "w-full", "rounded-lg", "border", "px-8", "py-2", "pr-2", "font-mono", "text-sm", "shadow", 3, "ngModelChange", "ngModel"], [1, "absolute", "top-1/2", "left-1", "-translate-y-1/2", "text-xl"], [1, "flex-1", "overflow-auto"], [1, "p-4", "text-center", "opacity-30"], [1, "border-base-300", "bg-base-100", "border-t", "p-2", "text-xs", "opacity-60"], ["matRipple", "", 1, "text-error", "px-2", "py-1", "text-xs", "underline", 3, "click"], [1, "border-base-300", "bg-base-100/50", "hover:bg-base-100", "flex", "min-h-8", "w-full", "items-center", "gap-1", "border-b", "px-2", "py-1", "text-left", "text-xs"], [1, "border-base-300", "flex", "min-h-8", "items-center", "border-b", "py-1", "pr-2", "text-xs", 3, "pl-8", "pl-2", "bg-warning-light"], [1, "border-base-300", "bg-base-100/50", "hover:bg-base-100", "flex", "min-h-8", "w-full", "items-center", "gap-1", "border-b", "px-2", "py-1", "text-left", "text-xs", 3, "click"], [1, "text-sm", "transition-transform"], [1, "font-mono"], [1, "opacity-40"], [1, "bg-warning-light", "rounded-sm", "px-1", "text-[0.65rem]", "text-black"], [1, "border-base-300", "flex", "min-h-8", "items-center", "border-b", "py-1", "pr-2", "text-xs"], [1, "w-3/5", "min-w-0", "pr-2"], [1, "truncate", "font-mono", 3, "title"], [1, "truncate", "text-[0.65rem]", "opacity-60", 3, "title"], ["name", "setting-value", 1, "bg-base-100", "flex-1", "rounded-sm", "border", "px-1", "py-0.5", "font-mono", 3, "ngModelChange", "keydown.escape", "ngModel"], [3, "value"], ["icon", "", "matRipple", "", "title", "Save override", 3, "click"], [1, "text-sm"], ["name", "setting-value", "type", "number", 1, "bg-base-100", "flex-1", "rounded-sm", "border", "px-1", "py-0.5", "font-mono", 3, "ngModelChange", "keydown.enter", "keydown.escape", "ngModel"], ["name", "setting-value", 1, "bg-base-100", "flex-1", "rounded-sm", "border", "px-1", "py-0.5", "font-mono", 3, "ngModelChange", "keydown.enter", "keydown.escape", "ngModel"], [1, "flex", "flex-1"], [1, "flex-1", "cursor-pointer", "truncate", "font-mono", 3, "class", "title"], ["icon", "", "matRipple", "", "title", "Clear override"], [1, "relative", "h-4", "w-8", "rounded-full", "transition-colors", 3, "click", "title"], [1, "absolute", "top-0.5", "left-0.5", "h-3", "w-3", "rounded-full", "bg-white", "shadow-sm", "transition-transform"], [1, "flex-1", "cursor-pointer", "truncate", "font-mono", 3, "click", "title"], ["icon", "", "matRipple", "", "title", "Clear override", 3, "click"]], template: function SettingsDebugPanelComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SettingsDebugPanelComponent, selectors: [["settings-debug-panel"]], inputs: { schema: [1, "schema"] }, features: [\u0275\u0275InheritDefinitionFeature], decls: 3, vars: 1, consts: [["zone_tooltip", ""], [1, "fixed", "bottom-2", "left-2", "z-998", "w-160", "max-w-[90vw]"], [1, "flex", "flex-col", "gap-2"], [1, "-mb-2", "border-base-300", "bg-base-100", "text-base-content", "flex", "w-[calc(100%-0.5rem)]", "mx-1", "items-center", "overflow-hidden", "rounded-b-lg", "rounded-t-xl", "border", "p-1", "shadow-sm"], [1, "flex-1", "px-3", "font-medium"], [1, "flex", "items-center"], ["matRipple", "", 1, "text-error", "px-2", "py-1", "text-xs", "underline"], ["icon", "", "default", "", "matRipple", "", 1, "text-sm", 3, "click"], [1, "border-base-300", "bg-base-200", "text-base-content", "flex", "h-120", "flex-col", "overflow-hidden", "rounded-xl", "border", "shadow-sm", "pt-2"], [1, "relative", "m-1", "flex"], ["name", "setting-filter", "placeholder", "Filter settings...", 1, "border-base-300", "bg-base-100", "w-full", "rounded-lg", "border", "px-8", "py-2", "pr-2", "font-mono", "text-sm", "shadow", 3, "ngModelChange", "ngModel"], [1, "absolute", "top-1/2", "left-1", "-translate-y-1/2", "text-xl"], [1, "flex-1", "overflow-auto"], [1, "p-4", "text-center", "opacity-30"], [1, "border-base-300", "bg-base-100", "border-t", "p-2", "text-xs", "opacity-60"], ["matRipple", "", 1, "text-error", "px-2", "py-1", "text-xs", "underline", 3, "click"], [1, "border-base-300", "bg-base-100/50", "hover:bg-base-100", "flex", "min-h-8", "w-full", "items-center", "gap-1", "border-b", "px-2", "py-1", "text-left", "text-xs"], [1, "border-base-300", "flex", "min-h-8", "items-center", "border-b", "py-1", "pr-2", "text-xs", 3, "pl-8", "pl-2", "bg-warning-light"], [1, "border-base-300", "bg-base-100/50", "hover:bg-base-100", "flex", "min-h-8", "w-full", "items-center", "gap-1", "border-b", "px-2", "py-1", "text-left", "text-xs", 3, "click"], [1, "text-sm", "transition-transform"], [1, "font-mono"], [1, "opacity-40"], [1, "bg-warning-light", "rounded-sm", "px-1", "text-[0.65rem]", "text-black"], [1, "border-base-300", "flex", "min-h-8", "items-center", "border-b", "py-1", "pr-2", "text-xs"], [1, "w-3/5", "min-w-0", "pr-2"], [1, "flex", "min-w-0", "items-center", "gap-1", "font-mono"], [1, "truncate"], ["customTooltip", "", "xPosition", "start", "yPosition", "center", 1, "shrink-0", 3, "content", "data", "hover", "backdrop", "xOffset"], [1, "text-sm", "opacity-60"], [1, "truncate", "text-[0.65rem]", "opacity-60", 3, "title"], ["name", "setting-value", 1, "bg-base-100", "flex-1", "rounded-sm", "border", "px-1", "py-0.5", "font-mono", 3, "ngModelChange", "keydown.escape", "ngModel"], [3, "value"], ["icon", "", "matRipple", "", "title", "Save override", 3, "click"], [1, "text-sm"], ["name", "setting-value", "type", "number", 1, "bg-base-100", "flex-1", "rounded-sm", "border", "px-1", "py-0.5", "font-mono", 3, "ngModelChange", "keydown.enter", "keydown.escape", "ngModel"], ["name", "setting-value", 1, "bg-base-100", "flex-1", "rounded-sm", "border", "px-1", "py-0.5", "font-mono", 3, "ngModelChange", "keydown.enter", "keydown.escape", "ngModel"], [1, "flex", "flex-1"], [1, "flex-1", "cursor-pointer", "truncate", "font-mono", 3, "class", "title"], ["icon", "", "matRipple", "", "title", "Clear override"], [1, "relative", "h-4", "w-8", "rounded-full", "transition-colors", 3, "click", "title"], [1, "absolute", "top-0.5", "left-0.5", "h-3", "w-3", "rounded-full", "bg-white", "shadow-sm", "transition-transform"], [1, "flex-1", "cursor-pointer", "truncate", "font-mono", 3, "click", "title"], ["icon", "", "matRipple", "", "title", "Clear override", 3, "click"], [1, "border-base-300", "bg-base-100", "text-base-content", "min-w-64", "rounded-lg", "border", "p-2", "shadow-lg"], [1, "border-base-300", "border-b", "px-1", "pb-2", "text-base", "font-medium"], [1, "flex", "flex-col", "gap-1", "pt-2"], [1, "bg-base-200", "flex", "items-start", "gap-2", "rounded-sm", "p-2"], [1, "px-1", "py-2", "text-xs", "opacity-60"], [1, "min-w-0", "flex-1", "w-1/2"], [1, "truncate", "text-base", "font-medium"], [1, "truncate", "font-mono", "text-[0.625rem]", "opacity-60"], [1, "bg-base-300", "rounded-sm", "px-1.5", "py-0.5", "text-[0.625rem]", "font-medium"]], template: function SettingsDebugPanelComponent_Template(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275conditionalCreate(0, SettingsDebugPanelComponent_Conditional_0_Template, 20, 3);
+        \u0275\u0275conditionalCreate(0, SettingsDebugPanelComponent_Conditional_0_Template, 21, 3, "div", 1);
+        \u0275\u0275template(1, SettingsDebugPanelComponent_ng_template_1_Template, 7, 1, "ng-template", null, 0, \u0275\u0275templateRefExtractor);
       }
       if (rf & 2) {
         \u0275\u0275conditional(ctx.show() ? 0 : -1);
       }
-    }, dependencies: [FormsModule, NgSelectOption, \u0275NgSelectMultipleOption, DefaultValueAccessor, NumberValueAccessor, SelectControlValueAccessor, NgControlStatus, NgModel, MatRippleModule, MatRipple, IconComponent], encapsulation: 2 });
+    }, dependencies: [
+      FormsModule,
+      NgSelectOption,
+      \u0275NgSelectMultipleOption,
+      DefaultValueAccessor,
+      NumberValueAccessor,
+      SelectControlValueAccessor,
+      NgControlStatus,
+      NgModel,
+      MatRippleModule,
+      MatRipple,
+      CustomTooltipComponent,
+      IconComponent
+    ], encapsulation: 2 });
   }
 };
 (() => {
@@ -102791,9 +102882,10 @@ var SettingsDebugPanelComponent = class _SettingsDebugPanelComponent extends Asy
       selector: "settings-debug-panel",
       template: `
         @if (show()) {
+            <div class=" fixed bottom-2 left-2 z-998 w-160 max-w-[90vw]">
             <div class="flex flex-col gap-2">
                 <div
-                    class="border-base-300 bg-base-100 text-base-content fixed bottom-123 left-2 z-998 flex w-160 max-w-[90vw] items-center overflow-hidden rounded-lg border p-1 shadow-sm"
+                    class="-mb-2 border-base-300 bg-base-100 text-base-content flex w-[calc(100%-0.5rem)] mx-1 items-center overflow-hidden rounded-b-lg rounded-t-xl border p-1 shadow-sm"
                 >
                     <div class="flex-1 px-3 font-medium">Settings Viewer</div>
                     <div class="flex items-center">
@@ -102819,7 +102911,7 @@ var SettingsDebugPanelComponent = class _SettingsDebugPanelComponent extends Asy
                 </div>
             </div>
             <div
-                class="border-base-300 bg-base-200 text-base-content fixed bottom-2 left-2 z-998 flex h-120 max-h-[80vh] w-160 max-w-[90vw] flex-col overflow-hidden rounded-xl border shadow-sm"
+                class="border-base-300 bg-base-200 text-base-content flex h-120 flex-col overflow-hidden rounded-xl border shadow-sm pt-2"
             >
                 <div class="relative m-1 flex">
                     <input
@@ -102870,10 +102962,26 @@ var SettingsDebugPanelComponent = class _SettingsDebugPanelComponent extends Asy
                             >
                                 <div class="w-3/5 min-w-0 pr-2">
                                     <div
-                                        class="truncate font-mono"
-                                        [title]="row.label"
+                                        class="flex min-w-0 items-center gap-1 font-mono"
                                     >
-                                        {{ row.label }}
+                                        <span class="truncate">
+                                            {{ row.label }}
+                                        </span>
+                                        <span
+                                            customTooltip
+                                            class="shrink-0"
+                                            [content]="zone_tooltip"
+                                            [data]="{ zones: row.zones }"
+                                            [hover]="true"
+                                            [backdrop]="false"
+                                            xPosition="start"
+                                            yPosition="center"
+                                            [xOffset]="20"
+                                        >
+                                            <icon class="text-sm opacity-60"
+                                                >info</icon
+                                            >
+                                        </span>
                                     </div>
                                     @if (row.description) {
                                         <div
@@ -103017,18 +103125,56 @@ var SettingsDebugPanelComponent = class _SettingsDebugPanelComponent extends Asy
                     locally in this browser.
                 </div>
             </div>
+            </div>
         }
+        <ng-template #zone_tooltip let-zones="zones">
+            <div
+                class="border-base-300 bg-base-100 text-base-content min-w-64 rounded-lg border p-2 shadow-lg"
+            >
+                <div class="border-base-300 border-b px-1 pb-2 text-base font-medium">
+                    Setting sources
+                </div>
+                <div class="flex flex-col gap-1 pt-2">
+                    @for (zone of zones; track zone.type + zone.id) {
+                        <div class="bg-base-200 flex items-start gap-2 rounded-sm p-2">
+                            <div class="min-w-0 flex-1 w-1/2">
+                                <div class="truncate text-base font-medium">
+                                    {{ zone.name }}
+                                </div>
+                                <div class="truncate font-mono text-[0.625rem] opacity-60">
+                                    {{ zone.id }}
+                                </div>
+                            </div>
+                            <span
+                                class="bg-base-300 rounded-sm px-1.5 py-0.5 text-[0.625rem] font-medium"
+                            >
+                                {{ zone.type }}
+                            </span>
+                        </div>
+                    } @empty {
+                        <div class="px-1 py-2 text-xs opacity-60">
+                            No zone metadata value
+                        </div>
+                    }
+                </div>
+            </div>
+        </ng-template>
     `,
-      imports: [FormsModule, MatRippleModule, IconComponent]
+      imports: [
+        FormsModule,
+        MatRippleModule,
+        CustomTooltipComponent,
+        IconComponent
+      ]
     }]
   }], null, { schema: [{ type: Input, args: [{ isSignal: true, alias: "schema", required: false }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SettingsDebugPanelComponent, { className: "SettingsDebugPanelComponent", filePath: "libs/components/src/lib/settings-debug-panel.component.ts", lineNumber: 324 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SettingsDebugPanelComponent, { className: "SettingsDebugPanelComponent", filePath: "libs/components/src/lib/settings-debug-panel.component.ts", lineNumber: 394 });
 })();
 
 // node_modules/@angular/material/fesm2022/radio.mjs
-var _c021 = ["input"];
+var _c022 = ["input"];
 var _c112 = ["formField"];
 var _c29 = ["*"];
 var MatRadioChange = class {
@@ -103518,7 +103664,7 @@ var MatRadioButton = class _MatRadioButton {
     selectors: [["mat-radio-button"]],
     viewQuery: function MatRadioButton_Query(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275viewQuery(_c021, 5)(_c112, 7, ElementRef);
+        \u0275\u0275viewQuery(_c022, 5)(_c112, 7, ElementRef);
       }
       if (rf & 2) {
         let _t;
@@ -103735,7 +103881,7 @@ var MatRadioModule = class _MatRadioModule {
 })();
 
 // libs/components/src/lib/unauthorised.component.ts
-var _c022 = () => ["/"];
+var _c023 = () => ["/"];
 var UnauthorisedComponent = class _UnauthorisedComponent {
   static {
     this.\u0275fac = function UnauthorisedComponent_Factory(__ngFactoryType__) {
@@ -103772,7 +103918,7 @@ var UnauthorisedComponent = class _UnauthorisedComponent {
         \u0275\u0275advance(3);
         \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(12, 8, "COMMON.CONTACT_ADMIN"), " ");
         \u0275\u0275advance(2);
-        \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(10, _c022));
+        \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(10, _c023));
       }
     }, dependencies: [RouterLink, TranslatePipe], styles: ["\n[_nghost-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n[unauthorised][_ngcontent-%COMP%] {\n  background-image:\n    linear-gradient(\n      to right,\n      #c62828 0%,\n      #ef5350 100%);\n}\n/*# sourceMappingURL=unauthorised.component.css.map */"] });
   }
@@ -103930,8 +104076,8 @@ var UserAvatarComponent = class _UserAvatarComponent {
 })();
 
 // libs/form-fields/src/lib/time-field.component.ts
-var _c023 = ["*"];
-var _forTrack02 = ($index, $item) => $item.id;
+var _c024 = ["*"];
+var _forTrack03 = ($index, $item) => $item.id;
 function TimeFieldComponent_Conditional_5_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 4);
@@ -104437,7 +104583,7 @@ var TimeFieldComponent = class _TimeFieldComponent extends AsyncHandler {
         useExisting: forwardRef(() => _TimeFieldComponent),
         multi: true
       }
-    ]), \u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature], ngContentSelectors: _c023, decls: 15, vars: 12, consts: [["menu", "matMenu"], ["time-field", "", "matRipple", "", 1, "border-neutral", "flex", "h-12", "w-full", "items-center", "justify-between", "rounded-sm", "border", "px-2", 3, "disabled", "matMenuTriggerFor"], [1, "flex", "w-1/2", "flex-1", "flex-col", "px-2", "text-left", "leading-tight"], [1, "truncate"], [1, "truncate", "text-xs", "opacity-30"], [1, "text-2xl"], [1, "max-h-60", "min-w-[18rem]"], ["mat-menu-item", "", 1, "text-left", 3, "value"], ["mat-menu-item", "", "disabled", ""], ["mat-menu-item", "", 1, "text-left", 3, "click", "value"], [1, "flex", "items-center", "justify-between"], [1, "flex", "flex-col", "leading-tight"], [1, ""], [1, "text-xs", "opacity-30"], [1, "ml-2", "text-2xl"]], template: function TimeFieldComponent_Template(rf, ctx) {
+    ]), \u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature], ngContentSelectors: _c024, decls: 15, vars: 12, consts: [["menu", "matMenu"], ["time-field", "", "matRipple", "", 1, "border-neutral", "flex", "h-12", "w-full", "items-center", "justify-between", "rounded-sm", "border", "px-2", 3, "disabled", "matMenuTriggerFor"], [1, "flex", "w-1/2", "flex-1", "flex-col", "px-2", "text-left", "leading-tight"], [1, "truncate"], [1, "truncate", "text-xs", "opacity-30"], [1, "text-2xl"], [1, "max-h-60", "min-w-[18rem]"], ["mat-menu-item", "", 1, "text-left", 3, "value"], ["mat-menu-item", "", "disabled", ""], ["mat-menu-item", "", 1, "text-left", 3, "click", "value"], [1, "flex", "items-center", "justify-between"], [1, "flex", "flex-col", "leading-tight"], [1, ""], [1, "text-xs", "opacity-30"], [1, "ml-2", "text-2xl"]], template: function TimeFieldComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275projectionDef();
         \u0275\u0275elementStart(0, "button", 1)(1, "div", 2)(2, "div", 3);
@@ -104451,7 +104597,7 @@ var TimeFieldComponent = class _TimeFieldComponent extends AsyncHandler {
         \u0275\u0275elementEnd()();
         \u0275\u0275elementStart(8, "mat-menu", 6, 0);
         \u0275\u0275conditionalCreate(10, TimeFieldComponent_Conditional_10_Template, 8, 7, "button", 7);
-        \u0275\u0275repeaterCreate(11, TimeFieldComponent_For_12_Template, 8, 9, "button", 7, _forTrack02, false, TimeFieldComponent_ForEmpty_13_Template, 2, 0, "div", 8);
+        \u0275\u0275repeaterCreate(11, TimeFieldComponent_For_12_Template, 8, 9, "button", 7, _forTrack03, false, TimeFieldComponent_ForEmpty_13_Template, 2, 0, "div", 8);
         \u0275\u0275elementEnd();
         \u0275\u0275conditionalCreate(14, TimeFieldComponent_Conditional_14_Template, 2, 0, "mat-error");
       }
@@ -107715,7 +107861,7 @@ async function createBookingsForEvent(event, type2, resources) {
 }
 
 // libs/form-fields/src/lib/date-calendar.component.ts
-var _forTrack03 = ($index, $item) => $item.id;
+var _forTrack04 = ($index, $item) => $item.id;
 function DateCalendarComponent_For_14_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 7);
@@ -107924,11 +108070,11 @@ var DateCalendarComponent = class _DateCalendarComponent extends AsyncHandler {
         \u0275\u0275text(11, "chevron_right");
         \u0275\u0275elementEnd()()()();
         \u0275\u0275elementStart(12, "div", 6);
-        \u0275\u0275repeaterCreate(13, DateCalendarComponent_For_14_Template, 3, 4, "div", 7, _forTrack03);
+        \u0275\u0275repeaterCreate(13, DateCalendarComponent_For_14_Template, 3, 4, "div", 7, _forTrack04);
         \u0275\u0275pipe(15, "slice");
         \u0275\u0275elementEnd();
         \u0275\u0275elementStart(16, "div", 8);
-        \u0275\u0275repeaterCreate(17, DateCalendarComponent_For_18_Template, 5, 18, "button", 9, _forTrack03);
+        \u0275\u0275repeaterCreate(17, DateCalendarComponent_For_18_Template, 5, 18, "button", 9, _forTrack04);
         \u0275\u0275elementEnd()();
       }
       if (rf & 2) {
@@ -108034,7 +108180,7 @@ var DateCalendarComponent = class _DateCalendarComponent extends AsyncHandler {
 })();
 
 // libs/form-fields/src/lib/date-field.component.ts
-var _c024 = ["*"];
+var _c025 = ["*"];
 function DateFieldComponent_Conditional_4_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275text(0);
@@ -108399,7 +108545,7 @@ var DateFieldComponent = class _DateFieldComponent extends AsyncHandler {
         useExisting: forwardRef(() => _DateFieldComponent),
         multi: true
       }
-    ]), \u0275\u0275InheritDefinitionFeature], ngContentSelectors: _c024, decls: 15, vars: 8, consts: [["calendar_picker", ""], [1, "flex", "items-center", "gap-1"], ["type", "button", "customTooltip", "", "yPosition", "top", "matRipple", "", 1, "border-neutral", "flex", "h-12", "w-full", "flex-1", "items-center", "justify-between", "rounded-sm", "border", 3, "content", "disabled"], [1, "flex", "w-1/2", "flex-1", "flex-col", "truncate", "px-4", "py-2", "text-left", "leading-tight"], [1, "text-base", "font-normal"], [1, "opacity-30"], [1, "truncate", "text-xs", "opacity-30"], [1, "flex", "h-10", "w-10", "items-center", "justify-center", "text-2xl"], ["type", "button", "icon", "", "matRipple", "", 1, "border-error", "text-error", "flex", "h-12", "w-12", "items-center", "justify-center", "rounded-sm", "border", 3, "disabled"], [1, "error", "text-error", "h-5", "p-1", "text-xs"], ["type", "button", "icon", "", "matRipple", "", 1, "border-error", "text-error", "flex", "h-12", "w-12", "items-center", "justify-center", "rounded-sm", "border", 3, "click", "disabled"], [1, "bg-base-100", "relative", "w-[18rem]", "rounded-sm", "px-2", "py-4"], [3, "ngModelChange", "ngModel", "from", "to", "offset_weekday"]], template: function DateFieldComponent_Template(rf, ctx) {
+    ]), \u0275\u0275InheritDefinitionFeature], ngContentSelectors: _c025, decls: 15, vars: 8, consts: [["calendar_picker", ""], [1, "flex", "items-center", "gap-1"], ["type", "button", "customTooltip", "", "yPosition", "top", "matRipple", "", 1, "border-neutral", "flex", "h-12", "w-full", "flex-1", "items-center", "justify-between", "rounded-sm", "border", 3, "content", "disabled"], [1, "flex", "w-1/2", "flex-1", "flex-col", "truncate", "px-4", "py-2", "text-left", "leading-tight"], [1, "text-base", "font-normal"], [1, "opacity-30"], [1, "truncate", "text-xs", "opacity-30"], [1, "flex", "h-10", "w-10", "items-center", "justify-center", "text-2xl"], ["type", "button", "icon", "", "matRipple", "", 1, "border-error", "text-error", "flex", "h-12", "w-12", "items-center", "justify-center", "rounded-sm", "border", 3, "disabled"], [1, "error", "text-error", "h-5", "p-1", "text-xs"], ["type", "button", "icon", "", "matRipple", "", 1, "border-error", "text-error", "flex", "h-12", "w-12", "items-center", "justify-center", "rounded-sm", "border", 3, "click", "disabled"], [1, "bg-base-100", "relative", "w-[18rem]", "rounded-sm", "px-2", "py-4"], [3, "ngModelChange", "ngModel", "from", "to", "offset_weekday"]], template: function DateFieldComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275projectionDef();
         \u0275\u0275elementStart(0, "div", 1)(1, "button", 2)(2, "div", 3)(3, "div", 4);
@@ -108552,7 +108698,7 @@ var DateFieldComponent = class _DateFieldComponent extends AsyncHandler {
 })();
 
 // node_modules/@angular/material/fesm2022/autocomplete.mjs
-var _c025 = ["panel"];
+var _c026 = ["panel"];
 var _c113 = ["*"];
 function MatAutocomplete_ng_template_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -108711,7 +108857,7 @@ var MatAutocomplete = class _MatAutocomplete {
     },
     viewQuery: function MatAutocomplete_Query(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275viewQuery(TemplateRef, 7)(_c025, 5);
+        \u0275\u0275viewQuery(TemplateRef, 7)(_c026, 5);
       }
       if (rf & 2) {
         let _t;
@@ -109570,7 +109716,7 @@ async function showStaff(id) {
 }
 
 // libs/form-fields/src/lib/user-search-field.component.ts
-var _c026 = ["input"];
+var _c027 = ["input"];
 var _c114 = (a0) => ({ name: a0 });
 function UserSearchFieldComponent_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -109980,7 +110126,7 @@ var UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHand
   static {
     this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _UserSearchFieldComponent, selectors: [["a-user-search-field"]], viewQuery: function UserSearchFieldComponent_Query(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275viewQuerySignal(ctx._input_el, _c026, 5, ElementRef)(ctx._autocomplete_trigger, MatAutocompleteTrigger, 5);
+        \u0275\u0275viewQuerySignal(ctx._input_el, _c027, 5, ElementRef)(ctx._autocomplete_trigger, MatAutocompleteTrigger, 5);
       }
       if (rf & 2) {
         \u0275\u0275queryAdvance(2);
@@ -110995,8 +111141,8 @@ var AssetStateService = class _AssetStateService {
 })();
 
 // libs/form-fields/src/lib/duration-field.component.ts
-var _c027 = ["*"];
-var _forTrack04 = ($index, $item) => $item.id;
+var _c028 = ["*"];
+var _forTrack05 = ($index, $item) => $item.id;
 function DurationFieldComponent_Conditional_5_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 4);
@@ -111349,7 +111495,7 @@ var DurationFieldComponent = class _DurationFieldComponent {
         useExisting: forwardRef(() => _DurationFieldComponent),
         multi: true
       }
-    ]), \u0275\u0275NgOnChangesFeature], ngContentSelectors: _c027, decls: 15, vars: 12, consts: [["menu", "matMenu"], ["duration-field", "", "matRipple", "", 1, "border-neutral", "flex", "h-12", "w-full", "items-center", "justify-between", "rounded-sm", "border", "px-2", 3, "disabled", "matMenuTriggerFor"], [1, "flex", "w-1/2", "flex-1", "flex-col", "px-2", "text-left", "leading-tight"], [1, "truncate"], [1, "truncate", "text-xs", "opacity-30"], [1, "text-2xl"], [1, "max-h-60", "min-w-[18rem]"], ["mat-menu-item", "", 1, "text-left"], ["mat-menu-item", "", "disabled", ""], ["mat-menu-item", "", 1, "text-left", 3, "click"], [1, "flex", "items-center", "justify-between"], [1, "flex", "flex-col", "leading-tight"], [1, "ml-2", "text-2xl"]], template: function DurationFieldComponent_Template(rf, ctx) {
+    ]), \u0275\u0275NgOnChangesFeature], ngContentSelectors: _c028, decls: 15, vars: 12, consts: [["menu", "matMenu"], ["duration-field", "", "matRipple", "", 1, "border-neutral", "flex", "h-12", "w-full", "items-center", "justify-between", "rounded-sm", "border", "px-2", 3, "disabled", "matMenuTriggerFor"], [1, "flex", "w-1/2", "flex-1", "flex-col", "px-2", "text-left", "leading-tight"], [1, "truncate"], [1, "truncate", "text-xs", "opacity-30"], [1, "text-2xl"], [1, "max-h-60", "min-w-[18rem]"], ["mat-menu-item", "", 1, "text-left"], ["mat-menu-item", "", "disabled", ""], ["mat-menu-item", "", 1, "text-left", 3, "click"], [1, "flex", "items-center", "justify-between"], [1, "flex", "flex-col", "leading-tight"], [1, "ml-2", "text-2xl"]], template: function DurationFieldComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275projectionDef();
         \u0275\u0275elementStart(0, "button", 1)(1, "div", 2)(2, "div", 3);
@@ -111362,7 +111508,7 @@ var DurationFieldComponent = class _DurationFieldComponent {
         \u0275\u0275text(7, "arrow_drop_down");
         \u0275\u0275elementEnd()();
         \u0275\u0275elementStart(8, "mat-menu", 6, 0);
-        \u0275\u0275repeaterCreate(10, DurationFieldComponent_For_11_Template, 6, 3, "button", 7, _forTrack04, false, DurationFieldComponent_ForEmpty_12_Template, 2, 0, "div", 8);
+        \u0275\u0275repeaterCreate(10, DurationFieldComponent_For_11_Template, 6, 3, "button", 7, _forTrack05, false, DurationFieldComponent_ForEmpty_12_Template, 2, 0, "div", 8);
         \u0275\u0275elementEnd();
         \u0275\u0275elementStart(13, "mat-error");
         \u0275\u0275projection(14);
@@ -112004,7 +112150,7 @@ async function loadLockerResources(org, scope_id) {
 }
 
 // libs/components/src/lib/recurring-clash-modal.component.ts
-var _forTrack05 = ($index, $item) => $item.booking_start;
+var _forTrack06 = ($index, $item) => $item.booking_start;
 function RecurringClashModalComponent_For_24_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "tr", 10)(1, "td", 15);
@@ -112075,7 +112221,7 @@ var RecurringClashModalComponent = class _RecurringClashModalComponent {
         \u0275\u0275pipe(21, "translate");
         \u0275\u0275elementEnd()()();
         \u0275\u0275elementStart(22, "tbody");
-        \u0275\u0275repeaterCreate(23, RecurringClashModalComponent_For_24_Template, 8, 12, "tr", 10, _forTrack05);
+        \u0275\u0275repeaterCreate(23, RecurringClashModalComponent_For_24_Template, 8, 12, "tr", 10, _forTrack06);
         \u0275\u0275elementEnd()()();
         \u0275\u0275elementStart(25, "p", 11);
         \u0275\u0275text(26);
@@ -113568,7 +113714,7 @@ var SpacesService = class _SpacesService {
 })();
 
 // libs/explore/src/lib/explore-book-qr.component.ts
-var _c028 = (a0) => ({ name: a0 });
+var _c029 = (a0) => ({ name: a0 });
 var DEFAULT_PATH = `workplace/#/explore?space={{id}}`;
 var ExploreBookQrComponent = class _ExploreBookQrComponent {
   constructor() {
@@ -113611,7 +113757,7 @@ var ExploreBookQrComponent = class _ExploreBookQrComponent {
       }
       if (rf & 2) {
         \u0275\u0275advance(2);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(3, 2, "EXPLORE.BOOK_RESOURCE", \u0275\u0275pureFunction1(5, _c028, ctx.space()?.name)), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(3, 2, "EXPLORE.BOOK_RESOURCE", \u0275\u0275pureFunction1(5, _c029, ctx.space()?.name)), " ");
         \u0275\u0275advance(7);
         \u0275\u0275property("src", ctx.qr_code(), \u0275\u0275sanitizeUrl);
       }
@@ -114188,7 +114334,7 @@ var ExploreIconComponent = class _ExploreIconComponent {
 })();
 
 // libs/explore/src/lib/explore-space-info.component.ts
-var _c029 = (a0) => ({ count: a0 });
+var _c030 = (a0) => ({ count: a0 });
 function ExploreSpaceInfoComponent_ng_template_2_Conditional_4_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "img", 7);
@@ -114228,7 +114374,7 @@ function ExploreSpaceInfoComponent_ng_template_2_Conditional_15_Template(rf, ctx
   if (rf & 2) {
     const ctx_r0 = \u0275\u0275nextContext(2);
     \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(5, 1, "COMMON.PEOPLE_COUNT", \u0275\u0275pureFunction1(5, _c029, ctx_r0.space().capacity), ctx_r0.space().capacity), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(5, 1, "COMMON.PEOPLE_COUNT", \u0275\u0275pureFunction1(5, _c030, ctx_r0.space().capacity), ctx_r0.space().capacity), " ");
   }
 }
 function ExploreSpaceInfoComponent_ng_template_2_Conditional_16_For_2_Template(rf, ctx) {
@@ -125645,7 +125791,7 @@ var BootstrapComponent = class _BootstrapComponent extends AsyncHandler {
 })();
 
 // apps/map-kiosk/src/app/footer-menu.component.ts
-var _c030 = () => ["/desks"];
+var _c031 = () => ["/desks"];
 var _c115 = () => ["/explore"];
 var FooterMenuComponent = class _FooterMenuComponent {
   static {
@@ -125671,7 +125817,7 @@ var FooterMenuComponent = class _FooterMenuComponent {
       }
       if (rf & 2) {
         \u0275\u0275advance();
-        \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(2, _c030));
+        \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(2, _c031));
         \u0275\u0275advance(6);
         \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(3, _c115));
       }
@@ -126149,7 +126295,7 @@ var DeskQuestionsModalComponent = class _DeskQuestionsModalComponent {
 })();
 
 // libs/payments/src/lib/card-input-field.component.ts
-var _c031 = ["input"];
+var _c032 = ["input"];
 function CardInputFieldComponent_Conditional_9_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "img", 7);
@@ -126341,7 +126487,7 @@ var CardInputFieldComponent = class _CardInputFieldComponent extends AsyncHandle
   static {
     this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CardInputFieldComponent, selectors: [["card-input-field"]], viewQuery: function CardInputFieldComponent_Query(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275viewQuerySignal(ctx._input_el, _c031, 5);
+        \u0275\u0275viewQuerySignal(ctx._input_el, _c032, 5);
       }
       if (rf & 2) {
         \u0275\u0275queryAdvance();
@@ -128818,20 +128964,22 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
 })();
 
 // libs/explore/src/lib/set-datetime-modal.component.ts
-var _c032 = () => ({ standalone: true });
+var _c033 = () => ({ standalone: true });
 function SetDatetimeModalComponent_Conditional_6_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 6)(1, "div", 12)(2, "label");
-    \u0275\u0275text(3, "Resource:");
+    \u0275\u0275elementStart(0, "div", 6)(1, "div", 10)(2, "label");
+    \u0275\u0275text(3);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "div", 13);
+    \u0275\u0275elementStart(4, "div", 11);
     \u0275\u0275text(5);
     \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext(2);
-    \u0275\u0275advance(5);
-    \u0275\u0275textInterpolate1(" ", ctx_r1.resource().name || ctx_r1.resource().map_id || "Unknown Resource", " ");
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1("", ctx_r0.resource_type(), ":");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", ctx_r0.resource().name || ctx_r0.resource().map_id || "Unknown Resource", " ");
   }
 }
 function SetDatetimeModalComponent_Conditional_6_Conditional_2_Template(rf, ctx) {
@@ -128839,7 +128987,7 @@ function SetDatetimeModalComponent_Conditional_6_Conditional_2_Template(rf, ctx)
     \u0275\u0275elementStart(0, "div", 6)(1, "div", 7)(2, "label");
     \u0275\u0275text(3, "Host");
     \u0275\u0275elementEnd();
-    \u0275\u0275element(4, "a-user-search-field", 14);
+    \u0275\u0275element(4, "a-user-search-field", 12);
     \u0275\u0275controlCreate();
     \u0275\u0275elementEnd()();
   }
@@ -128848,25 +128996,9 @@ function SetDatetimeModalComponent_Conditional_6_Conditional_2_Template(rf, ctx)
     \u0275\u0275control();
   }
 }
-function SetDatetimeModalComponent_Conditional_6_Conditional_14_Template(rf, ctx) {
+function SetDatetimeModalComponent_Conditional_6_Conditional_9_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 9)(1, "label");
-    \u0275\u0275text(2, "End Time");
-    \u0275\u0275elementEnd();
-    \u0275\u0275element(3, "a-duration-field", 15);
-    \u0275\u0275controlCreate();
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext(2);
-    \u0275\u0275advance(3);
-    \u0275\u0275property("time", ctx_r1.form.get("date")?.value)("max", 10 * 60)("min", 60)("step", 60)("end_time", ctx_r1.bookable_hours()?.end)("use_24hr", ctx_r1.use_24hr_time());
-    \u0275\u0275control();
-  }
-}
-function SetDatetimeModalComponent_Conditional_6_Conditional_15_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 11)(1, "mat-checkbox", 16);
+    \u0275\u0275elementStart(0, "div", 13)(1, "mat-checkbox", 14);
     \u0275\u0275text(2);
     \u0275\u0275pipe(3, "translate");
     \u0275\u0275elementEnd();
@@ -128874,17 +129006,50 @@ function SetDatetimeModalComponent_Conditional_6_Conditional_15_Template(rf, ctx
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275classProp("-mb-7", !ctx_r0.form.value.all_day)("mb-2", ctx_r0.form.value.all_day);
     \u0275\u0275advance();
     \u0275\u0275control();
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 1, "COMMON.ALL_DAY"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 5, "COMMON.ALL_DAY"), " ");
+  }
+}
+function SetDatetimeModalComponent_Conditional_6_Conditional_10_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r2 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 6)(1, "div", 15)(2, "label");
+    \u0275\u0275text(3, "Start Time");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "a-time-field", 16);
+    \u0275\u0275listener("ngModelChange", function SetDatetimeModalComponent_Conditional_6_Conditional_10_Template_a_time_field_ngModelChange_4_listener($event) {
+      \u0275\u0275restoreView(_r2);
+      const ctx_r0 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r0.form.patchValue({ date: $event }));
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(5, "div", 15)(6, "label");
+    \u0275\u0275text(7, "End Time");
+    \u0275\u0275elementEnd();
+    \u0275\u0275element(8, "a-duration-field", 17);
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance(4);
+    \u0275\u0275property("ngModel", ctx_r0.form.value.date)("ngModelOptions", \u0275\u0275pureFunction0(10, _c033))("range", ctx_r0.bookable_hours())("use_24hr", ctx_r0.use_24hr_time());
+    \u0275\u0275control();
+    \u0275\u0275advance(4);
+    \u0275\u0275property("time", ctx_r0.form.get("date")?.value)("max", 10 * 60)("min", 60)("step", 60)("end_time", ctx_r0.bookable_hours()?.end)("use_24hr", ctx_r0.use_24hr_time());
+    \u0275\u0275control();
   }
 }
 function SetDatetimeModalComponent_Conditional_6_Template(rf, ctx) {
   if (rf & 1) {
-    const _r1 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "main", 3);
-    \u0275\u0275conditionalCreate(1, SetDatetimeModalComponent_Conditional_6_Conditional_1_Template, 6, 1, "div", 6);
+    \u0275\u0275conditionalCreate(1, SetDatetimeModalComponent_Conditional_6_Conditional_1_Template, 6, 2, "div", 6);
     \u0275\u0275conditionalCreate(2, SetDatetimeModalComponent_Conditional_6_Conditional_2_Template, 5, 0, "div", 6);
     \u0275\u0275elementStart(3, "div", 6)(4, "div", 7)(5, "label");
     \u0275\u0275text(6, "Date");
@@ -128894,40 +129059,24 @@ function SetDatetimeModalComponent_Conditional_6_Template(rf, ctx) {
     \u0275\u0275elementEnd();
     \u0275\u0275controlCreate();
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(9, "div", 6)(10, "div", 9)(11, "label");
-    \u0275\u0275text(12, "Start Time");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(13, "a-time-field", 10);
-    \u0275\u0275listener("ngModelChange", function SetDatetimeModalComponent_Conditional_6_Template_a_time_field_ngModelChange_13_listener($event) {
-      \u0275\u0275restoreView(_r1);
-      const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.form.patchValue({ date: $event }));
-    });
-    \u0275\u0275elementEnd();
-    \u0275\u0275controlCreate();
-    \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(14, SetDatetimeModalComponent_Conditional_6_Conditional_14_Template, 4, 6, "div", 9);
-    \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(15, SetDatetimeModalComponent_Conditional_6_Conditional_15_Template, 4, 3, "div", 11);
+    \u0275\u0275conditionalCreate(9, SetDatetimeModalComponent_Conditional_6_Conditional_9_Template, 4, 7, "div", 9);
+    \u0275\u0275conditionalCreate(10, SetDatetimeModalComponent_Conditional_6_Conditional_10_Template, 9, 11, "div", 6);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275property("formGroup", ctx_r1.form);
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275property("formGroup", ctx_r0.form);
     \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r1.resource() ? 1 : -1);
+    \u0275\u0275conditional(ctx_r0.resource() ? 1 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r1.host() ? 2 : -1);
+    \u0275\u0275conditional(ctx_r0.host() ? 2 : -1);
     \u0275\u0275advance(5);
-    \u0275\u0275property("to", ctx_r1.book_until());
+    \u0275\u0275property("to", ctx_r0.book_until());
     \u0275\u0275control();
-    \u0275\u0275advance(6);
-    \u0275\u0275property("ngModel", ctx_r1.form.value.date)("ngModelOptions", \u0275\u0275pureFunction0(10, _c032))("range", ctx_r1.bookable_hours())("use_24hr", ctx_r1.use_24hr_time());
-    \u0275\u0275control();
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(ctx_r0.allow_all_day() ? 9 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional(!ctx_r1.all_day() ? 14 : -1);
-    \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r1.allow_all_day() ? 15 : -1);
+    \u0275\u0275conditional(!ctx_r0.all_day() ? 10 : -1);
   }
 }
 var SetDatetimeModalComponent = class _SetDatetimeModalComponent {
@@ -128950,6 +129099,13 @@ var SetDatetimeModalComponent = class _SetDatetimeModalComponent {
     this.book_until = signal(
       this._data.until,
       ...ngDevMode ? [{ debugName: "book_until" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.resource_type = signal(
+      this._data.resource_type || "Resource",
+      ...ngDevMode ? [{ debugName: "resource_type" }] : (
         /* istanbul ignore next */
         []
       )
@@ -129012,7 +129168,7 @@ var SetDatetimeModalComponent = class _SetDatetimeModalComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SetDatetimeModalComponent, selectors: [["set-datetime-modal"]], decls: 11, vars: 5, consts: [[1, "bg-base-200", "m-2", "flex", "h-14", "w-[calc(100%-1rem)]", "items-center", "justify-between", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "w-[24rem]", "max-w-[85vw]", 3, "formGroup"], [1, "bg-base-200", "mx-2", "mb-2", "flex", "w-[calc(100%-1rem)]", "items-center", "justify-end", "rounded-sm", "border-none", "p-2"], ["btn", "", "matRipple", "", 1, "w-32", 3, "mat-dialog-close"], [1, "mx-auto", "flex", "w-[640px]", "max-w-[calc(100%-2rem)]", "flex-col", "space-x-0", "sm:flex-row", "sm:space-x-2"], [1, "flex", "w-full", "flex-1", "flex-col", "sm:w-1/4"], ["formControlName", "date", 3, "to"], [1, "flex", "w-full", "flex-1", "flex-col", "sm:w-1/3"], [3, "ngModelChange", "ngModel", "ngModelOptions", "range", "use_24hr"], [1, "mx-auto", "flex", "w-[640px]", "max-w-[calc(100%-2rem)]", "justify-end"], [1, "mb-2", "flex", "w-full", "flex-1", "flex-col", "sm:w-1/4"], [1, "border-base-200", "mb-4", "w-full", "rounded-sm", "border", "px-4", "py-3"], ["formControlName", "user", 1, "mb-4"], ["formControlName", "duration", 3, "time", "max", "min", "step", "end_time", "use_24hr"], ["formControlName", "all_day"]], template: function SetDatetimeModalComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SetDatetimeModalComponent, selectors: [["set-datetime-modal"]], decls: 11, vars: 5, consts: [[1, "bg-base-200", "m-2", "flex", "h-14", "w-[calc(100%-1rem)]", "items-center", "justify-between", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "w-[24rem]", "max-w-[85vw]", 3, "formGroup"], [1, "bg-base-200", "mx-2", "mb-2", "flex", "w-[calc(100%-1rem)]", "items-center", "justify-end", "rounded-sm", "border-none", "p-2"], ["btn", "", "matRipple", "", 1, "w-32", 3, "mat-dialog-close"], [1, "mx-auto", "flex", "w-[640px]", "max-w-[calc(100%-2rem)]", "flex-col", "space-x-0", "sm:flex-row", "sm:space-x-2"], [1, "flex", "w-full", "flex-1", "flex-col", "sm:w-1/4"], ["formControlName", "date", 3, "to"], [1, "mx-auto", "flex", "w-[640px]", "max-w-[calc(100%-2rem)]", "justify-end", 3, "-mb-7", "mb-2"], [1, "mb-2", "flex", "w-full", "flex-1", "flex-col", "sm:w-1/4"], [1, "border-base-200", "mb-4", "w-full", "rounded-sm", "border", "px-4", "py-3"], ["formControlName", "user", 1, "mb-4"], [1, "mx-auto", "flex", "w-[640px]", "max-w-[calc(100%-2rem)]", "justify-end"], ["formControlName", "all_day"], [1, "flex", "w-full", "flex-1", "flex-col", "sm:w-1/3"], [3, "ngModelChange", "ngModel", "ngModelOptions", "range", "use_24hr"], ["formControlName", "duration", 3, "time", "max", "min", "step", "end_time", "use_24hr"]], template: function SetDatetimeModalComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "header", 0)(1, "h2", 1);
         \u0275\u0275text(2, "Set date and time");
@@ -129020,7 +129176,7 @@ var SetDatetimeModalComponent = class _SetDatetimeModalComponent {
         \u0275\u0275elementStart(3, "button", 2)(4, "icon");
         \u0275\u0275text(5, "close");
         \u0275\u0275elementEnd()()();
-        \u0275\u0275conditionalCreate(6, SetDatetimeModalComponent_Conditional_6_Template, 16, 11, "main", 3);
+        \u0275\u0275conditionalCreate(6, SetDatetimeModalComponent_Conditional_6_Template, 11, 6, "main", 3);
         \u0275\u0275elementStart(7, "footer", 4)(8, "button", 5);
         \u0275\u0275text(9);
         \u0275\u0275pipe(10, "translate");
@@ -129076,7 +129232,7 @@ var SetDatetimeModalComponent = class _SetDatetimeModalComponent {
                         class="mx-auto flex w-[640px] max-w-[calc(100%-2rem)] flex-col space-x-0 sm:flex-row sm:space-x-2"
                     >
                         <div class="mb-2 flex w-full flex-1 flex-col sm:w-1/4">
-                            <label>Resource:</label>
+                            <label>{{ resource_type() }}:</label>
                             <div
                                 class="border-base-200 mb-4 w-full rounded-sm border px-4 py-3"
                             >
@@ -129115,20 +129271,33 @@ var SetDatetimeModalComponent = class _SetDatetimeModalComponent {
                         </a-date-field>
                     </div>
                 </div>
-                <div
-                    class="mx-auto flex w-[640px] max-w-[calc(100%-2rem)] flex-col space-x-0 sm:flex-row sm:space-x-2"
-                >
-                    <div class="flex w-full flex-1 flex-col sm:w-1/3">
-                        <label>Start Time</label>
-                        <a-time-field
-                            [ngModel]="form.value.date"
-                            (ngModelChange)="form.patchValue({ date: $event })"
-                            [ngModelOptions]="{ standalone: true }"
-                            [range]="bookable_hours()"
-                            [use_24hr]="use_24hr_time()"
-                        ></a-time-field>
+                @if (allow_all_day()) {
+                    <div
+                        class="mx-auto flex w-[640px] max-w-[calc(100%-2rem)] justify-end"
+                        [class.-mb-7]="!form.value.all_day"
+                        [class.mb-2]="form.value.all_day"
+                    >
+                        <mat-checkbox formControlName="all_day">
+                            {{ 'COMMON.ALL_DAY' | translate }}
+                        </mat-checkbox>
                     </div>
-                    @if (!all_day()) {
+                }
+                @if (!all_day()) {
+                    <div
+                        class="mx-auto flex w-[640px] max-w-[calc(100%-2rem)] flex-col space-x-0 sm:flex-row sm:space-x-2"
+                    >
+                        <div class="flex w-full flex-1 flex-col sm:w-1/3">
+                            <label>Start Time</label>
+                            <a-time-field
+                                [ngModel]="form.value.date"
+                                (ngModelChange)="
+                                    form.patchValue({ date: $event })
+                                "
+                                [ngModelOptions]="{ standalone: true }"
+                                [range]="bookable_hours()"
+                                [use_24hr]="use_24hr_time()"
+                            ></a-time-field>
+                        </div>
                         <div class="flex w-full flex-1 flex-col sm:w-1/3">
                             <label>End Time</label>
                             <a-duration-field
@@ -129142,15 +129311,6 @@ var SetDatetimeModalComponent = class _SetDatetimeModalComponent {
                             >
                             </a-duration-field>
                         </div>
-                    }
-                </div>
-                @if (allow_all_day()) {
-                    <div
-                        class="mx-auto flex w-[640px] max-w-[calc(100%-2rem)] justify-end"
-                    >
-                        <mat-checkbox formControlName="all_day">
-                            {{ 'COMMON.ALL_DAY' | translate }}
-                        </mat-checkbox>
                     </div>
                 }
             </main>
@@ -129178,7 +129338,7 @@ var SetDatetimeModalComponent = class _SetDatetimeModalComponent {
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SetDatetimeModalComponent, { className: "SetDatetimeModalComponent", filePath: "libs/explore/src/lib/set-datetime-modal.component.ts", lineNumber: 148 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SetDatetimeModalComponent, { className: "SetDatetimeModalComponent", filePath: "libs/explore/src/lib/set-datetime-modal.component.ts", lineNumber: 152 });
 })();
 
 // libs/explore/src/lib/explore-desk-info.component.ts
@@ -130362,6 +130522,7 @@ var ExploreDesksService = class _ExploreDesksService extends AsyncHandler {
           duration,
           until,
           host,
+          resource_type: "Desk",
           resource: resource2,
           all_day,
           allow_all_day,
@@ -130401,14 +130562,14 @@ var ExploreDesksService = class _ExploreDesksService extends AsyncHandler {
         date: bookable_hours ? alignDateToBookableHours(options2.date, bookable_hours) : options2.date
       }));
       this._bookings.model.update((m2) => __spreadProps(__spreadValues({}, m2), {
-        all_day: !!options2.all_day
+        all_day: options2.all_day ?? m2.all_day
       }));
     } else if (bookable_hours) {
       this._bookings.model.update((m2) => __spreadProps(__spreadValues({}, m2), {
         date: alignDateToBookableHours(this._bookings.model().date, bookable_hours)
       }));
     }
-    let { date, duration, user, all_day } = await this._setBookingTime(this._bookings.model().date, this._bookings.model().duration, this._options()?.custom ?? false, desk, !!options2.all_day, bookable_hours);
+    let { date, duration, user, all_day } = await this._setBookingTime(this._bookings.model().date, this._bookings.model().duration, this._options()?.custom ?? false, desk, options2.all_day ?? this._bookings.model().all_day, bookable_hours);
     user = user || options2.host || currentUser();
     const user_email = user?.email;
     this._bookings.model.update((m2) => __spreadProps(__spreadValues({}, m2), {
@@ -131192,7 +131353,7 @@ var ExploreParkingService = class _ExploreParkingService extends AsyncHandler {
 })();
 
 // libs/components/src/lib/map-canvas.component.ts
-var _c033 = ["canvas"];
+var _c034 = ["canvas"];
 var MapCanvasComponent = class _MapCanvasComponent {
   constructor() {
     this._data = inject2(MAP_FEATURE_DATA);
@@ -131305,7 +131466,7 @@ var MapCanvasComponent = class _MapCanvasComponent {
   static {
     this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MapCanvasComponent, selectors: [["", "map-canvas", ""]], viewQuery: function MapCanvasComponent_Query(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275viewQuerySignal(ctx.canvas_element, _c033, 5);
+        \u0275\u0275viewQuerySignal(ctx.canvas_element, _c034, 5);
       }
       if (rf & 2) {
         \u0275\u0275queryAdvance();
@@ -132185,9 +132346,9 @@ var ExploreSearchService = class _ExploreSearchService {
 })();
 
 // libs/explore/src/lib/explore-search.component.ts
-var _c034 = ["input"];
+var _c035 = ["input"];
 var _c116 = ["button"];
-var _forTrack06 = ($index, $item) => $item.name;
+var _forTrack07 = ($index, $item) => $item.name;
 function ExploreSearchComponent_Conditional_9_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "mat-spinner", 7);
@@ -132241,7 +132402,7 @@ function ExploreSearchComponent_Conditional_12_For_2_Template(rf, ctx) {
 function ExploreSearchComponent_Conditional_12_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275conditionalCreate(0, ExploreSearchComponent_Conditional_12_Conditional_0_Template, 3, 3, "mat-option", 8);
-    \u0275\u0275repeaterCreate(1, ExploreSearchComponent_Conditional_12_For_2_Template, 9, 4, "mat-option", 9, _forTrack06);
+    \u0275\u0275repeaterCreate(1, ExploreSearchComponent_Conditional_12_For_2_Template, 9, 4, "mat-option", 9, _forTrack07);
   }
   if (rf & 2) {
     const ctx_r2 = \u0275\u0275nextContext();
@@ -132365,7 +132526,7 @@ var ExploreSearchComponent = class _ExploreSearchComponent extends AsyncHandler 
   static {
     this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ExploreSearchComponent, selectors: [["explore-search"]], viewQuery: function ExploreSearchComponent_Query(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275viewQuerySignal(ctx._input_el, _c034, 5)(ctx._button_el, _c116, 5);
+        \u0275\u0275viewQuerySignal(ctx._input_el, _c035, 5)(ctx._button_el, _c116, 5);
       }
       if (rf & 2) {
         \u0275\u0275queryAdvance(2);
@@ -132527,7 +132688,7 @@ var ExploreSearchComponent = class _ExploreSearchComponent extends AsyncHandler 
 })();
 
 // node_modules/@angular/material/fesm2022/slide-toggle.mjs
-var _c035 = ["switch"];
+var _c036 = ["switch"];
 var _c117 = ["*"];
 function MatSlideToggle_Conditional_11_Template(rf, ctx) {
   if (rf & 1) {
@@ -132696,7 +132857,7 @@ var MatSlideToggle = class _MatSlideToggle {
     selectors: [["mat-slide-toggle"]],
     viewQuery: function MatSlideToggle_Query(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275viewQuery(_c035, 5);
+        \u0275\u0275viewQuery(_c036, 5);
       }
       if (rf & 2) {
         let _t;
@@ -133141,7 +133302,7 @@ var AccessibilityControlsComponent = class _AccessibilityControlsComponent exten
 })();
 
 // apps/map-kiosk/src/app/explore.component.ts
-var _c036 = () => ({ controls: true });
+var _c037 = () => ({ controls: true });
 function ExploreComponent_Conditional_4_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "explore-search");
@@ -133714,7 +133875,7 @@ var ExploreComponent = class _ExploreComponent extends AsyncHandler {
         \u0275\u0275advance();
         \u0275\u0275property("@show", ctx.show_accessibility() ? "show" : "hide");
         \u0275\u0275advance(6);
-        \u0275\u0275property("src", ctx.url())("zoom", ctx.positions()?.zoom)("center", ctx.positions()?.center)("styles", ctx.styles())("features", ctx.features())("actions", ctx.actions())("labels", ctx.labels())("options", \u0275\u0275pureFunction0(17, _c036))("focus", ctx.locate());
+        \u0275\u0275property("src", ctx.url())("zoom", ctx.positions()?.zoom)("center", ctx.positions()?.center)("styles", ctx.styles())("features", ctx.features())("actions", ctx.actions())("labels", ctx.labels())("options", \u0275\u0275pureFunction0(17, _c037))("focus", ctx.locate());
       }
     }, dependencies: [
       AccessibilityControlsComponent,
