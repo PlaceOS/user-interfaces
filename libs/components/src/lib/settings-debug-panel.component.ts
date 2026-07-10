@@ -4,9 +4,17 @@ import { MatRippleModule } from '@angular/material/core';
 import { SettingsService } from '@placeos/common';
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
 import { HotkeysService } from 'libs/common/src/lib/hotkeys.service';
+import { OrganisationService } from 'libs/common/src/lib/org/organisation.service';
 import { DEFAULT_SETTINGS } from 'libs/common/src/lib/settings';
 import { HashMap } from 'libs/common/src/lib/types';
+import { CustomTooltipComponent } from './custom-tooltip.component';
 import { IconComponent } from './icon.component';
+
+interface SettingZone {
+    type: 'ORG' | 'Region' | 'Building';
+    id: string;
+    name: string;
+}
 
 interface SettingRow {
     key: string;
@@ -16,6 +24,7 @@ interface SettingRow {
     display: string;
     overridden: boolean;
     description: string;
+    zones: SettingZone[];
     control: 'toggle' | 'number' | 'select' | 'text';
     options?: string[];
 }
@@ -40,6 +49,12 @@ function flattenKeys(map: HashMap, prefix: string, keys: Set<string>) {
             flattenKeys(value, full_key, keys);
         } else keys.add(full_key);
     }
+}
+
+function hasSetting(map: HashMap, key: string) {
+    let value: any = map;
+    for (const part of key.slice(4).split('.')) value = value?.[part];
+    return value != null;
 }
 
 /** Resolve `$ref: "#/$defs/..."` pointers against the schema root */
@@ -171,10 +186,26 @@ function flattenSchemaKeys(
                             >
                                 <div class="w-3/5 min-w-0 pr-2">
                                     <div
-                                        class="truncate font-mono"
-                                        [title]="row.label"
+                                        class="flex min-w-0 items-center gap-1 font-mono"
                                     >
-                                        {{ row.label }}
+                                        <span class="truncate">
+                                            {{ row.label }}
+                                        </span>
+                                        <span
+                                            customTooltip
+                                            class="shrink-0"
+                                            [content]="zone_tooltip"
+                                            [data]="{ zones: row.zones }"
+                                            [hover]="true"
+                                            [backdrop]="false"
+                                            xPosition="start"
+                                            yPosition="center"
+                                            [xOffset]="20"
+                                        >
+                                            <icon class="text-sm opacity-60"
+                                                >info</icon
+                                            >
+                                        </span>
                                     </div>
                                     @if (row.description) {
                                         <div
@@ -320,12 +351,50 @@ function flattenSchemaKeys(
             </div>
             </div>
         }
+        <ng-template #zone_tooltip let-zones="zones">
+            <div
+                class="border-base-300 bg-base-100 text-base-content min-w-64 rounded-lg border p-2 shadow-lg"
+            >
+                <div class="border-base-300 border-b px-1 pb-2 text-base font-medium">
+                    Setting sources
+                </div>
+                <div class="flex flex-col gap-1 pt-2">
+                    @for (zone of zones; track zone.type + zone.id) {
+                        <div class="bg-base-200 flex items-start gap-2 rounded-sm p-2">
+                            <div class="min-w-0 flex-1 w-1/2">
+                                <div class="truncate text-base font-medium">
+                                    {{ zone.name }}
+                                </div>
+                                <div class="truncate font-mono text-[0.625rem] opacity-60">
+                                    {{ zone.id }}
+                                </div>
+                            </div>
+                            <span
+                                class="bg-base-300 rounded-sm px-1.5 py-0.5 text-[0.625rem] font-medium"
+                            >
+                                {{ zone.type }}
+                            </span>
+                        </div>
+                    } @empty {
+                        <div class="px-1 py-2 text-xs opacity-60">
+                            No zone metadata value
+                        </div>
+                    }
+                </div>
+            </div>
+        </ng-template>
     `,
-    imports: [FormsModule, MatRippleModule, IconComponent],
+    imports: [
+        FormsModule,
+        MatRippleModule,
+        CustomTooltipComponent,
+        IconComponent,
+    ],
 })
 export class SettingsDebugPanelComponent extends AsyncHandler {
     private _settings = inject(SettingsService);
     private _hotkey = inject(HotkeysService);
+    private _org = inject(OrganisationService);
 
     /** JSON schema describing the app's `app.*` settings */
     public readonly schema = input<HashMap | null>(null);
@@ -379,11 +448,55 @@ export class SettingsDebugPanelComponent extends AsyncHandler {
                     display: JSON.stringify(value) ?? '',
                     overridden: key in debug_overrides,
                     description: node?.description || '',
+                    zones: this._zoneTooltip(key),
                     control,
                     options: node?.enum,
                 };
             });
     });
+
+    private _zoneTooltip(key: string) {
+        const zones: SettingZone[] = [];
+        const add_zone = (
+            type: 'ORG' | 'Region' | 'Building',
+            id: string,
+            name: string,
+            settings: HashMap[],
+        ) => {
+            if (!id || !settings.some((_) => hasSetting(_, key))) return;
+            zones.push({ type, id, name: name || id });
+        };
+        for (const [id, settings] of Object.entries(
+            this._org.building_settings,
+        )) {
+            const building = this._org.buildings.find((_) => _.id === id);
+            add_zone(
+                'Building',
+                id,
+                building?.display_name || building?.name || '',
+                [settings],
+            );
+        }
+        for (const [id, settings] of Object.entries(
+            this._org.region_settings,
+        )) {
+            const region = this._org.regions.find((_) => _.id === id);
+            add_zone(
+                'Region',
+                id,
+                region?.display_name || region?.name || '',
+                [settings],
+            );
+        }
+        const organisation = this._org.organisation;
+        add_zone(
+            'ORG',
+            organisation.id,
+            organisation.name,
+            this._org.settings,
+        );
+        return zones;
+    }
 
     /** Rows interleaved with collapsible group headers for nested keys.
      *  Relies on rows() being sorted, so grouped keys are contiguous. */
