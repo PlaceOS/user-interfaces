@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["parking-list.component.ts"],
-  "sourcesContent": ["\n            :host {\n                width: 100%;\n                height: 100%;\n                padding: 0.5rem;\n                overflow: auto;\n            }\n        "],
-  "mappings": ";AACY;AACI,SAAA;AACA,UAAA;AACA,WAAA;AACA,YAAA;AACJ;",
-  "names": []
-}
