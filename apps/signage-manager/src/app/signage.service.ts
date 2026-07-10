@@ -940,6 +940,7 @@ export class SignageService {
         300,
     );
     public readonly selected_playlist_item = signal<SignageMedia | null>(null);
+    public readonly selected_playlist_item_index = signal<number | null>(null);
     public readonly playlist_search_term = signal('');
 
     public readonly selected_zone = signal<any>(null);
@@ -1179,6 +1180,7 @@ export class SignageService {
         if (this.selected_playlist()?.id === playlist.id) {
             this.selected_playlist.set(null);
             this.selected_playlist_item.set(null);
+            this.selected_playlist_item_index.set(null);
         }
         this._removePlaylistMediaState(playlist.id);
         this.changed();
@@ -1578,6 +1580,7 @@ export class SignageService {
             this.selected_group_id.set('');
             this.selected_playlist.set(null);
             this.selected_playlist_item.set(null);
+            this.selected_playlist_item_index.set(null);
             this.selected_zone.set(null);
             this.selected_display.set(null);
             this.changed();
@@ -1589,6 +1592,7 @@ export class SignageService {
         this.selected_group_id.set(group_id);
         this.selected_playlist.set(null);
         this.selected_playlist_item.set(null);
+        this.selected_playlist_item_index.set(null);
         this.selected_zone.set(null);
         this.selected_display.set(null);
         this.changed();
@@ -1998,6 +2002,7 @@ export class SignageService {
         const selected_item = this.selected_playlist_item();
         if (selected_item?.id && removed_ids.has(selected_item.id)) {
             this.selected_playlist_item.set(null);
+            this.selected_playlist_item_index.set(null);
         }
         this._playlist_change.set(Date.now());
     }
