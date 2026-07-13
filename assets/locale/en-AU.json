@@ -1160,6 +1160,7 @@
         "PARKING_SPACE_RESTRICTIONS_TITLE": "Space Restrictions",
         "PARKING_SPACE_RESTRICTIONS_DESC": "Select any restrictions that apply to your vehicle or parking needs.",
         "PARKING_RESTRICTION_NONE": "None",
+        "PARKING_SPACE_RESTRICTION_REQUIRED": "Select a parking restriction other than None.",
         "PARKING_RESTRICTION_OVERSIZED": "Requires oversized space",
         "PARKING_SUMMARY_TITLE": "Summary + Submission",
         "PARKING_ALLOCATION_INFO": "Allocation of parking spaces for the following week will occur the <strong>Friday afternoon prior</strong>. Requests received after allocation has occurred will automatically be <strong>waitlisted</strong> until a suitable space becomes available.",
