@@ -48930,6 +48930,7 @@ var BOOKINGS = {
   PARKING_SPACE_RESTRICTIONS_TITLE: "Space Restrictions",
   PARKING_SPACE_RESTRICTIONS_DESC: "Select any restrictions that apply to your vehicle or parking needs.",
   PARKING_RESTRICTION_NONE: "None",
+  PARKING_SPACE_RESTRICTION_REQUIRED: "Select a parking restriction other than None.",
   PARKING_RESTRICTION_OVERSIZED: "Requires oversized space",
   PARKING_SUMMARY_TITLE: "Summary + Submission",
   PARKING_ALLOCATION_INFO: "Allocation of parking spaces for the following week will occur the <strong>Friday afternoon prior</strong>. Requests received after allocation has occurred will automatically be <strong>waitlisted</strong> until a suitable space becomes available.",
@@ -55868,15 +55869,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "3ceaa31",
-  "hash": "3ceaa31",
+  "raw": "5c5aca9",
+  "hash": "5c5aca9",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "3ceaa31",
+  "suffix": "5c5aca9",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1783664533342
+  "time": 1783937473305
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -107671,12 +107672,15 @@ function generateEventForm(event = new CalendarEvent(), settings, injector) {
     const value = model2();
     if (!value.catering?.length || !value.date)
       return;
+    const event2 = {
+      date: value.all_day ? startOfDay(value.date) : value.date,
+      duration: value.all_day ? 24 * 60 : value.duration
+    };
+    if (value.catering.every((order) => +order.event?.date === +event2.date && order.event?.duration === event2.duration))
+      return;
     model2.update((m2) => __spreadProps(__spreadValues({}, m2), {
       catering: (m2.catering || []).map((order) => __spreadProps(__spreadValues({}, order), {
-        event: {
-          date: m2.all_day ? startOfDay(m2.date) : m2.date,
-          duration: m2.all_day ? 24 * 60 : m2.duration
-        }
+        event: event2
       }))
     }));
   };
@@ -112039,6 +112043,7 @@ function generateBookingForm(booking = new Booking(), injector) {
   );
   guardModelUndefinedWrites(model2, bookingFormValue(new Booking()));
   const require_plate_number = settingSignal("parking.require_plate_number", false);
+  const require_space_restriction = settingSignal("parking.require_space_restriction", false);
   const booking_form = form(model2, (p2) => {
     required(p2.date);
     required(p2.asset_id);
@@ -112052,6 +112057,7 @@ function generateBookingForm(booking = new Booking(), injector) {
       }
     });
     validate(p2.plate_number, ({ value, valueOf }) => valueOf(p2.booking_type) === "parking" && require_plate_number() && !`${value() || ""}`.trim() ? { kind: "required" } : void 0);
+    validate(p2.space_restrictions, ({ value, valueOf }) => valueOf(p2.booking_type) === "parking" && require_space_restriction() && !value() ? { kind: "required" } : void 0);
     validate(p2.duration, ({ value, valueOf }) => {
       const date = valueOf(p2.date);
       if (value() <= 0)
@@ -131095,13 +131101,17 @@ var ExploreParkingService = class _ExploreParkingService extends AsyncHandler {
         is_public: this._state.options().is_public,
         level_id: this._state.level()?.id,
         date: this._options().date,
+        all_day: this._options().all_day,
+        duration: this._options().duration,
         poll: this._poll()
       }),
-      loader: ({ params: { is_public, level_id, date } }) => {
+      loader: ({ params: { is_public, level_id, date, all_day, duration } }) => {
         const time = date ?? Date.now();
+        const bookable_hours = all_day ? this._settings.get("app.parking.bookable_hours") || this._settings.get("app.bookings.bookable_hours") || null : null;
+        const all_day_range = getAllDayTimeRange(time, "", bookable_hours?.start, bookable_hours?.end);
         return is_public || !level_id ? Promise.resolve([]) : queryAllBookings({
-          period_start: getUnixTime(addMinutes(time, -15)),
-          period_end: getUnixTime(addMinutes(time, 30)),
+          period_start: getUnixTime(all_day ? all_day_range.date : duration ? time : addMinutes(time, -15)),
+          period_end: getUnixTime(all_day ? all_day_range.date_end : addMinutes(time, duration || 30)),
           type: "parking",
           zones: level_id,
           rejected: false
