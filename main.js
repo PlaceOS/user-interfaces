@@ -933,11 +933,11 @@ var require_alea = __commonJS({
         }
         mash = null;
       }
-      function copy(f, t) {
-        t.c = f.c;
-        t.s0 = f.s0;
-        t.s1 = f.s1;
-        t.s2 = f.s2;
+      function copy(f2, t) {
+        t.c = f2.c;
+        t.s0 = f2.s0;
+        t.s1 = f2.s1;
+        t.s2 = f2.s2;
         return t;
       }
       function impl(seed2, opts) {
@@ -1021,11 +1021,11 @@ var require_xor128 = __commonJS({
           me2.next();
         }
       }
-      function copy(f, t) {
-        t.x = f.x;
-        t.y = f.y;
-        t.z = f.z;
-        t.w = f.w;
+      function copy(f2, t) {
+        t.x = f2.x;
+        t.y = f2.y;
+        t.z = f2.z;
+        t.w = f2.w;
         return t;
       }
       function impl(seed2, opts) {
@@ -1099,13 +1099,13 @@ var require_xorwow = __commonJS({
           me2.next();
         }
       }
-      function copy(f, t) {
-        t.x = f.x;
-        t.y = f.y;
-        t.z = f.z;
-        t.w = f.w;
-        t.v = f.v;
-        t.d = f.d;
+      function copy(f2, t) {
+        t.x = f2.x;
+        t.y = f2.y;
+        t.z = f2.z;
+        t.w = f2.w;
+        t.v = f2.v;
+        t.d = f2.d;
         return t;
       }
       function impl(seed2, opts) {
@@ -1154,38 +1154,38 @@ var require_xorshift7 = __commonJS({
       function XorGen(seed2) {
         var me2 = this;
         me2.next = function() {
-          var X2 = me2.x, i = me2.i, t, v, w;
-          t = X2[i];
+          var X3 = me2.x, i = me2.i, t, v, w;
+          t = X3[i];
           t ^= t >>> 7;
           v = t ^ t << 24;
-          t = X2[i + 1 & 7];
+          t = X3[i + 1 & 7];
           v ^= t ^ t >>> 10;
-          t = X2[i + 3 & 7];
+          t = X3[i + 3 & 7];
           v ^= t ^ t >>> 3;
-          t = X2[i + 4 & 7];
+          t = X3[i + 4 & 7];
           v ^= t ^ t << 7;
-          t = X2[i + 7 & 7];
+          t = X3[i + 7 & 7];
           t = t ^ t << 13;
           v ^= t ^ t << 9;
-          X2[i] = v;
+          X3[i] = v;
           me2.i = i + 1 & 7;
           return v;
         };
         function init3(me3, seed3) {
-          var j, w, X2 = [];
+          var j, w, X3 = [];
           if (seed3 === (seed3 | 0)) {
-            w = X2[0] = seed3;
+            w = X3[0] = seed3;
           } else {
             seed3 = "" + seed3;
             for (j = 0; j < seed3.length; ++j) {
-              X2[j & 7] = X2[j & 7] << 15 ^ seed3.charCodeAt(j) + X2[j + 1 & 7] << 13;
+              X3[j & 7] = X3[j & 7] << 15 ^ seed3.charCodeAt(j) + X3[j + 1 & 7] << 13;
             }
           }
-          while (X2.length < 8) X2.push(0);
-          for (j = 0; j < 8 && X2[j] === 0; ++j) ;
-          if (j == 8) w = X2[7] = -1;
-          else w = X2[j];
-          me3.x = X2;
+          while (X3.length < 8) X3.push(0);
+          for (j = 0; j < 8 && X3[j] === 0; ++j) ;
+          if (j == 8) w = X3[7] = -1;
+          else w = X3[j];
+          me3.x = X3;
           me3.i = 0;
           for (j = 256; j > 0; --j) {
             me3.next();
@@ -1193,9 +1193,9 @@ var require_xorshift7 = __commonJS({
         }
         init3(me2, seed2);
       }
-      function copy(f, t) {
-        t.x = f.x.slice();
-        t.i = f.i;
+      function copy(f2, t) {
+        t.x = f2.x.slice();
+        t.i = f2.i;
         return t;
       }
       function impl(seed2, opts) {
@@ -1245,20 +1245,20 @@ var require_xor4096 = __commonJS({
       function XorGen(seed2) {
         var me2 = this;
         me2.next = function() {
-          var w = me2.w, X2 = me2.X, i = me2.i, t, v;
+          var w = me2.w, X3 = me2.X, i = me2.i, t, v;
           me2.w = w = w + 1640531527 | 0;
-          v = X2[i + 34 & 127];
-          t = X2[i = i + 1 & 127];
+          v = X3[i + 34 & 127];
+          t = X3[i = i + 1 & 127];
           v ^= v << 13;
           t ^= t << 17;
           v ^= v >>> 15;
           t ^= t >>> 12;
-          v = X2[i] = v ^ t;
+          v = X3[i] = v ^ t;
           me2.i = i;
           return v + (w ^ w >>> 16) | 0;
         };
         function init3(me3, seed3) {
-          var t, v, i, j, w, X2 = [], limit = 128;
+          var t, v, i, j, w, X3 = [], limit = 128;
           if (seed3 === (seed3 | 0)) {
             v = seed3;
             seed3 = null;
@@ -1276,33 +1276,33 @@ var require_xor4096 = __commonJS({
             v ^= v >>> 13;
             if (j >= 0) {
               w = w + 1640531527 | 0;
-              t = X2[j & 127] ^= v + w;
+              t = X3[j & 127] ^= v + w;
               i = 0 == t ? i + 1 : 0;
             }
           }
           if (i >= 128) {
-            X2[(seed3 && seed3.length || 0) & 127] = -1;
+            X3[(seed3 && seed3.length || 0) & 127] = -1;
           }
           i = 127;
           for (j = 4 * 128; j > 0; --j) {
-            v = X2[i + 34 & 127];
-            t = X2[i = i + 1 & 127];
+            v = X3[i + 34 & 127];
+            t = X3[i = i + 1 & 127];
             v ^= v << 13;
             t ^= t << 17;
             v ^= v >>> 15;
             t ^= t >>> 12;
-            X2[i] = v ^ t;
+            X3[i] = v ^ t;
           }
           me3.w = w;
-          me3.X = X2;
+          me3.X = X3;
           me3.i = i;
         }
         init3(me2, seed2);
       }
-      function copy(f, t) {
-        t.i = f.i;
-        t.w = f.w;
-        t.X = f.X.slice();
+      function copy(f2, t) {
+        t.i = f2.i;
+        t.w = f2.w;
+        t.X = f2.X.slice();
         return t;
       }
       ;
@@ -1354,14 +1354,14 @@ var require_tychei = __commonJS({
       function XorGen(seed2) {
         var me2 = this, strseed = "";
         me2.next = function() {
-          var b2 = me2.b, c = me2.c, d2 = me2.d, a = me2.a;
+          var b2 = me2.b, c = me2.c, d = me2.d, a = me2.a;
           b2 = b2 << 25 ^ b2 >>> 7 ^ c;
-          c = c - d2 | 0;
-          d2 = d2 << 24 ^ d2 >>> 8 ^ a;
+          c = c - d | 0;
+          d = d << 24 ^ d >>> 8 ^ a;
           a = a - b2 | 0;
           me2.b = b2 = b2 << 20 ^ b2 >>> 12 ^ c;
-          me2.c = c = c - d2 | 0;
-          me2.d = d2 << 16 ^ c >>> 16 ^ a;
+          me2.c = c = c - d | 0;
+          me2.d = d << 16 ^ c >>> 16 ^ a;
           return me2.a = a - b2 | 0;
         };
         me2.a = 0;
@@ -1379,11 +1379,11 @@ var require_tychei = __commonJS({
           me2.next();
         }
       }
-      function copy(f, t) {
-        t.a = f.a;
-        t.b = f.b;
-        t.c = f.c;
-        t.d = f.d;
+      function copy(f2, t) {
+        t.a = f2.a;
+        t.b = f2.b;
+        t.c = f2.c;
+        t.d = f2.d;
         return t;
       }
       ;
@@ -1446,18 +1446,18 @@ var require_seedrandom = __commonJS({
         ), key);
         var arc4 = new ARC4(key);
         var prng = function() {
-          var n = arc4.g(chunks), d2 = startdenom, x = 0;
+          var n = arc4.g(chunks), d = startdenom, x = 0;
           while (n < significance) {
             n = (n + x) * width;
-            d2 *= width;
+            d *= width;
             x = arc4.g(1);
           }
           while (n >= overflow) {
             n /= 2;
-            d2 /= 2;
+            d /= 2;
             x >>>= 1;
           }
-          return (n + x) / d2;
+          return (n + x) / d;
         };
         prng.int32 = function() {
           return arc4.g(4) | 0;
@@ -1510,10 +1510,10 @@ var require_seedrandom = __commonJS({
           return r;
         })(width);
       }
-      function copy(f, t) {
-        t.i = f.i;
-        t.j = f.j;
-        t.S = f.S.slice();
+      function copy(f2, t) {
+        t.i = f2.i;
+        t.j = f2.j;
+        t.S = f2.S.slice();
         return t;
       }
       ;
@@ -1712,18 +1712,18 @@ var require_ieee754 = __commonJS({
       var eBias = eMax >> 1;
       var nBits = -7;
       var i = isLE ? nBytes - 1 : 0;
-      var d2 = isLE ? -1 : 1;
+      var d = isLE ? -1 : 1;
       var s = buffer2[offset + i];
-      i += d2;
+      i += d;
       e = s & (1 << -nBits) - 1;
       s >>= -nBits;
       nBits += eLen;
-      for (; nBits > 0; e = e * 256 + buffer2[offset + i], i += d2, nBits -= 8) {
+      for (; nBits > 0; e = e * 256 + buffer2[offset + i], i += d, nBits -= 8) {
       }
       m2 = e & (1 << -nBits) - 1;
       e >>= -nBits;
       nBits += mLen;
-      for (; nBits > 0; m2 = m2 * 256 + buffer2[offset + i], i += d2, nBits -= 8) {
+      for (; nBits > 0; m2 = m2 * 256 + buffer2[offset + i], i += d, nBits -= 8) {
       }
       if (e === 0) {
         e = 1 - eBias;
@@ -1742,7 +1742,7 @@ var require_ieee754 = __commonJS({
       var eBias = eMax >> 1;
       var rt = mLen === 23 ? Math.pow(2, -24) - Math.pow(2, -77) : 0;
       var i = isLE ? 0 : nBytes - 1;
-      var d2 = isLE ? 1 : -1;
+      var d = isLE ? 1 : -1;
       var s = value < 0 || value === 0 && 1 / value < 0 ? 1 : 0;
       value = Math.abs(value);
       if (isNaN(value) || value === Infinity) {
@@ -1774,13 +1774,13 @@ var require_ieee754 = __commonJS({
           e = 0;
         }
       }
-      for (; mLen >= 8; buffer2[offset + i] = m2 & 255, i += d2, m2 /= 256, mLen -= 8) {
+      for (; mLen >= 8; buffer2[offset + i] = m2 & 255, i += d, m2 /= 256, mLen -= 8) {
       }
       e = e << mLen | m2;
       eLen += mLen;
-      for (; eLen > 0; buffer2[offset + i] = e & 255, i += d2, e /= 256, eLen -= 8) {
+      for (; eLen > 0; buffer2[offset + i] = e & 255, i += d, e /= 256, eLen -= 8) {
       }
-      buffer2[offset + i - d2] |= s * 128;
+      buffer2[offset + i - d] |= s * 128;
     };
   }
 });
@@ -3142,8 +3142,8 @@ var require_buffer = __commonJS({
       }
       return i;
     }
-    function isInstance(obj, type) {
-      return obj instanceof type || obj != null && obj.constructor != null && obj.constructor.name != null && obj.constructor.name === type.name;
+    function isInstance(obj, type2) {
+      return obj instanceof type2 || obj != null && obj.constructor != null && obj.constructor.name != null && obj.constructor.name === type2.name;
     }
     function numberIsNaN(obj) {
       return obj !== obj;
@@ -4072,7 +4072,7 @@ function isSignal(value) {
 }
 function installDevToolsSignalFormatter() {
   globalThis.devtoolsFormatters ??= [];
-  if (!globalThis.devtoolsFormatters.some((f) => f === formatter)) {
+  if (!globalThis.devtoolsFormatters.some((f2) => f2 === formatter)) {
     globalThis.devtoolsFormatters.push(formatter);
   }
 }
@@ -5336,19 +5336,19 @@ function __asyncGenerator(thisArg, _arguments, generator2) {
   return i = Object.create((typeof AsyncIterator === "function" ? AsyncIterator : Object).prototype), verb("next"), verb("throw"), verb("return", awaitReturn), i[Symbol.asyncIterator] = function() {
     return this;
   }, i;
-  function awaitReturn(f) {
+  function awaitReturn(f2) {
     return function(v) {
-      return Promise.resolve(v).then(f, reject);
+      return Promise.resolve(v).then(f2, reject);
     };
   }
-  function verb(n, f) {
+  function verb(n, f2) {
     if (g2[n]) {
       i[n] = function(v) {
         return new Promise(function(a, b2) {
           q.push([n, v, a, b2]) > 1 || resume(n, v);
         });
       };
-      if (f) i[n] = f(i[n]);
+      if (f2) i[n] = f2(i[n]);
     }
   }
   function resume(n, v) {
@@ -5367,8 +5367,8 @@ function __asyncGenerator(thisArg, _arguments, generator2) {
   function reject(value) {
     resume("throw", value);
   }
-  function settle(f, v) {
-    if (f(v), q.shift(), q.length) resume(q[0][0], q[0][1]);
+  function settle(f2, v) {
+    if (f2(v), q.shift(), q.length) resume(q[0][0], q[0][1]);
   }
 }
 function __asyncValues(o) {
@@ -5384,9 +5384,9 @@ function __asyncValues(o) {
       });
     };
   }
-  function settle(resolve, reject, d2, v) {
+  function settle(resolve, reject, d, v) {
     Promise.resolve(v).then(function(v2) {
-      resolve({ value: v2, done: d2 });
+      resolve({ value: v2, done: d });
     }, reject);
   }
 }
@@ -6599,8 +6599,8 @@ function forwardRef(forwardRefFn) {
   }
   return forwardRefFn;
 }
-function resolveForwardRef(type) {
-  return isForwardRef(type) ? type() : type;
+function resolveForwardRef(type2) {
+  return isForwardRef(type2) ? type2() : type2;
 }
 function isForwardRef(fn) {
   return typeof fn === "function" && fn.hasOwnProperty(__forward_ref__) && fn.__forward_ref__ === forwardRef;
@@ -6713,27 +6713,27 @@ function \u0275\u0275defineInjector(options2) {
     imports: options2.imports || []
   };
 }
-function getInjectableDef(type) {
-  return getOwnDefinition(type, NG_PROV_DEF);
+function getInjectableDef(type2) {
+  return getOwnDefinition(type2, NG_PROV_DEF);
 }
-function isInjectable(type) {
-  return getInjectableDef(type) !== null;
+function isInjectable(type2) {
+  return getInjectableDef(type2) !== null;
 }
-function getOwnDefinition(type, field) {
-  return type.hasOwnProperty(field) && type[field] || null;
+function getOwnDefinition(type2, field) {
+  return type2.hasOwnProperty(field) && type2[field] || null;
 }
-function getInheritedInjectableDef(type) {
-  const def2 = type?.[NG_PROV_DEF] ?? null;
+function getInheritedInjectableDef(type2) {
+  const def2 = type2?.[NG_PROV_DEF] ?? null;
   if (def2) {
-    ngDevMode && console.warn(`DEPRECATED: DI is instantiating a token "${type.name}" that inherits its @Injectable decorator but does not provide one itself.
-This will become an error in a future version of Angular. Please add @Injectable() to the "${type.name}" class.`);
+    ngDevMode && console.warn(`DEPRECATED: DI is instantiating a token "${type2.name}" that inherits its @Injectable decorator but does not provide one itself.
+This will become an error in a future version of Angular. Please add @Injectable() to the "${type2.name}" class.`);
     return def2;
   } else {
     return null;
   }
 }
-function getInjectorDef(type) {
-  return type && type.hasOwnProperty(NG_INJ_DEF) ? type[NG_INJ_DEF] : null;
+function getInjectorDef(type2) {
+  return type2 && type2.hasOwnProperty(NG_INJ_DEF) ? type2[NG_INJ_DEF] : null;
 }
 var NG_PROV_DEF = getClosureSafeProperty({
   \u0275prov: getClosureSafeProperty
@@ -6911,43 +6911,43 @@ var NG_ELEMENT_ID = getClosureSafeProperty({
 var NG_ENV_ID = getClosureSafeProperty({
   __NG_ENV_ID__: getClosureSafeProperty
 });
-function getNgModuleDef(type) {
-  assertTypeDefined(type, "@NgModule");
-  return type[NG_MOD_DEF] || null;
+function getNgModuleDef(type2) {
+  assertTypeDefined(type2, "@NgModule");
+  return type2[NG_MOD_DEF] || null;
 }
-function getNgModuleDefOrThrow(type) {
-  const ngModuleDef = getNgModuleDef(type);
+function getNgModuleDefOrThrow(type2) {
+  const ngModuleDef = getNgModuleDef(type2);
   if (!ngModuleDef) {
-    throw new RuntimeError(915, (typeof ngDevMode === "undefined" || ngDevMode) && `Type ${stringify(type)} does not have '\u0275mod' property.`);
+    throw new RuntimeError(915, (typeof ngDevMode === "undefined" || ngDevMode) && `Type ${stringify(type2)} does not have '\u0275mod' property.`);
   }
   return ngModuleDef;
 }
-function getComponentDef(type) {
-  assertTypeDefined(type, "@Component");
-  return type[NG_COMP_DEF] || null;
+function getComponentDef(type2) {
+  assertTypeDefined(type2, "@Component");
+  return type2[NG_COMP_DEF] || null;
 }
-function getDirectiveDefOrThrow(type) {
-  const def2 = getDirectiveDef(type);
+function getDirectiveDefOrThrow(type2) {
+  const def2 = getDirectiveDef(type2);
   if (!def2) {
-    throw new RuntimeError(916, (typeof ngDevMode === "undefined" || ngDevMode) && `Type ${stringify(type)} does not have '\u0275dir' property.`);
+    throw new RuntimeError(916, (typeof ngDevMode === "undefined" || ngDevMode) && `Type ${stringify(type2)} does not have '\u0275dir' property.`);
   }
   return def2;
 }
-function getDirectiveDef(type) {
-  assertTypeDefined(type, "@Directive");
-  return type[NG_DIR_DEF] || null;
+function getDirectiveDef(type2) {
+  assertTypeDefined(type2, "@Directive");
+  return type2[NG_DIR_DEF] || null;
 }
-function getPipeDef(type) {
-  assertTypeDefined(type, "@Pipe");
-  return type[NG_PIPE_DEF] || null;
+function getPipeDef(type2) {
+  assertTypeDefined(type2, "@Pipe");
+  return type2[NG_PIPE_DEF] || null;
 }
-function assertTypeDefined(type, symbolType) {
-  if (type == null) {
+function assertTypeDefined(type2, symbolType) {
+  if (type2 == null) {
     throw new RuntimeError(-919, (typeof ngDevMode === "undefined" || ngDevMode) && `Cannot read ${symbolType} metadata. This can indicate a runtime circular dependency in your app that needs to be resolved.`);
   }
 }
-function isStandalone(type) {
-  const def2 = getComponentDef(type) || getDirectiveDef(type) || getPipeDef(type);
+function isStandalone(type2) {
+  const def2 = getComponentDef(type2) || getDirectiveDef(type2) || getPipeDef(type2);
   return def2 !== null && def2.standalone;
 }
 function renderStringify(value) {
@@ -6962,12 +6962,12 @@ function stringifyForError(value) {
   }
   return renderStringify(value);
 }
-function debugStringifyTypeForError(type) {
-  const componentDef = getComponentDef(type);
+function debugStringifyTypeForError(type2) {
+  const componentDef = getComponentDef(type2);
   if (componentDef !== null && componentDef.debugInfo) {
     return stringifyTypeFromDebugInfo(componentDef.debugInfo);
   }
-  return stringifyForError(type);
+  return stringifyForError(type2);
 }
 function stringifyTypeFromDebugInfo(debugInfo) {
   if (!debugInfo.filePath || !debugInfo.lineNumber) {
@@ -7179,22 +7179,22 @@ function injectArgs(types) {
       if (arg.length === 0) {
         throw new RuntimeError(900, ngDevMode && "Arguments array must have arguments.");
       }
-      let type = void 0;
+      let type2 = void 0;
       let flags = 0;
       for (let j = 0; j < arg.length; j++) {
         const meta = arg[j];
         const flag = getInjectFlag(meta);
         if (typeof flag === "number") {
           if (flag === -1) {
-            type = meta.token;
+            type2 = meta.token;
           } else {
             flags |= flag;
           }
         } else {
-          type = meta;
+          type2 = meta;
         }
       }
-      args.push(\u0275\u0275inject(type, flags));
+      args.push(\u0275\u0275inject(type2, flags));
     } else {
       args.push(\u0275\u0275inject(arg));
     }
@@ -7209,12 +7209,12 @@ function attachInjectFlag(decorator, flag) {
 function getInjectFlag(token) {
   return token[DI_DECORATOR_FLAG];
 }
-function getFactoryDef(type, throwNotFound) {
-  const hasFactoryDef = type.hasOwnProperty(NG_FACTORY_DEF);
+function getFactoryDef(type2, throwNotFound) {
+  const hasFactoryDef = type2.hasOwnProperty(NG_FACTORY_DEF);
   if (!hasFactoryDef && throwNotFound === true && ngDevMode) {
-    throw new Error(`Type ${stringify(type)} does not have '\u0275fac' property.`);
+    throw new Error(`Type ${stringify(type2)} does not have '\u0275fac' property.`);
   }
-  return hasFactoryDef ? type[NG_FACTORY_DEF] : null;
+  return hasFactoryDef ? type2[NG_FACTORY_DEF] : null;
 }
 function arrayEquals(a, b2, identityAccessor) {
   if (a.length !== b2.length) return false;
@@ -9802,9 +9802,9 @@ function assertTNodeType(tNode, expectedTypes, message2) {
     throwError2(message2 || `Expected [${toTNodeTypeAsString(expectedTypes)}] but got ${toTNodeTypeAsString(tNode.type)}.`);
   }
 }
-function assertPureTNodeType(type) {
-  if (!(type === 2 || type === 1 || type === 4 || type === 8 || type === 32 || type === 16 || type === 64 || type === 128)) {
-    throwError2(`Expected TNodeType to have only a single type selected, but got ${toTNodeTypeAsString(type)}.`);
+function assertPureTNodeType(type2) {
+  if (!(type2 === 2 || type2 === 1 || type2 === 4 || type2 === 8 || type2 === 32 || type2 === 16 || type2 === 64 || type2 === 128)) {
+    throwError2(`Expected TNodeType to have only a single type selected, but got ${toTNodeTypeAsString(type2)}.`);
   }
 }
 function setUpAttributes(renderer, native, attrs) {
@@ -9939,16 +9939,16 @@ var BLOOM_MASK = BLOOM_SIZE - 1;
 var BLOOM_BUCKET_BITS = 5;
 var nextNgElementId = 0;
 var NOT_FOUND2 = {};
-function bloomAdd(injectorIndex, tView, type) {
+function bloomAdd(injectorIndex, tView, type2) {
   ngDevMode && assertEqual(tView.firstCreatePass, true, "expected firstCreatePass to be true");
   let id;
-  if (typeof type === "string") {
-    id = type.charCodeAt(0) || 0;
-  } else if (type.hasOwnProperty(NG_ELEMENT_ID)) {
-    id = type[NG_ELEMENT_ID];
+  if (typeof type2 === "string") {
+    id = type2.charCodeAt(0) || 0;
+  } else if (type2.hasOwnProperty(NG_ELEMENT_ID)) {
+    id = type2[NG_ELEMENT_ID];
   }
   if (id == null) {
-    id = type[NG_ELEMENT_ID] = nextNgElementId++;
+    id = type2[NG_ELEMENT_ID] = nextNgElementId++;
   }
   const bloomHash = id & BLOOM_MASK;
   const mask = 1 << bloomHash;
@@ -10278,12 +10278,12 @@ var NodeInjector = class {
 function createNodeInjector() {
   return new NodeInjector(getCurrentTNode(), getLView());
 }
-function \u0275\u0275getInheritedFactory(type) {
+function \u0275\u0275getInheritedFactory(type2) {
   return noSideEffects(() => {
-    const ownConstructor = type.prototype.constructor;
+    const ownConstructor = type2.prototype.constructor;
     const ownFactory = ownConstructor[NG_FACTORY_DEF] || getFactoryOf(ownConstructor);
     const objectPrototype = Object.prototype;
-    let parent = Object.getPrototypeOf(type.prototype).constructor;
+    let parent = Object.getPrototypeOf(type2.prototype).constructor;
     while (parent && parent !== objectPrototype) {
       const factory = parent[NG_FACTORY_DEF] || getFactoryOf(parent);
       if (factory && factory !== ownFactory) {
@@ -10294,14 +10294,14 @@ function \u0275\u0275getInheritedFactory(type) {
     return (t) => new t();
   });
 }
-function getFactoryOf(type) {
-  if (isForwardRef(type)) {
+function getFactoryOf(type2) {
+  if (isForwardRef(type2)) {
     return () => {
-      const factory = getFactoryOf(resolveForwardRef(type));
+      const factory = getFactoryOf(resolveForwardRef(type2));
       return factory && factory();
     };
   }
-  return getFactoryDef(type);
+  return getFactoryDef(type2);
 }
 function lookupTokenUsingEmbeddedInjector(tNode, lView, token, flags, notFoundValue) {
   let currentTNode = tNode;
@@ -10539,34 +10539,34 @@ var ReflectionCapabilities = class {
     }
     return result;
   }
-  _ownParameters(type, parentCtor) {
-    const typeStr = type.toString();
+  _ownParameters(type2, parentCtor) {
+    const typeStr = type2.toString();
     if (isDelegateCtor(typeStr)) {
       return null;
     }
-    if (type.parameters && type.parameters !== parentCtor.parameters) {
-      return type.parameters;
+    if (type2.parameters && type2.parameters !== parentCtor.parameters) {
+      return type2.parameters;
     }
-    const tsickleCtorParams = type.ctorParameters;
+    const tsickleCtorParams = type2.ctorParameters;
     if (tsickleCtorParams && tsickleCtorParams !== parentCtor.ctorParameters) {
       const ctorParameters = typeof tsickleCtorParams === "function" ? tsickleCtorParams() : tsickleCtorParams;
       const paramTypes2 = ctorParameters.map((ctorParam) => ctorParam && ctorParam.type);
       const paramAnnotations2 = ctorParameters.map((ctorParam) => ctorParam && convertTsickleDecoratorIntoMetadata(ctorParam.decorators));
       return this._zipTypesAndAnnotations(paramTypes2, paramAnnotations2);
     }
-    const paramAnnotations = type.hasOwnProperty(PARAMETERS) && type[PARAMETERS];
-    const paramTypes = this._reflect && this._reflect.getOwnMetadata && this._reflect.getOwnMetadata("design:paramtypes", type);
+    const paramAnnotations = type2.hasOwnProperty(PARAMETERS) && type2[PARAMETERS];
+    const paramTypes = this._reflect && this._reflect.getOwnMetadata && this._reflect.getOwnMetadata("design:paramtypes", type2);
     if (paramTypes || paramAnnotations) {
       return this._zipTypesAndAnnotations(paramTypes, paramAnnotations);
     }
-    return newArray(type.length);
+    return newArray(type2.length);
   }
-  parameters(type) {
-    if (!isType(type)) {
+  parameters(type2) {
+    if (!isType(type2)) {
       return [];
     }
-    const parentCtor = getParentCtor(type);
-    let parameters = this._ownParameters(type, parentCtor);
+    const parentCtor = getParentCtor(type2);
+    let parameters = this._ownParameters(type2, parentCtor);
     if (!parameters && parentCtor !== Object) {
       parameters = this.parameters(parentCtor);
     }
@@ -10649,8 +10649,8 @@ var ReflectionCapabilities = class {
     }
     return this._ownPropMetadata(typeOrFunc, getParentCtor(typeOrFunc)) || {};
   }
-  hasLifecycleHook(type, lcProperty) {
-    return type instanceof Type && lcProperty in type.prototype;
+  hasLifecycleHook(type2, lcProperty) {
+    return type2 instanceof Type && lcProperty in type2.prototype;
   }
 };
 function convertTsickleDecoratorIntoMetadata(decoratorInvocations) {
@@ -10684,8 +10684,8 @@ var _reflect = null;
 function getReflect() {
   return _reflect = _reflect || new ReflectionCapabilities();
 }
-function reflectDependencies(type) {
-  return convertDependencies(getReflect().parameters(type));
+function reflectDependencies(type2) {
+  return convertDependencies(getReflect().parameters(type2));
 }
 function convertDependencies(deps) {
   return deps.map((dep) => reflectDependency(dep));
@@ -10732,38 +10732,38 @@ function reflectDependency(dep) {
   }
   return meta;
 }
-function compileInjectable(type, meta) {
+function compileInjectable(type2, meta) {
   let ngInjectableDef = null;
   let ngFactoryDef = null;
-  if (!type.hasOwnProperty(NG_PROV_DEF)) {
-    Object.defineProperty(type, NG_PROV_DEF, {
+  if (!type2.hasOwnProperty(NG_PROV_DEF)) {
+    Object.defineProperty(type2, NG_PROV_DEF, {
       get: () => {
         if (ngInjectableDef === null) {
           const compiler = getCompilerFacade({
             usage: 0,
             kind: "injectable",
-            type
+            type: type2
           });
-          ngInjectableDef = compiler.compileInjectable(angularCoreDiEnv, `ng:///${type.name}/\u0275prov.js`, getInjectableMetadata(type, meta));
+          ngInjectableDef = compiler.compileInjectable(angularCoreDiEnv, `ng:///${type2.name}/\u0275prov.js`, getInjectableMetadata(type2, meta));
         }
         return ngInjectableDef;
       }
     });
   }
-  if (!type.hasOwnProperty(NG_FACTORY_DEF)) {
-    Object.defineProperty(type, NG_FACTORY_DEF, {
+  if (!type2.hasOwnProperty(NG_FACTORY_DEF)) {
+    Object.defineProperty(type2, NG_FACTORY_DEF, {
       get: () => {
         if (ngFactoryDef === null) {
           const compiler = getCompilerFacade({
             usage: 0,
             kind: "injectable",
-            type
+            type: type2
           });
-          ngFactoryDef = compiler.compileFactory(angularCoreDiEnv, `ng:///${type.name}/\u0275fac.js`, {
-            name: type.name,
-            type,
+          ngFactoryDef = compiler.compileFactory(angularCoreDiEnv, `ng:///${type2.name}/\u0275fac.js`, {
+            name: type2.name,
+            type: type2,
             typeArgumentCount: 0,
-            deps: reflectDependencies(type),
+            deps: reflectDependencies(type2),
             target: compiler.FactoryTarget.Injectable
           });
         }
@@ -10789,13 +10789,13 @@ function isUseFactoryProvider(meta) {
 function isUseExistingProvider(meta) {
   return meta.useExisting !== void 0;
 }
-function getInjectableMetadata(type, srcMeta) {
+function getInjectableMetadata(type2, srcMeta) {
   const meta = srcMeta || {
     providedIn: null
   };
   const compilerMeta = {
-    name: type.name,
-    type,
+    name: type2.name,
+    type: type2,
     typeArgumentCount: 0,
     providedIn: meta.providedIn
   };
@@ -10813,39 +10813,39 @@ function getInjectableMetadata(type, srcMeta) {
   }
   return compilerMeta;
 }
-var Injectable = makeDecorator("Injectable", void 0, void 0, void 0, (type, meta) => compileInjectable(type, meta));
-function compileService(type, meta) {
+var Injectable = makeDecorator("Injectable", void 0, void 0, void 0, (type2, meta) => compileInjectable(type2, meta));
+function compileService(type2, meta) {
   let def2 = null;
   let factoryDef = null;
-  if (!type.hasOwnProperty(NG_PROV_DEF)) {
-    Object.defineProperty(type, NG_PROV_DEF, {
+  if (!type2.hasOwnProperty(NG_PROV_DEF)) {
+    Object.defineProperty(type2, NG_PROV_DEF, {
       get: () => {
         if (def2 === null) {
           const compiler = getCompilerFacade({
             usage: 0,
             kind: "service",
-            type
+            type: type2
           });
-          def2 = compiler.compileService(angularCoreDiEnv, `ng:///${type.name}/\u0275prov.js`, getServiceMetadata(type, meta));
+          def2 = compiler.compileService(angularCoreDiEnv, `ng:///${type2.name}/\u0275prov.js`, getServiceMetadata(type2, meta));
         }
         return def2;
       }
     });
   }
-  if (!type.hasOwnProperty(NG_FACTORY_DEF)) {
-    Object.defineProperty(type, NG_FACTORY_DEF, {
+  if (!type2.hasOwnProperty(NG_FACTORY_DEF)) {
+    Object.defineProperty(type2, NG_FACTORY_DEF, {
       get: () => {
         if (factoryDef === null) {
           const compiler = getCompilerFacade({
             usage: 0,
             kind: "service",
-            type
+            type: type2
           });
-          factoryDef = compiler.compileFactory(angularCoreDiEnv, `ng:///${type.name}/\u0275fac.js`, {
-            name: type.name,
-            type,
+          factoryDef = compiler.compileFactory(angularCoreDiEnv, `ng:///${type2.name}/\u0275fac.js`, {
+            name: type2.name,
+            type: type2,
             typeArgumentCount: 0,
-            deps: reflectDependencies(type),
+            deps: reflectDependencies(type2),
             target: compiler.FactoryTarget.Service
           });
         }
@@ -10855,17 +10855,17 @@ function compileService(type, meta) {
     });
   }
 }
-function getServiceMetadata(type, srcMeta) {
+function getServiceMetadata(type2, srcMeta) {
   const compilerMeta = {
-    name: type.name,
-    type,
+    name: type2.name,
+    type: type2,
     typeArgumentCount: 0,
     autoProvided: srcMeta?.autoProvided,
     factory: srcMeta?.factory
   };
   return compilerMeta;
 }
-var Service = makeDecorator("Service", void 0, void 0, void 0, (type, meta) => compileService(type, meta));
+var Service = makeDecorator("Service", void 0, void 0, void 0, (type2, meta) => compileService(type2, meta));
 function injectElementRef() {
   return createElementRef(getCurrentTNode(), getLView());
 }
@@ -11384,7 +11384,7 @@ function getListeners(element) {
         const listenerElement = unwrapRNode(lView[secondParam]);
         const callback = lCleanup[tCleanup[i++]];
         const useCaptureOrIndx = tCleanup[i++];
-        const type = typeof useCaptureOrIndx === "boolean" || useCaptureOrIndx >= 0 ? "dom" : "output";
+        const type2 = typeof useCaptureOrIndx === "boolean" || useCaptureOrIndx >= 0 ? "dom" : "output";
         const useCapture = typeof useCaptureOrIndx === "boolean" ? useCaptureOrIndx : false;
         if (element == listenerElement) {
           listeners.push({
@@ -11392,7 +11392,7 @@ function getListeners(element) {
             name,
             callback,
             useCapture,
-            type
+            type: type2
           });
         }
       }
@@ -12113,13 +12113,13 @@ var SafeResourceUrlImpl = class extends SafeValueImpl {
 function unwrapSafeValue(value) {
   return value instanceof SafeValueImpl ? value.changingThisBreaksApplicationSecurity : value;
 }
-function allowSanitizationBypassAndThrow(value, type) {
+function allowSanitizationBypassAndThrow(value, type2) {
   const actualType = getSanitizationBypassType(value);
-  if (actualType != null && actualType !== type) {
-    if (actualType === "ResourceURL" && type === "URL") return true;
-    throw new Error(`Required a safe ${type}, got a ${actualType} (see ${XSS_SECURITY_URL})`);
+  if (actualType != null && actualType !== type2) {
+    if (actualType === "ResourceURL" && type2 === "URL") return true;
+    throw new Error(`Required a safe ${type2}, got a ${actualType} (see ${XSS_SECURITY_URL})`);
   }
-  return actualType === type;
+  return actualType === type2;
 }
 function getSanitizationBypassType(value) {
   return value instanceof SafeValueImpl && value.getTypeName() || null;
@@ -12697,16 +12697,16 @@ function maybeUnwrapFn(value) {
   }
 }
 var VALUE_STRING_LENGTH_LIMIT = 200;
-function assertStandaloneComponentType(type) {
-  assertComponentDef(type);
-  const componentDef = getComponentDef(type);
+function assertStandaloneComponentType(type2) {
+  assertComponentDef(type2);
+  const componentDef = getComponentDef(type2);
   if (!componentDef.standalone) {
-    throw new RuntimeError(907, `The ${stringifyForError(type)} component is not marked as standalone, but Angular expects to have a standalone component here. Please make sure the ${stringifyForError(type)} component does not have the \`standalone: false\` flag in the decorator.`);
+    throw new RuntimeError(907, `The ${stringifyForError(type2)} component is not marked as standalone, but Angular expects to have a standalone component here. Please make sure the ${stringifyForError(type2)} component does not have the \`standalone: false\` flag in the decorator.`);
   }
 }
-function assertComponentDef(type) {
-  if (!getComponentDef(type)) {
-    throw new RuntimeError(906, `The ${stringifyForError(type)} is not an Angular component, make sure it has the \`@Component\` decorator.`);
+function assertComponentDef(type2) {
+  if (!getComponentDef(type2)) {
+    throw new RuntimeError(906, `The ${stringifyForError(type2)} is not an Angular component, make sure it has the \`@Component\` decorator.`);
   }
 }
 function throwMultipleComponentError(tNode, first2, second) {
@@ -14153,13 +14153,13 @@ function applyStyling(renderer, isClassBased, rNode, prop, value) {
     }
   }
 }
-function createTView(type, declTNode, templateFn, decls, vars, directives, pipes, viewQuery, schemas, constsOrFactory, ssrId) {
+function createTView(type2, declTNode, templateFn, decls, vars, directives, pipes, viewQuery, schemas, constsOrFactory, ssrId) {
   const bindingStartIndex = HEADER_OFFSET + decls;
   const initialViewLength = bindingStartIndex + vars;
   const blueprint = createViewBlueprint(bindingStartIndex, initialViewLength);
   const consts = typeof constsOrFactory === "function" ? constsOrFactory() : constsOrFactory;
   const tView = blueprint[TVIEW] = {
-    type,
+    type: type2,
     blueprint,
     template: templateFn,
     queries: null,
@@ -15655,17 +15655,17 @@ function processI18nInsertBefore(renderer, childTNode, lView, childRNode, parent
     }
   }
 }
-function getOrCreateTNode(tView, index, type, name, attrs) {
+function getOrCreateTNode(tView, index, type2, name, attrs) {
   ngDevMode && index !== 0 && assertGreaterThanOrEqual(index, HEADER_OFFSET, "TNodes can't be in the LView header.");
-  ngDevMode && assertPureTNodeType(type);
+  ngDevMode && assertPureTNodeType(type2);
   let tNode = tView.data[index];
   if (tNode === null) {
-    tNode = createTNodeAtIndex(tView, index, type, name, attrs);
+    tNode = createTNodeAtIndex(tView, index, type2, name, attrs);
     if (isInI18nBlock()) {
       tNode.flags |= 32;
     }
   } else if (tNode.type & 64) {
-    tNode.type = type;
+    tNode.type = type2;
     tNode.value = name;
     tNode.attrs = attrs;
     const parent = getCurrentParentTNode();
@@ -15676,11 +15676,11 @@ function getOrCreateTNode(tView, index, type, name, attrs) {
   setCurrentTNode(tNode, true);
   return tNode;
 }
-function createTNodeAtIndex(tView, index, type, name, attrs) {
+function createTNodeAtIndex(tView, index, type2, name, attrs) {
   const currentTNode = getCurrentTNodePlaceholderOk();
   const isParent = isCurrentTNodeParent();
   const parent = isParent ? currentTNode : currentTNode && currentTNode.parent;
-  const tNode = tView.data[index] = createTNode(tView, parent, type, index, name, attrs);
+  const tNode = tView.data[index] = createTNode(tView, parent, type2, index, name, attrs);
   linkTNodeInTView(tView, tNode, currentTNode, isParent);
   return tNode;
 }
@@ -15701,7 +15701,7 @@ function linkTNodeInTView(tView, tNode, currentTNode, isParent) {
     }
   }
 }
-function createTNode(tView, tParent, type, index, value, attrs) {
+function createTNode(tView, tParent, type2, index, value, attrs) {
   ngDevMode && index !== 0 && assertGreaterThanOrEqual(index, HEADER_OFFSET, "TNodes can't be in the LView header.");
   ngDevMode && assertNotSame(attrs, void 0, "'undefined' is not valid value for 'attrs'");
   ngDevMode && tParent && assertTNodeForTView(tParent, tView);
@@ -15711,7 +15711,7 @@ function createTNode(tView, tParent, type, index, value, attrs) {
     flags |= 128;
   }
   const tNode = {
-    type,
+    type: type2,
     index,
     insertBeforeIndex: null,
     injectorIndex,
@@ -16085,10 +16085,10 @@ function isDirective(value) {
 function isComponent(value) {
   return !!getComponentDef(value);
 }
-function getDependencyTypeForError(type) {
-  if (getComponentDef(type)) return "component";
-  if (getDirectiveDef(type)) return "directive";
-  if (getPipeDef(type)) return "pipe";
+function getDependencyTypeForError(type2) {
+  if (getComponentDef(type2)) return "component";
+  if (getDirectiveDef(type2)) return "directive";
+  if (getPipeDef(type2)) return "pipe";
   return "type";
 }
 function verifyStandaloneImport(depType, importingType) {
@@ -16102,8 +16102,8 @@ function verifyStandaloneImport(depType, importingType) {
     const def2 = getComponentDef(depType) || getDirectiveDef(depType) || getPipeDef(depType);
     if (def2 != null) {
       if (!def2.standalone) {
-        const type = getDependencyTypeForError(depType);
-        throw new Error(`The "${stringifyForError(depType)}" ${type}, imported from "${stringifyForError(importingType)}", is not standalone. Does the ${type} have the standalone: false flag?`);
+        const type2 = getDependencyTypeForError(depType);
+        throw new Error(`The "${stringifyForError(depType)}" ${type2}, imported from "${stringifyForError(importingType)}", is not standalone. Does the ${type2} have the standalone: false flag?`);
       }
     } else {
       if (isModuleWithProviders(depType)) {
@@ -16135,14 +16135,14 @@ var DepsTracker = class {
     }
     this.ngModulesWithSomeUnresolvedDecls.clear();
   }
-  getComponentDependencies(type, rawImports) {
+  getComponentDependencies(type2, rawImports) {
     this.resolveNgModulesDecls();
-    const def2 = getComponentDef(type);
+    const def2 = getComponentDef(type2);
     if (def2 === null) {
-      throw new Error(`Attempting to get component dependencies for a type that is not a component: ${type}`);
+      throw new Error(`Attempting to get component dependencies for a type that is not a component: ${type2}`);
     }
     if (def2.standalone) {
-      const scope = this.getStandaloneComponentScope(type, rawImports);
+      const scope = this.getStandaloneComponentScope(type2, rawImports);
       if (scope.compilation.isPoisoned) {
         return {
           dependencies: []
@@ -16152,12 +16152,12 @@ var DepsTracker = class {
         dependencies: [...scope.compilation.directives, ...scope.compilation.pipes, ...scope.compilation.ngModules]
       };
     } else {
-      if (!this.ownerNgModule.has(type)) {
+      if (!this.ownerNgModule.has(type2)) {
         return {
           dependencies: []
         };
       }
-      const scope = this.getNgModuleScope(this.ownerNgModule.get(type));
+      const scope = this.getNgModuleScope(this.ownerNgModule.get(type2));
       if (scope.compilation.isPoisoned) {
         return {
           dependencies: []
@@ -16168,26 +16168,26 @@ var DepsTracker = class {
       };
     }
   }
-  registerNgModule(type, scopeInfo) {
-    if (!isNgModule(type)) {
-      throw new Error(`Attempting to register a Type which is not NgModule as NgModule: ${type}`);
+  registerNgModule(type2, scopeInfo) {
+    if (!isNgModule(type2)) {
+      throw new Error(`Attempting to register a Type which is not NgModule as NgModule: ${type2}`);
     }
-    this.ngModulesWithSomeUnresolvedDecls.add(type);
+    this.ngModulesWithSomeUnresolvedDecls.add(type2);
   }
-  clearScopeCacheFor(type) {
-    this.ngModulesScopeCache.delete(type);
-    this.standaloneComponentsScopeCache.delete(type);
+  clearScopeCacheFor(type2) {
+    this.ngModulesScopeCache.delete(type2);
+    this.standaloneComponentsScopeCache.delete(type2);
   }
-  getNgModuleScope(type) {
-    if (this.ngModulesScopeCache.has(type)) {
-      return this.ngModulesScopeCache.get(type);
+  getNgModuleScope(type2) {
+    if (this.ngModulesScopeCache.has(type2)) {
+      return this.ngModulesScopeCache.get(type2);
     }
-    const scope = this.computeNgModuleScope(type);
-    this.ngModulesScopeCache.set(type, scope);
+    const scope = this.computeNgModuleScope(type2);
+    this.ngModulesScopeCache.set(type2, scope);
     return scope;
   }
-  computeNgModuleScope(type) {
-    const def2 = getNgModuleDefOrThrow(type);
+  computeNgModuleScope(type2) {
+    const def2 = getNgModuleDefOrThrow(type2);
     const scope = {
       exported: {
         directives: /* @__PURE__ */ new Set(),
@@ -16244,18 +16244,18 @@ var DepsTracker = class {
     }
     return scope;
   }
-  getStandaloneComponentScope(type, rawImports) {
-    if (this.standaloneComponentsScopeCache.has(type)) {
-      return this.standaloneComponentsScopeCache.get(type);
+  getStandaloneComponentScope(type2, rawImports) {
+    if (this.standaloneComponentsScopeCache.has(type2)) {
+      return this.standaloneComponentsScopeCache.get(type2);
     }
-    const ans = this.computeStandaloneComponentScope(type, rawImports);
-    this.standaloneComponentsScopeCache.set(type, ans);
+    const ans = this.computeStandaloneComponentScope(type2, rawImports);
+    this.standaloneComponentsScopeCache.set(type2, ans);
     return ans;
   }
-  computeStandaloneComponentScope(type, rawImports) {
+  computeStandaloneComponentScope(type2, rawImports) {
     const ans = {
       compilation: {
-        directives: /* @__PURE__ */ new Set([type]),
+        directives: /* @__PURE__ */ new Set([type2]),
         pipes: /* @__PURE__ */ new Set(),
         ngModules: /* @__PURE__ */ new Set()
       }
@@ -16263,7 +16263,7 @@ var DepsTracker = class {
     for (const rawImport of flatten(rawImports ?? [])) {
       const imported = resolveForwardRef(rawImport);
       try {
-        verifyStandaloneImport(imported, type);
+        verifyStandaloneImport(imported, type2);
       } catch (e) {
         ans.compilation.isPoisoned = true;
         return ans;
@@ -17090,12 +17090,12 @@ function assertNoDuplicateDirectives(directives) {
     seenDirectives.add(current);
   }
 }
-function directiveHostFirstCreatePass(index, lView, type, name, directiveMatcher, bindingsEnabled, attrsIndex, localRefsIndex) {
+function directiveHostFirstCreatePass(index, lView, type2, name, directiveMatcher, bindingsEnabled, attrsIndex, localRefsIndex) {
   const tView = lView[TVIEW];
   ngDevMode && assertFirstCreatePass(tView);
   const tViewConsts = tView.consts;
   const attrs = getConstant(tViewConsts, attrsIndex);
-  const tNode = getOrCreateTNode(tView, index, type, name, attrs);
+  const tNode = getOrCreateTNode(tView, index, type2, name, attrs);
   if (bindingsEnabled) {
     resolveDirectives(tView, lView, tNode, getConstant(tViewConsts, localRefsIndex), directiveMatcher);
   }
@@ -17118,11 +17118,11 @@ function directiveHostEndFirstCreatePass(tView, tNode) {
     tView.queries.elementEnd(tNode);
   }
 }
-function domOnlyFirstCreatePass(index, tView, type, name, attrsIndex, localRefsIndex) {
+function domOnlyFirstCreatePass(index, tView, type2, name, attrsIndex, localRefsIndex) {
   ngDevMode && assertFirstCreatePass(tView);
   const tViewConsts = tView.consts;
   const attrs = getConstant(tViewConsts, attrsIndex);
-  const tNode = getOrCreateTNode(tView, index, type, name, attrs);
+  const tNode = getOrCreateTNode(tView, index, type2, name, attrs);
   tNode.mergedAttrs = mergeHostAttrs(tNode.mergedAttrs, tNode.attrs);
   if (localRefsIndex != null) {
     const refs = getConstant(tViewConsts, localRefsIndex);
@@ -17260,7 +17260,7 @@ var ComponentFactory = class {
     const sharedStylesHost = rootViewInjector.get(SHARED_STYLES_HOST, null);
     const styleHost = getStyleHost(hostElement, () => rootViewInjector.get(DOCUMENT, null) ?? getDocument());
     if (sharedStylesHost) sharedStylesHost.addHost(styleHost);
-    const hasInputBindings = componentBindings?.some(isInputBinding) || directives?.some((d2) => typeof d2 !== "function" && d2.bindings.some(isInputBinding));
+    const hasInputBindings = componentBindings?.some(isInputBinding) || directives?.some((d) => typeof d !== "function" && d.bindings.some(isInputBinding));
     const rootLView = createLView(null, rootTView, null, 512 | getInitialLViewFlagsFromDef(cmpDef), null, null, environment2, hostRenderer, rootViewInjector, null, retrieveHydrationInfo(hostElement, rootViewInjector, true));
     if (sharedStylesHost && shadowRootSupported && styleHost instanceof ShadowRoot) {
       storeLViewOnDestroy(rootLView, () => {
@@ -18209,8 +18209,8 @@ function \u0275\u0275defineComponent(componentDefinition) {
     return def2;
   });
 }
-function extractDirectiveDef(type) {
-  return getComponentDef(type) || getDirectiveDef(type);
+function extractDirectiveDef(type2) {
+  return getComponentDef(type2) || getDirectiveDef(type2);
 }
 function \u0275\u0275defineNgModule(def2) {
   return noSideEffects(() => {
@@ -18356,9 +18356,9 @@ function getComponentId(componentDef) {
   }
   return compId;
 }
-function setClassMetadata(type, decorators, ctorParameters, propDecorators) {
+function setClassMetadata(type2, decorators, ctorParameters, propDecorators) {
   return noSideEffects(() => {
-    const clazz = type;
+    const clazz = type2;
     if (decorators !== null) {
       if (clazz.hasOwnProperty("decorators") && clazz.decorators !== void 0) {
         clazz.decorators.push(...decorators);
@@ -18465,7 +18465,7 @@ async function resolveComponentResources(resourceResolver) {
     urlCache.set(url, promise);
     return promise;
   }
-  const resolutionPromises = Array.from(currentQueue).map(async ([type, component]) => {
+  const resolutionPromises = Array.from(currentQueue).map(async ([type2, component]) => {
     if (component.styleUrl && component.styleUrls?.length) {
       throw new Error("@Component cannot define both `styleUrl` and `styleUrls`. Use `styleUrl` if the component has one stylesheet, or `styleUrls` if it has multiple");
     }
@@ -18493,14 +18493,14 @@ async function resolveComponentResources(resourceResolver) {
       componentTasks.push(allFetched);
     }
     await Promise.all(componentTasks);
-    componentDefPendingResolution.delete(type);
+    componentDefPendingResolution.delete(type2);
   });
   await Promise.all(resolutionPromises);
 }
-function maybeQueueResolutionOfComponentResources(type, metadata) {
+function maybeQueueResolutionOfComponentResources(type2, metadata) {
   if (componentNeedsResolution(metadata)) {
-    componentResourceResolutionQueue.set(type, metadata);
-    componentDefPendingResolution.add(type);
+    componentResourceResolutionQueue.set(type2, metadata);
+    componentDefPendingResolution.add(type2);
   }
 }
 function componentNeedsResolution(component) {
@@ -18520,9 +18520,9 @@ async function unwrapResponse(url, response) {
 }
 var modules = /* @__PURE__ */ new Map();
 var checkForDuplicateNgModules = true;
-function assertSameOrNotExisting(id, type, incoming) {
-  if (type && type !== incoming && checkForDuplicateNgModules) {
-    throw new RuntimeError(921, ngDevMode && `Duplicate module registered for ${id} - ${stringify(type)} vs ${stringify(type.name)}`);
+function assertSameOrNotExisting(id, type2, incoming) {
+  if (type2 && type2 !== incoming && checkForDuplicateNgModules) {
+    throw new RuntimeError(921, ngDevMode && `Duplicate module registered for ${id} - ${stringify(type2)} vs ${stringify(type2.name)}`);
   }
 }
 function registerNgModuleType(ngModuleType, id) {
@@ -18661,12 +18661,12 @@ function patchDeclaredInputs(declaredInputs, exposedInputs) {
   }
 }
 function validateHostDirective(hostDirectiveConfig, directiveDef) {
-  const type = hostDirectiveConfig.directive;
+  const type2 = hostDirectiveConfig.directive;
   if (directiveDef === null) {
-    if (getComponentDef(type) !== null) {
-      throw new RuntimeError(310, `Host directive ${type.name} cannot be a component.`);
+    if (getComponentDef(type2) !== null) {
+      throw new RuntimeError(310, `Host directive ${type2.name} cannot be a component.`);
     }
-    throw new RuntimeError(307, `Could not resolve metadata for host directive ${type.name}. Make sure that the ${type.name} class is annotated with an @Directive decorator.`);
+    throw new RuntimeError(307, `Could not resolve metadata for host directive ${type2.name}. Make sure that the ${type2.name} class is annotated with an @Directive decorator.`);
   }
   if (!directiveDef.standalone) {
     throw new RuntimeError(308, `Host directive ${directiveDef.type.name} must be standalone.`);
@@ -18689,8 +18689,8 @@ function validateMappings(bindingType, def2, hostDirectiveBindings) {
     }
   }
 }
-function getSuperType(type) {
-  return Object.getPrototypeOf(type.prototype).constructor;
+function getSuperType(type2) {
+  return Object.getPrototypeOf(type2.prototype).constructor;
 }
 function \u0275\u0275InheritDefinitionFeature(definition) {
   let superType = getSuperType(definition.type);
@@ -18928,15 +18928,15 @@ var DeferBlockBehavior;
   DeferBlockBehavior2[DeferBlockBehavior2["Manual"] = 0] = "Manual";
   DeferBlockBehavior2[DeferBlockBehavior2["Playthrough"] = 1] = "Playthrough";
 })(DeferBlockBehavior || (DeferBlockBehavior = {}));
-function storeTriggerCleanupFn(type, lDetails, cleanupFn) {
-  const key = getCleanupFnKeyByType(type);
+function storeTriggerCleanupFn(type2, lDetails, cleanupFn) {
+  const key = getCleanupFnKeyByType(type2);
   if (lDetails[key] === null) {
     lDetails[key] = [];
   }
   lDetails[key].push(cleanupFn);
 }
-function invokeTriggerCleanupFns(type, lDetails) {
-  const key = getCleanupFnKeyByType(type);
+function invokeTriggerCleanupFns(type2, lDetails) {
+  const key = getCleanupFnKeyByType(type2);
   const cleanupFns = lDetails[key];
   if (cleanupFns !== null) {
     for (const cleanupFn of cleanupFns) {
@@ -18950,11 +18950,11 @@ function invokeAllTriggerCleanupFns(lDetails) {
   invokeTriggerCleanupFns(0, lDetails);
   invokeTriggerCleanupFns(2, lDetails);
 }
-function getCleanupFnKeyByType(type) {
+function getCleanupFnKeyByType(type2) {
   let key = TRIGGER_CLEANUP_FNS;
-  if (type === 1) {
+  if (type2 === 1) {
     key = PREFETCH_TRIGGER_CLEANUP_FNS;
-  } else if (type === 2) {
+  } else if (type2 === 2) {
     key = HYDRATE_TRIGGER_CLEANUP_FNS;
   }
   return key;
@@ -19397,8 +19397,8 @@ function getTriggerElement(triggerLView, triggerIndex) {
   ngDevMode && assertElement(element);
   return element;
 }
-function registerDomTrigger(initialLView, tNode, triggerIndex, walkUpTimes, registerFn, callback, type, options2) {
-  if (!shouldTriggerDeferBlock(type, initialLView)) {
+function registerDomTrigger(initialLView, tNode, triggerIndex, walkUpTimes, registerFn, callback, type2, options2) {
+  if (!shouldTriggerDeferBlock(type2, initialLView)) {
     return;
   }
   const injector = initialLView[INJECTOR];
@@ -19435,7 +19435,7 @@ function registerDomTrigger(initialLView, tNode, triggerIndex, walkUpTimes, regi
     if (initialLView !== triggerLView) {
       storeLViewOnDestroy(triggerLView, cleanup);
     }
-    storeTriggerCleanupFn(type, lDetails, cleanup);
+    storeTriggerCleanupFn(type2, lDetails, cleanup);
   }
   poll = afterEveryRender({
     read: pollDomTrigger
@@ -19489,17 +19489,17 @@ function setupFrameworkInjectorProfiler() {
 function injectorProfilerEventHandler(injectorProfilerEvent) {
   const {
     context: context2,
-    type
+    type: type2
   } = injectorProfilerEvent;
-  if (type === 0) {
+  if (type2 === 0) {
     handleInjectEvent(context2, injectorProfilerEvent.service);
-  } else if (type === 1) {
+  } else if (type2 === 1) {
     handleInstanceCreatedByInjectorEvent(context2, injectorProfilerEvent.instance);
-  } else if (type === 2) {
+  } else if (type2 === 2) {
     handleProviderConfiguredEvent(context2, injectorProfilerEvent.providerRecord);
-  } else if (type === 3) {
+  } else if (type2 === 3) {
     handleEffectCreatedEvent(context2, injectorProfilerEvent.effect);
-  } else if (type === 4) {
+  } else if (type2 === 4) {
     handleEffectCreatedEvent(context2, injectorProfilerEvent.effectPhase);
   }
 }
@@ -23412,8 +23412,8 @@ function i18nStartFirstCreatePass(tView, parentTNodeIndex, lView, index, message
       }
     } else {
       const isClosing = value.charCodeAt(0) === 47;
-      const type = value.charCodeAt(isClosing ? 1 : 0);
-      ngDevMode && assertOneOf(type, 42, 35);
+      const type2 = value.charCodeAt(isClosing ? 1 : 0);
+      ngDevMode && assertOneOf(type2, 42, 35);
       const index2 = HEADER_OFFSET + Number.parseInt(value.substring(isClosing ? 2 : 1));
       if (isClosing) {
         existingTNodeStack.shift();
@@ -23427,7 +23427,7 @@ function i18nStartFirstCreatePass(tView, parentTNodeIndex, lView, index, message
           kind: 2,
           index: index2,
           children: [],
-          type: type === 35 ? 0 : 1
+          type: type2 === 35 ? 0 : 1
         };
         astStack[0].push(placeholderNode);
         astStack.unshift(placeholderNode.children);
@@ -23617,8 +23617,8 @@ function parseICUBlock(pattern) {
   const values = [];
   let icuType = 1;
   let mainBinding = 0;
-  pattern = pattern.replace(ICU_BLOCK_REGEXP, function(str, binding, type) {
-    if (type === "select") {
+  pattern = pattern.replace(ICU_BLOCK_REGEXP, function(str, binding, type2) {
+    if (type2 === "select") {
       icuType = 0;
     } else {
       icuType = 1;
@@ -25106,12 +25106,12 @@ function multiResolve(factories, result) {
   }
   return result;
 }
-function multiFactory(factoryFn, index, isViewProvider, isComponent2, f, provider) {
+function multiFactory(factoryFn, index, isViewProvider, isComponent2, f2, provider) {
   const factory = new NodeInjectorFactory(factoryFn, isViewProvider, \u0275\u0275directiveInject, ngDevMode ? providerName(provider) : null);
   factory.multi = [];
   factory.index = index;
   factory.componentProviders = 0;
-  multiFactoryAdd(factory, f, isComponent2 && !isViewProvider);
+  multiFactoryAdd(factory, f2, isComponent2 && !isViewProvider);
   return factory;
 }
 function providerName(provider) {
@@ -25152,21 +25152,21 @@ function \u0275\u0275ExternalStylesFeature(styleUrls) {
     };
   };
 }
-function \u0275\u0275setComponentScope(type, directives, pipes) {
-  const def2 = type.\u0275cmp;
+function \u0275\u0275setComponentScope(type2, directives, pipes) {
+  const def2 = type2.\u0275cmp;
   def2.directiveDefs = extractDefListOrFactory(directives, extractDirectiveDef);
   def2.pipeDefs = extractDefListOrFactory(pipes, getPipeDef);
 }
-function \u0275\u0275setNgModuleScope(type, scope) {
+function \u0275\u0275setNgModuleScope(type2, scope) {
   return noSideEffects(() => {
-    const ngModuleDef = getNgModuleDefOrThrow(type);
+    const ngModuleDef = getNgModuleDefOrThrow(type2);
     ngModuleDef.declarations = convertToTypeArray(scope.declarations || EMPTY_ARRAY);
     ngModuleDef.imports = convertToTypeArray(scope.imports || EMPTY_ARRAY);
     ngModuleDef.exports = convertToTypeArray(scope.exports || EMPTY_ARRAY);
     if (scope.bootstrap) {
       ngModuleDef.bootstrap = convertToTypeArray(scope.bootstrap);
     }
-    depsTracker.registerNgModule(type, scope);
+    depsTracker.registerNgModule(type2, scope);
   });
 }
 function convertToTypeArray(values) {
@@ -25384,18 +25384,18 @@ function isPure(lView, index) {
 function \u0275\u0275templateRefExtractor(tNode, lView) {
   return createTemplateRef(tNode, lView);
 }
-function \u0275\u0275getComponentDepsFactory(type, rawImports) {
+function \u0275\u0275getComponentDepsFactory(type2, rawImports) {
   return () => {
     try {
-      return depsTracker.getComponentDependencies(type, rawImports).dependencies;
+      return depsTracker.getComponentDependencies(type2, rawImports).dependencies;
     } catch (e) {
-      console.error(`Computing dependencies in local compilation mode for the component "${type.name}" failed with the exception:`, e);
+      console.error(`Computing dependencies in local compilation mode for the component "${type2.name}" failed with the exception:`, e);
       throw e;
     }
   };
 }
-function \u0275setClassDebugInfo(type, debugInfo) {
-  const def2 = getComponentDef(type);
+function \u0275setClassDebugInfo(type2, debugInfo) {
+  const def2 = getComponentDef(type2);
   if (def2 !== null) {
     def2.debugInfo = debugInfo;
   }
@@ -25404,15 +25404,15 @@ function \u0275\u0275getReplaceMetadataURL(id, timestamp, base) {
   const url = `./@ng/component?c=${id}&t=${encodeURIComponent(timestamp)}`;
   return new URL(url, base).href;
 }
-function \u0275\u0275replaceMetadata(type, applyMetadata, namespaces, locals, importMeta = null, id = null) {
-  ngDevMode && assertComponentDef(type);
-  const currentDef = getComponentDef(type);
-  applyMetadata.apply(null, [type, namespaces, ...locals]);
+function \u0275\u0275replaceMetadata(type2, applyMetadata, namespaces, locals, importMeta = null, id = null) {
+  ngDevMode && assertComponentDef(type2);
+  const currentDef = getComponentDef(type2);
+  applyMetadata.apply(null, [type2, namespaces, ...locals]);
   const {
     newDef,
     oldDef
-  } = mergeWithExistingDefinition(currentDef, getComponentDef(type));
-  type[NG_COMP_DEF] = newDef;
+  } = mergeWithExistingDefinition(currentDef, getComponentDef(type2));
+  type2[NG_COMP_DEF] = newDef;
   if (oldDef.tView) {
     const trackedViews = getTrackedLViews().values();
     for (const root of trackedViews) {
@@ -25854,9 +25854,9 @@ function compileNgModuleDefs(moduleType, ngModule, allowDuplicateDeclarationsInR
     configurable: !!ngDevMode
   });
 }
-function generateStandaloneInDeclarationsError(type, location2) {
-  const prefix = `Unexpected "${stringifyForError(type)}" found in the "declarations" array of the`;
-  const suffix = `"${stringifyForError(type)}" is marked as standalone and can't be declared in any NgModule - did you intend to import it instead (by adding it to the "imports" array)?`;
+function generateStandaloneInDeclarationsError(type2, location2) {
+  const prefix = `Unexpected "${stringifyForError(type2)}" found in the "declarations" array of the`;
+  const suffix = `"${stringifyForError(type2)}" is marked as standalone and can't be declared in any NgModule - did you intend to import it instead (by adding it to the "imports" array)?`;
   return `${prefix} ${location2}, ${suffix}`;
 }
 function verifySemanticsOfNgModuleDef(moduleType, allowDuplicateDeclarationsInRoot, importingModule) {
@@ -25899,74 +25899,74 @@ function verifySemanticsOfNgModuleDef(moduleType, allowDuplicateDeclarationsInRo
   if (errors.length) {
     throw new Error(errors.join("\n"));
   }
-  function verifyDeclarationsHaveDefinitions(type) {
-    type = resolveForwardRef(type);
-    const def2 = getComponentDef(type) || getDirectiveDef(type) || getPipeDef(type);
+  function verifyDeclarationsHaveDefinitions(type2) {
+    type2 = resolveForwardRef(type2);
+    const def2 = getComponentDef(type2) || getDirectiveDef(type2) || getPipeDef(type2);
     if (!def2) {
-      errors.push(`Unexpected value '${stringifyForError(type)}' declared by the module '${stringifyForError(moduleType)}'. Please add a @Pipe/@Directive/@Component annotation.`);
+      errors.push(`Unexpected value '${stringifyForError(type2)}' declared by the module '${stringifyForError(moduleType)}'. Please add a @Pipe/@Directive/@Component annotation.`);
     }
   }
-  function verifyDirectivesHaveSelector(type) {
-    type = resolveForwardRef(type);
-    const def2 = getDirectiveDef(type);
-    if (!getComponentDef(type) && def2 && def2.selectors.length == 0) {
-      errors.push(`Directive ${stringifyForError(type)} has no selector, please add it!`);
+  function verifyDirectivesHaveSelector(type2) {
+    type2 = resolveForwardRef(type2);
+    const def2 = getDirectiveDef(type2);
+    if (!getComponentDef(type2) && def2 && def2.selectors.length == 0) {
+      errors.push(`Directive ${stringifyForError(type2)} has no selector, please add it!`);
     }
   }
-  function verifyNotStandalone(type, moduleType2) {
-    type = resolveForwardRef(type);
-    const def2 = getComponentDef(type) || getDirectiveDef(type) || getPipeDef(type);
+  function verifyNotStandalone(type2, moduleType2) {
+    type2 = resolveForwardRef(type2);
+    const def2 = getComponentDef(type2) || getDirectiveDef(type2) || getPipeDef(type2);
     if (def2?.standalone) {
       const location2 = `"${stringifyForError(moduleType2)}" NgModule`;
-      errors.push(generateStandaloneInDeclarationsError(type, location2));
+      errors.push(generateStandaloneInDeclarationsError(type2, location2));
     }
   }
-  function verifyExportsAreDeclaredOrReExported(type) {
-    type = resolveForwardRef(type);
-    const kind = getComponentDef(type) && "component" || getDirectiveDef(type) && "directive" || getPipeDef(type) && "pipe";
+  function verifyExportsAreDeclaredOrReExported(type2) {
+    type2 = resolveForwardRef(type2);
+    const kind = getComponentDef(type2) && "component" || getDirectiveDef(type2) && "directive" || getPipeDef(type2) && "pipe";
     if (kind) {
-      if (combinedDeclarations.lastIndexOf(type) === -1) {
-        errors.push(`Can't export ${kind} ${stringifyForError(type)} from ${stringifyForError(moduleType)} as it was neither declared nor imported!`);
+      if (combinedDeclarations.lastIndexOf(type2) === -1) {
+        errors.push(`Can't export ${kind} ${stringifyForError(type2)} from ${stringifyForError(moduleType)} as it was neither declared nor imported!`);
       }
     }
   }
-  function verifyDeclarationIsUnique(type, suppressErrors) {
-    type = resolveForwardRef(type);
-    const existingModule = ownerNgModule.get(type);
+  function verifyDeclarationIsUnique(type2, suppressErrors) {
+    type2 = resolveForwardRef(type2);
+    const existingModule = ownerNgModule.get(type2);
     if (existingModule && existingModule !== moduleType) {
       if (!suppressErrors) {
         const modules2 = [existingModule, moduleType].map(stringifyForError).sort();
-        errors.push(`Type ${stringifyForError(type)} is part of the declarations of 2 modules: ${modules2[0]} and ${modules2[1]}! Please consider moving ${stringifyForError(type)} to a higher module that imports ${modules2[0]} and ${modules2[1]}. You can also create a new NgModule that exports and includes ${stringifyForError(type)} then import that NgModule in ${modules2[0]} and ${modules2[1]}.`);
+        errors.push(`Type ${stringifyForError(type2)} is part of the declarations of 2 modules: ${modules2[0]} and ${modules2[1]}! Please consider moving ${stringifyForError(type2)} to a higher module that imports ${modules2[0]} and ${modules2[1]}. You can also create a new NgModule that exports and includes ${stringifyForError(type2)} then import that NgModule in ${modules2[0]} and ${modules2[1]}.`);
       }
     } else {
-      ownerNgModule.set(type, moduleType);
+      ownerNgModule.set(type2, moduleType);
     }
   }
-  function verifyComponentIsPartOfNgModule(type) {
-    type = resolveForwardRef(type);
-    const existingModule = ownerNgModule.get(type);
-    if (!existingModule && !isStandalone(type)) {
-      errors.push(`Component ${stringifyForError(type)} is not part of any NgModule or the module has not been imported into your module.`);
+  function verifyComponentIsPartOfNgModule(type2) {
+    type2 = resolveForwardRef(type2);
+    const existingModule = ownerNgModule.get(type2);
+    if (!existingModule && !isStandalone(type2)) {
+      errors.push(`Component ${stringifyForError(type2)} is not part of any NgModule or the module has not been imported into your module.`);
     }
   }
-  function verifyCorrectBootstrapType(type) {
-    type = resolveForwardRef(type);
-    if (!getComponentDef(type)) {
-      errors.push(`${stringifyForError(type)} cannot be used as an entry component.`);
+  function verifyCorrectBootstrapType(type2) {
+    type2 = resolveForwardRef(type2);
+    if (!getComponentDef(type2)) {
+      errors.push(`${stringifyForError(type2)} cannot be used as an entry component.`);
     }
-    if (isStandalone(type)) {
-      errors.push(`The \`${stringifyForError(type)}\` class is a standalone component, which can not be used in the \`@NgModule.bootstrap\` array. Use the \`bootstrapApplication\` function for bootstrap instead.`);
+    if (isStandalone(type2)) {
+      errors.push(`The \`${stringifyForError(type2)}\` class is a standalone component, which can not be used in the \`@NgModule.bootstrap\` array. Use the \`bootstrapApplication\` function for bootstrap instead.`);
     }
   }
-  function verifySemanticsOfNgModuleImport(type, importingModule2) {
-    type = resolveForwardRef(type);
-    const directiveDef = getComponentDef(type) || getDirectiveDef(type);
+  function verifySemanticsOfNgModuleImport(type2, importingModule2) {
+    type2 = resolveForwardRef(type2);
+    const directiveDef = getComponentDef(type2) || getDirectiveDef(type2);
     if (directiveDef !== null && !directiveDef.standalone) {
-      throw new Error(`Unexpected directive '${type.name}' imported by the module '${importingModule2.name}'. Please add an @NgModule annotation.`);
+      throw new Error(`Unexpected directive '${type2.name}' imported by the module '${importingModule2.name}'. Please add an @NgModule annotation.`);
     }
-    const pipeDef = getPipeDef(type);
+    const pipeDef = getPipeDef(type2);
     if (pipeDef !== null && !pipeDef.standalone) {
-      throw new Error(`Unexpected pipe '${type.name}' imported by the module '${importingModule2.name}'. Please add an @NgModule annotation.`);
+      throw new Error(`Unexpected pipe '${type2.name}' imported by the module '${importingModule2.name}'. Please add an @NgModule annotation.`);
     }
   }
 }
@@ -25974,10 +25974,10 @@ function unwrapModuleWithProvidersImports(typeOrWithProviders) {
   typeOrWithProviders = resolveForwardRef(typeOrWithProviders);
   return typeOrWithProviders.ngModule || typeOrWithProviders;
 }
-function getAnnotation(type, name) {
+function getAnnotation(type2, name) {
   let annotation = null;
-  collect(type.__annotations__);
-  collect(type.decorators);
+  collect(type2.__annotations__);
+  collect(type2.decorators);
   return annotation;
   function collect(annotations) {
     if (annotations) {
@@ -26000,19 +26000,19 @@ function getAnnotation(type, name) {
 }
 var ownerNgModule = /* @__PURE__ */ new WeakMap();
 var verifiedNgModule = /* @__PURE__ */ new WeakMap();
-function computeCombinedExports(type) {
-  type = resolveForwardRef(type);
-  const ngModuleDef = getNgModuleDef(type);
+function computeCombinedExports(type2) {
+  type2 = resolveForwardRef(type2);
+  const ngModuleDef = getNgModuleDef(type2);
   if (ngModuleDef === null) {
-    return [type];
+    return [type2];
   }
-  return flatten(maybeUnwrapFn(ngModuleDef.exports).map((type2) => {
-    const ngModuleDef2 = getNgModuleDef(type2);
+  return flatten(maybeUnwrapFn(ngModuleDef.exports).map((type3) => {
+    const ngModuleDef2 = getNgModuleDef(type3);
     if (ngModuleDef2) {
-      verifySemanticsOfNgModuleDef(type2, false);
-      return computeCombinedExports(type2);
+      verifySemanticsOfNgModuleDef(type3, false);
+      return computeCombinedExports(type3);
     } else {
-      return type2;
+      return type3;
     }
   }));
 }
@@ -26036,15 +26036,15 @@ function patchComponentDefWithScope(componentDef, transitiveScopes) {
   componentDef.schemas = transitiveScopes.schemas;
   componentDef.tView = null;
 }
-function transitiveScopesFor(type) {
-  if (isNgModule(type)) {
-    const scope = depsTracker.getNgModuleScope(type);
-    const def2 = getNgModuleDefOrThrow(type);
+function transitiveScopesFor(type2) {
+  if (isNgModule(type2)) {
+    const scope = depsTracker.getNgModuleScope(type2);
+    const def2 = getNgModuleDefOrThrow(type2);
     return __spreadValues({
       schemas: def2.schemas || null
     }, scope);
-  } else if (isStandalone(type)) {
-    const directiveDef = getComponentDef(type) || getDirectiveDef(type);
+  } else if (isStandalone(type2)) {
+    const directiveDef = getComponentDef(type2) || getDirectiveDef(type2);
     if (directiveDef !== null) {
       return {
         schemas: null,
@@ -26053,12 +26053,12 @@ function transitiveScopesFor(type) {
           pipes: /* @__PURE__ */ new Set()
         },
         exported: {
-          directives: /* @__PURE__ */ new Set([type]),
+          directives: /* @__PURE__ */ new Set([type2]),
           pipes: /* @__PURE__ */ new Set()
         }
       };
     }
-    const pipeDef = getPipeDef(type);
+    const pipeDef = getPipeDef(type2);
     if (pipeDef !== null) {
       return {
         schemas: null,
@@ -26068,12 +26068,12 @@ function transitiveScopesFor(type) {
         },
         exported: {
           directives: /* @__PURE__ */ new Set(),
-          pipes: /* @__PURE__ */ new Set([type])
+          pipes: /* @__PURE__ */ new Set([type2])
         }
       };
     }
   }
-  throw new Error(`${type.name} does not have a module def (\u0275mod property)`);
+  throw new Error(`${type2.name} does not have a module def (\u0275mod property)`);
 }
 function expandModuleWithProviders(value) {
   if (isModuleWithProviders(value)) {
@@ -26082,21 +26082,21 @@ function expandModuleWithProviders(value) {
   return value;
 }
 var compilationDepth = 0;
-function compileComponent(type, metadata) {
+function compileComponent(type2, metadata) {
   (typeof ngDevMode === "undefined" || ngDevMode) && initNgDevMode();
   let ngComponentDef = null;
-  maybeQueueResolutionOfComponentResources(type, metadata);
-  addDirectiveFactoryDef(type, metadata);
-  Object.defineProperty(type, NG_COMP_DEF, {
+  maybeQueueResolutionOfComponentResources(type2, metadata);
+  addDirectiveFactoryDef(type2, metadata);
+  Object.defineProperty(type2, NG_COMP_DEF, {
     get: () => {
       if (ngComponentDef === null) {
         const compiler = getCompilerFacade({
           usage: 0,
           kind: "component",
-          type
+          type: type2
         });
         if (componentNeedsResolution(metadata)) {
-          const error2 = [`Component '${type.name}' is not resolved:`];
+          const error2 = [`Component '${type2.name}' is not resolved:`];
           if (metadata.templateUrl) {
             error2.push(` - templateUrl: ${metadata.templateUrl}`);
           }
@@ -26126,10 +26126,10 @@ function compileComponent(type, metadata) {
             encapsulation = ViewEncapsulation.Emulated;
           }
         }
-        const templateUrl = metadata.templateUrl || `ng:///${type.name}/template.html`;
-        const baseMeta = directiveMetadata(type, metadata);
+        const templateUrl = metadata.templateUrl || `ng:///${type2.name}/template.html`;
+        const baseMeta = directiveMetadata(type2, metadata);
         const meta = __spreadProps(__spreadValues({}, baseMeta), {
-          typeSourceSpan: compiler.createParseSourceSpan("Component", type.name, templateUrl),
+          typeSourceSpan: compiler.createParseSourceSpan("Component", type2.name, templateUrl),
           template: metadata.template || "",
           preserveWhitespaces,
           styles: typeof metadata.styles === "string" ? [metadata.styles] : metadata.styles || EMPTY_ARRAY,
@@ -26143,7 +26143,7 @@ function compileComponent(type, metadata) {
         compilationDepth++;
         try {
           if (meta.usesInheritance) {
-            addDirectiveDefToUndecoratedParents(type);
+            addDirectiveDefToUndecoratedParents(type2);
           }
           ngComponentDef = compiler.compileComponent(angularCoreEnv, templateUrl, meta);
           if (meta.isStandalone) {
@@ -26151,7 +26151,7 @@ function compileComponent(type, metadata) {
             const {
               directiveDefs,
               pipeDefs
-            } = getStandaloneDefFunctions(type, imports);
+            } = getStandaloneDefFunctions(type2, imports);
             ngComponentDef.directiveDefs = directiveDefs;
             ngComponentDef.pipeDefs = pipeDefs;
             ngComponentDef.dependencies = () => imports.map(resolveForwardRef);
@@ -26162,15 +26162,15 @@ function compileComponent(type, metadata) {
         if (compilationDepth === 0) {
           flushModuleScopingQueueAsMuchAsPossible();
         }
-        if (hasSelectorScope(type)) {
-          const scopes = transitiveScopesFor(type.ngSelectorScope);
+        if (hasSelectorScope(type2)) {
+          const scopes = transitiveScopesFor(type2.ngSelectorScope);
           patchComponentDefWithScope(ngComponentDef, scopes);
         }
         if (metadata.schemas) {
           if (meta.isStandalone) {
             ngComponentDef.schemas = metadata.schemas;
           } else {
-            throw new Error(`The 'schemas' was specified for the ${stringifyForError(type)} but is only valid on a component that is standalone.`);
+            throw new Error(`The 'schemas' was specified for the ${stringifyForError(type2)} but is only valid on a component that is standalone.`);
           }
         } else if (meta.isStandalone) {
           ngComponentDef.schemas = [];
@@ -26184,30 +26184,30 @@ function compileComponent(type, metadata) {
     configurable: !!ngDevMode
   });
 }
-function getStandaloneDefFunctions(type, imports) {
+function getStandaloneDefFunctions(type2, imports) {
   const directiveDefs = () => {
     if (ngDevMode) {
       for (const rawDep of imports) {
-        verifyStandaloneImport(rawDep, type);
+        verifyStandaloneImport(rawDep, type2);
       }
     }
-    if (!isComponent(type)) {
+    if (!isComponent(type2)) {
       return [];
     }
-    const scope = depsTracker.getStandaloneComponentScope(type, imports);
-    return [...scope.compilation.directives].map((p3) => getComponentDef(p3) || getDirectiveDef(p3)).filter((d2) => d2 !== null);
+    const scope = depsTracker.getStandaloneComponentScope(type2, imports);
+    return [...scope.compilation.directives].map((p3) => getComponentDef(p3) || getDirectiveDef(p3)).filter((d) => d !== null);
   };
   const pipeDefs = () => {
     if (ngDevMode) {
       for (const rawDep of imports) {
-        verifyStandaloneImport(rawDep, type);
+        verifyStandaloneImport(rawDep, type2);
       }
     }
-    if (!isComponent(type)) {
+    if (!isComponent(type2)) {
       return [];
     }
-    const scope = depsTracker.getStandaloneComponentScope(type, imports);
-    return [...scope.compilation.pipes].map((p3) => getPipeDef(p3)).filter((d2) => d2 !== null);
+    const scope = depsTracker.getStandaloneComponentScope(type2, imports);
+    return [...scope.compilation.pipes].map((p3) => getPipeDef(p3)).filter((d) => d !== null);
   };
   return {
     directiveDefs,
@@ -26217,17 +26217,17 @@ function getStandaloneDefFunctions(type, imports) {
 function hasSelectorScope(component) {
   return component.ngSelectorScope !== void 0;
 }
-function compileDirective(type, directive) {
+function compileDirective(type2, directive) {
   let ngDirectiveDef = null;
-  addDirectiveFactoryDef(type, directive || {});
-  Object.defineProperty(type, NG_DIR_DEF, {
+  addDirectiveFactoryDef(type2, directive || {});
+  Object.defineProperty(type2, NG_DIR_DEF, {
     get: () => {
       if (ngDirectiveDef === null) {
-        const meta = getDirectiveMetadata(type, directive || {});
+        const meta = getDirectiveMetadata(type2, directive || {});
         const compiler = getCompilerFacade({
           usage: 0,
           kind: "directive",
-          type
+          type: type2
         });
         ngDirectiveDef = compiler.compileDirective(angularCoreEnv, meta.sourceMapUrl, meta.metadata);
       }
@@ -26236,40 +26236,40 @@ function compileDirective(type, directive) {
     configurable: !!ngDevMode
   });
 }
-function getDirectiveMetadata(type, metadata) {
-  const name = type && type.name;
+function getDirectiveMetadata(type2, metadata) {
+  const name = type2 && type2.name;
   const sourceMapUrl = `ng:///${name}/\u0275dir.js`;
   const compiler = getCompilerFacade({
     usage: 0,
     kind: "directive",
-    type
+    type: type2
   });
-  const facade = directiveMetadata(type, metadata);
+  const facade = directiveMetadata(type2, metadata);
   facade.typeSourceSpan = compiler.createParseSourceSpan("Directive", name, sourceMapUrl);
   if (facade.usesInheritance) {
-    addDirectiveDefToUndecoratedParents(type);
+    addDirectiveDefToUndecoratedParents(type2);
   }
   return {
     metadata: facade,
     sourceMapUrl
   };
 }
-function addDirectiveFactoryDef(type, metadata) {
+function addDirectiveFactoryDef(type2, metadata) {
   let ngFactoryDef = null;
-  Object.defineProperty(type, NG_FACTORY_DEF, {
+  Object.defineProperty(type2, NG_FACTORY_DEF, {
     get: () => {
       if (ngFactoryDef === null) {
-        const meta = getDirectiveMetadata(type, metadata);
+        const meta = getDirectiveMetadata(type2, metadata);
         const compiler = getCompilerFacade({
           usage: 0,
           kind: "directive",
-          type
+          type: type2
         });
-        ngFactoryDef = compiler.compileFactory(angularCoreEnv, `ng:///${type.name}/\u0275fac.js`, {
+        ngFactoryDef = compiler.compileFactory(angularCoreEnv, `ng:///${type2.name}/\u0275fac.js`, {
           name: meta.metadata.name,
           type: meta.metadata.type,
           typeArgumentCount: 0,
-          deps: reflectDependencies(type),
+          deps: reflectDependencies(type2),
           target: compiler.FactoryTarget.Directive
         });
       }
@@ -26278,33 +26278,33 @@ function addDirectiveFactoryDef(type, metadata) {
     configurable: !!ngDevMode
   });
 }
-function extendsDirectlyFromObject(type) {
-  return Object.getPrototypeOf(type.prototype) === Object.prototype;
+function extendsDirectlyFromObject(type2) {
+  return Object.getPrototypeOf(type2.prototype) === Object.prototype;
 }
-function directiveMetadata(type, metadata) {
+function directiveMetadata(type2, metadata) {
   const reflect = getReflect();
-  const propMetadata = reflect.ownPropMetadata(type);
+  const propMetadata = reflect.ownPropMetadata(type2);
   return {
-    name: type.name,
+    name: type2.name,
     legacyOptionalChaining: false,
-    type,
+    type: type2,
     selector: metadata.selector !== void 0 ? metadata.selector : null,
     host: metadata.host || EMPTY_OBJ,
     propMetadata,
     inputs: metadata.inputs || EMPTY_ARRAY,
     outputs: metadata.outputs || EMPTY_ARRAY,
-    queries: extractQueriesMetadata(type, propMetadata, isContentQuery),
+    queries: extractQueriesMetadata(type2, propMetadata, isContentQuery),
     lifecycle: {
-      usesOnChanges: reflect.hasLifecycleHook(type, "ngOnChanges")
+      usesOnChanges: reflect.hasLifecycleHook(type2, "ngOnChanges")
     },
-    controlCreate: reflect.hasLifecycleHook(type, "\u0275ngControlCreate") ? {
+    controlCreate: reflect.hasLifecycleHook(type2, "\u0275ngControlCreate") ? {
       passThroughInput: null
     } : null,
     typeSourceSpan: null,
-    usesInheritance: !extendsDirectlyFromObject(type),
+    usesInheritance: !extendsDirectlyFromObject(type2),
     exportAs: extractExportAs(metadata.exportAs),
     providers: metadata.providers || null,
-    viewQueries: extractQueriesMetadata(type, propMetadata, isViewQuery),
+    viewQueries: extractQueriesMetadata(type2, propMetadata, isViewQuery),
     isStandalone: metadata.standalone === void 0 ? true : !!metadata.standalone,
     isSignal: !!metadata.signals,
     hostDirectives: metadata.hostDirectives?.map((directive) => typeof directive === "function" ? {
@@ -26312,9 +26312,9 @@ function directiveMetadata(type, metadata) {
     } : directive) || null
   };
 }
-function addDirectiveDefToUndecoratedParents(type) {
+function addDirectiveDefToUndecoratedParents(type2) {
   const objPrototype = Object.prototype;
-  let parent = Object.getPrototypeOf(type.prototype).constructor;
+  let parent = Object.getPrototypeOf(type2.prototype).constructor;
   while (parent && parent !== objPrototype) {
     if (!getDirectiveDef(parent) && !getComponentDef(parent) && shouldAddAbstractDirective(parent)) {
       compileDirective(parent, null);
@@ -26337,7 +26337,7 @@ function convertToR3QueryMetadata(propertyName, ann) {
     isSignal: !!ann.isSignal
   };
 }
-function extractQueriesMetadata(type, propMetadata, isQueryAnn) {
+function extractQueriesMetadata(type2, propMetadata, isQueryAnn) {
   const signalQueriesMeta = [];
   const decoratorQueriesMeta = [];
   for (const field in propMetadata) {
@@ -26346,7 +26346,7 @@ function extractQueriesMetadata(type, propMetadata, isQueryAnn) {
       annotations.forEach((ann) => {
         if (isQueryAnn(ann)) {
           if (!ann.selector) {
-            throw new Error(`Can't construct a query for the property "${field}" of "${stringifyForError(type)}" since the query selector wasn't defined.`);
+            throw new Error(`Can't construct a query for the property "${field}" of "${stringifyForError(type2)}" since the query selector wasn't defined.`);
           }
           if (annotations.some(isInputAnnotation)) {
             throw new Error(`Cannot combine @Input decorators with query decorators`);
@@ -26381,12 +26381,12 @@ function splitByComma(value) {
   return value.split(",").map((piece) => piece.trim());
 }
 var LIFECYCLE_HOOKS = ["ngOnChanges", "ngOnInit", "ngOnDestroy", "ngDoCheck", "ngAfterViewInit", "ngAfterViewChecked", "ngAfterContentInit", "ngAfterContentChecked"];
-function shouldAddAbstractDirective(type) {
+function shouldAddAbstractDirective(type2) {
   const reflect = getReflect();
-  if (LIFECYCLE_HOOKS.some((hookName) => reflect.hasLifecycleHook(type, hookName))) {
+  if (LIFECYCLE_HOOKS.some((hookName) => reflect.hasLifecycleHook(type2, hookName))) {
     return true;
   }
-  const propMetadata = reflect.propMetadata(type);
+  const propMetadata = reflect.propMetadata(type2);
   for (const field in propMetadata) {
     const annotations = propMetadata[field];
     for (let i = 0; i < annotations.length; i++) {
@@ -26399,13 +26399,13 @@ function shouldAddAbstractDirective(type) {
   }
   return false;
 }
-function compilePipe(type, meta) {
+function compilePipe(type2, meta) {
   let ngPipeDef = null;
   let ngFactoryDef = null;
-  Object.defineProperty(type, NG_FACTORY_DEF, {
+  Object.defineProperty(type2, NG_FACTORY_DEF, {
     get: () => {
       if (ngFactoryDef === null) {
-        const metadata = getPipeMetadata(type, meta);
+        const metadata = getPipeMetadata(type2, meta);
         const compiler = getCompilerFacade({
           usage: 0,
           kind: "pipe",
@@ -26415,7 +26415,7 @@ function compilePipe(type, meta) {
           name: metadata.name,
           type: metadata.type,
           typeArgumentCount: 0,
-          deps: reflectDependencies(type),
+          deps: reflectDependencies(type2),
           target: compiler.FactoryTarget.Pipe
         });
       }
@@ -26423,10 +26423,10 @@ function compilePipe(type, meta) {
     },
     configurable: !!ngDevMode
   });
-  Object.defineProperty(type, NG_PIPE_DEF, {
+  Object.defineProperty(type2, NG_PIPE_DEF, {
     get: () => {
       if (ngPipeDef === null) {
-        const metadata = getPipeMetadata(type, meta);
+        const metadata = getPipeMetadata(type2, meta);
         const compiler = getCompilerFacade({
           usage: 0,
           kind: "pipe",
@@ -26439,22 +26439,22 @@ function compilePipe(type, meta) {
     configurable: !!ngDevMode
   });
 }
-function getPipeMetadata(type, meta) {
+function getPipeMetadata(type2, meta) {
   return {
-    type,
-    name: type.name,
+    type: type2,
+    name: type2.name,
     pipeName: meta.name,
     pure: meta.pure !== void 0 ? meta.pure : true,
     isStandalone: meta.standalone === void 0 ? true : !!meta.standalone
   };
 }
-var Directive = makeDecorator("Directive", (dir = {}) => dir, void 0, void 0, (type, meta) => compileDirective(type, meta));
+var Directive = makeDecorator("Directive", (dir = {}) => dir, void 0, void 0, (type2, meta) => compileDirective(type2, meta));
 var Component = makeDecorator("Component", (c = {}) => __spreadValues({
   changeDetection: ChangeDetectionStrategy.Eager
-}, c), Directive, void 0, (type, meta) => compileComponent(type, meta));
+}, c), Directive, void 0, (type2, meta) => compileComponent(type2, meta));
 var Pipe = makeDecorator("Pipe", (p3) => __spreadValues({
   pure: true
-}, p3), void 0, void 0, (type, meta) => compilePipe(type, meta));
+}, p3), void 0, void 0, (type2, meta) => compilePipe(type2, meta));
 var Input = makePropDecorator("Input", (arg) => {
   if (!arg) {
     return {};
@@ -26473,7 +26473,7 @@ var HostListener = makePropDecorator("HostListener", (eventName, args) => ({
   eventName,
   args
 }));
-var NgModule = makeDecorator("NgModule", (ngModule) => ngModule, void 0, void 0, (type, meta) => compileNgModule(type, meta));
+var NgModule = makeDecorator("NgModule", (ngModule) => ngModule, void 0, void 0, (type2, meta) => compileNgModule(type2, meta));
 var CONSECUTIVE_MICROTASK_NOTIFICATION_LIMIT = 100;
 var consecutiveMicrotaskNotifications = 0;
 var stackFromLastFewNotifications = [];
@@ -26697,7 +26697,7 @@ var Compiler = class _Compiler {
   }
   clearCache() {
   }
-  clearCacheFor(type) {
+  clearCacheFor(type2) {
   }
   getModuleId(moduleType) {
     return void 0;
@@ -28184,7 +28184,7 @@ var IterableDiffers = class _IterableDiffers {
     };
   }
   find(iterable) {
-    const factory = this.factories.find((f) => f.supports(iterable));
+    const factory = this.factories.find((f2) => f2.supports(iterable));
     if (factory != null) {
       return factory;
     } else {
@@ -28192,8 +28192,8 @@ var IterableDiffers = class _IterableDiffers {
     }
   }
 };
-function getTypeNameForDebugging(type) {
-  return type["name"] || typeof type;
+function getTypeNameForDebugging(type2) {
+  return type2["name"] || typeof type2;
 }
 function defaultKeyValueDiffersFactory() {
   return new KeyValueDiffers([new DefaultKeyValueDifferFactory()]);
@@ -28228,7 +28228,7 @@ var KeyValueDiffers = class _KeyValueDiffers {
     };
   }
   find(kv) {
-    const factory = this.factories.find((f) => f.supports(kv));
+    const factory = this.factories.find((f2) => f2.supports(kv));
     if (factory) {
       return factory;
     }
@@ -28605,7 +28605,7 @@ function setModuleBootstrapImpl() {
 function _moduleDoBootstrap(moduleRef, allPlatformModules) {
   const appRef = moduleRef.injector.get(ApplicationRef);
   if (moduleRef._bootstrapComponents.length > 0) {
-    moduleRef._bootstrapComponents.forEach((f) => appRef.bootstrap(f));
+    moduleRef._bootstrapComponents.forEach((f2) => appRef.bootstrap(f2));
   } else if (moduleRef.instance.ngDoBootstrap) {
     moduleRef.instance.ngDoBootstrap(appRef);
   } else {
@@ -30176,9 +30176,9 @@ function getLocaleNumberSymbol(locale, symbol) {
   }
   return res;
 }
-function getLocaleNumberFormat(locale, type) {
+function getLocaleNumberFormat(locale, type2) {
   const data = findLocaleData(locale);
-  return data[LocaleDataIndex.NumberFormats][type];
+  return data[LocaleDataIndex.NumberFormats][type2];
 }
 function getLocaleCurrencies(locale) {
   const data = findLocaleData(locale);
@@ -30766,8 +30766,8 @@ function toDate(value) {
   if (typeof value === "string") {
     value = value.trim();
     if (/^(\d{4}(-\d{1,2}(-\d{1,2})?)?)$/.test(value)) {
-      const [y, m2 = 1, d2 = 1] = value.split("-").map((val) => +val);
-      return createDate(y, m2 - 1, d2);
+      const [y, m2 = 1, d = 1] = value.split("-").map((val) => +val);
+      return createDate(y, m2 - 1, d);
     }
     const parsedNb = parseFloat(value);
     if (!isNaN(value - parsedNb)) {
@@ -30856,7 +30856,7 @@ function formatNumberToLocaleString(value, pattern, locale, groupSymbol, decimal
     let integerLen = parsedNumber.integerLen;
     const exponent2 = parsedNumber.exponent;
     let decimals = [];
-    isZero = digits.every((d2) => !d2);
+    isZero = digits.every((d) => !d);
     for (; integerLen < minInt; integerLen++) {
       digits.unshift(0);
     }
@@ -31045,9 +31045,9 @@ function roundNumber(parsedNumber, minFrac, maxFrac) {
   for (; fractionLen < Math.max(0, fractionSize); fractionLen++) digits.push(0);
   let dropTrailingZeros = fractionSize !== 0;
   const minLen = minFrac + parsedNumber.integerLen;
-  const carry = digits.reduceRight(function(carry2, d2, i, digits2) {
-    d2 = d2 + carry2;
-    digits2[i] = d2 < 10 ? d2 : d2 - 10;
+  const carry = digits.reduceRight(function(carry2, d, i, digits2) {
+    d = d + carry2;
+    digits2[i] = d < 10 ? d : d - 10;
     if (dropTrailingZeros) {
       if (digits2[i] === 0 && i >= minLen) {
         digits2.pop();
@@ -31055,7 +31055,7 @@ function roundNumber(parsedNumber, minFrac, maxFrac) {
         dropTrailingZeros = false;
       }
     }
-    return d2 >= 10 ? 1 : 0;
+    return d >= 10 ? 1 : 0;
   }, 0);
   if (carry) {
     digits.unshift(carry);
@@ -31529,8 +31529,8 @@ var NgForOf = class _NgForOf {
 function applyViewChange(view, record) {
   view.context.$implicit = record.item;
 }
-function getTypeName(type) {
-  return type["name"] || typeof type;
+function getTypeName(type2) {
+  return type2["name"] || typeof type2;
 }
 var NgIf = class _NgIf {
   _viewContainer;
@@ -32044,8 +32044,8 @@ var NgTemplateOutlet = class _NgTemplateOutlet {
   });
 })();
 var COMMON_DIRECTIVES = [NgClass, NgComponentOutlet, NgForOf, NgIf, NgTemplateOutlet, NgStyle, NgSwitch, NgSwitchCase, NgSwitchDefault, NgPlural, NgPluralCase];
-function invalidPipeArgumentError(type, value) {
-  return new RuntimeError(2100, ngDevMode && `InvalidPipeArgument: '${value}' for pipe '${stringify(type)}'`);
+function invalidPipeArgumentError(type2, value) {
+  return new RuntimeError(2100, ngDevMode && `InvalidPipeArgument: '${value}' for pipe '${stringify(type2)}'`);
 }
 function warnIfSignal(pipeName, value) {
   if (isSignal2(value)) {
@@ -34370,16 +34370,16 @@ var DomRendererFactory2 = class _DomRendererFactory2 {
     this.tracingService = tracingService;
     this.defaultRenderer = new DefaultDomRenderer2(eventManager, doc, ngZone, this.tracingService);
   }
-  createRenderer(element, type) {
-    if (!element || !type) {
+  createRenderer(element, type2) {
+    if (!element || !type2) {
       return this.defaultRenderer;
     }
     if (false) {
-      type = __spreadProps(__spreadValues({}, type), {
+      type2 = __spreadProps(__spreadValues({}, type2), {
         encapsulation: ViewEncapsulation.Emulated
       });
     }
-    const renderer = this.getOrCreateRenderer(element, type);
+    const renderer = this.getOrCreateRenderer(element, type2);
     if (renderer instanceof EmulatedEncapsulationDomRenderer2) {
       renderer.applyToHost(element);
     } else if (renderer instanceof NoneEncapsulationDomRenderer) {
@@ -34387,9 +34387,9 @@ var DomRendererFactory2 = class _DomRendererFactory2 {
     }
     return renderer;
   }
-  getOrCreateRenderer(element, type) {
+  getOrCreateRenderer(element, type2) {
     const rendererByCompId = this.rendererByCompId;
-    let renderer = rendererByCompId.get(type.id);
+    let renderer = rendererByCompId.get(type2.id);
     if (!renderer) {
       const doc = this.doc;
       const ngZone = this.ngZone;
@@ -34397,19 +34397,19 @@ var DomRendererFactory2 = class _DomRendererFactory2 {
       const sharedStylesHost = this.sharedStylesHost;
       const removeStylesOnCompDestroy = this.removeStylesOnCompDestroy;
       const tracingService = this.tracingService;
-      switch (type.encapsulation) {
+      switch (type2.encapsulation) {
         case ViewEncapsulation.Emulated:
-          renderer = new EmulatedEncapsulationDomRenderer2(eventManager, sharedStylesHost, type, this.appId, removeStylesOnCompDestroy, doc, ngZone, tracingService);
+          renderer = new EmulatedEncapsulationDomRenderer2(eventManager, sharedStylesHost, type2, this.appId, removeStylesOnCompDestroy, doc, ngZone, tracingService);
           break;
         case ViewEncapsulation.ShadowDom:
-          return new ShadowDomRenderer(eventManager, element, type, doc, ngZone, this.nonce, tracingService, sharedStylesHost);
+          return new ShadowDomRenderer(eventManager, element, type2, doc, ngZone, this.nonce, tracingService, sharedStylesHost);
         case ViewEncapsulation.ExperimentalIsolatedShadowDom:
-          return new ShadowDomRenderer(eventManager, element, type, doc, ngZone, this.nonce, tracingService);
+          return new ShadowDomRenderer(eventManager, element, type2, doc, ngZone, this.nonce, tracingService);
         default:
-          renderer = new NoneEncapsulationDomRenderer(eventManager, sharedStylesHost, type, removeStylesOnCompDestroy, doc, ngZone, tracingService);
+          renderer = new NoneEncapsulationDomRenderer(eventManager, sharedStylesHost, type2, removeStylesOnCompDestroy, doc, ngZone, tracingService);
           break;
       }
-      rendererByCompId.set(type.id, renderer);
+      rendererByCompId.set(type2.id, renderer);
     }
     return renderer;
   }
@@ -36931,7 +36931,7 @@ function makeHttpFeature(kind, providers) {
 }
 function provideHttpClient(...features) {
   if (ngDevMode) {
-    const featureKinds = new Set(features.map((f) => f.\u0275kind));
+    const featureKinds = new Set(features.map((f2) => f2.\u0275kind));
     if (featureKinds.has(HttpFeatureKind.NoXsrfProtection) && featureKinds.has(HttpFeatureKind.CustomXsrfConfiguration)) {
       throw new Error(ngDevMode ? `Configuration error: found both withXsrfConfiguration() and withNoXsrfProtection() in the same call to provideHttpClient(), which is a contradiction.` : "");
     }
@@ -39146,7 +39146,7 @@ var ActivatedRoute = class {
     this.outlet = outlet;
     this.component = component;
     this._futureSnapshot = futureSnapshot;
-    this.title = this.dataSubject?.pipe(map((d2) => d2[RouteTitleKey])) ?? of(void 0);
+    this.title = this.dataSubject?.pipe(map((d) => d[RouteTitleKey])) ?? of(void 0);
     this.url = urlSubject;
     this.params = paramsSubject;
     this.queryParams = queryParamsSubject;
@@ -40106,10 +40106,10 @@ function runCanActivate(futureRSS, futureARS) {
 function runCanActivateChild(futureRSS, path) {
   const futureARS = path[path.length - 1];
   const canActivateChildGuards = path.slice(0, path.length - 1).reverse().map((p3) => getCanActivateChild(p3)).filter((_2) => _2 !== null);
-  const canActivateChildGuardsMapped = canActivateChildGuards.map((d2) => {
+  const canActivateChildGuardsMapped = canActivateChildGuards.map((d) => {
     return defer(() => {
-      const guardsMapped = d2.guards.map((canActivateChild) => {
-        const closestInjector = d2.node._environmentInjector;
+      const guardsMapped = d.guards.map((canActivateChild) => {
+        const closestInjector = d.node._environmentInjector;
         const guard = getTokenOrFunctionIdentity(canActivateChild, closestInjector);
         const guardVal = isCanActivateChild(guard) ? guard.canActivateChild(futureARS, futureRSS) : runInInjectionContext(closestInjector, () => guard(futureARS, futureRSS));
         return wrapIntoObservable(guardVal).pipe(first());
@@ -41914,7 +41914,7 @@ var Router = class _Router {
       queryParamsHandling,
       preserveFragment
     } = navigationExtras;
-    const f = preserveFragment ? this.currentUrlTree.fragment : fragment;
+    const f2 = preserveFragment ? this.currentUrlTree.fragment : fragment;
     let q = null;
     switch (queryParamsHandling ?? this.options.defaultQueryParamsHandling) {
       case "merge":
@@ -41939,7 +41939,7 @@ var Router = class _Router {
       }
       relativeToUrlSegmentGroup = this.currentUrlTree.root;
     }
-    return createUrlTreeFromSegmentGroup(relativeToUrlSegmentGroup, commands, q, f ?? null, this.urlSerializer);
+    return createUrlTreeFromSegmentGroup(relativeToUrlSegmentGroup, commands, q, f2 ?? null, this.urlSerializer);
   }
   navigateByUrl(url, extras = {
     skipLocationChange: false
@@ -47113,11 +47113,11 @@ function removeListItem$1(list2, el) {
   const index = list2.indexOf(el);
   if (index > -1) list2.splice(index, 1);
 }
-function _ngModelWarning(name, type, instance, warningConfig) {
+function _ngModelWarning(name, type2, instance, warningConfig) {
   if (warningConfig === "never") return;
-  if ((warningConfig === null || warningConfig === "once") && !type._ngModelWarningSentOnce || warningConfig === "always" && !instance._ngModelWarningSent) {
+  if ((warningConfig === null || warningConfig === "once") && !type2._ngModelWarningSentOnce || warningConfig === "always" && !instance._ngModelWarningSent) {
     console.warn(ngModelWarning(name));
-    type._ngModelWarningSentOnce = true;
+    type2._ngModelWarningSentOnce = true;
     instance._ngModelWarningSent = true;
   }
 }
@@ -50443,6 +50443,7 @@ var SIGNAGE_MANAGER = {
   PLAYLIST_COUNT_LABEL_N: "{{ count }} playlists",
   PLAYLIST_DESCRIPTION_ARIA: "Playlist description",
   PLAYLIST_DETAILS_TABS: "Playlist details tabs",
+  PLAYLIST_DISTRIBUTION: "Distribution Playlist",
   PLAYLIST_EDIT: "Edit Playlist",
   PLAYLIST_LABEL: "Playlist",
   PLAYLIST_NAME_ARIA: "Playlist name",
@@ -50490,6 +50491,9 @@ var SIGNAGE_MANAGER = {
   REQUEST_APPROVAL_SELECTED: "Request approval for selected playlist",
   REQUEST_PLAYLIST_APPROVAL_TOOLTIP: "Request playlist approval",
   SCHEDULE: "Schedule",
+  EDIT_SCHEDULE: "Edit Schedule",
+  ITEM_SCHEDULES: "Item Schedules",
+  NO_SCHEDULES: "No schedules",
   SCHEDULES_SUBTITLE: "Daily schedule timelines for signage displays and zones.",
   SCHEDULE_INTERVAL_ARIA: "Recurring schedule interval",
   SCHEDULE_NUMBER: "Schedule {{ number }}",
@@ -50867,6 +50871,7 @@ var COMMON = {
   BUILDING_ANY: "Any Building",
   BUILDING_ALL: "All Buildings",
   LEVEL_ANY: "Any Level",
+  LAST_UPDATED: "Updated {{ time }}",
   LEVEL_ALL: "All Levels",
   LEVEL_EMPTY: "No Level",
   ROOM_EMPTY: "No Room",
@@ -51380,6 +51385,7 @@ var BOOKINGS = {
   PARKING_SPACE_RESTRICTIONS_TITLE: "Space Restrictions",
   PARKING_SPACE_RESTRICTIONS_DESC: "Select any restrictions that apply to your vehicle or parking needs.",
   PARKING_RESTRICTION_NONE: "None",
+  PARKING_SPACE_RESTRICTION_REQUIRED: "Select a parking restriction other than None.",
   PARKING_RESTRICTION_OVERSIZED: "Requires oversized space",
   PARKING_SUMMARY_TITLE: "Summary + Submission",
   PARKING_ALLOCATION_INFO: "Allocation of parking spaces for the following week will occur the <strong>Friday afternoon prior</strong>. Requests received after allocation has occurred will automatically be <strong>waitlisted</strong> until a suitable space becomes available.",
@@ -51928,7 +51934,7 @@ var APP = {
     MENU_REPORT_ROOMS: "Room Bookings",
     MENU_REPORT_SITE_ATTENDANCE: "Site Attendance",
     MENU_REPORT_DESKS: "Desk Bookings",
-    MENU_REPORT_PARKING: "Parking Reservations",
+    MENU_REPORT_PARKING: "Parking Bookings",
     MENU_REPORT_LOCKERS: "Locker Bookings",
     MENU_REPORT_CATERING: "Catering Orders",
     MENU_REPORT_CONTACT_TRACING: "Contact Tracing",
@@ -51965,6 +51971,7 @@ var APP = {
     DESKS_NAME: "Desk Name",
     DESKS_SAVING: "Saving desk details...",
     DESKS_SAVE_ERROR: "Failed to save desk details. Error: {{ error }}",
+    DESKS_SELECT_LEVEL: "Select a level before modifying desks.",
     DESKS_ASSIGN_CONFLICT_ERROR: "This desk is currently booked. Please cancel the existing booking before assigning it.",
     DESKS_ASSIGN_LIMIT_ERROR_1: "Users can only have 1 assigned desk at a time.",
     DESKS_ASSIGN_LIMIT_ERROR_N: "Users can only have {{ count }} assigned desks at a time.",
@@ -52842,6 +52849,9 @@ var APP = {
     REPORTS_PRINT: "Print Report",
     REPORTS_EMPTY: "Select level(s) and date range to generate the report",
     REPORTS_BUSINESS_DAYS: "Business Days",
+    REPORTS_ALLOCATIONS: "Allocations",
+    REPORTS_REJECTED: "Rejected",
+    REPORTS_CANCELLED: "Cancelled",
     REPORTS_TOTAL_BOOKINGS: "Total Bookings",
     REPORTS_TOTAL_SITE_ATTENDANCE: "Total Site Attendance",
     REPORTS_TOTAL_RESERVATIONS: "Requests",
@@ -52853,9 +52863,6 @@ var APP = {
     REPORTS_NO_SHOWS_PERCENT: "% of No shows",
     REPORTS_TOTAL_ATTENDEES: "Total Room Attendees",
     REPORTS_ACTIVE_BOOKINGS_HEADER: "Active Bookings",
-    REPORTS_ALLOCATIONS: "Allocations",
-    REPORTS_REJECTED: "Rejected",
-    REPORTS_CANCELLED: "Cancelled",
     REPORTS_DAILY_HEADER: "Daily Utilisation",
     REPORTS_DAILY_EMPTY: "No bookings for the select date range",
     REPORTS_APPROVED: "Approved Bookings",
@@ -53485,7 +53492,7 @@ function Yn(t) {
     e += ue[t[n - 2] >> 2], e += ue[(t[n - 2] & 3) << 4 | t[n - 1] >> 4], e += ue[(t[n - 1] & 15) << 2 | t[n] >> 6], e += ue[t[n] & 63];
   return n === s + 1 && (e += ue[t[n - 2] >> 2], e += ue[(t[n - 2] & 3) << 4], e += "=="), n === s && (e += ue[t[n - 2] >> 2], e += ue[(t[n - 2] & 3) << 4 | t[n - 1] >> 4], e += ue[(t[n - 1] & 15) << 2], e += "="), e;
 }
-function Hs(t) {
+function zs(t) {
   if (t.length % 4 !== 0)
     throw new Error("Unable to parse base64 string.");
   const e = t.indexOf("=");
@@ -53496,13 +53503,13 @@ function Hs(t) {
     r = bt(t.charCodeAt(o)) << 18 | bt(t.charCodeAt(o + 1)) << 12 | bt(t.charCodeAt(o + 2)) << 6 | bt(t.charCodeAt(o + 3)), i[a] = r >> 16, i[a + 1] = r >> 8 & 255, i[a + 2] = r & 255;
   return i.subarray(0, i.length - n);
 }
-function zs(t, e = new TextEncoder()) {
+function Fs(t, e = new TextEncoder()) {
   return Yn(e.encode(t));
 }
 var vt = { exports: {} };
-var Fs = vt.exports;
+var Ls = vt.exports;
 var Fn;
-function Ls() {
+function js() {
   return Fn || (Fn = 1, (function(t) {
     (function(e, n) {
       var s = {};
@@ -53511,7 +53518,7 @@ function Ls() {
       for (var r in s)
         i[r] = s[r];
       t.exports = i;
-    })(Fs, function(e) {
+    })(Ls, function(e) {
       e.__esModule = true, e.digestLength = 32, e.blockSize = 64;
       var n = new Uint32Array([
         1116352408,
@@ -53579,17 +53586,17 @@ function Ls() {
         3204031479,
         3329325298
       ]);
-      function s(v, c, h, f, M2) {
+      function s(v, c, l, d, M2) {
         for (var x, R2, k, Q2, D2, E2, se, H2, j, z, Be, We, $t; M2 >= 64; ) {
           for (x = c[0], R2 = c[1], k = c[2], Q2 = c[3], D2 = c[4], E2 = c[5], se = c[6], H2 = c[7], z = 0; z < 16; z++)
-            Be = f + z * 4, v[z] = (h[Be] & 255) << 24 | (h[Be + 1] & 255) << 16 | (h[Be + 2] & 255) << 8 | h[Be + 3] & 255;
+            Be = d + z * 4, v[z] = (l[Be] & 255) << 24 | (l[Be + 1] & 255) << 16 | (l[Be + 2] & 255) << 8 | l[Be + 3] & 255;
           for (z = 16; z < 64; z++)
             j = v[z - 2], We = (j >>> 17 | j << 15) ^ (j >>> 19 | j << 13) ^ j >>> 10, j = v[z - 15], $t = (j >>> 7 | j << 25) ^ (j >>> 18 | j << 14) ^ j >>> 3, v[z] = (We + v[z - 7] | 0) + ($t + v[z - 16] | 0);
           for (z = 0; z < 64; z++)
             We = (((D2 >>> 6 | D2 << 26) ^ (D2 >>> 11 | D2 << 21) ^ (D2 >>> 25 | D2 << 7)) + (D2 & E2 ^ ~D2 & se) | 0) + (H2 + (n[z] + v[z] | 0) | 0) | 0, $t = ((x >>> 2 | x << 30) ^ (x >>> 13 | x << 19) ^ (x >>> 22 | x << 10)) + (x & R2 ^ x & k ^ R2 & k) | 0, H2 = se, se = E2, E2 = D2, D2 = Q2 + We | 0, Q2 = k, k = R2, R2 = x, x = We + $t | 0;
-          c[0] += x, c[1] += R2, c[2] += k, c[3] += Q2, c[4] += D2, c[5] += E2, c[6] += se, c[7] += H2, f += 64, M2 -= 64;
+          c[0] += x, c[1] += R2, c[2] += k, c[3] += Q2, c[4] += D2, c[5] += E2, c[6] += se, c[7] += H2, d += 64, M2 -= 64;
         }
-        return f;
+        return d;
       }
       var i = (
         /** @class */
@@ -53605,23 +53612,23 @@ function Ls() {
             for (var c = 0; c < this.temp.length; c++)
               this.temp[c] = 0;
             this.reset();
-          }, v.prototype.update = function(c, h) {
-            if (h === void 0 && (h = c.length), this.finished)
+          }, v.prototype.update = function(c, l) {
+            if (l === void 0 && (l = c.length), this.finished)
               throw new Error("SHA256: can't update because hash was finished.");
-            var f = 0;
-            if (this.bytesHashed += h, this.bufferLength > 0) {
-              for (; this.bufferLength < 64 && h > 0; )
-                this.buffer[this.bufferLength++] = c[f++], h--;
+            var d = 0;
+            if (this.bytesHashed += l, this.bufferLength > 0) {
+              for (; this.bufferLength < 64 && l > 0; )
+                this.buffer[this.bufferLength++] = c[d++], l--;
               this.bufferLength === 64 && (s(this.temp, this.state, this.buffer, 0, 64), this.bufferLength = 0);
             }
-            for (h >= 64 && (f = s(this.temp, this.state, c, f, h), h %= 64); h > 0; )
-              this.buffer[this.bufferLength++] = c[f++], h--;
+            for (l >= 64 && (d = s(this.temp, this.state, c, d, l), l %= 64); l > 0; )
+              this.buffer[this.bufferLength++] = c[d++], l--;
             return this;
           }, v.prototype.finish = function(c) {
             if (!this.finished) {
-              var h = this.bytesHashed, f = this.bufferLength, M2 = h / 536870912 | 0, x = h << 3, R2 = h % 64 < 56 ? 64 : 128;
-              this.buffer[f] = 128;
-              for (var k = f + 1; k < R2 - 8; k++)
+              var l = this.bytesHashed, d = this.bufferLength, M2 = l / 536870912 | 0, x = l << 3, R2 = l % 64 < 56 ? 64 : 128;
+              this.buffer[d] = 128;
+              for (var k = d + 1; k < R2 - 8; k++)
                 this.buffer[k] = 0;
               this.buffer[R2 - 8] = M2 >>> 24 & 255, this.buffer[R2 - 7] = M2 >>> 16 & 255, this.buffer[R2 - 6] = M2 >>> 8 & 255, this.buffer[R2 - 5] = M2 >>> 0 & 255, this.buffer[R2 - 4] = x >>> 24 & 255, this.buffer[R2 - 3] = x >>> 16 & 255, this.buffer[R2 - 2] = x >>> 8 & 255, this.buffer[R2 - 1] = x >>> 0 & 255, s(this.temp, this.state, this.buffer, 0, R2), this.finished = true;
             }
@@ -53632,12 +53639,12 @@ function Ls() {
             var c = new Uint8Array(this.digestLength);
             return this.finish(c), c;
           }, v.prototype._saveState = function(c) {
-            for (var h = 0; h < this.state.length; h++)
-              c[h] = this.state[h];
-          }, v.prototype._restoreState = function(c, h) {
-            for (var f = 0; f < this.state.length; f++)
-              this.state[f] = c[f];
-            this.bytesHashed = h, this.finished = false, this.bufferLength = 0;
+            for (var l = 0; l < this.state.length; l++)
+              c[l] = this.state[l];
+          }, v.prototype._restoreState = function(c, l) {
+            for (var d = 0; d < this.state.length; d++)
+              this.state[d] = c[d];
+            this.bytesHashed = l, this.finished = false, this.bufferLength = 0;
           }, v;
         })()
       );
@@ -53647,20 +53654,20 @@ function Ls() {
         (function() {
           function v(c) {
             this.inner = new i(), this.outer = new i(), this.blockSize = this.inner.blockSize, this.digestLength = this.inner.digestLength;
-            var h = new Uint8Array(this.blockSize);
+            var l = new Uint8Array(this.blockSize);
             if (c.length > this.blockSize)
-              new i().update(c).finish(h).clean();
+              new i().update(c).finish(l).clean();
             else
-              for (var f = 0; f < c.length; f++)
-                h[f] = c[f];
-            for (var f = 0; f < h.length; f++)
-              h[f] ^= 54;
-            this.inner.update(h);
-            for (var f = 0; f < h.length; f++)
-              h[f] ^= 106;
-            this.outer.update(h), this.istate = new Uint32Array(8), this.ostate = new Uint32Array(8), this.inner._saveState(this.istate), this.outer._saveState(this.ostate);
-            for (var f = 0; f < h.length; f++)
-              h[f] = 0;
+              for (var d = 0; d < c.length; d++)
+                l[d] = c[d];
+            for (var d = 0; d < l.length; d++)
+              l[d] ^= 54;
+            this.inner.update(l);
+            for (var d = 0; d < l.length; d++)
+              l[d] ^= 106;
+            this.outer.update(l), this.istate = new Uint32Array(8), this.ostate = new Uint32Array(8), this.inner._saveState(this.istate), this.outer._saveState(this.ostate);
+            for (var d = 0; d < l.length; d++)
+              l[d] = 0;
           }
           return v.prototype.reset = function() {
             return this.inner._restoreState(this.istate, this.inner.blockSize), this.outer._restoreState(this.ostate, this.outer.blockSize), this;
@@ -53680,41 +53687,41 @@ function Ls() {
       );
       e.HMAC = r;
       function o(v) {
-        var c = new i().update(v), h = c.digest();
-        return c.clean(), h;
+        var c = new i().update(v), l = c.digest();
+        return c.clean(), l;
       }
       e.hash = o, e.default = o;
       function a(v, c) {
-        var h = new r(v).update(c), f = h.digest();
-        return h.clean(), f;
+        var l = new r(v).update(c), d = l.digest();
+        return l.clean(), d;
       }
       e.hmac = a;
-      function y(v, c, h, f) {
-        var M2 = f[0];
+      function y(v, c, l, d) {
+        var M2 = d[0];
         if (M2 === 0)
           throw new Error("hkdf: cannot expand more");
-        c.reset(), M2 > 1 && c.update(v), h && c.update(h), c.update(f), c.finish(v), f[0]++;
+        c.reset(), M2 > 1 && c.update(v), l && c.update(l), c.update(d), c.finish(v), d[0]++;
       }
       var L2 = new Uint8Array(e.digestLength);
-      function P2(v, c, h, f) {
-        c === void 0 && (c = L2), f === void 0 && (f = 32);
-        for (var M2 = new Uint8Array([1]), x = a(c, v), R2 = new r(x), k = new Uint8Array(R2.digestLength), Q2 = k.length, D2 = new Uint8Array(f), E2 = 0; E2 < f; E2++)
-          Q2 === k.length && (y(k, R2, h, M2), Q2 = 0), D2[E2] = k[Q2++];
+      function P2(v, c, l, d) {
+        c === void 0 && (c = L2), d === void 0 && (d = 32);
+        for (var M2 = new Uint8Array([1]), x = a(c, v), R2 = new r(x), k = new Uint8Array(R2.digestLength), Q2 = k.length, D2 = new Uint8Array(d), E2 = 0; E2 < d; E2++)
+          Q2 === k.length && (y(k, R2, l, M2), Q2 = 0), D2[E2] = k[Q2++];
         return R2.clean(), k.fill(0), M2.fill(0), D2;
       }
       e.hkdf = P2;
-      function W2(v, c, h, f) {
-        for (var M2 = new r(v), x = M2.digestLength, R2 = new Uint8Array(4), k = new Uint8Array(x), Q2 = new Uint8Array(x), D2 = new Uint8Array(f), E2 = 0; E2 * x < f; E2++) {
+      function W2(v, c, l, d) {
+        for (var M2 = new r(v), x = M2.digestLength, R2 = new Uint8Array(4), k = new Uint8Array(x), Q2 = new Uint8Array(x), D2 = new Uint8Array(d), E2 = 0; E2 * x < d; E2++) {
           var se = E2 + 1;
           R2[0] = se >>> 24 & 255, R2[1] = se >>> 16 & 255, R2[2] = se >>> 8 & 255, R2[3] = se >>> 0 & 255, M2.reset(), M2.update(c), M2.update(R2), M2.finish(Q2);
           for (var H2 = 0; H2 < x; H2++)
             k[H2] = Q2[H2];
-          for (var H2 = 2; H2 <= h; H2++) {
+          for (var H2 = 2; H2 <= l; H2++) {
             M2.reset(), M2.update(Q2).finish(Q2);
             for (var j = 0; j < x; j++)
               k[j] ^= Q2[j];
           }
-          for (var H2 = 0; H2 < x && E2 * x + H2 < f; H2++)
+          for (var H2 = 0; H2 < x && E2 * x + H2 < d; H2++)
             D2[E2 * x + H2] = k[H2];
         }
         for (var E2 = 0; E2 < x; E2++)
@@ -53727,8 +53734,8 @@ function Ls() {
     });
   })(vt)), vt.exports;
 }
-var js = Ls();
-var Gs = new Int32Array(4);
+var Gs = js();
+var Bs = new Int32Array(4);
 var K = class _K {
   static hashStr(e, n = false) {
     return this.onePassHasher.start().appendStr(e).end(n);
@@ -53886,7 +53893,7 @@ var K = class _K {
       i[14] = o;
     else {
       const a = o.toString(16).match(/(.*?)(.{0,8})$/);
-      if (a === null) return e ? Gs : "";
+      if (a === null) return e ? Bs : "";
       const y = parseInt(a[2], 16), L2 = parseInt(a[1], 16) || 0;
       i[14] = y, i[15] = L2;
     }
@@ -53895,7 +53902,7 @@ var K = class _K {
 };
 if (K.hashStr("hello") !== "5d41402abc4b2a76b9719d911017c592")
   throw new Error("Md5 self test failed.");
-var Bs = 36e5;
+var Ws = 36e5;
 var Ln = /* @__PURE__ */ Symbol.for("constructDateFrom");
 function St(t, e) {
   return typeof t == "function" ? t(e) : t && typeof t == "object" && Ln in t ? t[Ln](e) : t instanceof Date ? new t.constructor(e) : new Date(e);
@@ -53903,7 +53910,7 @@ function St(t, e) {
 function Ze(t, e) {
   return St(t, t);
 }
-function Ws(t, e, n) {
+function Qs(t, e, n) {
   const s = Ze(t);
   if (isNaN(e)) return St(t, NaN);
   const i = s.getDate(), r = St(t, s.getTime());
@@ -53918,16 +53925,16 @@ function Ws(t, e, n) {
 function Vn(t, e, n) {
   return St(t, +Ze(t) + e);
 }
-function Qs(t, e, n) {
-  return Vn(t, e * Bs);
-}
 function Ks(t, e, n) {
-  return Vn(t, e * 1e3);
+  return Vn(t, e * Ws);
 }
 function Zs(t, e, n) {
-  return Ws(t, e * 12);
+  return Vn(t, e * 1e3);
 }
-function yn(t) {
+function Js(t, e, n) {
+  return Qs(t, e * 12);
+}
+function $n(t) {
   return Math.trunc(+Ze(t) / 1e3);
 }
 function Xn(t, e) {
@@ -53956,13 +53963,13 @@ function es() {
   if (t)
     if (t.indexOf("?") >= 0) {
       const i = t.split("?");
-      n = Ie(i[0]), e || (e = i[1]);
+      n = Te(i[0]), e || (e = i[1]);
     } else
-      n = Ie(t);
+      n = Te(t);
   let s = {};
-  return e && (s = Ie(e)), __spreadValues(__spreadValues({}, n), s);
+  return e && (s = Te(e)), __spreadValues(__spreadValues({}, n), s);
 }
-function Ie(t) {
+function Te(t) {
   const e = {}, n = t.split("&");
   for (const s of n) {
     const i = s.split("=");
@@ -53999,7 +54006,7 @@ function ie(t) {
     `${window.location?.pathname}${e}${n}`
   );
 }
-function Js(t) {
+function Ys(t) {
   if (t.length === 0)
     throw new Error("Input must not be of zero length");
   const e = t.split(","), n = {};
@@ -54012,12 +54019,12 @@ function Js(t) {
   }
   return n;
 }
-function Ys(t, e) {
+function Vs(t, e) {
   for (const n in t)
     t.hasOwnProperty(n) && e.indexOf(t[n]) >= 0 && delete t[n];
   return t;
 }
-function Vs() {
+function Xs() {
   return [
     "iPad Simulator",
     "iPhone Simulator",
@@ -54028,13 +54035,13 @@ function Vs() {
   ].includes(navigator.platform) || // iPad on iOS 13 detection
   navigator.userAgent.includes("Mac") && "ontouchend" in document;
 }
-function Xs() {
+function ei() {
   return window.location !== window.parent.location;
 }
-function ei(t = Date.now(), e = 60 * 1e3) {
+function ti(t = Date.now(), e = 60 * 1e3) {
   return Math.floor(t / e);
 }
-var ti = class {
+var ni = class {
   abort() {
     xt("Stub", "Aborted");
   }
@@ -54051,7 +54058,7 @@ function b(t) {
 var xe = {};
 function re(t, e, n = 300) {
   if (t && e && e instanceof Function)
-    _e(t), xe[t] = setTimeout(() => {
+    me(t), xe[t] = setTimeout(() => {
       e(), delete xe[t];
     }, n);
   else
@@ -54059,7 +54066,7 @@ function re(t, e, n = 300) {
       t ? "Cannot create named timeout without a name" : "Cannot create a timeout without a callback"
     );
 }
-function _e(t) {
+function me(t) {
   xe[t] && (clearTimeout(xe[t]), delete xe[t]);
 }
 function ne(t) {
@@ -54076,7 +54083,7 @@ function ne(t) {
       o(e, r);
   }, s.update = (i) => s.set(i(e)), s.asReadonly = () => s, s;
 }
-function ri(t, e = Boolean) {
+function oi(t, e = Boolean) {
   return e(t.value) ? Promise.resolve(t.value) : new Promise((n) => {
     const s = t.subscribe(
       (i) => {
@@ -54086,10 +54093,10 @@ function ri(t, e = Boolean) {
     );
   });
 }
-function oi(t) {
+function ui(t) {
   return new Promise((e) => setTimeout(e, t));
 }
-var ui = {
+var ci = {
   id: "mock-authority",
   name: "localhost:4200",
   description: "",
@@ -54106,23 +54113,23 @@ var _ = {};
 var A = localStorage;
 var N;
 var m = {};
-var I = "";
-var me = "";
-var ge = ne("");
+var T = "";
+var ge = "";
+var ye = ne("");
 var Je = ne("");
-var bn = "/api/engine/v2";
-var pe = ne(false);
-var vn = ne(false);
+var vn = "/api/engine/v2";
+var _e = ne(false);
+var kn = ne(false);
 var qt = 0;
 function ns() {
   if (_.mock) return true;
   if (!A) return false;
   if (Ye() && !_.ignore_api_key) return true;
-  const t = A.getItem(`${I}_expires_at`) || "";
-  return Xn(+t, /* @__PURE__ */ new Date()) ? false : !!(ge.value || A.getItem(`${I}_access_token`));
+  const t = A.getItem(`${T}_expires_at`) || "";
+  return Xn(+t, /* @__PURE__ */ new Date()) ? false : !!(ye.value || A.getItem(`${T}_access_token`));
 }
-function Oe() {
-  vn.set(ns());
+function Ce() {
+  kn.set(ns());
 }
 function ss(t) {
   if (!t || t.startsWith("http://") || t.startsWith("https://"))
@@ -54134,29 +54141,29 @@ function u2() {
   return `${`${_.secure || window.location?.protocol.indexOf("https") >= 0 ? "https:" : "http:"}//${_.host || window.location?.host}`}${is()}`;
 }
 function is() {
-  return _.version === "ACA Engine" ? "/control/api" : bn;
-}
-function ci() {
-  return !!_.token_header;
+  return _.version === "ACA Engine" ? "/control/api" : vn;
 }
 function ai() {
-  return I;
+  return !!_.token_header;
 }
-function Nr(t, e = true) {
-  A.setItem(`${I}_x-api-key`, `${t}`), A.setItem("trusted", `${e}`), hi("x-api-key", Zs(/* @__PURE__ */ new Date(), 5).valueOf());
+function hi() {
+  return T;
+}
+function Hr(t, e = true) {
+  A.setItem(`${T}_x-api-key`, `${t}`), A.setItem("trusted", `${e}`), li("x-api-key", Js(/* @__PURE__ */ new Date(), 5).valueOf());
 }
 function Ye() {
   return Ut("x-api-key", false) || "";
 }
-function hi(t, e = Qs(/* @__PURE__ */ new Date(), 2).valueOf()) {
-  _.ignore_api_key && t === "x-api-key" || (A.setItem(`${I}_expires_at`, `${e}`), A.setItem(`${I}_access_token`, t), ge.set(t), Oe());
+function li(t, e = Ks(/* @__PURE__ */ new Date(), 2).valueOf()) {
+  _.ignore_api_key && t === "x-api-key" || (A.setItem(`${T}_expires_at`, `${e}`), A.setItem(`${T}_access_token`, t), ye.set(t), Ce());
 }
-function V(t = true) {
+function X(t = true) {
   if (_.mock) return "mock-token";
   if (!A) return "";
   if (Ye() && !_.ignore_api_key) return "x-api-key";
-  const e = A.getItem(`${I}_expires_at`) || "", n = ge.value;
-  return Xn(+e, /* @__PURE__ */ new Date()) && (p("Token expired. Requesting new token..."), An(), m.load_authority || (qt += 1, re(
+  const e = A.getItem(`${T}_expires_at`) || "", n = ye.value;
+  return Xn(+e, /* @__PURE__ */ new Date()) && (p("Token expired. Requesting new token..."), qn(), m.load_authority || (qt += 1, re(
     "re-authorise",
     async () => {
       delete m.authorise, await wt().catch(
@@ -54164,33 +54171,33 @@ function V(t = true) {
       );
     },
     200 * Math.min(20, qt)
-  )), !t) ? "" : n || A.getItem(`${I}_access_token`) || "";
+  )), !t) ? "" : n || A.getItem(`${T}_access_token`) || "";
 }
 function Pt() {
-  return Je.value || A.getItem(`${I}_refresh_token`) || "";
+  return Je.value || A.getItem(`${T}_refresh_token`) || "";
 }
-function $n() {
+function bn() {
   return _.host || window.location?.host;
 }
-function li() {
-  return Oe(), vn.asReadonly();
+function di() {
+  return Ce(), kn.asReadonly();
 }
 function Rt() {
   return N;
 }
-function Dr() {
-  return pe.value;
+function Fr() {
+  return _e.value;
 }
-function kn() {
+function Sn() {
   return !!_.mock;
 }
 function fi() {
   return !!_.secure;
 }
-function Hr() {
-  return pe.asReadonly();
+function Lr() {
+  return _e.asReadonly();
 }
-function Sn() {
+function xn() {
   return Ut("trust") === "true" || Ut("trusted") === "true";
 }
 function rs() {
@@ -54199,35 +54206,35 @@ function rs() {
 function Ut(t, e = true) {
   let s = es()[t];
   if (A) {
-    const i = `${ai()}_${t}`;
+    const i = `${hi()}_${t}`;
     s = s || A.getItem(i) || A.getItem(t) || "", e && A.setItem(i, `${s}`);
   }
   return s;
 }
-async function zr(t) {
-  return _ = t || _, _.token_header = _.token_header ?? Xs(), window.AbortController || (window.AbortController = ti), A = _.storage === "session" ? sessionStorage : localStorage, I = K.hashStr(_.redirect_uri, false), di(), _.delay && _.delay > 0 && await oi(_.delay), qn();
+async function jr(t) {
+  return _ = t || _, _.token_header = _.token_header ?? ei(), window.AbortController || (window.AbortController = ni), A = _.storage === "session" ? sessionStorage : localStorage, T = K.hashStr(_.redirect_uri, false), pi(), _.delay && _.delay > 0 && await ui(_.delay), Pn();
 }
-var Tt = false;
-function di() {
-  Tt || (Tt = true, window.addEventListener("focus", It), document.addEventListener("visibilitychange", It));
+var It = false;
+function pi() {
+  It || (It = true, window.addEventListener("focus", Tt), document.addEventListener("visibilitychange", Tt));
 }
-async function It() {
+async function Tt() {
   if (document.visibilityState === "hidden" || _.mock || !N || N.session || ns()) return;
-  if (delete m.check_params, await us().catch(() => false) || me || Pt()) {
-    p("Application focused with new credentials. Authorising..."), Ce = false, delete m.authorise, await wt().catch(
+  if (delete m.check_params, await us().catch(() => false) || ge || Pt()) {
+    p("Application focused with new credentials. Authorising..."), Oe = false, delete m.authorise, await wt().catch(
       (e) => p.error("Failed to authorise on focus:", e)
     );
     return;
   }
-  p("Application focused without a session. Reloading authority..."), Ce = false, xn().catch(
+  p("Application focused without a session. Reloading authority..."), Oe = false, An().catch(
     (e) => p.error("Failed to refresh authority:", e)
   );
 }
-function xn() {
-  return p("Refreshing authorty."), N = void 0, qn();
-}
 function An() {
-  p("Invalidating tokens."), A.removeItem(`${I}_access_token`), A.removeItem(`${I}_expires_at`), ge.value && ge.set(""), Oe();
+  return p("Refreshing authorty."), N = void 0, Pn();
+}
+function qn() {
+  p("Invalidating tokens."), A.removeItem(`${T}_access_token`), A.removeItem(`${T}_expires_at`), ye.value && ye.set(""), Ce();
 }
 function wt(t, e = N) {
   return m.authorise || (m.authorise = new Promise((n, s) => {
@@ -54235,29 +54242,29 @@ function wt(t, e = N) {
       return delete m.authorise, s("Authority is not loaded");
     p("Authorising user...");
     const i = () => {
-      if (V(false))
-        p("Valid token found."), delete m.authorise, n(V());
+      if (X(false))
+        p("Valid token found."), delete m.authorise, n(X());
       else {
         const r = [
           () => {
-            p("Successfully generated token."), n(V()), delete m.authorise;
+            p("Successfully generated token."), n(X()), delete m.authorise;
           },
           () => {
             p.error("Failed to generate token."), s("Failed to generate token"), setTimeout(() => delete m.authorise, 200);
           }
         ];
         if (_ && _.auth_type === "password")
-          p("Logging in with credentials."), ki(_).then(
+          p("Logging in with credentials."), Si(_).then(
             ...r
           ), qt = 0;
-        else if (me || Pt())
+        else if (ge || Pt())
           p(
-            `Generating token with ${me ? "code" : "refresh token"}`
+            `Generating token with ${ge ? "code" : "refresh token"}`
           ), cs().then(...r), qt = 0;
         else if (e.session)
           p(
             "Users has session. Authorising application..."
-          ), _i(t).then(...r);
+          ), mi(t).then(...r);
         else {
           p("No user session"), s("No user session"), setTimeout(() => delete m.authorise, 200);
           try {
@@ -54267,49 +54274,49 @@ function wt(t, e = N) {
         }
       }
     };
-    gi().then(i, i);
+    yi().then(i, i);
   })), m.authorise;
 }
-function qn(t = 0) {
+function Pn(t = 0) {
   return m.load_authority || (m.load_authority = new Promise((e) => {
-    if (pe.set(false), _.mock) {
-      N = ui, p("System in mock mode"), pe.set(true), e();
+    if (_e.set(false), _.mock) {
+      N = ci, p("System in mock mode"), _e.set(true), e();
       return;
     }
-    p(`Fixed: ${rs()} | Trusted: ${Sn()}`), p("Loading authority...");
+    p(`Fixed: ${rs()} | Trusted: ${xn()}`), p("Loading authority...");
     const n = _.secure || window.location?.protocol.indexOf("https") >= 0, s = (i) => {
-      p.error(`Failed to load authority(${i})`), pe.set(false), re(
+      p.error(`Failed to load authority(${i})`), _e.set(false), re(
         "load_authority",
         () => {
-          delete m.load_authority, qn(t).then((r) => e());
+          delete m.load_authority, Pn(t).then((r) => e());
         },
         300 * Math.min(20, ++t)
       );
     };
-    fetch(`${n ? "https:" : "http:"}//${$n()}/auth/authority`, {
+    fetch(`${n ? "https:" : "http:"}//${bn()}/auth/authority`, {
       credentials: "same-origin"
     }).then(async (i) => {
       if (!i.ok)
         return s(await i.text().catch((o) => o));
-      N = await i.json(), bn = /[2-9]\.[0-9]+\.[0-9]+/g.test(
+      N = await i.json(), vn = /[2-9]\.[0-9]+\.[0-9]+/g.test(
         N.version || ""
       ) ? "/api/engine/v2" : "/control/api", p.group("Loaded authority."), N && (p(`Name: ${N.name}`), p(`Version: ${N.version}`), p(`Domain: ${N.domain}`), p(`Session: ${N.session}`), p(`Production: ${N.production}`), p(
         `Config Keys: ${Object.keys(N.config || {}).length}`
       )), p.groupEnd("");
       const r = () => {
-        pe.set(true), p("Application set online."), e();
+        _e.set(true), p("Application set online."), e();
       };
       delete m.load_authority, wt("").then(r, r);
     }, s);
   })), m.load_authority;
 }
-async function _i(t) {
-  const e = yi(t);
+async function mi(t) {
+  const e = $i(t);
   if (_.use_iframe)
-    return mi(e);
+    return gi(e);
   window.location?.assign(e);
 }
-function mi(t) {
+function gi(t) {
   return m.iframe_auth || (m.iframe_auth = new Promise((e, n) => {
     p("Authorizing in an iFrame...");
     const s = document.createElement("iframe");
@@ -54317,11 +54324,11 @@ function mi(t) {
     const i = (o) => {
       if (o.origin === window.location?.origin && o.data.type === "place-os") {
         const a = o.data;
-        if (p("Received credentials from iFrame..."), document.body.removeChild(s), _e("iframe_auth"), window.removeEventListener("message", i), delete m.iframe_auth, a.token)
-          return e(), Pn(__spreadValues({
+        if (p("Received credentials from iFrame..."), document.body.removeChild(s), me("iframe_auth"), window.removeEventListener("message", i), delete m.iframe_auth, a.token)
+          return e(), Rn(__spreadValues({
             access_token: a.token
           }, a));
-        me = a.code || "", cs().then(
+        ge = a.code || "", cs().then(
           (y) => e(y),
           (y) => n(y)
         );
@@ -54336,13 +54343,13 @@ function mi(t) {
       },
       15 * 1e3
     ), window.addEventListener("message", i), s.onerror = (o) => {
-      p.error("iFrame error.", o), _e("iframe_auth"), r(), n();
+      p.error("iFrame error.", o), me("iframe_auth"), r(), n();
     }, document.body.appendChild(s);
   })), m.iframe_auth;
 }
-var Ce = false;
+var Oe = false;
 function os(t) {
-  if (_.handle_login !== false && !Ce) {
+  if (_.handle_login !== false && !Oe) {
     p("Redirecting to login page...");
     const e = ss(
       t.login_url?.replace(
@@ -54350,14 +54357,14 @@ function os(t) {
         encodeURIComponent(window.location?.href)
       )
     );
-    throw setTimeout(() => window.location?.assign(e), 300), Ce = true, new Error("Redirecting to login page...");
+    throw setTimeout(() => window.location?.assign(e), 300), Oe = true, new Error("Redirecting to login page...");
   } else
     p("Login being handled locally.");
   delete m.authorise;
 }
-function gi() {
+function yi() {
   return m.check_token || (m.check_token = new Promise(async (t, e) => {
-    V() ? (p("Valid token found."), t(V())) : (p("No token. Checking URL for auth credentials..."), await us() ? t(true) : e()), delete m.check_token;
+    X() ? (p("Valid token found."), t(X())) : (p("No token. Checking URL for auth credentials..."), await us() ? t(true) : e()), delete m.check_token;
   })), m.check_token;
 }
 function us() {
@@ -54367,13 +54374,13 @@ function us() {
     if ((!e || Object.keys(e).length <= 0) && sessionStorage && (e = JSON.parse(
       sessionStorage.getItem("ENGINE.auth.params") || "{}"
     ), sessionStorage.removeItem("ENGINE.auth.params")), e && (e.code || e.access_token || e.refresh_token)) {
-      const n = A.getItem(`${I}_nonce`) || "", s = (e.state || "").split(";");
+      const n = A.getItem(`${T}_nonce`) || "", s = (e.state || "").split(";");
       ie("state"), ie("token_type");
       const i = s[0];
-      n === i ? (e.code && (me = e.code, ie("code")), e.refresh_token && (A.setItem(
-        `${I}_refresh_token`,
+      n === i ? (e.code && (ge = e.code, ie("code")), e.refresh_token && (A.setItem(
+        `${T}_refresh_token`,
         e.refresh_token
-      ), ie("refresh_token")), Pn(e), t(!!e.access_token)) : (ie("code"), ie("access_token"), ie("refresh_token"), t(false));
+      ), ie("refresh_token")), Rn(e), t(!!e.access_token)) : (ie("code"), ie("access_token"), ie("refresh_token"), t(false));
     } else
       t(false);
     re(
@@ -54383,38 +54390,38 @@ function us() {
     );
   })), m.check_params;
 }
-function yi(t) {
-  const e = Si();
+function $i(t) {
+  const e = xi();
   t = t ? `${e};${t}` : e;
-  const n = _ ? (_.auth_uri || "").indexOf("?") >= 0 : false, s = (_ ? _.auth_uri : null) || "/auth/oauth/authorize", i = Sn() || _.auth_type === "auth_code" ? "code" : "token";
-  let r = `${s}${n ? "&" : "?"}response_type=${encodeURIComponent(i)}&client_id=${encodeURIComponent(I)}&state=${encodeURIComponent(t)}&redirect_uri=${encodeURIComponent(_.redirect_uri)}&scope=${encodeURIComponent(_.scope)}`;
+  const n = _ ? (_.auth_uri || "").indexOf("?") >= 0 : false, s = (_ ? _.auth_uri : null) || "/auth/oauth/authorize", i = xn() || _.auth_type === "auth_code" ? "code" : "token";
+  let r = `${s}${n ? "&" : "?"}response_type=${encodeURIComponent(i)}&client_id=${encodeURIComponent(T)}&state=${encodeURIComponent(t)}&redirect_uri=${encodeURIComponent(_.redirect_uri)}&scope=${encodeURIComponent(_.scope)}`;
   if (_.auth_type === "auth_code") {
-    const { challenge: o, verify: a } = $i();
-    sessionStorage.setItem(`${I}_challenge`, o), r += "&code_challenge_method=S256", r += `&code_challenge=${a}`;
+    const { challenge: o, verify: a } = bi();
+    sessionStorage.setItem(`${T}_challenge`, o), r += "&code_challenge_method=S256", r += `&code_challenge=${a}`;
   }
   return r;
 }
-function $i(t = 43) {
-  const e = ts(t), n = Hs(zs(e)), s = Yn(js.hash(n)).split("=")[0].replace(/\//g, "_").replace(/\+/g, "-");
+function bi(t = 43) {
+  const e = ts(t), n = zs(Fs(e)), s = Yn(Gs.hash(n)).split("=")[0].replace(/\//g, "_").replace(/\+/g, "-");
   return { challenge: e, verify: s };
 }
-function bi() {
-  let e = (_.token_uri || "/auth/token") + `?client_id=${encodeURIComponent(I)}`, n = "";
+function vi() {
+  let e = (_.token_uri || "/auth/token") + `?client_id=${encodeURIComponent(T)}`, n = "";
   if (e += `&redirect_uri=${encodeURIComponent(_.redirect_uri)}`, Pt()) {
     e += `&refresh_token=${encodeURIComponent(Pt())}`, e += "&grant_type=refresh_token";
     const s = e.indexOf("?");
     n = e.slice(s + 1), e = e.slice(0, s);
   } else {
-    e += `&code=${encodeURIComponent(me)}`, e += "&grant_type=authorization_code";
-    const s = sessionStorage.getItem(`${I}_challenge`);
-    s && (e += `&code_verifier=${s}`, sessionStorage.removeItem(`${I}_challenge`)), me = "";
+    e += `&code=${encodeURIComponent(ge)}`, e += "&grant_type=authorization_code";
+    const s = sessionStorage.getItem(`${T}_challenge`);
+    s && (e += `&code_verifier=${s}`, sessionStorage.removeItem(`${T}_challenge`)), ge = "";
   }
   return [e, n];
 }
-function vi(t) {
+function ki(t) {
   const e = t.token_uri || "/auth/token", n = b({
     grant_type: "password",
-    client_id: I,
+    client_id: T,
     client_secret: t.client_secret,
     redirect_uri: t.redirect_uri,
     authority: N?.id,
@@ -54425,16 +54432,16 @@ function vi(t) {
   return `${e}?${n}`;
 }
 function cs() {
-  return as(...bi());
+  return as(...vi());
 }
-function ki(t) {
-  return as(vi(t));
+function Si(t) {
+  return as(ki(t));
 }
 function as(t, e = "") {
   return m.generate_tokens || (m.generate_tokens = new Promise((n, s) => {
     p("Generating new token...");
     const i = (r) => {
-      p.error("Error generating new tokens:", r), r && r.status >= 400 && r.status < 500 && (A.removeItem(`${I}_refresh_token`), Je.set("")), Oe(), s(), delete m.generate_tokens;
+      p.error("Error generating new tokens:", r), r && r.status >= 400 && r.status < 500 && (A.removeItem(`${T}_refresh_token`), Je.set("")), Ce(), s(), delete m.generate_tokens;
     };
     fetch(t, {
       method: "POST",
@@ -54445,26 +54452,26 @@ function as(t, e = "") {
     }).then(async (r) => {
       if (!r.ok) return i(r);
       const o = await r.json();
-      Pn(o), n(), delete m.generate_tokens;
+      Rn(o), n(), delete m.generate_tokens;
     }, i);
   })), m.generate_tokens;
 }
-function Pn(t) {
-  const e = Ks(
+function Rn(t) {
+  const e = Zs(
     /* @__PURE__ */ new Date(),
     Math.max(60, parseInt(t.expires_in, 10) - 300)
   );
-  p("Tokens generated storing..."), Sn() && (t.access_token && (A.setItem(
-    `${I}_access_token`,
+  p("Tokens generated storing..."), xn() && (t.access_token && (A.setItem(
+    `${T}_access_token`,
     t.access_token
   ), ie("access_token")), t.refresh_token && (A.setItem(
-    `${I}_refresh_token`,
+    `${T}_refresh_token`,
     t.refresh_token
-  ), ie("refresh_token"))), t.expires_in && (A.setItem(`${I}_expires_at`, `${e.valueOf()}`), ie("expires_in")), pe.set(true), ge.set(t.access_token || ""), Je.set(t.refresh_token || ""), Oe();
+  ), ie("refresh_token"))), t.expires_in && (A.setItem(`${T}_expires_at`, `${e.valueOf()}`), ie("expires_in")), _e.set(true), ye.set(t.access_token || ""), Je.set(t.refresh_token || ""), Ce();
 }
-function Si() {
+function xi() {
   const t = ts();
-  return A.setItem(`${I}_nonce`, t), t;
+  return A.setItem(`${T}_nonce`, t), t;
 }
 var Ae = Nt("HTTP(M)");
 var Dt = {};
@@ -54472,11 +54479,11 @@ var hs = (t, e) => {
   const n = new Error(`Mock endpoint not found: ${t} ${e}`);
   return n.status = 404, Ae(`404 ${t}:`, e), Promise.reject(n);
 };
-function Ai(t, e, n, s = Dt) {
-  const i = qi(t, e, s);
+function qi(t, e, n, s = Dt) {
+  const i = Pi(t, e, s);
   if (i) {
-    const r = Pi(e, i, n);
-    return Ri(i, r);
+    const r = Ri(e, i, n);
+    return Ui(i, r);
   }
   try {
     return hs(t, e);
@@ -54484,7 +54491,7 @@ function Ai(t, e, n, s = Dt) {
     return Ae.error(`ERROR ${t}:`, [e, r]), Promise.reject(r);
   }
 }
-function qi(t, e, n = Dt) {
+function Pi(t, e, n = Dt) {
   const i = e.replace(/(http|https):\/\/[a-zA-Z0-9.-]*:?([0-9]*)?/g, "").replace(/^\//, "").split("?")[0].split("/"), r = Object.keys(
     n
   ).reduce((o, a) => (a.indexOf(`${t}|`) === 0 && o.push(n[a]), o), []);
@@ -54501,8 +54508,8 @@ function qi(t, e, n = Dt) {
     }
   return null;
 }
-function Pi(t, e, n) {
-  const s = t.replace(/(http|https):\/\/[a-zA-Z0-9.-]*:?([0-9]*)?/g, "").split("?"), i = s[0].replace(/^\//, ""), r = s[1] || "", o = Ie(r), a = i.split("/"), y = {};
+function Ri(t, e, n) {
+  const s = t.replace(/(http|https):\/\/[a-zA-Z0-9.-]*:?([0-9]*)?/g, "").split("?"), i = s[0].replace(/^\//, ""), r = s[1] || "", o = Te(r), a = i.split("/"), y = {};
   for (let P2 = 0; P2 < e.path_structure.length; P2++) {
     const W2 = e.path_structure[P2];
     W2 && (y[W2] = a[P2]);
@@ -54518,7 +54525,7 @@ function Pi(t, e, n) {
   };
   return Ae(`MATCHED ${L2.method}:`, L2), L2;
 }
-function Ri(t, e) {
+function Ui(t, e) {
   let n;
   try {
     n = t.callback ? t.callback(e) : t.metadata;
@@ -54530,21 +54537,21 @@ function Ri(t, e) {
     setTimeout(() => o(n), Math.max(200, r));
   });
 }
-var Ui = Nt("HTTP");
+var Ii = Nt("HTTP");
 var ls = {};
 function Ti(t, e = ls) {
   return e[t] || {};
 }
-function d(t, e, n = Ve) {
+function f(t, e, n = Ve) {
   return e || (e = { response_type: "json" }), n("GET", t, __spreadValues({ response_type: "json" }, e));
 }
 function ce(t, e, n, s = Ve) {
   return n || (n = { response_type: "json" }), s("PUT", t, __spreadValues({ body: e, response_type: "json" }, n));
 }
-function ye(t, e, n, s = Ve) {
+function ae(t, e, n, s = Ve) {
   return n || (n = { response_type: "json" }), s("PATCH", t, __spreadValues({ body: e, response_type: "json" }, n));
 }
-async function Ii(t, e, n = ls) {
+async function Ei(t, e, n = ls) {
   if (t.headers) {
     const s = {};
     t.headers.forEach ? t.headers.forEach((i, r) => s[r.toLowerCase()] = i) : Object.keys(t.headers).forEach(
@@ -54562,15 +54569,15 @@ async function Ii(t, e, n = ls) {
       return await t.json().catch(() => ({}));
   }
 }
-var fs = () => (An(), xn().then(
+var ds = () => (qn(), An().then(
   () => Promise.resolve(),
   () => new Promise((t) => {
     setTimeout(() => {
-      fs().then(() => t());
+      ds().then(() => t());
     }, 1e3);
   })
 ));
-function Ve(t, e, n, s = kn, i = Ai, r = Ii) {
+function Ve(t, e, n, s = Sn, i = qi, r = Ei) {
   if (s()) {
     const P2 = i(t, e, n?.body);
     if (P2) return P2;
@@ -54583,7 +54590,7 @@ function Ve(t, e, n, s = kn, i = Ai, r = Ii) {
     });
     return delete P2.response_type, delete P2.skip_auth, delete P2.skip_auth_flow, ["POST", "PUT", "PATCH"].includes(t) && n.body !== void 0 && (P2.body = typeof n.body == "string" ? n.body : JSON.stringify(n.body)), fetch(e, P2);
   }, a = async () => {
-    n.skip_auth || (await ri(li(), Boolean), V() === "x-api-key" ? n.headers["X-API-Key"] = Ye() : n.headers.Authorization = `Bearer ${V()}`);
+    n.skip_auth || (await oi(di(), Boolean), X() === "x-api-key" ? n.headers["X-API-Key"] = Ye() : n.headers.Authorization = `Bearer ${X()}`);
     const P2 = await o();
     if (P2.ok) return r(P2, n.response_type);
     throw P2;
@@ -54596,7 +54603,7 @@ function Ve(t, e, n, s = kn, i = Ai, r = Ii) {
       if (W2.status === 511)
         throw os(Rt()), W2;
       if (W2.status !== 401) throw W2 || {};
-      return Ui.warn("Auth error:", W2), await fs().catch(() => {
+      return Ii.warn("Auth error:", W2), await ds().catch(() => {
         throw W2;
       }), L2(P2 + 1);
     }
@@ -54622,20 +54629,20 @@ var F = class {
    */
   toJSON() {
     const e = __spreadValues({}, this);
-    return e.version = this.version, delete e.created_at, Ys(e, [void 0, null, ""]);
+    return e.version = this.version, delete e.created_at, Vs(e, [void 0, null, ""]);
   }
 };
-var ds = {};
+var fs = {};
 var ps = {};
 var Bn = "";
 var zt = (t) => t;
-var Mi = 300;
-var Te = {};
+var Ni = 300;
+var Ie = {};
 function $(t) {
   const { query_params: e, fn: n, path: s, endpoint: i } = t, r = b(e), o = `${i || u2()}${s ? "/" + s : ""}${r ? "?" + r : ""}`;
-  if (Te[o]) return Te[o].promise;
-  const a = d(o).then((y) => {
-    const L2 = Ni(o, r, s);
+  if (Ie[o]) return Ie[o].promise;
+  const a = f(o).then((y) => {
+    const L2 = wi(o, r, s);
     return {
       total: L2.total || 0,
       next: L2.next ? () => $({
@@ -54647,26 +54654,26 @@ function $(t) {
       data: y && y instanceof Array ? y.map((P2) => (n || zt)(P2)) : y && !(y instanceof Array) && y.results ? y.results.map((P2) => P2) : []
     };
   });
-  return Te[o] = {
+  return Ie[o] = {
     promise: a,
-    timeout: setTimeout(() => delete Te[o], Mi)
+    timeout: setTimeout(() => delete Ie[o], Ni)
   }, a.catch(() => {
-    clearTimeout(Te[o]?.timeout), delete Te[o];
+    clearTimeout(Ie[o]?.timeout), delete Ie[o];
   }), a;
 }
 function g(t) {
   const { query_params: e, id: n, path: s, fn: i, options: r } = t, o = b(e), a = `${u2()}/${s}/${n}${o ? "?" + o : ""}`;
-  return d(a, r).then((y) => (i || zt)(y));
+  return f(a, r).then((y) => (i || zt)(y));
 }
-function T(t) {
+function I(t) {
   const { id: e, query_params: n, form_data: s, method: i, path: r, fn: o } = t, a = b(__spreadProps(__spreadValues({}, n), {
     version: s.version || 0
   })), y = `${u2()}/${r}/${e}${a ? "?" + a : ""}`;
-  return (i === "put" ? ce : ye)(y, s).then(
+  return (i === "put" ? ce : ae)(y, s).then(
     (L2) => (o || zt)(L2)
   );
 }
-function Ni(t, e, n) {
+function wi(t, e, n) {
   const s = Ti(
     t[0] === "/" ? `${location.origin}${t}` : t
   ), i = {
@@ -54675,11 +54682,11 @@ function Ni(t, e, n) {
   };
   if (s && s["x-total-count"]) {
     const r = +(s["x-total-count"] || 0);
-    (e.length < 2 || e.length < 12 && e.indexOf("offset=") >= 0) && (ds[n] = r), ps[n] = r, i.total = r;
+    (e.length < 2 || e.length < 12 && e.indexOf("offset=") >= 0) && (fs[n] = r), ps[n] = r, i.total = r;
   }
-  return s && s.link && (Bn = Js(s.link || "").next, i.next = Ie(Bn.split("?")[1])), i;
+  return s && s.link && (Bn = Ys(s.link || "").next, i.next = Te(Bn.split("?")[1])), i;
 }
-var Rn = class extends F {
+var Un = class extends F {
   /** Hash of the email address of the user */
   email_digest;
   /** ID of the authority associated with the user */
@@ -54798,7 +54805,7 @@ var gs = class extends F {
       }));
   }
 };
-var Un = class {
+var In = class {
   /** ISO8601 timestamp of the creation time of the group */
   created_at;
   /** ISO8601 timestamp of the last update time of the group */
@@ -54823,18 +54830,18 @@ var Un = class {
 };
 var ze = "groups";
 function it(t) {
-  return new Un(t);
+  return new In(t);
 }
-function _u(t = {}) {
+function yu(t = {}) {
   const e = b(t), n = `${u2()}/${ze}/current${e ? "?" + e : ""}`;
-  return d(n).then(
+  return f(n).then(
     (s) => (s || []).map((i) => ({
       group: it(i.group || {}),
       permissions: i.permissions || 0
     }))
   );
 }
-var he = class extends F {
+var le = class extends F {
   /** Name of the system assocaited with the trigger */
   system_name;
   /** Number of times the trigger has been activated/triggered */
@@ -54943,7 +54950,7 @@ var Kt = class extends F {
         encryption_level: +n
       }));
     e.trigger_data && e.trigger_data instanceof Array && (this.trigger_list = e.trigger_data.map(
-      (n) => new he(n)
+      (n) => new le(n)
     ));
   }
 };
@@ -54980,7 +54987,7 @@ var $e = "metadata";
 function Fe(t) {
   return new vs(t);
 }
-function ju(t, e) {
+function Wu(t, e) {
   return g({
     id: t,
     query_params: { name: e },
@@ -54988,8 +54995,8 @@ function ju(t, e) {
     path: $e
   });
 }
-function Gu(t, e, n = "put") {
-  return T({
+function Qu(t, e, n = "put") {
+  return I({
     id: t,
     form_data: e,
     query_params: {},
@@ -54998,9 +55005,9 @@ function Gu(t, e, n = "put") {
     path: $e
   });
 }
-function Ku(t, e) {
+function Yu(t, e) {
   const n = b(e), s = `${u2()}/${$e}/${encodeURIComponent(t)}/bulk${n ? "?" + n : ""}`;
-  return d(s).then(
+  return f(s).then(
     (i) => Object.keys(i || {}).reduce(
       (r, o) => __spreadProps(__spreadValues({}, r), { [o]: Fe(i[o]) }),
       {}
@@ -55067,7 +55074,7 @@ var ks = class extends F {
   /** Orientation of the signage system */
   orientation;
   constructor(e = {}) {
-    super(e), this.display_name = e.display_name || "", this.description = e.description || "", this.email = e.email || "", this.code = e.code || "", this.capacity = e.capacity || 0, this.features = e.features || [], this.bookable = e.bookable || false, this.public = e.public ?? false, this.installed_ui_devices = e.installed_ui_devices || 0, this.support_url = e.support_url || "", this.camera_snapshot_url = e.camera_snapshot_url || "", this.camera_snapshot_urls = e.camera_snapshot_urls || [], this.camera_url = e.camera_url || "", this.timetable_url = e.timetable_url || "", this.room_booking_url = e.room_booking_url || "", this.map_id = e.map_id || "", this.modules = e.modules || [], this.images = e.images || [], this.zones = e.zones || [], this.settings = e.settings || [null, null, null, null], this.timezone = e.timezone || "", this.signage = e.signage || false, this.playlists = e.playlists || [], this.security_groups = e.security_groups || [], this.orientation = e.orientation || "unspecified", this.approval = e.approval || false, this.signage_last_seen = e.signage_last_seen || yn(Date.now()), typeof this.settings != "object" && (this.settings = [null, null, null, null]);
+    super(e), this.display_name = e.display_name || "", this.description = e.description || "", this.email = e.email || "", this.code = e.code || "", this.capacity = e.capacity || 0, this.features = e.features || [], this.bookable = e.bookable || false, this.public = e.public ?? false, this.installed_ui_devices = e.installed_ui_devices || 0, this.support_url = e.support_url || "", this.camera_snapshot_url = e.camera_snapshot_url || "", this.camera_snapshot_urls = e.camera_snapshot_urls || [], this.camera_url = e.camera_url || "", this.timetable_url = e.timetable_url || "", this.room_booking_url = e.room_booking_url || "", this.map_id = e.map_id || "", this.modules = e.modules || [], this.images = e.images || [], this.zones = e.zones || [], this.settings = e.settings || [null, null, null, null], this.timezone = e.timezone || "", this.signage = e.signage || false, this.playlists = e.playlists || [], this.security_groups = e.security_groups || [], this.orientation = e.orientation || "unspecified", this.approval = e.approval || false, this.signage_last_seen = e.signage_last_seen || $n(Date.now()), typeof this.settings != "object" && (this.settings = [null, null, null, null]);
     for (const n in He)
       !isNaN(Number(n)) && !this.settings[n] && (this.settings[n] = new qe({
         parent_id: this.id,
@@ -55145,38 +55152,38 @@ var Ss = class extends F {
     return (n.role !== Et.Logic && !e || !n.control_system_id) && delete n.control_system_id, delete n.driver, delete n.system, delete n.error_timestamp, delete n.has_runtime_error, n;
   }
 };
-var C = "systems";
+var O = "systems";
 function Pe(t) {
   return new ks(t);
 }
-function ta(t = {}) {
-  return $({ query_params: t, fn: Pe, path: C });
+function ia(t = {}) {
+  return $({ query_params: t, fn: Pe, path: O });
 }
-var J = "users";
+var Y = "users";
 function Re(t) {
-  return new Rn(t);
+  return new Un(t);
 }
-function Ca(t, e = {}) {
-  return g({ id: t, query_params: e, fn: Re, path: J });
+function Na(t, e = {}) {
+  return g({ id: t, query_params: e, fn: Re, path: Y });
 }
-function Ma(t, e, n = "patch") {
-  return T({
+function Da(t, e, n = "patch") {
+  return I({
     id: t,
     form_data: e,
     query_params: {},
     method: n,
     fn: Re,
-    path: J
+    path: Y
   });
 }
-var le = "zones";
+var de = "zones";
 function nn(t) {
   return new Kt(t);
 }
-function Ba(t = {}) {
-  return $({ query_params: t, fn: nn, path: le });
+function Ka(t = {}) {
+  return $({ query_params: t, fn: nn, path: de });
 }
-var Is = class {
+var Es = class {
   _listeners = /* @__PURE__ */ new Set();
   _error_listeners = /* @__PURE__ */ new Set();
   _complete_listeners = /* @__PURE__ */ new Set();
@@ -55206,7 +55213,7 @@ var Is = class {
     this._listeners.clear(), this._error_listeners.clear(), this._complete_listeners.clear();
   }
 };
-var fr = class extends Is {
+var _r = class extends Es {
   constructor(e) {
     super(), this._config = e, this._socket = new WebSocket(e.url), this._socket.onopen = () => {
       const n = [...this._queue];
@@ -55231,49 +55238,49 @@ var fr = class extends Is {
     return this._config.deserializer ? this._config.deserializer(e) : e.data;
   }
 };
-function dr(t) {
-  return new fr(
+function mr(t) {
+  return new _r(
     typeof t == "string" ? { url: t } : t
   );
 }
 var te = /* @__PURE__ */ ((t) => (t[t.PARSE_ERROR = 0] = "PARSE_ERROR", t[t.BAD_REQUEST = 1] = "BAD_REQUEST", t[t.ACCESS_DENIED = 2] = "ACCESS_DENIED", t[t.REQUEST_FAILED = 3] = "REQUEST_FAILED", t[t.UNKNOWN_CMD = 4] = "UNKNOWN_CMD", t[t.SYS_NOT_FOUND = 5] = "SYS_NOT_FOUND", t[t.MOD_NOT_FOUND = 6] = "MOD_NOT_FOUND", t[t.UNEXPECTED_FAILURE = 7] = "UNEXPECTED_FAILURE", t))(te || {});
-var Es = /* @__PURE__ */ ((t) => (t.Info = "info", t.Debug = "debug", t.Warning = "warn", t.Error = "error", t.Fatal = "fatal", t.Trace = "trace", t))(Es || {});
-var Ct = {};
-function mr(t) {
-  return Ct[t];
+var Os = /* @__PURE__ */ ((t) => (t.Info = "info", t.Debug = "debug", t.Warning = "warn", t.Error = "error", t.Fatal = "fatal", t.Trace = "trace", t))(Os || {});
+var Ot = {};
+function $r(t) {
+  return Ot[t];
 }
-var O = Nt("WS");
+var C = Nt("WS");
 var Cs = 15;
 var gt = 0;
-var Y;
-var Os = 0;
+var V;
+var Ms = 0;
 var G = {};
 var wn = {};
-var gr = {};
+var br = {};
 var Se = ne(false);
-var Ms = ne([0, 0]);
-var Ns = Date.now();
+var Ns = ne([0, 0]);
+var ws = Date.now();
 var Ee;
-var Ot = 0;
+var Ct = 0;
 var fe = null;
 var kt;
 var Dn = 0;
 var yt = 10 * 1e3;
-var yr = ne(null);
-function _n() {
+var vr = ne(null);
+function mn() {
   return u2().indexOf("/control/") >= 0 ? "/control/websocket" : `${is()}/systems/control`;
 }
-function ws() {
+function Ds() {
   return Se.value;
 }
-function $r() {
+function kr() {
   return Se.asReadonly();
 }
-function br(t, e = wn) {
+function Sr(t, e = wn) {
   const n = `${t.sys}|${t.mod}_${t.index}|${t.name}`;
   return e[n] || (e[n] = ne(void 0)), e[n].asReadonly();
 }
-function vr(t, e = wn) {
+function xr(t, e = wn) {
   const n = `${t.sys}|${t.mod}_${t.index}|${t.name}`;
   if (e[n])
     return e[n].value;
@@ -55285,14 +55292,14 @@ function Wn(t, e = 0, n = Ge) {
   }, t);
   return n(s, e);
 }
-function kr(t, e = 0, n = Ge) {
+function Ar(t, e = 0, n = Ge) {
   const s = __spreadValues({
     id: ++gt,
     cmd: "unbind"
   }, t);
   return n(s, e);
 }
-function Sr(t, e = yt, n = Ge) {
+function qr(t, e = yt, n = Ge) {
   const s = __spreadValues({
     id: ++gt,
     cmd: "exec"
@@ -55300,9 +55307,9 @@ function Sr(t, e = yt, n = Ge) {
   return n(s, e);
 }
 function Ge(t, e = yt, n = 0) {
-  const s = `${t.cmd}|${t.sys}|${t.mod}${t.index}|${t.name}|${t.args}|${ei()}`;
+  const s = `${t.cmd}|${t.sys}|${t.mod}${t.index}|${t.name}|${t.args}|${ti()}`;
   if (G[s])
-    O("Request already in progress. Waiting...", t);
+    C("Request already in progress. Waiting...", t);
   else {
     const i = __spreadProps(__spreadValues({}, t), { key: s });
     i.promise = new Promise((r, o) => {
@@ -55312,13 +55319,13 @@ function Ge(t, e = yt, n = 0) {
           (y) => o(y)
         );
       };
-      if (Y && ws()) {
-        kn() && Tr(t, Y, gr), i.resolve = r, i.reject = o;
+      if (V && Ds()) {
+        Sn() && Or(t, V, br), i.resolve = r, i.reject = o;
         const y = `${t.sys}, ${t.mod}_${t.index}, ${t.name}`;
-        O(
+        C(
           `[${t.cmd.toUpperCase()}](${t.id}) ${y}`,
           t.args
-        ), Y.next(t), e > 0 && re(
+        ), V.next(t), e > 0 && re(
           `${s}`,
           () => {
             o("Request timed out."), delete G[s], G[s] = null;
@@ -55330,32 +55337,32 @@ function Ge(t, e = yt, n = 0) {
   }
   return G[s].promise;
 }
-function Ds(t) {
+function Hs(t) {
   if (t !== "pong" && t instanceof Object) {
     if (t.type === "notify" && t.meta)
-      qr(t.meta, t.value);
+      Ur(t.meta, t.value);
     else if (t.type === "success")
-      xr(t);
+      Pr(t);
     else if (t.type === "debug") {
-      O(`[DEBUG] ${t.mod}${t.klass || ""} \u2192`, t.msg);
+      C(`[DEBUG] ${t.mod}${t.klass || ""} \u2192`, t.msg);
       const e = t.meta || { mod: "", index: "" };
-      yr.set({
+      vr.set({
         mod_id: t.mod || "<empty>",
         module: `${e.mod}_${e.index}`,
         class_name: t.klass || "<empty>",
         message: t.msg || "<empty>",
-        level: t.level || Es.Debug,
+        level: t.level || Os.Debug,
         time: Math.floor((/* @__PURE__ */ new Date()).getTime() / 1e3)
       });
-    } else t.type === "error" ? Ar(t) : t.cmd || O.error("Invalid websocket message", t);
-    _e(`${t.id}`);
-  } else t === "pong" && (Dn = Date.now(), O("Pong!"));
+    } else t.type === "error" ? Rr(t) : t.cmd || C.error("Invalid websocket message", t);
+    me(`${t.id}`);
+  } else t === "pong" && (Dn = Date.now(), C("Pong!"));
 }
-function xr(t) {
+function Pr(t) {
   const e = Object.keys(G).map((n) => G[n]).find((n) => n?.id === t.id);
-  O(`[SUCCESS](${t.id})`), e && e.resolve && (e.resolve(t.value), delete G[e.key]);
+  C(`[SUCCESS](${t.id})`), e && e.resolve && (e.resolve(t.value), delete G[e.key]);
 }
-function Ar(t) {
+function Rr(t) {
   let e = "UNEXPECTED FAILURE";
   switch (t.code) {
     case te.ACCESS_DENIED:
@@ -55380,15 +55387,15 @@ function Ar(t) {
       e = "UNKNOWN COMMAND";
       break;
   }
-  O.error(`[ERROR] ${e}(${t.id}): ${t.msg}`);
+  C.error(`[ERROR] ${e}(${t.id}): ${t.msg}`);
   const n = Object.keys(G).map((s) => G[s]).filter((s) => s).find((s) => s.id === t.id);
-  n && n.reject && (n.reject(t), _e(`${n.key}`), delete G[n.key]);
+  n && n.reject && (n.reject(t), me(`${n.key}`), delete G[n.key]);
 }
-function qr(t, e, n = wn) {
+function Ur(t, e, n = wn) {
   const s = `${t.sys}|${t.mod}_${t.index}|${t.name}`;
   n[s] || (n[s] = ne(null));
   const i = `${t.sys}, ${t.mod}_${t.index}, ${t.name}`;
-  O(`[NOTIFY] ${i} changed`, [
+  C(`[NOTIFY] ${i} changed`, [
     n[s].value,
     "\u2192",
     e
@@ -55398,26 +55405,26 @@ function Hn(t = 0) {
   return fe == null && (fe = new Promise((e) => {
     if (t > 40)
       return location.reload();
-    Ot++, Ns = Date.now(), Y = kn() ? Ur() : Pr(), Y ? (O.debug("Authority:", Rt()), O("Connecting to websocket..."), Y.subscribe(
+    Ct++, ws = Date.now(), V = Sn() ? Er() : Ir(), V ? (C.debug("Authority:", Rt()), C("Connecting to websocket..."), V.subscribe(
       (n) => {
-        Se.value || (O("Connection established."), e()), Se.set(true), Ot = 0, mn(), Ds(n);
+        Se.value || (C("Connection established."), e()), Se.set(true), Ct = 0, gn(), Hs(n);
       },
       (n) => {
-        Y = void 0, fe = null, Zn(), mn(), Rr(n);
+        V = void 0, fe = null, Zn(), gn(), Tr(n);
       },
       () => {
-        Y = void 0, fe = null, Zn(), O("Connection closed by browser."), Se.set(false), Mt();
+        V = void 0, fe = null, Zn(), C("Connection closed by browser."), Se.set(false), Mt();
       }
     ), Ee && clearInterval(Ee), Dn = Date.now(), Qn(), Ee = setInterval(
       () => Qn(),
       Cs * 1e3
-    ), mn(), Os += 1, kt = setTimeout(() => {
-      O("Unhealthy connection. Reconnecting..."), Se.set(false), fe = null, Mt();
-    }, 30 * 1e3)) : (Y ? O(
+    ), gn(), Ms += 1, kt = setTimeout(() => {
+      C("Unhealthy connection. Reconnecting..."), Se.set(false), fe = null, Mt();
+    }, 30 * 1e3)) : (V ? C(
       `Waiting on auth(${t}). Retrying in ${1e3 * Math.min(10, t + 1)}ms...`,
-      [!!V(), !!Rt()],
+      [!!X(), !!Rt()],
       "info"
-    ) : O.error(
+    ) : C.error(
       `Failed to create websocket(${t}). Retrying in ${1e3 * Math.min(10, t + 1)}ms...`
     ), setTimeout(
       () => {
@@ -55427,15 +55434,15 @@ function Hn(t = 0) {
     ));
   })), fe;
 }
-function Pr() {
-  if (!Rt() || !V()) return null;
+function Ir() {
+  if (!Rt() || !X()) return null;
   const t = fi() || location.protocol.indexOf("https") >= 0;
-  let e = `ws${t ? "s" : ""}://${$n()}${_n()}${rs() ? "?fixed_device=true" : ""}`;
-  const n = V();
+  let e = `ws${t ? "s" : ""}://${bn()}${mn()}${rs() ? "?fixed_device=true" : ""}`;
+  const n = X();
   let s = n === "x-api-key" ? `api-key=${Ye()}` : `bearer_token=${n}`;
-  return !ci() && !Vs() ? (O("Authenticating through cookie..."), s += `;max-age=120;path=${_n()};`, s += `${t ? "secure;" : ""}samesite=strict`, document.cookie = s, O("Cookies:", [document.cookie, s])) : (O("Authenticating through URL query parameter..."), e += `${e.indexOf("?") >= 0 ? "&" : "?"}${s}`), O(
-    `Creating websocket connection to ws${t ? "s" : ""}://${$n()}${_n()}`
-  ), dr({
+  return !ai() && !Xs() ? (C("Authenticating through cookie..."), s += `;max-age=120;path=${mn()};`, s += `${t ? "secure;" : ""}samesite=strict`, document.cookie = s, C("Cookies:", [document.cookie, s])) : (C("Authenticating through URL query parameter..."), e += `${e.indexOf("?") >= 0 ? "&" : "?"}${s}`), C(
+    `Creating websocket connection to ws${t ? "s" : ""}://${bn()}${mn()}`
+  ), mr({
     url: e,
     serializer: (i) => typeof i == "object" ? JSON.stringify(i) : i,
     deserializer: (i) => {
@@ -55450,32 +55457,32 @@ function Pr() {
   });
 }
 function Mt() {
-  Ms.set([Os, Date.now() - Ns]), Y && ws() && (Y.complete(), Ee && (clearInterval(Ee), Ee = void 0)), O(
+  Ns.set([Ms, Date.now() - ws]), V && Ds() && (V.complete(), Ee && (clearInterval(Ee), Ee = void 0)), C(
     `Reconnecting in ${Math.min(
       5e3,
-      Ot * 300 || 1e3
+      Ct * 300 || 1e3
     )}ms...`
   ), re(
     "reconnect",
     () => Hn(),
-    Math.min(5e3, (Ot + 1) * 300 || 1e3)
+    Math.min(5e3, (Ct + 1) * 300 || 1e3)
   );
 }
 function Qn() {
   if (Date.now() - Dn > 4 * Cs * 1e3)
     return Mt();
-  Y?.next("ping");
+  V?.next("ping");
 }
-function Rr(t) {
-  Se.set(false), O.error("Websocket error:", t), t.status === 401 && An(), xn(), Mt();
+function Tr(t) {
+  Se.set(false), C.error("Websocket error:", t), t.status === 401 && qn(), An(), Mt();
 }
-function mn() {
+function gn() {
   kt && (clearTimeout(kt), kt = void 0);
 }
-function Ur() {
-  const t = new Is();
+function Er() {
+  const t = new Es();
   return t.subscribe(
-    (e) => Ds(e)
+    (e) => Hs(e)
   ), t;
 }
 function Kn(t, e) {
@@ -55487,8 +55494,8 @@ function Kn(t, e) {
     msg: n
   };
 }
-function Tr(t, e, n) {
-  const s = `${t.sys}|${t.mod}_${t.index}|${t.name}`, i = mr(t.sys), r = i && i[t.mod] ? i[t.mod][t.index - 1 || 0] : null;
+function Or(t, e, n) {
+  const s = `${t.sys}|${t.mod}_${t.index}|${t.name}`, i = $r(t.sys), r = i && i[t.mod] ? i[t.mod][t.index - 1 || 0] : null;
   if (r) {
     try {
       switch (t.cmd) {
@@ -55508,11 +55515,11 @@ function Tr(t, e, n) {
           });
           break;
         case "unbind":
-          n[s] && (n[s](), delete n[s], _e(`${s}`));
+          n[s] && (n[s](), delete n[s], me(`${s}`));
           break;
       }
     } catch (o) {
-      O.error(`[MOCK ERROR](${t.id}) request failed`, o), re(
+      C.error(`[MOCK ERROR](${t.id}) request failed`, o), re(
         `${t.id}-error`,
         () => e.next(Kn(t, o)),
         10
@@ -55530,7 +55537,7 @@ function Tr(t, e, n) {
           };
           e.next(o);
         } catch (o) {
-          O.error(
+          C.error(
             `[MOCK ERROR](${t.id}) execute failed`,
             o
           ), e.next(Kn(t, o));
@@ -55555,8 +55562,8 @@ function Zn() {
 }
 var Jn = class {
   constructor(e, n) {
-    this._module = e, this.name = n, $r().subscribe((s, i) => {
-      s !== i && (s && (this._stale_bindings || this._pending === 1) ? (xt("VAR", "Re-binding to status variable", this.binding()), this.rebind()) : s || (_e(`rebind:${JSON.stringify(this.binding())}`), xt(
+    this._module = e, this.name = n, kr().subscribe((s, i) => {
+      s !== i && (s && (this._stale_bindings || this._pending === 1) ? (xt("VAR", "Re-binding to status variable", this.binding()), this.rebind()) : s || (me(`rebind:${JSON.stringify(this.binding())}`), xt(
         "VAR",
         "Binding dropped due to disconnection, re-binding when possible.",
         this.binding()
@@ -55577,13 +55584,13 @@ var Jn = class {
   }
   /** Current value of the binding */
   get value() {
-    return vr(this.binding());
+    return xr(this.binding());
   }
   /**
    * Get a signal that emits the current value of the binding
    */
   listen() {
-    return br(this.binding());
+    return Sr(this.binding());
   }
   /**
    * Subscribe to changes of the variable's binding value.
@@ -55624,7 +55631,7 @@ var Jn = class {
    * Unbind from status variable
    */
   unbind() {
-    this._binding_count === 1 && this._pending === 0 ? (this._pending = 2, kr(this.binding()).then(() => {
+    this._binding_count === 1 && this._pending === 0 ? (this._pending = 2, Ar(this.binding()).then(() => {
       this._pending === 2 && (this._pending = 0), this._binding_count--;
     })) : this._binding_count = Math.max(this._binding_count - 1, 0);
   }
@@ -55652,7 +55659,7 @@ var Jn = class {
     };
   }
 };
-var Ir = class {
+var Cr = class {
   constructor(e, n) {
     this._system = e, this._id = n;
   }
@@ -55696,7 +55703,7 @@ var Ir = class {
    * @param args Array of arguments to pass to the method
    */
   execute(e, n, s = yt) {
-    return Sr(
+    return qr(
       {
         sys: this._system.id,
         mod: this.name,
@@ -55708,7 +55715,7 @@ var Ir = class {
     );
   }
 };
-var Er = class {
+var Mr = class {
   /** Unique idetifier of the system */
   id;
   /** Mapping of engine modules within the system */
@@ -55729,7 +55736,7 @@ var Er = class {
     const i = s.join("_");
     for (this._module_list[i] || (this._module_list[i] = []); this._module_list[i].length < n; )
       this._module_list[i].push(
-        new Ir(
+        new Cr(
           this,
           `${i}_${this._module_list[i].length + 1}`
         )
@@ -55737,12 +55744,12 @@ var Er = class {
     return this._module_list[i][n - 1];
   }
 };
-var gn = {};
-function Cr(t) {
-  return gn[t] || (gn[t] = new Er(t)), gn[t];
+var yn = {};
+function Nr(t) {
+  return yn[t] || (yn[t] = new Mr(t)), yn[t];
 }
-function Fl(t, e, n = 1) {
-  return Cr(t).module(e, n);
+function Wl(t, e, n = 1) {
+  return Nr(t).module(e, n);
 }
 
 // libs/common/src/lib/locale.service.ts
@@ -55863,7 +55870,7 @@ var LocaleService = class _LocaleService {
         return console.error(`Failed to loaded locale file for "${locale}".`, resp);
       }
       const locale_data = await resp.json();
-      const locale_override_data = this.zone_id ? await ju(this.zone_id, `locale_${locale}`) : { details: {} };
+      const locale_override_data = this.zone_id ? await Wu(this.zone_id, `locale_${locale}`) : { details: {} };
       const base_locale_values = removeNesting(locale_data);
       const override_locale_values = removeNesting(locale_override_data.details);
       this._locale_mappings[locale] = __spreadValues(__spreadValues({}, base_locale_values), override_locale_values);
@@ -55906,12 +55913,12 @@ function setNotifyOutlet(snackbar, disable_logging = false) {
   _service2 = snackbar;
   _disable_logging = disable_logging;
 }
-function notify(type, message2, action = "OK", on_action, config2 = {}) {
+function notify(type2, message2, action = "OK", on_action, config2 = {}) {
   if (!_service2) {
     return !_disable_logging && console.warn("Snackbar service hasn't been initialised");
   }
   const snackbar_ref = _service2.open(message2, action, __spreadValues({
-    panelClass: [type],
+    panelClass: [type2],
     duration: 5e3
   }, config2));
   if (action) {
@@ -55941,7 +55948,7 @@ var _app_name = "APP";
 function setAppName(name) {
   _app_name = name;
 }
-function log(type, msg, args, stream = "debug", force = false, app_name = _app_name) {
+function log(type2, msg, args, stream = "debug", force = false, app_name = _app_name) {
   if (window.jest)
     return;
   if (window.debug || force) {
@@ -55951,9 +55958,9 @@ function log(type, msg, args, stream = "debug", force = false, app_name = _app_n
       "color: default"
     ];
     if (args) {
-      console[stream](`%c[${app_name}]%c[${type}] %c${msg}`, ...colors, args);
+      console[stream](`%c[${app_name}]%c[${type2}] %c${msg}`, ...colors, args);
     } else {
-      console[stream](`%c[${app_name}]%c[${type}] %c${msg}`, ...colors);
+      console[stream](`%c[${app_name}]%c[${type2}] %c${msg}`, ...colors);
     }
   }
 }
@@ -55967,7 +55974,7 @@ function scoped_log(scope) {
 }
 function getItemWithKeys(keys, map2) {
   const key = keys[0];
-  if (map2 && key in map2) {
+  if (map2 && typeof map2 === "object" && key in map2) {
     return keys.length > 1 ? getItemWithKeys(keys.slice(1), map2[key] || {}) : map2[key];
   }
   return null;
@@ -56004,18 +56011,18 @@ function xmur3(str) {
     return (h ^= h >>> 16) >>> 0;
   };
 }
-function sfc32(a, b2, c, d2) {
+function sfc32(a, b2, c, d) {
   return function() {
     a >>>= 0;
     b2 >>>= 0;
     c >>>= 0;
-    d2 >>>= 0;
+    d >>>= 0;
     let t = a + b2 | 0;
     a = b2 ^ b2 >>> 9;
     b2 = c + (c << 3) | 0;
     c = c << 21 | c >>> 11;
-    d2 = d2 + 1 | 0;
-    t = t + d2 | 0;
+    d = d + 1 | 0;
+    t = t + d | 0;
     c = c + t | 0;
     return (t >>> 0) / 4294967296;
   };
@@ -56204,18 +56211,18 @@ var GoogleAnalyticsService = class _GoogleAnalyticsService {
   init(tracking_id = "") {
     if (!window.gtag) {
       window.dataLayer = window.dataLayer || [];
-      (function(w, d2, s, l, i) {
+      (function(w, d, s, l, i) {
         w[l] = w[l] || [];
         w[l].push({
           "gtm.start": (/* @__PURE__ */ new Date()).getTime(),
           event: "gtm.js"
         });
-        const f = d2.getElementsByTagName(s)[0];
-        const j = d2.createElement(s);
+        const f2 = d.getElementsByTagName(s)[0];
+        const j = d.createElement(s);
         const dl = l != "dataLayer" ? "&l=" + l : "";
         j.async = true;
         j.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
-        f.parentNode.insertBefore(j, f);
+        f2.parentNode.insertBefore(j, f2);
       })(window, document, "script", "dataLayer", tracking_id);
       log("Analytics", "Service", "Injected Google Analytics into page");
     }
@@ -56254,12 +56261,12 @@ var GoogleAnalyticsService = class _GoogleAnalyticsService {
       }, 100);
     }
   }
-  send(type, value) {
+  send(type2, value) {
     if (!this.service) {
       throw new Error("Google Analytics hasn't been installed on this page");
     }
     if (this.enabled) {
-      this.timeout(`end|${type}`, () => {
+      this.timeout(`end|${type2}`, () => {
         this.push(__spreadProps(__spreadValues({}, value), {
           event: "event"
         }));
@@ -56829,7 +56836,7 @@ async function loadUserGroups() {
     return;
   }
   try {
-    const groups = await _u({});
+    const groups = await yu({});
     user_groups.set(groups);
     console.log("Permissions:", user_permissions());
   } catch (error2) {
@@ -56847,7 +56854,7 @@ function initialiseUser() {
   }
   _current_user.subscribe((u3) => user_signal.set(u3));
   const is_public_mode = isPublicMode();
-  const user_request = combineLatest([Ca("current"), _change]).pipe(map(([i]) => new StaffUser(i)));
+  const user_request = combineLatest([Na("current"), _change]).pipe(map(([i]) => new StaffUser(i)));
   if (is_public_mode) {
     user_request.pipe(catchError((error2) => {
       console.warn("User loading failed in public mode, using local public user data.", error2);
@@ -56871,7 +56878,7 @@ function initialiseUser() {
 function reloadUserData() {
   setTimeout(async () => {
     try {
-      const p_user = await Ca("current");
+      const p_user = await Na("current");
       const user = new StaffUser(p_user);
       _current_user.next(user);
       setDefaultCreator(user);
@@ -56908,20 +56915,33 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "73959d8",
-  "hash": "73959d8",
+  "raw": "72d21fe",
+  "hash": "72d21fe",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "73959d8",
+  "suffix": "72d21fe",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1783504048872
+  "time": 1783937531991
 };
 
 // libs/common/src/lib/settings.service.ts
 var _service3;
 var _setting_signals = {};
+var DEBUG_OVERRIDES_KEY = "PLACEOS.setting_overrides";
+function loadDebugOverrides() {
+  try {
+    const overrides = JSON.parse(localStorage.getItem(DEBUG_OVERRIDES_KEY) || "{}");
+    for (const key in overrides) {
+      if (!key.startsWith("app."))
+        delete overrides[key];
+    }
+    return overrides;
+  } catch {
+    return {};
+  }
+}
 function setting(key) {
   return _service3 ? _service3.get(key) : void 0;
 }
@@ -56938,6 +56958,30 @@ var SettingsService = class _SettingsService extends AsyncHandler {
    */
   setOverrides(value) {
     this._overrides.set(value);
+    this._refreshSettings();
+  }
+  /** Set a local debug override for an `app.*` setting. `undefined` clears the key. */
+  setDebugOverride(key, value) {
+    if (!key.startsWith("app."))
+      return;
+    const overrides = __spreadValues({}, this._debug_overrides());
+    if (value === void 0)
+      delete overrides[key];
+    else
+      overrides[key] = value;
+    this._debug_overrides.set(overrides);
+    if (Object.keys(overrides).length) {
+      localStorage.setItem(DEBUG_OVERRIDES_KEY, JSON.stringify(overrides));
+    } else
+      localStorage.removeItem(DEBUG_OVERRIDES_KEY);
+    this._refreshSettings();
+  }
+  clearDebugOverrides() {
+    this._debug_overrides.set({});
+    localStorage.removeItem(DEBUG_OVERRIDES_KEY);
+    this._refreshSettings();
+  }
+  _refreshSettings() {
     this._applyCssVariables();
     this._updateSignals();
     this._applyTheme();
@@ -56997,6 +57041,14 @@ var SettingsService = class _SettingsService extends AsyncHandler {
         []
       )
     );
+    this._debug_overrides = signal(
+      loadDebugOverrides(),
+      ...ngDevMode ? [{ debugName: "_debug_overrides" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.debug_overrides = this._debug_overrides.asReadonly();
     this._subjects = {};
     this._pending_settings = {};
     this.theme_signal = computed(
@@ -57043,7 +57095,7 @@ var SettingsService = class _SettingsService extends AsyncHandler {
       window.setting = (key) => this.get(key);
     }
     const user = await this._currentUser();
-    const data = await ju(user.id, "settings");
+    const data = await Wu(user.id, "settings");
     this._user_settings.set(data.details || {});
     this.timeout("init", () => {
       this._initDarkMode();
@@ -57065,6 +57117,9 @@ var SettingsService = class _SettingsService extends AsyncHandler {
    * @param key Name of the setting. i.e. nested items can be grabbed using `.` to seperate key names
    */
   get(key) {
+    const debug_overrides = this._debug_overrides();
+    if (key in debug_overrides)
+      return debug_overrides[key];
     const keys = key.split(".");
     if (keys[0] !== "app") {
       return getItemWithKeys(keys, this._pending_settings) ?? getItemWithKeys(keys, this._user_settings()) ?? getItemWithKeys(keys, DEFAULT_SETTINGS);
@@ -57087,7 +57142,7 @@ var SettingsService = class _SettingsService extends AsyncHandler {
     this.timeout("save_settings", () => this._savePendingChanges(), 2400);
   }
   async updateLocatable(locatable) {
-    await Ma(currentUser().id, { locatable }, "patch");
+    await Da(currentUser().id, { locatable }, "patch");
     reloadUserData();
   }
   overrideCssVariable(key, value, important = false) {
@@ -57126,7 +57181,7 @@ var SettingsService = class _SettingsService extends AsyncHandler {
     if (!user?.id || !Object.keys(this._pending_settings).length)
       return;
     this._updateSignals();
-    await Gu(user.id, {
+    await Qu(user.id, {
       name: "settings",
       description: "",
       details: __spreadValues(__spreadValues({}, this._user_settings()), this._pending_settings)
@@ -58113,7 +58168,7 @@ async function setupPlace(settings) {
   if (mock) {
     notifyInfo("Application in mock mode.");
   }
-  return zr(config2);
+  return jr(config2);
 }
 
 // libs/common/src/lib/signal.utilities.ts
@@ -65437,8 +65492,8 @@ var RippleRenderer = class _RippleRenderer {
     }
     this._removeTriggerEvents();
     this._triggerElement = element;
-    pointerDownEvents.forEach((type) => {
-      _RippleRenderer._eventManager.addHandler(this._ngZone, type, element, this);
+    pointerDownEvents.forEach((type2) => {
+      _RippleRenderer._eventManager.addHandler(this._ngZone, type2, element, this);
     });
   }
   handleEvent(event) {
@@ -65451,8 +65506,8 @@ var RippleRenderer = class _RippleRenderer {
     }
     if (!this._pointerUpEventsRegistered) {
       this._ngZone.runOutsideAngular(() => {
-        pointerUpEvents.forEach((type) => {
-          this._triggerElement.addEventListener(type, this, passiveCapturingEventOptions);
+        pointerUpEvents.forEach((type2) => {
+          this._triggerElement.addEventListener(type2, this, passiveCapturingEventOptions);
         });
       });
       this._pointerUpEventsRegistered = true;
@@ -65532,9 +65587,9 @@ var RippleRenderer = class _RippleRenderer {
   _removeTriggerEvents() {
     const trigger = this._triggerElement;
     if (trigger) {
-      pointerDownEvents.forEach((type) => _RippleRenderer._eventManager.removeHandler(type, trigger, this));
+      pointerDownEvents.forEach((type2) => _RippleRenderer._eventManager.removeHandler(type2, trigger, this));
       if (this._pointerUpEventsRegistered) {
-        pointerUpEvents.forEach((type) => trigger.removeEventListener(type, this, passiveCapturingEventOptions));
+        pointerUpEvents.forEach((type2) => trigger.removeEventListener(type2, this, passiveCapturingEventOptions));
         this._pointerUpEventsRegistered = false;
       }
     }
@@ -67313,25 +67368,25 @@ var NgswCommChannel = class {
       });
     });
   }
-  postMessageWithOperation(type, payload, operationNonce) {
+  postMessageWithOperation(type2, payload, operationNonce) {
     const waitForOperationCompleted = this.waitForOperationCompleted(operationNonce);
-    const postMessage = this.postMessage(type, payload);
+    const postMessage = this.postMessage(type2, payload);
     return Promise.all([postMessage, waitForOperationCompleted]).then(([, result]) => result);
   }
   generateNonce() {
     return Math.round(Math.random() * 1e7);
   }
-  eventsOfType(type) {
+  eventsOfType(type2) {
     let filterFn;
-    if (typeof type === "string") {
-      filterFn = (event) => event.type === type;
+    if (typeof type2 === "string") {
+      filterFn = (event) => event.type === type2;
     } else {
-      filterFn = (event) => type.includes(event.type);
+      filterFn = (event) => type2.includes(event.type);
     }
     return this.events.pipe(filter(filterFn));
   }
-  nextEventOfType(type) {
-    return this.eventsOfType(type).pipe(take(1));
+  nextEventOfType(type2) {
+    return this.eventsOfType(type2).pipe(take(1));
   }
   waitForOperationCompleted(nonce) {
     return new Promise((resolve, reject) => {
@@ -67822,22 +67877,22 @@ function getVueInternalName(value) {
 // node_modules/@sentry/core/build/esm/instrument/handlers.js
 var handlers = {};
 var instrumented = {};
-function addHandler(type, handler) {
-  handlers[type] = handlers[type] || [];
-  handlers[type].push(handler);
+function addHandler(type2, handler) {
+  handlers[type2] = handlers[type2] || [];
+  handlers[type2].push(handler);
 }
-function maybeInstrument(type, instrumentFn) {
-  if (!instrumented[type]) {
-    instrumented[type] = true;
+function maybeInstrument(type2, instrumentFn) {
+  if (!instrumented[type2]) {
+    instrumented[type2] = true;
     try {
       instrumentFn();
     } catch (e) {
-      DEBUG_BUILD && debug.error(`Error while instrumenting ${type}`, e);
+      DEBUG_BUILD && debug.error(`Error while instrumenting ${type2}`, e);
     }
   }
 }
-function triggerHandlers(type, data) {
-  const typeHandlers = type && handlers[type];
+function triggerHandlers(type2, data) {
+  const typeHandlers = type2 && handlers[type2];
   if (!typeHandlers) {
     return;
   }
@@ -67847,7 +67902,7 @@ function triggerHandlers(type, data) {
     } catch (e) {
       DEBUG_BUILD && debug.error(
         `Error while triggering instrumentation handler.
-Type: ${type}
+Type: ${type2}
 Name: ${getFunctionName(handler)}
 Error:`,
         e
@@ -67859,9 +67914,9 @@ Error:`,
 // node_modules/@sentry/core/build/esm/instrument/globalError.js
 var _oldOnErrorHandler = null;
 function addGlobalErrorInstrumentationHandler(handler) {
-  const type = "error";
-  addHandler(type, handler);
-  maybeInstrument(type, instrumentError);
+  const type2 = "error";
+  addHandler(type2, handler);
+  maybeInstrument(type2, instrumentError);
 }
 function instrumentError() {
   _oldOnErrorHandler = GLOBAL_OBJ.onerror;
@@ -67885,9 +67940,9 @@ function instrumentError() {
 // node_modules/@sentry/core/build/esm/instrument/globalUnhandledRejection.js
 var _oldOnUnhandledRejectionHandler = null;
 function addGlobalUnhandledRejectionInstrumentationHandler(handler) {
-  const type = "unhandledrejection";
-  addHandler(type, handler);
-  maybeInstrument(type, instrumentUnhandledRejection);
+  const type2 = "unhandledrejection";
+  addHandler(type2, handler);
+  maybeInstrument(type2, instrumentUnhandledRejection);
 }
 function instrumentUnhandledRejection() {
   _oldOnUnhandledRejectionHandler = GLOBAL_OBJ.onunhandledrejection;
@@ -68264,7 +68319,7 @@ function getEventDescription(event) {
   }
   return eventId || "<unknown>";
 }
-function addExceptionTypeValue(event, value, type) {
+function addExceptionTypeValue(event, value, type2) {
   const exception = event.exception = event.exception || {};
   const values = exception.values = exception.values || [];
   const firstException = values[0] = values[0] || {};
@@ -68272,7 +68327,7 @@ function addExceptionTypeValue(event, value, type) {
     firstException.value = value || "";
   }
   if (!firstException.type) {
-    firstException.type = type || "Error";
+    firstException.type = type2 || "Error";
   }
 }
 function addExceptionMechanism(event, newMechanism) {
@@ -70249,7 +70304,7 @@ function forEachEnvelopeItem(envelope, callback) {
   return false;
 }
 function envelopeContainsItemType(envelope, types) {
-  return forEachEnvelopeItem(envelope, (_2, type) => types.includes(type));
+  return forEachEnvelopeItem(envelope, (_2, type2) => types.includes(type2));
 }
 function encodeUTF8(input3) {
   const carrier = getSentryCarrier(GLOBAL_OBJ);
@@ -70326,11 +70381,11 @@ var DATA_CATEGORY_OVERRIDES = {
   log: "log_item",
   trace_metric: "metric"
 };
-function _isOverriddenType(type) {
-  return type in DATA_CATEGORY_OVERRIDES;
+function _isOverriddenType(type2) {
+  return type2 in DATA_CATEGORY_OVERRIDES;
 }
-function envelopeItemTypeToDataCategory(type) {
-  return _isOverriddenType(type) ? DATA_CATEGORY_OVERRIDES[type] : type;
+function envelopeItemTypeToDataCategory(type2) {
+  return _isOverriddenType(type2) ? DATA_CATEGORY_OVERRIDES[type2] : type2;
 }
 function getSdkMetadataForEnvelopeHeader(metadataOrEvent) {
   if (!metadataOrEvent?.sdk) {
@@ -70419,24 +70474,24 @@ function createSpanEnvelope(spans, client) {
 // node_modules/@sentry/core/build/esm/tracing/logSpans.js
 function logSpanStart(span) {
   if (!DEBUG_BUILD) return;
-  const { description = "< unknown name >", op: op2 = "< unknown op >", parent_span_id: parentSpanId } = spanToJSON(span);
+  const { description: description2 = "< unknown name >", op: op2 = "< unknown op >", parent_span_id: parentSpanId } = spanToJSON(span);
   const { spanId } = span.spanContext();
   const sampled = spanIsSampled(span);
   const rootSpan = getRootSpan(span);
   const isRootSpan = rootSpan === span;
   const header = `[Tracing] Starting ${sampled ? "sampled" : "unsampled"} ${isRootSpan ? "root " : ""}span`;
-  const infoParts = [`op: ${op2}`, `name: ${description}`, `ID: ${spanId}`];
+  const infoParts = [`op: ${op2}`, `name: ${description2}`, `ID: ${spanId}`];
   if (parentSpanId) {
     infoParts.push(`parent ID: ${parentSpanId}`);
   }
   if (!isRootSpan) {
-    const { op: op3, description: description2 } = spanToJSON(rootSpan);
+    const { op: op3, description: description3 } = spanToJSON(rootSpan);
     infoParts.push(`root ID: ${rootSpan.spanContext().spanId}`);
     if (op3) {
       infoParts.push(`root op: ${op3}`);
     }
-    if (description2) {
-      infoParts.push(`root description: ${description2}`);
+    if (description3) {
+      infoParts.push(`root description: ${description3}`);
     }
   }
   debug.log(`${header}
@@ -70444,11 +70499,11 @@ function logSpanStart(span) {
 }
 function logSpanEnd(span) {
   if (!DEBUG_BUILD) return;
-  const { description = "< unknown name >", op: op2 = "< unknown op >" } = spanToJSON(span);
+  const { description: description2 = "< unknown name >", op: op2 = "< unknown op >" } = spanToJSON(span);
   const { spanId } = span.spanContext();
   const rootSpan = getRootSpan(span);
   const isRootSpan = rootSpan === span;
-  const msg = `[Tracing] Finishing "${op2}" ${isRootSpan ? "root " : ""}span "${description}" with ID ${spanId}`;
+  const msg = `[Tracing] Finishing "${op2}" ${isRootSpan ? "root " : ""}span "${description2}" with ID ${spanId}`;
   debug.log(msg);
 }
 
@@ -72203,8 +72258,8 @@ function createTransport(options2, makeRequest, buffer2 = makePromiseBuffer(
   const flush2 = (timeout) => buffer2.drain(timeout);
   function send(envelope) {
     const filteredEnvelopeItems = [];
-    forEachEnvelopeItem(envelope, (item, type) => {
-      const dataCategory = envelopeItemTypeToDataCategory(type);
+    forEachEnvelopeItem(envelope, (item, type2) => {
+      const dataCategory = envelopeItemTypeToDataCategory(type2);
       if (isRateLimited(rateLimits, dataCategory)) {
         options2.recordDroppedEvent("ratelimit_backoff", dataCategory);
       } else {
@@ -72220,8 +72275,8 @@ function createTransport(options2, makeRequest, buffer2 = makePromiseBuffer(
         DEBUG_BUILD && debug.warn(`Dropping client report. Will not send outcomes (reason: ${reason}).`);
         return;
       }
-      forEachEnvelopeItem(filteredEnvelope, (item, type) => {
-        options2.recordDroppedEvent(reason, envelopeItemTypeToDataCategory(type));
+      forEachEnvelopeItem(filteredEnvelope, (item, type2) => {
+        options2.recordDroppedEvent(reason, envelopeItemTypeToDataCategory(type2));
       });
     };
     const requestTask = () => makeRequest({ body: serializeEnvelope(filteredEnvelope) }).then(
@@ -72999,8 +73054,8 @@ Reason: ${reason}`
    * Creates an {@link Event} from all inputs to `captureException` and non-primitive inputs to `captureMessage`.
    */
 };
-function getDataCategoryByType(type) {
-  return type === "replay_event" ? "replay" : type || "error";
+function getDataCategoryByType(type2) {
+  return type2 === "replay_event" ? "replay" : type2 || "error";
 }
 function _validateBeforeSendResult(beforeSendResult, beforeSendLabel) {
   const invalidValueError = `${beforeSendLabel} must return \`null\` or a valid event.`;
@@ -73608,9 +73663,9 @@ function applyExceptionGroupFieldsForChildException(exception, source, exception
 
 // node_modules/@sentry/core/build/esm/instrument/console.js
 function addConsoleInstrumentationHandler(handler) {
-  const type = "console";
-  addHandler(type, handler);
-  maybeInstrument(type, instrumentConsole);
+  const type2 = "console";
+  addHandler(type2, handler);
+  maybeInstrument(type2, instrumentConsole);
 }
 function instrumentConsole() {
   if (!("console" in GLOBAL_OBJ)) {
@@ -74034,14 +74089,14 @@ function supportsNativeFetch() {
 
 // node_modules/@sentry/core/build/esm/instrument/fetch.js
 function addFetchInstrumentationHandler(handler, skipNativeFetchCheck) {
-  const type = "fetch";
-  addHandler(type, handler);
-  maybeInstrument(type, () => instrumentFetch(void 0, skipNativeFetchCheck));
+  const type2 = "fetch";
+  addHandler(type2, handler);
+  maybeInstrument(type2, () => instrumentFetch(void 0, skipNativeFetchCheck));
 }
 function addFetchEndInstrumentationHandler(handler) {
-  const type = "fetch-body-resolved";
-  addHandler(type, handler);
-  maybeInstrument(type, () => instrumentFetch(streamHandler));
+  const type2 = "fetch-body-resolved";
+  addHandler(type2, handler);
+  maybeInstrument(type2, () => instrumentFetch(streamHandler));
 }
 function instrumentFetch(onFetchResolved, skipNativeFetchCheck = false) {
   if (skipNativeFetchCheck && !supportsNativeFetch()) {
@@ -74664,14 +74719,14 @@ var getActivationStart = () => {
 };
 
 // node_modules/@sentry-internal/browser-utils/build/esm/metrics/web-vitals/lib/globalListeners.js
-function addPageListener(type, listener, options2) {
+function addPageListener(type2, listener, options2) {
   if (WINDOW4.document) {
-    WINDOW4.addEventListener(type, listener, options2);
+    WINDOW4.addEventListener(type2, listener, options2);
   }
 }
-function removePageListener(type, listener, options2) {
+function removePageListener(type2, listener, options2) {
   if (WINDOW4.document) {
-    WINDOW4.removeEventListener(type, listener, options2);
+    WINDOW4.removeEventListener(type2, listener, options2);
   }
 }
 
@@ -74792,15 +74847,15 @@ var LayoutShiftManager = class _LayoutShiftManager {
 };
 
 // node_modules/@sentry-internal/browser-utils/build/esm/metrics/web-vitals/lib/observe.js
-var observe = (type, callback, opts = {}) => {
+var observe = (type2, callback, opts = {}) => {
   try {
-    if (PerformanceObserver.supportedEntryTypes.includes(type)) {
+    if (PerformanceObserver.supportedEntryTypes.includes(type2)) {
       const po2 = new PerformanceObserver((list2) => {
         Promise.resolve().then(() => {
           callback(list2.getEntries());
         });
       });
-      po2.observe(__spreadValues({ type, buffered: true }, opts));
+      po2.observe(__spreadValues({ type: type2, buffered: true }, opts));
       return po2;
     }
   } catch {
@@ -75111,8 +75166,8 @@ var onLCP = (onReport, opts = {}) => {
           });
         }
       };
-      for (const type of ["keydown", "click", "visibilitychange"]) {
-        addPageListener(type, stopListeningWrapper, {
+      for (const type2 of ["keydown", "click", "visibilitychange"]) {
+        addPageListener(type2, stopListeningWrapper, {
           capture: true
         });
       }
@@ -75163,16 +75218,16 @@ function addTtfbInstrumentationHandler(callback) {
 function addInpInstrumentationHandler(callback) {
   return addMetricObserver("inp", callback, instrumentInp, _previousInp);
 }
-function addPerformanceInstrumentationHandler(type, callback) {
-  addHandler2(type, callback);
-  if (!instrumented2[type]) {
-    instrumentPerformanceObserver(type);
-    instrumented2[type] = true;
+function addPerformanceInstrumentationHandler(type2, callback) {
+  addHandler2(type2, callback);
+  if (!instrumented2[type2]) {
+    instrumentPerformanceObserver(type2);
+    instrumented2[type2] = true;
   }
-  return getCleanupCallback(type, callback);
+  return getCleanupCallback(type2, callback);
 }
-function triggerHandlers2(type, data) {
-  const typeHandlers = handlers2[type];
+function triggerHandlers2(type2, data) {
+  const typeHandlers = handlers2[type2];
   if (!typeHandlers?.length) {
     return;
   }
@@ -75182,7 +75237,7 @@ function triggerHandlers2(type, data) {
     } catch (e) {
       DEBUG_BUILD2 && debug.error(
         `Error while triggering instrumentation handler.
-Type: ${type}
+Type: ${type2}
 Name: ${getFunctionName(handler)}
 Error:`,
         e
@@ -75232,41 +75287,41 @@ function instrumentInp() {
     _previousInp = metric;
   });
 }
-function addMetricObserver(type, callback, instrumentFn, previousValue, stopOnCallback = false) {
-  addHandler2(type, callback);
+function addMetricObserver(type2, callback, instrumentFn, previousValue, stopOnCallback = false) {
+  addHandler2(type2, callback);
   let stopListening;
-  if (!instrumented2[type]) {
+  if (!instrumented2[type2]) {
     stopListening = instrumentFn();
-    instrumented2[type] = true;
+    instrumented2[type2] = true;
   }
   if (previousValue) {
     callback({ metric: previousValue });
   }
-  return getCleanupCallback(type, callback, stopOnCallback ? stopListening : void 0);
+  return getCleanupCallback(type2, callback, stopOnCallback ? stopListening : void 0);
 }
-function instrumentPerformanceObserver(type) {
+function instrumentPerformanceObserver(type2) {
   const options2 = {};
-  if (type === "event") {
+  if (type2 === "event") {
     options2.durationThreshold = 0;
   }
   observe(
-    type,
+    type2,
     (entries) => {
-      triggerHandlers2(type, { entries });
+      triggerHandlers2(type2, { entries });
     },
     options2
   );
 }
-function addHandler2(type, handler) {
-  handlers2[type] = handlers2[type] || [];
-  handlers2[type].push(handler);
+function addHandler2(type2, handler) {
+  handlers2[type2] = handlers2[type2] || [];
+  handlers2[type2].push(handler);
 }
-function getCleanupCallback(type, callback, stopListening) {
+function getCleanupCallback(type2, callback, stopListening) {
   return () => {
     if (stopListening) {
       stopListening();
     }
-    const typeHandlers = handlers2[type];
+    const typeHandlers = handlers2[type2];
     if (!typeHandlers) {
       return;
     }
@@ -76040,8 +76095,8 @@ function _setWebVitalAttributes(span, options2) {
     );
   }
 }
-function _setResourceRequestAttributes(entry, attributes, properties) {
-  properties.forEach(([entryKey, attributeKey]) => {
+function _setResourceRequestAttributes(entry, attributes, properties2) {
+  properties2.forEach(([entryKey, attributeKey]) => {
     const entryVal = entry[entryKey];
     if (entryVal != null && (typeof entryVal === "number" && entryVal < MAX_INT_AS_BYTES || typeof entryVal === "string")) {
       attributes[attributeKey] = entryVal;
@@ -76403,9 +76458,9 @@ var debounceTimerID;
 var lastCapturedEventType;
 var lastCapturedEventTargetId;
 function addClickKeypressInstrumentationHandler(handler) {
-  const type = "dom";
-  addHandler(type, handler);
-  maybeInstrument(type, instrumentDOM);
+  const type2 = "dom";
+  addHandler(type2, handler);
+  maybeInstrument(type2, instrumentDOM);
 }
 function instrumentDOM() {
   if (!WINDOW4.document) {
@@ -76422,38 +76477,38 @@ function instrumentDOM() {
       return;
     }
     fill(proto, "addEventListener", function(originalAddEventListener) {
-      return function(type, listener, options2) {
-        if (type === "click" || type == "keypress") {
+      return function(type2, listener, options2) {
+        if (type2 === "click" || type2 == "keypress") {
           try {
             const handlers3 = this.__sentry_instrumentation_handlers__ = this.__sentry_instrumentation_handlers__ || {};
-            const handlerForType = handlers3[type] = handlers3[type] || { refCount: 0 };
+            const handlerForType = handlers3[type2] = handlers3[type2] || { refCount: 0 };
             if (!handlerForType.handler) {
               const handler = makeDOMEventHandler(triggerDOMHandler);
               handlerForType.handler = handler;
-              originalAddEventListener.call(this, type, handler, options2);
+              originalAddEventListener.call(this, type2, handler, options2);
             }
             handlerForType.refCount++;
           } catch {
           }
         }
-        return originalAddEventListener.call(this, type, listener, options2);
+        return originalAddEventListener.call(this, type2, listener, options2);
       };
     });
     fill(
       proto,
       "removeEventListener",
       function(originalRemoveEventListener) {
-        return function(type, listener, options2) {
-          if (type === "click" || type == "keypress") {
+        return function(type2, listener, options2) {
+          if (type2 === "click" || type2 == "keypress") {
             try {
               const handlers3 = this.__sentry_instrumentation_handlers__ || {};
-              const handlerForType = handlers3[type];
+              const handlerForType = handlers3[type2];
               if (handlerForType) {
                 handlerForType.refCount--;
                 if (handlerForType.refCount <= 0) {
-                  originalRemoveEventListener.call(this, type, handlerForType.handler, options2);
+                  originalRemoveEventListener.call(this, type2, handlerForType.handler, options2);
                   handlerForType.handler = void 0;
-                  delete handlers3[type];
+                  delete handlers3[type2];
                 }
                 if (Object.keys(handlers3).length === 0) {
                   delete this.__sentry_instrumentation_handlers__;
@@ -76462,7 +76517,7 @@ function instrumentDOM() {
             } catch {
             }
           }
-          return originalRemoveEventListener.call(this, type, listener, options2);
+          return originalRemoveEventListener.call(this, type2, listener, options2);
         };
       }
     );
@@ -76530,9 +76585,9 @@ function getEventTarget2(event) {
 // node_modules/@sentry-internal/browser-utils/build/esm/instrument/history.js
 var lastHref;
 function addHistoryInstrumentationHandler(handler) {
-  const type = "history";
-  addHandler(type, handler);
-  maybeInstrument(type, instrumentHistory);
+  const type2 = "history";
+  addHandler(type2, handler);
+  maybeInstrument(type2, instrumentHistory);
 }
 function instrumentHistory() {
   WINDOW4.addEventListener("popstate", () => {
@@ -76614,9 +76669,9 @@ function clearCachedImplementation(name) {
 // node_modules/@sentry-internal/browser-utils/build/esm/instrument/xhr.js
 var SENTRY_XHR_DATA_KEY = "__sentry_xhr_v3__";
 function addXhrInstrumentationHandler(handler) {
-  const type = "xhr";
-  addHandler(type, handler);
-  maybeInstrument(type, instrumentXHR);
+  const type2 = "xhr";
+  addHandler(type2, handler);
+  maybeInstrument(type2, instrumentXHR);
 }
 function instrumentXHR() {
   if (!WINDOW4.XMLHttpRequest) {
@@ -77456,8 +77511,8 @@ function _enhanceEventWithInitialFrame(event, url, lineno, colno) {
   }
   return event;
 }
-function globalHandlerLog(type) {
-  DEBUG_BUILD3 && debug.log(`Global Handler attached: ${type}`);
+function globalHandlerLog(type2) {
+  DEBUG_BUILD3 && debug.log(`Global Handler attached: ${type2}`);
 }
 function getOptions() {
   const client = getClient();
@@ -77571,7 +77626,7 @@ function setupSidecarForwarding(client, sidecarUrl) {
 var spotlightBrowserIntegration = defineIntegration(_spotlightIntegration);
 function isSpotlightInteraction(event) {
   return Boolean(
-    event.type === "transaction" && event.spans && event.contexts?.trace && event.contexts.trace.op === "ui.action.click" && event.spans.some(({ description }) => description?.includes("#sentry-spotlight"))
+    event.type === "transaction" && event.spans && event.contexts?.trace && event.contexts.trace.op === "ui.action.click" && event.spans.some(({ description: description2 }) => description2?.includes("#sentry-spotlight"))
   );
 }
 
@@ -79063,7 +79118,7 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
       notifySuccess("Toggled dark mode.");
     });
     this._hotkey.listen(["Control", "Alt", "Shift", "KeyC"], () => {
-      this._clipboard.copy(`${V()}|${Pt()}`);
+      this._clipboard.copy(`${X()}|${Pt()}`);
       notifySuccess("Successfully copied token.");
     });
     this._hotkey.listen(["Control", "Alt", "Shift", "KeyV"], () => {
@@ -79083,7 +79138,7 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
         localStorage.setItem("PLACEOS.locale", locale);
       }
       if (params.has("x-api-key")) {
-        Nr(params.get("x-api-key"));
+        Hr(params.get("x-api-key"));
       }
       if (params.has("region_id")) {
         this._region = params.get("region_id");
@@ -79103,7 +79158,7 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
     settings.app_name = this._settings.get("app.name") || this._settings.get("app.short_name");
     settings.mock = !!this._settings.get("mock") || _mocks && location.origin.includes("demo.place.tech");
     if (START_QUERY) {
-      const query = Ie(START_QUERY.substring(1));
+      const query = Te(START_QUERY.substring(1));
       this._router.navigate([], {
         relativeTo: this._route,
         queryParams: query
@@ -79153,15 +79208,15 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
       const auth_error = await setupPlace(settings).then(() => null).catch((_2) => _2);
       if (!auth_error) {
         const api_key = getNativeApiKey();
-        const client_key = `${ai()}_x-api-key`;
+        const client_key = `${hi()}_x-api-key`;
         if (api_key)
-          Nr(api_key);
+          Hr(api_key);
         else if (localStorage.getItem(client_key)) {
           localStorage.removeItem(client_key);
-          An();
+          qn();
         }
         if (intune_token)
-          hi(intune_token);
+          li(intune_token);
         break;
       }
       log("APP", "Auth failed, resetting domain.", auth_error, "warn");
@@ -79169,13 +79224,13 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
       clearNativeApiKey();
       DOMAIN_ERROR.set(`Unable to connect to "${domain}". The server may be unavailable, or the email address may be for a different server. Try again.`);
     }
-    if (isNativeApp() && !V(false)) {
+    if (isNativeApp() && !X(false)) {
       const boot_params = new URLSearchParams(START_QUERY);
       if (boot_params.has("code")) {
-        console.warn("[AUTH] Auth code was present on load but the token exchange did not complete.", `State: "${boot_params.get("state")}"`, `Nonce: "${localStorage.getItem(`${ai()}_nonce`)}"`);
+        console.warn("[AUTH] Auth code was present on load but the token exchange did not complete.", `State: "${boot_params.get("state")}"`, `Nonce: "${localStorage.getItem(`${hi()}_nonce`)}"`);
       }
     }
-    if (isNativeApp() && !V(false) && !Pt() && Rt()) {
+    if (isNativeApp() && !X(false) && !Pt() && Rt()) {
       const auth_error = consumeNativeAuthError();
       if (auth_error) {
         setLoadingMessage("Waiting for sign in...");
@@ -79184,7 +79239,7 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
         await new Promise((r) => this._domain_resolve = r);
       }
       setLoadingMessage("Opening sign in...");
-      const auth_url = await createNativeAuthUrl(settings, ai());
+      const auth_url = await createNativeAuthUrl(settings, hi());
       console.warn(`[AUTH] Opening sign in: ${auth_url}`);
       await openNativeBrowser(auth_url);
       return;
@@ -79194,7 +79249,7 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
       await setupPlace(settings).catch((_2) => console.error(_2));
     }
     if (this._initial_token)
-      hi(this._initial_token);
+      li(this._initial_token);
     await this._waitFor(() => this._org.initialised());
     if (this._locale) {
       this._locale.zone_id = this._org.organisation.id;
@@ -79219,15 +79274,15 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
     this._setZones();
   }
   onInitError() {
-    if (kn() || currentUser()?.is_logged_in)
+    if (Sn() || currentUser()?.is_logged_in)
       return;
     if (isNativeApp() && getNativeApiKey()) {
       clearNativeApiKey();
       clearNativeDomain();
-      localStorage.removeItem(`${ai()}_x-api-key`);
-      An();
-    } else if (!V(false))
-      An();
+      localStorage.removeItem(`${hi()}_x-api-key`);
+      qn();
+    } else if (!X(false))
+      qn();
     location.reload();
   }
   _initAnalytics() {
@@ -79265,7 +79320,7 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
   }
   _pasteToken(tkn) {
     const parts = tkn.split("|");
-    const id = ai();
+    const id = hi();
     localStorage.setItem(`${id}_access_token`, `${parts[0]}`);
     localStorage.setItem(`${id}_refresh_token`, `${parts[1]}`);
     localStorage.setItem(`${id}_expires_at`, `${addHours(/* @__PURE__ */ new Date(), 6).valueOf()}`);
@@ -79439,7 +79494,7 @@ var OrganisationService = class _OrganisationService {
     const binding = this.binding(name);
     const system_id = binding instanceof Object ? binding.id || binding.system_id : binding;
     const mod_id = (binding instanceof Object ? binding.mod || binding.module : "") || default_mod_id;
-    return !system_id || !mod_id ? null : Fl(system_id, mod_id);
+    return !system_id || !mod_id ? null : Wl(system_id, mod_id);
   }
   /** Get building by id */
   find(id) {
@@ -79558,7 +79613,7 @@ var OrganisationService = class _OrganisationService {
     this._building_settings = {};
     this._skip_auto_selection = false;
     this._override_timer = null;
-    ri(Hr(), (_2) => _2).then(() => setTimeout(() => this.init(), 1e3));
+    oi(Lr(), (_2) => _2).then(() => setTimeout(() => this.init(), 1e3));
     effect(() => {
       this._active_region();
       const building = this._active_building();
@@ -79746,7 +79801,7 @@ var OrganisationService = class _OrganisationService {
     });
     if (org_list.length) {
       const auth = Rt();
-      const org = org_list.find((list2) => kn() || list2.id === auth?.config?.org_zone) || org_list[0];
+      const org = org_list.find((list2) => Sn() || list2.id === auth?.config?.org_zone) || org_list[0];
       const load_metadata = !this._service.get("dont_load_metadata");
       const bindings = load_metadata ? (await this._bulkMetadataDetails("bindings", [org.id]))[org.id] : {};
       this._organisation = new Organisation(__spreadProps(__spreadValues({}, org), { bindings }));
@@ -79983,7 +80038,7 @@ var OrganisationService = class _OrganisationService {
     const cached_metadata = this._getCachedItem(cache_key);
     if (cached_metadata)
       return cached_metadata;
-    const metadata = await Ku(name, { parent_ids }).catch((err) => err?.status === 404 ? this._individualMetadata(name, ids) : {});
+    const metadata = await Yu(name, { parent_ids }).catch((err) => err?.status === 404 ? this._individualMetadata(name, ids) : {});
     const metadata_details = ids.reduce((map2, id) => {
       map2[id] = metadata[id]?.details || {};
       return map2;
@@ -79993,7 +80048,7 @@ var OrganisationService = class _OrganisationService {
   }
   /** Fallback for backends without the bulk metadata endpoint (404) */
   async _individualMetadata(name, ids) {
-    const items = await Promise.all(ids.filter(Boolean).map((id) => ju(id, name).then((item) => [id, item], () => [id, null])));
+    const items = await Promise.all(ids.filter(Boolean).map((id) => Wu(id, name).then((item) => [id, item], () => [id, null])));
     const metadata = {};
     for (const [id, item] of items) {
       if (item)
@@ -80006,7 +80061,7 @@ var OrganisationService = class _OrganisationService {
     const cached_zones = this._getCachedItem(cache_key);
     if (cached_zones)
       return cached_zones;
-    const zones = (await Ba(__spreadProps(__spreadValues({}, params), {
+    const zones = (await Ka(__spreadProps(__spreadValues({}, params), {
       authority_id: Rt().id
     }))).data || [];
     this._setCachedItem(cache_key, zones);
@@ -80983,19 +81038,19 @@ var NativeDateAdapter = class _NativeDateAdapter extends DateAdapter {
     return new Date(date.getTime() + amount * 1e3);
   }
   _createDateWithOverflow(year, month, date) {
-    const d2 = /* @__PURE__ */ new Date();
-    d2.setFullYear(year, month, date);
-    d2.setHours(0, 0, 0, 0);
-    return d2;
+    const d = /* @__PURE__ */ new Date();
+    d.setFullYear(year, month, date);
+    d.setHours(0, 0, 0, 0);
+    return d;
   }
   _2digit(n) {
     return ("00" + n).slice(-2);
   }
   _format(dtf, date) {
-    const d2 = /* @__PURE__ */ new Date();
-    d2.setUTCFullYear(date.getFullYear(), date.getMonth(), date.getDate());
-    d2.setUTCHours(date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds());
-    return dtf.format(d2);
+    const d = /* @__PURE__ */ new Date();
+    d.setUTCFullYear(date.getFullYear(), date.getMonth(), date.getDate());
+    d.setUTCHours(date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds());
+    return dtf.format(d);
   }
   _parseTimeString(value) {
     const parsed = value.toUpperCase().match(TIME_REGEX);
@@ -81389,8 +81444,8 @@ var SafePipe = class _SafePipe {
    * @param value String to sanitize
    * @param type Type of value to sanitise. `resource`, `url`, `script`, `style` or `html`
    */
-  transform(value, type = "html") {
-    switch (type) {
+  transform(value, type2 = "html") {
+    switch (type2) {
       case "resource":
         return this.sanitizer.bypassSecurityTrustResourceUrl(value);
       case "url":
@@ -83345,8 +83400,8 @@ var TextFieldModule = class _TextFieldModule {
 var MAT_INPUT_VALUE_ACCESSOR = new InjectionToken("MAT_INPUT_VALUE_ACCESSOR");
 
 // node_modules/@angular/material/fesm2022/input.mjs
-function getMatInputUnsupportedTypeError(type) {
-  return Error(`Input type "${type}" isn't supported by matInput.`);
+function getMatInputUnsupportedTypeError(type2) {
+  return Error(`Input type "${type2}" isn't supported by matInput.`);
 }
 var MAT_INPUT_INVALID_TYPES = ["button", "checkbox", "file", "hidden", "image", "radio", "range", "reset", "submit"];
 var MAT_INPUT_CONFIG = new InjectionToken("MAT_INPUT_CONFIG");
@@ -86068,11 +86123,11 @@ async function storeSessionCachedResponse(source, response) {
   }
 }
 function setAuthCookie(cookie_path) {
-  const tkn = V();
+  const tkn = X();
   document.cookie = `${tkn === "x-api-key" ? "api-key=" + encodeURIComponent(Ye()) : "bearer_token=" + encodeURIComponent(tkn)};max-age=30;path=${cookie_path};samesite=strict;${location.protocol === "https:" ? "secure;" : ""}`;
 }
 function authHeaders() {
-  const tkn = V();
+  const tkn = X();
   return tkn === "x-api-key" ? { "X-API-Key": Ye() } : { Authorization: `Bearer ${tkn}` };
 }
 async function responseToObjectUrl(source, response) {
@@ -87619,9 +87674,9 @@ ${body}</blockquote>
       const item = token.items[j];
       body += this.listitem(item);
     }
-    const type = ordered ? "ol" : "ul";
+    const type2 = ordered ? "ol" : "ul";
     const startAttr = ordered && start !== 1 ? ' start="' + start + '"' : "";
-    return "<" + type + startAttr + ">\n" + body + "</" + type + ">\n";
+    return "<" + type2 + startAttr + ">\n" + body + "</" + type2 + ">\n";
   }
   listitem(item) {
     let itemBody = "";
@@ -87682,9 +87737,9 @@ ${text}</tr>
   }
   tablecell(token) {
     const content = this.parser.parseInline(token.tokens);
-    const type = token.header ? "th" : "td";
-    const tag2 = token.align ? `<${type} align="${token.align}">` : `<${type}>`;
-    return tag2 + content + `</${type}>
+    const type2 = token.header ? "th" : "td";
+    const tag2 = token.align ? `<${type2} align="${token.align}">` : `<${type2}>`;
+    return tag2 + content + `</${type2}>
 `;
   }
   /**
@@ -88484,8 +88539,8 @@ var SanitizePipe = class _SanitizePipe {
   constructor() {
     this.sanitizer = inject2(DomSanitizer);
   }
-  transform(value, type = "html") {
-    switch (type) {
+  transform(value, type2 = "html") {
+    switch (type2) {
       case "resource":
         return this.sanitizer.sanitize(SecurityContext2.RESOURCE_URL, value);
       case "url":
@@ -88629,7 +88684,7 @@ var ChatService = class _ChatService extends AsyncHandler {
     const id = this._chat_system();
     if (!id)
       return;
-    const auth = V() !== "x-api-key" ? `bearer_token=${encodeURIComponent(V())}` : `x-api-key=${Ye()}`;
+    const auth = X() !== "x-api-key" ? `bearer_token=${encodeURIComponent(X())}` : `x-api-key=${Ye()}`;
     const url = `ws${location.origin.replace("http", "")}/api/engine/v2/chatgpt/chat/${encodeURIComponent(id)}?${auth}${this._chat_id ? "&resume=" + encodeURIComponent(this._chat_id) : ""}`;
     log("CHAT", "Starting chat connection.");
     this._socket = new WebSocket(url);
@@ -88711,7 +88766,7 @@ var ChatService = class _ChatService extends AsyncHandler {
     this._timeoutSocket();
   }
   _bindHint(id) {
-    const mod4 = Fl(id, "LLM");
+    const mod4 = Wl(id, "LLM");
     const binding = mod4.variable("user_hint");
     this.subscription(`binding:LLM:user_hint`, binding.bind());
     this.subscription(`listen:LLM:user_hint`, binding.listen().subscribe((value) => this.chat_hint.set(value)));
@@ -89318,6 +89373,313 @@ var ChatComponent = class _ChatComponent extends AsyncHandler {
 })();
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ChatComponent, { className: "ChatComponent", filePath: "libs/components/src/lib/chat/chat.component.ts", lineNumber: 230 });
+})();
+
+// libs/components/src/lib/custom-tooltip.component.ts
+var _c012 = ["portal_content"];
+var _c18 = ["*"];
+function CustomTooltipComponent_ng_template_1_Case_1_ng_container_0_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementContainer(0);
+  }
+}
+function CustomTooltipComponent_ng_template_1_Case_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275template(0, CustomTooltipComponent_ng_template_1_Case_1_ng_container_0_Template, 1, 0, "ng-container", 3);
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275property("ngComponentOutlet", ctx_r0.component())("ngComponentOutletInjector", ctx_r0.injector);
+  }
+}
+function CustomTooltipComponent_ng_template_1_Case_2_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "div", 2);
+    \u0275\u0275pipe(1, "sanitize");
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275property("innerHTML", \u0275\u0275pipeBind1(1, 1, ctx_r0.html()), \u0275\u0275sanitizeHtml);
+  }
+}
+function CustomTooltipComponent_ng_template_1_Case_3_ng_container_0_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementContainer(0);
+  }
+}
+function CustomTooltipComponent_ng_template_1_Case_3_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275template(0, CustomTooltipComponent_ng_template_1_Case_3_ng_container_0_Template, 1, 0, "ng-container", 4);
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275property("ngTemplateOutlet", ctx_r0.template())("ngTemplateOutletContext", ctx_r0.data());
+  }
+}
+function CustomTooltipComponent_ng_template_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 1);
+    \u0275\u0275conditionalCreate(1, CustomTooltipComponent_ng_template_1_Case_1_Template, 1, 2, "ng-container")(2, CustomTooltipComponent_ng_template_1_Case_2_Template, 2, 3, "div", 2)(3, CustomTooltipComponent_ng_template_1_Case_3_Template, 1, 2, "ng-container");
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    let tmp_2_0;
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275conditional((tmp_2_0 = ctx_r0.type()) === "component" ? 1 : tmp_2_0 === "html" ? 2 : 3);
+  }
+}
+var CustomTooltipData = class _CustomTooltipData {
+  static {
+    this.\u0275fac = function CustomTooltipData_Factory(__ngFactoryType__) {
+      return new (__ngFactoryType__ || _CustomTooltipData)();
+    };
+  }
+  static {
+    this.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _CustomTooltipData, factory: _CustomTooltipData.\u0275fac });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(CustomTooltipData, [{
+    type: Injectable
+  }], null, null);
+})();
+var CustomTooltipComponent = class _CustomTooltipComponent extends AsyncHandler {
+  constructor() {
+    super(...arguments);
+    this._element = inject2(ElementRef);
+    this._overlay = inject2(Overlay);
+    this._injector = inject2(Injector);
+    this._view_container_ref = inject2(ViewContainerRef);
+    this.x_pos = input("end", __spreadProps(__spreadValues({}, ngDevMode ? { debugName: "x_pos" } : (
+      /* istanbul ignore next */
+      {}
+    )), { alias: "xPosition" }));
+    this.y_pos = input("top", __spreadProps(__spreadValues({}, ngDevMode ? { debugName: "y_pos" } : (
+      /* istanbul ignore next */
+      {}
+    )), { alias: "yPosition" }));
+    this.content = input(
+      void 0,
+      ...ngDevMode ? [{ debugName: "content" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.data = input(
+      void 0,
+      ...ngDevMode ? [{ debugName: "data" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.backdrop = input(
+      true,
+      ...ngDevMode ? [{ debugName: "backdrop" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.hover = input(
+      false,
+      ...ngDevMode ? [{ debugName: "hover" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.delay = input(
+      0,
+      ...ngDevMode ? [{ debugName: "delay" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.x_offset = input(0, __spreadProps(__spreadValues({}, ngDevMode ? { debugName: "x_offset" } : (
+      /* istanbul ignore next */
+      {}
+    )), { alias: "xOffset" }));
+    this.y_offset = input(0, __spreadProps(__spreadValues({}, ngDevMode ? { debugName: "y_offset" } : (
+      /* istanbul ignore next */
+      {}
+    )), { alias: "yOffset" }));
+    this.type = computed(
+      () => this.content() instanceof TemplateRef ? "template" : this.content() instanceof Type ? "component" : "html",
+      ...ngDevMode ? [{ debugName: "type" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.template = computed(
+      () => {
+        return this.content();
+      },
+      ...ngDevMode ? [{ debugName: "template" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.html = computed(
+      () => {
+        return this.content();
+      },
+      ...ngDevMode ? [{ debugName: "html" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.component = computed(
+      () => {
+        return this.content();
+      },
+      ...ngDevMode ? [{ debugName: "component" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._overlay_ref = null;
+    this._portal_content = viewChild.required("portal_content", {
+      read: TemplateRef
+    });
+    this._update_injector = effect(
+      () => {
+        this.injector = Injector.create({
+          providers: [
+            {
+              provide: CustomTooltipData,
+              useValue: { data: this.data(), close: () => this.close() }
+            }
+          ],
+          parent: this._injector
+        });
+      },
+      ...ngDevMode ? [{ debugName: "_update_injector" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+  }
+  ngOnInit() {
+    const open = () => !this.hover() ? this.open() : "";
+    const hover_open = (event) => this._canOpenHoverTooltip(event) ? this.open() : "";
+    const hover_close = (event) => this._canOpenHoverTooltip(event) ? this.close() : "";
+    this._element.nativeElement.addEventListener("click", open);
+    this._element.nativeElement.addEventListener("touchend", open);
+    this._element.nativeElement.addEventListener("pointerenter", hover_open);
+    this._element.nativeElement.addEventListener("pointerleave", hover_close);
+    this.subscription("click", () => this._element.nativeElement.removeEventListener("click", open));
+    this.subscription("touchend", () => this._element.nativeElement.removeEventListener("touchend", open));
+    this.subscription("pointerenter", () => this._element.nativeElement.removeEventListener("pointerenter", hover_open));
+    this.subscription("pointerleave", () => this._element.nativeElement.removeEventListener("pointerleave", hover_close));
+  }
+  ngOnChanges(changes) {
+    if (this._overlay_ref && (changes.x_pos || changes.y_pos || changes.x_offset || changes.y_offset || changes.content)) {
+      this.open();
+    }
+  }
+  ngOnDestroy() {
+    super.ngOnDestroy();
+    this.close();
+  }
+  open() {
+    if (!this.content())
+      return;
+    this.timeout("open", () => {
+      const hover = this.hover();
+      const delay2 = this.delay();
+      if (hover && delay2) {
+        this.timeout("onclose", () => this.close(), delay2);
+      }
+      if (this._overlay_ref)
+        this.close();
+      const portal = new TemplatePortal(this._portal_content(), this._view_container_ref);
+      const default_x = "end";
+      const default_y = "top";
+      const y_pos = this.y_pos();
+      this._overlay_ref = this._overlay.create({
+        hasBackdrop: !!this.backdrop() && !hover,
+        positionStrategy: this._overlay.position().flexibleConnectedTo(this._element).withDefaultOffsetX(this.x_offset()).withDefaultOffsetY(this.y_offset()).withPositions([
+          {
+            originX: this.x_pos() || default_x,
+            originY: (y_pos === "top" ? "bottom" : y_pos == "bottom" ? "top" : y_pos) || default_y,
+            overlayX: this.x_pos() || default_x,
+            overlayY: this.y_pos() || default_y
+          }
+        ])
+      });
+      this._overlay_ref.attach(portal);
+      if (this.backdrop()) {
+        this.subscription("backdrop", this._overlay_ref.backdropClick().subscribe(() => this.close()));
+      }
+    }, 50);
+  }
+  close() {
+    this.clearTimeout("open");
+    if (this._overlay_ref) {
+      this._overlay_ref.dispose();
+      this._overlay_ref = null;
+    }
+  }
+  _canOpenHoverTooltip(event) {
+    if (!this.hover())
+      return false;
+    return !("pointerType" in event) || event.pointerType !== "touch";
+  }
+  static {
+    this.\u0275fac = /* @__PURE__ */ (() => {
+      let \u0275CustomTooltipComponent_BaseFactory;
+      return function CustomTooltipComponent_Factory(__ngFactoryType__) {
+        return (\u0275CustomTooltipComponent_BaseFactory || (\u0275CustomTooltipComponent_BaseFactory = \u0275\u0275getInheritedFactory(_CustomTooltipComponent)))(__ngFactoryType__ || _CustomTooltipComponent);
+      };
+    })();
+  }
+  static {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CustomTooltipComponent, selectors: [["", "customTooltip", ""]], viewQuery: function CustomTooltipComponent_Query(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275viewQuerySignal(ctx._portal_content, _c012, 5, TemplateRef);
+      }
+      if (rf & 2) {
+        \u0275\u0275queryAdvance();
+      }
+    }, inputs: { x_pos: [1, "xPosition", "x_pos"], y_pos: [1, "yPosition", "y_pos"], content: [1, "content"], data: [1, "data"], backdrop: [1, "backdrop"], hover: [1, "hover"], delay: [1, "delay"], x_offset: [1, "xOffset", "x_offset"], y_offset: [1, "yOffset", "y_offset"] }, features: [\u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature], ngContentSelectors: _c18, decls: 3, vars: 0, consts: [["portal_content", ""], ["custom-tooltip", "", 1, "relative", "print:hidden"], [3, "innerHTML"], [4, "ngComponentOutlet", "ngComponentOutletInjector"], [4, "ngTemplateOutlet", "ngTemplateOutletContext"]], template: function CustomTooltipComponent_Template(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275projectionDef();
+        \u0275\u0275projection(0);
+        \u0275\u0275template(1, CustomTooltipComponent_ng_template_1_Template, 4, 1, "ng-template", null, 0, \u0275\u0275templateRefExtractor);
+      }
+    }, dependencies: [CommonModule, NgComponentOutlet, NgTemplateOutlet, SanitizePipe], styles: ["\n[_nghost-%COMP%] {\n  pointer-events: auto !important;\n}\n/*# sourceMappingURL=custom-tooltip.component.css.map */"] });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(CustomTooltipComponent, [{
+    type: Component,
+    args: [{ selector: "[customTooltip]", template: `
+        <ng-content />
+        <ng-template #portal_content>
+            <div custom-tooltip class="relative print:hidden">
+                @switch (type()) {
+                    @case ('component') {
+                        <ng-container
+                            *ngComponentOutlet="component(); injector: injector"
+                        ></ng-container>
+                    }
+                    @case ('html') {
+                        <div [innerHTML]="html() | sanitize"></div>
+                    }
+                    @default {
+                        <ng-container
+                            *ngTemplateOutlet="template(); context: data()"
+                        ></ng-container>
+                    }
+                }
+            </div>
+        </ng-template>
+    `, imports: [CommonModule, SanitizePipe], styles: ["/* angular:styles/component:css;9f88acd9967d2b0ebf3bc5241107eaa7c3672b233611fbb42832362998689b5f;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/custom-tooltip.component.ts */\n:host {\n  pointer-events: auto !important;\n}\n/*# sourceMappingURL=custom-tooltip.component.css.map */\n"] }]
+  }], null, { x_pos: [{ type: Input, args: [{ isSignal: true, alias: "xPosition", required: false }] }], y_pos: [{ type: Input, args: [{ isSignal: true, alias: "yPosition", required: false }] }], content: [{ type: Input, args: [{ isSignal: true, alias: "content", required: false }] }], data: [{ type: Input, args: [{ isSignal: true, alias: "data", required: false }] }], backdrop: [{ type: Input, args: [{ isSignal: true, alias: "backdrop", required: false }] }], hover: [{ type: Input, args: [{ isSignal: true, alias: "hover", required: false }] }], delay: [{ type: Input, args: [{ isSignal: true, alias: "delay", required: false }] }], x_offset: [{ type: Input, args: [{ isSignal: true, alias: "xOffset", required: false }] }], y_offset: [{ type: Input, args: [{ isSignal: true, alias: "yOffset", required: false }] }], _portal_content: [{ type: ViewChild, args: ["portal_content", __spreadProps(__spreadValues({}, {
+    read: TemplateRef
+  }), { isSignal: true })] }] });
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CustomTooltipComponent, { className: "CustomTooltipComponent", filePath: "libs/components/src/lib/custom-tooltip.component.ts", lineNumber: 64 });
 })();
 
 // libs/components/src/lib/global-banner.component.ts
@@ -90388,13 +90750,13 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
     this.loading.set(true);
     await this._org.waitUntilInitialised();
     await firstTruthyValueFrom(this._settings.initialised);
-    this.online.set(Dr());
+    this.online.set(Fr());
     this.interval("has_token", () => {
-      this.online.set(Dr());
-      if (!Rt() || !V())
+      this.online.set(Fr());
+      if (!Rt() || !X())
         return;
       this.loading.set(false);
-      this.online.set(Dr());
+      this.online.set(Fr());
       this.clearInterval("has_token");
     }, 1e3);
   }
@@ -90481,7 +90843,984 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(GlobalLoadingComponent, { className: "GlobalLoadingComponent", filePath: "libs/components/src/lib/global-loading.component.ts", lineNumber: 81 });
 })();
 
+// libs/components/src/lib/settings-debug-panel.component.ts
+var _c013 = (a0) => ({ zones: a0 });
+var _forTrack0 = ($index, $item) => $item.type + $item.id;
+function SettingsDebugPanelComponent_Conditional_0_Conditional_6_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r2 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 15);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_Conditional_6_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r2);
+      const ctx_r2 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r2.clearAll());
+    });
+    \u0275\u0275text(1, " Clear all overrides ");
+    \u0275\u0275elementEnd();
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_0_Conditional_7_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span", 22);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const group_r5 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", group_r5.overridden, " overridden ");
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r4 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 18);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_0_Template_button_click_0_listener() {
+      const group_r5 = \u0275\u0275restoreView(_r4);
+      const ctx_r2 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r2.toggleGroup(group_r5.name));
+    });
+    \u0275\u0275elementStart(1, "icon", 19);
+    \u0275\u0275text(2, " chevron_right ");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "span", 20);
+    \u0275\u0275text(4);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(5, "span", 21);
+    \u0275\u0275text(6);
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(7, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_0_Conditional_7_Template, 2, 1, "span", 22);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const group_r5 = ctx;
+    const ctx_r2 = \u0275\u0275nextContext(3);
+    \u0275\u0275advance();
+    \u0275\u0275classProp("rotate-90", ctx_r2.filter() || ctx_r2.expanded()[group_r5.name]);
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate(group_r5.name);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" (", group_r5.count, ") ");
+    \u0275\u0275advance();
+    \u0275\u0275conditional(group_r5.overridden ? 7 : -1);
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Conditional_8_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 29);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const row_r6 = \u0275\u0275nextContext();
+    \u0275\u0275property("title", row_r6.description);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", row_r6.description, " ");
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_9_For_2_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "option", 31);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const option_r8 = ctx.$implicit;
+    \u0275\u0275property("value", option_r8);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", option_r8, " ");
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_9_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r7 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "select", 30);
+    \u0275\u0275twoWayListener("ngModelChange", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_9_Template_select_ngModelChange_0_listener($event) {
+      \u0275\u0275restoreView(_r7);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      \u0275\u0275twoWayBindingSet(ctx_r2.edit_value, $event) || (ctx_r2.edit_value = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275listener("keydown.escape", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_9_Template_select_keydown_escape_0_listener() {
+      \u0275\u0275restoreView(_r7);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      return \u0275\u0275resetView(ctx_r2.editing_key.set(""));
+    });
+    \u0275\u0275repeaterCreate(1, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_9_For_2_Template, 2, 2, "option", 31, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementStart(3, "button", 32);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_9_Template_button_click_3_listener() {
+      \u0275\u0275restoreView(_r7);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      return \u0275\u0275resetView(ctx_r2.saveEdit());
+    });
+    \u0275\u0275elementStart(4, "icon", 33);
+    \u0275\u0275text(5, "check");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const row_r6 = \u0275\u0275nextContext();
+    const ctx_r2 = \u0275\u0275nextContext(3);
+    \u0275\u0275twoWayProperty("ngModel", ctx_r2.edit_value);
+    \u0275\u0275control();
+    \u0275\u0275advance();
+    \u0275\u0275repeater(row_r6.options);
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_10_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r9 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "input", 34);
+    \u0275\u0275twoWayListener("ngModelChange", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_10_Template_input_ngModelChange_0_listener($event) {
+      \u0275\u0275restoreView(_r9);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      \u0275\u0275twoWayBindingSet(ctx_r2.edit_value, $event) || (ctx_r2.edit_value = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275listener("keydown.enter", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_10_Template_input_keydown_enter_0_listener() {
+      \u0275\u0275restoreView(_r9);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      return \u0275\u0275resetView(ctx_r2.saveEdit());
+    })("keydown.escape", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_10_Template_input_keydown_escape_0_listener() {
+      \u0275\u0275restoreView(_r9);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      return \u0275\u0275resetView(ctx_r2.editing_key.set(""));
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementStart(1, "button", 32);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_10_Template_button_click_1_listener() {
+      \u0275\u0275restoreView(_r9);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      return \u0275\u0275resetView(ctx_r2.saveEdit());
+    });
+    \u0275\u0275elementStart(2, "icon", 33);
+    \u0275\u0275text(3, "check");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext(4);
+    \u0275\u0275twoWayProperty("ngModel", ctx_r2.edit_value);
+    \u0275\u0275control();
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_11_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r10 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "input", 35);
+    \u0275\u0275twoWayListener("ngModelChange", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_11_Template_input_ngModelChange_0_listener($event) {
+      \u0275\u0275restoreView(_r10);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      \u0275\u0275twoWayBindingSet(ctx_r2.edit_value, $event) || (ctx_r2.edit_value = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275listener("keydown.enter", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_11_Template_input_keydown_enter_0_listener() {
+      \u0275\u0275restoreView(_r10);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      return \u0275\u0275resetView(ctx_r2.saveEdit());
+    })("keydown.escape", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_11_Template_input_keydown_escape_0_listener() {
+      \u0275\u0275restoreView(_r10);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      return \u0275\u0275resetView(ctx_r2.editing_key.set(""));
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementStart(1, "button", 32);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_11_Template_button_click_1_listener() {
+      \u0275\u0275restoreView(_r10);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      return \u0275\u0275resetView(ctx_r2.saveEdit());
+    });
+    \u0275\u0275elementStart(2, "icon", 33);
+    \u0275\u0275text(3, "check");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext(4);
+    \u0275\u0275twoWayProperty("ngModel", ctx_r2.edit_value);
+    \u0275\u0275control();
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r11 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 36)(1, "button", 39);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_0_Template_button_click_1_listener() {
+      \u0275\u0275restoreView(_r11);
+      const row_r6 = \u0275\u0275nextContext(2);
+      const ctx_r2 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r2.toggleValue(row_r6));
+    });
+    \u0275\u0275element(2, "div", 40);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const row_r6 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance();
+    \u0275\u0275classProp("bg-info", row_r6.value)("bg-base-300", !row_r6.value);
+    \u0275\u0275property("title", row_r6.display);
+    \u0275\u0275advance();
+    \u0275\u0275classProp("translate-x-4", row_r6.value);
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_1_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r12 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 41);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_1_Template_div_click_0_listener() {
+      \u0275\u0275restoreView(_r12);
+      const row_r6 = \u0275\u0275nextContext(2);
+      const ctx_r2 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r2.startEdit(row_r6));
+    });
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const row_r6 = \u0275\u0275nextContext(2);
+    \u0275\u0275classMap(row_r6.display ? "opacity-80" : "italic opacity-40");
+    \u0275\u0275property("title", row_r6.display || "unset");
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", row_r6.display || "unset", " ");
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_2_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r13 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 42);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_2_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r13);
+      const row_r6 = \u0275\u0275nextContext(2);
+      const ctx_r2 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r2.clearOverride(row_r6.key));
+    });
+    \u0275\u0275elementStart(1, "icon", 33);
+    \u0275\u0275text(2, "undo");
+    \u0275\u0275elementEnd()();
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275conditionalCreate(0, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_0_Template, 3, 7, "div", 36)(1, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_1_Template, 2, 4, "div", 37);
+    \u0275\u0275conditionalCreate(2, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_2_Template, 3, 0, "button", 38);
+  }
+  if (rf & 2) {
+    const row_r6 = \u0275\u0275nextContext();
+    \u0275\u0275conditional(row_r6.control === "toggle" ? 0 : 1);
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(row_r6.overridden ? 2 : -1);
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 23)(1, "div", 24)(2, "div", 25)(3, "span", 26);
+    \u0275\u0275text(4);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(5, "span", 27)(6, "icon", 28);
+    \u0275\u0275text(7, "info");
+    \u0275\u0275elementEnd()()();
+    \u0275\u0275conditionalCreate(8, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Conditional_8_Template, 2, 2, "div", 29);
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(9, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_9_Template, 6, 1)(10, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_10_Template, 4, 1)(11, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_11_Template, 4, 1)(12, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Template, 3, 2);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    let tmp_24_0;
+    const row_r6 = ctx;
+    const entry_r14 = \u0275\u0275nextContext().$implicit;
+    const ctx_r2 = \u0275\u0275nextContext(2);
+    const zone_tooltip_r15 = \u0275\u0275reference(2);
+    \u0275\u0275classProp("pl-8", entry_r14.grouped)("pl-2", !entry_r14.grouped)("bg-warning-light", row_r6.overridden);
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate1(" ", row_r6.label, " ");
+    \u0275\u0275advance();
+    \u0275\u0275property("content", zone_tooltip_r15)("data", \u0275\u0275pureFunction1(14, _c013, row_r6.zones))("hover", true)("backdrop", false)("xOffset", 20);
+    \u0275\u0275advance(3);
+    \u0275\u0275conditional(row_r6.description ? 8 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional((tmp_24_0 = ctx_r2.editing_key() === row_r6.key ? row_r6.control : "") === "select" ? 9 : tmp_24_0 === "number" ? 10 : tmp_24_0 === "text" ? 11 : 12);
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_17_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275conditionalCreate(0, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_0_Template, 8, 5, "button", 16);
+    \u0275\u0275conditionalCreate(1, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Template, 13, 16, "div", 17);
+  }
+  if (rf & 2) {
+    let tmp_12_0;
+    let tmp_13_0;
+    const entry_r14 = ctx.$implicit;
+    \u0275\u0275conditional((tmp_12_0 = entry_r14.header) ? 0 : -1, tmp_12_0);
+    \u0275\u0275advance();
+    \u0275\u0275conditional((tmp_13_0 = entry_r14.row) ? 1 : -1, tmp_13_0);
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_ForEmpty_18_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 13);
+    \u0275\u0275text(1, " No matching settings ");
+    \u0275\u0275elementEnd();
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r1 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 1)(1, "div", 2)(2, "div", 3)(3, "div", 4);
+    \u0275\u0275text(4, "Settings Viewer");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(5, "div", 5);
+    \u0275\u0275conditionalCreate(6, SettingsDebugPanelComponent_Conditional_0_Conditional_6_Template, 2, 0, "button", 6);
+    \u0275\u0275elementStart(7, "button", 7);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_Template_button_click_7_listener() {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.show.set(false));
+    });
+    \u0275\u0275elementStart(8, "icon");
+    \u0275\u0275text(9, "close");
+    \u0275\u0275elementEnd()()()()();
+    \u0275\u0275elementStart(10, "div", 8)(11, "div", 9)(12, "input", 10);
+    \u0275\u0275twoWayListener("ngModelChange", function SettingsDebugPanelComponent_Conditional_0_Template_input_ngModelChange_12_listener($event) {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r2 = \u0275\u0275nextContext();
+      \u0275\u0275twoWayBindingSet(ctx_r2.filter, $event) || (ctx_r2.filter = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementStart(13, "icon", 11);
+    \u0275\u0275text(14, "search");
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(15, "div", 12);
+    \u0275\u0275repeaterCreate(16, SettingsDebugPanelComponent_Conditional_0_For_17_Template, 2, 2, null, null, \u0275\u0275repeaterTrackByIndex, false, SettingsDebugPanelComponent_Conditional_0_ForEmpty_18_Template, 2, 0, "div", 13);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(19, "div", 14);
+    \u0275\u0275text(20, " Click a value to override it. Text values are parsed as JSON, falling back to plain strings. Overrides are stored locally in this browser. ");
+    \u0275\u0275elementEnd()()();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275advance(6);
+    \u0275\u0275conditional(ctx_r2.has_overrides() ? 6 : -1);
+    \u0275\u0275advance(6);
+    \u0275\u0275twoWayProperty("ngModel", ctx_r2.filter);
+    \u0275\u0275control();
+    \u0275\u0275advance(4);
+    \u0275\u0275repeater(ctx_r2.entries());
+  }
+}
+function SettingsDebugPanelComponent_ng_template_1_For_5_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 46)(1, "div", 48)(2, "div", 49);
+    \u0275\u0275text(3);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "div", 50);
+    \u0275\u0275text(5);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(6, "span", 51);
+    \u0275\u0275text(7);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const zone_r16 = ctx.$implicit;
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1(" ", zone_r16.name, " ");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", zone_r16.id, " ");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", zone_r16.type, " ");
+  }
+}
+function SettingsDebugPanelComponent_ng_template_1_ForEmpty_6_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 47);
+    \u0275\u0275text(1, " No zone metadata value ");
+    \u0275\u0275elementEnd();
+  }
+}
+function SettingsDebugPanelComponent_ng_template_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 43)(1, "div", 44);
+    \u0275\u0275text(2, " Setting sources ");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "div", 45);
+    \u0275\u0275repeaterCreate(4, SettingsDebugPanelComponent_ng_template_1_For_5_Template, 8, 3, "div", 46, _forTrack0, false, SettingsDebugPanelComponent_ng_template_1_ForEmpty_6_Template, 2, 0, "div", 47);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const zones_r17 = ctx.zones;
+    \u0275\u0275advance(4);
+    \u0275\u0275repeater(zones_r17);
+  }
+}
+function flattenKeys(map2, prefix, keys) {
+  for (const key in map2) {
+    const full_key = prefix ? `${prefix}.${key}` : key;
+    const value = map2[key];
+    if (value && typeof value === "object" && !Array.isArray(value)) {
+      flattenKeys(value, full_key, keys);
+    } else
+      keys.add(full_key);
+  }
+}
+function hasSetting(map2, key) {
+  let value = map2;
+  for (const part of key.slice(4).split("."))
+    value = value?.[part];
+  return value != null;
+}
+function resolveRef(root, node) {
+  const ref = node?.["$ref"];
+  if (!ref?.startsWith("#/"))
+    return node;
+  let target = root;
+  for (const part of ref.slice(2).split("/"))
+    target = target?.[part];
+  return target || node;
+}
+function schemaNode(root, key) {
+  if (!root || !key.startsWith("app."))
+    return null;
+  let node = root;
+  for (const part of key.slice(4).split(".")) {
+    node = resolveRef(root, node)?.properties?.[part];
+    if (!node)
+      return null;
+  }
+  return resolveRef(root, node);
+}
+function flattenSchemaKeys(root, node, prefix, keys, depth = 0) {
+  if (depth > 8)
+    return;
+  node = resolveRef(root, node);
+  if (!node?.properties) {
+    if (prefix)
+      keys.add(prefix);
+    return;
+  }
+  for (const key in node.properties) {
+    flattenSchemaKeys(root, node.properties[key], prefix ? `${prefix}.${key}` : key, keys, depth + 1);
+  }
+}
+var SettingsDebugPanelComponent = class _SettingsDebugPanelComponent extends AsyncHandler {
+  constructor() {
+    super(...arguments);
+    this._settings = inject2(SettingsService);
+    this._hotkey = inject2(HotkeysService);
+    this._org = inject2(OrganisationService);
+    this.schema = input(
+      null,
+      ...ngDevMode ? [{ debugName: "schema" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.show = signal(
+      false,
+      ...ngDevMode ? [{ debugName: "show" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.filter = signal(
+      "",
+      ...ngDevMode ? [{ debugName: "filter" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.editing_key = signal(
+      "",
+      ...ngDevMode ? [{ debugName: "editing_key" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.expanded = signal(
+      {},
+      ...ngDevMode ? [{ debugName: "expanded" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.edit_value = "";
+    this.has_overrides = computed(
+      () => Object.keys(this._settings.debug_overrides()).length > 0,
+      ...ngDevMode ? [{ debugName: "has_overrides" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.rows = computed(
+      () => {
+        const schema = this.schema();
+        const debug_overrides = this._settings.debug_overrides();
+        const keys = /* @__PURE__ */ new Set();
+        flattenKeys({ app: DEFAULT_SETTINGS.app }, "", keys);
+        for (const layer of this._settings.overrides()) {
+          flattenKeys({ app: layer }, "", keys);
+        }
+        if (schema)
+          flattenSchemaKeys(schema, schema, "app", keys);
+        for (const key in debug_overrides)
+          keys.add(key);
+        const search2 = this.filter().toLowerCase();
+        return [...keys].filter((key) => key.slice(4).toLowerCase().includes(search2)).sort().map((key) => {
+          const node = schemaNode(schema, key);
+          const value = this._settings.get(key);
+          let control = "text";
+          if (node?.enum?.length)
+            control = "select";
+          else if (node?.type === "boolean" || typeof value === "boolean") {
+            control = "toggle";
+          } else if (node?.type === "number" || node?.type === "integer" || typeof value === "number") {
+            control = "number";
+          }
+          return {
+            key,
+            label: key.slice(4),
+            value,
+            display: JSON.stringify(value) ?? "",
+            overridden: key in debug_overrides,
+            description: node?.description || "",
+            zones: this._zoneTooltip(key),
+            control,
+            options: node?.enum
+          };
+        });
+      },
+      ...ngDevMode ? [{ debugName: "rows" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.entries = computed(
+      () => {
+        const show_all = !!this.filter();
+        const expanded = this.expanded();
+        const entries = [];
+        let header = null;
+        for (const row of this.rows()) {
+          const index = row.label.indexOf(".");
+          if (index < 0) {
+            header = null;
+            entries.push({ row });
+            continue;
+          }
+          const group = row.label.slice(0, index);
+          if (!header || header.name !== group) {
+            header = { name: group, count: 0, overridden: 0 };
+            entries.push({ header });
+          }
+          header.count += 1;
+          if (row.overridden)
+            header.overridden += 1;
+          if (show_all || expanded[group]) {
+            entries.push({
+              row: __spreadProps(__spreadValues({}, row), { label: row.label.slice(index + 1) }),
+              grouped: true
+            });
+          }
+        }
+        return entries;
+      },
+      ...ngDevMode ? [{ debugName: "entries" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+  }
+  _zoneTooltip(key) {
+    const zones = [];
+    const add_zone = (type2, id, name, settings) => {
+      if (!id || !settings.some((_2) => hasSetting(_2, key)))
+        return;
+      zones.push({ type: type2, id, name: name || id });
+    };
+    for (const [id, settings] of Object.entries(this._org.building_settings)) {
+      const building = this._org.buildings.find((_2) => _2.id === id);
+      add_zone("Building", id, building?.display_name || building?.name || "", [settings]);
+    }
+    for (const [id, settings] of Object.entries(this._org.region_settings)) {
+      const region = this._org.regions.find((_2) => _2.id === id);
+      add_zone("Region", id, region?.display_name || region?.name || "", [settings]);
+    }
+    const organisation = this._org.organisation;
+    add_zone("ORG", organisation.id, organisation.name, this._org.settings);
+    return zones;
+  }
+  toggleGroup(name) {
+    this.expanded.update((state) => __spreadProps(__spreadValues({}, state), { [name]: !state[name] }));
+  }
+  ngOnInit() {
+    this.subscription("toggle", this._hotkey.listen(["Control", "Alt", "Shift", "KeyS"], () => this.show.set(!this.show())));
+  }
+  startEdit(row) {
+    this.editing_key.set(row.key);
+    this.edit_value = row.control === "text" ? row.display : `${row.value ?? ""}`;
+  }
+  toggleValue(row) {
+    this._settings.setDebugOverride(row.key, !row.value);
+  }
+  saveEdit() {
+    const key = this.editing_key();
+    const row = this.rows().find((_2) => _2.key === key);
+    if (!row)
+      return;
+    let value = this.edit_value;
+    if (row.control === "number") {
+      value = parseFloat(this.edit_value);
+      if (isNaN(value))
+        return;
+    } else if (row.control === "text") {
+      try {
+        value = JSON.parse(this.edit_value);
+      } catch {
+      }
+    }
+    this._settings.setDebugOverride(key, value);
+    this.editing_key.set("");
+  }
+  clearOverride(key) {
+    this._settings.setDebugOverride(key, void 0);
+  }
+  clearAll() {
+    this._settings.clearDebugOverrides();
+  }
+  static {
+    this.\u0275fac = /* @__PURE__ */ (() => {
+      let \u0275SettingsDebugPanelComponent_BaseFactory;
+      return function SettingsDebugPanelComponent_Factory(__ngFactoryType__) {
+        return (\u0275SettingsDebugPanelComponent_BaseFactory || (\u0275SettingsDebugPanelComponent_BaseFactory = \u0275\u0275getInheritedFactory(_SettingsDebugPanelComponent)))(__ngFactoryType__ || _SettingsDebugPanelComponent);
+      };
+    })();
+  }
+  static {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SettingsDebugPanelComponent, selectors: [["settings-debug-panel"]], inputs: { schema: [1, "schema"] }, features: [\u0275\u0275InheritDefinitionFeature], decls: 3, vars: 1, consts: [["zone_tooltip", ""], [1, "fixed", "bottom-2", "left-2", "z-998", "w-160", "max-w-[90vw]"], [1, "flex", "flex-col", "gap-2"], [1, "-mb-2", "border-base-300", "bg-base-100", "text-base-content", "flex", "w-[calc(100%-0.5rem)]", "mx-1", "items-center", "overflow-hidden", "rounded-b-lg", "rounded-t-xl", "border", "p-1", "shadow-sm"], [1, "flex-1", "px-3", "font-medium"], [1, "flex", "items-center"], ["matRipple", "", 1, "text-error", "px-2", "py-1", "text-xs", "underline"], ["icon", "", "default", "", "matRipple", "", 1, "text-sm", 3, "click"], [1, "border-base-300", "bg-base-200", "text-base-content", "flex", "h-120", "flex-col", "overflow-hidden", "rounded-xl", "border", "shadow-sm", "pt-2"], [1, "relative", "m-1", "flex"], ["name", "setting-filter", "placeholder", "Filter settings...", 1, "border-base-300", "bg-base-100", "w-full", "rounded-lg", "border", "px-8", "py-2", "pr-2", "font-mono", "text-sm", "shadow", 3, "ngModelChange", "ngModel"], [1, "absolute", "top-1/2", "left-1", "-translate-y-1/2", "text-xl"], [1, "flex-1", "overflow-auto"], [1, "p-4", "text-center", "opacity-30"], [1, "border-base-300", "bg-base-100", "border-t", "p-2", "text-xs", "opacity-60"], ["matRipple", "", 1, "text-error", "px-2", "py-1", "text-xs", "underline", 3, "click"], [1, "border-base-300", "bg-base-100/50", "hover:bg-base-100", "flex", "min-h-8", "w-full", "items-center", "gap-1", "border-b", "px-2", "py-1", "text-left", "text-xs"], [1, "border-base-300", "flex", "min-h-8", "items-center", "border-b", "py-1", "pr-2", "text-xs", 3, "pl-8", "pl-2", "bg-warning-light"], [1, "border-base-300", "bg-base-100/50", "hover:bg-base-100", "flex", "min-h-8", "w-full", "items-center", "gap-1", "border-b", "px-2", "py-1", "text-left", "text-xs", 3, "click"], [1, "text-sm", "transition-transform"], [1, "font-mono"], [1, "opacity-40"], [1, "bg-warning-light", "rounded-sm", "px-1", "text-[0.65rem]", "text-black"], [1, "border-base-300", "flex", "min-h-8", "items-center", "border-b", "py-1", "pr-2", "text-xs"], [1, "w-3/5", "min-w-0", "pr-2"], [1, "flex", "min-w-0", "items-center", "gap-1", "font-mono"], [1, "truncate"], ["customTooltip", "", "xPosition", "start", "yPosition", "center", 1, "shrink-0", 3, "content", "data", "hover", "backdrop", "xOffset"], [1, "text-sm", "opacity-60"], [1, "truncate", "text-[0.65rem]", "opacity-60", 3, "title"], ["name", "setting-value", 1, "bg-base-100", "flex-1", "rounded-sm", "border", "px-1", "py-0.5", "font-mono", 3, "ngModelChange", "keydown.escape", "ngModel"], [3, "value"], ["icon", "", "matRipple", "", "title", "Save override", 3, "click"], [1, "text-sm"], ["name", "setting-value", "type", "number", 1, "bg-base-100", "flex-1", "rounded-sm", "border", "px-1", "py-0.5", "font-mono", 3, "ngModelChange", "keydown.enter", "keydown.escape", "ngModel"], ["name", "setting-value", 1, "bg-base-100", "flex-1", "rounded-sm", "border", "px-1", "py-0.5", "font-mono", 3, "ngModelChange", "keydown.enter", "keydown.escape", "ngModel"], [1, "flex", "flex-1"], [1, "flex-1", "cursor-pointer", "truncate", "font-mono", 3, "class", "title"], ["icon", "", "matRipple", "", "title", "Clear override"], [1, "relative", "h-4", "w-8", "rounded-full", "transition-colors", 3, "click", "title"], [1, "absolute", "top-0.5", "left-0.5", "h-3", "w-3", "rounded-full", "bg-white", "shadow-sm", "transition-transform"], [1, "flex-1", "cursor-pointer", "truncate", "font-mono", 3, "click", "title"], ["icon", "", "matRipple", "", "title", "Clear override", 3, "click"], [1, "border-base-300", "bg-base-100", "text-base-content", "min-w-64", "rounded-lg", "border", "p-2", "shadow-lg"], [1, "border-base-300", "border-b", "px-1", "pb-2", "text-base", "font-medium"], [1, "flex", "flex-col", "gap-1", "pt-2"], [1, "bg-base-200", "flex", "items-start", "gap-2", "rounded-sm", "p-2"], [1, "px-1", "py-2", "text-xs", "opacity-60"], [1, "min-w-0", "flex-1", "w-1/2"], [1, "truncate", "text-base", "font-medium"], [1, "truncate", "font-mono", "text-[0.625rem]", "opacity-60"], [1, "bg-base-300", "rounded-sm", "px-1.5", "py-0.5", "text-[0.625rem]", "font-medium"]], template: function SettingsDebugPanelComponent_Template(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275conditionalCreate(0, SettingsDebugPanelComponent_Conditional_0_Template, 21, 3, "div", 1);
+        \u0275\u0275template(1, SettingsDebugPanelComponent_ng_template_1_Template, 7, 1, "ng-template", null, 0, \u0275\u0275templateRefExtractor);
+      }
+      if (rf & 2) {
+        \u0275\u0275conditional(ctx.show() ? 0 : -1);
+      }
+    }, dependencies: [
+      FormsModule,
+      NgSelectOption,
+      \u0275NgSelectMultipleOption,
+      DefaultValueAccessor,
+      NumberValueAccessor,
+      SelectControlValueAccessor,
+      NgControlStatus,
+      NgModel,
+      MatRippleModule,
+      MatRipple,
+      CustomTooltipComponent,
+      IconComponent
+    ], encapsulation: 2 });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(SettingsDebugPanelComponent, [{
+    type: Component,
+    args: [{
+      selector: "settings-debug-panel",
+      template: `
+        @if (show()) {
+            <div class=" fixed bottom-2 left-2 z-998 w-160 max-w-[90vw]">
+            <div class="flex flex-col gap-2">
+                <div
+                    class="-mb-2 border-base-300 bg-base-100 text-base-content flex w-[calc(100%-0.5rem)] mx-1 items-center overflow-hidden rounded-b-lg rounded-t-xl border p-1 shadow-sm"
+                >
+                    <div class="flex-1 px-3 font-medium">Settings Viewer</div>
+                    <div class="flex items-center">
+                        @if (has_overrides()) {
+                            <button
+                                matRipple
+                                class="text-error px-2 py-1 text-xs underline"
+                                (click)="clearAll()"
+                            >
+                                Clear all overrides
+                            </button>
+                        }
+                        <button
+                            icon
+                            default
+                            matRipple
+                            class="text-sm"
+                            (click)="show.set(false)"
+                        >
+                            <icon>close</icon>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div
+                class="border-base-300 bg-base-200 text-base-content flex h-120 flex-col overflow-hidden rounded-xl border shadow-sm pt-2"
+            >
+                <div class="relative m-1 flex">
+                    <input
+                        name="setting-filter"
+                        [(ngModel)]="filter"
+                        placeholder="Filter settings..."
+                        class="border-base-300 bg-base-100 w-full rounded-lg border px-8 py-2 pr-2 font-mono text-sm shadow"
+                    />
+                    <icon
+                        class="absolute top-1/2 left-1 -translate-y-1/2 text-xl"
+                        >search</icon
+                    >
+                </div>
+                <div class="flex-1 overflow-auto">
+                    @for (entry of entries(); track $index) {
+                        @if (entry.header; as group) {
+                            <button
+                                class="border-base-300 bg-base-100/50 hover:bg-base-100 flex min-h-8 w-full items-center gap-1 border-b px-2 py-1 text-left text-xs"
+                                (click)="toggleGroup(group.name)"
+                            >
+                                <icon
+                                    class="text-sm transition-transform"
+                                    [class.rotate-90]="
+                                        filter() || expanded()[group.name]
+                                    "
+                                >
+                                    chevron_right
+                                </icon>
+                                <span class="font-mono">{{ group.name }}</span>
+                                <span class="opacity-40">
+                                    ({{ group.count }})
+                                </span>
+                                @if (group.overridden) {
+                                    <span
+                                        class="bg-warning-light rounded-sm px-1 text-[0.65rem] text-black"
+                                    >
+                                        {{ group.overridden }} overridden
+                                    </span>
+                                }
+                            </button>
+                        }
+                        @if (entry.row; as row) {
+                            <div
+                                class="border-base-300 flex min-h-8 items-center border-b py-1 pr-2 text-xs"
+                                [class.pl-8]="entry.grouped"
+                                [class.pl-2]="!entry.grouped"
+                                [class.bg-warning-light]="row.overridden"
+                            >
+                                <div class="w-3/5 min-w-0 pr-2">
+                                    <div
+                                        class="flex min-w-0 items-center gap-1 font-mono"
+                                    >
+                                        <span class="truncate">
+                                            {{ row.label }}
+                                        </span>
+                                        <span
+                                            customTooltip
+                                            class="shrink-0"
+                                            [content]="zone_tooltip"
+                                            [data]="{ zones: row.zones }"
+                                            [hover]="true"
+                                            [backdrop]="false"
+                                            xPosition="start"
+                                            yPosition="center"
+                                            [xOffset]="20"
+                                        >
+                                            <icon class="text-sm opacity-60"
+                                                >info</icon
+                                            >
+                                        </span>
+                                    </div>
+                                    @if (row.description) {
+                                        <div
+                                            class="truncate text-[0.65rem] opacity-60"
+                                            [title]="row.description"
+                                        >
+                                            {{ row.description }}
+                                        </div>
+                                    }
+                                </div>
+                                @switch (
+                                    editing_key() === row.key ? row.control : ''
+                                ) {
+                                    @case ('select') {
+                                        <select
+                                            name="setting-value"
+                                            class="bg-base-100 flex-1 rounded-sm border px-1 py-0.5 font-mono"
+                                            [(ngModel)]="edit_value"
+                                            (keydown.escape)="
+                                                editing_key.set('')
+                                            "
+                                        >
+                                            @for (
+                                                option of row.options;
+                                                track option
+                                            ) {
+                                                <option [value]="option">
+                                                    {{ option }}
+                                                </option>
+                                            }
+                                        </select>
+                                        <button
+                                            icon
+                                            matRipple
+                                            title="Save override"
+                                            (click)="saveEdit()"
+                                        >
+                                            <icon class="text-sm">check</icon>
+                                        </button>
+                                    }
+                                    @case ('number') {
+                                        <input
+                                            name="setting-value"
+                                            type="number"
+                                            class="bg-base-100 flex-1 rounded-sm border px-1 py-0.5 font-mono"
+                                            [(ngModel)]="edit_value"
+                                            (keydown.enter)="saveEdit()"
+                                            (keydown.escape)="
+                                                editing_key.set('')
+                                            "
+                                        />
+                                        <button
+                                            icon
+                                            matRipple
+                                            title="Save override"
+                                            (click)="saveEdit()"
+                                        >
+                                            <icon class="text-sm">check</icon>
+                                        </button>
+                                    }
+                                    @case ('text') {
+                                        <input
+                                            name="setting-value"
+                                            class="bg-base-100 flex-1 rounded-sm border px-1 py-0.5 font-mono"
+                                            [(ngModel)]="edit_value"
+                                            (keydown.enter)="saveEdit()"
+                                            (keydown.escape)="
+                                                editing_key.set('')
+                                            "
+                                        />
+                                        <button
+                                            icon
+                                            matRipple
+                                            title="Save override"
+                                            (click)="saveEdit()"
+                                        >
+                                            <icon class="text-sm">check</icon>
+                                        </button>
+                                    }
+                                    @default {
+                                        @if (row.control === 'toggle') {
+                                            <div class="flex flex-1">
+                                                <button
+                                                    class="relative h-4 w-8 rounded-full transition-colors"
+                                                    [class.bg-info]="row.value"
+                                                    [class.bg-base-300]="
+                                                        !row.value
+                                                    "
+                                                    [title]="row.display"
+                                                    (click)="toggleValue(row)"
+                                                >
+                                                    <div
+                                                        class="absolute top-0.5 left-0.5 h-3 w-3 rounded-full bg-white shadow-sm transition-transform"
+                                                        [class.translate-x-4]="
+                                                            row.value
+                                                        "
+                                                    ></div>
+                                                </button>
+                                            </div>
+                                        } @else {
+                                            <div
+                                                class="flex-1 cursor-pointer truncate font-mono"
+                                                [class]="
+                                                    row.display
+                                                        ? 'opacity-80'
+                                                        : 'italic opacity-40'
+                                                "
+                                                [title]="row.display || 'unset'"
+                                                (click)="startEdit(row)"
+                                            >
+                                                {{ row.display || 'unset' }}
+                                            </div>
+                                        }
+                                        @if (row.overridden) {
+                                            <button
+                                                icon
+                                                matRipple
+                                                title="Clear override"
+                                                (click)="clearOverride(row.key)"
+                                            >
+                                                <icon class="text-sm"
+                                                    >undo</icon
+                                                >
+                                            </button>
+                                        }
+                                    }
+                                }
+                            </div>
+                        }
+                    } @empty {
+                        <div class="p-4 text-center opacity-30">
+                            No matching settings
+                        </div>
+                    }
+                </div>
+                <div
+                    class="border-base-300 bg-base-100 border-t p-2 text-xs opacity-60"
+                >
+                    Click a value to override it. Text values are parsed as
+                    JSON, falling back to plain strings. Overrides are stored
+                    locally in this browser.
+                </div>
+            </div>
+            </div>
+        }
+        <ng-template #zone_tooltip let-zones="zones">
+            <div
+                class="border-base-300 bg-base-100 text-base-content min-w-64 rounded-lg border p-2 shadow-lg"
+            >
+                <div class="border-base-300 border-b px-1 pb-2 text-base font-medium">
+                    Setting sources
+                </div>
+                <div class="flex flex-col gap-1 pt-2">
+                    @for (zone of zones; track zone.type + zone.id) {
+                        <div class="bg-base-200 flex items-start gap-2 rounded-sm p-2">
+                            <div class="min-w-0 flex-1 w-1/2">
+                                <div class="truncate text-base font-medium">
+                                    {{ zone.name }}
+                                </div>
+                                <div class="truncate font-mono text-[0.625rem] opacity-60">
+                                    {{ zone.id }}
+                                </div>
+                            </div>
+                            <span
+                                class="bg-base-300 rounded-sm px-1.5 py-0.5 text-[0.625rem] font-medium"
+                            >
+                                {{ zone.type }}
+                            </span>
+                        </div>
+                    } @empty {
+                        <div class="px-1 py-2 text-xs opacity-60">
+                            No zone metadata value
+                        </div>
+                    }
+                </div>
+            </div>
+        </ng-template>
+    `,
+      imports: [
+        FormsModule,
+        MatRippleModule,
+        CustomTooltipComponent,
+        IconComponent
+      ]
+    }]
+  }], null, { schema: [{ type: Input, args: [{ isSignal: true, alias: "schema", required: false }] }] });
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SettingsDebugPanelComponent, { className: "SettingsDebugPanelComponent", filePath: "libs/components/src/lib/settings-debug-panel.component.ts", lineNumber: 394 });
+})();
+
 // libs/components/src/lib/unauthorised.component.ts
+var _c014 = () => ["/"];
 var UnauthorisedComponent = class _UnauthorisedComponent {
   static {
     this.\u0275fac = function UnauthorisedComponent_Factory(__ngFactoryType__) {
@@ -90489,33 +91828,38 @@ var UnauthorisedComponent = class _UnauthorisedComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _UnauthorisedComponent, selectors: [["app-unauthorised"]], decls: 13, vars: 9, consts: [["unauthorised", "", 1, "absolute", "inset-0"], [1, "border-base-300", "bg-base-100", "text-base-content", "mx-auto", "my-4", "w-104", "max-w-[calc(100%-1rem)]", "rounded-xl", "border", "p-4", "text-center", "shadow-lg"], [1, "text-4xl"], [1, "py-4"]], template: function UnauthorisedComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _UnauthorisedComponent, selectors: [["app-unauthorised"]], decls: 15, vars: 11, consts: [["unauthorised", "", 1, "absolute", "inset-0"], [1, "border-base-300", "bg-base-100", "text-base-content", "mx-auto", "my-4", "flex", "w-104", "max-w-[calc(100%-1rem)]", "flex-col", "gap-2", "rounded-xl", "border", "p-4", "text-center", "shadow-lg"], [1, "text-4xl"], [1, "py-4"], ["btn", "", 3, "routerLink"]], template: function UnauthorisedComponent_Template(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275domElementStart(0, "div", 0)(1, "div", 1)(2, "h1", 2);
+        \u0275\u0275elementStart(0, "div", 0)(1, "div", 1)(2, "h1", 2);
         \u0275\u0275text(3, "403");
-        \u0275\u0275domElementEnd();
-        \u0275\u0275domElementStart(4, "h3");
+        \u0275\u0275elementEnd();
+        \u0275\u0275elementStart(4, "h3");
         \u0275\u0275text(5);
         \u0275\u0275pipe(6, "translate");
-        \u0275\u0275domElementEnd();
-        \u0275\u0275domElementStart(7, "p", 3);
+        \u0275\u0275elementEnd();
+        \u0275\u0275elementStart(7, "p", 3);
         \u0275\u0275text(8);
         \u0275\u0275pipe(9, "translate");
-        \u0275\u0275domElementEnd();
-        \u0275\u0275domElementStart(10, "p");
+        \u0275\u0275elementEnd();
+        \u0275\u0275elementStart(10, "p");
         \u0275\u0275text(11);
         \u0275\u0275pipe(12, "translate");
-        \u0275\u0275domElementEnd()()();
+        \u0275\u0275elementEnd();
+        \u0275\u0275elementStart(13, "a", 4);
+        \u0275\u0275text(14, "Try Again");
+        \u0275\u0275elementEnd()()();
       }
       if (rf & 2) {
         \u0275\u0275advance(5);
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(6, 3, "COMMON.FORBIDDEN"));
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(6, 4, "COMMON.FORBIDDEN"));
         \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(9, 5, "COMMON.INVALID_PAGE_PERMISSIONS"), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(9, 6, "COMMON.INVALID_PAGE_PERMISSIONS"), " ");
         \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(12, 7, "COMMON.CONTACT_ADMIN"), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(12, 8, "COMMON.CONTACT_ADMIN"), " ");
+        \u0275\u0275advance(2);
+        \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(10, _c014));
       }
-    }, dependencies: [TranslatePipe], styles: ["\n[_nghost-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n[unauthorised][_ngcontent-%COMP%] {\n  background-image:\n    linear-gradient(\n      to right,\n      #c62828 0%,\n      #ef5350 100%);\n}\n/*# sourceMappingURL=unauthorised.component.css.map */"] });
+    }, dependencies: [RouterLink, TranslatePipe], styles: ["\n[_nghost-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n[unauthorised][_ngcontent-%COMP%] {\n  background-image:\n    linear-gradient(\n      to right,\n      #c62828 0%,\n      #ef5350 100%);\n}\n/*# sourceMappingURL=unauthorised.component.css.map */"] });
   }
 };
 (() => {
@@ -90524,7 +91868,7 @@ var UnauthorisedComponent = class _UnauthorisedComponent {
     args: [{ selector: "app-unauthorised", template: `
         <div unauthorised class="absolute inset-0">
             <div
-                class="border-base-300 bg-base-100 text-base-content mx-auto my-4 w-104 max-w-[calc(100%-1rem)] rounded-xl border p-4 text-center shadow-lg"
+                class="border-base-300 bg-base-100 text-base-content mx-auto my-4 flex w-104 max-w-[calc(100%-1rem)] flex-col gap-2 rounded-xl border p-4 text-center shadow-lg"
             >
                 <h1 class="text-4xl">403</h1>
                 <h3>{{ 'COMMON.FORBIDDEN' | translate }}</h3>
@@ -90534,13 +91878,14 @@ var UnauthorisedComponent = class _UnauthorisedComponent {
                 <p>
                     {{ 'COMMON.CONTACT_ADMIN' | translate }}
                 </p>
+                <a btn [routerLink]="['/']">Try Again</a>
             </div>
         </div>
-    `, imports: [TranslatePipe], styles: ["/* angular:styles/component:css;9e56e45d1ecd17d612bec636f553ceddd9b98cd2552edbd57d59534065beeefe;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/unauthorised.component.ts */\n:host {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n[unauthorised] {\n  background-image:\n    linear-gradient(\n      to right,\n      #c62828 0%,\n      #ef5350 100%);\n}\n/*# sourceMappingURL=unauthorised.component.css.map */\n"] }]
+    `, imports: [TranslatePipe, RouterLink], styles: ["/* angular:styles/component:css;9e56e45d1ecd17d612bec636f553ceddd9b98cd2552edbd57d59534065beeefe;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/unauthorised.component.ts */\n:host {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n[unauthorised] {\n  background-image:\n    linear-gradient(\n      to right,\n      #c62828 0%,\n      #ef5350 100%);\n}\n/*# sourceMappingURL=unauthorised.component.css.map */\n"] }]
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UnauthorisedComponent, { className: "UnauthorisedComponent", filePath: "libs/components/src/lib/unauthorised.component.ts", lineNumber: 41 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UnauthorisedComponent, { className: "UnauthorisedComponent", filePath: "libs/components/src/lib/unauthorised.component.ts", lineNumber: 43 });
 })();
 
 // libs/components/src/lib/user-avatar.component.ts
@@ -90693,13 +92038,13 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
     const use_group_subsystem_access = await this.useGroupSubsystemAccess();
     let can_activate = false;
     if (use_group_subsystem_access) {
-      await ri(Hr(), Boolean);
+      await oi(Lr(), Boolean);
       const user = await firstTruthyValueFrom(current_user);
       can_activate = await this.checkSubsystemAccess(user);
     } else if (!groups.length) {
       can_activate = true;
     } else {
-      await ri(Hr(), Boolean);
+      await oi(Lr(), Boolean);
       await this._org.waitUntilInitialised();
       const user = await firstTruthyValueFrom(current_user);
       can_activate = !!(user && groups.find((_2) => user.groups.includes(_2)));
@@ -90747,6 +92092,93 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
   }], null, null);
 })();
 
+// apps/assistant-panel/src/environments/settings.schema.json
+var settings_schema_exports = {};
+__export(settings_schema_exports, {
+  $defs: () => $defs,
+  default: () => settings_schema_default,
+  description: () => description,
+  properties: () => properties,
+  type: () => type
+});
+var type = "object";
+var description = "Customisable settings for the assistant-panel app";
+var properties = {
+  name: {
+    type: "string",
+    description: "Name of the application. Appended to browser page titles and used as the fallback location for bookings"
+  },
+  title: {
+    type: "string",
+    description: "Base browser page title for the application"
+  },
+  description: {
+    type: "string",
+    description: "Description of the application"
+  },
+  short_name: {
+    type: "string",
+    description: "Short name for the application. Used as the app name for PlaceOS API metadata and page titles"
+  },
+  logo: {
+    $ref: "#/$defs/icon",
+    description: "Application logo to display on light backgrounds"
+  },
+  logo_dark: {
+    $ref: "#/$defs/icon",
+    description: "Application logo to display on dark backgrounds"
+  },
+  general: {
+    type: "object",
+    description: "General settings associated with the app"
+  },
+  prevent_space_init: {
+    type: "boolean",
+    description: "Whether to prevent loading the full list of bookable spaces on application startup"
+  },
+  chat: {
+    type: "object",
+    description: "Settings for the global AI assistant chat widget",
+    properties: {
+      enabled: {
+        type: "boolean",
+        description: "Whether to show the global AI assistant chat widget. Defaults to `false`"
+      }
+    }
+  }
+};
+var $defs = {
+  icon: {
+    type: "object",
+    required: ["type"],
+    properties: {
+      type: {
+        type: "string",
+        enum: ["img", "icon"],
+        description: "Type of icon to render. Either `img` or `icon`"
+      },
+      src: {
+        type: "string",
+        description: "URL of the image icon to display"
+      },
+      class: {
+        type: "string",
+        description: "CSS class to apply to icon container element"
+      },
+      content: {
+        type: "string",
+        description: "Content to add to the icon container element"
+      }
+    }
+  }
+};
+var settings_schema_default = {
+  type,
+  description,
+  properties,
+  $defs
+};
+
 // apps/assistant-panel/src/app/app.component.ts
 function AppComponent_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -90755,6 +92187,7 @@ function AppComponent_Conditional_3_Template(rf, ctx) {
 }
 var AppComponent = class _AppComponent {
   constructor() {
+    this.settings_schema = settings_schema_exports;
     this._placeos = inject2(PlaceOS_Service);
     this._settings = inject2(SettingsService);
     this.has_chat = this._settings.signal("chat.enabled", false);
@@ -90768,24 +92201,27 @@ var AppComponent = class _AppComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AppComponent, selectors: [["app-root"]], decls: 5, vars: 1, consts: [[1, "relative", "h-1/2", "w-full", "flex-1"]], template: function AppComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AppComponent, selectors: [["app-root"]], decls: 6, vars: 2, consts: [[1, "relative", "h-1/2", "w-full", "flex-1"], [3, "schema"]], template: function AppComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275element(0, "global-banner");
         \u0275\u0275elementStart(1, "div", 0);
         \u0275\u0275element(2, "router-outlet");
         \u0275\u0275elementEnd();
         \u0275\u0275conditionalCreate(3, AppComponent_Conditional_3_Template, 1, 0, "global-chat");
-        \u0275\u0275element(4, "global-loading");
+        \u0275\u0275element(4, "global-loading")(5, "settings-debug-panel", 1);
       }
       if (rf & 2) {
         \u0275\u0275advance(3);
         \u0275\u0275conditional(ctx.has_chat() ? 3 : -1);
+        \u0275\u0275advance(2);
+        \u0275\u0275property("schema", ctx.settings_schema);
       }
     }, dependencies: [
       RouterOutlet,
       ChatComponent,
       GlobalBannerComponent,
-      GlobalLoadingComponent
+      GlobalLoadingComponent,
+      SettingsDebugPanelComponent
     ], styles: ["\n[_nghost-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n  width: 100%;\n}\n/*# sourceMappingURL=app.component.css.map */"] });
   }
 };
@@ -90796,7 +92232,8 @@ var AppComponent = class _AppComponent {
       RouterOutlet,
       ChatComponent,
       GlobalBannerComponent,
-      GlobalLoadingComponent
+      GlobalLoadingComponent,
+      SettingsDebugPanelComponent
     ], template: `
         <global-banner />
         <div class="relative h-1/2 w-full flex-1">
@@ -90806,12 +92243,12 @@ var AppComponent = class _AppComponent {
             <global-chat />
         }
         <global-loading />
-        <!-- <debug-console *ngIf="debug"></debug-console> -->
+        <settings-debug-panel [schema]="settings_schema" />
     `, styles: ["/* angular:styles/component:css;2c590c9e56511a088a1469fe4b227d8190323c208f95620a03712f1a8f5bae8d;/home/runner/work/user-interfaces/user-interfaces/apps/assistant-panel/src/app/app.component.ts */\n:host {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n  width: 100%;\n}\n/*# sourceMappingURL=app.component.css.map */\n"] }]
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AppComponent, { className: "AppComponent", filePath: "apps/assistant-panel/src/app/app.component.ts", lineNumber: 40 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AppComponent, { className: "AppComponent", filePath: "apps/assistant-panel/src/app/app.component.ts", lineNumber: 44 });
 })();
 
 // node_modules/@angular/animations/fesm2022/_util-chunk.mjs
@@ -92417,11 +93854,11 @@ var TimelineBuilder = class _TimelineBuilder {
     return this._keyframes.get(this.duration);
   }
   get properties() {
-    const properties = [];
+    const properties2 = [];
     for (let prop in this._currentKeyframe) {
-      properties.push(prop);
+      properties2.push(prop);
     }
-    return properties;
+    return properties2;
   }
   mergeTimelineCollectedStyles(timeline) {
     timeline._styleSummary.forEach((details1, prop) => {
@@ -92713,7 +94150,7 @@ var AnimationTrigger = class {
     return this.ast.queryCount > 0;
   }
   matchTransition(currentState, nextState, element, params) {
-    const entry = this.transitionFactories.find((f) => f.match(currentState, nextState, element, params));
+    const entry = this.transitionFactories.find((f2) => f2.match(currentState, nextState, element, params));
     return entry || null;
   }
   matchStyles(currentState, params, errors) {
@@ -94728,10 +96165,10 @@ var AnimationRendererFactory = class {
       delegate2?.removeChild(null, element);
     };
   }
-  createRenderer(hostElement, type) {
+  createRenderer(hostElement, type2) {
     const EMPTY_NAMESPACE_ID = "";
-    const delegate = this.delegate.createRenderer(hostElement, type);
-    if (!hostElement || !type?.data?.["animation"]) {
+    const delegate = this.delegate.createRenderer(hostElement, type2);
+    if (!hostElement || !type2?.data?.["animation"]) {
       const cache = this._rendererCache;
       let renderer = cache.get(delegate);
       if (!renderer) {
@@ -94741,8 +96178,8 @@ var AnimationRendererFactory = class {
       }
       return renderer;
     }
-    const componentId = type.id;
-    const namespaceId = type.id + "-" + this._currentId;
+    const componentId = type2.id;
+    const namespaceId = type2.id + "-" + this._currentId;
     this._currentId++;
     this.engine.register(namespaceId, hostElement);
     const registerTrigger = (trigger) => {
@@ -94752,7 +96189,7 @@ var AnimationRendererFactory = class {
         this.engine.registerTrigger(componentId, namespaceId, hostElement, trigger.name, trigger);
       }
     };
-    const animationTriggers = type.data["animation"];
+    const animationTriggers = type2.data["animation"];
     animationTriggers.forEach(registerTrigger);
     return new AnimationRenderer(this, namespaceId, delegate, this.engine);
   }
@@ -94934,8 +96371,8 @@ var environment = {
 };
 
 // node_modules/@angular/material/fesm2022/autocomplete.mjs
-var _c012 = ["panel"];
-var _c18 = ["*"];
+var _c015 = ["panel"];
+var _c19 = ["*"];
 function MatAutocomplete_ng_template_0_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275domElementStart(0, "div", 1, 0);
@@ -95093,7 +96530,7 @@ var MatAutocomplete = class _MatAutocomplete {
     },
     viewQuery: function MatAutocomplete_Query(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275viewQuery(TemplateRef, 7)(_c012, 5);
+        \u0275\u0275viewQuery(TemplateRef, 7)(_c015, 5);
       }
       if (rf & 2) {
         let _t;
@@ -95125,7 +96562,7 @@ var MatAutocomplete = class _MatAutocomplete {
       provide: MAT_OPTION_PARENT_COMPONENT,
       useExisting: _MatAutocomplete
     }])],
-    ngContentSelectors: _c18,
+    ngContentSelectors: _c19,
     decls: 1,
     vars: 0,
     consts: [["panel", ""], ["role", "listbox", 1, "mat-mdc-autocomplete-panel", "mdc-menu-surface", "mdc-menu-surface--open", 3, "id"]],
@@ -96090,7 +97527,7 @@ var BootstrapComponent = class _BootstrapComponent extends AsyncHandler {
       loader: async ({ params }) => {
         if (!params.ready || params.q.length < 2)
           return [];
-        const { data } = await ta({
+        const { data } = await ia({
           q: params.q,
           limit: 20,
           fields: ["id", "name", "display_name", "email"].join(","),
@@ -96411,7 +97848,7 @@ var KernelBackend = class {
   timerAvailable() {
     return true;
   }
-  time(f) {
+  time(f2) {
     return notYetImplemented("time");
   }
   read(dataId) {
@@ -96794,8 +98231,8 @@ function inferDtype(values) {
   }
   return "float32";
 }
-function isFunction3(f) {
-  return !!(f && f.constructor && f.call && f.apply);
+function isFunction3(f2) {
+  return !!(f2 && f2.constructor && f2.call && f2.apply);
 }
 function nearestDivisor(size, start) {
   for (let i = start; i < size; ++i) {
@@ -96820,15 +98257,15 @@ function computeStrides(shape) {
 function createNestedArray(offset, shape, a, isComplex = false) {
   const ret = new Array();
   if (shape.length === 1) {
-    const d2 = shape[0] * (isComplex ? 2 : 1);
-    for (let i = 0; i < d2; i++) {
+    const d = shape[0] * (isComplex ? 2 : 1);
+    for (let i = 0; i < d; i++) {
       ret[i] = a[offset + i];
     }
   } else {
-    const d2 = shape[0];
+    const d = shape[0];
     const rest = shape.slice(1);
     const len = rest.reduce((acc, c) => acc * c) * (isComplex ? 2 : 1);
-    for (let i = 0; i < d2; i++) {
+    for (let i = 0; i < d; i++) {
       ret[i] = createNestedArray(offset + i * len, rest, a, isComplex);
     }
   }
@@ -97548,8 +98985,8 @@ function hashLen0to16(s, len = s.length) {
     const a = fetch64(s, 0).add(k2);
     const b2 = fetch64(s, len - 8);
     const c = rotate64(b2, 37).mul(mul2).add(a);
-    const d2 = rotate64(a, 25).add(b2).mul(mul2);
-    return hashLen16(c, d2, mul2);
+    const d = rotate64(a, 25).add(b2).mul(mul2);
+    return hashLen16(c, d, mul2);
   }
   if (len >= 4) {
     const mul2 = k2.add(len * 2);
@@ -97571,22 +99008,22 @@ function hashLen17to32(s, len = s.length) {
   const a = fetch64(s, 0).mul(k1);
   const b2 = fetch64(s, 8);
   const c = fetch64(s, len - 8).mul(mul2);
-  const d2 = fetch64(s, len - 16).mul(k2);
-  return hashLen16(rotate64(a.add(b2), 43).add(rotate64(c, 30)).add(d2), a.add(rotate64(b2.add(k2), 18)).add(c), mul2);
+  const d = fetch64(s, len - 16).mul(k2);
+  return hashLen16(rotate64(a.add(b2), 43).add(rotate64(c, 30)).add(d), a.add(rotate64(b2.add(k2), 18)).add(c), mul2);
 }
 function hashLen33to64(s, len = s.length) {
   const mul2 = k2.add(len * 2);
   const a = fetch64(s, 0).mul(k2);
   const b2 = fetch64(s, 8);
   const c = fetch64(s, len - 8).mul(mul2);
-  const d2 = fetch64(s, len - 16).mul(k2);
-  const y = rotate64(a.add(b2), 43).add(rotate64(c, 30)).add(d2);
+  const d = fetch64(s, len - 16).mul(k2);
+  const y = rotate64(a.add(b2), 43).add(rotate64(c, 30)).add(d);
   const z = hashLen16(y, a.add(rotate64(b2.add(k2), 18)).add(c), mul2);
   const e = fetch64(s, 16).mul(mul2);
-  const f = fetch64(s, 24);
+  const f2 = fetch64(s, 24);
   const g2 = y.add(fetch64(s, len - 32)).mul(mul2);
   const h = z.add(fetch64(s, len - 24)).mul(mul2);
-  return hashLen16(rotate64(e.add(f), 43).add(rotate64(g2, 30)).add(h), e.add(rotate64(f.add(a), 18)).add(g2), mul2);
+  return hashLen16(rotate64(e.add(f2), 43).add(rotate64(g2, 30)).add(h), e.add(rotate64(f2.add(a), 18)).add(g2), mul2);
 }
 function fingerPrint64(s, len = s.length) {
   const seed2 = Long.fromNumber(81, true);
@@ -97760,10 +99197,10 @@ var Profiler = class {
       this.logger = new Logger();
     }
   }
-  profileKernel(kernelName, inputs, f) {
+  profileKernel(kernelName, inputs, f2) {
     let outputs;
     const holdResultWrapperFn = () => {
-      outputs = f();
+      outputs = f2();
     };
     let timer2;
     const start = now();
@@ -98565,8 +100002,8 @@ function upcastType(typeA, typeB) {
   }
   return upcastTypeMap[typeA][typeB];
 }
-function sumOutType(type) {
-  return upcastType(type, "int32");
+function sumOutType(type2) {
+  return upcastType(type2, "int32");
 }
 function isWebGLData(values) {
   return values != null && typeof values === "object" && "texture" in values && values.texture instanceof WebGLTexture;
@@ -98909,10 +100346,10 @@ var Engine = class _Engine {
       return result;
     });
   }
-  scopedRun(start, end, f) {
+  scopedRun(start, end, f2) {
     start();
     try {
-      const res = f();
+      const res = f2();
       end();
       return res;
     } catch (ex) {
@@ -99137,7 +100574,7 @@ var Engine = class _Engine {
     backend2 = backend2 || this.backend;
     let backendVals = values;
     if (dtype === "string" && isString2(values[0])) {
-      backendVals = values.map((d2) => encodeString(d2));
+      backendVals = values.map((d) => encodeString(d));
     }
     const dataId = backend2.write(backendVals, shape, dtype);
     const t = new Tensor(shape, dtype, dataId, this.nextTensorId());
@@ -99274,7 +100711,7 @@ var Engine = class _Engine {
     this.state.activeProfile.kernels = [];
     this.state.activeProfile.result = await query();
     this.state.profiling = false;
-    this.state.activeProfile.peakBytes = Math.max(...this.state.activeProfile.kernels.map((d2) => d2.totalBytesSnapshot));
+    this.state.activeProfile.peakBytes = Math.max(...this.state.activeProfile.kernels.map((d) => d.totalBytesSnapshot));
     this.state.activeProfile.newBytes = this.state.numBytes - startBytes;
     this.state.activeProfile.newTensors = this.state.numTensors - startNumTensors;
     for (const kernel of this.state.activeProfile.kernels) {
@@ -99363,12 +100800,12 @@ var Engine = class _Engine {
    * was not a function of that `x`. It also takes optional dy to multiply the
    * gradient, which defaults to `1`.
    */
-  gradients(f, xs, dy, allowNoGradients = false) {
+  gradients(f2, xs, dy, allowNoGradients = false) {
     assert(xs.length > 0, () => "gradients() received an empty list of xs.");
     if (dy != null && dy.dtype !== "float32") {
       throw new Error(`dy must have 'float32' dtype, but has '${dy.dtype}'`);
     }
-    const y = this.scopedRun(() => this.startTape(), () => this.endTape(), () => this.tidy("forward", f));
+    const y = this.scopedRun(() => this.startTape(), () => this.endTape(), () => this.tidy("forward", f2));
     assert(y instanceof Tensor, () => "The result y returned by f() must be a tensor.");
     const filteredTape = getFilteredNodesXToY(this.state.activeTape, xs, y);
     if (!allowNoGradients && filteredTape.length === 0 && xs.length > 0) {
@@ -99381,7 +100818,7 @@ var Engine = class _Engine {
         accumulatedGradientMap,
         filteredTape,
         // Pass the tidy function to avoid circular dep with `tape.ts`.
-        (f2) => this.tidy(f2),
+        (f3) => this.tidy(f3),
         // Pass an add function to avoide a circular dep with `tape.ts`.
         add
       );
@@ -99397,8 +100834,8 @@ var Engine = class _Engine {
       return { value: y, grads };
     });
   }
-  customGrad(f) {
-    assert(isFunction3(f), () => "The f passed in customGrad(f) must be a function.");
+  customGrad(f2) {
+    assert(isFunction3(f2), () => "The f passed in customGrad(f) must be a function.");
     return (...inputs) => {
       assert(inputs.every((t) => t instanceof Tensor), () => "The args passed in customGrad(f)(x1, x2,...) must all be tensors");
       let res;
@@ -99407,7 +100844,7 @@ var Engine = class _Engine {
         inputMap[i] = input3;
       });
       const forwardFunc = (_2, save) => {
-        res = f(...[...inputs, save]);
+        res = f2(...[...inputs, save]);
         assert(res.value instanceof Tensor, () => "The function f passed in customGrad(f) must return an object where `obj.value` is a tensor");
         assert(isFunction3(res.gradFunc), () => "The function f passed in customGrad(f) must return an object where `obj.gradFunc` is a function.");
         return res.value;
@@ -99674,8 +101111,8 @@ function convertToTensor(x, argName, functionName, parseAsDtype = "numeric") {
   }
   assertDtype(parseAsDtype, inferredDtype, argName, functionName);
   if (x == null || !isTypedArray(x) && !Array.isArray(x) && typeof x !== "number" && typeof x !== "boolean" && typeof x !== "string") {
-    const type = x == null ? "null" : x.constructor.name;
-    throw new Error(`Argument '${argName}' passed to '${functionName}' must be a Tensor or TensorLike, but got '${type}'`);
+    const type2 = x == null ? "null" : x.constructor.name;
+    throw new Error(`Argument '${argName}' passed to '${functionName}' must be a Tensor or TensorLike, but got '${type2}'`);
   }
   const inferredShape = inferShape(x, inferredDtype);
   if (!isTypedArray(x) && !Array.isArray(x)) {
@@ -99711,18 +101148,18 @@ function convertToTensorArray(arg, argName, functionName, parseAsDtype = "numeri
  * =============================================================================
  */
 var OP_SCOPE_SUFFIX = "__op";
-function op(f) {
-  const keys = Object.keys(f);
+function op(f2) {
+  const keys = Object.keys(f2);
   if (keys.length !== 1) {
     throw new Error(`Please provide an object with a single key (operation name) mapping to a function. Got an object with ${keys.length} keys.`);
   }
   let opName = keys[0];
-  const fn = f[opName];
+  const fn = f2[opName];
   if (opName.endsWith("_")) {
     opName = opName.substring(0, opName.length - 1);
   }
   opName = opName + OP_SCOPE_SUFFIX;
-  const f2 = (...args) => {
+  const f22 = (...args) => {
     ENGINE.startScope(opName);
     try {
       const result = fn(...args);
@@ -99736,8 +101173,8 @@ function op(f) {
       throw ex;
     }
   };
-  Object.defineProperty(f2, "name", { value: opName, configurable: true });
-  return f2;
+  Object.defineProperty(f22, "name", { value: opName, configurable: true });
+  return f22;
 }
 
 // node_modules/@tensorflow/tfjs-core/dist/ops/complex.js
@@ -102449,9 +103886,9 @@ function basicLSTMCell_(forgetBias, lstmKernel, lstmBias, data, c, h) {
   const sliceSize = [batchSize, sliceCols];
   const i = slice(res, [0, 0], sliceSize);
   const j = slice(res, [0, sliceCols], sliceSize);
-  const f = slice(res, [0, sliceCols * 2], sliceSize);
+  const f2 = slice(res, [0, sliceCols * 2], sliceSize);
   const o = slice(res, [0, sliceCols * 3], sliceSize);
-  const newC = add2(mul(sigmoid(i), tanh2(j)), mul($c, sigmoid(add2($forgetBias, f))));
+  const newC = add2(mul(sigmoid(i), tanh2(j)), mul($c, sigmoid(add2($forgetBias, f2))));
   const newH = mul(tanh2(newC), sigmoid(o));
   return [newC, newH];
 }
@@ -104610,8 +106047,8 @@ var log1p = /* @__PURE__ */ op({ log1p_ });
  * limitations under the License.
  * =============================================================================
  */
-function variableGrads(f, varList) {
-  assert(isFunction3(f), () => "The f passed in variableGrads(f) must be a function");
+function variableGrads(f2, varList) {
+  assert(isFunction3(f2), () => "The f passed in variableGrads(f) must be a function");
   assert(varList == null || Array.isArray(varList) && varList.every((v) => v instanceof Variable), () => "The varList passed in variableGrads(f, varList) must be an array of variables");
   const specifiedVarList = varList != null;
   if (!specifiedVarList) {
@@ -104625,7 +106062,7 @@ function variableGrads(f, varList) {
   varList = varList.filter((variable2) => variable2.trainable);
   assert(varList.length > 0, () => `variableGrads() expects at least one of the input variables to be trainable, but none of the ${originalVarCount} variables is trainable.`);
   const allowNoGradients = true;
-  const { value, grads } = ENGINE.gradients(f, varList, null, allowNoGradients);
+  const { value, grads } = ENGINE.gradients(f2, varList, null, allowNoGradients);
   assert(grads.some((g2) => g2 != null), () => "Cannot find a connection between any variable and the result of the loss function y=f(x). Please make sure the operations that use variables are inside the function f passed to minimize().");
   assert(value.rank === 0, () => `The f passed in variableGrads(f) must return a scalar, but it returned a rank-${value.rank} tensor`);
   const namedGrads = {};
@@ -104639,8 +106076,8 @@ function variableGrads(f, varList) {
   }
   return { value, grads: namedGrads };
 }
-function customGrad(f) {
-  return ENGINE.customGrad(f);
+function customGrad(f2) {
+  return ENGINE.customGrad(f2);
 }
 
 // node_modules/@tensorflow/tfjs-core/dist/ops/neg.js
@@ -104820,8 +106257,8 @@ function logSumExp_(x, axis = null, keepDims = false) {
   const a = sub($x, xMax);
   const b2 = exp(a);
   const c = sum2(b2, axes);
-  const d2 = log5(c);
-  const res = add2(reshape(xMax, d2.shape), d2);
+  const d = log5(c);
+  const res = add2(reshape(xMax, d.shape), d);
   if (keepDims) {
     const newShape = expandShapeToKeepDim(res.shape, axes);
     return reshape(res, newShape);
@@ -107304,14 +108741,14 @@ function validateUpdateShape(shape, indices, updates) {
   if (updates.rank !== batchDim + shape.length - sliceDim) {
     throw new Error(shapeError + ` update.rank != ${batchDim + shape.length - sliceDim}`);
   }
-  for (let d2 = 0; d2 < batchDim; ++d2) {
-    if (updates.shape[d2] !== indices.shape[d2]) {
-      throw new Error(shapeError + ` updates.shape[${d2}] (${updates.shape[d2]}) != indices.shape[${d2}] (${indices.shape[d2]}).`);
+  for (let d = 0; d < batchDim; ++d) {
+    if (updates.shape[d] !== indices.shape[d]) {
+      throw new Error(shapeError + ` updates.shape[${d}] (${updates.shape[d]}) != indices.shape[${d}] (${indices.shape[d]}).`);
     }
   }
-  for (let d2 = 0; d2 < updates.rank - batchDim; ++d2) {
-    if (updates.shape[d2 + batchDim] !== shape[d2 + sliceDim]) {
-      throw new Error(shapeError + ` updates.shape[${d2 + batchDim}] (${updates.shape[d2 + batchDim]}) != shape[${d2 + batchDim}] (${shape[d2 + batchDim]})`);
+  for (let d = 0; d < updates.rank - batchDim; ++d) {
+    if (updates.shape[d + batchDim] !== shape[d + sliceDim]) {
+      throw new Error(shapeError + ` updates.shape[${d + batchDim}] (${updates.shape[d + batchDim]}) != shape[${d + batchDim}] (${shape[d + batchDim]})`);
     }
   }
 }
@@ -110524,8 +111961,8 @@ var Optimizer = class extends Serializable {
    *
    * @doc {heading: 'Training', subheading: 'Optimizers'}
    */
-  minimize(f, returnCost = false, varList) {
-    const { value, grads } = this.computeGradients(f, varList);
+  minimize(f2, returnCost = false, varList) {
+    const { value, grads } = this.computeGradients(f2, varList);
     if (varList != null) {
       const gradArray = varList.map((v) => ({ name: v.name, tensor: grads[v.name] }));
       this.applyGradients(gradArray);
@@ -110565,8 +112002,8 @@ var Optimizer = class extends Serializable {
    *
    * @doc {heading: 'Training', subheading: 'Optimizers'}
    */
-  computeGradients(f, varList) {
-    return variableGrads(f, varList);
+  computeGradients(f2, varList) {
+    return variableGrads(f2, varList);
   }
   /**
    * Dispose the variables (if any) owned by this optimizer instance.
@@ -111422,8 +112859,8 @@ __export(io_exports, {
 var DEFAULT_FILE_NAME_PREFIX = "model";
 var DEFAULT_JSON_EXTENSION_NAME = ".json";
 var DEFAULT_WEIGHT_DATA_EXTENSION_NAME = ".weights.bin";
-function defer2(f) {
-  return new Promise((resolve) => setTimeout(resolve)).then(f);
+function defer2(f2) {
+  return new Promise((resolve) => setTimeout(resolve)).then(f2);
 }
 var BrowserDownloads = class _BrowserDownloads {
   constructor(fileNamePrefix) {
@@ -112188,8 +113625,8 @@ async function toPixels(img, canvas) {
   const bytes = new Uint8ClampedArray(width * height * 4);
   for (let i = 0; i < height * width; ++i) {
     const rgba = [0, 0, 0, 255];
-    for (let d2 = 0; d2 < depth; d2++) {
-      const value = data[i * depth + d2];
+    for (let d = 0; d < depth; d++) {
+      const value = data[i * depth + d];
       if ($img.dtype === "float32") {
         if (value < 0 || value > 1) {
           throw new Error(`Tensor values for a float32 Tensor must be in the range [0 - 1] but encountered ${value}.`);
@@ -112204,7 +113641,7 @@ async function toPixels(img, canvas) {
         rgba[1] = value * multiplier;
         rgba[2] = value * multiplier;
       } else {
-        rgba[d2] = value * multiplier;
+        rgba[d] = value * multiplier;
       }
     }
     const j = i * 4;
@@ -112523,8 +113960,8 @@ function parseSliceParams(x, begin, size) {
   } else {
     begin_ = begin.slice();
   }
-  begin_.forEach((d2) => {
-    assert(d2 !== -1, () => "slice() does not support negative begin indexing.");
+  begin_.forEach((d) => {
+    assert(d !== -1, () => "slice() does not support negative begin indexing.");
   });
   let size_;
   if (size == null) {
@@ -112536,11 +113973,11 @@ function parseSliceParams(x, begin, size) {
   } else {
     size_ = size;
   }
-  size_ = size_.map((d2, i) => {
-    if (d2 >= 0) {
-      return d2;
+  size_ = size_.map((d, i) => {
+    if (d >= 0) {
+      return d;
     } else {
-      assert(d2 === -1, () => `Negative size values should be exactly -1 but got ${d2} for the slice() size at index ${i}.`);
+      assert(d === -1, () => `Negative size values should be exactly -1 but got ${d} for the slice() size at index ${i}.`);
       return x.shape[i] - begin_[i];
     }
   });
@@ -112960,7 +114397,7 @@ var delayCallback = (() => {
   } else if (typeof setImmediate !== "undefined") {
     return setImmediate;
   }
-  return (f) => f();
+  return (f2) => f2();
 })();
 function nextFrame() {
   return new Promise((resolve) => delayCallback(() => resolve()));
@@ -113557,7 +114994,7 @@ function getEinsumPermutation(nDims, idDims) {
       expandDims5.push(i);
     }
   }
-  permutationIndices = permutationIndices.filter((d2) => d2 !== -1);
+  permutationIndices = permutationIndices.filter((d) => d !== -1);
   return { permutationIndices, expandDims: expandDims5 };
 }
 function checkEinsumDimSizes(nDims, idDims, tensors) {
@@ -114214,8 +115651,8 @@ var atan2GradConfig = {
     const [a, b2] = saved;
     const outShape = assertAndGetBroadcastShape(a.shape, b2.shape);
     const derA = () => {
-      const d2 = add2(square(a), square(b2));
-      let res = mul(dy, div(b2, d2));
+      const d = add2(square(a), square(b2));
+      let res = mul(dy, div(b2, d));
       const reduceAxes = getReductionAxes(a.shape, outShape);
       if (reduceAxes.length > 0) {
         res = sum2(res, reduceAxes);
@@ -114223,8 +115660,8 @@ var atan2GradConfig = {
       return reshape(res, a.shape);
     };
     const derB = () => {
-      const d2 = add2(square(a), square(b2));
-      let res = neg(mul(dy, div(a, d2)));
+      const d = add2(square(a), square(b2));
+      let res = neg(mul(dy, div(a, d)));
       const reduceAxes = getReductionAxes(b2.shape, outShape);
       if (reduceAxes.length > 0) {
         res = sum2(res, reduceAxes);
@@ -120819,19 +122256,19 @@ function formatAsFriendlyString(value) {
     return `${value}`;
   }
 }
-function debounce(f, waitMs, nowFunc) {
+function debounce(f2, waitMs, nowFunc) {
   let lastTime = nowFunc != null ? nowFunc() : util_exports.now();
   let lastResult;
-  const f2 = (...args) => {
+  const f22 = (...args) => {
     const now2 = nowFunc != null ? nowFunc() : util_exports.now();
     if (now2 - lastTime < waitMs) {
       return lastResult;
     }
     lastTime = now2;
-    lastResult = f(...args);
+    lastResult = f2(...args);
     return lastResult;
   };
-  return f2;
+  return f22;
 }
 function mapActivationToFusedKernel(activationName) {
   if (activationName === "relu") {
@@ -125864,7 +127301,7 @@ function isLazyIteratorObject(iterator2) {
 async function evaluateDataset(model3, dataset, args) {
   args = args || {};
   const hasBatches = args.batches != null;
-  const f = model3.testFunction;
+  const f2 = model3.testFunction;
   let outs = [];
   if (args.verbose > 0) {
     throw new NotImplementedError("Verbose mode is not implemented yet.");
@@ -125879,7 +127316,7 @@ async function evaluateDataset(model3, dataset, args) {
       if (iteratorOut.value) {
         const { xs, ys } = standardizeDataIteratorOutput(model3, iteratorOut.value);
         const xsAndYs = xs.concat(ys);
-        const batchOuts = tidy(() => f(xsAndYs));
+        const batchOuts = tidy(() => f2(xsAndYs));
         dispose(xsAndYs);
         if (batch === 0) {
           for (let i = 0; i < batchOuts.length; ++i) {
@@ -126468,8 +127905,8 @@ var LayersModel = class extends Container {
     try {
       const ins = standardizedOuts[0].concat(standardizedOuts[1]);
       this.makeTestFunction();
-      const f = this.testFunction;
-      const testOuts = this.testLoop(f, ins, batchSize, args.verbose, args.steps);
+      const f2 = this.testFunction;
+      const testOuts = this.testLoop(f2, ins, batchSize, args.verbose, args.steps);
       return singletonOrArray(testOuts);
     } finally {
       disposeNewTensors(standardizedOuts[0], x);
@@ -126752,7 +128189,7 @@ var LayersModel = class extends Container {
    * `undefined`.
    * @returns Array of Scalars.
    */
-  testLoop(f, ins, batchSize, verbose = 0, steps) {
+  testLoop(f2, ins, batchSize, verbose = 0, steps) {
     return tidy(() => {
       const numSamples = this.checkNumSamples(ins, batchSize, steps, "steps");
       const outs = [];
@@ -126769,7 +128206,7 @@ var LayersModel = class extends Container {
           const batchEnd = batches[batchIndex][1];
           const batchIds = sliceAlongFirstAxis(indexArray, batchStart, batchEnd - batchStart);
           const insBatch = sliceArraysByIndices(ins, batchIds);
-          const batchOuts = f(insBatch);
+          const batchOuts = f2(insBatch);
           if (batchIndex === 0) {
             for (let i = 0; i < batchOuts.length; ++i) {
               outs.push(scalar(0));
@@ -127056,7 +128493,7 @@ var LayersModel = class extends Container {
    *   doing validation from data tensors). Not applicable for tfjs-layers.
    * @returns A `History` object.
    */
-  async fitLoop(f, ins, outLabels, batchSize, epochs, verbose, callbacks2, valF, valIns, shuffle2, callbackMetrics, initialEpoch, stepsPerEpoch, validationSteps) {
+  async fitLoop(f2, ins, outLabels, batchSize, epochs, verbose, callbacks2, valF, valIns, shuffle2, callbackMetrics, initialEpoch, stepsPerEpoch, validationSteps) {
     if (batchSize == null) {
       batchSize = 32;
     }
@@ -127115,7 +128552,7 @@ var LayersModel = class extends Container {
             batchLogs["batch"] = batchIndex;
             batchLogs["size"] = batchEnd - batchStart;
             const insBatch = sliceArraysByIndices(ins, batchIds);
-            const outs = f(insBatch);
+            const outs = f2(insBatch);
             for (let i = 0; i < outLabels.length; ++i) {
               const label = outLabels[i];
               const out = outs[i];
@@ -130397,7 +131834,7 @@ var LSTMCell = class extends RNNCell {
       const dpMask = this.dropoutMask;
       const recDpMask = this.recurrentDropoutMask;
       let i;
-      let f;
+      let f2;
       let c;
       let o;
       if (0 < this.dropout && this.dropout < 1) {
@@ -130413,8 +131850,8 @@ var LSTMCell = class extends RNNCell {
       }
       const [z0, z1, z2, z3] = split2(z, 4, z.rank - 1);
       i = this.recurrentActivation.apply(z0);
-      f = this.recurrentActivation.apply(z1);
-      c = add2(mul(f, cTMinus1), mul(i, this.activation.apply(z2)));
+      f2 = this.recurrentActivation.apply(z1);
+      c = add2(mul(f2, cTMinus1), mul(i, this.activation.apply(z2)));
       o = this.recurrentActivation.apply(z3);
       const h = mul(o, this.activation.apply(c));
       return [h, h, c];
@@ -130886,8 +132323,8 @@ var ConvLSTM2DCell = class extends LSTMCell {
       hC = this.recurrentConv(hC, recKernelC);
       hO = this.recurrentConv(hO, recKernelO);
       const i = this.recurrentActivation.apply(add2(xI, hI));
-      const f = this.recurrentActivation.apply(add2(xF, hF));
-      const c = add2(mul(f, cTMinus1), mul(i, this.activation.apply(add2(xC, hC))));
+      const f2 = this.recurrentActivation.apply(add2(xF, hF));
+      const c = add2(mul(f2, cTMinus1), mul(i, this.activation.apply(add2(xC, hC))));
       const h = mul(this.recurrentActivation.apply(add2(xO, hO)), this.activation.apply(c));
       return [h, h, c];
     });
@@ -140792,7 +142229,7 @@ var OperationMapper = class {
     }
     if (mapper.attrs != null) {
       newNode.attrParams = mapper.attrs.reduce((map2, param) => {
-        const type = param.type;
+        const type2 = param.type;
         let value = void 0;
         switch (param.type) {
           case "string":
@@ -140867,7 +142304,7 @@ var OperationMapper = class {
           default:
             throw new Error(`Unsupported param type: ${param.type} for op: ${node.op}`);
         }
-        map2[param.name] = { value, type };
+        map2[param.name] = { value, type: type2 };
         return map2;
       }, {});
     }
@@ -145803,8 +147240,8 @@ var LazyIterator = class {
    *
    * @param f A function to apply to each stream element.
    */
-  async forEachAsync(f) {
-    return this.map(f).resolveFully();
+  async forEachAsync(f2) {
+    return this.map(f2).resolveFully();
   }
   /**
    * Apply a function to every element of the stream, forcing serial execution.
@@ -145813,8 +147250,8 @@ var LazyIterator = class {
    *   to indicate that the stream should continue, or 'false' to cause it to
    *   terminate.
    */
-  async serialForEach(f) {
-    return this.serialMapAsync(f).resolveWhile((x) => x === true);
+  async serialForEach(f2) {
+    return this.serialMapAsync(f2).resolveWhile((x) => x === true);
   }
   /**
    * Groups elements into batches, represented as arrays of elements.
@@ -146487,8 +147924,8 @@ var Dataset = class {
    *
    * @doc {heading: 'Data', subheading: 'Classes'}
    */
-  async forEachAsync(f) {
-    return (await this.iterator()).forEachAsync(f);
+  async forEachAsync(f2) {
+    return (await this.iterator()).forEachAsync(f2);
   }
   /**
    * Maps this dataset through a 1-to-1 transform.
@@ -147110,7 +148547,7 @@ var MathBackendCPU = class _MathBackendCPU extends KernelBackend {
   makeTensorInfo(shape, dtype, values) {
     let outId;
     if (dtype === "string" && values != null && values.length > 0 && util_exports.isString(values[0])) {
-      const encodedValues = values.map((d2) => util_exports.encodeString(d2));
+      const encodedValues = values.map((d) => util_exports.encodeString(d));
       outId = this.write(encodedValues, shape, dtype);
     } else {
       outId = this.write(values, shape, dtype);
@@ -147159,7 +148596,7 @@ var MathBackendCPU = class _MathBackendCPU extends KernelBackend {
     const data = this.readSync(t.dataId);
     if (t.dtype === "string") {
       try {
-        const strings = data.map((d2) => util_exports.decodeString(d2));
+        const strings = data.map((d) => util_exports.decodeString(d));
         return buffer(t.shape, t.dtype, strings);
       } catch (_a) {
         throw new Error("Failed to decode encoded string bytes into utf-8");
@@ -147195,9 +148632,9 @@ var MathBackendCPU = class _MathBackendCPU extends KernelBackend {
   disposeIntermediateTensorInfo(tensorInfo) {
     this.disposeData(tensorInfo.dataId);
   }
-  async time(f) {
+  async time(f2) {
     const start = util_exports.now();
-    f();
+    f2();
     const kernelMs = util_exports.now() - start;
     return { kernelMs };
   }
@@ -147358,10 +148795,10 @@ function createSimpleBinaryKernelImpl(op2) {
       for (let i = 0; i < result.length; ++i) {
         const loc = util_exports.indexToLoc(i, resultRank, resultStrides);
         const aLoc = loc.slice(-aRank);
-        aBroadcastDims.forEach((d2) => aLoc[d2] = 0);
+        aBroadcastDims.forEach((d) => aLoc[d] = 0);
         const aIndex = util_exports.locToIndex(aLoc, aRank, aStrides);
         const bLoc = loc.slice(-bRank);
-        bBroadcastDims.forEach((d2) => bLoc[d2] = 0);
+        bBroadcastDims.forEach((d) => bLoc[d] = 0);
         const bIndex = util_exports.locToIndex(bLoc, bRank, bStrides);
         result[i] = op2(aVals[aIndex], bVals[bIndex]);
       }
@@ -147656,10 +149093,10 @@ function createComplexBinaryKernelImpl(op2) {
       for (let i = 0; i < resultRealVals.length; i++) {
         const loc = util_exports.indexToLoc(i, resultRank, resultStrides);
         const aLoc = loc.slice(-aRank);
-        aBroadcastDims.forEach((d2) => aLoc[d2] = 0);
+        aBroadcastDims.forEach((d) => aLoc[d] = 0);
         const aIndex = util_exports.locToIndex(aLoc, aRank, aStrides);
         const bLoc = loc.slice(-bRank);
-        bBroadcastDims.forEach((d2) => bLoc[d2] = 0);
+        bBroadcastDims.forEach((d) => bLoc[d] = 0);
         const bIndex = util_exports.locToIndex(bLoc, bRank, bStrides);
         const opResult = op2(aVals[aIndex * 2], aVals[aIndex * 2 + 1], bVals[bIndex * 2], bVals[bIndex * 2 + 1]);
         resultRealVals[i] = opResult.real;
@@ -147872,7 +149309,7 @@ function unaryKernelFuncFromImpl(name, unaryImpl, dtype) {
  * limitations under the License.
  * =============================================================================
  */
-var ceilImpl = createSimpleUnaryImpl((xi) => Math.ceil(xi));
+var ceilImpl = createSimpleUnaryImpl((xi2) => Math.ceil(xi2));
 var ceil2 = unaryKernelFuncFromImpl(Ceil, ceilImpl);
 var ceilConfig = {
   kernelName: Ceil,
@@ -147965,7 +149402,7 @@ var equalConfig = {
  * limitations under the License.
  * =============================================================================
  */
-var expImpl = createSimpleUnaryImpl((xi) => Math.exp(xi));
+var expImpl = createSimpleUnaryImpl((xi2) => Math.exp(xi2));
 var exp2 = unaryKernelFuncFromImpl(Exp, expImpl, "float32");
 var expConfig = {
   kernelName: Exp,
@@ -147990,7 +149427,7 @@ var expConfig = {
  * limitations under the License.
  * =============================================================================
  */
-var expm1Impl = createSimpleUnaryImpl((xi) => Math.expm1(xi));
+var expm1Impl = createSimpleUnaryImpl((xi2) => Math.expm1(xi2));
 var expm12 = unaryKernelFuncFromImpl(Expm1, expm1Impl);
 var expm1Config = {
   kernelName: Expm1,
@@ -148015,7 +149452,7 @@ var expm1Config = {
  * limitations under the License.
  * =============================================================================
  */
-var floorImpl = createSimpleUnaryImpl((xi) => Math.floor(xi));
+var floorImpl = createSimpleUnaryImpl((xi2) => Math.floor(xi2));
 var floor2 = unaryKernelFuncFromImpl(Floor, floorImpl);
 var floorConfig = {
   kernelName: Floor,
@@ -148263,7 +149700,7 @@ function linSpaceImpl(start, stop, num) {
  * limitations under the License.
  * =============================================================================
  */
-var logImpl = createSimpleUnaryImpl((xi) => Math.log(xi));
+var logImpl = createSimpleUnaryImpl((xi2) => Math.log(xi2));
 var log6 = unaryKernelFuncFromImpl(Log, logImpl);
 var logConfig = {
   kernelName: Log,
@@ -149224,7 +150661,7 @@ function rangeImpl(start, stop, step4, dtype) {
  * limitations under the License.
  * =============================================================================
  */
-var rsqrtImpl = createSimpleUnaryImpl((xi) => 1 / Math.sqrt(xi));
+var rsqrtImpl = createSimpleUnaryImpl((xi2) => 1 / Math.sqrt(xi2));
 var rsqrt2 = unaryKernelFuncFromImpl(Rsqrt, rsqrtImpl);
 var rsqrtConfig = {
   kernelName: Rsqrt,
@@ -149303,8 +150740,8 @@ function scatterImpl(indices, updates, shape, outputSize, sliceSize, numUpdates,
  * limitations under the License.
  * =============================================================================
  */
-var sigmoidImpl = createSimpleUnaryImpl((xi) => 1 / (1 + Math.exp(-xi)));
-var sigmoid2 = unaryKernelFunc(Sigmoid, (xi) => 1 / (1 + Math.exp(-xi)));
+var sigmoidImpl = createSimpleUnaryImpl((xi2) => 1 / (1 + Math.exp(-xi2)));
+var sigmoid2 = unaryKernelFunc(Sigmoid, (xi2) => 1 / (1 + Math.exp(-xi2)));
 var sigmoidConfig = {
   kernelName: Sigmoid,
   backendName: "cpu",
@@ -149505,17 +150942,17 @@ function sparseReshapeImpl(inputIndices, inputIndicesShape, inputDType, inputSha
   const outputShape = [];
   let product = 1;
   let unknownIndex = -1;
-  for (let d2 = 0; d2 < outputRank; ++d2) {
-    const size = targetShape[d2];
+  for (let d = 0; d < outputRank; ++d) {
+    const size = targetShape[d];
     if (size === -1) {
       if (unknownIndex !== -1) {
-        throw new Error(backend_util_exports.getSparseReshapeMultipleNegativeOneOutputDimErrorMessage(unknownIndex, d2));
+        throw new Error(backend_util_exports.getSparseReshapeMultipleNegativeOneOutputDimErrorMessage(unknownIndex, d));
       }
-      unknownIndex = d2;
+      unknownIndex = d;
       outputShape.push(1);
     } else {
       if (size < 0) {
-        throw new Error(backend_util_exports.getSparseReshapeNegativeOutputDimErrorMessage(d2, size));
+        throw new Error(backend_util_exports.getSparseReshapeNegativeOutputDimErrorMessage(d, size));
       }
       product *= size;
       outputShape.push(size);
@@ -149539,15 +150976,15 @@ function sparseReshapeImpl(inputIndices, inputIndicesShape, inputDType, inputSha
   const inputStrides = [];
   if (inputRank > 0) {
     inputStrides[inputRank - 1] = 1;
-    for (let d2 = inputRank - 2; d2 >= 0; --d2) {
-      inputStrides[d2] = inputStrides[d2 + 1] * inputShape[d2 + 1];
+    for (let d = inputRank - 2; d >= 0; --d) {
+      inputStrides[d] = inputStrides[d + 1] * inputShape[d + 1];
     }
   }
   const outputStrides = [];
   if (outputRank > 0) {
     outputStrides[outputRank - 1] = 1;
-    for (let d2 = outputRank - 2; d2 >= 0; --d2) {
-      outputStrides[d2] = outputStrides[d2 + 1] * outputShape[d2 + 1];
+    for (let d = outputRank - 2; d >= 0; --d) {
+      outputStrides[d] = outputStrides[d + 1] * outputShape[d + 1];
     }
   }
   const newIndices = util_exports.getArrayFromDType(inputDType, nnz * outputRank);
@@ -149669,8 +151106,8 @@ function sparseSegmentReductionImpl(input3, inputShape, inputDType, indices, seg
  * limitations under the License.
  * =============================================================================
  */
-var sqrtImpl = createSimpleUnaryImpl((xi) => Math.sqrt(xi));
-var sqrt2 = unaryKernelFunc(Sqrt, (xi) => Math.sqrt(xi));
+var sqrtImpl = createSimpleUnaryImpl((xi2) => Math.sqrt(xi2));
+var sqrt2 = unaryKernelFunc(Sqrt, (xi2) => Math.sqrt(xi2));
 var sqrtConfig = {
   kernelName: Sqrt,
   backendName: "cpu",
@@ -149938,14 +151375,14 @@ function split4(str, delimiters, skipEmpty, result) {
   }
   if (delimiters.length === 1) {
     const delimiter = delimiters[0];
-    let f = str.indexOf(delimiter);
-    while (f !== -1) {
-      const token = str.subarray(0, f);
+    let f2 = str.indexOf(delimiter);
+    while (f2 !== -1) {
+      const token = str.subarray(0, f2);
       if (!skipEmpty || token.length !== 0) {
         result.push(token);
       }
-      str = str.subarray(f + 1);
-      f = str.indexOf(delimiter);
+      str = str.subarray(f2 + 1);
+      f2 = str.indexOf(delimiter);
     }
     if (!skipEmpty || str.length !== 0) {
       result.push(str);
@@ -150311,7 +151748,7 @@ registerBackend(
  * limitations under the License.
  * =============================================================================
  */
-var elu3 = unaryKernelFunc(Elu, (xi) => xi >= 0 ? xi : Math.exp(xi) - 1);
+var elu3 = unaryKernelFunc(Elu, (xi2) => xi2 >= 0 ? xi2 : Math.exp(xi2) - 1);
 var eluConfig = {
   kernelName: Elu,
   backendName: "cpu",
@@ -150404,7 +151841,7 @@ var preluConfig = {
  * limitations under the License.
  * =============================================================================
  */
-var relu2 = unaryKernelFunc(Relu, (xi) => Math.max(0, xi));
+var relu2 = unaryKernelFunc(Relu, (xi2) => Math.max(0, xi2));
 var reluConfig = {
   kernelName: Relu,
   backendName: "cpu",
@@ -150428,7 +151865,7 @@ var reluConfig = {
  * limitations under the License.
  * =============================================================================
  */
-var relu62 = unaryKernelFunc(Relu6, (xi) => Math.min(Math.max(0, xi), 6));
+var relu62 = unaryKernelFunc(Relu6, (xi2) => Math.min(Math.max(0, xi2), 6));
 var relu6Config = {
   kernelName: Relu6,
   backendName: "cpu",
@@ -150670,7 +152107,7 @@ var _fusedMatMulConfig = {
  * limitations under the License.
  * =============================================================================
  */
-var acos2 = unaryKernelFunc(Acos, (xi) => Math.acos(xi));
+var acos2 = unaryKernelFunc(Acos, (xi2) => Math.acos(xi2));
 var acosConfig = {
   kernelName: Acos,
   backendName: "cpu",
@@ -150694,7 +152131,7 @@ var acosConfig = {
  * limitations under the License.
  * =============================================================================
  */
-var acosh2 = unaryKernelFunc(Acosh, (xi) => Math.acosh(xi));
+var acosh2 = unaryKernelFunc(Acosh, (xi2) => Math.acosh(xi2));
 var acoshConfig = {
   kernelName: Acosh,
   backendName: "cpu",
@@ -151000,7 +152437,7 @@ var argMinConfig = {
  * limitations under the License.
  * =============================================================================
  */
-var asin2 = unaryKernelFunc(Asin, (xi) => Math.asin(xi));
+var asin2 = unaryKernelFunc(Asin, (xi2) => Math.asin(xi2));
 var asinConfig = {
   kernelName: Asin,
   backendName: "cpu",
@@ -151024,7 +152461,7 @@ var asinConfig = {
  * limitations under the License.
  * =============================================================================
  */
-var asinh2 = unaryKernelFunc(Asinh, (xi) => Math.asinh(xi));
+var asinh2 = unaryKernelFunc(Asinh, (xi2) => Math.asinh(xi2));
 var asinhConfig = {
   kernelName: Asinh,
   backendName: "cpu",
@@ -151048,7 +152485,7 @@ var asinhConfig = {
  * limitations under the License.
  * =============================================================================
  */
-var atan3 = unaryKernelFunc(Atan, (xi) => Math.atan(xi));
+var atan3 = unaryKernelFunc(Atan, (xi2) => Math.atan(xi2));
 var atanConfig = {
   kernelName: Atan,
   backendName: "cpu",
@@ -151097,7 +152534,7 @@ var atan2Config = {
  * limitations under the License.
  * =============================================================================
  */
-var atanh2 = unaryKernelFunc(Atanh, (xi) => Math.atanh(xi));
+var atanh2 = unaryKernelFunc(Atanh, (xi2) => Math.atanh(xi2));
 var atanhConfig = {
   kernelName: Atanh,
   backendName: "cpu",
@@ -151139,7 +152576,7 @@ function pool2(xValues, xShape, dtype, strides, convInfo, poolType) {
   for (let b2 = 0; b2 < convInfo.batchSize; ++b2) {
     const outputBatchOffset = b2 * outputBatchStrides;
     const inputBatchOffset = b2 * strides[0];
-    for (let d2 = 0; d2 < convInfo.inChannels; ++d2) {
+    for (let d = 0; d < convInfo.inChannels; ++d) {
       for (let yR = 0; yR < convInfo.outHeight; ++yR) {
         const xRCorner = yR * strideHeight - padTop;
         const xRMin = Math.max(0, xRCorner);
@@ -151156,7 +152593,7 @@ function pool2(xValues, xShape, dtype, strides, convInfo, poolType) {
             const xROffset = inputBatchOffset + xR * strides[1];
             for (let xC = xCMin; xC < xCMax; xC += dilationWidth) {
               const xCOffset = xROffset + xC * strides[2];
-              const pixel = xValues[xCOffset + d2];
+              const pixel = xValues[xCOffset + d];
               if (poolType === "max" && pixel > minMaxValue) {
                 minMaxValue = pixel;
               } else if (poolType === "avg") {
@@ -151168,7 +152605,7 @@ function pool2(xValues, xShape, dtype, strides, convInfo, poolType) {
               break;
             }
           }
-          const outputOffset = outputRowOffset + yC * outputColStrides + d2;
+          const outputOffset = outputRowOffset + yC * outputColStrides + d;
           outputVals[outputOffset] = poolType === "avg" ? avgValue / count2 : minMaxValue;
         }
       }
@@ -151188,7 +152625,7 @@ function maxPoolPositions(xValues, xShape, dtype, convInfo, flattenPositions = f
   const padLeft = convInfo.padInfo.left;
   const xBuf = buffer(xShape, dtype, xValues);
   for (let b2 = 0; b2 < convInfo.batchSize; ++b2) {
-    for (let d2 = 0; d2 < convInfo.inChannels; ++d2) {
+    for (let d = 0; d < convInfo.inChannels; ++d) {
       for (let yR = 0; yR < convInfo.outHeight; ++yR) {
         const xRCorner = yR * strideHeight - padTop;
         let xRMin = xRCorner;
@@ -151209,18 +152646,18 @@ function maxPoolPositions(xValues, xShape, dtype, convInfo, flattenPositions = f
             const wR = xR - xRCorner;
             for (let xC = xCMin; xC < xCMax; xC += dilationWidth) {
               const wC = xC - xCCorner;
-              const pixel = xBuf.get(b2, xR, xC, d2);
+              const pixel = xBuf.get(b2, xR, xC, d);
               if (pixel > maxValue) {
                 maxValue = pixel;
                 if (flattenPositions) {
-                  maxPosition = includeBatchInIndex ? ((b2 * convInfo.inHeight + xR) * convInfo.inWidth + xC) * convInfo.inChannels + d2 : (xR * convInfo.inWidth + xC) * convInfo.inChannels + d2;
+                  maxPosition = includeBatchInIndex ? ((b2 * convInfo.inHeight + xR) * convInfo.inWidth + xC) * convInfo.inChannels + d : (xR * convInfo.inWidth + xC) * convInfo.inChannels + d;
                 } else {
                   maxPosition = wR * effectiveFilterWidth + wC;
                 }
               }
             }
           }
-          maxPositions.set(maxPosition, b2, yR, yC, d2);
+          maxPositions.set(maxPosition, b2, yR, yC, d);
         }
       }
     }
@@ -151572,7 +153009,7 @@ function avgPoolGrad2(args) {
   const dyData = backend2.data.get(dy.dataId).values;
   const dyBuf = buffer(dy.shape, "float32", dyData);
   for (let b2 = 0; b2 < convInfo.batchSize; ++b2) {
-    for (let d2 = 0; d2 < convInfo.inChannels; ++d2) {
+    for (let d = 0; d < convInfo.inChannels; ++d) {
       for (let dxR = 0; dxR < convInfo.inHeight; ++dxR) {
         for (let dxC = 0; dxC < convInfo.inWidth; ++dxC) {
           const dyRCorner = dxR - padTop;
@@ -151588,11 +153025,11 @@ function avgPoolGrad2(args) {
               if (dyC < 0 || dyC >= convInfo.outWidth || Math.floor(dyC) !== dyC) {
                 continue;
               }
-              const pixel = dyBuf.get(b2, dyR, dyC, d2);
+              const pixel = dyBuf.get(b2, dyR, dyC, d);
               dotProd += pixel;
             }
           }
-          dx.set(dotProd * avgMultiplier, b2, dxR, dxC, d2);
+          dx.set(dotProd * avgMultiplier, b2, dxR, dxC, d);
         }
       }
     }
@@ -151797,12 +153234,12 @@ var broadcastArgsConfig = {
  * limitations under the License.
  * =============================================================================
  */
-var clipByValue2 = unaryKernelFunc(ClipByValue, (xi, attrs) => {
+var clipByValue2 = unaryKernelFunc(ClipByValue, (xi2, attrs) => {
   const clipAttrs = attrs;
-  if (xi > clipAttrs.clipValueMax) {
+  if (xi2 > clipAttrs.clipValueMax) {
     return clipAttrs.clipValueMax;
   }
-  return xi < clipAttrs.clipValueMin ? clipAttrs.clipValueMin : xi;
+  return xi2 < clipAttrs.clipValueMin ? clipAttrs.clipValueMin : xi2;
 });
 var clipByValueConfig = {
   kernelName: ClipByValue,
@@ -152465,7 +153902,7 @@ var conv3DBackpropInputV2Config = {
  * limitations under the License.
  * =============================================================================
  */
-var cos2 = unaryKernelFunc(Cos, (xi) => Math.cos(xi));
+var cos2 = unaryKernelFunc(Cos, (xi2) => Math.cos(xi2));
 var cosConfig = {
   kernelName: Cos,
   backendName: "cpu",
@@ -152489,7 +153926,7 @@ var cosConfig = {
  * limitations under the License.
  * =============================================================================
  */
-var cosh2 = unaryKernelFunc(Cosh, (xi) => Math.cosh(xi));
+var cosh2 = unaryKernelFunc(Cosh, (xi2) => Math.cosh(xi2));
 var coshConfig = {
   kernelName: Cosh,
   backendName: "cpu",
@@ -152815,8 +154252,8 @@ function depthToSpace2(args) {
         const inW = Math.floor(w / blockSize);
         const offsetW = w % blockSize;
         const offsetD = (offsetH * blockSize + offsetW) * outputDepth;
-        for (let d2 = 0; d2 < outputDepth; ++d2) {
-          const inD = d2 + offsetD;
+        for (let d = 0; d < outputDepth; ++d) {
+          const inD = d + offsetD;
           const inputIdx = inD + inputDepth * (inW + inputWidth * (inH + inputHeight * b2));
           result[outputIdx++] = xValues[inputIdx];
         }
@@ -153152,7 +154589,7 @@ var dilation2DConfig = {
         const hBeg = hOut * strideHeight - padInfo.top;
         for (let wOut = 0; wOut < outWidth; ++wOut) {
           const wBeg = wOut * strideWidth - padInfo.left;
-          for (let d2 = 0; d2 < inChannels; ++d2) {
+          for (let d = 0; d < inChannels; ++d) {
             let curVal = Number.MIN_SAFE_INTEGER;
             for (let h = 0; h < filterHeight; ++h) {
               const hIn = hBeg + h * dilationHeight;
@@ -153160,8 +154597,8 @@ var dilation2DConfig = {
                 for (let w = 0; w < filterWidth; ++w) {
                   const wIn = wBeg + w * dilationWidth;
                   if (wIn >= 0 && wIn < inWidth) {
-                    const xIndex = util_exports.locToIndex([b2, hIn, wIn, d2], xRank, util_exports.computeStrides(x.shape));
-                    const filterIndex = util_exports.locToIndex([h, w, d2], filterRank, util_exports.computeStrides(filter2.shape));
+                    const xIndex = util_exports.locToIndex([b2, hIn, wIn, d], xRank, util_exports.computeStrides(x.shape));
+                    const filterIndex = util_exports.locToIndex([h, w, d], filterRank, util_exports.computeStrides(filter2.shape));
                     const val = xVals[xIndex] + filterVals[filterIndex];
                     if (val > curVal) {
                       curVal = val;
@@ -153170,7 +154607,7 @@ var dilation2DConfig = {
                 }
               }
             }
-            const outputIndex = util_exports.locToIndex([b2, hOut, wOut, d2], outRank, util_exports.computeStrides(outShape));
+            const outputIndex = util_exports.locToIndex([b2, hOut, wOut, d], outRank, util_exports.computeStrides(outShape));
             outputVals[outputIndex] = curVal;
           }
         }
@@ -153216,7 +154653,7 @@ var dilation2DBackpropFilterConfig = {
         const hBeg = hOut * strideHeight - padInfo.top;
         for (let wOut = 0; wOut < outWidth; ++wOut) {
           const wBeg = wOut * strideWidth - padInfo.left;
-          for (let d2 = 0; d2 < inChannels; ++d2) {
+          for (let d = 0; d < inChannels; ++d) {
             let curVal = Number.MIN_SAFE_INTEGER;
             let hMax = 0;
             let wMax = 0;
@@ -153226,7 +154663,7 @@ var dilation2DBackpropFilterConfig = {
                 for (let w = 0; w < filterWidth; ++w) {
                   const wIn = wBeg + w * dilationWidth;
                   if (wIn >= 0 && wIn < inWidth) {
-                    const val = $x[b2][hIn][wIn][d2] + $filter[h][w][d2];
+                    const val = $x[b2][hIn][wIn][d] + $filter[h][w][d];
                     if (val > curVal) {
                       curVal = val;
                       hMax = h;
@@ -153236,7 +154673,7 @@ var dilation2DBackpropFilterConfig = {
                 }
               }
             }
-            gradients[hMax][wMax][d2] += $dy[b2][hOut][wOut][d2];
+            gradients[hMax][wMax][d] += $dy[b2][hOut][wOut][d];
           }
         }
       }
@@ -153281,7 +154718,7 @@ var dilation2DBackpropInputConfig = {
         const hBeg = hOut * strideHeight - padInfo.top;
         for (let wOut = 0; wOut < outWidth; ++wOut) {
           const wBeg = wOut * strideWidth - padInfo.left;
-          for (let d2 = 0; d2 < inChannels; ++d2) {
+          for (let d = 0; d < inChannels; ++d) {
             let curVal = Number.MIN_SAFE_INTEGER;
             let hInMax = hBeg < 0 ? 0 : hBeg;
             let wInMax = wBeg < 0 ? 0 : wBeg;
@@ -153291,7 +154728,7 @@ var dilation2DBackpropInputConfig = {
                 for (let w = 0; w < filterWidth; ++w) {
                   const wIn = wBeg + w * dilationWidth;
                   if (wIn >= 0 && wIn < inWidth) {
-                    const val = $x[b2][hIn][wIn][d2] + $filter[h][w][d2];
+                    const val = $x[b2][hIn][wIn][d] + $filter[h][w][d];
                     if (val > curVal) {
                       curVal = val;
                       hInMax = hIn;
@@ -153301,7 +154738,7 @@ var dilation2DBackpropInputConfig = {
                 }
               }
             }
-            gradients[b2][hInMax][wInMax][d2] += $dy[b2][hOut][wOut][d2];
+            gradients[b2][hInMax][wInMax][d] += $dy[b2][hOut][wOut][d];
           }
         }
       }
@@ -153349,8 +154786,8 @@ function draw2(args) {
   const bytes = new Uint8ClampedArray(width * height * 4);
   for (let i = 0; i < height * width; ++i) {
     const rgba = [0, 0, 0, 255 * alpha];
-    for (let d2 = 0; d2 < depth; d2++) {
-      const value = data[i * depth + d2];
+    for (let d = 0; d < depth; d++) {
+      const value = data[i * depth + d];
       if (image2.dtype === "float32") {
         if (value < 0 || value > 1) {
           throw new Error(`Tensor values for a float32 Tensor must be in the range [0 - 1] but encountered ${value}.`);
@@ -153365,7 +154802,7 @@ function draw2(args) {
         rgba[1] = value * multiplier;
         rgba[2] = value * multiplier;
       } else {
-        rgba[d2] = value * multiplier;
+        rgba[d] = value * multiplier;
       }
     }
     const j = i * 4;
@@ -153601,9 +155038,9 @@ var a2 = backend_util_exports.ERF_A2;
 var a3 = backend_util_exports.ERF_A3;
 var a4 = backend_util_exports.ERF_A4;
 var a5 = backend_util_exports.ERF_A5;
-var erf2 = unaryKernelFunc(Erf, (xi) => {
-  const sign4 = Math.sign(xi);
-  const v = Math.abs(xi);
+var erf2 = unaryKernelFunc(Erf, (xi2) => {
+  const sign4 = Math.sign(xi2);
+  const v = Math.abs(xi2);
   const t = 1 / (1 + p2 * v);
   return sign4 * (1 - ((((a5 * t + a4) * t + a3) * t + a2) * t + a1) * t * Math.exp(-v * v));
 });
@@ -153717,10 +155154,10 @@ function fftBatch(input3, inverse, cpuBackend) {
     const input4 = complex2({ inputs: { real: r, imag: i }, backend: cpuBackend });
     const { real: real4, imag: imag4 } = fftImpl(input4, inverse, cpuBackend);
     const res = backend_util_exports.mergeRealAndImagArrays(real4, imag4);
-    for (let d2 = 0; d2 < innerDim; d2++) {
-      const c = backend_util_exports.getComplexWithIndex(res, d2);
-      resultReal[b2 * innerDim + d2] = c.real;
-      resultImag[b2 * innerDim + d2] = c.imag;
+    for (let d = 0; d < innerDim; d++) {
+      const c = backend_util_exports.getComplexWithIndex(res, d);
+      resultReal[b2 * innerDim + d] = c.real;
+      resultImag[b2 * innerDim + d] = c.imag;
     }
     cpuBackend.disposeIntermediateTensorInfo(r);
     cpuBackend.disposeIntermediateTensorInfo(i);
@@ -154280,7 +155717,7 @@ var ifftConfig = {
  * limitations under the License.
  * =============================================================================
  */
-var isFinite3 = unaryKernelFunc(IsFinite, (xi) => Number.isFinite(xi) ? 1 : 0, "bool");
+var isFinite3 = unaryKernelFunc(IsFinite, (xi2) => Number.isFinite(xi2) ? 1 : 0, "bool");
 var isFiniteConfig = {
   kernelName: IsFinite,
   backendName: "cpu",
@@ -154304,7 +155741,7 @@ var isFiniteConfig = {
  * limitations under the License.
  * =============================================================================
  */
-var isInf2 = unaryKernelFunc(IsInf, (xi) => Math.abs(xi) === Infinity ? 1 : 0, "bool");
+var isInf2 = unaryKernelFunc(IsInf, (xi2) => Math.abs(xi2) === Infinity ? 1 : 0, "bool");
 var isInfConfig = {
   kernelName: IsInf,
   backendName: "cpu",
@@ -154328,7 +155765,7 @@ var isInfConfig = {
  * limitations under the License.
  * =============================================================================
  */
-var isNaN3 = unaryKernelFunc(IsNan, (xi) => Number.isNaN(xi) ? 1 : 0, "bool");
+var isNaN3 = unaryKernelFunc(IsNan, (xi2) => Number.isNaN(xi2) ? 1 : 0, "bool");
 var isNaNConfig = {
   kernelName: IsNan,
   backendName: "cpu",
@@ -154381,7 +155818,7 @@ var linSpaceConfig = {
  * limitations under the License.
  * =============================================================================
  */
-var log1p2 = unaryKernelFunc(Log1p, (xi) => Math.log1p(xi));
+var log1p2 = unaryKernelFunc(Log1p, (xi2) => Math.log1p(xi2));
 var log1pConfig = {
   kernelName: Log1p,
   backendName: "cpu",
@@ -154430,7 +155867,7 @@ var logicalAndConfig = {
  * limitations under the License.
  * =============================================================================
  */
-var logicalNot2 = unaryKernelFunc(LogicalNot, (xi) => xi ? 0 : 1, "bool");
+var logicalNot2 = unaryKernelFunc(LogicalNot, (xi2) => xi2 ? 0 : 1, "bool");
 var logicalNotConfig = {
   kernelName: LogicalNot,
   backendName: "cpu",
@@ -154825,7 +156262,7 @@ function maxPoolGrad2(args) {
   const dyData = backend2.data.get(dy.dataId).values;
   const dyBuf = buffer(dy.shape, "float32", dyData);
   for (let b2 = 0; b2 < convInfo.batchSize; ++b2) {
-    for (let d2 = 0; d2 < convInfo.inChannels; ++d2) {
+    for (let d = 0; d < convInfo.inChannels; ++d) {
       for (let dxR = 0; dxR < convInfo.inHeight; ++dxR) {
         for (let dxC = 0; dxC < convInfo.inWidth; ++dxC) {
           const dyRCorner = dxR - padTop;
@@ -154841,17 +156278,17 @@ function maxPoolGrad2(args) {
               if (dyC < 0 || dyC >= convInfo.outWidth || Math.floor(dyC) !== dyC) {
                 continue;
               }
-              const maxPos = effectiveFilterHeight * effectiveFilterWidth - 1 - maxPosBuf.get(b2, dyR, dyC, d2);
+              const maxPos = effectiveFilterHeight * effectiveFilterWidth - 1 - maxPosBuf.get(b2, dyR, dyC, d);
               const curPos = wR * effectiveFilterWidth + wC;
               const mask = maxPos === curPos ? 1 : 0;
               if (mask === 0) {
                 continue;
               }
-              const pixel = dyBuf.get(b2, dyR, dyC, d2);
+              const pixel = dyBuf.get(b2, dyR, dyC, d);
               dotProd += pixel * mask;
             }
           }
-          dx.set(dotProd, b2, dxR, dxC, d2);
+          dx.set(dotProd, b2, dxR, dxC, d);
         }
       }
     }
@@ -155750,7 +157187,7 @@ var rangeConfig = {
  * limitations under the License.
  * =============================================================================
  */
-var reciprocal2 = unaryKernelFunc(Reciprocal, (xi) => 1 / xi);
+var reciprocal2 = unaryKernelFunc(Reciprocal, (xi2) => 1 / xi2);
 var reciprocalConfig = {
   kernelName: Reciprocal,
   backendName: "cpu",
@@ -155822,11 +157259,11 @@ function resizeBilinear3(args) {
         const botLeftOffset = botRowOffset + sourceColFloor * imagesStrides[2];
         const topRightOffset = topRowOffset + sourceColCeil * imagesStrides[2];
         const botRightOffest = botRowOffset + sourceColCeil * imagesStrides[2];
-        for (let d2 = 0; d2 < numChannels; d2++) {
-          const topLeft = xValues[topLeftOffest + d2];
-          const bottomLeft = xValues[botLeftOffset + d2];
-          const topRight = xValues[topRightOffset + d2];
-          const bottomRight = xValues[botRightOffest + d2];
+        for (let d = 0; d < numChannels; d++) {
+          const topLeft = xValues[topLeftOffest + d];
+          const bottomLeft = xValues[botLeftOffset + d];
+          const topRight = xValues[topRightOffset + d];
+          const bottomRight = xValues[botRightOffest + d];
           const top = topLeft + (topRight - topLeft) * colFrac;
           const bottom = bottomLeft + (bottomRight - bottomLeft) * colFrac;
           const newValue = top + (bottom - top) * rowFrac;
@@ -155905,12 +157342,12 @@ function resizeBilinearGrad(args) {
         const inverseDxRLerpTimesDxCLerp = inverseDxRLerp * dxCLerp;
         const dxRLerpTimesInverseDxCLerp = dxRLerp * inverseDxCLerp;
         const dxRLerpTimesDxCLerp = dxRLerp * dxCLerp;
-        for (let d2 = 0; d2 < depth; d2++) {
+        for (let d = 0; d < depth; d++) {
           const dyVal = dyValues[offset++];
-          output2[topLeftRCOffset + d2] += dyVal * inverseDxRLerpTimesInverseDxCLerp;
-          output2[topRightRCOffset + d2] += dyVal * inverseDxRLerpTimesDxCLerp;
-          output2[bottomLeftRCOffset + d2] += dyVal * dxRLerpTimesInverseDxCLerp;
-          output2[bottomRightRCOffset + d2] += dyVal * dxRLerpTimesDxCLerp;
+          output2[topLeftRCOffset + d] += dyVal * inverseDxRLerpTimesInverseDxCLerp;
+          output2[topRightRCOffset + d] += dyVal * inverseDxRLerpTimesDxCLerp;
+          output2[bottomLeftRCOffset + d] += dyVal * dxRLerpTimesInverseDxCLerp;
+          output2[bottomRightRCOffset + d] += dyVal * dxRLerpTimesDxCLerp;
         }
       }
     }
@@ -155977,8 +157414,8 @@ function resizeNearestNeighbor2(args) {
           sourceNearestCol = Math.max(0, sourceNearestCol);
         }
         const colOffset = rowOffset + sourceNearestCol * imagesStrides[2];
-        for (let d2 = 0; d2 < numChannels; d2++) {
-          const newVal = xValues[colOffset + d2];
+        for (let d = 0; d < numChannels; d++) {
+          const newVal = xValues[colOffset + d];
           output2[outputOffset++] = newVal;
         }
       }
@@ -156044,7 +157481,7 @@ function resizeNearestNeighborGrad(args) {
         const colOffset = rowOffset + c * imagesStrides[2];
         const startCLerp = Math.floor(c * invWidthScale);
         const startDyC = Math.floor(startCLerp - winWidth / 2);
-        for (let d2 = 0; d2 < depth; d2++) {
+        for (let d = 0; d < depth; d++) {
           let accum = 0;
           for (let dyRIndex = 0; dyRIndex < winHeight; dyRIndex++) {
             const dyR = dyRIndex + startDyR;
@@ -156066,11 +157503,11 @@ function resizeNearestNeighborGrad(args) {
               const sourceFracCol = dyC * widthScale;
               const sourceNearestCol = Math.min(xWidth - 1, alignCorners ? Math.round(sourceFracCol) : Math.floor(sourceFracCol));
               if (c === sourceNearestCol) {
-                accum += dyValues[dyCOffset + d2];
+                accum += dyValues[dyCOffset + d];
               }
             }
           }
-          output2[colOffset + d2] = accum;
+          output2[colOffset + d] = accum;
         }
       }
     }
@@ -156115,7 +157552,7 @@ function reverse2(args) {
   for (let i = 0; i < outBuf.size; i++) {
     const outLoc = outBuf.indexToLoc(i);
     const inLoc = outLoc.slice();
-    $dims.forEach((d2) => inLoc[d2] = x.shape[d2] - 1 - inLoc[d2]);
+    $dims.forEach((d) => inLoc[d] = x.shape[d] - 1 - inLoc[d]);
     outBuf.set(xBuf.get(...inLoc), ...outLoc);
   }
   return backend2.makeTensorInfo(outBuf.shape, outBuf.dtype, outBuf.values);
@@ -156213,12 +157650,12 @@ var rotateWithOffsetConfig = {
  * limitations under the License.
  * =============================================================================
  */
-var round4 = unaryKernelFunc(Round, (xi) => {
-  const base = Math.floor(xi);
-  if (xi - base < 0.5) {
-    return Math.floor(xi);
-  } else if (xi - base > 0.5) {
-    return Math.ceil(xi);
+var round4 = unaryKernelFunc(Round, (xi2) => {
+  const base = Math.floor(xi2);
+  if (xi2 - base < 0.5) {
+    return Math.floor(xi2);
+  } else if (xi2 - base > 0.5) {
+    return Math.ceil(xi2);
   } else {
     if (base % 2 === 0) {
       return base;
@@ -156421,11 +157858,11 @@ var selectConfig = {
  */
 var scaleAlpha = backend_util_exports.SELU_SCALEALPHA;
 var scale = backend_util_exports.SELU_SCALE;
-var selu2 = unaryKernelFunc(Selu, (xi) => {
-  if (xi >= 0) {
-    return scale * xi;
+var selu2 = unaryKernelFunc(Selu, (xi2) => {
+  if (xi2 >= 0) {
+    return scale * xi2;
   } else {
-    return scaleAlpha * (Math.exp(xi) - 1);
+    return scaleAlpha * (Math.exp(xi2) - 1);
   }
 });
 var seluConfig = {
@@ -156451,10 +157888,10 @@ var seluConfig = {
  * limitations under the License.
  * =============================================================================
  */
-var sign2 = unaryKernelFunc(Sign, (xi) => {
-  if (xi < 0) {
+var sign2 = unaryKernelFunc(Sign, (xi2) => {
+  if (xi2 < 0) {
     return -1;
-  } else if (xi > 0) {
+  } else if (xi2 > 0) {
     return 1;
   } else {
     return 0;
@@ -156483,7 +157920,7 @@ var signConfig = {
  * limitations under the License.
  * =============================================================================
  */
-var sin2 = unaryKernelFunc(Sin, (xi) => Math.sin(xi));
+var sin2 = unaryKernelFunc(Sin, (xi2) => Math.sin(xi2));
 var sinConfig = {
   kernelName: Sin,
   backendName: "cpu",
@@ -156507,7 +157944,7 @@ var sinConfig = {
  * limitations under the License.
  * =============================================================================
  */
-var sinh2 = unaryKernelFunc(Sinh, (xi) => Math.sinh(xi));
+var sinh2 = unaryKernelFunc(Sinh, (xi2) => Math.sinh(xi2));
 var sinhConfig = {
   kernelName: Sinh,
   backendName: "cpu",
@@ -156533,15 +157970,15 @@ var sinhConfig = {
  */
 var epsilon2 = 11920928955078125e-23;
 var threshold2 = Math.log(epsilon2) + 2;
-var softplus2 = unaryKernelFunc(Softplus, (xi) => {
-  const tooLarge = xi > -threshold2;
-  const tooSmall = xi < threshold2;
-  const expX = Math.exp(xi);
+var softplus2 = unaryKernelFunc(Softplus, (xi2) => {
+  const tooLarge = xi2 > -threshold2;
+  const tooSmall = xi2 < threshold2;
+  const expX = Math.exp(xi2);
   let result;
   if (tooSmall) {
     result = expX;
   } else if (tooLarge) {
-    result = xi;
+    result = xi2;
   } else {
     result = Math.log(1 + expX);
   }
@@ -156953,12 +158390,12 @@ var squareConfig = {
  * limitations under the License.
  * =============================================================================
  */
-var step2 = unaryKernelFunc(Step, (xi, attrs) => {
+var step2 = unaryKernelFunc(Step, (xi2, attrs) => {
   const stepAttrs = attrs;
-  if (isNaN(xi)) {
+  if (isNaN(xi2)) {
     return NaN;
   } else {
-    return xi > 0 ? 1 : stepAttrs.alpha;
+    return xi2 > 0 ? 1 : stepAttrs.alpha;
   }
 });
 var stepConfig = {
@@ -157147,7 +158584,7 @@ var stringToHashBucketFastConfig = {
  * limitations under the License.
  * =============================================================================
  */
-var tan2 = unaryKernelFunc(Tan, (xi) => Math.tan(xi));
+var tan2 = unaryKernelFunc(Tan, (xi2) => Math.tan(xi2));
 var tanConfig = {
   kernelName: Tan,
   backendName: "cpu",
@@ -157171,7 +158608,7 @@ var tanConfig = {
  * limitations under the License.
  * =============================================================================
  */
-var tanh3 = unaryKernelFunc(Tanh, (xi) => Math.tanh(xi));
+var tanh3 = unaryKernelFunc(Tanh, (xi2) => Math.tanh(xi2));
 var tanhConfig = {
   kernelName: Tanh,
   backendName: "cpu",
@@ -158243,7 +159680,7 @@ function getTextureShapeFromLogicalShape(logShape, isPacked = false) {
   if (isPacked) {
     maxTexSize = maxTexSize * 2;
     maxSizeForNarrowTex = maxSizeForNarrowTex * 2;
-    logShape = logShape.map((d2, i) => i >= logShape.length - 2 ? util_exports.nearestLargerEven(logShape[i]) : logShape[i]);
+    logShape = logShape.map((d, i) => i >= logShape.length - 2 ? util_exports.nearestLargerEven(logShape[i]) : logShape[i]);
     if (logShape.length === 1) {
       logShape = [2, logShape[0]];
     }
@@ -158276,7 +159713,7 @@ function getTextureShapeFromLogicalShape(logShape, isPacked = false) {
         [rows, cols] = getRowsCols(logShape);
       }
       size = batchDim * (rows / 2) * (cols / 2);
-      textureShape = util_exports.sizeToSquarishShape(size).map((d2) => d2 * 2);
+      textureShape = util_exports.sizeToSquarishShape(size).map((d) => d * 2);
     } else {
       textureShape = util_exports.sizeToSquarishShape(size);
     }
@@ -158693,7 +160130,7 @@ function getOutputLogicalCoordinatesFromFlatIndexByUniform(coords2, shape, index
 }
 function symbolicallyComputeStrides(indicesArr, variableName) {
   const numCoords = indicesArr.length;
-  const shape = indicesArr.map((d2) => `${variableName}[${d2}]`);
+  const shape = indicesArr.map((d) => `${variableName}[${d}]`);
   const strides = new Array(numCoords - 1);
   strides[numCoords - 2] = shape[numCoords - 1];
   for (let i = numCoords - 3; i >= 0; --i) {
@@ -158711,7 +160148,7 @@ function getLogicalCoordinatesFromFlatIndexByUniform(coords2, variableName, inde
   }).join("");
 }
 function getFlatIndexFrom3D(shape) {
-  const strides = util_exports.computeStrides(shape).map((d2) => d2.toString());
+  const strides = util_exports.computeStrides(shape).map((d) => d.toString());
   return `
   int getFlatIndex(ivec3 coords) {
     return coords.x * ${strides[0]} + coords.y * ${strides[1]} + coords.z;
@@ -158838,8 +160275,8 @@ function makeShader(inputsInfo, outputShape, program) {
     prefixSnippets.push(`uniform ivec2 outTexShape;`);
   }
   if (program.customUniforms) {
-    program.customUniforms.forEach((d2) => {
-      prefixSnippets.push(`uniform ${d2.type} ${d2.name}${d2.arrayIndex ? `[${d2.arrayIndex}]` : ""};`);
+    program.customUniforms.forEach((d) => {
+      prefixSnippets.push(`uniform ${d.type} ${d.name}${d.arrayIndex ? `[${d.arrayIndex}]` : ""};`);
     });
   }
   const inputPrefixSnippet = prefixSnippets.join("\n");
@@ -160238,7 +161675,7 @@ function getPackedSamplerAtOutputCoords(inputInfo, outShapeInfo) {
   const inRank = inputInfo.shapeInfo.logicalShape.length;
   const outRank = outShapeInfo.logicalShape.length;
   const broadcastDims = getBroadcastDims2(inputInfo.shapeInfo.logicalShape, outShapeInfo.logicalShape);
-  const type = getCoordsDataType(outRank);
+  const type2 = getCoordsDataType(outRank);
   const rankDiff = outRank - inRank;
   let coordsSnippet;
   const fields = ["x", "y", "z", "w", "u", "v"];
@@ -160247,7 +161684,7 @@ function getPackedSamplerAtOutputCoords(inputInfo, outShapeInfo) {
   } else if (outRank < 2 && broadcastDims.length >= 1) {
     coordsSnippet = "coords = 0;";
   } else {
-    coordsSnippet = broadcastDims.map((d2) => `coords.${fields[d2 + rankDiff]} = 0;`).join("\n");
+    coordsSnippet = broadcastDims.map((d) => `coords.${fields[d + rankDiff]} = 0;`).join("\n");
   }
   let unpackedCoordsSnippet = "";
   if (outRank < 2 && inRank > 0) {
@@ -160287,7 +161724,7 @@ function getPackedSamplerAtOutputCoords(inputInfo, outShapeInfo) {
   }
   return `
     vec4 ${funcName}() {
-      ${type} coords = getOutputCoords();
+      ${type2} coords = getOutputCoords();
       ${coordsSnippet}
       vec4 outputValue = get${texFuncSnippet}(${unpackedCoordsSnippet});
       ${output2}
@@ -160309,7 +161746,7 @@ function getSamplerAtOutputCoords(inputInfo, outShapeInfo) {
       }
     `;
   }
-  const type = getCoordsDataType(outRank);
+  const type2 = getCoordsDataType(outRank);
   const broadcastDims = getBroadcastDims2(inputInfo.shapeInfo.logicalShape, outShapeInfo.logicalShape);
   const rankDiff = outRank - inRank;
   let coordsSnippet;
@@ -160319,7 +161756,7 @@ function getSamplerAtOutputCoords(inputInfo, outShapeInfo) {
   } else if (outRank < 2 && broadcastDims.length >= 1) {
     coordsSnippet = "coords = 0;";
   } else {
-    coordsSnippet = broadcastDims.map((d2) => `coords.${fields[d2 + rankDiff]} = 0;`).join("\n");
+    coordsSnippet = broadcastDims.map((d) => `coords.${fields[d + rankDiff]} = 0;`).join("\n");
   }
   let unpackedCoordsSnippet = "";
   if (outRank < 2 && inRank > 0) {
@@ -160329,7 +161766,7 @@ function getSamplerAtOutputCoords(inputInfo, outShapeInfo) {
   }
   return `
     float ${funcName}() {
-      ${type} coords = getOutputCoords();
+      ${type2} coords = getOutputCoords();
       ${coordsSnippet}
       return get${texFuncSnippet}(${unpackedCoordsSnippet});
     }
@@ -160367,7 +161804,7 @@ function squeezeInputInfo(inInfo, squeezedShape) {
   return newInputInfo;
 }
 function getSqueezedParams(params, keptDims) {
-  return keptDims.map((d2) => params[d2]).join(", ");
+  return keptDims.map((d) => params[d]).join(", ");
 }
 
 // node_modules/@tensorflow/tfjs-backend-webgl/dist/gpgpu_math.js
@@ -160471,8 +161908,8 @@ function getUniformLocations(gpgpu, program, webGLProgram) {
     outTexShapeLocation = gpgpu.getUniformLocation(webGLProgram, "outTexShape", shouldThrow);
   }
   if (program.customUniforms) {
-    for (const d2 of program.customUniforms) {
-      customUniformLocations.push(gpgpu.getUniformLocation(webGLProgram, d2.name, shouldThrow));
+    for (const d of program.customUniforms) {
+      customUniformLocations.push(gpgpu.getUniformLocation(webGLProgram, d.name, shouldThrow));
     }
   }
   return {
@@ -160613,27 +162050,27 @@ function runProgram(gpgpu, binary, inputs, output2, customUniformValues) {
   }
   if (binary.program.customUniforms && customUniformValues) {
     for (let i = 0; i < binary.program.customUniforms.length; ++i) {
-      const d2 = binary.program.customUniforms[i];
+      const d = binary.program.customUniforms[i];
       const customLoc = binary.customUniformLocations[i];
       const customValue = customUniformValues[i];
-      if (d2.type === "float") {
+      if (d.type === "float") {
         gpgpu.gl.uniform1fv(customLoc, customValue);
-      } else if (d2.type === "vec2") {
+      } else if (d.type === "vec2") {
         gpgpu.gl.uniform2fv(customLoc, customValue);
-      } else if (d2.type === "vec3") {
+      } else if (d.type === "vec3") {
         gpgpu.gl.uniform3fv(customLoc, customValue);
-      } else if (d2.type === "vec4") {
+      } else if (d.type === "vec4") {
         gpgpu.gl.uniform4fv(customLoc, customValue);
-      } else if (d2.type === "int") {
+      } else if (d.type === "int") {
         gpgpu.gl.uniform1iv(customLoc, customValue);
-      } else if (d2.type === "ivec2") {
+      } else if (d.type === "ivec2") {
         gpgpu.gl.uniform2iv(customLoc, customValue);
-      } else if (d2.type === "ivec3") {
+      } else if (d.type === "ivec3") {
         gpgpu.gl.uniform3iv(customLoc, customValue);
-      } else if (d2.type === "ivec4") {
+      } else if (d.type === "ivec4") {
         gpgpu.gl.uniform4iv(customLoc, customValue);
       } else {
-        throw Error(`uniform type ${d2.type} is not supported yet.`);
+        throw Error(`uniform type ${d.type} is not supported yet.`);
       }
     }
   }
@@ -161674,7 +163111,7 @@ var { addImpl: addImplCPU, bincountImpl: bincountImplCPU, bincountReduceImpl: bi
  * =============================================================================
  */
 function getVecChannels(name, rank) {
-  return ["x", "y", "z", "w", "u", "v"].slice(0, rank).map((d2) => `${name}.${d2}`);
+  return ["x", "y", "z", "w", "u", "v"].slice(0, rank).map((d) => `${name}.${d}`);
 }
 function getChannels(name, rank) {
   if (rank === 1) {
@@ -161753,8 +163190,8 @@ var PackProgram = class {
     for (let row = 0; row <= 1; row++) {
       for (let col = 0; col <= 1; col++) {
         let coord = `${row === 0 ? "r" : "rp1"}, ${col === 0 ? "c" : "cp1"}`;
-        for (let d2 = 2; d2 < this.rank; d2++) {
-          coord = `${dims[dims.length - 1 - d2]},` + coord;
+        for (let d = 2; d < this.rank; d++) {
+          coord = `${dims[dims.length - 1 - d]},` + coord;
         }
         coords2.push(coord);
       }
@@ -162546,7 +163983,7 @@ var MathBackendWebGL = class _MathBackendWebGL extends KernelBackend {
     const data = this.readSync(t.dataId);
     if (t.dtype === "string") {
       try {
-        const strings = data.map((d2) => util_exports.decodeString(d2));
+        const strings = data.map((d) => util_exports.decodeString(d));
         return buffer(t.shape, t.dtype, strings);
       } catch (_a) {
         throw new Error("Failed to decode encoded string bytes into utf-8");
@@ -162590,7 +164027,7 @@ var MathBackendWebGL = class _MathBackendWebGL extends KernelBackend {
   timerAvailable() {
     return env().getNumber("WEBGL_DISJOINT_QUERY_TIMER_EXTENSION_RELIABLE") > 0;
   }
-  time(f) {
+  time(f2) {
     const oldActiveTimers = this.activeTimers;
     const newActiveTimers = [];
     let outerMostTime = false;
@@ -162601,9 +164038,9 @@ var MathBackendWebGL = class _MathBackendWebGL extends KernelBackend {
       this.activeTimers.push(newActiveTimers);
     }
     this.activeTimers = newActiveTimers;
-    f();
-    const flattenedActiveTimerQueries = util_exports.flatten(this.activeTimers.map((d2) => d2.query)).filter((d2) => d2 != null);
-    const flattenedActiveTimerNames = util_exports.flatten(this.activeTimers.map((d2) => d2.name)).filter((d2) => d2 != null);
+    f2();
+    const flattenedActiveTimerQueries = util_exports.flatten(this.activeTimers.map((d) => d.query)).filter((d) => d != null);
+    const flattenedActiveTimerNames = util_exports.flatten(this.activeTimers.map((d) => d.name)).filter((d) => d != null);
     this.activeTimers = oldActiveTimers;
     if (outerMostTime) {
       this.programTimersStack = null;
@@ -162619,7 +164056,7 @@ var MathBackendWebGL = class _MathBackendWebGL extends KernelBackend {
       if (env().getNumber("WEBGL_DISJOINT_QUERY_TIMER_EXTENSION_RELIABLE") > 0) {
         const kernelMs = await Promise.all(flattenedActiveTimerQueries);
         res["kernelMs"] = util_exports.sum(kernelMs);
-        res["getExtraProfileInfo"] = () => kernelMs.map((d2, i) => ({ name: flattenedActiveTimerNames[i], ms: d2 })).map((d2) => `${d2.name}: ${d2.ms}`).join(", ");
+        res["getExtraProfileInfo"] = () => kernelMs.map((d, i) => ({ name: flattenedActiveTimerNames[i], ms: d })).map((d) => `${d.name}: ${d.ms}`).join(", ");
       } else {
         res["kernelMs"] = {
           error: "WebGL query timers are not supported in this environment."
@@ -162769,7 +164206,7 @@ var MathBackendWebGL = class _MathBackendWebGL extends KernelBackend {
   makeTensorInfo(shape, dtype, values) {
     let dataId;
     if (dtype === "string" && values != null && values.length > 0 && util_exports.isString(values[0])) {
-      const encodedValues = values.map((d2) => util_exports.encodeString(d2));
+      const encodedValues = values.map((d) => util_exports.encodeString(d));
       dataId = this.write(encodedValues, shape, dtype);
     } else {
       dataId = this.write(values, shape, dtype);
@@ -162837,7 +164274,7 @@ var MathBackendWebGL = class _MathBackendWebGL extends KernelBackend {
     }
     if (program.outPackingScheme === PackingScheme.DENSE) {
       const texelShape = customTexShape != null ? customTexShape : getDenseTexShape(program.outputShape);
-      outData.texShape = texelShape.map((d2) => d2 * 2);
+      outData.texShape = texelShape.map((d) => d * 2);
     }
     if (program.outTexUsage != null) {
       outData.usage = program.outTexUsage;
@@ -173757,7 +175194,7 @@ var PadProgram = class {
       /* afterPad */
     );
     const rank = xShape.length;
-    const type = getCoordsDataType(rank);
+    const type2 = getCoordsDataType(rank);
     const start = paddings.map((p3) => p3[0]).join(",");
     const end = paddings.map((p3, i) => p3[0] + xShape[i]).join(",");
     const unpackedCoords = ["coords[0]", "coords[1]", "coords[2]", "coords[3]"].slice(0, rank);
@@ -173778,15 +175215,15 @@ var PadProgram = class {
       return;
     }
     this.userCode = `
-      ${type} start = ${type}(${start});
-      ${type} end = ${type}(${end});
+      ${type2} start = ${type2}(${start});
+      ${type2} end = ${type2}(${end});
 
       void main() {
-        ${type} outC = getOutputCoords();
+        ${type2} outC = getOutputCoords();
         if (any(lessThan(outC, start)) || any(greaterThanEqual(outC, end))) {
           setOutput(value);
         } else {
-          ${type} coords = outC - start;
+          ${type2} coords = outC - start;
           setOutput(getX(${unpackedCoords}));
         }
       }
@@ -175001,10 +176438,10 @@ var ReverseProgram = class {
       return `coords[${i}]`;
     };
     const inCoords = xShape.map((_2, i) => getInCoord(i)).join(",");
-    const type = getCoordsDataType(rank);
+    const type2 = getCoordsDataType(rank);
     this.userCode = `
       void main() {
-        ${type} coords = getOutputCoords();
+        ${type2} coords = getOutputCoords();
         setOutput(getX(${inCoords}));
       }
     `;
@@ -175041,7 +176478,7 @@ var ReversePackedProgram = class {
     const channels = getChannels("rc", rank);
     const nextColumn = `${channels[rank - 1]} + 1 < ${this.outputShape[rank - 1]}`;
     const nextRow = `${channels[rank - 2]} + 1 < ${this.outputShape[rank - 2]}`;
-    const type = getCoordsDataType(rank);
+    const type2 = getCoordsDataType(rank);
     if (rank === 1) {
       this.userCode = `
         void main(){
@@ -175059,7 +176496,7 @@ var ReversePackedProgram = class {
     } else {
       this.userCode = `
         void main() {
-          ${type} rc = getOutputCoords();
+          ${type2} rc = getOutputCoords();
           vec4 result = vec4(0.);
           result.r = ${getR(channels.slice())};
           if(${nextColumn}){
@@ -176726,7 +178163,7 @@ function tile4(params) {
   const { reps } = attrs;
   if (x.dtype === "string" || x.shape.length > 5) {
     const data = backend2.readSync(x.dataId);
-    const value = x.dtype === "string" ? data.map((d2) => util_exports.decodeString(d2)) : data;
+    const value = x.dtype === "string" ? data.map((d) => util_exports.decodeString(d)) : data;
     const buf = buffer(x.shape, x.dtype, value);
     const outBuf = tileImplCPU(buf, reps);
     return backend2.makeTensorInfo(outBuf.shape, outBuf.dtype, outBuf.values);
@@ -177716,8 +179153,8 @@ for (const kernelConfig of kernelConfigs2) {
  */
 
 // apps/assistant-panel/src/app/panel-view.component.ts
-var _c013 = ["video"];
-var _c19 = ["canvas"];
+var _c016 = ["video"];
+var _c110 = ["canvas"];
 var _c26 = ["message_element"];
 var _c34 = ["waveform_canvas"];
 var _c43 = (a0, a12) => ({ name: a0, photo: a12 });
@@ -178294,7 +179731,7 @@ var PanelViewComponent = class _PanelViewComponent extends AsyncHandler {
   static {
     this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _PanelViewComponent, selectors: [["app-panel-view"]], viewQuery: function PanelViewComponent_Query(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275viewQuerySignal(ctx._video_el, _c013, 5)(ctx._canvas_el, _c19, 5)(ctx._message_el, _c26, 5)(ctx._waveform_canvas_el, _c34, 5);
+        \u0275\u0275viewQuerySignal(ctx._video_el, _c016, 5)(ctx._canvas_el, _c110, 5)(ctx._message_el, _c26, 5)(ctx._waveform_canvas_el, _c34, 5);
       }
       if (rf & 2) {
         \u0275\u0275queryAdvance(4);
