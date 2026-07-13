@@ -2690,6 +2690,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .-top-2 {
   top: calc(var(--spacing) * -2);
 }
+#placeos .-top-3 {
+  top: calc(var(--spacing) * -3);
+}
 #placeos .-top-12 {
   top: calc(var(--spacing) * -12);
 }
@@ -2767,6 +2770,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .-right-1 {
   right: calc(var(--spacing) * -1);
+}
+#placeos .-right-2 {
+  right: calc(var(--spacing) * -2);
 }
 #placeos .-right-4 {
   right: calc(var(--spacing) * -4);
@@ -2924,6 +2930,12 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .z-0 {
   z-index: 0;
 }
+#placeos .z-1 {
+  z-index: 1;
+}
+#placeos .z-2 {
+  z-index: 2;
+}
 #placeos .z-10 {
   z-index: 10;
 }
@@ -2974,6 +2986,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .col-start-2 {
   grid-column-start: 2;
+}
+#placeos .row-1 {
+  grid-row: 1;
 }
 #placeos .row-start-2 {
   grid-row-start: 2;
@@ -3189,14 +3204,23 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .mr-4\! {
   margin-right: calc(var(--spacing) * 4) !important;
 }
+#placeos .mr-8 {
+  margin-right: calc(var(--spacing) * 8);
+}
 #placeos .mr-10 {
   margin-right: calc(var(--spacing) * 10);
 }
 #placeos .mr-auto {
   margin-right: auto;
 }
+#placeos .-mb-2 {
+  margin-bottom: calc(var(--spacing) * -2);
+}
 #placeos .-mb-4 {
   margin-bottom: calc(var(--spacing) * -4);
+}
+#placeos .-mb-7 {
+  margin-bottom: calc(var(--spacing) * -7);
 }
 #placeos .mb-0 {
   margin-bottom: calc(var(--spacing) * 0);
@@ -3332,6 +3356,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .inline-flex {
   display: inline-flex;
+}
+#placeos .list-item {
+  display: list-item;
 }
 #placeos .table {
   display: table;
@@ -3567,11 +3594,17 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .h-\[calc\(100vh-5rem\)\] {
   height: calc(100vh - 5rem);
 }
+#placeos .h-\[calc\(100vh-8rem\)\] {
+  height: calc(100vh - 8rem);
+}
 #placeos .h-\[calc\(100vh-9rem\)\] {
   height: calc(100vh - 9rem);
 }
 #placeos .h-\[calc\(100vh-10rem\)\] {
   height: calc(100vh - 10rem);
+}
+#placeos .h-\[calc\(100vh-12rem\)\] {
+  height: calc(100vh - 12rem);
 }
 #placeos .h-full {
   height: 100%;
@@ -3831,6 +3864,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .w-3\/4 {
   width: calc(3 / 4 * 100%);
 }
+#placeos .w-3\/5 {
+  width: calc(3 / 5 * 100%);
+}
 #placeos .w-3xl {
   width: var(--container-3xl);
 }
@@ -4065,6 +4101,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .w-\[calc\(100\%\+1rem\)\] {
   width: calc(100% + 1rem);
 }
+#placeos .w-\[calc\(100\%\+2px\)\] {
+  width: calc(100% + 2px);
+}
 #placeos .w-\[calc\(100\%\+2rem\)\] {
   width: calc(100% + 2rem);
 }
@@ -4211,6 +4250,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .max-w-\[85vw\] {
   max-width: 85vw;
+}
+#placeos .max-w-\[90vw\] {
+  max-width: 90vw;
 }
 #placeos .max-w-\[100vw\] {
   max-width: 100vw;
@@ -4531,6 +4573,10 @@ input:where([type=button], [type=reset], [type=submit]),
   --tw-translate-x: calc(1 / 2 * 100%);
   translate: var(--tw-translate-x) var(--tw-translate-y);
 }
+#placeos .translate-x-4 {
+  --tw-translate-x: calc(var(--spacing) * 4);
+  translate: var(--tw-translate-x) var(--tw-translate-y);
+}
 #placeos .translate-x-14 {
   --tw-translate-x: calc(var(--spacing) * 14);
   translate: var(--tw-translate-x) var(--tw-translate-y);
@@ -4575,6 +4621,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .-rotate-90 {
   rotate: calc(90deg * -1);
+}
+#placeos .rotate-90 {
+  rotate: 90deg;
 }
 #placeos .transform {
   transform: var(--tw-rotate-x,) var(--tw-rotate-y,) var(--tw-rotate-z,) var(--tw-skew-x,) var(--tw-skew-y,);
@@ -4648,6 +4697,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .grid-cols-\[auto_1fr\] {
   grid-template-columns: auto 1fr;
 }
+#placeos .grid-cols-\[max-content_1fr\] {
+  grid-template-columns: max-content 1fr;
+}
 #placeos .grid-rows-7 {
   grid-template-rows: repeat(7, minmax(0, 1fr));
 }
@@ -4665,9 +4717,6 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .place-items-center {
   place-items: center;
-}
-#placeos .items-baseline {
-  align-items: baseline;
 }
 #placeos .items-center {
   align-items: center;
@@ -4767,9 +4816,6 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .gap-x-4 {
   column-gap: calc(var(--spacing) * 4);
-}
-#placeos .gap-x-8 {
-  column-gap: calc(var(--spacing) * 8);
 }
 :where(#placeos .space-x-0 > :not(:last-child)) {
   --tw-space-x-reverse: 0;
@@ -5245,6 +5291,14 @@ input:where([type=button], [type=reset], [type=submit]),
     background-color: color-mix(in oklab, var(--base-100) 10%, transparent);
   }
 }
+#placeos .bg-base-100\/50 {
+  background-color: var(--base-100);
+}
+@supports (color: color-mix(in lab, red, red)) {
+  #placeos .bg-base-100\/50 {
+    background-color: color-mix(in oklab, var(--base-100) 50%, transparent);
+  }
+}
 #placeos .bg-base-100\/60 {
   background-color: var(--base-100);
 }
@@ -5378,6 +5432,14 @@ input:where([type=button], [type=reset], [type=submit]),
 @supports (color: color-mix(in lab, red, red)) {
   #placeos .bg-base-content\/10 {
     background-color: color-mix(in oklab, var(--base-content) 10%, transparent);
+  }
+}
+#placeos .bg-base-content\/40 {
+  background-color: var(--base-content);
+}
+@supports (color: color-mix(in lab, red, red)) {
+  #placeos .bg-base-content\/40 {
+    background-color: color-mix(in oklab, var(--base-content) 40%, transparent);
   }
 }
 #placeos .bg-black {
@@ -5894,11 +5956,20 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .pl-4 {
   padding-left: calc(var(--spacing) * 4);
 }
+#placeos .pl-5 {
+  padding-left: calc(var(--spacing) * 5);
+}
 #placeos .pl-6 {
   padding-left: calc(var(--spacing) * 6);
 }
 #placeos .pl-7 {
   padding-left: calc(var(--spacing) * 7);
+}
+#placeos .pl-8 {
+  padding-left: calc(var(--spacing) * 8);
+}
+#placeos .pl-9 {
+  padding-left: calc(var(--spacing) * 9);
 }
 #placeos .pl-10 {
   padding-left: calc(var(--spacing) * 10);
@@ -5995,6 +6066,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .text-\[0\.6rem\] {
   font-size: 0.6rem;
 }
+#placeos .text-\[0\.65rem\] {
+  font-size: 0.65rem;
+}
 #placeos .text-\[0\.75em\] {
   font-size: 0.75em;
 }
@@ -6085,6 +6159,9 @@ input:where([type=button], [type=reset], [type=submit]),
   --tw-tracking: var(--tracking-wider);
   letter-spacing: var(--tracking-wider);
 }
+#placeos .break-words {
+  overflow-wrap: break-word;
+}
 #placeos .wrap-break-word {
   overflow-wrap: break-word;
 }
@@ -6108,6 +6185,14 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .text-base-100 {
   color: var(--base-100);
+}
+#placeos .text-base-100\/60 {
+  color: var(--base-100);
+}
+@supports (color: color-mix(in lab, red, red)) {
+  #placeos .text-base-100\/60 {
+    color: color-mix(in oklab, var(--base-100) 60%, transparent);
+  }
 }
 #placeos .text-base-200 {
   color: var(--base-200);
@@ -6622,12 +6707,6 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .select-text {
   -webkit-user-select: text;
   user-select: text;
-}
-#placeos .text-shadow-lg {
-  text-shadow:
-    0px 1px 2px var(--tw-text-shadow-color, rgb(0 0 0 / 0.1)),
-    0px 3px 2px var(--tw-text-shadow-color, rgb(0 0 0 / 0.1)),
-    0px 4px 8px var(--tw-text-shadow-color, rgb(0 0 0 / 0.1));
 }
 @media (hover: hover) {
   #placeos .group-hover\:bg-base-200\/50:is(:where(.group):hover *) {
@@ -7820,6 +7899,11 @@ input:where([type=button], [type=reset], [type=submit]),
   }
 }
 @media (width >= 64rem) {
+  #placeos .lg\:mt-0 {
+    margin-top: calc(var(--spacing) * 0);
+  }
+}
+@media (width >= 64rem) {
   #placeos .lg\:block {
     display: block;
   }
@@ -8106,8 +8190,6 @@ body {
 @property --tw-backdrop-sepia { syntax: "*"; inherits: false; }
 @property --tw-duration { syntax: "*"; inherits: false; }
 @property --tw-ease { syntax: "*"; inherits: false; }
-@property --tw-text-shadow-color { syntax: "*"; inherits: false; }
-@property --tw-text-shadow-alpha { syntax: "<percentage>"; inherits: false; initial-value: 100%; }
 @keyframes spin {
   to {
     transform: rotate(360deg);
@@ -8208,8 +8290,6 @@ body {
       --tw-backdrop-sepia: initial;
       --tw-duration: initial;
       --tw-ease: initial;
-      --tw-text-shadow-color: initial;
-      --tw-text-shadow-alpha: 100%;
     }
   }
 }

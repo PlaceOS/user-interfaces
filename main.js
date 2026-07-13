@@ -618,7 +618,7 @@ function isSignal(value) {
 }
 function installDevToolsSignalFormatter() {
   globalThis.devtoolsFormatters ??= [];
-  if (!globalThis.devtoolsFormatters.some((f2) => f2 === formatter)) {
+  if (!globalThis.devtoolsFormatters.some((f3) => f3 === formatter)) {
     globalThis.devtoolsFormatters.push(formatter);
   }
 }
@@ -1882,19 +1882,19 @@ function __asyncGenerator(thisArg, _arguments, generator) {
   return i = Object.create((typeof AsyncIterator === "function" ? AsyncIterator : Object).prototype), verb("next"), verb("throw"), verb("return", awaitReturn), i[Symbol.asyncIterator] = function() {
     return this;
   }, i;
-  function awaitReturn(f2) {
+  function awaitReturn(f3) {
     return function(v) {
-      return Promise.resolve(v).then(f2, reject);
+      return Promise.resolve(v).then(f3, reject);
     };
   }
-  function verb(n, f2) {
+  function verb(n, f3) {
     if (g2[n]) {
       i[n] = function(v) {
         return new Promise(function(a, b2) {
           q2.push([n, v, a, b2]) > 1 || resume(n, v);
         });
       };
-      if (f2) i[n] = f2(i[n]);
+      if (f3) i[n] = f3(i[n]);
     }
   }
   function resume(n, v) {
@@ -1913,8 +1913,8 @@ function __asyncGenerator(thisArg, _arguments, generator) {
   function reject(value) {
     resume("throw", value);
   }
-  function settle(f2, v) {
-    if (f2(v), q2.shift(), q2.length) resume(q2[0][0], q2[0][1]);
+  function settle(f3, v) {
+    if (f3(v), q2.shift(), q2.length) resume(q2[0][0], q2[0][1]);
   }
 }
 function __asyncValues(o) {
@@ -1930,9 +1930,9 @@ function __asyncValues(o) {
       });
     };
   }
-  function settle(resolve, reject, d3, v) {
+  function settle(resolve, reject, d2, v) {
     Promise.resolve(v).then(function(v2) {
-      resolve({ value: v2, done: d3 });
+      resolve({ value: v2, done: d2 });
     }, reject);
   }
 }
@@ -13815,7 +13815,7 @@ var ComponentFactory = class {
     const sharedStylesHost = rootViewInjector.get(SHARED_STYLES_HOST, null);
     const styleHost = getStyleHost(hostElement, () => rootViewInjector.get(DOCUMENT, null) ?? getDocument());
     if (sharedStylesHost) sharedStylesHost.addHost(styleHost);
-    const hasInputBindings = componentBindings?.some(isInputBinding) || directives?.some((d3) => typeof d3 !== "function" && d3.bindings.some(isInputBinding));
+    const hasInputBindings = componentBindings?.some(isInputBinding) || directives?.some((d2) => typeof d2 !== "function" && d2.bindings.some(isInputBinding));
     const rootLView = createLView(null, rootTView, null, 512 | getInitialLViewFlagsFromDef(cmpDef), null, null, environment2, hostRenderer, rootViewInjector, null, retrieveHydrationInfo(hostElement, rootViewInjector, true));
     if (sharedStylesHost && shadowRootSupported && styleHost instanceof ShadowRoot) {
       storeLViewOnDestroy(rootLView, () => {
@@ -21661,12 +21661,12 @@ function multiResolve(factories, result) {
   }
   return result;
 }
-function multiFactory(factoryFn, index, isViewProvider, isComponent2, f2, provider) {
+function multiFactory(factoryFn, index, isViewProvider, isComponent2, f3, provider) {
   const factory = new NodeInjectorFactory(factoryFn, isViewProvider, \u0275\u0275directiveInject, ngDevMode ? providerName(provider) : null);
   factory.multi = [];
   factory.index = index;
   factory.componentProviders = 0;
-  multiFactoryAdd(factory, f2, isComponent2 && !isViewProvider);
+  multiFactoryAdd(factory, f3, isComponent2 && !isViewProvider);
   return factory;
 }
 function providerName(provider) {
@@ -22750,7 +22750,7 @@ function getStandaloneDefFunctions(type, imports) {
       return [];
     }
     const scope = depsTracker.getStandaloneComponentScope(type, imports);
-    return [...scope.compilation.directives].map((p2) => getComponentDef(p2) || getDirectiveDef(p2)).filter((d3) => d3 !== null);
+    return [...scope.compilation.directives].map((p2) => getComponentDef(p2) || getDirectiveDef(p2)).filter((d2) => d2 !== null);
   };
   const pipeDefs = () => {
     if (ngDevMode) {
@@ -22762,7 +22762,7 @@ function getStandaloneDefFunctions(type, imports) {
       return [];
     }
     const scope = depsTracker.getStandaloneComponentScope(type, imports);
-    return [...scope.compilation.pipes].map((p2) => getPipeDef(p2)).filter((d3) => d3 !== null);
+    return [...scope.compilation.pipes].map((p2) => getPipeDef(p2)).filter((d2) => d2 !== null);
   };
   return {
     directiveDefs,
@@ -24774,7 +24774,7 @@ var IterableDiffers = class _IterableDiffers {
     };
   }
   find(iterable) {
-    const factory = this.factories.find((f2) => f2.supports(iterable));
+    const factory = this.factories.find((f3) => f3.supports(iterable));
     if (factory != null) {
       return factory;
     } else {
@@ -24818,7 +24818,7 @@ var KeyValueDiffers = class _KeyValueDiffers {
     };
   }
   find(kv) {
-    const factory = this.factories.find((f2) => f2.supports(kv));
+    const factory = this.factories.find((f3) => f3.supports(kv));
     if (factory) {
       return factory;
     }
@@ -25195,7 +25195,7 @@ function setModuleBootstrapImpl() {
 function _moduleDoBootstrap(moduleRef, allPlatformModules) {
   const appRef = moduleRef.injector.get(ApplicationRef);
   if (moduleRef._bootstrapComponents.length > 0) {
-    moduleRef._bootstrapComponents.forEach((f2) => appRef.bootstrap(f2));
+    moduleRef._bootstrapComponents.forEach((f3) => appRef.bootstrap(f3));
   } else if (moduleRef.instance.ngDoBootstrap) {
     moduleRef.instance.ngDoBootstrap(appRef);
   } else {
@@ -26807,9 +26807,9 @@ function getLastDefinedValue(data, index) {
   throw new RuntimeError(2304, ngDevMode && "Locale data API: locale data undefined");
 }
 function extractTime(time) {
-  const [h, m2] = time.split(":");
+  const [h2, m2] = time.split(":");
   return {
-    hours: +h,
+    hours: +h2,
     minutes: +m2
   };
 }
@@ -27356,8 +27356,8 @@ function toDate(value) {
   if (typeof value === "string") {
     value = value.trim();
     if (/^(\d{4}(-\d{1,2}(-\d{1,2})?)?)$/.test(value)) {
-      const [y, m2 = 1, d3 = 1] = value.split("-").map((val) => +val);
-      return createDate(y, m2 - 1, d3);
+      const [y, m2 = 1, d2 = 1] = value.split("-").map((val) => +val);
+      return createDate(y, m2 - 1, d2);
     }
     const parsedNb = parseFloat(value);
     if (!isNaN(value - parsedNb)) {
@@ -27385,11 +27385,11 @@ function isoStringToDate(match3) {
     tzMin = Number(match3[9] + match3[11]);
   }
   dateSetter.call(date, Number(match3[1]), Number(match3[2]) - 1, Number(match3[3]));
-  const h = Number(match3[4] || 0) - tzHour;
+  const h2 = Number(match3[4] || 0) - tzHour;
   const m2 = Number(match3[5] || 0) - tzMin;
   const s = Number(match3[6] || 0);
   const ms = Math.floor(parseFloat("0." + (match3[7] || 0)) * 1e3);
-  timeSetter.call(date, h, m2, s, ms);
+  timeSetter.call(date, h2, m2, s, ms);
   return date;
 }
 function isDate(value) {
@@ -27446,7 +27446,7 @@ function formatNumberToLocaleString(value, pattern, locale, groupSymbol, decimal
     let integerLen = parsedNumber.integerLen;
     const exponent = parsedNumber.exponent;
     let decimals = [];
-    isZero = digits.every((d3) => !d3);
+    isZero = digits.every((d2) => !d2);
     for (; integerLen < minInt; integerLen++) {
       digits.unshift(0);
     }
@@ -27635,9 +27635,9 @@ function roundNumber(parsedNumber, minFrac, maxFrac) {
   for (; fractionLen < Math.max(0, fractionSize); fractionLen++) digits.push(0);
   let dropTrailingZeros = fractionSize !== 0;
   const minLen = minFrac + parsedNumber.integerLen;
-  const carry = digits.reduceRight(function(carry2, d3, i, digits2) {
-    d3 = d3 + carry2;
-    digits2[i] = d3 < 10 ? d3 : d3 - 10;
+  const carry = digits.reduceRight(function(carry2, d2, i, digits2) {
+    d2 = d2 + carry2;
+    digits2[i] = d2 < 10 ? d2 : d2 - 10;
     if (dropTrailingZeros) {
       if (digits2[i] === 0 && i >= minLen) {
         digits2.pop();
@@ -27645,7 +27645,7 @@ function roundNumber(parsedNumber, minFrac, maxFrac) {
         dropTrailingZeros = false;
       }
     }
-    return d3 >= 10 ? 1 : 0;
+    return d2 >= 10 ? 1 : 0;
   }, 0);
   if (carry) {
     digits.unshift(carry);
@@ -33521,7 +33521,7 @@ function makeHttpFeature(kind, providers) {
 }
 function provideHttpClient(...features) {
   if (ngDevMode) {
-    const featureKinds = new Set(features.map((f2) => f2.\u0275kind));
+    const featureKinds = new Set(features.map((f3) => f3.\u0275kind));
     if (featureKinds.has(HttpFeatureKind.NoXsrfProtection) && featureKinds.has(HttpFeatureKind.CustomXsrfConfiguration)) {
       throw new Error(ngDevMode ? `Configuration error: found both withXsrfConfiguration() and withNoXsrfProtection() in the same call to provideHttpClient(), which is a contradiction.` : "");
     }
@@ -36605,7 +36605,7 @@ var FOCUS_TRAP_INERT_STRATEGY = new InjectionToken("FOCUS_TRAP_INERT_STRATEGY");
 var FocusTrapManager = class _FocusTrapManager {
   _focusTrapStack = [];
   register(focusTrap) {
-    this._focusTrapStack = this._focusTrapStack.filter((ft2) => ft2 !== focusTrap);
+    this._focusTrapStack = this._focusTrapStack.filter((ft3) => ft3 !== focusTrap);
     let stack = this._focusTrapStack;
     if (stack.length) {
       stack[stack.length - 1]._disable();
@@ -44662,7 +44662,7 @@ var ActivatedRoute = class {
     this.outlet = outlet;
     this.component = component;
     this._futureSnapshot = futureSnapshot;
-    this.title = this.dataSubject?.pipe(map((d3) => d3[RouteTitleKey])) ?? of(void 0);
+    this.title = this.dataSubject?.pipe(map((d2) => d2[RouteTitleKey])) ?? of(void 0);
     this.url = urlSubject;
     this.params = paramsSubject;
     this.queryParams = queryParamsSubject;
@@ -45622,10 +45622,10 @@ function runCanActivate(futureRSS, futureARS) {
 function runCanActivateChild(futureRSS, path) {
   const futureARS = path[path.length - 1];
   const canActivateChildGuards = path.slice(0, path.length - 1).reverse().map((p2) => getCanActivateChild(p2)).filter((_3) => _3 !== null);
-  const canActivateChildGuardsMapped = canActivateChildGuards.map((d3) => {
+  const canActivateChildGuardsMapped = canActivateChildGuards.map((d2) => {
     return defer(() => {
-      const guardsMapped = d3.guards.map((canActivateChild) => {
-        const closestInjector = d3.node._environmentInjector;
+      const guardsMapped = d2.guards.map((canActivateChild) => {
+        const closestInjector = d2.node._environmentInjector;
         const guard = getTokenOrFunctionIdentity(canActivateChild, closestInjector);
         const guardVal = isCanActivateChild(guard) ? guard.canActivateChild(futureARS, futureRSS) : runInInjectionContext(closestInjector, () => guard(futureARS, futureRSS));
         return wrapIntoObservable(guardVal).pipe(first());
@@ -46964,11 +46964,11 @@ var NavigationTransitions = class _NavigationTransitions {
               this.events.next(navigationError);
               throw e;
             }
-          } catch (ee2) {
+          } catch (ee3) {
             if (this.options.resolveNavigationPromiseOnError) {
               overallTransitionState.resolve(false);
             } else {
-              overallTransitionState.reject(ee2);
+              overallTransitionState.reject(ee3);
             }
           }
         }
@@ -47430,7 +47430,7 @@ var Router = class _Router {
       queryParamsHandling,
       preserveFragment
     } = navigationExtras;
-    const f2 = preserveFragment ? this.currentUrlTree.fragment : fragment;
+    const f3 = preserveFragment ? this.currentUrlTree.fragment : fragment;
     let q2 = null;
     switch (queryParamsHandling ?? this.options.defaultQueryParamsHandling) {
       case "merge":
@@ -47455,7 +47455,7 @@ var Router = class _Router {
       }
       relativeToUrlSegmentGroup = this.currentUrlTree.root;
     }
-    return createUrlTreeFromSegmentGroup(relativeToUrlSegmentGroup, commands, q2, f2 ?? null, this.urlSerializer);
+    return createUrlTreeFromSegmentGroup(relativeToUrlSegmentGroup, commands, q2, f3 ?? null, this.urlSerializer);
   }
   navigateByUrl(url, extras = {
     skipLocationChange: false
@@ -50315,19 +50315,19 @@ var NativeDateAdapter = class _NativeDateAdapter extends DateAdapter {
     return new Date(date.getTime() + amount * 1e3);
   }
   _createDateWithOverflow(year, month, date) {
-    const d3 = /* @__PURE__ */ new Date();
-    d3.setFullYear(year, month, date);
-    d3.setHours(0, 0, 0, 0);
-    return d3;
+    const d2 = /* @__PURE__ */ new Date();
+    d2.setFullYear(year, month, date);
+    d2.setHours(0, 0, 0, 0);
+    return d2;
   }
   _2digit(n) {
     return ("00" + n).slice(-2);
   }
   _format(dtf, date) {
-    const d3 = /* @__PURE__ */ new Date();
-    d3.setUTCFullYear(date.getFullYear(), date.getMonth(), date.getDate());
-    d3.setUTCHours(date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds());
-    return dtf.format(d3);
+    const d2 = /* @__PURE__ */ new Date();
+    d2.setUTCFullYear(date.getFullYear(), date.getMonth(), date.getDate());
+    d2.setUTCHours(date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds());
+    return dtf.format(d2);
   }
   _parseTimeString(value) {
     const parsed = value.toUpperCase().match(TIME_REGEX);
@@ -59845,10 +59845,10 @@ function validateTime(hours, minutes, seconds) {
 function toZonedTime(date, timeZone, options) {
   date = toDate3(date, options);
   const offsetMilliseconds = tzParseTimezone(timeZone, date, true);
-  const d3 = new Date(date.getTime() - offsetMilliseconds);
+  const d2 = new Date(date.getTime() - offsetMilliseconds);
   const resultDate = /* @__PURE__ */ new Date(0);
-  resultDate.setFullYear(d3.getUTCFullYear(), d3.getUTCMonth(), d3.getUTCDate());
-  resultDate.setHours(d3.getUTCHours(), d3.getUTCMinutes(), d3.getUTCSeconds(), d3.getUTCMilliseconds());
+  resultDate.setFullYear(d2.getUTCFullYear(), d2.getUTCMonth(), d2.getUTCDate());
+  resultDate.setHours(d2.getUTCHours(), d2.getUTCMinutes(), d2.getUTCSeconds(), d2.getUTCMilliseconds());
   return resultDate;
 }
 
@@ -60104,6 +60104,7 @@ var SIGNAGE_MANAGER = {
   PLAYLIST_COUNT_LABEL_N: "{{ count }} playlists",
   PLAYLIST_DESCRIPTION_ARIA: "Playlist description",
   PLAYLIST_DETAILS_TABS: "Playlist details tabs",
+  PLAYLIST_DISTRIBUTION: "Distribution Playlist",
   PLAYLIST_EDIT: "Edit Playlist",
   PLAYLIST_LABEL: "Playlist",
   PLAYLIST_NAME_ARIA: "Playlist name",
@@ -60151,6 +60152,9 @@ var SIGNAGE_MANAGER = {
   REQUEST_APPROVAL_SELECTED: "Request approval for selected playlist",
   REQUEST_PLAYLIST_APPROVAL_TOOLTIP: "Request playlist approval",
   SCHEDULE: "Schedule",
+  EDIT_SCHEDULE: "Edit Schedule",
+  ITEM_SCHEDULES: "Item Schedules",
+  NO_SCHEDULES: "No schedules",
   SCHEDULES_SUBTITLE: "Daily schedule timelines for signage displays and zones.",
   SCHEDULE_INTERVAL_ARIA: "Recurring schedule interval",
   SCHEDULE_NUMBER: "Schedule {{ number }}",
@@ -60528,6 +60532,7 @@ var COMMON = {
   BUILDING_ANY: "Any Building",
   BUILDING_ALL: "All Buildings",
   LEVEL_ANY: "Any Level",
+  LAST_UPDATED: "Updated {{ time }}",
   LEVEL_ALL: "All Levels",
   LEVEL_EMPTY: "No Level",
   ROOM_EMPTY: "No Room",
@@ -61041,6 +61046,7 @@ var BOOKINGS = {
   PARKING_SPACE_RESTRICTIONS_TITLE: "Space Restrictions",
   PARKING_SPACE_RESTRICTIONS_DESC: "Select any restrictions that apply to your vehicle or parking needs.",
   PARKING_RESTRICTION_NONE: "None",
+  PARKING_SPACE_RESTRICTION_REQUIRED: "Select a parking restriction other than None.",
   PARKING_RESTRICTION_OVERSIZED: "Requires oversized space",
   PARKING_SUMMARY_TITLE: "Summary + Submission",
   PARKING_ALLOCATION_INFO: "Allocation of parking spaces for the following week will occur the <strong>Friday afternoon prior</strong>. Requests received after allocation has occurred will automatically be <strong>waitlisted</strong> until a suitable space becomes available.",
@@ -61589,7 +61595,7 @@ var APP = {
     MENU_REPORT_ROOMS: "Room Bookings",
     MENU_REPORT_SITE_ATTENDANCE: "Site Attendance",
     MENU_REPORT_DESKS: "Desk Bookings",
-    MENU_REPORT_PARKING: "Parking Reservations",
+    MENU_REPORT_PARKING: "Parking Bookings",
     MENU_REPORT_LOCKERS: "Locker Bookings",
     MENU_REPORT_CATERING: "Catering Orders",
     MENU_REPORT_CONTACT_TRACING: "Contact Tracing",
@@ -61626,6 +61632,7 @@ var APP = {
     DESKS_NAME: "Desk Name",
     DESKS_SAVING: "Saving desk details...",
     DESKS_SAVE_ERROR: "Failed to save desk details. Error: {{ error }}",
+    DESKS_SELECT_LEVEL: "Select a level before modifying desks.",
     DESKS_ASSIGN_CONFLICT_ERROR: "This desk is currently booked. Please cancel the existing booking before assigning it.",
     DESKS_ASSIGN_LIMIT_ERROR_1: "Users can only have 1 assigned desk at a time.",
     DESKS_ASSIGN_LIMIT_ERROR_N: "Users can only have {{ count }} assigned desks at a time.",
@@ -62503,6 +62510,9 @@ var APP = {
     REPORTS_PRINT: "Print Report",
     REPORTS_EMPTY: "Select level(s) and date range to generate the report",
     REPORTS_BUSINESS_DAYS: "Business Days",
+    REPORTS_ALLOCATIONS: "Allocations",
+    REPORTS_REJECTED: "Rejected",
+    REPORTS_CANCELLED: "Cancelled",
     REPORTS_TOTAL_BOOKINGS: "Total Bookings",
     REPORTS_TOTAL_SITE_ATTENDANCE: "Total Site Attendance",
     REPORTS_TOTAL_RESERVATIONS: "Requests",
@@ -62514,9 +62524,6 @@ var APP = {
     REPORTS_NO_SHOWS_PERCENT: "% of No shows",
     REPORTS_TOTAL_ATTENDEES: "Total Room Attendees",
     REPORTS_ACTIVE_BOOKINGS_HEADER: "Active Bookings",
-    REPORTS_ALLOCATIONS: "Allocations",
-    REPORTS_REJECTED: "Rejected",
-    REPORTS_CANCELLED: "Cancelled",
     REPORTS_DAILY_HEADER: "Daily Utilisation",
     REPORTS_DAILY_EMPTY: "No bookings for the select date range",
     REPORTS_APPROVED: "Approved Bookings",
@@ -63146,7 +63153,7 @@ function Yn(t) {
     e += ue[t[n - 2] >> 2], e += ue[(t[n - 2] & 3) << 4 | t[n - 1] >> 4], e += ue[(t[n - 1] & 15) << 2 | t[n] >> 6], e += ue[t[n] & 63];
   return n === s + 1 && (e += ue[t[n - 2] >> 2], e += ue[(t[n - 2] & 3) << 4], e += "=="), n === s && (e += ue[t[n - 2] >> 2], e += ue[(t[n - 2] & 3) << 4 | t[n - 1] >> 4], e += ue[(t[n - 1] & 15) << 2], e += "="), e;
 }
-function Hs(t) {
+function zs(t) {
   if (t.length % 4 !== 0)
     throw new Error("Unable to parse base64 string.");
   const e = t.indexOf("=");
@@ -63157,13 +63164,13 @@ function Hs(t) {
     r = bt(t.charCodeAt(o)) << 18 | bt(t.charCodeAt(o + 1)) << 12 | bt(t.charCodeAt(o + 2)) << 6 | bt(t.charCodeAt(o + 3)), i[a] = r >> 16, i[a + 1] = r >> 8 & 255, i[a + 2] = r & 255;
   return i.subarray(0, i.length - n);
 }
-function zs(t, e = new TextEncoder()) {
+function Fs(t, e = new TextEncoder()) {
   return Yn(e.encode(t));
 }
 var vt = { exports: {} };
-var Fs = vt.exports;
+var Ls = vt.exports;
 var Fn;
-function Ls() {
+function js() {
   return Fn || (Fn = 1, (function(t) {
     (function(e, n) {
       var s = {};
@@ -63172,7 +63179,7 @@ function Ls() {
       for (var r in s)
         i[r] = s[r];
       t.exports = i;
-    })(Fs, function(e) {
+    })(Ls, function(e) {
       e.__esModule = true, e.digestLength = 32, e.blockSize = 64;
       var n = new Uint32Array([
         1116352408,
@@ -63240,17 +63247,17 @@ function Ls() {
         3204031479,
         3329325298
       ]);
-      function s(v, c, h, f2, M3) {
+      function s(v, c, l, d2, M3) {
         for (var x2, R3, k2, Q3, D2, E3, se2, H3, j2, z2, Be2, We, $t2; M3 >= 64; ) {
           for (x2 = c[0], R3 = c[1], k2 = c[2], Q3 = c[3], D2 = c[4], E3 = c[5], se2 = c[6], H3 = c[7], z2 = 0; z2 < 16; z2++)
-            Be2 = f2 + z2 * 4, v[z2] = (h[Be2] & 255) << 24 | (h[Be2 + 1] & 255) << 16 | (h[Be2 + 2] & 255) << 8 | h[Be2 + 3] & 255;
+            Be2 = d2 + z2 * 4, v[z2] = (l[Be2] & 255) << 24 | (l[Be2 + 1] & 255) << 16 | (l[Be2 + 2] & 255) << 8 | l[Be2 + 3] & 255;
           for (z2 = 16; z2 < 64; z2++)
             j2 = v[z2 - 2], We = (j2 >>> 17 | j2 << 15) ^ (j2 >>> 19 | j2 << 13) ^ j2 >>> 10, j2 = v[z2 - 15], $t2 = (j2 >>> 7 | j2 << 25) ^ (j2 >>> 18 | j2 << 14) ^ j2 >>> 3, v[z2] = (We + v[z2 - 7] | 0) + ($t2 + v[z2 - 16] | 0);
           for (z2 = 0; z2 < 64; z2++)
             We = (((D2 >>> 6 | D2 << 26) ^ (D2 >>> 11 | D2 << 21) ^ (D2 >>> 25 | D2 << 7)) + (D2 & E3 ^ ~D2 & se2) | 0) + (H3 + (n[z2] + v[z2] | 0) | 0) | 0, $t2 = ((x2 >>> 2 | x2 << 30) ^ (x2 >>> 13 | x2 << 19) ^ (x2 >>> 22 | x2 << 10)) + (x2 & R3 ^ x2 & k2 ^ R3 & k2) | 0, H3 = se2, se2 = E3, E3 = D2, D2 = Q3 + We | 0, Q3 = k2, k2 = R3, R3 = x2, x2 = We + $t2 | 0;
-          c[0] += x2, c[1] += R3, c[2] += k2, c[3] += Q3, c[4] += D2, c[5] += E3, c[6] += se2, c[7] += H3, f2 += 64, M3 -= 64;
+          c[0] += x2, c[1] += R3, c[2] += k2, c[3] += Q3, c[4] += D2, c[5] += E3, c[6] += se2, c[7] += H3, d2 += 64, M3 -= 64;
         }
-        return f2;
+        return d2;
       }
       var i = (
         /** @class */
@@ -63266,23 +63273,23 @@ function Ls() {
             for (var c = 0; c < this.temp.length; c++)
               this.temp[c] = 0;
             this.reset();
-          }, v.prototype.update = function(c, h) {
-            if (h === void 0 && (h = c.length), this.finished)
+          }, v.prototype.update = function(c, l) {
+            if (l === void 0 && (l = c.length), this.finished)
               throw new Error("SHA256: can't update because hash was finished.");
-            var f2 = 0;
-            if (this.bytesHashed += h, this.bufferLength > 0) {
-              for (; this.bufferLength < 64 && h > 0; )
-                this.buffer[this.bufferLength++] = c[f2++], h--;
+            var d2 = 0;
+            if (this.bytesHashed += l, this.bufferLength > 0) {
+              for (; this.bufferLength < 64 && l > 0; )
+                this.buffer[this.bufferLength++] = c[d2++], l--;
               this.bufferLength === 64 && (s(this.temp, this.state, this.buffer, 0, 64), this.bufferLength = 0);
             }
-            for (h >= 64 && (f2 = s(this.temp, this.state, c, f2, h), h %= 64); h > 0; )
-              this.buffer[this.bufferLength++] = c[f2++], h--;
+            for (l >= 64 && (d2 = s(this.temp, this.state, c, d2, l), l %= 64); l > 0; )
+              this.buffer[this.bufferLength++] = c[d2++], l--;
             return this;
           }, v.prototype.finish = function(c) {
             if (!this.finished) {
-              var h = this.bytesHashed, f2 = this.bufferLength, M3 = h / 536870912 | 0, x2 = h << 3, R3 = h % 64 < 56 ? 64 : 128;
-              this.buffer[f2] = 128;
-              for (var k2 = f2 + 1; k2 < R3 - 8; k2++)
+              var l = this.bytesHashed, d2 = this.bufferLength, M3 = l / 536870912 | 0, x2 = l << 3, R3 = l % 64 < 56 ? 64 : 128;
+              this.buffer[d2] = 128;
+              for (var k2 = d2 + 1; k2 < R3 - 8; k2++)
                 this.buffer[k2] = 0;
               this.buffer[R3 - 8] = M3 >>> 24 & 255, this.buffer[R3 - 7] = M3 >>> 16 & 255, this.buffer[R3 - 6] = M3 >>> 8 & 255, this.buffer[R3 - 5] = M3 >>> 0 & 255, this.buffer[R3 - 4] = x2 >>> 24 & 255, this.buffer[R3 - 3] = x2 >>> 16 & 255, this.buffer[R3 - 2] = x2 >>> 8 & 255, this.buffer[R3 - 1] = x2 >>> 0 & 255, s(this.temp, this.state, this.buffer, 0, R3), this.finished = true;
             }
@@ -63293,12 +63300,12 @@ function Ls() {
             var c = new Uint8Array(this.digestLength);
             return this.finish(c), c;
           }, v.prototype._saveState = function(c) {
-            for (var h = 0; h < this.state.length; h++)
-              c[h] = this.state[h];
-          }, v.prototype._restoreState = function(c, h) {
-            for (var f2 = 0; f2 < this.state.length; f2++)
-              this.state[f2] = c[f2];
-            this.bytesHashed = h, this.finished = false, this.bufferLength = 0;
+            for (var l = 0; l < this.state.length; l++)
+              c[l] = this.state[l];
+          }, v.prototype._restoreState = function(c, l) {
+            for (var d2 = 0; d2 < this.state.length; d2++)
+              this.state[d2] = c[d2];
+            this.bytesHashed = l, this.finished = false, this.bufferLength = 0;
           }, v;
         })()
       );
@@ -63308,20 +63315,20 @@ function Ls() {
         (function() {
           function v(c) {
             this.inner = new i(), this.outer = new i(), this.blockSize = this.inner.blockSize, this.digestLength = this.inner.digestLength;
-            var h = new Uint8Array(this.blockSize);
+            var l = new Uint8Array(this.blockSize);
             if (c.length > this.blockSize)
-              new i().update(c).finish(h).clean();
+              new i().update(c).finish(l).clean();
             else
-              for (var f2 = 0; f2 < c.length; f2++)
-                h[f2] = c[f2];
-            for (var f2 = 0; f2 < h.length; f2++)
-              h[f2] ^= 54;
-            this.inner.update(h);
-            for (var f2 = 0; f2 < h.length; f2++)
-              h[f2] ^= 106;
-            this.outer.update(h), this.istate = new Uint32Array(8), this.ostate = new Uint32Array(8), this.inner._saveState(this.istate), this.outer._saveState(this.ostate);
-            for (var f2 = 0; f2 < h.length; f2++)
-              h[f2] = 0;
+              for (var d2 = 0; d2 < c.length; d2++)
+                l[d2] = c[d2];
+            for (var d2 = 0; d2 < l.length; d2++)
+              l[d2] ^= 54;
+            this.inner.update(l);
+            for (var d2 = 0; d2 < l.length; d2++)
+              l[d2] ^= 106;
+            this.outer.update(l), this.istate = new Uint32Array(8), this.ostate = new Uint32Array(8), this.inner._saveState(this.istate), this.outer._saveState(this.ostate);
+            for (var d2 = 0; d2 < l.length; d2++)
+              l[d2] = 0;
           }
           return v.prototype.reset = function() {
             return this.inner._restoreState(this.istate, this.inner.blockSize), this.outer._restoreState(this.ostate, this.outer.blockSize), this;
@@ -63341,41 +63348,41 @@ function Ls() {
       );
       e.HMAC = r;
       function o(v) {
-        var c = new i().update(v), h = c.digest();
-        return c.clean(), h;
+        var c = new i().update(v), l = c.digest();
+        return c.clean(), l;
       }
       e.hash = o, e.default = o;
       function a(v, c) {
-        var h = new r(v).update(c), f2 = h.digest();
-        return h.clean(), f2;
+        var l = new r(v).update(c), d2 = l.digest();
+        return l.clean(), d2;
       }
       e.hmac = a;
-      function y(v, c, h, f2) {
-        var M3 = f2[0];
+      function y(v, c, l, d2) {
+        var M3 = d2[0];
         if (M3 === 0)
           throw new Error("hkdf: cannot expand more");
-        c.reset(), M3 > 1 && c.update(v), h && c.update(h), c.update(f2), c.finish(v), f2[0]++;
+        c.reset(), M3 > 1 && c.update(v), l && c.update(l), c.update(d2), c.finish(v), d2[0]++;
       }
       var L3 = new Uint8Array(e.digestLength);
-      function P3(v, c, h, f2) {
-        c === void 0 && (c = L3), f2 === void 0 && (f2 = 32);
-        for (var M3 = new Uint8Array([1]), x2 = a(c, v), R3 = new r(x2), k2 = new Uint8Array(R3.digestLength), Q3 = k2.length, D2 = new Uint8Array(f2), E3 = 0; E3 < f2; E3++)
-          Q3 === k2.length && (y(k2, R3, h, M3), Q3 = 0), D2[E3] = k2[Q3++];
+      function P3(v, c, l, d2) {
+        c === void 0 && (c = L3), d2 === void 0 && (d2 = 32);
+        for (var M3 = new Uint8Array([1]), x2 = a(c, v), R3 = new r(x2), k2 = new Uint8Array(R3.digestLength), Q3 = k2.length, D2 = new Uint8Array(d2), E3 = 0; E3 < d2; E3++)
+          Q3 === k2.length && (y(k2, R3, l, M3), Q3 = 0), D2[E3] = k2[Q3++];
         return R3.clean(), k2.fill(0), M3.fill(0), D2;
       }
       e.hkdf = P3;
-      function W3(v, c, h, f2) {
-        for (var M3 = new r(v), x2 = M3.digestLength, R3 = new Uint8Array(4), k2 = new Uint8Array(x2), Q3 = new Uint8Array(x2), D2 = new Uint8Array(f2), E3 = 0; E3 * x2 < f2; E3++) {
+      function W3(v, c, l, d2) {
+        for (var M3 = new r(v), x2 = M3.digestLength, R3 = new Uint8Array(4), k2 = new Uint8Array(x2), Q3 = new Uint8Array(x2), D2 = new Uint8Array(d2), E3 = 0; E3 * x2 < d2; E3++) {
           var se2 = E3 + 1;
           R3[0] = se2 >>> 24 & 255, R3[1] = se2 >>> 16 & 255, R3[2] = se2 >>> 8 & 255, R3[3] = se2 >>> 0 & 255, M3.reset(), M3.update(c), M3.update(R3), M3.finish(Q3);
           for (var H3 = 0; H3 < x2; H3++)
             k2[H3] = Q3[H3];
-          for (var H3 = 2; H3 <= h; H3++) {
+          for (var H3 = 2; H3 <= l; H3++) {
             M3.reset(), M3.update(Q3).finish(Q3);
             for (var j2 = 0; j2 < x2; j2++)
               k2[j2] ^= Q3[j2];
           }
-          for (var H3 = 0; H3 < x2 && E3 * x2 + H3 < f2; H3++)
+          for (var H3 = 0; H3 < x2 && E3 * x2 + H3 < d2; H3++)
             D2[E3 * x2 + H3] = k2[H3];
         }
         for (var E3 = 0; E3 < x2; E3++)
@@ -63388,8 +63395,8 @@ function Ls() {
     });
   })(vt)), vt.exports;
 }
-var js = Ls();
-var Gs = new Int32Array(4);
+var Gs = js();
+var Bs = new Int32Array(4);
 var K2 = class _K {
   static hashStr(e, n = false) {
     return this.onePassHasher.start().appendStr(e).end(n);
@@ -63547,7 +63554,7 @@ var K2 = class _K {
       i[14] = o;
     else {
       const a = o.toString(16).match(/(.*?)(.{0,8})$/);
-      if (a === null) return e ? Gs : "";
+      if (a === null) return e ? Bs : "";
       const y = parseInt(a[2], 16), L3 = parseInt(a[1], 16) || 0;
       i[14] = y, i[15] = L3;
     }
@@ -63556,7 +63563,7 @@ var K2 = class _K {
 };
 if (K2.hashStr("hello") !== "5d41402abc4b2a76b9719d911017c592")
   throw new Error("Md5 self test failed.");
-var Bs = 36e5;
+var Ws = 36e5;
 var Ln = /* @__PURE__ */ Symbol.for("constructDateFrom");
 function St(t, e) {
   return typeof t == "function" ? t(e) : t && typeof t == "object" && Ln in t ? t[Ln](e) : t instanceof Date ? new t.constructor(e) : new Date(e);
@@ -63564,7 +63571,7 @@ function St(t, e) {
 function Ze(t, e) {
   return St(t, t);
 }
-function Ws(t, e, n) {
+function Qs(t, e, n) {
   const s = Ze(t);
   if (isNaN(e)) return St(t, NaN);
   const i = s.getDate(), r = St(t, s.getTime());
@@ -63579,16 +63586,16 @@ function Ws(t, e, n) {
 function Vn(t, e, n) {
   return St(t, +Ze(t) + e);
 }
-function Qs(t, e, n) {
-  return Vn(t, e * Bs);
-}
 function Ks(t, e, n) {
-  return Vn(t, e * 1e3);
+  return Vn(t, e * Ws);
 }
 function Zs(t, e, n) {
-  return Ws(t, e * 12);
+  return Vn(t, e * 1e3);
 }
-function yn(t) {
+function Js(t, e, n) {
+  return Qs(t, e * 12);
+}
+function $n(t) {
   return Math.trunc(+Ze(t) / 1e3);
 }
 function Xn(t, e) {
@@ -63617,13 +63624,13 @@ function es() {
   if (t)
     if (t.indexOf("?") >= 0) {
       const i = t.split("?");
-      n = Ie(i[0]), e || (e = i[1]);
+      n = Te(i[0]), e || (e = i[1]);
     } else
-      n = Ie(t);
+      n = Te(t);
   let s = {};
-  return e && (s = Ie(e)), __spreadValues(__spreadValues({}, n), s);
+  return e && (s = Te(e)), __spreadValues(__spreadValues({}, n), s);
 }
-function Ie(t) {
+function Te(t) {
   const e = {}, n = t.split("&");
   for (const s of n) {
     const i = s.split("=");
@@ -63660,7 +63667,7 @@ function ie(t) {
     `${window.location?.pathname}${e}${n}`
   );
 }
-function Js(t) {
+function Ys(t) {
   if (t.length === 0)
     throw new Error("Input must not be of zero length");
   const e = t.split(","), n = {};
@@ -63673,12 +63680,12 @@ function Js(t) {
   }
   return n;
 }
-function Ys(t, e) {
+function Vs(t, e) {
   for (const n in t)
     t.hasOwnProperty(n) && e.indexOf(t[n]) >= 0 && delete t[n];
   return t;
 }
-function Vs() {
+function Xs() {
   return [
     "iPad Simulator",
     "iPhone Simulator",
@@ -63689,13 +63696,13 @@ function Vs() {
   ].includes(navigator.platform) || // iPad on iOS 13 detection
   navigator.userAgent.includes("Mac") && "ontouchend" in document;
 }
-function Xs() {
+function ei() {
   return window.location !== window.parent.location;
 }
-function ei(t = Date.now(), e = 60 * 1e3) {
+function ti(t = Date.now(), e = 60 * 1e3) {
   return Math.floor(t / e);
 }
-var ti = class {
+var ni = class {
   abort() {
     xt("Stub", "Aborted");
   }
@@ -63712,7 +63719,7 @@ function b(t) {
 var xe = {};
 function re(t, e, n = 300) {
   if (t && e && e instanceof Function)
-    _e(t), xe[t] = setTimeout(() => {
+    me(t), xe[t] = setTimeout(() => {
       e(), delete xe[t];
     }, n);
   else
@@ -63720,7 +63727,7 @@ function re(t, e, n = 300) {
       t ? "Cannot create named timeout without a name" : "Cannot create a timeout without a callback"
     );
 }
-function _e(t) {
+function me(t) {
   xe[t] && (clearTimeout(xe[t]), delete xe[t]);
 }
 function ne(t) {
@@ -63737,7 +63744,7 @@ function ne(t) {
       o(e, r);
   }, s.update = (i) => s.set(i(e)), s.asReadonly = () => s, s;
 }
-function ri(t, e = Boolean) {
+function oi(t, e = Boolean) {
   return e(t.value) ? Promise.resolve(t.value) : new Promise((n) => {
     const s = t.subscribe(
       (i) => {
@@ -63747,10 +63754,10 @@ function ri(t, e = Boolean) {
     );
   });
 }
-function oi(t) {
+function ui(t) {
   return new Promise((e) => setTimeout(e, t));
 }
-var ui = {
+var ci = {
   id: "mock-authority",
   name: "localhost:4200",
   description: "",
@@ -63767,23 +63774,23 @@ var _ = {};
 var A2 = localStorage;
 var N2;
 var m = {};
-var I2 = "";
-var me = "";
-var ge = ne("");
+var T2 = "";
+var ge = "";
+var ye = ne("");
 var Je = ne("");
-var bn = "/api/engine/v2";
-var pe = ne(false);
-var vn = ne(false);
+var vn = "/api/engine/v2";
+var _e = ne(false);
+var kn = ne(false);
 var qt = 0;
 function ns() {
   if (_.mock) return true;
   if (!A2) return false;
   if (Ye() && !_.ignore_api_key) return true;
-  const t = A2.getItem(`${I2}_expires_at`) || "";
-  return Xn(+t, /* @__PURE__ */ new Date()) ? false : !!(ge.value || A2.getItem(`${I2}_access_token`));
+  const t = A2.getItem(`${T2}_expires_at`) || "";
+  return Xn(+t, /* @__PURE__ */ new Date()) ? false : !!(ye.value || A2.getItem(`${T2}_access_token`));
 }
-function Oe() {
-  vn.set(ns());
+function Ce() {
+  kn.set(ns());
 }
 function ss(t) {
   if (!t || t.startsWith("http://") || t.startsWith("https://"))
@@ -63795,29 +63802,29 @@ function u2() {
   return `${`${_.secure || window.location?.protocol.indexOf("https") >= 0 ? "https:" : "http:"}//${_.host || window.location?.host}`}${is()}`;
 }
 function is() {
-  return _.version === "ACA Engine" ? "/control/api" : bn;
-}
-function ci() {
-  return !!_.token_header;
+  return _.version === "ACA Engine" ? "/control/api" : vn;
 }
 function ai() {
-  return I2;
+  return !!_.token_header;
 }
-function Nr(t, e = true) {
-  A2.setItem(`${I2}_x-api-key`, `${t}`), A2.setItem("trusted", `${e}`), hi("x-api-key", Zs(/* @__PURE__ */ new Date(), 5).valueOf());
+function hi() {
+  return T2;
+}
+function Hr(t, e = true) {
+  A2.setItem(`${T2}_x-api-key`, `${t}`), A2.setItem("trusted", `${e}`), li("x-api-key", Js(/* @__PURE__ */ new Date(), 5).valueOf());
 }
 function Ye() {
   return Ut("x-api-key", false) || "";
 }
-function hi(t, e = Qs(/* @__PURE__ */ new Date(), 2).valueOf()) {
-  _.ignore_api_key && t === "x-api-key" || (A2.setItem(`${I2}_expires_at`, `${e}`), A2.setItem(`${I2}_access_token`, t), ge.set(t), Oe());
+function li(t, e = Ks(/* @__PURE__ */ new Date(), 2).valueOf()) {
+  _.ignore_api_key && t === "x-api-key" || (A2.setItem(`${T2}_expires_at`, `${e}`), A2.setItem(`${T2}_access_token`, t), ye.set(t), Ce());
 }
-function V2(t = true) {
+function X2(t = true) {
   if (_.mock) return "mock-token";
   if (!A2) return "";
   if (Ye() && !_.ignore_api_key) return "x-api-key";
-  const e = A2.getItem(`${I2}_expires_at`) || "", n = ge.value;
-  return Xn(+e, /* @__PURE__ */ new Date()) && (p("Token expired. Requesting new token..."), An(), m.load_authority || (qt += 1, re(
+  const e = A2.getItem(`${T2}_expires_at`) || "", n = ye.value;
+  return Xn(+e, /* @__PURE__ */ new Date()) && (p("Token expired. Requesting new token..."), qn(), m.load_authority || (qt += 1, re(
     "re-authorise",
     async () => {
       delete m.authorise, await wt().catch(
@@ -63825,33 +63832,33 @@ function V2(t = true) {
       );
     },
     200 * Math.min(20, qt)
-  )), !t) ? "" : n || A2.getItem(`${I2}_access_token`) || "";
+  )), !t) ? "" : n || A2.getItem(`${T2}_access_token`) || "";
 }
 function Pt() {
-  return Je.value || A2.getItem(`${I2}_refresh_token`) || "";
+  return Je.value || A2.getItem(`${T2}_refresh_token`) || "";
 }
-function $n() {
+function bn() {
   return _.host || window.location?.host;
 }
-function li() {
-  return Oe(), vn.asReadonly();
+function di() {
+  return Ce(), kn.asReadonly();
 }
 function Rt() {
   return N2;
 }
-function Dr() {
-  return pe.value;
+function Fr() {
+  return _e.value;
 }
-function kn() {
+function Sn() {
   return !!_.mock;
 }
 function fi() {
   return !!_.secure;
 }
-function Hr() {
-  return pe.asReadonly();
+function Lr() {
+  return _e.asReadonly();
 }
-function Sn() {
+function xn() {
   return Ut("trust") === "true" || Ut("trusted") === "true";
 }
 function rs() {
@@ -63860,35 +63867,35 @@ function rs() {
 function Ut(t, e = true) {
   let s = es()[t];
   if (A2) {
-    const i = `${ai()}_${t}`;
+    const i = `${hi()}_${t}`;
     s = s || A2.getItem(i) || A2.getItem(t) || "", e && A2.setItem(i, `${s}`);
   }
   return s;
 }
-async function zr(t) {
-  return _ = t || _, _.token_header = _.token_header ?? Xs(), window.AbortController || (window.AbortController = ti), A2 = _.storage === "session" ? sessionStorage : localStorage, I2 = K2.hashStr(_.redirect_uri, false), di(), _.delay && _.delay > 0 && await oi(_.delay), qn();
+async function jr(t) {
+  return _ = t || _, _.token_header = _.token_header ?? ei(), window.AbortController || (window.AbortController = ni), A2 = _.storage === "session" ? sessionStorage : localStorage, T2 = K2.hashStr(_.redirect_uri, false), pi(), _.delay && _.delay > 0 && await ui(_.delay), Pn();
 }
-var Tt = false;
-function di() {
-  Tt || (Tt = true, window.addEventListener("focus", It), document.addEventListener("visibilitychange", It));
+var It = false;
+function pi() {
+  It || (It = true, window.addEventListener("focus", Tt), document.addEventListener("visibilitychange", Tt));
 }
-async function It() {
+async function Tt() {
   if (document.visibilityState === "hidden" || _.mock || !N2 || N2.session || ns()) return;
-  if (delete m.check_params, await us().catch(() => false) || me || Pt()) {
-    p("Application focused with new credentials. Authorising..."), Ce = false, delete m.authorise, await wt().catch(
+  if (delete m.check_params, await us().catch(() => false) || ge || Pt()) {
+    p("Application focused with new credentials. Authorising..."), Oe = false, delete m.authorise, await wt().catch(
       (e) => p.error("Failed to authorise on focus:", e)
     );
     return;
   }
-  p("Application focused without a session. Reloading authority..."), Ce = false, xn().catch(
+  p("Application focused without a session. Reloading authority..."), Oe = false, An().catch(
     (e) => p.error("Failed to refresh authority:", e)
   );
 }
-function xn() {
-  return p("Refreshing authorty."), N2 = void 0, qn();
-}
 function An() {
-  p("Invalidating tokens."), A2.removeItem(`${I2}_access_token`), A2.removeItem(`${I2}_expires_at`), ge.value && ge.set(""), Oe();
+  return p("Refreshing authorty."), N2 = void 0, Pn();
+}
+function qn() {
+  p("Invalidating tokens."), A2.removeItem(`${T2}_access_token`), A2.removeItem(`${T2}_expires_at`), ye.value && ye.set(""), Ce();
 }
 function wt(t, e = N2) {
   return m.authorise || (m.authorise = new Promise((n, s) => {
@@ -63896,29 +63903,29 @@ function wt(t, e = N2) {
       return delete m.authorise, s("Authority is not loaded");
     p("Authorising user...");
     const i = () => {
-      if (V2(false))
-        p("Valid token found."), delete m.authorise, n(V2());
+      if (X2(false))
+        p("Valid token found."), delete m.authorise, n(X2());
       else {
         const r = [
           () => {
-            p("Successfully generated token."), n(V2()), delete m.authorise;
+            p("Successfully generated token."), n(X2()), delete m.authorise;
           },
           () => {
             p.error("Failed to generate token."), s("Failed to generate token"), setTimeout(() => delete m.authorise, 200);
           }
         ];
         if (_ && _.auth_type === "password")
-          p("Logging in with credentials."), ki(_).then(
+          p("Logging in with credentials."), Si(_).then(
             ...r
           ), qt = 0;
-        else if (me || Pt())
+        else if (ge || Pt())
           p(
-            `Generating token with ${me ? "code" : "refresh token"}`
+            `Generating token with ${ge ? "code" : "refresh token"}`
           ), cs().then(...r), qt = 0;
         else if (e.session)
           p(
             "Users has session. Authorising application..."
-          ), _i(t).then(...r);
+          ), mi(t).then(...r);
         else {
           p("No user session"), s("No user session"), setTimeout(() => delete m.authorise, 200);
           try {
@@ -63928,49 +63935,49 @@ function wt(t, e = N2) {
         }
       }
     };
-    gi().then(i, i);
+    yi().then(i, i);
   })), m.authorise;
 }
-function qn(t = 0) {
+function Pn(t = 0) {
   return m.load_authority || (m.load_authority = new Promise((e) => {
-    if (pe.set(false), _.mock) {
-      N2 = ui, p("System in mock mode"), pe.set(true), e();
+    if (_e.set(false), _.mock) {
+      N2 = ci, p("System in mock mode"), _e.set(true), e();
       return;
     }
-    p(`Fixed: ${rs()} | Trusted: ${Sn()}`), p("Loading authority...");
+    p(`Fixed: ${rs()} | Trusted: ${xn()}`), p("Loading authority...");
     const n = _.secure || window.location?.protocol.indexOf("https") >= 0, s = (i) => {
-      p.error(`Failed to load authority(${i})`), pe.set(false), re(
+      p.error(`Failed to load authority(${i})`), _e.set(false), re(
         "load_authority",
         () => {
-          delete m.load_authority, qn(t).then((r) => e());
+          delete m.load_authority, Pn(t).then((r) => e());
         },
         300 * Math.min(20, ++t)
       );
     };
-    fetch(`${n ? "https:" : "http:"}//${$n()}/auth/authority`, {
+    fetch(`${n ? "https:" : "http:"}//${bn()}/auth/authority`, {
       credentials: "same-origin"
     }).then(async (i) => {
       if (!i.ok)
         return s(await i.text().catch((o) => o));
-      N2 = await i.json(), bn = /[2-9]\.[0-9]+\.[0-9]+/g.test(
+      N2 = await i.json(), vn = /[2-9]\.[0-9]+\.[0-9]+/g.test(
         N2.version || ""
       ) ? "/api/engine/v2" : "/control/api", p.group("Loaded authority."), N2 && (p(`Name: ${N2.name}`), p(`Version: ${N2.version}`), p(`Domain: ${N2.domain}`), p(`Session: ${N2.session}`), p(`Production: ${N2.production}`), p(
         `Config Keys: ${Object.keys(N2.config || {}).length}`
       )), p.groupEnd("");
       const r = () => {
-        pe.set(true), p("Application set online."), e();
+        _e.set(true), p("Application set online."), e();
       };
       delete m.load_authority, wt("").then(r, r);
     }, s);
   })), m.load_authority;
 }
-async function _i(t) {
-  const e = yi(t);
+async function mi(t) {
+  const e = $i(t);
   if (_.use_iframe)
-    return mi(e);
+    return gi(e);
   window.location?.assign(e);
 }
-function mi(t) {
+function gi(t) {
   return m.iframe_auth || (m.iframe_auth = new Promise((e, n) => {
     p("Authorizing in an iFrame...");
     const s = document.createElement("iframe");
@@ -63978,11 +63985,11 @@ function mi(t) {
     const i = (o) => {
       if (o.origin === window.location?.origin && o.data.type === "place-os") {
         const a = o.data;
-        if (p("Received credentials from iFrame..."), document.body.removeChild(s), _e("iframe_auth"), window.removeEventListener("message", i), delete m.iframe_auth, a.token)
-          return e(), Pn(__spreadValues({
+        if (p("Received credentials from iFrame..."), document.body.removeChild(s), me("iframe_auth"), window.removeEventListener("message", i), delete m.iframe_auth, a.token)
+          return e(), Rn(__spreadValues({
             access_token: a.token
           }, a));
-        me = a.code || "", cs().then(
+        ge = a.code || "", cs().then(
           (y) => e(y),
           (y) => n(y)
         );
@@ -63997,13 +64004,13 @@ function mi(t) {
       },
       15 * 1e3
     ), window.addEventListener("message", i), s.onerror = (o) => {
-      p.error("iFrame error.", o), _e("iframe_auth"), r(), n();
+      p.error("iFrame error.", o), me("iframe_auth"), r(), n();
     }, document.body.appendChild(s);
   })), m.iframe_auth;
 }
-var Ce = false;
+var Oe = false;
 function os(t) {
-  if (_.handle_login !== false && !Ce) {
+  if (_.handle_login !== false && !Oe) {
     p("Redirecting to login page...");
     const e = ss(
       t.login_url?.replace(
@@ -64011,14 +64018,14 @@ function os(t) {
         encodeURIComponent(window.location?.href)
       )
     );
-    throw setTimeout(() => window.location?.assign(e), 300), Ce = true, new Error("Redirecting to login page...");
+    throw setTimeout(() => window.location?.assign(e), 300), Oe = true, new Error("Redirecting to login page...");
   } else
     p("Login being handled locally.");
   delete m.authorise;
 }
-function gi() {
+function yi() {
   return m.check_token || (m.check_token = new Promise(async (t, e) => {
-    V2() ? (p("Valid token found."), t(V2())) : (p("No token. Checking URL for auth credentials..."), await us() ? t(true) : e()), delete m.check_token;
+    X2() ? (p("Valid token found."), t(X2())) : (p("No token. Checking URL for auth credentials..."), await us() ? t(true) : e()), delete m.check_token;
   })), m.check_token;
 }
 function us() {
@@ -64028,13 +64035,13 @@ function us() {
     if ((!e || Object.keys(e).length <= 0) && sessionStorage && (e = JSON.parse(
       sessionStorage.getItem("ENGINE.auth.params") || "{}"
     ), sessionStorage.removeItem("ENGINE.auth.params")), e && (e.code || e.access_token || e.refresh_token)) {
-      const n = A2.getItem(`${I2}_nonce`) || "", s = (e.state || "").split(";");
+      const n = A2.getItem(`${T2}_nonce`) || "", s = (e.state || "").split(";");
       ie("state"), ie("token_type");
       const i = s[0];
-      n === i ? (e.code && (me = e.code, ie("code")), e.refresh_token && (A2.setItem(
-        `${I2}_refresh_token`,
+      n === i ? (e.code && (ge = e.code, ie("code")), e.refresh_token && (A2.setItem(
+        `${T2}_refresh_token`,
         e.refresh_token
-      ), ie("refresh_token")), Pn(e), t(!!e.access_token)) : (ie("code"), ie("access_token"), ie("refresh_token"), t(false));
+      ), ie("refresh_token")), Rn(e), t(!!e.access_token)) : (ie("code"), ie("access_token"), ie("refresh_token"), t(false));
     } else
       t(false);
     re(
@@ -64044,38 +64051,38 @@ function us() {
     );
   })), m.check_params;
 }
-function yi(t) {
-  const e = Si();
+function $i(t) {
+  const e = xi();
   t = t ? `${e};${t}` : e;
-  const n = _ ? (_.auth_uri || "").indexOf("?") >= 0 : false, s = (_ ? _.auth_uri : null) || "/auth/oauth/authorize", i = Sn() || _.auth_type === "auth_code" ? "code" : "token";
-  let r = `${s}${n ? "&" : "?"}response_type=${encodeURIComponent(i)}&client_id=${encodeURIComponent(I2)}&state=${encodeURIComponent(t)}&redirect_uri=${encodeURIComponent(_.redirect_uri)}&scope=${encodeURIComponent(_.scope)}`;
+  const n = _ ? (_.auth_uri || "").indexOf("?") >= 0 : false, s = (_ ? _.auth_uri : null) || "/auth/oauth/authorize", i = xn() || _.auth_type === "auth_code" ? "code" : "token";
+  let r = `${s}${n ? "&" : "?"}response_type=${encodeURIComponent(i)}&client_id=${encodeURIComponent(T2)}&state=${encodeURIComponent(t)}&redirect_uri=${encodeURIComponent(_.redirect_uri)}&scope=${encodeURIComponent(_.scope)}`;
   if (_.auth_type === "auth_code") {
-    const { challenge: o, verify: a } = $i();
-    sessionStorage.setItem(`${I2}_challenge`, o), r += "&code_challenge_method=S256", r += `&code_challenge=${a}`;
+    const { challenge: o, verify: a } = bi();
+    sessionStorage.setItem(`${T2}_challenge`, o), r += "&code_challenge_method=S256", r += `&code_challenge=${a}`;
   }
   return r;
 }
-function $i(t = 43) {
-  const e = ts(t), n = Hs(zs(e)), s = Yn(js.hash(n)).split("=")[0].replace(/\//g, "_").replace(/\+/g, "-");
+function bi(t = 43) {
+  const e = ts(t), n = zs(Fs(e)), s = Yn(Gs.hash(n)).split("=")[0].replace(/\//g, "_").replace(/\+/g, "-");
   return { challenge: e, verify: s };
 }
-function bi() {
-  let e = (_.token_uri || "/auth/token") + `?client_id=${encodeURIComponent(I2)}`, n = "";
+function vi() {
+  let e = (_.token_uri || "/auth/token") + `?client_id=${encodeURIComponent(T2)}`, n = "";
   if (e += `&redirect_uri=${encodeURIComponent(_.redirect_uri)}`, Pt()) {
     e += `&refresh_token=${encodeURIComponent(Pt())}`, e += "&grant_type=refresh_token";
     const s = e.indexOf("?");
     n = e.slice(s + 1), e = e.slice(0, s);
   } else {
-    e += `&code=${encodeURIComponent(me)}`, e += "&grant_type=authorization_code";
-    const s = sessionStorage.getItem(`${I2}_challenge`);
-    s && (e += `&code_verifier=${s}`, sessionStorage.removeItem(`${I2}_challenge`)), me = "";
+    e += `&code=${encodeURIComponent(ge)}`, e += "&grant_type=authorization_code";
+    const s = sessionStorage.getItem(`${T2}_challenge`);
+    s && (e += `&code_verifier=${s}`, sessionStorage.removeItem(`${T2}_challenge`)), ge = "";
   }
   return [e, n];
 }
-function vi(t) {
+function ki(t) {
   const e = t.token_uri || "/auth/token", n = b({
     grant_type: "password",
-    client_id: I2,
+    client_id: T2,
     client_secret: t.client_secret,
     redirect_uri: t.redirect_uri,
     authority: N2?.id,
@@ -64086,16 +64093,16 @@ function vi(t) {
   return `${e}?${n}`;
 }
 function cs() {
-  return as(...bi());
+  return as(...vi());
 }
-function ki(t) {
-  return as(vi(t));
+function Si(t) {
+  return as(ki(t));
 }
 function as(t, e = "") {
   return m.generate_tokens || (m.generate_tokens = new Promise((n, s) => {
     p("Generating new token...");
     const i = (r) => {
-      p.error("Error generating new tokens:", r), r && r.status >= 400 && r.status < 500 && (A2.removeItem(`${I2}_refresh_token`), Je.set("")), Oe(), s(), delete m.generate_tokens;
+      p.error("Error generating new tokens:", r), r && r.status >= 400 && r.status < 500 && (A2.removeItem(`${T2}_refresh_token`), Je.set("")), Ce(), s(), delete m.generate_tokens;
     };
     fetch(t, {
       method: "POST",
@@ -64106,26 +64113,26 @@ function as(t, e = "") {
     }).then(async (r) => {
       if (!r.ok) return i(r);
       const o = await r.json();
-      Pn(o), n(), delete m.generate_tokens;
+      Rn(o), n(), delete m.generate_tokens;
     }, i);
   })), m.generate_tokens;
 }
-function Pn(t) {
-  const e = Ks(
+function Rn(t) {
+  const e = Zs(
     /* @__PURE__ */ new Date(),
     Math.max(60, parseInt(t.expires_in, 10) - 300)
   );
-  p("Tokens generated storing..."), Sn() && (t.access_token && (A2.setItem(
-    `${I2}_access_token`,
+  p("Tokens generated storing..."), xn() && (t.access_token && (A2.setItem(
+    `${T2}_access_token`,
     t.access_token
   ), ie("access_token")), t.refresh_token && (A2.setItem(
-    `${I2}_refresh_token`,
+    `${T2}_refresh_token`,
     t.refresh_token
-  ), ie("refresh_token"))), t.expires_in && (A2.setItem(`${I2}_expires_at`, `${e.valueOf()}`), ie("expires_in")), pe.set(true), ge.set(t.access_token || ""), Je.set(t.refresh_token || ""), Oe();
+  ), ie("refresh_token"))), t.expires_in && (A2.setItem(`${T2}_expires_at`, `${e.valueOf()}`), ie("expires_in")), _e.set(true), ye.set(t.access_token || ""), Je.set(t.refresh_token || ""), Ce();
 }
-function Si() {
+function xi() {
   const t = ts();
-  return A2.setItem(`${I2}_nonce`, t), t;
+  return A2.setItem(`${T2}_nonce`, t), t;
 }
 var Ae = Nt("HTTP(M)");
 var Dt = {};
@@ -64133,11 +64140,11 @@ var hs = (t, e) => {
   const n = new Error(`Mock endpoint not found: ${t} ${e}`);
   return n.status = 404, Ae(`404 ${t}:`, e), Promise.reject(n);
 };
-function Ai(t, e, n, s = Dt) {
-  const i = qi(t, e, s);
+function qi(t, e, n, s = Dt) {
+  const i = Pi(t, e, s);
   if (i) {
-    const r = Pi(e, i, n);
-    return Ri(i, r);
+    const r = Ri(e, i, n);
+    return Ui(i, r);
   }
   try {
     return hs(t, e);
@@ -64145,7 +64152,7 @@ function Ai(t, e, n, s = Dt) {
     return Ae.error(`ERROR ${t}:`, [e, r]), Promise.reject(r);
   }
 }
-function qi(t, e, n = Dt) {
+function Pi(t, e, n = Dt) {
   const i = e.replace(/(http|https):\/\/[a-zA-Z0-9.-]*:?([0-9]*)?/g, "").replace(/^\//, "").split("?")[0].split("/"), r = Object.keys(
     n
   ).reduce((o, a) => (a.indexOf(`${t}|`) === 0 && o.push(n[a]), o), []);
@@ -64162,8 +64169,8 @@ function qi(t, e, n = Dt) {
     }
   return null;
 }
-function Pi(t, e, n) {
-  const s = t.replace(/(http|https):\/\/[a-zA-Z0-9.-]*:?([0-9]*)?/g, "").split("?"), i = s[0].replace(/^\//, ""), r = s[1] || "", o = Ie(r), a = i.split("/"), y = {};
+function Ri(t, e, n) {
+  const s = t.replace(/(http|https):\/\/[a-zA-Z0-9.-]*:?([0-9]*)?/g, "").split("?"), i = s[0].replace(/^\//, ""), r = s[1] || "", o = Te(r), a = i.split("/"), y = {};
   for (let P3 = 0; P3 < e.path_structure.length; P3++) {
     const W3 = e.path_structure[P3];
     W3 && (y[W3] = a[P3]);
@@ -64179,7 +64186,7 @@ function Pi(t, e, n) {
   };
   return Ae(`MATCHED ${L3.method}:`, L3), L3;
 }
-function Ri(t, e) {
+function Ui(t, e) {
   let n;
   try {
     n = t.callback ? t.callback(e) : t.metadata;
@@ -64191,12 +64198,12 @@ function Ri(t, e) {
     setTimeout(() => o(n), Math.max(200, r));
   });
 }
-var Ui = Nt("HTTP");
+var Ii = Nt("HTTP");
 var ls = {};
 function Ti(t, e = ls) {
   return e[t] || {};
 }
-function d(t, e, n = Ve) {
+function f(t, e, n = Ve) {
   return e || (e = { response_type: "json" }), n("GET", t, __spreadValues({ response_type: "json" }, e));
 }
 function S2(t, e, n, s = Ve) {
@@ -64205,13 +64212,13 @@ function S2(t, e, n, s = Ve) {
 function ce(t, e, n, s = Ve) {
   return n || (n = { response_type: "json" }), s("PUT", t, __spreadValues({ body: e, response_type: "json" }, n));
 }
-function ye(t, e, n, s = Ve) {
+function ae(t, e, n, s = Ve) {
   return n || (n = { response_type: "json" }), s("PATCH", t, __spreadValues({ body: e, response_type: "json" }, n));
 }
-function X2(t, e, n = Ve) {
+function ee(t, e, n = Ve) {
   return e || (e = { response_type: "void" }), n("DELETE", t, __spreadValues({ response_type: "void" }, e));
 }
-async function Ii(t, e, n = ls) {
+async function Ei(t, e, n = ls) {
   if (t.headers) {
     const s = {};
     t.headers.forEach ? t.headers.forEach((i, r) => s[r.toLowerCase()] = i) : Object.keys(t.headers).forEach(
@@ -64229,15 +64236,15 @@ async function Ii(t, e, n = ls) {
       return await t.json().catch(() => ({}));
   }
 }
-var fs = () => (An(), xn().then(
+var ds = () => (qn(), An().then(
   () => Promise.resolve(),
   () => new Promise((t) => {
     setTimeout(() => {
-      fs().then(() => t());
+      ds().then(() => t());
     }, 1e3);
   })
 ));
-function Ve(t, e, n, s = kn, i = Ai, r = Ii) {
+function Ve(t, e, n, s = Sn, i = qi, r = Ei) {
   if (s()) {
     const P3 = i(t, e, n?.body);
     if (P3) return P3;
@@ -64250,7 +64257,7 @@ function Ve(t, e, n, s = kn, i = Ai, r = Ii) {
     });
     return delete P3.response_type, delete P3.skip_auth, delete P3.skip_auth_flow, ["POST", "PUT", "PATCH"].includes(t) && n.body !== void 0 && (P3.body = typeof n.body == "string" ? n.body : JSON.stringify(n.body)), fetch(e, P3);
   }, a = async () => {
-    n.skip_auth || (await ri(li(), Boolean), V2() === "x-api-key" ? n.headers["X-API-Key"] = Ye() : n.headers.Authorization = `Bearer ${V2()}`);
+    n.skip_auth || (await oi(di(), Boolean), X2() === "x-api-key" ? n.headers["X-API-Key"] = Ye() : n.headers.Authorization = `Bearer ${X2()}`);
     const P3 = await o();
     if (P3.ok) return r(P3, n.response_type);
     throw P3;
@@ -64263,7 +64270,7 @@ function Ve(t, e, n, s = kn, i = Ai, r = Ii) {
       if (W3.status === 511)
         throw os(Rt()), W3;
       if (W3.status !== 401) throw W3 || {};
-      return Ui.warn("Auth error:", W3), await fs().catch(() => {
+      return Ii.warn("Auth error:", W3), await ds().catch(() => {
         throw W3;
       }), L3(P3 + 1);
     }
@@ -64289,20 +64296,20 @@ var F13 = class {
    */
   toJSON() {
     const e = __spreadValues({}, this);
-    return e.version = this.version, delete e.created_at, Ys(e, [void 0, null, ""]);
+    return e.version = this.version, delete e.created_at, Vs(e, [void 0, null, ""]);
   }
 };
-var ds = {};
+var fs = {};
 var ps = {};
 var Bn = "";
 var zt = (t) => t;
-var Mi = 300;
-var Te = {};
+var Ni = 300;
+var Ie = {};
 function $(t) {
   const { query_params: e, fn: n, path: s, endpoint: i } = t, r = b(e), o = `${i || u2()}${s ? "/" + s : ""}${r ? "?" + r : ""}`;
-  if (Te[o]) return Te[o].promise;
-  const a = d(o).then((y) => {
-    const L3 = Ni(o, r, s);
+  if (Ie[o]) return Ie[o].promise;
+  const a = f(o).then((y) => {
+    const L3 = wi(o, r, s);
     return {
       total: L3.total || 0,
       next: L3.next ? () => $({
@@ -64314,39 +64321,39 @@ function $(t) {
       data: y && y instanceof Array ? y.map((P3) => (n || zt)(P3)) : y && !(y instanceof Array) && y.results ? y.results.map((P3) => P3) : []
     };
   });
-  return Te[o] = {
+  return Ie[o] = {
     promise: a,
-    timeout: setTimeout(() => delete Te[o], Mi)
+    timeout: setTimeout(() => delete Ie[o], Ni)
   }, a.catch(() => {
-    clearTimeout(Te[o]?.timeout), delete Te[o];
+    clearTimeout(Ie[o]?.timeout), delete Ie[o];
   }), a;
 }
 function g(t) {
   const { query_params: e, id: n, path: s, fn: i, options: r } = t, o = b(e), a = `${u2()}/${s}/${n}${o ? "?" + o : ""}`;
-  return d(a, r).then((y) => (i || zt)(y));
+  return f(a, r).then((y) => (i || zt)(y));
 }
 function U2(t) {
   const { query_params: e, form_data: n, path: s, fn: i } = t, r = b(e), o = `${u2()}/${s}${r ? "?" + r : ""}`;
   return S2(o, n).then((a) => (i || zt)(a));
 }
-function l(t) {
+function h(t) {
   const { id: e, task_name: n, form_data: s, method: i, path: r, callback: o } = t, a = b(s), y = `${u2()}/${r}/${e}/${n}`;
-  return (i === "post" || i === "put" || !i ? (i === "put" ? ce : S2)(y, s) : (i === "del" ? X2 : d)(
+  return (i === "post" || i === "put" || !i ? (i === "put" ? ce : S2)(y, s) : (i === "del" ? ee : f)(
     `${y}${a ? "?" + a : ""}`,
     {
       response_type: "json"
     }
   )).then((P3) => (o || ((W3) => W3))(P3));
 }
-function T2(t) {
+function I2(t) {
   const { id: e, query_params: n, form_data: s, method: i, path: r, fn: o } = t, a = b(__spreadProps(__spreadValues({}, n), {
     version: s.version || 0
   })), y = `${u2()}/${r}/${e}${a ? "?" + a : ""}`;
-  return (i === "put" ? ce : ye)(y, s).then(
+  return (i === "put" ? ce : ae)(y, s).then(
     (L3) => (o || zt)(L3)
   );
 }
-function Ni(t, e, n) {
+function wi(t, e, n) {
   const s = Ti(
     t[0] === "/" ? `${location.origin}${t}` : t
   ), i = {
@@ -64355,11 +64362,11 @@ function Ni(t, e, n) {
   };
   if (s && s["x-total-count"]) {
     const r = +(s["x-total-count"] || 0);
-    (e.length < 2 || e.length < 12 && e.indexOf("offset=") >= 0) && (ds[n] = r), ps[n] = r, i.total = r;
+    (e.length < 2 || e.length < 12 && e.indexOf("offset=") >= 0) && (fs[n] = r), ps[n] = r, i.total = r;
   }
-  return s && s.link && (Bn = Js(s.link || "").next, i.next = Ie(Bn.split("?")[1])), i;
+  return s && s.link && (Bn = Ys(s.link || "").next, i.next = Te(Bn.split("?")[1])), i;
 }
-var Rn = class extends F13 {
+var Un = class extends F13 {
   /** Hash of the email address of the user */
   email_digest;
   /** ID of the authority associated with the user */
@@ -64478,7 +64485,7 @@ var gs = class extends F13 {
       }));
   }
 };
-var Un = class {
+var In = class {
   /** ISO8601 timestamp of the creation time of the group */
   created_at;
   /** ISO8601 timestamp of the last update time of the group */
@@ -64503,18 +64510,18 @@ var Un = class {
 };
 var ze = "groups";
 function it(t) {
-  return new Un(t);
+  return new In(t);
 }
-function _u(t = {}) {
+function yu(t = {}) {
   const e = b(t), n = `${u2()}/${ze}/current${e ? "?" + e : ""}`;
-  return d(n).then(
+  return f(n).then(
     (s) => (s || []).map((i) => ({
       group: it(i.group || {}),
       permissions: i.permissions || 0
     }))
   );
 }
-var he = class extends F13 {
+var le = class extends F13 {
   /** Name of the system assocaited with the trigger */
   system_name;
   /** Number of times the trigger has been activated/triggered */
@@ -64623,7 +64630,7 @@ var Kt = class extends F13 {
         encryption_level: +n
       }));
     e.trigger_data && e.trigger_data instanceof Array && (this.trigger_list = e.trigger_data.map(
-      (n) => new he(n)
+      (n) => new le(n)
     ));
   }
 };
@@ -64656,7 +64663,7 @@ var vs = class {
     this.editors = e.editors || [], this.schema = e.schema || "", this.updated_at = (e.updated_at || 0) * 1e3 || Date.now(), this.modified_by_id = e.modified_by_id || "", this.version = e.version || 0;
   }
 };
-var Ki = class {
+var Zi = class {
   /** Zone associated with the metadata */
   zone;
   /** Metadata for zone */
@@ -64674,7 +64681,7 @@ var $e = "metadata";
 function Fe(t) {
   return new vs(t);
 }
-function ju(t, e) {
+function Wu(t, e) {
   return g({
     id: t,
     query_params: { name: e },
@@ -64682,8 +64689,8 @@ function ju(t, e) {
     path: $e
   });
 }
-function Gu(t, e, n = "put") {
-  return T2({
+function Qu(t, e, n = "put") {
+  return I2({
     id: t,
     form_data: e,
     query_params: {},
@@ -64692,23 +64699,23 @@ function Gu(t, e, n = "put") {
     path: $e
   });
 }
-function Qu(t, e) {
-  return l({
+function Ju(t, e) {
+  return h({
     id: t,
     task_name: "children",
     form_data: e,
     method: "get",
     callback: (n) => n.map(
-      (s) => new Ki(__spreadProps(__spreadValues({}, s), {
+      (s) => new Zi(__spreadProps(__spreadValues({}, s), {
         keys: Object.keys(s.metadata)
       }))
     ),
     path: $e
   });
 }
-function Ku(t, e) {
+function Yu(t, e) {
   const n = b(e), s = `${u2()}/${$e}/${encodeURIComponent(t)}/bulk${n ? "?" + n : ""}`;
-  return d(s).then(
+  return f(s).then(
     (i) => Object.keys(i || {}).reduce(
       (r, o) => __spreadProps(__spreadValues({}, r), { [o]: Fe(i[o]) }),
       {}
@@ -64775,7 +64782,7 @@ var ks = class extends F13 {
   /** Orientation of the signage system */
   orientation;
   constructor(e = {}) {
-    super(e), this.display_name = e.display_name || "", this.description = e.description || "", this.email = e.email || "", this.code = e.code || "", this.capacity = e.capacity || 0, this.features = e.features || [], this.bookable = e.bookable || false, this.public = e.public ?? false, this.installed_ui_devices = e.installed_ui_devices || 0, this.support_url = e.support_url || "", this.camera_snapshot_url = e.camera_snapshot_url || "", this.camera_snapshot_urls = e.camera_snapshot_urls || [], this.camera_url = e.camera_url || "", this.timetable_url = e.timetable_url || "", this.room_booking_url = e.room_booking_url || "", this.map_id = e.map_id || "", this.modules = e.modules || [], this.images = e.images || [], this.zones = e.zones || [], this.settings = e.settings || [null, null, null, null], this.timezone = e.timezone || "", this.signage = e.signage || false, this.playlists = e.playlists || [], this.security_groups = e.security_groups || [], this.orientation = e.orientation || "unspecified", this.approval = e.approval || false, this.signage_last_seen = e.signage_last_seen || yn(Date.now()), typeof this.settings != "object" && (this.settings = [null, null, null, null]);
+    super(e), this.display_name = e.display_name || "", this.description = e.description || "", this.email = e.email || "", this.code = e.code || "", this.capacity = e.capacity || 0, this.features = e.features || [], this.bookable = e.bookable || false, this.public = e.public ?? false, this.installed_ui_devices = e.installed_ui_devices || 0, this.support_url = e.support_url || "", this.camera_snapshot_url = e.camera_snapshot_url || "", this.camera_snapshot_urls = e.camera_snapshot_urls || [], this.camera_url = e.camera_url || "", this.timetable_url = e.timetable_url || "", this.room_booking_url = e.room_booking_url || "", this.map_id = e.map_id || "", this.modules = e.modules || [], this.images = e.images || [], this.zones = e.zones || [], this.settings = e.settings || [null, null, null, null], this.timezone = e.timezone || "", this.signage = e.signage || false, this.playlists = e.playlists || [], this.security_groups = e.security_groups || [], this.orientation = e.orientation || "unspecified", this.approval = e.approval || false, this.signage_last_seen = e.signage_last_seen || $n(Date.now()), typeof this.settings != "object" && (this.settings = [null, null, null, null]);
     for (const n in He)
       !isNaN(Number(n)) && !this.settings[n] && (this.settings[n] = new qe({
         parent_id: this.id,
@@ -64853,47 +64860,47 @@ var Ss = class extends F13 {
     return (n.role !== Et.Logic && !e || !n.control_system_id) && delete n.control_system_id, delete n.driver, delete n.system, delete n.error_timestamp, delete n.has_runtime_error, n;
   }
 };
-var C2 = "systems";
+var O2 = "systems";
 function Pe(t) {
   return new ks(t);
 }
-function ta(t = {}) {
-  return $({ query_params: t, fn: Pe, path: C2 });
+function ia(t = {}) {
+  return $({ query_params: t, fn: Pe, path: O2 });
 }
-function na(t) {
-  return $({ query_params: t, fn: Pe, path: `${C2}/with_emails` });
+function ra(t) {
+  return $({ query_params: t, fn: Pe, path: `${O2}/with_emails` });
 }
-function sa(t, e = {}) {
-  return g({ id: t, query_params: e, fn: Pe, path: C2 });
+function oa(t, e = {}) {
+  return g({ id: t, query_params: e, fn: Pe, path: O2 });
 }
-var J2 = "users";
+var Y2 = "users";
 function Re(t) {
-  return new Rn(t);
+  return new Un(t);
 }
-function Ea(t = {}) {
-  return $({ query_params: t, fn: Re, path: J2 });
+function Ma(t = {}) {
+  return $({ query_params: t, fn: Re, path: Y2 });
 }
-function Ca(t, e = {}) {
-  return g({ id: t, query_params: e, fn: Re, path: J2 });
+function Na(t, e = {}) {
+  return g({ id: t, query_params: e, fn: Re, path: Y2 });
 }
-function Ma(t, e, n = "patch") {
-  return T2({
+function Da(t, e, n = "patch") {
+  return I2({
     id: t,
     form_data: e,
     query_params: {},
     method: n,
     fn: Re,
-    path: J2
+    path: Y2
   });
 }
-var le = "zones";
+var de = "zones";
 function nn(t) {
   return new Kt(t);
 }
-function Ba(t = {}) {
-  return $({ query_params: t, fn: nn, path: le });
+function Ka(t = {}) {
+  return $({ query_params: t, fn: nn, path: de });
 }
-var or = class {
+var ar = class {
   id;
   parent_category_id;
   name;
@@ -64905,7 +64912,7 @@ var or = class {
     this.id = e.id || "", this.parent_category_id = e.parent_category_id || "", this.name = e.name || "", this.description = e.description || "", this.hidden = e.hidden || false, this.created_at = e.created_at || 0, this.updated_at = e.updated_at || 0;
   }
 };
-var cr = class {
+var lr = class {
   id;
   category_id;
   name;
@@ -64919,7 +64926,7 @@ var cr = class {
     this.id = e.id || "", this.category_id = e.category_id || "", this.name = e.name || "", this.brand = e.brand || "", this.description = e.description || "", this.model_number = e.model_number || "", this.images = e.images || [], this.created_at = e.created_at || 0, this.updated_at = e.updated_at || 0;
   }
 };
-var ar = class {
+var dr = class {
   id;
   parent_id;
   asset_type_id;
@@ -64950,71 +64957,42 @@ var ar = class {
 };
 var ve = "assets";
 function Ue(t) {
-  return new ar(t);
+  return new dr(t);
 }
-function Gh(t = {}) {
+function Zh(t = {}) {
   return $({
     query_params: t,
     fn: Ue,
     path: ve
   });
 }
-var dt = "asset_types";
-function hn(t) {
-  return new cr(t);
-}
-function Vh(t = {}) {
-  return $({
-    query_params: t,
-    fn: hn,
-    path: dt
-  });
-}
-function Xh(t, e = {}) {
-  return g({
-    id: t,
-    query_params: e,
-    fn: hn,
-    path: dt
-  });
-}
-function el(t, e, n = "patch") {
-  return T2({
-    id: t,
-    form_data: e,
-    query_params: {},
-    method: n,
-    fn: hn,
-    path: dt
-  });
-}
-function tl(t) {
-  return U2({
-    form_data: t,
-    query_params: {},
-    fn: hn,
-    path: dt
-  });
-}
-var pt = "asset_categories";
+var ft = "asset_types";
 function ln(t) {
-  return new or(t);
+  return new lr(t);
 }
 function sl(t = {}) {
   return $({
     query_params: t,
     fn: ln,
-    path: pt
+    path: ft
+  });
+}
+function il(t, e = {}) {
+  return g({
+    id: t,
+    query_params: e,
+    fn: ln,
+    path: ft
   });
 }
 function rl(t, e, n = "patch") {
-  return T2({
+  return I2({
     id: t,
     form_data: e,
     query_params: {},
     method: n,
     fn: ln,
-    path: pt
+    path: ft
   });
 }
 function ol(t) {
@@ -65022,10 +65000,39 @@ function ol(t) {
     form_data: t,
     query_params: {},
     fn: ln,
+    path: ft
+  });
+}
+var pt = "asset_categories";
+function dn(t) {
+  return new ar(t);
+}
+function cl(t = {}) {
+  return $({
+    query_params: t,
+    fn: dn,
     path: pt
   });
 }
-var Is = class {
+function hl(t, e, n = "patch") {
+  return I2({
+    id: t,
+    form_data: e,
+    query_params: {},
+    method: n,
+    fn: dn,
+    path: pt
+  });
+}
+function ll(t) {
+  return U2({
+    form_data: t,
+    query_params: {},
+    fn: dn,
+    path: pt
+  });
+}
+var Es = class {
   _listeners = /* @__PURE__ */ new Set();
   _error_listeners = /* @__PURE__ */ new Set();
   _complete_listeners = /* @__PURE__ */ new Set();
@@ -65055,7 +65062,7 @@ var Is = class {
     this._listeners.clear(), this._error_listeners.clear(), this._complete_listeners.clear();
   }
 };
-var fr = class extends Is {
+var _r = class extends Es {
   constructor(e) {
     super(), this._config = e, this._socket = new WebSocket(e.url), this._socket.onopen = () => {
       const n = [...this._queue];
@@ -65080,49 +65087,49 @@ var fr = class extends Is {
     return this._config.deserializer ? this._config.deserializer(e) : e.data;
   }
 };
-function dr(t) {
-  return new fr(
+function mr(t) {
+  return new _r(
     typeof t == "string" ? { url: t } : t
   );
 }
 var te = /* @__PURE__ */ ((t) => (t[t.PARSE_ERROR = 0] = "PARSE_ERROR", t[t.BAD_REQUEST = 1] = "BAD_REQUEST", t[t.ACCESS_DENIED = 2] = "ACCESS_DENIED", t[t.REQUEST_FAILED = 3] = "REQUEST_FAILED", t[t.UNKNOWN_CMD = 4] = "UNKNOWN_CMD", t[t.SYS_NOT_FOUND = 5] = "SYS_NOT_FOUND", t[t.MOD_NOT_FOUND = 6] = "MOD_NOT_FOUND", t[t.UNEXPECTED_FAILURE = 7] = "UNEXPECTED_FAILURE", t))(te || {});
-var Es = /* @__PURE__ */ ((t) => (t.Info = "info", t.Debug = "debug", t.Warning = "warn", t.Error = "error", t.Fatal = "fatal", t.Trace = "trace", t))(Es || {});
-var Ct = {};
-function mr(t) {
-  return Ct[t];
+var Os = /* @__PURE__ */ ((t) => (t.Info = "info", t.Debug = "debug", t.Warning = "warn", t.Error = "error", t.Fatal = "fatal", t.Trace = "trace", t))(Os || {});
+var Ot = {};
+function $r(t) {
+  return Ot[t];
 }
-var O2 = Nt("WS");
+var C2 = Nt("WS");
 var Cs = 15;
 var gt = 0;
-var Y2;
-var Os = 0;
+var V2;
+var Ms = 0;
 var G2 = {};
 var wn = {};
-var gr = {};
+var br = {};
 var Se = ne(false);
-var Ms = ne([0, 0]);
-var Ns = Date.now();
+var Ns = ne([0, 0]);
+var ws = Date.now();
 var Ee;
-var Ot = 0;
+var Ct = 0;
 var fe = null;
 var kt;
 var Dn = 0;
 var yt = 10 * 1e3;
-var yr = ne(null);
-function _n() {
+var vr = ne(null);
+function mn() {
   return u2().indexOf("/control/") >= 0 ? "/control/websocket" : `${is()}/systems/control`;
 }
-function ws() {
+function Ds() {
   return Se.value;
 }
-function $r() {
+function kr() {
   return Se.asReadonly();
 }
-function br(t, e = wn) {
+function Sr(t, e = wn) {
   const n = `${t.sys}|${t.mod}_${t.index}|${t.name}`;
   return e[n] || (e[n] = ne(void 0)), e[n].asReadonly();
 }
-function vr(t, e = wn) {
+function xr(t, e = wn) {
   const n = `${t.sys}|${t.mod}_${t.index}|${t.name}`;
   if (e[n])
     return e[n].value;
@@ -65134,14 +65141,14 @@ function Wn(t, e = 0, n = Ge) {
   }, t);
   return n(s, e);
 }
-function kr(t, e = 0, n = Ge) {
+function Ar(t, e = 0, n = Ge) {
   const s = __spreadValues({
     id: ++gt,
     cmd: "unbind"
   }, t);
   return n(s, e);
 }
-function Sr(t, e = yt, n = Ge) {
+function qr(t, e = yt, n = Ge) {
   const s = __spreadValues({
     id: ++gt,
     cmd: "exec"
@@ -65149,9 +65156,9 @@ function Sr(t, e = yt, n = Ge) {
   return n(s, e);
 }
 function Ge(t, e = yt, n = 0) {
-  const s = `${t.cmd}|${t.sys}|${t.mod}${t.index}|${t.name}|${t.args}|${ei()}`;
+  const s = `${t.cmd}|${t.sys}|${t.mod}${t.index}|${t.name}|${t.args}|${ti()}`;
   if (G2[s])
-    O2("Request already in progress. Waiting...", t);
+    C2("Request already in progress. Waiting...", t);
   else {
     const i = __spreadProps(__spreadValues({}, t), { key: s });
     i.promise = new Promise((r, o) => {
@@ -65161,13 +65168,13 @@ function Ge(t, e = yt, n = 0) {
           (y) => o(y)
         );
       };
-      if (Y2 && ws()) {
-        kn() && Tr(t, Y2, gr), i.resolve = r, i.reject = o;
+      if (V2 && Ds()) {
+        Sn() && Or(t, V2, br), i.resolve = r, i.reject = o;
         const y = `${t.sys}, ${t.mod}_${t.index}, ${t.name}`;
-        O2(
+        C2(
           `[${t.cmd.toUpperCase()}](${t.id}) ${y}`,
           t.args
-        ), Y2.next(t), e > 0 && re(
+        ), V2.next(t), e > 0 && re(
           `${s}`,
           () => {
             o("Request timed out."), delete G2[s], G2[s] = null;
@@ -65179,32 +65186,32 @@ function Ge(t, e = yt, n = 0) {
   }
   return G2[s].promise;
 }
-function Ds(t) {
+function Hs(t) {
   if (t !== "pong" && t instanceof Object) {
     if (t.type === "notify" && t.meta)
-      qr(t.meta, t.value);
+      Ur(t.meta, t.value);
     else if (t.type === "success")
-      xr(t);
+      Pr(t);
     else if (t.type === "debug") {
-      O2(`[DEBUG] ${t.mod}${t.klass || ""} \u2192`, t.msg);
+      C2(`[DEBUG] ${t.mod}${t.klass || ""} \u2192`, t.msg);
       const e = t.meta || { mod: "", index: "" };
-      yr.set({
+      vr.set({
         mod_id: t.mod || "<empty>",
         module: `${e.mod}_${e.index}`,
         class_name: t.klass || "<empty>",
         message: t.msg || "<empty>",
-        level: t.level || Es.Debug,
+        level: t.level || Os.Debug,
         time: Math.floor((/* @__PURE__ */ new Date()).getTime() / 1e3)
       });
-    } else t.type === "error" ? Ar(t) : t.cmd || O2.error("Invalid websocket message", t);
-    _e(`${t.id}`);
-  } else t === "pong" && (Dn = Date.now(), O2("Pong!"));
+    } else t.type === "error" ? Rr(t) : t.cmd || C2.error("Invalid websocket message", t);
+    me(`${t.id}`);
+  } else t === "pong" && (Dn = Date.now(), C2("Pong!"));
 }
-function xr(t) {
+function Pr(t) {
   const e = Object.keys(G2).map((n) => G2[n]).find((n) => n?.id === t.id);
-  O2(`[SUCCESS](${t.id})`), e && e.resolve && (e.resolve(t.value), delete G2[e.key]);
+  C2(`[SUCCESS](${t.id})`), e && e.resolve && (e.resolve(t.value), delete G2[e.key]);
 }
-function Ar(t) {
+function Rr(t) {
   let e = "UNEXPECTED FAILURE";
   switch (t.code) {
     case te.ACCESS_DENIED:
@@ -65229,15 +65236,15 @@ function Ar(t) {
       e = "UNKNOWN COMMAND";
       break;
   }
-  O2.error(`[ERROR] ${e}(${t.id}): ${t.msg}`);
+  C2.error(`[ERROR] ${e}(${t.id}): ${t.msg}`);
   const n = Object.keys(G2).map((s) => G2[s]).filter((s) => s).find((s) => s.id === t.id);
-  n && n.reject && (n.reject(t), _e(`${n.key}`), delete G2[n.key]);
+  n && n.reject && (n.reject(t), me(`${n.key}`), delete G2[n.key]);
 }
-function qr(t, e, n = wn) {
+function Ur(t, e, n = wn) {
   const s = `${t.sys}|${t.mod}_${t.index}|${t.name}`;
   n[s] || (n[s] = ne(null));
   const i = `${t.sys}, ${t.mod}_${t.index}, ${t.name}`;
-  O2(`[NOTIFY] ${i} changed`, [
+  C2(`[NOTIFY] ${i} changed`, [
     n[s].value,
     "\u2192",
     e
@@ -65247,26 +65254,26 @@ function Hn(t = 0) {
   return fe == null && (fe = new Promise((e) => {
     if (t > 40)
       return location.reload();
-    Ot++, Ns = Date.now(), Y2 = kn() ? Ur() : Pr(), Y2 ? (O2.debug("Authority:", Rt()), O2("Connecting to websocket..."), Y2.subscribe(
+    Ct++, ws = Date.now(), V2 = Sn() ? Er() : Ir(), V2 ? (C2.debug("Authority:", Rt()), C2("Connecting to websocket..."), V2.subscribe(
       (n) => {
-        Se.value || (O2("Connection established."), e()), Se.set(true), Ot = 0, mn(), Ds(n);
+        Se.value || (C2("Connection established."), e()), Se.set(true), Ct = 0, gn(), Hs(n);
       },
       (n) => {
-        Y2 = void 0, fe = null, Zn(), mn(), Rr(n);
+        V2 = void 0, fe = null, Zn(), gn(), Tr(n);
       },
       () => {
-        Y2 = void 0, fe = null, Zn(), O2("Connection closed by browser."), Se.set(false), Mt();
+        V2 = void 0, fe = null, Zn(), C2("Connection closed by browser."), Se.set(false), Mt();
       }
     ), Ee && clearInterval(Ee), Dn = Date.now(), Qn(), Ee = setInterval(
       () => Qn(),
       Cs * 1e3
-    ), mn(), Os += 1, kt = setTimeout(() => {
-      O2("Unhealthy connection. Reconnecting..."), Se.set(false), fe = null, Mt();
-    }, 30 * 1e3)) : (Y2 ? O2(
+    ), gn(), Ms += 1, kt = setTimeout(() => {
+      C2("Unhealthy connection. Reconnecting..."), Se.set(false), fe = null, Mt();
+    }, 30 * 1e3)) : (V2 ? C2(
       `Waiting on auth(${t}). Retrying in ${1e3 * Math.min(10, t + 1)}ms...`,
-      [!!V2(), !!Rt()],
+      [!!X2(), !!Rt()],
       "info"
-    ) : O2.error(
+    ) : C2.error(
       `Failed to create websocket(${t}). Retrying in ${1e3 * Math.min(10, t + 1)}ms...`
     ), setTimeout(
       () => {
@@ -65276,15 +65283,15 @@ function Hn(t = 0) {
     ));
   })), fe;
 }
-function Pr() {
-  if (!Rt() || !V2()) return null;
+function Ir() {
+  if (!Rt() || !X2()) return null;
   const t = fi() || location.protocol.indexOf("https") >= 0;
-  let e = `ws${t ? "s" : ""}://${$n()}${_n()}${rs() ? "?fixed_device=true" : ""}`;
-  const n = V2();
+  let e = `ws${t ? "s" : ""}://${bn()}${mn()}${rs() ? "?fixed_device=true" : ""}`;
+  const n = X2();
   let s = n === "x-api-key" ? `api-key=${Ye()}` : `bearer_token=${n}`;
-  return !ci() && !Vs() ? (O2("Authenticating through cookie..."), s += `;max-age=120;path=${_n()};`, s += `${t ? "secure;" : ""}samesite=strict`, document.cookie = s, O2("Cookies:", [document.cookie, s])) : (O2("Authenticating through URL query parameter..."), e += `${e.indexOf("?") >= 0 ? "&" : "?"}${s}`), O2(
-    `Creating websocket connection to ws${t ? "s" : ""}://${$n()}${_n()}`
-  ), dr({
+  return !ai() && !Xs() ? (C2("Authenticating through cookie..."), s += `;max-age=120;path=${mn()};`, s += `${t ? "secure;" : ""}samesite=strict`, document.cookie = s, C2("Cookies:", [document.cookie, s])) : (C2("Authenticating through URL query parameter..."), e += `${e.indexOf("?") >= 0 ? "&" : "?"}${s}`), C2(
+    `Creating websocket connection to ws${t ? "s" : ""}://${bn()}${mn()}`
+  ), mr({
     url: e,
     serializer: (i) => typeof i == "object" ? JSON.stringify(i) : i,
     deserializer: (i) => {
@@ -65299,32 +65306,32 @@ function Pr() {
   });
 }
 function Mt() {
-  Ms.set([Os, Date.now() - Ns]), Y2 && ws() && (Y2.complete(), Ee && (clearInterval(Ee), Ee = void 0)), O2(
+  Ns.set([Ms, Date.now() - ws]), V2 && Ds() && (V2.complete(), Ee && (clearInterval(Ee), Ee = void 0)), C2(
     `Reconnecting in ${Math.min(
       5e3,
-      Ot * 300 || 1e3
+      Ct * 300 || 1e3
     )}ms...`
   ), re(
     "reconnect",
     () => Hn(),
-    Math.min(5e3, (Ot + 1) * 300 || 1e3)
+    Math.min(5e3, (Ct + 1) * 300 || 1e3)
   );
 }
 function Qn() {
   if (Date.now() - Dn > 4 * Cs * 1e3)
     return Mt();
-  Y2?.next("ping");
+  V2?.next("ping");
 }
-function Rr(t) {
-  Se.set(false), O2.error("Websocket error:", t), t.status === 401 && An(), xn(), Mt();
+function Tr(t) {
+  Se.set(false), C2.error("Websocket error:", t), t.status === 401 && qn(), An(), Mt();
 }
-function mn() {
+function gn() {
   kt && (clearTimeout(kt), kt = void 0);
 }
-function Ur() {
-  const t = new Is();
+function Er() {
+  const t = new Es();
   return t.subscribe(
-    (e) => Ds(e)
+    (e) => Hs(e)
   ), t;
 }
 function Kn(t, e) {
@@ -65336,8 +65343,8 @@ function Kn(t, e) {
     msg: n
   };
 }
-function Tr(t, e, n) {
-  const s = `${t.sys}|${t.mod}_${t.index}|${t.name}`, i = mr(t.sys), r = i && i[t.mod] ? i[t.mod][t.index - 1 || 0] : null;
+function Or(t, e, n) {
+  const s = `${t.sys}|${t.mod}_${t.index}|${t.name}`, i = $r(t.sys), r = i && i[t.mod] ? i[t.mod][t.index - 1 || 0] : null;
   if (r) {
     try {
       switch (t.cmd) {
@@ -65357,11 +65364,11 @@ function Tr(t, e, n) {
           });
           break;
         case "unbind":
-          n[s] && (n[s](), delete n[s], _e(`${s}`));
+          n[s] && (n[s](), delete n[s], me(`${s}`));
           break;
       }
     } catch (o) {
-      O2.error(`[MOCK ERROR](${t.id}) request failed`, o), re(
+      C2.error(`[MOCK ERROR](${t.id}) request failed`, o), re(
         `${t.id}-error`,
         () => e.next(Kn(t, o)),
         10
@@ -65379,7 +65386,7 @@ function Tr(t, e, n) {
           };
           e.next(o);
         } catch (o) {
-          O2.error(
+          C2.error(
             `[MOCK ERROR](${t.id}) execute failed`,
             o
           ), e.next(Kn(t, o));
@@ -65404,8 +65411,8 @@ function Zn() {
 }
 var Jn = class {
   constructor(e, n) {
-    this._module = e, this.name = n, $r().subscribe((s, i) => {
-      s !== i && (s && (this._stale_bindings || this._pending === 1) ? (xt("VAR", "Re-binding to status variable", this.binding()), this.rebind()) : s || (_e(`rebind:${JSON.stringify(this.binding())}`), xt(
+    this._module = e, this.name = n, kr().subscribe((s, i) => {
+      s !== i && (s && (this._stale_bindings || this._pending === 1) ? (xt("VAR", "Re-binding to status variable", this.binding()), this.rebind()) : s || (me(`rebind:${JSON.stringify(this.binding())}`), xt(
         "VAR",
         "Binding dropped due to disconnection, re-binding when possible.",
         this.binding()
@@ -65426,13 +65433,13 @@ var Jn = class {
   }
   /** Current value of the binding */
   get value() {
-    return vr(this.binding());
+    return xr(this.binding());
   }
   /**
    * Get a signal that emits the current value of the binding
    */
   listen() {
-    return br(this.binding());
+    return Sr(this.binding());
   }
   /**
    * Subscribe to changes of the variable's binding value.
@@ -65473,7 +65480,7 @@ var Jn = class {
    * Unbind from status variable
    */
   unbind() {
-    this._binding_count === 1 && this._pending === 0 ? (this._pending = 2, kr(this.binding()).then(() => {
+    this._binding_count === 1 && this._pending === 0 ? (this._pending = 2, Ar(this.binding()).then(() => {
       this._pending === 2 && (this._pending = 0), this._binding_count--;
     })) : this._binding_count = Math.max(this._binding_count - 1, 0);
   }
@@ -65501,7 +65508,7 @@ var Jn = class {
     };
   }
 };
-var Ir = class {
+var Cr = class {
   constructor(e, n) {
     this._system = e, this._id = n;
   }
@@ -65545,7 +65552,7 @@ var Ir = class {
    * @param args Array of arguments to pass to the method
    */
   execute(e, n, s = yt) {
-    return Sr(
+    return qr(
       {
         sys: this._system.id,
         mod: this.name,
@@ -65557,7 +65564,7 @@ var Ir = class {
     );
   }
 };
-var Er = class {
+var Mr = class {
   /** Unique idetifier of the system */
   id;
   /** Mapping of engine modules within the system */
@@ -65578,7 +65585,7 @@ var Er = class {
     const i = s.join("_");
     for (this._module_list[i] || (this._module_list[i] = []); this._module_list[i].length < n; )
       this._module_list[i].push(
-        new Ir(
+        new Cr(
           this,
           `${i}_${this._module_list[i].length + 1}`
         )
@@ -65586,12 +65593,12 @@ var Er = class {
     return this._module_list[i][n - 1];
   }
 };
-var gn = {};
-function Cr(t) {
-  return gn[t] || (gn[t] = new Er(t)), gn[t];
+var yn = {};
+function Nr(t) {
+  return yn[t] || (yn[t] = new Mr(t)), yn[t];
 }
-function Fl(t, e, n = 1) {
-  return Cr(t).module(e, n);
+function Wl(t, e, n = 1) {
+  return Nr(t).module(e, n);
 }
 
 // libs/common/src/lib/locale.service.ts
@@ -65715,7 +65722,7 @@ var LocaleService = class _LocaleService {
         return console.error(`Failed to loaded locale file for "${locale}".`, resp);
       }
       const locale_data = await resp.json();
-      const locale_override_data = this.zone_id ? await ju(this.zone_id, `locale_${locale}`) : { details: {} };
+      const locale_override_data = this.zone_id ? await Wu(this.zone_id, `locale_${locale}`) : { details: {} };
       const base_locale_values = removeNesting(locale_data);
       const override_locale_values = removeNesting(locale_override_data.details);
       this._locale_mappings[locale] = __spreadValues(__spreadValues({}, base_locale_values), override_locale_values);
@@ -65848,8 +65855,8 @@ function getTimezoneOffsetInMinutes(timeZone, date = /* @__PURE__ */ new Date())
 }
 function getTimeInTimezone(date, tz) {
   if (!tz) {
-    const d3 = new Date(date);
-    return { hours: d3.getHours(), minutes: d3.getMinutes() };
+    const d2 = new Date(date);
+    return { hours: d2.getHours(), minutes: d2.getMinutes() };
   }
   const zoned = toZonedTime(date, tz);
   return { hours: zoned.getHours(), minutes: zoned.getMinutes() };
@@ -65860,8 +65867,8 @@ function formatTimeInTimezone(date, tz) {
 }
 function setTimeInTimezone(date, hours, minutes, tz) {
   if (!tz) {
-    const d3 = set(new Date(date), { hours, minutes });
-    return startOfMinute(d3).valueOf();
+    const d2 = set(new Date(date), { hours, minutes });
+    return startOfMinute(d2).valueOf();
   }
   const zoned = toZonedTime(date, tz);
   const adjusted = set(zoned, { hours, minutes });
@@ -65913,7 +65920,7 @@ function padLength(value, length = 2, character = "0") {
 }
 function getItemWithKeys(keys, map2) {
   const key = keys[0];
-  if (map2 && key in map2) {
+  if (map2 && typeof map2 === "object" && key in map2) {
     return keys.length > 1 ? getItemWithKeys(keys.slice(1), map2[key] || {}) : map2[key];
   }
   return null;
@@ -66012,27 +66019,27 @@ function flatten2(an_array) {
 var seed = xmur3("PlaceOS");
 var rand = sfc32(2654435769, 608135816, 3084996962, seed());
 function xmur3(str) {
-  let h = 1779033703 ^ str.length;
+  let h2 = 1779033703 ^ str.length;
   for (let i = 0; i < str.length; i++)
-    h = Math.imul(h ^ str.charCodeAt(i), 3432918353), h = h << 13 | h >>> 19;
+    h2 = Math.imul(h2 ^ str.charCodeAt(i), 3432918353), h2 = h2 << 13 | h2 >>> 19;
   return function() {
-    h = Math.imul(h ^ h >>> 16, 2246822507);
-    h = Math.imul(h ^ h >>> 13, 3266489909);
-    return (h ^= h >>> 16) >>> 0;
+    h2 = Math.imul(h2 ^ h2 >>> 16, 2246822507);
+    h2 = Math.imul(h2 ^ h2 >>> 13, 3266489909);
+    return (h2 ^= h2 >>> 16) >>> 0;
   };
 }
-function sfc32(a, b2, c, d3) {
+function sfc32(a, b2, c, d2) {
   return function() {
     a >>>= 0;
     b2 >>>= 0;
     c >>>= 0;
-    d3 >>>= 0;
+    d2 >>>= 0;
     let t = a + b2 | 0;
     a = b2 ^ b2 >>> 9;
     b2 = c + (c << 3) | 0;
     c = c << 21 | c >>> 11;
-    d3 = d3 + 1 | 0;
-    t = t + d3 | 0;
+    d2 = d2 + 1 | 0;
+    t = t + d2 | 0;
     c = c + t | 0;
     return (t >>> 0) / 4294967296;
   };
@@ -66089,33 +66096,20 @@ function formatDuration2({ days, hours, minutes, seconds }, { zero } = {}) {
 function firstTruthyValueFrom(obs) {
   return obs ? lastValueFrom(obs.pipe(first((_3) => !!_3))) : Promise.resolve(null);
 }
-function getAllDayTimeRange(date, timezone = "", start, end, min_date) {
+function getAllDayTimeRange(date, timezone = "", start, end) {
   const day_start = startOfDayInTimezone(date, timezone);
-  const clampStart = (period_start2, period_end2) => {
-    if (!min_date)
-      return period_start2;
-    const minimum = roundToNearestMinutes(min_date, {
-      nearestTo: 5,
-      roundingMethod: "ceil"
-    }).valueOf();
-    const same_day = isSameDay(timezone ? toZonedTime(minimum, timezone) : new Date(minimum), timezone ? toZonedTime(period_start2, timezone) : new Date(period_start2));
-    if (!same_day || minimum <= period_start2)
-      return period_start2;
-    return Math.min(period_end2, minimum);
-  };
   if (start == null || end == null) {
     const period_end2 = endOfDayInTimezone(day_start, timezone);
-    const period_start2 = clampStart(day_start, period_end2);
     return {
-      date: period_start2,
-      duration: Math.max(0, differenceInMinutes(period_end2, period_start2)),
+      date: day_start,
+      duration: Math.max(0, differenceInMinutes(period_end2, day_start)),
       date_end: period_end2
     };
   }
   const range_start = Math.max(0, Math.min(23, start));
   const range_end = Math.max(range_start + 1, Math.min(24, end));
   const period_end = addHours(day_start, range_end).valueOf();
-  const period_start = clampStart(addHours(day_start, range_start).valueOf(), period_end);
+  const period_start = addHours(day_start, range_start).valueOf();
   return {
     date: period_start,
     duration: Math.max(0, differenceInMinutes(period_end, period_start)),
@@ -66308,7 +66302,6 @@ function setupFormTimeSync(model2, options = {}, injector) {
     nearestTo: round_to,
     roundingMethod: "ceil"
   }).valueOf();
-  const allDayMinDate = () => snap().id ? void 0 : Date.now();
   const bookableWindowRemaining = (start) => {
     start = normaliseTimeValue(start);
     if (!bookable_hours || !start || snap().id)
@@ -66358,9 +66351,9 @@ function setupFormTimeSync(model2, options = {}, injector) {
     date_end = normaliseTimeValue(date_end);
     if (!date || !date_end)
       return false;
-    const d3 = timezone ? toZonedTime(date, timezone) : new Date(date);
+    const d2 = timezone ? toZonedTime(date, timezone) : new Date(date);
     const e = timezone ? toZonedTime(date_end, timezone) : new Date(date_end);
-    return !isSameDay(d3, e);
+    return !isSameDay(d2, e);
   };
   const alignEndToBookableHours = (date_end) => {
     date_end = normaliseTimeValue(date_end);
@@ -66490,7 +66483,7 @@ function setupFormTimeSync(model2, options = {}, injector) {
       effective = alignToBookableHours(snapped) || snapped;
     }
     if (is_all_day) {
-      applyPatch(getAllDayTimeRange(effective, timezone, all_day_start, all_day_end, allDayMinDate()));
+      applyPatch(getAllDayTimeRange(effective, timezone, all_day_start, all_day_end));
       on_change?.();
       return;
     }
@@ -66541,7 +66534,7 @@ function setupFormTimeSync(model2, options = {}, injector) {
   fieldEffect((v) => v.all_day, () => {
     const all_day = snap().all_day;
     if (all_day) {
-      applyPatch(getAllDayTimeRange(normaliseTimeValue(snap().date), timezone, all_day_start, all_day_end, allDayMinDate()));
+      applyPatch(getAllDayTimeRange(normaliseTimeValue(snap().date), timezone, all_day_start, all_day_end));
     } else {
       const date = normaliseTimeValue(snap().date);
       const duration = normaliseTimeValue(snap().duration);
@@ -66580,7 +66573,7 @@ function setupFormTimeSync(model2, options = {}, injector) {
       if (patch.all_day_end !== void 0)
         all_day_end = patch.all_day_end;
       if (snap().all_day && snap().date) {
-        applyPatch(getAllDayTimeRange(normaliseTimeValue(snap().date), timezone, all_day_start, all_day_end, allDayMinDate()));
+        applyPatch(getAllDayTimeRange(normaliseTimeValue(snap().date), timezone, all_day_start, all_day_end));
         on_change?.();
         return;
       }
@@ -66931,18 +66924,18 @@ var GoogleAnalyticsService = class _GoogleAnalyticsService {
   init(tracking_id = "") {
     if (!window.gtag) {
       window.dataLayer = window.dataLayer || [];
-      (function(w2, d3, s, l2, i) {
-        w2[l2] = w2[l2] || [];
-        w2[l2].push({
+      (function(w2, d2, s, l, i) {
+        w2[l] = w2[l] || [];
+        w2[l].push({
           "gtm.start": (/* @__PURE__ */ new Date()).getTime(),
           event: "gtm.js"
         });
-        const f2 = d3.getElementsByTagName(s)[0];
-        const j2 = d3.createElement(s);
-        const dl = l2 != "dataLayer" ? "&l=" + l2 : "";
+        const f3 = d2.getElementsByTagName(s)[0];
+        const j2 = d2.createElement(s);
+        const dl = l != "dataLayer" ? "&l=" + l : "";
         j2.async = true;
         j2.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
-        f2.parentNode.insertBefore(j2, f2);
+        f3.parentNode.insertBefore(j2, f3);
       })(window, document, "script", "dataLayer", tracking_id);
       log("Analytics", "Service", "Injected Google Analytics into page");
     }
@@ -67006,8 +66999,8 @@ var GoogleAnalyticsService = class _GoogleAnalyticsService {
     }
     if (this.enabled) {
       this.timeout(`event|${category}|${action}|${label}|${value}`, () => {
-        const l2 = label ? ", " + label : "";
-        log("Analytics", "Service", `Event: ${category}, ${action}${l2}${value ? ", " + value : ""}`);
+        const l = label ? ", " + label : "";
+        log("Analytics", "Service", `Event: ${category}, ${action}${l}${value ? ", " + value : ""}`);
         this.push({
           event: "event",
           category,
@@ -67271,7 +67264,7 @@ var CateringOrder = class {
     this.item_count = this.items.reduce((amount, item) => amount + item.quantity, 0);
     this.total_cost = this.items.reduce((amount, item) => amount + (item.total_cost || 0), 0);
     this.charge_code = data.charge_code || "";
-    this.status = data[`${this.event_id}_status`] || data.status || "accepted";
+    this.status = data[`${this.event_id}_status`] || data.status || "pending";
     this.invoice_number = data.invoice_number || "";
     this.event = data.event || null;
     this.notes = data.notes || "";
@@ -67281,7 +67274,7 @@ var CateringOrder = class {
     this.deliver_at_time = deliverAtTime2(this);
   }
   toJSON() {
-    const obj = Ys(__spreadValues({}, this), ["", null, void 0]);
+    const obj = Vs(__spreadValues({}, this), ["", null, void 0]);
     obj.status = obj._status;
     delete obj.event;
     delete obj._status;
@@ -67798,7 +67791,7 @@ var CalendarEvent = class _CalendarEvent {
   }
   /** List of external attendees associated with the event */
   get guests() {
-    return this.attendees.filter((f2) => !!f2.is_external);
+    return this.attendees.filter((f3) => !!f3.is_external);
   }
   /** Primary space associated with the booking */
   get space() {
@@ -68018,7 +68011,7 @@ async function loadUserGroups() {
     return;
   }
   try {
-    const groups = await _u({});
+    const groups = await yu({});
     user_groups.set(groups);
     console.log("Permissions:", user_permissions());
   } catch (error2) {
@@ -68036,7 +68029,7 @@ function initialiseUser() {
   }
   _current_user.subscribe((u4) => user_signal.set(u4));
   const is_public_mode = isPublicMode();
-  const user_request = combineLatest([Ca("current"), _change]).pipe(map(([i]) => new StaffUser(i)));
+  const user_request = combineLatest([Na("current"), _change]).pipe(map(([i]) => new StaffUser(i)));
   if (is_public_mode) {
     user_request.pipe(catchError((error2) => {
       console.warn("User loading failed in public mode, using local public user data.", error2);
@@ -68060,7 +68053,7 @@ function initialiseUser() {
 function reloadUserData() {
   setTimeout(async () => {
     try {
-      const p_user = await Ca("current");
+      const p_user = await Na("current");
       const user = new StaffUser(p_user);
       _current_user.next(user);
       setDefaultCreator(user);
@@ -68077,6 +68070,28 @@ function reloadUserData() {
 }
 function currentUser() {
   return _current_user.getValue() || EMPTY_USER;
+}
+function currentUserIsLoaded() {
+  if (!isEmptyUser(currentUser()))
+    return true;
+  try {
+    return !!jest;
+  } catch {
+    return false;
+  }
+}
+function currentUserLoaded() {
+  const user = currentUser();
+  if (currentUserIsLoaded())
+    return Promise.resolve(user);
+  return new Promise((resolve) => {
+    const sub = _current_user.subscribe((user2) => {
+      if (isEmptyUser(user2))
+        return;
+      sub.unsubscribe();
+      resolve(user2);
+    });
+  });
 }
 function userSignal() {
   return user_signal;
@@ -68100,20 +68115,33 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION4 = {
   "dirty": false,
-  "raw": "73959d8",
-  "hash": "73959d8",
+  "raw": "72d21fe",
+  "hash": "72d21fe",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "73959d8",
+  "suffix": "72d21fe",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1783504052805
+  "time": 1783937309207
 };
 
 // libs/common/src/lib/settings.service.ts
 var _service3;
 var _setting_signals = {};
+var DEBUG_OVERRIDES_KEY = "PLACEOS.setting_overrides";
+function loadDebugOverrides() {
+  try {
+    const overrides = JSON.parse(localStorage.getItem(DEBUG_OVERRIDES_KEY) || "{}");
+    for (const key in overrides) {
+      if (!key.startsWith("app."))
+        delete overrides[key];
+    }
+    return overrides;
+  } catch {
+    return {};
+  }
+}
 function setting(key) {
   return _service3 ? _service3.get(key) : void 0;
 }
@@ -68130,6 +68158,30 @@ var SettingsService = class _SettingsService extends AsyncHandler {
    */
   setOverrides(value) {
     this._overrides.set(value);
+    this._refreshSettings();
+  }
+  /** Set a local debug override for an `app.*` setting. `undefined` clears the key. */
+  setDebugOverride(key, value) {
+    if (!key.startsWith("app."))
+      return;
+    const overrides = __spreadValues({}, this._debug_overrides());
+    if (value === void 0)
+      delete overrides[key];
+    else
+      overrides[key] = value;
+    this._debug_overrides.set(overrides);
+    if (Object.keys(overrides).length) {
+      localStorage.setItem(DEBUG_OVERRIDES_KEY, JSON.stringify(overrides));
+    } else
+      localStorage.removeItem(DEBUG_OVERRIDES_KEY);
+    this._refreshSettings();
+  }
+  clearDebugOverrides() {
+    this._debug_overrides.set({});
+    localStorage.removeItem(DEBUG_OVERRIDES_KEY);
+    this._refreshSettings();
+  }
+  _refreshSettings() {
     this._applyCssVariables();
     this._updateSignals();
     this._applyTheme();
@@ -68189,6 +68241,14 @@ var SettingsService = class _SettingsService extends AsyncHandler {
         []
       )
     );
+    this._debug_overrides = signal(
+      loadDebugOverrides(),
+      ...ngDevMode ? [{ debugName: "_debug_overrides" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.debug_overrides = this._debug_overrides.asReadonly();
     this._subjects = {};
     this._pending_settings = {};
     this.theme_signal = computed(
@@ -68235,7 +68295,7 @@ var SettingsService = class _SettingsService extends AsyncHandler {
       window.setting = (key) => this.get(key);
     }
     const user = await this._currentUser();
-    const data = await ju(user.id, "settings");
+    const data = await Wu(user.id, "settings");
     this._user_settings.set(data.details || {});
     this.timeout("init", () => {
       this._initDarkMode();
@@ -68257,6 +68317,9 @@ var SettingsService = class _SettingsService extends AsyncHandler {
    * @param key Name of the setting. i.e. nested items can be grabbed using `.` to seperate key names
    */
   get(key) {
+    const debug_overrides = this._debug_overrides();
+    if (key in debug_overrides)
+      return debug_overrides[key];
     const keys = key.split(".");
     if (keys[0] !== "app") {
       return getItemWithKeys(keys, this._pending_settings) ?? getItemWithKeys(keys, this._user_settings()) ?? getItemWithKeys(keys, DEFAULT_SETTINGS);
@@ -68279,7 +68342,7 @@ var SettingsService = class _SettingsService extends AsyncHandler {
     this.timeout("save_settings", () => this._savePendingChanges(), 2400);
   }
   async updateLocatable(locatable) {
-    await Ma(currentUser().id, { locatable }, "patch");
+    await Da(currentUser().id, { locatable }, "patch");
     reloadUserData();
   }
   overrideCssVariable(key, value, important = false) {
@@ -68318,7 +68381,7 @@ var SettingsService = class _SettingsService extends AsyncHandler {
     if (!user?.id || !Object.keys(this._pending_settings).length)
       return;
     this._updateSignals();
-    await Gu(user.id, {
+    await Qu(user.id, {
       name: "settings",
       description: "",
       details: __spreadValues(__spreadValues({}, this._user_settings()), this._pending_settings)
@@ -69553,7 +69616,7 @@ async function setupPlace(settings) {
   if (mock) {
     notifyInfo("Application in mock mode.");
   }
-  return zr(config2);
+  return jr(config2);
 }
 
 // libs/common/src/lib/signal.utilities.ts
@@ -81217,7 +81280,7 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
       notifySuccess("Toggled dark mode.");
     });
     this._hotkey.listen(["Control", "Alt", "Shift", "KeyC"], () => {
-      this._clipboard.copy(`${V2()}|${Pt()}`);
+      this._clipboard.copy(`${X2()}|${Pt()}`);
       notifySuccess("Successfully copied token.");
     });
     this._hotkey.listen(["Control", "Alt", "Shift", "KeyV"], () => {
@@ -81237,7 +81300,7 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
         localStorage.setItem("PLACEOS.locale", locale);
       }
       if (params.has("x-api-key")) {
-        Nr(params.get("x-api-key"));
+        Hr(params.get("x-api-key"));
       }
       if (params.has("region_id")) {
         this._region = params.get("region_id");
@@ -81257,7 +81320,7 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
     settings.app_name = this._settings.get("app.name") || this._settings.get("app.short_name");
     settings.mock = !!this._settings.get("mock") || _mocks && location.origin.includes("demo.place.tech");
     if (START_QUERY) {
-      const query2 = Ie(START_QUERY.substring(1));
+      const query2 = Te(START_QUERY.substring(1));
       this._router.navigate([], {
         relativeTo: this._route,
         queryParams: query2
@@ -81307,15 +81370,15 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
       const auth_error = await setupPlace(settings).then(() => null).catch((_3) => _3);
       if (!auth_error) {
         const api_key = getNativeApiKey();
-        const client_key = `${ai()}_x-api-key`;
+        const client_key = `${hi()}_x-api-key`;
         if (api_key)
-          Nr(api_key);
+          Hr(api_key);
         else if (localStorage.getItem(client_key)) {
           localStorage.removeItem(client_key);
-          An();
+          qn();
         }
         if (intune_token)
-          hi(intune_token);
+          li(intune_token);
         break;
       }
       log("APP", "Auth failed, resetting domain.", auth_error, "warn");
@@ -81323,13 +81386,13 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
       clearNativeApiKey();
       DOMAIN_ERROR.set(`Unable to connect to "${domain}". The server may be unavailable, or the email address may be for a different server. Try again.`);
     }
-    if (isNativeApp() && !V2(false)) {
+    if (isNativeApp() && !X2(false)) {
       const boot_params = new URLSearchParams(START_QUERY);
       if (boot_params.has("code")) {
-        console.warn("[AUTH] Auth code was present on load but the token exchange did not complete.", `State: "${boot_params.get("state")}"`, `Nonce: "${localStorage.getItem(`${ai()}_nonce`)}"`);
+        console.warn("[AUTH] Auth code was present on load but the token exchange did not complete.", `State: "${boot_params.get("state")}"`, `Nonce: "${localStorage.getItem(`${hi()}_nonce`)}"`);
       }
     }
-    if (isNativeApp() && !V2(false) && !Pt() && Rt()) {
+    if (isNativeApp() && !X2(false) && !Pt() && Rt()) {
       const auth_error = consumeNativeAuthError();
       if (auth_error) {
         setLoadingMessage("Waiting for sign in...");
@@ -81338,7 +81401,7 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
         await new Promise((r) => this._domain_resolve = r);
       }
       setLoadingMessage("Opening sign in...");
-      const auth_url = await createNativeAuthUrl(settings, ai());
+      const auth_url = await createNativeAuthUrl(settings, hi());
       console.warn(`[AUTH] Opening sign in: ${auth_url}`);
       await openNativeBrowser(auth_url);
       return;
@@ -81348,7 +81411,7 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
       await setupPlace(settings).catch((_3) => console.error(_3));
     }
     if (this._initial_token)
-      hi(this._initial_token);
+      li(this._initial_token);
     await this._waitFor(() => this._org.initialised());
     if (this._locale) {
       this._locale.zone_id = this._org.organisation.id;
@@ -81373,15 +81436,15 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
     this._setZones();
   }
   onInitError() {
-    if (kn() || currentUser()?.is_logged_in)
+    if (Sn() || currentUser()?.is_logged_in)
       return;
     if (isNativeApp() && getNativeApiKey()) {
       clearNativeApiKey();
       clearNativeDomain();
-      localStorage.removeItem(`${ai()}_x-api-key`);
-      An();
-    } else if (!V2(false))
-      An();
+      localStorage.removeItem(`${hi()}_x-api-key`);
+      qn();
+    } else if (!X2(false))
+      qn();
     location.reload();
   }
   _initAnalytics() {
@@ -81419,7 +81482,7 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
   }
   _pasteToken(tkn) {
     const parts = tkn.split("|");
-    const id = ai();
+    const id = hi();
     localStorage.setItem(`${id}_access_token`, `${parts[0]}`);
     localStorage.setItem(`${id}_refresh_token`, `${parts[1]}`);
     localStorage.setItem(`${id}_expires_at`, `${addHours(/* @__PURE__ */ new Date(), 6).valueOf()}`);
@@ -81593,7 +81656,7 @@ var OrganisationService = class _OrganisationService {
     const binding = this.binding(name);
     const system_id = binding instanceof Object ? binding.id || binding.system_id : binding;
     const mod_id = (binding instanceof Object ? binding.mod || binding.module : "") || default_mod_id;
-    return !system_id || !mod_id ? null : Fl(system_id, mod_id);
+    return !system_id || !mod_id ? null : Wl(system_id, mod_id);
   }
   /** Get building by id */
   find(id) {
@@ -81712,7 +81775,7 @@ var OrganisationService = class _OrganisationService {
     this._building_settings = {};
     this._skip_auto_selection = false;
     this._override_timer = null;
-    ri(Hr(), (_3) => _3).then(() => setTimeout(() => this.init(), 1e3));
+    oi(Lr(), (_3) => _3).then(() => setTimeout(() => this.init(), 1e3));
     effect(() => {
       this._active_region();
       const building = this._active_building();
@@ -81900,7 +81963,7 @@ var OrganisationService = class _OrganisationService {
     });
     if (org_list.length) {
       const auth = Rt();
-      const org = org_list.find((list) => kn() || list.id === auth?.config?.org_zone) || org_list[0];
+      const org = org_list.find((list) => Sn() || list.id === auth?.config?.org_zone) || org_list[0];
       const load_metadata = !this._service.get("dont_load_metadata");
       const bindings = load_metadata ? (await this._bulkMetadataDetails("bindings", [org.id]))[org.id] : {};
       this._organisation = new Organisation(__spreadProps(__spreadValues({}, org), { bindings }));
@@ -82137,7 +82200,7 @@ var OrganisationService = class _OrganisationService {
     const cached_metadata = this._getCachedItem(cache_key);
     if (cached_metadata)
       return cached_metadata;
-    const metadata2 = await Ku(name, { parent_ids }).catch((err) => err?.status === 404 ? this._individualMetadata(name, ids) : {});
+    const metadata2 = await Yu(name, { parent_ids }).catch((err) => err?.status === 404 ? this._individualMetadata(name, ids) : {});
     const metadata_details = ids.reduce((map2, id) => {
       map2[id] = metadata2[id]?.details || {};
       return map2;
@@ -82147,7 +82210,7 @@ var OrganisationService = class _OrganisationService {
   }
   /** Fallback for backends without the bulk metadata endpoint (404) */
   async _individualMetadata(name, ids) {
-    const items = await Promise.all(ids.filter(Boolean).map((id) => ju(id, name).then((item) => [id, item], () => [id, null])));
+    const items = await Promise.all(ids.filter(Boolean).map((id) => Wu(id, name).then((item) => [id, item], () => [id, null])));
     const metadata2 = {};
     for (const [id, item] of items) {
       if (item)
@@ -82160,7 +82223,7 @@ var OrganisationService = class _OrganisationService {
     const cached_zones = this._getCachedItem(cache_key);
     if (cached_zones)
       return cached_zones;
-    const zones = (await Ba(__spreadProps(__spreadValues({}, params), {
+    const zones = (await Ka(__spreadProps(__spreadValues({}, params), {
       authority_id: Rt().id
     }))).data || [];
     this._setCachedItem(cache_key, zones);
@@ -82440,8 +82503,8 @@ var Bitmap = class _Bitmap {
     const height = this.height + 2 * border;
     const width = this.width + 2 * border;
     const v = fillArr(border, value);
-    const h = Array.from({ length: border }, () => fillArr(width, value));
-    return new _Bitmap({ height, width }, [...h, ...this.data.map((i) => [...v, ...i, ...v]), ...h]);
+    const h2 = Array.from({ length: border }, () => fillArr(width, value));
+    return new _Bitmap({ height, width }, [...h2, ...this.data.map((i) => [...v, ...i, ...v]), ...h2]);
   }
   // Embed another bitmap on coordinates
   embed(c, bm) {
@@ -82685,16 +82748,16 @@ var info = {
   formatMask: 21522,
   formatBits(ecc, maskIdx) {
     const data = info.ECCode[ecc] << 3 | maskIdx;
-    let d3 = data;
+    let d2 = data;
     for (let i = 0; i < 10; i++)
-      d3 = d3 << 1 ^ (d3 >> 9) * 1335;
-    return (data << 10 | d3) ^ info.formatMask;
+      d2 = d2 << 1 ^ (d2 >> 9) * 1335;
+    return (data << 10 | d2) ^ info.formatMask;
   },
   versionBits(ver) {
-    let d3 = ver;
+    let d2 = ver;
     for (let i = 0; i < 12; i++)
-      d3 = d3 << 1 ^ (d3 >> 11) * 7973;
-    return ver << 12 | d3;
+      d2 = d2 << 1 ^ (d2 >> 11) * 7973;
+    return ver << 12 | d2;
   },
   alphabet: {
     numeric: alphabet("0123456789"),
@@ -82911,10 +82974,10 @@ var GF = {
 function RS(eccWords) {
   return {
     encode(from2) {
-      const d3 = GF.divisorPoly(eccWords);
+      const d2 = GF.divisorPoly(eccWords);
       const pol = Array.from(from2);
-      pol.push(...d3.slice(0, -1).fill(0));
-      return Uint8Array.from(GF.remainderPoly(pol, d3));
+      pol.push(...d2.slice(0, -1).fill(0));
+      return Uint8Array.from(GF.remainderPoly(pol, d2));
     },
     decode(to) {
       const res = to.slice();
@@ -83639,7 +83702,7 @@ function formatRecurrence(recurrence, selected_date = Date.now()) {
       result = `Every ${safe_interval} ${plural2(safe_interval, "day")}`;
       break;
     case "weekly": {
-      const days = validWeekdays2(weekdays).length ? formatList(validWeekdays2(weekdays).map((d3) => dayNames[d3])) : dayNames[selected_day];
+      const days = validWeekdays2(weekdays).length ? formatList(validWeekdays2(weekdays).map((d2) => dayNames[d2])) : dayNames[selected_day];
       result = `Every ${safe_interval} ${plural2(safe_interval, "week")}${days ? " on " + days : ""}`;
       break;
     }
@@ -83647,7 +83710,7 @@ function formatRecurrence(recurrence, selected_date = Date.now()) {
       const recurrence_days = validWeekdays2(weekdays);
       const week_value = week || selectedWeek();
       if (monthly_type === "day_of_week") {
-        const days = recurrence_days.length ? formatList(recurrence_days.map((d3) => dayNames[d3])) : dayNames[selected_day];
+        const days = recurrence_days.length ? formatList(recurrence_days.map((d2) => dayNames[d2])) : dayNames[selected_day];
         const week_name = weekNames[week_value] || weekNames[selectedWeek()];
         result = `Every ${safe_interval} ${plural2(safe_interval, "month")} on the ${week_name}${days ? " " + days : ""}`;
       } else if (monthly_type === "day_of_month") {
@@ -83739,7 +83802,7 @@ function ht(s, e) {
     0 <= t && s.splice(t, 1);
   }
 }
-var J3 = (function() {
+var J2 = (function() {
   function s(e) {
     this.initialTeardown = e, this.closed = false, this._parentage = null, this._finalizers = null;
   }
@@ -83751,15 +83814,15 @@ var J3 = (function() {
       if (o)
         if (this._parentage = null, Array.isArray(o))
           try {
-            for (var a = nt(o), h = a.next(); !h.done; h = a.next()) {
-              var c = h.value;
+            for (var a = nt(o), h2 = a.next(); !h2.done; h2 = a.next()) {
+              var c = h2.value;
               c.remove(this);
             }
           } catch (y) {
             e = { error: y };
           } finally {
             try {
-              h && !h.done && (t = a.return) && t.call(a);
+              h2 && !h2.done && (t = a.return) && t.call(a);
             } finally {
               if (e) throw e.error;
             }
@@ -83828,9 +83891,9 @@ var J3 = (function() {
     return e.closed = true, e;
   })(), s;
 })();
-var xt2 = J3.EMPTY;
+var xt2 = J2.EMPTY;
 function $t(s) {
-  return s instanceof J3 || s && "closed" in s && P2(s.remove) && P2(s.add) && P2(s.unsubscribe);
+  return s instanceof J2 || s && "closed" in s && P2(s.remove) && P2(s.add) && P2(s.unsubscribe);
 }
 function bt2(s) {
   P2(s) ? s() : s.unsubscribe();
@@ -83890,7 +83953,7 @@ var pt2 = (function(s) {
       this.unsubscribe();
     }
   }, e;
-})(J3);
+})(J2);
 var Xt = (function() {
   function s(e) {
     this.partialObserver = e;
@@ -83953,7 +84016,7 @@ var te2 = (function() {
 function At(s) {
   return s;
 }
-function ee(s) {
+function ee2(s) {
   return s.length === 0 ? At : s.length === 1 ? s[0] : function(t) {
     return s.reduce(function(r, i) {
       return i(r);
@@ -83970,8 +84033,8 @@ var lt = (function() {
   }, s.prototype.subscribe = function(e, t, r) {
     var i = this, n = se(e) ? e : new ut(e, t, r);
     return B2(function() {
-      var o = i, a = o.operator, h = o.source;
-      n.add(a ? a.call(n, h) : h ? i._subscribe(n) : i._trySubscribe(n));
+      var o = i, a = o.operator, h2 = o.source;
+      n.add(a ? a.call(n, h2) : h2 ? i._subscribe(n) : i._trySubscribe(n));
     }), n;
   }, s.prototype._trySubscribe = function(e) {
     try {
@@ -83986,8 +84049,8 @@ var lt = (function() {
         next: function(a) {
           try {
             e(a);
-          } catch (h) {
-            n(h), o.unsubscribe();
+          } catch (h2) {
+            n(h2), o.unsubscribe();
           }
         },
         error: n,
@@ -84003,7 +84066,7 @@ var lt = (function() {
   }, s.prototype.pipe = function() {
     for (var e = [], t = 0; t < arguments.length; t++)
       e[t] = arguments[t];
-    return ee(e)(this);
+    return ee2(e)(this);
   }, s.prototype.toPromise = function(e) {
     var t = this;
     return e = vt2(e), new e(function(r, i) {
@@ -84033,14 +84096,14 @@ function se(s) {
 var ie2 = (function(s) {
   L2(e, s);
   function e(t, r, i, n, o, a) {
-    var h = s.call(this, t) || this;
-    return h.onFinalize = o, h.shouldUnsubscribe = a, h._next = r ? function(c) {
+    var h2 = s.call(this, t) || this;
+    return h2.onFinalize = o, h2.shouldUnsubscribe = a, h2._next = r ? function(c) {
       try {
         r(c);
       } catch (m2) {
         t.error(m2);
       }
-    } : s.prototype._next, h._error = n ? function(c) {
+    } : s.prototype._next, h2._error = n ? function(c) {
       try {
         n(c);
       } catch (m2) {
@@ -84048,7 +84111,7 @@ var ie2 = (function(s) {
       } finally {
         this.unsubscribe();
       }
-    } : s.prototype._error, h._complete = i ? function() {
+    } : s.prototype._error, h2._complete = i ? function() {
       try {
         i();
       } catch (c) {
@@ -84056,7 +84119,7 @@ var ie2 = (function(s) {
       } finally {
         this.unsubscribe();
       }
-    } : s.prototype._complete, h;
+    } : s.prototype._complete, h2;
   }
   return e.prototype.unsubscribe = function() {
     var t;
@@ -84091,8 +84154,8 @@ var zt2 = (function(s) {
         r.currentObservers || (r.currentObservers = Array.from(r.observers));
         try {
           for (var o = nt(r.currentObservers), a = o.next(); !a.done; a = o.next()) {
-            var h = a.value;
-            h.next(t);
+            var h2 = a.value;
+            h2.next(t);
           }
         } catch (c) {
           i = { error: c };
@@ -84138,7 +84201,7 @@ var zt2 = (function(s) {
     return this._throwIfClosed(), this._checkFinalizedStatuses(t), this._innerSubscribe(t);
   }, e.prototype._innerSubscribe = function(t) {
     var r = this, i = this, n = i.hasError, o = i.isStopped, a = i.observers;
-    return n || o ? xt2 : (this.currentObservers = null, a.push(t), new J3(function() {
+    return n || o ? xt2 : (this.currentObservers = null, a.push(t), new J2(function() {
       r.currentObservers = null, ht(a, t);
     }));
   }, e.prototype._checkFinalizedStatuses = function(t) {
@@ -84171,7 +84234,7 @@ var wt2 = (function(s) {
     return (i = (r = this.source) === null || r === void 0 ? void 0 : r.subscribe(t)) !== null && i !== void 0 ? i : xt2;
   }, e;
 })(zt2);
-var ae = new lt(function(s) {
+var ae2 = new lt(function(s) {
   return s.complete();
 });
 var Ot2 = _t(function(s) {
@@ -84204,7 +84267,7 @@ var Lt = (function(s) {
   }, e;
 })(zt2);
 var _e2 = new Int32Array(4);
-var f = class _f {
+var f2 = class _f {
   static hashStr(e, t = false) {
     return this.onePassHasher.start().appendStr(e).end(t);
   }
@@ -84362,13 +84425,13 @@ var f = class _f {
     else {
       const a = o.toString(16).match(/(.*?)(.{0,8})$/);
       if (a === null) return e ? _e2 : "";
-      const h = parseInt(a[2], 16), c = parseInt(a[1], 16) || 0;
-      i[14] = h, i[15] = c;
+      const h2 = parseInt(a[2], 16), c = parseInt(a[1], 16) || 0;
+      i[14] = h2, i[15] = c;
     }
     return _f._md5cycle(this._state, i), e ? this._state : _f._hex(this._state);
   }
 };
-if (f.hashStr("hello") !== "5d41402abc4b2a76b9719d911017c592")
+if (f2.hashStr("hello") !== "5d41402abc4b2a76b9719d911017c592")
   throw new Error("Md5 self test failed.");
 var Ct2 = class {
   _queue = [];
@@ -84455,14 +84518,14 @@ var Et2 = {
   // Google uses resumable uploads - no manifest needed
   finalise_body: () => ""
 };
-var dt2 = {
+var dt = {
   name: "AzureStorage",
   part_size: 2 * q,
   // Azure uses block IDs, not a resumable upload ID
   // Use a placeholder that identifies this upload session
   resume_id: (s) => s,
   finalise_body: (s, e) => {
-    const t = Math.ceil(s.file.size / dt2.part_size);
+    const t = Math.ceil(s.file.size / dt.part_size);
     let r = '<?xml version="1.0" encoding="utf-8"?><BlockList>';
     for (let i = 1; i <= t; i++)
       r += `<Latest>${window.btoa(Pe2(i))}</Latest>`;
@@ -84479,7 +84542,7 @@ var Ut2 = {
   finalise_body: () => ""
 };
 function Ee2(s) {
-  return s === St2.name ? St2 : s === Et2.name ? Et2 : s === dt2.name ? dt2 : s === Ut2.name ? Ut2 : (console.warn(`[UPLOADS] Unknown provider: "${s}", using EMPTY_PROVIDER`), Se2);
+  return s === St2.name ? St2 : s === Et2.name ? Et2 : s === dt.name ? dt : s === Ut2.name ? Ut2 : (console.warn(`[UPLOADS] Unknown provider: "${s}", using EMPTY_PROVIDER`), Se2);
 }
 var R2 = "/api/engine/v2/uploads";
 var V3;
@@ -84521,7 +84584,7 @@ async function $e2(s, e) {
     })).text();
     n = i.resume_id(a);
   } else
-    n = `${f.hashStr(`${Date.now()}|${e.name}`)}`;
+    n = `${f2.hashStr(`${Date.now()}|${e.name}`)}`;
   return console.debug(
     `[UPLOADS] Initialised upload for ${e.name} (${n})`
   ), kt2(r.upload_id, e, i, n, false);
@@ -84565,7 +84628,7 @@ async function Nt2(s) {
     headers: __spreadValues({}, j())
   });
 }
-var ft = 3;
+var ft2 = 3;
 var S3 = [];
 var H2 = -1;
 var T3 = /* @__PURE__ */ new Set();
@@ -84573,14 +84636,14 @@ var W2 = [];
 var Ft = "/node_modules/ts-md5/dist/md5_worker.js";
 function Le(s = Ft, e) {
   console.debug("[UPLOADS] Setting up hash workers..."), S3?.length > 0 && S3.forEach((t) => t.terminate()), S3 = [], T3.clear(), W2 = [];
-  for (let t = 0; t < ft; t += 1)
+  for (let t = 0; t < ft2; t += 1)
     S3.push(new Ct2(s, e));
 }
 function Ce2() {
-  return H2 += 1, H2 = H2 % ft, S3[H2];
+  return H2 += 1, H2 = H2 % ft2, S3[H2];
 }
 function De() {
-  return S3.length || ft;
+  return S3.length || ft2;
 }
 async function Ie2() {
   for (let s = 0; s < S3.length; s++)
@@ -84641,7 +84704,7 @@ function Bt(s, e, t) {
   const r = (e - 1) * t, i = Math.min(r + t, s.size);
   return s.slice(r, i);
 }
-function d2(s, e) {
+function d(s, e) {
   const t = s.state.getValue();
   s.state.next(__spreadValues(__spreadValues({}, t), e));
 }
@@ -84679,7 +84742,7 @@ async function Vt() {
     return;
   st++;
   const t = e.state.getValue();
-  d2(e, {
+  d(e, {
     status: "UPLOADING",
     working: [...t.working, s.part]
   });
@@ -84711,16 +84774,16 @@ async function Vt() {
         g2
       );
     }
-    const h = Bt(
+    const h2 = Bt(
       e.file,
       s.part,
       e.provider.part_size
     );
-    await Re2(a, h);
+    await Re2(a, h2);
     const c = e.state.getValue(), m2 = [...c.completed, s.part].sort(
       (g2, v) => g2 - v
     ), A3 = c.working.filter((g2) => g2 !== s.part);
-    if (d2(e, {
+    if (d(e, {
       completed: m2,
       working: A3,
       progress: Math.round(m2.length / n * 100)
@@ -84728,7 +84791,7 @@ async function Vt() {
       try {
         await je(e);
       } catch (g2) {
-        E2(e.id), d2(e, { status: "FAILED" }), console.error(
+        E2(e.id), d(e, { status: "FAILED" }), console.error(
           `[UPLOADS] Finalization failed for ${e.file.name}:`,
           g2
         ), _2--, z();
@@ -84738,7 +84801,7 @@ async function Vt() {
     const n = e.state.getValue().working.filter((o) => o !== s.part);
     s.retries < u3.retries ? (console.warn(
       `Chunk upload failed for part ${s.part}, retrying (${s.retries + 1}/${u3.retries})...`
-    ), w.push(__spreadProps(__spreadValues({}, s), { retries: s.retries + 1 })), d2(e, { working: n })) : (E2(e.id), d2(e, {
+    ), w.push(__spreadProps(__spreadValues({}, s), { retries: s.retries + 1 })), d(e, { working: n })) : (E2(e.id), d(e, {
       status: "FAILED",
       working: n
     }), console.error(
@@ -84788,7 +84851,7 @@ async function je(s) {
       );
     }
   }
-  if (await Nt2(s.id), E2(s.id), d2(s, {
+  if (await Nt2(s.id), E2(s.id), d(s, {
     status: "COMPLETED",
     progress: 100
   }), _2--, z(), u3.auto_remove)
@@ -84805,17 +84868,17 @@ function z() {
     return;
   const s = x.shift();
   s && (_2++, s.is_direct ? Q2(s) : gt2(s).catch((e) => {
-    console.error("[UPLOADS] Failed to queue chunks:", e), E2(s.id), d2(s, { status: "FAILED" }), _2--;
+    console.error("[UPLOADS] Failed to queue chunks:", e), E2(s.id), d(s, { status: "FAILED" }), _2--;
   }));
 }
 async function Q2(s, e = 0) {
   if (!s.direct_signature) {
-    console.error(`[UPLOADS] Direct upload ${s.id} missing signature`), d2(s, { status: "FAILED" }), _2--, z();
+    console.error(`[UPLOADS] Direct upload ${s.id} missing signature`), d(s, { status: "FAILED" }), _2--, z();
     return;
   }
   console.debug(
     `[UPLOADS] Processing direct upload for ${s.file.name}...`
-  ), d2(s, { status: "UPLOADING", progress: 0 });
+  ), d(s, { status: "UPLOADING", progress: 0 });
   try {
     const t = await fetch(s.direct_signature.url, {
       method: s.direct_signature.verb,
@@ -84826,7 +84889,7 @@ async function Q2(s, e = 0) {
       throw new Error(`Upload failed with status ${t.status}`);
     if (console.debug(
       `[UPLOADS] Direct upload complete for ${s.file.name}, committing...`
-    ), await Nt2(s.id), d2(s, {
+    ), await Nt2(s.id), d(s, {
       status: "COMPLETED",
       progress: 100
     }), _2--, z(), u3.auto_remove)
@@ -84843,7 +84906,7 @@ async function Q2(s, e = 0) {
     ), Q2(s, e + 1)) : (console.error(
       `[UPLOADS] Direct upload failed for ${s.file.name} after ${u3.retries} retries:`,
       t
-    ), E2(s.id), d2(s, { status: "FAILED" }), _2--, z());
+    ), E2(s.id), d(s, { status: "FAILED" }), _2--, z());
   }
 }
 async function gt2(s, e = 1) {
@@ -84860,8 +84923,8 @@ async function gt2(s, e = 1) {
     `[UPLOADS] Queuing ${t} chunks for ${s.file.name} (part size: ${s.provider.part_size}, workers: ${i})`
   );
   const n = /* @__PURE__ */ new Set(), o = async (a) => {
-    const h = `${s.id}:${a}`;
-    if (!$2.has(h)) {
+    const h2 = `${s.id}:${a}`;
+    if (!$2.has(h2)) {
       console.debug(
         `[UPLOADS] Computing hash for part ${a}/${t}...`
       );
@@ -84870,7 +84933,7 @@ async function gt2(s, e = 1) {
         a,
         s.provider.part_size
       ), g2 = await qe2(A3);
-      $2.set(h, g2), console.debug(`[UPLOADS] Part ${a}/${t} hash cached`);
+      $2.set(h2, g2), console.debug(`[UPLOADS] Part ${a}/${t} hash cached`);
     }
     const c = (a - 1) * s.provider.part_size, m2 = Math.min(
       c + s.provider.part_size,
@@ -84892,10 +84955,10 @@ async function gt2(s, e = 1) {
       ), await Promise.all(n);
       return;
     }
-    const h = o(a).finally(() => {
-      n.delete(h);
+    const h2 = o(a).finally(() => {
+      n.delete(h2);
     });
-    n.add(h), n.size >= i && await Promise.race(n);
+    n.add(h2), n.size >= i && await Promise.race(n);
   }
   await Promise.all(n), console.debug(`[UPLOADS] All chunks queued for ${s.file.name}`);
 }
@@ -84903,7 +84966,7 @@ function Ne(s, e = []) {
   if (console.debug(
     `[UPLOADS] Adding upload to manager (${s.file.name})...`
   ), K3.push(s), k.delete(s.id), s.is_direct) {
-    if (console.debug(`[UPLOADS] Upload is direct (${s.file.name})`), d2(s, {
+    if (console.debug(`[UPLOADS] Upload is direct (${s.file.name})`), d(s, {
       status: u3.auto_start ? "UPLOADING" : "PAUSED",
       completed: [],
       pending_complete: [],
@@ -84912,7 +84975,7 @@ function Ne(s, e = []) {
     }), !u3.auto_start)
       return;
     if (_2 >= u3.simultaneous) {
-      x.push(s), d2(s, { status: "PAUSED" });
+      x.push(s), d(s, { status: "PAUSED" });
       return;
     }
     _2++, Q2(s);
@@ -84920,7 +84983,7 @@ function Ne(s, e = []) {
   }
   console.debug(`[UPLOADS] Upload is chunked (${s.file.name})`);
   const t = mt(s.file, s.provider.part_size), r = [...e].sort((o, a) => o - a), i = Math.round(r.length / t * 100);
-  if (d2(s, {
+  if (d(s, {
     status: u3.auto_start ? "UPLOADING" : "PAUSED",
     completed: r,
     pending_complete: [],
@@ -84929,7 +84992,7 @@ function Ne(s, e = []) {
   }), !u3.auto_start)
     return;
   if (console.debug(`[UPLOADS] Staring upload (${s.file.name})...`), _2 >= u3.simultaneous) {
-    x.push(s), d2(s, { status: "PAUSED" });
+    x.push(s), d(s, { status: "PAUSED" });
     return;
   }
   _2++, console.debug(
@@ -84937,7 +85000,7 @@ function Ne(s, e = []) {
   );
   const n = r.length > 0 ? Math.max(...r) + 1 : 1;
   gt2(s, n).catch((o) => {
-    console.error("[UPLOADS] Failed to queue chunks:", o), E2(s.id), d2(s, { status: "FAILED" }), _2--;
+    console.error("[UPLOADS] Failed to queue chunks:", o), E2(s.id), d(s, { status: "FAILED" }), _2--;
   });
 }
 function Z2(s) {
@@ -84945,7 +85008,7 @@ function Z2(s) {
 }
 function Fe2(s) {
   const e = Z2(s);
-  e && (k.add(s), w = w.filter((t) => t.upload_id !== s), d2(e, { status: "PAUSED" }));
+  e && (k.add(s), w = w.filter((t) => t.upload_id !== s), d(e, { status: "PAUSED" }));
 }
 function He2(s) {
   const e = Z2(s);
@@ -84959,7 +85022,7 @@ function He2(s) {
     else {
       const t = e.state.getValue(), r = t.completed.length > 0 ? Math.max(...t.completed) + 1 : 1;
       gt2(e, r).catch((i) => {
-        console.error("[UPLOADS] Failed to queue chunks:", i), E2(e.id), d2(e, { status: "FAILED" }), _2--;
+        console.error("[UPLOADS] Failed to queue chunks:", i), E2(e.id), d(e, { status: "FAILED" }), _2--;
       });
     }
   }
@@ -84977,7 +85040,7 @@ function tr(s = {}) {
     simultaneous: n = 2,
     parallel: o = 3,
     retries: a = 3,
-    auto_start: h = true,
+    auto_start: h2 = true,
     auto_remove: c = false,
     remove_after_ms: m2 = -1
   } = s;
@@ -84985,7 +85048,7 @@ function tr(s = {}) {
     simultaneous: n,
     parallel: o,
     retries: a,
-    auto_start: h,
+    auto_start: h2,
     auto_remove: c,
     remove_after_ms: m2
   }), Le(r, i);
@@ -85044,6 +85107,7 @@ var UploadsService = class _UploadsService extends AsyncHandler {
       )
     );
     this.upload_list = this._upload_list.asReadonly();
+    this._token_refresh = null;
     if (localStorage) {
       this._upload_list.set(JSON.parse(localStorage.getItem("BACKOFFICE.uploads") || "[]"));
     }
@@ -85156,15 +85220,18 @@ var UploadsService = class _UploadsService extends AsyncHandler {
   _initUploads() {
     tr({
       auto_start: true,
-      token: V2(),
+      token: X2(),
       endpoint: "/api/engine/v2/uploads",
       worker_url: "assets/md5_worker.js"
     });
   }
-  async _updateUploadToken() {
-    if (!V2(false))
-      await wt();
-    this._initUploads();
+  _updateUploadToken() {
+    this._token_refresh ||= (async () => {
+      if (!X2(false))
+        await wt();
+      this._initUploads();
+    })().finally(() => this._token_refresh = null);
+    return this._token_refresh;
   }
   /**
    * Upload the given file to the cloud
@@ -85184,9 +85251,9 @@ var UploadsService = class _UploadsService extends AsyncHandler {
         size: file.size,
         upload
       };
-      upload.state.subscribe((state2) => {
+      let retried = false;
+      upload.state.subscribe(async (state2) => {
         upload_details.upload_id = upload.id;
-        console.log("Upload:", state2, upload);
         if (upload.access_url || state2.progress >= 100) {
           const local_url = `${location.origin}/api/engine/v2/uploads/${encodeURIComponent(upload_details.upload_id || upload.id)}/url`;
           upload_details.link = local_url;
@@ -85194,6 +85261,12 @@ var UploadsService = class _UploadsService extends AsyncHandler {
         upload_details.progress = state2.progress;
         observer.next(upload_details);
         if (state2.status === "FAILED") {
+          if (!retried) {
+            retried = true;
+            await this._updateUploadToken();
+            upload.resume();
+            return;
+          }
           observer.error(__spreadProps(__spreadValues({}, upload_details), {
             error: state2.error || "Error"
           }));
@@ -85320,6 +85393,7 @@ var Booking = class {
     this.images = data.images || [];
     this.all_day = !!data.all_day || custom_all_day || this.duration >= 24 * 60;
     this.induction = data.induction || void 0;
+    this.created_at = data.created_at || Date.now();
     if (this.all_day) {
       if (!data.duration && !data.date_end && !data.booking_end) {
         this.date = startOfDayInTimezone(this.date, this.timezone);
@@ -85374,6 +85448,7 @@ var Booking = class {
     data.zones = data.zones.filter((_3) => _3);
     delete data.date;
     delete data.duration;
+    delete data.created_at;
     delete data.process_state;
     removeEmptyFields(data);
     return data;
@@ -85459,7 +85534,7 @@ var Desk = class {
     for (const key of IGNORE_KEYS) {
       delete data[key];
     }
-    Ys(data, [void 0, null, []]);
+    Vs(data, [void 0, null, []]);
     return data;
   }
 };
@@ -92047,7 +92122,7 @@ var SettingsToggleComponent = class _SettingsToggleComponent {
         useExisting: forwardRef(() => _SettingsToggleComponent),
         multi: true
       }
-    ])], ngContentSelectors: _c014, decls: 9, vars: 8, consts: [["matRipple", "", 1, "hover:bg-base-200", "relative", "flex", "flex-1", "items-center", "space-x-2", "overflow-hidden", "rounded-sm", "border", "py-1", "pr-1", "pl-2", 3, "click"], [1, "z-10", "flex", "flex-1", "items-center", "space-x-2", "p-2", "text-left"], [1, "w-full"], [3, "matTooltip"], [1, "bg-info", "absolute", "inset-0", "z-0", "m-0!", "opacity-10"], [1, "px-2"], [1, "pointer-events-none", 3, "ngModel"], ["toggle", "", 1, "border-base-400", "relative", "h-8", "w-12", "rounded-full", "border-2"], [1, "absolute", "top-1/2", "flex", "h-6", "w-6", "-translate-x-0.5", "-translate-y-1/2", "items-center", "justify-center", "rounded-full", "text-black", "shadow-sm"], [1, "pointer-events-none", 3, "ngModelChange", "ngModel"]], template: function SettingsToggleComponent_Template(rf, ctx) {
+    ])], ngContentSelectors: _c014, decls: 9, vars: 8, consts: [["type", "button", "matRipple", "", 1, "hover:bg-base-200", "relative", "flex", "flex-1", "items-center", "space-x-2", "overflow-hidden", "rounded-sm", "border", "py-1", "pr-1", "pl-2", 3, "click"], [1, "z-10", "flex", "flex-1", "items-center", "space-x-2", "p-2", "text-left"], [1, "w-full"], [3, "matTooltip"], [1, "bg-info", "absolute", "inset-0", "z-0", "m-0!", "opacity-10"], [1, "px-2"], [1, "pointer-events-none", 3, "ngModel"], ["toggle", "", 1, "border-base-400", "relative", "h-8", "w-12", "rounded-full", "border-2"], [1, "absolute", "top-1/2", "flex", "h-6", "w-6", "-translate-x-0.5", "-translate-y-1/2", "items-center", "justify-center", "rounded-full", "text-black", "shadow-sm"], [1, "pointer-events-none", 3, "ngModelChange", "ngModel"]], template: function SettingsToggleComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275projectionDef();
         \u0275\u0275elementStart(0, "button", 0);
@@ -92083,6 +92158,7 @@ var SettingsToggleComponent = class _SettingsToggleComponent {
     type: Component,
     args: [{ selector: "settings-toggle", template: `
         <button
+            type="button"
             matRipple
             class="hover:bg-base-200 relative flex flex-1 items-center space-x-2 overflow-hidden rounded-sm border py-1 pr-1 pl-2"
             [class.border-base-300]="!value()"
@@ -92139,7 +92215,7 @@ var SettingsToggleComponent = class _SettingsToggleComponent {
   }], null, { toggle: [{ type: Input, args: [{ isSignal: true, alias: "toggle", required: false }] }], label: [{ type: Input, args: [{ isSignal: true, alias: "label", required: false }] }], info: [{ type: Input, args: [{ isSignal: true, alias: "info", required: false }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SettingsToggleComponent, { className: "SettingsToggleComponent", filePath: "libs/components/src/lib/settings-toggle.component.ts", lineNumber: 84 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SettingsToggleComponent, { className: "SettingsToggleComponent", filePath: "libs/components/src/lib/settings-toggle.component.ts", lineNumber: 85 });
 })();
 
 // libs/components/src/lib/translate.pipe.ts
@@ -92229,11 +92305,11 @@ async function storeSessionCachedResponse(source, response) {
   }
 }
 function setAuthCookie(cookie_path) {
-  const tkn = V2();
+  const tkn = X2();
   document.cookie = `${tkn === "x-api-key" ? "api-key=" + encodeURIComponent(Ye()) : "bearer_token=" + encodeURIComponent(tkn)};max-age=30;path=${cookie_path};samesite=strict;${location.protocol === "https:" ? "secure;" : ""}`;
 }
 function authHeaders() {
-  const tkn = V2();
+  const tkn = X2();
   return tkn === "x-api-key" ? { "X-API-Key": Ye() } : { Authorization: `Bearer ${tkn}` };
 }
 async function responseToObjectUrl(source, response) {
@@ -92550,8 +92626,8 @@ var BooleanOrLogic = class extends AbstractLogic {
     return false;
   }
   compute(arg) {
-    return this.fns.some((f2) => {
-      const result = f2(arg);
+    return this.fns.some((f3) => {
+      const result = f3(arg);
       return result && result !== IGNORED;
     });
   }
@@ -92569,8 +92645,8 @@ var ArrayMergeIgnoreLogic = class _ArrayMergeIgnoreLogic extends AbstractLogic {
     return [];
   }
   compute(arg) {
-    return this.fns.reduce((prev, f2) => {
-      const value = f2(arg);
+    return this.fns.reduce((prev, f3) => {
+      const value = f3(arg);
       if (value === void 0 || value === IGNORED) {
         return prev;
       } else if (isArray3(value)) {
@@ -95337,7 +95413,7 @@ var SpacePipe = class _SpacePipe {
     if (ATTEMPT_COUNT[space_id])
       return EMPTY_SPACE;
     if (!is_email) {
-      const system = await sa(space_id).catch((_3) => null);
+      const system = await oa(space_id).catch((_3) => null);
       if (system) {
         space = new Space(__spreadProps(__spreadValues({}, system), {
           level: this.org?.levelWithID([...system.zones])
@@ -95346,7 +95422,7 @@ var SpacePipe = class _SpacePipe {
         return space;
       }
     }
-    const systems = (await na({
+    const systems = (await ra({
       in: space_id
     })).data;
     if (systems.length === 1) {
@@ -95389,7 +95465,7 @@ function requestSpacesForZone(id) {
     return of([]);
   if (SPACE_LIST_REQUESTS[id])
     return SPACE_LIST_REQUESTS[id];
-  SPACE_LIST_REQUESTS[id] = from(ta({
+  SPACE_LIST_REQUESTS[id] = from(ia({
     zone_id: id,
     limit: 500,
     signage: false
@@ -95978,1279 +96054,6 @@ var CustomTooltipComponent = class _CustomTooltipComponent extends AsyncHandler 
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CustomTooltipComponent, { className: "CustomTooltipComponent", filePath: "libs/components/src/lib/custom-tooltip.component.ts", lineNumber: 64 });
 })();
 
-// node_modules/@angular/material/fesm2022/progress-bar.mjs
-function MatProgressBar_Conditional_2_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275domElement(0, "div", 2);
-  }
-}
-var MAT_PROGRESS_BAR_DEFAULT_OPTIONS = new InjectionToken("MAT_PROGRESS_BAR_DEFAULT_OPTIONS");
-var MAT_PROGRESS_BAR_LOCATION = new InjectionToken("mat-progress-bar-location", {
-  providedIn: "root",
-  factory: () => {
-    const _document2 = inject2(DOCUMENT);
-    const _location = _document2 ? _document2.location : null;
-    return {
-      getPathname: () => _location ? _location.pathname + _location.search : ""
-    };
-  }
-});
-var MatProgressBar = class _MatProgressBar {
-  _elementRef = inject2(ElementRef);
-  _ngZone = inject2(NgZone);
-  _changeDetectorRef = inject2(ChangeDetectorRef);
-  _renderer = inject2(Renderer2);
-  _cleanupTransitionEnd;
-  constructor() {
-    const animationsState = _getAnimationsState();
-    const defaults2 = inject2(MAT_PROGRESS_BAR_DEFAULT_OPTIONS, {
-      optional: true
-    });
-    this._isNoopAnimation = animationsState === "di-disabled";
-    if (animationsState === "reduced-motion") {
-      this._elementRef.nativeElement.classList.add("mat-progress-bar-reduced-motion");
-    }
-    if (defaults2) {
-      if (defaults2.color) {
-        this.color = this._defaultColor = defaults2.color;
-      }
-      this.mode = defaults2.mode || this.mode;
-    }
-  }
-  _isNoopAnimation;
-  get color() {
-    return this._color || this._defaultColor;
-  }
-  set color(value) {
-    this._color = value;
-  }
-  _color;
-  _defaultColor = "primary";
-  get value() {
-    return this._value;
-  }
-  set value(v) {
-    this._value = clamp(v || 0);
-    this._changeDetectorRef.markForCheck();
-  }
-  _value = 0;
-  get bufferValue() {
-    return this._bufferValue || 0;
-  }
-  set bufferValue(v) {
-    this._bufferValue = clamp(v || 0);
-    this._changeDetectorRef.markForCheck();
-  }
-  _bufferValue = 0;
-  animationEnd = new EventEmitter();
-  get mode() {
-    return this._mode;
-  }
-  set mode(value) {
-    this._mode = value;
-    this._changeDetectorRef.markForCheck();
-  }
-  _mode = "determinate";
-  ngAfterViewInit() {
-    this._ngZone.runOutsideAngular(() => {
-      this._cleanupTransitionEnd = this._renderer.listen(this._elementRef.nativeElement, "transitionend", this._transitionendHandler);
-    });
-  }
-  ngOnDestroy() {
-    this._cleanupTransitionEnd?.();
-  }
-  _getPrimaryBarTransform() {
-    return `scaleX(${this._isIndeterminate() ? 1 : this.value / 100})`;
-  }
-  _getBufferBarFlexBasis() {
-    return `${this.mode === "buffer" ? this.bufferValue : 100}%`;
-  }
-  _isIndeterminate() {
-    return this.mode === "indeterminate" || this.mode === "query";
-  }
-  _transitionendHandler = (event) => {
-    if (this.animationEnd.observers.length === 0 || !event.target || !event.target.classList.contains("mdc-linear-progress__primary-bar")) {
-      return;
-    }
-    if (this.mode === "determinate" || this.mode === "buffer") {
-      this._ngZone.run(() => this.animationEnd.next({
-        value: this.value
-      }));
-    }
-  };
-  static \u0275fac = function MatProgressBar_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _MatProgressBar)();
-  };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
-    type: _MatProgressBar,
-    selectors: [["mat-progress-bar"]],
-    hostAttrs: ["role", "progressbar", "aria-valuemin", "0", "aria-valuemax", "100", "tabindex", "-1", 1, "mat-mdc-progress-bar", "mdc-linear-progress"],
-    hostVars: 10,
-    hostBindings: function MatProgressBar_HostBindings(rf, ctx) {
-      if (rf & 2) {
-        \u0275\u0275attribute("aria-valuenow", ctx._isIndeterminate() ? null : ctx.value)("mode", ctx.mode);
-        \u0275\u0275classMap("mat-" + ctx.color);
-        \u0275\u0275classProp("_mat-animation-noopable", ctx._isNoopAnimation)("mdc-linear-progress--animation-ready", !ctx._isNoopAnimation)("mdc-linear-progress--indeterminate", ctx._isIndeterminate());
-      }
-    },
-    inputs: {
-      color: "color",
-      value: [2, "value", "value", numberAttribute],
-      bufferValue: [2, "bufferValue", "bufferValue", numberAttribute],
-      mode: "mode"
-    },
-    outputs: {
-      animationEnd: "animationEnd"
-    },
-    exportAs: ["matProgressBar"],
-    decls: 7,
-    vars: 5,
-    consts: [["aria-hidden", "true", 1, "mdc-linear-progress__buffer"], [1, "mdc-linear-progress__buffer-bar"], [1, "mdc-linear-progress__buffer-dots"], ["aria-hidden", "true", 1, "mdc-linear-progress__bar", "mdc-linear-progress__primary-bar"], [1, "mdc-linear-progress__bar-inner"], ["aria-hidden", "true", 1, "mdc-linear-progress__bar", "mdc-linear-progress__secondary-bar"]],
-    template: function MatProgressBar_Template(rf, ctx) {
-      if (rf & 1) {
-        \u0275\u0275domElementStart(0, "div", 0);
-        \u0275\u0275domElement(1, "div", 1);
-        \u0275\u0275conditionalCreate(2, MatProgressBar_Conditional_2_Template, 1, 0, "div", 2);
-        \u0275\u0275domElementEnd();
-        \u0275\u0275domElementStart(3, "div", 3);
-        \u0275\u0275domElement(4, "span", 4);
-        \u0275\u0275domElementEnd();
-        \u0275\u0275domElementStart(5, "div", 5);
-        \u0275\u0275domElement(6, "span", 4);
-        \u0275\u0275domElementEnd();
-      }
-      if (rf & 2) {
-        \u0275\u0275advance();
-        \u0275\u0275styleProp("flex-basis", ctx._getBufferBarFlexBasis());
-        \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.mode === "buffer" ? 2 : -1);
-        \u0275\u0275advance();
-        \u0275\u0275styleProp("transform", ctx._getPrimaryBarTransform());
-      }
-    },
-    styles: [".mat-mdc-progress-bar {\n  --mat-progress-bar-animation-multiplier: 1;\n  display: block;\n  text-align: start;\n}\n.mat-mdc-progress-bar[mode=query] {\n  transform: scaleX(-1);\n}\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__buffer-dots,\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__primary-bar,\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__secondary-bar,\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__bar-inner.mdc-linear-progress__bar-inner {\n  animation: none;\n}\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__primary-bar,\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__buffer-bar {\n  transition: transform 1ms;\n}\n\n.mat-progress-bar-reduced-motion {\n  --mat-progress-bar-animation-multiplier: 2;\n}\n\n.mdc-linear-progress {\n  position: relative;\n  width: 100%;\n  transform: translateZ(0);\n  outline: 1px solid transparent;\n  overflow-x: hidden;\n  transition: opacity 250ms 0ms cubic-bezier(0.4, 0, 0.6, 1);\n  height: max(var(--mat-progress-bar-track-height, 4px), var(--mat-progress-bar-active-indicator-height, 4px));\n}\n@media (forced-colors: active) {\n  .mdc-linear-progress {\n    outline-color: CanvasText;\n  }\n}\n\n.mdc-linear-progress__bar {\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  margin: auto 0;\n  width: 100%;\n  animation: none;\n  transform-origin: top left;\n  transition: transform 250ms 0ms cubic-bezier(0.4, 0, 0.6, 1);\n  height: var(--mat-progress-bar-active-indicator-height, 4px);\n}\n.mdc-linear-progress--indeterminate .mdc-linear-progress__bar {\n  transition: none;\n}\n[dir=rtl] .mdc-linear-progress__bar {\n  right: 0;\n  transform-origin: center right;\n}\n\n.mdc-linear-progress__bar-inner {\n  display: inline-block;\n  position: absolute;\n  width: 100%;\n  animation: none;\n  border-top-style: solid;\n  border-color: var(--mat-progress-bar-active-indicator-color, var(--mat-sys-primary));\n  border-top-width: var(--mat-progress-bar-active-indicator-height, 4px);\n}\n\n.mdc-linear-progress__buffer {\n  display: flex;\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  margin: auto 0;\n  width: 100%;\n  overflow: hidden;\n  height: var(--mat-progress-bar-track-height, 4px);\n  border-radius: var(--mat-progress-bar-track-shape, var(--mat-sys-corner-none));\n}\n\n.mdc-linear-progress__buffer-dots {\n  background-image: radial-gradient(circle, var(--mat-progress-bar-track-color, var(--mat-sys-surface-variant)) calc(var(--mat-progress-bar-track-height, 4px) / 2), transparent 0);\n  background-repeat: repeat-x;\n  background-size: calc(calc(var(--mat-progress-bar-track-height, 4px) / 2) * 5);\n  background-position: left;\n  flex: auto;\n  transform: rotate(180deg);\n  animation: mdc-linear-progress-buffering calc(250ms * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n@media (forced-colors: active) {\n  .mdc-linear-progress__buffer-dots {\n    background-color: ButtonBorder;\n  }\n}\n[dir=rtl] .mdc-linear-progress__buffer-dots {\n  animation: mdc-linear-progress-buffering-reverse calc(250ms * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n  transform: rotate(0);\n}\n\n.mdc-linear-progress__buffer-bar {\n  flex: 0 1 100%;\n  transition: flex-basis 250ms 0ms cubic-bezier(0.4, 0, 0.6, 1);\n  background-color: var(--mat-progress-bar-track-color, var(--mat-sys-surface-variant));\n}\n\n.mdc-linear-progress__primary-bar {\n  transform: scaleX(0);\n}\n.mdc-linear-progress--indeterminate .mdc-linear-progress__primary-bar {\n  left: -145.166611%;\n}\n.mdc-linear-progress--indeterminate.mdc-linear-progress--animation-ready .mdc-linear-progress__primary-bar {\n  animation: mdc-linear-progress-primary-indeterminate-translate calc(2s * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n.mdc-linear-progress--indeterminate.mdc-linear-progress--animation-ready .mdc-linear-progress__primary-bar > .mdc-linear-progress__bar-inner {\n  animation: mdc-linear-progress-primary-indeterminate-scale calc(2s * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n[dir=rtl] .mdc-linear-progress.mdc-linear-progress--animation-ready .mdc-linear-progress__primary-bar {\n  animation-name: mdc-linear-progress-primary-indeterminate-translate-reverse;\n}\n[dir=rtl] .mdc-linear-progress.mdc-linear-progress--indeterminate .mdc-linear-progress__primary-bar {\n  right: -145.166611%;\n  left: auto;\n}\n\n.mdc-linear-progress__secondary-bar {\n  display: none;\n}\n.mdc-linear-progress--indeterminate .mdc-linear-progress__secondary-bar {\n  left: -54.888891%;\n  display: block;\n}\n.mdc-linear-progress--indeterminate.mdc-linear-progress--animation-ready .mdc-linear-progress__secondary-bar {\n  animation: mdc-linear-progress-secondary-indeterminate-translate calc(2s * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n.mdc-linear-progress--indeterminate.mdc-linear-progress--animation-ready .mdc-linear-progress__secondary-bar > .mdc-linear-progress__bar-inner {\n  animation: mdc-linear-progress-secondary-indeterminate-scale calc(2s * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n[dir=rtl] .mdc-linear-progress.mdc-linear-progress--animation-ready .mdc-linear-progress__secondary-bar {\n  animation-name: mdc-linear-progress-secondary-indeterminate-translate-reverse;\n}\n[dir=rtl] .mdc-linear-progress.mdc-linear-progress--indeterminate .mdc-linear-progress__secondary-bar {\n  right: -54.888891%;\n  left: auto;\n}\n\n@keyframes mdc-linear-progress-buffering {\n  from {\n    transform: rotate(180deg) translateX(calc(var(--mat-progress-bar-track-height, 4px) * -2.5));\n  }\n}\n@keyframes mdc-linear-progress-primary-indeterminate-translate {\n  0% {\n    transform: translateX(0);\n  }\n  20% {\n    animation-timing-function: cubic-bezier(0.5, 0, 0.701732, 0.495819);\n    transform: translateX(0);\n  }\n  59.15% {\n    animation-timing-function: cubic-bezier(0.302435, 0.381352, 0.55, 0.956352);\n    transform: translateX(83.67142%);\n  }\n  100% {\n    transform: translateX(200.611057%);\n  }\n}\n@keyframes mdc-linear-progress-primary-indeterminate-scale {\n  0% {\n    transform: scaleX(0.08);\n  }\n  36.65% {\n    animation-timing-function: cubic-bezier(0.334731, 0.12482, 0.785844, 1);\n    transform: scaleX(0.08);\n  }\n  69.15% {\n    animation-timing-function: cubic-bezier(0.06, 0.11, 0.6, 1);\n    transform: scaleX(0.661479);\n  }\n  100% {\n    transform: scaleX(0.08);\n  }\n}\n@keyframes mdc-linear-progress-secondary-indeterminate-translate {\n  0% {\n    animation-timing-function: cubic-bezier(0.15, 0, 0.515058, 0.409685);\n    transform: translateX(0);\n  }\n  25% {\n    animation-timing-function: cubic-bezier(0.31033, 0.284058, 0.8, 0.733712);\n    transform: translateX(37.651913%);\n  }\n  48.35% {\n    animation-timing-function: cubic-bezier(0.4, 0.627035, 0.6, 0.902026);\n    transform: translateX(84.386165%);\n  }\n  100% {\n    transform: translateX(160.277782%);\n  }\n}\n@keyframes mdc-linear-progress-secondary-indeterminate-scale {\n  0% {\n    animation-timing-function: cubic-bezier(0.205028, 0.057051, 0.57661, 0.453971);\n    transform: scaleX(0.08);\n  }\n  19.15% {\n    animation-timing-function: cubic-bezier(0.152313, 0.196432, 0.648374, 1.004315);\n    transform: scaleX(0.457104);\n  }\n  44.15% {\n    animation-timing-function: cubic-bezier(0.257759, -0.003163, 0.211762, 1.38179);\n    transform: scaleX(0.72796);\n  }\n  100% {\n    transform: scaleX(0.08);\n  }\n}\n@keyframes mdc-linear-progress-primary-indeterminate-translate-reverse {\n  0% {\n    transform: translateX(0);\n  }\n  20% {\n    animation-timing-function: cubic-bezier(0.5, 0, 0.701732, 0.495819);\n    transform: translateX(0);\n  }\n  59.15% {\n    animation-timing-function: cubic-bezier(0.302435, 0.381352, 0.55, 0.956352);\n    transform: translateX(-83.67142%);\n  }\n  100% {\n    transform: translateX(-200.611057%);\n  }\n}\n@keyframes mdc-linear-progress-secondary-indeterminate-translate-reverse {\n  0% {\n    animation-timing-function: cubic-bezier(0.15, 0, 0.515058, 0.409685);\n    transform: translateX(0);\n  }\n  25% {\n    animation-timing-function: cubic-bezier(0.31033, 0.284058, 0.8, 0.733712);\n    transform: translateX(-37.651913%);\n  }\n  48.35% {\n    animation-timing-function: cubic-bezier(0.4, 0.627035, 0.6, 0.902026);\n    transform: translateX(-84.386165%);\n  }\n  100% {\n    transform: translateX(-160.277782%);\n  }\n}\n@keyframes mdc-linear-progress-buffering-reverse {\n  from {\n    transform: translateX(-10px);\n  }\n}\n"],
-    encapsulation: 2
-  });
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatProgressBar, [{
-    type: Component,
-    args: [{
-      selector: "mat-progress-bar",
-      exportAs: "matProgressBar",
-      host: {
-        "role": "progressbar",
-        "aria-valuemin": "0",
-        "aria-valuemax": "100",
-        "tabindex": "-1",
-        "[attr.aria-valuenow]": "_isIndeterminate() ? null : value",
-        "[attr.mode]": "mode",
-        "class": "mat-mdc-progress-bar mdc-linear-progress",
-        "[class]": '"mat-" + color',
-        "[class._mat-animation-noopable]": "_isNoopAnimation",
-        "[class.mdc-linear-progress--animation-ready]": "!_isNoopAnimation",
-        "[class.mdc-linear-progress--indeterminate]": "_isIndeterminate()"
-      },
-      encapsulation: ViewEncapsulation.None,
-      template: `<!--
-  All children need to be hidden for screen readers in order to support ChromeVox.
-  More context in the issue: https://github.com/angular/components/issues/22165.
--->
-<div class="mdc-linear-progress__buffer" aria-hidden="true">
-  <div
-    class="mdc-linear-progress__buffer-bar"
-    [style.flex-basis]="_getBufferBarFlexBasis()"></div>
-  <!-- Remove the dots outside of buffer mode since they can cause CSP issues (see #28938) -->
-  @if (mode === 'buffer') {
-    <div class="mdc-linear-progress__buffer-dots"></div>
-  }
-</div>
-<div
-  class="mdc-linear-progress__bar mdc-linear-progress__primary-bar"
-  aria-hidden="true"
-  [style.transform]="_getPrimaryBarTransform()">
-  <span class="mdc-linear-progress__bar-inner"></span>
-</div>
-<div class="mdc-linear-progress__bar mdc-linear-progress__secondary-bar" aria-hidden="true">
-  <span class="mdc-linear-progress__bar-inner"></span>
-</div>
-`,
-      styles: [".mat-mdc-progress-bar {\n  --mat-progress-bar-animation-multiplier: 1;\n  display: block;\n  text-align: start;\n}\n.mat-mdc-progress-bar[mode=query] {\n  transform: scaleX(-1);\n}\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__buffer-dots,\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__primary-bar,\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__secondary-bar,\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__bar-inner.mdc-linear-progress__bar-inner {\n  animation: none;\n}\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__primary-bar,\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__buffer-bar {\n  transition: transform 1ms;\n}\n\n.mat-progress-bar-reduced-motion {\n  --mat-progress-bar-animation-multiplier: 2;\n}\n\n.mdc-linear-progress {\n  position: relative;\n  width: 100%;\n  transform: translateZ(0);\n  outline: 1px solid transparent;\n  overflow-x: hidden;\n  transition: opacity 250ms 0ms cubic-bezier(0.4, 0, 0.6, 1);\n  height: max(var(--mat-progress-bar-track-height, 4px), var(--mat-progress-bar-active-indicator-height, 4px));\n}\n@media (forced-colors: active) {\n  .mdc-linear-progress {\n    outline-color: CanvasText;\n  }\n}\n\n.mdc-linear-progress__bar {\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  margin: auto 0;\n  width: 100%;\n  animation: none;\n  transform-origin: top left;\n  transition: transform 250ms 0ms cubic-bezier(0.4, 0, 0.6, 1);\n  height: var(--mat-progress-bar-active-indicator-height, 4px);\n}\n.mdc-linear-progress--indeterminate .mdc-linear-progress__bar {\n  transition: none;\n}\n[dir=rtl] .mdc-linear-progress__bar {\n  right: 0;\n  transform-origin: center right;\n}\n\n.mdc-linear-progress__bar-inner {\n  display: inline-block;\n  position: absolute;\n  width: 100%;\n  animation: none;\n  border-top-style: solid;\n  border-color: var(--mat-progress-bar-active-indicator-color, var(--mat-sys-primary));\n  border-top-width: var(--mat-progress-bar-active-indicator-height, 4px);\n}\n\n.mdc-linear-progress__buffer {\n  display: flex;\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  margin: auto 0;\n  width: 100%;\n  overflow: hidden;\n  height: var(--mat-progress-bar-track-height, 4px);\n  border-radius: var(--mat-progress-bar-track-shape, var(--mat-sys-corner-none));\n}\n\n.mdc-linear-progress__buffer-dots {\n  background-image: radial-gradient(circle, var(--mat-progress-bar-track-color, var(--mat-sys-surface-variant)) calc(var(--mat-progress-bar-track-height, 4px) / 2), transparent 0);\n  background-repeat: repeat-x;\n  background-size: calc(calc(var(--mat-progress-bar-track-height, 4px) / 2) * 5);\n  background-position: left;\n  flex: auto;\n  transform: rotate(180deg);\n  animation: mdc-linear-progress-buffering calc(250ms * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n@media (forced-colors: active) {\n  .mdc-linear-progress__buffer-dots {\n    background-color: ButtonBorder;\n  }\n}\n[dir=rtl] .mdc-linear-progress__buffer-dots {\n  animation: mdc-linear-progress-buffering-reverse calc(250ms * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n  transform: rotate(0);\n}\n\n.mdc-linear-progress__buffer-bar {\n  flex: 0 1 100%;\n  transition: flex-basis 250ms 0ms cubic-bezier(0.4, 0, 0.6, 1);\n  background-color: var(--mat-progress-bar-track-color, var(--mat-sys-surface-variant));\n}\n\n.mdc-linear-progress__primary-bar {\n  transform: scaleX(0);\n}\n.mdc-linear-progress--indeterminate .mdc-linear-progress__primary-bar {\n  left: -145.166611%;\n}\n.mdc-linear-progress--indeterminate.mdc-linear-progress--animation-ready .mdc-linear-progress__primary-bar {\n  animation: mdc-linear-progress-primary-indeterminate-translate calc(2s * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n.mdc-linear-progress--indeterminate.mdc-linear-progress--animation-ready .mdc-linear-progress__primary-bar > .mdc-linear-progress__bar-inner {\n  animation: mdc-linear-progress-primary-indeterminate-scale calc(2s * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n[dir=rtl] .mdc-linear-progress.mdc-linear-progress--animation-ready .mdc-linear-progress__primary-bar {\n  animation-name: mdc-linear-progress-primary-indeterminate-translate-reverse;\n}\n[dir=rtl] .mdc-linear-progress.mdc-linear-progress--indeterminate .mdc-linear-progress__primary-bar {\n  right: -145.166611%;\n  left: auto;\n}\n\n.mdc-linear-progress__secondary-bar {\n  display: none;\n}\n.mdc-linear-progress--indeterminate .mdc-linear-progress__secondary-bar {\n  left: -54.888891%;\n  display: block;\n}\n.mdc-linear-progress--indeterminate.mdc-linear-progress--animation-ready .mdc-linear-progress__secondary-bar {\n  animation: mdc-linear-progress-secondary-indeterminate-translate calc(2s * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n.mdc-linear-progress--indeterminate.mdc-linear-progress--animation-ready .mdc-linear-progress__secondary-bar > .mdc-linear-progress__bar-inner {\n  animation: mdc-linear-progress-secondary-indeterminate-scale calc(2s * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n[dir=rtl] .mdc-linear-progress.mdc-linear-progress--animation-ready .mdc-linear-progress__secondary-bar {\n  animation-name: mdc-linear-progress-secondary-indeterminate-translate-reverse;\n}\n[dir=rtl] .mdc-linear-progress.mdc-linear-progress--indeterminate .mdc-linear-progress__secondary-bar {\n  right: -54.888891%;\n  left: auto;\n}\n\n@keyframes mdc-linear-progress-buffering {\n  from {\n    transform: rotate(180deg) translateX(calc(var(--mat-progress-bar-track-height, 4px) * -2.5));\n  }\n}\n@keyframes mdc-linear-progress-primary-indeterminate-translate {\n  0% {\n    transform: translateX(0);\n  }\n  20% {\n    animation-timing-function: cubic-bezier(0.5, 0, 0.701732, 0.495819);\n    transform: translateX(0);\n  }\n  59.15% {\n    animation-timing-function: cubic-bezier(0.302435, 0.381352, 0.55, 0.956352);\n    transform: translateX(83.67142%);\n  }\n  100% {\n    transform: translateX(200.611057%);\n  }\n}\n@keyframes mdc-linear-progress-primary-indeterminate-scale {\n  0% {\n    transform: scaleX(0.08);\n  }\n  36.65% {\n    animation-timing-function: cubic-bezier(0.334731, 0.12482, 0.785844, 1);\n    transform: scaleX(0.08);\n  }\n  69.15% {\n    animation-timing-function: cubic-bezier(0.06, 0.11, 0.6, 1);\n    transform: scaleX(0.661479);\n  }\n  100% {\n    transform: scaleX(0.08);\n  }\n}\n@keyframes mdc-linear-progress-secondary-indeterminate-translate {\n  0% {\n    animation-timing-function: cubic-bezier(0.15, 0, 0.515058, 0.409685);\n    transform: translateX(0);\n  }\n  25% {\n    animation-timing-function: cubic-bezier(0.31033, 0.284058, 0.8, 0.733712);\n    transform: translateX(37.651913%);\n  }\n  48.35% {\n    animation-timing-function: cubic-bezier(0.4, 0.627035, 0.6, 0.902026);\n    transform: translateX(84.386165%);\n  }\n  100% {\n    transform: translateX(160.277782%);\n  }\n}\n@keyframes mdc-linear-progress-secondary-indeterminate-scale {\n  0% {\n    animation-timing-function: cubic-bezier(0.205028, 0.057051, 0.57661, 0.453971);\n    transform: scaleX(0.08);\n  }\n  19.15% {\n    animation-timing-function: cubic-bezier(0.152313, 0.196432, 0.648374, 1.004315);\n    transform: scaleX(0.457104);\n  }\n  44.15% {\n    animation-timing-function: cubic-bezier(0.257759, -0.003163, 0.211762, 1.38179);\n    transform: scaleX(0.72796);\n  }\n  100% {\n    transform: scaleX(0.08);\n  }\n}\n@keyframes mdc-linear-progress-primary-indeterminate-translate-reverse {\n  0% {\n    transform: translateX(0);\n  }\n  20% {\n    animation-timing-function: cubic-bezier(0.5, 0, 0.701732, 0.495819);\n    transform: translateX(0);\n  }\n  59.15% {\n    animation-timing-function: cubic-bezier(0.302435, 0.381352, 0.55, 0.956352);\n    transform: translateX(-83.67142%);\n  }\n  100% {\n    transform: translateX(-200.611057%);\n  }\n}\n@keyframes mdc-linear-progress-secondary-indeterminate-translate-reverse {\n  0% {\n    animation-timing-function: cubic-bezier(0.15, 0, 0.515058, 0.409685);\n    transform: translateX(0);\n  }\n  25% {\n    animation-timing-function: cubic-bezier(0.31033, 0.284058, 0.8, 0.733712);\n    transform: translateX(-37.651913%);\n  }\n  48.35% {\n    animation-timing-function: cubic-bezier(0.4, 0.627035, 0.6, 0.902026);\n    transform: translateX(-84.386165%);\n  }\n  100% {\n    transform: translateX(-160.277782%);\n  }\n}\n@keyframes mdc-linear-progress-buffering-reverse {\n  from {\n    transform: translateX(-10px);\n  }\n}\n"]
-    }]
-  }], () => [], {
-    color: [{
-      type: Input
-    }],
-    value: [{
-      type: Input,
-      args: [{
-        transform: numberAttribute
-      }]
-    }],
-    bufferValue: [{
-      type: Input,
-      args: [{
-        transform: numberAttribute
-      }]
-    }],
-    animationEnd: [{
-      type: Output
-    }],
-    mode: [{
-      type: Input
-    }]
-  });
-})();
-function clamp(v, min = 0, max = 100) {
-  return Math.max(min, Math.min(max, v));
-}
-var MatProgressBarModule = class _MatProgressBarModule {
-  static \u0275fac = function MatProgressBarModule_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _MatProgressBarModule)();
-  };
-  static \u0275mod = /* @__PURE__ */ \u0275\u0275defineNgModule({
-    type: _MatProgressBarModule,
-    imports: [MatProgressBar],
-    exports: [MatProgressBar, BidiModule]
-  });
-  static \u0275inj = /* @__PURE__ */ \u0275\u0275defineInjector({
-    imports: [BidiModule]
-  });
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatProgressBarModule, [{
-    type: NgModule,
-    args: [{
-      imports: [MatProgressBar],
-      exports: [MatProgressBar, BidiModule]
-    }]
-  }], null, null);
-})();
-
-// libs/components/src/lib/native-domain-overlay.component.ts
-function NativeDomainOverlayComponent_Conditional_7_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275text(0, " Enter the address of your PlaceOS server to connect this app. ");
-  }
-}
-function NativeDomainOverlayComponent_Conditional_8_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275text(0, " Enter your work email to find your PlaceOS server and connect this app. ");
-  }
-}
-function NativeDomainOverlayComponent_Conditional_9_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "p", 6);
-    \u0275\u0275text(1);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r0 = \u0275\u0275nextContext();
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", ctx_r0.error(), " ");
-  }
-}
-function NativeDomainOverlayComponent_Conditional_10_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "p", 7);
-    \u0275\u0275text(1);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r0 = \u0275\u0275nextContext();
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" Settings provided by your administrator will be applied automatically in ", ctx_r0.auto_accept_in(), "s. ");
-  }
-}
-function NativeDomainOverlayComponent_Conditional_11_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r2 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 8)(1, "label", 12);
-    \u0275\u0275text(2, "Server Address");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "mat-form-field", 13)(4, "icon", 14);
-    \u0275\u0275text(5, "dns");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(6, "input", 15);
-    \u0275\u0275twoWayListener("ngModelChange", function NativeDomainOverlayComponent_Conditional_11_Template_input_ngModelChange_6_listener($event) {
-      \u0275\u0275restoreView(_r2);
-      const ctx_r0 = \u0275\u0275nextContext();
-      \u0275\u0275twoWayBindingSet(ctx_r0.server_address, $event) || (ctx_r0.server_address = $event);
-      return \u0275\u0275resetView($event);
-    });
-    \u0275\u0275elementEnd();
-    \u0275\u0275controlCreate();
-    \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(7, "div", 8)(8, "label", 16);
-    \u0275\u0275text(9, "API Key (optional)");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(10, "mat-form-field", 13)(11, "icon", 14);
-    \u0275\u0275text(12, "key");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(13, "input", 17);
-    \u0275\u0275twoWayListener("ngModelChange", function NativeDomainOverlayComponent_Conditional_11_Template_input_ngModelChange_13_listener($event) {
-      \u0275\u0275restoreView(_r2);
-      const ctx_r0 = \u0275\u0275nextContext();
-      \u0275\u0275twoWayBindingSet(ctx_r0.api_key, $event) || (ctx_r0.api_key = $event);
-      return \u0275\u0275resetView($event);
-    });
-    \u0275\u0275elementEnd();
-    \u0275\u0275controlCreate();
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(14, "p", 18);
-    \u0275\u0275text(15, " When set, the app authenticates with this key instead of asking you to sign in. ");
-    \u0275\u0275elementEnd()();
-  }
-  if (rf & 2) {
-    const ctx_r0 = \u0275\u0275nextContext();
-    \u0275\u0275advance(6);
-    \u0275\u0275twoWayProperty("ngModel", ctx_r0.server_address);
-    \u0275\u0275property("disabled", ctx_r0.loading());
-    \u0275\u0275control();
-    \u0275\u0275advance(7);
-    \u0275\u0275twoWayProperty("ngModel", ctx_r0.api_key);
-    \u0275\u0275property("disabled", ctx_r0.loading());
-    \u0275\u0275control();
-  }
-}
-function NativeDomainOverlayComponent_Conditional_12_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r3 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 8)(1, "label", 19);
-    \u0275\u0275text(2, "Work Email");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "mat-form-field", 13)(4, "icon", 14);
-    \u0275\u0275text(5, "mail");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(6, "input", 20);
-    \u0275\u0275twoWayListener("ngModelChange", function NativeDomainOverlayComponent_Conditional_12_Template_input_ngModelChange_6_listener($event) {
-      \u0275\u0275restoreView(_r3);
-      const ctx_r0 = \u0275\u0275nextContext();
-      \u0275\u0275twoWayBindingSet(ctx_r0.email, $event) || (ctx_r0.email = $event);
-      return \u0275\u0275resetView($event);
-    });
-    \u0275\u0275elementEnd();
-    \u0275\u0275controlCreate();
-    \u0275\u0275elementEnd()();
-  }
-  if (rf & 2) {
-    const ctx_r0 = \u0275\u0275nextContext();
-    \u0275\u0275advance(6);
-    \u0275\u0275twoWayProperty("ngModel", ctx_r0.email);
-    \u0275\u0275property("disabled", ctx_r0.loading());
-    \u0275\u0275control();
-  }
-}
-function NativeDomainOverlayComponent_Conditional_14_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275text(0, " Find my server using my work email ");
-  }
-}
-function NativeDomainOverlayComponent_Conditional_15_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275text(0, " Enter a server address manually ");
-  }
-}
-var AUTO_ACCEPT_SECONDS = 15;
-var NativeDomainOverlayComponent = class _NativeDomainOverlayComponent {
-  constructor() {
-    this.serverError = input(
-      "",
-      ...ngDevMode ? [{ debugName: "serverError" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.autoAccept = input(
-      false,
-      ...ngDevMode ? [{ debugName: "autoAccept" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.domainSet = output();
-    this.email = signal(
-      getNativeEmail() ?? "",
-      ...ngDevMode ? [{ debugName: "email" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.server_address = signal(
-      getNativeDomain() ?? "",
-      ...ngDevMode ? [{ debugName: "server_address" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.api_key = signal(
-      getNativeApiKey() ?? "",
-      ...ngDevMode ? [{ debugName: "api_key" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.manual_entry = signal(
-      !!getNativeDomain(),
-      ...ngDevMode ? [{ debugName: "manual_entry" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.error = signal(
-      "",
-      ...ngDevMode ? [{ debugName: "error" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.loading = signal(
-      false,
-      ...ngDevMode ? [{ debugName: "loading" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.auto_accept_in = signal(
-      0,
-      ...ngDevMode ? [{ debugName: "auto_accept_in" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this._auto_accept_timer = null;
-    effect(() => {
-      const msg = this.serverError();
-      if (msg) {
-        this.error.set(msg);
-        untracked2(() => this.stopAutoAccept());
-      }
-    });
-    effect(() => {
-      if (this.autoAccept() && untracked2(this.server_address)) {
-        untracked2(() => this.startAutoAccept());
-      }
-    });
-  }
-  ngOnDestroy() {
-    this.stopAutoAccept();
-  }
-  /** Restart the inactivity countdown — any user activity delays it. */
-  resetAutoAccept() {
-    if (!this._auto_accept_timer)
-      return;
-    this.auto_accept_in.set(AUTO_ACCEPT_SECONDS);
-  }
-  startAutoAccept() {
-    this.auto_accept_in.set(AUTO_ACCEPT_SECONDS);
-    if (this._auto_accept_timer)
-      return;
-    this._auto_accept_timer = setInterval(() => {
-      const remaining = this.auto_accept_in() - 1;
-      this.auto_accept_in.set(remaining);
-      if (remaining > 0)
-        return;
-      this.stopAutoAccept();
-      this.submit();
-    }, 1e3);
-  }
-  stopAutoAccept() {
-    if (this._auto_accept_timer)
-      clearInterval(this._auto_accept_timer);
-    this._auto_accept_timer = null;
-    this.auto_accept_in.set(0);
-  }
-  toggleManualEntry() {
-    if (this.loading())
-      return;
-    this.manual_entry.update((manual) => !manual);
-    this.error.set("");
-  }
-  async submit() {
-    if (this.loading())
-      return;
-    this.stopAutoAccept();
-    if (this.manual_entry())
-      return this.submitManual();
-    const raw = this.email().trim();
-    if (!raw) {
-      this.error.set("A work email is required.");
-      return;
-    }
-    this.loading.set(true);
-    this.error.set("");
-    try {
-      const domain = await lookupNativeDomainByEmail(raw);
-      setNativeEmail(raw);
-      setNativeDomain(domain);
-      setNativeApiKey("");
-      this.domainSet.emit(domain);
-    } catch {
-      this.error.set("Unable to find a server for this email address.");
-    } finally {
-      this.loading.set(false);
-    }
-  }
-  submitManual() {
-    const domain = normaliseNativeDomain(this.server_address());
-    if (!domain) {
-      this.error.set("A valid server address is required.");
-      return;
-    }
-    this.error.set("");
-    setNativeDomain(domain);
-    setNativeApiKey(this.api_key());
-    this.domainSet.emit(domain);
-  }
-  static {
-    this.\u0275fac = function NativeDomainOverlayComponent_Factory(__ngFactoryType__) {
-      return new (__ngFactoryType__ || _NativeDomainOverlayComponent)();
-    };
-  }
-  static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NativeDomainOverlayComponent, selectors: [["native-domain-overlay"]], hostBindings: function NativeDomainOverlayComponent_HostBindings(rf, ctx) {
-      if (rf & 1) {
-        \u0275\u0275listener("pointerdown", function NativeDomainOverlayComponent_pointerdown_HostBindingHandler() {
-          return ctx.resetAutoAccept();
-        }, \u0275\u0275resolveWindow)("keydown", function NativeDomainOverlayComponent_keydown_HostBindingHandler() {
-          return ctx.resetAutoAccept();
-        }, \u0275\u0275resolveWindow);
-      }
-    }, inputs: { serverError: [1, "serverError"], autoAccept: [1, "autoAccept"] }, outputs: { domainSet: "domainSet" }, decls: 19, vars: 8, consts: [[1, "bg-base-200", "pointer-events-auto", "fixed", "inset-0", "z-9999", "flex", "items-center", "justify-center", "p-4"], [1, "border-base-300", "bg-base-100", "flex", "w-full", "max-w-md", "flex-col", "rounded-sm", "border", "shadow-sm", 3, "ngSubmit"], [1, "bg-base-200", "m-2", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-xl", "font-medium"], [1, "flex", "flex-col", "space-y-4", "p-4"], [1, "text-sm", "opacity-60"], [1, "bg-error/10", "text-error", "rounded-sm", "px-3", "py-2", "text-xs"], [1, "bg-info/10", "text-info", "rounded-sm", "px-3", "py-2", "text-xs"], [1, "flex", "w-full", "flex-col"], ["type", "button", 1, "self-start", "text-sm", "underline", "opacity-60", 3, "click", "disabled"], [1, "bg-base-200", "m-2", "flex", "items-center", "justify-center", "space-x-2", "rounded-sm", "border-none", "p-2"], ["btn", "", "matRipple", "", "type", "submit", 1, "flex-1", 3, "disabled"], ["for", "server-address"], ["appearance", "outline", 1, "w-full"], ["matPrefix", ""], ["matInput", "", "name", "server-address", "placeholder", "placeos.company.com", "type", "text", "autocapitalize", "off", "autocomplete", "url", "spellcheck", "false", "required", "", 3, "ngModelChange", "ngModel", "disabled"], ["for", "api-key"], ["matInput", "", "name", "api-key", "placeholder", "Leave empty to sign in", "type", "password", "autocapitalize", "off", "autocomplete", "off", "spellcheck", "false", 3, "ngModelChange", "ngModel", "disabled"], [1, "text-xs", "opacity-60"], ["for", "email"], ["matInput", "", "name", "email", "placeholder", "name@company.com", "type", "email", "autocapitalize", "off", "autocomplete", "email", "spellcheck", "false", "required", "", 3, "ngModelChange", "ngModel", "disabled"]], template: function NativeDomainOverlayComponent_Template(rf, ctx) {
-      if (rf & 1) {
-        \u0275\u0275elementStart(0, "div", 0)(1, "form", 1);
-        \u0275\u0275listener("ngSubmit", function NativeDomainOverlayComponent_Template_form_ngSubmit_1_listener() {
-          return ctx.submit();
-        });
-        \u0275\u0275elementStart(2, "header", 2)(3, "h2", 3);
-        \u0275\u0275text(4, "Connect to Server");
-        \u0275\u0275elementEnd()();
-        \u0275\u0275elementStart(5, "main", 4)(6, "p", 5);
-        \u0275\u0275conditionalCreate(7, NativeDomainOverlayComponent_Conditional_7_Template, 1, 0)(8, NativeDomainOverlayComponent_Conditional_8_Template, 1, 0);
-        \u0275\u0275elementEnd();
-        \u0275\u0275conditionalCreate(9, NativeDomainOverlayComponent_Conditional_9_Template, 2, 1, "p", 6);
-        \u0275\u0275conditionalCreate(10, NativeDomainOverlayComponent_Conditional_10_Template, 2, 1, "p", 7);
-        \u0275\u0275conditionalCreate(11, NativeDomainOverlayComponent_Conditional_11_Template, 16, 4)(12, NativeDomainOverlayComponent_Conditional_12_Template, 7, 2, "div", 8);
-        \u0275\u0275elementStart(13, "button", 9);
-        \u0275\u0275listener("click", function NativeDomainOverlayComponent_Template_button_click_13_listener() {
-          return ctx.toggleManualEntry();
-        });
-        \u0275\u0275conditionalCreate(14, NativeDomainOverlayComponent_Conditional_14_Template, 1, 0)(15, NativeDomainOverlayComponent_Conditional_15_Template, 1, 0);
-        \u0275\u0275elementEnd()();
-        \u0275\u0275elementStart(16, "footer", 10)(17, "button", 11);
-        \u0275\u0275text(18);
-        \u0275\u0275elementEnd()()()();
-      }
-      if (rf & 2) {
-        \u0275\u0275advance(7);
-        \u0275\u0275conditional(ctx.manual_entry() ? 7 : 8);
-        \u0275\u0275advance(2);
-        \u0275\u0275conditional(ctx.error() ? 9 : -1);
-        \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.auto_accept_in() > 0 ? 10 : -1);
-        \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.manual_entry() ? 11 : 12);
-        \u0275\u0275advance(2);
-        \u0275\u0275property("disabled", ctx.loading());
-        \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.manual_entry() ? 14 : 15);
-        \u0275\u0275advance(3);
-        \u0275\u0275property("disabled", ctx.loading());
-        \u0275\u0275advance();
-        \u0275\u0275textInterpolate1(" ", ctx.loading() ? "Looking up..." : "Connect", " ");
-      }
-    }, dependencies: [
-      FormsModule,
-      \u0275NgNoValidate,
-      DefaultValueAccessor,
-      NgControlStatus,
-      NgControlStatusGroup,
-      RequiredValidator,
-      NgModel,
-      NgForm,
-      IconComponent,
-      MatFormFieldModule,
-      MatFormField,
-      MatPrefix,
-      MatInputModule,
-      MatInput,
-      MatRippleModule,
-      MatRipple
-    ], encapsulation: 2 });
-  }
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(NativeDomainOverlayComponent, [{
-    type: Component,
-    args: [{
-      selector: "native-domain-overlay",
-      template: `
-        <div
-            class="bg-base-200 pointer-events-auto fixed inset-0 z-9999 flex items-center justify-center p-4"
-        >
-            <form
-                class="border-base-300 bg-base-100 flex w-full max-w-md flex-col rounded-sm border shadow-sm"
-                (ngSubmit)="submit()"
-            >
-                <header class="bg-base-200 m-2 rounded-sm border-none p-2">
-                    <h2 class="px-2 text-xl font-medium">Connect to Server</h2>
-                </header>
-                <main class="flex flex-col space-y-4 p-4">
-                    <p class="text-sm opacity-60">
-                        @if (manual_entry()) {
-                            Enter the address of your PlaceOS server to connect
-                            this app.
-                        } @else {
-                            Enter your work email to find your PlaceOS server
-                            and connect this app.
-                        }
-                    </p>
-                    @if (error()) {
-                        <p
-                            class="bg-error/10 text-error rounded-sm px-3 py-2 text-xs"
-                        >
-                            {{ error() }}
-                        </p>
-                    }
-                    @if (auto_accept_in() > 0) {
-                        <p
-                            class="bg-info/10 text-info rounded-sm px-3 py-2 text-xs"
-                        >
-                            Settings provided by your administrator will be
-                            applied automatically in {{ auto_accept_in() }}s.
-                        </p>
-                    }
-                    @if (manual_entry()) {
-                        <div class="flex w-full flex-col">
-                            <label for="server-address">Server Address</label>
-                            <mat-form-field appearance="outline" class="w-full">
-                                <icon matPrefix>dns</icon>
-                                <input
-                                    matInput
-                                    name="server-address"
-                                    [(ngModel)]="server_address"
-                                    placeholder="placeos.company.com"
-                                    type="text"
-                                    autocapitalize="off"
-                                    autocomplete="url"
-                                    spellcheck="false"
-                                    required
-                                    [disabled]="loading()"
-                                />
-                            </mat-form-field>
-                        </div>
-                        <div class="flex w-full flex-col">
-                            <label for="api-key">API Key (optional)</label>
-                            <mat-form-field appearance="outline" class="w-full">
-                                <icon matPrefix>key</icon>
-                                <input
-                                    matInput
-                                    name="api-key"
-                                    [(ngModel)]="api_key"
-                                    placeholder="Leave empty to sign in"
-                                    type="password"
-                                    autocapitalize="off"
-                                    autocomplete="off"
-                                    spellcheck="false"
-                                    [disabled]="loading()"
-                                />
-                            </mat-form-field>
-                            <p class="text-xs opacity-60">
-                                When set, the app authenticates with this key
-                                instead of asking you to sign in.
-                            </p>
-                        </div>
-                    } @else {
-                        <div class="flex w-full flex-col">
-                            <label for="email">Work Email</label>
-                            <mat-form-field appearance="outline" class="w-full">
-                                <icon matPrefix>mail</icon>
-                                <input
-                                    matInput
-                                    name="email"
-                                    [(ngModel)]="email"
-                                    placeholder="name@company.com"
-                                    type="email"
-                                    autocapitalize="off"
-                                    autocomplete="email"
-                                    spellcheck="false"
-                                    required
-                                    [disabled]="loading()"
-                                />
-                            </mat-form-field>
-                        </div>
-                    }
-                    <button
-                        type="button"
-                        class="self-start text-sm underline opacity-60"
-                        [disabled]="loading()"
-                        (click)="toggleManualEntry()"
-                    >
-                        @if (manual_entry()) {
-                            Find my server using my work email
-                        } @else {
-                            Enter a server address manually
-                        }
-                    </button>
-                </main>
-                <footer
-                    class="bg-base-200 m-2 flex items-center justify-center space-x-2 rounded-sm border-none p-2"
-                >
-                    <button
-                        btn
-                        matRipple
-                        type="submit"
-                        class="flex-1"
-                        [disabled]="loading()"
-                    >
-                        {{ loading() ? 'Looking up...' : 'Connect' }}
-                    </button>
-                </footer>
-            </form>
-        </div>
-    `,
-      imports: [
-        FormsModule,
-        IconComponent,
-        MatFormFieldModule,
-        MatInputModule,
-        MatRippleModule
-      ],
-      host: {
-        "(window:pointerdown)": "resetAutoAccept()",
-        "(window:keydown)": "resetAutoAccept()"
-      }
-    }]
-  }], () => [], { serverError: [{ type: Input, args: [{ isSignal: true, alias: "serverError", required: false }] }], autoAccept: [{ type: Input, args: [{ isSignal: true, alias: "autoAccept", required: false }] }], domainSet: [{ type: Output, args: ["domainSet"] }] });
-})();
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NativeDomainOverlayComponent, { className: "NativeDomainOverlayComponent", filePath: "libs/components/src/lib/native-domain-overlay.component.ts", lineNumber: 169 });
-})();
-
-// libs/components/src/lib/service-worker-update-card.component.ts
-function ServiceWorkerUpdateCardComponent_Conditional_0_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "aside", 0)(1, "div", 1)(2, "h2", 2);
-    \u0275\u0275text(3);
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "p", 3);
-    \u0275\u0275text(5);
-    \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(6, "button", 4);
-    \u0275\u0275listener("click", function ServiceWorkerUpdateCardComponent_Conditional_0_Template_button_click_6_listener() {
-      \u0275\u0275restoreView(_r1);
-      const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.reloadApp());
-    });
-    \u0275\u0275elementStart(7, "icon");
-    \u0275\u0275text(8, "refresh");
-    \u0275\u0275elementEnd()()();
-  }
-  if (rf & 2) {
-    const update_state_r3 = ctx;
-    \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1(" ", update_state_r3.message || "Update available", " ");
-    \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", update_state_r3.details || "Refresh the page to get the new version of the application", " ");
-    \u0275\u0275advance();
-    \u0275\u0275property("matTooltip", update_state_r3.action || "Reload App");
-  }
-}
-var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
-  constructor() {
-    this.update = serviceWorkerUpdate();
-  }
-  reloadApp() {
-    location.reload();
-  }
-  static {
-    this.\u0275fac = function ServiceWorkerUpdateCardComponent_Factory(__ngFactoryType__) {
-      return new (__ngFactoryType__ || _ServiceWorkerUpdateCardComponent)();
-    };
-  }
-  static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ServiceWorkerUpdateCardComponent, selectors: [["placeos-service-worker-update-card"]], decls: 1, vars: 1, consts: [["role", "status", "aria-live", "assertive", 1, "border-base-300", "bg-base-100", "text-base-content", "pointer-events-auto", "fixed", "right-4", "bottom-4", "z-9999", "flex", "w-[20rem]", "max-w-[calc(100vw-2rem)]", "items-center", "gap-3", "rounded-lg", "border", "p-4", "shadow-xl"], [1, "min-w-0", "flex-1"], [1, "m-0", "text-sm", "leading-tight", "font-medium"], [1, "m-0", "mt-1", "text-xs", "opacity-70"], ["icon", "", "default", "", 3, "click", "matTooltip"]], template: function ServiceWorkerUpdateCardComponent_Template(rf, ctx) {
-      if (rf & 1) {
-        \u0275\u0275conditionalCreate(0, ServiceWorkerUpdateCardComponent_Conditional_0_Template, 9, 3, "aside", 0);
-      }
-      if (rf & 2) {
-        let tmp_0_0;
-        \u0275\u0275conditional((tmp_0_0 = ctx.update()) ? 0 : -1, tmp_0_0);
-      }
-    }, dependencies: [IconComponent, MatTooltipModule, MatTooltip], encapsulation: 2 });
-  }
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(ServiceWorkerUpdateCardComponent, [{
-    type: Component,
-    args: [{
-      selector: "placeos-service-worker-update-card",
-      template: `
-        @if (update(); as update_state) {
-            <aside
-                role="status"
-                aria-live="assertive"
-                class="border-base-300 bg-base-100 text-base-content pointer-events-auto fixed right-4 bottom-4 z-9999 flex w-[20rem] max-w-[calc(100vw-2rem)] items-center gap-3 rounded-lg border p-4 shadow-xl"
-            >
-                <div class="min-w-0 flex-1">
-                    <h2 class="m-0 text-sm leading-tight font-medium">
-                        {{ update_state.message || 'Update available' }}
-                    </h2>
-                    <p class="m-0 mt-1 text-xs opacity-70">
-                        {{
-                            update_state.details ||
-                                'Refresh the page to get the new version of the application'
-                        }}
-                    </p>
-                </div>
-                <button
-                    icon
-                    default
-                    [matTooltip]="update_state.action || 'Reload App'"
-                    (click)="reloadApp()"
-                >
-                    <icon>refresh</icon>
-                </button>
-            </aside>
-        }
-    `,
-      imports: [IconComponent, MatTooltipModule]
-    }]
-  }], null, null);
-})();
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ServiceWorkerUpdateCardComponent, { className: "ServiceWorkerUpdateCardComponent", filePath: "libs/components/src/lib/service-worker-update-card.component.ts", lineNumber: 40 });
-})();
-
-// libs/components/src/lib/global-loading.component.ts
-function GlobalLoadingComponent_Conditional_0_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "native-domain-overlay", 3);
-    \u0275\u0275listener("domainSet", function GlobalLoadingComponent_Conditional_0_Template_native_domain_overlay_domainSet_0_listener() {
-      \u0275\u0275restoreView(_r1);
-      const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.onDomainSet());
-    });
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275property("serverError", ctx_r1.domain_error())("autoAccept", ctx_r1.auto_confirm());
-  }
-}
-function GlobalLoadingComponent_Conditional_1_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 1);
-    \u0275\u0275text(1);
-    \u0275\u0275pipe(2, "translate");
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, "COMMON.SERVER_DOWN"), " ");
-  }
-}
-function GlobalLoadingComponent_Conditional_2_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 2)(1, "div", 4)(2, "p", 5);
-    \u0275\u0275text(3);
-    \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(4, "div", 6);
-    \u0275\u0275element(5, "mat-progress-bar", 7);
-    \u0275\u0275elementEnd()();
-  }
-  if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate(ctx_r1.message());
-  }
-}
-var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler {
-  constructor() {
-    super(...arguments);
-    this._org = inject2(OrganisationService);
-    this._placeos = inject2(PlaceOS_Service);
-    this._settings = inject2(SettingsService);
-    this.loading = signal(
-      true,
-      ...ngDevMode ? [{ debugName: "loading" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.online = signal(
-      true,
-      ...ngDevMode ? [{ debugName: "online" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.message = getLoadingMessage();
-    this.show_domain_overlay = needsNativeDomain();
-    this.domain_error = nativeDomainError();
-    this.auto_confirm = autoConfirmNativeDomain();
-  }
-  onDomainSet() {
-    this._placeos.onNativeDomainSet();
-  }
-  async ngOnInit() {
-    this.loading.set(true);
-    await this._org.waitUntilInitialised();
-    await firstTruthyValueFrom(this._settings.initialised);
-    this.online.set(Dr());
-    this.interval("has_token", () => {
-      this.online.set(Dr());
-      if (!Rt() || !V2())
-        return;
-      this.loading.set(false);
-      this.online.set(Dr());
-      this.clearInterval("has_token");
-    }, 1e3);
-  }
-  static {
-    this.\u0275fac = /* @__PURE__ */ (() => {
-      let \u0275GlobalLoadingComponent_BaseFactory;
-      return function GlobalLoadingComponent_Factory(__ngFactoryType__) {
-        return (\u0275GlobalLoadingComponent_BaseFactory || (\u0275GlobalLoadingComponent_BaseFactory = \u0275\u0275getInheritedFactory(_GlobalLoadingComponent)))(__ngFactoryType__ || _GlobalLoadingComponent);
-      };
-    })();
-  }
-  static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _GlobalLoadingComponent, selectors: [["global-loading"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 4, vars: 3, consts: [[3, "serverError", "autoAccept"], [1, "bg-error", "fixed", "top-2", "left-1/2", "z-9999", "-translate-x-1/2", "rounded-3xl", "px-4", "py-2", "text-xs", "text-white", "shadow-sm"], ["loader", "", 1, "bg-base-300", "pointer-events-auto", "fixed", "inset-0", "z-9998", "flex", "flex-col", "items-center", "justify-end", "space-y-2", "p-4"], [3, "domainSet", "serverError", "autoAccept"], [1, "border-base-300", "bg-base-100", "w-[24rem]", "max-w-[calc(100vw-2rem)]", "rounded-lg", "border", "p-2", "text-center", "text-xs", "shadow-sm"], [1, "text-center", "font-mono"], [1, "border-base-300", "w-[24rem]", "max-w-[calc(100vw-2rem)]", "overflow-hidden", "rounded-full", "border", "shadow-sm"], ["mode", "indeterminate", 1, "scale-150", "rounded-sm"]], template: function GlobalLoadingComponent_Template(rf, ctx) {
-      if (rf & 1) {
-        \u0275\u0275conditionalCreate(0, GlobalLoadingComponent_Conditional_0_Template, 1, 2, "native-domain-overlay", 0);
-        \u0275\u0275conditionalCreate(1, GlobalLoadingComponent_Conditional_1_Template, 3, 3, "div", 1);
-        \u0275\u0275conditionalCreate(2, GlobalLoadingComponent_Conditional_2_Template, 6, 1, "div", 2);
-        \u0275\u0275element(3, "placeos-service-worker-update-card");
-      }
-      if (rf & 2) {
-        \u0275\u0275conditional(ctx.show_domain_overlay() ? 0 : -1);
-        \u0275\u0275advance();
-        \u0275\u0275conditional(!ctx.online() ? 1 : -1);
-        \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.loading() ? 2 : -1);
-      }
-    }, dependencies: [
-      MatProgressBarModule,
-      MatProgressBar,
-      NativeDomainOverlayComponent,
-      ServiceWorkerUpdateCardComponent,
-      TranslatePipe
-    ], styles: ["\n[_nghost-%COMP%] {\n  pointer-events: none;\n}\n[loader][_ngcontent-%COMP%] {\n  background-image:\n    linear-gradient(\n      to right,\n      #f9a825 0%,\n      #fdd835 100%);\n}\n/*# sourceMappingURL=global-loading.component.css.map */"] });
-  }
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(GlobalLoadingComponent, [{
-    type: Component,
-    args: [{ selector: "global-loading", template: `
-        @if (show_domain_overlay()) {
-            <native-domain-overlay
-                [serverError]="domain_error()"
-                [autoAccept]="auto_confirm()"
-                (domainSet)="onDomainSet()"
-            ></native-domain-overlay>
-        }
-        @if (!online()) {
-            <div
-                class="bg-error fixed top-2 left-1/2 z-9999 -translate-x-1/2 rounded-3xl px-4 py-2 text-xs text-white shadow-sm"
-            >
-                {{ 'COMMON.SERVER_DOWN' | translate }}
-            </div>
-        }
-        @if (loading()) {
-            <div
-                loader
-                class="bg-base-300 pointer-events-auto fixed inset-0 z-9998 flex flex-col items-center justify-end space-y-2 p-4"
-            >
-                <div
-                    class="border-base-300 bg-base-100 w-[24rem] max-w-[calc(100vw-2rem)] rounded-lg border p-2 text-center text-xs shadow-sm"
-                >
-                    <p class="text-center font-mono">{{ message() }}</p>
-                </div>
-                <div
-                    class="border-base-300 w-[24rem] max-w-[calc(100vw-2rem)] overflow-hidden rounded-full border shadow-sm"
-                >
-                    <mat-progress-bar
-                        mode="indeterminate"
-                        class="scale-150 rounded-sm"
-                    ></mat-progress-bar>
-                </div>
-            </div>
-        }
-        <placeos-service-worker-update-card />
-    `, imports: [
-      MatProgressBarModule,
-      NativeDomainOverlayComponent,
-      ServiceWorkerUpdateCardComponent,
-      TranslatePipe
-    ], styles: ["/* angular:styles/component:css;f96722131b020a13ff012b787cd51bd578e7478e8507e3110ee0014c8bb70e6e;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/global-loading.component.ts */\n:host {\n  pointer-events: none;\n}\n[loader] {\n  background-image:\n    linear-gradient(\n      to right,\n      #f9a825 0%,\n      #fdd835 100%);\n}\n/*# sourceMappingURL=global-loading.component.css.map */\n"] }]
-  }], null, null);
-})();
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(GlobalLoadingComponent, { className: "GlobalLoadingComponent", filePath: "libs/components/src/lib/global-loading.component.ts", lineNumber: 81 });
-})();
-
-// libs/components/src/lib/image-carousel.component.ts
-function ImageCarouselComponent_For_2_Conditional_1_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275element(0, "img", 7);
-  }
-  if (rf & 2) {
-    const image_r1 = \u0275\u0275nextContext().$implicit;
-    \u0275\u0275property("source", image_r1?.url || image_r1);
-  }
-}
-function ImageCarouselComponent_For_2_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 6);
-    \u0275\u0275conditionalCreate(1, ImageCarouselComponent_For_2_Conditional_1_Template, 1, 1, "img", 7);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const image_r1 = ctx.$implicit;
-    const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275styleProp("transform", ctx_r1.offset_transform());
-    \u0275\u0275advance();
-    \u0275\u0275conditional(image_r1 ? 1 : -1);
-  }
-}
-function ImageCarouselComponent_Conditional_3_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 2)(1, "icon", 8);
-    \u0275\u0275text(2, "image");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "p");
-    \u0275\u0275text(4);
-    \u0275\u0275pipe(5, "translate");
-    \u0275\u0275elementEnd()();
-  }
-  if (rf & 2) {
-    \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(5, 1, "COMMON.IMAGES_EMPTY"));
-  }
-}
-function ImageCarouselComponent_Conditional_4_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r3 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 9);
-    \u0275\u0275listener("click", function ImageCarouselComponent_Conditional_4_Template_button_click_0_listener() {
-      \u0275\u0275restoreView(_r3);
-      const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.offset.update((value) => value - 1));
-    });
-    \u0275\u0275elementStart(1, "div", 10)(2, "icon", 11);
-    \u0275\u0275text(3, "chevron_left");
-    \u0275\u0275elementEnd()()();
-  }
-  if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275property("disabled", ctx_r1.offset() === 0);
-  }
-}
-function ImageCarouselComponent_Conditional_5_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r4 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 12);
-    \u0275\u0275listener("click", function ImageCarouselComponent_Conditional_5_Template_button_click_0_listener() {
-      \u0275\u0275restoreView(_r4);
-      const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.offset.update((value) => value + 1));
-    });
-    \u0275\u0275elementStart(1, "div", 13)(2, "icon", 11);
-    \u0275\u0275text(3, "chevron_right");
-    \u0275\u0275elementEnd()()();
-  }
-  if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275property("disabled", ctx_r1.offset() >= ctx_r1.images()?.length - 1);
-  }
-}
-function ImageCarouselComponent_Conditional_6_For_2_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r5 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 15);
-    \u0275\u0275listener("click", function ImageCarouselComponent_Conditional_6_For_2_Template_button_click_0_listener() {
-      const \u0275$index_38_r6 = \u0275\u0275restoreView(_r5).$index;
-      const ctx_r1 = \u0275\u0275nextContext(2);
-      return \u0275\u0275resetView(ctx_r1.offset.set(\u0275$index_38_r6));
-    });
-    \u0275\u0275element(1, "div", 16);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const \u0275$index_38_r6 = ctx.$index;
-    const ctx_r1 = \u0275\u0275nextContext(2);
-    \u0275\u0275advance();
-    \u0275\u0275classProp("opacity-30", ctx_r1.offset() !== \u0275$index_38_r6)("h-2", ctx_r1.offset() !== \u0275$index_38_r6)("w-2", ctx_r1.offset() !== \u0275$index_38_r6)("h-4", ctx_r1.offset() === \u0275$index_38_r6)("w-4", ctx_r1.offset() === \u0275$index_38_r6)("opacity-80", ctx_r1.offset() === \u0275$index_38_r6);
-  }
-}
-function ImageCarouselComponent_Conditional_6_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 5);
-    \u0275\u0275repeaterCreate(1, ImageCarouselComponent_Conditional_6_For_2_Template, 2, 12, "button", 14, \u0275\u0275repeaterTrackByIdentity);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275advance();
-    \u0275\u0275repeater(ctx_r1.images());
-  }
-}
-var ImageCarouselComponent = class _ImageCarouselComponent {
-  constructor() {
-    this.images = input(
-      [],
-      ...ngDevMode ? [{ debugName: "images" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.offset = signal(
-      0,
-      ...ngDevMode ? [{ debugName: "offset" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.offset_transform = computed(
-      () => `translateX(-${this.offset() * 100}%)`,
-      ...ngDevMode ? [{ debugName: "offset_transform" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-  }
-  static {
-    this.\u0275fac = function ImageCarouselComponent_Factory(__ngFactoryType__) {
-      return new (__ngFactoryType__ || _ImageCarouselComponent)();
-    };
-  }
-  static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ImageCarouselComponent, selectors: [["image-carousel"]], inputs: { images: [1, "images"] }, decls: 7, vars: 4, consts: [[1, "relative", "flex", "h-full", "w-full", "overflow-hidden"], ["image", "", 1, "relative", "flex", "h-full", "min-w-full", "items-center", "justify-center", "overflow-hidden", 3, "transform"], [1, "relative", "flex", "h-full", "w-full", "flex-col", "items-center", "justify-center", "space-y-2", "opacity-30"], [1, "absolute", "inset-y-0", "left-0", "flex", "w-1/3", "items-center", "justify-center", "opacity-0", "hover:opacity-100", 3, "disabled"], [1, "absolute", "inset-y-0", "right-0", "flex", "w-1/3", "items-center", "justify-center", "text-white", "opacity-0", "hover:opacity-100", 3, "disabled"], [1, "absolute", "bottom-2", "left-1/2", "flex", "-translate-x-1/2", "items-center", "space-x-2", "text-sm"], ["image", "", 1, "relative", "flex", "h-full", "min-w-full", "items-center", "justify-center", "overflow-hidden"], ["auth", "", 1, "h-full", "object-contain", 3, "source"], [1, "text-6xl"], [1, "absolute", "inset-y-0", "left-0", "flex", "w-1/3", "items-center", "justify-center", "opacity-0", "hover:opacity-100", 3, "click", "disabled"], ["matRipple", "", 1, "border-base-300", "bg-base-100", "text-base-content", "absolute", "top-1/2", "left-4", "h-10", "w-10", "-translate-y-1/2", "rounded-full", "border", "shadow-sm"], [1, "text-3xl"], [1, "absolute", "inset-y-0", "right-0", "flex", "w-1/3", "items-center", "justify-center", "text-white", "opacity-0", "hover:opacity-100", 3, "click", "disabled"], ["matRipple", "", 1, "border-base-300", "bg-base-100", "text-base-content", "absolute", "top-1/2", "right-4", "h-10", "w-10", "-translate-y-1/2", "rounded-full", "border", "shadow-sm"], ["matRipple", "", 1, "flex", "h-4", "w-4", "items-center", "justify-center"], ["matRipple", "", 1, "flex", "h-4", "w-4", "items-center", "justify-center", 3, "click"], [1, "bg-base-100", "rounded-full", "shadow-sm", "transition-all"]], template: function ImageCarouselComponent_Template(rf, ctx) {
-      if (rf & 1) {
-        \u0275\u0275elementStart(0, "div", 0);
-        \u0275\u0275repeaterCreate(1, ImageCarouselComponent_For_2_Template, 2, 3, "div", 1, \u0275\u0275repeaterTrackByIdentity);
-        \u0275\u0275conditionalCreate(3, ImageCarouselComponent_Conditional_3_Template, 6, 3, "div", 2);
-        \u0275\u0275conditionalCreate(4, ImageCarouselComponent_Conditional_4_Template, 4, 1, "button", 3);
-        \u0275\u0275conditionalCreate(5, ImageCarouselComponent_Conditional_5_Template, 4, 1, "button", 4);
-        \u0275\u0275conditionalCreate(6, ImageCarouselComponent_Conditional_6_Template, 3, 0, "div", 5);
-        \u0275\u0275elementEnd();
-      }
-      if (rf & 2) {
-        \u0275\u0275advance();
-        \u0275\u0275repeater(ctx.images());
-        \u0275\u0275advance(2);
-        \u0275\u0275conditional(!ctx.images()?.length ? 3 : -1);
-        \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.images()?.length ? 4 : -1);
-        \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.images()?.length ? 5 : -1);
-        \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.images()?.length ? 6 : -1);
-      }
-    }, dependencies: [
-      MatRippleModule,
-      MatRipple,
-      AuthenticatedImageDirective,
-      IconComponent,
-      TranslatePipe
-    ], styles: ["\n[_nghost-%COMP%] {\n  display: block;\n  height: 100%;\n  width: 100%;\n}\n[image][_ngcontent-%COMP%] {\n  transition: transform 300ms;\n}\nbutton[disabled][_ngcontent-%COMP%] {\n  pointer-events: none;\n}\n/*# sourceMappingURL=image-carousel.component.css.map */"] });
-  }
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(ImageCarouselComponent, [{
-    type: Component,
-    args: [{ selector: "image-carousel", template: `
-        <div class="relative flex h-full w-full overflow-hidden">
-            @for (image of images(); track image) {
-                <div
-                    image
-                    class="relative flex h-full min-w-full items-center justify-center overflow-hidden"
-                    [style.transform]="offset_transform()"
-                >
-                    @if (image) {
-                        <img
-                            auth
-                            class="h-full object-contain"
-                            [source]="$any(image)?.url || image"
-                        />
-                    }
-                </div>
-            }
-            @if (!images()?.length) {
-                <div
-                    class="relative flex h-full w-full flex-col items-center justify-center space-y-2 opacity-30"
-                >
-                    <icon class="text-6xl">image</icon>
-                    <p>{{ 'COMMON.IMAGES_EMPTY' | translate }}</p>
-                </div>
-            }
-            @if (images()?.length) {
-                <button
-                    class="absolute inset-y-0 left-0 flex w-1/3 items-center justify-center opacity-0 hover:opacity-100"
-                    [disabled]="offset() === 0"
-                    (click)="offset.update((value) => value - 1)"
-                >
-                    <div
-                        matRipple
-                        class="border-base-300 bg-base-100 text-base-content absolute top-1/2 left-4 h-10 w-10 -translate-y-1/2 rounded-full border shadow-sm"
-                    >
-                        <icon class="text-3xl">chevron_left</icon>
-                    </div>
-                </button>
-            }
-            @if (images()?.length) {
-                <button
-                    class="absolute inset-y-0 right-0 flex w-1/3 items-center justify-center text-white opacity-0 hover:opacity-100"
-                    [disabled]="offset() >= images()?.length - 1"
-                    (click)="offset.update((value) => value + 1)"
-                >
-                    <div
-                        matRipple
-                        class="border-base-300 bg-base-100 text-base-content absolute top-1/2 right-4 h-10 w-10 -translate-y-1/2 rounded-full border shadow-sm"
-                    >
-                        <icon class="text-3xl">chevron_right</icon>
-                    </div>
-                </button>
-            }
-            @if (images()?.length) {
-                <div
-                    class="absolute bottom-2 left-1/2 flex -translate-x-1/2 items-center space-x-2 text-sm"
-                >
-                    @for (img of images(); track img; let i = $index) {
-                        <button
-                            matRipple
-                            (click)="offset.set(i)"
-                            class="flex h-4 w-4 items-center justify-center"
-                        >
-                            <div
-                                class="bg-base-100 rounded-full shadow-sm transition-all"
-                                [class.opacity-30]="offset() !== i"
-                                [class.h-2]="offset() !== i"
-                                [class.w-2]="offset() !== i"
-                                [class.h-4]="offset() === i"
-                                [class.w-4]="offset() === i"
-                                [class.opacity-80]="offset() === i"
-                            ></div>
-                        </button>
-                    }
-                </div>
-            }
-        </div>
-    `, imports: [
-      MatRippleModule,
-      TranslatePipe,
-      AuthenticatedImageDirective,
-      IconComponent
-    ], styles: ["/* angular:styles/component:css;689216c244746a44ce8495e5ddc0d8a4ad407f0899332d9a6e20f4c6e02d0df2;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/image-carousel.component.ts */\n:host {\n  display: block;\n  height: 100%;\n  width: 100%;\n}\n[image] {\n  transition: transform 300ms;\n}\nbutton[disabled] {\n  pointer-events: none;\n}\n/*# sourceMappingURL=image-carousel.component.css.map */\n"] }]
-  }], null, { images: [{ type: Input, args: [{ isSignal: true, alias: "images", required: false }] }] });
-})();
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ImageCarouselComponent, { className: "ImageCarouselComponent", filePath: "libs/components/src/lib/image-carousel.component.ts", lineNumber: 111 });
-})();
-
 // libs/components/src/lib/map-viewer.class.ts
 var MAX_ZOOM = 10;
 var MIN_ZOOM = 1;
@@ -97384,7 +96187,7 @@ var MapStore = class {
       await new Promise((resolve) => setTimeout(resolve, 300));
     }
     const options = {};
-    const tkn = V2();
+    const tkn = X2();
     const is_same_origin = new URL(path, location.origin).origin === location.origin;
     if (tkn && is_same_origin) {
       if (!isMobileSafari()) {
@@ -97997,10 +96800,10 @@ var MapViewer = class {
       const x2 = toScreenX(bounds.x);
       const y = toScreenY(bounds.y);
       const w2 = bounds.w * scale.x;
-      const h = bounds.h * scale.y;
-      if (x2 + w2 < 0 || y + h < 0 || x2 > width || y > height)
+      const h2 = bounds.h * scale.y;
+      if (x2 + w2 < 0 || y + h2 < 0 || x2 > width || y > height)
         continue;
-      ctx.strokeRect(x2, y, w2, h);
+      ctx.strokeRect(x2, y, w2, h2);
     }
     const highlight_id = this.debug_info.highlight_id || this.debug_info.hover_id;
     const hover_bounds = highlight_id ? this.map.element_bounds.get(highlight_id) : null;
@@ -98047,13 +96850,13 @@ var MapViewer = class {
       instance.last_transform = value;
       instance.element.style.transform = value;
     };
-    const setSize = (instance, w2, h) => {
-      const size = `${w2} ${h}`;
+    const setSize = (instance, w2, h2) => {
+      const size = `${w2} ${h2}`;
       if (instance.last_size === size)
         return;
       instance.last_size = size;
       instance.element.style.width = w2;
-      instance.element.style.height = h;
+      instance.element.style.height = h2;
     };
     for (const instance of this._overlay_instances) {
       const { overlay } = instance;
@@ -99208,13 +98011,13 @@ var DynamicMapComponent = class _DynamicMapComponent {
       injector.get(MAP_FEATURE_DATA)?.track_id,
       injector
     ]));
-    this.injectors.set((this.features() || []).map((f2) => f2.track_id && old_injectors.get(f2.track_id) || Injector.create({
+    this.injectors.set((this.features() || []).map((f3) => f3.track_id && old_injectors.get(f3.track_id) || Injector.create({
       providers: [
         {
           provide: MAP_FEATURE_DATA,
           useValue: __spreadValues({
-            track_id: f2.track_id
-          }, f2.data)
+            track_id: f3.track_id
+          }, f3.data)
         }
       ],
       parent: this._injector
@@ -99451,6 +98254,1279 @@ var DynamicMapComponent = class _DynamicMapComponent {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DynamicMapComponent, { className: "DynamicMapComponent", filePath: "libs/components/src/lib/dynamic-map.component.ts", lineNumber: 247 });
 })();
 
+// node_modules/@angular/material/fesm2022/progress-bar.mjs
+function MatProgressBar_Conditional_2_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275domElement(0, "div", 2);
+  }
+}
+var MAT_PROGRESS_BAR_DEFAULT_OPTIONS = new InjectionToken("MAT_PROGRESS_BAR_DEFAULT_OPTIONS");
+var MAT_PROGRESS_BAR_LOCATION = new InjectionToken("mat-progress-bar-location", {
+  providedIn: "root",
+  factory: () => {
+    const _document2 = inject2(DOCUMENT);
+    const _location = _document2 ? _document2.location : null;
+    return {
+      getPathname: () => _location ? _location.pathname + _location.search : ""
+    };
+  }
+});
+var MatProgressBar = class _MatProgressBar {
+  _elementRef = inject2(ElementRef);
+  _ngZone = inject2(NgZone);
+  _changeDetectorRef = inject2(ChangeDetectorRef);
+  _renderer = inject2(Renderer2);
+  _cleanupTransitionEnd;
+  constructor() {
+    const animationsState = _getAnimationsState();
+    const defaults2 = inject2(MAT_PROGRESS_BAR_DEFAULT_OPTIONS, {
+      optional: true
+    });
+    this._isNoopAnimation = animationsState === "di-disabled";
+    if (animationsState === "reduced-motion") {
+      this._elementRef.nativeElement.classList.add("mat-progress-bar-reduced-motion");
+    }
+    if (defaults2) {
+      if (defaults2.color) {
+        this.color = this._defaultColor = defaults2.color;
+      }
+      this.mode = defaults2.mode || this.mode;
+    }
+  }
+  _isNoopAnimation;
+  get color() {
+    return this._color || this._defaultColor;
+  }
+  set color(value) {
+    this._color = value;
+  }
+  _color;
+  _defaultColor = "primary";
+  get value() {
+    return this._value;
+  }
+  set value(v) {
+    this._value = clamp(v || 0);
+    this._changeDetectorRef.markForCheck();
+  }
+  _value = 0;
+  get bufferValue() {
+    return this._bufferValue || 0;
+  }
+  set bufferValue(v) {
+    this._bufferValue = clamp(v || 0);
+    this._changeDetectorRef.markForCheck();
+  }
+  _bufferValue = 0;
+  animationEnd = new EventEmitter();
+  get mode() {
+    return this._mode;
+  }
+  set mode(value) {
+    this._mode = value;
+    this._changeDetectorRef.markForCheck();
+  }
+  _mode = "determinate";
+  ngAfterViewInit() {
+    this._ngZone.runOutsideAngular(() => {
+      this._cleanupTransitionEnd = this._renderer.listen(this._elementRef.nativeElement, "transitionend", this._transitionendHandler);
+    });
+  }
+  ngOnDestroy() {
+    this._cleanupTransitionEnd?.();
+  }
+  _getPrimaryBarTransform() {
+    return `scaleX(${this._isIndeterminate() ? 1 : this.value / 100})`;
+  }
+  _getBufferBarFlexBasis() {
+    return `${this.mode === "buffer" ? this.bufferValue : 100}%`;
+  }
+  _isIndeterminate() {
+    return this.mode === "indeterminate" || this.mode === "query";
+  }
+  _transitionendHandler = (event) => {
+    if (this.animationEnd.observers.length === 0 || !event.target || !event.target.classList.contains("mdc-linear-progress__primary-bar")) {
+      return;
+    }
+    if (this.mode === "determinate" || this.mode === "buffer") {
+      this._ngZone.run(() => this.animationEnd.next({
+        value: this.value
+      }));
+    }
+  };
+  static \u0275fac = function MatProgressBar_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _MatProgressBar)();
+  };
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
+    type: _MatProgressBar,
+    selectors: [["mat-progress-bar"]],
+    hostAttrs: ["role", "progressbar", "aria-valuemin", "0", "aria-valuemax", "100", "tabindex", "-1", 1, "mat-mdc-progress-bar", "mdc-linear-progress"],
+    hostVars: 10,
+    hostBindings: function MatProgressBar_HostBindings(rf, ctx) {
+      if (rf & 2) {
+        \u0275\u0275attribute("aria-valuenow", ctx._isIndeterminate() ? null : ctx.value)("mode", ctx.mode);
+        \u0275\u0275classMap("mat-" + ctx.color);
+        \u0275\u0275classProp("_mat-animation-noopable", ctx._isNoopAnimation)("mdc-linear-progress--animation-ready", !ctx._isNoopAnimation)("mdc-linear-progress--indeterminate", ctx._isIndeterminate());
+      }
+    },
+    inputs: {
+      color: "color",
+      value: [2, "value", "value", numberAttribute],
+      bufferValue: [2, "bufferValue", "bufferValue", numberAttribute],
+      mode: "mode"
+    },
+    outputs: {
+      animationEnd: "animationEnd"
+    },
+    exportAs: ["matProgressBar"],
+    decls: 7,
+    vars: 5,
+    consts: [["aria-hidden", "true", 1, "mdc-linear-progress__buffer"], [1, "mdc-linear-progress__buffer-bar"], [1, "mdc-linear-progress__buffer-dots"], ["aria-hidden", "true", 1, "mdc-linear-progress__bar", "mdc-linear-progress__primary-bar"], [1, "mdc-linear-progress__bar-inner"], ["aria-hidden", "true", 1, "mdc-linear-progress__bar", "mdc-linear-progress__secondary-bar"]],
+    template: function MatProgressBar_Template(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275domElementStart(0, "div", 0);
+        \u0275\u0275domElement(1, "div", 1);
+        \u0275\u0275conditionalCreate(2, MatProgressBar_Conditional_2_Template, 1, 0, "div", 2);
+        \u0275\u0275domElementEnd();
+        \u0275\u0275domElementStart(3, "div", 3);
+        \u0275\u0275domElement(4, "span", 4);
+        \u0275\u0275domElementEnd();
+        \u0275\u0275domElementStart(5, "div", 5);
+        \u0275\u0275domElement(6, "span", 4);
+        \u0275\u0275domElementEnd();
+      }
+      if (rf & 2) {
+        \u0275\u0275advance();
+        \u0275\u0275styleProp("flex-basis", ctx._getBufferBarFlexBasis());
+        \u0275\u0275advance();
+        \u0275\u0275conditional(ctx.mode === "buffer" ? 2 : -1);
+        \u0275\u0275advance();
+        \u0275\u0275styleProp("transform", ctx._getPrimaryBarTransform());
+      }
+    },
+    styles: [".mat-mdc-progress-bar {\n  --mat-progress-bar-animation-multiplier: 1;\n  display: block;\n  text-align: start;\n}\n.mat-mdc-progress-bar[mode=query] {\n  transform: scaleX(-1);\n}\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__buffer-dots,\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__primary-bar,\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__secondary-bar,\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__bar-inner.mdc-linear-progress__bar-inner {\n  animation: none;\n}\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__primary-bar,\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__buffer-bar {\n  transition: transform 1ms;\n}\n\n.mat-progress-bar-reduced-motion {\n  --mat-progress-bar-animation-multiplier: 2;\n}\n\n.mdc-linear-progress {\n  position: relative;\n  width: 100%;\n  transform: translateZ(0);\n  outline: 1px solid transparent;\n  overflow-x: hidden;\n  transition: opacity 250ms 0ms cubic-bezier(0.4, 0, 0.6, 1);\n  height: max(var(--mat-progress-bar-track-height, 4px), var(--mat-progress-bar-active-indicator-height, 4px));\n}\n@media (forced-colors: active) {\n  .mdc-linear-progress {\n    outline-color: CanvasText;\n  }\n}\n\n.mdc-linear-progress__bar {\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  margin: auto 0;\n  width: 100%;\n  animation: none;\n  transform-origin: top left;\n  transition: transform 250ms 0ms cubic-bezier(0.4, 0, 0.6, 1);\n  height: var(--mat-progress-bar-active-indicator-height, 4px);\n}\n.mdc-linear-progress--indeterminate .mdc-linear-progress__bar {\n  transition: none;\n}\n[dir=rtl] .mdc-linear-progress__bar {\n  right: 0;\n  transform-origin: center right;\n}\n\n.mdc-linear-progress__bar-inner {\n  display: inline-block;\n  position: absolute;\n  width: 100%;\n  animation: none;\n  border-top-style: solid;\n  border-color: var(--mat-progress-bar-active-indicator-color, var(--mat-sys-primary));\n  border-top-width: var(--mat-progress-bar-active-indicator-height, 4px);\n}\n\n.mdc-linear-progress__buffer {\n  display: flex;\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  margin: auto 0;\n  width: 100%;\n  overflow: hidden;\n  height: var(--mat-progress-bar-track-height, 4px);\n  border-radius: var(--mat-progress-bar-track-shape, var(--mat-sys-corner-none));\n}\n\n.mdc-linear-progress__buffer-dots {\n  background-image: radial-gradient(circle, var(--mat-progress-bar-track-color, var(--mat-sys-surface-variant)) calc(var(--mat-progress-bar-track-height, 4px) / 2), transparent 0);\n  background-repeat: repeat-x;\n  background-size: calc(calc(var(--mat-progress-bar-track-height, 4px) / 2) * 5);\n  background-position: left;\n  flex: auto;\n  transform: rotate(180deg);\n  animation: mdc-linear-progress-buffering calc(250ms * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n@media (forced-colors: active) {\n  .mdc-linear-progress__buffer-dots {\n    background-color: ButtonBorder;\n  }\n}\n[dir=rtl] .mdc-linear-progress__buffer-dots {\n  animation: mdc-linear-progress-buffering-reverse calc(250ms * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n  transform: rotate(0);\n}\n\n.mdc-linear-progress__buffer-bar {\n  flex: 0 1 100%;\n  transition: flex-basis 250ms 0ms cubic-bezier(0.4, 0, 0.6, 1);\n  background-color: var(--mat-progress-bar-track-color, var(--mat-sys-surface-variant));\n}\n\n.mdc-linear-progress__primary-bar {\n  transform: scaleX(0);\n}\n.mdc-linear-progress--indeterminate .mdc-linear-progress__primary-bar {\n  left: -145.166611%;\n}\n.mdc-linear-progress--indeterminate.mdc-linear-progress--animation-ready .mdc-linear-progress__primary-bar {\n  animation: mdc-linear-progress-primary-indeterminate-translate calc(2s * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n.mdc-linear-progress--indeterminate.mdc-linear-progress--animation-ready .mdc-linear-progress__primary-bar > .mdc-linear-progress__bar-inner {\n  animation: mdc-linear-progress-primary-indeterminate-scale calc(2s * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n[dir=rtl] .mdc-linear-progress.mdc-linear-progress--animation-ready .mdc-linear-progress__primary-bar {\n  animation-name: mdc-linear-progress-primary-indeterminate-translate-reverse;\n}\n[dir=rtl] .mdc-linear-progress.mdc-linear-progress--indeterminate .mdc-linear-progress__primary-bar {\n  right: -145.166611%;\n  left: auto;\n}\n\n.mdc-linear-progress__secondary-bar {\n  display: none;\n}\n.mdc-linear-progress--indeterminate .mdc-linear-progress__secondary-bar {\n  left: -54.888891%;\n  display: block;\n}\n.mdc-linear-progress--indeterminate.mdc-linear-progress--animation-ready .mdc-linear-progress__secondary-bar {\n  animation: mdc-linear-progress-secondary-indeterminate-translate calc(2s * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n.mdc-linear-progress--indeterminate.mdc-linear-progress--animation-ready .mdc-linear-progress__secondary-bar > .mdc-linear-progress__bar-inner {\n  animation: mdc-linear-progress-secondary-indeterminate-scale calc(2s * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n[dir=rtl] .mdc-linear-progress.mdc-linear-progress--animation-ready .mdc-linear-progress__secondary-bar {\n  animation-name: mdc-linear-progress-secondary-indeterminate-translate-reverse;\n}\n[dir=rtl] .mdc-linear-progress.mdc-linear-progress--indeterminate .mdc-linear-progress__secondary-bar {\n  right: -54.888891%;\n  left: auto;\n}\n\n@keyframes mdc-linear-progress-buffering {\n  from {\n    transform: rotate(180deg) translateX(calc(var(--mat-progress-bar-track-height, 4px) * -2.5));\n  }\n}\n@keyframes mdc-linear-progress-primary-indeterminate-translate {\n  0% {\n    transform: translateX(0);\n  }\n  20% {\n    animation-timing-function: cubic-bezier(0.5, 0, 0.701732, 0.495819);\n    transform: translateX(0);\n  }\n  59.15% {\n    animation-timing-function: cubic-bezier(0.302435, 0.381352, 0.55, 0.956352);\n    transform: translateX(83.67142%);\n  }\n  100% {\n    transform: translateX(200.611057%);\n  }\n}\n@keyframes mdc-linear-progress-primary-indeterminate-scale {\n  0% {\n    transform: scaleX(0.08);\n  }\n  36.65% {\n    animation-timing-function: cubic-bezier(0.334731, 0.12482, 0.785844, 1);\n    transform: scaleX(0.08);\n  }\n  69.15% {\n    animation-timing-function: cubic-bezier(0.06, 0.11, 0.6, 1);\n    transform: scaleX(0.661479);\n  }\n  100% {\n    transform: scaleX(0.08);\n  }\n}\n@keyframes mdc-linear-progress-secondary-indeterminate-translate {\n  0% {\n    animation-timing-function: cubic-bezier(0.15, 0, 0.515058, 0.409685);\n    transform: translateX(0);\n  }\n  25% {\n    animation-timing-function: cubic-bezier(0.31033, 0.284058, 0.8, 0.733712);\n    transform: translateX(37.651913%);\n  }\n  48.35% {\n    animation-timing-function: cubic-bezier(0.4, 0.627035, 0.6, 0.902026);\n    transform: translateX(84.386165%);\n  }\n  100% {\n    transform: translateX(160.277782%);\n  }\n}\n@keyframes mdc-linear-progress-secondary-indeterminate-scale {\n  0% {\n    animation-timing-function: cubic-bezier(0.205028, 0.057051, 0.57661, 0.453971);\n    transform: scaleX(0.08);\n  }\n  19.15% {\n    animation-timing-function: cubic-bezier(0.152313, 0.196432, 0.648374, 1.004315);\n    transform: scaleX(0.457104);\n  }\n  44.15% {\n    animation-timing-function: cubic-bezier(0.257759, -0.003163, 0.211762, 1.38179);\n    transform: scaleX(0.72796);\n  }\n  100% {\n    transform: scaleX(0.08);\n  }\n}\n@keyframes mdc-linear-progress-primary-indeterminate-translate-reverse {\n  0% {\n    transform: translateX(0);\n  }\n  20% {\n    animation-timing-function: cubic-bezier(0.5, 0, 0.701732, 0.495819);\n    transform: translateX(0);\n  }\n  59.15% {\n    animation-timing-function: cubic-bezier(0.302435, 0.381352, 0.55, 0.956352);\n    transform: translateX(-83.67142%);\n  }\n  100% {\n    transform: translateX(-200.611057%);\n  }\n}\n@keyframes mdc-linear-progress-secondary-indeterminate-translate-reverse {\n  0% {\n    animation-timing-function: cubic-bezier(0.15, 0, 0.515058, 0.409685);\n    transform: translateX(0);\n  }\n  25% {\n    animation-timing-function: cubic-bezier(0.31033, 0.284058, 0.8, 0.733712);\n    transform: translateX(-37.651913%);\n  }\n  48.35% {\n    animation-timing-function: cubic-bezier(0.4, 0.627035, 0.6, 0.902026);\n    transform: translateX(-84.386165%);\n  }\n  100% {\n    transform: translateX(-160.277782%);\n  }\n}\n@keyframes mdc-linear-progress-buffering-reverse {\n  from {\n    transform: translateX(-10px);\n  }\n}\n"],
+    encapsulation: 2
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatProgressBar, [{
+    type: Component,
+    args: [{
+      selector: "mat-progress-bar",
+      exportAs: "matProgressBar",
+      host: {
+        "role": "progressbar",
+        "aria-valuemin": "0",
+        "aria-valuemax": "100",
+        "tabindex": "-1",
+        "[attr.aria-valuenow]": "_isIndeterminate() ? null : value",
+        "[attr.mode]": "mode",
+        "class": "mat-mdc-progress-bar mdc-linear-progress",
+        "[class]": '"mat-" + color',
+        "[class._mat-animation-noopable]": "_isNoopAnimation",
+        "[class.mdc-linear-progress--animation-ready]": "!_isNoopAnimation",
+        "[class.mdc-linear-progress--indeterminate]": "_isIndeterminate()"
+      },
+      encapsulation: ViewEncapsulation.None,
+      template: `<!--
+  All children need to be hidden for screen readers in order to support ChromeVox.
+  More context in the issue: https://github.com/angular/components/issues/22165.
+-->
+<div class="mdc-linear-progress__buffer" aria-hidden="true">
+  <div
+    class="mdc-linear-progress__buffer-bar"
+    [style.flex-basis]="_getBufferBarFlexBasis()"></div>
+  <!-- Remove the dots outside of buffer mode since they can cause CSP issues (see #28938) -->
+  @if (mode === 'buffer') {
+    <div class="mdc-linear-progress__buffer-dots"></div>
+  }
+</div>
+<div
+  class="mdc-linear-progress__bar mdc-linear-progress__primary-bar"
+  aria-hidden="true"
+  [style.transform]="_getPrimaryBarTransform()">
+  <span class="mdc-linear-progress__bar-inner"></span>
+</div>
+<div class="mdc-linear-progress__bar mdc-linear-progress__secondary-bar" aria-hidden="true">
+  <span class="mdc-linear-progress__bar-inner"></span>
+</div>
+`,
+      styles: [".mat-mdc-progress-bar {\n  --mat-progress-bar-animation-multiplier: 1;\n  display: block;\n  text-align: start;\n}\n.mat-mdc-progress-bar[mode=query] {\n  transform: scaleX(-1);\n}\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__buffer-dots,\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__primary-bar,\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__secondary-bar,\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__bar-inner.mdc-linear-progress__bar-inner {\n  animation: none;\n}\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__primary-bar,\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__buffer-bar {\n  transition: transform 1ms;\n}\n\n.mat-progress-bar-reduced-motion {\n  --mat-progress-bar-animation-multiplier: 2;\n}\n\n.mdc-linear-progress {\n  position: relative;\n  width: 100%;\n  transform: translateZ(0);\n  outline: 1px solid transparent;\n  overflow-x: hidden;\n  transition: opacity 250ms 0ms cubic-bezier(0.4, 0, 0.6, 1);\n  height: max(var(--mat-progress-bar-track-height, 4px), var(--mat-progress-bar-active-indicator-height, 4px));\n}\n@media (forced-colors: active) {\n  .mdc-linear-progress {\n    outline-color: CanvasText;\n  }\n}\n\n.mdc-linear-progress__bar {\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  margin: auto 0;\n  width: 100%;\n  animation: none;\n  transform-origin: top left;\n  transition: transform 250ms 0ms cubic-bezier(0.4, 0, 0.6, 1);\n  height: var(--mat-progress-bar-active-indicator-height, 4px);\n}\n.mdc-linear-progress--indeterminate .mdc-linear-progress__bar {\n  transition: none;\n}\n[dir=rtl] .mdc-linear-progress__bar {\n  right: 0;\n  transform-origin: center right;\n}\n\n.mdc-linear-progress__bar-inner {\n  display: inline-block;\n  position: absolute;\n  width: 100%;\n  animation: none;\n  border-top-style: solid;\n  border-color: var(--mat-progress-bar-active-indicator-color, var(--mat-sys-primary));\n  border-top-width: var(--mat-progress-bar-active-indicator-height, 4px);\n}\n\n.mdc-linear-progress__buffer {\n  display: flex;\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  margin: auto 0;\n  width: 100%;\n  overflow: hidden;\n  height: var(--mat-progress-bar-track-height, 4px);\n  border-radius: var(--mat-progress-bar-track-shape, var(--mat-sys-corner-none));\n}\n\n.mdc-linear-progress__buffer-dots {\n  background-image: radial-gradient(circle, var(--mat-progress-bar-track-color, var(--mat-sys-surface-variant)) calc(var(--mat-progress-bar-track-height, 4px) / 2), transparent 0);\n  background-repeat: repeat-x;\n  background-size: calc(calc(var(--mat-progress-bar-track-height, 4px) / 2) * 5);\n  background-position: left;\n  flex: auto;\n  transform: rotate(180deg);\n  animation: mdc-linear-progress-buffering calc(250ms * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n@media (forced-colors: active) {\n  .mdc-linear-progress__buffer-dots {\n    background-color: ButtonBorder;\n  }\n}\n[dir=rtl] .mdc-linear-progress__buffer-dots {\n  animation: mdc-linear-progress-buffering-reverse calc(250ms * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n  transform: rotate(0);\n}\n\n.mdc-linear-progress__buffer-bar {\n  flex: 0 1 100%;\n  transition: flex-basis 250ms 0ms cubic-bezier(0.4, 0, 0.6, 1);\n  background-color: var(--mat-progress-bar-track-color, var(--mat-sys-surface-variant));\n}\n\n.mdc-linear-progress__primary-bar {\n  transform: scaleX(0);\n}\n.mdc-linear-progress--indeterminate .mdc-linear-progress__primary-bar {\n  left: -145.166611%;\n}\n.mdc-linear-progress--indeterminate.mdc-linear-progress--animation-ready .mdc-linear-progress__primary-bar {\n  animation: mdc-linear-progress-primary-indeterminate-translate calc(2s * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n.mdc-linear-progress--indeterminate.mdc-linear-progress--animation-ready .mdc-linear-progress__primary-bar > .mdc-linear-progress__bar-inner {\n  animation: mdc-linear-progress-primary-indeterminate-scale calc(2s * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n[dir=rtl] .mdc-linear-progress.mdc-linear-progress--animation-ready .mdc-linear-progress__primary-bar {\n  animation-name: mdc-linear-progress-primary-indeterminate-translate-reverse;\n}\n[dir=rtl] .mdc-linear-progress.mdc-linear-progress--indeterminate .mdc-linear-progress__primary-bar {\n  right: -145.166611%;\n  left: auto;\n}\n\n.mdc-linear-progress__secondary-bar {\n  display: none;\n}\n.mdc-linear-progress--indeterminate .mdc-linear-progress__secondary-bar {\n  left: -54.888891%;\n  display: block;\n}\n.mdc-linear-progress--indeterminate.mdc-linear-progress--animation-ready .mdc-linear-progress__secondary-bar {\n  animation: mdc-linear-progress-secondary-indeterminate-translate calc(2s * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n.mdc-linear-progress--indeterminate.mdc-linear-progress--animation-ready .mdc-linear-progress__secondary-bar > .mdc-linear-progress__bar-inner {\n  animation: mdc-linear-progress-secondary-indeterminate-scale calc(2s * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n[dir=rtl] .mdc-linear-progress.mdc-linear-progress--animation-ready .mdc-linear-progress__secondary-bar {\n  animation-name: mdc-linear-progress-secondary-indeterminate-translate-reverse;\n}\n[dir=rtl] .mdc-linear-progress.mdc-linear-progress--indeterminate .mdc-linear-progress__secondary-bar {\n  right: -54.888891%;\n  left: auto;\n}\n\n@keyframes mdc-linear-progress-buffering {\n  from {\n    transform: rotate(180deg) translateX(calc(var(--mat-progress-bar-track-height, 4px) * -2.5));\n  }\n}\n@keyframes mdc-linear-progress-primary-indeterminate-translate {\n  0% {\n    transform: translateX(0);\n  }\n  20% {\n    animation-timing-function: cubic-bezier(0.5, 0, 0.701732, 0.495819);\n    transform: translateX(0);\n  }\n  59.15% {\n    animation-timing-function: cubic-bezier(0.302435, 0.381352, 0.55, 0.956352);\n    transform: translateX(83.67142%);\n  }\n  100% {\n    transform: translateX(200.611057%);\n  }\n}\n@keyframes mdc-linear-progress-primary-indeterminate-scale {\n  0% {\n    transform: scaleX(0.08);\n  }\n  36.65% {\n    animation-timing-function: cubic-bezier(0.334731, 0.12482, 0.785844, 1);\n    transform: scaleX(0.08);\n  }\n  69.15% {\n    animation-timing-function: cubic-bezier(0.06, 0.11, 0.6, 1);\n    transform: scaleX(0.661479);\n  }\n  100% {\n    transform: scaleX(0.08);\n  }\n}\n@keyframes mdc-linear-progress-secondary-indeterminate-translate {\n  0% {\n    animation-timing-function: cubic-bezier(0.15, 0, 0.515058, 0.409685);\n    transform: translateX(0);\n  }\n  25% {\n    animation-timing-function: cubic-bezier(0.31033, 0.284058, 0.8, 0.733712);\n    transform: translateX(37.651913%);\n  }\n  48.35% {\n    animation-timing-function: cubic-bezier(0.4, 0.627035, 0.6, 0.902026);\n    transform: translateX(84.386165%);\n  }\n  100% {\n    transform: translateX(160.277782%);\n  }\n}\n@keyframes mdc-linear-progress-secondary-indeterminate-scale {\n  0% {\n    animation-timing-function: cubic-bezier(0.205028, 0.057051, 0.57661, 0.453971);\n    transform: scaleX(0.08);\n  }\n  19.15% {\n    animation-timing-function: cubic-bezier(0.152313, 0.196432, 0.648374, 1.004315);\n    transform: scaleX(0.457104);\n  }\n  44.15% {\n    animation-timing-function: cubic-bezier(0.257759, -0.003163, 0.211762, 1.38179);\n    transform: scaleX(0.72796);\n  }\n  100% {\n    transform: scaleX(0.08);\n  }\n}\n@keyframes mdc-linear-progress-primary-indeterminate-translate-reverse {\n  0% {\n    transform: translateX(0);\n  }\n  20% {\n    animation-timing-function: cubic-bezier(0.5, 0, 0.701732, 0.495819);\n    transform: translateX(0);\n  }\n  59.15% {\n    animation-timing-function: cubic-bezier(0.302435, 0.381352, 0.55, 0.956352);\n    transform: translateX(-83.67142%);\n  }\n  100% {\n    transform: translateX(-200.611057%);\n  }\n}\n@keyframes mdc-linear-progress-secondary-indeterminate-translate-reverse {\n  0% {\n    animation-timing-function: cubic-bezier(0.15, 0, 0.515058, 0.409685);\n    transform: translateX(0);\n  }\n  25% {\n    animation-timing-function: cubic-bezier(0.31033, 0.284058, 0.8, 0.733712);\n    transform: translateX(-37.651913%);\n  }\n  48.35% {\n    animation-timing-function: cubic-bezier(0.4, 0.627035, 0.6, 0.902026);\n    transform: translateX(-84.386165%);\n  }\n  100% {\n    transform: translateX(-160.277782%);\n  }\n}\n@keyframes mdc-linear-progress-buffering-reverse {\n  from {\n    transform: translateX(-10px);\n  }\n}\n"]
+    }]
+  }], () => [], {
+    color: [{
+      type: Input
+    }],
+    value: [{
+      type: Input,
+      args: [{
+        transform: numberAttribute
+      }]
+    }],
+    bufferValue: [{
+      type: Input,
+      args: [{
+        transform: numberAttribute
+      }]
+    }],
+    animationEnd: [{
+      type: Output
+    }],
+    mode: [{
+      type: Input
+    }]
+  });
+})();
+function clamp(v, min = 0, max = 100) {
+  return Math.max(min, Math.min(max, v));
+}
+var MatProgressBarModule = class _MatProgressBarModule {
+  static \u0275fac = function MatProgressBarModule_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _MatProgressBarModule)();
+  };
+  static \u0275mod = /* @__PURE__ */ \u0275\u0275defineNgModule({
+    type: _MatProgressBarModule,
+    imports: [MatProgressBar],
+    exports: [MatProgressBar, BidiModule]
+  });
+  static \u0275inj = /* @__PURE__ */ \u0275\u0275defineInjector({
+    imports: [BidiModule]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatProgressBarModule, [{
+    type: NgModule,
+    args: [{
+      imports: [MatProgressBar],
+      exports: [MatProgressBar, BidiModule]
+    }]
+  }], null, null);
+})();
+
+// libs/components/src/lib/native-domain-overlay.component.ts
+function NativeDomainOverlayComponent_Conditional_7_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275text(0, " Enter the address of your PlaceOS server to connect this app. ");
+  }
+}
+function NativeDomainOverlayComponent_Conditional_8_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275text(0, " Enter your work email to find your PlaceOS server and connect this app. ");
+  }
+}
+function NativeDomainOverlayComponent_Conditional_9_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "p", 6);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", ctx_r0.error(), " ");
+  }
+}
+function NativeDomainOverlayComponent_Conditional_10_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "p", 7);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" Settings provided by your administrator will be applied automatically in ", ctx_r0.auto_accept_in(), "s. ");
+  }
+}
+function NativeDomainOverlayComponent_Conditional_11_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r2 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 8)(1, "label", 12);
+    \u0275\u0275text(2, "Server Address");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "mat-form-field", 13)(4, "icon", 14);
+    \u0275\u0275text(5, "dns");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(6, "input", 15);
+    \u0275\u0275twoWayListener("ngModelChange", function NativeDomainOverlayComponent_Conditional_11_Template_input_ngModelChange_6_listener($event) {
+      \u0275\u0275restoreView(_r2);
+      const ctx_r0 = \u0275\u0275nextContext();
+      \u0275\u0275twoWayBindingSet(ctx_r0.server_address, $event) || (ctx_r0.server_address = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(7, "div", 8)(8, "label", 16);
+    \u0275\u0275text(9, "API Key (optional)");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(10, "mat-form-field", 13)(11, "icon", 14);
+    \u0275\u0275text(12, "key");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(13, "input", 17);
+    \u0275\u0275twoWayListener("ngModelChange", function NativeDomainOverlayComponent_Conditional_11_Template_input_ngModelChange_13_listener($event) {
+      \u0275\u0275restoreView(_r2);
+      const ctx_r0 = \u0275\u0275nextContext();
+      \u0275\u0275twoWayBindingSet(ctx_r0.api_key, $event) || (ctx_r0.api_key = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(14, "p", 18);
+    \u0275\u0275text(15, " When set, the app authenticates with this key instead of asking you to sign in. ");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275advance(6);
+    \u0275\u0275twoWayProperty("ngModel", ctx_r0.server_address);
+    \u0275\u0275property("disabled", ctx_r0.loading());
+    \u0275\u0275control();
+    \u0275\u0275advance(7);
+    \u0275\u0275twoWayProperty("ngModel", ctx_r0.api_key);
+    \u0275\u0275property("disabled", ctx_r0.loading());
+    \u0275\u0275control();
+  }
+}
+function NativeDomainOverlayComponent_Conditional_12_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r3 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 8)(1, "label", 19);
+    \u0275\u0275text(2, "Work Email");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "mat-form-field", 13)(4, "icon", 14);
+    \u0275\u0275text(5, "mail");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(6, "input", 20);
+    \u0275\u0275twoWayListener("ngModelChange", function NativeDomainOverlayComponent_Conditional_12_Template_input_ngModelChange_6_listener($event) {
+      \u0275\u0275restoreView(_r3);
+      const ctx_r0 = \u0275\u0275nextContext();
+      \u0275\u0275twoWayBindingSet(ctx_r0.email, $event) || (ctx_r0.email = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275advance(6);
+    \u0275\u0275twoWayProperty("ngModel", ctx_r0.email);
+    \u0275\u0275property("disabled", ctx_r0.loading());
+    \u0275\u0275control();
+  }
+}
+function NativeDomainOverlayComponent_Conditional_14_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275text(0, " Find my server using my work email ");
+  }
+}
+function NativeDomainOverlayComponent_Conditional_15_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275text(0, " Enter a server address manually ");
+  }
+}
+var AUTO_ACCEPT_SECONDS = 15;
+var NativeDomainOverlayComponent = class _NativeDomainOverlayComponent {
+  constructor() {
+    this.serverError = input(
+      "",
+      ...ngDevMode ? [{ debugName: "serverError" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.autoAccept = input(
+      false,
+      ...ngDevMode ? [{ debugName: "autoAccept" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.domainSet = output();
+    this.email = signal(
+      getNativeEmail() ?? "",
+      ...ngDevMode ? [{ debugName: "email" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.server_address = signal(
+      getNativeDomain() ?? "",
+      ...ngDevMode ? [{ debugName: "server_address" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.api_key = signal(
+      getNativeApiKey() ?? "",
+      ...ngDevMode ? [{ debugName: "api_key" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.manual_entry = signal(
+      !!getNativeDomain(),
+      ...ngDevMode ? [{ debugName: "manual_entry" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.error = signal(
+      "",
+      ...ngDevMode ? [{ debugName: "error" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.loading = signal(
+      false,
+      ...ngDevMode ? [{ debugName: "loading" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.auto_accept_in = signal(
+      0,
+      ...ngDevMode ? [{ debugName: "auto_accept_in" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._auto_accept_timer = null;
+    effect(() => {
+      const msg = this.serverError();
+      if (msg) {
+        this.error.set(msg);
+        untracked2(() => this.stopAutoAccept());
+      }
+    });
+    effect(() => {
+      if (this.autoAccept() && untracked2(this.server_address)) {
+        untracked2(() => this.startAutoAccept());
+      }
+    });
+  }
+  ngOnDestroy() {
+    this.stopAutoAccept();
+  }
+  /** Restart the inactivity countdown — any user activity delays it. */
+  resetAutoAccept() {
+    if (!this._auto_accept_timer)
+      return;
+    this.auto_accept_in.set(AUTO_ACCEPT_SECONDS);
+  }
+  startAutoAccept() {
+    this.auto_accept_in.set(AUTO_ACCEPT_SECONDS);
+    if (this._auto_accept_timer)
+      return;
+    this._auto_accept_timer = setInterval(() => {
+      const remaining = this.auto_accept_in() - 1;
+      this.auto_accept_in.set(remaining);
+      if (remaining > 0)
+        return;
+      this.stopAutoAccept();
+      this.submit();
+    }, 1e3);
+  }
+  stopAutoAccept() {
+    if (this._auto_accept_timer)
+      clearInterval(this._auto_accept_timer);
+    this._auto_accept_timer = null;
+    this.auto_accept_in.set(0);
+  }
+  toggleManualEntry() {
+    if (this.loading())
+      return;
+    this.manual_entry.update((manual) => !manual);
+    this.error.set("");
+  }
+  async submit() {
+    if (this.loading())
+      return;
+    this.stopAutoAccept();
+    if (this.manual_entry())
+      return this.submitManual();
+    const raw = this.email().trim();
+    if (!raw) {
+      this.error.set("A work email is required.");
+      return;
+    }
+    this.loading.set(true);
+    this.error.set("");
+    try {
+      const domain = await lookupNativeDomainByEmail(raw);
+      setNativeEmail(raw);
+      setNativeDomain(domain);
+      setNativeApiKey("");
+      this.domainSet.emit(domain);
+    } catch {
+      this.error.set("Unable to find a server for this email address.");
+    } finally {
+      this.loading.set(false);
+    }
+  }
+  submitManual() {
+    const domain = normaliseNativeDomain(this.server_address());
+    if (!domain) {
+      this.error.set("A valid server address is required.");
+      return;
+    }
+    this.error.set("");
+    setNativeDomain(domain);
+    setNativeApiKey(this.api_key());
+    this.domainSet.emit(domain);
+  }
+  static {
+    this.\u0275fac = function NativeDomainOverlayComponent_Factory(__ngFactoryType__) {
+      return new (__ngFactoryType__ || _NativeDomainOverlayComponent)();
+    };
+  }
+  static {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NativeDomainOverlayComponent, selectors: [["native-domain-overlay"]], hostBindings: function NativeDomainOverlayComponent_HostBindings(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275listener("pointerdown", function NativeDomainOverlayComponent_pointerdown_HostBindingHandler() {
+          return ctx.resetAutoAccept();
+        }, \u0275\u0275resolveWindow)("keydown", function NativeDomainOverlayComponent_keydown_HostBindingHandler() {
+          return ctx.resetAutoAccept();
+        }, \u0275\u0275resolveWindow);
+      }
+    }, inputs: { serverError: [1, "serverError"], autoAccept: [1, "autoAccept"] }, outputs: { domainSet: "domainSet" }, decls: 19, vars: 8, consts: [[1, "bg-base-200", "pointer-events-auto", "fixed", "inset-0", "z-9999", "flex", "items-center", "justify-center", "p-4"], [1, "border-base-300", "bg-base-100", "flex", "w-full", "max-w-md", "flex-col", "rounded-sm", "border", "shadow-sm", 3, "ngSubmit"], [1, "bg-base-200", "m-2", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-xl", "font-medium"], [1, "flex", "flex-col", "space-y-4", "p-4"], [1, "text-sm", "opacity-60"], [1, "bg-error/10", "text-error", "rounded-sm", "px-3", "py-2", "text-xs"], [1, "bg-info/10", "text-info", "rounded-sm", "px-3", "py-2", "text-xs"], [1, "flex", "w-full", "flex-col"], ["type", "button", 1, "self-start", "text-sm", "underline", "opacity-60", 3, "click", "disabled"], [1, "bg-base-200", "m-2", "flex", "items-center", "justify-center", "space-x-2", "rounded-sm", "border-none", "p-2"], ["btn", "", "matRipple", "", "type", "submit", 1, "flex-1", 3, "disabled"], ["for", "server-address"], ["appearance", "outline", 1, "w-full"], ["matPrefix", ""], ["matInput", "", "name", "server-address", "placeholder", "placeos.company.com", "type", "text", "autocapitalize", "off", "autocomplete", "url", "spellcheck", "false", "required", "", 3, "ngModelChange", "ngModel", "disabled"], ["for", "api-key"], ["matInput", "", "name", "api-key", "placeholder", "Leave empty to sign in", "type", "password", "autocapitalize", "off", "autocomplete", "off", "spellcheck", "false", 3, "ngModelChange", "ngModel", "disabled"], [1, "text-xs", "opacity-60"], ["for", "email"], ["matInput", "", "name", "email", "placeholder", "name@company.com", "type", "email", "autocapitalize", "off", "autocomplete", "email", "spellcheck", "false", "required", "", 3, "ngModelChange", "ngModel", "disabled"]], template: function NativeDomainOverlayComponent_Template(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275elementStart(0, "div", 0)(1, "form", 1);
+        \u0275\u0275listener("ngSubmit", function NativeDomainOverlayComponent_Template_form_ngSubmit_1_listener() {
+          return ctx.submit();
+        });
+        \u0275\u0275elementStart(2, "header", 2)(3, "h2", 3);
+        \u0275\u0275text(4, "Connect to Server");
+        \u0275\u0275elementEnd()();
+        \u0275\u0275elementStart(5, "main", 4)(6, "p", 5);
+        \u0275\u0275conditionalCreate(7, NativeDomainOverlayComponent_Conditional_7_Template, 1, 0)(8, NativeDomainOverlayComponent_Conditional_8_Template, 1, 0);
+        \u0275\u0275elementEnd();
+        \u0275\u0275conditionalCreate(9, NativeDomainOverlayComponent_Conditional_9_Template, 2, 1, "p", 6);
+        \u0275\u0275conditionalCreate(10, NativeDomainOverlayComponent_Conditional_10_Template, 2, 1, "p", 7);
+        \u0275\u0275conditionalCreate(11, NativeDomainOverlayComponent_Conditional_11_Template, 16, 4)(12, NativeDomainOverlayComponent_Conditional_12_Template, 7, 2, "div", 8);
+        \u0275\u0275elementStart(13, "button", 9);
+        \u0275\u0275listener("click", function NativeDomainOverlayComponent_Template_button_click_13_listener() {
+          return ctx.toggleManualEntry();
+        });
+        \u0275\u0275conditionalCreate(14, NativeDomainOverlayComponent_Conditional_14_Template, 1, 0)(15, NativeDomainOverlayComponent_Conditional_15_Template, 1, 0);
+        \u0275\u0275elementEnd()();
+        \u0275\u0275elementStart(16, "footer", 10)(17, "button", 11);
+        \u0275\u0275text(18);
+        \u0275\u0275elementEnd()()()();
+      }
+      if (rf & 2) {
+        \u0275\u0275advance(7);
+        \u0275\u0275conditional(ctx.manual_entry() ? 7 : 8);
+        \u0275\u0275advance(2);
+        \u0275\u0275conditional(ctx.error() ? 9 : -1);
+        \u0275\u0275advance();
+        \u0275\u0275conditional(ctx.auto_accept_in() > 0 ? 10 : -1);
+        \u0275\u0275advance();
+        \u0275\u0275conditional(ctx.manual_entry() ? 11 : 12);
+        \u0275\u0275advance(2);
+        \u0275\u0275property("disabled", ctx.loading());
+        \u0275\u0275advance();
+        \u0275\u0275conditional(ctx.manual_entry() ? 14 : 15);
+        \u0275\u0275advance(3);
+        \u0275\u0275property("disabled", ctx.loading());
+        \u0275\u0275advance();
+        \u0275\u0275textInterpolate1(" ", ctx.loading() ? "Looking up..." : "Connect", " ");
+      }
+    }, dependencies: [
+      FormsModule,
+      \u0275NgNoValidate,
+      DefaultValueAccessor,
+      NgControlStatus,
+      NgControlStatusGroup,
+      RequiredValidator,
+      NgModel,
+      NgForm,
+      IconComponent,
+      MatFormFieldModule,
+      MatFormField,
+      MatPrefix,
+      MatInputModule,
+      MatInput,
+      MatRippleModule,
+      MatRipple
+    ], encapsulation: 2 });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(NativeDomainOverlayComponent, [{
+    type: Component,
+    args: [{
+      selector: "native-domain-overlay",
+      template: `
+        <div
+            class="bg-base-200 pointer-events-auto fixed inset-0 z-9999 flex items-center justify-center p-4"
+        >
+            <form
+                class="border-base-300 bg-base-100 flex w-full max-w-md flex-col rounded-sm border shadow-sm"
+                (ngSubmit)="submit()"
+            >
+                <header class="bg-base-200 m-2 rounded-sm border-none p-2">
+                    <h2 class="px-2 text-xl font-medium">Connect to Server</h2>
+                </header>
+                <main class="flex flex-col space-y-4 p-4">
+                    <p class="text-sm opacity-60">
+                        @if (manual_entry()) {
+                            Enter the address of your PlaceOS server to connect
+                            this app.
+                        } @else {
+                            Enter your work email to find your PlaceOS server
+                            and connect this app.
+                        }
+                    </p>
+                    @if (error()) {
+                        <p
+                            class="bg-error/10 text-error rounded-sm px-3 py-2 text-xs"
+                        >
+                            {{ error() }}
+                        </p>
+                    }
+                    @if (auto_accept_in() > 0) {
+                        <p
+                            class="bg-info/10 text-info rounded-sm px-3 py-2 text-xs"
+                        >
+                            Settings provided by your administrator will be
+                            applied automatically in {{ auto_accept_in() }}s.
+                        </p>
+                    }
+                    @if (manual_entry()) {
+                        <div class="flex w-full flex-col">
+                            <label for="server-address">Server Address</label>
+                            <mat-form-field appearance="outline" class="w-full">
+                                <icon matPrefix>dns</icon>
+                                <input
+                                    matInput
+                                    name="server-address"
+                                    [(ngModel)]="server_address"
+                                    placeholder="placeos.company.com"
+                                    type="text"
+                                    autocapitalize="off"
+                                    autocomplete="url"
+                                    spellcheck="false"
+                                    required
+                                    [disabled]="loading()"
+                                />
+                            </mat-form-field>
+                        </div>
+                        <div class="flex w-full flex-col">
+                            <label for="api-key">API Key (optional)</label>
+                            <mat-form-field appearance="outline" class="w-full">
+                                <icon matPrefix>key</icon>
+                                <input
+                                    matInput
+                                    name="api-key"
+                                    [(ngModel)]="api_key"
+                                    placeholder="Leave empty to sign in"
+                                    type="password"
+                                    autocapitalize="off"
+                                    autocomplete="off"
+                                    spellcheck="false"
+                                    [disabled]="loading()"
+                                />
+                            </mat-form-field>
+                            <p class="text-xs opacity-60">
+                                When set, the app authenticates with this key
+                                instead of asking you to sign in.
+                            </p>
+                        </div>
+                    } @else {
+                        <div class="flex w-full flex-col">
+                            <label for="email">Work Email</label>
+                            <mat-form-field appearance="outline" class="w-full">
+                                <icon matPrefix>mail</icon>
+                                <input
+                                    matInput
+                                    name="email"
+                                    [(ngModel)]="email"
+                                    placeholder="name@company.com"
+                                    type="email"
+                                    autocapitalize="off"
+                                    autocomplete="email"
+                                    spellcheck="false"
+                                    required
+                                    [disabled]="loading()"
+                                />
+                            </mat-form-field>
+                        </div>
+                    }
+                    <button
+                        type="button"
+                        class="self-start text-sm underline opacity-60"
+                        [disabled]="loading()"
+                        (click)="toggleManualEntry()"
+                    >
+                        @if (manual_entry()) {
+                            Find my server using my work email
+                        } @else {
+                            Enter a server address manually
+                        }
+                    </button>
+                </main>
+                <footer
+                    class="bg-base-200 m-2 flex items-center justify-center space-x-2 rounded-sm border-none p-2"
+                >
+                    <button
+                        btn
+                        matRipple
+                        type="submit"
+                        class="flex-1"
+                        [disabled]="loading()"
+                    >
+                        {{ loading() ? 'Looking up...' : 'Connect' }}
+                    </button>
+                </footer>
+            </form>
+        </div>
+    `,
+      imports: [
+        FormsModule,
+        IconComponent,
+        MatFormFieldModule,
+        MatInputModule,
+        MatRippleModule
+      ],
+      host: {
+        "(window:pointerdown)": "resetAutoAccept()",
+        "(window:keydown)": "resetAutoAccept()"
+      }
+    }]
+  }], () => [], { serverError: [{ type: Input, args: [{ isSignal: true, alias: "serverError", required: false }] }], autoAccept: [{ type: Input, args: [{ isSignal: true, alias: "autoAccept", required: false }] }], domainSet: [{ type: Output, args: ["domainSet"] }] });
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NativeDomainOverlayComponent, { className: "NativeDomainOverlayComponent", filePath: "libs/components/src/lib/native-domain-overlay.component.ts", lineNumber: 169 });
+})();
+
+// libs/components/src/lib/service-worker-update-card.component.ts
+function ServiceWorkerUpdateCardComponent_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r1 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "aside", 0)(1, "div", 1)(2, "h2", 2);
+    \u0275\u0275text(3);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "p", 3);
+    \u0275\u0275text(5);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(6, "button", 4);
+    \u0275\u0275listener("click", function ServiceWorkerUpdateCardComponent_Conditional_0_Template_button_click_6_listener() {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.reloadApp());
+    });
+    \u0275\u0275elementStart(7, "icon");
+    \u0275\u0275text(8, "refresh");
+    \u0275\u0275elementEnd()()();
+  }
+  if (rf & 2) {
+    const update_state_r3 = ctx;
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1(" ", update_state_r3.message || "Update available", " ");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", update_state_r3.details || "Refresh the page to get the new version of the application", " ");
+    \u0275\u0275advance();
+    \u0275\u0275property("matTooltip", update_state_r3.action || "Reload App");
+  }
+}
+var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
+  constructor() {
+    this.update = serviceWorkerUpdate();
+  }
+  reloadApp() {
+    location.reload();
+  }
+  static {
+    this.\u0275fac = function ServiceWorkerUpdateCardComponent_Factory(__ngFactoryType__) {
+      return new (__ngFactoryType__ || _ServiceWorkerUpdateCardComponent)();
+    };
+  }
+  static {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ServiceWorkerUpdateCardComponent, selectors: [["placeos-service-worker-update-card"]], decls: 1, vars: 1, consts: [["role", "status", "aria-live", "assertive", 1, "border-base-300", "bg-base-100", "text-base-content", "pointer-events-auto", "fixed", "right-4", "bottom-4", "z-9999", "flex", "w-[20rem]", "max-w-[calc(100vw-2rem)]", "items-center", "gap-3", "rounded-lg", "border", "p-4", "shadow-xl"], [1, "min-w-0", "flex-1"], [1, "m-0", "text-sm", "leading-tight", "font-medium"], [1, "m-0", "mt-1", "text-xs", "opacity-70"], ["icon", "", "default", "", 3, "click", "matTooltip"]], template: function ServiceWorkerUpdateCardComponent_Template(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275conditionalCreate(0, ServiceWorkerUpdateCardComponent_Conditional_0_Template, 9, 3, "aside", 0);
+      }
+      if (rf & 2) {
+        let tmp_0_0;
+        \u0275\u0275conditional((tmp_0_0 = ctx.update()) ? 0 : -1, tmp_0_0);
+      }
+    }, dependencies: [IconComponent, MatTooltipModule, MatTooltip], encapsulation: 2 });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(ServiceWorkerUpdateCardComponent, [{
+    type: Component,
+    args: [{
+      selector: "placeos-service-worker-update-card",
+      template: `
+        @if (update(); as update_state) {
+            <aside
+                role="status"
+                aria-live="assertive"
+                class="border-base-300 bg-base-100 text-base-content pointer-events-auto fixed right-4 bottom-4 z-9999 flex w-[20rem] max-w-[calc(100vw-2rem)] items-center gap-3 rounded-lg border p-4 shadow-xl"
+            >
+                <div class="min-w-0 flex-1">
+                    <h2 class="m-0 text-sm leading-tight font-medium">
+                        {{ update_state.message || 'Update available' }}
+                    </h2>
+                    <p class="m-0 mt-1 text-xs opacity-70">
+                        {{
+                            update_state.details ||
+                                'Refresh the page to get the new version of the application'
+                        }}
+                    </p>
+                </div>
+                <button
+                    icon
+                    default
+                    [matTooltip]="update_state.action || 'Reload App'"
+                    (click)="reloadApp()"
+                >
+                    <icon>refresh</icon>
+                </button>
+            </aside>
+        }
+    `,
+      imports: [IconComponent, MatTooltipModule]
+    }]
+  }], null, null);
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ServiceWorkerUpdateCardComponent, { className: "ServiceWorkerUpdateCardComponent", filePath: "libs/components/src/lib/service-worker-update-card.component.ts", lineNumber: 40 });
+})();
+
+// libs/components/src/lib/global-loading.component.ts
+function GlobalLoadingComponent_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r1 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "native-domain-overlay", 3);
+    \u0275\u0275listener("domainSet", function GlobalLoadingComponent_Conditional_0_Template_native_domain_overlay_domainSet_0_listener() {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.onDomainSet());
+    });
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275property("serverError", ctx_r1.domain_error())("autoAccept", ctx_r1.auto_confirm());
+  }
+}
+function GlobalLoadingComponent_Conditional_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 1);
+    \u0275\u0275text(1);
+    \u0275\u0275pipe(2, "translate");
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, "COMMON.SERVER_DOWN"), " ");
+  }
+}
+function GlobalLoadingComponent_Conditional_2_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 2)(1, "div", 4)(2, "p", 5);
+    \u0275\u0275text(3);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(4, "div", 6);
+    \u0275\u0275element(5, "mat-progress-bar", 7);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate(ctx_r1.message());
+  }
+}
+var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler {
+  constructor() {
+    super(...arguments);
+    this._org = inject2(OrganisationService);
+    this._placeos = inject2(PlaceOS_Service);
+    this._settings = inject2(SettingsService);
+    this.loading = signal(
+      true,
+      ...ngDevMode ? [{ debugName: "loading" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.online = signal(
+      true,
+      ...ngDevMode ? [{ debugName: "online" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.message = getLoadingMessage();
+    this.show_domain_overlay = needsNativeDomain();
+    this.domain_error = nativeDomainError();
+    this.auto_confirm = autoConfirmNativeDomain();
+  }
+  onDomainSet() {
+    this._placeos.onNativeDomainSet();
+  }
+  async ngOnInit() {
+    this.loading.set(true);
+    await this._org.waitUntilInitialised();
+    await firstTruthyValueFrom(this._settings.initialised);
+    this.online.set(Fr());
+    this.interval("has_token", () => {
+      this.online.set(Fr());
+      if (!Rt() || !X2())
+        return;
+      this.loading.set(false);
+      this.online.set(Fr());
+      this.clearInterval("has_token");
+    }, 1e3);
+  }
+  static {
+    this.\u0275fac = /* @__PURE__ */ (() => {
+      let \u0275GlobalLoadingComponent_BaseFactory;
+      return function GlobalLoadingComponent_Factory(__ngFactoryType__) {
+        return (\u0275GlobalLoadingComponent_BaseFactory || (\u0275GlobalLoadingComponent_BaseFactory = \u0275\u0275getInheritedFactory(_GlobalLoadingComponent)))(__ngFactoryType__ || _GlobalLoadingComponent);
+      };
+    })();
+  }
+  static {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _GlobalLoadingComponent, selectors: [["global-loading"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 4, vars: 3, consts: [[3, "serverError", "autoAccept"], [1, "bg-error", "fixed", "top-2", "left-1/2", "z-9999", "-translate-x-1/2", "rounded-3xl", "px-4", "py-2", "text-xs", "text-white", "shadow-sm"], ["loader", "", 1, "bg-base-300", "pointer-events-auto", "fixed", "inset-0", "z-9998", "flex", "flex-col", "items-center", "justify-end", "space-y-2", "p-4"], [3, "domainSet", "serverError", "autoAccept"], [1, "border-base-300", "bg-base-100", "w-[24rem]", "max-w-[calc(100vw-2rem)]", "rounded-lg", "border", "p-2", "text-center", "text-xs", "shadow-sm"], [1, "text-center", "font-mono"], [1, "border-base-300", "w-[24rem]", "max-w-[calc(100vw-2rem)]", "overflow-hidden", "rounded-full", "border", "shadow-sm"], ["mode", "indeterminate", 1, "scale-150", "rounded-sm"]], template: function GlobalLoadingComponent_Template(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275conditionalCreate(0, GlobalLoadingComponent_Conditional_0_Template, 1, 2, "native-domain-overlay", 0);
+        \u0275\u0275conditionalCreate(1, GlobalLoadingComponent_Conditional_1_Template, 3, 3, "div", 1);
+        \u0275\u0275conditionalCreate(2, GlobalLoadingComponent_Conditional_2_Template, 6, 1, "div", 2);
+        \u0275\u0275element(3, "placeos-service-worker-update-card");
+      }
+      if (rf & 2) {
+        \u0275\u0275conditional(ctx.show_domain_overlay() ? 0 : -1);
+        \u0275\u0275advance();
+        \u0275\u0275conditional(!ctx.online() ? 1 : -1);
+        \u0275\u0275advance();
+        \u0275\u0275conditional(ctx.loading() ? 2 : -1);
+      }
+    }, dependencies: [
+      MatProgressBarModule,
+      MatProgressBar,
+      NativeDomainOverlayComponent,
+      ServiceWorkerUpdateCardComponent,
+      TranslatePipe
+    ], styles: ["\n[_nghost-%COMP%] {\n  pointer-events: none;\n}\n[loader][_ngcontent-%COMP%] {\n  background-image:\n    linear-gradient(\n      to right,\n      #f9a825 0%,\n      #fdd835 100%);\n}\n/*# sourceMappingURL=global-loading.component.css.map */"] });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(GlobalLoadingComponent, [{
+    type: Component,
+    args: [{ selector: "global-loading", template: `
+        @if (show_domain_overlay()) {
+            <native-domain-overlay
+                [serverError]="domain_error()"
+                [autoAccept]="auto_confirm()"
+                (domainSet)="onDomainSet()"
+            ></native-domain-overlay>
+        }
+        @if (!online()) {
+            <div
+                class="bg-error fixed top-2 left-1/2 z-9999 -translate-x-1/2 rounded-3xl px-4 py-2 text-xs text-white shadow-sm"
+            >
+                {{ 'COMMON.SERVER_DOWN' | translate }}
+            </div>
+        }
+        @if (loading()) {
+            <div
+                loader
+                class="bg-base-300 pointer-events-auto fixed inset-0 z-9998 flex flex-col items-center justify-end space-y-2 p-4"
+            >
+                <div
+                    class="border-base-300 bg-base-100 w-[24rem] max-w-[calc(100vw-2rem)] rounded-lg border p-2 text-center text-xs shadow-sm"
+                >
+                    <p class="text-center font-mono">{{ message() }}</p>
+                </div>
+                <div
+                    class="border-base-300 w-[24rem] max-w-[calc(100vw-2rem)] overflow-hidden rounded-full border shadow-sm"
+                >
+                    <mat-progress-bar
+                        mode="indeterminate"
+                        class="scale-150 rounded-sm"
+                    ></mat-progress-bar>
+                </div>
+            </div>
+        }
+        <placeos-service-worker-update-card />
+    `, imports: [
+      MatProgressBarModule,
+      NativeDomainOverlayComponent,
+      ServiceWorkerUpdateCardComponent,
+      TranslatePipe
+    ], styles: ["/* angular:styles/component:css;f96722131b020a13ff012b787cd51bd578e7478e8507e3110ee0014c8bb70e6e;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/global-loading.component.ts */\n:host {\n  pointer-events: none;\n}\n[loader] {\n  background-image:\n    linear-gradient(\n      to right,\n      #f9a825 0%,\n      #fdd835 100%);\n}\n/*# sourceMappingURL=global-loading.component.css.map */\n"] }]
+  }], null, null);
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(GlobalLoadingComponent, { className: "GlobalLoadingComponent", filePath: "libs/components/src/lib/global-loading.component.ts", lineNumber: 81 });
+})();
+
+// libs/components/src/lib/image-carousel.component.ts
+function ImageCarouselComponent_For_2_Conditional_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "img", 7);
+  }
+  if (rf & 2) {
+    const image_r1 = \u0275\u0275nextContext().$implicit;
+    \u0275\u0275property("source", image_r1?.url || image_r1);
+  }
+}
+function ImageCarouselComponent_For_2_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 6);
+    \u0275\u0275conditionalCreate(1, ImageCarouselComponent_For_2_Conditional_1_Template, 1, 1, "img", 7);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const image_r1 = ctx.$implicit;
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275styleProp("transform", ctx_r1.offset_transform());
+    \u0275\u0275advance();
+    \u0275\u0275conditional(image_r1 ? 1 : -1);
+  }
+}
+function ImageCarouselComponent_Conditional_3_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 2)(1, "icon", 8);
+    \u0275\u0275text(2, "image");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "p");
+    \u0275\u0275text(4);
+    \u0275\u0275pipe(5, "translate");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(5, 1, "COMMON.IMAGES_EMPTY"));
+  }
+}
+function ImageCarouselComponent_Conditional_4_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r3 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 9);
+    \u0275\u0275listener("click", function ImageCarouselComponent_Conditional_4_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r3);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.offset.update((value) => value - 1));
+    });
+    \u0275\u0275elementStart(1, "div", 10)(2, "icon", 11);
+    \u0275\u0275text(3, "chevron_left");
+    \u0275\u0275elementEnd()()();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275property("disabled", ctx_r1.offset() === 0);
+  }
+}
+function ImageCarouselComponent_Conditional_5_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r4 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 12);
+    \u0275\u0275listener("click", function ImageCarouselComponent_Conditional_5_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r4);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.offset.update((value) => value + 1));
+    });
+    \u0275\u0275elementStart(1, "div", 13)(2, "icon", 11);
+    \u0275\u0275text(3, "chevron_right");
+    \u0275\u0275elementEnd()()();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275property("disabled", ctx_r1.offset() >= ctx_r1.images()?.length - 1);
+  }
+}
+function ImageCarouselComponent_Conditional_6_For_2_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r5 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 15);
+    \u0275\u0275listener("click", function ImageCarouselComponent_Conditional_6_For_2_Template_button_click_0_listener() {
+      const \u0275$index_38_r6 = \u0275\u0275restoreView(_r5).$index;
+      const ctx_r1 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r1.offset.set(\u0275$index_38_r6));
+    });
+    \u0275\u0275element(1, "div", 16);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const \u0275$index_38_r6 = ctx.$index;
+    const ctx_r1 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance();
+    \u0275\u0275classProp("opacity-30", ctx_r1.offset() !== \u0275$index_38_r6)("h-2", ctx_r1.offset() !== \u0275$index_38_r6)("w-2", ctx_r1.offset() !== \u0275$index_38_r6)("h-4", ctx_r1.offset() === \u0275$index_38_r6)("w-4", ctx_r1.offset() === \u0275$index_38_r6)("opacity-80", ctx_r1.offset() === \u0275$index_38_r6);
+  }
+}
+function ImageCarouselComponent_Conditional_6_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 5);
+    \u0275\u0275repeaterCreate(1, ImageCarouselComponent_Conditional_6_For_2_Template, 2, 12, "button", 14, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275repeater(ctx_r1.images());
+  }
+}
+var ImageCarouselComponent = class _ImageCarouselComponent {
+  constructor() {
+    this.images = input(
+      [],
+      ...ngDevMode ? [{ debugName: "images" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.offset = signal(
+      0,
+      ...ngDevMode ? [{ debugName: "offset" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.offset_transform = computed(
+      () => `translateX(-${this.offset() * 100}%)`,
+      ...ngDevMode ? [{ debugName: "offset_transform" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+  }
+  static {
+    this.\u0275fac = function ImageCarouselComponent_Factory(__ngFactoryType__) {
+      return new (__ngFactoryType__ || _ImageCarouselComponent)();
+    };
+  }
+  static {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ImageCarouselComponent, selectors: [["image-carousel"]], inputs: { images: [1, "images"] }, decls: 7, vars: 4, consts: [[1, "relative", "flex", "h-full", "w-full", "overflow-hidden"], ["image", "", 1, "relative", "flex", "h-full", "min-w-full", "items-center", "justify-center", "overflow-hidden", 3, "transform"], [1, "relative", "flex", "h-full", "w-full", "flex-col", "items-center", "justify-center", "space-y-2", "opacity-30"], [1, "absolute", "inset-y-0", "left-0", "flex", "w-1/3", "items-center", "justify-center", "opacity-0", "hover:opacity-100", 3, "disabled"], [1, "absolute", "inset-y-0", "right-0", "flex", "w-1/3", "items-center", "justify-center", "text-white", "opacity-0", "hover:opacity-100", 3, "disabled"], [1, "absolute", "bottom-2", "left-1/2", "flex", "-translate-x-1/2", "items-center", "space-x-2", "text-sm"], ["image", "", 1, "relative", "flex", "h-full", "min-w-full", "items-center", "justify-center", "overflow-hidden"], ["auth", "", 1, "h-full", "object-contain", 3, "source"], [1, "text-6xl"], [1, "absolute", "inset-y-0", "left-0", "flex", "w-1/3", "items-center", "justify-center", "opacity-0", "hover:opacity-100", 3, "click", "disabled"], ["matRipple", "", 1, "border-base-300", "bg-base-100", "text-base-content", "absolute", "top-1/2", "left-4", "h-10", "w-10", "-translate-y-1/2", "rounded-full", "border", "shadow-sm"], [1, "text-3xl"], [1, "absolute", "inset-y-0", "right-0", "flex", "w-1/3", "items-center", "justify-center", "text-white", "opacity-0", "hover:opacity-100", 3, "click", "disabled"], ["matRipple", "", 1, "border-base-300", "bg-base-100", "text-base-content", "absolute", "top-1/2", "right-4", "h-10", "w-10", "-translate-y-1/2", "rounded-full", "border", "shadow-sm"], ["matRipple", "", 1, "flex", "h-4", "w-4", "items-center", "justify-center"], ["matRipple", "", 1, "flex", "h-4", "w-4", "items-center", "justify-center", 3, "click"], [1, "bg-base-100", "rounded-full", "shadow-sm", "transition-all"]], template: function ImageCarouselComponent_Template(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275elementStart(0, "div", 0);
+        \u0275\u0275repeaterCreate(1, ImageCarouselComponent_For_2_Template, 2, 3, "div", 1, \u0275\u0275repeaterTrackByIdentity);
+        \u0275\u0275conditionalCreate(3, ImageCarouselComponent_Conditional_3_Template, 6, 3, "div", 2);
+        \u0275\u0275conditionalCreate(4, ImageCarouselComponent_Conditional_4_Template, 4, 1, "button", 3);
+        \u0275\u0275conditionalCreate(5, ImageCarouselComponent_Conditional_5_Template, 4, 1, "button", 4);
+        \u0275\u0275conditionalCreate(6, ImageCarouselComponent_Conditional_6_Template, 3, 0, "div", 5);
+        \u0275\u0275elementEnd();
+      }
+      if (rf & 2) {
+        \u0275\u0275advance();
+        \u0275\u0275repeater(ctx.images());
+        \u0275\u0275advance(2);
+        \u0275\u0275conditional(!ctx.images()?.length ? 3 : -1);
+        \u0275\u0275advance();
+        \u0275\u0275conditional(ctx.images()?.length ? 4 : -1);
+        \u0275\u0275advance();
+        \u0275\u0275conditional(ctx.images()?.length ? 5 : -1);
+        \u0275\u0275advance();
+        \u0275\u0275conditional(ctx.images()?.length ? 6 : -1);
+      }
+    }, dependencies: [
+      MatRippleModule,
+      MatRipple,
+      AuthenticatedImageDirective,
+      IconComponent,
+      TranslatePipe
+    ], styles: ["\n[_nghost-%COMP%] {\n  display: block;\n  height: 100%;\n  width: 100%;\n}\n[image][_ngcontent-%COMP%] {\n  transition: transform 300ms;\n}\nbutton[disabled][_ngcontent-%COMP%] {\n  pointer-events: none;\n}\n/*# sourceMappingURL=image-carousel.component.css.map */"] });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(ImageCarouselComponent, [{
+    type: Component,
+    args: [{ selector: "image-carousel", template: `
+        <div class="relative flex h-full w-full overflow-hidden">
+            @for (image of images(); track image) {
+                <div
+                    image
+                    class="relative flex h-full min-w-full items-center justify-center overflow-hidden"
+                    [style.transform]="offset_transform()"
+                >
+                    @if (image) {
+                        <img
+                            auth
+                            class="h-full object-contain"
+                            [source]="$any(image)?.url || image"
+                        />
+                    }
+                </div>
+            }
+            @if (!images()?.length) {
+                <div
+                    class="relative flex h-full w-full flex-col items-center justify-center space-y-2 opacity-30"
+                >
+                    <icon class="text-6xl">image</icon>
+                    <p>{{ 'COMMON.IMAGES_EMPTY' | translate }}</p>
+                </div>
+            }
+            @if (images()?.length) {
+                <button
+                    class="absolute inset-y-0 left-0 flex w-1/3 items-center justify-center opacity-0 hover:opacity-100"
+                    [disabled]="offset() === 0"
+                    (click)="offset.update((value) => value - 1)"
+                >
+                    <div
+                        matRipple
+                        class="border-base-300 bg-base-100 text-base-content absolute top-1/2 left-4 h-10 w-10 -translate-y-1/2 rounded-full border shadow-sm"
+                    >
+                        <icon class="text-3xl">chevron_left</icon>
+                    </div>
+                </button>
+            }
+            @if (images()?.length) {
+                <button
+                    class="absolute inset-y-0 right-0 flex w-1/3 items-center justify-center text-white opacity-0 hover:opacity-100"
+                    [disabled]="offset() >= images()?.length - 1"
+                    (click)="offset.update((value) => value + 1)"
+                >
+                    <div
+                        matRipple
+                        class="border-base-300 bg-base-100 text-base-content absolute top-1/2 right-4 h-10 w-10 -translate-y-1/2 rounded-full border shadow-sm"
+                    >
+                        <icon class="text-3xl">chevron_right</icon>
+                    </div>
+                </button>
+            }
+            @if (images()?.length) {
+                <div
+                    class="absolute bottom-2 left-1/2 flex -translate-x-1/2 items-center space-x-2 text-sm"
+                >
+                    @for (img of images(); track img; let i = $index) {
+                        <button
+                            matRipple
+                            (click)="offset.set(i)"
+                            class="flex h-4 w-4 items-center justify-center"
+                        >
+                            <div
+                                class="bg-base-100 rounded-full shadow-sm transition-all"
+                                [class.opacity-30]="offset() !== i"
+                                [class.h-2]="offset() !== i"
+                                [class.w-2]="offset() !== i"
+                                [class.h-4]="offset() === i"
+                                [class.w-4]="offset() === i"
+                                [class.opacity-80]="offset() === i"
+                            ></div>
+                        </button>
+                    }
+                </div>
+            }
+        </div>
+    `, imports: [
+      MatRippleModule,
+      TranslatePipe,
+      AuthenticatedImageDirective,
+      IconComponent
+    ], styles: ["/* angular:styles/component:css;689216c244746a44ce8495e5ddc0d8a4ad407f0899332d9a6e20f4c6e02d0df2;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/image-carousel.component.ts */\n:host {\n  display: block;\n  height: 100%;\n  width: 100%;\n}\n[image] {\n  transition: transform 300ms;\n}\nbutton[disabled] {\n  pointer-events: none;\n}\n/*# sourceMappingURL=image-carousel.component.css.map */\n"] }]
+  }], null, { images: [{ type: Input, args: [{ isSignal: true, alias: "images", required: false }] }] });
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ImageCarouselComponent, { className: "ImageCarouselComponent", filePath: "libs/components/src/lib/image-carousel.component.ts", lineNumber: 111 });
+})();
+
 // libs/explore/src/lib/explore-state.service.ts
 var ExploreStateService = class _ExploreStateService {
   get positions() {
@@ -99544,7 +99620,7 @@ var ExploreStateService = class _ExploreStateService {
         level: this._level(),
         initialised: this._initialised()
       }),
-      loader: ({ params: { level, initialised } }) => initialised ? ta({
+      loader: ({ params: { level, initialised } }) => initialised ? ia({
         zone_id: level?.id || this._org.organisation.id,
         limit: 50
       }).then(({ data }) => data.map((_3) => new Space(_3))).catch((_3) => []) : Promise.resolve([])
@@ -101758,6 +101834,7 @@ var MatRadioModule = class _MatRadioModule {
 })();
 
 // libs/components/src/lib/unauthorised.component.ts
+var _c022 = () => ["/"];
 var UnauthorisedComponent = class _UnauthorisedComponent {
   static {
     this.\u0275fac = function UnauthorisedComponent_Factory(__ngFactoryType__) {
@@ -101765,33 +101842,38 @@ var UnauthorisedComponent = class _UnauthorisedComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _UnauthorisedComponent, selectors: [["app-unauthorised"]], decls: 13, vars: 9, consts: [["unauthorised", "", 1, "absolute", "inset-0"], [1, "border-base-300", "bg-base-100", "text-base-content", "mx-auto", "my-4", "w-104", "max-w-[calc(100%-1rem)]", "rounded-xl", "border", "p-4", "text-center", "shadow-lg"], [1, "text-4xl"], [1, "py-4"]], template: function UnauthorisedComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _UnauthorisedComponent, selectors: [["app-unauthorised"]], decls: 15, vars: 11, consts: [["unauthorised", "", 1, "absolute", "inset-0"], [1, "border-base-300", "bg-base-100", "text-base-content", "mx-auto", "my-4", "flex", "w-104", "max-w-[calc(100%-1rem)]", "flex-col", "gap-2", "rounded-xl", "border", "p-4", "text-center", "shadow-lg"], [1, "text-4xl"], [1, "py-4"], ["btn", "", 3, "routerLink"]], template: function UnauthorisedComponent_Template(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275domElementStart(0, "div", 0)(1, "div", 1)(2, "h1", 2);
+        \u0275\u0275elementStart(0, "div", 0)(1, "div", 1)(2, "h1", 2);
         \u0275\u0275text(3, "403");
-        \u0275\u0275domElementEnd();
-        \u0275\u0275domElementStart(4, "h3");
+        \u0275\u0275elementEnd();
+        \u0275\u0275elementStart(4, "h3");
         \u0275\u0275text(5);
         \u0275\u0275pipe(6, "translate");
-        \u0275\u0275domElementEnd();
-        \u0275\u0275domElementStart(7, "p", 3);
+        \u0275\u0275elementEnd();
+        \u0275\u0275elementStart(7, "p", 3);
         \u0275\u0275text(8);
         \u0275\u0275pipe(9, "translate");
-        \u0275\u0275domElementEnd();
-        \u0275\u0275domElementStart(10, "p");
+        \u0275\u0275elementEnd();
+        \u0275\u0275elementStart(10, "p");
         \u0275\u0275text(11);
         \u0275\u0275pipe(12, "translate");
-        \u0275\u0275domElementEnd()()();
+        \u0275\u0275elementEnd();
+        \u0275\u0275elementStart(13, "a", 4);
+        \u0275\u0275text(14, "Try Again");
+        \u0275\u0275elementEnd()()();
       }
       if (rf & 2) {
         \u0275\u0275advance(5);
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(6, 3, "COMMON.FORBIDDEN"));
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(6, 4, "COMMON.FORBIDDEN"));
         \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(9, 5, "COMMON.INVALID_PAGE_PERMISSIONS"), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(9, 6, "COMMON.INVALID_PAGE_PERMISSIONS"), " ");
         \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(12, 7, "COMMON.CONTACT_ADMIN"), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(12, 8, "COMMON.CONTACT_ADMIN"), " ");
+        \u0275\u0275advance(2);
+        \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(10, _c022));
       }
-    }, dependencies: [TranslatePipe], styles: ["\n[_nghost-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n[unauthorised][_ngcontent-%COMP%] {\n  background-image:\n    linear-gradient(\n      to right,\n      #c62828 0%,\n      #ef5350 100%);\n}\n/*# sourceMappingURL=unauthorised.component.css.map */"] });
+    }, dependencies: [RouterLink, TranslatePipe], styles: ["\n[_nghost-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n[unauthorised][_ngcontent-%COMP%] {\n  background-image:\n    linear-gradient(\n      to right,\n      #c62828 0%,\n      #ef5350 100%);\n}\n/*# sourceMappingURL=unauthorised.component.css.map */"] });
   }
 };
 (() => {
@@ -101800,7 +101882,7 @@ var UnauthorisedComponent = class _UnauthorisedComponent {
     args: [{ selector: "app-unauthorised", template: `
         <div unauthorised class="absolute inset-0">
             <div
-                class="border-base-300 bg-base-100 text-base-content mx-auto my-4 w-104 max-w-[calc(100%-1rem)] rounded-xl border p-4 text-center shadow-lg"
+                class="border-base-300 bg-base-100 text-base-content mx-auto my-4 flex w-104 max-w-[calc(100%-1rem)] flex-col gap-2 rounded-xl border p-4 text-center shadow-lg"
             >
                 <h1 class="text-4xl">403</h1>
                 <h3>{{ 'COMMON.FORBIDDEN' | translate }}</h3>
@@ -101810,13 +101892,14 @@ var UnauthorisedComponent = class _UnauthorisedComponent {
                 <p>
                     {{ 'COMMON.CONTACT_ADMIN' | translate }}
                 </p>
+                <a btn [routerLink]="['/']">Try Again</a>
             </div>
         </div>
-    `, imports: [TranslatePipe], styles: ["/* angular:styles/component:css;9e56e45d1ecd17d612bec636f553ceddd9b98cd2552edbd57d59534065beeefe;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/unauthorised.component.ts */\n:host {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n[unauthorised] {\n  background-image:\n    linear-gradient(\n      to right,\n      #c62828 0%,\n      #ef5350 100%);\n}\n/*# sourceMappingURL=unauthorised.component.css.map */\n"] }]
+    `, imports: [TranslatePipe, RouterLink], styles: ["/* angular:styles/component:css;9e56e45d1ecd17d612bec636f553ceddd9b98cd2552edbd57d59534065beeefe;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/unauthorised.component.ts */\n:host {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n[unauthorised] {\n  background-image:\n    linear-gradient(\n      to right,\n      #c62828 0%,\n      #ef5350 100%);\n}\n/*# sourceMappingURL=unauthorised.component.css.map */\n"] }]
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UnauthorisedComponent, { className: "UnauthorisedComponent", filePath: "libs/components/src/lib/unauthorised.component.ts", lineNumber: 41 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UnauthorisedComponent, { className: "UnauthorisedComponent", filePath: "libs/components/src/lib/unauthorised.component.ts", lineNumber: 43 });
 })();
 
 // libs/components/src/lib/user-avatar.component.ts
@@ -101946,7 +102029,7 @@ var UserAvatarComponent = class _UserAvatarComponent {
 })();
 
 // node_modules/@angular/material/fesm2022/chips.mjs
-var _c022 = ["*", [["mat-chip-avatar"], ["", "matChipAvatar", ""]], [["mat-chip-trailing-icon"], ["", "matChipRemove", ""], ["", "matChipTrailingIcon", ""]]];
+var _c023 = ["*", [["mat-chip-avatar"], ["", "matChipAvatar", ""]], [["mat-chip-trailing-icon"], ["", "matChipRemove", ""], ["", "matChipTrailingIcon", ""]]];
 var _c112 = ["*", "mat-chip-avatar, [matChipAvatar]", "mat-chip-trailing-icon,[matChipRemove],[matChipTrailingIcon]"];
 function MatChip_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -102596,7 +102679,7 @@ var MatChip = class _MatChip {
     consts: [[1, "mat-mdc-chip-focus-overlay"], [1, "mdc-evolution-chip__cell", "mdc-evolution-chip__cell--primary"], ["matChipContent", ""], [1, "mdc-evolution-chip__graphic", "mat-mdc-chip-graphic"], [1, "mdc-evolution-chip__text-label", "mat-mdc-chip-action-label"], [1, "mat-mdc-chip-primary-focus-indicator", "mat-focus-indicator"], [1, "mdc-evolution-chip__cell", "mdc-evolution-chip__cell--trailing"]],
     template: function MatChip_Template(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275projectionDef(_c022);
+        \u0275\u0275projectionDef(_c023);
         \u0275\u0275element(0, "span", 0);
         \u0275\u0275elementStart(1, "span", 1)(2, "span", 2);
         \u0275\u0275conditionalCreate(3, MatChip_Conditional_3_Template, 2, 0, "span", 3);
@@ -102860,7 +102943,7 @@ var MatChipOption = class _MatChipOption extends MatChip {
     consts: [[1, "mat-mdc-chip-focus-overlay"], [1, "mdc-evolution-chip__cell", "mdc-evolution-chip__cell--primary"], ["matChipAction", "", "role", "option", 3, "_allowFocusWhenDisabled"], [1, "mdc-evolution-chip__graphic", "mat-mdc-chip-graphic"], [1, "mdc-evolution-chip__text-label", "mat-mdc-chip-action-label"], [1, "mat-mdc-chip-primary-focus-indicator", "mat-focus-indicator"], [1, "mdc-evolution-chip__cell", "mdc-evolution-chip__cell--trailing"], [1, "mdc-evolution-chip__checkmark"], ["viewBox", "-2 -3 30 30", "focusable", "false", "aria-hidden", "true", 1, "mdc-evolution-chip__checkmark-svg"], ["fill", "none", "stroke", "currentColor", "d", "M1.73,12.91 8.1,19.28 22.79,4.59", 1, "mdc-evolution-chip__checkmark-path"]],
     template: function MatChipOption_Template(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275projectionDef(_c022);
+        \u0275\u0275projectionDef(_c023);
         \u0275\u0275element(0, "span", 0);
         \u0275\u0275elementStart(1, "span", 1)(2, "button", 2);
         \u0275\u0275conditionalCreate(3, MatChipOption_Conditional_3_Template, 5, 0, "span", 3);
@@ -104470,7 +104553,7 @@ var MatChipsModule = class _MatChipsModule {
 })();
 
 // libs/form-fields/src/lib/rich-text-input.component.ts
-var _c023 = ["editor"];
+var _c024 = ["editor"];
 function RichTextInputComponent_Conditional_2_Conditional_47_Template(rf, ctx) {
   if (rf & 1) {
     const _r3 = \u0275\u0275getCurrentView();
@@ -104869,7 +104952,7 @@ var RichTextInputComponent = class _RichTextInputComponent extends AsyncHandler 
     this._editor.insertHTML(`<a href="${link}" target="_blank">${file.name}</a>`);
   }
   _setAuth() {
-    const tkn = V2();
+    const tkn = X2();
     document.cookie = `${tkn === "x-api-key" ? "api-key=" + encodeURIComponent(Ye()) : "bearer_token=" + encodeURIComponent(tkn)};max-age=30;path=/api/engine/v2/uploads;samesite=strict;${location.protocol === "https:" ? "secure;" : ""}`;
   }
   static {
@@ -104883,7 +104966,7 @@ var RichTextInputComponent = class _RichTextInputComponent extends AsyncHandler 
   static {
     this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _RichTextInputComponent, selectors: [["rich-text-input"]], viewQuery: function RichTextInputComponent_Query(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275viewQuerySignal(ctx._editor_el, _c023, 5);
+        \u0275\u0275viewQuerySignal(ctx._editor_el, _c024, 5);
       }
       if (rf & 2) {
         \u0275\u0275queryAdvance();
@@ -105038,7 +105121,7 @@ var RichTextInputComponent = class _RichTextInputComponent extends AsyncHandler 
 })();
 
 // libs/form-fields/src/lib/time-field.component.ts
-var _c024 = ["*"];
+var _c025 = ["*"];
 var _forTrack02 = ($index, $item) => $item.id;
 function TimeFieldComponent_Conditional_5_Template(rf, ctx) {
   if (rf & 1) {
@@ -105545,7 +105628,7 @@ var TimeFieldComponent = class _TimeFieldComponent extends AsyncHandler {
         useExisting: forwardRef(() => _TimeFieldComponent),
         multi: true
       }
-    ]), \u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature], ngContentSelectors: _c024, decls: 15, vars: 12, consts: [["menu", "matMenu"], ["time-field", "", "matRipple", "", 1, "border-neutral", "flex", "h-12", "w-full", "items-center", "justify-between", "rounded-sm", "border", "px-2", 3, "disabled", "matMenuTriggerFor"], [1, "flex", "w-1/2", "flex-1", "flex-col", "px-2", "text-left", "leading-tight"], [1, "truncate"], [1, "truncate", "text-xs", "opacity-30"], [1, "text-2xl"], [1, "max-h-60", "min-w-[18rem]"], ["mat-menu-item", "", 1, "text-left", 3, "value"], ["mat-menu-item", "", "disabled", ""], ["mat-menu-item", "", 1, "text-left", 3, "click", "value"], [1, "flex", "items-center", "justify-between"], [1, "flex", "flex-col", "leading-tight"], [1, ""], [1, "text-xs", "opacity-30"], [1, "ml-2", "text-2xl"]], template: function TimeFieldComponent_Template(rf, ctx) {
+    ]), \u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature], ngContentSelectors: _c025, decls: 15, vars: 12, consts: [["menu", "matMenu"], ["time-field", "", "matRipple", "", 1, "border-neutral", "flex", "h-12", "w-full", "items-center", "justify-between", "rounded-sm", "border", "px-2", 3, "disabled", "matMenuTriggerFor"], [1, "flex", "w-1/2", "flex-1", "flex-col", "px-2", "text-left", "leading-tight"], [1, "truncate"], [1, "truncate", "text-xs", "opacity-30"], [1, "text-2xl"], [1, "max-h-60", "min-w-[18rem]"], ["mat-menu-item", "", 1, "text-left", 3, "value"], ["mat-menu-item", "", "disabled", ""], ["mat-menu-item", "", 1, "text-left", 3, "click", "value"], [1, "flex", "items-center", "justify-between"], [1, "flex", "flex-col", "leading-tight"], [1, ""], [1, "text-xs", "opacity-30"], [1, "ml-2", "text-2xl"]], template: function TimeFieldComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275projectionDef();
         \u0275\u0275elementStart(0, "button", 1)(1, "div", 2)(2, "div", 3);
@@ -105690,7 +105773,7 @@ var TimeFieldComponent = class _TimeFieldComponent extends AsyncHandler {
 })();
 
 // node_modules/@angular/material/fesm2022/slider.mjs
-var _c025 = ["knob"];
+var _c026 = ["knob"];
 var _c113 = ["valueIndicatorContainer"];
 function MatSliderVisualThumb_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -105940,7 +106023,7 @@ var MatSliderVisualThumb = class _MatSliderVisualThumb {
     selectors: [["mat-slider-visual-thumb"]],
     viewQuery: function MatSliderVisualThumb_Query(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275viewQuery(MatRipple, 5)(_c025, 5)(_c113, 5);
+        \u0275\u0275viewQuery(MatRipple, 5)(_c026, 5)(_c113, 5);
       }
       if (rf & 2) {
         let _t2;
@@ -108085,13 +108168,13 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
     const use_group_subsystem_access = await this.useGroupSubsystemAccess();
     let can_activate = false;
     if (use_group_subsystem_access) {
-      await ri(Hr(), Boolean);
+      await oi(Lr(), Boolean);
       const user = await firstTruthyValueFrom(current_user);
       can_activate = await this.checkSubsystemAccess(user);
     } else if (!groups.length) {
       can_activate = true;
     } else {
-      await ri(Hr(), Boolean);
+      await oi(Lr(), Boolean);
       await this._org.waitUntilInitialised();
       const user = await firstTruthyValueFrom(current_user);
       can_activate = !!(user && groups.find((_3) => user.groups.includes(_3)));
@@ -108221,7 +108304,7 @@ var BindingDirective = class _BindingDirective extends AsyncHandler {
     this._old_model = null;
   }
   ngOnInit() {
-    ri(Hr(), (_3) => _3).then(() => this.bindVariable());
+    oi(Lr(), (_3) => _3).then(() => this.bindVariable());
   }
   ngOnChanges(changes) {
     if (changes.sys || changes.mod || changes.bind) {
@@ -108241,7 +108324,7 @@ var BindingDirective = class _BindingDirective extends AsyncHandler {
   bindVariable() {
     if (Rt() && this.bind() && this.sys() && this.mod() && !this._binding) {
       this.timeout("bind", () => {
-        const module2 = Fl(this.sys(), this.mod(), this.index());
+        const module2 = Wl(this.sys(), this.mod(), this.index());
         const binding = module2.variable(this.bind());
         this._binding = true;
         this.subscription("on_changes", binding.bindThenSubscribe((value) => {
@@ -108263,7 +108346,7 @@ var BindingDirective = class _BindingDirective extends AsyncHandler {
   execute() {
     if (Rt() && this.exec() && this.sys() && this.mod() && !this._timers["execute"]) {
       this.timeout("execute", () => {
-        const module2 = Fl(this.sys(), this.mod(), this.index());
+        const module2 = Wl(this.sys(), this.mod(), this.index());
         let params = this.params();
         if (this.bind())
           params = this.params() || [this.model()];
@@ -108312,7 +108395,7 @@ function withAppVersion(data) {
 async function queryBookings(q2) {
   const query2 = toQueryString(q2);
   try {
-    const list = await d(`${BOOKINGS_ENDPOINT}${query2 ? "?" + query2 : ""}`);
+    const list = await f(`${BOOKINGS_ENDPOINT}${query2 ? "?" + query2 : ""}`);
     return list.map((item) => new Booking(item));
   } catch (_3) {
     return [];
@@ -108355,10 +108438,10 @@ async function createBooking(data, q2) {
   return new Booking(await S2(`${BOOKINGS_ENDPOINT}${query2 ? "?" + query2 : ""}`, withAppVersion(data)));
 }
 async function updateBooking(id, data, method = "patch") {
-  return new Booking(await (method === "patch" ? ye : ce)(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}`, withAppVersion(data)));
+  return new Booking(await (method === "patch" ? ae : ce)(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}`, withAppVersion(data)));
 }
 async function updateBookingInstance(id, start_time, data, method = "patch") {
-  return new Booking(await (method === "patch" ? ye : ce)(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/instance/${start_time}`, withAppVersion(data)));
+  return new Booking(await (method === "patch" ? ae : ce)(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/instance/${start_time}`, withAppVersion(data)));
 }
 var saveBooking = async (data, q2) => {
   const id = data.id;
@@ -108366,18 +108449,18 @@ var saveBooking = async (data, q2) => {
   const instance = q2?.instance;
   if (q2)
     delete q2.instance;
-  return id ? instance ? updateBookingInstance(id, data.instance || data.booking_start, data) : updateBooking(id, data) : createBooking(Ys(data, ["", null, void 0]) || {}, q2);
+  return id ? instance ? updateBookingInstance(id, data.instance || data.booking_start, data) : updateBooking(id, data) : createBooking(Vs(data, ["", null, void 0]) || {}, q2);
 };
 function removeBooking(id, q2 = {}) {
   if (q2.instance) {
     return removeBookingInstance(id, q2.start_time);
   }
-  return X2(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}`, {
+  return ee(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}`, {
     response_type: "void"
   });
 }
 function removeBookingInstance(id, start_time) {
-  return X2(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/instance/${start_time}`, {
+  return ee(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/instance/${start_time}`, {
     response_type: "void"
   });
 }
@@ -108445,12 +108528,12 @@ async function createBookingsForEvent(event, type, resources) {
 // libs/events/src/lib/calendar.fn.ts
 var CALENDAR_ENDPOINT = "/api/staff/v1/calendars";
 async function queryCalendars() {
-  const list = await d(CALENDAR_ENDPOINT);
+  const list = await f(CALENDAR_ENDPOINT);
   return list.map((c) => new Calendar(c));
 }
 async function queryCalendarAvailability(q2) {
   const query2 = toQueryString(q2);
-  const list = await d(`${CALENDAR_ENDPOINT}/availability${query2 ? "?" + query2 : ""}`);
+  const list = await f(`${CALENDAR_ENDPOINT}/availability${query2 ? "?" + query2 : ""}`);
   return list.map((c) => new Calendar(c));
 }
 var calendarsToSpaces = (list, org) => list.filter((cal) => !!cal.resource).map((cal) => new Space(__spreadProps(__spreadValues({}, cal.resource), {
@@ -108459,11 +108542,11 @@ var calendarsToSpaces = (list, org) => list.filter((cal) => !!cal.resource).map(
 }))).filter((space) => space.bookable);
 async function queryUserFreeBusy(q2) {
   const query2 = toQueryString(q2);
-  return await d(`${CALENDAR_ENDPOINT}/free_busy${query2 ? "?" + query2 : ""}`);
+  return await f(`${CALENDAR_ENDPOINT}/free_busy${query2 ? "?" + query2 : ""}`);
 }
 async function querySpaceFreeBusy(q2, org) {
   const query2 = toQueryString(q2);
-  const list = await d(`${CALENDAR_ENDPOINT}/free_busy${query2 ? "?" + query2 : ""}`);
+  const list = await f(`${CALENDAR_ENDPOINT}/free_busy${query2 ? "?" + query2 : ""}`);
   return calendarsToSpaces(list.map((c) => new Calendar(c)), org);
 }
 
@@ -108787,7 +108870,7 @@ var DateCalendarComponent = class _DateCalendarComponent extends AsyncHandler {
 })();
 
 // libs/form-fields/src/lib/date-field.component.ts
-var _c026 = ["*"];
+var _c027 = ["*"];
 function DateFieldComponent_Conditional_4_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275text(0);
@@ -109152,7 +109235,7 @@ var DateFieldComponent = class _DateFieldComponent extends AsyncHandler {
         useExisting: forwardRef(() => _DateFieldComponent),
         multi: true
       }
-    ]), \u0275\u0275InheritDefinitionFeature], ngContentSelectors: _c026, decls: 15, vars: 8, consts: [["calendar_picker", ""], [1, "flex", "items-center", "gap-1"], ["type", "button", "customTooltip", "", "yPosition", "top", "matRipple", "", 1, "border-neutral", "flex", "h-12", "w-full", "flex-1", "items-center", "justify-between", "rounded-sm", "border", 3, "content", "disabled"], [1, "flex", "w-1/2", "flex-1", "flex-col", "truncate", "px-4", "py-2", "text-left", "leading-tight"], [1, "text-base", "font-normal"], [1, "opacity-30"], [1, "truncate", "text-xs", "opacity-30"], [1, "flex", "h-10", "w-10", "items-center", "justify-center", "text-2xl"], ["type", "button", "icon", "", "matRipple", "", 1, "border-error", "text-error", "flex", "h-12", "w-12", "items-center", "justify-center", "rounded-sm", "border", 3, "disabled"], [1, "error", "text-error", "h-5", "p-1", "text-xs"], ["type", "button", "icon", "", "matRipple", "", 1, "border-error", "text-error", "flex", "h-12", "w-12", "items-center", "justify-center", "rounded-sm", "border", 3, "click", "disabled"], [1, "bg-base-100", "relative", "w-[18rem]", "rounded-sm", "px-2", "py-4"], [3, "ngModelChange", "ngModel", "from", "to", "offset_weekday"]], template: function DateFieldComponent_Template(rf, ctx) {
+    ]), \u0275\u0275InheritDefinitionFeature], ngContentSelectors: _c027, decls: 15, vars: 8, consts: [["calendar_picker", ""], [1, "flex", "items-center", "gap-1"], ["type", "button", "customTooltip", "", "yPosition", "top", "matRipple", "", 1, "border-neutral", "flex", "h-12", "w-full", "flex-1", "items-center", "justify-between", "rounded-sm", "border", 3, "content", "disabled"], [1, "flex", "w-1/2", "flex-1", "flex-col", "truncate", "px-4", "py-2", "text-left", "leading-tight"], [1, "text-base", "font-normal"], [1, "opacity-30"], [1, "truncate", "text-xs", "opacity-30"], [1, "flex", "h-10", "w-10", "items-center", "justify-center", "text-2xl"], ["type", "button", "icon", "", "matRipple", "", 1, "border-error", "text-error", "flex", "h-12", "w-12", "items-center", "justify-center", "rounded-sm", "border", 3, "disabled"], [1, "error", "text-error", "h-5", "p-1", "text-xs"], ["type", "button", "icon", "", "matRipple", "", 1, "border-error", "text-error", "flex", "h-12", "w-12", "items-center", "justify-center", "rounded-sm", "border", 3, "click", "disabled"], [1, "bg-base-100", "relative", "w-[18rem]", "rounded-sm", "px-2", "py-4"], [3, "ngModelChange", "ngModel", "from", "to", "offset_weekday"]], template: function DateFieldComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275projectionDef();
         \u0275\u0275elementStart(0, "div", 1)(1, "button", 2)(2, "div", 3)(3, "div", 4);
@@ -109305,7 +109388,7 @@ var DateFieldComponent = class _DateFieldComponent extends AsyncHandler {
 })();
 
 // node_modules/@angular/material/fesm2022/autocomplete.mjs
-var _c027 = ["panel"];
+var _c028 = ["panel"];
 var _c114 = ["*"];
 function MatAutocomplete_ng_template_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -109464,7 +109547,7 @@ var MatAutocomplete = class _MatAutocomplete {
     },
     viewQuery: function MatAutocomplete_Query(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275viewQuery(TemplateRef, 7)(_c027, 5);
+        \u0275\u0275viewQuery(TemplateRef, 7)(_c028, 5);
       }
       if (rf & 2) {
         let _t2;
@@ -110294,11 +110377,11 @@ var MatAutocompleteModule = class _MatAutocompleteModule {
 var GUEST_ENDPOINT = "/api/staff/v1/guests";
 async function searchGuests(q2) {
   const query2 = toQueryString({ q: q2 });
-  const list = await d(`${GUEST_ENDPOINT}${q2 ? "?" + query2 : ""}`);
+  const list = await f(`${GUEST_ENDPOINT}${q2 ? "?" + query2 : ""}`);
   return list.map((item) => new GuestUser(item));
 }
 async function showGuest(id) {
-  return new GuestUser(await d(`${GUEST_ENDPOINT}/${encodeURIComponent(id)}`));
+  return new GuestUser(await f(`${GUEST_ENDPOINT}/${encodeURIComponent(id)}`));
 }
 
 // libs/users/src/lib/staff.fn.ts
@@ -110315,15 +110398,15 @@ async function searchStaff(q2) {
       "department"
     ].join(",")
   });
-  const list = await d(`${STAFF_ENDPOINT}${q2 ? "?" + query2 : ""}`);
+  const list = await f(`${STAFF_ENDPOINT}${q2 ? "?" + query2 : ""}`);
   return list.map((item) => new StaffUser(item));
 }
 async function showStaff(id) {
-  return new StaffUser(await d(`${STAFF_ENDPOINT}/${encodeURIComponent(id)}`));
+  return new StaffUser(await f(`${STAFF_ENDPOINT}/${encodeURIComponent(id)}`));
 }
 
 // libs/form-fields/src/lib/user-search-field.component.ts
-var _c028 = ["input"];
+var _c029 = ["input"];
 var _c115 = (a0) => ({ name: a0 });
 function UserSearchFieldComponent_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -110491,7 +110574,7 @@ var UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHand
     this.selected_user = computed(
       () => {
         const term = this.search_term();
-        return term && typeof term !== "string" ? term : null;
+        return term && typeof term !== "string" && term.email !== EMPTY_USER.email ? term : null;
       },
       ...ngDevMode ? [{ debugName: "selected_user" }] : (
         /* istanbul ignore next */
@@ -110587,7 +110670,7 @@ var UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHand
         const guest_query = () => searchGuests(q2).catch(() => []);
         if (this.guests_only())
           return guest_query();
-        const staff = this.use_basic_search() ? await Ea({ q: q2, authority_id: Rt()?.id }).then((_3) => _3.data.map((u4) => new User(u4))).catch(() => []) : await searchStaff(q2).catch(() => []);
+        const staff = this.use_basic_search() ? await Ma({ q: q2, authority_id: Rt()?.id }).then((_3) => _3.data.map((u4) => new User(u4))).catch(() => []) : await searchStaff(q2).catch(() => []);
         if (!this.guests())
           return staff;
         return [...staff, ...await guest_query()];
@@ -110604,20 +110687,22 @@ var UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHand
     )), {
       params: () => ({ term: this._debounced_term.value() }),
       loader: async ({ params: { term } }) => {
-        if (term && typeof term !== "string")
-          return [term];
+        if (term && typeof term !== "string") {
+          const user = term;
+          return user.email === EMPTY_USER.email ? [] : [user];
+        }
         if (term === this.user()?.name)
           return [this.user()];
         if (this.disable_search())
           return [];
         const s = `${term || ""}`.toLowerCase();
         if (this.options()?.length) {
-          return this.options().filter((_3) => _3.name.toLowerCase().includes(s) || _3.email.toLowerCase().includes(s));
+          return this.options().filter((_3) => _3.email !== EMPTY_USER.email && (_3.name.toLowerCase().includes(s) || _3.email.toLowerCase().includes(s)));
         }
         if (s.length <= 2)
           return [];
         const list = await this.query_fn()(s).catch(() => []);
-        return list.filter((_3) => !!_3);
+        return list.filter((_3) => !!_3 && _3.email !== EMPTY_USER.email);
       }
     }));
     this.search_results = computed(
@@ -110653,7 +110738,7 @@ var UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHand
     this.user.set(value);
     this.search_term.set(value);
     if (typeof new_value !== "string" && !this.use_basic_search() && (value?.id || value?.email)) {
-      Ca(value.email || value.id).then((details) => {
+      Na(value.email || value.id).then((details) => {
         if (!details)
           return;
         const updated = new User(__spreadValues(__spreadValues({}, value), new User(details)));
@@ -110676,7 +110761,7 @@ var UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHand
     this.resetTerm();
   }
   displayFn(user) {
-    return user && user.name ? user.name : "";
+    return user && user.email !== EMPTY_USER.email && user.name ? user.name : "";
   }
   stopEvent(event) {
     event.stopPropagation();
@@ -110731,7 +110816,7 @@ var UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHand
   static {
     this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _UserSearchFieldComponent, selectors: [["a-user-search-field"]], viewQuery: function UserSearchFieldComponent_Query(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275viewQuerySignal(ctx._input_el, _c028, 5, ElementRef)(ctx._autocomplete_trigger, MatAutocompleteTrigger, 5);
+        \u0275\u0275viewQuerySignal(ctx._input_el, _c029, 5, ElementRef)(ctx._autocomplete_trigger, MatAutocompleteTrigger, 5);
       }
       if (rf & 2) {
         \u0275\u0275queryAdvance(2);
@@ -111073,7 +111158,7 @@ var UserAvailabilityComponent = class _UserAvailabilityComponent {
 })();
 
 // libs/users/src/lib/find-availability-modal/find-availability-modal.component.ts
-var _c029 = ["container"];
+var _c030 = ["container"];
 var _c116 = () => [];
 function FindAvailabilityModalComponent_For_15_Template(rf, ctx) {
   if (rf & 1) {
@@ -111308,8 +111393,8 @@ var FindAvailabilityModalComponent = class _FindAvailabilityModalComponent exten
     );
     this.selection_left = computed(
       () => {
-        const d3 = new Date(this.date());
-        return (d3.getHours() + d3.getMinutes() / 60) * 5;
+        const d2 = new Date(this.date());
+        return (d2.getHours() + d2.getMinutes() / 60) * 5;
       },
       ...ngDevMode ? [{ debugName: "selection_left" }] : (
         /* istanbul ignore next */
@@ -111347,10 +111432,10 @@ var FindAvailabilityModalComponent = class _FindAvailabilityModalComponent exten
     this._dialog_ref.close(true);
   }
   ngAfterViewInit() {
-    const d3 = new Date(this.date());
+    const d2 = new Date(this.date());
     const hour_width = 80;
     this.timeout("init", () => {
-      const selected_hour = d3.getHours() + d3.getMinutes() / 60;
+      const selected_hour = d2.getHours() + d2.getMinutes() / 60;
       const scroll_x = Math.max(0, selected_hour * hour_width - 48);
       this._container_el().nativeElement.scrollTo(scroll_x, 0);
       this.onScroll();
@@ -111411,7 +111496,7 @@ var FindAvailabilityModalComponent = class _FindAvailabilityModalComponent exten
   static {
     this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _FindAvailabilityModalComponent, selectors: [["find-availability-modal"]], viewQuery: function FindAvailabilityModalComponent_Query(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275viewQuerySignal(ctx._container_el, _c029, 5);
+        \u0275\u0275viewQuerySignal(ctx._container_el, _c030, 5);
       }
       if (rf & 2) {
         \u0275\u0275queryAdvance();
@@ -112344,7 +112429,7 @@ var CounterComponent = class _CounterComponent {
     );
     this.registerOnChange = (fn) => this._onChange = fn;
     this.registerOnTouched = (fn) => this._onTouch = fn;
-    this.setDisabledState = (d3) => this.disabled.set(d3);
+    this.setDisabledState = (d2) => this.disabled.set(d2);
   }
   /**
    * Add the `step` to the current value
@@ -112638,7 +112723,7 @@ var AppComponent = class _AppComponent extends AsyncHandler {
     log("Outlook", `Initialising auth...`);
     await this._initialiseAuth();
     log("Outlook", `Checking existing auth...`);
-    if (V2())
+    if (X2())
       return this._finishInitialise();
     console.info(`No existing auth...`);
     try {
@@ -112698,7 +112783,7 @@ var AppComponent = class _AppComponent extends AsyncHandler {
         const dialog = result.value;
         dialog.addEventHandler(Office.EventType.DialogMessageReceived, (token) => {
           if (token)
-            hi(token);
+            li(token);
           this._finishInitialise();
           dialog.close();
         });
@@ -112710,9 +112795,9 @@ var AppComponent = class _AppComponent extends AsyncHandler {
       log("Outlook", `Authenticating with dialog...`);
       this.clearTimeout("office_auth");
       await this._initialiseAuth(false);
-      if (!V2())
+      if (!X2())
         return;
-      Office.context.ui.messageParent(V2() || "");
+      Office.context.ui.messageParent(X2() || "");
     }
   }
   _authenticateGraphAPI() {
@@ -112727,7 +112812,7 @@ var AppComponent = class _AppComponent extends AsyncHandler {
         const token = result.value;
         log("Outlook", "SSO token acquired successfully");
         if (token)
-          hi(token);
+          li(token);
         this._finishInitialise();
       } else {
         log("Outlook", "SSO failed: " + result.error.message, void 0, "error");
@@ -112736,9 +112821,9 @@ var AppComponent = class _AppComponent extends AsyncHandler {
     });
   }
   onInitError() {
-    if (kn() || this._current_user()?.is_logged_in)
+    if (Sn() || this._current_user()?.is_logged_in)
       return;
-    An();
+    qn();
     location.reload();
   }
   static {
@@ -114669,7 +114754,7 @@ var AnimationTrigger = class {
     return this.ast.queryCount > 0;
   }
   matchTransition(currentState, nextState, element, params) {
-    const entry = this.transitionFactories.find((f2) => f2.match(currentState, nextState, element, params));
+    const entry = this.transitionFactories.find((f3) => f3.match(currentState, nextState, element, params));
     return entry || null;
   }
   matchStyles(currentState, params, errors) {
@@ -116890,7 +116975,7 @@ var environment = {
 };
 
 // libs/components/src/lib/status-pill.component.ts
-var _c030 = ["*"];
+var _c031 = ["*"];
 function StatusPillComponent_Case_3_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275text(0, " check_circle ");
@@ -116932,7 +117017,7 @@ var StatusPillComponent = class _StatusPillComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _StatusPillComponent, selectors: [["status-pill"]], inputs: { status: [1, "status"] }, ngContentSelectors: _c030, decls: 10, vars: 25, consts: [[1, "border-base-200", "bg-opacity-30", "flex", "items-center", "space-x-2", "rounded-full", "border", "px-2", "py-1", "text-base", "font-medium", "text-black"], [1, "flex", "h-5", "w-5", "items-center", "justify-center", "rounded-full"], [1, "text-2xl"]], template: function StatusPillComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _StatusPillComponent, selectors: [["status-pill"]], inputs: { status: [1, "status"] }, ngContentSelectors: _c031, decls: 10, vars: 25, consts: [[1, "border-base-200", "bg-opacity-30", "flex", "items-center", "space-x-2", "rounded-full", "border", "px-2", "py-1", "text-base", "font-medium", "text-black"], [1, "flex", "h-5", "w-5", "items-center", "justify-center", "rounded-full"], [1, "text-2xl"]], template: function StatusPillComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275projectionDef();
         \u0275\u0275elementStart(0, "div", 0)(1, "div", 1)(2, "icon", 2);
@@ -117008,7 +117093,7 @@ var StatusPillComponent = class _StatusPillComponent {
 })();
 
 // libs/events/src/lib/attendee-list.component.ts
-var _c031 = (a0) => ({ count: a0 });
+var _c032 = (a0) => ({ count: a0 });
 function AttendeeListComponent_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
@@ -117156,7 +117241,7 @@ var AttendeeListComponent = class _AttendeeListComponent {
         \u0275\u0275advance(2);
         \u0275\u0275conditional(!ctx.hide_close() ? 2 : -1);
         \u0275\u0275advance(2);
-        \u0275\u0275textInterpolate1(" ", ctx.custom_title() ? ctx.custom_title() : \u0275\u0275pipeBind3(5, 3, "CALENDAR_EVENT.ATTENDEES_COUNT", \u0275\u0275pureFunction1(7, _c031, ctx.final_list().length), ctx.final_list().length), " ");
+        \u0275\u0275textInterpolate1(" ", ctx.custom_title() ? ctx.custom_title() : \u0275\u0275pipeBind3(5, 3, "CALENDAR_EVENT.ATTENDEES_COUNT", \u0275\u0275pureFunction1(7, _c032, ctx.final_list().length), ctx.final_list().length), " ");
         \u0275\u0275advance(2);
         \u0275\u0275conditional(!ctx.hide_close() ? 6 : -1);
         \u0275\u0275advance(2);
@@ -117280,7 +117365,7 @@ function withAppVersion2(data) {
 async function queryEvents(q2) {
   const query2 = toQueryString(q2);
   try {
-    const list = await d(`${EVENTS_ENDPOINT}${query2 ? "?" + query2 : ""}`);
+    const list = await f(`${EVENTS_ENDPOINT}${query2 ? "?" + query2 : ""}`);
     return list.map((e) => new CalendarEvent(e));
   } catch (_3) {
     return [];
@@ -117292,7 +117377,7 @@ async function createEvent(data) {
 }
 async function updateEvent(id, data, q2 = {}, method = "patch") {
   const query2 = toQueryString(q2);
-  const item = await (method === "patch" ? ye : ce)(`${EVENTS_ENDPOINT}/${encodeURIComponent(id)}${query2 ? "?" + query2 : ""}`, new CalendarEvent(withAppVersion2(data)).toJSON());
+  const item = await (method === "patch" ? ae : ce)(`${EVENTS_ENDPOINT}/${encodeURIComponent(id)}${query2 ? "?" + query2 : ""}`, new CalendarEvent(withAppVersion2(data)).toJSON());
   return new CalendarEvent(item);
 }
 var saveEvent = async (data, q2) => {
@@ -117302,7 +117387,7 @@ var saveEvent = async (data, q2) => {
 };
 function removeEvent(id, q2 = {}) {
   const query2 = toQueryString(q2);
-  return X2(`${EVENTS_ENDPOINT}/${encodeURIComponent(id)}${query2 ? "?" + query2 : ""}`, {
+  return ee(`${EVENTS_ENDPOINT}/${encodeURIComponent(id)}${query2 ? "?" + query2 : ""}`, {
     response_type: "void"
   });
 }
@@ -117318,12 +117403,12 @@ async function addEventGuest(id, guest, q2 = {}) {
 }
 async function removeEventGuest(id, guest, q2 = {}) {
   const query2 = toQueryString(q2);
-  const item = await X2(`${EVENTS_ENDPOINT}/${encodeURIComponent(id)}/attendee/${encodeURIComponent(guest.email)}${query2 ? "?" + query2 : ""}`);
+  const item = await ee(`${EVENTS_ENDPOINT}/${encodeURIComponent(id)}/attendee/${encodeURIComponent(guest.email)}${query2 ? "?" + query2 : ""}`);
   return new GuestUser(item);
 }
 async function getEventMetadata(id, system_id, query2 = {}) {
   const q2 = toQueryString(__spreadValues({}, query2));
-  return await d(`${EVENTS_ENDPOINT}/${encodeURIComponent(id)}/metadata/${encodeURIComponent(system_id)}${q2 ? "?" + q2 : ""}`);
+  return await f(`${EVENTS_ENDPOINT}/${encodeURIComponent(id)}/metadata/${encodeURIComponent(system_id)}${q2 ? "?" + q2 : ""}`);
 }
 async function querySpaceAvailability(id_list, start, duration, ignore, type, ignore_period = [0, 0]) {
   const end = addMinutes(start, duration).valueOf();
@@ -117359,7 +117444,7 @@ async function findEventClashes(event, q2 = {}) {
 }
 
 // libs/events/src/lib/group-event-details-modal.component.ts
-var _c032 = (a0) => ({ name: a0 });
+var _c033 = (a0) => ({ name: a0 });
 var _c117 = (a0, a1) => ({ going: a0, interested: a1 });
 function GroupEventDetailsModalComponent_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
@@ -118116,7 +118201,7 @@ var GroupEventDetailsModalComponent = class _GroupEventDetailsModalComponent {
         \u0275\u0275advance(3);
         \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(52, 42, ctx.is_going() ? "CALENDAR_EVENT.GROUP_GOING_REMOVE" : "CALENDAR_EVENT.GROUP_GOING_ADD"), " ");
         \u0275\u0275advance(9);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(61, 44, "CALENDAR_EVENT.GROUP_HOST", \u0275\u0275pureFunction1(67, _c032, ctx.event().organiser?.name || ctx.event().host)), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(61, 44, "CALENDAR_EVENT.GROUP_HOST", \u0275\u0275pureFunction1(67, _c033, ctx.event().organiser?.name || ctx.event().host)), " ");
         \u0275\u0275advance(3);
         \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(64, 47, "CALENDAR_EVENT.GROUP_WHEN_WHERE"), " ");
         \u0275\u0275advance(8);
@@ -118617,7 +118702,7 @@ var AssetGroupPipe = class _AssetGroupPipe {
     let asset_group = ASSET_GROUP_LIST.find(({ id }) => id === group_id);
     if (asset_group)
       return asset_group;
-    const group2 = await Xh(group_id).catch(() => null);
+    const group2 = await il(group_id).catch(() => null);
     if (group2) {
       asset_group = __spreadValues({}, group2);
       ASSET_GROUP_LIST.push(asset_group);
@@ -118652,7 +118737,7 @@ function getAssetRulesForZone(zone_id, fresh = false) {
   if (!zone_id)
     return Promise.resolve([]);
   if (!RULE_REQUESTS[zone_id] || fresh)
-    RULE_REQUESTS[zone_id] = ju(zone_id, "assets_config").then((_3) => _3.details instanceof Array ? _3.details : []).catch(() => []);
+    RULE_REQUESTS[zone_id] = Wu(zone_id, "assets_config").then((_3) => _3.details instanceof Array ? _3.details : []).catch(() => []);
   return RULE_REQUESTS[zone_id];
 }
 function assetAvailable(item, rules, event) {
@@ -118690,27 +118775,31 @@ function assetAvailable(item, rules, event) {
 }
 
 // libs/assets/src/lib/assets.fn.ts
+function findOldestByName(list, name = "") {
+  const match_name = name.trim().toLowerCase();
+  return list.filter((_3) => (_3.name || "").trim().toLowerCase() === match_name).sort((a, b2) => (a.created_at || 0) - (b2.created_at || 0))[0];
+}
 function filter_hidden_items(response) {
   return __spreadProps(__spreadValues({}, response), {
     data: response.data.filter((item) => !item?.hidden)
   });
 }
 async function visible_category_ids() {
-  const response = await sl({});
+  const response = await cl({});
   return new Set(response.data.filter((item) => !item?.hidden).map((item) => item.id));
 }
 async function queryAssetCategories(query2 = {}) {
   if (query2.hidden === true)
-    return sl(query2);
+    return cl(query2);
   const _a = query2, { hidden } = _a, rest = __objRest(_a, ["hidden"]);
-  return filter_hidden_items(await sl(rest));
+  return filter_hidden_items(await cl(rest));
 }
 async function queryAssetTypes(query2 = {}) {
   if (query2.hidden === true)
-    return Vh(query2);
+    return sl(query2);
   const _a = query2, { hidden } = _a, rest = __objRest(_a, ["hidden"]);
   const [response, visible_ids] = await Promise.all([
-    Vh(rest),
+    sl(rest),
     visible_category_ids()
   ]);
   return __spreadProps(__spreadValues({}, response), {
@@ -118719,10 +118808,10 @@ async function queryAssetTypes(query2 = {}) {
 }
 async function queryAssets(query2 = {}) {
   if (query2.hidden === true)
-    return Gh(query2);
+    return Zh(query2);
   const _a = query2, { hidden } = _a, rest = __objRest(_a, ["hidden"]);
   const [response, types] = await Promise.all([
-    Gh(rest),
+    Zh(rest),
     queryAssetTypes(__spreadProps(__spreadValues({}, rest.zone_id ? { zone_id: rest.zone_id } : {}), {
       limit: 2e3
     }))
@@ -118733,12 +118822,12 @@ async function queryAssets(query2 = {}) {
   });
 }
 function saveAssetCategory(category) {
-  return category.id ? rl(category.id, category) : ol(category);
+  return category.id ? hl(category.id, category) : ll(category);
 }
 var _GROUPS_CACHE = /* @__PURE__ */ new Map();
 var REMOVE_QUERY_KEYS = ["period_start", "period_end", "type", "rejected"];
 async function queryAllAssetPages(query2 = {}) {
-  let response = await Gh(__spreadProps(__spreadValues({}, query2), {
+  let response = await Zh(__spreadProps(__spreadValues({}, query2), {
     limit: query2.limit || 500
   }));
   let total = response.total;
@@ -118773,7 +118862,7 @@ async function queryAssetGroupsExtended(query2 = {}) {
   if (q2.zones)
     delete q2.zones;
   const [types, assets] = await Promise.all([
-    Vh(q2),
+    sl(q2),
     queryAllAssetPages(q2)
   ]);
   let groups = types.data.filter((item) => !item?.hidden);
@@ -118797,7 +118886,7 @@ async function queryAssetGroupsExtended(query2 = {}) {
   return list;
 }
 function saveAssetType(product) {
-  return product.id ? el(product.id, product) : tl(product);
+  return product.id ? rl(product.id, product) : ol(product);
 }
 async function queryGroupAvailability(query2, ignore = []) {
   const [products, bookings] = await Promise.all([
@@ -119259,7 +119348,7 @@ var AssetStateService = class _AssetStateService {
   }
   async _loadSettings(building_id) {
     const existing = this._settings_requests.get(building_id);
-    const request = existing || ju(building_id, "assets-settings").then((metadata2) => metadata2.details || {}).catch(() => ({}));
+    const request = existing || Wu(building_id, "assets-settings").then((metadata2) => metadata2.details || {}).catch(() => ({}));
     if (!existing)
       this._settings_requests.set(building_id, request);
     this._settings.set(await request);
@@ -119569,7 +119658,7 @@ var AssetFiltersDisplayComponent = class _AssetFiltersDisplayComponent {
 })();
 
 // libs/form-fields/src/lib/duration-field.component.ts
-var _c033 = ["*"];
+var _c034 = ["*"];
 var _forTrack04 = ($index, $item) => $item.id;
 function DurationFieldComponent_Conditional_5_Template(rf, ctx) {
   if (rf & 1) {
@@ -119923,7 +120012,7 @@ var DurationFieldComponent = class _DurationFieldComponent {
         useExisting: forwardRef(() => _DurationFieldComponent),
         multi: true
       }
-    ]), \u0275\u0275NgOnChangesFeature], ngContentSelectors: _c033, decls: 15, vars: 12, consts: [["menu", "matMenu"], ["duration-field", "", "matRipple", "", 1, "border-neutral", "flex", "h-12", "w-full", "items-center", "justify-between", "rounded-sm", "border", "px-2", 3, "disabled", "matMenuTriggerFor"], [1, "flex", "w-1/2", "flex-1", "flex-col", "px-2", "text-left", "leading-tight"], [1, "truncate"], [1, "truncate", "text-xs", "opacity-30"], [1, "text-2xl"], [1, "max-h-60", "min-w-[18rem]"], ["mat-menu-item", "", 1, "text-left"], ["mat-menu-item", "", "disabled", ""], ["mat-menu-item", "", 1, "text-left", 3, "click"], [1, "flex", "items-center", "justify-between"], [1, "flex", "flex-col", "leading-tight"], [1, "ml-2", "text-2xl"]], template: function DurationFieldComponent_Template(rf, ctx) {
+    ]), \u0275\u0275NgOnChangesFeature], ngContentSelectors: _c034, decls: 15, vars: 12, consts: [["menu", "matMenu"], ["duration-field", "", "matRipple", "", 1, "border-neutral", "flex", "h-12", "w-full", "items-center", "justify-between", "rounded-sm", "border", "px-2", 3, "disabled", "matMenuTriggerFor"], [1, "flex", "w-1/2", "flex-1", "flex-col", "px-2", "text-left", "leading-tight"], [1, "truncate"], [1, "truncate", "text-xs", "opacity-30"], [1, "text-2xl"], [1, "max-h-60", "min-w-[18rem]"], ["mat-menu-item", "", 1, "text-left"], ["mat-menu-item", "", "disabled", ""], ["mat-menu-item", "", 1, "text-left", 3, "click"], [1, "flex", "items-center", "justify-between"], [1, "flex", "flex-col", "leading-tight"], [1, "ml-2", "text-2xl"]], template: function DurationFieldComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275projectionDef();
         \u0275\u0275elementStart(0, "button", 1)(1, "div", 2)(2, "div", 3);
@@ -120479,7 +120568,7 @@ var AssetFiltersComponent = class _AssetFiltersComponent extends AsyncHandler {
 })();
 
 // libs/assets/src/lib/asset-select-modal/asset-list.component.ts
-var _c034 = (a0) => ({ count: a0 });
+var _c035 = (a0) => ({ count: a0 });
 function AssetListComponent_Conditional_6_Conditional_0_For_2_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 8)(1, "span", 17);
@@ -120551,7 +120640,7 @@ function AssetListComponent_Conditional_6_Conditional_0_For_2_Template(rf, ctx) 
     \u0275\u0275advance(2);
     \u0275\u0275textInterpolate1(" ", asset_r2.category, " ");
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(15, 8, "BOOKINGS.ASSETS_AVAILABLE", \u0275\u0275pureFunction1(11, _c034, asset_r2.available || asset_r2.assets?.length || "0")), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(15, 8, "BOOKINGS.ASSETS_AVAILABLE", \u0275\u0275pureFunction1(11, _c035, asset_r2.available || asset_r2.assets?.length || "0")), " ");
     \u0275\u0275advance(2);
     \u0275\u0275classProp("text-info", ctx_r2.isFavourite(asset_r2.id));
     \u0275\u0275advance();
@@ -120718,7 +120807,7 @@ var AssetListComponent = class _AssetListComponent {
         \u0275\u0275advance();
         \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(2, 3, "COMMON.RESULTS"));
         \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(5, 5, "COMMON.RESULTS_COUNT", \u0275\u0275pureFunction1(9, _c034, ctx.assets().length || 0), ctx.assets().length || 0), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(5, 5, "COMMON.RESULTS_COUNT", \u0275\u0275pureFunction1(9, _c035, ctx.assets().length || 0), ctx.assets().length || 0), " ");
         \u0275\u0275advance(2);
         \u0275\u0275conditional(!ctx.loading() ? 6 : 7);
       }
@@ -121267,7 +121356,7 @@ var AssetSelectModalComponent = class _AssetSelectModalComponent {
 })();
 
 // libs/assets/src/lib/asset-list-field.component.ts
-var _c035 = (a0, a1) => ({ date: a0, time: a1 });
+var _c036 = (a0, a1) => ({ date: a0, time: a1 });
 function AssetListFieldComponent_Conditional_0_For_2_Conditional_9_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 8)(1, "icon");
@@ -121387,7 +121476,7 @@ function AssetListFieldComponent_Conditional_0_For_2_Template(rf, ctx) {
     const ctx_r3 = \u0275\u0275nextContext(2);
     \u0275\u0275classProp("border-error", ctx_r3.end_time() < request_r3.deliver_at)("border-base-300", ctx_r3.end_time() >= request_r3.deliver_at);
     \u0275\u0275advance(5);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(8, 18, "FORM.ASSETS_REQUESTED_FOR_DATE", \u0275\u0275pureFunction2(29, _c035, \u0275\u0275pipeBind2(6, 12, request_r3.deliver_at_time, "mediumDate"), \u0275\u0275pipeBind2(7, 15, request_r3.deliver_at_time, ctx_r3.time_format()))), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(8, 18, "FORM.ASSETS_REQUESTED_FOR_DATE", \u0275\u0275pureFunction2(29, _c036, \u0275\u0275pipeBind2(6, 12, request_r3.deliver_at_time, "mediumDate"), \u0275\u0275pipeBind2(7, 15, request_r3.deliver_at_time, ctx_r3.time_format()))), " ");
     \u0275\u0275advance(4);
     \u0275\u0275conditional(ctx_r3.end_time() <= request_r3.deliver_at || ctx_r3.rejected_ids().includes(request_r3.id) || request_r3.conflict ? 9 : -1);
     \u0275\u0275advance();
@@ -121944,15 +122033,12 @@ var _catering_category_id = null;
 var _catering_category_id_promise = null;
 var _hidden_categories_promise = null;
 var _catering_types_promise = null;
-function normalise_name(name = "") {
-  return name.trim().toLowerCase();
-}
 function reset_hidden_categories_cache() {
   _hidden_categories_promise = null;
 }
 async function query_hidden_categories() {
   if (!_hidden_categories_promise) {
-    _hidden_categories_promise = sl({
+    _hidden_categories_promise = cl({
       hidden: true,
       limit: 500
     }).then((_3) => _3.data).catch(() => []);
@@ -121960,12 +122046,11 @@ async function query_hidden_categories() {
   return _hidden_categories_promise;
 }
 async function ensure_hidden_category(name) {
-  const match_name = normalise_name(name);
-  let category = (await query_hidden_categories()).find((_3) => normalise_name(_3.name) === match_name);
+  let category = findOldestByName(await query_hidden_categories(), name);
   if (category)
     return category;
   reset_hidden_categories_cache();
-  category = (await query_hidden_categories()).find((_3) => normalise_name(_3.name) === match_name);
+  category = findOldestByName(await query_hidden_categories(), name);
   if (category)
     return category;
   try {
@@ -121977,7 +122062,7 @@ async function ensure_hidden_category(name) {
     return category;
   } catch (error2) {
     reset_hidden_categories_cache();
-    category = (await query_hidden_categories()).find((_3) => normalise_name(_3.name) === match_name);
+    category = findOldestByName(await query_hidden_categories(), name);
     if (category)
       return category;
     throw error2;
@@ -122003,7 +122088,7 @@ function resolveCateringCategoryId() {
 }
 function query_catering_types() {
   if (!_catering_types_promise) {
-    _catering_types_promise = resolveCateringCategoryId().then((category_id) => Vh({ category_id, limit: 500 })).then((_3) => _3.data.filter((type) => isCateringTypeName(type.name))).catch(() => []);
+    _catering_types_promise = resolveCateringCategoryId().then((category_id) => sl({ category_id, limit: 500 })).then((_3) => _3.data.filter((type) => isCateringTypeName(type.name))).catch(() => []);
   }
   return _catering_types_promise;
 }
@@ -122031,7 +122116,7 @@ async function queryCateringItems(zone_id) {
   const types = await query_catering_types();
   if (!types.length)
     return [];
-  const results = await Promise.all(types.map((type) => Gh({
+  const results = await Promise.all(types.map((type) => Zh({
     zone_id,
     type_id: type.id,
     limit: 500
@@ -122049,12 +122134,9 @@ var _locker_type_id = null;
 var _locker_type_id_promise = null;
 var _hidden_categories_promise2 = null;
 var _types_for_category_promises = /* @__PURE__ */ new Map();
-function normalise_name2(name = "") {
-  return name.trim().toLowerCase();
-}
 async function query_hidden_categories2() {
   if (!_hidden_categories_promise2) {
-    _hidden_categories_promise2 = sl({
+    _hidden_categories_promise2 = cl({
       hidden: true,
       limit: 500
     }).then((_3) => _3.data).catch(() => []);
@@ -122063,17 +122145,16 @@ async function query_hidden_categories2() {
 }
 async function query_types_for_category(category_id) {
   if (!_types_for_category_promises.has(category_id)) {
-    _types_for_category_promises.set(category_id, Vh({ category_id, limit: 500 }).then((_3) => _3.data).catch(() => []));
+    _types_for_category_promises.set(category_id, sl({ category_id, limit: 500 }).then((_3) => _3.data).catch(() => []));
   }
   return _types_for_category_promises.get(category_id);
 }
 async function ensure_hidden_category2(name) {
-  const match_name = normalise_name2(name);
-  let category = (await query_hidden_categories2()).find((_3) => normalise_name2(_3.name) === match_name);
+  let category = findOldestByName(await query_hidden_categories2(), name);
   if (category)
     return category;
   _hidden_categories_promise2 = null;
-  category = (await query_hidden_categories2()).find((_3) => normalise_name2(_3.name) === match_name);
+  category = findOldestByName(await query_hidden_categories2(), name);
   if (category)
     return category;
   const created = await saveAssetCategory({
@@ -122084,8 +122165,7 @@ async function ensure_hidden_category2(name) {
   return created;
 }
 async function ensure_type(category_id, name) {
-  const match_name = normalise_name2(name);
-  let type = (await query_types_for_category(category_id)).find((_3) => normalise_name2(_3.name) === match_name);
+  let type = findOldestByName(await query_types_for_category(category_id), name);
   if (type)
     return type;
   const created = await saveAssetType({
@@ -122127,14 +122207,14 @@ async function queryLockerBankAssetsForZones(zone_ids) {
   if (!zone_ids?.length)
     return [];
   const type_id = await resolveLockerBankTypeId();
-  const results = await Promise.all(zone_ids.map((zone_id) => Gh({ zone_id, type_id, limit: 500 }).then((_3) => _3.data)));
+  const results = await Promise.all(zone_ids.map((zone_id) => Zh({ zone_id, type_id, limit: 500 }).then((_3) => _3.data)));
   return flatten2(results);
 }
 async function queryLockerAssetsForZones(zone_ids) {
   if (!zone_ids?.length)
     return [];
   const type_id = await resolveLockerTypeId();
-  const results = await Promise.all(zone_ids.map((zone_id) => Gh({ zone_id, type_id, limit: 500 }).then((_3) => _3.data)));
+  const results = await Promise.all(zone_ids.map((zone_id) => Zh({ zone_id, type_id, limit: 500 }).then((_3) => _3.data)));
   return flatten2(results);
 }
 
@@ -122145,12 +122225,12 @@ var _parking_type_id = null;
 var _parking_type_id_promise = null;
 var _hidden_categories_promise3 = null;
 var _types_for_category_promises2 = /* @__PURE__ */ new Map();
-function normalise_name3(name = "") {
+function normalise_name(name = "") {
   return name.trim().toLowerCase();
 }
 async function query_hidden_categories3() {
   if (!_hidden_categories_promise3) {
-    _hidden_categories_promise3 = sl({
+    _hidden_categories_promise3 = cl({
       hidden: true,
       limit: 500
     }).then((_3) => _3.data).catch(() => []);
@@ -122159,7 +122239,7 @@ async function query_hidden_categories3() {
 }
 async function query_types_for_category2(category_id) {
   if (!_types_for_category_promises2.has(category_id)) {
-    _types_for_category_promises2.set(category_id, Vh({ category_id, limit: 500 }).then((_3) => _3.data).catch(() => []));
+    _types_for_category_promises2.set(category_id, sl({ category_id, limit: 500 }).then((_3) => _3.data).catch(() => []));
   }
   return _types_for_category_promises2.get(category_id);
 }
@@ -122174,12 +122254,11 @@ async function query_types_for_categories(category_ids) {
   return list.flat();
 }
 async function ensure_hidden_category3(name) {
-  const match_name = normalise_name3(name);
-  let category = (await query_hidden_categories3()).find((_3) => normalise_name3(_3.name) === match_name);
+  let category = findOldestByName(await query_hidden_categories3(), name);
   if (category)
     return category;
   reset_hidden_categories_cache2();
-  category = (await query_hidden_categories3()).find((_3) => normalise_name3(_3.name) === match_name);
+  category = findOldestByName(await query_hidden_categories3(), name);
   if (category)
     return category;
   try {
@@ -122191,14 +122270,14 @@ async function ensure_hidden_category3(name) {
     return category2;
   } catch (error2) {
     reset_hidden_categories_cache2();
-    category = (await query_hidden_categories3()).find((_3) => normalise_name3(_3.name) === match_name);
+    category = findOldestByName(await query_hidden_categories3(), name);
     if (category)
       return category;
     throw error2;
   }
 }
 async function move_type_to_category(type, category_id, name) {
-  if (type.category_id === category_id && normalise_name3(type.name) === normalise_name3(name)) {
+  if (type.category_id === category_id && normalise_name(type.name) === normalise_name(name)) {
     return type;
   }
   try {
@@ -122213,18 +122292,17 @@ async function move_type_to_category(type, category_id, name) {
   } catch (error2) {
     reset_types_cache([category_id]);
     const types = await query_types_for_category2(category_id);
-    const existing_type = types.find((_3) => normalise_name3(_3.name) === normalise_name3(name));
+    const existing_type = findOldestByName(types, name);
     if (existing_type)
       return existing_type;
     throw error2;
   }
 }
 async function ensure_type2(category_id, name, legacy_category_ids = []) {
-  const match_name = normalise_name3(name);
-  let type = (await query_types_for_categories([
+  let type = findOldestByName(await query_types_for_categories([
     category_id,
     ...legacy_category_ids.filter((_3) => _3 !== category_id)
-  ])).find((_3) => normalise_name3(_3.name) === match_name);
+  ]), name);
   if (type)
     return move_type_to_category(type, category_id, name);
   try {
@@ -122237,10 +122315,10 @@ async function ensure_type2(category_id, name, legacy_category_ids = []) {
     return type2;
   } catch (error2) {
     reset_types_cache([category_id, ...legacy_category_ids]);
-    type = (await query_types_for_categories([
+    type = findOldestByName(await query_types_for_categories([
       category_id,
       ...legacy_category_ids.filter((_3) => _3 !== category_id)
-    ])).find((_3) => normalise_name3(_3.name) === match_name);
+    ]), name);
     if (type)
       return move_type_to_category(type, category_id, name);
     throw error2;
@@ -122269,7 +122347,7 @@ async function queryParkingSpacesForZones(zone_ids) {
   if (!zone_ids?.length)
     return [];
   const type_id = await resolveParkingTypeId();
-  const results = await Promise.all(zone_ids.map((zone_id) => Gh({ zone_id, type_id, limit: 500 }).then((_3) => _3.data)));
+  const results = await Promise.all(zone_ids.map((zone_id) => Zh({ zone_id, type_id, limit: 500 }).then((_3) => _3.data)));
   return flatten2(results);
 }
 var PARKING_USER_TYPE_NAME = "_PARKING_USERS_";
@@ -122306,7 +122384,7 @@ function toParkingUser(asset) {
 }
 async function queryParkingUsers(zone_id) {
   const type_id = await resolveParkingUserTypeId();
-  const assets = await Gh({ zone_id, type_id, limit: 500 });
+  const assets = await Zh({ zone_id, type_id, limit: 500 });
   return assets.data.map(toParkingUser);
 }
 
@@ -122509,6 +122587,7 @@ function generateBookingForm(booking = new Booking(), injector) {
   );
   guardModelUndefinedWrites(model2, bookingFormValue(new Booking()));
   const require_plate_number = settingSignal("parking.require_plate_number", false);
+  const require_space_restriction = settingSignal("parking.require_space_restriction", false);
   const booking_form = form(model2, (p2) => {
     required(p2.date);
     required(p2.asset_id);
@@ -122521,6 +122600,8 @@ function generateBookingForm(booking = new Booking(), injector) {
         return booking_type === "parking" && require_plate_number();
       }
     });
+    validate(p2.plate_number, ({ value, valueOf }) => valueOf(p2.booking_type) === "parking" && require_plate_number() && !`${value() || ""}`.trim() ? { kind: "required" } : void 0);
+    validate(p2.space_restrictions, ({ value, valueOf }) => valueOf(p2.booking_type) === "parking" && require_space_restriction() && !value() ? { kind: "required" } : void 0);
     validate(p2.duration, ({ value, valueOf }) => {
       const date = valueOf(p2.date);
       if (value() <= 0)
@@ -122569,9 +122650,9 @@ async function findNearbyFeature(map_url, centered_at, desk_ids = []) {
   let closest = "";
   for (const desk of desk_ids) {
     const { x: x2, y } = centerOf(desk) || { x: 2, y: 2 };
-    const d3 = Math.sqrt((x2 - point.x) * (x2 - point.x) + (y - point.y) * (y - point.y));
-    if (d3 < dist) {
-      dist = d3;
+    const d2 = Math.sqrt((x2 - point.x) * (x2 - point.x) + (y - point.y) * (y - point.y));
+    if (d2 < dist) {
+      dist = d2;
       closest = desk;
     }
   }
@@ -122933,8 +123014,9 @@ var DeskSettingsModalComponent = class _DeskSettingsModalComponent {
 })();
 
 // libs/bookings/src/lib/booking-details-modal.component.ts
-var _c036 = (a0) => ({ time: a0 });
+var _c037 = (a0) => ({ time: a0 });
 var _c118 = () => ({ disable_pan: true, disable_zoom: true });
+var _forTrack06 = ($index, $item) => $item.label;
 function BookingDetailsModalComponent_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "div", 3);
@@ -123048,7 +123130,7 @@ function BookingDetailsModalComponent_Conditional_12_Template(rf, ctx) {
   }
   if (rf & 2) {
     const ctx_r0 = \u0275\u0275nextContext();
-    const menu_r3 = \u0275\u0275reference(49);
+    const menu_r3 = \u0275\u0275reference(50);
     \u0275\u0275advance();
     \u0275\u0275conditional(ctx_r0.can_checkin() ? 1 : -1);
     \u0275\u0275advance();
@@ -123180,63 +123262,21 @@ function BookingDetailsModalComponent_Conditional_42_Template(rf, ctx) {
     \u0275\u0275conditional(group_r4.name ? 10 : -1);
   }
 }
-function BookingDetailsModalComponent_Conditional_43_For_6_For_15_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 52)(1, "div", 53)(2, "span", 47);
-    \u0275\u0275text(3);
-    \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(4, "div", 54);
-    \u0275\u0275text(5);
-    \u0275\u0275elementEnd()();
-  }
-  if (rf & 2) {
-    const item_r7 = ctx.$implicit;
-    \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate(item_r7.name || "Item");
-    \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" x", item_r7.quantity, " ");
-  }
-}
 function BookingDetailsModalComponent_Conditional_43_For_6_Template(rf, ctx) {
   if (rf & 1) {
-    const _r5 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 44)(1, "button", 45);
-    \u0275\u0275listener("click", function BookingDetailsModalComponent_Conditional_43_For_6_Template_button_click_1_listener() {
-      const request_r6 = \u0275\u0275restoreView(_r5).$implicit;
-      const ctx_r0 = \u0275\u0275nextContext(2);
-      return \u0275\u0275resetView(ctx_r0.toggleRequest(request_r6.id));
-    });
-    \u0275\u0275elementStart(2, "div", 46)(3, "div", 47);
+    \u0275\u0275elementStart(0, "div")(1, "div", 33);
+    \u0275\u0275text(2);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "div");
     \u0275\u0275text(4);
-    \u0275\u0275pipe(5, "date");
-    \u0275\u0275pipe(6, "translate");
-    \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(7, "div", 48)(8, "icon");
-    \u0275\u0275text(9);
-    \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(10, "div", 49)(11, "icon", 50);
-    \u0275\u0275text(12);
-    \u0275\u0275elementEnd()()();
-    \u0275\u0275elementStart(13, "div", 51);
-    \u0275\u0275repeaterCreate(14, BookingDetailsModalComponent_Conditional_43_For_6_For_15_Template, 6, 2, "div", 52, \u0275\u0275repeaterTrackByIdentity);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    const request_r6 = ctx.$implicit;
-    const ctx_r0 = \u0275\u0275nextContext(2);
-    \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(6, 20, "BOOKINGS.ASSETS_REQUESTED_FOR", \u0275\u0275pureFunction1(23, _c036, \u0275\u0275pipeBind2(5, 17, request_r6.deliver_at, "MMM d, " + ctx_r0.time_format()))), " ");
-    \u0275\u0275advance(3);
-    \u0275\u0275classProp("bg-success", request_r6.state === "approved")("text-success-content", request_r6.state === "approved")("bg-warning", request_r6.state !== "approved" && request_r6.state !== "rejected")("text-warning-content", request_r6.state !== "approved" && request_r6.state !== "rejected")("bg-error", request_r6.state === "rejected")("text-error-content", request_r6.state === "rejected");
-    \u0275\u0275property("matTooltip", request_r6.state || "Tentative");
+    const item_r5 = ctx.$implicit;
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", request_r6.state === "approved" ? "done" : request_r6.state === "rejected" ? "close" : "schedule", " ");
-    \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1(" ", ctx_r0.showRequest(request_r6.id) ? "expand_less" : "expand_more", " ");
-    \u0275\u0275advance();
-    \u0275\u0275property("@show", ctx_r0.showRequest(request_r6.id) ? "show" : "hide");
-    \u0275\u0275advance();
-    \u0275\u0275repeater(request_r6.items);
+    \u0275\u0275textInterpolate1(" ", item_r5.label, " ");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(item_r5.value);
   }
 }
 function BookingDetailsModalComponent_Conditional_43_Template(rf, ctx) {
@@ -123246,7 +123286,84 @@ function BookingDetailsModalComponent_Conditional_43_Template(rf, ctx) {
     \u0275\u0275pipe(3, "translate");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(4, "div", 43);
-    \u0275\u0275repeaterCreate(5, BookingDetailsModalComponent_Conditional_43_For_6_Template, 16, 25, "div", 44, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275repeaterCreate(5, BookingDetailsModalComponent_Conditional_43_For_6_Template, 5, 2, "div", null, _forTrack06);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 1, "BOOKINGS.VIP_SERVICES_HEADER"), " ");
+    \u0275\u0275advance(3);
+    \u0275\u0275repeater(ctx_r0.vip_service_details());
+  }
+}
+function BookingDetailsModalComponent_Conditional_44_For_6_For_15_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 53)(1, "div", 54)(2, "span", 48);
+    \u0275\u0275text(3);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(4, "div", 55);
+    \u0275\u0275text(5);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const item_r8 = ctx.$implicit;
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate(item_r8.name || "Item");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" x", item_r8.quantity, " ");
+  }
+}
+function BookingDetailsModalComponent_Conditional_44_For_6_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r6 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 45)(1, "button", 46);
+    \u0275\u0275listener("click", function BookingDetailsModalComponent_Conditional_44_For_6_Template_button_click_1_listener() {
+      const request_r7 = \u0275\u0275restoreView(_r6).$implicit;
+      const ctx_r0 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r0.toggleRequest(request_r7.id));
+    });
+    \u0275\u0275elementStart(2, "div", 47)(3, "div", 48);
+    \u0275\u0275text(4);
+    \u0275\u0275pipe(5, "date");
+    \u0275\u0275pipe(6, "translate");
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(7, "div", 49)(8, "icon");
+    \u0275\u0275text(9);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(10, "div", 50)(11, "icon", 51);
+    \u0275\u0275text(12);
+    \u0275\u0275elementEnd()()();
+    \u0275\u0275elementStart(13, "div", 52);
+    \u0275\u0275repeaterCreate(14, BookingDetailsModalComponent_Conditional_44_For_6_For_15_Template, 6, 2, "div", 53, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const request_r7 = ctx.$implicit;
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(6, 20, "BOOKINGS.ASSETS_REQUESTED_FOR", \u0275\u0275pureFunction1(23, _c037, \u0275\u0275pipeBind2(5, 17, request_r7.deliver_at, "MMM d, " + ctx_r0.time_format()))), " ");
+    \u0275\u0275advance(3);
+    \u0275\u0275classProp("bg-success", request_r7.state === "approved")("text-success-content", request_r7.state === "approved")("bg-warning", request_r7.state !== "approved" && request_r7.state !== "rejected")("text-warning-content", request_r7.state !== "approved" && request_r7.state !== "rejected")("bg-error", request_r7.state === "rejected")("text-error-content", request_r7.state === "rejected");
+    \u0275\u0275property("matTooltip", request_r7.state || "Tentative");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", request_r7.state === "approved" ? "done" : request_r7.state === "rejected" ? "close" : "schedule", " ");
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1(" ", ctx_r0.showRequest(request_r7.id) ? "expand_less" : "expand_more", " ");
+    \u0275\u0275advance();
+    \u0275\u0275property("@show", ctx_r0.showRequest(request_r7.id) ? "show" : "hide");
+    \u0275\u0275advance();
+    \u0275\u0275repeater(request_r7.items);
+  }
+}
+function BookingDetailsModalComponent_Conditional_44_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 20)(1, "h3", 36);
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "div", 44);
+    \u0275\u0275repeaterCreate(5, BookingDetailsModalComponent_Conditional_44_For_6_Template, 16, 25, "div", 45, \u0275\u0275repeaterTrackByIdentity);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
@@ -123257,25 +123374,25 @@ function BookingDetailsModalComponent_Conditional_43_Template(rf, ctx) {
     \u0275\u0275repeater(ctx_r0.booking().valid_assets);
   }
 }
-function BookingDetailsModalComponent_Conditional_44_Conditional_1_Template(rf, ctx) {
+function BookingDetailsModalComponent_Conditional_45_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275element(0, "interactive-map", 56);
+    \u0275\u0275element(0, "interactive-map", 57);
   }
   if (rf & 2) {
     const ctx_r0 = \u0275\u0275nextContext(2);
     \u0275\u0275property("src", ctx_r0.level()?.map_id)("features", ctx_r0.features())("options", \u0275\u0275pureFunction0(3, _c118));
   }
 }
-function BookingDetailsModalComponent_Conditional_44_Template(rf, ctx) {
+function BookingDetailsModalComponent_Conditional_45_Template(rf, ctx) {
   if (rf & 1) {
-    const _r8 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 55);
-    \u0275\u0275listener("click", function BookingDetailsModalComponent_Conditional_44_Template_button_click_0_listener() {
-      \u0275\u0275restoreView(_r8);
+    const _r9 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 56);
+    \u0275\u0275listener("click", function BookingDetailsModalComponent_Conditional_45_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r9);
       const ctx_r0 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r0.viewLocation());
     });
-    \u0275\u0275conditionalCreate(1, BookingDetailsModalComponent_Conditional_44_Conditional_1_Template, 1, 4, "interactive-map", 56);
+    \u0275\u0275conditionalCreate(1, BookingDetailsModalComponent_Conditional_45_Conditional_1_Template, 1, 4, "interactive-map", 57);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -123284,16 +123401,16 @@ function BookingDetailsModalComponent_Conditional_44_Template(rf, ctx) {
     \u0275\u0275conditional(!ctx_r0.hide_map() ? 1 : -1);
   }
 }
-function BookingDetailsModalComponent_Conditional_50_Template(rf, ctx) {
+function BookingDetailsModalComponent_Conditional_51_Template(rf, ctx) {
   if (rf & 1) {
-    const _r9 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 57);
-    \u0275\u0275listener("click", function BookingDetailsModalComponent_Conditional_50_Template_button_click_0_listener() {
-      \u0275\u0275restoreView(_r9);
+    const _r10 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 58);
+    \u0275\u0275listener("click", function BookingDetailsModalComponent_Conditional_51_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r10);
       const ctx_r0 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r0.edit(ctx_r0.booking()));
     });
-    \u0275\u0275elementStart(1, "div", 58)(2, "icon");
+    \u0275\u0275elementStart(1, "div", 59)(2, "icon");
     \u0275\u0275text(3, "edit");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(4, "div");
@@ -123306,16 +123423,16 @@ function BookingDetailsModalComponent_Conditional_50_Template(rf, ctx) {
     \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(6, 1, "BOOKINGS.ACTION_EDIT"));
   }
 }
-function BookingDetailsModalComponent_Conditional_51_Template(rf, ctx) {
+function BookingDetailsModalComponent_Conditional_52_Template(rf, ctx) {
   if (rf & 1) {
-    const _r10 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 59);
-    \u0275\u0275listener("click", function BookingDetailsModalComponent_Conditional_51_Template_button_click_0_listener() {
-      \u0275\u0275restoreView(_r10);
+    const _r11 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 60);
+    \u0275\u0275listener("click", function BookingDetailsModalComponent_Conditional_52_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r11);
       const ctx_r0 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r0.setDeskHeight());
     });
-    \u0275\u0275elementStart(1, "div", 58)(2, "icon", 60);
+    \u0275\u0275elementStart(1, "div", 59)(2, "icon", 61);
     \u0275\u0275text(3, " height ");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(4, "div");
@@ -123328,16 +123445,16 @@ function BookingDetailsModalComponent_Conditional_51_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(6, 1, "BOOKINGS.ACTION_SET_DESK_HEIGHT"), " ");
   }
 }
-function BookingDetailsModalComponent_Conditional_52_Template(rf, ctx) {
+function BookingDetailsModalComponent_Conditional_53_Template(rf, ctx) {
   if (rf & 1) {
-    const _r11 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 59);
-    \u0275\u0275listener("click", function BookingDetailsModalComponent_Conditional_52_Template_button_click_0_listener() {
-      \u0275\u0275restoreView(_r11);
+    const _r12 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 60);
+    \u0275\u0275listener("click", function BookingDetailsModalComponent_Conditional_53_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r12);
       const ctx_r0 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r0.remove(ctx_r0.booking(), false));
     });
-    \u0275\u0275elementStart(1, "div", 58)(2, "icon", 61);
+    \u0275\u0275elementStart(1, "div", 59)(2, "icon", 62);
     \u0275\u0275text(3, "delete");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(4, "div");
@@ -123350,16 +123467,16 @@ function BookingDetailsModalComponent_Conditional_52_Template(rf, ctx) {
     \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(6, 1, "BOOKINGS.ACTION_DELETE"));
   }
 }
-function BookingDetailsModalComponent_Conditional_53_Template(rf, ctx) {
+function BookingDetailsModalComponent_Conditional_54_Template(rf, ctx) {
   if (rf & 1) {
-    const _r12 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 59);
-    \u0275\u0275listener("click", function BookingDetailsModalComponent_Conditional_53_Template_button_click_0_listener() {
-      \u0275\u0275restoreView(_r12);
+    const _r13 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 60);
+    \u0275\u0275listener("click", function BookingDetailsModalComponent_Conditional_54_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r13);
       const ctx_r0 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r0.remove(ctx_r0.group_parent_booking(), false));
     });
-    \u0275\u0275elementStart(1, "div", 58)(2, "icon", 61);
+    \u0275\u0275elementStart(1, "div", 59)(2, "icon", 62);
     \u0275\u0275text(3, "delete");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(4, "div");
@@ -123367,16 +123484,16 @@ function BookingDetailsModalComponent_Conditional_53_Template(rf, ctx) {
     \u0275\u0275elementEnd()()();
   }
 }
-function BookingDetailsModalComponent_Conditional_54_Template(rf, ctx) {
+function BookingDetailsModalComponent_Conditional_55_Template(rf, ctx) {
   if (rf & 1) {
-    const _r13 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 59);
-    \u0275\u0275listener("click", function BookingDetailsModalComponent_Conditional_54_Template_button_click_0_listener() {
-      \u0275\u0275restoreView(_r13);
+    const _r14 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 60);
+    \u0275\u0275listener("click", function BookingDetailsModalComponent_Conditional_55_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r14);
       const ctx_r0 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r0.remove(ctx_r0.booking(), true));
     });
-    \u0275\u0275elementStart(1, "div", 58)(2, "icon", 61);
+    \u0275\u0275elementStart(1, "div", 59)(2, "icon", 62);
     \u0275\u0275text(3, "delete");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(4, "div");
@@ -123389,16 +123506,16 @@ function BookingDetailsModalComponent_Conditional_54_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(6, 1, "BOOKINGS.ACTION_DELETE_SERIES"), " ");
   }
 }
-function BookingDetailsModalComponent_Conditional_55_Template(rf, ctx) {
+function BookingDetailsModalComponent_Conditional_56_Template(rf, ctx) {
   if (rf & 1) {
-    const _r14 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 59);
-    \u0275\u0275listener("click", function BookingDetailsModalComponent_Conditional_55_Template_button_click_0_listener() {
-      \u0275\u0275restoreView(_r14);
+    const _r15 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 60);
+    \u0275\u0275listener("click", function BookingDetailsModalComponent_Conditional_56_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r15);
       const ctx_r0 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r0.end(ctx_r0.booking()));
     });
-    \u0275\u0275elementStart(1, "div", 58)(2, "icon", 61);
+    \u0275\u0275elementStart(1, "div", 59)(2, "icon", 62);
     \u0275\u0275text(3, "delete");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(4, "div");
@@ -123412,6 +123529,8 @@ function BookingDetailsModalComponent_Conditional_55_Template(rf, ctx) {
   }
 }
 function canEditBooking(booking) {
+  if (booking.booking_type === "vip-visitor")
+    return false;
   const is_visitor = booking.booking_type === "visitor";
   const visitor_edit_allowed = is_visitor && settingSignal("visitors.allow_editing", false)();
   const is_parking = booking.booking_type === "parking";
@@ -123593,8 +123712,15 @@ var BookingDetailsModalComponent = class _BookingDetailsModalComponent {
       )
     );
     this.is_visitor = computed(
-      () => this.booking()?.booking_type === "visitor",
+      () => ["visitor", "vip-visitor"].includes(this.booking()?.booking_type),
       ...ngDevMode ? [{ debugName: "is_visitor" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.is_vip_visitor = computed(
+      () => this.booking()?.booking_type === "vip-visitor",
+      ...ngDevMode ? [{ debugName: "is_vip_visitor" }] : (
         /* istanbul ignore next */
         []
       )
@@ -123658,6 +123784,43 @@ var BookingDetailsModalComponent = class _BookingDetailsModalComponent {
         return display_name.toLowerCase() === asset_id.toLowerCase() ? "" : asset_id;
       },
       ...ngDevMode ? [{ debugName: "visitor_email_label" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.vip_service_details = computed(
+      () => {
+        const booking = this.booking();
+        if (!booking || !this.is_vip_visitor())
+          return [];
+        const data = booking.extension_data || {};
+        const details = [];
+        this._addDetail(details, i18n("BOOKINGS.VIP_ASSISTANT_NAME"), data.vip_assistant_name);
+        this._addDetail(details, i18n("BOOKINGS.VIP_ASSISTANT_EMAIL"), data.vip_assistant_email);
+        if (data.meet_greet && data.meet_greet !== "none") {
+          this._addDetail(details, i18n("BOOKINGS.VIP_MEET_GREET"), this._formatVipChoice("BOOKINGS.VIP_MEET_GREET_", data.meet_greet));
+        }
+        this._addBooleanDetail(details, i18n("BOOKINGS.VIP_WALKTHROUGH"), data, "walkthrough");
+        if (data.welcome_beverage && data.welcome_beverage !== "none") {
+          this._addDetail(details, i18n("BOOKINGS.VIP_WELCOME_BEVERAGE"), this._formatVipChoice("BOOKINGS.VIP_WELCOME_BEVERAGE_", data.welcome_beverage));
+        }
+        this._addDetail(details, i18n("BOOKINGS.VIP_WELCOME_BEVERAGE_CUSTOM_DETAILS"), data.welcome_beverage_custom);
+        this._addBooleanDetail(details, i18n("BOOKINGS.VIP_GIVEAWAY_GIFT"), data, "gift");
+        this._addBooleanDetail(details, i18n("BOOKINGS.VIP_PHOTOGRAPHER"), data, "photographer");
+        const restaurant = data.restaurant_reservation;
+        if (restaurant) {
+          this._addDetail(details, i18n("BOOKINGS.VIP_RESTAURANT_NAME"), restaurant.name);
+          this._addDetail(details, i18n("BOOKINGS.VIP_RESTAURANT_ADDRESS"), restaurant.address);
+          this._addDetail(details, i18n("BOOKINGS.VIP_RESTAURANT_TIME"), this._formatTimestamp(restaurant.time));
+        }
+        if (data.driver) {
+          this._addDetail(details, i18n("BOOKINGS.VIP_DRIVER"), this._formatVipChoice("BOOKINGS.VIP_DRIVER_", data.driver));
+        }
+        this._addBooleanDetail(details, i18n("BOOKINGS.VIP_WELCOME_SCREEN"), data, "welcome_screen");
+        this._addBooleanDetail(details, i18n("BOOKINGS.VIP_PRESENTATION"), data, "presentation");
+        return details;
+      },
+      ...ngDevMode ? [{ debugName: "vip_service_details" }] : (
         /* istanbul ignore next */
         []
       )
@@ -123862,13 +124025,40 @@ var BookingDetailsModalComponent = class _BookingDetailsModalComponent {
   _looksLikeEmail(value) {
     return !!value && value.includes("@");
   }
+  _addDetail(details, label, value) {
+    const formatted_value = `${value ?? ""}`.trim();
+    if (!formatted_value)
+      return;
+    details.push({ label, value: formatted_value });
+  }
+  _addBooleanDetail(details, label, data, key) {
+    if (!Object.prototype.hasOwnProperty.call(data, key))
+      return;
+    details.push({
+      label,
+      value: i18n(data[key] ? "COMMON.YES" : "COMMON.NO")
+    });
+  }
+  _formatVipChoice(prefix, value) {
+    const key = `${prefix}${`${value}`.toUpperCase()}`;
+    const translated = i18n(key);
+    if (translated !== key)
+      return translated;
+    return `${value}`.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
+  }
+  _formatTimestamp(value) {
+    if (!value)
+      return "";
+    const timestamp = value < 1e12 ? value * 1e3 : value;
+    return format(timestamp, `d MMM, ${this.time_format()}`);
+  }
   static {
     this.\u0275fac = function BookingDetailsModalComponent_Factory(__ngFactoryType__) {
       return new (__ngFactoryType__ || _BookingDetailsModalComponent)();
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _BookingDetailsModalComponent, selectors: [["booking-details-modal"]], decls: 56, vars: 32, consts: [["menu", "matMenu"], [1, "bg-base-100", "sm:bg-base-200", "h-screen", "w-screen", "space-y-2", "overflow-auto", "pb-2", "sm:relative", "sm:inset-auto", "sm:h-auto", "sm:max-h-[80vh]", "sm:w-204", "sm:rounded-sm"], [1, "border-base-200", "bg-base-100", "max-h-screen", "flex-col", "items-center", "pb-4", "sm:flex", "sm:max-h-[80vh]", "sm:border-b", "sm:px-16"], [1, "block", "h-8", "w-full", "sm:hidden"], [1, "bg-neutral", "h-64", "w-full", "overflow-hidden", "sm:rounded-b"], ["title", "", 1, "mt-2", "w-full", "px-3", "text-xl", "font-medium"], [1, "w-full", "px-3", "text-sm", "opacity-70"], [1, "w-full", "items-center", "justify-between", "sm:flex"], [1, "m-2", "flex", "items-center", "space-x-2"], [3, "status"], [1, "text-2xl", 3, "matTooltip"], ["actions", "", 1, "flex", "items-center", "space-x-2", "px-2"], [1, "flex-wrap", "sm:flex", "sm:px-12"], [1, "border-base-200", "sm:bg-base-100", "min-w-1/3", "grow-4", "rounded-sm", "sm:m-2", "sm:w-[16rem]", "sm:border", "sm:p-4"], [1, "mt-2", "mb-2", "px-3", "text-lg", "font-medium"], [1, "flex", "items-center", "space-x-2", "px-2"], ["matTooltip", "Date"], ["matTooltip", "Time"], ["matTooltip", "Level and Resource"], ["matTooltip", "Location"], [1, "border-base-200", "sm:bg-base-100", "mt-4", "min-w-1/3", "grow-3", "rounded-sm", "sm:m-2", "sm:w-[16rem]", "sm:border", "sm:p-4"], ["map", "", 1, "border-base-200", "sm:bg-base-100", "relative", "m-2", "mt-4", "h-64", "w-[calc(100%-1rem)]", "min-w-1/3", "grow-3", "overflow-hidden", "rounded-sm", "border", "p-2", "sm:my-2", "sm:h-48", "sm:w-[16rem]"], ["icon", "", "default", "", "matRipple", "", "mat-dialog-close", "", 1, "absolute", "top-2", "left-2"], ["xPosition", "before"], ["mat-menu-item", "", "mat-dialog-close", ""], ["mat-menu-item", ""], [1, "h-64", "w-full", 3, "images"], ["icon", "", "matRipple", "", 1, "bg-secondary", "h-12", "w-12", "rounded-sm", "text-white", 3, "matMenuTriggerFor"], ["btn", "", "matRipple", "", 1, "h-10", "min-w-40", "flex-1", "border-none", 3, "bg-success", "text-success-content", "disabled"], ["btn", "", "matRipple", "", 1, "h-10", "min-w-40", "flex-1", "border-none", 3, "click", "disabled"], [1, "flex", "items-center", "justify-center", "gap-1"], [1, "mx-auto", 3, "diameter"], [1, "text-xl"], [1, "text-xs", "opacity-60"], ["matTooltip", "Host"], ["matTooltip", "Booked By"], [1, "mx-3", "py-2", "text-lg", "font-medium"], [1, "flex", "flex-col", "space-y-2", "px-3", "text-sm"], [1, "flex", "items-center", "space-x-2"], ["matTooltip", "Group Size"], ["matTooltip", "Resource Type"], ["matTooltip", "Group Reference"], [1, "break-all"], [1, "flex", "flex-col", "space-y-2"], ["request", "", 1, "border-base-300", "bg-base-100", "overflow-hidden", "rounded-xl", "border"], ["matRipple", "", 1, "flex", "w-full", "items-center", "space-x-2", "p-3", 3, "click"], [1, "flex-1", "text-left"], [1, "text-sm"], [1, "flex", "h-8", "w-8", "items-center", "justify-center", "rounded-full", 3, "matTooltip"], [1, "flex", "h-8", "w-8", "items-center", "justify-center", "rounded-full"], [1, "text-2xl"], [1, "divide-base-100", "bg-base-200", "flex", "flex-col", "divide-y"], [1, "flex", "items-center", "space-x-2", "px-3", "py-1", "hover:opacity-90"], [1, "flex", "flex-1", "items-center"], [1, "bg-success", "text-success-content", "rounded-sm", "px-2", "py-1", "text-xs"], ["map", "", 1, "border-base-200", "sm:bg-base-100", "relative", "m-2", "mt-4", "h-64", "w-[calc(100%-1rem)]", "min-w-1/3", "grow-3", "overflow-hidden", "rounded-sm", "border", "p-2", "sm:my-2", "sm:h-48", "sm:w-[16rem]", 3, "click"], [1, "pointer-events-none", 3, "src", "features", "options"], ["mat-menu-item", "", "mat-dialog-close", "", 3, "click"], [1, "flex", "items-center", "space-x-2", "text-base"], ["mat-menu-item", "", 3, "click"], ["className", "material-symbols-rounded"], [1, "text-error"]], template: function BookingDetailsModalComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _BookingDetailsModalComponent, selectors: [["booking-details-modal"]], decls: 57, vars: 33, consts: [["menu", "matMenu"], [1, "bg-base-100", "sm:bg-base-200", "h-screen", "w-screen", "space-y-2", "overflow-auto", "pb-2", "sm:relative", "sm:inset-auto", "sm:h-auto", "sm:max-h-[80vh]", "sm:w-204", "sm:rounded-sm"], [1, "border-base-200", "bg-base-100", "max-h-screen", "flex-col", "items-center", "pb-4", "sm:flex", "sm:max-h-[80vh]", "sm:border-b", "sm:px-16"], [1, "block", "h-8", "w-full", "sm:hidden"], [1, "bg-neutral", "h-64", "w-full", "overflow-hidden", "sm:rounded-b"], ["title", "", 1, "mt-2", "w-full", "px-3", "text-xl", "font-medium"], [1, "w-full", "px-3", "text-sm", "opacity-70"], [1, "w-full", "items-center", "justify-between", "sm:flex"], [1, "m-2", "flex", "items-center", "space-x-2"], [3, "status"], [1, "text-2xl", 3, "matTooltip"], ["actions", "", 1, "flex", "items-center", "space-x-2", "px-2"], [1, "flex-wrap", "sm:flex", "sm:px-12"], [1, "border-base-200", "sm:bg-base-100", "min-w-1/3", "grow-4", "rounded-sm", "sm:m-2", "sm:w-[16rem]", "sm:border", "sm:p-4"], [1, "mt-2", "mb-2", "px-3", "text-lg", "font-medium"], [1, "flex", "items-center", "space-x-2", "px-2"], ["matTooltip", "Date"], ["matTooltip", "Time"], ["matTooltip", "Level and Resource"], ["matTooltip", "Location"], [1, "border-base-200", "sm:bg-base-100", "mt-4", "min-w-1/3", "grow-3", "rounded-sm", "sm:m-2", "sm:w-[16rem]", "sm:border", "sm:p-4"], ["map", "", 1, "border-base-200", "sm:bg-base-100", "relative", "m-2", "mt-4", "h-64", "w-[calc(100%-1rem)]", "min-w-1/3", "grow-3", "overflow-hidden", "rounded-sm", "border", "p-2", "sm:my-2", "sm:h-48", "sm:w-[16rem]"], ["icon", "", "default", "", "matRipple", "", "mat-dialog-close", "", 1, "absolute", "top-2", "left-2"], ["xPosition", "before"], ["mat-menu-item", "", "mat-dialog-close", ""], ["mat-menu-item", ""], [1, "h-64", "w-full", 3, "images"], ["icon", "", "matRipple", "", 1, "bg-secondary", "h-12", "w-12", "rounded-sm", "text-white", 3, "matMenuTriggerFor"], ["btn", "", "matRipple", "", 1, "h-10", "min-w-40", "flex-1", "border-none", 3, "bg-success", "text-success-content", "disabled"], ["btn", "", "matRipple", "", 1, "h-10", "min-w-40", "flex-1", "border-none", 3, "click", "disabled"], [1, "flex", "items-center", "justify-center", "gap-1"], [1, "mx-auto", 3, "diameter"], [1, "text-xl"], [1, "text-xs", "opacity-60"], ["matTooltip", "Host"], ["matTooltip", "Booked By"], [1, "mx-3", "py-2", "text-lg", "font-medium"], [1, "flex", "flex-col", "space-y-2", "px-3", "text-sm"], [1, "flex", "items-center", "space-x-2"], ["matTooltip", "Group Size"], ["matTooltip", "Resource Type"], ["matTooltip", "Group Reference"], [1, "break-all"], [1, "flex", "flex-col", "space-y-2", "px-3"], [1, "flex", "flex-col", "space-y-2"], ["request", "", 1, "border-base-300", "bg-base-100", "overflow-hidden", "rounded-xl", "border"], ["matRipple", "", 1, "flex", "w-full", "items-center", "space-x-2", "p-3", 3, "click"], [1, "flex-1", "text-left"], [1, "text-sm"], [1, "flex", "h-8", "w-8", "items-center", "justify-center", "rounded-full", 3, "matTooltip"], [1, "flex", "h-8", "w-8", "items-center", "justify-center", "rounded-full"], [1, "text-2xl"], [1, "divide-base-100", "bg-base-200", "flex", "flex-col", "divide-y"], [1, "flex", "items-center", "space-x-2", "px-3", "py-1", "hover:opacity-90"], [1, "flex", "flex-1", "items-center"], [1, "bg-success", "text-success-content", "rounded-sm", "px-2", "py-1", "text-xs"], ["map", "", 1, "border-base-200", "sm:bg-base-100", "relative", "m-2", "mt-4", "h-64", "w-[calc(100%-1rem)]", "min-w-1/3", "grow-3", "overflow-hidden", "rounded-sm", "border", "p-2", "sm:my-2", "sm:h-48", "sm:w-[16rem]", 3, "click"], [1, "pointer-events-none", 3, "src", "features", "options"], ["mat-menu-item", "", "mat-dialog-close", "", 3, "click"], [1, "flex", "items-center", "space-x-2", "text-base"], ["mat-menu-item", "", 3, "click"], ["className", "material-symbols-rounded"], [1, "text-error"]], template: function BookingDetailsModalComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "div", 1)(1, "div", 2);
         \u0275\u0275conditionalCreate(2, BookingDetailsModalComponent_Conditional_2_Template, 1, 0, "div", 3);
@@ -123917,19 +124107,20 @@ var BookingDetailsModalComponent = class _BookingDetailsModalComponent {
         \u0275\u0275conditionalCreate(41, BookingDetailsModalComponent_Conditional_41_Template, 7, 5, "div", 15);
         \u0275\u0275elementEnd();
         \u0275\u0275conditionalCreate(42, BookingDetailsModalComponent_Conditional_42_Template, 11, 3, "div", 20);
-        \u0275\u0275conditionalCreate(43, BookingDetailsModalComponent_Conditional_43_Template, 7, 4, "div", 20);
-        \u0275\u0275conditionalCreate(44, BookingDetailsModalComponent_Conditional_44_Template, 2, 1, "button", 21);
+        \u0275\u0275conditionalCreate(43, BookingDetailsModalComponent_Conditional_43_Template, 7, 3, "div", 20);
+        \u0275\u0275conditionalCreate(44, BookingDetailsModalComponent_Conditional_44_Template, 7, 4, "div", 20);
+        \u0275\u0275conditionalCreate(45, BookingDetailsModalComponent_Conditional_45_Template, 2, 1, "button", 21);
         \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(45, "button", 22)(46, "icon");
-        \u0275\u0275text(47, "close");
+        \u0275\u0275elementStart(46, "button", 22)(47, "icon");
+        \u0275\u0275text(48, "close");
         \u0275\u0275elementEnd()()();
-        \u0275\u0275elementStart(48, "mat-menu", 23, 0);
-        \u0275\u0275conditionalCreate(50, BookingDetailsModalComponent_Conditional_50_Template, 7, 3, "button", 24);
-        \u0275\u0275conditionalCreate(51, BookingDetailsModalComponent_Conditional_51_Template, 7, 3, "button", 25);
+        \u0275\u0275elementStart(49, "mat-menu", 23, 0);
+        \u0275\u0275conditionalCreate(51, BookingDetailsModalComponent_Conditional_51_Template, 7, 3, "button", 24);
         \u0275\u0275conditionalCreate(52, BookingDetailsModalComponent_Conditional_52_Template, 7, 3, "button", 25);
-        \u0275\u0275conditionalCreate(53, BookingDetailsModalComponent_Conditional_53_Template, 6, 0, "button", 25);
-        \u0275\u0275conditionalCreate(54, BookingDetailsModalComponent_Conditional_54_Template, 7, 3, "button", 25);
+        \u0275\u0275conditionalCreate(53, BookingDetailsModalComponent_Conditional_53_Template, 7, 3, "button", 25);
+        \u0275\u0275conditionalCreate(54, BookingDetailsModalComponent_Conditional_54_Template, 6, 0, "button", 25);
         \u0275\u0275conditionalCreate(55, BookingDetailsModalComponent_Conditional_55_Template, 7, 3, "button", 25);
+        \u0275\u0275conditionalCreate(56, BookingDetailsModalComponent_Conditional_56_Template, 7, 3, "button", 25);
         \u0275\u0275elementEnd();
       }
       if (rf & 2) {
@@ -123953,9 +124144,9 @@ var BookingDetailsModalComponent = class _BookingDetailsModalComponent {
         \u0275\u0275advance();
         \u0275\u0275conditional(!ctx.booking().is_done ? 12 : -1);
         \u0275\u0275advance(4);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(17, 27, "BOOKINGS.DETAILS"), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(17, 28, "BOOKINGS.DETAILS"), " ");
         \u0275\u0275advance(6);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(23, 29, ctx.booking().date, "EEEE, dd LLLL y"), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(23, 30, ctx.booking().date, "EEEE, dd LLLL y"), " ");
         \u0275\u0275advance(6);
         \u0275\u0275textInterpolate(ctx.period());
         \u0275\u0275advance(3);
@@ -123971,21 +124162,23 @@ var BookingDetailsModalComponent = class _BookingDetailsModalComponent {
         \u0275\u0275advance();
         \u0275\u0275conditional((tmp_18_0 = ctx.group_details()) ? 42 : -1, tmp_18_0);
         \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.has_assets() ? 43 : -1);
+        \u0275\u0275conditional(ctx.vip_service_details().length ? 43 : -1);
         \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.level()?.map_id && !ctx.hide_selected_parking_space() ? 44 : -1);
+        \u0275\u0275conditional(ctx.has_assets() ? 44 : -1);
+        \u0275\u0275advance();
+        \u0275\u0275conditional(ctx.level()?.map_id && !ctx.hide_selected_parking_space() ? 45 : -1);
         \u0275\u0275advance(6);
-        \u0275\u0275conditional(ctx.can_edit() ? 50 : -1);
+        \u0275\u0275conditional(ctx.can_edit() ? 51 : -1);
         \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.is_checked_in() && ctx.desk_height_enabled() ? 51 : -1);
+        \u0275\u0275conditional(ctx.is_checked_in() && ctx.desk_height_enabled() ? 52 : -1);
         \u0275\u0275advance();
-        \u0275\u0275conditional(!ctx.booking().is_done ? 52 : -1);
+        \u0275\u0275conditional(!ctx.booking().is_done ? 53 : -1);
         \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.can_manage_group() ? 53 : -1);
+        \u0275\u0275conditional(ctx.can_manage_group() ? 54 : -1);
         \u0275\u0275advance();
-        \u0275\u0275conditional(!ctx.booking().is_done && ctx.booking().instance && ctx.allow_series_delete() ? 54 : -1);
+        \u0275\u0275conditional(!ctx.booking().is_done && ctx.booking().instance && ctx.allow_series_delete() ? 55 : -1);
         \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.is_in_progress() ? 55 : -1);
+        \u0275\u0275conditional(ctx.is_in_progress() ? 56 : -1);
       }
     }, dependencies: [
       CommonModule,
@@ -124219,6 +124412,28 @@ var BookingDetailsModalComponent = class _BookingDetailsModalComponent {
                                     <div class="break-all">
                                         {{ group.name }}
                                     </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+                @if (vip_service_details().length) {
+                    <div
+                        class="border-base-200 sm:bg-base-100 mt-4 min-w-1/3 grow-3 rounded-sm sm:m-2 sm:w-[16rem] sm:border sm:p-4"
+                    >
+                        <h3 class="mx-3 py-2 text-lg font-medium">
+                            {{ 'BOOKINGS.VIP_SERVICES_HEADER' | translate }}
+                        </h3>
+                        <div class="flex flex-col space-y-2 px-3">
+                            @for (
+                                item of vip_service_details();
+                                track item.label
+                            ) {
+                                <div>
+                                    <div class="text-xs opacity-60">
+                                        {{ item.label }}
+                                    </div>
+                                    <div>{{ item.value }}</div>
                                 </div>
                             }
                         </div>
@@ -124460,7 +124675,7 @@ var BookingDetailsModalComponent = class _BookingDetailsModalComponent {
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(BookingDetailsModalComponent, { className: "BookingDetailsModalComponent", filePath: "libs/bookings/src/lib/booking-details-modal.component.ts", lineNumber: 507 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(BookingDetailsModalComponent, { className: "BookingDetailsModalComponent", filePath: "libs/bookings/src/lib/booking-details-modal.component.ts", lineNumber: 535 });
 })();
 
 // libs/bookings/src/lib/parking.service.ts
@@ -124587,7 +124802,7 @@ var ParkingService = class _ParkingService extends AsyncHandler {
     effect(() => {
       const levels = this.levels();
       if (levels[0]?.id)
-        untracked2(() => this._loadSpaces(levels.map((l2) => l2.id)));
+        untracked2(() => this._loadSpaces(levels.map((l) => l.id)));
     });
     effect(() => {
       const bld = this._org.active_building();
@@ -124633,9 +124848,9 @@ var ParkingService = class _ParkingService extends AsyncHandler {
     const buildings = this._org.building_list();
     if (!buildings?.length)
       return;
-    const results = await Promise.all(buildings.map((bld) => Qu(bld.id, { name: "desks" }).then((data) => ({
+    const results = await Promise.all(buildings.map((bld) => Ju(bld.id, { name: "desks" }).then((data) => ({
       building_id: bld.id,
-      desks: flatten2(data.map((meta) => (meta?.metadata?.desks?.details instanceof Array ? meta.metadata.desks.details : []).map((d3) => new Desk(__spreadProps(__spreadValues({}, d3), {
+      desks: flatten2(data.map((meta) => (meta?.metadata?.desks?.details instanceof Array ? meta.metadata.desks.details : []).map((d2) => new Desk(__spreadProps(__spreadValues({}, d2), {
         zone: meta.zone
       })))))
     })).catch(() => ({
@@ -124645,7 +124860,7 @@ var ParkingService = class _ParkingService extends AsyncHandler {
     const email2 = currentUser()?.email?.toLowerCase();
     if (!email2)
       return this._home_building_id.set(null);
-    const match3 = results.find((r) => r.desks.some((d3) => d3.assigned_to?.toLowerCase() === email2));
+    const match3 = results.find((r) => r.desks.some((d2) => d2.assigned_to?.toLowerCase() === email2));
     this._home_building_id.set(match3?.building_id || null);
   }
   static {
@@ -124667,7 +124882,7 @@ var ParkingService = class _ParkingService extends AsyncHandler {
 })();
 
 // libs/bookings/src/lib/booking-card.component.ts
-var _c037 = () => ["./"];
+var _c038 = () => ["./"];
 var _c119 = (a0) => ({ booking: a0 });
 var _c211 = (a0) => ({ name: a0 });
 function BookingCardComponent_Conditional_0_Conditional_1_Template(rf, ctx) {
@@ -124864,7 +125079,7 @@ function BookingCardComponent_Conditional_1_Template(rf, ctx) {
   if (rf & 2) {
     let tmp_12_0;
     const ctx_r0 = \u0275\u0275nextContext();
-    \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(22, _c037))("queryParams", \u0275\u0275pureFunction1(23, _c119, ctx_r0.booking()?.id));
+    \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(22, _c038))("queryParams", \u0275\u0275pureFunction1(23, _c119, ctx_r0.booking()?.id));
     \u0275\u0275advance(2);
     \u0275\u0275styleProp("background-color", ctx_r0.typeColors[0])("color", ctx_r0.typeColors[1]);
     \u0275\u0275advance();
@@ -125375,7 +125590,7 @@ var BookingCardComponent = class _BookingCardComponent {
 })();
 
 // libs/components/src/lib/recurring-clash-modal.component.ts
-var _forTrack06 = ($index, $item) => $item.booking_start;
+var _forTrack07 = ($index, $item) => $item.booking_start;
 function RecurringClashModalComponent_For_24_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "tr", 10)(1, "td", 15);
@@ -125446,7 +125661,7 @@ var RecurringClashModalComponent = class _RecurringClashModalComponent {
         \u0275\u0275pipe(21, "translate");
         \u0275\u0275elementEnd()()();
         \u0275\u0275elementStart(22, "tbody");
-        \u0275\u0275repeaterCreate(23, RecurringClashModalComponent_For_24_Template, 8, 12, "tr", 10, _forTrack06);
+        \u0275\u0275repeaterCreate(23, RecurringClashModalComponent_For_24_Template, 8, 12, "tr", 10, _forTrack07);
         \u0275\u0275elementEnd()()();
         \u0275\u0275elementStart(25, "p", 11);
         \u0275\u0275text(26);
@@ -126171,7 +126386,7 @@ var DeskQuestionsModalComponent = class _DeskQuestionsModalComponent {
 })();
 
 // libs/payments/src/lib/card-input-field.component.ts
-var _c038 = ["input"];
+var _c039 = ["input"];
 function CardInputFieldComponent_Conditional_9_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "img", 7);
@@ -126363,7 +126578,7 @@ var CardInputFieldComponent = class _CardInputFieldComponent extends AsyncHandle
   static {
     this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CardInputFieldComponent, selectors: [["card-input-field"]], viewQuery: function CardInputFieldComponent_Query(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275viewQuerySignal(ctx._input_el, _c038, 5);
+        \u0275\u0275viewQuerySignal(ctx._input_el, _c039, 5);
       }
       if (rf & 2) {
         \u0275\u0275queryAdvance();
@@ -127239,7 +127454,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     if (!email2)
       return false;
     const map_metadata = (meta) => (meta?.metadata?.desks?.details instanceof Array ? meta.metadata.desks.details : []).map((desk) => new Desk(__spreadProps(__spreadValues({}, desk), { zone: meta.zone })));
-    const desk_lists = await Promise.all(buildings.map((building) => Qu(building.id, { name: "desks" }).then((data) => flatten2(data.map(map_metadata))).catch(() => [])));
+    const desk_lists = await Promise.all(buildings.map((building) => Ju(building.id, { name: "desks" }).then((data) => flatten2(data.map(map_metadata))).catch(() => [])));
     return flatten2(desk_lists).some((desk) => desk.assigned_to?.toLowerCase() === email2);
   }
   /**
@@ -127280,7 +127495,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     const default_zone = (this._settings.get("app.use_region") ? this._org.region?.id : this._org.building?.id) || this._org.organisation.id;
     const zones = options.zones?.length ? options.zones.join(",") : options.zone_id || default_zone;
     let booked_ids = [];
-    if (!kn()) {
+    if (!Sn()) {
       booked_ids = await this._bookedResourceList({
         period_start: getUnixTime(date),
         period_end: getUnixTime(addMinutes(date, duration)),
@@ -127356,7 +127571,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     }
     this.model.set(bookingFormValue(new Booking()));
     this.form().reset();
-    this._patch(Ys(__spreadProps(__spreadValues(__spreadProps(__spreadValues({}, booking.extension_data), {
+    this._patch(Vs(__spreadProps(__spreadValues(__spreadProps(__spreadValues({}, booking.extension_data), {
       attachments: bookingAttachments(booking)
     }), booking), {
       _in_progress: booking.state === "started" || booking.state === "in_progress"
@@ -127550,7 +127765,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       params: () => this._network_consumed() && this._requests_ready() ? this._booking_rules_params_debounced.value() : void 0,
       loader: ({ params }) => {
         const { ids, type } = params;
-        return Promise.all(ids.map((id) => ju(id, `${type}_booking_rules`))).then((building_rules) => {
+        return Promise.all(ids.map((id) => Wu(id, `${type}_booking_rules`))).then((building_rules) => {
           const mapping = {};
           for (const rules of building_rules) {
             mapping[rules.id] = rules.details instanceof Array ? rules.details : [];
@@ -127691,7 +127906,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
   }
   _allDayTimeRange(date) {
     const period = this.setting("all_day_period");
-    return getAllDayTimeRange(date, this.timezone, period?.start, period?.end, this.model().id ? void 0 : Date.now());
+    return getAllDayTimeRange(date, this.timezone, period?.start, period?.end);
   }
   /**
    * Re-apply the supplied booking window after async form setup only if no
@@ -127730,6 +127945,10 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     }
   }
   resetForm() {
+    if (!currentUserIsLoaded()) {
+      currentUserLoaded().then(() => this.resetForm());
+      return;
+    }
     if (!sessionStorage.getItem(STORAGE_KEYS.booking_form)) {
       return this.newForm(this._options().type);
     }
@@ -127739,7 +127958,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       booked_by: currentUser()
     }));
     this.form().reset();
-    this._patch(Ys(__spreadProps(__spreadValues(__spreadValues({}, booking || {}), booking?.extension_data || {}), {
+    this._patch(Vs(__spreadProps(__spreadValues(__spreadValues({}, booking || {}), booking?.extension_data || {}), {
       attachments: bookingAttachments(booking),
       _in_progress: booking?.state === "started"
     }), [null, void 0, ""]));
@@ -127755,7 +127974,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     sessionStorage.removeItem(STORAGE_KEYS.booking_form_filters);
   }
   storeForm() {
-    sessionStorage.setItem(STORAGE_KEYS.booking_form, JSON.stringify(__spreadValues(__spreadValues({}, this._booking()), Ys(__spreadValues({}, this.model()), [null, void 0, ""]))));
+    sessionStorage.setItem(STORAGE_KEYS.booking_form, JSON.stringify(__spreadValues(__spreadValues({}, this._booking()), Vs(__spreadValues({}, this.model()), [null, void 0, ""]))));
     sessionStorage.setItem(STORAGE_KEYS.booking_form_filters, JSON.stringify(this._options() || {}));
   }
   loadForm(expected_type) {
@@ -127775,7 +127994,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       booked_by: currentUser()
     }));
     this.form().reset();
-    const booking_data = Ys(__spreadProps(__spreadValues(__spreadValues(__spreadValues({}, data), booking || {}), booking?.extension_data || {}), {
+    const booking_data = Vs(__spreadProps(__spreadValues(__spreadValues(__spreadValues({}, data), booking || {}), booking?.extension_data || {}), {
       attachments: bookingAttachments(booking),
       _in_progress: booking?.state === "started"
     }), [null, void 0, ""]);
@@ -128632,7 +128851,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     if (this._useCurrentUserForBookingRules() || current_user2.email === host) {
       return current_user2;
     }
-    return Ca(host).catch(() => ({ email: host }));
+    return Na(host).catch(() => ({ email: host }));
   }
   /**
    * Check for clashing bookings in a recurring booking series
@@ -128704,7 +128923,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
   async loadParkingResources() {
     const use_region = this._settings.get("app.use_region");
     const levels = (use_region ? this._org.levelsForRegion() : this._org.levelsForBuilding()).filter((_3) => _3.tags.includes("parking"));
-    const spaces = await queryParkingSpacesForZones(levels.map((l2) => l2.id));
+    const spaces = await queryParkingSpacesForZones(levels.map((l) => l.id));
     return spaces.map((s) => __spreadProps(__spreadValues({}, s), {
       id: s.id || s.map_id,
       groups: s.place_groups,
@@ -128713,8 +128932,8 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
   }
   async loadResourceList(type) {
     const use_region = this._settings.get("app.use_region");
-    const map_metadata = (_3) => (_3?.metadata[type]?.details instanceof Array ? _3.metadata[type].details : []).map((d3) => __spreadProps(__spreadValues({}, d3), {
-      id: d3.id || d3.map_id,
+    const map_metadata = (_3) => (_3?.metadata[type]?.details instanceof Array ? _3.metadata[type].details : []).map((d2) => __spreadProps(__spreadValues({}, d2), {
+      id: d2.id || d2.map_id,
       zone: _3.zone
     }));
     const id = use_region ? this._org.building?.parent_id : this._org.building?.id;
@@ -128723,10 +128942,10 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     if (use_region) {
       const id2 = this._org.building.parent_id;
       const buildings = this._org.buildings.filter((_3) => _3.parent_id === id2);
-      const lists = await Promise.all(buildings.map((_3) => Qu(_3.id, { name: type }).then((data2) => flatten2(data2.map(map_metadata)))));
+      const lists = await Promise.all(buildings.map((_3) => Ju(_3.id, { name: type }).then((data2) => flatten2(data2.map(map_metadata)))));
       return flatten2(lists);
     }
-    const data = await Qu(this._org.building.id, {
+    const data = await Ju(this._org.building.id, {
       name: type
     });
     return flatten2(data.map(map_metadata));
@@ -128837,7 +129056,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
 })();
 
 // libs/bookings/src/lib/desk-select-modal/desk-details.component.ts
-var _c039 = () => [];
+var _c040 = () => [];
 var _c120 = () => ({ disable_pan: true, disable_zoom: true });
 function DeskDetailsComponent_Conditional_0_Conditional_0_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
@@ -128896,7 +129115,7 @@ function DeskDetailsComponent_Conditional_0_Conditional_33_Template(rf, ctx) {
     \u0275\u0275advance(2);
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 1, "COMMON.FEATURES"), " ");
     \u0275\u0275advance(2);
-    \u0275\u0275repeater(ctx_r1.desk().features || \u0275\u0275pureFunction0(3, _c039));
+    \u0275\u0275repeater(ctx_r1.desk().features || \u0275\u0275pureFunction0(3, _c040));
   }
 }
 function DeskDetailsComponent_Conditional_0_Conditional_34_Template(rf, ctx) {
@@ -129228,7 +129447,7 @@ var DeskDetailsComponent = class _DeskDetailsComponent {
 })();
 
 // libs/bookings/src/lib/desk-select-modal/desk-filters-display.component.ts
-var _c040 = () => [];
+var _c041 = () => [];
 function DeskFiltersDisplayComponent_Conditional_5_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275text(0);
@@ -129307,7 +129526,7 @@ var DeskFiltersDisplayComponent = class _DeskFiltersDisplayComponent {
     this.viewChange = output();
     this.options = this._state.options;
     this.setOptions = (o) => this._state.setOptions(o);
-    this.setFeature = (f2, e) => this._state.setFeature(f2, e);
+    this.setFeature = (f3, e) => this._state.setFeature(f3, e);
     this._form_value = this._state.model;
     this.all_day = computed(
       () => this._form_value().all_day,
@@ -129365,7 +129584,7 @@ var DeskFiltersDisplayComponent = class _DeskFiltersDisplayComponent {
         \u0275\u0275advance();
         \u0275\u0275conditional(ctx.all_day() ? 6 : -1);
         \u0275\u0275advance();
-        \u0275\u0275repeater(ctx.options()?.features || \u0275\u0275pureFunction0(7, _c040));
+        \u0275\u0275repeater(ctx.options()?.features || \u0275\u0275pureFunction0(7, _c041));
         \u0275\u0275advance(2);
         \u0275\u0275conditional(ctx.options()?.show_fav ? 9 : -1);
       }
@@ -129428,7 +129647,7 @@ var DeskFiltersDisplayComponent = class _DeskFiltersDisplayComponent {
 })();
 
 // libs/bookings/src/lib/desk-select-modal/desk-filters.component.ts
-var _c041 = () => ({ standalone: true });
+var _c042 = () => ({ standalone: true });
 var _c121 = () => [];
 function DeskFiltersComponent_Conditional_10_Template(rf, ctx) {
   if (rf & 1) {
@@ -129473,7 +129692,7 @@ function DeskFiltersComponent_Conditional_11_Template(rf, ctx) {
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance();
-    \u0275\u0275property("ngModel", ctx_r1.region())("ngModelOptions", \u0275\u0275pureFunction0(5, _c041))("placeholder", \u0275\u0275pipeBind1(2, 3, "COMMON.REGION_ANY"));
+    \u0275\u0275property("ngModel", ctx_r1.region())("ngModelOptions", \u0275\u0275pureFunction0(5, _c042))("placeholder", \u0275\u0275pipeBind1(2, 3, "COMMON.REGION_ANY"));
     \u0275\u0275control();
     \u0275\u0275advance(2);
     \u0275\u0275repeater(ctx_r1.regions());
@@ -129509,7 +129728,7 @@ function DeskFiltersComponent_Conditional_12_Template(rf, ctx) {
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance();
-    \u0275\u0275property("ngModel", ctx_r1.building())("ngModelOptions", \u0275\u0275pureFunction0(3, _c041))("placeholder", ctx_r1.building()?.display_name || ctx_r1.building()?.name);
+    \u0275\u0275property("ngModel", ctx_r1.building())("ngModelOptions", \u0275\u0275pureFunction0(3, _c042))("placeholder", ctx_r1.building()?.display_name || ctx_r1.building()?.name);
     \u0275\u0275control();
     \u0275\u0275advance();
     \u0275\u0275repeater(ctx_r1.buildings());
@@ -129566,7 +129785,7 @@ function DeskFiltersComponent_Conditional_13_Template(rf, ctx) {
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance();
-    \u0275\u0275property("ngModel", ctx_r1.options()?.zone_id)("ngModelOptions", \u0275\u0275pureFunction0(5, _c041))("placeholder", \u0275\u0275pipeBind1(2, 3, "COMMON.LEVEL_ANY"));
+    \u0275\u0275property("ngModel", ctx_r1.options()?.zone_id)("ngModelOptions", \u0275\u0275pureFunction0(5, _c042))("placeholder", \u0275\u0275pipeBind1(2, 3, "COMMON.LEVEL_ANY"));
     \u0275\u0275control();
     \u0275\u0275advance(2);
     \u0275\u0275repeater(ctx_r1.levels());
@@ -129619,7 +129838,7 @@ function DeskFiltersComponent_Conditional_22_Template(rf, ctx) {
     \u0275\u0275advance(3);
     \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(4, 15, "FORM.TIME_START"));
     \u0275\u0275advance(2);
-    \u0275\u0275property("ngModel", ctx_r1.model().date)("ngModelOptions", \u0275\u0275pureFunction0(19, _c041))("use_24hr", ctx_r1.use_24hr())("timezone", ctx_r1.timezone())("range", ctx_r1.bookable_hours());
+    \u0275\u0275property("ngModel", ctx_r1.model().date)("ngModelOptions", \u0275\u0275pureFunction0(19, _c042))("use_24hr", ctx_r1.use_24hr())("timezone", ctx_r1.timezone())("range", ctx_r1.bookable_hours());
     \u0275\u0275control();
     \u0275\u0275advance(3);
     \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(9, 17, "FORM.TIME_END"));
@@ -129651,7 +129870,7 @@ function DeskFiltersComponent_Conditional_23_Template(rf, ctx) {
     \u0275\u0275advance(2);
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 4, "COMMON.FAVOURITES"), " ");
     \u0275\u0275advance(3);
-    \u0275\u0275property("label", \u0275\u0275pipeBind1(6, 6, "COMMON.FAVOURITES_ONLY"))("ngModel", ctx_r1.options()?.show_fav)("ngModelOptions", \u0275\u0275pureFunction0(8, _c041));
+    \u0275\u0275property("label", \u0275\u0275pipeBind1(6, 6, "COMMON.FAVOURITES_ONLY"))("ngModel", ctx_r1.options()?.show_fav)("ngModelOptions", \u0275\u0275pureFunction0(8, _c042));
     \u0275\u0275control();
   }
 }
@@ -129672,7 +129891,7 @@ function DeskFiltersComponent_Conditional_24_For_5_Template(rf, ctx) {
     const feat_r11 = ctx.$implicit;
     const ctx_r1 = \u0275\u0275nextContext(2);
     \u0275\u0275advance();
-    \u0275\u0275property("label", feat_r11)("ngModel", (ctx_r1.options()?.features || \u0275\u0275pureFunction0(3, _c121)).includes(feat_r11))("ngModelOptions", \u0275\u0275pureFunction0(4, _c041));
+    \u0275\u0275property("label", feat_r11)("ngModel", (ctx_r1.options()?.features || \u0275\u0275pureFunction0(3, _c121)).includes(feat_r11))("ngModelOptions", \u0275\u0275pureFunction0(4, _c042));
     \u0275\u0275control();
   }
 }
@@ -129758,8 +129977,8 @@ var DeskFiltersComponent = class _DeskFiltersComponent {
       )
     );
     this.setOptions = (o) => this._state.setOptions(o);
-    this.setFeature = (f2, e) => this._state.setFeature(f2, e);
-    this.setLevel = (l2) => {
+    this.setFeature = (f3, e) => this._state.setFeature(f3, e);
+    this.setLevel = (l) => {
     };
     this.setBuilding = (bld) => this._org.building = bld;
     this.setRegion = (r) => this._org.region = r;
@@ -129861,7 +130080,7 @@ var DeskFiltersComponent = class _DeskFiltersComponent {
         \u0275\u0275advance(3);
         \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(17, 20, "FORM.DATE"));
         \u0275\u0275advance(2);
-        \u0275\u0275property("ngModel", ctx.model().date)("ngModelOptions", \u0275\u0275pureFunction0(24, _c041))("to", ctx.end_date())("timezone", ctx.timezone());
+        \u0275\u0275property("ngModel", ctx.model().date)("ngModelOptions", \u0275\u0275pureFunction0(24, _c042))("to", ctx.end_date())("timezone", ctx.timezone());
         \u0275\u0275control();
         \u0275\u0275advance();
         \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(20, 22, "FORM.DATE_ERROR"), " ");
@@ -130117,7 +130336,7 @@ var DeskFiltersComponent = class _DeskFiltersComponent {
 })();
 
 // libs/bookings/src/lib/desk-select-modal/desk-list.component.ts
-var _c042 = (a0) => ({ count: a0 });
+var _c043 = (a0) => ({ count: a0 });
 function DeskListComponent_Conditional_6_Conditional_0_For_2_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 10)(1, "icon");
@@ -130313,7 +130532,7 @@ var DeskListComponent = class _DeskListComponent {
         \u0275\u0275advance();
         \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(2, 3, "COMMON.RESULTS"));
         \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(5, 5, "COMMON.RESULTS_COUNT", \u0275\u0275pureFunction1(9, _c042, ctx.desks()?.length || 0), ctx.desks()?.length || 0), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(5, 5, "COMMON.RESULTS_COUNT", \u0275\u0275pureFunction1(9, _c043, ctx.desks()?.length || 0), ctx.desks()?.length || 0), " ");
         \u0275\u0275advance(2);
         \u0275\u0275conditional(!ctx.loading()?.length ? 6 : 7);
       }
@@ -131115,12 +131334,15 @@ function generateEventForm(event = new CalendarEvent(), settings, injector) {
     const value = model2();
     if (!value.catering?.length || !value.date)
       return;
+    const event2 = {
+      date: value.all_day ? startOfDay(value.date) : value.date,
+      duration: value.all_day ? 24 * 60 : value.duration
+    };
+    if (value.catering.every((order) => +order.event?.date === +event2.date && order.event?.duration === event2.duration))
+      return;
     model2.update((m2) => __spreadProps(__spreadValues({}, m2), {
       catering: (m2.catering || []).map((order) => __spreadProps(__spreadValues({}, order), {
-        event: {
-          date: m2.all_day ? startOfDay(m2.date) : m2.date,
-          duration: m2.all_day ? 24 * 60 : m2.duration
-        }
+        event: event2
       }))
     }));
   };
@@ -131319,7 +131541,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       },
       loader: ({ params: ids }) => {
         this.addLoadingTag(Tags.BookingRules);
-        return Promise.all(ids.map((id) => ju(id, "room_booking_rules").then((_3) => ({
+        return Promise.all(ids.map((id) => Wu(id, "room_booking_rules").then((_3) => ({
           id,
           details: _3.details instanceof Array ? _3.details : []
         })).catch(() => ({ id, details: [] })))).then((building_rules) => {
@@ -131382,7 +131604,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       {}
     )), {
       params: () => this._network_consumed() && this._requests_ready() ? this._org.organisation?.id || void 0 : void 0,
-      loader: ({ params: id }) => ju(id, "room_alerts").then((r) => r.details).catch(() => ({}))
+      loader: ({ params: id }) => Wu(id, "room_alerts").then((r) => r.details).catch(() => ({}))
     }));
     this.room_alerts = computed(
       () => {
@@ -131419,7 +131641,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
           list = list.filter(({ capacity }) => capacity < 0 || capacity >= range2.min && capacity <= range2.max);
         }
         if (filters.features) {
-          list = list.filter(({ features }) => filters.features.every((f2) => features.includes(f2)));
+          list = list.filter(({ features }) => filters.features.every((f3) => features.includes(f3)));
         }
         return list.sort((a, b2) => {
           const cap_diff = (a.capacity || 0) - (b2.capacity || 0);
@@ -131484,7 +131706,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     this.init();
   }
   async init() {
-    await firstValueWhere(userSignal(), (user) => !isEmptyUser(user));
+    await currentUserLoaded();
     setDefaultCreator(currentUser());
     onFieldChange(this._model, (v) => v.date, (date) => this.setOptions({ date }), this._injector);
     onFieldChange(this._model, (v) => v.duration, (duration) => this.setOptions({ duration }), this._injector);
@@ -131526,7 +131748,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
   }
   _allDayTimeRange(date) {
     const period = this._settings.get("app.events.all_day_period");
-    return getAllDayTimeRange(date, this.timezone, period?.start, period?.end, this._model().id ? void 0 : Date.now());
+    return getAllDayTimeRange(date, this.timezone, period?.start, period?.end);
   }
   /** Resolve the bookable space list for the given zone */
   _requestSpaces(zone_id) {
@@ -131603,6 +131825,10 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     this._options.set(__spreadValues(__spreadValues({}, this._options()), options));
   }
   newForm(event = new CalendarEvent()) {
+    if (!currentUserIsLoaded()) {
+      currentUserLoaded().then(() => this.newForm(event));
+      return;
+    }
     this._startNetwork();
     this._calendar.loadCalendars();
     this._loading.set("");
@@ -131619,6 +131845,10 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     this._event.set(event);
   }
   resetForm() {
+    if (!currentUserIsLoaded()) {
+      currentUserLoaded().then(() => this.resetForm());
+      return;
+    }
     this._model.set(eventFormValue(this._event() || new CalendarEvent()));
     this._form().reset();
   }
@@ -131628,13 +131858,17 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     });
   }
   loadForm() {
+    if (!currentUserIsLoaded()) {
+      currentUserLoaded().then(() => this.loadForm());
+      return;
+    }
     this._startNetwork();
     this._calendar.loadCalendars();
     const event_data = JSON.parse(sessionStorage.getItem("PLACEOS.event") || "{}");
     const event = new CalendarEvent(event_data);
     this._event.set(event);
     const form_data = JSON.parse(sessionStorage.getItem("PLACEOS.event_form") || "{}");
-    this._model.update((m2) => __spreadValues(__spreadValues(__spreadValues({}, m2), event), form_data));
+    this._model.update((m2) => __spreadValues(__spreadValues(__spreadValues({}, m2), eventFormValue(event)), form_data));
   }
   clearForm() {
     sessionStorage.removeItem("PLACEOS.event");
@@ -131647,7 +131881,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       return;
     const event = new CalendarEvent(__spreadProps(__spreadValues({}, this._model()), { assets: [] }));
     const ref = this._dialog.open(EventLinkModalComponent, { data: event });
-    ref.afterClosed().subscribe((d3) => d3 ? this._router.navigate(["/"]) : "");
+    ref.afterClosed().subscribe((d2) => d2 ? this._router.navigate(["/"]) : "");
   }
   cancelPostForm() {
   }
@@ -131767,7 +132001,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       if (this._model().host !== host)
         ext.host_override = this._model().host;
       const value = this._model();
-      const created_event = await this._performBooking(new CalendarEvent(__spreadProps(__spreadValues({}, this._model()), {
+      let created_event = await this._performBooking(new CalendarEvent(__spreadProps(__spreadValues({}, this._model()), {
         date: all_day_period.date,
         duration: all_day_period.duration,
         date_end: all_day_period.date_end,
@@ -131783,6 +132017,16 @@ var EventFormService = class _EventFormService extends AsyncHandler {
         assets: processed_assets,
         extension_data: ext
       })), query2).catch(on_error);
+      const date_end = all_day_period.date_end || all_day_period.date + all_day_period.duration * 60 * 1e3;
+      created_event = new CalendarEvent(__spreadProps(__spreadValues({}, created_event), {
+        event_start: Math.floor(all_day_period.date / 1e3),
+        event_end: Math.floor(date_end / 1e3),
+        date: all_day_period.date,
+        duration: all_day_period.duration,
+        date_end,
+        resources: space_list,
+        system: space_list[0] || null
+      }));
       const domain = (currentUser()?.email || "@").split("@")[1];
       const visitors = this._model().attendees.filter((user) => user.is_external && user.email !== event.host && !user.email.includes(domain) && user.visit_expected);
       if (visitors.length) {
@@ -131814,7 +132058,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       }
       this.clearForm();
       sessionStorage.setItem("PLACEOS.last_modified_event", JSON.stringify(created_event.toJSON()));
-      this.loadLastSuccess();
+      this.last_success.set(created_event);
       return created_event;
     } catch (e) {
       this.removeLoadingTag(Tags.PostBooking);
@@ -131878,7 +132122,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       const bld = this._org.buildings.find((b2) => space.zones.includes(b2.id));
       if (!bld || rules[bld.id])
         continue;
-      const metadata2 = await ju(bld.id, "room_booking_rules").catch(() => ({ details: [] }));
+      const metadata2 = await Wu(bld.id, "room_booking_rules").catch(() => ({ details: [] }));
       rules[bld.id] = metadata2.details instanceof Array ? metadata2.details : [];
     }
     const space_rules = spaces.map((space) => {
@@ -131994,7 +132238,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
 })();
 
 // libs/explore/src/lib/explore-book-qr.component.ts
-var _c043 = (a0) => ({ name: a0 });
+var _c044 = (a0) => ({ name: a0 });
 var DEFAULT_PATH = `workplace/#/explore?space={{id}}`;
 var ExploreBookQrComponent = class _ExploreBookQrComponent {
   constructor() {
@@ -132037,7 +132281,7 @@ var ExploreBookQrComponent = class _ExploreBookQrComponent {
       }
       if (rf & 2) {
         \u0275\u0275advance(2);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(3, 2, "EXPLORE.BOOK_RESOURCE", \u0275\u0275pureFunction1(5, _c043, ctx.space()?.name)), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(3, 2, "EXPLORE.BOOK_RESOURCE", \u0275\u0275pureFunction1(5, _c044, ctx.space()?.name)), " ");
         \u0275\u0275advance(7);
         \u0275\u0275property("src", ctx.qr_code(), \u0275\u0275sanitizeUrl);
       }
@@ -132614,7 +132858,7 @@ var ExploreIconComponent = class _ExploreIconComponent {
 })();
 
 // libs/explore/src/lib/explore-space-info.component.ts
-var _c044 = (a0) => ({ count: a0 });
+var _c045 = (a0) => ({ count: a0 });
 function ExploreSpaceInfoComponent_ng_template_2_Conditional_4_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "img", 7);
@@ -132654,7 +132898,7 @@ function ExploreSpaceInfoComponent_ng_template_2_Conditional_15_Template(rf, ctx
   if (rf & 2) {
     const ctx_r0 = \u0275\u0275nextContext(2);
     \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(5, 1, "COMMON.PEOPLE_COUNT", \u0275\u0275pureFunction1(5, _c044, ctx_r0.space().capacity), ctx_r0.space().capacity), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(5, 1, "COMMON.PEOPLE_COUNT", \u0275\u0275pureFunction1(5, _c045, ctx_r0.space().capacity), ctx_r0.space().capacity), " ");
   }
 }
 function ExploreSpaceInfoComponent_ng_template_2_Conditional_16_For_2_Template(rf, ctx) {
@@ -133073,7 +133317,7 @@ var ExploreSpacesService = class _ExploreSpacesService extends AsyncHandler {
       {}
     )), {
       params: () => this._building() || void 0,
-      loader: ({ params: bld }) => ju(bld.id, `room_booking_rules`).then((_3) => _3?.details instanceof Array ? _3.details : []).catch(() => [])
+      loader: ({ params: bld }) => Wu(bld.id, `room_booking_rules`).then((_3) => _3?.details instanceof Array ? _3.details : []).catch(() => [])
     }));
     this.booking_rules = computed(
       () => this._booking_rules.value() ?? [],
@@ -133087,7 +133331,7 @@ var ExploreSpacesService = class _ExploreSpacesService extends AsyncHandler {
       {}
     )), {
       params: () => this._building() || void 0,
-      loader: () => ju(this._org.organisation.id, `room_alerts`).then((_3) => _3.details || {}).catch(() => ({}))
+      loader: () => Wu(this._org.organisation.id, `room_alerts`).then((_3) => _3.details || {}).catch(() => ({}))
     }));
     this.room_alerts = computed(
       () => this._room_alerts.value() ?? {},
@@ -133112,13 +133356,13 @@ var ExploreSpacesService = class _ExploreSpacesService extends AsyncHandler {
     if (!list?.length)
       return;
     for (const space of list) {
-      const mod2 = Fl(space.id, "Bookings");
+      const mod2 = Wl(space.id, "Bookings");
       let binding = mod2.variable("bookings");
-      this.subscription(`b-${space.id}`, binding.bindThenSubscribe((d3) => this.handleBookingsChange(list, space, d3)));
+      this.subscription(`b-${space.id}`, binding.bindThenSubscribe((d2) => this.handleBookingsChange(list, space, d2)));
       binding = mod2.variable("status");
-      this.subscription(`s-${space.id}`, binding.bindThenSubscribe((d3) => this.handleStatusChange(list, space, d3)));
+      this.subscription(`s-${space.id}`, binding.bindThenSubscribe((d2) => this.handleStatusChange(list, space, d2)));
       binding = mod2.variable("presence");
-      this.subscription(`c-${space.id}`, binding.bindThenSubscribe((d3) => this.handlePresenceChange(list, space, d3)));
+      this.subscription(`c-${space.id}`, binding.bindThenSubscribe((d2) => this.handlePresenceChange(list, space, d2)));
     }
     this.updateActions(list);
     this._updateHoverElements(list);
@@ -133292,7 +133536,7 @@ var ExploreSpacesService = class _ExploreSpacesService extends AsyncHandler {
 })();
 
 // libs/bookings/src/lib/desk-select-modal/desk-map.component.ts
-var _c045 = () => ({ controls: true });
+var _c046 = () => ({ controls: true });
 var _c122 = () => ({ standalone: true });
 function DeskMapComponent_Conditional_1_For_4_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
@@ -133566,7 +133810,7 @@ var DeskMapComponent = class _DeskMapComponent {
         \u0275\u0275advance(2);
         \u0275\u0275property("src", ctx.map_url());
         \u0275\u0275twoWayProperty("zoom", ctx.zoom)("center", ctx.center);
-        \u0275\u0275property("styles", ctx.styles())("features", ctx.features())("actions", ctx.actions())("options", \u0275\u0275pureFunction0(8, _c045));
+        \u0275\u0275property("styles", ctx.styles())("features", ctx.features())("actions", ctx.actions())("options", \u0275\u0275pureFunction0(8, _c046));
       }
     }, dependencies: [
       InteractiveMapComponent,
@@ -134185,7 +134429,7 @@ var DeskSelectModalComponent = class _DeskSelectModalComponent {
 })();
 
 // libs/bookings/src/lib/desk-list-field.component.ts
-var _c046 = () => [];
+var _c047 = () => [];
 var _c123 = () => ({ standalone: true });
 function DeskListFieldComponent_For_2_Conditional_1_For_5_Template(rf, ctx) {
   if (rf & 1) {
@@ -134203,7 +134447,7 @@ function DeskListFieldComponent_For_2_Conditional_1_For_5_Template(rf, ctx) {
   if (rf & 2) {
     const opt_r3 = ctx.$implicit;
     const ctx_r3 = \u0275\u0275nextContext(3);
-    \u0275\u0275property("ngModel", (ctx_r3.selected_features() || \u0275\u0275pureFunction0(3, _c046)).includes(opt_r3))("ngModelOptions", \u0275\u0275pureFunction0(4, _c123));
+    \u0275\u0275property("ngModel", (ctx_r3.selected_features() || \u0275\u0275pureFunction0(3, _c047)).includes(opt_r3))("ngModelOptions", \u0275\u0275pureFunction0(4, _c123));
     \u0275\u0275control();
     \u0275\u0275advance();
     \u0275\u0275textInterpolate1(" ", opt_r3, " ");
@@ -134395,7 +134639,7 @@ var DeskListFieldComponent = class _DeskListFieldComponent {
     if (value) {
       this.selected_features.set([...features, opt]);
     } else {
-      this.selected_features.set(features.filter((f2) => f2 !== opt));
+      this.selected_features.set(features.filter((f3) => f3 !== opt));
     }
   }
   toggleFavourite(space) {
@@ -134767,11 +135011,11 @@ var HostSelectFieldComponent = class _HostSelectFieldComponent {
 })();
 
 // libs/form-fields/src/lib/user-list-field.component.ts
-var _c047 = ["search_field"];
+var _c048 = ["search_field"];
 var _c124 = ["*"];
 var _c212 = (a0) => ({ name: a0 });
 var _c36 = (a0) => ({ email: a0 });
-var _forTrack07 = ($index, $item) => $item.id;
+var _forTrack08 = ($index, $item) => $item.id;
 function UserListFieldComponent_For_7_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
@@ -134945,7 +135189,7 @@ var DENIED_FILE_TYPES = [
 ];
 var UserListFieldComponent = class _UserListFieldComponent extends AsyncHandler {
   async searchStaff(q2) {
-    return this._use_basic_user_search() ? Ea({ q: q2, authority_id: Rt()?.id }).then((_3) => _3.data.map((u4) => new User(u4))) : searchStaff(q2);
+    return this._use_basic_user_search() ? Ma({ q: q2, authority_id: Rt()?.id }).then((_3) => _3.data.map((u4) => new User(u4))) : searchStaff(q2);
   }
   constructor() {
     super();
@@ -135255,7 +135499,7 @@ Fake Org,John,Smith,john.smith@example.com,01234567898,false,true`;
   static {
     this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _UserListFieldComponent, selectors: [["a-user-list-field"]], viewQuery: function UserListFieldComponent_Query(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275viewQuerySignal(ctx._search_el, _c047, 5);
+        \u0275\u0275viewQuerySignal(ctx._search_el, _c048, 5);
       }
       if (rf & 2) {
         \u0275\u0275queryAdvance();
@@ -135270,7 +135514,7 @@ Fake Org,John,Smith,john.smith@example.com,01234567898,false,true`;
       if (rf & 1) {
         \u0275\u0275projectionDef();
         \u0275\u0275elementStart(0, "div", 4)(1, "div", 5)(2, "mat-form-field", 6, 0)(4, "mat-chip-grid", 7, 1);
-        \u0275\u0275repeaterCreate(6, UserListFieldComponent_For_7_Template, 8, 10, "mat-chip-row", 8, _forTrack07);
+        \u0275\u0275repeaterCreate(6, UserListFieldComponent_For_7_Template, 8, 10, "mat-chip-row", 8, _forTrack08);
         \u0275\u0275elementEnd();
         \u0275\u0275elementStart(8, "input", 9, 2);
         \u0275\u0275pipe(10, "translate");
@@ -135584,7 +135828,7 @@ var SpacesService = class _SpacesService {
     return this.space_list.filter((_3) => predicate(_3));
   }
   async loadSpace(space_id) {
-    const system = await sa(space_id);
+    const system = await oa(space_id);
     const space = new Space(__spreadProps(__spreadValues({}, system), {
       level: this._org.levelWithID([...system.zones])
     }));
@@ -135598,7 +135842,7 @@ var SpacesService = class _SpacesService {
     return this.space_list.find(({ id, email: email2 }) => space_id === id || space_id === email2);
   }
   async loadSpaces() {
-    const systems = (await ta({
+    const systems = (await ia({
       zone_id: this._org.organisation?.id,
       limit: 5e3
     })).data;
@@ -135628,7 +135872,7 @@ var SpacesService = class _SpacesService {
 })();
 
 // libs/events/src/lib/event-details-modal.component.ts
-var _c048 = (a0) => ({ time: a0 });
+var _c049 = (a0) => ({ time: a0 });
 var _c125 = (a0, a1) => ({ count: a0, cost: a1 });
 var _c213 = (a0) => ({ count: a0 });
 var _c37 = () => ({ disable_pan: true, disable_zoom: true });
@@ -135930,7 +136174,7 @@ function EventDetailsModalComponent_Conditional_88_For_6_Template(rf, ctx) {
     const order_r8 = ctx.$implicit;
     const ctx_r1 = \u0275\u0275nextContext(2);
     \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(6, 9, "CALENDAR_EVENT.CATERING_ORDER_AT", \u0275\u0275pureFunction1(18, _c048, \u0275\u0275pipeBind2(5, 6, order_r8.deliver_at, "MMM d, " + ctx_r1.time_format()))), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(6, 9, "CALENDAR_EVENT.CATERING_ORDER_AT", \u0275\u0275pureFunction1(18, _c049, \u0275\u0275pipeBind2(5, 6, order_r8.deliver_at, "MMM d, " + ctx_r1.time_format()))), " ");
     \u0275\u0275advance(5);
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(11, 15, "CALENDAR_EVENT.CATERING_ORDER_DETAILS", \u0275\u0275pureFunction2(20, _c125, order_r8.item_count, \u0275\u0275pipeBind2(10, 12, order_r8.total_cost / 100, ctx_r1.currency_code))), " ");
     \u0275\u0275advance(3);
@@ -136044,7 +136288,7 @@ function EventDetailsModalComponent_Conditional_92_For_6_Template(rf, ctx) {
     const request_r11 = ctx.$implicit;
     const ctx_r1 = \u0275\u0275nextContext(2);
     \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(6, 20, "CALENDAR_EVENT.ASSETS_REQUESTED_FOR", \u0275\u0275pureFunction1(23, _c048, \u0275\u0275pipeBind2(5, 17, request_r11.deliver_at, "MMM d, " + ctx_r1.time_format()))), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(6, 20, "CALENDAR_EVENT.ASSETS_REQUESTED_FOR", \u0275\u0275pureFunction1(23, _c049, \u0275\u0275pipeBind2(5, 17, request_r11.deliver_at, "MMM d, " + ctx_r1.time_format()))), " ");
     \u0275\u0275advance(3);
     \u0275\u0275classProp("bg-success", request_r11.state === "approved")("text-success-content", request_r11.state === "approved")("bg-warning", request_r11.state !== "approved" && request_r11.state !== "rejected")("text-warning-content", request_r11.state !== "approved" && request_r11.state !== "rejected")("bg-error", request_r11.state === "rejected")("text-error-content", request_r11.state === "rejected");
     \u0275\u0275property("matTooltip", request_r11.state || "Tentative");
@@ -136508,7 +136752,7 @@ var EventDetailsModalComponent = class _EventDetailsModalComponent {
     }));
   }
   async checkin() {
-    const mod2 = Fl(this.space()?.id, "Bookings");
+    const mod2 = Wl(this.space()?.id, "Bookings");
     if (!mod2)
       return;
     await mod2.execute("checkin", [getUnixTime(this.event().date)]).catch((e) => notifyError(`Error checking in booking. ${e}`));
@@ -137513,10 +137757,10 @@ var EventDetailsModalComponent = class _EventDetailsModalComponent {
 })();
 
 // libs/events/src/lib/event-card.component.ts
-var _c049 = () => ["./"];
+var _c050 = () => ["./"];
 var _c126 = (a0) => ({ event: a0 });
 var _c214 = (a0) => ({ count: a0 });
-var _forTrack08 = ($index, $item) => $item.id || $item.email;
+var _forTrack09 = ($index, $item) => $item.id || $item.email;
 function EventCardComponent_Conditional_0_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "span", 2);
@@ -137615,7 +137859,7 @@ function EventCardComponent_Conditional_1_Conditional_36_Conditional_4_Template(
 function EventCardComponent_Conditional_1_Conditional_36_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 20);
-    \u0275\u0275repeaterCreate(1, EventCardComponent_Conditional_1_Conditional_36_For_2_Template, 2, 1, "div", 21, _forTrack08);
+    \u0275\u0275repeaterCreate(1, EventCardComponent_Conditional_1_Conditional_36_For_2_Template, 2, 1, "div", 21, _forTrack09);
     \u0275\u0275pipe(3, "slice");
     \u0275\u0275conditionalCreate(4, EventCardComponent_Conditional_1_Conditional_36_Conditional_4_Template, 3, 1, "div", 22);
     \u0275\u0275elementEnd();
@@ -137680,7 +137924,7 @@ function EventCardComponent_Conditional_1_Template(rf, ctx) {
   }
   if (rf & 2) {
     const ctx_r0 = \u0275\u0275nextContext();
-    \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(28, _c049))("queryParams", \u0275\u0275pureFunction1(29, _c126, ctx_r0.event()?.id));
+    \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(28, _c050))("queryParams", \u0275\u0275pureFunction1(29, _c126, ctx_r0.event()?.id));
     \u0275\u0275advance(2);
     \u0275\u0275styleProp("background-color", ctx_r0.typeColors[0])("color", ctx_r0.typeColors[1]);
     \u0275\u0275advance();
@@ -137762,14 +138006,14 @@ var EventCardComponent = class _EventCardComponent extends AsyncHandler {
       )
     );
     this.edit_fn = input(
-      (d3) => null,
+      (d2) => null,
       ...ngDevMode ? [{ debugName: "edit_fn" }] : (
         /* istanbul ignore next */
         []
       )
     );
     this.remove_fn = input(
-      (d3, t) => null,
+      (d2, t) => null,
       ...ngDevMode ? [{ debugName: "remove_fn" }] : (
         /* istanbul ignore next */
         []
@@ -138122,7 +138366,7 @@ var EventCardComponent = class _EventCardComponent extends AsyncHandler {
 })();
 
 // libs/events/src/lib/space-select-modal/space-details.component.ts
-var _c050 = (a0) => ({ count: a0 });
+var _c051 = (a0) => ({ count: a0 });
 var _c127 = () => ({ disable_pan: true, disable_zoom: true });
 function SpaceDetailsComponent_Conditional_0_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
@@ -138258,7 +138502,7 @@ function SpaceDetailsComponent_Conditional_0_Template(rf, ctx) {
     \u0275\u0275advance(3);
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(16, 22, "CALENDAR_EVENT.DETAILS"), " ");
     \u0275\u0275advance(6);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(22, 24, "CALENDAR_EVENT.CAPACITY_COUNT", \u0275\u0275pureFunction1(27, _c050, ctx_r1.space().capacity)), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(22, 24, "CALENDAR_EVENT.CAPACITY_COUNT", \u0275\u0275pureFunction1(27, _c051, ctx_r1.space().capacity)), " ");
     \u0275\u0275advance(6);
     \u0275\u0275textInterpolate1(" ", ctx_r1.level()?.display_name || ctx_r1.level()?.name, " ");
     \u0275\u0275advance(5);
@@ -138562,7 +138806,7 @@ var SpaceDetailsComponent = class _SpaceDetailsComponent {
 })();
 
 // libs/events/src/lib/space-select-modal/space-filters-display.component.ts
-var _c051 = (a0) => ({ count: a0 });
+var _c052 = (a0) => ({ count: a0 });
 function SpaceFiltersDisplayComponent_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
@@ -138745,7 +138989,7 @@ var SpaceFiltersDisplayComponent = class _SpaceFiltersDisplayComponent {
         \u0275\u0275advance();
         \u0275\u0275conditional(ctx.all_day() ? 8 : -1);
         \u0275\u0275advance(2);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(11, 9, "CALENDAR_EVENT.SPACE_SELECT_SIZE_X", \u0275\u0275pureFunction1(12, _c051, ctx.filters()?.capacity || 2)), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(11, 9, "CALENDAR_EVENT.SPACE_SELECT_SIZE_X", \u0275\u0275pureFunction1(12, _c052, ctx.filters()?.capacity || 2)), " ");
         \u0275\u0275advance(2);
         \u0275\u0275repeater(ctx.filters()?.features);
       }
@@ -138817,7 +139061,7 @@ var SpaceFiltersDisplayComponent = class _SpaceFiltersDisplayComponent {
 })();
 
 // libs/events/src/lib/space-select-modal/space-filters.component.ts
-var _c052 = () => ({ standalone: true });
+var _c053 = () => ({ standalone: true });
 function SpaceFiltersComponent_Conditional_10_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "label", 6);
@@ -138861,7 +139105,7 @@ function SpaceFiltersComponent_Conditional_11_Template(rf, ctx) {
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance();
-    \u0275\u0275property("ngModel", ctx_r1.region())("ngModelOptions", \u0275\u0275pureFunction0(5, _c052))("placeholder", \u0275\u0275pipeBind1(2, 3, "COMMON.REGION_ANY"));
+    \u0275\u0275property("ngModel", ctx_r1.region())("ngModelOptions", \u0275\u0275pureFunction0(5, _c053))("placeholder", \u0275\u0275pipeBind1(2, 3, "COMMON.REGION_ANY"));
     \u0275\u0275control();
     \u0275\u0275advance(2);
     \u0275\u0275repeater(ctx_r1.regions());
@@ -138897,7 +139141,7 @@ function SpaceFiltersComponent_Conditional_12_Template(rf, ctx) {
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance();
-    \u0275\u0275property("ngModel", ctx_r1.building())("ngModelOptions", \u0275\u0275pureFunction0(3, _c052))("placeholder", ctx_r1.building()?.display_name || ctx_r1.building()?.name);
+    \u0275\u0275property("ngModel", ctx_r1.building())("ngModelOptions", \u0275\u0275pureFunction0(3, _c053))("placeholder", ctx_r1.building()?.display_name || ctx_r1.building()?.name);
     \u0275\u0275control();
     \u0275\u0275advance();
     \u0275\u0275repeater(ctx_r1.buildings());
@@ -138954,7 +139198,7 @@ function SpaceFiltersComponent_Conditional_13_Template(rf, ctx) {
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance();
-    \u0275\u0275property("ngModel", ctx_r1.options()?.zones)("ngModelOptions", \u0275\u0275pureFunction0(6, _c052))("placeholder", \u0275\u0275pipeBind1(2, 4, "COMMON.LEVEL_ANY"))("multiple", true);
+    \u0275\u0275property("ngModel", ctx_r1.options()?.zones)("ngModelOptions", \u0275\u0275pureFunction0(6, _c053))("placeholder", \u0275\u0275pipeBind1(2, 4, "COMMON.LEVEL_ANY"))("multiple", true);
     \u0275\u0275control();
     \u0275\u0275advance(2);
     \u0275\u0275repeater(ctx_r1.levels());
@@ -138986,7 +139230,7 @@ function SpaceFiltersComponent_Conditional_24_Template(rf, ctx) {
     \u0275\u0275advance(2);
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 9, "FORM.DATE_END"));
     \u0275\u0275advance(4);
-    \u0275\u0275property("ngModel", ctx_r1.model().date_end)("ngModelOptions", \u0275\u0275pureFunction0(13, _c052))("from", ctx_r1.start_date)("to", ctx_r1.end_date())("short", true)("timezone", ctx_r1.timezone())("range", 2);
+    \u0275\u0275property("ngModel", ctx_r1.model().date_end)("ngModelOptions", \u0275\u0275pureFunction0(13, _c053))("from", ctx_r1.start_date)("to", ctx_r1.end_date())("short", true)("timezone", ctx_r1.timezone())("range", 2);
     \u0275\u0275control();
     \u0275\u0275advance();
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(8, 11, "FORM.DATE_ERROR"), " ");
@@ -139010,7 +139254,7 @@ function SpaceFiltersComponent_Conditional_25_Template(rf, ctx) {
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance();
-    \u0275\u0275property("ngModel", ctx_r1.model().all_day)("ngModelOptions", \u0275\u0275pureFunction0(5, _c052));
+    \u0275\u0275property("ngModel", ctx_r1.model().all_day)("ngModelOptions", \u0275\u0275pureFunction0(5, _c053));
     \u0275\u0275control();
     \u0275\u0275advance();
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 3, "COMMON.ALL_DAY"), " ");
@@ -139040,7 +139284,7 @@ function SpaceFiltersComponent_Conditional_26_Conditional_8_Template(rf, ctx) {
     \u0275\u0275advance(2);
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 7, "FORM.TIME_END"));
     \u0275\u0275advance(4);
-    \u0275\u0275property("ngModel", ctx_r1.model().date_end)("ngModelOptions", \u0275\u0275pureFunction0(9, _c052))("from", ctx_r1.model().date)("use_24hr", ctx_r1.use_24hr())("timezone", ctx_r1.timezone())("range", ctx_r1.bookable_hours());
+    \u0275\u0275property("ngModel", ctx_r1.model().date_end)("ngModelOptions", \u0275\u0275pureFunction0(9, _c053))("from", ctx_r1.model().date)("use_24hr", ctx_r1.use_24hr())("timezone", ctx_r1.timezone())("range", ctx_r1.bookable_hours());
     \u0275\u0275control();
   }
 }
@@ -139092,7 +139336,7 @@ function SpaceFiltersComponent_Conditional_26_Template(rf, ctx) {
     \u0275\u0275advance(3);
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(4, 9, "FORM.TIME_START"));
     \u0275\u0275advance(4);
-    \u0275\u0275property("ngModel", ctx_r1.model().date)("ngModelOptions", \u0275\u0275pureFunction0(11, _c052))("use_24hr", ctx_r1.use_24hr())("timezone", ctx_r1.timezone())("range", ctx_r1.bookable_hours())("min_duration", ctx_r1.effective_min_duration());
+    \u0275\u0275property("ngModel", ctx_r1.model().date)("ngModelOptions", \u0275\u0275pureFunction0(11, _c053))("use_24hr", ctx_r1.use_24hr())("timezone", ctx_r1.timezone())("range", ctx_r1.bookable_hours())("min_duration", ctx_r1.effective_min_duration());
     \u0275\u0275control();
     \u0275\u0275advance();
     \u0275\u0275conditional(ctx_r1.multiday() ? 8 : -1);
@@ -139123,7 +139367,7 @@ function SpaceFiltersComponent_Conditional_27_Template(rf, ctx) {
     \u0275\u0275advance(2);
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 4, "COMMON.FAVOURITES"), " ");
     \u0275\u0275advance(3);
-    \u0275\u0275property("label", \u0275\u0275pipeBind1(6, 6, "COMMON.FAVOURITES_ONLY"))("ngModel", ctx_r1.filters()?.show_fav)("ngModelOptions", \u0275\u0275pureFunction0(8, _c052));
+    \u0275\u0275property("label", \u0275\u0275pipeBind1(6, 6, "COMMON.FAVOURITES_ONLY"))("ngModel", ctx_r1.filters()?.show_fav)("ngModelOptions", \u0275\u0275pureFunction0(8, _c053));
     \u0275\u0275control();
   }
 }
@@ -139145,7 +139389,7 @@ function SpaceFiltersComponent_Conditional_28_For_4_Conditional_0_Template(rf, c
     const feat_r14 = \u0275\u0275nextContext().$implicit;
     const ctx_r1 = \u0275\u0275nextContext(2);
     \u0275\u0275advance();
-    \u0275\u0275property("label", ctx_r1.feature_display()[feat_r14] || feat_r14)("ngModel", ctx_r1.filters()?.features?.includes(feat_r14))("ngModelOptions", \u0275\u0275pureFunction0(3, _c052));
+    \u0275\u0275property("label", ctx_r1.feature_display()[feat_r14] || feat_r14)("ngModel", ctx_r1.filters()?.features?.includes(feat_r14))("ngModelOptions", \u0275\u0275pureFunction0(3, _c053));
     \u0275\u0275control();
   }
 }
@@ -139291,7 +139535,7 @@ var SpaceFiltersComponent = class _SpaceFiltersComponent {
       )
     );
     this.setOptions = (o) => this._event_form.setOptions(o);
-    this.setFilters = (f2) => this._event_form.setFilters(f2);
+    this.setFilters = (f3) => this._event_form.setFilters(f3);
     this.region = this._org.active_region;
     this.bookable_hours = settingSignal("events.bookable_hours", void 0);
     this.max_duration = settingSignal("events.max_duration", 480);
@@ -139347,7 +139591,7 @@ var SpaceFiltersComponent = class _SpaceFiltersComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SpaceFiltersComponent, selectors: [["space-filters"]], inputs: { multiday: [1, "multiday"], hide_levels: [1, "hide_levels"], viewing_map: [1, "viewing_map"] }, decls: 30, vars: 29, consts: [[1, "border-base-300", "bg-base-100", "sticky", "top-0", "z-10", "flex", "items-center", "border-b", "px-4", "py-4"], [1, "text-xl", "font-medium"], [1, "divide-base-200", "max-h-[65vh]", "w-full", "max-w-[100vw]", "divide-y", "overflow-x-hidden", "overflow-y-auto", "p-2"], ["details", ""], [1, "mb-1", "text-lg", "font-medium"], [1, "flex", "min-w-32", "flex-1", "flex-col"], ["for", "location"], ["appearance", "outline", 1, "w-full"], [1, "flex", "flex-wrap", "items-center", "sm:space-x-2"], [1, "min-w-32", "flex-1"], ["for", "date"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "to", "short", "timezone", "range"], [1, "relative", "min-w-32", "flex-1"], [1, "-mt-2", "mb-2", "flex", "justify-end"], [1, "flex", "items-center", "space-x-2"], ["favs", "", 1, "space-y-2", "pb-4"], ["features", "", 1, "space-y-2"], [1, "border-base-200", "w-full", "border-t", "px-2", "pt-2"], ["name", "region", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [3, "value"], ["name", "building", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], ["name", "location", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder", "multiple"], [1, "flex", "flex-col-reverse"], [1, "text-xs", "opacity-30"], [1, "opacity-0"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "from", "to", "short", "timezone", "range"], [3, "ngModelChange", "ngModel", "ngModelOptions"], [1, "w-1/3", "flex-1"], ["for", "start-time"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr", "timezone", "range", "min_duration"], ["for", "end-time"], ["name", "end-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "from", "use_24hr", "timezone", "range"], [3, "formField", "time", "max", "min", "step", "custom_options", "use_24hr", "timezone", "end_time"], [1, "mt-2", "text-lg", "font-medium"], [1, "flex", "w-full", "items-center"], [1, "w-full", 3, "ngModelChange", "label", "ngModel", "ngModelOptions"], [1, "flex", "items-center"], ["btn", "", "matRipple", "", "name", "apply-space-filters", 1, "w-full", 3, "click"]], template: function SpaceFiltersComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SpaceFiltersComponent, selectors: [["space-filters"]], inputs: { multiday: [1, "multiday"], hide_levels: [1, "hide_levels"], viewing_map: [1, "viewing_map"] }, decls: 30, vars: 29, consts: [[1, "border-base-300", "bg-base-100", "sticky", "top-0", "z-10", "flex", "items-center", "border-b", "px-4", "py-4"], [1, "text-xl", "font-medium"], [1, "divide-base-200", "max-h-[65vh]", "w-full", "max-w-[100vw]", "divide-y", "overflow-x-hidden", "overflow-y-auto", "p-2"], ["details", ""], [1, "mb-1", "text-lg", "font-medium"], [1, "flex", "min-w-32", "flex-1", "flex-col"], ["for", "location"], ["appearance", "outline", 1, "w-full"], [1, "flex", "flex-wrap", "items-center", "sm:space-x-2"], [1, "min-w-32", "flex-1"], ["for", "date"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "to", "short", "timezone", "range"], [1, "relative", "min-w-32", "flex-1"], [1, "-mt-2", "mb-2", "flex", "justify-end"], [1, "flex", "items-center", "space-x-2"], ["favs", "", 1, "space-y-2", "pb-4"], ["features", "", 1, "space-y-2"], [1, "border-base-200", "w-full", "border-t", "px-2", "pt-2"], ["name", "region", "aria-label", "Region", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [3, "value"], ["name", "building", "aria-label", "Building", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], ["name", "location", "aria-label", "Level", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder", "multiple"], [1, "flex", "flex-col-reverse"], [1, "text-xs", "opacity-30"], [1, "opacity-0"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "from", "to", "short", "timezone", "range"], [3, "ngModelChange", "ngModel", "ngModelOptions"], [1, "w-1/3", "flex-1"], ["for", "start-time"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr", "timezone", "range", "min_duration"], ["for", "end-time"], ["name", "end-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "from", "use_24hr", "timezone", "range"], [3, "formField", "time", "max", "min", "step", "custom_options", "use_24hr", "timezone", "end_time"], [1, "mt-2", "text-lg", "font-medium"], [1, "flex", "w-full", "items-center"], [1, "w-full", 3, "ngModelChange", "label", "ngModel", "ngModelOptions"], [1, "flex", "items-center"], ["btn", "", "matRipple", "", "name", "apply-space-filters", 1, "w-full", 3, "click"]], template: function SpaceFiltersComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "div", 0)(1, "h3", 1);
         \u0275\u0275text(2);
@@ -139404,7 +139648,7 @@ var SpaceFiltersComponent = class _SpaceFiltersComponent {
         \u0275\u0275advance(4);
         \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(18, 24, "FORM.DATE"));
         \u0275\u0275advance(4);
-        \u0275\u0275property("ngModel", ctx.model().date)("ngModelOptions", \u0275\u0275pureFunction0(28, _c052))("to", ctx.end_date())("short", true)("timezone", ctx.timezone())("range", ctx.multiday() ? 1 : 0);
+        \u0275\u0275property("ngModel", ctx.model().date)("ngModelOptions", \u0275\u0275pureFunction0(28, _c053))("to", ctx.end_date())("short", true)("timezone", ctx.timezone())("range", ctx.multiday() ? 1 : 0);
         \u0275\u0275control();
         \u0275\u0275advance();
         \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(23, 26, "FORM.DATE_ERROR"), " ");
@@ -139480,6 +139724,7 @@ var SpaceFiltersComponent = class _SpaceFiltersComponent {
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
                                 name="region"
+                                aria-label="Region"
                                 [ngModel]="region()"
                                 (ngModelChange)="setRegion($event)"
                                 [ngModelOptions]="{ standalone: true }"
@@ -139497,6 +139742,7 @@ var SpaceFiltersComponent = class _SpaceFiltersComponent {
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
                                 name="building"
+                                aria-label="Building"
                                 [ngModel]="building()"
                                 (ngModelChange)="setBuilding($event)"
                                 [ngModelOptions]="{ standalone: true }"
@@ -139516,6 +139762,7 @@ var SpaceFiltersComponent = class _SpaceFiltersComponent {
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
                                 name="location"
+                                aria-label="Level"
                                 [ngModel]="options()?.zones"
                                 (ngModelChange)="setOptions({ zones: $event })"
                                 [ngModelOptions]="{ standalone: true }"
@@ -139749,11 +139996,11 @@ var SpaceFiltersComponent = class _SpaceFiltersComponent {
   }], null, { multiday: [{ type: Input, args: [{ isSignal: true, alias: "multiday", required: false }] }], hide_levels: [{ type: Input, args: [{ isSignal: true, alias: "hide_levels", required: false }] }], viewing_map: [{ type: Input, args: [{ isSignal: true, alias: "viewing_map", required: false }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SpaceFiltersComponent, { className: "SpaceFiltersComponent", filePath: "libs/events/src/lib/space-select-modal/space-filters.component.ts", lineNumber: 343 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SpaceFiltersComponent, { className: "SpaceFiltersComponent", filePath: "libs/events/src/lib/space-select-modal/space-filters.component.ts", lineNumber: 346 });
 })();
 
 // libs/events/src/lib/space-select-modal/space-list.component.ts
-var _c053 = (a0) => ({ count: a0 });
+var _c054 = (a0) => ({ count: a0 });
 function SpaceListComponent_Conditional_6_Conditional_0_For_2_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 9)(1, "icon");
@@ -139865,7 +140112,7 @@ function SpaceListComponent_Conditional_6_Conditional_0_For_2_Template(rf, ctx) 
     \u0275\u0275advance(5);
     \u0275\u0275textInterpolate1(" ", space_r2.location || ctx_r2.level(space_r2.zones)?.display_name || ctx_r2.level(space_r2.zones)?.name, " ");
     \u0275\u0275advance(5);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(20, 16, "CALENDAR_EVENT.CAPACITY_COUNT", \u0275\u0275pureFunction1(19, _c053, space_r2.capacity < 1 ? 2 : space_r2.capacity)), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(20, 16, "CALENDAR_EVENT.CAPACITY_COUNT", \u0275\u0275pureFunction1(19, _c054, space_r2.capacity < 1 ? 2 : space_r2.capacity)), " ");
     \u0275\u0275advance(2);
     \u0275\u0275classProp("text-info", ctx_r2.isFavourite(space_r2.id));
     \u0275\u0275advance();
@@ -139988,7 +140235,7 @@ var SpaceListComponent = class _SpaceListComponent {
         \u0275\u0275advance();
         \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(2, 3, "COMMON.RESULTS"));
         \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(5, 5, "COMMON.RESULTS_COUNT", \u0275\u0275pureFunction1(9, _c053, ctx.available_spaces()?.length || 0), ctx.available_spaces()?.length || 0), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(5, 5, "COMMON.RESULTS_COUNT", \u0275\u0275pureFunction1(9, _c054, ctx.available_spaces()?.length || 0), ctx.available_spaces()?.length || 0), " ");
         \u0275\u0275advance(2);
         \u0275\u0275conditional(!ctx.loading() ? 6 : 7);
       }
@@ -140395,7 +140642,7 @@ var SpaceLocationPinComponent = class _SpaceLocationPinComponent {
 })();
 
 // libs/events/src/lib/space-select-modal/space-map.component.ts
-var _c054 = () => ({ controls: true });
+var _c055 = () => ({ controls: true });
 var _c128 = () => ({ standalone: true });
 function SpaceMapComponent_Conditional_0_For_5_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
@@ -140661,7 +140908,7 @@ var SpaceMapComponent = class _SpaceMapComponent {
         \u0275\u0275advance(2);
         \u0275\u0275property("src", ctx.map_url());
         \u0275\u0275twoWayProperty("zoom", ctx.zoom)("center", ctx.center);
-        \u0275\u0275property("styles", ctx.styles())("features", ctx.features())("actions", ctx.actions())("options", \u0275\u0275pureFunction0(8, _c054));
+        \u0275\u0275property("styles", ctx.styles())("features", ctx.features())("actions", ctx.actions())("options", \u0275\u0275pureFunction0(8, _c055));
       }
     }, dependencies: [
       InteractiveMapComponent,
@@ -141271,7 +141518,7 @@ var SpaceSelectModalComponent = class _SpaceSelectModalComponent {
 })();
 
 // libs/form-fields/src/lib/space-list-field.component.ts
-var _c055 = () => ({ standalone: true });
+var _c056 = () => ({ standalone: true });
 var _c129 = () => ({ count: 4 });
 var _c215 = () => ({ count: 10 });
 var _c38 = (a0) => ({ count: a0 });
@@ -141521,7 +141768,7 @@ var SpaceListFieldComponent = class _SpaceListFieldComponent {
         \u0275\u0275advance(4);
         \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(5, 11, "CALENDAR_EVENT.SPACE_SELECT_SIZE"));
         \u0275\u0275advance(5);
-        \u0275\u0275property("ngModel", ctx.room_size())("ngModelOptions", \u0275\u0275pureFunction0(25, _c055));
+        \u0275\u0275property("ngModel", ctx.room_size())("ngModelOptions", \u0275\u0275pureFunction0(25, _c056));
         \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(10, 13, "CALENDAR_EVENT.SPACE_SELECT_SIZE"));
         \u0275\u0275control();
         \u0275\u0275advance(2);
@@ -141738,7 +141985,7 @@ var SpaceListFieldComponent = class _SpaceListFieldComponent {
 })();
 
 // apps/outlook-addin/src/app/desks/desk-form.component.ts
-var _c056 = () => ({ standalone: true });
+var _c057 = () => ({ standalone: true });
 var _c130 = (a0, a1) => ({ date: a0, duration: a1 });
 function DeskBookingFormComponent_Conditional_0_Conditional_37_Template(rf, ctx) {
   if (rf & 1) {
@@ -141770,7 +142017,7 @@ function DeskBookingFormComponent_Conditional_0_Conditional_38_Template(rf, ctx)
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext(2);
     \u0275\u0275advance(2);
-    \u0275\u0275property("ngModel", !!ctx_r1.model().secondary_resource)("ngModelOptions", \u0275\u0275pureFunction0(2, _c056));
+    \u0275\u0275property("ngModel", !!ctx_r1.model().secondary_resource)("ngModelOptions", \u0275\u0275pureFunction0(2, _c057));
     \u0275\u0275control();
   }
 }
@@ -141869,7 +142116,7 @@ function DeskBookingFormComponent_Conditional_0_Template(rf, ctx) {
     \u0275\u0275property("formField", ctx_r1.form.date);
     \u0275\u0275control();
     \u0275\u0275advance(8);
-    \u0275\u0275property("ngModel", ctx_r1.model().date)("ngModelOptions", \u0275\u0275pureFunction0(13, _c056));
+    \u0275\u0275property("ngModel", ctx_r1.model().date)("ngModelOptions", \u0275\u0275pureFunction0(13, _c057));
     \u0275\u0275control();
     \u0275\u0275advance(6);
     \u0275\u0275property("formField", ctx_r1.form.duration)("time", ctx_r1.model().date)("max", 10 * 60)("min", 60)("step", 60);
@@ -142191,7 +142438,7 @@ var DeskBookingComponent = class _DeskBookingComponent {
 })();
 
 // apps/outlook-addin/src/app/desks/desk-success.component.ts
-var _c057 = () => ["/book", "desks"];
+var _c058 = () => ["/book", "desks"];
 function DeskBookingSuccessComponent_Conditional_12_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "p");
@@ -142255,7 +142502,7 @@ var DeskBookingSuccessComponent = class _DeskBookingSuccessComponent {
         \u0275\u0275advance(4);
         \u0275\u0275conditional(true ? 12 : -1);
         \u0275\u0275advance();
-        \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(15, _c057));
+        \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(15, _c058));
       }
     }, dependencies: [MatRippleModule, MatRipple, RouterModule, RouterLink, CommonModule, DatePipe], styles: ["\n[_nghost-%COMP%] {\n  height: 100%;\n  width: 100%;\n}\n/*# sourceMappingURL=desk-success.component.css.map */"] });
   }
@@ -142621,7 +142868,7 @@ var MatBottomSheetModule = class _MatBottomSheetModule {
 })();
 
 // apps/workplace/src/app/book/meeting-flow/meeting-flow-confirm.component.ts
-var _c058 = (a0) => ({ count: a0 });
+var _c059 = (a0) => ({ count: a0 });
 function MeetingFlowConfirmComponent_Conditional_4_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "mat-spinner", 2);
@@ -142699,7 +142946,7 @@ function MeetingFlowConfirmComponent_Conditional_26_Template(rf, ctx) {
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance(5);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(6, 1, "CALENDAR_EVENT.ATTENDEE_COUNT", \u0275\u0275pureFunction1(4, _c058, ctx_r1.event.attendees.length)), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(6, 1, "CALENDAR_EVENT.ATTENDEE_COUNT", \u0275\u0275pureFunction1(4, _c059, ctx_r1.event.attendees.length)), " ");
     \u0275\u0275advance(4);
     \u0275\u0275repeater(ctx_r1.event.attendees);
   }
@@ -142851,7 +143098,6 @@ var MeetingFlowConfirmComponent = class _MeetingFlowConfirmComponent extends Asy
     return building?.address || building?.display_name || building?.name;
   }
   async ngOnInit() {
-    console.log("Event:", this.event.resources[0]);
     this._space = await this._space_pipe.transform(this.event.resources[0]?.email) || this._space;
   }
   optionList(item) {
@@ -143090,7 +143336,7 @@ function getCateringRulesForZone(zone_id, fresh = false) {
   if (!zone_id)
     return Promise.resolve([]);
   if (!RULE_REQUESTS2[zone_id] || fresh)
-    RULE_REQUESTS2[zone_id] = ju(zone_id, "catering_config").then((_3) => _3.details instanceof Array ? _3.details : []).catch(() => []);
+    RULE_REQUESTS2[zone_id] = Wu(zone_id, "catering_config").then((_3) => _3.details instanceof Array ? _3.details : []).catch(() => []);
   return RULE_REQUESTS2[zone_id];
 }
 function cateringItemAvailable(item, rules, event) {
@@ -143250,7 +143496,7 @@ var CateringOrderStateService = class _CateringOrderStateService {
     return __spreadValues({}, this._filters());
   }
   async _loadSettings(building_id) {
-    const metadata2 = await ju(building_id, "catering-settings").catch(() => ({}));
+    const metadata2 = await Wu(building_id, "catering-settings").catch(() => ({}));
     const settings = metadata2.details;
     this._settings_data.set(settings || {});
     this._settings.post("require_catering_notes", !!settings?.require_notes);
@@ -144162,7 +144408,7 @@ var CateringItemFiltersComponent = class _CateringItemFiltersComponent extends A
     );
     this.icons = ICONS;
     this.filters = this._state.filters;
-    this.setFilters = (f2) => this._state.setFilters(f2);
+    this.setFilters = (f3) => this._state.setFilters(f3);
     this.categories = this._state.categories;
     this.caterers = this._state.caterers;
     this.exact_tooltip = signal(
@@ -144788,7 +145034,7 @@ var CateringItemListItemComponent = class _CateringItemListItemComponent {
 })();
 
 // libs/catering/src/lib/catering-select-modal/catering-item-list.component.ts
-var _c059 = (a0) => ({ count: a0 });
+var _c060 = (a0) => ({ count: a0 });
 function CateringItemListComponent_Conditional_1_For_8_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
@@ -144829,7 +145075,7 @@ function CateringItemListComponent_Conditional_1_Template(rf, ctx) {
     \u0275\u0275advance();
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 2, "CATERING.ORDER_SELECTED_HEADER"), " ");
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(5, 4, "CATERING.ORDER_SELECTED_COUNT", \u0275\u0275pureFunction1(7, _c059, ctx_r2.list().length || 0)), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(5, 4, "CATERING.ORDER_SELECTED_COUNT", \u0275\u0275pureFunction1(7, _c060, ctx_r2.list().length || 0)), " ");
     \u0275\u0275advance(3);
     \u0275\u0275repeater(ctx_r2.list());
   }
@@ -144993,7 +145239,7 @@ var CateringItemListComponent = class _CateringItemListComponent {
         \u0275\u0275advance(2);
         \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(4, 4, "COMMON.RESULTS"));
         \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(7, 6, "COMMON.RESULTS_COUNT", \u0275\u0275pureFunction1(9, _c059, ctx.item_list().length || 0)), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(7, 6, "COMMON.RESULTS_COUNT", \u0275\u0275pureFunction1(9, _c060, ctx.item_list().length || 0)), " ");
         \u0275\u0275advance(2);
         \u0275\u0275conditional(!ctx.loading() ? 8 : 9);
       }
@@ -145506,9 +145752,9 @@ var CateringSelectModalComponent = class _CateringSelectModalComponent {
 })();
 
 // libs/catering/src/lib/catering-list-field.component.ts
-var _c060 = (a0, a1) => ({ date: a0, time: a1 });
+var _c061 = (a0, a1) => ({ date: a0, time: a1 });
 var _c131 = (a0) => ({ count: a0 });
-var _forTrack09 = ($index, $item) => $item.id;
+var _forTrack010 = ($index, $item) => $item.id;
 var _forTrack12 = ($index, $item) => $item.custom_id;
 function CateringListFieldComponent_Conditional_0_For_2_Conditional_9_Template(rf, ctx) {
   if (rf & 1) {
@@ -145690,11 +145936,11 @@ function CateringListFieldComponent_Conditional_0_For_2_Template(rf, ctx) {
     const ctx_r2 = \u0275\u0275nextContext(2);
     \u0275\u0275classProp("border-error", ctx_r2.end_time() < order_r5.deliver_at)("border-base-300", ctx_r2.end_time() >= order_r5.deliver_at);
     \u0275\u0275advance(5);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(8, 19, "CALENDAR_EVENT.CATERING_ORDER_AT_DATE", \u0275\u0275pureFunction2(33, _c060, \u0275\u0275pipeBind2(6, 13, order_r5.deliver_at_time, "mediumDate"), \u0275\u0275pipeBind2(7, 16, order_r5.deliver_at_time, ctx_r2.time_format()))), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(8, 19, "CALENDAR_EVENT.CATERING_ORDER_AT_DATE", \u0275\u0275pureFunction2(33, _c061, \u0275\u0275pipeBind2(6, 13, order_r5.deliver_at_time, "mediumDate"), \u0275\u0275pipeBind2(7, 16, order_r5.deliver_at_time, ctx_r2.time_format()))), " ");
     \u0275\u0275advance(4);
     \u0275\u0275conditional(ctx_r2.end_time() < order_r5.deliver_at ? 9 : -1);
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(14, 28, "CALENDAR_EVENT.CATERING_ORDER_DETAILS", \u0275\u0275pureFunction2(36, _c060, \u0275\u0275pipeBind2(12, 22, order_r5.deliver_at, "mediumDate"), \u0275\u0275pipeBind2(13, 25, order_r5.deliver_at, ctx_r2.time_format()))), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(14, 28, "CALENDAR_EVENT.CATERING_ORDER_DETAILS", \u0275\u0275pureFunction2(36, _c061, \u0275\u0275pipeBind2(12, 22, order_r5.deliver_at, "mediumDate"), \u0275\u0275pipeBind2(13, 25, order_r5.deliver_at, ctx_r2.time_format()))), " ");
     \u0275\u0275advance(4);
     \u0275\u0275conditional(!ctx_r2.disabled() ? 15 : -1);
     \u0275\u0275advance();
@@ -145715,7 +145961,7 @@ function CateringListFieldComponent_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 0);
-    \u0275\u0275repeaterCreate(1, CateringListFieldComponent_Conditional_0_For_2_Template, 25, 39, "div", 1, _forTrack09);
+    \u0275\u0275repeaterCreate(1, CateringListFieldComponent_Conditional_0_For_2_Template, 25, 39, "div", 1, _forTrack010);
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(3, "button", 2);
     \u0275\u0275listener("click", function CateringListFieldComponent_Conditional_0_Template_button_click_3_listener() {
@@ -146297,7 +146543,7 @@ var CateringListFieldComponent = class _CateringListFieldComponent {
 })();
 
 // apps/outlook-addin/src/app/meetings/meeting-form.component.ts
-var _c061 = (a0, a1) => ({ date: a0, duration: a1 });
+var _c062 = (a0, a1) => ({ date: a0, duration: a1 });
 var _c132 = () => ({ standalone: true });
 var _c216 = (a0, a1, a2) => ({ date: a0, duration: a1, zone_id: a2 });
 function MeetingBookingFormComponent_Conditional_0_Conditional_12_For_6_Template(rf, ctx) {
@@ -146428,7 +146674,7 @@ function MeetingBookingFormComponent_Conditional_0_Conditional_33_Template(rf, c
     \u0275\u0275listener("click", function MeetingBookingFormComponent_Conditional_0_Conditional_33_Template_button_click_9_listener() {
       \u0275\u0275restoreView(_r6);
       const ctx_r1 = \u0275\u0275nextContext(2);
-      return \u0275\u0275resetView(ctx_r1.hide_block.update((h) => __spreadProps(__spreadValues({}, h), { attendees: !h.attendees })));
+      return \u0275\u0275resetView(ctx_r1.hide_block.update((h2) => __spreadProps(__spreadValues({}, h2), { attendees: !h2.attendees })));
     });
     \u0275\u0275elementStart(10, "icon");
     \u0275\u0275text(11);
@@ -146463,7 +146709,7 @@ function MeetingBookingFormComponent_Conditional_0_Conditional_46_Template(rf, c
     \u0275\u0275listener("click", function MeetingBookingFormComponent_Conditional_0_Conditional_46_Template_button_click_7_listener() {
       \u0275\u0275restoreView(_r7);
       const ctx_r1 = \u0275\u0275nextContext(2);
-      return \u0275\u0275resetView(ctx_r1.hide_block.update((h) => __spreadProps(__spreadValues({}, h), { catering: !h.catering })));
+      return \u0275\u0275resetView(ctx_r1.hide_block.update((h2) => __spreadProps(__spreadValues({}, h2), { catering: !h2.catering })));
     });
     \u0275\u0275elementStart(8, "icon");
     \u0275\u0275text(9);
@@ -146522,7 +146768,7 @@ function MeetingBookingFormComponent_Conditional_0_Template(rf, ctx) {
     \u0275\u0275listener("click", function MeetingBookingFormComponent_Conditional_0_Template_button_click_8_listener() {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.hide_block.update((h) => __spreadProps(__spreadValues({}, h), { details: !h.details })));
+      return \u0275\u0275resetView(ctx_r1.hide_block.update((h2) => __spreadProps(__spreadValues({}, h2), { details: !h2.details })));
     });
     \u0275\u0275elementStart(9, "icon");
     \u0275\u0275text(10);
@@ -146566,7 +146812,7 @@ function MeetingBookingFormComponent_Conditional_0_Template(rf, ctx) {
     \u0275\u0275listener("click", function MeetingBookingFormComponent_Conditional_0_Template_button_click_41_listener() {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.hide_block.update((h) => __spreadProps(__spreadValues({}, h), { resources: !h.resources })));
+      return \u0275\u0275resetView(ctx_r1.hide_block.update((h2) => __spreadProps(__spreadValues({}, h2), { resources: !h2.resources })));
     });
     \u0275\u0275elementStart(42, "icon");
     \u0275\u0275text(43);
@@ -146587,7 +146833,7 @@ function MeetingBookingFormComponent_Conditional_0_Template(rf, ctx) {
     \u0275\u0275listener("click", function MeetingBookingFormComponent_Conditional_0_Template_button_click_54_listener() {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.hide_block.update((h) => __spreadProps(__spreadValues({}, h), { assets: !h.assets })));
+      return \u0275\u0275resetView(ctx_r1.hide_block.update((h2) => __spreadProps(__spreadValues({}, h2), { assets: !h2.assets })));
     });
     \u0275\u0275elementStart(55, "icon");
     \u0275\u0275text(56);
@@ -146637,7 +146883,7 @@ function MeetingBookingFormComponent_Conditional_0_Template(rf, ctx) {
     \u0275\u0275advance();
     \u0275\u0275property("@show", ctx_r1.hide_block().assets ? "hide" : "show");
     \u0275\u0275advance();
-    \u0275\u0275property("options", \u0275\u0275pureFunction2(19, _c061, ctx_r1.model().date, ctx_r1.model().duration))("formField", ctx_r1.form.assets);
+    \u0275\u0275property("options", \u0275\u0275pureFunction2(19, _c062, ctx_r1.model().date, ctx_r1.model().duration))("formField", ctx_r1.form.assets);
     \u0275\u0275control();
     \u0275\u0275advance();
     \u0275\u0275conditional(!ctx_r1.hide_notes() ? 59 : -1);
@@ -146696,8 +146942,8 @@ var MeetingBookingFormComponent = class _MeetingBookingFormComponent extends Asy
         duration
       }
     });
-    ref.afterClosed().subscribe((d3) => {
-      if (!d3)
+    ref.afterClosed().subscribe((d2) => {
+      if (!d2)
         return;
       this.model.update((m2) => __spreadProps(__spreadValues({}, m2), {
         date: ref.componentInstance.date(),
@@ -147200,7 +147446,7 @@ var MeetingBookingComponent = class _MeetingBookingComponent {
 })();
 
 // apps/outlook-addin/src/app/meetings/meeting-success.component.ts
-var _c062 = () => ["/book", "meeting"];
+var _c063 = () => ["/book", "meeting"];
 var MeetingBookingSuccessComponent = class _MeetingBookingSuccessComponent {
   constructor() {
     this._service = inject2(EventFormService);
@@ -147267,7 +147513,7 @@ var MeetingBookingSuccessComponent = class _MeetingBookingSuccessComponent {
         \u0275\u0275advance();
         \u0275\u0275textInterpolate3(" has been successfully booked for the ", \u0275\u0275pipeBind2(12, 9, booking_r1?.date, "dd MMMM yyyy"), " at ", \u0275\u0275pipeBind2(13, 12, booking_r1?.date, "shortTime"), " - ", \u0275\u0275pipeBind2(14, 15, ctx.booking_end(), "shortTime"), " ");
         \u0275\u0275advance(4);
-        \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(18, _c062));
+        \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(18, _c063));
       }
     }, dependencies: [CommonModule, MatRippleModule, MatRipple, RouterModule, RouterLink, AsyncPipe, DatePipe, SpacePipe], styles: ["\n[_nghost-%COMP%] {\n  height: 100%;\n  width: 100%;\n}\n/*# sourceMappingURL=meeting-success.component.css.map */"] });
   }
@@ -147542,7 +147788,7 @@ var BookingConfirmedComponent = class _BookingConfirmedComponent {
 })();
 
 // node_modules/@angular/material/fesm2022/button-toggle.mjs
-var _c063 = ["button"];
+var _c064 = ["button"];
 var _c133 = ["*"];
 function MatButtonToggle_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
@@ -148121,7 +148367,7 @@ var MatButtonToggle = class _MatButtonToggle {
     selectors: [["mat-button-toggle"]],
     viewQuery: function MatButtonToggle_Query(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275viewQuery(_c063, 5);
+        \u0275\u0275viewQuery(_c064, 5);
       }
       if (rf & 2) {
         let _t2;
@@ -148415,7 +148661,7 @@ var FeaturesFilterService = class _FeaturesFilterService {
 })();
 
 // apps/outlook-addin/src/app/rooms/filter-space.component.ts
-var _c064 = () => ({ standalone: true });
+var _c065 = () => ({ standalone: true });
 function FilterSpaceComponent_Conditional_1_Conditional_14_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "label", 10);
@@ -148453,7 +148699,7 @@ function FilterSpaceComponent_Conditional_1_Conditional_15_Template(rf, ctx) {
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext(2);
     \u0275\u0275advance();
-    \u0275\u0275property("ngModel", ctx_r1.building())("ngModelOptions", \u0275\u0275pureFunction0(2, _c064));
+    \u0275\u0275property("ngModel", ctx_r1.building())("ngModelOptions", \u0275\u0275pureFunction0(2, _c065));
     \u0275\u0275control();
     \u0275\u0275advance();
     \u0275\u0275repeater(ctx_r1.buildings());
@@ -148486,7 +148732,7 @@ function FilterSpaceComponent_Conditional_1_For_42_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", feature_r6.name);
     \u0275\u0275advance();
     \u0275\u0275twoWayProperty("ngModel", feature_r6.value);
-    \u0275\u0275property("ngModelOptions", \u0275\u0275pureFunction0(3, _c064));
+    \u0275\u0275property("ngModelOptions", \u0275\u0275pureFunction0(3, _c065));
     \u0275\u0275control();
   }
 }
@@ -148567,7 +148813,7 @@ function FilterSpaceComponent_Conditional_1_Template(rf, ctx) {
     \u0275\u0275property("from", ctx_r1.minDate)("formField", ctx_r1.form.date);
     \u0275\u0275control();
     \u0275\u0275advance(5);
-    \u0275\u0275property("ngModel", ctx_r1.model().date)("ngModelOptions", \u0275\u0275pureFunction0(11, _c064));
+    \u0275\u0275property("ngModel", ctx_r1.model().date)("ngModelOptions", \u0275\u0275pureFunction0(11, _c065));
     \u0275\u0275control();
     \u0275\u0275advance(4);
     \u0275\u0275property("time", ctx_r1.model().date)("max", 10 * 60)("min", 60)("step", 60)("formField", ctx_r1.form.duration);
@@ -151109,7 +151355,7 @@ var FindSpaceComponent = class _FindSpaceComponent extends AsyncHandler {
 })();
 
 // apps/outlook-addin/src/app/rooms/room-booking.component.ts
-var _c065 = () => ({ standalone: true });
+var _c066 = () => ({ standalone: true });
 function RoomBookingComponent_Conditional_5_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
@@ -151203,7 +151449,7 @@ function RoomBookingComponent_Conditional_5_Template(rf, ctx) {
     \u0275\u0275property("from", ctx_r1.min_date)("formField", form_r3.date);
     \u0275\u0275control();
     \u0275\u0275advance(7);
-    \u0275\u0275property("ngModel", ctx_r1.model().date)("ngModelOptions", \u0275\u0275pureFunction0(12, _c065));
+    \u0275\u0275property("ngModel", ctx_r1.model().date)("ngModelOptions", \u0275\u0275pureFunction0(12, _c066));
     \u0275\u0275control();
     \u0275\u0275advance(6);
     \u0275\u0275property("time", ctx_r1.model().date)("max", 10 * 60)("min", 60)("step", 60)("formField", form_r3.duration);
@@ -151431,6 +151677,14 @@ var RoomBookingComponent = class _RoomBookingComponent {
 })();
 
 // apps/workplace/src/app/schedule/schedule-state.service.ts
+function isBookingForOtherUser(item, current_email = currentUser()?.email) {
+  if (!(item instanceof Booking))
+    return false;
+  const current_user_email = current_email?.toLowerCase();
+  const booked_by_email = item.booked_by_email?.toLowerCase();
+  const user_email = item.user_email?.toLowerCase();
+  return !!current_user_email && booked_by_email === current_user_email && !!user_email && user_email !== current_user_email;
+}
 function deduplicateEventsByIcalUid(events_by_source) {
   const seen_ical_uids = /* @__PURE__ */ new Set();
   const result = [];
@@ -151498,9 +151752,11 @@ var ScheduleStateService = class _ScheduleStateService extends AsyncHandler {
           "desk",
           "parking",
           "visitor",
+          "vip-visitor",
           "locker",
           "group-event"
-        ]
+        ],
+        show_bookings_for_others: false
       },
       ...ngDevMode ? [{ debugName: "_filters" }] : (
         /* istanbul ignore next */
@@ -151550,6 +151806,13 @@ var ScheduleStateService = class _ScheduleStateService extends AsyncHandler {
     this._visitors = signal(
       [],
       ...ngDevMode ? [{ debugName: "_visitors" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._vip_visitors = signal(
+      [],
+      ...ngDevMode ? [{ debugName: "_vip_visitors" }] : (
         /* istanbul ignore next */
         []
       )
@@ -151733,6 +151996,18 @@ var ScheduleStateService = class _ScheduleStateService extends AsyncHandler {
         []
       )
     );
+    this.vip_visitors = computed(
+      () => {
+        if (!this._canLoadBookingType("vip-visitor"))
+          return [];
+        this._requestNetwork();
+        return this._vip_visitors();
+      },
+      ...ngDevMode ? [{ debugName: "vip_visitors" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
     this.desks = computed(
       () => {
         if (!this._canLoadBookingType("desk"))
@@ -151792,6 +152067,7 @@ var ScheduleStateService = class _ScheduleStateService extends AsyncHandler {
       () => {
         const events2 = this.events();
         const visitors = this.visitors();
+        const vip_visitors = this.vip_visitors();
         const desks = this.desks();
         const parking = this.parking();
         const lockers = this.lockers();
@@ -151801,6 +152077,7 @@ var ScheduleStateService = class _ScheduleStateService extends AsyncHandler {
         return [
           ...filtered_events,
           ...visitors,
+          ...vip_visitors,
           ...desks,
           ...parking,
           ...lockers,
@@ -151817,6 +152094,9 @@ var ScheduleStateService = class _ScheduleStateService extends AsyncHandler {
       () => this.bookings().filter((_3) => {
         const filters = this._filters();
         if (this._deleted.includes(_3.instance ? `${_3.id}|${_3.instance}` : _3.id)) {
+          return false;
+        }
+        if (this.isBookingForOtherUser(_3) && !filters?.show_bookings_for_others) {
           return false;
         }
         if (_3.extension_data?.shared_event && !filters?.shown_types?.includes("group-event")) {
@@ -151858,6 +152138,7 @@ var ScheduleStateService = class _ScheduleStateService extends AsyncHandler {
     this._loadUserBookings();
     this._loadApiEvents();
     this._loadBookingType("visitor", this._visitors, (list) => list.filter((_3) => !_3.linked_event));
+    this._loadBookingType("vip-visitor", this._vip_visitors);
     this._loadBookingType("desk", this._desks);
     this._loadBookingType("parking", this._parking_bookings, (list) => this._resolveParkingNames(list));
     this._loadBookingType("locker", this._locker_bookings);
@@ -151879,6 +152160,8 @@ var ScheduleStateService = class _ScheduleStateService extends AsyncHandler {
         return this._hasFeature("parking") || this._hasFeature("parking-requests");
       case "visitor":
         return this._hasFeature("visitor-invite");
+      case "vip-visitor":
+        return this._hasFeature("vip-visitor-invite");
       case "locker":
         return this._hasFeature("lockers");
       default:
@@ -151933,15 +152216,27 @@ var ScheduleStateService = class _ScheduleStateService extends AsyncHandler {
     sessionStorage.setItem("PLACEOS.events.deleted", JSON.stringify(this._deleted));
   }
   setType(name, state2) {
-    const filters = this._filters() || { shown_types: [] };
+    const filters = this._filters();
     const { shown_types } = filters;
     if (shown_types.includes(name) === state2)
       return;
     const new_types = state2 ? unique([...shown_types, name]) : shown_types.filter((_3) => _3 !== name);
     this._filters.set(__spreadProps(__spreadValues({}, filters), { shown_types: new_types }));
   }
+  setBookingsForOthers(state2) {
+    const filters = this._filters();
+    if (filters.show_bookings_for_others === state2)
+      return;
+    this._filters.set(__spreadProps(__spreadValues({}, filters), { show_bookings_for_others: state2 }));
+  }
+  isBookingForOtherUser(item) {
+    return isBookingForOtherUser(item);
+  }
+  toggleBookingsForOthers() {
+    this.setBookingsForOthers(!this._filters().show_bookings_for_others);
+  }
   async toggleType(name, clear = false) {
-    const filters = this._filters() || { shown_types: [] };
+    const filters = this._filters();
     const { shown_types } = filters;
     if (shown_types && (shown_types.includes(name) || clear)) {
       this._filters.set(__spreadProps(__spreadValues({}, filters), {
@@ -151971,7 +152266,7 @@ var ScheduleStateService = class _ScheduleStateService extends AsyncHandler {
       const spaces = await requestSpacesForZone(bld.id).toPromise().catch(() => []);
       const events_by_space = [];
       for (const [idx, space] of (spaces || []).entries()) {
-        const binding = Fl(space.id, "Bookings").variable("bookings");
+        const binding = Wl(space.id, "Bookings").variable("bookings");
         cleanups.push(binding.bindThenSubscribe((event_list) => {
           events_by_space[idx] = (event_list || []).map((i) => new CalendarEvent(__spreadProps(__spreadValues({}, i), {
             resources: i.attendees.filter((_3) => _3.email === space.email || _3.resource),
@@ -152309,7 +152604,7 @@ var ScheduleStateService = class _ScheduleStateService extends AsyncHandler {
 })();
 
 // apps/outlook-addin/src/app/rooms/upcoming-bookings.component.ts
-var _forTrack010 = ($index, $item) => $item.id;
+var _forTrack011 = ($index, $item) => $item.id;
 function UpcomingBookingsComponent_Conditional_11_For_1_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "event-card", 9);
@@ -152340,7 +152635,7 @@ function UpcomingBookingsComponent_Conditional_11_For_1_Template(rf, ctx) {
 }
 function UpcomingBookingsComponent_Conditional_11_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275repeaterCreate(0, UpcomingBookingsComponent_Conditional_11_For_1_Template, 2, 1, null, null, _forTrack010);
+    \u0275\u0275repeaterCreate(0, UpcomingBookingsComponent_Conditional_11_For_1_Template, 2, 1, null, null, _forTrack011);
   }
   if (rf & 2) {
     \u0275\u0275nextContext();
