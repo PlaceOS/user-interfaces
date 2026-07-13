@@ -445,8 +445,19 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
         }
         return filter_options;
     }
-    /** Set filtered date */
-    public readonly setDate = (d) => this._state.setOptions({ date: d });
+    /** Set filtered date while retaining the selected availability hour. */
+    public readonly setDate = (value: number | string) => {
+        const date = new Date(value).valueOf();
+        const hour =
+            this.options().all_day === false
+                ? new Date(this.options().date).getHours()
+                : null;
+        const selected_date = new Date(date);
+        if (hour !== null) selected_date.setHours(hour, 0, 0, 0);
+        this._state.setOptions({
+            date: selected_date.valueOf(),
+        });
+    };
     /** Set filter string */
     public readonly setSearch = (str) =>
         this._state.setOptions({ search: str });

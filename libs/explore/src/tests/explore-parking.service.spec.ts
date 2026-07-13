@@ -2,8 +2,8 @@ import { ApplicationRef, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator';
 import { Booking, OrganisationService, SettingsService } from '@placeos/common';
+import { addMinutes, endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { MockProvider } from 'ng-mocks';
-import { addMinutes, getUnixTime } from 'date-fns';
 
 import { BookingFormService } from 'libs/bookings/src/lib/booking-form.service';
 import { ParkingService } from 'libs/bookings/src/lib/parking.service';
@@ -115,13 +115,86 @@ describe('ExploreParkingService', () => {
         const call = vi
             .mocked(ts_client.query)
             .mock.calls.find(
-                ([options]) => (options as any).query_params?.type === 'parking',
+                ([options]) =>
+                    (options as any).query_params?.type === 'parking',
             );
         expect(call).toBeTruthy();
         const params = (call[0] as any).query_params;
         expect(params.period_start).toBe(getUnixTime(addMinutes(date, -15)));
         expect(params.period_end).toBe(getUnixTime(addMinutes(date, 30)));
         expect(params.zones).toBe('lvl-1');
+    });
+
+    it('should query all parking bookings for the selected day', async () => {
+        const date = new Date('2026-07-09T13:45:00+10:00').valueOf();
+        vi.mocked(ts_client.query).mockClear();
+
+        spectator.service.setOptions({ date, all_day: true });
+        TestBed.flushEffects();
+        await TestBed.inject(ApplicationRef).whenStable();
+
+        const call = vi
+            .mocked(ts_client.query)
+            .mock.calls.find(
+                ([options]) =>
+                    (options as any).query_params?.type === 'parking',
+            );
+        expect(call).toBeTruthy();
+        const params = (call[0] as any).query_params;
+        expect(params.period_start).toBe(getUnixTime(startOfDay(date)));
+        expect(params.period_end).toBe(getUnixTime(endOfDay(date)));
+    });
+
+    it('should clamp all-day parking queries to bookable hours', async () => {
+        const date = new Date('2026-07-09T13:45:00+10:00').valueOf();
+        const settings = spectator.inject(SettingsService);
+        vi.mocked(settings.get).mockImplementation((key) =>
+            key === 'app.parking.bookable_hours'
+                ? { start: 8, end: 18 }
+                : undefined,
+        );
+        vi.mocked(ts_client.query).mockClear();
+
+        spectator.service.setOptions({ date, all_day: true });
+        TestBed.flushEffects();
+        await TestBed.inject(ApplicationRef).whenStable();
+
+        const call = vi
+            .mocked(ts_client.query)
+            .mock.calls.find(
+                ([options]) =>
+                    (options as any).query_params?.type === 'parking',
+            );
+        const params = (call[0] as any).query_params;
+        expect(params.period_start).toBe(
+            getUnixTime(new Date('2026-07-09T08:00:00+10:00')),
+        );
+        expect(params.period_end).toBe(
+            getUnixTime(new Date('2026-07-09T18:00:00+10:00')),
+        );
+    });
+
+    it('should query parking availability for the selected duration', async () => {
+        const date = new Date('2026-07-09T14:00:00+10:00').valueOf();
+        vi.mocked(ts_client.query).mockClear();
+
+        spectator.service.setOptions({
+            date,
+            all_day: false,
+            duration: 60,
+        });
+        TestBed.flushEffects();
+        await TestBed.inject(ApplicationRef).whenStable();
+
+        const call = vi
+            .mocked(ts_client.query)
+            .mock.calls.find(
+                ([options]) =>
+                    (options as any).query_params?.type === 'parking',
+            );
+        const params = (call[0] as any).query_params;
+        expect(params.period_start).toBe(getUnixTime(date));
+        expect(params.period_end).toBe(getUnixTime(addMinutes(date, 60)));
     });
 
     it('should query parking status bookings for the active map level', async () => {
@@ -135,7 +208,8 @@ describe('ExploreParkingService', () => {
         const call = vi
             .mocked(ts_client.query)
             .mock.calls.find(
-                ([options]) => (options as any).query_params?.type === 'parking',
+                ([options]) =>
+                    (options as any).query_params?.type === 'parking',
             );
         expect(call).toBeTruthy();
         expect((call[0] as any).query_params.zones).toBe('lvl-2');
@@ -177,7 +251,8 @@ describe('ExploreParkingService', () => {
         const call = vi
             .mocked(ts_client.query)
             .mock.calls.find(
-                ([options]) => (options as any).query_params?.type === 'parking',
+                ([options]) =>
+                    (options as any).query_params?.type === 'parking',
             );
         expect(call).toBeTruthy();
         const params = (call[0] as any).query_params;

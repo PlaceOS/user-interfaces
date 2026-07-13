@@ -13,6 +13,7 @@ import {
     BookableHoursRange,
     BookingRuleset,
     currentUser,
+    getAllDayTimeRange,
     i18n,
     isWithinBookableHours,
     notifyError,
@@ -50,6 +51,7 @@ export interface ParkingOptions {
     enable_booking?: boolean;
     date?: number;
     all_day?: boolean;
+    duration?: number;
     zones?: string[];
     host?: StaffUser;
     custom?: boolean;
@@ -104,15 +106,40 @@ export class ExploreParkingService extends AsyncHandler {
             is_public: this._state.options().is_public,
             level_id: this._state.level()?.id,
             date: this._options().date,
+            all_day: this._options().all_day,
+            duration: this._options().duration,
             poll: this._poll(),
         }),
-        loader: ({ params: { is_public, level_id, date } }) => {
+        loader: ({
+            params: { is_public, level_id, date, all_day, duration },
+        }) => {
             const time = date ?? Date.now();
+            const bookable_hours: BookableHoursRange | null = all_day
+                ? this._settings.get('app.parking.bookable_hours') ||
+                  this._settings.get('app.bookings.bookable_hours') ||
+                  null
+                : null;
+            const all_day_range = getAllDayTimeRange(
+                time,
+                '',
+                bookable_hours?.start,
+                bookable_hours?.end,
+            );
             return is_public || !level_id
                 ? Promise.resolve([])
                 : queryAllBookings({
-                      period_start: getUnixTime(addMinutes(time, -15)),
-                      period_end: getUnixTime(addMinutes(time, 30)),
+                      period_start: getUnixTime(
+                          all_day
+                              ? all_day_range.date
+                              : duration
+                                ? time
+                                : addMinutes(time, -15),
+                      ),
+                      period_end: getUnixTime(
+                          all_day
+                              ? all_day_range.date_end
+                              : addMinutes(time, duration || 30),
+                      ),
                       type: 'parking',
                       zones: level_id,
                       rejected: false,
