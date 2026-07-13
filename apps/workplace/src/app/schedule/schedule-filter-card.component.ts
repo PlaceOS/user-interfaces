@@ -134,7 +134,7 @@ export class ScheduleFilterCardComponent {
             type: 'vip-visitor',
             feat: 'vip-visitor-invite',
             icon: 'star',
-            name: 'RESOURCE.VIP_VISITORS',
+            name: 'BOOKINGS.VIP_VISITORS',
         },
     ];
 

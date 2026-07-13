@@ -136,7 +136,7 @@ export class ScheduleFiltersComponent {
         {
             type: 'vip-visitor',
             feat: 'vip-visitor-invite',
-            name: 'RESOURCE.VIP_VISITORS',
+            name: 'BOOKINGS.VIP_VISITORS',
         },
     ];
 
