@@ -1,10 +1,13 @@
+import { signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
@@ -217,9 +220,7 @@ describe('ParkingTopbarComponent', () => {
         (spectator.inject(OrganisationService) as any).buildings = [
             { id: 'bld-1' },
         ];
-        (
-            spectator.inject(ParkingStateService).setOptions as any
-        ).mockClear();
+        (spectator.inject(ParkingStateService).setOptions as any).mockClear();
 
         (spectator.component as any)._applyQueryZones(['lvl-1']);
         setOptions({ request_filter: 'all', zones: ['lvl-1'] });
@@ -244,9 +245,7 @@ describe('ParkingTopbarComponent', () => {
             configurable: true,
         });
         vi.spyOn(router, 'navigate').mockResolvedValue(true);
-        (
-            spectator.inject(ParkingStateService).setOptions as any
-        ).mockClear();
+        (spectator.inject(ParkingStateService).setOptions as any).mockClear();
 
         spectator.component.updateZones(['lvl-1']);
 

@@ -89,6 +89,8 @@ export type ParkingRequestFilter =
 export interface ParkingOptions {
     date: number;
     period: 'day' | 'week';
+    all_day?: boolean;
+    duration?: number;
     search: string;
     zones: string[];
     request_filter: ParkingRequestFilter;
@@ -127,6 +129,8 @@ export class ParkingStateService extends AsyncHandler {
     private readonly _options = signal<ParkingOptions>({
         date: Date.now(),
         period: 'day',
+        all_day: true,
+        duration: 60,
         search: '',
         zones: [],
         request_filter: 'all',

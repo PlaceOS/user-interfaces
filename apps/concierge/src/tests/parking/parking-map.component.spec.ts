@@ -1,4 +1,5 @@
 import { signal } from '@angular/core';
+import { MatSelect } from '@angular/material/select';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { mockComponent } from '@placeos/common/tests';
@@ -40,11 +41,14 @@ describe('ParkingMapComponent', () => {
                 useValue: {
                     options: signal({
                         date: Date.now(),
+                        all_day: true,
+                        duration: 60,
                         search: '',
                         zones: [],
                         period: 'day',
                         request_filter: 'all',
                     }),
+                    setOptions: vi.fn(),
                     editReservation: vi.fn(),
                 },
             },
@@ -62,6 +66,7 @@ describe('ParkingMapComponent', () => {
             {
                 provide: SettingsService,
                 useValue: {
+                    get: vi.fn(),
                     signal: vi.fn((name: string, default_value: any) =>
                         name === 'parking.disable_styles'
                             ? disable_styles
@@ -100,6 +105,34 @@ describe('ParkingMapComponent', () => {
 
         expect(spectator.component.styles()).toEqual({
             text: { display: 'none' },
+        });
+    });
+
+    it('should show parking availability for the full selected day', async () => {
+        await spectator.fixture.whenStable();
+
+        const selector = spectator.query(MatSelect);
+        expect(selector.value).toBe('all_day');
+        const parking = spectator.inject(ExploreParkingService, true);
+        expect(parking.setOptions).toHaveBeenCalledWith(
+            expect.objectContaining({ date: expect.any(Number) }),
+        );
+    });
+
+    it('should select a one-hour parking availability window', () => {
+        const state = spectator.inject(ParkingStateService);
+        const date = new Date('2026-07-13T09:30:00+10:00').valueOf();
+        Object.defineProperty(spectator.component, 'options', {
+            value: () => ({ date, all_day: true, zones: [] }),
+            configurable: true,
+        });
+
+        spectator.component.setAvailabilityHour(14);
+
+        expect(state.setOptions).toHaveBeenCalledWith({
+            date: new Date('2026-07-13T14:00:00+10:00').valueOf(),
+            all_day: false,
+            duration: 60,
         });
     });
 });
