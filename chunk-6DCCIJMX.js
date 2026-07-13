@@ -328,7 +328,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-E345UAM7.js";
+} from "./chunk-6GLLGKAV.js";
 import {
   __objRest,
   __spreadProps,
@@ -8510,6 +8510,7 @@ function generateBookingForm(booking = new Booking(), injector) {
   );
   guardModelUndefinedWrites(model2, bookingFormValue(new Booking()));
   const require_plate_number = settingSignal("parking.require_plate_number", false);
+  const require_space_restriction = settingSignal("parking.require_space_restriction", false);
   const booking_form = form(model2, (p) => {
     required(p.date);
     required(p.asset_id);
@@ -8523,6 +8524,7 @@ function generateBookingForm(booking = new Booking(), injector) {
       }
     });
     validate(p.plate_number, ({ value, valueOf }) => valueOf(p.booking_type) === "parking" && require_plate_number() && !`${value() || ""}`.trim() ? { kind: "required" } : void 0);
+    validate(p.space_restrictions, ({ value, valueOf }) => valueOf(p.booking_type) === "parking" && require_space_restriction() && !value() ? { kind: "required" } : void 0);
     validate(p.duration, ({ value, valueOf }) => {
       const date = valueOf(p.date);
       if (value() <= 0)
@@ -12240,4 +12242,4 @@ export {
   CalendarService,
   BookingFormService
 };
-//# sourceMappingURL=chunk-LUOESBTO.js.map
+//# sourceMappingURL=chunk-6DCCIJMX.js.map
