@@ -49038,6 +49038,7 @@ var BOOKINGS = {
   PARKING_SPACE_RESTRICTIONS_TITLE: "Space Restrictions",
   PARKING_SPACE_RESTRICTIONS_DESC: "Select any restrictions that apply to your vehicle or parking needs.",
   PARKING_RESTRICTION_NONE: "None",
+  PARKING_SPACE_RESTRICTION_REQUIRED: "Select a parking restriction other than None.",
   PARKING_RESTRICTION_OVERSIZED: "Requires oversized space",
   PARKING_SUMMARY_TITLE: "Summary + Submission",
   PARKING_ALLOCATION_INFO: "Allocation of parking spaces for the following week will occur the <strong>Friday afternoon prior</strong>. Requests received after allocation has occurred will automatically be <strong>waitlisted</strong> until a suitable space becomes available.",
@@ -55875,15 +55876,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "3ceaa31",
-  "hash": "3ceaa31",
+  "raw": "5c5aca9",
+  "hash": "5c5aca9",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "3ceaa31",
+  "suffix": "5c5aca9",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1783664543124
+  "time": 1783937392489
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -102569,12 +102570,18 @@ function generateEventForm(event = new CalendarEvent(), settings, injector) {
     const value = model2();
     if (!((_a11 = value.catering) == null ? void 0 : _a11.length) || !value.date)
       return;
+    const event2 = {
+      date: value.all_day ? startOfDay(value.date) : value.date,
+      duration: value.all_day ? 24 * 60 : value.duration
+    };
+    if (value.catering.every((order) => {
+      var _a12, _b4;
+      return +((_a12 = order.event) == null ? void 0 : _a12.date) === +event2.date && ((_b4 = order.event) == null ? void 0 : _b4.duration) === event2.duration;
+    }))
+      return;
     model2.update((m2) => __spreadProps(__spreadValues({}, m2), {
       catering: (m2.catering || []).map((order) => __spreadProps(__spreadValues({}, order), {
-        event: {
-          date: m2.all_day ? startOfDay(m2.date) : m2.date,
-          duration: m2.all_day ? 24 * 60 : m2.duration
-        }
+        event: event2
       }))
     }));
   };
