@@ -176,6 +176,45 @@ describe('LockerStateService', () => {
         expect(assetQueryCalls('type-lockers')).toHaveLength(1);
     });
 
+    it('should tolerate malformed locker metadata', async () => {
+        (ts_client.queryAssets as any).mockImplementation((q: any) => {
+            if (q?.type_id === 'type-locker-banks') {
+                return Promise.resolve({
+                    data: [{ id: 'bank-1', zone_id: 'bld-1' }],
+                    total: 1,
+                    next: null,
+                });
+            }
+            return Promise.resolve({
+                data: [
+                    {
+                        id: 'locker-1',
+                        parent_id: 'bank-1',
+                        other_data: {
+                            position: '1,2',
+                            size: '1x1',
+                            features: 'power',
+                        },
+                    },
+                ],
+                total: 1,
+                next: null,
+            });
+        });
+
+        spectator = createService();
+        await settle();
+
+        expect(spectator.service.lockers()).toEqual([
+            expect.objectContaining({
+                id: 'locker-1',
+                position: [0, 0],
+                size: [1, 1],
+                features: [],
+            }),
+        ]);
+    });
+
     it('should use the building timezone for assigned locker bookings', async () => {
         const mock_now = new Date('2026-06-15T12:00:00Z').valueOf();
         const assigned_start = setTimeInTimezone(

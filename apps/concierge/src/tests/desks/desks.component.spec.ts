@@ -158,6 +158,15 @@ describe('DesksComponent', () => {
         });
     });
 
+    it('should restore all levels when returning from desk management', () => {
+        filters_signal.set({ zones: ['level-a'], view: 'manage' });
+
+        spectator.component.path.set('events');
+        (spectator.component as any)._updateView();
+
+        expect(filters_signal().zones).toEqual([]);
+    });
+
     it('should render selected desk QR code outside the print-hidden content', () => {
         print_desk_signal.set({
             id: 'desk-1',

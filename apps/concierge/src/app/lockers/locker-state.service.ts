@@ -23,6 +23,8 @@ import {
     checkinBooking,
     Locker,
     LockerBank,
+    lockerBankFromAsset,
+    lockerFromAsset,
     queryBookings,
     queryPagedBookings,
     rejectBooking,
@@ -73,22 +75,6 @@ export interface LockerFilters {
 const addToken = (l: string, t: string) => l.replace(t, '') + t;
 const removeToken = (l: string, t: string) => l.replace(t, '');
 
-function lockerBankFromAsset(asset: PlaceAsset): LockerBank {
-    const data = asset.other_data || {};
-    const tags = data.tags ? JSON.parse(data.tags) : [];
-    return {
-        id: asset.id,
-        map_id: asset.map_id || data.map_id || '',
-        level_id: asset.zone_id,
-        name: asset.identifier || data.name || '',
-        height: +(data.height || 3),
-        notes: asset.notes || '',
-        zones: asset.zones || [asset.zone_id].filter((_) => _),
-        tags: (asset as any).tags || tags,
-        images: data.images ? JSON.parse(data.images) : [],
-    } as LockerBank;
-}
-
 function lockerBankToAsset(
     bank: Partial<LockerBank>,
     zone_id: string,
@@ -109,30 +95,6 @@ function lockerBankToAsset(
             images: JSON.stringify(bank.images || []),
         },
     } as unknown as Partial<PlaceAsset>;
-}
-
-function lockerFromAsset(asset: PlaceAsset, banks: LockerBank[]): Locker {
-    const data = asset.other_data || {};
-    const position = data.position ? JSON.parse(data.position) : [0, 0];
-    const size = data.size ? JSON.parse(data.size) : [1, 1];
-    const features = data.features ? JSON.parse(data.features) : [];
-    const bank_id = (asset as any).parent_id || '';
-    const bank = banks.find((_) => _.id === bank_id);
-    return {
-        id: asset.id,
-        bank_id,
-        map_id: asset.map_id || data.map_id,
-        assigned_to: (asset as any).assigned_to || data.assigned_to,
-        assigned_name: (asset as any).assigned_name || data.assigned_name,
-        name: asset.identifier || data.name || '',
-        accessible: data.accessible === 'true',
-        bookable: asset.bookable !== false,
-        position,
-        size,
-        bank,
-        zone: bank?.zone,
-        features: asset.features || features,
-    } as Locker;
 }
 
 function lockerToAsset(

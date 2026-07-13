@@ -62,4 +62,14 @@ describe('CateringTopbarComponent', () => {
         spectator.detectChanges();
         expect(spectator.component.page()).toBe('orders');
     });
+
+    it('should clear the selected level when switching catering views', () => {
+        spectator.component.page.set('menu');
+        spectator.component.zones.set(['lvl-1']);
+
+        spectator.setRouteParam('view', 'orders');
+        spectator.detectChanges();
+
+        expect(spectator.component.zones()).toEqual([]);
+    });
 });

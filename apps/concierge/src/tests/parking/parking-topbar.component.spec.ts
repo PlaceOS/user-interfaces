@@ -326,6 +326,7 @@ describe('ParkingTopbarComponent', () => {
 
     it('should clear search when switching parking views', () => {
         spectator = createComponent();
+        spectator.component.zones.set(['lvl-1']);
         const router = spectator.inject(Router);
         Object.defineProperty(router, 'url', {
             value: '/book/parking/manage/users',
@@ -337,6 +338,7 @@ describe('ParkingTopbarComponent', () => {
         expect(
             spectator.inject(ParkingStateService).setOptions,
         ).toHaveBeenCalledWith({ search: '' });
+        expect(spectator.component.zones()).toEqual([]);
     });
 
     it('should clear search when switching parking list routes', () => {

@@ -302,6 +302,7 @@ export class LockersTopbarComponent extends AsyncHandler implements OnInit {
         const path = this.path();
         if (this._previous_path && this._previous_path !== path) {
             this._state.setSearch('');
+            this.zones.set([]);
         }
         this._previous_path = path;
     }
