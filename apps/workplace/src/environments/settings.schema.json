@@ -251,6 +251,10 @@
                     "type": "boolean",
                     "description": "Whether the plate number/registration field is mandatory in the parking request flow."
                 },
+                "require_space_restriction": {
+                    "type": "boolean",
+                    "description": "Whether users must select a parking space restriction other than None in the parking request flow."
+                },
                 "show_status_details": {
                     "type": "boolean",
                     "description": "Whether the explore parking tooltip should show availability status details such as status text, assigned users, and plate numbers."
