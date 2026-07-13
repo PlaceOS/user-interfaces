@@ -221,7 +221,7 @@ export class CateringOrder {
         );
         this.charge_code = data.charge_code || '';
         this.status =
-            data[`${this.event_id}_status`] || data.status || 'accepted';
+            data[`${this.event_id}_status`] || data.status || 'pending';
         this.invoice_number = data.invoice_number || '';
         this.event = data.event || null;
         this.notes = data.notes || '';

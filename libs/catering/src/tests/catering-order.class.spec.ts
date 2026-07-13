@@ -17,7 +17,7 @@ describe('CateringOrder', () => {
         expect(order.invoice_number).toBe('');
         expect(order.charge_code).toBe('');
         expect(getUnixTime(order.deliver_at)).toBe(date);
-        expect(order.status).toBe('accepted');
+        expect(order.status).toBe('pending');
         expect(order.event).toBe(null);
         order = new CateringOrder({
             id: 'first-order',
