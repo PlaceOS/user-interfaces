@@ -618,7 +618,7 @@ function isSignal(value) {
 }
 function installDevToolsSignalFormatter() {
   globalThis.devtoolsFormatters ??= [];
-  if (!globalThis.devtoolsFormatters.some((f) => f === formatter)) {
+  if (!globalThis.devtoolsFormatters.some((f2) => f2 === formatter)) {
     globalThis.devtoolsFormatters.push(formatter);
   }
 }
@@ -1882,19 +1882,19 @@ function __asyncGenerator(thisArg, _arguments, generator) {
   return i = Object.create((typeof AsyncIterator === "function" ? AsyncIterator : Object).prototype), verb("next"), verb("throw"), verb("return", awaitReturn), i[Symbol.asyncIterator] = function() {
     return this;
   }, i;
-  function awaitReturn(f) {
+  function awaitReturn(f2) {
     return function(v) {
-      return Promise.resolve(v).then(f, reject);
+      return Promise.resolve(v).then(f2, reject);
     };
   }
-  function verb(n, f) {
+  function verb(n, f2) {
     if (g2[n]) {
       i[n] = function(v) {
         return new Promise(function(a, b2) {
           q.push([n, v, a, b2]) > 1 || resume(n, v);
         });
       };
-      if (f) i[n] = f(i[n]);
+      if (f2) i[n] = f2(i[n]);
     }
   }
   function resume(n, v) {
@@ -1913,8 +1913,8 @@ function __asyncGenerator(thisArg, _arguments, generator) {
   function reject(value) {
     resume("throw", value);
   }
-  function settle(f, v) {
-    if (f(v), q.shift(), q.length) resume(q[0][0], q[0][1]);
+  function settle(f2, v) {
+    if (f2(v), q.shift(), q.length) resume(q[0][0], q[0][1]);
   }
 }
 function __asyncValues(o) {
@@ -1930,9 +1930,9 @@ function __asyncValues(o) {
       });
     };
   }
-  function settle(resolve, reject, d2, v) {
+  function settle(resolve, reject, d, v) {
     Promise.resolve(v).then(function(v2) {
-      resolve({ value: v2, done: d2 });
+      resolve({ value: v2, done: d });
     }, reject);
   }
 }
@@ -3154,8 +3154,8 @@ function forwardRef(forwardRefFn) {
   }
   return forwardRefFn;
 }
-function resolveForwardRef(type) {
-  return isForwardRef(type) ? type() : type;
+function resolveForwardRef(type2) {
+  return isForwardRef(type2) ? type2() : type2;
 }
 function isForwardRef(fn) {
   return typeof fn === "function" && fn.hasOwnProperty(__forward_ref__) && fn.__forward_ref__ === forwardRef;
@@ -3268,27 +3268,27 @@ function \u0275\u0275defineInjector(options2) {
     imports: options2.imports || []
   };
 }
-function getInjectableDef(type) {
-  return getOwnDefinition(type, NG_PROV_DEF);
+function getInjectableDef(type2) {
+  return getOwnDefinition(type2, NG_PROV_DEF);
 }
-function isInjectable(type) {
-  return getInjectableDef(type) !== null;
+function isInjectable(type2) {
+  return getInjectableDef(type2) !== null;
 }
-function getOwnDefinition(type, field) {
-  return type.hasOwnProperty(field) && type[field] || null;
+function getOwnDefinition(type2, field) {
+  return type2.hasOwnProperty(field) && type2[field] || null;
 }
-function getInheritedInjectableDef(type) {
-  const def2 = type?.[NG_PROV_DEF] ?? null;
+function getInheritedInjectableDef(type2) {
+  const def2 = type2?.[NG_PROV_DEF] ?? null;
   if (def2) {
-    ngDevMode && console.warn(`DEPRECATED: DI is instantiating a token "${type.name}" that inherits its @Injectable decorator but does not provide one itself.
-This will become an error in a future version of Angular. Please add @Injectable() to the "${type.name}" class.`);
+    ngDevMode && console.warn(`DEPRECATED: DI is instantiating a token "${type2.name}" that inherits its @Injectable decorator but does not provide one itself.
+This will become an error in a future version of Angular. Please add @Injectable() to the "${type2.name}" class.`);
     return def2;
   } else {
     return null;
   }
 }
-function getInjectorDef(type) {
-  return type && type.hasOwnProperty(NG_INJ_DEF) ? type[NG_INJ_DEF] : null;
+function getInjectorDef(type2) {
+  return type2 && type2.hasOwnProperty(NG_INJ_DEF) ? type2[NG_INJ_DEF] : null;
 }
 var NG_PROV_DEF = getClosureSafeProperty({
   \u0275prov: getClosureSafeProperty
@@ -3466,43 +3466,43 @@ var NG_ELEMENT_ID = getClosureSafeProperty({
 var NG_ENV_ID = getClosureSafeProperty({
   __NG_ENV_ID__: getClosureSafeProperty
 });
-function getNgModuleDef(type) {
-  assertTypeDefined(type, "@NgModule");
-  return type[NG_MOD_DEF] || null;
+function getNgModuleDef(type2) {
+  assertTypeDefined(type2, "@NgModule");
+  return type2[NG_MOD_DEF] || null;
 }
-function getNgModuleDefOrThrow(type) {
-  const ngModuleDef = getNgModuleDef(type);
+function getNgModuleDefOrThrow(type2) {
+  const ngModuleDef = getNgModuleDef(type2);
   if (!ngModuleDef) {
-    throw new RuntimeError(915, (typeof ngDevMode === "undefined" || ngDevMode) && `Type ${stringify(type)} does not have '\u0275mod' property.`);
+    throw new RuntimeError(915, (typeof ngDevMode === "undefined" || ngDevMode) && `Type ${stringify(type2)} does not have '\u0275mod' property.`);
   }
   return ngModuleDef;
 }
-function getComponentDef(type) {
-  assertTypeDefined(type, "@Component");
-  return type[NG_COMP_DEF] || null;
+function getComponentDef(type2) {
+  assertTypeDefined(type2, "@Component");
+  return type2[NG_COMP_DEF] || null;
 }
-function getDirectiveDefOrThrow(type) {
-  const def2 = getDirectiveDef(type);
+function getDirectiveDefOrThrow(type2) {
+  const def2 = getDirectiveDef(type2);
   if (!def2) {
-    throw new RuntimeError(916, (typeof ngDevMode === "undefined" || ngDevMode) && `Type ${stringify(type)} does not have '\u0275dir' property.`);
+    throw new RuntimeError(916, (typeof ngDevMode === "undefined" || ngDevMode) && `Type ${stringify(type2)} does not have '\u0275dir' property.`);
   }
   return def2;
 }
-function getDirectiveDef(type) {
-  assertTypeDefined(type, "@Directive");
-  return type[NG_DIR_DEF] || null;
+function getDirectiveDef(type2) {
+  assertTypeDefined(type2, "@Directive");
+  return type2[NG_DIR_DEF] || null;
 }
-function getPipeDef(type) {
-  assertTypeDefined(type, "@Pipe");
-  return type[NG_PIPE_DEF] || null;
+function getPipeDef(type2) {
+  assertTypeDefined(type2, "@Pipe");
+  return type2[NG_PIPE_DEF] || null;
 }
-function assertTypeDefined(type, symbolType) {
-  if (type == null) {
+function assertTypeDefined(type2, symbolType) {
+  if (type2 == null) {
     throw new RuntimeError(-919, (typeof ngDevMode === "undefined" || ngDevMode) && `Cannot read ${symbolType} metadata. This can indicate a runtime circular dependency in your app that needs to be resolved.`);
   }
 }
-function isStandalone(type) {
-  const def2 = getComponentDef(type) || getDirectiveDef(type) || getPipeDef(type);
+function isStandalone(type2) {
+  const def2 = getComponentDef(type2) || getDirectiveDef(type2) || getPipeDef(type2);
   return def2 !== null && def2.standalone;
 }
 function renderStringify(value) {
@@ -3517,12 +3517,12 @@ function stringifyForError(value) {
   }
   return renderStringify(value);
 }
-function debugStringifyTypeForError(type) {
-  const componentDef = getComponentDef(type);
+function debugStringifyTypeForError(type2) {
+  const componentDef = getComponentDef(type2);
   if (componentDef !== null && componentDef.debugInfo) {
     return stringifyTypeFromDebugInfo(componentDef.debugInfo);
   }
-  return stringifyForError(type);
+  return stringifyForError(type2);
 }
 function stringifyTypeFromDebugInfo(debugInfo) {
   if (!debugInfo.filePath || !debugInfo.lineNumber) {
@@ -3734,22 +3734,22 @@ function injectArgs(types) {
       if (arg.length === 0) {
         throw new RuntimeError(900, ngDevMode && "Arguments array must have arguments.");
       }
-      let type = void 0;
+      let type2 = void 0;
       let flags = 0;
       for (let j = 0; j < arg.length; j++) {
         const meta = arg[j];
         const flag = getInjectFlag(meta);
         if (typeof flag === "number") {
           if (flag === -1) {
-            type = meta.token;
+            type2 = meta.token;
           } else {
             flags |= flag;
           }
         } else {
-          type = meta;
+          type2 = meta;
         }
       }
-      args.push(\u0275\u0275inject(type, flags));
+      args.push(\u0275\u0275inject(type2, flags));
     } else {
       args.push(\u0275\u0275inject(arg));
     }
@@ -3764,12 +3764,12 @@ function attachInjectFlag(decorator, flag) {
 function getInjectFlag(token) {
   return token[DI_DECORATOR_FLAG];
 }
-function getFactoryDef(type, throwNotFound) {
-  const hasFactoryDef = type.hasOwnProperty(NG_FACTORY_DEF);
+function getFactoryDef(type2, throwNotFound) {
+  const hasFactoryDef = type2.hasOwnProperty(NG_FACTORY_DEF);
   if (!hasFactoryDef && throwNotFound === true && ngDevMode) {
-    throw new Error(`Type ${stringify(type)} does not have '\u0275fac' property.`);
+    throw new Error(`Type ${stringify(type2)} does not have '\u0275fac' property.`);
   }
-  return hasFactoryDef ? type[NG_FACTORY_DEF] : null;
+  return hasFactoryDef ? type2[NG_FACTORY_DEF] : null;
 }
 function arrayEquals(a, b2, identityAccessor) {
   if (a.length !== b2.length) return false;
@@ -6357,9 +6357,9 @@ function assertTNodeType(tNode, expectedTypes, message2) {
     throwError2(message2 || `Expected [${toTNodeTypeAsString(expectedTypes)}] but got ${toTNodeTypeAsString(tNode.type)}.`);
   }
 }
-function assertPureTNodeType(type) {
-  if (!(type === 2 || type === 1 || type === 4 || type === 8 || type === 32 || type === 16 || type === 64 || type === 128)) {
-    throwError2(`Expected TNodeType to have only a single type selected, but got ${toTNodeTypeAsString(type)}.`);
+function assertPureTNodeType(type2) {
+  if (!(type2 === 2 || type2 === 1 || type2 === 4 || type2 === 8 || type2 === 32 || type2 === 16 || type2 === 64 || type2 === 128)) {
+    throwError2(`Expected TNodeType to have only a single type selected, but got ${toTNodeTypeAsString(type2)}.`);
   }
 }
 function setUpAttributes(renderer, native, attrs) {
@@ -6494,16 +6494,16 @@ var BLOOM_MASK = BLOOM_SIZE - 1;
 var BLOOM_BUCKET_BITS = 5;
 var nextNgElementId = 0;
 var NOT_FOUND2 = {};
-function bloomAdd(injectorIndex, tView, type) {
+function bloomAdd(injectorIndex, tView, type2) {
   ngDevMode && assertEqual(tView.firstCreatePass, true, "expected firstCreatePass to be true");
   let id;
-  if (typeof type === "string") {
-    id = type.charCodeAt(0) || 0;
-  } else if (type.hasOwnProperty(NG_ELEMENT_ID)) {
-    id = type[NG_ELEMENT_ID];
+  if (typeof type2 === "string") {
+    id = type2.charCodeAt(0) || 0;
+  } else if (type2.hasOwnProperty(NG_ELEMENT_ID)) {
+    id = type2[NG_ELEMENT_ID];
   }
   if (id == null) {
-    id = type[NG_ELEMENT_ID] = nextNgElementId++;
+    id = type2[NG_ELEMENT_ID] = nextNgElementId++;
   }
   const bloomHash = id & BLOOM_MASK;
   const mask = 1 << bloomHash;
@@ -6833,12 +6833,12 @@ var NodeInjector = class {
 function createNodeInjector() {
   return new NodeInjector(getCurrentTNode(), getLView());
 }
-function \u0275\u0275getInheritedFactory(type) {
+function \u0275\u0275getInheritedFactory(type2) {
   return noSideEffects(() => {
-    const ownConstructor = type.prototype.constructor;
+    const ownConstructor = type2.prototype.constructor;
     const ownFactory = ownConstructor[NG_FACTORY_DEF] || getFactoryOf(ownConstructor);
     const objectPrototype = Object.prototype;
-    let parent = Object.getPrototypeOf(type.prototype).constructor;
+    let parent = Object.getPrototypeOf(type2.prototype).constructor;
     while (parent && parent !== objectPrototype) {
       const factory = parent[NG_FACTORY_DEF] || getFactoryOf(parent);
       if (factory && factory !== ownFactory) {
@@ -6849,14 +6849,14 @@ function \u0275\u0275getInheritedFactory(type) {
     return (t) => new t();
   });
 }
-function getFactoryOf(type) {
-  if (isForwardRef(type)) {
+function getFactoryOf(type2) {
+  if (isForwardRef(type2)) {
     return () => {
-      const factory = getFactoryOf(resolveForwardRef(type));
+      const factory = getFactoryOf(resolveForwardRef(type2));
       return factory && factory();
     };
   }
-  return getFactoryDef(type);
+  return getFactoryDef(type2);
 }
 function lookupTokenUsingEmbeddedInjector(tNode, lView, token, flags, notFoundValue) {
   let currentTNode = tNode;
@@ -7094,34 +7094,34 @@ var ReflectionCapabilities = class {
     }
     return result;
   }
-  _ownParameters(type, parentCtor) {
-    const typeStr = type.toString();
+  _ownParameters(type2, parentCtor) {
+    const typeStr = type2.toString();
     if (isDelegateCtor(typeStr)) {
       return null;
     }
-    if (type.parameters && type.parameters !== parentCtor.parameters) {
-      return type.parameters;
+    if (type2.parameters && type2.parameters !== parentCtor.parameters) {
+      return type2.parameters;
     }
-    const tsickleCtorParams = type.ctorParameters;
+    const tsickleCtorParams = type2.ctorParameters;
     if (tsickleCtorParams && tsickleCtorParams !== parentCtor.ctorParameters) {
       const ctorParameters = typeof tsickleCtorParams === "function" ? tsickleCtorParams() : tsickleCtorParams;
       const paramTypes2 = ctorParameters.map((ctorParam) => ctorParam && ctorParam.type);
       const paramAnnotations2 = ctorParameters.map((ctorParam) => ctorParam && convertTsickleDecoratorIntoMetadata(ctorParam.decorators));
       return this._zipTypesAndAnnotations(paramTypes2, paramAnnotations2);
     }
-    const paramAnnotations = type.hasOwnProperty(PARAMETERS) && type[PARAMETERS];
-    const paramTypes = this._reflect && this._reflect.getOwnMetadata && this._reflect.getOwnMetadata("design:paramtypes", type);
+    const paramAnnotations = type2.hasOwnProperty(PARAMETERS) && type2[PARAMETERS];
+    const paramTypes = this._reflect && this._reflect.getOwnMetadata && this._reflect.getOwnMetadata("design:paramtypes", type2);
     if (paramTypes || paramAnnotations) {
       return this._zipTypesAndAnnotations(paramTypes, paramAnnotations);
     }
-    return newArray(type.length);
+    return newArray(type2.length);
   }
-  parameters(type) {
-    if (!isType(type)) {
+  parameters(type2) {
+    if (!isType(type2)) {
       return [];
     }
-    const parentCtor = getParentCtor(type);
-    let parameters = this._ownParameters(type, parentCtor);
+    const parentCtor = getParentCtor(type2);
+    let parameters = this._ownParameters(type2, parentCtor);
     if (!parameters && parentCtor !== Object) {
       parameters = this.parameters(parentCtor);
     }
@@ -7204,8 +7204,8 @@ var ReflectionCapabilities = class {
     }
     return this._ownPropMetadata(typeOrFunc, getParentCtor(typeOrFunc)) || {};
   }
-  hasLifecycleHook(type, lcProperty) {
-    return type instanceof Type && lcProperty in type.prototype;
+  hasLifecycleHook(type2, lcProperty) {
+    return type2 instanceof Type && lcProperty in type2.prototype;
   }
 };
 function convertTsickleDecoratorIntoMetadata(decoratorInvocations) {
@@ -7239,8 +7239,8 @@ var _reflect = null;
 function getReflect() {
   return _reflect = _reflect || new ReflectionCapabilities();
 }
-function reflectDependencies(type) {
-  return convertDependencies(getReflect().parameters(type));
+function reflectDependencies(type2) {
+  return convertDependencies(getReflect().parameters(type2));
 }
 function convertDependencies(deps) {
   return deps.map((dep) => reflectDependency(dep));
@@ -7287,38 +7287,38 @@ function reflectDependency(dep) {
   }
   return meta;
 }
-function compileInjectable(type, meta) {
+function compileInjectable(type2, meta) {
   let ngInjectableDef = null;
   let ngFactoryDef = null;
-  if (!type.hasOwnProperty(NG_PROV_DEF)) {
-    Object.defineProperty(type, NG_PROV_DEF, {
+  if (!type2.hasOwnProperty(NG_PROV_DEF)) {
+    Object.defineProperty(type2, NG_PROV_DEF, {
       get: () => {
         if (ngInjectableDef === null) {
           const compiler = getCompilerFacade({
             usage: 0,
             kind: "injectable",
-            type
+            type: type2
           });
-          ngInjectableDef = compiler.compileInjectable(angularCoreDiEnv, `ng:///${type.name}/\u0275prov.js`, getInjectableMetadata(type, meta));
+          ngInjectableDef = compiler.compileInjectable(angularCoreDiEnv, `ng:///${type2.name}/\u0275prov.js`, getInjectableMetadata(type2, meta));
         }
         return ngInjectableDef;
       }
     });
   }
-  if (!type.hasOwnProperty(NG_FACTORY_DEF)) {
-    Object.defineProperty(type, NG_FACTORY_DEF, {
+  if (!type2.hasOwnProperty(NG_FACTORY_DEF)) {
+    Object.defineProperty(type2, NG_FACTORY_DEF, {
       get: () => {
         if (ngFactoryDef === null) {
           const compiler = getCompilerFacade({
             usage: 0,
             kind: "injectable",
-            type
+            type: type2
           });
-          ngFactoryDef = compiler.compileFactory(angularCoreDiEnv, `ng:///${type.name}/\u0275fac.js`, {
-            name: type.name,
-            type,
+          ngFactoryDef = compiler.compileFactory(angularCoreDiEnv, `ng:///${type2.name}/\u0275fac.js`, {
+            name: type2.name,
+            type: type2,
             typeArgumentCount: 0,
-            deps: reflectDependencies(type),
+            deps: reflectDependencies(type2),
             target: compiler.FactoryTarget.Injectable
           });
         }
@@ -7344,13 +7344,13 @@ function isUseFactoryProvider(meta) {
 function isUseExistingProvider(meta) {
   return meta.useExisting !== void 0;
 }
-function getInjectableMetadata(type, srcMeta) {
+function getInjectableMetadata(type2, srcMeta) {
   const meta = srcMeta || {
     providedIn: null
   };
   const compilerMeta = {
-    name: type.name,
-    type,
+    name: type2.name,
+    type: type2,
     typeArgumentCount: 0,
     providedIn: meta.providedIn
   };
@@ -7368,39 +7368,39 @@ function getInjectableMetadata(type, srcMeta) {
   }
   return compilerMeta;
 }
-var Injectable = makeDecorator("Injectable", void 0, void 0, void 0, (type, meta) => compileInjectable(type, meta));
-function compileService(type, meta) {
+var Injectable = makeDecorator("Injectable", void 0, void 0, void 0, (type2, meta) => compileInjectable(type2, meta));
+function compileService(type2, meta) {
   let def2 = null;
   let factoryDef = null;
-  if (!type.hasOwnProperty(NG_PROV_DEF)) {
-    Object.defineProperty(type, NG_PROV_DEF, {
+  if (!type2.hasOwnProperty(NG_PROV_DEF)) {
+    Object.defineProperty(type2, NG_PROV_DEF, {
       get: () => {
         if (def2 === null) {
           const compiler = getCompilerFacade({
             usage: 0,
             kind: "service",
-            type
+            type: type2
           });
-          def2 = compiler.compileService(angularCoreDiEnv, `ng:///${type.name}/\u0275prov.js`, getServiceMetadata(type, meta));
+          def2 = compiler.compileService(angularCoreDiEnv, `ng:///${type2.name}/\u0275prov.js`, getServiceMetadata(type2, meta));
         }
         return def2;
       }
     });
   }
-  if (!type.hasOwnProperty(NG_FACTORY_DEF)) {
-    Object.defineProperty(type, NG_FACTORY_DEF, {
+  if (!type2.hasOwnProperty(NG_FACTORY_DEF)) {
+    Object.defineProperty(type2, NG_FACTORY_DEF, {
       get: () => {
         if (factoryDef === null) {
           const compiler = getCompilerFacade({
             usage: 0,
             kind: "service",
-            type
+            type: type2
           });
-          factoryDef = compiler.compileFactory(angularCoreDiEnv, `ng:///${type.name}/\u0275fac.js`, {
-            name: type.name,
-            type,
+          factoryDef = compiler.compileFactory(angularCoreDiEnv, `ng:///${type2.name}/\u0275fac.js`, {
+            name: type2.name,
+            type: type2,
             typeArgumentCount: 0,
-            deps: reflectDependencies(type),
+            deps: reflectDependencies(type2),
             target: compiler.FactoryTarget.Service
           });
         }
@@ -7410,17 +7410,17 @@ function compileService(type, meta) {
     });
   }
 }
-function getServiceMetadata(type, srcMeta) {
+function getServiceMetadata(type2, srcMeta) {
   const compilerMeta = {
-    name: type.name,
-    type,
+    name: type2.name,
+    type: type2,
     typeArgumentCount: 0,
     autoProvided: srcMeta?.autoProvided,
     factory: srcMeta?.factory
   };
   return compilerMeta;
 }
-var Service = makeDecorator("Service", void 0, void 0, void 0, (type, meta) => compileService(type, meta));
+var Service = makeDecorator("Service", void 0, void 0, void 0, (type2, meta) => compileService(type2, meta));
 function injectElementRef() {
   return createElementRef(getCurrentTNode(), getLView());
 }
@@ -7939,7 +7939,7 @@ function getListeners(element) {
         const listenerElement = unwrapRNode(lView[secondParam]);
         const callback = lCleanup[tCleanup[i++]];
         const useCaptureOrIndx = tCleanup[i++];
-        const type = typeof useCaptureOrIndx === "boolean" || useCaptureOrIndx >= 0 ? "dom" : "output";
+        const type2 = typeof useCaptureOrIndx === "boolean" || useCaptureOrIndx >= 0 ? "dom" : "output";
         const useCapture = typeof useCaptureOrIndx === "boolean" ? useCaptureOrIndx : false;
         if (element == listenerElement) {
           listeners.push({
@@ -7947,7 +7947,7 @@ function getListeners(element) {
             name,
             callback,
             useCapture,
-            type
+            type: type2
           });
         }
       }
@@ -8668,13 +8668,13 @@ var SafeResourceUrlImpl = class extends SafeValueImpl {
 function unwrapSafeValue(value) {
   return value instanceof SafeValueImpl ? value.changingThisBreaksApplicationSecurity : value;
 }
-function allowSanitizationBypassAndThrow(value, type) {
+function allowSanitizationBypassAndThrow(value, type2) {
   const actualType = getSanitizationBypassType(value);
-  if (actualType != null && actualType !== type) {
-    if (actualType === "ResourceURL" && type === "URL") return true;
-    throw new Error(`Required a safe ${type}, got a ${actualType} (see ${XSS_SECURITY_URL})`);
+  if (actualType != null && actualType !== type2) {
+    if (actualType === "ResourceURL" && type2 === "URL") return true;
+    throw new Error(`Required a safe ${type2}, got a ${actualType} (see ${XSS_SECURITY_URL})`);
   }
-  return actualType === type;
+  return actualType === type2;
 }
 function getSanitizationBypassType(value) {
   return value instanceof SafeValueImpl && value.getTypeName() || null;
@@ -9252,16 +9252,16 @@ function maybeUnwrapFn(value) {
   }
 }
 var VALUE_STRING_LENGTH_LIMIT = 200;
-function assertStandaloneComponentType(type) {
-  assertComponentDef(type);
-  const componentDef = getComponentDef(type);
+function assertStandaloneComponentType(type2) {
+  assertComponentDef(type2);
+  const componentDef = getComponentDef(type2);
   if (!componentDef.standalone) {
-    throw new RuntimeError(907, `The ${stringifyForError(type)} component is not marked as standalone, but Angular expects to have a standalone component here. Please make sure the ${stringifyForError(type)} component does not have the \`standalone: false\` flag in the decorator.`);
+    throw new RuntimeError(907, `The ${stringifyForError(type2)} component is not marked as standalone, but Angular expects to have a standalone component here. Please make sure the ${stringifyForError(type2)} component does not have the \`standalone: false\` flag in the decorator.`);
   }
 }
-function assertComponentDef(type) {
-  if (!getComponentDef(type)) {
-    throw new RuntimeError(906, `The ${stringifyForError(type)} is not an Angular component, make sure it has the \`@Component\` decorator.`);
+function assertComponentDef(type2) {
+  if (!getComponentDef(type2)) {
+    throw new RuntimeError(906, `The ${stringifyForError(type2)} is not an Angular component, make sure it has the \`@Component\` decorator.`);
   }
 }
 function throwMultipleComponentError(tNode, first2, second) {
@@ -10708,13 +10708,13 @@ function applyStyling(renderer, isClassBased, rNode, prop, value) {
     }
   }
 }
-function createTView(type, declTNode, templateFn, decls, vars, directives, pipes, viewQuery, schemas, constsOrFactory, ssrId) {
+function createTView(type2, declTNode, templateFn, decls, vars, directives, pipes, viewQuery, schemas, constsOrFactory, ssrId) {
   const bindingStartIndex = HEADER_OFFSET + decls;
   const initialViewLength = bindingStartIndex + vars;
   const blueprint = createViewBlueprint(bindingStartIndex, initialViewLength);
   const consts = typeof constsOrFactory === "function" ? constsOrFactory() : constsOrFactory;
   const tView = blueprint[TVIEW] = {
-    type,
+    type: type2,
     blueprint,
     template: templateFn,
     queries: null,
@@ -12210,17 +12210,17 @@ function processI18nInsertBefore(renderer, childTNode, lView, childRNode, parent
     }
   }
 }
-function getOrCreateTNode(tView, index, type, name, attrs) {
+function getOrCreateTNode(tView, index, type2, name, attrs) {
   ngDevMode && index !== 0 && assertGreaterThanOrEqual(index, HEADER_OFFSET, "TNodes can't be in the LView header.");
-  ngDevMode && assertPureTNodeType(type);
+  ngDevMode && assertPureTNodeType(type2);
   let tNode = tView.data[index];
   if (tNode === null) {
-    tNode = createTNodeAtIndex(tView, index, type, name, attrs);
+    tNode = createTNodeAtIndex(tView, index, type2, name, attrs);
     if (isInI18nBlock()) {
       tNode.flags |= 32;
     }
   } else if (tNode.type & 64) {
-    tNode.type = type;
+    tNode.type = type2;
     tNode.value = name;
     tNode.attrs = attrs;
     const parent = getCurrentParentTNode();
@@ -12231,11 +12231,11 @@ function getOrCreateTNode(tView, index, type, name, attrs) {
   setCurrentTNode(tNode, true);
   return tNode;
 }
-function createTNodeAtIndex(tView, index, type, name, attrs) {
+function createTNodeAtIndex(tView, index, type2, name, attrs) {
   const currentTNode = getCurrentTNodePlaceholderOk();
   const isParent = isCurrentTNodeParent();
   const parent = isParent ? currentTNode : currentTNode && currentTNode.parent;
-  const tNode = tView.data[index] = createTNode(tView, parent, type, index, name, attrs);
+  const tNode = tView.data[index] = createTNode(tView, parent, type2, index, name, attrs);
   linkTNodeInTView(tView, tNode, currentTNode, isParent);
   return tNode;
 }
@@ -12256,7 +12256,7 @@ function linkTNodeInTView(tView, tNode, currentTNode, isParent) {
     }
   }
 }
-function createTNode(tView, tParent, type, index, value, attrs) {
+function createTNode(tView, tParent, type2, index, value, attrs) {
   ngDevMode && index !== 0 && assertGreaterThanOrEqual(index, HEADER_OFFSET, "TNodes can't be in the LView header.");
   ngDevMode && assertNotSame(attrs, void 0, "'undefined' is not valid value for 'attrs'");
   ngDevMode && tParent && assertTNodeForTView(tParent, tView);
@@ -12266,7 +12266,7 @@ function createTNode(tView, tParent, type, index, value, attrs) {
     flags |= 128;
   }
   const tNode = {
-    type,
+    type: type2,
     index,
     insertBeforeIndex: null,
     injectorIndex,
@@ -12640,10 +12640,10 @@ function isDirective(value) {
 function isComponent(value) {
   return !!getComponentDef(value);
 }
-function getDependencyTypeForError(type) {
-  if (getComponentDef(type)) return "component";
-  if (getDirectiveDef(type)) return "directive";
-  if (getPipeDef(type)) return "pipe";
+function getDependencyTypeForError(type2) {
+  if (getComponentDef(type2)) return "component";
+  if (getDirectiveDef(type2)) return "directive";
+  if (getPipeDef(type2)) return "pipe";
   return "type";
 }
 function verifyStandaloneImport(depType, importingType) {
@@ -12657,8 +12657,8 @@ function verifyStandaloneImport(depType, importingType) {
     const def2 = getComponentDef(depType) || getDirectiveDef(depType) || getPipeDef(depType);
     if (def2 != null) {
       if (!def2.standalone) {
-        const type = getDependencyTypeForError(depType);
-        throw new Error(`The "${stringifyForError(depType)}" ${type}, imported from "${stringifyForError(importingType)}", is not standalone. Does the ${type} have the standalone: false flag?`);
+        const type2 = getDependencyTypeForError(depType);
+        throw new Error(`The "${stringifyForError(depType)}" ${type2}, imported from "${stringifyForError(importingType)}", is not standalone. Does the ${type2} have the standalone: false flag?`);
       }
     } else {
       if (isModuleWithProviders(depType)) {
@@ -12690,14 +12690,14 @@ var DepsTracker = class {
     }
     this.ngModulesWithSomeUnresolvedDecls.clear();
   }
-  getComponentDependencies(type, rawImports) {
+  getComponentDependencies(type2, rawImports) {
     this.resolveNgModulesDecls();
-    const def2 = getComponentDef(type);
+    const def2 = getComponentDef(type2);
     if (def2 === null) {
-      throw new Error(`Attempting to get component dependencies for a type that is not a component: ${type}`);
+      throw new Error(`Attempting to get component dependencies for a type that is not a component: ${type2}`);
     }
     if (def2.standalone) {
-      const scope = this.getStandaloneComponentScope(type, rawImports);
+      const scope = this.getStandaloneComponentScope(type2, rawImports);
       if (scope.compilation.isPoisoned) {
         return {
           dependencies: []
@@ -12707,12 +12707,12 @@ var DepsTracker = class {
         dependencies: [...scope.compilation.directives, ...scope.compilation.pipes, ...scope.compilation.ngModules]
       };
     } else {
-      if (!this.ownerNgModule.has(type)) {
+      if (!this.ownerNgModule.has(type2)) {
         return {
           dependencies: []
         };
       }
-      const scope = this.getNgModuleScope(this.ownerNgModule.get(type));
+      const scope = this.getNgModuleScope(this.ownerNgModule.get(type2));
       if (scope.compilation.isPoisoned) {
         return {
           dependencies: []
@@ -12723,26 +12723,26 @@ var DepsTracker = class {
       };
     }
   }
-  registerNgModule(type, scopeInfo) {
-    if (!isNgModule(type)) {
-      throw new Error(`Attempting to register a Type which is not NgModule as NgModule: ${type}`);
+  registerNgModule(type2, scopeInfo) {
+    if (!isNgModule(type2)) {
+      throw new Error(`Attempting to register a Type which is not NgModule as NgModule: ${type2}`);
     }
-    this.ngModulesWithSomeUnresolvedDecls.add(type);
+    this.ngModulesWithSomeUnresolvedDecls.add(type2);
   }
-  clearScopeCacheFor(type) {
-    this.ngModulesScopeCache.delete(type);
-    this.standaloneComponentsScopeCache.delete(type);
+  clearScopeCacheFor(type2) {
+    this.ngModulesScopeCache.delete(type2);
+    this.standaloneComponentsScopeCache.delete(type2);
   }
-  getNgModuleScope(type) {
-    if (this.ngModulesScopeCache.has(type)) {
-      return this.ngModulesScopeCache.get(type);
+  getNgModuleScope(type2) {
+    if (this.ngModulesScopeCache.has(type2)) {
+      return this.ngModulesScopeCache.get(type2);
     }
-    const scope = this.computeNgModuleScope(type);
-    this.ngModulesScopeCache.set(type, scope);
+    const scope = this.computeNgModuleScope(type2);
+    this.ngModulesScopeCache.set(type2, scope);
     return scope;
   }
-  computeNgModuleScope(type) {
-    const def2 = getNgModuleDefOrThrow(type);
+  computeNgModuleScope(type2) {
+    const def2 = getNgModuleDefOrThrow(type2);
     const scope = {
       exported: {
         directives: /* @__PURE__ */ new Set(),
@@ -12799,18 +12799,18 @@ var DepsTracker = class {
     }
     return scope;
   }
-  getStandaloneComponentScope(type, rawImports) {
-    if (this.standaloneComponentsScopeCache.has(type)) {
-      return this.standaloneComponentsScopeCache.get(type);
+  getStandaloneComponentScope(type2, rawImports) {
+    if (this.standaloneComponentsScopeCache.has(type2)) {
+      return this.standaloneComponentsScopeCache.get(type2);
     }
-    const ans = this.computeStandaloneComponentScope(type, rawImports);
-    this.standaloneComponentsScopeCache.set(type, ans);
+    const ans = this.computeStandaloneComponentScope(type2, rawImports);
+    this.standaloneComponentsScopeCache.set(type2, ans);
     return ans;
   }
-  computeStandaloneComponentScope(type, rawImports) {
+  computeStandaloneComponentScope(type2, rawImports) {
     const ans = {
       compilation: {
-        directives: /* @__PURE__ */ new Set([type]),
+        directives: /* @__PURE__ */ new Set([type2]),
         pipes: /* @__PURE__ */ new Set(),
         ngModules: /* @__PURE__ */ new Set()
       }
@@ -12818,7 +12818,7 @@ var DepsTracker = class {
     for (const rawImport of flatten(rawImports ?? [])) {
       const imported = resolveForwardRef(rawImport);
       try {
-        verifyStandaloneImport(imported, type);
+        verifyStandaloneImport(imported, type2);
       } catch (e) {
         ans.compilation.isPoisoned = true;
         return ans;
@@ -13645,12 +13645,12 @@ function assertNoDuplicateDirectives(directives) {
     seenDirectives.add(current);
   }
 }
-function directiveHostFirstCreatePass(index, lView, type, name, directiveMatcher, bindingsEnabled, attrsIndex, localRefsIndex) {
+function directiveHostFirstCreatePass(index, lView, type2, name, directiveMatcher, bindingsEnabled, attrsIndex, localRefsIndex) {
   const tView = lView[TVIEW];
   ngDevMode && assertFirstCreatePass(tView);
   const tViewConsts = tView.consts;
   const attrs = getConstant(tViewConsts, attrsIndex);
-  const tNode = getOrCreateTNode(tView, index, type, name, attrs);
+  const tNode = getOrCreateTNode(tView, index, type2, name, attrs);
   if (bindingsEnabled) {
     resolveDirectives(tView, lView, tNode, getConstant(tViewConsts, localRefsIndex), directiveMatcher);
   }
@@ -13673,11 +13673,11 @@ function directiveHostEndFirstCreatePass(tView, tNode) {
     tView.queries.elementEnd(tNode);
   }
 }
-function domOnlyFirstCreatePass(index, tView, type, name, attrsIndex, localRefsIndex) {
+function domOnlyFirstCreatePass(index, tView, type2, name, attrsIndex, localRefsIndex) {
   ngDevMode && assertFirstCreatePass(tView);
   const tViewConsts = tView.consts;
   const attrs = getConstant(tViewConsts, attrsIndex);
-  const tNode = getOrCreateTNode(tView, index, type, name, attrs);
+  const tNode = getOrCreateTNode(tView, index, type2, name, attrs);
   tNode.mergedAttrs = mergeHostAttrs(tNode.mergedAttrs, tNode.attrs);
   if (localRefsIndex != null) {
     const refs = getConstant(tViewConsts, localRefsIndex);
@@ -13815,7 +13815,7 @@ var ComponentFactory = class {
     const sharedStylesHost = rootViewInjector.get(SHARED_STYLES_HOST, null);
     const styleHost = getStyleHost(hostElement, () => rootViewInjector.get(DOCUMENT, null) ?? getDocument());
     if (sharedStylesHost) sharedStylesHost.addHost(styleHost);
-    const hasInputBindings = componentBindings?.some(isInputBinding) || directives?.some((d2) => typeof d2 !== "function" && d2.bindings.some(isInputBinding));
+    const hasInputBindings = componentBindings?.some(isInputBinding) || directives?.some((d) => typeof d !== "function" && d.bindings.some(isInputBinding));
     const rootLView = createLView(null, rootTView, null, 512 | getInitialLViewFlagsFromDef(cmpDef), null, null, environment2, hostRenderer, rootViewInjector, null, retrieveHydrationInfo(hostElement, rootViewInjector, true));
     if (sharedStylesHost && shadowRootSupported && styleHost instanceof ShadowRoot) {
       storeLViewOnDestroy(rootLView, () => {
@@ -14764,8 +14764,8 @@ function \u0275\u0275defineComponent(componentDefinition) {
     return def2;
   });
 }
-function extractDirectiveDef(type) {
-  return getComponentDef(type) || getDirectiveDef(type);
+function extractDirectiveDef(type2) {
+  return getComponentDef(type2) || getDirectiveDef(type2);
 }
 function \u0275\u0275defineNgModule(def2) {
   return noSideEffects(() => {
@@ -14911,9 +14911,9 @@ function getComponentId(componentDef) {
   }
   return compId;
 }
-function setClassMetadata(type, decorators, ctorParameters, propDecorators) {
+function setClassMetadata(type2, decorators, ctorParameters, propDecorators) {
   return noSideEffects(() => {
-    const clazz = type;
+    const clazz = type2;
     if (decorators !== null) {
       if (clazz.hasOwnProperty("decorators") && clazz.decorators !== void 0) {
         clazz.decorators.push(...decorators);
@@ -15020,7 +15020,7 @@ async function resolveComponentResources(resourceResolver) {
     urlCache.set(url, promise);
     return promise;
   }
-  const resolutionPromises = Array.from(currentQueue).map(async ([type, component]) => {
+  const resolutionPromises = Array.from(currentQueue).map(async ([type2, component]) => {
     if (component.styleUrl && component.styleUrls?.length) {
       throw new Error("@Component cannot define both `styleUrl` and `styleUrls`. Use `styleUrl` if the component has one stylesheet, or `styleUrls` if it has multiple");
     }
@@ -15048,14 +15048,14 @@ async function resolveComponentResources(resourceResolver) {
       componentTasks.push(allFetched);
     }
     await Promise.all(componentTasks);
-    componentDefPendingResolution.delete(type);
+    componentDefPendingResolution.delete(type2);
   });
   await Promise.all(resolutionPromises);
 }
-function maybeQueueResolutionOfComponentResources(type, metadata2) {
+function maybeQueueResolutionOfComponentResources(type2, metadata2) {
   if (componentNeedsResolution(metadata2)) {
-    componentResourceResolutionQueue.set(type, metadata2);
-    componentDefPendingResolution.add(type);
+    componentResourceResolutionQueue.set(type2, metadata2);
+    componentDefPendingResolution.add(type2);
   }
 }
 function componentNeedsResolution(component) {
@@ -15075,9 +15075,9 @@ async function unwrapResponse(url, response) {
 }
 var modules = /* @__PURE__ */ new Map();
 var checkForDuplicateNgModules = true;
-function assertSameOrNotExisting(id, type, incoming) {
-  if (type && type !== incoming && checkForDuplicateNgModules) {
-    throw new RuntimeError(921, ngDevMode && `Duplicate module registered for ${id} - ${stringify(type)} vs ${stringify(type.name)}`);
+function assertSameOrNotExisting(id, type2, incoming) {
+  if (type2 && type2 !== incoming && checkForDuplicateNgModules) {
+    throw new RuntimeError(921, ngDevMode && `Duplicate module registered for ${id} - ${stringify(type2)} vs ${stringify(type2.name)}`);
   }
 }
 function registerNgModuleType(ngModuleType, id) {
@@ -15216,12 +15216,12 @@ function patchDeclaredInputs(declaredInputs, exposedInputs) {
   }
 }
 function validateHostDirective(hostDirectiveConfig, directiveDef) {
-  const type = hostDirectiveConfig.directive;
+  const type2 = hostDirectiveConfig.directive;
   if (directiveDef === null) {
-    if (getComponentDef(type) !== null) {
-      throw new RuntimeError(310, `Host directive ${type.name} cannot be a component.`);
+    if (getComponentDef(type2) !== null) {
+      throw new RuntimeError(310, `Host directive ${type2.name} cannot be a component.`);
     }
-    throw new RuntimeError(307, `Could not resolve metadata for host directive ${type.name}. Make sure that the ${type.name} class is annotated with an @Directive decorator.`);
+    throw new RuntimeError(307, `Could not resolve metadata for host directive ${type2.name}. Make sure that the ${type2.name} class is annotated with an @Directive decorator.`);
   }
   if (!directiveDef.standalone) {
     throw new RuntimeError(308, `Host directive ${directiveDef.type.name} must be standalone.`);
@@ -15244,8 +15244,8 @@ function validateMappings(bindingType, def2, hostDirectiveBindings) {
     }
   }
 }
-function getSuperType(type) {
-  return Object.getPrototypeOf(type.prototype).constructor;
+function getSuperType(type2) {
+  return Object.getPrototypeOf(type2.prototype).constructor;
 }
 function \u0275\u0275InheritDefinitionFeature(definition) {
   let superType = getSuperType(definition.type);
@@ -15483,15 +15483,15 @@ var DeferBlockBehavior;
   DeferBlockBehavior2[DeferBlockBehavior2["Manual"] = 0] = "Manual";
   DeferBlockBehavior2[DeferBlockBehavior2["Playthrough"] = 1] = "Playthrough";
 })(DeferBlockBehavior || (DeferBlockBehavior = {}));
-function storeTriggerCleanupFn(type, lDetails, cleanupFn) {
-  const key = getCleanupFnKeyByType(type);
+function storeTriggerCleanupFn(type2, lDetails, cleanupFn) {
+  const key = getCleanupFnKeyByType(type2);
   if (lDetails[key] === null) {
     lDetails[key] = [];
   }
   lDetails[key].push(cleanupFn);
 }
-function invokeTriggerCleanupFns(type, lDetails) {
-  const key = getCleanupFnKeyByType(type);
+function invokeTriggerCleanupFns(type2, lDetails) {
+  const key = getCleanupFnKeyByType(type2);
   const cleanupFns = lDetails[key];
   if (cleanupFns !== null) {
     for (const cleanupFn of cleanupFns) {
@@ -15505,11 +15505,11 @@ function invokeAllTriggerCleanupFns(lDetails) {
   invokeTriggerCleanupFns(0, lDetails);
   invokeTriggerCleanupFns(2, lDetails);
 }
-function getCleanupFnKeyByType(type) {
+function getCleanupFnKeyByType(type2) {
   let key = TRIGGER_CLEANUP_FNS;
-  if (type === 1) {
+  if (type2 === 1) {
     key = PREFETCH_TRIGGER_CLEANUP_FNS;
-  } else if (type === 2) {
+  } else if (type2 === 2) {
     key = HYDRATE_TRIGGER_CLEANUP_FNS;
   }
   return key;
@@ -15952,8 +15952,8 @@ function getTriggerElement(triggerLView, triggerIndex) {
   ngDevMode && assertElement(element);
   return element;
 }
-function registerDomTrigger(initialLView, tNode, triggerIndex, walkUpTimes, registerFn, callback, type, options2) {
-  if (!shouldTriggerDeferBlock(type, initialLView)) {
+function registerDomTrigger(initialLView, tNode, triggerIndex, walkUpTimes, registerFn, callback, type2, options2) {
+  if (!shouldTriggerDeferBlock(type2, initialLView)) {
     return;
   }
   const injector = initialLView[INJECTOR];
@@ -15990,7 +15990,7 @@ function registerDomTrigger(initialLView, tNode, triggerIndex, walkUpTimes, regi
     if (initialLView !== triggerLView) {
       storeLViewOnDestroy(triggerLView, cleanup);
     }
-    storeTriggerCleanupFn(type, lDetails, cleanup);
+    storeTriggerCleanupFn(type2, lDetails, cleanup);
   }
   poll = afterEveryRender({
     read: pollDomTrigger
@@ -16044,17 +16044,17 @@ function setupFrameworkInjectorProfiler() {
 function injectorProfilerEventHandler(injectorProfilerEvent) {
   const {
     context: context2,
-    type
+    type: type2
   } = injectorProfilerEvent;
-  if (type === 0) {
+  if (type2 === 0) {
     handleInjectEvent(context2, injectorProfilerEvent.service);
-  } else if (type === 1) {
+  } else if (type2 === 1) {
     handleInstanceCreatedByInjectorEvent(context2, injectorProfilerEvent.instance);
-  } else if (type === 2) {
+  } else if (type2 === 2) {
     handleProviderConfiguredEvent(context2, injectorProfilerEvent.providerRecord);
-  } else if (type === 3) {
+  } else if (type2 === 3) {
     handleEffectCreatedEvent(context2, injectorProfilerEvent.effect);
-  } else if (type === 4) {
+  } else if (type2 === 4) {
     handleEffectCreatedEvent(context2, injectorProfilerEvent.effectPhase);
   }
 }
@@ -19967,8 +19967,8 @@ function i18nStartFirstCreatePass(tView, parentTNodeIndex, lView, index, message
       }
     } else {
       const isClosing = value.charCodeAt(0) === 47;
-      const type = value.charCodeAt(isClosing ? 1 : 0);
-      ngDevMode && assertOneOf(type, 42, 35);
+      const type2 = value.charCodeAt(isClosing ? 1 : 0);
+      ngDevMode && assertOneOf(type2, 42, 35);
       const index2 = HEADER_OFFSET + Number.parseInt(value.substring(isClosing ? 2 : 1));
       if (isClosing) {
         existingTNodeStack.shift();
@@ -19982,7 +19982,7 @@ function i18nStartFirstCreatePass(tView, parentTNodeIndex, lView, index, message
           kind: 2,
           index: index2,
           children: [],
-          type: type === 35 ? 0 : 1
+          type: type2 === 35 ? 0 : 1
         };
         astStack[0].push(placeholderNode);
         astStack.unshift(placeholderNode.children);
@@ -20172,8 +20172,8 @@ function parseICUBlock(pattern) {
   const values = [];
   let icuType = 1;
   let mainBinding = 0;
-  pattern = pattern.replace(ICU_BLOCK_REGEXP, function(str, binding, type) {
-    if (type === "select") {
+  pattern = pattern.replace(ICU_BLOCK_REGEXP, function(str, binding, type2) {
+    if (type2 === "select") {
       icuType = 0;
     } else {
       icuType = 1;
@@ -21661,12 +21661,12 @@ function multiResolve(factories, result) {
   }
   return result;
 }
-function multiFactory(factoryFn, index, isViewProvider, isComponent2, f, provider) {
+function multiFactory(factoryFn, index, isViewProvider, isComponent2, f2, provider) {
   const factory = new NodeInjectorFactory(factoryFn, isViewProvider, \u0275\u0275directiveInject, ngDevMode ? providerName(provider) : null);
   factory.multi = [];
   factory.index = index;
   factory.componentProviders = 0;
-  multiFactoryAdd(factory, f, isComponent2 && !isViewProvider);
+  multiFactoryAdd(factory, f2, isComponent2 && !isViewProvider);
   return factory;
 }
 function providerName(provider) {
@@ -21707,21 +21707,21 @@ function \u0275\u0275ExternalStylesFeature(styleUrls) {
     };
   };
 }
-function \u0275\u0275setComponentScope(type, directives, pipes) {
-  const def2 = type.\u0275cmp;
+function \u0275\u0275setComponentScope(type2, directives, pipes) {
+  const def2 = type2.\u0275cmp;
   def2.directiveDefs = extractDefListOrFactory(directives, extractDirectiveDef);
   def2.pipeDefs = extractDefListOrFactory(pipes, getPipeDef);
 }
-function \u0275\u0275setNgModuleScope(type, scope) {
+function \u0275\u0275setNgModuleScope(type2, scope) {
   return noSideEffects(() => {
-    const ngModuleDef = getNgModuleDefOrThrow(type);
+    const ngModuleDef = getNgModuleDefOrThrow(type2);
     ngModuleDef.declarations = convertToTypeArray(scope.declarations || EMPTY_ARRAY);
     ngModuleDef.imports = convertToTypeArray(scope.imports || EMPTY_ARRAY);
     ngModuleDef.exports = convertToTypeArray(scope.exports || EMPTY_ARRAY);
     if (scope.bootstrap) {
       ngModuleDef.bootstrap = convertToTypeArray(scope.bootstrap);
     }
-    depsTracker.registerNgModule(type, scope);
+    depsTracker.registerNgModule(type2, scope);
   });
 }
 function convertToTypeArray(values) {
@@ -21939,18 +21939,18 @@ function isPure(lView, index) {
 function \u0275\u0275templateRefExtractor(tNode, lView) {
   return createTemplateRef(tNode, lView);
 }
-function \u0275\u0275getComponentDepsFactory(type, rawImports) {
+function \u0275\u0275getComponentDepsFactory(type2, rawImports) {
   return () => {
     try {
-      return depsTracker.getComponentDependencies(type, rawImports).dependencies;
+      return depsTracker.getComponentDependencies(type2, rawImports).dependencies;
     } catch (e) {
-      console.error(`Computing dependencies in local compilation mode for the component "${type.name}" failed with the exception:`, e);
+      console.error(`Computing dependencies in local compilation mode for the component "${type2.name}" failed with the exception:`, e);
       throw e;
     }
   };
 }
-function \u0275setClassDebugInfo(type, debugInfo) {
-  const def2 = getComponentDef(type);
+function \u0275setClassDebugInfo(type2, debugInfo) {
+  const def2 = getComponentDef(type2);
   if (def2 !== null) {
     def2.debugInfo = debugInfo;
   }
@@ -21959,15 +21959,15 @@ function \u0275\u0275getReplaceMetadataURL(id, timestamp, base) {
   const url = `./@ng/component?c=${id}&t=${encodeURIComponent(timestamp)}`;
   return new URL(url, base).href;
 }
-function \u0275\u0275replaceMetadata(type, applyMetadata, namespaces, locals, importMeta = null, id = null) {
-  ngDevMode && assertComponentDef(type);
-  const currentDef = getComponentDef(type);
-  applyMetadata.apply(null, [type, namespaces, ...locals]);
+function \u0275\u0275replaceMetadata(type2, applyMetadata, namespaces, locals, importMeta = null, id = null) {
+  ngDevMode && assertComponentDef(type2);
+  const currentDef = getComponentDef(type2);
+  applyMetadata.apply(null, [type2, namespaces, ...locals]);
   const {
     newDef,
     oldDef
-  } = mergeWithExistingDefinition(currentDef, getComponentDef(type));
-  type[NG_COMP_DEF] = newDef;
+  } = mergeWithExistingDefinition(currentDef, getComponentDef(type2));
+  type2[NG_COMP_DEF] = newDef;
   if (oldDef.tView) {
     const trackedViews = getTrackedLViews().values();
     for (const root of trackedViews) {
@@ -22409,9 +22409,9 @@ function compileNgModuleDefs(moduleType, ngModule, allowDuplicateDeclarationsInR
     configurable: !!ngDevMode
   });
 }
-function generateStandaloneInDeclarationsError(type, location2) {
-  const prefix = `Unexpected "${stringifyForError(type)}" found in the "declarations" array of the`;
-  const suffix = `"${stringifyForError(type)}" is marked as standalone and can't be declared in any NgModule - did you intend to import it instead (by adding it to the "imports" array)?`;
+function generateStandaloneInDeclarationsError(type2, location2) {
+  const prefix = `Unexpected "${stringifyForError(type2)}" found in the "declarations" array of the`;
+  const suffix = `"${stringifyForError(type2)}" is marked as standalone and can't be declared in any NgModule - did you intend to import it instead (by adding it to the "imports" array)?`;
   return `${prefix} ${location2}, ${suffix}`;
 }
 function verifySemanticsOfNgModuleDef(moduleType, allowDuplicateDeclarationsInRoot, importingModule) {
@@ -22454,74 +22454,74 @@ function verifySemanticsOfNgModuleDef(moduleType, allowDuplicateDeclarationsInRo
   if (errors.length) {
     throw new Error(errors.join("\n"));
   }
-  function verifyDeclarationsHaveDefinitions(type) {
-    type = resolveForwardRef(type);
-    const def2 = getComponentDef(type) || getDirectiveDef(type) || getPipeDef(type);
+  function verifyDeclarationsHaveDefinitions(type2) {
+    type2 = resolveForwardRef(type2);
+    const def2 = getComponentDef(type2) || getDirectiveDef(type2) || getPipeDef(type2);
     if (!def2) {
-      errors.push(`Unexpected value '${stringifyForError(type)}' declared by the module '${stringifyForError(moduleType)}'. Please add a @Pipe/@Directive/@Component annotation.`);
+      errors.push(`Unexpected value '${stringifyForError(type2)}' declared by the module '${stringifyForError(moduleType)}'. Please add a @Pipe/@Directive/@Component annotation.`);
     }
   }
-  function verifyDirectivesHaveSelector(type) {
-    type = resolveForwardRef(type);
-    const def2 = getDirectiveDef(type);
-    if (!getComponentDef(type) && def2 && def2.selectors.length == 0) {
-      errors.push(`Directive ${stringifyForError(type)} has no selector, please add it!`);
+  function verifyDirectivesHaveSelector(type2) {
+    type2 = resolveForwardRef(type2);
+    const def2 = getDirectiveDef(type2);
+    if (!getComponentDef(type2) && def2 && def2.selectors.length == 0) {
+      errors.push(`Directive ${stringifyForError(type2)} has no selector, please add it!`);
     }
   }
-  function verifyNotStandalone(type, moduleType2) {
-    type = resolveForwardRef(type);
-    const def2 = getComponentDef(type) || getDirectiveDef(type) || getPipeDef(type);
+  function verifyNotStandalone(type2, moduleType2) {
+    type2 = resolveForwardRef(type2);
+    const def2 = getComponentDef(type2) || getDirectiveDef(type2) || getPipeDef(type2);
     if (def2?.standalone) {
       const location2 = `"${stringifyForError(moduleType2)}" NgModule`;
-      errors.push(generateStandaloneInDeclarationsError(type, location2));
+      errors.push(generateStandaloneInDeclarationsError(type2, location2));
     }
   }
-  function verifyExportsAreDeclaredOrReExported(type) {
-    type = resolveForwardRef(type);
-    const kind = getComponentDef(type) && "component" || getDirectiveDef(type) && "directive" || getPipeDef(type) && "pipe";
+  function verifyExportsAreDeclaredOrReExported(type2) {
+    type2 = resolveForwardRef(type2);
+    const kind = getComponentDef(type2) && "component" || getDirectiveDef(type2) && "directive" || getPipeDef(type2) && "pipe";
     if (kind) {
-      if (combinedDeclarations.lastIndexOf(type) === -1) {
-        errors.push(`Can't export ${kind} ${stringifyForError(type)} from ${stringifyForError(moduleType)} as it was neither declared nor imported!`);
+      if (combinedDeclarations.lastIndexOf(type2) === -1) {
+        errors.push(`Can't export ${kind} ${stringifyForError(type2)} from ${stringifyForError(moduleType)} as it was neither declared nor imported!`);
       }
     }
   }
-  function verifyDeclarationIsUnique(type, suppressErrors) {
-    type = resolveForwardRef(type);
-    const existingModule = ownerNgModule.get(type);
+  function verifyDeclarationIsUnique(type2, suppressErrors) {
+    type2 = resolveForwardRef(type2);
+    const existingModule = ownerNgModule.get(type2);
     if (existingModule && existingModule !== moduleType) {
       if (!suppressErrors) {
         const modules2 = [existingModule, moduleType].map(stringifyForError).sort();
-        errors.push(`Type ${stringifyForError(type)} is part of the declarations of 2 modules: ${modules2[0]} and ${modules2[1]}! Please consider moving ${stringifyForError(type)} to a higher module that imports ${modules2[0]} and ${modules2[1]}. You can also create a new NgModule that exports and includes ${stringifyForError(type)} then import that NgModule in ${modules2[0]} and ${modules2[1]}.`);
+        errors.push(`Type ${stringifyForError(type2)} is part of the declarations of 2 modules: ${modules2[0]} and ${modules2[1]}! Please consider moving ${stringifyForError(type2)} to a higher module that imports ${modules2[0]} and ${modules2[1]}. You can also create a new NgModule that exports and includes ${stringifyForError(type2)} then import that NgModule in ${modules2[0]} and ${modules2[1]}.`);
       }
     } else {
-      ownerNgModule.set(type, moduleType);
+      ownerNgModule.set(type2, moduleType);
     }
   }
-  function verifyComponentIsPartOfNgModule(type) {
-    type = resolveForwardRef(type);
-    const existingModule = ownerNgModule.get(type);
-    if (!existingModule && !isStandalone(type)) {
-      errors.push(`Component ${stringifyForError(type)} is not part of any NgModule or the module has not been imported into your module.`);
+  function verifyComponentIsPartOfNgModule(type2) {
+    type2 = resolveForwardRef(type2);
+    const existingModule = ownerNgModule.get(type2);
+    if (!existingModule && !isStandalone(type2)) {
+      errors.push(`Component ${stringifyForError(type2)} is not part of any NgModule or the module has not been imported into your module.`);
     }
   }
-  function verifyCorrectBootstrapType(type) {
-    type = resolveForwardRef(type);
-    if (!getComponentDef(type)) {
-      errors.push(`${stringifyForError(type)} cannot be used as an entry component.`);
+  function verifyCorrectBootstrapType(type2) {
+    type2 = resolveForwardRef(type2);
+    if (!getComponentDef(type2)) {
+      errors.push(`${stringifyForError(type2)} cannot be used as an entry component.`);
     }
-    if (isStandalone(type)) {
-      errors.push(`The \`${stringifyForError(type)}\` class is a standalone component, which can not be used in the \`@NgModule.bootstrap\` array. Use the \`bootstrapApplication\` function for bootstrap instead.`);
+    if (isStandalone(type2)) {
+      errors.push(`The \`${stringifyForError(type2)}\` class is a standalone component, which can not be used in the \`@NgModule.bootstrap\` array. Use the \`bootstrapApplication\` function for bootstrap instead.`);
     }
   }
-  function verifySemanticsOfNgModuleImport(type, importingModule2) {
-    type = resolveForwardRef(type);
-    const directiveDef = getComponentDef(type) || getDirectiveDef(type);
+  function verifySemanticsOfNgModuleImport(type2, importingModule2) {
+    type2 = resolveForwardRef(type2);
+    const directiveDef = getComponentDef(type2) || getDirectiveDef(type2);
     if (directiveDef !== null && !directiveDef.standalone) {
-      throw new Error(`Unexpected directive '${type.name}' imported by the module '${importingModule2.name}'. Please add an @NgModule annotation.`);
+      throw new Error(`Unexpected directive '${type2.name}' imported by the module '${importingModule2.name}'. Please add an @NgModule annotation.`);
     }
-    const pipeDef = getPipeDef(type);
+    const pipeDef = getPipeDef(type2);
     if (pipeDef !== null && !pipeDef.standalone) {
-      throw new Error(`Unexpected pipe '${type.name}' imported by the module '${importingModule2.name}'. Please add an @NgModule annotation.`);
+      throw new Error(`Unexpected pipe '${type2.name}' imported by the module '${importingModule2.name}'. Please add an @NgModule annotation.`);
     }
   }
 }
@@ -22529,10 +22529,10 @@ function unwrapModuleWithProvidersImports(typeOrWithProviders) {
   typeOrWithProviders = resolveForwardRef(typeOrWithProviders);
   return typeOrWithProviders.ngModule || typeOrWithProviders;
 }
-function getAnnotation(type, name) {
+function getAnnotation(type2, name) {
   let annotation = null;
-  collect(type.__annotations__);
-  collect(type.decorators);
+  collect(type2.__annotations__);
+  collect(type2.decorators);
   return annotation;
   function collect(annotations) {
     if (annotations) {
@@ -22555,19 +22555,19 @@ function getAnnotation(type, name) {
 }
 var ownerNgModule = /* @__PURE__ */ new WeakMap();
 var verifiedNgModule = /* @__PURE__ */ new WeakMap();
-function computeCombinedExports(type) {
-  type = resolveForwardRef(type);
-  const ngModuleDef = getNgModuleDef(type);
+function computeCombinedExports(type2) {
+  type2 = resolveForwardRef(type2);
+  const ngModuleDef = getNgModuleDef(type2);
   if (ngModuleDef === null) {
-    return [type];
+    return [type2];
   }
-  return flatten(maybeUnwrapFn(ngModuleDef.exports).map((type2) => {
-    const ngModuleDef2 = getNgModuleDef(type2);
+  return flatten(maybeUnwrapFn(ngModuleDef.exports).map((type3) => {
+    const ngModuleDef2 = getNgModuleDef(type3);
     if (ngModuleDef2) {
-      verifySemanticsOfNgModuleDef(type2, false);
-      return computeCombinedExports(type2);
+      verifySemanticsOfNgModuleDef(type3, false);
+      return computeCombinedExports(type3);
     } else {
-      return type2;
+      return type3;
     }
   }));
 }
@@ -22591,15 +22591,15 @@ function patchComponentDefWithScope(componentDef, transitiveScopes) {
   componentDef.schemas = transitiveScopes.schemas;
   componentDef.tView = null;
 }
-function transitiveScopesFor(type) {
-  if (isNgModule(type)) {
-    const scope = depsTracker.getNgModuleScope(type);
-    const def2 = getNgModuleDefOrThrow(type);
+function transitiveScopesFor(type2) {
+  if (isNgModule(type2)) {
+    const scope = depsTracker.getNgModuleScope(type2);
+    const def2 = getNgModuleDefOrThrow(type2);
     return __spreadValues({
       schemas: def2.schemas || null
     }, scope);
-  } else if (isStandalone(type)) {
-    const directiveDef = getComponentDef(type) || getDirectiveDef(type);
+  } else if (isStandalone(type2)) {
+    const directiveDef = getComponentDef(type2) || getDirectiveDef(type2);
     if (directiveDef !== null) {
       return {
         schemas: null,
@@ -22608,12 +22608,12 @@ function transitiveScopesFor(type) {
           pipes: /* @__PURE__ */ new Set()
         },
         exported: {
-          directives: /* @__PURE__ */ new Set([type]),
+          directives: /* @__PURE__ */ new Set([type2]),
           pipes: /* @__PURE__ */ new Set()
         }
       };
     }
-    const pipeDef = getPipeDef(type);
+    const pipeDef = getPipeDef(type2);
     if (pipeDef !== null) {
       return {
         schemas: null,
@@ -22623,12 +22623,12 @@ function transitiveScopesFor(type) {
         },
         exported: {
           directives: /* @__PURE__ */ new Set(),
-          pipes: /* @__PURE__ */ new Set([type])
+          pipes: /* @__PURE__ */ new Set([type2])
         }
       };
     }
   }
-  throw new Error(`${type.name} does not have a module def (\u0275mod property)`);
+  throw new Error(`${type2.name} does not have a module def (\u0275mod property)`);
 }
 function expandModuleWithProviders(value) {
   if (isModuleWithProviders(value)) {
@@ -22637,21 +22637,21 @@ function expandModuleWithProviders(value) {
   return value;
 }
 var compilationDepth = 0;
-function compileComponent(type, metadata2) {
+function compileComponent(type2, metadata2) {
   (typeof ngDevMode === "undefined" || ngDevMode) && initNgDevMode();
   let ngComponentDef = null;
-  maybeQueueResolutionOfComponentResources(type, metadata2);
-  addDirectiveFactoryDef(type, metadata2);
-  Object.defineProperty(type, NG_COMP_DEF, {
+  maybeQueueResolutionOfComponentResources(type2, metadata2);
+  addDirectiveFactoryDef(type2, metadata2);
+  Object.defineProperty(type2, NG_COMP_DEF, {
     get: () => {
       if (ngComponentDef === null) {
         const compiler = getCompilerFacade({
           usage: 0,
           kind: "component",
-          type
+          type: type2
         });
         if (componentNeedsResolution(metadata2)) {
-          const error2 = [`Component '${type.name}' is not resolved:`];
+          const error2 = [`Component '${type2.name}' is not resolved:`];
           if (metadata2.templateUrl) {
             error2.push(` - templateUrl: ${metadata2.templateUrl}`);
           }
@@ -22681,10 +22681,10 @@ function compileComponent(type, metadata2) {
             encapsulation = ViewEncapsulation.Emulated;
           }
         }
-        const templateUrl = metadata2.templateUrl || `ng:///${type.name}/template.html`;
-        const baseMeta = directiveMetadata(type, metadata2);
+        const templateUrl = metadata2.templateUrl || `ng:///${type2.name}/template.html`;
+        const baseMeta = directiveMetadata(type2, metadata2);
         const meta = __spreadProps(__spreadValues({}, baseMeta), {
-          typeSourceSpan: compiler.createParseSourceSpan("Component", type.name, templateUrl),
+          typeSourceSpan: compiler.createParseSourceSpan("Component", type2.name, templateUrl),
           template: metadata2.template || "",
           preserveWhitespaces,
           styles: typeof metadata2.styles === "string" ? [metadata2.styles] : metadata2.styles || EMPTY_ARRAY,
@@ -22698,7 +22698,7 @@ function compileComponent(type, metadata2) {
         compilationDepth++;
         try {
           if (meta.usesInheritance) {
-            addDirectiveDefToUndecoratedParents(type);
+            addDirectiveDefToUndecoratedParents(type2);
           }
           ngComponentDef = compiler.compileComponent(angularCoreEnv, templateUrl, meta);
           if (meta.isStandalone) {
@@ -22706,7 +22706,7 @@ function compileComponent(type, metadata2) {
             const {
               directiveDefs,
               pipeDefs
-            } = getStandaloneDefFunctions(type, imports);
+            } = getStandaloneDefFunctions(type2, imports);
             ngComponentDef.directiveDefs = directiveDefs;
             ngComponentDef.pipeDefs = pipeDefs;
             ngComponentDef.dependencies = () => imports.map(resolveForwardRef);
@@ -22717,15 +22717,15 @@ function compileComponent(type, metadata2) {
         if (compilationDepth === 0) {
           flushModuleScopingQueueAsMuchAsPossible();
         }
-        if (hasSelectorScope(type)) {
-          const scopes = transitiveScopesFor(type.ngSelectorScope);
+        if (hasSelectorScope(type2)) {
+          const scopes = transitiveScopesFor(type2.ngSelectorScope);
           patchComponentDefWithScope(ngComponentDef, scopes);
         }
         if (metadata2.schemas) {
           if (meta.isStandalone) {
             ngComponentDef.schemas = metadata2.schemas;
           } else {
-            throw new Error(`The 'schemas' was specified for the ${stringifyForError(type)} but is only valid on a component that is standalone.`);
+            throw new Error(`The 'schemas' was specified for the ${stringifyForError(type2)} but is only valid on a component that is standalone.`);
           }
         } else if (meta.isStandalone) {
           ngComponentDef.schemas = [];
@@ -22739,30 +22739,30 @@ function compileComponent(type, metadata2) {
     configurable: !!ngDevMode
   });
 }
-function getStandaloneDefFunctions(type, imports) {
+function getStandaloneDefFunctions(type2, imports) {
   const directiveDefs = () => {
     if (ngDevMode) {
       for (const rawDep of imports) {
-        verifyStandaloneImport(rawDep, type);
+        verifyStandaloneImport(rawDep, type2);
       }
     }
-    if (!isComponent(type)) {
+    if (!isComponent(type2)) {
       return [];
     }
-    const scope = depsTracker.getStandaloneComponentScope(type, imports);
-    return [...scope.compilation.directives].map((p2) => getComponentDef(p2) || getDirectiveDef(p2)).filter((d2) => d2 !== null);
+    const scope = depsTracker.getStandaloneComponentScope(type2, imports);
+    return [...scope.compilation.directives].map((p2) => getComponentDef(p2) || getDirectiveDef(p2)).filter((d) => d !== null);
   };
   const pipeDefs = () => {
     if (ngDevMode) {
       for (const rawDep of imports) {
-        verifyStandaloneImport(rawDep, type);
+        verifyStandaloneImport(rawDep, type2);
       }
     }
-    if (!isComponent(type)) {
+    if (!isComponent(type2)) {
       return [];
     }
-    const scope = depsTracker.getStandaloneComponentScope(type, imports);
-    return [...scope.compilation.pipes].map((p2) => getPipeDef(p2)).filter((d2) => d2 !== null);
+    const scope = depsTracker.getStandaloneComponentScope(type2, imports);
+    return [...scope.compilation.pipes].map((p2) => getPipeDef(p2)).filter((d) => d !== null);
   };
   return {
     directiveDefs,
@@ -22772,17 +22772,17 @@ function getStandaloneDefFunctions(type, imports) {
 function hasSelectorScope(component) {
   return component.ngSelectorScope !== void 0;
 }
-function compileDirective(type, directive) {
+function compileDirective(type2, directive) {
   let ngDirectiveDef = null;
-  addDirectiveFactoryDef(type, directive || {});
-  Object.defineProperty(type, NG_DIR_DEF, {
+  addDirectiveFactoryDef(type2, directive || {});
+  Object.defineProperty(type2, NG_DIR_DEF, {
     get: () => {
       if (ngDirectiveDef === null) {
-        const meta = getDirectiveMetadata(type, directive || {});
+        const meta = getDirectiveMetadata(type2, directive || {});
         const compiler = getCompilerFacade({
           usage: 0,
           kind: "directive",
-          type
+          type: type2
         });
         ngDirectiveDef = compiler.compileDirective(angularCoreEnv, meta.sourceMapUrl, meta.metadata);
       }
@@ -22791,40 +22791,40 @@ function compileDirective(type, directive) {
     configurable: !!ngDevMode
   });
 }
-function getDirectiveMetadata(type, metadata2) {
-  const name = type && type.name;
+function getDirectiveMetadata(type2, metadata2) {
+  const name = type2 && type2.name;
   const sourceMapUrl = `ng:///${name}/\u0275dir.js`;
   const compiler = getCompilerFacade({
     usage: 0,
     kind: "directive",
-    type
+    type: type2
   });
-  const facade = directiveMetadata(type, metadata2);
+  const facade = directiveMetadata(type2, metadata2);
   facade.typeSourceSpan = compiler.createParseSourceSpan("Directive", name, sourceMapUrl);
   if (facade.usesInheritance) {
-    addDirectiveDefToUndecoratedParents(type);
+    addDirectiveDefToUndecoratedParents(type2);
   }
   return {
     metadata: facade,
     sourceMapUrl
   };
 }
-function addDirectiveFactoryDef(type, metadata2) {
+function addDirectiveFactoryDef(type2, metadata2) {
   let ngFactoryDef = null;
-  Object.defineProperty(type, NG_FACTORY_DEF, {
+  Object.defineProperty(type2, NG_FACTORY_DEF, {
     get: () => {
       if (ngFactoryDef === null) {
-        const meta = getDirectiveMetadata(type, metadata2);
+        const meta = getDirectiveMetadata(type2, metadata2);
         const compiler = getCompilerFacade({
           usage: 0,
           kind: "directive",
-          type
+          type: type2
         });
-        ngFactoryDef = compiler.compileFactory(angularCoreEnv, `ng:///${type.name}/\u0275fac.js`, {
+        ngFactoryDef = compiler.compileFactory(angularCoreEnv, `ng:///${type2.name}/\u0275fac.js`, {
           name: meta.metadata.name,
           type: meta.metadata.type,
           typeArgumentCount: 0,
-          deps: reflectDependencies(type),
+          deps: reflectDependencies(type2),
           target: compiler.FactoryTarget.Directive
         });
       }
@@ -22833,33 +22833,33 @@ function addDirectiveFactoryDef(type, metadata2) {
     configurable: !!ngDevMode
   });
 }
-function extendsDirectlyFromObject(type) {
-  return Object.getPrototypeOf(type.prototype) === Object.prototype;
+function extendsDirectlyFromObject(type2) {
+  return Object.getPrototypeOf(type2.prototype) === Object.prototype;
 }
-function directiveMetadata(type, metadata2) {
+function directiveMetadata(type2, metadata2) {
   const reflect = getReflect();
-  const propMetadata = reflect.ownPropMetadata(type);
+  const propMetadata = reflect.ownPropMetadata(type2);
   return {
-    name: type.name,
+    name: type2.name,
     legacyOptionalChaining: false,
-    type,
+    type: type2,
     selector: metadata2.selector !== void 0 ? metadata2.selector : null,
     host: metadata2.host || EMPTY_OBJ,
     propMetadata,
     inputs: metadata2.inputs || EMPTY_ARRAY,
     outputs: metadata2.outputs || EMPTY_ARRAY,
-    queries: extractQueriesMetadata(type, propMetadata, isContentQuery),
+    queries: extractQueriesMetadata(type2, propMetadata, isContentQuery),
     lifecycle: {
-      usesOnChanges: reflect.hasLifecycleHook(type, "ngOnChanges")
+      usesOnChanges: reflect.hasLifecycleHook(type2, "ngOnChanges")
     },
-    controlCreate: reflect.hasLifecycleHook(type, "\u0275ngControlCreate") ? {
+    controlCreate: reflect.hasLifecycleHook(type2, "\u0275ngControlCreate") ? {
       passThroughInput: null
     } : null,
     typeSourceSpan: null,
-    usesInheritance: !extendsDirectlyFromObject(type),
+    usesInheritance: !extendsDirectlyFromObject(type2),
     exportAs: extractExportAs(metadata2.exportAs),
     providers: metadata2.providers || null,
-    viewQueries: extractQueriesMetadata(type, propMetadata, isViewQuery),
+    viewQueries: extractQueriesMetadata(type2, propMetadata, isViewQuery),
     isStandalone: metadata2.standalone === void 0 ? true : !!metadata2.standalone,
     isSignal: !!metadata2.signals,
     hostDirectives: metadata2.hostDirectives?.map((directive) => typeof directive === "function" ? {
@@ -22867,9 +22867,9 @@ function directiveMetadata(type, metadata2) {
     } : directive) || null
   };
 }
-function addDirectiveDefToUndecoratedParents(type) {
+function addDirectiveDefToUndecoratedParents(type2) {
   const objPrototype = Object.prototype;
-  let parent = Object.getPrototypeOf(type.prototype).constructor;
+  let parent = Object.getPrototypeOf(type2.prototype).constructor;
   while (parent && parent !== objPrototype) {
     if (!getDirectiveDef(parent) && !getComponentDef(parent) && shouldAddAbstractDirective(parent)) {
       compileDirective(parent, null);
@@ -22892,7 +22892,7 @@ function convertToR3QueryMetadata(propertyName, ann) {
     isSignal: !!ann.isSignal
   };
 }
-function extractQueriesMetadata(type, propMetadata, isQueryAnn) {
+function extractQueriesMetadata(type2, propMetadata, isQueryAnn) {
   const signalQueriesMeta = [];
   const decoratorQueriesMeta = [];
   for (const field in propMetadata) {
@@ -22901,7 +22901,7 @@ function extractQueriesMetadata(type, propMetadata, isQueryAnn) {
       annotations.forEach((ann) => {
         if (isQueryAnn(ann)) {
           if (!ann.selector) {
-            throw new Error(`Can't construct a query for the property "${field}" of "${stringifyForError(type)}" since the query selector wasn't defined.`);
+            throw new Error(`Can't construct a query for the property "${field}" of "${stringifyForError(type2)}" since the query selector wasn't defined.`);
           }
           if (annotations.some(isInputAnnotation)) {
             throw new Error(`Cannot combine @Input decorators with query decorators`);
@@ -22936,12 +22936,12 @@ function splitByComma(value) {
   return value.split(",").map((piece) => piece.trim());
 }
 var LIFECYCLE_HOOKS = ["ngOnChanges", "ngOnInit", "ngOnDestroy", "ngDoCheck", "ngAfterViewInit", "ngAfterViewChecked", "ngAfterContentInit", "ngAfterContentChecked"];
-function shouldAddAbstractDirective(type) {
+function shouldAddAbstractDirective(type2) {
   const reflect = getReflect();
-  if (LIFECYCLE_HOOKS.some((hookName) => reflect.hasLifecycleHook(type, hookName))) {
+  if (LIFECYCLE_HOOKS.some((hookName) => reflect.hasLifecycleHook(type2, hookName))) {
     return true;
   }
-  const propMetadata = reflect.propMetadata(type);
+  const propMetadata = reflect.propMetadata(type2);
   for (const field in propMetadata) {
     const annotations = propMetadata[field];
     for (let i = 0; i < annotations.length; i++) {
@@ -22954,13 +22954,13 @@ function shouldAddAbstractDirective(type) {
   }
   return false;
 }
-function compilePipe(type, meta) {
+function compilePipe(type2, meta) {
   let ngPipeDef = null;
   let ngFactoryDef = null;
-  Object.defineProperty(type, NG_FACTORY_DEF, {
+  Object.defineProperty(type2, NG_FACTORY_DEF, {
     get: () => {
       if (ngFactoryDef === null) {
-        const metadata2 = getPipeMetadata(type, meta);
+        const metadata2 = getPipeMetadata(type2, meta);
         const compiler = getCompilerFacade({
           usage: 0,
           kind: "pipe",
@@ -22970,7 +22970,7 @@ function compilePipe(type, meta) {
           name: metadata2.name,
           type: metadata2.type,
           typeArgumentCount: 0,
-          deps: reflectDependencies(type),
+          deps: reflectDependencies(type2),
           target: compiler.FactoryTarget.Pipe
         });
       }
@@ -22978,10 +22978,10 @@ function compilePipe(type, meta) {
     },
     configurable: !!ngDevMode
   });
-  Object.defineProperty(type, NG_PIPE_DEF, {
+  Object.defineProperty(type2, NG_PIPE_DEF, {
     get: () => {
       if (ngPipeDef === null) {
-        const metadata2 = getPipeMetadata(type, meta);
+        const metadata2 = getPipeMetadata(type2, meta);
         const compiler = getCompilerFacade({
           usage: 0,
           kind: "pipe",
@@ -22994,22 +22994,22 @@ function compilePipe(type, meta) {
     configurable: !!ngDevMode
   });
 }
-function getPipeMetadata(type, meta) {
+function getPipeMetadata(type2, meta) {
   return {
-    type,
-    name: type.name,
+    type: type2,
+    name: type2.name,
     pipeName: meta.name,
     pure: meta.pure !== void 0 ? meta.pure : true,
     isStandalone: meta.standalone === void 0 ? true : !!meta.standalone
   };
 }
-var Directive = makeDecorator("Directive", (dir = {}) => dir, void 0, void 0, (type, meta) => compileDirective(type, meta));
+var Directive = makeDecorator("Directive", (dir = {}) => dir, void 0, void 0, (type2, meta) => compileDirective(type2, meta));
 var Component = makeDecorator("Component", (c2 = {}) => __spreadValues({
   changeDetection: ChangeDetectionStrategy.Eager
-}, c2), Directive, void 0, (type, meta) => compileComponent(type, meta));
+}, c2), Directive, void 0, (type2, meta) => compileComponent(type2, meta));
 var Pipe = makeDecorator("Pipe", (p2) => __spreadValues({
   pure: true
-}, p2), void 0, void 0, (type, meta) => compilePipe(type, meta));
+}, p2), void 0, void 0, (type2, meta) => compilePipe(type2, meta));
 var Input = makePropDecorator("Input", (arg) => {
   if (!arg) {
     return {};
@@ -23028,7 +23028,7 @@ var HostListener = makePropDecorator("HostListener", (eventName, args) => ({
   eventName,
   args
 }));
-var NgModule = makeDecorator("NgModule", (ngModule) => ngModule, void 0, void 0, (type, meta) => compileNgModule(type, meta));
+var NgModule = makeDecorator("NgModule", (ngModule) => ngModule, void 0, void 0, (type2, meta) => compileNgModule(type2, meta));
 var CONSECUTIVE_MICROTASK_NOTIFICATION_LIMIT = 100;
 var consecutiveMicrotaskNotifications = 0;
 var stackFromLastFewNotifications = [];
@@ -23252,7 +23252,7 @@ var Compiler = class _Compiler {
   }
   clearCache() {
   }
-  clearCacheFor(type) {
+  clearCacheFor(type2) {
   }
   getModuleId(moduleType) {
     return void 0;
@@ -24743,7 +24743,7 @@ var IterableDiffers = class _IterableDiffers {
     };
   }
   find(iterable) {
-    const factory = this.factories.find((f) => f.supports(iterable));
+    const factory = this.factories.find((f2) => f2.supports(iterable));
     if (factory != null) {
       return factory;
     } else {
@@ -24751,8 +24751,8 @@ var IterableDiffers = class _IterableDiffers {
     }
   }
 };
-function getTypeNameForDebugging(type) {
-  return type["name"] || typeof type;
+function getTypeNameForDebugging(type2) {
+  return type2["name"] || typeof type2;
 }
 function defaultKeyValueDiffersFactory() {
   return new KeyValueDiffers([new DefaultKeyValueDifferFactory()]);
@@ -24787,7 +24787,7 @@ var KeyValueDiffers = class _KeyValueDiffers {
     };
   }
   find(kv) {
-    const factory = this.factories.find((f) => f.supports(kv));
+    const factory = this.factories.find((f2) => f2.supports(kv));
     if (factory) {
       return factory;
     }
@@ -25164,7 +25164,7 @@ function setModuleBootstrapImpl() {
 function _moduleDoBootstrap(moduleRef, allPlatformModules) {
   const appRef = moduleRef.injector.get(ApplicationRef);
   if (moduleRef._bootstrapComponents.length > 0) {
-    moduleRef._bootstrapComponents.forEach((f) => appRef.bootstrap(f));
+    moduleRef._bootstrapComponents.forEach((f2) => appRef.bootstrap(f2));
   } else if (moduleRef.instance.ngDoBootstrap) {
     moduleRef.instance.ngDoBootstrap(appRef);
   } else {
@@ -26735,9 +26735,9 @@ function getLocaleNumberSymbol(locale, symbol) {
   }
   return res;
 }
-function getLocaleNumberFormat(locale, type) {
+function getLocaleNumberFormat(locale, type2) {
   const data = findLocaleData(locale);
-  return data[LocaleDataIndex.NumberFormats][type];
+  return data[LocaleDataIndex.NumberFormats][type2];
 }
 function getLocaleCurrencies(locale) {
   const data = findLocaleData(locale);
@@ -26776,9 +26776,9 @@ function getLastDefinedValue(data, index) {
   throw new RuntimeError(2304, ngDevMode && "Locale data API: locale data undefined");
 }
 function extractTime(time) {
-  const [h2, m2] = time.split(":");
+  const [h3, m2] = time.split(":");
   return {
-    hours: +h2,
+    hours: +h3,
     minutes: +m2
   };
 }
@@ -27325,8 +27325,8 @@ function toDate(value) {
   if (typeof value === "string") {
     value = value.trim();
     if (/^(\d{4}(-\d{1,2}(-\d{1,2})?)?)$/.test(value)) {
-      const [y, m2 = 1, d2 = 1] = value.split("-").map((val) => +val);
-      return createDate(y, m2 - 1, d2);
+      const [y, m2 = 1, d = 1] = value.split("-").map((val) => +val);
+      return createDate(y, m2 - 1, d);
     }
     const parsedNb = parseFloat(value);
     if (!isNaN(value - parsedNb)) {
@@ -27354,11 +27354,11 @@ function isoStringToDate(match3) {
     tzMin = Number(match3[9] + match3[11]);
   }
   dateSetter.call(date, Number(match3[1]), Number(match3[2]) - 1, Number(match3[3]));
-  const h2 = Number(match3[4] || 0) - tzHour;
+  const h3 = Number(match3[4] || 0) - tzHour;
   const m2 = Number(match3[5] || 0) - tzMin;
   const s = Number(match3[6] || 0);
   const ms = Math.floor(parseFloat("0." + (match3[7] || 0)) * 1e3);
-  timeSetter.call(date, h2, m2, s, ms);
+  timeSetter.call(date, h3, m2, s, ms);
   return date;
 }
 function isDate(value) {
@@ -27415,7 +27415,7 @@ function formatNumberToLocaleString(value, pattern, locale, groupSymbol, decimal
     let integerLen = parsedNumber.integerLen;
     const exponent = parsedNumber.exponent;
     let decimals = [];
-    isZero = digits.every((d2) => !d2);
+    isZero = digits.every((d) => !d);
     for (; integerLen < minInt; integerLen++) {
       digits.unshift(0);
     }
@@ -27604,9 +27604,9 @@ function roundNumber(parsedNumber, minFrac, maxFrac) {
   for (; fractionLen < Math.max(0, fractionSize); fractionLen++) digits.push(0);
   let dropTrailingZeros = fractionSize !== 0;
   const minLen = minFrac + parsedNumber.integerLen;
-  const carry = digits.reduceRight(function(carry2, d2, i, digits2) {
-    d2 = d2 + carry2;
-    digits2[i] = d2 < 10 ? d2 : d2 - 10;
+  const carry = digits.reduceRight(function(carry2, d, i, digits2) {
+    d = d + carry2;
+    digits2[i] = d < 10 ? d : d - 10;
     if (dropTrailingZeros) {
       if (digits2[i] === 0 && i >= minLen) {
         digits2.pop();
@@ -27614,7 +27614,7 @@ function roundNumber(parsedNumber, minFrac, maxFrac) {
         dropTrailingZeros = false;
       }
     }
-    return d2 >= 10 ? 1 : 0;
+    return d >= 10 ? 1 : 0;
   }, 0);
   if (carry) {
     digits.unshift(carry);
@@ -28088,8 +28088,8 @@ var NgForOf = class _NgForOf {
 function applyViewChange(view, record) {
   view.context.$implicit = record.item;
 }
-function getTypeName(type) {
-  return type["name"] || typeof type;
+function getTypeName(type2) {
+  return type2["name"] || typeof type2;
 }
 var NgIf = class _NgIf {
   _viewContainer;
@@ -28603,8 +28603,8 @@ var NgTemplateOutlet = class _NgTemplateOutlet {
   });
 })();
 var COMMON_DIRECTIVES = [NgClass, NgComponentOutlet, NgForOf, NgIf, NgTemplateOutlet, NgStyle, NgSwitch, NgSwitchCase, NgSwitchDefault, NgPlural, NgPluralCase];
-function invalidPipeArgumentError(type, value) {
-  return new RuntimeError(2100, ngDevMode && `InvalidPipeArgument: '${value}' for pipe '${stringify(type)}'`);
+function invalidPipeArgumentError(type2, value) {
+  return new RuntimeError(2100, ngDevMode && `InvalidPipeArgument: '${value}' for pipe '${stringify(type2)}'`);
 }
 function warnIfSignal(pipeName, value) {
   if (isSignal2(value)) {
@@ -30929,16 +30929,16 @@ var DomRendererFactory2 = class _DomRendererFactory2 {
     this.tracingService = tracingService;
     this.defaultRenderer = new DefaultDomRenderer2(eventManager, doc, ngZone, this.tracingService);
   }
-  createRenderer(element, type) {
-    if (!element || !type) {
+  createRenderer(element, type2) {
+    if (!element || !type2) {
       return this.defaultRenderer;
     }
     if (false) {
-      type = __spreadProps(__spreadValues({}, type), {
+      type2 = __spreadProps(__spreadValues({}, type2), {
         encapsulation: ViewEncapsulation.Emulated
       });
     }
-    const renderer = this.getOrCreateRenderer(element, type);
+    const renderer = this.getOrCreateRenderer(element, type2);
     if (renderer instanceof EmulatedEncapsulationDomRenderer2) {
       renderer.applyToHost(element);
     } else if (renderer instanceof NoneEncapsulationDomRenderer) {
@@ -30946,9 +30946,9 @@ var DomRendererFactory2 = class _DomRendererFactory2 {
     }
     return renderer;
   }
-  getOrCreateRenderer(element, type) {
+  getOrCreateRenderer(element, type2) {
     const rendererByCompId = this.rendererByCompId;
-    let renderer = rendererByCompId.get(type.id);
+    let renderer = rendererByCompId.get(type2.id);
     if (!renderer) {
       const doc = this.doc;
       const ngZone = this.ngZone;
@@ -30956,19 +30956,19 @@ var DomRendererFactory2 = class _DomRendererFactory2 {
       const sharedStylesHost = this.sharedStylesHost;
       const removeStylesOnCompDestroy = this.removeStylesOnCompDestroy;
       const tracingService = this.tracingService;
-      switch (type.encapsulation) {
+      switch (type2.encapsulation) {
         case ViewEncapsulation.Emulated:
-          renderer = new EmulatedEncapsulationDomRenderer2(eventManager, sharedStylesHost, type, this.appId, removeStylesOnCompDestroy, doc, ngZone, tracingService);
+          renderer = new EmulatedEncapsulationDomRenderer2(eventManager, sharedStylesHost, type2, this.appId, removeStylesOnCompDestroy, doc, ngZone, tracingService);
           break;
         case ViewEncapsulation.ShadowDom:
-          return new ShadowDomRenderer(eventManager, element, type, doc, ngZone, this.nonce, tracingService, sharedStylesHost);
+          return new ShadowDomRenderer(eventManager, element, type2, doc, ngZone, this.nonce, tracingService, sharedStylesHost);
         case ViewEncapsulation.ExperimentalIsolatedShadowDom:
-          return new ShadowDomRenderer(eventManager, element, type, doc, ngZone, this.nonce, tracingService);
+          return new ShadowDomRenderer(eventManager, element, type2, doc, ngZone, this.nonce, tracingService);
         default:
-          renderer = new NoneEncapsulationDomRenderer(eventManager, sharedStylesHost, type, removeStylesOnCompDestroy, doc, ngZone, tracingService);
+          renderer = new NoneEncapsulationDomRenderer(eventManager, sharedStylesHost, type2, removeStylesOnCompDestroy, doc, ngZone, tracingService);
           break;
       }
-      rendererByCompId.set(type.id, renderer);
+      rendererByCompId.set(type2.id, renderer);
     }
     return renderer;
   }
@@ -33490,7 +33490,7 @@ function makeHttpFeature(kind, providers) {
 }
 function provideHttpClient(...features) {
   if (ngDevMode) {
-    const featureKinds = new Set(features.map((f) => f.\u0275kind));
+    const featureKinds = new Set(features.map((f2) => f2.\u0275kind));
     if (featureKinds.has(HttpFeatureKind.NoXsrfProtection) && featureKinds.has(HttpFeatureKind.CustomXsrfConfiguration)) {
       throw new Error(ngDevMode ? `Configuration error: found both withXsrfConfiguration() and withNoXsrfProtection() in the same call to provideHttpClient(), which is a contradiction.` : "");
     }
@@ -35705,7 +35705,7 @@ var ActivatedRoute = class {
     this.outlet = outlet;
     this.component = component;
     this._futureSnapshot = futureSnapshot;
-    this.title = this.dataSubject?.pipe(map((d2) => d2[RouteTitleKey])) ?? of(void 0);
+    this.title = this.dataSubject?.pipe(map((d) => d[RouteTitleKey])) ?? of(void 0);
     this.url = urlSubject;
     this.params = paramsSubject;
     this.queryParams = queryParamsSubject;
@@ -36665,10 +36665,10 @@ function runCanActivate(futureRSS, futureARS) {
 function runCanActivateChild(futureRSS, path) {
   const futureARS = path[path.length - 1];
   const canActivateChildGuards = path.slice(0, path.length - 1).reverse().map((p2) => getCanActivateChild(p2)).filter((_2) => _2 !== null);
-  const canActivateChildGuardsMapped = canActivateChildGuards.map((d2) => {
+  const canActivateChildGuardsMapped = canActivateChildGuards.map((d) => {
     return defer(() => {
-      const guardsMapped = d2.guards.map((canActivateChild) => {
-        const closestInjector = d2.node._environmentInjector;
+      const guardsMapped = d.guards.map((canActivateChild) => {
+        const closestInjector = d.node._environmentInjector;
         const guard = getTokenOrFunctionIdentity(canActivateChild, closestInjector);
         const guardVal = isCanActivateChild(guard) ? guard.canActivateChild(futureARS, futureRSS) : runInInjectionContext(closestInjector, () => guard(futureARS, futureRSS));
         return wrapIntoObservable(guardVal).pipe(first());
@@ -38007,11 +38007,11 @@ var NavigationTransitions = class _NavigationTransitions {
               this.events.next(navigationError);
               throw e;
             }
-          } catch (ee) {
+          } catch (ee2) {
             if (this.options.resolveNavigationPromiseOnError) {
               overallTransitionState.resolve(false);
             } else {
-              overallTransitionState.reject(ee);
+              overallTransitionState.reject(ee2);
             }
           }
         }
@@ -38473,7 +38473,7 @@ var Router = class _Router {
       queryParamsHandling,
       preserveFragment
     } = navigationExtras;
-    const f = preserveFragment ? this.currentUrlTree.fragment : fragment;
+    const f2 = preserveFragment ? this.currentUrlTree.fragment : fragment;
     let q = null;
     switch (queryParamsHandling ?? this.options.defaultQueryParamsHandling) {
       case "merge":
@@ -38498,7 +38498,7 @@ var Router = class _Router {
       }
       relativeToUrlSegmentGroup = this.currentUrlTree.root;
     }
-    return createUrlTreeFromSegmentGroup(relativeToUrlSegmentGroup, commands, q, f ?? null, this.urlSerializer);
+    return createUrlTreeFromSegmentGroup(relativeToUrlSegmentGroup, commands, q, f2 ?? null, this.urlSerializer);
   }
   navigateByUrl(url, extras = {
     skipLocationChange: false
@@ -43481,8 +43481,8 @@ function elementAcceptsMinMax(element) {
   if (element.tagName !== "INPUT") {
     return false;
   }
-  const type = element.type;
-  return type === "number" || type === "range" || type === "date" || type === "month";
+  const type2 = element.type;
+  return type2 === "number" || type2 === "range" || type2 === "date" || type2 === "month";
 }
 function isTextualFormElement(element) {
   return element.tagName === "INPUT" || element.tagName === "TEXTAREA";
@@ -44157,11 +44157,11 @@ function removeListItem$1(list2, el2) {
   const index = list2.indexOf(el2);
   if (index > -1) list2.splice(index, 1);
 }
-function _ngModelWarning(name, type, instance, warningConfig) {
+function _ngModelWarning(name, type2, instance, warningConfig) {
   if (warningConfig === "never") return;
-  if ((warningConfig === null || warningConfig === "once") && !type._ngModelWarningSentOnce || warningConfig === "always" && !instance._ngModelWarningSent) {
+  if ((warningConfig === null || warningConfig === "once") && !type2._ngModelWarningSentOnce || warningConfig === "always" && !instance._ngModelWarningSent) {
     console.warn(ngModelWarning(name));
-    type._ngModelWarningSentOnce = true;
+    type2._ngModelWarningSentOnce = true;
     instance._ngModelWarningSent = true;
   }
 }
@@ -47730,10 +47730,10 @@ function validateTime(hours, minutes, seconds) {
 function toZonedTime(date, timeZone, options2) {
   date = toDate3(date, options2);
   const offsetMilliseconds = tzParseTimezone(timeZone, date, true);
-  const d2 = new Date(date.getTime() - offsetMilliseconds);
+  const d = new Date(date.getTime() - offsetMilliseconds);
   const resultDate = /* @__PURE__ */ new Date(0);
-  resultDate.setFullYear(d2.getUTCFullYear(), d2.getUTCMonth(), d2.getUTCDate());
-  resultDate.setHours(d2.getUTCHours(), d2.getUTCMinutes(), d2.getUTCSeconds(), d2.getUTCMilliseconds());
+  resultDate.setFullYear(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
+  resultDate.setHours(d.getUTCHours(), d.getUTCMinutes(), d.getUTCSeconds(), d.getUTCMilliseconds());
   return resultDate;
 }
 
@@ -47989,6 +47989,7 @@ var SIGNAGE_MANAGER = {
   PLAYLIST_COUNT_LABEL_N: "{{ count }} playlists",
   PLAYLIST_DESCRIPTION_ARIA: "Playlist description",
   PLAYLIST_DETAILS_TABS: "Playlist details tabs",
+  PLAYLIST_DISTRIBUTION: "Distribution Playlist",
   PLAYLIST_EDIT: "Edit Playlist",
   PLAYLIST_LABEL: "Playlist",
   PLAYLIST_NAME_ARIA: "Playlist name",
@@ -48036,6 +48037,9 @@ var SIGNAGE_MANAGER = {
   REQUEST_APPROVAL_SELECTED: "Request approval for selected playlist",
   REQUEST_PLAYLIST_APPROVAL_TOOLTIP: "Request playlist approval",
   SCHEDULE: "Schedule",
+  EDIT_SCHEDULE: "Edit Schedule",
+  ITEM_SCHEDULES: "Item Schedules",
+  NO_SCHEDULES: "No schedules",
   SCHEDULES_SUBTITLE: "Daily schedule timelines for signage displays and zones.",
   SCHEDULE_INTERVAL_ARIA: "Recurring schedule interval",
   SCHEDULE_NUMBER: "Schedule {{ number }}",
@@ -48413,6 +48417,7 @@ var COMMON = {
   BUILDING_ANY: "Any Building",
   BUILDING_ALL: "All Buildings",
   LEVEL_ANY: "Any Level",
+  LAST_UPDATED: "Updated {{ time }}",
   LEVEL_ALL: "All Levels",
   LEVEL_EMPTY: "No Level",
   ROOM_EMPTY: "No Room",
@@ -48926,6 +48931,7 @@ var BOOKINGS = {
   PARKING_SPACE_RESTRICTIONS_TITLE: "Space Restrictions",
   PARKING_SPACE_RESTRICTIONS_DESC: "Select any restrictions that apply to your vehicle or parking needs.",
   PARKING_RESTRICTION_NONE: "None",
+  PARKING_SPACE_RESTRICTION_REQUIRED: "Select a parking restriction other than None.",
   PARKING_RESTRICTION_OVERSIZED: "Requires oversized space",
   PARKING_SUMMARY_TITLE: "Summary + Submission",
   PARKING_ALLOCATION_INFO: "Allocation of parking spaces for the following week will occur the <strong>Friday afternoon prior</strong>. Requests received after allocation has occurred will automatically be <strong>waitlisted</strong> until a suitable space becomes available.",
@@ -49474,7 +49480,7 @@ var APP = {
     MENU_REPORT_ROOMS: "Room Bookings",
     MENU_REPORT_SITE_ATTENDANCE: "Site Attendance",
     MENU_REPORT_DESKS: "Desk Bookings",
-    MENU_REPORT_PARKING: "Parking Reservations",
+    MENU_REPORT_PARKING: "Parking Bookings",
     MENU_REPORT_LOCKERS: "Locker Bookings",
     MENU_REPORT_CATERING: "Catering Orders",
     MENU_REPORT_CONTACT_TRACING: "Contact Tracing",
@@ -49511,6 +49517,7 @@ var APP = {
     DESKS_NAME: "Desk Name",
     DESKS_SAVING: "Saving desk details...",
     DESKS_SAVE_ERROR: "Failed to save desk details. Error: {{ error }}",
+    DESKS_SELECT_LEVEL: "Select a level before modifying desks.",
     DESKS_ASSIGN_CONFLICT_ERROR: "This desk is currently booked. Please cancel the existing booking before assigning it.",
     DESKS_ASSIGN_LIMIT_ERROR_1: "Users can only have 1 assigned desk at a time.",
     DESKS_ASSIGN_LIMIT_ERROR_N: "Users can only have {{ count }} assigned desks at a time.",
@@ -50388,6 +50395,9 @@ var APP = {
     REPORTS_PRINT: "Print Report",
     REPORTS_EMPTY: "Select level(s) and date range to generate the report",
     REPORTS_BUSINESS_DAYS: "Business Days",
+    REPORTS_ALLOCATIONS: "Allocations",
+    REPORTS_REJECTED: "Rejected",
+    REPORTS_CANCELLED: "Cancelled",
     REPORTS_TOTAL_BOOKINGS: "Total Bookings",
     REPORTS_TOTAL_SITE_ATTENDANCE: "Total Site Attendance",
     REPORTS_TOTAL_RESERVATIONS: "Requests",
@@ -50399,9 +50409,6 @@ var APP = {
     REPORTS_NO_SHOWS_PERCENT: "% of No shows",
     REPORTS_TOTAL_ATTENDEES: "Total Room Attendees",
     REPORTS_ACTIVE_BOOKINGS_HEADER: "Active Bookings",
-    REPORTS_ALLOCATIONS: "Allocations",
-    REPORTS_REJECTED: "Rejected",
-    REPORTS_CANCELLED: "Cancelled",
     REPORTS_DAILY_HEADER: "Daily Utilisation",
     REPORTS_DAILY_EMPTY: "No bookings for the select date range",
     REPORTS_APPROVED: "Approved Bookings",
@@ -51031,7 +51038,7 @@ function Yn(t) {
     e += ue[t[n - 2] >> 2], e += ue[(t[n - 2] & 3) << 4 | t[n - 1] >> 4], e += ue[(t[n - 1] & 15) << 2 | t[n] >> 6], e += ue[t[n] & 63];
   return n === s + 1 && (e += ue[t[n - 2] >> 2], e += ue[(t[n - 2] & 3) << 4], e += "=="), n === s && (e += ue[t[n - 2] >> 2], e += ue[(t[n - 2] & 3) << 4 | t[n - 1] >> 4], e += ue[(t[n - 1] & 15) << 2], e += "="), e;
 }
-function Hs(t) {
+function zs(t) {
   if (t.length % 4 !== 0)
     throw new Error("Unable to parse base64 string.");
   const e = t.indexOf("=");
@@ -51042,13 +51049,13 @@ function Hs(t) {
     r = bt(t.charCodeAt(o)) << 18 | bt(t.charCodeAt(o + 1)) << 12 | bt(t.charCodeAt(o + 2)) << 6 | bt(t.charCodeAt(o + 3)), i[a] = r >> 16, i[a + 1] = r >> 8 & 255, i[a + 2] = r & 255;
   return i.subarray(0, i.length - n);
 }
-function zs(t, e = new TextEncoder()) {
+function Fs(t, e = new TextEncoder()) {
   return Yn(e.encode(t));
 }
 var vt = { exports: {} };
-var Fs = vt.exports;
+var Ls = vt.exports;
 var Fn;
-function Ls() {
+function js() {
   return Fn || (Fn = 1, (function(t) {
     (function(e, n) {
       var s = {};
@@ -51057,7 +51064,7 @@ function Ls() {
       for (var r in s)
         i[r] = s[r];
       t.exports = i;
-    })(Fs, function(e) {
+    })(Ls, function(e) {
       e.__esModule = true, e.digestLength = 32, e.blockSize = 64;
       var n = new Uint32Array([
         1116352408,
@@ -51125,17 +51132,17 @@ function Ls() {
         3204031479,
         3329325298
       ]);
-      function s(v, c2, h2, f, M2) {
+      function s(v, c2, l, d, M2) {
         for (var x, R2, k, Q2, D2, E2, se, H2, j, z, Be, We, $t; M2 >= 64; ) {
           for (x = c2[0], R2 = c2[1], k = c2[2], Q2 = c2[3], D2 = c2[4], E2 = c2[5], se = c2[6], H2 = c2[7], z = 0; z < 16; z++)
-            Be = f + z * 4, v[z] = (h2[Be] & 255) << 24 | (h2[Be + 1] & 255) << 16 | (h2[Be + 2] & 255) << 8 | h2[Be + 3] & 255;
+            Be = d + z * 4, v[z] = (l[Be] & 255) << 24 | (l[Be + 1] & 255) << 16 | (l[Be + 2] & 255) << 8 | l[Be + 3] & 255;
           for (z = 16; z < 64; z++)
             j = v[z - 2], We = (j >>> 17 | j << 15) ^ (j >>> 19 | j << 13) ^ j >>> 10, j = v[z - 15], $t = (j >>> 7 | j << 25) ^ (j >>> 18 | j << 14) ^ j >>> 3, v[z] = (We + v[z - 7] | 0) + ($t + v[z - 16] | 0);
           for (z = 0; z < 64; z++)
             We = (((D2 >>> 6 | D2 << 26) ^ (D2 >>> 11 | D2 << 21) ^ (D2 >>> 25 | D2 << 7)) + (D2 & E2 ^ ~D2 & se) | 0) + (H2 + (n[z] + v[z] | 0) | 0) | 0, $t = ((x >>> 2 | x << 30) ^ (x >>> 13 | x << 19) ^ (x >>> 22 | x << 10)) + (x & R2 ^ x & k ^ R2 & k) | 0, H2 = se, se = E2, E2 = D2, D2 = Q2 + We | 0, Q2 = k, k = R2, R2 = x, x = We + $t | 0;
-          c2[0] += x, c2[1] += R2, c2[2] += k, c2[3] += Q2, c2[4] += D2, c2[5] += E2, c2[6] += se, c2[7] += H2, f += 64, M2 -= 64;
+          c2[0] += x, c2[1] += R2, c2[2] += k, c2[3] += Q2, c2[4] += D2, c2[5] += E2, c2[6] += se, c2[7] += H2, d += 64, M2 -= 64;
         }
-        return f;
+        return d;
       }
       var i = (
         /** @class */
@@ -51151,23 +51158,23 @@ function Ls() {
             for (var c2 = 0; c2 < this.temp.length; c2++)
               this.temp[c2] = 0;
             this.reset();
-          }, v.prototype.update = function(c2, h2) {
-            if (h2 === void 0 && (h2 = c2.length), this.finished)
+          }, v.prototype.update = function(c2, l) {
+            if (l === void 0 && (l = c2.length), this.finished)
               throw new Error("SHA256: can't update because hash was finished.");
-            var f = 0;
-            if (this.bytesHashed += h2, this.bufferLength > 0) {
-              for (; this.bufferLength < 64 && h2 > 0; )
-                this.buffer[this.bufferLength++] = c2[f++], h2--;
+            var d = 0;
+            if (this.bytesHashed += l, this.bufferLength > 0) {
+              for (; this.bufferLength < 64 && l > 0; )
+                this.buffer[this.bufferLength++] = c2[d++], l--;
               this.bufferLength === 64 && (s(this.temp, this.state, this.buffer, 0, 64), this.bufferLength = 0);
             }
-            for (h2 >= 64 && (f = s(this.temp, this.state, c2, f, h2), h2 %= 64); h2 > 0; )
-              this.buffer[this.bufferLength++] = c2[f++], h2--;
+            for (l >= 64 && (d = s(this.temp, this.state, c2, d, l), l %= 64); l > 0; )
+              this.buffer[this.bufferLength++] = c2[d++], l--;
             return this;
           }, v.prototype.finish = function(c2) {
             if (!this.finished) {
-              var h2 = this.bytesHashed, f = this.bufferLength, M2 = h2 / 536870912 | 0, x = h2 << 3, R2 = h2 % 64 < 56 ? 64 : 128;
-              this.buffer[f] = 128;
-              for (var k = f + 1; k < R2 - 8; k++)
+              var l = this.bytesHashed, d = this.bufferLength, M2 = l / 536870912 | 0, x = l << 3, R2 = l % 64 < 56 ? 64 : 128;
+              this.buffer[d] = 128;
+              for (var k = d + 1; k < R2 - 8; k++)
                 this.buffer[k] = 0;
               this.buffer[R2 - 8] = M2 >>> 24 & 255, this.buffer[R2 - 7] = M2 >>> 16 & 255, this.buffer[R2 - 6] = M2 >>> 8 & 255, this.buffer[R2 - 5] = M2 >>> 0 & 255, this.buffer[R2 - 4] = x >>> 24 & 255, this.buffer[R2 - 3] = x >>> 16 & 255, this.buffer[R2 - 2] = x >>> 8 & 255, this.buffer[R2 - 1] = x >>> 0 & 255, s(this.temp, this.state, this.buffer, 0, R2), this.finished = true;
             }
@@ -51178,12 +51185,12 @@ function Ls() {
             var c2 = new Uint8Array(this.digestLength);
             return this.finish(c2), c2;
           }, v.prototype._saveState = function(c2) {
-            for (var h2 = 0; h2 < this.state.length; h2++)
-              c2[h2] = this.state[h2];
-          }, v.prototype._restoreState = function(c2, h2) {
-            for (var f = 0; f < this.state.length; f++)
-              this.state[f] = c2[f];
-            this.bytesHashed = h2, this.finished = false, this.bufferLength = 0;
+            for (var l = 0; l < this.state.length; l++)
+              c2[l] = this.state[l];
+          }, v.prototype._restoreState = function(c2, l) {
+            for (var d = 0; d < this.state.length; d++)
+              this.state[d] = c2[d];
+            this.bytesHashed = l, this.finished = false, this.bufferLength = 0;
           }, v;
         })()
       );
@@ -51193,20 +51200,20 @@ function Ls() {
         (function() {
           function v(c2) {
             this.inner = new i(), this.outer = new i(), this.blockSize = this.inner.blockSize, this.digestLength = this.inner.digestLength;
-            var h2 = new Uint8Array(this.blockSize);
+            var l = new Uint8Array(this.blockSize);
             if (c2.length > this.blockSize)
-              new i().update(c2).finish(h2).clean();
+              new i().update(c2).finish(l).clean();
             else
-              for (var f = 0; f < c2.length; f++)
-                h2[f] = c2[f];
-            for (var f = 0; f < h2.length; f++)
-              h2[f] ^= 54;
-            this.inner.update(h2);
-            for (var f = 0; f < h2.length; f++)
-              h2[f] ^= 106;
-            this.outer.update(h2), this.istate = new Uint32Array(8), this.ostate = new Uint32Array(8), this.inner._saveState(this.istate), this.outer._saveState(this.ostate);
-            for (var f = 0; f < h2.length; f++)
-              h2[f] = 0;
+              for (var d = 0; d < c2.length; d++)
+                l[d] = c2[d];
+            for (var d = 0; d < l.length; d++)
+              l[d] ^= 54;
+            this.inner.update(l);
+            for (var d = 0; d < l.length; d++)
+              l[d] ^= 106;
+            this.outer.update(l), this.istate = new Uint32Array(8), this.ostate = new Uint32Array(8), this.inner._saveState(this.istate), this.outer._saveState(this.ostate);
+            for (var d = 0; d < l.length; d++)
+              l[d] = 0;
           }
           return v.prototype.reset = function() {
             return this.inner._restoreState(this.istate, this.inner.blockSize), this.outer._restoreState(this.ostate, this.outer.blockSize), this;
@@ -51226,41 +51233,41 @@ function Ls() {
       );
       e.HMAC = r;
       function o(v) {
-        var c2 = new i().update(v), h2 = c2.digest();
-        return c2.clean(), h2;
+        var c2 = new i().update(v), l = c2.digest();
+        return c2.clean(), l;
       }
       e.hash = o, e.default = o;
       function a(v, c2) {
-        var h2 = new r(v).update(c2), f = h2.digest();
-        return h2.clean(), f;
+        var l = new r(v).update(c2), d = l.digest();
+        return l.clean(), d;
       }
       e.hmac = a;
-      function y(v, c2, h2, f) {
-        var M2 = f[0];
+      function y(v, c2, l, d) {
+        var M2 = d[0];
         if (M2 === 0)
           throw new Error("hkdf: cannot expand more");
-        c2.reset(), M2 > 1 && c2.update(v), h2 && c2.update(h2), c2.update(f), c2.finish(v), f[0]++;
+        c2.reset(), M2 > 1 && c2.update(v), l && c2.update(l), c2.update(d), c2.finish(v), d[0]++;
       }
       var L2 = new Uint8Array(e.digestLength);
-      function P2(v, c2, h2, f) {
-        c2 === void 0 && (c2 = L2), f === void 0 && (f = 32);
-        for (var M2 = new Uint8Array([1]), x = a(c2, v), R2 = new r(x), k = new Uint8Array(R2.digestLength), Q2 = k.length, D2 = new Uint8Array(f), E2 = 0; E2 < f; E2++)
-          Q2 === k.length && (y(k, R2, h2, M2), Q2 = 0), D2[E2] = k[Q2++];
+      function P2(v, c2, l, d) {
+        c2 === void 0 && (c2 = L2), d === void 0 && (d = 32);
+        for (var M2 = new Uint8Array([1]), x = a(c2, v), R2 = new r(x), k = new Uint8Array(R2.digestLength), Q2 = k.length, D2 = new Uint8Array(d), E2 = 0; E2 < d; E2++)
+          Q2 === k.length && (y(k, R2, l, M2), Q2 = 0), D2[E2] = k[Q2++];
         return R2.clean(), k.fill(0), M2.fill(0), D2;
       }
       e.hkdf = P2;
-      function W2(v, c2, h2, f) {
-        for (var M2 = new r(v), x = M2.digestLength, R2 = new Uint8Array(4), k = new Uint8Array(x), Q2 = new Uint8Array(x), D2 = new Uint8Array(f), E2 = 0; E2 * x < f; E2++) {
+      function W2(v, c2, l, d) {
+        for (var M2 = new r(v), x = M2.digestLength, R2 = new Uint8Array(4), k = new Uint8Array(x), Q2 = new Uint8Array(x), D2 = new Uint8Array(d), E2 = 0; E2 * x < d; E2++) {
           var se = E2 + 1;
           R2[0] = se >>> 24 & 255, R2[1] = se >>> 16 & 255, R2[2] = se >>> 8 & 255, R2[3] = se >>> 0 & 255, M2.reset(), M2.update(c2), M2.update(R2), M2.finish(Q2);
           for (var H2 = 0; H2 < x; H2++)
             k[H2] = Q2[H2];
-          for (var H2 = 2; H2 <= h2; H2++) {
+          for (var H2 = 2; H2 <= l; H2++) {
             M2.reset(), M2.update(Q2).finish(Q2);
             for (var j = 0; j < x; j++)
               k[j] ^= Q2[j];
           }
-          for (var H2 = 0; H2 < x && E2 * x + H2 < f; H2++)
+          for (var H2 = 0; H2 < x && E2 * x + H2 < d; H2++)
             D2[E2 * x + H2] = k[H2];
         }
         for (var E2 = 0; E2 < x; E2++)
@@ -51273,8 +51280,8 @@ function Ls() {
     });
   })(vt)), vt.exports;
 }
-var js = Ls();
-var Gs = new Int32Array(4);
+var Gs = js();
+var Bs = new Int32Array(4);
 var K = class _K {
   static hashStr(e, n = false) {
     return this.onePassHasher.start().appendStr(e).end(n);
@@ -51432,7 +51439,7 @@ var K = class _K {
       i[14] = o;
     else {
       const a = o.toString(16).match(/(.*?)(.{0,8})$/);
-      if (a === null) return e ? Gs : "";
+      if (a === null) return e ? Bs : "";
       const y = parseInt(a[2], 16), L2 = parseInt(a[1], 16) || 0;
       i[14] = y, i[15] = L2;
     }
@@ -51441,7 +51448,7 @@ var K = class _K {
 };
 if (K.hashStr("hello") !== "5d41402abc4b2a76b9719d911017c592")
   throw new Error("Md5 self test failed.");
-var Bs = 36e5;
+var Ws = 36e5;
 var Ln = /* @__PURE__ */ Symbol.for("constructDateFrom");
 function St(t, e) {
   return typeof t == "function" ? t(e) : t && typeof t == "object" && Ln in t ? t[Ln](e) : t instanceof Date ? new t.constructor(e) : new Date(e);
@@ -51449,7 +51456,7 @@ function St(t, e) {
 function Ze(t, e) {
   return St(t, t);
 }
-function Ws(t, e, n) {
+function Qs(t, e, n) {
   const s = Ze(t);
   if (isNaN(e)) return St(t, NaN);
   const i = s.getDate(), r = St(t, s.getTime());
@@ -51464,16 +51471,16 @@ function Ws(t, e, n) {
 function Vn(t, e, n) {
   return St(t, +Ze(t) + e);
 }
-function Qs(t, e, n) {
-  return Vn(t, e * Bs);
-}
 function Ks(t, e, n) {
-  return Vn(t, e * 1e3);
+  return Vn(t, e * Ws);
 }
 function Zs(t, e, n) {
-  return Ws(t, e * 12);
+  return Vn(t, e * 1e3);
 }
-function yn(t) {
+function Js(t, e, n) {
+  return Qs(t, e * 12);
+}
+function $n(t) {
   return Math.trunc(+Ze(t) / 1e3);
 }
 function Xn(t, e) {
@@ -51502,13 +51509,13 @@ function es() {
   if (t)
     if (t.indexOf("?") >= 0) {
       const i = t.split("?");
-      n = Ie(i[0]), e || (e = i[1]);
+      n = Te(i[0]), e || (e = i[1]);
     } else
-      n = Ie(t);
+      n = Te(t);
   let s = {};
-  return e && (s = Ie(e)), __spreadValues(__spreadValues({}, n), s);
+  return e && (s = Te(e)), __spreadValues(__spreadValues({}, n), s);
 }
-function Ie(t) {
+function Te(t) {
   const e = {}, n = t.split("&");
   for (const s of n) {
     const i = s.split("=");
@@ -51545,7 +51552,7 @@ function ie(t) {
     `${window.location?.pathname}${e}${n}`
   );
 }
-function Js(t) {
+function Ys(t) {
   if (t.length === 0)
     throw new Error("Input must not be of zero length");
   const e = t.split(","), n = {};
@@ -51558,12 +51565,12 @@ function Js(t) {
   }
   return n;
 }
-function Ys(t, e) {
+function Vs(t, e) {
   for (const n in t)
     t.hasOwnProperty(n) && e.indexOf(t[n]) >= 0 && delete t[n];
   return t;
 }
-function Vs() {
+function Xs() {
   return [
     "iPad Simulator",
     "iPhone Simulator",
@@ -51574,13 +51581,13 @@ function Vs() {
   ].includes(navigator.platform) || // iPad on iOS 13 detection
   navigator.userAgent.includes("Mac") && "ontouchend" in document;
 }
-function Xs() {
+function ei() {
   return window.location !== window.parent.location;
 }
-function ei(t = Date.now(), e = 60 * 1e3) {
+function ti(t = Date.now(), e = 60 * 1e3) {
   return Math.floor(t / e);
 }
-var ti = class {
+var ni = class {
   abort() {
     xt("Stub", "Aborted");
   }
@@ -51597,7 +51604,7 @@ function b(t) {
 var xe = {};
 function re(t, e, n = 300) {
   if (t && e && e instanceof Function)
-    _e(t), xe[t] = setTimeout(() => {
+    me(t), xe[t] = setTimeout(() => {
       e(), delete xe[t];
     }, n);
   else
@@ -51605,7 +51612,7 @@ function re(t, e, n = 300) {
       t ? "Cannot create named timeout without a name" : "Cannot create a timeout without a callback"
     );
 }
-function _e(t) {
+function me(t) {
   xe[t] && (clearTimeout(xe[t]), delete xe[t]);
 }
 function ne(t) {
@@ -51622,7 +51629,7 @@ function ne(t) {
       o(e, r);
   }, s.update = (i) => s.set(i(e)), s.asReadonly = () => s, s;
 }
-function ri(t, e = Boolean) {
+function oi(t, e = Boolean) {
   return e(t.value) ? Promise.resolve(t.value) : new Promise((n) => {
     const s = t.subscribe(
       (i) => {
@@ -51632,10 +51639,10 @@ function ri(t, e = Boolean) {
     );
   });
 }
-function oi(t) {
+function ui(t) {
   return new Promise((e) => setTimeout(e, t));
 }
-var ui = {
+var ci = {
   id: "mock-authority",
   name: "localhost:4200",
   description: "",
@@ -51652,23 +51659,23 @@ var _ = {};
 var A = localStorage;
 var N;
 var m = {};
-var I = "";
-var me = "";
-var ge = ne("");
+var T = "";
+var ge = "";
+var ye = ne("");
 var Je = ne("");
-var bn = "/api/engine/v2";
-var pe = ne(false);
-var vn = ne(false);
+var vn = "/api/engine/v2";
+var _e = ne(false);
+var kn = ne(false);
 var qt = 0;
 function ns() {
   if (_.mock) return true;
   if (!A) return false;
   if (Ye() && !_.ignore_api_key) return true;
-  const t = A.getItem(`${I}_expires_at`) || "";
-  return Xn(+t, /* @__PURE__ */ new Date()) ? false : !!(ge.value || A.getItem(`${I}_access_token`));
+  const t = A.getItem(`${T}_expires_at`) || "";
+  return Xn(+t, /* @__PURE__ */ new Date()) ? false : !!(ye.value || A.getItem(`${T}_access_token`));
 }
-function Oe() {
-  vn.set(ns());
+function Ce() {
+  kn.set(ns());
 }
 function ss(t) {
   if (!t || t.startsWith("http://") || t.startsWith("https://"))
@@ -51680,29 +51687,29 @@ function u2() {
   return `${`${_.secure || window.location?.protocol.indexOf("https") >= 0 ? "https:" : "http:"}//${_.host || window.location?.host}`}${is()}`;
 }
 function is() {
-  return _.version === "ACA Engine" ? "/control/api" : bn;
-}
-function ci() {
-  return !!_.token_header;
+  return _.version === "ACA Engine" ? "/control/api" : vn;
 }
 function ai() {
-  return I;
+  return !!_.token_header;
 }
-function Nr(t, e = true) {
-  A.setItem(`${I}_x-api-key`, `${t}`), A.setItem("trusted", `${e}`), hi("x-api-key", Zs(/* @__PURE__ */ new Date(), 5).valueOf());
+function hi() {
+  return T;
+}
+function Hr(t, e = true) {
+  A.setItem(`${T}_x-api-key`, `${t}`), A.setItem("trusted", `${e}`), li("x-api-key", Js(/* @__PURE__ */ new Date(), 5).valueOf());
 }
 function Ye() {
   return Ut("x-api-key", false) || "";
 }
-function hi(t, e = Qs(/* @__PURE__ */ new Date(), 2).valueOf()) {
-  _.ignore_api_key && t === "x-api-key" || (A.setItem(`${I}_expires_at`, `${e}`), A.setItem(`${I}_access_token`, t), ge.set(t), Oe());
+function li(t, e = Ks(/* @__PURE__ */ new Date(), 2).valueOf()) {
+  _.ignore_api_key && t === "x-api-key" || (A.setItem(`${T}_expires_at`, `${e}`), A.setItem(`${T}_access_token`, t), ye.set(t), Ce());
 }
-function V(t = true) {
+function X(t = true) {
   if (_.mock) return "mock-token";
   if (!A) return "";
   if (Ye() && !_.ignore_api_key) return "x-api-key";
-  const e = A.getItem(`${I}_expires_at`) || "", n = ge.value;
-  return Xn(+e, /* @__PURE__ */ new Date()) && (p("Token expired. Requesting new token..."), An(), m.load_authority || (qt += 1, re(
+  const e = A.getItem(`${T}_expires_at`) || "", n = ye.value;
+  return Xn(+e, /* @__PURE__ */ new Date()) && (p("Token expired. Requesting new token..."), qn(), m.load_authority || (qt += 1, re(
     "re-authorise",
     async () => {
       delete m.authorise, await wt().catch(
@@ -51710,33 +51717,33 @@ function V(t = true) {
       );
     },
     200 * Math.min(20, qt)
-  )), !t) ? "" : n || A.getItem(`${I}_access_token`) || "";
+  )), !t) ? "" : n || A.getItem(`${T}_access_token`) || "";
 }
 function Pt() {
-  return Je.value || A.getItem(`${I}_refresh_token`) || "";
+  return Je.value || A.getItem(`${T}_refresh_token`) || "";
 }
-function $n() {
+function bn() {
   return _.host || window.location?.host;
 }
-function li() {
-  return Oe(), vn.asReadonly();
+function di() {
+  return Ce(), kn.asReadonly();
 }
 function Rt() {
   return N;
 }
-function Dr() {
-  return pe.value;
+function Fr() {
+  return _e.value;
 }
-function kn() {
+function Sn() {
   return !!_.mock;
 }
 function fi() {
   return !!_.secure;
 }
-function Hr() {
-  return pe.asReadonly();
+function Lr() {
+  return _e.asReadonly();
 }
-function Sn() {
+function xn() {
   return Ut("trust") === "true" || Ut("trusted") === "true";
 }
 function rs() {
@@ -51745,35 +51752,35 @@ function rs() {
 function Ut(t, e = true) {
   let s = es()[t];
   if (A) {
-    const i = `${ai()}_${t}`;
+    const i = `${hi()}_${t}`;
     s = s || A.getItem(i) || A.getItem(t) || "", e && A.setItem(i, `${s}`);
   }
   return s;
 }
-async function zr(t) {
-  return _ = t || _, _.token_header = _.token_header ?? Xs(), window.AbortController || (window.AbortController = ti), A = _.storage === "session" ? sessionStorage : localStorage, I = K.hashStr(_.redirect_uri, false), di(), _.delay && _.delay > 0 && await oi(_.delay), qn();
+async function jr(t) {
+  return _ = t || _, _.token_header = _.token_header ?? ei(), window.AbortController || (window.AbortController = ni), A = _.storage === "session" ? sessionStorage : localStorage, T = K.hashStr(_.redirect_uri, false), pi(), _.delay && _.delay > 0 && await ui(_.delay), Pn();
 }
-var Tt = false;
-function di() {
-  Tt || (Tt = true, window.addEventListener("focus", It), document.addEventListener("visibilitychange", It));
+var It = false;
+function pi() {
+  It || (It = true, window.addEventListener("focus", Tt), document.addEventListener("visibilitychange", Tt));
 }
-async function It() {
+async function Tt() {
   if (document.visibilityState === "hidden" || _.mock || !N || N.session || ns()) return;
-  if (delete m.check_params, await us().catch(() => false) || me || Pt()) {
-    p("Application focused with new credentials. Authorising..."), Ce = false, delete m.authorise, await wt().catch(
+  if (delete m.check_params, await us().catch(() => false) || ge || Pt()) {
+    p("Application focused with new credentials. Authorising..."), Oe = false, delete m.authorise, await wt().catch(
       (e) => p.error("Failed to authorise on focus:", e)
     );
     return;
   }
-  p("Application focused without a session. Reloading authority..."), Ce = false, xn().catch(
+  p("Application focused without a session. Reloading authority..."), Oe = false, An().catch(
     (e) => p.error("Failed to refresh authority:", e)
   );
 }
-function xn() {
-  return p("Refreshing authorty."), N = void 0, qn();
-}
 function An() {
-  p("Invalidating tokens."), A.removeItem(`${I}_access_token`), A.removeItem(`${I}_expires_at`), ge.value && ge.set(""), Oe();
+  return p("Refreshing authorty."), N = void 0, Pn();
+}
+function qn() {
+  p("Invalidating tokens."), A.removeItem(`${T}_access_token`), A.removeItem(`${T}_expires_at`), ye.value && ye.set(""), Ce();
 }
 function wt(t, e = N) {
   return m.authorise || (m.authorise = new Promise((n, s) => {
@@ -51781,29 +51788,29 @@ function wt(t, e = N) {
       return delete m.authorise, s("Authority is not loaded");
     p("Authorising user...");
     const i = () => {
-      if (V(false))
-        p("Valid token found."), delete m.authorise, n(V());
+      if (X(false))
+        p("Valid token found."), delete m.authorise, n(X());
       else {
         const r = [
           () => {
-            p("Successfully generated token."), n(V()), delete m.authorise;
+            p("Successfully generated token."), n(X()), delete m.authorise;
           },
           () => {
             p.error("Failed to generate token."), s("Failed to generate token"), setTimeout(() => delete m.authorise, 200);
           }
         ];
         if (_ && _.auth_type === "password")
-          p("Logging in with credentials."), ki(_).then(
+          p("Logging in with credentials."), Si(_).then(
             ...r
           ), qt = 0;
-        else if (me || Pt())
+        else if (ge || Pt())
           p(
-            `Generating token with ${me ? "code" : "refresh token"}`
+            `Generating token with ${ge ? "code" : "refresh token"}`
           ), cs().then(...r), qt = 0;
         else if (e.session)
           p(
             "Users has session. Authorising application..."
-          ), _i(t).then(...r);
+          ), mi(t).then(...r);
         else {
           p("No user session"), s("No user session"), setTimeout(() => delete m.authorise, 200);
           try {
@@ -51813,49 +51820,49 @@ function wt(t, e = N) {
         }
       }
     };
-    gi().then(i, i);
+    yi().then(i, i);
   })), m.authorise;
 }
-function qn(t = 0) {
+function Pn(t = 0) {
   return m.load_authority || (m.load_authority = new Promise((e) => {
-    if (pe.set(false), _.mock) {
-      N = ui, p("System in mock mode"), pe.set(true), e();
+    if (_e.set(false), _.mock) {
+      N = ci, p("System in mock mode"), _e.set(true), e();
       return;
     }
-    p(`Fixed: ${rs()} | Trusted: ${Sn()}`), p("Loading authority...");
+    p(`Fixed: ${rs()} | Trusted: ${xn()}`), p("Loading authority...");
     const n = _.secure || window.location?.protocol.indexOf("https") >= 0, s = (i) => {
-      p.error(`Failed to load authority(${i})`), pe.set(false), re(
+      p.error(`Failed to load authority(${i})`), _e.set(false), re(
         "load_authority",
         () => {
-          delete m.load_authority, qn(t).then((r) => e());
+          delete m.load_authority, Pn(t).then((r) => e());
         },
         300 * Math.min(20, ++t)
       );
     };
-    fetch(`${n ? "https:" : "http:"}//${$n()}/auth/authority`, {
+    fetch(`${n ? "https:" : "http:"}//${bn()}/auth/authority`, {
       credentials: "same-origin"
     }).then(async (i) => {
       if (!i.ok)
         return s(await i.text().catch((o) => o));
-      N = await i.json(), bn = /[2-9]\.[0-9]+\.[0-9]+/g.test(
+      N = await i.json(), vn = /[2-9]\.[0-9]+\.[0-9]+/g.test(
         N.version || ""
       ) ? "/api/engine/v2" : "/control/api", p.group("Loaded authority."), N && (p(`Name: ${N.name}`), p(`Version: ${N.version}`), p(`Domain: ${N.domain}`), p(`Session: ${N.session}`), p(`Production: ${N.production}`), p(
         `Config Keys: ${Object.keys(N.config || {}).length}`
       )), p.groupEnd("");
       const r = () => {
-        pe.set(true), p("Application set online."), e();
+        _e.set(true), p("Application set online."), e();
       };
       delete m.load_authority, wt("").then(r, r);
     }, s);
   })), m.load_authority;
 }
-async function _i(t) {
-  const e = yi(t);
+async function mi(t) {
+  const e = $i(t);
   if (_.use_iframe)
-    return mi(e);
+    return gi(e);
   window.location?.assign(e);
 }
-function mi(t) {
+function gi(t) {
   return m.iframe_auth || (m.iframe_auth = new Promise((e, n) => {
     p("Authorizing in an iFrame...");
     const s = document.createElement("iframe");
@@ -51863,11 +51870,11 @@ function mi(t) {
     const i = (o) => {
       if (o.origin === window.location?.origin && o.data.type === "place-os") {
         const a = o.data;
-        if (p("Received credentials from iFrame..."), document.body.removeChild(s), _e("iframe_auth"), window.removeEventListener("message", i), delete m.iframe_auth, a.token)
-          return e(), Pn(__spreadValues({
+        if (p("Received credentials from iFrame..."), document.body.removeChild(s), me("iframe_auth"), window.removeEventListener("message", i), delete m.iframe_auth, a.token)
+          return e(), Rn(__spreadValues({
             access_token: a.token
           }, a));
-        me = a.code || "", cs().then(
+        ge = a.code || "", cs().then(
           (y) => e(y),
           (y) => n(y)
         );
@@ -51882,13 +51889,13 @@ function mi(t) {
       },
       15 * 1e3
     ), window.addEventListener("message", i), s.onerror = (o) => {
-      p.error("iFrame error.", o), _e("iframe_auth"), r(), n();
+      p.error("iFrame error.", o), me("iframe_auth"), r(), n();
     }, document.body.appendChild(s);
   })), m.iframe_auth;
 }
-var Ce = false;
+var Oe = false;
 function os(t) {
-  if (_.handle_login !== false && !Ce) {
+  if (_.handle_login !== false && !Oe) {
     p("Redirecting to login page...");
     const e = ss(
       t.login_url?.replace(
@@ -51896,14 +51903,14 @@ function os(t) {
         encodeURIComponent(window.location?.href)
       )
     );
-    throw setTimeout(() => window.location?.assign(e), 300), Ce = true, new Error("Redirecting to login page...");
+    throw setTimeout(() => window.location?.assign(e), 300), Oe = true, new Error("Redirecting to login page...");
   } else
     p("Login being handled locally.");
   delete m.authorise;
 }
-function gi() {
+function yi() {
   return m.check_token || (m.check_token = new Promise(async (t, e) => {
-    V() ? (p("Valid token found."), t(V())) : (p("No token. Checking URL for auth credentials..."), await us() ? t(true) : e()), delete m.check_token;
+    X() ? (p("Valid token found."), t(X())) : (p("No token. Checking URL for auth credentials..."), await us() ? t(true) : e()), delete m.check_token;
   })), m.check_token;
 }
 function us() {
@@ -51913,13 +51920,13 @@ function us() {
     if ((!e || Object.keys(e).length <= 0) && sessionStorage && (e = JSON.parse(
       sessionStorage.getItem("ENGINE.auth.params") || "{}"
     ), sessionStorage.removeItem("ENGINE.auth.params")), e && (e.code || e.access_token || e.refresh_token)) {
-      const n = A.getItem(`${I}_nonce`) || "", s = (e.state || "").split(";");
+      const n = A.getItem(`${T}_nonce`) || "", s = (e.state || "").split(";");
       ie("state"), ie("token_type");
       const i = s[0];
-      n === i ? (e.code && (me = e.code, ie("code")), e.refresh_token && (A.setItem(
-        `${I}_refresh_token`,
+      n === i ? (e.code && (ge = e.code, ie("code")), e.refresh_token && (A.setItem(
+        `${T}_refresh_token`,
         e.refresh_token
-      ), ie("refresh_token")), Pn(e), t(!!e.access_token)) : (ie("code"), ie("access_token"), ie("refresh_token"), t(false));
+      ), ie("refresh_token")), Rn(e), t(!!e.access_token)) : (ie("code"), ie("access_token"), ie("refresh_token"), t(false));
     } else
       t(false);
     re(
@@ -51929,38 +51936,38 @@ function us() {
     );
   })), m.check_params;
 }
-function yi(t) {
-  const e = Si();
+function $i(t) {
+  const e = xi();
   t = t ? `${e};${t}` : e;
-  const n = _ ? (_.auth_uri || "").indexOf("?") >= 0 : false, s = (_ ? _.auth_uri : null) || "/auth/oauth/authorize", i = Sn() || _.auth_type === "auth_code" ? "code" : "token";
-  let r = `${s}${n ? "&" : "?"}response_type=${encodeURIComponent(i)}&client_id=${encodeURIComponent(I)}&state=${encodeURIComponent(t)}&redirect_uri=${encodeURIComponent(_.redirect_uri)}&scope=${encodeURIComponent(_.scope)}`;
+  const n = _ ? (_.auth_uri || "").indexOf("?") >= 0 : false, s = (_ ? _.auth_uri : null) || "/auth/oauth/authorize", i = xn() || _.auth_type === "auth_code" ? "code" : "token";
+  let r = `${s}${n ? "&" : "?"}response_type=${encodeURIComponent(i)}&client_id=${encodeURIComponent(T)}&state=${encodeURIComponent(t)}&redirect_uri=${encodeURIComponent(_.redirect_uri)}&scope=${encodeURIComponent(_.scope)}`;
   if (_.auth_type === "auth_code") {
-    const { challenge: o, verify: a } = $i();
-    sessionStorage.setItem(`${I}_challenge`, o), r += "&code_challenge_method=S256", r += `&code_challenge=${a}`;
+    const { challenge: o, verify: a } = bi();
+    sessionStorage.setItem(`${T}_challenge`, o), r += "&code_challenge_method=S256", r += `&code_challenge=${a}`;
   }
   return r;
 }
-function $i(t = 43) {
-  const e = ts(t), n = Hs(zs(e)), s = Yn(js.hash(n)).split("=")[0].replace(/\//g, "_").replace(/\+/g, "-");
+function bi(t = 43) {
+  const e = ts(t), n = zs(Fs(e)), s = Yn(Gs.hash(n)).split("=")[0].replace(/\//g, "_").replace(/\+/g, "-");
   return { challenge: e, verify: s };
 }
-function bi() {
-  let e = (_.token_uri || "/auth/token") + `?client_id=${encodeURIComponent(I)}`, n = "";
+function vi() {
+  let e = (_.token_uri || "/auth/token") + `?client_id=${encodeURIComponent(T)}`, n = "";
   if (e += `&redirect_uri=${encodeURIComponent(_.redirect_uri)}`, Pt()) {
     e += `&refresh_token=${encodeURIComponent(Pt())}`, e += "&grant_type=refresh_token";
     const s = e.indexOf("?");
     n = e.slice(s + 1), e = e.slice(0, s);
   } else {
-    e += `&code=${encodeURIComponent(me)}`, e += "&grant_type=authorization_code";
-    const s = sessionStorage.getItem(`${I}_challenge`);
-    s && (e += `&code_verifier=${s}`, sessionStorage.removeItem(`${I}_challenge`)), me = "";
+    e += `&code=${encodeURIComponent(ge)}`, e += "&grant_type=authorization_code";
+    const s = sessionStorage.getItem(`${T}_challenge`);
+    s && (e += `&code_verifier=${s}`, sessionStorage.removeItem(`${T}_challenge`)), ge = "";
   }
   return [e, n];
 }
-function vi(t) {
+function ki(t) {
   const e = t.token_uri || "/auth/token", n = b({
     grant_type: "password",
-    client_id: I,
+    client_id: T,
     client_secret: t.client_secret,
     redirect_uri: t.redirect_uri,
     authority: N?.id,
@@ -51971,16 +51978,16 @@ function vi(t) {
   return `${e}?${n}`;
 }
 function cs() {
-  return as(...bi());
+  return as(...vi());
 }
-function ki(t) {
-  return as(vi(t));
+function Si(t) {
+  return as(ki(t));
 }
 function as(t, e = "") {
   return m.generate_tokens || (m.generate_tokens = new Promise((n, s) => {
     p("Generating new token...");
     const i = (r) => {
-      p.error("Error generating new tokens:", r), r && r.status >= 400 && r.status < 500 && (A.removeItem(`${I}_refresh_token`), Je.set("")), Oe(), s(), delete m.generate_tokens;
+      p.error("Error generating new tokens:", r), r && r.status >= 400 && r.status < 500 && (A.removeItem(`${T}_refresh_token`), Je.set("")), Ce(), s(), delete m.generate_tokens;
     };
     fetch(t, {
       method: "POST",
@@ -51991,26 +51998,26 @@ function as(t, e = "") {
     }).then(async (r) => {
       if (!r.ok) return i(r);
       const o = await r.json();
-      Pn(o), n(), delete m.generate_tokens;
+      Rn(o), n(), delete m.generate_tokens;
     }, i);
   })), m.generate_tokens;
 }
-function Pn(t) {
-  const e = Ks(
+function Rn(t) {
+  const e = Zs(
     /* @__PURE__ */ new Date(),
     Math.max(60, parseInt(t.expires_in, 10) - 300)
   );
-  p("Tokens generated storing..."), Sn() && (t.access_token && (A.setItem(
-    `${I}_access_token`,
+  p("Tokens generated storing..."), xn() && (t.access_token && (A.setItem(
+    `${T}_access_token`,
     t.access_token
   ), ie("access_token")), t.refresh_token && (A.setItem(
-    `${I}_refresh_token`,
+    `${T}_refresh_token`,
     t.refresh_token
-  ), ie("refresh_token"))), t.expires_in && (A.setItem(`${I}_expires_at`, `${e.valueOf()}`), ie("expires_in")), pe.set(true), ge.set(t.access_token || ""), Je.set(t.refresh_token || ""), Oe();
+  ), ie("refresh_token"))), t.expires_in && (A.setItem(`${T}_expires_at`, `${e.valueOf()}`), ie("expires_in")), _e.set(true), ye.set(t.access_token || ""), Je.set(t.refresh_token || ""), Ce();
 }
-function Si() {
+function xi() {
   const t = ts();
-  return A.setItem(`${I}_nonce`, t), t;
+  return A.setItem(`${T}_nonce`, t), t;
 }
 var Ae = Nt("HTTP(M)");
 var Dt = {};
@@ -52018,8 +52025,8 @@ var hs = (t, e) => {
   const n = new Error(`Mock endpoint not found: ${t} ${e}`);
   return n.status = 404, Ae(`404 ${t}:`, e), Promise.reject(n);
 };
-function Wr(t, e = Dt) {
-  xi(t.method, t.path, e);
+function Zr(t, e = Dt) {
+  Ai(t.method, t.path, e);
   const n = `${t.method}|${t.path}`, s = t.path.replace(/(http|https):\/\/[a-zA-Z0-9.-]*:?([0-9]*)?/g, "").replace(/^\//, "").split("/"), i = __spreadProps(__spreadValues({}, t), {
     path_parts: s,
     path_structure: s.map(
@@ -52028,15 +52035,15 @@ function Wr(t, e = Dt) {
   });
   e[n] = i, Ae(`+ ${t.method} ${t.path}`);
 }
-function xi(t, e, n = Dt) {
+function Ai(t, e, n = Dt) {
   const s = `${t}|${e}`;
   n[s] && (delete n[s], Ae(`- ${t} ${e}`));
 }
-function Ai(t, e, n, s = Dt) {
-  const i = qi(t, e, s);
+function qi(t, e, n, s = Dt) {
+  const i = Pi(t, e, s);
   if (i) {
-    const r = Pi(e, i, n);
-    return Ri(i, r);
+    const r = Ri(e, i, n);
+    return Ui(i, r);
   }
   try {
     return hs(t, e);
@@ -52044,7 +52051,7 @@ function Ai(t, e, n, s = Dt) {
     return Ae.error(`ERROR ${t}:`, [e, r]), Promise.reject(r);
   }
 }
-function qi(t, e, n = Dt) {
+function Pi(t, e, n = Dt) {
   const i = e.replace(/(http|https):\/\/[a-zA-Z0-9.-]*:?([0-9]*)?/g, "").replace(/^\//, "").split("?")[0].split("/"), r = Object.keys(
     n
   ).reduce((o, a) => (a.indexOf(`${t}|`) === 0 && o.push(n[a]), o), []);
@@ -52061,8 +52068,8 @@ function qi(t, e, n = Dt) {
     }
   return null;
 }
-function Pi(t, e, n) {
-  const s = t.replace(/(http|https):\/\/[a-zA-Z0-9.-]*:?([0-9]*)?/g, "").split("?"), i = s[0].replace(/^\//, ""), r = s[1] || "", o = Ie(r), a = i.split("/"), y = {};
+function Ri(t, e, n) {
+  const s = t.replace(/(http|https):\/\/[a-zA-Z0-9.-]*:?([0-9]*)?/g, "").split("?"), i = s[0].replace(/^\//, ""), r = s[1] || "", o = Te(r), a = i.split("/"), y = {};
   for (let P2 = 0; P2 < e.path_structure.length; P2++) {
     const W2 = e.path_structure[P2];
     W2 && (y[W2] = a[P2]);
@@ -52078,7 +52085,7 @@ function Pi(t, e, n) {
   };
   return Ae(`MATCHED ${L2.method}:`, L2), L2;
 }
-function Ri(t, e) {
+function Ui(t, e) {
   let n;
   try {
     n = t.callback ? t.callback(e) : t.metadata;
@@ -52090,12 +52097,12 @@ function Ri(t, e) {
     setTimeout(() => o(n), Math.max(200, r));
   });
 }
-var Ui = Nt("HTTP");
+var Ii = Nt("HTTP");
 var ls = {};
 function Ti(t, e = ls) {
   return e[t] || {};
 }
-function d(t, e, n = Ve) {
+function f(t, e, n = Ve) {
   return e || (e = { response_type: "json" }), n("GET", t, __spreadValues({ response_type: "json" }, e));
 }
 function S(t, e, n, s = Ve) {
@@ -52104,13 +52111,13 @@ function S(t, e, n, s = Ve) {
 function ce(t, e, n, s = Ve) {
   return n || (n = { response_type: "json" }), s("PUT", t, __spreadValues({ body: e, response_type: "json" }, n));
 }
-function ye(t, e, n, s = Ve) {
+function ae(t, e, n, s = Ve) {
   return n || (n = { response_type: "json" }), s("PATCH", t, __spreadValues({ body: e, response_type: "json" }, n));
 }
-function X(t, e, n = Ve) {
+function ee(t, e, n = Ve) {
   return e || (e = { response_type: "void" }), n("DELETE", t, __spreadValues({ response_type: "void" }, e));
 }
-async function Ii(t, e, n = ls) {
+async function Ei(t, e, n = ls) {
   if (t.headers) {
     const s = {};
     t.headers.forEach ? t.headers.forEach((i, r) => s[r.toLowerCase()] = i) : Object.keys(t.headers).forEach(
@@ -52128,15 +52135,15 @@ async function Ii(t, e, n = ls) {
       return await t.json().catch(() => ({}));
   }
 }
-var fs = () => (An(), xn().then(
+var ds = () => (qn(), An().then(
   () => Promise.resolve(),
   () => new Promise((t) => {
     setTimeout(() => {
-      fs().then(() => t());
+      ds().then(() => t());
     }, 1e3);
   })
 ));
-function Ve(t, e, n, s = kn, i = Ai, r = Ii) {
+function Ve(t, e, n, s = Sn, i = qi, r = Ei) {
   if (s()) {
     const P2 = i(t, e, n?.body);
     if (P2) return P2;
@@ -52149,7 +52156,7 @@ function Ve(t, e, n, s = kn, i = Ai, r = Ii) {
     });
     return delete P2.response_type, delete P2.skip_auth, delete P2.skip_auth_flow, ["POST", "PUT", "PATCH"].includes(t) && n.body !== void 0 && (P2.body = typeof n.body == "string" ? n.body : JSON.stringify(n.body)), fetch(e, P2);
   }, a = async () => {
-    n.skip_auth || (await ri(li(), Boolean), V() === "x-api-key" ? n.headers["X-API-Key"] = Ye() : n.headers.Authorization = `Bearer ${V()}`);
+    n.skip_auth || (await oi(di(), Boolean), X() === "x-api-key" ? n.headers["X-API-Key"] = Ye() : n.headers.Authorization = `Bearer ${X()}`);
     const P2 = await o();
     if (P2.ok) return r(P2, n.response_type);
     throw P2;
@@ -52162,7 +52169,7 @@ function Ve(t, e, n, s = kn, i = Ai, r = Ii) {
       if (W2.status === 511)
         throw os(Rt()), W2;
       if (W2.status !== 401) throw W2 || {};
-      return Ui.warn("Auth error:", W2), await fs().catch(() => {
+      return Ii.warn("Auth error:", W2), await ds().catch(() => {
         throw W2;
       }), L2(P2 + 1);
     }
@@ -52188,20 +52195,20 @@ var F = class {
    */
   toJSON() {
     const e = __spreadValues({}, this);
-    return e.version = this.version, delete e.created_at, Ys(e, [void 0, null, ""]);
+    return e.version = this.version, delete e.created_at, Vs(e, [void 0, null, ""]);
   }
 };
-var ds = {};
+var fs = {};
 var ps = {};
 var Bn = "";
 var zt = (t) => t;
-var Mi = 300;
-var Te = {};
+var Ni = 300;
+var Ie = {};
 function $(t) {
   const { query_params: e, fn: n, path: s, endpoint: i } = t, r = b(e), o = `${i || u2()}${s ? "/" + s : ""}${r ? "?" + r : ""}`;
-  if (Te[o]) return Te[o].promise;
-  const a = d(o).then((y) => {
-    const L2 = Ni(o, r, s);
+  if (Ie[o]) return Ie[o].promise;
+  const a = f(o).then((y) => {
+    const L2 = wi(o, r, s);
     return {
       total: L2.total || 0,
       next: L2.next ? () => $({
@@ -52213,39 +52220,39 @@ function $(t) {
       data: y && y instanceof Array ? y.map((P2) => (n || zt)(P2)) : y && !(y instanceof Array) && y.results ? y.results.map((P2) => P2) : []
     };
   });
-  return Te[o] = {
+  return Ie[o] = {
     promise: a,
-    timeout: setTimeout(() => delete Te[o], Mi)
+    timeout: setTimeout(() => delete Ie[o], Ni)
   }, a.catch(() => {
-    clearTimeout(Te[o]?.timeout), delete Te[o];
+    clearTimeout(Ie[o]?.timeout), delete Ie[o];
   }), a;
 }
 function g(t) {
   const { query_params: e, id: n, path: s, fn: i, options: r } = t, o = b(e), a = `${u2()}/${s}/${n}${o ? "?" + o : ""}`;
-  return d(a, r).then((y) => (i || zt)(y));
+  return f(a, r).then((y) => (i || zt)(y));
 }
 function U(t) {
   const { query_params: e, form_data: n, path: s, fn: i } = t, r = b(e), o = `${u2()}/${s}${r ? "?" + r : ""}`;
   return S(o, n).then((a) => (i || zt)(a));
 }
-function l(t) {
+function h(t) {
   const { id: e, task_name: n, form_data: s, method: i, path: r, callback: o } = t, a = b(s), y = `${u2()}/${r}/${e}/${n}`;
-  return (i === "post" || i === "put" || !i ? (i === "put" ? ce : S)(y, s) : (i === "del" ? X : d)(
+  return (i === "post" || i === "put" || !i ? (i === "put" ? ce : S)(y, s) : (i === "del" ? ee : f)(
     `${y}${a ? "?" + a : ""}`,
     {
       response_type: "json"
     }
   )).then((P2) => (o || ((W2) => W2))(P2));
 }
-function T(t) {
+function I(t) {
   const { id: e, query_params: n, form_data: s, method: i, path: r, fn: o } = t, a = b(__spreadProps(__spreadValues({}, n), {
     version: s.version || 0
   })), y = `${u2()}/${r}/${e}${a ? "?" + a : ""}`;
-  return (i === "put" ? ce : ye)(y, s).then(
+  return (i === "put" ? ce : ae)(y, s).then(
     (L2) => (o || zt)(L2)
   );
 }
-function Ni(t, e, n) {
+function wi(t, e, n) {
   const s = Ti(
     t[0] === "/" ? `${location.origin}${t}` : t
   ), i = {
@@ -52254,11 +52261,11 @@ function Ni(t, e, n) {
   };
   if (s && s["x-total-count"]) {
     const r = +(s["x-total-count"] || 0);
-    (e.length < 2 || e.length < 12 && e.indexOf("offset=") >= 0) && (ds[n] = r), ps[n] = r, i.total = r;
+    (e.length < 2 || e.length < 12 && e.indexOf("offset=") >= 0) && (fs[n] = r), ps[n] = r, i.total = r;
   }
-  return s && s.link && (Bn = Js(s.link || "").next, i.next = Ie(Bn.split("?")[1])), i;
+  return s && s.link && (Bn = Ys(s.link || "").next, i.next = Te(Bn.split("?")[1])), i;
 }
-var Rn = class extends F {
+var Un = class extends F {
   /** Hash of the email address of the user */
   email_digest;
   /** ID of the authority associated with the user */
@@ -52377,7 +52384,7 @@ var gs = class extends F {
       }));
   }
 };
-var Un = class {
+var In = class {
   /** ISO8601 timestamp of the creation time of the group */
   created_at;
   /** ISO8601 timestamp of the last update time of the group */
@@ -52402,18 +52409,18 @@ var Un = class {
 };
 var ze = "groups";
 function it(t) {
-  return new Un(t);
+  return new In(t);
 }
-function _u(t = {}) {
+function yu(t = {}) {
   const e = b(t), n = `${u2()}/${ze}/current${e ? "?" + e : ""}`;
-  return d(n).then(
+  return f(n).then(
     (s) => (s || []).map((i) => ({
       group: it(i.group || {}),
       permissions: i.permissions || 0
     }))
   );
 }
-var he = class extends F {
+var le = class extends F {
   /** Name of the system assocaited with the trigger */
   system_name;
   /** Number of times the trigger has been activated/triggered */
@@ -52522,7 +52529,7 @@ var Kt = class extends F {
         encryption_level: +n
       }));
     e.trigger_data && e.trigger_data instanceof Array && (this.trigger_list = e.trigger_data.map(
-      (n) => new he(n)
+      (n) => new le(n)
     ));
   }
 };
@@ -52555,7 +52562,7 @@ var vs = class {
     this.editors = e.editors || [], this.schema = e.schema || "", this.updated_at = (e.updated_at || 0) * 1e3 || Date.now(), this.modified_by_id = e.modified_by_id || "", this.version = e.version || 0;
   }
 };
-var Ki = class {
+var Zi = class {
   /** Zone associated with the metadata */
   zone;
   /** Metadata for zone */
@@ -52573,7 +52580,7 @@ var $e = "metadata";
 function Fe(t) {
   return new vs(t);
 }
-function ju(t, e) {
+function Wu(t, e) {
   return g({
     id: t,
     query_params: { name: e },
@@ -52581,8 +52588,8 @@ function ju(t, e) {
     path: $e
   });
 }
-function Gu(t, e, n = "put") {
-  return T({
+function Qu(t, e, n = "put") {
+  return I({
     id: t,
     form_data: e,
     query_params: {},
@@ -52591,23 +52598,23 @@ function Gu(t, e, n = "put") {
     path: $e
   });
 }
-function Qu(t, e) {
-  return l({
+function Ju(t, e) {
+  return h({
     id: t,
     task_name: "children",
     form_data: e,
     method: "get",
     callback: (n) => n.map(
-      (s) => new Ki(__spreadProps(__spreadValues({}, s), {
+      (s) => new Zi(__spreadProps(__spreadValues({}, s), {
         keys: Object.keys(s.metadata)
       }))
     ),
     path: $e
   });
 }
-function Ku(t, e) {
+function Yu(t, e) {
   const n = b(e), s = `${u2()}/${$e}/${encodeURIComponent(t)}/bulk${n ? "?" + n : ""}`;
-  return d(s).then(
+  return f(s).then(
     (i) => Object.keys(i || {}).reduce(
       (r, o) => __spreadProps(__spreadValues({}, r), { [o]: Fe(i[o]) }),
       {}
@@ -52674,7 +52681,7 @@ var ks = class extends F {
   /** Orientation of the signage system */
   orientation;
   constructor(e = {}) {
-    super(e), this.display_name = e.display_name || "", this.description = e.description || "", this.email = e.email || "", this.code = e.code || "", this.capacity = e.capacity || 0, this.features = e.features || [], this.bookable = e.bookable || false, this.public = e.public ?? false, this.installed_ui_devices = e.installed_ui_devices || 0, this.support_url = e.support_url || "", this.camera_snapshot_url = e.camera_snapshot_url || "", this.camera_snapshot_urls = e.camera_snapshot_urls || [], this.camera_url = e.camera_url || "", this.timetable_url = e.timetable_url || "", this.room_booking_url = e.room_booking_url || "", this.map_id = e.map_id || "", this.modules = e.modules || [], this.images = e.images || [], this.zones = e.zones || [], this.settings = e.settings || [null, null, null, null], this.timezone = e.timezone || "", this.signage = e.signage || false, this.playlists = e.playlists || [], this.security_groups = e.security_groups || [], this.orientation = e.orientation || "unspecified", this.approval = e.approval || false, this.signage_last_seen = e.signage_last_seen || yn(Date.now()), typeof this.settings != "object" && (this.settings = [null, null, null, null]);
+    super(e), this.display_name = e.display_name || "", this.description = e.description || "", this.email = e.email || "", this.code = e.code || "", this.capacity = e.capacity || 0, this.features = e.features || [], this.bookable = e.bookable || false, this.public = e.public ?? false, this.installed_ui_devices = e.installed_ui_devices || 0, this.support_url = e.support_url || "", this.camera_snapshot_url = e.camera_snapshot_url || "", this.camera_snapshot_urls = e.camera_snapshot_urls || [], this.camera_url = e.camera_url || "", this.timetable_url = e.timetable_url || "", this.room_booking_url = e.room_booking_url || "", this.map_id = e.map_id || "", this.modules = e.modules || [], this.images = e.images || [], this.zones = e.zones || [], this.settings = e.settings || [null, null, null, null], this.timezone = e.timezone || "", this.signage = e.signage || false, this.playlists = e.playlists || [], this.security_groups = e.security_groups || [], this.orientation = e.orientation || "unspecified", this.approval = e.approval || false, this.signage_last_seen = e.signage_last_seen || $n(Date.now()), typeof this.settings != "object" && (this.settings = [null, null, null, null]);
     for (const n in He)
       !isNaN(Number(n)) && !this.settings[n] && (this.settings[n] = new qe({
         parent_id: this.id,
@@ -52752,47 +52759,47 @@ var Ss = class extends F {
     return (n.role !== Et.Logic && !e || !n.control_system_id) && delete n.control_system_id, delete n.driver, delete n.system, delete n.error_timestamp, delete n.has_runtime_error, n;
   }
 };
-var C = "systems";
+var O = "systems";
 function Pe(t) {
   return new ks(t);
 }
-function ta(t = {}) {
-  return $({ query_params: t, fn: Pe, path: C });
+function ia(t = {}) {
+  return $({ query_params: t, fn: Pe, path: O });
 }
-function na(t) {
-  return $({ query_params: t, fn: Pe, path: `${C}/with_emails` });
+function ra(t) {
+  return $({ query_params: t, fn: Pe, path: `${O}/with_emails` });
 }
-function sa(t, e = {}) {
-  return g({ id: t, query_params: e, fn: Pe, path: C });
+function oa(t, e = {}) {
+  return g({ id: t, query_params: e, fn: Pe, path: O });
 }
-var J = "users";
+var Y = "users";
 function Re(t) {
-  return new Rn(t);
+  return new Un(t);
 }
-function Ea(t = {}) {
-  return $({ query_params: t, fn: Re, path: J });
+function Ma(t = {}) {
+  return $({ query_params: t, fn: Re, path: Y });
 }
-function Ca(t, e = {}) {
-  return g({ id: t, query_params: e, fn: Re, path: J });
+function Na(t, e = {}) {
+  return g({ id: t, query_params: e, fn: Re, path: Y });
 }
-function Ma(t, e, n = "patch") {
-  return T({
+function Da(t, e, n = "patch") {
+  return I({
     id: t,
     form_data: e,
     query_params: {},
     method: n,
     fn: Re,
-    path: J
+    path: Y
   });
 }
-var le = "zones";
+var de = "zones";
 function nn(t) {
   return new Kt(t);
 }
-function Ba(t = {}) {
-  return $({ query_params: t, fn: nn, path: le });
+function Ka(t = {}) {
+  return $({ query_params: t, fn: nn, path: de });
 }
-var or = class {
+var ar = class {
   id;
   parent_category_id;
   name;
@@ -52804,7 +52811,7 @@ var or = class {
     this.id = e.id || "", this.parent_category_id = e.parent_category_id || "", this.name = e.name || "", this.description = e.description || "", this.hidden = e.hidden || false, this.created_at = e.created_at || 0, this.updated_at = e.updated_at || 0;
   }
 };
-var cr = class {
+var lr = class {
   id;
   category_id;
   name;
@@ -52818,7 +52825,7 @@ var cr = class {
     this.id = e.id || "", this.category_id = e.category_id || "", this.name = e.name || "", this.brand = e.brand || "", this.description = e.description || "", this.model_number = e.model_number || "", this.images = e.images || [], this.created_at = e.created_at || 0, this.updated_at = e.updated_at || 0;
   }
 };
-var ar = class {
+var dr = class {
   id;
   parent_id;
   asset_type_id;
@@ -52849,71 +52856,42 @@ var ar = class {
 };
 var ve = "assets";
 function Ue(t) {
-  return new ar(t);
+  return new dr(t);
 }
-function Gh(t = {}) {
+function Zh(t = {}) {
   return $({
     query_params: t,
     fn: Ue,
     path: ve
   });
 }
-var dt = "asset_types";
-function hn(t) {
-  return new cr(t);
-}
-function Vh(t = {}) {
-  return $({
-    query_params: t,
-    fn: hn,
-    path: dt
-  });
-}
-function Xh(t, e = {}) {
-  return g({
-    id: t,
-    query_params: e,
-    fn: hn,
-    path: dt
-  });
-}
-function el(t, e, n = "patch") {
-  return T({
-    id: t,
-    form_data: e,
-    query_params: {},
-    method: n,
-    fn: hn,
-    path: dt
-  });
-}
-function tl(t) {
-  return U({
-    form_data: t,
-    query_params: {},
-    fn: hn,
-    path: dt
-  });
-}
-var pt = "asset_categories";
+var ft = "asset_types";
 function ln(t) {
-  return new or(t);
+  return new lr(t);
 }
 function sl(t = {}) {
   return $({
     query_params: t,
     fn: ln,
-    path: pt
+    path: ft
+  });
+}
+function il(t, e = {}) {
+  return g({
+    id: t,
+    query_params: e,
+    fn: ln,
+    path: ft
   });
 }
 function rl(t, e, n = "patch") {
-  return T({
+  return I({
     id: t,
     form_data: e,
     query_params: {},
     method: n,
     fn: ln,
-    path: pt
+    path: ft
   });
 }
 function ol(t) {
@@ -52921,10 +52899,39 @@ function ol(t) {
     form_data: t,
     query_params: {},
     fn: ln,
+    path: ft
+  });
+}
+var pt = "asset_categories";
+function dn(t) {
+  return new ar(t);
+}
+function cl(t = {}) {
+  return $({
+    query_params: t,
+    fn: dn,
     path: pt
   });
 }
-var Is = class {
+function hl(t, e, n = "patch") {
+  return I({
+    id: t,
+    form_data: e,
+    query_params: {},
+    method: n,
+    fn: dn,
+    path: pt
+  });
+}
+function ll(t) {
+  return U({
+    form_data: t,
+    query_params: {},
+    fn: dn,
+    path: pt
+  });
+}
+var Es = class {
   _listeners = /* @__PURE__ */ new Set();
   _error_listeners = /* @__PURE__ */ new Set();
   _complete_listeners = /* @__PURE__ */ new Set();
@@ -52954,7 +52961,7 @@ var Is = class {
     this._listeners.clear(), this._error_listeners.clear(), this._complete_listeners.clear();
   }
 };
-var fr = class extends Is {
+var _r = class extends Es {
   constructor(e) {
     super(), this._config = e, this._socket = new WebSocket(e.url), this._socket.onopen = () => {
       const n = [...this._queue];
@@ -52979,14 +52986,14 @@ var fr = class extends Is {
     return this._config.deserializer ? this._config.deserializer(e) : e.data;
   }
 };
-function dr(t) {
-  return new fr(
+function mr(t) {
+  return new _r(
     typeof t == "string" ? { url: t } : t
   );
 }
 var te = /* @__PURE__ */ ((t) => (t[t.PARSE_ERROR = 0] = "PARSE_ERROR", t[t.BAD_REQUEST = 1] = "BAD_REQUEST", t[t.ACCESS_DENIED = 2] = "ACCESS_DENIED", t[t.REQUEST_FAILED = 3] = "REQUEST_FAILED", t[t.UNKNOWN_CMD = 4] = "UNKNOWN_CMD", t[t.SYS_NOT_FOUND = 5] = "SYS_NOT_FOUND", t[t.MOD_NOT_FOUND = 6] = "MOD_NOT_FOUND", t[t.UNEXPECTED_FAILURE = 7] = "UNEXPECTED_FAILURE", t))(te || {});
-var Es = /* @__PURE__ */ ((t) => (t.Info = "info", t.Debug = "debug", t.Warning = "warn", t.Error = "error", t.Fatal = "fatal", t.Trace = "trace", t))(Es || {});
-var pr = class {
+var Os = /* @__PURE__ */ ((t) => (t.Info = "info", t.Debug = "debug", t.Warning = "warn", t.Error = "error", t.Fatal = "fatal", t.Trace = "trace", t))(Os || {});
+var gr = class {
   constructor(e, n) {
     this._system = e;
     const s = Object.getOwnPropertyNames(
@@ -53033,7 +53040,7 @@ var pr = class {
     });
   }
 };
-var _r = class {
+var yr = class {
   constructor(e) {
     for (const n in e)
       e.hasOwnProperty(n) && e[n] && e[n] instanceof Array && e[n].forEach((s) => {
@@ -53046,48 +53053,48 @@ var _r = class {
    * @param properties Properties of the new module
    */
   addModule(e, n) {
-    this[e] || (this[e] = []), this[e].push(new pr(this, n));
+    this[e] || (this[e] = []), this[e].push(new gr(this, n));
   }
 };
-var Ct = {};
-function Nl(t, e) {
-  return Ct[t] = new _r(e), Ct[t];
+var Ot = {};
+function Fl(t, e) {
+  return Ot[t] = new yr(e), Ot[t];
 }
-function mr(t) {
-  return Ct[t];
+function $r(t) {
+  return Ot[t];
 }
-var O = Nt("WS");
+var C = Nt("WS");
 var Cs = 15;
 var gt = 0;
-var Y;
-var Os = 0;
+var V;
+var Ms = 0;
 var G = {};
 var wn = {};
-var gr = {};
+var br = {};
 var Se = ne(false);
-var Ms = ne([0, 0]);
-var Ns = Date.now();
+var Ns = ne([0, 0]);
+var ws = Date.now();
 var Ee;
-var Ot = 0;
+var Ct = 0;
 var fe = null;
 var kt;
 var Dn = 0;
 var yt = 10 * 1e3;
-var yr = ne(null);
-function _n() {
+var vr = ne(null);
+function mn() {
   return u2().indexOf("/control/") >= 0 ? "/control/websocket" : `${is()}/systems/control`;
 }
-function ws() {
+function Ds() {
   return Se.value;
 }
-function $r() {
+function kr() {
   return Se.asReadonly();
 }
-function br(t, e = wn) {
+function Sr(t, e = wn) {
   const n = `${t.sys}|${t.mod}_${t.index}|${t.name}`;
   return e[n] || (e[n] = ne(void 0)), e[n].asReadonly();
 }
-function vr(t, e = wn) {
+function xr(t, e = wn) {
   const n = `${t.sys}|${t.mod}_${t.index}|${t.name}`;
   if (e[n])
     return e[n].value;
@@ -53099,14 +53106,14 @@ function Wn(t, e = 0, n = Ge) {
   }, t);
   return n(s, e);
 }
-function kr(t, e = 0, n = Ge) {
+function Ar(t, e = 0, n = Ge) {
   const s = __spreadValues({
     id: ++gt,
     cmd: "unbind"
   }, t);
   return n(s, e);
 }
-function Sr(t, e = yt, n = Ge) {
+function qr(t, e = yt, n = Ge) {
   const s = __spreadValues({
     id: ++gt,
     cmd: "exec"
@@ -53114,9 +53121,9 @@ function Sr(t, e = yt, n = Ge) {
   return n(s, e);
 }
 function Ge(t, e = yt, n = 0) {
-  const s = `${t.cmd}|${t.sys}|${t.mod}${t.index}|${t.name}|${t.args}|${ei()}`;
+  const s = `${t.cmd}|${t.sys}|${t.mod}${t.index}|${t.name}|${t.args}|${ti()}`;
   if (G[s])
-    O("Request already in progress. Waiting...", t);
+    C("Request already in progress. Waiting...", t);
   else {
     const i = __spreadProps(__spreadValues({}, t), { key: s });
     i.promise = new Promise((r, o) => {
@@ -53126,13 +53133,13 @@ function Ge(t, e = yt, n = 0) {
           (y) => o(y)
         );
       };
-      if (Y && ws()) {
-        kn() && Tr(t, Y, gr), i.resolve = r, i.reject = o;
+      if (V && Ds()) {
+        Sn() && Or(t, V, br), i.resolve = r, i.reject = o;
         const y = `${t.sys}, ${t.mod}_${t.index}, ${t.name}`;
-        O(
+        C(
           `[${t.cmd.toUpperCase()}](${t.id}) ${y}`,
           t.args
-        ), Y.next(t), e > 0 && re(
+        ), V.next(t), e > 0 && re(
           `${s}`,
           () => {
             o("Request timed out."), delete G[s], G[s] = null;
@@ -53144,32 +53151,32 @@ function Ge(t, e = yt, n = 0) {
   }
   return G[s].promise;
 }
-function Ds(t) {
+function Hs(t) {
   if (t !== "pong" && t instanceof Object) {
     if (t.type === "notify" && t.meta)
-      qr(t.meta, t.value);
+      Ur(t.meta, t.value);
     else if (t.type === "success")
-      xr(t);
+      Pr(t);
     else if (t.type === "debug") {
-      O(`[DEBUG] ${t.mod}${t.klass || ""} \u2192`, t.msg);
+      C(`[DEBUG] ${t.mod}${t.klass || ""} \u2192`, t.msg);
       const e = t.meta || { mod: "", index: "" };
-      yr.set({
+      vr.set({
         mod_id: t.mod || "<empty>",
         module: `${e.mod}_${e.index}`,
         class_name: t.klass || "<empty>",
         message: t.msg || "<empty>",
-        level: t.level || Es.Debug,
+        level: t.level || Os.Debug,
         time: Math.floor((/* @__PURE__ */ new Date()).getTime() / 1e3)
       });
-    } else t.type === "error" ? Ar(t) : t.cmd || O.error("Invalid websocket message", t);
-    _e(`${t.id}`);
-  } else t === "pong" && (Dn = Date.now(), O("Pong!"));
+    } else t.type === "error" ? Rr(t) : t.cmd || C.error("Invalid websocket message", t);
+    me(`${t.id}`);
+  } else t === "pong" && (Dn = Date.now(), C("Pong!"));
 }
-function xr(t) {
+function Pr(t) {
   const e = Object.keys(G).map((n) => G[n]).find((n) => n?.id === t.id);
-  O(`[SUCCESS](${t.id})`), e && e.resolve && (e.resolve(t.value), delete G[e.key]);
+  C(`[SUCCESS](${t.id})`), e && e.resolve && (e.resolve(t.value), delete G[e.key]);
 }
-function Ar(t) {
+function Rr(t) {
   let e = "UNEXPECTED FAILURE";
   switch (t.code) {
     case te.ACCESS_DENIED:
@@ -53194,15 +53201,15 @@ function Ar(t) {
       e = "UNKNOWN COMMAND";
       break;
   }
-  O.error(`[ERROR] ${e}(${t.id}): ${t.msg}`);
+  C.error(`[ERROR] ${e}(${t.id}): ${t.msg}`);
   const n = Object.keys(G).map((s) => G[s]).filter((s) => s).find((s) => s.id === t.id);
-  n && n.reject && (n.reject(t), _e(`${n.key}`), delete G[n.key]);
+  n && n.reject && (n.reject(t), me(`${n.key}`), delete G[n.key]);
 }
-function qr(t, e, n = wn) {
+function Ur(t, e, n = wn) {
   const s = `${t.sys}|${t.mod}_${t.index}|${t.name}`;
   n[s] || (n[s] = ne(null));
   const i = `${t.sys}, ${t.mod}_${t.index}, ${t.name}`;
-  O(`[NOTIFY] ${i} changed`, [
+  C(`[NOTIFY] ${i} changed`, [
     n[s].value,
     "\u2192",
     e
@@ -53212,26 +53219,26 @@ function Hn(t = 0) {
   return fe == null && (fe = new Promise((e) => {
     if (t > 40)
       return location.reload();
-    Ot++, Ns = Date.now(), Y = kn() ? Ur() : Pr(), Y ? (O.debug("Authority:", Rt()), O("Connecting to websocket..."), Y.subscribe(
+    Ct++, ws = Date.now(), V = Sn() ? Er() : Ir(), V ? (C.debug("Authority:", Rt()), C("Connecting to websocket..."), V.subscribe(
       (n) => {
-        Se.value || (O("Connection established."), e()), Se.set(true), Ot = 0, mn(), Ds(n);
+        Se.value || (C("Connection established."), e()), Se.set(true), Ct = 0, gn(), Hs(n);
       },
       (n) => {
-        Y = void 0, fe = null, Zn(), mn(), Rr(n);
+        V = void 0, fe = null, Zn(), gn(), Tr(n);
       },
       () => {
-        Y = void 0, fe = null, Zn(), O("Connection closed by browser."), Se.set(false), Mt();
+        V = void 0, fe = null, Zn(), C("Connection closed by browser."), Se.set(false), Mt();
       }
     ), Ee && clearInterval(Ee), Dn = Date.now(), Qn(), Ee = setInterval(
       () => Qn(),
       Cs * 1e3
-    ), mn(), Os += 1, kt = setTimeout(() => {
-      O("Unhealthy connection. Reconnecting..."), Se.set(false), fe = null, Mt();
-    }, 30 * 1e3)) : (Y ? O(
+    ), gn(), Ms += 1, kt = setTimeout(() => {
+      C("Unhealthy connection. Reconnecting..."), Se.set(false), fe = null, Mt();
+    }, 30 * 1e3)) : (V ? C(
       `Waiting on auth(${t}). Retrying in ${1e3 * Math.min(10, t + 1)}ms...`,
-      [!!V(), !!Rt()],
+      [!!X(), !!Rt()],
       "info"
-    ) : O.error(
+    ) : C.error(
       `Failed to create websocket(${t}). Retrying in ${1e3 * Math.min(10, t + 1)}ms...`
     ), setTimeout(
       () => {
@@ -53241,15 +53248,15 @@ function Hn(t = 0) {
     ));
   })), fe;
 }
-function Pr() {
-  if (!Rt() || !V()) return null;
+function Ir() {
+  if (!Rt() || !X()) return null;
   const t = fi() || location.protocol.indexOf("https") >= 0;
-  let e = `ws${t ? "s" : ""}://${$n()}${_n()}${rs() ? "?fixed_device=true" : ""}`;
-  const n = V();
+  let e = `ws${t ? "s" : ""}://${bn()}${mn()}${rs() ? "?fixed_device=true" : ""}`;
+  const n = X();
   let s = n === "x-api-key" ? `api-key=${Ye()}` : `bearer_token=${n}`;
-  return !ci() && !Vs() ? (O("Authenticating through cookie..."), s += `;max-age=120;path=${_n()};`, s += `${t ? "secure;" : ""}samesite=strict`, document.cookie = s, O("Cookies:", [document.cookie, s])) : (O("Authenticating through URL query parameter..."), e += `${e.indexOf("?") >= 0 ? "&" : "?"}${s}`), O(
-    `Creating websocket connection to ws${t ? "s" : ""}://${$n()}${_n()}`
-  ), dr({
+  return !ai() && !Xs() ? (C("Authenticating through cookie..."), s += `;max-age=120;path=${mn()};`, s += `${t ? "secure;" : ""}samesite=strict`, document.cookie = s, C("Cookies:", [document.cookie, s])) : (C("Authenticating through URL query parameter..."), e += `${e.indexOf("?") >= 0 ? "&" : "?"}${s}`), C(
+    `Creating websocket connection to ws${t ? "s" : ""}://${bn()}${mn()}`
+  ), mr({
     url: e,
     serializer: (i) => typeof i == "object" ? JSON.stringify(i) : i,
     deserializer: (i) => {
@@ -53264,32 +53271,32 @@ function Pr() {
   });
 }
 function Mt() {
-  Ms.set([Os, Date.now() - Ns]), Y && ws() && (Y.complete(), Ee && (clearInterval(Ee), Ee = void 0)), O(
+  Ns.set([Ms, Date.now() - ws]), V && Ds() && (V.complete(), Ee && (clearInterval(Ee), Ee = void 0)), C(
     `Reconnecting in ${Math.min(
       5e3,
-      Ot * 300 || 1e3
+      Ct * 300 || 1e3
     )}ms...`
   ), re(
     "reconnect",
     () => Hn(),
-    Math.min(5e3, (Ot + 1) * 300 || 1e3)
+    Math.min(5e3, (Ct + 1) * 300 || 1e3)
   );
 }
 function Qn() {
   if (Date.now() - Dn > 4 * Cs * 1e3)
     return Mt();
-  Y?.next("ping");
+  V?.next("ping");
 }
-function Rr(t) {
-  Se.set(false), O.error("Websocket error:", t), t.status === 401 && An(), xn(), Mt();
+function Tr(t) {
+  Se.set(false), C.error("Websocket error:", t), t.status === 401 && qn(), An(), Mt();
 }
-function mn() {
+function gn() {
   kt && (clearTimeout(kt), kt = void 0);
 }
-function Ur() {
-  const t = new Is();
+function Er() {
+  const t = new Es();
   return t.subscribe(
-    (e) => Ds(e)
+    (e) => Hs(e)
   ), t;
 }
 function Kn(t, e) {
@@ -53301,8 +53308,8 @@ function Kn(t, e) {
     msg: n
   };
 }
-function Tr(t, e, n) {
-  const s = `${t.sys}|${t.mod}_${t.index}|${t.name}`, i = mr(t.sys), r = i && i[t.mod] ? i[t.mod][t.index - 1 || 0] : null;
+function Or(t, e, n) {
+  const s = `${t.sys}|${t.mod}_${t.index}|${t.name}`, i = $r(t.sys), r = i && i[t.mod] ? i[t.mod][t.index - 1 || 0] : null;
   if (r) {
     try {
       switch (t.cmd) {
@@ -53322,11 +53329,11 @@ function Tr(t, e, n) {
           });
           break;
         case "unbind":
-          n[s] && (n[s](), delete n[s], _e(`${s}`));
+          n[s] && (n[s](), delete n[s], me(`${s}`));
           break;
       }
     } catch (o) {
-      O.error(`[MOCK ERROR](${t.id}) request failed`, o), re(
+      C.error(`[MOCK ERROR](${t.id}) request failed`, o), re(
         `${t.id}-error`,
         () => e.next(Kn(t, o)),
         10
@@ -53344,7 +53351,7 @@ function Tr(t, e, n) {
           };
           e.next(o);
         } catch (o) {
-          O.error(
+          C.error(
             `[MOCK ERROR](${t.id}) execute failed`,
             o
           ), e.next(Kn(t, o));
@@ -53369,8 +53376,8 @@ function Zn() {
 }
 var Jn = class {
   constructor(e, n) {
-    this._module = e, this.name = n, $r().subscribe((s, i) => {
-      s !== i && (s && (this._stale_bindings || this._pending === 1) ? (xt("VAR", "Re-binding to status variable", this.binding()), this.rebind()) : s || (_e(`rebind:${JSON.stringify(this.binding())}`), xt(
+    this._module = e, this.name = n, kr().subscribe((s, i) => {
+      s !== i && (s && (this._stale_bindings || this._pending === 1) ? (xt("VAR", "Re-binding to status variable", this.binding()), this.rebind()) : s || (me(`rebind:${JSON.stringify(this.binding())}`), xt(
         "VAR",
         "Binding dropped due to disconnection, re-binding when possible.",
         this.binding()
@@ -53391,13 +53398,13 @@ var Jn = class {
   }
   /** Current value of the binding */
   get value() {
-    return vr(this.binding());
+    return xr(this.binding());
   }
   /**
    * Get a signal that emits the current value of the binding
    */
   listen() {
-    return br(this.binding());
+    return Sr(this.binding());
   }
   /**
    * Subscribe to changes of the variable's binding value.
@@ -53438,7 +53445,7 @@ var Jn = class {
    * Unbind from status variable
    */
   unbind() {
-    this._binding_count === 1 && this._pending === 0 ? (this._pending = 2, kr(this.binding()).then(() => {
+    this._binding_count === 1 && this._pending === 0 ? (this._pending = 2, Ar(this.binding()).then(() => {
       this._pending === 2 && (this._pending = 0), this._binding_count--;
     })) : this._binding_count = Math.max(this._binding_count - 1, 0);
   }
@@ -53466,7 +53473,7 @@ var Jn = class {
     };
   }
 };
-var Ir = class {
+var Cr = class {
   constructor(e, n) {
     this._system = e, this._id = n;
   }
@@ -53510,7 +53517,7 @@ var Ir = class {
    * @param args Array of arguments to pass to the method
    */
   execute(e, n, s = yt) {
-    return Sr(
+    return qr(
       {
         sys: this._system.id,
         mod: this.name,
@@ -53522,7 +53529,7 @@ var Ir = class {
     );
   }
 };
-var Er = class {
+var Mr = class {
   /** Unique idetifier of the system */
   id;
   /** Mapping of engine modules within the system */
@@ -53543,7 +53550,7 @@ var Er = class {
     const i = s.join("_");
     for (this._module_list[i] || (this._module_list[i] = []); this._module_list[i].length < n; )
       this._module_list[i].push(
-        new Ir(
+        new Cr(
           this,
           `${i}_${this._module_list[i].length + 1}`
         )
@@ -53551,12 +53558,12 @@ var Er = class {
     return this._module_list[i][n - 1];
   }
 };
-var gn = {};
-function Cr(t) {
-  return gn[t] || (gn[t] = new Er(t)), gn[t];
+var yn = {};
+function Nr(t) {
+  return yn[t] || (yn[t] = new Mr(t)), yn[t];
 }
-function Fl(t, e, n = 1) {
-  return Cr(t).module(e, n);
+function Wl(t, e, n = 1) {
+  return Nr(t).module(e, n);
 }
 
 // libs/common/src/lib/locale.service.ts
@@ -53680,7 +53687,7 @@ var LocaleService = class _LocaleService {
         return console.error(`Failed to loaded locale file for "${locale}".`, resp);
       }
       const locale_data = await resp.json();
-      const locale_override_data = this.zone_id ? await ju(this.zone_id, `locale_${locale}`) : { details: {} };
+      const locale_override_data = this.zone_id ? await Wu(this.zone_id, `locale_${locale}`) : { details: {} };
       const base_locale_values = removeNesting(locale_data);
       const override_locale_values = removeNesting(locale_override_data.details);
       this._locale_mappings[locale] = __spreadValues(__spreadValues({}, base_locale_values), override_locale_values);
@@ -53723,12 +53730,12 @@ function setNotifyOutlet(snackbar, disable_logging = false) {
   _service2 = snackbar;
   _disable_logging = disable_logging;
 }
-function notify(type, message2, action = "OK", on_action, config2 = {}) {
+function notify(type2, message2, action = "OK", on_action, config2 = {}) {
   if (!_service2) {
     return !_disable_logging && console.warn("Snackbar service hasn't been initialised");
   }
   const snackbar_ref = _service2.open(message2, action, __spreadValues({
-    panelClass: [type],
+    panelClass: [type2],
     duration: 5e3
   }, config2));
   if (action) {
@@ -53813,8 +53820,8 @@ function getTimezoneOffsetInMinutes(timeZone, date = /* @__PURE__ */ new Date())
 }
 function getTimeInTimezone(date, tz) {
   if (!tz) {
-    const d2 = new Date(date);
-    return { hours: d2.getHours(), minutes: d2.getMinutes() };
+    const d = new Date(date);
+    return { hours: d.getHours(), minutes: d.getMinutes() };
   }
   const zoned = toZonedTime(date, tz);
   return { hours: zoned.getHours(), minutes: zoned.getMinutes() };
@@ -53825,8 +53832,8 @@ function formatTimeInTimezone(date, tz) {
 }
 function setTimeInTimezone(date, hours, minutes, tz) {
   if (!tz) {
-    const d2 = set(new Date(date), { hours, minutes });
-    return startOfMinute(d2).valueOf();
+    const d = set(new Date(date), { hours, minutes });
+    return startOfMinute(d).valueOf();
   }
   const zoned = toZonedTime(date, tz);
   const adjusted = set(zoned, { hours, minutes });
@@ -53846,7 +53853,7 @@ var _app_name = "APP";
 function setAppName(name) {
   _app_name = name;
 }
-function log(type, msg, args, stream = "debug", force = false, app_name = _app_name) {
+function log(type2, msg, args, stream = "debug", force = false, app_name = _app_name) {
   if (window.jest)
     return;
   if (window.debug || force) {
@@ -53856,9 +53863,9 @@ function log(type, msg, args, stream = "debug", force = false, app_name = _app_n
       "color: default"
     ];
     if (args) {
-      console[stream](`%c[${app_name}]%c[${type}] %c${msg}`, ...colors, args);
+      console[stream](`%c[${app_name}]%c[${type2}] %c${msg}`, ...colors, args);
     } else {
-      console[stream](`%c[${app_name}]%c[${type}] %c${msg}`, ...colors);
+      console[stream](`%c[${app_name}]%c[${type2}] %c${msg}`, ...colors);
     }
   }
 }
@@ -53878,7 +53885,7 @@ function padLength(value, length = 2, character = "0") {
 }
 function getItemWithKeys(keys, map2) {
   const key = keys[0];
-  if (map2 && key in map2) {
+  if (map2 && typeof map2 === "object" && key in map2) {
     return keys.length > 1 ? getItemWithKeys(keys.slice(1), map2[key] || {}) : map2[key];
   }
   return null;
@@ -53932,27 +53939,27 @@ function predictableRandomInt(ceil = 100, floor = 0) {
   return Math.floor(rand() * (ceil - floor)) + floor;
 }
 function xmur3(str) {
-  let h2 = 1779033703 ^ str.length;
+  let h3 = 1779033703 ^ str.length;
   for (let i = 0; i < str.length; i++)
-    h2 = Math.imul(h2 ^ str.charCodeAt(i), 3432918353), h2 = h2 << 13 | h2 >>> 19;
+    h3 = Math.imul(h3 ^ str.charCodeAt(i), 3432918353), h3 = h3 << 13 | h3 >>> 19;
   return function() {
-    h2 = Math.imul(h2 ^ h2 >>> 16, 2246822507);
-    h2 = Math.imul(h2 ^ h2 >>> 13, 3266489909);
-    return (h2 ^= h2 >>> 16) >>> 0;
+    h3 = Math.imul(h3 ^ h3 >>> 16, 2246822507);
+    h3 = Math.imul(h3 ^ h3 >>> 13, 3266489909);
+    return (h3 ^= h3 >>> 16) >>> 0;
   };
 }
-function sfc32(a, b2, c2, d2) {
+function sfc32(a, b2, c2, d) {
   return function() {
     a >>>= 0;
     b2 >>>= 0;
     c2 >>>= 0;
-    d2 >>>= 0;
+    d >>>= 0;
     let t = a + b2 | 0;
     a = b2 ^ b2 >>> 9;
     b2 = c2 + (c2 << 3) | 0;
     c2 = c2 << 21 | c2 >>> 11;
-    d2 = d2 + 1 | 0;
-    t = t + d2 | 0;
+    d = d + 1 | 0;
+    t = t + d | 0;
     c2 = c2 + t | 0;
     return (t >>> 0) / 4294967296;
   };
@@ -54034,33 +54041,20 @@ function formatDuration2({ days, hours, minutes, seconds }, { zero } = {}) {
 function firstTruthyValueFrom(obs) {
   return obs ? lastValueFrom(obs.pipe(first((_2) => !!_2))) : Promise.resolve(null);
 }
-function getAllDayTimeRange(date, timezone = "", start, end, min_date) {
+function getAllDayTimeRange(date, timezone = "", start, end) {
   const day_start = startOfDayInTimezone(date, timezone);
-  const clampStart = (period_start2, period_end2) => {
-    if (!min_date)
-      return period_start2;
-    const minimum = roundToNearestMinutes(min_date, {
-      nearestTo: 5,
-      roundingMethod: "ceil"
-    }).valueOf();
-    const same_day = isSameDay(timezone ? toZonedTime(minimum, timezone) : new Date(minimum), timezone ? toZonedTime(period_start2, timezone) : new Date(period_start2));
-    if (!same_day || minimum <= period_start2)
-      return period_start2;
-    return Math.min(period_end2, minimum);
-  };
   if (start == null || end == null) {
     const period_end2 = endOfDayInTimezone(day_start, timezone);
-    const period_start2 = clampStart(day_start, period_end2);
     return {
-      date: period_start2,
-      duration: Math.max(0, differenceInMinutes(period_end2, period_start2)),
+      date: day_start,
+      duration: Math.max(0, differenceInMinutes(period_end2, day_start)),
       date_end: period_end2
     };
   }
   const range_start = Math.max(0, Math.min(23, start));
   const range_end = Math.max(range_start + 1, Math.min(24, end));
   const period_end = addHours(day_start, range_end).valueOf();
-  const period_start = clampStart(addHours(day_start, range_start).valueOf(), period_end);
+  const period_start = addHours(day_start, range_start).valueOf();
   return {
     date: period_start,
     duration: Math.max(0, differenceInMinutes(period_end, period_start)),
@@ -54253,7 +54247,6 @@ function setupFormTimeSync(model2, options2 = {}, injector) {
     nearestTo: round_to,
     roundingMethod: "ceil"
   }).valueOf();
-  const allDayMinDate = () => snap().id ? void 0 : Date.now();
   const bookableWindowRemaining = (start) => {
     start = normaliseTimeValue(start);
     if (!bookable_hours || !start || snap().id)
@@ -54303,9 +54296,9 @@ function setupFormTimeSync(model2, options2 = {}, injector) {
     date_end = normaliseTimeValue(date_end);
     if (!date || !date_end)
       return false;
-    const d2 = timezone ? toZonedTime(date, timezone) : new Date(date);
+    const d = timezone ? toZonedTime(date, timezone) : new Date(date);
     const e = timezone ? toZonedTime(date_end, timezone) : new Date(date_end);
-    return !isSameDay(d2, e);
+    return !isSameDay(d, e);
   };
   const alignEndToBookableHours = (date_end) => {
     date_end = normaliseTimeValue(date_end);
@@ -54435,7 +54428,7 @@ function setupFormTimeSync(model2, options2 = {}, injector) {
       effective = alignToBookableHours(snapped) || snapped;
     }
     if (is_all_day) {
-      applyPatch(getAllDayTimeRange(effective, timezone, all_day_start, all_day_end, allDayMinDate()));
+      applyPatch(getAllDayTimeRange(effective, timezone, all_day_start, all_day_end));
       on_change?.();
       return;
     }
@@ -54486,7 +54479,7 @@ function setupFormTimeSync(model2, options2 = {}, injector) {
   fieldEffect((v) => v.all_day, () => {
     const all_day = snap().all_day;
     if (all_day) {
-      applyPatch(getAllDayTimeRange(normaliseTimeValue(snap().date), timezone, all_day_start, all_day_end, allDayMinDate()));
+      applyPatch(getAllDayTimeRange(normaliseTimeValue(snap().date), timezone, all_day_start, all_day_end));
     } else {
       const date = normaliseTimeValue(snap().date);
       const duration = normaliseTimeValue(snap().duration);
@@ -54525,7 +54518,7 @@ function setupFormTimeSync(model2, options2 = {}, injector) {
       if (patch.all_day_end !== void 0)
         all_day_end = patch.all_day_end;
       if (snap().all_day && snap().date) {
-        applyPatch(getAllDayTimeRange(normaliseTimeValue(snap().date), timezone, all_day_start, all_day_end, allDayMinDate()));
+        applyPatch(getAllDayTimeRange(normaliseTimeValue(snap().date), timezone, all_day_start, all_day_end));
         on_change?.();
         return;
       }
@@ -54767,18 +54760,18 @@ var GoogleAnalyticsService = class _GoogleAnalyticsService {
   init(tracking_id = "") {
     if (!window.gtag) {
       window.dataLayer = window.dataLayer || [];
-      (function(w, d2, s, l2, i) {
-        w[l2] = w[l2] || [];
-        w[l2].push({
+      (function(w, d, s, l, i) {
+        w[l] = w[l] || [];
+        w[l].push({
           "gtm.start": (/* @__PURE__ */ new Date()).getTime(),
           event: "gtm.js"
         });
-        const f = d2.getElementsByTagName(s)[0];
-        const j = d2.createElement(s);
-        const dl = l2 != "dataLayer" ? "&l=" + l2 : "";
+        const f2 = d.getElementsByTagName(s)[0];
+        const j = d.createElement(s);
+        const dl = l != "dataLayer" ? "&l=" + l : "";
         j.async = true;
         j.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
-        f.parentNode.insertBefore(j, f);
+        f2.parentNode.insertBefore(j, f2);
       })(window, document, "script", "dataLayer", tracking_id);
       log("Analytics", "Service", "Injected Google Analytics into page");
     }
@@ -54817,12 +54810,12 @@ var GoogleAnalyticsService = class _GoogleAnalyticsService {
       }, 100);
     }
   }
-  send(type, value) {
+  send(type2, value) {
     if (!this.service) {
       throw new Error("Google Analytics hasn't been installed on this page");
     }
     if (this.enabled) {
-      this.timeout(`end|${type}`, () => {
+      this.timeout(`end|${type2}`, () => {
         this.push(__spreadProps(__spreadValues({}, value), {
           event: "event"
         }));
@@ -54842,8 +54835,8 @@ var GoogleAnalyticsService = class _GoogleAnalyticsService {
     }
     if (this.enabled) {
       this.timeout(`event|${category}|${action}|${label}|${value}`, () => {
-        const l2 = label ? ", " + label : "";
-        log("Analytics", "Service", `Event: ${category}, ${action}${l2}${value ? ", " + value : ""}`);
+        const l = label ? ", " + label : "";
+        log("Analytics", "Service", `Event: ${category}, ${action}${l}${value ? ", " + value : ""}`);
         this.push({
           event: "event",
           category,
@@ -55107,7 +55100,7 @@ var CateringOrder = class {
     this.item_count = this.items.reduce((amount, item) => amount + item.quantity, 0);
     this.total_cost = this.items.reduce((amount, item) => amount + (item.total_cost || 0), 0);
     this.charge_code = data.charge_code || "";
-    this.status = data[`${this.event_id}_status`] || data.status || "accepted";
+    this.status = data[`${this.event_id}_status`] || data.status || "pending";
     this.invoice_number = data.invoice_number || "";
     this.event = data.event || null;
     this.notes = data.notes || "";
@@ -55117,7 +55110,7 @@ var CateringOrder = class {
     this.deliver_at_time = deliverAtTime2(this);
   }
   toJSON() {
-    const obj = Ys(__spreadValues({}, this), ["", null, void 0]);
+    const obj = Vs(__spreadValues({}, this), ["", null, void 0]);
     obj.status = obj._status;
     delete obj.event;
     delete obj._status;
@@ -55634,7 +55627,7 @@ var CalendarEvent = class _CalendarEvent {
   }
   /** List of external attendees associated with the event */
   get guests() {
-    return this.attendees.filter((f) => !!f.is_external);
+    return this.attendees.filter((f2) => !!f2.is_external);
   }
   /** Primary space associated with the booking */
   get space() {
@@ -55854,7 +55847,7 @@ async function loadUserGroups() {
     return;
   }
   try {
-    const groups = await _u({});
+    const groups = await yu({});
     user_groups.set(groups);
     console.log("Permissions:", user_permissions());
   } catch (error2) {
@@ -55872,7 +55865,7 @@ function initialiseUser() {
   }
   _current_user.subscribe((u3) => user_signal.set(u3));
   const is_public_mode = isPublicMode();
-  const user_request = combineLatest([Ca("current"), _change]).pipe(map(([i]) => new StaffUser(i)));
+  const user_request = combineLatest([Na("current"), _change]).pipe(map(([i]) => new StaffUser(i)));
   if (is_public_mode) {
     user_request.pipe(catchError((error2) => {
       console.warn("User loading failed in public mode, using local public user data.", error2);
@@ -55896,7 +55889,7 @@ function initialiseUser() {
 function reloadUserData() {
   setTimeout(async () => {
     try {
-      const p_user = await Ca("current");
+      const p_user = await Na("current");
       const user = new StaffUser(p_user);
       _current_user.next(user);
       setDefaultCreator(user);
@@ -55914,8 +55907,27 @@ function reloadUserData() {
 function currentUser() {
   return _current_user.getValue() || EMPTY_USER;
 }
-function userSignal() {
-  return user_signal;
+function currentUserIsLoaded() {
+  if (!isEmptyUser(currentUser()))
+    return true;
+  try {
+    return !!jest;
+  } catch {
+    return false;
+  }
+}
+function currentUserLoaded() {
+  const user = currentUser();
+  if (currentUserIsLoaded())
+    return Promise.resolve(user);
+  return new Promise((resolve) => {
+    const sub = _current_user.subscribe((user2) => {
+      if (isEmptyUser(user2))
+        return;
+      sub.unsubscribe();
+      resolve(user2);
+    });
+  });
 }
 function hasPermission(subsystem, permissions) {
   if (user_signal().groups?.includes("placeos_admin"))
@@ -55936,20 +55948,33 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "73959d8",
-  "hash": "73959d8",
+  "raw": "72d21fe",
+  "hash": "72d21fe",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "73959d8",
+  "suffix": "72d21fe",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1783504045898
+  "time": 1783937267353
 };
 
 // libs/common/src/lib/settings.service.ts
 var _service3;
 var _setting_signals = {};
+var DEBUG_OVERRIDES_KEY = "PLACEOS.setting_overrides";
+function loadDebugOverrides() {
+  try {
+    const overrides = JSON.parse(localStorage.getItem(DEBUG_OVERRIDES_KEY) || "{}");
+    for (const key in overrides) {
+      if (!key.startsWith("app."))
+        delete overrides[key];
+    }
+    return overrides;
+  } catch {
+    return {};
+  }
+}
 function setting(key) {
   return _service3 ? _service3.get(key) : void 0;
 }
@@ -55966,6 +55991,30 @@ var SettingsService = class _SettingsService extends AsyncHandler {
    */
   setOverrides(value) {
     this._overrides.set(value);
+    this._refreshSettings();
+  }
+  /** Set a local debug override for an `app.*` setting. `undefined` clears the key. */
+  setDebugOverride(key, value) {
+    if (!key.startsWith("app."))
+      return;
+    const overrides = __spreadValues({}, this._debug_overrides());
+    if (value === void 0)
+      delete overrides[key];
+    else
+      overrides[key] = value;
+    this._debug_overrides.set(overrides);
+    if (Object.keys(overrides).length) {
+      localStorage.setItem(DEBUG_OVERRIDES_KEY, JSON.stringify(overrides));
+    } else
+      localStorage.removeItem(DEBUG_OVERRIDES_KEY);
+    this._refreshSettings();
+  }
+  clearDebugOverrides() {
+    this._debug_overrides.set({});
+    localStorage.removeItem(DEBUG_OVERRIDES_KEY);
+    this._refreshSettings();
+  }
+  _refreshSettings() {
     this._applyCssVariables();
     this._updateSignals();
     this._applyTheme();
@@ -56025,6 +56074,14 @@ var SettingsService = class _SettingsService extends AsyncHandler {
         []
       )
     );
+    this._debug_overrides = signal(
+      loadDebugOverrides(),
+      ...ngDevMode ? [{ debugName: "_debug_overrides" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.debug_overrides = this._debug_overrides.asReadonly();
     this._subjects = {};
     this._pending_settings = {};
     this.theme_signal = computed(
@@ -56071,7 +56128,7 @@ var SettingsService = class _SettingsService extends AsyncHandler {
       window.setting = (key) => this.get(key);
     }
     const user = await this._currentUser();
-    const data = await ju(user.id, "settings");
+    const data = await Wu(user.id, "settings");
     this._user_settings.set(data.details || {});
     this.timeout("init", () => {
       this._initDarkMode();
@@ -56093,6 +56150,9 @@ var SettingsService = class _SettingsService extends AsyncHandler {
    * @param key Name of the setting. i.e. nested items can be grabbed using `.` to seperate key names
    */
   get(key) {
+    const debug_overrides = this._debug_overrides();
+    if (key in debug_overrides)
+      return debug_overrides[key];
     const keys = key.split(".");
     if (keys[0] !== "app") {
       return getItemWithKeys(keys, this._pending_settings) ?? getItemWithKeys(keys, this._user_settings()) ?? getItemWithKeys(keys, DEFAULT_SETTINGS);
@@ -56115,7 +56175,7 @@ var SettingsService = class _SettingsService extends AsyncHandler {
     this.timeout("save_settings", () => this._savePendingChanges(), 2400);
   }
   async updateLocatable(locatable) {
-    await Ma(currentUser().id, { locatable }, "patch");
+    await Da(currentUser().id, { locatable }, "patch");
     reloadUserData();
   }
   overrideCssVariable(key, value, important = false) {
@@ -56154,7 +56214,7 @@ var SettingsService = class _SettingsService extends AsyncHandler {
     if (!user?.id || !Object.keys(this._pending_settings).length)
       return;
     this._updateSignals();
-    await Gu(user.id, {
+    await Qu(user.id, {
       name: "settings",
       description: "",
       details: __spreadValues(__spreadValues({}, this._user_settings()), this._pending_settings)
@@ -56808,17 +56868,17 @@ function issueAnimationCommand(renderer, element, id, command, args) {
   renderer.setProperty(element, `@@${id}:${command}`, args);
 }
 function unwrapAnimationRenderer(renderer) {
-  const type = renderer.\u0275type;
-  if (type === 0) {
+  const type2 = renderer.\u0275type;
+  if (type2 === 0) {
     return renderer;
-  } else if (type === 1) {
+  } else if (type2 === 1) {
     return renderer.animationRenderer;
   }
   return null;
 }
 function isAnimationRenderer(renderer) {
-  const type = renderer.\u0275type;
-  return type === 0 || type === 1;
+  const type2 = renderer.\u0275type;
+  return type2 === 0 || type2 === 1;
 }
 
 // libs/common/src/lib/angular-animations.ts
@@ -57380,7 +57440,7 @@ async function setupPlace(settings) {
   if (mock) {
     notifyInfo("Application in mock mode.");
   }
-  return zr(config2);
+  return jr(config2);
 }
 
 // libs/common/src/lib/signal.utilities.ts
@@ -59887,7 +59947,7 @@ var FOCUS_TRAP_INERT_STRATEGY = new InjectionToken("FOCUS_TRAP_INERT_STRATEGY");
 var FocusTrapManager = class _FocusTrapManager {
   _focusTrapStack = [];
   register(focusTrap) {
-    this._focusTrapStack = this._focusTrapStack.filter((ft) => ft !== focusTrap);
+    this._focusTrapStack = this._focusTrapStack.filter((ft2) => ft2 !== focusTrap);
     let stack = this._focusTrapStack;
     if (stack.length) {
       stack[stack.length - 1]._disable();
@@ -64722,8 +64782,8 @@ var RippleRenderer = class _RippleRenderer {
     }
     this._removeTriggerEvents();
     this._triggerElement = element;
-    pointerDownEvents.forEach((type) => {
-      _RippleRenderer._eventManager.addHandler(this._ngZone, type, element, this);
+    pointerDownEvents.forEach((type2) => {
+      _RippleRenderer._eventManager.addHandler(this._ngZone, type2, element, this);
     });
   }
   handleEvent(event) {
@@ -64736,8 +64796,8 @@ var RippleRenderer = class _RippleRenderer {
     }
     if (!this._pointerUpEventsRegistered) {
       this._ngZone.runOutsideAngular(() => {
-        pointerUpEvents.forEach((type) => {
-          this._triggerElement.addEventListener(type, this, passiveCapturingEventOptions);
+        pointerUpEvents.forEach((type2) => {
+          this._triggerElement.addEventListener(type2, this, passiveCapturingEventOptions);
         });
       });
       this._pointerUpEventsRegistered = true;
@@ -64817,9 +64877,9 @@ var RippleRenderer = class _RippleRenderer {
   _removeTriggerEvents() {
     const trigger2 = this._triggerElement;
     if (trigger2) {
-      pointerDownEvents.forEach((type) => _RippleRenderer._eventManager.removeHandler(type, trigger2, this));
+      pointerDownEvents.forEach((type2) => _RippleRenderer._eventManager.removeHandler(type2, trigger2, this));
       if (this._pointerUpEventsRegistered) {
-        pointerUpEvents.forEach((type) => trigger2.removeEventListener(type, this, passiveCapturingEventOptions));
+        pointerUpEvents.forEach((type2) => trigger2.removeEventListener(type2, this, passiveCapturingEventOptions));
         this._pointerUpEventsRegistered = false;
       }
     }
@@ -66598,25 +66658,25 @@ var NgswCommChannel = class {
       });
     });
   }
-  postMessageWithOperation(type, payload, operationNonce) {
+  postMessageWithOperation(type2, payload, operationNonce) {
     const waitForOperationCompleted = this.waitForOperationCompleted(operationNonce);
-    const postMessage = this.postMessage(type, payload);
+    const postMessage = this.postMessage(type2, payload);
     return Promise.all([postMessage, waitForOperationCompleted]).then(([, result]) => result);
   }
   generateNonce() {
     return Math.round(Math.random() * 1e7);
   }
-  eventsOfType(type) {
+  eventsOfType(type2) {
     let filterFn2;
-    if (typeof type === "string") {
-      filterFn2 = (event) => event.type === type;
+    if (typeof type2 === "string") {
+      filterFn2 = (event) => event.type === type2;
     } else {
-      filterFn2 = (event) => type.includes(event.type);
+      filterFn2 = (event) => type2.includes(event.type);
     }
     return this.events.pipe(filter(filterFn2));
   }
-  nextEventOfType(type) {
-    return this.eventsOfType(type).pipe(take(1));
+  nextEventOfType(type2) {
+    return this.eventsOfType(type2).pipe(take(1));
   }
   waitForOperationCompleted(nonce) {
     return new Promise((resolve, reject) => {
@@ -67107,22 +67167,22 @@ function getVueInternalName(value) {
 // node_modules/@sentry/core/build/esm/instrument/handlers.js
 var handlers = {};
 var instrumented = {};
-function addHandler(type, handler) {
-  handlers[type] = handlers[type] || [];
-  handlers[type].push(handler);
+function addHandler(type2, handler) {
+  handlers[type2] = handlers[type2] || [];
+  handlers[type2].push(handler);
 }
-function maybeInstrument(type, instrumentFn) {
-  if (!instrumented[type]) {
-    instrumented[type] = true;
+function maybeInstrument(type2, instrumentFn) {
+  if (!instrumented[type2]) {
+    instrumented[type2] = true;
     try {
       instrumentFn();
     } catch (e) {
-      DEBUG_BUILD && debug.error(`Error while instrumenting ${type}`, e);
+      DEBUG_BUILD && debug.error(`Error while instrumenting ${type2}`, e);
     }
   }
 }
-function triggerHandlers(type, data) {
-  const typeHandlers = type && handlers[type];
+function triggerHandlers(type2, data) {
+  const typeHandlers = type2 && handlers[type2];
   if (!typeHandlers) {
     return;
   }
@@ -67132,7 +67192,7 @@ function triggerHandlers(type, data) {
     } catch (e) {
       DEBUG_BUILD && debug.error(
         `Error while triggering instrumentation handler.
-Type: ${type}
+Type: ${type2}
 Name: ${getFunctionName(handler)}
 Error:`,
         e
@@ -67144,9 +67204,9 @@ Error:`,
 // node_modules/@sentry/core/build/esm/instrument/globalError.js
 var _oldOnErrorHandler = null;
 function addGlobalErrorInstrumentationHandler(handler) {
-  const type = "error";
-  addHandler(type, handler);
-  maybeInstrument(type, instrumentError);
+  const type2 = "error";
+  addHandler(type2, handler);
+  maybeInstrument(type2, instrumentError);
 }
 function instrumentError() {
   _oldOnErrorHandler = GLOBAL_OBJ.onerror;
@@ -67170,9 +67230,9 @@ function instrumentError() {
 // node_modules/@sentry/core/build/esm/instrument/globalUnhandledRejection.js
 var _oldOnUnhandledRejectionHandler = null;
 function addGlobalUnhandledRejectionInstrumentationHandler(handler) {
-  const type = "unhandledrejection";
-  addHandler(type, handler);
-  maybeInstrument(type, instrumentUnhandledRejection);
+  const type2 = "unhandledrejection";
+  addHandler(type2, handler);
+  maybeInstrument(type2, instrumentUnhandledRejection);
 }
 function instrumentUnhandledRejection() {
   _oldOnUnhandledRejectionHandler = GLOBAL_OBJ.onunhandledrejection;
@@ -67549,7 +67609,7 @@ function getEventDescription(event) {
   }
   return eventId || "<unknown>";
 }
-function addExceptionTypeValue(event, value, type) {
+function addExceptionTypeValue(event, value, type2) {
   const exception = event.exception = event.exception || {};
   const values = exception.values = exception.values || [];
   const firstException = values[0] = values[0] || {};
@@ -67557,7 +67617,7 @@ function addExceptionTypeValue(event, value, type) {
     firstException.value = value || "";
   }
   if (!firstException.type) {
-    firstException.type = type || "Error";
+    firstException.type = type2 || "Error";
   }
 }
 function addExceptionMechanism(event, newMechanism) {
@@ -69534,7 +69594,7 @@ function forEachEnvelopeItem(envelope, callback) {
   return false;
 }
 function envelopeContainsItemType(envelope, types) {
-  return forEachEnvelopeItem(envelope, (_2, type) => types.includes(type));
+  return forEachEnvelopeItem(envelope, (_2, type2) => types.includes(type2));
 }
 function encodeUTF8(input2) {
   const carrier = getSentryCarrier(GLOBAL_OBJ);
@@ -69611,11 +69671,11 @@ var DATA_CATEGORY_OVERRIDES = {
   log: "log_item",
   trace_metric: "metric"
 };
-function _isOverriddenType(type) {
-  return type in DATA_CATEGORY_OVERRIDES;
+function _isOverriddenType(type2) {
+  return type2 in DATA_CATEGORY_OVERRIDES;
 }
-function envelopeItemTypeToDataCategory(type) {
-  return _isOverriddenType(type) ? DATA_CATEGORY_OVERRIDES[type] : type;
+function envelopeItemTypeToDataCategory(type2) {
+  return _isOverriddenType(type2) ? DATA_CATEGORY_OVERRIDES[type2] : type2;
 }
 function getSdkMetadataForEnvelopeHeader(metadataOrEvent) {
   if (!metadataOrEvent?.sdk) {
@@ -69704,24 +69764,24 @@ function createSpanEnvelope(spans, client) {
 // node_modules/@sentry/core/build/esm/tracing/logSpans.js
 function logSpanStart(span) {
   if (!DEBUG_BUILD) return;
-  const { description = "< unknown name >", op = "< unknown op >", parent_span_id: parentSpanId } = spanToJSON(span);
+  const { description: description2 = "< unknown name >", op = "< unknown op >", parent_span_id: parentSpanId } = spanToJSON(span);
   const { spanId } = span.spanContext();
   const sampled = spanIsSampled(span);
   const rootSpan = getRootSpan(span);
   const isRootSpan = rootSpan === span;
   const header = `[Tracing] Starting ${sampled ? "sampled" : "unsampled"} ${isRootSpan ? "root " : ""}span`;
-  const infoParts = [`op: ${op}`, `name: ${description}`, `ID: ${spanId}`];
+  const infoParts = [`op: ${op}`, `name: ${description2}`, `ID: ${spanId}`];
   if (parentSpanId) {
     infoParts.push(`parent ID: ${parentSpanId}`);
   }
   if (!isRootSpan) {
-    const { op: op2, description: description2 } = spanToJSON(rootSpan);
+    const { op: op2, description: description3 } = spanToJSON(rootSpan);
     infoParts.push(`root ID: ${rootSpan.spanContext().spanId}`);
     if (op2) {
       infoParts.push(`root op: ${op2}`);
     }
-    if (description2) {
-      infoParts.push(`root description: ${description2}`);
+    if (description3) {
+      infoParts.push(`root description: ${description3}`);
     }
   }
   debug.log(`${header}
@@ -69729,11 +69789,11 @@ function logSpanStart(span) {
 }
 function logSpanEnd(span) {
   if (!DEBUG_BUILD) return;
-  const { description = "< unknown name >", op = "< unknown op >" } = spanToJSON(span);
+  const { description: description2 = "< unknown name >", op = "< unknown op >" } = spanToJSON(span);
   const { spanId } = span.spanContext();
   const rootSpan = getRootSpan(span);
   const isRootSpan = rootSpan === span;
-  const msg = `[Tracing] Finishing "${op}" ${isRootSpan ? "root " : ""}span "${description}" with ID ${spanId}`;
+  const msg = `[Tracing] Finishing "${op}" ${isRootSpan ? "root " : ""}span "${description2}" with ID ${spanId}`;
   debug.log(msg);
 }
 
@@ -71488,8 +71548,8 @@ function createTransport(options2, makeRequest, buffer = makePromiseBuffer(
   const flush2 = (timeout) => buffer.drain(timeout);
   function send(envelope) {
     const filteredEnvelopeItems = [];
-    forEachEnvelopeItem(envelope, (item, type) => {
-      const dataCategory = envelopeItemTypeToDataCategory(type);
+    forEachEnvelopeItem(envelope, (item, type2) => {
+      const dataCategory = envelopeItemTypeToDataCategory(type2);
       if (isRateLimited(rateLimits, dataCategory)) {
         options2.recordDroppedEvent("ratelimit_backoff", dataCategory);
       } else {
@@ -71505,8 +71565,8 @@ function createTransport(options2, makeRequest, buffer = makePromiseBuffer(
         DEBUG_BUILD && debug.warn(`Dropping client report. Will not send outcomes (reason: ${reason}).`);
         return;
       }
-      forEachEnvelopeItem(filteredEnvelope, (item, type) => {
-        options2.recordDroppedEvent(reason, envelopeItemTypeToDataCategory(type));
+      forEachEnvelopeItem(filteredEnvelope, (item, type2) => {
+        options2.recordDroppedEvent(reason, envelopeItemTypeToDataCategory(type2));
       });
     };
     const requestTask = () => makeRequest({ body: serializeEnvelope(filteredEnvelope) }).then(
@@ -72284,8 +72344,8 @@ Reason: ${reason}`
    * Creates an {@link Event} from all inputs to `captureException` and non-primitive inputs to `captureMessage`.
    */
 };
-function getDataCategoryByType(type) {
-  return type === "replay_event" ? "replay" : type || "error";
+function getDataCategoryByType(type2) {
+  return type2 === "replay_event" ? "replay" : type2 || "error";
 }
 function _validateBeforeSendResult(beforeSendResult, beforeSendLabel) {
   const invalidValueError = `${beforeSendLabel} must return \`null\` or a valid event.`;
@@ -72893,9 +72953,9 @@ function applyExceptionGroupFieldsForChildException(exception, source, exception
 
 // node_modules/@sentry/core/build/esm/instrument/console.js
 function addConsoleInstrumentationHandler(handler) {
-  const type = "console";
-  addHandler(type, handler);
-  maybeInstrument(type, instrumentConsole);
+  const type2 = "console";
+  addHandler(type2, handler);
+  maybeInstrument(type2, instrumentConsole);
 }
 function instrumentConsole() {
   if (!("console" in GLOBAL_OBJ)) {
@@ -73319,14 +73379,14 @@ function supportsNativeFetch() {
 
 // node_modules/@sentry/core/build/esm/instrument/fetch.js
 function addFetchInstrumentationHandler(handler, skipNativeFetchCheck) {
-  const type = "fetch";
-  addHandler(type, handler);
-  maybeInstrument(type, () => instrumentFetch(void 0, skipNativeFetchCheck));
+  const type2 = "fetch";
+  addHandler(type2, handler);
+  maybeInstrument(type2, () => instrumentFetch(void 0, skipNativeFetchCheck));
 }
 function addFetchEndInstrumentationHandler(handler) {
-  const type = "fetch-body-resolved";
-  addHandler(type, handler);
-  maybeInstrument(type, () => instrumentFetch(streamHandler));
+  const type2 = "fetch-body-resolved";
+  addHandler(type2, handler);
+  maybeInstrument(type2, () => instrumentFetch(streamHandler));
 }
 function instrumentFetch(onFetchResolved, skipNativeFetchCheck = false) {
   if (skipNativeFetchCheck && !supportsNativeFetch()) {
@@ -73949,14 +74009,14 @@ var getActivationStart = () => {
 };
 
 // node_modules/@sentry-internal/browser-utils/build/esm/metrics/web-vitals/lib/globalListeners.js
-function addPageListener(type, listener, options2) {
+function addPageListener(type2, listener, options2) {
   if (WINDOW4.document) {
-    WINDOW4.addEventListener(type, listener, options2);
+    WINDOW4.addEventListener(type2, listener, options2);
   }
 }
-function removePageListener(type, listener, options2) {
+function removePageListener(type2, listener, options2) {
   if (WINDOW4.document) {
-    WINDOW4.removeEventListener(type, listener, options2);
+    WINDOW4.removeEventListener(type2, listener, options2);
   }
 }
 
@@ -74077,15 +74137,15 @@ var LayoutShiftManager = class _LayoutShiftManager {
 };
 
 // node_modules/@sentry-internal/browser-utils/build/esm/metrics/web-vitals/lib/observe.js
-var observe = (type, callback, opts = {}) => {
+var observe = (type2, callback, opts = {}) => {
   try {
-    if (PerformanceObserver.supportedEntryTypes.includes(type)) {
+    if (PerformanceObserver.supportedEntryTypes.includes(type2)) {
       const po2 = new PerformanceObserver((list2) => {
         Promise.resolve().then(() => {
           callback(list2.getEntries());
         });
       });
-      po2.observe(__spreadValues({ type, buffered: true }, opts));
+      po2.observe(__spreadValues({ type: type2, buffered: true }, opts));
       return po2;
     }
   } catch {
@@ -74396,8 +74456,8 @@ var onLCP = (onReport, opts = {}) => {
           });
         }
       };
-      for (const type of ["keydown", "click", "visibilitychange"]) {
-        addPageListener(type, stopListeningWrapper, {
+      for (const type2 of ["keydown", "click", "visibilitychange"]) {
+        addPageListener(type2, stopListeningWrapper, {
           capture: true
         });
       }
@@ -74448,16 +74508,16 @@ function addTtfbInstrumentationHandler(callback) {
 function addInpInstrumentationHandler(callback) {
   return addMetricObserver("inp", callback, instrumentInp, _previousInp);
 }
-function addPerformanceInstrumentationHandler(type, callback) {
-  addHandler2(type, callback);
-  if (!instrumented2[type]) {
-    instrumentPerformanceObserver(type);
-    instrumented2[type] = true;
+function addPerformanceInstrumentationHandler(type2, callback) {
+  addHandler2(type2, callback);
+  if (!instrumented2[type2]) {
+    instrumentPerformanceObserver(type2);
+    instrumented2[type2] = true;
   }
-  return getCleanupCallback(type, callback);
+  return getCleanupCallback(type2, callback);
 }
-function triggerHandlers2(type, data) {
-  const typeHandlers = handlers2[type];
+function triggerHandlers2(type2, data) {
+  const typeHandlers = handlers2[type2];
   if (!typeHandlers?.length) {
     return;
   }
@@ -74467,7 +74527,7 @@ function triggerHandlers2(type, data) {
     } catch (e) {
       DEBUG_BUILD2 && debug.error(
         `Error while triggering instrumentation handler.
-Type: ${type}
+Type: ${type2}
 Name: ${getFunctionName(handler)}
 Error:`,
         e
@@ -74517,41 +74577,41 @@ function instrumentInp() {
     _previousInp = metric;
   });
 }
-function addMetricObserver(type, callback, instrumentFn, previousValue, stopOnCallback = false) {
-  addHandler2(type, callback);
+function addMetricObserver(type2, callback, instrumentFn, previousValue, stopOnCallback = false) {
+  addHandler2(type2, callback);
   let stopListening;
-  if (!instrumented2[type]) {
+  if (!instrumented2[type2]) {
     stopListening = instrumentFn();
-    instrumented2[type] = true;
+    instrumented2[type2] = true;
   }
   if (previousValue) {
     callback({ metric: previousValue });
   }
-  return getCleanupCallback(type, callback, stopOnCallback ? stopListening : void 0);
+  return getCleanupCallback(type2, callback, stopOnCallback ? stopListening : void 0);
 }
-function instrumentPerformanceObserver(type) {
+function instrumentPerformanceObserver(type2) {
   const options2 = {};
-  if (type === "event") {
+  if (type2 === "event") {
     options2.durationThreshold = 0;
   }
   observe(
-    type,
+    type2,
     (entries) => {
-      triggerHandlers2(type, { entries });
+      triggerHandlers2(type2, { entries });
     },
     options2
   );
 }
-function addHandler2(type, handler) {
-  handlers2[type] = handlers2[type] || [];
-  handlers2[type].push(handler);
+function addHandler2(type2, handler) {
+  handlers2[type2] = handlers2[type2] || [];
+  handlers2[type2].push(handler);
 }
-function getCleanupCallback(type, callback, stopListening) {
+function getCleanupCallback(type2, callback, stopListening) {
   return () => {
     if (stopListening) {
       stopListening();
     }
-    const typeHandlers = handlers2[type];
+    const typeHandlers = handlers2[type2];
     if (!typeHandlers) {
       return;
     }
@@ -75325,8 +75385,8 @@ function _setWebVitalAttributes(span, options2) {
     );
   }
 }
-function _setResourceRequestAttributes(entry, attributes, properties) {
-  properties.forEach(([entryKey, attributeKey]) => {
+function _setResourceRequestAttributes(entry, attributes, properties2) {
+  properties2.forEach(([entryKey, attributeKey]) => {
     const entryVal = entry[entryKey];
     if (entryVal != null && (typeof entryVal === "number" && entryVal < MAX_INT_AS_BYTES || typeof entryVal === "string")) {
       attributes[attributeKey] = entryVal;
@@ -75688,9 +75748,9 @@ var debounceTimerID;
 var lastCapturedEventType;
 var lastCapturedEventTargetId;
 function addClickKeypressInstrumentationHandler(handler) {
-  const type = "dom";
-  addHandler(type, handler);
-  maybeInstrument(type, instrumentDOM);
+  const type2 = "dom";
+  addHandler(type2, handler);
+  maybeInstrument(type2, instrumentDOM);
 }
 function instrumentDOM() {
   if (!WINDOW4.document) {
@@ -75707,38 +75767,38 @@ function instrumentDOM() {
       return;
     }
     fill(proto, "addEventListener", function(originalAddEventListener) {
-      return function(type, listener, options2) {
-        if (type === "click" || type == "keypress") {
+      return function(type2, listener, options2) {
+        if (type2 === "click" || type2 == "keypress") {
           try {
             const handlers3 = this.__sentry_instrumentation_handlers__ = this.__sentry_instrumentation_handlers__ || {};
-            const handlerForType = handlers3[type] = handlers3[type] || { refCount: 0 };
+            const handlerForType = handlers3[type2] = handlers3[type2] || { refCount: 0 };
             if (!handlerForType.handler) {
               const handler = makeDOMEventHandler(triggerDOMHandler);
               handlerForType.handler = handler;
-              originalAddEventListener.call(this, type, handler, options2);
+              originalAddEventListener.call(this, type2, handler, options2);
             }
             handlerForType.refCount++;
           } catch {
           }
         }
-        return originalAddEventListener.call(this, type, listener, options2);
+        return originalAddEventListener.call(this, type2, listener, options2);
       };
     });
     fill(
       proto,
       "removeEventListener",
       function(originalRemoveEventListener) {
-        return function(type, listener, options2) {
-          if (type === "click" || type == "keypress") {
+        return function(type2, listener, options2) {
+          if (type2 === "click" || type2 == "keypress") {
             try {
               const handlers3 = this.__sentry_instrumentation_handlers__ || {};
-              const handlerForType = handlers3[type];
+              const handlerForType = handlers3[type2];
               if (handlerForType) {
                 handlerForType.refCount--;
                 if (handlerForType.refCount <= 0) {
-                  originalRemoveEventListener.call(this, type, handlerForType.handler, options2);
+                  originalRemoveEventListener.call(this, type2, handlerForType.handler, options2);
                   handlerForType.handler = void 0;
-                  delete handlers3[type];
+                  delete handlers3[type2];
                 }
                 if (Object.keys(handlers3).length === 0) {
                   delete this.__sentry_instrumentation_handlers__;
@@ -75747,7 +75807,7 @@ function instrumentDOM() {
             } catch {
             }
           }
-          return originalRemoveEventListener.call(this, type, listener, options2);
+          return originalRemoveEventListener.call(this, type2, listener, options2);
         };
       }
     );
@@ -75815,9 +75875,9 @@ function getEventTarget2(event) {
 // node_modules/@sentry-internal/browser-utils/build/esm/instrument/history.js
 var lastHref;
 function addHistoryInstrumentationHandler(handler) {
-  const type = "history";
-  addHandler(type, handler);
-  maybeInstrument(type, instrumentHistory);
+  const type2 = "history";
+  addHandler(type2, handler);
+  maybeInstrument(type2, instrumentHistory);
 }
 function instrumentHistory() {
   WINDOW4.addEventListener("popstate", () => {
@@ -75899,9 +75959,9 @@ function clearCachedImplementation(name) {
 // node_modules/@sentry-internal/browser-utils/build/esm/instrument/xhr.js
 var SENTRY_XHR_DATA_KEY = "__sentry_xhr_v3__";
 function addXhrInstrumentationHandler(handler) {
-  const type = "xhr";
-  addHandler(type, handler);
-  maybeInstrument(type, instrumentXHR);
+  const type2 = "xhr";
+  addHandler(type2, handler);
+  maybeInstrument(type2, instrumentXHR);
 }
 function instrumentXHR() {
   if (!WINDOW4.XMLHttpRequest) {
@@ -76741,8 +76801,8 @@ function _enhanceEventWithInitialFrame(event, url, lineno, colno) {
   }
   return event;
 }
-function globalHandlerLog(type) {
-  DEBUG_BUILD3 && debug.log(`Global Handler attached: ${type}`);
+function globalHandlerLog(type2) {
+  DEBUG_BUILD3 && debug.log(`Global Handler attached: ${type2}`);
 }
 function getOptions() {
   const client = getClient();
@@ -76856,7 +76916,7 @@ function setupSidecarForwarding(client, sidecarUrl) {
 var spotlightBrowserIntegration = defineIntegration(_spotlightIntegration);
 function isSpotlightInteraction(event) {
   return Boolean(
-    event.type === "transaction" && event.spans && event.contexts?.trace && event.contexts.trace.op === "ui.action.click" && event.spans.some(({ description }) => description?.includes("#sentry-spotlight"))
+    event.type === "transaction" && event.spans && event.contexts?.trace && event.contexts.trace.op === "ui.action.click" && event.spans.some(({ description: description2 }) => description2?.includes("#sentry-spotlight"))
   );
 }
 
@@ -78351,7 +78411,7 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
       notifySuccess("Toggled dark mode.");
     });
     this._hotkey.listen(["Control", "Alt", "Shift", "KeyC"], () => {
-      this._clipboard.copy(`${V()}|${Pt()}`);
+      this._clipboard.copy(`${X()}|${Pt()}`);
       notifySuccess("Successfully copied token.");
     });
     this._hotkey.listen(["Control", "Alt", "Shift", "KeyV"], () => {
@@ -78371,7 +78431,7 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
         localStorage.setItem("PLACEOS.locale", locale);
       }
       if (params.has("x-api-key")) {
-        Nr(params.get("x-api-key"));
+        Hr(params.get("x-api-key"));
       }
       if (params.has("region_id")) {
         this._region = params.get("region_id");
@@ -78391,7 +78451,7 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
     settings.app_name = this._settings.get("app.name") || this._settings.get("app.short_name");
     settings.mock = !!this._settings.get("mock") || _mocks && location.origin.includes("demo.place.tech");
     if (START_QUERY) {
-      const query2 = Ie(START_QUERY.substring(1));
+      const query2 = Te(START_QUERY.substring(1));
       this._router.navigate([], {
         relativeTo: this._route,
         queryParams: query2
@@ -78441,15 +78501,15 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
       const auth_error = await setupPlace(settings).then(() => null).catch((_2) => _2);
       if (!auth_error) {
         const api_key = getNativeApiKey();
-        const client_key = `${ai()}_x-api-key`;
+        const client_key = `${hi()}_x-api-key`;
         if (api_key)
-          Nr(api_key);
+          Hr(api_key);
         else if (localStorage.getItem(client_key)) {
           localStorage.removeItem(client_key);
-          An();
+          qn();
         }
         if (intune_token)
-          hi(intune_token);
+          li(intune_token);
         break;
       }
       log("APP", "Auth failed, resetting domain.", auth_error, "warn");
@@ -78457,13 +78517,13 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
       clearNativeApiKey();
       DOMAIN_ERROR.set(`Unable to connect to "${domain}". The server may be unavailable, or the email address may be for a different server. Try again.`);
     }
-    if (isNativeApp() && !V(false)) {
+    if (isNativeApp() && !X(false)) {
       const boot_params = new URLSearchParams(START_QUERY);
       if (boot_params.has("code")) {
-        console.warn("[AUTH] Auth code was present on load but the token exchange did not complete.", `State: "${boot_params.get("state")}"`, `Nonce: "${localStorage.getItem(`${ai()}_nonce`)}"`);
+        console.warn("[AUTH] Auth code was present on load but the token exchange did not complete.", `State: "${boot_params.get("state")}"`, `Nonce: "${localStorage.getItem(`${hi()}_nonce`)}"`);
       }
     }
-    if (isNativeApp() && !V(false) && !Pt() && Rt()) {
+    if (isNativeApp() && !X(false) && !Pt() && Rt()) {
       const auth_error = consumeNativeAuthError();
       if (auth_error) {
         setLoadingMessage("Waiting for sign in...");
@@ -78472,7 +78532,7 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
         await new Promise((r) => this._domain_resolve = r);
       }
       setLoadingMessage("Opening sign in...");
-      const auth_url = await createNativeAuthUrl(settings, ai());
+      const auth_url = await createNativeAuthUrl(settings, hi());
       console.warn(`[AUTH] Opening sign in: ${auth_url}`);
       await openNativeBrowser(auth_url);
       return;
@@ -78482,7 +78542,7 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
       await setupPlace(settings).catch((_2) => console.error(_2));
     }
     if (this._initial_token)
-      hi(this._initial_token);
+      li(this._initial_token);
     await this._waitFor(() => this._org.initialised());
     if (this._locale) {
       this._locale.zone_id = this._org.organisation.id;
@@ -78507,15 +78567,15 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
     this._setZones();
   }
   onInitError() {
-    if (kn() || currentUser()?.is_logged_in)
+    if (Sn() || currentUser()?.is_logged_in)
       return;
     if (isNativeApp() && getNativeApiKey()) {
       clearNativeApiKey();
       clearNativeDomain();
-      localStorage.removeItem(`${ai()}_x-api-key`);
-      An();
-    } else if (!V(false))
-      An();
+      localStorage.removeItem(`${hi()}_x-api-key`);
+      qn();
+    } else if (!X(false))
+      qn();
     location.reload();
   }
   _initAnalytics() {
@@ -78553,7 +78613,7 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
   }
   _pasteToken(tkn) {
     const parts = tkn.split("|");
-    const id = ai();
+    const id = hi();
     localStorage.setItem(`${id}_access_token`, `${parts[0]}`);
     localStorage.setItem(`${id}_refresh_token`, `${parts[1]}`);
     localStorage.setItem(`${id}_expires_at`, `${addHours(/* @__PURE__ */ new Date(), 6).valueOf()}`);
@@ -78727,7 +78787,7 @@ var OrganisationService = class _OrganisationService {
     const binding = this.binding(name);
     const system_id = binding instanceof Object ? binding.id || binding.system_id : binding;
     const mod_id = (binding instanceof Object ? binding.mod || binding.module : "") || default_mod_id;
-    return !system_id || !mod_id ? null : Fl(system_id, mod_id);
+    return !system_id || !mod_id ? null : Wl(system_id, mod_id);
   }
   /** Get building by id */
   find(id) {
@@ -78846,7 +78906,7 @@ var OrganisationService = class _OrganisationService {
     this._building_settings = {};
     this._skip_auto_selection = false;
     this._override_timer = null;
-    ri(Hr(), (_2) => _2).then(() => setTimeout(() => this.init(), 1e3));
+    oi(Lr(), (_2) => _2).then(() => setTimeout(() => this.init(), 1e3));
     effect(() => {
       this._active_region();
       const building = this._active_building();
@@ -79034,7 +79094,7 @@ var OrganisationService = class _OrganisationService {
     });
     if (org_list.length) {
       const auth = Rt();
-      const org = org_list.find((list2) => kn() || list2.id === auth?.config?.org_zone) || org_list[0];
+      const org = org_list.find((list2) => Sn() || list2.id === auth?.config?.org_zone) || org_list[0];
       const load_metadata = !this._service.get("dont_load_metadata");
       const bindings = load_metadata ? (await this._bulkMetadataDetails("bindings", [org.id]))[org.id] : {};
       this._organisation = new Organisation(__spreadProps(__spreadValues({}, org), { bindings }));
@@ -79271,7 +79331,7 @@ var OrganisationService = class _OrganisationService {
     const cached_metadata = this._getCachedItem(cache_key);
     if (cached_metadata)
       return cached_metadata;
-    const metadata2 = await Ku(name, { parent_ids }).catch((err) => err?.status === 404 ? this._individualMetadata(name, ids) : {});
+    const metadata2 = await Yu(name, { parent_ids }).catch((err) => err?.status === 404 ? this._individualMetadata(name, ids) : {});
     const metadata_details = ids.reduce((map2, id) => {
       map2[id] = metadata2[id]?.details || {};
       return map2;
@@ -79281,7 +79341,7 @@ var OrganisationService = class _OrganisationService {
   }
   /** Fallback for backends without the bulk metadata endpoint (404) */
   async _individualMetadata(name, ids) {
-    const items = await Promise.all(ids.filter(Boolean).map((id) => ju(id, name).then((item) => [id, item], () => [id, null])));
+    const items = await Promise.all(ids.filter(Boolean).map((id) => Wu(id, name).then((item) => [id, item], () => [id, null])));
     const metadata2 = {};
     for (const [id, item] of items) {
       if (item)
@@ -79294,7 +79354,7 @@ var OrganisationService = class _OrganisationService {
     const cached_zones = this._getCachedItem(cache_key);
     if (cached_zones)
       return cached_zones;
-    const zones = (await Ba(__spreadProps(__spreadValues({}, params), {
+    const zones = (await Ka(__spreadProps(__spreadValues({}, params), {
       authority_id: Rt().id
     }))).data || [];
     this._setCachedItem(cache_key, zones);
@@ -79574,8 +79634,8 @@ var Bitmap = class _Bitmap {
     const height = this.height + 2 * border;
     const width = this.width + 2 * border;
     const v = fillArr(border, value);
-    const h2 = Array.from({ length: border }, () => fillArr(width, value));
-    return new _Bitmap({ height, width }, [...h2, ...this.data.map((i) => [...v, ...i, ...v]), ...h2]);
+    const h3 = Array.from({ length: border }, () => fillArr(width, value));
+    return new _Bitmap({ height, width }, [...h3, ...this.data.map((i) => [...v, ...i, ...v]), ...h3]);
   }
   // Embed another bitmap on coordinates
   embed(c2, bm) {
@@ -79819,23 +79879,23 @@ var info = {
   formatMask: 21522,
   formatBits(ecc, maskIdx) {
     const data = info.ECCode[ecc] << 3 | maskIdx;
-    let d2 = data;
+    let d = data;
     for (let i = 0; i < 10; i++)
-      d2 = d2 << 1 ^ (d2 >> 9) * 1335;
-    return (data << 10 | d2) ^ info.formatMask;
+      d = d << 1 ^ (d >> 9) * 1335;
+    return (data << 10 | d) ^ info.formatMask;
   },
   versionBits(ver) {
-    let d2 = ver;
+    let d = ver;
     for (let i = 0; i < 12; i++)
-      d2 = d2 << 1 ^ (d2 >> 11) * 7973;
-    return ver << 12 | d2;
+      d = d << 1 ^ (d >> 11) * 7973;
+    return ver << 12 | d;
   },
   alphabet: {
     numeric: alphabet("0123456789"),
     alphanumerc: alphabet("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:")
   },
   // as Record<EncodingType, ReturnType<typeof alphabet>>,
-  lengthBits(ver, type) {
+  lengthBits(ver, type2) {
     const table = {
       numeric: [10, 12, 14],
       alphanumeric: [9, 11, 13],
@@ -79843,7 +79903,7 @@ var info = {
       kanji: [8, 10, 12],
       eci: [0, 0, 0]
     };
-    return table[type][info.sizeType(ver)];
+    return table[type2][info.sizeType(ver)];
   },
   modeBits: {
     numeric: "0001",
@@ -80045,10 +80105,10 @@ var GF = {
 function RS(eccWords) {
   return {
     encode(from2) {
-      const d2 = GF.divisorPoly(eccWords);
+      const d = GF.divisorPoly(eccWords);
       const pol = Array.from(from2);
-      pol.push(...d2.slice(0, -1).fill(0));
-      return Uint8Array.from(GF.remainderPoly(pol, d2));
+      pol.push(...d.slice(0, -1).fill(0));
+      return Uint8Array.from(GF.remainderPoly(pol, d));
     },
     decode(to) {
       const res = to.slice();
@@ -80207,25 +80267,25 @@ function zigzag(tpl, maskIdx, fn) {
   }
 }
 function detectType(str) {
-  let type = "numeric";
+  let type2 = "numeric";
   for (let x of str) {
     if (info.alphabet.numeric.has(x))
       continue;
-    type = "alphanumeric";
+    type2 = "alphanumeric";
     if (!info.alphabet.alphanumerc.has(x))
       return "byte";
   }
-  return type;
+  return type2;
 }
 function utf8ToBytes(str) {
   if (typeof str !== "string")
     throw new Error(`utf8ToBytes expected string, got ${typeof str}`);
   return new Uint8Array(new TextEncoder().encode(str));
 }
-function encode(ver, ecc, data, type) {
+function encode(ver, ecc, data, type2) {
   let encoded = "";
   let dataLen = data.length;
-  if (type === "numeric") {
+  if (type2 === "numeric") {
     const t = info.alphabet.numeric.decode(data.split(""));
     const n = t.length;
     for (let i = 0; i < n - 2; i += 3)
@@ -80235,14 +80295,14 @@ function encode(ver, ecc, data, type) {
     } else if (n % 3 === 2) {
       encoded += bin(t[n - 2] * 10 + t[n - 1], 7);
     }
-  } else if (type === "alphanumeric") {
+  } else if (type2 === "alphanumeric") {
     const t = info.alphabet.alphanumerc.decode(data.split(""));
     const n = t.length;
     for (let i = 0; i < n - 1; i += 2)
       encoded += bin(t[i] * 45 + t[i + 1], 11);
     if (n % 2 == 1)
       encoded += bin(t[n - 1], 6);
-  } else if (type === "byte") {
+  } else if (type2 === "byte") {
     const utf8 = utf8ToBytes(data);
     dataLen = utf8.length;
     encoded = Array.from(utf8).map((i) => bin(i, 8)).join("");
@@ -80250,8 +80310,8 @@ function encode(ver, ecc, data, type) {
     throw new Error("encode: unsupported type");
   }
   const { capacity } = info.capacity(ver, ecc);
-  const len = bin(dataLen, info.lengthBits(ver, type));
-  let bits = info.modeBits[type] + len + encoded;
+  const len = bin(dataLen, info.lengthBits(ver, type2));
+  let bits = info.modeBits[type2] + len + encoded;
   if (bits.length > capacity)
     throw new Error("Capacity overflow");
   bits += "0".repeat(Math.min(4, Math.max(0, capacity - bits.length)));
@@ -82106,6 +82166,7 @@ var Booking = class {
     this.images = data.images || [];
     this.all_day = !!data.all_day || custom_all_day || this.duration >= 24 * 60;
     this.induction = data.induction || void 0;
+    this.created_at = data.created_at || Date.now();
     if (this.all_day) {
       if (!data.duration && !data.date_end && !data.booking_end) {
         this.date = startOfDayInTimezone(this.date, this.timezone);
@@ -82160,6 +82221,7 @@ var Booking = class {
     data.zones = data.zones.filter((_2) => _2);
     delete data.date;
     delete data.duration;
+    delete data.created_at;
     delete data.process_state;
     removeEmptyFields(data);
     return data;
@@ -82245,7 +82307,7 @@ var Desk = class {
     for (const key of IGNORE_KEYS) {
       delete data[key];
     }
-    Ys(data, [void 0, null, []]);
+    Vs(data, [void 0, null, []]);
     return data;
   }
 };
@@ -83202,19 +83264,19 @@ var NativeDateAdapter = class _NativeDateAdapter extends DateAdapter {
     return new Date(date.getTime() + amount * 1e3);
   }
   _createDateWithOverflow(year, month, date) {
-    const d2 = /* @__PURE__ */ new Date();
-    d2.setFullYear(year, month, date);
-    d2.setHours(0, 0, 0, 0);
-    return d2;
+    const d = /* @__PURE__ */ new Date();
+    d.setFullYear(year, month, date);
+    d.setHours(0, 0, 0, 0);
+    return d;
   }
   _2digit(n) {
     return ("00" + n).slice(-2);
   }
   _format(dtf, date) {
-    const d2 = /* @__PURE__ */ new Date();
-    d2.setUTCFullYear(date.getFullYear(), date.getMonth(), date.getDate());
-    d2.setUTCHours(date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds());
-    return dtf.format(d2);
+    const d = /* @__PURE__ */ new Date();
+    d.setUTCFullYear(date.getFullYear(), date.getMonth(), date.getDate());
+    d.setUTCHours(date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds());
+    return dtf.format(d);
   }
   _parseTimeString(value) {
     const parsed = value.toUpperCase().match(TIME_REGEX);
@@ -83608,8 +83670,8 @@ var SafePipe = class _SafePipe {
    * @param value String to sanitize
    * @param type Type of value to sanitise. `resource`, `url`, `script`, `style` or `html`
    */
-  transform(value, type = "html") {
-    switch (type) {
+  transform(value, type2 = "html") {
+    switch (type2) {
       case "resource":
         return this.sanitizer.bypassSecurityTrustResourceUrl(value);
       case "url":
@@ -85564,8 +85626,8 @@ var TextFieldModule = class _TextFieldModule {
 var MAT_INPUT_VALUE_ACCESSOR = new InjectionToken("MAT_INPUT_VALUE_ACCESSOR");
 
 // node_modules/@angular/material/fesm2022/input.mjs
-function getMatInputUnsupportedTypeError(type) {
-  return Error(`Input type "${type}" isn't supported by matInput.`);
+function getMatInputUnsupportedTypeError(type2) {
+  return Error(`Input type "${type2}" isn't supported by matInput.`);
 }
 var MAT_INPUT_INVALID_TYPES = ["button", "checkbox", "file", "hidden", "image", "radio", "range", "reset", "submit"];
 var MAT_INPUT_CONFIG = new InjectionToken("MAT_INPUT_CONFIG");
@@ -90328,7 +90390,7 @@ var SettingsToggleComponent = class _SettingsToggleComponent {
         useExisting: forwardRef(() => _SettingsToggleComponent),
         multi: true
       }
-    ])], ngContentSelectors: _c014, decls: 9, vars: 8, consts: [["matRipple", "", 1, "hover:bg-base-200", "relative", "flex", "flex-1", "items-center", "space-x-2", "overflow-hidden", "rounded-sm", "border", "py-1", "pr-1", "pl-2", 3, "click"], [1, "z-10", "flex", "flex-1", "items-center", "space-x-2", "p-2", "text-left"], [1, "w-full"], [3, "matTooltip"], [1, "bg-info", "absolute", "inset-0", "z-0", "m-0!", "opacity-10"], [1, "px-2"], [1, "pointer-events-none", 3, "ngModel"], ["toggle", "", 1, "border-base-400", "relative", "h-8", "w-12", "rounded-full", "border-2"], [1, "absolute", "top-1/2", "flex", "h-6", "w-6", "-translate-x-0.5", "-translate-y-1/2", "items-center", "justify-center", "rounded-full", "text-black", "shadow-sm"], [1, "pointer-events-none", 3, "ngModelChange", "ngModel"]], template: function SettingsToggleComponent_Template(rf, ctx) {
+    ])], ngContentSelectors: _c014, decls: 9, vars: 8, consts: [["type", "button", "matRipple", "", 1, "hover:bg-base-200", "relative", "flex", "flex-1", "items-center", "space-x-2", "overflow-hidden", "rounded-sm", "border", "py-1", "pr-1", "pl-2", 3, "click"], [1, "z-10", "flex", "flex-1", "items-center", "space-x-2", "p-2", "text-left"], [1, "w-full"], [3, "matTooltip"], [1, "bg-info", "absolute", "inset-0", "z-0", "m-0!", "opacity-10"], [1, "px-2"], [1, "pointer-events-none", 3, "ngModel"], ["toggle", "", 1, "border-base-400", "relative", "h-8", "w-12", "rounded-full", "border-2"], [1, "absolute", "top-1/2", "flex", "h-6", "w-6", "-translate-x-0.5", "-translate-y-1/2", "items-center", "justify-center", "rounded-full", "text-black", "shadow-sm"], [1, "pointer-events-none", 3, "ngModelChange", "ngModel"]], template: function SettingsToggleComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275projectionDef();
         \u0275\u0275elementStart(0, "button", 0);
@@ -90364,6 +90426,7 @@ var SettingsToggleComponent = class _SettingsToggleComponent {
     type: Component,
     args: [{ selector: "settings-toggle", template: `
         <button
+            type="button"
             matRipple
             class="hover:bg-base-200 relative flex flex-1 items-center space-x-2 overflow-hidden rounded-sm border py-1 pr-1 pl-2"
             [class.border-base-300]="!value()"
@@ -90420,7 +90483,7 @@ var SettingsToggleComponent = class _SettingsToggleComponent {
   }], null, { toggle: [{ type: Input, args: [{ isSignal: true, alias: "toggle", required: false }] }], label: [{ type: Input, args: [{ isSignal: true, alias: "label", required: false }] }], info: [{ type: Input, args: [{ isSignal: true, alias: "info", required: false }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SettingsToggleComponent, { className: "SettingsToggleComponent", filePath: "libs/components/src/lib/settings-toggle.component.ts", lineNumber: 84 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SettingsToggleComponent, { className: "SettingsToggleComponent", filePath: "libs/components/src/lib/settings-toggle.component.ts", lineNumber: 85 });
 })();
 
 // libs/components/src/lib/translate.pipe.ts
@@ -90510,11 +90573,11 @@ async function storeSessionCachedResponse(source, response) {
   }
 }
 function setAuthCookie(cookie_path) {
-  const tkn = V();
+  const tkn = X();
   document.cookie = `${tkn === "x-api-key" ? "api-key=" + encodeURIComponent(Ye()) : "bearer_token=" + encodeURIComponent(tkn)};max-age=30;path=${cookie_path};samesite=strict;${location.protocol === "https:" ? "secure;" : ""}`;
 }
 function authHeaders() {
-  const tkn = V();
+  const tkn = X();
   return tkn === "x-api-key" ? { "X-API-Key": Ye() } : { Authorization: `Bearer ${tkn}` };
 }
 async function responseToObjectUrl(source, response) {
@@ -90803,8 +90866,8 @@ var BooleanOrLogic = class extends AbstractLogic {
     return false;
   }
   compute(arg) {
-    return this.fns.some((f) => {
-      const result = f(arg);
+    return this.fns.some((f2) => {
+      const result = f2(arg);
       return result && result !== IGNORED;
     });
   }
@@ -90822,8 +90885,8 @@ var ArrayMergeIgnoreLogic = class _ArrayMergeIgnoreLogic extends AbstractLogic {
     return [];
   }
   compute(arg) {
-    return this.fns.reduce((prev, f) => {
-      const value = f(arg);
+    return this.fns.reduce((prev, f2) => {
+      const value = f2(arg);
       if (value === void 0 || value === IGNORED) {
         return prev;
       } else if (isArray3(value)) {
@@ -92955,18 +93018,18 @@ function isInput(element) {
 function inputRequiresValidityTracking(input2) {
   return input2.type === "date" || input2.type === "datetime-local" || input2.type === "month" || input2.type === "time" || input2.type === "week";
 }
-function formatDateForInput(date, type) {
+function formatDateForInput(date, type2) {
   const year = date.getUTCFullYear();
   const month = String(date.getUTCMonth() + 1).padStart(2, "0");
-  if (type === "month") {
+  if (type2 === "month") {
     return `${year}-${month}`;
   }
   const day = String(date.getUTCDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
 }
-function formatDateForMinMax(name, value, type) {
-  if (value instanceof Date && (name === "min" || name === "max") && (type === "date" || type === "month")) {
-    return formatDateForInput(value, type);
+function formatDateForMinMax(name, value, type2) {
+  if (value instanceof Date && (name === "min" || name === "max") && (type2 === "date" || type2 === "month")) {
+    return formatDateForInput(value, type2);
   }
   return value;
 }
@@ -93560,7 +93623,7 @@ var SpacePipe = class _SpacePipe {
     if (ATTEMPT_COUNT[space_id])
       return EMPTY_SPACE;
     if (!is_email) {
-      const system = await sa(space_id).catch((_2) => null);
+      const system = await oa(space_id).catch((_2) => null);
       if (system) {
         space = new Space(__spreadProps(__spreadValues({}, system), {
           level: this.org?.levelWithID([...system.zones])
@@ -93569,7 +93632,7 @@ var SpacePipe = class _SpacePipe {
         return space;
       }
     }
-    const systems = (await na({
+    const systems = (await ra({
       in: space_id
     })).data;
     if (systems.length === 1) {
@@ -93612,7 +93675,7 @@ function requestSpacesForZone(id) {
     return of([]);
   if (SPACE_LIST_REQUESTS[id])
     return SPACE_LIST_REQUESTS[id];
-  SPACE_LIST_REQUESTS[id] = from(ta({
+  SPACE_LIST_REQUESTS[id] = from(ia({
     zone_id: id,
     limit: 500,
     signage: false
@@ -93766,13 +93829,13 @@ function splitCells(tableRow, count) {
   return cells;
 }
 function rtrim(str, c2, invert) {
-  const l2 = str.length;
-  if (l2 === 0) {
+  const l = str.length;
+  if (l === 0) {
     return "";
   }
   let suffLen = 0;
-  while (suffLen < l2) {
-    const currChar = str.charAt(l2 - suffLen - 1);
+  while (suffLen < l) {
+    const currChar = str.charAt(l - suffLen - 1);
     if (currChar === c2 && !invert) {
       suffLen++;
     } else if (currChar !== c2 && invert) {
@@ -93781,7 +93844,7 @@ function rtrim(str, c2, invert) {
       break;
     }
   }
-  return str.slice(0, l2 - suffLen);
+  return str.slice(0, l - suffLen);
 }
 function findClosingBracket(str, b2) {
   if (str.indexOf(b2[1]) === -1) {
@@ -95039,9 +95102,9 @@ ${body}</blockquote>
       const item = token.items[j];
       body += this.listitem(item);
     }
-    const type = ordered ? "ol" : "ul";
+    const type2 = ordered ? "ol" : "ul";
     const startAttr = ordered && start !== 1 ? ' start="' + start + '"' : "";
-    return "<" + type + startAttr + ">\n" + body + "</" + type + ">\n";
+    return "<" + type2 + startAttr + ">\n" + body + "</" + type2 + ">\n";
   }
   listitem(item) {
     let itemBody = "";
@@ -95102,9 +95165,9 @@ ${text}</tr>
   }
   tablecell(token) {
     const content = this.parser.parseInline(token.tokens);
-    const type = token.header ? "th" : "td";
-    const tag2 = token.align ? `<${type} align="${token.align}">` : `<${type}>`;
-    return tag2 + content + `</${type}>
+    const type2 = token.header ? "th" : "td";
+    const tag2 = token.align ? `<${type2} align="${token.align}">` : `<${type2}>`;
+    return tag2 + content + `</${type2}>
 `;
   }
   /**
@@ -95904,8 +95967,8 @@ var SanitizePipe = class _SanitizePipe {
   constructor() {
     this.sanitizer = inject2(DomSanitizer);
   }
-  transform(value, type = "html") {
-    switch (type) {
+  transform(value, type2 = "html") {
+    switch (type2) {
       case "resource":
         return this.sanitizer.sanitize(SecurityContext2.RESOURCE_URL, value);
       case "url":
@@ -96049,7 +96112,7 @@ var ChatService = class _ChatService extends AsyncHandler {
     const id = this._chat_system();
     if (!id)
       return;
-    const auth = V() !== "x-api-key" ? `bearer_token=${encodeURIComponent(V())}` : `x-api-key=${Ye()}`;
+    const auth = X() !== "x-api-key" ? `bearer_token=${encodeURIComponent(X())}` : `x-api-key=${Ye()}`;
     const url = `ws${location.origin.replace("http", "")}/api/engine/v2/chatgpt/chat/${encodeURIComponent(id)}?${auth}${this._chat_id ? "&resume=" + encodeURIComponent(this._chat_id) : ""}`;
     log("CHAT", "Starting chat connection.");
     this._socket = new WebSocket(url);
@@ -96131,7 +96194,7 @@ var ChatService = class _ChatService extends AsyncHandler {
     this._timeoutSocket();
   }
   _bindHint(id) {
-    const mod2 = Fl(id, "LLM");
+    const mod2 = Wl(id, "LLM");
     const binding = mod2.variable("user_hint");
     this.subscription(`binding:LLM:user_hint`, binding.bind());
     this.subscription(`listen:LLM:user_hint`, binding.listen().subscribe((value) => this.chat_hint.set(value)));
@@ -97275,6 +97338,2206 @@ var CustomTooltipComponent = class _CustomTooltipComponent extends AsyncHandler 
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CustomTooltipComponent, { className: "CustomTooltipComponent", filePath: "libs/components/src/lib/custom-tooltip.component.ts", lineNumber: 64 });
 })();
 
+// libs/components/src/lib/map-viewer.class.ts
+var MAX_ZOOM = 10;
+var MIN_ZOOM = 1;
+var VIEW_PADDING = 0.05;
+var DESKTOP_TEXTURE_MEGAPIXELS = 16;
+var MOBILE_TEXTURE_MEGAPIXELS = 4;
+var FIXED_TEXTURE_CONTAINER_MULTIPLIER = 2;
+var MAX_TEXTURE_DIMENSION = 8192;
+function isMobileDevice() {
+  if (typeof window === "undefined" || !window.matchMedia)
+    return false;
+  const coarse_pointer = window.matchMedia("(pointer: coarse)").matches;
+  const small_viewport = window.matchMedia("(max-width: 1024px)").matches;
+  return coarse_pointer && small_viewport;
+}
+function cleanCssSelector(selector) {
+  const escaped = selector.replace(/[!"#$%&'()*+,.\/;<=>?@[\\\]^`{|}~]/g, "\\$&");
+  return escaped.split(" ").map((part) => part.replace(/^\\/, "")).join(" ");
+}
+function getSvgDimensions(svg_element) {
+  let x = 0;
+  let y = 0;
+  let width = 0;
+  let height = 0;
+  const view_box = svg_element.getAttribute("viewBox");
+  if (view_box) {
+    const parts = view_box.split(/[\s,]+/).map(parseFloat);
+    if (parts.length >= 4) {
+      x = parts[0] || 0;
+      y = parts[1] || 0;
+      width = parts[2];
+      height = parts[3];
+    }
+  }
+  if (!width || !height) {
+    const width_attr = svg_element.getAttribute("width");
+    const height_attr = svg_element.getAttribute("height");
+    width = width_attr ? parseFloat(width_attr) : 0;
+    height = height_attr ? parseFloat(height_attr) : 0;
+  }
+  if (!width || !height) {
+    try {
+      const bbox = svg_element.getBBox();
+      x = bbox.x;
+      y = bbox.y;
+      width = bbox.width;
+      height = bbox.height;
+    } catch {
+    }
+  }
+  return { x, y, width: width || 1, height: height || 1 };
+}
+function getElementBoundsInSvgSpace(element, svg_inverse_ctm) {
+  const bbox = element.getBBox();
+  const ctm = svg_inverse_ctm && element.getScreenCTM?.();
+  if (!ctm)
+    return bbox;
+  const matrix = svg_inverse_ctm.multiply(ctm);
+  const corners = [
+    { x: bbox.x, y: bbox.y },
+    { x: bbox.x + bbox.width, y: bbox.y },
+    { x: bbox.x, y: bbox.y + bbox.height },
+    { x: bbox.x + bbox.width, y: bbox.y + bbox.height }
+  ].map((p2) => ({
+    x: matrix.a * p2.x + matrix.c * p2.y + matrix.e,
+    y: matrix.b * p2.x + matrix.d * p2.y + matrix.f
+  }));
+  const min_x = Math.min(...corners.map((p2) => p2.x));
+  const min_y = Math.min(...corners.map((p2) => p2.y));
+  return {
+    x: min_x,
+    y: min_y,
+    width: Math.max(...corners.map((p2) => p2.x)) - min_x,
+    height: Math.max(...corners.map((p2) => p2.y)) - min_y
+  };
+}
+function generateElementBounds(data) {
+  const bounds_map = /* @__PURE__ */ new Map();
+  const container = document.createElement("div");
+  container.style.position = "absolute";
+  container.style.visibility = "hidden";
+  container.style.pointerEvents = "none";
+  container.style.left = "-9999px";
+  container.style.top = "-9999px";
+  container.innerHTML = data;
+  document.body.appendChild(container);
+  const svg_element = container.querySelector("svg");
+  if (!svg_element) {
+    document.body.removeChild(container);
+    return { bounds: bounds_map, aspect_ratio: 1 };
+  }
+  const { x: svg_x, y: svg_y, width: svg_width, height: svg_height } = getSvgDimensions(svg_element);
+  const aspect_ratio = svg_width / svg_height;
+  const svg_ctm = svg_element.getScreenCTM?.();
+  const svg_inverse_ctm = svg_ctm ? svg_ctm.inverse() : null;
+  const elements_with_id = svg_element.querySelectorAll("[id]");
+  elements_with_id.forEach((element) => {
+    const id = element.getAttribute("id");
+    if (!id)
+      return;
+    if (typeof element.getBBox === "function") {
+      try {
+        const bbox = getElementBoundsInSvgSpace(element, svg_inverse_ctm);
+        bounds_map.set(id, {
+          x: (bbox.x - svg_x) / svg_width,
+          y: (bbox.y - svg_y) / svg_height,
+          w: bbox.width / svg_width,
+          h: bbox.height / svg_height
+        });
+      } catch {
+      }
+    }
+  });
+  document.body.removeChild(container);
+  return { bounds: bounds_map, aspect_ratio };
+}
+var MapStore = class {
+  constructor() {
+    this.store = /* @__PURE__ */ new Map();
+  }
+  get(path) {
+    if (!this.store.has(path)) {
+      const details = this._load(path);
+      details.catch(() => this.store.delete(path));
+      this.store.set(path, details);
+    }
+    return this.store.get(path);
+  }
+  async _load(path) {
+    while (!Rt()) {
+      await new Promise((resolve) => setTimeout(resolve, 300));
+    }
+    const options2 = {};
+    const tkn = X();
+    const is_same_origin = new URL(path, location.origin).origin === location.origin;
+    if (tkn && is_same_origin) {
+      if (!isMobileSafari()) {
+        options2.headers = tkn === "x-api-key" ? { "x-api-key": Ye() } : { Authorization: `Bearer ${tkn}` };
+      } else {
+        setAuthCookie("/");
+      }
+    }
+    const response = await fetch(path, options2);
+    if (!response.ok)
+      throw new Error("Failed to load map");
+    const data = await response.text();
+    const { bounds, aspect_ratio } = generateElementBounds(data);
+    return { raw_data: data, element_bounds: bounds, aspect_ratio };
+  }
+};
+var STORE = new MapStore();
+function getMapDetails(url) {
+  return STORE.get(url);
+}
+var MapViewer = class {
+  constructor(el2) {
+    this.map_image = null;
+    this.styles_string = "";
+    this.center = { x: 0.5, y: 0.5 };
+    this.zoom = 1;
+    this.fixed_resolution_megapixels = 0;
+    this.disable_zoom = false;
+    this.disable_pan = false;
+    this.onViewChange = null;
+    this.debug = false;
+    this.debug_info = {
+      /** Pointer position in normalised map coordinates */
+      pointer: null,
+      /** ID of the smallest map element under the pointer */
+      hover_id: "",
+      /** ID of the map element explicitly highlighted from debug controls */
+      highlight_id: "",
+      /** Duration of the last map draw in milliseconds */
+      last_draw_ms: 0,
+      /** Number of map draws over the last second */
+      draws_last_second: 0
+    };
+    this._map_path = "";
+    this._image_generation = 0;
+    this._texture_width = 0;
+    this._texture_height = 0;
+    this._image_frame_id = null;
+    this._draw_frame_id = null;
+    this._notify_frame_id = null;
+    this._debug_draw_count = 0;
+    this._debug_count_start = 0;
+    this._events = /* @__PURE__ */ new Map();
+    this._resize_observer = null;
+    this._pointers = /* @__PURE__ */ new Map();
+    this._is_panning = false;
+    this._pinch_distance = null;
+    this._pan_start_time = null;
+    this._pan_exceeded_threshold = false;
+    this._overlay_instances = [];
+    this._actions = [];
+    this._action_event_handlers = /* @__PURE__ */ new Map();
+    this._action_pointerdown_pos = null;
+    this._action_last_triggered = /* @__PURE__ */ new Map();
+    this.container = el2;
+    this.id = `m_view-${randomString(8, "0123456789ABCDEF")}`;
+    this.container.innerHTML = "";
+    this.container.style.overflow = "hidden";
+    this.container.style.touchAction = "none";
+    this.canvas = document.createElement("canvas");
+    this.canvas.style.cssText = "position: absolute; inset: 0; pointer-events: none;";
+    this._ctx = this.canvas.getContext("2d");
+    this.container.appendChild(this.canvas);
+    this.overlays = document.createElement("div");
+    this.overlays.id = `${this.id}-overlays`;
+    this.overlays.style.cssText = "position: absolute; inset: 0; pointer-events: none;";
+    this.container.appendChild(this.overlays);
+    this._resize_observer = new ResizeObserver(() => this._onResize());
+    this._resize_observer.observe(this.container);
+    this._events.set("wheel", (e) => this._onWheel(e));
+    this.container.addEventListener("wheel", this._events.get("wheel"), {
+      passive: false
+    });
+    this._events.set("pointerdown", (e) => this._onPointerDown(e));
+    this._events.set("pointermove", (e) => this._onPointerMove(e));
+    this._events.set("pointerup", (e) => this._onPointerUp(e));
+    this.container.addEventListener("pointerdown", this._events.get("pointerdown"));
+    window.addEventListener("pointermove", this._events.get("pointermove"));
+    window.addEventListener("pointerup", this._events.get("pointerup"));
+    window.addEventListener("pointercancel", this._events.get("pointerup"));
+  }
+  async setMap(path) {
+    this._map_path = path;
+    const map2 = await STORE.get(path);
+    if (this._map_path !== path)
+      return;
+    this.map = map2;
+    this._renderMapImage();
+  }
+  setCenter(point) {
+    const center = this._clampCenter(point);
+    if (center.x === this.center.x && center.y === this.center.y)
+      return;
+    this.center = center;
+    this._renderMap();
+  }
+  setZoom(new_zoom) {
+    new_zoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, new_zoom));
+    if (new_zoom === this.zoom)
+      return;
+    this.zoom = new_zoom;
+    this._renderMap();
+  }
+  /**
+   * Override the texture budget for fixed (zoom-disabled) maps, in
+   * megapixels. Pass 0 to restore the default of twice the container pixels.
+   */
+  setFixedResolution(megapixels) {
+    const value = megapixels > 0 ? megapixels : 0;
+    if (this.fixed_resolution_megapixels === value)
+      return;
+    this.fixed_resolution_megapixels = value;
+    if (this.disable_zoom)
+      this._renderMapImage();
+  }
+  setOptions(options2) {
+    const was_zoom_disabled = this.disable_zoom;
+    this.disable_zoom = !!options2?.disable_zoom;
+    this.disable_pan = !!options2?.disable_pan;
+    if (was_zoom_disabled !== this.disable_zoom)
+      this._renderMapImage();
+  }
+  /** Number of overlays currently attached to the map */
+  get overlay_count() {
+    return this._overlay_instances.length;
+  }
+  /** Human-readable description of the current texture sizing mode, for debug */
+  get texture_mode() {
+    if (this.disable_zoom) {
+      return this.fixed_resolution_megapixels ? `fixed ${this.fixed_resolution_megapixels}MP` : `fixed ${FIXED_TEXTURE_CONTAINER_MULTIPLIER}\xD7 container`;
+    }
+    return isMobileDevice() ? `mobile ${MOBILE_TEXTURE_MEGAPIXELS}MP` : `desktop ${DESKTOP_TEXTURE_MEGAPIXELS}MP`;
+  }
+  /** Toggle rendering of debugging info over the map */
+  setDebug(enabled) {
+    if (this.debug === enabled)
+      return;
+    this.debug = enabled;
+    if (enabled) {
+      const move = (e) => {
+        this.debug_info.pointer = this._eventToMap(e);
+        this.debug_info.hover_id = this._elementAt(this.debug_info.pointer);
+        this._renderMap();
+      };
+      const leave = () => {
+        this.debug_info.pointer = null;
+        this.debug_info.hover_id = "";
+        this._renderMap();
+      };
+      const click = (e) => {
+        const point = this._eventToMap(e);
+        console.log(`[MAP][DEBUG] Click at { x: ${point.x.toFixed(4)}, y: ${point.y.toFixed(4)} } on "${this._elementAt(point) || "no element"}"`);
+      };
+      this._events.set("debug_move", move);
+      this._events.set("debug_leave", leave);
+      this._events.set("debug_click", click);
+      this.container.addEventListener("pointermove", move);
+      this.container.addEventListener("pointerleave", leave);
+      this.container.addEventListener("click", click);
+    } else {
+      for (const name of ["debug_move", "debug_leave", "debug_click"]) {
+        const handler = this._events.get(name);
+        if (!handler)
+          continue;
+        const event_name = name === "debug_move" ? "pointermove" : name === "debug_leave" ? "pointerleave" : "click";
+        this.container.removeEventListener(event_name, handler);
+        this._events.delete(name);
+      }
+      this.debug_info.pointer = null;
+      this.debug_info.hover_id = "";
+      this.debug_info.highlight_id = "";
+    }
+    this._applyOverlayOutlines();
+    this._renderMap();
+  }
+  /** Highlight a map element while debug mode is active */
+  setDebugHighlight(ref) {
+    if (this.debug_info.highlight_id === ref)
+      return;
+    this.debug_info.highlight_id = ref;
+    if (this.debug)
+      this._renderMap();
+  }
+  /** Center the view on the map element with the given ID */
+  focusOn(ref) {
+    const bounds = this.map?.element_bounds.get(ref);
+    if (!bounds)
+      return;
+    this.setCenter({
+      x: bounds.x + bounds.w / 2,
+      y: bounds.y + bounds.h / 2
+    });
+    this._notifyViewChange();
+  }
+  setOverlays(overlays) {
+    for (const instance of this._overlay_instances) {
+      instance.element.remove();
+    }
+    this._overlay_instances = [];
+    for (const overlay of overlays) {
+      const element = document.createElement("div");
+      element.style.cssText = "position: absolute; top: 0; left: 0; display: flex; align-items: center; justify-content: center; transform-origin: center center; pointer-events: none;";
+      if (overlay.z_index != null) {
+        element.style.zIndex = `${overlay.z_index}`;
+      }
+      if (overlay.hover) {
+        element.classList.add("map-overlay-hover");
+      }
+      if (typeof overlay.contents === "string") {
+        element.innerHTML = overlay.contents;
+      } else {
+        element.appendChild(overlay.contents);
+      }
+      this.overlays.appendChild(element);
+      this._overlay_instances.push({ overlay, element });
+    }
+    this._applyOverlayOutlines();
+    this._updateOverlayPositions();
+  }
+  /** Outline overlay elements while debug mode is active */
+  _applyOverlayOutlines() {
+    for (const { element } of this._overlay_instances) {
+      element.style.outline = this.debug ? "1px dashed #f0f" : "";
+    }
+  }
+  /** ID of the smallest map element containing the given point */
+  _elementAt(point) {
+    let best2 = "";
+    let best_area = Number.POSITIVE_INFINITY;
+    for (const [id, bounds] of this.map?.element_bounds || []) {
+      if (point.x < bounds.x || point.x > bounds.x + bounds.w || point.y < bounds.y || point.y > bounds.y + bounds.h) {
+        continue;
+      }
+      const area = bounds.w * bounds.h;
+      if (area < best_area) {
+        best2 = id;
+        best_area = area;
+      }
+    }
+    return best2;
+  }
+  setActions(actions) {
+    for (const [event_name, handler] of this._action_event_handlers) {
+      this.container.removeEventListener(event_name, handler);
+    }
+    this._action_event_handlers.clear();
+    this._action_last_triggered.clear();
+    this._actions = actions;
+    const event_names = new Set(actions.flatMap((_2) => _2.events));
+    for (const event_name of event_names) {
+      const handler = (e) => this._handleActionEvent(event_name, e);
+      this._action_event_handlers.set(event_name, handler);
+      this.container.addEventListener(event_name, handler);
+    }
+    if (!this._events.has("action_pointerdown")) {
+      const handler = (e) => {
+        this._action_pointerdown_pos = { x: e.clientX, y: e.clientY };
+      };
+      this._events.set("action_pointerdown", handler);
+      this.container.addEventListener("pointerdown", handler);
+    }
+  }
+  /** Apply CSS to the map's SVG elements. Mapping of CSS selector to style declaration */
+  setStyles(styles) {
+    let style_content = "";
+    for (const [selector, css_text] of Object.entries(styles)) {
+      if (css_text) {
+        style_content += `svg ${cleanCssSelector(selector)} { ${css_text} }
+`;
+      }
+    }
+    if (style_content !== this.styles_string) {
+      this.styles_string = style_content;
+      this._renderMapImage();
+    }
+  }
+  destroy() {
+    this.setDebug(false);
+    this._resize_observer?.disconnect();
+    this._resize_observer = null;
+    this.container.removeEventListener("wheel", this._events.get("wheel"));
+    this.container.removeEventListener("pointerdown", this._events.get("pointerdown"));
+    window.removeEventListener("pointermove", this._events.get("pointermove"));
+    window.removeEventListener("pointerup", this._events.get("pointerup"));
+    window.removeEventListener("pointercancel", this._events.get("pointerup"));
+    for (const [event_name, handler] of this._action_event_handlers) {
+      this.container.removeEventListener(event_name, handler);
+    }
+    this._action_event_handlers.clear();
+    this._action_last_triggered.clear();
+    this._actions = [];
+    if (this._events.has("action_pointerdown")) {
+      const handler = this._events.get("action_pointerdown");
+      this.container.removeEventListener("pointerdown", handler);
+      this._events.delete("action_pointerdown");
+    }
+    this._action_pointerdown_pos = null;
+    this._image_generation++;
+    this._map_path = "";
+    if (this._image_frame_id !== null) {
+      cancelAnimationFrame(this._image_frame_id);
+      this._image_frame_id = null;
+    }
+    if (this._draw_frame_id !== null) {
+      cancelAnimationFrame(this._draw_frame_id);
+      this._draw_frame_id = null;
+    }
+    if (this._notify_frame_id !== null) {
+      cancelAnimationFrame(this._notify_frame_id);
+      this._notify_frame_id = null;
+    }
+    for (const instance of this._overlay_instances) {
+      instance.element.remove();
+    }
+    this._overlay_instances = [];
+    this.map_image = null;
+    this.container.innerHTML = "";
+  }
+  /**
+   * Pixels per normalised map unit on each axis at the given zoom level.
+   * At zoom 1 the whole map image fits within the view.
+   */
+  _viewScale(zoom = this.zoom) {
+    const aspect = this.map?.aspect_ratio || 1;
+    const width = this.container.clientWidth || 1;
+    const height = this.container.clientHeight || 1;
+    const fit_height = Math.min(height, width / aspect) * (1 - VIEW_PADDING * 2) * zoom;
+    return { x: fit_height * aspect, y: fit_height };
+  }
+  /** Convert a pointer event position to normalised map coordinates (0-1) */
+  _eventToMap(e, rect = this.container.getBoundingClientRect()) {
+    const scale = this._viewScale();
+    return {
+      x: (e.clientX - rect.left - rect.width / 2) / scale.x + this.center.x,
+      y: (e.clientY - rect.top - rect.height / 2) / scale.y + this.center.y
+    };
+  }
+  _clampCenter(point) {
+    return {
+      x: Math.max(0, Math.min(1, point.x)),
+      y: Math.max(0, Math.min(1, point.y))
+    };
+  }
+  /** Zoom about a fixed screen position so the point under it stays in place */
+  _zoomAboutPoint(new_zoom, position) {
+    const old_zoom = this.zoom;
+    new_zoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, new_zoom));
+    if (new_zoom === old_zoom)
+      return;
+    const rect = this.container.getBoundingClientRect();
+    const fixed_point = this._eventToMap({ clientX: position.x, clientY: position.y }, rect);
+    const new_scale = this._viewScale(new_zoom);
+    const new_center = {
+      x: fixed_point.x - (position.x - rect.left - rect.width / 2) / new_scale.x,
+      y: fixed_point.y - (position.y - rect.top - rect.height / 2) / new_scale.y
+    };
+    this.zoom = new_zoom;
+    this.center = this._clampCenter(new_center);
+    this._renderMap();
+    this._notifyViewChange();
+  }
+  _onWheel(e) {
+    e.preventDefault();
+    if (this.disable_zoom || !this.map_image)
+      return;
+    const zoom_delta = e.deltaY > 0 ? 0.97 : 1.03;
+    this._zoomAboutPoint(this.zoom * zoom_delta, {
+      x: e.clientX,
+      y: e.clientY
+    });
+  }
+  _onPointerDown(e) {
+    if (!this.map_image)
+      return;
+    if (e.button !== 0)
+      return;
+    this._pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (this._pointers.size === 2) {
+      this._is_panning = false;
+      const [p1, p2] = [...this._pointers.values()];
+      this._pinch_distance = Math.hypot(p2.x - p1.x, p2.y - p1.y);
+      return;
+    }
+    if (this.disable_pan)
+      return;
+    this._is_panning = true;
+    this._pan_start_time = Date.now();
+    this._pan_exceeded_threshold = false;
+    this.container.style.cursor = "grabbing";
+  }
+  _onPointerMove(e) {
+    const last3 = this._pointers.get(e.pointerId);
+    if (!last3)
+      return;
+    this._pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (this._pointers.size === 2 && this._pinch_distance) {
+      if (this.disable_zoom)
+        return;
+      const [p1, p2] = [...this._pointers.values()];
+      const distance = Math.hypot(p2.x - p1.x, p2.y - p1.y);
+      if (distance > 0) {
+        this._zoomAboutPoint(this.zoom * (distance / this._pinch_distance), { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 });
+        this._pinch_distance = distance;
+      }
+      return;
+    }
+    if (!this._is_panning)
+      return;
+    if (this._pan_start_time && !this._pan_exceeded_threshold && Date.now() - this._pan_start_time > 200) {
+      this._pan_exceeded_threshold = true;
+    }
+    const scale = this._viewScale();
+    this.center = this._clampCenter({
+      x: this.center.x - (e.clientX - last3.x) / scale.x,
+      y: this.center.y - (e.clientY - last3.y) / scale.y
+    });
+    this._renderMap();
+    this._notifyViewChange();
+  }
+  _onPointerUp(e) {
+    this._pointers.delete(e.pointerId);
+    if (this._pointers.size < 2) {
+      this._pinch_distance = null;
+    }
+    if (this._is_panning && this._pointers.size === 0) {
+      this._is_panning = false;
+      this.container.style.cursor = "";
+    }
+  }
+  _onResize() {
+    this._renderMap();
+    if (this.disable_zoom && !this.fixed_resolution_megapixels) {
+      const { width, height } = this._textureDimensions();
+      if (width !== this._texture_width || height !== this._texture_height) {
+        this._renderMapImage();
+      }
+    }
+  }
+  /**
+   * Total texture pixel budget for the current map. Zoomable maps use a
+   * fixed megapixel budget (reduced on mobile) so the map stays sharp when
+   * zoomed in. Fixed maps never scale up, so they only need enough pixels
+   * to cover the container, defaulting to twice the container's pixel count.
+   */
+  _targetTexturePixels() {
+    if (this.disable_zoom) {
+      if (this.fixed_resolution_megapixels > 0) {
+        return this.fixed_resolution_megapixels * 1e6;
+      }
+      const container_pixels = (this.container.clientWidth || 1) * (this.container.clientHeight || 1);
+      return container_pixels * FIXED_TEXTURE_CONTAINER_MULTIPLIER;
+    }
+    const megapixels = isMobileDevice() ? MOBILE_TEXTURE_MEGAPIXELS : DESKTOP_TEXTURE_MEGAPIXELS;
+    return megapixels * 1e6;
+  }
+  /**
+   * Texture dimensions matching the SVG's aspect ratio with a total area of
+   * `_targetTexturePixels()`. Each side is clamped to the maximum canvas
+   * dimension, so very wide or tall maps render slightly below the budget.
+   */
+  _textureDimensions() {
+    const aspect = this.map?.aspect_ratio || 1;
+    const target_pixels = this._targetTexturePixels();
+    const height = Math.sqrt(target_pixels / aspect);
+    const width = height * aspect;
+    return {
+      width: Math.max(1, Math.min(MAX_TEXTURE_DIMENSION, Math.round(width))),
+      height: Math.max(1, Math.min(MAX_TEXTURE_DIMENSION, Math.round(height)))
+    };
+  }
+  _renderMapImage() {
+    if (this._image_frame_id !== null) {
+      cancelAnimationFrame(this._image_frame_id);
+    }
+    this._image_frame_id = requestAnimationFrame(() => {
+      this._image_frame_id = null;
+      this._doRenderMapImage();
+    });
+  }
+  _doRenderMapImage() {
+    if (!this.map?.raw_data)
+      return;
+    const generation = ++this._image_generation;
+    const parser2 = new DOMParser();
+    const doc = parser2.parseFromString(this.map.raw_data, "image/svg+xml");
+    const svg_element = doc.querySelector("svg");
+    if (!svg_element)
+      return;
+    const { width, height } = this._textureDimensions();
+    this._texture_width = width;
+    this._texture_height = height;
+    if (!svg_element.getAttribute("viewBox")) {
+      const attr_width = parseFloat(svg_element.getAttribute("width") || "");
+      const attr_height = parseFloat(svg_element.getAttribute("height") || "");
+      if (attr_width > 0 && attr_height > 0) {
+        svg_element.setAttribute("viewBox", `0 0 ${attr_width} ${attr_height}`);
+      }
+    }
+    if (svg_element.getAttribute("viewBox")) {
+      svg_element.setAttribute("width", `${width}`);
+      svg_element.setAttribute("height", `${height}`);
+    }
+    if (this.styles_string) {
+      const style_element = doc.createElementNS("http://www.w3.org/2000/svg", "style");
+      style_element.textContent = this.styles_string;
+      svg_element.appendChild(style_element);
+    }
+    const serializer = new XMLSerializer();
+    const svg_string = serializer.serializeToString(svg_element);
+    const svg_blob = new Blob([svg_string], { type: "image/svg+xml" });
+    const url = URL.createObjectURL(svg_blob);
+    const svg_image = new Image();
+    svg_image.onload = () => {
+      URL.revokeObjectURL(url);
+      if (generation !== this._image_generation)
+        return;
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        console.error("Failed to get canvas context");
+        return;
+      }
+      ctx.drawImage(svg_image, 0, 0, width, height);
+      this.map_image = canvas;
+      this._renderMap();
+    };
+    svg_image.onerror = () => {
+      URL.revokeObjectURL(url);
+      console.error("Failed to load map image");
+    };
+    svg_image.src = url;
+  }
+  _renderMap() {
+    if (this._draw_frame_id !== null)
+      return;
+    this._draw_frame_id = requestAnimationFrame(() => {
+      this._draw_frame_id = null;
+      this._drawMap();
+    });
+  }
+  _drawMap() {
+    if (!this.map_image)
+      return;
+    const draw_start = this.debug ? performance.now() : 0;
+    const width = this.container.clientWidth || 1;
+    const height = this.container.clientHeight || 1;
+    const dpr = window.devicePixelRatio || 1;
+    if (this.canvas.width !== Math.round(width * dpr) || this.canvas.height !== Math.round(height * dpr)) {
+      this.canvas.width = Math.round(width * dpr);
+      this.canvas.height = Math.round(height * dpr);
+      this.canvas.style.width = `${width}px`;
+      this.canvas.style.height = `${height}px`;
+    }
+    const scale = this._viewScale();
+    const view_left = this.center.x - width / 2 / scale.x;
+    const view_top = this.center.y - height / 2 / scale.y;
+    const sx0 = Math.max(0, view_left);
+    const sy0 = Math.max(0, view_top);
+    const sx1 = Math.min(1, view_left + width / scale.x);
+    const sy1 = Math.min(1, view_top + height / scale.y);
+    this._ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    this._ctx.clearRect(0, 0, width, height);
+    if (sx1 > sx0 && sy1 > sy0) {
+      this._ctx.imageSmoothingEnabled = true;
+      this._ctx.imageSmoothingQuality = "high";
+      const img_w = this.map_image.width;
+      const img_h = this.map_image.height;
+      this._ctx.drawImage(this.map_image, sx0 * img_w, sy0 * img_h, (sx1 - sx0) * img_w, (sy1 - sy0) * img_h, (sx0 - view_left) * scale.x, (sy0 - view_top) * scale.y, (sx1 - sx0) * scale.x, (sy1 - sy0) * scale.y);
+    }
+    if (this.debug) {
+      this._drawDebugInfo(scale, view_left, view_top);
+      const now = performance.now();
+      this.debug_info.last_draw_ms = now - draw_start;
+      this._debug_draw_count++;
+      if (now - this._debug_count_start >= 1e3) {
+        this.debug_info.draws_last_second = this._debug_draw_count;
+        this._debug_draw_count = 0;
+        this._debug_count_start = now;
+      }
+    }
+    this._updateOverlayPositions();
+  }
+  /** Draw element bounds, map border and view crosshair over the map */
+  _drawDebugInfo(scale, view_left, view_top) {
+    if (!this.map)
+      return;
+    const ctx = this._ctx;
+    const width = this.container.clientWidth || 1;
+    const height = this.container.clientHeight || 1;
+    const toScreenX = (x) => (x - view_left) * scale.x;
+    const toScreenY = (y) => (y - view_top) * scale.y;
+    ctx.strokeStyle = "#f0f";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(toScreenX(0), toScreenY(0), scale.x, scale.y);
+    ctx.strokeStyle = "rgba(0, 200, 255, 0.6)";
+    ctx.lineWidth = 1;
+    for (const [, bounds] of this.map.element_bounds) {
+      const x = toScreenX(bounds.x);
+      const y = toScreenY(bounds.y);
+      const w = bounds.w * scale.x;
+      const h3 = bounds.h * scale.y;
+      if (x + w < 0 || y + h3 < 0 || x > width || y > height)
+        continue;
+      ctx.strokeRect(x, y, w, h3);
+    }
+    const highlight_id = this.debug_info.highlight_id || this.debug_info.hover_id;
+    const hover_bounds = highlight_id ? this.map.element_bounds.get(highlight_id) : null;
+    if (hover_bounds) {
+      const x = toScreenX(hover_bounds.x);
+      const y = toScreenY(hover_bounds.y);
+      ctx.fillStyle = "rgba(255, 0, 255, 0.25)";
+      ctx.fillRect(x, y, hover_bounds.w * scale.x, hover_bounds.h * scale.y);
+      const label = `#${highlight_id}`;
+      ctx.font = "12px monospace";
+      ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+      ctx.fillRect(x, y - 16, ctx.measureText(label).width + 8, 16);
+      ctx.fillStyle = "#fff";
+      ctx.fillText(label, x + 4, y - 4);
+    }
+    ctx.strokeStyle = "#f00";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(width / 2 - 8, height / 2);
+    ctx.lineTo(width / 2 + 8, height / 2);
+    ctx.moveTo(width / 2, height / 2 - 8);
+    ctx.lineTo(width / 2, height / 2 + 8);
+    ctx.stroke();
+  }
+  _updateOverlayPositions() {
+    if (!this.map?.element_bounds)
+      return;
+    const width = this.container.clientWidth || 1;
+    const height = this.container.clientHeight || 1;
+    const scale = this._viewScale();
+    const mapToScreen = (point) => ({
+      x: (point.x - this.center.x) * scale.x + width / 2,
+      y: (point.y - this.center.y) * scale.y + height / 2
+    });
+    const setDisplay = (instance, value) => {
+      if (instance.last_display === value)
+        return;
+      instance.last_display = value;
+      instance.element.style.display = value;
+    };
+    const setTransform = (instance, value) => {
+      if (instance.last_transform === value)
+        return;
+      instance.last_transform = value;
+      instance.element.style.transform = value;
+    };
+    const setSize = (instance, w, h3) => {
+      const size = `${w} ${h3}`;
+      if (instance.last_size === size)
+        return;
+      instance.last_size = size;
+      instance.element.style.width = w;
+      instance.element.style.height = h3;
+    };
+    for (const instance of this._overlay_instances) {
+      const { overlay } = instance;
+      if (overlay.min_zoom && this.zoom < overlay.min_zoom) {
+        setDisplay(instance, "none");
+        continue;
+      }
+      let bounds;
+      if (typeof overlay.ref === "string") {
+        bounds = this.map.element_bounds.get(overlay.ref);
+        if (!bounds) {
+          setDisplay(instance, "none");
+          continue;
+        }
+      } else {
+        bounds = __spreadProps(__spreadValues({}, overlay.ref), { w: 0, h: 0 });
+      }
+      setDisplay(instance, "");
+      if (overlay.type === "box" && bounds.w > 0 && bounds.h > 0) {
+        const top_left = mapToScreen({ x: bounds.x, y: bounds.y });
+        setTransform(instance, `translate(${top_left.x}px, ${top_left.y}px)`);
+        setSize(instance, `${bounds.w * scale.x}px`, `${bounds.h * scale.y}px`);
+      } else {
+        const screen_pos = mapToScreen({
+          x: bounds.x + bounds.w / 2,
+          y: bounds.y + bounds.h / 2
+        });
+        setSize(instance, "", "");
+        setTransform(instance, overlay.scale_with_zoom ? `translate(${screen_pos.x}px, ${screen_pos.y}px) translate(-50%, -50%) scale(${this.zoom})` : `translate(${screen_pos.x}px, ${screen_pos.y}px) translate(-50%, -50%)`);
+      }
+    }
+  }
+  /**
+   * Handle action events (click, pointer events, etc.) on the map.
+   * Only the best matching action is triggered, where the best match is the
+   * highest priority action with the smallest map element under the event.
+   */
+  _handleActionEvent(event_name, e) {
+    if (!this.map_image || !this.map?.element_bounds)
+      return;
+    if (this._pan_exceeded_threshold)
+      return;
+    if (event_name === "click" && this._action_pointerdown_pos) {
+      const dx = e.clientX - this._action_pointerdown_pos.x;
+      const dy = e.clientY - this._action_pointerdown_pos.y;
+      if (Math.hypot(dx, dy) > 5)
+        return;
+    }
+    const norm = this._eventToMap(e);
+    if (norm.x < 0 || norm.x > 1 || norm.y < 0 || norm.y > 1)
+      return;
+    let best2 = null;
+    let best_area = Number.POSITIVE_INFINITY;
+    for (const action of this._actions) {
+      if (!action.events.includes(event_name))
+        continue;
+      if (action.ref === "*") {
+        if (!best2)
+          best2 = action;
+        continue;
+      }
+      const bounds = this.map.element_bounds.get(action.ref);
+      if (!bounds)
+        continue;
+      if (norm.x < bounds.x || norm.x > bounds.x + bounds.w || norm.y < bounds.y || norm.y > bounds.y + bounds.h) {
+        continue;
+      }
+      const area = bounds.w * bounds.h;
+      if (!best2 || best2.ref === "*" || (action.priority || 0) > (best2.priority || 0) || (action.priority || 0) === (best2.priority || 0) && area < best_area) {
+        best2 = action;
+        best_area = area;
+      }
+    }
+    if (!best2)
+      return;
+    const now = Date.now();
+    const debounce_key = `${best2.ref}:${event_name}`;
+    const last_triggered = this._action_last_triggered.get(debounce_key) || 0;
+    if (now - last_triggered < 300)
+      return;
+    this._action_last_triggered.set(debounce_key, now);
+    best2.callback(norm);
+  }
+  /**
+   * Notify listeners of view changes from user interaction. Notifications
+   * are coalesced to one per animation frame as pointer events can fire
+   * more often than the display refreshes and listeners may be expensive
+   */
+  _notifyViewChange() {
+    if (!this.onViewChange || this._notify_frame_id !== null)
+      return;
+    this._notify_frame_id = requestAnimationFrame(() => {
+      this._notify_frame_id = null;
+      this.onViewChange?.({
+        zoom: this.zoom,
+        center: __spreadValues({}, this.center)
+      });
+    });
+  }
+};
+
+// libs/components/src/lib/map-zoom-controls.component.ts
+var MapZoomControlsComponent = class _MapZoomControlsComponent {
+  constructor() {
+    this.zoom = model(
+      1,
+      ...ngDevMode ? [{ debugName: "zoom" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.reset = model(
+      0,
+      ...ngDevMode ? [{ debugName: "reset" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+  }
+  static {
+    this.\u0275fac = function MapZoomControlsComponent_Factory(__ngFactoryType__) {
+      return new (__ngFactoryType__ || _MapZoomControlsComponent)();
+    };
+  }
+  static {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MapZoomControlsComponent, selectors: [["map-zoom-controls"]], inputs: { zoom: [1, "zoom"], reset: [1, "reset"] }, outputs: { zoom: "zoomChange", reset: "resetChange" }, decls: 13, vars: 9, consts: [[1, "bg-base-100", "divide-base-300", "border-base-300", "absolute", "right-2", "bottom-16", "flex", "flex-col", "divide-y", "overflow-hidden", "rounded-lg", "border", "shadow-md"], ["icon", "", "matRipple", "", "matTooltipPosition", "left", 1, "hover:bg-base-200", 3, "click", "matTooltip"]], template: function MapZoomControlsComponent_Template(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275elementStart(0, "div", 0)(1, "button", 1);
+        \u0275\u0275pipe(2, "translate");
+        \u0275\u0275listener("click", function MapZoomControlsComponent_Template_button_click_1_listener($event) {
+          ctx.zoom.set(ctx.zoom() * 1.1);
+          return $event.stopPropagation();
+        });
+        \u0275\u0275elementStart(3, "icon");
+        \u0275\u0275text(4, "add");
+        \u0275\u0275elementEnd()();
+        \u0275\u0275elementStart(5, "button", 1);
+        \u0275\u0275pipe(6, "translate");
+        \u0275\u0275listener("click", function MapZoomControlsComponent_Template_button_click_5_listener($event) {
+          ctx.zoom.set(ctx.zoom() * (10 / 11));
+          return $event.stopPropagation();
+        });
+        \u0275\u0275elementStart(7, "icon");
+        \u0275\u0275text(8, "remove");
+        \u0275\u0275elementEnd()();
+        \u0275\u0275elementStart(9, "button", 1);
+        \u0275\u0275pipe(10, "translate");
+        \u0275\u0275listener("click", function MapZoomControlsComponent_Template_button_click_9_listener($event) {
+          ctx.reset.set(ctx.reset() + 1);
+          return $event.stopPropagation();
+        });
+        \u0275\u0275elementStart(11, "icon");
+        \u0275\u0275text(12, "refresh");
+        \u0275\u0275elementEnd()()();
+      }
+      if (rf & 2) {
+        \u0275\u0275advance();
+        \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(2, 3, "EXPLORE.ZOOM_IN"));
+        \u0275\u0275advance(4);
+        \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(6, 5, "EXPLORE.ZOOM_OUT"));
+        \u0275\u0275advance(4);
+        \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(10, 7, "EXPLORE.ZOOM_RESET"));
+      }
+    }, dependencies: [IconComponent, MatRippleModule, MatRipple, MatTooltipModule, MatTooltip, TranslatePipe], styles: ["\nbutton[_ngcontent-%COMP%] {\n  border-radius: 0;\n}\n/*# sourceMappingURL=map-zoom-controls.component.css.map */"] });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MapZoomControlsComponent, [{
+    type: Component,
+    args: [{ selector: "map-zoom-controls", template: `
+        <div
+            class="bg-base-100 divide-base-300 border-base-300 absolute right-2 bottom-16 flex flex-col divide-y overflow-hidden rounded-lg border shadow-md"
+        >
+            <button
+                icon
+                matRipple
+                [matTooltip]="'EXPLORE.ZOOM_IN' | translate"
+                matTooltipPosition="left"
+                class="hover:bg-base-200"
+                (click)="zoom.set(zoom() * 1.1); $event.stopPropagation()"
+            >
+                <icon>add</icon>
+            </button>
+            <button
+                icon
+                matRipple
+                [matTooltip]="'EXPLORE.ZOOM_OUT' | translate"
+                matTooltipPosition="left"
+                class="hover:bg-base-200"
+                (click)="zoom.set(zoom() * (10 / 11)); $event.stopPropagation()"
+            >
+                <icon>remove</icon>
+            </button>
+            <button
+                icon
+                matRipple
+                [matTooltip]="'EXPLORE.ZOOM_RESET' | translate"
+                matTooltipPosition="left"
+                class="hover:bg-base-200"
+                (click)="reset.set(reset() + 1); $event.stopPropagation()"
+            >
+                <icon>refresh</icon>
+            </button>
+        </div>
+    `, imports: [IconComponent, TranslatePipe, MatRippleModule, MatTooltipModule], styles: ["/* angular:styles/component:css;3acd8ef39876159d073e8897fa9cab043ba04b0b5279b833ba6e69fa287e4f39;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/map-zoom-controls.component.ts */\nbutton {\n  border-radius: 0;\n}\n/*# sourceMappingURL=map-zoom-controls.component.css.map */\n"] }]
+  }], null, { zoom: [{ type: Input, args: [{ isSignal: true, alias: "zoom", required: false }] }, { type: Output, args: ["zoomChange"] }], reset: [{ type: Input, args: [{ isSignal: true, alias: "reset", required: false }] }, { type: Output, args: ["resetChange"] }] });
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(MapZoomControlsComponent, { className: "MapZoomControlsComponent", filePath: "libs/components/src/lib/map-zoom-controls.component.ts", lineNumber: 55 });
+})();
+
+// libs/components/src/lib/dynamic-map.component.ts
+var _c017 = ["mapContainer"];
+var _c111 = ["feature"];
+var _c28 = ["*"];
+var _forTrack0 = ($index, $item) => $item.key;
+var _forTrack1 = ($index, $item) => $item.selector;
+var _forTrack2 = ($index, $item) => $item.name;
+var _forTrack3 = ($index, $item) => $item.text;
+var _forTrack4 = ($index, $item) => $item.track_id || $index;
+function DynamicMapComponent_Conditional_2_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "mat-spinner", 7);
+  }
+  if (rf & 2) {
+    \u0275\u0275property("diameter", 48);
+  }
+}
+function DynamicMapComponent_Conditional_2_Conditional_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 3)(1, "div", 8);
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 1, "EXPLORE.MAP_FAILED_TO_LOAD"), " ");
+  }
+}
+function DynamicMapComponent_Conditional_2_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275conditionalCreate(0, DynamicMapComponent_Conditional_2_Conditional_0_Template, 1, 1, "mat-spinner", 7);
+    \u0275\u0275conditionalCreate(1, DynamicMapComponent_Conditional_2_Conditional_1_Template, 4, 3, "div", 3);
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275conditional(ctx_r0.loading() ? 0 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r0.error() ? 1 : -1);
+  }
+}
+function DynamicMapComponent_Conditional_3_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 3)(1, "div", 8);
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 1, "EXPLORE.MAP_EMPTY"), " ");
+  }
+}
+function DynamicMapComponent_Conditional_5_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r2 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "map-zoom-controls", 9);
+    \u0275\u0275twoWayListener("zoomChange", function DynamicMapComponent_Conditional_5_Template_map_zoom_controls_zoomChange_0_listener($event) {
+      \u0275\u0275restoreView(_r2);
+      const ctx_r0 = \u0275\u0275nextContext();
+      \u0275\u0275twoWayBindingSet(ctx_r0.zoom, $event) || (ctx_r0.zoom = $event);
+      return \u0275\u0275resetView($event);
+    })("resetChange", function DynamicMapComponent_Conditional_5_Template_map_zoom_controls_resetChange_0_listener($event) {
+      \u0275\u0275restoreView(_r2);
+      const ctx_r0 = \u0275\u0275nextContext();
+      \u0275\u0275twoWayBindingSet(ctx_r0.reset, $event) || (ctx_r0.reset = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275twoWayProperty("zoom", ctx_r0.zoom)("reset", ctx_r0.reset);
+  }
+}
+function DynamicMapComponent_Conditional_6_For_5_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r3 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 13);
+    \u0275\u0275listener("click", function DynamicMapComponent_Conditional_6_For_5_Template_button_click_0_listener() {
+      const section_r4 = \u0275\u0275restoreView(_r3).$implicit;
+      const ctx_r0 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r0.toggleDebugSection(section_r4.key));
+    });
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const section_r4 = ctx.$implicit;
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275classProp("bg-white/30", ctx_r0.debug_section() === section_r4.key);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate2(" ", section_r4.key, " (", section_r4.count, ") ");
+  }
+}
+function DynamicMapComponent_Conditional_6_Conditional_6_Conditional_2_For_1_For_3_Conditional_3_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "span", 18);
+  }
+  if (rf & 2) {
+    const prop_r6 = \u0275\u0275nextContext().$implicit;
+    \u0275\u0275styleProp("background", prop_r6.color);
+  }
+}
+function DynamicMapComponent_Conditional_6_Conditional_6_Conditional_2_For_1_For_3_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 16)(1, "span");
+    \u0275\u0275text(2);
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(3, DynamicMapComponent_Conditional_6_Conditional_6_Conditional_2_For_1_For_3_Conditional_3_Template, 1, 2, "span", 17);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const prop_r6 = ctx.$implicit;
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(" " + prop_r6.name + ": " + prop_r6.value + ";");
+    \u0275\u0275advance();
+    \u0275\u0275conditional(prop_r6.color ? 3 : -1);
+  }
+}
+function DynamicMapComponent_Conditional_6_Conditional_6_Conditional_2_For_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div");
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+    \u0275\u0275repeaterCreate(2, DynamicMapComponent_Conditional_6_Conditional_6_Conditional_2_For_1_For_3_Template, 4, 2, "div", 16, _forTrack2);
+    \u0275\u0275elementStart(4, "div");
+    \u0275\u0275text(5);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const block_r7 = ctx.$implicit;
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(block_r7.selector + " {");
+    \u0275\u0275advance();
+    \u0275\u0275repeater(block_r7.props);
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate("}");
+  }
+}
+function DynamicMapComponent_Conditional_6_Conditional_6_Conditional_2_ForEmpty_2_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span");
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext(4);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(ctx_r0.debug_filter().trim() ? "No matches" : "No styles");
+  }
+}
+function DynamicMapComponent_Conditional_6_Conditional_6_Conditional_2_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275repeaterCreate(0, DynamicMapComponent_Conditional_6_Conditional_6_Conditional_2_For_1_Template, 6, 2, null, null, _forTrack1, false, DynamicMapComponent_Conditional_6_Conditional_6_Conditional_2_ForEmpty_2_Template, 2, 1, "span");
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext(3);
+    \u0275\u0275repeater(ctx_r0.debug_style_blocks());
+  }
+}
+function DynamicMapComponent_Conditional_6_Conditional_6_Conditional_3_For_1_Conditional_3_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span", 21);
+    \u0275\u0275text(1, " [missing on map] ");
+    \u0275\u0275elementEnd();
+  }
+}
+function DynamicMapComponent_Conditional_6_Conditional_6_Conditional_3_For_1_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r8 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 20);
+    \u0275\u0275listener("mouseenter", function DynamicMapComponent_Conditional_6_Conditional_6_Conditional_3_For_1_Template_div_mouseenter_0_listener() {
+      const entry_r9 = \u0275\u0275restoreView(_r8).$implicit;
+      const ctx_r0 = \u0275\u0275nextContext(4);
+      return \u0275\u0275resetView(ctx_r0.highlightDebugEntry(entry_r9));
+    })("mouseleave", function DynamicMapComponent_Conditional_6_Conditional_6_Conditional_3_For_1_Template_div_mouseleave_0_listener() {
+      const entry_r9 = \u0275\u0275restoreView(_r8).$implicit;
+      const ctx_r0 = \u0275\u0275nextContext(4);
+      return \u0275\u0275resetView(ctx_r0.clearDebugHighlight(entry_r9));
+    });
+    \u0275\u0275elementStart(1, "span");
+    \u0275\u0275text(2);
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(3, DynamicMapComponent_Conditional_6_Conditional_6_Conditional_3_For_1_Conditional_3_Template, 2, 0, "span", 21);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const entry_r9 = ctx.$implicit;
+    \u0275\u0275classProp("bg-red-500/20", entry_r9.missing)("text-red-200", entry_r9.missing)("cursor-default", entry_r9.ref);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(entry_r9.text);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(entry_r9.missing ? 3 : -1);
+  }
+}
+function DynamicMapComponent_Conditional_6_Conditional_6_Conditional_3_ForEmpty_2_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span");
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext(4);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(ctx_r0.debug_detail_empty_text());
+  }
+}
+function DynamicMapComponent_Conditional_6_Conditional_6_Conditional_3_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275repeaterCreate(0, DynamicMapComponent_Conditional_6_Conditional_6_Conditional_3_For_1_Template, 4, 8, "div", 19, _forTrack3, false, DynamicMapComponent_Conditional_6_Conditional_6_Conditional_3_ForEmpty_2_Template, 2, 1, "span");
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext(3);
+    \u0275\u0275repeater(ctx_r0.debug_detail_entries());
+  }
+}
+function DynamicMapComponent_Conditional_6_Conditional_6_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r5 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "input", 14);
+    \u0275\u0275twoWayListener("ngModelChange", function DynamicMapComponent_Conditional_6_Conditional_6_Template_input_ngModelChange_0_listener($event) {
+      \u0275\u0275restoreView(_r5);
+      const ctx_r0 = \u0275\u0275nextContext(2);
+      \u0275\u0275twoWayBindingSet(ctx_r0.debug_filter, $event) || (ctx_r0.debug_filter = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementStart(1, "div", 15);
+    \u0275\u0275conditionalCreate(2, DynamicMapComponent_Conditional_6_Conditional_6_Conditional_2_Template, 3, 1)(3, DynamicMapComponent_Conditional_6_Conditional_6_Conditional_3_Template, 3, 1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275twoWayProperty("ngModel", ctx_r0.debug_filter);
+    \u0275\u0275control();
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(ctx_r0.debug_section() === "styles" ? 2 : 3);
+  }
+}
+function DynamicMapComponent_Conditional_6_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 5)(1, "div", 10);
+    \u0275\u0275text(2);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "div", 11);
+    \u0275\u0275repeaterCreate(4, DynamicMapComponent_Conditional_6_For_5_Template, 2, 4, "button", 12, _forTrack0);
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(6, DynamicMapComponent_Conditional_6_Conditional_6_Template, 4, 2);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", ctx_r0.debug_text(), " ");
+    \u0275\u0275advance(2);
+    \u0275\u0275repeater(ctx_r0.debug_sections());
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(ctx_r0.debug_section() ? 6 : -1);
+  }
+}
+function DynamicMapComponent_Conditional_7_For_2_Conditional_0_Case_3_ng_container_0_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementContainer(0);
+  }
+}
+function DynamicMapComponent_Conditional_7_For_2_Conditional_0_Case_3_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275template(0, DynamicMapComponent_Conditional_7_For_2_Conditional_0_Case_3_ng_container_0_Template, 1, 0, "ng-container", 24);
+  }
+  if (rf & 2) {
+    const ctx_r9 = \u0275\u0275nextContext(2);
+    const element_r11 = ctx_r9.$implicit;
+    const \u0275$index_81_r12 = ctx_r9.$index;
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275property("ngComponentOutlet", element_r11.content)("ngComponentOutletInjector", ctx_r0.injectors()[\u0275$index_81_r12]);
+  }
+}
+function DynamicMapComponent_Conditional_7_For_2_Conditional_0_Case_4_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "div", 23);
+    \u0275\u0275pipe(1, "sanitize");
+  }
+  if (rf & 2) {
+    const element_r11 = \u0275\u0275nextContext(2).$implicit;
+    \u0275\u0275property("innerHTML", \u0275\u0275pipeBind1(1, 1, element_r11.content), \u0275\u0275sanitizeHtml);
+  }
+}
+function DynamicMapComponent_Conditional_7_For_2_Conditional_0_Case_5_ng_container_0_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementContainer(0);
+  }
+}
+function DynamicMapComponent_Conditional_7_For_2_Conditional_0_Case_5_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275template(0, DynamicMapComponent_Conditional_7_For_2_Conditional_0_Case_5_ng_container_0_Template, 1, 0, "ng-container", 25);
+  }
+  if (rf & 2) {
+    const element_r11 = \u0275\u0275nextContext(2).$implicit;
+    \u0275\u0275property("ngTemplateOutlet", element_r11.content)("ngTemplateOutletContext", element_r11.data);
+  }
+}
+function DynamicMapComponent_Conditional_7_For_2_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div")(1, "div", 22, 1);
+    \u0275\u0275conditionalCreate(3, DynamicMapComponent_Conditional_7_For_2_Conditional_0_Case_3_Template, 1, 2, "ng-container")(4, DynamicMapComponent_Conditional_7_For_2_Conditional_0_Case_4_Template, 2, 3, "div", 23)(5, DynamicMapComponent_Conditional_7_For_2_Conditional_0_Case_5_Template, 1, 2, "ng-container");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    let tmp_17_0;
+    const element_r11 = \u0275\u0275nextContext().$implicit;
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance();
+    \u0275\u0275attribute("el-id", element_r11.location)("track-id", element_r11.track_id);
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional((tmp_17_0 = ctx_r0.contentType(element_r11.content)) === "component" ? 3 : tmp_17_0 === "html" ? 4 : 5);
+  }
+}
+function DynamicMapComponent_Conditional_7_For_2_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275conditionalCreate(0, DynamicMapComponent_Conditional_7_For_2_Conditional_0_Template, 6, 3, "div");
+  }
+  if (rf & 2) {
+    const element_r11 = ctx.$implicit;
+    \u0275\u0275conditional(element_r11 ? 0 : -1);
+  }
+}
+function DynamicMapComponent_Conditional_7_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 6);
+    \u0275\u0275repeaterCreate(1, DynamicMapComponent_Conditional_7_For_2_Template, 1, 1, null, null, _forTrack4);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275repeater(ctx_r0.features());
+  }
+}
+var DynamicMapComponent = class _DynamicMapComponent {
+  toggleDebugSection(section) {
+    this.debug_section.update((current) => current === section ? null : section);
+  }
+  highlightDebugEntry(entry) {
+    if (!entry.ref || entry.missing)
+      return;
+    this._map_viewer?.setDebugHighlight(entry.ref);
+  }
+  clearDebugHighlight(entry) {
+    if (!entry.ref || entry.missing)
+      return;
+    this._map_viewer?.setDebugHighlight("");
+  }
+  constructor() {
+    this._injector = inject2(Injector);
+    this._zone = inject2(NgZone);
+    this._map_viewer = null;
+    this._last_src = "";
+    this._map_container = viewChild(
+      "mapContainer",
+      ...ngDevMode ? [{ debugName: "_map_container" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._feature_elements = viewChildren("feature", __spreadValues({}, ngDevMode ? { debugName: "_feature_elements" } : (
+      /* istanbul ignore next */
+      {}
+    )));
+    this.src = input(
+      "",
+      ...ngDevMode ? [{ debugName: "src" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.zoom = model(
+      1,
+      ...ngDevMode ? [{ debugName: "zoom" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.center = model(
+      { x: 0.5, y: 0.5 },
+      ...ngDevMode ? [{ debugName: "center" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.fixedResolution = input(
+      0,
+      ...ngDevMode ? [{ debugName: "fixedResolution" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.debug = model(
+      false,
+      ...ngDevMode ? [{ debugName: "debug" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.reset = model(
+      0,
+      ...ngDevMode ? [{ debugName: "reset" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.styles = input(
+      {},
+      ...ngDevMode ? [{ debugName: "styles" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.features = input(
+      [],
+      ...ngDevMode ? [{ debugName: "features" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.labels = input(
+      [],
+      ...ngDevMode ? [{ debugName: "labels" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.actions = input(
+      [],
+      ...ngDevMode ? [{ debugName: "actions" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.options = input(
+      {},
+      ...ngDevMode ? [{ debugName: "options" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.focus = input(
+      "",
+      ...ngDevMode ? [{ debugName: "focus" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.mapInfo = output();
+    this.injectors = signal(
+      [],
+      ...ngDevMode ? [{ debugName: "injectors" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.loading = signal(
+      false,
+      ...ngDevMode ? [{ debugName: "loading" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.error = signal(
+      false,
+      ...ngDevMode ? [{ debugName: "error" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._element_mappings = signal(
+      null,
+      ...ngDevMode ? [{ debugName: "_element_mappings" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._hotkey_sub = inject2(HotkeysService).listen(["Control", "Alt", "Shift", "KeyG"], () => this.debug.update((state2) => !state2));
+    this._debug_state = signal(
+      null,
+      ...ngDevMode ? [{ debugName: "_debug_state" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.debug_text = computed(
+      () => {
+        const state2 = this._debug_state();
+        if (!state2)
+          return "";
+        const center = this.center();
+        const status = this.error() ? "error" : this.loading() ? "loading" : this.src() ? "ready" : "no map";
+        return [
+          "MAP DEBUG (Ctrl+Alt+Shift+G)",
+          `src:      ${this._middleTruncate(this.src().split("/").pop() || "\u2014", 36)}`,
+          `status:   ${status}`,
+          `texture:  ${state2.texture} (${state2.texture_mode})`,
+          `aspect:   ${state2.aspect}`,
+          `view:     ${state2.view}`,
+          `zoom:     ${this.zoom().toFixed(2)}`,
+          `center:   ${center.x.toFixed(3)}, ${center.y.toFixed(3)}`,
+          `pointer:  ${state2.pointer}`,
+          `hover:    ${state2.hover}`,
+          `elements: ${state2.elements}`,
+          `overlays: ${state2.overlays}`,
+          `draw:     ${state2.draw}`
+        ].join("\n");
+      },
+      ...ngDevMode ? [{ debugName: "debug_text" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.debug_section = signal(
+      null,
+      ...ngDevMode ? [{ debugName: "debug_section" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.debug_filter = signal(
+      "",
+      ...ngDevMode ? [{ debugName: "debug_filter" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.debug_sections = computed(
+      () => [
+        { key: "styles", count: Object.keys(this.styles() || {}).length },
+        { key: "features", count: (this.features() || []).length },
+        { key: "labels", count: (this.labels() || []).length },
+        { key: "actions", count: (this.actions() || []).length }
+      ],
+      ...ngDevMode ? [{ debugName: "debug_sections" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.debug_style_blocks = computed(
+      () => {
+        if (this.debug_section() !== "styles")
+          return [];
+        const blocks = Object.entries(this.styles() || {}).map(([selector, style2]) => ({
+          selector,
+          props: Object.entries(style2).map(([name, value]) => {
+            const value_text = `${value}`;
+            const color = value_text.replace("!important", "").trim();
+            return {
+              name,
+              value: value_text,
+              color: typeof CSS !== "undefined" && CSS.supports("color", color) ? color : ""
+            };
+          })
+        }));
+        const filter2 = this.debug_filter().trim().toLowerCase();
+        if (!filter2)
+          return blocks;
+        return blocks.filter(({ selector, props }) => selector.toLowerCase().includes(filter2) || props.some((prop) => `${prop.name}: ${prop.value}`.toLowerCase().includes(filter2)));
+      },
+      ...ngDevMode ? [{ debugName: "debug_style_blocks" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.debug_detail_entries = computed(
+      () => {
+        const section = this.debug_section();
+        let entries;
+        switch (section) {
+          case "features":
+            entries = this._describeFeatures();
+            break;
+          case "labels":
+            entries = this._describeLabels();
+            break;
+          case "actions":
+            entries = this._describeActions();
+            break;
+          default:
+            return [];
+        }
+        const filter2 = this.debug_filter().trim().toLowerCase();
+        if (filter2) {
+          entries = entries.filter((entry) => entry.text.toLowerCase().includes(filter2));
+        }
+        return entries;
+      },
+      ...ngDevMode ? [{ debugName: "debug_detail_entries" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.debug_detail_empty_text = computed(
+      () => {
+        const section = this.debug_section();
+        const filter2 = this.debug_filter().trim();
+        return filter2 ? "No matches" : `No ${section}`;
+      },
+      ...ngDevMode ? [{ debugName: "debug_detail_empty_text" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    effect(() => {
+      const src = this.src();
+      if (src && this._map_viewer) {
+        if (this._last_src && this._last_src !== src) {
+          this.zoom.set(1);
+          this.center.set({ x: 0.5, y: 0.5 });
+        }
+        this._last_src = src;
+        this._loadMap(src);
+      }
+    });
+    effect(() => {
+      const styles = this.styles() || {};
+      if (this._map_viewer) {
+        this._applyStyles(styles);
+      }
+    });
+    effect(() => {
+      const features = this.features() || [];
+      const labels = this.labels() || [];
+      const feature_elements = this._feature_elements();
+      if (this._map_viewer) {
+        this._applyOverlays(features, labels, feature_elements);
+      }
+    });
+    effect(() => {
+      this.features();
+      this._updateInjectors();
+    });
+    effect(() => {
+      const actions = this.actions() || [];
+      if (this._map_viewer) {
+        this._applyActions(actions);
+      }
+    });
+    effect(() => {
+      const zoom_val = this.zoom() ?? 1;
+      this._map_viewer?.setZoom(zoom_val);
+    });
+    effect(() => {
+      const center_val = this.center() ?? { x: 0.5, y: 0.5 };
+      this._map_viewer?.setCenter(__spreadValues({}, center_val));
+    });
+    effect(() => {
+      const megapixels = this.fixedResolution() ?? 0;
+      this._map_viewer?.setFixedResolution(megapixels);
+    });
+    effect(() => {
+      const options2 = this.options();
+      this._map_viewer?.setOptions(options2 || {});
+    });
+    effect(() => {
+      if (this.reset() > 0) {
+        this.zoom.set(1);
+        this.center.set({ x: 0.5, y: 0.5 });
+      }
+    });
+    effect(() => {
+      const focus = this.focus();
+      if (focus && this._element_mappings()) {
+        this._map_viewer?.focusOn(focus);
+      }
+    });
+    effect((onCleanup) => {
+      this._map_viewer?.setDebug(this.debug());
+      if (!this.debug()) {
+        this._debug_state.set(null);
+        this.debug_section.set(null);
+        this.debug_filter.set("");
+        return;
+      }
+      const update2 = () => {
+        const viewer = this._map_viewer;
+        if (!viewer)
+          return;
+        const image = viewer.map_image;
+        const info2 = viewer.debug_info;
+        this._debug_state.set({
+          texture: image ? `${image.width}\xD7${image.height}` : "none",
+          texture_mode: viewer.texture_mode,
+          aspect: (viewer.map?.aspect_ratio || 1).toFixed(3),
+          view: `${viewer.container.clientWidth}\xD7${viewer.container.clientHeight}`,
+          pointer: info2.pointer ? `${info2.pointer.x.toFixed(3)}, ${info2.pointer.y.toFixed(3)}` : "\u2014",
+          hover: info2.hover_id ? `#${info2.hover_id}` : "\u2014",
+          elements: viewer.map?.element_bounds.size || 0,
+          overlays: viewer.overlay_count,
+          draw: `${info2.last_draw_ms.toFixed(1)}ms \xB7 ${info2.draws_last_second}/s`
+        });
+      };
+      update2();
+      const interval2 = setInterval(update2, 250);
+      onCleanup(() => clearInterval(interval2));
+    });
+  }
+  ngOnInit() {
+    const container = this._map_container()?.nativeElement;
+    if (!container)
+      return;
+    this._map_viewer = this._zone.runOutsideAngular(() => new MapViewer(container));
+    this._map_viewer.onViewChange = (event) => this._zone.run(() => {
+      this.zoom.set(event.zoom);
+      this.center.set(event.center);
+    });
+  }
+  ngOnDestroy() {
+    this._hotkey_sub.unsubscribe();
+    this._map_viewer?.destroy();
+    this._map_viewer = null;
+  }
+  /**
+   * Determine the type of content for rendering in template
+   */
+  contentType(content) {
+    return typeof content === "string" ? "html" : content instanceof TemplateRef ? "template" : "component";
+  }
+  _loadMap(src) {
+    const simp_url = src.toLowerCase();
+    if (!simp_url.includes("svg") && !simp_url.includes("upload"))
+      return;
+    this.loading.set(true);
+    this.error.set(false);
+    this._map_viewer.setMap(src).then(() => {
+      if (this.src() !== src || !this._map_viewer)
+        return;
+      this.loading.set(false);
+      const mappings = Object.fromEntries(this._map_viewer.map?.element_bounds || []);
+      this._element_mappings.set(mappings);
+      this.mapInfo.emit(mappings);
+    }).catch((e) => {
+      console.warn("[MAP] Failed to load map.", e);
+      if (this.src() !== src)
+        return;
+      this.loading.set(false);
+      this.error.set(true);
+    });
+  }
+  _applyStyles(styles) {
+    if (!this._map_viewer)
+      return;
+    const style_map = {};
+    for (const [selector, style_obj] of Object.entries(styles)) {
+      style_map[selector] = this._objectToCssText(style_obj);
+    }
+    this._map_viewer.setStyles(style_map);
+  }
+  _objectToCssText(style_obj) {
+    return Object.entries(style_obj).map(([prop, value]) => {
+      const kebab_prop = prop.replace(/[A-Z]/g, (match3) => `-${match3.toLowerCase()}`);
+      const important = `${value}`.includes("!important") ? "" : " !important";
+      return `${kebab_prop}: ${value}${important}`;
+    }).join("; ");
+  }
+  _applyOverlays(features, labels, feature_elements) {
+    if (!this._map_viewer)
+      return;
+    const overlays = [];
+    for (let i = 0; i < features.length; i++) {
+      const feature = features[i];
+      if (!feature.location)
+        continue;
+      let contents;
+      const content_type = this.contentType(feature.content);
+      if (content_type === "component" || content_type === "template") {
+        const rendered_el = feature_elements[i]?.nativeElement;
+        if (!rendered_el)
+          continue;
+        contents = rendered_el;
+      } else if (feature.content instanceof HTMLElement) {
+        contents = feature.content;
+      } else if (typeof feature.content === "string") {
+        contents = feature.content;
+      } else {
+        continue;
+      }
+      const fill_bounds = feature.hover || feature.full_size;
+      overlays.push({
+        ref: feature.location,
+        type: fill_bounds ? "box" : "point",
+        contents,
+        scale_with_zoom: !fill_bounds,
+        hover: feature.hover,
+        z_index: feature.z_index
+      });
+    }
+    for (const label of labels) {
+      if (!label.location || !label.content)
+        continue;
+      const classes = ["map-label", ...label.css_class || []].join(" ");
+      overlays.push({
+        ref: label.location,
+        type: "point",
+        contents: `<label class="${classes}">${label.content}</label>`,
+        scale_with_zoom: true,
+        min_zoom: label.zoom_level,
+        z_index: label.z_index
+      });
+    }
+    this._map_viewer.setOverlays(overlays);
+  }
+  _applyActions(actions) {
+    if (!this._map_viewer)
+      return;
+    const map_actions = [];
+    for (const action of actions) {
+      if (!action.id)
+        continue;
+      const events2 = this._convertActionTypes(action.action);
+      if (events2.length === 0)
+        continue;
+      const callback = (p2) => {
+        const synthetic_event = new CustomEvent("mapaction", {
+          detail: { point: p2 }
+        });
+        action.callback(synthetic_event, { x: p2.x, y: p2.y });
+      };
+      map_actions.push({
+        ref: action.id,
+        events: events2,
+        priority: action.priority,
+        callback
+      });
+    }
+    this._map_viewer.setActions(map_actions);
+  }
+  _convertActionTypes(action_types) {
+    const types = Array.isArray(action_types) ? action_types : [action_types];
+    const events2 = [];
+    for (const type2 of types) {
+      switch (type2) {
+        case "click":
+          events2.push("click");
+          break;
+        case "mousedown":
+        case "touchstart":
+          events2.push("pointerdown");
+          break;
+        case "mouseup":
+        case "touchend":
+          events2.push("pointerup");
+          break;
+        case "enter":
+          events2.push("pointerenter");
+          break;
+        case "leave":
+          events2.push("pointerleave");
+          break;
+        case "*":
+          events2.push("click", "pointerdown", "pointerup", "pointerenter", "pointerleave");
+          break;
+        default:
+          events2.push(type2);
+      }
+    }
+    return unique(events2);
+  }
+  /** Truncate the middle of a string with "..." to fit the given length */
+  _middleTruncate(value, max_length) {
+    if (value.length <= max_length)
+      return value;
+    const keep = max_length - 3;
+    const front = Math.ceil(keep / 2);
+    const back = keep - front;
+    return `${value.slice(0, front)}...${value.slice(value.length - back)}`;
+  }
+  _formatLocation(location2) {
+    return typeof location2 === "string" ? `#${location2}` : `${location2.x.toFixed(3)}, ${location2.y.toFixed(3)}`;
+  }
+  _debugRef(ref) {
+    if (typeof ref !== "string") {
+      return { location: this._formatLocation(ref), missing: false };
+    }
+    return {
+      ref,
+      location: this._formatLocation(ref),
+      missing: !!this._element_mappings() && !this._element_mappings()?.[ref]
+    };
+  }
+  _describeFeatures() {
+    return (this.features() || []).map((feature, index) => {
+      const target = this._debugRef(feature.location);
+      const content = feature.content instanceof HTMLElement ? "element" : feature.content ? this.contentType(feature.content) : "none";
+      return {
+        ref: target.ref,
+        missing: target.missing,
+        text: [
+          `${index}: ${target.location}`,
+          feature.track_id ? `track: ${feature.track_id}` : "",
+          `content: ${content}`,
+          feature.hover ? "hover" : "",
+          feature.full_size ? "full-size" : "",
+          feature.z_index != null ? `z: ${feature.z_index}` : "",
+          feature.data && Object.keys(feature.data).length ? `data: ${Object.keys(feature.data).join(", ")}` : ""
+        ].filter(Boolean).join(" \xB7 ")
+      };
+    });
+  }
+  _describeLabels() {
+    return (this.labels() || []).map((label, index) => {
+      const target = this._debugRef(label.location);
+      return {
+        ref: target.ref,
+        missing: target.missing,
+        text: [
+          `${index}: ${target.location}`,
+          `"${label.content}"`,
+          label.zoom_level != null ? `zoom \u2265 ${label.zoom_level}` : "",
+          label.css_class?.length ? `class: ${label.css_class.join(" ")}` : "",
+          label.z_index != null ? `z: ${label.z_index}` : ""
+        ].filter(Boolean).join(" \xB7 ")
+      };
+    });
+  }
+  _describeActions() {
+    return (this.actions() || []).map((action, index) => {
+      const types = Array.isArray(action.action) ? action.action : [action.action];
+      const target = this._debugRef(action.id);
+      return {
+        ref: target.ref,
+        missing: target.missing,
+        text: [
+          `${index}: ${target.location}`,
+          types.join(", "),
+          action.priority != null ? `priority: ${action.priority}` : "",
+          action.zone ? "zone" : ""
+        ].filter(Boolean).join(" \xB7 ")
+      };
+    });
+  }
+  _updateInjectors() {
+    const old_injectors = new Map(untracked2(() => this.injectors()).map((injector) => [
+      injector.get(MAP_FEATURE_DATA)?.track_id,
+      injector
+    ]));
+    this.injectors.set((this.features() || []).map((f2) => f2.track_id && old_injectors.get(f2.track_id) || Injector.create({
+      providers: [
+        {
+          provide: MAP_FEATURE_DATA,
+          useValue: __spreadValues({
+            track_id: f2.track_id
+          }, f2.data)
+        }
+      ],
+      parent: this._injector
+    })));
+  }
+  static {
+    this.\u0275fac = function DynamicMapComponent_Factory(__ngFactoryType__) {
+      return new (__ngFactoryType__ || _DynamicMapComponent)();
+    };
+  }
+  static {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DynamicMapComponent, selectors: [["dynamic-map"]], viewQuery: function DynamicMapComponent_Query(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275viewQuerySignal(ctx._map_container, _c017, 5)(ctx._feature_elements, _c111, 5);
+      }
+      if (rf & 2) {
+        \u0275\u0275queryAdvance(2);
+      }
+    }, inputs: { src: [1, "src"], zoom: [1, "zoom"], center: [1, "center"], fixedResolution: [1, "fixedResolution"], debug: [1, "debug"], reset: [1, "reset"], styles: [1, "styles"], features: [1, "features"], labels: [1, "labels"], actions: [1, "actions"], options: [1, "options"], focus: [1, "focus"] }, outputs: { zoom: "zoomChange", center: "centerChange", debug: "debugChange", reset: "resetChange", mapInfo: "mapInfo" }, ngContentSelectors: _c28, decls: 8, vars: 6, consts: [["mapContainer", ""], ["feature", ""], ["tabindex", "0", "role", "map", 1, "absolute", "inset-0"], [1, "absolute", "inset-0", "flex", "items-center", "justify-center"], [3, "zoom", "reset"], [1, "absolute", "top-2", "right-2", "z-40", "flex", "max-h-[80%]", "max-w-[32rem]", "flex-col", "rounded", "bg-black/80", "font-mono", "text-[11px]", "leading-4", "text-white"], ["hidden", ""], [1, "absolute", "z-30", 3, "diameter"], [1, "opacity-30"], [3, "zoomChange", "resetChange", "zoom", "reset"], [1, "pointer-events-none", "p-2", "whitespace-pre"], [1, "flex", "gap-1", "px-2", "pb-2"], [1, "rounded", "border", "border-white/30", "px-1", "hover:bg-white/20", 3, "bg-white/30"], [1, "rounded", "border", "border-white/30", "px-1", "hover:bg-white/20", 3, "click"], ["placeholder", "Filter...", 1, "mx-2", "mb-2", "rounded", "border", "border-white/30", "bg-white/10", "px-1", "outline-none", "placeholder:text-white/40", 3, "ngModelChange", "ngModel"], [1, "overflow-auto", "border-t", "border-white/20", "p-2", "whitespace-pre", "select-text"], [1, "flex", "items-center"], [1, "ml-1.5", "inline-block", "h-2.5", "w-2.5", "rounded-sm", "border", "border-white/40", 3, "background"], [1, "ml-1.5", "inline-block", "h-2.5", "w-2.5", "rounded-sm", "border", "border-white/40"], [1, "rounded", "px-1", 3, "bg-red-500/20", "text-red-200", "cursor-default"], [1, "rounded", "px-1", 3, "mouseenter", "mouseleave"], [1, "ml-1", "text-red-300"], [1, "pointer-events-none", "h-full", "w-full"], [3, "innerHTML"], [4, "ngComponentOutlet", "ngComponentOutletInjector"], [4, "ngTemplateOutlet", "ngTemplateOutletContext"]], template: function DynamicMapComponent_Template(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275projectionDef();
+        \u0275\u0275element(0, "div", 2, 0);
+        \u0275\u0275conditionalCreate(2, DynamicMapComponent_Conditional_2_Template, 2, 2)(3, DynamicMapComponent_Conditional_3_Template, 4, 3, "div", 3);
+        \u0275\u0275projection(4);
+        \u0275\u0275conditionalCreate(5, DynamicMapComponent_Conditional_5_Template, 1, 2, "map-zoom-controls", 4);
+        \u0275\u0275conditionalCreate(6, DynamicMapComponent_Conditional_6_Template, 7, 2, "div", 5);
+        \u0275\u0275conditionalCreate(7, DynamicMapComponent_Conditional_7_Template, 3, 0, "div", 6);
+      }
+      if (rf & 2) {
+        \u0275\u0275classProp("hidden", !ctx.src());
+        \u0275\u0275advance(2);
+        \u0275\u0275conditional(ctx.src() ? 2 : 3);
+        \u0275\u0275advance(3);
+        \u0275\u0275conditional(ctx.options()?.controls ? 5 : -1);
+        \u0275\u0275advance();
+        \u0275\u0275conditional(ctx.debug() ? 6 : -1);
+        \u0275\u0275advance();
+        \u0275\u0275conditional(ctx.injectors().length ? 7 : -1);
+      }
+    }, dependencies: [
+      CommonModule,
+      NgComponentOutlet,
+      NgTemplateOutlet,
+      FormsModule,
+      DefaultValueAccessor,
+      NgControlStatus,
+      NgModel,
+      MatProgressSpinnerModule,
+      MatProgressSpinner,
+      MapZoomControlsComponent,
+      TranslatePipe,
+      SanitizePipe
+    ], styles: ["\n[_nghost-%COMP%] {\n  display: block;\n  position: relative;\n  width: 100%;\n  height: 100%;\n}\nmat-spinner[_ngcontent-%COMP%] {\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n}\n/*# sourceMappingURL=dynamic-map.component.css.map */"] });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(DynamicMapComponent, [{
+    type: Component,
+    args: [{ selector: "dynamic-map", template: `
+        <div
+            #mapContainer
+            tabindex="0"
+            role="map"
+            class="absolute inset-0"
+            [class.hidden]="!src()"
+        ></div>
+        @if (src()) {
+            @if (loading()) {
+                <mat-spinner class="absolute z-30" [diameter]="48" />
+            }
+            @if (error()) {
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <div class="opacity-30">
+                        {{ 'EXPLORE.MAP_FAILED_TO_LOAD' | translate }}
+                    </div>
+                </div>
+            }
+        } @else {
+            <div class="absolute inset-0 flex items-center justify-center">
+                <div class="opacity-30">
+                    {{ 'EXPLORE.MAP_EMPTY' | translate }}
+                </div>
+            </div>
+        }
+        <ng-content />
+        @if (options()?.controls) {
+            <map-zoom-controls [(zoom)]="zoom" [(reset)]="reset" />
+        }
+        @if (debug()) {
+            <div
+                class="absolute top-2 right-2 z-40 flex max-h-[80%] max-w-[32rem] flex-col rounded bg-black/80 font-mono text-[11px] leading-4 text-white"
+            >
+                <div class="pointer-events-none p-2 whitespace-pre">
+                    {{ debug_text() }}
+                </div>
+                <div class="flex gap-1 px-2 pb-2">
+                    @for (section of debug_sections(); track section.key) {
+                        <button
+                            class="rounded border border-white/30 px-1 hover:bg-white/20"
+                            [class.bg-white/30]="
+                                debug_section() === section.key
+                            "
+                            (click)="toggleDebugSection(section.key)"
+                        >
+                            {{ section.key }} ({{ section.count }})
+                        </button>
+                    }
+                </div>
+                @if (debug_section()) {
+                    <input
+                        class="mx-2 mb-2 rounded border border-white/30 bg-white/10 px-1 outline-none placeholder:text-white/40"
+                        placeholder="Filter..."
+                        [(ngModel)]="debug_filter"
+                    />
+                    <div
+                        class="overflow-auto border-t border-white/20 p-2 whitespace-pre select-text"
+                    >
+                        @if (debug_section() === 'styles') {
+                            @for (
+                                block of debug_style_blocks();
+                                track block.selector
+                            ) {
+                                <div>{{ block.selector + ' {' }}</div>
+                                @for (prop of block.props; track prop.name) {
+                                    <div class="flex items-center">
+                                        <span>{{
+                                            '  ' +
+                                                prop.name +
+                                                ': ' +
+                                                prop.value +
+                                                ';'
+                                        }}</span>
+                                        @if (prop.color) {
+                                            <span
+                                                class="ml-1.5 inline-block h-2.5 w-2.5 rounded-sm border border-white/40"
+                                                [style.background]="prop.color"
+                                            ></span>
+                                        }
+                                    </div>
+                                }
+                                <div>{{ '}' }}</div>
+                            } @empty {
+                                <span>{{
+                                    debug_filter().trim()
+                                        ? 'No matches'
+                                        : 'No styles'
+                                }}</span>
+                            }
+                        } @else {
+                            @for (
+                                entry of debug_detail_entries();
+                                track entry.text
+                            ) {
+                                <div
+                                    class="rounded px-1"
+                                    [class.bg-red-500/20]="entry.missing"
+                                    [class.text-red-200]="entry.missing"
+                                    [class.cursor-default]="entry.ref"
+                                    (mouseenter)="highlightDebugEntry(entry)"
+                                    (mouseleave)="clearDebugHighlight(entry)"
+                                >
+                                    <span>{{ entry.text }}</span>
+                                    @if (entry.missing) {
+                                        <span class="ml-1 text-red-300">
+                                            [missing on map]
+                                        </span>
+                                    }
+                                </div>
+                            } @empty {
+                                <span>{{ debug_detail_empty_text() }}</span>
+                            }
+                        }
+                    </div>
+                }
+            </div>
+        }
+        @if (injectors().length) {
+            <div hidden>
+                @for (
+                    element of features();
+                    track $any(element).track_id || $index;
+                    let i = $index
+                ) {
+                    @if (element) {
+                        <div>
+                            <div
+                                #feature
+                                class="pointer-events-none h-full w-full"
+                                [attr.el-id]="element.location"
+                                [attr.track-id]="$any(element).track_id"
+                            >
+                                @switch (contentType(element.content)) {
+                                    @case ('component') {
+                                        <ng-container
+                                            *ngComponentOutlet="
+                                                $any(element.content);
+                                                injector: injectors()[i]
+                                            "
+                                        ></ng-container>
+                                    }
+                                    @case ('html') {
+                                        <div
+                                            [innerHTML]="
+                                                element.content | sanitize
+                                            "
+                                        ></div>
+                                    }
+                                    @default {
+                                        <ng-container
+                                            *ngTemplateOutlet="
+                                                $any(element.content);
+                                                context: $any(element).data
+                                            "
+                                        ></ng-container>
+                                    }
+                                }
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        }
+    `, imports: [
+      CommonModule,
+      FormsModule,
+      TranslatePipe,
+      SanitizePipe,
+      MatProgressSpinnerModule,
+      MapZoomControlsComponent
+    ], styles: ["/* angular:styles/component:css;e76799c5a4b056820df2f2f8571cac7c4ed809c9aa76d565965bc043e79b2d5d;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/dynamic-map.component.ts */\n:host {\n  display: block;\n  position: relative;\n  width: 100%;\n  height: 100%;\n}\nmat-spinner {\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n}\n/*# sourceMappingURL=dynamic-map.component.css.map */\n"] }]
+  }], () => [], { _map_container: [{ type: ViewChild, args: ["mapContainer", { isSignal: true }] }], _feature_elements: [{ type: ViewChildren, args: ["feature", __spreadProps(__spreadValues({}, {}), { isSignal: true })] }], src: [{ type: Input, args: [{ isSignal: true, alias: "src", required: false }] }], zoom: [{ type: Input, args: [{ isSignal: true, alias: "zoom", required: false }] }, { type: Output, args: ["zoomChange"] }], center: [{ type: Input, args: [{ isSignal: true, alias: "center", required: false }] }, { type: Output, args: ["centerChange"] }], fixedResolution: [{ type: Input, args: [{ isSignal: true, alias: "fixedResolution", required: false }] }], debug: [{ type: Input, args: [{ isSignal: true, alias: "debug", required: false }] }, { type: Output, args: ["debugChange"] }], reset: [{ type: Input, args: [{ isSignal: true, alias: "reset", required: false }] }, { type: Output, args: ["resetChange"] }], styles: [{ type: Input, args: [{ isSignal: true, alias: "styles", required: false }] }], features: [{ type: Input, args: [{ isSignal: true, alias: "features", required: false }] }], labels: [{ type: Input, args: [{ isSignal: true, alias: "labels", required: false }] }], actions: [{ type: Input, args: [{ isSignal: true, alias: "actions", required: false }] }], options: [{ type: Input, args: [{ isSignal: true, alias: "options", required: false }] }], focus: [{ type: Input, args: [{ isSignal: true, alias: "focus", required: false }] }], mapInfo: [{ type: Output, args: ["mapInfo"] }] });
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DynamicMapComponent, { className: "DynamicMapComponent", filePath: "libs/components/src/lib/dynamic-map.component.ts", lineNumber: 247 });
+})();
+
 // libs/components/src/lib/global-banner.component.ts
 function GlobalBannerComponent_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -98343,13 +100606,13 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
     this.loading.set(true);
     await this._org.waitUntilInitialised();
     await firstTruthyValueFrom(this._settings.initialised);
-    this.online.set(Dr());
+    this.online.set(Fr());
     this.interval("has_token", () => {
-      this.online.set(Dr());
-      if (!Rt() || !V())
+      this.online.set(Fr());
+      if (!Rt() || !X())
         return;
       this.loading.set(false);
-      this.online.set(Dr());
+      this.online.set(Fr());
       this.clearInterval("has_token");
     }, 1e3);
   }
@@ -98434,2206 +100697,6 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
 })();
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(GlobalLoadingComponent, { className: "GlobalLoadingComponent", filePath: "libs/components/src/lib/global-loading.component.ts", lineNumber: 81 });
-})();
-
-// libs/components/src/lib/map-viewer.class.ts
-var MAX_ZOOM = 10;
-var MIN_ZOOM = 1;
-var VIEW_PADDING = 0.05;
-var DESKTOP_TEXTURE_MEGAPIXELS = 16;
-var MOBILE_TEXTURE_MEGAPIXELS = 4;
-var FIXED_TEXTURE_CONTAINER_MULTIPLIER = 2;
-var MAX_TEXTURE_DIMENSION = 8192;
-function isMobileDevice() {
-  if (typeof window === "undefined" || !window.matchMedia)
-    return false;
-  const coarse_pointer = window.matchMedia("(pointer: coarse)").matches;
-  const small_viewport = window.matchMedia("(max-width: 1024px)").matches;
-  return coarse_pointer && small_viewport;
-}
-function cleanCssSelector(selector) {
-  const escaped = selector.replace(/[!"#$%&'()*+,.\/;<=>?@[\\\]^`{|}~]/g, "\\$&");
-  return escaped.split(" ").map((part) => part.replace(/^\\/, "")).join(" ");
-}
-function getSvgDimensions(svg_element) {
-  let x = 0;
-  let y = 0;
-  let width = 0;
-  let height = 0;
-  const view_box = svg_element.getAttribute("viewBox");
-  if (view_box) {
-    const parts = view_box.split(/[\s,]+/).map(parseFloat);
-    if (parts.length >= 4) {
-      x = parts[0] || 0;
-      y = parts[1] || 0;
-      width = parts[2];
-      height = parts[3];
-    }
-  }
-  if (!width || !height) {
-    const width_attr = svg_element.getAttribute("width");
-    const height_attr = svg_element.getAttribute("height");
-    width = width_attr ? parseFloat(width_attr) : 0;
-    height = height_attr ? parseFloat(height_attr) : 0;
-  }
-  if (!width || !height) {
-    try {
-      const bbox = svg_element.getBBox();
-      x = bbox.x;
-      y = bbox.y;
-      width = bbox.width;
-      height = bbox.height;
-    } catch {
-    }
-  }
-  return { x, y, width: width || 1, height: height || 1 };
-}
-function getElementBoundsInSvgSpace(element, svg_inverse_ctm) {
-  const bbox = element.getBBox();
-  const ctm = svg_inverse_ctm && element.getScreenCTM?.();
-  if (!ctm)
-    return bbox;
-  const matrix = svg_inverse_ctm.multiply(ctm);
-  const corners = [
-    { x: bbox.x, y: bbox.y },
-    { x: bbox.x + bbox.width, y: bbox.y },
-    { x: bbox.x, y: bbox.y + bbox.height },
-    { x: bbox.x + bbox.width, y: bbox.y + bbox.height }
-  ].map((p2) => ({
-    x: matrix.a * p2.x + matrix.c * p2.y + matrix.e,
-    y: matrix.b * p2.x + matrix.d * p2.y + matrix.f
-  }));
-  const min_x = Math.min(...corners.map((p2) => p2.x));
-  const min_y = Math.min(...corners.map((p2) => p2.y));
-  return {
-    x: min_x,
-    y: min_y,
-    width: Math.max(...corners.map((p2) => p2.x)) - min_x,
-    height: Math.max(...corners.map((p2) => p2.y)) - min_y
-  };
-}
-function generateElementBounds(data) {
-  const bounds_map = /* @__PURE__ */ new Map();
-  const container = document.createElement("div");
-  container.style.position = "absolute";
-  container.style.visibility = "hidden";
-  container.style.pointerEvents = "none";
-  container.style.left = "-9999px";
-  container.style.top = "-9999px";
-  container.innerHTML = data;
-  document.body.appendChild(container);
-  const svg_element = container.querySelector("svg");
-  if (!svg_element) {
-    document.body.removeChild(container);
-    return { bounds: bounds_map, aspect_ratio: 1 };
-  }
-  const { x: svg_x, y: svg_y, width: svg_width, height: svg_height } = getSvgDimensions(svg_element);
-  const aspect_ratio = svg_width / svg_height;
-  const svg_ctm = svg_element.getScreenCTM?.();
-  const svg_inverse_ctm = svg_ctm ? svg_ctm.inverse() : null;
-  const elements_with_id = svg_element.querySelectorAll("[id]");
-  elements_with_id.forEach((element) => {
-    const id = element.getAttribute("id");
-    if (!id)
-      return;
-    if (typeof element.getBBox === "function") {
-      try {
-        const bbox = getElementBoundsInSvgSpace(element, svg_inverse_ctm);
-        bounds_map.set(id, {
-          x: (bbox.x - svg_x) / svg_width,
-          y: (bbox.y - svg_y) / svg_height,
-          w: bbox.width / svg_width,
-          h: bbox.height / svg_height
-        });
-      } catch {
-      }
-    }
-  });
-  document.body.removeChild(container);
-  return { bounds: bounds_map, aspect_ratio };
-}
-var MapStore = class {
-  constructor() {
-    this.store = /* @__PURE__ */ new Map();
-  }
-  get(path) {
-    if (!this.store.has(path)) {
-      const details = this._load(path);
-      details.catch(() => this.store.delete(path));
-      this.store.set(path, details);
-    }
-    return this.store.get(path);
-  }
-  async _load(path) {
-    while (!Rt()) {
-      await new Promise((resolve) => setTimeout(resolve, 300));
-    }
-    const options2 = {};
-    const tkn = V();
-    const is_same_origin = new URL(path, location.origin).origin === location.origin;
-    if (tkn && is_same_origin) {
-      if (!isMobileSafari()) {
-        options2.headers = tkn === "x-api-key" ? { "x-api-key": Ye() } : { Authorization: `Bearer ${tkn}` };
-      } else {
-        setAuthCookie("/");
-      }
-    }
-    const response = await fetch(path, options2);
-    if (!response.ok)
-      throw new Error("Failed to load map");
-    const data = await response.text();
-    const { bounds, aspect_ratio } = generateElementBounds(data);
-    return { raw_data: data, element_bounds: bounds, aspect_ratio };
-  }
-};
-var STORE = new MapStore();
-function getMapDetails(url) {
-  return STORE.get(url);
-}
-var MapViewer = class {
-  constructor(el2) {
-    this.map_image = null;
-    this.styles_string = "";
-    this.center = { x: 0.5, y: 0.5 };
-    this.zoom = 1;
-    this.fixed_resolution_megapixels = 0;
-    this.disable_zoom = false;
-    this.disable_pan = false;
-    this.onViewChange = null;
-    this.debug = false;
-    this.debug_info = {
-      /** Pointer position in normalised map coordinates */
-      pointer: null,
-      /** ID of the smallest map element under the pointer */
-      hover_id: "",
-      /** ID of the map element explicitly highlighted from debug controls */
-      highlight_id: "",
-      /** Duration of the last map draw in milliseconds */
-      last_draw_ms: 0,
-      /** Number of map draws over the last second */
-      draws_last_second: 0
-    };
-    this._map_path = "";
-    this._image_generation = 0;
-    this._texture_width = 0;
-    this._texture_height = 0;
-    this._image_frame_id = null;
-    this._draw_frame_id = null;
-    this._notify_frame_id = null;
-    this._debug_draw_count = 0;
-    this._debug_count_start = 0;
-    this._events = /* @__PURE__ */ new Map();
-    this._resize_observer = null;
-    this._pointers = /* @__PURE__ */ new Map();
-    this._is_panning = false;
-    this._pinch_distance = null;
-    this._pan_start_time = null;
-    this._pan_exceeded_threshold = false;
-    this._overlay_instances = [];
-    this._actions = [];
-    this._action_event_handlers = /* @__PURE__ */ new Map();
-    this._action_pointerdown_pos = null;
-    this._action_last_triggered = /* @__PURE__ */ new Map();
-    this.container = el2;
-    this.id = `m_view-${randomString(8, "0123456789ABCDEF")}`;
-    this.container.innerHTML = "";
-    this.container.style.overflow = "hidden";
-    this.container.style.touchAction = "none";
-    this.canvas = document.createElement("canvas");
-    this.canvas.style.cssText = "position: absolute; inset: 0; pointer-events: none;";
-    this._ctx = this.canvas.getContext("2d");
-    this.container.appendChild(this.canvas);
-    this.overlays = document.createElement("div");
-    this.overlays.id = `${this.id}-overlays`;
-    this.overlays.style.cssText = "position: absolute; inset: 0; pointer-events: none;";
-    this.container.appendChild(this.overlays);
-    this._resize_observer = new ResizeObserver(() => this._onResize());
-    this._resize_observer.observe(this.container);
-    this._events.set("wheel", (e) => this._onWheel(e));
-    this.container.addEventListener("wheel", this._events.get("wheel"), {
-      passive: false
-    });
-    this._events.set("pointerdown", (e) => this._onPointerDown(e));
-    this._events.set("pointermove", (e) => this._onPointerMove(e));
-    this._events.set("pointerup", (e) => this._onPointerUp(e));
-    this.container.addEventListener("pointerdown", this._events.get("pointerdown"));
-    window.addEventListener("pointermove", this._events.get("pointermove"));
-    window.addEventListener("pointerup", this._events.get("pointerup"));
-    window.addEventListener("pointercancel", this._events.get("pointerup"));
-  }
-  async setMap(path) {
-    this._map_path = path;
-    const map2 = await STORE.get(path);
-    if (this._map_path !== path)
-      return;
-    this.map = map2;
-    this._renderMapImage();
-  }
-  setCenter(point) {
-    const center = this._clampCenter(point);
-    if (center.x === this.center.x && center.y === this.center.y)
-      return;
-    this.center = center;
-    this._renderMap();
-  }
-  setZoom(new_zoom) {
-    new_zoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, new_zoom));
-    if (new_zoom === this.zoom)
-      return;
-    this.zoom = new_zoom;
-    this._renderMap();
-  }
-  /**
-   * Override the texture budget for fixed (zoom-disabled) maps, in
-   * megapixels. Pass 0 to restore the default of twice the container pixels.
-   */
-  setFixedResolution(megapixels) {
-    const value = megapixels > 0 ? megapixels : 0;
-    if (this.fixed_resolution_megapixels === value)
-      return;
-    this.fixed_resolution_megapixels = value;
-    if (this.disable_zoom)
-      this._renderMapImage();
-  }
-  setOptions(options2) {
-    const was_zoom_disabled = this.disable_zoom;
-    this.disable_zoom = !!options2?.disable_zoom;
-    this.disable_pan = !!options2?.disable_pan;
-    if (was_zoom_disabled !== this.disable_zoom)
-      this._renderMapImage();
-  }
-  /** Number of overlays currently attached to the map */
-  get overlay_count() {
-    return this._overlay_instances.length;
-  }
-  /** Human-readable description of the current texture sizing mode, for debug */
-  get texture_mode() {
-    if (this.disable_zoom) {
-      return this.fixed_resolution_megapixels ? `fixed ${this.fixed_resolution_megapixels}MP` : `fixed ${FIXED_TEXTURE_CONTAINER_MULTIPLIER}\xD7 container`;
-    }
-    return isMobileDevice() ? `mobile ${MOBILE_TEXTURE_MEGAPIXELS}MP` : `desktop ${DESKTOP_TEXTURE_MEGAPIXELS}MP`;
-  }
-  /** Toggle rendering of debugging info over the map */
-  setDebug(enabled) {
-    if (this.debug === enabled)
-      return;
-    this.debug = enabled;
-    if (enabled) {
-      const move = (e) => {
-        this.debug_info.pointer = this._eventToMap(e);
-        this.debug_info.hover_id = this._elementAt(this.debug_info.pointer);
-        this._renderMap();
-      };
-      const leave = () => {
-        this.debug_info.pointer = null;
-        this.debug_info.hover_id = "";
-        this._renderMap();
-      };
-      const click = (e) => {
-        const point = this._eventToMap(e);
-        console.log(`[MAP][DEBUG] Click at { x: ${point.x.toFixed(4)}, y: ${point.y.toFixed(4)} } on "${this._elementAt(point) || "no element"}"`);
-      };
-      this._events.set("debug_move", move);
-      this._events.set("debug_leave", leave);
-      this._events.set("debug_click", click);
-      this.container.addEventListener("pointermove", move);
-      this.container.addEventListener("pointerleave", leave);
-      this.container.addEventListener("click", click);
-    } else {
-      for (const name of ["debug_move", "debug_leave", "debug_click"]) {
-        const handler = this._events.get(name);
-        if (!handler)
-          continue;
-        const event_name = name === "debug_move" ? "pointermove" : name === "debug_leave" ? "pointerleave" : "click";
-        this.container.removeEventListener(event_name, handler);
-        this._events.delete(name);
-      }
-      this.debug_info.pointer = null;
-      this.debug_info.hover_id = "";
-      this.debug_info.highlight_id = "";
-    }
-    this._applyOverlayOutlines();
-    this._renderMap();
-  }
-  /** Highlight a map element while debug mode is active */
-  setDebugHighlight(ref) {
-    if (this.debug_info.highlight_id === ref)
-      return;
-    this.debug_info.highlight_id = ref;
-    if (this.debug)
-      this._renderMap();
-  }
-  /** Center the view on the map element with the given ID */
-  focusOn(ref) {
-    const bounds = this.map?.element_bounds.get(ref);
-    if (!bounds)
-      return;
-    this.setCenter({
-      x: bounds.x + bounds.w / 2,
-      y: bounds.y + bounds.h / 2
-    });
-    this._notifyViewChange();
-  }
-  setOverlays(overlays) {
-    for (const instance of this._overlay_instances) {
-      instance.element.remove();
-    }
-    this._overlay_instances = [];
-    for (const overlay of overlays) {
-      const element = document.createElement("div");
-      element.style.cssText = "position: absolute; top: 0; left: 0; display: flex; align-items: center; justify-content: center; transform-origin: center center; pointer-events: none;";
-      if (overlay.z_index != null) {
-        element.style.zIndex = `${overlay.z_index}`;
-      }
-      if (overlay.hover) {
-        element.classList.add("map-overlay-hover");
-      }
-      if (typeof overlay.contents === "string") {
-        element.innerHTML = overlay.contents;
-      } else {
-        element.appendChild(overlay.contents);
-      }
-      this.overlays.appendChild(element);
-      this._overlay_instances.push({ overlay, element });
-    }
-    this._applyOverlayOutlines();
-    this._updateOverlayPositions();
-  }
-  /** Outline overlay elements while debug mode is active */
-  _applyOverlayOutlines() {
-    for (const { element } of this._overlay_instances) {
-      element.style.outline = this.debug ? "1px dashed #f0f" : "";
-    }
-  }
-  /** ID of the smallest map element containing the given point */
-  _elementAt(point) {
-    let best2 = "";
-    let best_area = Number.POSITIVE_INFINITY;
-    for (const [id, bounds] of this.map?.element_bounds || []) {
-      if (point.x < bounds.x || point.x > bounds.x + bounds.w || point.y < bounds.y || point.y > bounds.y + bounds.h) {
-        continue;
-      }
-      const area = bounds.w * bounds.h;
-      if (area < best_area) {
-        best2 = id;
-        best_area = area;
-      }
-    }
-    return best2;
-  }
-  setActions(actions) {
-    for (const [event_name, handler] of this._action_event_handlers) {
-      this.container.removeEventListener(event_name, handler);
-    }
-    this._action_event_handlers.clear();
-    this._action_last_triggered.clear();
-    this._actions = actions;
-    const event_names = new Set(actions.flatMap((_2) => _2.events));
-    for (const event_name of event_names) {
-      const handler = (e) => this._handleActionEvent(event_name, e);
-      this._action_event_handlers.set(event_name, handler);
-      this.container.addEventListener(event_name, handler);
-    }
-    if (!this._events.has("action_pointerdown")) {
-      const handler = (e) => {
-        this._action_pointerdown_pos = { x: e.clientX, y: e.clientY };
-      };
-      this._events.set("action_pointerdown", handler);
-      this.container.addEventListener("pointerdown", handler);
-    }
-  }
-  /** Apply CSS to the map's SVG elements. Mapping of CSS selector to style declaration */
-  setStyles(styles) {
-    let style_content = "";
-    for (const [selector, css_text] of Object.entries(styles)) {
-      if (css_text) {
-        style_content += `svg ${cleanCssSelector(selector)} { ${css_text} }
-`;
-      }
-    }
-    if (style_content !== this.styles_string) {
-      this.styles_string = style_content;
-      this._renderMapImage();
-    }
-  }
-  destroy() {
-    this.setDebug(false);
-    this._resize_observer?.disconnect();
-    this._resize_observer = null;
-    this.container.removeEventListener("wheel", this._events.get("wheel"));
-    this.container.removeEventListener("pointerdown", this._events.get("pointerdown"));
-    window.removeEventListener("pointermove", this._events.get("pointermove"));
-    window.removeEventListener("pointerup", this._events.get("pointerup"));
-    window.removeEventListener("pointercancel", this._events.get("pointerup"));
-    for (const [event_name, handler] of this._action_event_handlers) {
-      this.container.removeEventListener(event_name, handler);
-    }
-    this._action_event_handlers.clear();
-    this._action_last_triggered.clear();
-    this._actions = [];
-    if (this._events.has("action_pointerdown")) {
-      const handler = this._events.get("action_pointerdown");
-      this.container.removeEventListener("pointerdown", handler);
-      this._events.delete("action_pointerdown");
-    }
-    this._action_pointerdown_pos = null;
-    this._image_generation++;
-    this._map_path = "";
-    if (this._image_frame_id !== null) {
-      cancelAnimationFrame(this._image_frame_id);
-      this._image_frame_id = null;
-    }
-    if (this._draw_frame_id !== null) {
-      cancelAnimationFrame(this._draw_frame_id);
-      this._draw_frame_id = null;
-    }
-    if (this._notify_frame_id !== null) {
-      cancelAnimationFrame(this._notify_frame_id);
-      this._notify_frame_id = null;
-    }
-    for (const instance of this._overlay_instances) {
-      instance.element.remove();
-    }
-    this._overlay_instances = [];
-    this.map_image = null;
-    this.container.innerHTML = "";
-  }
-  /**
-   * Pixels per normalised map unit on each axis at the given zoom level.
-   * At zoom 1 the whole map image fits within the view.
-   */
-  _viewScale(zoom = this.zoom) {
-    const aspect = this.map?.aspect_ratio || 1;
-    const width = this.container.clientWidth || 1;
-    const height = this.container.clientHeight || 1;
-    const fit_height = Math.min(height, width / aspect) * (1 - VIEW_PADDING * 2) * zoom;
-    return { x: fit_height * aspect, y: fit_height };
-  }
-  /** Convert a pointer event position to normalised map coordinates (0-1) */
-  _eventToMap(e, rect = this.container.getBoundingClientRect()) {
-    const scale = this._viewScale();
-    return {
-      x: (e.clientX - rect.left - rect.width / 2) / scale.x + this.center.x,
-      y: (e.clientY - rect.top - rect.height / 2) / scale.y + this.center.y
-    };
-  }
-  _clampCenter(point) {
-    return {
-      x: Math.max(0, Math.min(1, point.x)),
-      y: Math.max(0, Math.min(1, point.y))
-    };
-  }
-  /** Zoom about a fixed screen position so the point under it stays in place */
-  _zoomAboutPoint(new_zoom, position) {
-    const old_zoom = this.zoom;
-    new_zoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, new_zoom));
-    if (new_zoom === old_zoom)
-      return;
-    const rect = this.container.getBoundingClientRect();
-    const fixed_point = this._eventToMap({ clientX: position.x, clientY: position.y }, rect);
-    const new_scale = this._viewScale(new_zoom);
-    const new_center = {
-      x: fixed_point.x - (position.x - rect.left - rect.width / 2) / new_scale.x,
-      y: fixed_point.y - (position.y - rect.top - rect.height / 2) / new_scale.y
-    };
-    this.zoom = new_zoom;
-    this.center = this._clampCenter(new_center);
-    this._renderMap();
-    this._notifyViewChange();
-  }
-  _onWheel(e) {
-    e.preventDefault();
-    if (this.disable_zoom || !this.map_image)
-      return;
-    const zoom_delta = e.deltaY > 0 ? 0.97 : 1.03;
-    this._zoomAboutPoint(this.zoom * zoom_delta, {
-      x: e.clientX,
-      y: e.clientY
-    });
-  }
-  _onPointerDown(e) {
-    if (!this.map_image)
-      return;
-    if (e.button !== 0)
-      return;
-    this._pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
-    if (this._pointers.size === 2) {
-      this._is_panning = false;
-      const [p1, p2] = [...this._pointers.values()];
-      this._pinch_distance = Math.hypot(p2.x - p1.x, p2.y - p1.y);
-      return;
-    }
-    if (this.disable_pan)
-      return;
-    this._is_panning = true;
-    this._pan_start_time = Date.now();
-    this._pan_exceeded_threshold = false;
-    this.container.style.cursor = "grabbing";
-  }
-  _onPointerMove(e) {
-    const last3 = this._pointers.get(e.pointerId);
-    if (!last3)
-      return;
-    this._pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
-    if (this._pointers.size === 2 && this._pinch_distance) {
-      if (this.disable_zoom)
-        return;
-      const [p1, p2] = [...this._pointers.values()];
-      const distance = Math.hypot(p2.x - p1.x, p2.y - p1.y);
-      if (distance > 0) {
-        this._zoomAboutPoint(this.zoom * (distance / this._pinch_distance), { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 });
-        this._pinch_distance = distance;
-      }
-      return;
-    }
-    if (!this._is_panning)
-      return;
-    if (this._pan_start_time && !this._pan_exceeded_threshold && Date.now() - this._pan_start_time > 200) {
-      this._pan_exceeded_threshold = true;
-    }
-    const scale = this._viewScale();
-    this.center = this._clampCenter({
-      x: this.center.x - (e.clientX - last3.x) / scale.x,
-      y: this.center.y - (e.clientY - last3.y) / scale.y
-    });
-    this._renderMap();
-    this._notifyViewChange();
-  }
-  _onPointerUp(e) {
-    this._pointers.delete(e.pointerId);
-    if (this._pointers.size < 2) {
-      this._pinch_distance = null;
-    }
-    if (this._is_panning && this._pointers.size === 0) {
-      this._is_panning = false;
-      this.container.style.cursor = "";
-    }
-  }
-  _onResize() {
-    this._renderMap();
-    if (this.disable_zoom && !this.fixed_resolution_megapixels) {
-      const { width, height } = this._textureDimensions();
-      if (width !== this._texture_width || height !== this._texture_height) {
-        this._renderMapImage();
-      }
-    }
-  }
-  /**
-   * Total texture pixel budget for the current map. Zoomable maps use a
-   * fixed megapixel budget (reduced on mobile) so the map stays sharp when
-   * zoomed in. Fixed maps never scale up, so they only need enough pixels
-   * to cover the container, defaulting to twice the container's pixel count.
-   */
-  _targetTexturePixels() {
-    if (this.disable_zoom) {
-      if (this.fixed_resolution_megapixels > 0) {
-        return this.fixed_resolution_megapixels * 1e6;
-      }
-      const container_pixels = (this.container.clientWidth || 1) * (this.container.clientHeight || 1);
-      return container_pixels * FIXED_TEXTURE_CONTAINER_MULTIPLIER;
-    }
-    const megapixels = isMobileDevice() ? MOBILE_TEXTURE_MEGAPIXELS : DESKTOP_TEXTURE_MEGAPIXELS;
-    return megapixels * 1e6;
-  }
-  /**
-   * Texture dimensions matching the SVG's aspect ratio with a total area of
-   * `_targetTexturePixels()`. Each side is clamped to the maximum canvas
-   * dimension, so very wide or tall maps render slightly below the budget.
-   */
-  _textureDimensions() {
-    const aspect = this.map?.aspect_ratio || 1;
-    const target_pixels = this._targetTexturePixels();
-    const height = Math.sqrt(target_pixels / aspect);
-    const width = height * aspect;
-    return {
-      width: Math.max(1, Math.min(MAX_TEXTURE_DIMENSION, Math.round(width))),
-      height: Math.max(1, Math.min(MAX_TEXTURE_DIMENSION, Math.round(height)))
-    };
-  }
-  _renderMapImage() {
-    if (this._image_frame_id !== null) {
-      cancelAnimationFrame(this._image_frame_id);
-    }
-    this._image_frame_id = requestAnimationFrame(() => {
-      this._image_frame_id = null;
-      this._doRenderMapImage();
-    });
-  }
-  _doRenderMapImage() {
-    if (!this.map?.raw_data)
-      return;
-    const generation = ++this._image_generation;
-    const parser2 = new DOMParser();
-    const doc = parser2.parseFromString(this.map.raw_data, "image/svg+xml");
-    const svg_element = doc.querySelector("svg");
-    if (!svg_element)
-      return;
-    const { width, height } = this._textureDimensions();
-    this._texture_width = width;
-    this._texture_height = height;
-    if (!svg_element.getAttribute("viewBox")) {
-      const attr_width = parseFloat(svg_element.getAttribute("width") || "");
-      const attr_height = parseFloat(svg_element.getAttribute("height") || "");
-      if (attr_width > 0 && attr_height > 0) {
-        svg_element.setAttribute("viewBox", `0 0 ${attr_width} ${attr_height}`);
-      }
-    }
-    if (svg_element.getAttribute("viewBox")) {
-      svg_element.setAttribute("width", `${width}`);
-      svg_element.setAttribute("height", `${height}`);
-    }
-    if (this.styles_string) {
-      const style_element = doc.createElementNS("http://www.w3.org/2000/svg", "style");
-      style_element.textContent = this.styles_string;
-      svg_element.appendChild(style_element);
-    }
-    const serializer = new XMLSerializer();
-    const svg_string = serializer.serializeToString(svg_element);
-    const svg_blob = new Blob([svg_string], { type: "image/svg+xml" });
-    const url = URL.createObjectURL(svg_blob);
-    const svg_image = new Image();
-    svg_image.onload = () => {
-      URL.revokeObjectURL(url);
-      if (generation !== this._image_generation)
-        return;
-      const canvas = document.createElement("canvas");
-      canvas.width = width;
-      canvas.height = height;
-      const ctx = canvas.getContext("2d");
-      if (!ctx) {
-        console.error("Failed to get canvas context");
-        return;
-      }
-      ctx.drawImage(svg_image, 0, 0, width, height);
-      this.map_image = canvas;
-      this._renderMap();
-    };
-    svg_image.onerror = () => {
-      URL.revokeObjectURL(url);
-      console.error("Failed to load map image");
-    };
-    svg_image.src = url;
-  }
-  _renderMap() {
-    if (this._draw_frame_id !== null)
-      return;
-    this._draw_frame_id = requestAnimationFrame(() => {
-      this._draw_frame_id = null;
-      this._drawMap();
-    });
-  }
-  _drawMap() {
-    if (!this.map_image)
-      return;
-    const draw_start = this.debug ? performance.now() : 0;
-    const width = this.container.clientWidth || 1;
-    const height = this.container.clientHeight || 1;
-    const dpr = window.devicePixelRatio || 1;
-    if (this.canvas.width !== Math.round(width * dpr) || this.canvas.height !== Math.round(height * dpr)) {
-      this.canvas.width = Math.round(width * dpr);
-      this.canvas.height = Math.round(height * dpr);
-      this.canvas.style.width = `${width}px`;
-      this.canvas.style.height = `${height}px`;
-    }
-    const scale = this._viewScale();
-    const view_left = this.center.x - width / 2 / scale.x;
-    const view_top = this.center.y - height / 2 / scale.y;
-    const sx0 = Math.max(0, view_left);
-    const sy0 = Math.max(0, view_top);
-    const sx1 = Math.min(1, view_left + width / scale.x);
-    const sy1 = Math.min(1, view_top + height / scale.y);
-    this._ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    this._ctx.clearRect(0, 0, width, height);
-    if (sx1 > sx0 && sy1 > sy0) {
-      this._ctx.imageSmoothingEnabled = true;
-      this._ctx.imageSmoothingQuality = "high";
-      const img_w = this.map_image.width;
-      const img_h = this.map_image.height;
-      this._ctx.drawImage(this.map_image, sx0 * img_w, sy0 * img_h, (sx1 - sx0) * img_w, (sy1 - sy0) * img_h, (sx0 - view_left) * scale.x, (sy0 - view_top) * scale.y, (sx1 - sx0) * scale.x, (sy1 - sy0) * scale.y);
-    }
-    if (this.debug) {
-      this._drawDebugInfo(scale, view_left, view_top);
-      const now = performance.now();
-      this.debug_info.last_draw_ms = now - draw_start;
-      this._debug_draw_count++;
-      if (now - this._debug_count_start >= 1e3) {
-        this.debug_info.draws_last_second = this._debug_draw_count;
-        this._debug_draw_count = 0;
-        this._debug_count_start = now;
-      }
-    }
-    this._updateOverlayPositions();
-  }
-  /** Draw element bounds, map border and view crosshair over the map */
-  _drawDebugInfo(scale, view_left, view_top) {
-    if (!this.map)
-      return;
-    const ctx = this._ctx;
-    const width = this.container.clientWidth || 1;
-    const height = this.container.clientHeight || 1;
-    const toScreenX = (x) => (x - view_left) * scale.x;
-    const toScreenY = (y) => (y - view_top) * scale.y;
-    ctx.strokeStyle = "#f0f";
-    ctx.lineWidth = 2;
-    ctx.strokeRect(toScreenX(0), toScreenY(0), scale.x, scale.y);
-    ctx.strokeStyle = "rgba(0, 200, 255, 0.6)";
-    ctx.lineWidth = 1;
-    for (const [, bounds] of this.map.element_bounds) {
-      const x = toScreenX(bounds.x);
-      const y = toScreenY(bounds.y);
-      const w = bounds.w * scale.x;
-      const h2 = bounds.h * scale.y;
-      if (x + w < 0 || y + h2 < 0 || x > width || y > height)
-        continue;
-      ctx.strokeRect(x, y, w, h2);
-    }
-    const highlight_id = this.debug_info.highlight_id || this.debug_info.hover_id;
-    const hover_bounds = highlight_id ? this.map.element_bounds.get(highlight_id) : null;
-    if (hover_bounds) {
-      const x = toScreenX(hover_bounds.x);
-      const y = toScreenY(hover_bounds.y);
-      ctx.fillStyle = "rgba(255, 0, 255, 0.25)";
-      ctx.fillRect(x, y, hover_bounds.w * scale.x, hover_bounds.h * scale.y);
-      const label = `#${highlight_id}`;
-      ctx.font = "12px monospace";
-      ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
-      ctx.fillRect(x, y - 16, ctx.measureText(label).width + 8, 16);
-      ctx.fillStyle = "#fff";
-      ctx.fillText(label, x + 4, y - 4);
-    }
-    ctx.strokeStyle = "#f00";
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(width / 2 - 8, height / 2);
-    ctx.lineTo(width / 2 + 8, height / 2);
-    ctx.moveTo(width / 2, height / 2 - 8);
-    ctx.lineTo(width / 2, height / 2 + 8);
-    ctx.stroke();
-  }
-  _updateOverlayPositions() {
-    if (!this.map?.element_bounds)
-      return;
-    const width = this.container.clientWidth || 1;
-    const height = this.container.clientHeight || 1;
-    const scale = this._viewScale();
-    const mapToScreen = (point) => ({
-      x: (point.x - this.center.x) * scale.x + width / 2,
-      y: (point.y - this.center.y) * scale.y + height / 2
-    });
-    const setDisplay = (instance, value) => {
-      if (instance.last_display === value)
-        return;
-      instance.last_display = value;
-      instance.element.style.display = value;
-    };
-    const setTransform = (instance, value) => {
-      if (instance.last_transform === value)
-        return;
-      instance.last_transform = value;
-      instance.element.style.transform = value;
-    };
-    const setSize = (instance, w, h2) => {
-      const size = `${w} ${h2}`;
-      if (instance.last_size === size)
-        return;
-      instance.last_size = size;
-      instance.element.style.width = w;
-      instance.element.style.height = h2;
-    };
-    for (const instance of this._overlay_instances) {
-      const { overlay } = instance;
-      if (overlay.min_zoom && this.zoom < overlay.min_zoom) {
-        setDisplay(instance, "none");
-        continue;
-      }
-      let bounds;
-      if (typeof overlay.ref === "string") {
-        bounds = this.map.element_bounds.get(overlay.ref);
-        if (!bounds) {
-          setDisplay(instance, "none");
-          continue;
-        }
-      } else {
-        bounds = __spreadProps(__spreadValues({}, overlay.ref), { w: 0, h: 0 });
-      }
-      setDisplay(instance, "");
-      if (overlay.type === "box" && bounds.w > 0 && bounds.h > 0) {
-        const top_left = mapToScreen({ x: bounds.x, y: bounds.y });
-        setTransform(instance, `translate(${top_left.x}px, ${top_left.y}px)`);
-        setSize(instance, `${bounds.w * scale.x}px`, `${bounds.h * scale.y}px`);
-      } else {
-        const screen_pos = mapToScreen({
-          x: bounds.x + bounds.w / 2,
-          y: bounds.y + bounds.h / 2
-        });
-        setSize(instance, "", "");
-        setTransform(instance, overlay.scale_with_zoom ? `translate(${screen_pos.x}px, ${screen_pos.y}px) translate(-50%, -50%) scale(${this.zoom})` : `translate(${screen_pos.x}px, ${screen_pos.y}px) translate(-50%, -50%)`);
-      }
-    }
-  }
-  /**
-   * Handle action events (click, pointer events, etc.) on the map.
-   * Only the best matching action is triggered, where the best match is the
-   * highest priority action with the smallest map element under the event.
-   */
-  _handleActionEvent(event_name, e) {
-    if (!this.map_image || !this.map?.element_bounds)
-      return;
-    if (this._pan_exceeded_threshold)
-      return;
-    if (event_name === "click" && this._action_pointerdown_pos) {
-      const dx = e.clientX - this._action_pointerdown_pos.x;
-      const dy = e.clientY - this._action_pointerdown_pos.y;
-      if (Math.hypot(dx, dy) > 5)
-        return;
-    }
-    const norm = this._eventToMap(e);
-    if (norm.x < 0 || norm.x > 1 || norm.y < 0 || norm.y > 1)
-      return;
-    let best2 = null;
-    let best_area = Number.POSITIVE_INFINITY;
-    for (const action of this._actions) {
-      if (!action.events.includes(event_name))
-        continue;
-      if (action.ref === "*") {
-        if (!best2)
-          best2 = action;
-        continue;
-      }
-      const bounds = this.map.element_bounds.get(action.ref);
-      if (!bounds)
-        continue;
-      if (norm.x < bounds.x || norm.x > bounds.x + bounds.w || norm.y < bounds.y || norm.y > bounds.y + bounds.h) {
-        continue;
-      }
-      const area = bounds.w * bounds.h;
-      if (!best2 || best2.ref === "*" || (action.priority || 0) > (best2.priority || 0) || (action.priority || 0) === (best2.priority || 0) && area < best_area) {
-        best2 = action;
-        best_area = area;
-      }
-    }
-    if (!best2)
-      return;
-    const now = Date.now();
-    const debounce_key = `${best2.ref}:${event_name}`;
-    const last_triggered = this._action_last_triggered.get(debounce_key) || 0;
-    if (now - last_triggered < 300)
-      return;
-    this._action_last_triggered.set(debounce_key, now);
-    best2.callback(norm);
-  }
-  /**
-   * Notify listeners of view changes from user interaction. Notifications
-   * are coalesced to one per animation frame as pointer events can fire
-   * more often than the display refreshes and listeners may be expensive
-   */
-  _notifyViewChange() {
-    if (!this.onViewChange || this._notify_frame_id !== null)
-      return;
-    this._notify_frame_id = requestAnimationFrame(() => {
-      this._notify_frame_id = null;
-      this.onViewChange?.({
-        zoom: this.zoom,
-        center: __spreadValues({}, this.center)
-      });
-    });
-  }
-};
-
-// libs/components/src/lib/map-zoom-controls.component.ts
-var MapZoomControlsComponent = class _MapZoomControlsComponent {
-  constructor() {
-    this.zoom = model(
-      1,
-      ...ngDevMode ? [{ debugName: "zoom" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.reset = model(
-      0,
-      ...ngDevMode ? [{ debugName: "reset" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-  }
-  static {
-    this.\u0275fac = function MapZoomControlsComponent_Factory(__ngFactoryType__) {
-      return new (__ngFactoryType__ || _MapZoomControlsComponent)();
-    };
-  }
-  static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MapZoomControlsComponent, selectors: [["map-zoom-controls"]], inputs: { zoom: [1, "zoom"], reset: [1, "reset"] }, outputs: { zoom: "zoomChange", reset: "resetChange" }, decls: 13, vars: 9, consts: [[1, "bg-base-100", "divide-base-300", "border-base-300", "absolute", "right-2", "bottom-16", "flex", "flex-col", "divide-y", "overflow-hidden", "rounded-lg", "border", "shadow-md"], ["icon", "", "matRipple", "", "matTooltipPosition", "left", 1, "hover:bg-base-200", 3, "click", "matTooltip"]], template: function MapZoomControlsComponent_Template(rf, ctx) {
-      if (rf & 1) {
-        \u0275\u0275elementStart(0, "div", 0)(1, "button", 1);
-        \u0275\u0275pipe(2, "translate");
-        \u0275\u0275listener("click", function MapZoomControlsComponent_Template_button_click_1_listener($event) {
-          ctx.zoom.set(ctx.zoom() * 1.1);
-          return $event.stopPropagation();
-        });
-        \u0275\u0275elementStart(3, "icon");
-        \u0275\u0275text(4, "add");
-        \u0275\u0275elementEnd()();
-        \u0275\u0275elementStart(5, "button", 1);
-        \u0275\u0275pipe(6, "translate");
-        \u0275\u0275listener("click", function MapZoomControlsComponent_Template_button_click_5_listener($event) {
-          ctx.zoom.set(ctx.zoom() * (10 / 11));
-          return $event.stopPropagation();
-        });
-        \u0275\u0275elementStart(7, "icon");
-        \u0275\u0275text(8, "remove");
-        \u0275\u0275elementEnd()();
-        \u0275\u0275elementStart(9, "button", 1);
-        \u0275\u0275pipe(10, "translate");
-        \u0275\u0275listener("click", function MapZoomControlsComponent_Template_button_click_9_listener($event) {
-          ctx.reset.set(ctx.reset() + 1);
-          return $event.stopPropagation();
-        });
-        \u0275\u0275elementStart(11, "icon");
-        \u0275\u0275text(12, "refresh");
-        \u0275\u0275elementEnd()()();
-      }
-      if (rf & 2) {
-        \u0275\u0275advance();
-        \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(2, 3, "EXPLORE.ZOOM_IN"));
-        \u0275\u0275advance(4);
-        \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(6, 5, "EXPLORE.ZOOM_OUT"));
-        \u0275\u0275advance(4);
-        \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(10, 7, "EXPLORE.ZOOM_RESET"));
-      }
-    }, dependencies: [IconComponent, MatRippleModule, MatRipple, MatTooltipModule, MatTooltip, TranslatePipe], styles: ["\nbutton[_ngcontent-%COMP%] {\n  border-radius: 0;\n}\n/*# sourceMappingURL=map-zoom-controls.component.css.map */"] });
-  }
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MapZoomControlsComponent, [{
-    type: Component,
-    args: [{ selector: "map-zoom-controls", template: `
-        <div
-            class="bg-base-100 divide-base-300 border-base-300 absolute right-2 bottom-16 flex flex-col divide-y overflow-hidden rounded-lg border shadow-md"
-        >
-            <button
-                icon
-                matRipple
-                [matTooltip]="'EXPLORE.ZOOM_IN' | translate"
-                matTooltipPosition="left"
-                class="hover:bg-base-200"
-                (click)="zoom.set(zoom() * 1.1); $event.stopPropagation()"
-            >
-                <icon>add</icon>
-            </button>
-            <button
-                icon
-                matRipple
-                [matTooltip]="'EXPLORE.ZOOM_OUT' | translate"
-                matTooltipPosition="left"
-                class="hover:bg-base-200"
-                (click)="zoom.set(zoom() * (10 / 11)); $event.stopPropagation()"
-            >
-                <icon>remove</icon>
-            </button>
-            <button
-                icon
-                matRipple
-                [matTooltip]="'EXPLORE.ZOOM_RESET' | translate"
-                matTooltipPosition="left"
-                class="hover:bg-base-200"
-                (click)="reset.set(reset() + 1); $event.stopPropagation()"
-            >
-                <icon>refresh</icon>
-            </button>
-        </div>
-    `, imports: [IconComponent, TranslatePipe, MatRippleModule, MatTooltipModule], styles: ["/* angular:styles/component:css;3acd8ef39876159d073e8897fa9cab043ba04b0b5279b833ba6e69fa287e4f39;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/map-zoom-controls.component.ts */\nbutton {\n  border-radius: 0;\n}\n/*# sourceMappingURL=map-zoom-controls.component.css.map */\n"] }]
-  }], null, { zoom: [{ type: Input, args: [{ isSignal: true, alias: "zoom", required: false }] }, { type: Output, args: ["zoomChange"] }], reset: [{ type: Input, args: [{ isSignal: true, alias: "reset", required: false }] }, { type: Output, args: ["resetChange"] }] });
-})();
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(MapZoomControlsComponent, { className: "MapZoomControlsComponent", filePath: "libs/components/src/lib/map-zoom-controls.component.ts", lineNumber: 55 });
-})();
-
-// libs/components/src/lib/dynamic-map.component.ts
-var _c017 = ["mapContainer"];
-var _c111 = ["feature"];
-var _c28 = ["*"];
-var _forTrack0 = ($index, $item) => $item.key;
-var _forTrack1 = ($index, $item) => $item.selector;
-var _forTrack2 = ($index, $item) => $item.name;
-var _forTrack3 = ($index, $item) => $item.text;
-var _forTrack4 = ($index, $item) => $item.track_id || $index;
-function DynamicMapComponent_Conditional_2_Conditional_0_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275element(0, "mat-spinner", 7);
-  }
-  if (rf & 2) {
-    \u0275\u0275property("diameter", 48);
-  }
-}
-function DynamicMapComponent_Conditional_2_Conditional_1_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 3)(1, "div", 8);
-    \u0275\u0275text(2);
-    \u0275\u0275pipe(3, "translate");
-    \u0275\u0275elementEnd()();
-  }
-  if (rf & 2) {
-    \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 1, "EXPLORE.MAP_FAILED_TO_LOAD"), " ");
-  }
-}
-function DynamicMapComponent_Conditional_2_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275conditionalCreate(0, DynamicMapComponent_Conditional_2_Conditional_0_Template, 1, 1, "mat-spinner", 7);
-    \u0275\u0275conditionalCreate(1, DynamicMapComponent_Conditional_2_Conditional_1_Template, 4, 3, "div", 3);
-  }
-  if (rf & 2) {
-    const ctx_r0 = \u0275\u0275nextContext();
-    \u0275\u0275conditional(ctx_r0.loading() ? 0 : -1);
-    \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r0.error() ? 1 : -1);
-  }
-}
-function DynamicMapComponent_Conditional_3_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 3)(1, "div", 8);
-    \u0275\u0275text(2);
-    \u0275\u0275pipe(3, "translate");
-    \u0275\u0275elementEnd()();
-  }
-  if (rf & 2) {
-    \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 1, "EXPLORE.MAP_EMPTY"), " ");
-  }
-}
-function DynamicMapComponent_Conditional_5_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r2 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "map-zoom-controls", 9);
-    \u0275\u0275twoWayListener("zoomChange", function DynamicMapComponent_Conditional_5_Template_map_zoom_controls_zoomChange_0_listener($event) {
-      \u0275\u0275restoreView(_r2);
-      const ctx_r0 = \u0275\u0275nextContext();
-      \u0275\u0275twoWayBindingSet(ctx_r0.zoom, $event) || (ctx_r0.zoom = $event);
-      return \u0275\u0275resetView($event);
-    })("resetChange", function DynamicMapComponent_Conditional_5_Template_map_zoom_controls_resetChange_0_listener($event) {
-      \u0275\u0275restoreView(_r2);
-      const ctx_r0 = \u0275\u0275nextContext();
-      \u0275\u0275twoWayBindingSet(ctx_r0.reset, $event) || (ctx_r0.reset = $event);
-      return \u0275\u0275resetView($event);
-    });
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r0 = \u0275\u0275nextContext();
-    \u0275\u0275twoWayProperty("zoom", ctx_r0.zoom)("reset", ctx_r0.reset);
-  }
-}
-function DynamicMapComponent_Conditional_6_For_5_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r3 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 13);
-    \u0275\u0275listener("click", function DynamicMapComponent_Conditional_6_For_5_Template_button_click_0_listener() {
-      const section_r4 = \u0275\u0275restoreView(_r3).$implicit;
-      const ctx_r0 = \u0275\u0275nextContext(2);
-      return \u0275\u0275resetView(ctx_r0.toggleDebugSection(section_r4.key));
-    });
-    \u0275\u0275text(1);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const section_r4 = ctx.$implicit;
-    const ctx_r0 = \u0275\u0275nextContext(2);
-    \u0275\u0275classProp("bg-white/30", ctx_r0.debug_section() === section_r4.key);
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate2(" ", section_r4.key, " (", section_r4.count, ") ");
-  }
-}
-function DynamicMapComponent_Conditional_6_Conditional_6_Conditional_2_For_1_For_3_Conditional_3_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275element(0, "span", 18);
-  }
-  if (rf & 2) {
-    const prop_r6 = \u0275\u0275nextContext().$implicit;
-    \u0275\u0275styleProp("background", prop_r6.color);
-  }
-}
-function DynamicMapComponent_Conditional_6_Conditional_6_Conditional_2_For_1_For_3_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 16)(1, "span");
-    \u0275\u0275text(2);
-    \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(3, DynamicMapComponent_Conditional_6_Conditional_6_Conditional_2_For_1_For_3_Conditional_3_Template, 1, 2, "span", 17);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const prop_r6 = ctx.$implicit;
-    \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate(" " + prop_r6.name + ": " + prop_r6.value + ";");
-    \u0275\u0275advance();
-    \u0275\u0275conditional(prop_r6.color ? 3 : -1);
-  }
-}
-function DynamicMapComponent_Conditional_6_Conditional_6_Conditional_2_For_1_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div");
-    \u0275\u0275text(1);
-    \u0275\u0275elementEnd();
-    \u0275\u0275repeaterCreate(2, DynamicMapComponent_Conditional_6_Conditional_6_Conditional_2_For_1_For_3_Template, 4, 2, "div", 16, _forTrack2);
-    \u0275\u0275elementStart(4, "div");
-    \u0275\u0275text(5);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const block_r7 = ctx.$implicit;
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate(block_r7.selector + " {");
-    \u0275\u0275advance();
-    \u0275\u0275repeater(block_r7.props);
-    \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate("}");
-  }
-}
-function DynamicMapComponent_Conditional_6_Conditional_6_Conditional_2_ForEmpty_2_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "span");
-    \u0275\u0275text(1);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r0 = \u0275\u0275nextContext(4);
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate(ctx_r0.debug_filter().trim() ? "No matches" : "No styles");
-  }
-}
-function DynamicMapComponent_Conditional_6_Conditional_6_Conditional_2_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275repeaterCreate(0, DynamicMapComponent_Conditional_6_Conditional_6_Conditional_2_For_1_Template, 6, 2, null, null, _forTrack1, false, DynamicMapComponent_Conditional_6_Conditional_6_Conditional_2_ForEmpty_2_Template, 2, 1, "span");
-  }
-  if (rf & 2) {
-    const ctx_r0 = \u0275\u0275nextContext(3);
-    \u0275\u0275repeater(ctx_r0.debug_style_blocks());
-  }
-}
-function DynamicMapComponent_Conditional_6_Conditional_6_Conditional_3_For_1_Conditional_3_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 21);
-    \u0275\u0275text(1, " [missing on map] ");
-    \u0275\u0275elementEnd();
-  }
-}
-function DynamicMapComponent_Conditional_6_Conditional_6_Conditional_3_For_1_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r8 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 20);
-    \u0275\u0275listener("mouseenter", function DynamicMapComponent_Conditional_6_Conditional_6_Conditional_3_For_1_Template_div_mouseenter_0_listener() {
-      const entry_r9 = \u0275\u0275restoreView(_r8).$implicit;
-      const ctx_r0 = \u0275\u0275nextContext(4);
-      return \u0275\u0275resetView(ctx_r0.highlightDebugEntry(entry_r9));
-    })("mouseleave", function DynamicMapComponent_Conditional_6_Conditional_6_Conditional_3_For_1_Template_div_mouseleave_0_listener() {
-      const entry_r9 = \u0275\u0275restoreView(_r8).$implicit;
-      const ctx_r0 = \u0275\u0275nextContext(4);
-      return \u0275\u0275resetView(ctx_r0.clearDebugHighlight(entry_r9));
-    });
-    \u0275\u0275elementStart(1, "span");
-    \u0275\u0275text(2);
-    \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(3, DynamicMapComponent_Conditional_6_Conditional_6_Conditional_3_For_1_Conditional_3_Template, 2, 0, "span", 21);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const entry_r9 = ctx.$implicit;
-    \u0275\u0275classProp("bg-red-500/20", entry_r9.missing)("text-red-200", entry_r9.missing)("cursor-default", entry_r9.ref);
-    \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate(entry_r9.text);
-    \u0275\u0275advance();
-    \u0275\u0275conditional(entry_r9.missing ? 3 : -1);
-  }
-}
-function DynamicMapComponent_Conditional_6_Conditional_6_Conditional_3_ForEmpty_2_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "span");
-    \u0275\u0275text(1);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r0 = \u0275\u0275nextContext(4);
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate(ctx_r0.debug_detail_empty_text());
-  }
-}
-function DynamicMapComponent_Conditional_6_Conditional_6_Conditional_3_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275repeaterCreate(0, DynamicMapComponent_Conditional_6_Conditional_6_Conditional_3_For_1_Template, 4, 8, "div", 19, _forTrack3, false, DynamicMapComponent_Conditional_6_Conditional_6_Conditional_3_ForEmpty_2_Template, 2, 1, "span");
-  }
-  if (rf & 2) {
-    const ctx_r0 = \u0275\u0275nextContext(3);
-    \u0275\u0275repeater(ctx_r0.debug_detail_entries());
-  }
-}
-function DynamicMapComponent_Conditional_6_Conditional_6_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r5 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "input", 14);
-    \u0275\u0275twoWayListener("ngModelChange", function DynamicMapComponent_Conditional_6_Conditional_6_Template_input_ngModelChange_0_listener($event) {
-      \u0275\u0275restoreView(_r5);
-      const ctx_r0 = \u0275\u0275nextContext(2);
-      \u0275\u0275twoWayBindingSet(ctx_r0.debug_filter, $event) || (ctx_r0.debug_filter = $event);
-      return \u0275\u0275resetView($event);
-    });
-    \u0275\u0275elementEnd();
-    \u0275\u0275controlCreate();
-    \u0275\u0275elementStart(1, "div", 15);
-    \u0275\u0275conditionalCreate(2, DynamicMapComponent_Conditional_6_Conditional_6_Conditional_2_Template, 3, 1)(3, DynamicMapComponent_Conditional_6_Conditional_6_Conditional_3_Template, 3, 1);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r0 = \u0275\u0275nextContext(2);
-    \u0275\u0275twoWayProperty("ngModel", ctx_r0.debug_filter);
-    \u0275\u0275control();
-    \u0275\u0275advance(2);
-    \u0275\u0275conditional(ctx_r0.debug_section() === "styles" ? 2 : 3);
-  }
-}
-function DynamicMapComponent_Conditional_6_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 5)(1, "div", 10);
-    \u0275\u0275text(2);
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "div", 11);
-    \u0275\u0275repeaterCreate(4, DynamicMapComponent_Conditional_6_For_5_Template, 2, 4, "button", 12, _forTrack0);
-    \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(6, DynamicMapComponent_Conditional_6_Conditional_6_Template, 4, 2);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r0 = \u0275\u0275nextContext();
-    \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", ctx_r0.debug_text(), " ");
-    \u0275\u0275advance(2);
-    \u0275\u0275repeater(ctx_r0.debug_sections());
-    \u0275\u0275advance(2);
-    \u0275\u0275conditional(ctx_r0.debug_section() ? 6 : -1);
-  }
-}
-function DynamicMapComponent_Conditional_7_For_2_Conditional_0_Case_3_ng_container_0_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementContainer(0);
-  }
-}
-function DynamicMapComponent_Conditional_7_For_2_Conditional_0_Case_3_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275template(0, DynamicMapComponent_Conditional_7_For_2_Conditional_0_Case_3_ng_container_0_Template, 1, 0, "ng-container", 24);
-  }
-  if (rf & 2) {
-    const ctx_r9 = \u0275\u0275nextContext(2);
-    const element_r11 = ctx_r9.$implicit;
-    const \u0275$index_81_r12 = ctx_r9.$index;
-    const ctx_r0 = \u0275\u0275nextContext(2);
-    \u0275\u0275property("ngComponentOutlet", element_r11.content)("ngComponentOutletInjector", ctx_r0.injectors()[\u0275$index_81_r12]);
-  }
-}
-function DynamicMapComponent_Conditional_7_For_2_Conditional_0_Case_4_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275element(0, "div", 23);
-    \u0275\u0275pipe(1, "sanitize");
-  }
-  if (rf & 2) {
-    const element_r11 = \u0275\u0275nextContext(2).$implicit;
-    \u0275\u0275property("innerHTML", \u0275\u0275pipeBind1(1, 1, element_r11.content), \u0275\u0275sanitizeHtml);
-  }
-}
-function DynamicMapComponent_Conditional_7_For_2_Conditional_0_Case_5_ng_container_0_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementContainer(0);
-  }
-}
-function DynamicMapComponent_Conditional_7_For_2_Conditional_0_Case_5_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275template(0, DynamicMapComponent_Conditional_7_For_2_Conditional_0_Case_5_ng_container_0_Template, 1, 0, "ng-container", 25);
-  }
-  if (rf & 2) {
-    const element_r11 = \u0275\u0275nextContext(2).$implicit;
-    \u0275\u0275property("ngTemplateOutlet", element_r11.content)("ngTemplateOutletContext", element_r11.data);
-  }
-}
-function DynamicMapComponent_Conditional_7_For_2_Conditional_0_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div")(1, "div", 22, 1);
-    \u0275\u0275conditionalCreate(3, DynamicMapComponent_Conditional_7_For_2_Conditional_0_Case_3_Template, 1, 2, "ng-container")(4, DynamicMapComponent_Conditional_7_For_2_Conditional_0_Case_4_Template, 2, 3, "div", 23)(5, DynamicMapComponent_Conditional_7_For_2_Conditional_0_Case_5_Template, 1, 2, "ng-container");
-    \u0275\u0275elementEnd()();
-  }
-  if (rf & 2) {
-    let tmp_17_0;
-    const element_r11 = \u0275\u0275nextContext().$implicit;
-    const ctx_r0 = \u0275\u0275nextContext(2);
-    \u0275\u0275advance();
-    \u0275\u0275attribute("el-id", element_r11.location)("track-id", element_r11.track_id);
-    \u0275\u0275advance(2);
-    \u0275\u0275conditional((tmp_17_0 = ctx_r0.contentType(element_r11.content)) === "component" ? 3 : tmp_17_0 === "html" ? 4 : 5);
-  }
-}
-function DynamicMapComponent_Conditional_7_For_2_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275conditionalCreate(0, DynamicMapComponent_Conditional_7_For_2_Conditional_0_Template, 6, 3, "div");
-  }
-  if (rf & 2) {
-    const element_r11 = ctx.$implicit;
-    \u0275\u0275conditional(element_r11 ? 0 : -1);
-  }
-}
-function DynamicMapComponent_Conditional_7_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 6);
-    \u0275\u0275repeaterCreate(1, DynamicMapComponent_Conditional_7_For_2_Template, 1, 1, null, null, _forTrack4);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r0 = \u0275\u0275nextContext();
-    \u0275\u0275advance();
-    \u0275\u0275repeater(ctx_r0.features());
-  }
-}
-var DynamicMapComponent = class _DynamicMapComponent {
-  toggleDebugSection(section) {
-    this.debug_section.update((current) => current === section ? null : section);
-  }
-  highlightDebugEntry(entry) {
-    if (!entry.ref || entry.missing)
-      return;
-    this._map_viewer?.setDebugHighlight(entry.ref);
-  }
-  clearDebugHighlight(entry) {
-    if (!entry.ref || entry.missing)
-      return;
-    this._map_viewer?.setDebugHighlight("");
-  }
-  constructor() {
-    this._injector = inject2(Injector);
-    this._zone = inject2(NgZone);
-    this._map_viewer = null;
-    this._last_src = "";
-    this._map_container = viewChild(
-      "mapContainer",
-      ...ngDevMode ? [{ debugName: "_map_container" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this._feature_elements = viewChildren("feature", __spreadValues({}, ngDevMode ? { debugName: "_feature_elements" } : (
-      /* istanbul ignore next */
-      {}
-    )));
-    this.src = input(
-      "",
-      ...ngDevMode ? [{ debugName: "src" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.zoom = model(
-      1,
-      ...ngDevMode ? [{ debugName: "zoom" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.center = model(
-      { x: 0.5, y: 0.5 },
-      ...ngDevMode ? [{ debugName: "center" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.fixedResolution = input(
-      0,
-      ...ngDevMode ? [{ debugName: "fixedResolution" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.debug = model(
-      false,
-      ...ngDevMode ? [{ debugName: "debug" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.reset = model(
-      0,
-      ...ngDevMode ? [{ debugName: "reset" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.styles = input(
-      {},
-      ...ngDevMode ? [{ debugName: "styles" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.features = input(
-      [],
-      ...ngDevMode ? [{ debugName: "features" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.labels = input(
-      [],
-      ...ngDevMode ? [{ debugName: "labels" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.actions = input(
-      [],
-      ...ngDevMode ? [{ debugName: "actions" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.options = input(
-      {},
-      ...ngDevMode ? [{ debugName: "options" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.focus = input(
-      "",
-      ...ngDevMode ? [{ debugName: "focus" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.mapInfo = output();
-    this.injectors = signal(
-      [],
-      ...ngDevMode ? [{ debugName: "injectors" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.loading = signal(
-      false,
-      ...ngDevMode ? [{ debugName: "loading" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.error = signal(
-      false,
-      ...ngDevMode ? [{ debugName: "error" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this._element_mappings = signal(
-      null,
-      ...ngDevMode ? [{ debugName: "_element_mappings" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this._hotkey_sub = inject2(HotkeysService).listen(["Control", "Alt", "Shift", "KeyG"], () => this.debug.update((state2) => !state2));
-    this._debug_state = signal(
-      null,
-      ...ngDevMode ? [{ debugName: "_debug_state" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.debug_text = computed(
-      () => {
-        const state2 = this._debug_state();
-        if (!state2)
-          return "";
-        const center = this.center();
-        const status = this.error() ? "error" : this.loading() ? "loading" : this.src() ? "ready" : "no map";
-        return [
-          "MAP DEBUG (Ctrl+Alt+Shift+G)",
-          `src:      ${this._middleTruncate(this.src().split("/").pop() || "\u2014", 36)}`,
-          `status:   ${status}`,
-          `texture:  ${state2.texture} (${state2.texture_mode})`,
-          `aspect:   ${state2.aspect}`,
-          `view:     ${state2.view}`,
-          `zoom:     ${this.zoom().toFixed(2)}`,
-          `center:   ${center.x.toFixed(3)}, ${center.y.toFixed(3)}`,
-          `pointer:  ${state2.pointer}`,
-          `hover:    ${state2.hover}`,
-          `elements: ${state2.elements}`,
-          `overlays: ${state2.overlays}`,
-          `draw:     ${state2.draw}`
-        ].join("\n");
-      },
-      ...ngDevMode ? [{ debugName: "debug_text" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.debug_section = signal(
-      null,
-      ...ngDevMode ? [{ debugName: "debug_section" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.debug_filter = signal(
-      "",
-      ...ngDevMode ? [{ debugName: "debug_filter" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.debug_sections = computed(
-      () => [
-        { key: "styles", count: Object.keys(this.styles() || {}).length },
-        { key: "features", count: (this.features() || []).length },
-        { key: "labels", count: (this.labels() || []).length },
-        { key: "actions", count: (this.actions() || []).length }
-      ],
-      ...ngDevMode ? [{ debugName: "debug_sections" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.debug_style_blocks = computed(
-      () => {
-        if (this.debug_section() !== "styles")
-          return [];
-        const blocks = Object.entries(this.styles() || {}).map(([selector, style2]) => ({
-          selector,
-          props: Object.entries(style2).map(([name, value]) => {
-            const value_text = `${value}`;
-            const color = value_text.replace("!important", "").trim();
-            return {
-              name,
-              value: value_text,
-              color: typeof CSS !== "undefined" && CSS.supports("color", color) ? color : ""
-            };
-          })
-        }));
-        const filter2 = this.debug_filter().trim().toLowerCase();
-        if (!filter2)
-          return blocks;
-        return blocks.filter(({ selector, props }) => selector.toLowerCase().includes(filter2) || props.some((prop) => `${prop.name}: ${prop.value}`.toLowerCase().includes(filter2)));
-      },
-      ...ngDevMode ? [{ debugName: "debug_style_blocks" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.debug_detail_entries = computed(
-      () => {
-        const section = this.debug_section();
-        let entries;
-        switch (section) {
-          case "features":
-            entries = this._describeFeatures();
-            break;
-          case "labels":
-            entries = this._describeLabels();
-            break;
-          case "actions":
-            entries = this._describeActions();
-            break;
-          default:
-            return [];
-        }
-        const filter2 = this.debug_filter().trim().toLowerCase();
-        if (filter2) {
-          entries = entries.filter((entry) => entry.text.toLowerCase().includes(filter2));
-        }
-        return entries;
-      },
-      ...ngDevMode ? [{ debugName: "debug_detail_entries" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.debug_detail_empty_text = computed(
-      () => {
-        const section = this.debug_section();
-        const filter2 = this.debug_filter().trim();
-        return filter2 ? "No matches" : `No ${section}`;
-      },
-      ...ngDevMode ? [{ debugName: "debug_detail_empty_text" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    effect(() => {
-      const src = this.src();
-      if (src && this._map_viewer) {
-        if (this._last_src && this._last_src !== src) {
-          this.zoom.set(1);
-          this.center.set({ x: 0.5, y: 0.5 });
-        }
-        this._last_src = src;
-        this._loadMap(src);
-      }
-    });
-    effect(() => {
-      const styles = this.styles() || {};
-      if (this._map_viewer) {
-        this._applyStyles(styles);
-      }
-    });
-    effect(() => {
-      const features = this.features() || [];
-      const labels = this.labels() || [];
-      const feature_elements = this._feature_elements();
-      if (this._map_viewer) {
-        this._applyOverlays(features, labels, feature_elements);
-      }
-    });
-    effect(() => {
-      this.features();
-      this._updateInjectors();
-    });
-    effect(() => {
-      const actions = this.actions() || [];
-      if (this._map_viewer) {
-        this._applyActions(actions);
-      }
-    });
-    effect(() => {
-      const zoom_val = this.zoom() ?? 1;
-      this._map_viewer?.setZoom(zoom_val);
-    });
-    effect(() => {
-      const center_val = this.center() ?? { x: 0.5, y: 0.5 };
-      this._map_viewer?.setCenter(__spreadValues({}, center_val));
-    });
-    effect(() => {
-      const megapixels = this.fixedResolution() ?? 0;
-      this._map_viewer?.setFixedResolution(megapixels);
-    });
-    effect(() => {
-      const options2 = this.options();
-      this._map_viewer?.setOptions(options2 || {});
-    });
-    effect(() => {
-      if (this.reset() > 0) {
-        this.zoom.set(1);
-        this.center.set({ x: 0.5, y: 0.5 });
-      }
-    });
-    effect(() => {
-      const focus = this.focus();
-      if (focus && this._element_mappings()) {
-        this._map_viewer?.focusOn(focus);
-      }
-    });
-    effect((onCleanup) => {
-      this._map_viewer?.setDebug(this.debug());
-      if (!this.debug()) {
-        this._debug_state.set(null);
-        this.debug_section.set(null);
-        this.debug_filter.set("");
-        return;
-      }
-      const update2 = () => {
-        const viewer = this._map_viewer;
-        if (!viewer)
-          return;
-        const image = viewer.map_image;
-        const info2 = viewer.debug_info;
-        this._debug_state.set({
-          texture: image ? `${image.width}\xD7${image.height}` : "none",
-          texture_mode: viewer.texture_mode,
-          aspect: (viewer.map?.aspect_ratio || 1).toFixed(3),
-          view: `${viewer.container.clientWidth}\xD7${viewer.container.clientHeight}`,
-          pointer: info2.pointer ? `${info2.pointer.x.toFixed(3)}, ${info2.pointer.y.toFixed(3)}` : "\u2014",
-          hover: info2.hover_id ? `#${info2.hover_id}` : "\u2014",
-          elements: viewer.map?.element_bounds.size || 0,
-          overlays: viewer.overlay_count,
-          draw: `${info2.last_draw_ms.toFixed(1)}ms \xB7 ${info2.draws_last_second}/s`
-        });
-      };
-      update2();
-      const interval2 = setInterval(update2, 250);
-      onCleanup(() => clearInterval(interval2));
-    });
-  }
-  ngOnInit() {
-    const container = this._map_container()?.nativeElement;
-    if (!container)
-      return;
-    this._map_viewer = this._zone.runOutsideAngular(() => new MapViewer(container));
-    this._map_viewer.onViewChange = (event) => this._zone.run(() => {
-      this.zoom.set(event.zoom);
-      this.center.set(event.center);
-    });
-  }
-  ngOnDestroy() {
-    this._hotkey_sub.unsubscribe();
-    this._map_viewer?.destroy();
-    this._map_viewer = null;
-  }
-  /**
-   * Determine the type of content for rendering in template
-   */
-  contentType(content) {
-    return typeof content === "string" ? "html" : content instanceof TemplateRef ? "template" : "component";
-  }
-  _loadMap(src) {
-    const simp_url = src.toLowerCase();
-    if (!simp_url.includes("svg") && !simp_url.includes("upload"))
-      return;
-    this.loading.set(true);
-    this.error.set(false);
-    this._map_viewer.setMap(src).then(() => {
-      if (this.src() !== src || !this._map_viewer)
-        return;
-      this.loading.set(false);
-      const mappings = Object.fromEntries(this._map_viewer.map?.element_bounds || []);
-      this._element_mappings.set(mappings);
-      this.mapInfo.emit(mappings);
-    }).catch((e) => {
-      console.warn("[MAP] Failed to load map.", e);
-      if (this.src() !== src)
-        return;
-      this.loading.set(false);
-      this.error.set(true);
-    });
-  }
-  _applyStyles(styles) {
-    if (!this._map_viewer)
-      return;
-    const style_map = {};
-    for (const [selector, style_obj] of Object.entries(styles)) {
-      style_map[selector] = this._objectToCssText(style_obj);
-    }
-    this._map_viewer.setStyles(style_map);
-  }
-  _objectToCssText(style_obj) {
-    return Object.entries(style_obj).map(([prop, value]) => {
-      const kebab_prop = prop.replace(/[A-Z]/g, (match3) => `-${match3.toLowerCase()}`);
-      const important = `${value}`.includes("!important") ? "" : " !important";
-      return `${kebab_prop}: ${value}${important}`;
-    }).join("; ");
-  }
-  _applyOverlays(features, labels, feature_elements) {
-    if (!this._map_viewer)
-      return;
-    const overlays = [];
-    for (let i = 0; i < features.length; i++) {
-      const feature = features[i];
-      if (!feature.location)
-        continue;
-      let contents;
-      const content_type = this.contentType(feature.content);
-      if (content_type === "component" || content_type === "template") {
-        const rendered_el = feature_elements[i]?.nativeElement;
-        if (!rendered_el)
-          continue;
-        contents = rendered_el;
-      } else if (feature.content instanceof HTMLElement) {
-        contents = feature.content;
-      } else if (typeof feature.content === "string") {
-        contents = feature.content;
-      } else {
-        continue;
-      }
-      const fill_bounds = feature.hover || feature.full_size;
-      overlays.push({
-        ref: feature.location,
-        type: fill_bounds ? "box" : "point",
-        contents,
-        scale_with_zoom: !fill_bounds,
-        hover: feature.hover,
-        z_index: feature.z_index
-      });
-    }
-    for (const label of labels) {
-      if (!label.location || !label.content)
-        continue;
-      const classes = ["map-label", ...label.css_class || []].join(" ");
-      overlays.push({
-        ref: label.location,
-        type: "point",
-        contents: `<label class="${classes}">${label.content}</label>`,
-        scale_with_zoom: true,
-        min_zoom: label.zoom_level,
-        z_index: label.z_index
-      });
-    }
-    this._map_viewer.setOverlays(overlays);
-  }
-  _applyActions(actions) {
-    if (!this._map_viewer)
-      return;
-    const map_actions = [];
-    for (const action of actions) {
-      if (!action.id)
-        continue;
-      const events2 = this._convertActionTypes(action.action);
-      if (events2.length === 0)
-        continue;
-      const callback = (p2) => {
-        const synthetic_event = new CustomEvent("mapaction", {
-          detail: { point: p2 }
-        });
-        action.callback(synthetic_event, { x: p2.x, y: p2.y });
-      };
-      map_actions.push({
-        ref: action.id,
-        events: events2,
-        priority: action.priority,
-        callback
-      });
-    }
-    this._map_viewer.setActions(map_actions);
-  }
-  _convertActionTypes(action_types) {
-    const types = Array.isArray(action_types) ? action_types : [action_types];
-    const events2 = [];
-    for (const type of types) {
-      switch (type) {
-        case "click":
-          events2.push("click");
-          break;
-        case "mousedown":
-        case "touchstart":
-          events2.push("pointerdown");
-          break;
-        case "mouseup":
-        case "touchend":
-          events2.push("pointerup");
-          break;
-        case "enter":
-          events2.push("pointerenter");
-          break;
-        case "leave":
-          events2.push("pointerleave");
-          break;
-        case "*":
-          events2.push("click", "pointerdown", "pointerup", "pointerenter", "pointerleave");
-          break;
-        default:
-          events2.push(type);
-      }
-    }
-    return unique(events2);
-  }
-  /** Truncate the middle of a string with "..." to fit the given length */
-  _middleTruncate(value, max_length) {
-    if (value.length <= max_length)
-      return value;
-    const keep = max_length - 3;
-    const front = Math.ceil(keep / 2);
-    const back = keep - front;
-    return `${value.slice(0, front)}...${value.slice(value.length - back)}`;
-  }
-  _formatLocation(location2) {
-    return typeof location2 === "string" ? `#${location2}` : `${location2.x.toFixed(3)}, ${location2.y.toFixed(3)}`;
-  }
-  _debugRef(ref) {
-    if (typeof ref !== "string") {
-      return { location: this._formatLocation(ref), missing: false };
-    }
-    return {
-      ref,
-      location: this._formatLocation(ref),
-      missing: !!this._element_mappings() && !this._element_mappings()?.[ref]
-    };
-  }
-  _describeFeatures() {
-    return (this.features() || []).map((feature, index) => {
-      const target = this._debugRef(feature.location);
-      const content = feature.content instanceof HTMLElement ? "element" : feature.content ? this.contentType(feature.content) : "none";
-      return {
-        ref: target.ref,
-        missing: target.missing,
-        text: [
-          `${index}: ${target.location}`,
-          feature.track_id ? `track: ${feature.track_id}` : "",
-          `content: ${content}`,
-          feature.hover ? "hover" : "",
-          feature.full_size ? "full-size" : "",
-          feature.z_index != null ? `z: ${feature.z_index}` : "",
-          feature.data && Object.keys(feature.data).length ? `data: ${Object.keys(feature.data).join(", ")}` : ""
-        ].filter(Boolean).join(" \xB7 ")
-      };
-    });
-  }
-  _describeLabels() {
-    return (this.labels() || []).map((label, index) => {
-      const target = this._debugRef(label.location);
-      return {
-        ref: target.ref,
-        missing: target.missing,
-        text: [
-          `${index}: ${target.location}`,
-          `"${label.content}"`,
-          label.zoom_level != null ? `zoom \u2265 ${label.zoom_level}` : "",
-          label.css_class?.length ? `class: ${label.css_class.join(" ")}` : "",
-          label.z_index != null ? `z: ${label.z_index}` : ""
-        ].filter(Boolean).join(" \xB7 ")
-      };
-    });
-  }
-  _describeActions() {
-    return (this.actions() || []).map((action, index) => {
-      const types = Array.isArray(action.action) ? action.action : [action.action];
-      const target = this._debugRef(action.id);
-      return {
-        ref: target.ref,
-        missing: target.missing,
-        text: [
-          `${index}: ${target.location}`,
-          types.join(", "),
-          action.priority != null ? `priority: ${action.priority}` : "",
-          action.zone ? "zone" : ""
-        ].filter(Boolean).join(" \xB7 ")
-      };
-    });
-  }
-  _updateInjectors() {
-    const old_injectors = new Map(untracked2(() => this.injectors()).map((injector) => [
-      injector.get(MAP_FEATURE_DATA)?.track_id,
-      injector
-    ]));
-    this.injectors.set((this.features() || []).map((f) => f.track_id && old_injectors.get(f.track_id) || Injector.create({
-      providers: [
-        {
-          provide: MAP_FEATURE_DATA,
-          useValue: __spreadValues({
-            track_id: f.track_id
-          }, f.data)
-        }
-      ],
-      parent: this._injector
-    })));
-  }
-  static {
-    this.\u0275fac = function DynamicMapComponent_Factory(__ngFactoryType__) {
-      return new (__ngFactoryType__ || _DynamicMapComponent)();
-    };
-  }
-  static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DynamicMapComponent, selectors: [["dynamic-map"]], viewQuery: function DynamicMapComponent_Query(rf, ctx) {
-      if (rf & 1) {
-        \u0275\u0275viewQuerySignal(ctx._map_container, _c017, 5)(ctx._feature_elements, _c111, 5);
-      }
-      if (rf & 2) {
-        \u0275\u0275queryAdvance(2);
-      }
-    }, inputs: { src: [1, "src"], zoom: [1, "zoom"], center: [1, "center"], fixedResolution: [1, "fixedResolution"], debug: [1, "debug"], reset: [1, "reset"], styles: [1, "styles"], features: [1, "features"], labels: [1, "labels"], actions: [1, "actions"], options: [1, "options"], focus: [1, "focus"] }, outputs: { zoom: "zoomChange", center: "centerChange", debug: "debugChange", reset: "resetChange", mapInfo: "mapInfo" }, ngContentSelectors: _c28, decls: 8, vars: 6, consts: [["mapContainer", ""], ["feature", ""], ["tabindex", "0", "role", "map", 1, "absolute", "inset-0"], [1, "absolute", "inset-0", "flex", "items-center", "justify-center"], [3, "zoom", "reset"], [1, "absolute", "top-2", "right-2", "z-40", "flex", "max-h-[80%]", "max-w-[32rem]", "flex-col", "rounded", "bg-black/80", "font-mono", "text-[11px]", "leading-4", "text-white"], ["hidden", ""], [1, "absolute", "z-30", 3, "diameter"], [1, "opacity-30"], [3, "zoomChange", "resetChange", "zoom", "reset"], [1, "pointer-events-none", "p-2", "whitespace-pre"], [1, "flex", "gap-1", "px-2", "pb-2"], [1, "rounded", "border", "border-white/30", "px-1", "hover:bg-white/20", 3, "bg-white/30"], [1, "rounded", "border", "border-white/30", "px-1", "hover:bg-white/20", 3, "click"], ["placeholder", "Filter...", 1, "mx-2", "mb-2", "rounded", "border", "border-white/30", "bg-white/10", "px-1", "outline-none", "placeholder:text-white/40", 3, "ngModelChange", "ngModel"], [1, "overflow-auto", "border-t", "border-white/20", "p-2", "whitespace-pre", "select-text"], [1, "flex", "items-center"], [1, "ml-1.5", "inline-block", "h-2.5", "w-2.5", "rounded-sm", "border", "border-white/40", 3, "background"], [1, "ml-1.5", "inline-block", "h-2.5", "w-2.5", "rounded-sm", "border", "border-white/40"], [1, "rounded", "px-1", 3, "bg-red-500/20", "text-red-200", "cursor-default"], [1, "rounded", "px-1", 3, "mouseenter", "mouseleave"], [1, "ml-1", "text-red-300"], [1, "pointer-events-none", "h-full", "w-full"], [3, "innerHTML"], [4, "ngComponentOutlet", "ngComponentOutletInjector"], [4, "ngTemplateOutlet", "ngTemplateOutletContext"]], template: function DynamicMapComponent_Template(rf, ctx) {
-      if (rf & 1) {
-        \u0275\u0275projectionDef();
-        \u0275\u0275element(0, "div", 2, 0);
-        \u0275\u0275conditionalCreate(2, DynamicMapComponent_Conditional_2_Template, 2, 2)(3, DynamicMapComponent_Conditional_3_Template, 4, 3, "div", 3);
-        \u0275\u0275projection(4);
-        \u0275\u0275conditionalCreate(5, DynamicMapComponent_Conditional_5_Template, 1, 2, "map-zoom-controls", 4);
-        \u0275\u0275conditionalCreate(6, DynamicMapComponent_Conditional_6_Template, 7, 2, "div", 5);
-        \u0275\u0275conditionalCreate(7, DynamicMapComponent_Conditional_7_Template, 3, 0, "div", 6);
-      }
-      if (rf & 2) {
-        \u0275\u0275classProp("hidden", !ctx.src());
-        \u0275\u0275advance(2);
-        \u0275\u0275conditional(ctx.src() ? 2 : 3);
-        \u0275\u0275advance(3);
-        \u0275\u0275conditional(ctx.options()?.controls ? 5 : -1);
-        \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.debug() ? 6 : -1);
-        \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.injectors().length ? 7 : -1);
-      }
-    }, dependencies: [
-      CommonModule,
-      NgComponentOutlet,
-      NgTemplateOutlet,
-      FormsModule,
-      DefaultValueAccessor,
-      NgControlStatus,
-      NgModel,
-      MatProgressSpinnerModule,
-      MatProgressSpinner,
-      MapZoomControlsComponent,
-      TranslatePipe,
-      SanitizePipe
-    ], styles: ["\n[_nghost-%COMP%] {\n  display: block;\n  position: relative;\n  width: 100%;\n  height: 100%;\n}\nmat-spinner[_ngcontent-%COMP%] {\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n}\n/*# sourceMappingURL=dynamic-map.component.css.map */"] });
-  }
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(DynamicMapComponent, [{
-    type: Component,
-    args: [{ selector: "dynamic-map", template: `
-        <div
-            #mapContainer
-            tabindex="0"
-            role="map"
-            class="absolute inset-0"
-            [class.hidden]="!src()"
-        ></div>
-        @if (src()) {
-            @if (loading()) {
-                <mat-spinner class="absolute z-30" [diameter]="48" />
-            }
-            @if (error()) {
-                <div class="absolute inset-0 flex items-center justify-center">
-                    <div class="opacity-30">
-                        {{ 'EXPLORE.MAP_FAILED_TO_LOAD' | translate }}
-                    </div>
-                </div>
-            }
-        } @else {
-            <div class="absolute inset-0 flex items-center justify-center">
-                <div class="opacity-30">
-                    {{ 'EXPLORE.MAP_EMPTY' | translate }}
-                </div>
-            </div>
-        }
-        <ng-content />
-        @if (options()?.controls) {
-            <map-zoom-controls [(zoom)]="zoom" [(reset)]="reset" />
-        }
-        @if (debug()) {
-            <div
-                class="absolute top-2 right-2 z-40 flex max-h-[80%] max-w-[32rem] flex-col rounded bg-black/80 font-mono text-[11px] leading-4 text-white"
-            >
-                <div class="pointer-events-none p-2 whitespace-pre">
-                    {{ debug_text() }}
-                </div>
-                <div class="flex gap-1 px-2 pb-2">
-                    @for (section of debug_sections(); track section.key) {
-                        <button
-                            class="rounded border border-white/30 px-1 hover:bg-white/20"
-                            [class.bg-white/30]="
-                                debug_section() === section.key
-                            "
-                            (click)="toggleDebugSection(section.key)"
-                        >
-                            {{ section.key }} ({{ section.count }})
-                        </button>
-                    }
-                </div>
-                @if (debug_section()) {
-                    <input
-                        class="mx-2 mb-2 rounded border border-white/30 bg-white/10 px-1 outline-none placeholder:text-white/40"
-                        placeholder="Filter..."
-                        [(ngModel)]="debug_filter"
-                    />
-                    <div
-                        class="overflow-auto border-t border-white/20 p-2 whitespace-pre select-text"
-                    >
-                        @if (debug_section() === 'styles') {
-                            @for (
-                                block of debug_style_blocks();
-                                track block.selector
-                            ) {
-                                <div>{{ block.selector + ' {' }}</div>
-                                @for (prop of block.props; track prop.name) {
-                                    <div class="flex items-center">
-                                        <span>{{
-                                            '  ' +
-                                                prop.name +
-                                                ': ' +
-                                                prop.value +
-                                                ';'
-                                        }}</span>
-                                        @if (prop.color) {
-                                            <span
-                                                class="ml-1.5 inline-block h-2.5 w-2.5 rounded-sm border border-white/40"
-                                                [style.background]="prop.color"
-                                            ></span>
-                                        }
-                                    </div>
-                                }
-                                <div>{{ '}' }}</div>
-                            } @empty {
-                                <span>{{
-                                    debug_filter().trim()
-                                        ? 'No matches'
-                                        : 'No styles'
-                                }}</span>
-                            }
-                        } @else {
-                            @for (
-                                entry of debug_detail_entries();
-                                track entry.text
-                            ) {
-                                <div
-                                    class="rounded px-1"
-                                    [class.bg-red-500/20]="entry.missing"
-                                    [class.text-red-200]="entry.missing"
-                                    [class.cursor-default]="entry.ref"
-                                    (mouseenter)="highlightDebugEntry(entry)"
-                                    (mouseleave)="clearDebugHighlight(entry)"
-                                >
-                                    <span>{{ entry.text }}</span>
-                                    @if (entry.missing) {
-                                        <span class="ml-1 text-red-300">
-                                            [missing on map]
-                                        </span>
-                                    }
-                                </div>
-                            } @empty {
-                                <span>{{ debug_detail_empty_text() }}</span>
-                            }
-                        }
-                    </div>
-                }
-            </div>
-        }
-        @if (injectors().length) {
-            <div hidden>
-                @for (
-                    element of features();
-                    track $any(element).track_id || $index;
-                    let i = $index
-                ) {
-                    @if (element) {
-                        <div>
-                            <div
-                                #feature
-                                class="pointer-events-none h-full w-full"
-                                [attr.el-id]="element.location"
-                                [attr.track-id]="$any(element).track_id"
-                            >
-                                @switch (contentType(element.content)) {
-                                    @case ('component') {
-                                        <ng-container
-                                            *ngComponentOutlet="
-                                                $any(element.content);
-                                                injector: injectors()[i]
-                                            "
-                                        ></ng-container>
-                                    }
-                                    @case ('html') {
-                                        <div
-                                            [innerHTML]="
-                                                element.content | sanitize
-                                            "
-                                        ></div>
-                                    }
-                                    @default {
-                                        <ng-container
-                                            *ngTemplateOutlet="
-                                                $any(element.content);
-                                                context: $any(element).data
-                                            "
-                                        ></ng-container>
-                                    }
-                                }
-                            </div>
-                        </div>
-                    }
-                }
-            </div>
-        }
-    `, imports: [
-      CommonModule,
-      FormsModule,
-      TranslatePipe,
-      SanitizePipe,
-      MatProgressSpinnerModule,
-      MapZoomControlsComponent
-    ], styles: ["/* angular:styles/component:css;e76799c5a4b056820df2f2f8571cac7c4ed809c9aa76d565965bc043e79b2d5d;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/dynamic-map.component.ts */\n:host {\n  display: block;\n  position: relative;\n  width: 100%;\n  height: 100%;\n}\nmat-spinner {\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n}\n/*# sourceMappingURL=dynamic-map.component.css.map */\n"] }]
-  }], () => [], { _map_container: [{ type: ViewChild, args: ["mapContainer", { isSignal: true }] }], _feature_elements: [{ type: ViewChildren, args: ["feature", __spreadProps(__spreadValues({}, {}), { isSignal: true })] }], src: [{ type: Input, args: [{ isSignal: true, alias: "src", required: false }] }], zoom: [{ type: Input, args: [{ isSignal: true, alias: "zoom", required: false }] }, { type: Output, args: ["zoomChange"] }], center: [{ type: Input, args: [{ isSignal: true, alias: "center", required: false }] }, { type: Output, args: ["centerChange"] }], fixedResolution: [{ type: Input, args: [{ isSignal: true, alias: "fixedResolution", required: false }] }], debug: [{ type: Input, args: [{ isSignal: true, alias: "debug", required: false }] }, { type: Output, args: ["debugChange"] }], reset: [{ type: Input, args: [{ isSignal: true, alias: "reset", required: false }] }, { type: Output, args: ["resetChange"] }], styles: [{ type: Input, args: [{ isSignal: true, alias: "styles", required: false }] }], features: [{ type: Input, args: [{ isSignal: true, alias: "features", required: false }] }], labels: [{ type: Input, args: [{ isSignal: true, alias: "labels", required: false }] }], actions: [{ type: Input, args: [{ isSignal: true, alias: "actions", required: false }] }], options: [{ type: Input, args: [{ isSignal: true, alias: "options", required: false }] }], focus: [{ type: Input, args: [{ isSignal: true, alias: "focus", required: false }] }], mapInfo: [{ type: Output, args: ["mapInfo"] }] });
-})();
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DynamicMapComponent, { className: "DynamicMapComponent", filePath: "libs/components/src/lib/dynamic-map.component.ts", lineNumber: 247 });
 })();
 
 // libs/explore/src/lib/explore-state.service.ts
@@ -100729,7 +100792,7 @@ var ExploreStateService = class _ExploreStateService {
         level: this._level(),
         initialised: this._initialised()
       }),
-      loader: ({ params: { level, initialised } }) => initialised ? ta({
+      loader: ({ params: { level, initialised } }) => initialised ? ia({
         zone_id: level?.id || this._org.organisation.id,
         limit: 50
       }).then(({ data }) => data.map((_2) => new Space(_2))).catch((_2) => []) : Promise.resolve([])
@@ -100898,8 +100961,8 @@ var ExploreStateService = class _ExploreStateService {
   setPositions(zoom, center) {
     this._positions.set({ zoom, center });
   }
-  has(type, id, exclude = []) {
-    if (type === "style") {
+  has(type2, id, exclude = []) {
+    if (type2 === "style") {
       const styles_map = untracked2(this._styles);
       for (const group2 in styles_map) {
         if (exclude.includes(group2))
@@ -100908,7 +100971,7 @@ var ExploreStateService = class _ExploreStateService {
         if (id in styles || `#${id}` in styles)
           return true;
       }
-    } else if (type === "feature") {
+    } else if (type2 === "feature") {
       const feature_map = untracked2(this._features);
       for (const group2 in feature_map) {
         if (exclude.includes(group2))
@@ -100918,7 +100981,7 @@ var ExploreStateService = class _ExploreStateService {
             return true;
         }
       }
-    } else if (type === "action") {
+    } else if (type2 === "action") {
       const actions_map = untracked2(this._actions);
       for (const group2 in actions_map) {
         if (exclude.includes(group2))
@@ -100928,7 +100991,7 @@ var ExploreStateService = class _ExploreStateService {
             return true;
         }
       }
-    } else if (type === "label") {
+    } else if (type2 === "label") {
       const labels_map = untracked2(this._labels);
       for (const group2 in labels_map) {
         if (exclude.includes(group2))
@@ -100945,12 +101008,12 @@ var ExploreStateService = class _ExploreStateService {
    * Combined list of disabled groups for the given resource type, merging
    * the current map options with the `app.explore.disable*` settings
    */
-  _disabledGroups(options2, type) {
+  _disabledGroups(options2, type2) {
     return unique([
       ...this._normaliseDisabledOption(options2.disable),
       ...this._normaliseDisabledSetting("app.explore.disable"),
-      ...this._normaliseDisabledOption(options2[`disable_${type}`]),
-      ...this._normaliseDisabledSetting(`app.explore.disable_${type}`)
+      ...this._normaliseDisabledOption(options2[`disable_${type2}`]),
+      ...this._normaliseDisabledSetting(`app.explore.disable_${type2}`)
     ]);
   }
   _normaliseDisabledSetting(name) {
@@ -102214,8 +102277,984 @@ var MapRadiusComponent = class _MapRadiusComponent {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(MapRadiusComponent, { className: "MapRadiusComponent", filePath: "libs/components/src/lib/map-radius.component.ts", lineNumber: 79 });
 })();
 
+// libs/components/src/lib/settings-debug-panel.component.ts
+var _c021 = (a0) => ({ zones: a0 });
+var _forTrack02 = ($index, $item) => $item.type + $item.id;
+function SettingsDebugPanelComponent_Conditional_0_Conditional_6_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r2 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 15);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_Conditional_6_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r2);
+      const ctx_r2 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r2.clearAll());
+    });
+    \u0275\u0275text(1, " Clear all overrides ");
+    \u0275\u0275elementEnd();
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_0_Conditional_7_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span", 22);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const group_r5 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", group_r5.overridden, " overridden ");
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r4 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 18);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_0_Template_button_click_0_listener() {
+      const group_r5 = \u0275\u0275restoreView(_r4);
+      const ctx_r2 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r2.toggleGroup(group_r5.name));
+    });
+    \u0275\u0275elementStart(1, "icon", 19);
+    \u0275\u0275text(2, " chevron_right ");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "span", 20);
+    \u0275\u0275text(4);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(5, "span", 21);
+    \u0275\u0275text(6);
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(7, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_0_Conditional_7_Template, 2, 1, "span", 22);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const group_r5 = ctx;
+    const ctx_r2 = \u0275\u0275nextContext(3);
+    \u0275\u0275advance();
+    \u0275\u0275classProp("rotate-90", ctx_r2.filter() || ctx_r2.expanded()[group_r5.name]);
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate(group_r5.name);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" (", group_r5.count, ") ");
+    \u0275\u0275advance();
+    \u0275\u0275conditional(group_r5.overridden ? 7 : -1);
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Conditional_8_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 29);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const row_r6 = \u0275\u0275nextContext();
+    \u0275\u0275property("title", row_r6.description);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", row_r6.description, " ");
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_9_For_2_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "option", 31);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const option_r8 = ctx.$implicit;
+    \u0275\u0275property("value", option_r8);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", option_r8, " ");
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_9_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r7 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "select", 30);
+    \u0275\u0275twoWayListener("ngModelChange", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_9_Template_select_ngModelChange_0_listener($event) {
+      \u0275\u0275restoreView(_r7);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      \u0275\u0275twoWayBindingSet(ctx_r2.edit_value, $event) || (ctx_r2.edit_value = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275listener("keydown.escape", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_9_Template_select_keydown_escape_0_listener() {
+      \u0275\u0275restoreView(_r7);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      return \u0275\u0275resetView(ctx_r2.editing_key.set(""));
+    });
+    \u0275\u0275repeaterCreate(1, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_9_For_2_Template, 2, 2, "option", 31, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementStart(3, "button", 32);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_9_Template_button_click_3_listener() {
+      \u0275\u0275restoreView(_r7);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      return \u0275\u0275resetView(ctx_r2.saveEdit());
+    });
+    \u0275\u0275elementStart(4, "icon", 33);
+    \u0275\u0275text(5, "check");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const row_r6 = \u0275\u0275nextContext();
+    const ctx_r2 = \u0275\u0275nextContext(3);
+    \u0275\u0275twoWayProperty("ngModel", ctx_r2.edit_value);
+    \u0275\u0275control();
+    \u0275\u0275advance();
+    \u0275\u0275repeater(row_r6.options);
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_10_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r9 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "input", 34);
+    \u0275\u0275twoWayListener("ngModelChange", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_10_Template_input_ngModelChange_0_listener($event) {
+      \u0275\u0275restoreView(_r9);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      \u0275\u0275twoWayBindingSet(ctx_r2.edit_value, $event) || (ctx_r2.edit_value = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275listener("keydown.enter", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_10_Template_input_keydown_enter_0_listener() {
+      \u0275\u0275restoreView(_r9);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      return \u0275\u0275resetView(ctx_r2.saveEdit());
+    })("keydown.escape", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_10_Template_input_keydown_escape_0_listener() {
+      \u0275\u0275restoreView(_r9);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      return \u0275\u0275resetView(ctx_r2.editing_key.set(""));
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementStart(1, "button", 32);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_10_Template_button_click_1_listener() {
+      \u0275\u0275restoreView(_r9);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      return \u0275\u0275resetView(ctx_r2.saveEdit());
+    });
+    \u0275\u0275elementStart(2, "icon", 33);
+    \u0275\u0275text(3, "check");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext(4);
+    \u0275\u0275twoWayProperty("ngModel", ctx_r2.edit_value);
+    \u0275\u0275control();
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_11_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r10 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "input", 35);
+    \u0275\u0275twoWayListener("ngModelChange", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_11_Template_input_ngModelChange_0_listener($event) {
+      \u0275\u0275restoreView(_r10);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      \u0275\u0275twoWayBindingSet(ctx_r2.edit_value, $event) || (ctx_r2.edit_value = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275listener("keydown.enter", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_11_Template_input_keydown_enter_0_listener() {
+      \u0275\u0275restoreView(_r10);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      return \u0275\u0275resetView(ctx_r2.saveEdit());
+    })("keydown.escape", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_11_Template_input_keydown_escape_0_listener() {
+      \u0275\u0275restoreView(_r10);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      return \u0275\u0275resetView(ctx_r2.editing_key.set(""));
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementStart(1, "button", 32);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_11_Template_button_click_1_listener() {
+      \u0275\u0275restoreView(_r10);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      return \u0275\u0275resetView(ctx_r2.saveEdit());
+    });
+    \u0275\u0275elementStart(2, "icon", 33);
+    \u0275\u0275text(3, "check");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext(4);
+    \u0275\u0275twoWayProperty("ngModel", ctx_r2.edit_value);
+    \u0275\u0275control();
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r11 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 36)(1, "button", 39);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_0_Template_button_click_1_listener() {
+      \u0275\u0275restoreView(_r11);
+      const row_r6 = \u0275\u0275nextContext(2);
+      const ctx_r2 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r2.toggleValue(row_r6));
+    });
+    \u0275\u0275element(2, "div", 40);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const row_r6 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance();
+    \u0275\u0275classProp("bg-info", row_r6.value)("bg-base-300", !row_r6.value);
+    \u0275\u0275property("title", row_r6.display);
+    \u0275\u0275advance();
+    \u0275\u0275classProp("translate-x-4", row_r6.value);
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_1_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r12 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 41);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_1_Template_div_click_0_listener() {
+      \u0275\u0275restoreView(_r12);
+      const row_r6 = \u0275\u0275nextContext(2);
+      const ctx_r2 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r2.startEdit(row_r6));
+    });
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const row_r6 = \u0275\u0275nextContext(2);
+    \u0275\u0275classMap(row_r6.display ? "opacity-80" : "italic opacity-40");
+    \u0275\u0275property("title", row_r6.display || "unset");
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", row_r6.display || "unset", " ");
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_2_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r13 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 42);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_2_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r13);
+      const row_r6 = \u0275\u0275nextContext(2);
+      const ctx_r2 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r2.clearOverride(row_r6.key));
+    });
+    \u0275\u0275elementStart(1, "icon", 33);
+    \u0275\u0275text(2, "undo");
+    \u0275\u0275elementEnd()();
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275conditionalCreate(0, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_0_Template, 3, 7, "div", 36)(1, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_1_Template, 2, 4, "div", 37);
+    \u0275\u0275conditionalCreate(2, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_2_Template, 3, 0, "button", 38);
+  }
+  if (rf & 2) {
+    const row_r6 = \u0275\u0275nextContext();
+    \u0275\u0275conditional(row_r6.control === "toggle" ? 0 : 1);
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(row_r6.overridden ? 2 : -1);
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 23)(1, "div", 24)(2, "div", 25)(3, "span", 26);
+    \u0275\u0275text(4);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(5, "span", 27)(6, "icon", 28);
+    \u0275\u0275text(7, "info");
+    \u0275\u0275elementEnd()()();
+    \u0275\u0275conditionalCreate(8, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Conditional_8_Template, 2, 2, "div", 29);
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(9, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_9_Template, 6, 1)(10, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_10_Template, 4, 1)(11, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_11_Template, 4, 1)(12, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Template, 3, 2);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    let tmp_24_0;
+    const row_r6 = ctx;
+    const entry_r14 = \u0275\u0275nextContext().$implicit;
+    const ctx_r2 = \u0275\u0275nextContext(2);
+    const zone_tooltip_r15 = \u0275\u0275reference(2);
+    \u0275\u0275classProp("pl-8", entry_r14.grouped)("pl-2", !entry_r14.grouped)("bg-warning-light", row_r6.overridden);
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate1(" ", row_r6.label, " ");
+    \u0275\u0275advance();
+    \u0275\u0275property("content", zone_tooltip_r15)("data", \u0275\u0275pureFunction1(14, _c021, row_r6.zones))("hover", true)("backdrop", false)("xOffset", 20);
+    \u0275\u0275advance(3);
+    \u0275\u0275conditional(row_r6.description ? 8 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional((tmp_24_0 = ctx_r2.editing_key() === row_r6.key ? row_r6.control : "") === "select" ? 9 : tmp_24_0 === "number" ? 10 : tmp_24_0 === "text" ? 11 : 12);
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_17_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275conditionalCreate(0, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_0_Template, 8, 5, "button", 16);
+    \u0275\u0275conditionalCreate(1, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Template, 13, 16, "div", 17);
+  }
+  if (rf & 2) {
+    let tmp_12_0;
+    let tmp_13_0;
+    const entry_r14 = ctx.$implicit;
+    \u0275\u0275conditional((tmp_12_0 = entry_r14.header) ? 0 : -1, tmp_12_0);
+    \u0275\u0275advance();
+    \u0275\u0275conditional((tmp_13_0 = entry_r14.row) ? 1 : -1, tmp_13_0);
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_ForEmpty_18_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 13);
+    \u0275\u0275text(1, " No matching settings ");
+    \u0275\u0275elementEnd();
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r1 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 1)(1, "div", 2)(2, "div", 3)(3, "div", 4);
+    \u0275\u0275text(4, "Settings Viewer");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(5, "div", 5);
+    \u0275\u0275conditionalCreate(6, SettingsDebugPanelComponent_Conditional_0_Conditional_6_Template, 2, 0, "button", 6);
+    \u0275\u0275elementStart(7, "button", 7);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_Template_button_click_7_listener() {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.show.set(false));
+    });
+    \u0275\u0275elementStart(8, "icon");
+    \u0275\u0275text(9, "close");
+    \u0275\u0275elementEnd()()()()();
+    \u0275\u0275elementStart(10, "div", 8)(11, "div", 9)(12, "input", 10);
+    \u0275\u0275twoWayListener("ngModelChange", function SettingsDebugPanelComponent_Conditional_0_Template_input_ngModelChange_12_listener($event) {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r2 = \u0275\u0275nextContext();
+      \u0275\u0275twoWayBindingSet(ctx_r2.filter, $event) || (ctx_r2.filter = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementStart(13, "icon", 11);
+    \u0275\u0275text(14, "search");
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(15, "div", 12);
+    \u0275\u0275repeaterCreate(16, SettingsDebugPanelComponent_Conditional_0_For_17_Template, 2, 2, null, null, \u0275\u0275repeaterTrackByIndex, false, SettingsDebugPanelComponent_Conditional_0_ForEmpty_18_Template, 2, 0, "div", 13);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(19, "div", 14);
+    \u0275\u0275text(20, " Click a value to override it. Text values are parsed as JSON, falling back to plain strings. Overrides are stored locally in this browser. ");
+    \u0275\u0275elementEnd()()();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275advance(6);
+    \u0275\u0275conditional(ctx_r2.has_overrides() ? 6 : -1);
+    \u0275\u0275advance(6);
+    \u0275\u0275twoWayProperty("ngModel", ctx_r2.filter);
+    \u0275\u0275control();
+    \u0275\u0275advance(4);
+    \u0275\u0275repeater(ctx_r2.entries());
+  }
+}
+function SettingsDebugPanelComponent_ng_template_1_For_5_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 46)(1, "div", 48)(2, "div", 49);
+    \u0275\u0275text(3);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "div", 50);
+    \u0275\u0275text(5);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(6, "span", 51);
+    \u0275\u0275text(7);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const zone_r16 = ctx.$implicit;
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1(" ", zone_r16.name, " ");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", zone_r16.id, " ");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", zone_r16.type, " ");
+  }
+}
+function SettingsDebugPanelComponent_ng_template_1_ForEmpty_6_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 47);
+    \u0275\u0275text(1, " No zone metadata value ");
+    \u0275\u0275elementEnd();
+  }
+}
+function SettingsDebugPanelComponent_ng_template_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 43)(1, "div", 44);
+    \u0275\u0275text(2, " Setting sources ");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "div", 45);
+    \u0275\u0275repeaterCreate(4, SettingsDebugPanelComponent_ng_template_1_For_5_Template, 8, 3, "div", 46, _forTrack02, false, SettingsDebugPanelComponent_ng_template_1_ForEmpty_6_Template, 2, 0, "div", 47);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const zones_r17 = ctx.zones;
+    \u0275\u0275advance(4);
+    \u0275\u0275repeater(zones_r17);
+  }
+}
+function flattenKeys(map2, prefix, keys) {
+  for (const key in map2) {
+    const full_key = prefix ? `${prefix}.${key}` : key;
+    const value = map2[key];
+    if (value && typeof value === "object" && !Array.isArray(value)) {
+      flattenKeys(value, full_key, keys);
+    } else
+      keys.add(full_key);
+  }
+}
+function hasSetting(map2, key) {
+  let value = map2;
+  for (const part of key.slice(4).split("."))
+    value = value?.[part];
+  return value != null;
+}
+function resolveRef(root, node) {
+  const ref = node?.["$ref"];
+  if (!ref?.startsWith("#/"))
+    return node;
+  let target = root;
+  for (const part of ref.slice(2).split("/"))
+    target = target?.[part];
+  return target || node;
+}
+function schemaNode(root, key) {
+  if (!root || !key.startsWith("app."))
+    return null;
+  let node = root;
+  for (const part of key.slice(4).split(".")) {
+    node = resolveRef(root, node)?.properties?.[part];
+    if (!node)
+      return null;
+  }
+  return resolveRef(root, node);
+}
+function flattenSchemaKeys(root, node, prefix, keys, depth = 0) {
+  if (depth > 8)
+    return;
+  node = resolveRef(root, node);
+  if (!node?.properties) {
+    if (prefix)
+      keys.add(prefix);
+    return;
+  }
+  for (const key in node.properties) {
+    flattenSchemaKeys(root, node.properties[key], prefix ? `${prefix}.${key}` : key, keys, depth + 1);
+  }
+}
+var SettingsDebugPanelComponent = class _SettingsDebugPanelComponent extends AsyncHandler {
+  constructor() {
+    super(...arguments);
+    this._settings = inject2(SettingsService);
+    this._hotkey = inject2(HotkeysService);
+    this._org = inject2(OrganisationService);
+    this.schema = input(
+      null,
+      ...ngDevMode ? [{ debugName: "schema" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.show = signal(
+      false,
+      ...ngDevMode ? [{ debugName: "show" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.filter = signal(
+      "",
+      ...ngDevMode ? [{ debugName: "filter" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.editing_key = signal(
+      "",
+      ...ngDevMode ? [{ debugName: "editing_key" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.expanded = signal(
+      {},
+      ...ngDevMode ? [{ debugName: "expanded" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.edit_value = "";
+    this.has_overrides = computed(
+      () => Object.keys(this._settings.debug_overrides()).length > 0,
+      ...ngDevMode ? [{ debugName: "has_overrides" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.rows = computed(
+      () => {
+        const schema2 = this.schema();
+        const debug_overrides = this._settings.debug_overrides();
+        const keys = /* @__PURE__ */ new Set();
+        flattenKeys({ app: DEFAULT_SETTINGS.app }, "", keys);
+        for (const layer of this._settings.overrides()) {
+          flattenKeys({ app: layer }, "", keys);
+        }
+        if (schema2)
+          flattenSchemaKeys(schema2, schema2, "app", keys);
+        for (const key in debug_overrides)
+          keys.add(key);
+        const search = this.filter().toLowerCase();
+        return [...keys].filter((key) => key.slice(4).toLowerCase().includes(search)).sort().map((key) => {
+          const node = schemaNode(schema2, key);
+          const value = this._settings.get(key);
+          let control = "text";
+          if (node?.enum?.length)
+            control = "select";
+          else if (node?.type === "boolean" || typeof value === "boolean") {
+            control = "toggle";
+          } else if (node?.type === "number" || node?.type === "integer" || typeof value === "number") {
+            control = "number";
+          }
+          return {
+            key,
+            label: key.slice(4),
+            value,
+            display: JSON.stringify(value) ?? "",
+            overridden: key in debug_overrides,
+            description: node?.description || "",
+            zones: this._zoneTooltip(key),
+            control,
+            options: node?.enum
+          };
+        });
+      },
+      ...ngDevMode ? [{ debugName: "rows" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.entries = computed(
+      () => {
+        const show_all = !!this.filter();
+        const expanded = this.expanded();
+        const entries = [];
+        let header = null;
+        for (const row of this.rows()) {
+          const index = row.label.indexOf(".");
+          if (index < 0) {
+            header = null;
+            entries.push({ row });
+            continue;
+          }
+          const group2 = row.label.slice(0, index);
+          if (!header || header.name !== group2) {
+            header = { name: group2, count: 0, overridden: 0 };
+            entries.push({ header });
+          }
+          header.count += 1;
+          if (row.overridden)
+            header.overridden += 1;
+          if (show_all || expanded[group2]) {
+            entries.push({
+              row: __spreadProps(__spreadValues({}, row), { label: row.label.slice(index + 1) }),
+              grouped: true
+            });
+          }
+        }
+        return entries;
+      },
+      ...ngDevMode ? [{ debugName: "entries" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+  }
+  _zoneTooltip(key) {
+    const zones = [];
+    const add_zone = (type2, id, name, settings) => {
+      if (!id || !settings.some((_2) => hasSetting(_2, key)))
+        return;
+      zones.push({ type: type2, id, name: name || id });
+    };
+    for (const [id, settings] of Object.entries(this._org.building_settings)) {
+      const building = this._org.buildings.find((_2) => _2.id === id);
+      add_zone("Building", id, building?.display_name || building?.name || "", [settings]);
+    }
+    for (const [id, settings] of Object.entries(this._org.region_settings)) {
+      const region = this._org.regions.find((_2) => _2.id === id);
+      add_zone("Region", id, region?.display_name || region?.name || "", [settings]);
+    }
+    const organisation = this._org.organisation;
+    add_zone("ORG", organisation.id, organisation.name, this._org.settings);
+    return zones;
+  }
+  toggleGroup(name) {
+    this.expanded.update((state2) => __spreadProps(__spreadValues({}, state2), { [name]: !state2[name] }));
+  }
+  ngOnInit() {
+    this.subscription("toggle", this._hotkey.listen(["Control", "Alt", "Shift", "KeyS"], () => this.show.set(!this.show())));
+  }
+  startEdit(row) {
+    this.editing_key.set(row.key);
+    this.edit_value = row.control === "text" ? row.display : `${row.value ?? ""}`;
+  }
+  toggleValue(row) {
+    this._settings.setDebugOverride(row.key, !row.value);
+  }
+  saveEdit() {
+    const key = this.editing_key();
+    const row = this.rows().find((_2) => _2.key === key);
+    if (!row)
+      return;
+    let value = this.edit_value;
+    if (row.control === "number") {
+      value = parseFloat(this.edit_value);
+      if (isNaN(value))
+        return;
+    } else if (row.control === "text") {
+      try {
+        value = JSON.parse(this.edit_value);
+      } catch {
+      }
+    }
+    this._settings.setDebugOverride(key, value);
+    this.editing_key.set("");
+  }
+  clearOverride(key) {
+    this._settings.setDebugOverride(key, void 0);
+  }
+  clearAll() {
+    this._settings.clearDebugOverrides();
+  }
+  static {
+    this.\u0275fac = /* @__PURE__ */ (() => {
+      let \u0275SettingsDebugPanelComponent_BaseFactory;
+      return function SettingsDebugPanelComponent_Factory(__ngFactoryType__) {
+        return (\u0275SettingsDebugPanelComponent_BaseFactory || (\u0275SettingsDebugPanelComponent_BaseFactory = \u0275\u0275getInheritedFactory(_SettingsDebugPanelComponent)))(__ngFactoryType__ || _SettingsDebugPanelComponent);
+      };
+    })();
+  }
+  static {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SettingsDebugPanelComponent, selectors: [["settings-debug-panel"]], inputs: { schema: [1, "schema"] }, features: [\u0275\u0275InheritDefinitionFeature], decls: 3, vars: 1, consts: [["zone_tooltip", ""], [1, "fixed", "bottom-2", "left-2", "z-998", "w-160", "max-w-[90vw]"], [1, "flex", "flex-col", "gap-2"], [1, "-mb-2", "border-base-300", "bg-base-100", "text-base-content", "flex", "w-[calc(100%-0.5rem)]", "mx-1", "items-center", "overflow-hidden", "rounded-b-lg", "rounded-t-xl", "border", "p-1", "shadow-sm"], [1, "flex-1", "px-3", "font-medium"], [1, "flex", "items-center"], ["matRipple", "", 1, "text-error", "px-2", "py-1", "text-xs", "underline"], ["icon", "", "default", "", "matRipple", "", 1, "text-sm", 3, "click"], [1, "border-base-300", "bg-base-200", "text-base-content", "flex", "h-120", "flex-col", "overflow-hidden", "rounded-xl", "border", "shadow-sm", "pt-2"], [1, "relative", "m-1", "flex"], ["name", "setting-filter", "placeholder", "Filter settings...", 1, "border-base-300", "bg-base-100", "w-full", "rounded-lg", "border", "px-8", "py-2", "pr-2", "font-mono", "text-sm", "shadow", 3, "ngModelChange", "ngModel"], [1, "absolute", "top-1/2", "left-1", "-translate-y-1/2", "text-xl"], [1, "flex-1", "overflow-auto"], [1, "p-4", "text-center", "opacity-30"], [1, "border-base-300", "bg-base-100", "border-t", "p-2", "text-xs", "opacity-60"], ["matRipple", "", 1, "text-error", "px-2", "py-1", "text-xs", "underline", 3, "click"], [1, "border-base-300", "bg-base-100/50", "hover:bg-base-100", "flex", "min-h-8", "w-full", "items-center", "gap-1", "border-b", "px-2", "py-1", "text-left", "text-xs"], [1, "border-base-300", "flex", "min-h-8", "items-center", "border-b", "py-1", "pr-2", "text-xs", 3, "pl-8", "pl-2", "bg-warning-light"], [1, "border-base-300", "bg-base-100/50", "hover:bg-base-100", "flex", "min-h-8", "w-full", "items-center", "gap-1", "border-b", "px-2", "py-1", "text-left", "text-xs", 3, "click"], [1, "text-sm", "transition-transform"], [1, "font-mono"], [1, "opacity-40"], [1, "bg-warning-light", "rounded-sm", "px-1", "text-[0.65rem]", "text-black"], [1, "border-base-300", "flex", "min-h-8", "items-center", "border-b", "py-1", "pr-2", "text-xs"], [1, "w-3/5", "min-w-0", "pr-2"], [1, "flex", "min-w-0", "items-center", "gap-1", "font-mono"], [1, "truncate"], ["customTooltip", "", "xPosition", "start", "yPosition", "center", 1, "shrink-0", 3, "content", "data", "hover", "backdrop", "xOffset"], [1, "text-sm", "opacity-60"], [1, "truncate", "text-[0.65rem]", "opacity-60", 3, "title"], ["name", "setting-value", 1, "bg-base-100", "flex-1", "rounded-sm", "border", "px-1", "py-0.5", "font-mono", 3, "ngModelChange", "keydown.escape", "ngModel"], [3, "value"], ["icon", "", "matRipple", "", "title", "Save override", 3, "click"], [1, "text-sm"], ["name", "setting-value", "type", "number", 1, "bg-base-100", "flex-1", "rounded-sm", "border", "px-1", "py-0.5", "font-mono", 3, "ngModelChange", "keydown.enter", "keydown.escape", "ngModel"], ["name", "setting-value", 1, "bg-base-100", "flex-1", "rounded-sm", "border", "px-1", "py-0.5", "font-mono", 3, "ngModelChange", "keydown.enter", "keydown.escape", "ngModel"], [1, "flex", "flex-1"], [1, "flex-1", "cursor-pointer", "truncate", "font-mono", 3, "class", "title"], ["icon", "", "matRipple", "", "title", "Clear override"], [1, "relative", "h-4", "w-8", "rounded-full", "transition-colors", 3, "click", "title"], [1, "absolute", "top-0.5", "left-0.5", "h-3", "w-3", "rounded-full", "bg-white", "shadow-sm", "transition-transform"], [1, "flex-1", "cursor-pointer", "truncate", "font-mono", 3, "click", "title"], ["icon", "", "matRipple", "", "title", "Clear override", 3, "click"], [1, "border-base-300", "bg-base-100", "text-base-content", "min-w-64", "rounded-lg", "border", "p-2", "shadow-lg"], [1, "border-base-300", "border-b", "px-1", "pb-2", "text-base", "font-medium"], [1, "flex", "flex-col", "gap-1", "pt-2"], [1, "bg-base-200", "flex", "items-start", "gap-2", "rounded-sm", "p-2"], [1, "px-1", "py-2", "text-xs", "opacity-60"], [1, "min-w-0", "flex-1", "w-1/2"], [1, "truncate", "text-base", "font-medium"], [1, "truncate", "font-mono", "text-[0.625rem]", "opacity-60"], [1, "bg-base-300", "rounded-sm", "px-1.5", "py-0.5", "text-[0.625rem]", "font-medium"]], template: function SettingsDebugPanelComponent_Template(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275conditionalCreate(0, SettingsDebugPanelComponent_Conditional_0_Template, 21, 3, "div", 1);
+        \u0275\u0275template(1, SettingsDebugPanelComponent_ng_template_1_Template, 7, 1, "ng-template", null, 0, \u0275\u0275templateRefExtractor);
+      }
+      if (rf & 2) {
+        \u0275\u0275conditional(ctx.show() ? 0 : -1);
+      }
+    }, dependencies: [
+      FormsModule,
+      NgSelectOption,
+      \u0275NgSelectMultipleOption,
+      DefaultValueAccessor,
+      NumberValueAccessor,
+      SelectControlValueAccessor,
+      NgControlStatus,
+      NgModel,
+      MatRippleModule,
+      MatRipple,
+      CustomTooltipComponent,
+      IconComponent
+    ], encapsulation: 2 });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(SettingsDebugPanelComponent, [{
+    type: Component,
+    args: [{
+      selector: "settings-debug-panel",
+      template: `
+        @if (show()) {
+            <div class=" fixed bottom-2 left-2 z-998 w-160 max-w-[90vw]">
+            <div class="flex flex-col gap-2">
+                <div
+                    class="-mb-2 border-base-300 bg-base-100 text-base-content flex w-[calc(100%-0.5rem)] mx-1 items-center overflow-hidden rounded-b-lg rounded-t-xl border p-1 shadow-sm"
+                >
+                    <div class="flex-1 px-3 font-medium">Settings Viewer</div>
+                    <div class="flex items-center">
+                        @if (has_overrides()) {
+                            <button
+                                matRipple
+                                class="text-error px-2 py-1 text-xs underline"
+                                (click)="clearAll()"
+                            >
+                                Clear all overrides
+                            </button>
+                        }
+                        <button
+                            icon
+                            default
+                            matRipple
+                            class="text-sm"
+                            (click)="show.set(false)"
+                        >
+                            <icon>close</icon>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div
+                class="border-base-300 bg-base-200 text-base-content flex h-120 flex-col overflow-hidden rounded-xl border shadow-sm pt-2"
+            >
+                <div class="relative m-1 flex">
+                    <input
+                        name="setting-filter"
+                        [(ngModel)]="filter"
+                        placeholder="Filter settings..."
+                        class="border-base-300 bg-base-100 w-full rounded-lg border px-8 py-2 pr-2 font-mono text-sm shadow"
+                    />
+                    <icon
+                        class="absolute top-1/2 left-1 -translate-y-1/2 text-xl"
+                        >search</icon
+                    >
+                </div>
+                <div class="flex-1 overflow-auto">
+                    @for (entry of entries(); track $index) {
+                        @if (entry.header; as group) {
+                            <button
+                                class="border-base-300 bg-base-100/50 hover:bg-base-100 flex min-h-8 w-full items-center gap-1 border-b px-2 py-1 text-left text-xs"
+                                (click)="toggleGroup(group.name)"
+                            >
+                                <icon
+                                    class="text-sm transition-transform"
+                                    [class.rotate-90]="
+                                        filter() || expanded()[group.name]
+                                    "
+                                >
+                                    chevron_right
+                                </icon>
+                                <span class="font-mono">{{ group.name }}</span>
+                                <span class="opacity-40">
+                                    ({{ group.count }})
+                                </span>
+                                @if (group.overridden) {
+                                    <span
+                                        class="bg-warning-light rounded-sm px-1 text-[0.65rem] text-black"
+                                    >
+                                        {{ group.overridden }} overridden
+                                    </span>
+                                }
+                            </button>
+                        }
+                        @if (entry.row; as row) {
+                            <div
+                                class="border-base-300 flex min-h-8 items-center border-b py-1 pr-2 text-xs"
+                                [class.pl-8]="entry.grouped"
+                                [class.pl-2]="!entry.grouped"
+                                [class.bg-warning-light]="row.overridden"
+                            >
+                                <div class="w-3/5 min-w-0 pr-2">
+                                    <div
+                                        class="flex min-w-0 items-center gap-1 font-mono"
+                                    >
+                                        <span class="truncate">
+                                            {{ row.label }}
+                                        </span>
+                                        <span
+                                            customTooltip
+                                            class="shrink-0"
+                                            [content]="zone_tooltip"
+                                            [data]="{ zones: row.zones }"
+                                            [hover]="true"
+                                            [backdrop]="false"
+                                            xPosition="start"
+                                            yPosition="center"
+                                            [xOffset]="20"
+                                        >
+                                            <icon class="text-sm opacity-60"
+                                                >info</icon
+                                            >
+                                        </span>
+                                    </div>
+                                    @if (row.description) {
+                                        <div
+                                            class="truncate text-[0.65rem] opacity-60"
+                                            [title]="row.description"
+                                        >
+                                            {{ row.description }}
+                                        </div>
+                                    }
+                                </div>
+                                @switch (
+                                    editing_key() === row.key ? row.control : ''
+                                ) {
+                                    @case ('select') {
+                                        <select
+                                            name="setting-value"
+                                            class="bg-base-100 flex-1 rounded-sm border px-1 py-0.5 font-mono"
+                                            [(ngModel)]="edit_value"
+                                            (keydown.escape)="
+                                                editing_key.set('')
+                                            "
+                                        >
+                                            @for (
+                                                option of row.options;
+                                                track option
+                                            ) {
+                                                <option [value]="option">
+                                                    {{ option }}
+                                                </option>
+                                            }
+                                        </select>
+                                        <button
+                                            icon
+                                            matRipple
+                                            title="Save override"
+                                            (click)="saveEdit()"
+                                        >
+                                            <icon class="text-sm">check</icon>
+                                        </button>
+                                    }
+                                    @case ('number') {
+                                        <input
+                                            name="setting-value"
+                                            type="number"
+                                            class="bg-base-100 flex-1 rounded-sm border px-1 py-0.5 font-mono"
+                                            [(ngModel)]="edit_value"
+                                            (keydown.enter)="saveEdit()"
+                                            (keydown.escape)="
+                                                editing_key.set('')
+                                            "
+                                        />
+                                        <button
+                                            icon
+                                            matRipple
+                                            title="Save override"
+                                            (click)="saveEdit()"
+                                        >
+                                            <icon class="text-sm">check</icon>
+                                        </button>
+                                    }
+                                    @case ('text') {
+                                        <input
+                                            name="setting-value"
+                                            class="bg-base-100 flex-1 rounded-sm border px-1 py-0.5 font-mono"
+                                            [(ngModel)]="edit_value"
+                                            (keydown.enter)="saveEdit()"
+                                            (keydown.escape)="
+                                                editing_key.set('')
+                                            "
+                                        />
+                                        <button
+                                            icon
+                                            matRipple
+                                            title="Save override"
+                                            (click)="saveEdit()"
+                                        >
+                                            <icon class="text-sm">check</icon>
+                                        </button>
+                                    }
+                                    @default {
+                                        @if (row.control === 'toggle') {
+                                            <div class="flex flex-1">
+                                                <button
+                                                    class="relative h-4 w-8 rounded-full transition-colors"
+                                                    [class.bg-info]="row.value"
+                                                    [class.bg-base-300]="
+                                                        !row.value
+                                                    "
+                                                    [title]="row.display"
+                                                    (click)="toggleValue(row)"
+                                                >
+                                                    <div
+                                                        class="absolute top-0.5 left-0.5 h-3 w-3 rounded-full bg-white shadow-sm transition-transform"
+                                                        [class.translate-x-4]="
+                                                            row.value
+                                                        "
+                                                    ></div>
+                                                </button>
+                                            </div>
+                                        } @else {
+                                            <div
+                                                class="flex-1 cursor-pointer truncate font-mono"
+                                                [class]="
+                                                    row.display
+                                                        ? 'opacity-80'
+                                                        : 'italic opacity-40'
+                                                "
+                                                [title]="row.display || 'unset'"
+                                                (click)="startEdit(row)"
+                                            >
+                                                {{ row.display || 'unset' }}
+                                            </div>
+                                        }
+                                        @if (row.overridden) {
+                                            <button
+                                                icon
+                                                matRipple
+                                                title="Clear override"
+                                                (click)="clearOverride(row.key)"
+                                            >
+                                                <icon class="text-sm"
+                                                    >undo</icon
+                                                >
+                                            </button>
+                                        }
+                                    }
+                                }
+                            </div>
+                        }
+                    } @empty {
+                        <div class="p-4 text-center opacity-30">
+                            No matching settings
+                        </div>
+                    }
+                </div>
+                <div
+                    class="border-base-300 bg-base-100 border-t p-2 text-xs opacity-60"
+                >
+                    Click a value to override it. Text values are parsed as
+                    JSON, falling back to plain strings. Overrides are stored
+                    locally in this browser.
+                </div>
+            </div>
+            </div>
+        }
+        <ng-template #zone_tooltip let-zones="zones">
+            <div
+                class="border-base-300 bg-base-100 text-base-content min-w-64 rounded-lg border p-2 shadow-lg"
+            >
+                <div class="border-base-300 border-b px-1 pb-2 text-base font-medium">
+                    Setting sources
+                </div>
+                <div class="flex flex-col gap-1 pt-2">
+                    @for (zone of zones; track zone.type + zone.id) {
+                        <div class="bg-base-200 flex items-start gap-2 rounded-sm p-2">
+                            <div class="min-w-0 flex-1 w-1/2">
+                                <div class="truncate text-base font-medium">
+                                    {{ zone.name }}
+                                </div>
+                                <div class="truncate font-mono text-[0.625rem] opacity-60">
+                                    {{ zone.id }}
+                                </div>
+                            </div>
+                            <span
+                                class="bg-base-300 rounded-sm px-1.5 py-0.5 text-[0.625rem] font-medium"
+                            >
+                                {{ zone.type }}
+                            </span>
+                        </div>
+                    } @empty {
+                        <div class="px-1 py-2 text-xs opacity-60">
+                            No zone metadata value
+                        </div>
+                    }
+                </div>
+            </div>
+        </ng-template>
+    `,
+      imports: [
+        FormsModule,
+        MatRippleModule,
+        CustomTooltipComponent,
+        IconComponent
+      ]
+    }]
+  }], null, { schema: [{ type: Input, args: [{ isSignal: true, alias: "schema", required: false }] }] });
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SettingsDebugPanelComponent, { className: "SettingsDebugPanelComponent", filePath: "libs/components/src/lib/settings-debug-panel.component.ts", lineNumber: 394 });
+})();
+
 // node_modules/@angular/material/fesm2022/radio.mjs
-var _c021 = ["input"];
+var _c022 = ["input"];
 var _c112 = ["formField"];
 var _c29 = ["*"];
 var MatRadioChange = class {
@@ -102705,7 +103744,7 @@ var MatRadioButton = class _MatRadioButton {
     selectors: [["mat-radio-button"]],
     viewQuery: function MatRadioButton_Query(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275viewQuery(_c021, 5)(_c112, 7, ElementRef);
+        \u0275\u0275viewQuery(_c022, 5)(_c112, 7, ElementRef);
       }
       if (rf & 2) {
         let _t;
@@ -102922,6 +103961,7 @@ var MatRadioModule = class _MatRadioModule {
 })();
 
 // libs/components/src/lib/unauthorised.component.ts
+var _c023 = () => ["/"];
 var UnauthorisedComponent = class _UnauthorisedComponent {
   static {
     this.\u0275fac = function UnauthorisedComponent_Factory(__ngFactoryType__) {
@@ -102929,33 +103969,38 @@ var UnauthorisedComponent = class _UnauthorisedComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _UnauthorisedComponent, selectors: [["app-unauthorised"]], decls: 13, vars: 9, consts: [["unauthorised", "", 1, "absolute", "inset-0"], [1, "border-base-300", "bg-base-100", "text-base-content", "mx-auto", "my-4", "w-104", "max-w-[calc(100%-1rem)]", "rounded-xl", "border", "p-4", "text-center", "shadow-lg"], [1, "text-4xl"], [1, "py-4"]], template: function UnauthorisedComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _UnauthorisedComponent, selectors: [["app-unauthorised"]], decls: 15, vars: 11, consts: [["unauthorised", "", 1, "absolute", "inset-0"], [1, "border-base-300", "bg-base-100", "text-base-content", "mx-auto", "my-4", "flex", "w-104", "max-w-[calc(100%-1rem)]", "flex-col", "gap-2", "rounded-xl", "border", "p-4", "text-center", "shadow-lg"], [1, "text-4xl"], [1, "py-4"], ["btn", "", 3, "routerLink"]], template: function UnauthorisedComponent_Template(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275domElementStart(0, "div", 0)(1, "div", 1)(2, "h1", 2);
+        \u0275\u0275elementStart(0, "div", 0)(1, "div", 1)(2, "h1", 2);
         \u0275\u0275text(3, "403");
-        \u0275\u0275domElementEnd();
-        \u0275\u0275domElementStart(4, "h3");
+        \u0275\u0275elementEnd();
+        \u0275\u0275elementStart(4, "h3");
         \u0275\u0275text(5);
         \u0275\u0275pipe(6, "translate");
-        \u0275\u0275domElementEnd();
-        \u0275\u0275domElementStart(7, "p", 3);
+        \u0275\u0275elementEnd();
+        \u0275\u0275elementStart(7, "p", 3);
         \u0275\u0275text(8);
         \u0275\u0275pipe(9, "translate");
-        \u0275\u0275domElementEnd();
-        \u0275\u0275domElementStart(10, "p");
+        \u0275\u0275elementEnd();
+        \u0275\u0275elementStart(10, "p");
         \u0275\u0275text(11);
         \u0275\u0275pipe(12, "translate");
-        \u0275\u0275domElementEnd()()();
+        \u0275\u0275elementEnd();
+        \u0275\u0275elementStart(13, "a", 4);
+        \u0275\u0275text(14, "Try Again");
+        \u0275\u0275elementEnd()()();
       }
       if (rf & 2) {
         \u0275\u0275advance(5);
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(6, 3, "COMMON.FORBIDDEN"));
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(6, 4, "COMMON.FORBIDDEN"));
         \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(9, 5, "COMMON.INVALID_PAGE_PERMISSIONS"), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(9, 6, "COMMON.INVALID_PAGE_PERMISSIONS"), " ");
         \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(12, 7, "COMMON.CONTACT_ADMIN"), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(12, 8, "COMMON.CONTACT_ADMIN"), " ");
+        \u0275\u0275advance(2);
+        \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(10, _c023));
       }
-    }, dependencies: [TranslatePipe], styles: ["\n[_nghost-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n[unauthorised][_ngcontent-%COMP%] {\n  background-image:\n    linear-gradient(\n      to right,\n      #c62828 0%,\n      #ef5350 100%);\n}\n/*# sourceMappingURL=unauthorised.component.css.map */"] });
+    }, dependencies: [RouterLink, TranslatePipe], styles: ["\n[_nghost-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n[unauthorised][_ngcontent-%COMP%] {\n  background-image:\n    linear-gradient(\n      to right,\n      #c62828 0%,\n      #ef5350 100%);\n}\n/*# sourceMappingURL=unauthorised.component.css.map */"] });
   }
 };
 (() => {
@@ -102964,7 +104009,7 @@ var UnauthorisedComponent = class _UnauthorisedComponent {
     args: [{ selector: "app-unauthorised", template: `
         <div unauthorised class="absolute inset-0">
             <div
-                class="border-base-300 bg-base-100 text-base-content mx-auto my-4 w-104 max-w-[calc(100%-1rem)] rounded-xl border p-4 text-center shadow-lg"
+                class="border-base-300 bg-base-100 text-base-content mx-auto my-4 flex w-104 max-w-[calc(100%-1rem)] flex-col gap-2 rounded-xl border p-4 text-center shadow-lg"
             >
                 <h1 class="text-4xl">403</h1>
                 <h3>{{ 'COMMON.FORBIDDEN' | translate }}</h3>
@@ -102974,13 +104019,14 @@ var UnauthorisedComponent = class _UnauthorisedComponent {
                 <p>
                     {{ 'COMMON.CONTACT_ADMIN' | translate }}
                 </p>
+                <a btn [routerLink]="['/']">Try Again</a>
             </div>
         </div>
-    `, imports: [TranslatePipe], styles: ["/* angular:styles/component:css;9e56e45d1ecd17d612bec636f553ceddd9b98cd2552edbd57d59534065beeefe;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/unauthorised.component.ts */\n:host {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n[unauthorised] {\n  background-image:\n    linear-gradient(\n      to right,\n      #c62828 0%,\n      #ef5350 100%);\n}\n/*# sourceMappingURL=unauthorised.component.css.map */\n"] }]
+    `, imports: [TranslatePipe, RouterLink], styles: ["/* angular:styles/component:css;9e56e45d1ecd17d612bec636f553ceddd9b98cd2552edbd57d59534065beeefe;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/unauthorised.component.ts */\n:host {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n[unauthorised] {\n  background-image:\n    linear-gradient(\n      to right,\n      #c62828 0%,\n      #ef5350 100%);\n}\n/*# sourceMappingURL=unauthorised.component.css.map */\n"] }]
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UnauthorisedComponent, { className: "UnauthorisedComponent", filePath: "libs/components/src/lib/unauthorised.component.ts", lineNumber: 41 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UnauthorisedComponent, { className: "UnauthorisedComponent", filePath: "libs/components/src/lib/unauthorised.component.ts", lineNumber: 43 });
 })();
 
 // libs/components/src/lib/user-avatar.component.ts
@@ -103110,8 +104156,8 @@ var UserAvatarComponent = class _UserAvatarComponent {
 })();
 
 // libs/form-fields/src/lib/time-field.component.ts
-var _c022 = ["*"];
-var _forTrack02 = ($index, $item) => $item.id;
+var _c024 = ["*"];
+var _forTrack03 = ($index, $item) => $item.id;
 function TimeFieldComponent_Conditional_5_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 4);
@@ -103617,7 +104663,7 @@ var TimeFieldComponent = class _TimeFieldComponent extends AsyncHandler {
         useExisting: forwardRef(() => _TimeFieldComponent),
         multi: true
       }
-    ]), \u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature], ngContentSelectors: _c022, decls: 15, vars: 12, consts: [["menu", "matMenu"], ["time-field", "", "matRipple", "", 1, "border-neutral", "flex", "h-12", "w-full", "items-center", "justify-between", "rounded-sm", "border", "px-2", 3, "disabled", "matMenuTriggerFor"], [1, "flex", "w-1/2", "flex-1", "flex-col", "px-2", "text-left", "leading-tight"], [1, "truncate"], [1, "truncate", "text-xs", "opacity-30"], [1, "text-2xl"], [1, "max-h-60", "min-w-[18rem]"], ["mat-menu-item", "", 1, "text-left", 3, "value"], ["mat-menu-item", "", "disabled", ""], ["mat-menu-item", "", 1, "text-left", 3, "click", "value"], [1, "flex", "items-center", "justify-between"], [1, "flex", "flex-col", "leading-tight"], [1, ""], [1, "text-xs", "opacity-30"], [1, "ml-2", "text-2xl"]], template: function TimeFieldComponent_Template(rf, ctx) {
+    ]), \u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature], ngContentSelectors: _c024, decls: 15, vars: 12, consts: [["menu", "matMenu"], ["time-field", "", "matRipple", "", 1, "border-neutral", "flex", "h-12", "w-full", "items-center", "justify-between", "rounded-sm", "border", "px-2", 3, "disabled", "matMenuTriggerFor"], [1, "flex", "w-1/2", "flex-1", "flex-col", "px-2", "text-left", "leading-tight"], [1, "truncate"], [1, "truncate", "text-xs", "opacity-30"], [1, "text-2xl"], [1, "max-h-60", "min-w-[18rem]"], ["mat-menu-item", "", 1, "text-left", 3, "value"], ["mat-menu-item", "", "disabled", ""], ["mat-menu-item", "", 1, "text-left", 3, "click", "value"], [1, "flex", "items-center", "justify-between"], [1, "flex", "flex-col", "leading-tight"], [1, ""], [1, "text-xs", "opacity-30"], [1, "ml-2", "text-2xl"]], template: function TimeFieldComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275projectionDef();
         \u0275\u0275elementStart(0, "button", 1)(1, "div", 2)(2, "div", 3);
@@ -103631,7 +104677,7 @@ var TimeFieldComponent = class _TimeFieldComponent extends AsyncHandler {
         \u0275\u0275elementEnd()();
         \u0275\u0275elementStart(8, "mat-menu", 6, 0);
         \u0275\u0275conditionalCreate(10, TimeFieldComponent_Conditional_10_Template, 8, 7, "button", 7);
-        \u0275\u0275repeaterCreate(11, TimeFieldComponent_For_12_Template, 8, 9, "button", 7, _forTrack02, false, TimeFieldComponent_ForEmpty_13_Template, 2, 0, "div", 8);
+        \u0275\u0275repeaterCreate(11, TimeFieldComponent_For_12_Template, 8, 9, "button", 7, _forTrack03, false, TimeFieldComponent_ForEmpty_13_Template, 2, 0, "div", 8);
         \u0275\u0275elementEnd();
         \u0275\u0275conditionalCreate(14, TimeFieldComponent_Conditional_14_Template, 2, 0, "mat-error");
       }
@@ -104115,13 +105161,13 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
     const use_group_subsystem_access = await this.useGroupSubsystemAccess();
     let can_activate = false;
     if (use_group_subsystem_access) {
-      await ri(Hr(), Boolean);
+      await oi(Lr(), Boolean);
       const user = await firstTruthyValueFrom(current_user);
       can_activate = await this.checkSubsystemAccess(user);
     } else if (!groups.length) {
       can_activate = true;
     } else {
-      await ri(Hr(), Boolean);
+      await oi(Lr(), Boolean);
       await this._org.waitUntilInitialised();
       const user = await firstTruthyValueFrom(current_user);
       can_activate = !!(user && groups.find((_2) => user.groups.includes(_2)));
@@ -105530,7 +106576,7 @@ var update = (dataset) => (id, data) => {
   return new_event;
 };
 function registerMockAssets() {
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_categories`,
     metadata: {},
     method: "GET",
@@ -105543,7 +106589,7 @@ function registerMockAssets() {
       return results;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_categories/:id`,
     metadata: {},
     method: "GET",
@@ -105557,7 +106603,7 @@ function registerMockAssets() {
       return event;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_categories`,
     metadata: {},
     method: "POST",
@@ -105569,13 +106615,13 @@ function registerMockAssets() {
       return new_event;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_categories/:id`,
     metadata: {},
     method: "PUT",
     callback: (req) => update(MOCK_CATEGORIES)(req.route_params.id, __spreadValues({}, req.body))
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_categories/:id`,
     metadata: {},
     method: "DELETE",
@@ -105590,7 +106636,7 @@ function registerMockAssets() {
       return;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_types`,
     metadata: {},
     method: "GET",
@@ -105602,7 +106648,7 @@ function registerMockAssets() {
       return results;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_types/:id`,
     metadata: {},
     method: "GET",
@@ -105616,7 +106662,7 @@ function registerMockAssets() {
       return event;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_types`,
     metadata: {},
     method: "POST",
@@ -105628,13 +106674,13 @@ function registerMockAssets() {
       return new_event;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_types/:id`,
     metadata: {},
     method: "PUT",
     callback: (req) => update(MOCK_PRODUCTS)(req.route_params.id, __spreadValues({}, req.body))
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_types/:id`,
     metadata: {},
     method: "DELETE",
@@ -105649,7 +106695,7 @@ function registerMockAssets() {
       return;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_purchase_orders`,
     metadata: {},
     method: "GET",
@@ -105658,7 +106704,7 @@ function registerMockAssets() {
       return events2;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_purchase_orders/:id`,
     metadata: {},
     method: "GET",
@@ -105672,7 +106718,7 @@ function registerMockAssets() {
       return event;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_purchase_orders`,
     metadata: {},
     method: "POST",
@@ -105684,13 +106730,13 @@ function registerMockAssets() {
       return new_event;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_purchase_orders/:id`,
     metadata: {},
     method: "PUT",
     callback: (req) => update(MOCK_PURCHASE_ORDERS)(req.route_params.id, __spreadValues({}, req.body))
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_purchase_orders/:id`,
     metadata: {},
     method: "DELETE",
@@ -105705,7 +106751,7 @@ function registerMockAssets() {
       return;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/assets`,
     metadata: {},
     method: "GET",
@@ -105725,7 +106771,7 @@ function registerMockAssets() {
       return results;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/assets/:id`,
     metadata: {},
     method: "GET",
@@ -105739,7 +106785,7 @@ function registerMockAssets() {
       return event;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/assets`,
     metadata: {},
     method: "POST",
@@ -105751,13 +106797,13 @@ function registerMockAssets() {
       return new_event;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/assets/:id`,
     metadata: {},
     method: "PUT",
     callback: (req) => update(MOCK_ASSETS)(req.route_params.id, __spreadValues({}, req.body))
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/assets/:id`,
     metadata: {},
     method: "DELETE",
@@ -106468,7 +107514,7 @@ function generateCateringOrder(event) {
     // 10% tax
     total: Math.floor(totalPrice * 1.1),
     // Special requirements
-    dietary_requirements: dietaryNeeds.map((d2) => d2.name),
+    dietary_requirements: dietaryNeeds.map((d) => d.name),
     special_instructions: predictableRandomInt(3) === 0 ? [
       "Please use company branded napkins",
       "Set up 15 minutes before event start",
@@ -106513,12 +107559,12 @@ function generateCateringOrder(event) {
 // libs/events/src/lib/calendar.fn.ts
 var CALENDAR_ENDPOINT = "/api/staff/v1/calendars";
 async function queryCalendars() {
-  const list2 = await d(CALENDAR_ENDPOINT);
+  const list2 = await f(CALENDAR_ENDPOINT);
   return list2.map((c2) => new Calendar(c2));
 }
 async function queryCalendarAvailability(q) {
   const query2 = toQueryString(q);
-  const list2 = await d(`${CALENDAR_ENDPOINT}/availability${query2 ? "?" + query2 : ""}`);
+  const list2 = await f(`${CALENDAR_ENDPOINT}/availability${query2 ? "?" + query2 : ""}`);
   return list2.map((c2) => new Calendar(c2));
 }
 var calendarsToSpaces = (list2, org) => list2.filter((cal) => !!cal.resource).map((cal) => new Space(__spreadProps(__spreadValues({}, cal.resource), {
@@ -106527,7 +107573,7 @@ var calendarsToSpaces = (list2, org) => list2.filter((cal) => !!cal.resource).ma
 }))).filter((space) => space.bookable);
 async function querySpaceFreeBusy(q, org) {
   const query2 = toQueryString(q);
-  const list2 = await d(`${CALENDAR_ENDPOINT}/free_busy${query2 ? "?" + query2 : ""}`);
+  const list2 = await f(`${CALENDAR_ENDPOINT}/free_busy${query2 ? "?" + query2 : ""}`);
   return calendarsToSpaces(list2.map((c2) => new Calendar(c2)), org);
 }
 
@@ -106551,7 +107597,7 @@ async function createEvent(data) {
 }
 async function updateEvent(id, data, q = {}, method = "patch") {
   const query2 = toQueryString(q);
-  const item = await (method === "patch" ? ye : ce)(`${EVENTS_ENDPOINT}/${encodeURIComponent(id)}${query2 ? "?" + query2 : ""}`, new CalendarEvent(withAppVersion(data)).toJSON());
+  const item = await (method === "patch" ? ae : ce)(`${EVENTS_ENDPOINT}/${encodeURIComponent(id)}${query2 ? "?" + query2 : ""}`, new CalendarEvent(withAppVersion(data)).toJSON());
   return new CalendarEvent(item);
 }
 var saveEvent = async (data, q) => {
@@ -106561,11 +107607,11 @@ var saveEvent = async (data, q) => {
 };
 function removeEvent(id, q = {}) {
   const query2 = toQueryString(q);
-  return X(`${EVENTS_ENDPOINT}/${encodeURIComponent(id)}${query2 ? "?" + query2 : ""}`, {
+  return ee(`${EVENTS_ENDPOINT}/${encodeURIComponent(id)}${query2 ? "?" + query2 : ""}`, {
     response_type: "void"
   });
 }
-async function querySpaceAvailability(id_list, start, duration, ignore, type, ignore_period = [0, 0]) {
+async function querySpaceAvailability(id_list, start, duration, ignore, type2, ignore_period = [0, 0]) {
   const end = addMinutes(start, duration).valueOf();
   const [spaces, ignore_check] = await Promise.all([
     queryCalendarAvailability({
@@ -106705,12 +107751,15 @@ function generateEventForm(event = new CalendarEvent(), settings, injector) {
     const value = model2();
     if (!value.catering?.length || !value.date)
       return;
+    const event2 = {
+      date: value.all_day ? startOfDay(value.date) : value.date,
+      duration: value.all_day ? 24 * 60 : value.duration
+    };
+    if (value.catering.every((order) => +order.event?.date === +event2.date && order.event?.duration === event2.duration))
+      return;
     model2.update((m2) => __spreadProps(__spreadValues({}, m2), {
       catering: (m2.catering || []).map((order) => __spreadProps(__spreadValues({}, order), {
-        event: {
-          date: m2.all_day ? startOfDay(m2.date) : m2.date,
-          duration: m2.all_day ? 24 * 60 : m2.duration
-        }
+        event: event2
       }))
     }));
   };
@@ -106760,7 +107809,7 @@ function withAppVersion2(data) {
 async function queryBookings(q) {
   const query2 = toQueryString(q);
   try {
-    const list2 = await d(`${BOOKINGS_ENDPOINT}${query2 ? "?" + query2 : ""}`);
+    const list2 = await f(`${BOOKINGS_ENDPOINT}${query2 ? "?" + query2 : ""}`);
     return list2.map((item) => new Booking(item));
   } catch (_2) {
     return [];
@@ -106798,15 +107847,37 @@ async function findBookingClashes(booking, q = {}) {
   }
 }
 var MAX_PAGES = 50;
+async function queryAllBookings(q) {
+  try {
+    let { data, next } = await $({
+      query_params: q,
+      fn: (item) => new Booking(item),
+      endpoint: BOOKINGS_ENDPOINT,
+      path: ""
+    });
+    let list2 = [...data];
+    let count = 1;
+    while (next && count <= MAX_PAGES) {
+      const resp = await next();
+      data = resp.data;
+      next = resp.next;
+      list2 = [...list2, ...data];
+      count += 1;
+    }
+    return unique(list2, "id");
+  } catch (_2) {
+    return [];
+  }
+}
 async function createBooking(data, q) {
   const query2 = toQueryString(q);
   return new Booking(await S(`${BOOKINGS_ENDPOINT}${query2 ? "?" + query2 : ""}`, withAppVersion2(data)));
 }
 async function updateBooking(id, data, method = "patch") {
-  return new Booking(await (method === "patch" ? ye : ce)(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}`, withAppVersion2(data)));
+  return new Booking(await (method === "patch" ? ae : ce)(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}`, withAppVersion2(data)));
 }
 async function updateBookingInstance(id, start_time, data, method = "patch") {
-  return new Booking(await (method === "patch" ? ye : ce)(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/instance/${start_time}`, withAppVersion2(data)));
+  return new Booking(await (method === "patch" ? ae : ce)(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/instance/${start_time}`, withAppVersion2(data)));
 }
 var saveBooking = async (data, q) => {
   const id = data.id;
@@ -106814,43 +107885,43 @@ var saveBooking = async (data, q) => {
   const instance = q?.instance;
   if (q)
     delete q.instance;
-  return id ? instance ? updateBookingInstance(id, data.instance || data.booking_start, data) : updateBooking(id, data) : createBooking(Ys(data, ["", null, void 0]) || {}, q);
+  return id ? instance ? updateBookingInstance(id, data.instance || data.booking_start, data) : updateBooking(id, data) : createBooking(Vs(data, ["", null, void 0]) || {}, q);
 };
 function removeBooking(id, q = {}) {
   if (q.instance) {
     return removeBookingInstance(id, q.start_time);
   }
-  return X(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}`, {
+  return ee(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}`, {
     response_type: "void"
   });
 }
 function removeBookingInstance(id, start_time) {
-  return X(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/instance/${start_time}`, {
+  return ee(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/instance/${start_time}`, {
     response_type: "void"
   });
 }
-async function queryResourceAvailability(id_list, start, duration, ignore, type = "room") {
+async function queryResourceAvailability(id_list, start, duration, ignore, type2 = "room") {
   const bookings = await queryBookings({
-    type,
+    type: type2,
     period_start: getUnixTime(start),
     period_end: getUnixTime(addMinutes(start, duration))
   });
   return id_list.map((id) => !bookings.find((b2) => b2.asset_id === id && (!ignore || ignore !== b2.id)));
 }
-async function createBookingsForEvent(event, type, resources) {
+async function createBookingsForEvent(event, type2, resources) {
   const bookings = (await queryBookings({
-    type,
+    type: type2,
     period_start: getUnixTime(event.date),
     period_end: getUnixTime(addMinutes(event.date, event.duration))
   })).filter((_2) => _2.parent_id === event.id);
   await Promise.all(bookings.map((_2) => removeBooking(_2.id)));
-  await Promise.all(event.linked_bookings.filter((_2) => _2.booking_type === type).map((_2) => removeBooking(_2.id)));
+  await Promise.all(event.linked_bookings.filter((_2) => _2.booking_type === type2).map((_2) => removeBooking(_2.id)));
   const zones = event.system?.zones || unique(flatten2(event.resources.map((_2) => _2.zones))) || [];
   await Promise.all(resources.map((item) => {
     const booking = bookings.find((_2) => _2.asset_ids.find((id) => item.items?.find((i) => i.item_ids.includes(id))));
     return createBooking(new Booking({
-      type,
-      booking_type: type,
+      type: type2,
+      booking_type: type2,
       date: event.date,
       duration: event.duration,
       description: event.title || item.name,
@@ -106873,7 +107944,7 @@ async function createBookingsForEvent(event, type, resources) {
 }
 
 // libs/form-fields/src/lib/date-calendar.component.ts
-var _forTrack03 = ($index, $item) => $item.id;
+var _forTrack04 = ($index, $item) => $item.id;
 function DateCalendarComponent_For_14_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 7);
@@ -107082,11 +108153,11 @@ var DateCalendarComponent = class _DateCalendarComponent extends AsyncHandler {
         \u0275\u0275text(11, "chevron_right");
         \u0275\u0275elementEnd()()()();
         \u0275\u0275elementStart(12, "div", 6);
-        \u0275\u0275repeaterCreate(13, DateCalendarComponent_For_14_Template, 3, 4, "div", 7, _forTrack03);
+        \u0275\u0275repeaterCreate(13, DateCalendarComponent_For_14_Template, 3, 4, "div", 7, _forTrack04);
         \u0275\u0275pipe(15, "slice");
         \u0275\u0275elementEnd();
         \u0275\u0275elementStart(16, "div", 8);
-        \u0275\u0275repeaterCreate(17, DateCalendarComponent_For_18_Template, 5, 18, "button", 9, _forTrack03);
+        \u0275\u0275repeaterCreate(17, DateCalendarComponent_For_18_Template, 5, 18, "button", 9, _forTrack04);
         \u0275\u0275elementEnd()();
       }
       if (rf & 2) {
@@ -107192,7 +108263,7 @@ var DateCalendarComponent = class _DateCalendarComponent extends AsyncHandler {
 })();
 
 // libs/form-fields/src/lib/date-field.component.ts
-var _c023 = ["*"];
+var _c025 = ["*"];
 function DateFieldComponent_Conditional_4_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275text(0);
@@ -107557,7 +108628,7 @@ var DateFieldComponent = class _DateFieldComponent extends AsyncHandler {
         useExisting: forwardRef(() => _DateFieldComponent),
         multi: true
       }
-    ]), \u0275\u0275InheritDefinitionFeature], ngContentSelectors: _c023, decls: 15, vars: 8, consts: [["calendar_picker", ""], [1, "flex", "items-center", "gap-1"], ["type", "button", "customTooltip", "", "yPosition", "top", "matRipple", "", 1, "border-neutral", "flex", "h-12", "w-full", "flex-1", "items-center", "justify-between", "rounded-sm", "border", 3, "content", "disabled"], [1, "flex", "w-1/2", "flex-1", "flex-col", "truncate", "px-4", "py-2", "text-left", "leading-tight"], [1, "text-base", "font-normal"], [1, "opacity-30"], [1, "truncate", "text-xs", "opacity-30"], [1, "flex", "h-10", "w-10", "items-center", "justify-center", "text-2xl"], ["type", "button", "icon", "", "matRipple", "", 1, "border-error", "text-error", "flex", "h-12", "w-12", "items-center", "justify-center", "rounded-sm", "border", 3, "disabled"], [1, "error", "text-error", "h-5", "p-1", "text-xs"], ["type", "button", "icon", "", "matRipple", "", 1, "border-error", "text-error", "flex", "h-12", "w-12", "items-center", "justify-center", "rounded-sm", "border", 3, "click", "disabled"], [1, "bg-base-100", "relative", "w-[18rem]", "rounded-sm", "px-2", "py-4"], [3, "ngModelChange", "ngModel", "from", "to", "offset_weekday"]], template: function DateFieldComponent_Template(rf, ctx) {
+    ]), \u0275\u0275InheritDefinitionFeature], ngContentSelectors: _c025, decls: 15, vars: 8, consts: [["calendar_picker", ""], [1, "flex", "items-center", "gap-1"], ["type", "button", "customTooltip", "", "yPosition", "top", "matRipple", "", 1, "border-neutral", "flex", "h-12", "w-full", "flex-1", "items-center", "justify-between", "rounded-sm", "border", 3, "content", "disabled"], [1, "flex", "w-1/2", "flex-1", "flex-col", "truncate", "px-4", "py-2", "text-left", "leading-tight"], [1, "text-base", "font-normal"], [1, "opacity-30"], [1, "truncate", "text-xs", "opacity-30"], [1, "flex", "h-10", "w-10", "items-center", "justify-center", "text-2xl"], ["type", "button", "icon", "", "matRipple", "", 1, "border-error", "text-error", "flex", "h-12", "w-12", "items-center", "justify-center", "rounded-sm", "border", 3, "disabled"], [1, "error", "text-error", "h-5", "p-1", "text-xs"], ["type", "button", "icon", "", "matRipple", "", 1, "border-error", "text-error", "flex", "h-12", "w-12", "items-center", "justify-center", "rounded-sm", "border", 3, "click", "disabled"], [1, "bg-base-100", "relative", "w-[18rem]", "rounded-sm", "px-2", "py-4"], [3, "ngModelChange", "ngModel", "from", "to", "offset_weekday"]], template: function DateFieldComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275projectionDef();
         \u0275\u0275elementStart(0, "div", 1)(1, "button", 2)(2, "div", 3)(3, "div", 4);
@@ -107710,7 +108781,7 @@ var DateFieldComponent = class _DateFieldComponent extends AsyncHandler {
 })();
 
 // node_modules/@angular/material/fesm2022/autocomplete.mjs
-var _c024 = ["panel"];
+var _c026 = ["panel"];
 var _c113 = ["*"];
 function MatAutocomplete_ng_template_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -107869,7 +108940,7 @@ var MatAutocomplete = class _MatAutocomplete {
     },
     viewQuery: function MatAutocomplete_Query(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275viewQuery(TemplateRef, 7)(_c024, 5);
+        \u0275\u0275viewQuery(TemplateRef, 7)(_c026, 5);
       }
       if (rf & 2) {
         let _t;
@@ -108699,11 +109770,11 @@ var MatAutocompleteModule = class _MatAutocompleteModule {
 var GUEST_ENDPOINT = "/api/staff/v1/guests";
 async function searchGuests(q) {
   const query2 = toQueryString({ q });
-  const list2 = await d(`${GUEST_ENDPOINT}${q ? "?" + query2 : ""}`);
+  const list2 = await f(`${GUEST_ENDPOINT}${q ? "?" + query2 : ""}`);
   return list2.map((item) => new GuestUser(item));
 }
 async function showGuest(id) {
-  return new GuestUser(await d(`${GUEST_ENDPOINT}/${encodeURIComponent(id)}`));
+  return new GuestUser(await f(`${GUEST_ENDPOINT}/${encodeURIComponent(id)}`));
 }
 
 // libs/users/src/lib/staff.fn.ts
@@ -108720,15 +109791,15 @@ async function searchStaff(q) {
       "department"
     ].join(",")
   });
-  const list2 = await d(`${STAFF_ENDPOINT}${q ? "?" + query2 : ""}`);
+  const list2 = await f(`${STAFF_ENDPOINT}${q ? "?" + query2 : ""}`);
   return list2.map((item) => new StaffUser(item));
 }
 async function showStaff(id) {
-  return new StaffUser(await d(`${STAFF_ENDPOINT}/${encodeURIComponent(id)}`));
+  return new StaffUser(await f(`${STAFF_ENDPOINT}/${encodeURIComponent(id)}`));
 }
 
 // libs/form-fields/src/lib/user-search-field.component.ts
-var _c025 = ["input"];
+var _c027 = ["input"];
 var _c114 = (a0) => ({ name: a0 });
 function UserSearchFieldComponent_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -108896,7 +109967,7 @@ var UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHand
     this.selected_user = computed(
       () => {
         const term = this.search_term();
-        return term && typeof term !== "string" ? term : null;
+        return term && typeof term !== "string" && term.email !== EMPTY_USER.email ? term : null;
       },
       ...ngDevMode ? [{ debugName: "selected_user" }] : (
         /* istanbul ignore next */
@@ -108992,7 +110063,7 @@ var UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHand
         const guest_query = () => searchGuests(q).catch(() => []);
         if (this.guests_only())
           return guest_query();
-        const staff = this.use_basic_search() ? await Ea({ q, authority_id: Rt()?.id }).then((_2) => _2.data.map((u3) => new User(u3))).catch(() => []) : await searchStaff(q).catch(() => []);
+        const staff = this.use_basic_search() ? await Ma({ q, authority_id: Rt()?.id }).then((_2) => _2.data.map((u3) => new User(u3))).catch(() => []) : await searchStaff(q).catch(() => []);
         if (!this.guests())
           return staff;
         return [...staff, ...await guest_query()];
@@ -109009,20 +110080,22 @@ var UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHand
     )), {
       params: () => ({ term: this._debounced_term.value() }),
       loader: async ({ params: { term } }) => {
-        if (term && typeof term !== "string")
-          return [term];
+        if (term && typeof term !== "string") {
+          const user = term;
+          return user.email === EMPTY_USER.email ? [] : [user];
+        }
         if (term === this.user()?.name)
           return [this.user()];
         if (this.disable_search())
           return [];
         const s = `${term || ""}`.toLowerCase();
         if (this.options()?.length) {
-          return this.options().filter((_2) => _2.name.toLowerCase().includes(s) || _2.email.toLowerCase().includes(s));
+          return this.options().filter((_2) => _2.email !== EMPTY_USER.email && (_2.name.toLowerCase().includes(s) || _2.email.toLowerCase().includes(s)));
         }
         if (s.length <= 2)
           return [];
         const list2 = await this.query_fn()(s).catch(() => []);
-        return list2.filter((_2) => !!_2);
+        return list2.filter((_2) => !!_2 && _2.email !== EMPTY_USER.email);
       }
     }));
     this.search_results = computed(
@@ -109058,7 +110131,7 @@ var UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHand
     this.user.set(value);
     this.search_term.set(value);
     if (typeof new_value !== "string" && !this.use_basic_search() && (value?.id || value?.email)) {
-      Ca(value.email || value.id).then((details) => {
+      Na(value.email || value.id).then((details) => {
         if (!details)
           return;
         const updated = new User(__spreadValues(__spreadValues({}, value), new User(details)));
@@ -109081,7 +110154,7 @@ var UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHand
     this.resetTerm();
   }
   displayFn(user) {
-    return user && user.name ? user.name : "";
+    return user && user.email !== EMPTY_USER.email && user.name ? user.name : "";
   }
   stopEvent(event) {
     event.stopPropagation();
@@ -109136,7 +110209,7 @@ var UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHand
   static {
     this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _UserSearchFieldComponent, selectors: [["a-user-search-field"]], viewQuery: function UserSearchFieldComponent_Query(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275viewQuerySignal(ctx._input_el, _c025, 5, ElementRef)(ctx._autocomplete_trigger, MatAutocompleteTrigger, 5);
+        \u0275\u0275viewQuerySignal(ctx._input_el, _c027, 5, ElementRef)(ctx._autocomplete_trigger, MatAutocompleteTrigger, 5);
       }
       if (rf & 2) {
         \u0275\u0275queryAdvance(2);
@@ -109480,7 +110553,7 @@ var AssetGroupPipe = class _AssetGroupPipe {
     let asset_group = ASSET_GROUP_LIST.find(({ id }) => id === group_id);
     if (asset_group)
       return asset_group;
-    const group2 = await Xh(group_id).catch(() => null);
+    const group2 = await il(group_id).catch(() => null);
     if (group2) {
       asset_group = __spreadValues({}, group2);
       ASSET_GROUP_LIST.push(asset_group);
@@ -109515,7 +110588,7 @@ function getAssetRulesForZone(zone_id, fresh = false) {
   if (!zone_id)
     return Promise.resolve([]);
   if (!RULE_REQUESTS[zone_id] || fresh)
-    RULE_REQUESTS[zone_id] = ju(zone_id, "assets_config").then((_2) => _2.details instanceof Array ? _2.details : []).catch(() => []);
+    RULE_REQUESTS[zone_id] = Wu(zone_id, "assets_config").then((_2) => _2.details instanceof Array ? _2.details : []).catch(() => []);
   return RULE_REQUESTS[zone_id];
 }
 function assetAvailable(item, rules, event) {
@@ -109553,27 +110626,31 @@ function assetAvailable(item, rules, event) {
 }
 
 // libs/assets/src/lib/assets.fn.ts
+function findOldestByName(list2, name = "") {
+  const match_name = name.trim().toLowerCase();
+  return list2.filter((_2) => (_2.name || "").trim().toLowerCase() === match_name).sort((a, b2) => (a.created_at || 0) - (b2.created_at || 0))[0];
+}
 function filter_hidden_items(response) {
   return __spreadProps(__spreadValues({}, response), {
     data: response.data.filter((item) => !item?.hidden)
   });
 }
 async function visible_category_ids() {
-  const response = await sl({});
+  const response = await cl({});
   return new Set(response.data.filter((item) => !item?.hidden).map((item) => item.id));
 }
 async function queryAssetCategories(query2 = {}) {
   if (query2.hidden === true)
-    return sl(query2);
+    return cl(query2);
   const _a = query2, { hidden } = _a, rest = __objRest(_a, ["hidden"]);
-  return filter_hidden_items(await sl(rest));
+  return filter_hidden_items(await cl(rest));
 }
 async function queryAssetTypes(query2 = {}) {
   if (query2.hidden === true)
-    return Vh(query2);
+    return sl(query2);
   const _a = query2, { hidden } = _a, rest = __objRest(_a, ["hidden"]);
   const [response, visible_ids] = await Promise.all([
-    Vh(rest),
+    sl(rest),
     visible_category_ids()
   ]);
   return __spreadProps(__spreadValues({}, response), {
@@ -109582,10 +110659,10 @@ async function queryAssetTypes(query2 = {}) {
 }
 async function queryAssets(query2 = {}) {
   if (query2.hidden === true)
-    return Gh(query2);
+    return Zh(query2);
   const _a = query2, { hidden } = _a, rest = __objRest(_a, ["hidden"]);
   const [response, types] = await Promise.all([
-    Gh(rest),
+    Zh(rest),
     queryAssetTypes(__spreadProps(__spreadValues({}, rest.zone_id ? { zone_id: rest.zone_id } : {}), {
       limit: 2e3
     }))
@@ -109596,12 +110673,12 @@ async function queryAssets(query2 = {}) {
   });
 }
 function saveAssetCategory(category) {
-  return category.id ? rl(category.id, category) : ol(category);
+  return category.id ? hl(category.id, category) : ll(category);
 }
 var _GROUPS_CACHE = /* @__PURE__ */ new Map();
 var REMOVE_QUERY_KEYS = ["period_start", "period_end", "type", "rejected"];
 async function queryAllAssetPages(query2 = {}) {
-  let response = await Gh(__spreadProps(__spreadValues({}, query2), {
+  let response = await Zh(__spreadProps(__spreadValues({}, query2), {
     limit: query2.limit || 500
   }));
   let total = response.total;
@@ -109636,7 +110713,7 @@ async function queryAssetGroupsExtended(query2 = {}) {
   if (q.zones)
     delete q.zones;
   const [types, assets] = await Promise.all([
-    Vh(q),
+    sl(q),
     queryAllAssetPages(q)
   ]);
   let groups = types.data.filter((item) => !item?.hidden);
@@ -109660,7 +110737,7 @@ async function queryAssetGroupsExtended(query2 = {}) {
   return list2;
 }
 function saveAssetType(product) {
-  return product.id ? el(product.id, product) : tl(product);
+  return product.id ? rl(product.id, product) : ol(product);
 }
 async function queryGroupAvailability(query2, ignore = []) {
   const [products, bookings] = await Promise.all([
@@ -110122,7 +111199,7 @@ var AssetStateService = class _AssetStateService {
   }
   async _loadSettings(building_id) {
     const existing = this._settings_requests.get(building_id);
-    const request = existing || ju(building_id, "assets-settings").then((metadata2) => metadata2.details || {}).catch(() => ({}));
+    const request = existing || Wu(building_id, "assets-settings").then((metadata2) => metadata2.details || {}).catch(() => ({}));
     if (!existing)
       this._settings_requests.set(building_id, request);
     this._settings.set(await request);
@@ -110147,8 +111224,8 @@ var AssetStateService = class _AssetStateService {
 })();
 
 // libs/form-fields/src/lib/duration-field.component.ts
-var _c026 = ["*"];
-var _forTrack04 = ($index, $item) => $item.id;
+var _c028 = ["*"];
+var _forTrack05 = ($index, $item) => $item.id;
 function DurationFieldComponent_Conditional_5_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 4);
@@ -110501,7 +111578,7 @@ var DurationFieldComponent = class _DurationFieldComponent {
         useExisting: forwardRef(() => _DurationFieldComponent),
         multi: true
       }
-    ]), \u0275\u0275NgOnChangesFeature], ngContentSelectors: _c026, decls: 15, vars: 12, consts: [["menu", "matMenu"], ["duration-field", "", "matRipple", "", 1, "border-neutral", "flex", "h-12", "w-full", "items-center", "justify-between", "rounded-sm", "border", "px-2", 3, "disabled", "matMenuTriggerFor"], [1, "flex", "w-1/2", "flex-1", "flex-col", "px-2", "text-left", "leading-tight"], [1, "truncate"], [1, "truncate", "text-xs", "opacity-30"], [1, "text-2xl"], [1, "max-h-60", "min-w-[18rem]"], ["mat-menu-item", "", 1, "text-left"], ["mat-menu-item", "", "disabled", ""], ["mat-menu-item", "", 1, "text-left", 3, "click"], [1, "flex", "items-center", "justify-between"], [1, "flex", "flex-col", "leading-tight"], [1, "ml-2", "text-2xl"]], template: function DurationFieldComponent_Template(rf, ctx) {
+    ]), \u0275\u0275NgOnChangesFeature], ngContentSelectors: _c028, decls: 15, vars: 12, consts: [["menu", "matMenu"], ["duration-field", "", "matRipple", "", 1, "border-neutral", "flex", "h-12", "w-full", "items-center", "justify-between", "rounded-sm", "border", "px-2", 3, "disabled", "matMenuTriggerFor"], [1, "flex", "w-1/2", "flex-1", "flex-col", "px-2", "text-left", "leading-tight"], [1, "truncate"], [1, "truncate", "text-xs", "opacity-30"], [1, "text-2xl"], [1, "max-h-60", "min-w-[18rem]"], ["mat-menu-item", "", 1, "text-left"], ["mat-menu-item", "", "disabled", ""], ["mat-menu-item", "", 1, "text-left", 3, "click"], [1, "flex", "items-center", "justify-between"], [1, "flex", "flex-col", "leading-tight"], [1, "ml-2", "text-2xl"]], template: function DurationFieldComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275projectionDef();
         \u0275\u0275elementStart(0, "button", 1)(1, "div", 2)(2, "div", 3);
@@ -110514,7 +111591,7 @@ var DurationFieldComponent = class _DurationFieldComponent {
         \u0275\u0275text(7, "arrow_drop_down");
         \u0275\u0275elementEnd()();
         \u0275\u0275elementStart(8, "mat-menu", 6, 0);
-        \u0275\u0275repeaterCreate(10, DurationFieldComponent_For_11_Template, 6, 3, "button", 7, _forTrack04, false, DurationFieldComponent_ForEmpty_12_Template, 2, 0, "div", 8);
+        \u0275\u0275repeaterCreate(10, DurationFieldComponent_For_11_Template, 6, 3, "button", 7, _forTrack05, false, DurationFieldComponent_ForEmpty_12_Template, 2, 0, "div", 8);
         \u0275\u0275elementEnd();
         \u0275\u0275elementStart(13, "mat-error");
         \u0275\u0275projection(14);
@@ -110647,12 +111724,9 @@ var _locker_type_id = null;
 var _locker_type_id_promise = null;
 var _hidden_categories_promise = null;
 var _types_for_category_promises = /* @__PURE__ */ new Map();
-function normalise_name(name = "") {
-  return name.trim().toLowerCase();
-}
 async function query_hidden_categories() {
   if (!_hidden_categories_promise) {
-    _hidden_categories_promise = sl({
+    _hidden_categories_promise = cl({
       hidden: true,
       limit: 500
     }).then((_2) => _2.data).catch(() => []);
@@ -110661,17 +111735,16 @@ async function query_hidden_categories() {
 }
 async function query_types_for_category(category_id) {
   if (!_types_for_category_promises.has(category_id)) {
-    _types_for_category_promises.set(category_id, Vh({ category_id, limit: 500 }).then((_2) => _2.data).catch(() => []));
+    _types_for_category_promises.set(category_id, sl({ category_id, limit: 500 }).then((_2) => _2.data).catch(() => []));
   }
   return _types_for_category_promises.get(category_id);
 }
 async function ensure_hidden_category(name) {
-  const match_name = normalise_name(name);
-  let category = (await query_hidden_categories()).find((_2) => normalise_name(_2.name) === match_name);
+  let category = findOldestByName(await query_hidden_categories(), name);
   if (category)
     return category;
   _hidden_categories_promise = null;
-  category = (await query_hidden_categories()).find((_2) => normalise_name(_2.name) === match_name);
+  category = findOldestByName(await query_hidden_categories(), name);
   if (category)
     return category;
   const created = await saveAssetCategory({
@@ -110682,10 +111755,9 @@ async function ensure_hidden_category(name) {
   return created;
 }
 async function ensure_type(category_id, name) {
-  const match_name = normalise_name(name);
-  let type = (await query_types_for_category(category_id)).find((_2) => normalise_name(_2.name) === match_name);
-  if (type)
-    return type;
+  let type2 = findOldestByName(await query_types_for_category(category_id), name);
+  if (type2)
+    return type2;
   const created = await saveAssetType({
     name,
     brand: "PlaceOS",
@@ -110696,8 +111768,8 @@ async function ensure_type(category_id, name) {
 }
 async function bootstrap_locker_type(type_name) {
   const category = await ensure_hidden_category(LOCKER_CATEGORY_NAME);
-  const type = await ensure_type(category.id, type_name);
-  return type.id;
+  const type2 = await ensure_type(category.id, type_name);
+  return type2.id;
 }
 function resolveLockerBankTypeId() {
   if (_locker_bank_type_id)
@@ -110725,14 +111797,14 @@ async function queryLockerBankAssetsForZones(zone_ids) {
   if (!zone_ids?.length)
     return [];
   const type_id = await resolveLockerBankTypeId();
-  const results = await Promise.all(zone_ids.map((zone_id) => Gh({ zone_id, type_id, limit: 500 }).then((_2) => _2.data)));
+  const results = await Promise.all(zone_ids.map((zone_id) => Zh({ zone_id, type_id, limit: 500 }).then((_2) => _2.data)));
   return flatten2(results);
 }
 async function queryLockerAssetsForZones(zone_ids) {
   if (!zone_ids?.length)
     return [];
   const type_id = await resolveLockerTypeId();
-  const results = await Promise.all(zone_ids.map((zone_id) => Gh({ zone_id, type_id, limit: 500 }).then((_2) => _2.data)));
+  const results = await Promise.all(zone_ids.map((zone_id) => Zh({ zone_id, type_id, limit: 500 }).then((_2) => _2.data)));
   return flatten2(results);
 }
 
@@ -110743,12 +111815,12 @@ var _parking_type_id = null;
 var _parking_type_id_promise = null;
 var _hidden_categories_promise2 = null;
 var _types_for_category_promises2 = /* @__PURE__ */ new Map();
-function normalise_name2(name = "") {
+function normalise_name(name = "") {
   return name.trim().toLowerCase();
 }
 async function query_hidden_categories2() {
   if (!_hidden_categories_promise2) {
-    _hidden_categories_promise2 = sl({
+    _hidden_categories_promise2 = cl({
       hidden: true,
       limit: 500
     }).then((_2) => _2.data).catch(() => []);
@@ -110757,7 +111829,7 @@ async function query_hidden_categories2() {
 }
 async function query_types_for_category2(category_id) {
   if (!_types_for_category_promises2.has(category_id)) {
-    _types_for_category_promises2.set(category_id, Vh({ category_id, limit: 500 }).then((_2) => _2.data).catch(() => []));
+    _types_for_category_promises2.set(category_id, sl({ category_id, limit: 500 }).then((_2) => _2.data).catch(() => []));
   }
   return _types_for_category_promises2.get(category_id);
 }
@@ -110772,12 +111844,11 @@ async function query_types_for_categories(category_ids) {
   return list2.flat();
 }
 async function ensure_hidden_category2(name) {
-  const match_name = normalise_name2(name);
-  let category = (await query_hidden_categories2()).find((_2) => normalise_name2(_2.name) === match_name);
+  let category = findOldestByName(await query_hidden_categories2(), name);
   if (category)
     return category;
   reset_hidden_categories_cache();
-  category = (await query_hidden_categories2()).find((_2) => normalise_name2(_2.name) === match_name);
+  category = findOldestByName(await query_hidden_categories2(), name);
   if (category)
     return category;
   try {
@@ -110789,21 +111860,21 @@ async function ensure_hidden_category2(name) {
     return category2;
   } catch (error2) {
     reset_hidden_categories_cache();
-    category = (await query_hidden_categories2()).find((_2) => normalise_name2(_2.name) === match_name);
+    category = findOldestByName(await query_hidden_categories2(), name);
     if (category)
       return category;
     throw error2;
   }
 }
-async function move_type_to_category(type, category_id, name) {
-  if (type.category_id === category_id && normalise_name2(type.name) === normalise_name2(name)) {
-    return type;
+async function move_type_to_category(type2, category_id, name) {
+  if (type2.category_id === category_id && normalise_name(type2.name) === normalise_name(name)) {
+    return type2;
   }
   try {
     const updated_type = await saveAssetType({
-      id: type.id,
+      id: type2.id,
       name,
-      brand: type.brand || "PlaceOS",
+      brand: type2.brand || "PlaceOS",
       category_id
     });
     reset_types_cache([category_id]);
@@ -110811,43 +111882,42 @@ async function move_type_to_category(type, category_id, name) {
   } catch (error2) {
     reset_types_cache([category_id]);
     const types = await query_types_for_category2(category_id);
-    const existing_type = types.find((_2) => normalise_name2(_2.name) === normalise_name2(name));
+    const existing_type = findOldestByName(types, name);
     if (existing_type)
       return existing_type;
     throw error2;
   }
 }
 async function ensure_type2(category_id, name, legacy_category_ids = []) {
-  const match_name = normalise_name2(name);
-  let type = (await query_types_for_categories([
+  let type2 = findOldestByName(await query_types_for_categories([
     category_id,
     ...legacy_category_ids.filter((_2) => _2 !== category_id)
-  ])).find((_2) => normalise_name2(_2.name) === match_name);
-  if (type)
-    return move_type_to_category(type, category_id, name);
+  ]), name);
+  if (type2)
+    return move_type_to_category(type2, category_id, name);
   try {
-    const type2 = await saveAssetType({
+    const type3 = await saveAssetType({
       name,
       brand: "PlaceOS",
       category_id
     });
     reset_types_cache([category_id]);
-    return type2;
+    return type3;
   } catch (error2) {
     reset_types_cache([category_id, ...legacy_category_ids]);
-    type = (await query_types_for_categories([
+    type2 = findOldestByName(await query_types_for_categories([
       category_id,
       ...legacy_category_ids.filter((_2) => _2 !== category_id)
-    ])).find((_2) => normalise_name2(_2.name) === match_name);
-    if (type)
-      return move_type_to_category(type, category_id, name);
+    ]), name);
+    if (type2)
+      return move_type_to_category(type2, category_id, name);
     throw error2;
   }
 }
 async function bootstrap_asset_type(type_name) {
   const category = await ensure_hidden_category2(PARKING_CATEGORY_NAME);
-  const type = await ensure_type2(category.id, type_name);
-  return type.id;
+  const type2 = await ensure_type2(category.id, type_name);
+  return type2.id;
 }
 function resolveParkingTypeId() {
   if (_parking_type_id)
@@ -110867,7 +111937,7 @@ async function queryParkingSpacesForZones(zone_ids) {
   if (!zone_ids?.length)
     return [];
   const type_id = await resolveParkingTypeId();
-  const results = await Promise.all(zone_ids.map((zone_id) => Gh({ zone_id, type_id, limit: 500 }).then((_2) => _2.data)));
+  const results = await Promise.all(zone_ids.map((zone_id) => Zh({ zone_id, type_id, limit: 500 }).then((_2) => _2.data)));
   return flatten2(results);
 }
 var PARKING_USER_TYPE_NAME = "_PARKING_USERS_";
@@ -110904,7 +111974,7 @@ function toParkingUser(asset) {
 }
 async function queryParkingUsers(zone_id) {
   const type_id = await resolveParkingUserTypeId();
-  const assets = await Gh({ zone_id, type_id, limit: 500 });
+  const assets = await Zh({ zone_id, type_id, limit: 500 });
   return assets.data.map(toParkingUser);
 }
 
@@ -111052,6 +112122,7 @@ function generateBookingForm(booking = new Booking(), injector) {
   );
   guardModelUndefinedWrites(model2, bookingFormValue(new Booking()));
   const require_plate_number = settingSignal("parking.require_plate_number", false);
+  const require_space_restriction = settingSignal("parking.require_space_restriction", false);
   const booking_form = form(model2, (p2) => {
     required(p2.date);
     required(p2.asset_id);
@@ -111064,6 +112135,8 @@ function generateBookingForm(booking = new Booking(), injector) {
         return booking_type === "parking" && require_plate_number();
       }
     });
+    validate(p2.plate_number, ({ value, valueOf }) => valueOf(p2.booking_type) === "parking" && require_plate_number() && !`${value() || ""}`.trim() ? { kind: "required" } : void 0);
+    validate(p2.space_restrictions, ({ value, valueOf }) => valueOf(p2.booking_type) === "parking" && require_space_restriction() && !value() ? { kind: "required" } : void 0);
     validate(p2.duration, ({ value, valueOf }) => {
       const date = valueOf(p2.date);
       if (value() <= 0)
@@ -111112,9 +112185,9 @@ async function findNearbyFeature(map_url, centered_at, desk_ids = []) {
   let closest = "";
   for (const desk of desk_ids) {
     const { x, y } = centerOf(desk) || { x: 2, y: 2 };
-    const d2 = Math.sqrt((x - point.x) * (x - point.x) + (y - point.y) * (y - point.y));
-    if (d2 < dist) {
-      dist = d2;
+    const d = Math.sqrt((x - point.x) * (x - point.x) + (y - point.y) * (y - point.y));
+    if (d < dist) {
+      dist = d;
       closest = desk;
     }
   }
@@ -111162,7 +112235,7 @@ async function loadLockerResources(org, scope_id) {
 }
 
 // libs/components/src/lib/recurring-clash-modal.component.ts
-var _forTrack05 = ($index, $item) => $item.booking_start;
+var _forTrack06 = ($index, $item) => $item.booking_start;
 function RecurringClashModalComponent_For_24_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "tr", 10)(1, "td", 15);
@@ -111233,7 +112306,7 @@ var RecurringClashModalComponent = class _RecurringClashModalComponent {
         \u0275\u0275pipe(21, "translate");
         \u0275\u0275elementEnd()()();
         \u0275\u0275elementStart(22, "tbody");
-        \u0275\u0275repeaterCreate(23, RecurringClashModalComponent_For_24_Template, 8, 12, "tr", 10, _forTrack05);
+        \u0275\u0275repeaterCreate(23, RecurringClashModalComponent_For_24_Template, 8, 12, "tr", 10, _forTrack06);
         \u0275\u0275elementEnd()()();
         \u0275\u0275elementStart(25, "p", 11);
         \u0275\u0275text(26);
@@ -111405,7 +112478,7 @@ function generateCalendarFileLink(event) {
   if (!event)
     return "data:text/calendar;charset=utf8,";
   const chunks = [];
-  const description = escapeText(`${event.body || ""}${event.id ? "\n\n[ID|" + event.id + "]" : ""}`);
+  const description2 = escapeText(`${event.body || ""}${event.id ? "\n\n[ID|" + event.id + "]" : ""}`);
   const location2 = escapeText(`${event.location}`);
   chunks.push(["BEGIN", "VCALENDAR"]);
   chunks.push(["VERSION", "2.0"]);
@@ -111426,7 +112499,7 @@ function generateCalendarFileLink(event) {
     ]);
   }
   chunks.push(["SUMMARY", escapeText(event.title)]);
-  chunks.push(["DESCRIPTION", description]);
+  chunks.push(["DESCRIPTION", description2]);
   chunks.push(["LOCATION", location2]);
   const hostEmail = event.host || event.user_email || `no-reply@place.tech`;
   const hostName = event.organiser?.name || hostEmail.split("@")[0] || "Staff";
@@ -111459,7 +112532,7 @@ function generateGoogleCalendarLink(event) {
 function dateToISO(date) {
   return `${format(date, "yyyy-MM-dd")}T${format(date, "HH:mm:ss")}`;
 }
-function generateMicrosoftCalendarLink(event, type = "office", status = "free") {
+function generateMicrosoftCalendarLink(event, type2 = "office", status = "free") {
   if (!event.date)
     event.date = Date.now();
   const data = {
@@ -111480,7 +112553,7 @@ function generateMicrosoftCalendarLink(event, type = "office", status = "free") 
   const resources = ((event.resources?.length ? event.resources : null) || [event.system]).map((_2) => _2?.email || _2);
   if (emails.length || resources.length)
     data.to = unique([...emails, ...resources]).filter((_2) => !!_2).join(",");
-  return type === "office" ? `https://outlook.office.com/calendar/deeplink/compose?${toQueryString(data)}` : `https://outlook.live.com/calendar/deeplink/compose?${toQueryString(data)}`;
+  return type2 === "office" ? `https://outlook.office.com/calendar/deeplink/compose?${toQueryString(data)}` : `https://outlook.live.com/calendar/deeplink/compose?${toQueryString(data)}`;
 }
 
 // libs/events/src/lib/event-link-modal.component.ts
@@ -111922,7 +112995,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       },
       loader: ({ params: ids }) => {
         this.addLoadingTag(Tags.BookingRules);
-        return Promise.all(ids.map((id) => ju(id, "room_booking_rules").then((_2) => ({
+        return Promise.all(ids.map((id) => Wu(id, "room_booking_rules").then((_2) => ({
           id,
           details: _2.details instanceof Array ? _2.details : []
         })).catch(() => ({ id, details: [] })))).then((building_rules) => {
@@ -111985,7 +113058,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       {}
     )), {
       params: () => this._network_consumed() && this._requests_ready() ? this._org.organisation?.id || void 0 : void 0,
-      loader: ({ params: id }) => ju(id, "room_alerts").then((r) => r.details).catch(() => ({}))
+      loader: ({ params: id }) => Wu(id, "room_alerts").then((r) => r.details).catch(() => ({}))
     }));
     this.room_alerts = computed(
       () => {
@@ -112022,7 +113095,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
           list2 = list2.filter(({ capacity }) => capacity < 0 || capacity >= range2.min && capacity <= range2.max);
         }
         if (filters.features) {
-          list2 = list2.filter(({ features }) => filters.features.every((f) => features.includes(f)));
+          list2 = list2.filter(({ features }) => filters.features.every((f2) => features.includes(f2)));
         }
         return list2.sort((a, b2) => {
           const cap_diff = (a.capacity || 0) - (b2.capacity || 0);
@@ -112087,7 +113160,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     this.init();
   }
   async init() {
-    await firstValueWhere(userSignal(), (user) => !isEmptyUser(user));
+    await currentUserLoaded();
     setDefaultCreator(currentUser());
     onFieldChange(this._model, (v) => v.date, (date) => this.setOptions({ date }), this._injector);
     onFieldChange(this._model, (v) => v.duration, (duration) => this.setOptions({ duration }), this._injector);
@@ -112129,7 +113202,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
   }
   _allDayTimeRange(date) {
     const period = this._settings.get("app.events.all_day_period");
-    return getAllDayTimeRange(date, this.timezone, period?.start, period?.end, this._model().id ? void 0 : Date.now());
+    return getAllDayTimeRange(date, this.timezone, period?.start, period?.end);
   }
   /** Resolve the bookable space list for the given zone */
   _requestSpaces(zone_id) {
@@ -112206,6 +113279,10 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     this._options.set(__spreadValues(__spreadValues({}, this._options()), options2));
   }
   newForm(event = new CalendarEvent()) {
+    if (!currentUserIsLoaded()) {
+      currentUserLoaded().then(() => this.newForm(event));
+      return;
+    }
     this._startNetwork();
     this._calendar.loadCalendars();
     this._loading.set("");
@@ -112222,6 +113299,10 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     this._event.set(event);
   }
   resetForm() {
+    if (!currentUserIsLoaded()) {
+      currentUserLoaded().then(() => this.resetForm());
+      return;
+    }
     this._model.set(eventFormValue(this._event() || new CalendarEvent()));
     this._form().reset();
   }
@@ -112231,13 +113312,17 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     });
   }
   loadForm() {
+    if (!currentUserIsLoaded()) {
+      currentUserLoaded().then(() => this.loadForm());
+      return;
+    }
     this._startNetwork();
     this._calendar.loadCalendars();
     const event_data = JSON.parse(sessionStorage.getItem("PLACEOS.event") || "{}");
     const event = new CalendarEvent(event_data);
     this._event.set(event);
     const form_data = JSON.parse(sessionStorage.getItem("PLACEOS.event_form") || "{}");
-    this._model.update((m2) => __spreadValues(__spreadValues(__spreadValues({}, m2), event), form_data));
+    this._model.update((m2) => __spreadValues(__spreadValues(__spreadValues({}, m2), eventFormValue(event)), form_data));
   }
   clearForm() {
     sessionStorage.removeItem("PLACEOS.event");
@@ -112250,7 +113335,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       return;
     const event = new CalendarEvent(__spreadProps(__spreadValues({}, this._model()), { assets: [] }));
     const ref = this._dialog.open(EventLinkModalComponent, { data: event });
-    ref.afterClosed().subscribe((d2) => d2 ? this._router.navigate(["/"]) : "");
+    ref.afterClosed().subscribe((d) => d ? this._router.navigate(["/"]) : "");
   }
   cancelPostForm() {
   }
@@ -112370,7 +113455,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       if (this._model().host !== host)
         ext.host_override = this._model().host;
       const value = this._model();
-      const created_event = await this._performBooking(new CalendarEvent(__spreadProps(__spreadValues({}, this._model()), {
+      let created_event = await this._performBooking(new CalendarEvent(__spreadProps(__spreadValues({}, this._model()), {
         date: all_day_period.date,
         duration: all_day_period.duration,
         date_end: all_day_period.date_end,
@@ -112386,6 +113471,16 @@ var EventFormService = class _EventFormService extends AsyncHandler {
         assets: processed_assets,
         extension_data: ext
       })), query2).catch(on_error);
+      const date_end = all_day_period.date_end || all_day_period.date + all_day_period.duration * 60 * 1e3;
+      created_event = new CalendarEvent(__spreadProps(__spreadValues({}, created_event), {
+        event_start: Math.floor(all_day_period.date / 1e3),
+        event_end: Math.floor(date_end / 1e3),
+        date: all_day_period.date,
+        duration: all_day_period.duration,
+        date_end,
+        resources: space_list,
+        system: space_list[0] || null
+      }));
       const domain = (currentUser()?.email || "@").split("@")[1];
       const visitors = this._model().attendees.filter((user) => user.is_external && user.email !== event.host && !user.email.includes(domain) && user.visit_expected);
       if (visitors.length) {
@@ -112417,7 +113512,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       }
       this.clearForm();
       sessionStorage.setItem("PLACEOS.last_modified_event", JSON.stringify(created_event.toJSON()));
-      this.loadLastSuccess();
+      this.last_success.set(created_event);
       return created_event;
     } catch (e) {
       this.removeLoadingTag(Tags.PostBooking);
@@ -112481,7 +113576,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       const bld = this._org.buildings.find((b2) => space.zones.includes(b2.id));
       if (!bld || rules[bld.id])
         continue;
-      const metadata2 = await ju(bld.id, "room_booking_rules").catch(() => ({ details: [] }));
+      const metadata2 = await Wu(bld.id, "room_booking_rules").catch(() => ({ details: [] }));
       rules[bld.id] = metadata2.details instanceof Array ? metadata2.details : [];
     }
     const space_rules = spaces.map((space) => {
@@ -112660,7 +113755,7 @@ var SpacesService = class _SpacesService {
     return this.space_list.filter((_2) => predicate(_2));
   }
   async loadSpace(space_id) {
-    const system = await sa(space_id);
+    const system = await oa(space_id);
     const space = new Space(__spreadProps(__spreadValues({}, system), {
       level: this._org.levelWithID([...system.zones])
     }));
@@ -112674,7 +113769,7 @@ var SpacesService = class _SpacesService {
     return this.space_list.find(({ id, email: email2 }) => space_id === id || space_id === email2);
   }
   async loadSpaces() {
-    const systems = (await ta({
+    const systems = (await ia({
       zone_id: this._org.organisation?.id,
       limit: 5e3
     })).data;
@@ -112704,7 +113799,7 @@ var SpacesService = class _SpacesService {
 })();
 
 // libs/explore/src/lib/explore-book-qr.component.ts
-var _c027 = (a0) => ({ name: a0 });
+var _c029 = (a0) => ({ name: a0 });
 var DEFAULT_PATH = `workplace/#/explore?space={{id}}`;
 var ExploreBookQrComponent = class _ExploreBookQrComponent {
   constructor() {
@@ -112747,7 +113842,7 @@ var ExploreBookQrComponent = class _ExploreBookQrComponent {
       }
       if (rf & 2) {
         \u0275\u0275advance(2);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(3, 2, "EXPLORE.BOOK_RESOURCE", \u0275\u0275pureFunction1(5, _c027, ctx.space()?.name)), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(3, 2, "EXPLORE.BOOK_RESOURCE", \u0275\u0275pureFunction1(5, _c029, ctx.space()?.name)), " ");
         \u0275\u0275advance(7);
         \u0275\u0275property("src", ctx.qr_code(), \u0275\u0275sanitizeUrl);
       }
@@ -113324,7 +114419,7 @@ var ExploreIconComponent = class _ExploreIconComponent {
 })();
 
 // libs/explore/src/lib/explore-space-info.component.ts
-var _c028 = (a0) => ({ count: a0 });
+var _c030 = (a0) => ({ count: a0 });
 function ExploreSpaceInfoComponent_ng_template_2_Conditional_4_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "img", 7);
@@ -113364,7 +114459,7 @@ function ExploreSpaceInfoComponent_ng_template_2_Conditional_15_Template(rf, ctx
   if (rf & 2) {
     const ctx_r0 = \u0275\u0275nextContext(2);
     \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(5, 1, "COMMON.PEOPLE_COUNT", \u0275\u0275pureFunction1(5, _c028, ctx_r0.space().capacity), ctx_r0.space().capacity), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(5, 1, "COMMON.PEOPLE_COUNT", \u0275\u0275pureFunction1(5, _c030, ctx_r0.space().capacity), ctx_r0.space().capacity), " ");
   }
 }
 function ExploreSpaceInfoComponent_ng_template_2_Conditional_16_For_2_Template(rf, ctx) {
@@ -113783,7 +114878,7 @@ var ExploreSpacesService = class _ExploreSpacesService extends AsyncHandler {
       {}
     )), {
       params: () => this._building() || void 0,
-      loader: ({ params: bld }) => ju(bld.id, `room_booking_rules`).then((_2) => _2?.details instanceof Array ? _2.details : []).catch(() => [])
+      loader: ({ params: bld }) => Wu(bld.id, `room_booking_rules`).then((_2) => _2?.details instanceof Array ? _2.details : []).catch(() => [])
     }));
     this.booking_rules = computed(
       () => this._booking_rules.value() ?? [],
@@ -113797,7 +114892,7 @@ var ExploreSpacesService = class _ExploreSpacesService extends AsyncHandler {
       {}
     )), {
       params: () => this._building() || void 0,
-      loader: () => ju(this._org.organisation.id, `room_alerts`).then((_2) => _2.details || {}).catch(() => ({}))
+      loader: () => Wu(this._org.organisation.id, `room_alerts`).then((_2) => _2.details || {}).catch(() => ({}))
     }));
     this.room_alerts = computed(
       () => this._room_alerts.value() ?? {},
@@ -113822,13 +114917,13 @@ var ExploreSpacesService = class _ExploreSpacesService extends AsyncHandler {
     if (!list2?.length)
       return;
     for (const space of list2) {
-      const mod2 = Fl(space.id, "Bookings");
+      const mod2 = Wl(space.id, "Bookings");
       let binding = mod2.variable("bookings");
-      this.subscription(`b-${space.id}`, binding.bindThenSubscribe((d2) => this.handleBookingsChange(list2, space, d2)));
+      this.subscription(`b-${space.id}`, binding.bindThenSubscribe((d) => this.handleBookingsChange(list2, space, d)));
       binding = mod2.variable("status");
-      this.subscription(`s-${space.id}`, binding.bindThenSubscribe((d2) => this.handleStatusChange(list2, space, d2)));
+      this.subscription(`s-${space.id}`, binding.bindThenSubscribe((d) => this.handleStatusChange(list2, space, d)));
       binding = mod2.variable("presence");
-      this.subscription(`c-${space.id}`, binding.bindThenSubscribe((d2) => this.handlePresenceChange(list2, space, d2)));
+      this.subscription(`c-${space.id}`, binding.bindThenSubscribe((d) => this.handlePresenceChange(list2, space, d)));
     }
     this.updateActions(list2);
     this._updateHoverElements(list2);
@@ -114815,7 +115910,7 @@ var MOCK_SPACES = rawSpaces.map((space) => generateMockSpace(__spreadProps(__spr
 
 // libs/mocks/src/lib/api/bookings.data.ts
 var TRACKING = ["in_storage", "in_transit", "at_location"];
-var generateBookingForDay = (day, type, index, user) => {
+var generateBookingForDay = (day, type2, index, user) => {
   const bld = MOCK_BUILDINGS[predictableRandomInt(MOCK_BUILDINGS.length)];
   const lvls = MOCK_LEVELS.filter((_2) => _2.parent_id === bld?.id);
   const lvl = lvls[predictableRandomInt(lvls.length)];
@@ -114836,17 +115931,17 @@ var generateBookingForDay = (day, type, index, user) => {
     booking_start,
     booking_end,
     timezone: "Australia/Sydney",
-    title: capitalizeFirstLetter(`${type.replace("-", " ")} booking ${index}`),
+    title: capitalizeFirstLetter(`${type2.replace("-", " ")} booking ${index}`),
     event_start: booking_start,
     event_end: booking_end,
-    asset_ids: type === "asset-request" ? [...Array(asset_count)].map((_2, i) => MOCK_ASSETS[predictableRandomInt(MOCK_ASSETS.length, i + 1)].id) : [
-      type === "visitor" ? guest.email : `${type}-${bld?.id}-${lvl?.id}-${position}`
+    asset_ids: type2 === "asset-request" ? [...Array(asset_count)].map((_2, i) => MOCK_ASSETS[predictableRandomInt(MOCK_ASSETS.length, i + 1)].id) : [
+      type2 === "visitor" ? guest.email : `${type2}-${bld?.id}-${lvl?.id}-${position}`
     ],
-    asset_id: type === "visitor" ? guest.email : `${type}-${bld?.id}-${lvl?.id}-${position}`,
-    asset_name: type === "visitor" ? guest.name : `${bld?.name}-${position}`,
-    description: type === "visitor" ? guest.name : `${capitalizeFirstLetter(type.replace("-", " "))} in ${bld?.name}`,
-    booking_type: type,
-    type,
+    asset_id: type2 === "visitor" ? guest.email : `${type2}-${bld?.id}-${lvl?.id}-${position}`,
+    asset_name: type2 === "visitor" ? guest.name : `${bld?.name}-${position}`,
+    description: type2 === "visitor" ? guest.name : `${capitalizeFirstLetter(type2.replace("-", " "))} in ${bld?.name}`,
+    booking_type: type2,
+    type: type2,
     user_id: user.id,
     user_name: user.name,
     user_email: user.email,
@@ -114858,11 +115953,11 @@ var generateBookingForDay = (day, type, index, user) => {
     rejected: predictableRandomInt(12) === 0,
     approved: approved !== 0,
     access: approved !== 0,
-    permission: type === "group-event" ? "OPEN" : "PRIVATE",
+    permission: type2 === "group-event" ? "OPEN" : "PRIVATE",
     approver_id: approved ? approver.id : "",
     approver_name: approved ? approver.name : "",
     approver_email: approved ? approver.email : "",
-    process_state: type === "asset-request" ? TRACKING[predictableRandomInt(TRACKING.length, index)] : "",
+    process_state: type2 === "asset-request" ? TRACKING[predictableRandomInt(TRACKING.length, index)] : "",
     last_changed: booking_start,
     created: booking_start - 3600,
     created_by_id: user.id,
@@ -114870,11 +115965,11 @@ var generateBookingForDay = (day, type, index, user) => {
     created_by_email: user.email,
     zones: [
       bld?.id,
-      type === "parking" ? MOCK_LEVELS.find((l2) => l2.parent_id === bld?.id && l2.type === "parking")?.id : lvl?.id
+      type2 === "parking" ? MOCK_LEVELS.find((l) => l.parent_id === bld?.id && l.type === "parking")?.id : lvl?.id
     ].filter(Boolean),
     extension_data: {
       map_id: `table-${bld?.id}.${position}`,
-      note: capitalizeFirstLetter(`${type.replace("-", " ")} booking ${index}`),
+      note: capitalizeFirstLetter(`${type2.replace("-", " ")} booking ${index}`),
       plate_number: randomString(8, "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"),
       tracking: approved ? "at_location" : "in_storage",
       space_id: lvl_spaces.length ? lvl_spaces[predictableRandomInt(lvl_spaces.length)].id : `space-${index}`,
@@ -115050,7 +116145,7 @@ var MOCK_CATERING_BOOKINGS = (() => {
 // libs/mocks/src/lib/api/bookings.mock.ts
 var ALL_BOOKINGS = [...MOCK_BOOKINGS, ...MOCK_CATERING_BOOKINGS];
 function registerMockBookings() {
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings",
     metadata: {},
     method: "GET",
@@ -115083,7 +116178,7 @@ function registerMockBookings() {
       return events2;
     }
   });
-  Wr({
+  Zr({
     path: "/api/debug/bookings/distribution",
     metadata: {},
     method: "GET",
@@ -115118,7 +116213,7 @@ function registerMockBookings() {
       };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings/:id",
     metadata: {},
     method: "GET",
@@ -115132,7 +116227,7 @@ function registerMockBookings() {
       return event;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings/:id/guests/:email",
     metadata: {},
     method: "POST",
@@ -115153,7 +116248,7 @@ function registerMockBookings() {
       return user;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings/:id/guests/:email",
     metadata: {},
     method: "DELETE",
@@ -115176,7 +116271,7 @@ function registerMockBookings() {
       return guest;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings/:id/guests/:email/checkin",
     metadata: {},
     method: "POST",
@@ -115193,7 +116288,7 @@ function registerMockBookings() {
       return {};
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings",
     metadata: {},
     method: "POST",
@@ -115216,13 +116311,13 @@ function registerMockBookings() {
     ALL_BOOKINGS.splice(index, 1, new_event);
     return new_event;
   };
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings/:id",
     metadata: {},
     method: "PATCH",
     callback: (req) => updateBooking2(req.route_params.id, req.body)
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings/:id/approve",
     metadata: {},
     method: "POST",
@@ -115238,7 +116333,7 @@ function registerMockBookings() {
       return booking;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings/:id/reject",
     metadata: {},
     method: "POST",
@@ -115254,7 +116349,7 @@ function registerMockBookings() {
       return booking;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings/:id/checkin",
     metadata: {},
     method: "POST",
@@ -115269,7 +116364,7 @@ function registerMockBookings() {
       return booking;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings/:id/update_induction",
     metadata: {},
     method: "POST",
@@ -115285,13 +116380,13 @@ function registerMockBookings() {
       return booking;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings/:id",
     metadata: {},
     method: "PUT",
     callback: (req) => updateBooking2(req.route_params.id, req.body)
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings/:id",
     metadata: {},
     method: "DELETE",
@@ -115644,7 +116739,7 @@ var event_spaces = MOCK_SPACES.map((space) => space.id);
 
 // libs/mocks/src/lib/api/calendars.mock.ts
 function registerMockCalendars() {
-  Wr({
+  Zr({
     path: "/api/staff/v1/calendars",
     metadata: {},
     method: "GET",
@@ -115699,7 +116794,7 @@ function registerMockCalendars() {
     });
     return spaces;
   };
-  Wr({
+  Zr({
     path: "/api/staff/v1/calendars/availability",
     metadata: {},
     method: "GET",
@@ -115707,7 +116802,7 @@ function registerMockCalendars() {
       resource: _2
     }))
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/calendars/free_busy",
     metadata: {},
     method: "GET",
@@ -115719,7 +116814,7 @@ function registerMockCalendars() {
 
 // libs/mocks/src/lib/api/events.mock.ts
 function registerMockEvents() {
-  Wr({
+  Zr({
     path: "/api/staff/v1/events",
     metadata: {},
     method: "GET",
@@ -115736,7 +116831,7 @@ function registerMockEvents() {
       return events2;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/events",
     metadata: {},
     method: "POST",
@@ -115759,12 +116854,12 @@ function registerMockEvents() {
         ];
       }
       MOCK_EVENTS.push(new_event);
-      const system = mr(new_event.system?.id);
+      const system = $r(new_event.system?.id);
       system?.Bookings[0]?.$poll_bookings();
       return new_event;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/events/:id",
     metadata: {},
     method: "GET",
@@ -115776,7 +116871,7 @@ function registerMockEvents() {
       throw { status: 404, message: "Event not found" };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/events/:id",
     metadata: {},
     method: "DELETE",
@@ -115794,7 +116889,7 @@ function registerMockEvents() {
       throw { status: 404, message: "Event not found" };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/events/:id",
     metadata: {},
     method: "PATCH",
@@ -115806,7 +116901,7 @@ function registerMockEvents() {
       throw { status: 404, message: "Event not found" };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/events/:id/guests/:email/checkin",
     metadata: {},
     method: "POST",
@@ -116217,7 +117312,7 @@ function generateMockPlaylists(displays, media) {
   const playlists = [];
   let playlistId = 1;
   MOCK_BUILDINGS.forEach((building) => {
-    const buildingDisplays = displays.filter((d2) => d2.building_id === building.id);
+    const buildingDisplays = displays.filter((d) => d.building_id === building.id);
     const generalPlaylist = {
       id: `playlist-${String(playlistId).padStart(3, "0")}`,
       name: `${building.name} General Content`,
@@ -116248,7 +117343,7 @@ function generateMockPlaylists(displays, media) {
       },
       // Targeting
       target: {
-        displays: buildingDisplays.map((d2) => d2.id),
+        displays: buildingDisplays.map((d) => d.id),
         zones: [building.id],
         categories: ["lobby", "corridor", "general"]
       },
@@ -116286,7 +117381,7 @@ function generateMockPlaylists(displays, media) {
           end_date: mediaItem.scheduling.end_date
         })),
         target: {
-          displays: buildingDisplays.filter((d2) => d2.location.area.includes("Meeting")).map((d2) => d2.id),
+          displays: buildingDisplays.filter((d) => d.location.area.includes("Meeting")).map((d) => d.id),
           zones: [building.id],
           categories: ["meeting_room"]
         },
@@ -116318,7 +117413,7 @@ function generateMockPlaylists(displays, media) {
       duration_override: null
     })),
     target: {
-      displays: displays.map((d2) => d2.id),
+      displays: displays.map((d) => d.id),
       // All displays
       zones: ["zone-EmWFTjuYExK"],
       categories: ["emergency"]
@@ -116421,6 +117516,32 @@ function generateMockTriggers() {
 var MOCK_DISPLAYS = generateMockDisplays();
 var MOCK_MEDIA = generateMockMedia();
 var MOCK_PLAYLISTS = generateMockPlaylists(MOCK_DISPLAYS, MOCK_MEDIA);
+var MOCK_PLUGINS = [
+  {
+    id: "weather",
+    name: "Weather",
+    description: "Current weather signage widget",
+    uri: "/plugins/weather/index.html",
+    enabled: true,
+    defaults: { units: "metric" },
+    params: {
+      location: {
+        type: "string",
+        title: "Location",
+        default: "Sydney"
+      }
+    }
+  },
+  {
+    id: "clock",
+    name: "Clock",
+    description: "Clock signage widget",
+    uri: "/plugins/clock/index.html",
+    enabled: true,
+    defaults: { format: "24h" },
+    params: {}
+  }
+];
 var MOCK_TRIGGERS = generateMockTriggers();
 var SIGNAGE_GROUPS = [
   {
@@ -116504,7 +117625,8 @@ function toEngineMedia(item) {
     created_at: item.created_at,
     updated_at: item.updated_at,
     valid_from: item.scheduling?.start_date,
-    valid_until: item.scheduling?.end_date
+    valid_until: item.scheduling?.end_date,
+    tags: item.tags || []
   };
 }
 function toEnginePlaylist(item) {
@@ -116528,9 +117650,42 @@ function playlistMediaResponse(playlist_id, approved = false) {
     id: `${playlist_id}-media`,
     playlist_id,
     items: (playlist?.items || []).map((item) => item.media_id),
+    schedules: (playlist?.items || []).map((item) => ({
+      id: item.id,
+      item_id: item.media_id,
+      schedules: []
+    })),
     approved,
     approval_requested: false,
     updated_at: playlist?.updated_at || getUnixTime(Date.now())
+  };
+}
+function signageDisplay(display_id) {
+  if (display_id === "display-1") {
+    throw { status: 404, message: "Display not found" };
+  }
+  const display = MOCK_DISPLAYS.find((item) => item.id === display_id) || MOCK_DISPLAYS[0];
+  const playlists = MOCK_PLAYLISTS.filter((playlist) => playlist.target?.displays?.includes(display.id) || playlist.target?.zones?.includes(display.zone_id)).slice(0, 3);
+  const mapped_playlists = playlists.length ? playlists : MOCK_PLAYLISTS.slice(0, 2);
+  const media_ids = [
+    ...new Set(mapped_playlists.flatMap((playlist) => playlist.items.map((item) => item.media_id)))
+  ];
+  return {
+    id: display_id,
+    zones: [display.zone_id, display.building_id].filter(Boolean),
+    playlist_mappings: {
+      [display_id]: mapped_playlists.map((playlist) => playlist.id),
+      [display.zone_id]: []
+    },
+    playlist_config: Object.fromEntries(mapped_playlists.map((playlist) => [
+      playlist.id,
+      [
+        toEnginePlaylist(playlist),
+        playlist.items.map((item) => item.media_id)
+      ]
+    ])),
+    playlist_media: media_ids.map((id) => MOCK_MEDIA.find((item) => item.id === id)).filter((item) => !!item).map(toEngineMedia),
+    plugins: MOCK_PLUGINS
   };
 }
 function registerMockSignage() {
@@ -116550,7 +117705,7 @@ function registerMockSignage() {
       });
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/groups/current",
     metadata: {},
     method: "GET",
@@ -116561,13 +117716,13 @@ function registerMockSignage() {
       return [];
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/groups",
     metadata: {},
     method: "GET",
     callback: (request) => listSignageMockGroups(request.query_params)
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/groups",
     metadata: {},
     method: "POST",
@@ -116582,7 +117737,7 @@ function registerMockSignage() {
       return group2;
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/groups/:id",
     metadata: {},
     method: "PATCH",
@@ -116596,7 +117751,7 @@ function registerMockSignage() {
       return item.group;
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/groups/:id",
     metadata: {},
     method: "DELETE",
@@ -116607,13 +117762,13 @@ function registerMockSignage() {
       return {};
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/group_users",
     metadata: {},
     method: "GET",
     callback: (request) => SIGNAGE_GROUP_USERS.filter((item) => item.group_id === request.query_params?.group_id)
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/group_users",
     metadata: {},
     method: "POST",
@@ -116630,7 +117785,7 @@ function registerMockSignage() {
       return item;
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/group_users/:user_id/:group_id",
     metadata: {},
     method: "PATCH",
@@ -116646,7 +117801,7 @@ function registerMockSignage() {
       return item;
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/group_users/:user_id/:group_id",
     metadata: {},
     method: "DELETE",
@@ -116659,13 +117814,13 @@ function registerMockSignage() {
       return {};
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/group_zones",
     metadata: {},
     method: "GET",
     callback: (request) => SIGNAGE_GROUP_ZONES.filter((item) => item.group_id === request.query_params?.group_id)
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/group_zones",
     metadata: {},
     method: "POST",
@@ -116682,7 +117837,7 @@ function registerMockSignage() {
       return item;
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/group_zones/:group_id/:zone_id",
     metadata: {},
     method: "PATCH",
@@ -116698,7 +117853,7 @@ function registerMockSignage() {
       return item;
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/group_zones/:group_id/:zone_id",
     metadata: {},
     method: "DELETE",
@@ -116711,13 +117866,21 @@ function registerMockSignage() {
       return {};
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/media",
     metadata: {},
     method: "GET",
     callback: (request) => filterByGroup(MOCK_MEDIA, request.query_params?.group_id).map(toEngineMedia)
   });
-  Wr({
+  Zr({
+    path: "/api/engine/v2/signage/media/tags",
+    metadata: {},
+    method: "GET",
+    callback: (request) => [
+      ...new Set(filterByGroup(MOCK_MEDIA, request.query_params?.group_id).flatMap((item) => item.tags || []).filter((tag2) => !!tag2))
+    ]
+  });
+  Zr({
     path: "/api/engine/v2/signage/media",
     metadata: {},
     method: "POST",
@@ -116727,7 +117890,13 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  Wr({
+  Zr({
+    path: "/api/engine/v2/signage/media/:id",
+    metadata: {},
+    method: "GET",
+    callback: (request) => toEngineMedia(MOCK_MEDIA.find((item) => item.id === request.route_params.id))
+  });
+  Zr({
     path: "/api/engine/v2/signage/media/:id",
     metadata: {},
     method: "PATCH",
@@ -116735,25 +117904,43 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/media/:id",
     metadata: {},
     method: "DELETE",
     callback: () => ({})
   });
-  Wr({
+  Zr({
+    path: "/api/engine/v2/signage/media/:id/thumbnail",
+    metadata: {},
+    method: "GET",
+    callback: () => ({})
+  });
+  Zr({
     path: "/api/engine/v2/signage/media/share",
     metadata: {},
     method: "POST",
     callback: () => ({})
   });
-  Wr({
+  Zr({
+    path: "/api/engine/v2/signage/plugins",
+    metadata: {},
+    method: "GET",
+    callback: () => MOCK_PLUGINS
+  });
+  Zr({
+    path: "/api/engine/v2/signage/plugins/:id",
+    metadata: {},
+    method: "GET",
+    callback: (request) => MOCK_PLUGINS.find((plugin) => plugin.id === request.route_params.id) || {}
+  });
+  Zr({
     path: "/api/engine/v2/signage/playlists",
     metadata: {},
     method: "GET",
     callback: (request) => filterByGroup(MOCK_PLAYLISTS, request.query_params?.group_id).map(toEnginePlaylist)
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/playlists/approvers",
     metadata: {},
     method: "GET",
@@ -116762,7 +117949,7 @@ function registerMockSignage() {
       name: item.user?.name || item.user_id
     }))
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/playlists",
     metadata: {},
     method: "POST",
@@ -116772,7 +117959,7 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/playlists/:id",
     metadata: {},
     method: "PATCH",
@@ -116780,19 +117967,19 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/playlists/:id",
     metadata: {},
     method: "DELETE",
     callback: () => ({})
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/playlists/:id/media",
     metadata: {},
     method: "GET",
     callback: (request) => playlistMediaResponse(request.route_params.id, false)
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/playlists/:id/media",
     metadata: {},
     method: "POST",
@@ -116801,7 +117988,31 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  Wr({
+  Zr({
+    path: "/api/engine/v2/signage/playlists/:id/media/schedule",
+    metadata: {},
+    method: "POST",
+    callback: (request) => __spreadProps(__spreadValues({}, playlistMediaResponse(request.route_params.id, false)), {
+      schedules: [
+        {
+          id: `schedule-${Date.now()}`,
+          item_id: request.body?.item_id,
+          schedules: request.body?.schedules || []
+        }
+      ]
+    })
+  });
+  Zr({
+    path: "/api/engine/v2/signage/playlists/:id/media/schedule/:item_id",
+    metadata: {},
+    method: "PATCH",
+    callback: (request) => ({
+      id: request.route_params.item_id,
+      item_id: request.body?.item_id || request.route_params.item_id,
+      schedules: request.body?.schedules || []
+    })
+  });
+  Zr({
     path: "/api/engine/v2/signage/playlists/:id/media/revisions",
     metadata: {},
     method: "GET",
@@ -116810,62 +118021,74 @@ function registerMockSignage() {
       playlistMediaResponse(request.route_params.id, true)
     ]
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/playlists/:id/media/approve",
     metadata: {},
     method: "POST",
     callback: (request) => playlistMediaResponse(request.route_params.id, true)
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/playlists/:id/media/request_approval",
     metadata: {},
     method: "POST",
     callback: () => ({})
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/playlists/share",
     metadata: {},
     method: "POST",
     callback: () => ({})
   });
-  Wr({
+  Zr({
+    path: "/api/engine/v2/signage/:id",
+    metadata: {},
+    method: "GET",
+    callback: (request) => signageDisplay(request.route_params.id)
+  });
+  Zr({
+    path: "/api/engine/v2/signage/:id/metrics",
+    metadata: {},
+    method: "POST",
+    callback: () => ({})
+  });
+  Zr({
     path: "/api/staff/v1/signage-displays",
     metadata: {},
     method: "GET",
     callback: (request) => {
       let displays = MOCK_DISPLAYS;
       if (request.query_params?.building_id) {
-        displays = displays.filter((d2) => d2.building_id === request.query_params.building_id);
+        displays = displays.filter((d) => d.building_id === request.query_params.building_id);
       }
       if (request.query_params?.status) {
-        displays = displays.filter((d2) => d2.status === request.query_params.status);
+        displays = displays.filter((d) => d.status === request.query_params.status);
       }
       if (request.query_params?.zone_id) {
-        displays = displays.filter((d2) => d2.zone_id === request.query_params.zone_id);
+        displays = displays.filter((d) => d.zone_id === request.query_params.zone_id);
       }
       return {
         data: displays,
         meta: {
           total: displays.length,
-          online: displays.filter((d2) => d2.status === "online").length,
-          offline: displays.filter((d2) => d2.status === "offline").length,
-          error: displays.filter((d2) => d2.status === "error").length
+          online: displays.filter((d) => d.status === "online").length,
+          offline: displays.filter((d) => d.status === "offline").length,
+          error: displays.filter((d) => d.status === "error").length
         }
       };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/signage/displays/:id",
     metadata: {},
     method: "GET",
     callback: (request) => {
-      const display = MOCK_DISPLAYS.find((d2) => d2.id === request.route_params.id);
+      const display = MOCK_DISPLAYS.find((d) => d.id === request.route_params.id);
       if (!display)
         throw { status: 404, message: "Display not found" };
       return display;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/signage/media",
     metadata: {},
     method: "GET",
@@ -116895,7 +118118,7 @@ function registerMockSignage() {
       };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/signage/playlists",
     metadata: {},
     method: "GET",
@@ -116917,7 +118140,7 @@ function registerMockSignage() {
       };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/signage/playlists/:id",
     metadata: {},
     method: "GET",
@@ -116933,7 +118156,7 @@ function registerMockSignage() {
       return playlistWithMedia;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/signage/triggers",
     metadata: {},
     method: "GET",
@@ -116956,12 +118179,12 @@ function registerMockSignage() {
       };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/signage/displays/:id/content",
     metadata: {},
     method: "GET",
     callback: (request) => {
-      const display = MOCK_DISPLAYS.find((d2) => d2.id === request.route_params.id);
+      const display = MOCK_DISPLAYS.find((d) => d.id === request.route_params.id);
       if (!display)
         throw { status: 404, message: "Display not found" };
       const activePlaylist = MOCK_PLAYLISTS.find((p2) => p2.status === "active" && p2.target.displays.includes(display.id));
@@ -116983,7 +118206,7 @@ function registerMockSignage() {
       };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/signage-analytics",
     metadata: {},
     method: "GET",
@@ -116992,14 +118215,14 @@ function registerMockSignage() {
       const building_id = request.query_params?.building_id;
       let displays = MOCK_DISPLAYS;
       if (building_id) {
-        displays = displays.filter((d2) => d2.building_id === building_id);
+        displays = displays.filter((d) => d.building_id === building_id);
       }
       return {
         timeframe,
         summary: {
           total_displays: displays.length,
-          online_displays: displays.filter((d2) => d2.status === "online").length,
-          total_impressions: displays.reduce((sum, d2) => sum + d2.analytics.daily_views, 0) * (timeframe === "7d" ? 7 : timeframe === "30d" ? 30 : 1),
+          online_displays: displays.filter((d) => d.status === "online").length,
+          total_impressions: displays.reduce((sum, d) => sum + d.analytics.daily_views, 0) * (timeframe === "7d" ? 7 : timeframe === "30d" ? 30 : 1),
           average_uptime: "99.2%",
           content_items_served: MOCK_MEDIA.length * displays.length * 24
         },
@@ -117018,7 +118241,7 @@ function registerMockSignage() {
           engagement_rate: media.performance.engagement_rate,
           average_view_time: media.performance.average_view_time
         })),
-        health_alerts: displays.filter((d2) => d2.status !== "online").map((display) => ({
+        health_alerts: displays.filter((d) => d.status !== "online").map((display) => ({
           display_id: display.id,
           display_name: display.name,
           alert_type: display.status,
@@ -117028,12 +118251,12 @@ function registerMockSignage() {
       };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/signage-displays/:id/control",
     metadata: {},
     method: "POST",
     callback: (request) => {
-      const display = MOCK_DISPLAYS.find((d2) => d2.id === request.route_params.id);
+      const display = MOCK_DISPLAYS.find((d) => d.id === request.route_params.id);
       if (!display)
         throw { status: 404, message: "Display not found" };
       const action = request.body?.action;
@@ -117627,7 +118850,7 @@ var MOCK_ANSWERS = [
   }
 ];
 function registerMockSurveys() {
-  Wr({
+  Zr({
     path: "/api/staff/v1/surveys",
     metadata: {},
     method: "GET",
@@ -117646,7 +118869,7 @@ function registerMockSurveys() {
       return filteredSurveys;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/surveys/questions",
     metadata: {},
     method: "GET",
@@ -117671,7 +118894,7 @@ function registerMockSurveys() {
       return filteredQuestions;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/surveys/questions/:id",
     metadata: {},
     method: "GET",
@@ -117686,7 +118909,7 @@ function registerMockSurveys() {
       return question;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/surveys/answers",
     metadata: {},
     method: "GET",
@@ -117707,7 +118930,7 @@ function registerMockSurveys() {
       return filteredAnswers;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/surveys/answers/:id",
     metadata: {},
     method: "GET",
@@ -117720,7 +118943,7 @@ function registerMockSurveys() {
       return answer;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/surveys/:id",
     metadata: {},
     method: "GET",
@@ -117735,7 +118958,7 @@ function registerMockSurveys() {
       return survey;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/surveys/answers",
     metadata: {},
     method: "POST",
@@ -118321,7 +119544,7 @@ var createSystemModule = (space, overrides = {}) => new RoomModule(__spreadValue
 
 // node_modules/ts-md5/dist/index.es.js
 var c = new Int32Array(4);
-var h = class _h {
+var h2 = class _h {
   static hashStr(i, a = false) {
     return this.onePassHasher.start().appendStr(i).end(a);
   }
@@ -118485,7 +119708,7 @@ var h = class _h {
     return _h._md5cycle(this._state, e), i ? this._state : _h._hex(this._state);
   }
 };
-if (h.hashStr("hello") !== "5d41402abc4b2a76b9719d911017c592")
+if (h2.hashStr("hello") !== "5d41402abc4b2a76b9719d911017c592")
   throw new Error("Md5 self test failed.");
 
 // libs/mocks/src/lib/realtime/desks.ts
@@ -118605,7 +119828,7 @@ function generateLocation(lvl, desks2, users = MOCK_STAFF) {
     location: "desk",
     at_location: predictableRandomInt(9999) % 2 !== 0,
     map_id: desks2[predictableRandomInt(desks2.length)],
-    mac: h?.hashStr(usr || ""),
+    mac: h2?.hashStr(usr || ""),
     level: lvl.id,
     building: lvl.parent_id
   } : {
@@ -118616,7 +119839,7 @@ function generateLocation(lvl, desks2, users = MOCK_STAFF) {
     lon: 55.27476066828535,
     lat: 25.20106100633537,
     s2_cell_id: "3e5f4281459c",
-    mac: h?.hashStr(usr || ""),
+    mac: h2?.hashStr(usr || ""),
     variance: 9.62534032222287,
     last_seen: Math.floor((/* @__PURE__ */ new Date()).valueOf() / 1e3),
     map_width: 100,
@@ -118778,9 +120001,9 @@ var createMicrophoneModule = (space, overrides = {}) => new MicrophoneModule(__s
 
 // libs/mocks/src/lib/realtime/payments.ts
 var PaymentsModule = class {
-  $list_payment_methods(type) {
+  $list_payment_methods(type2) {
   }
-  $add_payment_method(type, details) {
+  $add_payment_method(type2, details) {
   }
   $get_product_prices(id, period) {
     return [12e3, 60];
@@ -118892,7 +120115,7 @@ var createVideoConferenceModule = (space = {}, overrides = {}) => new VideoConfe
 
 // libs/mocks/src/lib/systems-bindings.mock.ts
 function createSystem(space) {
-  Nl(space.id, {
+  Fl(space.id, {
     System: [createSystemModule(space)],
     Bookings: [createBookingsModule(space)],
     ContactTracing: [createContactTracingModule(space)],
@@ -118907,7 +120130,7 @@ function createSystem(space) {
     Payment: [createPaymentsModule(space)],
     LockerLocations: [createLockerLocationsModule()]
   });
-  const system = mr(space.id);
+  const system = $r(space.id);
   system.Bookings[0].$poll_bookings();
   setInterval(() => system.Bookings[0].$poll_bookings(), 30 * 1e3);
   system.AreaManagement[0].$update();
@@ -118917,7 +120140,7 @@ function createSystem(space) {
 // libs/mocks/src/lib/api/systems.mock.ts
 function registerMockSystems() {
   MOCK_SPACES.forEach((space, index) => createSystem(space));
-  Wr({
+  Zr({
     path: "/api/engine/v2/systems",
     metadata: {},
     method: "GET",
@@ -118934,7 +120157,7 @@ function registerMockSystems() {
       return systems;
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/systems/:id",
     metadata: {},
     method: "GET",
@@ -118949,7 +120172,7 @@ function registerMockSystems() {
 
 // libs/mocks/src/lib/api/users.mock.ts
 function registerMockUsers() {
-  Wr({
+  Zr({
     path: "/api/engine/v2/users",
     metadata: {},
     method: "GET",
@@ -118961,7 +120184,7 @@ function registerMockUsers() {
       }).slice(0, limit);
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/users/:id",
     metadata: {},
     method: "GET",
@@ -118982,7 +120205,7 @@ function registerMockUsers() {
       throw { status: 404, message: "User not found" };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/people",
     metadata: {},
     method: "GET",
@@ -118996,7 +120219,7 @@ function registerMockUsers() {
       return MOCK_STAFF;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/people/:id",
     metadata: {},
     method: "GET",
@@ -119011,7 +120234,7 @@ function registerMockUsers() {
       throw { status: 404, message: "User not found" };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/guests",
     metadata: {},
     method: "GET",
@@ -119023,7 +120246,7 @@ function registerMockUsers() {
       return MOCK_STAFF;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/guests/:email",
     metadata: {},
     method: "GET",
@@ -119035,7 +120258,7 @@ function registerMockUsers() {
       throw { status: 404, message: "Guest not found" };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/guests/:email/meetings",
     metadata: {},
     method: "GET",
@@ -119060,12 +120283,12 @@ function registerMockUsers() {
     "none"
   ];
   function generateLocation2() {
-    const type = LOCATION_TYPES[predictableRandomInt(LOCATION_TYPES.length)];
+    const type2 = LOCATION_TYPES[predictableRandomInt(LOCATION_TYPES.length)];
     const level = MOCK_LEVELS[predictableRandomInt(MOCK_LEVELS.length)];
     const level_spaces = MOCK_SPACES.filter((s) => s.zones.includes(level.id));
     const space = level_spaces[predictableRandomInt(level_spaces.length)] || {};
     const location2 = {};
-    switch (type) {
+    switch (type2) {
       case "meeting":
         location2.meeting = {
           building: level.parent_id,
@@ -119085,7 +120308,7 @@ function registerMockUsers() {
         break;
       case "laptop":
       case "mobile":
-        location2[type] = {
+        location2[type2] = {
           building: level.parent_id,
           level: level.id,
           x: +predictableRandomInt(1e4),
@@ -119139,7 +120362,7 @@ function registerMockZones() {
     ...MOCK_LEVELS,
     ...MOCK_ZONES
   ];
-  Wr({
+  Zr({
     path: "/api/engine/v2/zones",
     metadata: {},
     method: "GET",
@@ -119155,7 +120378,7 @@ function registerMockZones() {
       return zones;
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/zones/:id",
     metadata: {},
     method: "GET",
@@ -119170,19 +120393,19 @@ function registerMockZones() {
       return zone;
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/settings",
     metadata: {},
     method: "GET",
     callback: (request) => []
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/settings/:id",
     metadata: {},
     method: "GET",
     callback: (request) => ({})
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/metadata/:id",
     metadata: {},
     method: "GET",
@@ -119298,7 +120521,7 @@ function registerMockZones() {
       return {};
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/metadata/:id",
     metadata: {},
     method: "PATCH",
@@ -119309,7 +120532,7 @@ function registerMockZones() {
       return request.body;
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/metadata/:id",
     metadata: {},
     method: "PUT",
@@ -119362,7 +120585,7 @@ function registerMockZones() {
     }
     return LOCKERS[id];
   }
-  Wr({
+  Zr({
     path: "/api/engine/v2/metadata/:id/children",
     metadata: {},
     method: "GET",
@@ -119398,6 +120621,124 @@ function mocksInit() {
   registerMockZones();
 }
 
+// apps/map-kiosk/src/environments/settings.schema.json
+var settings_schema_exports = {};
+__export(settings_schema_exports, {
+  default: () => settings_schema_default,
+  description: () => description,
+  properties: () => properties,
+  type: () => type
+});
+var type = "object";
+var description = "Customisable settings for the map-kiosk app";
+var properties = {
+  name: {
+    type: "string",
+    description: "Name of the application. Used as the suffix of the browser page title and as the default location name for bookings."
+  },
+  title: {
+    type: "string",
+    description: "Title for the application"
+  },
+  description: {
+    type: "string",
+    description: "Description of the application"
+  },
+  short_name: {
+    type: "string",
+    description: "Short name for the application. Used to namespace client settings and as a fallback for the page title."
+  },
+  logo_light: {
+    type: "string",
+    description: "URL of the logo to display in the top bar when the light theme is active. Also accepts an icon object with a `src` property."
+  },
+  logo_dark: {
+    type: "string",
+    description: "URL of the logo to display in the top bar when the dark theme is active. Also accepts an icon object with a `src` property."
+  },
+  use_region: {
+    type: "boolean",
+    description: "Whether the level list on the map view should include levels for all buildings in the active region (prefixed with the building name) instead of only the active building. Also scopes booking queries to the region."
+  },
+  inactivity_timeout_secs: {
+    type: "number",
+    description: "Number of seconds after the last user interaction before the map view resets the kiosk state (closes dialogs, recentres the map and returns to the default level). Defaults to `180`."
+  },
+  kiosk_reset_delay: {
+    type: "number",
+    description: "Number of milliseconds of inactivity before the desk booking view navigates back to the explore map. Defaults to `300000` (5 minutes)."
+  },
+  show_qr_for_booking: {
+    type: "boolean",
+    description: "Whether to show a QR code for completing bookings on a personal device"
+  },
+  allow_dark_mode: {
+    type: "boolean",
+    description: "Whether the dark mode toggle is shown in the accessibility controls"
+  },
+  chat: {
+    type: "object",
+    description: "Settings for the chat assistant",
+    properties: {
+      enabled: {
+        type: "boolean",
+        description: "Whether the global chat assistant widget is available in the app"
+      }
+    }
+  },
+  general: {
+    type: "object",
+    description: "General settings associated with the app"
+  },
+  explore: {
+    type: "object",
+    description: "Data associated with map rendering",
+    properties: {
+      search_enabled: {
+        type: "boolean",
+        description: "Whether the search bar is shown in the top bar of the map view"
+      },
+      show_legend: {
+        type: "boolean",
+        description: "Whether the legend section is shown in the map view sidebar. Only hidden when explicitly set to `false`."
+      },
+      hide_zones: {
+        type: "boolean",
+        description: "Whether to hide zone overlays on the explore map"
+      }
+    }
+  },
+  desks: {
+    type: "object",
+    description: "Data associated with the desk booking flow",
+    properties: {
+      hide_reason: {
+        type: "boolean",
+        description: "Whether to disable ability for user to set a reason for desk booking"
+      },
+      can_set_host: {
+        type: "boolean",
+        description: "Whether user is allowed to make desk bookings for others"
+      }
+    }
+  },
+  events: {
+    type: "object",
+    description: "Data associated with the meeting booking flow",
+    properties: {
+      can_book_for_others: {
+        type: "boolean",
+        description: "Whether users are allowed to set another person as the host when booking a space"
+      }
+    }
+  }
+};
+var settings_schema_default = {
+  type,
+  description,
+  properties
+};
+
 // apps/map-kiosk/src/app/app.component.ts
 function AppComponent_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -119406,6 +120747,7 @@ function AppComponent_Conditional_3_Template(rf, ctx) {
 }
 var AppComponent = class _AppComponent {
   constructor() {
+    this.settings_schema = settings_schema_exports;
     this._placeos = inject2(PlaceOS_Service);
     this.has_chat = settingSignal("chat.enabled", false);
   }
@@ -119419,24 +120761,27 @@ var AppComponent = class _AppComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AppComponent, selectors: [["app-root"]], decls: 5, vars: 1, consts: [[1, "relative", "h-1/2", "w-full", "flex-1"]], template: function AppComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AppComponent, selectors: [["app-root"]], decls: 6, vars: 2, consts: [[1, "relative", "h-1/2", "w-full", "flex-1"], [3, "schema"]], template: function AppComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275element(0, "global-banner");
         \u0275\u0275elementStart(1, "div", 0);
         \u0275\u0275element(2, "router-outlet");
         \u0275\u0275elementEnd();
         \u0275\u0275conditionalCreate(3, AppComponent_Conditional_3_Template, 1, 0, "global-chat");
-        \u0275\u0275element(4, "global-loading");
+        \u0275\u0275element(4, "global-loading")(5, "settings-debug-panel", 1);
       }
       if (rf & 2) {
         \u0275\u0275advance(3);
         \u0275\u0275conditional(ctx.has_chat() ? 3 : -1);
+        \u0275\u0275advance(2);
+        \u0275\u0275property("schema", ctx.settings_schema);
       }
     }, dependencies: [
       RouterOutlet,
       ChatComponent,
       GlobalBannerComponent,
-      GlobalLoadingComponent
+      GlobalLoadingComponent,
+      SettingsDebugPanelComponent
     ], styles: ["\n[_nghost-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n  width: 100%;\n}\n/*# sourceMappingURL=app.component.css.map */"] });
   }
 };
@@ -119447,7 +120792,8 @@ var AppComponent = class _AppComponent {
       RouterOutlet,
       ChatComponent,
       GlobalBannerComponent,
-      GlobalLoadingComponent
+      GlobalLoadingComponent,
+      SettingsDebugPanelComponent
     ], template: `
         <global-banner />
         <div class="relative h-1/2 w-full flex-1">
@@ -119457,12 +120803,12 @@ var AppComponent = class _AppComponent {
             <global-chat />
         }
         <global-loading />
-        <!-- <debug-console *ngIf="debug"></debug-console> -->
+        <settings-debug-panel [schema]="settings_schema" />
     `, styles: ["/* angular:styles/component:css;2c590c9e56511a088a1469fe4b227d8190323c208f95620a03712f1a8f5bae8d;/home/runner/work/user-interfaces/user-interfaces/apps/map-kiosk/src/app/app.component.ts */\n:host {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n  width: 100%;\n}\n/*# sourceMappingURL=app.component.css.map */\n"] }]
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AppComponent, { className: "AppComponent", filePath: "apps/map-kiosk/src/app/app.component.ts", lineNumber: 41 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AppComponent, { className: "AppComponent", filePath: "apps/map-kiosk/src/app/app.component.ts", lineNumber: 45 });
 })();
 
 // node_modules/@angular/animations/fesm2022/_util-chunk.mjs
@@ -121068,11 +122414,11 @@ var TimelineBuilder = class _TimelineBuilder {
     return this._keyframes.get(this.duration);
   }
   get properties() {
-    const properties = [];
+    const properties2 = [];
     for (let prop in this._currentKeyframe) {
-      properties.push(prop);
+      properties2.push(prop);
     }
-    return properties;
+    return properties2;
   }
   mergeTimelineCollectedStyles(timeline) {
     timeline._styleSummary.forEach((details1, prop) => {
@@ -121364,7 +122710,7 @@ var AnimationTrigger = class {
     return this.ast.queryCount > 0;
   }
   matchTransition(currentState, nextState, element, params) {
-    const entry = this.transitionFactories.find((f) => f.match(currentState, nextState, element, params));
+    const entry = this.transitionFactories.find((f2) => f2.match(currentState, nextState, element, params));
     return entry || null;
   }
   matchStyles(currentState, params, errors) {
@@ -123379,10 +124725,10 @@ var AnimationRendererFactory = class {
       delegate2?.removeChild(null, element);
     };
   }
-  createRenderer(hostElement, type) {
+  createRenderer(hostElement, type2) {
     const EMPTY_NAMESPACE_ID = "";
-    const delegate = this.delegate.createRenderer(hostElement, type);
-    if (!hostElement || !type?.data?.["animation"]) {
+    const delegate = this.delegate.createRenderer(hostElement, type2);
+    if (!hostElement || !type2?.data?.["animation"]) {
       const cache = this._rendererCache;
       let renderer = cache.get(delegate);
       if (!renderer) {
@@ -123392,8 +124738,8 @@ var AnimationRendererFactory = class {
       }
       return renderer;
     }
-    const componentId = type.id;
-    const namespaceId = type.id + "-" + this._currentId;
+    const componentId = type2.id;
+    const namespaceId = type2.id + "-" + this._currentId;
     this._currentId++;
     this.engine.register(namespaceId, hostElement);
     const registerTrigger = (trigger2) => {
@@ -123403,7 +124749,7 @@ var AnimationRendererFactory = class {
         this.engine.registerTrigger(componentId, namespaceId, hostElement, trigger2.name, trigger2);
       }
     };
-    const animationTriggers = type.data["animation"];
+    const animationTriggers = type2.data["animation"];
     animationTriggers.forEach(registerTrigger);
     return new AnimationRenderer(this, namespaceId, delegate, this.engine);
   }
@@ -124530,7 +125876,7 @@ var BootstrapComponent = class _BootstrapComponent extends AsyncHandler {
 })();
 
 // apps/map-kiosk/src/app/footer-menu.component.ts
-var _c029 = () => ["/desks"];
+var _c031 = () => ["/desks"];
 var _c115 = () => ["/explore"];
 var FooterMenuComponent = class _FooterMenuComponent {
   static {
@@ -124556,7 +125902,7 @@ var FooterMenuComponent = class _FooterMenuComponent {
       }
       if (rf & 2) {
         \u0275\u0275advance();
-        \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(2, _c029));
+        \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(2, _c031));
         \u0275\u0275advance(6);
         \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(3, _c115));
       }
@@ -125034,7 +126380,7 @@ var DeskQuestionsModalComponent = class _DeskQuestionsModalComponent {
 })();
 
 // libs/payments/src/lib/card-input-field.component.ts
-var _c030 = ["input"];
+var _c032 = ["input"];
 function CardInputFieldComponent_Conditional_9_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "img", 7);
@@ -125226,7 +126572,7 @@ var CardInputFieldComponent = class _CardInputFieldComponent extends AsyncHandle
   static {
     this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CardInputFieldComponent, selectors: [["card-input-field"]], viewQuery: function CardInputFieldComponent_Query(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275viewQuerySignal(ctx._input_el, _c030, 5);
+        \u0275\u0275viewQuerySignal(ctx._input_el, _c032, 5);
       }
       if (rf & 2) {
         \u0275\u0275queryAdvance();
@@ -125843,7 +127189,7 @@ var PaymentsService = class _PaymentsService {
     ]);
     return payment_method.id || payment_method;
   }
-  async _getCostOfProduct(type) {
+  async _getCostOfProduct(type2) {
     const price = [0, 60];
     const mod2 = this._org.module("payments", STRIPE_MODULE);
     if (!mod2)
@@ -125851,7 +127197,7 @@ var PaymentsService = class _PaymentsService {
     const product_list = await mod2.execute("get_product_prices", [
       null,
       null,
-      type
+      type2
     ]);
     if (!product_list.length)
       return price;
@@ -125994,11 +127340,11 @@ function formBookingData(value) {
   }
   return data;
 }
-function isCrossTypeEdit(booking, type) {
-  return !!booking?.id && !!booking.booking_type && booking.booking_type !== type;
+function isCrossTypeEdit(booking, type2) {
+  return !!booking?.id && !!booking.booking_type && booking.booking_type !== type2;
 }
 function buildBookingExtensionData(value, group_members) {
-  const type = value.booking_type;
+  const type2 = value.booking_type;
   return __spreadProps(__spreadValues(__spreadValues(__spreadValues(__spreadValues(__spreadProps(__spreadValues(__spreadValues({}, formExtensionData(value.extension_data)), value.extension_data?.invoice ? {
     invoice: value.extension_data.invoice,
     invoice_id: value.extension_data.invoice_id
@@ -126008,13 +127354,13 @@ function buildBookingExtensionData(value, group_members) {
     group: value.group,
     // `assets` is ignored by the constructor's auto-copy, so map it here.
     assets: value.assets.map((_2) => _2.toJSON())
-  }), type === "desk" ? {
+  }), type2 === "desk" ? {
     assigned_asset_id: value.asset_id,
     assigned_asset_name: value.asset_name || value.asset_id
-  } : {}), type === "visitor" ? {
+  } : {}), type2 === "visitor" ? {
     international: !!value.international,
     visitor_name: value.asset_name || value.asset_id || ""
-  } : {}), type === "parking" ? {
+  } : {}), type2 === "parking" ? {
     requires_manual_approval: !!value.requires_manual_approval,
     user_groups: [
       ...value.user ? value.user.groups || [] : currentUser()?.groups || []
@@ -126074,8 +127420,8 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     return firstValueWhere(ref.isLoading, (loading) => !loading, this._injector);
   }
   /** Load the resource list for the given booking type */
-  _loadResourcesForType(type) {
-    switch (type) {
+  _loadResourcesForType(type2) {
+    switch (type2) {
       case "desk":
         this._loading.set(i18n("BOOKINGS.DESKS_LOADING"));
         return this._finishResourceLoad(this.loadResourceList("desks"));
@@ -126102,7 +127448,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     if (!email2)
       return false;
     const map_metadata = (meta) => (meta?.metadata?.desks?.details instanceof Array ? meta.metadata.desks.details : []).map((desk) => new Desk(__spreadProps(__spreadValues({}, desk), { zone: meta.zone })));
-    const desk_lists = await Promise.all(buildings.map((building) => Qu(building.id, { name: "desks" }).then((data) => flatten2(data.map(map_metadata))).catch(() => [])));
+    const desk_lists = await Promise.all(buildings.map((building) => Ju(building.id, { name: "desks" }).then((data) => flatten2(data.map(map_metadata))).catch(() => [])));
     return flatten2(desk_lists).some((desk) => desk.assigned_to?.toLowerCase() === email2);
   }
   /**
@@ -126110,13 +127456,13 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
    * them. Only desk/parking/locker support assignment; any other type resolves
    * to `false` so it is never blocked by the reserved-resource restriction.
    */
-  async _computeHasAssignedResource(type) {
-    if (type === "desk")
+  async _computeHasAssignedResource(type2) {
+    if (type2 === "desk")
       return this._computeHasAssignedDesk();
     const email2 = currentUser()?.email?.toLowerCase();
     if (!email2)
       return false;
-    const resources = await this._loadRawResourcesForType(type).catch(() => []);
+    const resources = await this._loadRawResourcesForType(type2).catch(() => []);
     return resources.some((resource2) => resource2.assigned_to?.toLowerCase() === email2);
   }
   /**
@@ -126124,8 +127470,8 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
    * of `_loadResourcesForType`, so it can be used for background checks (e.g.
    * detecting an assigned resource during submission).
    */
-  _loadRawResourcesForType(type) {
-    switch (type) {
+  _loadRawResourcesForType(type2) {
+    switch (type2) {
       case "parking":
         return this.loadParkingResources();
       case "locker":
@@ -126143,7 +127489,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     const default_zone = (this._settings.get("app.use_region") ? this._org.region?.id : this._org.building?.id) || this._org.organisation.id;
     const zones = options2.zones?.length ? options2.zones.join(",") : options2.zone_id || default_zone;
     let booked_ids = [];
-    if (!kn()) {
+    if (!Sn()) {
       booked_ids = await this._bookedResourceList({
         period_start: getUnixTime(date),
         period_end: getUnixTime(addMinutes(date, duration)),
@@ -126199,15 +127545,15 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     const use_building_timezone = this.setting("use_building_timezone");
     return use_building_timezone ? this._org.building?.timezone || "" : "";
   }
-  newForm(type, booking = new Booking({})) {
-    if (isCrossTypeEdit(booking, type))
+  newForm(type2, booking = new Booking({})) {
+    if (isCrossTypeEdit(booking, type2))
       booking = new Booking({});
     this._startNetwork();
     this._calendar.loadCalendars();
-    if (type !== this._options().type) {
+    if (type2 !== this._options().type) {
       this._clearStoredForm();
     }
-    this.setOptions({ type });
+    this.setOptions({ type: type2 });
     this._asset_window = untracked2(() => {
       const { date, duration } = this._assets.getOptions();
       return assetWindowKey(date, duration);
@@ -126219,7 +127565,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     }
     this.model.set(bookingFormValue(new Booking()));
     this.form().reset();
-    this._patch(Ys(__spreadProps(__spreadValues(__spreadProps(__spreadValues({}, booking.extension_data), {
+    this._patch(Vs(__spreadProps(__spreadValues(__spreadProps(__spreadValues({}, booking.extension_data), {
       attachments: bookingAttachments(booking)
     }), booking), {
       _in_progress: booking.state === "started" || booking.state === "in_progress"
@@ -126397,8 +127743,8 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     this._booking_rules_params = computed(
       () => {
         const list2 = this._org.building_list();
-        const { type } = this._options();
-        return list2.length ? { ids: list2.map((bld) => bld.id), type } : void 0;
+        const { type: type2 } = this._options();
+        return list2.length ? { ids: list2.map((bld) => bld.id), type: type2 } : void 0;
       },
       ...ngDevMode ? [{ debugName: "_booking_rules_params" }] : (
         /* istanbul ignore next */
@@ -126412,8 +127758,8 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     )), {
       params: () => this._network_consumed() && this._requests_ready() ? this._booking_rules_params_debounced.value() : void 0,
       loader: ({ params }) => {
-        const { ids, type } = params;
-        return Promise.all(ids.map((id) => ju(id, `${type}_booking_rules`))).then((building_rules) => {
+        const { ids, type: type2 } = params;
+        return Promise.all(ids.map((id) => Wu(id, `${type2}_booking_rules`))).then((building_rules) => {
           const mapping = {};
           for (const rules of building_rules) {
             mapping[rules.id] = rules.details instanceof Array ? rules.details : [];
@@ -126554,7 +127900,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
   }
   _allDayTimeRange(date) {
     const period = this.setting("all_day_period");
-    return getAllDayTimeRange(date, this.timezone, period?.start, period?.end, this.model().id ? void 0 : Date.now());
+    return getAllDayTimeRange(date, this.timezone, period?.start, period?.end);
   }
   /**
    * Re-apply the supplied booking window after async form setup only if no
@@ -126593,6 +127939,10 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     }
   }
   resetForm() {
+    if (!currentUserIsLoaded()) {
+      currentUserLoaded().then(() => this.resetForm());
+      return;
+    }
     if (!sessionStorage.getItem(STORAGE_KEYS.booking_form)) {
       return this.newForm(this._options().type);
     }
@@ -126602,7 +127952,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       booked_by: currentUser()
     }));
     this.form().reset();
-    this._patch(Ys(__spreadProps(__spreadValues(__spreadValues({}, booking || {}), booking?.extension_data || {}), {
+    this._patch(Vs(__spreadProps(__spreadValues(__spreadValues({}, booking || {}), booking?.extension_data || {}), {
       attachments: bookingAttachments(booking),
       _in_progress: booking?.state === "started"
     }), [null, void 0, ""]));
@@ -126618,7 +127968,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     sessionStorage.removeItem(STORAGE_KEYS.booking_form_filters);
   }
   storeForm() {
-    sessionStorage.setItem(STORAGE_KEYS.booking_form, JSON.stringify(__spreadValues(__spreadValues({}, this._booking()), Ys(__spreadValues({}, this.model()), [null, void 0, ""]))));
+    sessionStorage.setItem(STORAGE_KEYS.booking_form, JSON.stringify(__spreadValues(__spreadValues({}, this._booking()), Vs(__spreadValues({}, this.model()), [null, void 0, ""]))));
     sessionStorage.setItem(STORAGE_KEYS.booking_form_filters, JSON.stringify(this._options() || {}));
   }
   loadForm(expected_type) {
@@ -126638,7 +127988,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       booked_by: currentUser()
     }));
     this.form().reset();
-    const booking_data = Ys(__spreadProps(__spreadValues(__spreadValues(__spreadValues({}, data), booking || {}), booking?.extension_data || {}), {
+    const booking_data = Vs(__spreadProps(__spreadValues(__spreadValues(__spreadValues({}, data), booking || {}), booking?.extension_data || {}), {
       attachments: bookingAttachments(booking),
       _in_progress: booking?.state === "started"
     }), [null, void 0, ""]);
@@ -126859,8 +128209,8 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
    * a shared singleton and `setting()` resolves against whichever flow's
    * `_options().type` happens to be active.
    */
-  settingForType(type, key) {
-    return this._settings.get(`app.${type}.${key}`) ?? this._settings.get(`app.${type}s.${key}`) ?? this._settings.get(`app.bookings.${key}`);
+  settingForType(type2, key) {
+    return this._settings.get(`app.${type2}.${key}`) ?? this._settings.get(`app.${type2}s.${key}`) ?? this._settings.get(`app.bookings.${key}`);
   }
   /** Whether auto-allocation is enabled for the current booking type */
   get auto_allocation() {
@@ -126914,7 +128264,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     });
   }
   async postFormForGroup() {
-    const { members, group: group2, type } = this._options();
+    const { members, group: group2, type: type2 } = this._options();
     if (!group2)
       throw i18n("BOOKINGS.GROUP_NOT_SET");
     const rollback_on_group_error = this.setting("rollback_group_bookings") === true;
@@ -126944,7 +128294,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
         return await this._checkResourceAvailable(__spreadProps(__spreadValues({}, form2), {
           asset_id: resource2.id,
           user_email: member.email
-        }), type);
+        }), type2);
       } catch (error2) {
         const message2 = this._error_message(error2);
         unavailable_errors.push(`${member.name || member.email}: ${message2}`);
@@ -126969,7 +128319,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     let parent_id = "";
     try {
       if (available.some((_2) => _2)) {
-        const group_booking = await this.createGroupContainerBooking(form2, group_name, group_members, type);
+        const group_booking = await this.createGroupContainerBooking(form2, group_name, group_members, type2);
         parent_id = group_booking.id;
         if (parent_id)
           booking_ids.push(parent_id);
@@ -127044,7 +128394,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     if (booking_failures.length) {
       localStorage.setItem(STORAGE_KEYS.last_group_booking_errors, JSON.stringify(booking_failures));
     }
-    this._finishGroupFlow(type);
+    this._finishGroupFlow(type2);
     return user_booking;
   }
   async postFormForVisitorGroup() {
@@ -127093,19 +128443,19 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     if (!booking?.id)
       return [];
     const parent_id = booking.parent_id || booking.id;
-    const { type } = this._options();
+    const { type: type2 } = this._options();
     const list2 = await queryBookings({
       period_start: getUnixTime(booking.date),
       period_end: getUnixTime(addMinutes(booking.date, booking.duration)),
-      type
+      type: type2
     });
     return list2.filter((b2) => b2.id === parent_id || b2.parent_id === parent_id);
   }
   async loadGroupMembersForBooking(booking) {
     if (!booking?.id)
       return [];
-    const type = this._options().type || booking.booking_type || "desk";
-    const is_visitor = type === "visitor";
+    const type2 = this._options().type || booking.booking_type || "desk";
+    const is_visitor = type2 === "visitor";
     const sibling_list = await this.loadGroupSiblings(booking);
     if (sibling_list.length) {
       return this.mapGroupMembersFromBookings(sibling_list, is_visitor);
@@ -127113,14 +128463,14 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     return this.mapGroupMembersFromExtension(booking.extension_data?.group_members || [], is_visitor);
   }
   async editFormForGroup(existing_siblings) {
-    const { members, type } = this._options();
+    const { members, type: type2 } = this._options();
     if (!members?.length)
       throw i18n("BOOKINGS.GROUP_NO_MEMBERS");
     const form2 = this.model();
     const base_form = __spreadProps(__spreadValues({}, form2), { id: "" });
     const parent_id = form2.parent_id || form2.id;
     const group_name = this._groupName(form2.group);
-    const is_visitor = type === "visitor";
+    const is_visitor = type2 === "visitor";
     const has_group_container_parent = !!form2.parent_id && !existing_siblings.some((s) => s.id === form2.parent_id);
     const sibling_map = {};
     for (const s of existing_siblings) {
@@ -127134,7 +128484,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       return key && !member_keys.has(key);
     });
     await Promise.all(to_delete.map((s) => removeBooking(s.id)));
-    const desk_resources = !is_visitor && type === "desk" ? await this._resolveDeskGroupResources(members, form2, [
+    const desk_resources = !is_visitor && type2 === "desk" ? await this._resolveDeskGroupResources(members, form2, [
       ...existing_siblings.filter((s) => !to_delete.find((item) => item.id === s.id))
     ]) : [];
     let first_result = null;
@@ -127145,7 +128495,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
         ...base_form.zones
       ].filter((_2) => _2));
       if (has_group_container_parent) {
-        await this.saveGroupContainerBooking(form2, group_name, members, type, parent_id);
+        await this.saveGroupContainerBooking(form2, group_name, members, type2, parent_id);
       }
       for (let index = 0; index < members.length; index++) {
         const member = members[index];
@@ -127178,7 +128528,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     } catch (error2) {
       throw this._error_message(error2);
     }
-    this._finishGroupFlow(type);
+    this._finishGroupFlow(type2);
     return first_result;
   }
   /** Build the group identifier, reusing an existing one when supplied. */
@@ -127332,8 +128682,8 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
         return "Resource";
     }
   }
-  mapGroupMembers(type, members = []) {
-    const user_list = type === "visitor" ? members : unique([currentUser(), ...members || []], "email");
+  mapGroupMembers(type2, members = []) {
+    const user_list = type2 === "visitor" ? members : unique([currentUser(), ...members || []], "email");
     return user_list.filter((member) => !!member?.email).map((member) => ({
       id: member.id || "",
       name: member.name || member.email,
@@ -127413,8 +128763,8 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
    * (default) they are fully blocked from booking another, including on
    * behalf of others.
    */
-  allowsBookingWithReservedResource(type) {
-    return this.settingForType(type, "allow_booking_with_reserved_resource") === true;
+  allowsBookingWithReservedResource(type2) {
+    return this.settingForType(type2, "allow_booking_with_reserved_resource") === true;
   }
   /**
    * Enforce the reserved-resource restriction for any assignable resource type
@@ -127426,30 +128776,30 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
    * `allowsBookingWithReservedResource()` (the master allow) so a self-booking
    * restriction never blanket-blocks the form for booking on behalf of others.
    */
-  async _checkAssignedResourceRestriction(user_email, type) {
+  async _checkAssignedResourceRestriction(user_email, type2) {
     const is_self = !user_email || user_email.toLowerCase() === currentUser()?.email?.toLowerCase();
     if (!is_self)
       return true;
-    const self_booking_allowed = this.allowsBookingWithReservedResource(type) && this.settingForType(type, "prevent_self_booking_if_assigned_resource") !== true;
+    const self_booking_allowed = this.allowsBookingWithReservedResource(type2) && this.settingForType(type2, "prevent_self_booking_if_assigned_resource") !== true;
     if (self_booking_allowed)
       return true;
-    if (await this._computeHasAssignedResource(type)) {
-      throw `You have an assigned ${type} and cannot book another ${type}.`;
+    if (await this._computeHasAssignedResource(type2)) {
+      throw `You have an assigned ${type2} and cannot book another ${type2}.`;
     }
     return true;
   }
   /** Check if the given resource is available for the selected user to book */
-  async _checkResourceAvailable({ id, asset_id, date, duration, all_day, user_email }, type) {
+  async _checkResourceAvailable({ id, asset_id, date, duration, all_day, user_email }, type2) {
     if (!user_email)
       throw i18n("BOOKINGS.NO_USER");
-    if (type === "group-event")
+    if (type2 === "group-event")
       return true;
-    await this._checkAssignedResourceRestriction(user_email, type);
+    await this._checkAssignedResourceRestriction(user_email, type2);
     const period = all_day ? this._allDayTimeRange(date) : { date, date_end: date + duration * 60 * 1e3 };
     const bookings = await queryBookings({
       period_start: getUnixTime(period.date),
       period_end: getUnixTime(period.date_end),
-      type,
+      type: type2,
       email: user_email,
       limit: 1e3
     });
@@ -127457,7 +128807,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     if (active_bookings.find((_2) => _2.asset_id === asset_id && id !== _2.id)) {
       throw i18n(asset_id.includes("@") ? "BOOKINGS.VISITOR_BOOKED" : "BOOKINGS.RESOURCE_BOOKED", { name: asset_id });
     }
-    const allowed_bookings = this._settings.get(`app.bookings.allowed_daily_${type}_count`) ?? 1;
+    const allowed_bookings = this._settings.get(`app.bookings.allowed_daily_${type2}_count`) ?? 1;
     if (allowed_bookings > 0 && active_bookings.filter((_2) => _2.user_email.toLowerCase() === (user_email || currentUser()?.email || "").toLowerCase() && _2.id !== id).length >= allowed_bookings) {
       const current = user_email === currentUser()?.email;
       throw i18n(current ? "BOOKINGS.CLASH_CURRENT_USER" : "BOOKINGS.CLASH_OTHER_USER", { name: user_email });
@@ -127495,7 +128845,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     if (this._useCurrentUserForBookingRules() || current_user2.email === host) {
       return current_user2;
     }
-    return Ca(host).catch(() => ({ email: host }));
+    return Na(host).catch(() => ({ email: host }));
   }
   /**
    * Check for clashing bookings in a recurring booking series
@@ -127504,12 +128854,12 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
    * @returns true if no clashes or user confirmed to continue
    * @throws Error if first instance clashes or clashes not allowed
    */
-  async _checkRecurringClashes(booking, type) {
+  async _checkRecurringClashes(booking, type2) {
     if (!booking.recurrence_type || booking.recurrence_type === "none") {
       return true;
     }
     const temp_booking = new Booking(__spreadProps(__spreadValues({}, booking), {
-      booking_type: type
+      booking_type: type2
     }));
     const clashes = await findBookingClashes(temp_booking, {
       include_clash_time: true
@@ -127567,17 +128917,17 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
   async loadParkingResources() {
     const use_region = this._settings.get("app.use_region");
     const levels = (use_region ? this._org.levelsForRegion() : this._org.levelsForBuilding()).filter((_2) => _2.tags.includes("parking"));
-    const spaces = await queryParkingSpacesForZones(levels.map((l2) => l2.id));
+    const spaces = await queryParkingSpacesForZones(levels.map((l) => l.id));
     return spaces.map((s) => __spreadProps(__spreadValues({}, s), {
       id: s.id || s.map_id,
       groups: s.place_groups,
       zone: this._org.levelWithID([s.zone_id])
     }));
   }
-  async loadResourceList(type) {
+  async loadResourceList(type2) {
     const use_region = this._settings.get("app.use_region");
-    const map_metadata = (_2) => (_2?.metadata[type]?.details instanceof Array ? _2.metadata[type].details : []).map((d2) => __spreadProps(__spreadValues({}, d2), {
-      id: d2.id || d2.map_id,
+    const map_metadata = (_2) => (_2?.metadata[type2]?.details instanceof Array ? _2.metadata[type2].details : []).map((d) => __spreadProps(__spreadValues({}, d), {
+      id: d.id || d.map_id,
       zone: _2.zone
     }));
     const id = use_region ? this._org.building?.parent_id : this._org.building?.id;
@@ -127586,11 +128936,11 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     if (use_region) {
       const id2 = this._org.building.parent_id;
       const buildings = this._org.buildings.filter((_2) => _2.parent_id === id2);
-      const lists = await Promise.all(buildings.map((_2) => Qu(_2.id, { name: type }).then((data2) => flatten2(data2.map(map_metadata)))));
+      const lists = await Promise.all(buildings.map((_2) => Ju(_2.id, { name: type2 }).then((data2) => flatten2(data2.map(map_metadata)))));
       return flatten2(lists);
     }
-    const data = await Qu(this._org.building.id, {
-      name: type
+    const data = await Ju(this._org.building.id, {
+      name: type2
     });
     return flatten2(data.map(map_metadata));
   }
@@ -127700,20 +129050,22 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
 })();
 
 // libs/explore/src/lib/set-datetime-modal.component.ts
-var _c031 = () => ({ standalone: true });
+var _c033 = () => ({ standalone: true });
 function SetDatetimeModalComponent_Conditional_6_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 6)(1, "div", 12)(2, "label");
-    \u0275\u0275text(3, "Resource:");
+    \u0275\u0275elementStart(0, "div", 6)(1, "div", 10)(2, "label");
+    \u0275\u0275text(3);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "div", 13);
+    \u0275\u0275elementStart(4, "div", 11);
     \u0275\u0275text(5);
     \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext(2);
-    \u0275\u0275advance(5);
-    \u0275\u0275textInterpolate1(" ", ctx_r1.resource().name || ctx_r1.resource().map_id || "Unknown Resource", " ");
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1("", ctx_r0.resource_type(), ":");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", ctx_r0.resource().name || ctx_r0.resource().map_id || "Unknown Resource", " ");
   }
 }
 function SetDatetimeModalComponent_Conditional_6_Conditional_2_Template(rf, ctx) {
@@ -127721,7 +129073,7 @@ function SetDatetimeModalComponent_Conditional_6_Conditional_2_Template(rf, ctx)
     \u0275\u0275elementStart(0, "div", 6)(1, "div", 7)(2, "label");
     \u0275\u0275text(3, "Host");
     \u0275\u0275elementEnd();
-    \u0275\u0275element(4, "a-user-search-field", 14);
+    \u0275\u0275element(4, "a-user-search-field", 12);
     \u0275\u0275controlCreate();
     \u0275\u0275elementEnd()();
   }
@@ -127730,25 +129082,9 @@ function SetDatetimeModalComponent_Conditional_6_Conditional_2_Template(rf, ctx)
     \u0275\u0275control();
   }
 }
-function SetDatetimeModalComponent_Conditional_6_Conditional_14_Template(rf, ctx) {
+function SetDatetimeModalComponent_Conditional_6_Conditional_9_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 9)(1, "label");
-    \u0275\u0275text(2, "End Time");
-    \u0275\u0275elementEnd();
-    \u0275\u0275element(3, "a-duration-field", 15);
-    \u0275\u0275controlCreate();
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext(2);
-    \u0275\u0275advance(3);
-    \u0275\u0275property("time", ctx_r1.form.get("date")?.value)("max", 10 * 60)("min", 60)("step", 60)("end_time", ctx_r1.bookable_hours()?.end)("use_24hr", ctx_r1.use_24hr_time());
-    \u0275\u0275control();
-  }
-}
-function SetDatetimeModalComponent_Conditional_6_Conditional_15_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 11)(1, "mat-checkbox", 16);
+    \u0275\u0275elementStart(0, "div", 13)(1, "mat-checkbox", 14);
     \u0275\u0275text(2);
     \u0275\u0275pipe(3, "translate");
     \u0275\u0275elementEnd();
@@ -127756,17 +129092,50 @@ function SetDatetimeModalComponent_Conditional_6_Conditional_15_Template(rf, ctx
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275classProp("-mb-7", !ctx_r0.form.value.all_day)("mb-2", ctx_r0.form.value.all_day);
     \u0275\u0275advance();
     \u0275\u0275control();
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 1, "COMMON.ALL_DAY"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 5, "COMMON.ALL_DAY"), " ");
+  }
+}
+function SetDatetimeModalComponent_Conditional_6_Conditional_10_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r2 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 6)(1, "div", 15)(2, "label");
+    \u0275\u0275text(3, "Start Time");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "a-time-field", 16);
+    \u0275\u0275listener("ngModelChange", function SetDatetimeModalComponent_Conditional_6_Conditional_10_Template_a_time_field_ngModelChange_4_listener($event) {
+      \u0275\u0275restoreView(_r2);
+      const ctx_r0 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r0.form.patchValue({ date: $event }));
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(5, "div", 15)(6, "label");
+    \u0275\u0275text(7, "End Time");
+    \u0275\u0275elementEnd();
+    \u0275\u0275element(8, "a-duration-field", 17);
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance(4);
+    \u0275\u0275property("ngModel", ctx_r0.form.value.date)("ngModelOptions", \u0275\u0275pureFunction0(10, _c033))("range", ctx_r0.bookable_hours())("use_24hr", ctx_r0.use_24hr_time());
+    \u0275\u0275control();
+    \u0275\u0275advance(4);
+    \u0275\u0275property("time", ctx_r0.form.get("date")?.value)("max", 10 * 60)("min", 60)("step", 60)("end_time", ctx_r0.bookable_hours()?.end)("use_24hr", ctx_r0.use_24hr_time());
+    \u0275\u0275control();
   }
 }
 function SetDatetimeModalComponent_Conditional_6_Template(rf, ctx) {
   if (rf & 1) {
-    const _r1 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "main", 3);
-    \u0275\u0275conditionalCreate(1, SetDatetimeModalComponent_Conditional_6_Conditional_1_Template, 6, 1, "div", 6);
+    \u0275\u0275conditionalCreate(1, SetDatetimeModalComponent_Conditional_6_Conditional_1_Template, 6, 2, "div", 6);
     \u0275\u0275conditionalCreate(2, SetDatetimeModalComponent_Conditional_6_Conditional_2_Template, 5, 0, "div", 6);
     \u0275\u0275elementStart(3, "div", 6)(4, "div", 7)(5, "label");
     \u0275\u0275text(6, "Date");
@@ -127776,40 +129145,24 @@ function SetDatetimeModalComponent_Conditional_6_Template(rf, ctx) {
     \u0275\u0275elementEnd();
     \u0275\u0275controlCreate();
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(9, "div", 6)(10, "div", 9)(11, "label");
-    \u0275\u0275text(12, "Start Time");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(13, "a-time-field", 10);
-    \u0275\u0275listener("ngModelChange", function SetDatetimeModalComponent_Conditional_6_Template_a_time_field_ngModelChange_13_listener($event) {
-      \u0275\u0275restoreView(_r1);
-      const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.form.patchValue({ date: $event }));
-    });
-    \u0275\u0275elementEnd();
-    \u0275\u0275controlCreate();
-    \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(14, SetDatetimeModalComponent_Conditional_6_Conditional_14_Template, 4, 6, "div", 9);
-    \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(15, SetDatetimeModalComponent_Conditional_6_Conditional_15_Template, 4, 3, "div", 11);
+    \u0275\u0275conditionalCreate(9, SetDatetimeModalComponent_Conditional_6_Conditional_9_Template, 4, 7, "div", 9);
+    \u0275\u0275conditionalCreate(10, SetDatetimeModalComponent_Conditional_6_Conditional_10_Template, 9, 11, "div", 6);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275property("formGroup", ctx_r1.form);
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275property("formGroup", ctx_r0.form);
     \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r1.resource() ? 1 : -1);
+    \u0275\u0275conditional(ctx_r0.resource() ? 1 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r1.host() ? 2 : -1);
+    \u0275\u0275conditional(ctx_r0.host() ? 2 : -1);
     \u0275\u0275advance(5);
-    \u0275\u0275property("to", ctx_r1.book_until());
+    \u0275\u0275property("to", ctx_r0.book_until());
     \u0275\u0275control();
-    \u0275\u0275advance(6);
-    \u0275\u0275property("ngModel", ctx_r1.form.value.date)("ngModelOptions", \u0275\u0275pureFunction0(10, _c031))("range", ctx_r1.bookable_hours())("use_24hr", ctx_r1.use_24hr_time());
-    \u0275\u0275control();
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(ctx_r0.allow_all_day() ? 9 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional(!ctx_r1.all_day() ? 14 : -1);
-    \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r1.allow_all_day() ? 15 : -1);
+    \u0275\u0275conditional(!ctx_r0.all_day() ? 10 : -1);
   }
 }
 var SetDatetimeModalComponent = class _SetDatetimeModalComponent {
@@ -127832,6 +129185,13 @@ var SetDatetimeModalComponent = class _SetDatetimeModalComponent {
     this.book_until = signal(
       this._data.until,
       ...ngDevMode ? [{ debugName: "book_until" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.resource_type = signal(
+      this._data.resource_type || "Resource",
+      ...ngDevMode ? [{ debugName: "resource_type" }] : (
         /* istanbul ignore next */
         []
       )
@@ -127894,7 +129254,7 @@ var SetDatetimeModalComponent = class _SetDatetimeModalComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SetDatetimeModalComponent, selectors: [["set-datetime-modal"]], decls: 11, vars: 5, consts: [[1, "bg-base-200", "m-2", "flex", "h-14", "w-[calc(100%-1rem)]", "items-center", "justify-between", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "w-[24rem]", "max-w-[85vw]", 3, "formGroup"], [1, "bg-base-200", "mx-2", "mb-2", "flex", "w-[calc(100%-1rem)]", "items-center", "justify-end", "rounded-sm", "border-none", "p-2"], ["btn", "", "matRipple", "", 1, "w-32", 3, "mat-dialog-close"], [1, "mx-auto", "flex", "w-[640px]", "max-w-[calc(100%-2rem)]", "flex-col", "space-x-0", "sm:flex-row", "sm:space-x-2"], [1, "flex", "w-full", "flex-1", "flex-col", "sm:w-1/4"], ["formControlName", "date", 3, "to"], [1, "flex", "w-full", "flex-1", "flex-col", "sm:w-1/3"], [3, "ngModelChange", "ngModel", "ngModelOptions", "range", "use_24hr"], [1, "mx-auto", "flex", "w-[640px]", "max-w-[calc(100%-2rem)]", "justify-end"], [1, "mb-2", "flex", "w-full", "flex-1", "flex-col", "sm:w-1/4"], [1, "border-base-200", "mb-4", "w-full", "rounded-sm", "border", "px-4", "py-3"], ["formControlName", "user", 1, "mb-4"], ["formControlName", "duration", 3, "time", "max", "min", "step", "end_time", "use_24hr"], ["formControlName", "all_day"]], template: function SetDatetimeModalComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SetDatetimeModalComponent, selectors: [["set-datetime-modal"]], decls: 11, vars: 5, consts: [[1, "bg-base-200", "m-2", "flex", "h-14", "w-[calc(100%-1rem)]", "items-center", "justify-between", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "w-[24rem]", "max-w-[85vw]", 3, "formGroup"], [1, "bg-base-200", "mx-2", "mb-2", "flex", "w-[calc(100%-1rem)]", "items-center", "justify-end", "rounded-sm", "border-none", "p-2"], ["btn", "", "matRipple", "", 1, "w-32", 3, "mat-dialog-close"], [1, "mx-auto", "flex", "w-[640px]", "max-w-[calc(100%-2rem)]", "flex-col", "space-x-0", "sm:flex-row", "sm:space-x-2"], [1, "flex", "w-full", "flex-1", "flex-col", "sm:w-1/4"], ["formControlName", "date", 3, "to"], [1, "mx-auto", "flex", "w-[640px]", "max-w-[calc(100%-2rem)]", "justify-end", 3, "-mb-7", "mb-2"], [1, "mb-2", "flex", "w-full", "flex-1", "flex-col", "sm:w-1/4"], [1, "border-base-200", "mb-4", "w-full", "rounded-sm", "border", "px-4", "py-3"], ["formControlName", "user", 1, "mb-4"], [1, "mx-auto", "flex", "w-[640px]", "max-w-[calc(100%-2rem)]", "justify-end"], ["formControlName", "all_day"], [1, "flex", "w-full", "flex-1", "flex-col", "sm:w-1/3"], [3, "ngModelChange", "ngModel", "ngModelOptions", "range", "use_24hr"], ["formControlName", "duration", 3, "time", "max", "min", "step", "end_time", "use_24hr"]], template: function SetDatetimeModalComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "header", 0)(1, "h2", 1);
         \u0275\u0275text(2, "Set date and time");
@@ -127902,7 +129262,7 @@ var SetDatetimeModalComponent = class _SetDatetimeModalComponent {
         \u0275\u0275elementStart(3, "button", 2)(4, "icon");
         \u0275\u0275text(5, "close");
         \u0275\u0275elementEnd()()();
-        \u0275\u0275conditionalCreate(6, SetDatetimeModalComponent_Conditional_6_Template, 16, 11, "main", 3);
+        \u0275\u0275conditionalCreate(6, SetDatetimeModalComponent_Conditional_6_Template, 11, 6, "main", 3);
         \u0275\u0275elementStart(7, "footer", 4)(8, "button", 5);
         \u0275\u0275text(9);
         \u0275\u0275pipe(10, "translate");
@@ -127958,7 +129318,7 @@ var SetDatetimeModalComponent = class _SetDatetimeModalComponent {
                         class="mx-auto flex w-[640px] max-w-[calc(100%-2rem)] flex-col space-x-0 sm:flex-row sm:space-x-2"
                     >
                         <div class="mb-2 flex w-full flex-1 flex-col sm:w-1/4">
-                            <label>Resource:</label>
+                            <label>{{ resource_type() }}:</label>
                             <div
                                 class="border-base-200 mb-4 w-full rounded-sm border px-4 py-3"
                             >
@@ -127997,20 +129357,33 @@ var SetDatetimeModalComponent = class _SetDatetimeModalComponent {
                         </a-date-field>
                     </div>
                 </div>
-                <div
-                    class="mx-auto flex w-[640px] max-w-[calc(100%-2rem)] flex-col space-x-0 sm:flex-row sm:space-x-2"
-                >
-                    <div class="flex w-full flex-1 flex-col sm:w-1/3">
-                        <label>Start Time</label>
-                        <a-time-field
-                            [ngModel]="form.value.date"
-                            (ngModelChange)="form.patchValue({ date: $event })"
-                            [ngModelOptions]="{ standalone: true }"
-                            [range]="bookable_hours()"
-                            [use_24hr]="use_24hr_time()"
-                        ></a-time-field>
+                @if (allow_all_day()) {
+                    <div
+                        class="mx-auto flex w-[640px] max-w-[calc(100%-2rem)] justify-end"
+                        [class.-mb-7]="!form.value.all_day"
+                        [class.mb-2]="form.value.all_day"
+                    >
+                        <mat-checkbox formControlName="all_day">
+                            {{ 'COMMON.ALL_DAY' | translate }}
+                        </mat-checkbox>
                     </div>
-                    @if (!all_day()) {
+                }
+                @if (!all_day()) {
+                    <div
+                        class="mx-auto flex w-[640px] max-w-[calc(100%-2rem)] flex-col space-x-0 sm:flex-row sm:space-x-2"
+                    >
+                        <div class="flex w-full flex-1 flex-col sm:w-1/3">
+                            <label>Start Time</label>
+                            <a-time-field
+                                [ngModel]="form.value.date"
+                                (ngModelChange)="
+                                    form.patchValue({ date: $event })
+                                "
+                                [ngModelOptions]="{ standalone: true }"
+                                [range]="bookable_hours()"
+                                [use_24hr]="use_24hr_time()"
+                            ></a-time-field>
+                        </div>
                         <div class="flex w-full flex-1 flex-col sm:w-1/3">
                             <label>End Time</label>
                             <a-duration-field
@@ -128024,15 +129397,6 @@ var SetDatetimeModalComponent = class _SetDatetimeModalComponent {
                             >
                             </a-duration-field>
                         </div>
-                    }
-                </div>
-                @if (allow_all_day()) {
-                    <div
-                        class="mx-auto flex w-[640px] max-w-[calc(100%-2rem)] justify-end"
-                    >
-                        <mat-checkbox formControlName="all_day">
-                            {{ 'COMMON.ALL_DAY' | translate }}
-                        </mat-checkbox>
                     </div>
                 }
             </main>
@@ -128060,7 +129424,7 @@ var SetDatetimeModalComponent = class _SetDatetimeModalComponent {
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SetDatetimeModalComponent, { className: "SetDatetimeModalComponent", filePath: "libs/explore/src/lib/set-datetime-modal.component.ts", lineNumber: 148 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SetDatetimeModalComponent, { className: "SetDatetimeModalComponent", filePath: "libs/explore/src/lib/set-datetime-modal.component.ts", lineNumber: 152 });
 })();
 
 // libs/explore/src/lib/explore-desk-info.component.ts
@@ -128746,7 +130110,7 @@ var ExploreDeviceInfoComponent = class _ExploreDeviceInfoComponent {
   async loadUser() {
     if (this.username())
       return;
-    const mod2 = Fl(this._details.system, "LocationServices");
+    const mod2 = Wl(this._details.system, "LocationServices");
     if (!mod2)
       return;
     this.username.set("Loading...");
@@ -128980,7 +130344,7 @@ var ExploreDesksService = class _ExploreDesksService extends AsyncHandler {
       {}
     )), {
       params: () => this._building() || void 0,
-      loader: ({ params: bld }) => ju(bld.id, `desk_booking_rules`).then((_2) => _2?.details instanceof Array ? _2.details : []).catch(() => [])
+      loader: ({ params: bld }) => Wu(bld.id, `desk_booking_rules`).then((_2) => _2?.details instanceof Array ? _2.details : []).catch(() => [])
     }));
     this.booking_rules = computed(
       () => this._booking_rules.value() ?? [],
@@ -128994,7 +130358,7 @@ var ExploreDesksService = class _ExploreDesksService extends AsyncHandler {
       {}
     )), {
       params: () => this._state.level() || void 0,
-      loader: ({ params: lvl }) => ju(lvl.id, "desks").catch(() => ({ details: [] })).then((i) => (i?.details instanceof Array ? i.details : []).map((j) => new Desk(__spreadProps(__spreadValues({}, j), { zone: lvl }))))
+      loader: ({ params: lvl }) => Wu(lvl.id, "desks").catch(() => ({ details: [] })).then((i) => (i?.details instanceof Array ? i.details : []).map((j) => new Desk(__spreadProps(__spreadValues({}, j), { zone: lvl }))))
     }));
     this.desk_list = computed(
       () => this._desk_list.value() ?? [],
@@ -129063,12 +130427,12 @@ var ExploreDesksService = class _ExploreDesksService extends AsyncHandler {
       return;
     const binding = mod2.variable(zone_id);
     if (binding) {
-      this.subscription(`lvl-in_use`, binding.bindThenSubscribe((d2) => this.processBindingChange(d2 || {}, mod2.id)));
+      this.subscription(`lvl-in_use`, binding.bindThenSubscribe((d) => this.processBindingChange(d || {}, mod2.id)));
     }
     const bookings_binding = mod2.variable(`${zone_id}:desk_bookings`);
     if (bookings_binding) {
-      this.subscription(`lvl-desk_bookings`, bookings_binding.bindThenSubscribe((d2) => {
-        const value = __spreadValues({}, d2 || {});
+      this.subscription(`lvl-desk_bookings`, bookings_binding.bindThenSubscribe((d) => {
+        const value = __spreadValues({}, d || {});
         for (const id in value) {
           const new_bookings = value[id].map((_2) => new Booking(__spreadProps(__spreadValues({}, _2), {
             booking_start: _2.booking_start || _2.started_at,
@@ -129244,6 +130608,7 @@ var ExploreDesksService = class _ExploreDesksService extends AsyncHandler {
           duration,
           until,
           host,
+          resource_type: "Desk",
           resource: resource2,
           all_day,
           allow_all_day,
@@ -129283,14 +130648,14 @@ var ExploreDesksService = class _ExploreDesksService extends AsyncHandler {
         date: bookable_hours ? alignDateToBookableHours(options2.date, bookable_hours) : options2.date
       }));
       this._bookings.model.update((m2) => __spreadProps(__spreadValues({}, m2), {
-        all_day: !!options2.all_day
+        all_day: options2.all_day ?? m2.all_day
       }));
     } else if (bookable_hours) {
       this._bookings.model.update((m2) => __spreadProps(__spreadValues({}, m2), {
         date: alignDateToBookableHours(this._bookings.model().date, bookable_hours)
       }));
     }
-    let { date, duration, user, all_day } = await this._setBookingTime(this._bookings.model().date, this._bookings.model().duration, this._options()?.custom ?? false, desk, !!options2.all_day, bookable_hours);
+    let { date, duration, user, all_day } = await this._setBookingTime(this._bookings.model().date, this._bookings.model().duration, this._options()?.custom ?? false, desk, options2.all_day ?? this._bookings.model().all_day, bookable_hours);
     user = user || options2.host || currentUser();
     const user_email = user?.email;
     this._bookings.model.update((m2) => __spreadProps(__spreadValues({}, m2), {
@@ -129475,7 +130840,7 @@ var ParkingService = class _ParkingService extends AsyncHandler {
     effect(() => {
       const levels = this.levels();
       if (levels[0]?.id)
-        untracked2(() => this._loadSpaces(levels.map((l2) => l2.id)));
+        untracked2(() => this._loadSpaces(levels.map((l) => l.id)));
     });
     effect(() => {
       const bld = this._org.active_building();
@@ -129521,9 +130886,9 @@ var ParkingService = class _ParkingService extends AsyncHandler {
     const buildings = this._org.building_list();
     if (!buildings?.length)
       return;
-    const results = await Promise.all(buildings.map((bld) => Qu(bld.id, { name: "desks" }).then((data) => ({
+    const results = await Promise.all(buildings.map((bld) => Ju(bld.id, { name: "desks" }).then((data) => ({
       building_id: bld.id,
-      desks: flatten2(data.map((meta) => (meta?.metadata?.desks?.details instanceof Array ? meta.metadata.desks.details : []).map((d2) => new Desk(__spreadProps(__spreadValues({}, d2), {
+      desks: flatten2(data.map((meta) => (meta?.metadata?.desks?.details instanceof Array ? meta.metadata.desks.details : []).map((d) => new Desk(__spreadProps(__spreadValues({}, d), {
         zone: meta.zone
       })))))
     })).catch(() => ({
@@ -129533,7 +130898,7 @@ var ParkingService = class _ParkingService extends AsyncHandler {
     const email2 = currentUser()?.email?.toLowerCase();
     if (!email2)
       return this._home_building_id.set(null);
-    const match3 = results.find((r) => r.desks.some((d2) => d2.assigned_to?.toLowerCase() === email2));
+    const match3 = results.find((r) => r.desks.some((d) => d.assigned_to?.toLowerCase() === email2));
     this._home_building_id.set(match3?.building_id || null);
   }
   static {
@@ -129799,7 +131164,7 @@ var ExploreParkingService = class _ExploreParkingService extends AsyncHandler {
       {}
     )), {
       params: () => this._building() || void 0,
-      loader: ({ params: bld }) => ju(bld.id, `parking_booking_rules`).then((_2) => _2?.details instanceof Array ? _2.details : []).catch(() => [])
+      loader: ({ params: bld }) => Wu(bld.id, `parking_booking_rules`).then((_2) => _2?.details instanceof Array ? _2.details : []).catch(() => [])
     }));
     this.booking_rules = computed(
       () => this._booking_rules.value() ?? [],
@@ -129813,18 +131178,25 @@ var ExploreParkingService = class _ExploreParkingService extends AsyncHandler {
       {}
     )), {
       params: () => ({
-        bld: this._building(),
         is_public: this._state.options().is_public,
+        level_id: this._state.level()?.id,
         date: this._options().date,
+        all_day: this._options().all_day,
+        duration: this._options().duration,
         poll: this._poll()
       }),
-      loader: ({ params: { bld, is_public, date } }) => is_public ? Promise.resolve([]) : queryBookings({
-        period_start: getUnixTime(startOfMinute(date || Date.now())),
-        period_end: getUnixTime(endOfMinute(date || Date.now())),
-        type: "parking",
-        zones: this._settings.get("app.use_region") ? bld?.parent_id : bld?.id,
-        rejected: false
-      }).catch(() => [])
+      loader: ({ params: { is_public, level_id, date, all_day, duration } }) => {
+        const time = date ?? Date.now();
+        const bookable_hours = all_day ? this._settings.get("app.parking.bookable_hours") || this._settings.get("app.bookings.bookable_hours") || null : null;
+        const all_day_range = getAllDayTimeRange(time, "", bookable_hours?.start, bookable_hours?.end);
+        return is_public || !level_id ? Promise.resolve([]) : queryAllBookings({
+          period_start: getUnixTime(all_day ? all_day_range.date : duration ? time : addMinutes(time, -15)),
+          period_end: getUnixTime(all_day ? all_day_range.date_end : addMinutes(time, duration || 30)),
+          type: "parking",
+          zones: level_id,
+          rejected: false
+        }).catch(() => []);
+      }
     }));
     this.events = computed(
       () => this._events.value() ?? [],
@@ -129861,7 +131233,7 @@ var ExploreParkingService = class _ExploreParkingService extends AsyncHandler {
     )), {
       params: () => {
         const levels = this.levels();
-        return levels.length ? levels.map((l2) => l2.id) : void 0;
+        return levels.length ? levels.map((l) => l.id) : void 0;
       },
       loader: ({ params: zones }) => queryParkingSpacesForZones(zones).catch(() => [])
     }));
@@ -130071,7 +131443,7 @@ var ExploreParkingService = class _ExploreParkingService extends AsyncHandler {
 })();
 
 // libs/components/src/lib/map-canvas.component.ts
-var _c032 = ["canvas"];
+var _c034 = ["canvas"];
 var MapCanvasComponent = class _MapCanvasComponent {
   constructor() {
     this._data = inject2(MAP_FEATURE_DATA);
@@ -130184,7 +131556,7 @@ var MapCanvasComponent = class _MapCanvasComponent {
   static {
     this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MapCanvasComponent, selectors: [["", "map-canvas", ""]], viewQuery: function MapCanvasComponent_Query(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275viewQuerySignal(ctx.canvas_element, _c032, 5);
+        \u0275\u0275viewQuerySignal(ctx.canvas_element, _c034, 5);
       }
       if (rf & 2) {
         \u0275\u0275queryAdvance();
@@ -130440,7 +131812,7 @@ var ExploreZonesService = class _ExploreZonesService extends AsyncHandler {
   }
   async init() {
     await firstValueWhere(this._org_initialised, (_2) => !!_2, this._injector);
-    const zone_metadata = await Promise.all(this._org.levels.map((bld) => ju(bld.id, "map_regions").catch(() => null)));
+    const zone_metadata = await Promise.all(this._org.levels.map((bld) => Wu(bld.id, "map_regions").catch(() => null)));
     this._area_list = [];
     for (const zone of zone_metadata) {
       const areas = zone?.details?.areas;
@@ -130479,8 +131851,8 @@ var ExploreZonesService = class _ExploreZonesService extends AsyncHandler {
       return;
     const bind_areas = mod2.variable(`${zone_id}:areas`);
     const bind_zone = mod2.variable(`${zone_id}`);
-    this.subscription("binding", bind_areas.bindThenSubscribe((d2) => this._area_data.set(d2)));
-    this.subscription("zone-binding", bind_zone.bindThenSubscribe((d2) => this._zone_data.set(d2)));
+    this.subscription("binding", bind_areas.bindThenSubscribe((d) => this._area_data.set(d)));
+    this.subscription("zone-binding", bind_zone.bindThenSubscribe((d) => this._zone_data.set(d)));
   }
   parseData(value = []) {
     const labels = [];
@@ -130626,15 +131998,15 @@ var ASCENDING_NAME_SORTER = new Intl.Collator(void 0, {
 });
 function queryAssetCategoriesLocal(query2 = {}) {
   const q = toQueryString(query2);
-  return d(`${BASE_ENDPOINT}/asset_categories${q ? "?" + q : ""}`).then((_2) => _2);
+  return f(`${BASE_ENDPOINT}/asset_categories${q ? "?" + q : ""}`).then((_2) => _2);
 }
 function queryAssetTypesLocal(query2 = {}) {
   const q = toQueryString(query2);
-  return d(`${BASE_ENDPOINT}/asset_types${q ? "?" + q : ""}`).then((_2) => _2);
+  return f(`${BASE_ENDPOINT}/asset_types${q ? "?" + q : ""}`).then((_2) => _2);
 }
 function queryAssetsLocal(query2 = {}) {
   const q = toQueryString(query2);
-  return d(`${BASE_ENDPOINT}/assets${q ? "?" + q : ""}`).then((_2) => _2);
+  return f(`${BASE_ENDPOINT}/assets${q ? "?" + q : ""}`).then((_2) => _2);
 }
 var TYPES = ["space", "feature", "contact", "user"];
 function typeIndex(item) {
@@ -130763,7 +132135,7 @@ var ExploreSearchService = class _ExploreSearchService {
     )), {
       params: () => this._building() || void 0,
       loader: async ({ params: bld }) => {
-        const { details } = await ju(bld.id, "emergency_contacts").catch(() => ({
+        const { details } = await Wu(bld.id, "emergency_contacts").catch(() => ({
           details: { contacts: [], migrated: false }
         }));
         const data = details;
@@ -130796,7 +132168,7 @@ var ExploreSearchService = class _ExploreSearchService {
       {}
     )), {
       params: () => ({ q: this._debounced_filter.value() }),
-      loader: ({ params: { q } }) => q?.length > 2 ? ta({ q, zone_id: this._org.organisation.id }).then(({ data }) => data.filter((_2) => _2.map_id).map((_2) => new Space(__spreadProps(__spreadValues({}, _2), {
+      loader: ({ params: { q } }) => q?.length > 2 ? ia({ q, zone_id: this._org.organisation.id }).then(({ data }) => data.filter((_2) => _2.map_id).map((_2) => new Space(__spreadProps(__spreadValues({}, _2), {
         level: this._org.levelWithID(_2.zones)
       })))).catch(() => []) : Promise.resolve([])
     }));
@@ -130805,7 +132177,7 @@ var ExploreSearchService = class _ExploreSearchService {
       {}
     )), {
       params: () => this._building() || void 0,
-      loader: ({ params: bld }) => Qu(bld.id, { name: "desks" }).then((i) => flatten2(i.map((j) => (j.metadata.desks?.details || []).map((k) => new Desk(__spreadProps(__spreadValues({}, k), { zone: j.zone })))))).catch(() => [])
+      loader: ({ params: bld }) => Ju(bld.id, { name: "desks" }).then((i) => flatten2(i.map((j) => (j.metadata.desks?.details || []).map((k) => new Desk(__spreadProps(__spreadValues({}, k), { zone: j.zone })))))).catch(() => [])
     }));
     this._maps_people_search = resource(__spreadProps(__spreadValues({}, ngDevMode ? { debugName: "_maps_people_search" } : (
       /* istanbul ignore next */
@@ -130833,7 +132205,7 @@ var ExploreSearchService = class _ExploreSearchService {
     )), {
       params: () => this._building() || void 0,
       loader: async () => {
-        const data = await Qu(this._org.building.id, {
+        const data = await Ju(this._org.building.id, {
           name: "map_features"
         }).catch(() => []);
         const list2 = [];
@@ -130860,7 +132232,7 @@ var ExploreSearchService = class _ExploreSearchService {
       {}
     )), {
       params: () => this._initialised() || void 0,
-      loader: () => ju(this._org.organisation.id, "points-of-interest").catch((_2) => ({ details: {} }))
+      loader: () => Wu(this._org.organisation.id, "points-of-interest").catch((_2) => ({ details: {} }))
     }));
     this._poi_list = computed(
       () => {
@@ -131012,7 +132384,7 @@ var ExploreSearchService = class _ExploreSearchService {
         []
       )
     );
-    this.search_fn = (q) => this._settings.get("app.basic_user_search") ? Ea({ q, authority_id: Rt()?.id }).then((_2) => _2.data) : searchStaff(q);
+    this.search_fn = (q) => this._settings.get("app.basic_user_search") ? Ma({ q, authority_id: Rt()?.id }).then((_2) => _2.data) : searchStaff(q);
     this.init();
   }
   async init() {
@@ -131026,9 +132398,9 @@ var ExploreSearchService = class _ExploreSearchService {
       const binding = mod2.variable("emergency_contacts");
       binding.bindThenSubscribe((contacts_map) => {
         const list2 = [];
-        for (const type in contacts_map) {
-          for (const user of contacts_map[type]) {
-            list2.push(__spreadProps(__spreadValues({}, user), { type }));
+        for (const type2 in contacts_map) {
+          for (const user of contacts_map[type2]) {
+            list2.push(__spreadProps(__spreadValues({}, user), { type: type2 }));
           }
         }
         this._emergency_contacts.set(list2);
@@ -131064,9 +132436,9 @@ var ExploreSearchService = class _ExploreSearchService {
 })();
 
 // libs/explore/src/lib/explore-search.component.ts
-var _c033 = ["input"];
+var _c035 = ["input"];
 var _c116 = ["button"];
-var _forTrack06 = ($index, $item) => $item.name;
+var _forTrack07 = ($index, $item) => $item.name;
 function ExploreSearchComponent_Conditional_9_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "mat-spinner", 7);
@@ -131120,7 +132492,7 @@ function ExploreSearchComponent_Conditional_12_For_2_Template(rf, ctx) {
 function ExploreSearchComponent_Conditional_12_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275conditionalCreate(0, ExploreSearchComponent_Conditional_12_Conditional_0_Template, 3, 3, "mat-option", 8);
-    \u0275\u0275repeaterCreate(1, ExploreSearchComponent_Conditional_12_For_2_Template, 9, 4, "mat-option", 9, _forTrack06);
+    \u0275\u0275repeaterCreate(1, ExploreSearchComponent_Conditional_12_For_2_Template, 9, 4, "mat-option", 9, _forTrack07);
   }
   if (rf & 2) {
     const ctx_r2 = \u0275\u0275nextContext();
@@ -131218,9 +132590,9 @@ var ExploreSearchComponent = class _ExploreSearchComponent extends AsyncHandler 
   select(item) {
     this.search_str.set(item.name);
     const query2 = {};
-    const type = item.type === "space" ? "space" : item.type === "feature" ? "locate" : "user";
-    query2[type] = item.id;
-    if (type === "locate") {
+    const type2 = item.type === "space" ? "space" : item.type === "feature" ? "locate" : "user";
+    query2[type2] = item.id;
+    if (type2 === "locate") {
       query2.name = item.name;
       query2.zone = item.zone;
     }
@@ -131244,7 +132616,7 @@ var ExploreSearchComponent = class _ExploreSearchComponent extends AsyncHandler 
   static {
     this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ExploreSearchComponent, selectors: [["explore-search"]], viewQuery: function ExploreSearchComponent_Query(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275viewQuerySignal(ctx._input_el, _c033, 5)(ctx._button_el, _c116, 5);
+        \u0275\u0275viewQuerySignal(ctx._input_el, _c035, 5)(ctx._button_el, _c116, 5);
       }
       if (rf & 2) {
         \u0275\u0275queryAdvance(2);
@@ -131406,7 +132778,7 @@ var ExploreSearchComponent = class _ExploreSearchComponent extends AsyncHandler 
 })();
 
 // node_modules/@angular/material/fesm2022/slide-toggle.mjs
-var _c034 = ["switch"];
+var _c036 = ["switch"];
 var _c117 = ["*"];
 function MatSlideToggle_Conditional_11_Template(rf, ctx) {
   if (rf & 1) {
@@ -131575,7 +132947,7 @@ var MatSlideToggle = class _MatSlideToggle {
     selectors: [["mat-slide-toggle"]],
     viewQuery: function MatSlideToggle_Query(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275viewQuery(_c034, 5);
+        \u0275\u0275viewQuery(_c036, 5);
       }
       if (rf & 2) {
         let _t;
@@ -132020,7 +133392,7 @@ var AccessibilityControlsComponent = class _AccessibilityControlsComponent exten
 })();
 
 // apps/map-kiosk/src/app/explore.component.ts
-var _c035 = () => ({ controls: true });
+var _c037 = () => ({ controls: true });
 function ExploreComponent_Conditional_4_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "explore-search");
@@ -132469,7 +133841,7 @@ var ExploreComponent = class _ExploreComponent extends AsyncHandler {
         module: "LocationServices"
       };
     }
-    const mod2 = Fl(locate_details.system_id, locate_details.module);
+    const mod2 = Wl(locate_details.system_id, locate_details.module);
     const locations = (await mod2.execute("locate_user", [
       user.email,
       user.username || user.id
@@ -132593,7 +133965,7 @@ var ExploreComponent = class _ExploreComponent extends AsyncHandler {
         \u0275\u0275advance();
         \u0275\u0275property("@show", ctx.show_accessibility() ? "show" : "hide");
         \u0275\u0275advance(6);
-        \u0275\u0275property("src", ctx.url())("zoom", ctx.positions()?.zoom)("center", ctx.positions()?.center)("styles", ctx.styles())("features", ctx.features())("actions", ctx.actions())("labels", ctx.labels())("options", \u0275\u0275pureFunction0(17, _c035))("focus", ctx.locate());
+        \u0275\u0275property("src", ctx.url())("zoom", ctx.positions()?.zoom)("center", ctx.positions()?.center)("styles", ctx.styles())("features", ctx.features())("actions", ctx.actions())("labels", ctx.labels())("options", \u0275\u0275pureFunction0(17, _c037))("focus", ctx.locate());
       }
     }, dependencies: [
       AccessibilityControlsComponent,
