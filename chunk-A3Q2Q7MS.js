@@ -41317,6 +41317,7 @@ var BOOKINGS = {
   PARKING_SPACE_RESTRICTIONS_TITLE: "Space Restrictions",
   PARKING_SPACE_RESTRICTIONS_DESC: "Select any restrictions that apply to your vehicle or parking needs.",
   PARKING_RESTRICTION_NONE: "None",
+  PARKING_SPACE_RESTRICTION_REQUIRED: "Select a parking restriction other than None.",
   PARKING_RESTRICTION_OVERSIZED: "Requires oversized space",
   PARKING_SUMMARY_TITLE: "Summary + Submission",
   PARKING_ALLOCATION_INFO: "Allocation of parking spaces for the following week will occur the <strong>Friday afternoon prior</strong>. Requests received after allocation has occurred will automatically be <strong>waitlisted</strong> until a suitable space becomes available.",
@@ -54631,15 +54632,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "3ceaa31",
-  "hash": "3ceaa31",
+  "raw": "5c5aca9",
+  "hash": "5c5aca9",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "3ceaa31",
+  "suffix": "5c5aca9",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1783664541737
+  "time": 1783937504084
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -111171,4 +111172,4 @@ export {
   dialogClosed,
   SignageService
 };
-//# sourceMappingURL=chunk-3JID3UK7.js.map
+//# sourceMappingURL=chunk-A3Q2Q7MS.js.map
