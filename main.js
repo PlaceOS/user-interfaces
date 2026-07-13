@@ -12,11 +12,11 @@ import {
   generateMockSpace,
   setHours,
   setMinutes
-} from "./chunk-LUOESBTO.js";
+} from "./chunk-6DCCIJMX.js";
 import {
   CheckinStateService,
   parseTokenFromUrl
-} from "./chunk-VF4ORUBZ.js";
+} from "./chunk-D6BWDCFV.js";
 import {
   $r,
   ANIMATION_MODULE_TYPE,
@@ -231,7 +231,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-E345UAM7.js";
+} from "./chunk-6GLLGKAV.js";
 import {
   __export,
   __objRest,
@@ -20120,12 +20120,12 @@ var routes = [
   {
     path: "explore",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./explore.routes-PJE67ZUC.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./explore.routes-W3VKHXJI.js").then((m) => m.ROUTES)
   },
   {
     path: "checkin",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./checkin.routes-RN6NC63M.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./checkin.routes-YHQTZRRN.js").then((m) => m.ROUTES)
   },
   { path: "**", redirectTo: "bootstrap" }
 ];

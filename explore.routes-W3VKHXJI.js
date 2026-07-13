@@ -41,7 +41,7 @@ import {
   setHours,
   setMinutes,
   showStaff
-} from "./chunk-LUOESBTO.js";
+} from "./chunk-6DCCIJMX.js";
 import {
   ANIMATION_SHOW_CONTRACT_EXPAND,
   ActivatedRoute,
@@ -304,7 +304,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-E345UAM7.js";
+} from "./chunk-6GLLGKAV.js";
 import {
   __spreadProps,
   __spreadValues
@@ -3290,12 +3290,15 @@ function generateEventForm(event = new CalendarEvent(), settings, injector) {
     const value = model2();
     if (!value.catering?.length || !value.date)
       return;
+    const event2 = {
+      date: value.all_day ? startOfDay(value.date) : value.date,
+      duration: value.all_day ? 24 * 60 : value.duration
+    };
+    if (value.catering.every((order) => +order.event?.date === +event2.date && order.event?.duration === event2.duration))
+      return;
     model2.update((m) => __spreadProps(__spreadValues({}, m), {
       catering: (m.catering || []).map((order) => __spreadProps(__spreadValues({}, order), {
-        event: {
-          date: m.all_day ? startOfDay(m.date) : m.date,
-          duration: m.all_day ? 24 * 60 : m.duration
-        }
+        event: event2
       }))
     }));
   };
@@ -8813,13 +8816,17 @@ var ExploreParkingService = class _ExploreParkingService extends AsyncHandler {
         is_public: this._state.options().is_public,
         level_id: this._state.level()?.id,
         date: this._options().date,
+        all_day: this._options().all_day,
+        duration: this._options().duration,
         poll: this._poll()
       }),
-      loader: ({ params: { is_public, level_id, date } }) => {
+      loader: ({ params: { is_public, level_id, date, all_day, duration } }) => {
         const time = date ?? Date.now();
+        const bookable_hours = all_day ? this._settings.get("app.parking.bookable_hours") || this._settings.get("app.bookings.bookable_hours") || null : null;
+        const all_day_range = getAllDayTimeRange(time, "", bookable_hours?.start, bookable_hours?.end);
         return is_public || !level_id ? Promise.resolve([]) : queryAllBookings({
-          period_start: getUnixTime(addMinutes(time, -15)),
-          period_end: getUnixTime(addMinutes(time, 30)),
+          period_start: getUnixTime(all_day ? all_day_range.date : duration ? time : addMinutes(time, -15)),
+          period_end: getUnixTime(all_day ? all_day_range.date_end : addMinutes(time, duration || 30)),
           type: "parking",
           zones: level_id,
           rejected: false
@@ -11856,4 +11863,4 @@ var ROUTES = [
 export {
   ROUTES
 };
-//# sourceMappingURL=explore.routes-PJE67ZUC.js.map
+//# sourceMappingURL=explore.routes-W3VKHXJI.js.map
