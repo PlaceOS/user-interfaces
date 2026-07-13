@@ -1,5 +1,5 @@
 import { MatMenuModule } from '@angular/material/menu';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 
 import { addHours } from 'date-fns';
@@ -81,14 +81,15 @@ describe('DurationFieldComponent', () => {
         expect(options[0].date).toBeGreaterThanOrEqual(1 + 12 * 60 * 60 * 1000);
     });
 
-    it('should allow setting the value', (done) => {
-        const duration = 35;
-        spectator.component.registerOnChange((value) => {
-            expect(value).toBe(35);
-            done();
-        });
-        spectator.component.setValue(duration);
-    });
+    it('should allow setting the value', () =>
+        new Promise<void>((done) => {
+            const duration = 35;
+            spectator.component.registerOnChange((value) => {
+                expect(value).toBe(35);
+                done();
+            });
+            spectator.component.setValue(duration);
+        }));
 
     it('should de-duplicate merged custom duration options', () => {
         spectator.setInput({
@@ -164,7 +165,7 @@ describe('DurationFieldComponent', () => {
     });
 
     it('should update validity when duration options become available again', () => {
-        const on_validator_change = jest.fn();
+        const on_validator_change = vi.fn();
         spectator.component.registerOnValidatorChange(on_validator_change);
         spectator.setInput({
             time: new Date(2026, 0, 1, 16, 30).valueOf(),

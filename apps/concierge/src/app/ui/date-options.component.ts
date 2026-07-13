@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import {
     Component,
     OnChanges,
@@ -76,7 +76,7 @@ type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6;
             matRipple
             (dblclick)="setDate()"
             class="display hover:bg-base-200 relative mx-4 flex h-12 items-center justify-center rounded-sm leading-none"
-            [class.w-28]="display_mode() === 'day'"
+            [class.w-30]="display_mode() === 'day'"
             [class.w-48]="display_mode() === 'week'"
         >
             @if (is_today()) {
@@ -86,8 +86,22 @@ type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6;
                     {{ 'COMMON.TODAY' | translate }}
                 </div>
             }
-            <div class="relative" [class.top-2]="is_today()">
-                {{ display_date() }}
+            <div class="relative px-1" [class.top-2]="is_today()">
+                @if (display_mode() === 'day') {
+                    {{  display_date() | date:'E, MMM d, y' }}
+                }@else {
+                    @let start = display_period().start;
+                    @let end = display_period().end;
+                    @if(is_same_year()) {
+                        @if (is_same_month()) {
+                            {{ start | date:'MMM d' }} - {{ end | date:'d, y' }}
+                        } @else {
+                            {{ start | date:'MMM d' }} - {{ end | date:'MMM d, y' }}
+                        }
+                    } @else {
+                        {{ start | date:'mediumDate' }} - {{ end | date:'mediumDate' }}
+                    }
+                }
             </div>
         </button>
         @if (is_new()) {
@@ -147,7 +161,7 @@ type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6;
         CustomTooltipComponent,
         DateCalendarComponent,
         IconComponent,
-        MatTooltipModule,
+        MatTooltipModule
     ],
 })
 export class DateOptionsComponent
@@ -183,25 +197,27 @@ export class DateOptionsComponent
             isSameDay(this.date(), Date.now()) &&
             !this.hide_today(),
     );
-    public readonly display_date = computed(() => {
-        const date = this._validDate(this.date());
-        if (this.display_mode() === 'day') {
-            return format(date, 'MMM d, yyyy');
-        }
+    public readonly display_date = computed(() => this._validDate(this.date()));
+    public readonly display_period = computed(() => {
+        const date = this.display_date();
         const start = startOfWeek(date, {
             weekStartsOn: this._week_start,
         });
         const end = endOfWeek(date, {
             weekStartsOn: this._week_start,
         });
-        if (isSameYear(start, end)) {
-            if (isSameMonth(start, end)) {
-                return `${format(start, 'MMM d')} - ${format(end, 'd, yyyy')}`;
-            }
-            return `${format(start, 'MMM d')} - ${format(end, 'MMM d, yyyy')}`;
-        }
-        return `${format(start, 'MMM d, yyyy')} - ${format(end, 'MMM d, yyyy')}`;
+        return { start, end }
     });
+    public readonly is_same_month = computed(() => {
+        const { start, end } = this.display_period()
+        return isSameMonth(start, end);
+
+    })
+    public readonly is_same_year = computed(() => {
+        const { start, end } = this.display_period()
+        return isSameYear(start, end);
+
+    })
 
     public ngOnInit() {
         this.subscription(

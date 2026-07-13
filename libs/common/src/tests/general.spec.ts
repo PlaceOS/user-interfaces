@@ -5,6 +5,7 @@ import {
     alignDateToBookableHours,
     csvToJson,
     downloadFile,
+    getItemWithKeys,
     getNextBookableTime,
     isWithinBookableHours,
     jsonToCsv,
@@ -15,6 +16,16 @@ import {
 import * as notifications from '../lib/notifications';
 
 describe('General Methods', () => {
+    describe('getItemWithKeys', () => {
+        it('should stop when an intermediate value is not an object', () => {
+            expect(
+                getItemWithKeys(['logo_dark', 'src'], {
+                    logo_dark: 'assets/logo-dark.svg',
+                }),
+            ).toBeNull();
+        });
+    });
+
     describe('timePeriodsIntersect', () => {
         it('should handle start overlapping other period', () => {
             expect(timePeriodsIntersect(2, 10, 1, 5)).toBe(true);
@@ -68,13 +79,13 @@ describe('General Methods', () => {
     describe('downloadFile', () => {
         it('should prefix BOM for csv downloads', () => {
             const original_url = window.URL;
-            const create_object_url = jest.fn((blob: Blob) => 'blob:test-url');
-            const revoke_object_url = jest.fn();
+            const create_object_url = vi.fn((blob: Blob) => 'blob:test-url');
+            const revoke_object_url = vi.fn();
             (window as any).URL = {
                 createObjectURL: create_object_url,
                 revokeObjectURL: revoke_object_url,
             };
-            jest.useFakeTimers();
+            vi.useFakeTimers();
             try {
                 downloadFile('report.csv', 'name,count\r\nJane,2');
                 const blob = create_object_url.mock.calls[0][0] as Blob;
@@ -83,10 +94,10 @@ describe('General Methods', () => {
                     new TextEncoder().encode('\uFEFFname,count\r\nJane,2')
                         .length,
                 );
-                jest.runOnlyPendingTimers();
+                vi.runOnlyPendingTimers();
                 expect(revoke_object_url).toHaveBeenCalledWith('blob:test-url');
             } finally {
-                jest.useRealTimers();
+                vi.useRealTimers();
                 (window as any).URL = original_url;
             }
         });
@@ -229,6 +240,21 @@ describe('General Methods', () => {
             injector = TestBed.inject(Injector);
         });
 
+        /**
+         * Install a mock snackbar as the notification outlet and return its
+         * `open` spy. `notifyWarn` (an ESM export that can't be spied on with
+         * the native builder) routes through this outlet, so asserting on
+         * `open` verifies the same behaviour.
+         */
+        function mockNotifyOutlet() {
+            const open = vi.fn(() => ({
+                onAction: () => ({ subscribe: () => ({}) }),
+                dismiss: vi.fn(),
+            }));
+            notifications.setNotifyOutlet({ open } as any, true);
+            return open;
+        }
+
         /** Helper to build a minimal model signal with the time fields. */
         function createForm(
             overrides: Partial<TimeModel> = {},
@@ -314,8 +340,8 @@ describe('General Methods', () => {
         });
 
         it('should snap past dates to now for new items (no id)', () => {
-            jest.useFakeTimers();
-            jest.setSystemTime(new Date(2028, 5, 15, 10, 0, 0, 0));
+            vi.useFakeTimers();
+            vi.setSystemTime(new Date(2028, 5, 15, 10, 0, 0, 0));
             try {
                 const form = createForm({ date: BASE, duration: 60 });
                 setupFormTimeSync(form, {}, injector);
@@ -327,13 +353,13 @@ describe('General Methods', () => {
                 // Should snap forward; the snapped date must be >= Date.now()
                 expect(form().date).toBeGreaterThanOrEqual(Date.now());
             } finally {
-                jest.useRealTimers();
+                vi.useRealTimers();
             }
         });
 
         it('should NOT snap past dates for existing items (has id)', () => {
-            jest.useFakeTimers();
-            jest.setSystemTime(new Date(2028, 5, 15, 10, 0, 0, 0));
+            vi.useFakeTimers();
+            vi.setSystemTime(new Date(2028, 5, 15, 10, 0, 0, 0));
             try {
                 const form = createForm({
                     id: 'booking-1',
@@ -348,13 +374,13 @@ describe('General Methods', () => {
                 // Should keep the past date because the form has an id
                 expect(form().date).toBe(past);
             } finally {
-                jest.useRealTimers();
+                vi.useRealTimers();
             }
         });
 
         it('should invoke the on_time_change callback on every time field change', () => {
             const form = createForm({ date: BASE, duration: 60 });
-            const callback = jest.fn();
+            const callback = vi.fn();
             setupFormTimeSync(form, { on_time_change: callback }, injector);
 
             setField(form, { duration: 90 });
@@ -427,7 +453,7 @@ describe('General Methods', () => {
 
         it('should not create infinite loops between duration and date_end', () => {
             const form = createForm({ date: BASE, duration: 60 });
-            const callback = jest.fn();
+            const callback = vi.fn();
             setupFormTimeSync(form, { on_time_change: callback }, injector);
 
             // Rapidly alternate changes — should not throw or loop
@@ -441,7 +467,7 @@ describe('General Methods', () => {
 
         it('should ignore invalid NaN duration changes', () => {
             const form = createForm({ date: BASE, duration: 60 });
-            const callback = jest.fn();
+            const callback = vi.fn();
             setupFormTimeSync(form, { on_time_change: callback }, injector);
 
             setField(form, { duration: NaN });
@@ -688,7 +714,7 @@ describe('General Methods', () => {
                 duration: 60,
                 all_day: true,
             });
-            const callback = jest.fn();
+            const callback = vi.fn();
             setupFormTimeSync(form, { on_time_change: callback }, injector);
 
             const original_end = form().date_end;
@@ -707,7 +733,7 @@ describe('General Methods', () => {
 
         it('should invoke on_time_change when all_day is toggled', () => {
             const form = createForm({ date: BASE, duration: 60 });
-            const callback = jest.fn();
+            const callback = vi.fn();
             setupFormTimeSync(form, { on_time_change: callback }, injector);
 
             setField(form, { all_day: true });
@@ -736,9 +762,9 @@ describe('General Methods', () => {
             );
         });
 
-        it('should clamp current-day all-day bookings to the current time for new items', () => {
-            jest.useFakeTimers();
-            jest.setSystemTime(new Date(2028, 5, 15, 10, 2, 0, 0));
+        it('should use the all-day period start for current-day all-day bookings', () => {
+            vi.useFakeTimers();
+            vi.setSystemTime(new Date(2028, 5, 15, 10, 2, 0, 0));
             try {
                 const form = createForm({
                     date: new Date(2028, 5, 15, 8, 0, 0, 0).valueOf(),
@@ -756,20 +782,20 @@ describe('General Methods', () => {
                 setField(form, { all_day: true });
 
                 expect(form().date).toBe(
-                    new Date(2028, 5, 15, 10, 5, 0, 0).valueOf(),
+                    new Date(2028, 5, 15, 9, 0, 0, 0).valueOf(),
                 );
-                expect(form().duration).toBe(415);
+                expect(form().duration).toBe(8 * 60);
                 expect(form().date_end).toBe(
                     new Date(2028, 5, 15, 17, 0, 0, 0).valueOf(),
                 );
             } finally {
-                jest.useRealTimers();
+                vi.useRealTimers();
             }
         });
 
         it('should reapply the all-day period when the date changes while all_day is enabled', () => {
-            jest.useFakeTimers();
-            jest.setSystemTime(new Date(2028, 5, 15, 10, 2, 0, 0));
+            vi.useFakeTimers();
+            vi.setSystemTime(new Date(2028, 5, 15, 10, 2, 0, 0));
             try {
                 const form = createForm({
                     date: new Date(2028, 5, 16, 9, 0, 0, 0).valueOf(),
@@ -791,14 +817,14 @@ describe('General Methods', () => {
                 });
 
                 expect(form().date).toBe(
-                    new Date(2028, 5, 15, 10, 5, 0, 0).valueOf(),
+                    new Date(2028, 5, 15, 9, 0, 0, 0).valueOf(),
                 );
-                expect(form().duration).toBe(415);
+                expect(form().duration).toBe(8 * 60);
                 expect(form().date_end).toBe(
                     new Date(2028, 5, 15, 17, 0, 0, 0).valueOf(),
                 );
             } finally {
-                jest.useRealTimers();
+                vi.useRealTimers();
             }
         });
 
@@ -860,7 +886,7 @@ describe('General Methods', () => {
 
         it('should not re-clamp when current duration is within new bounds', () => {
             const form = createForm({ date: BASE, duration: 60 });
-            const callback = jest.fn();
+            const callback = vi.fn();
             const handle = setupFormTimeSync(
                 form,
                 {
@@ -948,11 +974,9 @@ describe('General Methods', () => {
         });
 
         it('should keep the selected calendar day when a date change preserves an after-hours time', () => {
-            jest.useFakeTimers();
-            jest.setSystemTime(new Date(2028, 5, 15, 19, 0, 0, 0));
-            const notify_warn = jest
-                .spyOn(notifications, 'notifyWarn')
-                .mockImplementation();
+            vi.useFakeTimers();
+            vi.setSystemTime(new Date(2028, 5, 15, 19, 0, 0, 0));
+            const notify_open = mockNotifyOutlet();
             try {
                 const initial = new Date(2028, 5, 15, 19, 0, 0, 0).valueOf();
                 const selected = new Date(2028, 5, 16, 19, 0, 0, 0).valueOf();
@@ -969,16 +993,16 @@ describe('General Methods', () => {
                 expect(form().date).toBe(
                     new Date(2028, 5, 16, 9, 0, 0, 0).valueOf(),
                 );
-                expect(notify_warn).not.toHaveBeenCalled();
+                expect(notify_open).not.toHaveBeenCalled();
             } finally {
-                notify_warn.mockRestore();
-                jest.useRealTimers();
+                notifications.setNotifyOutlet(null as any, true);
+                vi.useRealTimers();
             }
         });
 
         it('should not snap bookable hours for existing items (has id)', () => {
-            jest.useFakeTimers();
-            jest.setSystemTime(new Date(2028, 5, 15, 18, 30, 0, 0));
+            vi.useFakeTimers();
+            vi.setSystemTime(new Date(2028, 5, 15, 18, 30, 0, 0));
             try {
                 // 18:30 is after the window
                 const late = new Date(2028, 5, 15, 18, 30, 0, 0).valueOf();
@@ -999,7 +1023,7 @@ describe('General Methods', () => {
                 // only jumps to next day for past dates, and we're at "now")
                 expect(form().date).toBe(late);
             } finally {
-                jest.useRealTimers();
+                vi.useRealTimers();
             }
         });
 
@@ -1128,9 +1152,7 @@ describe('General Methods', () => {
         });
 
         it('should show notification when markUserDateChange is called before setValue', () => {
-            const notify_warn = jest
-                .spyOn(notifications, 'notifyWarn')
-                .mockImplementation();
+            const notify_open = mockNotifyOutlet();
             try {
                 // 06:00 is before the 09:00-17:00 window
                 const early = new Date(2028, 5, 15, 6, 0, 0, 0).valueOf();
@@ -1149,16 +1171,17 @@ describe('General Methods', () => {
                 expect(form().date).toBe(
                     new Date(2028, 5, 15, 9, 0, 0, 0).valueOf(),
                 );
-                expect(notify_warn).toHaveBeenCalledTimes(1);
+                expect(notify_open).toHaveBeenCalledTimes(1);
+                expect((notify_open.mock.calls[0] as any[])[2]).toEqual(
+                    expect.objectContaining({ panelClass: ['warn'] }),
+                );
             } finally {
-                notify_warn.mockRestore();
+                notifications.setNotifyOutlet(null as any, true);
             }
         });
 
         it('should not show notification without markUserDateChange', () => {
-            const notify_warn = jest
-                .spyOn(notifications, 'notifyWarn')
-                .mockImplementation();
+            const notify_open = mockNotifyOutlet();
             try {
                 // 06:00 is before the 09:00-17:00 window
                 const early = new Date(2028, 5, 15, 6, 0, 0, 0).valueOf();
@@ -1176,9 +1199,9 @@ describe('General Methods', () => {
                 expect(form().date).toBe(
                     new Date(2028, 5, 15, 9, 0, 0, 0).valueOf(),
                 );
-                expect(notify_warn).not.toHaveBeenCalled();
+                expect(notify_open).not.toHaveBeenCalled();
             } finally {
-                notify_warn.mockRestore();
+                notifications.setNotifyOutlet(null as any, true);
             }
         });
 

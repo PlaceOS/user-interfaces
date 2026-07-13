@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { IconComponent } from '@placeos/components';
 import { ExploreSearchService } from '@placeos/explore';
 import { MockComponent, MockProvider } from 'ng-mocks';
@@ -15,13 +15,13 @@ describe('GlobalSearchComponent', () => {
     const createComponent = createRoutingFactory({
         component: GlobalSearchComponent,
         providers: [
-            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(SettingsService, { get: vi.fn() }),
             MockProvider(ExploreSearchService, {
                 search_results: signal([]) as any,
                 global_search_results: signal([]) as any,
                 loading: signal(false) as any,
-                setFilter: jest.fn(),
-                setInProgressBookings: jest.fn(),
+                setFilter: vi.fn(),
+                setInProgressBookings: vi.fn(),
             } as any),
             MockProvider(ScheduleStateService, {
                 bookings: signal([]),
@@ -40,9 +40,10 @@ describe('GlobalSearchComponent', () => {
     it('should display search results', () => {
         const service = spectator.inject(ExploreSearchService);
         spectator.triggerEventHandler('input', 'ngModelChange', 'Alex');
-        spectator.dispatchFakeEvent('input', 'focusin');
-        spectator.dispatchFakeEvent('input', 'focus');
-        spectator.dispatchFakeEvent('input', 'input');
+        const input_el = spectator.query('input') as HTMLElement;
+        input_el.dispatchEvent(new Event('focusin', { bubbles: true }));
+        input_el.dispatchEvent(new Event('focus'));
+        input_el.dispatchEvent(new Event('input', { bubbles: true }));
         spectator.detectChanges();
         expect(service.setFilter).toHaveBeenCalled();
         // expect(document.querySelector('[empty]')).toExist();

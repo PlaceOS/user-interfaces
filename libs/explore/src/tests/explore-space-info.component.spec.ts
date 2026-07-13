@@ -1,4 +1,4 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MAP_FEATURE_DATA, SettingsService } from '@placeos/common';
 import { MockProvider, ngMocks } from 'ng-mocks';
 
@@ -11,7 +11,7 @@ describe('ExploreSpaceInfoComponent', () => {
         ...ngMocks.guts(null),
         providers: [
             MockProvider(MAP_FEATURE_DATA, { events: [] }),
-            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(SettingsService, { get: vi.fn() }),
         ],
     });
 

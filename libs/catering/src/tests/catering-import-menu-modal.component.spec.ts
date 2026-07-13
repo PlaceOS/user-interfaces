@@ -1,5 +1,5 @@
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { MockComponent } from 'ng-mocks';
 
@@ -20,8 +20,12 @@ describe('CateringImportMenuModalComponent', () => {
     });
 
     it('should allow downloading the template', () => {
-        const spy = jest.spyOn(spectator.component, 'downloadTemplate');
+        // Stub the implementation so the real file download (an anchor click
+        // that jsdom tries to navigate) does not fire; we only assert wiring.
+        const spy = vi
+            .spyOn(spectator.component, 'downloadTemplate')
+            .mockImplementation(() => undefined);
         spectator.click('main button');
-        expect(spectator.component.downloadTemplate).toHaveBeenCalled();
+        expect(spy).toHaveBeenCalled();
     });
 });

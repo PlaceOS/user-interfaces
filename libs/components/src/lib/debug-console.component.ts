@@ -8,6 +8,8 @@ import {
 } from '@angular/core';
 
 import { ScrollingModule } from '@angular/cdk/scrolling';
+import { DatePipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
@@ -16,7 +18,11 @@ import {
     ClientEvent,
     RemoteLoggingService,
 } from 'libs/common/src/lib/remote-logging.service';
+import { CustomTooltipComponent } from './custom-tooltip.component';
+import { IconComponent } from './icon.component';
 import { JsonDisplayComponent } from './json-display.component';
+import { SanitizePipe } from './sanitise.pipe';
+import { TranslatePipe } from './translate.pipe';
 
 const COLOR_MAP = {
     console: 'bg-success-light text-black',
@@ -178,7 +184,16 @@ const URL_STARTS = [
         }
     `,
     styles: [``],
-    imports: [ScrollingModule, MatRippleModule],
+    imports: [
+        ScrollingModule,
+        MatRippleModule,
+        FormsModule,
+        DatePipe,
+        TranslatePipe,
+        SanitizePipe,
+        IconComponent,
+        CustomTooltipComponent,
+    ],
 })
 export class DebugConsoleComponent extends AsyncHandler {
     private _org = inject(OrganisationService);

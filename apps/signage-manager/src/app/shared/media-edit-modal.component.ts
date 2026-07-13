@@ -74,8 +74,8 @@ interface MediaEditFormModel {
     play_time: number;
     tags: string[];
     plugin_params: Record<string, unknown>;
-    valid_from: number;
-    valid_until: number;
+    valid_from: number | null;
+    valid_until: number | null;
 }
 
 function mediaSaveErrorMessage(error: unknown) {
@@ -451,10 +451,10 @@ export class MediaEditModalComponent implements OnDestroy {
         plugin_params: this._data.media.plugin_params || {},
         valid_from: this._data.media.valid_from
             ? this._data.media.valid_from * 1000
-            : 0,
+            : null,
         valid_until: this._data.media.valid_until
             ? this._data.media.valid_until * 1000
-            : 0,
+            : null,
     });
     public readonly form = form(this.model, (path) => {
         required(path.name);

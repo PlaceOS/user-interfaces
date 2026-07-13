@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { BookingFormService } from '@placeos/bookings';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
@@ -14,7 +14,7 @@ describe('LandingAvailableNowComponent', () => {
         available_resources: signal([]),
         loading: signal(''),
         model: signal<any>({}),
-        setOptions: jest.fn(),
+        setOptions: vi.fn(),
     };
     const event_form = {
         available_spaces: signal([]),
@@ -22,7 +22,7 @@ describe('LandingAvailableNowComponent', () => {
         model: signal<any>({}),
     };
     const settings_service = {
-        signal: jest.fn((_: string, default_value?: any) =>
+        signal: vi.fn((_: string, default_value?: any) =>
             signal(default_value ?? []),
         ),
     };
@@ -37,7 +37,7 @@ describe('LandingAvailableNowComponent', () => {
             MockProvider(BookingFormService, booking_form as any),
             MockProvider(EventFormService, event_form as any),
             MockProvider(OrganisationService, {
-                levelWithID: jest.fn(),
+                levelWithID: vi.fn(),
                 buildings: [],
             } as any),
             {
@@ -48,7 +48,7 @@ describe('LandingAvailableNowComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         booking_form.model.set({});
         event_form.model.set({});
     });

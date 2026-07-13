@@ -12,8 +12,10 @@ import {
     ChatComponent,
     GlobalBannerComponent,
     GlobalLoadingComponent,
+    SettingsDebugPanelComponent,
 } from '@placeos/components';
 import { mocksInit } from '@placeos/mocks';
+import * as SETTINGS_SCHEMA from '../environments/settings.schema.json';
 
 @Component({
     selector: 'app-root',
@@ -21,6 +23,7 @@ import { mocksInit } from '@placeos/mocks';
         RouterOutlet,
         GlobalBannerComponent,
         GlobalLoadingComponent,
+        SettingsDebugPanelComponent,
         ChatComponent,
     ],
     template: `
@@ -32,7 +35,7 @@ import { mocksInit } from '@placeos/mocks';
             <global-chat />
         }
         <global-loading />
-        <!-- <debug-console *ngIf="debug"></debug-console> -->
+        <settings-debug-panel [schema]="settings_schema" />
     `,
     styles: [
         `
@@ -50,6 +53,7 @@ export class AppComponent implements OnInit {
     private _uploads = inject(UploadsService);
 
     public readonly has_chat = settingSignal('chat.enabled', false);
+    public readonly settings_schema = SETTINGS_SCHEMA as any;
 
     public async ngOnInit() {
         setMocks(mocksInit);

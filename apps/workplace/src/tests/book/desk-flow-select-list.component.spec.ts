@@ -1,5 +1,5 @@
 import { signal, WritableSignal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { BookingFormService } from '@placeos/bookings';
 import { SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
@@ -27,8 +27,8 @@ describe('DeskFlowSelectListComponent', () => {
                 })(),
             } as any),
             MockProvider(SettingsService, {
-                get: jest.fn(),
-                saveUserSetting: jest.fn(),
+                get: vi.fn(),
+                saveUserSetting: vi.fn(),
             }),
         ],
     });

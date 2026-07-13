@@ -1,17 +1,14 @@
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
+import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
 import { CateringOrdersService } from '../lib/catering-orders.service';
 
-jest.mock('libs/events/src/lib/events.fn');
-
 import { SettingsService } from '@placeos/common';
-import * as event_fn from 'libs/events/src/lib/events.fn';
 import { MockProvider } from 'ng-mocks';
 
 describe('CateringOrdersService', () => {
     let spectator: SpectatorService<CateringOrdersService>;
     const createService = createServiceFactory({
         service: CateringOrdersService,
-        providers: [MockProvider(SettingsService, { get: jest.fn() })],
+        providers: [MockProvider(SettingsService, { get: vi.fn() })],
     });
 
     beforeEach(() => (spectator = createService()));
@@ -20,8 +17,23 @@ describe('CateringOrdersService', () => {
         expect(spectator.service).toBeTruthy();
     });
 
-    it('should allow for polling of events', () => {
-        (event_fn as any).queryEvents = jest.fn(() => Promise.resolve([]));
-        // TODO: check querying updates the
+    it('should expose an empty order list before polling', () => {
+        expect(spectator.service.orders()).toEqual([]);
+        expect(spectator.service.loading()).toBe(false);
+    });
+
+    it('should register and tear down a polling interval', () => {
+        const stop = spectator.service.startPolling(1000);
+        expect(typeof stop).toBe('function');
+        // Calling the returned stop function clears the polling interval
+        stop();
+        // Direct stopPolling is idempotent and safe to call again
+        expect(() => spectator.service.stopPolling()).not.toThrow();
+    });
+
+    it('should update filters via the setter', () => {
+        spectator.service.filters = { caterer: 'Acme' };
+        expect(spectator.service.filters.caterer).toBe('Acme');
+        expect(spectator.service.order_filters().caterer).toBe('Acme');
     });
 });

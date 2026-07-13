@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { BookingFormService } from '@placeos/bookings';
 import { OrganisationService } from '@placeos/common';
 import { MockComponent, MockProvider } from 'ng-mocks';
@@ -15,10 +15,10 @@ describe('NewDeskFlowComponent', () => {
         component: NewDeskFlowComponent,
         providers: [
             MockProvider(BookingFormService, {
-                loadForm: jest.fn(),
-                newForm: jest.fn(),
-                setView: jest.fn(),
-                setOptions: jest.fn(),
+                loadForm: vi.fn(),
+                newForm: vi.fn(),
+                setView: vi.fn(),
+                setOptions: vi.fn(),
                 form: new FormGroup({}),
                 view: signal(''),
                 last_success: null,

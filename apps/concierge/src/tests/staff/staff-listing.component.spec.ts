@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent } from 'ng-mocks';
 import { StaffDetailsComponent } from '../../app/staff/staff-details.component';
 import { StaffListingComponent } from '../../app/staff/staff-listing.component';
@@ -16,8 +16,8 @@ describe('StaffListingComponent', () => {
                     loading: signal(false),
                     filtered_users: signal([]),
                     user_events: signal({}),
-                    startPolling: jest.fn(),
-                    stopPolling: jest.fn(),
+                    startPolling: vi.fn(),
+                    stopPolling: vi.fn(),
                 },
             },
         ],

@@ -690,8 +690,8 @@ export class SurveyBuilderComponent extends AsyncHandler implements OnInit {
         this.loading.set(true);
         const survey = this.model();
         const call = survey.id
-            ? addSurvey(survey as any)
-            : updateSurvey(`${survey.id}`, survey as any);
+            ? updateSurvey(`${survey.id}`, survey as any)
+            : addSurvey(survey as any);
         await call.catch((error) => {
             notifyError('Failed to save survey details. Error: ', error);
             throw error;

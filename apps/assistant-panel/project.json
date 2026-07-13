@@ -130,11 +130,26 @@
             "outputs": ["{options.outputFile}"]
         },
         "test": {
-            "executor": "@nx/jest:jest",
+            "executor": "@angular/build:unit-test",
             "outputs": ["{workspaceRoot}/coverage/apps/assistant-panel"],
             "options": {
-                "jestConfig": "apps/assistant-panel/jest.config.ts",
-                "tsConfig": "apps/assistant-panel/tsconfig.spec.json"
+                "tsConfig": "apps/assistant-panel/tsconfig.spec.json",
+                "setupFiles": ["apps/assistant-panel/src/test-setup.ts"],
+                "isolate": true,
+                "watch": false,
+                "buildTarget": "assistant-panel:test-build:development"
+            }
+        },
+        "test-build": {
+            "executor": "@angular/build:application",
+            "options": {
+                "outputPath": "dist/apps/assistant-panel-test",
+                "browser": "apps/assistant-panel/src/main.ts",
+                "tsConfig": "apps/assistant-panel/tsconfig.spec.json",
+                "polyfills": []
+            },
+            "configurations": {
+                "development": {}
             }
         }
     }

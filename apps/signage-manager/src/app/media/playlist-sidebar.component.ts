@@ -208,6 +208,9 @@ type PlaylistStatus =
                                         </div>
                                     }
                                 </div>
+                                @if (playlist.distribution) {
+                                    <icon class="mx-2">p2p</icon>
+                                }
                             </div>
                         </a>
                     }

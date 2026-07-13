@@ -1,4 +1,4 @@
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { SettingsService } from '@placeos/common';
 import { mockComponent } from '@placeos/common/tests';
 import { CheckinComponent } from '../../app/checkin/checkin.component';
@@ -8,7 +8,7 @@ describe('CheckinComponent', () => {
     let spectator: SpectatorRouting<CheckinComponent>;
     const createComponent = createRoutingFactory({
         component: CheckinComponent,
-        providers: [{ provide: SettingsService, useValue: { get: jest.fn() } }],
+        providers: [{ provide: SettingsService, useValue: { get: vi.fn() } }],
         declarations: [mockComponent(TopbarHeaderComponent)],
     });
 

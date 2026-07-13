@@ -8,7 +8,7 @@ import {
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
+import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
 import { ngMocks } from 'ng-mocks';
 import { MapService } from '../app/rooms/map.service';
 
@@ -38,16 +38,16 @@ describe('MapService', () => {
             {
                 provide: MatBottomSheet,
                 useValue: {
-                    open: jest.fn((RoomTileComponent) => {}),
-                    afterDismissed: jest.fn(),
+                    open: vi.fn((RoomTileComponent) => {}),
+                    afterDismissed: vi.fn(),
                 },
             },
             {
                 provide: RoomConfirmService,
                 useValue: {
                     selected_space: signal(mockSpace),
-                    openRoomDetail: jest.fn((param) => {}),
-                    handleBookEvent: jest.fn((space, flat) => {}),
+                    openRoomDetail: vi.fn((param) => {}),
+                    handleBookEvent: vi.fn((space, flat) => {}),
                 },
             },
         ],
@@ -58,8 +58,8 @@ describe('MapService', () => {
     });
 
     afterEach(() => {
-        jest.clearAllMocks();
-        jest.resetModules();
+        vi.clearAllMocks();
+        vi.resetModules();
         ngMocks.reset();
     });
 
@@ -73,7 +73,7 @@ describe('MapService', () => {
 
     it('should return a list of map IDs with no duplicates', async () => {
         const available_spaces = [mockSpace, mockSpace, mockSpace, mockSpace];
-        const map_list_spy = jest.spyOn(spectator.service, 'loadMap');
+        const map_list_spy = vi.spyOn(spectator.service, 'loadMap');
         await spectator.service.locateSpaces(available_spaces);
         const maps_list = spectator.service.maps_list();
 
@@ -109,7 +109,7 @@ describe('MapService', () => {
         );
         const room_confirm_service = spectator.inject(RoomConfirmService);
 
-        const room_confirm_service_spy = jest.spyOn(
+        const room_confirm_service_spy = vi.spyOn(
             room_confirm_service,
             'handleBookEvent',
         );
@@ -120,9 +120,9 @@ describe('MapService', () => {
     });
 
     it('should only process map features after the map has been loaded', async () => {
-        const map_load_spy = jest.spyOn(spectator.service, 'loadMap');
+        const map_load_spy = vi.spyOn(spectator.service, 'loadMap');
 
-        const process_features_spy = jest.spyOn(
+        const process_features_spy = vi.spyOn(
             spectator.service,
             'processFeature',
         );

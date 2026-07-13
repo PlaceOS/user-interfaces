@@ -1,5 +1,5 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, computed, inject, OnInit } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -154,7 +154,7 @@ import { isParkingAllDayBooking } from './parking.utilities';
                                 }
                                 <button
                                     matRipple
-                                    class="flex-1 rounded-full border-none text-xs w-full my-1 min-h-6 text-left"
+                                    class="my-1 min-h-6 w-full flex-1 rounded-full border-none text-left text-xs"
                                     [class.text-success-content]="
                                         booking.status === 'approved' &&
                                         !isAssignedBooking(booking) &&
@@ -227,15 +227,24 @@ import { isParkingAllDayBooking } from './parking.utilities';
                                         !isDeletedBooking(booking)
                                     "
                                     [matMenuTriggerFor]="menu"
-                                    [disabled]="
-                                        isStatusActionDisabled(booking)
-                                    "
+                                    [disabled]="isStatusActionDisabled(booking)"
                                 >
-                                    <div class="flex items-center" [class.justify-center]="isStatusActionDisabled(booking)">
-                                        <div class="px-4">{{ statusLabel(booking) | translate }}</div>
-                                        @if (!isStatusActionDisabled(booking) ) {
+                                    <div
+                                        class="flex items-center"
+                                        [class.justify-center]="
+                                            isStatusActionDisabled(booking)
+                                        "
+                                    >
+                                        <div class="px-4">
+                                            {{
+                                                statusLabel(booking) | translate
+                                            }}
+                                        </div>
+                                        @if (!isStatusActionDisabled(booking)) {
                                             <div class="flex-1"></div>
-                                            <icon class="text-xl mx-1">arrow_drop_down</icon>
+                                            <icon class="mx-1 text-xl"
+                                                >arrow_drop_down</icon
+                                            >
                                         }
                                     </div>
                                 </button>
@@ -391,10 +400,7 @@ import { isParkingAllDayBooking } from './parking.utilities';
         ParkingSpacePipe,
     ],
 })
-export class ParkingBookingsWeekViewComponent
-    extends AsyncHandler
-    implements OnInit
-{
+export class ParkingBookingsWeekViewComponent extends AsyncHandler {
     private _state = inject(ParkingStateService);
     private _settings = inject(SettingsService);
     private _date_pipe = new DatePipe('en');
@@ -540,9 +546,5 @@ export class ParkingBookingsWeekViewComponent
 
     public isToday(date: number) {
         return isSameDay(date, Date.now());
-    }
-
-    public ngOnInit() {
-        this.subscription('poll', this._state.startPolling());
     }
 }

@@ -22,6 +22,8 @@ export const STORE_DISPLAY_KEY = `${STORE_PREFIX}.display`;
 export const STORE_BUILDING_KEY = `${STORE_PREFIX}.building`;
 export const STORE_DISPLAY_DETAILS_KEY = `${STORE_PREFIX}.display_details`;
 export const STORE_CACHED_FILES_KEY = `${STORE_PREFIX}.cached_files`;
+export const displayDetailsKey = (system_id: string) =>
+    `${STORE_DISPLAY_DETAILS_KEY}.${system_id}`;
 
 export const TEST_IMAGE_URL = '/e2e-media/welcome.png';
 export const TEST_VIDEO_URL = '/e2e-media/intro.mp4';
@@ -39,7 +41,6 @@ export function mockDisplay(system_id = MOCK_SYSTEM_ID) {
         playlist_mappings: {
             [system_id]: ['base-playlist'],
             [MOCK_ZONE_ID]: ['zone-playlist'],
-            'trig-alert': ['trigger-playlist'],
         },
         playlist_config: {
             'base-playlist': [
@@ -61,16 +62,6 @@ export function mockDisplay(system_id = MOCK_SYSTEM_ID) {
                     default_duration: 20000,
                 },
                 ['media-video'],
-            ],
-            'trigger-playlist': [
-                {
-                    id: 'trigger-playlist',
-                    name: 'Trigger Playlist',
-                    enabled: true,
-                    default_animation: 0,
-                    default_duration: 5000,
-                },
-                ['media-trigger'],
             ],
         },
         playlist_media: [
@@ -95,15 +86,84 @@ export function mockDisplay(system_id = MOCK_SYSTEM_ID) {
                 media_uri: TEST_VIDEO_URL,
                 video_length: 20000,
             },
-            {
-                id: 'media-trigger',
-                name: 'Trigger Notice',
-                media_type: 'webpage',
-                media_uri: TEST_WEBPAGE_URL,
-                play_time: 5000,
-            },
         ],
         plugins: [],
+    };
+}
+
+export function mockDistributionDisplay(system_id = MOCK_SYSTEM_ID) {
+    const now = Date.now();
+    const live_at = Math.floor((now - 10_000) / 1000);
+    const future_at = Math.floor((now + 60_000) / 1000);
+    const display = mockDisplay(system_id);
+    return {
+        ...display,
+        playlist_mappings: {
+            ...display.playlist_mappings,
+            [system_id]: [
+                'base-playlist',
+                'live-distribution-playlist',
+                'future-distribution-playlist',
+            ],
+        },
+        playlist_config: {
+            ...display.playlist_config,
+            'live-distribution-playlist': [
+                {
+                    id: 'live-distribution-playlist',
+                    name: 'Live Distribution Playlist',
+                    enabled: true,
+                    distribution: true,
+                    default_animation: 0,
+                    default_duration: 15000,
+                    schedules: [
+                        {
+                            play_at: live_at,
+                            play_cron: '',
+                            play_period: 1,
+                            play_takeover: false,
+                        },
+                    ],
+                },
+                ['media-distribution-live'],
+            ],
+            'future-distribution-playlist': [
+                {
+                    id: 'future-distribution-playlist',
+                    name: 'Future Distribution Playlist',
+                    enabled: true,
+                    distribution: true,
+                    default_animation: 0,
+                    default_duration: 15000,
+                    schedules: [
+                        {
+                            play_at: future_at,
+                            play_cron: '',
+                            play_period: 1,
+                            play_takeover: false,
+                        },
+                    ],
+                },
+                ['media-distribution-future'],
+            ],
+        },
+        playlist_media: [
+            ...display.playlist_media,
+            {
+                id: 'media-distribution-live',
+                name: 'Scheduled Distribution Notice',
+                media_type: 'image',
+                media_uri: TEST_IMAGE_URL,
+                play_time: 15000,
+            },
+            {
+                id: 'media-distribution-future',
+                name: 'Future Distribution Notice',
+                media_type: 'image',
+                media_uri: TEST_IMAGE_URL,
+                play_time: 15000,
+            },
+        ],
     };
 }
 
@@ -178,7 +238,11 @@ export async function navigateWithMock(page: Page, url: string): Promise<void> {
 export async function navigateWithConfig(
     page: Page,
     url: string,
-    config?: { building_id?: string; system_id?: string },
+    config?: {
+        building_id?: string;
+        system_id?: string;
+        display_details?: any;
+    },
 ): Promise<void> {
     await installMediaRoutes(page);
     await page.goto('/?mock=true');
@@ -186,6 +250,7 @@ export async function navigateWithConfig(
 
     const building_id = config?.building_id || MOCK_BUILDING_ID;
     const system_id = config?.system_id || MOCK_SYSTEM_ID;
+    const display_details = config?.display_details || mockDisplay(system_id);
 
     await page.evaluate(
         ({
@@ -195,6 +260,7 @@ export async function navigateWithConfig(
             building_key,
             display_details_key,
             display_details,
+            display_details_id_key,
         }) => {
             localStorage.setItem('mock', 'true');
             if (building_id) {
@@ -203,9 +269,10 @@ export async function navigateWithConfig(
             if (system_id) {
                 localStorage.setItem(display_key, system_id);
                 localStorage.setItem(
-                    display_details_key,
+                    display_details_id_key,
                     JSON.stringify(display_details),
                 );
+                localStorage.removeItem(display_details_key);
             }
         },
         {
@@ -214,7 +281,8 @@ export async function navigateWithConfig(
             display_key: STORE_DISPLAY_KEY,
             building_key: STORE_BUILDING_KEY,
             display_details_key: STORE_DISPLAY_DETAILS_KEY,
-            display_details: mockDisplay(system_id),
+            display_details_id_key: displayDetailsKey(system_id),
+            display_details,
         },
     );
 
@@ -304,6 +372,7 @@ export async function waitForMediaPlayer(page: Page): Promise<void> {
     await waitForLoadingComplete(page);
     await page
         .locator('media-player')
+        .first()
         .waitFor({ state: 'visible', timeout: LOAD_TIMEOUT });
 }
 
@@ -314,6 +383,7 @@ export async function waitForDebugControls(page: Page): Promise<void> {
     await waitForLoadingComplete(page);
     await page
         .locator('media-controls')
+        .first()
         .waitFor({ state: 'visible', timeout: LOAD_TIMEOUT });
 }
 
@@ -499,6 +569,11 @@ export async function clearLocalStorage(page: Page): Promise<void> {
             localStorage.removeItem(display_key);
             localStorage.removeItem(display_details_key);
             localStorage.removeItem(cached_files_key);
+            for (const key of Object.keys(localStorage)) {
+                if (key.startsWith(`${display_details_key}.`)) {
+                    localStorage.removeItem(key);
+                }
+            }
         },
         {
             display_key: STORE_DISPLAY_KEY,

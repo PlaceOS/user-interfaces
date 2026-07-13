@@ -1,19 +1,17 @@
-import {
-    Component,
-    computed,
-    inject,
-    OnInit,
-} from '@angular/core';
+import { Component, computed, inject, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { PlaceOS_Service, setMocks, settingSignal } from '@placeos/common';
 import {
     ChatComponent,
     GlobalBannerComponent,
     GlobalLoadingComponent,
+    SettingsDebugPanelComponent,
     VirtualKeyboardComponent,
 } from '@placeos/components';
 import { mocksInit } from '@placeos/mocks';
 import { parseTokenFromUrl } from './checkin/token-from-url';
+
+import * as SETTINGS_SCHEMA from '../environments/settings.schema.json';
 
 @Component({
     selector: 'app-root',
@@ -22,6 +20,7 @@ import { parseTokenFromUrl } from './checkin/token-from-url';
         GlobalBannerComponent,
         ChatComponent,
         GlobalLoadingComponent,
+        SettingsDebugPanelComponent,
     ],
     template: `
         <global-banner />
@@ -32,7 +31,7 @@ import { parseTokenFromUrl } from './checkin/token-from-url';
             <global-chat />
         }
         <global-loading />
-        <!-- <debug-console *ngIf="debug"></debug-console> -->
+        <settings-debug-panel [schema]="settings_schema" />
     `,
     styles: [
         `
@@ -51,6 +50,8 @@ import { parseTokenFromUrl } from './checkin/token-from-url';
     ],
 })
 export class AppComponent implements OnInit {
+    public readonly settings_schema = SETTINGS_SCHEMA as any;
+
     private _placeos = inject(PlaceOS_Service);
     private _has_chat = settingSignal<boolean>('chat.enabled', false);
 

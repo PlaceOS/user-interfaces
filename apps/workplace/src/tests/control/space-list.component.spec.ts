@@ -1,7 +1,7 @@
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { OrganisationService } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
 import { SpacesService } from '@placeos/events';
@@ -16,7 +16,7 @@ describe('ControlSpaceListComponent', () => {
         component: ControlSpaceListComponent,
         providers: [
             MockProvider(OrganisationService, {
-                navigate: jest.fn(),
+                navigate: vi.fn(),
                 buildings: [],
                 active_building: signal({}),
             } as any),

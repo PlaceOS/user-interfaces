@@ -173,6 +173,8 @@ export class Booking {
     public readonly recurrence_interval?: number;
     /** Unix epoch for the end time of the recurrence in seconds */
     public readonly recurrence_end?: number;
+    /** Unix epoch for the booking creation time in seconds */
+    public readonly created_at: number;
 
     public get group() {
         return this.extension_data.group || '';
@@ -311,6 +313,7 @@ export class Booking {
         this.all_day =
             !!data.all_day || custom_all_day || this.duration >= 24 * 60;
         this.induction = data.induction || undefined;
+        this.created_at = data.created_at || Date.now();
         if (this.all_day) {
             if (!data.duration && !data.date_end && !data.booking_end) {
                 (this as any).date = startOfDayInTimezone(
@@ -396,6 +399,7 @@ export class Booking {
         data.zones = data.zones.filter((_) => _);
         delete data.date;
         delete data.duration;
+        delete data.created_at;
         delete data.process_state;
         removeEmptyFields(data);
         return data;

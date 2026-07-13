@@ -46,6 +46,7 @@ interface VipDetail {
 }
 
 export function canEditBooking(booking: Booking) {
+    if (booking.booking_type === 'vip-visitor') return false;
     const is_visitor = booking.booking_type === 'visitor';
     const visitor_edit_allowed =
         is_visitor && settingSignal('visitors.allow_editing', false)();

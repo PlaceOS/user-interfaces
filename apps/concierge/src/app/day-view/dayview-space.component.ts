@@ -2,6 +2,7 @@ import { Component, computed, inject, input } from '@angular/core';
 import { Space } from '@placeos/common';
 
 import { EventsStateService } from './events-state.service';
+import { DayviewEventComponent } from './dayview-event.component';
 
 @Component({
     selector: 'dayview-space',
@@ -19,7 +20,7 @@ import { EventsStateService } from './events-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [DayviewEventComponent],
 })
 export class DayviewSpaceComponent {
     private _state = inject(EventsStateService);

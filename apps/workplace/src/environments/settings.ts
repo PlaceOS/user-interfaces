@@ -253,6 +253,7 @@ const app = {
         hide_selected_space: false,
         hide_availability_counter: false,
         require_plate_number: false,
+        require_space_restriction: false,
     },
     visitors: {
         allow_all_day: true,

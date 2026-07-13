@@ -210,7 +210,7 @@ nx migrate --run-migrations
 
 ## Standards & Conventions
 
-Detailed coding standards are documented in `.docs/STANDARDS.md`.
+Detailed coding standards are documented in `docs/STANDARDS.md`.
 
 ### When to Reference Standards
 
@@ -236,4 +236,4 @@ Detailed coding standards are documented in `.docs/STANDARDS.md`.
 | Subscriptions | Extend `AsyncHandler` |
 | Styling | Tailwind utilities |
 
-For comprehensive details including code examples, see `.docs/STANDARDS.md`.
+For comprehensive details including code examples, see `docs/STANDARDS.md`.

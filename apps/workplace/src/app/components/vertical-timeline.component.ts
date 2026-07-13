@@ -228,8 +228,6 @@ export class VerticalTimelineComponent
     public offset = { x: 0, y: 0 };
 
     /** Output emitter */
-    public readonly dateChange = output<number>();
-    public readonly durationChange = output<number>();
     public readonly groupsChange = output<ITimelineEventGroup[]>();
 
     private readonly block = viewChild<ElementRef>('block');
@@ -285,9 +283,9 @@ export class VerticalTimelineComponent
         const date = this.date();
         const end = addMinutes(this.date(), this.duration());
         const duration = formatDuration({ minutes: this.duration() });
-        return `${format(date, 'hh:mm A')} - ${format(
+        return `${format(date, 'hh:mm a')} - ${format(
             end,
-            'hh:mm A',
+            'hh:mm a',
         )} (${duration})`;
     }
 
@@ -350,7 +348,6 @@ export class VerticalTimelineComponent
                             this.duration.set(
                                 Math.max(60, duration || block_size),
                             );
-                            this.durationChange.emit(this.duration());
                         }
                     } else if (this.active_move === 'top') {
                         const date = set(this.date(), {
@@ -359,7 +356,6 @@ export class VerticalTimelineComponent
                         });
                         this.date.set(date.valueOf());
                     }
-                    this.dateChange.emit(this.date());
                     this.updateStartEnd();
                 }
             },

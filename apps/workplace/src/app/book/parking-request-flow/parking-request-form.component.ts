@@ -323,6 +323,7 @@ export class ParkingRequestFormComponent
             asset_name: 'Parking Request',
             description: 'Parking Request',
             title: m.title || 'Parking Request',
+            plate_number: `${m.plate_number || ''}`.trim(),
         }));
         if (
             this.model().request_type === 'special' &&

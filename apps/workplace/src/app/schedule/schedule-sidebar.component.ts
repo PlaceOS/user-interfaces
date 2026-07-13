@@ -32,6 +32,7 @@ import {
 } from '@placeos/form-fields';
 import { endOfDay, isSameDay, startOfDay } from 'date-fns';
 import {
+    isBookingForOtherUser,
     ScheduleOptions,
     ScheduleStateService,
 } from './schedule-state.service';
@@ -132,6 +133,22 @@ import {
                         </settings-toggle>
                     }
                 }
+                <settings-toggle
+                    [ngModel]="filters()?.show_bookings_for_others"
+                    (click)="toggleBookingsForOthers()"
+                >
+                    <div class="-my-2 -ml-2 flex items-center space-x-2">
+                        <div class="bg-base-300 rounded-full p-1 text-2xl">
+                            <icon>perm_contact_calendar</icon>
+                        </div>
+                        <div class="flex-1 font-medium">
+                            Bookings for Others
+                        </div>
+                        <div class="font-mono text-xs">
+                            {{ counts()['bookings-for-others'] || 0 }}
+                        </div>
+                    </div>
+                </settings-toggle>
             </div>
         </div>
     `,
@@ -170,6 +187,8 @@ export class ScheduleSidebarComponent extends AsyncHandler implements OnInit {
         return end ? endOfDay(end) : null;
     });
     public readonly toggleType = (t) => this._state.toggleType(t);
+    public readonly toggleBookingsForOthers = () =>
+        this._state.toggleBookingsForOthers();
     public readonly setDate = (d) => this._state.setDate(d);
     public readonly bookings = input<(Booking | CalendarEvent)[]>([]);
     public readonly view = input<'day' | 'week' | 'list'>('day');
@@ -231,6 +250,10 @@ export class ScheduleSidebarComponent extends AsyncHandler implements OnInit {
             } else {
                 const type = bkn.booking_type;
                 mapping[type] = (mapping[type] || 0) + 1;
+                if (isBookingForOtherUser(bkn)) {
+                    mapping['bookings-for-others'] =
+                        (mapping['bookings-for-others'] || 0) + 1;
+                }
             }
         }
         return mapping;

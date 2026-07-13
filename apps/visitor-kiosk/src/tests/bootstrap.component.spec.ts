@@ -1,10 +1,9 @@
 import { signal } from '@angular/core';
-import { fakeAsync } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { Router } from '@angular/router';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import {
     Building,
     BuildingLevel,
@@ -41,7 +40,7 @@ describe('BootstrapComponent', () => {
                 ]),
                 initialised: signal(true),
             }),
-            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(SettingsService, { get: vi.fn() }),
         ],
         imports: [MatFormFieldModule, MatSelectModule, FormsModule],
     });
@@ -77,7 +76,7 @@ describe('BootstrapComponent', () => {
         // TODO: Add implementation
     });
     it('should handling bootstrapping', () => {
-        const spy = jest.spyOn(Storage.prototype, 'setItem');
+        const spy = vi.spyOn(Storage.prototype, 'setItem');
         expect(localStorage.setItem).not.toHaveBeenCalled();
         spectator.component.bootstrapKiosk();
         expect(localStorage.setItem).not.toHaveBeenCalled();
@@ -121,7 +120,7 @@ describe('BootstrapComponent', () => {
     });
 
     it('should handle clearing bootstrap details', () => {
-        jest.spyOn(Storage.prototype, 'removeItem');
+        vi.spyOn(Storage.prototype, 'removeItem');
         expect(localStorage.removeItem).not.toHaveBeenCalled();
         spectator.setRouteQueryParam('clear', 'true');
         spectator.detectChanges();
@@ -166,19 +165,17 @@ describe('BootstrapComponent', () => {
         );
     });
 
-    it('should re-direct if already bootstrapped', fakeAsync(async () => {
+    it('should re-direct if already bootstrapped', async () => {
         const router = spectator.inject(Router);
         expect(router.navigate).not.toHaveBeenCalled();
-        spectator.component.ngOnInit();
-        spectator.tick(1001);
+        await spectator.component.ngOnInit();
         localStorage.setItem('KIOSK.building', '1');
         localStorage.setItem('KIOSK.level', '1');
         expect(router.navigate).not.toHaveBeenCalled();
-        spectator.component.ngOnInit();
-        spectator.tick(1001);
+        await spectator.component.ngOnInit();
         // TODO: Fix
         // expect(router.navigate).toHaveBeenCalled();
-    }));
+    });
 
     it('should show public mode blocker when enabled', () => {
         window.PLACEOS_PUBLIC_MODE = true;

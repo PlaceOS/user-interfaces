@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { BookingFormService } from '@placeos/bookings';
 import {
     Booking,
@@ -62,27 +62,27 @@ describe('NewDeskFlowSuccessComponent', () => {
         providers: [
             MockProvider(BookingFormService, {
                 last_success: group_booking,
-                openBookingLinkModal: jest.fn(),
+                openBookingLinkModal: vi.fn(),
             } as any),
             MockProvider(OrganisationService, {
                 initialised: signal(true),
                 buildings: [],
-                levelWithID: jest.fn(() => new BuildingLevel()),
-                buildingWithID: jest.fn(() => new Building()),
+                levelWithID: vi.fn(() => new BuildingLevel()),
+                buildingWithID: vi.fn(() => new Building()),
             } as any),
             MockProvider(SettingsService, {
-                get: jest.fn(() => undefined),
+                get: vi.fn(() => undefined),
                 time_format: 'h:mm a',
             } as any),
             // The component uses inject(LevelPipe) and inject(BuildingPipe)
             // directly, so they must be provided in the test's injector.
             {
                 provide: LevelPipe,
-                useValue: { transform: jest.fn(() => new BuildingLevel()) },
+                useValue: { transform: vi.fn(() => new BuildingLevel()) },
             },
             {
                 provide: BuildingPipe,
-                useValue: { transform: jest.fn(() => new Building()) },
+                useValue: { transform: vi.fn(() => new Building()) },
             },
         ],
     });

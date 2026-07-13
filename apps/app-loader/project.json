@@ -89,11 +89,26 @@
             "executor": "@nx/eslint:lint"
         },
         "test": {
-            "executor": "@nx/jest:jest",
-            "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+            "executor": "@angular/build:unit-test",
+            "outputs": ["{workspaceRoot}/coverage/apps/app-loader"],
             "options": {
-                "jestConfig": "apps/app-loader/jest.config.ts",
-                "tsConfig": "apps/app-loader/tsconfig.spec.json"
+                "tsConfig": "apps/app-loader/tsconfig.spec.json",
+                "setupFiles": ["apps/app-loader/src/test-setup.ts"],
+                "isolate": true,
+                "watch": false,
+                "buildTarget": "app-loader:test-build:development"
+            }
+        },
+        "test-build": {
+            "executor": "@angular/build:application",
+            "options": {
+                "outputPath": "dist/apps/app-loader-test",
+                "browser": "apps/app-loader/src/main.ts",
+                "tsConfig": "apps/app-loader/tsconfig.spec.json",
+                "polyfills": []
+            },
+            "configurations": {
+                "development": {}
             }
         },
         "serve-static": {

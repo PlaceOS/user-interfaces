@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 
 import { PanelViewDetailsComponent } from '../../app/new-panel/panel-view-details.component';
 import { PanelStateService } from '../../app/panel-state.service';
@@ -16,7 +16,7 @@ describe('PanelViewDetailsComponent', () => {
                     space,
                     current: signal(null),
                     settings: signal({}),
-                    setting: jest.fn(),
+                    setting: vi.fn(),
                     system: 'test-system',
                 },
             },
@@ -40,14 +40,14 @@ describe('PanelViewDetailsComponent', () => {
 
     it('should display QR code when enabled', () => {
         const service = spectator.inject(PanelStateService);
-        (service.setting as jest.Mock).mockReturnValue(true);
+        (service.setting as any).mockReturnValue(true);
         spectator.detectChanges();
         expect(spectator.component.checkin).toBe(true);
     });
 
     it('should hide QR code when disabled', () => {
         const service = spectator.inject(PanelStateService);
-        (service.setting as jest.Mock).mockReturnValue(false);
+        (service.setting as any).mockReturnValue(false);
         spectator.detectChanges();
         expect(spectator.component.checkin).toBe(false);
     });

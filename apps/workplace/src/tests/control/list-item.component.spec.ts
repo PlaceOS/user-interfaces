@@ -1,5 +1,5 @@
 import { SpectatorRouting } from '@ngneat/spectator';
-import { createRoutingFactory } from '@ngneat/spectator/jest';
+import { createRoutingFactory } from '@ngneat/spectator/vitest';
 import { MockComponent, MockPipe, MockProvider } from 'ng-mocks';
 
 import { OrganisationService, SettingsService } from '@placeos/common';
@@ -13,7 +13,7 @@ describe('ControlSpaceListItemComponent', () => {
         component: ControlSpaceListItemComponent,
         providers: [
             MockProvider(SettingsService, {
-                get: jest.fn(() => ['explore']),
+                get: vi.fn(() => ['explore']),
             } as any),
             MockProvider(OrganisationService, { buildings: [] }),
         ],

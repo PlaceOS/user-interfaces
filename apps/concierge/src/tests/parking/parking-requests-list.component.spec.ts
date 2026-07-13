@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { Booking, SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
@@ -27,27 +27,28 @@ describe('ParkingRequestsListComponent', () => {
                 })) as any,
                 loading: (() => []) as any,
                 period: (() => 'day') as any,
-                startPolling: jest.fn(() => () => null),
-                filterEventSearch: jest.fn((list: Booking[]) => list),
-                rejectBooking: jest.fn(),
-                approveBooking: jest.fn(),
-                editReservation: jest.fn(),
-                assignSpace: jest.fn(),
-                canApproveBooking: jest.fn(() => true),
+                has_more_pages: (() => false) as any,
+                last_updated: (() => 0) as any,
+                nextPage: vi.fn(),
+                refresh: vi.fn(),
+                filterEventSearch: vi.fn((list: Booking[]) => list),
+                rejectBooking: vi.fn(),
+                approveBooking: vi.fn(),
+                editReservation: vi.fn(),
+                assignSpace: vi.fn(),
+                canApproveBooking: vi.fn(() => true),
                 get timezone() {
                     return timezone;
                 },
                 week_start: 1,
             } as any),
             MockProvider(SettingsService as any, {
-                get: jest.fn((name: string) =>
+                get: vi.fn((name: string) =>
                     name === 'app.parking.show_waitlist'
                         ? show_waitlist
                         : false,
                 ),
-                signal: jest.fn((_: string, initial: boolean) =>
-                    signal(initial),
-                ),
+                signal: vi.fn((_: string, initial: boolean) => signal(initial)),
                 time_format: 'h:mm a',
             }),
         ],

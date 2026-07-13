@@ -1,5 +1,5 @@
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
-import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
+import { createRoutingFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
     CateringItem,
     OrganisationService,

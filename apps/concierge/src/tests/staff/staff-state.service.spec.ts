@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
+import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
 import { OrganisationService } from '@placeos/common';
 import { StaffStateService } from '../../app/staff/staff-state.service';
 
@@ -11,9 +11,10 @@ describe('StaffStateService', () => {
             {
                 provide: OrganisationService,
                 useValue: {
+                    active_building: signal(null),
                     active_levels: signal([]),
                     initialised: signal(true),
-                    levelWithID: jest.fn(),
+                    levelWithID: vi.fn(),
                     buildings: [],
                 },
             },

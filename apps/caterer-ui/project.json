@@ -121,11 +121,26 @@
             "outputs": ["{options.outputFile}"]
         },
         "test": {
-            "executor": "@nx/jest:jest",
+            "executor": "@angular/build:unit-test",
             "outputs": ["{workspaceRoot}/coverage/apps/caterer-ui"],
             "options": {
-                "jestConfig": "apps/caterer-ui/jest.config.ts",
-                "tsConfig": "apps/caterer-ui/tsconfig.spec.json"
+                "tsConfig": "apps/caterer-ui/tsconfig.spec.json",
+                "setupFiles": ["apps/caterer-ui/src/test-setup.ts"],
+                "isolate": true,
+                "watch": false,
+                "buildTarget": "caterer-ui:test-build:development"
+            }
+        },
+        "test-build": {
+            "executor": "@angular/build:application",
+            "options": {
+                "outputPath": "dist/apps/caterer-ui-test",
+                "browser": "apps/caterer-ui/src/main.ts",
+                "tsConfig": "apps/caterer-ui/tsconfig.spec.json",
+                "polyfills": []
+            },
+            "configurations": {
+                "development": {}
             }
         }
     }

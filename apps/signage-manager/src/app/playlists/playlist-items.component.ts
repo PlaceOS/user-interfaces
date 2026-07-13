@@ -3,18 +3,28 @@ import {
     DragDropModule,
     moveItemInArray,
 } from '@angular/cdk/drag-drop';
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { i18n } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
     IconComponent,
     MediaDurationPipe,
     TranslatePipe,
 } from '@placeos/components';
-import { SignageMedia } from '@placeos/ts-client';
+import {
+    SignageMedia,
+    SignagePlaylistItemSchedule,
+    type SignagePlaylistSchedule,
+} from '@placeos/ts-client';
+import {
+    playlistMediaIcon,
+    playlistScheduleNextPlayLabels,
+    playlistScheduleLabel,
+} from '../signage-playlist.util';
 import { SignageService } from '../signage.service';
 
 @Component({
@@ -141,7 +151,7 @@ import { SignageService } from '../signage.service';
                         }}
                     </p>
                 </div>
-            } @else if (items().length > 0) {
+            } @else if (items().length > 0 && !is_distribution()) {
                 <div
                     class="w-full flex-1 overflow-auto px-3 py-2"
                     cdkDropList
@@ -154,19 +164,19 @@ import { SignageService } from '../signage.service';
                             role="button"
                             tabindex="0"
                             class="bg-base-100 border-base-300 mb-2 flex cursor-pointer items-center gap-3 rounded-lg border p-2 transition-colors"
-                            [class.bg-primary]="selected_item()?.id === item.id"
+                            [class.bg-primary]="isItemSelected(item, $index)"
                             [class.text-primary-content]="
-                                selected_item()?.id === item.id
+                                isItemSelected(item, $index)
                             "
                             [class.hover:bg-base-200]="
-                                selected_item()?.id !== item.id
+                                !isItemSelected(item, $index)
                             "
-                            (click)="selectItem(item)"
+                            (click)="selectItem(item, $index)"
                             (keydown.enter)="
-                                selectItemWithKeyboard($event, item)
+                                selectItemWithKeyboard($event, item, $index)
                             "
                             (keydown.space)="
-                                selectItemWithKeyboard($event, item)
+                                selectItemWithKeyboard($event, item, $index)
                             "
                             [attr.aria-label]="
                                 'SIGNAGE_MANAGER.SELECT_MEDIA_ITEM'
@@ -302,6 +312,252 @@ import { SignageService } from '../signage.service';
                         </div>
                     }
                 </div>
+            } @else if (items().length > 0) {
+                <div class="w-full flex-1 overflow-auto px-3 py-2" role="list">
+                    <div class="-mt-2 mb-2 flex justify-end lg:mt-0">
+                        <button
+                            type="button"
+                            class="text-base-content/70 hover:bg-base-200 flex w-28 items-center justify-center gap-1 rounded px-2 py-1 text-xs font-medium"
+                            matRipple
+                            (click)="toggleAllSchedules($event)"
+                        >
+                            <icon class="text-base">{{
+                                allSchedulesCollapsed()
+                                    ? 'unfold_more'
+                                    : 'unfold_less'
+                            }}</icon>
+                            <span class="mr-2">{{
+                                allSchedulesCollapsed()
+                                    ? 'Expand all'
+                                    : 'Collapse all'
+                            }}</span>
+                        </button>
+                    </div>
+                    @for (item of items(); track item.id + '-' + $index) {
+                        @let schedule = itemSchedule(item, $index);
+                        <div
+                            role="button"
+                            tabindex="0"
+                            class="bg-base-100 border-base-300 mb-2 cursor-pointer rounded-lg border p-2 transition-colors"
+                            [class.bg-primary]="isItemSelected(item, $index)"
+                            [class.text-primary-content]="
+                                isItemSelected(item, $index)
+                            "
+                            [class.hover:bg-base-200]="
+                                !isItemSelected(item, $index)
+                            "
+                            (click)="selectItem(item, $index)"
+                            (keydown.enter)="
+                                selectItemWithKeyboard($event, item, $index)
+                            "
+                            (keydown.space)="
+                                selectItemWithKeyboard($event, item, $index)
+                            "
+                            [attr.aria-label]="
+                                'SIGNAGE_MANAGER.SELECT_MEDIA_ITEM'
+                                    | translate: { name: item.name }
+                            "
+                        >
+                            <div class="flex items-start gap-3">
+                                <div
+                                    class="bg-base-300 h-12 w-16 shrink-0 overflow-hidden rounded"
+                                >
+                                    @let url = thumbnailURL(item);
+                                    @if (url && item.thumbnail_id) {
+                                        <img
+                                            auth
+                                            [source]="url"
+                                            [alt]="item.name + ' thumbnail'"
+                                            class="h-full w-full object-cover text-xs"
+                                        />
+                                    } @else {
+                                        <div
+                                            class="flex h-full w-full items-center justify-center"
+                                        >
+                                            <icon class="text-4xl opacity-30">{{
+                                                mediaIcon(item)
+                                            }}</icon>
+                                        </div>
+                                    }
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <div class="truncate text-sm font-medium">
+                                        {{ item.name }}
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span
+                                            class="rounded px-1.5 py-0.5 text-[10px] capitalize"
+                                            [class.bg-info]="
+                                                item.media_type === 'video'
+                                            "
+                                            [class.text-info-content]="
+                                                item.media_type === 'video'
+                                            "
+                                            [class.bg-warning]="
+                                                item.media_type === 'image'
+                                            "
+                                            [class.text-warning-content]="
+                                                item.media_type === 'image'
+                                            "
+                                            [class.bg-success]="
+                                                item.media_type === 'webpage'
+                                            "
+                                            [class.text-success-content]="
+                                                item.media_type === 'webpage'
+                                            "
+                                            [class.bg-error]="
+                                                item.media_type === 'plugin'
+                                            "
+                                            [class.text-error-content]="
+                                                item.media_type === 'plugin'
+                                            "
+                                        >
+                                            {{ item.media_type }}
+                                        </span>
+                                        @if (item.play_time) {
+                                            <span
+                                                class="font-mono text-[10px] opacity-60"
+                                            >
+                                                {{
+                                                    item.play_time / 1000
+                                                        | mediaDuration
+                                                }}
+                                            </span>
+                                        }
+                                    </div>
+                                </div>
+                                <button
+                                    icon
+                                    default
+                                    type="button"
+                                    matRipple
+                                    [matMenuTriggerFor]="distribution_item_menu"
+                                    (click)="$event.stopPropagation()"
+                                    [attr.aria-label]="
+                                        'SIGNAGE_MANAGER.ITEM_ACTIONS'
+                                            | translate
+                                    "
+                                >
+                                    <icon>more_vert</icon>
+                                </button>
+                                <mat-menu #distribution_item_menu="matMenu">
+                                    <button
+                                        type="button"
+                                        mat-menu-item
+                                        (click)="previewItem(item)"
+                                    >
+                                        <div
+                                            class="flex items-center space-x-2"
+                                        >
+                                            <icon class="text-2xl"
+                                                >visibility</icon
+                                            >
+                                            <div class="pr-2">
+                                                {{
+                                                    'COMMON.PREVIEW' | translate
+                                                }}
+                                            </div>
+                                        </div>
+                                    </button>
+                                    @if (can_update()) {
+                                        <button
+                                            type="button"
+                                            mat-menu-item
+                                            (click)="editItemSchedule(schedule)"
+                                        >
+                                            <div
+                                                class="flex items-center space-x-2"
+                                            >
+                                                <icon class="text-2xl"
+                                                    >edit_calendar</icon
+                                                >
+                                                <div class="pr-2">
+                                                    {{
+                                                        'SIGNAGE_MANAGER.EDIT_SCHEDULE'
+                                                            | translate
+                                                    }}
+                                                </div>
+                                            </div>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            mat-menu-item
+                                            (click)="removeItem(item, $index)"
+                                        >
+                                            <div
+                                                class="flex items-center space-x-2"
+                                            >
+                                                <icon
+                                                    class="text-error text-2xl"
+                                                >
+                                                    delete
+                                                </icon>
+                                                <div class="pr-2">
+                                                    {{
+                                                        'SIGNAGE_MANAGER.REMOVE_FROM_PLAYLIST'
+                                                            | translate
+                                                    }}
+                                                </div>
+                                            </div>
+                                        </button>
+                                    }
+                                </mat-menu>
+                            </div>
+                            <div
+                                class="border-base-300 bg-base-100 text-base-content relative mt-4 flex flex-col gap-1 rounded-lg border text-sm"
+                            >
+                                <button
+                                    type="button"
+                                    class="bg-base-100 absolute -top-3 left-4 flex items-center gap-1 rounded-lg px-2 text-xs font-medium"
+                                    (click)="
+                                        toggleSchedules($event, item, $index)
+                                    "
+                                    [attr.aria-expanded]="
+                                        schedulesOpen(item, $index)
+                                    "
+                                >
+                                    <span>Schedules</span>
+                                    <icon class="text-base">{{
+                                        schedulesOpen(item, $index)
+                                            ? 'expand_less'
+                                            : 'expand_more'
+                                    }}</icon>
+                                </button>
+                                @if (schedulesOpen(item, $index)) {
+                                    @if (schedule?.schedules?.length) {
+                                        @for (
+                                            item_schedule of schedule.schedules;
+                                            track $index
+                                        ) {
+                                            <div
+                                                class="rounded-md p-2"
+                                                [matTooltip]="
+                                                    scheduleTooltip(
+                                                        item_schedule
+                                                    )
+                                                "
+                                                matTooltipClass="playlist-schedule-tooltip"
+                                            >
+                                                {{
+                                                    scheduleLabel(item_schedule)
+                                                }}
+                                            </div>
+                                        }
+                                    } @else {
+                                        <div
+                                            class="text-base-content/60 rounded-md p-2"
+                                        >
+                                            {{
+                                                'SIGNAGE_MANAGER.NO_SCHEDULES'
+                                                    | translate
+                                            }}
+                                        </div>
+                                    }
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
             } @else {
                 <div
                     class="text-base-content/70 flex flex-1 flex-col items-center justify-center space-y-2 p-8"
@@ -334,6 +590,10 @@ import { SignageService } from '../signage.service';
             .cdk-drag-placeholder {
                 opacity: 0.3;
             }
+
+            ::ng-deep .playlist-schedule-tooltip .mdc-tooltip__surface {
+                white-space: pre-line;
+            }
         `,
     ],
     imports: [
@@ -353,6 +613,8 @@ export class PlaylistItemsComponent {
 
     public readonly selected_playlist = this._service.selected_playlist;
     public readonly selected_item = this._service.selected_playlist_item;
+    public readonly selected_item_index =
+        this._service.selected_playlist_item_index;
     public readonly requires_approval =
         this._service.selected_playlist_requires_approval;
     public readonly can_approve = this._service.can_approve;
@@ -363,22 +625,114 @@ export class PlaylistItemsComponent {
     public readonly approval_request_loading =
         this._service.playlist_approval_request_loading;
     public readonly items = this._service.playlist_media_items;
-    public selectItem(item: SignageMedia) {
+    public readonly item_schedules = this._service.playlist_item_schedules;
+    public readonly item_schedule_list =
+        this._service.playlist_item_schedule_list;
+    public readonly is_distribution = () =>
+        !!this.selected_playlist()?.distribution;
+    public readonly collapsed_schedules = signal<Record<string, boolean>>({});
+
+    public selectItem(item: SignageMedia, index: number) {
         this._service.selected_playlist_item.set(item);
+        this._service.selected_playlist_item_index.set(index);
+    }
+
+    public isItemSelected(item: SignageMedia, index: number) {
+        return (
+            this.selected_item()?.id === item.id &&
+            this.selected_item_index() === index
+        );
     }
 
     public thumbnailURL(item: SignageMedia) {
         return `/api/engine/v2/signage/media/${item.id}/thumbnail`;
     }
 
-    public selectItemWithKeyboard(event: Event, item: SignageMedia) {
+    public mediaIcon(item: SignageMedia) {
+        return playlistMediaIcon(item);
+    }
+
+    public itemSchedule(item: SignageMedia, index = -1) {
+        const schedule = this.item_schedule_list()[index];
+        if (schedule?.media?.id === item.id) return schedule;
+        return (
+            this.item_schedules().get(item.id) ||
+            new SignagePlaylistItemSchedule({
+                item_id: item.id,
+                media: item,
+            })
+        );
+    }
+
+    public scheduleLabel = playlistScheduleLabel;
+
+    public scheduleTooltip(schedule: Partial<SignagePlaylistSchedule>) {
+        const labels = playlistScheduleNextPlayLabels(schedule);
+        return [
+            `-- ${i18n('SIGNAGE_MANAGER.NEXT_5_PLAYS')} --`,
+            ...(labels.length
+                ? labels
+                : [i18n('SIGNAGE_MANAGER.NO_UPCOMING_PLAY_TIMES')]),
+        ].join('\n');
+    }
+
+    public scheduleKey(item: SignageMedia, index: number) {
+        const schedule = this.itemSchedule(item, index);
+        return `${schedule.id || schedule.item_id || item.id}:${index}`;
+    }
+
+    public schedulesOpen(item: SignageMedia, index: number) {
+        return !this.collapsed_schedules()[this.scheduleKey(item, index)];
+    }
+
+    public toggleSchedules(event: Event, item: SignageMedia, index: number) {
         event.preventDefault();
         event.stopPropagation();
-        this.selectItem(item);
+        const key = this.scheduleKey(item, index);
+        this.collapsed_schedules.update((state) => ({
+            ...state,
+            [key]: !state[key],
+        }));
+    }
+
+    public allSchedulesCollapsed() {
+        const items = this.items();
+        return (
+            items.length > 0 &&
+            items.every((item, index) => !this.schedulesOpen(item, index))
+        );
+    }
+
+    public toggleAllSchedules(event: Event) {
+        event.preventDefault();
+        event.stopPropagation();
+        if (this.allSchedulesCollapsed()) {
+            this.collapsed_schedules.set({});
+            return;
+        }
+        const collapsed: Record<string, boolean> = {};
+        this.items().forEach((item, index) => {
+            collapsed[this.scheduleKey(item, index)] = true;
+        });
+        this.collapsed_schedules.set(collapsed);
+    }
+
+    public selectItemWithKeyboard(
+        event: Event,
+        item: SignageMedia,
+        index: number,
+    ) {
+        event.preventDefault();
+        event.stopPropagation();
+        this.selectItem(item, index);
     }
 
     public previewItem(item: SignageMedia) {
         this._service.previewMedia(item);
+    }
+
+    public editItemSchedule(schedule: SignagePlaylistItemSchedule) {
+        this._service.editPlaylistItemSchedule(schedule);
     }
 
     public editPlaylist() {
@@ -414,13 +768,14 @@ export class PlaylistItemsComponent {
             item.id,
             item_index,
         );
-        if (this.selected_item()?.id === item.id) {
+        if (this.isItemSelected(item, item_index)) {
             this._service.selected_playlist_item.set(null);
+            this._service.selected_playlist_item_index.set(null);
         }
     }
 
     public async onDrop(event: CdkDragDrop<SignageMedia[]>) {
-        if (!this.can_update()) return;
+        if (!this.can_update() || this.is_distribution()) return;
         const playlist = this.selected_playlist();
         if (!playlist?.id) return;
         const current_items = [...this.items()];

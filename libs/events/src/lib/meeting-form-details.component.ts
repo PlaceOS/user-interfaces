@@ -405,10 +405,10 @@ export class MeetingFormDetailsComponent extends AsyncHandler {
     }
 
     private async _checkCalendarPermission(user: any) {
-        this.permission_error.set('');
         if (!user?.email || !this.can_book_for_anyone()) return;
         const current = currentUser();
         if (user.email.toLowerCase() === current?.email?.toLowerCase()) return;
+        this.permission_error.set('');
         const checked_email = user.email;
         this.checking_permission.set(true);
         try {

@@ -20,7 +20,9 @@ import {
     BookingClash,
     BookingRuleset,
     BookingType,
+    currentUserIsLoaded,
     currentUser,
+    currentUserLoaded,
     Desk,
     firstValueWhere,
     flatten,
@@ -931,7 +933,6 @@ export class BookingFormService extends AsyncHandler {
             this.timezone,
             period?.start,
             period?.end,
-            this.model().id ? undefined : Date.now(),
         );
     }
 
@@ -986,6 +987,10 @@ export class BookingFormService extends AsyncHandler {
     }
 
     public resetForm() {
+        if (!currentUserIsLoaded()) {
+            currentUserLoaded().then(() => this.resetForm());
+            return;
+        }
         if (!sessionStorage.getItem(STORAGE_KEYS.booking_form)) {
             return this.newForm(this._options().type);
         }

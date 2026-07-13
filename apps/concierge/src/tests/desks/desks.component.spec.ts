@@ -2,7 +2,7 @@ import { signal, WritableSignal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTabsModule } from '@angular/material/tabs';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 
 import { FormsModule } from '@angular/forms';
@@ -32,13 +32,13 @@ describe('DesksComponent', () => {
             { id: 'bld-1', parent_id: 'region-1' },
             { id: 'bld-2', parent_id: 'region-1' },
         ],
-        levelsForBuilding: jest.fn((building) =>
+        levelsForBuilding: vi.fn((building) =>
             building?.id === 'bld-2'
                 ? [{ id: 'level-b' }]
                 : [{ id: 'level-a' }],
         ),
-        levelsForRegion: jest.fn(() => [{ id: 'level-a' }, { id: 'level-b' }]),
-        levelWithID: jest.fn(),
+        levelsForRegion: vi.fn(() => [{ id: 'level-a' }, { id: 'level-b' }]),
+        levelWithID: vi.fn(),
         active_building: undefined,
         active_region: undefined,
         get building() {
@@ -59,18 +59,18 @@ describe('DesksComponent', () => {
         ],
         providers: [
             MockProvider(DesksStateService, {
-                refresh: jest.fn(),
+                refresh: vi.fn(),
                 filters: signal({}),
                 print_desk: signal(null),
                 loading: signal(false),
-                setFilters: jest.fn(),
-                rejectAllDesks: jest.fn(),
-                editDesk: jest.fn(),
-                addDesks: jest.fn(),
+                setFilters: vi.fn(),
+                rejectAllDesks: vi.fn(),
+                editDesk: vi.fn(),
+                addDesks: vi.fn(),
             } as any),
             MockProvider(OrganisationService, organisation_service),
-            MockProvider(MatDialog, { open: jest.fn() }),
-            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(MatDialog, { open: vi.fn() }),
+            MockProvider(SettingsService, { get: vi.fn() }),
         ],
         imports: [
             MockModule(MatProgressBarModule),
@@ -92,19 +92,19 @@ describe('DesksComponent', () => {
         spectator = createComponent({
             providers: [
                 MockProvider(DesksStateService, {
-                    refresh: jest.fn(),
+                    refresh: vi.fn(),
                     filters: filters_signal,
                     print_desk: print_desk_signal,
                     loading: signal(false),
-                    setFilters: jest.fn((filters) =>
+                    setFilters: vi.fn((filters) =>
                         filters_signal.set({
                             ...filters_signal(),
                             ...filters,
                         }),
                     ),
-                    rejectAllDesks: jest.fn(),
-                    editDesk: jest.fn(),
-                    addDesks: jest.fn(),
+                    rejectAllDesks: vi.fn(),
+                    editDesk: vi.fn(),
+                    addDesks: vi.fn(),
                 } as any),
                 MockProvider(SettingsService, {
                     get: ((name: string) =>
@@ -123,12 +123,12 @@ describe('DesksComponent', () => {
         // building changes, zones that don't belong to the new building must
         // be dropped so the user isn't left with a stale selection.
         const injected_building = spectator.inject(OrganisationService)
-            .active_building as WritableSignal<any>;
+            .active_building as unknown as WritableSignal<any>;
         // Flush the initial `toObservable` emissions, then restore the active
         // selection (initial sync may clear it) so we test the building change.
         spectator.detectChanges();
         filters_signal.set({ zones: ['level-a'] });
-        const update_zones = jest.spyOn(spectator.component, 'updateZones');
+        const update_zones = vi.spyOn(spectator.component, 'updateZones');
         update_zones.mockClear();
 
         current_building = { id: 'bld-2', parent_id: 'region-1' };
@@ -142,7 +142,7 @@ describe('DesksComponent', () => {
 
     it('should clear search when switching desk views', () => {
         const desks_state = spectator.inject(DesksStateService);
-        (desks_state.setFilters as jest.Mock).mockClear();
+        (desks_state.setFilters as any).mockClear();
         filters_signal.set({
             zones: ['level-a'],
             view: 'manage',
@@ -156,6 +156,15 @@ describe('DesksComponent', () => {
             view: 'events',
             search: '',
         });
+    });
+
+    it('should restore all levels when returning from desk management', () => {
+        filters_signal.set({ zones: ['level-a'], view: 'manage' });
+
+        spectator.component.path.set('events');
+        (spectator.component as any)._updateView();
+
+        expect(filters_signal().zones).toEqual([]);
     });
 
     it('should render selected desk QR code outside the print-hidden content', () => {

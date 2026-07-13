@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { fakeAsync, TestBed } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { UntypedFormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator';
@@ -12,12 +12,7 @@ import { EventFormService } from '@placeos/events';
 import { ExploreSpacesService } from '../lib/explore-spaces.service';
 import { ExploreStateService } from '../lib/explore-state.service';
 
-jest.mock('@placeos/ts-client', () => ({
-    ...jest.requireActual('@placeos/ts-client'),
-    getModule: jest.fn(),
-    showMetadata: jest.fn(),
-}));
-jest.mock('libs/common/src/lib/notifications');
+vi.mock('@placeos/ts-client', { spy: true });
 
 import * as ts_client from '@placeos/ts-client';
 
@@ -29,23 +24,23 @@ describe('ExploreSpacesService', () => {
             MockProvider(ExploreStateService, {
                 options: signal({ is_public: false }) as any,
                 spaces: signal([]) as any,
-                setStyles: jest.fn(),
-                setFeatures: jest.fn(),
-                setActions: jest.fn(),
+                setStyles: vi.fn(),
+                setFeatures: vi.fn(),
+                setActions: vi.fn(),
             }),
-            MockProvider(SettingsService, { get: jest.fn() }),
-            MockProvider(MatDialog, { open: jest.fn() }),
+            MockProvider(SettingsService, { get: vi.fn() }),
+            MockProvider(MatDialog, { open: vi.fn() }),
             MockProvider(OrganisationService, {
                 active_building: signal({ id: 'bld-1' }),
                 building: { id: 'bld-1' } as any,
             } as any),
-            MockProvider(EventFormService, { form: new UntypedFormGroup({}) }),
+            MockProvider(EventFormService, { form: new UntypedFormGroup({}) } as any),
         ],
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
-        jest.mocked(ts_client.showMetadata).mockReturnValue(of({}) as any);
+        vi.clearAllMocks();
+        vi.mocked(ts_client.showMetadata).mockReturnValue(of({}) as any);
         spectator = createService();
     });
 
@@ -54,12 +49,12 @@ describe('ExploreSpacesService', () => {
     });
 
     it('should bind to spaces', () => {
-        jest.useFakeTimers();
-        const bindThenSubscribe = jest.fn(() => of().subscribe());
+        vi.useFakeTimers();
+        const bindThenSubscribe = vi.fn(() => of().subscribe());
         const variableBinding = { bindThenSubscribe };
-        const binding = jest.fn(() => variableBinding);
-        const getModuleMock = jest.fn(() => ({ variable: binding }));
-        jest.mocked(ts_client.getModule).mockImplementation(
+        const binding = vi.fn(() => variableBinding);
+        const getModuleMock = vi.fn(() => ({ variable: binding }));
+        vi.mocked(ts_client.getModule).mockImplementation(
             getModuleMock as any,
         );
         const state = spectator.inject(ExploreStateService);
@@ -67,16 +62,16 @@ describe('ExploreSpacesService', () => {
             { id: 'space-1', name: 'Test', bookable: true },
         ]);
         TestBed.tick();
-        jest.runOnlyPendingTimers();
+        vi.runOnlyPendingTimers();
         expect(getModuleMock).toHaveBeenCalledWith('space-1', 'Bookings');
         expect(binding).toHaveBeenCalledWith('bookings');
         expect(binding).toHaveBeenCalledWith('status');
         expect(binding).toHaveBeenCalledWith('presence');
         expect(state.setActions).toHaveBeenCalled();
-        jest.useRealTimers();
+        vi.useRealTimers();
     });
 
-    it('should listen to state changes', fakeAsync(() => {
+    it('should listen to state changes', () => {
         // TODO: Fix
         // const spaces = [
         //     { id: '1', map_id: 'space-1', name: 'Test', bookable: true },
@@ -101,18 +96,18 @@ describe('ExploreSpacesService', () => {
         //     '#space-1': { fill: DEFAULT_COLOURS['busy'], opacity: 0.6 },
         //     '#space-2': { fill: DEFAULT_COLOURS['not-bookable'], opacity: 0.6 },
         // });
-    }));
+    });
 
     // it('should allow making space bookings', () => {
-    //     jest.useFakeTimers();
+    //     vi.useFakeTimers();
     //     const spaces = [
     //         { id: '1', map_id: 'space-1', name: 'Test', bookable: true },
     //         { id: '2', map_id: 'space-2', name: 'Test 2', bookable: false },
     //     ].map((_) => new Space(_));
-    //     (notify as any).notifyError = jest.fn();
+    //     (notify as any).notifyError = vi.fn();
     //     const dialog = spectator.inject(MatDialog);
     //     spectator.service.handleStatusChange(spaces, spaces[0], '');
-    //     jest.runOnlyPendingTimers();
+    //     vi.runOnlyPendingTimers();
     //     expect(dialog.open).not.toHaveBeenCalled();
     //     spectator.service.bookSpace(spaces[0]);
     //     expect(dialog.open).toHaveBeenCalled();

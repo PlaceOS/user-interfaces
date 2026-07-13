@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
+import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
 import {
     KeepAliveService,
     OrganisationService,
@@ -17,13 +17,13 @@ describe('PanelStateService', () => {
         providers: [
             MockProvider(SpacesService, {
                 list: signal([]),
-                loadSpace: jest.fn(),
+                loadSpace: vi.fn(),
             }),
-            MockProvider(MatDialog, { open: jest.fn() }),
+            MockProvider(MatDialog, { open: vi.fn() }),
             MockProvider(EventFormService, {}),
             MockProvider(OrganisationService, { initialised: signal(true) }),
             MockProvider(KeepAliveService),
-            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(SettingsService, { get: vi.fn() }),
         ],
     });
 

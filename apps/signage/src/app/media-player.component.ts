@@ -669,6 +669,7 @@ export class MediaPlayerComponent
 
     public setPlaylistItem(index: number, resume_if_paused = true) {
         if (!this._hasValidPlaylistItem()) {
+            this._clearActiveItem();
             return this.timeout(
                 'retry_set_item',
                 () => this.setPlaylistItem(index, resume_if_paused),
@@ -840,7 +841,7 @@ export class MediaPlayerComponent
     private _clearOutput(output: 0 | 1) {
         const item = this._output_items[output];
         this._hideMediaElements(output);
-        this._pauseOutputVideo(output);
+        if (item?.type === 'video') this._pauseOutputVideo(output);
         this._web_element(output).nativeElement.removeAttribute('src');
         if (item) {
             this._item_output.delete(item.id);
@@ -1272,6 +1273,24 @@ export class MediaPlayerComponent
             delete this._item_urls[key];
         }
         this._preloadUpcomingInteractiveContent(current_index);
+    }
+
+    private _clearActiveItem() {
+        if (this.index() !== -1) {
+            this.index.set(-1);
+            this.indexChange.emit(-1);
+        }
+        this.playing_id.emit('');
+        this._item_start = 0;
+        this._item_progress = 0;
+        this._item_real_start = 0;
+        this._item_real_progress = 0;
+        this.progress.set(0);
+        this.duration.set(0);
+        this.progress_start.set(0);
+        this._clearDeferredReveal();
+        this._clearOutput(0);
+        this._clearOutput(1);
     }
 
     private _preloadUpcomingInteractiveContent(current_index: number) {

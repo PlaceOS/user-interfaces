@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 
 import { PanelViewStatusComponent } from '../../app/new-panel/panel-view-status.component';
 import { PanelStateService } from '../../app/panel-state.service';
@@ -18,7 +18,7 @@ describe('PanelViewStatusComponent', () => {
                     next: signal(null),
                     bookings: signal([]),
                     settings: signal({}),
-                    setting: jest.fn(),
+                    setting: vi.fn(),
                 },
             },
         ],

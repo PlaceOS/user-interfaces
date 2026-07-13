@@ -479,55 +479,57 @@ function nextSchedulePlaySessions(
                                         </div>
                                     </div>
                                 }
-                                <div>
-                                    <div
-                                        class="text-base-content/70 mb-1 text-xs font-medium tracking-wider uppercase"
-                                    >
-                                        {{
-                                            'SIGNAGE_MANAGER.SCHEDULE'
-                                                | translate
-                                        }}
-                                    </div>
-                                    <div class="space-y-1 text-sm">
-                                        @for (
-                                            schedule of schedule_labels();
-                                            track schedule
-                                        ) {
-                                            <div>{{ schedule }}</div>
-                                        }
-                                    </div>
-                                    <div class="mt-2">
+                                @if (!playlist().distribution) {
+                                    <div>
                                         <div
-                                            class="text-base-content/60 mb-1 text-xs font-medium tracking-wide uppercase"
+                                            class="text-base-content/70 mb-1 text-xs font-medium tracking-wider uppercase"
                                         >
                                             {{
-                                                'SIGNAGE_MANAGER.NEXT_5_PLAYS'
+                                                'SIGNAGE_MANAGER.SCHEDULE'
                                                     | translate
                                             }}
                                         </div>
-                                        <div
-                                            class="text-base-content/80 space-y-0.5 font-mono text-xs leading-tight"
-                                        >
+                                        <div class="space-y-1 text-sm">
                                             @for (
-                                                play_time of next_play_sessions();
-                                                track play_time
+                                                schedule of schedule_labels();
+                                                track schedule
                                             ) {
-                                                <div class="truncate">
-                                                    {{ play_time }}
-                                                </div>
-                                            } @empty {
-                                                <div
-                                                    class="text-base-content/60"
-                                                >
-                                                    {{
-                                                        'SIGNAGE_MANAGER.NO_UPCOMING_PLAY_TIMES'
-                                                            | translate
-                                                    }}
-                                                </div>
+                                                <div>{{ schedule }}</div>
                                             }
                                         </div>
+                                        <div class="mt-2">
+                                            <div
+                                                class="text-base-content/60 mb-1 text-xs font-medium tracking-wide uppercase"
+                                            >
+                                                {{
+                                                    'SIGNAGE_MANAGER.NEXT_5_PLAYS'
+                                                        | translate
+                                                }}
+                                            </div>
+                                            <div
+                                                class="text-base-content/80 space-y-0.5 font-mono text-xs leading-tight"
+                                            >
+                                                @for (
+                                                    play_time of next_play_sessions();
+                                                    track play_time
+                                                ) {
+                                                    <div class="truncate">
+                                                        {{ play_time }}
+                                                    </div>
+                                                } @empty {
+                                                    <div
+                                                        class="text-base-content/60"
+                                                    >
+                                                        {{
+                                                            'SIGNAGE_MANAGER.NO_UPCOMING_PLAY_TIMES'
+                                                                | translate
+                                                        }}
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
+                                }
                                 @if (playlist().play_count) {
                                     <div>
                                         <div
@@ -930,13 +932,13 @@ export class PlaylistItemDetailsComponent {
 
     public readonly schedule_labels = computed(() => {
         const pl = this.playlist();
-        if (!pl) return [];
+        if (!pl || pl.distribution) return [];
         return playlistSchedules(pl).map((schedule) => scheduleLabel(schedule));
     });
 
     public readonly next_play_sessions = computed(() => {
         const pl = this.playlist();
-        if (!pl) return [];
+        if (!pl || pl.distribution) return [];
         return playlistSchedules(pl)
             .flatMap((schedule) => nextSchedulePlaySessions(schedule, 5))
             .sort((a, b) => a.start.getTime() - b.start.getTime())

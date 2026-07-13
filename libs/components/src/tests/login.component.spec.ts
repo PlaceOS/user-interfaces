@@ -2,7 +2,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 import { createSettingsServiceMock } from '@placeos/common/tests';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { MockComponent, MockDirective, MockPipe, MockProvider } from 'ng-mocks';
@@ -27,7 +27,7 @@ describe('LoginComponent', () => {
                 SettingsService,
                 createSettingsServiceMock({
                     initialised: of(true),
-                    get: jest.fn(() => ''),
+                    get: vi.fn(() => ''),
                 }),
             ),
         ],

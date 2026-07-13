@@ -1,4 +1,5 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { signal } from '@angular/core';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { addMinutes } from 'date-fns';
 import { MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
@@ -11,11 +12,12 @@ import {
     SettingsService,
 } from '@placeos/common';
 import { CateringListFieldComponent } from '../lib/catering-list-field.component';
+import { createSettingsServiceMock } from '@placeos/common/tests';
 
 describe('CateringListFieldComponent', () => {
     let spectator: Spectator<CateringListFieldComponent>;
     let dialog_result: CateringItem[] | undefined;
-    const open_dialog = jest.fn(() => ({
+    const open_dialog = vi.fn(() => ({
         afterClosed: () => of(dialog_result),
         componentInstance: {
             exact_time: false,
@@ -27,14 +29,13 @@ describe('CateringListFieldComponent', () => {
     const createComponent = createComponentFactory({
         component: CateringListFieldComponent,
         providers: [
-            MockProvider(SettingsService, {
-                get: jest.fn(),
-                saveUserSetting: jest.fn(),
-                time_format: 'shortTime',
+            MockProvider(SettingsService, createSettingsServiceMock()),
+            MockProvider(OrganisationService, {
+                currency_code: 'USD',
+                active_building: signal(null) as any,
             }),
-            MockProvider(OrganisationService, { currency_code: 'USD' }),
             MockProvider(LocaleService, {
-                get: jest.fn((value: string) => value),
+                get: vi.fn((value: string) => value),
             }),
         ],
     });

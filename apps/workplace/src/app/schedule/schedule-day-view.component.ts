@@ -38,7 +38,11 @@ import {
     setMinutes,
     startOfDay,
 } from 'date-fns';
-import { ScheduleStateService } from './schedule-state.service';
+import {
+    bookedForLabel,
+    isBookingForOtherUser,
+    ScheduleStateService,
+} from './schedule-state.service';
 
 interface TimeSlot {
     hour: number;
@@ -137,7 +141,7 @@ interface PositionedBooking {
                                         colors[type(item.booking)][1]
                                     "
                                     [style.background-color]="
-                                        colors[type(item.booking)][0]
+                                        backgroundColor(item.booking)
                                     "
                                     [style.z-index]="10"
                                     (click)="viewBooking(item.booking)"
@@ -150,6 +154,10 @@ interface PositionedBooking {
                                         (visitorName(item.booking)
                                             ? '
 ' + visitorName(item.booking)
+                                            : '') +
+                                        (isBookingForOtherUser(item.booking)
+                                            ? '
+for ' + bookedForLabel(item.booking)
                                             : '') +
                                         '
 ' +
@@ -270,9 +278,7 @@ interface PositionedBooking {
                                     }
                                     @if (
                                         item.height > 7 &&
-                                        !$any(item.booking).host &&
-                                        $any(item.booking).user_email !==
-                                            $any(item.booking).booked_by_email
+                                        isBookingForOtherUser(item.booking)
                                     ) {
                                         <div
                                             class="mt-1 truncate text-xs opacity-60"
@@ -290,6 +296,12 @@ interface PositionedBooking {
                                                     $any(item.booking)
                                                         .booked_by_email
                                             }}
+                                        </div>
+                                        <div
+                                            class="mt-1 truncate text-xs opacity-60"
+                                        >
+                                            for
+                                            {{ bookedForLabel(item.booking) }}
                                         </div>
                                     }
                                 </button>
@@ -571,6 +583,14 @@ export class ScheduleDayViewComponent extends AsyncHandler implements OnInit {
     public location(booking: Booking | CalendarEvent): string {
         return bookingLocationString(booking, this._org);
     }
+
+    public backgroundColor(booking: Booking | CalendarEvent) {
+        const color = this.colors[this.type(booking)][0];
+        return this.isBookingForOtherUser(booking) ? `${color}80` : color;
+    }
+
+    public isBookingForOtherUser = isBookingForOtherUser;
+    public bookedForLabel = bookedForLabel;
 
     public viewBooking(bkn: CalendarEvent | Booking) {
         this._dialog.closeAll();

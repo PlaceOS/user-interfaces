@@ -1,6 +1,6 @@
 import { Injector, signal, WritableSignal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import {
     BookingForm,
     BookingFormValue,
@@ -22,7 +22,7 @@ describe('VisitorFlowDetailsComponent', () => {
         shallow: true,
         providers: [
             MockProvider(SettingsService, {
-                get: jest.fn(),
+                get: vi.fn(),
             }),
             {
                 provide: OrganisationService,
@@ -35,11 +35,11 @@ describe('VisitorFlowDetailsComponent', () => {
                         active_buildings: signal(building_list),
                         buildings: building_list,
                         building: building_list[0],
-                        find: jest.fn((id: string) =>
+                        find: vi.fn((id: string) =>
                             building_list.find((building) => building.id === id),
                         ),
-                        setBuilding: jest.fn(),
-                        levelWithID: jest.fn((ids: string[]) =>
+                        setBuilding: vi.fn(),
+                        levelWithID: vi.fn((ids: string[]) =>
                             ids?.includes('lvl-2')
                                 ? {
                                       id: 'lvl-2',
@@ -86,7 +86,7 @@ describe('VisitorFlowDetailsComponent', () => {
                         form,
                         model,
                         options,
-                        setOptions: jest.fn((opts) =>
+                        setOptions: vi.fn((opts) =>
                             options.set({ ...options(), ...opts }),
                         ),
                     };
@@ -111,7 +111,7 @@ describe('VisitorFlowDetailsComponent', () => {
 
         spectator.component.ngOnInit();
         spectator.detectChanges();
-        (service.setOptions as jest.Mock).mockClear();
+        (service.setOptions as any).mockClear();
         spectator.component.setActiveForm('group');
 
         expect(spectator.component.is_edit()).toBe(true);

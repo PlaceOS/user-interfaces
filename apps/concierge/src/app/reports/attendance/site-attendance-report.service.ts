@@ -19,6 +19,7 @@ import { showMetadata } from '@placeos/ts-client';
 import {
     differenceInBusinessDays,
     differenceInCalendarDays,
+    eachDayOfInterval,
     endOfDay,
     format,
     getUnixTime,
@@ -62,12 +63,22 @@ export interface SiteAttendancePersonRow {
     total: number;
 }
 
+export interface SiteAttendanceDailyRow {
+    date: string;
+    events: number;
+    desks: number;
+    parking: number;
+    visitors: number;
+    total: number;
+}
+
 export interface SiteAttendanceReport {
     business_days: number;
     total_attendance: number;
     total_bookings: number;
     active_types: number;
     unique_people: number;
+    daily_attendance: SiteAttendanceDailyRow[];
     cards: SiteAttendanceCard[];
     hosts: SiteAttendancePersonRow[];
     attendees: SiteAttendancePersonRow[];
@@ -114,6 +125,7 @@ export const EMPTY_REPORT: SiteAttendanceReport = {
     total_bookings: 0,
     active_types: 0,
     unique_people: 0,
+    daily_attendance: [],
     cards: [],
     hosts: [],
     attendees: [],
@@ -408,6 +420,11 @@ export class SiteAttendanceReportService {
             ),
             active_types: cards.filter((card) => card.bookings > 0).length,
             unique_people,
+            daily_attendance: this.buildDailyAttendance(
+                report_result,
+                start,
+                end,
+            ),
             cards,
             hosts: this.buildHostRows(report_result),
             attendees: this.buildAttendeeRows(report_result),
@@ -539,6 +556,72 @@ export class SiteAttendanceReportService {
         }
 
         return this.countDailyPeople(daily_people);
+    }
+
+    private buildDailyAttendance(
+        result: AttendanceReportResult,
+        start: number,
+        end: number,
+    ): SiteAttendanceDailyRow[] {
+        const events = new Map<string, Set<string>>();
+        const desks = new Map<string, Set<string>>();
+        const parking = new Map<string, Set<string>>();
+        const visitors = new Map<string, Set<string>>();
+        const total = new Map<string, Set<string>>();
+
+        this.addDailyAttendance(events, total, result.events || [], (booking) =>
+            this.getEventAttendancePeople(booking),
+        );
+        this.addDailyAttendance(desks, total, result.desks || [], (booking) =>
+            this.getBookingAttendancePeople(booking),
+        );
+        this.addDailyAttendance(
+            parking,
+            total,
+            result.parking || [],
+            (booking) => this.getBookingAttendancePeople(booking),
+        );
+        this.addDailyAttendance(
+            new Map<string, Set<string>>(),
+            total,
+            result.lockers || [],
+            (booking) => this.getBookingAttendancePeople(booking),
+        );
+        this.addDailyAttendance(
+            visitors,
+            total,
+            result.visitors || [],
+            (booking) => this.getVisitorAttendancePeople(booking),
+        );
+
+        return eachDayOfInterval({
+            start: startOfDay(start),
+            end: endOfDay(end),
+        }).map((day) => {
+            const date = format(day, 'yyyy-MM-dd');
+            return {
+                date,
+                events: events.get(date)?.size || 0,
+                desks: desks.get(date)?.size || 0,
+                parking: parking.get(date)?.size || 0,
+                visitors: visitors.get(date)?.size || 0,
+                total: total.get(date)?.size || 0,
+            };
+        });
+    }
+
+    private addDailyAttendance<T extends { date: number }>(
+        daily_people: Map<string, Set<string>>,
+        total_people: Map<string, Set<string>>,
+        bookings: T[],
+        get_people: (booking: T) => SiteAttendancePerson[],
+    ) {
+        for (const booking of bookings) {
+            for (const person of get_people(booking)) {
+                this.addDailyPerson(daily_people, booking.date, person.id);
+                this.addDailyPerson(total_people, booking.date, person.id);
+            }
+        }
     }
 
     private addDailyPerson(

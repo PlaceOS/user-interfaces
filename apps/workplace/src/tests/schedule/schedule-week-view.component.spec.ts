@@ -1,4 +1,4 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MatDialog } from '@angular/material/dialog';
 import { Booking, OrganisationService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
@@ -10,18 +10,18 @@ describe('ScheduleWeekViewComponent', () => {
     const createComponent = createComponentFactory({
         component: ScheduleWeekViewComponent,
         providers: [
-            MockProvider(MatDialog, { open: jest.fn(), closeAll: jest.fn() }),
-            MockProvider(OrganisationService, { levelWithID: jest.fn() }),
+            MockProvider(MatDialog, { open: vi.fn(), closeAll: vi.fn() }),
+            MockProvider(OrganisationService, { levelWithID: vi.fn() }),
             {
                 provide: ScheduleStateService,
                 useValue: {
                     get offset_weekday() {
                         return 1;
                     },
-                    edit: jest.fn(),
-                    remove: jest.fn(),
-                    editBooking: jest.fn(),
-                    end: jest.fn(),
+                    edit: vi.fn(),
+                    remove: vi.fn(),
+                    editBooking: vi.fn(),
+                    end: vi.fn(),
                 },
             },
         ],

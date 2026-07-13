@@ -1,20 +1,13 @@
 import {
     createDirectiveFactory,
     SpectatorDirective,
-} from '@ngneat/spectator/jest';
+} from '@ngneat/spectator/vitest';
 import { BehaviorSubject, of } from 'rxjs';
 
 import { BindingDirective } from '../lib/binding.directive';
 
-jest.mock('@placeos/ts-client', () => ({
-    ...jest.requireActual('@placeos/ts-client'),
-    authority: jest.fn(),
-    getModule: jest.fn(),
-    onlineState: jest.fn(),
-    waitForSignal: jest.fn(),
-}));
+vi.mock('@placeos/ts-client', { spy: true });
 
-import { fakeAsync } from '@angular/core/testing';
 import * as ts_client from '@placeos/ts-client';
 
 describe('BindingDirective', () => {
@@ -22,16 +15,16 @@ describe('BindingDirective', () => {
     const createDirective = createDirectiveFactory(BindingDirective);
 
     beforeEach(() => {
-        jest.clearAllMocks();
-        jest.mocked(ts_client.authority).mockReturnValue(true as any);
-        jest.mocked(ts_client.onlineState).mockReturnValue(of(true) as any);
-        jest.mocked(ts_client.waitForSignal).mockResolvedValue(true as any);
+        vi.clearAllMocks();
+        vi.mocked(ts_client.authority).mockReturnValue(true as any);
+        vi.mocked(ts_client.onlineState).mockReturnValue(of(true) as any);
+        vi.mocked(ts_client.waitForSignal).mockResolvedValue(true as any);
         spectator = createDirective(
             `
-            <div 
-                binding 
-                [sys]="sys" [mod]="mod" [index]="index" [bind]="bind" 
-                [exec]="exec" [(model)]="model" [params]="params" 
+            <div
+                binding
+                [sys]="sys" [mod]="mod" [index]="index" [bind]="bind"
+                [exec]="exec" [(model)]="model" [params]="params"
                 [onEvent]="on_event"
             >
                 Testing Binding Directive
@@ -56,14 +49,12 @@ describe('BindingDirective', () => {
         expect(spectator.directive).toBeTruthy();
     });
 
-    it('should listen to binding changes', fakeAsync(() => {
+    it('should listen to binding changes', async () => {
+        vi.useFakeTimers();
         const value = new BehaviorSubject('');
-        jest.mocked(ts_client.getModule).mockReturnValue({
-            variable: jest.fn(() => ({
-                bindThenSubscribe: jest.fn((callback) => {
-                    const sub = value.subscribe(callback);
-                    return sub;
-                }),
+        vi.mocked(ts_client.getModule).mockReturnValue({
+            variable: vi.fn(() => ({
+                bindThenSubscribe: vi.fn((callback) => value.subscribe(callback)),
             })),
         } as any);
         spectator.setHostInput({
@@ -72,23 +63,25 @@ describe('BindingDirective', () => {
             index: 2,
             bind: 'power',
         });
-        spectator.tick(1000);
+        await vi.advanceTimersByTimeAsync(1000);
         expect(ts_client.getModule).toHaveBeenCalledWith(
             'system-1',
             'System',
             2,
         );
-        spectator.directive.modelChange.subscribe((value) => {
-            if (!value) return;
-            expect(value).toBe('Testing');
-        });
+        const emitted: any[] = [];
+        spectator.directive.modelChange.subscribe((v) => emitted.push(v));
         value.next('Testing');
-        spectator.tick(1000);
-    }));
+        await vi.advanceTimersByTimeAsync(1000);
+        expect(spectator.directive.model()).toBe('Testing');
+        expect(emitted).toContain('Testing');
+        vi.useRealTimers();
+    });
 
-    it('should allow performing executions', fakeAsync(() => {
-        const execute = jest.fn(async (_) => null);
-        jest.mocked(ts_client.getModule).mockReturnValue({
+    it('should allow performing executions', async () => {
+        vi.useFakeTimers();
+        const execute = vi.fn(async (_) => null);
+        vi.mocked(ts_client.getModule).mockReturnValue({
             execute,
         } as any);
         spectator.setHostInput({
@@ -100,7 +93,7 @@ describe('BindingDirective', () => {
         expect(execute).not.toHaveBeenCalled();
         spectator.setHostInput({ model: true });
         spectator.detectChanges();
-        spectator.tick(1000);
+        await vi.advanceTimersByTimeAsync(1000);
         expect(ts_client.getModule).toHaveBeenCalledWith(
             'system-1',
             'System',
@@ -109,13 +102,15 @@ describe('BindingDirective', () => {
         expect(execute).toHaveBeenCalledWith('power', []);
         spectator.setHostInput({ params: [false], model: 2 });
         spectator.detectChanges();
-        spectator.tick(1000);
+        await vi.advanceTimersByTimeAsync(1000);
         expect(execute).toHaveBeenCalledWith('power', [false]);
-    }));
+        vi.useRealTimers();
+    });
 
-    it('should allow executing on parent element DOM events', fakeAsync(() => {
-        const execute = jest.fn(async (_) => null);
-        jest.mocked(ts_client.getModule).mockReturnValue({
+    it('should allow executing on parent element DOM events', async () => {
+        vi.useFakeTimers();
+        const execute = vi.fn(async (_) => null);
+        vi.mocked(ts_client.getModule).mockReturnValue({
             execute,
         } as any);
         spectator.setHostInput({
@@ -127,11 +122,17 @@ describe('BindingDirective', () => {
         spectator.detectChanges();
         expect(execute).not.toHaveBeenCalled();
         spectator.click('[binding]');
-        spectator.tick(1000);
+        await vi.advanceTimersByTimeAsync(1000);
         expect(execute).toHaveBeenCalledWith('power', []);
         spectator.setHostInput({ on_event: 'random_event', params: ['Jim'] });
-        spectator.triggerEventHandler('[binding]', 'random_event', {});
-        spectator.tick(1000);
+        spectator.detectChanges();
+        // The directive registers a native listener via Renderer2.listen, so
+        // dispatch a real event rather than an Angular DebugElement handler.
+        spectator
+            .query('[binding]')
+            .dispatchEvent(new Event('random_event', { bubbles: true }));
+        await vi.advanceTimersByTimeAsync(1000);
         expect(execute).toHaveBeenCalledWith('power', ['Jim']);
-    }));
+        vi.useRealTimers();
+    });
 });

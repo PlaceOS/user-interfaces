@@ -7,7 +7,7 @@ import {
     updateGuest,
 } from '../lib/guests.fn';
 
-jest.mock('@placeos/ts-client');
+vi.mock('@placeos/ts-client');
 
 import { CalendarEvent, GuestUser } from '@placeos/common';
 import * as ts_client from '@placeos/ts-client';
@@ -15,7 +15,7 @@ import * as ts_client from '@placeos/ts-client';
 describe('[Guest API]', () => {
     describe('searchGuests', () => {
         it('should perform GET on guests endpoint', async () => {
-            const spy = jest.spyOn(ts_client, 'get');
+            const spy = vi.spyOn(ts_client, 'get');
             spy.mockResolvedValue([{ name: 'Jim' }] as any);
             const list = await searchGuests('');
             expect(list).toBeInstanceOf(Array);
@@ -23,7 +23,7 @@ describe('[Guest API]', () => {
         });
 
         it('should return Guest objects', async () => {
-            const spy = jest.spyOn(ts_client, 'get');
+            const spy = vi.spyOn(ts_client, 'get');
             spy.mockResolvedValue([{ name: 'Jim' }] as any);
             const list = await searchGuests('');
             expect(list).toBeInstanceOf(Array);
@@ -31,7 +31,7 @@ describe('[Guest API]', () => {
         });
 
         it('should allow filtering Guests', async () => {
-            const spy = jest.spyOn(ts_client, 'get');
+            const spy = vi.spyOn(ts_client, 'get');
             spy.mockResolvedValue([{ name: 'Jim' }] as any);
             await searchGuests('Jim');
             expect(spy).toHaveBeenCalledWith('/api/staff/v1/guests?q=Jim');
@@ -40,7 +40,7 @@ describe('[Guest API]', () => {
 
     describe('queryGuests', () => {
         it('should perform GET on guests endpoint', async () => {
-            const spy = jest.spyOn(ts_client, 'get');
+            const spy = vi.spyOn(ts_client, 'get');
             spy.mockResolvedValue([{ name: 'Jim' }] as any);
             const list = await queryGuests({
                 period_start: 0,
@@ -53,7 +53,7 @@ describe('[Guest API]', () => {
         });
 
         it('should return Guest objects', async () => {
-            const spy = jest.spyOn(ts_client, 'get');
+            const spy = vi.spyOn(ts_client, 'get');
             spy.mockResolvedValue([{ name: 'Jim' }] as any);
             const list = await queryGuests({
                 period_start: 0,
@@ -64,7 +64,7 @@ describe('[Guest API]', () => {
         });
 
         it('should allow querying Guests', async () => {
-            const spy = jest.spyOn(ts_client, 'get');
+            const spy = vi.spyOn(ts_client, 'get');
             spy.mockResolvedValue([{ name: 'Jim' }] as any);
             await queryGuests({
                 period_start: 0,
@@ -80,7 +80,7 @@ describe('[Guest API]', () => {
 
     describe('showGuest', () => {
         it('should GET guest', async () => {
-            const spy = jest.spyOn(ts_client, 'get');
+            const spy = vi.spyOn(ts_client, 'get');
             spy.mockResolvedValue({ name: 'Jim' } as any);
             const item = await showGuest('jim');
             expect(item).toBeInstanceOf(GuestUser);
@@ -90,7 +90,7 @@ describe('[Guest API]', () => {
 
     describe('updateGuest', () => {
         it('should PATCH guest changes', async () => {
-            const spy = jest.spyOn(ts_client, 'patch');
+            const spy = vi.spyOn(ts_client, 'patch');
             spy.mockResolvedValue({ name: 'Jim' } as any);
             const item = await updateGuest('jim', {
                 name: 'James',
@@ -104,7 +104,7 @@ describe('[Guest API]', () => {
 
     describe('removeGuest', () => {
         it('should DELETE guest', async () => {
-            const spy = jest.spyOn(ts_client, 'del');
+            const spy = vi.spyOn(ts_client, 'del');
             spy.mockResolvedValue(undefined as any);
             const item = await removeGuest('jim');
             expect(item).toBeUndefined();
@@ -116,7 +116,7 @@ describe('[Guest API]', () => {
 
     describe('listGuestMeetings', () => {
         it('should GET calendar events for guest', async () => {
-            const spy = jest.spyOn(ts_client, 'get');
+            const spy = vi.spyOn(ts_client, 'get');
             spy.mockResolvedValue([{ name: 'Jim' }] as any);
             const list = await listGuestMeetings('jim');
             expect(list[0]).toBeInstanceOf(CalendarEvent);

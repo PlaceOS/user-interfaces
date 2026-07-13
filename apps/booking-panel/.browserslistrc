@@ -6,3 +6,7 @@ last 2 iOS major versions
 last 2 Android major versions
 Firefox ESR
 Chrome 80
+
+[test]
+last 2 Chrome versions
+last 1 Firefox version

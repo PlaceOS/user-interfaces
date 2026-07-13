@@ -155,11 +155,26 @@
             "outputs": ["{options.outputFile}"]
         },
         "test": {
-            "executor": "@nx/jest:jest",
+            "executor": "@angular/build:unit-test",
             "outputs": ["{workspaceRoot}/coverage/apps/booking-panel"],
             "options": {
-                "jestConfig": "apps/booking-panel/jest.config.ts",
-                "tsConfig": "apps/booking-panel/tsconfig.spec.json"
+                "tsConfig": "apps/booking-panel/tsconfig.spec.json",
+                "setupFiles": ["apps/booking-panel/src/test-setup.ts"],
+                "isolate": true,
+                "watch": false,
+                "buildTarget": "booking-panel:test-build:development"
+            }
+        },
+        "test-build": {
+            "executor": "@angular/build:application",
+            "options": {
+                "outputPath": "dist/apps/booking-panel-test",
+                "browser": "apps/booking-panel/src/main.ts",
+                "tsConfig": "apps/booking-panel/tsconfig.spec.json",
+                "polyfills": []
+            },
+            "configurations": {
+                "development": {}
             }
         },
         "mobile:sync:android": {

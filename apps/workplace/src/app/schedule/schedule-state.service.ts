@@ -67,6 +67,34 @@ export interface ScheduleOptions {
     period: 'day' | 'week' | 'month' | 'range';
 }
 
+export interface ScheduleFilters {
+    shown_types: string[];
+    show_bookings_for_others: boolean;
+}
+
+export function isBookingForOtherUser(
+    item: Booking | CalendarEvent,
+    current_email = currentUser()?.email,
+) {
+    if (!(item instanceof Booking)) return false;
+    const current_user_email = current_email?.toLowerCase();
+    const booked_by_email = item.booked_by_email?.toLowerCase();
+    const user_email = item.user_email?.toLowerCase();
+    return (
+        !!current_user_email &&
+        booked_by_email === current_user_email &&
+        !!user_email &&
+        user_email !== current_user_email
+    );
+}
+
+export function bookedForLabel(item: Booking | CalendarEvent) {
+    if (!(item instanceof Booking)) return '';
+    return (
+        `${item.user_name || ''}`.trim() || `${item.user_email || ''}`.trim()
+    );
+}
+
 function deduplicateEventsByIcalUid(
     events_by_source: CalendarEvent[][],
 ): CalendarEvent[] {
@@ -103,7 +131,7 @@ export class ScheduleStateService extends AsyncHandler {
     private _event_sources = signal<EventSource[]>(['api']);
     private _loading = signal(false);
     private _options = signal<ScheduleOptions>({ period: 'day' });
-    private _filters = signal({
+    private _filters = signal<ScheduleFilters>({
         shown_types: [
             'event',
             'desk',
@@ -113,6 +141,7 @@ export class ScheduleStateService extends AsyncHandler {
             'locker',
             'group-event',
         ],
+        show_bookings_for_others: false,
     });
     private _date = signal(Date.now());
     private _end_date = signal<number | null>(null);
@@ -311,6 +340,12 @@ export class ScheduleStateService extends AsyncHandler {
                 return false;
             }
             if (
+                this.isBookingForOtherUser(_) &&
+                !filters?.show_bookings_for_others
+            ) {
+                return false;
+            }
+            if (
                 _.extension_data?.shared_event &&
                 !filters?.shown_types?.includes('group-event')
             ) {
@@ -471,7 +506,7 @@ export class ScheduleStateService extends AsyncHandler {
     }
 
     public setType(name: string, state: boolean) {
-        const filters = this._filters() || { shown_types: [] };
+        const filters = this._filters();
         const { shown_types } = filters;
         if (shown_types.includes(name) === state) return;
         const new_types = state
@@ -480,8 +515,22 @@ export class ScheduleStateService extends AsyncHandler {
         this._filters.set({ ...filters, shown_types: new_types });
     }
 
+    public setBookingsForOthers(state: boolean) {
+        const filters = this._filters();
+        if (filters.show_bookings_for_others === state) return;
+        this._filters.set({ ...filters, show_bookings_for_others: state });
+    }
+
+    public isBookingForOtherUser(item: Booking | CalendarEvent) {
+        return isBookingForOtherUser(item);
+    }
+
+    public toggleBookingsForOthers() {
+        this.setBookingsForOthers(!this._filters().show_bookings_for_others);
+    }
+
     public async toggleType(name: string, clear = false) {
-        const filters = this._filters() || { shown_types: [] };
+        const filters = this._filters();
         const { shown_types } = filters;
         if (shown_types && (shown_types.includes(name) || clear)) {
             this._filters.set({

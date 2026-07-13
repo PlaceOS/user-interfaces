@@ -2,7 +2,7 @@ import { signal } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
 import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { SiteAttendanceReportComponent } from 'apps/concierge/src/app/reports/attendance/site-attendance-report.component';
 import {
@@ -26,13 +26,13 @@ describe('SiteAttendanceReportComponent', () => {
             MockProvider(SiteAttendanceReportService, {
                 report: signal(EMPTY_REPORT),
                 loading: signal(false),
-                setOptions: jest.fn(),
-                downloadReport: jest.fn(),
-                generateReport: jest.fn(),
+                setOptions: vi.fn(),
+                downloadReport: vi.fn(),
+                generateReport: vi.fn(),
             } as any),
             MockProvider(SettingsService, {
                 theme: 'light',
-                get: jest.fn((key: string) => {
+                get: vi.fn((key: string) => {
                     if (key === 'app.logo_light')
                         return { src: 'light-logo.svg' };
                     if (key === 'app.logo_dark')
@@ -45,12 +45,12 @@ describe('SiteAttendanceReportComponent', () => {
                 waitUntilInitialised: () => Promise.resolve(),
                 active_building: signal({ id: 'building-1' }),
                 active_region: signal({ id: 'region-1' }),
-                levelsForBuilding: jest.fn(() => []),
-                levelsForRegion: jest.fn(() => []),
-                levelWithID: jest.fn(() => ({ parent_id: 'building-1' })),
+                levelsForBuilding: vi.fn(() => []),
+                levelsForRegion: vi.fn(() => []),
+                levelWithID: vi.fn(() => ({ parent_id: 'building-1' })),
                 buildings: [{ id: 'building-1' }],
             } as any),
-            MockProvider(Router, { navigate: jest.fn() }),
+            MockProvider(Router, { navigate: vi.fn() }),
             MockProvider(ActivatedRoute, {
                 queryParamMap: new BehaviorSubject(convertToParamMap({})),
                 snapshot: { queryParamMap: convertToParamMap({}) },
@@ -76,9 +76,9 @@ describe('SiteAttendanceReportComponent', () => {
                     useValue: {
                         report,
                         loading,
-                        setOptions: jest.fn(),
-                        downloadReport: jest.fn(),
-                        generateReport: jest.fn(),
+                        setOptions: vi.fn(),
+                        downloadReport: vi.fn(),
+                        generateReport: vi.fn(),
                     },
                 },
                 {
@@ -88,9 +88,9 @@ describe('SiteAttendanceReportComponent', () => {
                         waitUntilInitialised: () => Promise.resolve(),
                         active_building,
                         active_region: signal({ id: 'region-1' }),
-                        levelsForBuilding: jest.fn(() => []),
-                        levelsForRegion: jest.fn(() => []),
-                        levelWithID: jest.fn(() => ({
+                        levelsForBuilding: vi.fn(() => []),
+                        levelsForRegion: vi.fn(() => []),
+                        levelWithID: vi.fn(() => ({
                             parent_id: 'building-1',
                         })),
                         buildings: [{ id: 'building-1' }],
@@ -138,6 +138,7 @@ describe('SiteAttendanceReportComponent', () => {
             total_bookings: 6,
             active_types: 5,
             unique_people: 6,
+            daily_attendance: [],
             cards: [],
             hosts: [],
             attendees: [],

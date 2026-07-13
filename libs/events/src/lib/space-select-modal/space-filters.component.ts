@@ -62,6 +62,7 @@ import { SpacesService } from '../spaces.service';
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
                                 name="region"
+                                aria-label="Region"
                                 [ngModel]="region()"
                                 (ngModelChange)="setRegion($event)"
                                 [ngModelOptions]="{ standalone: true }"
@@ -79,6 +80,7 @@ import { SpacesService } from '../spaces.service';
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
                                 name="building"
+                                aria-label="Building"
                                 [ngModel]="building()"
                                 (ngModelChange)="setBuilding($event)"
                                 [ngModelOptions]="{ standalone: true }"
@@ -98,6 +100,7 @@ import { SpacesService } from '../spaces.service';
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
                                 name="location"
+                                aria-label="Level"
                                 [ngModel]="options()?.zones"
                                 (ngModelChange)="setOptions({ zones: $event })"
                                 [ngModelOptions]="{ standalone: true }"

@@ -1,14 +1,12 @@
-import { setupZoneTestEnv } from 'jest-preset-angular/setup-env/zone';
-
-setupZoneTestEnv();
-
 import { defineGlobalsInjections } from '@ngneat/spectator';
 import { TextDecoder, TextEncoder } from 'util';
 
 import { setNotifyOutlet } from './lib/notifications';
+import { installTestStorage } from './test-storage';
 
 global.TextEncoder = TextEncoder;
-global.TextDecoder = TextDecoder;
+global.TextDecoder = TextDecoder as any;
+installTestStorage();
 
 setNotifyOutlet(null, true);
 

@@ -93,12 +93,7 @@ import { LockerStateService } from './locker-state.service';
                 <mat-select
                     [ngModel]="zones()"
                     (ngModelChange)="updateZones($event)"
-                    [placeholder]="
-                        (path() === 'manage'
-                            ? 'COMMON.LEVEL_SELECT'
-                            : 'COMMON.LEVEL_ALL'
-                        ) | translate
-                    "
+                    [placeholder]="'COMMON.LEVEL_ALL' | translate"
                     multiple
                 >
                     @for (level of levels(); track level) {
@@ -222,13 +217,7 @@ export class LockersTopbarComponent extends AsyncHandler implements OnInit {
     /** List of levels for the active building */
     public readonly updateZones = (z) => {
         if (!this._router.url.includes('lockers')) return;
-        let zones = (z || []).filter((_) => !!_);
-        // Manage view must always have a specific zone; snap empty
-        // selections back to the first available level.
-        if (this.path() === 'manage' && !zones.length) {
-            const first = this.levels()[0]?.id;
-            if (first) zones = [first];
-        }
+        const zones = (z || []).filter((_) => !!_);
         this.zones.set(zones);
         this._router.navigate([], {
             relativeTo: this._route,
@@ -291,17 +280,12 @@ export class LockersTopbarComponent extends AsyncHandler implements OnInit {
                 levels.find((lvl) => lvl.id === zone),
             );
             if (!zones.length) {
-                // Fall back to persisted selection for this view. Manage
-                // view additionally guarantees at least the first level.
-                const persisted = loadPersistedZones(
+                // Fall back to the persisted selection for this view; no
+                // selection means all levels.
+                zones = loadPersistedZones(
                     this.path() === 'manage' ? 'lockers-manage' : 'lockers',
                     this._persistScopeId(),
                 ).filter((zone) => levels.find((lvl) => lvl.id === zone));
-                if (persisted.length) {
-                    zones = persisted;
-                } else if (this.path() === 'manage') {
-                    zones = [levels[0].id];
-                }
             }
             if (this._same_zones(zones, this.zones())) return;
             this.updateZones(zones);
@@ -318,6 +302,7 @@ export class LockersTopbarComponent extends AsyncHandler implements OnInit {
         const path = this.path();
         if (this._previous_path && this._previous_path !== path) {
             this._state.setSearch('');
+            this.zones.set([]);
         }
         this._previous_path = path;
     }

@@ -31,6 +31,29 @@ test.describe('US-SIG-025: Cache Media Locally', () => {
             })
             .toContain(TEST_IMAGE_URL);
     });
+
+    test('stores cache ownership for the active display', async ({ page }) => {
+        await navigateWithConfig(page, SIGNAGE_DEBUG_URL);
+        await waitForMediaPlayer(page);
+
+        await expect
+            .poll(async () => {
+                return page.evaluate(
+                    ({ key, url }) => {
+                        const items = JSON.parse(
+                            localStorage.getItem(key) || '[]',
+                        );
+                        return (
+                            items.find((item: { url: string }) => {
+                                return item.url === url;
+                            })?.owners || []
+                        );
+                    },
+                    { key: STORE_CACHED_FILES_KEY, url: TEST_IMAGE_URL },
+                );
+            })
+            .toContain(MOCK_SYSTEM_ID);
+    });
 });
 
 test.describe('US-SIG-026: Maintain the Media Cache', () => {

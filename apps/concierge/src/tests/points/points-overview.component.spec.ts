@@ -1,5 +1,5 @@
 import { FormsModule } from '@angular/forms';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { IconComponent } from '@placeos/components';
 import { CounterComponent } from '@placeos/form-fields';
 import { MockComponent, MockModule } from 'ng-mocks';

@@ -53,7 +53,7 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
     selector: 'parking-report-list',
     template: `
         <div
-            class="border-base-200 bg-base-100 m-4 overflow-hidden rounded-sm border"
+            class="border-base-300 bg-base-100 m-4 overflow-hidden rounded-sm border shadow"
         >
             <div class="border-base-200 flex items-center border-b px-4 py-2">
                 <h3 class="flex-1 text-xl font-bold">Parking Bookings</h3>
@@ -77,7 +77,7 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                 />
             </div>
             <simple-table
-                class="block w-full text-sm"
+                class="-mx-px block w-[calc(100%+2px)] text-sm"
                 [data]="parking_bookings()"
                 [columns]="[
                     {
@@ -142,7 +142,7 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
             <ng-template #checked_in_at_template let-row="row">
                 <div class="p-4">
                     @if (row.checked_in_at) {
-                        {{ row.checked_in_at * 1000 | date: 'short' }}
+                        {{ row.checked_in_at * 1000 | date: 'shortTime' }}
                     } @else {
                         <span class="opacity-30">
                             {{ 'COMMON.EMPTY' | translate }}
@@ -177,6 +177,7 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
 export class ParkingReportListComponent {
     private _state = inject(ParkingReportService);
     private readonly _bookings = this._state.bookings;
+    private readonly _parking_space = new ParkingSpacePipe();
 
     public readonly print = input(false);
     public readonly table_metric_guide = TABLE_METRIC_GUIDE;
@@ -195,7 +196,7 @@ export class ParkingReportListComponent {
                     booking.checked_in ? 'COMMON.TRUE' : 'COMMON.FALSE',
                 ),
                 checked_in_at: booking.checked_in_at
-                    ? booking.checked_in_at * 1000
+                    ? booking.checked_in_at
                     : 0,
                 status: reportBookingStatus(booking),
                 self_registered: i18n(
@@ -214,9 +215,29 @@ export class ParkingReportListComponent {
         for (const bkn of data) {
             bkn.date = format(bkn.date, 'yyyy-MM-dd HH:mm');
             bkn.checked_in_at = bkn.checked_in_at
-                ? format(bkn.checked_in_at, 'yyyy-MM-dd HH:mm')
+                ? format(bkn.checked_in_at * 1000, 'yyyy-MM-dd HH:mm')
                 : '';
         }
-        downloadFile('report-parking-daily-usage.csv', jsonToCsv(data));
+        const rows = await Promise.all(
+            data.map(async (bkn) => ({
+                bay_number: await this._bayNumber(bkn.asset_id),
+                date: bkn.date,
+                duration: bkn.duration,
+                all_day: bkn.all_day,
+                host: bkn.host,
+                plate_number: bkn.plate_number,
+                checked_in: bkn.checked_in,
+                checked_in_at: bkn.checked_in_at,
+                status: bkn.status,
+                self_registered: bkn.self_registered,
+            })),
+        );
+        downloadFile('report-parking-daily-usage.csv', jsonToCsv(rows));
     };
+
+    private async _bayNumber(asset_id: string) {
+        if (!asset_id) return '';
+        const space = await this._parking_space.transform(asset_id);
+        return space.identifier || asset_id;
+    }
 }

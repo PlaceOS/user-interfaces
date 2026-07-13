@@ -1,4 +1,4 @@
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 import { MockComponent, MockModule } from 'ng-mocks';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -16,7 +16,7 @@ describe('ExploreZoomControlComponent', () => {
             {
                 provide: ExploreStateService,
                 useValue: {
-                    setPositions: jest.fn(),
+                    setPositions: vi.fn(),
                     positions: { zoom: 1, center: { x: 0.5, y: 0.5 } },
                 },
             },

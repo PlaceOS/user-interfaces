@@ -37,7 +37,11 @@ import {
     startOfDay,
     startOfWeek,
 } from 'date-fns';
-import { ScheduleStateService } from './schedule-state.service';
+import {
+    bookedForLabel,
+    isBookingForOtherUser,
+    ScheduleStateService,
+} from './schedule-state.service';
 
 interface Weekday {
     id: string;
@@ -100,7 +104,7 @@ interface Weekday {
                                     class="bg-base-100 w-full rounded-lg border p-2 text-left text-black"
                                     [style.border-color]="colors[type(bkn)][1]"
                                     [style.background-color]="
-                                        colors[type(bkn)][0]
+                                        backgroundColor(bkn)
                                     "
                                     (click)="viewBooking(bkn)"
                                     [matTooltip]="
@@ -112,6 +116,10 @@ interface Weekday {
                                         (visitorName(bkn)
                                             ? '
 ' + visitorName(bkn)
+                                            : '') +
+                                        (isBookingForOtherUser(bkn)
+                                            ? '
+for ' + bookedForLabel(bkn)
                                             : '') +
                                         '
 ' +
@@ -156,6 +164,28 @@ interface Weekday {
                                             class="truncate text-xs opacity-60"
                                         >
                                             {{ visitorName(bkn) }}
+                                        </div>
+                                    }
+                                    @if (isBookingForOtherUser(bkn)) {
+                                        <div
+                                            class="truncate text-xs opacity-60"
+                                        >
+                                            Booked by
+                                            {{
+                                                $any(bkn).booked_by_name ||
+                                                    (
+                                                        $any(bkn)
+                                                            .booked_by_email
+                                                        | user
+                                                        | async
+                                                    )?.name ||
+                                                    $any(bkn).booked_by_email
+                                            }}
+                                        </div>
+                                        <div
+                                            class="truncate text-xs opacity-60"
+                                        >
+                                            for {{ bookedForLabel(bkn) }}
                                         </div>
                                     }
                                     <div class="text-xs">
@@ -319,6 +349,14 @@ export class ScheduleWeekViewComponent {
     public location(booking: Booking | CalendarEvent): string {
         return bookingLocationString(booking, this._org);
     }
+
+    public backgroundColor(booking: Booking | CalendarEvent) {
+        const color = this.colors[this.type(booking)][0];
+        return this.isBookingForOtherUser(booking) ? `${color}80` : color;
+    }
+
+    public isBookingForOtherUser = isBookingForOtherUser;
+    public bookedForLabel = bookedForLabel;
 
     public viewBooking(bkn: CalendarEvent | Booking) {
         this._dialog.closeAll();

@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { OrganisationService } from '@placeos/common';
 import { SpacesService } from '@placeos/events';
 import { MockComponent } from 'ng-mocks';
@@ -11,10 +11,7 @@ import { DayviewTimelineComponent } from '../../app/day-view/dayview-timeline.co
 import { EventsStateService } from '../../app/day-view/events-state.service';
 import { ViewEventDetailsComponent } from '../../app/ui/view-event-details.component';
 
-jest.mock('@placeos/ts-client', () => {
-    class CLASS {}
-    return { querySystems: jest.fn(), PlaceZone: CLASS, PlaceSystem: CLASS };
-});
+vi.mock('@placeos/ts-client', { spy: true });
 
 import * as client from '@placeos/ts-client';
 
@@ -31,7 +28,7 @@ describe('DayviewTimelineComponent', () => {
                 provide: OrganisationService,
                 useValue: {
                     active_building: signal({ id: ' bld-1' }),
-                    levelWithID: jest.fn(),
+                    levelWithID: vi.fn(),
                 },
             },
             {
@@ -46,8 +43,8 @@ describe('DayviewTimelineComponent', () => {
                     zones: signal([]),
                     loading: signal(false),
                     event: signal(null),
-                    startPolling: jest.fn(),
-                    stopPolling: jest.fn(),
+                    startPolling: vi.fn(),
+                    stopPolling: vi.fn(),
                 },
             },
         ],
@@ -82,7 +79,7 @@ describe('DayviewTimelineComponent', () => {
     });
 
     it('should handle scrolling', async () => {
-        jest.spyOn(spectator.component, 'onScroll');
+        vi.spyOn(spectator.component, 'onScroll');
         spectator.triggerEventHandler('[content]', 'scroll', {
             srcElement: { scrollLeft: 2, scrollTop: 1 },
         });

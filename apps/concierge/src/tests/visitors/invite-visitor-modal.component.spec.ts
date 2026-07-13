@@ -10,14 +10,14 @@ describe('InviteVisitorModalComponent', () => {
     let loading: WritableSignal<string>;
     let booking_form: {
         loading: WritableSignal<string>;
-        clearOldState: jest.Mock;
+        clearOldState: any;
     };
 
     beforeEach(async () => {
         loading = signal('Saving booking');
         booking_form = {
             loading,
-            clearOldState: jest.fn(() => loading.set('')),
+            clearOldState: vi.fn(() => loading.set('')),
         };
 
         await TestBed.configureTestingModule({
@@ -29,7 +29,7 @@ describe('InviteVisitorModalComponent', () => {
                 },
                 {
                     provide: MatDialogRef,
-                    useValue: { close: jest.fn() },
+                    useValue: { close: vi.fn() },
                 },
                 {
                     provide: BookingFormService,

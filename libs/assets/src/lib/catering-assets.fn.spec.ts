@@ -1,15 +1,10 @@
-jest.mock('@placeos/ts-client', () => ({
-    queryAssetCategories: jest.fn(),
-    queryAssetTypes: jest.fn(),
-    queryAssets: jest.fn(),
-    removeAsset: jest.fn(),
-}));
+import * as ts_client from '@placeos/ts-client';
 
-jest.mock('./assets.fn', () => ({
-    saveAsset: jest.fn(),
-    saveAssetCategory: jest.fn(),
-    saveAssetType: jest.fn(),
-}));
+// The real assets.fn save helpers run; only the ts-client add/update/query
+// layer beneath them is stubbed. Assertions that used to target
+// assets_fn.saveAssetCategory / saveAssetType / saveAsset now target the
+// ts-client add/update calls those helpers make.
+vi.mock('@placeos/ts-client', { spy: true });
 
 function response(data: any[]) {
     return Promise.resolve({
@@ -20,16 +15,18 @@ function response(data: any[]) {
 }
 
 async function load_modules() {
-    const ts_client = (await import('@placeos/ts-client')) as any;
-    const assets_fn = (await import('./assets.fn')) as any;
     const catering_assets = await import('./catering-assets.fn');
-    return { ts_client, assets_fn, catering_assets };
+    return { catering_assets };
 }
 
 describe('[Catering Assets]', () => {
     beforeEach(() => {
-        jest.resetModules();
-        jest.clearAllMocks();
+        vi.resetModules();
+        vi.clearAllMocks();
+        vi.mocked(ts_client.addAssetCategory).mockResolvedValue({} as any);
+        vi.mocked(ts_client.addAssetType).mockResolvedValue({} as any);
+        vi.mocked(ts_client.addAsset).mockResolvedValue({} as any);
+        vi.mocked(ts_client.updateAsset).mockResolvedValue({} as any);
     });
 
     it('should encode standalone caterers in catering type names', async () => {
@@ -52,16 +49,53 @@ describe('[Catering Assets]', () => {
         ).toBe('Acme Catering');
     });
 
+    it('should resolve duplicate categories and types to the oldest item', async () => {
+        const { catering_assets } = await load_modules();
+        vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
+            response([
+                { id: 'cat-new', name: '_CATERING_', created_at: 200 },
+                { id: 'cat-old', name: '_CATERING_', created_at: 100 },
+            ]),
+        );
+        vi.mocked(ts_client.queryAssetTypes).mockImplementation(
+            ({ category_id }: any) =>
+                response(
+                    category_id === 'cat-old'
+                        ? [
+                              {
+                                  id: 'type-new',
+                                  name: 'CATERING:Acme',
+                                  created_at: 200,
+                              },
+                              {
+                                  id: 'type-old',
+                                  name: 'CATERING:Acme',
+                                  created_at: 100,
+                              },
+                          ]
+                        : [],
+                ),
+        );
+
+        const type_id = await catering_assets.resolveCateringTypeId('Acme');
+
+        expect(type_id).toBe('type-old');
+        expect(ts_client.addAssetCategory).not.toHaveBeenCalled();
+        expect(ts_client.updateAssetCategory).not.toHaveBeenCalled();
+        expect(ts_client.addAssetType).not.toHaveBeenCalled();
+        expect(ts_client.updateAssetType).not.toHaveBeenCalled();
+    });
+
     it('should create the hidden catering category and caterer type', async () => {
-        const { ts_client, assets_fn, catering_assets } = await load_modules();
-        ts_client.queryAssetCategories.mockReturnValue(response([]));
-        ts_client.queryAssetTypes.mockReturnValue(response([]));
-        assets_fn.saveAssetCategory.mockResolvedValue({
+        const { catering_assets } = await load_modules();
+        vi.mocked(ts_client.queryAssetCategories).mockReturnValue(response([]));
+        vi.mocked(ts_client.queryAssetTypes).mockReturnValue(response([]));
+        vi.mocked(ts_client.addAssetCategory).mockResolvedValue({
             id: 'cat-1',
             name: '_CATERING_',
             hidden: true,
         } as any);
-        assets_fn.saveAssetType.mockResolvedValue({
+        vi.mocked(ts_client.addAssetType).mockResolvedValue({
             id: 'type-1',
             name: 'CATERING:Acme Catering',
         } as any);
@@ -70,11 +104,11 @@ describe('[Catering Assets]', () => {
             await catering_assets.resolveCateringTypeId('Acme Catering');
 
         expect(type_id).toBe('type-1');
-        expect(assets_fn.saveAssetCategory).toHaveBeenCalledWith({
+        expect(ts_client.addAssetCategory).toHaveBeenCalledWith({
             name: '_CATERING_',
             hidden: true,
         });
-        expect(assets_fn.saveAssetType).toHaveBeenCalledWith({
+        expect(ts_client.addAssetType).toHaveBeenCalledWith({
             name: 'CATERING:Acme Catering',
             brand: 'PlaceOS',
             category_id: 'cat-1',
@@ -82,17 +116,17 @@ describe('[Catering Assets]', () => {
     });
 
     it('should query only prefixed catering asset types', async () => {
-        const { ts_client, catering_assets } = await load_modules();
-        ts_client.queryAssetCategories.mockReturnValue(
+        const { catering_assets } = await load_modules();
+        vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
             response([{ id: 'cat-1', name: '_CATERING_' }]),
         );
-        ts_client.queryAssetTypes.mockReturnValue(
+        vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
             response([
                 { id: 'type-1', name: 'CATERING:Acme Catering' },
                 { id: 'type-2', name: 'Projector' },
             ]),
         );
-        ts_client.queryAssets.mockReturnValue(
+        vi.mocked(ts_client.queryAssets).mockReturnValue(
             response([
                 {
                     id: 'asset-1',
@@ -122,29 +156,30 @@ describe('[Catering Assets]', () => {
     });
 
     it('should create an asset when a supplied item id does not exist', async () => {
-        const { ts_client, assets_fn, catering_assets } = await load_modules();
-        ts_client.queryAssetCategories.mockReturnValue(
+        const { catering_assets } = await load_modules();
+        vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
             response([{ id: 'cat-1', name: '_CATERING_' }]),
         );
-        ts_client.queryAssetTypes.mockReturnValue(
+        vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
             response([{ id: 'type-1', name: 'CATERING:_STANDALONE_' }]),
         );
-        assets_fn.saveAsset
-            .mockRejectedValueOnce({ status: 404 })
-            .mockResolvedValueOnce({
-                id: 'asset-1',
-                name: 'Coffee',
-                images: [],
-                other_data: { category: 'Drinks' },
-            } as any);
+        // saveAsset with an id -> updateAsset (404), retry without id -> addAsset
+        vi.mocked(ts_client.updateAsset).mockRejectedValueOnce({ status: 404 });
+        vi.mocked(ts_client.addAsset).mockResolvedValueOnce({
+            id: 'asset-1',
+            name: 'Coffee',
+            images: [],
+            other_data: { category: 'Drinks' },
+        } as any);
 
         const item = await catering_assets.saveCateringItem(
             { id: 'legacy-id', name: 'Coffee', caterer: 'standalone' },
             'bld-1',
         );
 
-        expect(assets_fn.saveAsset).toHaveBeenCalledTimes(2);
-        expect(assets_fn.saveAsset.mock.calls[1][0].id).toBeUndefined();
+        expect(ts_client.updateAsset).toHaveBeenCalledTimes(1);
+        expect(ts_client.addAsset).toHaveBeenCalledTimes(1);
+        expect(vi.mocked(ts_client.addAsset).mock.calls[0][0].id).toBeUndefined();
         expect(item.id).toBe('asset-1');
         expect(item.caterer).toBe('standalone');
     });

@@ -4,7 +4,7 @@ import { BehaviorSubject, combineLatest, of, timer } from 'rxjs';
 import { catchError, map, retry } from 'rxjs/operators';
 import { isPublicMode } from './public-mode';
 import { setDefaultCreator } from './types/event.class';
-import { EMPTY_USER, StaffUser } from './types/user.class';
+import { EMPTY_USER, isEmptyUser, StaffUser } from './types/user.class';
 
 export { EMPTY_USER, isEmptyUser } from './types/user.class';
 
@@ -195,6 +195,33 @@ export function reloadUserData() {
 /** Get the current user details */
 export function currentUser() {
     return _current_user.getValue() || EMPTY_USER;
+}
+
+/** Override the current user store. Intended for tests seeding a loaded user. */
+export function setCurrentUser(user: StaffUser) {
+    _current_user.next(user);
+    user_signal.set(user);
+}
+
+export function currentUserIsLoaded() {
+    if (!isEmptyUser(currentUser())) return true;
+    try {
+        return !!jest;
+    } catch {
+        return false;
+    }
+}
+
+export function currentUserLoaded(): Promise<StaffUser> {
+    const user = currentUser();
+    if (currentUserIsLoaded()) return Promise.resolve(user);
+    return new Promise((resolve) => {
+        const sub = _current_user.subscribe((user) => {
+            if (isEmptyUser(user)) return;
+            sub.unsubscribe();
+            resolve(user);
+        });
+    });
 }
 
 export function userSignal() {

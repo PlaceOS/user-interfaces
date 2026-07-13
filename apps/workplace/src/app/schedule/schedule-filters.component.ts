@@ -10,7 +10,10 @@ import {
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { ScheduleFilterCardComponent } from './schedule-filter-card.component';
-import { ScheduleStateService } from './schedule-state.service';
+import {
+    isBookingForOtherUser,
+    ScheduleStateService,
+} from './schedule-state.service';
 
 @Component({
     selector: 'schedule-filters',
@@ -45,6 +48,29 @@ import { ScheduleStateService } from './schedule-state.service';
                             </button>
                         </div>
                     }
+                }
+                @if (filters()?.show_bookings_for_others) {
+                    <div
+                        class="border-base-200 bg-base-100 m-0.5 flex items-center rounded-3xl border pl-2 text-sm"
+                    >
+                        <icon class="text-base-content/50 text-xl"
+                            >perm_contact_calendar</icon
+                        >
+                        <div class="px-2">Bookings for Others</div>
+                        <div
+                            class="bg-base-200 flex h-5 w-5 items-center justify-center rounded-full font-mono text-[0.625rem] opacity-50"
+                        >
+                            {{ counts()['bookings-for-others'] || 0 }}
+                        </div>
+                        <button
+                            icon
+                            matRipple
+                            name="schedule-remove-bookings-for-others-filter"
+                            (click)="toggleBookingsForOthers()"
+                        >
+                            <icon>close</icon>
+                        </button>
+                    </div>
                 }
             </div>
         </div>
@@ -91,6 +117,29 @@ import { ScheduleStateService } from './schedule-state.service';
                     </div>
                 }
             }
+            @if (filters()?.show_bookings_for_others) {
+                <div
+                    class="border-base-200 bg-base-100 flex items-center rounded-3xl border pl-2 text-sm"
+                >
+                    <icon class="text-base-content/50 text-xl"
+                        >perm_contact_calendar</icon
+                    >
+                    <div class="px-2">Bookings for Others</div>
+                    <div
+                        class="bg-base-200 flex h-5 w-5 items-center justify-center rounded-full font-mono text-[0.625rem] opacity-50"
+                    >
+                        {{ counts()['bookings-for-others'] || 0 }}
+                    </div>
+                    <button
+                        icon
+                        matRipple
+                        name="schedule-remove-bookings-for-others-filter-mobile"
+                        (click)="toggleBookingsForOthers()"
+                    >
+                        <icon>close</icon>
+                    </button>
+                </div>
+            }
         </div>
     `,
     styles: [``],
@@ -117,6 +166,10 @@ export class ScheduleFiltersComponent {
             } else {
                 const type = bkn.booking_type;
                 mapping[type] = (mapping[type] || 0) + 1;
+                if (isBookingForOtherUser(bkn)) {
+                    mapping['bookings-for-others'] =
+                        (mapping['bookings-for-others'] || 0) + 1;
+                }
             }
         }
         return mapping;
@@ -141,6 +194,8 @@ export class ScheduleFiltersComponent {
     ];
 
     public readonly toggleType = (t, c = false) => this._state.toggleType(t, c);
+    public readonly toggleBookingsForOthers = () =>
+        this._state.toggleBookingsForOthers();
 
     public hasFeature(feature: string | string[]) {
         const features = this.features() || [];

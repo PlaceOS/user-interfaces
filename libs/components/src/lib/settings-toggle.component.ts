@@ -12,6 +12,7 @@ import { IconComponent } from './icon.component';
     selector: 'settings-toggle',
     template: `
         <button
+            type="button"
             matRipple
             class="hover:bg-base-200 relative flex flex-1 items-center space-x-2 overflow-hidden rounded-sm border py-1 pr-1 pl-2"
             [class.border-base-300]="!value()"

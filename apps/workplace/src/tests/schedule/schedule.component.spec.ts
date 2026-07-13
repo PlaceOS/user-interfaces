@@ -1,13 +1,12 @@
 import { computed, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { BookingCardComponent } from '@placeos/bookings';
 import { SettingsService } from '@placeos/common';
-import { mockComponent } from '@placeos/common/tests';
-import { EventCardComponent, EventFormService } from '@placeos/events';
+import { EventCardComponent } from '@placeos/events';
 import { MockProvider } from 'ng-mocks';
+import { mockComponent } from '@placeos/common/tests';
 import { FooterMenuComponent } from '../../app/components/footer-menu.component';
 import { TopbarComponent } from '../../app/components/topbar.component';
 import { ScheduleDayViewComponent } from '../../app/schedule/schedule-day-view.component';
@@ -42,25 +41,20 @@ describe('ScheduleComponent', () => {
                 loading: signal(false),
                 date: signal(0),
                 end_date: signal(null),
-                toggleType: jest.fn(),
-                setDate: jest.fn(),
-                setEndDate: jest.fn(),
-                setOptions: jest.fn(),
-                triggerPoll: jest.fn(),
-                startPolling: jest.fn(() => () => {}),
-                getOptions: jest.fn(() => ({ period: 'day' })),
+                toggleType: vi.fn(),
+                setDate: vi.fn(),
+                setEndDate: vi.fn(),
+                setOptions: vi.fn(),
+                startPolling: vi.fn(() => () => {}),
+                getOptions: vi.fn(() => ({ period: 'day' })),
+                triggerPoll: vi.fn(),
             } as any),
-            MockProvider(EventFormService, { newForm: jest.fn() }),
-            MockProvider(MatDialog, { open: jest.fn() }),
-            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(SettingsService, { get: vi.fn() }),
         ],
         imports: [MatProgressBarModule, FormsModule],
     });
 
-    beforeEach(() => {
-        jest.clearAllMocks();
-        spectator = createComponent();
-    });
+    beforeEach(() => (spectator = createComponent()));
 
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();

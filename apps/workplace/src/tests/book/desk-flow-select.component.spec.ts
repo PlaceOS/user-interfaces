@@ -1,6 +1,6 @@
 import { Injector, signal, WritableSignal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
     BookingForm,
     BookingFormValue,
@@ -49,7 +49,7 @@ describe('DeskFlowSelectComponent', () => {
                         loading: signal(''),
                         resources: signal([]),
                         available_resources: signal([]),
-                        setOptions: jest.fn(),
+                        setOptions: vi.fn(),
                     };
                 },
             },
@@ -62,13 +62,13 @@ describe('DeskFlowSelectComponent', () => {
                 buildings: [{ id: 'bld-1' }, { id: 'bld-2' }],
                 active_region: signal(null),
                 region_list: signal([]),
-                levelsForBuilding: jest.fn(() => []),
-                levelsForRegion: jest.fn(() => []),
+                levelsForBuilding: vi.fn(() => []),
+                levelsForRegion: vi.fn(() => []),
                 building: { id: 'bld-1', timezone: '' },
             } as any),
             MockProvider(SettingsService, {
-                get: jest.fn(() => false),
-            }),
+                get: vi.fn(() => false),
+            } as any),
             MockProvider(SpacesService, {}),
         ],
     });

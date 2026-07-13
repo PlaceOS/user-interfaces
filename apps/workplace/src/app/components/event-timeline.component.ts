@@ -457,8 +457,6 @@ export class EventTimelineComponent
     public readonly klass = input<string>(undefined);
 
     /** Output emitter */
-    public readonly dateChange = output<number>();
-    public readonly durationChange = output<number>();
     public readonly groupsChange = output<ITimelineEventGroup[]>();
 
     public vertical = false;
@@ -509,13 +507,18 @@ export class EventTimelineComponent
         const start = this.model.start;
         const end = this.model.end;
         const blocks: ITimelineBlock[] = [];
-        for (let time = start; time.isBefore(end); time = time.add(5, 'm')) {
+        for (
+            let time = start;
+            isBefore(time, end);
+            time = addMinutes(time, 5)
+        ) {
+            const minute = new Date(time).getMinutes();
             blocks.push({
-                id: time.format('HH:mm'),
-                display: time.format('hh:00 a'),
-                short: time.format('hh a'),
-                hour: time.minute() === 0,
-                divider: time.minute() % 30 === 0,
+                id: format(time, 'HH:mm'),
+                display: format(time, 'hh:00 a'),
+                short: format(time, 'hh a'),
+                hour: minute === 0,
+                divider: minute % 30 === 0,
             });
         }
         this.model.blocks = blocks;
@@ -551,7 +554,7 @@ export class EventTimelineComponent
                             });
                         }
                         blocks.push({
-                            id: time.format('HH:mm'),
+                            id: format(time, 'HH:mm'),
                             events,
                         });
                     }
@@ -645,7 +648,6 @@ export class EventTimelineComponent
             minutes: +parts[1],
         });
         this.date.set(time.valueOf());
-        this.dateChange.emit(this.date());
         this.updatePeriod();
     }
 
@@ -673,11 +675,12 @@ export class EventTimelineComponent
                         (center.y - content_box.top) / content_box.height;
                     const percent = !this.vertical ? percent_w : percent_h;
 
+                    const start_date = new Date(this.model.start);
+                    const end_date = new Date(this.model.end);
                     const start_time =
-                        this.model.start.hour() +
-                        this.model.start.minute() / 60;
+                        start_date.getHours() + start_date.getMinutes() / 60;
                     const end_time =
-                        this.model.end.hour() + this.model.end.minute() / 60;
+                        end_date.getHours() + end_date.getMinutes() / 60;
                     const diff_time = end_time - start_time;
                     const block_size = 15;
                     const hour =
@@ -701,7 +704,6 @@ export class EventTimelineComponent
                             this.duration.set(
                                 Math.max(60, duration || block_size),
                             );
-                            this.durationChange.emit(this.duration());
                         }
                     } else if (this.model.move === 'start') {
                         const date = set(this.date(), {
@@ -710,7 +712,6 @@ export class EventTimelineComponent
                         });
                         this.date.set(date.valueOf());
                     }
-                    this.dateChange.emit(this.date());
                     this.updatePeriod();
                 }
             },

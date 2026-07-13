@@ -57,11 +57,14 @@ import {
     removeSignageMedia,
     removeSignagePlaylist,
     requestApprovalSignagePlaylist,
+    scheduleSignagePlaylistMedia,
     shareSignageMedia,
     shareSignagePlaylists,
     SignageMedia,
     SignagePlaylist,
     type SignagePlaylistApprover,
+    SignagePlaylistItemSchedule,
+    SignagePlaylistMedia,
     SignagePlugin,
     updateGroup,
     updateGroupUser,
@@ -69,6 +72,7 @@ import {
     updateSignageMedia,
     updateSignagePlaylist,
     updateSignagePlaylistMedia,
+    updateSignagePlaylistMediaSchedule,
     updateSystem,
     updateZone,
 } from '@placeos/ts-client';
@@ -84,6 +88,7 @@ import { MediaEditModalComponent } from './shared/media-edit-modal.component';
 import { MediaPreviewModalComponent } from './shared/media-preview-modal.component';
 import { PlaylistApproveModalComponent } from './shared/playlist-approve-modal.component';
 import { PlaylistEditModalComponent } from './shared/playlist-edit-modal.component';
+import { PlaylistItemScheduleModalComponent } from './shared/playlist-item-schedule-modal.component';
 import {
     PlaylistRequestApprovalModalComponent,
     PlaylistRequestApprovalModalResult,
@@ -99,7 +104,11 @@ import {
     validateSignageMediaDimensions,
     validateSignageMediaFile,
 } from './signage-media-upload.util';
-import { playlistMediaItems } from './signage-playlist.util';
+import {
+    playlistItemScheduleMap,
+    playlistMediaIds,
+    playlistMediaItems,
+} from './signage-playlist.util';
 
 function dataURLtoFile(data_url: string, filename: string) {
     const [prefix, data] = data_url.split(',');
@@ -275,7 +284,9 @@ export class SignageService {
     public readonly signage_groups_loaded = computed(() => {
         if (!this._active_user()?.email) return false;
         const status = this._signage_groups.status();
-        return status === 'resolved' || status === 'local' || status === 'error';
+        return (
+            status === 'resolved' || status === 'local' || status === 'error'
+        );
     });
     public readonly selected_group_id = signal(loadSelectedGroupId());
     public readonly signage_group_tree_expanded = signal<
@@ -929,6 +940,7 @@ export class SignageService {
         300,
     );
     public readonly selected_playlist_item = signal<SignageMedia | null>(null);
+    public readonly selected_playlist_item_index = signal<number | null>(null);
     public readonly playlist_search_term = signal('');
 
     public readonly selected_zone = signal<any>(null);
@@ -1023,7 +1035,7 @@ export class SignageService {
             const playlist = params.playlist;
             if (!playlist?.id) {
                 this.playlist_media_loading.set(false);
-                return [] as SignageMedia[];
+                return null as SignagePlaylistMedia | null;
             }
             this.playlist_media_loading.set(true);
             try {
@@ -1032,17 +1044,24 @@ export class SignageService {
                     playlist.id,
                     result.items || [],
                     result.approved,
+                    result.schedules,
                 );
-                return playlistMediaItems(result);
+                return result;
             } catch {
-                return [] as SignageMedia[];
+                return null as SignagePlaylistMedia | null;
             } finally {
                 this.playlist_media_loading.set(false);
             }
         },
     });
-    public readonly playlist_media_items = computed(
-        () => this._playlist_media_items.value() || [],
+    public readonly playlist_media_items = computed(() =>
+        playlistMediaItems(this._playlist_media_items.value() || {}),
+    );
+    public readonly playlist_item_schedules = computed(() =>
+        playlistItemScheduleMap(this._playlist_media_items.value() || {}),
+    );
+    public readonly playlist_item_schedule_list = computed(
+        () => this._playlist_media_items.value()?.schedules || [],
     );
 
     constructor() {
@@ -1161,6 +1180,7 @@ export class SignageService {
         if (this.selected_playlist()?.id === playlist.id) {
             this.selected_playlist.set(null);
             this.selected_playlist_item.set(null);
+            this.selected_playlist_item_index.set(null);
         }
         this._removePlaylistMediaState(playlist.id);
         this.changed();
@@ -1263,7 +1283,12 @@ export class SignageService {
             new_items.splice(index, 1);
         }
         await updateSignagePlaylistMedia(playlist_id, new_items);
-        this._setPlaylistMediaState(playlist_id, new_items, false);
+        this._setPlaylistMediaState(
+            playlist_id,
+            new_items,
+            false,
+            media_list.schedules,
+        );
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_ITEM_REMOVED'));
         this._playlist_change.set(Date.now());
         this.changed();
@@ -1280,6 +1305,73 @@ export class SignageService {
         await updateSignagePlaylistMedia(playlist_id, items);
         this._setPlaylistMediaState(playlist_id, items, false);
         this._playlist_change.set(Date.now());
+    }
+
+    public async editPlaylistItemSchedule(item: SignagePlaylistItemSchedule) {
+        const playlist = this.selected_playlist();
+        if (!playlist?.id || !item?.item_id) return;
+        if (
+            !this._requirePermission(
+                this.can_update(),
+                i18n('SIGNAGE_MANAGER.SVC_NO_UPDATE_PLAYLISTS'),
+            )
+        )
+            return;
+        const ref = this._dialog.open(PlaylistItemScheduleModalComponent, {
+            data: {
+                item,
+                save: (schedule_id, schedules) =>
+                    updateSignagePlaylistMediaSchedule(
+                        playlist.id,
+                        schedule_id,
+                        {
+                            item_id: item.item_id,
+                            schedules,
+                        },
+                    ),
+            },
+            panelClass: 'mobile-fullscreen',
+        });
+        const result = await dialogClosed(ref);
+        if (result) {
+            this._playlist_change.set(Date.now());
+            this.changed();
+        }
+    }
+
+    public refreshPlaylist(playlist_id: string) {
+        if (!playlist_id) return;
+        this._removePlaylistMediaState(playlist_id);
+        if (this.selected_playlist()?.id === playlist_id) {
+            this._playlist_change.set(Date.now());
+        }
+        this.changed();
+    }
+
+    private async _scheduleMediaForDistributionPlaylist(
+        playlist_id: string,
+        media_id: string,
+    ) {
+        const media = this.media().find((item) => item.id === media_id);
+        const ref = this._dialog.open(PlaylistItemScheduleModalComponent, {
+            data: {
+                item: new SignagePlaylistItemSchedule({
+                    item_id: media_id,
+                    media,
+                }),
+                save: (item_id, schedules) =>
+                    scheduleSignagePlaylistMedia(playlist_id, {
+                        item_id,
+                        schedules,
+                    }),
+            },
+            panelClass: 'mobile-fullscreen',
+        });
+        const result = await dialogClosed(ref);
+        if (!result) return false;
+        this._playlist_change.set(Date.now());
+        this.changed();
+        return true;
     }
 
     public changed() {
@@ -1488,6 +1580,7 @@ export class SignageService {
             this.selected_group_id.set('');
             this.selected_playlist.set(null);
             this.selected_playlist_item.set(null);
+            this.selected_playlist_item_index.set(null);
             this.selected_zone.set(null);
             this.selected_display.set(null);
             this.changed();
@@ -1499,6 +1592,7 @@ export class SignageService {
         this.selected_group_id.set(group_id);
         this.selected_playlist.set(null);
         this.selected_playlist_item.set(null);
+        this.selected_playlist_item_index.set(null);
         this.selected_zone.set(null);
         this.selected_display.set(null);
         this.changed();
@@ -1700,7 +1794,17 @@ export class SignageService {
             if (result.reason !== 'done') return;
             result.close();
         }
+        const playlist = this.playlists().find(
+            (item) => item.id === playlist_id,
+        );
         const new_items = [...(media_list.items || []), media_id];
+        if (playlist?.distribution) {
+            await this._scheduleMediaForDistributionPlaylist(
+                playlist_id,
+                media_id,
+            );
+            return;
+        }
         await this.updatePlaylistMedia(playlist_id, new_items);
     }
 
@@ -1717,6 +1821,9 @@ export class SignageService {
             return false;
         const unique_media_ids = [...new Set(media_ids)].filter(Boolean);
         if (!playlist_id || !unique_media_ids.length) return false;
+        const playlist = this.playlists().find(
+            (item) => item.id === playlist_id,
+        );
         const media_list = await listSignagePlaylistMedia(playlist_id);
         const existing_items = media_list.items || [];
         const new_media_ids = unique_media_ids.filter(
@@ -1725,6 +1832,16 @@ export class SignageService {
         if (!new_media_ids.length) {
             notifyWarn(i18n('SIGNAGE_MANAGER.SVC_MEDIA_ALREADY_IN'));
             return false;
+        }
+        if (playlist?.distribution) {
+            for (const media_id of new_media_ids) {
+                const added = await this._scheduleMediaForDistributionPlaylist(
+                    playlist_id,
+                    media_id,
+                );
+                if (!added) return false;
+            }
+            return true;
         }
         await this.updatePlaylistMedia(playlist_id, [
             ...existing_items,
@@ -1766,10 +1883,10 @@ export class SignageService {
                     const media = await listSignagePlaylistMedia(
                         next_playlist.id,
                     );
-                    const media_ids = media.items || [];
+                    const media_ids = playlistMediaIds(media);
                     this._setPlaylistMeta(next_playlist.id, {
                         media_ids: media_ids.slice(0, 3),
-                        item_ids: media_ids,
+                        item_ids: media.items || media_ids,
                         updated_at: playlist_updated_at,
                         approved: media.approved,
                         approval_requested: media.approval_requested,
@@ -1819,16 +1936,26 @@ export class SignageService {
 
     private _setPlaylistMediaState(
         playlist_id: string,
-        media_ids: string[],
+        item_ids: string[],
         approved?: boolean,
+        schedules?: SignagePlaylistItemSchedule[],
     ) {
+        // Distribution playlist items are schedule item ids; map them to the
+        // scheduled media ids so thumbnail URLs resolve.
+        const schedule_map = playlistItemScheduleMap({
+            schedules:
+                schedules || this._playlist_media_items.value()?.schedules,
+        });
+        const media_ids = item_ids.map(
+            (id) => schedule_map.get(id)?.media?.id || id,
+        );
         const playlist =
             this.playlists().find((item) => item.id === playlist_id) ||
             this.selected_playlist();
         const current_state = this._playlist_meta_state()[playlist_id];
         this._setPlaylistMeta(playlist_id, {
             media_ids: media_ids.slice(0, 3),
-            item_ids: media_ids,
+            item_ids: item_ids,
             updated_at:
                 current_state?.updated_at || playlist?.updated_at || Date.now(),
             approved: approved ?? current_state?.approved,
@@ -1875,6 +2002,7 @@ export class SignageService {
         const selected_item = this.selected_playlist_item();
         if (selected_item?.id && removed_ids.has(selected_item.id)) {
             this.selected_playlist_item.set(null);
+            this.selected_playlist_item_index.set(null);
         }
         this._playlist_change.set(Date.now());
     }

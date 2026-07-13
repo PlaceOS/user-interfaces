@@ -63,7 +63,7 @@ Chart.register(
             (window:resize)="updateCharts()"
         >
             <div
-                class="border-base-200 bg-base-100 h-72 w-1/2 flex-1 rounded-sm border"
+                class="border-base-300 bg-base-100 h-72 w-1/2 flex-1 rounded-sm border shadow"
             >
                 <div class="border-base-200 border-b p-4 text-xl font-bold">
                     {{
@@ -76,7 +76,7 @@ Chart.register(
                 </div>
             </div>
             <div
-                class="border-base-200 bg-base-100 h-72 w-1/2 flex-1 rounded-sm border"
+                class="border-base-300 bg-base-100 h-72 w-1/2 flex-1 rounded-sm border shadow"
             >
                 <div class="border-base-200 border-b p-4 text-xl font-bold">
                     {{ 'APP.CONCIERGE.REPORTS_LEVEL_UTIL_HEADER' | translate }}

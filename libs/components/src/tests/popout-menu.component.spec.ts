@@ -1,4 +1,4 @@
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 import { MockComponent } from 'ng-mocks';
 
 import { IconComponent } from '../lib/icon.component';
@@ -36,7 +36,7 @@ describe('PopoutMenuComponent', () => {
     });
 
     it('should emit action button clicks', () => {
-        const spy = jest.spyOn(spectator.component.action, 'emit');
+        const spy = vi.spyOn(spectator.component.action, 'emit');
         spectator.setInput({
             actions: [
                 { id: 'kill', content: 'delete' },

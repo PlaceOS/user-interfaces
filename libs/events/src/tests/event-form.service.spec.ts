@@ -6,6 +6,7 @@ import {
     CalendarEvent,
     currentUser,
     OrganisationService,
+    setCurrentUser,
     SettingsService,
 } from '@placeos/common';
 import { Subject } from 'rxjs';
@@ -14,26 +15,22 @@ import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
 
 import { CalendarService } from '../lib/calendar.service';
 import { EventFormService } from '../lib/event-form.service';
-import * as events_fn from '../lib/events.fn';
 import * as ts_client from '@placeos/ts-client';
 
-jest.mock('@placeos/ts-client', () => ({
-    ...jest.requireActual('@placeos/ts-client'),
-    showMetadata: jest.fn(() => Promise.resolve({ details: [] })),
-}));
-
-jest.mock('../lib/events.fn', () => ({
-    ...jest.requireActual('../lib/events.fn'),
-    findEventClashes: jest.fn(),
-}));
+// Only the ts-client API layer is stubbed; the real events.fn wrappers run
+// (findEventClashes is steered by stubbing the ts-client `post` beneath it).
+vi.mock('@placeos/ts-client', { spy: true });
 
 describe('EventFormService', () => {
     let service: EventFormService;
-    let init_spy: jest.SpiedFunction<EventFormService['init']>;
+    let init_spy: ReturnType<typeof vi.spyOn>;
 
     beforeEach(() => {
         sessionStorage.clear();
-        init_spy = jest
+        // Seed a loaded user so currentUserIsLoaded() is true and the form
+        // methods (newForm/loadForm) run synchronously instead of deferring.
+        setCurrentUser({ email: 'host@test.com', name: 'Host' } as any);
+        init_spy = vi
             .spyOn(EventFormService.prototype, 'init')
             .mockResolvedValue(undefined);
 
@@ -56,7 +53,7 @@ describe('EventFormService', () => {
                 {
                     provide: SettingsService,
                     useValue: {
-                        get: jest.fn(() => undefined),
+                        get: vi.fn(() => undefined),
                         overrides: signal([]),
                     },
                 },
@@ -69,25 +66,27 @@ describe('EventFormService', () => {
                 {
                     provide: AssetStateService,
                     useValue: {
-                        setOptions: jest.fn(),
+                        setOptions: vi.fn(),
                     },
                 },
                 {
                     provide: CalendarService,
                     useValue: {
-                        loadCalendars: jest.fn(),
+                        loadCalendars: vi.fn(),
                     },
                 },
                 {
                     provide: MatDialog,
-                    useValue: { open: jest.fn() },
+                    useValue: { open: vi.fn() },
                 },
             ],
         });
 
-        jest.mocked(ts_client.showMetadata).mockClear();
+        vi.mocked(ts_client.showMetadata).mockReset();
+        vi.mocked(ts_client.showMetadata).mockResolvedValue({
+            details: [],
+        } as any);
         service = TestBed.inject(EventFormService);
-        jest.mocked(events_fn.findEventClashes).mockReset();
     });
 
     afterEach(() => {
@@ -103,7 +102,7 @@ describe('EventFormService', () => {
                 : undefined,
         );
         const user_pipe = (service as any)._user_pipe;
-        const transform_spy = jest
+        const transform_spy = vi
             .spyOn(user_pipe, 'transform')
             .mockResolvedValue({ email: 'other@example.com' });
 
@@ -184,7 +183,7 @@ describe('EventFormService', () => {
         );
         const start = new Date(2028, 5, 15, 10, 0, 0, 0).valueOf();
         const end = new Date(2028, 5, 16, 17, 0, 0, 0).valueOf();
-        const perform_booking_spy = jest
+        const perform_booking_spy = vi
             .spyOn(service as any, '_performBooking')
             .mockResolvedValue(
                 new CalendarEvent({
@@ -222,6 +221,127 @@ describe('EventFormService', () => {
         expect(perform_booking_spy).toHaveBeenCalled();
     });
 
+    it('should keep the submitted time when the saved event response is stale', async () => {
+        const stale_start = new Date(2028, 5, 15, 10, 0, 0, 0).valueOf();
+        const submitted_start = new Date(2028, 5, 16, 16, 0, 0, 0).valueOf();
+        const submitted_end = new Date(2028, 5, 16, 17, 0, 0, 0).valueOf();
+        sessionStorage.setItem(
+            'PLACEOS.last_modified_event',
+            JSON.stringify({
+                id: 'previous-event',
+                title: 'Previous booking',
+                event_start: Math.floor(stale_start / 1000),
+                event_end: Math.floor((stale_start + 30 * 60 * 1000) / 1000),
+            }),
+        );
+        vi.spyOn(service as any, '_performBooking').mockResolvedValue(
+            new CalendarEvent({
+                id: 'event-1',
+                host: 'host@test.com',
+                organiser: { email: 'host@test.com' } as any,
+                creator: 'host@test.com',
+                title: 'Moved booking',
+                event_start: Math.floor(stale_start / 1000),
+                event_end: Math.floor((stale_start + 30 * 60 * 1000) / 1000),
+                attendees: [],
+                resources: [],
+            }),
+        );
+
+        service.newForm();
+        service.model.update((m) => ({
+            ...m,
+            host: 'host@test.com',
+            organiser: { email: 'host@test.com' } as any,
+            creator: 'host@test.com',
+            title: 'Moved booking',
+            date: submitted_start,
+            duration: 60,
+            date_end: submitted_end,
+            attendees: [],
+            resources: [],
+        }));
+
+        const result = await service.postForm(true);
+        const last_success = JSON.parse(
+            sessionStorage.getItem('PLACEOS.last_modified_event'),
+        );
+
+        expect(result.date).toBe(submitted_start);
+        expect(result.date_end).toBe(submitted_end);
+        expect(service.last_success()?.id).toBe('event-1');
+        expect(service.last_success()?.date).toBe(submitted_start);
+        expect(service.last_success()?.date_end).toBe(submitted_end);
+        expect(last_success.event_start).toBe(
+            Math.floor(submitted_start / 1000),
+        );
+        expect(last_success.event_end).toBe(Math.floor(submitted_end / 1000));
+    });
+
+    it('should post the selected time after reloading a new meeting form', async () => {
+        vi.useFakeTimers();
+        vi.setSystemTime(new Date(2028, 5, 15, 13, 25, 0, 0));
+        try {
+            const submitted_start = new Date(
+                2028,
+                5,
+                16,
+                16,
+                0,
+                0,
+                0,
+            ).valueOf();
+            const submitted_end = new Date(
+                2028,
+                5,
+                16,
+                17,
+                0,
+                0,
+                0,
+            ).valueOf();
+            const perform_booking_spy = vi
+                .spyOn(service as any, '_performBooking')
+                .mockResolvedValue(
+                    new CalendarEvent({
+                        id: 'event-1',
+                        title: 'Selected slot',
+                        attendees: [],
+                        resources: [],
+                    }),
+                );
+            sessionStorage.setItem(
+                'PLACEOS.event_form',
+                JSON.stringify({
+                    host: 'host@test.com',
+                    organiser: { email: 'host@test.com' },
+                    creator: 'host@test.com',
+                    title: 'Selected slot',
+                    date: submitted_start,
+                    duration: 60,
+                    date_end: submitted_end,
+                    attendees: [],
+                    resources: [],
+                }),
+            );
+
+            service.loadForm();
+            await service.postForm(true);
+            const posted_event = perform_booking_spy.mock
+                .calls[0][0] as CalendarEvent;
+            const posted_json = posted_event.toJSON();
+
+            expect(posted_json.event_start).toBe(
+                Math.floor(submitted_start / 1000),
+            );
+            expect(posted_json.event_end).toBe(
+                Math.floor(submitted_end / 1000),
+            );
+        } finally {
+            vi.useRealTimers();
+        }
+    });
+
     it('should use the original calendar when changing host on an existing room booking', async () => {
         const current_user = currentUser();
         const new_host = 'new.host@example.com';
@@ -244,7 +364,7 @@ describe('EventFormService', () => {
                 } as any,
             ],
         });
-        const perform_booking_spy = jest
+        const perform_booking_spy = vi
             .spyOn(service as any, '_performBooking')
             .mockResolvedValue(
                 new CalendarEvent({
@@ -279,7 +399,7 @@ describe('EventFormService', () => {
 
     it('should clear saved host changes after a permission error', async () => {
         const current_user = currentUser();
-        const perform_booking_spy = jest
+        const perform_booking_spy = vi
             .spyOn(service as any, '_performBooking')
             .mockRejectedValue({ status: 403, error: 'Forbidden' });
 
@@ -335,7 +455,7 @@ describe('EventFormService', () => {
             resources: [],
         });
         Object.defineProperty(event, 'state', { value: 'started' });
-        const perform_booking_spy = jest
+        const perform_booking_spy = vi
             .spyOn(service as any, '_performBooking')
             .mockResolvedValue(
                 new CalendarEvent({
@@ -373,9 +493,9 @@ describe('EventFormService', () => {
         );
     });
 
-    it('should clamp current-day all-day meetings before posting', async () => {
-        jest.useFakeTimers();
-        jest.setSystemTime(new Date(2028, 5, 15, 10, 2, 0, 0));
+    it('should post current-day all-day meetings from the all-day period start', async () => {
+        vi.useFakeTimers();
+        vi.setSystemTime(new Date(2028, 5, 15, 10, 2, 0, 0));
         try {
             const settings = TestBed.inject(SettingsService) as any;
             settings.get.mockImplementation((key: string) =>
@@ -383,7 +503,7 @@ describe('EventFormService', () => {
                     ? { start: 9, end: 17 }
                     : undefined,
             );
-            const perform_booking_spy = jest
+            const perform_booking_spy = vi
                 .spyOn(service as any, '_performBooking')
                 .mockResolvedValue(
                     new CalendarEvent({
@@ -392,8 +512,8 @@ describe('EventFormService', () => {
                         organiser: { email: 'host@test.com' } as any,
                         creator: 'host@test.com',
                         title: 'All day meeting',
-                        date: new Date(2028, 5, 15, 10, 5, 0, 0).valueOf(),
-                        duration: 415,
+                        date: new Date(2028, 5, 15, 9, 0, 0, 0).valueOf(),
+                        duration: 480,
                         date_end: new Date(2028, 5, 15, 17, 0, 0, 0).valueOf(),
                         attendees: [],
                         resources: [],
@@ -417,14 +537,14 @@ describe('EventFormService', () => {
             expect(perform_booking_spy).toHaveBeenCalledWith(
                 expect.objectContaining({
                     all_day: true,
-                    date: new Date(2028, 5, 15, 10, 5, 0, 0).valueOf(),
-                    duration: 415,
+                    date: new Date(2028, 5, 15, 9, 0, 0, 0).valueOf(),
+                    duration: 480,
                     date_end: new Date(2028, 5, 15, 17, 0, 0, 0).valueOf(),
                 }),
                 expect.anything(),
             );
         } finally {
-            jest.useRealTimers();
+            vi.useRealTimers();
         }
     });
 
@@ -432,7 +552,7 @@ describe('EventFormService', () => {
         // The booking panel submits bookings before the reactive rules
         // resource has loaded, so the rules metadata must be fetched on
         // demand and still block hidden rooms.
-        jest.mocked(ts_client.showMetadata).mockResolvedValueOnce({
+        vi.mocked(ts_client.showMetadata).mockResolvedValueOnce({
             details: [{ zone: '*', conditions: {}, rules: { hidden: true } }],
         } as any);
         const space = {
@@ -457,7 +577,7 @@ describe('EventFormService', () => {
     });
 
     it('should allow bookings when on-demand rules do not hide the room', async () => {
-        jest.mocked(ts_client.showMetadata).mockResolvedValueOnce({
+        vi.mocked(ts_client.showMetadata).mockResolvedValueOnce({
             details: [{ zone: '*', conditions: {}, rules: { hidden: false } }],
         } as any);
         const space = {
@@ -479,16 +599,15 @@ describe('EventFormService', () => {
 
     it('should block recurring room bookings that clash by default', async () => {
         const date = new Date(2028, 5, 15, 10, 0, 0, 0).valueOf();
-        jest.mocked(events_fn.findEventClashes).mockReturnValue(
-            Promise.resolve([
-                {
-                    asset_id: 'space-1',
-                    booking_start: Math.floor(date / 1000) + 24 * 60 * 60,
-                    booking_end:
-                        Math.floor(date / 1000) + 24 * 60 * 60 + 60 * 60,
-                },
-            ]) as any,
-        );
+        // Real findEventClashes runs; stub the ts-client POST beneath it so
+        // it returns a clash on a later instance (not the first one).
+        vi.mocked(ts_client.post).mockResolvedValue([
+            {
+                asset_id: 'space-1',
+                booking_start: Math.floor(date / 1000) + 24 * 60 * 60,
+                booking_end: Math.floor(date / 1000) + 24 * 60 * 60 + 60 * 60,
+            },
+        ] as any);
 
         await expect(
             (service as any)._checkRecurringClashes({
@@ -503,10 +622,14 @@ describe('EventFormService', () => {
                         name: 'Boardroom',
                         zones: ['bld-1'],
                     },
-                ] as any,
+                ],
+                toJSON: () => ({ id: 'event-1', date, duration: 60 }),
             } as any),
         ).rejects.toBeTruthy();
-        expect(events_fn.findEventClashes).toHaveBeenCalled();
+        expect(ts_client.post).toHaveBeenCalledWith(
+            expect.stringContaining('clashing-assets'),
+            expect.anything(),
+        );
         expect(TestBed.inject(MatDialog).open).not.toHaveBeenCalled();
     });
 });

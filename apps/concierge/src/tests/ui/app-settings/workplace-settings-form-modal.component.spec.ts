@@ -4,8 +4,14 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { OrganisationService, SettingsService } from '@placeos/common';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
+import {
+    OrganisationService,
+    SettingsService,
+    setCurrentUser,
+    setNotifyOutlet,
+    StaffUser,
+} from '@placeos/common';
 import { mockComponent } from '@placeos/common/tests';
 import {
     FullscreenModalShellComponent,
@@ -16,14 +22,13 @@ import { MockProvider } from 'ng-mocks';
 import { UploadButtonComponent } from '../../../app/ui/app-settings/upload-button.component';
 import { WorkplaceSettingsFormModalComponent } from '../../../app/ui/app-settings/workplace-settings-form-modal.component';
 
-import * as common_mod from '@placeos/common';
 import * as ts_client from '@placeos/ts-client';
 
-jest.mock('@placeos/ts-client');
-jest.mock('@placeos/common');
+vi.mock('@placeos/ts-client', { spy: true });
 
 describe('WorkplaceSettingsFormModalComponent', () => {
     let spectator: Spectator<WorkplaceSettingsFormModalComponent>;
+    let notify_open: ReturnType<typeof vi.fn>;
 
     const mock_zone = {
         id: 'zone-1',
@@ -42,9 +47,9 @@ describe('WorkplaceSettingsFormModalComponent', () => {
         ],
         providers: [
             MockProvider(MAT_DIALOG_DATA, { zone: mock_zone }),
-            MockProvider(MatDialogRef, { close: jest.fn() }),
+            MockProvider(MatDialogRef, { close: vi.fn() }),
             MockProvider(SettingsService, {
-                get: jest.fn(() => 'workplace_app'),
+                get: vi.fn(() => 'workplace_app'),
             } as any),
             MockProvider(OrganisationService, {
                 organisation: { id: 'org-1' },
@@ -61,25 +66,30 @@ describe('WorkplaceSettingsFormModalComponent', () => {
     });
 
     beforeEach(() => {
-        jest.spyOn(ts_client, 'showMetadata').mockResolvedValue({
+        vi.mocked(ts_client.showMetadata).mockResolvedValue({
             details: {},
         } as never);
-        jest.spyOn(ts_client, 'updateMetadata').mockResolvedValue({} as never);
-        (common_mod as any).notifySuccess = jest.fn();
-        (common_mod as any).notifyError = jest.fn();
-        (common_mod as any).currentUser = jest.fn(() => ({
-            id: 'user-1',
-            name: 'Test User',
-            email: 'test@example.com',
-            groups: ['placeos_admin'],
+        vi.mocked(ts_client.updateMetadata).mockResolvedValue({} as never);
+        notify_open = vi.fn(() => ({
+            onAction: () => ({ subscribe: () => undefined }),
+            dismiss: () => undefined,
         }));
-        (common_mod as any).buildCurrencyOptions = jest.fn(() => []);
-        (common_mod as any).VERSION = { hash: 'test-hash' };
+        setNotifyOutlet({ open: notify_open } as any, true);
+        setCurrentUser(
+            new StaffUser({
+                id: 'user-1',
+                name: 'Test User',
+                email: 'test@example.com',
+                groups: ['placeos_admin'],
+            }) as any,
+        );
         spectator = createComponent();
     });
 
     afterEach(() => {
-        jest.restoreAllMocks();
+        setNotifyOutlet(null as any, true);
+        setCurrentUser(null as any);
+        vi.restoreAllMocks();
     });
 
     it('should create component', () => {
@@ -227,7 +237,7 @@ describe('WorkplaceSettingsFormModalComponent', () => {
     });
 
     it('should preserve nested defaults when metadata only patches part of a group', async () => {
-        (ts_client.showMetadata as jest.Mock)
+        (ts_client.showMetadata as any)
             .mockResolvedValueOnce({
                 details: {
                     events: {
@@ -268,18 +278,24 @@ describe('WorkplaceSettingsFormModalComponent', () => {
     it('should show success notification after save', async () => {
         await spectator.component.ngOnInit();
         await spectator.component.save();
-        expect(common_mod.notifySuccess).toHaveBeenCalledWith(
+        expect(notify_open).toHaveBeenCalledWith(
             'Successfully saved workplace app settings',
+            'OK',
+            expect.objectContaining({ panelClass: ['success'] }),
         );
     });
 
     it('should show error notification when save fails', async () => {
-        (ts_client.updateMetadata as jest.Mock).mockRejectedValueOnce({
+        (ts_client.updateMetadata as any).mockRejectedValueOnce({
             message: 'Network error',
         } as never);
         await spectator.component.ngOnInit();
         await spectator.component.save().catch(() => {});
-        expect(common_mod.notifyError).toHaveBeenCalled();
+        expect(notify_open).toHaveBeenCalledWith(
+            expect.anything(),
+            'OK',
+            expect.objectContaining({ panelClass: ['error'] }),
+        );
     });
 
     it('should add legend item', () => {
@@ -338,12 +354,14 @@ describe('WorkplaceSettingsFormModalComponent', () => {
     });
 
     it('should set edited_by with Support role for support users', async () => {
-        (common_mod as any).currentUser = jest.fn(() => ({
-            id: 'user-2',
-            name: 'Support User',
-            email: 'support@example.com',
-            groups: ['placeos_support'],
-        }));
+        setCurrentUser(
+            new StaffUser({
+                id: 'user-2',
+                name: 'Support User',
+                email: 'support@example.com',
+                groups: ['placeos_support'],
+            }) as any,
+        );
         await spectator.component.ngOnInit();
         await spectator.component.save();
         expect(ts_client.updateMetadata).toHaveBeenCalledWith(
@@ -359,12 +377,14 @@ describe('WorkplaceSettingsFormModalComponent', () => {
     });
 
     it('should set edited_by with User role for regular users', async () => {
-        (common_mod as any).currentUser = jest.fn(() => ({
-            id: 'user-3',
-            name: 'Regular User',
-            email: 'user@example.com',
-            groups: [],
-        }));
+        setCurrentUser(
+            new StaffUser({
+                id: 'user-3',
+                name: 'Regular User',
+                email: 'user@example.com',
+                groups: [],
+            }) as any,
+        );
         await spectator.component.ngOnInit();
         await spectator.component.save();
         expect(ts_client.updateMetadata).toHaveBeenCalledWith(

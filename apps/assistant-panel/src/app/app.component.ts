@@ -5,7 +5,10 @@ import {
     ChatComponent,
     GlobalBannerComponent,
     GlobalLoadingComponent,
+    SettingsDebugPanelComponent,
 } from '@placeos/components';
+
+import * as SETTINGS_SCHEMA from '../environments/settings.schema.json';
 
 @Component({
     selector: 'app-root',
@@ -14,6 +17,7 @@ import {
         ChatComponent,
         GlobalBannerComponent,
         GlobalLoadingComponent,
+        SettingsDebugPanelComponent,
     ],
     template: `
         <global-banner />
@@ -24,7 +28,7 @@ import {
             <global-chat />
         }
         <global-loading />
-        <!-- <debug-console *ngIf="debug"></debug-console> -->
+        <settings-debug-panel [schema]="settings_schema" />
     `,
     styles: [
         `
@@ -38,6 +42,8 @@ import {
     ],
 })
 export class AppComponent implements OnInit {
+    public readonly settings_schema = SETTINGS_SCHEMA as any;
+
     private _placeos = inject(PlaceOS_Service);
     private _settings = inject(SettingsService);
 

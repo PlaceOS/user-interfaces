@@ -1,10 +1,9 @@
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { signal } from '@angular/core';
-import { fakeAsync, tick } from '@angular/core/testing';
 import { OverlayContainer } from '@angular/cdk/overlay';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { BookingFormService } from '@placeos/bookings';
 import { Booking, SettingsService } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
@@ -17,11 +16,11 @@ describe('LandingColleaguesNewComponent', () => {
     let spectator: Spectator<LandingColleaguesNewComponent>;
     let features: string[] = [];
     const booking_form_service = {
-        newForm: jest.fn(),
-        setOptions: jest.fn(),
+        newForm: vi.fn(),
+        setOptions: vi.fn(),
     };
     const settings_service = {
-        signal: jest.fn((key: string, default_value?: string[]) =>
+        signal: vi.fn((key: string, default_value?: string[]) =>
             signal(key === 'features' ? features : (default_value ?? [])),
         ),
     };
@@ -37,22 +36,22 @@ describe('LandingColleaguesNewComponent', () => {
                         email: 'test@example.com',
                     },
                 ]) as any,
-                removeContact: jest.fn(),
+                removeContact: vi.fn(),
             }),
             MockProvider(MatDialog, {
-                open: jest.fn(),
-                closeAll: jest.fn(),
+                open: vi.fn(),
+                closeAll: vi.fn(),
             }),
             MockProvider(EventFormService, {
-                newForm: jest.fn(),
+                newForm: vi.fn(),
             }),
             MockProvider(BookingFormService, booking_form_service),
-            MockProvider(Router, { navigate: jest.fn() }),
+            MockProvider(Router, { navigate: vi.fn() }),
             MockProvider(TeamScheduleService, {
-                isFavorite: jest.fn(() => false),
-                isTeamMember: jest.fn(() => false),
-                toggleFavoriteByUser: jest.fn(),
-                toggleTeamMemberByUser: jest.fn(),
+                isFavorite: vi.fn(() => false),
+                isTeamMember: vi.fn(() => false),
+                toggleFavoriteByUser: vi.fn(),
+                toggleTeamMemberByUser: vi.fn(),
             }),
             {
                 provide: SettingsService,
@@ -61,12 +60,12 @@ describe('LandingColleaguesNewComponent', () => {
         ],
     });
 
-    const open_actions_menu = () => {
+    const open_actions_menu = async () => {
         const menu_trigger = spectator
             .queryAll('button')
             .find((button) => button.textContent?.includes('more_vert'));
         spectator.click(menu_trigger as HTMLElement);
-        tick(200);
+        await spectator.fixture.whenStable();
         spectator.detectChanges();
     };
 
@@ -85,10 +84,10 @@ describe('LandingColleaguesNewComponent', () => {
         spectator?.fixture.destroy();
     });
 
-    it('should hide favorite and team actions when team schedule is disabled', fakeAsync(() => {
+    it('should hide favorite and team actions when team schedule is disabled', async () => {
         spectator = createComponent();
         spectator.detectChanges();
-        open_actions_menu();
+        await open_actions_menu();
 
         const overlay = spectator
             .inject(OverlayContainer)
@@ -98,13 +97,13 @@ describe('LandingColleaguesNewComponent', () => {
         expect(overlay).toContain('person_remove');
         expect(overlay).not.toContain('star_outline');
         expect(overlay).not.toContain('group_add');
-    }));
+    });
 
-    it('should show favorite and team actions when team schedule is enabled', fakeAsync(() => {
+    it('should show favorite and team actions when team schedule is enabled', async () => {
         features = ['team-schedule'];
         spectator = createComponent();
         spectator.detectChanges();
-        open_actions_menu();
+        await open_actions_menu();
 
         const overlay = spectator
             .inject(OverlayContainer)
@@ -112,15 +111,15 @@ describe('LandingColleaguesNewComponent', () => {
 
         expect(overlay).toContain('star_outline');
         expect(overlay).toContain('group_add');
-    }));
+    });
 
-    it('should initialise colleague desk bookings with desk booking type', fakeAsync(() => {
+    it('should initialise colleague desk bookings with desk booking type', async () => {
         const members = [{ name: 'Test User', email: 'test@example.com' }];
         spectator = createComponent();
         spectator.component.selected_users.set(members as any);
 
         spectator.component.bookDeskWithSelected();
-        tick(300);
+        await new Promise((resolve) => setTimeout(resolve, 300));
 
         expect(booking_form_service.newForm).toHaveBeenCalledWith(
             'desk',
@@ -131,5 +130,5 @@ describe('LandingColleaguesNewComponent', () => {
             members,
         });
         expect(spectator.component.selected_users()).toEqual([]);
-    }));
+    });
 });

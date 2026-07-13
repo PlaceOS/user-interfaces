@@ -231,9 +231,13 @@ import { BookingRulesFormComponent } from 'libs/form-fields/src/lib/booking-rule
                                                     }}</icon>
                                                 </div>
                                             </div>
-                                            <div
-                                                class="border-base-200 flex cursor-pointer items-center border-r p-4 select-none"
+                                            <button
+                                                type="button"
+                                                class="border-base-200 flex items-center border-r p-4 text-left select-none"
                                                 (click)="toggleExpanded(row.id)"
+                                                [attr.aria-expanded]="
+                                                    isExpanded(row.id)
+                                                "
                                             >
                                                 <icon class="mr-1 text-2xl">{{
                                                     isExpanded(row.id)
@@ -249,7 +253,7 @@ import { BookingRulesFormComponent } from 'libs/form-fields/src/lib/booking-rule
                                                                   ),
                                                               }
                                                 }}
-                                            </div>
+                                            </button>
                                             <div
                                                 class="flex items-center justify-center gap-1 p-1"
                                             >
@@ -290,8 +294,8 @@ import { BookingRulesFormComponent } from 'libs/form-fields/src/lib/booking-rule
                                                         row.conditions
                                                     ).length
                                                 ) {
-                                                    <div
-                                                        class="flex flex-wrap gap-x-8 gap-y-2 text-xs"
+                                                    <dl
+                                                        class="grid grid-cols-[max-content_1fr] gap-x-4 gap-y-2 text-sm"
                                                     >
                                                         @for (
                                                             key of conditionKeys(
@@ -299,20 +303,20 @@ import { BookingRulesFormComponent } from 'libs/form-fields/src/lib/booking-rule
                                                             );
                                                             track key
                                                         ) {
-                                                            <div
-                                                                class="flex items-baseline gap-2"
+                                                            <dt
+                                                                class="font-medium opacity-60"
                                                             >
-                                                                <span
-                                                                    class="font-medium opacity-60"
-                                                                >
-                                                                    {{
-                                                                        CONDITION_LABELS[
-                                                                            key
-                                                                        ]
-                                                                            | translate
-                                                                    }}:
-                                                                </span>
-                                                                <span>{{
+                                                                {{
+                                                                    CONDITION_LABELS[
+                                                                        key
+                                                                    ]
+                                                                        | translate
+                                                                }}
+                                                            </dt>
+                                                            <dd
+                                                                class="min-w-0 break-words"
+                                                            >
+                                                                {{
                                                                     formatConditionValue(
                                                                         key,
                                                                         row
@@ -320,10 +324,10 @@ import { BookingRulesFormComponent } from 'libs/form-fields/src/lib/booking-rule
                                                                             key
                                                                         ]
                                                                     )
-                                                                }}</span>
-                                                            </div>
+                                                                }}
+                                                            </dd>
                                                         }
-                                                    </div>
+                                                    </dl>
                                                 } @else {
                                                     <div
                                                         class="text-xs opacity-30"
@@ -431,7 +435,9 @@ export class BookingRulesModalComponent {
                 params.building,
                 `${this._data.type}_booking_rules`,
             ).catch(() => ({ details: [] }) as any);
-            return details instanceof Array ? details : [];
+            return details instanceof Array
+                ? this.normaliseRulesetIds(details)
+                : [];
         },
     });
     public readonly booking_rules = this._booking_rules.value;
@@ -459,23 +465,35 @@ export class BookingRulesModalComponent {
         return Object.keys(conditions || {});
     }
 
+    public normaliseRulesetIds(rules: BookingRuleset[]): BookingRuleset[] {
+        const ids = new Set<string>();
+        return rules.map((rule) => {
+            let id = rule.id;
+            while (!id || ids.has(id)) id = `ruleset-${randomString(8)}`;
+            ids.add(id);
+            return id === rule.id ? rule : { ...rule, id };
+        });
+    }
+
     public formatConditionValue(key: string, value: any): string {
         if (value == null) return '';
         if (key === 'min_length' || key === 'max_length') {
             const minutes = Number(value);
-            if (minutes < 60) return `${minutes} min`;
+            if (minutes < 60)
+                return `${minutes} ${minutes === 1 ? 'minute' : 'minutes'}`;
             const hours = Math.floor(minutes / 60);
             const remaining = minutes % 60;
+            const hour_text = `${hours} ${hours === 1 ? 'hour' : 'hours'}`;
             return remaining > 0
-                ? `${hours} hr ${remaining} min`
-                : `${hours} hr`;
+                ? `${hour_text} ${remaining} ${remaining === 1 ? 'minute' : 'minutes'}`
+                : hour_text;
         }
         if (key === 'is_between' && Array.isArray(value)) {
             const pad = (n: number) => String(n).padStart(2, '0');
-            return `${pad(value[0])}:00 - ${pad(value[1])}:00`;
+            return `${pad(value[0])}:00 to ${pad(value[1])}:00`;
         }
         if (key === 'is_period' && Array.isArray(value)) {
-            return `${new Date(value[0]).toLocaleDateString()} - ${new Date(value[1]).toLocaleDateString()}`;
+            return `${new Date(value[0]).toLocaleDateString()} to ${new Date(value[1]).toLocaleDateString()}`;
         }
         if (Array.isArray(value)) {
             return value.join(', ');
@@ -550,26 +568,30 @@ export class BookingRulesModalComponent {
         this.loading.set(true);
         const rules = [...this.booking_rules()];
         if (new_ruleset) {
-            const index = rules.findIndex((_) => _.id === new_ruleset?.id);
+            const selected = this.selected();
+            const index = selected
+                ? rules.findIndex(
+                      (rule) => rule === selected || rule.id === selected.id,
+                  )
+                : -1;
             if (index >= 0) {
                 rules[index] = new_ruleset;
             } else {
-                rules.push({
-                    id: `ruleset-${randomString(8)}`,
-                    ...new_ruleset,
-                });
+                rules.push(new_ruleset);
             }
         }
+        const unique_rules = this.normaliseRulesetIds(rules);
         await updateMetadata(this._org.building.id, {
             name: `${this.type}_booking_rules`,
             description: `${this.type} Booking Rules`,
-            details: rules,
+            details: unique_rules,
         }).catch((_) => {
             notifyError(
                 i18n('APP.CONCIERGE.BOOKING_RULESET_ERROR', { error: _ }),
             );
             throw _;
         });
+        this.change.update((value) => value + 1);
         this.loading.set(false);
         this.view.set('list');
         notifySuccess(i18n('APP.CONCIERGE.BOOKING_RULESET_SUCCESS'));

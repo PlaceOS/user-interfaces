@@ -1,6 +1,6 @@
 import { Injector, signal, WritableSignal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { CalendarEvent, OrganisationService, SettingsService } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 import {
@@ -21,7 +21,7 @@ describe('MeetingFlowDetailsComponent', () => {
             MockProvider(
                 SettingsService as any,
                 {
-                    get: jest.fn(() => false),
+                    get: vi.fn(() => false),
                 } as any,
             ),
             MockProvider(
@@ -46,7 +46,7 @@ describe('MeetingFlowDetailsComponent', () => {
                         form,
                         model,
                         filters: signal({ capacity: -1 }),
-                        setFilters: jest.fn(),
+                        setFilters: vi.fn(),
                     };
                 },
             },

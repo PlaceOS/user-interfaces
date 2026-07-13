@@ -3,21 +3,24 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { OrganisationService, SettingsService } from '@placeos/common';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
+import {
+    OrganisationService,
+    SettingsService,
+    setNotifyOutlet,
+} from '@placeos/common';
 import { mockComponent } from '@placeos/common/tests';
 import { IconComponent } from '@placeos/components';
 import { MockProvider } from 'ng-mocks';
 import { AppSettingsModalComponent } from '../../app/ui/app-settings-modal.component';
 
-import * as common_mod from '@placeos/common';
 import * as ts_client from '@placeos/ts-client';
 
-jest.mock('@placeos/ts-client');
-jest.mock('@placeos/common');
+vi.mock('@placeos/ts-client', { spy: true });
 
 describe('AppSettingsModalComponent', () => {
     let spectator: Spectator<AppSettingsModalComponent>;
+    let notify_open: ReturnType<typeof vi.fn>;
 
     const mock_zone = {
         id: 'zone-1',
@@ -32,11 +35,11 @@ describe('AppSettingsModalComponent', () => {
         providers: [
             MockProvider(MAT_DIALOG_DATA, { zone: mock_zone }),
             MockProvider(MatDialogRef, {
-                close: jest.fn(),
+                close: vi.fn(),
                 disableClose: false,
             }),
             MockProvider(SettingsService, {
-                get: jest.fn(() => 'workplace_app'),
+                get: vi.fn(() => 'workplace_app'),
             } as any),
             MockProvider(OrganisationService, {
                 organisation: { id: 'org-1' },
@@ -52,17 +55,21 @@ describe('AppSettingsModalComponent', () => {
     });
 
     beforeEach(() => {
-        jest.spyOn(ts_client, 'showMetadata').mockResolvedValue({
+        notify_open = vi.fn(() => ({
+            onAction: () => ({ subscribe: () => undefined }),
+            dismiss: () => undefined,
+        }));
+        setNotifyOutlet({ open: notify_open } as any, true);
+        vi.mocked(ts_client.showMetadata).mockResolvedValue({
             details: {},
         } as never);
-        jest.spyOn(ts_client, 'updateMetadata').mockResolvedValue({} as never);
-        (common_mod as any).notifySuccess = jest.fn();
-        (common_mod as any).notifyError = jest.fn();
+        vi.mocked(ts_client.updateMetadata).mockResolvedValue({} as never);
         spectator = createComponent();
     });
 
     afterEach(() => {
-        jest.restoreAllMocks();
+        setNotifyOutlet(null as any, true);
+        vi.restoreAllMocks();
     });
 
     it('should create component', () => {
@@ -154,7 +161,7 @@ describe('AppSettingsModalComponent', () => {
     });
 
     it('should populate active_features from loaded settings', async () => {
-        jest.spyOn(ts_client, 'showMetadata').mockResolvedValue({
+        vi.mocked(ts_client.showMetadata).mockResolvedValue({
             details: {
                 features: ['spaces', 'desks'],
                 use_24_hour_time: true,
@@ -190,18 +197,24 @@ describe('AppSettingsModalComponent', () => {
     it('should show success notification after save', async () => {
         await spectator.component.ngOnInit();
         await spectator.component.save();
-        expect(common_mod.notifySuccess).toHaveBeenCalledWith(
+        expect(notify_open).toHaveBeenCalledWith(
             'Successfully saved settings',
+            'OK',
+            expect.objectContaining({ panelClass: ['success'] }),
         );
     });
 
     it('should show error notification when save fails', async () => {
-        jest.spyOn(ts_client, 'updateMetadata').mockRejectedValue({
+        vi.mocked(ts_client.updateMetadata).mockRejectedValue({
             message: 'Network error',
         } as never);
         await spectator.component.ngOnInit();
         await spectator.component.save().catch(() => {});
-        expect(common_mod.notifyError).toHaveBeenCalled();
+        expect(notify_open).toHaveBeenCalledWith(
+            expect.anything(),
+            'OK',
+            expect.objectContaining({ panelClass: ['error'] }),
+        );
     });
 
     it('should build features list from active_features', () => {

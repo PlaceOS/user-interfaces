@@ -1,22 +1,21 @@
 import { EventEmitter, WritableSignal, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { SpectatorService, createServiceFactory } from '@ngneat/spectator/jest';
-import { OrganisationService } from '@placeos/common';
-import { addMinutes, endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { lastValueFrom, of } from 'rxjs';
+import { SpectatorService, createServiceFactory } from '@ngneat/spectator/vitest';
+import {
+    OrganisationService,
+    SettingsService,
+    getTimezoneDifferenceInHours,
+    setNotifyOutlet,
+    setTimeInTimezone,
+} from '@placeos/common';
+import { addHours, addMinutes, endOfDay, getUnixTime, startOfDay } from 'date-fns';
+import { NEVER, of } from 'rxjs';
 
-import * as booking_mod from '@placeos/bookings';
-import * as common_mod from '@placeos/common';
-import { SettingsService } from '@placeos/common';
-import * as component_mod from '@placeos/components';
 import * as ts_client_mod from '@placeos/ts-client';
 import { MockProvider } from 'ng-mocks';
 import { DesksStateService } from '../../app/desks/desks-state.service';
 
-jest.mock('@placeos/bookings');
-jest.mock('@placeos/common');
-jest.mock('@placeos/components');
-jest.mock('@placeos/ts-client');
+vi.mock('@placeos/ts-client', { spy: true });
 
 describe('DesksStateService', () => {
     let spectator: SpectatorService<DesksStateService>;
@@ -24,17 +23,18 @@ describe('DesksStateService', () => {
     let active_region: WritableSignal<any>;
     let current_building: any;
     let settings_map: Record<string, any>;
+    let notify_open: ReturnType<typeof vi.fn>;
     const organisation_service: any = {
         active_levels: signal([]),
         initialised: signal(true),
-        levelWithID: jest.fn(),
+        levelWithID: vi.fn(),
         organisation: { id: 'org-1' },
         region: { id: 'region-1' },
         buildings: [],
-        levelsForBuilding: jest.fn((building) => [
+        levelsForBuilding: vi.fn((building) => [
             { id: `${building?.id || 'bld-1'}-lvl-1` },
         ]),
-        levelsForRegion: jest.fn(() => []),
+        levelsForRegion: vi.fn(() => []),
         get building() {
             return current_building;
         },
@@ -45,7 +45,7 @@ describe('DesksStateService', () => {
     const createService = createServiceFactory({
         service: DesksStateService,
         providers: [
-            MockProvider(MatDialog, { open: jest.fn() }),
+            MockProvider(MatDialog, { open: vi.fn() }),
             MockProvider(SettingsService, {
                 get: ((name: string) => settings_map[name]) as any,
             } as any),
@@ -53,7 +53,41 @@ describe('DesksStateService', () => {
         ],
     });
 
+    // The workspace booking helpers (saveBooking, removeBooking, ...) are not
+    // mockable under the bundling builder, so both stubbing and assertions
+    // happen at the ts-client boundary they resolve to:
+    //   queryBookings -> get('/bookings?...'), saveBooking -> post/patch,
+    //   rejectBooking(Instance) -> post('.../reject[/start]'),
+    //   removeBooking(Instance) -> del('.../{id}[/instance/{start}]')
+    const posted_bookings = () =>
+        vi
+            .mocked(ts_client_mod.post)
+            .mock.calls.filter(([url]) => String(url).includes('/bookings'));
+    const del_urls = () =>
+        vi.mocked(ts_client_mod.del).mock.calls.map(([url]) => String(url));
+
+    // The real `openConfirmModal` runs against a fake MatDialog ref: its
+    // `event` emitter resolves the confirmation ({ reason: 'done' } emitted on
+    // the next macrotask, after openConfirmModal has subscribed), while
+    // `afterClosed` must stay pending or it wins the internal Promise.race
+    // with an empty result.
+    const mockConfirm = () => {
+        const confirm_event = new EventEmitter<any>();
+        const confirm_ref = {
+            afterClosed: () => NEVER,
+            componentInstance: {
+                event: confirm_event,
+                loading: { set: vi.fn() },
+            },
+            close: vi.fn(),
+        };
+        (spectator.inject(MatDialog).open as any).mockReturnValue(confirm_ref);
+        setTimeout(() => confirm_event.emit({ reason: 'done' }));
+        return confirm_ref;
+    };
+
     beforeEach(() => {
+        vi.clearAllMocks();
         current_building = { id: 'bld-1' };
         settings_map = { 'app.use_region': false };
         active_building = signal(current_building);
@@ -61,49 +95,26 @@ describe('DesksStateService', () => {
         organisation_service.active_building = active_building;
         organisation_service.active_region = active_region;
         organisation_service.region = { id: 'region-1' };
-        (booking_mod as any).queryPagedBookings = jest.fn(() =>
-            Promise.resolve({ data: [], total: 0, next: null }),
-        );
-        (booking_mod as any).queryBookings = jest.fn(() =>
-            Promise.resolve([]),
-        );
-        (booking_mod as any).saveBooking = jest.fn(() => Promise.resolve({}));
-        (booking_mod as any).removeBooking = jest.fn(() =>
-            Promise.resolve(undefined),
-        );
-        (booking_mod as any).rejectBooking = jest.fn(() =>
-            Promise.resolve({}),
-        );
-        (booking_mod as any).rejectBookingInstance = jest.fn(() =>
-            Promise.resolve({}),
-        );
-        (booking_mod as any).updateBooking = jest.fn(() =>
-            Promise.resolve({}),
-        );
-        jest.spyOn(ts_client_mod, 'updateMetadata').mockResolvedValue(
-            {} as never,
-        );
-        jest.spyOn(ts_client_mod, 'showMetadata').mockResolvedValue({
+        notify_open = vi.fn(() => ({
+            onAction: () => ({ subscribe: () => undefined }),
+            dismiss: () => undefined,
+        }));
+        setNotifyOutlet({ open: notify_open } as any, true);
+        vi.mocked(ts_client_mod.get).mockResolvedValue([] as any);
+        vi.mocked(ts_client_mod.post).mockResolvedValue({} as any);
+        vi.mocked(ts_client_mod.patch).mockResolvedValue({} as any);
+        vi.mocked(ts_client_mod.put).mockResolvedValue({} as any);
+        vi.mocked(ts_client_mod.del).mockResolvedValue(undefined as any);
+        vi.mocked(ts_client_mod.updateMetadata).mockResolvedValue({} as never);
+        vi.mocked(ts_client_mod.showMetadata).mockResolvedValue({
             details: [],
         } as never);
-        (component_mod as any).openConfirmModal = jest.fn(async () => ({
-            reason: 'done',
-            loading: jest.fn(),
-            close: jest.fn(),
-        }));
-        (common_mod as any).nextValueFrom = jest.fn((obs) =>
-            lastValueFrom(obs),
-        );
-        (common_mod as any).i18n = jest.fn((key) => key);
-        (common_mod as any).notifySuccess = jest.fn();
-        (common_mod as any).notifyError = jest.fn();
-        (common_mod as any).setTimeInTimezone = jest.fn((date) => date);
-        (common_mod as any).unique = jest.fn((list) => list);
-        (common_mod as any).Booking.mockImplementation(function (data) {
-            Object.assign(this, data);
-        });
-        jest.clearAllMocks();
         spectator = createService();
+    });
+
+    afterEach(() => {
+        setNotifyOutlet(null as any, true);
+        vi.restoreAllMocks();
     });
 
     it('should create service', () => {
@@ -124,31 +135,37 @@ describe('DesksStateService', () => {
     it('should apply building timezone to desk booking listing requests', () => {
         current_building = { id: 'bld-1', timezone: 'Australia/Sydney' };
         active_building.set(current_building);
-        (spectator.inject(SettingsService).get as any) = jest.fn(
+        (spectator.inject(SettingsService).get as any) = vi.fn(
             (name: string) => {
                 if (name === 'app.use_region') return false;
                 if (name === 'app.bookings.use_building_timezone') return true;
                 return undefined;
             },
         );
-        (common_mod as any).getTimezoneDifferenceInHours = jest.fn(() => 2);
+        const current_tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const expected_offset = getTimezoneDifferenceInHours(
+            current_tz,
+            'Australia/Sydney',
+        );
         const date = new Date('2026-06-15T12:00:00').valueOf();
 
-        expect(spectator.service.tz_offset).toBe(2);
+        expect(spectator.service.tz_offset).toBe(expected_offset);
         expect(
             getUnixTime(
                 addMinutes(startOfDay(date), spectator.service.tz_offset * 60),
             ),
-        ).toBe(getUnixTime(addMinutes(startOfDay(date), 120)));
+        ).toBe(
+            getUnixTime(addMinutes(startOfDay(date), expected_offset * 60)),
+        );
         expect(
             getUnixTime(
                 addMinutes(endOfDay(date), spectator.service.tz_offset * 60),
             ),
-        ).toBe(getUnixTime(addMinutes(endOfDay(date), 120)));
+        ).toBe(getUnixTime(addMinutes(endOfDay(date), expected_offset * 60)));
     });
 
     it('should include and show rejected desk bookings as declined', async () => {
-        const first_page = jest.fn(() =>
+        const first_page = vi.fn(() =>
             Promise.resolve({
                 data: [
                     {
@@ -181,7 +198,7 @@ describe('DesksStateService', () => {
             rejected: false,
             status: 'approved',
         } as any;
-        const first_page = jest.fn(() =>
+        const first_page = vi.fn(() =>
             Promise.resolve({
                 data: [{ ...booking, approved: true, status: 'approved' }],
                 total: 1,
@@ -204,6 +221,7 @@ describe('DesksStateService', () => {
     });
 
     it('should cancel only one recurring booking instance', async () => {
+        mockConfirm();
         const booking = {
             id: 'booking-1',
             parent_id: 'booking-parent',
@@ -212,13 +230,13 @@ describe('DesksStateService', () => {
 
         await spectator.service.cancelBooking(booking);
 
-        expect(booking_mod.removeBooking).toHaveBeenCalledWith('booking-1', {
-            instance: true,
-            start_time: 1_740_000_000,
-        });
+        expect(del_urls()).toEqual([
+            expect.stringContaining('/booking-1/instance/1740000000'),
+        ]);
     });
 
     it('should delete recurring booking series by parent booking id', async () => {
+        mockConfirm();
         const booking = {
             id: 'booking-1',
             parent_id: 'booking-parent',
@@ -227,20 +245,25 @@ describe('DesksStateService', () => {
 
         await spectator.service.cancelBooking(booking, true);
 
-        expect(booking_mod.removeBooking).toHaveBeenCalledWith(
-            'booking-parent',
-            {},
-        );
+        expect(del_urls()).toEqual([
+            expect.stringMatching(/\/bookings\/booking-parent$/),
+        ]);
     });
 
     it('should create assigned booking for non-bookable desks', async () => {
         const mock_now = new Date('2026-06-15T12:00:00Z').valueOf();
-        const assigned_start = new Date('2026-06-15T01:00:00Z').valueOf();
         current_building = { id: 'bld-1', timezone: 'Australia/Sydney' };
         active_building.set(current_building);
         settings_map['app.bookings.use_building_timezone'] = true;
-        jest.spyOn(Date, 'now').mockReturnValue(mock_now);
-        (common_mod as any).setTimeInTimezone.mockReturnValue(assigned_start);
+        vi.spyOn(Date, 'now').mockReturnValue(mock_now);
+        // The real `setTimeInTimezone` runs (workspace fns can't be spied);
+        // derive the expected window with the same inputs the service uses.
+        const assigned_start = setTimeInTimezone(
+            mock_now,
+            1,
+            0,
+            'Australia/Sydney',
+        );
         const dialog_ref = {
             afterClosed: () =>
                 of({
@@ -255,31 +278,26 @@ describe('DesksStateService', () => {
                 }),
             componentInstance: {
                 event: new EventEmitter<any>(),
-                loading: { set: jest.fn() },
+                loading: { set: vi.fn() },
             },
-            close: jest.fn(),
+            close: vi.fn(),
         };
         (spectator.inject(MatDialog).open as any).mockReturnValue(dialog_ref);
         spectator.service.setFilters({ zones: ['level-1'] });
 
         await spectator.service.editDesk({ id: 'desk-1' } as any);
 
-        expect(common_mod.setTimeInTimezone).toHaveBeenCalledWith(
-            mock_now,
-            1,
-            0,
-            'Australia/Sydney',
-        );
-        expect(booking_mod.saveBooking).toHaveBeenCalledWith(
+        expect(posted_bookings()).toHaveLength(1);
+        expect(posted_bookings()[0][1]).toEqual(
             expect.objectContaining({
                 booking_start: getUnixTime(assigned_start),
-                booking_end: getUnixTime(assigned_start + 22 * 60 * 60 * 1000),
+                booking_end: getUnixTime(addHours(assigned_start, 22)),
             }),
         );
     });
 
     it('should persist homebase when editing desks', async () => {
-        jest.spyOn(ts_client_mod, 'updateMetadata').mockReturnValue(
+        vi.spyOn(ts_client_mod, 'updateMetadata').mockReturnValue(
             of({}) as any,
         );
         const dialog_ref = {
@@ -295,9 +313,9 @@ describe('DesksStateService', () => {
                 }),
             componentInstance: {
                 event: new EventEmitter<any>(),
-                loading: { set: jest.fn() },
+                loading: { set: vi.fn() },
             },
-            close: jest.fn(),
+            close: vi.fn(),
         };
         (spectator.inject(MatDialog).open as any).mockReturnValue(dialog_ref);
         spectator.service.setFilters({ zones: ['level-1'] });
@@ -316,7 +334,7 @@ describe('DesksStateService', () => {
 
     it('should block assignments when the desk limit is reached', async () => {
         settings_map['app.desks.max_assigned_count'] = 1;
-        (ts_client_mod.showMetadata as jest.Mock).mockResolvedValue({
+        vi.mocked(ts_client_mod.showMetadata).mockResolvedValue({
             details: [
                 {
                     id: 'desk-existing',
@@ -338,9 +356,9 @@ describe('DesksStateService', () => {
                 }),
             componentInstance: {
                 event: new EventEmitter<any>(),
-                loading: { set: jest.fn() },
+                loading: { set: vi.fn() },
             },
-            close: jest.fn(),
+            close: vi.fn(),
         };
         (spectator.inject(MatDialog).open as any).mockReturnValue(dialog_ref);
         spectator.service.setFilters({ zones: ['level-1'] });
@@ -349,11 +367,13 @@ describe('DesksStateService', () => {
             .editDesk({ id: 'desk-new-2' } as any)
             .catch(() => undefined);
 
-        expect(common_mod.notifyError).toHaveBeenCalledWith(
+        expect(notify_open).toHaveBeenCalledWith(
             'Users can only have 1 assigned desk at a time.',
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['error'] }),
         );
         expect(ts_client_mod.updateMetadata).not.toHaveBeenCalled();
-        expect(booking_mod.saveBooking).not.toHaveBeenCalled();
+        expect(posted_bookings()).toHaveLength(0);
         expect(dialog_ref.componentInstance.loading.set).toHaveBeenCalledWith(
             false,
         );
@@ -380,40 +400,36 @@ describe('DesksStateService', () => {
                 }),
             componentInstance: {
                 event: new EventEmitter<any>(),
-                loading: { set: jest.fn() },
+                loading: { set: vi.fn() },
             },
-            close: jest.fn(),
+            close: vi.fn(),
         };
         (spectator.inject(MatDialog).open as any).mockReturnValue(dialog_ref);
         spectator.service.setFilters({ zones: ['level-1'] });
-        (booking_mod.queryBookings as jest.Mock).mockReturnValue(
-            Promise.resolve([
-                {
-                    id: 'booking-1',
-                    asset_id: 'desk-1',
-                },
-            ]),
-        );
-        (booking_mod.saveBooking as jest.Mock)
+        // `_clearAssignedBooking` looks the old booking up via queryBookings.
+        vi.mocked(ts_client_mod.get).mockResolvedValue([
+            { id: 'booking-1', asset_id: 'desk-1' },
+        ] as any);
+        // First save (new assignment) conflicts; the restore save succeeds.
+        vi.mocked(ts_client_mod.post)
             .mockRejectedValueOnce({ status: 409 })
-            .mockResolvedValueOnce({});
+            .mockResolvedValueOnce({} as any);
 
         await spectator.service.editDesk(original_desk).catch(() => undefined);
 
         expect(ts_client_mod.updateMetadata).toHaveBeenCalledTimes(2);
-        expect(booking_mod.removeBooking).toHaveBeenCalledWith('booking-1');
-        expect(booking_mod.saveBooking).toHaveBeenCalledTimes(2);
-        expect(common_mod.Booking).toHaveBeenCalledTimes(2);
-        expect(common_mod.Booking).toHaveBeenNthCalledWith(
-            1,
+        expect(del_urls()).toEqual([
+            expect.stringMatching(/\/bookings\/booking-1$/),
+        ]);
+        expect(posted_bookings()).toHaveLength(2);
+        expect(posted_bookings()[0][1]).toEqual(
             expect.objectContaining({
                 user_email: 'new.staff@example.com',
                 user_name: 'New Staff',
                 asset_id: 'desk-1',
             }),
         );
-        expect(common_mod.Booking).toHaveBeenNthCalledWith(
-            2,
+        expect(posted_bookings()[1][1]).toEqual(
             expect.objectContaining({
                 user_email: 'old.staff@example.com',
                 user_name: 'Old Staff',
@@ -454,17 +470,24 @@ describe('DesksStateService', () => {
 
         await spectator.service.rejectDesk(booking);
 
-        expect(booking_mod.rejectBooking).toHaveBeenCalledWith('booking-1');
+        expect(posted_bookings()).toEqual([
+            [
+                expect.stringContaining('/bookings/booking-1/reject'),
+                expect.anything(),
+            ],
+        ]);
         expect(booking.approved).toBe(false);
         expect(booking.rejected).toBe(true);
         expect(booking.status).toBe('declined');
-        expect(common_mod.notifySuccess).toHaveBeenCalledWith(
+        expect(notify_open).toHaveBeenCalledWith(
             'APP.CONCIERGE.DESKS_REJECT_SUCCESS',
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['success'] }),
         );
     });
 
     it('should reset desk bookings with the first page query on refresh', () => {
-        const first_page = jest.fn(() =>
+        const first_page = vi.fn(() =>
             Promise.resolve({ data: [], total: 0, next: null }),
         );
         (spectator.service as any)._first_page = first_page;
@@ -476,14 +499,7 @@ describe('DesksStateService', () => {
     });
 
     it('should reject all displayed desk bookings with the instance endpoint where needed', async () => {
-        const confirm_ref = {
-            reason: 'done',
-            loading: jest.fn(),
-            close: jest.fn(),
-        };
-        (component_mod.openConfirmModal as jest.Mock).mockResolvedValue(
-            confirm_ref,
-        );
+        const confirm_ref = mockConfirm();
         const list = [
             { id: 'booking-1', status: 'approved' },
             {
@@ -499,35 +515,33 @@ describe('DesksStateService', () => {
                 has_next: false,
             }),
         });
-        const refresh_spy = jest.spyOn(spectator.service, 'refresh');
+        const refresh_spy = vi.spyOn(spectator.service, 'refresh');
 
         await spectator.service.rejectAllDesks();
 
-        expect(booking_mod.rejectBooking).toHaveBeenCalledWith('booking-1');
-        expect(booking_mod.rejectBookingInstance).toHaveBeenCalledWith(
-            'booking-2',
-            1_740_000_000,
+        expect(vi.mocked(ts_client_mod.post)).toHaveBeenCalledWith(
+            expect.stringContaining('/bookings/booking-1/reject'),
+            expect.anything(),
         );
-        expect(confirm_ref.loading).toHaveBeenCalledWith(
+        expect(vi.mocked(ts_client_mod.post)).toHaveBeenCalledWith(
+            expect.stringContaining('/bookings/booking-2/reject/1740000000'),
+            expect.anything(),
+        );
+        expect(confirm_ref.componentInstance.loading.set).toHaveBeenCalledWith(
             'APP.CONCIERGE.DESKS_REJECT_ALL_LOADING',
         );
         expect(confirm_ref.close).toHaveBeenCalled();
-        expect(common_mod.notifySuccess).toHaveBeenCalledWith(
+        expect(notify_open).toHaveBeenCalledWith(
             'APP.CONCIERGE.DESKS_REJECT_ALL_SUCCESS',
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['success'] }),
         );
         expect(list.every((desk) => desk.status === 'declined')).toBe(true);
         expect(refresh_spy).toHaveBeenCalled();
     });
 
     it('should close the reject all confirmation when a desk rejection fails', async () => {
-        const confirm_ref = {
-            reason: 'done',
-            loading: jest.fn(),
-            close: jest.fn(),
-        };
-        (component_mod.openConfirmModal as jest.Mock).mockResolvedValue(
-            confirm_ref,
-        );
+        const confirm_ref = mockConfirm();
         Object.defineProperty(spectator.service, 'paged_bookings', {
             value: () => ({
                 list: [{ id: 'booking-1', instance: 1_740_000_000 }],
@@ -535,20 +549,28 @@ describe('DesksStateService', () => {
                 has_next: false,
             }),
         });
-        (booking_mod.rejectBookingInstance as jest.Mock).mockReturnValue(
-            Promise.reject('405 Method Not Allowed'),
+        vi.mocked(ts_client_mod.post).mockImplementation((url) =>
+            String(url).includes('/reject/')
+                ? Promise.reject('405 Method Not Allowed')
+                : Promise.resolve({} as any),
         );
-        const refresh_spy = jest.spyOn(spectator.service, 'refresh');
+        const refresh_spy = vi.spyOn(spectator.service, 'refresh');
 
         await expect(spectator.service.rejectAllDesks()).rejects.toBe(
             '405 Method Not Allowed',
         );
 
-        expect(common_mod.notifyError).toHaveBeenCalledWith(
+        expect(notify_open).toHaveBeenCalledWith(
             'APP.CONCIERGE.DESKS_REJECT_ALL_ERROR',
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['error'] }),
         );
         expect(confirm_ref.close).toHaveBeenCalled();
-        expect(common_mod.notifySuccess).not.toHaveBeenCalled();
+        expect(notify_open).not.toHaveBeenCalledWith(
+            'APP.CONCIERGE.DESKS_REJECT_ALL_SUCCESS',
+            expect.anything(),
+            expect.anything(),
+        );
         expect(refresh_spy).not.toHaveBeenCalled();
     });
 });

@@ -1,30 +1,28 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
+import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
 import { OrganisationService, SettingsService } from '@placeos/common';
-import { MockProvider } from 'ng-mocks';
-import { AssetStateService } from '../lib/asset-state.service';
-import * as assets_mod from '../lib/assets.fn';
-
-jest.mock('@placeos/ts-client', () => ({
-    ...jest.requireActual('@placeos/ts-client'),
-    showMetadata: jest.fn(() => Promise.resolve({ details: {} })),
-}));
-jest.mock('../lib/assets.fn', () => ({
-    queryAssetCategories: jest.fn(() => Promise.resolve({ data: [] })),
-    queryAssets: jest.fn(() => Promise.resolve([])),
-    queryGroupAvailability: jest.fn(() => Promise.resolve([])),
-}));
-jest.mock('libs/bookings/src/lib/bookings.fn', () => ({
-    queryBookings: jest.fn(() => Promise.resolve([])),
-}));
-jest.mock('../lib/asset.utilities', () => ({
-    assetAvailable: jest.fn(() => true),
-    getAssetRulesForZone: jest.fn(() => Promise.resolve([])),
-}));
-
-import * as bookings_mod from 'libs/bookings/src/lib/bookings.fn';
 import * as ts_client from '@placeos/ts-client';
+import { MockProvider } from 'ng-mocks';
+
+import { AssetStateService } from '../lib/asset-state.service';
+
+// Workspace modules (assets.fn, bookings.fn, asset.utilities) run for real;
+// only the ts-client API layer beneath them is stubbed. Assertions that used
+// to target those workspace fns now target the ts-client calls they make:
+//   assets_mod.queryAssets        -> ts_client.queryAssets
+//   assets_mod.queryAssetCategories -> ts_client.queryAssetCategories
+//   assets_mod.queryGroupAvailability -> ts_client.queryAssetTypes
+//   bookings_mod.queryBookings    -> ts_client.get
+vi.mock('@placeos/ts-client', { spy: true });
+
+function response(data: any[]) {
+    return Promise.resolve({
+        data,
+        total: data.length,
+        next: () => null,
+    }) as any;
+}
 
 describe('AssetStateService', () => {
     let spectator: SpectatorService<AssetStateService>;
@@ -32,21 +30,28 @@ describe('AssetStateService', () => {
         service: AssetStateService,
         providers: [
             MockProvider(SettingsService, {
-                get: jest.fn(() => undefined),
-                overrides: signal([{}, {}]),
+                get: vi.fn(() => undefined),
+                overrides: signal([{}, {}]) as any,
             }),
             MockProvider(OrganisationService, {
-                initialised: signal(true),
-                active_building: signal({ id: 'bld-1' }),
+                initialised: signal(true) as any,
+                active_building: signal({ id: 'bld-1' }) as any,
                 settings: [],
             }),
         ],
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
+        vi.mocked(ts_client.queryAssetCategories).mockReturnValue(response([]));
+        vi.mocked(ts_client.queryAssetTypes).mockReturnValue(response([]));
+        vi.mocked(ts_client.queryAssets).mockReturnValue(response([]));
+        vi.mocked(ts_client.get).mockResolvedValue([] as any);
+        vi.mocked(ts_client.showMetadata).mockResolvedValue({
+            details: {},
+        } as any);
         spectator = createService();
-        TestBed.flushEffects();
+        TestBed.tick();
     });
 
     it('should create component', () => {
@@ -60,14 +65,14 @@ describe('AssetStateService', () => {
         spectator.service.setOptions({ date: initial_options.date });
 
         expect(spectator.service.options()).toBe(initial_options);
-        expect(assets_mod.queryGroupAvailability).toHaveBeenCalledTimes(0);
+        expect(ts_client.queryAssetTypes).not.toHaveBeenCalled();
     });
 
     it('should not make asset requests before asset data is consumed', () => {
-        expect(assets_mod.queryAssets).not.toHaveBeenCalled();
-        expect(assets_mod.queryAssetCategories).not.toHaveBeenCalled();
-        expect(assets_mod.queryGroupAvailability).not.toHaveBeenCalled();
-        expect(bookings_mod.queryBookings).not.toHaveBeenCalled();
+        expect(ts_client.queryAssets).not.toHaveBeenCalled();
+        expect(ts_client.queryAssetCategories).not.toHaveBeenCalled();
+        expect(ts_client.queryAssetTypes).not.toHaveBeenCalled();
+        expect(ts_client.get).not.toHaveBeenCalled();
         expect(ts_client.showMetadata).not.toHaveBeenCalled();
     });
 
@@ -78,12 +83,12 @@ describe('AssetStateService', () => {
         );
 
         spectator.service.filtered_assets();
-        TestBed.flushEffects();
+        TestBed.tick();
 
-        expect(assets_mod.queryAssets).not.toHaveBeenCalled();
-        expect(assets_mod.queryAssetCategories).not.toHaveBeenCalled();
-        expect(assets_mod.queryGroupAvailability).not.toHaveBeenCalled();
-        expect(bookings_mod.queryBookings).not.toHaveBeenCalled();
+        expect(ts_client.queryAssets).not.toHaveBeenCalled();
+        expect(ts_client.queryAssetCategories).not.toHaveBeenCalled();
+        expect(ts_client.queryAssetTypes).not.toHaveBeenCalled();
+        expect(ts_client.get).not.toHaveBeenCalled();
         expect(ts_client.showMetadata).not.toHaveBeenCalled();
     });
 
@@ -98,7 +103,7 @@ describe('AssetStateService', () => {
             (spectator.service as any)._loadAssetBookings(options),
         ]);
 
-        expect(bookings_mod.queryBookings).toHaveBeenCalledTimes(1);
+        expect(ts_client.get).toHaveBeenCalledTimes(1);
     });
 
     it('should share identical in-flight asset list requests', async () => {
@@ -107,7 +112,7 @@ describe('AssetStateService', () => {
             (spectator.service as any)._loadAssetList(),
         ]);
 
-        expect(assets_mod.queryAssets).toHaveBeenCalledTimes(1);
+        expect(ts_client.queryAssets).toHaveBeenCalledTimes(1);
     });
 
     it('should load asset list', () => {});
