@@ -248,14 +248,23 @@ export function generateEventForm(
     const setCateringTime = () => {
         const value = model();
         if (!value.catering?.length || !value.date) return;
+        const event = {
+            date: value.all_day ? startOfDay(value.date) : value.date,
+            duration: value.all_day ? 24 * 60 : value.duration,
+        };
+        if (
+            value.catering.every(
+                (order: any) =>
+                    +order.event?.date === +event.date &&
+                    order.event?.duration === event.duration,
+            )
+        )
+            return;
         model.update((m) => ({
             ...m,
             catering: (m.catering || []).map((order: any) => ({
                 ...order,
-                event: {
-                    date: m.all_day ? startOfDay(m.date) : m.date,
-                    duration: m.all_day ? 24 * 60 : m.duration,
-                },
+                event,
             })),
         }));
     };
