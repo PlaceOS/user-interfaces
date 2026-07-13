@@ -206,7 +206,7 @@ export interface BookingFormValue {
     vehicle_type: string;
     request_type: string;
     requires_manual_approval: boolean;
-    space_restrictions: boolean;
+    space_restrictions: string | boolean;
     extra_space_restrictions: any[];
     approver_group: string;
     prefer_booked_location_first: boolean;
@@ -344,6 +344,10 @@ export function generateBookingForm(
         'parking.require_plate_number',
         false,
     );
+    const require_space_restriction = settingSignal<boolean>(
+        'parking.require_space_restriction',
+        false,
+    );
     const booking_form = form<BookingFormValue>(
         model,
         (p) => {
@@ -365,6 +369,13 @@ export function generateBookingForm(
                 valueOf(p.booking_type) === 'parking' &&
                 require_plate_number() &&
                 !`${value() || ''}`.trim()
+                    ? { kind: 'required' }
+                    : undefined,
+            );
+            validate(p.space_restrictions, ({ value, valueOf }) =>
+                valueOf(p.booking_type) === 'parking' &&
+                require_space_restriction() &&
+                !value()
                     ? { kind: 'required' }
                     : undefined,
             );

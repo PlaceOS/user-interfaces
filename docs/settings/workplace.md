@@ -261,7 +261,8 @@ These apply to all resource booking flows (desks, parking, lockers). Most can be
 | `parking.request_submission_notes_html` | string | `""` | Optional HTML content shown in the parking request summary and submission section. |
 | `parking.request_shift_options` | object[] | – | Shift presets shown in the parking request flow (see example below). The custom shift option is always shown separately. |
 | `parking.request_types` | object[] | standard, special, after_hours | Request type options shown in the parking request flow (see example below). |
-| `parking.request_space_restrictions` | object[] | – | Space restriction options shown in the parking request flow. If the list is empty, the field is hidden. Each item needs an `id` and a `name`. |
+| `parking.request_space_restrictions` | object[] | – | Space restriction options shown as a radio set in the parking request flow. `None` is always included and selected by default. If the list is empty, the field is hidden. Each item needs an `id` and a `name`. |
+| `parking.require_space_restriction` | boolean | `false` | Require users to select a configured space restriction instead of `None` in the parking request flow. |
 | `parking.extra_space_restrictions` | object[] | – | Additional space restriction options shown as on/off toggles; multiple can be enabled at once. Each item needs an `id` and a `name` (label or translation key). |
 | `parking.auto_approved_groups` | string[] | – | User group names that are auto-approved for parking requests. Users in these groups will not see the approver group selector. |
 | `parking.vehicle_types` | object[] | car, bike, van, truck, other | Vehicle type options shown in the parking request flow. Each item needs an `id` and a `name`. |
