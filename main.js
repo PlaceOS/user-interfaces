@@ -1,5 +1,6 @@
 import {
   BookingFormService,
+  CustomTooltipComponent,
   DurationFieldComponent,
   MatMenu,
   MatMenuItem,
@@ -11,12 +12,13 @@ import {
   generateMockSpace,
   setHours,
   setMinutes
-} from "./chunk-BCZKFDDK.js";
+} from "./chunk-YXG6VPQR.js";
 import {
   CheckinStateService,
   parseTokenFromUrl
-} from "./chunk-AD7OPPBJ.js";
+} from "./chunk-EN5AVHSH.js";
 import {
+  $r,
   ANIMATION_MODULE_TYPE,
   AUTO_STYLE,
   ActivatedRoute,
@@ -29,11 +31,11 @@ import {
   ChangeDetectorRef,
   CommonModule,
   Component,
+  DEFAULT_SETTINGS,
   DOCUMENT,
   DatePipe,
   DefaultValueAccessor,
   DomRendererFactory2,
-  Dr,
   EMPTY_USER,
   ElementRef,
   ErrorHandler,
@@ -41,8 +43,9 @@ import {
   Fl,
   FormField,
   FormsModule,
+  Fr,
   GroupPermission,
-  Hr,
+  HotkeysService,
   IconComponent,
   Inject,
   Injectable,
@@ -50,6 +53,7 @@ import {
   Input,
   LOCALE_ID,
   LocaleService,
+  Lr,
   MatCheckbox,
   MatCheckboxModule,
   MatError,
@@ -71,9 +75,10 @@ import {
   NgForm,
   NgModel,
   NgModule,
+  NgSelectOption,
   NgZone,
-  Nl,
   NoopAnimationPlayer,
+  NumberValueAccessor,
   OrganisationService,
   Output,
   Pipe,
@@ -88,17 +93,19 @@ import {
   Rt,
   RuntimeError,
   SanitizePipe,
+  SelectControlValueAccessor,
   SettingsService,
   TraceService,
   TranslatePipe,
   User,
-  V,
   VERSION,
   ViewChild,
   ViewEncapsulation,
   VirtualKeyboardComponent,
-  Wr,
+  Wl,
+  X,
   Ye,
+  Zr,
   _getAnimationsState,
   addDays,
   addMilliseconds,
@@ -131,12 +138,12 @@ import {
   isPublicMode,
   log,
   lookupNativeDomainByEmail,
-  mr,
   nativeDomainError,
   needsNativeDomain,
   normaliseNativeDomain,
   notifyError,
   numberAttribute,
+  oi,
   output,
   padString,
   performanceMarkFeature,
@@ -147,9 +154,7 @@ import {
   provideZonelessChangeDetection,
   randomInt,
   randomString,
-  registerActiveLocale,
-  reloadOnChunkLoadError,
-  ri,
+  registerLocaleData,
   sequence,
   serviceWorkerUpdate,
   setClassMetadata,
@@ -171,6 +176,7 @@ import {
   withHashLocation,
   withNavigationErrorHandler,
   ɵNgNoValidate,
+  ɵNgSelectMultipleOption,
   ɵPRE_STYLE,
   ɵsetClassDebugInfo,
   ɵɵInheritDefinitionFeature,
@@ -209,11 +215,14 @@ import {
   ɵɵrepeater,
   ɵɵrepeaterCreate,
   ɵɵrepeaterTrackByIdentity,
+  ɵɵrepeaterTrackByIndex,
   ɵɵresetView,
   ɵɵresolveWindow,
   ɵɵrestoreView,
   ɵɵsanitizeHtml,
   ɵɵstyleProp,
+  ɵɵtemplate,
+  ɵɵtemplateRefExtractor,
   ɵɵtext,
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1,
@@ -222,8 +231,9 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-EUZM3G7Z.js";
+} from "./chunk-G3TQ564A.js";
 import {
+  __export,
   __objRest,
   __spreadProps,
   __spreadValues
@@ -252,6 +262,82 @@ function subMinutes(date, amount, options2) {
 // node_modules/date-fns/subSeconds.js
 function subSeconds(date, amount, options2) {
   return addSeconds(date, -amount, options2);
+}
+
+// libs/common/src/lib/lazy-route-reload.ts
+var LAZY_ROUTE_RELOAD_KEY = "placeos.lazy_route_reload";
+var RELOAD_THROTTLE = 30 * 1e3;
+var LAZY_ROUTE_ERROR_PATTERNS = [
+  /ChunkLoadError/i,
+  /Loading chunk [\w-]+ failed/i,
+  /Failed to fetch dynamically imported module/i,
+  /Importing a module script failed/i,
+  /error loading dynamically imported module/i
+];
+function isLazyRouteLoadError(error) {
+  const message = getLazyRouteErrorMessage(error);
+  return LAZY_ROUTE_ERROR_PATTERNS.some((pattern) => pattern.test(message));
+}
+function reloadOnChunkLoadError(error, context = {}) {
+  if (!isLazyRouteLoadError(error))
+    throw error;
+  const online = context.online ?? (typeof navigator !== "undefined" ? navigator.onLine : true);
+  if (!online)
+    throw error;
+  const storage = context.storage ?? sessionStorage;
+  const location_ref = context.location ?? location;
+  const now = context.now ?? Date.now();
+  const signature = `${location_ref.pathname}${location_ref.search}${location_ref.hash}:${getLazyRouteErrorMessage(error)}`;
+  const reload_state = parseReloadState(storage.getItem(LAZY_ROUTE_RELOAD_KEY));
+  if (reload_state?.signature === signature && now - reload_state.timestamp < RELOAD_THROTTLE) {
+    throw error;
+  }
+  storage.setItem(LAZY_ROUTE_RELOAD_KEY, JSON.stringify({ signature, timestamp: now }));
+  log("ROUTER", "Lazy route load failed. Reloading application...", error, "warn", true);
+  location_ref.reload();
+}
+function getLazyRouteErrorMessage(error) {
+  if (typeof error === "string")
+    return error;
+  if (error instanceof Error) {
+    return `${error.name}: ${error.message}`;
+  }
+  if (error && typeof error === "object") {
+    const name = "name" in error ? `${error.name || ""}` : "";
+    const message = "message" in error ? `${error.message || ""}` : "";
+    return `${name}: ${message}`.trim();
+  }
+  return `${error || ""}`;
+}
+function parseReloadState(state) {
+  if (!state)
+    return null;
+  try {
+    const parsed_state = JSON.parse(state);
+    if (typeof parsed_state?.signature === "string" && typeof parsed_state?.timestamp === "number") {
+      return parsed_state;
+    }
+  } catch {
+  }
+  return null;
+}
+
+// libs/common/src/lib/locale-data.ts
+var SUPPORTED_LOCALES = {
+  ar: () => import("./ar-4OEKFYQ3.js"),
+  es: () => import("./es-E672VPW4.js"),
+  fr: () => import("./fr-62Q4VGQY.js"),
+  it: () => import("./it-OJSM6IJC.js"),
+  ja: () => import("./ja-5HQXGIBO.js"),
+  zh: () => import("./zh-A5WQQ6XL.js")
+};
+async function registerActiveLocale(locale) {
+  const short = (locale || "en").split("-")[0];
+  const loader = SUPPORTED_LOCALES[short];
+  if (!loader)
+    return;
+  const { default: data } = await loader();
+  registerLocaleData(data);
 }
 
 // node_modules/marked/lib/marked.esm.js
@@ -1641,9 +1727,9 @@ ${body}</blockquote>
       const item = token.items[j];
       body += this.listitem(item);
     }
-    const type = ordered ? "ol" : "ul";
+    const type2 = ordered ? "ol" : "ul";
     const startAttr = ordered && start !== 1 ? ' start="' + start + '"' : "";
-    return "<" + type + startAttr + ">\n" + body + "</" + type + ">\n";
+    return "<" + type2 + startAttr + ">\n" + body + "</" + type2 + ">\n";
   }
   listitem(item) {
     let itemBody = "";
@@ -1704,9 +1790,9 @@ ${text}</tr>
   }
   tablecell(token) {
     const content = this.parser.parseInline(token.tokens);
-    const type = token.header ? "th" : "td";
-    const tag2 = token.align ? `<${type} align="${token.align}">` : `<${type}>`;
-    return tag2 + content + `</${type}>
+    const type2 = token.header ? "th" : "td";
+    const tag2 = token.align ? `<${type2} align="${token.align}">` : `<${type2}>`;
+    return tag2 + content + `</${type2}>
 `;
   }
   /**
@@ -2605,7 +2691,7 @@ var ChatService = class _ChatService extends AsyncHandler {
     const id = this._chat_system();
     if (!id)
       return;
-    const auth = V() !== "x-api-key" ? `bearer_token=${encodeURIComponent(V())}` : `x-api-key=${Ye()}`;
+    const auth = X() !== "x-api-key" ? `bearer_token=${encodeURIComponent(X())}` : `x-api-key=${Ye()}`;
     const url = `ws${location.origin.replace("http", "")}/api/engine/v2/chatgpt/chat/${encodeURIComponent(id)}?${auth}${this._chat_id ? "&resume=" + encodeURIComponent(this._chat_id) : ""}`;
     log("CHAT", "Starting chat connection.");
     this._socket = new WebSocket(url);
@@ -2687,7 +2773,7 @@ var ChatService = class _ChatService extends AsyncHandler {
     this._timeoutSocket();
   }
   _bindHint(id) {
-    const mod = Fl(id, "LLM");
+    const mod = Wl(id, "LLM");
     const binding = mod.variable("user_hint");
     this.subscription(`binding:LLM:user_hint`, binding.bind());
     this.subscription(`listen:LLM:user_hint`, binding.listen().subscribe((value) => this.chat_hint.set(value)));
@@ -4364,13 +4450,13 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
     this.loading.set(true);
     await this._org.waitUntilInitialised();
     await firstTruthyValueFrom(this._settings.initialised);
-    this.online.set(Dr());
+    this.online.set(Fr());
     this.interval("has_token", () => {
-      this.online.set(Dr());
-      if (!Rt() || !V())
+      this.online.set(Fr());
+      if (!Rt() || !X())
         return;
       this.loading.set(false);
-      this.online.set(Dr());
+      this.online.set(Fr());
       this.clearInterval("has_token");
     }, 1e3);
   }
@@ -4457,7 +4543,984 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(GlobalLoadingComponent, { className: "GlobalLoadingComponent", filePath: "libs/components/src/lib/global-loading.component.ts", lineNumber: 81 });
 })();
 
+// libs/components/src/lib/settings-debug-panel.component.ts
+var _c02 = (a0) => ({ zones: a0 });
+var _forTrack0 = ($index, $item) => $item.type + $item.id;
+function SettingsDebugPanelComponent_Conditional_0_Conditional_6_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r2 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 15);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_Conditional_6_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r2);
+      const ctx_r2 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r2.clearAll());
+    });
+    \u0275\u0275text(1, " Clear all overrides ");
+    \u0275\u0275elementEnd();
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_0_Conditional_7_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span", 22);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const group_r5 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", group_r5.overridden, " overridden ");
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r4 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 18);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_0_Template_button_click_0_listener() {
+      const group_r5 = \u0275\u0275restoreView(_r4);
+      const ctx_r2 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r2.toggleGroup(group_r5.name));
+    });
+    \u0275\u0275elementStart(1, "icon", 19);
+    \u0275\u0275text(2, " chevron_right ");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "span", 20);
+    \u0275\u0275text(4);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(5, "span", 21);
+    \u0275\u0275text(6);
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(7, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_0_Conditional_7_Template, 2, 1, "span", 22);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const group_r5 = ctx;
+    const ctx_r2 = \u0275\u0275nextContext(3);
+    \u0275\u0275advance();
+    \u0275\u0275classProp("rotate-90", ctx_r2.filter() || ctx_r2.expanded()[group_r5.name]);
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate(group_r5.name);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" (", group_r5.count, ") ");
+    \u0275\u0275advance();
+    \u0275\u0275conditional(group_r5.overridden ? 7 : -1);
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Conditional_8_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 29);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const row_r6 = \u0275\u0275nextContext();
+    \u0275\u0275property("title", row_r6.description);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", row_r6.description, " ");
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_9_For_2_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "option", 31);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const option_r8 = ctx.$implicit;
+    \u0275\u0275property("value", option_r8);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", option_r8, " ");
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_9_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r7 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "select", 30);
+    \u0275\u0275twoWayListener("ngModelChange", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_9_Template_select_ngModelChange_0_listener($event) {
+      \u0275\u0275restoreView(_r7);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      \u0275\u0275twoWayBindingSet(ctx_r2.edit_value, $event) || (ctx_r2.edit_value = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275listener("keydown.escape", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_9_Template_select_keydown_escape_0_listener() {
+      \u0275\u0275restoreView(_r7);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      return \u0275\u0275resetView(ctx_r2.editing_key.set(""));
+    });
+    \u0275\u0275repeaterCreate(1, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_9_For_2_Template, 2, 2, "option", 31, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementStart(3, "button", 32);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_9_Template_button_click_3_listener() {
+      \u0275\u0275restoreView(_r7);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      return \u0275\u0275resetView(ctx_r2.saveEdit());
+    });
+    \u0275\u0275elementStart(4, "icon", 33);
+    \u0275\u0275text(5, "check");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const row_r6 = \u0275\u0275nextContext();
+    const ctx_r2 = \u0275\u0275nextContext(3);
+    \u0275\u0275twoWayProperty("ngModel", ctx_r2.edit_value);
+    \u0275\u0275control();
+    \u0275\u0275advance();
+    \u0275\u0275repeater(row_r6.options);
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_10_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r9 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "input", 34);
+    \u0275\u0275twoWayListener("ngModelChange", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_10_Template_input_ngModelChange_0_listener($event) {
+      \u0275\u0275restoreView(_r9);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      \u0275\u0275twoWayBindingSet(ctx_r2.edit_value, $event) || (ctx_r2.edit_value = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275listener("keydown.enter", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_10_Template_input_keydown_enter_0_listener() {
+      \u0275\u0275restoreView(_r9);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      return \u0275\u0275resetView(ctx_r2.saveEdit());
+    })("keydown.escape", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_10_Template_input_keydown_escape_0_listener() {
+      \u0275\u0275restoreView(_r9);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      return \u0275\u0275resetView(ctx_r2.editing_key.set(""));
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementStart(1, "button", 32);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_10_Template_button_click_1_listener() {
+      \u0275\u0275restoreView(_r9);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      return \u0275\u0275resetView(ctx_r2.saveEdit());
+    });
+    \u0275\u0275elementStart(2, "icon", 33);
+    \u0275\u0275text(3, "check");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext(4);
+    \u0275\u0275twoWayProperty("ngModel", ctx_r2.edit_value);
+    \u0275\u0275control();
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_11_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r10 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "input", 35);
+    \u0275\u0275twoWayListener("ngModelChange", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_11_Template_input_ngModelChange_0_listener($event) {
+      \u0275\u0275restoreView(_r10);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      \u0275\u0275twoWayBindingSet(ctx_r2.edit_value, $event) || (ctx_r2.edit_value = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275listener("keydown.enter", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_11_Template_input_keydown_enter_0_listener() {
+      \u0275\u0275restoreView(_r10);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      return \u0275\u0275resetView(ctx_r2.saveEdit());
+    })("keydown.escape", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_11_Template_input_keydown_escape_0_listener() {
+      \u0275\u0275restoreView(_r10);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      return \u0275\u0275resetView(ctx_r2.editing_key.set(""));
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementStart(1, "button", 32);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_11_Template_button_click_1_listener() {
+      \u0275\u0275restoreView(_r10);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      return \u0275\u0275resetView(ctx_r2.saveEdit());
+    });
+    \u0275\u0275elementStart(2, "icon", 33);
+    \u0275\u0275text(3, "check");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext(4);
+    \u0275\u0275twoWayProperty("ngModel", ctx_r2.edit_value);
+    \u0275\u0275control();
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r11 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 36)(1, "button", 39);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_0_Template_button_click_1_listener() {
+      \u0275\u0275restoreView(_r11);
+      const row_r6 = \u0275\u0275nextContext(2);
+      const ctx_r2 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r2.toggleValue(row_r6));
+    });
+    \u0275\u0275element(2, "div", 40);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const row_r6 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance();
+    \u0275\u0275classProp("bg-info", row_r6.value)("bg-base-300", !row_r6.value);
+    \u0275\u0275property("title", row_r6.display);
+    \u0275\u0275advance();
+    \u0275\u0275classProp("translate-x-4", row_r6.value);
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_1_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r12 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 41);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_1_Template_div_click_0_listener() {
+      \u0275\u0275restoreView(_r12);
+      const row_r6 = \u0275\u0275nextContext(2);
+      const ctx_r2 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r2.startEdit(row_r6));
+    });
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const row_r6 = \u0275\u0275nextContext(2);
+    \u0275\u0275classMap(row_r6.display ? "opacity-80" : "italic opacity-40");
+    \u0275\u0275property("title", row_r6.display || "unset");
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", row_r6.display || "unset", " ");
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_2_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r13 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 42);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_2_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r13);
+      const row_r6 = \u0275\u0275nextContext(2);
+      const ctx_r2 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r2.clearOverride(row_r6.key));
+    });
+    \u0275\u0275elementStart(1, "icon", 33);
+    \u0275\u0275text(2, "undo");
+    \u0275\u0275elementEnd()();
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275conditionalCreate(0, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_0_Template, 3, 7, "div", 36)(1, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_1_Template, 2, 4, "div", 37);
+    \u0275\u0275conditionalCreate(2, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_2_Template, 3, 0, "button", 38);
+  }
+  if (rf & 2) {
+    const row_r6 = \u0275\u0275nextContext();
+    \u0275\u0275conditional(row_r6.control === "toggle" ? 0 : 1);
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(row_r6.overridden ? 2 : -1);
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 23)(1, "div", 24)(2, "div", 25)(3, "span", 26);
+    \u0275\u0275text(4);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(5, "span", 27)(6, "icon", 28);
+    \u0275\u0275text(7, "info");
+    \u0275\u0275elementEnd()()();
+    \u0275\u0275conditionalCreate(8, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Conditional_8_Template, 2, 2, "div", 29);
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(9, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_9_Template, 6, 1)(10, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_10_Template, 4, 1)(11, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_11_Template, 4, 1)(12, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Template, 3, 2);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    let tmp_24_0;
+    const row_r6 = ctx;
+    const entry_r14 = \u0275\u0275nextContext().$implicit;
+    const ctx_r2 = \u0275\u0275nextContext(2);
+    const zone_tooltip_r15 = \u0275\u0275reference(2);
+    \u0275\u0275classProp("pl-8", entry_r14.grouped)("pl-2", !entry_r14.grouped)("bg-warning-light", row_r6.overridden);
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate1(" ", row_r6.label, " ");
+    \u0275\u0275advance();
+    \u0275\u0275property("content", zone_tooltip_r15)("data", \u0275\u0275pureFunction1(14, _c02, row_r6.zones))("hover", true)("backdrop", false)("xOffset", 20);
+    \u0275\u0275advance(3);
+    \u0275\u0275conditional(row_r6.description ? 8 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional((tmp_24_0 = ctx_r2.editing_key() === row_r6.key ? row_r6.control : "") === "select" ? 9 : tmp_24_0 === "number" ? 10 : tmp_24_0 === "text" ? 11 : 12);
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_17_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275conditionalCreate(0, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_0_Template, 8, 5, "button", 16);
+    \u0275\u0275conditionalCreate(1, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Template, 13, 16, "div", 17);
+  }
+  if (rf & 2) {
+    let tmp_12_0;
+    let tmp_13_0;
+    const entry_r14 = ctx.$implicit;
+    \u0275\u0275conditional((tmp_12_0 = entry_r14.header) ? 0 : -1, tmp_12_0);
+    \u0275\u0275advance();
+    \u0275\u0275conditional((tmp_13_0 = entry_r14.row) ? 1 : -1, tmp_13_0);
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_ForEmpty_18_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 13);
+    \u0275\u0275text(1, " No matching settings ");
+    \u0275\u0275elementEnd();
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r1 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 1)(1, "div", 2)(2, "div", 3)(3, "div", 4);
+    \u0275\u0275text(4, "Settings Viewer");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(5, "div", 5);
+    \u0275\u0275conditionalCreate(6, SettingsDebugPanelComponent_Conditional_0_Conditional_6_Template, 2, 0, "button", 6);
+    \u0275\u0275elementStart(7, "button", 7);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_Template_button_click_7_listener() {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.show.set(false));
+    });
+    \u0275\u0275elementStart(8, "icon");
+    \u0275\u0275text(9, "close");
+    \u0275\u0275elementEnd()()()()();
+    \u0275\u0275elementStart(10, "div", 8)(11, "div", 9)(12, "input", 10);
+    \u0275\u0275twoWayListener("ngModelChange", function SettingsDebugPanelComponent_Conditional_0_Template_input_ngModelChange_12_listener($event) {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r2 = \u0275\u0275nextContext();
+      \u0275\u0275twoWayBindingSet(ctx_r2.filter, $event) || (ctx_r2.filter = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementStart(13, "icon", 11);
+    \u0275\u0275text(14, "search");
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(15, "div", 12);
+    \u0275\u0275repeaterCreate(16, SettingsDebugPanelComponent_Conditional_0_For_17_Template, 2, 2, null, null, \u0275\u0275repeaterTrackByIndex, false, SettingsDebugPanelComponent_Conditional_0_ForEmpty_18_Template, 2, 0, "div", 13);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(19, "div", 14);
+    \u0275\u0275text(20, " Click a value to override it. Text values are parsed as JSON, falling back to plain strings. Overrides are stored locally in this browser. ");
+    \u0275\u0275elementEnd()()();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275advance(6);
+    \u0275\u0275conditional(ctx_r2.has_overrides() ? 6 : -1);
+    \u0275\u0275advance(6);
+    \u0275\u0275twoWayProperty("ngModel", ctx_r2.filter);
+    \u0275\u0275control();
+    \u0275\u0275advance(4);
+    \u0275\u0275repeater(ctx_r2.entries());
+  }
+}
+function SettingsDebugPanelComponent_ng_template_1_For_5_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 46)(1, "div", 48)(2, "div", 49);
+    \u0275\u0275text(3);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "div", 50);
+    \u0275\u0275text(5);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(6, "span", 51);
+    \u0275\u0275text(7);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const zone_r16 = ctx.$implicit;
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1(" ", zone_r16.name, " ");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", zone_r16.id, " ");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", zone_r16.type, " ");
+  }
+}
+function SettingsDebugPanelComponent_ng_template_1_ForEmpty_6_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 47);
+    \u0275\u0275text(1, " No zone metadata value ");
+    \u0275\u0275elementEnd();
+  }
+}
+function SettingsDebugPanelComponent_ng_template_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 43)(1, "div", 44);
+    \u0275\u0275text(2, " Setting sources ");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "div", 45);
+    \u0275\u0275repeaterCreate(4, SettingsDebugPanelComponent_ng_template_1_For_5_Template, 8, 3, "div", 46, _forTrack0, false, SettingsDebugPanelComponent_ng_template_1_ForEmpty_6_Template, 2, 0, "div", 47);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const zones_r17 = ctx.zones;
+    \u0275\u0275advance(4);
+    \u0275\u0275repeater(zones_r17);
+  }
+}
+function flattenKeys(map, prefix, keys) {
+  for (const key in map) {
+    const full_key = prefix ? `${prefix}.${key}` : key;
+    const value = map[key];
+    if (value && typeof value === "object" && !Array.isArray(value)) {
+      flattenKeys(value, full_key, keys);
+    } else
+      keys.add(full_key);
+  }
+}
+function hasSetting(map, key) {
+  let value = map;
+  for (const part of key.slice(4).split("."))
+    value = value?.[part];
+  return value != null;
+}
+function resolveRef(root, node) {
+  const ref = node?.["$ref"];
+  if (!ref?.startsWith("#/"))
+    return node;
+  let target = root;
+  for (const part of ref.slice(2).split("/"))
+    target = target?.[part];
+  return target || node;
+}
+function schemaNode(root, key) {
+  if (!root || !key.startsWith("app."))
+    return null;
+  let node = root;
+  for (const part of key.slice(4).split(".")) {
+    node = resolveRef(root, node)?.properties?.[part];
+    if (!node)
+      return null;
+  }
+  return resolveRef(root, node);
+}
+function flattenSchemaKeys(root, node, prefix, keys, depth = 0) {
+  if (depth > 8)
+    return;
+  node = resolveRef(root, node);
+  if (!node?.properties) {
+    if (prefix)
+      keys.add(prefix);
+    return;
+  }
+  for (const key in node.properties) {
+    flattenSchemaKeys(root, node.properties[key], prefix ? `${prefix}.${key}` : key, keys, depth + 1);
+  }
+}
+var SettingsDebugPanelComponent = class _SettingsDebugPanelComponent extends AsyncHandler {
+  constructor() {
+    super(...arguments);
+    this._settings = inject(SettingsService);
+    this._hotkey = inject(HotkeysService);
+    this._org = inject(OrganisationService);
+    this.schema = input(
+      null,
+      ...ngDevMode ? [{ debugName: "schema" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.show = signal(
+      false,
+      ...ngDevMode ? [{ debugName: "show" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.filter = signal(
+      "",
+      ...ngDevMode ? [{ debugName: "filter" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.editing_key = signal(
+      "",
+      ...ngDevMode ? [{ debugName: "editing_key" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.expanded = signal(
+      {},
+      ...ngDevMode ? [{ debugName: "expanded" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.edit_value = "";
+    this.has_overrides = computed(
+      () => Object.keys(this._settings.debug_overrides()).length > 0,
+      ...ngDevMode ? [{ debugName: "has_overrides" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.rows = computed(
+      () => {
+        const schema = this.schema();
+        const debug_overrides = this._settings.debug_overrides();
+        const keys = /* @__PURE__ */ new Set();
+        flattenKeys({ app: DEFAULT_SETTINGS.app }, "", keys);
+        for (const layer of this._settings.overrides()) {
+          flattenKeys({ app: layer }, "", keys);
+        }
+        if (schema)
+          flattenSchemaKeys(schema, schema, "app", keys);
+        for (const key in debug_overrides)
+          keys.add(key);
+        const search = this.filter().toLowerCase();
+        return [...keys].filter((key) => key.slice(4).toLowerCase().includes(search)).sort().map((key) => {
+          const node = schemaNode(schema, key);
+          const value = this._settings.get(key);
+          let control = "text";
+          if (node?.enum?.length)
+            control = "select";
+          else if (node?.type === "boolean" || typeof value === "boolean") {
+            control = "toggle";
+          } else if (node?.type === "number" || node?.type === "integer" || typeof value === "number") {
+            control = "number";
+          }
+          return {
+            key,
+            label: key.slice(4),
+            value,
+            display: JSON.stringify(value) ?? "",
+            overridden: key in debug_overrides,
+            description: node?.description || "",
+            zones: this._zoneTooltip(key),
+            control,
+            options: node?.enum
+          };
+        });
+      },
+      ...ngDevMode ? [{ debugName: "rows" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.entries = computed(
+      () => {
+        const show_all = !!this.filter();
+        const expanded = this.expanded();
+        const entries = [];
+        let header = null;
+        for (const row of this.rows()) {
+          const index = row.label.indexOf(".");
+          if (index < 0) {
+            header = null;
+            entries.push({ row });
+            continue;
+          }
+          const group = row.label.slice(0, index);
+          if (!header || header.name !== group) {
+            header = { name: group, count: 0, overridden: 0 };
+            entries.push({ header });
+          }
+          header.count += 1;
+          if (row.overridden)
+            header.overridden += 1;
+          if (show_all || expanded[group]) {
+            entries.push({
+              row: __spreadProps(__spreadValues({}, row), { label: row.label.slice(index + 1) }),
+              grouped: true
+            });
+          }
+        }
+        return entries;
+      },
+      ...ngDevMode ? [{ debugName: "entries" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+  }
+  _zoneTooltip(key) {
+    const zones = [];
+    const add_zone = (type2, id, name, settings) => {
+      if (!id || !settings.some((_) => hasSetting(_, key)))
+        return;
+      zones.push({ type: type2, id, name: name || id });
+    };
+    for (const [id, settings] of Object.entries(this._org.building_settings)) {
+      const building = this._org.buildings.find((_) => _.id === id);
+      add_zone("Building", id, building?.display_name || building?.name || "", [settings]);
+    }
+    for (const [id, settings] of Object.entries(this._org.region_settings)) {
+      const region = this._org.regions.find((_) => _.id === id);
+      add_zone("Region", id, region?.display_name || region?.name || "", [settings]);
+    }
+    const organisation = this._org.organisation;
+    add_zone("ORG", organisation.id, organisation.name, this._org.settings);
+    return zones;
+  }
+  toggleGroup(name) {
+    this.expanded.update((state) => __spreadProps(__spreadValues({}, state), { [name]: !state[name] }));
+  }
+  ngOnInit() {
+    this.subscription("toggle", this._hotkey.listen(["Control", "Alt", "Shift", "KeyS"], () => this.show.set(!this.show())));
+  }
+  startEdit(row) {
+    this.editing_key.set(row.key);
+    this.edit_value = row.control === "text" ? row.display : `${row.value ?? ""}`;
+  }
+  toggleValue(row) {
+    this._settings.setDebugOverride(row.key, !row.value);
+  }
+  saveEdit() {
+    const key = this.editing_key();
+    const row = this.rows().find((_) => _.key === key);
+    if (!row)
+      return;
+    let value = this.edit_value;
+    if (row.control === "number") {
+      value = parseFloat(this.edit_value);
+      if (isNaN(value))
+        return;
+    } else if (row.control === "text") {
+      try {
+        value = JSON.parse(this.edit_value);
+      } catch {
+      }
+    }
+    this._settings.setDebugOverride(key, value);
+    this.editing_key.set("");
+  }
+  clearOverride(key) {
+    this._settings.setDebugOverride(key, void 0);
+  }
+  clearAll() {
+    this._settings.clearDebugOverrides();
+  }
+  static {
+    this.\u0275fac = /* @__PURE__ */ (() => {
+      let \u0275SettingsDebugPanelComponent_BaseFactory;
+      return function SettingsDebugPanelComponent_Factory(__ngFactoryType__) {
+        return (\u0275SettingsDebugPanelComponent_BaseFactory || (\u0275SettingsDebugPanelComponent_BaseFactory = \u0275\u0275getInheritedFactory(_SettingsDebugPanelComponent)))(__ngFactoryType__ || _SettingsDebugPanelComponent);
+      };
+    })();
+  }
+  static {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SettingsDebugPanelComponent, selectors: [["settings-debug-panel"]], inputs: { schema: [1, "schema"] }, features: [\u0275\u0275InheritDefinitionFeature], decls: 3, vars: 1, consts: [["zone_tooltip", ""], [1, "fixed", "bottom-2", "left-2", "z-998", "w-160", "max-w-[90vw]"], [1, "flex", "flex-col", "gap-2"], [1, "-mb-2", "border-base-300", "bg-base-100", "text-base-content", "flex", "w-[calc(100%-0.5rem)]", "mx-1", "items-center", "overflow-hidden", "rounded-b-lg", "rounded-t-xl", "border", "p-1", "shadow-sm"], [1, "flex-1", "px-3", "font-medium"], [1, "flex", "items-center"], ["matRipple", "", 1, "text-error", "px-2", "py-1", "text-xs", "underline"], ["icon", "", "default", "", "matRipple", "", 1, "text-sm", 3, "click"], [1, "border-base-300", "bg-base-200", "text-base-content", "flex", "h-120", "flex-col", "overflow-hidden", "rounded-xl", "border", "shadow-sm", "pt-2"], [1, "relative", "m-1", "flex"], ["name", "setting-filter", "placeholder", "Filter settings...", 1, "border-base-300", "bg-base-100", "w-full", "rounded-lg", "border", "px-8", "py-2", "pr-2", "font-mono", "text-sm", "shadow", 3, "ngModelChange", "ngModel"], [1, "absolute", "top-1/2", "left-1", "-translate-y-1/2", "text-xl"], [1, "flex-1", "overflow-auto"], [1, "p-4", "text-center", "opacity-30"], [1, "border-base-300", "bg-base-100", "border-t", "p-2", "text-xs", "opacity-60"], ["matRipple", "", 1, "text-error", "px-2", "py-1", "text-xs", "underline", 3, "click"], [1, "border-base-300", "bg-base-100/50", "hover:bg-base-100", "flex", "min-h-8", "w-full", "items-center", "gap-1", "border-b", "px-2", "py-1", "text-left", "text-xs"], [1, "border-base-300", "flex", "min-h-8", "items-center", "border-b", "py-1", "pr-2", "text-xs", 3, "pl-8", "pl-2", "bg-warning-light"], [1, "border-base-300", "bg-base-100/50", "hover:bg-base-100", "flex", "min-h-8", "w-full", "items-center", "gap-1", "border-b", "px-2", "py-1", "text-left", "text-xs", 3, "click"], [1, "text-sm", "transition-transform"], [1, "font-mono"], [1, "opacity-40"], [1, "bg-warning-light", "rounded-sm", "px-1", "text-[0.65rem]", "text-black"], [1, "border-base-300", "flex", "min-h-8", "items-center", "border-b", "py-1", "pr-2", "text-xs"], [1, "w-3/5", "min-w-0", "pr-2"], [1, "flex", "min-w-0", "items-center", "gap-1", "font-mono"], [1, "truncate"], ["customTooltip", "", "xPosition", "start", "yPosition", "center", 1, "shrink-0", 3, "content", "data", "hover", "backdrop", "xOffset"], [1, "text-sm", "opacity-60"], [1, "truncate", "text-[0.65rem]", "opacity-60", 3, "title"], ["name", "setting-value", 1, "bg-base-100", "flex-1", "rounded-sm", "border", "px-1", "py-0.5", "font-mono", 3, "ngModelChange", "keydown.escape", "ngModel"], [3, "value"], ["icon", "", "matRipple", "", "title", "Save override", 3, "click"], [1, "text-sm"], ["name", "setting-value", "type", "number", 1, "bg-base-100", "flex-1", "rounded-sm", "border", "px-1", "py-0.5", "font-mono", 3, "ngModelChange", "keydown.enter", "keydown.escape", "ngModel"], ["name", "setting-value", 1, "bg-base-100", "flex-1", "rounded-sm", "border", "px-1", "py-0.5", "font-mono", 3, "ngModelChange", "keydown.enter", "keydown.escape", "ngModel"], [1, "flex", "flex-1"], [1, "flex-1", "cursor-pointer", "truncate", "font-mono", 3, "class", "title"], ["icon", "", "matRipple", "", "title", "Clear override"], [1, "relative", "h-4", "w-8", "rounded-full", "transition-colors", 3, "click", "title"], [1, "absolute", "top-0.5", "left-0.5", "h-3", "w-3", "rounded-full", "bg-white", "shadow-sm", "transition-transform"], [1, "flex-1", "cursor-pointer", "truncate", "font-mono", 3, "click", "title"], ["icon", "", "matRipple", "", "title", "Clear override", 3, "click"], [1, "border-base-300", "bg-base-100", "text-base-content", "min-w-64", "rounded-lg", "border", "p-2", "shadow-lg"], [1, "border-base-300", "border-b", "px-1", "pb-2", "text-base", "font-medium"], [1, "flex", "flex-col", "gap-1", "pt-2"], [1, "bg-base-200", "flex", "items-start", "gap-2", "rounded-sm", "p-2"], [1, "px-1", "py-2", "text-xs", "opacity-60"], [1, "min-w-0", "flex-1", "w-1/2"], [1, "truncate", "text-base", "font-medium"], [1, "truncate", "font-mono", "text-[0.625rem]", "opacity-60"], [1, "bg-base-300", "rounded-sm", "px-1.5", "py-0.5", "text-[0.625rem]", "font-medium"]], template: function SettingsDebugPanelComponent_Template(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275conditionalCreate(0, SettingsDebugPanelComponent_Conditional_0_Template, 21, 3, "div", 1);
+        \u0275\u0275template(1, SettingsDebugPanelComponent_ng_template_1_Template, 7, 1, "ng-template", null, 0, \u0275\u0275templateRefExtractor);
+      }
+      if (rf & 2) {
+        \u0275\u0275conditional(ctx.show() ? 0 : -1);
+      }
+    }, dependencies: [
+      FormsModule,
+      NgSelectOption,
+      \u0275NgSelectMultipleOption,
+      DefaultValueAccessor,
+      NumberValueAccessor,
+      SelectControlValueAccessor,
+      NgControlStatus,
+      NgModel,
+      MatRippleModule,
+      MatRipple,
+      CustomTooltipComponent,
+      IconComponent
+    ], encapsulation: 2 });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(SettingsDebugPanelComponent, [{
+    type: Component,
+    args: [{
+      selector: "settings-debug-panel",
+      template: `
+        @if (show()) {
+            <div class=" fixed bottom-2 left-2 z-998 w-160 max-w-[90vw]">
+            <div class="flex flex-col gap-2">
+                <div
+                    class="-mb-2 border-base-300 bg-base-100 text-base-content flex w-[calc(100%-0.5rem)] mx-1 items-center overflow-hidden rounded-b-lg rounded-t-xl border p-1 shadow-sm"
+                >
+                    <div class="flex-1 px-3 font-medium">Settings Viewer</div>
+                    <div class="flex items-center">
+                        @if (has_overrides()) {
+                            <button
+                                matRipple
+                                class="text-error px-2 py-1 text-xs underline"
+                                (click)="clearAll()"
+                            >
+                                Clear all overrides
+                            </button>
+                        }
+                        <button
+                            icon
+                            default
+                            matRipple
+                            class="text-sm"
+                            (click)="show.set(false)"
+                        >
+                            <icon>close</icon>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div
+                class="border-base-300 bg-base-200 text-base-content flex h-120 flex-col overflow-hidden rounded-xl border shadow-sm pt-2"
+            >
+                <div class="relative m-1 flex">
+                    <input
+                        name="setting-filter"
+                        [(ngModel)]="filter"
+                        placeholder="Filter settings..."
+                        class="border-base-300 bg-base-100 w-full rounded-lg border px-8 py-2 pr-2 font-mono text-sm shadow"
+                    />
+                    <icon
+                        class="absolute top-1/2 left-1 -translate-y-1/2 text-xl"
+                        >search</icon
+                    >
+                </div>
+                <div class="flex-1 overflow-auto">
+                    @for (entry of entries(); track $index) {
+                        @if (entry.header; as group) {
+                            <button
+                                class="border-base-300 bg-base-100/50 hover:bg-base-100 flex min-h-8 w-full items-center gap-1 border-b px-2 py-1 text-left text-xs"
+                                (click)="toggleGroup(group.name)"
+                            >
+                                <icon
+                                    class="text-sm transition-transform"
+                                    [class.rotate-90]="
+                                        filter() || expanded()[group.name]
+                                    "
+                                >
+                                    chevron_right
+                                </icon>
+                                <span class="font-mono">{{ group.name }}</span>
+                                <span class="opacity-40">
+                                    ({{ group.count }})
+                                </span>
+                                @if (group.overridden) {
+                                    <span
+                                        class="bg-warning-light rounded-sm px-1 text-[0.65rem] text-black"
+                                    >
+                                        {{ group.overridden }} overridden
+                                    </span>
+                                }
+                            </button>
+                        }
+                        @if (entry.row; as row) {
+                            <div
+                                class="border-base-300 flex min-h-8 items-center border-b py-1 pr-2 text-xs"
+                                [class.pl-8]="entry.grouped"
+                                [class.pl-2]="!entry.grouped"
+                                [class.bg-warning-light]="row.overridden"
+                            >
+                                <div class="w-3/5 min-w-0 pr-2">
+                                    <div
+                                        class="flex min-w-0 items-center gap-1 font-mono"
+                                    >
+                                        <span class="truncate">
+                                            {{ row.label }}
+                                        </span>
+                                        <span
+                                            customTooltip
+                                            class="shrink-0"
+                                            [content]="zone_tooltip"
+                                            [data]="{ zones: row.zones }"
+                                            [hover]="true"
+                                            [backdrop]="false"
+                                            xPosition="start"
+                                            yPosition="center"
+                                            [xOffset]="20"
+                                        >
+                                            <icon class="text-sm opacity-60"
+                                                >info</icon
+                                            >
+                                        </span>
+                                    </div>
+                                    @if (row.description) {
+                                        <div
+                                            class="truncate text-[0.65rem] opacity-60"
+                                            [title]="row.description"
+                                        >
+                                            {{ row.description }}
+                                        </div>
+                                    }
+                                </div>
+                                @switch (
+                                    editing_key() === row.key ? row.control : ''
+                                ) {
+                                    @case ('select') {
+                                        <select
+                                            name="setting-value"
+                                            class="bg-base-100 flex-1 rounded-sm border px-1 py-0.5 font-mono"
+                                            [(ngModel)]="edit_value"
+                                            (keydown.escape)="
+                                                editing_key.set('')
+                                            "
+                                        >
+                                            @for (
+                                                option of row.options;
+                                                track option
+                                            ) {
+                                                <option [value]="option">
+                                                    {{ option }}
+                                                </option>
+                                            }
+                                        </select>
+                                        <button
+                                            icon
+                                            matRipple
+                                            title="Save override"
+                                            (click)="saveEdit()"
+                                        >
+                                            <icon class="text-sm">check</icon>
+                                        </button>
+                                    }
+                                    @case ('number') {
+                                        <input
+                                            name="setting-value"
+                                            type="number"
+                                            class="bg-base-100 flex-1 rounded-sm border px-1 py-0.5 font-mono"
+                                            [(ngModel)]="edit_value"
+                                            (keydown.enter)="saveEdit()"
+                                            (keydown.escape)="
+                                                editing_key.set('')
+                                            "
+                                        />
+                                        <button
+                                            icon
+                                            matRipple
+                                            title="Save override"
+                                            (click)="saveEdit()"
+                                        >
+                                            <icon class="text-sm">check</icon>
+                                        </button>
+                                    }
+                                    @case ('text') {
+                                        <input
+                                            name="setting-value"
+                                            class="bg-base-100 flex-1 rounded-sm border px-1 py-0.5 font-mono"
+                                            [(ngModel)]="edit_value"
+                                            (keydown.enter)="saveEdit()"
+                                            (keydown.escape)="
+                                                editing_key.set('')
+                                            "
+                                        />
+                                        <button
+                                            icon
+                                            matRipple
+                                            title="Save override"
+                                            (click)="saveEdit()"
+                                        >
+                                            <icon class="text-sm">check</icon>
+                                        </button>
+                                    }
+                                    @default {
+                                        @if (row.control === 'toggle') {
+                                            <div class="flex flex-1">
+                                                <button
+                                                    class="relative h-4 w-8 rounded-full transition-colors"
+                                                    [class.bg-info]="row.value"
+                                                    [class.bg-base-300]="
+                                                        !row.value
+                                                    "
+                                                    [title]="row.display"
+                                                    (click)="toggleValue(row)"
+                                                >
+                                                    <div
+                                                        class="absolute top-0.5 left-0.5 h-3 w-3 rounded-full bg-white shadow-sm transition-transform"
+                                                        [class.translate-x-4]="
+                                                            row.value
+                                                        "
+                                                    ></div>
+                                                </button>
+                                            </div>
+                                        } @else {
+                                            <div
+                                                class="flex-1 cursor-pointer truncate font-mono"
+                                                [class]="
+                                                    row.display
+                                                        ? 'opacity-80'
+                                                        : 'italic opacity-40'
+                                                "
+                                                [title]="row.display || 'unset'"
+                                                (click)="startEdit(row)"
+                                            >
+                                                {{ row.display || 'unset' }}
+                                            </div>
+                                        }
+                                        @if (row.overridden) {
+                                            <button
+                                                icon
+                                                matRipple
+                                                title="Clear override"
+                                                (click)="clearOverride(row.key)"
+                                            >
+                                                <icon class="text-sm"
+                                                    >undo</icon
+                                                >
+                                            </button>
+                                        }
+                                    }
+                                }
+                            </div>
+                        }
+                    } @empty {
+                        <div class="p-4 text-center opacity-30">
+                            No matching settings
+                        </div>
+                    }
+                </div>
+                <div
+                    class="border-base-300 bg-base-100 border-t p-2 text-xs opacity-60"
+                >
+                    Click a value to override it. Text values are parsed as
+                    JSON, falling back to plain strings. Overrides are stored
+                    locally in this browser.
+                </div>
+            </div>
+            </div>
+        }
+        <ng-template #zone_tooltip let-zones="zones">
+            <div
+                class="border-base-300 bg-base-100 text-base-content min-w-64 rounded-lg border p-2 shadow-lg"
+            >
+                <div class="border-base-300 border-b px-1 pb-2 text-base font-medium">
+                    Setting sources
+                </div>
+                <div class="flex flex-col gap-1 pt-2">
+                    @for (zone of zones; track zone.type + zone.id) {
+                        <div class="bg-base-200 flex items-start gap-2 rounded-sm p-2">
+                            <div class="min-w-0 flex-1 w-1/2">
+                                <div class="truncate text-base font-medium">
+                                    {{ zone.name }}
+                                </div>
+                                <div class="truncate font-mono text-[0.625rem] opacity-60">
+                                    {{ zone.id }}
+                                </div>
+                            </div>
+                            <span
+                                class="bg-base-300 rounded-sm px-1.5 py-0.5 text-[0.625rem] font-medium"
+                            >
+                                {{ zone.type }}
+                            </span>
+                        </div>
+                    } @empty {
+                        <div class="px-1 py-2 text-xs opacity-60">
+                            No zone metadata value
+                        </div>
+                    }
+                </div>
+            </div>
+        </ng-template>
+    `,
+      imports: [
+        FormsModule,
+        MatRippleModule,
+        CustomTooltipComponent,
+        IconComponent
+      ]
+    }]
+  }], null, { schema: [{ type: Input, args: [{ isSignal: true, alias: "schema", required: false }] }] });
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SettingsDebugPanelComponent, { className: "SettingsDebugPanelComponent", filePath: "libs/components/src/lib/settings-debug-panel.component.ts", lineNumber: 394 });
+})();
+
 // libs/components/src/lib/unauthorised.component.ts
+var _c03 = () => ["/"];
 var UnauthorisedComponent = class _UnauthorisedComponent {
   static {
     this.\u0275fac = function UnauthorisedComponent_Factory(__ngFactoryType__) {
@@ -4465,33 +5528,38 @@ var UnauthorisedComponent = class _UnauthorisedComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _UnauthorisedComponent, selectors: [["app-unauthorised"]], decls: 13, vars: 9, consts: [["unauthorised", "", 1, "absolute", "inset-0"], [1, "border-base-300", "bg-base-100", "text-base-content", "mx-auto", "my-4", "w-104", "max-w-[calc(100%-1rem)]", "rounded-xl", "border", "p-4", "text-center", "shadow-lg"], [1, "text-4xl"], [1, "py-4"]], template: function UnauthorisedComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _UnauthorisedComponent, selectors: [["app-unauthorised"]], decls: 15, vars: 11, consts: [["unauthorised", "", 1, "absolute", "inset-0"], [1, "border-base-300", "bg-base-100", "text-base-content", "mx-auto", "my-4", "flex", "w-104", "max-w-[calc(100%-1rem)]", "flex-col", "gap-2", "rounded-xl", "border", "p-4", "text-center", "shadow-lg"], [1, "text-4xl"], [1, "py-4"], ["btn", "", 3, "routerLink"]], template: function UnauthorisedComponent_Template(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275domElementStart(0, "div", 0)(1, "div", 1)(2, "h1", 2);
+        \u0275\u0275elementStart(0, "div", 0)(1, "div", 1)(2, "h1", 2);
         \u0275\u0275text(3, "403");
-        \u0275\u0275domElementEnd();
-        \u0275\u0275domElementStart(4, "h3");
+        \u0275\u0275elementEnd();
+        \u0275\u0275elementStart(4, "h3");
         \u0275\u0275text(5);
         \u0275\u0275pipe(6, "translate");
-        \u0275\u0275domElementEnd();
-        \u0275\u0275domElementStart(7, "p", 3);
+        \u0275\u0275elementEnd();
+        \u0275\u0275elementStart(7, "p", 3);
         \u0275\u0275text(8);
         \u0275\u0275pipe(9, "translate");
-        \u0275\u0275domElementEnd();
-        \u0275\u0275domElementStart(10, "p");
+        \u0275\u0275elementEnd();
+        \u0275\u0275elementStart(10, "p");
         \u0275\u0275text(11);
         \u0275\u0275pipe(12, "translate");
-        \u0275\u0275domElementEnd()()();
+        \u0275\u0275elementEnd();
+        \u0275\u0275elementStart(13, "a", 4);
+        \u0275\u0275text(14, "Try Again");
+        \u0275\u0275elementEnd()()();
       }
       if (rf & 2) {
         \u0275\u0275advance(5);
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(6, 3, "COMMON.FORBIDDEN"));
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(6, 4, "COMMON.FORBIDDEN"));
         \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(9, 5, "COMMON.INVALID_PAGE_PERMISSIONS"), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(9, 6, "COMMON.INVALID_PAGE_PERMISSIONS"), " ");
         \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(12, 7, "COMMON.CONTACT_ADMIN"), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(12, 8, "COMMON.CONTACT_ADMIN"), " ");
+        \u0275\u0275advance(2);
+        \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(10, _c03));
       }
-    }, dependencies: [TranslatePipe], styles: ["\n[_nghost-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n[unauthorised][_ngcontent-%COMP%] {\n  background-image:\n    linear-gradient(\n      to right,\n      #c62828 0%,\n      #ef5350 100%);\n}\n/*# sourceMappingURL=unauthorised.component.css.map */"] });
+    }, dependencies: [RouterLink, TranslatePipe], styles: ["\n[_nghost-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n[unauthorised][_ngcontent-%COMP%] {\n  background-image:\n    linear-gradient(\n      to right,\n      #c62828 0%,\n      #ef5350 100%);\n}\n/*# sourceMappingURL=unauthorised.component.css.map */"] });
   }
 };
 (() => {
@@ -4500,7 +5568,7 @@ var UnauthorisedComponent = class _UnauthorisedComponent {
     args: [{ selector: "app-unauthorised", template: `
         <div unauthorised class="absolute inset-0">
             <div
-                class="border-base-300 bg-base-100 text-base-content mx-auto my-4 w-104 max-w-[calc(100%-1rem)] rounded-xl border p-4 text-center shadow-lg"
+                class="border-base-300 bg-base-100 text-base-content mx-auto my-4 flex w-104 max-w-[calc(100%-1rem)] flex-col gap-2 rounded-xl border p-4 text-center shadow-lg"
             >
                 <h1 class="text-4xl">403</h1>
                 <h3>{{ 'COMMON.FORBIDDEN' | translate }}</h3>
@@ -4510,13 +5578,14 @@ var UnauthorisedComponent = class _UnauthorisedComponent {
                 <p>
                     {{ 'COMMON.CONTACT_ADMIN' | translate }}
                 </p>
+                <a btn [routerLink]="['/']">Try Again</a>
             </div>
         </div>
-    `, imports: [TranslatePipe], styles: ["/* angular:styles/component:css;9e56e45d1ecd17d612bec636f553ceddd9b98cd2552edbd57d59534065beeefe;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/unauthorised.component.ts */\n:host {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n[unauthorised] {\n  background-image:\n    linear-gradient(\n      to right,\n      #c62828 0%,\n      #ef5350 100%);\n}\n/*# sourceMappingURL=unauthorised.component.css.map */\n"] }]
+    `, imports: [TranslatePipe, RouterLink], styles: ["/* angular:styles/component:css;9e56e45d1ecd17d612bec636f553ceddd9b98cd2552edbd57d59534065beeefe;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/unauthorised.component.ts */\n:host {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n[unauthorised] {\n  background-image:\n    linear-gradient(\n      to right,\n      #c62828 0%,\n      #ef5350 100%);\n}\n/*# sourceMappingURL=unauthorised.component.css.map */\n"] }]
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UnauthorisedComponent, { className: "UnauthorisedComponent", filePath: "libs/components/src/lib/unauthorised.component.ts", lineNumber: 41 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UnauthorisedComponent, { className: "UnauthorisedComponent", filePath: "libs/components/src/lib/unauthorised.component.ts", lineNumber: 43 });
 })();
 
 // libs/components/src/lib/authorised-user.guard.ts
@@ -4543,13 +5612,13 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
     const use_group_subsystem_access = await this.useGroupSubsystemAccess();
     let can_activate = false;
     if (use_group_subsystem_access) {
-      await ri(Hr(), Boolean);
+      await oi(Lr(), Boolean);
       const user = await firstTruthyValueFrom(current_user);
       can_activate = await this.checkSubsystemAccess(user);
     } else if (!groups.length) {
       can_activate = true;
     } else {
-      await ri(Hr(), Boolean);
+      await oi(Lr(), Boolean);
       await this._org.waitUntilInitialised();
       const user = await firstTruthyValueFrom(current_user);
       can_activate = !!(user && groups.find((_) => user.groups.includes(_)));
@@ -5958,7 +7027,7 @@ var update = (dataset) => (id, data) => {
   return new_event;
 };
 function registerMockAssets() {
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_categories`,
     metadata: {},
     method: "GET",
@@ -5971,7 +7040,7 @@ function registerMockAssets() {
       return results;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_categories/:id`,
     metadata: {},
     method: "GET",
@@ -5985,7 +7054,7 @@ function registerMockAssets() {
       return event;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_categories`,
     metadata: {},
     method: "POST",
@@ -5997,13 +7066,13 @@ function registerMockAssets() {
       return new_event;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_categories/:id`,
     metadata: {},
     method: "PUT",
     callback: (req) => update(MOCK_CATEGORIES)(req.route_params.id, __spreadValues({}, req.body))
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_categories/:id`,
     metadata: {},
     method: "DELETE",
@@ -6018,7 +7087,7 @@ function registerMockAssets() {
       return;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_types`,
     metadata: {},
     method: "GET",
@@ -6030,7 +7099,7 @@ function registerMockAssets() {
       return results;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_types/:id`,
     metadata: {},
     method: "GET",
@@ -6044,7 +7113,7 @@ function registerMockAssets() {
       return event;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_types`,
     metadata: {},
     method: "POST",
@@ -6056,13 +7125,13 @@ function registerMockAssets() {
       return new_event;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_types/:id`,
     metadata: {},
     method: "PUT",
     callback: (req) => update(MOCK_PRODUCTS)(req.route_params.id, __spreadValues({}, req.body))
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_types/:id`,
     metadata: {},
     method: "DELETE",
@@ -6077,7 +7146,7 @@ function registerMockAssets() {
       return;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_purchase_orders`,
     metadata: {},
     method: "GET",
@@ -6086,7 +7155,7 @@ function registerMockAssets() {
       return events;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_purchase_orders/:id`,
     metadata: {},
     method: "GET",
@@ -6100,7 +7169,7 @@ function registerMockAssets() {
       return event;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_purchase_orders`,
     metadata: {},
     method: "POST",
@@ -6112,13 +7181,13 @@ function registerMockAssets() {
       return new_event;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_purchase_orders/:id`,
     metadata: {},
     method: "PUT",
     callback: (req) => update(MOCK_PURCHASE_ORDERS)(req.route_params.id, __spreadValues({}, req.body))
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_purchase_orders/:id`,
     metadata: {},
     method: "DELETE",
@@ -6133,7 +7202,7 @@ function registerMockAssets() {
       return;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/assets`,
     metadata: {},
     method: "GET",
@@ -6153,7 +7222,7 @@ function registerMockAssets() {
       return results;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/assets/:id`,
     metadata: {},
     method: "GET",
@@ -6167,7 +7236,7 @@ function registerMockAssets() {
       return event;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/assets`,
     metadata: {},
     method: "POST",
@@ -6179,13 +7248,13 @@ function registerMockAssets() {
       return new_event;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/assets/:id`,
     metadata: {},
     method: "PUT",
     callback: (req) => update(MOCK_ASSETS)(req.route_params.id, __spreadValues({}, req.body))
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/assets/:id`,
     metadata: {},
     method: "DELETE",
@@ -7752,7 +8821,7 @@ var MOCK_SPACES = rawSpaces.map((space) => generateMockSpace(__spreadProps(__spr
 
 // libs/mocks/src/lib/api/bookings.data.ts
 var TRACKING = ["in_storage", "in_transit", "at_location"];
-var generateBookingForDay = (day, type, index, user) => {
+var generateBookingForDay = (day, type2, index, user) => {
   const bld = MOCK_BUILDINGS[predictableRandomInt(MOCK_BUILDINGS.length)];
   const lvls = MOCK_LEVELS.filter((_) => _.parent_id === bld?.id);
   const lvl = lvls[predictableRandomInt(lvls.length)];
@@ -7773,17 +8842,17 @@ var generateBookingForDay = (day, type, index, user) => {
     booking_start,
     booking_end,
     timezone: "Australia/Sydney",
-    title: capitalizeFirstLetter(`${type.replace("-", " ")} booking ${index}`),
+    title: capitalizeFirstLetter(`${type2.replace("-", " ")} booking ${index}`),
     event_start: booking_start,
     event_end: booking_end,
-    asset_ids: type === "asset-request" ? [...Array(asset_count)].map((_, i) => MOCK_ASSETS[predictableRandomInt(MOCK_ASSETS.length, i + 1)].id) : [
-      type === "visitor" ? guest.email : `${type}-${bld?.id}-${lvl?.id}-${position}`
+    asset_ids: type2 === "asset-request" ? [...Array(asset_count)].map((_, i) => MOCK_ASSETS[predictableRandomInt(MOCK_ASSETS.length, i + 1)].id) : [
+      type2 === "visitor" ? guest.email : `${type2}-${bld?.id}-${lvl?.id}-${position}`
     ],
-    asset_id: type === "visitor" ? guest.email : `${type}-${bld?.id}-${lvl?.id}-${position}`,
-    asset_name: type === "visitor" ? guest.name : `${bld?.name}-${position}`,
-    description: type === "visitor" ? guest.name : `${capitalizeFirstLetter(type.replace("-", " "))} in ${bld?.name}`,
-    booking_type: type,
-    type,
+    asset_id: type2 === "visitor" ? guest.email : `${type2}-${bld?.id}-${lvl?.id}-${position}`,
+    asset_name: type2 === "visitor" ? guest.name : `${bld?.name}-${position}`,
+    description: type2 === "visitor" ? guest.name : `${capitalizeFirstLetter(type2.replace("-", " "))} in ${bld?.name}`,
+    booking_type: type2,
+    type: type2,
     user_id: user.id,
     user_name: user.name,
     user_email: user.email,
@@ -7795,11 +8864,11 @@ var generateBookingForDay = (day, type, index, user) => {
     rejected: predictableRandomInt(12) === 0,
     approved: approved !== 0,
     access: approved !== 0,
-    permission: type === "group-event" ? "OPEN" : "PRIVATE",
+    permission: type2 === "group-event" ? "OPEN" : "PRIVATE",
     approver_id: approved ? approver.id : "",
     approver_name: approved ? approver.name : "",
     approver_email: approved ? approver.email : "",
-    process_state: type === "asset-request" ? TRACKING[predictableRandomInt(TRACKING.length, index)] : "",
+    process_state: type2 === "asset-request" ? TRACKING[predictableRandomInt(TRACKING.length, index)] : "",
     last_changed: booking_start,
     created: booking_start - 3600,
     created_by_id: user.id,
@@ -7807,11 +8876,11 @@ var generateBookingForDay = (day, type, index, user) => {
     created_by_email: user.email,
     zones: [
       bld?.id,
-      type === "parking" ? MOCK_LEVELS.find((l) => l.parent_id === bld?.id && l.type === "parking")?.id : lvl?.id
+      type2 === "parking" ? MOCK_LEVELS.find((l) => l.parent_id === bld?.id && l.type === "parking")?.id : lvl?.id
     ].filter(Boolean),
     extension_data: {
       map_id: `table-${bld?.id}.${position}`,
-      note: capitalizeFirstLetter(`${type.replace("-", " ")} booking ${index}`),
+      note: capitalizeFirstLetter(`${type2.replace("-", " ")} booking ${index}`),
       plate_number: randomString(8, "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"),
       tracking: approved ? "at_location" : "in_storage",
       space_id: lvl_spaces.length ? lvl_spaces[predictableRandomInt(lvl_spaces.length)].id : `space-${index}`,
@@ -7987,7 +9056,7 @@ var MOCK_CATERING_BOOKINGS = (() => {
 // libs/mocks/src/lib/api/bookings.mock.ts
 var ALL_BOOKINGS = [...MOCK_BOOKINGS, ...MOCK_CATERING_BOOKINGS];
 function registerMockBookings() {
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings",
     metadata: {},
     method: "GET",
@@ -8020,7 +9089,7 @@ function registerMockBookings() {
       return events;
     }
   });
-  Wr({
+  Zr({
     path: "/api/debug/bookings/distribution",
     metadata: {},
     method: "GET",
@@ -8055,7 +9124,7 @@ function registerMockBookings() {
       };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings/:id",
     metadata: {},
     method: "GET",
@@ -8069,7 +9138,7 @@ function registerMockBookings() {
       return event;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings/:id/guests/:email",
     metadata: {},
     method: "POST",
@@ -8090,7 +9159,7 @@ function registerMockBookings() {
       return user;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings/:id/guests/:email",
     metadata: {},
     method: "DELETE",
@@ -8113,7 +9182,7 @@ function registerMockBookings() {
       return guest;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings/:id/guests/:email/checkin",
     metadata: {},
     method: "POST",
@@ -8130,7 +9199,7 @@ function registerMockBookings() {
       return {};
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings",
     metadata: {},
     method: "POST",
@@ -8153,13 +9222,13 @@ function registerMockBookings() {
     ALL_BOOKINGS.splice(index, 1, new_event);
     return new_event;
   };
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings/:id",
     metadata: {},
     method: "PATCH",
     callback: (req) => updateBooking(req.route_params.id, req.body)
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings/:id/approve",
     metadata: {},
     method: "POST",
@@ -8175,7 +9244,7 @@ function registerMockBookings() {
       return booking;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings/:id/reject",
     metadata: {},
     method: "POST",
@@ -8191,7 +9260,7 @@ function registerMockBookings() {
       return booking;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings/:id/checkin",
     metadata: {},
     method: "POST",
@@ -8206,7 +9275,7 @@ function registerMockBookings() {
       return booking;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings/:id/update_induction",
     metadata: {},
     method: "POST",
@@ -8222,13 +9291,13 @@ function registerMockBookings() {
       return booking;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings/:id",
     metadata: {},
     method: "PUT",
     callback: (req) => updateBooking(req.route_params.id, req.body)
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings/:id",
     metadata: {},
     method: "DELETE",
@@ -8581,7 +9650,7 @@ var event_spaces = MOCK_SPACES.map((space) => space.id);
 
 // libs/mocks/src/lib/api/calendars.mock.ts
 function registerMockCalendars() {
-  Wr({
+  Zr({
     path: "/api/staff/v1/calendars",
     metadata: {},
     method: "GET",
@@ -8636,7 +9705,7 @@ function registerMockCalendars() {
     });
     return spaces;
   };
-  Wr({
+  Zr({
     path: "/api/staff/v1/calendars/availability",
     metadata: {},
     method: "GET",
@@ -8644,7 +9713,7 @@ function registerMockCalendars() {
       resource: _
     }))
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/calendars/free_busy",
     metadata: {},
     method: "GET",
@@ -8656,7 +9725,7 @@ function registerMockCalendars() {
 
 // libs/mocks/src/lib/api/events.mock.ts
 function registerMockEvents() {
-  Wr({
+  Zr({
     path: "/api/staff/v1/events",
     metadata: {},
     method: "GET",
@@ -8673,7 +9742,7 @@ function registerMockEvents() {
       return events;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/events",
     metadata: {},
     method: "POST",
@@ -8696,12 +9765,12 @@ function registerMockEvents() {
         ];
       }
       MOCK_EVENTS.push(new_event);
-      const system = mr(new_event.system?.id);
+      const system = $r(new_event.system?.id);
       system?.Bookings[0]?.$poll_bookings();
       return new_event;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/events/:id",
     metadata: {},
     method: "GET",
@@ -8713,7 +9782,7 @@ function registerMockEvents() {
       throw { status: 404, message: "Event not found" };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/events/:id",
     metadata: {},
     method: "DELETE",
@@ -8731,7 +9800,7 @@ function registerMockEvents() {
       throw { status: 404, message: "Event not found" };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/events/:id",
     metadata: {},
     method: "PATCH",
@@ -8743,7 +9812,7 @@ function registerMockEvents() {
       throw { status: 404, message: "Event not found" };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/events/:id/guests/:email/checkin",
     metadata: {},
     method: "POST",
@@ -9358,6 +10427,32 @@ function generateMockTriggers() {
 var MOCK_DISPLAYS = generateMockDisplays();
 var MOCK_MEDIA = generateMockMedia();
 var MOCK_PLAYLISTS = generateMockPlaylists(MOCK_DISPLAYS, MOCK_MEDIA);
+var MOCK_PLUGINS = [
+  {
+    id: "weather",
+    name: "Weather",
+    description: "Current weather signage widget",
+    uri: "/plugins/weather/index.html",
+    enabled: true,
+    defaults: { units: "metric" },
+    params: {
+      location: {
+        type: "string",
+        title: "Location",
+        default: "Sydney"
+      }
+    }
+  },
+  {
+    id: "clock",
+    name: "Clock",
+    description: "Clock signage widget",
+    uri: "/plugins/clock/index.html",
+    enabled: true,
+    defaults: { format: "24h" },
+    params: {}
+  }
+];
 var MOCK_TRIGGERS = generateMockTriggers();
 var SIGNAGE_GROUPS = [
   {
@@ -9441,7 +10536,8 @@ function toEngineMedia(item) {
     created_at: item.created_at,
     updated_at: item.updated_at,
     valid_from: item.scheduling?.start_date,
-    valid_until: item.scheduling?.end_date
+    valid_until: item.scheduling?.end_date,
+    tags: item.tags || []
   };
 }
 function toEnginePlaylist(item) {
@@ -9465,9 +10561,42 @@ function playlistMediaResponse(playlist_id, approved = false) {
     id: `${playlist_id}-media`,
     playlist_id,
     items: (playlist?.items || []).map((item) => item.media_id),
+    schedules: (playlist?.items || []).map((item) => ({
+      id: item.id,
+      item_id: item.media_id,
+      schedules: []
+    })),
     approved,
     approval_requested: false,
     updated_at: playlist?.updated_at || getUnixTime(Date.now())
+  };
+}
+function signageDisplay(display_id) {
+  if (display_id === "display-1") {
+    throw { status: 404, message: "Display not found" };
+  }
+  const display = MOCK_DISPLAYS.find((item) => item.id === display_id) || MOCK_DISPLAYS[0];
+  const playlists = MOCK_PLAYLISTS.filter((playlist) => playlist.target?.displays?.includes(display.id) || playlist.target?.zones?.includes(display.zone_id)).slice(0, 3);
+  const mapped_playlists = playlists.length ? playlists : MOCK_PLAYLISTS.slice(0, 2);
+  const media_ids = [
+    ...new Set(mapped_playlists.flatMap((playlist) => playlist.items.map((item) => item.media_id)))
+  ];
+  return {
+    id: display_id,
+    zones: [display.zone_id, display.building_id].filter(Boolean),
+    playlist_mappings: {
+      [display_id]: mapped_playlists.map((playlist) => playlist.id),
+      [display.zone_id]: []
+    },
+    playlist_config: Object.fromEntries(mapped_playlists.map((playlist) => [
+      playlist.id,
+      [
+        toEnginePlaylist(playlist),
+        playlist.items.map((item) => item.media_id)
+      ]
+    ])),
+    playlist_media: media_ids.map((id) => MOCK_MEDIA.find((item) => item.id === id)).filter((item) => !!item).map(toEngineMedia),
+    plugins: MOCK_PLUGINS
   };
 }
 function registerMockSignage() {
@@ -9487,7 +10616,7 @@ function registerMockSignage() {
       });
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/groups/current",
     metadata: {},
     method: "GET",
@@ -9498,13 +10627,13 @@ function registerMockSignage() {
       return [];
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/groups",
     metadata: {},
     method: "GET",
     callback: (request) => listSignageMockGroups(request.query_params)
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/groups",
     metadata: {},
     method: "POST",
@@ -9519,7 +10648,7 @@ function registerMockSignage() {
       return group;
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/groups/:id",
     metadata: {},
     method: "PATCH",
@@ -9533,7 +10662,7 @@ function registerMockSignage() {
       return item.group;
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/groups/:id",
     metadata: {},
     method: "DELETE",
@@ -9544,13 +10673,13 @@ function registerMockSignage() {
       return {};
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/group_users",
     metadata: {},
     method: "GET",
     callback: (request) => SIGNAGE_GROUP_USERS.filter((item) => item.group_id === request.query_params?.group_id)
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/group_users",
     metadata: {},
     method: "POST",
@@ -9567,7 +10696,7 @@ function registerMockSignage() {
       return item;
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/group_users/:user_id/:group_id",
     metadata: {},
     method: "PATCH",
@@ -9583,7 +10712,7 @@ function registerMockSignage() {
       return item;
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/group_users/:user_id/:group_id",
     metadata: {},
     method: "DELETE",
@@ -9596,13 +10725,13 @@ function registerMockSignage() {
       return {};
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/group_zones",
     metadata: {},
     method: "GET",
     callback: (request) => SIGNAGE_GROUP_ZONES.filter((item) => item.group_id === request.query_params?.group_id)
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/group_zones",
     metadata: {},
     method: "POST",
@@ -9619,7 +10748,7 @@ function registerMockSignage() {
       return item;
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/group_zones/:group_id/:zone_id",
     metadata: {},
     method: "PATCH",
@@ -9635,7 +10764,7 @@ function registerMockSignage() {
       return item;
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/group_zones/:group_id/:zone_id",
     metadata: {},
     method: "DELETE",
@@ -9648,13 +10777,21 @@ function registerMockSignage() {
       return {};
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/media",
     metadata: {},
     method: "GET",
     callback: (request) => filterByGroup(MOCK_MEDIA, request.query_params?.group_id).map(toEngineMedia)
   });
-  Wr({
+  Zr({
+    path: "/api/engine/v2/signage/media/tags",
+    metadata: {},
+    method: "GET",
+    callback: (request) => [
+      ...new Set(filterByGroup(MOCK_MEDIA, request.query_params?.group_id).flatMap((item) => item.tags || []).filter((tag2) => !!tag2))
+    ]
+  });
+  Zr({
     path: "/api/engine/v2/signage/media",
     metadata: {},
     method: "POST",
@@ -9664,7 +10801,13 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  Wr({
+  Zr({
+    path: "/api/engine/v2/signage/media/:id",
+    metadata: {},
+    method: "GET",
+    callback: (request) => toEngineMedia(MOCK_MEDIA.find((item) => item.id === request.route_params.id))
+  });
+  Zr({
     path: "/api/engine/v2/signage/media/:id",
     metadata: {},
     method: "PATCH",
@@ -9672,25 +10815,43 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/media/:id",
     metadata: {},
     method: "DELETE",
     callback: () => ({})
   });
-  Wr({
+  Zr({
+    path: "/api/engine/v2/signage/media/:id/thumbnail",
+    metadata: {},
+    method: "GET",
+    callback: () => ({})
+  });
+  Zr({
     path: "/api/engine/v2/signage/media/share",
     metadata: {},
     method: "POST",
     callback: () => ({})
   });
-  Wr({
+  Zr({
+    path: "/api/engine/v2/signage/plugins",
+    metadata: {},
+    method: "GET",
+    callback: () => MOCK_PLUGINS
+  });
+  Zr({
+    path: "/api/engine/v2/signage/plugins/:id",
+    metadata: {},
+    method: "GET",
+    callback: (request) => MOCK_PLUGINS.find((plugin) => plugin.id === request.route_params.id) || {}
+  });
+  Zr({
     path: "/api/engine/v2/signage/playlists",
     metadata: {},
     method: "GET",
     callback: (request) => filterByGroup(MOCK_PLAYLISTS, request.query_params?.group_id).map(toEnginePlaylist)
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/playlists/approvers",
     metadata: {},
     method: "GET",
@@ -9699,7 +10860,7 @@ function registerMockSignage() {
       name: item.user?.name || item.user_id
     }))
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/playlists",
     metadata: {},
     method: "POST",
@@ -9709,7 +10870,7 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/playlists/:id",
     metadata: {},
     method: "PATCH",
@@ -9717,19 +10878,19 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/playlists/:id",
     metadata: {},
     method: "DELETE",
     callback: () => ({})
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/playlists/:id/media",
     metadata: {},
     method: "GET",
     callback: (request) => playlistMediaResponse(request.route_params.id, false)
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/playlists/:id/media",
     metadata: {},
     method: "POST",
@@ -9738,7 +10899,31 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  Wr({
+  Zr({
+    path: "/api/engine/v2/signage/playlists/:id/media/schedule",
+    metadata: {},
+    method: "POST",
+    callback: (request) => __spreadProps(__spreadValues({}, playlistMediaResponse(request.route_params.id, false)), {
+      schedules: [
+        {
+          id: `schedule-${Date.now()}`,
+          item_id: request.body?.item_id,
+          schedules: request.body?.schedules || []
+        }
+      ]
+    })
+  });
+  Zr({
+    path: "/api/engine/v2/signage/playlists/:id/media/schedule/:item_id",
+    metadata: {},
+    method: "PATCH",
+    callback: (request) => ({
+      id: request.route_params.item_id,
+      item_id: request.body?.item_id || request.route_params.item_id,
+      schedules: request.body?.schedules || []
+    })
+  });
+  Zr({
     path: "/api/engine/v2/signage/playlists/:id/media/revisions",
     metadata: {},
     method: "GET",
@@ -9747,25 +10932,37 @@ function registerMockSignage() {
       playlistMediaResponse(request.route_params.id, true)
     ]
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/playlists/:id/media/approve",
     metadata: {},
     method: "POST",
     callback: (request) => playlistMediaResponse(request.route_params.id, true)
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/playlists/:id/media/request_approval",
     metadata: {},
     method: "POST",
     callback: () => ({})
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/playlists/share",
     metadata: {},
     method: "POST",
     callback: () => ({})
   });
-  Wr({
+  Zr({
+    path: "/api/engine/v2/signage/:id",
+    metadata: {},
+    method: "GET",
+    callback: (request) => signageDisplay(request.route_params.id)
+  });
+  Zr({
+    path: "/api/engine/v2/signage/:id/metrics",
+    metadata: {},
+    method: "POST",
+    callback: () => ({})
+  });
+  Zr({
     path: "/api/staff/v1/signage-displays",
     metadata: {},
     method: "GET",
@@ -9791,7 +10988,7 @@ function registerMockSignage() {
       };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/signage/displays/:id",
     metadata: {},
     method: "GET",
@@ -9802,7 +10999,7 @@ function registerMockSignage() {
       return display;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/signage/media",
     metadata: {},
     method: "GET",
@@ -9832,7 +11029,7 @@ function registerMockSignage() {
       };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/signage/playlists",
     metadata: {},
     method: "GET",
@@ -9854,7 +11051,7 @@ function registerMockSignage() {
       };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/signage/playlists/:id",
     metadata: {},
     method: "GET",
@@ -9870,7 +11067,7 @@ function registerMockSignage() {
       return playlistWithMedia;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/signage/triggers",
     metadata: {},
     method: "GET",
@@ -9893,7 +11090,7 @@ function registerMockSignage() {
       };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/signage/displays/:id/content",
     metadata: {},
     method: "GET",
@@ -9920,7 +11117,7 @@ function registerMockSignage() {
       };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/signage-analytics",
     metadata: {},
     method: "GET",
@@ -9965,7 +11162,7 @@ function registerMockSignage() {
       };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/signage-displays/:id/control",
     metadata: {},
     method: "POST",
@@ -10564,7 +11761,7 @@ var MOCK_ANSWERS = [
   }
 ];
 function registerMockSurveys() {
-  Wr({
+  Zr({
     path: "/api/staff/v1/surveys",
     metadata: {},
     method: "GET",
@@ -10583,7 +11780,7 @@ function registerMockSurveys() {
       return filteredSurveys;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/surveys/questions",
     metadata: {},
     method: "GET",
@@ -10608,7 +11805,7 @@ function registerMockSurveys() {
       return filteredQuestions;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/surveys/questions/:id",
     metadata: {},
     method: "GET",
@@ -10623,7 +11820,7 @@ function registerMockSurveys() {
       return question;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/surveys/answers",
     metadata: {},
     method: "GET",
@@ -10644,7 +11841,7 @@ function registerMockSurveys() {
       return filteredAnswers;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/surveys/answers/:id",
     metadata: {},
     method: "GET",
@@ -10657,7 +11854,7 @@ function registerMockSurveys() {
       return answer;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/surveys/:id",
     metadata: {},
     method: "GET",
@@ -10672,7 +11869,7 @@ function registerMockSurveys() {
       return survey;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/surveys/answers",
     metadata: {},
     method: "POST",
@@ -11715,9 +12912,9 @@ var createMicrophoneModule = (space, overrides = {}) => new MicrophoneModule(__s
 
 // libs/mocks/src/lib/realtime/payments.ts
 var PaymentsModule = class {
-  $list_payment_methods(type) {
+  $list_payment_methods(type2) {
   }
-  $add_payment_method(type, details) {
+  $add_payment_method(type2, details) {
   }
   $get_product_prices(id, period) {
     return [12e3, 60];
@@ -11829,7 +13026,7 @@ var createVideoConferenceModule = (space = {}, overrides = {}) => new VideoConfe
 
 // libs/mocks/src/lib/systems-bindings.mock.ts
 function createSystem(space) {
-  Nl(space.id, {
+  Fl(space.id, {
     System: [createSystemModule(space)],
     Bookings: [createBookingsModule(space)],
     ContactTracing: [createContactTracingModule(space)],
@@ -11844,7 +13041,7 @@ function createSystem(space) {
     Payment: [createPaymentsModule(space)],
     LockerLocations: [createLockerLocationsModule()]
   });
-  const system = mr(space.id);
+  const system = $r(space.id);
   system.Bookings[0].$poll_bookings();
   setInterval(() => system.Bookings[0].$poll_bookings(), 30 * 1e3);
   system.AreaManagement[0].$update();
@@ -11854,7 +13051,7 @@ function createSystem(space) {
 // libs/mocks/src/lib/api/systems.mock.ts
 function registerMockSystems() {
   MOCK_SPACES.forEach((space, index) => createSystem(space));
-  Wr({
+  Zr({
     path: "/api/engine/v2/systems",
     metadata: {},
     method: "GET",
@@ -11871,7 +13068,7 @@ function registerMockSystems() {
       return systems;
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/systems/:id",
     metadata: {},
     method: "GET",
@@ -11886,7 +13083,7 @@ function registerMockSystems() {
 
 // libs/mocks/src/lib/api/users.mock.ts
 function registerMockUsers() {
-  Wr({
+  Zr({
     path: "/api/engine/v2/users",
     metadata: {},
     method: "GET",
@@ -11898,7 +13095,7 @@ function registerMockUsers() {
       }).slice(0, limit);
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/users/:id",
     metadata: {},
     method: "GET",
@@ -11919,7 +13116,7 @@ function registerMockUsers() {
       throw { status: 404, message: "User not found" };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/people",
     metadata: {},
     method: "GET",
@@ -11933,7 +13130,7 @@ function registerMockUsers() {
       return MOCK_STAFF;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/people/:id",
     metadata: {},
     method: "GET",
@@ -11948,7 +13145,7 @@ function registerMockUsers() {
       throw { status: 404, message: "User not found" };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/guests",
     metadata: {},
     method: "GET",
@@ -11960,7 +13157,7 @@ function registerMockUsers() {
       return MOCK_STAFF;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/guests/:email",
     metadata: {},
     method: "GET",
@@ -11972,7 +13169,7 @@ function registerMockUsers() {
       throw { status: 404, message: "Guest not found" };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/guests/:email/meetings",
     metadata: {},
     method: "GET",
@@ -11997,12 +13194,12 @@ function registerMockUsers() {
     "none"
   ];
   function generateLocation2() {
-    const type = LOCATION_TYPES[predictableRandomInt(LOCATION_TYPES.length)];
+    const type2 = LOCATION_TYPES[predictableRandomInt(LOCATION_TYPES.length)];
     const level = MOCK_LEVELS[predictableRandomInt(MOCK_LEVELS.length)];
     const level_spaces = MOCK_SPACES.filter((s) => s.zones.includes(level.id));
     const space = level_spaces[predictableRandomInt(level_spaces.length)] || {};
     const location2 = {};
-    switch (type) {
+    switch (type2) {
       case "meeting":
         location2.meeting = {
           building: level.parent_id,
@@ -12022,7 +13219,7 @@ function registerMockUsers() {
         break;
       case "laptop":
       case "mobile":
-        location2[type] = {
+        location2[type2] = {
           building: level.parent_id,
           level: level.id,
           x: +predictableRandomInt(1e4),
@@ -12076,7 +13273,7 @@ function registerMockZones() {
     ...MOCK_LEVELS,
     ...MOCK_ZONES
   ];
-  Wr({
+  Zr({
     path: "/api/engine/v2/zones",
     metadata: {},
     method: "GET",
@@ -12092,7 +13289,7 @@ function registerMockZones() {
       return zones;
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/zones/:id",
     metadata: {},
     method: "GET",
@@ -12107,19 +13304,19 @@ function registerMockZones() {
       return zone;
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/settings",
     metadata: {},
     method: "GET",
     callback: (request) => []
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/settings/:id",
     metadata: {},
     method: "GET",
     callback: (request) => ({})
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/metadata/:id",
     metadata: {},
     method: "GET",
@@ -12235,7 +13432,7 @@ function registerMockZones() {
       return {};
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/metadata/:id",
     metadata: {},
     method: "PATCH",
@@ -12246,7 +13443,7 @@ function registerMockZones() {
       return request.body;
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/metadata/:id",
     metadata: {},
     method: "PUT",
@@ -12299,7 +13496,7 @@ function registerMockZones() {
     }
     return LOCKERS[id];
   }
-  Wr({
+  Zr({
     path: "/api/engine/v2/metadata/:id/children",
     metadata: {},
     method: "GET",
@@ -12335,6 +13532,234 @@ function mocksInit() {
   registerMockZones();
 }
 
+// apps/visitor-kiosk/src/environments/settings.schema.json
+var settings_schema_exports = {};
+__export(settings_schema_exports, {
+  $defs: () => $defs,
+  default: () => settings_schema_default,
+  description: () => description,
+  properties: () => properties,
+  type: () => type
+});
+var type = "object";
+var description = "Customisable settings for the visitor-kiosk app";
+var properties = {
+  name: {
+    type: "string",
+    description: "Name of the application"
+  },
+  title: {
+    type: "string",
+    description: "Title to display in the browser tab"
+  },
+  description: {
+    type: "string",
+    description: "Description of the application"
+  },
+  short_name: {
+    type: "string",
+    description: "Short name for the application"
+  },
+  default_route: {
+    type: "string",
+    description: "Route to redirect to after the application has initialised. Defaults to `welcome`"
+  },
+  logo_light: {
+    type: "string",
+    description: "URL of the logo to display when the application is using a light theme"
+  },
+  logo_dark: {
+    type: "string",
+    description: "URL of the logo to display when the application is using a dark theme"
+  },
+  welcome_background: {
+    type: "string",
+    description: "URL of the background image displayed on the welcome, check-in and registration pages"
+  },
+  welcome_message: {
+    type: "string",
+    description: "HTML message displayed on the welcome page. Falls back to a translated default message when unset"
+  },
+  hide_building_image: {
+    type: "boolean",
+    description: "Whether to hide the building image panel on the welcome, check-in and registration pages"
+  },
+  hide_explore: {
+    type: "boolean",
+    description: "Whether to hide the explore (building map) button on the welcome page"
+  },
+  allow_self_registration: {
+    type: "boolean",
+    description: "Whether walk-up visitors can register themselves. Shows the register button on the welcome page"
+  },
+  allow_registration_time_options: {
+    type: "boolean",
+    description: "Whether the self-registration form shows time options (all-day checkbox and visit duration field)"
+  },
+  allow_pass_number: {
+    type: "boolean",
+    description: "Whether to show a visitor pass number field on the registration and check-in details forms"
+  },
+  allow_user_photo: {
+    type: "boolean",
+    description: "Whether visitors are asked to take a photo of themselves during check-in"
+  },
+  allow_printing_label: {
+    type: "boolean",
+    description: "Whether a visitor badge label can be printed after check-in. Defaults to `true`"
+  },
+  allow_beverages: {
+    type: "boolean",
+    description: "Whether visitors can select beverage (catering) preferences after checking in. Only applies to visitors with a linked event or when `standalone_visitor_location` is set"
+  },
+  visitor_label_size: {
+    type: "object",
+    description: "Dimensions of the printed visitor badge label",
+    properties: {
+      width: {
+        type: "number",
+        description: "Width of the printed label in millimetres. Defaults to `25`"
+      },
+      height: {
+        type: "number",
+        description: "Height of the printed label in millimetres. Defaults to `15`"
+      },
+      scale: {
+        type: "number",
+        description: "Render scale for the printed label. Defaults to `4`"
+      }
+    }
+  },
+  checked_in_template: {
+    type: "string",
+    description: "HTML template displayed after a successful check-in. Supports the placeholders {{ title }}, {{ room_name }}, {{ host_name }}, {{ host_email }}, {{ visitor_name }}, {{ visitor_email }}, {{ can_use_lift }}, {{ date }} and {{ time }}"
+  },
+  standalone_visitor_location: {
+    type: "string",
+    description: "Location associated with standalone visitors (visitors without a linked calendar event). When set, standalone visitors are also offered beverage preferences after check-in"
+  },
+  induction_enabled: {
+    type: "boolean",
+    description: "Whether to show an induction acceptance step in the check-in and registration flows. Requires `induction_details` to also be set"
+  },
+  induction_details: {
+    type: "string",
+    description: "Induction text displayed to visitors for acceptance. The induction step is hidden when this is unset"
+  },
+  induction_after_details: {
+    type: "boolean",
+    description: "Whether the induction step is shown after the visitor details form instead of before it"
+  },
+  visitors: {
+    type: "object",
+    description: "Visitor booking settings. These override the matching `bookings` settings",
+    properties: {
+      allow_all_day: {
+        type: "boolean",
+        description: "Whether the all-day option is available on the self-registration form. Overrides `bookings.allow_all_day`"
+      },
+      max_duration: {
+        type: "number",
+        description: "Maximum visit duration in minutes selectable on the self-registration form. Overrides `bookings.max_duration`. Defaults to `180`"
+      }
+    }
+  },
+  bookings: {
+    type: "object",
+    description: "General booking settings used as a fallback for the matching `visitors` settings",
+    properties: {
+      allow_all_day: {
+        type: "boolean",
+        description: "Whether the all-day option is available on the self-registration form"
+      },
+      max_duration: {
+        type: "number",
+        description: "Maximum visit duration in minutes selectable on the self-registration form. Defaults to `180`"
+      }
+    }
+  },
+  home: {
+    type: "object",
+    description: "Data associated with rendering the home page in the app"
+  },
+  explore: {
+    type: "object",
+    description: "Data associated with map rendering on the explore page",
+    properties: {
+      colors: {
+        type: "object",
+        description: "Mapping of keys to their color values. Keys are usually in the format `<type>-<status>`",
+        additionalProperties: { type: "string" }
+      },
+      can_select_building: {
+        type: "boolean",
+        description: "Whether user is allowed to select different buildings to view"
+      },
+      show_legend_group_names: {
+        type: "boolean",
+        description: "Whether to show group names in the map legend"
+      },
+      legend: {
+        type: "object",
+        description: "Mapping of group names to the legend items to display for that group",
+        additionalProperties: {
+          type: "array",
+          items: { $ref: "#/$defs/identity" }
+        }
+      }
+    }
+  },
+  locales: {
+    type: "array",
+    description: "List of locales available in the language selector on the welcome page. The selector is hidden when fewer than two locales are set",
+    items: { $ref: "#/$defs/locale" }
+  }
+};
+var $defs = {
+  identity: {
+    type: "object",
+    required: ["id", "name"],
+    properties: {
+      id: {
+        type: "string",
+        description: "Unique identifier for this object"
+      },
+      name: {
+        type: "string",
+        description: "Display string for the object"
+      }
+    }
+  },
+  locale: {
+    type: "object",
+    required: ["id", "name"],
+    properties: {
+      id: {
+        type: "string",
+        description: "Locale code, e.g. `en-AU` or `fr`"
+      },
+      name: {
+        type: "string",
+        description: "Translation key for the locale's display name, e.g. `LANGUAGE.ENGLISH`"
+      },
+      local: {
+        type: "string",
+        description: "Name of the locale in its own language, e.g. `Fran\xE7ais`"
+      },
+      flag: {
+        type: "string",
+        description: "Flag emoji displayed next to the locale name"
+      }
+    }
+  }
+};
+var settings_schema_default = {
+  type,
+  description,
+  properties,
+  $defs
+};
+
 // apps/visitor-kiosk/src/app/app.component.ts
 function AppComponent_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -12343,6 +13768,7 @@ function AppComponent_Conditional_3_Template(rf, ctx) {
 }
 var AppComponent = class _AppComponent {
   constructor() {
+    this.settings_schema = settings_schema_exports;
     this._placeos = inject(PlaceOS_Service);
     this._has_chat = settingSignal("chat.enabled", false);
     this.has_chat = computed(
@@ -12370,24 +13796,27 @@ var AppComponent = class _AppComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AppComponent, selectors: [["app-root"]], decls: 5, vars: 1, consts: [["content", "", 1, "relative", "h-1/2", "w-full", "flex-1", "overflow-hidden"]], template: function AppComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AppComponent, selectors: [["app-root"]], decls: 6, vars: 2, consts: [["content", "", 1, "relative", "h-1/2", "w-full", "flex-1", "overflow-hidden"], [3, "schema"]], template: function AppComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275element(0, "global-banner");
         \u0275\u0275elementStart(1, "div", 0);
         \u0275\u0275element(2, "router-outlet");
         \u0275\u0275elementEnd();
         \u0275\u0275conditionalCreate(3, AppComponent_Conditional_3_Template, 1, 0, "global-chat");
-        \u0275\u0275element(4, "global-loading");
+        \u0275\u0275element(4, "global-loading")(5, "settings-debug-panel", 1);
       }
       if (rf & 2) {
         \u0275\u0275advance(3);
         \u0275\u0275conditional(ctx.has_chat() ? 3 : -1);
+        \u0275\u0275advance(2);
+        \u0275\u0275property("schema", ctx.settings_schema);
       }
     }, dependencies: [
       RouterOutlet,
       GlobalBannerComponent,
       ChatComponent,
-      GlobalLoadingComponent
+      GlobalLoadingComponent,
+      SettingsDebugPanelComponent
     ], styles: ["\n[_nghost-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n  width: 100%;\n  overflow: hidden;\n}\n[content][_ngcontent-%COMP%]    > *[_ngcontent-%COMP%] {\n  overflow: hidden;\n}\n/*# sourceMappingURL=app.component.css.map */"] });
   }
 };
@@ -12398,7 +13827,8 @@ var AppComponent = class _AppComponent {
       RouterOutlet,
       GlobalBannerComponent,
       ChatComponent,
-      GlobalLoadingComponent
+      GlobalLoadingComponent,
+      SettingsDebugPanelComponent
     ], template: `
         <global-banner />
         <div content class="relative h-1/2 w-full flex-1 overflow-hidden">
@@ -12408,12 +13838,12 @@ var AppComponent = class _AppComponent {
             <global-chat />
         }
         <global-loading />
-        <!-- <debug-console *ngIf="debug"></debug-console> -->
+        <settings-debug-panel [schema]="settings_schema" />
     `, styles: ["/* angular:styles/component:css;f4de4f03d30202ada3cbfd7e96f04e54ce4cff6bc9221f827ecc7e2a22bd067a;/home/runner/work/user-interfaces/user-interfaces/apps/visitor-kiosk/src/app/app.component.ts */\n:host {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n  width: 100%;\n  overflow: hidden;\n}\n[content] > * {\n  overflow: hidden;\n}\n/*# sourceMappingURL=app.component.css.map */\n"] }]
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AppComponent, { className: "AppComponent", filePath: "apps/visitor-kiosk/src/app/app.component.ts", lineNumber: 53 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AppComponent, { className: "AppComponent", filePath: "apps/visitor-kiosk/src/app/app.component.ts", lineNumber: 52 });
 })();
 
 // node_modules/@angular/animations/fesm2022/_util-chunk.mjs
@@ -14019,11 +15449,11 @@ var TimelineBuilder = class _TimelineBuilder {
     return this._keyframes.get(this.duration);
   }
   get properties() {
-    const properties = [];
+    const properties2 = [];
     for (let prop in this._currentKeyframe) {
-      properties.push(prop);
+      properties2.push(prop);
     }
-    return properties;
+    return properties2;
   }
   mergeTimelineCollectedStyles(timeline) {
     timeline._styleSummary.forEach((details1, prop) => {
@@ -16330,10 +17760,10 @@ var AnimationRendererFactory = class {
       delegate2?.removeChild(null, element);
     };
   }
-  createRenderer(hostElement, type) {
+  createRenderer(hostElement, type2) {
     const EMPTY_NAMESPACE_ID = "";
-    const delegate = this.delegate.createRenderer(hostElement, type);
-    if (!hostElement || !type?.data?.["animation"]) {
+    const delegate = this.delegate.createRenderer(hostElement, type2);
+    if (!hostElement || !type2?.data?.["animation"]) {
       const cache = this._rendererCache;
       let renderer = cache.get(delegate);
       if (!renderer) {
@@ -16343,8 +17773,8 @@ var AnimationRendererFactory = class {
       }
       return renderer;
     }
-    const componentId = type.id;
-    const namespaceId = type.id + "-" + this._currentId;
+    const componentId = type2.id;
+    const namespaceId = type2.id + "-" + this._currentId;
     this._currentId++;
     this.engine.register(namespaceId, hostElement);
     const registerTrigger = (trigger) => {
@@ -16354,7 +17784,7 @@ var AnimationRendererFactory = class {
         this.engine.registerTrigger(componentId, namespaceId, hostElement, trigger.name, trigger);
       }
     };
-    const animationTriggers = type.data["animation"];
+    const animationTriggers = type2.data["animation"];
     animationTriggers.forEach(registerTrigger);
     return new AnimationRenderer(this, namespaceId, delegate, this.engine);
   }
@@ -17604,7 +19034,7 @@ var BootstrapComponent = class _BootstrapComponent extends AsyncHandler {
 })();
 
 // apps/visitor-kiosk/src/app/visitor-registration.component.ts
-var _c02 = () => ["/welcome"];
+var _c04 = () => ["/welcome"];
 function VisitorRegistrationComponent_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "img", 2);
@@ -17764,7 +19194,7 @@ function VisitorRegistrationComponent_Conditional_3_Template(rf, ctx) {
     \u0275\u0275advance(3);
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(4, 23, "APP.VISITOR_KIOSK.REGISTRATION"), " ");
     \u0275\u0275advance(2);
-    \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(47, _c02));
+    \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(47, _c04));
     \u0275\u0275advance(5);
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(11, 25, "APP.VISITOR_KIOSK.NAME"));
     \u0275\u0275advance(3);
@@ -18219,7 +19649,7 @@ var VisitorRegistrationComponent = class _VisitorRegistrationComponent extends A
 })();
 
 // apps/visitor-kiosk/src/app/welcome.component.ts
-var _c03 = () => ["/checkin"];
+var _c05 = () => ["/checkin"];
 var _c12 = () => ["/register"];
 var _c22 = (a0) => ["/explore", a0];
 function WelcomeComponent_Conditional_14_Template(rf, ctx) {
@@ -18475,7 +19905,7 @@ var WelcomeComponent = class _WelcomeComponent extends AsyncHandler {
         \u0275\u0275advance(2);
         \u0275\u0275property("innerHTML", \u0275\u0275pipeBind2(5, 13, ctx.welcome_message() || \u0275\u0275pipeBind1(4, 11, "APP.VISITOR_KIOSK.WELCOME_MESSAGE"), "html"), \u0275\u0275sanitizeHtml);
         \u0275\u0275advance(4);
-        \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(24, _c03));
+        \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(24, _c05));
         \u0275\u0275advance(3);
         \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(11, 16, "APP.VISITOR_KIOSK.CHECK_IN"), " ");
         \u0275\u0275advance(4);
@@ -18690,12 +20120,12 @@ var routes = [
   {
     path: "explore",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./explore.routes-NH456T4L.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./explore.routes-SP75Q4I4.js").then((m) => m.ROUTES)
   },
   {
     path: "checkin",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./checkin.routes-VHZFM53E.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./checkin.routes-OEDG4RT2.js").then((m) => m.ROUTES)
   },
   { path: "**", redirectTo: "bootstrap" }
 ];

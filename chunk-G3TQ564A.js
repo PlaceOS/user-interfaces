@@ -618,7 +618,7 @@ function isSignal(value) {
 }
 function installDevToolsSignalFormatter() {
   globalThis.devtoolsFormatters ??= [];
-  if (!globalThis.devtoolsFormatters.some((f) => f === formatter)) {
+  if (!globalThis.devtoolsFormatters.some((f2) => f2 === formatter)) {
     globalThis.devtoolsFormatters.push(formatter);
   }
 }
@@ -1882,19 +1882,19 @@ function __asyncGenerator(thisArg, _arguments, generator) {
   return i = Object.create((typeof AsyncIterator === "function" ? AsyncIterator : Object).prototype), verb("next"), verb("throw"), verb("return", awaitReturn), i[Symbol.asyncIterator] = function() {
     return this;
   }, i;
-  function awaitReturn(f) {
+  function awaitReturn(f2) {
     return function(v) {
-      return Promise.resolve(v).then(f, reject);
+      return Promise.resolve(v).then(f2, reject);
     };
   }
-  function verb(n, f) {
+  function verb(n, f2) {
     if (g2[n]) {
       i[n] = function(v) {
         return new Promise(function(a, b2) {
           q.push([n, v, a, b2]) > 1 || resume(n, v);
         });
       };
-      if (f) i[n] = f(i[n]);
+      if (f2) i[n] = f2(i[n]);
     }
   }
   function resume(n, v) {
@@ -1913,8 +1913,8 @@ function __asyncGenerator(thisArg, _arguments, generator) {
   function reject(value) {
     resume("throw", value);
   }
-  function settle(f, v) {
-    if (f(v), q.shift(), q.length) resume(q[0][0], q[0][1]);
+  function settle(f2, v) {
+    if (f2(v), q.shift(), q.length) resume(q[0][0], q[0][1]);
   }
 }
 function __asyncValues(o) {
@@ -1930,9 +1930,9 @@ function __asyncValues(o) {
       });
     };
   }
-  function settle(resolve, reject, d2, v) {
+  function settle(resolve, reject, d, v) {
     Promise.resolve(v).then(function(v2) {
-      resolve({ value: v2, done: d2 });
+      resolve({ value: v2, done: d });
     }, reject);
   }
 }
@@ -8188,8 +8188,8 @@ var DehydratedBlockRegistry = class _DehydratedBlockRegistry {
   cleanupFns = /* @__PURE__ */ new Map();
   jsActionMap = inject2(JSACTION_BLOCK_ELEMENT_MAP);
   contract = inject2(JSACTION_EVENT_CONTRACT);
-  add(blockId, info3) {
-    this.registry.set(blockId, info3);
+  add(blockId, info) {
+    this.registry.set(blockId, info);
     if (this.awaitingCallbacks.has(blockId)) {
       const awaitingCallbacks = this.awaitingCallbacks.get(blockId);
       for (const cb of awaitingCallbacks) {
@@ -8279,8 +8279,8 @@ var HydrationStatus;
   HydrationStatus2["Mismatched"] = "mismatched";
 })(HydrationStatus || (HydrationStatus = {}));
 var HYDRATION_INFO_KEY = "__ngDebugHydrationInfo__";
-function patchHydrationInfo(node, info3) {
-  node[HYDRATION_INFO_KEY] = info3;
+function patchHydrationInfo(node, info) {
+  node[HYDRATION_INFO_KEY] = info;
 }
 function markRNodeAsHavingHydrationMismatch(node, expectedNodeDetails = null, actualNodeDetails = null) {
   if (!ngDevMode) {
@@ -10871,7 +10871,7 @@ function writeToDirectiveInput(def, instance, publicName, value) {
         throw new Error(`ASSERTION ERROR: Cannot write input to factory for type ${def.type.name}. Directive has not been created yet.`);
       }
     }
-    const [privateName, flags, transform2] = def.inputs[publicName];
+    const [privateName, flags, transform] = def.inputs[publicName];
     let inputSignalNode = null;
     if ((flags & InputFlags.SignalBased) !== 0) {
       const field = instance[privateName];
@@ -10879,8 +10879,8 @@ function writeToDirectiveInput(def, instance, publicName, value) {
     }
     if (inputSignalNode !== null && inputSignalNode.transformFn !== void 0) {
       value = inputSignalNode.transformFn(value);
-    } else if (transform2 !== null) {
-      value = transform2.call(instance, value);
+    } else if (transform !== null) {
+      value = transform.call(instance, value);
     }
     if (def.setInput !== null) {
       def.setInput(instance, inputSignalNode, value, publicName, privateName);
@@ -13701,14 +13701,14 @@ var shadowRootSupported = typeof ShadowRoot !== "undefined";
 var documentSupported = typeof Document !== "undefined";
 function toInputRefArray(map2) {
   return Object.keys(map2).map((name) => {
-    const [propName, flags, transform2] = map2[name];
+    const [propName, flags, transform] = map2[name];
     const inputData = {
       propName,
       templateName: name,
       isSignal: (flags & InputFlags.SignalBased) !== 0
     };
-    if (transform2) {
-      inputData.transform = transform2;
+    if (transform) {
+      inputData.transform = transform;
     }
     return inputData;
   });
@@ -13815,7 +13815,7 @@ var ComponentFactory = class {
     const sharedStylesHost = rootViewInjector.get(SHARED_STYLES_HOST, null);
     const styleHost = getStyleHost(hostElement, () => rootViewInjector.get(DOCUMENT, null) ?? getDocument());
     if (sharedStylesHost) sharedStylesHost.addHost(styleHost);
-    const hasInputBindings = componentBindings?.some(isInputBinding) || directives?.some((d2) => typeof d2 !== "function" && d2.bindings.some(isInputBinding));
+    const hasInputBindings = componentBindings?.some(isInputBinding) || directives?.some((d) => typeof d !== "function" && d.bindings.some(isInputBinding));
     const rootLView = createLView(null, rootTView, null, 512 | getInitialLViewFlagsFromDef(cmpDef), null, null, environment, hostRenderer, rootViewInjector, null, retrieveHydrationInfo(hostElement, rootViewInjector, true));
     if (sharedStylesHost && shadowRootSupported && styleHost instanceof ShadowRoot) {
       storeLViewOnDestroy(rootLView, () => {
@@ -14791,19 +14791,19 @@ function parseAndConvertInputsForDefinition(obj, declaredInputs) {
       let publicName;
       let declaredName;
       let inputFlags;
-      let transform2;
+      let transform;
       if (Array.isArray(value)) {
         inputFlags = value[0];
         publicName = value[1];
         declaredName = value[2] ?? publicName;
-        transform2 = value[3] || null;
+        transform = value[3] || null;
       } else {
         publicName = value;
         declaredName = value;
         inputFlags = InputFlags.None;
-        transform2 = null;
+        transform = null;
       }
-      newLookup[publicName] = [minifiedKey, inputFlags, transform2];
+      newLookup[publicName] = [minifiedKey, inputFlags, transform];
       declaredInputs[publicName] = declaredName;
     }
   }
@@ -18049,9 +18049,9 @@ function \u0275\u0275defer(index, primaryTmplIndex, dependencyResolverFn, loadin
   let ssrBlockState = null;
   let ssrUniqueId = null;
   if (lContainer[DEHYDRATED_VIEWS]?.length > 0) {
-    const info3 = lContainer[DEHYDRATED_VIEWS][0].data;
-    ssrUniqueId = info3[DEFER_BLOCK_ID] ?? null;
-    ssrBlockState = info3[DEFER_BLOCK_STATE$1];
+    const info = lContainer[DEHYDRATED_VIEWS][0].data;
+    ssrUniqueId = info[DEFER_BLOCK_ID] ?? null;
+    ssrBlockState = info[DEFER_BLOCK_STATE$1];
   }
   const lDetails = [null, DeferBlockInternalState.Initial, null, null, null, null, ssrUniqueId, ssrBlockState, null, null];
   setLDeferBlockDetails(lView, adjustedIndex, lDetails);
@@ -20178,12 +20178,12 @@ function icuStart(ast, tView, lView, updateOpCodes, parentIdx, icuExpression, an
     currentCaseLViewIndex: tIcu.currentCaseLViewIndex
   });
 }
-function parseICUBlock(pattern2) {
+function parseICUBlock(pattern) {
   const cases = [];
   const values = [];
   let icuType = 1;
   let mainBinding = 0;
-  pattern2 = pattern2.replace(ICU_BLOCK_REGEXP, function(str, binding, type) {
+  pattern = pattern.replace(ICU_BLOCK_REGEXP, function(str, binding, type) {
     if (type === "select") {
       icuType = 0;
     } else {
@@ -20192,7 +20192,7 @@ function parseICUBlock(pattern2) {
     mainBinding = parseInt(binding.slice(1), 10);
     return "";
   });
-  const parts = i18nParseTextIntoPartsAndICU(pattern2);
+  const parts = i18nParseTextIntoPartsAndICU(pattern);
   for (let pos = 0; pos < parts.length; ) {
     let key = parts[pos++].trim();
     if (icuType === 1) {
@@ -20213,8 +20213,8 @@ function parseICUBlock(pattern2) {
     values
   };
 }
-function i18nParseTextIntoPartsAndICU(pattern2) {
-  if (!pattern2) {
+function i18nParseTextIntoPartsAndICU(pattern) {
+  if (!pattern) {
     return [];
   }
   let prevPos = 0;
@@ -20223,12 +20223,12 @@ function i18nParseTextIntoPartsAndICU(pattern2) {
   const braces = /[{}]/g;
   braces.lastIndex = 0;
   let match3;
-  while (match3 = braces.exec(pattern2)) {
+  while (match3 = braces.exec(pattern)) {
     const pos = match3.index;
     if (match3[0] == "}") {
       braceStack.pop();
       if (braceStack.length == 0) {
-        const block = pattern2.substring(prevPos, pos);
+        const block = pattern.substring(prevPos, pos);
         if (ICU_BLOCK_REGEXP.test(block)) {
           results.push(parseICUBlock(block));
         } else {
@@ -20238,14 +20238,14 @@ function i18nParseTextIntoPartsAndICU(pattern2) {
       }
     } else {
       if (braceStack.length == 0) {
-        const substring2 = pattern2.substring(prevPos, pos);
+        const substring2 = pattern.substring(prevPos, pos);
         results.push(substring2);
         prevPos = pos + 1;
       }
       braceStack.push("{");
     }
   }
-  const substring = pattern2.substring(prevPos);
+  const substring = pattern.substring(prevPos);
   results.push(substring);
   return results;
 }
@@ -21672,12 +21672,12 @@ function multiResolve(factories, result) {
   }
   return result;
 }
-function multiFactory(factoryFn, index, isViewProvider, isComponent2, f, provider) {
+function multiFactory(factoryFn, index, isViewProvider, isComponent2, f2, provider) {
   const factory = new NodeInjectorFactory(factoryFn, isViewProvider, \u0275\u0275directiveInject, ngDevMode ? providerName(provider) : null);
   factory.multi = [];
   factory.index = index;
   factory.componentProviders = 0;
-  multiFactoryAdd(factory, f, isComponent2 && !isViewProvider);
+  multiFactoryAdd(factory, f2, isComponent2 && !isViewProvider);
   return factory;
 }
 function providerName(provider) {
@@ -22455,9 +22455,9 @@ function verifySemanticsOfNgModuleDef(moduleType, allowDuplicateDeclarationsInRo
   declarations.forEach((decl) => verifyDeclarationIsUnique(decl, allowDuplicateDeclarationsInRoot));
   const ngModule = getAnnotation(moduleType, "NgModule");
   if (ngModule) {
-    ngModule.imports && flatten(ngModule.imports).map(unwrapModuleWithProvidersImports).forEach((mod2) => {
-      verifySemanticsOfNgModuleImport(mod2, moduleType);
-      verifySemanticsOfNgModuleDef(mod2, false, moduleType);
+    ngModule.imports && flatten(ngModule.imports).map(unwrapModuleWithProvidersImports).forEach((mod) => {
+      verifySemanticsOfNgModuleImport(mod, moduleType);
+      verifySemanticsOfNgModuleDef(mod, false, moduleType);
     });
     ngModule.bootstrap && deepForEach(ngModule.bootstrap, verifyCorrectBootstrapType);
     ngModule.bootstrap && deepForEach(ngModule.bootstrap, verifyComponentIsPartOfNgModule);
@@ -22761,7 +22761,7 @@ function getStandaloneDefFunctions(type, imports) {
       return [];
     }
     const scope = depsTracker.getStandaloneComponentScope(type, imports);
-    return [...scope.compilation.directives].map((p2) => getComponentDef(p2) || getDirectiveDef(p2)).filter((d2) => d2 !== null);
+    return [...scope.compilation.directives].map((p2) => getComponentDef(p2) || getDirectiveDef(p2)).filter((d) => d !== null);
   };
   const pipeDefs = () => {
     if (ngDevMode) {
@@ -22773,7 +22773,7 @@ function getStandaloneDefFunctions(type, imports) {
       return [];
     }
     const scope = depsTracker.getStandaloneComponentScope(type, imports);
-    return [...scope.compilation.pipes].map((p2) => getPipeDef(p2)).filter((d2) => d2 !== null);
+    return [...scope.compilation.pipes].map((p2) => getPipeDef(p2)).filter((d) => d !== null);
   };
   return {
     directiveDefs,
@@ -24754,7 +24754,7 @@ var IterableDiffers = class _IterableDiffers {
     };
   }
   find(iterable) {
-    const factory = this.factories.find((f) => f.supports(iterable));
+    const factory = this.factories.find((f2) => f2.supports(iterable));
     if (factory != null) {
       return factory;
     } else {
@@ -24798,7 +24798,7 @@ var KeyValueDiffers = class _KeyValueDiffers {
     };
   }
   find(kv) {
-    const factory = this.factories.find((f) => f.supports(kv));
+    const factory = this.factories.find((f2) => f2.supports(kv));
     if (factory) {
       return factory;
     }
@@ -25175,7 +25175,7 @@ function setModuleBootstrapImpl() {
 function _moduleDoBootstrap(moduleRef, allPlatformModules) {
   const appRef = moduleRef.injector.get(ApplicationRef);
   if (moduleRef._bootstrapComponents.length > 0) {
-    moduleRef._bootstrapComponents.forEach((f) => appRef.bootstrap(f));
+    moduleRef._bootstrapComponents.forEach((f2) => appRef.bootstrap(f2));
   } else if (moduleRef.instance.ngDoBootstrap) {
     moduleRef.instance.ngDoBootstrap(appRef);
   } else {
@@ -26787,9 +26787,9 @@ function getLastDefinedValue(data, index) {
   throw new RuntimeError(2304, ngDevMode && "Locale data API: locale data undefined");
 }
 function extractTime(time) {
-  const [h, m2] = time.split(":");
+  const [h2, m2] = time.split(":");
   return {
-    hours: +h,
+    hours: +h2,
     minutes: +m2
   };
 }
@@ -27336,8 +27336,8 @@ function toDate(value) {
   if (typeof value === "string") {
     value = value.trim();
     if (/^(\d{4}(-\d{1,2}(-\d{1,2})?)?)$/.test(value)) {
-      const [y, m2 = 1, d2 = 1] = value.split("-").map((val) => +val);
-      return createDate(y, m2 - 1, d2);
+      const [y, m2 = 1, d = 1] = value.split("-").map((val) => +val);
+      return createDate(y, m2 - 1, d);
     }
     const parsedNb = parseFloat(value);
     if (!isNaN(value - parsedNb)) {
@@ -27365,11 +27365,11 @@ function isoStringToDate(match3) {
     tzMin = Number(match3[9] + match3[11]);
   }
   dateSetter.call(date, Number(match3[1]), Number(match3[2]) - 1, Number(match3[3]));
-  const h = Number(match3[4] || 0) - tzHour;
+  const h2 = Number(match3[4] || 0) - tzHour;
   const m2 = Number(match3[5] || 0) - tzMin;
   const s = Number(match3[6] || 0);
   const ms = Math.floor(parseFloat("0." + (match3[7] || 0)) * 1e3);
-  timeSetter.call(date, h, m2, s, ms);
+  timeSetter.call(date, h2, m2, s, ms);
   return date;
 }
 function isDate(value) {
@@ -27384,7 +27384,7 @@ var GROUP_SEP = ",";
 var DIGIT_CHAR = "#";
 var CURRENCY_CHAR = "\xA4";
 var PERCENT_CHAR = "%";
-function formatNumberToLocaleString(value, pattern2, locale, groupSymbol, decimalSymbol, digitsInfo, isPercent = false) {
+function formatNumberToLocaleString(value, pattern, locale, groupSymbol, decimalSymbol, digitsInfo, isPercent = false) {
   let formattedText = "";
   let isZero = false;
   if (!isFinite(value)) {
@@ -27394,9 +27394,9 @@ function formatNumberToLocaleString(value, pattern2, locale, groupSymbol, decima
     if (isPercent) {
       parsedNumber = toPercent(parsedNumber);
     }
-    let minInt = pattern2.minInt;
-    let minFraction = pattern2.minFrac;
-    let maxFraction = pattern2.maxFrac;
+    let minInt = pattern.minInt;
+    let minFraction = pattern.minFrac;
+    let maxFraction = pattern.maxFrac;
     if (digitsInfo) {
       const parts = digitsInfo.match(NUMBER_FORMAT_REGEXP);
       if (parts === null) {
@@ -27426,7 +27426,7 @@ function formatNumberToLocaleString(value, pattern2, locale, groupSymbol, decima
     let integerLen = parsedNumber.integerLen;
     const exponent = parsedNumber.exponent;
     let decimals = [];
-    isZero = digits.every((d2) => !d2);
+    isZero = digits.every((d) => !d);
     for (; integerLen < minInt; integerLen++) {
       digits.unshift(0);
     }
@@ -27440,11 +27440,11 @@ function formatNumberToLocaleString(value, pattern2, locale, groupSymbol, decima
       digits = [0];
     }
     const groups = [];
-    if (digits.length >= pattern2.lgSize) {
-      groups.unshift(digits.splice(-pattern2.lgSize, digits.length).join(""));
+    if (digits.length >= pattern.lgSize) {
+      groups.unshift(digits.splice(-pattern.lgSize, digits.length).join(""));
     }
-    while (digits.length > pattern2.gSize) {
-      groups.unshift(digits.splice(-pattern2.gSize, digits.length).join(""));
+    while (digits.length > pattern.gSize) {
+      groups.unshift(digits.splice(-pattern.gSize, digits.length).join(""));
     }
     if (digits.length) {
       groups.unshift(digits.join(""));
@@ -27458,30 +27458,30 @@ function formatNumberToLocaleString(value, pattern2, locale, groupSymbol, decima
     }
   }
   if (value < 0 && !isZero) {
-    formattedText = pattern2.negPre + formattedText + pattern2.negSuf;
+    formattedText = pattern.negPre + formattedText + pattern.negSuf;
   } else {
-    formattedText = pattern2.posPre + formattedText + pattern2.posSuf;
+    formattedText = pattern.posPre + formattedText + pattern.posSuf;
   }
   return formattedText;
 }
 function formatCurrency(value, locale, currency, currencyCode, digitsInfo) {
   const format3 = getLocaleNumberFormat(locale, NumberFormatStyle.Currency);
-  const pattern2 = parseNumberFormat(format3, getLocaleNumberSymbol(locale, NumberSymbol.MinusSign));
-  pattern2.minFrac = getNumberOfCurrencyDigits(currencyCode);
-  pattern2.maxFrac = pattern2.minFrac;
-  const res = formatNumberToLocaleString(value, pattern2, locale, NumberSymbol.CurrencyGroup, NumberSymbol.CurrencyDecimal, digitsInfo);
+  const pattern = parseNumberFormat(format3, getLocaleNumberSymbol(locale, NumberSymbol.MinusSign));
+  pattern.minFrac = getNumberOfCurrencyDigits(currencyCode);
+  pattern.maxFrac = pattern.minFrac;
+  const res = formatNumberToLocaleString(value, pattern, locale, NumberSymbol.CurrencyGroup, NumberSymbol.CurrencyDecimal, digitsInfo);
   return res.replace(CURRENCY_CHAR, currency).replace(CURRENCY_CHAR, "").trim();
 }
 function formatPercent(value, locale, digitsInfo) {
   const format3 = getLocaleNumberFormat(locale, NumberFormatStyle.Percent);
-  const pattern2 = parseNumberFormat(format3, getLocaleNumberSymbol(locale, NumberSymbol.MinusSign));
-  const res = formatNumberToLocaleString(value, pattern2, locale, NumberSymbol.Group, NumberSymbol.Decimal, digitsInfo, true);
+  const pattern = parseNumberFormat(format3, getLocaleNumberSymbol(locale, NumberSymbol.MinusSign));
+  const res = formatNumberToLocaleString(value, pattern, locale, NumberSymbol.Group, NumberSymbol.Decimal, digitsInfo, true);
   return res.replace(new RegExp(PERCENT_CHAR, "g"), getLocaleNumberSymbol(locale, NumberSymbol.PercentSign));
 }
 function formatNumber(value, locale, digitsInfo) {
   const format3 = getLocaleNumberFormat(locale, NumberFormatStyle.Decimal);
-  const pattern2 = parseNumberFormat(format3, getLocaleNumberSymbol(locale, NumberSymbol.MinusSign));
-  return formatNumberToLocaleString(value, pattern2, locale, NumberSymbol.Group, NumberSymbol.Decimal, digitsInfo);
+  const pattern = parseNumberFormat(format3, getLocaleNumberSymbol(locale, NumberSymbol.MinusSign));
+  return formatNumberToLocaleString(value, pattern, locale, NumberSymbol.Group, NumberSymbol.Decimal, digitsInfo);
 }
 function parseNumberFormat(format3, minusSign = "-") {
   const p2 = {
@@ -27615,9 +27615,9 @@ function roundNumber(parsedNumber, minFrac, maxFrac) {
   for (; fractionLen < Math.max(0, fractionSize); fractionLen++) digits.push(0);
   let dropTrailingZeros = fractionSize !== 0;
   const minLen = minFrac + parsedNumber.integerLen;
-  const carry = digits.reduceRight(function(carry2, d2, i, digits2) {
-    d2 = d2 + carry2;
-    digits2[i] = d2 < 10 ? d2 : d2 - 10;
+  const carry = digits.reduceRight(function(carry2, d, i, digits2) {
+    d = d + carry2;
+    digits2[i] = d < 10 ? d : d - 10;
     if (dropTrailingZeros) {
       if (digits2[i] === 0 && i >= minLen) {
         digits2.pop();
@@ -27625,7 +27625,7 @@ function roundNumber(parsedNumber, minFrac, maxFrac) {
         dropTrailingZeros = false;
       }
     }
-    return d2 >= 10 ? 1 : 0;
+    return d >= 10 ? 1 : 0;
   }, 0);
   if (carry) {
     digits.unshift(carry);
@@ -29533,11 +29533,11 @@ function throwInvalidPathError(path, exampleUrls) {
 function throwUnexpectedAbsoluteUrlError(path, url) {
   throw new RuntimeError(2959, ngDevMode && `Image loader has detected a \`<img>\` tag with an invalid \`ngSrc\` attribute: ${url}. This image loader expects \`ngSrc\` to be a relative URL - however the provided value is an absolute URL. To fix this, provide \`ngSrc\` as a path relative to the base URL configured for this loader (\`${path}\`).`);
 }
-function normalizeLoaderTransform(transform2, separator) {
-  if (typeof transform2 === "string") {
-    return transform2;
+function normalizeLoaderTransform(transform, separator) {
+  if (typeof transform === "string") {
+    return transform;
   }
-  return Object.entries(transform2).map(([key, value]) => `${key}${separator}${value}`).join(",");
+  return Object.entries(transform).map(([key, value]) => `${key}${separator}${value}`).join(",");
 }
 var provideCloudflareLoader = createImageLoader(createCloudflareUrl, ngDevMode ? ["https://<ZONE>/cdn-cgi/image/<OPTIONS>/<SOURCE-IMAGE>"] : void 0);
 function createCloudflareUrl(path, config2) {
@@ -29638,8 +29638,8 @@ function createImgixUrl(path, config2) {
     params.push(`q=${PLACEHOLDER_QUALITY}`);
   }
   if (config2.loaderParams?.["transform"]) {
-    const transform2 = normalizeLoaderTransform(config2.loaderParams["transform"], "=").split(",");
-    params.push(...transform2);
+    const transform = normalizeLoaderTransform(config2.loaderParams["transform"], "=").split(",");
+    params.push(...transform);
   }
   const url = new URL(`${path}/${config2.src}`);
   url.search = params.join("&");
@@ -33504,7 +33504,7 @@ function makeHttpFeature(kind, providers) {
 }
 function provideHttpClient(...features) {
   if (ngDevMode) {
-    const featureKinds = new Set(features.map((f) => f.\u0275kind));
+    const featureKinds = new Set(features.map((f2) => f2.\u0275kind));
     if (featureKinds.has(HttpFeatureKind.NoXsrfProtection) && featureKinds.has(HttpFeatureKind.CustomXsrfConfiguration)) {
       throw new Error(ngDevMode ? `Configuration error: found both withXsrfConfiguration() and withNoXsrfProtection() in the same call to provideHttpClient(), which is a contradiction.` : "");
     }
@@ -34345,216 +34345,11 @@ function toDate2(argument, context2) {
   return constructFrom(context2 || argument, argument);
 }
 
-// node_modules/date-fns/addDays.js
-function addDays(date, amount, options) {
-  const _date = toDate2(date, options?.in);
-  if (isNaN(amount)) return constructFrom(options?.in || date, NaN);
-  if (!amount) return _date;
-  _date.setDate(_date.getDate() + amount);
-  return _date;
-}
-
-// node_modules/date-fns/addMonths.js
-function addMonths(date, amount, options) {
-  const _date = toDate2(date, options?.in);
-  if (isNaN(amount)) return constructFrom(options?.in || date, NaN);
-  if (!amount) {
-    return _date;
-  }
-  const dayOfMonth = _date.getDate();
-  const endOfDesiredMonth = constructFrom(options?.in || date, _date.getTime());
-  endOfDesiredMonth.setMonth(_date.getMonth() + amount + 1, 0);
-  const daysInMonth = endOfDesiredMonth.getDate();
-  if (dayOfMonth >= daysInMonth) {
-    return endOfDesiredMonth;
-  } else {
-    _date.setFullYear(
-      endOfDesiredMonth.getFullYear(),
-      endOfDesiredMonth.getMonth(),
-      dayOfMonth
-    );
-    return _date;
-  }
-}
-
-// node_modules/date-fns/add.js
-function add(date, duration, options) {
-  const {
-    years = 0,
-    months = 0,
-    weeks = 0,
-    days = 0,
-    hours = 0,
-    minutes = 0,
-    seconds = 0
-  } = duration;
-  const _date = toDate2(date, options?.in);
-  const dateWithMonths = months || years ? addMonths(_date, months + years * 12) : _date;
-  const dateWithDays = days || weeks ? addDays(dateWithMonths, days + weeks * 7) : dateWithMonths;
-  const minutesToAdd = minutes + hours * 60;
-  const secondsToAdd = seconds + minutesToAdd * 60;
-  const msToAdd = secondsToAdd * 1e3;
-  return constructFrom(options?.in || date, +dateWithDays + msToAdd);
-}
-
-// node_modules/date-fns/addMilliseconds.js
-function addMilliseconds(date, amount, options) {
-  return constructFrom(options?.in || date, +toDate2(date) + amount);
-}
-
-// node_modules/date-fns/addHours.js
-function addHours(date, amount, options) {
-  return addMilliseconds(date, amount * millisecondsInHour, options);
-}
-
-// node_modules/date-fns/_lib/defaultOptions.js
-var defaultOptions = {};
-function getDefaultOptions() {
-  return defaultOptions;
-}
-
-// node_modules/date-fns/startOfWeek.js
-function startOfWeek(date, options) {
-  const defaultOptions2 = getDefaultOptions();
-  const weekStartsOn = options?.weekStartsOn ?? options?.locale?.options?.weekStartsOn ?? defaultOptions2.weekStartsOn ?? defaultOptions2.locale?.options?.weekStartsOn ?? 0;
-  const _date = toDate2(date, options?.in);
-  const day = _date.getDay();
-  const diff = (day < weekStartsOn ? 7 : 0) + day - weekStartsOn;
-  _date.setDate(_date.getDate() - diff);
-  _date.setHours(0, 0, 0, 0);
-  return _date;
-}
-
-// node_modules/date-fns/startOfISOWeek.js
-function startOfISOWeek(date, options) {
-  return startOfWeek(date, __spreadProps(__spreadValues({}, options), { weekStartsOn: 1 }));
-}
-
-// node_modules/date-fns/getISOWeekYear.js
-function getISOWeekYear(date, options) {
-  const _date = toDate2(date, options?.in);
-  const year = _date.getFullYear();
-  const fourthOfJanuaryOfNextYear = constructFrom(_date, 0);
-  fourthOfJanuaryOfNextYear.setFullYear(year + 1, 0, 4);
-  fourthOfJanuaryOfNextYear.setHours(0, 0, 0, 0);
-  const startOfNextYear = startOfISOWeek(fourthOfJanuaryOfNextYear);
-  const fourthOfJanuaryOfThisYear = constructFrom(_date, 0);
-  fourthOfJanuaryOfThisYear.setFullYear(year, 0, 4);
-  fourthOfJanuaryOfThisYear.setHours(0, 0, 0, 0);
-  const startOfThisYear = startOfISOWeek(fourthOfJanuaryOfThisYear);
-  if (_date.getTime() >= startOfNextYear.getTime()) {
-    return year + 1;
-  } else if (_date.getTime() >= startOfThisYear.getTime()) {
-    return year;
-  } else {
-    return year - 1;
-  }
-}
-
-// node_modules/date-fns/_lib/getTimezoneOffsetInMilliseconds.js
-function getTimezoneOffsetInMilliseconds(date) {
-  const _date = toDate2(date);
-  const utcDate = new Date(
-    Date.UTC(
-      _date.getFullYear(),
-      _date.getMonth(),
-      _date.getDate(),
-      _date.getHours(),
-      _date.getMinutes(),
-      _date.getSeconds(),
-      _date.getMilliseconds()
-    )
-  );
-  utcDate.setUTCFullYear(_date.getFullYear());
-  return +date - +utcDate;
-}
-
-// node_modules/date-fns/_lib/normalizeDates.js
-function normalizeDates(context2, ...dates) {
-  const normalize2 = constructFrom.bind(
-    null,
-    context2 || dates.find((date) => typeof date === "object")
-  );
-  return dates.map(normalize2);
-}
-
-// node_modules/date-fns/startOfDay.js
-function startOfDay(date, options) {
-  const _date = toDate2(date, options?.in);
-  _date.setHours(0, 0, 0, 0);
-  return _date;
-}
-
-// node_modules/date-fns/differenceInCalendarDays.js
-function differenceInCalendarDays(laterDate, earlierDate, options) {
-  const [laterDate_, earlierDate_] = normalizeDates(
-    options?.in,
-    laterDate,
-    earlierDate
-  );
-  const laterStartOfDay = startOfDay(laterDate_);
-  const earlierStartOfDay = startOfDay(earlierDate_);
-  const laterTimestamp = +laterStartOfDay - getTimezoneOffsetInMilliseconds(laterStartOfDay);
-  const earlierTimestamp = +earlierStartOfDay - getTimezoneOffsetInMilliseconds(earlierStartOfDay);
-  return Math.round((laterTimestamp - earlierTimestamp) / millisecondsInDay);
-}
-
-// node_modules/date-fns/startOfISOWeekYear.js
-function startOfISOWeekYear(date, options) {
-  const year = getISOWeekYear(date, options);
-  const fourthOfJanuary = constructFrom(options?.in || date, 0);
-  fourthOfJanuary.setFullYear(year, 0, 4);
-  fourthOfJanuary.setHours(0, 0, 0, 0);
-  return startOfISOWeek(fourthOfJanuary);
-}
-
-// node_modules/date-fns/addMinutes.js
-function addMinutes(date, amount, options) {
-  const _date = toDate2(date, options?.in);
-  _date.setTime(_date.getTime() + amount * millisecondsInMinute);
-  return _date;
-}
-
-// node_modules/date-fns/addWeeks.js
-function addWeeks(date, amount, options) {
-  return addDays(date, amount * 7, options);
-}
-
-// node_modules/date-fns/addYears.js
-function addYears(date, amount, options) {
-  return addMonths(date, amount * 12, options);
-}
-
-// node_modules/date-fns/isSameDay.js
-function isSameDay(laterDate, earlierDate, options) {
-  const [dateLeft_, dateRight_] = normalizeDates(
-    options?.in,
-    laterDate,
-    earlierDate
-  );
-  return +startOfDay(dateLeft_) === +startOfDay(dateRight_);
-}
-
-// node_modules/date-fns/isDate.js
-function isDate2(value) {
-  return value instanceof Date || typeof value === "object" && Object.prototype.toString.call(value) === "[object Date]";
-}
-
-// node_modules/date-fns/isValid.js
-function isValid(date) {
-  return !(!isDate2(date) && typeof date !== "number" || isNaN(+toDate2(date)));
-}
-
-// node_modules/date-fns/differenceInCalendarMonths.js
-function differenceInCalendarMonths(laterDate, earlierDate, options) {
-  const [laterDate_, earlierDate_] = normalizeDates(
-    options?.in,
-    laterDate,
-    earlierDate
-  );
-  const yearsDiff = laterDate_.getFullYear() - earlierDate_.getFullYear();
-  const monthsDiff = laterDate_.getMonth() - earlierDate_.getMonth();
-  return yearsDiff * 12 + monthsDiff;
+// node_modules/date-fns/startOfMinute.js
+function startOfMinute(date, options) {
+  const date_ = toDate2(date, options?.in);
+  date_.setSeconds(0, 0);
+  return date_;
 }
 
 // node_modules/date-fns/_lib/getRoundingMethod.js
@@ -34564,1526 +34359,6 @@ function getRoundingMethod(method) {
     const result = round2(number);
     return result === 0 ? 0 : result;
   };
-}
-
-// node_modules/date-fns/differenceInMilliseconds.js
-function differenceInMilliseconds(laterDate, earlierDate) {
-  return +toDate2(laterDate) - +toDate2(earlierDate);
-}
-
-// node_modules/date-fns/differenceInMinutes.js
-function differenceInMinutes(dateLeft, dateRight, options) {
-  const diff = differenceInMilliseconds(dateLeft, dateRight) / millisecondsInMinute;
-  return getRoundingMethod(options?.roundingMethod)(diff);
-}
-
-// node_modules/date-fns/endOfDay.js
-function endOfDay(date, options) {
-  const _date = toDate2(date, options?.in);
-  _date.setHours(23, 59, 59, 999);
-  return _date;
-}
-
-// node_modules/date-fns/endOfMonth.js
-function endOfMonth(date, options) {
-  const _date = toDate2(date, options?.in);
-  const month = _date.getMonth();
-  _date.setFullYear(_date.getFullYear(), month + 1, 0);
-  _date.setHours(23, 59, 59, 999);
-  return _date;
-}
-
-// node_modules/date-fns/startOfYear.js
-function startOfYear(date, options) {
-  const date_ = toDate2(date, options?.in);
-  date_.setFullYear(date_.getFullYear(), 0, 1);
-  date_.setHours(0, 0, 0, 0);
-  return date_;
-}
-
-// node_modules/date-fns/locale/en-US/_lib/formatDistance.js
-var formatDistanceLocale = {
-  lessThanXSeconds: {
-    one: "less than a second",
-    other: "less than {{count}} seconds"
-  },
-  xSeconds: {
-    one: "1 second",
-    other: "{{count}} seconds"
-  },
-  halfAMinute: "half a minute",
-  lessThanXMinutes: {
-    one: "less than a minute",
-    other: "less than {{count}} minutes"
-  },
-  xMinutes: {
-    one: "1 minute",
-    other: "{{count}} minutes"
-  },
-  aboutXHours: {
-    one: "about 1 hour",
-    other: "about {{count}} hours"
-  },
-  xHours: {
-    one: "1 hour",
-    other: "{{count}} hours"
-  },
-  xDays: {
-    one: "1 day",
-    other: "{{count}} days"
-  },
-  aboutXWeeks: {
-    one: "about 1 week",
-    other: "about {{count}} weeks"
-  },
-  xWeeks: {
-    one: "1 week",
-    other: "{{count}} weeks"
-  },
-  aboutXMonths: {
-    one: "about 1 month",
-    other: "about {{count}} months"
-  },
-  xMonths: {
-    one: "1 month",
-    other: "{{count}} months"
-  },
-  aboutXYears: {
-    one: "about 1 year",
-    other: "about {{count}} years"
-  },
-  xYears: {
-    one: "1 year",
-    other: "{{count}} years"
-  },
-  overXYears: {
-    one: "over 1 year",
-    other: "over {{count}} years"
-  },
-  almostXYears: {
-    one: "almost 1 year",
-    other: "almost {{count}} years"
-  }
-};
-var formatDistance = (token, count, options) => {
-  let result;
-  const tokenValue = formatDistanceLocale[token];
-  if (typeof tokenValue === "string") {
-    result = tokenValue;
-  } else if (count === 1) {
-    result = tokenValue.one;
-  } else {
-    result = tokenValue.other.replace("{{count}}", count.toString());
-  }
-  if (options?.addSuffix) {
-    if (options.comparison && options.comparison > 0) {
-      return "in " + result;
-    } else {
-      return result + " ago";
-    }
-  }
-  return result;
-};
-
-// node_modules/date-fns/locale/_lib/buildFormatLongFn.js
-function buildFormatLongFn(args) {
-  return (options = {}) => {
-    const width = options.width ? String(options.width) : args.defaultWidth;
-    const format3 = args.formats[width] || args.formats[args.defaultWidth];
-    return format3;
-  };
-}
-
-// node_modules/date-fns/locale/en-US/_lib/formatLong.js
-var dateFormats = {
-  full: "EEEE, MMMM do, y",
-  long: "MMMM do, y",
-  medium: "MMM d, y",
-  short: "MM/dd/yyyy"
-};
-var timeFormats = {
-  full: "h:mm:ss a zzzz",
-  long: "h:mm:ss a z",
-  medium: "h:mm:ss a",
-  short: "h:mm a"
-};
-var dateTimeFormats = {
-  full: "{{date}} 'at' {{time}}",
-  long: "{{date}} 'at' {{time}}",
-  medium: "{{date}}, {{time}}",
-  short: "{{date}}, {{time}}"
-};
-var formatLong = {
-  date: buildFormatLongFn({
-    formats: dateFormats,
-    defaultWidth: "full"
-  }),
-  time: buildFormatLongFn({
-    formats: timeFormats,
-    defaultWidth: "full"
-  }),
-  dateTime: buildFormatLongFn({
-    formats: dateTimeFormats,
-    defaultWidth: "full"
-  })
-};
-
-// node_modules/date-fns/locale/en-US/_lib/formatRelative.js
-var formatRelativeLocale = {
-  lastWeek: "'last' eeee 'at' p",
-  yesterday: "'yesterday at' p",
-  today: "'today at' p",
-  tomorrow: "'tomorrow at' p",
-  nextWeek: "eeee 'at' p",
-  other: "P"
-};
-var formatRelative = (token, _date, _baseDate, _options) => formatRelativeLocale[token];
-
-// node_modules/date-fns/locale/_lib/buildLocalizeFn.js
-function buildLocalizeFn(args) {
-  return (value, options) => {
-    const context2 = options?.context ? String(options.context) : "standalone";
-    let valuesArray;
-    if (context2 === "formatting" && args.formattingValues) {
-      const defaultWidth = args.defaultFormattingWidth || args.defaultWidth;
-      const width = options?.width ? String(options.width) : defaultWidth;
-      valuesArray = args.formattingValues[width] || args.formattingValues[defaultWidth];
-    } else {
-      const defaultWidth = args.defaultWidth;
-      const width = options?.width ? String(options.width) : args.defaultWidth;
-      valuesArray = args.values[width] || args.values[defaultWidth];
-    }
-    const index = args.argumentCallback ? args.argumentCallback(value) : value;
-    return valuesArray[index];
-  };
-}
-
-// node_modules/date-fns/locale/en-US/_lib/localize.js
-var eraValues = {
-  narrow: ["B", "A"],
-  abbreviated: ["BC", "AD"],
-  wide: ["Before Christ", "Anno Domini"]
-};
-var quarterValues = {
-  narrow: ["1", "2", "3", "4"],
-  abbreviated: ["Q1", "Q2", "Q3", "Q4"],
-  wide: ["1st quarter", "2nd quarter", "3rd quarter", "4th quarter"]
-};
-var monthValues = {
-  narrow: ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"],
-  abbreviated: [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec"
-  ],
-  wide: [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December"
-  ]
-};
-var dayValues = {
-  narrow: ["S", "M", "T", "W", "T", "F", "S"],
-  short: ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"],
-  abbreviated: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-  wide: [
-    "Sunday",
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday"
-  ]
-};
-var dayPeriodValues = {
-  narrow: {
-    am: "a",
-    pm: "p",
-    midnight: "mi",
-    noon: "n",
-    morning: "morning",
-    afternoon: "afternoon",
-    evening: "evening",
-    night: "night"
-  },
-  abbreviated: {
-    am: "AM",
-    pm: "PM",
-    midnight: "midnight",
-    noon: "noon",
-    morning: "morning",
-    afternoon: "afternoon",
-    evening: "evening",
-    night: "night"
-  },
-  wide: {
-    am: "a.m.",
-    pm: "p.m.",
-    midnight: "midnight",
-    noon: "noon",
-    morning: "morning",
-    afternoon: "afternoon",
-    evening: "evening",
-    night: "night"
-  }
-};
-var formattingDayPeriodValues = {
-  narrow: {
-    am: "a",
-    pm: "p",
-    midnight: "mi",
-    noon: "n",
-    morning: "in the morning",
-    afternoon: "in the afternoon",
-    evening: "in the evening",
-    night: "at night"
-  },
-  abbreviated: {
-    am: "AM",
-    pm: "PM",
-    midnight: "midnight",
-    noon: "noon",
-    morning: "in the morning",
-    afternoon: "in the afternoon",
-    evening: "in the evening",
-    night: "at night"
-  },
-  wide: {
-    am: "a.m.",
-    pm: "p.m.",
-    midnight: "midnight",
-    noon: "noon",
-    morning: "in the morning",
-    afternoon: "in the afternoon",
-    evening: "in the evening",
-    night: "at night"
-  }
-};
-var ordinalNumber = (dirtyNumber, _options) => {
-  const number = Number(dirtyNumber);
-  const rem100 = number % 100;
-  if (rem100 > 20 || rem100 < 10) {
-    switch (rem100 % 10) {
-      case 1:
-        return number + "st";
-      case 2:
-        return number + "nd";
-      case 3:
-        return number + "rd";
-    }
-  }
-  return number + "th";
-};
-var localize = {
-  ordinalNumber,
-  era: buildLocalizeFn({
-    values: eraValues,
-    defaultWidth: "wide"
-  }),
-  quarter: buildLocalizeFn({
-    values: quarterValues,
-    defaultWidth: "wide",
-    argumentCallback: (quarter) => quarter - 1
-  }),
-  month: buildLocalizeFn({
-    values: monthValues,
-    defaultWidth: "wide"
-  }),
-  day: buildLocalizeFn({
-    values: dayValues,
-    defaultWidth: "wide"
-  }),
-  dayPeriod: buildLocalizeFn({
-    values: dayPeriodValues,
-    defaultWidth: "wide",
-    formattingValues: formattingDayPeriodValues,
-    defaultFormattingWidth: "wide"
-  })
-};
-
-// node_modules/date-fns/locale/_lib/buildMatchFn.js
-function buildMatchFn(args) {
-  return (string, options = {}) => {
-    const width = options.width;
-    const matchPattern = width && args.matchPatterns[width] || args.matchPatterns[args.defaultMatchWidth];
-    const matchResult = string.match(matchPattern);
-    if (!matchResult) {
-      return null;
-    }
-    const matchedString = matchResult[0];
-    const parsePatterns = width && args.parsePatterns[width] || args.parsePatterns[args.defaultParseWidth];
-    const key = Array.isArray(parsePatterns) ? findIndex(parsePatterns, (pattern2) => pattern2.test(matchedString)) : (
-      // [TODO] -- I challenge you to fix the type
-      findKey(parsePatterns, (pattern2) => pattern2.test(matchedString))
-    );
-    let value;
-    value = args.valueCallback ? args.valueCallback(key) : key;
-    value = options.valueCallback ? (
-      // [TODO] -- I challenge you to fix the type
-      options.valueCallback(value)
-    ) : value;
-    const rest = string.slice(matchedString.length);
-    return { value, rest };
-  };
-}
-function findKey(object, predicate) {
-  for (const key in object) {
-    if (Object.prototype.hasOwnProperty.call(object, key) && predicate(object[key])) {
-      return key;
-    }
-  }
-  return void 0;
-}
-function findIndex(array, predicate) {
-  for (let key = 0; key < array.length; key++) {
-    if (predicate(array[key])) {
-      return key;
-    }
-  }
-  return void 0;
-}
-
-// node_modules/date-fns/locale/_lib/buildMatchPatternFn.js
-function buildMatchPatternFn(args) {
-  return (string, options = {}) => {
-    const matchResult = string.match(args.matchPattern);
-    if (!matchResult) return null;
-    const matchedString = matchResult[0];
-    const parseResult = string.match(args.parsePattern);
-    if (!parseResult) return null;
-    let value = args.valueCallback ? args.valueCallback(parseResult[0]) : parseResult[0];
-    value = options.valueCallback ? options.valueCallback(value) : value;
-    const rest = string.slice(matchedString.length);
-    return { value, rest };
-  };
-}
-
-// node_modules/date-fns/locale/en-US/_lib/match.js
-var matchOrdinalNumberPattern = /^(\d+)(th|st|nd|rd)?/i;
-var parseOrdinalNumberPattern = /\d+/i;
-var matchEraPatterns = {
-  narrow: /^(b|a)/i,
-  abbreviated: /^(b\.?\s?c\.?|b\.?\s?c\.?\s?e\.?|a\.?\s?d\.?|c\.?\s?e\.?)/i,
-  wide: /^(before christ|before common era|anno domini|common era)/i
-};
-var parseEraPatterns = {
-  any: [/^b/i, /^(a|c)/i]
-};
-var matchQuarterPatterns = {
-  narrow: /^[1234]/i,
-  abbreviated: /^q[1234]/i,
-  wide: /^[1234](th|st|nd|rd)? quarter/i
-};
-var parseQuarterPatterns = {
-  any: [/1/i, /2/i, /3/i, /4/i]
-};
-var matchMonthPatterns = {
-  narrow: /^[jfmasond]/i,
-  abbreviated: /^(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i,
-  wide: /^(january|february|march|april|may|june|july|august|september|october|november|december)/i
-};
-var parseMonthPatterns = {
-  narrow: [
-    /^j/i,
-    /^f/i,
-    /^m/i,
-    /^a/i,
-    /^m/i,
-    /^j/i,
-    /^j/i,
-    /^a/i,
-    /^s/i,
-    /^o/i,
-    /^n/i,
-    /^d/i
-  ],
-  any: [
-    /^ja/i,
-    /^f/i,
-    /^mar/i,
-    /^ap/i,
-    /^may/i,
-    /^jun/i,
-    /^jul/i,
-    /^au/i,
-    /^s/i,
-    /^o/i,
-    /^n/i,
-    /^d/i
-  ]
-};
-var matchDayPatterns = {
-  narrow: /^[smtwf]/i,
-  short: /^(su|mo|tu|we|th|fr|sa)/i,
-  abbreviated: /^(sun|mon|tue|wed|thu|fri|sat)/i,
-  wide: /^(sunday|monday|tuesday|wednesday|thursday|friday|saturday)/i
-};
-var parseDayPatterns = {
-  narrow: [/^s/i, /^m/i, /^t/i, /^w/i, /^t/i, /^f/i, /^s/i],
-  any: [/^su/i, /^m/i, /^tu/i, /^w/i, /^th/i, /^f/i, /^sa/i]
-};
-var matchDayPeriodPatterns = {
-  narrow: /^(a|p|mi|n|(in the|at) (morning|afternoon|evening|night))/i,
-  any: /^([ap]\.?\s?m\.?|midnight|noon|(in the|at) (morning|afternoon|evening|night))/i
-};
-var parseDayPeriodPatterns = {
-  any: {
-    am: /^a/i,
-    pm: /^p/i,
-    midnight: /^mi/i,
-    noon: /^no/i,
-    morning: /morning/i,
-    afternoon: /afternoon/i,
-    evening: /evening/i,
-    night: /night/i
-  }
-};
-var match = {
-  ordinalNumber: buildMatchPatternFn({
-    matchPattern: matchOrdinalNumberPattern,
-    parsePattern: parseOrdinalNumberPattern,
-    valueCallback: (value) => parseInt(value, 10)
-  }),
-  era: buildMatchFn({
-    matchPatterns: matchEraPatterns,
-    defaultMatchWidth: "wide",
-    parsePatterns: parseEraPatterns,
-    defaultParseWidth: "any"
-  }),
-  quarter: buildMatchFn({
-    matchPatterns: matchQuarterPatterns,
-    defaultMatchWidth: "wide",
-    parsePatterns: parseQuarterPatterns,
-    defaultParseWidth: "any",
-    valueCallback: (index) => index + 1
-  }),
-  month: buildMatchFn({
-    matchPatterns: matchMonthPatterns,
-    defaultMatchWidth: "wide",
-    parsePatterns: parseMonthPatterns,
-    defaultParseWidth: "any"
-  }),
-  day: buildMatchFn({
-    matchPatterns: matchDayPatterns,
-    defaultMatchWidth: "wide",
-    parsePatterns: parseDayPatterns,
-    defaultParseWidth: "any"
-  }),
-  dayPeriod: buildMatchFn({
-    matchPatterns: matchDayPeriodPatterns,
-    defaultMatchWidth: "any",
-    parsePatterns: parseDayPeriodPatterns,
-    defaultParseWidth: "any"
-  })
-};
-
-// node_modules/date-fns/locale/en-US.js
-var enUS = {
-  code: "en-US",
-  formatDistance,
-  formatLong,
-  formatRelative,
-  localize,
-  match,
-  options: {
-    weekStartsOn: 0,
-    firstWeekContainsDate: 1
-  }
-};
-
-// node_modules/date-fns/getDayOfYear.js
-function getDayOfYear(date, options) {
-  const _date = toDate2(date, options?.in);
-  const diff = differenceInCalendarDays(_date, startOfYear(_date));
-  const dayOfYear = diff + 1;
-  return dayOfYear;
-}
-
-// node_modules/date-fns/getISOWeek.js
-function getISOWeek(date, options) {
-  const _date = toDate2(date, options?.in);
-  const diff = +startOfISOWeek(_date) - +startOfISOWeekYear(_date);
-  return Math.round(diff / millisecondsInWeek) + 1;
-}
-
-// node_modules/date-fns/getWeekYear.js
-function getWeekYear(date, options) {
-  const _date = toDate2(date, options?.in);
-  const year = _date.getFullYear();
-  const defaultOptions2 = getDefaultOptions();
-  const firstWeekContainsDate = options?.firstWeekContainsDate ?? options?.locale?.options?.firstWeekContainsDate ?? defaultOptions2.firstWeekContainsDate ?? defaultOptions2.locale?.options?.firstWeekContainsDate ?? 1;
-  const firstWeekOfNextYear = constructFrom(options?.in || date, 0);
-  firstWeekOfNextYear.setFullYear(year + 1, 0, firstWeekContainsDate);
-  firstWeekOfNextYear.setHours(0, 0, 0, 0);
-  const startOfNextYear = startOfWeek(firstWeekOfNextYear, options);
-  const firstWeekOfThisYear = constructFrom(options?.in || date, 0);
-  firstWeekOfThisYear.setFullYear(year, 0, firstWeekContainsDate);
-  firstWeekOfThisYear.setHours(0, 0, 0, 0);
-  const startOfThisYear = startOfWeek(firstWeekOfThisYear, options);
-  if (+_date >= +startOfNextYear) {
-    return year + 1;
-  } else if (+_date >= +startOfThisYear) {
-    return year;
-  } else {
-    return year - 1;
-  }
-}
-
-// node_modules/date-fns/startOfWeekYear.js
-function startOfWeekYear(date, options) {
-  const defaultOptions2 = getDefaultOptions();
-  const firstWeekContainsDate = options?.firstWeekContainsDate ?? options?.locale?.options?.firstWeekContainsDate ?? defaultOptions2.firstWeekContainsDate ?? defaultOptions2.locale?.options?.firstWeekContainsDate ?? 1;
-  const year = getWeekYear(date, options);
-  const firstWeek = constructFrom(options?.in || date, 0);
-  firstWeek.setFullYear(year, 0, firstWeekContainsDate);
-  firstWeek.setHours(0, 0, 0, 0);
-  const _date = startOfWeek(firstWeek, options);
-  return _date;
-}
-
-// node_modules/date-fns/getWeek.js
-function getWeek(date, options) {
-  const _date = toDate2(date, options?.in);
-  const diff = +startOfWeek(_date, options) - +startOfWeekYear(_date, options);
-  return Math.round(diff / millisecondsInWeek) + 1;
-}
-
-// node_modules/date-fns/_lib/addLeadingZeros.js
-function addLeadingZeros(number, targetLength) {
-  const sign = number < 0 ? "-" : "";
-  const output2 = Math.abs(number).toString().padStart(targetLength, "0");
-  return sign + output2;
-}
-
-// node_modules/date-fns/_lib/format/lightFormatters.js
-var lightFormatters = {
-  // Year
-  y(date, token) {
-    const signedYear = date.getFullYear();
-    const year = signedYear > 0 ? signedYear : 1 - signedYear;
-    return addLeadingZeros(token === "yy" ? year % 100 : year, token.length);
-  },
-  // Month
-  M(date, token) {
-    const month = date.getMonth();
-    return token === "M" ? String(month + 1) : addLeadingZeros(month + 1, 2);
-  },
-  // Day of the month
-  d(date, token) {
-    return addLeadingZeros(date.getDate(), token.length);
-  },
-  // AM or PM
-  a(date, token) {
-    const dayPeriodEnumValue = date.getHours() / 12 >= 1 ? "pm" : "am";
-    switch (token) {
-      case "a":
-      case "aa":
-        return dayPeriodEnumValue.toUpperCase();
-      case "aaa":
-        return dayPeriodEnumValue;
-      case "aaaaa":
-        return dayPeriodEnumValue[0];
-      case "aaaa":
-      default:
-        return dayPeriodEnumValue === "am" ? "a.m." : "p.m.";
-    }
-  },
-  // Hour [1-12]
-  h(date, token) {
-    return addLeadingZeros(date.getHours() % 12 || 12, token.length);
-  },
-  // Hour [0-23]
-  H(date, token) {
-    return addLeadingZeros(date.getHours(), token.length);
-  },
-  // Minute
-  m(date, token) {
-    return addLeadingZeros(date.getMinutes(), token.length);
-  },
-  // Second
-  s(date, token) {
-    return addLeadingZeros(date.getSeconds(), token.length);
-  },
-  // Fraction of second
-  S(date, token) {
-    const numberOfDigits = token.length;
-    const milliseconds = date.getMilliseconds();
-    const fractionalSeconds = Math.trunc(
-      milliseconds * Math.pow(10, numberOfDigits - 3)
-    );
-    return addLeadingZeros(fractionalSeconds, token.length);
-  }
-};
-
-// node_modules/date-fns/_lib/format/formatters.js
-var dayPeriodEnum = {
-  am: "am",
-  pm: "pm",
-  midnight: "midnight",
-  noon: "noon",
-  morning: "morning",
-  afternoon: "afternoon",
-  evening: "evening",
-  night: "night"
-};
-var formatters = {
-  // Era
-  G: function(date, token, localize2) {
-    const era = date.getFullYear() > 0 ? 1 : 0;
-    switch (token) {
-      // AD, BC
-      case "G":
-      case "GG":
-      case "GGG":
-        return localize2.era(era, { width: "abbreviated" });
-      // A, B
-      case "GGGGG":
-        return localize2.era(era, { width: "narrow" });
-      // Anno Domini, Before Christ
-      case "GGGG":
-      default:
-        return localize2.era(era, { width: "wide" });
-    }
-  },
-  // Year
-  y: function(date, token, localize2) {
-    if (token === "yo") {
-      const signedYear = date.getFullYear();
-      const year = signedYear > 0 ? signedYear : 1 - signedYear;
-      return localize2.ordinalNumber(year, { unit: "year" });
-    }
-    return lightFormatters.y(date, token);
-  },
-  // Local week-numbering year
-  Y: function(date, token, localize2, options) {
-    const signedWeekYear = getWeekYear(date, options);
-    const weekYear = signedWeekYear > 0 ? signedWeekYear : 1 - signedWeekYear;
-    if (token === "YY") {
-      const twoDigitYear = weekYear % 100;
-      return addLeadingZeros(twoDigitYear, 2);
-    }
-    if (token === "Yo") {
-      return localize2.ordinalNumber(weekYear, { unit: "year" });
-    }
-    return addLeadingZeros(weekYear, token.length);
-  },
-  // ISO week-numbering year
-  R: function(date, token) {
-    const isoWeekYear = getISOWeekYear(date);
-    return addLeadingZeros(isoWeekYear, token.length);
-  },
-  // Extended year. This is a single number designating the year of this calendar system.
-  // The main difference between `y` and `u` localizers are B.C. years:
-  // | Year | `y` | `u` |
-  // |------|-----|-----|
-  // | AC 1 |   1 |   1 |
-  // | BC 1 |   1 |   0 |
-  // | BC 2 |   2 |  -1 |
-  // Also `yy` always returns the last two digits of a year,
-  // while `uu` pads single digit years to 2 characters and returns other years unchanged.
-  u: function(date, token) {
-    const year = date.getFullYear();
-    return addLeadingZeros(year, token.length);
-  },
-  // Quarter
-  Q: function(date, token, localize2) {
-    const quarter = Math.ceil((date.getMonth() + 1) / 3);
-    switch (token) {
-      // 1, 2, 3, 4
-      case "Q":
-        return String(quarter);
-      // 01, 02, 03, 04
-      case "QQ":
-        return addLeadingZeros(quarter, 2);
-      // 1st, 2nd, 3rd, 4th
-      case "Qo":
-        return localize2.ordinalNumber(quarter, { unit: "quarter" });
-      // Q1, Q2, Q3, Q4
-      case "QQQ":
-        return localize2.quarter(quarter, {
-          width: "abbreviated",
-          context: "formatting"
-        });
-      // 1, 2, 3, 4 (narrow quarter; could be not numerical)
-      case "QQQQQ":
-        return localize2.quarter(quarter, {
-          width: "narrow",
-          context: "formatting"
-        });
-      // 1st quarter, 2nd quarter, ...
-      case "QQQQ":
-      default:
-        return localize2.quarter(quarter, {
-          width: "wide",
-          context: "formatting"
-        });
-    }
-  },
-  // Stand-alone quarter
-  q: function(date, token, localize2) {
-    const quarter = Math.ceil((date.getMonth() + 1) / 3);
-    switch (token) {
-      // 1, 2, 3, 4
-      case "q":
-        return String(quarter);
-      // 01, 02, 03, 04
-      case "qq":
-        return addLeadingZeros(quarter, 2);
-      // 1st, 2nd, 3rd, 4th
-      case "qo":
-        return localize2.ordinalNumber(quarter, { unit: "quarter" });
-      // Q1, Q2, Q3, Q4
-      case "qqq":
-        return localize2.quarter(quarter, {
-          width: "abbreviated",
-          context: "standalone"
-        });
-      // 1, 2, 3, 4 (narrow quarter; could be not numerical)
-      case "qqqqq":
-        return localize2.quarter(quarter, {
-          width: "narrow",
-          context: "standalone"
-        });
-      // 1st quarter, 2nd quarter, ...
-      case "qqqq":
-      default:
-        return localize2.quarter(quarter, {
-          width: "wide",
-          context: "standalone"
-        });
-    }
-  },
-  // Month
-  M: function(date, token, localize2) {
-    const month = date.getMonth();
-    switch (token) {
-      case "M":
-      case "MM":
-        return lightFormatters.M(date, token);
-      // 1st, 2nd, ..., 12th
-      case "Mo":
-        return localize2.ordinalNumber(month + 1, { unit: "month" });
-      // Jan, Feb, ..., Dec
-      case "MMM":
-        return localize2.month(month, {
-          width: "abbreviated",
-          context: "formatting"
-        });
-      // J, F, ..., D
-      case "MMMMM":
-        return localize2.month(month, {
-          width: "narrow",
-          context: "formatting"
-        });
-      // January, February, ..., December
-      case "MMMM":
-      default:
-        return localize2.month(month, { width: "wide", context: "formatting" });
-    }
-  },
-  // Stand-alone month
-  L: function(date, token, localize2) {
-    const month = date.getMonth();
-    switch (token) {
-      // 1, 2, ..., 12
-      case "L":
-        return String(month + 1);
-      // 01, 02, ..., 12
-      case "LL":
-        return addLeadingZeros(month + 1, 2);
-      // 1st, 2nd, ..., 12th
-      case "Lo":
-        return localize2.ordinalNumber(month + 1, { unit: "month" });
-      // Jan, Feb, ..., Dec
-      case "LLL":
-        return localize2.month(month, {
-          width: "abbreviated",
-          context: "standalone"
-        });
-      // J, F, ..., D
-      case "LLLLL":
-        return localize2.month(month, {
-          width: "narrow",
-          context: "standalone"
-        });
-      // January, February, ..., December
-      case "LLLL":
-      default:
-        return localize2.month(month, { width: "wide", context: "standalone" });
-    }
-  },
-  // Local week of year
-  w: function(date, token, localize2, options) {
-    const week = getWeek(date, options);
-    if (token === "wo") {
-      return localize2.ordinalNumber(week, { unit: "week" });
-    }
-    return addLeadingZeros(week, token.length);
-  },
-  // ISO week of year
-  I: function(date, token, localize2) {
-    const isoWeek = getISOWeek(date);
-    if (token === "Io") {
-      return localize2.ordinalNumber(isoWeek, { unit: "week" });
-    }
-    return addLeadingZeros(isoWeek, token.length);
-  },
-  // Day of the month
-  d: function(date, token, localize2) {
-    if (token === "do") {
-      return localize2.ordinalNumber(date.getDate(), { unit: "date" });
-    }
-    return lightFormatters.d(date, token);
-  },
-  // Day of year
-  D: function(date, token, localize2) {
-    const dayOfYear = getDayOfYear(date);
-    if (token === "Do") {
-      return localize2.ordinalNumber(dayOfYear, { unit: "dayOfYear" });
-    }
-    return addLeadingZeros(dayOfYear, token.length);
-  },
-  // Day of week
-  E: function(date, token, localize2) {
-    const dayOfWeek = date.getDay();
-    switch (token) {
-      // Tue
-      case "E":
-      case "EE":
-      case "EEE":
-        return localize2.day(dayOfWeek, {
-          width: "abbreviated",
-          context: "formatting"
-        });
-      // T
-      case "EEEEE":
-        return localize2.day(dayOfWeek, {
-          width: "narrow",
-          context: "formatting"
-        });
-      // Tu
-      case "EEEEEE":
-        return localize2.day(dayOfWeek, {
-          width: "short",
-          context: "formatting"
-        });
-      // Tuesday
-      case "EEEE":
-      default:
-        return localize2.day(dayOfWeek, {
-          width: "wide",
-          context: "formatting"
-        });
-    }
-  },
-  // Local day of week
-  e: function(date, token, localize2, options) {
-    const dayOfWeek = date.getDay();
-    const localDayOfWeek = (dayOfWeek - options.weekStartsOn + 8) % 7 || 7;
-    switch (token) {
-      // Numerical value (Nth day of week with current locale or weekStartsOn)
-      case "e":
-        return String(localDayOfWeek);
-      // Padded numerical value
-      case "ee":
-        return addLeadingZeros(localDayOfWeek, 2);
-      // 1st, 2nd, ..., 7th
-      case "eo":
-        return localize2.ordinalNumber(localDayOfWeek, { unit: "day" });
-      case "eee":
-        return localize2.day(dayOfWeek, {
-          width: "abbreviated",
-          context: "formatting"
-        });
-      // T
-      case "eeeee":
-        return localize2.day(dayOfWeek, {
-          width: "narrow",
-          context: "formatting"
-        });
-      // Tu
-      case "eeeeee":
-        return localize2.day(dayOfWeek, {
-          width: "short",
-          context: "formatting"
-        });
-      // Tuesday
-      case "eeee":
-      default:
-        return localize2.day(dayOfWeek, {
-          width: "wide",
-          context: "formatting"
-        });
-    }
-  },
-  // Stand-alone local day of week
-  c: function(date, token, localize2, options) {
-    const dayOfWeek = date.getDay();
-    const localDayOfWeek = (dayOfWeek - options.weekStartsOn + 8) % 7 || 7;
-    switch (token) {
-      // Numerical value (same as in `e`)
-      case "c":
-        return String(localDayOfWeek);
-      // Padded numerical value
-      case "cc":
-        return addLeadingZeros(localDayOfWeek, token.length);
-      // 1st, 2nd, ..., 7th
-      case "co":
-        return localize2.ordinalNumber(localDayOfWeek, { unit: "day" });
-      case "ccc":
-        return localize2.day(dayOfWeek, {
-          width: "abbreviated",
-          context: "standalone"
-        });
-      // T
-      case "ccccc":
-        return localize2.day(dayOfWeek, {
-          width: "narrow",
-          context: "standalone"
-        });
-      // Tu
-      case "cccccc":
-        return localize2.day(dayOfWeek, {
-          width: "short",
-          context: "standalone"
-        });
-      // Tuesday
-      case "cccc":
-      default:
-        return localize2.day(dayOfWeek, {
-          width: "wide",
-          context: "standalone"
-        });
-    }
-  },
-  // ISO day of week
-  i: function(date, token, localize2) {
-    const dayOfWeek = date.getDay();
-    const isoDayOfWeek = dayOfWeek === 0 ? 7 : dayOfWeek;
-    switch (token) {
-      // 2
-      case "i":
-        return String(isoDayOfWeek);
-      // 02
-      case "ii":
-        return addLeadingZeros(isoDayOfWeek, token.length);
-      // 2nd
-      case "io":
-        return localize2.ordinalNumber(isoDayOfWeek, { unit: "day" });
-      // Tue
-      case "iii":
-        return localize2.day(dayOfWeek, {
-          width: "abbreviated",
-          context: "formatting"
-        });
-      // T
-      case "iiiii":
-        return localize2.day(dayOfWeek, {
-          width: "narrow",
-          context: "formatting"
-        });
-      // Tu
-      case "iiiiii":
-        return localize2.day(dayOfWeek, {
-          width: "short",
-          context: "formatting"
-        });
-      // Tuesday
-      case "iiii":
-      default:
-        return localize2.day(dayOfWeek, {
-          width: "wide",
-          context: "formatting"
-        });
-    }
-  },
-  // AM or PM
-  a: function(date, token, localize2) {
-    const hours = date.getHours();
-    const dayPeriodEnumValue = hours / 12 >= 1 ? "pm" : "am";
-    switch (token) {
-      case "a":
-      case "aa":
-        return localize2.dayPeriod(dayPeriodEnumValue, {
-          width: "abbreviated",
-          context: "formatting"
-        });
-      case "aaa":
-        return localize2.dayPeriod(dayPeriodEnumValue, {
-          width: "abbreviated",
-          context: "formatting"
-        }).toLowerCase();
-      case "aaaaa":
-        return localize2.dayPeriod(dayPeriodEnumValue, {
-          width: "narrow",
-          context: "formatting"
-        });
-      case "aaaa":
-      default:
-        return localize2.dayPeriod(dayPeriodEnumValue, {
-          width: "wide",
-          context: "formatting"
-        });
-    }
-  },
-  // AM, PM, midnight, noon
-  b: function(date, token, localize2) {
-    const hours = date.getHours();
-    let dayPeriodEnumValue;
-    if (hours === 12) {
-      dayPeriodEnumValue = dayPeriodEnum.noon;
-    } else if (hours === 0) {
-      dayPeriodEnumValue = dayPeriodEnum.midnight;
-    } else {
-      dayPeriodEnumValue = hours / 12 >= 1 ? "pm" : "am";
-    }
-    switch (token) {
-      case "b":
-      case "bb":
-        return localize2.dayPeriod(dayPeriodEnumValue, {
-          width: "abbreviated",
-          context: "formatting"
-        });
-      case "bbb":
-        return localize2.dayPeriod(dayPeriodEnumValue, {
-          width: "abbreviated",
-          context: "formatting"
-        }).toLowerCase();
-      case "bbbbb":
-        return localize2.dayPeriod(dayPeriodEnumValue, {
-          width: "narrow",
-          context: "formatting"
-        });
-      case "bbbb":
-      default:
-        return localize2.dayPeriod(dayPeriodEnumValue, {
-          width: "wide",
-          context: "formatting"
-        });
-    }
-  },
-  // in the morning, in the afternoon, in the evening, at night
-  B: function(date, token, localize2) {
-    const hours = date.getHours();
-    let dayPeriodEnumValue;
-    if (hours >= 17) {
-      dayPeriodEnumValue = dayPeriodEnum.evening;
-    } else if (hours >= 12) {
-      dayPeriodEnumValue = dayPeriodEnum.afternoon;
-    } else if (hours >= 4) {
-      dayPeriodEnumValue = dayPeriodEnum.morning;
-    } else {
-      dayPeriodEnumValue = dayPeriodEnum.night;
-    }
-    switch (token) {
-      case "B":
-      case "BB":
-      case "BBB":
-        return localize2.dayPeriod(dayPeriodEnumValue, {
-          width: "abbreviated",
-          context: "formatting"
-        });
-      case "BBBBB":
-        return localize2.dayPeriod(dayPeriodEnumValue, {
-          width: "narrow",
-          context: "formatting"
-        });
-      case "BBBB":
-      default:
-        return localize2.dayPeriod(dayPeriodEnumValue, {
-          width: "wide",
-          context: "formatting"
-        });
-    }
-  },
-  // Hour [1-12]
-  h: function(date, token, localize2) {
-    if (token === "ho") {
-      let hours = date.getHours() % 12;
-      if (hours === 0) hours = 12;
-      return localize2.ordinalNumber(hours, { unit: "hour" });
-    }
-    return lightFormatters.h(date, token);
-  },
-  // Hour [0-23]
-  H: function(date, token, localize2) {
-    if (token === "Ho") {
-      return localize2.ordinalNumber(date.getHours(), { unit: "hour" });
-    }
-    return lightFormatters.H(date, token);
-  },
-  // Hour [0-11]
-  K: function(date, token, localize2) {
-    const hours = date.getHours() % 12;
-    if (token === "Ko") {
-      return localize2.ordinalNumber(hours, { unit: "hour" });
-    }
-    return addLeadingZeros(hours, token.length);
-  },
-  // Hour [1-24]
-  k: function(date, token, localize2) {
-    let hours = date.getHours();
-    if (hours === 0) hours = 24;
-    if (token === "ko") {
-      return localize2.ordinalNumber(hours, { unit: "hour" });
-    }
-    return addLeadingZeros(hours, token.length);
-  },
-  // Minute
-  m: function(date, token, localize2) {
-    if (token === "mo") {
-      return localize2.ordinalNumber(date.getMinutes(), { unit: "minute" });
-    }
-    return lightFormatters.m(date, token);
-  },
-  // Second
-  s: function(date, token, localize2) {
-    if (token === "so") {
-      return localize2.ordinalNumber(date.getSeconds(), { unit: "second" });
-    }
-    return lightFormatters.s(date, token);
-  },
-  // Fraction of second
-  S: function(date, token) {
-    return lightFormatters.S(date, token);
-  },
-  // Timezone (ISO-8601. If offset is 0, output is always `'Z'`)
-  X: function(date, token, _localize) {
-    const timezoneOffset = date.getTimezoneOffset();
-    if (timezoneOffset === 0) {
-      return "Z";
-    }
-    switch (token) {
-      // Hours and optional minutes
-      case "X":
-        return formatTimezoneWithOptionalMinutes(timezoneOffset);
-      // Hours, minutes and optional seconds without `:` delimiter
-      // Note: neither ISO-8601 nor JavaScript supports seconds in timezone offsets
-      // so this token always has the same output as `XX`
-      case "XXXX":
-      case "XX":
-        return formatTimezone(timezoneOffset);
-      // Hours, minutes and optional seconds with `:` delimiter
-      // Note: neither ISO-8601 nor JavaScript supports seconds in timezone offsets
-      // so this token always has the same output as `XXX`
-      case "XXXXX":
-      case "XXX":
-      // Hours and minutes with `:` delimiter
-      default:
-        return formatTimezone(timezoneOffset, ":");
-    }
-  },
-  // Timezone (ISO-8601. If offset is 0, output is `'+00:00'` or equivalent)
-  x: function(date, token, _localize) {
-    const timezoneOffset = date.getTimezoneOffset();
-    switch (token) {
-      // Hours and optional minutes
-      case "x":
-        return formatTimezoneWithOptionalMinutes(timezoneOffset);
-      // Hours, minutes and optional seconds without `:` delimiter
-      // Note: neither ISO-8601 nor JavaScript supports seconds in timezone offsets
-      // so this token always has the same output as `xx`
-      case "xxxx":
-      case "xx":
-        return formatTimezone(timezoneOffset);
-      // Hours, minutes and optional seconds with `:` delimiter
-      // Note: neither ISO-8601 nor JavaScript supports seconds in timezone offsets
-      // so this token always has the same output as `xxx`
-      case "xxxxx":
-      case "xxx":
-      // Hours and minutes with `:` delimiter
-      default:
-        return formatTimezone(timezoneOffset, ":");
-    }
-  },
-  // Timezone (GMT)
-  O: function(date, token, _localize) {
-    const timezoneOffset = date.getTimezoneOffset();
-    switch (token) {
-      // Short
-      case "O":
-      case "OO":
-      case "OOO":
-        return "GMT" + formatTimezoneShort(timezoneOffset, ":");
-      // Long
-      case "OOOO":
-      default:
-        return "GMT" + formatTimezone(timezoneOffset, ":");
-    }
-  },
-  // Timezone (specific non-location)
-  z: function(date, token, _localize) {
-    const timezoneOffset = date.getTimezoneOffset();
-    switch (token) {
-      // Short
-      case "z":
-      case "zz":
-      case "zzz":
-        return "GMT" + formatTimezoneShort(timezoneOffset, ":");
-      // Long
-      case "zzzz":
-      default:
-        return "GMT" + formatTimezone(timezoneOffset, ":");
-    }
-  },
-  // Seconds timestamp
-  t: function(date, token, _localize) {
-    const timestamp = Math.trunc(+date / 1e3);
-    return addLeadingZeros(timestamp, token.length);
-  },
-  // Milliseconds timestamp
-  T: function(date, token, _localize) {
-    return addLeadingZeros(+date, token.length);
-  }
-};
-function formatTimezoneShort(offset, delimiter = "") {
-  const sign = offset > 0 ? "-" : "+";
-  const absOffset = Math.abs(offset);
-  const hours = Math.trunc(absOffset / 60);
-  const minutes = absOffset % 60;
-  if (minutes === 0) {
-    return sign + String(hours);
-  }
-  return sign + String(hours) + delimiter + addLeadingZeros(minutes, 2);
-}
-function formatTimezoneWithOptionalMinutes(offset, delimiter) {
-  if (offset % 60 === 0) {
-    const sign = offset > 0 ? "-" : "+";
-    return sign + addLeadingZeros(Math.abs(offset) / 60, 2);
-  }
-  return formatTimezone(offset, delimiter);
-}
-function formatTimezone(offset, delimiter = "") {
-  const sign = offset > 0 ? "-" : "+";
-  const absOffset = Math.abs(offset);
-  const hours = addLeadingZeros(Math.trunc(absOffset / 60), 2);
-  const minutes = addLeadingZeros(absOffset % 60, 2);
-  return sign + hours + delimiter + minutes;
-}
-
-// node_modules/date-fns/_lib/format/longFormatters.js
-var dateLongFormatter = (pattern2, formatLong2) => {
-  switch (pattern2) {
-    case "P":
-      return formatLong2.date({ width: "short" });
-    case "PP":
-      return formatLong2.date({ width: "medium" });
-    case "PPP":
-      return formatLong2.date({ width: "long" });
-    case "PPPP":
-    default:
-      return formatLong2.date({ width: "full" });
-  }
-};
-var timeLongFormatter = (pattern2, formatLong2) => {
-  switch (pattern2) {
-    case "p":
-      return formatLong2.time({ width: "short" });
-    case "pp":
-      return formatLong2.time({ width: "medium" });
-    case "ppp":
-      return formatLong2.time({ width: "long" });
-    case "pppp":
-    default:
-      return formatLong2.time({ width: "full" });
-  }
-};
-var dateTimeLongFormatter = (pattern2, formatLong2) => {
-  const matchResult = pattern2.match(/(P+)(p+)?/) || [];
-  const datePattern = matchResult[1];
-  const timePattern = matchResult[2];
-  if (!timePattern) {
-    return dateLongFormatter(pattern2, formatLong2);
-  }
-  let dateTimeFormat;
-  switch (datePattern) {
-    case "P":
-      dateTimeFormat = formatLong2.dateTime({ width: "short" });
-      break;
-    case "PP":
-      dateTimeFormat = formatLong2.dateTime({ width: "medium" });
-      break;
-    case "PPP":
-      dateTimeFormat = formatLong2.dateTime({ width: "long" });
-      break;
-    case "PPPP":
-    default:
-      dateTimeFormat = formatLong2.dateTime({ width: "full" });
-      break;
-  }
-  return dateTimeFormat.replace("{{date}}", dateLongFormatter(datePattern, formatLong2)).replace("{{time}}", timeLongFormatter(timePattern, formatLong2));
-};
-var longFormatters = {
-  p: timeLongFormatter,
-  P: dateTimeLongFormatter
-};
-
-// node_modules/date-fns/_lib/protectedTokens.js
-var dayOfYearTokenRE = /^D+$/;
-var weekYearTokenRE = /^Y+$/;
-var throwTokens = ["D", "DD", "YY", "YYYY"];
-function isProtectedDayOfYearToken(token) {
-  return dayOfYearTokenRE.test(token);
-}
-function isProtectedWeekYearToken(token) {
-  return weekYearTokenRE.test(token);
-}
-function warnOrThrowProtectedError(token, format3, input2) {
-  const _message = message(token, format3, input2);
-  console.warn(_message);
-  if (throwTokens.includes(token)) throw new RangeError(_message);
-}
-function message(token, format3, input2) {
-  const subject = token[0] === "Y" ? "years" : "days of the month";
-  return `Use \`${token.toLowerCase()}\` instead of \`${token}\` (in \`${format3}\`) for formatting ${subject} to the input \`${input2}\`; see: https://github.com/date-fns/date-fns/blob/master/docs/unicodeTokens.md`;
-}
-
-// node_modules/date-fns/format.js
-var formattingTokensRegExp = /[yYQqMLwIdDecihHKkms]o|(\w)\1*|''|'(''|[^'])+('|$)|./g;
-var longFormattingTokensRegExp = /P+p+|P+|p+|''|'(''|[^'])+('|$)|./g;
-var escapedStringRegExp = /^'([^]*?)'?$/;
-var doubleQuoteRegExp = /''/g;
-var unescapedLatinCharacterRegExp = /[a-zA-Z]/;
-function format(date, formatStr, options) {
-  const defaultOptions2 = getDefaultOptions();
-  const locale = options?.locale ?? defaultOptions2.locale ?? enUS;
-  const firstWeekContainsDate = options?.firstWeekContainsDate ?? options?.locale?.options?.firstWeekContainsDate ?? defaultOptions2.firstWeekContainsDate ?? defaultOptions2.locale?.options?.firstWeekContainsDate ?? 1;
-  const weekStartsOn = options?.weekStartsOn ?? options?.locale?.options?.weekStartsOn ?? defaultOptions2.weekStartsOn ?? defaultOptions2.locale?.options?.weekStartsOn ?? 0;
-  const originalDate = toDate2(date, options?.in);
-  if (!isValid(originalDate)) {
-    throw new RangeError("Invalid time value");
-  }
-  let parts = formatStr.match(longFormattingTokensRegExp).map((substring) => {
-    const firstCharacter = substring[0];
-    if (firstCharacter === "p" || firstCharacter === "P") {
-      const longFormatter = longFormatters[firstCharacter];
-      return longFormatter(substring, locale.formatLong);
-    }
-    return substring;
-  }).join("").match(formattingTokensRegExp).map((substring) => {
-    if (substring === "''") {
-      return { isToken: false, value: "'" };
-    }
-    const firstCharacter = substring[0];
-    if (firstCharacter === "'") {
-      return { isToken: false, value: cleanEscapedString(substring) };
-    }
-    if (formatters[firstCharacter]) {
-      return { isToken: true, value: substring };
-    }
-    if (firstCharacter.match(unescapedLatinCharacterRegExp)) {
-      throw new RangeError(
-        "Format string contains an unescaped latin alphabet character `" + firstCharacter + "`"
-      );
-    }
-    return { isToken: false, value: substring };
-  });
-  if (locale.localize.preprocessor) {
-    parts = locale.localize.preprocessor(originalDate, parts);
-  }
-  const formatterOptions = {
-    firstWeekContainsDate,
-    weekStartsOn,
-    locale
-  };
-  return parts.map((part) => {
-    if (!part.isToken) return part.value;
-    const token = part.value;
-    if (!options?.useAdditionalWeekYearTokens && isProtectedWeekYearToken(token) || !options?.useAdditionalDayOfYearTokens && isProtectedDayOfYearToken(token)) {
-      warnOrThrowProtectedError(token, formatStr, String(date));
-    }
-    const formatter2 = formatters[token[0]];
-    return formatter2(originalDate, token, locale.localize, formatterOptions);
-  }).join("");
-}
-function cleanEscapedString(input2) {
-  const matched = input2.match(escapedStringRegExp);
-  if (!matched) {
-    return input2;
-  }
-  return matched[1].replace(doubleQuoteRegExp, "'");
-}
-
-// node_modules/date-fns/formatDuration.js
-var defaultFormat = [
-  "years",
-  "months",
-  "weeks",
-  "days",
-  "hours",
-  "minutes",
-  "seconds"
-];
-function formatDuration(duration, options) {
-  const defaultOptions2 = getDefaultOptions();
-  const locale = options?.locale ?? defaultOptions2.locale ?? enUS;
-  const format3 = options?.format ?? defaultFormat;
-  const zero = options?.zero ?? false;
-  const delimiter = options?.delimiter ?? " ";
-  if (!locale.formatDistance) {
-    return "";
-  }
-  const result = format3.reduce((acc, unit) => {
-    const token = `x${unit.replace(/(^.)/, (m2) => m2.toUpperCase())}`;
-    const value = duration[unit];
-    if (value !== void 0 && (zero || duration[unit])) {
-      return acc.concat(locale.formatDistance(token, value));
-    }
-    return acc;
-  }, []).join(delimiter);
-  return result;
-}
-
-// node_modules/date-fns/getDaysInMonth.js
-function getDaysInMonth(date, options) {
-  const _date = toDate2(date, options?.in);
-  const year = _date.getFullYear();
-  const monthIndex = _date.getMonth();
-  const lastDayOfMonth = constructFrom(_date, 0);
-  lastDayOfMonth.setFullYear(year, monthIndex + 1, 0);
-  lastDayOfMonth.setHours(0, 0, 0, 0);
-  return lastDayOfMonth.getDate();
-}
-
-// node_modules/date-fns/getUnixTime.js
-function getUnixTime(date) {
-  return Math.trunc(+toDate2(date) / 1e3);
-}
-
-// node_modules/date-fns/isAfter.js
-function isAfter(date, dateToCompare) {
-  return +toDate2(date) > +toDate2(dateToCompare);
-}
-
-// node_modules/date-fns/isBefore.js
-function isBefore(date, dateToCompare) {
-  return +toDate2(date) < +toDate2(dateToCompare);
-}
-
-// node_modules/date-fns/startOfMinute.js
-function startOfMinute(date, options) {
-  const date_ = toDate2(date, options?.in);
-  date_.setSeconds(0, 0);
-  return date_;
 }
 
 // node_modules/date-fns/roundToNearestMinutes.js
@@ -36099,112 +34374,6 @@ function roundToNearestMinutes(date, options) {
   const roundedMinutes = roundingMethod(minutes / nearestTo) * nearestTo;
   date_.setMinutes(roundedMinutes, 0, 0);
   return date_;
-}
-
-// node_modules/date-fns/setMonth.js
-function setMonth(date, month, options) {
-  const _date = toDate2(date, options?.in);
-  const year = _date.getFullYear();
-  const day = _date.getDate();
-  const midMonth = constructFrom(options?.in || date, 0);
-  midMonth.setFullYear(year, month, 15);
-  midMonth.setHours(0, 0, 0, 0);
-  const daysInMonth = getDaysInMonth(midMonth);
-  _date.setMonth(month, Math.min(day, daysInMonth));
-  return _date;
-}
-
-// node_modules/date-fns/set.js
-function set(date, values, options) {
-  let _date = toDate2(date, options?.in);
-  if (isNaN(+_date)) return constructFrom(options?.in || date, NaN);
-  if (values.year != null) _date.setFullYear(values.year);
-  if (values.month != null) _date = setMonth(_date, values.month);
-  if (values.date != null) _date.setDate(values.date);
-  if (values.hours != null) _date.setHours(values.hours);
-  if (values.minutes != null) _date.setMinutes(values.minutes);
-  if (values.seconds != null) _date.setSeconds(values.seconds);
-  if (values.milliseconds != null) _date.setMilliseconds(values.milliseconds);
-  return _date;
-}
-
-// libs/common/src/lib/booking-rules.ts
-var MINUTE = 1;
-var HOUR = 60;
-var DAY = 24 * HOUR;
-var WEEK = 7 * DAY;
-var MONTH = 30 * DAY;
-var DURATION_MAP = {
-  month: MONTH,
-  months: MONTH,
-  week: WEEK,
-  weeks: WEEK,
-  day: DAY,
-  days: DAY,
-  hour: HOUR,
-  hours: HOUR,
-  minute: MINUTE,
-  minutes: MINUTE
-};
-var DEFAULT_RULES = {
-  auto_approve: true,
-  hidden: false
-};
-function stringToMinutes(str) {
-  const parts = (str || "").split(" ");
-  return parts.length > 1 ? +parts[0] * DURATION_MAP[parts[1].toLowerCase()] : 0;
-}
-function addToDate(add2, date = /* @__PURE__ */ new Date()) {
-  return addMinutes(date, stringToMinutes(add2));
-}
-function filterResourcesFromRules(resources, details, ruleset_list) {
-  return resources.filter((_2) => !rulesForResource(__spreadProps(__spreadValues({}, details), { resource: _2 }), ruleset_list)?.hidden);
-}
-function rulesForResource(details, ruleset_list) {
-  if (!(ruleset_list instanceof Array))
-    return DEFAULT_RULES;
-  for (const ruleset of ruleset_list) {
-    if (ruleset.zone === "*" || ruleset.zone === details.resource.zone?.id || details.resource.zones?.includes(ruleset.zone)) {
-      if (checkRulesMatch(details, ruleset)) {
-        if (window.debug_booking_rules) {
-          console.log("Matched Ruleset:", details.resource.id, details, ruleset);
-        }
-        return ruleset.rules;
-      }
-    }
-  }
-  if (window.debug_booking_rules) {
-    console.log("No Matched Ruleset:", details.resource.id, details, DEFAULT_RULES);
-  }
-  return DEFAULT_RULES;
-}
-function checkRulesMatch({ date, duration, host, resource: resource2 }, ruleset) {
-  const date_obj = new Date(date);
-  let matches = 0;
-  const { conditions } = ruleset;
-  if (!conditions)
-    return true;
-  if (conditions.groups instanceof Array && conditions.groups.every((_2) => host?.groups?.includes(_2)))
-    matches += 1;
-  if (conditions.is_before && isBefore(addMinutes(date, duration), addToDate(conditions.is_before)))
-    matches += 1;
-  if (conditions.is_after && isAfter(date, addToDate(conditions.is_after)))
-    matches += 1;
-  if (conditions.min_length && conditions.min_length <= duration)
-    matches += 1;
-  if (conditions.is_between && date_obj.getHours() + date_obj.getMinutes() / 60 >= conditions.is_between[0] && date_obj.getHours() + date_obj.getMinutes() / 60 < conditions.is_between[1])
-    matches += 1;
-  if (conditions.is_period && date >= conditions.is_period[0] && date < conditions.is_period[1])
-    matches += 1;
-  if (conditions.max_length && conditions.max_length >= duration)
-    matches += 1;
-  if (conditions.resource_ids && conditions.resource_ids.includes(resource2.id))
-    matches += 1;
-  if (conditions.tags && conditions.tags.every((tag) => (resource2.tags || []).find((t) => t === tag)))
-    matches += 1;
-  if (conditions.locations && conditions.locations.includes(resource2.name))
-    matches += 1;
-  return matches >= Object.keys(conditions).length;
 }
 
 // libs/common/src/lib/async-handler.class.ts
@@ -36567,8 +34736,8 @@ var Validators = class {
   static maxLength(maxLength) {
     return maxLengthValidator(maxLength);
   }
-  static pattern(pattern2) {
-    return patternValidator(pattern2);
+  static pattern(pattern) {
+    return patternValidator(pattern);
   }
   static nullValidator(control) {
     return nullValidator();
@@ -36654,19 +34823,19 @@ function maxLengthValidator(maxLength) {
     return null;
   };
 }
-function patternValidator(pattern2) {
-  if (!pattern2) return nullValidator;
+function patternValidator(pattern) {
+  if (!pattern) return nullValidator;
   let regex;
   let regexStr;
-  if (typeof pattern2 === "string") {
+  if (typeof pattern === "string") {
     regexStr = "";
-    if (pattern2.charAt(0) !== "^") regexStr += "^";
-    regexStr += pattern2;
-    if (pattern2.charAt(pattern2.length - 1) !== "$") regexStr += "$";
+    if (pattern.charAt(0) !== "^") regexStr += "^";
+    regexStr += pattern;
+    if (pattern.charAt(pattern.length - 1) !== "$") regexStr += "$";
     regex = new RegExp(regexStr);
   } else {
-    regexStr = pattern2.toString();
-    regex = pattern2;
+    regexStr = pattern.toString();
+    regex = pattern;
   }
   return (control) => {
     if (isEmptyInputValue(control.value)) {
@@ -41324,521 +39493,2738 @@ var ReactiveFormsModule = class _ReactiveFormsModule {
   }], null, null);
 })();
 
-// node_modules/date-fns-tz/dist/esm/_lib/tzTokenizeDate/index.js
-function tzTokenizeDate(date, timeZone) {
-  const dtf = getDateTimeFormat(timeZone);
-  return "formatToParts" in dtf ? partsOffset(dtf, date) : hackyOffset(dtf, date);
+// node_modules/@placeos/ts-client/dist/index.es.js
+var ue = [
+  "A",
+  "B",
+  "C",
+  "D",
+  "E",
+  "F",
+  "G",
+  "H",
+  "I",
+  "J",
+  "K",
+  "L",
+  "M",
+  "N",
+  "O",
+  "P",
+  "Q",
+  "R",
+  "S",
+  "T",
+  "U",
+  "V",
+  "W",
+  "X",
+  "Y",
+  "Z",
+  "a",
+  "b",
+  "c",
+  "d",
+  "e",
+  "f",
+  "g",
+  "h",
+  "i",
+  "j",
+  "k",
+  "l",
+  "m",
+  "n",
+  "o",
+  "p",
+  "q",
+  "r",
+  "s",
+  "t",
+  "u",
+  "v",
+  "w",
+  "x",
+  "y",
+  "z",
+  "0",
+  "1",
+  "2",
+  "3",
+  "4",
+  "5",
+  "6",
+  "7",
+  "8",
+  "9",
+  "+",
+  "/"
+];
+var zn = [
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  62,
+  255,
+  255,
+  255,
+  63,
+  52,
+  53,
+  54,
+  55,
+  56,
+  57,
+  58,
+  59,
+  60,
+  61,
+  255,
+  255,
+  255,
+  0,
+  255,
+  255,
+  255,
+  0,
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  8,
+  9,
+  10,
+  11,
+  12,
+  13,
+  14,
+  15,
+  16,
+  17,
+  18,
+  19,
+  20,
+  21,
+  22,
+  23,
+  24,
+  25,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  26,
+  27,
+  28,
+  29,
+  30,
+  31,
+  32,
+  33,
+  34,
+  35,
+  36,
+  37,
+  38,
+  39,
+  40,
+  41,
+  42,
+  43,
+  44,
+  45,
+  46,
+  47,
+  48,
+  49,
+  50,
+  51
+];
+function bt(t) {
+  if (t >= zn.length)
+    throw new Error("Unable to parse base64 string.");
+  const e = zn[t];
+  if (e === 255)
+    throw new Error("Unable to parse base64 string.");
+  return e;
 }
-var typeToPos = {
-  year: 0,
-  month: 1,
-  day: 2,
-  hour: 3,
-  minute: 4,
-  second: 5
-};
-function partsOffset(dtf, date) {
-  try {
-    const formatted = dtf.formatToParts(date);
-    const filled = [];
-    for (let i = 0; i < formatted.length; i++) {
-      const pos = typeToPos[formatted[i].type];
-      if (pos !== void 0) {
-        filled[pos] = parseInt(formatted[i].value, 10);
+function Yn(t) {
+  let e = "", n, s = t.length;
+  for (n = 2; n < s; n += 3)
+    e += ue[t[n - 2] >> 2], e += ue[(t[n - 2] & 3) << 4 | t[n - 1] >> 4], e += ue[(t[n - 1] & 15) << 2 | t[n] >> 6], e += ue[t[n] & 63];
+  return n === s + 1 && (e += ue[t[n - 2] >> 2], e += ue[(t[n - 2] & 3) << 4], e += "=="), n === s && (e += ue[t[n - 2] >> 2], e += ue[(t[n - 2] & 3) << 4 | t[n - 1] >> 4], e += ue[(t[n - 1] & 15) << 2], e += "="), e;
+}
+function zs(t) {
+  if (t.length % 4 !== 0)
+    throw new Error("Unable to parse base64 string.");
+  const e = t.indexOf("=");
+  if (e !== -1 && e < t.length - 2)
+    throw new Error("Unable to parse base64 string.");
+  let n = t.endsWith("==") ? 2 : t.endsWith("=") ? 1 : 0, s = t.length, i = new Uint8Array(3 * (s / 4)), r;
+  for (let o = 0, a = 0; o < s; o += 4, a += 3)
+    r = bt(t.charCodeAt(o)) << 18 | bt(t.charCodeAt(o + 1)) << 12 | bt(t.charCodeAt(o + 2)) << 6 | bt(t.charCodeAt(o + 3)), i[a] = r >> 16, i[a + 1] = r >> 8 & 255, i[a + 2] = r & 255;
+  return i.subarray(0, i.length - n);
+}
+function Fs(t, e = new TextEncoder()) {
+  return Yn(e.encode(t));
+}
+var vt = { exports: {} };
+var Ls = vt.exports;
+var Fn;
+function js() {
+  return Fn || (Fn = 1, (function(t) {
+    (function(e, n) {
+      var s = {};
+      n(s);
+      var i = s.default;
+      for (var r in s)
+        i[r] = s[r];
+      t.exports = i;
+    })(Ls, function(e) {
+      e.__esModule = true, e.digestLength = 32, e.blockSize = 64;
+      var n = new Uint32Array([
+        1116352408,
+        1899447441,
+        3049323471,
+        3921009573,
+        961987163,
+        1508970993,
+        2453635748,
+        2870763221,
+        3624381080,
+        310598401,
+        607225278,
+        1426881987,
+        1925078388,
+        2162078206,
+        2614888103,
+        3248222580,
+        3835390401,
+        4022224774,
+        264347078,
+        604807628,
+        770255983,
+        1249150122,
+        1555081692,
+        1996064986,
+        2554220882,
+        2821834349,
+        2952996808,
+        3210313671,
+        3336571891,
+        3584528711,
+        113926993,
+        338241895,
+        666307205,
+        773529912,
+        1294757372,
+        1396182291,
+        1695183700,
+        1986661051,
+        2177026350,
+        2456956037,
+        2730485921,
+        2820302411,
+        3259730800,
+        3345764771,
+        3516065817,
+        3600352804,
+        4094571909,
+        275423344,
+        430227734,
+        506948616,
+        659060556,
+        883997877,
+        958139571,
+        1322822218,
+        1537002063,
+        1747873779,
+        1955562222,
+        2024104815,
+        2227730452,
+        2361852424,
+        2428436474,
+        2756734187,
+        3204031479,
+        3329325298
+      ]);
+      function s(v, c, l, d, M2) {
+        for (var x, R2, k, Q2, D2, E2, se, H2, j, z, Be, We, $t; M2 >= 64; ) {
+          for (x = c[0], R2 = c[1], k = c[2], Q2 = c[3], D2 = c[4], E2 = c[5], se = c[6], H2 = c[7], z = 0; z < 16; z++)
+            Be = d + z * 4, v[z] = (l[Be] & 255) << 24 | (l[Be + 1] & 255) << 16 | (l[Be + 2] & 255) << 8 | l[Be + 3] & 255;
+          for (z = 16; z < 64; z++)
+            j = v[z - 2], We = (j >>> 17 | j << 15) ^ (j >>> 19 | j << 13) ^ j >>> 10, j = v[z - 15], $t = (j >>> 7 | j << 25) ^ (j >>> 18 | j << 14) ^ j >>> 3, v[z] = (We + v[z - 7] | 0) + ($t + v[z - 16] | 0);
+          for (z = 0; z < 64; z++)
+            We = (((D2 >>> 6 | D2 << 26) ^ (D2 >>> 11 | D2 << 21) ^ (D2 >>> 25 | D2 << 7)) + (D2 & E2 ^ ~D2 & se) | 0) + (H2 + (n[z] + v[z] | 0) | 0) | 0, $t = ((x >>> 2 | x << 30) ^ (x >>> 13 | x << 19) ^ (x >>> 22 | x << 10)) + (x & R2 ^ x & k ^ R2 & k) | 0, H2 = se, se = E2, E2 = D2, D2 = Q2 + We | 0, Q2 = k, k = R2, R2 = x, x = We + $t | 0;
+          c[0] += x, c[1] += R2, c[2] += k, c[3] += Q2, c[4] += D2, c[5] += E2, c[6] += se, c[7] += H2, d += 64, M2 -= 64;
+        }
+        return d;
       }
+      var i = (
+        /** @class */
+        (function() {
+          function v() {
+            this.digestLength = e.digestLength, this.blockSize = e.blockSize, this.state = new Int32Array(8), this.temp = new Int32Array(64), this.buffer = new Uint8Array(128), this.bufferLength = 0, this.bytesHashed = 0, this.finished = false, this.reset();
+          }
+          return v.prototype.reset = function() {
+            return this.state[0] = 1779033703, this.state[1] = 3144134277, this.state[2] = 1013904242, this.state[3] = 2773480762, this.state[4] = 1359893119, this.state[5] = 2600822924, this.state[6] = 528734635, this.state[7] = 1541459225, this.bufferLength = 0, this.bytesHashed = 0, this.finished = false, this;
+          }, v.prototype.clean = function() {
+            for (var c = 0; c < this.buffer.length; c++)
+              this.buffer[c] = 0;
+            for (var c = 0; c < this.temp.length; c++)
+              this.temp[c] = 0;
+            this.reset();
+          }, v.prototype.update = function(c, l) {
+            if (l === void 0 && (l = c.length), this.finished)
+              throw new Error("SHA256: can't update because hash was finished.");
+            var d = 0;
+            if (this.bytesHashed += l, this.bufferLength > 0) {
+              for (; this.bufferLength < 64 && l > 0; )
+                this.buffer[this.bufferLength++] = c[d++], l--;
+              this.bufferLength === 64 && (s(this.temp, this.state, this.buffer, 0, 64), this.bufferLength = 0);
+            }
+            for (l >= 64 && (d = s(this.temp, this.state, c, d, l), l %= 64); l > 0; )
+              this.buffer[this.bufferLength++] = c[d++], l--;
+            return this;
+          }, v.prototype.finish = function(c) {
+            if (!this.finished) {
+              var l = this.bytesHashed, d = this.bufferLength, M2 = l / 536870912 | 0, x = l << 3, R2 = l % 64 < 56 ? 64 : 128;
+              this.buffer[d] = 128;
+              for (var k = d + 1; k < R2 - 8; k++)
+                this.buffer[k] = 0;
+              this.buffer[R2 - 8] = M2 >>> 24 & 255, this.buffer[R2 - 7] = M2 >>> 16 & 255, this.buffer[R2 - 6] = M2 >>> 8 & 255, this.buffer[R2 - 5] = M2 >>> 0 & 255, this.buffer[R2 - 4] = x >>> 24 & 255, this.buffer[R2 - 3] = x >>> 16 & 255, this.buffer[R2 - 2] = x >>> 8 & 255, this.buffer[R2 - 1] = x >>> 0 & 255, s(this.temp, this.state, this.buffer, 0, R2), this.finished = true;
+            }
+            for (var k = 0; k < 8; k++)
+              c[k * 4 + 0] = this.state[k] >>> 24 & 255, c[k * 4 + 1] = this.state[k] >>> 16 & 255, c[k * 4 + 2] = this.state[k] >>> 8 & 255, c[k * 4 + 3] = this.state[k] >>> 0 & 255;
+            return this;
+          }, v.prototype.digest = function() {
+            var c = new Uint8Array(this.digestLength);
+            return this.finish(c), c;
+          }, v.prototype._saveState = function(c) {
+            for (var l = 0; l < this.state.length; l++)
+              c[l] = this.state[l];
+          }, v.prototype._restoreState = function(c, l) {
+            for (var d = 0; d < this.state.length; d++)
+              this.state[d] = c[d];
+            this.bytesHashed = l, this.finished = false, this.bufferLength = 0;
+          }, v;
+        })()
+      );
+      e.Hash = i;
+      var r = (
+        /** @class */
+        (function() {
+          function v(c) {
+            this.inner = new i(), this.outer = new i(), this.blockSize = this.inner.blockSize, this.digestLength = this.inner.digestLength;
+            var l = new Uint8Array(this.blockSize);
+            if (c.length > this.blockSize)
+              new i().update(c).finish(l).clean();
+            else
+              for (var d = 0; d < c.length; d++)
+                l[d] = c[d];
+            for (var d = 0; d < l.length; d++)
+              l[d] ^= 54;
+            this.inner.update(l);
+            for (var d = 0; d < l.length; d++)
+              l[d] ^= 106;
+            this.outer.update(l), this.istate = new Uint32Array(8), this.ostate = new Uint32Array(8), this.inner._saveState(this.istate), this.outer._saveState(this.ostate);
+            for (var d = 0; d < l.length; d++)
+              l[d] = 0;
+          }
+          return v.prototype.reset = function() {
+            return this.inner._restoreState(this.istate, this.inner.blockSize), this.outer._restoreState(this.ostate, this.outer.blockSize), this;
+          }, v.prototype.clean = function() {
+            for (var c = 0; c < this.istate.length; c++)
+              this.ostate[c] = this.istate[c] = 0;
+            this.inner.clean(), this.outer.clean();
+          }, v.prototype.update = function(c) {
+            return this.inner.update(c), this;
+          }, v.prototype.finish = function(c) {
+            return this.outer.finished ? this.outer.finish(c) : (this.inner.finish(c), this.outer.update(c, this.digestLength).finish(c)), this;
+          }, v.prototype.digest = function() {
+            var c = new Uint8Array(this.digestLength);
+            return this.finish(c), c;
+          }, v;
+        })()
+      );
+      e.HMAC = r;
+      function o(v) {
+        var c = new i().update(v), l = c.digest();
+        return c.clean(), l;
+      }
+      e.hash = o, e.default = o;
+      function a(v, c) {
+        var l = new r(v).update(c), d = l.digest();
+        return l.clean(), d;
+      }
+      e.hmac = a;
+      function y(v, c, l, d) {
+        var M2 = d[0];
+        if (M2 === 0)
+          throw new Error("hkdf: cannot expand more");
+        c.reset(), M2 > 1 && c.update(v), l && c.update(l), c.update(d), c.finish(v), d[0]++;
+      }
+      var L2 = new Uint8Array(e.digestLength);
+      function P2(v, c, l, d) {
+        c === void 0 && (c = L2), d === void 0 && (d = 32);
+        for (var M2 = new Uint8Array([1]), x = a(c, v), R2 = new r(x), k = new Uint8Array(R2.digestLength), Q2 = k.length, D2 = new Uint8Array(d), E2 = 0; E2 < d; E2++)
+          Q2 === k.length && (y(k, R2, l, M2), Q2 = 0), D2[E2] = k[Q2++];
+        return R2.clean(), k.fill(0), M2.fill(0), D2;
+      }
+      e.hkdf = P2;
+      function W2(v, c, l, d) {
+        for (var M2 = new r(v), x = M2.digestLength, R2 = new Uint8Array(4), k = new Uint8Array(x), Q2 = new Uint8Array(x), D2 = new Uint8Array(d), E2 = 0; E2 * x < d; E2++) {
+          var se = E2 + 1;
+          R2[0] = se >>> 24 & 255, R2[1] = se >>> 16 & 255, R2[2] = se >>> 8 & 255, R2[3] = se >>> 0 & 255, M2.reset(), M2.update(c), M2.update(R2), M2.finish(Q2);
+          for (var H2 = 0; H2 < x; H2++)
+            k[H2] = Q2[H2];
+          for (var H2 = 2; H2 <= l; H2++) {
+            M2.reset(), M2.update(Q2).finish(Q2);
+            for (var j = 0; j < x; j++)
+              k[j] ^= Q2[j];
+          }
+          for (var H2 = 0; H2 < x && E2 * x + H2 < d; H2++)
+            D2[E2 * x + H2] = k[H2];
+        }
+        for (var E2 = 0; E2 < x; E2++)
+          k[E2] = Q2[E2] = 0;
+        for (var E2 = 0; E2 < 4; E2++)
+          R2[E2] = 0;
+        return M2.clean(), D2;
+      }
+      e.pbkdf2 = W2;
+    });
+  })(vt)), vt.exports;
+}
+var Gs = js();
+var Bs = new Int32Array(4);
+var K = class _K {
+  static hashStr(e, n = false) {
+    return this.onePassHasher.start().appendStr(e).end(n);
+  }
+  static hashAsciiStr(e, n = false) {
+    return this.onePassHasher.start().appendAsciiStr(e).end(n);
+  }
+  // Private Static Variables
+  static stateIdentity = new Int32Array([
+    1732584193,
+    -271733879,
+    -1732584194,
+    271733878
+  ]);
+  static buffer32Identity = new Int32Array([
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ]);
+  static hexChars = "0123456789abcdef";
+  static hexOut = [];
+  // Permanent instance is to use for one-call hashing
+  static onePassHasher = new _K();
+  static _hex(e) {
+    const n = _K.hexChars, s = _K.hexOut;
+    let i, r, o, a;
+    for (a = 0; a < 4; a += 1)
+      for (r = a * 8, i = e[a], o = 0; o < 8; o += 2)
+        s[r + 1 + o] = n.charAt(i & 15), i >>>= 4, s[r + 0 + o] = n.charAt(i & 15), i >>>= 4;
+    return s.join("");
+  }
+  static _md5cycle(e, n) {
+    let s = e[0], i = e[1], r = e[2], o = e[3];
+    s += (i & r | ~i & o) + n[0] - 680876936 | 0, s = (s << 7 | s >>> 25) + i | 0, o += (s & i | ~s & r) + n[1] - 389564586 | 0, o = (o << 12 | o >>> 20) + s | 0, r += (o & s | ~o & i) + n[2] + 606105819 | 0, r = (r << 17 | r >>> 15) + o | 0, i += (r & o | ~r & s) + n[3] - 1044525330 | 0, i = (i << 22 | i >>> 10) + r | 0, s += (i & r | ~i & o) + n[4] - 176418897 | 0, s = (s << 7 | s >>> 25) + i | 0, o += (s & i | ~s & r) + n[5] + 1200080426 | 0, o = (o << 12 | o >>> 20) + s | 0, r += (o & s | ~o & i) + n[6] - 1473231341 | 0, r = (r << 17 | r >>> 15) + o | 0, i += (r & o | ~r & s) + n[7] - 45705983 | 0, i = (i << 22 | i >>> 10) + r | 0, s += (i & r | ~i & o) + n[8] + 1770035416 | 0, s = (s << 7 | s >>> 25) + i | 0, o += (s & i | ~s & r) + n[9] - 1958414417 | 0, o = (o << 12 | o >>> 20) + s | 0, r += (o & s | ~o & i) + n[10] - 42063 | 0, r = (r << 17 | r >>> 15) + o | 0, i += (r & o | ~r & s) + n[11] - 1990404162 | 0, i = (i << 22 | i >>> 10) + r | 0, s += (i & r | ~i & o) + n[12] + 1804603682 | 0, s = (s << 7 | s >>> 25) + i | 0, o += (s & i | ~s & r) + n[13] - 40341101 | 0, o = (o << 12 | o >>> 20) + s | 0, r += (o & s | ~o & i) + n[14] - 1502002290 | 0, r = (r << 17 | r >>> 15) + o | 0, i += (r & o | ~r & s) + n[15] + 1236535329 | 0, i = (i << 22 | i >>> 10) + r | 0, s += (i & o | r & ~o) + n[1] - 165796510 | 0, s = (s << 5 | s >>> 27) + i | 0, o += (s & r | i & ~r) + n[6] - 1069501632 | 0, o = (o << 9 | o >>> 23) + s | 0, r += (o & i | s & ~i) + n[11] + 643717713 | 0, r = (r << 14 | r >>> 18) + o | 0, i += (r & s | o & ~s) + n[0] - 373897302 | 0, i = (i << 20 | i >>> 12) + r | 0, s += (i & o | r & ~o) + n[5] - 701558691 | 0, s = (s << 5 | s >>> 27) + i | 0, o += (s & r | i & ~r) + n[10] + 38016083 | 0, o = (o << 9 | o >>> 23) + s | 0, r += (o & i | s & ~i) + n[15] - 660478335 | 0, r = (r << 14 | r >>> 18) + o | 0, i += (r & s | o & ~s) + n[4] - 405537848 | 0, i = (i << 20 | i >>> 12) + r | 0, s += (i & o | r & ~o) + n[9] + 568446438 | 0, s = (s << 5 | s >>> 27) + i | 0, o += (s & r | i & ~r) + n[14] - 1019803690 | 0, o = (o << 9 | o >>> 23) + s | 0, r += (o & i | s & ~i) + n[3] - 187363961 | 0, r = (r << 14 | r >>> 18) + o | 0, i += (r & s | o & ~s) + n[8] + 1163531501 | 0, i = (i << 20 | i >>> 12) + r | 0, s += (i & o | r & ~o) + n[13] - 1444681467 | 0, s = (s << 5 | s >>> 27) + i | 0, o += (s & r | i & ~r) + n[2] - 51403784 | 0, o = (o << 9 | o >>> 23) + s | 0, r += (o & i | s & ~i) + n[7] + 1735328473 | 0, r = (r << 14 | r >>> 18) + o | 0, i += (r & s | o & ~s) + n[12] - 1926607734 | 0, i = (i << 20 | i >>> 12) + r | 0, s += (i ^ r ^ o) + n[5] - 378558 | 0, s = (s << 4 | s >>> 28) + i | 0, o += (s ^ i ^ r) + n[8] - 2022574463 | 0, o = (o << 11 | o >>> 21) + s | 0, r += (o ^ s ^ i) + n[11] + 1839030562 | 0, r = (r << 16 | r >>> 16) + o | 0, i += (r ^ o ^ s) + n[14] - 35309556 | 0, i = (i << 23 | i >>> 9) + r | 0, s += (i ^ r ^ o) + n[1] - 1530992060 | 0, s = (s << 4 | s >>> 28) + i | 0, o += (s ^ i ^ r) + n[4] + 1272893353 | 0, o = (o << 11 | o >>> 21) + s | 0, r += (o ^ s ^ i) + n[7] - 155497632 | 0, r = (r << 16 | r >>> 16) + o | 0, i += (r ^ o ^ s) + n[10] - 1094730640 | 0, i = (i << 23 | i >>> 9) + r | 0, s += (i ^ r ^ o) + n[13] + 681279174 | 0, s = (s << 4 | s >>> 28) + i | 0, o += (s ^ i ^ r) + n[0] - 358537222 | 0, o = (o << 11 | o >>> 21) + s | 0, r += (o ^ s ^ i) + n[3] - 722521979 | 0, r = (r << 16 | r >>> 16) + o | 0, i += (r ^ o ^ s) + n[6] + 76029189 | 0, i = (i << 23 | i >>> 9) + r | 0, s += (i ^ r ^ o) + n[9] - 640364487 | 0, s = (s << 4 | s >>> 28) + i | 0, o += (s ^ i ^ r) + n[12] - 421815835 | 0, o = (o << 11 | o >>> 21) + s | 0, r += (o ^ s ^ i) + n[15] + 530742520 | 0, r = (r << 16 | r >>> 16) + o | 0, i += (r ^ o ^ s) + n[2] - 995338651 | 0, i = (i << 23 | i >>> 9) + r | 0, s += (r ^ (i | ~o)) + n[0] - 198630844 | 0, s = (s << 6 | s >>> 26) + i | 0, o += (i ^ (s | ~r)) + n[7] + 1126891415 | 0, o = (o << 10 | o >>> 22) + s | 0, r += (s ^ (o | ~i)) + n[14] - 1416354905 | 0, r = (r << 15 | r >>> 17) + o | 0, i += (o ^ (r | ~s)) + n[5] - 57434055 | 0, i = (i << 21 | i >>> 11) + r | 0, s += (r ^ (i | ~o)) + n[12] + 1700485571 | 0, s = (s << 6 | s >>> 26) + i | 0, o += (i ^ (s | ~r)) + n[3] - 1894986606 | 0, o = (o << 10 | o >>> 22) + s | 0, r += (s ^ (o | ~i)) + n[10] - 1051523 | 0, r = (r << 15 | r >>> 17) + o | 0, i += (o ^ (r | ~s)) + n[1] - 2054922799 | 0, i = (i << 21 | i >>> 11) + r | 0, s += (r ^ (i | ~o)) + n[8] + 1873313359 | 0, s = (s << 6 | s >>> 26) + i | 0, o += (i ^ (s | ~r)) + n[15] - 30611744 | 0, o = (o << 10 | o >>> 22) + s | 0, r += (s ^ (o | ~i)) + n[6] - 1560198380 | 0, r = (r << 15 | r >>> 17) + o | 0, i += (o ^ (r | ~s)) + n[13] + 1309151649 | 0, i = (i << 21 | i >>> 11) + r | 0, s += (r ^ (i | ~o)) + n[4] - 145523070 | 0, s = (s << 6 | s >>> 26) + i | 0, o += (i ^ (s | ~r)) + n[11] - 1120210379 | 0, o = (o << 10 | o >>> 22) + s | 0, r += (s ^ (o | ~i)) + n[2] + 718787259 | 0, r = (r << 15 | r >>> 17) + o | 0, i += (o ^ (r | ~s)) + n[9] - 343485551 | 0, i = (i << 21 | i >>> 11) + r | 0, e[0] = s + e[0] | 0, e[1] = i + e[1] | 0, e[2] = r + e[2] | 0, e[3] = o + e[3] | 0;
+  }
+  _dataLength = 0;
+  _bufferLength = 0;
+  _state = new Int32Array(4);
+  _buffer = new ArrayBuffer(68);
+  _buffer8;
+  _buffer32;
+  constructor() {
+    this._buffer8 = new Uint8Array(this._buffer, 0, 68), this._buffer32 = new Uint32Array(this._buffer, 0, 17), this.start();
+  }
+  /**
+   * Initialise buffer to be hashed
+   */
+  start() {
+    return this._dataLength = 0, this._bufferLength = 0, this._state.set(_K.stateIdentity), this;
+  }
+  // Char to code point to to array conversion:
+  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/charCodeAt
+  // #Example.3A_Fixing_charCodeAt_to_handle_non-Basic-Multilingual-Plane_characters_if_their_presence_earlier_in_the_string_is_unknown
+  /**
+   * Append a UTF-8 string to the hash buffer
+   * @param str String to append
+   */
+  appendStr(e) {
+    const n = this._buffer8, s = this._buffer32;
+    let i = this._bufferLength, r, o;
+    for (o = 0; o < e.length; o += 1) {
+      if (r = e.charCodeAt(o), r < 128)
+        n[i++] = r;
+      else if (r < 2048)
+        n[i++] = (r >>> 6) + 192, n[i++] = r & 63 | 128;
+      else if (r < 55296 || r > 56319)
+        n[i++] = (r >>> 12) + 224, n[i++] = r >>> 6 & 63 | 128, n[i++] = r & 63 | 128;
+      else {
+        if (r = (r - 55296) * 1024 + (e.charCodeAt(++o) - 56320) + 65536, r > 1114111)
+          throw new Error(
+            "Unicode standard supports code points up to U+10FFFF"
+          );
+        n[i++] = (r >>> 18) + 240, n[i++] = r >>> 12 & 63 | 128, n[i++] = r >>> 6 & 63 | 128, n[i++] = r & 63 | 128;
+      }
+      i >= 64 && (this._dataLength += 64, _K._md5cycle(this._state, s), i -= 64, s[0] = s[16]);
     }
-    return filled;
-  } catch (error2) {
-    if (error2 instanceof RangeError) {
-      return [NaN];
+    return this._bufferLength = i, this;
+  }
+  /**
+   * Append an ASCII string to the hash buffer
+   * @param str String to append
+   */
+  appendAsciiStr(e) {
+    const n = this._buffer8, s = this._buffer32;
+    let i = this._bufferLength, r, o = 0;
+    for (; ; ) {
+      for (r = Math.min(e.length - o, 64 - i); r--; )
+        n[i++] = e.charCodeAt(o++);
+      if (i < 64)
+        break;
+      this._dataLength += 64, _K._md5cycle(this._state, s), i = 0;
     }
-    throw error2;
+    return this._bufferLength = i, this;
+  }
+  /**
+   * Append a byte array to the hash buffer
+   * @param input array to append
+   */
+  appendByteArray(e) {
+    const n = this._buffer8, s = this._buffer32;
+    let i = this._bufferLength, r, o = 0;
+    for (; ; ) {
+      for (r = Math.min(e.length - o, 64 - i); r--; )
+        n[i++] = e[o++];
+      if (i < 64)
+        break;
+      this._dataLength += 64, _K._md5cycle(this._state, s), i = 0;
+    }
+    return this._bufferLength = i, this;
+  }
+  /**
+   * Get the state of the hash buffer
+   */
+  getState() {
+    const e = this._state;
+    return {
+      buffer: String.fromCharCode.apply(null, Array.from(this._buffer8)),
+      buflen: this._bufferLength,
+      length: this._dataLength,
+      state: [e[0], e[1], e[2], e[3]]
+    };
+  }
+  /**
+   * Override the current state of the hash buffer
+   * @param state New hash buffer state
+   */
+  setState(e) {
+    const n = e.buffer, s = e.state, i = this._state;
+    let r;
+    for (this._dataLength = e.length, this._bufferLength = e.buflen, i[0] = s[0], i[1] = s[1], i[2] = s[2], i[3] = s[3], r = 0; r < n.length; r += 1)
+      this._buffer8[r] = n.charCodeAt(r);
+  }
+  /**
+   * Hash the current state of the hash buffer and return the result
+   * @param raw Whether to return the value as an `Int32Array`
+   */
+  end(e = false) {
+    const n = this._bufferLength, s = this._buffer8, i = this._buffer32, r = (n >> 2) + 1;
+    this._dataLength += n;
+    const o = this._dataLength * 8;
+    if (s[n] = 128, s[n + 1] = s[n + 2] = s[n + 3] = 0, i.set(_K.buffer32Identity.subarray(r), r), n > 55 && (_K._md5cycle(this._state, i), i.set(_K.buffer32Identity)), o <= 4294967295)
+      i[14] = o;
+    else {
+      const a = o.toString(16).match(/(.*?)(.{0,8})$/);
+      if (a === null) return e ? Bs : "";
+      const y = parseInt(a[2], 16), L2 = parseInt(a[1], 16) || 0;
+      i[14] = y, i[15] = L2;
+    }
+    return _K._md5cycle(this._state, i), e ? this._state : _K._hex(this._state);
+  }
+};
+if (K.hashStr("hello") !== "5d41402abc4b2a76b9719d911017c592")
+  throw new Error("Md5 self test failed.");
+var Ws = 36e5;
+var Ln = /* @__PURE__ */ Symbol.for("constructDateFrom");
+function St(t, e) {
+  return typeof t == "function" ? t(e) : t && typeof t == "object" && Ln in t ? t[Ln](e) : t instanceof Date ? new t.constructor(e) : new Date(e);
+}
+function Ze(t, e) {
+  return St(t, t);
+}
+function Qs(t, e, n) {
+  const s = Ze(t);
+  if (isNaN(e)) return St(t, NaN);
+  const i = s.getDate(), r = St(t, s.getTime());
+  r.setMonth(s.getMonth() + e + 1, 0);
+  const o = r.getDate();
+  return i >= o ? r : (s.setFullYear(
+    r.getFullYear(),
+    r.getMonth(),
+    i
+  ), s);
+}
+function Vn(t, e, n) {
+  return St(t, +Ze(t) + e);
+}
+function Ks(t, e, n) {
+  return Vn(t, e * Ws);
+}
+function Zs(t, e, n) {
+  return Vn(t, e * 1e3);
+}
+function Js(t, e, n) {
+  return Qs(t, e * 12);
+}
+function $n(t) {
+  return Math.trunc(+Ze(t) / 1e3);
+}
+function Xn(t, e) {
+  return +Ze(t) < +Ze(e);
+}
+function xt(t, e, n, s = "debug", i) {
+  if (window.debug) {
+    const o = ["color: #0288D1", `color:${i || "#009688"}`, "color: default"];
+    n ? jn() ? console[s](
+      `%c[PlaceOS]%c[${t}] %c${e}`,
+      ...o,
+      n
+    ) : console[s](`[PlaceOS][${t}] ${e}`, n) : jn() ? console[s](`%c[PlaceOS]%c[${t}] %c${e}`, ...o) : console[s](`[PlaceOS][${t}] ${e}`);
   }
 }
-function hackyOffset(dtf, date) {
-  const formatted = dtf.format(date);
-  const parsed = /(\d+)\/(\d+)\/(\d+),? (\d+):(\d+):(\d+)/.exec(formatted);
-  return [
-    parseInt(parsed[3], 10),
-    parseInt(parsed[1], 10),
-    parseInt(parsed[2], 10),
-    parseInt(parsed[4], 10),
-    parseInt(parsed[5], 10),
-    parseInt(parsed[6], 10)
-  ];
+function Nt(t) {
+  const e = (i) => i.length <= 0 ? void 0 : i.length === 1 ? i[0] : i, n = (i, r, o) => xt(t, r, e(o), i), s = (i, ...r) => n("debug", i, r);
+  return s.debug = (i, ...r) => n("debug", i, r), s.info = (i, ...r) => n("info", i, r), s.error = (i, ...r) => n("error", i, r), s.warn = (i, ...r) => n("warn", i, r), s.log = (i, ...r) => n("log", i, r), s.group = (i, ...r) => n("group", i, r), s.groupCollapsed = (i, ...r) => n("groupCollapsed", i, r), s.groupEnd = (i, ...r) => n("groupEnd", i, r), s;
 }
-var dtfCache = {};
-var testDateFormatted = new Intl.DateTimeFormat("en-US", {
-  hourCycle: "h23",
-  timeZone: "America/New_York",
-  year: "numeric",
-  month: "2-digit",
-  day: "2-digit",
-  hour: "2-digit",
-  minute: "2-digit",
-  second: "2-digit"
-}).format(/* @__PURE__ */ new Date("2014-06-25T04:00:00.123Z"));
-var hourCycleSupported = testDateFormatted === "06/25/2014, 00:00:00" || testDateFormatted === "\u200E06\u200E/\u200E25\u200E/\u200E2014\u200E \u200E00\u200E:\u200E00\u200E:\u200E00";
-function getDateTimeFormat(timeZone) {
-  if (!dtfCache[timeZone]) {
-    dtfCache[timeZone] = hourCycleSupported ? new Intl.DateTimeFormat("en-US", {
-      hourCycle: "h23",
-      timeZone,
-      year: "numeric",
-      month: "numeric",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit"
-    }) : new Intl.DateTimeFormat("en-US", {
-      hour12: false,
-      timeZone,
-      year: "numeric",
-      month: "numeric",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit"
+function jn() {
+  return !(document.documentMode || /Edge/.test(navigator.userAgent));
+}
+function es() {
+  const t = window.location?.hash ? window.location?.hash.slice(1) : window.location?.href.split("#")[1] || "";
+  let e = window.location?.search ? window.location?.search.slice(1) : window.location?.href.split("?")[1] || "", n = {};
+  if (t)
+    if (t.indexOf("?") >= 0) {
+      const i = t.split("?");
+      n = Te(i[0]), e || (e = i[1]);
+    } else
+      n = Te(t);
+  let s = {};
+  return e && (s = Te(e)), __spreadValues(__spreadValues({}, n), s);
+}
+function Te(t) {
+  const e = {}, n = t.split("&");
+  for (const s of n) {
+    const i = s.split("=");
+    i[1] && (e[decodeURIComponent(i[0])] = decodeURIComponent(
+      i[1]
+    ));
+  }
+  return e;
+}
+var Qe = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+function ts(t = 40) {
+  let e = "";
+  const n = window?.crypto;
+  if (n?.getRandomValues) {
+    const s = 256 - 256 % Qe.length, i = new Uint8Array(t * 2);
+    for (; e.length < t; ) {
+      n.getRandomValues(i);
+      for (const r of i)
+        r < s && e.length < t && (e += Qe.charAt(r % Qe.length));
+    }
+    return e;
+  }
+  for (let s = 0; s < t; s++)
+    e += Qe.charAt(
+      Math.floor(Math.random() * Qe.length)
+    );
+  return e;
+}
+function ie(t) {
+  const e = (window.location?.hash || "").replace(new RegExp(`${t}[a-zA-Z0-9_+-.%=]*&?`, "g"), "").replace(/&&/g, "&").replace(/#&/g, "#").replace(/&$/g, "#"), n = (window.location?.search || "").replace(new RegExp(`${t}[a-zA-Z0-9_+-.%=]*&?`, "g"), "").replace(/&&/g, "&").replace(/\?&/g, "#").replace(/&$/g, "#");
+  window.history?.replaceState && window.history?.replaceState(
+    null,
+    "",
+    `${window.location?.pathname}${e}${n}`
+  );
+}
+function Ys(t) {
+  if (t.length === 0)
+    throw new Error("Input must not be of zero length");
+  const e = t.split(","), n = {};
+  for (const s of e) {
+    const i = s.split(";");
+    if (i.length !== 2)
+      throw new Error("Section could not be split on ';'");
+    const r = i[0].replace(/<(.*)>/, "$1").trim(), o = i[1].replace(/rel="(.*)"/, "$1").trim();
+    n[o] = r;
+  }
+  return n;
+}
+function Vs(t, e) {
+  for (const n in t)
+    t.hasOwnProperty(n) && e.indexOf(t[n]) >= 0 && delete t[n];
+  return t;
+}
+function Xs() {
+  return [
+    "iPad Simulator",
+    "iPhone Simulator",
+    "iPod Simulator",
+    "iPad",
+    "iPhone",
+    "iPod"
+  ].includes(navigator.platform) || // iPad on iOS 13 detection
+  navigator.userAgent.includes("Mac") && "ontouchend" in document;
+}
+function ei() {
+  return window.location !== window.parent.location;
+}
+function ti(t = Date.now(), e = 60 * 1e3) {
+  return Math.floor(t / e);
+}
+var ni = class {
+  abort() {
+    xt("Stub", "Aborted");
+  }
+};
+function b(t) {
+  let e = "";
+  if (t)
+    for (const n in t)
+      t.hasOwnProperty(n) && t[n] !== void 0 && t[n] !== null && (e += `${e ? "&" : ""}${n}=${encodeURIComponent(
+        t[n]
+      )}`);
+  return e;
+}
+var xe = {};
+function re(t, e, n = 300) {
+  if (t && e && e instanceof Function)
+    me(t), xe[t] = setTimeout(() => {
+      e(), delete xe[t];
+    }, n);
+  else
+    throw new Error(
+      t ? "Cannot create named timeout without a name" : "Cannot create a timeout without a callback"
+    );
+}
+function me(t) {
+  xe[t] && (clearTimeout(xe[t]), delete xe[t]);
+}
+function ne(t) {
+  let e = t;
+  const n = /* @__PURE__ */ new Set(), s = () => e;
+  return Object.defineProperty(s, "value", {
+    get: () => e,
+    enumerable: true
+  }), s.subscribe = (i, r = {}) => (n.add(i), r.emitCurrent !== false && i(e, e), () => n.delete(i)), s.set = (i) => {
+    if (Object.is(i, e)) return;
+    const r = e;
+    e = i;
+    for (const o of [...n])
+      o(e, r);
+  }, s.update = (i) => s.set(i(e)), s.asReadonly = () => s, s;
+}
+function oi(t, e = Boolean) {
+  return e(t.value) ? Promise.resolve(t.value) : new Promise((n) => {
+    const s = t.subscribe(
+      (i) => {
+        e(i) && (s(), n(i));
+      },
+      { emitCurrent: false }
+    );
+  });
+}
+function ui(t) {
+  return new Promise((e) => setTimeout(e, t));
+}
+var ci = {
+  id: "mock-authority",
+  name: "localhost:4200",
+  description: "",
+  domain: "localhost:4200",
+  login_url: "/login?continue={{url}}",
+  logout_url: "/logout",
+  session: true,
+  production: false,
+  config: {},
+  version: "2.0.0"
+};
+var p = Nt("Auth");
+var _ = {};
+var A = localStorage;
+var N;
+var m = {};
+var T = "";
+var ge = "";
+var ye = ne("");
+var Je = ne("");
+var vn = "/api/engine/v2";
+var _e = ne(false);
+var kn = ne(false);
+var qt = 0;
+function ns() {
+  if (_.mock) return true;
+  if (!A) return false;
+  if (Ye() && !_.ignore_api_key) return true;
+  const t = A.getItem(`${T}_expires_at`) || "";
+  return Xn(+t, /* @__PURE__ */ new Date()) ? false : !!(ye.value || A.getItem(`${T}_access_token`));
+}
+function Ce() {
+  kn.set(ns());
+}
+function ss(t) {
+  if (!t || t.startsWith("http://") || t.startsWith("https://"))
+    return t;
+  const e = N?.domain;
+  return e ? `${_.secure || window.location?.protocol.indexOf("https") >= 0 ? "https:" : "http:"}//${e}${t}` : t;
+}
+function u2() {
+  return `${`${_.secure || window.location?.protocol.indexOf("https") >= 0 ? "https:" : "http:"}//${_.host || window.location?.host}`}${is()}`;
+}
+function is() {
+  return _.version === "ACA Engine" ? "/control/api" : vn;
+}
+function ai() {
+  return !!_.token_header;
+}
+function hi() {
+  return T;
+}
+function Hr(t, e = true) {
+  A.setItem(`${T}_x-api-key`, `${t}`), A.setItem("trusted", `${e}`), li("x-api-key", Js(/* @__PURE__ */ new Date(), 5).valueOf());
+}
+function Ye() {
+  return Ut("x-api-key", false) || "";
+}
+function li(t, e = Ks(/* @__PURE__ */ new Date(), 2).valueOf()) {
+  _.ignore_api_key && t === "x-api-key" || (A.setItem(`${T}_expires_at`, `${e}`), A.setItem(`${T}_access_token`, t), ye.set(t), Ce());
+}
+function X(t = true) {
+  if (_.mock) return "mock-token";
+  if (!A) return "";
+  if (Ye() && !_.ignore_api_key) return "x-api-key";
+  const e = A.getItem(`${T}_expires_at`) || "", n = ye.value;
+  return Xn(+e, /* @__PURE__ */ new Date()) && (p("Token expired. Requesting new token..."), qn(), m.load_authority || (qt += 1, re(
+    "re-authorise",
+    async () => {
+      delete m.authorise, await wt().catch(
+        (s) => p.error("Failed to get token:", s)
+      );
+    },
+    200 * Math.min(20, qt)
+  )), !t) ? "" : n || A.getItem(`${T}_access_token`) || "";
+}
+function Pt() {
+  return Je.value || A.getItem(`${T}_refresh_token`) || "";
+}
+function bn() {
+  return _.host || window.location?.host;
+}
+function di() {
+  return Ce(), kn.asReadonly();
+}
+function Rt() {
+  return N;
+}
+function Fr() {
+  return _e.value;
+}
+function Sn() {
+  return !!_.mock;
+}
+function fi() {
+  return !!_.secure;
+}
+function Lr() {
+  return _e.asReadonly();
+}
+function xn() {
+  return Ut("trust") === "true" || Ut("trusted") === "true";
+}
+function rs() {
+  return !!Ye() && !_.ignore_api_key || Ut("fixed_device") === "true";
+}
+function Ut(t, e = true) {
+  let s = es()[t];
+  if (A) {
+    const i = `${hi()}_${t}`;
+    s = s || A.getItem(i) || A.getItem(t) || "", e && A.setItem(i, `${s}`);
+  }
+  return s;
+}
+async function jr(t) {
+  return _ = t || _, _.token_header = _.token_header ?? ei(), window.AbortController || (window.AbortController = ni), A = _.storage === "session" ? sessionStorage : localStorage, T = K.hashStr(_.redirect_uri, false), pi(), _.delay && _.delay > 0 && await ui(_.delay), Pn();
+}
+var It = false;
+function pi() {
+  It || (It = true, window.addEventListener("focus", Tt), document.addEventListener("visibilitychange", Tt));
+}
+async function Tt() {
+  if (document.visibilityState === "hidden" || _.mock || !N || N.session || ns()) return;
+  if (delete m.check_params, await us().catch(() => false) || ge || Pt()) {
+    p("Application focused with new credentials. Authorising..."), Oe = false, delete m.authorise, await wt().catch(
+      (e) => p.error("Failed to authorise on focus:", e)
+    );
+    return;
+  }
+  p("Application focused without a session. Reloading authority..."), Oe = false, An().catch(
+    (e) => p.error("Failed to refresh authority:", e)
+  );
+}
+function An() {
+  return p("Refreshing authorty."), N = void 0, Pn();
+}
+function qn() {
+  p("Invalidating tokens."), A.removeItem(`${T}_access_token`), A.removeItem(`${T}_expires_at`), ye.value && ye.set(""), Ce();
+}
+function wt(t, e = N) {
+  return m.authorise || (m.authorise = new Promise((n, s) => {
+    if (!e)
+      return delete m.authorise, s("Authority is not loaded");
+    p("Authorising user...");
+    const i = () => {
+      if (X(false))
+        p("Valid token found."), delete m.authorise, n(X());
+      else {
+        const r = [
+          () => {
+            p("Successfully generated token."), n(X()), delete m.authorise;
+          },
+          () => {
+            p.error("Failed to generate token."), s("Failed to generate token"), setTimeout(() => delete m.authorise, 200);
+          }
+        ];
+        if (_ && _.auth_type === "password")
+          p("Logging in with credentials."), Si(_).then(
+            ...r
+          ), qt = 0;
+        else if (ge || Pt())
+          p(
+            `Generating token with ${ge ? "code" : "refresh token"}`
+          ), cs().then(...r), qt = 0;
+        else if (e.session)
+          p(
+            "Users has session. Authorising application..."
+          ), mi(t).then(...r);
+        else {
+          p("No user session"), s("No user session"), setTimeout(() => delete m.authorise, 200);
+          try {
+            os(e);
+          } catch {
+          }
+        }
+      }
+    };
+    yi().then(i, i);
+  })), m.authorise;
+}
+function Pn(t = 0) {
+  return m.load_authority || (m.load_authority = new Promise((e) => {
+    if (_e.set(false), _.mock) {
+      N = ci, p("System in mock mode"), _e.set(true), e();
+      return;
+    }
+    p(`Fixed: ${rs()} | Trusted: ${xn()}`), p("Loading authority...");
+    const n = _.secure || window.location?.protocol.indexOf("https") >= 0, s = (i) => {
+      p.error(`Failed to load authority(${i})`), _e.set(false), re(
+        "load_authority",
+        () => {
+          delete m.load_authority, Pn(t).then((r) => e());
+        },
+        300 * Math.min(20, ++t)
+      );
+    };
+    fetch(`${n ? "https:" : "http:"}//${bn()}/auth/authority`, {
+      credentials: "same-origin"
+    }).then(async (i) => {
+      if (!i.ok)
+        return s(await i.text().catch((o) => o));
+      N = await i.json(), vn = /[2-9]\.[0-9]+\.[0-9]+/g.test(
+        N.version || ""
+      ) ? "/api/engine/v2" : "/control/api", p.group("Loaded authority."), N && (p(`Name: ${N.name}`), p(`Version: ${N.version}`), p(`Domain: ${N.domain}`), p(`Session: ${N.session}`), p(`Production: ${N.production}`), p(
+        `Config Keys: ${Object.keys(N.config || {}).length}`
+      )), p.groupEnd("");
+      const r = () => {
+        _e.set(true), p("Application set online."), e();
+      };
+      delete m.load_authority, wt("").then(r, r);
+    }, s);
+  })), m.load_authority;
+}
+async function mi(t) {
+  const e = $i(t);
+  if (_.use_iframe)
+    return gi(e);
+  window.location?.assign(e);
+}
+function gi(t) {
+  return m.iframe_auth || (m.iframe_auth = new Promise((e, n) => {
+    p("Authorizing in an iFrame...");
+    const s = document.createElement("iframe");
+    s.style.position = "absolute", s.style.top = "0", s.style.left = "0", s.style.height = "1px", s.style.width = "1px", s.style.zIndex = "-1", s.id = "place-authorize", s.src = `${t}`;
+    const i = (o) => {
+      if (o.origin === window.location?.origin && o.data.type === "place-os") {
+        const a = o.data;
+        if (p("Received credentials from iFrame..."), document.body.removeChild(s), me("iframe_auth"), window.removeEventListener("message", i), delete m.iframe_auth, a.token)
+          return e(), Rn(__spreadValues({
+            access_token: a.token
+          }, a));
+        ge = a.code || "", cs().then(
+          (y) => e(y),
+          (y) => n(y)
+        );
+      }
+    }, r = () => {
+      window.removeEventListener("message", i), s.parentNode && s.parentNode.removeChild(s), delete m.iframe_auth;
+    };
+    re(
+      "iframe_auth",
+      () => {
+        p.error("Unable to resolve iFrame after 15 seconds..."), r(), n();
+      },
+      15 * 1e3
+    ), window.addEventListener("message", i), s.onerror = (o) => {
+      p.error("iFrame error.", o), me("iframe_auth"), r(), n();
+    }, document.body.appendChild(s);
+  })), m.iframe_auth;
+}
+var Oe = false;
+function os(t) {
+  if (_.handle_login !== false && !Oe) {
+    p("Redirecting to login page...");
+    const e = ss(
+      t.login_url?.replace(
+        "{{url}}",
+        encodeURIComponent(window.location?.href)
+      )
+    );
+    throw setTimeout(() => window.location?.assign(e), 300), Oe = true, new Error("Redirecting to login page...");
+  } else
+    p("Login being handled locally.");
+  delete m.authorise;
+}
+function yi() {
+  return m.check_token || (m.check_token = new Promise(async (t, e) => {
+    X() ? (p("Valid token found."), t(X())) : (p("No token. Checking URL for auth credentials..."), await us() ? t(true) : e()), delete m.check_token;
+  })), m.check_token;
+}
+function us() {
+  return m.check_params || (m.check_params = new Promise((t) => {
+    p("Checking for auth parameters...");
+    let e = es();
+    if ((!e || Object.keys(e).length <= 0) && sessionStorage && (e = JSON.parse(
+      sessionStorage.getItem("ENGINE.auth.params") || "{}"
+    ), sessionStorage.removeItem("ENGINE.auth.params")), e && (e.code || e.access_token || e.refresh_token)) {
+      const n = A.getItem(`${T}_nonce`) || "", s = (e.state || "").split(";");
+      ie("state"), ie("token_type");
+      const i = s[0];
+      n === i ? (e.code && (ge = e.code, ie("code")), e.refresh_token && (A.setItem(
+        `${T}_refresh_token`,
+        e.refresh_token
+      ), ie("refresh_token")), Rn(e), t(!!e.access_token)) : (ie("code"), ie("access_token"), ie("refresh_token"), t(false));
+    } else
+      t(false);
+    re(
+      "check_params_promise",
+      () => delete m.check_params,
+      50
+    );
+  })), m.check_params;
+}
+function $i(t) {
+  const e = xi();
+  t = t ? `${e};${t}` : e;
+  const n = _ ? (_.auth_uri || "").indexOf("?") >= 0 : false, s = (_ ? _.auth_uri : null) || "/auth/oauth/authorize", i = xn() || _.auth_type === "auth_code" ? "code" : "token";
+  let r = `${s}${n ? "&" : "?"}response_type=${encodeURIComponent(i)}&client_id=${encodeURIComponent(T)}&state=${encodeURIComponent(t)}&redirect_uri=${encodeURIComponent(_.redirect_uri)}&scope=${encodeURIComponent(_.scope)}`;
+  if (_.auth_type === "auth_code") {
+    const { challenge: o, verify: a } = bi();
+    sessionStorage.setItem(`${T}_challenge`, o), r += "&code_challenge_method=S256", r += `&code_challenge=${a}`;
+  }
+  return r;
+}
+function bi(t = 43) {
+  const e = ts(t), n = zs(Fs(e)), s = Yn(Gs.hash(n)).split("=")[0].replace(/\//g, "_").replace(/\+/g, "-");
+  return { challenge: e, verify: s };
+}
+function vi() {
+  let e = (_.token_uri || "/auth/token") + `?client_id=${encodeURIComponent(T)}`, n = "";
+  if (e += `&redirect_uri=${encodeURIComponent(_.redirect_uri)}`, Pt()) {
+    e += `&refresh_token=${encodeURIComponent(Pt())}`, e += "&grant_type=refresh_token";
+    const s = e.indexOf("?");
+    n = e.slice(s + 1), e = e.slice(0, s);
+  } else {
+    e += `&code=${encodeURIComponent(ge)}`, e += "&grant_type=authorization_code";
+    const s = sessionStorage.getItem(`${T}_challenge`);
+    s && (e += `&code_verifier=${s}`, sessionStorage.removeItem(`${T}_challenge`)), ge = "";
+  }
+  return [e, n];
+}
+function ki(t) {
+  const e = t.token_uri || "/auth/token", n = b({
+    grant_type: "password",
+    client_id: T,
+    client_secret: t.client_secret,
+    redirect_uri: t.redirect_uri,
+    authority: N?.id,
+    scope: t.scope,
+    username: t.username,
+    password: t.password
+  });
+  return `${e}?${n}`;
+}
+function cs() {
+  return as(...vi());
+}
+function Si(t) {
+  return as(ki(t));
+}
+function as(t, e = "") {
+  return m.generate_tokens || (m.generate_tokens = new Promise((n, s) => {
+    p("Generating new token...");
+    const i = (r) => {
+      p.error("Error generating new tokens:", r), r && r.status >= 400 && r.status < 500 && (A.removeItem(`${T}_refresh_token`), Je.set("")), Ce(), s(), delete m.generate_tokens;
+    };
+    fetch(t, {
+      method: "POST",
+      body: e,
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      }
+    }).then(async (r) => {
+      if (!r.ok) return i(r);
+      const o = await r.json();
+      Rn(o), n(), delete m.generate_tokens;
+    }, i);
+  })), m.generate_tokens;
+}
+function Rn(t) {
+  const e = Zs(
+    /* @__PURE__ */ new Date(),
+    Math.max(60, parseInt(t.expires_in, 10) - 300)
+  );
+  p("Tokens generated storing..."), xn() && (t.access_token && (A.setItem(
+    `${T}_access_token`,
+    t.access_token
+  ), ie("access_token")), t.refresh_token && (A.setItem(
+    `${T}_refresh_token`,
+    t.refresh_token
+  ), ie("refresh_token"))), t.expires_in && (A.setItem(`${T}_expires_at`, `${e.valueOf()}`), ie("expires_in")), _e.set(true), ye.set(t.access_token || ""), Je.set(t.refresh_token || ""), Ce();
+}
+function xi() {
+  const t = ts();
+  return A.setItem(`${T}_nonce`, t), t;
+}
+var Ae = Nt("HTTP(M)");
+var Dt = {};
+var hs = (t, e) => {
+  const n = new Error(`Mock endpoint not found: ${t} ${e}`);
+  return n.status = 404, Ae(`404 ${t}:`, e), Promise.reject(n);
+};
+function Zr(t, e = Dt) {
+  Ai(t.method, t.path, e);
+  const n = `${t.method}|${t.path}`, s = t.path.replace(/(http|https):\/\/[a-zA-Z0-9.-]*:?([0-9]*)?/g, "").replace(/^\//, "").split("/"), i = __spreadProps(__spreadValues({}, t), {
+    path_parts: s,
+    path_structure: s.map(
+      (r) => r[0] === ":" ? r.replace(":", "") : ""
+    )
+  });
+  e[n] = i, Ae(`+ ${t.method} ${t.path}`);
+}
+function Ai(t, e, n = Dt) {
+  const s = `${t}|${e}`;
+  n[s] && (delete n[s], Ae(`- ${t} ${e}`));
+}
+function qi(t, e, n, s = Dt) {
+  const i = Pi(t, e, s);
+  if (i) {
+    const r = Ri(e, i, n);
+    return Ui(i, r);
+  }
+  try {
+    return hs(t, e);
+  } catch (r) {
+    return Ae.error(`ERROR ${t}:`, [e, r]), Promise.reject(r);
+  }
+}
+function Pi(t, e, n = Dt) {
+  const i = e.replace(/(http|https):\/\/[a-zA-Z0-9.-]*:?([0-9]*)?/g, "").replace(/^\//, "").split("?")[0].split("/"), r = Object.keys(
+    n
+  ).reduce((o, a) => (a.indexOf(`${t}|`) === 0 && o.push(n[a]), o), []);
+  for (const o of r)
+    if (o.path_structure.length === i.length) {
+      let a = true;
+      for (let y = 0; y < o.path_structure.length; y++)
+        if (!o.path_structure[y] && o.path_parts[y] !== i[y]) {
+          a = false;
+          break;
+        }
+      if (a)
+        return o;
+    }
+  return null;
+}
+function Ri(t, e, n) {
+  const s = t.replace(/(http|https):\/\/[a-zA-Z0-9.-]*:?([0-9]*)?/g, "").split("?"), i = s[0].replace(/^\//, ""), r = s[1] || "", o = Te(r), a = i.split("/"), y = {};
+  for (let P2 = 0; P2 < e.path_structure.length; P2++) {
+    const W2 = e.path_structure[P2];
+    W2 && (y[W2] = a[P2]);
+  }
+  const L2 = {
+    url: t,
+    path: e.path,
+    method: e.method,
+    metadata: e.metadata,
+    route_params: y,
+    query_params: o,
+    body: n
+  };
+  return Ae(`MATCHED ${L2.method}:`, L2), L2;
+}
+function Ui(t, e) {
+  let n;
+  try {
+    n = t.callback ? t.callback(e) : t.metadata;
+  } catch (o) {
+    return Ae.error(`ERROR ${e.method}:`, e.url, o), Promise.reject(o);
+  }
+  const s = t.delay_variance || 100, i = t.delay || 300, r = Math.floor(Math.random() * s - s / 2) + i;
+  return Ae(`RESP ${e.method}:`, e.url, n), new Promise((o) => {
+    setTimeout(() => o(n), Math.max(200, r));
+  });
+}
+var Ii = Nt("HTTP");
+var ls = {};
+function Ti(t, e = ls) {
+  return e[t] || {};
+}
+function f(t, e, n = Ve) {
+  return e || (e = { response_type: "json" }), n("GET", t, __spreadValues({ response_type: "json" }, e));
+}
+function S(t, e, n, s = Ve) {
+  return n || (n = { response_type: "json" }), s("POST", t, __spreadValues({ body: e, response_type: "json" }, n));
+}
+function ce(t, e, n, s = Ve) {
+  return n || (n = { response_type: "json" }), s("PUT", t, __spreadValues({ body: e, response_type: "json" }, n));
+}
+function ae(t, e, n, s = Ve) {
+  return n || (n = { response_type: "json" }), s("PATCH", t, __spreadValues({ body: e, response_type: "json" }, n));
+}
+function ee(t, e, n = Ve) {
+  return e || (e = { response_type: "void" }), n("DELETE", t, __spreadValues({ response_type: "void" }, e));
+}
+async function Ei(t, e, n = ls) {
+  if (t.headers) {
+    const s = {};
+    t.headers.forEach ? t.headers.forEach((i, r) => s[r.toLowerCase()] = i) : Object.keys(t.headers).forEach(
+      (i) => s[i.toLowerCase()] = t.headers[i]
+    ), n[t.url || ""] = s;
+  }
+  switch (e) {
+    case "json":
+      return await t.json().catch(() => ({}));
+    case "text":
+      return await t.text();
+    case "void":
+      return;
+    default:
+      return await t.json().catch(() => ({}));
+  }
+}
+var ds = () => (qn(), An().then(
+  () => Promise.resolve(),
+  () => new Promise((t) => {
+    setTimeout(() => {
+      ds().then(() => t());
+    }, 1e3);
+  })
+));
+function Ve(t, e, n, s = Sn, i = qi, r = Ei) {
+  if (s()) {
+    const P2 = i(t, e, n?.body);
+    if (P2) return P2;
+  }
+  n.headers = n.headers || {}, !n.headers["Content-Type"] && !n.headers["content-type"] && (n.headers["Content-Type"] = "application/json");
+  const o = () => {
+    const P2 = __spreadProps(__spreadValues({}, n), {
+      method: t,
+      credentials: "same-origin"
+    });
+    return delete P2.response_type, delete P2.skip_auth, delete P2.skip_auth_flow, ["POST", "PUT", "PATCH"].includes(t) && n.body !== void 0 && (P2.body = typeof n.body == "string" ? n.body : JSON.stringify(n.body)), fetch(e, P2);
+  }, a = async () => {
+    n.skip_auth || (await oi(di(), Boolean), X() === "x-api-key" ? n.headers["X-API-Key"] = Ye() : n.headers.Authorization = `Bearer ${X()}`);
+    const P2 = await o();
+    if (P2.ok) return r(P2, n.response_type);
+    throw P2;
+  }, y = 4, L2 = async (P2) => {
+    try {
+      return await a();
+    } catch (W2) {
+      if (P2 >= y) throw W2 || {};
+      if (n.skip_auth || n.skip_auth_flow) throw W2 || {};
+      if (W2.status === 511)
+        throw os(Rt()), W2;
+      if (W2.status !== 401) throw W2 || {};
+      return Ii.warn("Auth error:", W2), await ds().catch(() => {
+        throw W2;
+      }), L2(P2 + 1);
+    }
+  };
+  return L2(0);
+}
+var F = class {
+  /** Unique Identifier of the object */
+  id;
+  /** Human readable name of the object */
+  name;
+  /** Unix epoch in seconds of the creation time of the object */
+  created_at;
+  /** Unix epoch in seconds of the creation time of the object */
+  updated_at;
+  /** Version of the data */
+  version;
+  constructor(e = {}) {
+    this.id = e.id || "", this.name = e.name || "", this.created_at = e.created_at || 0, this.updated_at = e.updated_at || 0, this.version = e.version || 0;
+  }
+  /**
+   * Convert object into plain object
+   */
+  toJSON() {
+    const e = __spreadValues({}, this);
+    return e.version = this.version, delete e.created_at, Vs(e, [void 0, null, ""]);
+  }
+};
+var fs = {};
+var ps = {};
+var Bn = "";
+var zt = (t) => t;
+var Ni = 300;
+var Ie = {};
+function $(t) {
+  const { query_params: e, fn: n, path: s, endpoint: i } = t, r = b(e), o = `${i || u2()}${s ? "/" + s : ""}${r ? "?" + r : ""}`;
+  if (Ie[o]) return Ie[o].promise;
+  const a = f(o).then((y) => {
+    const L2 = wi(o, r, s);
+    return {
+      total: L2.total || 0,
+      next: L2.next ? () => $({
+        query_params: L2.next,
+        fn: n,
+        endpoint: i,
+        path: s
+      }) : null,
+      data: y && y instanceof Array ? y.map((P2) => (n || zt)(P2)) : y && !(y instanceof Array) && y.results ? y.results.map((P2) => P2) : []
+    };
+  });
+  return Ie[o] = {
+    promise: a,
+    timeout: setTimeout(() => delete Ie[o], Ni)
+  }, a.catch(() => {
+    clearTimeout(Ie[o]?.timeout), delete Ie[o];
+  }), a;
+}
+function g(t) {
+  const { query_params: e, id: n, path: s, fn: i, options: r } = t, o = b(e), a = `${u2()}/${s}/${n}${o ? "?" + o : ""}`;
+  return f(a, r).then((y) => (i || zt)(y));
+}
+function U(t) {
+  const { query_params: e, form_data: n, path: s, fn: i } = t, r = b(e), o = `${u2()}/${s}${r ? "?" + r : ""}`;
+  return S(o, n).then((a) => (i || zt)(a));
+}
+function h(t) {
+  const { id: e, task_name: n, form_data: s, method: i, path: r, callback: o } = t, a = b(s), y = `${u2()}/${r}/${e}/${n}`;
+  return (i === "post" || i === "put" || !i ? (i === "put" ? ce : S)(y, s) : (i === "del" ? ee : f)(
+    `${y}${a ? "?" + a : ""}`,
+    {
+      response_type: "json"
+    }
+  )).then((P2) => (o || ((W2) => W2))(P2));
+}
+function I(t) {
+  const { id: e, query_params: n, form_data: s, method: i, path: r, fn: o } = t, a = b(__spreadProps(__spreadValues({}, n), {
+    version: s.version || 0
+  })), y = `${u2()}/${r}/${e}${a ? "?" + a : ""}`;
+  return (i === "put" ? ce : ae)(y, s).then(
+    (L2) => (o || zt)(L2)
+  );
+}
+function wi(t, e, n) {
+  const s = Ti(
+    t[0] === "/" ? `${location.origin}${t}` : t
+  ), i = {
+    total: 0,
+    next: null
+  };
+  if (s && s["x-total-count"]) {
+    const r = +(s["x-total-count"] || 0);
+    (e.length < 2 || e.length < 12 && e.indexOf("offset=") >= 0) && (fs[n] = r), ps[n] = r, i.total = r;
+  }
+  return s && s.link && (Bn = Ys(s.link || "").next, i.next = Te(Bn.split("?")[1])), i;
+}
+var Un = class extends F {
+  /** Hash of the email address of the user */
+  email_digest;
+  /** ID of the authority associated with the user */
+  authority_id;
+  /** Email address of the user */
+  email;
+  /** Phone number of the user */
+  phone;
+  /** Display nickname of the user */
+  nickname;
+  /** Country that the user resides in */
+  country;
+  /** Office building the user is associated */
+  building;
+  /** Access control groups that user is associated */
+  groups;
+  /** Avatar image for the user */
+  image;
+  /** Additional metadata associated with the user */
+  metadata;
+  /** Miscellaneous user data */
+  misc;
+  /** Username credential of the user */
+  login_name;
+  /** Organisation ID of the user */
+  staff_id;
+  /** First name of the user */
+  first_name;
+  /** Last name of the user */
+  last_name;
+  /** Whether user is a support role */
+  support;
+  /** Whether user is a system admin role */
+  sys_admin;
+  /** Name of the active theme on the displayed UI */
+  ui_theme;
+  /** Preferred language of the user */
+  preferred_language;
+  /** Card Number associated with the user */
+  card_number;
+  /** Organisational department the user belongs */
+  department;
+  /** Default worktime preferences for the user */
+  work_preferences;
+  /** Overrides of the worktime preferences for the user */
+  work_overrides;
+  /** ID of the user's photo in the PlaceOS uploads service */
+  photo_upload_id;
+  /** Whether the user has opted in to location tracking */
+  locatable;
+  /** Password */
+  password = "";
+  /** Password */
+  confirm_password = "";
+  constructor(e = {}) {
+    super(e), this.authority_id = e.authority_id || "", this.email = e.email || "", this.email_digest = e.email_digest || "", this.phone = e.phone || "", this.nickname = e.nickname || "", this.country = e.country || "", this.building = e.building || "", this.image = e.image || "", this.metadata = e.metadata || "", this.misc = e.misc || "", this.login_name = e.login_name || "", this.staff_id = e.staff_id || "", this.first_name = e.first_name || "", this.last_name = e.last_name || "", this.support = !!e.support, this.sys_admin = !!e.sys_admin, this.ui_theme = e.ui_theme || "", this.preferred_language = e.preferred_language || "", this.card_number = e.card_number || "", this.groups = e.groups || [], this.department = e.department || "", this.photo_upload_id = e.photo_upload_id || "", this.work_preferences = e.work_preferences || [], this.work_overrides = e.work_overrides || {}, this.locatable = e.locatable ?? true;
+  }
+};
+var He = /* @__PURE__ */ ((t) => (t[t.None = 0] = "None", t[t.Support = 1] = "Support", t[t.Admin = 2] = "Admin", t[t.NeverDisplay = 3] = "NeverDisplay", t))(He || {});
+var qe = class extends F {
+  /** ID of the parent zone/system/module/driver */
+  parent_id;
+  /** Unix timestamp in seconds of when the settings where last updated */
+  updated_at;
+  /** Access level for the settings data */
+  encryption_level;
+  /** Contents of the settings */
+  settings_string;
+  /** Top level keys for the parsed settings */
+  keys;
+  /** ID of the user that last modified the metadata */
+  modified_by_id;
+  /** Contents of the settings */
+  get value() {
+    return this.settings_string;
+  }
+  constructor(e = {}) {
+    super(e), this.parent_id = e.parent_id || "", this.updated_at = e.updated_at || Math.floor((/* @__PURE__ */ new Date()).getTime() / 1e3), this.settings_string = e.settings_string || "", this.encryption_level = e.encryption_level || He.None, this.keys = e.keys || [], this.modified_by_id = e.modified_by_id || "";
+  }
+};
+var Et = /* @__PURE__ */ ((t) => (t[t.SSH = 0] = "SSH", t[t.Device = 1] = "Device", t[t.Service = 2] = "Service", t[t.Websocket = 3] = "Websocket", t[t.Logic = 99] = "Logic", t))(Et || {});
+var gs = class extends F {
+  /** Place class name of the driver */
+  class_name;
+  /** Description of the driver functionality */
+  description;
+  /** Name to use for modules that inherit this driver */
+  module_name;
+  /** Role of the driver in engine */
+  role;
+  /** Default URI for the driver */
+  default_uri;
+  /** Default port number for the driver */
+  default_port;
+  /** ID of the repository the driver is from */
+  repository_id;
+  /** Name of the file from the repository to load the driver logic from */
+  file_name;
+  /** Version of the driver logic to use */
+  commit;
+  /** Ignore connection issues */
+  ignore_connected;
+  /** Whether newer version of driver is available */
+  update_available;
+  update_info;
+  /**  */
+  alert_level;
+  /** Tuple of user settings of differring encryption levels for the driver */
+  settings;
+  constructor(e = {}) {
+    super(e), this.description = e.description || "", this.module_name = e.module_name || "", this.role = e.role ?? Et.Logic, this.default_uri = e.default_uri || "", this.default_port = e.default_port || 1, this.ignore_connected = e.ignore_connected || false, this.class_name = e.class_name || "", this.repository_id = e.repository_id || "", this.file_name = e.file_name || "", this.commit = e.commit || "", this.update_available = e.update_available || false, this.update_info = e.update_info, this.alert_level = e.alert_level || "medium", this.settings = e.settings || [null, null, null, null], typeof this.settings != "object" && (this.settings = [null, null, null, null]);
+    for (const n in He)
+      !isNaN(Number(n)) && !this.settings[n] && (this.settings[n] = new qe({
+        parent_id: this.id,
+        encryption_level: +n
+      }));
+  }
+};
+var In = class {
+  /** ISO8601 timestamp of the creation time of the group */
+  created_at;
+  /** ISO8601 timestamp of the last update time of the group */
+  updated_at;
+  /** Unique identifier of the group */
+  id;
+  /** Human readable name of the group */
+  name;
+  /** Description of the group's purpose */
+  description;
+  /** Subsystems this group participates in */
+  subsystems;
+  /** ID of the authority associated with the group */
+  authority_id;
+  /** ID of the parent group */
+  parent_id;
+  /** Count of child groups for this group */
+  children_count;
+  constructor(e = {}) {
+    this.created_at = e.created_at || "", this.updated_at = e.updated_at || "", this.id = e.id || "", this.name = e.name || "", this.description = e.description || "", this.subsystems = e.subsystems || [], this.authority_id = e.authority_id || "", this.parent_id = e.parent_id || "", isFinite(Number(e.children_count)) && (this.children_count = e.children_count);
+  }
+};
+var ze = "groups";
+function it(t) {
+  return new In(t);
+}
+function yu(t = {}) {
+  const e = b(t), n = `${u2()}/${ze}/current${e ? "?" + e : ""}`;
+  return f(n).then(
+    (s) => (s || []).map((i) => ({
+      group: it(i.group || {}),
+      permissions: i.permissions || 0
+    }))
+  );
+}
+var le = class extends F {
+  /** Name of the system assocaited with the trigger */
+  system_name;
+  /** Number of times the trigger has been activated/triggered */
+  activated_count;
+  /** Description of the trigger */
+  description;
+  /** Duration with which to ignore sequential activations of the trigger */
+  debounce_period;
+  /** Whether the trigger should take priority */
+  important;
+  /** Whether trigger is enabled on the associated zone or system */
+  enabled;
+  /** Whether the trigger can call webhooks */
+  enable_webhook;
+  /** Whether the trigger instance can execute methods */
+  exec_enabled;
+  /** Auth key for trigger's webhook */
+  webhook_secret;
+  /** HTTP verbs supported by the webhook */
+  supported_methods;
+  /** ID of the system associated with the trigger */
+  control_system_id;
+  /** ID of the zone associated with the trigger */
+  zone_id;
+  /** ID of the Parent trigger */
+  trigger_id;
+  /** List of playlist IDs associated with the system */
+  playlists;
+  // Whether condition checks should match any single condition to pass or all of them
+  any_match;
+  /** ID of the system associated with the trigger */
+  get system_id() {
+    return this.control_system_id;
+  }
+  /** Actions to perform when the trigger is activated */
+  get actions() {
+    const e = this._actions, n = (e.functions || []).map((i) => __spreadProps(__spreadValues({}, i), {
+      args: __spreadValues({}, i.args)
+    })), s = (e.mailers || []).map((i) => __spreadProps(__spreadValues({}, i), {
+      emails: [...i.emails]
+    }));
+    return { functions: n, mailers: s };
+  }
+  /** Conditions for activating the trigger */
+  get conditions() {
+    const e = this._conditions, n = (e.comparisons || []).map((i) => __spreadProps(__spreadValues({}, i), {
+      left: typeof i.left == "object" ? __spreadValues({}, i.left) : i.left,
+      right: typeof i.right == "object" ? __spreadValues({}, i.right) : i.right
+    })), s = (e.time_dependents || []).map((i) => __spreadValues({}, i));
+    return { comparisons: n, time_dependents: s };
+  }
+  /** Actions to perform when the trigger is activated */
+  _actions;
+  /** Conditions for activating the trigger */
+  _conditions;
+  constructor(e = {}) {
+    super(e), this.description = e.description || "", this._actions = e.actions || { functions: [], mailers: [] }, this._conditions = e.conditions || {
+      comparisons: [],
+      time_dependents: []
+    }, this.debounce_period = e.debounce_period || 0, this.important = e.important || false, this.enabled = e.enabled || false, this.webhook_secret = e.webhook_secret || "", this.control_system_id = e.system_id || e.control_system_id || "", this.zone_id = e.zone_id || "", this.system_name = e.system_name || (e.control_system ? e.control_system.name : ""), this.enable_webhook = e.enable_webhook || false, this.exec_enabled = e.exec_enabled || false, this.supported_methods = e.supported_methods || ["POST"], this.activated_count = e.activated_count || e.trigger_count || 0, this.playlists = e.playlists || [], this.trigger_id = e.trigger_id || "", this.any_match = e.any_match || false;
+  }
+};
+var Kt = class extends F {
+  /** Tuple of user settings of differring encryption levels for the zone */
+  settings = [null, null, null, null];
+  /** Description of the zone's purpose */
+  description;
+  /** ID of the parent zone */
+  parent_id;
+  /** List of triggers associated with the zone */
+  triggers;
+  /** List of tags associated with the zone */
+  tags;
+  /** Geo-location details associated with the zone */
+  location;
+  /** Custom display name for the zone */
+  display_name;
+  /** Organisational code associated with the zone */
+  code;
+  /** Organisational categorisation of the zone */
+  type;
+  /** Count of resources associated with the zone */
+  count;
+  /** Count of child zones for this zone */
+  children_count;
+  /** Amount of physical capacity associated with the zone */
+  capacity;
+  /** ID or URL of or in a map associated with the zone */
+  map_id;
+  /** List of image URLs */
+  images;
+  /** Timezone of the associated real world location */
+  timezone;
+  /** List of playlist IDs associated with the system */
+  playlists;
+  /**
+   * List of modules associated with the system.
+   * Only available from the show method with the `complete` query parameter
+   */
+  trigger_list = [];
+  constructor(e = {}) {
+    super(e), this.description = e.description || "", this.tags = e.tags || [], this.triggers = e.triggers || [], this.settings = e.settings || [null, null, null, null], this.parent_id = e.parent_id || "", this.location = e.location || "", this.display_name = e.display_name || "", this.code = e.code || "", this.type = e.type || "", this.count = e.count || 0, this.capacity = e.capacity || 0, this.map_id = e.map_id || "", this.timezone = e.timezone || "", this.images = e.images || [], this.playlists = e.playlists || [], isFinite(Number(e.children_count)) && (this.children_count = e.children_count), typeof this.settings != "object" && (this.settings = [null, null, null, null]);
+    for (const n in He)
+      !isNaN(Number(n)) && !this.settings[n] && (this.settings[n] = new qe({
+        parent_id: this.id,
+        encryption_level: +n
+      }));
+    e.trigger_data && e.trigger_data instanceof Array && (this.trigger_list = e.trigger_data.map(
+      (n) => new le(n)
+    ));
+  }
+};
+var vs = class {
+  /** ID of the parent resource associated with the metadata */
+  id;
+  /** Name/ID of the zone metadata */
+  name;
+  /** Description of what this metadata represents */
+  description;
+  /** Metadata associated with this key. */
+  details;
+  /** List user groups allowed to edit the metadata */
+  editors;
+  /** JSON schema associated with the metadata details */
+  schema;
+  /** Unix timestamp that the metadata was last modified at */
+  updated_at;
+  /** ID of the user that last modified the metadata */
+  modified_by_id;
+  /** Version of the data */
+  version;
+  constructor(e = {}) {
+    this.id = e.id || e.parent_id || "", this.name = e.name || "", this.description = e.description || "";
+    try {
+      this.details = (typeof e.details == "string" ? JSON.parse(e.details) : e.details) || {};
+    } catch {
+      this.details = e.details || {};
+    }
+    this.editors = e.editors || [], this.schema = e.schema || "", this.updated_at = (e.updated_at || 0) * 1e3 || Date.now(), this.modified_by_id = e.modified_by_id || "", this.version = e.version || 0;
+  }
+};
+var Zi = class {
+  /** Zone associated with the metadata */
+  zone;
+  /** Metadata for zone */
+  metadata;
+  /** List of the root keys in the metadata */
+  keys;
+  constructor(e = {}) {
+    this.zone = new Kt(e.zone), this.keys = e.keys || [], this.metadata = {};
+    const n = e.metadata || {};
+    for (const s of this.keys)
+      this.metadata[s] = new vs(n[s]);
+  }
+};
+var $e = "metadata";
+function Fe(t) {
+  return new vs(t);
+}
+function Wu(t, e) {
+  return g({
+    id: t,
+    query_params: { name: e },
+    fn: (n) => Fe(n[e]),
+    path: $e
+  });
+}
+function Qu(t, e, n = "put") {
+  return I({
+    id: t,
+    form_data: e,
+    query_params: {},
+    method: n,
+    fn: Fe,
+    path: $e
+  });
+}
+function Ju(t, e) {
+  return h({
+    id: t,
+    task_name: "children",
+    form_data: e,
+    method: "get",
+    callback: (n) => n.map(
+      (s) => new Zi(__spreadProps(__spreadValues({}, s), {
+        keys: Object.keys(s.metadata)
+      }))
+    ),
+    path: $e
+  });
+}
+function Yu(t, e) {
+  const n = b(e), s = `${u2()}/${$e}/${encodeURIComponent(t)}/bulk${n ? "?" + n : ""}`;
+  return f(s).then(
+    (i) => Object.keys(i || {}).reduce(
+      (r, o) => __spreadProps(__spreadValues({}, r), { [o]: Fe(i[o]) }),
+      {}
+    )
+  );
+}
+var ks = class extends F {
+  /** Tuple of user settings of differring encryption levels for the system */
+  settings = [null, null, null, null];
+  /** Display name of the system */
+  display_name;
+  /** Description of the system */
+  description;
+  /** Email address associated with the system */
+  email;
+  /** Email address associated with the system */
+  code;
+  /** Capacity of the space associated with the system */
+  capacity;
+  /** Features associated with the system */
+  features;
+  /** Whether system is bookable by end users */
+  bookable;
+  /** Whether system is public accessible */
+  public;
+  /** Count of UI devices attached to the system */
+  installed_ui_devices;
+  /** Support URL for the system */
+  support_url;
+  /** URL for the timetable UI linked to the system */
+  timetable_url;
+  /** URLs for requesting snapshots of the assosiated camera */
+  camera_snapshot_url;
+  /** URLs for requesting snapshots of the assosiated camera */
+  camera_snapshot_urls;
+  /** URL for managing the attached camera */
+  camera_url;
+  /** External booking URL for the system */
+  room_booking_url;
+  /** ID on the SVG Map associated with this system */
+  map_id;
+  /** List of module IDs that belong to the system */
+  modules;
+  /** List of images associated with the system */
+  images;
+  /** List of the zone IDs that the system belongs */
+  zones;
+  /** Timezone of the associated real world space */
+  timezone;
+  /**
+   * List of modules associated with the system.
+   * Only available from the show method with the `complete` query parameter
+   */
+  module_list = [];
+  /** Whether the system has signage capabilities */
+  signage;
+  /** List of playlist IDs associated with the system */
+  playlists;
+  /** List of security groups with access to the system */
+  security_groups;
+  /** Unix timestamp of the last ping from the signage player UI */
+  signage_last_seen;
+  approval;
+  /** Orientation of the signage system */
+  orientation;
+  constructor(e = {}) {
+    super(e), this.display_name = e.display_name || "", this.description = e.description || "", this.email = e.email || "", this.code = e.code || "", this.capacity = e.capacity || 0, this.features = e.features || [], this.bookable = e.bookable || false, this.public = e.public ?? false, this.installed_ui_devices = e.installed_ui_devices || 0, this.support_url = e.support_url || "", this.camera_snapshot_url = e.camera_snapshot_url || "", this.camera_snapshot_urls = e.camera_snapshot_urls || [], this.camera_url = e.camera_url || "", this.timetable_url = e.timetable_url || "", this.room_booking_url = e.room_booking_url || "", this.map_id = e.map_id || "", this.modules = e.modules || [], this.images = e.images || [], this.zones = e.zones || [], this.settings = e.settings || [null, null, null, null], this.timezone = e.timezone || "", this.signage = e.signage || false, this.playlists = e.playlists || [], this.security_groups = e.security_groups || [], this.orientation = e.orientation || "unspecified", this.approval = e.approval || false, this.signage_last_seen = e.signage_last_seen || $n(Date.now()), typeof this.settings != "object" && (this.settings = [null, null, null, null]);
+    for (const n in He)
+      !isNaN(Number(n)) && !this.settings[n] && (this.settings[n] = new qe({
+        parent_id: this.id,
+        encryption_level: +n
+      }));
+    e.module_data && e.module_data instanceof Array && (this.module_list = e.module_data.map(
+      (n) => new Ss(n)
+    ));
+  }
+};
+var Ss = class extends F {
+  /** Whether the associated hardware is connected */
+  connected;
+  /** Whether the module driver is running */
+  running;
+  /** Timestamp of last update in ms since UTC epoch */
+  updated_at;
+  /** ID of the edge associated with the module */
+  edge_id;
+  /** ID of the driver associated with the module */
+  driver_id;
+  /** Driver/dependancy associated with the module */
+  driver;
+  /** ID of the system associated with the module */
+  control_system_id;
+  /** System associated with the module */
+  system;
+  /** IP address of the hardware associated with the module */
+  ip;
+  /** Whether the hardware connection requires TLS */
+  tls;
+  /** Whether the hardware connection is over UDP */
+  udp;
+  /** Port number connections to the hardware are made on */
+  port;
+  /**  */
+  makebreak;
+  /** URI associated with the module */
+  uri;
+  /** Custom name of the module */
+  custom_name;
+  /** Type of module */
+  role;
+  /** Notes associated with the module */
+  notes;
+  /** Ignore connection issues */
+  ignore_connected;
+  /** Tuple of user settings of differring encryption levels for the module */
+  settings = [null, null, null, null];
+  /** Whether the module has a runtime error */
+  has_runtime_error;
+  /** Timestamp of the last runtime error in ms since UTC epoch */
+  error_timestamp;
+  /**  */
+  alert_level;
+  /** ID of the system associated with the module */
+  get system_id() {
+    return this.control_system_id;
+  }
+  constructor(e = {}) {
+    super(e), this.driver_id = e.driver_id || e.dependency_id || "", this.control_system_id = e.control_system_id || "", this.edge_id = e.edge_id || "", this.ip = e.ip || "", this.tls = e.tls || false, this.udp = e.udp || false, this.port = e.port || 1, this.makebreak = e.makebreak || false, this.uri = e.uri || "", this.custom_name = e.custom_name || "", this.role = e.role ?? Et.Logic, this.notes = e.notes || "", this.ignore_connected = e.ignore_connected || false, this.connected = e.connected, this.running = e.running || false, this.updated_at = e.updated_at || 0, this.system = new ks(
+      e.control_system || e.system
+    ), this.has_runtime_error = e.has_runtime_error || false, this.error_timestamp = e.error_timestamp || 0, this.driver = new gs(e.dependency || e.driver), this.settings = e.settings || [null, null, null, null], this.alert_level = e.alert_level || "medium", typeof this.settings != "object" && (this.settings = [null, null, null, null]);
+    for (const n in He)
+      !isNaN(Number(n)) && !this.settings[n] && (this.settings[n] = new qe({
+        parent_id: this.id,
+        encryption_level: +n
+      }));
+  }
+  /**
+   * Convert object into plain object
+   */
+  toJSON(e = false) {
+    const n = super.toJSON();
+    return (n.role !== Et.Logic && !e || !n.control_system_id) && delete n.control_system_id, delete n.driver, delete n.system, delete n.error_timestamp, delete n.has_runtime_error, n;
+  }
+};
+var O = "systems";
+function Pe(t) {
+  return new ks(t);
+}
+function ia(t = {}) {
+  return $({ query_params: t, fn: Pe, path: O });
+}
+function ra(t) {
+  return $({ query_params: t, fn: Pe, path: `${O}/with_emails` });
+}
+function oa(t, e = {}) {
+  return g({ id: t, query_params: e, fn: Pe, path: O });
+}
+var Y = "users";
+function Re(t) {
+  return new Un(t);
+}
+function Ma(t = {}) {
+  return $({ query_params: t, fn: Re, path: Y });
+}
+function Na(t, e = {}) {
+  return g({ id: t, query_params: e, fn: Re, path: Y });
+}
+function Da(t, e, n = "patch") {
+  return I({
+    id: t,
+    form_data: e,
+    query_params: {},
+    method: n,
+    fn: Re,
+    path: Y
+  });
+}
+var de = "zones";
+function nn(t) {
+  return new Kt(t);
+}
+function Ka(t = {}) {
+  return $({ query_params: t, fn: nn, path: de });
+}
+var ar = class {
+  id;
+  parent_category_id;
+  name;
+  description;
+  hidden;
+  created_at;
+  updated_at;
+  constructor(e) {
+    this.id = e.id || "", this.parent_category_id = e.parent_category_id || "", this.name = e.name || "", this.description = e.description || "", this.hidden = e.hidden || false, this.created_at = e.created_at || 0, this.updated_at = e.updated_at || 0;
+  }
+};
+var lr = class {
+  id;
+  category_id;
+  name;
+  brand;
+  description;
+  model_number;
+  images;
+  created_at;
+  updated_at;
+  constructor(e) {
+    this.id = e.id || "", this.category_id = e.category_id || "", this.name = e.name || "", this.brand = e.brand || "", this.description = e.description || "", this.model_number = e.model_number || "", this.images = e.images || [], this.created_at = e.created_at || 0, this.updated_at = e.updated_at || 0;
+  }
+};
+var dr = class {
+  id;
+  parent_id;
+  asset_type_id;
+  purchase_order_id;
+  zone_id;
+  identifier;
+  serial_number;
+  other_data;
+  barcode;
+  name;
+  client_ids;
+  map_id;
+  bookable;
+  accessible;
+  zones;
+  place_groups;
+  assigned_to;
+  assigned_name;
+  features;
+  images;
+  notes;
+  security_system_groups;
+  created_at;
+  updated_at;
+  constructor(e) {
+    this.id = e.id || "", this.parent_id = e.parent_id || "", this.asset_type_id = e.asset_type_id || "", this.purchase_order_id = e.purchase_order_id || "", this.zone_id = e.zone_id || "", this.identifier = e.identifier || "", this.serial_number = e.serial_number || "", this.other_data = e.other_data || {}, this.barcode = e.barcode || "", this.name = e.name || "", this.client_ids = e.client_ids || {}, this.map_id = e.map_id || "", this.bookable = e.bookable || false, this.accessible = e.accessible || false, this.zones = e.zones || [], this.place_groups = e.place_groups || [], this.assigned_to = e.assigned_to || "", this.assigned_name = e.assigned_name || "", this.features = e.features || [], this.images = e.images || [], this.notes = e.notes || "", this.security_system_groups = e.security_system_groups || [], this.created_at = e.created_at || 0, this.updated_at = e.updated_at || 0;
+  }
+};
+var ve = "assets";
+function Ue(t) {
+  return new dr(t);
+}
+function Zh(t = {}) {
+  return $({
+    query_params: t,
+    fn: Ue,
+    path: ve
+  });
+}
+var ft = "asset_types";
+function ln(t) {
+  return new lr(t);
+}
+function sl(t = {}) {
+  return $({
+    query_params: t,
+    fn: ln,
+    path: ft
+  });
+}
+function il(t, e = {}) {
+  return g({
+    id: t,
+    query_params: e,
+    fn: ln,
+    path: ft
+  });
+}
+function rl(t, e, n = "patch") {
+  return I({
+    id: t,
+    form_data: e,
+    query_params: {},
+    method: n,
+    fn: ln,
+    path: ft
+  });
+}
+function ol(t) {
+  return U({
+    form_data: t,
+    query_params: {},
+    fn: ln,
+    path: ft
+  });
+}
+var pt = "asset_categories";
+function dn(t) {
+  return new ar(t);
+}
+function cl(t = {}) {
+  return $({
+    query_params: t,
+    fn: dn,
+    path: pt
+  });
+}
+function hl(t, e, n = "patch") {
+  return I({
+    id: t,
+    form_data: e,
+    query_params: {},
+    method: n,
+    fn: dn,
+    path: pt
+  });
+}
+function ll(t) {
+  return U({
+    form_data: t,
+    query_params: {},
+    fn: dn,
+    path: pt
+  });
+}
+var Es = class {
+  _listeners = /* @__PURE__ */ new Set();
+  _error_listeners = /* @__PURE__ */ new Set();
+  _complete_listeners = /* @__PURE__ */ new Set();
+  _closed = false;
+  next(e) {
+    if (!this._closed)
+      for (const n of [...this._listeners]) n(e);
+  }
+  error(e) {
+    if (!this._closed) {
+      for (const n of [...this._error_listeners]) n(e);
+      this._closed = true, this._clear();
+    }
+  }
+  complete() {
+    if (!this._closed) {
+      for (const e of [...this._complete_listeners]) e();
+      this._closed = true, this._clear();
+    }
+  }
+  subscribe(e, n, s) {
+    return this._closed ? (s?.(), () => null) : (this._listeners.add(e), n && this._error_listeners.add(n), s && this._complete_listeners.add(s), () => {
+      this._listeners.delete(e), n && this._error_listeners.delete(n), s && this._complete_listeners.delete(s);
     });
   }
-  return dtfCache[timeZone];
-}
-
-// node_modules/date-fns-tz/dist/esm/_lib/newDateUTC/index.js
-function newDateUTC(fullYear, month, day, hour, minute, second, millisecond) {
-  const utcDate = /* @__PURE__ */ new Date(0);
-  utcDate.setUTCFullYear(fullYear, month, day);
-  utcDate.setUTCHours(hour, minute, second, millisecond);
-  return utcDate;
-}
-
-// node_modules/date-fns-tz/dist/esm/_lib/tzParseTimezone/index.js
-var MILLISECONDS_IN_HOUR = 36e5;
-var MILLISECONDS_IN_MINUTE = 6e4;
-var patterns = {
-  timezone: /([Z+-].*)$/,
-  timezoneZ: /^(Z)$/,
-  timezoneHH: /^([+-]\d{2})$/,
-  timezoneHHMM: /^([+-])(\d{2}):?(\d{2})$/
+  _clear() {
+    this._listeners.clear(), this._error_listeners.clear(), this._complete_listeners.clear();
+  }
 };
-function tzParseTimezone(timezoneString, date, isUtcDate) {
-  if (!timezoneString) {
-    return 0;
+var _r = class extends Es {
+  constructor(e) {
+    super(), this._config = e, this._socket = new WebSocket(e.url), this._socket.onopen = () => {
+      const n = [...this._queue];
+      this._queue = [];
+      for (const s of n) this.next(s);
+    }, this._socket.onmessage = (n) => {
+      super.next(this._deserialize(n));
+    }, this._socket.onerror = (n) => this.error(n), this._socket.onclose = () => super.complete();
   }
-  let token = patterns.timezoneZ.exec(timezoneString);
-  if (token) {
-    return 0;
+  _socket;
+  _queue = [];
+  next(e) {
+    this._socket.readyState === WebSocket.OPEN ? this._socket.send(this._serialize(e)) : this._queue.push(e);
   }
-  let hours;
-  let absoluteOffset;
-  token = patterns.timezoneHH.exec(timezoneString);
-  if (token) {
-    hours = parseInt(token[1], 10);
-    if (!validateTimezone(hours)) {
-      return NaN;
-    }
-    return -(hours * MILLISECONDS_IN_HOUR);
+  complete() {
+    this._socket.close(), super.complete();
   }
-  token = patterns.timezoneHHMM.exec(timezoneString);
-  if (token) {
-    hours = parseInt(token[2], 10);
-    const minutes = parseInt(token[3], 10);
-    if (!validateTimezone(hours, minutes)) {
-      return NaN;
-    }
-    absoluteOffset = Math.abs(hours) * MILLISECONDS_IN_HOUR + minutes * MILLISECONDS_IN_MINUTE;
-    return token[1] === "+" ? -absoluteOffset : absoluteOffset;
+  _serialize(e) {
+    return this._config.serializer ? this._config.serializer(e) : `${e}`;
   }
-  if (isValidTimezoneIANAString(timezoneString)) {
-    date = new Date(date || Date.now());
-    const utcDate = isUtcDate ? date : toUtcDate(date);
-    const offset = calcOffset(utcDate, timezoneString);
-    const fixedOffset = isUtcDate ? offset : fixOffset(date, offset, timezoneString);
-    return -fixedOffset;
+  _deserialize(e) {
+    return this._config.deserializer ? this._config.deserializer(e) : e.data;
   }
-  return NaN;
-}
-function toUtcDate(date) {
-  return newDateUTC(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds());
-}
-function calcOffset(date, timezoneString) {
-  const tokens = tzTokenizeDate(date, timezoneString);
-  const asUTC = newDateUTC(tokens[0], tokens[1] - 1, tokens[2], tokens[3] % 24, tokens[4], tokens[5], 0).getTime();
-  let asTS = date.getTime();
-  const over = asTS % 1e3;
-  asTS -= over >= 0 ? over : 1e3 + over;
-  return asUTC - asTS;
-}
-function fixOffset(date, offset, timezoneString) {
-  const localTS = date.getTime();
-  let utcGuess = localTS - offset;
-  const o2 = calcOffset(new Date(utcGuess), timezoneString);
-  if (offset === o2) {
-    return offset;
-  }
-  utcGuess -= o2 - offset;
-  const o3 = calcOffset(new Date(utcGuess), timezoneString);
-  if (o2 === o3) {
-    return o2;
-  }
-  return Math.max(o2, o3);
-}
-function validateTimezone(hours, minutes) {
-  return -23 <= hours && hours <= 23 && (minutes == null || 0 <= minutes && minutes <= 59);
-}
-var validIANATimezoneCache = {};
-function isValidTimezoneIANAString(timeZoneString) {
-  if (validIANATimezoneCache[timeZoneString])
-    return true;
-  try {
-    new Intl.DateTimeFormat(void 0, { timeZone: timeZoneString });
-    validIANATimezoneCache[timeZoneString] = true;
-    return true;
-  } catch (error2) {
-    return false;
-  }
-}
-
-// node_modules/date-fns-tz/dist/esm/format/formatters/index.js
-var MILLISECONDS_IN_MINUTE2 = 60 * 1e3;
-
-// node_modules/date-fns-tz/dist/esm/_lib/getTimezoneOffsetInMilliseconds/index.js
-function getTimezoneOffsetInMilliseconds2(date) {
-  const utcDate = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds()));
-  utcDate.setUTCFullYear(date.getFullYear());
-  return +date - +utcDate;
-}
-
-// node_modules/date-fns-tz/dist/esm/_lib/tzPattern/index.js
-var tzPattern = /(Z|[+-]\d{2}(?::?\d{2})?| UTC| [a-zA-Z]+\/[a-zA-Z_]+(?:\/[a-zA-Z_]+)?)$/;
-
-// node_modules/date-fns-tz/dist/esm/toDate/index.js
-var MILLISECONDS_IN_HOUR2 = 36e5;
-var MILLISECONDS_IN_MINUTE3 = 6e4;
-var DEFAULT_ADDITIONAL_DIGITS = 2;
-var patterns2 = {
-  dateTimePattern: /^([0-9W+-]+)(T| )(.*)/,
-  datePattern: /^([0-9W+-]+)(.*)/,
-  plainTime: /:/,
-  // year tokens
-  YY: /^(\d{2})$/,
-  YYY: [
-    /^([+-]\d{2})$/,
-    // 0 additional digits
-    /^([+-]\d{3})$/,
-    // 1 additional digit
-    /^([+-]\d{4})$/
-    // 2 additional digits
-  ],
-  YYYY: /^(\d{4})/,
-  YYYYY: [
-    /^([+-]\d{4})/,
-    // 0 additional digits
-    /^([+-]\d{5})/,
-    // 1 additional digit
-    /^([+-]\d{6})/
-    // 2 additional digits
-  ],
-  // date tokens
-  MM: /^-(\d{2})$/,
-  DDD: /^-?(\d{3})$/,
-  MMDD: /^-?(\d{2})-?(\d{2})$/,
-  Www: /^-?W(\d{2})$/,
-  WwwD: /^-?W(\d{2})-?(\d{1})$/,
-  HH: /^(\d{2}([.,]\d*)?)$/,
-  HHMM: /^(\d{2}):?(\d{2}([.,]\d*)?)$/,
-  HHMMSS: /^(\d{2}):?(\d{2}):?(\d{2}([.,]\d*)?)$/,
-  // time zone tokens (to identify the presence of a tz)
-  timeZone: tzPattern
 };
-function toDate3(argument, options = {}) {
-  if (arguments.length < 1) {
-    throw new TypeError("1 argument required, but only " + arguments.length + " present");
+function mr(t) {
+  return new _r(
+    typeof t == "string" ? { url: t } : t
+  );
+}
+var te = /* @__PURE__ */ ((t) => (t[t.PARSE_ERROR = 0] = "PARSE_ERROR", t[t.BAD_REQUEST = 1] = "BAD_REQUEST", t[t.ACCESS_DENIED = 2] = "ACCESS_DENIED", t[t.REQUEST_FAILED = 3] = "REQUEST_FAILED", t[t.UNKNOWN_CMD = 4] = "UNKNOWN_CMD", t[t.SYS_NOT_FOUND = 5] = "SYS_NOT_FOUND", t[t.MOD_NOT_FOUND = 6] = "MOD_NOT_FOUND", t[t.UNEXPECTED_FAILURE = 7] = "UNEXPECTED_FAILURE", t))(te || {});
+var Os = /* @__PURE__ */ ((t) => (t.Info = "info", t.Debug = "debug", t.Warning = "warn", t.Error = "error", t.Fatal = "fatal", t.Trace = "trace", t))(Os || {});
+var gr = class {
+  constructor(e, n) {
+    this._system = e;
+    const s = Object.getOwnPropertyNames(
+      Object.getPrototypeOf(n)
+    ).filter((i) => i.startsWith("$"));
+    for (const i in n)
+      n.hasOwnProperty(i) && n[i] !== void 0 && (n[i] instanceof Function ? this.addMethod(i, n[i]) : this.addProperty(i, n[i]));
+    for (const i of s)
+      n[i] instanceof Function && this.addMethod(i, n[i]);
   }
-  if (argument === null) {
-    return /* @__PURE__ */ new Date(NaN);
+  /**
+   * Call method on the module
+   * @param command Name of the method to call on the module
+   * @param args Array of arguments to pass to the method being called
+   */
+  call(e, n = []) {
+    return this[`$${e}`] instanceof Function ? this[`$${e}`](...n) : null;
   }
-  const additionalDigits = options.additionalDigits == null ? DEFAULT_ADDITIONAL_DIGITS : Number(options.additionalDigits);
-  if (additionalDigits !== 2 && additionalDigits !== 1 && additionalDigits !== 0) {
-    throw new RangeError("additionalDigits must be 0, 1 or 2");
+  /**
+   * Subscribe to value changes on the given property
+   * @param prop_name Name of the property
+   * @param next Callback for changes to the property
+   */
+  listen(e) {
+    return !this[`_${e}`] && !this[e] && this.addProperty(e, null), this[`_${e}`].asReadonly();
   }
-  if (argument instanceof Date || typeof argument === "object" && Object.prototype.toString.call(argument) === "[object Date]") {
-    return new Date(argument.getTime());
-  } else if (typeof argument === "number" || Object.prototype.toString.call(argument) === "[object Number]") {
-    return new Date(argument);
-  } else if (!(Object.prototype.toString.call(argument) === "[object String]")) {
-    return /* @__PURE__ */ new Date(NaN);
+  /**
+   * Add method to module
+   * @param prop_name Name of the method
+   * @param fn Method logic
+   */
+  addMethod(e, n) {
+    e[0] !== "$" && (e = `$${e}`), this[e] = n;
   }
-  const dateStrings = splitDateString(argument);
-  const { year, restDateString } = parseYear(dateStrings.date, additionalDigits);
-  const date = parseDate(restDateString, year);
-  if (date === null || isNaN(date.getTime())) {
-    return /* @__PURE__ */ new Date(NaN);
+  /**
+   * Add signal property to module
+   * @param prop_name Name of the property
+   * @param value Initial value of the property
+   */
+  addProperty(e, n) {
+    e[0] === "$" && (e = e.replace("$", "")), this[`_${e}`] = ne(n), Object.defineProperty(this, e, {
+      get: () => this[`_${e}`].value,
+      set: (s) => this[`_${e}`].set(s)
+    });
   }
-  if (date) {
-    const timestamp = date.getTime();
-    let time = 0;
-    let offset;
-    if (dateStrings.time) {
-      time = parseTime(dateStrings.time);
-      if (time === null || isNaN(time)) {
-        return /* @__PURE__ */ new Date(NaN);
+};
+var yr = class {
+  constructor(e) {
+    for (const n in e)
+      e.hasOwnProperty(n) && e[n] && e[n] instanceof Array && e[n].forEach((s) => {
+        this.addModule(n, s);
+      });
+  }
+  /**
+   * Add new module to the system
+   * @param mod_name Module class
+   * @param properties Properties of the new module
+   */
+  addModule(e, n) {
+    this[e] || (this[e] = []), this[e].push(new gr(this, n));
+  }
+};
+var Ot = {};
+function Fl(t, e) {
+  return Ot[t] = new yr(e), Ot[t];
+}
+function $r(t) {
+  return Ot[t];
+}
+var C = Nt("WS");
+var Cs = 15;
+var gt = 0;
+var V;
+var Ms = 0;
+var G = {};
+var wn = {};
+var br = {};
+var Se = ne(false);
+var Ns = ne([0, 0]);
+var ws = Date.now();
+var Ee;
+var Ct = 0;
+var fe = null;
+var kt;
+var Dn = 0;
+var yt = 10 * 1e3;
+var vr = ne(null);
+function mn() {
+  return u2().indexOf("/control/") >= 0 ? "/control/websocket" : `${is()}/systems/control`;
+}
+function Ds() {
+  return Se.value;
+}
+function kr() {
+  return Se.asReadonly();
+}
+function Sr(t, e = wn) {
+  const n = `${t.sys}|${t.mod}_${t.index}|${t.name}`;
+  return e[n] || (e[n] = ne(void 0)), e[n].asReadonly();
+}
+function xr(t, e = wn) {
+  const n = `${t.sys}|${t.mod}_${t.index}|${t.name}`;
+  if (e[n])
+    return e[n].value;
+}
+function Wn(t, e = 0, n = Ge) {
+  const s = __spreadValues({
+    id: ++gt,
+    cmd: "bind"
+  }, t);
+  return n(s, e);
+}
+function Ar(t, e = 0, n = Ge) {
+  const s = __spreadValues({
+    id: ++gt,
+    cmd: "unbind"
+  }, t);
+  return n(s, e);
+}
+function qr(t, e = yt, n = Ge) {
+  const s = __spreadValues({
+    id: ++gt,
+    cmd: "exec"
+  }, t);
+  return n(s, e);
+}
+function Ge(t, e = yt, n = 0) {
+  const s = `${t.cmd}|${t.sys}|${t.mod}${t.index}|${t.name}|${t.args}|${ti()}`;
+  if (G[s])
+    C("Request already in progress. Waiting...", t);
+  else {
+    const i = __spreadProps(__spreadValues({}, t), { key: s });
+    i.promise = new Promise((r, o) => {
+      const a = () => {
+        delete G[s], G[s] = null, Ge(t, e, n).then(
+          (y) => r(y),
+          (y) => o(y)
+        );
+      };
+      if (V && Ds()) {
+        Sn() && Or(t, V, br), i.resolve = r, i.reject = o;
+        const y = `${t.sys}, ${t.mod}_${t.index}, ${t.name}`;
+        C(
+          `[${t.cmd.toUpperCase()}](${t.id}) ${y}`,
+          t.args
+        ), V.next(t), e > 0 && re(
+          `${s}`,
+          () => {
+            o("Request timed out."), delete G[s], G[s] = null;
+          },
+          e
+        );
+      } else fe ? setTimeout(() => a(), 1e3) : Hn().then(() => a());
+    }), G[s] = i;
+  }
+  return G[s].promise;
+}
+function Hs(t) {
+  if (t !== "pong" && t instanceof Object) {
+    if (t.type === "notify" && t.meta)
+      Ur(t.meta, t.value);
+    else if (t.type === "success")
+      Pr(t);
+    else if (t.type === "debug") {
+      C(`[DEBUG] ${t.mod}${t.klass || ""} \u2192`, t.msg);
+      const e = t.meta || { mod: "", index: "" };
+      vr.set({
+        mod_id: t.mod || "<empty>",
+        module: `${e.mod}_${e.index}`,
+        class_name: t.klass || "<empty>",
+        message: t.msg || "<empty>",
+        level: t.level || Os.Debug,
+        time: Math.floor((/* @__PURE__ */ new Date()).getTime() / 1e3)
+      });
+    } else t.type === "error" ? Rr(t) : t.cmd || C.error("Invalid websocket message", t);
+    me(`${t.id}`);
+  } else t === "pong" && (Dn = Date.now(), C("Pong!"));
+}
+function Pr(t) {
+  const e = Object.keys(G).map((n) => G[n]).find((n) => n?.id === t.id);
+  C(`[SUCCESS](${t.id})`), e && e.resolve && (e.resolve(t.value), delete G[e.key]);
+}
+function Rr(t) {
+  let e = "UNEXPECTED FAILURE";
+  switch (t.code) {
+    case te.ACCESS_DENIED:
+      e = "ACCESS DENIED";
+      break;
+    case te.BAD_REQUEST:
+      e = "BAD REQUEST";
+      break;
+    case te.MOD_NOT_FOUND:
+      e = "MODULE NOT FOUND";
+      break;
+    case te.SYS_NOT_FOUND:
+      e = "SYSTEM NOT FOUND";
+      break;
+    case te.PARSE_ERROR:
+      e = "PARSE ERROR";
+      break;
+    case te.REQUEST_FAILED:
+      e = "REQUEST FAILED";
+      break;
+    case te.UNKNOWN_CMD:
+      e = "UNKNOWN COMMAND";
+      break;
+  }
+  C.error(`[ERROR] ${e}(${t.id}): ${t.msg}`);
+  const n = Object.keys(G).map((s) => G[s]).filter((s) => s).find((s) => s.id === t.id);
+  n && n.reject && (n.reject(t), me(`${n.key}`), delete G[n.key]);
+}
+function Ur(t, e, n = wn) {
+  const s = `${t.sys}|${t.mod}_${t.index}|${t.name}`;
+  n[s] || (n[s] = ne(null));
+  const i = `${t.sys}, ${t.mod}_${t.index}, ${t.name}`;
+  C(`[NOTIFY] ${i} changed`, [
+    n[s].value,
+    "\u2192",
+    e
+  ]), n[s].set(e);
+}
+function Hn(t = 0) {
+  return fe == null && (fe = new Promise((e) => {
+    if (t > 40)
+      return location.reload();
+    Ct++, ws = Date.now(), V = Sn() ? Er() : Ir(), V ? (C.debug("Authority:", Rt()), C("Connecting to websocket..."), V.subscribe(
+      (n) => {
+        Se.value || (C("Connection established."), e()), Se.set(true), Ct = 0, gn(), Hs(n);
+      },
+      (n) => {
+        V = void 0, fe = null, Zn(), gn(), Tr(n);
+      },
+      () => {
+        V = void 0, fe = null, Zn(), C("Connection closed by browser."), Se.set(false), Mt();
+      }
+    ), Ee && clearInterval(Ee), Dn = Date.now(), Qn(), Ee = setInterval(
+      () => Qn(),
+      Cs * 1e3
+    ), gn(), Ms += 1, kt = setTimeout(() => {
+      C("Unhealthy connection. Reconnecting..."), Se.set(false), fe = null, Mt();
+    }, 30 * 1e3)) : (V ? C(
+      `Waiting on auth(${t}). Retrying in ${1e3 * Math.min(10, t + 1)}ms...`,
+      [!!X(), !!Rt()],
+      "info"
+    ) : C.error(
+      `Failed to create websocket(${t}). Retrying in ${1e3 * Math.min(10, t + 1)}ms...`
+    ), setTimeout(
+      () => {
+        fe = null, Hn(t).then((n) => e(n));
+      },
+      1e3 * Math.min(10, ++t)
+    ));
+  })), fe;
+}
+function Ir() {
+  if (!Rt() || !X()) return null;
+  const t = fi() || location.protocol.indexOf("https") >= 0;
+  let e = `ws${t ? "s" : ""}://${bn()}${mn()}${rs() ? "?fixed_device=true" : ""}`;
+  const n = X();
+  let s = n === "x-api-key" ? `api-key=${Ye()}` : `bearer_token=${n}`;
+  return !ai() && !Xs() ? (C("Authenticating through cookie..."), s += `;max-age=120;path=${mn()};`, s += `${t ? "secure;" : ""}samesite=strict`, document.cookie = s, C("Cookies:", [document.cookie, s])) : (C("Authenticating through URL query parameter..."), e += `${e.indexOf("?") >= 0 ? "&" : "?"}${s}`), C(
+    `Creating websocket connection to ws${t ? "s" : ""}://${bn()}${mn()}`
+  ), mr({
+    url: e,
+    serializer: (i) => typeof i == "object" ? JSON.stringify(i) : i,
+    deserializer: (i) => {
+      let r = i.data;
+      if (r === "pong") return r;
+      try {
+        return JSON.parse(i.data);
+      } catch {
+        return r;
       }
     }
-    if (dateStrings.timeZone || options.timeZone) {
-      offset = tzParseTimezone(dateStrings.timeZone || options.timeZone, new Date(timestamp + time));
-      if (isNaN(offset)) {
-        return /* @__PURE__ */ new Date(NaN);
-      }
-    } else {
-      offset = getTimezoneOffsetInMilliseconds2(new Date(timestamp + time));
-      offset = getTimezoneOffsetInMilliseconds2(new Date(timestamp + time + offset));
-    }
-    return new Date(timestamp + time + offset);
-  } else {
-    return /* @__PURE__ */ new Date(NaN);
-  }
+  });
 }
-function splitDateString(dateString) {
-  const dateStrings = {};
-  let parts = patterns2.dateTimePattern.exec(dateString);
-  let timeString;
-  if (!parts) {
-    parts = patterns2.datePattern.exec(dateString);
-    if (parts) {
-      dateStrings.date = parts[1];
-      timeString = parts[2];
-    } else {
-      dateStrings.date = null;
-      timeString = dateString;
-    }
-  } else {
-    dateStrings.date = parts[1];
-    timeString = parts[3];
-  }
-  if (timeString) {
-    const token = patterns2.timeZone.exec(timeString);
-    if (token) {
-      dateStrings.time = timeString.replace(token[1], "");
-      dateStrings.timeZone = token[1].trim();
-    } else {
-      dateStrings.time = timeString;
-    }
-  }
-  return dateStrings;
+function Mt() {
+  Ns.set([Ms, Date.now() - ws]), V && Ds() && (V.complete(), Ee && (clearInterval(Ee), Ee = void 0)), C(
+    `Reconnecting in ${Math.min(
+      5e3,
+      Ct * 300 || 1e3
+    )}ms...`
+  ), re(
+    "reconnect",
+    () => Hn(),
+    Math.min(5e3, (Ct + 1) * 300 || 1e3)
+  );
 }
-function parseYear(dateString, additionalDigits) {
-  if (dateString) {
-    const patternYYY = patterns2.YYY[additionalDigits];
-    const patternYYYYY = patterns2.YYYYY[additionalDigits];
-    let token = patterns2.YYYY.exec(dateString) || patternYYYYY.exec(dateString);
-    if (token) {
-      const yearString = token[1];
-      return {
-        year: parseInt(yearString, 10),
-        restDateString: dateString.slice(yearString.length)
-      };
-    }
-    token = patterns2.YY.exec(dateString) || patternYYY.exec(dateString);
-    if (token) {
-      const centuryString = token[1];
-      return {
-        year: parseInt(centuryString, 10) * 100,
-        restDateString: dateString.slice(centuryString.length)
-      };
-    }
-  }
+function Qn() {
+  if (Date.now() - Dn > 4 * Cs * 1e3)
+    return Mt();
+  V?.next("ping");
+}
+function Tr(t) {
+  Se.set(false), C.error("Websocket error:", t), t.status === 401 && qn(), An(), Mt();
+}
+function gn() {
+  kt && (clearTimeout(kt), kt = void 0);
+}
+function Er() {
+  const t = new Es();
+  return t.subscribe(
+    (e) => Hs(e)
+  ), t;
+}
+function Kn(t, e) {
+  const n = typeof e == "string" ? e : e?.message || e?.msg || "Mock realtime callback failed";
   return {
-    year: null
+    id: t.id,
+    type: "error",
+    code: e?.code || te.UNEXPECTED_FAILURE,
+    msg: n
   };
 }
-function parseDate(dateString, year) {
-  if (year === null) {
-    return null;
-  }
-  let date;
-  let month;
-  let week;
-  if (!dateString || !dateString.length) {
-    date = /* @__PURE__ */ new Date(0);
-    date.setUTCFullYear(year);
-    return date;
-  }
-  let token = patterns2.MM.exec(dateString);
-  if (token) {
-    date = /* @__PURE__ */ new Date(0);
-    month = parseInt(token[1], 10) - 1;
-    if (!validateDate(year, month)) {
-      return /* @__PURE__ */ new Date(NaN);
+function Or(t, e, n) {
+  const s = `${t.sys}|${t.mod}_${t.index}|${t.name}`, i = $r(t.sys), r = i && i[t.mod] ? i[t.mod][t.index - 1 || 0] : null;
+  if (r) {
+    try {
+      switch (t.cmd) {
+        case "bind":
+          n[s] = r.listen(t.name).subscribe((o) => {
+            setTimeout(
+              () => {
+                e.next({
+                  type: "notify",
+                  value: o,
+                  meta: t
+                });
+              },
+              Math.floor(Math.random() * 100 + 50)
+              // Add natural delay before response
+            );
+          });
+          break;
+        case "unbind":
+          n[s] && (n[s](), delete n[s], me(`${s}`));
+          break;
+      }
+    } catch (o) {
+      C.error(`[MOCK ERROR](${t.id}) request failed`, o), re(
+        `${t.id}-error`,
+        () => e.next(Kn(t, o)),
+        10
+      );
+      return;
     }
-    date.setUTCFullYear(year, month);
-    return date;
-  }
-  token = patterns2.DDD.exec(dateString);
-  if (token) {
-    date = /* @__PURE__ */ new Date(0);
-    const dayOfYear = parseInt(token[1], 10);
-    if (!validateDayOfYearDate(year, dayOfYear)) {
-      return /* @__PURE__ */ new Date(NaN);
-    }
-    date.setUTCFullYear(year, 0, dayOfYear);
-    return date;
-  }
-  token = patterns2.MMDD.exec(dateString);
-  if (token) {
-    date = /* @__PURE__ */ new Date(0);
-    month = parseInt(token[1], 10) - 1;
-    const day = parseInt(token[2], 10);
-    if (!validateDate(year, month, day)) {
-      return /* @__PURE__ */ new Date(NaN);
-    }
-    date.setUTCFullYear(year, month, day);
-    return date;
-  }
-  token = patterns2.Www.exec(dateString);
-  if (token) {
-    week = parseInt(token[1], 10) - 1;
-    if (!validateWeekDate(week)) {
-      return /* @__PURE__ */ new Date(NaN);
-    }
-    return dayOfISOWeekYear(year, week);
-  }
-  token = patterns2.WwwD.exec(dateString);
-  if (token) {
-    week = parseInt(token[1], 10) - 1;
-    const dayOfWeek = parseInt(token[2], 10) - 1;
-    if (!validateWeekDate(week, dayOfWeek)) {
-      return /* @__PURE__ */ new Date(NaN);
-    }
-    return dayOfISOWeekYear(year, week, dayOfWeek);
-  }
-  return null;
+    re(
+      `${t.id}-response`,
+      () => {
+        try {
+          const o = {
+            id: t.id,
+            type: "success",
+            value: t.cmd === "exec" ? r.call(t.name, t.args) : null
+          };
+          e.next(o);
+        } catch (o) {
+          C.error(
+            `[MOCK ERROR](${t.id}) execute failed`,
+            o
+          ), e.next(Kn(t, o));
+        }
+      },
+      10
+    );
+  } else
+    re(
+      `${t.id}-error`,
+      () => e.next({
+        id: t.id,
+        type: "error",
+        code: i ? te.SYS_NOT_FOUND : te.MOD_NOT_FOUND
+      }),
+      10
+    );
 }
-function parseTime(timeString) {
-  let hours;
-  let minutes;
-  let token = patterns2.HH.exec(timeString);
-  if (token) {
-    hours = parseFloat(token[1].replace(",", "."));
-    if (!validateTime(hours)) {
-      return NaN;
-    }
-    return hours % 24 * MILLISECONDS_IN_HOUR2;
-  }
-  token = patterns2.HHMM.exec(timeString);
-  if (token) {
-    hours = parseInt(token[1], 10);
-    minutes = parseFloat(token[2].replace(",", "."));
-    if (!validateTime(hours, minutes)) {
-      return NaN;
-    }
-    return hours % 24 * MILLISECONDS_IN_HOUR2 + minutes * MILLISECONDS_IN_MINUTE3;
-  }
-  token = patterns2.HHMMSS.exec(timeString);
-  if (token) {
-    hours = parseInt(token[1], 10);
-    minutes = parseInt(token[2], 10);
-    const seconds = parseFloat(token[3].replace(",", "."));
-    if (!validateTime(hours, minutes, seconds)) {
-      return NaN;
-    }
-    return hours % 24 * MILLISECONDS_IN_HOUR2 + minutes * MILLISECONDS_IN_MINUTE3 + seconds * 1e3;
-  }
-  return null;
+function Zn() {
+  for (const t in G)
+    G[t] && delete G[t];
 }
-function dayOfISOWeekYear(isoWeekYear, week, day) {
-  week = week || 0;
-  day = day || 0;
-  const date = /* @__PURE__ */ new Date(0);
-  date.setUTCFullYear(isoWeekYear, 0, 4);
-  const fourthOfJanuaryDay = date.getUTCDay() || 7;
-  const diff = week * 7 + day + 1 - fourthOfJanuaryDay;
-  date.setUTCDate(date.getUTCDate() + diff);
-  return date;
+var Jn = class {
+  constructor(e, n) {
+    this._module = e, this.name = n, kr().subscribe((s, i) => {
+      s !== i && (s && (this._stale_bindings || this._pending === 1) ? (xt("VAR", "Re-binding to status variable", this.binding()), this.rebind()) : s || (me(`rebind:${JSON.stringify(this.binding())}`), xt(
+        "VAR",
+        "Binding dropped due to disconnection, re-binding when possible.",
+        this.binding()
+      ), this._stale_bindings = this._binding_count || this._stale_bindings, this._binding_count = 0));
+    });
+  }
+  /** Status variable name */
+  name;
+  /** Active pending state of the variable binding */
+  _pending = 0;
+  /** Number of active bindings to this variable */
+  _binding_count = 0;
+  /** Number of bindings to restore on reconnection */
+  _stale_bindings = 0;
+  /** Number of bindings to this status variable */
+  get count() {
+    return this._binding_count;
+  }
+  /** Current value of the binding */
+  get value() {
+    return xr(this.binding());
+  }
+  /**
+   * Get a signal that emits the current value of the binding
+   */
+  listen() {
+    return Sr(this.binding());
+  }
+  /**
+   * Subscribe to changes of the variable's binding value.
+   * Note: Initial value emitted may be `undefined`
+   * @param next Callback for changes to the bindings value
+   */
+  subscribe(e) {
+    return this.listen().subscribe(e);
+  }
+  bindThenSubscribe(e) {
+    const n = this.bind(), s = this.listen().subscribe((i) => {
+      try {
+        e(i);
+      } catch (r) {
+        console.error(r);
+      }
+    });
+    return () => {
+      try {
+        s();
+      } finally {
+        try {
+          n();
+        } catch {
+        }
+      }
+    };
+  }
+  /**
+   * Bind to the status variable's value
+   */
+  bind() {
+    return (this._binding_count <= 0 && this._stale_bindings <= 0 || this._pending === 2) && (this._pending = 1, Wn(this.binding()).then(() => {
+      this._binding_count++, this._pending = 0;
+    }).catch(() => null)), () => this.unbind();
+  }
+  /**
+   * Unbind from status variable
+   */
+  unbind() {
+    this._binding_count === 1 && this._pending === 0 ? (this._pending = 2, Ar(this.binding()).then(() => {
+      this._pending === 2 && (this._pending = 0), this._binding_count--;
+    })) : this._binding_count = Math.max(this._binding_count - 1, 0);
+  }
+  /**
+   * Rebind to the status variable
+   */
+  async rebind() {
+    !this._stale_bindings && this._pending !== 1 || re(
+      `rebind:${JSON.stringify(this.binding())}`,
+      async () => {
+        await Wn(this.binding()), this._binding_count = this._stale_bindings || 1, this._stale_bindings = 0;
+      },
+      100
+    );
+  }
+  /**
+   * Generate binding details for the status variable
+   */
+  binding() {
+    return {
+      sys: this._module.system.id,
+      mod: this._module.name,
+      index: this._module.index,
+      name: this.name
+    };
+  }
+};
+var Cr = class {
+  constructor(e, n) {
+    this._system = e, this._id = n;
+  }
+  /** Mapping of module bindings */
+  _bindings = {};
+  get id() {
+    return `${this.name}_${this.index}`;
+  }
+  /** Parent system of the module */
+  get system() {
+    return this._system;
+  }
+  /** Module index */
+  get index() {
+    const n = this._id.split("_").pop();
+    return parseInt(n || "", 10) || 1;
+  }
+  /** Module name */
+  get name() {
+    const e = this._id.split("_");
+    return e.pop(), e.join("_");
+  }
+  /**
+   * Get binding with the given name
+   * @param name Name of the binding
+   * @deprecated Use `variable` instead
+   */
+  binding(e) {
+    return this._bindings[e] || (this._bindings[e] = new Jn(this, e)), this._bindings[e];
+  }
+  /**
+   * Get binding with the given name
+   * @param name Name of the binding
+   */
+  variable(e) {
+    return this._bindings[e] || (this._bindings[e] = new Jn(this, e)), this._bindings[e];
+  }
+  /**
+   * Execute method on the engine module
+   * @param method Name of the method
+   * @param args Array of arguments to pass to the method
+   */
+  execute(e, n, s = yt) {
+    return qr(
+      {
+        sys: this._system.id,
+        mod: this.name,
+        index: this.index,
+        name: e,
+        args: n
+      },
+      s
+    );
+  }
+};
+var Mr = class {
+  /** Unique idetifier of the system */
+  id;
+  /** Mapping of engine modules within the system */
+  _module_list = {};
+  constructor(e) {
+    this.id = e;
+  }
+  /**
+   * Get binding interface for the given module
+   * @param module_id ID of the module
+   * @param index Index of the module within the system
+   */
+  module(e, n = 1) {
+    if (!e)
+      throw new Error("Invalid module ID");
+    const s = e.split("_");
+    s.length > 1 && Number.isInteger(+s[s.length - 1]) && (n = +s[s.length - 1], s.pop()), n < 1 && (n = 1);
+    const i = s.join("_");
+    for (this._module_list[i] || (this._module_list[i] = []); this._module_list[i].length < n; )
+      this._module_list[i].push(
+        new Cr(
+          this,
+          `${i}_${this._module_list[i].length + 1}`
+        )
+      );
+    return this._module_list[i][n - 1];
+  }
+};
+var yn = {};
+function Nr(t) {
+  return yn[t] || (yn[t] = new Mr(t)), yn[t];
 }
-var DAYS_IN_MONTH = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-var DAYS_IN_MONTH_LEAP_YEAR = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-function isLeapYearIndex(year) {
-  return year % 400 === 0 || year % 4 === 0 && year % 100 !== 0;
-}
-function validateDate(year, month, date) {
-  if (month < 0 || month > 11) {
-    return false;
-  }
-  if (date != null) {
-    if (date < 1) {
-      return false;
-    }
-    const isLeapYear = isLeapYearIndex(year);
-    if (isLeapYear && date > DAYS_IN_MONTH_LEAP_YEAR[month]) {
-      return false;
-    }
-    if (!isLeapYear && date > DAYS_IN_MONTH[month]) {
-      return false;
-    }
-  }
-  return true;
-}
-function validateDayOfYearDate(year, dayOfYear) {
-  if (dayOfYear < 1) {
-    return false;
-  }
-  const isLeapYear = isLeapYearIndex(year);
-  if (isLeapYear && dayOfYear > 366) {
-    return false;
-  }
-  if (!isLeapYear && dayOfYear > 365) {
-    return false;
-  }
-  return true;
-}
-function validateWeekDate(week, day) {
-  if (week < 0 || week > 52) {
-    return false;
-  }
-  if (day != null && (day < 0 || day > 6)) {
-    return false;
-  }
-  return true;
-}
-function validateTime(hours, minutes, seconds) {
-  if (hours < 0 || hours >= 25) {
-    return false;
-  }
-  if (minutes != null && (minutes < 0 || minutes >= 60)) {
-    return false;
-  }
-  if (seconds != null && (seconds < 0 || seconds >= 60)) {
-    return false;
-  }
-  return true;
-}
-
-// node_modules/date-fns-tz/dist/esm/toZonedTime/index.js
-function toZonedTime(date, timeZone, options) {
-  date = toDate3(date, options);
-  const offsetMilliseconds = tzParseTimezone(timeZone, date, true);
-  const d2 = new Date(date.getTime() - offsetMilliseconds);
-  const resultDate = /* @__PURE__ */ new Date(0);
-  resultDate.setFullYear(d2.getUTCFullYear(), d2.getUTCMonth(), d2.getUTCDate());
-  resultDate.setHours(d2.getUTCHours(), d2.getUTCMinutes(), d2.getUTCSeconds(), d2.getUTCMilliseconds());
-  return resultDate;
-}
-
-// node_modules/date-fns-tz/dist/esm/fromZonedTime/index.js
-function fromZonedTime(date, timeZone, options) {
-  if (typeof date === "string" && !date.match(tzPattern)) {
-    return toDate3(date, __spreadProps(__spreadValues({}, options), { timeZone }));
-  }
-  date = toDate3(date, options);
-  const utc = newDateUTC(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds()).getTime();
-  const offsetMilliseconds = tzParseTimezone(timeZone, new Date(utc));
-  return new Date(utc + offsetMilliseconds);
-}
-
-// node_modules/date-fns-tz/dist/esm/getTimezoneOffset/index.js
-function getTimezoneOffset(timeZone, date) {
-  return -tzParseTimezone(timeZone, date);
+function Wl(t, e, n = 1) {
+  return Nr(t).module(e, n);
 }
 
 // shared/assets/locale/en-AU.json
@@ -42077,6 +42463,7 @@ var SIGNAGE_MANAGER = {
   PLAYLIST_COUNT_LABEL_N: "{{ count }} playlists",
   PLAYLIST_DESCRIPTION_ARIA: "Playlist description",
   PLAYLIST_DETAILS_TABS: "Playlist details tabs",
+  PLAYLIST_DISTRIBUTION: "Distribution Playlist",
   PLAYLIST_EDIT: "Edit Playlist",
   PLAYLIST_LABEL: "Playlist",
   PLAYLIST_NAME_ARIA: "Playlist name",
@@ -42124,6 +42511,9 @@ var SIGNAGE_MANAGER = {
   REQUEST_APPROVAL_SELECTED: "Request approval for selected playlist",
   REQUEST_PLAYLIST_APPROVAL_TOOLTIP: "Request playlist approval",
   SCHEDULE: "Schedule",
+  EDIT_SCHEDULE: "Edit Schedule",
+  ITEM_SCHEDULES: "Item Schedules",
+  NO_SCHEDULES: "No schedules",
   SCHEDULES_SUBTITLE: "Daily schedule timelines for signage displays and zones.",
   SCHEDULE_INTERVAL_ARIA: "Recurring schedule interval",
   SCHEDULE_NUMBER: "Schedule {{ number }}",
@@ -42501,6 +42891,7 @@ var COMMON = {
   BUILDING_ANY: "Any Building",
   BUILDING_ALL: "All Buildings",
   LEVEL_ANY: "Any Level",
+  LAST_UPDATED: "Updated {{ time }}",
   LEVEL_ALL: "All Levels",
   LEVEL_EMPTY: "No Level",
   ROOM_EMPTY: "No Room",
@@ -43014,6 +43405,7 @@ var BOOKINGS = {
   PARKING_SPACE_RESTRICTIONS_TITLE: "Space Restrictions",
   PARKING_SPACE_RESTRICTIONS_DESC: "Select any restrictions that apply to your vehicle or parking needs.",
   PARKING_RESTRICTION_NONE: "None",
+  PARKING_SPACE_RESTRICTION_REQUIRED: "Select a parking restriction other than None.",
   PARKING_RESTRICTION_OVERSIZED: "Requires oversized space",
   PARKING_SUMMARY_TITLE: "Summary + Submission",
   PARKING_ALLOCATION_INFO: "Allocation of parking spaces for the following week will occur the <strong>Friday afternoon prior</strong>. Requests received after allocation has occurred will automatically be <strong>waitlisted</strong> until a suitable space becomes available.",
@@ -43562,7 +43954,7 @@ var APP = {
     MENU_REPORT_ROOMS: "Room Bookings",
     MENU_REPORT_SITE_ATTENDANCE: "Site Attendance",
     MENU_REPORT_DESKS: "Desk Bookings",
-    MENU_REPORT_PARKING: "Parking Reservations",
+    MENU_REPORT_PARKING: "Parking Bookings",
     MENU_REPORT_LOCKERS: "Locker Bookings",
     MENU_REPORT_CATERING: "Catering Orders",
     MENU_REPORT_CONTACT_TRACING: "Contact Tracing",
@@ -43599,6 +43991,7 @@ var APP = {
     DESKS_NAME: "Desk Name",
     DESKS_SAVING: "Saving desk details...",
     DESKS_SAVE_ERROR: "Failed to save desk details. Error: {{ error }}",
+    DESKS_SELECT_LEVEL: "Select a level before modifying desks.",
     DESKS_ASSIGN_CONFLICT_ERROR: "This desk is currently booked. Please cancel the existing booking before assigning it.",
     DESKS_ASSIGN_LIMIT_ERROR_1: "Users can only have 1 assigned desk at a time.",
     DESKS_ASSIGN_LIMIT_ERROR_N: "Users can only have {{ count }} assigned desks at a time.",
@@ -44476,6 +44869,9 @@ var APP = {
     REPORTS_PRINT: "Print Report",
     REPORTS_EMPTY: "Select level(s) and date range to generate the report",
     REPORTS_BUSINESS_DAYS: "Business Days",
+    REPORTS_ALLOCATIONS: "Allocations",
+    REPORTS_REJECTED: "Rejected",
+    REPORTS_CANCELLED: "Cancelled",
     REPORTS_TOTAL_BOOKINGS: "Total Bookings",
     REPORTS_TOTAL_SITE_ATTENDANCE: "Total Site Attendance",
     REPORTS_TOTAL_RESERVATIONS: "Requests",
@@ -44487,9 +44883,6 @@ var APP = {
     REPORTS_NO_SHOWS_PERCENT: "% of No shows",
     REPORTS_TOTAL_ATTENDEES: "Total Room Attendees",
     REPORTS_ACTIVE_BOOKINGS_HEADER: "Active Bookings",
-    REPORTS_ALLOCATIONS: "Allocations",
-    REPORTS_REJECTED: "Rejected",
-    REPORTS_CANCELLED: "Cancelled",
     REPORTS_DAILY_HEADER: "Daily Utilisation",
     REPORTS_DAILY_EMPTY: "No bookings for the select date range",
     REPORTS_APPROVED: "Approved Bookings",
@@ -44913,2909 +45306,2287 @@ var en_AU_default = {
   TRIGGERS
 };
 
-// node_modules/@placeos/ts-client/dist/index.es.js
-var ue = [
-  "A",
-  "B",
-  "C",
-  "D",
-  "E",
-  "F",
-  "G",
-  "H",
-  "I",
-  "J",
-  "K",
-  "L",
-  "M",
-  "N",
-  "O",
-  "P",
-  "Q",
-  "R",
-  "S",
-  "T",
-  "U",
-  "V",
-  "W",
-  "X",
-  "Y",
-  "Z",
-  "a",
-  "b",
-  "c",
-  "d",
-  "e",
-  "f",
-  "g",
-  "h",
-  "i",
-  "j",
-  "k",
-  "l",
-  "m",
-  "n",
-  "o",
-  "p",
-  "q",
-  "r",
-  "s",
-  "t",
-  "u",
-  "v",
-  "w",
-  "x",
-  "y",
-  "z",
-  "0",
-  "1",
-  "2",
-  "3",
-  "4",
-  "5",
-  "6",
-  "7",
-  "8",
-  "9",
-  "+",
-  "/"
-];
-var zn = [
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  62,
-  255,
-  255,
-  255,
-  63,
-  52,
-  53,
-  54,
-  55,
-  56,
-  57,
-  58,
-  59,
-  60,
-  61,
-  255,
-  255,
-  255,
-  0,
-  255,
-  255,
-  255,
-  0,
-  1,
-  2,
-  3,
-  4,
-  5,
-  6,
-  7,
-  8,
-  9,
-  10,
-  11,
-  12,
-  13,
-  14,
-  15,
-  16,
-  17,
-  18,
-  19,
-  20,
-  21,
-  22,
-  23,
-  24,
-  25,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  26,
-  27,
-  28,
-  29,
-  30,
-  31,
-  32,
-  33,
-  34,
-  35,
-  36,
-  37,
-  38,
-  39,
-  40,
-  41,
-  42,
-  43,
-  44,
-  45,
-  46,
-  47,
-  48,
-  49,
-  50,
-  51
-];
-function bt(t) {
-  if (t >= zn.length)
-    throw new Error("Unable to parse base64 string.");
-  const e = zn[t];
-  if (e === 255)
-    throw new Error("Unable to parse base64 string.");
-  return e;
+// node_modules/date-fns/addDays.js
+function addDays(date, amount, options) {
+  const _date = toDate2(date, options?.in);
+  if (isNaN(amount)) return constructFrom(options?.in || date, NaN);
+  if (!amount) return _date;
+  _date.setDate(_date.getDate() + amount);
+  return _date;
 }
-function Yn(t) {
-  let e = "", n, s = t.length;
-  for (n = 2; n < s; n += 3)
-    e += ue[t[n - 2] >> 2], e += ue[(t[n - 2] & 3) << 4 | t[n - 1] >> 4], e += ue[(t[n - 1] & 15) << 2 | t[n] >> 6], e += ue[t[n] & 63];
-  return n === s + 1 && (e += ue[t[n - 2] >> 2], e += ue[(t[n - 2] & 3) << 4], e += "=="), n === s && (e += ue[t[n - 2] >> 2], e += ue[(t[n - 2] & 3) << 4 | t[n - 1] >> 4], e += ue[(t[n - 1] & 15) << 2], e += "="), e;
-}
-function Hs(t) {
-  if (t.length % 4 !== 0)
-    throw new Error("Unable to parse base64 string.");
-  const e = t.indexOf("=");
-  if (e !== -1 && e < t.length - 2)
-    throw new Error("Unable to parse base64 string.");
-  let n = t.endsWith("==") ? 2 : t.endsWith("=") ? 1 : 0, s = t.length, i = new Uint8Array(3 * (s / 4)), r;
-  for (let o = 0, a = 0; o < s; o += 4, a += 3)
-    r = bt(t.charCodeAt(o)) << 18 | bt(t.charCodeAt(o + 1)) << 12 | bt(t.charCodeAt(o + 2)) << 6 | bt(t.charCodeAt(o + 3)), i[a] = r >> 16, i[a + 1] = r >> 8 & 255, i[a + 2] = r & 255;
-  return i.subarray(0, i.length - n);
-}
-function zs(t, e = new TextEncoder()) {
-  return Yn(e.encode(t));
-}
-var vt = { exports: {} };
-var Fs = vt.exports;
-var Fn;
-function Ls() {
-  return Fn || (Fn = 1, (function(t) {
-    (function(e, n) {
-      var s = {};
-      n(s);
-      var i = s.default;
-      for (var r in s)
-        i[r] = s[r];
-      t.exports = i;
-    })(Fs, function(e) {
-      e.__esModule = true, e.digestLength = 32, e.blockSize = 64;
-      var n = new Uint32Array([
-        1116352408,
-        1899447441,
-        3049323471,
-        3921009573,
-        961987163,
-        1508970993,
-        2453635748,
-        2870763221,
-        3624381080,
-        310598401,
-        607225278,
-        1426881987,
-        1925078388,
-        2162078206,
-        2614888103,
-        3248222580,
-        3835390401,
-        4022224774,
-        264347078,
-        604807628,
-        770255983,
-        1249150122,
-        1555081692,
-        1996064986,
-        2554220882,
-        2821834349,
-        2952996808,
-        3210313671,
-        3336571891,
-        3584528711,
-        113926993,
-        338241895,
-        666307205,
-        773529912,
-        1294757372,
-        1396182291,
-        1695183700,
-        1986661051,
-        2177026350,
-        2456956037,
-        2730485921,
-        2820302411,
-        3259730800,
-        3345764771,
-        3516065817,
-        3600352804,
-        4094571909,
-        275423344,
-        430227734,
-        506948616,
-        659060556,
-        883997877,
-        958139571,
-        1322822218,
-        1537002063,
-        1747873779,
-        1955562222,
-        2024104815,
-        2227730452,
-        2361852424,
-        2428436474,
-        2756734187,
-        3204031479,
-        3329325298
-      ]);
-      function s(v, c, h, f, M2) {
-        for (var x, R2, k, Q2, D2, E2, se, H2, j, z, Be, We, $t; M2 >= 64; ) {
-          for (x = c[0], R2 = c[1], k = c[2], Q2 = c[3], D2 = c[4], E2 = c[5], se = c[6], H2 = c[7], z = 0; z < 16; z++)
-            Be = f + z * 4, v[z] = (h[Be] & 255) << 24 | (h[Be + 1] & 255) << 16 | (h[Be + 2] & 255) << 8 | h[Be + 3] & 255;
-          for (z = 16; z < 64; z++)
-            j = v[z - 2], We = (j >>> 17 | j << 15) ^ (j >>> 19 | j << 13) ^ j >>> 10, j = v[z - 15], $t = (j >>> 7 | j << 25) ^ (j >>> 18 | j << 14) ^ j >>> 3, v[z] = (We + v[z - 7] | 0) + ($t + v[z - 16] | 0);
-          for (z = 0; z < 64; z++)
-            We = (((D2 >>> 6 | D2 << 26) ^ (D2 >>> 11 | D2 << 21) ^ (D2 >>> 25 | D2 << 7)) + (D2 & E2 ^ ~D2 & se) | 0) + (H2 + (n[z] + v[z] | 0) | 0) | 0, $t = ((x >>> 2 | x << 30) ^ (x >>> 13 | x << 19) ^ (x >>> 22 | x << 10)) + (x & R2 ^ x & k ^ R2 & k) | 0, H2 = se, se = E2, E2 = D2, D2 = Q2 + We | 0, Q2 = k, k = R2, R2 = x, x = We + $t | 0;
-          c[0] += x, c[1] += R2, c[2] += k, c[3] += Q2, c[4] += D2, c[5] += E2, c[6] += se, c[7] += H2, f += 64, M2 -= 64;
-        }
-        return f;
-      }
-      var i = (
-        /** @class */
-        (function() {
-          function v() {
-            this.digestLength = e.digestLength, this.blockSize = e.blockSize, this.state = new Int32Array(8), this.temp = new Int32Array(64), this.buffer = new Uint8Array(128), this.bufferLength = 0, this.bytesHashed = 0, this.finished = false, this.reset();
-          }
-          return v.prototype.reset = function() {
-            return this.state[0] = 1779033703, this.state[1] = 3144134277, this.state[2] = 1013904242, this.state[3] = 2773480762, this.state[4] = 1359893119, this.state[5] = 2600822924, this.state[6] = 528734635, this.state[7] = 1541459225, this.bufferLength = 0, this.bytesHashed = 0, this.finished = false, this;
-          }, v.prototype.clean = function() {
-            for (var c = 0; c < this.buffer.length; c++)
-              this.buffer[c] = 0;
-            for (var c = 0; c < this.temp.length; c++)
-              this.temp[c] = 0;
-            this.reset();
-          }, v.prototype.update = function(c, h) {
-            if (h === void 0 && (h = c.length), this.finished)
-              throw new Error("SHA256: can't update because hash was finished.");
-            var f = 0;
-            if (this.bytesHashed += h, this.bufferLength > 0) {
-              for (; this.bufferLength < 64 && h > 0; )
-                this.buffer[this.bufferLength++] = c[f++], h--;
-              this.bufferLength === 64 && (s(this.temp, this.state, this.buffer, 0, 64), this.bufferLength = 0);
-            }
-            for (h >= 64 && (f = s(this.temp, this.state, c, f, h), h %= 64); h > 0; )
-              this.buffer[this.bufferLength++] = c[f++], h--;
-            return this;
-          }, v.prototype.finish = function(c) {
-            if (!this.finished) {
-              var h = this.bytesHashed, f = this.bufferLength, M2 = h / 536870912 | 0, x = h << 3, R2 = h % 64 < 56 ? 64 : 128;
-              this.buffer[f] = 128;
-              for (var k = f + 1; k < R2 - 8; k++)
-                this.buffer[k] = 0;
-              this.buffer[R2 - 8] = M2 >>> 24 & 255, this.buffer[R2 - 7] = M2 >>> 16 & 255, this.buffer[R2 - 6] = M2 >>> 8 & 255, this.buffer[R2 - 5] = M2 >>> 0 & 255, this.buffer[R2 - 4] = x >>> 24 & 255, this.buffer[R2 - 3] = x >>> 16 & 255, this.buffer[R2 - 2] = x >>> 8 & 255, this.buffer[R2 - 1] = x >>> 0 & 255, s(this.temp, this.state, this.buffer, 0, R2), this.finished = true;
-            }
-            for (var k = 0; k < 8; k++)
-              c[k * 4 + 0] = this.state[k] >>> 24 & 255, c[k * 4 + 1] = this.state[k] >>> 16 & 255, c[k * 4 + 2] = this.state[k] >>> 8 & 255, c[k * 4 + 3] = this.state[k] >>> 0 & 255;
-            return this;
-          }, v.prototype.digest = function() {
-            var c = new Uint8Array(this.digestLength);
-            return this.finish(c), c;
-          }, v.prototype._saveState = function(c) {
-            for (var h = 0; h < this.state.length; h++)
-              c[h] = this.state[h];
-          }, v.prototype._restoreState = function(c, h) {
-            for (var f = 0; f < this.state.length; f++)
-              this.state[f] = c[f];
-            this.bytesHashed = h, this.finished = false, this.bufferLength = 0;
-          }, v;
-        })()
-      );
-      e.Hash = i;
-      var r = (
-        /** @class */
-        (function() {
-          function v(c) {
-            this.inner = new i(), this.outer = new i(), this.blockSize = this.inner.blockSize, this.digestLength = this.inner.digestLength;
-            var h = new Uint8Array(this.blockSize);
-            if (c.length > this.blockSize)
-              new i().update(c).finish(h).clean();
-            else
-              for (var f = 0; f < c.length; f++)
-                h[f] = c[f];
-            for (var f = 0; f < h.length; f++)
-              h[f] ^= 54;
-            this.inner.update(h);
-            for (var f = 0; f < h.length; f++)
-              h[f] ^= 106;
-            this.outer.update(h), this.istate = new Uint32Array(8), this.ostate = new Uint32Array(8), this.inner._saveState(this.istate), this.outer._saveState(this.ostate);
-            for (var f = 0; f < h.length; f++)
-              h[f] = 0;
-          }
-          return v.prototype.reset = function() {
-            return this.inner._restoreState(this.istate, this.inner.blockSize), this.outer._restoreState(this.ostate, this.outer.blockSize), this;
-          }, v.prototype.clean = function() {
-            for (var c = 0; c < this.istate.length; c++)
-              this.ostate[c] = this.istate[c] = 0;
-            this.inner.clean(), this.outer.clean();
-          }, v.prototype.update = function(c) {
-            return this.inner.update(c), this;
-          }, v.prototype.finish = function(c) {
-            return this.outer.finished ? this.outer.finish(c) : (this.inner.finish(c), this.outer.update(c, this.digestLength).finish(c)), this;
-          }, v.prototype.digest = function() {
-            var c = new Uint8Array(this.digestLength);
-            return this.finish(c), c;
-          }, v;
-        })()
-      );
-      e.HMAC = r;
-      function o(v) {
-        var c = new i().update(v), h = c.digest();
-        return c.clean(), h;
-      }
-      e.hash = o, e.default = o;
-      function a(v, c) {
-        var h = new r(v).update(c), f = h.digest();
-        return h.clean(), f;
-      }
-      e.hmac = a;
-      function y(v, c, h, f) {
-        var M2 = f[0];
-        if (M2 === 0)
-          throw new Error("hkdf: cannot expand more");
-        c.reset(), M2 > 1 && c.update(v), h && c.update(h), c.update(f), c.finish(v), f[0]++;
-      }
-      var L2 = new Uint8Array(e.digestLength);
-      function P2(v, c, h, f) {
-        c === void 0 && (c = L2), f === void 0 && (f = 32);
-        for (var M2 = new Uint8Array([1]), x = a(c, v), R2 = new r(x), k = new Uint8Array(R2.digestLength), Q2 = k.length, D2 = new Uint8Array(f), E2 = 0; E2 < f; E2++)
-          Q2 === k.length && (y(k, R2, h, M2), Q2 = 0), D2[E2] = k[Q2++];
-        return R2.clean(), k.fill(0), M2.fill(0), D2;
-      }
-      e.hkdf = P2;
-      function W2(v, c, h, f) {
-        for (var M2 = new r(v), x = M2.digestLength, R2 = new Uint8Array(4), k = new Uint8Array(x), Q2 = new Uint8Array(x), D2 = new Uint8Array(f), E2 = 0; E2 * x < f; E2++) {
-          var se = E2 + 1;
-          R2[0] = se >>> 24 & 255, R2[1] = se >>> 16 & 255, R2[2] = se >>> 8 & 255, R2[3] = se >>> 0 & 255, M2.reset(), M2.update(c), M2.update(R2), M2.finish(Q2);
-          for (var H2 = 0; H2 < x; H2++)
-            k[H2] = Q2[H2];
-          for (var H2 = 2; H2 <= h; H2++) {
-            M2.reset(), M2.update(Q2).finish(Q2);
-            for (var j = 0; j < x; j++)
-              k[j] ^= Q2[j];
-          }
-          for (var H2 = 0; H2 < x && E2 * x + H2 < f; H2++)
-            D2[E2 * x + H2] = k[H2];
-        }
-        for (var E2 = 0; E2 < x; E2++)
-          k[E2] = Q2[E2] = 0;
-        for (var E2 = 0; E2 < 4; E2++)
-          R2[E2] = 0;
-        return M2.clean(), D2;
-      }
-      e.pbkdf2 = W2;
-    });
-  })(vt)), vt.exports;
-}
-var js = Ls();
-var Gs = new Int32Array(4);
-var K = class _K {
-  static hashStr(e, n = false) {
-    return this.onePassHasher.start().appendStr(e).end(n);
+
+// node_modules/date-fns/addMonths.js
+function addMonths(date, amount, options) {
+  const _date = toDate2(date, options?.in);
+  if (isNaN(amount)) return constructFrom(options?.in || date, NaN);
+  if (!amount) {
+    return _date;
   }
-  static hashAsciiStr(e, n = false) {
-    return this.onePassHasher.start().appendAsciiStr(e).end(n);
-  }
-  // Private Static Variables
-  static stateIdentity = new Int32Array([
-    1732584193,
-    -271733879,
-    -1732584194,
-    271733878
-  ]);
-  static buffer32Identity = new Int32Array([
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0
-  ]);
-  static hexChars = "0123456789abcdef";
-  static hexOut = [];
-  // Permanent instance is to use for one-call hashing
-  static onePassHasher = new _K();
-  static _hex(e) {
-    const n = _K.hexChars, s = _K.hexOut;
-    let i, r, o, a;
-    for (a = 0; a < 4; a += 1)
-      for (r = a * 8, i = e[a], o = 0; o < 8; o += 2)
-        s[r + 1 + o] = n.charAt(i & 15), i >>>= 4, s[r + 0 + o] = n.charAt(i & 15), i >>>= 4;
-    return s.join("");
-  }
-  static _md5cycle(e, n) {
-    let s = e[0], i = e[1], r = e[2], o = e[3];
-    s += (i & r | ~i & o) + n[0] - 680876936 | 0, s = (s << 7 | s >>> 25) + i | 0, o += (s & i | ~s & r) + n[1] - 389564586 | 0, o = (o << 12 | o >>> 20) + s | 0, r += (o & s | ~o & i) + n[2] + 606105819 | 0, r = (r << 17 | r >>> 15) + o | 0, i += (r & o | ~r & s) + n[3] - 1044525330 | 0, i = (i << 22 | i >>> 10) + r | 0, s += (i & r | ~i & o) + n[4] - 176418897 | 0, s = (s << 7 | s >>> 25) + i | 0, o += (s & i | ~s & r) + n[5] + 1200080426 | 0, o = (o << 12 | o >>> 20) + s | 0, r += (o & s | ~o & i) + n[6] - 1473231341 | 0, r = (r << 17 | r >>> 15) + o | 0, i += (r & o | ~r & s) + n[7] - 45705983 | 0, i = (i << 22 | i >>> 10) + r | 0, s += (i & r | ~i & o) + n[8] + 1770035416 | 0, s = (s << 7 | s >>> 25) + i | 0, o += (s & i | ~s & r) + n[9] - 1958414417 | 0, o = (o << 12 | o >>> 20) + s | 0, r += (o & s | ~o & i) + n[10] - 42063 | 0, r = (r << 17 | r >>> 15) + o | 0, i += (r & o | ~r & s) + n[11] - 1990404162 | 0, i = (i << 22 | i >>> 10) + r | 0, s += (i & r | ~i & o) + n[12] + 1804603682 | 0, s = (s << 7 | s >>> 25) + i | 0, o += (s & i | ~s & r) + n[13] - 40341101 | 0, o = (o << 12 | o >>> 20) + s | 0, r += (o & s | ~o & i) + n[14] - 1502002290 | 0, r = (r << 17 | r >>> 15) + o | 0, i += (r & o | ~r & s) + n[15] + 1236535329 | 0, i = (i << 22 | i >>> 10) + r | 0, s += (i & o | r & ~o) + n[1] - 165796510 | 0, s = (s << 5 | s >>> 27) + i | 0, o += (s & r | i & ~r) + n[6] - 1069501632 | 0, o = (o << 9 | o >>> 23) + s | 0, r += (o & i | s & ~i) + n[11] + 643717713 | 0, r = (r << 14 | r >>> 18) + o | 0, i += (r & s | o & ~s) + n[0] - 373897302 | 0, i = (i << 20 | i >>> 12) + r | 0, s += (i & o | r & ~o) + n[5] - 701558691 | 0, s = (s << 5 | s >>> 27) + i | 0, o += (s & r | i & ~r) + n[10] + 38016083 | 0, o = (o << 9 | o >>> 23) + s | 0, r += (o & i | s & ~i) + n[15] - 660478335 | 0, r = (r << 14 | r >>> 18) + o | 0, i += (r & s | o & ~s) + n[4] - 405537848 | 0, i = (i << 20 | i >>> 12) + r | 0, s += (i & o | r & ~o) + n[9] + 568446438 | 0, s = (s << 5 | s >>> 27) + i | 0, o += (s & r | i & ~r) + n[14] - 1019803690 | 0, o = (o << 9 | o >>> 23) + s | 0, r += (o & i | s & ~i) + n[3] - 187363961 | 0, r = (r << 14 | r >>> 18) + o | 0, i += (r & s | o & ~s) + n[8] + 1163531501 | 0, i = (i << 20 | i >>> 12) + r | 0, s += (i & o | r & ~o) + n[13] - 1444681467 | 0, s = (s << 5 | s >>> 27) + i | 0, o += (s & r | i & ~r) + n[2] - 51403784 | 0, o = (o << 9 | o >>> 23) + s | 0, r += (o & i | s & ~i) + n[7] + 1735328473 | 0, r = (r << 14 | r >>> 18) + o | 0, i += (r & s | o & ~s) + n[12] - 1926607734 | 0, i = (i << 20 | i >>> 12) + r | 0, s += (i ^ r ^ o) + n[5] - 378558 | 0, s = (s << 4 | s >>> 28) + i | 0, o += (s ^ i ^ r) + n[8] - 2022574463 | 0, o = (o << 11 | o >>> 21) + s | 0, r += (o ^ s ^ i) + n[11] + 1839030562 | 0, r = (r << 16 | r >>> 16) + o | 0, i += (r ^ o ^ s) + n[14] - 35309556 | 0, i = (i << 23 | i >>> 9) + r | 0, s += (i ^ r ^ o) + n[1] - 1530992060 | 0, s = (s << 4 | s >>> 28) + i | 0, o += (s ^ i ^ r) + n[4] + 1272893353 | 0, o = (o << 11 | o >>> 21) + s | 0, r += (o ^ s ^ i) + n[7] - 155497632 | 0, r = (r << 16 | r >>> 16) + o | 0, i += (r ^ o ^ s) + n[10] - 1094730640 | 0, i = (i << 23 | i >>> 9) + r | 0, s += (i ^ r ^ o) + n[13] + 681279174 | 0, s = (s << 4 | s >>> 28) + i | 0, o += (s ^ i ^ r) + n[0] - 358537222 | 0, o = (o << 11 | o >>> 21) + s | 0, r += (o ^ s ^ i) + n[3] - 722521979 | 0, r = (r << 16 | r >>> 16) + o | 0, i += (r ^ o ^ s) + n[6] + 76029189 | 0, i = (i << 23 | i >>> 9) + r | 0, s += (i ^ r ^ o) + n[9] - 640364487 | 0, s = (s << 4 | s >>> 28) + i | 0, o += (s ^ i ^ r) + n[12] - 421815835 | 0, o = (o << 11 | o >>> 21) + s | 0, r += (o ^ s ^ i) + n[15] + 530742520 | 0, r = (r << 16 | r >>> 16) + o | 0, i += (r ^ o ^ s) + n[2] - 995338651 | 0, i = (i << 23 | i >>> 9) + r | 0, s += (r ^ (i | ~o)) + n[0] - 198630844 | 0, s = (s << 6 | s >>> 26) + i | 0, o += (i ^ (s | ~r)) + n[7] + 1126891415 | 0, o = (o << 10 | o >>> 22) + s | 0, r += (s ^ (o | ~i)) + n[14] - 1416354905 | 0, r = (r << 15 | r >>> 17) + o | 0, i += (o ^ (r | ~s)) + n[5] - 57434055 | 0, i = (i << 21 | i >>> 11) + r | 0, s += (r ^ (i | ~o)) + n[12] + 1700485571 | 0, s = (s << 6 | s >>> 26) + i | 0, o += (i ^ (s | ~r)) + n[3] - 1894986606 | 0, o = (o << 10 | o >>> 22) + s | 0, r += (s ^ (o | ~i)) + n[10] - 1051523 | 0, r = (r << 15 | r >>> 17) + o | 0, i += (o ^ (r | ~s)) + n[1] - 2054922799 | 0, i = (i << 21 | i >>> 11) + r | 0, s += (r ^ (i | ~o)) + n[8] + 1873313359 | 0, s = (s << 6 | s >>> 26) + i | 0, o += (i ^ (s | ~r)) + n[15] - 30611744 | 0, o = (o << 10 | o >>> 22) + s | 0, r += (s ^ (o | ~i)) + n[6] - 1560198380 | 0, r = (r << 15 | r >>> 17) + o | 0, i += (o ^ (r | ~s)) + n[13] + 1309151649 | 0, i = (i << 21 | i >>> 11) + r | 0, s += (r ^ (i | ~o)) + n[4] - 145523070 | 0, s = (s << 6 | s >>> 26) + i | 0, o += (i ^ (s | ~r)) + n[11] - 1120210379 | 0, o = (o << 10 | o >>> 22) + s | 0, r += (s ^ (o | ~i)) + n[2] + 718787259 | 0, r = (r << 15 | r >>> 17) + o | 0, i += (o ^ (r | ~s)) + n[9] - 343485551 | 0, i = (i << 21 | i >>> 11) + r | 0, e[0] = s + e[0] | 0, e[1] = i + e[1] | 0, e[2] = r + e[2] | 0, e[3] = o + e[3] | 0;
-  }
-  _dataLength = 0;
-  _bufferLength = 0;
-  _state = new Int32Array(4);
-  _buffer = new ArrayBuffer(68);
-  _buffer8;
-  _buffer32;
-  constructor() {
-    this._buffer8 = new Uint8Array(this._buffer, 0, 68), this._buffer32 = new Uint32Array(this._buffer, 0, 17), this.start();
-  }
-  /**
-   * Initialise buffer to be hashed
-   */
-  start() {
-    return this._dataLength = 0, this._bufferLength = 0, this._state.set(_K.stateIdentity), this;
-  }
-  // Char to code point to to array conversion:
-  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/charCodeAt
-  // #Example.3A_Fixing_charCodeAt_to_handle_non-Basic-Multilingual-Plane_characters_if_their_presence_earlier_in_the_string_is_unknown
-  /**
-   * Append a UTF-8 string to the hash buffer
-   * @param str String to append
-   */
-  appendStr(e) {
-    const n = this._buffer8, s = this._buffer32;
-    let i = this._bufferLength, r, o;
-    for (o = 0; o < e.length; o += 1) {
-      if (r = e.charCodeAt(o), r < 128)
-        n[i++] = r;
-      else if (r < 2048)
-        n[i++] = (r >>> 6) + 192, n[i++] = r & 63 | 128;
-      else if (r < 55296 || r > 56319)
-        n[i++] = (r >>> 12) + 224, n[i++] = r >>> 6 & 63 | 128, n[i++] = r & 63 | 128;
-      else {
-        if (r = (r - 55296) * 1024 + (e.charCodeAt(++o) - 56320) + 65536, r > 1114111)
-          throw new Error(
-            "Unicode standard supports code points up to U+10FFFF"
-          );
-        n[i++] = (r >>> 18) + 240, n[i++] = r >>> 12 & 63 | 128, n[i++] = r >>> 6 & 63 | 128, n[i++] = r & 63 | 128;
-      }
-      i >= 64 && (this._dataLength += 64, _K._md5cycle(this._state, s), i -= 64, s[0] = s[16]);
-    }
-    return this._bufferLength = i, this;
-  }
-  /**
-   * Append an ASCII string to the hash buffer
-   * @param str String to append
-   */
-  appendAsciiStr(e) {
-    const n = this._buffer8, s = this._buffer32;
-    let i = this._bufferLength, r, o = 0;
-    for (; ; ) {
-      for (r = Math.min(e.length - o, 64 - i); r--; )
-        n[i++] = e.charCodeAt(o++);
-      if (i < 64)
-        break;
-      this._dataLength += 64, _K._md5cycle(this._state, s), i = 0;
-    }
-    return this._bufferLength = i, this;
-  }
-  /**
-   * Append a byte array to the hash buffer
-   * @param input array to append
-   */
-  appendByteArray(e) {
-    const n = this._buffer8, s = this._buffer32;
-    let i = this._bufferLength, r, o = 0;
-    for (; ; ) {
-      for (r = Math.min(e.length - o, 64 - i); r--; )
-        n[i++] = e[o++];
-      if (i < 64)
-        break;
-      this._dataLength += 64, _K._md5cycle(this._state, s), i = 0;
-    }
-    return this._bufferLength = i, this;
-  }
-  /**
-   * Get the state of the hash buffer
-   */
-  getState() {
-    const e = this._state;
-    return {
-      buffer: String.fromCharCode.apply(null, Array.from(this._buffer8)),
-      buflen: this._bufferLength,
-      length: this._dataLength,
-      state: [e[0], e[1], e[2], e[3]]
-    };
-  }
-  /**
-   * Override the current state of the hash buffer
-   * @param state New hash buffer state
-   */
-  setState(e) {
-    const n = e.buffer, s = e.state, i = this._state;
-    let r;
-    for (this._dataLength = e.length, this._bufferLength = e.buflen, i[0] = s[0], i[1] = s[1], i[2] = s[2], i[3] = s[3], r = 0; r < n.length; r += 1)
-      this._buffer8[r] = n.charCodeAt(r);
-  }
-  /**
-   * Hash the current state of the hash buffer and return the result
-   * @param raw Whether to return the value as an `Int32Array`
-   */
-  end(e = false) {
-    const n = this._bufferLength, s = this._buffer8, i = this._buffer32, r = (n >> 2) + 1;
-    this._dataLength += n;
-    const o = this._dataLength * 8;
-    if (s[n] = 128, s[n + 1] = s[n + 2] = s[n + 3] = 0, i.set(_K.buffer32Identity.subarray(r), r), n > 55 && (_K._md5cycle(this._state, i), i.set(_K.buffer32Identity)), o <= 4294967295)
-      i[14] = o;
-    else {
-      const a = o.toString(16).match(/(.*?)(.{0,8})$/);
-      if (a === null) return e ? Gs : "";
-      const y = parseInt(a[2], 16), L2 = parseInt(a[1], 16) || 0;
-      i[14] = y, i[15] = L2;
-    }
-    return _K._md5cycle(this._state, i), e ? this._state : _K._hex(this._state);
-  }
-};
-if (K.hashStr("hello") !== "5d41402abc4b2a76b9719d911017c592")
-  throw new Error("Md5 self test failed.");
-var Bs = 36e5;
-var Ln = /* @__PURE__ */ Symbol.for("constructDateFrom");
-function St(t, e) {
-  return typeof t == "function" ? t(e) : t && typeof t == "object" && Ln in t ? t[Ln](e) : t instanceof Date ? new t.constructor(e) : new Date(e);
-}
-function Ze(t, e) {
-  return St(t, t);
-}
-function Ws(t, e, n) {
-  const s = Ze(t);
-  if (isNaN(e)) return St(t, NaN);
-  const i = s.getDate(), r = St(t, s.getTime());
-  r.setMonth(s.getMonth() + e + 1, 0);
-  const o = r.getDate();
-  return i >= o ? r : (s.setFullYear(
-    r.getFullYear(),
-    r.getMonth(),
-    i
-  ), s);
-}
-function Vn(t, e, n) {
-  return St(t, +Ze(t) + e);
-}
-function Qs(t, e, n) {
-  return Vn(t, e * Bs);
-}
-function Ks(t, e, n) {
-  return Vn(t, e * 1e3);
-}
-function Zs(t, e, n) {
-  return Ws(t, e * 12);
-}
-function yn(t) {
-  return Math.trunc(+Ze(t) / 1e3);
-}
-function Xn(t, e) {
-  return +Ze(t) < +Ze(e);
-}
-function xt(t, e, n, s = "debug", i) {
-  if (window.debug) {
-    const o = ["color: #0288D1", `color:${i || "#009688"}`, "color: default"];
-    n ? jn() ? console[s](
-      `%c[PlaceOS]%c[${t}] %c${e}`,
-      ...o,
-      n
-    ) : console[s](`[PlaceOS][${t}] ${e}`, n) : jn() ? console[s](`%c[PlaceOS]%c[${t}] %c${e}`, ...o) : console[s](`[PlaceOS][${t}] ${e}`);
-  }
-}
-function Nt(t) {
-  const e = (i) => i.length <= 0 ? void 0 : i.length === 1 ? i[0] : i, n = (i, r, o) => xt(t, r, e(o), i), s = (i, ...r) => n("debug", i, r);
-  return s.debug = (i, ...r) => n("debug", i, r), s.info = (i, ...r) => n("info", i, r), s.error = (i, ...r) => n("error", i, r), s.warn = (i, ...r) => n("warn", i, r), s.log = (i, ...r) => n("log", i, r), s.group = (i, ...r) => n("group", i, r), s.groupCollapsed = (i, ...r) => n("groupCollapsed", i, r), s.groupEnd = (i, ...r) => n("groupEnd", i, r), s;
-}
-function jn() {
-  return !(document.documentMode || /Edge/.test(navigator.userAgent));
-}
-function es() {
-  const t = window.location?.hash ? window.location?.hash.slice(1) : window.location?.href.split("#")[1] || "";
-  let e = window.location?.search ? window.location?.search.slice(1) : window.location?.href.split("?")[1] || "", n = {};
-  if (t)
-    if (t.indexOf("?") >= 0) {
-      const i = t.split("?");
-      n = Ie(i[0]), e || (e = i[1]);
-    } else
-      n = Ie(t);
-  let s = {};
-  return e && (s = Ie(e)), __spreadValues(__spreadValues({}, n), s);
-}
-function Ie(t) {
-  const e = {}, n = t.split("&");
-  for (const s of n) {
-    const i = s.split("=");
-    i[1] && (e[decodeURIComponent(i[0])] = decodeURIComponent(
-      i[1]
-    ));
-  }
-  return e;
-}
-var Qe = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-function ts(t = 40) {
-  let e = "";
-  const n = window?.crypto;
-  if (n?.getRandomValues) {
-    const s = 256 - 256 % Qe.length, i = new Uint8Array(t * 2);
-    for (; e.length < t; ) {
-      n.getRandomValues(i);
-      for (const r of i)
-        r < s && e.length < t && (e += Qe.charAt(r % Qe.length));
-    }
-    return e;
-  }
-  for (let s = 0; s < t; s++)
-    e += Qe.charAt(
-      Math.floor(Math.random() * Qe.length)
-    );
-  return e;
-}
-function ie(t) {
-  const e = (window.location?.hash || "").replace(new RegExp(`${t}[a-zA-Z0-9_+-.%=]*&?`, "g"), "").replace(/&&/g, "&").replace(/#&/g, "#").replace(/&$/g, "#"), n = (window.location?.search || "").replace(new RegExp(`${t}[a-zA-Z0-9_+-.%=]*&?`, "g"), "").replace(/&&/g, "&").replace(/\?&/g, "#").replace(/&$/g, "#");
-  window.history?.replaceState && window.history?.replaceState(
-    null,
-    "",
-    `${window.location?.pathname}${e}${n}`
-  );
-}
-function Js(t) {
-  if (t.length === 0)
-    throw new Error("Input must not be of zero length");
-  const e = t.split(","), n = {};
-  for (const s of e) {
-    const i = s.split(";");
-    if (i.length !== 2)
-      throw new Error("Section could not be split on ';'");
-    const r = i[0].replace(/<(.*)>/, "$1").trim(), o = i[1].replace(/rel="(.*)"/, "$1").trim();
-    n[o] = r;
-  }
-  return n;
-}
-function Ys(t, e) {
-  for (const n in t)
-    t.hasOwnProperty(n) && e.indexOf(t[n]) >= 0 && delete t[n];
-  return t;
-}
-function Vs() {
-  return [
-    "iPad Simulator",
-    "iPhone Simulator",
-    "iPod Simulator",
-    "iPad",
-    "iPhone",
-    "iPod"
-  ].includes(navigator.platform) || // iPad on iOS 13 detection
-  navigator.userAgent.includes("Mac") && "ontouchend" in document;
-}
-function Xs() {
-  return window.location !== window.parent.location;
-}
-function ei(t = Date.now(), e = 60 * 1e3) {
-  return Math.floor(t / e);
-}
-var ti = class {
-  abort() {
-    xt("Stub", "Aborted");
-  }
-};
-function b(t) {
-  let e = "";
-  if (t)
-    for (const n in t)
-      t.hasOwnProperty(n) && t[n] !== void 0 && t[n] !== null && (e += `${e ? "&" : ""}${n}=${encodeURIComponent(
-        t[n]
-      )}`);
-  return e;
-}
-var xe = {};
-function re(t, e, n = 300) {
-  if (t && e && e instanceof Function)
-    _e(t), xe[t] = setTimeout(() => {
-      e(), delete xe[t];
-    }, n);
-  else
-    throw new Error(
-      t ? "Cannot create named timeout without a name" : "Cannot create a timeout without a callback"
-    );
-}
-function _e(t) {
-  xe[t] && (clearTimeout(xe[t]), delete xe[t]);
-}
-function ne(t) {
-  let e = t;
-  const n = /* @__PURE__ */ new Set(), s = () => e;
-  return Object.defineProperty(s, "value", {
-    get: () => e,
-    enumerable: true
-  }), s.subscribe = (i, r = {}) => (n.add(i), r.emitCurrent !== false && i(e, e), () => n.delete(i)), s.set = (i) => {
-    if (Object.is(i, e)) return;
-    const r = e;
-    e = i;
-    for (const o of [...n])
-      o(e, r);
-  }, s.update = (i) => s.set(i(e)), s.asReadonly = () => s, s;
-}
-function ri(t, e = Boolean) {
-  return e(t.value) ? Promise.resolve(t.value) : new Promise((n) => {
-    const s = t.subscribe(
-      (i) => {
-        e(i) && (s(), n(i));
-      },
-      { emitCurrent: false }
-    );
-  });
-}
-function oi(t) {
-  return new Promise((e) => setTimeout(e, t));
-}
-var ui = {
-  id: "mock-authority",
-  name: "localhost:4200",
-  description: "",
-  domain: "localhost:4200",
-  login_url: "/login?continue={{url}}",
-  logout_url: "/logout",
-  session: true,
-  production: false,
-  config: {},
-  version: "2.0.0"
-};
-var p = Nt("Auth");
-var _ = {};
-var A = localStorage;
-var N;
-var m = {};
-var I = "";
-var me = "";
-var ge = ne("");
-var Je = ne("");
-var bn = "/api/engine/v2";
-var pe = ne(false);
-var vn = ne(false);
-var qt = 0;
-function ns() {
-  if (_.mock) return true;
-  if (!A) return false;
-  if (Ye() && !_.ignore_api_key) return true;
-  const t = A.getItem(`${I}_expires_at`) || "";
-  return Xn(+t, /* @__PURE__ */ new Date()) ? false : !!(ge.value || A.getItem(`${I}_access_token`));
-}
-function Oe() {
-  vn.set(ns());
-}
-function ss(t) {
-  if (!t || t.startsWith("http://") || t.startsWith("https://"))
-    return t;
-  const e = N?.domain;
-  return e ? `${_.secure || window.location?.protocol.indexOf("https") >= 0 ? "https:" : "http:"}//${e}${t}` : t;
-}
-function u2() {
-  return `${`${_.secure || window.location?.protocol.indexOf("https") >= 0 ? "https:" : "http:"}//${_.host || window.location?.host}`}${is()}`;
-}
-function is() {
-  return _.version === "ACA Engine" ? "/control/api" : bn;
-}
-function ci() {
-  return !!_.token_header;
-}
-function ai() {
-  return I;
-}
-function Nr(t, e = true) {
-  A.setItem(`${I}_x-api-key`, `${t}`), A.setItem("trusted", `${e}`), hi("x-api-key", Zs(/* @__PURE__ */ new Date(), 5).valueOf());
-}
-function Ye() {
-  return Ut("x-api-key", false) || "";
-}
-function hi(t, e = Qs(/* @__PURE__ */ new Date(), 2).valueOf()) {
-  _.ignore_api_key && t === "x-api-key" || (A.setItem(`${I}_expires_at`, `${e}`), A.setItem(`${I}_access_token`, t), ge.set(t), Oe());
-}
-function V(t = true) {
-  if (_.mock) return "mock-token";
-  if (!A) return "";
-  if (Ye() && !_.ignore_api_key) return "x-api-key";
-  const e = A.getItem(`${I}_expires_at`) || "", n = ge.value;
-  return Xn(+e, /* @__PURE__ */ new Date()) && (p("Token expired. Requesting new token..."), An(), m.load_authority || (qt += 1, re(
-    "re-authorise",
-    async () => {
-      delete m.authorise, await wt().catch(
-        (s) => p.error("Failed to get token:", s)
-      );
-    },
-    200 * Math.min(20, qt)
-  )), !t) ? "" : n || A.getItem(`${I}_access_token`) || "";
-}
-function Pt() {
-  return Je.value || A.getItem(`${I}_refresh_token`) || "";
-}
-function $n() {
-  return _.host || window.location?.host;
-}
-function li() {
-  return Oe(), vn.asReadonly();
-}
-function Rt() {
-  return N;
-}
-function Dr() {
-  return pe.value;
-}
-function kn() {
-  return !!_.mock;
-}
-function fi() {
-  return !!_.secure;
-}
-function Hr() {
-  return pe.asReadonly();
-}
-function Sn() {
-  return Ut("trust") === "true" || Ut("trusted") === "true";
-}
-function rs() {
-  return !!Ye() && !_.ignore_api_key || Ut("fixed_device") === "true";
-}
-function Ut(t, e = true) {
-  let s = es()[t];
-  if (A) {
-    const i = `${ai()}_${t}`;
-    s = s || A.getItem(i) || A.getItem(t) || "", e && A.setItem(i, `${s}`);
-  }
-  return s;
-}
-async function zr(t) {
-  return _ = t || _, _.token_header = _.token_header ?? Xs(), window.AbortController || (window.AbortController = ti), A = _.storage === "session" ? sessionStorage : localStorage, I = K.hashStr(_.redirect_uri, false), di(), _.delay && _.delay > 0 && await oi(_.delay), qn();
-}
-var Tt = false;
-function di() {
-  Tt || (Tt = true, window.addEventListener("focus", It), document.addEventListener("visibilitychange", It));
-}
-async function It() {
-  if (document.visibilityState === "hidden" || _.mock || !N || N.session || ns()) return;
-  if (delete m.check_params, await us().catch(() => false) || me || Pt()) {
-    p("Application focused with new credentials. Authorising..."), Ce = false, delete m.authorise, await wt().catch(
-      (e) => p.error("Failed to authorise on focus:", e)
-    );
-    return;
-  }
-  p("Application focused without a session. Reloading authority..."), Ce = false, xn().catch(
-    (e) => p.error("Failed to refresh authority:", e)
-  );
-}
-function xn() {
-  return p("Refreshing authorty."), N = void 0, qn();
-}
-function An() {
-  p("Invalidating tokens."), A.removeItem(`${I}_access_token`), A.removeItem(`${I}_expires_at`), ge.value && ge.set(""), Oe();
-}
-function wt(t, e = N) {
-  return m.authorise || (m.authorise = new Promise((n, s) => {
-    if (!e)
-      return delete m.authorise, s("Authority is not loaded");
-    p("Authorising user...");
-    const i = () => {
-      if (V(false))
-        p("Valid token found."), delete m.authorise, n(V());
-      else {
-        const r = [
-          () => {
-            p("Successfully generated token."), n(V()), delete m.authorise;
-          },
-          () => {
-            p.error("Failed to generate token."), s("Failed to generate token"), setTimeout(() => delete m.authorise, 200);
-          }
-        ];
-        if (_ && _.auth_type === "password")
-          p("Logging in with credentials."), ki(_).then(
-            ...r
-          ), qt = 0;
-        else if (me || Pt())
-          p(
-            `Generating token with ${me ? "code" : "refresh token"}`
-          ), cs().then(...r), qt = 0;
-        else if (e.session)
-          p(
-            "Users has session. Authorising application..."
-          ), _i(t).then(...r);
-        else {
-          p("No user session"), s("No user session"), setTimeout(() => delete m.authorise, 200);
-          try {
-            os(e);
-          } catch {
-          }
-        }
-      }
-    };
-    gi().then(i, i);
-  })), m.authorise;
-}
-function qn(t = 0) {
-  return m.load_authority || (m.load_authority = new Promise((e) => {
-    if (pe.set(false), _.mock) {
-      N = ui, p("System in mock mode"), pe.set(true), e();
-      return;
-    }
-    p(`Fixed: ${rs()} | Trusted: ${Sn()}`), p("Loading authority...");
-    const n = _.secure || window.location?.protocol.indexOf("https") >= 0, s = (i) => {
-      p.error(`Failed to load authority(${i})`), pe.set(false), re(
-        "load_authority",
-        () => {
-          delete m.load_authority, qn(t).then((r) => e());
-        },
-        300 * Math.min(20, ++t)
-      );
-    };
-    fetch(`${n ? "https:" : "http:"}//${$n()}/auth/authority`, {
-      credentials: "same-origin"
-    }).then(async (i) => {
-      if (!i.ok)
-        return s(await i.text().catch((o) => o));
-      N = await i.json(), bn = /[2-9]\.[0-9]+\.[0-9]+/g.test(
-        N.version || ""
-      ) ? "/api/engine/v2" : "/control/api", p.group("Loaded authority."), N && (p(`Name: ${N.name}`), p(`Version: ${N.version}`), p(`Domain: ${N.domain}`), p(`Session: ${N.session}`), p(`Production: ${N.production}`), p(
-        `Config Keys: ${Object.keys(N.config || {}).length}`
-      )), p.groupEnd("");
-      const r = () => {
-        pe.set(true), p("Application set online."), e();
-      };
-      delete m.load_authority, wt("").then(r, r);
-    }, s);
-  })), m.load_authority;
-}
-async function _i(t) {
-  const e = yi(t);
-  if (_.use_iframe)
-    return mi(e);
-  window.location?.assign(e);
-}
-function mi(t) {
-  return m.iframe_auth || (m.iframe_auth = new Promise((e, n) => {
-    p("Authorizing in an iFrame...");
-    const s = document.createElement("iframe");
-    s.style.position = "absolute", s.style.top = "0", s.style.left = "0", s.style.height = "1px", s.style.width = "1px", s.style.zIndex = "-1", s.id = "place-authorize", s.src = `${t}`;
-    const i = (o) => {
-      if (o.origin === window.location?.origin && o.data.type === "place-os") {
-        const a = o.data;
-        if (p("Received credentials from iFrame..."), document.body.removeChild(s), _e("iframe_auth"), window.removeEventListener("message", i), delete m.iframe_auth, a.token)
-          return e(), Pn(__spreadValues({
-            access_token: a.token
-          }, a));
-        me = a.code || "", cs().then(
-          (y) => e(y),
-          (y) => n(y)
-        );
-      }
-    }, r = () => {
-      window.removeEventListener("message", i), s.parentNode && s.parentNode.removeChild(s), delete m.iframe_auth;
-    };
-    re(
-      "iframe_auth",
-      () => {
-        p.error("Unable to resolve iFrame after 15 seconds..."), r(), n();
-      },
-      15 * 1e3
-    ), window.addEventListener("message", i), s.onerror = (o) => {
-      p.error("iFrame error.", o), _e("iframe_auth"), r(), n();
-    }, document.body.appendChild(s);
-  })), m.iframe_auth;
-}
-var Ce = false;
-function os(t) {
-  if (_.handle_login !== false && !Ce) {
-    p("Redirecting to login page...");
-    const e = ss(
-      t.login_url?.replace(
-        "{{url}}",
-        encodeURIComponent(window.location?.href)
-      )
-    );
-    throw setTimeout(() => window.location?.assign(e), 300), Ce = true, new Error("Redirecting to login page...");
-  } else
-    p("Login being handled locally.");
-  delete m.authorise;
-}
-function gi() {
-  return m.check_token || (m.check_token = new Promise(async (t, e) => {
-    V() ? (p("Valid token found."), t(V())) : (p("No token. Checking URL for auth credentials..."), await us() ? t(true) : e()), delete m.check_token;
-  })), m.check_token;
-}
-function us() {
-  return m.check_params || (m.check_params = new Promise((t) => {
-    p("Checking for auth parameters...");
-    let e = es();
-    if ((!e || Object.keys(e).length <= 0) && sessionStorage && (e = JSON.parse(
-      sessionStorage.getItem("ENGINE.auth.params") || "{}"
-    ), sessionStorage.removeItem("ENGINE.auth.params")), e && (e.code || e.access_token || e.refresh_token)) {
-      const n = A.getItem(`${I}_nonce`) || "", s = (e.state || "").split(";");
-      ie("state"), ie("token_type");
-      const i = s[0];
-      n === i ? (e.code && (me = e.code, ie("code")), e.refresh_token && (A.setItem(
-        `${I}_refresh_token`,
-        e.refresh_token
-      ), ie("refresh_token")), Pn(e), t(!!e.access_token)) : (ie("code"), ie("access_token"), ie("refresh_token"), t(false));
-    } else
-      t(false);
-    re(
-      "check_params_promise",
-      () => delete m.check_params,
-      50
-    );
-  })), m.check_params;
-}
-function yi(t) {
-  const e = Si();
-  t = t ? `${e};${t}` : e;
-  const n = _ ? (_.auth_uri || "").indexOf("?") >= 0 : false, s = (_ ? _.auth_uri : null) || "/auth/oauth/authorize", i = Sn() || _.auth_type === "auth_code" ? "code" : "token";
-  let r = `${s}${n ? "&" : "?"}response_type=${encodeURIComponent(i)}&client_id=${encodeURIComponent(I)}&state=${encodeURIComponent(t)}&redirect_uri=${encodeURIComponent(_.redirect_uri)}&scope=${encodeURIComponent(_.scope)}`;
-  if (_.auth_type === "auth_code") {
-    const { challenge: o, verify: a } = $i();
-    sessionStorage.setItem(`${I}_challenge`, o), r += "&code_challenge_method=S256", r += `&code_challenge=${a}`;
-  }
-  return r;
-}
-function $i(t = 43) {
-  const e = ts(t), n = Hs(zs(e)), s = Yn(js.hash(n)).split("=")[0].replace(/\//g, "_").replace(/\+/g, "-");
-  return { challenge: e, verify: s };
-}
-function bi() {
-  let e = (_.token_uri || "/auth/token") + `?client_id=${encodeURIComponent(I)}`, n = "";
-  if (e += `&redirect_uri=${encodeURIComponent(_.redirect_uri)}`, Pt()) {
-    e += `&refresh_token=${encodeURIComponent(Pt())}`, e += "&grant_type=refresh_token";
-    const s = e.indexOf("?");
-    n = e.slice(s + 1), e = e.slice(0, s);
+  const dayOfMonth = _date.getDate();
+  const endOfDesiredMonth = constructFrom(options?.in || date, _date.getTime());
+  endOfDesiredMonth.setMonth(_date.getMonth() + amount + 1, 0);
+  const daysInMonth = endOfDesiredMonth.getDate();
+  if (dayOfMonth >= daysInMonth) {
+    return endOfDesiredMonth;
   } else {
-    e += `&code=${encodeURIComponent(me)}`, e += "&grant_type=authorization_code";
-    const s = sessionStorage.getItem(`${I}_challenge`);
-    s && (e += `&code_verifier=${s}`, sessionStorage.removeItem(`${I}_challenge`)), me = "";
+    _date.setFullYear(
+      endOfDesiredMonth.getFullYear(),
+      endOfDesiredMonth.getMonth(),
+      dayOfMonth
+    );
+    return _date;
   }
-  return [e, n];
 }
-function vi(t) {
-  const e = t.token_uri || "/auth/token", n = b({
-    grant_type: "password",
-    client_id: I,
-    client_secret: t.client_secret,
-    redirect_uri: t.redirect_uri,
-    authority: N?.id,
-    scope: t.scope,
-    username: t.username,
-    password: t.password
-  });
-  return `${e}?${n}`;
+
+// node_modules/date-fns/add.js
+function add(date, duration, options) {
+  const {
+    years = 0,
+    months = 0,
+    weeks = 0,
+    days = 0,
+    hours = 0,
+    minutes = 0,
+    seconds = 0
+  } = duration;
+  const _date = toDate2(date, options?.in);
+  const dateWithMonths = months || years ? addMonths(_date, months + years * 12) : _date;
+  const dateWithDays = days || weeks ? addDays(dateWithMonths, days + weeks * 7) : dateWithMonths;
+  const minutesToAdd = minutes + hours * 60;
+  const secondsToAdd = seconds + minutesToAdd * 60;
+  const msToAdd = secondsToAdd * 1e3;
+  return constructFrom(options?.in || date, +dateWithDays + msToAdd);
 }
-function cs() {
-  return as(...bi());
+
+// node_modules/date-fns/addMilliseconds.js
+function addMilliseconds(date, amount, options) {
+  return constructFrom(options?.in || date, +toDate2(date) + amount);
 }
-function ki(t) {
-  return as(vi(t));
+
+// node_modules/date-fns/addHours.js
+function addHours(date, amount, options) {
+  return addMilliseconds(date, amount * millisecondsInHour, options);
 }
-function as(t, e = "") {
-  return m.generate_tokens || (m.generate_tokens = new Promise((n, s) => {
-    p("Generating new token...");
-    const i = (r) => {
-      p.error("Error generating new tokens:", r), r && r.status >= 400 && r.status < 500 && (A.removeItem(`${I}_refresh_token`), Je.set("")), Oe(), s(), delete m.generate_tokens;
-    };
-    fetch(t, {
-      method: "POST",
-      body: e,
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded"
-      }
-    }).then(async (r) => {
-      if (!r.ok) return i(r);
-      const o = await r.json();
-      Pn(o), n(), delete m.generate_tokens;
-    }, i);
-  })), m.generate_tokens;
+
+// node_modules/date-fns/_lib/defaultOptions.js
+var defaultOptions = {};
+function getDefaultOptions() {
+  return defaultOptions;
 }
-function Pn(t) {
-  const e = Ks(
-    /* @__PURE__ */ new Date(),
-    Math.max(60, parseInt(t.expires_in, 10) - 300)
-  );
-  p("Tokens generated storing..."), Sn() && (t.access_token && (A.setItem(
-    `${I}_access_token`,
-    t.access_token
-  ), ie("access_token")), t.refresh_token && (A.setItem(
-    `${I}_refresh_token`,
-    t.refresh_token
-  ), ie("refresh_token"))), t.expires_in && (A.setItem(`${I}_expires_at`, `${e.valueOf()}`), ie("expires_in")), pe.set(true), ge.set(t.access_token || ""), Je.set(t.refresh_token || ""), Oe();
+
+// node_modules/date-fns/startOfWeek.js
+function startOfWeek(date, options) {
+  const defaultOptions2 = getDefaultOptions();
+  const weekStartsOn = options?.weekStartsOn ?? options?.locale?.options?.weekStartsOn ?? defaultOptions2.weekStartsOn ?? defaultOptions2.locale?.options?.weekStartsOn ?? 0;
+  const _date = toDate2(date, options?.in);
+  const day = _date.getDay();
+  const diff = (day < weekStartsOn ? 7 : 0) + day - weekStartsOn;
+  _date.setDate(_date.getDate() - diff);
+  _date.setHours(0, 0, 0, 0);
+  return _date;
 }
-function Si() {
-  const t = ts();
-  return A.setItem(`${I}_nonce`, t), t;
+
+// node_modules/date-fns/startOfISOWeek.js
+function startOfISOWeek(date, options) {
+  return startOfWeek(date, __spreadProps(__spreadValues({}, options), { weekStartsOn: 1 }));
 }
-var Ae = Nt("HTTP(M)");
-var Dt = {};
-var hs = (t, e) => {
-  const n = new Error(`Mock endpoint not found: ${t} ${e}`);
-  return n.status = 404, Ae(`404 ${t}:`, e), Promise.reject(n);
-};
-function Wr(t, e = Dt) {
-  xi(t.method, t.path, e);
-  const n = `${t.method}|${t.path}`, s = t.path.replace(/(http|https):\/\/[a-zA-Z0-9.-]*:?([0-9]*)?/g, "").replace(/^\//, "").split("/"), i = __spreadProps(__spreadValues({}, t), {
-    path_parts: s,
-    path_structure: s.map(
-      (r) => r[0] === ":" ? r.replace(":", "") : ""
+
+// node_modules/date-fns/getISOWeekYear.js
+function getISOWeekYear(date, options) {
+  const _date = toDate2(date, options?.in);
+  const year = _date.getFullYear();
+  const fourthOfJanuaryOfNextYear = constructFrom(_date, 0);
+  fourthOfJanuaryOfNextYear.setFullYear(year + 1, 0, 4);
+  fourthOfJanuaryOfNextYear.setHours(0, 0, 0, 0);
+  const startOfNextYear = startOfISOWeek(fourthOfJanuaryOfNextYear);
+  const fourthOfJanuaryOfThisYear = constructFrom(_date, 0);
+  fourthOfJanuaryOfThisYear.setFullYear(year, 0, 4);
+  fourthOfJanuaryOfThisYear.setHours(0, 0, 0, 0);
+  const startOfThisYear = startOfISOWeek(fourthOfJanuaryOfThisYear);
+  if (_date.getTime() >= startOfNextYear.getTime()) {
+    return year + 1;
+  } else if (_date.getTime() >= startOfThisYear.getTime()) {
+    return year;
+  } else {
+    return year - 1;
+  }
+}
+
+// node_modules/date-fns/_lib/getTimezoneOffsetInMilliseconds.js
+function getTimezoneOffsetInMilliseconds(date) {
+  const _date = toDate2(date);
+  const utcDate = new Date(
+    Date.UTC(
+      _date.getFullYear(),
+      _date.getMonth(),
+      _date.getDate(),
+      _date.getHours(),
+      _date.getMinutes(),
+      _date.getSeconds(),
+      _date.getMilliseconds()
     )
-  });
-  e[n] = i, Ae(`+ ${t.method} ${t.path}`);
+  );
+  utcDate.setUTCFullYear(_date.getFullYear());
+  return +date - +utcDate;
 }
-function xi(t, e, n = Dt) {
-  const s = `${t}|${e}`;
-  n[s] && (delete n[s], Ae(`- ${t} ${e}`));
+
+// node_modules/date-fns/_lib/normalizeDates.js
+function normalizeDates(context2, ...dates) {
+  const normalize2 = constructFrom.bind(
+    null,
+    context2 || dates.find((date) => typeof date === "object")
+  );
+  return dates.map(normalize2);
 }
-function Ai(t, e, n, s = Dt) {
-  const i = qi(t, e, s);
-  if (i) {
-    const r = Pi(e, i, n);
-    return Ri(i, r);
+
+// node_modules/date-fns/startOfDay.js
+function startOfDay(date, options) {
+  const _date = toDate2(date, options?.in);
+  _date.setHours(0, 0, 0, 0);
+  return _date;
+}
+
+// node_modules/date-fns/differenceInCalendarDays.js
+function differenceInCalendarDays(laterDate, earlierDate, options) {
+  const [laterDate_, earlierDate_] = normalizeDates(
+    options?.in,
+    laterDate,
+    earlierDate
+  );
+  const laterStartOfDay = startOfDay(laterDate_);
+  const earlierStartOfDay = startOfDay(earlierDate_);
+  const laterTimestamp = +laterStartOfDay - getTimezoneOffsetInMilliseconds(laterStartOfDay);
+  const earlierTimestamp = +earlierStartOfDay - getTimezoneOffsetInMilliseconds(earlierStartOfDay);
+  return Math.round((laterTimestamp - earlierTimestamp) / millisecondsInDay);
+}
+
+// node_modules/date-fns/startOfISOWeekYear.js
+function startOfISOWeekYear(date, options) {
+  const year = getISOWeekYear(date, options);
+  const fourthOfJanuary = constructFrom(options?.in || date, 0);
+  fourthOfJanuary.setFullYear(year, 0, 4);
+  fourthOfJanuary.setHours(0, 0, 0, 0);
+  return startOfISOWeek(fourthOfJanuary);
+}
+
+// node_modules/date-fns/addMinutes.js
+function addMinutes(date, amount, options) {
+  const _date = toDate2(date, options?.in);
+  _date.setTime(_date.getTime() + amount * millisecondsInMinute);
+  return _date;
+}
+
+// node_modules/date-fns/addWeeks.js
+function addWeeks(date, amount, options) {
+  return addDays(date, amount * 7, options);
+}
+
+// node_modules/date-fns/addYears.js
+function addYears(date, amount, options) {
+  return addMonths(date, amount * 12, options);
+}
+
+// node_modules/date-fns/isSameDay.js
+function isSameDay(laterDate, earlierDate, options) {
+  const [dateLeft_, dateRight_] = normalizeDates(
+    options?.in,
+    laterDate,
+    earlierDate
+  );
+  return +startOfDay(dateLeft_) === +startOfDay(dateRight_);
+}
+
+// node_modules/date-fns/isDate.js
+function isDate2(value) {
+  return value instanceof Date || typeof value === "object" && Object.prototype.toString.call(value) === "[object Date]";
+}
+
+// node_modules/date-fns/isValid.js
+function isValid(date) {
+  return !(!isDate2(date) && typeof date !== "number" || isNaN(+toDate2(date)));
+}
+
+// node_modules/date-fns/differenceInCalendarMonths.js
+function differenceInCalendarMonths(laterDate, earlierDate, options) {
+  const [laterDate_, earlierDate_] = normalizeDates(
+    options?.in,
+    laterDate,
+    earlierDate
+  );
+  const yearsDiff = laterDate_.getFullYear() - earlierDate_.getFullYear();
+  const monthsDiff = laterDate_.getMonth() - earlierDate_.getMonth();
+  return yearsDiff * 12 + monthsDiff;
+}
+
+// node_modules/date-fns/differenceInMilliseconds.js
+function differenceInMilliseconds(laterDate, earlierDate) {
+  return +toDate2(laterDate) - +toDate2(earlierDate);
+}
+
+// node_modules/date-fns/differenceInMinutes.js
+function differenceInMinutes(dateLeft, dateRight, options) {
+  const diff = differenceInMilliseconds(dateLeft, dateRight) / millisecondsInMinute;
+  return getRoundingMethod(options?.roundingMethod)(diff);
+}
+
+// node_modules/date-fns/endOfDay.js
+function endOfDay(date, options) {
+  const _date = toDate2(date, options?.in);
+  _date.setHours(23, 59, 59, 999);
+  return _date;
+}
+
+// node_modules/date-fns/endOfMonth.js
+function endOfMonth(date, options) {
+  const _date = toDate2(date, options?.in);
+  const month = _date.getMonth();
+  _date.setFullYear(_date.getFullYear(), month + 1, 0);
+  _date.setHours(23, 59, 59, 999);
+  return _date;
+}
+
+// node_modules/date-fns/startOfYear.js
+function startOfYear(date, options) {
+  const date_ = toDate2(date, options?.in);
+  date_.setFullYear(date_.getFullYear(), 0, 1);
+  date_.setHours(0, 0, 0, 0);
+  return date_;
+}
+
+// node_modules/date-fns/locale/en-US/_lib/formatDistance.js
+var formatDistanceLocale = {
+  lessThanXSeconds: {
+    one: "less than a second",
+    other: "less than {{count}} seconds"
+  },
+  xSeconds: {
+    one: "1 second",
+    other: "{{count}} seconds"
+  },
+  halfAMinute: "half a minute",
+  lessThanXMinutes: {
+    one: "less than a minute",
+    other: "less than {{count}} minutes"
+  },
+  xMinutes: {
+    one: "1 minute",
+    other: "{{count}} minutes"
+  },
+  aboutXHours: {
+    one: "about 1 hour",
+    other: "about {{count}} hours"
+  },
+  xHours: {
+    one: "1 hour",
+    other: "{{count}} hours"
+  },
+  xDays: {
+    one: "1 day",
+    other: "{{count}} days"
+  },
+  aboutXWeeks: {
+    one: "about 1 week",
+    other: "about {{count}} weeks"
+  },
+  xWeeks: {
+    one: "1 week",
+    other: "{{count}} weeks"
+  },
+  aboutXMonths: {
+    one: "about 1 month",
+    other: "about {{count}} months"
+  },
+  xMonths: {
+    one: "1 month",
+    other: "{{count}} months"
+  },
+  aboutXYears: {
+    one: "about 1 year",
+    other: "about {{count}} years"
+  },
+  xYears: {
+    one: "1 year",
+    other: "{{count}} years"
+  },
+  overXYears: {
+    one: "over 1 year",
+    other: "over {{count}} years"
+  },
+  almostXYears: {
+    one: "almost 1 year",
+    other: "almost {{count}} years"
   }
-  try {
-    return hs(t, e);
-  } catch (r) {
-    return Ae.error(`ERROR ${t}:`, [e, r]), Promise.reject(r);
+};
+var formatDistance = (token, count, options) => {
+  let result;
+  const tokenValue = formatDistanceLocale[token];
+  if (typeof tokenValue === "string") {
+    result = tokenValue;
+  } else if (count === 1) {
+    result = tokenValue.one;
+  } else {
+    result = tokenValue.other.replace("{{count}}", count.toString());
   }
-}
-function qi(t, e, n = Dt) {
-  const i = e.replace(/(http|https):\/\/[a-zA-Z0-9.-]*:?([0-9]*)?/g, "").replace(/^\//, "").split("?")[0].split("/"), r = Object.keys(
-    n
-  ).reduce((o, a) => (a.indexOf(`${t}|`) === 0 && o.push(n[a]), o), []);
-  for (const o of r)
-    if (o.path_structure.length === i.length) {
-      let a = true;
-      for (let y = 0; y < o.path_structure.length; y++)
-        if (!o.path_structure[y] && o.path_parts[y] !== i[y]) {
-          a = false;
-          break;
-        }
-      if (a)
-        return o;
+  if (options?.addSuffix) {
+    if (options.comparison && options.comparison > 0) {
+      return "in " + result;
+    } else {
+      return result + " ago";
     }
+  }
+  return result;
+};
+
+// node_modules/date-fns/locale/_lib/buildFormatLongFn.js
+function buildFormatLongFn(args) {
+  return (options = {}) => {
+    const width = options.width ? String(options.width) : args.defaultWidth;
+    const format3 = args.formats[width] || args.formats[args.defaultWidth];
+    return format3;
+  };
+}
+
+// node_modules/date-fns/locale/en-US/_lib/formatLong.js
+var dateFormats = {
+  full: "EEEE, MMMM do, y",
+  long: "MMMM do, y",
+  medium: "MMM d, y",
+  short: "MM/dd/yyyy"
+};
+var timeFormats = {
+  full: "h:mm:ss a zzzz",
+  long: "h:mm:ss a z",
+  medium: "h:mm:ss a",
+  short: "h:mm a"
+};
+var dateTimeFormats = {
+  full: "{{date}} 'at' {{time}}",
+  long: "{{date}} 'at' {{time}}",
+  medium: "{{date}}, {{time}}",
+  short: "{{date}}, {{time}}"
+};
+var formatLong = {
+  date: buildFormatLongFn({
+    formats: dateFormats,
+    defaultWidth: "full"
+  }),
+  time: buildFormatLongFn({
+    formats: timeFormats,
+    defaultWidth: "full"
+  }),
+  dateTime: buildFormatLongFn({
+    formats: dateTimeFormats,
+    defaultWidth: "full"
+  })
+};
+
+// node_modules/date-fns/locale/en-US/_lib/formatRelative.js
+var formatRelativeLocale = {
+  lastWeek: "'last' eeee 'at' p",
+  yesterday: "'yesterday at' p",
+  today: "'today at' p",
+  tomorrow: "'tomorrow at' p",
+  nextWeek: "eeee 'at' p",
+  other: "P"
+};
+var formatRelative = (token, _date, _baseDate, _options) => formatRelativeLocale[token];
+
+// node_modules/date-fns/locale/_lib/buildLocalizeFn.js
+function buildLocalizeFn(args) {
+  return (value, options) => {
+    const context2 = options?.context ? String(options.context) : "standalone";
+    let valuesArray;
+    if (context2 === "formatting" && args.formattingValues) {
+      const defaultWidth = args.defaultFormattingWidth || args.defaultWidth;
+      const width = options?.width ? String(options.width) : defaultWidth;
+      valuesArray = args.formattingValues[width] || args.formattingValues[defaultWidth];
+    } else {
+      const defaultWidth = args.defaultWidth;
+      const width = options?.width ? String(options.width) : args.defaultWidth;
+      valuesArray = args.values[width] || args.values[defaultWidth];
+    }
+    const index = args.argumentCallback ? args.argumentCallback(value) : value;
+    return valuesArray[index];
+  };
+}
+
+// node_modules/date-fns/locale/en-US/_lib/localize.js
+var eraValues = {
+  narrow: ["B", "A"],
+  abbreviated: ["BC", "AD"],
+  wide: ["Before Christ", "Anno Domini"]
+};
+var quarterValues = {
+  narrow: ["1", "2", "3", "4"],
+  abbreviated: ["Q1", "Q2", "Q3", "Q4"],
+  wide: ["1st quarter", "2nd quarter", "3rd quarter", "4th quarter"]
+};
+var monthValues = {
+  narrow: ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"],
+  abbreviated: [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec"
+  ],
+  wide: [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December"
+  ]
+};
+var dayValues = {
+  narrow: ["S", "M", "T", "W", "T", "F", "S"],
+  short: ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"],
+  abbreviated: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+  wide: [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday"
+  ]
+};
+var dayPeriodValues = {
+  narrow: {
+    am: "a",
+    pm: "p",
+    midnight: "mi",
+    noon: "n",
+    morning: "morning",
+    afternoon: "afternoon",
+    evening: "evening",
+    night: "night"
+  },
+  abbreviated: {
+    am: "AM",
+    pm: "PM",
+    midnight: "midnight",
+    noon: "noon",
+    morning: "morning",
+    afternoon: "afternoon",
+    evening: "evening",
+    night: "night"
+  },
+  wide: {
+    am: "a.m.",
+    pm: "p.m.",
+    midnight: "midnight",
+    noon: "noon",
+    morning: "morning",
+    afternoon: "afternoon",
+    evening: "evening",
+    night: "night"
+  }
+};
+var formattingDayPeriodValues = {
+  narrow: {
+    am: "a",
+    pm: "p",
+    midnight: "mi",
+    noon: "n",
+    morning: "in the morning",
+    afternoon: "in the afternoon",
+    evening: "in the evening",
+    night: "at night"
+  },
+  abbreviated: {
+    am: "AM",
+    pm: "PM",
+    midnight: "midnight",
+    noon: "noon",
+    morning: "in the morning",
+    afternoon: "in the afternoon",
+    evening: "in the evening",
+    night: "at night"
+  },
+  wide: {
+    am: "a.m.",
+    pm: "p.m.",
+    midnight: "midnight",
+    noon: "noon",
+    morning: "in the morning",
+    afternoon: "in the afternoon",
+    evening: "in the evening",
+    night: "at night"
+  }
+};
+var ordinalNumber = (dirtyNumber, _options) => {
+  const number = Number(dirtyNumber);
+  const rem100 = number % 100;
+  if (rem100 > 20 || rem100 < 10) {
+    switch (rem100 % 10) {
+      case 1:
+        return number + "st";
+      case 2:
+        return number + "nd";
+      case 3:
+        return number + "rd";
+    }
+  }
+  return number + "th";
+};
+var localize = {
+  ordinalNumber,
+  era: buildLocalizeFn({
+    values: eraValues,
+    defaultWidth: "wide"
+  }),
+  quarter: buildLocalizeFn({
+    values: quarterValues,
+    defaultWidth: "wide",
+    argumentCallback: (quarter) => quarter - 1
+  }),
+  month: buildLocalizeFn({
+    values: monthValues,
+    defaultWidth: "wide"
+  }),
+  day: buildLocalizeFn({
+    values: dayValues,
+    defaultWidth: "wide"
+  }),
+  dayPeriod: buildLocalizeFn({
+    values: dayPeriodValues,
+    defaultWidth: "wide",
+    formattingValues: formattingDayPeriodValues,
+    defaultFormattingWidth: "wide"
+  })
+};
+
+// node_modules/date-fns/locale/_lib/buildMatchFn.js
+function buildMatchFn(args) {
+  return (string, options = {}) => {
+    const width = options.width;
+    const matchPattern = width && args.matchPatterns[width] || args.matchPatterns[args.defaultMatchWidth];
+    const matchResult = string.match(matchPattern);
+    if (!matchResult) {
+      return null;
+    }
+    const matchedString = matchResult[0];
+    const parsePatterns = width && args.parsePatterns[width] || args.parsePatterns[args.defaultParseWidth];
+    const key = Array.isArray(parsePatterns) ? findIndex(parsePatterns, (pattern) => pattern.test(matchedString)) : (
+      // [TODO] -- I challenge you to fix the type
+      findKey(parsePatterns, (pattern) => pattern.test(matchedString))
+    );
+    let value;
+    value = args.valueCallback ? args.valueCallback(key) : key;
+    value = options.valueCallback ? (
+      // [TODO] -- I challenge you to fix the type
+      options.valueCallback(value)
+    ) : value;
+    const rest = string.slice(matchedString.length);
+    return { value, rest };
+  };
+}
+function findKey(object, predicate) {
+  for (const key in object) {
+    if (Object.prototype.hasOwnProperty.call(object, key) && predicate(object[key])) {
+      return key;
+    }
+  }
+  return void 0;
+}
+function findIndex(array, predicate) {
+  for (let key = 0; key < array.length; key++) {
+    if (predicate(array[key])) {
+      return key;
+    }
+  }
+  return void 0;
+}
+
+// node_modules/date-fns/locale/_lib/buildMatchPatternFn.js
+function buildMatchPatternFn(args) {
+  return (string, options = {}) => {
+    const matchResult = string.match(args.matchPattern);
+    if (!matchResult) return null;
+    const matchedString = matchResult[0];
+    const parseResult = string.match(args.parsePattern);
+    if (!parseResult) return null;
+    let value = args.valueCallback ? args.valueCallback(parseResult[0]) : parseResult[0];
+    value = options.valueCallback ? options.valueCallback(value) : value;
+    const rest = string.slice(matchedString.length);
+    return { value, rest };
+  };
+}
+
+// node_modules/date-fns/locale/en-US/_lib/match.js
+var matchOrdinalNumberPattern = /^(\d+)(th|st|nd|rd)?/i;
+var parseOrdinalNumberPattern = /\d+/i;
+var matchEraPatterns = {
+  narrow: /^(b|a)/i,
+  abbreviated: /^(b\.?\s?c\.?|b\.?\s?c\.?\s?e\.?|a\.?\s?d\.?|c\.?\s?e\.?)/i,
+  wide: /^(before christ|before common era|anno domini|common era)/i
+};
+var parseEraPatterns = {
+  any: [/^b/i, /^(a|c)/i]
+};
+var matchQuarterPatterns = {
+  narrow: /^[1234]/i,
+  abbreviated: /^q[1234]/i,
+  wide: /^[1234](th|st|nd|rd)? quarter/i
+};
+var parseQuarterPatterns = {
+  any: [/1/i, /2/i, /3/i, /4/i]
+};
+var matchMonthPatterns = {
+  narrow: /^[jfmasond]/i,
+  abbreviated: /^(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i,
+  wide: /^(january|february|march|april|may|june|july|august|september|october|november|december)/i
+};
+var parseMonthPatterns = {
+  narrow: [
+    /^j/i,
+    /^f/i,
+    /^m/i,
+    /^a/i,
+    /^m/i,
+    /^j/i,
+    /^j/i,
+    /^a/i,
+    /^s/i,
+    /^o/i,
+    /^n/i,
+    /^d/i
+  ],
+  any: [
+    /^ja/i,
+    /^f/i,
+    /^mar/i,
+    /^ap/i,
+    /^may/i,
+    /^jun/i,
+    /^jul/i,
+    /^au/i,
+    /^s/i,
+    /^o/i,
+    /^n/i,
+    /^d/i
+  ]
+};
+var matchDayPatterns = {
+  narrow: /^[smtwf]/i,
+  short: /^(su|mo|tu|we|th|fr|sa)/i,
+  abbreviated: /^(sun|mon|tue|wed|thu|fri|sat)/i,
+  wide: /^(sunday|monday|tuesday|wednesday|thursday|friday|saturday)/i
+};
+var parseDayPatterns = {
+  narrow: [/^s/i, /^m/i, /^t/i, /^w/i, /^t/i, /^f/i, /^s/i],
+  any: [/^su/i, /^m/i, /^tu/i, /^w/i, /^th/i, /^f/i, /^sa/i]
+};
+var matchDayPeriodPatterns = {
+  narrow: /^(a|p|mi|n|(in the|at) (morning|afternoon|evening|night))/i,
+  any: /^([ap]\.?\s?m\.?|midnight|noon|(in the|at) (morning|afternoon|evening|night))/i
+};
+var parseDayPeriodPatterns = {
+  any: {
+    am: /^a/i,
+    pm: /^p/i,
+    midnight: /^mi/i,
+    noon: /^no/i,
+    morning: /morning/i,
+    afternoon: /afternoon/i,
+    evening: /evening/i,
+    night: /night/i
+  }
+};
+var match = {
+  ordinalNumber: buildMatchPatternFn({
+    matchPattern: matchOrdinalNumberPattern,
+    parsePattern: parseOrdinalNumberPattern,
+    valueCallback: (value) => parseInt(value, 10)
+  }),
+  era: buildMatchFn({
+    matchPatterns: matchEraPatterns,
+    defaultMatchWidth: "wide",
+    parsePatterns: parseEraPatterns,
+    defaultParseWidth: "any"
+  }),
+  quarter: buildMatchFn({
+    matchPatterns: matchQuarterPatterns,
+    defaultMatchWidth: "wide",
+    parsePatterns: parseQuarterPatterns,
+    defaultParseWidth: "any",
+    valueCallback: (index) => index + 1
+  }),
+  month: buildMatchFn({
+    matchPatterns: matchMonthPatterns,
+    defaultMatchWidth: "wide",
+    parsePatterns: parseMonthPatterns,
+    defaultParseWidth: "any"
+  }),
+  day: buildMatchFn({
+    matchPatterns: matchDayPatterns,
+    defaultMatchWidth: "wide",
+    parsePatterns: parseDayPatterns,
+    defaultParseWidth: "any"
+  }),
+  dayPeriod: buildMatchFn({
+    matchPatterns: matchDayPeriodPatterns,
+    defaultMatchWidth: "any",
+    parsePatterns: parseDayPeriodPatterns,
+    defaultParseWidth: "any"
+  })
+};
+
+// node_modules/date-fns/locale/en-US.js
+var enUS = {
+  code: "en-US",
+  formatDistance,
+  formatLong,
+  formatRelative,
+  localize,
+  match,
+  options: {
+    weekStartsOn: 0,
+    firstWeekContainsDate: 1
+  }
+};
+
+// node_modules/date-fns/getDayOfYear.js
+function getDayOfYear(date, options) {
+  const _date = toDate2(date, options?.in);
+  const diff = differenceInCalendarDays(_date, startOfYear(_date));
+  const dayOfYear = diff + 1;
+  return dayOfYear;
+}
+
+// node_modules/date-fns/getISOWeek.js
+function getISOWeek(date, options) {
+  const _date = toDate2(date, options?.in);
+  const diff = +startOfISOWeek(_date) - +startOfISOWeekYear(_date);
+  return Math.round(diff / millisecondsInWeek) + 1;
+}
+
+// node_modules/date-fns/getWeekYear.js
+function getWeekYear(date, options) {
+  const _date = toDate2(date, options?.in);
+  const year = _date.getFullYear();
+  const defaultOptions2 = getDefaultOptions();
+  const firstWeekContainsDate = options?.firstWeekContainsDate ?? options?.locale?.options?.firstWeekContainsDate ?? defaultOptions2.firstWeekContainsDate ?? defaultOptions2.locale?.options?.firstWeekContainsDate ?? 1;
+  const firstWeekOfNextYear = constructFrom(options?.in || date, 0);
+  firstWeekOfNextYear.setFullYear(year + 1, 0, firstWeekContainsDate);
+  firstWeekOfNextYear.setHours(0, 0, 0, 0);
+  const startOfNextYear = startOfWeek(firstWeekOfNextYear, options);
+  const firstWeekOfThisYear = constructFrom(options?.in || date, 0);
+  firstWeekOfThisYear.setFullYear(year, 0, firstWeekContainsDate);
+  firstWeekOfThisYear.setHours(0, 0, 0, 0);
+  const startOfThisYear = startOfWeek(firstWeekOfThisYear, options);
+  if (+_date >= +startOfNextYear) {
+    return year + 1;
+  } else if (+_date >= +startOfThisYear) {
+    return year;
+  } else {
+    return year - 1;
+  }
+}
+
+// node_modules/date-fns/startOfWeekYear.js
+function startOfWeekYear(date, options) {
+  const defaultOptions2 = getDefaultOptions();
+  const firstWeekContainsDate = options?.firstWeekContainsDate ?? options?.locale?.options?.firstWeekContainsDate ?? defaultOptions2.firstWeekContainsDate ?? defaultOptions2.locale?.options?.firstWeekContainsDate ?? 1;
+  const year = getWeekYear(date, options);
+  const firstWeek = constructFrom(options?.in || date, 0);
+  firstWeek.setFullYear(year, 0, firstWeekContainsDate);
+  firstWeek.setHours(0, 0, 0, 0);
+  const _date = startOfWeek(firstWeek, options);
+  return _date;
+}
+
+// node_modules/date-fns/getWeek.js
+function getWeek(date, options) {
+  const _date = toDate2(date, options?.in);
+  const diff = +startOfWeek(_date, options) - +startOfWeekYear(_date, options);
+  return Math.round(diff / millisecondsInWeek) + 1;
+}
+
+// node_modules/date-fns/_lib/addLeadingZeros.js
+function addLeadingZeros(number, targetLength) {
+  const sign = number < 0 ? "-" : "";
+  const output2 = Math.abs(number).toString().padStart(targetLength, "0");
+  return sign + output2;
+}
+
+// node_modules/date-fns/_lib/format/lightFormatters.js
+var lightFormatters = {
+  // Year
+  y(date, token) {
+    const signedYear = date.getFullYear();
+    const year = signedYear > 0 ? signedYear : 1 - signedYear;
+    return addLeadingZeros(token === "yy" ? year % 100 : year, token.length);
+  },
+  // Month
+  M(date, token) {
+    const month = date.getMonth();
+    return token === "M" ? String(month + 1) : addLeadingZeros(month + 1, 2);
+  },
+  // Day of the month
+  d(date, token) {
+    return addLeadingZeros(date.getDate(), token.length);
+  },
+  // AM or PM
+  a(date, token) {
+    const dayPeriodEnumValue = date.getHours() / 12 >= 1 ? "pm" : "am";
+    switch (token) {
+      case "a":
+      case "aa":
+        return dayPeriodEnumValue.toUpperCase();
+      case "aaa":
+        return dayPeriodEnumValue;
+      case "aaaaa":
+        return dayPeriodEnumValue[0];
+      case "aaaa":
+      default:
+        return dayPeriodEnumValue === "am" ? "a.m." : "p.m.";
+    }
+  },
+  // Hour [1-12]
+  h(date, token) {
+    return addLeadingZeros(date.getHours() % 12 || 12, token.length);
+  },
+  // Hour [0-23]
+  H(date, token) {
+    return addLeadingZeros(date.getHours(), token.length);
+  },
+  // Minute
+  m(date, token) {
+    return addLeadingZeros(date.getMinutes(), token.length);
+  },
+  // Second
+  s(date, token) {
+    return addLeadingZeros(date.getSeconds(), token.length);
+  },
+  // Fraction of second
+  S(date, token) {
+    const numberOfDigits = token.length;
+    const milliseconds = date.getMilliseconds();
+    const fractionalSeconds = Math.trunc(
+      milliseconds * Math.pow(10, numberOfDigits - 3)
+    );
+    return addLeadingZeros(fractionalSeconds, token.length);
+  }
+};
+
+// node_modules/date-fns/_lib/format/formatters.js
+var dayPeriodEnum = {
+  am: "am",
+  pm: "pm",
+  midnight: "midnight",
+  noon: "noon",
+  morning: "morning",
+  afternoon: "afternoon",
+  evening: "evening",
+  night: "night"
+};
+var formatters = {
+  // Era
+  G: function(date, token, localize2) {
+    const era = date.getFullYear() > 0 ? 1 : 0;
+    switch (token) {
+      // AD, BC
+      case "G":
+      case "GG":
+      case "GGG":
+        return localize2.era(era, { width: "abbreviated" });
+      // A, B
+      case "GGGGG":
+        return localize2.era(era, { width: "narrow" });
+      // Anno Domini, Before Christ
+      case "GGGG":
+      default:
+        return localize2.era(era, { width: "wide" });
+    }
+  },
+  // Year
+  y: function(date, token, localize2) {
+    if (token === "yo") {
+      const signedYear = date.getFullYear();
+      const year = signedYear > 0 ? signedYear : 1 - signedYear;
+      return localize2.ordinalNumber(year, { unit: "year" });
+    }
+    return lightFormatters.y(date, token);
+  },
+  // Local week-numbering year
+  Y: function(date, token, localize2, options) {
+    const signedWeekYear = getWeekYear(date, options);
+    const weekYear = signedWeekYear > 0 ? signedWeekYear : 1 - signedWeekYear;
+    if (token === "YY") {
+      const twoDigitYear = weekYear % 100;
+      return addLeadingZeros(twoDigitYear, 2);
+    }
+    if (token === "Yo") {
+      return localize2.ordinalNumber(weekYear, { unit: "year" });
+    }
+    return addLeadingZeros(weekYear, token.length);
+  },
+  // ISO week-numbering year
+  R: function(date, token) {
+    const isoWeekYear = getISOWeekYear(date);
+    return addLeadingZeros(isoWeekYear, token.length);
+  },
+  // Extended year. This is a single number designating the year of this calendar system.
+  // The main difference between `y` and `u` localizers are B.C. years:
+  // | Year | `y` | `u` |
+  // |------|-----|-----|
+  // | AC 1 |   1 |   1 |
+  // | BC 1 |   1 |   0 |
+  // | BC 2 |   2 |  -1 |
+  // Also `yy` always returns the last two digits of a year,
+  // while `uu` pads single digit years to 2 characters and returns other years unchanged.
+  u: function(date, token) {
+    const year = date.getFullYear();
+    return addLeadingZeros(year, token.length);
+  },
+  // Quarter
+  Q: function(date, token, localize2) {
+    const quarter = Math.ceil((date.getMonth() + 1) / 3);
+    switch (token) {
+      // 1, 2, 3, 4
+      case "Q":
+        return String(quarter);
+      // 01, 02, 03, 04
+      case "QQ":
+        return addLeadingZeros(quarter, 2);
+      // 1st, 2nd, 3rd, 4th
+      case "Qo":
+        return localize2.ordinalNumber(quarter, { unit: "quarter" });
+      // Q1, Q2, Q3, Q4
+      case "QQQ":
+        return localize2.quarter(quarter, {
+          width: "abbreviated",
+          context: "formatting"
+        });
+      // 1, 2, 3, 4 (narrow quarter; could be not numerical)
+      case "QQQQQ":
+        return localize2.quarter(quarter, {
+          width: "narrow",
+          context: "formatting"
+        });
+      // 1st quarter, 2nd quarter, ...
+      case "QQQQ":
+      default:
+        return localize2.quarter(quarter, {
+          width: "wide",
+          context: "formatting"
+        });
+    }
+  },
+  // Stand-alone quarter
+  q: function(date, token, localize2) {
+    const quarter = Math.ceil((date.getMonth() + 1) / 3);
+    switch (token) {
+      // 1, 2, 3, 4
+      case "q":
+        return String(quarter);
+      // 01, 02, 03, 04
+      case "qq":
+        return addLeadingZeros(quarter, 2);
+      // 1st, 2nd, 3rd, 4th
+      case "qo":
+        return localize2.ordinalNumber(quarter, { unit: "quarter" });
+      // Q1, Q2, Q3, Q4
+      case "qqq":
+        return localize2.quarter(quarter, {
+          width: "abbreviated",
+          context: "standalone"
+        });
+      // 1, 2, 3, 4 (narrow quarter; could be not numerical)
+      case "qqqqq":
+        return localize2.quarter(quarter, {
+          width: "narrow",
+          context: "standalone"
+        });
+      // 1st quarter, 2nd quarter, ...
+      case "qqqq":
+      default:
+        return localize2.quarter(quarter, {
+          width: "wide",
+          context: "standalone"
+        });
+    }
+  },
+  // Month
+  M: function(date, token, localize2) {
+    const month = date.getMonth();
+    switch (token) {
+      case "M":
+      case "MM":
+        return lightFormatters.M(date, token);
+      // 1st, 2nd, ..., 12th
+      case "Mo":
+        return localize2.ordinalNumber(month + 1, { unit: "month" });
+      // Jan, Feb, ..., Dec
+      case "MMM":
+        return localize2.month(month, {
+          width: "abbreviated",
+          context: "formatting"
+        });
+      // J, F, ..., D
+      case "MMMMM":
+        return localize2.month(month, {
+          width: "narrow",
+          context: "formatting"
+        });
+      // January, February, ..., December
+      case "MMMM":
+      default:
+        return localize2.month(month, { width: "wide", context: "formatting" });
+    }
+  },
+  // Stand-alone month
+  L: function(date, token, localize2) {
+    const month = date.getMonth();
+    switch (token) {
+      // 1, 2, ..., 12
+      case "L":
+        return String(month + 1);
+      // 01, 02, ..., 12
+      case "LL":
+        return addLeadingZeros(month + 1, 2);
+      // 1st, 2nd, ..., 12th
+      case "Lo":
+        return localize2.ordinalNumber(month + 1, { unit: "month" });
+      // Jan, Feb, ..., Dec
+      case "LLL":
+        return localize2.month(month, {
+          width: "abbreviated",
+          context: "standalone"
+        });
+      // J, F, ..., D
+      case "LLLLL":
+        return localize2.month(month, {
+          width: "narrow",
+          context: "standalone"
+        });
+      // January, February, ..., December
+      case "LLLL":
+      default:
+        return localize2.month(month, { width: "wide", context: "standalone" });
+    }
+  },
+  // Local week of year
+  w: function(date, token, localize2, options) {
+    const week = getWeek(date, options);
+    if (token === "wo") {
+      return localize2.ordinalNumber(week, { unit: "week" });
+    }
+    return addLeadingZeros(week, token.length);
+  },
+  // ISO week of year
+  I: function(date, token, localize2) {
+    const isoWeek = getISOWeek(date);
+    if (token === "Io") {
+      return localize2.ordinalNumber(isoWeek, { unit: "week" });
+    }
+    return addLeadingZeros(isoWeek, token.length);
+  },
+  // Day of the month
+  d: function(date, token, localize2) {
+    if (token === "do") {
+      return localize2.ordinalNumber(date.getDate(), { unit: "date" });
+    }
+    return lightFormatters.d(date, token);
+  },
+  // Day of year
+  D: function(date, token, localize2) {
+    const dayOfYear = getDayOfYear(date);
+    if (token === "Do") {
+      return localize2.ordinalNumber(dayOfYear, { unit: "dayOfYear" });
+    }
+    return addLeadingZeros(dayOfYear, token.length);
+  },
+  // Day of week
+  E: function(date, token, localize2) {
+    const dayOfWeek = date.getDay();
+    switch (token) {
+      // Tue
+      case "E":
+      case "EE":
+      case "EEE":
+        return localize2.day(dayOfWeek, {
+          width: "abbreviated",
+          context: "formatting"
+        });
+      // T
+      case "EEEEE":
+        return localize2.day(dayOfWeek, {
+          width: "narrow",
+          context: "formatting"
+        });
+      // Tu
+      case "EEEEEE":
+        return localize2.day(dayOfWeek, {
+          width: "short",
+          context: "formatting"
+        });
+      // Tuesday
+      case "EEEE":
+      default:
+        return localize2.day(dayOfWeek, {
+          width: "wide",
+          context: "formatting"
+        });
+    }
+  },
+  // Local day of week
+  e: function(date, token, localize2, options) {
+    const dayOfWeek = date.getDay();
+    const localDayOfWeek = (dayOfWeek - options.weekStartsOn + 8) % 7 || 7;
+    switch (token) {
+      // Numerical value (Nth day of week with current locale or weekStartsOn)
+      case "e":
+        return String(localDayOfWeek);
+      // Padded numerical value
+      case "ee":
+        return addLeadingZeros(localDayOfWeek, 2);
+      // 1st, 2nd, ..., 7th
+      case "eo":
+        return localize2.ordinalNumber(localDayOfWeek, { unit: "day" });
+      case "eee":
+        return localize2.day(dayOfWeek, {
+          width: "abbreviated",
+          context: "formatting"
+        });
+      // T
+      case "eeeee":
+        return localize2.day(dayOfWeek, {
+          width: "narrow",
+          context: "formatting"
+        });
+      // Tu
+      case "eeeeee":
+        return localize2.day(dayOfWeek, {
+          width: "short",
+          context: "formatting"
+        });
+      // Tuesday
+      case "eeee":
+      default:
+        return localize2.day(dayOfWeek, {
+          width: "wide",
+          context: "formatting"
+        });
+    }
+  },
+  // Stand-alone local day of week
+  c: function(date, token, localize2, options) {
+    const dayOfWeek = date.getDay();
+    const localDayOfWeek = (dayOfWeek - options.weekStartsOn + 8) % 7 || 7;
+    switch (token) {
+      // Numerical value (same as in `e`)
+      case "c":
+        return String(localDayOfWeek);
+      // Padded numerical value
+      case "cc":
+        return addLeadingZeros(localDayOfWeek, token.length);
+      // 1st, 2nd, ..., 7th
+      case "co":
+        return localize2.ordinalNumber(localDayOfWeek, { unit: "day" });
+      case "ccc":
+        return localize2.day(dayOfWeek, {
+          width: "abbreviated",
+          context: "standalone"
+        });
+      // T
+      case "ccccc":
+        return localize2.day(dayOfWeek, {
+          width: "narrow",
+          context: "standalone"
+        });
+      // Tu
+      case "cccccc":
+        return localize2.day(dayOfWeek, {
+          width: "short",
+          context: "standalone"
+        });
+      // Tuesday
+      case "cccc":
+      default:
+        return localize2.day(dayOfWeek, {
+          width: "wide",
+          context: "standalone"
+        });
+    }
+  },
+  // ISO day of week
+  i: function(date, token, localize2) {
+    const dayOfWeek = date.getDay();
+    const isoDayOfWeek = dayOfWeek === 0 ? 7 : dayOfWeek;
+    switch (token) {
+      // 2
+      case "i":
+        return String(isoDayOfWeek);
+      // 02
+      case "ii":
+        return addLeadingZeros(isoDayOfWeek, token.length);
+      // 2nd
+      case "io":
+        return localize2.ordinalNumber(isoDayOfWeek, { unit: "day" });
+      // Tue
+      case "iii":
+        return localize2.day(dayOfWeek, {
+          width: "abbreviated",
+          context: "formatting"
+        });
+      // T
+      case "iiiii":
+        return localize2.day(dayOfWeek, {
+          width: "narrow",
+          context: "formatting"
+        });
+      // Tu
+      case "iiiiii":
+        return localize2.day(dayOfWeek, {
+          width: "short",
+          context: "formatting"
+        });
+      // Tuesday
+      case "iiii":
+      default:
+        return localize2.day(dayOfWeek, {
+          width: "wide",
+          context: "formatting"
+        });
+    }
+  },
+  // AM or PM
+  a: function(date, token, localize2) {
+    const hours = date.getHours();
+    const dayPeriodEnumValue = hours / 12 >= 1 ? "pm" : "am";
+    switch (token) {
+      case "a":
+      case "aa":
+        return localize2.dayPeriod(dayPeriodEnumValue, {
+          width: "abbreviated",
+          context: "formatting"
+        });
+      case "aaa":
+        return localize2.dayPeriod(dayPeriodEnumValue, {
+          width: "abbreviated",
+          context: "formatting"
+        }).toLowerCase();
+      case "aaaaa":
+        return localize2.dayPeriod(dayPeriodEnumValue, {
+          width: "narrow",
+          context: "formatting"
+        });
+      case "aaaa":
+      default:
+        return localize2.dayPeriod(dayPeriodEnumValue, {
+          width: "wide",
+          context: "formatting"
+        });
+    }
+  },
+  // AM, PM, midnight, noon
+  b: function(date, token, localize2) {
+    const hours = date.getHours();
+    let dayPeriodEnumValue;
+    if (hours === 12) {
+      dayPeriodEnumValue = dayPeriodEnum.noon;
+    } else if (hours === 0) {
+      dayPeriodEnumValue = dayPeriodEnum.midnight;
+    } else {
+      dayPeriodEnumValue = hours / 12 >= 1 ? "pm" : "am";
+    }
+    switch (token) {
+      case "b":
+      case "bb":
+        return localize2.dayPeriod(dayPeriodEnumValue, {
+          width: "abbreviated",
+          context: "formatting"
+        });
+      case "bbb":
+        return localize2.dayPeriod(dayPeriodEnumValue, {
+          width: "abbreviated",
+          context: "formatting"
+        }).toLowerCase();
+      case "bbbbb":
+        return localize2.dayPeriod(dayPeriodEnumValue, {
+          width: "narrow",
+          context: "formatting"
+        });
+      case "bbbb":
+      default:
+        return localize2.dayPeriod(dayPeriodEnumValue, {
+          width: "wide",
+          context: "formatting"
+        });
+    }
+  },
+  // in the morning, in the afternoon, in the evening, at night
+  B: function(date, token, localize2) {
+    const hours = date.getHours();
+    let dayPeriodEnumValue;
+    if (hours >= 17) {
+      dayPeriodEnumValue = dayPeriodEnum.evening;
+    } else if (hours >= 12) {
+      dayPeriodEnumValue = dayPeriodEnum.afternoon;
+    } else if (hours >= 4) {
+      dayPeriodEnumValue = dayPeriodEnum.morning;
+    } else {
+      dayPeriodEnumValue = dayPeriodEnum.night;
+    }
+    switch (token) {
+      case "B":
+      case "BB":
+      case "BBB":
+        return localize2.dayPeriod(dayPeriodEnumValue, {
+          width: "abbreviated",
+          context: "formatting"
+        });
+      case "BBBBB":
+        return localize2.dayPeriod(dayPeriodEnumValue, {
+          width: "narrow",
+          context: "formatting"
+        });
+      case "BBBB":
+      default:
+        return localize2.dayPeriod(dayPeriodEnumValue, {
+          width: "wide",
+          context: "formatting"
+        });
+    }
+  },
+  // Hour [1-12]
+  h: function(date, token, localize2) {
+    if (token === "ho") {
+      let hours = date.getHours() % 12;
+      if (hours === 0) hours = 12;
+      return localize2.ordinalNumber(hours, { unit: "hour" });
+    }
+    return lightFormatters.h(date, token);
+  },
+  // Hour [0-23]
+  H: function(date, token, localize2) {
+    if (token === "Ho") {
+      return localize2.ordinalNumber(date.getHours(), { unit: "hour" });
+    }
+    return lightFormatters.H(date, token);
+  },
+  // Hour [0-11]
+  K: function(date, token, localize2) {
+    const hours = date.getHours() % 12;
+    if (token === "Ko") {
+      return localize2.ordinalNumber(hours, { unit: "hour" });
+    }
+    return addLeadingZeros(hours, token.length);
+  },
+  // Hour [1-24]
+  k: function(date, token, localize2) {
+    let hours = date.getHours();
+    if (hours === 0) hours = 24;
+    if (token === "ko") {
+      return localize2.ordinalNumber(hours, { unit: "hour" });
+    }
+    return addLeadingZeros(hours, token.length);
+  },
+  // Minute
+  m: function(date, token, localize2) {
+    if (token === "mo") {
+      return localize2.ordinalNumber(date.getMinutes(), { unit: "minute" });
+    }
+    return lightFormatters.m(date, token);
+  },
+  // Second
+  s: function(date, token, localize2) {
+    if (token === "so") {
+      return localize2.ordinalNumber(date.getSeconds(), { unit: "second" });
+    }
+    return lightFormatters.s(date, token);
+  },
+  // Fraction of second
+  S: function(date, token) {
+    return lightFormatters.S(date, token);
+  },
+  // Timezone (ISO-8601. If offset is 0, output is always `'Z'`)
+  X: function(date, token, _localize) {
+    const timezoneOffset = date.getTimezoneOffset();
+    if (timezoneOffset === 0) {
+      return "Z";
+    }
+    switch (token) {
+      // Hours and optional minutes
+      case "X":
+        return formatTimezoneWithOptionalMinutes(timezoneOffset);
+      // Hours, minutes and optional seconds without `:` delimiter
+      // Note: neither ISO-8601 nor JavaScript supports seconds in timezone offsets
+      // so this token always has the same output as `XX`
+      case "XXXX":
+      case "XX":
+        return formatTimezone(timezoneOffset);
+      // Hours, minutes and optional seconds with `:` delimiter
+      // Note: neither ISO-8601 nor JavaScript supports seconds in timezone offsets
+      // so this token always has the same output as `XXX`
+      case "XXXXX":
+      case "XXX":
+      // Hours and minutes with `:` delimiter
+      default:
+        return formatTimezone(timezoneOffset, ":");
+    }
+  },
+  // Timezone (ISO-8601. If offset is 0, output is `'+00:00'` or equivalent)
+  x: function(date, token, _localize) {
+    const timezoneOffset = date.getTimezoneOffset();
+    switch (token) {
+      // Hours and optional minutes
+      case "x":
+        return formatTimezoneWithOptionalMinutes(timezoneOffset);
+      // Hours, minutes and optional seconds without `:` delimiter
+      // Note: neither ISO-8601 nor JavaScript supports seconds in timezone offsets
+      // so this token always has the same output as `xx`
+      case "xxxx":
+      case "xx":
+        return formatTimezone(timezoneOffset);
+      // Hours, minutes and optional seconds with `:` delimiter
+      // Note: neither ISO-8601 nor JavaScript supports seconds in timezone offsets
+      // so this token always has the same output as `xxx`
+      case "xxxxx":
+      case "xxx":
+      // Hours and minutes with `:` delimiter
+      default:
+        return formatTimezone(timezoneOffset, ":");
+    }
+  },
+  // Timezone (GMT)
+  O: function(date, token, _localize) {
+    const timezoneOffset = date.getTimezoneOffset();
+    switch (token) {
+      // Short
+      case "O":
+      case "OO":
+      case "OOO":
+        return "GMT" + formatTimezoneShort(timezoneOffset, ":");
+      // Long
+      case "OOOO":
+      default:
+        return "GMT" + formatTimezone(timezoneOffset, ":");
+    }
+  },
+  // Timezone (specific non-location)
+  z: function(date, token, _localize) {
+    const timezoneOffset = date.getTimezoneOffset();
+    switch (token) {
+      // Short
+      case "z":
+      case "zz":
+      case "zzz":
+        return "GMT" + formatTimezoneShort(timezoneOffset, ":");
+      // Long
+      case "zzzz":
+      default:
+        return "GMT" + formatTimezone(timezoneOffset, ":");
+    }
+  },
+  // Seconds timestamp
+  t: function(date, token, _localize) {
+    const timestamp = Math.trunc(+date / 1e3);
+    return addLeadingZeros(timestamp, token.length);
+  },
+  // Milliseconds timestamp
+  T: function(date, token, _localize) {
+    return addLeadingZeros(+date, token.length);
+  }
+};
+function formatTimezoneShort(offset, delimiter = "") {
+  const sign = offset > 0 ? "-" : "+";
+  const absOffset = Math.abs(offset);
+  const hours = Math.trunc(absOffset / 60);
+  const minutes = absOffset % 60;
+  if (minutes === 0) {
+    return sign + String(hours);
+  }
+  return sign + String(hours) + delimiter + addLeadingZeros(minutes, 2);
+}
+function formatTimezoneWithOptionalMinutes(offset, delimiter) {
+  if (offset % 60 === 0) {
+    const sign = offset > 0 ? "-" : "+";
+    return sign + addLeadingZeros(Math.abs(offset) / 60, 2);
+  }
+  return formatTimezone(offset, delimiter);
+}
+function formatTimezone(offset, delimiter = "") {
+  const sign = offset > 0 ? "-" : "+";
+  const absOffset = Math.abs(offset);
+  const hours = addLeadingZeros(Math.trunc(absOffset / 60), 2);
+  const minutes = addLeadingZeros(absOffset % 60, 2);
+  return sign + hours + delimiter + minutes;
+}
+
+// node_modules/date-fns/_lib/format/longFormatters.js
+var dateLongFormatter = (pattern, formatLong2) => {
+  switch (pattern) {
+    case "P":
+      return formatLong2.date({ width: "short" });
+    case "PP":
+      return formatLong2.date({ width: "medium" });
+    case "PPP":
+      return formatLong2.date({ width: "long" });
+    case "PPPP":
+    default:
+      return formatLong2.date({ width: "full" });
+  }
+};
+var timeLongFormatter = (pattern, formatLong2) => {
+  switch (pattern) {
+    case "p":
+      return formatLong2.time({ width: "short" });
+    case "pp":
+      return formatLong2.time({ width: "medium" });
+    case "ppp":
+      return formatLong2.time({ width: "long" });
+    case "pppp":
+    default:
+      return formatLong2.time({ width: "full" });
+  }
+};
+var dateTimeLongFormatter = (pattern, formatLong2) => {
+  const matchResult = pattern.match(/(P+)(p+)?/) || [];
+  const datePattern = matchResult[1];
+  const timePattern = matchResult[2];
+  if (!timePattern) {
+    return dateLongFormatter(pattern, formatLong2);
+  }
+  let dateTimeFormat;
+  switch (datePattern) {
+    case "P":
+      dateTimeFormat = formatLong2.dateTime({ width: "short" });
+      break;
+    case "PP":
+      dateTimeFormat = formatLong2.dateTime({ width: "medium" });
+      break;
+    case "PPP":
+      dateTimeFormat = formatLong2.dateTime({ width: "long" });
+      break;
+    case "PPPP":
+    default:
+      dateTimeFormat = formatLong2.dateTime({ width: "full" });
+      break;
+  }
+  return dateTimeFormat.replace("{{date}}", dateLongFormatter(datePattern, formatLong2)).replace("{{time}}", timeLongFormatter(timePattern, formatLong2));
+};
+var longFormatters = {
+  p: timeLongFormatter,
+  P: dateTimeLongFormatter
+};
+
+// node_modules/date-fns/_lib/protectedTokens.js
+var dayOfYearTokenRE = /^D+$/;
+var weekYearTokenRE = /^Y+$/;
+var throwTokens = ["D", "DD", "YY", "YYYY"];
+function isProtectedDayOfYearToken(token) {
+  return dayOfYearTokenRE.test(token);
+}
+function isProtectedWeekYearToken(token) {
+  return weekYearTokenRE.test(token);
+}
+function warnOrThrowProtectedError(token, format3, input2) {
+  const _message = message(token, format3, input2);
+  console.warn(_message);
+  if (throwTokens.includes(token)) throw new RangeError(_message);
+}
+function message(token, format3, input2) {
+  const subject = token[0] === "Y" ? "years" : "days of the month";
+  return `Use \`${token.toLowerCase()}\` instead of \`${token}\` (in \`${format3}\`) for formatting ${subject} to the input \`${input2}\`; see: https://github.com/date-fns/date-fns/blob/master/docs/unicodeTokens.md`;
+}
+
+// node_modules/date-fns/format.js
+var formattingTokensRegExp = /[yYQqMLwIdDecihHKkms]o|(\w)\1*|''|'(''|[^'])+('|$)|./g;
+var longFormattingTokensRegExp = /P+p+|P+|p+|''|'(''|[^'])+('|$)|./g;
+var escapedStringRegExp = /^'([^]*?)'?$/;
+var doubleQuoteRegExp = /''/g;
+var unescapedLatinCharacterRegExp = /[a-zA-Z]/;
+function format(date, formatStr, options) {
+  const defaultOptions2 = getDefaultOptions();
+  const locale = options?.locale ?? defaultOptions2.locale ?? enUS;
+  const firstWeekContainsDate = options?.firstWeekContainsDate ?? options?.locale?.options?.firstWeekContainsDate ?? defaultOptions2.firstWeekContainsDate ?? defaultOptions2.locale?.options?.firstWeekContainsDate ?? 1;
+  const weekStartsOn = options?.weekStartsOn ?? options?.locale?.options?.weekStartsOn ?? defaultOptions2.weekStartsOn ?? defaultOptions2.locale?.options?.weekStartsOn ?? 0;
+  const originalDate = toDate2(date, options?.in);
+  if (!isValid(originalDate)) {
+    throw new RangeError("Invalid time value");
+  }
+  let parts = formatStr.match(longFormattingTokensRegExp).map((substring) => {
+    const firstCharacter = substring[0];
+    if (firstCharacter === "p" || firstCharacter === "P") {
+      const longFormatter = longFormatters[firstCharacter];
+      return longFormatter(substring, locale.formatLong);
+    }
+    return substring;
+  }).join("").match(formattingTokensRegExp).map((substring) => {
+    if (substring === "''") {
+      return { isToken: false, value: "'" };
+    }
+    const firstCharacter = substring[0];
+    if (firstCharacter === "'") {
+      return { isToken: false, value: cleanEscapedString(substring) };
+    }
+    if (formatters[firstCharacter]) {
+      return { isToken: true, value: substring };
+    }
+    if (firstCharacter.match(unescapedLatinCharacterRegExp)) {
+      throw new RangeError(
+        "Format string contains an unescaped latin alphabet character `" + firstCharacter + "`"
+      );
+    }
+    return { isToken: false, value: substring };
+  });
+  if (locale.localize.preprocessor) {
+    parts = locale.localize.preprocessor(originalDate, parts);
+  }
+  const formatterOptions = {
+    firstWeekContainsDate,
+    weekStartsOn,
+    locale
+  };
+  return parts.map((part) => {
+    if (!part.isToken) return part.value;
+    const token = part.value;
+    if (!options?.useAdditionalWeekYearTokens && isProtectedWeekYearToken(token) || !options?.useAdditionalDayOfYearTokens && isProtectedDayOfYearToken(token)) {
+      warnOrThrowProtectedError(token, formatStr, String(date));
+    }
+    const formatter2 = formatters[token[0]];
+    return formatter2(originalDate, token, locale.localize, formatterOptions);
+  }).join("");
+}
+function cleanEscapedString(input2) {
+  const matched = input2.match(escapedStringRegExp);
+  if (!matched) {
+    return input2;
+  }
+  return matched[1].replace(doubleQuoteRegExp, "'");
+}
+
+// node_modules/date-fns/formatDuration.js
+var defaultFormat = [
+  "years",
+  "months",
+  "weeks",
+  "days",
+  "hours",
+  "minutes",
+  "seconds"
+];
+function formatDuration(duration, options) {
+  const defaultOptions2 = getDefaultOptions();
+  const locale = options?.locale ?? defaultOptions2.locale ?? enUS;
+  const format3 = options?.format ?? defaultFormat;
+  const zero = options?.zero ?? false;
+  const delimiter = options?.delimiter ?? " ";
+  if (!locale.formatDistance) {
+    return "";
+  }
+  const result = format3.reduce((acc, unit) => {
+    const token = `x${unit.replace(/(^.)/, (m2) => m2.toUpperCase())}`;
+    const value = duration[unit];
+    if (value !== void 0 && (zero || duration[unit])) {
+      return acc.concat(locale.formatDistance(token, value));
+    }
+    return acc;
+  }, []).join(delimiter);
+  return result;
+}
+
+// node_modules/date-fns/getDaysInMonth.js
+function getDaysInMonth(date, options) {
+  const _date = toDate2(date, options?.in);
+  const year = _date.getFullYear();
+  const monthIndex = _date.getMonth();
+  const lastDayOfMonth = constructFrom(_date, 0);
+  lastDayOfMonth.setFullYear(year, monthIndex + 1, 0);
+  lastDayOfMonth.setHours(0, 0, 0, 0);
+  return lastDayOfMonth.getDate();
+}
+
+// node_modules/date-fns/getUnixTime.js
+function getUnixTime(date) {
+  return Math.trunc(+toDate2(date) / 1e3);
+}
+
+// node_modules/date-fns/isAfter.js
+function isAfter(date, dateToCompare) {
+  return +toDate2(date) > +toDate2(dateToCompare);
+}
+
+// node_modules/date-fns/isBefore.js
+function isBefore(date, dateToCompare) {
+  return +toDate2(date) < +toDate2(dateToCompare);
+}
+
+// node_modules/date-fns/setMonth.js
+function setMonth(date, month, options) {
+  const _date = toDate2(date, options?.in);
+  const year = _date.getFullYear();
+  const day = _date.getDate();
+  const midMonth = constructFrom(options?.in || date, 0);
+  midMonth.setFullYear(year, month, 15);
+  midMonth.setHours(0, 0, 0, 0);
+  const daysInMonth = getDaysInMonth(midMonth);
+  _date.setMonth(month, Math.min(day, daysInMonth));
+  return _date;
+}
+
+// node_modules/date-fns/set.js
+function set(date, values, options) {
+  let _date = toDate2(date, options?.in);
+  if (isNaN(+_date)) return constructFrom(options?.in || date, NaN);
+  if (values.year != null) _date.setFullYear(values.year);
+  if (values.month != null) _date = setMonth(_date, values.month);
+  if (values.date != null) _date.setDate(values.date);
+  if (values.hours != null) _date.setHours(values.hours);
+  if (values.minutes != null) _date.setMinutes(values.minutes);
+  if (values.seconds != null) _date.setSeconds(values.seconds);
+  if (values.milliseconds != null) _date.setMilliseconds(values.milliseconds);
+  return _date;
+}
+
+// node_modules/date-fns-tz/dist/esm/_lib/tzTokenizeDate/index.js
+function tzTokenizeDate(date, timeZone) {
+  const dtf = getDateTimeFormat(timeZone);
+  return "formatToParts" in dtf ? partsOffset(dtf, date) : hackyOffset(dtf, date);
+}
+var typeToPos = {
+  year: 0,
+  month: 1,
+  day: 2,
+  hour: 3,
+  minute: 4,
+  second: 5
+};
+function partsOffset(dtf, date) {
+  try {
+    const formatted = dtf.formatToParts(date);
+    const filled = [];
+    for (let i = 0; i < formatted.length; i++) {
+      const pos = typeToPos[formatted[i].type];
+      if (pos !== void 0) {
+        filled[pos] = parseInt(formatted[i].value, 10);
+      }
+    }
+    return filled;
+  } catch (error2) {
+    if (error2 instanceof RangeError) {
+      return [NaN];
+    }
+    throw error2;
+  }
+}
+function hackyOffset(dtf, date) {
+  const formatted = dtf.format(date);
+  const parsed = /(\d+)\/(\d+)\/(\d+),? (\d+):(\d+):(\d+)/.exec(formatted);
+  return [
+    parseInt(parsed[3], 10),
+    parseInt(parsed[1], 10),
+    parseInt(parsed[2], 10),
+    parseInt(parsed[4], 10),
+    parseInt(parsed[5], 10),
+    parseInt(parsed[6], 10)
+  ];
+}
+var dtfCache = {};
+var testDateFormatted = new Intl.DateTimeFormat("en-US", {
+  hourCycle: "h23",
+  timeZone: "America/New_York",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit"
+}).format(/* @__PURE__ */ new Date("2014-06-25T04:00:00.123Z"));
+var hourCycleSupported = testDateFormatted === "06/25/2014, 00:00:00" || testDateFormatted === "\u200E06\u200E/\u200E25\u200E/\u200E2014\u200E \u200E00\u200E:\u200E00\u200E:\u200E00";
+function getDateTimeFormat(timeZone) {
+  if (!dtfCache[timeZone]) {
+    dtfCache[timeZone] = hourCycleSupported ? new Intl.DateTimeFormat("en-US", {
+      hourCycle: "h23",
+      timeZone,
+      year: "numeric",
+      month: "numeric",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit"
+    }) : new Intl.DateTimeFormat("en-US", {
+      hour12: false,
+      timeZone,
+      year: "numeric",
+      month: "numeric",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit"
+    });
+  }
+  return dtfCache[timeZone];
+}
+
+// node_modules/date-fns-tz/dist/esm/_lib/newDateUTC/index.js
+function newDateUTC(fullYear, month, day, hour, minute, second, millisecond) {
+  const utcDate = /* @__PURE__ */ new Date(0);
+  utcDate.setUTCFullYear(fullYear, month, day);
+  utcDate.setUTCHours(hour, minute, second, millisecond);
+  return utcDate;
+}
+
+// node_modules/date-fns-tz/dist/esm/_lib/tzParseTimezone/index.js
+var MILLISECONDS_IN_HOUR = 36e5;
+var MILLISECONDS_IN_MINUTE = 6e4;
+var patterns = {
+  timezone: /([Z+-].*)$/,
+  timezoneZ: /^(Z)$/,
+  timezoneHH: /^([+-]\d{2})$/,
+  timezoneHHMM: /^([+-])(\d{2}):?(\d{2})$/
+};
+function tzParseTimezone(timezoneString, date, isUtcDate) {
+  if (!timezoneString) {
+    return 0;
+  }
+  let token = patterns.timezoneZ.exec(timezoneString);
+  if (token) {
+    return 0;
+  }
+  let hours;
+  let absoluteOffset;
+  token = patterns.timezoneHH.exec(timezoneString);
+  if (token) {
+    hours = parseInt(token[1], 10);
+    if (!validateTimezone(hours)) {
+      return NaN;
+    }
+    return -(hours * MILLISECONDS_IN_HOUR);
+  }
+  token = patterns.timezoneHHMM.exec(timezoneString);
+  if (token) {
+    hours = parseInt(token[2], 10);
+    const minutes = parseInt(token[3], 10);
+    if (!validateTimezone(hours, minutes)) {
+      return NaN;
+    }
+    absoluteOffset = Math.abs(hours) * MILLISECONDS_IN_HOUR + minutes * MILLISECONDS_IN_MINUTE;
+    return token[1] === "+" ? -absoluteOffset : absoluteOffset;
+  }
+  if (isValidTimezoneIANAString(timezoneString)) {
+    date = new Date(date || Date.now());
+    const utcDate = isUtcDate ? date : toUtcDate(date);
+    const offset = calcOffset(utcDate, timezoneString);
+    const fixedOffset = isUtcDate ? offset : fixOffset(date, offset, timezoneString);
+    return -fixedOffset;
+  }
+  return NaN;
+}
+function toUtcDate(date) {
+  return newDateUTC(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds());
+}
+function calcOffset(date, timezoneString) {
+  const tokens = tzTokenizeDate(date, timezoneString);
+  const asUTC = newDateUTC(tokens[0], tokens[1] - 1, tokens[2], tokens[3] % 24, tokens[4], tokens[5], 0).getTime();
+  let asTS = date.getTime();
+  const over = asTS % 1e3;
+  asTS -= over >= 0 ? over : 1e3 + over;
+  return asUTC - asTS;
+}
+function fixOffset(date, offset, timezoneString) {
+  const localTS = date.getTime();
+  let utcGuess = localTS - offset;
+  const o2 = calcOffset(new Date(utcGuess), timezoneString);
+  if (offset === o2) {
+    return offset;
+  }
+  utcGuess -= o2 - offset;
+  const o3 = calcOffset(new Date(utcGuess), timezoneString);
+  if (o2 === o3) {
+    return o2;
+  }
+  return Math.max(o2, o3);
+}
+function validateTimezone(hours, minutes) {
+  return -23 <= hours && hours <= 23 && (minutes == null || 0 <= minutes && minutes <= 59);
+}
+var validIANATimezoneCache = {};
+function isValidTimezoneIANAString(timeZoneString) {
+  if (validIANATimezoneCache[timeZoneString])
+    return true;
+  try {
+    new Intl.DateTimeFormat(void 0, { timeZone: timeZoneString });
+    validIANATimezoneCache[timeZoneString] = true;
+    return true;
+  } catch (error2) {
+    return false;
+  }
+}
+
+// node_modules/date-fns-tz/dist/esm/format/formatters/index.js
+var MILLISECONDS_IN_MINUTE2 = 60 * 1e3;
+
+// node_modules/date-fns-tz/dist/esm/_lib/getTimezoneOffsetInMilliseconds/index.js
+function getTimezoneOffsetInMilliseconds2(date) {
+  const utcDate = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds()));
+  utcDate.setUTCFullYear(date.getFullYear());
+  return +date - +utcDate;
+}
+
+// node_modules/date-fns-tz/dist/esm/_lib/tzPattern/index.js
+var tzPattern = /(Z|[+-]\d{2}(?::?\d{2})?| UTC| [a-zA-Z]+\/[a-zA-Z_]+(?:\/[a-zA-Z_]+)?)$/;
+
+// node_modules/date-fns-tz/dist/esm/toDate/index.js
+var MILLISECONDS_IN_HOUR2 = 36e5;
+var MILLISECONDS_IN_MINUTE3 = 6e4;
+var DEFAULT_ADDITIONAL_DIGITS = 2;
+var patterns2 = {
+  dateTimePattern: /^([0-9W+-]+)(T| )(.*)/,
+  datePattern: /^([0-9W+-]+)(.*)/,
+  plainTime: /:/,
+  // year tokens
+  YY: /^(\d{2})$/,
+  YYY: [
+    /^([+-]\d{2})$/,
+    // 0 additional digits
+    /^([+-]\d{3})$/,
+    // 1 additional digit
+    /^([+-]\d{4})$/
+    // 2 additional digits
+  ],
+  YYYY: /^(\d{4})/,
+  YYYYY: [
+    /^([+-]\d{4})/,
+    // 0 additional digits
+    /^([+-]\d{5})/,
+    // 1 additional digit
+    /^([+-]\d{6})/
+    // 2 additional digits
+  ],
+  // date tokens
+  MM: /^-(\d{2})$/,
+  DDD: /^-?(\d{3})$/,
+  MMDD: /^-?(\d{2})-?(\d{2})$/,
+  Www: /^-?W(\d{2})$/,
+  WwwD: /^-?W(\d{2})-?(\d{1})$/,
+  HH: /^(\d{2}([.,]\d*)?)$/,
+  HHMM: /^(\d{2}):?(\d{2}([.,]\d*)?)$/,
+  HHMMSS: /^(\d{2}):?(\d{2}):?(\d{2}([.,]\d*)?)$/,
+  // time zone tokens (to identify the presence of a tz)
+  timeZone: tzPattern
+};
+function toDate3(argument, options = {}) {
+  if (arguments.length < 1) {
+    throw new TypeError("1 argument required, but only " + arguments.length + " present");
+  }
+  if (argument === null) {
+    return /* @__PURE__ */ new Date(NaN);
+  }
+  const additionalDigits = options.additionalDigits == null ? DEFAULT_ADDITIONAL_DIGITS : Number(options.additionalDigits);
+  if (additionalDigits !== 2 && additionalDigits !== 1 && additionalDigits !== 0) {
+    throw new RangeError("additionalDigits must be 0, 1 or 2");
+  }
+  if (argument instanceof Date || typeof argument === "object" && Object.prototype.toString.call(argument) === "[object Date]") {
+    return new Date(argument.getTime());
+  } else if (typeof argument === "number" || Object.prototype.toString.call(argument) === "[object Number]") {
+    return new Date(argument);
+  } else if (!(Object.prototype.toString.call(argument) === "[object String]")) {
+    return /* @__PURE__ */ new Date(NaN);
+  }
+  const dateStrings = splitDateString(argument);
+  const { year, restDateString } = parseYear(dateStrings.date, additionalDigits);
+  const date = parseDate(restDateString, year);
+  if (date === null || isNaN(date.getTime())) {
+    return /* @__PURE__ */ new Date(NaN);
+  }
+  if (date) {
+    const timestamp = date.getTime();
+    let time = 0;
+    let offset;
+    if (dateStrings.time) {
+      time = parseTime(dateStrings.time);
+      if (time === null || isNaN(time)) {
+        return /* @__PURE__ */ new Date(NaN);
+      }
+    }
+    if (dateStrings.timeZone || options.timeZone) {
+      offset = tzParseTimezone(dateStrings.timeZone || options.timeZone, new Date(timestamp + time));
+      if (isNaN(offset)) {
+        return /* @__PURE__ */ new Date(NaN);
+      }
+    } else {
+      offset = getTimezoneOffsetInMilliseconds2(new Date(timestamp + time));
+      offset = getTimezoneOffsetInMilliseconds2(new Date(timestamp + time + offset));
+    }
+    return new Date(timestamp + time + offset);
+  } else {
+    return /* @__PURE__ */ new Date(NaN);
+  }
+}
+function splitDateString(dateString) {
+  const dateStrings = {};
+  let parts = patterns2.dateTimePattern.exec(dateString);
+  let timeString;
+  if (!parts) {
+    parts = patterns2.datePattern.exec(dateString);
+    if (parts) {
+      dateStrings.date = parts[1];
+      timeString = parts[2];
+    } else {
+      dateStrings.date = null;
+      timeString = dateString;
+    }
+  } else {
+    dateStrings.date = parts[1];
+    timeString = parts[3];
+  }
+  if (timeString) {
+    const token = patterns2.timeZone.exec(timeString);
+    if (token) {
+      dateStrings.time = timeString.replace(token[1], "");
+      dateStrings.timeZone = token[1].trim();
+    } else {
+      dateStrings.time = timeString;
+    }
+  }
+  return dateStrings;
+}
+function parseYear(dateString, additionalDigits) {
+  if (dateString) {
+    const patternYYY = patterns2.YYY[additionalDigits];
+    const patternYYYYY = patterns2.YYYYY[additionalDigits];
+    let token = patterns2.YYYY.exec(dateString) || patternYYYYY.exec(dateString);
+    if (token) {
+      const yearString = token[1];
+      return {
+        year: parseInt(yearString, 10),
+        restDateString: dateString.slice(yearString.length)
+      };
+    }
+    token = patterns2.YY.exec(dateString) || patternYYY.exec(dateString);
+    if (token) {
+      const centuryString = token[1];
+      return {
+        year: parseInt(centuryString, 10) * 100,
+        restDateString: dateString.slice(centuryString.length)
+      };
+    }
+  }
+  return {
+    year: null
+  };
+}
+function parseDate(dateString, year) {
+  if (year === null) {
+    return null;
+  }
+  let date;
+  let month;
+  let week;
+  if (!dateString || !dateString.length) {
+    date = /* @__PURE__ */ new Date(0);
+    date.setUTCFullYear(year);
+    return date;
+  }
+  let token = patterns2.MM.exec(dateString);
+  if (token) {
+    date = /* @__PURE__ */ new Date(0);
+    month = parseInt(token[1], 10) - 1;
+    if (!validateDate(year, month)) {
+      return /* @__PURE__ */ new Date(NaN);
+    }
+    date.setUTCFullYear(year, month);
+    return date;
+  }
+  token = patterns2.DDD.exec(dateString);
+  if (token) {
+    date = /* @__PURE__ */ new Date(0);
+    const dayOfYear = parseInt(token[1], 10);
+    if (!validateDayOfYearDate(year, dayOfYear)) {
+      return /* @__PURE__ */ new Date(NaN);
+    }
+    date.setUTCFullYear(year, 0, dayOfYear);
+    return date;
+  }
+  token = patterns2.MMDD.exec(dateString);
+  if (token) {
+    date = /* @__PURE__ */ new Date(0);
+    month = parseInt(token[1], 10) - 1;
+    const day = parseInt(token[2], 10);
+    if (!validateDate(year, month, day)) {
+      return /* @__PURE__ */ new Date(NaN);
+    }
+    date.setUTCFullYear(year, month, day);
+    return date;
+  }
+  token = patterns2.Www.exec(dateString);
+  if (token) {
+    week = parseInt(token[1], 10) - 1;
+    if (!validateWeekDate(week)) {
+      return /* @__PURE__ */ new Date(NaN);
+    }
+    return dayOfISOWeekYear(year, week);
+  }
+  token = patterns2.WwwD.exec(dateString);
+  if (token) {
+    week = parseInt(token[1], 10) - 1;
+    const dayOfWeek = parseInt(token[2], 10) - 1;
+    if (!validateWeekDate(week, dayOfWeek)) {
+      return /* @__PURE__ */ new Date(NaN);
+    }
+    return dayOfISOWeekYear(year, week, dayOfWeek);
+  }
   return null;
 }
-function Pi(t, e, n) {
-  const s = t.replace(/(http|https):\/\/[a-zA-Z0-9.-]*:?([0-9]*)?/g, "").split("?"), i = s[0].replace(/^\//, ""), r = s[1] || "", o = Ie(r), a = i.split("/"), y = {};
-  for (let P2 = 0; P2 < e.path_structure.length; P2++) {
-    const W2 = e.path_structure[P2];
-    W2 && (y[W2] = a[P2]);
-  }
-  const L2 = {
-    url: t,
-    path: e.path,
-    method: e.method,
-    metadata: e.metadata,
-    route_params: y,
-    query_params: o,
-    body: n
-  };
-  return Ae(`MATCHED ${L2.method}:`, L2), L2;
-}
-function Ri(t, e) {
-  let n;
-  try {
-    n = t.callback ? t.callback(e) : t.metadata;
-  } catch (o) {
-    return Ae.error(`ERROR ${e.method}:`, e.url, o), Promise.reject(o);
-  }
-  const s = t.delay_variance || 100, i = t.delay || 300, r = Math.floor(Math.random() * s - s / 2) + i;
-  return Ae(`RESP ${e.method}:`, e.url, n), new Promise((o) => {
-    setTimeout(() => o(n), Math.max(200, r));
-  });
-}
-var Ui = Nt("HTTP");
-var ls = {};
-function Ti(t, e = ls) {
-  return e[t] || {};
-}
-function d(t, e, n = Ve) {
-  return e || (e = { response_type: "json" }), n("GET", t, __spreadValues({ response_type: "json" }, e));
-}
-function S(t, e, n, s = Ve) {
-  return n || (n = { response_type: "json" }), s("POST", t, __spreadValues({ body: e, response_type: "json" }, n));
-}
-function ce(t, e, n, s = Ve) {
-  return n || (n = { response_type: "json" }), s("PUT", t, __spreadValues({ body: e, response_type: "json" }, n));
-}
-function ye(t, e, n, s = Ve) {
-  return n || (n = { response_type: "json" }), s("PATCH", t, __spreadValues({ body: e, response_type: "json" }, n));
-}
-function X(t, e, n = Ve) {
-  return e || (e = { response_type: "void" }), n("DELETE", t, __spreadValues({ response_type: "void" }, e));
-}
-async function Ii(t, e, n = ls) {
-  if (t.headers) {
-    const s = {};
-    t.headers.forEach ? t.headers.forEach((i, r) => s[r.toLowerCase()] = i) : Object.keys(t.headers).forEach(
-      (i) => s[i.toLowerCase()] = t.headers[i]
-    ), n[t.url || ""] = s;
-  }
-  switch (e) {
-    case "json":
-      return await t.json().catch(() => ({}));
-    case "text":
-      return await t.text();
-    case "void":
-      return;
-    default:
-      return await t.json().catch(() => ({}));
-  }
-}
-var fs = () => (An(), xn().then(
-  () => Promise.resolve(),
-  () => new Promise((t) => {
-    setTimeout(() => {
-      fs().then(() => t());
-    }, 1e3);
-  })
-));
-function Ve(t, e, n, s = kn, i = Ai, r = Ii) {
-  if (s()) {
-    const P2 = i(t, e, n?.body);
-    if (P2) return P2;
-  }
-  n.headers = n.headers || {}, !n.headers["Content-Type"] && !n.headers["content-type"] && (n.headers["Content-Type"] = "application/json");
-  const o = () => {
-    const P2 = __spreadProps(__spreadValues({}, n), {
-      method: t,
-      credentials: "same-origin"
-    });
-    return delete P2.response_type, delete P2.skip_auth, delete P2.skip_auth_flow, ["POST", "PUT", "PATCH"].includes(t) && n.body !== void 0 && (P2.body = typeof n.body == "string" ? n.body : JSON.stringify(n.body)), fetch(e, P2);
-  }, a = async () => {
-    n.skip_auth || (await ri(li(), Boolean), V() === "x-api-key" ? n.headers["X-API-Key"] = Ye() : n.headers.Authorization = `Bearer ${V()}`);
-    const P2 = await o();
-    if (P2.ok) return r(P2, n.response_type);
-    throw P2;
-  }, y = 4, L2 = async (P2) => {
-    try {
-      return await a();
-    } catch (W2) {
-      if (P2 >= y) throw W2 || {};
-      if (n.skip_auth || n.skip_auth_flow) throw W2 || {};
-      if (W2.status === 511)
-        throw os(Rt()), W2;
-      if (W2.status !== 401) throw W2 || {};
-      return Ui.warn("Auth error:", W2), await fs().catch(() => {
-        throw W2;
-      }), L2(P2 + 1);
+function parseTime(timeString) {
+  let hours;
+  let minutes;
+  let token = patterns2.HH.exec(timeString);
+  if (token) {
+    hours = parseFloat(token[1].replace(",", "."));
+    if (!validateTime(hours)) {
+      return NaN;
     }
-  };
-  return L2(0);
-}
-var F = class {
-  /** Unique Identifier of the object */
-  id;
-  /** Human readable name of the object */
-  name;
-  /** Unix epoch in seconds of the creation time of the object */
-  created_at;
-  /** Unix epoch in seconds of the creation time of the object */
-  updated_at;
-  /** Version of the data */
-  version;
-  constructor(e = {}) {
-    this.id = e.id || "", this.name = e.name || "", this.created_at = e.created_at || 0, this.updated_at = e.updated_at || 0, this.version = e.version || 0;
+    return hours % 24 * MILLISECONDS_IN_HOUR2;
   }
-  /**
-   * Convert object into plain object
-   */
-  toJSON() {
-    const e = __spreadValues({}, this);
-    return e.version = this.version, delete e.created_at, Ys(e, [void 0, null, ""]);
-  }
-};
-var ds = {};
-var ps = {};
-var Bn = "";
-var zt = (t) => t;
-var Mi = 300;
-var Te = {};
-function $(t) {
-  const { query_params: e, fn: n, path: s, endpoint: i } = t, r = b(e), o = `${i || u2()}${s ? "/" + s : ""}${r ? "?" + r : ""}`;
-  if (Te[o]) return Te[o].promise;
-  const a = d(o).then((y) => {
-    const L2 = Ni(o, r, s);
-    return {
-      total: L2.total || 0,
-      next: L2.next ? () => $({
-        query_params: L2.next,
-        fn: n,
-        endpoint: i,
-        path: s
-      }) : null,
-      data: y && y instanceof Array ? y.map((P2) => (n || zt)(P2)) : y && !(y instanceof Array) && y.results ? y.results.map((P2) => P2) : []
-    };
-  });
-  return Te[o] = {
-    promise: a,
-    timeout: setTimeout(() => delete Te[o], Mi)
-  }, a.catch(() => {
-    clearTimeout(Te[o]?.timeout), delete Te[o];
-  }), a;
-}
-function g(t) {
-  const { query_params: e, id: n, path: s, fn: i, options: r } = t, o = b(e), a = `${u2()}/${s}/${n}${o ? "?" + o : ""}`;
-  return d(a, r).then((y) => (i || zt)(y));
-}
-function U(t) {
-  const { query_params: e, form_data: n, path: s, fn: i } = t, r = b(e), o = `${u2()}/${s}${r ? "?" + r : ""}`;
-  return S(o, n).then((a) => (i || zt)(a));
-}
-function l(t) {
-  const { id: e, task_name: n, form_data: s, method: i, path: r, callback: o } = t, a = b(s), y = `${u2()}/${r}/${e}/${n}`;
-  return (i === "post" || i === "put" || !i ? (i === "put" ? ce : S)(y, s) : (i === "del" ? X : d)(
-    `${y}${a ? "?" + a : ""}`,
-    {
-      response_type: "json"
+  token = patterns2.HHMM.exec(timeString);
+  if (token) {
+    hours = parseInt(token[1], 10);
+    minutes = parseFloat(token[2].replace(",", "."));
+    if (!validateTime(hours, minutes)) {
+      return NaN;
     }
-  )).then((P2) => (o || ((W2) => W2))(P2));
-}
-function T(t) {
-  const { id: e, query_params: n, form_data: s, method: i, path: r, fn: o } = t, a = b(__spreadProps(__spreadValues({}, n), {
-    version: s.version || 0
-  })), y = `${u2()}/${r}/${e}${a ? "?" + a : ""}`;
-  return (i === "put" ? ce : ye)(y, s).then(
-    (L2) => (o || zt)(L2)
-  );
-}
-function Ni(t, e, n) {
-  const s = Ti(
-    t[0] === "/" ? `${location.origin}${t}` : t
-  ), i = {
-    total: 0,
-    next: null
-  };
-  if (s && s["x-total-count"]) {
-    const r = +(s["x-total-count"] || 0);
-    (e.length < 2 || e.length < 12 && e.indexOf("offset=") >= 0) && (ds[n] = r), ps[n] = r, i.total = r;
+    return hours % 24 * MILLISECONDS_IN_HOUR2 + minutes * MILLISECONDS_IN_MINUTE3;
   }
-  return s && s.link && (Bn = Js(s.link || "").next, i.next = Ie(Bn.split("?")[1])), i;
-}
-var Rn = class extends F {
-  /** Hash of the email address of the user */
-  email_digest;
-  /** ID of the authority associated with the user */
-  authority_id;
-  /** Email address of the user */
-  email;
-  /** Phone number of the user */
-  phone;
-  /** Display nickname of the user */
-  nickname;
-  /** Country that the user resides in */
-  country;
-  /** Office building the user is associated */
-  building;
-  /** Access control groups that user is associated */
-  groups;
-  /** Avatar image for the user */
-  image;
-  /** Additional metadata associated with the user */
-  metadata;
-  /** Miscellaneous user data */
-  misc;
-  /** Username credential of the user */
-  login_name;
-  /** Organisation ID of the user */
-  staff_id;
-  /** First name of the user */
-  first_name;
-  /** Last name of the user */
-  last_name;
-  /** Whether user is a support role */
-  support;
-  /** Whether user is a system admin role */
-  sys_admin;
-  /** Name of the active theme on the displayed UI */
-  ui_theme;
-  /** Preferred language of the user */
-  preferred_language;
-  /** Card Number associated with the user */
-  card_number;
-  /** Organisational department the user belongs */
-  department;
-  /** Default worktime preferences for the user */
-  work_preferences;
-  /** Overrides of the worktime preferences for the user */
-  work_overrides;
-  /** ID of the user's photo in the PlaceOS uploads service */
-  photo_upload_id;
-  /** Whether the user has opted in to location tracking */
-  locatable;
-  /** Password */
-  password = "";
-  /** Password */
-  confirm_password = "";
-  constructor(e = {}) {
-    super(e), this.authority_id = e.authority_id || "", this.email = e.email || "", this.email_digest = e.email_digest || "", this.phone = e.phone || "", this.nickname = e.nickname || "", this.country = e.country || "", this.building = e.building || "", this.image = e.image || "", this.metadata = e.metadata || "", this.misc = e.misc || "", this.login_name = e.login_name || "", this.staff_id = e.staff_id || "", this.first_name = e.first_name || "", this.last_name = e.last_name || "", this.support = !!e.support, this.sys_admin = !!e.sys_admin, this.ui_theme = e.ui_theme || "", this.preferred_language = e.preferred_language || "", this.card_number = e.card_number || "", this.groups = e.groups || [], this.department = e.department || "", this.photo_upload_id = e.photo_upload_id || "", this.work_preferences = e.work_preferences || [], this.work_overrides = e.work_overrides || {}, this.locatable = e.locatable ?? true;
-  }
-};
-var He = /* @__PURE__ */ ((t) => (t[t.None = 0] = "None", t[t.Support = 1] = "Support", t[t.Admin = 2] = "Admin", t[t.NeverDisplay = 3] = "NeverDisplay", t))(He || {});
-var qe = class extends F {
-  /** ID of the parent zone/system/module/driver */
-  parent_id;
-  /** Unix timestamp in seconds of when the settings where last updated */
-  updated_at;
-  /** Access level for the settings data */
-  encryption_level;
-  /** Contents of the settings */
-  settings_string;
-  /** Top level keys for the parsed settings */
-  keys;
-  /** ID of the user that last modified the metadata */
-  modified_by_id;
-  /** Contents of the settings */
-  get value() {
-    return this.settings_string;
-  }
-  constructor(e = {}) {
-    super(e), this.parent_id = e.parent_id || "", this.updated_at = e.updated_at || Math.floor((/* @__PURE__ */ new Date()).getTime() / 1e3), this.settings_string = e.settings_string || "", this.encryption_level = e.encryption_level || He.None, this.keys = e.keys || [], this.modified_by_id = e.modified_by_id || "";
-  }
-};
-var Et = /* @__PURE__ */ ((t) => (t[t.SSH = 0] = "SSH", t[t.Device = 1] = "Device", t[t.Service = 2] = "Service", t[t.Websocket = 3] = "Websocket", t[t.Logic = 99] = "Logic", t))(Et || {});
-var gs = class extends F {
-  /** Place class name of the driver */
-  class_name;
-  /** Description of the driver functionality */
-  description;
-  /** Name to use for modules that inherit this driver */
-  module_name;
-  /** Role of the driver in engine */
-  role;
-  /** Default URI for the driver */
-  default_uri;
-  /** Default port number for the driver */
-  default_port;
-  /** ID of the repository the driver is from */
-  repository_id;
-  /** Name of the file from the repository to load the driver logic from */
-  file_name;
-  /** Version of the driver logic to use */
-  commit;
-  /** Ignore connection issues */
-  ignore_connected;
-  /** Whether newer version of driver is available */
-  update_available;
-  update_info;
-  /**  */
-  alert_level;
-  /** Tuple of user settings of differring encryption levels for the driver */
-  settings;
-  constructor(e = {}) {
-    super(e), this.description = e.description || "", this.module_name = e.module_name || "", this.role = e.role ?? Et.Logic, this.default_uri = e.default_uri || "", this.default_port = e.default_port || 1, this.ignore_connected = e.ignore_connected || false, this.class_name = e.class_name || "", this.repository_id = e.repository_id || "", this.file_name = e.file_name || "", this.commit = e.commit || "", this.update_available = e.update_available || false, this.update_info = e.update_info, this.alert_level = e.alert_level || "medium", this.settings = e.settings || [null, null, null, null], typeof this.settings != "object" && (this.settings = [null, null, null, null]);
-    for (const n in He)
-      !isNaN(Number(n)) && !this.settings[n] && (this.settings[n] = new qe({
-        parent_id: this.id,
-        encryption_level: +n
-      }));
-  }
-};
-var Un = class {
-  /** ISO8601 timestamp of the creation time of the group */
-  created_at;
-  /** ISO8601 timestamp of the last update time of the group */
-  updated_at;
-  /** Unique identifier of the group */
-  id;
-  /** Human readable name of the group */
-  name;
-  /** Description of the group's purpose */
-  description;
-  /** Subsystems this group participates in */
-  subsystems;
-  /** ID of the authority associated with the group */
-  authority_id;
-  /** ID of the parent group */
-  parent_id;
-  /** Count of child groups for this group */
-  children_count;
-  constructor(e = {}) {
-    this.created_at = e.created_at || "", this.updated_at = e.updated_at || "", this.id = e.id || "", this.name = e.name || "", this.description = e.description || "", this.subsystems = e.subsystems || [], this.authority_id = e.authority_id || "", this.parent_id = e.parent_id || "", isFinite(Number(e.children_count)) && (this.children_count = e.children_count);
-  }
-};
-var ze = "groups";
-function it(t) {
-  return new Un(t);
-}
-function _u(t = {}) {
-  const e = b(t), n = `${u2()}/${ze}/current${e ? "?" + e : ""}`;
-  return d(n).then(
-    (s) => (s || []).map((i) => ({
-      group: it(i.group || {}),
-      permissions: i.permissions || 0
-    }))
-  );
-}
-var he = class extends F {
-  /** Name of the system assocaited with the trigger */
-  system_name;
-  /** Number of times the trigger has been activated/triggered */
-  activated_count;
-  /** Description of the trigger */
-  description;
-  /** Duration with which to ignore sequential activations of the trigger */
-  debounce_period;
-  /** Whether the trigger should take priority */
-  important;
-  /** Whether trigger is enabled on the associated zone or system */
-  enabled;
-  /** Whether the trigger can call webhooks */
-  enable_webhook;
-  /** Whether the trigger instance can execute methods */
-  exec_enabled;
-  /** Auth key for trigger's webhook */
-  webhook_secret;
-  /** HTTP verbs supported by the webhook */
-  supported_methods;
-  /** ID of the system associated with the trigger */
-  control_system_id;
-  /** ID of the zone associated with the trigger */
-  zone_id;
-  /** ID of the Parent trigger */
-  trigger_id;
-  /** List of playlist IDs associated with the system */
-  playlists;
-  // Whether condition checks should match any single condition to pass or all of them
-  any_match;
-  /** ID of the system associated with the trigger */
-  get system_id() {
-    return this.control_system_id;
-  }
-  /** Actions to perform when the trigger is activated */
-  get actions() {
-    const e = this._actions, n = (e.functions || []).map((i) => __spreadProps(__spreadValues({}, i), {
-      args: __spreadValues({}, i.args)
-    })), s = (e.mailers || []).map((i) => __spreadProps(__spreadValues({}, i), {
-      emails: [...i.emails]
-    }));
-    return { functions: n, mailers: s };
-  }
-  /** Conditions for activating the trigger */
-  get conditions() {
-    const e = this._conditions, n = (e.comparisons || []).map((i) => __spreadProps(__spreadValues({}, i), {
-      left: typeof i.left == "object" ? __spreadValues({}, i.left) : i.left,
-      right: typeof i.right == "object" ? __spreadValues({}, i.right) : i.right
-    })), s = (e.time_dependents || []).map((i) => __spreadValues({}, i));
-    return { comparisons: n, time_dependents: s };
-  }
-  /** Actions to perform when the trigger is activated */
-  _actions;
-  /** Conditions for activating the trigger */
-  _conditions;
-  constructor(e = {}) {
-    super(e), this.description = e.description || "", this._actions = e.actions || { functions: [], mailers: [] }, this._conditions = e.conditions || {
-      comparisons: [],
-      time_dependents: []
-    }, this.debounce_period = e.debounce_period || 0, this.important = e.important || false, this.enabled = e.enabled || false, this.webhook_secret = e.webhook_secret || "", this.control_system_id = e.system_id || e.control_system_id || "", this.zone_id = e.zone_id || "", this.system_name = e.system_name || (e.control_system ? e.control_system.name : ""), this.enable_webhook = e.enable_webhook || false, this.exec_enabled = e.exec_enabled || false, this.supported_methods = e.supported_methods || ["POST"], this.activated_count = e.activated_count || e.trigger_count || 0, this.playlists = e.playlists || [], this.trigger_id = e.trigger_id || "", this.any_match = e.any_match || false;
-  }
-};
-var Kt = class extends F {
-  /** Tuple of user settings of differring encryption levels for the zone */
-  settings = [null, null, null, null];
-  /** Description of the zone's purpose */
-  description;
-  /** ID of the parent zone */
-  parent_id;
-  /** List of triggers associated with the zone */
-  triggers;
-  /** List of tags associated with the zone */
-  tags;
-  /** Geo-location details associated with the zone */
-  location;
-  /** Custom display name for the zone */
-  display_name;
-  /** Organisational code associated with the zone */
-  code;
-  /** Organisational categorisation of the zone */
-  type;
-  /** Count of resources associated with the zone */
-  count;
-  /** Count of child zones for this zone */
-  children_count;
-  /** Amount of physical capacity associated with the zone */
-  capacity;
-  /** ID or URL of or in a map associated with the zone */
-  map_id;
-  /** List of image URLs */
-  images;
-  /** Timezone of the associated real world location */
-  timezone;
-  /** List of playlist IDs associated with the system */
-  playlists;
-  /**
-   * List of modules associated with the system.
-   * Only available from the show method with the `complete` query parameter
-   */
-  trigger_list = [];
-  constructor(e = {}) {
-    super(e), this.description = e.description || "", this.tags = e.tags || [], this.triggers = e.triggers || [], this.settings = e.settings || [null, null, null, null], this.parent_id = e.parent_id || "", this.location = e.location || "", this.display_name = e.display_name || "", this.code = e.code || "", this.type = e.type || "", this.count = e.count || 0, this.capacity = e.capacity || 0, this.map_id = e.map_id || "", this.timezone = e.timezone || "", this.images = e.images || [], this.playlists = e.playlists || [], isFinite(Number(e.children_count)) && (this.children_count = e.children_count), typeof this.settings != "object" && (this.settings = [null, null, null, null]);
-    for (const n in He)
-      !isNaN(Number(n)) && !this.settings[n] && (this.settings[n] = new qe({
-        parent_id: this.id,
-        encryption_level: +n
-      }));
-    e.trigger_data && e.trigger_data instanceof Array && (this.trigger_list = e.trigger_data.map(
-      (n) => new he(n)
-    ));
-  }
-};
-var vs = class {
-  /** ID of the parent resource associated with the metadata */
-  id;
-  /** Name/ID of the zone metadata */
-  name;
-  /** Description of what this metadata represents */
-  description;
-  /** Metadata associated with this key. */
-  details;
-  /** List user groups allowed to edit the metadata */
-  editors;
-  /** JSON schema associated with the metadata details */
-  schema;
-  /** Unix timestamp that the metadata was last modified at */
-  updated_at;
-  /** ID of the user that last modified the metadata */
-  modified_by_id;
-  /** Version of the data */
-  version;
-  constructor(e = {}) {
-    this.id = e.id || e.parent_id || "", this.name = e.name || "", this.description = e.description || "";
-    try {
-      this.details = (typeof e.details == "string" ? JSON.parse(e.details) : e.details) || {};
-    } catch {
-      this.details = e.details || {};
+  token = patterns2.HHMMSS.exec(timeString);
+  if (token) {
+    hours = parseInt(token[1], 10);
+    minutes = parseInt(token[2], 10);
+    const seconds = parseFloat(token[3].replace(",", "."));
+    if (!validateTime(hours, minutes, seconds)) {
+      return NaN;
     }
-    this.editors = e.editors || [], this.schema = e.schema || "", this.updated_at = (e.updated_at || 0) * 1e3 || Date.now(), this.modified_by_id = e.modified_by_id || "", this.version = e.version || 0;
+    return hours % 24 * MILLISECONDS_IN_HOUR2 + minutes * MILLISECONDS_IN_MINUTE3 + seconds * 1e3;
   }
-};
-var Ki = class {
-  /** Zone associated with the metadata */
-  zone;
-  /** Metadata for zone */
-  metadata;
-  /** List of the root keys in the metadata */
-  keys;
-  constructor(e = {}) {
-    this.zone = new Kt(e.zone), this.keys = e.keys || [], this.metadata = {};
-    const n = e.metadata || {};
-    for (const s of this.keys)
-      this.metadata[s] = new vs(n[s]);
+  return null;
+}
+function dayOfISOWeekYear(isoWeekYear, week, day) {
+  week = week || 0;
+  day = day || 0;
+  const date = /* @__PURE__ */ new Date(0);
+  date.setUTCFullYear(isoWeekYear, 0, 4);
+  const fourthOfJanuaryDay = date.getUTCDay() || 7;
+  const diff = week * 7 + day + 1 - fourthOfJanuaryDay;
+  date.setUTCDate(date.getUTCDate() + diff);
+  return date;
+}
+var DAYS_IN_MONTH = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+var DAYS_IN_MONTH_LEAP_YEAR = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+function isLeapYearIndex(year) {
+  return year % 400 === 0 || year % 4 === 0 && year % 100 !== 0;
+}
+function validateDate(year, month, date) {
+  if (month < 0 || month > 11) {
+    return false;
   }
-};
-var $e = "metadata";
-function Fe(t) {
-  return new vs(t);
-}
-function ju(t, e) {
-  return g({
-    id: t,
-    query_params: { name: e },
-    fn: (n) => Fe(n[e]),
-    path: $e
-  });
-}
-function Gu(t, e, n = "put") {
-  return T({
-    id: t,
-    form_data: e,
-    query_params: {},
-    method: n,
-    fn: Fe,
-    path: $e
-  });
-}
-function Qu(t, e) {
-  return l({
-    id: t,
-    task_name: "children",
-    form_data: e,
-    method: "get",
-    callback: (n) => n.map(
-      (s) => new Ki(__spreadProps(__spreadValues({}, s), {
-        keys: Object.keys(s.metadata)
-      }))
-    ),
-    path: $e
-  });
-}
-function Ku(t, e) {
-  const n = b(e), s = `${u2()}/${$e}/${encodeURIComponent(t)}/bulk${n ? "?" + n : ""}`;
-  return d(s).then(
-    (i) => Object.keys(i || {}).reduce(
-      (r, o) => __spreadProps(__spreadValues({}, r), { [o]: Fe(i[o]) }),
-      {}
-    )
-  );
-}
-var ks = class extends F {
-  /** Tuple of user settings of differring encryption levels for the system */
-  settings = [null, null, null, null];
-  /** Display name of the system */
-  display_name;
-  /** Description of the system */
-  description;
-  /** Email address associated with the system */
-  email;
-  /** Email address associated with the system */
-  code;
-  /** Capacity of the space associated with the system */
-  capacity;
-  /** Features associated with the system */
-  features;
-  /** Whether system is bookable by end users */
-  bookable;
-  /** Whether system is public accessible */
-  public;
-  /** Count of UI devices attached to the system */
-  installed_ui_devices;
-  /** Support URL for the system */
-  support_url;
-  /** URL for the timetable UI linked to the system */
-  timetable_url;
-  /** URLs for requesting snapshots of the assosiated camera */
-  camera_snapshot_url;
-  /** URLs for requesting snapshots of the assosiated camera */
-  camera_snapshot_urls;
-  /** URL for managing the attached camera */
-  camera_url;
-  /** External booking URL for the system */
-  room_booking_url;
-  /** ID on the SVG Map associated with this system */
-  map_id;
-  /** List of module IDs that belong to the system */
-  modules;
-  /** List of images associated with the system */
-  images;
-  /** List of the zone IDs that the system belongs */
-  zones;
-  /** Timezone of the associated real world space */
-  timezone;
-  /**
-   * List of modules associated with the system.
-   * Only available from the show method with the `complete` query parameter
-   */
-  module_list = [];
-  /** Whether the system has signage capabilities */
-  signage;
-  /** List of playlist IDs associated with the system */
-  playlists;
-  /** List of security groups with access to the system */
-  security_groups;
-  /** Unix timestamp of the last ping from the signage player UI */
-  signage_last_seen;
-  approval;
-  /** Orientation of the signage system */
-  orientation;
-  constructor(e = {}) {
-    super(e), this.display_name = e.display_name || "", this.description = e.description || "", this.email = e.email || "", this.code = e.code || "", this.capacity = e.capacity || 0, this.features = e.features || [], this.bookable = e.bookable || false, this.public = e.public ?? false, this.installed_ui_devices = e.installed_ui_devices || 0, this.support_url = e.support_url || "", this.camera_snapshot_url = e.camera_snapshot_url || "", this.camera_snapshot_urls = e.camera_snapshot_urls || [], this.camera_url = e.camera_url || "", this.timetable_url = e.timetable_url || "", this.room_booking_url = e.room_booking_url || "", this.map_id = e.map_id || "", this.modules = e.modules || [], this.images = e.images || [], this.zones = e.zones || [], this.settings = e.settings || [null, null, null, null], this.timezone = e.timezone || "", this.signage = e.signage || false, this.playlists = e.playlists || [], this.security_groups = e.security_groups || [], this.orientation = e.orientation || "unspecified", this.approval = e.approval || false, this.signage_last_seen = e.signage_last_seen || yn(Date.now()), typeof this.settings != "object" && (this.settings = [null, null, null, null]);
-    for (const n in He)
-      !isNaN(Number(n)) && !this.settings[n] && (this.settings[n] = new qe({
-        parent_id: this.id,
-        encryption_level: +n
-      }));
-    e.module_data && e.module_data instanceof Array && (this.module_list = e.module_data.map(
-      (n) => new Ss(n)
-    ));
-  }
-};
-var Ss = class extends F {
-  /** Whether the associated hardware is connected */
-  connected;
-  /** Whether the module driver is running */
-  running;
-  /** Timestamp of last update in ms since UTC epoch */
-  updated_at;
-  /** ID of the edge associated with the module */
-  edge_id;
-  /** ID of the driver associated with the module */
-  driver_id;
-  /** Driver/dependancy associated with the module */
-  driver;
-  /** ID of the system associated with the module */
-  control_system_id;
-  /** System associated with the module */
-  system;
-  /** IP address of the hardware associated with the module */
-  ip;
-  /** Whether the hardware connection requires TLS */
-  tls;
-  /** Whether the hardware connection is over UDP */
-  udp;
-  /** Port number connections to the hardware are made on */
-  port;
-  /**  */
-  makebreak;
-  /** URI associated with the module */
-  uri;
-  /** Custom name of the module */
-  custom_name;
-  /** Type of module */
-  role;
-  /** Notes associated with the module */
-  notes;
-  /** Ignore connection issues */
-  ignore_connected;
-  /** Tuple of user settings of differring encryption levels for the module */
-  settings = [null, null, null, null];
-  /** Whether the module has a runtime error */
-  has_runtime_error;
-  /** Timestamp of the last runtime error in ms since UTC epoch */
-  error_timestamp;
-  /**  */
-  alert_level;
-  /** ID of the system associated with the module */
-  get system_id() {
-    return this.control_system_id;
-  }
-  constructor(e = {}) {
-    super(e), this.driver_id = e.driver_id || e.dependency_id || "", this.control_system_id = e.control_system_id || "", this.edge_id = e.edge_id || "", this.ip = e.ip || "", this.tls = e.tls || false, this.udp = e.udp || false, this.port = e.port || 1, this.makebreak = e.makebreak || false, this.uri = e.uri || "", this.custom_name = e.custom_name || "", this.role = e.role ?? Et.Logic, this.notes = e.notes || "", this.ignore_connected = e.ignore_connected || false, this.connected = e.connected, this.running = e.running || false, this.updated_at = e.updated_at || 0, this.system = new ks(
-      e.control_system || e.system
-    ), this.has_runtime_error = e.has_runtime_error || false, this.error_timestamp = e.error_timestamp || 0, this.driver = new gs(e.dependency || e.driver), this.settings = e.settings || [null, null, null, null], this.alert_level = e.alert_level || "medium", typeof this.settings != "object" && (this.settings = [null, null, null, null]);
-    for (const n in He)
-      !isNaN(Number(n)) && !this.settings[n] && (this.settings[n] = new qe({
-        parent_id: this.id,
-        encryption_level: +n
-      }));
-  }
-  /**
-   * Convert object into plain object
-   */
-  toJSON(e = false) {
-    const n = super.toJSON();
-    return (n.role !== Et.Logic && !e || !n.control_system_id) && delete n.control_system_id, delete n.driver, delete n.system, delete n.error_timestamp, delete n.has_runtime_error, n;
-  }
-};
-var C = "systems";
-function Pe(t) {
-  return new ks(t);
-}
-function ta(t = {}) {
-  return $({ query_params: t, fn: Pe, path: C });
-}
-function na(t) {
-  return $({ query_params: t, fn: Pe, path: `${C}/with_emails` });
-}
-function sa(t, e = {}) {
-  return g({ id: t, query_params: e, fn: Pe, path: C });
-}
-var J = "users";
-function Re(t) {
-  return new Rn(t);
-}
-function Ea(t = {}) {
-  return $({ query_params: t, fn: Re, path: J });
-}
-function Ca(t, e = {}) {
-  return g({ id: t, query_params: e, fn: Re, path: J });
-}
-function Ma(t, e, n = "patch") {
-  return T({
-    id: t,
-    form_data: e,
-    query_params: {},
-    method: n,
-    fn: Re,
-    path: J
-  });
-}
-var le = "zones";
-function nn(t) {
-  return new Kt(t);
-}
-function Ba(t = {}) {
-  return $({ query_params: t, fn: nn, path: le });
-}
-var or = class {
-  id;
-  parent_category_id;
-  name;
-  description;
-  hidden;
-  created_at;
-  updated_at;
-  constructor(e) {
-    this.id = e.id || "", this.parent_category_id = e.parent_category_id || "", this.name = e.name || "", this.description = e.description || "", this.hidden = e.hidden || false, this.created_at = e.created_at || 0, this.updated_at = e.updated_at || 0;
-  }
-};
-var cr = class {
-  id;
-  category_id;
-  name;
-  brand;
-  description;
-  model_number;
-  images;
-  created_at;
-  updated_at;
-  constructor(e) {
-    this.id = e.id || "", this.category_id = e.category_id || "", this.name = e.name || "", this.brand = e.brand || "", this.description = e.description || "", this.model_number = e.model_number || "", this.images = e.images || [], this.created_at = e.created_at || 0, this.updated_at = e.updated_at || 0;
-  }
-};
-var ar = class {
-  id;
-  parent_id;
-  asset_type_id;
-  purchase_order_id;
-  zone_id;
-  identifier;
-  serial_number;
-  other_data;
-  barcode;
-  name;
-  client_ids;
-  map_id;
-  bookable;
-  accessible;
-  zones;
-  place_groups;
-  assigned_to;
-  assigned_name;
-  features;
-  images;
-  notes;
-  security_system_groups;
-  created_at;
-  updated_at;
-  constructor(e) {
-    this.id = e.id || "", this.parent_id = e.parent_id || "", this.asset_type_id = e.asset_type_id || "", this.purchase_order_id = e.purchase_order_id || "", this.zone_id = e.zone_id || "", this.identifier = e.identifier || "", this.serial_number = e.serial_number || "", this.other_data = e.other_data || {}, this.barcode = e.barcode || "", this.name = e.name || "", this.client_ids = e.client_ids || {}, this.map_id = e.map_id || "", this.bookable = e.bookable || false, this.accessible = e.accessible || false, this.zones = e.zones || [], this.place_groups = e.place_groups || [], this.assigned_to = e.assigned_to || "", this.assigned_name = e.assigned_name || "", this.features = e.features || [], this.images = e.images || [], this.notes = e.notes || "", this.security_system_groups = e.security_system_groups || [], this.created_at = e.created_at || 0, this.updated_at = e.updated_at || 0;
-  }
-};
-var ve = "assets";
-function Ue(t) {
-  return new ar(t);
-}
-function Gh(t = {}) {
-  return $({
-    query_params: t,
-    fn: Ue,
-    path: ve
-  });
-}
-var dt = "asset_types";
-function hn(t) {
-  return new cr(t);
-}
-function Vh(t = {}) {
-  return $({
-    query_params: t,
-    fn: hn,
-    path: dt
-  });
-}
-function Xh(t, e = {}) {
-  return g({
-    id: t,
-    query_params: e,
-    fn: hn,
-    path: dt
-  });
-}
-function el(t, e, n = "patch") {
-  return T({
-    id: t,
-    form_data: e,
-    query_params: {},
-    method: n,
-    fn: hn,
-    path: dt
-  });
-}
-function tl(t) {
-  return U({
-    form_data: t,
-    query_params: {},
-    fn: hn,
-    path: dt
-  });
-}
-var pt = "asset_categories";
-function ln(t) {
-  return new or(t);
-}
-function sl(t = {}) {
-  return $({
-    query_params: t,
-    fn: ln,
-    path: pt
-  });
-}
-function rl(t, e, n = "patch") {
-  return T({
-    id: t,
-    form_data: e,
-    query_params: {},
-    method: n,
-    fn: ln,
-    path: pt
-  });
-}
-function ol(t) {
-  return U({
-    form_data: t,
-    query_params: {},
-    fn: ln,
-    path: pt
-  });
-}
-var Is = class {
-  _listeners = /* @__PURE__ */ new Set();
-  _error_listeners = /* @__PURE__ */ new Set();
-  _complete_listeners = /* @__PURE__ */ new Set();
-  _closed = false;
-  next(e) {
-    if (!this._closed)
-      for (const n of [...this._listeners]) n(e);
-  }
-  error(e) {
-    if (!this._closed) {
-      for (const n of [...this._error_listeners]) n(e);
-      this._closed = true, this._clear();
+  if (date != null) {
+    if (date < 1) {
+      return false;
+    }
+    const isLeapYear = isLeapYearIndex(year);
+    if (isLeapYear && date > DAYS_IN_MONTH_LEAP_YEAR[month]) {
+      return false;
+    }
+    if (!isLeapYear && date > DAYS_IN_MONTH[month]) {
+      return false;
     }
   }
-  complete() {
-    if (!this._closed) {
-      for (const e of [...this._complete_listeners]) e();
-      this._closed = true, this._clear();
-    }
-  }
-  subscribe(e, n, s) {
-    return this._closed ? (s?.(), () => null) : (this._listeners.add(e), n && this._error_listeners.add(n), s && this._complete_listeners.add(s), () => {
-      this._listeners.delete(e), n && this._error_listeners.delete(n), s && this._complete_listeners.delete(s);
-    });
-  }
-  _clear() {
-    this._listeners.clear(), this._error_listeners.clear(), this._complete_listeners.clear();
-  }
-};
-var fr = class extends Is {
-  constructor(e) {
-    super(), this._config = e, this._socket = new WebSocket(e.url), this._socket.onopen = () => {
-      const n = [...this._queue];
-      this._queue = [];
-      for (const s of n) this.next(s);
-    }, this._socket.onmessage = (n) => {
-      super.next(this._deserialize(n));
-    }, this._socket.onerror = (n) => this.error(n), this._socket.onclose = () => super.complete();
-  }
-  _socket;
-  _queue = [];
-  next(e) {
-    this._socket.readyState === WebSocket.OPEN ? this._socket.send(this._serialize(e)) : this._queue.push(e);
-  }
-  complete() {
-    this._socket.close(), super.complete();
-  }
-  _serialize(e) {
-    return this._config.serializer ? this._config.serializer(e) : `${e}`;
-  }
-  _deserialize(e) {
-    return this._config.deserializer ? this._config.deserializer(e) : e.data;
-  }
-};
-function dr(t) {
-  return new fr(
-    typeof t == "string" ? { url: t } : t
-  );
+  return true;
 }
-var te = /* @__PURE__ */ ((t) => (t[t.PARSE_ERROR = 0] = "PARSE_ERROR", t[t.BAD_REQUEST = 1] = "BAD_REQUEST", t[t.ACCESS_DENIED = 2] = "ACCESS_DENIED", t[t.REQUEST_FAILED = 3] = "REQUEST_FAILED", t[t.UNKNOWN_CMD = 4] = "UNKNOWN_CMD", t[t.SYS_NOT_FOUND = 5] = "SYS_NOT_FOUND", t[t.MOD_NOT_FOUND = 6] = "MOD_NOT_FOUND", t[t.UNEXPECTED_FAILURE = 7] = "UNEXPECTED_FAILURE", t))(te || {});
-var Es = /* @__PURE__ */ ((t) => (t.Info = "info", t.Debug = "debug", t.Warning = "warn", t.Error = "error", t.Fatal = "fatal", t.Trace = "trace", t))(Es || {});
-var pr = class {
-  constructor(e, n) {
-    this._system = e;
-    const s = Object.getOwnPropertyNames(
-      Object.getPrototypeOf(n)
-    ).filter((i) => i.startsWith("$"));
-    for (const i in n)
-      n.hasOwnProperty(i) && n[i] !== void 0 && (n[i] instanceof Function ? this.addMethod(i, n[i]) : this.addProperty(i, n[i]));
-    for (const i of s)
-      n[i] instanceof Function && this.addMethod(i, n[i]);
+function validateDayOfYearDate(year, dayOfYear) {
+  if (dayOfYear < 1) {
+    return false;
   }
-  /**
-   * Call method on the module
-   * @param command Name of the method to call on the module
-   * @param args Array of arguments to pass to the method being called
-   */
-  call(e, n = []) {
-    return this[`$${e}`] instanceof Function ? this[`$${e}`](...n) : null;
+  const isLeapYear = isLeapYearIndex(year);
+  if (isLeapYear && dayOfYear > 366) {
+    return false;
   }
-  /**
-   * Subscribe to value changes on the given property
-   * @param prop_name Name of the property
-   * @param next Callback for changes to the property
-   */
-  listen(e) {
-    return !this[`_${e}`] && !this[e] && this.addProperty(e, null), this[`_${e}`].asReadonly();
+  if (!isLeapYear && dayOfYear > 365) {
+    return false;
   }
-  /**
-   * Add method to module
-   * @param prop_name Name of the method
-   * @param fn Method logic
-   */
-  addMethod(e, n) {
-    e[0] !== "$" && (e = `$${e}`), this[e] = n;
-  }
-  /**
-   * Add signal property to module
-   * @param prop_name Name of the property
-   * @param value Initial value of the property
-   */
-  addProperty(e, n) {
-    e[0] === "$" && (e = e.replace("$", "")), this[`_${e}`] = ne(n), Object.defineProperty(this, e, {
-      get: () => this[`_${e}`].value,
-      set: (s) => this[`_${e}`].set(s)
-    });
-  }
-};
-var _r = class {
-  constructor(e) {
-    for (const n in e)
-      e.hasOwnProperty(n) && e[n] && e[n] instanceof Array && e[n].forEach((s) => {
-        this.addModule(n, s);
-      });
-  }
-  /**
-   * Add new module to the system
-   * @param mod_name Module class
-   * @param properties Properties of the new module
-   */
-  addModule(e, n) {
-    this[e] || (this[e] = []), this[e].push(new pr(this, n));
-  }
-};
-var Ct = {};
-function Nl(t, e) {
-  return Ct[t] = new _r(e), Ct[t];
+  return true;
 }
-function mr(t) {
-  return Ct[t];
-}
-var O = Nt("WS");
-var Cs = 15;
-var gt = 0;
-var Y;
-var Os = 0;
-var G = {};
-var wn = {};
-var gr = {};
-var Se = ne(false);
-var Ms = ne([0, 0]);
-var Ns = Date.now();
-var Ee;
-var Ot = 0;
-var fe = null;
-var kt;
-var Dn = 0;
-var yt = 10 * 1e3;
-var yr = ne(null);
-function _n() {
-  return u2().indexOf("/control/") >= 0 ? "/control/websocket" : `${is()}/systems/control`;
-}
-function ws() {
-  return Se.value;
-}
-function $r() {
-  return Se.asReadonly();
-}
-function br(t, e = wn) {
-  const n = `${t.sys}|${t.mod}_${t.index}|${t.name}`;
-  return e[n] || (e[n] = ne(void 0)), e[n].asReadonly();
-}
-function vr(t, e = wn) {
-  const n = `${t.sys}|${t.mod}_${t.index}|${t.name}`;
-  if (e[n])
-    return e[n].value;
-}
-function Wn(t, e = 0, n = Ge) {
-  const s = __spreadValues({
-    id: ++gt,
-    cmd: "bind"
-  }, t);
-  return n(s, e);
-}
-function kr(t, e = 0, n = Ge) {
-  const s = __spreadValues({
-    id: ++gt,
-    cmd: "unbind"
-  }, t);
-  return n(s, e);
-}
-function Sr(t, e = yt, n = Ge) {
-  const s = __spreadValues({
-    id: ++gt,
-    cmd: "exec"
-  }, t);
-  return n(s, e);
-}
-function Ge(t, e = yt, n = 0) {
-  const s = `${t.cmd}|${t.sys}|${t.mod}${t.index}|${t.name}|${t.args}|${ei()}`;
-  if (G[s])
-    O("Request already in progress. Waiting...", t);
-  else {
-    const i = __spreadProps(__spreadValues({}, t), { key: s });
-    i.promise = new Promise((r, o) => {
-      const a = () => {
-        delete G[s], G[s] = null, Ge(t, e, n).then(
-          (y) => r(y),
-          (y) => o(y)
-        );
-      };
-      if (Y && ws()) {
-        kn() && Tr(t, Y, gr), i.resolve = r, i.reject = o;
-        const y = `${t.sys}, ${t.mod}_${t.index}, ${t.name}`;
-        O(
-          `[${t.cmd.toUpperCase()}](${t.id}) ${y}`,
-          t.args
-        ), Y.next(t), e > 0 && re(
-          `${s}`,
-          () => {
-            o("Request timed out."), delete G[s], G[s] = null;
-          },
-          e
-        );
-      } else fe ? setTimeout(() => a(), 1e3) : Hn().then(() => a());
-    }), G[s] = i;
+function validateWeekDate(week, day) {
+  if (week < 0 || week > 52) {
+    return false;
   }
-  return G[s].promise;
+  if (day != null && (day < 0 || day > 6)) {
+    return false;
+  }
+  return true;
 }
-function Ds(t) {
-  if (t !== "pong" && t instanceof Object) {
-    if (t.type === "notify" && t.meta)
-      qr(t.meta, t.value);
-    else if (t.type === "success")
-      xr(t);
-    else if (t.type === "debug") {
-      O(`[DEBUG] ${t.mod}${t.klass || ""} \u2192`, t.msg);
-      const e = t.meta || { mod: "", index: "" };
-      yr.set({
-        mod_id: t.mod || "<empty>",
-        module: `${e.mod}_${e.index}`,
-        class_name: t.klass || "<empty>",
-        message: t.msg || "<empty>",
-        level: t.level || Es.Debug,
-        time: Math.floor((/* @__PURE__ */ new Date()).getTime() / 1e3)
-      });
-    } else t.type === "error" ? Ar(t) : t.cmd || O.error("Invalid websocket message", t);
-    _e(`${t.id}`);
-  } else t === "pong" && (Dn = Date.now(), O("Pong!"));
-}
-function xr(t) {
-  const e = Object.keys(G).map((n) => G[n]).find((n) => n?.id === t.id);
-  O(`[SUCCESS](${t.id})`), e && e.resolve && (e.resolve(t.value), delete G[e.key]);
-}
-function Ar(t) {
-  let e = "UNEXPECTED FAILURE";
-  switch (t.code) {
-    case te.ACCESS_DENIED:
-      e = "ACCESS DENIED";
-      break;
-    case te.BAD_REQUEST:
-      e = "BAD REQUEST";
-      break;
-    case te.MOD_NOT_FOUND:
-      e = "MODULE NOT FOUND";
-      break;
-    case te.SYS_NOT_FOUND:
-      e = "SYSTEM NOT FOUND";
-      break;
-    case te.PARSE_ERROR:
-      e = "PARSE ERROR";
-      break;
-    case te.REQUEST_FAILED:
-      e = "REQUEST FAILED";
-      break;
-    case te.UNKNOWN_CMD:
-      e = "UNKNOWN COMMAND";
-      break;
+function validateTime(hours, minutes, seconds) {
+  if (hours < 0 || hours >= 25) {
+    return false;
   }
-  O.error(`[ERROR] ${e}(${t.id}): ${t.msg}`);
-  const n = Object.keys(G).map((s) => G[s]).filter((s) => s).find((s) => s.id === t.id);
-  n && n.reject && (n.reject(t), _e(`${n.key}`), delete G[n.key]);
-}
-function qr(t, e, n = wn) {
-  const s = `${t.sys}|${t.mod}_${t.index}|${t.name}`;
-  n[s] || (n[s] = ne(null));
-  const i = `${t.sys}, ${t.mod}_${t.index}, ${t.name}`;
-  O(`[NOTIFY] ${i} changed`, [
-    n[s].value,
-    "\u2192",
-    e
-  ]), n[s].set(e);
-}
-function Hn(t = 0) {
-  return fe == null && (fe = new Promise((e) => {
-    if (t > 40)
-      return location.reload();
-    Ot++, Ns = Date.now(), Y = kn() ? Ur() : Pr(), Y ? (O.debug("Authority:", Rt()), O("Connecting to websocket..."), Y.subscribe(
-      (n) => {
-        Se.value || (O("Connection established."), e()), Se.set(true), Ot = 0, mn(), Ds(n);
-      },
-      (n) => {
-        Y = void 0, fe = null, Zn(), mn(), Rr(n);
-      },
-      () => {
-        Y = void 0, fe = null, Zn(), O("Connection closed by browser."), Se.set(false), Mt();
-      }
-    ), Ee && clearInterval(Ee), Dn = Date.now(), Qn(), Ee = setInterval(
-      () => Qn(),
-      Cs * 1e3
-    ), mn(), Os += 1, kt = setTimeout(() => {
-      O("Unhealthy connection. Reconnecting..."), Se.set(false), fe = null, Mt();
-    }, 30 * 1e3)) : (Y ? O(
-      `Waiting on auth(${t}). Retrying in ${1e3 * Math.min(10, t + 1)}ms...`,
-      [!!V(), !!Rt()],
-      "info"
-    ) : O.error(
-      `Failed to create websocket(${t}). Retrying in ${1e3 * Math.min(10, t + 1)}ms...`
-    ), setTimeout(
-      () => {
-        fe = null, Hn(t).then((n) => e(n));
-      },
-      1e3 * Math.min(10, ++t)
-    ));
-  })), fe;
-}
-function Pr() {
-  if (!Rt() || !V()) return null;
-  const t = fi() || location.protocol.indexOf("https") >= 0;
-  let e = `ws${t ? "s" : ""}://${$n()}${_n()}${rs() ? "?fixed_device=true" : ""}`;
-  const n = V();
-  let s = n === "x-api-key" ? `api-key=${Ye()}` : `bearer_token=${n}`;
-  return !ci() && !Vs() ? (O("Authenticating through cookie..."), s += `;max-age=120;path=${_n()};`, s += `${t ? "secure;" : ""}samesite=strict`, document.cookie = s, O("Cookies:", [document.cookie, s])) : (O("Authenticating through URL query parameter..."), e += `${e.indexOf("?") >= 0 ? "&" : "?"}${s}`), O(
-    `Creating websocket connection to ws${t ? "s" : ""}://${$n()}${_n()}`
-  ), dr({
-    url: e,
-    serializer: (i) => typeof i == "object" ? JSON.stringify(i) : i,
-    deserializer: (i) => {
-      let r = i.data;
-      if (r === "pong") return r;
-      try {
-        return JSON.parse(i.data);
-      } catch {
-        return r;
-      }
-    }
-  });
-}
-function Mt() {
-  Ms.set([Os, Date.now() - Ns]), Y && ws() && (Y.complete(), Ee && (clearInterval(Ee), Ee = void 0)), O(
-    `Reconnecting in ${Math.min(
-      5e3,
-      Ot * 300 || 1e3
-    )}ms...`
-  ), re(
-    "reconnect",
-    () => Hn(),
-    Math.min(5e3, (Ot + 1) * 300 || 1e3)
-  );
-}
-function Qn() {
-  if (Date.now() - Dn > 4 * Cs * 1e3)
-    return Mt();
-  Y?.next("ping");
-}
-function Rr(t) {
-  Se.set(false), O.error("Websocket error:", t), t.status === 401 && An(), xn(), Mt();
-}
-function mn() {
-  kt && (clearTimeout(kt), kt = void 0);
-}
-function Ur() {
-  const t = new Is();
-  return t.subscribe(
-    (e) => Ds(e)
-  ), t;
-}
-function Kn(t, e) {
-  const n = typeof e == "string" ? e : e?.message || e?.msg || "Mock realtime callback failed";
-  return {
-    id: t.id,
-    type: "error",
-    code: e?.code || te.UNEXPECTED_FAILURE,
-    msg: n
-  };
-}
-function Tr(t, e, n) {
-  const s = `${t.sys}|${t.mod}_${t.index}|${t.name}`, i = mr(t.sys), r = i && i[t.mod] ? i[t.mod][t.index - 1 || 0] : null;
-  if (r) {
-    try {
-      switch (t.cmd) {
-        case "bind":
-          n[s] = r.listen(t.name).subscribe((o) => {
-            setTimeout(
-              () => {
-                e.next({
-                  type: "notify",
-                  value: o,
-                  meta: t
-                });
-              },
-              Math.floor(Math.random() * 100 + 50)
-              // Add natural delay before response
-            );
-          });
-          break;
-        case "unbind":
-          n[s] && (n[s](), delete n[s], _e(`${s}`));
-          break;
-      }
-    } catch (o) {
-      O.error(`[MOCK ERROR](${t.id}) request failed`, o), re(
-        `${t.id}-error`,
-        () => e.next(Kn(t, o)),
-        10
-      );
-      return;
-    }
-    re(
-      `${t.id}-response`,
-      () => {
-        try {
-          const o = {
-            id: t.id,
-            type: "success",
-            value: t.cmd === "exec" ? r.call(t.name, t.args) : null
-          };
-          e.next(o);
-        } catch (o) {
-          O.error(
-            `[MOCK ERROR](${t.id}) execute failed`,
-            o
-          ), e.next(Kn(t, o));
-        }
-      },
-      10
-    );
-  } else
-    re(
-      `${t.id}-error`,
-      () => e.next({
-        id: t.id,
-        type: "error",
-        code: i ? te.SYS_NOT_FOUND : te.MOD_NOT_FOUND
-      }),
-      10
-    );
-}
-function Zn() {
-  for (const t in G)
-    G[t] && delete G[t];
-}
-var Jn = class {
-  constructor(e, n) {
-    this._module = e, this.name = n, $r().subscribe((s, i) => {
-      s !== i && (s && (this._stale_bindings || this._pending === 1) ? (xt("VAR", "Re-binding to status variable", this.binding()), this.rebind()) : s || (_e(`rebind:${JSON.stringify(this.binding())}`), xt(
-        "VAR",
-        "Binding dropped due to disconnection, re-binding when possible.",
-        this.binding()
-      ), this._stale_bindings = this._binding_count || this._stale_bindings, this._binding_count = 0));
-    });
+  if (minutes != null && (minutes < 0 || minutes >= 60)) {
+    return false;
   }
-  /** Status variable name */
-  name;
-  /** Active pending state of the variable binding */
-  _pending = 0;
-  /** Number of active bindings to this variable */
-  _binding_count = 0;
-  /** Number of bindings to restore on reconnection */
-  _stale_bindings = 0;
-  /** Number of bindings to this status variable */
-  get count() {
-    return this._binding_count;
+  if (seconds != null && (seconds < 0 || seconds >= 60)) {
+    return false;
   }
-  /** Current value of the binding */
-  get value() {
-    return vr(this.binding());
-  }
-  /**
-   * Get a signal that emits the current value of the binding
-   */
-  listen() {
-    return br(this.binding());
-  }
-  /**
-   * Subscribe to changes of the variable's binding value.
-   * Note: Initial value emitted may be `undefined`
-   * @param next Callback for changes to the bindings value
-   */
-  subscribe(e) {
-    return this.listen().subscribe(e);
-  }
-  bindThenSubscribe(e) {
-    const n = this.bind(), s = this.listen().subscribe((i) => {
-      try {
-        e(i);
-      } catch (r) {
-        console.error(r);
-      }
-    });
-    return () => {
-      try {
-        s();
-      } finally {
-        try {
-          n();
-        } catch {
-        }
-      }
-    };
-  }
-  /**
-   * Bind to the status variable's value
-   */
-  bind() {
-    return (this._binding_count <= 0 && this._stale_bindings <= 0 || this._pending === 2) && (this._pending = 1, Wn(this.binding()).then(() => {
-      this._binding_count++, this._pending = 0;
-    }).catch(() => null)), () => this.unbind();
-  }
-  /**
-   * Unbind from status variable
-   */
-  unbind() {
-    this._binding_count === 1 && this._pending === 0 ? (this._pending = 2, kr(this.binding()).then(() => {
-      this._pending === 2 && (this._pending = 0), this._binding_count--;
-    })) : this._binding_count = Math.max(this._binding_count - 1, 0);
-  }
-  /**
-   * Rebind to the status variable
-   */
-  async rebind() {
-    !this._stale_bindings && this._pending !== 1 || re(
-      `rebind:${JSON.stringify(this.binding())}`,
-      async () => {
-        await Wn(this.binding()), this._binding_count = this._stale_bindings || 1, this._stale_bindings = 0;
-      },
-      100
-    );
-  }
-  /**
-   * Generate binding details for the status variable
-   */
-  binding() {
-    return {
-      sys: this._module.system.id,
-      mod: this._module.name,
-      index: this._module.index,
-      name: this.name
-    };
-  }
-};
-var Ir = class {
-  constructor(e, n) {
-    this._system = e, this._id = n;
-  }
-  /** Mapping of module bindings */
-  _bindings = {};
-  get id() {
-    return `${this.name}_${this.index}`;
-  }
-  /** Parent system of the module */
-  get system() {
-    return this._system;
-  }
-  /** Module index */
-  get index() {
-    const n = this._id.split("_").pop();
-    return parseInt(n || "", 10) || 1;
-  }
-  /** Module name */
-  get name() {
-    const e = this._id.split("_");
-    return e.pop(), e.join("_");
-  }
-  /**
-   * Get binding with the given name
-   * @param name Name of the binding
-   * @deprecated Use `variable` instead
-   */
-  binding(e) {
-    return this._bindings[e] || (this._bindings[e] = new Jn(this, e)), this._bindings[e];
-  }
-  /**
-   * Get binding with the given name
-   * @param name Name of the binding
-   */
-  variable(e) {
-    return this._bindings[e] || (this._bindings[e] = new Jn(this, e)), this._bindings[e];
-  }
-  /**
-   * Execute method on the engine module
-   * @param method Name of the method
-   * @param args Array of arguments to pass to the method
-   */
-  execute(e, n, s = yt) {
-    return Sr(
-      {
-        sys: this._system.id,
-        mod: this.name,
-        index: this.index,
-        name: e,
-        args: n
-      },
-      s
-    );
-  }
-};
-var Er = class {
-  /** Unique idetifier of the system */
-  id;
-  /** Mapping of engine modules within the system */
-  _module_list = {};
-  constructor(e) {
-    this.id = e;
-  }
-  /**
-   * Get binding interface for the given module
-   * @param module_id ID of the module
-   * @param index Index of the module within the system
-   */
-  module(e, n = 1) {
-    if (!e)
-      throw new Error("Invalid module ID");
-    const s = e.split("_");
-    s.length > 1 && Number.isInteger(+s[s.length - 1]) && (n = +s[s.length - 1], s.pop()), n < 1 && (n = 1);
-    const i = s.join("_");
-    for (this._module_list[i] || (this._module_list[i] = []); this._module_list[i].length < n; )
-      this._module_list[i].push(
-        new Ir(
-          this,
-          `${i}_${this._module_list[i].length + 1}`
-        )
-      );
-    return this._module_list[i][n - 1];
-  }
-};
-var gn = {};
-function Cr(t) {
-  return gn[t] || (gn[t] = new Er(t)), gn[t];
-}
-function Fl(t, e, n = 1) {
-  return Cr(t).module(e, n);
+  return true;
 }
 
-// libs/common/src/lib/locale.service.ts
-var _service;
-function setTranslationService(service) {
-  _service = service;
+// node_modules/date-fns-tz/dist/esm/toZonedTime/index.js
+function toZonedTime(date, timeZone, options) {
+  date = toDate3(date, options);
+  const offsetMilliseconds = tzParseTimezone(timeZone, date, true);
+  const d = new Date(date.getTime() - offsetMilliseconds);
+  const resultDate = /* @__PURE__ */ new Date(0);
+  resultDate.setFullYear(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
+  resultDate.setHours(d.getUTCHours(), d.getUTCMinutes(), d.getUTCSeconds(), d.getUTCMilliseconds());
+  return resultDate;
 }
-function i18nAvailable() {
-  return !!_service;
+
+// node_modules/date-fns-tz/dist/esm/fromZonedTime/index.js
+function fromZonedTime(date, timeZone, options) {
+  if (typeof date === "string" && !date.match(tzPattern)) {
+    return toDate3(date, __spreadProps(__spreadValues({}, options), { timeZone }));
+  }
+  date = toDate3(date, options);
+  const utc = newDateUTC(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds()).getTime();
+  const offsetMilliseconds = tzParseTimezone(timeZone, new Date(utc));
+  return new Date(utc + offsetMilliseconds);
 }
-function i18n(key, args = {}, plural2 = 0) {
-  if (!_service)
-    return key;
-  return _service.get(key, args, plural2);
+
+// node_modules/date-fns-tz/dist/esm/getTimezoneOffset/index.js
+function getTimezoneOffset(timeZone, date) {
+  return -tzParseTimezone(timeZone, date);
 }
-function removeNesting(value, path = "") {
-  let out_object = {};
-  for (const key in value) {
-    const out_key = path ? [path, key].join(".") : key;
-    if (value[key] instanceof Object) {
-      out_object = __spreadValues(__spreadValues({}, out_object), removeNesting(value[key], out_key));
-    } else {
-      out_object[out_key] = `${value[key]}`;
-    }
-  }
-  return out_object;
-}
-function removeLocalStorageKeysWithSubstring(substring) {
-  for (let i = localStorage.length - 1; i >= 0; i--) {
-    const key = localStorage.key(i);
-    if (key && key.includes(substring)) {
-      localStorage.removeItem(key);
-    }
-  }
-}
-var STORE_KEY = "APP.locale";
-var LocaleService = class _LocaleService {
-  constructor() {
-    this._default_locale = "en-AU";
-    this._current_locale = this._default_locale;
-    this._current_locale_short = this._current_locale.split("-")[0];
-    this._cache_time = 7 * 24 * 60 * 60 * 1e3;
-    this._load_promises = {};
-    this._changes = signal(
-      0,
-      ...ngDevMode ? [{ debugName: "_changes" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this._default_mappings = removeNesting(en_AU_exports);
-    this._locale_mappings = {};
-    this.locale_folder = "assets/locale";
-    this.changes = this._changes.asReadonly();
-    this._current_locale = localStorage.getItem(`${STORE_KEY}`) || this._default_locale;
-    if (this._current_locale !== this._default_locale) {
-      const existing = JSON.parse(localStorage.getItem(`${STORE_KEY}.${this._current_locale}`) || "{}");
-      if (existing.expiry && existing.expiry > Date.now()) {
-        this._locale_mappings[this._current_locale] = existing.mappings;
-      }
-    }
-  }
-  init() {
-    this.setLocale(localStorage.getItem(`${STORE_KEY}`) || this._default_locale);
-    if (window.debug) {
-      window.clearLocaleDataStore = () => {
-        removeLocalStorageKeysWithSubstring(STORE_KEY);
-        location.reload();
-      };
-      window.i18n = i18n;
-    }
-  }
-  get(key, args = {}, plural2 = 0) {
-    this.changes();
-    let key_value = key;
-    let value = key;
-    const map2 = this._locale_mappings[this._current_locale] || {};
-    const map_short = this._locale_mappings[this._current_locale_short] || {};
-    const map_default = this._default_mappings || {};
-    if (plural2) {
-      key_value = `${key}_${plural2}`;
-      const any_key_value = `${key}_N`;
-      value = // Check for exact plural
-      map2[key_value] || map_short[key_value] || map_default[key_value] || // Check for catch-all plural
-      map2[any_key_value] || map_short[any_key_value] || map_default[any_key_value] || // Check for key
-      map2[key] || map_short[key] || map_default[key] || key;
-    } else {
-      value = map2[key_value] || map_short[key_value] || map_default[key_value] || key;
-    }
-    for (const id in args) {
-      value = value.replace(`{{ ${id} }}`, args[id]).replace(`{{ ${id} }}`, args[id]);
-    }
-    return value || "";
-  }
-  get default_locale() {
-    return this._default_locale;
-  }
-  get locale() {
-    return this._current_locale;
-  }
-  getLocaleShort() {
-    return this._current_locale_short;
-  }
-  setLocale(locale) {
-    this._current_locale = locale;
-    this._current_locale_short = this._current_locale.split("-")[0];
-    this._changes.update((value) => value + 1);
-    if (!this._locale_mappings[locale] && !this._load_promises[locale]) {
-      this._load_promises[locale] = this._loadLocale(locale);
-    }
-    localStorage.setItem(`${STORE_KEY}`, locale);
-    log("LOCALE", `Locale set to "${locale}"`);
-  }
-  async _loadLocale(locale) {
-    const existing = JSON.parse(localStorage.getItem(`${STORE_KEY}.${locale}`) || "{}");
-    if (!existing.expiry || existing.expiry < Date.now()) {
-      localStorage.removeItem(`${STORE_KEY}.${locale}`);
-      const resp = await fetch(`${this.locale_folder}/${locale}.json`);
-      if (!resp.ok) {
-        delete this._load_promises[locale];
-        return console.error(`Failed to loaded locale file for "${locale}".`, resp);
-      }
-      const locale_data = await resp.json();
-      const locale_override_data = this.zone_id ? await ju(this.zone_id, `locale_${locale}`) : { details: {} };
-      const base_locale_values = removeNesting(locale_data);
-      const override_locale_values = removeNesting(locale_override_data.details);
-      this._locale_mappings[locale] = __spreadValues(__spreadValues({}, base_locale_values), override_locale_values);
-      if (!window.debug) {
-        const store2 = {
-          expiry: Date.now() + this._cache_time,
-          locale,
-          mappings: this._locale_mappings[locale]
-        };
-        localStorage.setItem(`${STORE_KEY}.${locale}`, JSON.stringify(store2));
-      }
-    } else {
-      this._locale_mappings[locale] = existing.mappings;
-    }
-    this._changes.update((value) => value + 1);
-    delete this._load_promises[locale];
-  }
-  static {
-    this.\u0275fac = function LocaleService_Factory(__ngFactoryType__) {
-      return new (__ngFactoryType__ || _LocaleService)();
-    };
-  }
-  static {
-    this.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _LocaleService, factory: _LocaleService.\u0275fac, providedIn: "root" });
-  }
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(LocaleService, [{
-    type: Injectable,
-    args: [{
-      providedIn: "root"
-    }]
-  }], () => [], null);
-})();
 
 // libs/common/src/lib/notifications.ts
-var _service2;
+var _service;
 var _disable_logging = false;
 function setNotifyOutlet(snackbar, disable_logging = false) {
-  _service2 = snackbar;
+  _service = snackbar;
   _disable_logging = disable_logging;
 }
 function notify(type, message2, action = "OK", on_action, config2 = {}) {
-  if (!_service2) {
+  if (!_service) {
     return !_disable_logging && console.warn("Snackbar service hasn't been initialised");
   }
-  const snackbar_ref = _service2.open(message2, action, __spreadValues({
+  const snackbar_ref = _service.open(message2, action, __spreadValues({
     panelClass: [type],
     duration: 5e3
   }, config2));
@@ -47901,8 +47672,8 @@ function getTimezoneOffsetInMinutes(timeZone, date = /* @__PURE__ */ new Date())
 }
 function getTimeInTimezone(date, tz) {
   if (!tz) {
-    const d2 = new Date(date);
-    return { hours: d2.getHours(), minutes: d2.getMinutes() };
+    const d = new Date(date);
+    return { hours: d.getHours(), minutes: d.getMinutes() };
   }
   const zoned = toZonedTime(date, tz);
   return { hours: zoned.getHours(), minutes: zoned.getMinutes() };
@@ -47913,8 +47684,8 @@ function formatTimeInTimezone(date, tz) {
 }
 function setTimeInTimezone(date, hours, minutes, tz) {
   if (!tz) {
-    const d2 = set(new Date(date), { hours, minutes });
-    return startOfMinute(d2).valueOf();
+    const d = set(new Date(date), { hours, minutes });
+    return startOfMinute(d).valueOf();
   }
   const zoned = toZonedTime(date, tz);
   const adjusted = set(zoned, { hours, minutes });
@@ -47966,7 +47737,7 @@ function padLength(value, length = 2, character = "0") {
 }
 function getItemWithKeys(keys, map2) {
   const key = keys[0];
-  if (map2 && key in map2) {
+  if (map2 && typeof map2 === "object" && key in map2) {
     return keys.length > 1 ? getItemWithKeys(keys.slice(1), map2[key] || {}) : map2[key];
   }
   return null;
@@ -48028,27 +47799,27 @@ function predictableRandomInt(ceil = 100, floor = 0) {
   return Math.floor(rand() * (ceil - floor)) + floor;
 }
 function xmur3(str) {
-  let h = 1779033703 ^ str.length;
+  let h2 = 1779033703 ^ str.length;
   for (let i = 0; i < str.length; i++)
-    h = Math.imul(h ^ str.charCodeAt(i), 3432918353), h = h << 13 | h >>> 19;
+    h2 = Math.imul(h2 ^ str.charCodeAt(i), 3432918353), h2 = h2 << 13 | h2 >>> 19;
   return function() {
-    h = Math.imul(h ^ h >>> 16, 2246822507);
-    h = Math.imul(h ^ h >>> 13, 3266489909);
-    return (h ^= h >>> 16) >>> 0;
+    h2 = Math.imul(h2 ^ h2 >>> 16, 2246822507);
+    h2 = Math.imul(h2 ^ h2 >>> 13, 3266489909);
+    return (h2 ^= h2 >>> 16) >>> 0;
   };
 }
-function sfc32(a, b2, c, d2) {
+function sfc32(a, b2, c, d) {
   return function() {
     a >>>= 0;
     b2 >>>= 0;
     c >>>= 0;
-    d2 >>>= 0;
+    d >>>= 0;
     let t = a + b2 | 0;
     a = b2 ^ b2 >>> 9;
     b2 = c + (c << 3) | 0;
     c = c << 21 | c >>> 11;
-    d2 = d2 + 1 | 0;
-    t = t + d2 | 0;
+    d = d + 1 | 0;
+    t = t + d | 0;
     c = c + t | 0;
     return (t >>> 0) / 4294967296;
   };
@@ -48117,33 +47888,20 @@ function formatDuration2({ days, hours, minutes, seconds }, { zero } = {}) {
 function firstTruthyValueFrom(obs) {
   return obs ? lastValueFrom(obs.pipe(first((_2) => !!_2))) : Promise.resolve(null);
 }
-function getAllDayTimeRange(date, timezone = "", start, end, min_date) {
+function getAllDayTimeRange(date, timezone = "", start, end) {
   const day_start = startOfDayInTimezone(date, timezone);
-  const clampStart = (period_start2, period_end2) => {
-    if (!min_date)
-      return period_start2;
-    const minimum = roundToNearestMinutes(min_date, {
-      nearestTo: 5,
-      roundingMethod: "ceil"
-    }).valueOf();
-    const same_day = isSameDay(timezone ? toZonedTime(minimum, timezone) : new Date(minimum), timezone ? toZonedTime(period_start2, timezone) : new Date(period_start2));
-    if (!same_day || minimum <= period_start2)
-      return period_start2;
-    return Math.min(period_end2, minimum);
-  };
   if (start == null || end == null) {
     const period_end2 = endOfDayInTimezone(day_start, timezone);
-    const period_start2 = clampStart(day_start, period_end2);
     return {
-      date: period_start2,
-      duration: Math.max(0, differenceInMinutes(period_end2, period_start2)),
+      date: day_start,
+      duration: Math.max(0, differenceInMinutes(period_end2, day_start)),
       date_end: period_end2
     };
   }
   const range_start = Math.max(0, Math.min(23, start));
   const range_end = Math.max(range_start + 1, Math.min(24, end));
   const period_end = addHours(day_start, range_end).valueOf();
-  const period_start = clampStart(addHours(day_start, range_start).valueOf(), period_end);
+  const period_start = addHours(day_start, range_start).valueOf();
   return {
     date: period_start,
     duration: Math.max(0, differenceInMinutes(period_end, period_start)),
@@ -48336,7 +48094,6 @@ function setupFormTimeSync(model2, options = {}, injector) {
     nearestTo: round_to,
     roundingMethod: "ceil"
   }).valueOf();
-  const allDayMinDate = () => snap().id ? void 0 : Date.now();
   const bookableWindowRemaining = (start) => {
     start = normaliseTimeValue(start);
     if (!bookable_hours || !start || snap().id)
@@ -48386,9 +48143,9 @@ function setupFormTimeSync(model2, options = {}, injector) {
     date_end = normaliseTimeValue(date_end);
     if (!date || !date_end)
       return false;
-    const d2 = timezone ? toZonedTime(date, timezone) : new Date(date);
+    const d = timezone ? toZonedTime(date, timezone) : new Date(date);
     const e = timezone ? toZonedTime(date_end, timezone) : new Date(date_end);
-    return !isSameDay(d2, e);
+    return !isSameDay(d, e);
   };
   const alignEndToBookableHours = (date_end) => {
     date_end = normaliseTimeValue(date_end);
@@ -48518,7 +48275,7 @@ function setupFormTimeSync(model2, options = {}, injector) {
       effective = alignToBookableHours(snapped) || snapped;
     }
     if (is_all_day) {
-      applyPatch(getAllDayTimeRange(effective, timezone, all_day_start, all_day_end, allDayMinDate()));
+      applyPatch(getAllDayTimeRange(effective, timezone, all_day_start, all_day_end));
       on_change?.();
       return;
     }
@@ -48569,7 +48326,7 @@ function setupFormTimeSync(model2, options = {}, injector) {
   fieldEffect((v) => v.all_day, () => {
     const all_day = snap().all_day;
     if (all_day) {
-      applyPatch(getAllDayTimeRange(normaliseTimeValue(snap().date), timezone, all_day_start, all_day_end, allDayMinDate()));
+      applyPatch(getAllDayTimeRange(normaliseTimeValue(snap().date), timezone, all_day_start, all_day_end));
     } else {
       const date = normaliseTimeValue(snap().date);
       const duration = normaliseTimeValue(snap().duration);
@@ -48608,7 +48365,7 @@ function setupFormTimeSync(model2, options = {}, injector) {
       if (patch.all_day_end !== void 0)
         all_day_end = patch.all_day_end;
       if (snap().all_day && snap().date) {
-        applyPatch(getAllDayTimeRange(normaliseTimeValue(snap().date), timezone, all_day_start, all_day_end, allDayMinDate()));
+        applyPatch(getAllDayTimeRange(normaliseTimeValue(snap().date), timezone, all_day_start, all_day_end));
         on_change?.();
         return;
       }
@@ -48664,141 +48421,263 @@ function setupFormTimeSync(model2, options = {}, injector) {
   return handle;
 }
 
-// libs/common/src/lib/hotkeys.service.ts
-var INVALID_STANDALONE_KEYS = [
-  "control",
-  "shift",
-  "alt",
-  "meta",
-  "os"
-];
-var HotkeysService = class _HotkeysService {
+// libs/common/src/lib/locale.service.ts
+var _service2;
+function setTranslationService(service) {
+  _service2 = service;
+}
+function i18nAvailable() {
+  return !!_service2;
+}
+function i18n(key, args = {}, plural2 = 0) {
+  if (!_service2)
+    return key;
+  return _service2.get(key, args, plural2);
+}
+function removeNesting(value, path = "") {
+  let out_object = {};
+  for (const key in value) {
+    const out_key = path ? [path, key].join(".") : key;
+    if (value[key] instanceof Object) {
+      out_object = __spreadValues(__spreadValues({}, out_object), removeNesting(value[key], out_key));
+    } else {
+      out_object[out_key] = `${value[key]}`;
+    }
+  }
+  return out_object;
+}
+function removeLocalStorageKeysWithSubstring(substring) {
+  for (let i = localStorage.length - 1; i >= 0; i--) {
+    const key = localStorage.key(i);
+    if (key && key.includes(substring)) {
+      localStorage.removeItem(key);
+    }
+  }
+}
+var STORE_KEY = "APP.locale";
+var LocaleService = class _LocaleService {
   constructor() {
-    this.keydown_states = {};
-    this.keydown_callbacks = {};
-    this.combo_end = [];
-    this.registered_combos = [];
-    this.counter = 0;
-    window.addEventListener("keydown", (event) => {
-      const code = this.mapKey((event.code || "").toLowerCase());
-      if (this.last_down !== code) {
-        if (!this.keydown_states[code]) {
-          this.keydown_states[code] = signal(null);
-        }
-        this.keydown_states[code].set(++this.counter);
-        this._handleKeyPress(code, this.counter);
-        if (this.combo_end.indexOf(code) >= 0) {
-          event.preventDefault();
-        }
-        this.last_down = code;
+    this._default_locale = "en-AU";
+    this._current_locale = this._default_locale;
+    this._current_locale_short = this._current_locale.split("-")[0];
+    this._cache_time = 7 * 24 * 60 * 60 * 1e3;
+    this._load_promises = {};
+    this._changes = signal(
+      0,
+      ...ngDevMode ? [{ debugName: "_changes" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._default_mappings = removeNesting(en_AU_exports);
+    this._locale_mappings = {};
+    this.locale_folder = "assets/locale";
+    this.changes = this._changes.asReadonly();
+    this._current_locale = localStorage.getItem(`${STORE_KEY}`) || this._default_locale;
+    if (this._current_locale !== this._default_locale) {
+      const existing = JSON.parse(localStorage.getItem(`${STORE_KEY}.${this._current_locale}`) || "{}");
+      if (existing.expiry && existing.expiry > Date.now()) {
+        this._locale_mappings[this._current_locale] = existing.mappings;
       }
-    });
-    window.addEventListener("keyup", (event) => {
-      const code = this.mapKey((event.code || "").toLowerCase());
-      this.keydown_states[code]?.set(null);
-      if (this.last_down === code) {
-        this.last_down = null;
-      }
-    });
+    }
   }
-  /**
-   * Listen to the given key combination
-   * @param combo Array of key codes to listen to or a hotkey string e.g. `Alt+Shift+KeyK`
-   * @param next Callback for combination presses
-   */
-  listen(combo, next) {
-    combo = combo instanceof Array ? combo : combo.split("+");
-    const combination = combo.map((i) => this.mapKey(i.toLowerCase()));
-    if (combination.length > 0 && this.validCombination(combination)) {
-      this.registered_combos.push(combination);
-      const last_key = combination[combination.length - 1];
-      if (!this.keydown_states[last_key]) {
-        this.keydown_states[last_key] = signal(null);
-      }
-      this.updateCombinationEndList();
-      const callback = (count) => {
-        if (count) {
-          const presses = [];
-          if (combination.length > 0) {
-            for (const key of combination) {
-              const state2 = this.keydown_states[key];
-              presses.push(state2 ? state2() || -1 : -1);
-            }
-            for (let i = 0; i < combination.length - 1; i++) {
-              if (presses[i] > presses[i + 1]) {
-                return;
-              }
-            }
-          }
-          const total = presses.reduce((a, v) => a + (v > 0 ? 1 : -1), 0);
-          if (total >= combination.length) {
-            next();
-          }
-        }
+  init() {
+    this.setLocale(localStorage.getItem(`${STORE_KEY}`) || this._default_locale);
+    if (window.debug) {
+      window.clearLocaleDataStore = () => {
+        removeLocalStorageKeysWithSubstring(STORE_KEY);
+        location.reload();
       };
-      this.keydown_callbacks[last_key] ||= /* @__PURE__ */ new Set();
-      this.keydown_callbacks[last_key].add(callback);
-      return {
-        unsubscribe: () => this.keydown_callbacks[last_key]?.delete(callback)
-      };
-    }
-    return null;
-  }
-  _handleKeyPress(code, count) {
-    for (const callback of this.keydown_callbacks[code] || []) {
-      callback(count);
+      window.i18n = i18n;
     }
   }
-  /**
-   * Map key codes with multiple versions to simple form
-   * @param code Code to transform
-   */
-  mapKey(code) {
-    if (code.indexOf("alt") >= 0 || code.indexOf("shift") >= 0 || code.indexOf("control") >= 0) {
-      return code.replace("left", "").replace("right", "");
+  get(key, args = {}, plural2 = 0) {
+    this.changes();
+    let key_value = key;
+    let value = key;
+    const map2 = this._locale_mappings[this._current_locale] || {};
+    const map_short = this._locale_mappings[this._current_locale_short] || {};
+    const map_default = this._default_mappings || {};
+    if (plural2) {
+      key_value = `${key}_${plural2}`;
+      const any_key_value = `${key}_N`;
+      value = // Check for exact plural
+      map2[key_value] || map_short[key_value] || map_default[key_value] || // Check for catch-all plural
+      map2[any_key_value] || map_short[any_key_value] || map_default[any_key_value] || // Check for key
+      map2[key] || map_short[key] || map_default[key] || key;
+    } else {
+      value = map2[key_value] || map_short[key_value] || map_default[key_value] || key;
     }
-    return code;
-  }
-  /**
-   * Update the list of the last keys in combinations to allow for prevent default actions on pre-existing hotkeys
-   */
-  updateCombinationEndList() {
-    const key_list = [];
-    for (const combo of this.registered_combos) {
-      this.combo_end.push(combo[combo.length - 1]);
+    for (const id in args) {
+      value = value.replace(`{{ ${id} }}`, args[id]).replace(`{{ ${id} }}`, args[id]);
     }
-    this.combo_end = unique(key_list);
+    return value || "";
   }
-  /**
-   * Checks if the given hotkey combination is allowed and valid
-   * @param combo Array of key codes
-   */
-  validCombination(combo) {
-    let non_meta = 0;
-    for (const key of combo) {
-      if (INVALID_STANDALONE_KEYS.indexOf(key) < 0) {
-        non_meta++;
+  get default_locale() {
+    return this._default_locale;
+  }
+  get locale() {
+    return this._current_locale;
+  }
+  getLocaleShort() {
+    return this._current_locale_short;
+  }
+  setLocale(locale) {
+    this._current_locale = locale;
+    this._current_locale_short = this._current_locale.split("-")[0];
+    this._changes.update((value) => value + 1);
+    if (!this._locale_mappings[locale] && !this._load_promises[locale]) {
+      this._load_promises[locale] = this._loadLocale(locale);
+    }
+    localStorage.setItem(`${STORE_KEY}`, locale);
+    log("LOCALE", `Locale set to "${locale}"`);
+  }
+  async _loadLocale(locale) {
+    const existing = JSON.parse(localStorage.getItem(`${STORE_KEY}.${locale}`) || "{}");
+    if (!existing.expiry || existing.expiry < Date.now()) {
+      localStorage.removeItem(`${STORE_KEY}.${locale}`);
+      const resp = await fetch(`${this.locale_folder}/${locale}.json`);
+      if (!resp.ok) {
+        delete this._load_promises[locale];
+        return console.error(`Failed to loaded locale file for "${locale}".`, resp);
       }
+      const locale_data = await resp.json();
+      const locale_override_data = this.zone_id ? await Wu(this.zone_id, `locale_${locale}`) : { details: {} };
+      const base_locale_values = removeNesting(locale_data);
+      const override_locale_values = removeNesting(locale_override_data.details);
+      this._locale_mappings[locale] = __spreadValues(__spreadValues({}, base_locale_values), override_locale_values);
+      if (!window.debug) {
+        const store2 = {
+          expiry: Date.now() + this._cache_time,
+          locale,
+          mappings: this._locale_mappings[locale]
+        };
+        localStorage.setItem(`${STORE_KEY}.${locale}`, JSON.stringify(store2));
+      }
+    } else {
+      this._locale_mappings[locale] = existing.mappings;
     }
-    return non_meta > 0;
+    this._changes.update((value) => value + 1);
+    delete this._load_promises[locale];
   }
   static {
-    this.\u0275fac = function HotkeysService_Factory(__ngFactoryType__) {
-      return new (__ngFactoryType__ || _HotkeysService)();
+    this.\u0275fac = function LocaleService_Factory(__ngFactoryType__) {
+      return new (__ngFactoryType__ || _LocaleService)();
     };
   }
   static {
-    this.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _HotkeysService, factory: _HotkeysService.\u0275fac, providedIn: "root" });
+    this.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _LocaleService, factory: _LocaleService.\u0275fac, providedIn: "root" });
   }
 };
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(HotkeysService, [{
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(LocaleService, [{
     type: Injectable,
     args: [{
       providedIn: "root"
     }]
   }], () => [], null);
 })();
+
+// libs/common/src/lib/types/catering.class.ts
+function cloneOption(option = {}) {
+  return {
+    id: option.id || "",
+    name: option.name || "",
+    group: option.group || "",
+    multiple: !!option.multiple,
+    unit_price: option.unit_price || 0,
+    active: option.active
+  };
+}
+function deliverAtTime(order) {
+  let date = order.event?.date || order.event?.event_start * 1e3 || order._time;
+  if (order.deliver_day_offset > 0 || order.event?.all_day) {
+    date = addDays(startOfDay(date), order.deliver_day_offset).valueOf();
+  }
+  if (order.deliver_time) {
+    date = set(date, {
+      hours: Math.floor(order.deliver_time),
+      minutes: order.deliver_time % 1 * 60
+    }).valueOf();
+  }
+  return addMinutes(date, order.deliver_offset).valueOf();
+}
+var CateringItem = class {
+  get option_list() {
+    const active_options = this.options.filter((_2) => _2.active === true);
+    return active_options.length ? active_options : this._option_list;
+  }
+  /** String list of selected option ids */
+  get options_string() {
+    return this.option_list.map((_2) => _2.id || "").sort((a, b2) => a.localeCompare(b2)).join(",");
+  }
+  get custom_id() {
+    const options = this.option_list.map((_2) => _2.id).sort((a, b2) => a.localeCompare(b2)).join("+");
+    return `${this.id}[${options}]${!this.in_order ? "menu" : ""}`;
+  }
+  constructor(data = {}) {
+    this.id = data.id || "";
+    this.name = data.name || data.id || "";
+    this.category = data.category || "";
+    this.caterer = data.caterer || "";
+    this.unit_price = data.unit_price || 0;
+    this.description = data.description || "";
+    this.quantity = data.quantity || 0;
+    this.discount_cap = data.discount_cap || 0;
+    this.accept_points = !!data.accept_points;
+    this.tags = [
+      ...(data.tags instanceof Array ? data.tags : null) || []
+    ];
+    this.images = [...data.images || []];
+    this.options = (data.options || []).map((_2) => cloneOption(_2));
+    const has_options = this.options.some((_2) => _2.active === true);
+    this._option_list = (has_options ? this.options.filter((_2) => _2.active === true) : (data.option_list || []).map((_2) => cloneOption(_2))) || [];
+    this.hide_for_zones = [...data.hide_for_zones || []];
+    this.unit_price_with_options = this.unit_price + this.option_list.map((i) => i.unit_price || 0).reduce((c, a) => c + a, 0);
+    this.total_cost = this.unit_price_with_options * this.quantity;
+    this.in_order = data.in_order ?? false;
+  }
+};
+var CateringOrder = class {
+  get deliver_at() {
+    return deliverAtTime(this);
+  }
+  get status() {
+    return this._status;
+  }
+  set status(value) {
+    this._status = value;
+    this[`${this.event_id}_status`] = value;
+  }
+  constructor(data = {}) {
+    this._time = startOfMinute(Date.now()).valueOf();
+    this.id = data.id || `order-${randomInt(9999999, 1e6)}`;
+    this.system_id = data.system_id || "";
+    this.event_id = data.event_id || data.event?.id || "";
+    this.caterer = data.caterer || "";
+    this.items = (data.items || []).map((i) => i instanceof CateringItem ? i : new CateringItem(i));
+    this.items = this.items.filter((i) => i.quantity > 0 && this.caterer === i.caterer);
+    this.item_count = this.items.reduce((amount, item) => amount + item.quantity, 0);
+    this.total_cost = this.items.reduce((amount, item) => amount + (item.total_cost || 0), 0);
+    this.charge_code = data.charge_code || "";
+    this.status = data[`${this.event_id}_status`] || data.status || "pending";
+    this.invoice_number = data.invoice_number || "";
+    this.event = data.event || null;
+    this.notes = data.notes || "";
+    this.deliver_time = data.deliver_time || void 0;
+    this.deliver_offset = data.deliver_offset || 0;
+    this.deliver_day_offset = data.deliver_day_offset || 0;
+    this.deliver_at_time = deliverAtTime(this);
+  }
+  toJSON() {
+    const obj = Vs(__spreadValues({}, this), ["", null, void 0]);
+    obj.status = obj._status;
+    delete obj.event;
+    delete obj._status;
+    delete obj._time;
+    return obj;
+  }
+};
 
 // libs/common/src/lib/settings.ts
 var home = {};
@@ -48893,18 +48772,18 @@ var GoogleAnalyticsService = class _GoogleAnalyticsService {
   init(tracking_id = "") {
     if (!window.gtag) {
       window.dataLayer = window.dataLayer || [];
-      (function(w, d2, s, l2, i) {
-        w[l2] = w[l2] || [];
-        w[l2].push({
+      (function(w, d, s, l, i) {
+        w[l] = w[l] || [];
+        w[l].push({
           "gtm.start": (/* @__PURE__ */ new Date()).getTime(),
           event: "gtm.js"
         });
-        const f = d2.getElementsByTagName(s)[0];
-        const j = d2.createElement(s);
-        const dl = l2 != "dataLayer" ? "&l=" + l2 : "";
+        const f2 = d.getElementsByTagName(s)[0];
+        const j = d.createElement(s);
+        const dl = l != "dataLayer" ? "&l=" + l : "";
         j.async = true;
         j.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
-        f.parentNode.insertBefore(j, f);
+        f2.parentNode.insertBefore(j, f2);
       })(window, document, "script", "dataLayer", tracking_id);
       log("Analytics", "Service", "Injected Google Analytics into page");
     }
@@ -48968,8 +48847,8 @@ var GoogleAnalyticsService = class _GoogleAnalyticsService {
     }
     if (this.enabled) {
       this.timeout(`event|${category}|${action}|${label}|${value}`, () => {
-        const l2 = label ? ", " + label : "";
-        log("Analytics", "Service", `Event: ${category}, ${action}${l2}${value ? ", " + value : ""}`);
+        const l = label ? ", " + label : "";
+        log("Analytics", "Service", `Event: ${category}, ${action}${l}${value ? ", " + value : ""}`);
         this.push({
           event: "event",
           category,
@@ -49079,7 +48958,7 @@ var GoogleAnalyticsService = class _GoogleAnalyticsService {
 })();
 
 // libs/common/src/lib/types/asset-request.class.ts
-function deliverAtTime(request) {
+function deliverAtTime2(request) {
   let date = request.event?.date || request._time;
   if (request.deliver_time) {
     date = set(date, {
@@ -49094,7 +48973,7 @@ function deliverAtTime(request) {
 }
 var AssetRequest = class {
   get deliver_at() {
-    return deliverAtTime(this);
+    return deliverAtTime2(this);
   }
   get status() {
     return this._status;
@@ -49120,7 +48999,7 @@ var AssetRequest = class {
     this.deliver_time = data.deliver_time || data.extension_data?.deliver_time || void 0;
     this.deliver_offset = data.deliver_offset || data.extension_data?.deliver_offset || 0;
     this.deliver_day_offset = data.deliver_day_offset || data.extension_data?.deliver_day_offset || 0;
-    this.deliver_at_time = deliverAtTime(this);
+    this.deliver_at_time = deliverAtTime2(this);
     this.conflict = !!data.conflict;
     this.ref_id = `${this.deliver_at_time}|${this.items.map((_2) => `${_2.id}:${_2.quantity}`).join("|")}`;
   }
@@ -49140,107 +49019,6 @@ var AssetRequest = class {
       item_ids: _2.item_ids
     }));
     return blob;
-  }
-};
-
-// libs/common/src/lib/types/catering.class.ts
-function cloneOption(option = {}) {
-  return {
-    id: option.id || "",
-    name: option.name || "",
-    group: option.group || "",
-    multiple: !!option.multiple,
-    unit_price: option.unit_price || 0,
-    active: option.active
-  };
-}
-function deliverAtTime2(order) {
-  let date = order.event?.date || order.event?.event_start * 1e3 || order._time;
-  if (order.deliver_day_offset > 0 || order.event?.all_day) {
-    date = addDays(startOfDay(date), order.deliver_day_offset).valueOf();
-  }
-  if (order.deliver_time) {
-    date = set(date, {
-      hours: Math.floor(order.deliver_time),
-      minutes: order.deliver_time % 1 * 60
-    }).valueOf();
-  }
-  return addMinutes(date, order.deliver_offset).valueOf();
-}
-var CateringItem = class {
-  get option_list() {
-    const active_options = this.options.filter((_2) => _2.active === true);
-    return active_options.length ? active_options : this._option_list;
-  }
-  /** String list of selected option ids */
-  get options_string() {
-    return this.option_list.map((_2) => _2.id || "").sort((a, b2) => a.localeCompare(b2)).join(",");
-  }
-  get custom_id() {
-    const options = this.option_list.map((_2) => _2.id).sort((a, b2) => a.localeCompare(b2)).join("+");
-    return `${this.id}[${options}]${!this.in_order ? "menu" : ""}`;
-  }
-  constructor(data = {}) {
-    this.id = data.id || "";
-    this.name = data.name || data.id || "";
-    this.category = data.category || "";
-    this.caterer = data.caterer || "";
-    this.unit_price = data.unit_price || 0;
-    this.description = data.description || "";
-    this.quantity = data.quantity || 0;
-    this.discount_cap = data.discount_cap || 0;
-    this.accept_points = !!data.accept_points;
-    this.tags = [
-      ...(data.tags instanceof Array ? data.tags : null) || []
-    ];
-    this.images = [...data.images || []];
-    this.options = (data.options || []).map((_2) => cloneOption(_2));
-    const has_options = this.options.some((_2) => _2.active === true);
-    this._option_list = (has_options ? this.options.filter((_2) => _2.active === true) : (data.option_list || []).map((_2) => cloneOption(_2))) || [];
-    this.hide_for_zones = [...data.hide_for_zones || []];
-    this.unit_price_with_options = this.unit_price + this.option_list.map((i) => i.unit_price || 0).reduce((c, a) => c + a, 0);
-    this.total_cost = this.unit_price_with_options * this.quantity;
-    this.in_order = data.in_order ?? false;
-  }
-};
-var CateringOrder = class {
-  get deliver_at() {
-    return deliverAtTime2(this);
-  }
-  get status() {
-    return this._status;
-  }
-  set status(value) {
-    this._status = value;
-    this[`${this.event_id}_status`] = value;
-  }
-  constructor(data = {}) {
-    this._time = startOfMinute(Date.now()).valueOf();
-    this.id = data.id || `order-${randomInt(9999999, 1e6)}`;
-    this.system_id = data.system_id || "";
-    this.event_id = data.event_id || data.event?.id || "";
-    this.caterer = data.caterer || "";
-    this.items = (data.items || []).map((i) => i instanceof CateringItem ? i : new CateringItem(i));
-    this.items = this.items.filter((i) => i.quantity > 0 && this.caterer === i.caterer);
-    this.item_count = this.items.reduce((amount, item) => amount + item.quantity, 0);
-    this.total_cost = this.items.reduce((amount, item) => amount + (item.total_cost || 0), 0);
-    this.charge_code = data.charge_code || "";
-    this.status = data[`${this.event_id}_status`] || data.status || "accepted";
-    this.invoice_number = data.invoice_number || "";
-    this.event = data.event || null;
-    this.notes = data.notes || "";
-    this.deliver_time = data.deliver_time || void 0;
-    this.deliver_offset = data.deliver_offset || 0;
-    this.deliver_day_offset = data.deliver_day_offset || 0;
-    this.deliver_at_time = deliverAtTime2(this);
-  }
-  toJSON() {
-    const obj = Ys(__spreadValues({}, this), ["", null, void 0]);
-    obj.status = obj._status;
-    delete obj.event;
-    delete obj._status;
-    delete obj._time;
-    return obj;
   }
 };
 
@@ -49752,7 +49530,7 @@ var CalendarEvent = class _CalendarEvent {
   }
   /** List of external attendees associated with the event */
   get guests() {
-    return this.attendees.filter((f) => !!f.is_external);
+    return this.attendees.filter((f2) => !!f2.is_external);
   }
   /** Primary space associated with the booking */
   get space() {
@@ -49972,7 +49750,7 @@ async function loadUserGroups() {
     return;
   }
   try {
-    const groups = await _u({});
+    const groups = await yu({});
     user_groups.set(groups);
     console.log("Permissions:", user_permissions());
   } catch (error2) {
@@ -49990,7 +49768,7 @@ function initialiseUser() {
   }
   _current_user.subscribe((u3) => user_signal.set(u3));
   const is_public_mode = isPublicMode();
-  const user_request = combineLatest([Ca("current"), _change]).pipe(map(([i]) => new StaffUser(i)));
+  const user_request = combineLatest([Na("current"), _change]).pipe(map(([i]) => new StaffUser(i)));
   if (is_public_mode) {
     user_request.pipe(catchError((error2) => {
       console.warn("User loading failed in public mode, using local public user data.", error2);
@@ -50014,7 +49792,7 @@ function initialiseUser() {
 function reloadUserData() {
   setTimeout(async () => {
     try {
-      const p_user = await Ca("current");
+      const p_user = await Na("current");
       const user = new StaffUser(p_user);
       _current_user.next(user);
       setDefaultCreator(user);
@@ -50032,8 +49810,27 @@ function reloadUserData() {
 function currentUser() {
   return _current_user.getValue() || EMPTY_USER;
 }
-function userSignal() {
-  return user_signal;
+function currentUserIsLoaded() {
+  if (!isEmptyUser(currentUser()))
+    return true;
+  try {
+    return !!jest;
+  } catch {
+    return false;
+  }
+}
+function currentUserLoaded() {
+  const user = currentUser();
+  if (currentUserIsLoaded())
+    return Promise.resolve(user);
+  return new Promise((resolve) => {
+    const sub = _current_user.subscribe((user2) => {
+      if (isEmptyUser(user2))
+        return;
+      sub.unsubscribe();
+      resolve(user2);
+    });
+  });
 }
 function hasPermission(subsystem, permissions) {
   if (user_signal().groups?.includes("placeos_admin"))
@@ -50054,20 +49851,33 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "73959d8",
-  "hash": "73959d8",
+  "raw": "72d21fe",
+  "hash": "72d21fe",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "73959d8",
+  "suffix": "72d21fe",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1783504044450
+  "time": 1783937263795
 };
 
 // libs/common/src/lib/settings.service.ts
 var _service3;
 var _setting_signals = {};
+var DEBUG_OVERRIDES_KEY = "PLACEOS.setting_overrides";
+function loadDebugOverrides() {
+  try {
+    const overrides = JSON.parse(localStorage.getItem(DEBUG_OVERRIDES_KEY) || "{}");
+    for (const key in overrides) {
+      if (!key.startsWith("app."))
+        delete overrides[key];
+    }
+    return overrides;
+  } catch {
+    return {};
+  }
+}
 function setting(key) {
   return _service3 ? _service3.get(key) : void 0;
 }
@@ -50084,6 +49894,30 @@ var SettingsService = class _SettingsService extends AsyncHandler {
    */
   setOverrides(value) {
     this._overrides.set(value);
+    this._refreshSettings();
+  }
+  /** Set a local debug override for an `app.*` setting. `undefined` clears the key. */
+  setDebugOverride(key, value) {
+    if (!key.startsWith("app."))
+      return;
+    const overrides = __spreadValues({}, this._debug_overrides());
+    if (value === void 0)
+      delete overrides[key];
+    else
+      overrides[key] = value;
+    this._debug_overrides.set(overrides);
+    if (Object.keys(overrides).length) {
+      localStorage.setItem(DEBUG_OVERRIDES_KEY, JSON.stringify(overrides));
+    } else
+      localStorage.removeItem(DEBUG_OVERRIDES_KEY);
+    this._refreshSettings();
+  }
+  clearDebugOverrides() {
+    this._debug_overrides.set({});
+    localStorage.removeItem(DEBUG_OVERRIDES_KEY);
+    this._refreshSettings();
+  }
+  _refreshSettings() {
     this._applyCssVariables();
     this._updateSignals();
     this._applyTheme();
@@ -50143,6 +49977,14 @@ var SettingsService = class _SettingsService extends AsyncHandler {
         []
       )
     );
+    this._debug_overrides = signal(
+      loadDebugOverrides(),
+      ...ngDevMode ? [{ debugName: "_debug_overrides" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.debug_overrides = this._debug_overrides.asReadonly();
     this._subjects = {};
     this._pending_settings = {};
     this.theme_signal = computed(
@@ -50189,7 +50031,7 @@ var SettingsService = class _SettingsService extends AsyncHandler {
       window.setting = (key) => this.get(key);
     }
     const user = await this._currentUser();
-    const data = await ju(user.id, "settings");
+    const data = await Wu(user.id, "settings");
     this._user_settings.set(data.details || {});
     this.timeout("init", () => {
       this._initDarkMode();
@@ -50211,6 +50053,9 @@ var SettingsService = class _SettingsService extends AsyncHandler {
    * @param key Name of the setting. i.e. nested items can be grabbed using `.` to seperate key names
    */
   get(key) {
+    const debug_overrides = this._debug_overrides();
+    if (key in debug_overrides)
+      return debug_overrides[key];
     const keys = key.split(".");
     if (keys[0] !== "app") {
       return getItemWithKeys(keys, this._pending_settings) ?? getItemWithKeys(keys, this._user_settings()) ?? getItemWithKeys(keys, DEFAULT_SETTINGS);
@@ -50233,7 +50078,7 @@ var SettingsService = class _SettingsService extends AsyncHandler {
     this.timeout("save_settings", () => this._savePendingChanges(), 2400);
   }
   async updateLocatable(locatable) {
-    await Ma(currentUser().id, { locatable }, "patch");
+    await Da(currentUser().id, { locatable }, "patch");
     reloadUserData();
   }
   overrideCssVariable(key, value, important = false) {
@@ -50272,7 +50117,7 @@ var SettingsService = class _SettingsService extends AsyncHandler {
     if (!user?.id || !Object.keys(this._pending_settings).length)
       return;
     this._updateSignals();
-    await Gu(user.id, {
+    await Qu(user.id, {
       name: "settings",
       description: "",
       details: __spreadValues(__spreadValues({}, this._user_settings()), this._pending_settings)
@@ -50342,140 +50187,6 @@ var SettingsService = class _SettingsService extends AsyncHandler {
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(SettingsService, [{
-    type: Injectable,
-    args: [{
-      providedIn: "root"
-    }]
-  }], () => [], null);
-})();
-
-// libs/common/src/lib/mapspeople.service.ts
-var MapService;
-(function(MapService2) {
-  MapService2[MapService2["GoogleMaps"] = 0] = "GoogleMaps";
-  MapService2[MapService2["Mapbox"] = 1] = "Mapbox";
-})(MapService || (MapService = {}));
-var MapsPeopleService = class _MapsPeopleService extends AsyncHandler {
-  get map_keys() {
-    return this._settings.get("app.maps_people.keys") || {};
-  }
-  get use_service() {
-    return this._settings.get("app.maps_people.use_zones") || [];
-  }
-  get map_service() {
-    return this._map_service();
-  }
-  get map_token() {
-    return this._map_token();
-  }
-  get is_ready() {
-    return this._ready();
-  }
-  constructor() {
-    super();
-    this._settings = inject2(SettingsService);
-    this._org = inject2(OrganisationService);
-    this._map_service = signal(
-      null,
-      ...ngDevMode ? [{ debugName: "_map_service" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this._map_token = signal(
-      "",
-      ...ngDevMode ? [{ debugName: "_map_token" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this._ready = signal(
-      false,
-      ...ngDevMode ? [{ debugName: "_ready" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this._injected = {};
-    this._custom_zone = signal(
-      "",
-      ...ngDevMode ? [{ debugName: "_custom_zone" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.available = computed(
-      () => {
-        const bld = this._org.active_building();
-        const zone = this._custom_zone();
-        if (!this._org.initialised() || !bld?.id)
-          return false;
-        return !!this.map_keys.mapsindoors && (this.use_service.includes(zone || bld.id) || this.use_service.includes("*"));
-      },
-      ...ngDevMode ? [{ debugName: "available" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    effect(() => {
-      if (!this.available())
-        return;
-      this._injectMapsApiKeys();
-    });
-  }
-  setCustomZone(zone_id) {
-    this._custom_zone.set(zone_id);
-  }
-  _injectMapsApiKeys() {
-    log("MapsPeople", "Initializing Maps API Keys");
-    this._ready.set(false);
-    const { mapsindoors, google, mapbox } = this.map_keys;
-    if (!mapsindoors)
-      return;
-    if (mapsindoors && !this._injected.mapsindoors) {
-      const script = document.createElement("script");
-      script.src = `https://app.mapsindoors.com/mapsindoors/js/sdk/4.35.0/mapsindoors-4.35.0.js.gz?apikey=${mapsindoors}`;
-      document.body.appendChild(script);
-      this._injected.mapsindoors = true;
-    }
-    if (google && mapbox) {
-      log("MapsPeople", "Both Google and Mapbox keys provided", void 0, "error");
-      return;
-    }
-    if (google && !this._injected.google) {
-      const script = document.createElement("script");
-      script.src = `https://maps.googleapis.com/maps/api/js?libraries=geometry&key=${google}`;
-      document.body.appendChild(script);
-      this._map_service.set(MapService.GoogleMaps);
-      this._injected.google = true;
-    } else if (mapbox && !this._injected.mapbox) {
-      const script = document.createElement("script");
-      script.src = `https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js`;
-      document.body.appendChild(script);
-      const styles = document.createElement("link");
-      styles.rel = "stylesheet";
-      styles.href = `https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css`;
-      document.head.appendChild(styles);
-      this._map_service.set(MapService.Mapbox);
-      this._map_token.set(mapbox);
-      this._injected.mapbox = true;
-    }
-    if (google || mapbox) {
-      log("MapsPeople", `Initialized Maps API Keys for ${google ? "Google Maps" : "Mapbox"}`);
-      this.timeout("ready", () => this._ready.set(true), 300);
-    }
-  }
-  static {
-    this.\u0275fac = function MapsPeopleService_Factory(__ngFactoryType__) {
-      return new (__ngFactoryType__ || _MapsPeopleService)();
-    };
-  }
-  static {
-    this.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _MapsPeopleService, factory: _MapsPeopleService.\u0275fac, providedIn: "root" });
-  }
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MapsPeopleService, [{
     type: Injectable,
     args: [{
       providedIn: "root"
@@ -50956,570 +50667,141 @@ var ANIMATION_SHOW_CONTRACT_EXPAND = trigger("show", [
   transition("show <=> hide", animate("200ms ease-in"))
 ]);
 
-// libs/common/src/lib/api.ts
-var IGNORE_VALUES = [void 0, null, ""];
-function toQueryString(map2) {
-  let str = "";
-  if (map2) {
-    for (const key in map2) {
-      if (key in map2 && !IGNORE_VALUES.includes(map2[key])) {
-        str += `${str ? "&" : ""}${key}=${encodeURIComponent(map2[key])}`;
+// libs/common/src/lib/hotkeys.service.ts
+var INVALID_STANDALONE_KEYS = [
+  "control",
+  "shift",
+  "alt",
+  "meta",
+  "os"
+];
+var HotkeysService = class _HotkeysService {
+  constructor() {
+    this.keydown_states = {};
+    this.keydown_callbacks = {};
+    this.combo_end = [];
+    this.registered_combos = [];
+    this.counter = 0;
+    window.addEventListener("keydown", (event) => {
+      const code = this.mapKey((event.code || "").toLowerCase());
+      if (this.last_down !== code) {
+        if (!this.keydown_states[code]) {
+          this.keydown_states[code] = signal(null);
+        }
+        this.keydown_states[code].set(++this.counter);
+        this._handleKeyPress(code, this.counter);
+        if (this.combo_end.indexOf(code) >= 0) {
+          event.preventDefault();
+        }
+        this.last_down = code;
+      }
+    });
+    window.addEventListener("keyup", (event) => {
+      const code = this.mapKey((event.code || "").toLowerCase());
+      this.keydown_states[code]?.set(null);
+      if (this.last_down === code) {
+        this.last_down = null;
+      }
+    });
+  }
+  /**
+   * Listen to the given key combination
+   * @param combo Array of key codes to listen to or a hotkey string e.g. `Alt+Shift+KeyK`
+   * @param next Callback for combination presses
+   */
+  listen(combo, next) {
+    combo = combo instanceof Array ? combo : combo.split("+");
+    const combination = combo.map((i) => this.mapKey(i.toLowerCase()));
+    if (combination.length > 0 && this.validCombination(combination)) {
+      this.registered_combos.push(combination);
+      const last_key = combination[combination.length - 1];
+      if (!this.keydown_states[last_key]) {
+        this.keydown_states[last_key] = signal(null);
+      }
+      this.updateCombinationEndList();
+      const callback = (count) => {
+        if (count) {
+          const presses = [];
+          if (combination.length > 0) {
+            for (const key of combination) {
+              const state2 = this.keydown_states[key];
+              presses.push(state2 ? state2() || -1 : -1);
+            }
+            for (let i = 0; i < combination.length - 1; i++) {
+              if (presses[i] > presses[i + 1]) {
+                return;
+              }
+            }
+          }
+          const total = presses.reduce((a, v) => a + (v > 0 ? 1 : -1), 0);
+          if (total >= combination.length) {
+            next();
+          }
+        }
+      };
+      this.keydown_callbacks[last_key] ||= /* @__PURE__ */ new Set();
+      this.keydown_callbacks[last_key].add(callback);
+      return {
+        unsubscribe: () => this.keydown_callbacks[last_key]?.delete(callback)
+      };
+    }
+    return null;
+  }
+  _handleKeyPress(code, count) {
+    for (const callback of this.keydown_callbacks[code] || []) {
+      callback(count);
+    }
+  }
+  /**
+   * Map key codes with multiple versions to simple form
+   * @param code Code to transform
+   */
+  mapKey(code) {
+    if (code.indexOf("alt") >= 0 || code.indexOf("shift") >= 0 || code.indexOf("control") >= 0) {
+      return code.replace("left", "").replace("right", "");
+    }
+    return code;
+  }
+  /**
+   * Update the list of the last keys in combinations to allow for prevent default actions on pre-existing hotkeys
+   */
+  updateCombinationEndList() {
+    const key_list = [];
+    for (const combo of this.registered_combos) {
+      this.combo_end.push(combo[combo.length - 1]);
+    }
+    this.combo_end = unique(key_list);
+  }
+  /**
+   * Checks if the given hotkey combination is allowed and valid
+   * @param combo Array of key codes
+   */
+  validCombination(combo) {
+    let non_meta = 0;
+    for (const key of combo) {
+      if (INVALID_STANDALONE_KEYS.indexOf(key) < 0) {
+        non_meta++;
       }
     }
+    return non_meta > 0;
   }
-  return str;
-}
-
-// libs/common/src/lib/constants.ts
-var SETTING_KEYS = {
-  FAVORITE_ROOMS: "favourite_rooms",
-  FAVORITE_DESKS: "favourite_desks",
-  FAVORITE_PARKING_SPACES: "favourite_parking",
-  FAVORITE_LOCKERS: "favourite_lockers",
-  FAVORITE_CATERING: "favourite_menu_items",
-  FAVORITE_TEAM_MEMBERS: "favourite_team_members",
-  TEAM_MEMBERS: "team_members"
+  static {
+    this.\u0275fac = function HotkeysService_Factory(__ngFactoryType__) {
+      return new (__ngFactoryType__ || _HotkeysService)();
+    };
+  }
+  static {
+    this.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _HotkeysService, factory: _HotkeysService.\u0275fac, providedIn: "root" });
+  }
 };
-var SECONDS = 1e3;
-var MINUTES = 60 * SECONDS;
-var HOURS = 60 * MINUTES;
-var DAYS = 24 * HOURS;
-var MINUTE2 = 60 * SECONDS;
-var HOUR2 = 60 * MINUTES;
-var DAY2 = 24 * HOURS;
-
-// libs/common/src/lib/application.ts
-var _timer;
-var _initial_check;
-var _version_subscription;
-var _unrecoverable_subscription;
-var _new_version = false;
-var _auto_reload = false;
-var SERVICE_WORKER_UPDATE = signal(
-  null,
-  ...ngDevMode ? [{ debugName: "SERVICE_WORKER_UPDATE" }] : (
-    /* istanbul ignore next */
-    []
-  )
-);
-function hasNewVersion() {
-  return _new_version;
-}
-function serviceWorkerUpdate() {
-  return SERVICE_WORKER_UPDATE.asReadonly();
-}
-function reloadApp() {
-  location.reload();
-}
-function stopUpdateChecks() {
-  if (_timer)
-    clearInterval(_timer);
-  if (_initial_check)
-    clearTimeout(_initial_check);
-  _timer = void 0;
-  _initial_check = void 0;
-}
-function cacheOptions(options = {}) {
-  return typeof options === "number" ? { interval: options } : options;
-}
-function handleNewVersion() {
-  if (_new_version)
-    return;
-  _new_version = true;
-  stopUpdateChecks();
-  if (_auto_reload)
-    return reloadApp();
-  SERVICE_WORKER_UPDATE.set({
-    message: "New application version available",
-    details: "Refresh to use the latest version.",
-    action: "Refresh"
-  });
-}
-function setupCache(cache, options = {}) {
-  const { auto_reload = false, interval = 5 * MINUTES } = cacheOptions(options);
-  _auto_reload = auto_reload;
-  if (cache.isEnabled) {
-    if (!_version_subscription) {
-      _version_subscription = cache.versionUpdates.subscribe((event) => {
-        if (event.type !== "VERSION_READY" || _new_version)
-          return;
-        log("CACHE", `New application version is ready.`);
-        handleNewVersion();
-      });
-    }
-    if (!_unrecoverable_subscription) {
-      _unrecoverable_subscription = cache.unrecoverable.subscribe((event) => {
-        log("CACHE", `Application cache is unrecoverable: ${event.reason}`, void 0, "error");
-        _new_version = true;
-        stopUpdateChecks();
-        if (_auto_reload)
-          return reloadApp();
-        SERVICE_WORKER_UPDATE.set({
-          message: "Application update failed to load",
-          details: "Reload the app to recover.",
-          action: "Reload"
-        });
-      });
-    }
-    if (_new_version) {
-      if (_auto_reload)
-        reloadApp();
-      return;
-    }
-    stopUpdateChecks();
-    _initial_check = setTimeout(() => {
-      log("CACHE", `Checking for updates...`);
-      checkForUpdate(cache);
-    }, 2 * SECONDS);
-    _timer = setInterval(() => {
-      log("CACHE", `Checking for updates...`);
-      checkForUpdate(cache);
-    }, Math.max(interval, 1 * MINUTES));
-  }
-}
-async function checkForUpdate(cache) {
-  try {
-    if (cache.isEnabled && await cache.checkForUpdate()) {
-      log("CACHE", `Application update detected.`);
-    }
-  } catch (error2) {
-    log("CACHE", `Failed to check for application updates.`, error2, "warn");
-  }
-}
-
-// libs/common/src/lib/native-app.ts
-var DOMAIN_STORAGE_KEY = "PlaceOS.native.domain";
-var EMAIL_STORAGE_KEY = "PlaceOS.native.email";
-var API_KEY_STORAGE_KEY = "PlaceOS.native.api_key";
-var SYSTEM_ID_STORAGE_KEY = "PlaceOS.native.system_id";
-var MANAGED_CONFIG_STORAGE_KEY = "PlaceOS.native.managed_config";
-var APP_ID_STORAGE_KEY = "PlaceOS.native.app_id";
-var LAST_AUTH_URL_STORAGE_KEY = "PlaceOS.native.last_auth_url";
-var CONSUMED_AUTH_URL_STORAGE_KEY = "PlaceOS.native.consumed_auth_url";
-var PKCE_STORAGE_KEY = "PlaceOS.native.pkce";
-var AUTH_ERROR_STORAGE_KEY = "PlaceOS.native.auth_error";
-var LOOKUP_HOST = "au.placeos.run";
-var NATIVE_APP_IDS = {
-  workplace: "com.placeos.workplace",
-  staff: "com.placeos.workplace",
-  control: "com.placeos.control",
-  bookings: "com.placeos.booking.panel",
-  "booking panel": "com.placeos.booking.panel"
-};
-var _native_url_listener = null;
-function capacitor() {
-  return window.Capacitor || null;
-}
-function nativePluginProxy(name) {
-  const cap2 = capacitor();
-  if (cap2?.Plugins?.[name])
-    return cap2.Plugins[name];
-  try {
-    return cap2?.registerPlugin?.(name) || null;
-  } catch {
-    return null;
-  }
-}
-function listenToNativeEvent(plugin_name, event_name, listener) {
-  const proxy = nativePluginProxy(plugin_name);
-  if (proxy?.addListener) {
-    return Promise.resolve(proxy.addListener(event_name, listener));
-  }
-  const cap2 = capacitor();
-  if (cap2?.addListener) {
-    return Promise.resolve(cap2.addListener(plugin_name, event_name, listener));
-  }
-  return null;
-}
-function callNativeMethod(plugin_name, method_name, options) {
-  const proxy = nativePluginProxy(plugin_name);
-  if (typeof proxy?.[method_name] === "function") {
-    return proxy[method_name](options);
-  }
-  const cap2 = capacitor();
-  if (cap2?.nativePromise) {
-    return cap2.nativePromise(plugin_name, method_name, options);
-  }
-  return null;
-}
-function isNativeApp() {
-  return !!capacitor()?.isNativePlatform?.();
-}
-async function getNativeAppId(app_name) {
-  const normalised_name = `${app_name || ""}`.trim().toLowerCase();
-  const app_id = NATIVE_APP_IDS[normalised_name];
-  if (app_id) {
-    localStorage.setItem(APP_ID_STORAGE_KEY, app_id);
-    return app_id;
-  }
-  const cached_app_id = localStorage.getItem(APP_ID_STORAGE_KEY);
-  if (!cached_app_id) {
-    throw new Error(`Unsupported native app: ${app_name || "unknown"}.`);
-  }
-  return cached_app_id;
-}
-async function getNativeRedirectUri(app_name, domain) {
-  const app_id = await getNativeAppId(app_name);
-  const host = `${domain || ""}`.trim();
-  return host ? `${app_id}://${host}/oauth-resp` : `${app_id}://oauth-resp`;
-}
-async function isNativeAuthRedirect(url) {
-  const app_id = await getNativeAppId();
-  const callback_url = new URL(url);
-  return callback_url.protocol === `${app_id}:` && (callback_url.pathname === "/oauth-resp" || callback_url.hostname === "oauth-resp" && !callback_url.pathname.replace(/^\/+/, ""));
-}
-async function bindNativeAuthRedirects(listener) {
-  if (!isNativeApp() || _native_url_listener)
-    return;
-  const handle = listenToNativeEvent("App", "appUrlOpen", async ({ url }) => {
-    try {
-      if (!url)
-        return;
-      console.warn(`[AUTH] App opened with URL: ${url}`);
-      if (!await isNativeAuthRedirect(url)) {
-        console.warn("[AUTH] URL is not an auth redirect.");
-        return;
-      }
-      localStorage.setItem(LAST_AUTH_URL_STORAGE_KEY, url);
-      listener(url);
-    } catch (error2) {
-      console.warn("[AUTH] Error handling app URL.", error2);
-    }
-  });
-  if (!handle) {
-    console.warn("[AUTH] Capacitor App plugin is unavailable.");
-    return;
-  }
-  _native_url_listener = handle;
-  await handle.catch((error2) => {
-    _native_url_listener = null;
-    console.warn("[AUTH] Failed to listen for app URLs.", error2);
-  });
-}
-function markNativeAuthRedirectConsumed(url) {
-  localStorage.setItem(CONSUMED_AUTH_URL_STORAGE_KEY, url);
-  localStorage.removeItem(LAST_AUTH_URL_STORAGE_KEY);
-}
-async function consumeNativeAuthRedirect() {
-  if (!isNativeApp())
-    return null;
-  const launch_url = await callNativeMethod("App", "getLaunchUrl")?.catch(() => null);
-  const url = launch_url?.url || localStorage.getItem(LAST_AUTH_URL_STORAGE_KEY) || "";
-  if (!url)
-    return null;
-  const is_redirect = await isNativeAuthRedirect(url).catch((error2) => {
-    console.warn("[AUTH] Error checking launch URL.", error2);
-    return false;
-  });
-  if (!is_redirect)
-    return null;
-  if (url === localStorage.getItem(CONSUMED_AUTH_URL_STORAGE_KEY)) {
-    console.warn("[AUTH] Launch URL already consumed.");
-    return null;
-  }
-  console.warn(`[AUTH] Consuming auth redirect from launch URL: ${url}`);
-  return url;
-}
-function storeNativePkceVerifier(key, verifier) {
-  sessionStorage.setItem(key, verifier);
-  localStorage.setItem(PKCE_STORAGE_KEY, JSON.stringify({ key, verifier }));
-}
-function restoreNativePkceVerifier() {
-  const raw = localStorage.getItem(PKCE_STORAGE_KEY);
-  if (!raw)
-    return;
-  try {
-    const { key, verifier } = JSON.parse(raw);
-    if (key && verifier && !sessionStorage.getItem(key)) {
-      sessionStorage.setItem(key, verifier);
-    }
-  } catch {
-    localStorage.removeItem(PKCE_STORAGE_KEY);
-  }
-}
-function clearNativePkceVerifier() {
-  localStorage.removeItem(PKCE_STORAGE_KEY);
-}
-function setNativeAuthError(message2) {
-  localStorage.setItem(AUTH_ERROR_STORAGE_KEY, message2);
-}
-function consumeNativeAuthError() {
-  const message2 = localStorage.getItem(AUTH_ERROR_STORAGE_KEY) || "";
-  localStorage.removeItem(AUTH_ERROR_STORAGE_KEY);
-  return message2;
-}
-async function hideNativeStatusBar() {
-  if (!isNativeApp())
-    return;
-  await callNativeMethod("StatusBar", "setOverlaysWebView", {
-    overlay: true
-  })?.catch(() => null);
-  await callNativeMethod("StatusBar", "hide", { animation: "NONE" })?.catch(() => null);
-}
-async function closeNativeBrowser() {
-  await callNativeMethod("Browser", "close")?.catch(() => null);
-}
-async function openNativeBrowser(url) {
-  const opened = callNativeMethod("Browser", "open", { url });
-  if (!opened) {
-    location.assign(url);
-    return;
-  }
-  await opened.catch(() => location.assign(url));
-}
-function getNativeDomain() {
-  return localStorage.getItem(DOMAIN_STORAGE_KEY);
-}
-function getNativeEmail() {
-  return localStorage.getItem(EMAIL_STORAGE_KEY);
-}
-function setNativeDomain(domain) {
-  localStorage.setItem(DOMAIN_STORAGE_KEY, domain.trim());
-}
-function setNativeEmail(email2) {
-  localStorage.setItem(EMAIL_STORAGE_KEY, email2.trim());
-}
-function clearNativeDomain() {
-  localStorage.removeItem(DOMAIN_STORAGE_KEY);
-}
-function getNativeApiKey() {
-  return localStorage.getItem(API_KEY_STORAGE_KEY);
-}
-function setNativeApiKey(api_key) {
-  const value = `${api_key || ""}`.trim();
-  if (!value)
-    return clearNativeApiKey();
-  localStorage.setItem(API_KEY_STORAGE_KEY, value);
-}
-function clearNativeApiKey() {
-  localStorage.removeItem(API_KEY_STORAGE_KEY);
-}
-function normaliseNativeDomain(address) {
-  let value = `${address || ""}`.trim();
-  if (!value)
-    return "";
-  if (!/^[a-z][a-z0-9+.-]*:\/\//i.test(value))
-    value = `https://${value}`;
-  try {
-    const url = new URL(value);
-    if (url.protocol !== "https:" && url.protocol !== "http:")
-      return "";
-    if (!url.hostname)
-      return "";
-    return url.port ? `${url.hostname}:${url.port}` : url.hostname;
-  } catch {
-    return "";
-  }
-}
-async function readManagedValue(method_name, key) {
-  const result = callNativeMethod("ManagedConfigurations", method_name, {
-    key
-  });
-  if (!result)
-    return null;
-  const { value } = await result.catch(() => ({ value: null }));
-  return value ?? null;
-}
-async function loadNativeManagedConfig() {
-  if (!isNativeApp())
-    return null;
-  const [domain_name, api_key, system_id, restart_time, restart_enabled, skip_setup] = await Promise.all([
-    readManagedValue("getString", "domainName"),
-    readManagedValue("getString", "apiKey"),
-    readManagedValue("getString", "systemId"),
-    readManagedValue("getNumber", "restartTime"),
-    readManagedValue("getBoolean", "restartEnabled"),
-    readManagedValue("getBoolean", "skipInteractiveSetup")
-  ]);
-  const domain = normaliseNativeDomain(`${domain_name || ""}`);
-  if (!domain && !api_key && !system_id)
-    return null;
-  return {
-    domain,
-    api_key: `${api_key || ""}`.trim(),
-    system_id: `${system_id || ""}`.trim(),
-    restart_enabled: restart_enabled !== false,
-    restart_time: Math.min(23, Math.max(0, Math.round(restart_time || 0))),
-    skip_interactive_setup: skip_setup === true
-  };
-}
-function applyNativeManagedConfig(config2) {
-  const fingerprint = JSON.stringify([
-    config2.domain,
-    config2.api_key,
-    config2.system_id
-  ]);
-  if (localStorage.getItem(MANAGED_CONFIG_STORAGE_KEY) === fingerprint) {
-    return false;
-  }
-  if (config2.domain) {
-    setNativeDomain(config2.domain);
-    setNativeApiKey(config2.api_key);
-  }
-  if (config2.system_id) {
-    localStorage.setItem(SYSTEM_ID_STORAGE_KEY, config2.system_id);
-  } else {
-    localStorage.removeItem(SYSTEM_ID_STORAGE_KEY);
-  }
-  localStorage.setItem(MANAGED_CONFIG_STORAGE_KEY, fingerprint);
-  return true;
-}
-var _managed_config_sync = null;
-function syncNativeManagedConfig() {
-  if (!_managed_config_sync) {
-    _managed_config_sync = loadNativeManagedConfig().then((config2) => ({
-      config: config2,
-      changed: config2 ? applyNativeManagedConfig(config2) : false
-    })).catch(() => ({ config: null, changed: false }));
-  }
-  return _managed_config_sync;
-}
-var _restart_timer = null;
-function scheduleNativeRestart(hour) {
-  if (!isNativeApp() || _restart_timer)
-    return;
-  const next = /* @__PURE__ */ new Date();
-  next.setHours(hour, 0, 0, 0);
-  if (next.valueOf() <= Date.now())
-    next.setDate(next.getDate() + 1);
-  _restart_timer = setTimeout(() => location.reload(), next.valueOf() - Date.now());
-}
-var DEFAULT_INTUNE_SCOPES = ["User.Read"];
-async function getIntuneAccount() {
-  if (!isNativeApp())
-    return null;
-  const result = await callNativeMethod("IntuneMAM", "enrolledAccount")?.catch(() => null);
-  return result?.accountId ? result : null;
-}
-async function getIntuneToken(account, scopes = DEFAULT_INTUNE_SCOPES) {
-  const result = await callNativeMethod("IntuneMAM", "acquireTokenSilent", {
-    scopes,
-    accountId: account.accountId
-  })?.catch(() => null);
-  return `${result?.accessToken || ""}`.trim();
-}
-async function lookupNativeDomainByEmail(email2) {
-  const response = await fetch(`https://${LOOKUP_HOST}/api/engine/v2/domains/lookup/${encodeURIComponent(email2)}`);
-  if (!response.ok) {
-    throw new Error("Unable to lookup domain.");
-  }
-  const text = (await response.text()).trim();
-  const domain = text.startsWith('"') ? JSON.parse(text) : text;
-  if (!domain) {
-    throw new Error("No domain found for this email.");
-  }
-  return `${domain}`.trim();
-}
-
-// libs/common/src/lib/placeos.ts
-var NATIVE_CREDENTIAL_FETCH_KEY = "__placeos_native_credential_fetch__";
-function randomString2(length = 43) {
-  const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-  const bytes = new Uint8Array(length);
-  crypto.getRandomValues(bytes);
-  return Array.from(bytes, (value) => chars[value % chars.length]).join("");
-}
-async function sha256Base64Url(value) {
-  const buffer = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
-  const bytes = Array.from(new Uint8Array(buffer), (byte) => String.fromCharCode(byte)).join("");
-  return btoa(bytes).replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_");
-}
-function requestOrigin(input2) {
-  const request_url = typeof input2 === "string" ? input2 : input2 instanceof URL ? input2.toString() : input2?.url;
-  return request_url ? new URL(request_url, location.href).origin : "";
-}
-function setupNativeCredentialedFetch(urls) {
-  if (typeof window.fetch !== "function")
-    return;
-  const window_state = window;
-  const origins = urls.map((url) => new URL(url, location.href).origin);
-  if (window_state[NATIVE_CREDENTIAL_FETCH_KEY]) {
-    for (const origin of origins) {
-      window_state[NATIVE_CREDENTIAL_FETCH_KEY].origins.add(origin);
-    }
-    return;
-  }
-  const state2 = {
-    origins: new Set(origins),
-    fetch: window.fetch.bind(window)
-  };
-  window_state[NATIVE_CREDENTIAL_FETCH_KEY] = state2;
-  window.fetch = (input2, init3) => {
-    if (!state2.origins.has(requestOrigin(input2))) {
-      return state2.fetch(input2, init3);
-    }
-    return state2.fetch(input2, __spreadProps(__spreadValues({}, init3), { credentials: "include" }));
-  };
-}
-async function createNativeAuthUrl(settings, client_id) {
-  const protocol = settings.protocol || location.protocol;
-  const host = settings.domain || location.hostname;
-  const port = settings.port || location.port;
-  const host_with_port = `${host}${port ? ":" + port : ""}`;
-  const url = settings.use_domain ? `${protocol}//${host_with_port}` : location.origin;
-  const redirect_uri = await getNativeRedirectUri(settings.app_name, settings.domain);
-  const nonce = randomString2(16);
-  const verifier = randomString2();
-  const challenge = await sha256Base64Url(verifier);
-  localStorage.setItem(`${client_id}_nonce`, nonce);
-  storeNativePkceVerifier(`${client_id}_challenge`, verifier);
-  return `${url}/auth/oauth/authorize?response_type=code&client_id=${encodeURIComponent(client_id)}&state=${encodeURIComponent(nonce)}&redirect_uri=${encodeURIComponent(redirect_uri)}&scope=${encodeURIComponent("public")}&code_challenge_method=S256&code_challenge=${encodeURIComponent(challenge)}`;
-}
-async function setupPlace(settings) {
-  const protocol = settings.protocol || location.protocol;
-  const host = settings.domain || location.hostname;
-  const port = settings.port || location.port;
-  const host_with_port = `${host}${port ? ":" + port : ""}`;
-  const url = settings.use_domain ? `${protocol}//${host_with_port}` : location.origin;
-  const route = (location.pathname + "/").replace("//", "/");
-  const native = isNativeApp();
-  const mock = settings.mock || location.href.includes("mock=true") || localStorage.getItem("mock") === "true";
-  const config2 = {
-    auth_type: "auth_code",
-    scope: "public",
-    host: host_with_port,
-    secure: native || protocol === "https:",
-    auth_uri: `${url}/auth/oauth/authorize`,
-    token_uri: `${url}/auth/oauth/token`,
-    redirect_uri: native ? await getNativeRedirectUri(settings.app_name, settings.domain) : `${location.origin}${route}oauth-resp.html`,
-    storage: native ? "local" : settings.storage,
-    handle_login: native ? false : !settings.local_login,
-    use_iframe: !native,
-    mock,
-    delay: 300
-  };
-  if (native) {
-    localStorage.setItem("trust", "true");
-    setupNativeCredentialedFetch([config2.auth_uri, config2.token_uri]);
-  }
-  if (localStorage) {
-    localStorage.setItem("mock", `${!!mock && !location.href.includes("mock=false")}`);
-  }
-  if (mock) {
-    notifyInfo("Application in mock mode.");
-  }
-  return zr(config2);
-}
-
-// libs/common/src/lib/signal.utilities.ts
-function firstValueWhere(value, predicate = (_2) => !!_2, injector) {
-  const current = untracked2(value);
-  if (predicate(current))
-    return Promise.resolve(current);
-  return new Promise((resolve) => {
-    let ref;
-    ref = untracked2(() => effect(() => {
-      const current2 = value();
-      if (!predicate(current2))
-        return;
-      ref.destroy();
-      resolve(current2);
-    }, { injector }));
-  });
-}
-
-// libs/common/src/lib/types.ts
-var MAP_FEATURE_DATA = new InjectionToken("Data for Map Features");
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(HotkeysService, [{
+    type: Injectable,
+    args: [{
+      providedIn: "root"
+    }]
+  }], () => [], null);
+})();
 
 // node_modules/@angular/router/fesm2022/_router-chunk.mjs
 /**
@@ -52940,7 +52222,7 @@ var ActivatedRoute = class {
     this.outlet = outlet;
     this.component = component;
     this._futureSnapshot = futureSnapshot;
-    this.title = this.dataSubject?.pipe(map((d2) => d2[RouteTitleKey])) ?? of(void 0);
+    this.title = this.dataSubject?.pipe(map((d) => d[RouteTitleKey])) ?? of(void 0);
     this.url = urlSubject;
     this.params = paramsSubject;
     this.queryParams = queryParamsSubject;
@@ -53900,10 +53182,10 @@ function runCanActivate(futureRSS, futureARS) {
 function runCanActivateChild(futureRSS, path) {
   const futureARS = path[path.length - 1];
   const canActivateChildGuards = path.slice(0, path.length - 1).reverse().map((p2) => getCanActivateChild(p2)).filter((_2) => _2 !== null);
-  const canActivateChildGuardsMapped = canActivateChildGuards.map((d2) => {
+  const canActivateChildGuardsMapped = canActivateChildGuards.map((d) => {
     return defer(() => {
-      const guardsMapped = d2.guards.map((canActivateChild) => {
-        const closestInjector = d2.node._environmentInjector;
+      const guardsMapped = d.guards.map((canActivateChild) => {
+        const closestInjector = d.node._environmentInjector;
         const guard = getTokenOrFunctionIdentity(canActivateChild, closestInjector);
         const guardVal = isCanActivateChild(guard) ? guard.canActivateChild(futureARS, futureRSS) : runInInjectionContext(closestInjector, () => guard(futureARS, futureRSS));
         return wrapIntoObservable(guardVal).pipe(first());
@@ -55242,11 +54524,11 @@ var NavigationTransitions = class _NavigationTransitions {
               this.events.next(navigationError);
               throw e;
             }
-          } catch (ee) {
+          } catch (ee2) {
             if (this.options.resolveNavigationPromiseOnError) {
               overallTransitionState.resolve(false);
             } else {
-              overallTransitionState.reject(ee);
+              overallTransitionState.reject(ee2);
             }
           }
         }
@@ -55708,7 +54990,7 @@ var Router = class _Router {
       queryParamsHandling,
       preserveFragment
     } = navigationExtras;
-    const f = preserveFragment ? this.currentUrlTree.fragment : fragment;
+    const f2 = preserveFragment ? this.currentUrlTree.fragment : fragment;
     let q = null;
     switch (queryParamsHandling ?? this.options.defaultQueryParamsHandling) {
       case "merge":
@@ -55733,7 +55015,7 @@ var Router = class _Router {
       }
       relativeToUrlSegmentGroup = this.currentUrlTree.root;
     }
-    return createUrlTreeFromSegmentGroup(relativeToUrlSegmentGroup, commands, q, f ?? null, this.urlSerializer);
+    return createUrlTreeFromSegmentGroup(relativeToUrlSegmentGroup, commands, q, f2 ?? null, this.urlSerializer);
   }
   navigateByUrl(url, extras = {
     skipLocationChange: false
@@ -56768,7 +56050,7 @@ var NavigationStateManager = class _NavigationStateManager extends StateManager 
   navigate(internalPath, transition2) {
     const path = transition2.extras.skipLocationChange ? this.navigation.currentEntry.url : this.location.prepareExternalUrl(internalPath);
     const state2 = __spreadValues(__spreadValues({}, transition2.extras.state), this.generateNgRouterState(transition2));
-    const info3 = {
+    const info = {
       \u0275routerInfo: {
         intercept: true
       }
@@ -56780,7 +56062,7 @@ var NavigationStateManager = class _NavigationStateManager extends StateManager 
     handleResultRejections(this.navigation.navigate(path, {
       state: state2,
       history,
-      info: info3
+      info
     }));
   }
   finishNavigation() {
@@ -57289,82 +56571,6 @@ document.addEventListener("visibilitychange", async () => {
   }
 });
 
-// libs/common/src/lib/lazy-route-reload.ts
-var LAZY_ROUTE_RELOAD_KEY = "placeos.lazy_route_reload";
-var RELOAD_THROTTLE = 30 * 1e3;
-var LAZY_ROUTE_ERROR_PATTERNS = [
-  /ChunkLoadError/i,
-  /Loading chunk [\w-]+ failed/i,
-  /Failed to fetch dynamically imported module/i,
-  /Importing a module script failed/i,
-  /error loading dynamically imported module/i
-];
-function isLazyRouteLoadError(error2) {
-  const message2 = getLazyRouteErrorMessage(error2);
-  return LAZY_ROUTE_ERROR_PATTERNS.some((pattern2) => pattern2.test(message2));
-}
-function reloadOnChunkLoadError(error2, context2 = {}) {
-  if (!isLazyRouteLoadError(error2))
-    throw error2;
-  const online = context2.online ?? (typeof navigator !== "undefined" ? navigator.onLine : true);
-  if (!online)
-    throw error2;
-  const storage = context2.storage ?? sessionStorage;
-  const location_ref = context2.location ?? location;
-  const now = context2.now ?? Date.now();
-  const signature = `${location_ref.pathname}${location_ref.search}${location_ref.hash}:${getLazyRouteErrorMessage(error2)}`;
-  const reload_state = parseReloadState(storage.getItem(LAZY_ROUTE_RELOAD_KEY));
-  if (reload_state?.signature === signature && now - reload_state.timestamp < RELOAD_THROTTLE) {
-    throw error2;
-  }
-  storage.setItem(LAZY_ROUTE_RELOAD_KEY, JSON.stringify({ signature, timestamp: now }));
-  log("ROUTER", "Lazy route load failed. Reloading application...", error2, "warn", true);
-  location_ref.reload();
-}
-function getLazyRouteErrorMessage(error2) {
-  if (typeof error2 === "string")
-    return error2;
-  if (error2 instanceof Error) {
-    return `${error2.name}: ${error2.message}`;
-  }
-  if (error2 && typeof error2 === "object") {
-    const name = "name" in error2 ? `${error2.name || ""}` : "";
-    const message2 = "message" in error2 ? `${error2.message || ""}` : "";
-    return `${name}: ${message2}`.trim();
-  }
-  return `${error2 || ""}`;
-}
-function parseReloadState(state2) {
-  if (!state2)
-    return null;
-  try {
-    const parsed_state = JSON.parse(state2);
-    if (typeof parsed_state?.signature === "string" && typeof parsed_state?.timestamp === "number") {
-      return parsed_state;
-    }
-  } catch {
-  }
-  return null;
-}
-
-// libs/common/src/lib/locale-data.ts
-var SUPPORTED_LOCALES = {
-  ar: () => import("./ar-4OEKFYQ3.js"),
-  es: () => import("./es-E672VPW4.js"),
-  fr: () => import("./fr-62Q4VGQY.js"),
-  it: () => import("./it-OJSM6IJC.js"),
-  ja: () => import("./ja-5HQXGIBO.js"),
-  zh: () => import("./zh-A5WQQ6XL.js")
-};
-async function registerActiveLocale(locale) {
-  const short = (locale || "en").split("-")[0];
-  const loader = SUPPORTED_LOCALES[short];
-  if (!loader)
-    return;
-  const { default: data } = await loader();
-  registerLocaleData2(data);
-}
-
 // node_modules/@angular/cdk/fesm2022/clipboard.mjs
 var PendingCopy = class {
   _document;
@@ -57812,14 +57018,14 @@ var FocusMonitor = class _FocusMonitor {
       }
       return cachedInfo.subject;
     }
-    const info3 = {
+    const info = {
       checkChildren,
       subject: new Subject(),
       rootNode
     };
-    this._elementInfo.set(nativeElement, info3);
-    this._registerGlobalListeners(info3);
-    return info3.subject;
+    this._elementInfo.set(nativeElement, info);
+    this._registerGlobalListeners(info);
+    return info.subject;
   }
   stopMonitoring(element) {
     const nativeElement = coerceElement(element);
@@ -57835,7 +57041,7 @@ var FocusMonitor = class _FocusMonitor {
     const nativeElement = coerceElement(element);
     const focusedElement = this._document.activeElement;
     if (nativeElement === focusedElement) {
-      this._getClosestElementsInfo(nativeElement).forEach(([currentElement, info3]) => this._originChanged(currentElement, origin, info3));
+      this._getClosestElementsInfo(nativeElement).forEach(([currentElement, info]) => this._originChanged(currentElement, origin, info));
     } else {
       this._setOrigin(origin);
       if (typeof nativeElement.focus === "function") {
@@ -57902,9 +57108,9 @@ var FocusMonitor = class _FocusMonitor {
     this._setClasses(element);
     this._emitOrigin(elementInfo, null);
   }
-  _emitOrigin(info3, origin) {
-    if (info3.subject.observers.length) {
-      this._ngZone.run(() => info3.subject.next(origin));
+  _emitOrigin(info, origin) {
+    if (info.subject.observers.length) {
+      this._ngZone.run(() => info.subject.next(origin));
     }
   }
   _registerGlobalListeners(elementInfo) {
@@ -57957,9 +57163,9 @@ var FocusMonitor = class _FocusMonitor {
   }
   _getClosestElementsInfo(element) {
     const results = [];
-    this._elementInfo.forEach((info3, currentElement) => {
-      if (currentElement === element || info3.checkChildren && currentElement.contains(element)) {
-        results.push([currentElement, info3]);
+    this._elementInfo.forEach((info, currentElement) => {
+      if (currentElement === element || info.checkChildren && currentElement.contains(element)) {
+        results.push([currentElement, info]);
       }
     });
     return results;
@@ -59830,7 +59036,7 @@ var FOCUS_TRAP_INERT_STRATEGY = new InjectionToken("FOCUS_TRAP_INERT_STRATEGY");
 var FocusTrapManager = class _FocusTrapManager {
   _focusTrapStack = [];
   register(focusTrap) {
-    this._focusTrapStack = this._focusTrapStack.filter((ft) => ft !== focusTrap);
+    this._focusTrapStack = this._focusTrapStack.filter((ft2) => ft2 !== focusTrap);
     let stack = this._focusTrapStack;
     if (stack.length) {
       stack[stack.length - 1]._disable();
@@ -60901,14 +60107,14 @@ var CdkVirtualScrollViewport = class _CdkVirtualScrollViewport extends CdkVirtua
     const isHorizontal = this.orientation == "horizontal";
     const axis = isHorizontal ? "X" : "Y";
     const axisDirection = isHorizontal && isRtl ? -1 : 1;
-    let transform2 = `translate${axis}(${Number(axisDirection * offset)}px)`;
+    let transform = `translate${axis}(${Number(axisDirection * offset)}px)`;
     this._renderedContentOffset = offset;
     if (to === "to-end") {
-      transform2 += ` translate${axis}(-100%)`;
+      transform += ` translate${axis}(-100%)`;
       this._renderedContentOffsetNeedsRewrite = true;
     }
-    if (this._renderedContentTransform != transform2) {
-      this._renderedContentTransform = transform2;
+    if (this._renderedContentTransform != transform) {
+      this._renderedContentTransform = transform;
       this._markChangeDetectionNeeded(() => {
         if (this._renderedContentOffsetNeedsRewrite) {
           this._renderedContentOffset -= this.measureRenderedContentSize();
@@ -67429,23 +66635,23 @@ function safeJoin(input2, delimiter) {
   }
   return output2.join(delimiter);
 }
-function isMatchingPattern(value, pattern2, requireExactStringMatch = false) {
+function isMatchingPattern(value, pattern, requireExactStringMatch = false) {
   if (!isString(value)) {
     return false;
   }
-  if (isRegExp(pattern2)) {
-    return pattern2.test(value);
+  if (isRegExp(pattern)) {
+    return pattern.test(value);
   }
-  if (isString(pattern2)) {
-    return requireExactStringMatch ? value === pattern2 : value.includes(pattern2);
+  if (isString(pattern)) {
+    return requireExactStringMatch ? value === pattern : value.includes(pattern);
   }
-  if (typeof pattern2 === "function") {
-    return pattern2(value);
+  if (typeof pattern === "function") {
+    return pattern(value);
   }
   return false;
 }
 function stringMatchesSomePattern(testString, patterns3 = [], requireExactStringMatch = false) {
-  return patterns3.some((pattern2) => isMatchingPattern(testString, pattern2, requireExactStringMatch));
+  return patterns3.some((pattern) => isMatchingPattern(testString, pattern, requireExactStringMatch));
 }
 
 // node_modules/@sentry/core/build/esm/utils/misc.js
@@ -69151,19 +68357,19 @@ function shouldIgnoreSpan(span, ignoreSpans) {
   if (!ignoreSpans?.length || !span.description) {
     return false;
   }
-  for (const pattern2 of ignoreSpans) {
-    if (isStringOrRegExp(pattern2)) {
-      if (isMatchingPattern(span.description, pattern2)) {
+  for (const pattern of ignoreSpans) {
+    if (isStringOrRegExp(pattern)) {
+      if (isMatchingPattern(span.description, pattern)) {
         DEBUG_BUILD && logIgnoredSpan(span);
         return true;
       }
       continue;
     }
-    if (!pattern2.name && !pattern2.op) {
+    if (!pattern.name && !pattern.op) {
       continue;
     }
-    const nameMatches = pattern2.name ? isMatchingPattern(span.description, pattern2.name) : true;
-    const opMatches = pattern2.op ? span.op && isMatchingPattern(span.op, pattern2.op) : true;
+    const nameMatches = pattern.name ? isMatchingPattern(span.description, pattern.name) : true;
+    const opMatches = pattern.op ? span.op && isMatchingPattern(span.op, pattern.op) : true;
     if (nameMatches && opMatches) {
       DEBUG_BUILD && logIgnoredSpan(span);
       return true;
@@ -78132,6 +77338,537 @@ function getParameterizedRouteFromSnapshot(route) {
   return fullPath ? `/${fullPath}/` : "/";
 }
 
+// libs/common/src/lib/constants.ts
+var SETTING_KEYS = {
+  FAVORITE_ROOMS: "favourite_rooms",
+  FAVORITE_DESKS: "favourite_desks",
+  FAVORITE_PARKING_SPACES: "favourite_parking",
+  FAVORITE_LOCKERS: "favourite_lockers",
+  FAVORITE_CATERING: "favourite_menu_items",
+  FAVORITE_TEAM_MEMBERS: "favourite_team_members",
+  TEAM_MEMBERS: "team_members"
+};
+var SECONDS = 1e3;
+var MINUTES = 60 * SECONDS;
+var HOURS = 60 * MINUTES;
+var DAYS = 24 * HOURS;
+var MINUTE = 60 * SECONDS;
+var HOUR = 60 * MINUTES;
+var DAY = 24 * HOURS;
+
+// libs/common/src/lib/application.ts
+var _timer;
+var _initial_check;
+var _version_subscription;
+var _unrecoverable_subscription;
+var _new_version = false;
+var _auto_reload = false;
+var SERVICE_WORKER_UPDATE = signal(
+  null,
+  ...ngDevMode ? [{ debugName: "SERVICE_WORKER_UPDATE" }] : (
+    /* istanbul ignore next */
+    []
+  )
+);
+function hasNewVersion() {
+  return _new_version;
+}
+function serviceWorkerUpdate() {
+  return SERVICE_WORKER_UPDATE.asReadonly();
+}
+function reloadApp() {
+  location.reload();
+}
+function stopUpdateChecks() {
+  if (_timer)
+    clearInterval(_timer);
+  if (_initial_check)
+    clearTimeout(_initial_check);
+  _timer = void 0;
+  _initial_check = void 0;
+}
+function cacheOptions(options = {}) {
+  return typeof options === "number" ? { interval: options } : options;
+}
+function handleNewVersion() {
+  if (_new_version)
+    return;
+  _new_version = true;
+  stopUpdateChecks();
+  if (_auto_reload)
+    return reloadApp();
+  SERVICE_WORKER_UPDATE.set({
+    message: "New application version available",
+    details: "Refresh to use the latest version.",
+    action: "Refresh"
+  });
+}
+function setupCache(cache, options = {}) {
+  const { auto_reload = false, interval = 5 * MINUTES } = cacheOptions(options);
+  _auto_reload = auto_reload;
+  if (cache.isEnabled) {
+    if (!_version_subscription) {
+      _version_subscription = cache.versionUpdates.subscribe((event) => {
+        if (event.type !== "VERSION_READY" || _new_version)
+          return;
+        log("CACHE", `New application version is ready.`);
+        handleNewVersion();
+      });
+    }
+    if (!_unrecoverable_subscription) {
+      _unrecoverable_subscription = cache.unrecoverable.subscribe((event) => {
+        log("CACHE", `Application cache is unrecoverable: ${event.reason}`, void 0, "error");
+        _new_version = true;
+        stopUpdateChecks();
+        if (_auto_reload)
+          return reloadApp();
+        SERVICE_WORKER_UPDATE.set({
+          message: "Application update failed to load",
+          details: "Reload the app to recover.",
+          action: "Reload"
+        });
+      });
+    }
+    if (_new_version) {
+      if (_auto_reload)
+        reloadApp();
+      return;
+    }
+    stopUpdateChecks();
+    _initial_check = setTimeout(() => {
+      log("CACHE", `Checking for updates...`);
+      checkForUpdate(cache);
+    }, 2 * SECONDS);
+    _timer = setInterval(() => {
+      log("CACHE", `Checking for updates...`);
+      checkForUpdate(cache);
+    }, Math.max(interval, 1 * MINUTES));
+  }
+}
+async function checkForUpdate(cache) {
+  try {
+    if (cache.isEnabled && await cache.checkForUpdate()) {
+      log("CACHE", `Application update detected.`);
+    }
+  } catch (error2) {
+    log("CACHE", `Failed to check for application updates.`, error2, "warn");
+  }
+}
+
+// libs/common/src/lib/native-app.ts
+var DOMAIN_STORAGE_KEY = "PlaceOS.native.domain";
+var EMAIL_STORAGE_KEY = "PlaceOS.native.email";
+var API_KEY_STORAGE_KEY = "PlaceOS.native.api_key";
+var SYSTEM_ID_STORAGE_KEY = "PlaceOS.native.system_id";
+var MANAGED_CONFIG_STORAGE_KEY = "PlaceOS.native.managed_config";
+var APP_ID_STORAGE_KEY = "PlaceOS.native.app_id";
+var LAST_AUTH_URL_STORAGE_KEY = "PlaceOS.native.last_auth_url";
+var CONSUMED_AUTH_URL_STORAGE_KEY = "PlaceOS.native.consumed_auth_url";
+var PKCE_STORAGE_KEY = "PlaceOS.native.pkce";
+var AUTH_ERROR_STORAGE_KEY = "PlaceOS.native.auth_error";
+var LOOKUP_HOST = "au.placeos.run";
+var NATIVE_APP_IDS = {
+  workplace: "com.placeos.workplace",
+  staff: "com.placeos.workplace",
+  control: "com.placeos.control",
+  bookings: "com.placeos.booking.panel",
+  "booking panel": "com.placeos.booking.panel"
+};
+var _native_url_listener = null;
+function capacitor() {
+  return window.Capacitor || null;
+}
+function nativePluginProxy(name) {
+  const cap = capacitor();
+  if (cap?.Plugins?.[name])
+    return cap.Plugins[name];
+  try {
+    return cap?.registerPlugin?.(name) || null;
+  } catch {
+    return null;
+  }
+}
+function listenToNativeEvent(plugin_name, event_name, listener) {
+  const proxy = nativePluginProxy(plugin_name);
+  if (proxy?.addListener) {
+    return Promise.resolve(proxy.addListener(event_name, listener));
+  }
+  const cap = capacitor();
+  if (cap?.addListener) {
+    return Promise.resolve(cap.addListener(plugin_name, event_name, listener));
+  }
+  return null;
+}
+function callNativeMethod(plugin_name, method_name, options) {
+  const proxy = nativePluginProxy(plugin_name);
+  if (typeof proxy?.[method_name] === "function") {
+    return proxy[method_name](options);
+  }
+  const cap = capacitor();
+  if (cap?.nativePromise) {
+    return cap.nativePromise(plugin_name, method_name, options);
+  }
+  return null;
+}
+function isNativeApp() {
+  return !!capacitor()?.isNativePlatform?.();
+}
+async function getNativeAppId(app_name) {
+  const normalised_name = `${app_name || ""}`.trim().toLowerCase();
+  const app_id = NATIVE_APP_IDS[normalised_name];
+  if (app_id) {
+    localStorage.setItem(APP_ID_STORAGE_KEY, app_id);
+    return app_id;
+  }
+  const cached_app_id = localStorage.getItem(APP_ID_STORAGE_KEY);
+  if (!cached_app_id) {
+    throw new Error(`Unsupported native app: ${app_name || "unknown"}.`);
+  }
+  return cached_app_id;
+}
+async function getNativeRedirectUri(app_name, domain) {
+  const app_id = await getNativeAppId(app_name);
+  const host = `${domain || ""}`.trim();
+  return host ? `${app_id}://${host}/oauth-resp` : `${app_id}://oauth-resp`;
+}
+async function isNativeAuthRedirect(url) {
+  const app_id = await getNativeAppId();
+  const callback_url = new URL(url);
+  return callback_url.protocol === `${app_id}:` && (callback_url.pathname === "/oauth-resp" || callback_url.hostname === "oauth-resp" && !callback_url.pathname.replace(/^\/+/, ""));
+}
+async function bindNativeAuthRedirects(listener) {
+  if (!isNativeApp() || _native_url_listener)
+    return;
+  const handle = listenToNativeEvent("App", "appUrlOpen", async ({ url }) => {
+    try {
+      if (!url)
+        return;
+      console.warn(`[AUTH] App opened with URL: ${url}`);
+      if (!await isNativeAuthRedirect(url)) {
+        console.warn("[AUTH] URL is not an auth redirect.");
+        return;
+      }
+      localStorage.setItem(LAST_AUTH_URL_STORAGE_KEY, url);
+      listener(url);
+    } catch (error2) {
+      console.warn("[AUTH] Error handling app URL.", error2);
+    }
+  });
+  if (!handle) {
+    console.warn("[AUTH] Capacitor App plugin is unavailable.");
+    return;
+  }
+  _native_url_listener = handle;
+  await handle.catch((error2) => {
+    _native_url_listener = null;
+    console.warn("[AUTH] Failed to listen for app URLs.", error2);
+  });
+}
+function markNativeAuthRedirectConsumed(url) {
+  localStorage.setItem(CONSUMED_AUTH_URL_STORAGE_KEY, url);
+  localStorage.removeItem(LAST_AUTH_URL_STORAGE_KEY);
+}
+async function consumeNativeAuthRedirect() {
+  if (!isNativeApp())
+    return null;
+  const launch_url = await callNativeMethod("App", "getLaunchUrl")?.catch(() => null);
+  const url = launch_url?.url || localStorage.getItem(LAST_AUTH_URL_STORAGE_KEY) || "";
+  if (!url)
+    return null;
+  const is_redirect = await isNativeAuthRedirect(url).catch((error2) => {
+    console.warn("[AUTH] Error checking launch URL.", error2);
+    return false;
+  });
+  if (!is_redirect)
+    return null;
+  if (url === localStorage.getItem(CONSUMED_AUTH_URL_STORAGE_KEY)) {
+    console.warn("[AUTH] Launch URL already consumed.");
+    return null;
+  }
+  console.warn(`[AUTH] Consuming auth redirect from launch URL: ${url}`);
+  return url;
+}
+function storeNativePkceVerifier(key, verifier) {
+  sessionStorage.setItem(key, verifier);
+  localStorage.setItem(PKCE_STORAGE_KEY, JSON.stringify({ key, verifier }));
+}
+function restoreNativePkceVerifier() {
+  const raw = localStorage.getItem(PKCE_STORAGE_KEY);
+  if (!raw)
+    return;
+  try {
+    const { key, verifier } = JSON.parse(raw);
+    if (key && verifier && !sessionStorage.getItem(key)) {
+      sessionStorage.setItem(key, verifier);
+    }
+  } catch {
+    localStorage.removeItem(PKCE_STORAGE_KEY);
+  }
+}
+function clearNativePkceVerifier() {
+  localStorage.removeItem(PKCE_STORAGE_KEY);
+}
+function setNativeAuthError(message2) {
+  localStorage.setItem(AUTH_ERROR_STORAGE_KEY, message2);
+}
+function consumeNativeAuthError() {
+  const message2 = localStorage.getItem(AUTH_ERROR_STORAGE_KEY) || "";
+  localStorage.removeItem(AUTH_ERROR_STORAGE_KEY);
+  return message2;
+}
+async function hideNativeStatusBar() {
+  if (!isNativeApp())
+    return;
+  await callNativeMethod("StatusBar", "setOverlaysWebView", {
+    overlay: true
+  })?.catch(() => null);
+  await callNativeMethod("StatusBar", "hide", { animation: "NONE" })?.catch(() => null);
+}
+async function closeNativeBrowser() {
+  await callNativeMethod("Browser", "close")?.catch(() => null);
+}
+async function openNativeBrowser(url) {
+  const opened = callNativeMethod("Browser", "open", { url });
+  if (!opened) {
+    location.assign(url);
+    return;
+  }
+  await opened.catch(() => location.assign(url));
+}
+function getNativeDomain() {
+  return localStorage.getItem(DOMAIN_STORAGE_KEY);
+}
+function getNativeEmail() {
+  return localStorage.getItem(EMAIL_STORAGE_KEY);
+}
+function setNativeDomain(domain) {
+  localStorage.setItem(DOMAIN_STORAGE_KEY, domain.trim());
+}
+function setNativeEmail(email2) {
+  localStorage.setItem(EMAIL_STORAGE_KEY, email2.trim());
+}
+function clearNativeDomain() {
+  localStorage.removeItem(DOMAIN_STORAGE_KEY);
+}
+function getNativeApiKey() {
+  return localStorage.getItem(API_KEY_STORAGE_KEY);
+}
+function setNativeApiKey(api_key) {
+  const value = `${api_key || ""}`.trim();
+  if (!value)
+    return clearNativeApiKey();
+  localStorage.setItem(API_KEY_STORAGE_KEY, value);
+}
+function clearNativeApiKey() {
+  localStorage.removeItem(API_KEY_STORAGE_KEY);
+}
+function normaliseNativeDomain(address) {
+  let value = `${address || ""}`.trim();
+  if (!value)
+    return "";
+  if (!/^[a-z][a-z0-9+.-]*:\/\//i.test(value))
+    value = `https://${value}`;
+  try {
+    const url = new URL(value);
+    if (url.protocol !== "https:" && url.protocol !== "http:")
+      return "";
+    if (!url.hostname)
+      return "";
+    return url.port ? `${url.hostname}:${url.port}` : url.hostname;
+  } catch {
+    return "";
+  }
+}
+async function readManagedValue(method_name, key) {
+  const result = callNativeMethod("ManagedConfigurations", method_name, {
+    key
+  });
+  if (!result)
+    return null;
+  const { value } = await result.catch(() => ({ value: null }));
+  return value ?? null;
+}
+async function loadNativeManagedConfig() {
+  if (!isNativeApp())
+    return null;
+  const [domain_name, api_key, system_id, restart_time, restart_enabled, skip_setup] = await Promise.all([
+    readManagedValue("getString", "domainName"),
+    readManagedValue("getString", "apiKey"),
+    readManagedValue("getString", "systemId"),
+    readManagedValue("getNumber", "restartTime"),
+    readManagedValue("getBoolean", "restartEnabled"),
+    readManagedValue("getBoolean", "skipInteractiveSetup")
+  ]);
+  const domain = normaliseNativeDomain(`${domain_name || ""}`);
+  if (!domain && !api_key && !system_id)
+    return null;
+  return {
+    domain,
+    api_key: `${api_key || ""}`.trim(),
+    system_id: `${system_id || ""}`.trim(),
+    restart_enabled: restart_enabled !== false,
+    restart_time: Math.min(23, Math.max(0, Math.round(restart_time || 0))),
+    skip_interactive_setup: skip_setup === true
+  };
+}
+function applyNativeManagedConfig(config2) {
+  const fingerprint = JSON.stringify([
+    config2.domain,
+    config2.api_key,
+    config2.system_id
+  ]);
+  if (localStorage.getItem(MANAGED_CONFIG_STORAGE_KEY) === fingerprint) {
+    return false;
+  }
+  if (config2.domain) {
+    setNativeDomain(config2.domain);
+    setNativeApiKey(config2.api_key);
+  }
+  if (config2.system_id) {
+    localStorage.setItem(SYSTEM_ID_STORAGE_KEY, config2.system_id);
+  } else {
+    localStorage.removeItem(SYSTEM_ID_STORAGE_KEY);
+  }
+  localStorage.setItem(MANAGED_CONFIG_STORAGE_KEY, fingerprint);
+  return true;
+}
+var _managed_config_sync = null;
+function syncNativeManagedConfig() {
+  if (!_managed_config_sync) {
+    _managed_config_sync = loadNativeManagedConfig().then((config2) => ({
+      config: config2,
+      changed: config2 ? applyNativeManagedConfig(config2) : false
+    })).catch(() => ({ config: null, changed: false }));
+  }
+  return _managed_config_sync;
+}
+var _restart_timer = null;
+function scheduleNativeRestart(hour) {
+  if (!isNativeApp() || _restart_timer)
+    return;
+  const next = /* @__PURE__ */ new Date();
+  next.setHours(hour, 0, 0, 0);
+  if (next.valueOf() <= Date.now())
+    next.setDate(next.getDate() + 1);
+  _restart_timer = setTimeout(() => location.reload(), next.valueOf() - Date.now());
+}
+var DEFAULT_INTUNE_SCOPES = ["User.Read"];
+async function getIntuneAccount() {
+  if (!isNativeApp())
+    return null;
+  const result = await callNativeMethod("IntuneMAM", "enrolledAccount")?.catch(() => null);
+  return result?.accountId ? result : null;
+}
+async function getIntuneToken(account, scopes = DEFAULT_INTUNE_SCOPES) {
+  const result = await callNativeMethod("IntuneMAM", "acquireTokenSilent", {
+    scopes,
+    accountId: account.accountId
+  })?.catch(() => null);
+  return `${result?.accessToken || ""}`.trim();
+}
+async function lookupNativeDomainByEmail(email2) {
+  const response = await fetch(`https://${LOOKUP_HOST}/api/engine/v2/domains/lookup/${encodeURIComponent(email2)}`);
+  if (!response.ok) {
+    throw new Error("Unable to lookup domain.");
+  }
+  const text = (await response.text()).trim();
+  const domain = text.startsWith('"') ? JSON.parse(text) : text;
+  if (!domain) {
+    throw new Error("No domain found for this email.");
+  }
+  return `${domain}`.trim();
+}
+
+// libs/common/src/lib/placeos.ts
+var NATIVE_CREDENTIAL_FETCH_KEY = "__placeos_native_credential_fetch__";
+function randomString2(length = 43) {
+  const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  const bytes = new Uint8Array(length);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes, (value) => chars[value % chars.length]).join("");
+}
+async function sha256Base64Url(value) {
+  const buffer = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
+  const bytes = Array.from(new Uint8Array(buffer), (byte) => String.fromCharCode(byte)).join("");
+  return btoa(bytes).replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_");
+}
+function requestOrigin(input2) {
+  const request_url = typeof input2 === "string" ? input2 : input2 instanceof URL ? input2.toString() : input2?.url;
+  return request_url ? new URL(request_url, location.href).origin : "";
+}
+function setupNativeCredentialedFetch(urls) {
+  if (typeof window.fetch !== "function")
+    return;
+  const window_state = window;
+  const origins = urls.map((url) => new URL(url, location.href).origin);
+  if (window_state[NATIVE_CREDENTIAL_FETCH_KEY]) {
+    for (const origin of origins) {
+      window_state[NATIVE_CREDENTIAL_FETCH_KEY].origins.add(origin);
+    }
+    return;
+  }
+  const state2 = {
+    origins: new Set(origins),
+    fetch: window.fetch.bind(window)
+  };
+  window_state[NATIVE_CREDENTIAL_FETCH_KEY] = state2;
+  window.fetch = (input2, init3) => {
+    if (!state2.origins.has(requestOrigin(input2))) {
+      return state2.fetch(input2, init3);
+    }
+    return state2.fetch(input2, __spreadProps(__spreadValues({}, init3), { credentials: "include" }));
+  };
+}
+async function createNativeAuthUrl(settings, client_id) {
+  const protocol = settings.protocol || location.protocol;
+  const host = settings.domain || location.hostname;
+  const port = settings.port || location.port;
+  const host_with_port = `${host}${port ? ":" + port : ""}`;
+  const url = settings.use_domain ? `${protocol}//${host_with_port}` : location.origin;
+  const redirect_uri = await getNativeRedirectUri(settings.app_name, settings.domain);
+  const nonce = randomString2(16);
+  const verifier = randomString2();
+  const challenge = await sha256Base64Url(verifier);
+  localStorage.setItem(`${client_id}_nonce`, nonce);
+  storeNativePkceVerifier(`${client_id}_challenge`, verifier);
+  return `${url}/auth/oauth/authorize?response_type=code&client_id=${encodeURIComponent(client_id)}&state=${encodeURIComponent(nonce)}&redirect_uri=${encodeURIComponent(redirect_uri)}&scope=${encodeURIComponent("public")}&code_challenge_method=S256&code_challenge=${encodeURIComponent(challenge)}`;
+}
+async function setupPlace(settings) {
+  const protocol = settings.protocol || location.protocol;
+  const host = settings.domain || location.hostname;
+  const port = settings.port || location.port;
+  const host_with_port = `${host}${port ? ":" + port : ""}`;
+  const url = settings.use_domain ? `${protocol}//${host_with_port}` : location.origin;
+  const route = (location.pathname + "/").replace("//", "/");
+  const native = isNativeApp();
+  const mock = settings.mock || location.href.includes("mock=true") || localStorage.getItem("mock") === "true";
+  const config2 = {
+    auth_type: "auth_code",
+    scope: "public",
+    host: host_with_port,
+    secure: native || protocol === "https:",
+    auth_uri: `${url}/auth/oauth/authorize`,
+    token_uri: `${url}/auth/oauth/token`,
+    redirect_uri: native ? await getNativeRedirectUri(settings.app_name, settings.domain) : `${location.origin}${route}oauth-resp.html`,
+    storage: native ? "local" : settings.storage,
+    handle_login: native ? false : !settings.local_login,
+    use_iframe: !native,
+    mock,
+    delay: 300
+  };
+  if (native) {
+    localStorage.setItem("trust", "true");
+    setupNativeCredentialedFetch([config2.auth_uri, config2.token_uri]);
+  }
+  if (localStorage) {
+    localStorage.setItem("mock", `${!!mock && !location.href.includes("mock=false")}`);
+  }
+  if (mock) {
+    notifyInfo("Application in mock mode.");
+  }
+  return jr(config2);
+}
+
 // libs/common/src/lib/placeos.service.ts
 var START_QUERY = location.search;
 var LOADING_MESSAGE = signal(
@@ -78294,7 +78031,7 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
       notifySuccess("Toggled dark mode.");
     });
     this._hotkey.listen(["Control", "Alt", "Shift", "KeyC"], () => {
-      this._clipboard.copy(`${V()}|${Pt()}`);
+      this._clipboard.copy(`${X()}|${Pt()}`);
       notifySuccess("Successfully copied token.");
     });
     this._hotkey.listen(["Control", "Alt", "Shift", "KeyV"], () => {
@@ -78314,7 +78051,7 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
         localStorage.setItem("PLACEOS.locale", locale);
       }
       if (params.has("x-api-key")) {
-        Nr(params.get("x-api-key"));
+        Hr(params.get("x-api-key"));
       }
       if (params.has("region_id")) {
         this._region = params.get("region_id");
@@ -78334,7 +78071,7 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
     settings.app_name = this._settings.get("app.name") || this._settings.get("app.short_name");
     settings.mock = !!this._settings.get("mock") || _mocks && location.origin.includes("demo.place.tech");
     if (START_QUERY) {
-      const query2 = Ie(START_QUERY.substring(1));
+      const query2 = Te(START_QUERY.substring(1));
       this._router.navigate([], {
         relativeTo: this._route,
         queryParams: query2
@@ -78384,15 +78121,15 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
       const auth_error = await setupPlace(settings).then(() => null).catch((_2) => _2);
       if (!auth_error) {
         const api_key = getNativeApiKey();
-        const client_key = `${ai()}_x-api-key`;
+        const client_key = `${hi()}_x-api-key`;
         if (api_key)
-          Nr(api_key);
+          Hr(api_key);
         else if (localStorage.getItem(client_key)) {
           localStorage.removeItem(client_key);
-          An();
+          qn();
         }
         if (intune_token)
-          hi(intune_token);
+          li(intune_token);
         break;
       }
       log("APP", "Auth failed, resetting domain.", auth_error, "warn");
@@ -78400,13 +78137,13 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
       clearNativeApiKey();
       DOMAIN_ERROR.set(`Unable to connect to "${domain}". The server may be unavailable, or the email address may be for a different server. Try again.`);
     }
-    if (isNativeApp() && !V(false)) {
+    if (isNativeApp() && !X(false)) {
       const boot_params = new URLSearchParams(START_QUERY);
       if (boot_params.has("code")) {
-        console.warn("[AUTH] Auth code was present on load but the token exchange did not complete.", `State: "${boot_params.get("state")}"`, `Nonce: "${localStorage.getItem(`${ai()}_nonce`)}"`);
+        console.warn("[AUTH] Auth code was present on load but the token exchange did not complete.", `State: "${boot_params.get("state")}"`, `Nonce: "${localStorage.getItem(`${hi()}_nonce`)}"`);
       }
     }
-    if (isNativeApp() && !V(false) && !Pt() && Rt()) {
+    if (isNativeApp() && !X(false) && !Pt() && Rt()) {
       const auth_error = consumeNativeAuthError();
       if (auth_error) {
         setLoadingMessage("Waiting for sign in...");
@@ -78415,7 +78152,7 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
         await new Promise((r) => this._domain_resolve = r);
       }
       setLoadingMessage("Opening sign in...");
-      const auth_url = await createNativeAuthUrl(settings, ai());
+      const auth_url = await createNativeAuthUrl(settings, hi());
       console.warn(`[AUTH] Opening sign in: ${auth_url}`);
       await openNativeBrowser(auth_url);
       return;
@@ -78425,7 +78162,7 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
       await setupPlace(settings).catch((_2) => console.error(_2));
     }
     if (this._initial_token)
-      hi(this._initial_token);
+      li(this._initial_token);
     await this._waitFor(() => this._org.initialised());
     if (this._locale) {
       this._locale.zone_id = this._org.organisation.id;
@@ -78450,15 +78187,15 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
     this._setZones();
   }
   onInitError() {
-    if (kn() || currentUser()?.is_logged_in)
+    if (Sn() || currentUser()?.is_logged_in)
       return;
     if (isNativeApp() && getNativeApiKey()) {
       clearNativeApiKey();
       clearNativeDomain();
-      localStorage.removeItem(`${ai()}_x-api-key`);
-      An();
-    } else if (!V(false))
-      An();
+      localStorage.removeItem(`${hi()}_x-api-key`);
+      qn();
+    } else if (!X(false))
+      qn();
     location.reload();
   }
   _initAnalytics() {
@@ -78496,7 +78233,7 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
   }
   _pasteToken(tkn) {
     const parts = tkn.split("|");
-    const id = ai();
+    const id = hi();
     localStorage.setItem(`${id}_access_token`, `${parts[0]}`);
     localStorage.setItem(`${id}_refresh_token`, `${parts[1]}`);
     localStorage.setItem(`${id}_expires_at`, `${addHours(/* @__PURE__ */ new Date(), 6).valueOf()}`);
@@ -78566,6 +78303,23 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
     }]
   }], null, null);
 })();
+
+// libs/common/src/lib/signal.utilities.ts
+function firstValueWhere(value, predicate = (_2) => !!_2, injector) {
+  const current = untracked2(value);
+  if (predicate(current))
+    return Promise.resolve(current);
+  return new Promise((resolve) => {
+    let ref;
+    ref = untracked2(() => effect(() => {
+      const current2 = value();
+      if (!predicate(current2))
+        return;
+      ref.destroy();
+      resolve(current2);
+    }, { injector }));
+  });
+}
 
 // libs/common/src/lib/org/organisation.service.ts
 var log3 = scoped_log("ORG");
@@ -78670,7 +78424,7 @@ var OrganisationService = class _OrganisationService {
     const binding = this.binding(name);
     const system_id = binding instanceof Object ? binding.id || binding.system_id : binding;
     const mod_id = (binding instanceof Object ? binding.mod || binding.module : "") || default_mod_id;
-    return !system_id || !mod_id ? null : Fl(system_id, mod_id);
+    return !system_id || !mod_id ? null : Wl(system_id, mod_id);
   }
   /** Get building by id */
   find(id) {
@@ -78789,7 +78543,7 @@ var OrganisationService = class _OrganisationService {
     this._building_settings = {};
     this._skip_auto_selection = false;
     this._override_timer = null;
-    ri(Hr(), (_2) => _2).then(() => setTimeout(() => this.init(), 1e3));
+    oi(Lr(), (_2) => _2).then(() => setTimeout(() => this.init(), 1e3));
     effect(() => {
       this._active_region();
       const building = this._active_building();
@@ -78977,7 +78731,7 @@ var OrganisationService = class _OrganisationService {
     });
     if (org_list.length) {
       const auth = Rt();
-      const org = org_list.find((list) => kn() || list.id === auth?.config?.org_zone) || org_list[0];
+      const org = org_list.find((list) => Sn() || list.id === auth?.config?.org_zone) || org_list[0];
       const load_metadata = !this._service.get("dont_load_metadata");
       const bindings = load_metadata ? (await this._bulkMetadataDetails("bindings", [org.id]))[org.id] : {};
       this._organisation = new Organisation(__spreadProps(__spreadValues({}, org), { bindings }));
@@ -79110,10 +78864,10 @@ var OrganisationService = class _OrganisationService {
       if (!bld.location || bld.location === "0,0")
         continue;
       const [lat, long] = bld.location.split(",").map(Number);
-      const distance3 = Math.hypot(latitude - lat, longitude - long);
-      if (distance3 < closest_distance) {
+      const distance = Math.hypot(latitude - lat, longitude - long);
+      if (distance < closest_distance) {
         closest = bld;
-        closest_distance = distance3;
+        closest_distance = distance;
       }
     }
     return closest;
@@ -79214,7 +78968,7 @@ var OrganisationService = class _OrganisationService {
     const cached_metadata = this._getCachedItem(cache_key);
     if (cached_metadata)
       return cached_metadata;
-    const metadata2 = await Ku(name, { parent_ids }).catch((err) => err?.status === 404 ? this._individualMetadata(name, ids) : {});
+    const metadata2 = await Yu(name, { parent_ids }).catch((err) => err?.status === 404 ? this._individualMetadata(name, ids) : {});
     const metadata_details = ids.reduce((map2, id) => {
       map2[id] = metadata2[id]?.details || {};
       return map2;
@@ -79224,7 +78978,7 @@ var OrganisationService = class _OrganisationService {
   }
   /** Fallback for backends without the bulk metadata endpoint (404) */
   async _individualMetadata(name, ids) {
-    const items = await Promise.all(ids.filter(Boolean).map((id) => ju(id, name).then((item) => [id, item], () => [id, null])));
+    const items = await Promise.all(ids.filter(Boolean).map((id) => Wu(id, name).then((item) => [id, item], () => [id, null])));
     const metadata2 = {};
     for (const [id, item] of items) {
       if (item)
@@ -79237,7 +78991,7 @@ var OrganisationService = class _OrganisationService {
     const cached_zones = this._getCachedItem(cache_key);
     if (cached_zones)
       return cached_zones;
-    const zones = (await Ba(__spreadProps(__spreadValues({}, params), {
+    const zones = (await Ka(__spreadProps(__spreadValues({}, params), {
       authority_id: Rt().id
     }))).data || [];
     this._setCachedItem(cache_key, zones);
@@ -79317,1896 +79071,6 @@ var OrganisationService = class _OrganisationService {
     }]
   }], () => [], null);
 })();
-
-// node_modules/qr/esm/index.js
-/*!
-Copyright (c) 2023 Paul Miller (paulmillr.com)
-The library paulmillr-qr is dual-licensed under the Apache 2.0 OR MIT license.
-You can select a license of your choice.
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
-var chCodes = { newline: 10, reset: 27 };
-function assertNumber2(n) {
-  if (!Number.isSafeInteger(n))
-    throw new Error(`integer expected: ${n}`);
-}
-function validateVersion(ver) {
-  if (!Number.isSafeInteger(ver) || ver < 1 || ver > 40)
-    throw new Error(`Invalid version=${ver}. Expected number [1..40]`);
-}
-function bin(dec, pad) {
-  return dec.toString(2).padStart(pad, "0");
-}
-function mod(a, b2) {
-  const result = a % b2;
-  return result >= 0 ? result : b2 + result;
-}
-function fillArr(length, val) {
-  return new Array(length).fill(val);
-}
-function interleaveBytes(...blocks) {
-  let len = 0;
-  for (const b2 of blocks)
-    len = Math.max(len, b2.length);
-  const res = [];
-  for (let i = 0; i < len; i++) {
-    for (const b2 of blocks) {
-      if (i >= b2.length)
-        continue;
-      res.push(b2[i]);
-    }
-  }
-  return new Uint8Array(res);
-}
-function includesAt(lst, pattern2, index) {
-  if (index < 0 || index + pattern2.length > lst.length)
-    return false;
-  for (let i = 0; i < pattern2.length; i++)
-    if (pattern2[i] !== lst[index + i])
-      return false;
-  return true;
-}
-function best() {
-  let best3;
-  let bestScore = Infinity;
-  return {
-    add(score, value) {
-      if (score >= bestScore)
-        return;
-      best3 = value;
-      bestScore = score;
-    },
-    get: () => best3,
-    score: () => bestScore
-  };
-}
-function alphabet(alphabet2) {
-  return {
-    has: (char) => alphabet2.includes(char),
-    decode: (input2) => {
-      if (!Array.isArray(input2) || input2.length && typeof input2[0] !== "string")
-        throw new Error("alphabet.decode input should be array of strings");
-      return input2.map((letter) => {
-        if (typeof letter !== "string")
-          throw new Error(`alphabet.decode: not string element=${letter}`);
-        const index = alphabet2.indexOf(letter);
-        if (index === -1)
-          throw new Error(`Unknown letter: "${letter}". Allowed: ${alphabet2}`);
-        return index;
-      });
-    },
-    encode: (digits) => {
-      if (!Array.isArray(digits) || digits.length && typeof digits[0] !== "number")
-        throw new Error("alphabet.encode input should be an array of numbers");
-      return digits.map((i) => {
-        assertNumber2(i);
-        if (i < 0 || i >= alphabet2.length)
-          throw new Error(`Digit index outside alphabet: ${i} (alphabet: ${alphabet2.length})`);
-        return alphabet2[i];
-      });
-    }
-  };
-}
-var Bitmap = class _Bitmap {
-  static size(size, limit) {
-    if (typeof size === "number")
-      size = { height: size, width: size };
-    if (!Number.isSafeInteger(size.height) && size.height !== Infinity)
-      throw new Error(`Bitmap: invalid height=${size.height} (${typeof size.height})`);
-    if (!Number.isSafeInteger(size.width) && size.width !== Infinity)
-      throw new Error(`Bitmap: invalid width=${size.width} (${typeof size.width})`);
-    if (limit !== void 0) {
-      size = {
-        width: Math.min(size.width, limit.width),
-        height: Math.min(size.height, limit.height)
-      };
-    }
-    return size;
-  }
-  static fromString(s) {
-    s = s.replace(/^\n+/g, "").replace(/\n+$/g, "");
-    const lines = s.split(String.fromCharCode(chCodes.newline));
-    const height = lines.length;
-    const data = new Array(height);
-    let width;
-    for (const line of lines) {
-      const row = line.split("").map((i) => {
-        if (i === "X")
-          return true;
-        if (i === " ")
-          return false;
-        if (i === "?")
-          return void 0;
-        throw new Error(`Bitmap.fromString: unknown symbol=${i}`);
-      });
-      if (width && row.length !== width)
-        throw new Error(`Bitmap.fromString different row sizes: width=${width} cur=${row.length}`);
-      width = row.length;
-      data.push(row);
-    }
-    if (!width)
-      width = 0;
-    return new _Bitmap({ height, width }, data);
-  }
-  constructor(size, data) {
-    const { height, width } = _Bitmap.size(size);
-    this.data = data || Array.from({ length: height }, () => fillArr(width, void 0));
-    this.height = height;
-    this.width = width;
-  }
-  point(p2) {
-    return this.data[p2.y][p2.x];
-  }
-  isInside(p2) {
-    return 0 <= p2.x && p2.x < this.width && 0 <= p2.y && p2.y < this.height;
-  }
-  size(offset) {
-    if (!offset)
-      return { height: this.height, width: this.width };
-    const { x, y } = this.xy(offset);
-    return { height: this.height - y, width: this.width - x };
-  }
-  xy(c) {
-    if (typeof c === "number")
-      c = { x: c, y: c };
-    if (!Number.isSafeInteger(c.x))
-      throw new Error(`Bitmap: invalid x=${c.x}`);
-    if (!Number.isSafeInteger(c.y))
-      throw new Error(`Bitmap: invalid y=${c.y}`);
-    c.x = mod(c.x, this.width);
-    c.y = mod(c.y, this.height);
-    return c;
-  }
-  // Basically every operation can be represented as rect
-  rect(c, size, value) {
-    const { x, y } = this.xy(c);
-    const { height, width } = _Bitmap.size(size, this.size({ x, y }));
-    for (let yPos = 0; yPos < height; yPos++) {
-      for (let xPos = 0; xPos < width; xPos++) {
-        this.data[y + yPos][x + xPos] = typeof value === "function" ? value({ x: xPos, y: yPos }, this.data[y + yPos][x + xPos]) : value;
-      }
-    }
-    return this;
-  }
-  // returns rectangular part of bitmap
-  rectRead(c, size, fn) {
-    return this.rect(c, size, (c2, cur) => {
-      fn(c2, cur);
-      return cur;
-    });
-  }
-  // Horizontal & vertical lines
-  hLine(c, len, value) {
-    return this.rect(c, { width: len, height: 1 }, value);
-  }
-  vLine(c, len, value) {
-    return this.rect(c, { width: 1, height: len }, value);
-  }
-  // add border
-  border(border = 2, value) {
-    const height = this.height + 2 * border;
-    const width = this.width + 2 * border;
-    const v = fillArr(border, value);
-    const h = Array.from({ length: border }, () => fillArr(width, value));
-    return new _Bitmap({ height, width }, [...h, ...this.data.map((i) => [...v, ...i, ...v]), ...h]);
-  }
-  // Embed another bitmap on coordinates
-  embed(c, bm) {
-    return this.rect(c, bm.size(), ({ x, y }) => bm.data[y][x]);
-  }
-  // returns rectangular part of bitmap
-  rectSlice(c, size = this.size()) {
-    const rect = new _Bitmap(_Bitmap.size(size, this.size(this.xy(c))));
-    this.rect(c, size, ({ x, y }, cur) => rect.data[y][x] = cur);
-    return rect;
-  }
-  // Change shape, replace rows with columns (data[y][x] -> data[x][y])
-  inverse() {
-    const { height, width } = this;
-    const res = new _Bitmap({ height: width, width: height });
-    return res.rect({ x: 0, y: 0 }, Infinity, ({ x, y }) => this.data[x][y]);
-  }
-  // Each pixel size is multiplied by factor
-  scale(factor) {
-    if (!Number.isSafeInteger(factor) || factor > 1024)
-      throw new Error(`invalid scale factor: ${factor}`);
-    const { height, width } = this;
-    const res = new _Bitmap({ height: factor * height, width: factor * width });
-    return res.rect({ x: 0, y: 0 }, Infinity, ({ x, y }) => this.data[Math.floor(y / factor)][Math.floor(x / factor)]);
-  }
-  clone() {
-    const res = new _Bitmap(this.size());
-    return res.rect({ x: 0, y: 0 }, this.size(), ({ x, y }) => this.data[y][x]);
-  }
-  // Ensure that there is no undefined values left
-  assertDrawn() {
-    this.rectRead(0, Infinity, (_2, cur) => {
-      if (typeof cur !== "boolean")
-        throw new Error(`Invalid color type=${typeof cur}`);
-    });
-  }
-  // Simple string representation for debugging
-  toString() {
-    return this.data.map((i) => i.map((j) => j === void 0 ? "?" : j ? "X" : " ").join("")).join(String.fromCharCode(chCodes.newline));
-  }
-  toASCII() {
-    const { height, width, data } = this;
-    let out = "";
-    for (let y = 0; y < height; y += 2) {
-      for (let x = 0; x < width; x++) {
-        const first2 = data[y][x];
-        const second = y + 1 >= height ? true : data[y + 1][x];
-        if (!first2 && !second)
-          out += "\u2588";
-        else if (!first2 && second)
-          out += "\u2580";
-        else if (first2 && !second)
-          out += "\u2584";
-        else if (first2 && second)
-          out += " ";
-      }
-      out += String.fromCharCode(chCodes.newline);
-    }
-    return out;
-  }
-  toTerm() {
-    const cc = String.fromCharCode(chCodes.reset);
-    const reset = cc + "[0m";
-    const whiteBG = cc + "[1;47m  " + reset;
-    const darkBG = cc + `[40m  ` + reset;
-    return this.data.map((i) => i.map((j) => j ? darkBG : whiteBG).join("")).join(String.fromCharCode(chCodes.newline));
-  }
-  toSVG(optimize = true) {
-    let out = `<svg viewBox="0 0 ${this.width} ${this.height}" xmlns="http://www.w3.org/2000/svg">`;
-    let pathData = "";
-    let prevPoint;
-    this.rectRead(0, Infinity, (point, val) => {
-      if (!val)
-        return;
-      const { x, y } = point;
-      if (!optimize) {
-        out += `<rect x="${x}" y="${y}" width="1" height="1" />`;
-        return;
-      }
-      let m2 = `M${x} ${y}`;
-      if (prevPoint) {
-        const relM = `m${x - prevPoint.x} ${y - prevPoint.y}`;
-        if (relM.length <= m2.length)
-          m2 = relM;
-      }
-      const bH = x < 10 ? `H${x}` : "h-1";
-      pathData += `${m2}h1v1${bH}Z`;
-      prevPoint = point;
-    });
-    if (optimize)
-      out += `<path d="${pathData}"/>`;
-    out += `</svg>`;
-    return out;
-  }
-  toGIF() {
-    const u16le = (i) => [i & 255, i >>> 8 & 255];
-    const dims = [...u16le(this.width), ...u16le(this.height)];
-    const data = [];
-    this.rectRead(0, Infinity, (_2, cur) => data.push(+(cur === true)));
-    const N3 = 126;
-    const bytes = [
-      71,
-      73,
-      70,
-      56,
-      55,
-      97,
-      ...dims,
-      246,
-      0,
-      0,
-      255,
-      255,
-      255,
-      ...fillArr(3 * 127, 0),
-      44,
-      0,
-      0,
-      0,
-      0,
-      ...dims,
-      0,
-      7
-    ];
-    const fullChunks = Math.floor(data.length / N3);
-    for (let i = 0; i < fullChunks; i++)
-      bytes.push(N3 + 1, 128, ...data.slice(N3 * i, N3 * (i + 1)).map((i2) => +i2));
-    bytes.push(data.length % N3 + 1, 128, ...data.slice(fullChunks * N3).map((i) => +i));
-    bytes.push(1, 129, 0, 59);
-    return new Uint8Array(bytes);
-  }
-  toImage(isRGB = false) {
-    const { height, width } = this.size();
-    const data = new Uint8Array(height * width * (isRGB ? 3 : 4));
-    let i = 0;
-    for (let y = 0; y < height; y++) {
-      for (let x = 0; x < width; x++) {
-        const value = !!this.data[y][x] ? 0 : 255;
-        data[i++] = value;
-        data[i++] = value;
-        data[i++] = value;
-        if (!isRGB)
-          data[i++] = 255;
-      }
-    }
-    return { height, width, data };
-  }
-};
-var ECMode = ["low", "medium", "quartile", "high"];
-var Encoding = ["numeric", "alphanumeric", "byte", "kanji", "eci"];
-var BYTES = [
-  // 1,  2,  3,   4,   5,   6,   7,   8,   9,  10,  11,  12,  13,  14,  15,  16,  17,  18,  19,   20,
-  26,
-  44,
-  70,
-  100,
-  134,
-  172,
-  196,
-  242,
-  292,
-  346,
-  404,
-  466,
-  532,
-  581,
-  655,
-  733,
-  815,
-  901,
-  991,
-  1085,
-  //  21,   22,   23,   24,   25,   26,   27,   28,   29,   30,   31,   32,   33,   34,   35,   36,   37,   38,   39,   40
-  1156,
-  1258,
-  1364,
-  1474,
-  1588,
-  1706,
-  1828,
-  1921,
-  2051,
-  2185,
-  2323,
-  2465,
-  2611,
-  2761,
-  2876,
-  3034,
-  3196,
-  3362,
-  3532,
-  3706
-];
-var WORDS_PER_BLOCK = {
-  // Version 1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40
-  low: [7, 10, 15, 20, 26, 18, 20, 24, 30, 18, 20, 24, 26, 30, 22, 24, 28, 30, 28, 28, 28, 28, 30, 30, 26, 28, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30],
-  medium: [10, 16, 26, 18, 24, 16, 18, 22, 22, 26, 30, 22, 22, 24, 24, 28, 28, 26, 26, 26, 26, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28],
-  quartile: [13, 22, 18, 26, 18, 24, 18, 22, 20, 24, 28, 26, 24, 20, 30, 24, 28, 28, 26, 30, 28, 30, 30, 30, 30, 28, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30],
-  high: [17, 28, 22, 16, 22, 28, 26, 26, 24, 28, 24, 28, 22, 24, 24, 30, 28, 28, 26, 28, 30, 24, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30]
-};
-var ECC_BLOCKS = {
-  // Version   1, 2, 3, 4, 5, 6, 7, 8, 9,10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40
-  low: [1, 1, 1, 1, 1, 2, 2, 2, 2, 4, 4, 4, 4, 4, 6, 6, 6, 6, 7, 8, 8, 9, 9, 10, 12, 12, 12, 13, 14, 15, 16, 17, 18, 19, 19, 20, 21, 22, 24, 25],
-  medium: [1, 1, 1, 2, 2, 4, 4, 4, 5, 5, 5, 8, 9, 9, 10, 10, 11, 13, 14, 16, 17, 17, 18, 20, 21, 23, 25, 26, 28, 29, 31, 33, 35, 37, 38, 40, 43, 45, 47, 49],
-  quartile: [1, 1, 2, 2, 4, 4, 6, 6, 8, 8, 8, 10, 12, 16, 12, 17, 16, 18, 21, 20, 23, 23, 25, 27, 29, 34, 34, 35, 38, 40, 43, 45, 48, 51, 53, 56, 59, 62, 65, 68],
-  high: [1, 1, 2, 4, 4, 4, 5, 6, 8, 8, 11, 11, 16, 16, 18, 16, 19, 21, 25, 25, 25, 34, 30, 32, 35, 37, 40, 42, 45, 48, 51, 54, 57, 60, 63, 66, 70, 74, 77, 81]
-};
-var info = {
-  size: {
-    encode: (ver) => 21 + 4 * (ver - 1),
-    // ver1 = 21, ver40=177 blocks
-    decode: (size) => (size - 17) / 4
-  },
-  sizeType: (ver) => Math.floor((ver + 7) / 17),
-  // Based on https://codereview.stackexchange.com/questions/74925/algorithm-to-generate-this-alignment-pattern-locations-table-for-qr-codes
-  alignmentPatterns(ver) {
-    if (ver === 1)
-      return [];
-    const first2 = 6;
-    const last3 = info.size.encode(ver) - first2 - 1;
-    const distance3 = last3 - first2;
-    const count = Math.ceil(distance3 / 28);
-    let interval = Math.floor(distance3 / count);
-    if (interval % 2)
-      interval += 1;
-    else if (distance3 % count * 2 >= count)
-      interval += 2;
-    const res = [first2];
-    for (let m2 = 1; m2 < count; m2++)
-      res.push(last3 - (count - m2) * interval);
-    res.push(last3);
-    return res;
-  },
-  ECCode: {
-    low: 1,
-    medium: 0,
-    quartile: 3,
-    high: 2
-  },
-  formatMask: 21522,
-  formatBits(ecc, maskIdx) {
-    const data = info.ECCode[ecc] << 3 | maskIdx;
-    let d2 = data;
-    for (let i = 0; i < 10; i++)
-      d2 = d2 << 1 ^ (d2 >> 9) * 1335;
-    return (data << 10 | d2) ^ info.formatMask;
-  },
-  versionBits(ver) {
-    let d2 = ver;
-    for (let i = 0; i < 12; i++)
-      d2 = d2 << 1 ^ (d2 >> 11) * 7973;
-    return ver << 12 | d2;
-  },
-  alphabet: {
-    numeric: alphabet("0123456789"),
-    alphanumerc: alphabet("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:")
-  },
-  // as Record<EncodingType, ReturnType<typeof alphabet>>,
-  lengthBits(ver, type) {
-    const table = {
-      numeric: [10, 12, 14],
-      alphanumeric: [9, 11, 13],
-      byte: [8, 16, 16],
-      kanji: [8, 10, 12],
-      eci: [0, 0, 0]
-    };
-    return table[type][info.sizeType(ver)];
-  },
-  modeBits: {
-    numeric: "0001",
-    alphanumeric: "0010",
-    byte: "0100",
-    kanji: "1000",
-    eci: "0111"
-  },
-  capacity(ver, ecc) {
-    const bytes = BYTES[ver - 1];
-    const words = WORDS_PER_BLOCK[ecc][ver - 1];
-    const numBlocks = ECC_BLOCKS[ecc][ver - 1];
-    const blockLen = Math.floor(bytes / numBlocks) - words;
-    const shortBlocks = numBlocks - bytes % numBlocks;
-    return {
-      words,
-      numBlocks,
-      shortBlocks,
-      blockLen,
-      capacity: (bytes - words * numBlocks) * 8,
-      total: (words + blockLen) * numBlocks + numBlocks - shortBlocks
-    };
-  }
-};
-var PATTERNS = [
-  (x, y) => (x + y) % 2 == 0,
-  (_x, y) => y % 2 == 0,
-  (x, _y) => x % 3 == 0,
-  (x, y) => (x + y) % 3 == 0,
-  (x, y) => (Math.floor(y / 2) + Math.floor(x / 3)) % 2 == 0,
-  (x, y) => x * y % 2 + x * y % 3 == 0,
-  (x, y) => (x * y % 2 + x * y % 3) % 2 == 0,
-  (x, y) => ((x + y) % 2 + x * y % 3) % 2 == 0
-];
-var GF = {
-  tables: ((p_poly) => {
-    const exp = fillArr(256, 0);
-    const log4 = fillArr(256, 0);
-    for (let i = 0, x = 1; i < 256; i++) {
-      exp[i] = x;
-      log4[x] = i;
-      x <<= 1;
-      if (x & 256)
-        x ^= p_poly;
-    }
-    return { exp, log: log4 };
-  })(285),
-  exp: (x) => GF.tables.exp[x],
-  log(x) {
-    if (x === 0)
-      throw new Error(`GF.log: invalid arg=${x}`);
-    return GF.tables.log[x] % 255;
-  },
-  mul(x, y) {
-    if (x === 0 || y === 0)
-      return 0;
-    return GF.tables.exp[(GF.tables.log[x] + GF.tables.log[y]) % 255];
-  },
-  add: (x, y) => x ^ y,
-  pow: (x, e) => GF.tables.exp[GF.tables.log[x] * e % 255],
-  inv(x) {
-    if (x === 0)
-      throw new Error(`GF.inverse: invalid arg=${x}`);
-    return GF.tables.exp[255 - GF.tables.log[x]];
-  },
-  polynomial(poly) {
-    if (poly.length == 0)
-      throw new Error("GF.polymomial: invalid length");
-    if (poly[0] !== 0)
-      return poly;
-    let i = 0;
-    for (; i < poly.length - 1 && poly[i] == 0; i++)
-      ;
-    return poly.slice(i);
-  },
-  monomial(degree, coefficient) {
-    if (degree < 0)
-      throw new Error(`GF.monomial: invalid degree=${degree}`);
-    if (coefficient == 0)
-      return [0];
-    let coefficients = fillArr(degree + 1, 0);
-    coefficients[0] = coefficient;
-    return GF.polynomial(coefficients);
-  },
-  degree: (a) => a.length - 1,
-  coefficient: (a, degree) => a[GF.degree(a) - degree],
-  mulPoly(a, b2) {
-    if (a[0] === 0 || b2[0] === 0)
-      return [0];
-    const res = fillArr(a.length + b2.length - 1, 0);
-    for (let i = 0; i < a.length; i++) {
-      for (let j = 0; j < b2.length; j++) {
-        res[i + j] = GF.add(res[i + j], GF.mul(a[i], b2[j]));
-      }
-    }
-    return GF.polynomial(res);
-  },
-  mulPolyScalar(a, scalar) {
-    if (scalar == 0)
-      return [0];
-    if (scalar == 1)
-      return a;
-    const res = fillArr(a.length, 0);
-    for (let i = 0; i < a.length; i++)
-      res[i] = GF.mul(a[i], scalar);
-    return GF.polynomial(res);
-  },
-  mulPolyMonomial(a, degree, coefficient) {
-    if (degree < 0)
-      throw new Error("GF.mulPolyMonomial: invalid degree");
-    if (coefficient == 0)
-      return [0];
-    const res = fillArr(a.length + degree, 0);
-    for (let i = 0; i < a.length; i++)
-      res[i] = GF.mul(a[i], coefficient);
-    return GF.polynomial(res);
-  },
-  addPoly(a, b2) {
-    if (a[0] === 0)
-      return b2;
-    if (b2[0] === 0)
-      return a;
-    let smaller = a;
-    let larger = b2;
-    if (smaller.length > larger.length)
-      [smaller, larger] = [larger, smaller];
-    let sumDiff = fillArr(larger.length, 0);
-    let lengthDiff = larger.length - smaller.length;
-    let s = larger.slice(0, lengthDiff);
-    for (let i = 0; i < s.length; i++)
-      sumDiff[i] = s[i];
-    for (let i = lengthDiff; i < larger.length; i++)
-      sumDiff[i] = GF.add(smaller[i - lengthDiff], larger[i]);
-    return GF.polynomial(sumDiff);
-  },
-  remainderPoly(data, divisor) {
-    const out = Array.from(data);
-    for (let i = 0; i < data.length - divisor.length + 1; i++) {
-      const elm = out[i];
-      if (elm === 0)
-        continue;
-      for (let j = 1; j < divisor.length; j++) {
-        if (divisor[j] !== 0)
-          out[i + j] = GF.add(out[i + j], GF.mul(divisor[j], elm));
-      }
-    }
-    return out.slice(data.length - divisor.length + 1, out.length);
-  },
-  divisorPoly(degree) {
-    let g2 = [1];
-    for (let i = 0; i < degree; i++)
-      g2 = GF.mulPoly(g2, [1, GF.pow(2, i)]);
-    return g2;
-  },
-  evalPoly(poly, a) {
-    if (a == 0)
-      return GF.coefficient(poly, 0);
-    let res = poly[0];
-    for (let i = 1; i < poly.length; i++)
-      res = GF.add(GF.mul(a, res), poly[i]);
-    return res;
-  },
-  // TODO: cleanup
-  euclidian(a, b2, R2) {
-    if (GF.degree(a) < GF.degree(b2))
-      [a, b2] = [b2, a];
-    let rLast = a;
-    let r = b2;
-    let tLast = [0];
-    let t = [1];
-    while (2 * GF.degree(r) >= R2) {
-      let rLastLast = rLast;
-      let tLastLast = tLast;
-      rLast = r;
-      tLast = t;
-      if (rLast[0] === 0)
-        throw new Error("rLast[0] === 0");
-      r = rLastLast;
-      let q = [0];
-      const dltInverse = GF.inv(rLast[0]);
-      while (GF.degree(r) >= GF.degree(rLast) && r[0] !== 0) {
-        const degreeDiff = GF.degree(r) - GF.degree(rLast);
-        const scale = GF.mul(r[0], dltInverse);
-        q = GF.addPoly(q, GF.monomial(degreeDiff, scale));
-        r = GF.addPoly(r, GF.mulPolyMonomial(rLast, degreeDiff, scale));
-      }
-      q = GF.mulPoly(q, tLast);
-      t = GF.addPoly(q, tLastLast);
-      if (GF.degree(r) >= GF.degree(rLast))
-        throw new Error(`Division failed r: ${r}, rLast: ${rLast}`);
-    }
-    const sigmaTildeAtZero = GF.coefficient(t, 0);
-    if (sigmaTildeAtZero == 0)
-      throw new Error("sigmaTilde(0) was zero");
-    const inverse = GF.inv(sigmaTildeAtZero);
-    return [GF.mulPolyScalar(t, inverse), GF.mulPolyScalar(r, inverse)];
-  }
-};
-function RS(eccWords) {
-  return {
-    encode(from2) {
-      const d2 = GF.divisorPoly(eccWords);
-      const pol = Array.from(from2);
-      pol.push(...d2.slice(0, -1).fill(0));
-      return Uint8Array.from(GF.remainderPoly(pol, d2));
-    },
-    decode(to) {
-      const res = to.slice();
-      const poly = GF.polynomial(Array.from(to));
-      let syndrome = fillArr(eccWords, 0);
-      let hasError = false;
-      for (let i = 0; i < eccWords; i++) {
-        const evl = GF.evalPoly(poly, GF.exp(i));
-        syndrome[syndrome.length - 1 - i] = evl;
-        if (evl !== 0)
-          hasError = true;
-      }
-      if (!hasError)
-        return res;
-      syndrome = GF.polynomial(syndrome);
-      const monomial = GF.monomial(eccWords, 1);
-      const [errorLocator, errorEvaluator] = GF.euclidian(monomial, syndrome, eccWords);
-      const locations = fillArr(GF.degree(errorLocator), 0);
-      let e = 0;
-      for (let i = 1; i < 256 && e < locations.length; i++) {
-        if (GF.evalPoly(errorLocator, i) === 0)
-          locations[e++] = GF.inv(i);
-      }
-      if (e !== locations.length)
-        throw new Error("RS.decode: invalid errors number");
-      for (let i = 0; i < locations.length; i++) {
-        const pos = res.length - 1 - GF.log(locations[i]);
-        if (pos < 0)
-          throw new Error("RS.decode: invalid error location");
-        const xiInverse = GF.inv(locations[i]);
-        let denominator = 1;
-        for (let j = 0; j < locations.length; j++) {
-          if (i === j)
-            continue;
-          denominator = GF.mul(denominator, GF.add(1, GF.mul(locations[j], xiInverse)));
-        }
-        res[pos] = GF.add(res[pos], GF.mul(GF.evalPoly(errorEvaluator, xiInverse), GF.inv(denominator)));
-      }
-      return res;
-    }
-  };
-}
-function interleave(ver, ecc) {
-  const { words, shortBlocks, numBlocks, blockLen, total } = info.capacity(ver, ecc);
-  const rs2 = RS(words);
-  return {
-    encode(bytes) {
-      const blocks = [];
-      const eccBlocks = [];
-      for (let i = 0; i < numBlocks; i++) {
-        const isShort = i < shortBlocks;
-        const len = blockLen + (isShort ? 0 : 1);
-        blocks.push(bytes.subarray(0, len));
-        eccBlocks.push(rs2.encode(bytes.subarray(0, len)));
-        bytes = bytes.subarray(len);
-      }
-      const resBlocks = interleaveBytes(...blocks);
-      const resECC = interleaveBytes(...eccBlocks);
-      const res = new Uint8Array(resBlocks.length + resECC.length);
-      res.set(resBlocks);
-      res.set(resECC, resBlocks.length);
-      return res;
-    },
-    decode(data) {
-      if (data.length !== total)
-        throw new Error(`interleave.decode: len(data)=${data.length}, total=${total}`);
-      const blocks = [];
-      for (let i = 0; i < numBlocks; i++) {
-        const isShort = i < shortBlocks;
-        blocks.push(new Uint8Array(words + blockLen + (isShort ? 0 : 1)));
-      }
-      let pos = 0;
-      for (let i = 0; i < blockLen; i++) {
-        for (let j = 0; j < numBlocks; j++)
-          blocks[j][i] = data[pos++];
-      }
-      for (let j = shortBlocks; j < numBlocks; j++)
-        blocks[j][blockLen] = data[pos++];
-      for (let i = blockLen; i < blockLen + words; i++) {
-        for (let j = 0; j < numBlocks; j++) {
-          const isShort = j < shortBlocks;
-          blocks[j][i + (isShort ? 0 : 1)] = data[pos++];
-        }
-      }
-      const res = [];
-      for (const block of blocks)
-        res.push(...Array.from(rs2.decode(block)).slice(0, -words));
-      return Uint8Array.from(res);
-    }
-  };
-}
-function drawTemplate(ver, ecc, maskIdx, test = false) {
-  const size = info.size.encode(ver);
-  let b2 = new Bitmap(size + 2);
-  const finder = new Bitmap(3).rect(0, 3, true).border(1, false).border(1, true).border(1, false);
-  b2 = b2.embed(0, finder).embed({ x: -finder.width, y: 0 }, finder).embed({ x: 0, y: -finder.height }, finder);
-  b2 = b2.rectSlice(1, size);
-  const align = new Bitmap(1).rect(0, 1, true).border(1, false).border(1, true);
-  const alignPos = info.alignmentPatterns(ver);
-  for (const y of alignPos) {
-    for (const x of alignPos) {
-      if (b2.data[y][x] !== void 0)
-        continue;
-      b2.embed({ x: x - 2, y: y - 2 }, align);
-    }
-  }
-  b2 = b2.hLine({ x: 0, y: 6 }, Infinity, ({ x }, cur) => cur === void 0 ? x % 2 == 0 : cur).vLine({ x: 6, y: 0 }, Infinity, ({ y }, cur) => cur === void 0 ? y % 2 == 0 : cur);
-  {
-    const bits = info.formatBits(ecc, maskIdx);
-    const getBit = (i) => !test && (bits >> i & 1) == 1;
-    for (let i = 0; i < 6; i++)
-      b2.data[i][8] = getBit(i);
-    for (let i = 6; i < 8; i++)
-      b2.data[i + 1][8] = getBit(i);
-    for (let i = 8; i < 15; i++)
-      b2.data[size - 15 + i][8] = getBit(i);
-    for (let i = 0; i < 8; i++)
-      b2.data[8][size - i - 1] = getBit(i);
-    for (let i = 8; i < 9; i++)
-      b2.data[8][15 - i - 1 + 1] = getBit(i);
-    for (let i = 9; i < 15; i++)
-      b2.data[8][15 - i - 1] = getBit(i);
-    b2.data[size - 8][8] = !test;
-  }
-  if (ver >= 7) {
-    const bits = info.versionBits(ver);
-    for (let i = 0; i < 18; i += 1) {
-      const bit = !test && (bits >> i & 1) == 1;
-      const x = Math.floor(i / 3);
-      const y = i % 3 + size - 8 - 3;
-      b2.data[x][y] = bit;
-      b2.data[y][x] = bit;
-    }
-  }
-  return b2;
-}
-function zigzag(tpl, maskIdx, fn) {
-  const size = tpl.height;
-  const pattern2 = PATTERNS[maskIdx];
-  let dir = -1;
-  let y = size - 1;
-  for (let xOffset = size - 1; xOffset > 0; xOffset -= 2) {
-    if (xOffset == 6)
-      xOffset = 5;
-    for (; ; y += dir) {
-      for (let j = 0; j < 2; j += 1) {
-        const x = xOffset - j;
-        if (tpl.data[y][x] !== void 0)
-          continue;
-        fn(x, y, pattern2(x, y));
-      }
-      if (y + dir < 0 || y + dir >= size)
-        break;
-    }
-    dir = -dir;
-  }
-}
-function detectType(str) {
-  let type = "numeric";
-  for (let x of str) {
-    if (info.alphabet.numeric.has(x))
-      continue;
-    type = "alphanumeric";
-    if (!info.alphabet.alphanumerc.has(x))
-      return "byte";
-  }
-  return type;
-}
-function utf8ToBytes(str) {
-  if (typeof str !== "string")
-    throw new Error(`utf8ToBytes expected string, got ${typeof str}`);
-  return new Uint8Array(new TextEncoder().encode(str));
-}
-function encode(ver, ecc, data, type) {
-  let encoded = "";
-  let dataLen = data.length;
-  if (type === "numeric") {
-    const t = info.alphabet.numeric.decode(data.split(""));
-    const n = t.length;
-    for (let i = 0; i < n - 2; i += 3)
-      encoded += bin(t[i] * 100 + t[i + 1] * 10 + t[i + 2], 10);
-    if (n % 3 === 1) {
-      encoded += bin(t[n - 1], 4);
-    } else if (n % 3 === 2) {
-      encoded += bin(t[n - 2] * 10 + t[n - 1], 7);
-    }
-  } else if (type === "alphanumeric") {
-    const t = info.alphabet.alphanumerc.decode(data.split(""));
-    const n = t.length;
-    for (let i = 0; i < n - 1; i += 2)
-      encoded += bin(t[i] * 45 + t[i + 1], 11);
-    if (n % 2 == 1)
-      encoded += bin(t[n - 1], 6);
-  } else if (type === "byte") {
-    const utf8 = utf8ToBytes(data);
-    dataLen = utf8.length;
-    encoded = Array.from(utf8).map((i) => bin(i, 8)).join("");
-  } else {
-    throw new Error("encode: unsupported type");
-  }
-  const { capacity } = info.capacity(ver, ecc);
-  const len = bin(dataLen, info.lengthBits(ver, type));
-  let bits = info.modeBits[type] + len + encoded;
-  if (bits.length > capacity)
-    throw new Error("Capacity overflow");
-  bits += "0".repeat(Math.min(4, Math.max(0, capacity - bits.length)));
-  if (bits.length % 8)
-    bits += "0".repeat(8 - bits.length % 8);
-  const padding = "1110110000010001";
-  for (let idx = 0; bits.length !== capacity; idx++)
-    bits += padding[idx % padding.length];
-  const bytes = Uint8Array.from(bits.match(/(.{8})/g).map((i) => Number(`0b${i}`)));
-  return interleave(ver, ecc).encode(bytes);
-}
-function drawQR(ver, ecc, data, maskIdx, test = false) {
-  const b2 = drawTemplate(ver, ecc, maskIdx, test);
-  let i = 0;
-  const need = 8 * data.length;
-  zigzag(b2, maskIdx, (x, y, mask) => {
-    let value = false;
-    if (i < need) {
-      value = (data[i >>> 3] >> (7 - i & 7) & 1) !== 0;
-      i++;
-    }
-    b2.data[y][x] = value !== mask;
-  });
-  if (i !== need)
-    throw new Error("QR: bytes left after draw");
-  return b2;
-}
-function penalty(bm) {
-  const inverse = bm.inverse();
-  const sameColor = (row) => {
-    let res = 0;
-    for (let i = 0, same = 1, last3 = void 0; i < row.length; i++) {
-      if (last3 === row[i]) {
-        same++;
-        if (i !== row.length - 1)
-          continue;
-      }
-      if (same >= 5)
-        res += 3 + (same - 5);
-      last3 = row[i];
-      same = 1;
-    }
-    return res;
-  };
-  let adjacent = 0;
-  bm.data.forEach((row) => adjacent += sameColor(row));
-  inverse.data.forEach((column) => adjacent += sameColor(column));
-  let box = 0;
-  let b2 = bm.data;
-  const lastW = bm.width - 1;
-  const lastH = bm.height - 1;
-  for (let x = 0; x < lastW; x++) {
-    for (let y = 0; y < lastH; y++) {
-      const x1 = x + 1;
-      const y1 = y + 1;
-      if (b2[x][y] === b2[x1][y] && b2[x1][y] === b2[x][y1] && b2[x1][y] === b2[x1][y1]) {
-        box += 3;
-      }
-    }
-  }
-  const finderPattern = (row) => {
-    const finderPattern2 = [true, false, true, true, true, false, true];
-    const lightPattern = [false, false, false, false];
-    const p1 = [...finderPattern2, ...lightPattern];
-    const p2 = [...lightPattern, ...finderPattern2];
-    let res = 0;
-    for (let i = 0; i < row.length; i++) {
-      if (includesAt(row, p1, i))
-        res += 40;
-      if (includesAt(row, p2, i))
-        res += 40;
-    }
-    return res;
-  };
-  let finder = 0;
-  for (const row of bm.data)
-    finder += finderPattern(row);
-  for (const column of inverse.data)
-    finder += finderPattern(column);
-  let darkPixels = 0;
-  bm.rectRead(0, Infinity, (_c, val) => darkPixels += val ? 1 : 0);
-  const darkPercent = darkPixels / (bm.height * bm.width) * 100;
-  const dark = 10 * Math.floor(Math.abs(darkPercent - 50) / 5);
-  return adjacent + box + finder + dark;
-}
-function drawQRBest(ver, ecc, data, maskIdx) {
-  if (maskIdx === void 0) {
-    const bestMask = best();
-    for (let mask = 0; mask < PATTERNS.length; mask++)
-      bestMask.add(penalty(drawQR(ver, ecc, data, mask, true)), mask);
-    maskIdx = bestMask.get();
-  }
-  if (maskIdx === void 0)
-    throw new Error("Cannot find mask");
-  return drawQR(ver, ecc, data, maskIdx);
-}
-function validateECC(ec) {
-  if (!ECMode.includes(ec))
-    throw new Error(`Invalid error correction mode=${ec}. Expected: ${ECMode}`);
-}
-function validateEncoding(enc) {
-  if (!Encoding.includes(enc))
-    throw new Error(`Encoding: invalid mode=${enc}. Expected: ${Encoding}`);
-  if (enc === "kanji" || enc === "eci")
-    throw new Error(`Encoding: ${enc} is not supported (yet?).`);
-}
-function validateMask(mask) {
-  if (![0, 1, 2, 3, 4, 5, 6, 7].includes(mask) || !PATTERNS[mask])
-    throw new Error(`Invalid mask=${mask}. Expected number [0..7]`);
-}
-function encodeQR(text, output2 = "raw", opts = {}) {
-  const ecc = opts.ecc !== void 0 ? opts.ecc : "medium";
-  validateECC(ecc);
-  const encoding = opts.encoding !== void 0 ? opts.encoding : detectType(text);
-  validateEncoding(encoding);
-  if (opts.mask !== void 0)
-    validateMask(opts.mask);
-  let ver = opts.version;
-  let data, err = new Error("Unknown error");
-  if (ver !== void 0) {
-    validateVersion(ver);
-    data = encode(ver, ecc, text, encoding);
-  } else {
-    for (let i = 1; i <= 40; i++) {
-      try {
-        data = encode(i, ecc, text, encoding);
-        ver = i;
-        break;
-      } catch (e) {
-        err = e;
-      }
-    }
-  }
-  if (!ver || !data)
-    throw err;
-  let res = drawQRBest(ver, ecc, data, opts.mask);
-  res.assertDrawn();
-  const border = opts.border === void 0 ? 2 : opts.border;
-  if (!Number.isSafeInteger(border))
-    throw new Error(`invalid border type=${typeof border}`);
-  res = res.border(border, false);
-  if (opts.scale !== void 0)
-    res = res.scale(opts.scale);
-  if (output2 === "raw")
-    return res.data;
-  else if (output2 === "ascii")
-    return res.toASCII();
-  else if (output2 === "svg")
-    return res.toSVG(opts.optimize);
-  else if (output2 === "gif")
-    return res.toGIF();
-  else if (output2 === "term")
-    return res.toTerm();
-  else
-    throw new Error(`Unknown output: ${output2}`);
-}
-var utils = {
-  best,
-  bin,
-  drawTemplate,
-  fillArr,
-  info,
-  interleave,
-  validateVersion,
-  zigzag
-};
-
-// node_modules/qr/esm/decode.js
-/*!
-Copyright (c) 2023 Paul Miller (paulmillr.com)
-The library paulmillr-qr is dual-licensed under the Apache 2.0 OR MIT license.
-You can select a license of your choice.
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
-var { best: best2, bin: bin2, drawTemplate: drawTemplate2, fillArr: fillArr2, info: info2, interleave: interleave2, validateVersion: validateVersion2, zigzag: zigzag2 } = utils;
-var MAX_BITS_ERROR = 3;
-var GRAYSCALE_BLOCK_SIZE = 8;
-var GRAYSCALE_RANGE = 24;
-var PATTERN_VARIANCE = 2;
-var PATTERN_VARIANCE_DIAGONAL = 1.333;
-var PATTERN_MIN_CONFIRMATIONS = 2;
-var DETECT_MIN_ROW_SKIP = 3;
-var int = (n) => n >>> 0;
-var distance2 = (p1, p2) => {
-  const x = p1.x - p2.x;
-  const y = p1.y - p2.y;
-  return x * x + y * y;
-};
-var distance = (p1, p2) => Math.sqrt(distance2(p1, p2));
-var sum = (lst) => lst.reduce((acc, i) => acc + i);
-var pointIncr = (p2, incr) => {
-  p2.x += incr.x;
-  p2.y += incr.y;
-};
-var pointNeg = (p2) => ({ x: -p2.x, y: -p2.y });
-var pointMirror = (p2) => ({ x: p2.y, y: p2.x });
-var pointClone = (p2) => ({ x: p2.x, y: p2.y });
-var pointInt = (p2) => ({ x: int(p2.x), y: int(p2.y) });
-var pointAdd = (a, b2) => ({ x: a.x + b2.x, y: a.y + b2.y });
-function cap(value, min, max) {
-  return Math.max(Math.min(value, max || value), min || value);
-}
-var getBytesPerPixel = (img) => {
-  const perPixel = img.data.length / (img.width * img.height);
-  if (perPixel === 3 || perPixel === 4)
-    return perPixel;
-  throw new Error(`Unknown image format, bytes per pixel=${perPixel}`);
-};
-function toBitmap(img) {
-  const bytesPerPixel = getBytesPerPixel(img);
-  const brightness = new Uint8Array(img.height * img.width);
-  for (let i = 0, j = 0, d2 = img.data; i < d2.length; i += bytesPerPixel) {
-    const r = d2[i];
-    const g2 = d2[i + 1];
-    const b2 = d2[i + 2];
-    brightness[j++] = int((r + 2 * g2 + b2) / 4) & 255;
-  }
-  const block = GRAYSCALE_BLOCK_SIZE;
-  if (img.width < block * 5 || img.height < block * 5)
-    throw new Error("image too small");
-  const bWidth = Math.ceil(img.width / block);
-  const bHeight = Math.ceil(img.height / block);
-  const maxY = img.height - block;
-  const maxX = img.width - block;
-  const blocks = new Uint8Array(bWidth * bHeight);
-  for (let y = 0; y < bHeight; y++) {
-    const yPos = cap(y * block, 0, maxY);
-    for (let x = 0; x < bWidth; x++) {
-      const xPos = cap(x * block, 0, maxX);
-      let sum2 = 0;
-      let min = 255;
-      let max = 0;
-      for (let yy = 0, pos = yPos * img.width + xPos; yy < block; yy = yy + 1, pos = pos + img.width) {
-        for (let xx = 0; xx < block; xx++) {
-          const pixel = brightness[pos + xx];
-          sum2 += pixel;
-          min = Math.min(min, pixel);
-          max = Math.max(max, pixel);
-        }
-      }
-      let average = Math.floor(sum2 / block ** 2);
-      if (max - min <= GRAYSCALE_RANGE) {
-        average = min / 2;
-        if (y > 0 && x > 0) {
-          const idx = (x2, y2) => y2 * bWidth + x2;
-          const prev = (blocks[idx(x, y - 1)] + 2 * blocks[idx(x - 1, y)] + blocks[idx(x - 1, y - 1)]) / 4;
-          if (min < prev)
-            average = prev;
-        }
-      }
-      blocks[bWidth * y + x] = int(average);
-    }
-  }
-  const matrix = new Bitmap({ width: img.width, height: img.height });
-  for (let y = 0; y < bHeight; y++) {
-    const yPos = cap(y * block, 0, maxY);
-    const top = cap(y, 2, bHeight - 3);
-    for (let x = 0; x < bWidth; x++) {
-      const xPos = cap(x * block, 0, maxX);
-      const left = cap(x, 2, bWidth - 3);
-      let sum2 = 0;
-      for (let yy = -2; yy <= 2; yy++) {
-        const y2 = bWidth * (top + yy) + left;
-        for (let xx = -2; xx <= 2; xx++)
-          sum2 += blocks[y2 + xx];
-      }
-      const average = sum2 / 25;
-      for (let y2 = 0, pos = yPos * img.width + xPos; y2 < block; y2 += 1, pos += img.width) {
-        for (let x2 = 0; x2 < block; x2++) {
-          if (brightness[pos + x2] <= average)
-            matrix.data[yPos + y2][xPos + x2] = true;
-        }
-      }
-    }
-  }
-  return matrix;
-}
-function patternEquals(p2, p22) {
-  if (Math.abs(p22.y - p2.y) <= p22.moduleSize && Math.abs(p22.x - p2.x) <= p22.moduleSize) {
-    const diff = Math.abs(p22.moduleSize - p2.moduleSize);
-    return diff <= 1 || diff <= p2.moduleSize;
-  }
-  return false;
-}
-function patternMerge(a, b2) {
-  const count = a.count + b2.count;
-  return {
-    x: (a.count * a.x + b2.count * b2.x) / count,
-    y: (a.count * a.y + b2.count * b2.y) / count,
-    moduleSize: (a.count * a.moduleSize + b2.count * b2.moduleSize) / count,
-    count
-  };
-}
-var patternsConfirmed = (lst) => lst.filter((i) => i.count >= PATTERN_MIN_CONFIRMATIONS);
-function pattern(p2, size) {
-  const _size = size || fillArr2(p2.length, 1);
-  if (p2.length !== _size.length)
-    throw new Error("invalid pattern");
-  if (!(p2.length & 1))
-    throw new Error("invalid pattern, length should be odd");
-  const res = {
-    center: Math.ceil(p2.length / 2) - 1,
-    length: p2.length,
-    pattern: p2,
-    size: _size,
-    runs: () => fillArr2(p2.length, 0),
-    totalSize: sum(_size),
-    total: (runs) => runs.reduce((acc, i) => acc + i),
-    shift: (runs, n) => {
-      for (let i = 0; i < runs.length - n; i++)
-        runs[i] = runs[i + 2];
-      for (let i = runs.length - n; i < runs.length; i++)
-        runs[i] = 0;
-    },
-    checkSize(runs, moduleSize, v = PATTERN_VARIANCE) {
-      const variance = moduleSize / v;
-      for (let i = 0; i < runs.length; i++) {
-        if (Math.abs(_size[i] * moduleSize - runs[i]) >= _size[i] * variance)
-          return false;
-      }
-      return true;
-    },
-    add(out, x, y, total) {
-      const moduleSize = total / FINDER.totalSize;
-      const cur = { x, y, moduleSize, count: 1 };
-      for (let idx = 0; idx < out.length; idx++) {
-        const f = out[idx];
-        if (!patternEquals(f, cur))
-          continue;
-        return out[idx] = patternMerge(f, cur);
-      }
-      out.push(cur);
-      return;
-    },
-    toCenter(runs, end) {
-      for (let i = p2.length - 1; i > res.center; i--)
-        end -= runs[i];
-      end -= runs[res.center] / 2;
-      return end;
-    },
-    check(b2, runs, center, incr, maxCount) {
-      let j = 0;
-      let i = pointClone(center);
-      const neg = pointNeg(incr);
-      const check = (p3, step) => {
-        for (; b2.isInside(i) && !!b2.point(i) === res.pattern[p3]; pointIncr(i, step)) {
-          runs[p3]++;
-          j++;
-        }
-        if (runs[p3] === 0)
-          return true;
-        const center2 = p3 === res.center;
-        if (maxCount && !center2 && runs[p3] > res.size[p3] * maxCount)
-          return true;
-        return false;
-      };
-      for (let p3 = res.center; p3 >= 0; p3--)
-        if (check(p3, neg))
-          return false;
-      i = pointClone(center);
-      pointIncr(i, incr);
-      j = 1;
-      for (let p3 = res.center; p3 < res.length; p3++)
-        if (check(p3, incr))
-          return false;
-      return j;
-    },
-    scanLine(b2, y, xStart, xEnd, fn) {
-      const runs = res.runs();
-      let pos = 0;
-      let x = xStart;
-      if (xStart)
-        while (x < xEnd && !!b2.data[y][x] === res.pattern[0])
-          x++;
-      for (; x < xEnd; x++) {
-        if (!!b2.data[y][x] === res.pattern[pos]) {
-          runs[pos]++;
-          if (x !== b2.width - 1)
-            continue;
-          x++;
-        }
-        if (pos !== res.length - 1) {
-          runs[++pos]++;
-          continue;
-        }
-        const found = fn(runs, x);
-        if (found) {
-          pos = 0;
-          runs.fill(0);
-        } else if (found === false) {
-          break;
-        } else {
-          res.shift(runs, 2);
-          pos = res.length - 2;
-          runs[pos]++;
-        }
-      }
-    }
-  };
-  return res;
-}
-var FINDER = pattern([true, false, true, false, true], [1, 1, 3, 1, 1]);
-var ALIGNMENT = pattern([false, true, false]);
-function findFinder(b2) {
-  let found = [];
-  function checkRuns(runs, v = 2) {
-    const total = sum(runs);
-    if (total < FINDER.totalSize)
-      return false;
-    const moduleSize = total / FINDER.totalSize;
-    return FINDER.checkSize(runs, moduleSize, v);
-  }
-  function checkLine(center, maxCount, total, incr) {
-    const runs = FINDER.runs();
-    let i = FINDER.check(b2, runs, center, incr, maxCount);
-    if (i === false)
-      return false;
-    const runsTotal = sum(runs);
-    if (5 * Math.abs(runsTotal - total) >= 2 * total)
-      return false;
-    if (checkRuns(runs))
-      return FINDER.toCenter(runs, i);
-    return false;
-  }
-  function check(runs, i, j) {
-    if (!checkRuns(runs))
-      return false;
-    const total = sum(runs);
-    let x = FINDER.toCenter(runs, j);
-    let y = checkLine({ x: int(x), y: i }, runs[2], total, { y: 1, x: 0 });
-    if (y === false)
-      return false;
-    y += i;
-    let xx = checkLine({ x: int(x), y: int(y) }, runs[2], total, { y: 0, x: 1 });
-    if (xx === false)
-      return false;
-    x = xx + int(x);
-    const dRuns = FINDER.runs();
-    if (!FINDER.check(b2, dRuns, { x: int(x), y: int(y) }, { x: 1, y: 1 }))
-      return false;
-    if (!checkRuns(dRuns, PATTERN_VARIANCE_DIAGONAL))
-      return false;
-    FINDER.add(found, x, y, total);
-    return true;
-  }
-  let skipped = false;
-  let ySkip = cap(int(3 * b2.height / (4 * 97)), DETECT_MIN_ROW_SKIP);
-  let done = false;
-  for (let y = ySkip - 1; y < b2.height && !done; y += ySkip) {
-    FINDER.scanLine(b2, y, 0, b2.width, (runs, x) => {
-      if (!check(runs, y, x))
-        return;
-      ySkip = 2;
-      if (skipped) {
-        let count = 0;
-        let total = 0;
-        for (const p3 of found) {
-          if (p3.count < PATTERN_MIN_CONFIRMATIONS)
-            continue;
-          count++;
-          total += p3.moduleSize;
-        }
-        if (count < 3)
-          return;
-        const average = total / found.length;
-        let deviation = 0;
-        for (const p3 of found)
-          deviation += Math.abs(p3.moduleSize - average);
-        if (deviation <= 0.05 * total) {
-          done = true;
-          return false;
-        }
-      } else if (found.length > 1) {
-        const q = patternsConfirmed(found);
-        if (q.length < 2)
-          return true;
-        skipped = true;
-        const d2 = int((Math.abs(q[0].x - q[1].x) - Math.abs(q[0].y - q[1].y)) / 2);
-        if (d2 <= runs[2] + ySkip)
-          return true;
-        y += d2 - runs[2] - ySkip;
-        return false;
-      }
-      return;
-    });
-  }
-  const flen = found.length;
-  if (flen < 3)
-    throw new Error(`Finder: len(found) = ${flen}`);
-  found.sort((i, j) => i.moduleSize - j.moduleSize);
-  const pBest = best2();
-  for (let i = 0; i < flen - 2; i++) {
-    const fi2 = found[i];
-    for (let j = i + 1; j < flen - 1; j++) {
-      const fj = found[j];
-      const square0 = distance2(fi2, fj);
-      for (let k = j + 1; k < flen; k++) {
-        const fk = found[k];
-        if (fk.moduleSize > fi2.moduleSize * 1.4)
-          continue;
-        const arr = [square0, distance2(fj, fk), distance2(fi2, fk)].sort((a2, b4) => a2 - b4);
-        const a = arr[0];
-        const b3 = arr[1];
-        const c = arr[2];
-        pBest.add(Math.abs(c - 2 * b3) + Math.abs(c - 2 * a), [fi2, fj, fk]);
-      }
-    }
-  }
-  const p2 = pBest.get();
-  if (!p2)
-    throw new Error("cannot find finder");
-  const p0 = p2[0];
-  const p1 = p2[1];
-  const p22 = p2[2];
-  const d01 = distance(p0, p1);
-  const d12 = distance(p1, p22);
-  const d02 = distance(p0, p22);
-  let tl2 = p22;
-  let bl = p0;
-  let tr = p1;
-  if (d12 >= d01 && d12 >= d02) {
-    tl2 = p0;
-    bl = p1;
-    tr = p22;
-  } else if (d02 >= d12 && d02 >= d01) {
-    tl2 = p1;
-    bl = p0;
-    tr = p22;
-  }
-  if ((tr.x - tl2.x) * (bl.y - tl2.y) - (tr.y - tl2.y) * (bl.x - tl2.x) < 0) {
-    let _bl = bl;
-    bl = tr;
-    tr = _bl;
-  }
-  return { bl, tl: tl2, tr };
-}
-function findAlignment(b2, est, allowanceFactor) {
-  const { moduleSize } = est;
-  const allowance = int(allowanceFactor * moduleSize);
-  const leftX = cap(est.x - allowance, 0);
-  const rightX = cap(est.x + allowance, void 0, b2.width - 1);
-  const x = rightX - leftX;
-  const topY = cap(est.y - allowance, 0);
-  const bottomY = cap(est.y + allowance, void 0, b2.height - 1);
-  const y = bottomY - topY;
-  if (x < moduleSize * 3 || y < moduleSize * 3)
-    throw new Error(`x = ${x}, y=${y} moduleSize = ${moduleSize}`);
-  const xStart = leftX;
-  const yStart = topY;
-  const width = rightX - leftX;
-  const height = bottomY - topY;
-  const found = [];
-  const xEnd = xStart + width;
-  const middleY = int(yStart + height / 2);
-  for (let yGen = 0; yGen < height; yGen++) {
-    const diff = int((yGen + 1) / 2);
-    const y2 = middleY + (yGen & 1 ? -diff : diff);
-    let res;
-    ALIGNMENT.scanLine(b2, y2, xStart, xEnd, (runs, x2) => {
-      if (!ALIGNMENT.checkSize(runs, moduleSize))
-        return;
-      const total = sum(runs);
-      const xx = ALIGNMENT.toCenter(runs, x2);
-      const rVert = ALIGNMENT.runs();
-      let v = ALIGNMENT.check(b2, rVert, { x: int(xx), y: y2 }, { y: 1, x: 0 }, 2 * runs[1]);
-      if (v === false)
-        return;
-      v += y2;
-      const vTotal = sum(rVert);
-      if (5 * Math.abs(vTotal - total) >= 2 * total)
-        return;
-      if (!ALIGNMENT.checkSize(rVert, moduleSize))
-        return;
-      const yy = ALIGNMENT.toCenter(rVert, v);
-      res = ALIGNMENT.add(found, xx, yy, total);
-      if (res)
-        return false;
-      return;
-    });
-    if (res)
-      return res;
-  }
-  if (found.length > 0)
-    return found[0];
-  throw new Error("Alignment pattern not found");
-}
-function _single(b2, from2, to) {
-  let steep = false;
-  let d2 = { x: Math.abs(to.x - from2.x), y: Math.abs(to.y - from2.y) };
-  if (d2.y > d2.x) {
-    steep = true;
-    from2 = pointMirror(from2);
-    to = pointMirror(to);
-    d2 = pointMirror(d2);
-  }
-  let error2 = -d2.x / 2;
-  let step = { x: from2.x >= to.x ? -1 : 1, y: from2.y >= to.y ? -1 : 1 };
-  let runPos = 0;
-  let xLimit = to.x + step.x;
-  for (let x = from2.x, y = from2.y; x !== xLimit; x += step.x) {
-    let real = { x, y };
-    if (steep)
-      real = pointMirror(real);
-    if (runPos === 1 === !!b2.point(real)) {
-      if (runPos === 2)
-        return distance({ x, y }, from2);
-      runPos++;
-    }
-    error2 += d2.y;
-    if (error2 <= 0)
-      continue;
-    if (y === to.y)
-      break;
-    y += step.y;
-    error2 -= d2.x;
-  }
-  if (runPos === 2)
-    return distance({ x: to.x + step.x, y: to.y }, from2);
-  return NaN;
-}
-function BWBRunLength(b2, from2, to) {
-  let result = _single(b2, from2, to);
-  let scaleY = 1;
-  const { x: fx, y: fy } = from2;
-  let otherToX = fx - (to.x - fx);
-  const bw = b2.width;
-  if (otherToX < 0) {
-    scaleY = fx / (fx - otherToX);
-    otherToX = 0;
-  } else if (otherToX >= bw) {
-    scaleY = (bw - 1 - fx) / (otherToX - fx);
-    otherToX = bw - 1;
-  }
-  let otherToY = int(fy - (to.y - fy) * scaleY);
-  let scaleX = 1;
-  const bh = b2.height;
-  if (otherToY < 0) {
-    scaleX = fy / (fy - otherToY);
-    otherToY = 0;
-  } else if (otherToY >= bh) {
-    scaleX = (bh - 1 - fy) / (otherToY - fy);
-    otherToY = bh - 1;
-  }
-  otherToX = int(fx + (otherToX - fx) * scaleX);
-  result += _single(b2, from2, { x: otherToX, y: otherToY });
-  return result - 1;
-}
-function moduleSizeAvg(b2, p1, p2) {
-  const est1 = BWBRunLength(b2, pointInt(p1), pointInt(p2));
-  const est2 = BWBRunLength(b2, pointInt(p2), pointInt(p1));
-  if (Number.isNaN(est1))
-    return est2 / FINDER.totalSize;
-  if (Number.isNaN(est2))
-    return est1 / FINDER.totalSize;
-  return (est1 + est2) / (2 * FINDER.totalSize);
-}
-function detect(b2) {
-  const { bl, tl: tl2, tr } = findFinder(b2);
-  const moduleSize = (moduleSizeAvg(b2, tl2, tr) + moduleSizeAvg(b2, tl2, bl)) / 2;
-  if (moduleSize < 1)
-    throw new Error(`invalid moduleSize = ${moduleSize}`);
-  const tltr = int(distance(tl2, tr) / moduleSize + 0.5);
-  const tlbl = int(distance(tl2, bl) / moduleSize + 0.5);
-  let size = int((tltr + tlbl) / 2 + 7);
-  const rem = size % 4;
-  if (rem === 0)
-    size++;
-  else if (rem === 2)
-    size--;
-  else if (rem === 3)
-    size -= 2;
-  const version = info2.size.decode(size);
-  validateVersion2(version);
-  let alignmentPattern;
-  if (info2.alignmentPatterns(version).length > 0) {
-    const br3 = { x: tr.x - tl2.x + bl.x, y: tr.y - tl2.y + bl.y };
-    const c = 1 - 3 / (info2.size.encode(version) - 7);
-    const est = {
-      x: int(tl2.x + c * (br3.x - tl2.x)),
-      y: int(tl2.y + c * (br3.y - tl2.y)),
-      moduleSize,
-      count: 1
-    };
-    for (let i = 4; i <= 16; i <<= 1) {
-      try {
-        alignmentPattern = findAlignment(b2, est, i);
-        break;
-      } catch (e) {
-      }
-    }
-  }
-  const toTL = { x: 3.5, y: 3.5 };
-  const toTR = { x: size - 3.5, y: 3.5 };
-  const toBL = { x: 3.5, y: size - 3.5 };
-  let br2;
-  let toBR;
-  if (alignmentPattern) {
-    br2 = alignmentPattern;
-    toBR = { x: size - 6.5, y: size - 6.5 };
-  } else {
-    br2 = { x: tr.x - tl2.x + bl.x, y: tr.y - tl2.y + bl.y };
-    toBR = { x: size - 3.5, y: size - 3.5 };
-  }
-  const from2 = [tl2, tr, br2, bl];
-  const bits = transform(b2, size, from2, [toTL, toTR, toBR, toBL]);
-  return { bits, points: from2 };
-}
-function squareToQuadrilateral(p2) {
-  const d3 = { x: p2[0].x - p2[1].x + p2[2].x - p2[3].x, y: p2[0].y - p2[1].y + p2[2].y - p2[3].y };
-  if (d3.x === 0 && d3.y === 0) {
-    return [
-      [p2[1].x - p2[0].x, p2[2].x - p2[1].x, p2[0].x],
-      [p2[1].y - p2[0].y, p2[2].y - p2[1].y, p2[0].y],
-      [0, 0, 1]
-    ];
-  } else {
-    const d1 = { x: p2[1].x - p2[2].x, y: p2[1].y - p2[2].y };
-    const d2 = { x: p2[3].x - p2[2].x, y: p2[3].y - p2[2].y };
-    const den = d1.x * d2.y - d2.x * d1.y;
-    const p13 = (d3.x * d2.y - d2.x * d3.y) / den;
-    const p23 = (d1.x * d3.y - d3.x * d1.y) / den;
-    return [
-      [p2[1].x - p2[0].x + p13 * p2[1].x, p2[3].x - p2[0].x + p23 * p2[3].x, p2[0].x],
-      [p2[1].y - p2[0].y + p13 * p2[1].y, p2[3].y - p2[0].y + p23 * p2[3].y, p2[0].y],
-      [p13, p23, 1]
-    ];
-  }
-}
-function transform(b2, size, from2, to) {
-  const p2 = squareToQuadrilateral(to);
-  const qToS = [
-    [
-      p2[1][1] * p2[2][2] - p2[2][1] * p2[1][2],
-      p2[2][1] * p2[0][2] - p2[0][1] * p2[2][2],
-      p2[0][1] * p2[1][2] - p2[1][1] * p2[0][2]
-    ],
-    [
-      p2[2][0] * p2[1][2] - p2[1][0] * p2[2][2],
-      p2[0][0] * p2[2][2] - p2[2][0] * p2[0][2],
-      p2[1][0] * p2[0][2] - p2[0][0] * p2[1][2]
-    ],
-    [
-      p2[1][0] * p2[2][1] - p2[2][0] * p2[1][1],
-      p2[2][0] * p2[0][1] - p2[0][0] * p2[2][1],
-      p2[0][0] * p2[1][1] - p2[1][0] * p2[0][1]
-    ]
-  ];
-  const sToQ = squareToQuadrilateral(from2);
-  const transform2 = sToQ.map((i) => i.map((_2, qx) => i.reduce((acc, v, j) => acc + v * qToS[j][qx], 0)));
-  const res = new Bitmap(size);
-  const points = fillArr2(2 * size, 0);
-  const pointsLength = points.length;
-  for (let y = 0; y < size; y++) {
-    const p3 = transform2;
-    for (let i = 0; i < pointsLength - 1; i += 2) {
-      const x = i / 2 + 0.5;
-      const y2 = y + 0.5;
-      const den = p3[2][0] * x + p3[2][1] * y2 + p3[2][2];
-      points[i] = int((p3[0][0] * x + p3[0][1] * y2 + p3[0][2]) / den);
-      points[i + 1] = int((p3[1][0] * x + p3[1][1] * y2 + p3[1][2]) / den);
-    }
-    for (let i = 0; i < pointsLength; i += 2) {
-      const px = cap(points[i], 0, b2.width - 1);
-      const py = cap(points[i + 1], 0, b2.height - 1);
-      if (b2.data[py][px])
-        res.data[y][i / 2] = true;
-    }
-  }
-  return res;
-}
-function readInfoBits(b2) {
-  const readBit = (x, y, out) => out << 1 | (b2.data[y][x] ? 1 : 0);
-  const size = b2.height;
-  let version1 = 0;
-  for (let y = 5; y >= 0; y--)
-    for (let x = size - 9; x >= size - 11; x--)
-      version1 = readBit(x, y, version1);
-  let version2 = 0;
-  for (let x = 5; x >= 0; x--)
-    for (let y = size - 9; y >= size - 11; y--)
-      version2 = readBit(x, y, version2);
-  let format1 = 0;
-  for (let x = 0; x < 6; x++)
-    format1 = readBit(x, 8, format1);
-  format1 = readBit(7, 8, format1);
-  format1 = readBit(8, 8, format1);
-  format1 = readBit(8, 7, format1);
-  for (let y = 5; y >= 0; y--)
-    format1 = readBit(8, y, format1);
-  let format22 = 0;
-  for (let y = size - 1; y >= size - 7; y--)
-    format22 = readBit(8, y, format22);
-  for (let x = size - 8; x < size; x++)
-    format22 = readBit(x, 8, format22);
-  return { version1, version2, format1, format2: format22 };
-}
-function parseInfo(b2) {
-  const popcnt = (a) => {
-    let cnt = 0;
-    while (a) {
-      if (a & 1)
-        cnt++;
-      a >>= 1;
-    }
-    return cnt;
-  };
-  const size = b2.height;
-  const { version1, version2, format1, format2: format22 } = readInfoBits(b2);
-  let format3;
-  const bestFormat = best2();
-  for (const ecc of ["medium", "low", "high", "quartile"]) {
-    for (let mask = 0; mask < 8; mask++) {
-      const bits = info2.formatBits(ecc, mask);
-      const cur = { ecc, mask };
-      if (bits === format1 || bits === format22) {
-        format3 = cur;
-        break;
-      }
-      bestFormat.add(popcnt(format1 ^ bits), cur);
-      if (format1 !== format22)
-        bestFormat.add(popcnt(format22 ^ bits), cur);
-    }
-  }
-  if (format3 === void 0 && bestFormat.score() <= MAX_BITS_ERROR)
-    format3 = bestFormat.get();
-  if (format3 === void 0)
-    throw new Error("invalid format pattern");
-  let version = info2.size.decode(size);
-  if (version < 7)
-    validateVersion2(version);
-  else {
-    version = void 0;
-    const bestVer = best2();
-    for (let ver = 7; ver <= 40; ver++) {
-      const bits = info2.versionBits(ver);
-      if (bits === version1 || bits === version2) {
-        version = ver;
-        break;
-      }
-      bestVer.add(popcnt(version1 ^ bits), ver);
-      if (version1 !== version2)
-        bestVer.add(popcnt(version2 ^ bits), ver);
-    }
-    if (version === void 0 && bestVer.score() <= MAX_BITS_ERROR)
-      version = bestVer.get();
-    if (version === void 0)
-      throw new Error("invalid version pattern");
-    if (info2.size.encode(version) !== size)
-      throw new Error("invalid version size");
-  }
-  return __spreadValues({ version }, format3);
-}
-function decodeBitmap(b2) {
-  const size = b2.height;
-  if (size < 21 || (size & 3) !== 1 || size !== b2.width)
-    throw new Error(`decode: invalid size=${size}`);
-  const { version, mask, ecc } = parseInfo(b2);
-  const tpl = drawTemplate2(version, ecc, mask);
-  const { total } = info2.capacity(version, ecc);
-  const bytes = new Uint8Array(total);
-  let pos = 0;
-  let buf = 0;
-  let bitPos = 0;
-  zigzag2(tpl, mask, (x, y, m2) => {
-    bitPos++;
-    buf <<= 1;
-    buf |= +(!!b2.data[y][x] !== m2);
-    if (bitPos !== 8)
-      return;
-    bytes[pos++] = buf;
-    bitPos = 0;
-    buf = 0;
-  });
-  if (pos !== total)
-    throw new Error(`decode: pos=${pos}, total=${total}`);
-  let bits = Array.from(interleave2(version, ecc).decode(bytes)).map((i) => bin2(i, 8)).join("");
-  const readBits = (n) => {
-    if (n > bits.length)
-      throw new Error("Not enough bits");
-    const val = bits.slice(0, n);
-    bits = bits.slice(n);
-    return val;
-  };
-  const toNum = (n) => Number(`0b${n}`);
-  const modes = {
-    "0000": "terminator",
-    "0001": "numeric",
-    "0010": "alphanumeric",
-    "0100": "byte",
-    "0111": "eci",
-    "1000": "kanji"
-  };
-  let res = "";
-  while (true) {
-    if (bits.length < 4)
-      break;
-    const modeBits = readBits(4);
-    const mode = modes[modeBits];
-    if (mode === void 0)
-      throw new Error(`Unknown modeBits=${modeBits} res="${res}"`);
-    if (mode === "terminator")
-      break;
-    const countBits = info2.lengthBits(version, mode);
-    let count = toNum(readBits(countBits));
-    if (mode === "numeric") {
-      while (count >= 3) {
-        const v = toNum(readBits(10));
-        if (v >= 1e3)
-          throw new Error(`numberic(3) = ${v}`);
-        res += v.toString().padStart(3, "0");
-        count -= 3;
-      }
-      if (count === 2) {
-        const v = toNum(readBits(7));
-        if (v >= 100)
-          throw new Error(`numeric(2) = ${v}`);
-        res += v.toString().padStart(2, "0");
-      } else if (count === 1) {
-        const v = toNum(readBits(4));
-        if (v >= 10)
-          throw new Error(`Numeric(1) = ${v}`);
-        res += v.toString();
-      }
-    } else if (mode === "alphanumeric") {
-      while (count >= 2) {
-        const v = toNum(readBits(11));
-        res += info2.alphabet.alphanumerc.encode([Math.floor(v / 45), v % 45]).join("");
-        count -= 2;
-      }
-      if (count === 1)
-        res += info2.alphabet.alphanumerc.encode([toNum(readBits(6))]).join("");
-    } else if (mode === "byte") {
-      let utf8 = [];
-      for (let i = 0; i < count; i++)
-        utf8.push(Number(`0b${readBits(8)}`));
-      res += new TextDecoder().decode(new Uint8Array(utf8));
-    } else
-      throw new Error(`Unknown mode=${mode}`);
-  }
-  return res;
-}
-function cropToSquare(img) {
-  const data = Array.isArray(img.data) ? new Uint8Array(img.data) : img.data;
-  const { height, width } = img;
-  const squareSize = Math.min(height, width);
-  const offset = {
-    x: Math.floor((width - squareSize) / 2),
-    y: Math.floor((height - squareSize) / 2)
-  };
-  const bytesPerPixel = getBytesPerPixel(img);
-  const croppedData = new Uint8Array(squareSize * squareSize * bytesPerPixel);
-  for (let y = 0; y < squareSize; y++) {
-    const srcPos = ((y + offset.y) * width + offset.x) * bytesPerPixel;
-    const dstPos = y * squareSize * bytesPerPixel;
-    const length = squareSize * bytesPerPixel;
-    croppedData.set(data.subarray(srcPos, srcPos + length), dstPos);
-  }
-  return { offset, img: { height: squareSize, width: squareSize, data: croppedData } };
-}
-function decodeQR(img, opts = {}) {
-  for (const field of ["height", "width"]) {
-    if (!Number.isSafeInteger(img[field]) || img[field] <= 0)
-      throw new Error(`invalid img.${field}=${img[field]} (${typeof img[field]})`);
-  }
-  if (!Array.isArray(img.data) && !(img.data instanceof Uint8Array) && !(img.data instanceof Uint8ClampedArray))
-    throw new Error(`invalid image.data=${img.data} (${typeof img.data})`);
-  if (opts.cropToSquare !== void 0 && typeof opts.cropToSquare !== "boolean")
-    throw new Error(`invalid opts.cropToSquare=${opts.cropToSquare}`);
-  for (const fn of ["pointsOnDetect", "imageOnBitmap", "imageOnDetect", "imageOnResult"]) {
-    if (opts[fn] !== void 0 && typeof opts[fn] !== "function")
-      throw new Error(`invalid opts.${fn}=${opts[fn]} (${typeof opts[fn]})`);
-  }
-  let offset = { x: 0, y: 0 };
-  if (opts.cropToSquare)
-    ({ img, offset } = cropToSquare(img));
-  const bmp = toBitmap(img);
-  if (opts.imageOnBitmap)
-    opts.imageOnBitmap(bmp.toImage());
-  const { bits, points } = detect(bmp);
-  if (opts.pointsOnDetect) {
-    const p2 = points.map((i) => __spreadValues(__spreadValues({}, i), pointAdd(i, offset)));
-    opts.pointsOnDetect(p2);
-  }
-  if (opts.imageOnDetect)
-    opts.imageOnDetect(bits.toImage());
-  const res = decodeBitmap(bits);
-  if (opts.imageOnResult)
-    opts.imageOnResult(bits.toImage());
-  return res;
-}
-var decode_default = decodeQR;
-
-// libs/common/src/lib/qr-code.ts
-function generateQRCode(code, colorLight = "#fff0", colorDark = "#000") {
-  let svg = encodeQR(code, "svg", { ecc: "low", border: 1 });
-  if (colorLight && colorLight !== "#fff0" && colorLight !== "#0000") {
-    svg = svg.replace(">", `><rect width="100%" height="100%" style="fill:${colorLight};"/>`);
-  }
-  svg = svg.replace("<path", `<path style="fill:${colorDark};"`);
-  const encoded_svg = encodeURIComponent(svg);
-  return `data:image/svg+xml,${encoded_svg}`;
-}
 
 // libs/common/src/lib/recurrence.ts
 var WeekOfMonth;
@@ -81524,6 +79388,7 @@ var Booking = class {
     this.images = data.images || [];
     this.all_day = !!data.all_day || custom_all_day || this.duration >= 24 * 60;
     this.induction = data.induction || void 0;
+    this.created_at = data.created_at || Date.now();
     if (this.all_day) {
       if (!data.duration && !data.date_end && !data.booking_end) {
         this.date = startOfDayInTimezone(this.date, this.timezone);
@@ -81578,6 +79443,7 @@ var Booking = class {
     data.zones = data.zones.filter((_2) => _2);
     delete data.date;
     delete data.duration;
+    delete data.created_at;
     delete data.process_state;
     removeEmptyFields(data);
     return data;
@@ -81615,58 +79481,156 @@ var Booking = class {
   }
 };
 
-// libs/common/src/lib/types/calendar.class.ts
-var Calendar = class {
-  constructor(data = {}) {
-    this.id = data.id || "";
-    this.name = data.name || "";
-    this.primary = !!data.primary;
-    this.summary = data.summary || "";
-    this.can_edit = !!data.can_edit;
-    this.resource = new Space(data.resource || data.system);
-    this.availability = (data.availability || []).map(({ starts_at, ends_at, date, duration, status }) => {
-      return {
-        date: new Date(date || starts_at * 1e3).valueOf(),
-        duration: duration || differenceInMinutes(ends_at * 1e3, starts_at * 1e3),
-        status
-      };
+// libs/common/src/lib/mapspeople.service.ts
+var MapService;
+(function(MapService2) {
+  MapService2[MapService2["GoogleMaps"] = 0] = "GoogleMaps";
+  MapService2[MapService2["Mapbox"] = 1] = "Mapbox";
+})(MapService || (MapService = {}));
+var MapsPeopleService = class _MapsPeopleService extends AsyncHandler {
+  get map_keys() {
+    return this._settings.get("app.maps_people.keys") || {};
+  }
+  get use_service() {
+    return this._settings.get("app.maps_people.use_zones") || [];
+  }
+  get map_service() {
+    return this._map_service();
+  }
+  get map_token() {
+    return this._map_token();
+  }
+  get is_ready() {
+    return this._ready();
+  }
+  constructor() {
+    super();
+    this._settings = inject2(SettingsService);
+    this._org = inject2(OrganisationService);
+    this._map_service = signal(
+      null,
+      ...ngDevMode ? [{ debugName: "_map_service" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._map_token = signal(
+      "",
+      ...ngDevMode ? [{ debugName: "_map_token" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._ready = signal(
+      false,
+      ...ngDevMode ? [{ debugName: "_ready" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._injected = {};
+    this._custom_zone = signal(
+      "",
+      ...ngDevMode ? [{ debugName: "_custom_zone" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.available = computed(
+      () => {
+        const bld = this._org.active_building();
+        const zone = this._custom_zone();
+        if (!this._org.initialised() || !bld?.id)
+          return false;
+        return !!this.map_keys.mapsindoors && (this.use_service.includes(zone || bld.id) || this.use_service.includes("*"));
+      },
+      ...ngDevMode ? [{ debugName: "available" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    effect(() => {
+      if (!this.available())
+        return;
+      this._injectMapsApiKeys();
     });
-    this.hidden = !!data.hidden;
+  }
+  setCustomZone(zone_id) {
+    this._custom_zone.set(zone_id);
+  }
+  _injectMapsApiKeys() {
+    log("MapsPeople", "Initializing Maps API Keys");
+    this._ready.set(false);
+    const { mapsindoors, google, mapbox } = this.map_keys;
+    if (!mapsindoors)
+      return;
+    if (mapsindoors && !this._injected.mapsindoors) {
+      const script = document.createElement("script");
+      script.src = `https://app.mapsindoors.com/mapsindoors/js/sdk/4.35.0/mapsindoors-4.35.0.js.gz?apikey=${mapsindoors}`;
+      document.body.appendChild(script);
+      this._injected.mapsindoors = true;
+    }
+    if (google && mapbox) {
+      log("MapsPeople", "Both Google and Mapbox keys provided", void 0, "error");
+      return;
+    }
+    if (google && !this._injected.google) {
+      const script = document.createElement("script");
+      script.src = `https://maps.googleapis.com/maps/api/js?libraries=geometry&key=${google}`;
+      document.body.appendChild(script);
+      this._map_service.set(MapService.GoogleMaps);
+      this._injected.google = true;
+    } else if (mapbox && !this._injected.mapbox) {
+      const script = document.createElement("script");
+      script.src = `https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js`;
+      document.body.appendChild(script);
+      const styles = document.createElement("link");
+      styles.rel = "stylesheet";
+      styles.href = `https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css`;
+      document.head.appendChild(styles);
+      this._map_service.set(MapService.Mapbox);
+      this._map_token.set(mapbox);
+      this._injected.mapbox = true;
+    }
+    if (google || mapbox) {
+      log("MapsPeople", `Initialized Maps API Keys for ${google ? "Google Maps" : "Mapbox"}`);
+      this.timeout("ready", () => this._ready.set(true), 300);
+    }
+  }
+  static {
+    this.\u0275fac = function MapsPeopleService_Factory(__ngFactoryType__) {
+      return new (__ngFactoryType__ || _MapsPeopleService)();
+    };
+  }
+  static {
+    this.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _MapsPeopleService, factory: _MapsPeopleService.\u0275fac, providedIn: "root" });
   }
 };
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MapsPeopleService, [{
+    type: Injectable,
+    args: [{
+      providedIn: "root"
+    }]
+  }], () => [], null);
+})();
 
-// libs/common/src/lib/types/desk.class.ts
-var IGNORE_KEYS = ["zone", "qr_code", "toJSON"];
-var Desk = class {
-  constructor(data = {}) {
-    this.toJSON = () => this.format();
-    this.id = data.id || "";
-    this.map_id = data.map_id || data.id || "";
-    this.name = data.name || "";
-    this.bookable = data.bookable ?? false;
-    this.zone = data.zone || new Kt();
-    this.assigned_to = data.assigned_to || "";
-    this.groups = data.groups || [];
-    this.qr_code = data.qr_code || "";
-    this.features = data.features || [];
-    this.images = data.images || [];
-    this.tags = data.tags || [];
-    this.homebase = data.homebase || "";
-    this.security = data.security || "";
-    for (const key in data) {
-      if (!(key in this))
-        this[key] = data[key];
+// libs/common/src/lib/api.ts
+var IGNORE_VALUES = [void 0, null, ""];
+function toQueryString(map2) {
+  let str = "";
+  if (map2) {
+    for (const key in map2) {
+      if (key in map2 && !IGNORE_VALUES.includes(map2[key])) {
+        str += `${str ? "&" : ""}${key}=${encodeURIComponent(map2[key])}`;
+      }
     }
   }
-  format() {
-    const data = __spreadValues({}, this);
-    for (const key of IGNORE_KEYS) {
-      delete data[key];
-    }
-    Ys(data, [void 0, null, []]);
-    return data;
-  }
-};
+  return str;
+}
+
+// libs/common/src/lib/types.ts
+var MAP_FEATURE_DATA = new InjectionToken("Data for Map Features");
 
 // node_modules/@angular/material/fesm2022/_pseudo-checkbox-chunk.mjs
 var MatPseudoCheckbox = class _MatPseudoCheckbox {
@@ -82620,19 +80584,19 @@ var NativeDateAdapter = class _NativeDateAdapter extends DateAdapter {
     return new Date(date.getTime() + amount * 1e3);
   }
   _createDateWithOverflow(year, month, date) {
-    const d2 = /* @__PURE__ */ new Date();
-    d2.setFullYear(year, month, date);
-    d2.setHours(0, 0, 0, 0);
-    return d2;
+    const d = /* @__PURE__ */ new Date();
+    d.setFullYear(year, month, date);
+    d.setHours(0, 0, 0, 0);
+    return d;
   }
   _2digit(n) {
     return ("00" + n).slice(-2);
   }
   _format(dtf, date) {
-    const d2 = /* @__PURE__ */ new Date();
-    d2.setUTCFullYear(date.getFullYear(), date.getMonth(), date.getDate());
-    d2.setUTCHours(date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds());
-    return dtf.format(d2);
+    const d = /* @__PURE__ */ new Date();
+    d.setUTCFullYear(date.getFullYear(), date.getMonth(), date.getDate());
+    d.setUTCHours(date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds());
+    return dtf.format(d);
   }
   _parseTimeString(value) {
     const parsed = value.toUpperCase().match(TIME_REGEX);
@@ -84615,9 +82579,9 @@ var AutofillMonitor = class _AutofillMonitor {
     }
     this._styleLoader.load(_CdkTextFieldStyleLoader);
     const element = coerceElement(elementOrRef);
-    const info3 = this._monitoredElements.get(element);
-    if (info3) {
-      return info3.subject;
+    const info = this._monitoredElements.get(element);
+    if (info) {
+      return info.subject;
     }
     const subject = new Subject();
     const cssClass = "cdk-text-field-autofilled";
@@ -84648,10 +82612,10 @@ var AutofillMonitor = class _AutofillMonitor {
   }
   stopMonitoring(elementOrRef) {
     const element = coerceElement(elementOrRef);
-    const info3 = this._monitoredElements.get(element);
-    if (info3) {
-      info3.unlisten();
-      info3.subject.complete();
+    const info = this._monitoredElements.get(element);
+    if (info) {
+      info.unlisten();
+      info.subject.complete();
       element.classList.remove("cdk-text-field-autofill-monitored");
       element.classList.remove("cdk-text-field-autofilled");
       this._monitoredElements.delete(element);
@@ -87492,11 +85456,11 @@ async function storeSessionCachedResponse(source, response) {
   }
 }
 function setAuthCookie(cookie_path) {
-  const tkn = V();
+  const tkn = X();
   document.cookie = `${tkn === "x-api-key" ? "api-key=" + encodeURIComponent(Ye()) : "bearer_token=" + encodeURIComponent(tkn)};max-age=30;path=${cookie_path};samesite=strict;${location.protocol === "https:" ? "secure;" : ""}`;
 }
 function authHeaders() {
-  const tkn = V();
+  const tkn = X();
   return tkn === "x-api-key" ? { "X-API-Key": Ye() } : { Authorization: `Bearer ${tkn}` };
 }
 async function responseToObjectUrl(source, response) {
@@ -87712,8 +85676,8 @@ var BooleanOrLogic = class extends AbstractLogic {
     return false;
   }
   compute(arg) {
-    return this.fns.some((f) => {
-      const result = f(arg);
+    return this.fns.some((f2) => {
+      const result = f2(arg);
       return result && result !== IGNORED;
     });
   }
@@ -87731,8 +85695,8 @@ var ArrayMergeIgnoreLogic = class _ArrayMergeIgnoreLogic extends AbstractLogic {
     return [];
   }
   compute(arg) {
-    return this.fns.reduce((prev, f) => {
-      const value = f(arg);
+    return this.fns.reduce((prev, f2) => {
+      const value = f2(arg);
       if (value === void 0 || value === IGNORED) {
         return prev;
       } else if (isArray3(value)) {
@@ -90466,7 +88430,7 @@ var SpacePipe = class _SpacePipe {
     if (ATTEMPT_COUNT[space_id])
       return EMPTY_SPACE;
     if (!is_email) {
-      const system = await sa(space_id).catch((_2) => null);
+      const system = await oa(space_id).catch((_2) => null);
       if (system) {
         space = new Space(__spreadProps(__spreadValues({}, system), {
           level: this.org?.levelWithID([...system.zones])
@@ -90475,7 +88439,7 @@ var SpacePipe = class _SpacePipe {
         return space;
       }
     }
-    const systems = (await na({
+    const systems = (await ra({
       in: space_id
     })).data;
     if (systems.length === 1) {
@@ -91598,22 +89562,22 @@ var VirtualKeyboardComponent = class _VirtualKeyboardComponent extends AsyncHand
 var GUEST_ENDPOINT = "/api/staff/v1/guests";
 async function searchGuests(q) {
   const query2 = toQueryString({ q });
-  const list = await d(`${GUEST_ENDPOINT}${q ? "?" + query2 : ""}`);
+  const list = await f(`${GUEST_ENDPOINT}${q ? "?" + query2 : ""}`);
   return list.map((item) => new GuestUser(item));
 }
 async function showGuest(id) {
-  return new GuestUser(await d(`${GUEST_ENDPOINT}/${encodeURIComponent(id)}`));
+  return new GuestUser(await f(`${GUEST_ENDPOINT}/${encodeURIComponent(id)}`));
 }
 async function getGuestCateringItem(email2, booking_id = "") {
   const path = `${GUEST_ENDPOINT}/${encodeURIComponent(email2)}/catering`;
   const query2 = booking_id ? `?booking_id=${encodeURIComponent(booking_id)}` : "";
-  const item = await d(`${path}${query2}`);
+  const item = await f(`${path}${query2}`);
   return item ? new CateringItem(item) : null;
 }
 async function setGuestCateringItem(email2, catering_item, booking_id = "") {
   const path = `${GUEST_ENDPOINT}/${encodeURIComponent(email2)}/catering`;
   const query2 = booking_id ? `?booking_id=${encodeURIComponent(booking_id)}` : "";
-  const item = await ye(`${path}${query2}`, catering_item);
+  const item = await ae(`${path}${query2}`, catering_item);
   return item ? new CateringItem(item) : null;
 }
 
@@ -91760,7 +89724,7 @@ function withAppVersion(data) {
 async function queryBookings(q) {
   const query2 = toQueryString(q);
   try {
-    const list = await d(`${BOOKINGS_ENDPOINT}${query2 ? "?" + query2 : ""}`);
+    const list = await f(`${BOOKINGS_ENDPOINT}${query2 ? "?" + query2 : ""}`);
     return list.map((item) => new Booking(item));
   } catch (_2) {
     return [];
@@ -91821,20 +89785,20 @@ async function queryAllBookings(q) {
   }
 }
 async function showBooking(id) {
-  return new Booking(await d(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}`));
+  return new Booking(await f(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}`));
 }
 async function createBooking(data, q) {
   const query2 = toQueryString(q);
   return new Booking(await S(`${BOOKINGS_ENDPOINT}${query2 ? "?" + query2 : ""}`, withAppVersion(data)));
 }
 async function updateBooking(id, data, method = "patch") {
-  return new Booking(await (method === "patch" ? ye : ce)(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}`, withAppVersion(data)));
+  return new Booking(await (method === "patch" ? ae : ce)(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}`, withAppVersion(data)));
 }
 async function updateBookingInductionStatus(id, status) {
   return new Booking(await S(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/update_induction?induction=${encodeURIComponent(status)}`, {}));
 }
 async function updateBookingInstance(id, start_time, data, method = "patch") {
-  return new Booking(await (method === "patch" ? ye : ce)(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/instance/${start_time}`, withAppVersion(data)));
+  return new Booking(await (method === "patch" ? ae : ce)(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/instance/${start_time}`, withAppVersion(data)));
 }
 var saveBooking = async (data, q) => {
   const id = data.id;
@@ -91842,18 +89806,18 @@ var saveBooking = async (data, q) => {
   const instance = q?.instance;
   if (q)
     delete q.instance;
-  return id ? instance ? updateBookingInstance(id, data.instance || data.booking_start, data) : updateBooking(id, data) : createBooking(Ys(data, ["", null, void 0]) || {}, q);
+  return id ? instance ? updateBookingInstance(id, data.instance || data.booking_start, data) : updateBooking(id, data) : createBooking(Vs(data, ["", null, void 0]) || {}, q);
 };
 function removeBooking(id, q = {}) {
   if (q.instance) {
     return removeBookingInstance(id, q.start_time);
   }
-  return X(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}`, {
+  return ee(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}`, {
     response_type: "void"
   });
 }
 function removeBookingInstance(id, start_time) {
-  return X(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/instance/${start_time}`, {
+  return ee(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/instance/${start_time}`, {
     response_type: "void"
   });
 }
@@ -91910,27 +89874,31 @@ async function createBookingsForEvent(event, type, resources) {
 }
 
 // libs/assets/src/lib/assets.fn.ts
+function findOldestByName(list, name = "") {
+  const match_name = name.trim().toLowerCase();
+  return list.filter((_2) => (_2.name || "").trim().toLowerCase() === match_name).sort((a, b2) => (a.created_at || 0) - (b2.created_at || 0))[0];
+}
 function filter_hidden_items(response) {
   return __spreadProps(__spreadValues({}, response), {
     data: response.data.filter((item) => !item?.hidden)
   });
 }
 async function visible_category_ids() {
-  const response = await sl({});
+  const response = await cl({});
   return new Set(response.data.filter((item) => !item?.hidden).map((item) => item.id));
 }
 async function queryAssetCategories(query2 = {}) {
   if (query2.hidden === true)
-    return sl(query2);
+    return cl(query2);
   const _a = query2, { hidden } = _a, rest = __objRest(_a, ["hidden"]);
-  return filter_hidden_items(await sl(rest));
+  return filter_hidden_items(await cl(rest));
 }
 async function queryAssetTypes(query2 = {}) {
   if (query2.hidden === true)
-    return Vh(query2);
+    return sl(query2);
   const _a = query2, { hidden } = _a, rest = __objRest(_a, ["hidden"]);
   const [response, visible_ids] = await Promise.all([
-    Vh(rest),
+    sl(rest),
     visible_category_ids()
   ]);
   return __spreadProps(__spreadValues({}, response), {
@@ -91939,10 +89907,10 @@ async function queryAssetTypes(query2 = {}) {
 }
 async function queryAssets(query2 = {}) {
   if (query2.hidden === true)
-    return Gh(query2);
+    return Zh(query2);
   const _a = query2, { hidden } = _a, rest = __objRest(_a, ["hidden"]);
   const [response, types] = await Promise.all([
-    Gh(rest),
+    Zh(rest),
     queryAssetTypes(__spreadProps(__spreadValues({}, rest.zone_id ? { zone_id: rest.zone_id } : {}), {
       limit: 2e3
     }))
@@ -91953,12 +89921,12 @@ async function queryAssets(query2 = {}) {
   });
 }
 function saveAssetCategory(category) {
-  return category.id ? rl(category.id, category) : ol(category);
+  return category.id ? hl(category.id, category) : ll(category);
 }
 var _GROUPS_CACHE = /* @__PURE__ */ new Map();
 var REMOVE_QUERY_KEYS = ["period_start", "period_end", "type", "rejected"];
 async function queryAllAssetPages(query2 = {}) {
-  let response = await Gh(__spreadProps(__spreadValues({}, query2), {
+  let response = await Zh(__spreadProps(__spreadValues({}, query2), {
     limit: query2.limit || 500
   }));
   let total = response.total;
@@ -91993,7 +89961,7 @@ async function queryAssetGroupsExtended(query2 = {}) {
   if (q.zones)
     delete q.zones;
   const [types, assets] = await Promise.all([
-    Vh(q),
+    sl(q),
     queryAllAssetPages(q)
   ]);
   let groups = types.data.filter((item) => !item?.hidden);
@@ -92017,7 +89985,7 @@ async function queryAssetGroupsExtended(query2 = {}) {
   return list;
 }
 function saveAssetType(product) {
-  return product.id ? el(product.id, product) : tl(product);
+  return product.id ? rl(product.id, product) : ol(product);
 }
 async function queryGroupAvailability(query2, ignore = []) {
   const [products, bookings] = await Promise.all([
@@ -92312,6 +90280,7 @@ export {
   CurrencyPipe,
   SlicePipe,
   CommonModule,
+  registerLocaleData2 as registerLocaleData,
   DomRendererFactory2,
   bootstrapApplication,
   BrowserModule,
@@ -92348,9 +90317,6 @@ export {
   roundToNearestMinutes,
   setMonth,
   set,
-  stringToMinutes,
-  filterResourcesFromRules,
-  rulesForResource,
   AsyncHandler,
   NG_VALUE_ACCESSOR,
   DefaultValueAccessor,
@@ -92366,40 +90332,45 @@ export {
   FormControl,
   NgModel,
   ɵNgNoValidate,
+  NumberValueAccessor,
   FormControlName,
   FormGroupDirective,
+  SelectControlValueAccessor,
+  NgSelectOption,
+  ɵNgSelectMultipleOption,
   FormsModule,
   ReactiveFormsModule,
   toZonedTime,
   fromZonedTime,
-  Ys,
-  ri,
+  Vs,
+  oi,
   Ye,
-  hi,
-  V,
+  li,
+  X,
   Rt,
-  Dr,
-  kn,
-  Hr,
-  Wr,
-  d,
+  Fr,
+  Sn,
+  Lr,
+  Zr,
+  f,
   S,
   ce,
-  ye,
-  X,
-  ju,
-  Qu,
-  ta,
-  sa,
-  Ea,
-  Ca,
-  Gh,
-  Vh,
-  Xh,
+  ae,
+  ee,
+  Kt,
+  Wu,
+  Ju,
+  ia,
+  oa,
+  Ma,
+  Na,
+  Zh,
   sl,
-  Nl,
-  mr,
+  il,
+  cl,
   Fl,
+  $r,
+  Wl,
   i18n,
   LocaleService,
   notifySuccess,
@@ -92437,6 +90408,7 @@ export {
   getInvalidSignalFields,
   setupFormTimeSync,
   HotkeysService,
+  DEFAULT_SETTINGS,
   setPublicMode,
   isPublicMode,
   AssetRequest,
@@ -92453,7 +90425,8 @@ export {
   current_user,
   user_groups_loaded,
   currentUser,
-  userSignal,
+  currentUserIsLoaded,
+  currentUserLoaded,
   hasPermission,
   VERSION3 as VERSION,
   setting,
@@ -92490,8 +90463,6 @@ export {
   withHashLocation,
   withNavigationErrorHandler,
   RouterModule,
-  reloadOnChunkLoadError,
-  registerActiveLocale,
   isFakeMousedownFromScreenReader,
   isFakeTouchstartFromScreenReader,
   TAB,
@@ -92559,13 +90530,9 @@ export {
   setMocks,
   PlaceOS_Service,
   OrganisationService,
-  decode_default,
-  generateQRCode,
   fromEventRecurrence,
   toBookingRecurrence,
   Booking,
-  Calendar,
-  Desk,
   MAT_OPTION_PARENT_COMPONENT,
   MAT_OPTGROUP,
   MatOptionSelectionChange,
@@ -92624,6 +90591,7 @@ export {
   showGuest,
   getGuestCateringItem,
   setGuestCateringItem,
+  findOldestByName,
   queryAssetCategories,
   queryAssets,
   saveAssetCategory,
@@ -92631,4 +90599,4 @@ export {
   queryGroupAvailability,
   validateAssetRequestsForResource
 };
-//# sourceMappingURL=chunk-EUZM3G7Z.js.map
+//# sourceMappingURL=chunk-G3TQ564A.js.map

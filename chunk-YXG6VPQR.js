@@ -10,8 +10,6 @@ import {
   Booking,
   BreakpointObserver,
   Breakpoints,
-  Ca,
-  Calendar,
   CdkPortalOutlet,
   CdkScrollable,
   CdkScrollableModule,
@@ -27,13 +25,12 @@ import {
   DOWN_ARROW,
   DatePipe,
   DefaultValueAccessor,
-  Desk,
   Directionality,
   Directive,
   DomPortalOutlet,
+  EMPTY_USER,
   ENTER,
   ESCAPE,
-  Ea,
   ElementRef,
   EnvironmentInjector,
   EventEmitter,
@@ -46,17 +43,19 @@ import {
   FormGroup,
   FormGroupDirective,
   FormsModule,
-  Gh,
   IconComponent,
   Injectable,
   InjectionToken,
   Injector,
   Input,
   InteractivityChecker,
+  Ju,
+  Kt,
   LEFT_ARROW,
   MAT_FORM_FIELD,
   MAT_OPTGROUP,
   MAT_OPTION_PARENT_COMPONENT,
+  Ma,
   MatError,
   MatFormField,
   MatFormFieldModule,
@@ -80,15 +79,19 @@ import {
   MediaMatcher,
   NG_VALIDATORS,
   NG_VALUE_ACCESSOR,
+  Na,
   NavigationEnd,
+  NgComponentOutlet,
   NgControlStatus,
   NgControlStatusGroup,
   NgModel,
   NgModule,
+  NgTemplateOutlet,
   NgZone,
   Observable,
   OrganisationService,
   Output,
+  Overlay,
   OverlayConfig,
   OverlayContainer,
   OverlayModule,
@@ -96,7 +99,6 @@ import {
   Pipe,
   Platform,
   PortalModule,
-  Qu,
   QueryList,
   RIGHT_ARROW,
   ReactiveFormsModule,
@@ -111,6 +113,7 @@ import {
   ScrollDispatcher,
   Service,
   SettingsService,
+  Sn,
   Space,
   StaffUser,
   Subject,
@@ -119,20 +122,21 @@ import {
   TemplatePortal,
   TemplateRef,
   TranslatePipe,
+  Type,
   UP_ARROW,
   User,
   UserAvatarComponent,
-  V,
   Validators,
-  Vh,
   ViewChild,
   ViewContainerRef,
   ViewEncapsulation,
   ViewportRuler,
   VirtualKeyboardComponent,
-  Xh,
+  Vs,
+  Wu,
+  X,
   Ye,
-  Ys,
+  Zh,
   _CdkPrivateStyleLoader,
   _IdGenerator,
   _StructuralStylesLoader,
@@ -149,6 +153,7 @@ import {
   afterNextRender,
   bookedResourceList,
   booleanAttribute,
+  cl,
   coerceArray,
   coerceBooleanProperty,
   coerceNumberProperty,
@@ -159,17 +164,21 @@ import {
   createOverlayRef,
   createRepositionScrollStrategy,
   currentUser,
+  currentUserIsLoaded,
+  currentUserLoaded,
   current_user,
-  d,
   debounced,
   defer,
   delay,
+  differenceInMinutes,
   disabled,
   effect,
   email,
   endOfDay,
+  f,
   filter,
   findBookingClashes,
+  findOldestByName,
   first,
   firstValueWhere,
   flatten,
@@ -187,6 +196,8 @@ import {
   guardModelUndefinedWrites,
   hasModifierKey,
   i18n,
+  ia,
+  il,
   inject,
   input,
   isAfter,
@@ -196,8 +207,6 @@ import {
   isFakeTouchstartFromScreenReader,
   isMobileSafari,
   isWithinBookableHours,
-  ju,
-  kn,
   localToTimezone,
   map,
   merge,
@@ -216,7 +225,6 @@ import {
   removeBooking,
   required,
   resource,
-  rulesForResource,
   saveAssetCategory,
   saveAssetType,
   saveBooking,
@@ -233,9 +241,7 @@ import {
   startOfDay,
   startOfMinute,
   startWith,
-  stringToMinutes,
   switchMap,
-  ta,
   take,
   takeUntil,
   tap,
@@ -278,6 +284,7 @@ import {
   ɵɵdomProperty,
   ɵɵdomTemplate,
   ɵɵelement,
+  ɵɵelementContainer,
   ɵɵelementEnd,
   ɵɵelementStart,
   ɵɵgetCurrentView,
@@ -310,6 +317,7 @@ import {
   ɵɵsanitizeUrl,
   ɵɵstoreLet,
   ɵɵtemplate,
+  ɵɵtemplateRefExtractor,
   ɵɵtext,
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1,
@@ -320,7 +328,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-EUZM3G7Z.js";
+} from "./chunk-G3TQ564A.js";
 import {
   __objRest,
   __spreadProps,
@@ -3106,6 +3114,445 @@ function subHours(date, amount, options) {
   return addHours(date, -amount, options);
 }
 
+// libs/common/src/lib/booking-rules.ts
+var MINUTE = 1;
+var HOUR = 60;
+var DAY = 24 * HOUR;
+var WEEK = 7 * DAY;
+var MONTH = 30 * DAY;
+var DURATION_MAP = {
+  month: MONTH,
+  months: MONTH,
+  week: WEEK,
+  weeks: WEEK,
+  day: DAY,
+  days: DAY,
+  hour: HOUR,
+  hours: HOUR,
+  minute: MINUTE,
+  minutes: MINUTE
+};
+var DEFAULT_RULES = {
+  auto_approve: true,
+  hidden: false
+};
+function stringToMinutes(str) {
+  const parts = (str || "").split(" ");
+  return parts.length > 1 ? +parts[0] * DURATION_MAP[parts[1].toLowerCase()] : 0;
+}
+function addToDate(add, date = /* @__PURE__ */ new Date()) {
+  return addMinutes(date, stringToMinutes(add));
+}
+function filterResourcesFromRules(resources, details, ruleset_list) {
+  return resources.filter((_) => !rulesForResource(__spreadProps(__spreadValues({}, details), { resource: _ }), ruleset_list)?.hidden);
+}
+function rulesForResource(details, ruleset_list) {
+  if (!(ruleset_list instanceof Array))
+    return DEFAULT_RULES;
+  for (const ruleset of ruleset_list) {
+    if (ruleset.zone === "*" || ruleset.zone === details.resource.zone?.id || details.resource.zones?.includes(ruleset.zone)) {
+      if (checkRulesMatch(details, ruleset)) {
+        if (window.debug_booking_rules) {
+          console.log("Matched Ruleset:", details.resource.id, details, ruleset);
+        }
+        return ruleset.rules;
+      }
+    }
+  }
+  if (window.debug_booking_rules) {
+    console.log("No Matched Ruleset:", details.resource.id, details, DEFAULT_RULES);
+  }
+  return DEFAULT_RULES;
+}
+function checkRulesMatch({ date, duration, host, resource: resource2 }, ruleset) {
+  const date_obj = new Date(date);
+  let matches = 0;
+  const { conditions } = ruleset;
+  if (!conditions)
+    return true;
+  if (conditions.groups instanceof Array && conditions.groups.every((_) => host?.groups?.includes(_)))
+    matches += 1;
+  if (conditions.is_before && isBefore(addMinutes(date, duration), addToDate(conditions.is_before)))
+    matches += 1;
+  if (conditions.is_after && isAfter(date, addToDate(conditions.is_after)))
+    matches += 1;
+  if (conditions.min_length && conditions.min_length <= duration)
+    matches += 1;
+  if (conditions.is_between && date_obj.getHours() + date_obj.getMinutes() / 60 >= conditions.is_between[0] && date_obj.getHours() + date_obj.getMinutes() / 60 < conditions.is_between[1])
+    matches += 1;
+  if (conditions.is_period && date >= conditions.is_period[0] && date < conditions.is_period[1])
+    matches += 1;
+  if (conditions.max_length && conditions.max_length >= duration)
+    matches += 1;
+  if (conditions.resource_ids && conditions.resource_ids.includes(resource2.id))
+    matches += 1;
+  if (conditions.tags && conditions.tags.every((tag) => (resource2.tags || []).find((t) => t === tag)))
+    matches += 1;
+  if (conditions.locations && conditions.locations.includes(resource2.name))
+    matches += 1;
+  return matches >= Object.keys(conditions).length;
+}
+
+// libs/common/src/lib/types/calendar.class.ts
+var Calendar = class {
+  constructor(data = {}) {
+    this.id = data.id || "";
+    this.name = data.name || "";
+    this.primary = !!data.primary;
+    this.summary = data.summary || "";
+    this.can_edit = !!data.can_edit;
+    this.resource = new Space(data.resource || data.system);
+    this.availability = (data.availability || []).map(({ starts_at, ends_at, date, duration, status }) => {
+      return {
+        date: new Date(date || starts_at * 1e3).valueOf(),
+        duration: duration || differenceInMinutes(ends_at * 1e3, starts_at * 1e3),
+        status
+      };
+    });
+    this.hidden = !!data.hidden;
+  }
+};
+
+// libs/common/src/lib/types/desk.class.ts
+var IGNORE_KEYS = ["zone", "qr_code", "toJSON"];
+var Desk = class {
+  constructor(data = {}) {
+    this.toJSON = () => this.format();
+    this.id = data.id || "";
+    this.map_id = data.map_id || data.id || "";
+    this.name = data.name || "";
+    this.bookable = data.bookable ?? false;
+    this.zone = data.zone || new Kt();
+    this.assigned_to = data.assigned_to || "";
+    this.groups = data.groups || [];
+    this.qr_code = data.qr_code || "";
+    this.features = data.features || [];
+    this.images = data.images || [];
+    this.tags = data.tags || [];
+    this.homebase = data.homebase || "";
+    this.security = data.security || "";
+    for (const key in data) {
+      if (!(key in this))
+        this[key] = data[key];
+    }
+  }
+  format() {
+    const data = __spreadValues({}, this);
+    for (const key of IGNORE_KEYS) {
+      delete data[key];
+    }
+    Vs(data, [void 0, null, []]);
+    return data;
+  }
+};
+
+// libs/components/src/lib/custom-tooltip.component.ts
+var _c02 = ["portal_content"];
+var _c12 = ["*"];
+function CustomTooltipComponent_ng_template_1_Case_1_ng_container_0_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementContainer(0);
+  }
+}
+function CustomTooltipComponent_ng_template_1_Case_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275template(0, CustomTooltipComponent_ng_template_1_Case_1_ng_container_0_Template, 1, 0, "ng-container", 3);
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275property("ngComponentOutlet", ctx_r0.component())("ngComponentOutletInjector", ctx_r0.injector);
+  }
+}
+function CustomTooltipComponent_ng_template_1_Case_2_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "div", 2);
+    \u0275\u0275pipe(1, "sanitize");
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275property("innerHTML", \u0275\u0275pipeBind1(1, 1, ctx_r0.html()), \u0275\u0275sanitizeHtml);
+  }
+}
+function CustomTooltipComponent_ng_template_1_Case_3_ng_container_0_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementContainer(0);
+  }
+}
+function CustomTooltipComponent_ng_template_1_Case_3_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275template(0, CustomTooltipComponent_ng_template_1_Case_3_ng_container_0_Template, 1, 0, "ng-container", 4);
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275property("ngTemplateOutlet", ctx_r0.template())("ngTemplateOutletContext", ctx_r0.data());
+  }
+}
+function CustomTooltipComponent_ng_template_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 1);
+    \u0275\u0275conditionalCreate(1, CustomTooltipComponent_ng_template_1_Case_1_Template, 1, 2, "ng-container")(2, CustomTooltipComponent_ng_template_1_Case_2_Template, 2, 3, "div", 2)(3, CustomTooltipComponent_ng_template_1_Case_3_Template, 1, 2, "ng-container");
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    let tmp_2_0;
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275conditional((tmp_2_0 = ctx_r0.type()) === "component" ? 1 : tmp_2_0 === "html" ? 2 : 3);
+  }
+}
+var CustomTooltipData = class _CustomTooltipData {
+  static {
+    this.\u0275fac = function CustomTooltipData_Factory(__ngFactoryType__) {
+      return new (__ngFactoryType__ || _CustomTooltipData)();
+    };
+  }
+  static {
+    this.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _CustomTooltipData, factory: _CustomTooltipData.\u0275fac });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(CustomTooltipData, [{
+    type: Injectable
+  }], null, null);
+})();
+var CustomTooltipComponent = class _CustomTooltipComponent extends AsyncHandler {
+  constructor() {
+    super(...arguments);
+    this._element = inject(ElementRef);
+    this._overlay = inject(Overlay);
+    this._injector = inject(Injector);
+    this._view_container_ref = inject(ViewContainerRef);
+    this.x_pos = input("end", __spreadProps(__spreadValues({}, ngDevMode ? { debugName: "x_pos" } : (
+      /* istanbul ignore next */
+      {}
+    )), { alias: "xPosition" }));
+    this.y_pos = input("top", __spreadProps(__spreadValues({}, ngDevMode ? { debugName: "y_pos" } : (
+      /* istanbul ignore next */
+      {}
+    )), { alias: "yPosition" }));
+    this.content = input(
+      void 0,
+      ...ngDevMode ? [{ debugName: "content" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.data = input(
+      void 0,
+      ...ngDevMode ? [{ debugName: "data" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.backdrop = input(
+      true,
+      ...ngDevMode ? [{ debugName: "backdrop" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.hover = input(
+      false,
+      ...ngDevMode ? [{ debugName: "hover" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.delay = input(
+      0,
+      ...ngDevMode ? [{ debugName: "delay" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.x_offset = input(0, __spreadProps(__spreadValues({}, ngDevMode ? { debugName: "x_offset" } : (
+      /* istanbul ignore next */
+      {}
+    )), { alias: "xOffset" }));
+    this.y_offset = input(0, __spreadProps(__spreadValues({}, ngDevMode ? { debugName: "y_offset" } : (
+      /* istanbul ignore next */
+      {}
+    )), { alias: "yOffset" }));
+    this.type = computed(
+      () => this.content() instanceof TemplateRef ? "template" : this.content() instanceof Type ? "component" : "html",
+      ...ngDevMode ? [{ debugName: "type" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.template = computed(
+      () => {
+        return this.content();
+      },
+      ...ngDevMode ? [{ debugName: "template" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.html = computed(
+      () => {
+        return this.content();
+      },
+      ...ngDevMode ? [{ debugName: "html" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.component = computed(
+      () => {
+        return this.content();
+      },
+      ...ngDevMode ? [{ debugName: "component" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._overlay_ref = null;
+    this._portal_content = viewChild.required("portal_content", {
+      read: TemplateRef
+    });
+    this._update_injector = effect(
+      () => {
+        this.injector = Injector.create({
+          providers: [
+            {
+              provide: CustomTooltipData,
+              useValue: { data: this.data(), close: () => this.close() }
+            }
+          ],
+          parent: this._injector
+        });
+      },
+      ...ngDevMode ? [{ debugName: "_update_injector" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+  }
+  ngOnInit() {
+    const open = () => !this.hover() ? this.open() : "";
+    const hover_open = (event) => this._canOpenHoverTooltip(event) ? this.open() : "";
+    const hover_close = (event) => this._canOpenHoverTooltip(event) ? this.close() : "";
+    this._element.nativeElement.addEventListener("click", open);
+    this._element.nativeElement.addEventListener("touchend", open);
+    this._element.nativeElement.addEventListener("pointerenter", hover_open);
+    this._element.nativeElement.addEventListener("pointerleave", hover_close);
+    this.subscription("click", () => this._element.nativeElement.removeEventListener("click", open));
+    this.subscription("touchend", () => this._element.nativeElement.removeEventListener("touchend", open));
+    this.subscription("pointerenter", () => this._element.nativeElement.removeEventListener("pointerenter", hover_open));
+    this.subscription("pointerleave", () => this._element.nativeElement.removeEventListener("pointerleave", hover_close));
+  }
+  ngOnChanges(changes) {
+    if (this._overlay_ref && (changes.x_pos || changes.y_pos || changes.x_offset || changes.y_offset || changes.content)) {
+      this.open();
+    }
+  }
+  ngOnDestroy() {
+    super.ngOnDestroy();
+    this.close();
+  }
+  open() {
+    if (!this.content())
+      return;
+    this.timeout("open", () => {
+      const hover = this.hover();
+      const delay2 = this.delay();
+      if (hover && delay2) {
+        this.timeout("onclose", () => this.close(), delay2);
+      }
+      if (this._overlay_ref)
+        this.close();
+      const portal = new TemplatePortal(this._portal_content(), this._view_container_ref);
+      const default_x = "end";
+      const default_y = "top";
+      const y_pos = this.y_pos();
+      this._overlay_ref = this._overlay.create({
+        hasBackdrop: !!this.backdrop() && !hover,
+        positionStrategy: this._overlay.position().flexibleConnectedTo(this._element).withDefaultOffsetX(this.x_offset()).withDefaultOffsetY(this.y_offset()).withPositions([
+          {
+            originX: this.x_pos() || default_x,
+            originY: (y_pos === "top" ? "bottom" : y_pos == "bottom" ? "top" : y_pos) || default_y,
+            overlayX: this.x_pos() || default_x,
+            overlayY: this.y_pos() || default_y
+          }
+        ])
+      });
+      this._overlay_ref.attach(portal);
+      if (this.backdrop()) {
+        this.subscription("backdrop", this._overlay_ref.backdropClick().subscribe(() => this.close()));
+      }
+    }, 50);
+  }
+  close() {
+    this.clearTimeout("open");
+    if (this._overlay_ref) {
+      this._overlay_ref.dispose();
+      this._overlay_ref = null;
+    }
+  }
+  _canOpenHoverTooltip(event) {
+    if (!this.hover())
+      return false;
+    return !("pointerType" in event) || event.pointerType !== "touch";
+  }
+  static {
+    this.\u0275fac = /* @__PURE__ */ (() => {
+      let \u0275CustomTooltipComponent_BaseFactory;
+      return function CustomTooltipComponent_Factory(__ngFactoryType__) {
+        return (\u0275CustomTooltipComponent_BaseFactory || (\u0275CustomTooltipComponent_BaseFactory = \u0275\u0275getInheritedFactory(_CustomTooltipComponent)))(__ngFactoryType__ || _CustomTooltipComponent);
+      };
+    })();
+  }
+  static {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CustomTooltipComponent, selectors: [["", "customTooltip", ""]], viewQuery: function CustomTooltipComponent_Query(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275viewQuerySignal(ctx._portal_content, _c02, 5, TemplateRef);
+      }
+      if (rf & 2) {
+        \u0275\u0275queryAdvance();
+      }
+    }, inputs: { x_pos: [1, "xPosition", "x_pos"], y_pos: [1, "yPosition", "y_pos"], content: [1, "content"], data: [1, "data"], backdrop: [1, "backdrop"], hover: [1, "hover"], delay: [1, "delay"], x_offset: [1, "xOffset", "x_offset"], y_offset: [1, "yOffset", "y_offset"] }, features: [\u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature], ngContentSelectors: _c12, decls: 3, vars: 0, consts: [["portal_content", ""], ["custom-tooltip", "", 1, "relative", "print:hidden"], [3, "innerHTML"], [4, "ngComponentOutlet", "ngComponentOutletInjector"], [4, "ngTemplateOutlet", "ngTemplateOutletContext"]], template: function CustomTooltipComponent_Template(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275projectionDef();
+        \u0275\u0275projection(0);
+        \u0275\u0275template(1, CustomTooltipComponent_ng_template_1_Template, 4, 1, "ng-template", null, 0, \u0275\u0275templateRefExtractor);
+      }
+    }, dependencies: [CommonModule, NgComponentOutlet, NgTemplateOutlet, SanitizePipe], styles: ["\n[_nghost-%COMP%] {\n  pointer-events: auto !important;\n}\n/*# sourceMappingURL=custom-tooltip.component.css.map */"] });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(CustomTooltipComponent, [{
+    type: Component,
+    args: [{ selector: "[customTooltip]", template: `
+        <ng-content />
+        <ng-template #portal_content>
+            <div custom-tooltip class="relative print:hidden">
+                @switch (type()) {
+                    @case ('component') {
+                        <ng-container
+                            *ngComponentOutlet="component(); injector: injector"
+                        ></ng-container>
+                    }
+                    @case ('html') {
+                        <div [innerHTML]="html() | sanitize"></div>
+                    }
+                    @default {
+                        <ng-container
+                            *ngTemplateOutlet="template(); context: data()"
+                        ></ng-container>
+                    }
+                }
+            </div>
+        </ng-template>
+    `, imports: [CommonModule, SanitizePipe], styles: ["/* angular:styles/component:css;9f88acd9967d2b0ebf3bc5241107eaa7c3672b233611fbb42832362998689b5f;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/custom-tooltip.component.ts */\n:host {\n  pointer-events: auto !important;\n}\n/*# sourceMappingURL=custom-tooltip.component.css.map */\n"] }]
+  }], null, { x_pos: [{ type: Input, args: [{ isSignal: true, alias: "xPosition", required: false }] }], y_pos: [{ type: Input, args: [{ isSignal: true, alias: "yPosition", required: false }] }], content: [{ type: Input, args: [{ isSignal: true, alias: "content", required: false }] }], data: [{ type: Input, args: [{ isSignal: true, alias: "data", required: false }] }], backdrop: [{ type: Input, args: [{ isSignal: true, alias: "backdrop", required: false }] }], hover: [{ type: Input, args: [{ isSignal: true, alias: "hover", required: false }] }], delay: [{ type: Input, args: [{ isSignal: true, alias: "delay", required: false }] }], x_offset: [{ type: Input, args: [{ isSignal: true, alias: "xOffset", required: false }] }], y_offset: [{ type: Input, args: [{ isSignal: true, alias: "yOffset", required: false }] }], _portal_content: [{ type: ViewChild, args: ["portal_content", __spreadProps(__spreadValues({}, {
+    read: TemplateRef
+  }), { isSignal: true })] }] });
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CustomTooltipComponent, { className: "CustomTooltipComponent", filePath: "libs/components/src/lib/custom-tooltip.component.ts", lineNumber: 64 });
+})();
+
 // libs/users/src/lib/staff.fn.ts
 var STAFF_ENDPOINT = "/api/staff/v1/people";
 async function searchStaff(q) {
@@ -3120,11 +3567,11 @@ async function searchStaff(q) {
       "department"
     ].join(",")
   });
-  const list = await d(`${STAFF_ENDPOINT}${q ? "?" + query : ""}`);
+  const list = await f(`${STAFF_ENDPOINT}${q ? "?" + query : ""}`);
   return list.map((item) => new StaffUser(item));
 }
 async function showStaff(id) {
-  return new StaffUser(await d(`${STAFF_ENDPOINT}/${encodeURIComponent(id)}`));
+  return new StaffUser(await f(`${STAFF_ENDPOINT}/${encodeURIComponent(id)}`));
 }
 
 // libs/components/src/lib/map-viewer.class.ts
@@ -3260,7 +3707,7 @@ var MapStore = class {
       await new Promise((resolve) => setTimeout(resolve, 300));
     }
     const options = {};
-    const tkn = V();
+    const tkn = X();
     const is_same_origin = new URL(path, location.origin).origin === location.origin;
     if (tkn && is_same_origin) {
       if (!isMobileSafari()) {
@@ -4032,8 +4479,8 @@ var MapViewer = class {
 };
 
 // node_modules/@angular/material/fesm2022/autocomplete.mjs
-var _c02 = ["panel"];
-var _c12 = ["*"];
+var _c03 = ["panel"];
+var _c13 = ["*"];
 function MatAutocomplete_ng_template_0_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275domElementStart(0, "div", 1, 0);
@@ -4191,7 +4638,7 @@ var MatAutocomplete = class _MatAutocomplete {
     },
     viewQuery: function MatAutocomplete_Query(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275viewQuery(TemplateRef, 7)(_c02, 5);
+        \u0275\u0275viewQuery(TemplateRef, 7)(_c03, 5);
       }
       if (rf & 2) {
         let _t;
@@ -4223,7 +4670,7 @@ var MatAutocomplete = class _MatAutocomplete {
       provide: MAT_OPTION_PARENT_COMPONENT,
       useExisting: _MatAutocomplete
     }])],
-    ngContentSelectors: _c12,
+    ngContentSelectors: _c13,
     decls: 1,
     vars: 0,
     consts: [["panel", ""], ["role", "listbox", 1, "mat-mdc-autocomplete-panel", "mdc-menu-surface", "mdc-menu-surface--open", 3, "id"]],
@@ -5029,7 +5476,7 @@ function normalise_name(name = "") {
 }
 async function query_hidden_categories() {
   if (!_hidden_categories_promise) {
-    _hidden_categories_promise = sl({
+    _hidden_categories_promise = cl({
       hidden: true,
       limit: 500
     }).then((_) => _.data).catch(() => []);
@@ -5038,7 +5485,7 @@ async function query_hidden_categories() {
 }
 async function query_types_for_category(category_id) {
   if (!_types_for_category_promises.has(category_id)) {
-    _types_for_category_promises.set(category_id, Vh({ category_id, limit: 500 }).then((_) => _.data).catch(() => []));
+    _types_for_category_promises.set(category_id, sl({ category_id, limit: 500 }).then((_) => _.data).catch(() => []));
   }
   return _types_for_category_promises.get(category_id);
 }
@@ -5053,12 +5500,11 @@ async function query_types_for_categories(category_ids) {
   return list.flat();
 }
 async function ensure_hidden_category(name) {
-  const match_name = normalise_name(name);
-  let category = (await query_hidden_categories()).find((_) => normalise_name(_.name) === match_name);
+  let category = findOldestByName(await query_hidden_categories(), name);
   if (category)
     return category;
   reset_hidden_categories_cache();
-  category = (await query_hidden_categories()).find((_) => normalise_name(_.name) === match_name);
+  category = findOldestByName(await query_hidden_categories(), name);
   if (category)
     return category;
   try {
@@ -5070,7 +5516,7 @@ async function ensure_hidden_category(name) {
     return category2;
   } catch (error) {
     reset_hidden_categories_cache();
-    category = (await query_hidden_categories()).find((_) => normalise_name(_.name) === match_name);
+    category = findOldestByName(await query_hidden_categories(), name);
     if (category)
       return category;
     throw error;
@@ -5092,18 +5538,17 @@ async function move_type_to_category(type, category_id, name) {
   } catch (error) {
     reset_types_cache([category_id]);
     const types = await query_types_for_category(category_id);
-    const existing_type = types.find((_) => normalise_name(_.name) === normalise_name(name));
+    const existing_type = findOldestByName(types, name);
     if (existing_type)
       return existing_type;
     throw error;
   }
 }
 async function ensure_type(category_id, name, legacy_category_ids = []) {
-  const match_name = normalise_name(name);
-  let type = (await query_types_for_categories([
+  let type = findOldestByName(await query_types_for_categories([
     category_id,
     ...legacy_category_ids.filter((_) => _ !== category_id)
-  ])).find((_) => normalise_name(_.name) === match_name);
+  ]), name);
   if (type)
     return move_type_to_category(type, category_id, name);
   try {
@@ -5116,10 +5561,10 @@ async function ensure_type(category_id, name, legacy_category_ids = []) {
     return type2;
   } catch (error) {
     reset_types_cache([category_id, ...legacy_category_ids]);
-    type = (await query_types_for_categories([
+    type = findOldestByName(await query_types_for_categories([
       category_id,
       ...legacy_category_ids.filter((_) => _ !== category_id)
-    ])).find((_) => normalise_name(_.name) === match_name);
+    ]), name);
     if (type)
       return move_type_to_category(type, category_id, name);
     throw error;
@@ -5148,7 +5593,7 @@ async function queryParkingSpacesForZones(zone_ids) {
   if (!zone_ids?.length)
     return [];
   const type_id = await resolveParkingTypeId();
-  const results = await Promise.all(zone_ids.map((zone_id) => Gh({ zone_id, type_id, limit: 500 }).then((_) => _.data)));
+  const results = await Promise.all(zone_ids.map((zone_id) => Zh({ zone_id, type_id, limit: 500 }).then((_) => _.data)));
   return flatten(results);
 }
 var PARKING_USER_TYPE_NAME = "_PARKING_USERS_";
@@ -5185,7 +5630,7 @@ function toParkingUser(asset) {
 }
 async function queryParkingUsers(zone_id) {
   const type_id = await resolveParkingUserTypeId();
-  const assets = await Gh({ zone_id, type_id, limit: 500 });
+  const assets = await Zh({ zone_id, type_id, limit: 500 });
   return assets.data.map(toParkingUser);
 }
 
@@ -5210,7 +5655,7 @@ var AssetGroupPipe = class _AssetGroupPipe {
     let asset_group = ASSET_GROUP_LIST.find(({ id }) => id === group_id);
     if (asset_group)
       return asset_group;
-    const group = await Xh(group_id).catch(() => null);
+    const group = await il(group_id).catch(() => null);
     if (group) {
       asset_group = __spreadValues({}, group);
       ASSET_GROUP_LIST.push(asset_group);
@@ -5240,7 +5685,7 @@ var AssetGroupPipe = class _AssetGroupPipe {
 })();
 
 // node_modules/@angular/material/fesm2022/_tooltip-chunk.mjs
-var _c03 = ["tooltip"];
+var _c04 = ["tooltip"];
 var SCROLL_THROTTLE_MS = 20;
 function getMatTooltipInvalidPositionError(position) {
   return Error(`Tooltip position "${position}" is invalid.`);
@@ -5997,7 +6442,7 @@ var TooltipComponent = class _TooltipComponent {
     selectors: [["mat-tooltip-component"]],
     viewQuery: function TooltipComponent_Query(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275viewQuery(_c03, 7);
+        \u0275\u0275viewQuery(_c04, 7);
       }
       if (rf & 2) {
         let _t;
@@ -6089,7 +6534,7 @@ function getAssetRulesForZone(zone_id, fresh = false) {
   if (!zone_id)
     return Promise.resolve([]);
   if (!RULE_REQUESTS[zone_id] || fresh)
-    RULE_REQUESTS[zone_id] = ju(zone_id, "assets_config").then((_) => _.details instanceof Array ? _.details : []).catch(() => []);
+    RULE_REQUESTS[zone_id] = Wu(zone_id, "assets_config").then((_) => _.details instanceof Array ? _.details : []).catch(() => []);
   return RULE_REQUESTS[zone_id];
 }
 function assetAvailable(item, rules, event) {
@@ -6462,7 +6907,7 @@ var AssetStateService = class _AssetStateService {
   }
   async _loadSettings(building_id) {
     const existing = this._settings_requests.get(building_id);
-    const request = existing || ju(building_id, "assets-settings").then((metadata) => metadata.details || {}).catch(() => ({}));
+    const request = existing || Wu(building_id, "assets-settings").then((metadata) => metadata.details || {}).catch(() => ({}));
     if (!existing)
       this._settings_requests.set(building_id, request);
     this._settings.set(await request);
@@ -6487,7 +6932,7 @@ var AssetStateService = class _AssetStateService {
 })();
 
 // libs/form-fields/src/lib/duration-field.component.ts
-var _c04 = ["*"];
+var _c05 = ["*"];
 var _forTrack0 = ($index, $item) => $item.id;
 function DurationFieldComponent_Conditional_5_Template(rf, ctx) {
   if (rf & 1) {
@@ -6841,7 +7286,7 @@ var DurationFieldComponent = class _DurationFieldComponent {
         useExisting: forwardRef(() => _DurationFieldComponent),
         multi: true
       }
-    ]), \u0275\u0275NgOnChangesFeature], ngContentSelectors: _c04, decls: 15, vars: 12, consts: [["menu", "matMenu"], ["duration-field", "", "matRipple", "", 1, "border-neutral", "flex", "h-12", "w-full", "items-center", "justify-between", "rounded-sm", "border", "px-2", 3, "disabled", "matMenuTriggerFor"], [1, "flex", "w-1/2", "flex-1", "flex-col", "px-2", "text-left", "leading-tight"], [1, "truncate"], [1, "truncate", "text-xs", "opacity-30"], [1, "text-2xl"], [1, "max-h-60", "min-w-[18rem]"], ["mat-menu-item", "", 1, "text-left"], ["mat-menu-item", "", "disabled", ""], ["mat-menu-item", "", 1, "text-left", 3, "click"], [1, "flex", "items-center", "justify-between"], [1, "flex", "flex-col", "leading-tight"], [1, "ml-2", "text-2xl"]], template: function DurationFieldComponent_Template(rf, ctx) {
+    ]), \u0275\u0275NgOnChangesFeature], ngContentSelectors: _c05, decls: 15, vars: 12, consts: [["menu", "matMenu"], ["duration-field", "", "matRipple", "", 1, "border-neutral", "flex", "h-12", "w-full", "items-center", "justify-between", "rounded-sm", "border", "px-2", 3, "disabled", "matMenuTriggerFor"], [1, "flex", "w-1/2", "flex-1", "flex-col", "px-2", "text-left", "leading-tight"], [1, "truncate"], [1, "truncate", "text-xs", "opacity-30"], [1, "text-2xl"], [1, "max-h-60", "min-w-[18rem]"], ["mat-menu-item", "", 1, "text-left"], ["mat-menu-item", "", "disabled", ""], ["mat-menu-item", "", 1, "text-left", 3, "click"], [1, "flex", "items-center", "justify-between"], [1, "flex", "flex-col", "leading-tight"], [1, "ml-2", "text-2xl"]], template: function DurationFieldComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275projectionDef();
         \u0275\u0275elementStart(0, "button", 1)(1, "div", 2)(2, "div", 3);
@@ -6987,12 +7432,9 @@ var _locker_type_id = null;
 var _locker_type_id_promise = null;
 var _hidden_categories_promise2 = null;
 var _types_for_category_promises2 = /* @__PURE__ */ new Map();
-function normalise_name2(name = "") {
-  return name.trim().toLowerCase();
-}
 async function query_hidden_categories2() {
   if (!_hidden_categories_promise2) {
-    _hidden_categories_promise2 = sl({
+    _hidden_categories_promise2 = cl({
       hidden: true,
       limit: 500
     }).then((_) => _.data).catch(() => []);
@@ -7001,17 +7443,16 @@ async function query_hidden_categories2() {
 }
 async function query_types_for_category2(category_id) {
   if (!_types_for_category_promises2.has(category_id)) {
-    _types_for_category_promises2.set(category_id, Vh({ category_id, limit: 500 }).then((_) => _.data).catch(() => []));
+    _types_for_category_promises2.set(category_id, sl({ category_id, limit: 500 }).then((_) => _.data).catch(() => []));
   }
   return _types_for_category_promises2.get(category_id);
 }
 async function ensure_hidden_category2(name) {
-  const match_name = normalise_name2(name);
-  let category = (await query_hidden_categories2()).find((_) => normalise_name2(_.name) === match_name);
+  let category = findOldestByName(await query_hidden_categories2(), name);
   if (category)
     return category;
   _hidden_categories_promise2 = null;
-  category = (await query_hidden_categories2()).find((_) => normalise_name2(_.name) === match_name);
+  category = findOldestByName(await query_hidden_categories2(), name);
   if (category)
     return category;
   const created = await saveAssetCategory({
@@ -7022,8 +7463,7 @@ async function ensure_hidden_category2(name) {
   return created;
 }
 async function ensure_type2(category_id, name) {
-  const match_name = normalise_name2(name);
-  let type = (await query_types_for_category2(category_id)).find((_) => normalise_name2(_.name) === match_name);
+  let type = findOldestByName(await query_types_for_category2(category_id), name);
   if (type)
     return type;
   const created = await saveAssetType({
@@ -7065,14 +7505,14 @@ async function queryLockerBankAssetsForZones(zone_ids) {
   if (!zone_ids?.length)
     return [];
   const type_id = await resolveLockerBankTypeId();
-  const results = await Promise.all(zone_ids.map((zone_id) => Gh({ zone_id, type_id, limit: 500 }).then((_) => _.data)));
+  const results = await Promise.all(zone_ids.map((zone_id) => Zh({ zone_id, type_id, limit: 500 }).then((_) => _.data)));
   return flatten(results);
 }
 async function queryLockerAssetsForZones(zone_ids) {
   if (!zone_ids?.length)
     return [];
   const type_id = await resolveLockerTypeId();
-  const results = await Promise.all(zone_ids.map((zone_id) => Gh({ zone_id, type_id, limit: 500 }).then((_) => _.data)));
+  const results = await Promise.all(zone_ids.map((zone_id) => Zh({ zone_id, type_id, limit: 500 }).then((_) => _.data)));
   return flatten(results);
 }
 
@@ -7295,12 +7735,12 @@ var RecurringClashModalComponent = class _RecurringClashModalComponent {
 // libs/events/src/lib/calendar.fn.ts
 var CALENDAR_ENDPOINT = "/api/staff/v1/calendars";
 async function queryCalendars() {
-  const list = await d(CALENDAR_ENDPOINT);
+  const list = await f(CALENDAR_ENDPOINT);
   return list.map((c) => new Calendar(c));
 }
 async function queryCalendarAvailability(q) {
   const query = toQueryString(q);
-  const list = await d(`${CALENDAR_ENDPOINT}/availability${query ? "?" + query : ""}`);
+  const list = await f(`${CALENDAR_ENDPOINT}/availability${query ? "?" + query : ""}`);
   return list.map((c) => new Calendar(c));
 }
 var calendarsToSpaces = (list, org) => list.filter((cal) => !!cal.resource).map((cal) => new Space(__spreadProps(__spreadValues({}, cal.resource), {
@@ -7309,7 +7749,7 @@ var calendarsToSpaces = (list, org) => list.filter((cal) => !!cal.resource).map(
 }))).filter((space) => space.bookable);
 async function querySpaceFreeBusy(q, org) {
   const query = toQueryString(q);
-  const list = await d(`${CALENDAR_ENDPOINT}/free_busy${query ? "?" + query : ""}`);
+  const list = await f(`${CALENDAR_ENDPOINT}/free_busy${query ? "?" + query : ""}`);
   return calendarsToSpaces(list.map((c) => new Calendar(c)), org);
 }
 
@@ -7658,7 +8098,7 @@ function requestSpacesForZone(id) {
     return of([]);
   if (SPACE_LIST_REQUESTS[id])
     return SPACE_LIST_REQUESTS[id];
-  SPACE_LIST_REQUESTS[id] = from(ta({
+  SPACE_LIST_REQUESTS[id] = from(ia({
     zone_id: id,
     limit: 500,
     signage: false
@@ -8070,6 +8510,7 @@ function generateBookingForm(booking = new Booking(), injector) {
   );
   guardModelUndefinedWrites(model2, bookingFormValue(new Booking()));
   const require_plate_number = settingSignal("parking.require_plate_number", false);
+  const require_space_restriction = settingSignal("parking.require_space_restriction", false);
   const booking_form = form(model2, (p) => {
     required(p.date);
     required(p.asset_id);
@@ -8082,6 +8523,8 @@ function generateBookingForm(booking = new Booking(), injector) {
         return booking_type === "parking" && require_plate_number();
       }
     });
+    validate(p.plate_number, ({ value, valueOf }) => valueOf(p.booking_type) === "parking" && require_plate_number() && !`${value() || ""}`.trim() ? { kind: "required" } : void 0);
+    validate(p.space_restrictions, ({ value, valueOf }) => valueOf(p.booking_type) === "parking" && require_space_restriction() && !value() ? { kind: "required" } : void 0);
     validate(p.duration, ({ value, valueOf }) => {
       const date = valueOf(p.date);
       if (value() <= 0)
@@ -8130,9 +8573,9 @@ async function findNearbyFeature(map_url, centered_at, desk_ids = []) {
   let closest = "";
   for (const desk of desk_ids) {
     const { x, y } = centerOf(desk) || { x: 2, y: 2 };
-    const d2 = Math.sqrt((x - point.x) * (x - point.x) + (y - point.y) * (y - point.y));
-    if (d2 < dist) {
-      dist = d2;
+    const d = Math.sqrt((x - point.x) * (x - point.x) + (y - point.y) * (y - point.y));
+    if (d < dist) {
+      dist = d;
       closest = desk;
     }
   }
@@ -8425,7 +8868,7 @@ var DeskQuestionsModalComponent = class _DeskQuestionsModalComponent {
 })();
 
 // libs/payments/src/lib/card-input-field.component.ts
-var _c05 = ["input"];
+var _c06 = ["input"];
 function CardInputFieldComponent_Conditional_9_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "img", 7);
@@ -8617,7 +9060,7 @@ var CardInputFieldComponent = class _CardInputFieldComponent extends AsyncHandle
   static {
     this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CardInputFieldComponent, selectors: [["card-input-field"]], viewQuery: function CardInputFieldComponent_Query(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275viewQuerySignal(ctx._input_el, _c05, 5);
+        \u0275\u0275viewQuerySignal(ctx._input_el, _c06, 5);
       }
       if (rf & 2) {
         \u0275\u0275queryAdvance();
@@ -9493,7 +9936,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     if (!email2)
       return false;
     const map_metadata = (meta) => (meta?.metadata?.desks?.details instanceof Array ? meta.metadata.desks.details : []).map((desk) => new Desk(__spreadProps(__spreadValues({}, desk), { zone: meta.zone })));
-    const desk_lists = await Promise.all(buildings.map((building) => Qu(building.id, { name: "desks" }).then((data) => flatten(data.map(map_metadata))).catch(() => [])));
+    const desk_lists = await Promise.all(buildings.map((building) => Ju(building.id, { name: "desks" }).then((data) => flatten(data.map(map_metadata))).catch(() => [])));
     return flatten(desk_lists).some((desk) => desk.assigned_to?.toLowerCase() === email2);
   }
   /**
@@ -9534,7 +9977,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     const default_zone = (this._settings.get("app.use_region") ? this._org.region?.id : this._org.building?.id) || this._org.organisation.id;
     const zones = options.zones?.length ? options.zones.join(",") : options.zone_id || default_zone;
     let booked_ids = [];
-    if (!kn()) {
+    if (!Sn()) {
       booked_ids = await this._bookedResourceList({
         period_start: getUnixTime(date),
         period_end: getUnixTime(addMinutes(date, duration)),
@@ -9610,7 +10053,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     }
     this.model.set(bookingFormValue(new Booking()));
     this.form().reset();
-    this._patch(Ys(__spreadProps(__spreadValues(__spreadProps(__spreadValues({}, booking.extension_data), {
+    this._patch(Vs(__spreadProps(__spreadValues(__spreadProps(__spreadValues({}, booking.extension_data), {
       attachments: bookingAttachments(booking)
     }), booking), {
       _in_progress: booking.state === "started" || booking.state === "in_progress"
@@ -9804,7 +10247,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       params: () => this._network_consumed() && this._requests_ready() ? this._booking_rules_params_debounced.value() : void 0,
       loader: ({ params }) => {
         const { ids, type } = params;
-        return Promise.all(ids.map((id) => ju(id, `${type}_booking_rules`))).then((building_rules) => {
+        return Promise.all(ids.map((id) => Wu(id, `${type}_booking_rules`))).then((building_rules) => {
           const mapping = {};
           for (const rules of building_rules) {
             mapping[rules.id] = rules.details instanceof Array ? rules.details : [];
@@ -9945,7 +10388,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
   }
   _allDayTimeRange(date) {
     const period = this.setting("all_day_period");
-    return getAllDayTimeRange(date, this.timezone, period?.start, period?.end, this.model().id ? void 0 : Date.now());
+    return getAllDayTimeRange(date, this.timezone, period?.start, period?.end);
   }
   /**
    * Re-apply the supplied booking window after async form setup only if no
@@ -9984,6 +10427,10 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     }
   }
   resetForm() {
+    if (!currentUserIsLoaded()) {
+      currentUserLoaded().then(() => this.resetForm());
+      return;
+    }
     if (!sessionStorage.getItem(STORAGE_KEYS.booking_form)) {
       return this.newForm(this._options().type);
     }
@@ -9993,7 +10440,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       booked_by: currentUser()
     }));
     this.form().reset();
-    this._patch(Ys(__spreadProps(__spreadValues(__spreadValues({}, booking || {}), booking?.extension_data || {}), {
+    this._patch(Vs(__spreadProps(__spreadValues(__spreadValues({}, booking || {}), booking?.extension_data || {}), {
       attachments: bookingAttachments(booking),
       _in_progress: booking?.state === "started"
     }), [null, void 0, ""]));
@@ -10009,7 +10456,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     sessionStorage.removeItem(STORAGE_KEYS.booking_form_filters);
   }
   storeForm() {
-    sessionStorage.setItem(STORAGE_KEYS.booking_form, JSON.stringify(__spreadValues(__spreadValues({}, this._booking()), Ys(__spreadValues({}, this.model()), [null, void 0, ""]))));
+    sessionStorage.setItem(STORAGE_KEYS.booking_form, JSON.stringify(__spreadValues(__spreadValues({}, this._booking()), Vs(__spreadValues({}, this.model()), [null, void 0, ""]))));
     sessionStorage.setItem(STORAGE_KEYS.booking_form_filters, JSON.stringify(this._options() || {}));
   }
   loadForm(expected_type) {
@@ -10029,7 +10476,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       booked_by: currentUser()
     }));
     this.form().reset();
-    const booking_data = Ys(__spreadProps(__spreadValues(__spreadValues(__spreadValues({}, data), booking || {}), booking?.extension_data || {}), {
+    const booking_data = Vs(__spreadProps(__spreadValues(__spreadValues(__spreadValues({}, data), booking || {}), booking?.extension_data || {}), {
       attachments: bookingAttachments(booking),
       _in_progress: booking?.state === "started"
     }), [null, void 0, ""]);
@@ -10886,7 +11333,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     if (this._useCurrentUserForBookingRules() || current_user2.email === host) {
       return current_user2;
     }
-    return Ca(host).catch(() => ({ email: host }));
+    return Na(host).catch(() => ({ email: host }));
   }
   /**
    * Check for clashing bookings in a recurring booking series
@@ -10967,8 +11414,8 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
   }
   async loadResourceList(type) {
     const use_region = this._settings.get("app.use_region");
-    const map_metadata = (_) => (_?.metadata[type]?.details instanceof Array ? _.metadata[type].details : []).map((d2) => __spreadProps(__spreadValues({}, d2), {
-      id: d2.id || d2.map_id,
+    const map_metadata = (_) => (_?.metadata[type]?.details instanceof Array ? _.metadata[type].details : []).map((d) => __spreadProps(__spreadValues({}, d), {
+      id: d.id || d.map_id,
       zone: _.zone
     }));
     const id = use_region ? this._org.building?.parent_id : this._org.building?.id;
@@ -10977,10 +11424,10 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     if (use_region) {
       const id2 = this._org.building.parent_id;
       const buildings = this._org.buildings.filter((_) => _.parent_id === id2);
-      const lists = await Promise.all(buildings.map((_) => Qu(_.id, { name: type }).then((data2) => flatten(data2.map(map_metadata)))));
+      const lists = await Promise.all(buildings.map((_) => Ju(_.id, { name: type }).then((data2) => flatten(data2.map(map_metadata)))));
       return flatten(lists);
     }
-    const data = await Qu(this._org.building.id, {
+    const data = await Ju(this._org.building.id, {
       name: type
     });
     return flatten(data.map(map_metadata));
@@ -11091,8 +11538,8 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
 })();
 
 // libs/form-fields/src/lib/user-search-field.component.ts
-var _c06 = ["input"];
-var _c13 = (a0) => ({ name: a0 });
+var _c07 = ["input"];
+var _c14 = (a0) => ({ name: a0 });
 function UserSearchFieldComponent_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "a-user-avatar", 5);
@@ -11163,7 +11610,7 @@ function UserSearchFieldComponent_Conditional_14_Template(rf, ctx) {
     \u0275\u0275nextContext();
     const term_r4 = \u0275\u0275readContextLet(11);
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(4, 1, "FORM.USER_ADD_EXTERNAL", \u0275\u0275pureFunction1(4, _c13, term_r4)), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(4, 1, "FORM.USER_ADD_EXTERNAL", \u0275\u0275pureFunction1(4, _c14, term_r4)), " ");
   }
 }
 function UserSearchFieldComponent_Conditional_15_Template(rf, ctx) {
@@ -11193,7 +11640,7 @@ function UserSearchFieldComponent_Conditional_15_Template(rf, ctx) {
     \u0275\u0275nextContext();
     const term_r4 = \u0275\u0275readContextLet(11);
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(3, 1, "FORM.USER_SET_EXTERNAL", \u0275\u0275pureFunction1(4, _c13, term_r4)), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(3, 1, "FORM.USER_SET_EXTERNAL", \u0275\u0275pureFunction1(4, _c14, term_r4)), " ");
   }
 }
 function UserSearchFieldComponent_Conditional_16_Template(rf, ctx) {
@@ -11259,7 +11706,7 @@ var UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHand
     this.selected_user = computed(
       () => {
         const term = this.search_term();
-        return term && typeof term !== "string" ? term : null;
+        return term && typeof term !== "string" && term.email !== EMPTY_USER.email ? term : null;
       },
       ...ngDevMode ? [{ debugName: "selected_user" }] : (
         /* istanbul ignore next */
@@ -11355,7 +11802,7 @@ var UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHand
         const guest_query = () => searchGuests(q).catch(() => []);
         if (this.guests_only())
           return guest_query();
-        const staff = this.use_basic_search() ? await Ea({ q, authority_id: Rt()?.id }).then((_) => _.data.map((u) => new User(u))).catch(() => []) : await searchStaff(q).catch(() => []);
+        const staff = this.use_basic_search() ? await Ma({ q, authority_id: Rt()?.id }).then((_) => _.data.map((u) => new User(u))).catch(() => []) : await searchStaff(q).catch(() => []);
         if (!this.guests())
           return staff;
         return [...staff, ...await guest_query()];
@@ -11372,20 +11819,22 @@ var UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHand
     )), {
       params: () => ({ term: this._debounced_term.value() }),
       loader: async ({ params: { term } }) => {
-        if (term && typeof term !== "string")
-          return [term];
+        if (term && typeof term !== "string") {
+          const user = term;
+          return user.email === EMPTY_USER.email ? [] : [user];
+        }
         if (term === this.user()?.name)
           return [this.user()];
         if (this.disable_search())
           return [];
         const s = `${term || ""}`.toLowerCase();
         if (this.options()?.length) {
-          return this.options().filter((_) => _.name.toLowerCase().includes(s) || _.email.toLowerCase().includes(s));
+          return this.options().filter((_) => _.email !== EMPTY_USER.email && (_.name.toLowerCase().includes(s) || _.email.toLowerCase().includes(s)));
         }
         if (s.length <= 2)
           return [];
         const list = await this.query_fn()(s).catch(() => []);
-        return list.filter((_) => !!_);
+        return list.filter((_) => !!_ && _.email !== EMPTY_USER.email);
       }
     }));
     this.search_results = computed(
@@ -11421,7 +11870,7 @@ var UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHand
     this.user.set(value);
     this.search_term.set(value);
     if (typeof new_value !== "string" && !this.use_basic_search() && (value?.id || value?.email)) {
-      Ca(value.email || value.id).then((details) => {
+      Na(value.email || value.id).then((details) => {
         if (!details)
           return;
         const updated = new User(__spreadValues(__spreadValues({}, value), new User(details)));
@@ -11444,7 +11893,7 @@ var UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHand
     this.resetTerm();
   }
   displayFn(user) {
-    return user && user.name ? user.name : "";
+    return user && user.email !== EMPTY_USER.email && user.name ? user.name : "";
   }
   stopEvent(event) {
     event.stopPropagation();
@@ -11499,7 +11948,7 @@ var UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHand
   static {
     this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _UserSearchFieldComponent, selectors: [["a-user-search-field"]], viewQuery: function UserSearchFieldComponent_Query(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275viewQuerySignal(ctx._input_el, _c06, 5, ElementRef)(ctx._autocomplete_trigger, MatAutocompleteTrigger, 5);
+        \u0275\u0275viewQuerySignal(ctx._input_el, _c07, 5, ElementRef)(ctx._autocomplete_trigger, MatAutocompleteTrigger, 5);
       }
       if (rf & 2) {
         \u0275\u0275queryAdvance(2);
@@ -11753,14 +12202,16 @@ var UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHand
 })();
 
 export {
-  endOfMinute,
   setHours,
   setMinutes,
+  filterResourcesFromRules,
+  rulesForResource,
   MatDialogRef,
   MAT_DIALOG_DATA,
   MatDialog,
   MatDialogClose,
   MatDialogModule,
+  Desk,
   MatMenuItem,
   MatMenu,
   MatMenuTrigger,
@@ -11769,6 +12220,7 @@ export {
   MatTooltipModule,
   requestSpacesForZone,
   generateMockSpace,
+  CustomTooltipComponent,
   MapViewer,
   queryCalendarAvailability,
   querySpaceFreeBusy,
@@ -11791,4 +12243,4 @@ export {
   CalendarService,
   BookingFormService
 };
-//# sourceMappingURL=chunk-BCZKFDDK.js.map
+//# sourceMappingURL=chunk-YXG6VPQR.js.map

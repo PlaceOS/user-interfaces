@@ -1,7 +1,11 @@
 import {
+  decode_default,
+  generateQRCode
+} from "./chunk-R5XPVHHX.js";
+import {
   CheckinStateService,
   parseTokenFromUrl
-} from "./chunk-AD7OPPBJ.js";
+} from "./chunk-EN5AVHSH.js";
 import {
   ActivatedRoute,
   AsyncHandler,
@@ -14,7 +18,6 @@ import {
   DestroyRef,
   FormField,
   FormsModule,
-  Gh,
   IconComponent,
   Input,
   MatCheckbox,
@@ -47,23 +50,23 @@ import {
   SettingsService,
   TranslatePipe,
   UserAvatarComponent,
-  Vh,
   ViewChild,
   ViewEncapsulation,
   VirtualKeyboardComponent,
+  Zh,
+  cl,
   computed,
-  decode_default,
   effect,
   email,
+  findOldestByName,
   flatten,
   form,
-  generateQRCode,
   getGuestCateringItem,
-  hi,
   i18n,
   inject,
   input,
   isPublicMode,
+  li,
   log,
   notifyError,
   notifyInfo,
@@ -126,7 +129,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-EUZM3G7Z.js";
+} from "./chunk-G3TQ564A.js";
 import {
   __spreadProps,
   __spreadValues
@@ -167,15 +170,12 @@ var _catering_category_id = null;
 var _catering_category_id_promise = null;
 var _hidden_categories_promise = null;
 var _catering_types_promise = null;
-function normalise_name(name = "") {
-  return name.trim().toLowerCase();
-}
 function reset_hidden_categories_cache() {
   _hidden_categories_promise = null;
 }
 async function query_hidden_categories() {
   if (!_hidden_categories_promise) {
-    _hidden_categories_promise = sl({
+    _hidden_categories_promise = cl({
       hidden: true,
       limit: 500
     }).then((_) => _.data).catch(() => []);
@@ -183,12 +183,11 @@ async function query_hidden_categories() {
   return _hidden_categories_promise;
 }
 async function ensure_hidden_category(name) {
-  const match_name = normalise_name(name);
-  let category = (await query_hidden_categories()).find((_) => normalise_name(_.name) === match_name);
+  let category = findOldestByName(await query_hidden_categories(), name);
   if (category)
     return category;
   reset_hidden_categories_cache();
-  category = (await query_hidden_categories()).find((_) => normalise_name(_.name) === match_name);
+  category = findOldestByName(await query_hidden_categories(), name);
   if (category)
     return category;
   try {
@@ -200,7 +199,7 @@ async function ensure_hidden_category(name) {
     return category;
   } catch (error) {
     reset_hidden_categories_cache();
-    category = (await query_hidden_categories()).find((_) => normalise_name(_.name) === match_name);
+    category = findOldestByName(await query_hidden_categories(), name);
     if (category)
       return category;
     throw error;
@@ -226,7 +225,7 @@ function resolveCateringCategoryId() {
 }
 function query_catering_types() {
   if (!_catering_types_promise) {
-    _catering_types_promise = resolveCateringCategoryId().then((category_id) => Vh({ category_id, limit: 500 })).then((_) => _.data.filter((type) => isCateringTypeName(type.name))).catch(() => []);
+    _catering_types_promise = resolveCateringCategoryId().then((category_id) => sl({ category_id, limit: 500 })).then((_) => _.data.filter((type) => isCateringTypeName(type.name))).catch(() => []);
   }
   return _catering_types_promise;
 }
@@ -254,7 +253,7 @@ async function queryCateringItems(zone_id) {
   const types = await query_catering_types();
   if (!types.length)
     return [];
-  const results = await Promise.all(types.map((type) => Gh({
+  const results = await Promise.all(types.map((type) => Zh({
     zone_id,
     type_id: type.id,
     limit: 500
@@ -2095,7 +2094,7 @@ var CheckinPreferencesComponent = class _CheckinPreferencesComponent extends Asy
     if (!jwt || jwt === this._last_jwt)
       return;
     this._last_jwt = jwt;
-    hi(jwt);
+    li(jwt);
     const data = parseJWT(jwt);
     const user = data.u;
     if (!user)
@@ -3296,4 +3295,4 @@ var ROUTES = [
 export {
   ROUTES
 };
-//# sourceMappingURL=checkin.routes-VHZFM53E.js.map
+//# sourceMappingURL=checkin.routes-OEDG4RT2.js.map

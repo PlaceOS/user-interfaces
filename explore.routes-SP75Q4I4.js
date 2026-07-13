@@ -1,7 +1,12 @@
 import {
+  generateQRCode
+} from "./chunk-R5XPVHHX.js";
+import {
   AssetStateService,
   BookingFormService,
   CalendarService,
+  CustomTooltipComponent,
+  Desk,
   DurationFieldComponent,
   MAT_DIALOG_DATA,
   MapViewer,
@@ -20,7 +25,7 @@ import {
   MatTooltip,
   MatTooltipModule,
   UserSearchFieldComponent,
-  endOfMinute,
+  filterResourcesFromRules,
   generateCalendarFileLink,
   generateGoogleCalendarLink,
   generateMicrosoftCalendarLink,
@@ -31,11 +36,12 @@ import {
   queryParkingUsers,
   querySpaceFreeBusy,
   requestSpacesForZone,
+  rulesForResource,
   searchStaff,
   setHours,
   setMinutes,
   showStaff
-} from "./chunk-BCZKFDDK.js";
+} from "./chunk-YXG6VPQR.js";
 import {
   ANIMATION_SHOW_CONTRACT_EXPAND,
   ActivatedRoute,
@@ -51,12 +57,9 @@ import {
   Component,
   DatePipe,
   DefaultValueAccessor,
-  Desk,
   DestroyRef,
-  Ea,
   ElementRef,
   EventEmitter,
-  Fl,
   FocusMonitor,
   FormControl,
   FormControlName,
@@ -72,8 +75,10 @@ import {
   InjectionToken,
   Injector,
   Input,
+  Ju,
   LOCAL_TIMEZONE,
   MAP_FEATURE_DATA,
+  Ma,
   MapsPeopleService,
   MatCheckbox,
   MatCheckboxModule,
@@ -100,9 +105,7 @@ import {
   NgZone,
   OrganisationService,
   Output,
-  Overlay,
   Pipe,
-  Qu,
   ReactiveFormsModule,
   Router,
   RouterLink,
@@ -117,19 +120,17 @@ import {
   SlicePipe,
   Space,
   SpacePipe,
-  TemplatePortal,
   TemplateRef,
   TranslatePipe,
-  Type,
   UpperCasePipe,
   User,
   VERSION,
   ViewChild,
   ViewChildren,
-  ViewContainerRef,
   ViewEncapsulation,
   VirtualKeyboardComponent,
-  X,
+  Wl,
+  Wu,
   _CdkPrivateStyleLoader,
   _IdGenerator,
   _MatInternalFormField,
@@ -140,6 +141,7 @@ import {
   addMinutes,
   addMonths,
   addYears,
+  ae,
   afterNextRender,
   alignDateToBookableHours,
   assertInInjectionContext,
@@ -150,18 +152,20 @@ import {
   constructFrom,
   createBookingsForEvent,
   currentUser,
-  d,
+  currentUserIsLoaded,
+  currentUserLoaded,
   debounced,
   differenceInCalendarMonths,
   differenceInMilliseconds,
   differenceInMinutes,
   disabled,
+  ee,
   effect,
   enUS,
   endOfDay,
   endOfDayInTimezone,
   endOfMonth,
-  filterResourcesFromRules,
+  f,
   firstValueWhere,
   flatten,
   form,
@@ -169,7 +173,6 @@ import {
   formatTimeInTimezone,
   forwardRef,
   fromZonedTime,
-  generateQRCode,
   getAllDayTimeRange,
   getDefaultOptions,
   getInvalidSignalFields,
@@ -180,6 +183,7 @@ import {
   getUnixTime,
   guardModelUndefinedWrites,
   i18n,
+  ia,
   inject,
   input,
   isAfter,
@@ -188,7 +192,6 @@ import {
   isSameDay,
   isValid,
   isWithinBookableHours,
-  ju,
   log,
   markUserDateChange,
   minutesInDay,
@@ -198,15 +201,15 @@ import {
   notifyError,
   notifySuccess,
   numberAttribute,
+  oa,
   onFieldChange,
   output,
+  queryAllBookings,
   queryBookings,
   queryResourceAvailability,
   required,
   resource,
   roundToNearestMinutes,
-  rulesForResource,
-  sa,
   saveBooking,
   set,
   setClassMetadata,
@@ -222,18 +225,15 @@ import {
   startOfDayInTimezone,
   startOfMinute,
   startOfWeek,
-  ta,
   toDate,
   toQueryString,
   toZonedTime,
   unique,
   untracked,
-  userSignal,
   validate,
   validateAssetRequestsForResource,
   viewChild,
   viewChildren,
-  ye,
   ɵsetClassDebugInfo,
   ɵɵInheritDefinitionFeature,
   ɵɵNgOnChangesFeature,
@@ -304,7 +304,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-EUZM3G7Z.js";
+} from "./chunk-G3TQ564A.js";
 import {
   __spreadProps,
   __spreadValues
@@ -529,313 +529,6 @@ function isSameMonth(laterDate, earlierDate, options) {
   return laterDate_.getFullYear() === earlierDate_.getFullYear() && laterDate_.getMonth() === earlierDate_.getMonth();
 }
 
-// libs/components/src/lib/custom-tooltip.component.ts
-var _c0 = ["portal_content"];
-var _c1 = ["*"];
-function CustomTooltipComponent_ng_template_1_Case_1_ng_container_0_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementContainer(0);
-  }
-}
-function CustomTooltipComponent_ng_template_1_Case_1_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275template(0, CustomTooltipComponent_ng_template_1_Case_1_ng_container_0_Template, 1, 0, "ng-container", 3);
-  }
-  if (rf & 2) {
-    const ctx_r0 = \u0275\u0275nextContext(2);
-    \u0275\u0275property("ngComponentOutlet", ctx_r0.component())("ngComponentOutletInjector", ctx_r0.injector);
-  }
-}
-function CustomTooltipComponent_ng_template_1_Case_2_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275element(0, "div", 2);
-    \u0275\u0275pipe(1, "sanitize");
-  }
-  if (rf & 2) {
-    const ctx_r0 = \u0275\u0275nextContext(2);
-    \u0275\u0275property("innerHTML", \u0275\u0275pipeBind1(1, 1, ctx_r0.html()), \u0275\u0275sanitizeHtml);
-  }
-}
-function CustomTooltipComponent_ng_template_1_Case_3_ng_container_0_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementContainer(0);
-  }
-}
-function CustomTooltipComponent_ng_template_1_Case_3_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275template(0, CustomTooltipComponent_ng_template_1_Case_3_ng_container_0_Template, 1, 0, "ng-container", 4);
-  }
-  if (rf & 2) {
-    const ctx_r0 = \u0275\u0275nextContext(2);
-    \u0275\u0275property("ngTemplateOutlet", ctx_r0.template())("ngTemplateOutletContext", ctx_r0.data());
-  }
-}
-function CustomTooltipComponent_ng_template_1_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 1);
-    \u0275\u0275conditionalCreate(1, CustomTooltipComponent_ng_template_1_Case_1_Template, 1, 2, "ng-container")(2, CustomTooltipComponent_ng_template_1_Case_2_Template, 2, 3, "div", 2)(3, CustomTooltipComponent_ng_template_1_Case_3_Template, 1, 2, "ng-container");
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    let tmp_2_0;
-    const ctx_r0 = \u0275\u0275nextContext();
-    \u0275\u0275advance();
-    \u0275\u0275conditional((tmp_2_0 = ctx_r0.type()) === "component" ? 1 : tmp_2_0 === "html" ? 2 : 3);
-  }
-}
-var CustomTooltipData = class _CustomTooltipData {
-  static {
-    this.\u0275fac = function CustomTooltipData_Factory(__ngFactoryType__) {
-      return new (__ngFactoryType__ || _CustomTooltipData)();
-    };
-  }
-  static {
-    this.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _CustomTooltipData, factory: _CustomTooltipData.\u0275fac });
-  }
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(CustomTooltipData, [{
-    type: Injectable
-  }], null, null);
-})();
-var CustomTooltipComponent = class _CustomTooltipComponent extends AsyncHandler {
-  constructor() {
-    super(...arguments);
-    this._element = inject(ElementRef);
-    this._overlay = inject(Overlay);
-    this._injector = inject(Injector);
-    this._view_container_ref = inject(ViewContainerRef);
-    this.x_pos = input("end", __spreadProps(__spreadValues({}, ngDevMode ? { debugName: "x_pos" } : (
-      /* istanbul ignore next */
-      {}
-    )), { alias: "xPosition" }));
-    this.y_pos = input("top", __spreadProps(__spreadValues({}, ngDevMode ? { debugName: "y_pos" } : (
-      /* istanbul ignore next */
-      {}
-    )), { alias: "yPosition" }));
-    this.content = input(
-      void 0,
-      ...ngDevMode ? [{ debugName: "content" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.data = input(
-      void 0,
-      ...ngDevMode ? [{ debugName: "data" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.backdrop = input(
-      true,
-      ...ngDevMode ? [{ debugName: "backdrop" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.hover = input(
-      false,
-      ...ngDevMode ? [{ debugName: "hover" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.delay = input(
-      0,
-      ...ngDevMode ? [{ debugName: "delay" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.x_offset = input(0, __spreadProps(__spreadValues({}, ngDevMode ? { debugName: "x_offset" } : (
-      /* istanbul ignore next */
-      {}
-    )), { alias: "xOffset" }));
-    this.y_offset = input(0, __spreadProps(__spreadValues({}, ngDevMode ? { debugName: "y_offset" } : (
-      /* istanbul ignore next */
-      {}
-    )), { alias: "yOffset" }));
-    this.type = computed(
-      () => this.content() instanceof TemplateRef ? "template" : this.content() instanceof Type ? "component" : "html",
-      ...ngDevMode ? [{ debugName: "type" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.template = computed(
-      () => {
-        return this.content();
-      },
-      ...ngDevMode ? [{ debugName: "template" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.html = computed(
-      () => {
-        return this.content();
-      },
-      ...ngDevMode ? [{ debugName: "html" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.component = computed(
-      () => {
-        return this.content();
-      },
-      ...ngDevMode ? [{ debugName: "component" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this._overlay_ref = null;
-    this._portal_content = viewChild.required("portal_content", {
-      read: TemplateRef
-    });
-    this._update_injector = effect(
-      () => {
-        this.injector = Injector.create({
-          providers: [
-            {
-              provide: CustomTooltipData,
-              useValue: { data: this.data(), close: () => this.close() }
-            }
-          ],
-          parent: this._injector
-        });
-      },
-      ...ngDevMode ? [{ debugName: "_update_injector" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-  }
-  ngOnInit() {
-    const open = () => !this.hover() ? this.open() : "";
-    const hover_open = (event) => this._canOpenHoverTooltip(event) ? this.open() : "";
-    const hover_close = (event) => this._canOpenHoverTooltip(event) ? this.close() : "";
-    this._element.nativeElement.addEventListener("click", open);
-    this._element.nativeElement.addEventListener("touchend", open);
-    this._element.nativeElement.addEventListener("pointerenter", hover_open);
-    this._element.nativeElement.addEventListener("pointerleave", hover_close);
-    this.subscription("click", () => this._element.nativeElement.removeEventListener("click", open));
-    this.subscription("touchend", () => this._element.nativeElement.removeEventListener("touchend", open));
-    this.subscription("pointerenter", () => this._element.nativeElement.removeEventListener("pointerenter", hover_open));
-    this.subscription("pointerleave", () => this._element.nativeElement.removeEventListener("pointerleave", hover_close));
-  }
-  ngOnChanges(changes) {
-    if (this._overlay_ref && (changes.x_pos || changes.y_pos || changes.x_offset || changes.y_offset || changes.content)) {
-      this.open();
-    }
-  }
-  ngOnDestroy() {
-    super.ngOnDestroy();
-    this.close();
-  }
-  open() {
-    if (!this.content())
-      return;
-    this.timeout("open", () => {
-      const hover = this.hover();
-      const delay = this.delay();
-      if (hover && delay) {
-        this.timeout("onclose", () => this.close(), delay);
-      }
-      if (this._overlay_ref)
-        this.close();
-      const portal = new TemplatePortal(this._portal_content(), this._view_container_ref);
-      const default_x = "end";
-      const default_y = "top";
-      const y_pos = this.y_pos();
-      this._overlay_ref = this._overlay.create({
-        hasBackdrop: !!this.backdrop() && !hover,
-        positionStrategy: this._overlay.position().flexibleConnectedTo(this._element).withDefaultOffsetX(this.x_offset()).withDefaultOffsetY(this.y_offset()).withPositions([
-          {
-            originX: this.x_pos() || default_x,
-            originY: (y_pos === "top" ? "bottom" : y_pos == "bottom" ? "top" : y_pos) || default_y,
-            overlayX: this.x_pos() || default_x,
-            overlayY: this.y_pos() || default_y
-          }
-        ])
-      });
-      this._overlay_ref.attach(portal);
-      if (this.backdrop()) {
-        this.subscription("backdrop", this._overlay_ref.backdropClick().subscribe(() => this.close()));
-      }
-    }, 50);
-  }
-  close() {
-    this.clearTimeout("open");
-    if (this._overlay_ref) {
-      this._overlay_ref.dispose();
-      this._overlay_ref = null;
-    }
-  }
-  _canOpenHoverTooltip(event) {
-    if (!this.hover())
-      return false;
-    return !("pointerType" in event) || event.pointerType !== "touch";
-  }
-  static {
-    this.\u0275fac = /* @__PURE__ */ (() => {
-      let \u0275CustomTooltipComponent_BaseFactory;
-      return function CustomTooltipComponent_Factory(__ngFactoryType__) {
-        return (\u0275CustomTooltipComponent_BaseFactory || (\u0275CustomTooltipComponent_BaseFactory = \u0275\u0275getInheritedFactory(_CustomTooltipComponent)))(__ngFactoryType__ || _CustomTooltipComponent);
-      };
-    })();
-  }
-  static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CustomTooltipComponent, selectors: [["", "customTooltip", ""]], viewQuery: function CustomTooltipComponent_Query(rf, ctx) {
-      if (rf & 1) {
-        \u0275\u0275viewQuerySignal(ctx._portal_content, _c0, 5, TemplateRef);
-      }
-      if (rf & 2) {
-        \u0275\u0275queryAdvance();
-      }
-    }, inputs: { x_pos: [1, "xPosition", "x_pos"], y_pos: [1, "yPosition", "y_pos"], content: [1, "content"], data: [1, "data"], backdrop: [1, "backdrop"], hover: [1, "hover"], delay: [1, "delay"], x_offset: [1, "xOffset", "x_offset"], y_offset: [1, "yOffset", "y_offset"] }, features: [\u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature], ngContentSelectors: _c1, decls: 3, vars: 0, consts: [["portal_content", ""], ["custom-tooltip", "", 1, "relative", "print:hidden"], [3, "innerHTML"], [4, "ngComponentOutlet", "ngComponentOutletInjector"], [4, "ngTemplateOutlet", "ngTemplateOutletContext"]], template: function CustomTooltipComponent_Template(rf, ctx) {
-      if (rf & 1) {
-        \u0275\u0275projectionDef();
-        \u0275\u0275projection(0);
-        \u0275\u0275template(1, CustomTooltipComponent_ng_template_1_Template, 4, 1, "ng-template", null, 0, \u0275\u0275templateRefExtractor);
-      }
-    }, dependencies: [CommonModule, NgComponentOutlet, NgTemplateOutlet, SanitizePipe], styles: ["\n[_nghost-%COMP%] {\n  pointer-events: auto !important;\n}\n/*# sourceMappingURL=custom-tooltip.component.css.map */"] });
-  }
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(CustomTooltipComponent, [{
-    type: Component,
-    args: [{ selector: "[customTooltip]", template: `
-        <ng-content />
-        <ng-template #portal_content>
-            <div custom-tooltip class="relative print:hidden">
-                @switch (type()) {
-                    @case ('component') {
-                        <ng-container
-                            *ngComponentOutlet="component(); injector: injector"
-                        ></ng-container>
-                    }
-                    @case ('html') {
-                        <div [innerHTML]="html() | sanitize"></div>
-                    }
-                    @default {
-                        <ng-container
-                            *ngTemplateOutlet="template(); context: data()"
-                        ></ng-container>
-                    }
-                }
-            </div>
-        </ng-template>
-    `, imports: [CommonModule, SanitizePipe], styles: ["/* angular:styles/component:css;9f88acd9967d2b0ebf3bc5241107eaa7c3672b233611fbb42832362998689b5f;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/custom-tooltip.component.ts */\n:host {\n  pointer-events: auto !important;\n}\n/*# sourceMappingURL=custom-tooltip.component.css.map */\n"] }]
-  }], null, { x_pos: [{ type: Input, args: [{ isSignal: true, alias: "xPosition", required: false }] }], y_pos: [{ type: Input, args: [{ isSignal: true, alias: "yPosition", required: false }] }], content: [{ type: Input, args: [{ isSignal: true, alias: "content", required: false }] }], data: [{ type: Input, args: [{ isSignal: true, alias: "data", required: false }] }], backdrop: [{ type: Input, args: [{ isSignal: true, alias: "backdrop", required: false }] }], hover: [{ type: Input, args: [{ isSignal: true, alias: "hover", required: false }] }], delay: [{ type: Input, args: [{ isSignal: true, alias: "delay", required: false }] }], x_offset: [{ type: Input, args: [{ isSignal: true, alias: "xOffset", required: false }] }], y_offset: [{ type: Input, args: [{ isSignal: true, alias: "yOffset", required: false }] }], _portal_content: [{ type: ViewChild, args: ["portal_content", __spreadProps(__spreadValues({}, {
-    read: TemplateRef
-  }), { isSignal: true })] }] });
-})();
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CustomTooltipComponent, { className: "CustomTooltipComponent", filePath: "libs/components/src/lib/custom-tooltip.component.ts", lineNumber: 64 });
-})();
-
 // libs/components/src/lib/map-zoom-controls.component.ts
 var MapZoomControlsComponent = class _MapZoomControlsComponent {
   constructor() {
@@ -947,8 +640,8 @@ var MapZoomControlsComponent = class _MapZoomControlsComponent {
 })();
 
 // libs/components/src/lib/dynamic-map.component.ts
-var _c02 = ["mapContainer"];
-var _c12 = ["feature"];
+var _c0 = ["mapContainer"];
+var _c1 = ["feature"];
 var _c2 = ["*"];
 var _forTrack0 = ($index, $item) => $item.key;
 var _forTrack1 = ($index, $item) => $item.selector;
@@ -1889,13 +1582,13 @@ var DynamicMapComponent = class _DynamicMapComponent {
       injector.get(MAP_FEATURE_DATA)?.track_id,
       injector
     ]));
-    this.injectors.set((this.features() || []).map((f) => f.track_id && old_injectors.get(f.track_id) || Injector.create({
+    this.injectors.set((this.features() || []).map((f2) => f2.track_id && old_injectors.get(f2.track_id) || Injector.create({
       providers: [
         {
           provide: MAP_FEATURE_DATA,
           useValue: __spreadValues({
-            track_id: f.track_id
-          }, f.data)
+            track_id: f2.track_id
+          }, f2.data)
         }
       ],
       parent: this._injector
@@ -1909,7 +1602,7 @@ var DynamicMapComponent = class _DynamicMapComponent {
   static {
     this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DynamicMapComponent, selectors: [["dynamic-map"]], viewQuery: function DynamicMapComponent_Query(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275viewQuerySignal(ctx._map_container, _c02, 5)(ctx._feature_elements, _c12, 5);
+        \u0275\u0275viewQuerySignal(ctx._map_container, _c0, 5)(ctx._feature_elements, _c1, 5);
       }
       if (rf & 2) {
         \u0275\u0275queryAdvance(2);
@@ -2225,7 +1918,7 @@ var ExploreStateService = class _ExploreStateService {
         level: this._level(),
         initialised: this._initialised()
       }),
-      loader: ({ params: { level, initialised } }) => initialised ? ta({
+      loader: ({ params: { level, initialised } }) => initialised ? ia({
         zone_id: level?.id || this._org.organisation.id,
         limit: 50
       }).then(({ data }) => data.map((_) => new Space(_))).catch((_) => []) : Promise.resolve([])
@@ -2772,7 +2465,7 @@ var MapRadiusComponent = class _MapRadiusComponent {
 })();
 
 // libs/form-fields/src/lib/time-field.component.ts
-var _c03 = ["*"];
+var _c02 = ["*"];
 var _forTrack02 = ($index, $item) => $item.id;
 function TimeFieldComponent_Conditional_5_Template(rf, ctx) {
   if (rf & 1) {
@@ -3279,7 +2972,7 @@ var TimeFieldComponent = class _TimeFieldComponent extends AsyncHandler {
         useExisting: forwardRef(() => _TimeFieldComponent),
         multi: true
       }
-    ]), \u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature], ngContentSelectors: _c03, decls: 15, vars: 12, consts: [["menu", "matMenu"], ["time-field", "", "matRipple", "", 1, "border-neutral", "flex", "h-12", "w-full", "items-center", "justify-between", "rounded-sm", "border", "px-2", 3, "disabled", "matMenuTriggerFor"], [1, "flex", "w-1/2", "flex-1", "flex-col", "px-2", "text-left", "leading-tight"], [1, "truncate"], [1, "truncate", "text-xs", "opacity-30"], [1, "text-2xl"], [1, "max-h-60", "min-w-[18rem]"], ["mat-menu-item", "", 1, "text-left", 3, "value"], ["mat-menu-item", "", "disabled", ""], ["mat-menu-item", "", 1, "text-left", 3, "click", "value"], [1, "flex", "items-center", "justify-between"], [1, "flex", "flex-col", "leading-tight"], [1, ""], [1, "text-xs", "opacity-30"], [1, "ml-2", "text-2xl"]], template: function TimeFieldComponent_Template(rf, ctx) {
+    ]), \u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature], ngContentSelectors: _c02, decls: 15, vars: 12, consts: [["menu", "matMenu"], ["time-field", "", "matRipple", "", 1, "border-neutral", "flex", "h-12", "w-full", "items-center", "justify-between", "rounded-sm", "border", "px-2", 3, "disabled", "matMenuTriggerFor"], [1, "flex", "w-1/2", "flex-1", "flex-col", "px-2", "text-left", "leading-tight"], [1, "truncate"], [1, "truncate", "text-xs", "opacity-30"], [1, "text-2xl"], [1, "max-h-60", "min-w-[18rem]"], ["mat-menu-item", "", 1, "text-left", 3, "value"], ["mat-menu-item", "", "disabled", ""], ["mat-menu-item", "", 1, "text-left", 3, "click", "value"], [1, "flex", "items-center", "justify-between"], [1, "flex", "flex-col", "leading-tight"], [1, ""], [1, "text-xs", "opacity-30"], [1, "ml-2", "text-2xl"]], template: function TimeFieldComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275projectionDef();
         \u0275\u0275elementStart(0, "button", 1)(1, "div", 2)(2, "div", 3);
@@ -3443,7 +3136,7 @@ async function createEvent(data) {
 }
 async function updateEvent(id, data, q = {}, method = "patch") {
   const query = toQueryString(q);
-  const item = await (method === "patch" ? ye : ce)(`${EVENTS_ENDPOINT}/${encodeURIComponent(id)}${query ? "?" + query : ""}`, new CalendarEvent(withAppVersion(data)).toJSON());
+  const item = await (method === "patch" ? ae : ce)(`${EVENTS_ENDPOINT}/${encodeURIComponent(id)}${query ? "?" + query : ""}`, new CalendarEvent(withAppVersion(data)).toJSON());
   return new CalendarEvent(item);
 }
 var saveEvent = async (data, q) => {
@@ -3453,7 +3146,7 @@ var saveEvent = async (data, q) => {
 };
 function removeEvent(id, q = {}) {
   const query = toQueryString(q);
-  return X(`${EVENTS_ENDPOINT}/${encodeURIComponent(id)}${query ? "?" + query : ""}`, {
+  return ee(`${EVENTS_ENDPOINT}/${encodeURIComponent(id)}${query ? "?" + query : ""}`, {
     response_type: "void"
   });
 }
@@ -3597,12 +3290,15 @@ function generateEventForm(event = new CalendarEvent(), settings, injector) {
     const value = model2();
     if (!value.catering?.length || !value.date)
       return;
+    const event2 = {
+      date: value.all_day ? startOfDay(value.date) : value.date,
+      duration: value.all_day ? 24 * 60 : value.duration
+    };
+    if (value.catering.every((order) => +order.event?.date === +event2.date && order.event?.duration === event2.duration))
+      return;
     model2.update((m) => __spreadProps(__spreadValues({}, m), {
       catering: (m.catering || []).map((order) => __spreadProps(__spreadValues({}, order), {
-        event: {
-          date: m.all_day ? startOfDay(m.date) : m.date,
-          duration: m.all_day ? 24 * 60 : m.duration
-        }
+        event: event2
       }))
     }));
   };
@@ -3955,7 +3651,7 @@ var DateCalendarComponent = class _DateCalendarComponent extends AsyncHandler {
 })();
 
 // libs/form-fields/src/lib/date-field.component.ts
-var _c04 = ["*"];
+var _c03 = ["*"];
 function DateFieldComponent_Conditional_4_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275text(0);
@@ -4320,7 +4016,7 @@ var DateFieldComponent = class _DateFieldComponent extends AsyncHandler {
         useExisting: forwardRef(() => _DateFieldComponent),
         multi: true
       }
-    ]), \u0275\u0275InheritDefinitionFeature], ngContentSelectors: _c04, decls: 15, vars: 8, consts: [["calendar_picker", ""], [1, "flex", "items-center", "gap-1"], ["type", "button", "customTooltip", "", "yPosition", "top", "matRipple", "", 1, "border-neutral", "flex", "h-12", "w-full", "flex-1", "items-center", "justify-between", "rounded-sm", "border", 3, "content", "disabled"], [1, "flex", "w-1/2", "flex-1", "flex-col", "truncate", "px-4", "py-2", "text-left", "leading-tight"], [1, "text-base", "font-normal"], [1, "opacity-30"], [1, "truncate", "text-xs", "opacity-30"], [1, "flex", "h-10", "w-10", "items-center", "justify-center", "text-2xl"], ["type", "button", "icon", "", "matRipple", "", 1, "border-error", "text-error", "flex", "h-12", "w-12", "items-center", "justify-center", "rounded-sm", "border", 3, "disabled"], [1, "error", "text-error", "h-5", "p-1", "text-xs"], ["type", "button", "icon", "", "matRipple", "", 1, "border-error", "text-error", "flex", "h-12", "w-12", "items-center", "justify-center", "rounded-sm", "border", 3, "click", "disabled"], [1, "bg-base-100", "relative", "w-[18rem]", "rounded-sm", "px-2", "py-4"], [3, "ngModelChange", "ngModel", "from", "to", "offset_weekday"]], template: function DateFieldComponent_Template(rf, ctx) {
+    ]), \u0275\u0275InheritDefinitionFeature], ngContentSelectors: _c03, decls: 15, vars: 8, consts: [["calendar_picker", ""], [1, "flex", "items-center", "gap-1"], ["type", "button", "customTooltip", "", "yPosition", "top", "matRipple", "", 1, "border-neutral", "flex", "h-12", "w-full", "flex-1", "items-center", "justify-between", "rounded-sm", "border", 3, "content", "disabled"], [1, "flex", "w-1/2", "flex-1", "flex-col", "truncate", "px-4", "py-2", "text-left", "leading-tight"], [1, "text-base", "font-normal"], [1, "opacity-30"], [1, "truncate", "text-xs", "opacity-30"], [1, "flex", "h-10", "w-10", "items-center", "justify-center", "text-2xl"], ["type", "button", "icon", "", "matRipple", "", 1, "border-error", "text-error", "flex", "h-12", "w-12", "items-center", "justify-center", "rounded-sm", "border", 3, "disabled"], [1, "error", "text-error", "h-5", "p-1", "text-xs"], ["type", "button", "icon", "", "matRipple", "", 1, "border-error", "text-error", "flex", "h-12", "w-12", "items-center", "justify-center", "rounded-sm", "border", 3, "click", "disabled"], [1, "bg-base-100", "relative", "w-[18rem]", "rounded-sm", "px-2", "py-4"], [3, "ngModelChange", "ngModel", "from", "to", "offset_weekday"]], template: function DateFieldComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275projectionDef();
         \u0275\u0275elementStart(0, "div", 1)(1, "button", 2)(2, "div", 3)(3, "div", 4);
@@ -4887,7 +4583,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       },
       loader: ({ params: ids }) => {
         this.addLoadingTag(Tags.BookingRules);
-        return Promise.all(ids.map((id) => ju(id, "room_booking_rules").then((_) => ({
+        return Promise.all(ids.map((id) => Wu(id, "room_booking_rules").then((_) => ({
           id,
           details: _.details instanceof Array ? _.details : []
         })).catch(() => ({ id, details: [] })))).then((building_rules) => {
@@ -4950,7 +4646,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       {}
     )), {
       params: () => this._network_consumed() && this._requests_ready() ? this._org.organisation?.id || void 0 : void 0,
-      loader: ({ params: id }) => ju(id, "room_alerts").then((r) => r.details).catch(() => ({}))
+      loader: ({ params: id }) => Wu(id, "room_alerts").then((r) => r.details).catch(() => ({}))
     }));
     this.room_alerts = computed(
       () => {
@@ -4987,7 +4683,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
           list = list.filter(({ capacity }) => capacity < 0 || capacity >= range.min && capacity <= range.max);
         }
         if (filters.features) {
-          list = list.filter(({ features }) => filters.features.every((f) => features.includes(f)));
+          list = list.filter(({ features }) => filters.features.every((f2) => features.includes(f2)));
         }
         return list.sort((a, b) => {
           const cap_diff = (a.capacity || 0) - (b.capacity || 0);
@@ -5052,7 +4748,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     this.init();
   }
   async init() {
-    await firstValueWhere(userSignal(), (user) => !isEmptyUser(user));
+    await currentUserLoaded();
     setDefaultCreator(currentUser());
     onFieldChange(this._model, (v) => v.date, (date) => this.setOptions({ date }), this._injector);
     onFieldChange(this._model, (v) => v.duration, (duration) => this.setOptions({ duration }), this._injector);
@@ -5094,7 +4790,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
   }
   _allDayTimeRange(date) {
     const period = this._settings.get("app.events.all_day_period");
-    return getAllDayTimeRange(date, this.timezone, period?.start, period?.end, this._model().id ? void 0 : Date.now());
+    return getAllDayTimeRange(date, this.timezone, period?.start, period?.end);
   }
   /** Resolve the bookable space list for the given zone */
   _requestSpaces(zone_id) {
@@ -5171,6 +4867,10 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     this._options.set(__spreadValues(__spreadValues({}, this._options()), options));
   }
   newForm(event = new CalendarEvent()) {
+    if (!currentUserIsLoaded()) {
+      currentUserLoaded().then(() => this.newForm(event));
+      return;
+    }
     this._startNetwork();
     this._calendar.loadCalendars();
     this._loading.set("");
@@ -5187,6 +4887,10 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     this._event.set(event);
   }
   resetForm() {
+    if (!currentUserIsLoaded()) {
+      currentUserLoaded().then(() => this.resetForm());
+      return;
+    }
     this._model.set(eventFormValue(this._event() || new CalendarEvent()));
     this._form().reset();
   }
@@ -5196,13 +4900,17 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     });
   }
   loadForm() {
+    if (!currentUserIsLoaded()) {
+      currentUserLoaded().then(() => this.loadForm());
+      return;
+    }
     this._startNetwork();
     this._calendar.loadCalendars();
     const event_data = JSON.parse(sessionStorage.getItem("PLACEOS.event") || "{}");
     const event = new CalendarEvent(event_data);
     this._event.set(event);
     const form_data = JSON.parse(sessionStorage.getItem("PLACEOS.event_form") || "{}");
-    this._model.update((m) => __spreadValues(__spreadValues(__spreadValues({}, m), event), form_data));
+    this._model.update((m) => __spreadValues(__spreadValues(__spreadValues({}, m), eventFormValue(event)), form_data));
   }
   clearForm() {
     sessionStorage.removeItem("PLACEOS.event");
@@ -5215,7 +4923,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       return;
     const event = new CalendarEvent(__spreadProps(__spreadValues({}, this._model()), { assets: [] }));
     const ref = this._dialog.open(EventLinkModalComponent, { data: event });
-    ref.afterClosed().subscribe((d2) => d2 ? this._router.navigate(["/"]) : "");
+    ref.afterClosed().subscribe((d) => d ? this._router.navigate(["/"]) : "");
   }
   cancelPostForm() {
   }
@@ -5335,7 +5043,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       if (this._model().host !== host)
         ext.host_override = this._model().host;
       const value = this._model();
-      const created_event = await this._performBooking(new CalendarEvent(__spreadProps(__spreadValues({}, this._model()), {
+      let created_event = await this._performBooking(new CalendarEvent(__spreadProps(__spreadValues({}, this._model()), {
         date: all_day_period.date,
         duration: all_day_period.duration,
         date_end: all_day_period.date_end,
@@ -5351,6 +5059,16 @@ var EventFormService = class _EventFormService extends AsyncHandler {
         assets: processed_assets,
         extension_data: ext
       })), query).catch(on_error);
+      const date_end = all_day_period.date_end || all_day_period.date + all_day_period.duration * 60 * 1e3;
+      created_event = new CalendarEvent(__spreadProps(__spreadValues({}, created_event), {
+        event_start: Math.floor(all_day_period.date / 1e3),
+        event_end: Math.floor(date_end / 1e3),
+        date: all_day_period.date,
+        duration: all_day_period.duration,
+        date_end,
+        resources: space_list,
+        system: space_list[0] || null
+      }));
       const domain = (currentUser()?.email || "@").split("@")[1];
       const visitors = this._model().attendees.filter((user) => user.is_external && user.email !== event.host && !user.email.includes(domain) && user.visit_expected);
       if (visitors.length) {
@@ -5382,7 +5100,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       }
       this.clearForm();
       sessionStorage.setItem("PLACEOS.last_modified_event", JSON.stringify(created_event.toJSON()));
-      this.loadLastSuccess();
+      this.last_success.set(created_event);
       return created_event;
     } catch (e) {
       this.removeLoadingTag(Tags.PostBooking);
@@ -5446,7 +5164,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       const bld = this._org.buildings.find((b) => space.zones.includes(b.id));
       if (!bld || rules[bld.id])
         continue;
-      const metadata = await ju(bld.id, "room_booking_rules").catch(() => ({ details: [] }));
+      const metadata = await Wu(bld.id, "room_booking_rules").catch(() => ({ details: [] }));
       rules[bld.id] = metadata.details instanceof Array ? metadata.details : [];
     }
     const space_rules = spaces.map((space) => {
@@ -5625,7 +5343,7 @@ var SpacesService = class _SpacesService {
     return this.space_list.filter((_) => predicate(_));
   }
   async loadSpace(space_id) {
-    const system = await sa(space_id);
+    const system = await oa(space_id);
     const space = new Space(__spreadProps(__spreadValues({}, system), {
       level: this._org.levelWithID([...system.zones])
     }));
@@ -5639,7 +5357,7 @@ var SpacesService = class _SpacesService {
     return this.space_list.find(({ id, email }) => space_id === id || space_id === email);
   }
   async loadSpaces() {
-    const systems = (await ta({
+    const systems = (await ia({
       zone_id: this._org.organisation?.id,
       limit: 5e3
     })).data;
@@ -5669,7 +5387,7 @@ var SpacesService = class _SpacesService {
 })();
 
 // libs/explore/src/lib/explore-book-qr.component.ts
-var _c05 = (a0) => ({ name: a0 });
+var _c04 = (a0) => ({ name: a0 });
 var DEFAULT_PATH = `workplace/#/explore?space={{id}}`;
 var ExploreBookQrComponent = class _ExploreBookQrComponent {
   constructor() {
@@ -5712,7 +5430,7 @@ var ExploreBookQrComponent = class _ExploreBookQrComponent {
       }
       if (rf & 2) {
         \u0275\u0275advance(2);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(3, 2, "EXPLORE.BOOK_RESOURCE", \u0275\u0275pureFunction1(5, _c05, ctx.space()?.name)), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(3, 2, "EXPLORE.BOOK_RESOURCE", \u0275\u0275pureFunction1(5, _c04, ctx.space()?.name)), " ");
         \u0275\u0275advance(7);
         \u0275\u0275property("src", ctx.qr_code(), \u0275\u0275sanitizeUrl);
       }
@@ -6289,7 +6007,7 @@ var ExploreIconComponent = class _ExploreIconComponent {
 })();
 
 // libs/explore/src/lib/explore-space-info.component.ts
-var _c06 = (a0) => ({ count: a0 });
+var _c05 = (a0) => ({ count: a0 });
 function ExploreSpaceInfoComponent_ng_template_2_Conditional_4_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "img", 7);
@@ -6329,7 +6047,7 @@ function ExploreSpaceInfoComponent_ng_template_2_Conditional_15_Template(rf, ctx
   if (rf & 2) {
     const ctx_r0 = \u0275\u0275nextContext(2);
     \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(5, 1, "COMMON.PEOPLE_COUNT", \u0275\u0275pureFunction1(5, _c06, ctx_r0.space().capacity), ctx_r0.space().capacity), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(5, 1, "COMMON.PEOPLE_COUNT", \u0275\u0275pureFunction1(5, _c05, ctx_r0.space().capacity), ctx_r0.space().capacity), " ");
   }
 }
 function ExploreSpaceInfoComponent_ng_template_2_Conditional_16_For_2_Template(rf, ctx) {
@@ -6748,7 +6466,7 @@ var ExploreSpacesService = class _ExploreSpacesService extends AsyncHandler {
       {}
     )), {
       params: () => this._building() || void 0,
-      loader: ({ params: bld }) => ju(bld.id, `room_booking_rules`).then((_) => _?.details instanceof Array ? _.details : []).catch(() => [])
+      loader: ({ params: bld }) => Wu(bld.id, `room_booking_rules`).then((_) => _?.details instanceof Array ? _.details : []).catch(() => [])
     }));
     this.booking_rules = computed(
       () => this._booking_rules.value() ?? [],
@@ -6762,7 +6480,7 @@ var ExploreSpacesService = class _ExploreSpacesService extends AsyncHandler {
       {}
     )), {
       params: () => this._building() || void 0,
-      loader: () => ju(this._org.organisation.id, `room_alerts`).then((_) => _.details || {}).catch(() => ({}))
+      loader: () => Wu(this._org.organisation.id, `room_alerts`).then((_) => _.details || {}).catch(() => ({}))
     }));
     this.room_alerts = computed(
       () => this._room_alerts.value() ?? {},
@@ -6787,13 +6505,13 @@ var ExploreSpacesService = class _ExploreSpacesService extends AsyncHandler {
     if (!list?.length)
       return;
     for (const space of list) {
-      const mod = Fl(space.id, "Bookings");
+      const mod = Wl(space.id, "Bookings");
       let binding = mod.variable("bookings");
-      this.subscription(`b-${space.id}`, binding.bindThenSubscribe((d2) => this.handleBookingsChange(list, space, d2)));
+      this.subscription(`b-${space.id}`, binding.bindThenSubscribe((d) => this.handleBookingsChange(list, space, d)));
       binding = mod.variable("status");
-      this.subscription(`s-${space.id}`, binding.bindThenSubscribe((d2) => this.handleStatusChange(list, space, d2)));
+      this.subscription(`s-${space.id}`, binding.bindThenSubscribe((d) => this.handleStatusChange(list, space, d)));
       binding = mod.variable("presence");
-      this.subscription(`c-${space.id}`, binding.bindThenSubscribe((d2) => this.handlePresenceChange(list, space, d2)));
+      this.subscription(`c-${space.id}`, binding.bindThenSubscribe((d) => this.handlePresenceChange(list, space, d)));
     }
     this.updateActions(list);
     this._updateHoverElements(list);
@@ -6967,20 +6685,22 @@ var ExploreSpacesService = class _ExploreSpacesService extends AsyncHandler {
 })();
 
 // libs/explore/src/lib/set-datetime-modal.component.ts
-var _c07 = () => ({ standalone: true });
+var _c06 = () => ({ standalone: true });
 function SetDatetimeModalComponent_Conditional_6_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 6)(1, "div", 12)(2, "label");
-    \u0275\u0275text(3, "Resource:");
+    \u0275\u0275elementStart(0, "div", 6)(1, "div", 10)(2, "label");
+    \u0275\u0275text(3);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "div", 13);
+    \u0275\u0275elementStart(4, "div", 11);
     \u0275\u0275text(5);
     \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext(2);
-    \u0275\u0275advance(5);
-    \u0275\u0275textInterpolate1(" ", ctx_r1.resource().name || ctx_r1.resource().map_id || "Unknown Resource", " ");
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1("", ctx_r0.resource_type(), ":");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", ctx_r0.resource().name || ctx_r0.resource().map_id || "Unknown Resource", " ");
   }
 }
 function SetDatetimeModalComponent_Conditional_6_Conditional_2_Template(rf, ctx) {
@@ -6988,7 +6708,7 @@ function SetDatetimeModalComponent_Conditional_6_Conditional_2_Template(rf, ctx)
     \u0275\u0275elementStart(0, "div", 6)(1, "div", 7)(2, "label");
     \u0275\u0275text(3, "Host");
     \u0275\u0275elementEnd();
-    \u0275\u0275element(4, "a-user-search-field", 14);
+    \u0275\u0275element(4, "a-user-search-field", 12);
     \u0275\u0275controlCreate();
     \u0275\u0275elementEnd()();
   }
@@ -6997,25 +6717,9 @@ function SetDatetimeModalComponent_Conditional_6_Conditional_2_Template(rf, ctx)
     \u0275\u0275control();
   }
 }
-function SetDatetimeModalComponent_Conditional_6_Conditional_14_Template(rf, ctx) {
+function SetDatetimeModalComponent_Conditional_6_Conditional_9_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 9)(1, "label");
-    \u0275\u0275text(2, "End Time");
-    \u0275\u0275elementEnd();
-    \u0275\u0275element(3, "a-duration-field", 15);
-    \u0275\u0275controlCreate();
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext(2);
-    \u0275\u0275advance(3);
-    \u0275\u0275property("time", ctx_r1.form.get("date")?.value)("max", 10 * 60)("min", 60)("step", 60)("end_time", ctx_r1.bookable_hours()?.end)("use_24hr", ctx_r1.use_24hr_time());
-    \u0275\u0275control();
-  }
-}
-function SetDatetimeModalComponent_Conditional_6_Conditional_15_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 11)(1, "mat-checkbox", 16);
+    \u0275\u0275elementStart(0, "div", 13)(1, "mat-checkbox", 14);
     \u0275\u0275text(2);
     \u0275\u0275pipe(3, "translate");
     \u0275\u0275elementEnd();
@@ -7023,17 +6727,50 @@ function SetDatetimeModalComponent_Conditional_6_Conditional_15_Template(rf, ctx
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275classProp("-mb-7", !ctx_r0.form.value.all_day)("mb-2", ctx_r0.form.value.all_day);
     \u0275\u0275advance();
     \u0275\u0275control();
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 1, "COMMON.ALL_DAY"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 5, "COMMON.ALL_DAY"), " ");
+  }
+}
+function SetDatetimeModalComponent_Conditional_6_Conditional_10_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r2 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 6)(1, "div", 15)(2, "label");
+    \u0275\u0275text(3, "Start Time");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "a-time-field", 16);
+    \u0275\u0275listener("ngModelChange", function SetDatetimeModalComponent_Conditional_6_Conditional_10_Template_a_time_field_ngModelChange_4_listener($event) {
+      \u0275\u0275restoreView(_r2);
+      const ctx_r0 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r0.form.patchValue({ date: $event }));
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(5, "div", 15)(6, "label");
+    \u0275\u0275text(7, "End Time");
+    \u0275\u0275elementEnd();
+    \u0275\u0275element(8, "a-duration-field", 17);
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance(4);
+    \u0275\u0275property("ngModel", ctx_r0.form.value.date)("ngModelOptions", \u0275\u0275pureFunction0(10, _c06))("range", ctx_r0.bookable_hours())("use_24hr", ctx_r0.use_24hr_time());
+    \u0275\u0275control();
+    \u0275\u0275advance(4);
+    \u0275\u0275property("time", ctx_r0.form.get("date")?.value)("max", 10 * 60)("min", 60)("step", 60)("end_time", ctx_r0.bookable_hours()?.end)("use_24hr", ctx_r0.use_24hr_time());
+    \u0275\u0275control();
   }
 }
 function SetDatetimeModalComponent_Conditional_6_Template(rf, ctx) {
   if (rf & 1) {
-    const _r1 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "main", 3);
-    \u0275\u0275conditionalCreate(1, SetDatetimeModalComponent_Conditional_6_Conditional_1_Template, 6, 1, "div", 6);
+    \u0275\u0275conditionalCreate(1, SetDatetimeModalComponent_Conditional_6_Conditional_1_Template, 6, 2, "div", 6);
     \u0275\u0275conditionalCreate(2, SetDatetimeModalComponent_Conditional_6_Conditional_2_Template, 5, 0, "div", 6);
     \u0275\u0275elementStart(3, "div", 6)(4, "div", 7)(5, "label");
     \u0275\u0275text(6, "Date");
@@ -7043,40 +6780,24 @@ function SetDatetimeModalComponent_Conditional_6_Template(rf, ctx) {
     \u0275\u0275elementEnd();
     \u0275\u0275controlCreate();
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(9, "div", 6)(10, "div", 9)(11, "label");
-    \u0275\u0275text(12, "Start Time");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(13, "a-time-field", 10);
-    \u0275\u0275listener("ngModelChange", function SetDatetimeModalComponent_Conditional_6_Template_a_time_field_ngModelChange_13_listener($event) {
-      \u0275\u0275restoreView(_r1);
-      const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.form.patchValue({ date: $event }));
-    });
-    \u0275\u0275elementEnd();
-    \u0275\u0275controlCreate();
-    \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(14, SetDatetimeModalComponent_Conditional_6_Conditional_14_Template, 4, 6, "div", 9);
-    \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(15, SetDatetimeModalComponent_Conditional_6_Conditional_15_Template, 4, 3, "div", 11);
+    \u0275\u0275conditionalCreate(9, SetDatetimeModalComponent_Conditional_6_Conditional_9_Template, 4, 7, "div", 9);
+    \u0275\u0275conditionalCreate(10, SetDatetimeModalComponent_Conditional_6_Conditional_10_Template, 9, 11, "div", 6);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275property("formGroup", ctx_r1.form);
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275property("formGroup", ctx_r0.form);
     \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r1.resource() ? 1 : -1);
+    \u0275\u0275conditional(ctx_r0.resource() ? 1 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r1.host() ? 2 : -1);
+    \u0275\u0275conditional(ctx_r0.host() ? 2 : -1);
     \u0275\u0275advance(5);
-    \u0275\u0275property("to", ctx_r1.book_until());
+    \u0275\u0275property("to", ctx_r0.book_until());
     \u0275\u0275control();
-    \u0275\u0275advance(6);
-    \u0275\u0275property("ngModel", ctx_r1.form.value.date)("ngModelOptions", \u0275\u0275pureFunction0(10, _c07))("range", ctx_r1.bookable_hours())("use_24hr", ctx_r1.use_24hr_time());
-    \u0275\u0275control();
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(ctx_r0.allow_all_day() ? 9 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional(!ctx_r1.all_day() ? 14 : -1);
-    \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r1.allow_all_day() ? 15 : -1);
+    \u0275\u0275conditional(!ctx_r0.all_day() ? 10 : -1);
   }
 }
 var SetDatetimeModalComponent = class _SetDatetimeModalComponent {
@@ -7099,6 +6820,13 @@ var SetDatetimeModalComponent = class _SetDatetimeModalComponent {
     this.book_until = signal(
       this._data.until,
       ...ngDevMode ? [{ debugName: "book_until" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.resource_type = signal(
+      this._data.resource_type || "Resource",
+      ...ngDevMode ? [{ debugName: "resource_type" }] : (
         /* istanbul ignore next */
         []
       )
@@ -7161,7 +6889,7 @@ var SetDatetimeModalComponent = class _SetDatetimeModalComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SetDatetimeModalComponent, selectors: [["set-datetime-modal"]], decls: 11, vars: 5, consts: [[1, "bg-base-200", "m-2", "flex", "h-14", "w-[calc(100%-1rem)]", "items-center", "justify-between", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "w-[24rem]", "max-w-[85vw]", 3, "formGroup"], [1, "bg-base-200", "mx-2", "mb-2", "flex", "w-[calc(100%-1rem)]", "items-center", "justify-end", "rounded-sm", "border-none", "p-2"], ["btn", "", "matRipple", "", 1, "w-32", 3, "mat-dialog-close"], [1, "mx-auto", "flex", "w-[640px]", "max-w-[calc(100%-2rem)]", "flex-col", "space-x-0", "sm:flex-row", "sm:space-x-2"], [1, "flex", "w-full", "flex-1", "flex-col", "sm:w-1/4"], ["formControlName", "date", 3, "to"], [1, "flex", "w-full", "flex-1", "flex-col", "sm:w-1/3"], [3, "ngModelChange", "ngModel", "ngModelOptions", "range", "use_24hr"], [1, "mx-auto", "flex", "w-[640px]", "max-w-[calc(100%-2rem)]", "justify-end"], [1, "mb-2", "flex", "w-full", "flex-1", "flex-col", "sm:w-1/4"], [1, "border-base-200", "mb-4", "w-full", "rounded-sm", "border", "px-4", "py-3"], ["formControlName", "user", 1, "mb-4"], ["formControlName", "duration", 3, "time", "max", "min", "step", "end_time", "use_24hr"], ["formControlName", "all_day"]], template: function SetDatetimeModalComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SetDatetimeModalComponent, selectors: [["set-datetime-modal"]], decls: 11, vars: 5, consts: [[1, "bg-base-200", "m-2", "flex", "h-14", "w-[calc(100%-1rem)]", "items-center", "justify-between", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "w-[24rem]", "max-w-[85vw]", 3, "formGroup"], [1, "bg-base-200", "mx-2", "mb-2", "flex", "w-[calc(100%-1rem)]", "items-center", "justify-end", "rounded-sm", "border-none", "p-2"], ["btn", "", "matRipple", "", 1, "w-32", 3, "mat-dialog-close"], [1, "mx-auto", "flex", "w-[640px]", "max-w-[calc(100%-2rem)]", "flex-col", "space-x-0", "sm:flex-row", "sm:space-x-2"], [1, "flex", "w-full", "flex-1", "flex-col", "sm:w-1/4"], ["formControlName", "date", 3, "to"], [1, "mx-auto", "flex", "w-[640px]", "max-w-[calc(100%-2rem)]", "justify-end", 3, "-mb-7", "mb-2"], [1, "mb-2", "flex", "w-full", "flex-1", "flex-col", "sm:w-1/4"], [1, "border-base-200", "mb-4", "w-full", "rounded-sm", "border", "px-4", "py-3"], ["formControlName", "user", 1, "mb-4"], [1, "mx-auto", "flex", "w-[640px]", "max-w-[calc(100%-2rem)]", "justify-end"], ["formControlName", "all_day"], [1, "flex", "w-full", "flex-1", "flex-col", "sm:w-1/3"], [3, "ngModelChange", "ngModel", "ngModelOptions", "range", "use_24hr"], ["formControlName", "duration", 3, "time", "max", "min", "step", "end_time", "use_24hr"]], template: function SetDatetimeModalComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "header", 0)(1, "h2", 1);
         \u0275\u0275text(2, "Set date and time");
@@ -7169,7 +6897,7 @@ var SetDatetimeModalComponent = class _SetDatetimeModalComponent {
         \u0275\u0275elementStart(3, "button", 2)(4, "icon");
         \u0275\u0275text(5, "close");
         \u0275\u0275elementEnd()()();
-        \u0275\u0275conditionalCreate(6, SetDatetimeModalComponent_Conditional_6_Template, 16, 11, "main", 3);
+        \u0275\u0275conditionalCreate(6, SetDatetimeModalComponent_Conditional_6_Template, 11, 6, "main", 3);
         \u0275\u0275elementStart(7, "footer", 4)(8, "button", 5);
         \u0275\u0275text(9);
         \u0275\u0275pipe(10, "translate");
@@ -7225,7 +6953,7 @@ var SetDatetimeModalComponent = class _SetDatetimeModalComponent {
                         class="mx-auto flex w-[640px] max-w-[calc(100%-2rem)] flex-col space-x-0 sm:flex-row sm:space-x-2"
                     >
                         <div class="mb-2 flex w-full flex-1 flex-col sm:w-1/4">
-                            <label>Resource:</label>
+                            <label>{{ resource_type() }}:</label>
                             <div
                                 class="border-base-200 mb-4 w-full rounded-sm border px-4 py-3"
                             >
@@ -7264,20 +6992,33 @@ var SetDatetimeModalComponent = class _SetDatetimeModalComponent {
                         </a-date-field>
                     </div>
                 </div>
-                <div
-                    class="mx-auto flex w-[640px] max-w-[calc(100%-2rem)] flex-col space-x-0 sm:flex-row sm:space-x-2"
-                >
-                    <div class="flex w-full flex-1 flex-col sm:w-1/3">
-                        <label>Start Time</label>
-                        <a-time-field
-                            [ngModel]="form.value.date"
-                            (ngModelChange)="form.patchValue({ date: $event })"
-                            [ngModelOptions]="{ standalone: true }"
-                            [range]="bookable_hours()"
-                            [use_24hr]="use_24hr_time()"
-                        ></a-time-field>
+                @if (allow_all_day()) {
+                    <div
+                        class="mx-auto flex w-[640px] max-w-[calc(100%-2rem)] justify-end"
+                        [class.-mb-7]="!form.value.all_day"
+                        [class.mb-2]="form.value.all_day"
+                    >
+                        <mat-checkbox formControlName="all_day">
+                            {{ 'COMMON.ALL_DAY' | translate }}
+                        </mat-checkbox>
                     </div>
-                    @if (!all_day()) {
+                }
+                @if (!all_day()) {
+                    <div
+                        class="mx-auto flex w-[640px] max-w-[calc(100%-2rem)] flex-col space-x-0 sm:flex-row sm:space-x-2"
+                    >
+                        <div class="flex w-full flex-1 flex-col sm:w-1/3">
+                            <label>Start Time</label>
+                            <a-time-field
+                                [ngModel]="form.value.date"
+                                (ngModelChange)="
+                                    form.patchValue({ date: $event })
+                                "
+                                [ngModelOptions]="{ standalone: true }"
+                                [range]="bookable_hours()"
+                                [use_24hr]="use_24hr_time()"
+                            ></a-time-field>
+                        </div>
                         <div class="flex w-full flex-1 flex-col sm:w-1/3">
                             <label>End Time</label>
                             <a-duration-field
@@ -7291,15 +7032,6 @@ var SetDatetimeModalComponent = class _SetDatetimeModalComponent {
                             >
                             </a-duration-field>
                         </div>
-                    }
-                </div>
-                @if (allow_all_day()) {
-                    <div
-                        class="mx-auto flex w-[640px] max-w-[calc(100%-2rem)] justify-end"
-                    >
-                        <mat-checkbox formControlName="all_day">
-                            {{ 'COMMON.ALL_DAY' | translate }}
-                        </mat-checkbox>
                     </div>
                 }
             </main>
@@ -7327,7 +7059,7 @@ var SetDatetimeModalComponent = class _SetDatetimeModalComponent {
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SetDatetimeModalComponent, { className: "SetDatetimeModalComponent", filePath: "libs/explore/src/lib/set-datetime-modal.component.ts", lineNumber: 148 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SetDatetimeModalComponent, { className: "SetDatetimeModalComponent", filePath: "libs/explore/src/lib/set-datetime-modal.component.ts", lineNumber: 152 });
 })();
 
 // libs/explore/src/lib/explore-desk-info.component.ts
@@ -8013,7 +7745,7 @@ var ExploreDeviceInfoComponent = class _ExploreDeviceInfoComponent {
   async loadUser() {
     if (this.username())
       return;
-    const mod = Fl(this._details.system, "LocationServices");
+    const mod = Wl(this._details.system, "LocationServices");
     if (!mod)
       return;
     this.username.set("Loading...");
@@ -8247,7 +7979,7 @@ var ExploreDesksService = class _ExploreDesksService extends AsyncHandler {
       {}
     )), {
       params: () => this._building() || void 0,
-      loader: ({ params: bld }) => ju(bld.id, `desk_booking_rules`).then((_) => _?.details instanceof Array ? _.details : []).catch(() => [])
+      loader: ({ params: bld }) => Wu(bld.id, `desk_booking_rules`).then((_) => _?.details instanceof Array ? _.details : []).catch(() => [])
     }));
     this.booking_rules = computed(
       () => this._booking_rules.value() ?? [],
@@ -8261,7 +7993,7 @@ var ExploreDesksService = class _ExploreDesksService extends AsyncHandler {
       {}
     )), {
       params: () => this._state.level() || void 0,
-      loader: ({ params: lvl }) => ju(lvl.id, "desks").catch(() => ({ details: [] })).then((i) => (i?.details instanceof Array ? i.details : []).map((j) => new Desk(__spreadProps(__spreadValues({}, j), { zone: lvl }))))
+      loader: ({ params: lvl }) => Wu(lvl.id, "desks").catch(() => ({ details: [] })).then((i) => (i?.details instanceof Array ? i.details : []).map((j) => new Desk(__spreadProps(__spreadValues({}, j), { zone: lvl }))))
     }));
     this.desk_list = computed(
       () => this._desk_list.value() ?? [],
@@ -8330,12 +8062,12 @@ var ExploreDesksService = class _ExploreDesksService extends AsyncHandler {
       return;
     const binding = mod.variable(zone_id);
     if (binding) {
-      this.subscription(`lvl-in_use`, binding.bindThenSubscribe((d2) => this.processBindingChange(d2 || {}, mod.id)));
+      this.subscription(`lvl-in_use`, binding.bindThenSubscribe((d) => this.processBindingChange(d || {}, mod.id)));
     }
     const bookings_binding = mod.variable(`${zone_id}:desk_bookings`);
     if (bookings_binding) {
-      this.subscription(`lvl-desk_bookings`, bookings_binding.bindThenSubscribe((d2) => {
-        const value = __spreadValues({}, d2 || {});
+      this.subscription(`lvl-desk_bookings`, bookings_binding.bindThenSubscribe((d) => {
+        const value = __spreadValues({}, d || {});
         for (const id in value) {
           const new_bookings = value[id].map((_) => new Booking(__spreadProps(__spreadValues({}, _), {
             booking_start: _.booking_start || _.started_at,
@@ -8511,6 +8243,7 @@ var ExploreDesksService = class _ExploreDesksService extends AsyncHandler {
           duration,
           until,
           host,
+          resource_type: "Desk",
           resource: resource2,
           all_day,
           allow_all_day,
@@ -8550,14 +8283,14 @@ var ExploreDesksService = class _ExploreDesksService extends AsyncHandler {
         date: bookable_hours ? alignDateToBookableHours(options.date, bookable_hours) : options.date
       }));
       this._bookings.model.update((m) => __spreadProps(__spreadValues({}, m), {
-        all_day: !!options.all_day
+        all_day: options.all_day ?? m.all_day
       }));
     } else if (bookable_hours) {
       this._bookings.model.update((m) => __spreadProps(__spreadValues({}, m), {
         date: alignDateToBookableHours(this._bookings.model().date, bookable_hours)
       }));
     }
-    let { date, duration, user, all_day } = await this._setBookingTime(this._bookings.model().date, this._bookings.model().duration, this._options()?.custom ?? false, desk, !!options.all_day, bookable_hours);
+    let { date, duration, user, all_day } = await this._setBookingTime(this._bookings.model().date, this._bookings.model().duration, this._options()?.custom ?? false, desk, options.all_day ?? this._bookings.model().all_day, bookable_hours);
     user = user || options.host || currentUser();
     const user_email = user?.email;
     this._bookings.model.update((m) => __spreadProps(__spreadValues({}, m), {
@@ -8788,9 +8521,9 @@ var ParkingService = class _ParkingService extends AsyncHandler {
     const buildings = this._org.building_list();
     if (!buildings?.length)
       return;
-    const results = await Promise.all(buildings.map((bld) => Qu(bld.id, { name: "desks" }).then((data) => ({
+    const results = await Promise.all(buildings.map((bld) => Ju(bld.id, { name: "desks" }).then((data) => ({
       building_id: bld.id,
-      desks: flatten(data.map((meta) => (meta?.metadata?.desks?.details instanceof Array ? meta.metadata.desks.details : []).map((d2) => new Desk(__spreadProps(__spreadValues({}, d2), {
+      desks: flatten(data.map((meta) => (meta?.metadata?.desks?.details instanceof Array ? meta.metadata.desks.details : []).map((d) => new Desk(__spreadProps(__spreadValues({}, d), {
         zone: meta.zone
       })))))
     })).catch(() => ({
@@ -8800,7 +8533,7 @@ var ParkingService = class _ParkingService extends AsyncHandler {
     const email = currentUser()?.email?.toLowerCase();
     if (!email)
       return this._home_building_id.set(null);
-    const match = results.find((r) => r.desks.some((d2) => d2.assigned_to?.toLowerCase() === email));
+    const match = results.find((r) => r.desks.some((d) => d.assigned_to?.toLowerCase() === email));
     this._home_building_id.set(match?.building_id || null);
   }
   static {
@@ -9066,7 +8799,7 @@ var ExploreParkingService = class _ExploreParkingService extends AsyncHandler {
       {}
     )), {
       params: () => this._building() || void 0,
-      loader: ({ params: bld }) => ju(bld.id, `parking_booking_rules`).then((_) => _?.details instanceof Array ? _.details : []).catch(() => [])
+      loader: ({ params: bld }) => Wu(bld.id, `parking_booking_rules`).then((_) => _?.details instanceof Array ? _.details : []).catch(() => [])
     }));
     this.booking_rules = computed(
       () => this._booking_rules.value() ?? [],
@@ -9080,18 +8813,25 @@ var ExploreParkingService = class _ExploreParkingService extends AsyncHandler {
       {}
     )), {
       params: () => ({
-        bld: this._building(),
         is_public: this._state.options().is_public,
+        level_id: this._state.level()?.id,
         date: this._options().date,
+        all_day: this._options().all_day,
+        duration: this._options().duration,
         poll: this._poll()
       }),
-      loader: ({ params: { bld, is_public, date } }) => is_public ? Promise.resolve([]) : queryBookings({
-        period_start: getUnixTime(startOfMinute(date || Date.now())),
-        period_end: getUnixTime(endOfMinute(date || Date.now())),
-        type: "parking",
-        zones: this._settings.get("app.use_region") ? bld?.parent_id : bld?.id,
-        rejected: false
-      }).catch(() => [])
+      loader: ({ params: { is_public, level_id, date, all_day, duration } }) => {
+        const time = date ?? Date.now();
+        const bookable_hours = all_day ? this._settings.get("app.parking.bookable_hours") || this._settings.get("app.bookings.bookable_hours") || null : null;
+        const all_day_range = getAllDayTimeRange(time, "", bookable_hours?.start, bookable_hours?.end);
+        return is_public || !level_id ? Promise.resolve([]) : queryAllBookings({
+          period_start: getUnixTime(all_day ? all_day_range.date : duration ? time : addMinutes(time, -15)),
+          period_end: getUnixTime(all_day ? all_day_range.date_end : addMinutes(time, duration || 30)),
+          type: "parking",
+          zones: level_id,
+          rejected: false
+        }).catch(() => []);
+      }
     }));
     this.events = computed(
       () => this._events.value() ?? [],
@@ -9338,7 +9078,7 @@ var ExploreParkingService = class _ExploreParkingService extends AsyncHandler {
 })();
 
 // libs/components/src/lib/map-canvas.component.ts
-var _c08 = ["canvas"];
+var _c07 = ["canvas"];
 var MapCanvasComponent = class _MapCanvasComponent {
   constructor() {
     this._data = inject(MAP_FEATURE_DATA);
@@ -9451,7 +9191,7 @@ var MapCanvasComponent = class _MapCanvasComponent {
   static {
     this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MapCanvasComponent, selectors: [["", "map-canvas", ""]], viewQuery: function MapCanvasComponent_Query(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275viewQuerySignal(ctx.canvas_element, _c08, 5);
+        \u0275\u0275viewQuerySignal(ctx.canvas_element, _c07, 5);
       }
       if (rf & 2) {
         \u0275\u0275queryAdvance();
@@ -9707,7 +9447,7 @@ var ExploreZonesService = class _ExploreZonesService extends AsyncHandler {
   }
   async init() {
     await firstValueWhere(this._org_initialised, (_) => !!_, this._injector);
-    const zone_metadata = await Promise.all(this._org.levels.map((bld) => ju(bld.id, "map_regions").catch(() => null)));
+    const zone_metadata = await Promise.all(this._org.levels.map((bld) => Wu(bld.id, "map_regions").catch(() => null)));
     this._area_list = [];
     for (const zone of zone_metadata) {
       const areas = zone?.details?.areas;
@@ -9746,8 +9486,8 @@ var ExploreZonesService = class _ExploreZonesService extends AsyncHandler {
       return;
     const bind_areas = mod.variable(`${zone_id}:areas`);
     const bind_zone = mod.variable(`${zone_id}`);
-    this.subscription("binding", bind_areas.bindThenSubscribe((d2) => this._area_data.set(d2)));
-    this.subscription("zone-binding", bind_zone.bindThenSubscribe((d2) => this._zone_data.set(d2)));
+    this.subscription("binding", bind_areas.bindThenSubscribe((d) => this._area_data.set(d)));
+    this.subscription("zone-binding", bind_zone.bindThenSubscribe((d) => this._zone_data.set(d)));
   }
   parseData(value = []) {
     const labels = [];
@@ -9893,15 +9633,15 @@ var ASCENDING_NAME_SORTER = new Intl.Collator(void 0, {
 });
 function queryAssetCategoriesLocal(query = {}) {
   const q = toQueryString(query);
-  return d(`${BASE_ENDPOINT}/asset_categories${q ? "?" + q : ""}`).then((_) => _);
+  return f(`${BASE_ENDPOINT}/asset_categories${q ? "?" + q : ""}`).then((_) => _);
 }
 function queryAssetTypesLocal(query = {}) {
   const q = toQueryString(query);
-  return d(`${BASE_ENDPOINT}/asset_types${q ? "?" + q : ""}`).then((_) => _);
+  return f(`${BASE_ENDPOINT}/asset_types${q ? "?" + q : ""}`).then((_) => _);
 }
 function queryAssetsLocal(query = {}) {
   const q = toQueryString(query);
-  return d(`${BASE_ENDPOINT}/assets${q ? "?" + q : ""}`).then((_) => _);
+  return f(`${BASE_ENDPOINT}/assets${q ? "?" + q : ""}`).then((_) => _);
 }
 var TYPES = ["space", "feature", "contact", "user"];
 function typeIndex(item) {
@@ -10030,7 +9770,7 @@ var ExploreSearchService = class _ExploreSearchService {
     )), {
       params: () => this._building() || void 0,
       loader: async ({ params: bld }) => {
-        const { details } = await ju(bld.id, "emergency_contacts").catch(() => ({
+        const { details } = await Wu(bld.id, "emergency_contacts").catch(() => ({
           details: { contacts: [], migrated: false }
         }));
         const data = details;
@@ -10063,7 +9803,7 @@ var ExploreSearchService = class _ExploreSearchService {
       {}
     )), {
       params: () => ({ q: this._debounced_filter.value() }),
-      loader: ({ params: { q } }) => q?.length > 2 ? ta({ q, zone_id: this._org.organisation.id }).then(({ data }) => data.filter((_) => _.map_id).map((_) => new Space(__spreadProps(__spreadValues({}, _), {
+      loader: ({ params: { q } }) => q?.length > 2 ? ia({ q, zone_id: this._org.organisation.id }).then(({ data }) => data.filter((_) => _.map_id).map((_) => new Space(__spreadProps(__spreadValues({}, _), {
         level: this._org.levelWithID(_.zones)
       })))).catch(() => []) : Promise.resolve([])
     }));
@@ -10072,7 +9812,7 @@ var ExploreSearchService = class _ExploreSearchService {
       {}
     )), {
       params: () => this._building() || void 0,
-      loader: ({ params: bld }) => Qu(bld.id, { name: "desks" }).then((i) => flatten(i.map((j) => (j.metadata.desks?.details || []).map((k) => new Desk(__spreadProps(__spreadValues({}, k), { zone: j.zone })))))).catch(() => [])
+      loader: ({ params: bld }) => Ju(bld.id, { name: "desks" }).then((i) => flatten(i.map((j) => (j.metadata.desks?.details || []).map((k) => new Desk(__spreadProps(__spreadValues({}, k), { zone: j.zone })))))).catch(() => [])
     }));
     this._maps_people_search = resource(__spreadProps(__spreadValues({}, ngDevMode ? { debugName: "_maps_people_search" } : (
       /* istanbul ignore next */
@@ -10100,7 +9840,7 @@ var ExploreSearchService = class _ExploreSearchService {
     )), {
       params: () => this._building() || void 0,
       loader: async () => {
-        const data = await Qu(this._org.building.id, {
+        const data = await Ju(this._org.building.id, {
           name: "map_features"
         }).catch(() => []);
         const list = [];
@@ -10127,7 +9867,7 @@ var ExploreSearchService = class _ExploreSearchService {
       {}
     )), {
       params: () => this._initialised() || void 0,
-      loader: () => ju(this._org.organisation.id, "points-of-interest").catch((_) => ({ details: {} }))
+      loader: () => Wu(this._org.organisation.id, "points-of-interest").catch((_) => ({ details: {} }))
     }));
     this._poi_list = computed(
       () => {
@@ -10279,7 +10019,7 @@ var ExploreSearchService = class _ExploreSearchService {
         []
       )
     );
-    this.search_fn = (q) => this._settings.get("app.basic_user_search") ? Ea({ q, authority_id: Rt()?.id }).then((_) => _.data) : searchStaff(q);
+    this.search_fn = (q) => this._settings.get("app.basic_user_search") ? Ma({ q, authority_id: Rt()?.id }).then((_) => _.data) : searchStaff(q);
     this.init();
   }
   async init() {
@@ -10331,8 +10071,8 @@ var ExploreSearchService = class _ExploreSearchService {
 })();
 
 // libs/explore/src/lib/explore-search.component.ts
-var _c09 = ["input"];
-var _c13 = ["button"];
+var _c08 = ["input"];
+var _c12 = ["button"];
 var _forTrack04 = ($index, $item) => $item.name;
 function ExploreSearchComponent_Conditional_9_Template(rf, ctx) {
   if (rf & 1) {
@@ -10511,7 +10251,7 @@ var ExploreSearchComponent = class _ExploreSearchComponent extends AsyncHandler 
   static {
     this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ExploreSearchComponent, selectors: [["explore-search"]], viewQuery: function ExploreSearchComponent_Query(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275viewQuerySignal(ctx._input_el, _c09, 5)(ctx._button_el, _c13, 5);
+        \u0275\u0275viewQuerySignal(ctx._input_el, _c08, 5)(ctx._button_el, _c12, 5);
       }
       if (rf & 2) {
         \u0275\u0275queryAdvance(2);
@@ -10673,8 +10413,8 @@ var ExploreSearchComponent = class _ExploreSearchComponent extends AsyncHandler 
 })();
 
 // node_modules/@angular/material/fesm2022/slide-toggle.mjs
-var _c010 = ["switch"];
-var _c14 = ["*"];
+var _c09 = ["switch"];
+var _c13 = ["*"];
 function MatSlideToggle_Conditional_11_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "span", 11);
@@ -10842,7 +10582,7 @@ var MatSlideToggle = class _MatSlideToggle {
     selectors: [["mat-slide-toggle"]],
     viewQuery: function MatSlideToggle_Query(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275viewQuery(_c010, 5);
+        \u0275\u0275viewQuery(_c09, 5);
       }
       if (rf & 2) {
         let _t;
@@ -10889,7 +10629,7 @@ var MatSlideToggle = class _MatSlideToggle {
       useExisting: _MatSlideToggle,
       multi: true
     }]), \u0275\u0275NgOnChangesFeature],
-    ngContentSelectors: _c14,
+    ngContentSelectors: _c13,
     decls: 14,
     vars: 27,
     consts: [["switch", ""], ["mat-internal-form-field", "", 3, "labelPosition"], ["role", "switch", "type", "button", 1, "mdc-switch", 3, "click", "tabIndex", "disabled"], [1, "mat-mdc-slide-toggle-touch-target"], [1, "mdc-switch__track"], [1, "mdc-switch__handle-track"], [1, "mdc-switch__handle"], [1, "mdc-switch__shadow"], [1, "mdc-elevation-overlay"], [1, "mdc-switch__ripple"], ["mat-ripple", "", 1, "mat-mdc-slide-toggle-ripple", "mat-focus-indicator", 3, "matRippleTrigger", "matRippleDisabled", "matRippleCentered"], [1, "mdc-switch__icons"], [1, "mdc-label", 3, "click", "for"], ["viewBox", "0 0 24 24", "aria-hidden", "true", 1, "mdc-switch__icon", "mdc-switch__icon--on"], ["d", "M19.69,5.23L8.96,15.96l-4.23-4.23L2.96,13.5l6,6L21.46,7L19.69,5.23z"], ["viewBox", "0 0 24 24", "aria-hidden", "true", 1, "mdc-switch__icon", "mdc-switch__icon--off"], ["d", "M20 13H4v-2h16v2z"]],
@@ -11287,7 +11027,7 @@ var AccessibilityControlsComponent = class _AccessibilityControlsComponent exten
 })();
 
 // apps/map-kiosk/src/app/explore.component.ts
-var _c011 = () => ({ controls: true });
+var _c010 = () => ({ controls: true });
 function ExploreComponent_Conditional_4_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "explore-search");
@@ -11736,7 +11476,7 @@ var ExploreComponent = class _ExploreComponent extends AsyncHandler {
         module: "LocationServices"
       };
     }
-    const mod = Fl(locate_details.system_id, locate_details.module);
+    const mod = Wl(locate_details.system_id, locate_details.module);
     const locations = (await mod.execute("locate_user", [
       user.email,
       user.username || user.id
@@ -11860,7 +11600,7 @@ var ExploreComponent = class _ExploreComponent extends AsyncHandler {
         \u0275\u0275advance();
         \u0275\u0275property("@show", ctx.show_accessibility() ? "show" : "hide");
         \u0275\u0275advance(6);
-        \u0275\u0275property("src", ctx.url())("zoom", ctx.positions()?.zoom)("center", ctx.positions()?.center)("styles", ctx.styles())("features", ctx.features())("actions", ctx.actions())("labels", ctx.labels())("options", \u0275\u0275pureFunction0(17, _c011))("focus", ctx.locate());
+        \u0275\u0275property("src", ctx.url())("zoom", ctx.positions()?.zoom)("center", ctx.positions()?.center)("styles", ctx.styles())("features", ctx.features())("actions", ctx.actions())("labels", ctx.labels())("options", \u0275\u0275pureFunction0(17, _c010))("focus", ctx.locate());
       }
     }, dependencies: [
       AccessibilityControlsComponent,
@@ -12123,4 +11863,4 @@ var ROUTES = [
 export {
   ROUTES
 };
-//# sourceMappingURL=explore.routes-NH456T4L.js.map
+//# sourceMappingURL=explore.routes-SP75Q4I4.js.map
