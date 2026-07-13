@@ -200,6 +200,12 @@ export class ScheduleSidebarComponent extends AsyncHandler implements OnInit {
             name: 'RESOURCE.VISITORS',
         },
         {
+            type: 'vip-visitor',
+            feat: 'vip-visitor-invite',
+            icon: 'star',
+            name: 'RESOURCE.VIP_VISITORS',
+        },
+        {
             type: 'locker',
             feat: 'lockers',
             icon: 'lock',
@@ -286,6 +292,10 @@ export class ScheduleSidebarComponent extends AsyncHandler implements OnInit {
                 this._state.setType(
                     'visitor',
                     this.hasFeature('visitor-invite'),
+                );
+                this._state.setType(
+                    'vip-visitor',
+                    this.hasFeature('vip-visitor-invite'),
                 );
                 this._state.setType('locker', this.hasFeature('lockers'));
                 this._state.setType(

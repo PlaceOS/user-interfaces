@@ -229,10 +229,27 @@ describe('ScheduleStateService', () => {
         expect((spectator.service as any)._canLoadBookingType('visitor')).toBe(
             false,
         );
+        expect(
+            (spectator.service as any)._canLoadBookingType('vip-visitor'),
+        ).toBe(false);
         expect((spectator.service as any)._canLoadBookingType('locker')).toBe(
             false,
         );
         expect((spectator.service as any)._canLoadEvents()).toBe(false);
+    });
+
+    it('should load VIP visitors only when VIP visitor invites are enabled', () => {
+        const settings = spectator.inject(SettingsService) as any;
+        settings.get.mockImplementation((key: string) =>
+            key === 'app.features' ? ['vip-visitor-invite'] : undefined,
+        );
+
+        expect(
+            (spectator.service as any)._canLoadBookingType('vip-visitor'),
+        ).toBe(true);
+        expect((spectator.service as any)._canLoadBookingType('visitor')).toBe(
+            false,
+        );
     });
 
     it('should share identical in-flight booking queries', async () => {

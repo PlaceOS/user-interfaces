@@ -109,6 +109,7 @@ export class ScheduleStateService extends AsyncHandler {
             'desk',
             'parking',
             'visitor',
+            'vip-visitor',
             'locker',
             'group-event',
         ],
@@ -125,6 +126,7 @@ export class ScheduleStateService extends AsyncHandler {
     private _user_bookings = signal<CalendarEvent[]>([]);
     private _api_events = signal<CalendarEvent[]>([]);
     private _visitors = signal<Booking[]>([]);
+    private _vip_visitors = signal<Booking[]>([]);
     private _desks = signal<Booking[]>([]);
     private _parking_bookings = signal<Booking[]>([]);
     private _locker_bookings = signal<Booking[]>([]);
@@ -239,6 +241,11 @@ export class ScheduleStateService extends AsyncHandler {
         this._requestNetwork();
         return this._visitors();
     });
+    public readonly vip_visitors = computed(() => {
+        if (!this._canLoadBookingType('vip-visitor')) return [];
+        this._requestNetwork();
+        return this._vip_visitors();
+    });
     public readonly desks = computed(() => {
         if (!this._canLoadBookingType('desk')) return [];
         this._requestNetwork();
@@ -268,6 +275,7 @@ export class ScheduleStateService extends AsyncHandler {
     public readonly bookings = computed(() => {
         const events = this.events();
         const visitors = this.visitors();
+        const vip_visitors = this.vip_visitors();
         const desks = this.desks();
         const parking = this.parking();
         const lockers = this.lockers();
@@ -281,6 +289,7 @@ export class ScheduleStateService extends AsyncHandler {
         return [
             ...filtered_events,
             ...visitors,
+            ...vip_visitors,
             ...desks,
             ...parking,
             ...lockers,
@@ -357,6 +366,7 @@ export class ScheduleStateService extends AsyncHandler {
         this._loadBookingType('visitor', this._visitors, (list) =>
             list.filter((_) => !_.linked_event),
         );
+        this._loadBookingType('vip-visitor', this._vip_visitors);
         this._loadBookingType('desk', this._desks);
         this._loadBookingType('parking', this._parking_bookings, (list) =>
             this._resolveParkingNames(list),
@@ -388,6 +398,8 @@ export class ScheduleStateService extends AsyncHandler {
                 );
             case 'visitor':
                 return this._hasFeature('visitor-invite');
+            case 'vip-visitor':
+                return this._hasFeature('vip-visitor-invite');
             case 'locker':
                 return this._hasFeature('lockers');
             default:
