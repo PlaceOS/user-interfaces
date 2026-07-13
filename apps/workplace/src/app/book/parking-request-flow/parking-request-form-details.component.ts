@@ -18,6 +18,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
@@ -1214,11 +1215,14 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                         class="gradient border-base-content flex items-center space-x-2 border-l-8 px-4 py-3 font-medium"
                     >
                         <icon>tune</icon>
-                        <div>
+                        <div id="parking-space-restrictions-label">
                             {{
                                 'BOOKINGS.PARKING_SPACE_RESTRICTIONS_TITLE'
                                     | translate
                             }}
+                            @if (require_space_restriction()) {
+                                <span aria-hidden="true">*</span>
+                            }
                         </div>
                     </div>
                     <div class="space-y-3 p-4">
@@ -1229,23 +1233,41 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                             }}
                         </p>
                         @if (space_restriction_options().length) {
-                            <mat-form-field appearance="outline" class="w-full">
-                                <mat-select
-                                    [value]="selected_space_restriction()"
-                                    (selectionChange)="
-                                        setSpaceRestriction($event.value)
-                                    "
-                                >
-                                    @for (
-                                        option of space_restriction_options();
-                                        track trackById(option)
-                                    ) {
-                                        <mat-option [value]="option.id">{{
-                                            option.name | translate
-                                        }}</mat-option>
-                                    }
-                                </mat-select>
-                            </mat-form-field>
+                            <mat-radio-group
+                                class="flex flex-col gap-2"
+                                aria-labelledby="parking-space-restrictions-label"
+                                [attr.aria-required]="
+                                    require_space_restriction()
+                                "
+                                [attr.aria-invalid]="
+                                    form().space_restrictions().invalid()
+                                "
+                                [formField]="form().space_restrictions"
+                            >
+                                <mat-radio-button [value]="false">
+                                    {{ 'COMMON.NONE' | translate }}
+                                </mat-radio-button>
+                                @for (
+                                    option of space_restriction_options();
+                                    track trackById(option)
+                                ) {
+                                    <mat-radio-button [value]="option.id">
+                                        {{ option.name | translate }}
+                                    </mat-radio-button>
+                                }
+                            </mat-radio-group>
+                            @if (
+                                require_space_restriction() &&
+                                form().space_restrictions().touched() &&
+                                form().space_restrictions().invalid()
+                            ) {
+                                <p class="text-error text-sm" role="alert">
+                                    {{
+                                        'BOOKINGS.PARKING_SPACE_RESTRICTION_REQUIRED'
+                                            | translate
+                                    }}
+                                </p>
+                            }
                         }
                         @if (extra_space_restriction_options().length) {
                             <div class="flex flex-col gap-2">
@@ -1294,6 +1316,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
         FormField,
         MatFormFieldModule,
         MatInputModule,
+        MatRadioModule,
         MatSelectModule,
         MatTooltipModule,
         TranslatePipe,
@@ -1494,6 +1517,10 @@ export class ParkingRequestFormDetailsComponent
         'parking.require_plate_number',
         false,
     );
+    public readonly require_space_restriction = settingSignal<boolean>(
+        'parking.require_space_restriction',
+        false,
+    );
     public readonly auto_approved_groups_setting = settingSignal<string[]>(
         'parking.auto_approved_groups',
         [],
@@ -1635,7 +1662,7 @@ export class ParkingRequestFormDetailsComponent
     public readonly selected_space_restriction = computed(() => {
         const value = this.model()?.space_restrictions;
         if (typeof value === 'string' && value) return value;
-        return this.space_restriction_options()[0]?.id || '';
+        return false;
     });
 
     public readonly WEEKDAY_OPTIONS = [1, 2, 3, 4, 5, 6, 7].map((index) => ({
@@ -1900,16 +1927,13 @@ export class ParkingRequestFormDetailsComponent
         if (this.space_restriction_options().length) {
             const current = model().space_restrictions;
             if (
-                !current ||
                 current === true ||
                 (typeof current === 'string' &&
                     !this.space_restriction_options().find(
                         (_) => _.id === current,
                     ))
             ) {
-                this.setSpaceRestriction(
-                    this.space_restriction_options()[0].id,
-                );
+                this.setSpaceRestriction(false);
             }
         }
         const is_daily =
@@ -2091,12 +2115,12 @@ export class ParkingRequestFormDetailsComponent
         this._updateFormTimes(start_time, end_time);
     }
 
-    public setSpaceRestriction(value: string) {
+    public setSpaceRestriction(value: string | false) {
         const model = this.model;
         if (!model) return;
         model.update((m) => ({
             ...m,
-            space_restrictions: (value || false) as any,
+            space_restrictions: value || false,
         }));
     }
 

@@ -151,6 +151,8 @@ describe('ParkingRequestFormDetailsComponent', () => {
         // detection's iteration cap (NG0103). Seeding the settings first means
         // the form is only ever flushed against this test's known-good config.
         spectator.component.require_plate_number.set(false);
+        spectator.component.require_space_restriction.set(false);
+        spectator.component.space_restriction_options_setting.set([]);
         spectator.component.shift_options_setting.set([
             {
                 id: 'morning',
@@ -915,6 +917,45 @@ describe('ParkingRequestFormDetailsComponent', () => {
         expect(spectator.component.form().plate_number().valid()).toBe(true);
         const errors = spectator.component.form().plate_number().errors();
         expect(errors.some((e) => e.kind === 'required')).toBe(false);
+    });
+
+    it('should default parking restrictions to None', async () => {
+        spectator.component.space_restriction_options_setting.set([
+            { id: 'oversized', name: 'Oversized' },
+        ]);
+        spectator.component.model.update((m) => ({
+            ...m,
+            space_restrictions: false,
+        }));
+
+        await spectator.component.ngOnInit();
+
+        expect(spectator.component.selected_space_restriction()).toBe(false);
+        expect(spectator.component.model().space_restrictions).toBe(false);
+    });
+
+    it('should require a parking restriction other than None when configured', () => {
+        spectator.component.model.update((m) => ({
+            ...m,
+            space_restrictions: false,
+        }));
+
+        spectator.component.require_space_restriction.set(true);
+        TestBed.flushEffects();
+
+        expect(
+            spectator.component
+                .form()
+                .space_restrictions()
+                .errors()
+                .some((e) => e.kind === 'required'),
+        ).toBe(true);
+
+        spectator.component.setSpaceRestriction('oversized');
+
+        expect(spectator.component.form().space_restrictions().valid()).toBe(
+            true,
+        );
     });
 
     it('should not clear the plate number for an existing booking already opened for another host', async () => {
