@@ -76,19 +76,16 @@ const EMPTY = [];
                 @if (legend().length > 3) {
                     <button
                         type="button"
-                        class="flex w-full min-w-64 items-center justify-between space-x-4 p-3 text-left font-medium sm:hidden"
+                        class="flex w-full min-w-64 items-center justify-between space-x-4 p-3 text-left font-medium"
                         [attr.aria-expanded]="!legend_collapsed()"
                         aria-controls="explore-map-legend-items"
                         (click)="legend_collapsed.set(!legend_collapsed())"
                     >
                         <div>{{ 'EXPLORE.LEGEND' | translate }}</div>
-                        <div class="text-sm underline sm:hidden">
+                        <div class="text-sm underline">
                             {{ legend_collapsed() ? 'Show' : 'Hide' }}
                         </div>
                     </button>
-                    <h3 class="hidden min-w-64 p-3 font-medium sm:block">
-                        {{ 'EXPLORE.LEGEND' | translate }}
-                    </h3>
                 } @else {
                     <h3 class="min-w-64 p-3 font-medium">
                         {{ 'EXPLORE.LEGEND' | translate }}
@@ -96,7 +93,7 @@ const EMPTY = [];
                 }
                 <div
                     id="explore-map-legend-items"
-                    class="space-y-1 px-4 pb-3 sm:block"
+                    class="space-y-1 px-4 pb-3"
                     [class.hidden]="legend_collapsed() && legend().length > 3"
                 >
                     @for (pair of legend(); track pair) {
