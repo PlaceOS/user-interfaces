@@ -40,6 +40,11 @@ import {
 import { checkinBooking, checkinBookingInstance } from './bookings.fn';
 import { DeskSettingsModalComponent } from './desk-settings-modal.component';
 
+interface VipDetail {
+    label: string;
+    value: string;
+}
+
 export function canEditBooking(booking: Booking) {
     const is_visitor = booking.booking_type === 'visitor';
     const visitor_edit_allowed =
@@ -262,6 +267,28 @@ export function canEditBooking(booking: Booking) {
                                     <div class="break-all">
                                         {{ group.name }}
                                     </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+                @if (vip_service_details().length) {
+                    <div
+                        class="border-base-200 sm:bg-base-100 mt-4 min-w-1/3 grow-3 rounded-sm sm:m-2 sm:w-[16rem] sm:border sm:p-4"
+                    >
+                        <h3 class="mx-3 py-2 text-lg font-medium">
+                            {{ 'BOOKINGS.VIP_SERVICES_HEADER' | translate }}
+                        </h3>
+                        <div class="flex flex-col space-y-2 px-3">
+                            @for (
+                                item of vip_service_details();
+                                track item.label
+                            ) {
+                                <div>
+                                    <div class="text-xs opacity-60">
+                                        {{ item.label }}
+                                    </div>
+                                    <div>{{ item.value }}</div>
                                 </div>
                             }
                         </div>
@@ -629,8 +656,11 @@ export class BookingDetailsModalComponent {
             this.booking()?.type === 'desk' &&
             settingSignal('desks.height_enabled')(),
     );
-    public readonly is_visitor = computed(
-        () => this.booking()?.booking_type === 'visitor',
+    public readonly is_visitor = computed(() =>
+        ['visitor', 'vip-visitor'].includes(this.booking()?.booking_type),
+    );
+    public readonly is_vip_visitor = computed(
+        () => this.booking()?.booking_type === 'vip-visitor',
     );
     public readonly display_title = computed(() => {
         const booking = this.booking();
@@ -668,6 +698,103 @@ export class BookingDetailsModalComponent {
         return display_name.toLowerCase() === asset_id.toLowerCase()
             ? ''
             : asset_id;
+    });
+    public readonly vip_service_details = computed(() => {
+        const booking = this.booking();
+        if (!booking || !this.is_vip_visitor()) return [];
+        const data = booking.extension_data || {};
+        const details: VipDetail[] = [];
+        this._addDetail(
+            details,
+            i18n('BOOKINGS.VIP_ASSISTANT_NAME'),
+            data.vip_assistant_name,
+        );
+        this._addDetail(
+            details,
+            i18n('BOOKINGS.VIP_ASSISTANT_EMAIL'),
+            data.vip_assistant_email,
+        );
+        if (data.meet_greet && data.meet_greet !== 'none') {
+            this._addDetail(
+                details,
+                i18n('BOOKINGS.VIP_MEET_GREET'),
+                this._formatVipChoice(
+                    'BOOKINGS.VIP_MEET_GREET_',
+                    data.meet_greet,
+                ),
+            );
+        }
+        this._addBooleanDetail(
+            details,
+            i18n('BOOKINGS.VIP_WALKTHROUGH'),
+            data,
+            'walkthrough',
+        );
+        if (data.welcome_beverage && data.welcome_beverage !== 'none') {
+            this._addDetail(
+                details,
+                i18n('BOOKINGS.VIP_WELCOME_BEVERAGE'),
+                this._formatVipChoice(
+                    'BOOKINGS.VIP_WELCOME_BEVERAGE_',
+                    data.welcome_beverage,
+                ),
+            );
+        }
+        this._addDetail(
+            details,
+            i18n('BOOKINGS.VIP_WELCOME_BEVERAGE_CUSTOM_DETAILS'),
+            data.welcome_beverage_custom,
+        );
+        this._addBooleanDetail(
+            details,
+            i18n('BOOKINGS.VIP_GIVEAWAY_GIFT'),
+            data,
+            'gift',
+        );
+        this._addBooleanDetail(
+            details,
+            i18n('BOOKINGS.VIP_PHOTOGRAPHER'),
+            data,
+            'photographer',
+        );
+        const restaurant = data.restaurant_reservation;
+        if (restaurant) {
+            this._addDetail(
+                details,
+                i18n('BOOKINGS.VIP_RESTAURANT_NAME'),
+                restaurant.name,
+            );
+            this._addDetail(
+                details,
+                i18n('BOOKINGS.VIP_RESTAURANT_ADDRESS'),
+                restaurant.address,
+            );
+            this._addDetail(
+                details,
+                i18n('BOOKINGS.VIP_RESTAURANT_TIME'),
+                this._formatTimestamp(restaurant.time),
+            );
+        }
+        if (data.driver) {
+            this._addDetail(
+                details,
+                i18n('BOOKINGS.VIP_DRIVER'),
+                this._formatVipChoice('BOOKINGS.VIP_DRIVER_', data.driver),
+            );
+        }
+        this._addBooleanDetail(
+            details,
+            i18n('BOOKINGS.VIP_WELCOME_SCREEN'),
+            data,
+            'welcome_screen',
+        );
+        this._addBooleanDetail(
+            details,
+            i18n('BOOKINGS.VIP_PRESENTATION'),
+            data,
+            'presentation',
+        );
+        return details;
     });
     public readonly group_parent_booking = computed(() => {
         const booking = this.booking();
@@ -867,5 +994,39 @@ export class BookingDetailsModalComponent {
 
     private _looksLikeEmail(value: string) {
         return !!value && value.includes('@');
+    }
+
+    private _addDetail(details: VipDetail[], label: string, value: unknown) {
+        const formatted_value = `${value ?? ''}`.trim();
+        if (!formatted_value) return;
+        details.push({ label, value: formatted_value });
+    }
+
+    private _addBooleanDetail(
+        details: VipDetail[],
+        label: string,
+        data: Record<string, any>,
+        key: string,
+    ) {
+        if (!Object.prototype.hasOwnProperty.call(data, key)) return;
+        details.push({
+            label,
+            value: i18n(data[key] ? 'COMMON.YES' : 'COMMON.NO'),
+        });
+    }
+
+    private _formatVipChoice(prefix: string, value: string) {
+        const key = `${prefix}${`${value}`.toUpperCase()}`;
+        const translated = i18n(key);
+        if (translated !== key) return translated;
+        return `${value}`
+            .replace(/_/g, ' ')
+            .replace(/\b\w/g, (char) => char.toUpperCase());
+    }
+
+    private _formatTimestamp(value: number) {
+        if (!value) return '';
+        const timestamp = value < 1_000_000_000_000 ? value * 1000 : value;
+        return format(timestamp, `d MMM, ${this.time_format()}`);
     }
 }

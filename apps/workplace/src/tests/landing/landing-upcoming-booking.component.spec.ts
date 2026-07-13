@@ -120,6 +120,24 @@ describe('LandingUpcomingBookingComponent', () => {
         expect(spectator.queryAll('button[btn]')[1]).toBeDisabled();
     });
 
+    it('should show the booking title for VIP visitors', () => {
+        upcoming_events.set([
+            new Booking({
+                id: 'booking-vip-visitor-1',
+                booking_type: 'vip-visitor',
+                type: 'vip-visitor',
+                title: 'Board Visit',
+                description: 'Visitor Name',
+                asset_name: 'Visitor Name',
+                date: Date.now(),
+                duration: 60,
+                status: 'approved',
+            } as any),
+        ]);
+
+        expect(spectator.component.eventTitle()).toBe('Board Visit');
+    });
+
     it('should keep delete enabled before the shown booking ends', () => {
         const date = Date.now();
         upcoming_events.set([
