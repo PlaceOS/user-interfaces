@@ -8,14 +8,14 @@ import {
   MatTabLabel,
   MatTabsModule,
   moveItemInArray
-} from "./chunk-HRYLMUGT.js";
+} from "./chunk-CWDKARON.js";
 import {
   IntersectDirective
-} from "./chunk-SAZ24C3P.js";
+} from "./chunk-4GT7HCOZ.js";
 import {
   NavFooterComponent,
   NavSidebarComponent
-} from "./chunk-R4EOZBOY.js";
+} from "./chunk-IZVOQVVD.js";
 import {
   ActivatedRoute,
   AuthenticatedImageDirective,
@@ -49,8 +49,13 @@ import {
   TranslatePipe,
   computed,
   effect,
+  i18n,
   inject,
   input,
+  playlistMediaIcon,
+  playlistScheduleLabel,
+  playlistScheduleNextPlayLabels,
+  rr,
   setClassMetadata,
   signal,
   ɵsetClassDebugInfo,
@@ -80,6 +85,7 @@ import {
   ɵɵrepeater,
   ɵɵrepeaterCreate,
   ɵɵrepeaterTrackByIdentity,
+  ɵɵrepeaterTrackByIndex,
   ɵɵresetView,
   ɵɵrestoreView,
   ɵɵstoreLet,
@@ -88,8 +94,11 @@ import {
   ɵɵtext,
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1
-} from "./chunk-OXYP2ZHD.js";
-import "./chunk-653SOEEV.js";
+} from "./chunk-H2FDRYWY.js";
+import {
+  __spreadProps,
+  __spreadValues
+} from "./chunk-653SOEEV.js";
 
 // apps/signage-manager/src/app/playlists/playlist-header.component.ts
 var _c0 = (a0) => ({ count: a0 });
@@ -263,7 +272,7 @@ function PlaylistItemDetailsComponent_Conditional_0_Conditional_40_Template(rf, 
     \u0275\u0275text(2);
     \u0275\u0275pipe(3, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "div", 27);
+    \u0275\u0275elementStart(4, "div", 21);
     \u0275\u0275text(5);
     \u0275\u0275pipe(6, "translate");
     \u0275\u0275elementEnd()();
@@ -314,7 +323,7 @@ function PlaylistItemDetailsComponent_Conditional_0_Conditional_48_Template(rf, 
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(6, 4, ctx_r1.valid_until(), "longDate"), " ");
   }
 }
-function PlaylistItemDetailsComponent_Conditional_0_For_55_Template(rf, ctx) {
+function PlaylistItemDetailsComponent_Conditional_0_Conditional_49_For_6_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div");
     \u0275\u0275text(1);
@@ -326,9 +335,9 @@ function PlaylistItemDetailsComponent_Conditional_0_For_55_Template(rf, ctx) {
     \u0275\u0275textInterpolate(schedule_r3);
   }
 }
-function PlaylistItemDetailsComponent_Conditional_0_For_62_Template(rf, ctx) {
+function PlaylistItemDetailsComponent_Conditional_0_Conditional_49_For_13_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 17);
+    \u0275\u0275elementStart(0, "div", 26);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -338,9 +347,9 @@ function PlaylistItemDetailsComponent_Conditional_0_For_62_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", play_time_r4, " ");
   }
 }
-function PlaylistItemDetailsComponent_Conditional_0_ForEmpty_63_Template(rf, ctx) {
+function PlaylistItemDetailsComponent_Conditional_0_Conditional_49_ForEmpty_14_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 18);
+    \u0275\u0275elementStart(0, "div", 27);
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275elementEnd();
@@ -350,7 +359,36 @@ function PlaylistItemDetailsComponent_Conditional_0_ForEmpty_63_Template(rf, ctx
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, "SIGNAGE_MANAGER.NO_UPCOMING_PLAY_TIMES"), " ");
   }
 }
-function PlaylistItemDetailsComponent_Conditional_0_Conditional_64_Template(rf, ctx) {
+function PlaylistItemDetailsComponent_Conditional_0_Conditional_49_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div")(1, "div", 7);
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "div", 22);
+    \u0275\u0275repeaterCreate(5, PlaylistItemDetailsComponent_Conditional_0_Conditional_49_For_6_Template, 2, 1, "div", null, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(7, "div", 23)(8, "div", 24);
+    \u0275\u0275text(9);
+    \u0275\u0275pipe(10, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(11, "div", 25);
+    \u0275\u0275repeaterCreate(12, PlaylistItemDetailsComponent_Conditional_0_Conditional_49_For_13_Template, 2, 1, "div", 26, \u0275\u0275repeaterTrackByIdentity, false, PlaylistItemDetailsComponent_Conditional_0_Conditional_49_ForEmpty_14_Template, 3, 3, "div", 27);
+    \u0275\u0275elementEnd()()();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 3, "SIGNAGE_MANAGER.SCHEDULE"), " ");
+    \u0275\u0275advance(3);
+    \u0275\u0275repeater(ctx_r1.schedule_labels());
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(10, 5, "SIGNAGE_MANAGER.NEXT_5_PLAYS"), " ");
+    \u0275\u0275advance(3);
+    \u0275\u0275repeater(ctx_r1.next_play_sessions());
+  }
+}
+function PlaylistItemDetailsComponent_Conditional_0_Conditional_50_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div")(1, "div", 7);
     \u0275\u0275text(2);
@@ -368,7 +406,7 @@ function PlaylistItemDetailsComponent_Conditional_0_Conditional_64_Template(rf, 
     \u0275\u0275textInterpolate1(" ", ctx_r1.playlist().play_count, " ");
   }
 }
-function PlaylistItemDetailsComponent_Conditional_0_ng_template_66_Template(rf, ctx) {
+function PlaylistItemDetailsComponent_Conditional_0_ng_template_52_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275text(0);
     \u0275\u0275pipe(1, "translate");
@@ -378,13 +416,13 @@ function PlaylistItemDetailsComponent_Conditional_0_ng_template_66_Template(rf, 
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(1, 1, "SIGNAGE_MANAGER.DISPLAYS_COUNT", \u0275\u0275pureFunction1(5, _c02, ctx_r1.playlist_displays().length), ctx_r1.playlist_displays().length), " ");
   }
 }
-function PlaylistItemDetailsComponent_Conditional_0_Conditional_74_Template(rf, ctx) {
+function PlaylistItemDetailsComponent_Conditional_0_Conditional_60_Template(rf, ctx) {
   if (rf & 1) {
     const _r5 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "button", 28);
     \u0275\u0275pipe(1, "translate");
     \u0275\u0275pipe(2, "translate");
-    \u0275\u0275listener("click", function PlaylistItemDetailsComponent_Conditional_0_Conditional_74_Template_button_click_0_listener() {
+    \u0275\u0275listener("click", function PlaylistItemDetailsComponent_Conditional_0_Conditional_60_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r5);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.addDisplay());
@@ -398,7 +436,7 @@ function PlaylistItemDetailsComponent_Conditional_0_Conditional_74_Template(rf, 
     \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(2, 4, "SIGNAGE_MANAGER.ADD_DISPLAY_TO_PLAYLIST_ARIA"));
   }
 }
-function PlaylistItemDetailsComponent_Conditional_0_Conditional_76_For_1_Conditional_8_Template(rf, ctx) {
+function PlaylistItemDetailsComponent_Conditional_0_Conditional_62_For_1_Conditional_8_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 34);
     \u0275\u0275text(1);
@@ -410,13 +448,13 @@ function PlaylistItemDetailsComponent_Conditional_0_Conditional_76_For_1_Conditi
     \u0275\u0275textInterpolate1(" ", display_r6.description, " ");
   }
 }
-function PlaylistItemDetailsComponent_Conditional_0_Conditional_76_For_1_Conditional_9_Template(rf, ctx) {
+function PlaylistItemDetailsComponent_Conditional_0_Conditional_62_For_1_Conditional_9_Template(rf, ctx) {
   if (rf & 1) {
     const _r7 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "button", 36);
     \u0275\u0275pipe(1, "translate");
     \u0275\u0275pipe(2, "translate");
-    \u0275\u0275listener("click", function PlaylistItemDetailsComponent_Conditional_0_Conditional_76_For_1_Conditional_9_Template_button_click_0_listener($event) {
+    \u0275\u0275listener("click", function PlaylistItemDetailsComponent_Conditional_0_Conditional_62_For_1_Conditional_9_Template_button_click_0_listener($event) {
       \u0275\u0275restoreView(_r7);
       const display_r6 = \u0275\u0275nextContext().$implicit;
       const ctx_r1 = \u0275\u0275nextContext(3);
@@ -432,7 +470,7 @@ function PlaylistItemDetailsComponent_Conditional_0_Conditional_76_For_1_Conditi
     \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(2, 4, "SIGNAGE_MANAGER.REMOVE_DISPLAY_FROM_PLAYLIST", \u0275\u0275pureFunction1(7, _c2, display_r6.display_name || display_r6.name)));
   }
 }
-function PlaylistItemDetailsComponent_Conditional_0_Conditional_76_For_1_Template(rf, ctx) {
+function PlaylistItemDetailsComponent_Conditional_0_Conditional_62_For_1_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 29)(1, "a", 30);
     \u0275\u0275pipe(2, "translate");
@@ -442,9 +480,9 @@ function PlaylistItemDetailsComponent_Conditional_0_Conditional_76_For_1_Templat
     \u0275\u0275elementStart(5, "div", 32)(6, "div", 33);
     \u0275\u0275text(7);
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(8, PlaylistItemDetailsComponent_Conditional_0_Conditional_76_For_1_Conditional_8_Template, 2, 1, "div", 34);
+    \u0275\u0275conditionalCreate(8, PlaylistItemDetailsComponent_Conditional_0_Conditional_62_For_1_Conditional_8_Template, 2, 1, "div", 34);
     \u0275\u0275elementEnd()();
-    \u0275\u0275conditionalCreate(9, PlaylistItemDetailsComponent_Conditional_0_Conditional_76_For_1_Conditional_9_Template, 5, 9, "button", 35);
+    \u0275\u0275conditionalCreate(9, PlaylistItemDetailsComponent_Conditional_0_Conditional_62_For_1_Conditional_9_Template, 5, 9, "button", 35);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -461,18 +499,18 @@ function PlaylistItemDetailsComponent_Conditional_0_Conditional_76_For_1_Templat
     \u0275\u0275conditional(ctx_r1.can_update() ? 9 : -1);
   }
 }
-function PlaylistItemDetailsComponent_Conditional_0_Conditional_76_Template(rf, ctx) {
+function PlaylistItemDetailsComponent_Conditional_0_Conditional_62_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275repeaterCreate(0, PlaylistItemDetailsComponent_Conditional_0_Conditional_76_For_1_Template, 10, 12, "div", 29, _forTrack0);
+    \u0275\u0275repeaterCreate(0, PlaylistItemDetailsComponent_Conditional_0_Conditional_62_For_1_Template, 10, 12, "div", 29, _forTrack0);
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext(2);
     \u0275\u0275repeater(ctx_r1.playlist_displays());
   }
 }
-function PlaylistItemDetailsComponent_Conditional_0_Conditional_77_Template(rf, ctx) {
+function PlaylistItemDetailsComponent_Conditional_0_Conditional_63_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 26)(1, "icon", 37);
+    \u0275\u0275elementStart(0, "div", 20)(1, "icon", 37);
     \u0275\u0275text(2, "tv_off");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(3, "p", 11);
@@ -485,7 +523,7 @@ function PlaylistItemDetailsComponent_Conditional_0_Conditional_77_Template(rf, 
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(5, 1, "SIGNAGE_MANAGER.NO_DISPLAYS_USE_PLAYLIST"), " ");
   }
 }
-function PlaylistItemDetailsComponent_Conditional_0_ng_template_79_Template(rf, ctx) {
+function PlaylistItemDetailsComponent_Conditional_0_ng_template_65_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275text(0);
     \u0275\u0275pipe(1, "translate");
@@ -495,13 +533,13 @@ function PlaylistItemDetailsComponent_Conditional_0_ng_template_79_Template(rf, 
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(1, 1, "SIGNAGE_MANAGER.ZONES_COUNT", \u0275\u0275pureFunction1(5, _c02, ctx_r1.playlist_zones().length), ctx_r1.playlist_zones().length), " ");
   }
 }
-function PlaylistItemDetailsComponent_Conditional_0_Conditional_87_Template(rf, ctx) {
+function PlaylistItemDetailsComponent_Conditional_0_Conditional_73_Template(rf, ctx) {
   if (rf & 1) {
     const _r8 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "button", 28);
     \u0275\u0275pipe(1, "translate");
     \u0275\u0275pipe(2, "translate");
-    \u0275\u0275listener("click", function PlaylistItemDetailsComponent_Conditional_0_Conditional_87_Template_button_click_0_listener() {
+    \u0275\u0275listener("click", function PlaylistItemDetailsComponent_Conditional_0_Conditional_73_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r8);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.addZone());
@@ -515,7 +553,7 @@ function PlaylistItemDetailsComponent_Conditional_0_Conditional_87_Template(rf, 
     \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(2, 4, "SIGNAGE_MANAGER.ADD_ZONE_TO_PLAYLIST_ARIA"));
   }
 }
-function PlaylistItemDetailsComponent_Conditional_0_Conditional_89_For_1_Conditional_8_Template(rf, ctx) {
+function PlaylistItemDetailsComponent_Conditional_0_Conditional_75_For_1_Conditional_8_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 34);
     \u0275\u0275text(1);
@@ -527,13 +565,13 @@ function PlaylistItemDetailsComponent_Conditional_0_Conditional_89_For_1_Conditi
     \u0275\u0275textInterpolate1(" ", zone_r9.description, " ");
   }
 }
-function PlaylistItemDetailsComponent_Conditional_0_Conditional_89_For_1_Conditional_9_Template(rf, ctx) {
+function PlaylistItemDetailsComponent_Conditional_0_Conditional_75_For_1_Conditional_9_Template(rf, ctx) {
   if (rf & 1) {
     const _r10 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "button", 36);
     \u0275\u0275pipe(1, "translate");
     \u0275\u0275pipe(2, "translate");
-    \u0275\u0275listener("click", function PlaylistItemDetailsComponent_Conditional_0_Conditional_89_For_1_Conditional_9_Template_button_click_0_listener($event) {
+    \u0275\u0275listener("click", function PlaylistItemDetailsComponent_Conditional_0_Conditional_75_For_1_Conditional_9_Template_button_click_0_listener($event) {
       \u0275\u0275restoreView(_r10);
       const zone_r9 = \u0275\u0275nextContext().$implicit;
       const ctx_r1 = \u0275\u0275nextContext(3);
@@ -549,7 +587,7 @@ function PlaylistItemDetailsComponent_Conditional_0_Conditional_89_For_1_Conditi
     \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(2, 4, "SIGNAGE_MANAGER.REMOVE_ZONE_FROM_PLAYLIST", \u0275\u0275pureFunction1(7, _c2, zone_r9.display_name || zone_r9.name)));
   }
 }
-function PlaylistItemDetailsComponent_Conditional_0_Conditional_89_For_1_Template(rf, ctx) {
+function PlaylistItemDetailsComponent_Conditional_0_Conditional_75_For_1_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 29)(1, "a", 30);
     \u0275\u0275pipe(2, "translate");
@@ -559,9 +597,9 @@ function PlaylistItemDetailsComponent_Conditional_0_Conditional_89_For_1_Templat
     \u0275\u0275elementStart(5, "div", 32)(6, "div", 33);
     \u0275\u0275text(7);
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(8, PlaylistItemDetailsComponent_Conditional_0_Conditional_89_For_1_Conditional_8_Template, 2, 1, "div", 34);
+    \u0275\u0275conditionalCreate(8, PlaylistItemDetailsComponent_Conditional_0_Conditional_75_For_1_Conditional_8_Template, 2, 1, "div", 34);
     \u0275\u0275elementEnd()();
-    \u0275\u0275conditionalCreate(9, PlaylistItemDetailsComponent_Conditional_0_Conditional_89_For_1_Conditional_9_Template, 5, 9, "button", 35);
+    \u0275\u0275conditionalCreate(9, PlaylistItemDetailsComponent_Conditional_0_Conditional_75_For_1_Conditional_9_Template, 5, 9, "button", 35);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -578,18 +616,18 @@ function PlaylistItemDetailsComponent_Conditional_0_Conditional_89_For_1_Templat
     \u0275\u0275conditional(ctx_r1.can_update() ? 9 : -1);
   }
 }
-function PlaylistItemDetailsComponent_Conditional_0_Conditional_89_Template(rf, ctx) {
+function PlaylistItemDetailsComponent_Conditional_0_Conditional_75_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275repeaterCreate(0, PlaylistItemDetailsComponent_Conditional_0_Conditional_89_For_1_Template, 10, 12, "div", 29, _forTrack0);
+    \u0275\u0275repeaterCreate(0, PlaylistItemDetailsComponent_Conditional_0_Conditional_75_For_1_Template, 10, 12, "div", 29, _forTrack0);
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext(2);
     \u0275\u0275repeater(ctx_r1.playlist_zones());
   }
 }
-function PlaylistItemDetailsComponent_Conditional_0_Conditional_90_Template(rf, ctx) {
+function PlaylistItemDetailsComponent_Conditional_0_Conditional_76_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 26)(1, "icon", 37);
+    \u0275\u0275elementStart(0, "div", 20)(1, "icon", 37);
     \u0275\u0275text(2, "location_off");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(3, "p", 11);
@@ -661,47 +699,34 @@ function PlaylistItemDetailsComponent_Conditional_0_Template(rf, ctx) {
     \u0275\u0275elementEnd()();
     \u0275\u0275conditionalCreate(47, PlaylistItemDetailsComponent_Conditional_0_Conditional_47_Template, 7, 7, "div");
     \u0275\u0275conditionalCreate(48, PlaylistItemDetailsComponent_Conditional_0_Conditional_48_Template, 7, 7, "div");
-    \u0275\u0275elementStart(49, "div")(50, "div", 7);
-    \u0275\u0275text(51);
-    \u0275\u0275pipe(52, "translate");
+    \u0275\u0275conditionalCreate(49, PlaylistItemDetailsComponent_Conditional_0_Conditional_49_Template, 15, 7, "div");
+    \u0275\u0275conditionalCreate(50, PlaylistItemDetailsComponent_Conditional_0_Conditional_50_Template, 6, 4, "div");
+    \u0275\u0275elementEnd()()();
+    \u0275\u0275elementStart(51, "mat-tab");
+    \u0275\u0275template(52, PlaylistItemDetailsComponent_Conditional_0_ng_template_52_Template, 2, 7, "ng-template", 13);
+    \u0275\u0275elementStart(53, "div", 14)(54, "div", 15)(55, "h5", 16)(56, "icon", 17);
+    \u0275\u0275text(57, "tv");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(53, "div", 13);
-    \u0275\u0275repeaterCreate(54, PlaylistItemDetailsComponent_Conditional_0_For_55_Template, 2, 1, "div", null, \u0275\u0275repeaterTrackByIdentity);
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(56, "div", 14)(57, "div", 15);
     \u0275\u0275text(58);
     \u0275\u0275pipe(59, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(60, "div", 16);
-    \u0275\u0275repeaterCreate(61, PlaylistItemDetailsComponent_Conditional_0_For_62_Template, 2, 1, "div", 17, \u0275\u0275repeaterTrackByIdentity, false, PlaylistItemDetailsComponent_Conditional_0_ForEmpty_63_Template, 3, 3, "div", 18);
+    \u0275\u0275conditionalCreate(60, PlaylistItemDetailsComponent_Conditional_0_Conditional_60_Template, 5, 6, "button", 18);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(61, "div", 19);
+    \u0275\u0275conditionalCreate(62, PlaylistItemDetailsComponent_Conditional_0_Conditional_62_Template, 2, 0)(63, PlaylistItemDetailsComponent_Conditional_0_Conditional_63_Template, 6, 3, "div", 20);
     \u0275\u0275elementEnd()()();
-    \u0275\u0275conditionalCreate(64, PlaylistItemDetailsComponent_Conditional_0_Conditional_64_Template, 6, 4, "div");
-    \u0275\u0275elementEnd()()();
-    \u0275\u0275elementStart(65, "mat-tab");
-    \u0275\u0275template(66, PlaylistItemDetailsComponent_Conditional_0_ng_template_66_Template, 2, 7, "ng-template", 19);
-    \u0275\u0275elementStart(67, "div", 20)(68, "div", 21)(69, "h5", 22)(70, "icon", 23);
-    \u0275\u0275text(71, "tv");
+    \u0275\u0275elementStart(64, "mat-tab");
+    \u0275\u0275template(65, PlaylistItemDetailsComponent_Conditional_0_ng_template_65_Template, 2, 7, "ng-template", 13);
+    \u0275\u0275elementStart(66, "div", 14)(67, "div", 15)(68, "h5", 16)(69, "icon", 17);
+    \u0275\u0275text(70, "layers");
     \u0275\u0275elementEnd();
-    \u0275\u0275text(72);
-    \u0275\u0275pipe(73, "translate");
+    \u0275\u0275text(71);
+    \u0275\u0275pipe(72, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(74, PlaylistItemDetailsComponent_Conditional_0_Conditional_74_Template, 5, 6, "button", 24);
+    \u0275\u0275conditionalCreate(73, PlaylistItemDetailsComponent_Conditional_0_Conditional_73_Template, 5, 6, "button", 18);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(75, "div", 25);
-    \u0275\u0275conditionalCreate(76, PlaylistItemDetailsComponent_Conditional_0_Conditional_76_Template, 2, 0)(77, PlaylistItemDetailsComponent_Conditional_0_Conditional_77_Template, 6, 3, "div", 26);
-    \u0275\u0275elementEnd()()();
-    \u0275\u0275elementStart(78, "mat-tab");
-    \u0275\u0275template(79, PlaylistItemDetailsComponent_Conditional_0_ng_template_79_Template, 2, 7, "ng-template", 19);
-    \u0275\u0275elementStart(80, "div", 20)(81, "div", 21)(82, "h5", 22)(83, "icon", 23);
-    \u0275\u0275text(84, "layers");
-    \u0275\u0275elementEnd();
-    \u0275\u0275text(85);
-    \u0275\u0275pipe(86, "translate");
-    \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(87, PlaylistItemDetailsComponent_Conditional_0_Conditional_87_Template, 5, 6, "button", 24);
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(88, "div", 25);
-    \u0275\u0275conditionalCreate(89, PlaylistItemDetailsComponent_Conditional_0_Conditional_89_Template, 2, 0)(90, PlaylistItemDetailsComponent_Conditional_0_Conditional_90_Template, 6, 3, "div", 26);
+    \u0275\u0275elementStart(74, "div", 19);
+    \u0275\u0275conditionalCreate(75, PlaylistItemDetailsComponent_Conditional_0_Conditional_75_Template, 2, 0)(76, PlaylistItemDetailsComponent_Conditional_0_Conditional_76_Template, 6, 3, "div", 20);
     \u0275\u0275elementEnd()()()()();
   }
   if (rf & 2) {
@@ -709,61 +734,55 @@ function PlaylistItemDetailsComponent_Conditional_0_Template(rf, ctx) {
     \u0275\u0275advance();
     \u0275\u0275property("selectedIndex", ctx_r1.active_tab());
     \u0275\u0275advance();
-    \u0275\u0275property("label", \u0275\u0275pipeBind1(3, 28, "COMMON.DETAILS"));
+    \u0275\u0275property("label", \u0275\u0275pipeBind1(3, 26, "COMMON.DETAILS"));
     \u0275\u0275advance(6);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(9, 30, "FORM.NAME"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(9, 28, "FORM.NAME"), " ");
     \u0275\u0275advance(3);
     \u0275\u0275textInterpolate1(" ", ctx_r1.playlist().name, " ");
     \u0275\u0275advance();
     \u0275\u0275conditional(ctx_r1.playlist().description ? 12 : -1);
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(16, 32, "COMMON.STATUS"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(16, 30, "COMMON.STATUS"), " ");
     \u0275\u0275advance(2);
     \u0275\u0275conditional(ctx_r1.playlist().enabled ? 17 : 18);
     \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(22, 34, "SIGNAGE_MANAGER.PLAYBACK"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(22, 32, "SIGNAGE_MANAGER.PLAYBACK"), " ");
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(25, 36, ctx_r1.playlist().random ? "SIGNAGE_MANAGER.SHUFFLE" : "SIGNAGE_MANAGER.SEQUENTIAL"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(25, 34, ctx_r1.playlist().random ? "SIGNAGE_MANAGER.SHUFFLE" : "SIGNAGE_MANAGER.SEQUENTIAL"), " ");
     \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(29, 38, "SIGNAGE_MANAGER.DEFAULT_DURATION"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(29, 36, "SIGNAGE_MANAGER.DEFAULT_DURATION"), " ");
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(32, 40, ctx_r1.playlist().default_duration / 1e3), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(32, 38, ctx_r1.playlist().default_duration / 1e3), " ");
     \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(36, 42, "SIGNAGE_MANAGER.DEFAULT_ANIMATION"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(36, 40, "SIGNAGE_MANAGER.DEFAULT_ANIMATION"), " ");
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(39, 44, ctx_r1.animation_label()), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(39, 42, ctx_r1.animation_label()), " ");
     \u0275\u0275advance(2);
     \u0275\u0275conditional(ctx_r1.playlist().orientation ? 40 : -1);
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(44, 46, "SIGNAGE_MANAGER.TAB_ITEMS"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(44, 44, "SIGNAGE_MANAGER.TAB_ITEMS"), " ");
     \u0275\u0275advance(3);
     \u0275\u0275textInterpolate1(" ", ctx_r1.item_count(), " ");
     \u0275\u0275advance();
     \u0275\u0275conditional(ctx_r1.playlist().valid_from ? 47 : -1);
     \u0275\u0275advance();
     \u0275\u0275conditional(ctx_r1.playlist().valid_until ? 48 : -1);
-    \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(52, 48, "SIGNAGE_MANAGER.SCHEDULE"), " ");
-    \u0275\u0275advance(3);
-    \u0275\u0275repeater(ctx_r1.schedule_labels());
-    \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(59, 50, "SIGNAGE_MANAGER.NEXT_5_PLAYS"), " ");
-    \u0275\u0275advance(3);
-    \u0275\u0275repeater(ctx_r1.next_play_sessions());
-    \u0275\u0275advance(3);
-    \u0275\u0275conditional(ctx_r1.playlist().play_count ? 64 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(!ctx_r1.playlist().distribution ? 49 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r1.playlist().play_count ? 50 : -1);
     \u0275\u0275advance(8);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(73, 52, "SIGNAGE_MANAGER.DISPLAYS_COUNT", \u0275\u0275pureFunction1(60, _c02, ctx_r1.playlist_displays().length), ctx_r1.playlist_displays().length), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(59, 46, "SIGNAGE_MANAGER.DISPLAYS_COUNT", \u0275\u0275pureFunction1(54, _c02, ctx_r1.playlist_displays().length), ctx_r1.playlist_displays().length), " ");
     \u0275\u0275advance(2);
-    \u0275\u0275conditional(ctx_r1.can_update() ? 74 : -1);
+    \u0275\u0275conditional(ctx_r1.can_update() ? 60 : -1);
     \u0275\u0275advance(2);
-    \u0275\u0275conditional(ctx_r1.playlist_displays().length > 0 ? 76 : 77);
+    \u0275\u0275conditional(ctx_r1.playlist_displays().length > 0 ? 62 : 63);
     \u0275\u0275advance(9);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(86, 56, "SIGNAGE_MANAGER.ZONES_COUNT", \u0275\u0275pureFunction1(62, _c02, ctx_r1.playlist_zones().length), ctx_r1.playlist_zones().length), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(72, 50, "SIGNAGE_MANAGER.ZONES_COUNT", \u0275\u0275pureFunction1(56, _c02, ctx_r1.playlist_zones().length), ctx_r1.playlist_zones().length), " ");
     \u0275\u0275advance(2);
-    \u0275\u0275conditional(ctx_r1.can_update() ? 87 : -1);
+    \u0275\u0275conditional(ctx_r1.can_update() ? 73 : -1);
     \u0275\u0275advance(2);
-    \u0275\u0275conditional(ctx_r1.playlist_zones().length > 0 ? 89 : 90);
+    \u0275\u0275conditional(ctx_r1.playlist_zones().length > 0 ? 75 : 76);
   }
 }
 function PlaylistItemDetailsComponent_Conditional_1_Template(rf, ctx) {
@@ -1138,7 +1157,7 @@ var PlaylistItemDetailsComponent = class _PlaylistItemDetailsComponent {
     this.schedule_labels = computed(
       () => {
         const pl = this.playlist();
-        if (!pl)
+        if (!pl || pl.distribution)
           return [];
         return playlistSchedules(pl).map((schedule) => scheduleLabel(schedule));
       },
@@ -1150,7 +1169,7 @@ var PlaylistItemDetailsComponent = class _PlaylistItemDetailsComponent {
     this.next_play_sessions = computed(
       () => {
         const pl = this.playlist();
-        if (!pl)
+        if (!pl || pl.distribution)
           return [];
         return playlistSchedules(pl).flatMap((schedule) => nextSchedulePlaySessions(schedule, 5)).sort((a, b) => a.start.getTime() - b.start.getTime()).slice(0, 5).map((session) => formatPlayDateTimeRange(session.start, session.period));
       },
@@ -1194,9 +1213,9 @@ var PlaylistItemDetailsComponent = class _PlaylistItemDetailsComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _PlaylistItemDetailsComponent, selectors: [["playlist-item-details"]], decls: 2, vars: 1, consts: [[1, "border-base-300", "flex", "h-full", "min-w-60", "lg:w-84", "flex-col", "overflow-hidden", "border-l"], [1, "border-base-300", "text-base-content/70", "flex", "min-w-60", "flex-1", "flex-col", "items-center", "justify-center", "space-y-2", "border-l", "p-8"], [1, "flex-1", "overflow-hidden", 3, "selectedIndexChange", "selectedIndex"], [3, "label"], [1, "h-full", "overflow-auto"], [1, "flex", "flex-col", "gap-2", "p-4", "w-full"], [1, "w-full"], [1, "text-base-content/70", "mb-1", "text-xs", "font-medium", "tracking-wider", "uppercase"], [1, "text-sm", "font-medium"], [1, "bg-success", "text-success-content", "rounded", "px-2", "py-1", "text-xs", "font-bold", "uppercase"], [1, "bg-warning", "text-warning-content", "rounded", "px-2", "py-1", "text-xs", "font-bold", "uppercase"], [1, "text-sm"], [1, "font-mono", "text-sm"], [1, "space-y-1", "text-sm"], [1, "mt-2"], [1, "text-base-content/60", "mb-1", "text-xs", "font-medium", "tracking-wide", "uppercase"], [1, "text-base-content/80", "space-y-0.5", "font-mono", "text-xs", "leading-tight"], [1, "truncate"], [1, "text-base-content/60"], ["mat-tab-label", ""], [1, "flex", "h-full", "flex-col", "overflow-hidden"], [1, "border-base-300", "flex", "items-center", "gap-2", "border-b", "px-4", "py-3"], [1, "text-base-content/80", "flex", "flex-1", "items-center", "gap-2", "font-medium", "tracking-wider", "uppercase"], [1, "text-lg"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "matTooltip"], [1, "min-h-0", "flex-1", "gap-2", "overflow-auto", "p-2"], [1, "text-base-content/70", "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], [1, "text-sm", "capitalize"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "click", "matTooltip"], [1, "border-base-300", "bg-base-100", "mb-2", "flex", "items-center", "gap-3", "rounded-lg", "border", "p-0.5", "pl-1"], ["matRipple", "", 1, "hover:bg-base-200", "flex", "min-w-0", "flex-1", "items-center", "gap-3", "rounded-lg", "p-1", "no-underline", "transition-colors", 3, "routerLink"], [1, "shrink-0", "text-xl", "opacity-60"], [1, "min-w-0", "flex-1"], [1, "truncate", "text-sm", "font-medium"], [1, "text-base-content/70", "truncate", "text-xs"], ["icon", "", "default", "", "error", "", "type", "button", "matRipple", "", 1, "m-1", "text-sm", 3, "matTooltip"], ["icon", "", "default", "", "error", "", "type", "button", "matRipple", "", 1, "m-1", "text-sm", 3, "click", "matTooltip"], [1, "text-4xl"], [1, "text-6xl"]], template: function PlaylistItemDetailsComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _PlaylistItemDetailsComponent, selectors: [["playlist-item-details"]], decls: 2, vars: 1, consts: [[1, "border-base-300", "flex", "h-full", "min-w-60", "lg:w-84", "flex-col", "overflow-hidden", "border-l"], [1, "border-base-300", "text-base-content/70", "flex", "min-w-60", "flex-1", "flex-col", "items-center", "justify-center", "space-y-2", "border-l", "p-8"], [1, "flex-1", "overflow-hidden", 3, "selectedIndexChange", "selectedIndex"], [3, "label"], [1, "h-full", "overflow-auto"], [1, "flex", "flex-col", "gap-2", "p-4", "w-full"], [1, "w-full"], [1, "text-base-content/70", "mb-1", "text-xs", "font-medium", "tracking-wider", "uppercase"], [1, "text-sm", "font-medium"], [1, "bg-success", "text-success-content", "rounded", "px-2", "py-1", "text-xs", "font-bold", "uppercase"], [1, "bg-warning", "text-warning-content", "rounded", "px-2", "py-1", "text-xs", "font-bold", "uppercase"], [1, "text-sm"], [1, "font-mono", "text-sm"], ["mat-tab-label", ""], [1, "flex", "h-full", "flex-col", "overflow-hidden"], [1, "border-base-300", "flex", "items-center", "gap-2", "border-b", "px-4", "py-3"], [1, "text-base-content/80", "flex", "flex-1", "items-center", "gap-2", "font-medium", "tracking-wider", "uppercase"], [1, "text-lg"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "matTooltip"], [1, "min-h-0", "flex-1", "gap-2", "overflow-auto", "p-2"], [1, "text-base-content/70", "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], [1, "text-sm", "capitalize"], [1, "space-y-1", "text-sm"], [1, "mt-2"], [1, "text-base-content/60", "mb-1", "text-xs", "font-medium", "tracking-wide", "uppercase"], [1, "text-base-content/80", "space-y-0.5", "font-mono", "text-xs", "leading-tight"], [1, "truncate"], [1, "text-base-content/60"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "click", "matTooltip"], [1, "border-base-300", "bg-base-100", "mb-2", "flex", "items-center", "gap-3", "rounded-lg", "border", "p-0.5", "pl-1"], ["matRipple", "", 1, "hover:bg-base-200", "flex", "min-w-0", "flex-1", "items-center", "gap-3", "rounded-lg", "p-1", "no-underline", "transition-colors", 3, "routerLink"], [1, "shrink-0", "text-xl", "opacity-60"], [1, "min-w-0", "flex-1"], [1, "truncate", "text-sm", "font-medium"], [1, "text-base-content/70", "truncate", "text-xs"], ["icon", "", "default", "", "error", "", "type", "button", "matRipple", "", 1, "m-1", "text-sm", 3, "matTooltip"], ["icon", "", "default", "", "error", "", "type", "button", "matRipple", "", 1, "m-1", "text-sm", 3, "click", "matTooltip"], [1, "text-4xl"], [1, "text-6xl"]], template: function PlaylistItemDetailsComponent_Template(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275conditionalCreate(0, PlaylistItemDetailsComponent_Conditional_0_Template, 91, 64, "div", 0)(1, PlaylistItemDetailsComponent_Conditional_1_Template, 6, 3, "div", 1);
+        \u0275\u0275conditionalCreate(0, PlaylistItemDetailsComponent_Conditional_0_Template, 77, 58, "div", 0)(1, PlaylistItemDetailsComponent_Conditional_1_Template, 6, 3, "div", 1);
       }
       if (rf & 2) {
         \u0275\u0275conditional(ctx.playlist() ? 0 : 1);
@@ -1388,55 +1407,57 @@ var PlaylistItemDetailsComponent = class _PlaylistItemDetailsComponent {
                                         </div>
                                     </div>
                                 }
-                                <div>
-                                    <div
-                                        class="text-base-content/70 mb-1 text-xs font-medium tracking-wider uppercase"
-                                    >
-                                        {{
-                                            'SIGNAGE_MANAGER.SCHEDULE'
-                                                | translate
-                                        }}
-                                    </div>
-                                    <div class="space-y-1 text-sm">
-                                        @for (
-                                            schedule of schedule_labels();
-                                            track schedule
-                                        ) {
-                                            <div>{{ schedule }}</div>
-                                        }
-                                    </div>
-                                    <div class="mt-2">
+                                @if (!playlist().distribution) {
+                                    <div>
                                         <div
-                                            class="text-base-content/60 mb-1 text-xs font-medium tracking-wide uppercase"
+                                            class="text-base-content/70 mb-1 text-xs font-medium tracking-wider uppercase"
                                         >
                                             {{
-                                                'SIGNAGE_MANAGER.NEXT_5_PLAYS'
+                                                'SIGNAGE_MANAGER.SCHEDULE'
                                                     | translate
                                             }}
                                         </div>
-                                        <div
-                                            class="text-base-content/80 space-y-0.5 font-mono text-xs leading-tight"
-                                        >
+                                        <div class="space-y-1 text-sm">
                                             @for (
-                                                play_time of next_play_sessions();
-                                                track play_time
+                                                schedule of schedule_labels();
+                                                track schedule
                                             ) {
-                                                <div class="truncate">
-                                                    {{ play_time }}
-                                                </div>
-                                            } @empty {
-                                                <div
-                                                    class="text-base-content/60"
-                                                >
-                                                    {{
-                                                        'SIGNAGE_MANAGER.NO_UPCOMING_PLAY_TIMES'
-                                                            | translate
-                                                    }}
-                                                </div>
+                                                <div>{{ schedule }}</div>
                                             }
                                         </div>
+                                        <div class="mt-2">
+                                            <div
+                                                class="text-base-content/60 mb-1 text-xs font-medium tracking-wide uppercase"
+                                            >
+                                                {{
+                                                    'SIGNAGE_MANAGER.NEXT_5_PLAYS'
+                                                        | translate
+                                                }}
+                                            </div>
+                                            <div
+                                                class="text-base-content/80 space-y-0.5 font-mono text-xs leading-tight"
+                                            >
+                                                @for (
+                                                    play_time of next_play_sessions();
+                                                    track play_time
+                                                ) {
+                                                    <div class="truncate">
+                                                        {{ play_time }}
+                                                    </div>
+                                                } @empty {
+                                                    <div
+                                                        class="text-base-content/60"
+                                                    >
+                                                        {{
+                                                            'SIGNAGE_MANAGER.NO_UPCOMING_PLAY_TIMES'
+                                                                | translate
+                                                        }}
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
+                                }
                                 @if (playlist().play_count) {
                                     <div>
                                         <div
@@ -1771,7 +1792,7 @@ var PlaylistItemDetailsComponent = class _PlaylistItemDetailsComponent {
   }], () => [], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(PlaylistItemDetailsComponent, { className: "PlaylistItemDetailsComponent", filePath: "apps/signage-manager/src/app/playlists/playlist-item-details.component.ts", lineNumber: 873 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(PlaylistItemDetailsComponent, { className: "PlaylistItemDetailsComponent", filePath: "apps/signage-manager/src/app/playlists/playlist-item-details.component.ts", lineNumber: 875 });
 })();
 
 // apps/signage-manager/src/app/playlists/playlist-items.component.ts
@@ -1780,7 +1801,7 @@ var _forTrack02 = ($index, $item) => $item.id + "-" + $index;
 function PlaylistItemsComponent_Conditional_0_Conditional_6_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 11);
+    \u0275\u0275elementStart(0, "button", 13);
     \u0275\u0275pipe(1, "translate");
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_6_Conditional_0_Template_button_click_0_listener() {
@@ -1788,7 +1809,7 @@ function PlaylistItemsComponent_Conditional_0_Conditional_6_Conditional_0_Templa
       const ctx_r1 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r1.approvePlaylist());
     });
-    \u0275\u0275elementStart(3, "icon", 12);
+    \u0275\u0275elementStart(3, "icon", 14);
     \u0275\u0275text(4, "order_approve");
     \u0275\u0275elementEnd()();
   }
@@ -1799,12 +1820,12 @@ function PlaylistItemsComponent_Conditional_0_Conditional_6_Conditional_0_Templa
 }
 function PlaylistItemsComponent_Conditional_0_Conditional_6_Conditional_1_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275element(0, "mat-spinner", 14);
+    \u0275\u0275element(0, "mat-spinner", 16);
   }
 }
 function PlaylistItemsComponent_Conditional_0_Conditional_6_Conditional_1_Conditional_4_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "icon", 12);
+    \u0275\u0275elementStart(0, "icon", 14);
     \u0275\u0275text(1, "approval");
     \u0275\u0275elementEnd();
   }
@@ -1812,7 +1833,7 @@ function PlaylistItemsComponent_Conditional_0_Conditional_6_Conditional_1_Condit
 function PlaylistItemsComponent_Conditional_0_Conditional_6_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
     const _r3 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 13);
+    \u0275\u0275elementStart(0, "button", 15);
     \u0275\u0275pipe(1, "translate");
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_6_Conditional_1_Template_button_click_0_listener() {
@@ -1820,7 +1841,7 @@ function PlaylistItemsComponent_Conditional_0_Conditional_6_Conditional_1_Templa
       const ctx_r1 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r1.requestApproval());
     });
-    \u0275\u0275conditionalCreate(3, PlaylistItemsComponent_Conditional_0_Conditional_6_Conditional_1_Conditional_3_Template, 1, 0, "mat-spinner", 14)(4, PlaylistItemsComponent_Conditional_0_Conditional_6_Conditional_1_Conditional_4_Template, 2, 0, "icon", 12);
+    \u0275\u0275conditionalCreate(3, PlaylistItemsComponent_Conditional_0_Conditional_6_Conditional_1_Conditional_3_Template, 1, 0, "mat-spinner", 16)(4, PlaylistItemsComponent_Conditional_0_Conditional_6_Conditional_1_Conditional_4_Template, 2, 0, "icon", 14);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -1833,7 +1854,7 @@ function PlaylistItemsComponent_Conditional_0_Conditional_6_Conditional_1_Templa
 }
 function PlaylistItemsComponent_Conditional_0_Conditional_6_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275conditionalCreate(0, PlaylistItemsComponent_Conditional_0_Conditional_6_Conditional_0_Template, 5, 6, "button", 6)(1, PlaylistItemsComponent_Conditional_0_Conditional_6_Conditional_1_Template, 5, 8, "button", 10);
+    \u0275\u0275conditionalCreate(0, PlaylistItemsComponent_Conditional_0_Conditional_6_Conditional_0_Template, 5, 6, "button", 7)(1, PlaylistItemsComponent_Conditional_0_Conditional_6_Conditional_1_Template, 5, 8, "button", 12);
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext(2);
@@ -1843,7 +1864,7 @@ function PlaylistItemsComponent_Conditional_0_Conditional_6_Template(rf, ctx) {
 function PlaylistItemsComponent_Conditional_0_Conditional_7_Template(rf, ctx) {
   if (rf & 1) {
     const _r4 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 11);
+    \u0275\u0275elementStart(0, "button", 13);
     \u0275\u0275pipe(1, "translate");
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_7_Template_button_click_0_listener() {
@@ -1863,7 +1884,7 @@ function PlaylistItemsComponent_Conditional_0_Conditional_7_Template(rf, ctx) {
 function PlaylistItemsComponent_Conditional_0_Conditional_8_Template(rf, ctx) {
   if (rf & 1) {
     const _r5 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 11);
+    \u0275\u0275elementStart(0, "button", 13);
     \u0275\u0275pipe(1, "translate");
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_8_Template_button_click_0_listener() {
@@ -1883,7 +1904,7 @@ function PlaylistItemsComponent_Conditional_0_Conditional_8_Template(rf, ctx) {
 function PlaylistItemsComponent_Conditional_0_Conditional_9_Template(rf, ctx) {
   if (rf & 1) {
     const _r6 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 15);
+    \u0275\u0275elementStart(0, "button", 17);
     \u0275\u0275pipe(1, "translate");
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_9_Template_button_click_0_listener() {
@@ -1902,8 +1923,8 @@ function PlaylistItemsComponent_Conditional_0_Conditional_9_Template(rf, ctx) {
 }
 function PlaylistItemsComponent_Conditional_0_Conditional_10_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 8);
-    \u0275\u0275element(1, "mat-spinner", 16);
+    \u0275\u0275elementStart(0, "div", 9);
+    \u0275\u0275element(1, "mat-spinner", 18);
     \u0275\u0275elementStart(2, "p");
     \u0275\u0275text(3);
     \u0275\u0275pipe(4, "translate");
@@ -1916,55 +1937,55 @@ function PlaylistItemsComponent_Conditional_0_Conditional_10_Template(rf, ctx) {
 }
 function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Conditional_6_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275element(0, "img", 22);
+    \u0275\u0275element(0, "img", 24);
   }
   if (rf & 2) {
-    const item_r9 = \u0275\u0275nextContext().$implicit;
-    const url_r10 = \u0275\u0275readContextLet(5);
-    \u0275\u0275property("source", url_r10)("alt", item_r9.name + " thumbnail");
+    const item_r10 = \u0275\u0275nextContext().$implicit;
+    const url_r14 = \u0275\u0275readContextLet(5);
+    \u0275\u0275property("source", url_r14)("alt", item_r10.name + " thumbnail");
   }
 }
 function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Conditional_7_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 23)(1, "icon", 34);
+    \u0275\u0275elementStart(0, "div", 25)(1, "icon", 36);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    const item_r9 = \u0275\u0275nextContext().$implicit;
+    const item_r10 = \u0275\u0275nextContext().$implicit;
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate(item_r9.media_type === "video" ? "video_library" : item_r9.media_type === "webpage" ? "http" : item_r9.media_type === "plugin" ? "extension" : "image");
+    \u0275\u0275textInterpolate(item_r10.media_type === "video" ? "video_library" : item_r10.media_type === "webpage" ? "http" : item_r10.media_type === "plugin" ? "extension" : "image");
   }
 }
 function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Conditional_14_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 27);
+    \u0275\u0275elementStart(0, "span", 29);
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "mediaDuration");
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const item_r9 = \u0275\u0275nextContext().$implicit;
+    const item_r10 = \u0275\u0275nextContext().$implicit;
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, item_r9.play_time / 1e3), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, item_r10.play_time / 1e3), " ");
   }
 }
 function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Conditional_28_Template(rf, ctx) {
   if (rf & 1) {
-    const _r11 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 29);
+    const _r15 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 31);
     \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Conditional_28_Template_button_click_0_listener() {
-      \u0275\u0275restoreView(_r11);
-      const ctx_r11 = \u0275\u0275nextContext();
-      const item_r9 = ctx_r11.$implicit;
-      const $index_r13 = ctx_r11.$index;
+      \u0275\u0275restoreView(_r15);
+      const ctx_r15 = \u0275\u0275nextContext();
+      const item_r10 = ctx_r15.$implicit;
+      const $index_r11 = ctx_r15.$index;
       const ctx_r1 = \u0275\u0275nextContext(3);
-      return \u0275\u0275resetView(ctx_r1.removeItem(item_r9, $index_r13));
+      return \u0275\u0275resetView(ctx_r1.removeItem(item_r10, $index_r11));
     });
-    \u0275\u0275elementStart(1, "div", 30)(2, "icon", 35);
+    \u0275\u0275elementStart(1, "div", 32)(2, "icon", 37);
     \u0275\u0275text(3, " delete ");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "div", 32);
+    \u0275\u0275elementStart(4, "div", 34);
     \u0275\u0275text(5);
     \u0275\u0275pipe(6, "translate");
     \u0275\u0275elementEnd()()();
@@ -1977,37 +1998,43 @@ function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Conditional_2
 function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Template(rf, ctx) {
   if (rf & 1) {
     const _r8 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 19);
+    \u0275\u0275elementStart(0, "div", 21);
     \u0275\u0275pipe(1, "translate");
     \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Template_div_click_0_listener() {
-      const item_r9 = \u0275\u0275restoreView(_r8).$implicit;
+      const ctx_r8 = \u0275\u0275restoreView(_r8);
+      const item_r10 = ctx_r8.$implicit;
+      const $index_r11 = ctx_r8.$index;
       const ctx_r1 = \u0275\u0275nextContext(3);
-      return \u0275\u0275resetView(ctx_r1.selectItem(item_r9));
+      return \u0275\u0275resetView(ctx_r1.selectItem(item_r10, $index_r11));
     })("keydown.enter", function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Template_div_keydown_enter_0_listener($event) {
-      const item_r9 = \u0275\u0275restoreView(_r8).$implicit;
+      const ctx_r11 = \u0275\u0275restoreView(_r8);
+      const item_r10 = ctx_r11.$implicit;
+      const $index_r11 = ctx_r11.$index;
       const ctx_r1 = \u0275\u0275nextContext(3);
-      return \u0275\u0275resetView(ctx_r1.selectItemWithKeyboard($event, item_r9));
+      return \u0275\u0275resetView(ctx_r1.selectItemWithKeyboard($event, item_r10, $index_r11));
     })("keydown.space", function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Template_div_keydown_space_0_listener($event) {
-      const item_r9 = \u0275\u0275restoreView(_r8).$implicit;
+      const ctx_r12 = \u0275\u0275restoreView(_r8);
+      const item_r10 = ctx_r12.$implicit;
+      const $index_r11 = ctx_r12.$index;
       const ctx_r1 = \u0275\u0275nextContext(3);
-      return \u0275\u0275resetView(ctx_r1.selectItemWithKeyboard($event, item_r9));
+      return \u0275\u0275resetView(ctx_r1.selectItemWithKeyboard($event, item_r10, $index_r11));
     });
-    \u0275\u0275elementStart(2, "icon", 20);
+    \u0275\u0275elementStart(2, "icon", 22);
     \u0275\u0275text(3, "drag_indicator");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "div", 21);
+    \u0275\u0275elementStart(4, "div", 23);
     \u0275\u0275declareLet(5);
-    \u0275\u0275conditionalCreate(6, PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Conditional_6_Template, 1, 2, "img", 22)(7, PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Conditional_7_Template, 3, 1, "div", 23);
+    \u0275\u0275conditionalCreate(6, PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Conditional_6_Template, 1, 2, "img", 24)(7, PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Conditional_7_Template, 3, 1, "div", 25);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(8, "div", 4)(9, "div", 24);
+    \u0275\u0275elementStart(8, "div", 5)(9, "div", 26);
     \u0275\u0275text(10);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(11, "div", 25)(12, "span", 26);
+    \u0275\u0275elementStart(11, "div", 27)(12, "span", 28);
     \u0275\u0275text(13);
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(14, PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Conditional_14_Template, 3, 3, "span", 27);
+    \u0275\u0275conditionalCreate(14, PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Conditional_14_Template, 3, 3, "span", 29);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(15, "button", 28);
+    \u0275\u0275elementStart(15, "button", 30);
     \u0275\u0275pipe(16, "translate");
     \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Template_button_click_15_listener($event) {
       return $event.stopPropagation();
@@ -2015,42 +2042,43 @@ function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Template(rf, 
     \u0275\u0275elementStart(17, "icon");
     \u0275\u0275text(18, "more_vert");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(19, "mat-menu", null, 0)(21, "button", 29);
+    \u0275\u0275elementStart(19, "mat-menu", null, 0)(21, "button", 31);
     \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Template_button_click_21_listener() {
-      const item_r9 = \u0275\u0275restoreView(_r8).$implicit;
+      const item_r10 = \u0275\u0275restoreView(_r8).$implicit;
       const ctx_r1 = \u0275\u0275nextContext(3);
-      return \u0275\u0275resetView(ctx_r1.previewItem(item_r9));
+      return \u0275\u0275resetView(ctx_r1.previewItem(item_r10));
     });
-    \u0275\u0275elementStart(22, "div", 30)(23, "icon", 31);
+    \u0275\u0275elementStart(22, "div", 32)(23, "icon", 33);
     \u0275\u0275text(24, "visibility");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(25, "div", 32);
+    \u0275\u0275elementStart(25, "div", 34);
     \u0275\u0275text(26);
     \u0275\u0275pipe(27, "translate");
     \u0275\u0275elementEnd()()();
-    \u0275\u0275conditionalCreate(28, PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Conditional_28_Template, 7, 3, "button", 33);
+    \u0275\u0275conditionalCreate(28, PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Conditional_28_Template, 7, 3, "button", 35);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    const item_r9 = ctx.$implicit;
-    const item_menu_r14 = \u0275\u0275reference(20);
+    const item_r10 = ctx.$implicit;
+    const $index_r11 = ctx.$index;
+    const item_menu_r17 = \u0275\u0275reference(20);
     const ctx_r1 = \u0275\u0275nextContext(3);
-    \u0275\u0275classProp("bg-primary", ctx_r1.selected_item()?.id === item_r9.id)("text-primary-content", ctx_r1.selected_item()?.id === item_r9.id)("hover:bg-base-200", ctx_r1.selected_item()?.id !== item_r9.id);
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(1, 31, "SIGNAGE_MANAGER.SELECT_MEDIA_ITEM", \u0275\u0275pureFunction1(39, _c03, item_r9.name)));
+    \u0275\u0275classProp("bg-primary", ctx_r1.isItemSelected(item_r10, $index_r11))("text-primary-content", ctx_r1.isItemSelected(item_r10, $index_r11))("hover:bg-base-200", !ctx_r1.isItemSelected(item_r10, $index_r11));
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(1, 31, "SIGNAGE_MANAGER.SELECT_MEDIA_ITEM", \u0275\u0275pureFunction1(39, _c03, item_r10.name)));
     \u0275\u0275advance(5);
-    const url_r15 = \u0275\u0275storeLet(ctx_r1.thumbnailURL(item_r9));
+    const url_r18 = \u0275\u0275storeLet(ctx_r1.thumbnailURL(item_r10));
     \u0275\u0275advance();
-    \u0275\u0275conditional(url_r15 && item_r9.thumbnail_id ? 6 : 7);
+    \u0275\u0275conditional(url_r18 && item_r10.thumbnail_id ? 6 : 7);
     \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate1(" ", item_r9.name, " ");
+    \u0275\u0275textInterpolate1(" ", item_r10.name, " ");
     \u0275\u0275advance(2);
-    \u0275\u0275classProp("bg-info", item_r9.media_type === "video")("text-info-content", item_r9.media_type === "video")("bg-warning", item_r9.media_type === "image")("text-warning-content", item_r9.media_type === "image")("bg-success", item_r9.media_type === "webpage")("text-success-content", item_r9.media_type === "webpage")("bg-error", item_r9.media_type === "plugin")("text-error-content", item_r9.media_type === "plugin");
+    \u0275\u0275classProp("bg-info", item_r10.media_type === "video")("text-info-content", item_r10.media_type === "video")("bg-warning", item_r10.media_type === "image")("text-warning-content", item_r10.media_type === "image")("bg-success", item_r10.media_type === "webpage")("text-success-content", item_r10.media_type === "webpage")("bg-error", item_r10.media_type === "plugin")("text-error-content", item_r10.media_type === "plugin");
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", item_r9.media_type, " ");
+    \u0275\u0275textInterpolate1(" ", item_r10.media_type, " ");
     \u0275\u0275advance();
-    \u0275\u0275conditional(item_r9.play_time ? 14 : -1);
+    \u0275\u0275conditional(item_r10.play_time ? 14 : -1);
     \u0275\u0275advance();
-    \u0275\u0275property("matMenuTriggerFor", item_menu_r14);
+    \u0275\u0275property("matMenuTriggerFor", item_menu_r17);
     \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(16, 35, "SIGNAGE_MANAGER.ITEM_ACTIONS"));
     \u0275\u0275advance(11);
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(27, 37, "COMMON.PREVIEW"), " ");
@@ -2061,13 +2089,13 @@ function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Template(rf, 
 function PlaylistItemsComponent_Conditional_0_Conditional_11_Template(rf, ctx) {
   if (rf & 1) {
     const _r7 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 17);
+    \u0275\u0275elementStart(0, "div", 19);
     \u0275\u0275listener("cdkDropListDropped", function PlaylistItemsComponent_Conditional_0_Conditional_11_Template_div_cdkDropListDropped_0_listener($event) {
       \u0275\u0275restoreView(_r7);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.onDrop($event));
     });
-    \u0275\u0275repeaterCreate(1, PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Template, 29, 41, "div", 18, _forTrack02);
+    \u0275\u0275repeaterCreate(1, PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Template, 29, 41, "div", 20, _forTrack02);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -2076,9 +2104,274 @@ function PlaylistItemsComponent_Conditional_0_Conditional_11_Template(rf, ctx) {
     \u0275\u0275repeater(ctx_r1.items());
   }
 }
+function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_6_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "img", 24);
+  }
+  if (rf & 2) {
+    const item_r22 = \u0275\u0275nextContext().$implicit;
+    const url_r26 = \u0275\u0275readContextLet(5);
+    \u0275\u0275property("source", url_r26)("alt", item_r22.name + " thumbnail");
+  }
+}
+function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_7_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 25)(1, "icon", 36);
+    \u0275\u0275text(2);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const item_r22 = \u0275\u0275nextContext().$implicit;
+    const ctx_r1 = \u0275\u0275nextContext(3);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(ctx_r1.mediaIcon(item_r22));
+  }
+}
+function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_14_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span", 29);
+    \u0275\u0275text(1);
+    \u0275\u0275pipe(2, "mediaDuration");
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const item_r22 = \u0275\u0275nextContext().$implicit;
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, item_r22.play_time / 1e3), " ");
+  }
+}
+function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_28_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r27 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 31);
+    \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_28_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r27);
+      \u0275\u0275nextContext();
+      const schedule_r28 = \u0275\u0275readContextLet(0);
+      const ctx_r1 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r1.editItemSchedule(schedule_r28));
+    });
+    \u0275\u0275elementStart(1, "div", 32)(2, "icon", 33);
+    \u0275\u0275text(3, "edit_calendar");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "div", 34);
+    \u0275\u0275text(5);
+    \u0275\u0275pipe(6, "translate");
+    \u0275\u0275elementEnd()()();
+    \u0275\u0275elementStart(7, "button", 31);
+    \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_28_Template_button_click_7_listener() {
+      \u0275\u0275restoreView(_r27);
+      const ctx_r28 = \u0275\u0275nextContext();
+      const item_r22 = ctx_r28.$implicit;
+      const $index_r23 = ctx_r28.$index;
+      const ctx_r1 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r1.removeItem(item_r22, $index_r23));
+    });
+    \u0275\u0275elementStart(8, "div", 32)(9, "icon", 37);
+    \u0275\u0275text(10, " delete ");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(11, "div", 34);
+    \u0275\u0275text(12);
+    \u0275\u0275pipe(13, "translate");
+    \u0275\u0275elementEnd()()();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance(5);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(6, 2, "SIGNAGE_MANAGER.EDIT_SCHEDULE"), " ");
+    \u0275\u0275advance(7);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(13, 4, "SIGNAGE_MANAGER.REMOVE_FROM_PLAYLIST"), " ");
+  }
+}
+function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_35_Conditional_0_For_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 48);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const item_schedule_r31 = ctx.$implicit;
+    const ctx_r1 = \u0275\u0275nextContext(6);
+    \u0275\u0275property("matTooltip", ctx_r1.scheduleTooltip(item_schedule_r31));
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", ctx_r1.scheduleLabel(item_schedule_r31), " ");
+  }
+}
+function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_35_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275repeaterCreate(0, PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_35_Conditional_0_For_1_Template, 2, 2, "div", 48, \u0275\u0275repeaterTrackByIndex);
+  }
+  if (rf & 2) {
+    \u0275\u0275nextContext(2);
+    const schedule_r28 = \u0275\u0275readContextLet(0);
+    \u0275\u0275repeater(schedule_r28.schedules);
+  }
+}
+function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_35_Conditional_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 47);
+    \u0275\u0275text(1);
+    \u0275\u0275pipe(2, "translate");
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, "SIGNAGE_MANAGER.NO_SCHEDULES"), " ");
+  }
+}
+function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_35_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275conditionalCreate(0, PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_35_Conditional_0_Template, 2, 0)(1, PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_35_Conditional_1_Template, 3, 3, "div", 47);
+  }
+  if (rf & 2) {
+    \u0275\u0275nextContext();
+    const schedule_r28 = \u0275\u0275readContextLet(0);
+    \u0275\u0275conditional(schedule_r28?.schedules?.length ? 0 : 1);
+  }
+}
+function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r20 = \u0275\u0275getCurrentView();
+    \u0275\u0275declareLet(0);
+    \u0275\u0275elementStart(1, "div", 43);
+    \u0275\u0275pipe(2, "translate");
+    \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Template_div_click_1_listener() {
+      const ctx_r20 = \u0275\u0275restoreView(_r20);
+      const item_r22 = ctx_r20.$implicit;
+      const $index_r23 = ctx_r20.$index;
+      const ctx_r1 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r1.selectItem(item_r22, $index_r23));
+    })("keydown.enter", function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Template_div_keydown_enter_1_listener($event) {
+      const ctx_r23 = \u0275\u0275restoreView(_r20);
+      const item_r22 = ctx_r23.$implicit;
+      const $index_r23 = ctx_r23.$index;
+      const ctx_r1 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r1.selectItemWithKeyboard($event, item_r22, $index_r23));
+    })("keydown.space", function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Template_div_keydown_space_1_listener($event) {
+      const ctx_r24 = \u0275\u0275restoreView(_r20);
+      const item_r22 = ctx_r24.$implicit;
+      const $index_r23 = ctx_r24.$index;
+      const ctx_r1 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r1.selectItemWithKeyboard($event, item_r22, $index_r23));
+    });
+    \u0275\u0275elementStart(3, "div", 44)(4, "div", 23);
+    \u0275\u0275declareLet(5);
+    \u0275\u0275conditionalCreate(6, PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_6_Template, 1, 2, "img", 24)(7, PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_7_Template, 3, 1, "div", 25);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(8, "div", 5)(9, "div", 26);
+    \u0275\u0275text(10);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(11, "div", 27)(12, "span", 28);
+    \u0275\u0275text(13);
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(14, PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_14_Template, 3, 3, "span", 29);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(15, "button", 30);
+    \u0275\u0275pipe(16, "translate");
+    \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Template_button_click_15_listener($event) {
+      return $event.stopPropagation();
+    });
+    \u0275\u0275elementStart(17, "icon");
+    \u0275\u0275text(18, "more_vert");
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(19, "mat-menu", null, 1)(21, "button", 31);
+    \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Template_button_click_21_listener() {
+      const item_r22 = \u0275\u0275restoreView(_r20).$implicit;
+      const ctx_r1 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r1.previewItem(item_r22));
+    });
+    \u0275\u0275elementStart(22, "div", 32)(23, "icon", 33);
+    \u0275\u0275text(24, "visibility");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(25, "div", 34);
+    \u0275\u0275text(26);
+    \u0275\u0275pipe(27, "translate");
+    \u0275\u0275elementEnd()()();
+    \u0275\u0275conditionalCreate(28, PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_28_Template, 14, 6);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(29, "div", 45)(30, "button", 46);
+    \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Template_button_click_30_listener($event) {
+      const ctx_r29 = \u0275\u0275restoreView(_r20);
+      const item_r22 = ctx_r29.$implicit;
+      const $index_r23 = ctx_r29.$index;
+      const ctx_r1 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r1.toggleSchedules($event, item_r22, $index_r23));
+    });
+    \u0275\u0275elementStart(31, "span");
+    \u0275\u0275text(32, "Schedules");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(33, "icon", 40);
+    \u0275\u0275text(34);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275conditionalCreate(35, PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_35_Template, 2, 1);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const item_r22 = ctx.$implicit;
+    const $index_r23 = ctx.$index;
+    const distribution_item_menu_r32 = \u0275\u0275reference(20);
+    const ctx_r1 = \u0275\u0275nextContext(3);
+    \u0275\u0275storeLet(ctx_r1.itemSchedule(item_r22, $index_r23));
+    \u0275\u0275advance();
+    \u0275\u0275classProp("bg-primary", ctx_r1.isItemSelected(item_r22, $index_r23))("text-primary-content", ctx_r1.isItemSelected(item_r22, $index_r23))("hover:bg-base-200", !ctx_r1.isItemSelected(item_r22, $index_r23));
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(2, 35, "SIGNAGE_MANAGER.SELECT_MEDIA_ITEM", \u0275\u0275pureFunction1(43, _c03, item_r22.name)));
+    \u0275\u0275advance(4);
+    const url_r33 = \u0275\u0275storeLet(ctx_r1.thumbnailURL(item_r22));
+    \u0275\u0275advance();
+    \u0275\u0275conditional(url_r33 && item_r22.thumbnail_id ? 6 : 7);
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate1(" ", item_r22.name, " ");
+    \u0275\u0275advance(2);
+    \u0275\u0275classProp("bg-info", item_r22.media_type === "video")("text-info-content", item_r22.media_type === "video")("bg-warning", item_r22.media_type === "image")("text-warning-content", item_r22.media_type === "image")("bg-success", item_r22.media_type === "webpage")("text-success-content", item_r22.media_type === "webpage")("bg-error", item_r22.media_type === "plugin")("text-error-content", item_r22.media_type === "plugin");
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", item_r22.media_type, " ");
+    \u0275\u0275advance();
+    \u0275\u0275conditional(item_r22.play_time ? 14 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275property("matMenuTriggerFor", distribution_item_menu_r32);
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(16, 39, "SIGNAGE_MANAGER.ITEM_ACTIONS"));
+    \u0275\u0275advance(11);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(27, 41, "COMMON.PREVIEW"), " ");
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(ctx_r1.can_update() ? 28 : -1);
+    \u0275\u0275advance(2);
+    \u0275\u0275attribute("aria-expanded", ctx_r1.schedulesOpen(item_r22, $index_r23));
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate(ctx_r1.schedulesOpen(item_r22, $index_r23) ? "expand_less" : "expand_more");
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r1.schedulesOpen(item_r22, $index_r23) ? 35 : -1);
+  }
+}
 function PlaylistItemsComponent_Conditional_0_Conditional_12_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 1)(1, "icon", 36);
+    const _r19 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 11)(1, "div", 38)(2, "button", 39);
+    \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_12_Template_button_click_2_listener($event) {
+      \u0275\u0275restoreView(_r19);
+      const ctx_r1 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r1.toggleAllSchedules($event));
+    });
+    \u0275\u0275elementStart(3, "icon", 40);
+    \u0275\u0275text(4);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(5, "span", 41);
+    \u0275\u0275text(6);
+    \u0275\u0275elementEnd()()();
+    \u0275\u0275repeaterCreate(7, PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Template, 36, 45, "div", 42, _forTrack02);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate(ctx_r1.allSchedulesCollapsed() ? "unfold_more" : "unfold_less");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(ctx_r1.allSchedulesCollapsed() ? "Expand all" : "Collapse all");
+    \u0275\u0275advance();
+    \u0275\u0275repeater(ctx_r1.items());
+  }
+}
+function PlaylistItemsComponent_Conditional_0_Conditional_13_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 2)(1, "icon", 49);
     \u0275\u0275text(2, "queue_music");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(3, "p");
@@ -2093,18 +2386,18 @@ function PlaylistItemsComponent_Conditional_0_Conditional_12_Template(rf, ctx) {
 }
 function PlaylistItemsComponent_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 2)(1, "icon", 3);
+    \u0275\u0275elementStart(0, "div", 3)(1, "icon", 4);
     \u0275\u0275text(2, "playlist_play");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "div", 4)(4, "h4", 5);
+    \u0275\u0275elementStart(3, "div", 5)(4, "h4", 6);
     \u0275\u0275text(5);
     \u0275\u0275elementEnd()();
     \u0275\u0275conditionalCreate(6, PlaylistItemsComponent_Conditional_0_Conditional_6_Template, 2, 1);
-    \u0275\u0275conditionalCreate(7, PlaylistItemsComponent_Conditional_0_Conditional_7_Template, 5, 6, "button", 6);
-    \u0275\u0275conditionalCreate(8, PlaylistItemsComponent_Conditional_0_Conditional_8_Template, 5, 6, "button", 6);
-    \u0275\u0275conditionalCreate(9, PlaylistItemsComponent_Conditional_0_Conditional_9_Template, 5, 6, "button", 7);
+    \u0275\u0275conditionalCreate(7, PlaylistItemsComponent_Conditional_0_Conditional_7_Template, 5, 6, "button", 7);
+    \u0275\u0275conditionalCreate(8, PlaylistItemsComponent_Conditional_0_Conditional_8_Template, 5, 6, "button", 7);
+    \u0275\u0275conditionalCreate(9, PlaylistItemsComponent_Conditional_0_Conditional_9_Template, 5, 6, "button", 8);
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(10, PlaylistItemsComponent_Conditional_0_Conditional_10_Template, 5, 3, "div", 8)(11, PlaylistItemsComponent_Conditional_0_Conditional_11_Template, 3, 0, "div", 9)(12, PlaylistItemsComponent_Conditional_0_Conditional_12_Template, 6, 3, "div", 1);
+    \u0275\u0275conditionalCreate(10, PlaylistItemsComponent_Conditional_0_Conditional_10_Template, 5, 3, "div", 9)(11, PlaylistItemsComponent_Conditional_0_Conditional_11_Template, 3, 0, "div", 10)(12, PlaylistItemsComponent_Conditional_0_Conditional_12_Template, 9, 2, "div", 11)(13, PlaylistItemsComponent_Conditional_0_Conditional_13_Template, 6, 3, "div", 2);
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
@@ -2119,12 +2412,12 @@ function PlaylistItemsComponent_Conditional_0_Template(rf, ctx) {
     \u0275\u0275advance();
     \u0275\u0275conditional(ctx_r1.can_delete() ? 9 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r1.loading() ? 10 : ctx_r1.items().length > 0 ? 11 : 12);
+    \u0275\u0275conditional(ctx_r1.loading() ? 10 : ctx_r1.items().length > 0 && !ctx_r1.is_distribution() ? 11 : ctx_r1.items().length > 0 ? 12 : 13);
   }
 }
 function PlaylistItemsComponent_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 1)(1, "icon", 36);
+    \u0275\u0275elementStart(0, "div", 2)(1, "icon", 49);
     \u0275\u0275text(2, "playlist_play");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(3, "p");
@@ -2142,6 +2435,7 @@ var PlaylistItemsComponent = class _PlaylistItemsComponent {
     this._service = inject(SignageService);
     this.selected_playlist = this._service.selected_playlist;
     this.selected_item = this._service.selected_playlist_item;
+    this.selected_item_index = this._service.selected_playlist_item_index;
     this.requires_approval = this._service.selected_playlist_requires_approval;
     this.can_approve = this._service.can_approve;
     this.can_update = this._service.can_update;
@@ -2150,20 +2444,89 @@ var PlaylistItemsComponent = class _PlaylistItemsComponent {
     this.loading = this._service.playlist_media_loading;
     this.approval_request_loading = this._service.playlist_approval_request_loading;
     this.items = this._service.playlist_media_items;
+    this.item_schedules = this._service.playlist_item_schedules;
+    this.item_schedule_list = this._service.playlist_item_schedule_list;
+    this.is_distribution = () => !!this.selected_playlist()?.distribution;
+    this.collapsed_schedules = signal(
+      {},
+      ...ngDevMode ? [{ debugName: "collapsed_schedules" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.scheduleLabel = playlistScheduleLabel;
   }
-  selectItem(item) {
+  selectItem(item, index) {
     this._service.selected_playlist_item.set(item);
+    this._service.selected_playlist_item_index.set(index);
+  }
+  isItemSelected(item, index) {
+    return this.selected_item()?.id === item.id && this.selected_item_index() === index;
   }
   thumbnailURL(item) {
     return `/api/engine/v2/signage/media/${item.id}/thumbnail`;
   }
-  selectItemWithKeyboard(event, item) {
+  mediaIcon(item) {
+    return playlistMediaIcon(item);
+  }
+  itemSchedule(item, index = -1) {
+    const schedule = this.item_schedule_list()[index];
+    if (schedule?.media?.id === item.id)
+      return schedule;
+    return this.item_schedules().get(item.id) || new rr({
+      item_id: item.id,
+      media: item
+    });
+  }
+  scheduleTooltip(schedule) {
+    const labels = playlistScheduleNextPlayLabels(schedule);
+    return [
+      `-- ${i18n("SIGNAGE_MANAGER.NEXT_5_PLAYS")} --`,
+      ...labels.length ? labels : [i18n("SIGNAGE_MANAGER.NO_UPCOMING_PLAY_TIMES")]
+    ].join("\n");
+  }
+  scheduleKey(item, index) {
+    const schedule = this.itemSchedule(item, index);
+    return `${schedule.id || schedule.item_id || item.id}:${index}`;
+  }
+  schedulesOpen(item, index) {
+    return !this.collapsed_schedules()[this.scheduleKey(item, index)];
+  }
+  toggleSchedules(event, item, index) {
     event.preventDefault();
     event.stopPropagation();
-    this.selectItem(item);
+    const key = this.scheduleKey(item, index);
+    this.collapsed_schedules.update((state) => __spreadProps(__spreadValues({}, state), {
+      [key]: !state[key]
+    }));
+  }
+  allSchedulesCollapsed() {
+    const items = this.items();
+    return items.length > 0 && items.every((item, index) => !this.schedulesOpen(item, index));
+  }
+  toggleAllSchedules(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    if (this.allSchedulesCollapsed()) {
+      this.collapsed_schedules.set({});
+      return;
+    }
+    const collapsed = {};
+    this.items().forEach((item, index) => {
+      collapsed[this.scheduleKey(item, index)] = true;
+    });
+    this.collapsed_schedules.set(collapsed);
+  }
+  selectItemWithKeyboard(event, item, index) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.selectItem(item, index);
   }
   previewItem(item) {
     this._service.previewMedia(item);
+  }
+  editItemSchedule(schedule) {
+    this._service.editPlaylistItemSchedule(schedule);
   }
   editPlaylist() {
     const playlist = this.selected_playlist();
@@ -2195,12 +2558,13 @@ var PlaylistItemsComponent = class _PlaylistItemsComponent {
     if (!playlist?.id || !item?.id)
       return;
     await this._service.removeMediaFromPlaylist(playlist.id, item.id, item_index);
-    if (this.selected_item()?.id === item.id) {
+    if (this.isItemSelected(item, item_index)) {
       this._service.selected_playlist_item.set(null);
+      this._service.selected_playlist_item_index.set(null);
     }
   }
   async onDrop(event) {
-    if (!this.can_update())
+    if (!this.can_update() || this.is_distribution())
       return;
     const playlist = this.selected_playlist();
     if (!playlist?.id)
@@ -2216,9 +2580,9 @@ var PlaylistItemsComponent = class _PlaylistItemsComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _PlaylistItemsComponent, selectors: [["playlist-items"]], decls: 2, vars: 1, consts: [["item_menu", "matMenu"], [1, "text-base-content/70", "flex", "flex-1", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], [1, "bg-base-100", "border-base-300", "mx-2", "hidden", "items-center", "gap-2", "rounded-b-lg", "border", "px-4", "py-3", "lg:flex"], [1, "shrink-0", "text-2xl", "opacity-60"], [1, "min-w-0", "flex-1"], [1, "truncate", "text-lg", "font-medium"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "matTooltip"], ["icon", "", "default", "", "error", "", "type", "button", "matRipple", "", 3, "matTooltip"], [1, "flex", "flex-1", "flex-col", "items-center", "justify-center", "space-y-3", "p-8", "opacity-70"], ["cdkDropList", "", "role", "list", 1, "w-full", "flex-1", "overflow-auto", "px-3", "py-2"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "matTooltip", "disabled"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "click", "matTooltip"], [1, "text-warning"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "click", "matTooltip", "disabled"], ["diameter", "20"], ["icon", "", "default", "", "error", "", "type", "button", "matRipple", "", 3, "click", "matTooltip"], ["diameter", "32"], ["cdkDropList", "", "role", "list", 1, "w-full", "flex-1", "overflow-auto", "px-3", "py-2", 3, "cdkDropListDropped"], ["cdkDrag", "", "role", "button", "tabindex", "0", 1, "bg-base-100", "border-base-300", "mb-2", "flex", "cursor-pointer", "items-center", "gap-3", "rounded-lg", "border", "p-2", "transition-colors", 3, "bg-primary", "text-primary-content", "hover:bg-base-200"], ["cdkDrag", "", "role", "button", "tabindex", "0", 1, "bg-base-100", "border-base-300", "mb-2", "flex", "cursor-pointer", "items-center", "gap-3", "rounded-lg", "border", "p-2", "transition-colors", 3, "click", "keydown.enter", "keydown.space"], ["cdkDragHandle", "", 1, "shrink-0", "cursor-grab", "opacity-40"], [1, "bg-base-300", "h-12", "w-16", "shrink-0", "overflow-hidden", "rounded"], ["auth", "", 1, "h-full", "w-full", "object-cover", "text-xs", 3, "source", "alt"], [1, "flex", "h-full", "w-full", "items-center", "justify-center"], [1, "truncate", "text-sm", "font-medium"], [1, "flex", "items-center", "gap-2"], [1, "rounded", "px-1.5", "py-0.5", "text-[10px]", "capitalize"], [1, "font-mono", "text-[10px]", "opacity-60"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "click", "matMenuTriggerFor"], ["type", "button", "mat-menu-item", "", 3, "click"], [1, "flex", "items-center", "space-x-2"], [1, "text-2xl"], [1, "pr-2"], ["type", "button", "mat-menu-item", ""], [1, "text-4xl", "opacity-30"], [1, "text-error", "text-2xl"], [1, "text-6xl"]], template: function PlaylistItemsComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _PlaylistItemsComponent, selectors: [["playlist-items"]], decls: 2, vars: 1, consts: [["item_menu", "matMenu"], ["distribution_item_menu", "matMenu"], [1, "text-base-content/70", "flex", "flex-1", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], [1, "bg-base-100", "border-base-300", "mx-2", "hidden", "items-center", "gap-2", "rounded-b-lg", "border", "px-4", "py-3", "lg:flex"], [1, "shrink-0", "text-2xl", "opacity-60"], [1, "min-w-0", "flex-1"], [1, "truncate", "text-lg", "font-medium"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "matTooltip"], ["icon", "", "default", "", "error", "", "type", "button", "matRipple", "", 3, "matTooltip"], [1, "flex", "flex-1", "flex-col", "items-center", "justify-center", "space-y-3", "p-8", "opacity-70"], ["cdkDropList", "", "role", "list", 1, "w-full", "flex-1", "overflow-auto", "px-3", "py-2"], ["role", "list", 1, "w-full", "flex-1", "overflow-auto", "px-3", "py-2"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "matTooltip", "disabled"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "click", "matTooltip"], [1, "text-warning"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "click", "matTooltip", "disabled"], ["diameter", "20"], ["icon", "", "default", "", "error", "", "type", "button", "matRipple", "", 3, "click", "matTooltip"], ["diameter", "32"], ["cdkDropList", "", "role", "list", 1, "w-full", "flex-1", "overflow-auto", "px-3", "py-2", 3, "cdkDropListDropped"], ["cdkDrag", "", "role", "button", "tabindex", "0", 1, "bg-base-100", "border-base-300", "mb-2", "flex", "cursor-pointer", "items-center", "gap-3", "rounded-lg", "border", "p-2", "transition-colors", 3, "bg-primary", "text-primary-content", "hover:bg-base-200"], ["cdkDrag", "", "role", "button", "tabindex", "0", 1, "bg-base-100", "border-base-300", "mb-2", "flex", "cursor-pointer", "items-center", "gap-3", "rounded-lg", "border", "p-2", "transition-colors", 3, "click", "keydown.enter", "keydown.space"], ["cdkDragHandle", "", 1, "shrink-0", "cursor-grab", "opacity-40"], [1, "bg-base-300", "h-12", "w-16", "shrink-0", "overflow-hidden", "rounded"], ["auth", "", 1, "h-full", "w-full", "object-cover", "text-xs", 3, "source", "alt"], [1, "flex", "h-full", "w-full", "items-center", "justify-center"], [1, "truncate", "text-sm", "font-medium"], [1, "flex", "items-center", "gap-2"], [1, "rounded", "px-1.5", "py-0.5", "text-[10px]", "capitalize"], [1, "font-mono", "text-[10px]", "opacity-60"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "click", "matMenuTriggerFor"], ["type", "button", "mat-menu-item", "", 3, "click"], [1, "flex", "items-center", "space-x-2"], [1, "text-2xl"], [1, "pr-2"], ["type", "button", "mat-menu-item", ""], [1, "text-4xl", "opacity-30"], [1, "text-error", "text-2xl"], [1, "-mt-2", "mb-2", "flex", "justify-end", "lg:mt-0"], ["type", "button", "matRipple", "", 1, "text-base-content/70", "hover:bg-base-200", "flex", "w-28", "items-center", "justify-center", "gap-1", "rounded", "px-2", "py-1", "text-xs", "font-medium", 3, "click"], [1, "text-base"], [1, "mr-2"], ["role", "button", "tabindex", "0", 1, "bg-base-100", "border-base-300", "mb-2", "cursor-pointer", "rounded-lg", "border", "p-2", "transition-colors", 3, "bg-primary", "text-primary-content", "hover:bg-base-200"], ["role", "button", "tabindex", "0", 1, "bg-base-100", "border-base-300", "mb-2", "cursor-pointer", "rounded-lg", "border", "p-2", "transition-colors", 3, "click", "keydown.enter", "keydown.space"], [1, "flex", "items-start", "gap-3"], [1, "border-base-300", "bg-base-100", "text-base-content", "relative", "mt-4", "flex", "flex-col", "gap-1", "rounded-lg", "border", "text-sm"], ["type", "button", 1, "bg-base-100", "absolute", "-top-3", "left-4", "flex", "items-center", "gap-1", "rounded-lg", "px-2", "text-xs", "font-medium", 3, "click"], [1, "text-base-content/60", "rounded-md", "p-2"], ["matTooltipClass", "playlist-schedule-tooltip", 1, "rounded-md", "p-2", 3, "matTooltip"], [1, "text-6xl"]], template: function PlaylistItemsComponent_Template(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275conditionalCreate(0, PlaylistItemsComponent_Conditional_0_Template, 13, 6)(1, PlaylistItemsComponent_Conditional_1_Template, 6, 3, "div", 1);
+        \u0275\u0275conditionalCreate(0, PlaylistItemsComponent_Conditional_0_Template, 14, 6)(1, PlaylistItemsComponent_Conditional_1_Template, 6, 3, "div", 2);
       }
       if (rf & 2) {
         \u0275\u0275conditional(ctx.selected_playlist() ? 0 : 1);
@@ -2242,7 +2606,7 @@ var PlaylistItemsComponent = class _PlaylistItemsComponent {
       AuthenticatedImageDirective,
       MediaDurationPipe,
       TranslatePipe
-    ], styles: ["\n[_nghost-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n}\n  .cdk-drag-preview {\n  opacity: 0.6;\n}\n.cdk-drag-placeholder[_ngcontent-%COMP%] {\n  opacity: 0.3;\n}\n/*# sourceMappingURL=playlist-items.component.css.map */"] });
+    ], styles: ["\n[_nghost-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n}\n  .cdk-drag-preview {\n  opacity: 0.6;\n}\n.cdk-drag-placeholder[_ngcontent-%COMP%] {\n  opacity: 0.3;\n}\n  .playlist-schedule-tooltip .mdc-tooltip__surface {\n  white-space: pre-line;\n}\n/*# sourceMappingURL=playlist-items.component.css.map */"] });
   }
 };
 (() => {
@@ -2370,7 +2734,7 @@ var PlaylistItemsComponent = class _PlaylistItemsComponent {
                         }}
                     </p>
                 </div>
-            } @else if (items().length > 0) {
+            } @else if (items().length > 0 && !is_distribution()) {
                 <div
                     class="w-full flex-1 overflow-auto px-3 py-2"
                     cdkDropList
@@ -2383,19 +2747,19 @@ var PlaylistItemsComponent = class _PlaylistItemsComponent {
                             role="button"
                             tabindex="0"
                             class="bg-base-100 border-base-300 mb-2 flex cursor-pointer items-center gap-3 rounded-lg border p-2 transition-colors"
-                            [class.bg-primary]="selected_item()?.id === item.id"
+                            [class.bg-primary]="isItemSelected(item, $index)"
                             [class.text-primary-content]="
-                                selected_item()?.id === item.id
+                                isItemSelected(item, $index)
                             "
                             [class.hover:bg-base-200]="
-                                selected_item()?.id !== item.id
+                                !isItemSelected(item, $index)
                             "
-                            (click)="selectItem(item)"
+                            (click)="selectItem(item, $index)"
                             (keydown.enter)="
-                                selectItemWithKeyboard($event, item)
+                                selectItemWithKeyboard($event, item, $index)
                             "
                             (keydown.space)="
-                                selectItemWithKeyboard($event, item)
+                                selectItemWithKeyboard($event, item, $index)
                             "
                             [attr.aria-label]="
                                 'SIGNAGE_MANAGER.SELECT_MEDIA_ITEM'
@@ -2531,6 +2895,252 @@ var PlaylistItemsComponent = class _PlaylistItemsComponent {
                         </div>
                     }
                 </div>
+            } @else if (items().length > 0) {
+                <div class="w-full flex-1 overflow-auto px-3 py-2" role="list">
+                    <div class="-mt-2 mb-2 flex justify-end lg:mt-0">
+                        <button
+                            type="button"
+                            class="text-base-content/70 hover:bg-base-200 flex w-28 items-center justify-center gap-1 rounded px-2 py-1 text-xs font-medium"
+                            matRipple
+                            (click)="toggleAllSchedules($event)"
+                        >
+                            <icon class="text-base">{{
+                                allSchedulesCollapsed()
+                                    ? 'unfold_more'
+                                    : 'unfold_less'
+                            }}</icon>
+                            <span class="mr-2">{{
+                                allSchedulesCollapsed()
+                                    ? 'Expand all'
+                                    : 'Collapse all'
+                            }}</span>
+                        </button>
+                    </div>
+                    @for (item of items(); track item.id + '-' + $index) {
+                        @let schedule = itemSchedule(item, $index);
+                        <div
+                            role="button"
+                            tabindex="0"
+                            class="bg-base-100 border-base-300 mb-2 cursor-pointer rounded-lg border p-2 transition-colors"
+                            [class.bg-primary]="isItemSelected(item, $index)"
+                            [class.text-primary-content]="
+                                isItemSelected(item, $index)
+                            "
+                            [class.hover:bg-base-200]="
+                                !isItemSelected(item, $index)
+                            "
+                            (click)="selectItem(item, $index)"
+                            (keydown.enter)="
+                                selectItemWithKeyboard($event, item, $index)
+                            "
+                            (keydown.space)="
+                                selectItemWithKeyboard($event, item, $index)
+                            "
+                            [attr.aria-label]="
+                                'SIGNAGE_MANAGER.SELECT_MEDIA_ITEM'
+                                    | translate: { name: item.name }
+                            "
+                        >
+                            <div class="flex items-start gap-3">
+                                <div
+                                    class="bg-base-300 h-12 w-16 shrink-0 overflow-hidden rounded"
+                                >
+                                    @let url = thumbnailURL(item);
+                                    @if (url && item.thumbnail_id) {
+                                        <img
+                                            auth
+                                            [source]="url"
+                                            [alt]="item.name + ' thumbnail'"
+                                            class="h-full w-full object-cover text-xs"
+                                        />
+                                    } @else {
+                                        <div
+                                            class="flex h-full w-full items-center justify-center"
+                                        >
+                                            <icon class="text-4xl opacity-30">{{
+                                                mediaIcon(item)
+                                            }}</icon>
+                                        </div>
+                                    }
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <div class="truncate text-sm font-medium">
+                                        {{ item.name }}
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span
+                                            class="rounded px-1.5 py-0.5 text-[10px] capitalize"
+                                            [class.bg-info]="
+                                                item.media_type === 'video'
+                                            "
+                                            [class.text-info-content]="
+                                                item.media_type === 'video'
+                                            "
+                                            [class.bg-warning]="
+                                                item.media_type === 'image'
+                                            "
+                                            [class.text-warning-content]="
+                                                item.media_type === 'image'
+                                            "
+                                            [class.bg-success]="
+                                                item.media_type === 'webpage'
+                                            "
+                                            [class.text-success-content]="
+                                                item.media_type === 'webpage'
+                                            "
+                                            [class.bg-error]="
+                                                item.media_type === 'plugin'
+                                            "
+                                            [class.text-error-content]="
+                                                item.media_type === 'plugin'
+                                            "
+                                        >
+                                            {{ item.media_type }}
+                                        </span>
+                                        @if (item.play_time) {
+                                            <span
+                                                class="font-mono text-[10px] opacity-60"
+                                            >
+                                                {{
+                                                    item.play_time / 1000
+                                                        | mediaDuration
+                                                }}
+                                            </span>
+                                        }
+                                    </div>
+                                </div>
+                                <button
+                                    icon
+                                    default
+                                    type="button"
+                                    matRipple
+                                    [matMenuTriggerFor]="distribution_item_menu"
+                                    (click)="$event.stopPropagation()"
+                                    [attr.aria-label]="
+                                        'SIGNAGE_MANAGER.ITEM_ACTIONS'
+                                            | translate
+                                    "
+                                >
+                                    <icon>more_vert</icon>
+                                </button>
+                                <mat-menu #distribution_item_menu="matMenu">
+                                    <button
+                                        type="button"
+                                        mat-menu-item
+                                        (click)="previewItem(item)"
+                                    >
+                                        <div
+                                            class="flex items-center space-x-2"
+                                        >
+                                            <icon class="text-2xl"
+                                                >visibility</icon
+                                            >
+                                            <div class="pr-2">
+                                                {{
+                                                    'COMMON.PREVIEW' | translate
+                                                }}
+                                            </div>
+                                        </div>
+                                    </button>
+                                    @if (can_update()) {
+                                        <button
+                                            type="button"
+                                            mat-menu-item
+                                            (click)="editItemSchedule(schedule)"
+                                        >
+                                            <div
+                                                class="flex items-center space-x-2"
+                                            >
+                                                <icon class="text-2xl"
+                                                    >edit_calendar</icon
+                                                >
+                                                <div class="pr-2">
+                                                    {{
+                                                        'SIGNAGE_MANAGER.EDIT_SCHEDULE'
+                                                            | translate
+                                                    }}
+                                                </div>
+                                            </div>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            mat-menu-item
+                                            (click)="removeItem(item, $index)"
+                                        >
+                                            <div
+                                                class="flex items-center space-x-2"
+                                            >
+                                                <icon
+                                                    class="text-error text-2xl"
+                                                >
+                                                    delete
+                                                </icon>
+                                                <div class="pr-2">
+                                                    {{
+                                                        'SIGNAGE_MANAGER.REMOVE_FROM_PLAYLIST'
+                                                            | translate
+                                                    }}
+                                                </div>
+                                            </div>
+                                        </button>
+                                    }
+                                </mat-menu>
+                            </div>
+                            <div
+                                class="border-base-300 bg-base-100 text-base-content relative mt-4 flex flex-col gap-1 rounded-lg border text-sm"
+                            >
+                                <button
+                                    type="button"
+                                    class="bg-base-100 absolute -top-3 left-4 flex items-center gap-1 rounded-lg px-2 text-xs font-medium"
+                                    (click)="
+                                        toggleSchedules($event, item, $index)
+                                    "
+                                    [attr.aria-expanded]="
+                                        schedulesOpen(item, $index)
+                                    "
+                                >
+                                    <span>Schedules</span>
+                                    <icon class="text-base">{{
+                                        schedulesOpen(item, $index)
+                                            ? 'expand_less'
+                                            : 'expand_more'
+                                    }}</icon>
+                                </button>
+                                @if (schedulesOpen(item, $index)) {
+                                    @if (schedule?.schedules?.length) {
+                                        @for (
+                                            item_schedule of schedule.schedules;
+                                            track $index
+                                        ) {
+                                            <div
+                                                class="rounded-md p-2"
+                                                [matTooltip]="
+                                                    scheduleTooltip(
+                                                        item_schedule
+                                                    )
+                                                "
+                                                matTooltipClass="playlist-schedule-tooltip"
+                                            >
+                                                {{
+                                                    scheduleLabel(item_schedule)
+                                                }}
+                                            </div>
+                                        }
+                                    } @else {
+                                        <div
+                                            class="text-base-content/60 rounded-md p-2"
+                                        >
+                                            {{
+                                                'SIGNAGE_MANAGER.NO_SCHEDULES'
+                                                    | translate
+                                            }}
+                                        </div>
+                                    }
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
             } @else {
                 <div
                     class="text-base-content/70 flex flex-1 flex-col items-center justify-center space-y-2 p-8"
@@ -2557,11 +3167,11 @@ var PlaylistItemsComponent = class _PlaylistItemsComponent {
       AuthenticatedImageDirective,
       MediaDurationPipe,
       TranslatePipe
-    ], styles: ["/* angular:styles/component:css;a463973d2480df45a763f2aafd2b3b8280647a5968a835c48ae1589dfdcaf415;/home/runner/work/user-interfaces/user-interfaces/apps/signage-manager/src/app/playlists/playlist-items.component.ts */\n:host {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n}\n::ng-deep .cdk-drag-preview {\n  opacity: 0.6;\n}\n.cdk-drag-placeholder {\n  opacity: 0.3;\n}\n/*# sourceMappingURL=playlist-items.component.css.map */\n"] }]
+    ], styles: ["/* angular:styles/component:css;ea4bfd70c03f2b567778031b92344f469b9fe396e4a9146a22b45b9b2e409179;/home/runner/work/user-interfaces/user-interfaces/apps/signage-manager/src/app/playlists/playlist-items.component.ts */\n:host {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n}\n::ng-deep .cdk-drag-preview {\n  opacity: 0.6;\n}\n.cdk-drag-placeholder {\n  opacity: 0.3;\n}\n::ng-deep .playlist-schedule-tooltip .mdc-tooltip__surface {\n  white-space: pre-line;\n}\n/*# sourceMappingURL=playlist-items.component.css.map */\n"] }]
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(PlaylistItemsComponent, { className: "PlaylistItemsComponent", filePath: "apps/signage-manager/src/app/playlists/playlist-items.component.ts", lineNumber: 351 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(PlaylistItemsComponent, { className: "PlaylistItemsComponent", filePath: "apps/signage-manager/src/app/playlists/playlist-items.component.ts", lineNumber: 611 });
 })();
 
 // apps/signage-manager/src/app/playlists/playlist-list.component.ts
@@ -2570,7 +3180,7 @@ var _c12 = (a0) => ({ name: a0 });
 var _forTrack03 = ($index, $item) => $item.id;
 function PlaylistListComponent_Conditional_6_For_1_Conditional_3_For_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275element(0, "img", 21);
+    \u0275\u0275element(0, "img", 22);
   }
   if (rf & 2) {
     const media_r1 = ctx.$implicit;
@@ -2582,7 +3192,7 @@ function PlaylistListComponent_Conditional_6_For_1_Conditional_3_For_1_Template(
 }
 function PlaylistListComponent_Conditional_6_For_1_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275repeaterCreate(0, PlaylistListComponent_Conditional_6_For_1_Conditional_3_For_1_Template, 1, 7, "img", 20, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275repeaterCreate(0, PlaylistListComponent_Conditional_6_For_1_Conditional_3_For_1_Template, 1, 7, "img", 21, \u0275\u0275repeaterTrackByIdentity);
   }
   if (rf & 2) {
     const playlist_r4 = \u0275\u0275nextContext().$implicit;
@@ -2592,7 +3202,7 @@ function PlaylistListComponent_Conditional_6_For_1_Conditional_3_Template(rf, ct
 }
 function PlaylistListComponent_Conditional_6_For_1_Conditional_4_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 10)(1, "icon", 22);
+    \u0275\u0275elementStart(0, "div", 10)(1, "icon", 23);
     \u0275\u0275text(2, "playlist_play");
     \u0275\u0275elementEnd()();
   }
@@ -2659,7 +3269,7 @@ function PlaylistListComponent_Conditional_6_For_1_Case_13_Template(rf, ctx) {
 }
 function PlaylistListComponent_Conditional_6_For_1_Conditional_14_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 23);
+    \u0275\u0275elementStart(0, "div", 24);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -2669,6 +3279,13 @@ function PlaylistListComponent_Conditional_6_For_1_Conditional_14_Template(rf, c
     \u0275\u0275classProp("opacity-70", ctx_r4.selected()?.id !== playlist_r4.id)("opacity-90", ctx_r4.selected()?.id === playlist_r4.id);
     \u0275\u0275advance();
     \u0275\u0275textInterpolate1(" ", playlist_r4.description, " ");
+  }
+}
+function PlaylistListComponent_Conditional_6_For_1_Conditional_15_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "icon", 20);
+    \u0275\u0275text(1, "p2p");
+    \u0275\u0275elementEnd();
   }
 }
 function PlaylistListComponent_Conditional_6_For_1_Template(rf, ctx) {
@@ -2686,15 +3303,17 @@ function PlaylistListComponent_Conditional_6_For_1_Template(rf, ctx) {
     \u0275\u0275conditionalCreate(10, PlaylistListComponent_Conditional_6_For_1_Case_10_Template, 3, 3, "span", 15)(11, PlaylistListComponent_Conditional_6_For_1_Case_11_Template, 3, 3, "span", 16)(12, PlaylistListComponent_Conditional_6_For_1_Case_12_Template, 3, 3, "span", 17)(13, PlaylistListComponent_Conditional_6_For_1_Case_13_Template, 3, 3, "span", 18);
     \u0275\u0275elementEnd();
     \u0275\u0275conditionalCreate(14, PlaylistListComponent_Conditional_6_For_1_Conditional_14_Template, 2, 5, "div", 19);
-    \u0275\u0275elementEnd()();
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(15, PlaylistListComponent_Conditional_6_For_1_Conditional_15_Template, 2, 0, "icon", 20);
+    \u0275\u0275elementEnd();
   }
   if (rf & 2) {
     let tmp_19_0;
     const playlist_r4 = ctx.$implicit;
     const ctx_r4 = \u0275\u0275nextContext(2);
     \u0275\u0275classProp("bg-primary", ctx_r4.selected()?.id === playlist_r4.id)("text-primary-content", ctx_r4.selected()?.id === playlist_r4.id)("hover:bg-base-200", ctx_r4.selected()?.id !== playlist_r4.id);
-    \u0275\u0275property("routerLink", \u0275\u0275pureFunction1(16, _c04, playlist_r4.id));
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(1, 13, "SIGNAGE_MANAGER.OPEN_PLAYLIST", \u0275\u0275pureFunction1(18, _c12, playlist_r4.name)));
+    \u0275\u0275property("routerLink", \u0275\u0275pureFunction1(17, _c04, playlist_r4.id));
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(1, 14, "SIGNAGE_MANAGER.OPEN_PLAYLIST", \u0275\u0275pureFunction1(19, _c12, playlist_r4.name)));
     \u0275\u0275advance(3);
     \u0275\u0275conditional(ctx_r4.playlist_thumbnail_media()[playlist_r4.id]?.length ? 3 : 4);
     \u0275\u0275advance(4);
@@ -2705,12 +3324,14 @@ function PlaylistListComponent_Conditional_6_For_1_Template(rf, ctx) {
     \u0275\u0275conditional((tmp_19_0 = ctx_r4.getStatus(playlist_r4)) === "expired" ? 10 : tmp_19_0 === "pending" ? 11 : tmp_19_0 === "awaiting_review" ? 12 : tmp_19_0 === "awaiting_approval" ? 13 : -1);
     \u0275\u0275advance(4);
     \u0275\u0275conditional(playlist_r4.description ? 14 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(playlist_r4.distribution ? 15 : -1);
   }
 }
 function PlaylistListComponent_Conditional_6_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
     const _r6 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 24);
+    \u0275\u0275elementStart(0, "div", 25);
     \u0275\u0275listener("intersect", function PlaylistListComponent_Conditional_6_Conditional_2_Template_div_intersect_0_listener() {
       \u0275\u0275restoreView(_r6);
       const ctx_r4 = \u0275\u0275nextContext(2);
@@ -2733,7 +3354,7 @@ function PlaylistListComponent_Conditional_6_Conditional_3_Template(rf, ctx) {
 }
 function PlaylistListComponent_Conditional_6_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275repeaterCreate(0, PlaylistListComponent_Conditional_6_For_1_Template, 15, 20, "a", 5, _forTrack03);
+    \u0275\u0275repeaterCreate(0, PlaylistListComponent_Conditional_6_For_1_Template, 16, 21, "a", 5, _forTrack03);
     \u0275\u0275conditionalCreate(2, PlaylistListComponent_Conditional_6_Conditional_2_Template, 1, 0, "div", 6)(3, PlaylistListComponent_Conditional_6_Conditional_3_Template, 3, 3, "div", 7);
   }
   if (rf & 2) {
@@ -2745,7 +3366,7 @@ function PlaylistListComponent_Conditional_6_Template(rf, ctx) {
 }
 function PlaylistListComponent_Conditional_7_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 4)(1, "icon", 25);
+    \u0275\u0275elementStart(0, "div", 4)(1, "icon", 26);
     \u0275\u0275text(2, "playlist_play");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(3, "p");
@@ -2801,7 +3422,7 @@ var PlaylistListComponent = class _PlaylistListComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _PlaylistListComponent, selectors: [["playlist-list"]], decls: 8, vars: 8, consts: [[1, "bg-base-100", "border-base-300", "h-full", "min-w-64", "overflow-auto", "border-r", "sm:max-w-80"], [1, "border-base-300", "bg-base-100", "sticky", "top-0", "z-10", "border-b", "p-2"], ["appearance", "outline", 1, "no-subscript", "w-full"], ["matInput", "", 3, "ngModelChange", "placeholder", "ngModel"], [1, "text-base-content/70", "flex", "flex-1", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], ["matRipple", "", "queryParamsHandling", "merge", 1, "border-base-300", "relative", "z-0", "flex", "w-full", "cursor-pointer", "items-center", "gap-3", "border-b", "px-2", "py-1", "text-left", "no-underline", "transition-colors", 3, "bg-primary", "text-primary-content", "hover:bg-base-200", "routerLink"], ["intersect", "", 1, "h-px", "w-full"], [1, "text-base-content/50", "bg-base-content/10", "col-span-full", "my-2", "p-2", "text-center", "text-xs"], ["matRipple", "", "queryParamsHandling", "merge", 1, "border-base-300", "relative", "z-0", "flex", "w-full", "cursor-pointer", "items-center", "gap-3", "border-b", "px-2", "py-1", "text-left", "no-underline", "transition-colors", 3, "routerLink"], [1, "relative", "h-12", "w-12", "shrink-0", "overflow-hidden", "rounded-md"], [1, "text-base-content/35", "flex", "h-full", "w-full", "items-center", "justify-center"], [1, "min-w-0", "flex-1", "pr-2"], [1, "flex", "items-center", "gap-2", "truncate", "font-medium"], [1, "flex", "flex-wrap", "gap-1", "text-[0.625rem]", "font-medium", "uppercase"], [1, "bg-base-200", "shrink-0", "rounded", "px-1.5", "py-0.5"], [1, "bg-error", "text-error-content", "shrink-0", "rounded", "px-1.5", "py-0.5"], [1, "bg-info", "text-info-content", "shrink-0", "rounded", "px-1.5", "py-0.5"], [1, "bg-warning", "text-warning-content", "shrink-0", "rounded", "px-1.5", "py-0.5"], [1, "bg-base-300", "shrink-0", "rounded", "px-1.5", "py-0.5"], [1, "mt-0.5", "truncate", "text-xs", 3, "opacity-70", "opacity-90"], ["auth", "", "alt", "", 1, "border-base-300", "bg-base-200", "absolute", "h-9", "w-9", "rounded-sm", "border", "object-cover", "shadow", 3, "source", "top", "left", "z-index"], ["auth", "", "alt", "", 1, "border-base-300", "bg-base-200", "absolute", "h-9", "w-9", "rounded-sm", "border", "object-cover", "shadow", 3, "source"], [1, "text-2xl"], [1, "mt-0.5", "truncate", "text-xs"], ["intersect", "", 1, "h-px", "w-full", 3, "intersect"], [1, "text-6xl"]], template: function PlaylistListComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _PlaylistListComponent, selectors: [["playlist-list"]], decls: 8, vars: 8, consts: [[1, "bg-base-100", "border-base-300", "h-full", "min-w-64", "overflow-auto", "border-r", "sm:max-w-80"], [1, "border-base-300", "bg-base-100", "sticky", "top-0", "z-10", "border-b", "p-2"], ["appearance", "outline", 1, "no-subscript", "w-full"], ["matInput", "", 3, "ngModelChange", "placeholder", "ngModel"], [1, "text-base-content/70", "flex", "flex-1", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], ["matRipple", "", "queryParamsHandling", "merge", 1, "border-base-300", "relative", "z-0", "flex", "w-full", "cursor-pointer", "items-center", "gap-3", "border-b", "px-2", "py-1", "text-left", "no-underline", "transition-colors", 3, "bg-primary", "text-primary-content", "hover:bg-base-200", "routerLink"], ["intersect", "", 1, "h-px", "w-full"], [1, "text-base-content/50", "bg-base-content/10", "col-span-full", "my-2", "p-2", "text-center", "text-xs"], ["matRipple", "", "queryParamsHandling", "merge", 1, "border-base-300", "relative", "z-0", "flex", "w-full", "cursor-pointer", "items-center", "gap-3", "border-b", "px-2", "py-1", "text-left", "no-underline", "transition-colors", 3, "routerLink"], [1, "relative", "h-12", "w-12", "shrink-0", "overflow-hidden", "rounded-md"], [1, "text-base-content/35", "flex", "h-full", "w-full", "items-center", "justify-center"], [1, "min-w-0", "flex-1", "pr-2"], [1, "flex", "items-center", "gap-2", "truncate", "font-medium"], [1, "flex", "flex-wrap", "gap-1", "text-[0.625rem]", "font-medium", "uppercase"], [1, "bg-base-200", "shrink-0", "rounded", "px-1.5", "py-0.5"], [1, "bg-error", "text-error-content", "shrink-0", "rounded", "px-1.5", "py-0.5"], [1, "bg-info", "text-info-content", "shrink-0", "rounded", "px-1.5", "py-0.5"], [1, "bg-warning", "text-warning-content", "shrink-0", "rounded", "px-1.5", "py-0.5"], [1, "bg-base-300", "shrink-0", "rounded", "px-1.5", "py-0.5"], [1, "mt-0.5", "truncate", "text-xs", 3, "opacity-70", "opacity-90"], [1, "mx-1"], ["auth", "", "alt", "", 1, "border-base-300", "bg-base-200", "absolute", "h-9", "w-9", "rounded-sm", "border", "object-cover", "shadow", 3, "source", "top", "left", "z-index"], ["auth", "", "alt", "", 1, "border-base-300", "bg-base-200", "absolute", "h-9", "w-9", "rounded-sm", "border", "object-cover", "shadow", 3, "source"], [1, "text-2xl"], [1, "mt-0.5", "truncate", "text-xs"], ["intersect", "", 1, "h-px", "w-full", 3, "intersect"], [1, "text-6xl"]], template: function PlaylistListComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "div", 0)(1, "div", 1)(2, "mat-form-field", 2)(3, "input", 3);
         \u0275\u0275pipe(4, "translate");
@@ -3001,6 +3622,9 @@ var PlaylistListComponent = class _PlaylistListComponent {
                                 </div>
                             }
                         </div>
+                        @if (playlist.distribution) {
+                            <icon class="mx-1">p2p</icon>
+                        }
                     </a>
                 }
                 @if (has_more()) {
@@ -3040,10 +3664,22 @@ var PlaylistListComponent = class _PlaylistListComponent {
   }], () => [], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(PlaylistListComponent, { className: "PlaylistListComponent", filePath: "apps/signage-manager/src/app/playlists/playlist-list.component.ts", lineNumber: 228 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(PlaylistListComponent, { className: "PlaylistListComponent", filePath: "apps/signage-manager/src/app/playlists/playlist-list.component.ts", lineNumber: 231 });
 })();
 
 // apps/signage-manager/src/app/playlists/playlists.component.ts
+function PlaylistsSectionComponent_Conditional_7_Conditional_8_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 13);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", ctx_r1.selected_playlist().description, " ");
+  }
+}
 function PlaylistsSectionComponent_Conditional_7_Conditional_10_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
     const _r3 = \u0275\u0275getCurrentView();
@@ -3180,12 +3816,12 @@ function PlaylistsSectionComponent_Conditional_7_Template(rf, ctx) {
     \u0275\u0275elementStart(3, "icon");
     \u0275\u0275text(4, "arrow_back");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(5, "div", 11)(6, "icon", 12);
-    \u0275\u0275text(7, "playlist_play");
+    \u0275\u0275elementStart(5, "div", 11)(6, "h4", 12);
+    \u0275\u0275text(7);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(8, "h4", 13);
-    \u0275\u0275text(9);
-    \u0275\u0275elementEnd()();
+    \u0275\u0275conditionalCreate(8, PlaylistsSectionComponent_Conditional_7_Conditional_8_Template, 2, 1, "div", 13);
+    \u0275\u0275elementEnd();
+    \u0275\u0275element(9, "div");
     \u0275\u0275conditionalCreate(10, PlaylistsSectionComponent_Conditional_7_Conditional_10_Template, 2, 1);
     \u0275\u0275conditionalCreate(11, PlaylistsSectionComponent_Conditional_7_Conditional_11_Template, 5, 6, "button", 14);
     \u0275\u0275conditionalCreate(12, PlaylistsSectionComponent_Conditional_7_Conditional_12_Template, 5, 6, "button", 14);
@@ -3215,10 +3851,12 @@ function PlaylistsSectionComponent_Conditional_7_Template(rf, ctx) {
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance();
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(2, 27, "SIGNAGE_MANAGER.BACK_TO_PLAYLISTS"));
-    \u0275\u0275advance(8);
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(2, 28, "SIGNAGE_MANAGER.BACK_TO_PLAYLISTS"));
+    \u0275\u0275advance(6);
     \u0275\u0275textInterpolate1(" ", ctx_r1.selected_playlist().name, " ");
     \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r1.selected_playlist().description ? 8 : -1);
+    \u0275\u0275advance(2);
     \u0275\u0275conditional(ctx_r1.requires_approval() ? 10 : -1);
     \u0275\u0275advance();
     \u0275\u0275conditional(ctx_r1.can_update() ? 11 : -1);
@@ -3227,17 +3865,17 @@ function PlaylistsSectionComponent_Conditional_7_Template(rf, ctx) {
     \u0275\u0275advance();
     \u0275\u0275conditional(ctx_r1.can_delete() ? 13 : -1);
     \u0275\u0275advance();
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(15, 29, "SIGNAGE_MANAGER.PLAYLIST_DETAILS_TABS"));
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(15, 30, "SIGNAGE_MANAGER.PLAYLIST_DETAILS_TABS"));
     \u0275\u0275advance(2);
     \u0275\u0275classProp("border-primary", ctx_r1.view_tab() === "items")("border-b-2", ctx_r1.view_tab() === "items")("text-primary", ctx_r1.view_tab() === "items")("opacity-60", ctx_r1.view_tab() !== "items");
     \u0275\u0275attribute("aria-selected", ctx_r1.view_tab() === "items");
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(18, 31, "SIGNAGE_MANAGER.TAB_ITEMS"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(18, 32, "SIGNAGE_MANAGER.TAB_ITEMS"), " ");
     \u0275\u0275advance(2);
     \u0275\u0275classProp("border-primary", ctx_r1.view_tab() === "details")("border-b-2", ctx_r1.view_tab() === "details")("text-primary", ctx_r1.view_tab() === "details")("opacity-60", ctx_r1.view_tab() !== "details");
     \u0275\u0275attribute("aria-selected", ctx_r1.view_tab() === "details");
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(21, 33, "COMMON.DETAILS"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(21, 34, "COMMON.DETAILS"), " ");
   }
 }
 var TAB_QUERY_PARAM = "tab";
@@ -3300,14 +3938,16 @@ var PlaylistsSectionComponent = class _PlaylistsSectionComponent {
         return;
       if (id) {
         const match = list.find((p) => p.id === id);
-        if (match && this._service.selected_playlist()?.id !== match.id) {
+        if (match && this._service.selected_playlist() !== match) {
           this._service.selected_playlist.set(match);
           this._service.selected_playlist_item.set(null);
+          this._service.selected_playlist_item_index.set(null);
         }
         this._route_resolved = true;
       } else if (this._route_resolved) {
         this._service.selected_playlist.set(null);
         this._service.selected_playlist_item.set(null);
+        this._service.selected_playlist_item_index.set(null);
       }
     });
     effect(() => {
@@ -3317,8 +3957,10 @@ var PlaylistsSectionComponent = class _PlaylistsSectionComponent {
       const items = this._playlist_items();
       if (!items.length)
         return;
-      const matched_item = items.find((item) => item.id === item_id);
+      const matched_index = items.findIndex((item) => item.id === item_id);
+      const matched_item = items[matched_index];
       this._service.selected_playlist_item.set(matched_item || null);
+      this._service.selected_playlist_item_index.set(matched_item ? matched_index : null);
     });
   }
   editPlaylist() {
@@ -3349,6 +3991,7 @@ var PlaylistsSectionComponent = class _PlaylistsSectionComponent {
   deselectPlaylist() {
     this._service.selected_playlist.set(null);
     this._service.selected_playlist_item.set(null);
+    this._service.selected_playlist_item_index.set(null);
     this._router.navigate(["/playlists"], {});
   }
   setViewTab(tab) {
@@ -3368,7 +4011,7 @@ var PlaylistsSectionComponent = class _PlaylistsSectionComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _PlaylistsSectionComponent, selectors: [["playlists-section"]], inputs: { id: [1, "id"], tab: [1, "tab"], item: [1, "item"] }, decls: 12, vars: 11, consts: [[1, "bg-base-200", "absolute", "inset-0", "flex", "flex-col", "sm:flex-row"], [1, "sm:h-full"], [1, "flex", "min-h-0", "flex-1", "flex-col"], [1, "relative", "z-10"], [1, "flex", "min-h-0", "flex-1", "flex-row"], [1, "mobile-full"], [1, "flex", "min-h-0", "w-px", "flex-1", "flex-col"], ["id", "playlist-items-panel", "role", "tabpanel", "aria-labelledby", "playlist-items-tab", 1, "w-px", "max-w-full", "flex-1"], ["id", "playlist-details-panel", "role", "tabpanel", "aria-labelledby", "playlist-details-tab", 1, "bg-base-100"], [1, "bg-base-100", "border-base-300", "mx-2", "hidden", "items-center", "gap-2", "rounded-b-lg", "border", "p-2", "max-lg:flex"], ["icon", "", "default", "", "type", "button", "matRipple", "", 1, "sm:hidden", 3, "click"], [1, "flex", "min-w-0", "flex-1", "items-center", "gap-2", "px-2"], [1, "shrink-0", "text-2xl", "opacity-60"], [1, "truncate", "text-lg", "font-medium"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "matTooltip"], ["icon", "", "default", "", "error", "", "type", "button", "matRipple", "", 3, "matTooltip"], ["role", "tablist", 1, "bg-base-100", "border-base-300", "mx-2", "my-2", "flex", "rounded-lg", "border", "lg:hidden"], ["type", "button", "role", "tab", "aria-controls", "playlist-items-panel", "id", "playlist-items-tab", 1, "flex-1", "px-4", "py-2.5", "text-sm", "font-medium", "transition-colors", 3, "click"], ["type", "button", "role", "tab", "aria-controls", "playlist-details-panel", "id", "playlist-details-tab", 1, "flex-1", "px-4", "py-2.5", "text-sm", "font-medium", "transition-colors", 3, "click"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "matTooltip", "disabled"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "click", "matTooltip"], [1, "text-warning"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "click", "matTooltip", "disabled"], ["diameter", "20"], ["icon", "", "default", "", "error", "", "type", "button", "matRipple", "", 3, "click", "matTooltip"]], template: function PlaylistsSectionComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _PlaylistsSectionComponent, selectors: [["playlists-section"]], inputs: { id: [1, "id"], tab: [1, "tab"], item: [1, "item"] }, decls: 12, vars: 11, consts: [[1, "bg-base-200", "absolute", "inset-0", "flex", "flex-col", "sm:flex-row"], [1, "sm:h-full"], [1, "flex", "min-h-0", "flex-1", "flex-col"], [1, "relative", "z-10"], [1, "flex", "min-h-0", "flex-1", "flex-row"], [1, "mobile-full"], [1, "flex", "min-h-0", "w-px", "flex-1", "flex-col"], ["id", "playlist-items-panel", "role", "tabpanel", "aria-labelledby", "playlist-items-tab", 1, "w-px", "max-w-full", "flex-1"], ["id", "playlist-details-panel", "role", "tabpanel", "aria-labelledby", "playlist-details-tab", 1, "bg-base-100"], [1, "bg-base-100", "border-base-300", "mx-2", "hidden", "items-center", "gap-2", "rounded-b-lg", "border", "p-2", "max-lg:flex"], ["icon", "", "default", "", "type", "button", "matRipple", "", 1, "sm:hidden", 3, "click"], [1, "flex", "w-1/2", "flex-1", "flex-col", "px-2"], [1, "truncate", "text-lg", "font-medium"], [1, "-mt-1", "truncate", "text-xs"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "matTooltip"], ["icon", "", "default", "", "error", "", "type", "button", "matRipple", "", 3, "matTooltip"], ["role", "tablist", 1, "bg-base-100", "border-base-300", "mx-2", "my-2", "flex", "rounded-lg", "border", "lg:hidden"], ["type", "button", "role", "tab", "aria-controls", "playlist-items-panel", "id", "playlist-items-tab", 1, "flex-1", "px-4", "py-2.5", "text-sm", "font-medium", "transition-colors", 3, "click"], ["type", "button", "role", "tab", "aria-controls", "playlist-details-panel", "id", "playlist-details-tab", 1, "flex-1", "px-4", "py-2.5", "text-sm", "font-medium", "transition-colors", 3, "click"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "matTooltip", "disabled"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "click", "matTooltip"], [1, "text-warning"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "click", "matTooltip", "disabled"], ["diameter", "20"], ["icon", "", "default", "", "error", "", "type", "button", "matRipple", "", 3, "click", "matTooltip"]], template: function PlaylistsSectionComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "div", 0);
         \u0275\u0275element(1, "nav-sidebar", 1);
@@ -3377,7 +4020,7 @@ var PlaylistsSectionComponent = class _PlaylistsSectionComponent {
         \u0275\u0275elementStart(4, "div", 4);
         \u0275\u0275element(5, "playlist-list", 5);
         \u0275\u0275elementStart(6, "div", 6);
-        \u0275\u0275conditionalCreate(7, PlaylistsSectionComponent_Conditional_7_Template, 22, 35);
+        \u0275\u0275conditionalCreate(7, PlaylistsSectionComponent_Conditional_7_Template, 22, 36);
         \u0275\u0275elementStart(8, "div", 4);
         \u0275\u0275element(9, "playlist-items", 7)(10, "playlist-item-details", 8);
         \u0275\u0275elementEnd()()()();
@@ -3449,16 +4092,19 @@ var PlaylistsSectionComponent = class _PlaylistsSectionComponent {
                                 >
                                     <icon>arrow_back</icon>
                                 </button>
-                                <div
-                                    class="flex min-w-0 flex-1 items-center gap-2 px-2"
-                                >
-                                    <icon class="shrink-0 text-2xl opacity-60"
-                                        >playlist_play</icon
-                                    >
+                                <div class="flex w-1/2 flex-1 flex-col px-2">
                                     <h4 class="truncate text-lg font-medium">
                                         {{ selected_playlist().name }}
                                     </h4>
+                                    @if (selected_playlist().description) {
+                                        <div class="-mt-1 truncate text-xs">
+                                            {{
+                                                selected_playlist().description
+                                            }}
+                                        </div>
+                                    }
                                 </div>
+                                <div></div>
                                 @if (requires_approval()) {
                                     @if (can_approve()) {
                                         <button
@@ -3664,9 +4310,9 @@ var PlaylistsSectionComponent = class _PlaylistsSectionComponent {
   }], () => [], { id: [{ type: Input, args: [{ isSignal: true, alias: "id", required: false }] }], tab: [{ type: Input, args: [{ isSignal: true, alias: "tab", required: false }] }], item: [{ type: Input, args: [{ isSignal: true, alias: "item", required: false }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(PlaylistsSectionComponent, { className: "PlaylistsSectionComponent", filePath: "apps/signage-manager/src/app/playlists/playlists.component.ts", lineNumber: 298 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(PlaylistsSectionComponent, { className: "PlaylistsSectionComponent", filePath: "apps/signage-manager/src/app/playlists/playlists.component.ts", lineNumber: 301 });
 })();
 export {
   PlaylistsSectionComponent
 };
-//# sourceMappingURL=playlists.component-VP4T3EOV.js.map
+//# sourceMappingURL=playlists.component-CKJJHRGG.js.map
