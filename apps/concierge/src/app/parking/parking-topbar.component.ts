@@ -744,6 +744,8 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
         const [section = 'events', view = 'list'] = parts.slice(-2);
         const current_view = (view || 'list').split('?')[0];
         const route_key = `${section}/${current_view}`;
+        const section_changed =
+            !!this._previous_route_key && this.section() !== section;
         this.section.set(section as any);
         this.view.set(
             current_view === 'bookings' || current_view === 'requests'
@@ -756,6 +758,7 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
         ) {
             this.setSearch('');
         }
+        if (section_changed) this.zones.set([]);
         this._previous_route_key = route_key;
         if (current_view === 'bookings') {
             this.setRequestFilter('bookings');

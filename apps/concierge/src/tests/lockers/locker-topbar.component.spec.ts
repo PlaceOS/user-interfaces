@@ -56,6 +56,7 @@ describe('LockersTopbarComponent', () => {
     });
 
     it('should clear search when switching locker views', () => {
+        spectator.component.zones.set(['lvl-1']);
         (spectator.component as any)._previous_path = 'manage';
         Object.defineProperty(spectator.component, 'path', {
             value: () => 'events',
@@ -67,5 +68,6 @@ describe('LockersTopbarComponent', () => {
         expect(spectator.inject(LockerStateService).setSearch).toHaveBeenCalledWith(
             '',
         );
+        expect(spectator.component.zones()).toEqual([]);
     });
 });
