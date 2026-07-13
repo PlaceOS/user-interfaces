@@ -2,34 +2,34 @@ import {
   MatProgressBar,
   MatProgressBarModule,
   subDays
-} from "./chunk-OTPLSMKL.js";
+} from "./chunk-F4OENAAC.js";
 import {
   FooterMenuComponent,
   TopbarComponent,
   parse2 as parse
-} from "./chunk-NJYHUKMN.js";
+} from "./chunk-YJ7PJLJO.js";
 import {
   subMinutes
-} from "./chunk-EXRTACNQ.js";
-import "./chunk-V3NX4FCP.js";
-import "./chunk-AXDUPYOK.js";
-import "./chunk-VSL5BZQJ.js";
-import "./chunk-NGMPXDLX.js";
-import "./chunk-D4ZT6NYR.js";
+} from "./chunk-HQL5BQZZ.js";
+import "./chunk-5QCXQFLN.js";
+import "./chunk-25BXC5OH.js";
+import "./chunk-MG5IRUQU.js";
+import "./chunk-H742GKUB.js";
+import "./chunk-QVHMYAJY.js";
 import {
   generateMockSpace,
   setMinutes
-} from "./chunk-XZ4NQSJO.js";
-import "./chunk-SFXKO7HJ.js";
-import "./chunk-KTWP3KAX.js";
-import "./chunk-5S3Q5J2A.js";
-import "./chunk-Z4G76LAK.js";
+} from "./chunk-4NCOEC5H.js";
+import "./chunk-K7LWAWJU.js";
+import "./chunk-Q633EAB4.js";
+import "./chunk-EDZHVYDO.js";
+import "./chunk-4C4EPGRB.js";
 import {
   CustomTooltipComponent,
   MatTooltip,
   MatTooltipModule
-} from "./chunk-AMMMFV3R.js";
-import "./chunk-E46DRIT3.js";
+} from "./chunk-V4JZF4MG.js";
+import "./chunk-7WKRIESE.js";
 import {
   AUTO_STYLE,
   AnimationGroupPlayer,
@@ -86,7 +86,7 @@ import {
   style,
   user_groups_loaded,
   ɵPRE_STYLE
-} from "./chunk-OJEPGVRW.js";
+} from "./chunk-OXTRFG7G.js";
 import {
   $r,
   ANIMATION_MODULE_TYPE,
@@ -222,7 +222,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-BPNMTIWK.js";
+} from "./chunk-I3O7CJR7.js";
 import {
   __export,
   __objRest,
@@ -11538,6 +11538,10 @@ var properties = {
         type: "boolean",
         description: "Whether the plate number/registration field is mandatory in the parking request flow."
       },
+      require_space_restriction: {
+        type: "boolean",
+        description: "Whether users must select a parking space restriction other than None in the parking request flow."
+      },
       show_status_details: {
         type: "boolean",
         description: "Whether the explore parking tooltip should show availability status details such as status text, assigned users, and plate numbers."
@@ -16519,62 +16523,62 @@ var routes = [
     title: "Book",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./book.routes-W324YBHG.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./book.routes-23FEE7UP.js").then((m) => m.ROUTES)
   },
   {
     path: "explore",
     title: "Explore",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./explore.routes-TT4WISYQ.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./explore.routes-HXBTCOM7.js").then((m) => m.ROUTES)
   },
   {
     path: "control",
     title: "Control",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./control.routes-3NTODOTT.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./control.routes-SFTDUV2W.js").then((m) => m.ROUTES)
   },
   {
     path: "directory",
     title: "Directory",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./directory.routes-OVA5EDJ6.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./directory.routes-SE26QEF3.js").then((m) => m.ROUTES)
   },
   {
     path: "your-bookings",
     title: "Your Bookings",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./schedule.routes-2GX5EVUS.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./schedule.routes-5AHU3HAG.js").then((m) => m.ROUTES)
   },
   {
     path: "group-events",
     title: "Group Events",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./group-events.routes-B2O5TJ3I.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./group-events.routes-IJIGKXUV.js").then((m) => m.ROUTES)
   },
   {
     path: "deals-n-offers",
     title: "Deals & Offers",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./deals.routes-EO5LHC5V.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./deals.routes-WQAXD4PA.js").then((m) => m.ROUTES)
   },
   {
     path: "landing",
     title: "Home",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadComponent: () => import("./landing-new.component-XIXKNX3O.js").then((m) => m.LandingNewComponent)
+    loadComponent: () => import("./landing-new.component-OTUKVQZ6.js").then((m) => m.LandingNewComponent)
   },
   {
     path: "team-schedule",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadComponent: () => import("./team-schedule.component-W2T3XBTD.js").then((m) => m.TeamScheduleComponent)
+    loadComponent: () => import("./team-schedule.component-GTHV6PHR.js").then((m) => m.TeamScheduleComponent)
   },
   {
     path: "embedded/:id",
