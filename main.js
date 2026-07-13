@@ -618,7 +618,7 @@ function isSignal(value) {
 }
 function installDevToolsSignalFormatter() {
   globalThis.devtoolsFormatters ??= [];
-  if (!globalThis.devtoolsFormatters.some((f) => f === formatter)) {
+  if (!globalThis.devtoolsFormatters.some((f2) => f2 === formatter)) {
     globalThis.devtoolsFormatters.push(formatter);
   }
 }
@@ -1882,19 +1882,19 @@ function __asyncGenerator(thisArg, _arguments, generator) {
   return i = Object.create((typeof AsyncIterator === "function" ? AsyncIterator : Object).prototype), verb("next"), verb("throw"), verb("return", awaitReturn), i[Symbol.asyncIterator] = function() {
     return this;
   }, i;
-  function awaitReturn(f) {
+  function awaitReturn(f2) {
     return function(v) {
-      return Promise.resolve(v).then(f, reject);
+      return Promise.resolve(v).then(f2, reject);
     };
   }
-  function verb(n, f) {
+  function verb(n, f2) {
     if (g2[n]) {
       i[n] = function(v) {
         return new Promise(function(a, b2) {
           q.push([n, v, a, b2]) > 1 || resume(n, v);
         });
       };
-      if (f) i[n] = f(i[n]);
+      if (f2) i[n] = f2(i[n]);
     }
   }
   function resume(n, v) {
@@ -1913,8 +1913,8 @@ function __asyncGenerator(thisArg, _arguments, generator) {
   function reject(value) {
     resume("throw", value);
   }
-  function settle(f, v) {
-    if (f(v), q.shift(), q.length) resume(q[0][0], q[0][1]);
+  function settle(f2, v) {
+    if (f2(v), q.shift(), q.length) resume(q[0][0], q[0][1]);
   }
 }
 function __asyncValues(o) {
@@ -1930,9 +1930,9 @@ function __asyncValues(o) {
       });
     };
   }
-  function settle(resolve, reject, d2, v) {
+  function settle(resolve, reject, d, v) {
     Promise.resolve(v).then(function(v2) {
-      resolve({ value: v2, done: d2 });
+      resolve({ value: v2, done: d });
     }, reject);
   }
 }
@@ -2912,12 +2912,12 @@ function share(options = {}) {
     })(wrapperSource);
   };
 }
-function handleReset(reset, on2, ...args) {
-  if (on2 === true) {
+function handleReset(reset, on, ...args) {
+  if (on === true) {
     reset();
     return;
   }
-  if (on2 === false) {
+  if (on === false) {
     return;
   }
   const onSubscriber = new SafeSubscriber({
@@ -2926,7 +2926,7 @@ function handleReset(reset, on2, ...args) {
       reset();
     }
   });
-  return innerFrom(on2(...args)).subscribe(onSubscriber);
+  return innerFrom(on(...args)).subscribe(onSubscriber);
 }
 
 // node_modules/rxjs/dist/esm/internal/operators/shareReplay.js
@@ -3141,8 +3141,8 @@ function forwardRef(forwardRefFn) {
   }
   return forwardRefFn;
 }
-function resolveForwardRef(type) {
-  return isForwardRef(type) ? type() : type;
+function resolveForwardRef(type2) {
+  return isForwardRef(type2) ? type2() : type2;
 }
 function isForwardRef(fn) {
   return typeof fn === "function" && fn.hasOwnProperty(__forward_ref__) && fn.__forward_ref__ === forwardRef;
@@ -3255,27 +3255,27 @@ function \u0275\u0275defineInjector(options) {
     imports: options.imports || []
   };
 }
-function getInjectableDef(type) {
-  return getOwnDefinition(type, NG_PROV_DEF);
+function getInjectableDef(type2) {
+  return getOwnDefinition(type2, NG_PROV_DEF);
 }
-function isInjectable(type) {
-  return getInjectableDef(type) !== null;
+function isInjectable(type2) {
+  return getInjectableDef(type2) !== null;
 }
-function getOwnDefinition(type, field) {
-  return type.hasOwnProperty(field) && type[field] || null;
+function getOwnDefinition(type2, field) {
+  return type2.hasOwnProperty(field) && type2[field] || null;
 }
-function getInheritedInjectableDef(type) {
-  const def = type?.[NG_PROV_DEF] ?? null;
+function getInheritedInjectableDef(type2) {
+  const def = type2?.[NG_PROV_DEF] ?? null;
   if (def) {
-    ngDevMode && console.warn(`DEPRECATED: DI is instantiating a token "${type.name}" that inherits its @Injectable decorator but does not provide one itself.
-This will become an error in a future version of Angular. Please add @Injectable() to the "${type.name}" class.`);
+    ngDevMode && console.warn(`DEPRECATED: DI is instantiating a token "${type2.name}" that inherits its @Injectable decorator but does not provide one itself.
+This will become an error in a future version of Angular. Please add @Injectable() to the "${type2.name}" class.`);
     return def;
   } else {
     return null;
   }
 }
-function getInjectorDef(type) {
-  return type && type.hasOwnProperty(NG_INJ_DEF) ? type[NG_INJ_DEF] : null;
+function getInjectorDef(type2) {
+  return type2 && type2.hasOwnProperty(NG_INJ_DEF) ? type2[NG_INJ_DEF] : null;
 }
 var NG_PROV_DEF = getClosureSafeProperty({
   \u0275prov: getClosureSafeProperty
@@ -3453,43 +3453,43 @@ var NG_ELEMENT_ID = getClosureSafeProperty({
 var NG_ENV_ID = getClosureSafeProperty({
   __NG_ENV_ID__: getClosureSafeProperty
 });
-function getNgModuleDef(type) {
-  assertTypeDefined(type, "@NgModule");
-  return type[NG_MOD_DEF] || null;
+function getNgModuleDef(type2) {
+  assertTypeDefined(type2, "@NgModule");
+  return type2[NG_MOD_DEF] || null;
 }
-function getNgModuleDefOrThrow(type) {
-  const ngModuleDef = getNgModuleDef(type);
+function getNgModuleDefOrThrow(type2) {
+  const ngModuleDef = getNgModuleDef(type2);
   if (!ngModuleDef) {
-    throw new RuntimeError(915, (typeof ngDevMode === "undefined" || ngDevMode) && `Type ${stringify(type)} does not have '\u0275mod' property.`);
+    throw new RuntimeError(915, (typeof ngDevMode === "undefined" || ngDevMode) && `Type ${stringify(type2)} does not have '\u0275mod' property.`);
   }
   return ngModuleDef;
 }
-function getComponentDef(type) {
-  assertTypeDefined(type, "@Component");
-  return type[NG_COMP_DEF] || null;
+function getComponentDef(type2) {
+  assertTypeDefined(type2, "@Component");
+  return type2[NG_COMP_DEF] || null;
 }
-function getDirectiveDefOrThrow(type) {
-  const def = getDirectiveDef(type);
+function getDirectiveDefOrThrow(type2) {
+  const def = getDirectiveDef(type2);
   if (!def) {
-    throw new RuntimeError(916, (typeof ngDevMode === "undefined" || ngDevMode) && `Type ${stringify(type)} does not have '\u0275dir' property.`);
+    throw new RuntimeError(916, (typeof ngDevMode === "undefined" || ngDevMode) && `Type ${stringify(type2)} does not have '\u0275dir' property.`);
   }
   return def;
 }
-function getDirectiveDef(type) {
-  assertTypeDefined(type, "@Directive");
-  return type[NG_DIR_DEF] || null;
+function getDirectiveDef(type2) {
+  assertTypeDefined(type2, "@Directive");
+  return type2[NG_DIR_DEF] || null;
 }
-function getPipeDef(type) {
-  assertTypeDefined(type, "@Pipe");
-  return type[NG_PIPE_DEF] || null;
+function getPipeDef(type2) {
+  assertTypeDefined(type2, "@Pipe");
+  return type2[NG_PIPE_DEF] || null;
 }
-function assertTypeDefined(type, symbolType) {
-  if (type == null) {
+function assertTypeDefined(type2, symbolType) {
+  if (type2 == null) {
     throw new RuntimeError(-919, (typeof ngDevMode === "undefined" || ngDevMode) && `Cannot read ${symbolType} metadata. This can indicate a runtime circular dependency in your app that needs to be resolved.`);
   }
 }
-function isStandalone(type) {
-  const def = getComponentDef(type) || getDirectiveDef(type) || getPipeDef(type);
+function isStandalone(type2) {
+  const def = getComponentDef(type2) || getDirectiveDef(type2) || getPipeDef(type2);
   return def !== null && def.standalone;
 }
 function renderStringify(value) {
@@ -3504,12 +3504,12 @@ function stringifyForError(value) {
   }
   return renderStringify(value);
 }
-function debugStringifyTypeForError(type) {
-  const componentDef = getComponentDef(type);
+function debugStringifyTypeForError(type2) {
+  const componentDef = getComponentDef(type2);
   if (componentDef !== null && componentDef.debugInfo) {
     return stringifyTypeFromDebugInfo(componentDef.debugInfo);
   }
-  return stringifyForError(type);
+  return stringifyForError(type2);
 }
 function stringifyTypeFromDebugInfo(debugInfo) {
   if (!debugInfo.filePath || !debugInfo.lineNumber) {
@@ -3721,22 +3721,22 @@ function injectArgs(types) {
       if (arg.length === 0) {
         throw new RuntimeError(900, ngDevMode && "Arguments array must have arguments.");
       }
-      let type = void 0;
+      let type2 = void 0;
       let flags = 0;
       for (let j = 0; j < arg.length; j++) {
         const meta = arg[j];
         const flag = getInjectFlag(meta);
         if (typeof flag === "number") {
           if (flag === -1) {
-            type = meta.token;
+            type2 = meta.token;
           } else {
             flags |= flag;
           }
         } else {
-          type = meta;
+          type2 = meta;
         }
       }
-      args.push(\u0275\u0275inject(type, flags));
+      args.push(\u0275\u0275inject(type2, flags));
     } else {
       args.push(\u0275\u0275inject(arg));
     }
@@ -3751,12 +3751,12 @@ function attachInjectFlag(decorator, flag) {
 function getInjectFlag(token) {
   return token[DI_DECORATOR_FLAG];
 }
-function getFactoryDef(type, throwNotFound) {
-  const hasFactoryDef = type.hasOwnProperty(NG_FACTORY_DEF);
+function getFactoryDef(type2, throwNotFound) {
+  const hasFactoryDef = type2.hasOwnProperty(NG_FACTORY_DEF);
   if (!hasFactoryDef && throwNotFound === true && ngDevMode) {
-    throw new Error(`Type ${stringify(type)} does not have '\u0275fac' property.`);
+    throw new Error(`Type ${stringify(type2)} does not have '\u0275fac' property.`);
   }
-  return hasFactoryDef ? type[NG_FACTORY_DEF] : null;
+  return hasFactoryDef ? type2[NG_FACTORY_DEF] : null;
 }
 function arrayEquals(a, b2, identityAccessor) {
   if (a.length !== b2.length) return false;
@@ -6344,9 +6344,9 @@ function assertTNodeType(tNode, expectedTypes, message2) {
     throwError2(message2 || `Expected [${toTNodeTypeAsString(expectedTypes)}] but got ${toTNodeTypeAsString(tNode.type)}.`);
   }
 }
-function assertPureTNodeType(type) {
-  if (!(type === 2 || type === 1 || type === 4 || type === 8 || type === 32 || type === 16 || type === 64 || type === 128)) {
-    throwError2(`Expected TNodeType to have only a single type selected, but got ${toTNodeTypeAsString(type)}.`);
+function assertPureTNodeType(type2) {
+  if (!(type2 === 2 || type2 === 1 || type2 === 4 || type2 === 8 || type2 === 32 || type2 === 16 || type2 === 64 || type2 === 128)) {
+    throwError2(`Expected TNodeType to have only a single type selected, but got ${toTNodeTypeAsString(type2)}.`);
   }
 }
 function setUpAttributes(renderer, native, attrs) {
@@ -6481,16 +6481,16 @@ var BLOOM_MASK = BLOOM_SIZE - 1;
 var BLOOM_BUCKET_BITS = 5;
 var nextNgElementId = 0;
 var NOT_FOUND2 = {};
-function bloomAdd(injectorIndex, tView, type) {
+function bloomAdd(injectorIndex, tView, type2) {
   ngDevMode && assertEqual(tView.firstCreatePass, true, "expected firstCreatePass to be true");
   let id;
-  if (typeof type === "string") {
-    id = type.charCodeAt(0) || 0;
-  } else if (type.hasOwnProperty(NG_ELEMENT_ID)) {
-    id = type[NG_ELEMENT_ID];
+  if (typeof type2 === "string") {
+    id = type2.charCodeAt(0) || 0;
+  } else if (type2.hasOwnProperty(NG_ELEMENT_ID)) {
+    id = type2[NG_ELEMENT_ID];
   }
   if (id == null) {
-    id = type[NG_ELEMENT_ID] = nextNgElementId++;
+    id = type2[NG_ELEMENT_ID] = nextNgElementId++;
   }
   const bloomHash = id & BLOOM_MASK;
   const mask = 1 << bloomHash;
@@ -6820,12 +6820,12 @@ var NodeInjector = class {
 function createNodeInjector() {
   return new NodeInjector(getCurrentTNode(), getLView());
 }
-function \u0275\u0275getInheritedFactory(type) {
+function \u0275\u0275getInheritedFactory(type2) {
   return noSideEffects(() => {
-    const ownConstructor = type.prototype.constructor;
+    const ownConstructor = type2.prototype.constructor;
     const ownFactory = ownConstructor[NG_FACTORY_DEF] || getFactoryOf(ownConstructor);
     const objectPrototype = Object.prototype;
-    let parent = Object.getPrototypeOf(type.prototype).constructor;
+    let parent = Object.getPrototypeOf(type2.prototype).constructor;
     while (parent && parent !== objectPrototype) {
       const factory = parent[NG_FACTORY_DEF] || getFactoryOf(parent);
       if (factory && factory !== ownFactory) {
@@ -6836,14 +6836,14 @@ function \u0275\u0275getInheritedFactory(type) {
     return (t) => new t();
   });
 }
-function getFactoryOf(type) {
-  if (isForwardRef(type)) {
+function getFactoryOf(type2) {
+  if (isForwardRef(type2)) {
     return () => {
-      const factory = getFactoryOf(resolveForwardRef(type));
+      const factory = getFactoryOf(resolveForwardRef(type2));
       return factory && factory();
     };
   }
-  return getFactoryDef(type);
+  return getFactoryDef(type2);
 }
 function lookupTokenUsingEmbeddedInjector(tNode, lView, token, flags, notFoundValue) {
   let currentTNode = tNode;
@@ -7081,34 +7081,34 @@ var ReflectionCapabilities = class {
     }
     return result;
   }
-  _ownParameters(type, parentCtor) {
-    const typeStr = type.toString();
+  _ownParameters(type2, parentCtor) {
+    const typeStr = type2.toString();
     if (isDelegateCtor(typeStr)) {
       return null;
     }
-    if (type.parameters && type.parameters !== parentCtor.parameters) {
-      return type.parameters;
+    if (type2.parameters && type2.parameters !== parentCtor.parameters) {
+      return type2.parameters;
     }
-    const tsickleCtorParams = type.ctorParameters;
+    const tsickleCtorParams = type2.ctorParameters;
     if (tsickleCtorParams && tsickleCtorParams !== parentCtor.ctorParameters) {
       const ctorParameters = typeof tsickleCtorParams === "function" ? tsickleCtorParams() : tsickleCtorParams;
       const paramTypes2 = ctorParameters.map((ctorParam) => ctorParam && ctorParam.type);
       const paramAnnotations2 = ctorParameters.map((ctorParam) => ctorParam && convertTsickleDecoratorIntoMetadata(ctorParam.decorators));
       return this._zipTypesAndAnnotations(paramTypes2, paramAnnotations2);
     }
-    const paramAnnotations = type.hasOwnProperty(PARAMETERS) && type[PARAMETERS];
-    const paramTypes = this._reflect && this._reflect.getOwnMetadata && this._reflect.getOwnMetadata("design:paramtypes", type);
+    const paramAnnotations = type2.hasOwnProperty(PARAMETERS) && type2[PARAMETERS];
+    const paramTypes = this._reflect && this._reflect.getOwnMetadata && this._reflect.getOwnMetadata("design:paramtypes", type2);
     if (paramTypes || paramAnnotations) {
       return this._zipTypesAndAnnotations(paramTypes, paramAnnotations);
     }
-    return newArray(type.length);
+    return newArray(type2.length);
   }
-  parameters(type) {
-    if (!isType(type)) {
+  parameters(type2) {
+    if (!isType(type2)) {
       return [];
     }
-    const parentCtor = getParentCtor(type);
-    let parameters = this._ownParameters(type, parentCtor);
+    const parentCtor = getParentCtor(type2);
+    let parameters = this._ownParameters(type2, parentCtor);
     if (!parameters && parentCtor !== Object) {
       parameters = this.parameters(parentCtor);
     }
@@ -7191,8 +7191,8 @@ var ReflectionCapabilities = class {
     }
     return this._ownPropMetadata(typeOrFunc, getParentCtor(typeOrFunc)) || {};
   }
-  hasLifecycleHook(type, lcProperty) {
-    return type instanceof Type && lcProperty in type.prototype;
+  hasLifecycleHook(type2, lcProperty) {
+    return type2 instanceof Type && lcProperty in type2.prototype;
   }
 };
 function convertTsickleDecoratorIntoMetadata(decoratorInvocations) {
@@ -7226,8 +7226,8 @@ var _reflect = null;
 function getReflect() {
   return _reflect = _reflect || new ReflectionCapabilities();
 }
-function reflectDependencies(type) {
-  return convertDependencies(getReflect().parameters(type));
+function reflectDependencies(type2) {
+  return convertDependencies(getReflect().parameters(type2));
 }
 function convertDependencies(deps) {
   return deps.map((dep) => reflectDependency(dep));
@@ -7274,38 +7274,38 @@ function reflectDependency(dep) {
   }
   return meta;
 }
-function compileInjectable(type, meta) {
+function compileInjectable(type2, meta) {
   let ngInjectableDef = null;
   let ngFactoryDef = null;
-  if (!type.hasOwnProperty(NG_PROV_DEF)) {
-    Object.defineProperty(type, NG_PROV_DEF, {
+  if (!type2.hasOwnProperty(NG_PROV_DEF)) {
+    Object.defineProperty(type2, NG_PROV_DEF, {
       get: () => {
         if (ngInjectableDef === null) {
           const compiler = getCompilerFacade({
             usage: 0,
             kind: "injectable",
-            type
+            type: type2
           });
-          ngInjectableDef = compiler.compileInjectable(angularCoreDiEnv, `ng:///${type.name}/\u0275prov.js`, getInjectableMetadata(type, meta));
+          ngInjectableDef = compiler.compileInjectable(angularCoreDiEnv, `ng:///${type2.name}/\u0275prov.js`, getInjectableMetadata(type2, meta));
         }
         return ngInjectableDef;
       }
     });
   }
-  if (!type.hasOwnProperty(NG_FACTORY_DEF)) {
-    Object.defineProperty(type, NG_FACTORY_DEF, {
+  if (!type2.hasOwnProperty(NG_FACTORY_DEF)) {
+    Object.defineProperty(type2, NG_FACTORY_DEF, {
       get: () => {
         if (ngFactoryDef === null) {
           const compiler = getCompilerFacade({
             usage: 0,
             kind: "injectable",
-            type
+            type: type2
           });
-          ngFactoryDef = compiler.compileFactory(angularCoreDiEnv, `ng:///${type.name}/\u0275fac.js`, {
-            name: type.name,
-            type,
+          ngFactoryDef = compiler.compileFactory(angularCoreDiEnv, `ng:///${type2.name}/\u0275fac.js`, {
+            name: type2.name,
+            type: type2,
             typeArgumentCount: 0,
-            deps: reflectDependencies(type),
+            deps: reflectDependencies(type2),
             target: compiler.FactoryTarget.Injectable
           });
         }
@@ -7331,13 +7331,13 @@ function isUseFactoryProvider(meta) {
 function isUseExistingProvider(meta) {
   return meta.useExisting !== void 0;
 }
-function getInjectableMetadata(type, srcMeta) {
+function getInjectableMetadata(type2, srcMeta) {
   const meta = srcMeta || {
     providedIn: null
   };
   const compilerMeta = {
-    name: type.name,
-    type,
+    name: type2.name,
+    type: type2,
     typeArgumentCount: 0,
     providedIn: meta.providedIn
   };
@@ -7355,39 +7355,39 @@ function getInjectableMetadata(type, srcMeta) {
   }
   return compilerMeta;
 }
-var Injectable = makeDecorator("Injectable", void 0, void 0, void 0, (type, meta) => compileInjectable(type, meta));
-function compileService(type, meta) {
+var Injectable = makeDecorator("Injectable", void 0, void 0, void 0, (type2, meta) => compileInjectable(type2, meta));
+function compileService(type2, meta) {
   let def = null;
   let factoryDef = null;
-  if (!type.hasOwnProperty(NG_PROV_DEF)) {
-    Object.defineProperty(type, NG_PROV_DEF, {
+  if (!type2.hasOwnProperty(NG_PROV_DEF)) {
+    Object.defineProperty(type2, NG_PROV_DEF, {
       get: () => {
         if (def === null) {
           const compiler = getCompilerFacade({
             usage: 0,
             kind: "service",
-            type
+            type: type2
           });
-          def = compiler.compileService(angularCoreDiEnv, `ng:///${type.name}/\u0275prov.js`, getServiceMetadata(type, meta));
+          def = compiler.compileService(angularCoreDiEnv, `ng:///${type2.name}/\u0275prov.js`, getServiceMetadata(type2, meta));
         }
         return def;
       }
     });
   }
-  if (!type.hasOwnProperty(NG_FACTORY_DEF)) {
-    Object.defineProperty(type, NG_FACTORY_DEF, {
+  if (!type2.hasOwnProperty(NG_FACTORY_DEF)) {
+    Object.defineProperty(type2, NG_FACTORY_DEF, {
       get: () => {
         if (factoryDef === null) {
           const compiler = getCompilerFacade({
             usage: 0,
             kind: "service",
-            type
+            type: type2
           });
-          factoryDef = compiler.compileFactory(angularCoreDiEnv, `ng:///${type.name}/\u0275fac.js`, {
-            name: type.name,
-            type,
+          factoryDef = compiler.compileFactory(angularCoreDiEnv, `ng:///${type2.name}/\u0275fac.js`, {
+            name: type2.name,
+            type: type2,
             typeArgumentCount: 0,
-            deps: reflectDependencies(type),
+            deps: reflectDependencies(type2),
             target: compiler.FactoryTarget.Service
           });
         }
@@ -7397,17 +7397,17 @@ function compileService(type, meta) {
     });
   }
 }
-function getServiceMetadata(type, srcMeta) {
+function getServiceMetadata(type2, srcMeta) {
   const compilerMeta = {
-    name: type.name,
-    type,
+    name: type2.name,
+    type: type2,
     typeArgumentCount: 0,
     autoProvided: srcMeta?.autoProvided,
     factory: srcMeta?.factory
   };
   return compilerMeta;
 }
-var Service = makeDecorator("Service", void 0, void 0, void 0, (type, meta) => compileService(type, meta));
+var Service = makeDecorator("Service", void 0, void 0, void 0, (type2, meta) => compileService(type2, meta));
 function injectElementRef() {
   return createElementRef(getCurrentTNode(), getLView());
 }
@@ -7926,7 +7926,7 @@ function getListeners(element) {
         const listenerElement = unwrapRNode(lView[secondParam]);
         const callback = lCleanup[tCleanup[i++]];
         const useCaptureOrIndx = tCleanup[i++];
-        const type = typeof useCaptureOrIndx === "boolean" || useCaptureOrIndx >= 0 ? "dom" : "output";
+        const type2 = typeof useCaptureOrIndx === "boolean" || useCaptureOrIndx >= 0 ? "dom" : "output";
         const useCapture = typeof useCaptureOrIndx === "boolean" ? useCaptureOrIndx : false;
         if (element == listenerElement) {
           listeners.push({
@@ -7934,7 +7934,7 @@ function getListeners(element) {
             name,
             callback,
             useCapture,
-            type
+            type: type2
           });
         }
       }
@@ -8655,13 +8655,13 @@ var SafeResourceUrlImpl = class extends SafeValueImpl {
 function unwrapSafeValue(value) {
   return value instanceof SafeValueImpl ? value.changingThisBreaksApplicationSecurity : value;
 }
-function allowSanitizationBypassAndThrow(value, type) {
+function allowSanitizationBypassAndThrow(value, type2) {
   const actualType = getSanitizationBypassType(value);
-  if (actualType != null && actualType !== type) {
-    if (actualType === "ResourceURL" && type === "URL") return true;
-    throw new Error(`Required a safe ${type}, got a ${actualType} (see ${XSS_SECURITY_URL})`);
+  if (actualType != null && actualType !== type2) {
+    if (actualType === "ResourceURL" && type2 === "URL") return true;
+    throw new Error(`Required a safe ${type2}, got a ${actualType} (see ${XSS_SECURITY_URL})`);
   }
-  return actualType === type;
+  return actualType === type2;
 }
 function getSanitizationBypassType(value) {
   return value instanceof SafeValueImpl && value.getTypeName() || null;
@@ -9239,16 +9239,16 @@ function maybeUnwrapFn(value) {
   }
 }
 var VALUE_STRING_LENGTH_LIMIT = 200;
-function assertStandaloneComponentType(type) {
-  assertComponentDef(type);
-  const componentDef = getComponentDef(type);
+function assertStandaloneComponentType(type2) {
+  assertComponentDef(type2);
+  const componentDef = getComponentDef(type2);
   if (!componentDef.standalone) {
-    throw new RuntimeError(907, `The ${stringifyForError(type)} component is not marked as standalone, but Angular expects to have a standalone component here. Please make sure the ${stringifyForError(type)} component does not have the \`standalone: false\` flag in the decorator.`);
+    throw new RuntimeError(907, `The ${stringifyForError(type2)} component is not marked as standalone, but Angular expects to have a standalone component here. Please make sure the ${stringifyForError(type2)} component does not have the \`standalone: false\` flag in the decorator.`);
   }
 }
-function assertComponentDef(type) {
-  if (!getComponentDef(type)) {
-    throw new RuntimeError(906, `The ${stringifyForError(type)} is not an Angular component, make sure it has the \`@Component\` decorator.`);
+function assertComponentDef(type2) {
+  if (!getComponentDef(type2)) {
+    throw new RuntimeError(906, `The ${stringifyForError(type2)} is not an Angular component, make sure it has the \`@Component\` decorator.`);
   }
 }
 function throwMultipleComponentError(tNode, first2, second) {
@@ -10695,13 +10695,13 @@ function applyStyling(renderer, isClassBased, rNode, prop, value) {
     }
   }
 }
-function createTView(type, declTNode, templateFn, decls, vars, directives, pipes, viewQuery, schemas, constsOrFactory, ssrId) {
+function createTView(type2, declTNode, templateFn, decls, vars, directives, pipes, viewQuery, schemas, constsOrFactory, ssrId) {
   const bindingStartIndex = HEADER_OFFSET + decls;
   const initialViewLength = bindingStartIndex + vars;
   const blueprint = createViewBlueprint(bindingStartIndex, initialViewLength);
   const consts = typeof constsOrFactory === "function" ? constsOrFactory() : constsOrFactory;
   const tView = blueprint[TVIEW] = {
-    type,
+    type: type2,
     blueprint,
     template: templateFn,
     queries: null,
@@ -12197,17 +12197,17 @@ function processI18nInsertBefore(renderer, childTNode, lView, childRNode, parent
     }
   }
 }
-function getOrCreateTNode(tView, index, type, name, attrs) {
+function getOrCreateTNode(tView, index, type2, name, attrs) {
   ngDevMode && index !== 0 && assertGreaterThanOrEqual(index, HEADER_OFFSET, "TNodes can't be in the LView header.");
-  ngDevMode && assertPureTNodeType(type);
+  ngDevMode && assertPureTNodeType(type2);
   let tNode = tView.data[index];
   if (tNode === null) {
-    tNode = createTNodeAtIndex(tView, index, type, name, attrs);
+    tNode = createTNodeAtIndex(tView, index, type2, name, attrs);
     if (isInI18nBlock()) {
       tNode.flags |= 32;
     }
   } else if (tNode.type & 64) {
-    tNode.type = type;
+    tNode.type = type2;
     tNode.value = name;
     tNode.attrs = attrs;
     const parent = getCurrentParentTNode();
@@ -12218,11 +12218,11 @@ function getOrCreateTNode(tView, index, type, name, attrs) {
   setCurrentTNode(tNode, true);
   return tNode;
 }
-function createTNodeAtIndex(tView, index, type, name, attrs) {
+function createTNodeAtIndex(tView, index, type2, name, attrs) {
   const currentTNode = getCurrentTNodePlaceholderOk();
   const isParent = isCurrentTNodeParent();
   const parent = isParent ? currentTNode : currentTNode && currentTNode.parent;
-  const tNode = tView.data[index] = createTNode(tView, parent, type, index, name, attrs);
+  const tNode = tView.data[index] = createTNode(tView, parent, type2, index, name, attrs);
   linkTNodeInTView(tView, tNode, currentTNode, isParent);
   return tNode;
 }
@@ -12243,7 +12243,7 @@ function linkTNodeInTView(tView, tNode, currentTNode, isParent) {
     }
   }
 }
-function createTNode(tView, tParent, type, index, value, attrs) {
+function createTNode(tView, tParent, type2, index, value, attrs) {
   ngDevMode && index !== 0 && assertGreaterThanOrEqual(index, HEADER_OFFSET, "TNodes can't be in the LView header.");
   ngDevMode && assertNotSame(attrs, void 0, "'undefined' is not valid value for 'attrs'");
   ngDevMode && tParent && assertTNodeForTView(tParent, tView);
@@ -12253,7 +12253,7 @@ function createTNode(tView, tParent, type, index, value, attrs) {
     flags |= 128;
   }
   const tNode = {
-    type,
+    type: type2,
     index,
     insertBeforeIndex: null,
     injectorIndex,
@@ -12627,10 +12627,10 @@ function isDirective(value) {
 function isComponent(value) {
   return !!getComponentDef(value);
 }
-function getDependencyTypeForError(type) {
-  if (getComponentDef(type)) return "component";
-  if (getDirectiveDef(type)) return "directive";
-  if (getPipeDef(type)) return "pipe";
+function getDependencyTypeForError(type2) {
+  if (getComponentDef(type2)) return "component";
+  if (getDirectiveDef(type2)) return "directive";
+  if (getPipeDef(type2)) return "pipe";
   return "type";
 }
 function verifyStandaloneImport(depType, importingType) {
@@ -12644,8 +12644,8 @@ function verifyStandaloneImport(depType, importingType) {
     const def = getComponentDef(depType) || getDirectiveDef(depType) || getPipeDef(depType);
     if (def != null) {
       if (!def.standalone) {
-        const type = getDependencyTypeForError(depType);
-        throw new Error(`The "${stringifyForError(depType)}" ${type}, imported from "${stringifyForError(importingType)}", is not standalone. Does the ${type} have the standalone: false flag?`);
+        const type2 = getDependencyTypeForError(depType);
+        throw new Error(`The "${stringifyForError(depType)}" ${type2}, imported from "${stringifyForError(importingType)}", is not standalone. Does the ${type2} have the standalone: false flag?`);
       }
     } else {
       if (isModuleWithProviders(depType)) {
@@ -12677,14 +12677,14 @@ var DepsTracker = class {
     }
     this.ngModulesWithSomeUnresolvedDecls.clear();
   }
-  getComponentDependencies(type, rawImports) {
+  getComponentDependencies(type2, rawImports) {
     this.resolveNgModulesDecls();
-    const def = getComponentDef(type);
+    const def = getComponentDef(type2);
     if (def === null) {
-      throw new Error(`Attempting to get component dependencies for a type that is not a component: ${type}`);
+      throw new Error(`Attempting to get component dependencies for a type that is not a component: ${type2}`);
     }
     if (def.standalone) {
-      const scope = this.getStandaloneComponentScope(type, rawImports);
+      const scope = this.getStandaloneComponentScope(type2, rawImports);
       if (scope.compilation.isPoisoned) {
         return {
           dependencies: []
@@ -12694,12 +12694,12 @@ var DepsTracker = class {
         dependencies: [...scope.compilation.directives, ...scope.compilation.pipes, ...scope.compilation.ngModules]
       };
     } else {
-      if (!this.ownerNgModule.has(type)) {
+      if (!this.ownerNgModule.has(type2)) {
         return {
           dependencies: []
         };
       }
-      const scope = this.getNgModuleScope(this.ownerNgModule.get(type));
+      const scope = this.getNgModuleScope(this.ownerNgModule.get(type2));
       if (scope.compilation.isPoisoned) {
         return {
           dependencies: []
@@ -12710,26 +12710,26 @@ var DepsTracker = class {
       };
     }
   }
-  registerNgModule(type, scopeInfo) {
-    if (!isNgModule(type)) {
-      throw new Error(`Attempting to register a Type which is not NgModule as NgModule: ${type}`);
+  registerNgModule(type2, scopeInfo) {
+    if (!isNgModule(type2)) {
+      throw new Error(`Attempting to register a Type which is not NgModule as NgModule: ${type2}`);
     }
-    this.ngModulesWithSomeUnresolvedDecls.add(type);
+    this.ngModulesWithSomeUnresolvedDecls.add(type2);
   }
-  clearScopeCacheFor(type) {
-    this.ngModulesScopeCache.delete(type);
-    this.standaloneComponentsScopeCache.delete(type);
+  clearScopeCacheFor(type2) {
+    this.ngModulesScopeCache.delete(type2);
+    this.standaloneComponentsScopeCache.delete(type2);
   }
-  getNgModuleScope(type) {
-    if (this.ngModulesScopeCache.has(type)) {
-      return this.ngModulesScopeCache.get(type);
+  getNgModuleScope(type2) {
+    if (this.ngModulesScopeCache.has(type2)) {
+      return this.ngModulesScopeCache.get(type2);
     }
-    const scope = this.computeNgModuleScope(type);
-    this.ngModulesScopeCache.set(type, scope);
+    const scope = this.computeNgModuleScope(type2);
+    this.ngModulesScopeCache.set(type2, scope);
     return scope;
   }
-  computeNgModuleScope(type) {
-    const def = getNgModuleDefOrThrow(type);
+  computeNgModuleScope(type2) {
+    const def = getNgModuleDefOrThrow(type2);
     const scope = {
       exported: {
         directives: /* @__PURE__ */ new Set(),
@@ -12786,18 +12786,18 @@ var DepsTracker = class {
     }
     return scope;
   }
-  getStandaloneComponentScope(type, rawImports) {
-    if (this.standaloneComponentsScopeCache.has(type)) {
-      return this.standaloneComponentsScopeCache.get(type);
+  getStandaloneComponentScope(type2, rawImports) {
+    if (this.standaloneComponentsScopeCache.has(type2)) {
+      return this.standaloneComponentsScopeCache.get(type2);
     }
-    const ans = this.computeStandaloneComponentScope(type, rawImports);
-    this.standaloneComponentsScopeCache.set(type, ans);
+    const ans = this.computeStandaloneComponentScope(type2, rawImports);
+    this.standaloneComponentsScopeCache.set(type2, ans);
     return ans;
   }
-  computeStandaloneComponentScope(type, rawImports) {
+  computeStandaloneComponentScope(type2, rawImports) {
     const ans = {
       compilation: {
-        directives: /* @__PURE__ */ new Set([type]),
+        directives: /* @__PURE__ */ new Set([type2]),
         pipes: /* @__PURE__ */ new Set(),
         ngModules: /* @__PURE__ */ new Set()
       }
@@ -12805,7 +12805,7 @@ var DepsTracker = class {
     for (const rawImport of flatten(rawImports ?? [])) {
       const imported = resolveForwardRef(rawImport);
       try {
-        verifyStandaloneImport(imported, type);
+        verifyStandaloneImport(imported, type2);
       } catch (e) {
         ans.compilation.isPoisoned = true;
         return ans;
@@ -13632,12 +13632,12 @@ function assertNoDuplicateDirectives(directives) {
     seenDirectives.add(current);
   }
 }
-function directiveHostFirstCreatePass(index, lView, type, name, directiveMatcher, bindingsEnabled, attrsIndex, localRefsIndex) {
+function directiveHostFirstCreatePass(index, lView, type2, name, directiveMatcher, bindingsEnabled, attrsIndex, localRefsIndex) {
   const tView = lView[TVIEW];
   ngDevMode && assertFirstCreatePass(tView);
   const tViewConsts = tView.consts;
   const attrs = getConstant(tViewConsts, attrsIndex);
-  const tNode = getOrCreateTNode(tView, index, type, name, attrs);
+  const tNode = getOrCreateTNode(tView, index, type2, name, attrs);
   if (bindingsEnabled) {
     resolveDirectives(tView, lView, tNode, getConstant(tViewConsts, localRefsIndex), directiveMatcher);
   }
@@ -13660,11 +13660,11 @@ function directiveHostEndFirstCreatePass(tView, tNode) {
     tView.queries.elementEnd(tNode);
   }
 }
-function domOnlyFirstCreatePass(index, tView, type, name, attrsIndex, localRefsIndex) {
+function domOnlyFirstCreatePass(index, tView, type2, name, attrsIndex, localRefsIndex) {
   ngDevMode && assertFirstCreatePass(tView);
   const tViewConsts = tView.consts;
   const attrs = getConstant(tViewConsts, attrsIndex);
-  const tNode = getOrCreateTNode(tView, index, type, name, attrs);
+  const tNode = getOrCreateTNode(tView, index, type2, name, attrs);
   tNode.mergedAttrs = mergeHostAttrs(tNode.mergedAttrs, tNode.attrs);
   if (localRefsIndex != null) {
     const refs = getConstant(tViewConsts, localRefsIndex);
@@ -13802,7 +13802,7 @@ var ComponentFactory = class {
     const sharedStylesHost = rootViewInjector.get(SHARED_STYLES_HOST, null);
     const styleHost = getStyleHost(hostElement, () => rootViewInjector.get(DOCUMENT, null) ?? getDocument());
     if (sharedStylesHost) sharedStylesHost.addHost(styleHost);
-    const hasInputBindings = componentBindings?.some(isInputBinding) || directives?.some((d2) => typeof d2 !== "function" && d2.bindings.some(isInputBinding));
+    const hasInputBindings = componentBindings?.some(isInputBinding) || directives?.some((d) => typeof d !== "function" && d.bindings.some(isInputBinding));
     const rootLView = createLView(null, rootTView, null, 512 | getInitialLViewFlagsFromDef(cmpDef), null, null, environment2, hostRenderer, rootViewInjector, null, retrieveHydrationInfo(hostElement, rootViewInjector, true));
     if (sharedStylesHost && shadowRootSupported && styleHost instanceof ShadowRoot) {
       storeLViewOnDestroy(rootLView, () => {
@@ -14751,8 +14751,8 @@ function \u0275\u0275defineComponent(componentDefinition) {
     return def;
   });
 }
-function extractDirectiveDef(type) {
-  return getComponentDef(type) || getDirectiveDef(type);
+function extractDirectiveDef(type2) {
+  return getComponentDef(type2) || getDirectiveDef(type2);
 }
 function \u0275\u0275defineNgModule(def) {
   return noSideEffects(() => {
@@ -14898,9 +14898,9 @@ function getComponentId(componentDef) {
   }
   return compId;
 }
-function setClassMetadata(type, decorators, ctorParameters, propDecorators) {
+function setClassMetadata(type2, decorators, ctorParameters, propDecorators) {
   return noSideEffects(() => {
-    const clazz = type;
+    const clazz = type2;
     if (decorators !== null) {
       if (clazz.hasOwnProperty("decorators") && clazz.decorators !== void 0) {
         clazz.decorators.push(...decorators);
@@ -15007,7 +15007,7 @@ async function resolveComponentResources(resourceResolver) {
     urlCache.set(url, promise);
     return promise;
   }
-  const resolutionPromises = Array.from(currentQueue).map(async ([type, component]) => {
+  const resolutionPromises = Array.from(currentQueue).map(async ([type2, component]) => {
     if (component.styleUrl && component.styleUrls?.length) {
       throw new Error("@Component cannot define both `styleUrl` and `styleUrls`. Use `styleUrl` if the component has one stylesheet, or `styleUrls` if it has multiple");
     }
@@ -15035,14 +15035,14 @@ async function resolveComponentResources(resourceResolver) {
       componentTasks.push(allFetched);
     }
     await Promise.all(componentTasks);
-    componentDefPendingResolution.delete(type);
+    componentDefPendingResolution.delete(type2);
   });
   await Promise.all(resolutionPromises);
 }
-function maybeQueueResolutionOfComponentResources(type, metadata) {
+function maybeQueueResolutionOfComponentResources(type2, metadata) {
   if (componentNeedsResolution(metadata)) {
-    componentResourceResolutionQueue.set(type, metadata);
-    componentDefPendingResolution.add(type);
+    componentResourceResolutionQueue.set(type2, metadata);
+    componentDefPendingResolution.add(type2);
   }
 }
 function componentNeedsResolution(component) {
@@ -15062,9 +15062,9 @@ async function unwrapResponse(url, response) {
 }
 var modules = /* @__PURE__ */ new Map();
 var checkForDuplicateNgModules = true;
-function assertSameOrNotExisting(id, type, incoming) {
-  if (type && type !== incoming && checkForDuplicateNgModules) {
-    throw new RuntimeError(921, ngDevMode && `Duplicate module registered for ${id} - ${stringify(type)} vs ${stringify(type.name)}`);
+function assertSameOrNotExisting(id, type2, incoming) {
+  if (type2 && type2 !== incoming && checkForDuplicateNgModules) {
+    throw new RuntimeError(921, ngDevMode && `Duplicate module registered for ${id} - ${stringify(type2)} vs ${stringify(type2.name)}`);
   }
 }
 function registerNgModuleType(ngModuleType, id) {
@@ -15203,12 +15203,12 @@ function patchDeclaredInputs(declaredInputs, exposedInputs) {
   }
 }
 function validateHostDirective(hostDirectiveConfig, directiveDef) {
-  const type = hostDirectiveConfig.directive;
+  const type2 = hostDirectiveConfig.directive;
   if (directiveDef === null) {
-    if (getComponentDef(type) !== null) {
-      throw new RuntimeError(310, `Host directive ${type.name} cannot be a component.`);
+    if (getComponentDef(type2) !== null) {
+      throw new RuntimeError(310, `Host directive ${type2.name} cannot be a component.`);
     }
-    throw new RuntimeError(307, `Could not resolve metadata for host directive ${type.name}. Make sure that the ${type.name} class is annotated with an @Directive decorator.`);
+    throw new RuntimeError(307, `Could not resolve metadata for host directive ${type2.name}. Make sure that the ${type2.name} class is annotated with an @Directive decorator.`);
   }
   if (!directiveDef.standalone) {
     throw new RuntimeError(308, `Host directive ${directiveDef.type.name} must be standalone.`);
@@ -15231,8 +15231,8 @@ function validateMappings(bindingType, def, hostDirectiveBindings) {
     }
   }
 }
-function getSuperType(type) {
-  return Object.getPrototypeOf(type.prototype).constructor;
+function getSuperType(type2) {
+  return Object.getPrototypeOf(type2.prototype).constructor;
 }
 function \u0275\u0275InheritDefinitionFeature(definition) {
   let superType = getSuperType(definition.type);
@@ -15470,15 +15470,15 @@ var DeferBlockBehavior;
   DeferBlockBehavior2[DeferBlockBehavior2["Manual"] = 0] = "Manual";
   DeferBlockBehavior2[DeferBlockBehavior2["Playthrough"] = 1] = "Playthrough";
 })(DeferBlockBehavior || (DeferBlockBehavior = {}));
-function storeTriggerCleanupFn(type, lDetails, cleanupFn) {
-  const key = getCleanupFnKeyByType(type);
+function storeTriggerCleanupFn(type2, lDetails, cleanupFn) {
+  const key = getCleanupFnKeyByType(type2);
   if (lDetails[key] === null) {
     lDetails[key] = [];
   }
   lDetails[key].push(cleanupFn);
 }
-function invokeTriggerCleanupFns(type, lDetails) {
-  const key = getCleanupFnKeyByType(type);
+function invokeTriggerCleanupFns(type2, lDetails) {
+  const key = getCleanupFnKeyByType(type2);
   const cleanupFns = lDetails[key];
   if (cleanupFns !== null) {
     for (const cleanupFn of cleanupFns) {
@@ -15492,11 +15492,11 @@ function invokeAllTriggerCleanupFns(lDetails) {
   invokeTriggerCleanupFns(0, lDetails);
   invokeTriggerCleanupFns(2, lDetails);
 }
-function getCleanupFnKeyByType(type) {
+function getCleanupFnKeyByType(type2) {
   let key = TRIGGER_CLEANUP_FNS;
-  if (type === 1) {
+  if (type2 === 1) {
     key = PREFETCH_TRIGGER_CLEANUP_FNS;
-  } else if (type === 2) {
+  } else if (type2 === 2) {
     key = HYDRATE_TRIGGER_CLEANUP_FNS;
   }
   return key;
@@ -15939,8 +15939,8 @@ function getTriggerElement(triggerLView, triggerIndex) {
   ngDevMode && assertElement(element);
   return element;
 }
-function registerDomTrigger(initialLView, tNode, triggerIndex, walkUpTimes, registerFn, callback, type, options) {
-  if (!shouldTriggerDeferBlock(type, initialLView)) {
+function registerDomTrigger(initialLView, tNode, triggerIndex, walkUpTimes, registerFn, callback, type2, options) {
+  if (!shouldTriggerDeferBlock(type2, initialLView)) {
     return;
   }
   const injector = initialLView[INJECTOR];
@@ -15977,7 +15977,7 @@ function registerDomTrigger(initialLView, tNode, triggerIndex, walkUpTimes, regi
     if (initialLView !== triggerLView) {
       storeLViewOnDestroy(triggerLView, cleanup);
     }
-    storeTriggerCleanupFn(type, lDetails, cleanup);
+    storeTriggerCleanupFn(type2, lDetails, cleanup);
   }
   poll = afterEveryRender({
     read: pollDomTrigger
@@ -16031,17 +16031,17 @@ function setupFrameworkInjectorProfiler() {
 function injectorProfilerEventHandler(injectorProfilerEvent) {
   const {
     context: context2,
-    type
+    type: type2
   } = injectorProfilerEvent;
-  if (type === 0) {
+  if (type2 === 0) {
     handleInjectEvent(context2, injectorProfilerEvent.service);
-  } else if (type === 1) {
+  } else if (type2 === 1) {
     handleInstanceCreatedByInjectorEvent(context2, injectorProfilerEvent.instance);
-  } else if (type === 2) {
+  } else if (type2 === 2) {
     handleProviderConfiguredEvent(context2, injectorProfilerEvent.providerRecord);
-  } else if (type === 3) {
+  } else if (type2 === 3) {
     handleEffectCreatedEvent(context2, injectorProfilerEvent.effect);
-  } else if (type === 4) {
+  } else if (type2 === 4) {
     handleEffectCreatedEvent(context2, injectorProfilerEvent.effectPhase);
   }
 }
@@ -19965,8 +19965,8 @@ function i18nStartFirstCreatePass(tView, parentTNodeIndex, lView, index, message
       }
     } else {
       const isClosing = value.charCodeAt(0) === 47;
-      const type = value.charCodeAt(isClosing ? 1 : 0);
-      ngDevMode && assertOneOf(type, 42, 35);
+      const type2 = value.charCodeAt(isClosing ? 1 : 0);
+      ngDevMode && assertOneOf(type2, 42, 35);
       const index2 = HEADER_OFFSET + Number.parseInt(value.substring(isClosing ? 2 : 1));
       if (isClosing) {
         existingTNodeStack.shift();
@@ -19980,7 +19980,7 @@ function i18nStartFirstCreatePass(tView, parentTNodeIndex, lView, index, message
           kind: 2,
           index: index2,
           children: [],
-          type: type === 35 ? 0 : 1
+          type: type2 === 35 ? 0 : 1
         };
         astStack[0].push(placeholderNode);
         astStack.unshift(placeholderNode.children);
@@ -20170,8 +20170,8 @@ function parseICUBlock(pattern) {
   const values = [];
   let icuType = 1;
   let mainBinding = 0;
-  pattern = pattern.replace(ICU_BLOCK_REGEXP, function(str, binding, type) {
-    if (type === "select") {
+  pattern = pattern.replace(ICU_BLOCK_REGEXP, function(str, binding, type2) {
+    if (type2 === "select") {
       icuType = 0;
     } else {
       icuType = 1;
@@ -21659,12 +21659,12 @@ function multiResolve(factories, result) {
   }
   return result;
 }
-function multiFactory(factoryFn, index, isViewProvider, isComponent2, f, provider) {
+function multiFactory(factoryFn, index, isViewProvider, isComponent2, f2, provider) {
   const factory = new NodeInjectorFactory(factoryFn, isViewProvider, \u0275\u0275directiveInject, ngDevMode ? providerName(provider) : null);
   factory.multi = [];
   factory.index = index;
   factory.componentProviders = 0;
-  multiFactoryAdd(factory, f, isComponent2 && !isViewProvider);
+  multiFactoryAdd(factory, f2, isComponent2 && !isViewProvider);
   return factory;
 }
 function providerName(provider) {
@@ -21705,21 +21705,21 @@ function \u0275\u0275ExternalStylesFeature(styleUrls) {
     };
   };
 }
-function \u0275\u0275setComponentScope(type, directives, pipes) {
-  const def = type.\u0275cmp;
+function \u0275\u0275setComponentScope(type2, directives, pipes) {
+  const def = type2.\u0275cmp;
   def.directiveDefs = extractDefListOrFactory(directives, extractDirectiveDef);
   def.pipeDefs = extractDefListOrFactory(pipes, getPipeDef);
 }
-function \u0275\u0275setNgModuleScope(type, scope) {
+function \u0275\u0275setNgModuleScope(type2, scope) {
   return noSideEffects(() => {
-    const ngModuleDef = getNgModuleDefOrThrow(type);
+    const ngModuleDef = getNgModuleDefOrThrow(type2);
     ngModuleDef.declarations = convertToTypeArray(scope.declarations || EMPTY_ARRAY);
     ngModuleDef.imports = convertToTypeArray(scope.imports || EMPTY_ARRAY);
     ngModuleDef.exports = convertToTypeArray(scope.exports || EMPTY_ARRAY);
     if (scope.bootstrap) {
       ngModuleDef.bootstrap = convertToTypeArray(scope.bootstrap);
     }
-    depsTracker.registerNgModule(type, scope);
+    depsTracker.registerNgModule(type2, scope);
   });
 }
 function convertToTypeArray(values) {
@@ -21937,18 +21937,18 @@ function isPure(lView, index) {
 function \u0275\u0275templateRefExtractor(tNode, lView) {
   return createTemplateRef(tNode, lView);
 }
-function \u0275\u0275getComponentDepsFactory(type, rawImports) {
+function \u0275\u0275getComponentDepsFactory(type2, rawImports) {
   return () => {
     try {
-      return depsTracker.getComponentDependencies(type, rawImports).dependencies;
+      return depsTracker.getComponentDependencies(type2, rawImports).dependencies;
     } catch (e) {
-      console.error(`Computing dependencies in local compilation mode for the component "${type.name}" failed with the exception:`, e);
+      console.error(`Computing dependencies in local compilation mode for the component "${type2.name}" failed with the exception:`, e);
       throw e;
     }
   };
 }
-function \u0275setClassDebugInfo(type, debugInfo) {
-  const def = getComponentDef(type);
+function \u0275setClassDebugInfo(type2, debugInfo) {
+  const def = getComponentDef(type2);
   if (def !== null) {
     def.debugInfo = debugInfo;
   }
@@ -21957,15 +21957,15 @@ function \u0275\u0275getReplaceMetadataURL(id, timestamp, base) {
   const url = `./@ng/component?c=${id}&t=${encodeURIComponent(timestamp)}`;
   return new URL(url, base).href;
 }
-function \u0275\u0275replaceMetadata(type, applyMetadata, namespaces, locals, importMeta = null, id = null) {
-  ngDevMode && assertComponentDef(type);
-  const currentDef = getComponentDef(type);
-  applyMetadata.apply(null, [type, namespaces, ...locals]);
+function \u0275\u0275replaceMetadata(type2, applyMetadata, namespaces, locals, importMeta = null, id = null) {
+  ngDevMode && assertComponentDef(type2);
+  const currentDef = getComponentDef(type2);
+  applyMetadata.apply(null, [type2, namespaces, ...locals]);
   const {
     newDef,
     oldDef
-  } = mergeWithExistingDefinition(currentDef, getComponentDef(type));
-  type[NG_COMP_DEF] = newDef;
+  } = mergeWithExistingDefinition(currentDef, getComponentDef(type2));
+  type2[NG_COMP_DEF] = newDef;
   if (oldDef.tView) {
     const trackedViews = getTrackedLViews().values();
     for (const root of trackedViews) {
@@ -22407,9 +22407,9 @@ function compileNgModuleDefs(moduleType, ngModule, allowDuplicateDeclarationsInR
     configurable: !!ngDevMode
   });
 }
-function generateStandaloneInDeclarationsError(type, location2) {
-  const prefix = `Unexpected "${stringifyForError(type)}" found in the "declarations" array of the`;
-  const suffix = `"${stringifyForError(type)}" is marked as standalone and can't be declared in any NgModule - did you intend to import it instead (by adding it to the "imports" array)?`;
+function generateStandaloneInDeclarationsError(type2, location2) {
+  const prefix = `Unexpected "${stringifyForError(type2)}" found in the "declarations" array of the`;
+  const suffix = `"${stringifyForError(type2)}" is marked as standalone and can't be declared in any NgModule - did you intend to import it instead (by adding it to the "imports" array)?`;
   return `${prefix} ${location2}, ${suffix}`;
 }
 function verifySemanticsOfNgModuleDef(moduleType, allowDuplicateDeclarationsInRoot, importingModule) {
@@ -22452,74 +22452,74 @@ function verifySemanticsOfNgModuleDef(moduleType, allowDuplicateDeclarationsInRo
   if (errors.length) {
     throw new Error(errors.join("\n"));
   }
-  function verifyDeclarationsHaveDefinitions(type) {
-    type = resolveForwardRef(type);
-    const def = getComponentDef(type) || getDirectiveDef(type) || getPipeDef(type);
+  function verifyDeclarationsHaveDefinitions(type2) {
+    type2 = resolveForwardRef(type2);
+    const def = getComponentDef(type2) || getDirectiveDef(type2) || getPipeDef(type2);
     if (!def) {
-      errors.push(`Unexpected value '${stringifyForError(type)}' declared by the module '${stringifyForError(moduleType)}'. Please add a @Pipe/@Directive/@Component annotation.`);
+      errors.push(`Unexpected value '${stringifyForError(type2)}' declared by the module '${stringifyForError(moduleType)}'. Please add a @Pipe/@Directive/@Component annotation.`);
     }
   }
-  function verifyDirectivesHaveSelector(type) {
-    type = resolveForwardRef(type);
-    const def = getDirectiveDef(type);
-    if (!getComponentDef(type) && def && def.selectors.length == 0) {
-      errors.push(`Directive ${stringifyForError(type)} has no selector, please add it!`);
+  function verifyDirectivesHaveSelector(type2) {
+    type2 = resolveForwardRef(type2);
+    const def = getDirectiveDef(type2);
+    if (!getComponentDef(type2) && def && def.selectors.length == 0) {
+      errors.push(`Directive ${stringifyForError(type2)} has no selector, please add it!`);
     }
   }
-  function verifyNotStandalone(type, moduleType2) {
-    type = resolveForwardRef(type);
-    const def = getComponentDef(type) || getDirectiveDef(type) || getPipeDef(type);
+  function verifyNotStandalone(type2, moduleType2) {
+    type2 = resolveForwardRef(type2);
+    const def = getComponentDef(type2) || getDirectiveDef(type2) || getPipeDef(type2);
     if (def?.standalone) {
       const location2 = `"${stringifyForError(moduleType2)}" NgModule`;
-      errors.push(generateStandaloneInDeclarationsError(type, location2));
+      errors.push(generateStandaloneInDeclarationsError(type2, location2));
     }
   }
-  function verifyExportsAreDeclaredOrReExported(type) {
-    type = resolveForwardRef(type);
-    const kind = getComponentDef(type) && "component" || getDirectiveDef(type) && "directive" || getPipeDef(type) && "pipe";
+  function verifyExportsAreDeclaredOrReExported(type2) {
+    type2 = resolveForwardRef(type2);
+    const kind = getComponentDef(type2) && "component" || getDirectiveDef(type2) && "directive" || getPipeDef(type2) && "pipe";
     if (kind) {
-      if (combinedDeclarations.lastIndexOf(type) === -1) {
-        errors.push(`Can't export ${kind} ${stringifyForError(type)} from ${stringifyForError(moduleType)} as it was neither declared nor imported!`);
+      if (combinedDeclarations.lastIndexOf(type2) === -1) {
+        errors.push(`Can't export ${kind} ${stringifyForError(type2)} from ${stringifyForError(moduleType)} as it was neither declared nor imported!`);
       }
     }
   }
-  function verifyDeclarationIsUnique(type, suppressErrors) {
-    type = resolveForwardRef(type);
-    const existingModule = ownerNgModule.get(type);
+  function verifyDeclarationIsUnique(type2, suppressErrors) {
+    type2 = resolveForwardRef(type2);
+    const existingModule = ownerNgModule.get(type2);
     if (existingModule && existingModule !== moduleType) {
       if (!suppressErrors) {
         const modules2 = [existingModule, moduleType].map(stringifyForError).sort();
-        errors.push(`Type ${stringifyForError(type)} is part of the declarations of 2 modules: ${modules2[0]} and ${modules2[1]}! Please consider moving ${stringifyForError(type)} to a higher module that imports ${modules2[0]} and ${modules2[1]}. You can also create a new NgModule that exports and includes ${stringifyForError(type)} then import that NgModule in ${modules2[0]} and ${modules2[1]}.`);
+        errors.push(`Type ${stringifyForError(type2)} is part of the declarations of 2 modules: ${modules2[0]} and ${modules2[1]}! Please consider moving ${stringifyForError(type2)} to a higher module that imports ${modules2[0]} and ${modules2[1]}. You can also create a new NgModule that exports and includes ${stringifyForError(type2)} then import that NgModule in ${modules2[0]} and ${modules2[1]}.`);
       }
     } else {
-      ownerNgModule.set(type, moduleType);
+      ownerNgModule.set(type2, moduleType);
     }
   }
-  function verifyComponentIsPartOfNgModule(type) {
-    type = resolveForwardRef(type);
-    const existingModule = ownerNgModule.get(type);
-    if (!existingModule && !isStandalone(type)) {
-      errors.push(`Component ${stringifyForError(type)} is not part of any NgModule or the module has not been imported into your module.`);
+  function verifyComponentIsPartOfNgModule(type2) {
+    type2 = resolveForwardRef(type2);
+    const existingModule = ownerNgModule.get(type2);
+    if (!existingModule && !isStandalone(type2)) {
+      errors.push(`Component ${stringifyForError(type2)} is not part of any NgModule or the module has not been imported into your module.`);
     }
   }
-  function verifyCorrectBootstrapType(type) {
-    type = resolveForwardRef(type);
-    if (!getComponentDef(type)) {
-      errors.push(`${stringifyForError(type)} cannot be used as an entry component.`);
+  function verifyCorrectBootstrapType(type2) {
+    type2 = resolveForwardRef(type2);
+    if (!getComponentDef(type2)) {
+      errors.push(`${stringifyForError(type2)} cannot be used as an entry component.`);
     }
-    if (isStandalone(type)) {
-      errors.push(`The \`${stringifyForError(type)}\` class is a standalone component, which can not be used in the \`@NgModule.bootstrap\` array. Use the \`bootstrapApplication\` function for bootstrap instead.`);
+    if (isStandalone(type2)) {
+      errors.push(`The \`${stringifyForError(type2)}\` class is a standalone component, which can not be used in the \`@NgModule.bootstrap\` array. Use the \`bootstrapApplication\` function for bootstrap instead.`);
     }
   }
-  function verifySemanticsOfNgModuleImport(type, importingModule2) {
-    type = resolveForwardRef(type);
-    const directiveDef = getComponentDef(type) || getDirectiveDef(type);
+  function verifySemanticsOfNgModuleImport(type2, importingModule2) {
+    type2 = resolveForwardRef(type2);
+    const directiveDef = getComponentDef(type2) || getDirectiveDef(type2);
     if (directiveDef !== null && !directiveDef.standalone) {
-      throw new Error(`Unexpected directive '${type.name}' imported by the module '${importingModule2.name}'. Please add an @NgModule annotation.`);
+      throw new Error(`Unexpected directive '${type2.name}' imported by the module '${importingModule2.name}'. Please add an @NgModule annotation.`);
     }
-    const pipeDef = getPipeDef(type);
+    const pipeDef = getPipeDef(type2);
     if (pipeDef !== null && !pipeDef.standalone) {
-      throw new Error(`Unexpected pipe '${type.name}' imported by the module '${importingModule2.name}'. Please add an @NgModule annotation.`);
+      throw new Error(`Unexpected pipe '${type2.name}' imported by the module '${importingModule2.name}'. Please add an @NgModule annotation.`);
     }
   }
 }
@@ -22527,10 +22527,10 @@ function unwrapModuleWithProvidersImports(typeOrWithProviders) {
   typeOrWithProviders = resolveForwardRef(typeOrWithProviders);
   return typeOrWithProviders.ngModule || typeOrWithProviders;
 }
-function getAnnotation(type, name) {
+function getAnnotation(type2, name) {
   let annotation = null;
-  collect(type.__annotations__);
-  collect(type.decorators);
+  collect(type2.__annotations__);
+  collect(type2.decorators);
   return annotation;
   function collect(annotations) {
     if (annotations) {
@@ -22553,19 +22553,19 @@ function getAnnotation(type, name) {
 }
 var ownerNgModule = /* @__PURE__ */ new WeakMap();
 var verifiedNgModule = /* @__PURE__ */ new WeakMap();
-function computeCombinedExports(type) {
-  type = resolveForwardRef(type);
-  const ngModuleDef = getNgModuleDef(type);
+function computeCombinedExports(type2) {
+  type2 = resolveForwardRef(type2);
+  const ngModuleDef = getNgModuleDef(type2);
   if (ngModuleDef === null) {
-    return [type];
+    return [type2];
   }
-  return flatten(maybeUnwrapFn(ngModuleDef.exports).map((type2) => {
-    const ngModuleDef2 = getNgModuleDef(type2);
+  return flatten(maybeUnwrapFn(ngModuleDef.exports).map((type3) => {
+    const ngModuleDef2 = getNgModuleDef(type3);
     if (ngModuleDef2) {
-      verifySemanticsOfNgModuleDef(type2, false);
-      return computeCombinedExports(type2);
+      verifySemanticsOfNgModuleDef(type3, false);
+      return computeCombinedExports(type3);
     } else {
-      return type2;
+      return type3;
     }
   }));
 }
@@ -22589,15 +22589,15 @@ function patchComponentDefWithScope(componentDef, transitiveScopes) {
   componentDef.schemas = transitiveScopes.schemas;
   componentDef.tView = null;
 }
-function transitiveScopesFor(type) {
-  if (isNgModule(type)) {
-    const scope = depsTracker.getNgModuleScope(type);
-    const def = getNgModuleDefOrThrow(type);
+function transitiveScopesFor(type2) {
+  if (isNgModule(type2)) {
+    const scope = depsTracker.getNgModuleScope(type2);
+    const def = getNgModuleDefOrThrow(type2);
     return __spreadValues({
       schemas: def.schemas || null
     }, scope);
-  } else if (isStandalone(type)) {
-    const directiveDef = getComponentDef(type) || getDirectiveDef(type);
+  } else if (isStandalone(type2)) {
+    const directiveDef = getComponentDef(type2) || getDirectiveDef(type2);
     if (directiveDef !== null) {
       return {
         schemas: null,
@@ -22606,12 +22606,12 @@ function transitiveScopesFor(type) {
           pipes: /* @__PURE__ */ new Set()
         },
         exported: {
-          directives: /* @__PURE__ */ new Set([type]),
+          directives: /* @__PURE__ */ new Set([type2]),
           pipes: /* @__PURE__ */ new Set()
         }
       };
     }
-    const pipeDef = getPipeDef(type);
+    const pipeDef = getPipeDef(type2);
     if (pipeDef !== null) {
       return {
         schemas: null,
@@ -22621,12 +22621,12 @@ function transitiveScopesFor(type) {
         },
         exported: {
           directives: /* @__PURE__ */ new Set(),
-          pipes: /* @__PURE__ */ new Set([type])
+          pipes: /* @__PURE__ */ new Set([type2])
         }
       };
     }
   }
-  throw new Error(`${type.name} does not have a module def (\u0275mod property)`);
+  throw new Error(`${type2.name} does not have a module def (\u0275mod property)`);
 }
 function expandModuleWithProviders(value) {
   if (isModuleWithProviders(value)) {
@@ -22635,21 +22635,21 @@ function expandModuleWithProviders(value) {
   return value;
 }
 var compilationDepth = 0;
-function compileComponent(type, metadata) {
+function compileComponent(type2, metadata) {
   (typeof ngDevMode === "undefined" || ngDevMode) && initNgDevMode();
   let ngComponentDef = null;
-  maybeQueueResolutionOfComponentResources(type, metadata);
-  addDirectiveFactoryDef(type, metadata);
-  Object.defineProperty(type, NG_COMP_DEF, {
+  maybeQueueResolutionOfComponentResources(type2, metadata);
+  addDirectiveFactoryDef(type2, metadata);
+  Object.defineProperty(type2, NG_COMP_DEF, {
     get: () => {
       if (ngComponentDef === null) {
         const compiler = getCompilerFacade({
           usage: 0,
           kind: "component",
-          type
+          type: type2
         });
         if (componentNeedsResolution(metadata)) {
-          const error2 = [`Component '${type.name}' is not resolved:`];
+          const error2 = [`Component '${type2.name}' is not resolved:`];
           if (metadata.templateUrl) {
             error2.push(` - templateUrl: ${metadata.templateUrl}`);
           }
@@ -22679,10 +22679,10 @@ function compileComponent(type, metadata) {
             encapsulation = ViewEncapsulation.Emulated;
           }
         }
-        const templateUrl = metadata.templateUrl || `ng:///${type.name}/template.html`;
-        const baseMeta = directiveMetadata(type, metadata);
+        const templateUrl = metadata.templateUrl || `ng:///${type2.name}/template.html`;
+        const baseMeta = directiveMetadata(type2, metadata);
         const meta = __spreadProps(__spreadValues({}, baseMeta), {
-          typeSourceSpan: compiler.createParseSourceSpan("Component", type.name, templateUrl),
+          typeSourceSpan: compiler.createParseSourceSpan("Component", type2.name, templateUrl),
           template: metadata.template || "",
           preserveWhitespaces,
           styles: typeof metadata.styles === "string" ? [metadata.styles] : metadata.styles || EMPTY_ARRAY,
@@ -22696,7 +22696,7 @@ function compileComponent(type, metadata) {
         compilationDepth++;
         try {
           if (meta.usesInheritance) {
-            addDirectiveDefToUndecoratedParents(type);
+            addDirectiveDefToUndecoratedParents(type2);
           }
           ngComponentDef = compiler.compileComponent(angularCoreEnv, templateUrl, meta);
           if (meta.isStandalone) {
@@ -22704,7 +22704,7 @@ function compileComponent(type, metadata) {
             const {
               directiveDefs,
               pipeDefs
-            } = getStandaloneDefFunctions(type, imports);
+            } = getStandaloneDefFunctions(type2, imports);
             ngComponentDef.directiveDefs = directiveDefs;
             ngComponentDef.pipeDefs = pipeDefs;
             ngComponentDef.dependencies = () => imports.map(resolveForwardRef);
@@ -22715,15 +22715,15 @@ function compileComponent(type, metadata) {
         if (compilationDepth === 0) {
           flushModuleScopingQueueAsMuchAsPossible();
         }
-        if (hasSelectorScope(type)) {
-          const scopes = transitiveScopesFor(type.ngSelectorScope);
+        if (hasSelectorScope(type2)) {
+          const scopes = transitiveScopesFor(type2.ngSelectorScope);
           patchComponentDefWithScope(ngComponentDef, scopes);
         }
         if (metadata.schemas) {
           if (meta.isStandalone) {
             ngComponentDef.schemas = metadata.schemas;
           } else {
-            throw new Error(`The 'schemas' was specified for the ${stringifyForError(type)} but is only valid on a component that is standalone.`);
+            throw new Error(`The 'schemas' was specified for the ${stringifyForError(type2)} but is only valid on a component that is standalone.`);
           }
         } else if (meta.isStandalone) {
           ngComponentDef.schemas = [];
@@ -22737,30 +22737,30 @@ function compileComponent(type, metadata) {
     configurable: !!ngDevMode
   });
 }
-function getStandaloneDefFunctions(type, imports) {
+function getStandaloneDefFunctions(type2, imports) {
   const directiveDefs = () => {
     if (ngDevMode) {
       for (const rawDep of imports) {
-        verifyStandaloneImport(rawDep, type);
+        verifyStandaloneImport(rawDep, type2);
       }
     }
-    if (!isComponent(type)) {
+    if (!isComponent(type2)) {
       return [];
     }
-    const scope = depsTracker.getStandaloneComponentScope(type, imports);
-    return [...scope.compilation.directives].map((p2) => getComponentDef(p2) || getDirectiveDef(p2)).filter((d2) => d2 !== null);
+    const scope = depsTracker.getStandaloneComponentScope(type2, imports);
+    return [...scope.compilation.directives].map((p2) => getComponentDef(p2) || getDirectiveDef(p2)).filter((d) => d !== null);
   };
   const pipeDefs = () => {
     if (ngDevMode) {
       for (const rawDep of imports) {
-        verifyStandaloneImport(rawDep, type);
+        verifyStandaloneImport(rawDep, type2);
       }
     }
-    if (!isComponent(type)) {
+    if (!isComponent(type2)) {
       return [];
     }
-    const scope = depsTracker.getStandaloneComponentScope(type, imports);
-    return [...scope.compilation.pipes].map((p2) => getPipeDef(p2)).filter((d2) => d2 !== null);
+    const scope = depsTracker.getStandaloneComponentScope(type2, imports);
+    return [...scope.compilation.pipes].map((p2) => getPipeDef(p2)).filter((d) => d !== null);
   };
   return {
     directiveDefs,
@@ -22770,17 +22770,17 @@ function getStandaloneDefFunctions(type, imports) {
 function hasSelectorScope(component) {
   return component.ngSelectorScope !== void 0;
 }
-function compileDirective(type, directive) {
+function compileDirective(type2, directive) {
   let ngDirectiveDef = null;
-  addDirectiveFactoryDef(type, directive || {});
-  Object.defineProperty(type, NG_DIR_DEF, {
+  addDirectiveFactoryDef(type2, directive || {});
+  Object.defineProperty(type2, NG_DIR_DEF, {
     get: () => {
       if (ngDirectiveDef === null) {
-        const meta = getDirectiveMetadata(type, directive || {});
+        const meta = getDirectiveMetadata(type2, directive || {});
         const compiler = getCompilerFacade({
           usage: 0,
           kind: "directive",
-          type
+          type: type2
         });
         ngDirectiveDef = compiler.compileDirective(angularCoreEnv, meta.sourceMapUrl, meta.metadata);
       }
@@ -22789,40 +22789,40 @@ function compileDirective(type, directive) {
     configurable: !!ngDevMode
   });
 }
-function getDirectiveMetadata(type, metadata) {
-  const name = type && type.name;
+function getDirectiveMetadata(type2, metadata) {
+  const name = type2 && type2.name;
   const sourceMapUrl = `ng:///${name}/\u0275dir.js`;
   const compiler = getCompilerFacade({
     usage: 0,
     kind: "directive",
-    type
+    type: type2
   });
-  const facade = directiveMetadata(type, metadata);
+  const facade = directiveMetadata(type2, metadata);
   facade.typeSourceSpan = compiler.createParseSourceSpan("Directive", name, sourceMapUrl);
   if (facade.usesInheritance) {
-    addDirectiveDefToUndecoratedParents(type);
+    addDirectiveDefToUndecoratedParents(type2);
   }
   return {
     metadata: facade,
     sourceMapUrl
   };
 }
-function addDirectiveFactoryDef(type, metadata) {
+function addDirectiveFactoryDef(type2, metadata) {
   let ngFactoryDef = null;
-  Object.defineProperty(type, NG_FACTORY_DEF, {
+  Object.defineProperty(type2, NG_FACTORY_DEF, {
     get: () => {
       if (ngFactoryDef === null) {
-        const meta = getDirectiveMetadata(type, metadata);
+        const meta = getDirectiveMetadata(type2, metadata);
         const compiler = getCompilerFacade({
           usage: 0,
           kind: "directive",
-          type
+          type: type2
         });
-        ngFactoryDef = compiler.compileFactory(angularCoreEnv, `ng:///${type.name}/\u0275fac.js`, {
+        ngFactoryDef = compiler.compileFactory(angularCoreEnv, `ng:///${type2.name}/\u0275fac.js`, {
           name: meta.metadata.name,
           type: meta.metadata.type,
           typeArgumentCount: 0,
-          deps: reflectDependencies(type),
+          deps: reflectDependencies(type2),
           target: compiler.FactoryTarget.Directive
         });
       }
@@ -22831,33 +22831,33 @@ function addDirectiveFactoryDef(type, metadata) {
     configurable: !!ngDevMode
   });
 }
-function extendsDirectlyFromObject(type) {
-  return Object.getPrototypeOf(type.prototype) === Object.prototype;
+function extendsDirectlyFromObject(type2) {
+  return Object.getPrototypeOf(type2.prototype) === Object.prototype;
 }
-function directiveMetadata(type, metadata) {
+function directiveMetadata(type2, metadata) {
   const reflect = getReflect();
-  const propMetadata = reflect.ownPropMetadata(type);
+  const propMetadata = reflect.ownPropMetadata(type2);
   return {
-    name: type.name,
+    name: type2.name,
     legacyOptionalChaining: false,
-    type,
+    type: type2,
     selector: metadata.selector !== void 0 ? metadata.selector : null,
     host: metadata.host || EMPTY_OBJ,
     propMetadata,
     inputs: metadata.inputs || EMPTY_ARRAY,
     outputs: metadata.outputs || EMPTY_ARRAY,
-    queries: extractQueriesMetadata(type, propMetadata, isContentQuery),
+    queries: extractQueriesMetadata(type2, propMetadata, isContentQuery),
     lifecycle: {
-      usesOnChanges: reflect.hasLifecycleHook(type, "ngOnChanges")
+      usesOnChanges: reflect.hasLifecycleHook(type2, "ngOnChanges")
     },
-    controlCreate: reflect.hasLifecycleHook(type, "\u0275ngControlCreate") ? {
+    controlCreate: reflect.hasLifecycleHook(type2, "\u0275ngControlCreate") ? {
       passThroughInput: null
     } : null,
     typeSourceSpan: null,
-    usesInheritance: !extendsDirectlyFromObject(type),
+    usesInheritance: !extendsDirectlyFromObject(type2),
     exportAs: extractExportAs(metadata.exportAs),
     providers: metadata.providers || null,
-    viewQueries: extractQueriesMetadata(type, propMetadata, isViewQuery),
+    viewQueries: extractQueriesMetadata(type2, propMetadata, isViewQuery),
     isStandalone: metadata.standalone === void 0 ? true : !!metadata.standalone,
     isSignal: !!metadata.signals,
     hostDirectives: metadata.hostDirectives?.map((directive) => typeof directive === "function" ? {
@@ -22865,9 +22865,9 @@ function directiveMetadata(type, metadata) {
     } : directive) || null
   };
 }
-function addDirectiveDefToUndecoratedParents(type) {
+function addDirectiveDefToUndecoratedParents(type2) {
   const objPrototype = Object.prototype;
-  let parent = Object.getPrototypeOf(type.prototype).constructor;
+  let parent = Object.getPrototypeOf(type2.prototype).constructor;
   while (parent && parent !== objPrototype) {
     if (!getDirectiveDef(parent) && !getComponentDef(parent) && shouldAddAbstractDirective(parent)) {
       compileDirective(parent, null);
@@ -22890,7 +22890,7 @@ function convertToR3QueryMetadata(propertyName, ann) {
     isSignal: !!ann.isSignal
   };
 }
-function extractQueriesMetadata(type, propMetadata, isQueryAnn) {
+function extractQueriesMetadata(type2, propMetadata, isQueryAnn) {
   const signalQueriesMeta = [];
   const decoratorQueriesMeta = [];
   for (const field in propMetadata) {
@@ -22899,7 +22899,7 @@ function extractQueriesMetadata(type, propMetadata, isQueryAnn) {
       annotations.forEach((ann) => {
         if (isQueryAnn(ann)) {
           if (!ann.selector) {
-            throw new Error(`Can't construct a query for the property "${field}" of "${stringifyForError(type)}" since the query selector wasn't defined.`);
+            throw new Error(`Can't construct a query for the property "${field}" of "${stringifyForError(type2)}" since the query selector wasn't defined.`);
           }
           if (annotations.some(isInputAnnotation)) {
             throw new Error(`Cannot combine @Input decorators with query decorators`);
@@ -22934,12 +22934,12 @@ function splitByComma(value) {
   return value.split(",").map((piece) => piece.trim());
 }
 var LIFECYCLE_HOOKS = ["ngOnChanges", "ngOnInit", "ngOnDestroy", "ngDoCheck", "ngAfterViewInit", "ngAfterViewChecked", "ngAfterContentInit", "ngAfterContentChecked"];
-function shouldAddAbstractDirective(type) {
+function shouldAddAbstractDirective(type2) {
   const reflect = getReflect();
-  if (LIFECYCLE_HOOKS.some((hookName) => reflect.hasLifecycleHook(type, hookName))) {
+  if (LIFECYCLE_HOOKS.some((hookName) => reflect.hasLifecycleHook(type2, hookName))) {
     return true;
   }
-  const propMetadata = reflect.propMetadata(type);
+  const propMetadata = reflect.propMetadata(type2);
   for (const field in propMetadata) {
     const annotations = propMetadata[field];
     for (let i = 0; i < annotations.length; i++) {
@@ -22952,13 +22952,13 @@ function shouldAddAbstractDirective(type) {
   }
   return false;
 }
-function compilePipe(type, meta) {
+function compilePipe(type2, meta) {
   let ngPipeDef = null;
   let ngFactoryDef = null;
-  Object.defineProperty(type, NG_FACTORY_DEF, {
+  Object.defineProperty(type2, NG_FACTORY_DEF, {
     get: () => {
       if (ngFactoryDef === null) {
-        const metadata = getPipeMetadata(type, meta);
+        const metadata = getPipeMetadata(type2, meta);
         const compiler = getCompilerFacade({
           usage: 0,
           kind: "pipe",
@@ -22968,7 +22968,7 @@ function compilePipe(type, meta) {
           name: metadata.name,
           type: metadata.type,
           typeArgumentCount: 0,
-          deps: reflectDependencies(type),
+          deps: reflectDependencies(type2),
           target: compiler.FactoryTarget.Pipe
         });
       }
@@ -22976,10 +22976,10 @@ function compilePipe(type, meta) {
     },
     configurable: !!ngDevMode
   });
-  Object.defineProperty(type, NG_PIPE_DEF, {
+  Object.defineProperty(type2, NG_PIPE_DEF, {
     get: () => {
       if (ngPipeDef === null) {
-        const metadata = getPipeMetadata(type, meta);
+        const metadata = getPipeMetadata(type2, meta);
         const compiler = getCompilerFacade({
           usage: 0,
           kind: "pipe",
@@ -22992,22 +22992,22 @@ function compilePipe(type, meta) {
     configurable: !!ngDevMode
   });
 }
-function getPipeMetadata(type, meta) {
+function getPipeMetadata(type2, meta) {
   return {
-    type,
-    name: type.name,
+    type: type2,
+    name: type2.name,
     pipeName: meta.name,
     pure: meta.pure !== void 0 ? meta.pure : true,
     isStandalone: meta.standalone === void 0 ? true : !!meta.standalone
   };
 }
-var Directive = makeDecorator("Directive", (dir = {}) => dir, void 0, void 0, (type, meta) => compileDirective(type, meta));
+var Directive = makeDecorator("Directive", (dir = {}) => dir, void 0, void 0, (type2, meta) => compileDirective(type2, meta));
 var Component = makeDecorator("Component", (c2 = {}) => __spreadValues({
   changeDetection: ChangeDetectionStrategy.Eager
-}, c2), Directive, void 0, (type, meta) => compileComponent(type, meta));
+}, c2), Directive, void 0, (type2, meta) => compileComponent(type2, meta));
 var Pipe = makeDecorator("Pipe", (p2) => __spreadValues({
   pure: true
-}, p2), void 0, void 0, (type, meta) => compilePipe(type, meta));
+}, p2), void 0, void 0, (type2, meta) => compilePipe(type2, meta));
 var Input = makePropDecorator("Input", (arg) => {
   if (!arg) {
     return {};
@@ -23026,7 +23026,7 @@ var HostListener = makePropDecorator("HostListener", (eventName, args) => ({
   eventName,
   args
 }));
-var NgModule = makeDecorator("NgModule", (ngModule) => ngModule, void 0, void 0, (type, meta) => compileNgModule(type, meta));
+var NgModule = makeDecorator("NgModule", (ngModule) => ngModule, void 0, void 0, (type2, meta) => compileNgModule(type2, meta));
 var CONSECUTIVE_MICROTASK_NOTIFICATION_LIMIT = 100;
 var consecutiveMicrotaskNotifications = 0;
 var stackFromLastFewNotifications = [];
@@ -23250,7 +23250,7 @@ var Compiler = class _Compiler {
   }
   clearCache() {
   }
-  clearCacheFor(type) {
+  clearCacheFor(type2) {
   }
   getModuleId(moduleType) {
     return void 0;
@@ -24741,7 +24741,7 @@ var IterableDiffers = class _IterableDiffers {
     };
   }
   find(iterable) {
-    const factory = this.factories.find((f) => f.supports(iterable));
+    const factory = this.factories.find((f2) => f2.supports(iterable));
     if (factory != null) {
       return factory;
     } else {
@@ -24749,8 +24749,8 @@ var IterableDiffers = class _IterableDiffers {
     }
   }
 };
-function getTypeNameForDebugging(type) {
-  return type["name"] || typeof type;
+function getTypeNameForDebugging(type2) {
+  return type2["name"] || typeof type2;
 }
 function defaultKeyValueDiffersFactory() {
   return new KeyValueDiffers([new DefaultKeyValueDifferFactory()]);
@@ -24785,7 +24785,7 @@ var KeyValueDiffers = class _KeyValueDiffers {
     };
   }
   find(kv) {
-    const factory = this.factories.find((f) => f.supports(kv));
+    const factory = this.factories.find((f2) => f2.supports(kv));
     if (factory) {
       return factory;
     }
@@ -25162,7 +25162,7 @@ function setModuleBootstrapImpl() {
 function _moduleDoBootstrap(moduleRef, allPlatformModules) {
   const appRef = moduleRef.injector.get(ApplicationRef);
   if (moduleRef._bootstrapComponents.length > 0) {
-    moduleRef._bootstrapComponents.forEach((f) => appRef.bootstrap(f));
+    moduleRef._bootstrapComponents.forEach((f2) => appRef.bootstrap(f2));
   } else if (moduleRef.instance.ngDoBootstrap) {
     moduleRef.instance.ngDoBootstrap(appRef);
   } else {
@@ -26606,9 +26606,9 @@ function getLocaleNumberSymbol(locale, symbol) {
   }
   return res;
 }
-function getLocaleNumberFormat(locale, type) {
+function getLocaleNumberFormat(locale, type2) {
   const data = findLocaleData(locale);
-  return data[LocaleDataIndex.NumberFormats][type];
+  return data[LocaleDataIndex.NumberFormats][type2];
 }
 function getLocaleCurrencies(locale) {
   const data = findLocaleData(locale);
@@ -27196,8 +27196,8 @@ function toDate(value) {
   if (typeof value === "string") {
     value = value.trim();
     if (/^(\d{4}(-\d{1,2}(-\d{1,2})?)?)$/.test(value)) {
-      const [y, m2 = 1, d2 = 1] = value.split("-").map((val) => +val);
-      return createDate(y, m2 - 1, d2);
+      const [y, m2 = 1, d = 1] = value.split("-").map((val) => +val);
+      return createDate(y, m2 - 1, d);
     }
     const parsedNb = parseFloat(value);
     if (!isNaN(value - parsedNb)) {
@@ -27286,7 +27286,7 @@ function formatNumberToLocaleString(value, pattern, locale, groupSymbol, decimal
     let integerLen = parsedNumber.integerLen;
     const exponent = parsedNumber.exponent;
     let decimals = [];
-    isZero = digits.every((d2) => !d2);
+    isZero = digits.every((d) => !d);
     for (; integerLen < minInt; integerLen++) {
       digits.unshift(0);
     }
@@ -27475,9 +27475,9 @@ function roundNumber(parsedNumber, minFrac, maxFrac) {
   for (; fractionLen < Math.max(0, fractionSize); fractionLen++) digits.push(0);
   let dropTrailingZeros = fractionSize !== 0;
   const minLen = minFrac + parsedNumber.integerLen;
-  const carry = digits.reduceRight(function(carry2, d2, i, digits2) {
-    d2 = d2 + carry2;
-    digits2[i] = d2 < 10 ? d2 : d2 - 10;
+  const carry = digits.reduceRight(function(carry2, d, i, digits2) {
+    d = d + carry2;
+    digits2[i] = d < 10 ? d : d - 10;
     if (dropTrailingZeros) {
       if (digits2[i] === 0 && i >= minLen) {
         digits2.pop();
@@ -27485,7 +27485,7 @@ function roundNumber(parsedNumber, minFrac, maxFrac) {
         dropTrailingZeros = false;
       }
     }
-    return d2 >= 10 ? 1 : 0;
+    return d >= 10 ? 1 : 0;
   }, 0);
   if (carry) {
     digits.unshift(carry);
@@ -27959,8 +27959,8 @@ var NgForOf = class _NgForOf {
 function applyViewChange(view, record) {
   view.context.$implicit = record.item;
 }
-function getTypeName(type) {
-  return type["name"] || typeof type;
+function getTypeName(type2) {
+  return type2["name"] || typeof type2;
 }
 var NgIf = class _NgIf {
   _viewContainer;
@@ -28474,8 +28474,8 @@ var NgTemplateOutlet = class _NgTemplateOutlet {
   });
 })();
 var COMMON_DIRECTIVES = [NgClass, NgComponentOutlet, NgForOf, NgIf, NgTemplateOutlet, NgStyle, NgSwitch, NgSwitchCase, NgSwitchDefault, NgPlural, NgPluralCase];
-function invalidPipeArgumentError(type, value) {
-  return new RuntimeError(2100, ngDevMode && `InvalidPipeArgument: '${value}' for pipe '${stringify(type)}'`);
+function invalidPipeArgumentError(type2, value) {
+  return new RuntimeError(2100, ngDevMode && `InvalidPipeArgument: '${value}' for pipe '${stringify(type2)}'`);
 }
 function warnIfSignal(pipeName, value) {
   if (isSignal2(value)) {
@@ -30803,16 +30803,16 @@ var DomRendererFactory2 = class _DomRendererFactory2 {
     this.tracingService = tracingService;
     this.defaultRenderer = new DefaultDomRenderer2(eventManager, doc, ngZone, this.tracingService);
   }
-  createRenderer(element, type) {
-    if (!element || !type) {
+  createRenderer(element, type2) {
+    if (!element || !type2) {
       return this.defaultRenderer;
     }
     if (false) {
-      type = __spreadProps(__spreadValues({}, type), {
+      type2 = __spreadProps(__spreadValues({}, type2), {
         encapsulation: ViewEncapsulation.Emulated
       });
     }
-    const renderer = this.getOrCreateRenderer(element, type);
+    const renderer = this.getOrCreateRenderer(element, type2);
     if (renderer instanceof EmulatedEncapsulationDomRenderer2) {
       renderer.applyToHost(element);
     } else if (renderer instanceof NoneEncapsulationDomRenderer) {
@@ -30820,9 +30820,9 @@ var DomRendererFactory2 = class _DomRendererFactory2 {
     }
     return renderer;
   }
-  getOrCreateRenderer(element, type) {
+  getOrCreateRenderer(element, type2) {
     const rendererByCompId = this.rendererByCompId;
-    let renderer = rendererByCompId.get(type.id);
+    let renderer = rendererByCompId.get(type2.id);
     if (!renderer) {
       const doc = this.doc;
       const ngZone = this.ngZone;
@@ -30830,19 +30830,19 @@ var DomRendererFactory2 = class _DomRendererFactory2 {
       const sharedStylesHost = this.sharedStylesHost;
       const removeStylesOnCompDestroy = this.removeStylesOnCompDestroy;
       const tracingService = this.tracingService;
-      switch (type.encapsulation) {
+      switch (type2.encapsulation) {
         case ViewEncapsulation.Emulated:
-          renderer = new EmulatedEncapsulationDomRenderer2(eventManager, sharedStylesHost, type, this.appId, removeStylesOnCompDestroy, doc, ngZone, tracingService);
+          renderer = new EmulatedEncapsulationDomRenderer2(eventManager, sharedStylesHost, type2, this.appId, removeStylesOnCompDestroy, doc, ngZone, tracingService);
           break;
         case ViewEncapsulation.ShadowDom:
-          return new ShadowDomRenderer(eventManager, element, type, doc, ngZone, this.nonce, tracingService, sharedStylesHost);
+          return new ShadowDomRenderer(eventManager, element, type2, doc, ngZone, this.nonce, tracingService, sharedStylesHost);
         case ViewEncapsulation.ExperimentalIsolatedShadowDom:
-          return new ShadowDomRenderer(eventManager, element, type, doc, ngZone, this.nonce, tracingService);
+          return new ShadowDomRenderer(eventManager, element, type2, doc, ngZone, this.nonce, tracingService);
         default:
-          renderer = new NoneEncapsulationDomRenderer(eventManager, sharedStylesHost, type, removeStylesOnCompDestroy, doc, ngZone, tracingService);
+          renderer = new NoneEncapsulationDomRenderer(eventManager, sharedStylesHost, type2, removeStylesOnCompDestroy, doc, ngZone, tracingService);
           break;
       }
-      rendererByCompId.set(type.id, renderer);
+      rendererByCompId.set(type2.id, renderer);
     }
     return renderer;
   }
@@ -33364,7 +33364,7 @@ function makeHttpFeature(kind, providers) {
 }
 function provideHttpClient(...features) {
   if (ngDevMode) {
-    const featureKinds = new Set(features.map((f) => f.\u0275kind));
+    const featureKinds = new Set(features.map((f2) => f2.\u0275kind));
     if (featureKinds.has(HttpFeatureKind.NoXsrfProtection) && featureKinds.has(HttpFeatureKind.CustomXsrfConfiguration)) {
       throw new Error(ngDevMode ? `Configuration error: found both withXsrfConfiguration() and withNoXsrfProtection() in the same call to provideHttpClient(), which is a contradiction.` : "");
     }
@@ -35579,7 +35579,7 @@ var ActivatedRoute = class {
     this.outlet = outlet;
     this.component = component;
     this._futureSnapshot = futureSnapshot;
-    this.title = this.dataSubject?.pipe(map((d2) => d2[RouteTitleKey])) ?? of(void 0);
+    this.title = this.dataSubject?.pipe(map((d) => d[RouteTitleKey])) ?? of(void 0);
     this.url = urlSubject;
     this.params = paramsSubject;
     this.queryParams = queryParamsSubject;
@@ -36539,10 +36539,10 @@ function runCanActivate(futureRSS, futureARS) {
 function runCanActivateChild(futureRSS, path) {
   const futureARS = path[path.length - 1];
   const canActivateChildGuards = path.slice(0, path.length - 1).reverse().map((p2) => getCanActivateChild(p2)).filter((_2) => _2 !== null);
-  const canActivateChildGuardsMapped = canActivateChildGuards.map((d2) => {
+  const canActivateChildGuardsMapped = canActivateChildGuards.map((d) => {
     return defer(() => {
-      const guardsMapped = d2.guards.map((canActivateChild) => {
-        const closestInjector = d2.node._environmentInjector;
+      const guardsMapped = d.guards.map((canActivateChild) => {
+        const closestInjector = d.node._environmentInjector;
         const guard = getTokenOrFunctionIdentity(canActivateChild, closestInjector);
         const guardVal = isCanActivateChild(guard) ? guard.canActivateChild(futureARS, futureRSS) : runInInjectionContext(closestInjector, () => guard(futureARS, futureRSS));
         return wrapIntoObservable(guardVal).pipe(first());
@@ -38347,7 +38347,7 @@ var Router = class _Router {
       queryParamsHandling,
       preserveFragment
     } = navigationExtras;
-    const f = preserveFragment ? this.currentUrlTree.fragment : fragment;
+    const f2 = preserveFragment ? this.currentUrlTree.fragment : fragment;
     let q = null;
     switch (queryParamsHandling ?? this.options.defaultQueryParamsHandling) {
       case "merge":
@@ -38372,7 +38372,7 @@ var Router = class _Router {
       }
       relativeToUrlSegmentGroup = this.currentUrlTree.root;
     }
-    return createUrlTreeFromSegmentGroup(relativeToUrlSegmentGroup, commands, q, f ?? null, this.urlSerializer);
+    return createUrlTreeFromSegmentGroup(relativeToUrlSegmentGroup, commands, q, f2 ?? null, this.urlSerializer);
   }
   navigateByUrl(url, extras = {
     skipLocationChange: false
@@ -43763,11 +43763,11 @@ function removeListItem$1(list, el) {
   const index = list.indexOf(el);
   if (index > -1) list.splice(index, 1);
 }
-function _ngModelWarning(name, type, instance, warningConfig) {
+function _ngModelWarning(name, type2, instance, warningConfig) {
   if (warningConfig === "never") return;
-  if ((warningConfig === null || warningConfig === "once") && !type._ngModelWarningSentOnce || warningConfig === "always" && !instance._ngModelWarningSent) {
+  if ((warningConfig === null || warningConfig === "once") && !type2._ngModelWarningSentOnce || warningConfig === "always" && !instance._ngModelWarningSent) {
     console.warn(ngModelWarning(name));
-    type._ngModelWarningSentOnce = true;
+    type2._ngModelWarningSentOnce = true;
     instance._ngModelWarningSent = true;
   }
 }
@@ -47336,10 +47336,10 @@ function validateTime(hours, minutes, seconds) {
 function toZonedTime(date, timeZone, options) {
   date = toDate3(date, options);
   const offsetMilliseconds = tzParseTimezone(timeZone, date, true);
-  const d2 = new Date(date.getTime() - offsetMilliseconds);
+  const d = new Date(date.getTime() - offsetMilliseconds);
   const resultDate = /* @__PURE__ */ new Date(0);
-  resultDate.setFullYear(d2.getUTCFullYear(), d2.getUTCMonth(), d2.getUTCDate());
-  resultDate.setHours(d2.getUTCHours(), d2.getUTCMinutes(), d2.getUTCSeconds(), d2.getUTCMilliseconds());
+  resultDate.setFullYear(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
+  resultDate.setHours(d.getUTCHours(), d.getUTCMinutes(), d.getUTCSeconds(), d.getUTCMilliseconds());
   return resultDate;
 }
 
@@ -47595,6 +47595,7 @@ var SIGNAGE_MANAGER = {
   PLAYLIST_COUNT_LABEL_N: "{{ count }} playlists",
   PLAYLIST_DESCRIPTION_ARIA: "Playlist description",
   PLAYLIST_DETAILS_TABS: "Playlist details tabs",
+  PLAYLIST_DISTRIBUTION: "Distribution Playlist",
   PLAYLIST_EDIT: "Edit Playlist",
   PLAYLIST_LABEL: "Playlist",
   PLAYLIST_NAME_ARIA: "Playlist name",
@@ -47642,6 +47643,9 @@ var SIGNAGE_MANAGER = {
   REQUEST_APPROVAL_SELECTED: "Request approval for selected playlist",
   REQUEST_PLAYLIST_APPROVAL_TOOLTIP: "Request playlist approval",
   SCHEDULE: "Schedule",
+  EDIT_SCHEDULE: "Edit Schedule",
+  ITEM_SCHEDULES: "Item Schedules",
+  NO_SCHEDULES: "No schedules",
   SCHEDULES_SUBTITLE: "Daily schedule timelines for signage displays and zones.",
   SCHEDULE_INTERVAL_ARIA: "Recurring schedule interval",
   SCHEDULE_NUMBER: "Schedule {{ number }}",
@@ -48019,6 +48023,7 @@ var COMMON = {
   BUILDING_ANY: "Any Building",
   BUILDING_ALL: "All Buildings",
   LEVEL_ANY: "Any Level",
+  LAST_UPDATED: "Updated {{ time }}",
   LEVEL_ALL: "All Levels",
   LEVEL_EMPTY: "No Level",
   ROOM_EMPTY: "No Room",
@@ -48532,6 +48537,7 @@ var BOOKINGS = {
   PARKING_SPACE_RESTRICTIONS_TITLE: "Space Restrictions",
   PARKING_SPACE_RESTRICTIONS_DESC: "Select any restrictions that apply to your vehicle or parking needs.",
   PARKING_RESTRICTION_NONE: "None",
+  PARKING_SPACE_RESTRICTION_REQUIRED: "Select a parking restriction other than None.",
   PARKING_RESTRICTION_OVERSIZED: "Requires oversized space",
   PARKING_SUMMARY_TITLE: "Summary + Submission",
   PARKING_ALLOCATION_INFO: "Allocation of parking spaces for the following week will occur the <strong>Friday afternoon prior</strong>. Requests received after allocation has occurred will automatically be <strong>waitlisted</strong> until a suitable space becomes available.",
@@ -49080,7 +49086,7 @@ var APP = {
     MENU_REPORT_ROOMS: "Room Bookings",
     MENU_REPORT_SITE_ATTENDANCE: "Site Attendance",
     MENU_REPORT_DESKS: "Desk Bookings",
-    MENU_REPORT_PARKING: "Parking Reservations",
+    MENU_REPORT_PARKING: "Parking Bookings",
     MENU_REPORT_LOCKERS: "Locker Bookings",
     MENU_REPORT_CATERING: "Catering Orders",
     MENU_REPORT_CONTACT_TRACING: "Contact Tracing",
@@ -49117,6 +49123,7 @@ var APP = {
     DESKS_NAME: "Desk Name",
     DESKS_SAVING: "Saving desk details...",
     DESKS_SAVE_ERROR: "Failed to save desk details. Error: {{ error }}",
+    DESKS_SELECT_LEVEL: "Select a level before modifying desks.",
     DESKS_ASSIGN_CONFLICT_ERROR: "This desk is currently booked. Please cancel the existing booking before assigning it.",
     DESKS_ASSIGN_LIMIT_ERROR_1: "Users can only have 1 assigned desk at a time.",
     DESKS_ASSIGN_LIMIT_ERROR_N: "Users can only have {{ count }} assigned desks at a time.",
@@ -49994,6 +50001,9 @@ var APP = {
     REPORTS_PRINT: "Print Report",
     REPORTS_EMPTY: "Select level(s) and date range to generate the report",
     REPORTS_BUSINESS_DAYS: "Business Days",
+    REPORTS_ALLOCATIONS: "Allocations",
+    REPORTS_REJECTED: "Rejected",
+    REPORTS_CANCELLED: "Cancelled",
     REPORTS_TOTAL_BOOKINGS: "Total Bookings",
     REPORTS_TOTAL_SITE_ATTENDANCE: "Total Site Attendance",
     REPORTS_TOTAL_RESERVATIONS: "Requests",
@@ -50005,9 +50015,6 @@ var APP = {
     REPORTS_NO_SHOWS_PERCENT: "% of No shows",
     REPORTS_TOTAL_ATTENDEES: "Total Room Attendees",
     REPORTS_ACTIVE_BOOKINGS_HEADER: "Active Bookings",
-    REPORTS_ALLOCATIONS: "Allocations",
-    REPORTS_REJECTED: "Rejected",
-    REPORTS_CANCELLED: "Cancelled",
     REPORTS_DAILY_HEADER: "Daily Utilisation",
     REPORTS_DAILY_EMPTY: "No bookings for the select date range",
     REPORTS_APPROVED: "Approved Bookings",
@@ -50637,7 +50644,7 @@ function Yn(t) {
     e += ue[t[n - 2] >> 2], e += ue[(t[n - 2] & 3) << 4 | t[n - 1] >> 4], e += ue[(t[n - 1] & 15) << 2 | t[n] >> 6], e += ue[t[n] & 63];
   return n === s + 1 && (e += ue[t[n - 2] >> 2], e += ue[(t[n - 2] & 3) << 4], e += "=="), n === s && (e += ue[t[n - 2] >> 2], e += ue[(t[n - 2] & 3) << 4 | t[n - 1] >> 4], e += ue[(t[n - 1] & 15) << 2], e += "="), e;
 }
-function Hs(t) {
+function zs(t) {
   if (t.length % 4 !== 0)
     throw new Error("Unable to parse base64 string.");
   const e = t.indexOf("=");
@@ -50648,13 +50655,13 @@ function Hs(t) {
     r = bt(t.charCodeAt(o)) << 18 | bt(t.charCodeAt(o + 1)) << 12 | bt(t.charCodeAt(o + 2)) << 6 | bt(t.charCodeAt(o + 3)), i[a] = r >> 16, i[a + 1] = r >> 8 & 255, i[a + 2] = r & 255;
   return i.subarray(0, i.length - n);
 }
-function zs(t, e = new TextEncoder()) {
+function Fs(t, e = new TextEncoder()) {
   return Yn(e.encode(t));
 }
 var vt = { exports: {} };
-var Fs = vt.exports;
+var Ls = vt.exports;
 var Fn;
-function Ls() {
+function js() {
   return Fn || (Fn = 1, (function(t) {
     (function(e, n) {
       var s = {};
@@ -50663,7 +50670,7 @@ function Ls() {
       for (var r in s)
         i[r] = s[r];
       t.exports = i;
-    })(Fs, function(e) {
+    })(Ls, function(e) {
       e.__esModule = true, e.digestLength = 32, e.blockSize = 64;
       var n = new Uint32Array([
         1116352408,
@@ -50731,17 +50738,17 @@ function Ls() {
         3204031479,
         3329325298
       ]);
-      function s(v, c2, h2, f, M2) {
+      function s(v, c2, l, d, M2) {
         for (var x, R2, k, Q2, D2, E2, se, H2, j, z, Be, We, $t; M2 >= 64; ) {
           for (x = c2[0], R2 = c2[1], k = c2[2], Q2 = c2[3], D2 = c2[4], E2 = c2[5], se = c2[6], H2 = c2[7], z = 0; z < 16; z++)
-            Be = f + z * 4, v[z] = (h2[Be] & 255) << 24 | (h2[Be + 1] & 255) << 16 | (h2[Be + 2] & 255) << 8 | h2[Be + 3] & 255;
+            Be = d + z * 4, v[z] = (l[Be] & 255) << 24 | (l[Be + 1] & 255) << 16 | (l[Be + 2] & 255) << 8 | l[Be + 3] & 255;
           for (z = 16; z < 64; z++)
             j = v[z - 2], We = (j >>> 17 | j << 15) ^ (j >>> 19 | j << 13) ^ j >>> 10, j = v[z - 15], $t = (j >>> 7 | j << 25) ^ (j >>> 18 | j << 14) ^ j >>> 3, v[z] = (We + v[z - 7] | 0) + ($t + v[z - 16] | 0);
           for (z = 0; z < 64; z++)
             We = (((D2 >>> 6 | D2 << 26) ^ (D2 >>> 11 | D2 << 21) ^ (D2 >>> 25 | D2 << 7)) + (D2 & E2 ^ ~D2 & se) | 0) + (H2 + (n[z] + v[z] | 0) | 0) | 0, $t = ((x >>> 2 | x << 30) ^ (x >>> 13 | x << 19) ^ (x >>> 22 | x << 10)) + (x & R2 ^ x & k ^ R2 & k) | 0, H2 = se, se = E2, E2 = D2, D2 = Q2 + We | 0, Q2 = k, k = R2, R2 = x, x = We + $t | 0;
-          c2[0] += x, c2[1] += R2, c2[2] += k, c2[3] += Q2, c2[4] += D2, c2[5] += E2, c2[6] += se, c2[7] += H2, f += 64, M2 -= 64;
+          c2[0] += x, c2[1] += R2, c2[2] += k, c2[3] += Q2, c2[4] += D2, c2[5] += E2, c2[6] += se, c2[7] += H2, d += 64, M2 -= 64;
         }
-        return f;
+        return d;
       }
       var i = (
         /** @class */
@@ -50757,23 +50764,23 @@ function Ls() {
             for (var c2 = 0; c2 < this.temp.length; c2++)
               this.temp[c2] = 0;
             this.reset();
-          }, v.prototype.update = function(c2, h2) {
-            if (h2 === void 0 && (h2 = c2.length), this.finished)
+          }, v.prototype.update = function(c2, l) {
+            if (l === void 0 && (l = c2.length), this.finished)
               throw new Error("SHA256: can't update because hash was finished.");
-            var f = 0;
-            if (this.bytesHashed += h2, this.bufferLength > 0) {
-              for (; this.bufferLength < 64 && h2 > 0; )
-                this.buffer[this.bufferLength++] = c2[f++], h2--;
+            var d = 0;
+            if (this.bytesHashed += l, this.bufferLength > 0) {
+              for (; this.bufferLength < 64 && l > 0; )
+                this.buffer[this.bufferLength++] = c2[d++], l--;
               this.bufferLength === 64 && (s(this.temp, this.state, this.buffer, 0, 64), this.bufferLength = 0);
             }
-            for (h2 >= 64 && (f = s(this.temp, this.state, c2, f, h2), h2 %= 64); h2 > 0; )
-              this.buffer[this.bufferLength++] = c2[f++], h2--;
+            for (l >= 64 && (d = s(this.temp, this.state, c2, d, l), l %= 64); l > 0; )
+              this.buffer[this.bufferLength++] = c2[d++], l--;
             return this;
           }, v.prototype.finish = function(c2) {
             if (!this.finished) {
-              var h2 = this.bytesHashed, f = this.bufferLength, M2 = h2 / 536870912 | 0, x = h2 << 3, R2 = h2 % 64 < 56 ? 64 : 128;
-              this.buffer[f] = 128;
-              for (var k = f + 1; k < R2 - 8; k++)
+              var l = this.bytesHashed, d = this.bufferLength, M2 = l / 536870912 | 0, x = l << 3, R2 = l % 64 < 56 ? 64 : 128;
+              this.buffer[d] = 128;
+              for (var k = d + 1; k < R2 - 8; k++)
                 this.buffer[k] = 0;
               this.buffer[R2 - 8] = M2 >>> 24 & 255, this.buffer[R2 - 7] = M2 >>> 16 & 255, this.buffer[R2 - 6] = M2 >>> 8 & 255, this.buffer[R2 - 5] = M2 >>> 0 & 255, this.buffer[R2 - 4] = x >>> 24 & 255, this.buffer[R2 - 3] = x >>> 16 & 255, this.buffer[R2 - 2] = x >>> 8 & 255, this.buffer[R2 - 1] = x >>> 0 & 255, s(this.temp, this.state, this.buffer, 0, R2), this.finished = true;
             }
@@ -50784,12 +50791,12 @@ function Ls() {
             var c2 = new Uint8Array(this.digestLength);
             return this.finish(c2), c2;
           }, v.prototype._saveState = function(c2) {
-            for (var h2 = 0; h2 < this.state.length; h2++)
-              c2[h2] = this.state[h2];
-          }, v.prototype._restoreState = function(c2, h2) {
-            for (var f = 0; f < this.state.length; f++)
-              this.state[f] = c2[f];
-            this.bytesHashed = h2, this.finished = false, this.bufferLength = 0;
+            for (var l = 0; l < this.state.length; l++)
+              c2[l] = this.state[l];
+          }, v.prototype._restoreState = function(c2, l) {
+            for (var d = 0; d < this.state.length; d++)
+              this.state[d] = c2[d];
+            this.bytesHashed = l, this.finished = false, this.bufferLength = 0;
           }, v;
         })()
       );
@@ -50799,20 +50806,20 @@ function Ls() {
         (function() {
           function v(c2) {
             this.inner = new i(), this.outer = new i(), this.blockSize = this.inner.blockSize, this.digestLength = this.inner.digestLength;
-            var h2 = new Uint8Array(this.blockSize);
+            var l = new Uint8Array(this.blockSize);
             if (c2.length > this.blockSize)
-              new i().update(c2).finish(h2).clean();
+              new i().update(c2).finish(l).clean();
             else
-              for (var f = 0; f < c2.length; f++)
-                h2[f] = c2[f];
-            for (var f = 0; f < h2.length; f++)
-              h2[f] ^= 54;
-            this.inner.update(h2);
-            for (var f = 0; f < h2.length; f++)
-              h2[f] ^= 106;
-            this.outer.update(h2), this.istate = new Uint32Array(8), this.ostate = new Uint32Array(8), this.inner._saveState(this.istate), this.outer._saveState(this.ostate);
-            for (var f = 0; f < h2.length; f++)
-              h2[f] = 0;
+              for (var d = 0; d < c2.length; d++)
+                l[d] = c2[d];
+            for (var d = 0; d < l.length; d++)
+              l[d] ^= 54;
+            this.inner.update(l);
+            for (var d = 0; d < l.length; d++)
+              l[d] ^= 106;
+            this.outer.update(l), this.istate = new Uint32Array(8), this.ostate = new Uint32Array(8), this.inner._saveState(this.istate), this.outer._saveState(this.ostate);
+            for (var d = 0; d < l.length; d++)
+              l[d] = 0;
           }
           return v.prototype.reset = function() {
             return this.inner._restoreState(this.istate, this.inner.blockSize), this.outer._restoreState(this.ostate, this.outer.blockSize), this;
@@ -50832,41 +50839,41 @@ function Ls() {
       );
       e.HMAC = r;
       function o(v) {
-        var c2 = new i().update(v), h2 = c2.digest();
-        return c2.clean(), h2;
+        var c2 = new i().update(v), l = c2.digest();
+        return c2.clean(), l;
       }
       e.hash = o, e.default = o;
       function a(v, c2) {
-        var h2 = new r(v).update(c2), f = h2.digest();
-        return h2.clean(), f;
+        var l = new r(v).update(c2), d = l.digest();
+        return l.clean(), d;
       }
       e.hmac = a;
-      function y(v, c2, h2, f) {
-        var M2 = f[0];
+      function y(v, c2, l, d) {
+        var M2 = d[0];
         if (M2 === 0)
           throw new Error("hkdf: cannot expand more");
-        c2.reset(), M2 > 1 && c2.update(v), h2 && c2.update(h2), c2.update(f), c2.finish(v), f[0]++;
+        c2.reset(), M2 > 1 && c2.update(v), l && c2.update(l), c2.update(d), c2.finish(v), d[0]++;
       }
       var L2 = new Uint8Array(e.digestLength);
-      function P2(v, c2, h2, f) {
-        c2 === void 0 && (c2 = L2), f === void 0 && (f = 32);
-        for (var M2 = new Uint8Array([1]), x = a(c2, v), R2 = new r(x), k = new Uint8Array(R2.digestLength), Q2 = k.length, D2 = new Uint8Array(f), E2 = 0; E2 < f; E2++)
-          Q2 === k.length && (y(k, R2, h2, M2), Q2 = 0), D2[E2] = k[Q2++];
+      function P2(v, c2, l, d) {
+        c2 === void 0 && (c2 = L2), d === void 0 && (d = 32);
+        for (var M2 = new Uint8Array([1]), x = a(c2, v), R2 = new r(x), k = new Uint8Array(R2.digestLength), Q2 = k.length, D2 = new Uint8Array(d), E2 = 0; E2 < d; E2++)
+          Q2 === k.length && (y(k, R2, l, M2), Q2 = 0), D2[E2] = k[Q2++];
         return R2.clean(), k.fill(0), M2.fill(0), D2;
       }
       e.hkdf = P2;
-      function W2(v, c2, h2, f) {
-        for (var M2 = new r(v), x = M2.digestLength, R2 = new Uint8Array(4), k = new Uint8Array(x), Q2 = new Uint8Array(x), D2 = new Uint8Array(f), E2 = 0; E2 * x < f; E2++) {
+      function W2(v, c2, l, d) {
+        for (var M2 = new r(v), x = M2.digestLength, R2 = new Uint8Array(4), k = new Uint8Array(x), Q2 = new Uint8Array(x), D2 = new Uint8Array(d), E2 = 0; E2 * x < d; E2++) {
           var se = E2 + 1;
           R2[0] = se >>> 24 & 255, R2[1] = se >>> 16 & 255, R2[2] = se >>> 8 & 255, R2[3] = se >>> 0 & 255, M2.reset(), M2.update(c2), M2.update(R2), M2.finish(Q2);
           for (var H2 = 0; H2 < x; H2++)
             k[H2] = Q2[H2];
-          for (var H2 = 2; H2 <= h2; H2++) {
+          for (var H2 = 2; H2 <= l; H2++) {
             M2.reset(), M2.update(Q2).finish(Q2);
             for (var j = 0; j < x; j++)
               k[j] ^= Q2[j];
           }
-          for (var H2 = 0; H2 < x && E2 * x + H2 < f; H2++)
+          for (var H2 = 0; H2 < x && E2 * x + H2 < d; H2++)
             D2[E2 * x + H2] = k[H2];
         }
         for (var E2 = 0; E2 < x; E2++)
@@ -50879,8 +50886,8 @@ function Ls() {
     });
   })(vt)), vt.exports;
 }
-var js = Ls();
-var Gs = new Int32Array(4);
+var Gs = js();
+var Bs = new Int32Array(4);
 var K = class _K {
   static hashStr(e, n = false) {
     return this.onePassHasher.start().appendStr(e).end(n);
@@ -51038,7 +51045,7 @@ var K = class _K {
       i[14] = o;
     else {
       const a = o.toString(16).match(/(.*?)(.{0,8})$/);
-      if (a === null) return e ? Gs : "";
+      if (a === null) return e ? Bs : "";
       const y = parseInt(a[2], 16), L2 = parseInt(a[1], 16) || 0;
       i[14] = y, i[15] = L2;
     }
@@ -51047,7 +51054,7 @@ var K = class _K {
 };
 if (K.hashStr("hello") !== "5d41402abc4b2a76b9719d911017c592")
   throw new Error("Md5 self test failed.");
-var Bs = 36e5;
+var Ws = 36e5;
 var Ln = /* @__PURE__ */ Symbol.for("constructDateFrom");
 function St(t, e) {
   return typeof t == "function" ? t(e) : t && typeof t == "object" && Ln in t ? t[Ln](e) : t instanceof Date ? new t.constructor(e) : new Date(e);
@@ -51055,7 +51062,7 @@ function St(t, e) {
 function Ze(t, e) {
   return St(t, t);
 }
-function Ws(t, e, n) {
+function Qs(t, e, n) {
   const s = Ze(t);
   if (isNaN(e)) return St(t, NaN);
   const i = s.getDate(), r = St(t, s.getTime());
@@ -51070,16 +51077,16 @@ function Ws(t, e, n) {
 function Vn(t, e, n) {
   return St(t, +Ze(t) + e);
 }
-function Qs(t, e, n) {
-  return Vn(t, e * Bs);
-}
 function Ks(t, e, n) {
-  return Vn(t, e * 1e3);
+  return Vn(t, e * Ws);
 }
 function Zs(t, e, n) {
-  return Ws(t, e * 12);
+  return Vn(t, e * 1e3);
 }
-function yn(t) {
+function Js(t, e, n) {
+  return Qs(t, e * 12);
+}
+function $n(t) {
   return Math.trunc(+Ze(t) / 1e3);
 }
 function Xn(t, e) {
@@ -51108,13 +51115,13 @@ function es() {
   if (t)
     if (t.indexOf("?") >= 0) {
       const i = t.split("?");
-      n = Ie(i[0]), e || (e = i[1]);
+      n = Te(i[0]), e || (e = i[1]);
     } else
-      n = Ie(t);
+      n = Te(t);
   let s = {};
-  return e && (s = Ie(e)), __spreadValues(__spreadValues({}, n), s);
+  return e && (s = Te(e)), __spreadValues(__spreadValues({}, n), s);
 }
-function Ie(t) {
+function Te(t) {
   const e = {}, n = t.split("&");
   for (const s of n) {
     const i = s.split("=");
@@ -51151,7 +51158,7 @@ function ie(t) {
     `${window.location?.pathname}${e}${n}`
   );
 }
-function Js(t) {
+function Ys(t) {
   if (t.length === 0)
     throw new Error("Input must not be of zero length");
   const e = t.split(","), n = {};
@@ -51164,12 +51171,12 @@ function Js(t) {
   }
   return n;
 }
-function Ys(t, e) {
+function Vs(t, e) {
   for (const n in t)
     t.hasOwnProperty(n) && e.indexOf(t[n]) >= 0 && delete t[n];
   return t;
 }
-function Vs() {
+function Xs() {
   return [
     "iPad Simulator",
     "iPhone Simulator",
@@ -51180,13 +51187,13 @@ function Vs() {
   ].includes(navigator.platform) || // iPad on iOS 13 detection
   navigator.userAgent.includes("Mac") && "ontouchend" in document;
 }
-function Xs() {
+function ei() {
   return window.location !== window.parent.location;
 }
-function ei(t = Date.now(), e = 60 * 1e3) {
+function ti(t = Date.now(), e = 60 * 1e3) {
   return Math.floor(t / e);
 }
-var ti = class {
+var ni = class {
   abort() {
     xt("Stub", "Aborted");
   }
@@ -51203,7 +51210,7 @@ function b(t) {
 var xe = {};
 function re(t, e, n = 300) {
   if (t && e && e instanceof Function)
-    _e(t), xe[t] = setTimeout(() => {
+    me(t), xe[t] = setTimeout(() => {
       e(), delete xe[t];
     }, n);
   else
@@ -51211,7 +51218,7 @@ function re(t, e, n = 300) {
       t ? "Cannot create named timeout without a name" : "Cannot create a timeout without a callback"
     );
 }
-function _e(t) {
+function me(t) {
   xe[t] && (clearTimeout(xe[t]), delete xe[t]);
 }
 function ne(t) {
@@ -51228,7 +51235,7 @@ function ne(t) {
       o(e, r);
   }, s.update = (i) => s.set(i(e)), s.asReadonly = () => s, s;
 }
-function ri(t, e = Boolean) {
+function oi(t, e = Boolean) {
   return e(t.value) ? Promise.resolve(t.value) : new Promise((n) => {
     const s = t.subscribe(
       (i) => {
@@ -51238,10 +51245,10 @@ function ri(t, e = Boolean) {
     );
   });
 }
-function oi(t) {
+function ui(t) {
   return new Promise((e) => setTimeout(e, t));
 }
-var ui = {
+var ci = {
   id: "mock-authority",
   name: "localhost:4200",
   description: "",
@@ -51258,23 +51265,23 @@ var _ = {};
 var A = localStorage;
 var N;
 var m = {};
-var I = "";
-var me = "";
-var ge = ne("");
+var T = "";
+var ge = "";
+var ye = ne("");
 var Je = ne("");
-var bn = "/api/engine/v2";
-var pe = ne(false);
-var vn = ne(false);
+var vn = "/api/engine/v2";
+var _e = ne(false);
+var kn = ne(false);
 var qt = 0;
 function ns() {
   if (_.mock) return true;
   if (!A) return false;
   if (Ye() && !_.ignore_api_key) return true;
-  const t = A.getItem(`${I}_expires_at`) || "";
-  return Xn(+t, /* @__PURE__ */ new Date()) ? false : !!(ge.value || A.getItem(`${I}_access_token`));
+  const t = A.getItem(`${T}_expires_at`) || "";
+  return Xn(+t, /* @__PURE__ */ new Date()) ? false : !!(ye.value || A.getItem(`${T}_access_token`));
 }
-function Oe() {
-  vn.set(ns());
+function Ce() {
+  kn.set(ns());
 }
 function ss(t) {
   if (!t || t.startsWith("http://") || t.startsWith("https://"))
@@ -51286,29 +51293,29 @@ function u2() {
   return `${`${_.secure || window.location?.protocol.indexOf("https") >= 0 ? "https:" : "http:"}//${_.host || window.location?.host}`}${is()}`;
 }
 function is() {
-  return _.version === "ACA Engine" ? "/control/api" : bn;
-}
-function ci() {
-  return !!_.token_header;
+  return _.version === "ACA Engine" ? "/control/api" : vn;
 }
 function ai() {
-  return I;
+  return !!_.token_header;
 }
-function Nr(t, e = true) {
-  A.setItem(`${I}_x-api-key`, `${t}`), A.setItem("trusted", `${e}`), hi("x-api-key", Zs(/* @__PURE__ */ new Date(), 5).valueOf());
+function hi() {
+  return T;
+}
+function Hr(t, e = true) {
+  A.setItem(`${T}_x-api-key`, `${t}`), A.setItem("trusted", `${e}`), li("x-api-key", Js(/* @__PURE__ */ new Date(), 5).valueOf());
 }
 function Ye() {
   return Ut("x-api-key", false) || "";
 }
-function hi(t, e = Qs(/* @__PURE__ */ new Date(), 2).valueOf()) {
-  _.ignore_api_key && t === "x-api-key" || (A.setItem(`${I}_expires_at`, `${e}`), A.setItem(`${I}_access_token`, t), ge.set(t), Oe());
+function li(t, e = Ks(/* @__PURE__ */ new Date(), 2).valueOf()) {
+  _.ignore_api_key && t === "x-api-key" || (A.setItem(`${T}_expires_at`, `${e}`), A.setItem(`${T}_access_token`, t), ye.set(t), Ce());
 }
-function V(t = true) {
+function X(t = true) {
   if (_.mock) return "mock-token";
   if (!A) return "";
   if (Ye() && !_.ignore_api_key) return "x-api-key";
-  const e = A.getItem(`${I}_expires_at`) || "", n = ge.value;
-  return Xn(+e, /* @__PURE__ */ new Date()) && (p("Token expired. Requesting new token..."), An(), m.load_authority || (qt += 1, re(
+  const e = A.getItem(`${T}_expires_at`) || "", n = ye.value;
+  return Xn(+e, /* @__PURE__ */ new Date()) && (p("Token expired. Requesting new token..."), qn(), m.load_authority || (qt += 1, re(
     "re-authorise",
     async () => {
       delete m.authorise, await wt().catch(
@@ -51316,33 +51323,33 @@ function V(t = true) {
       );
     },
     200 * Math.min(20, qt)
-  )), !t) ? "" : n || A.getItem(`${I}_access_token`) || "";
+  )), !t) ? "" : n || A.getItem(`${T}_access_token`) || "";
 }
 function Pt() {
-  return Je.value || A.getItem(`${I}_refresh_token`) || "";
+  return Je.value || A.getItem(`${T}_refresh_token`) || "";
 }
-function $n() {
+function bn() {
   return _.host || window.location?.host;
 }
-function li() {
-  return Oe(), vn.asReadonly();
+function di() {
+  return Ce(), kn.asReadonly();
 }
 function Rt() {
   return N;
 }
-function Dr() {
-  return pe.value;
+function Fr() {
+  return _e.value;
 }
-function kn() {
+function Sn() {
   return !!_.mock;
 }
 function fi() {
   return !!_.secure;
 }
-function Hr() {
-  return pe.asReadonly();
+function Lr() {
+  return _e.asReadonly();
 }
-function Sn() {
+function xn() {
   return Ut("trust") === "true" || Ut("trusted") === "true";
 }
 function rs() {
@@ -51351,35 +51358,35 @@ function rs() {
 function Ut(t, e = true) {
   let s = es()[t];
   if (A) {
-    const i = `${ai()}_${t}`;
+    const i = `${hi()}_${t}`;
     s = s || A.getItem(i) || A.getItem(t) || "", e && A.setItem(i, `${s}`);
   }
   return s;
 }
-async function zr(t) {
-  return _ = t || _, _.token_header = _.token_header ?? Xs(), window.AbortController || (window.AbortController = ti), A = _.storage === "session" ? sessionStorage : localStorage, I = K.hashStr(_.redirect_uri, false), di(), _.delay && _.delay > 0 && await oi(_.delay), qn();
+async function jr(t) {
+  return _ = t || _, _.token_header = _.token_header ?? ei(), window.AbortController || (window.AbortController = ni), A = _.storage === "session" ? sessionStorage : localStorage, T = K.hashStr(_.redirect_uri, false), pi(), _.delay && _.delay > 0 && await ui(_.delay), Pn();
 }
-var Tt = false;
-function di() {
-  Tt || (Tt = true, window.addEventListener("focus", It), document.addEventListener("visibilitychange", It));
+var It = false;
+function pi() {
+  It || (It = true, window.addEventListener("focus", Tt), document.addEventListener("visibilitychange", Tt));
 }
-async function It() {
+async function Tt() {
   if (document.visibilityState === "hidden" || _.mock || !N || N.session || ns()) return;
-  if (delete m.check_params, await us().catch(() => false) || me || Pt()) {
-    p("Application focused with new credentials. Authorising..."), Ce = false, delete m.authorise, await wt().catch(
+  if (delete m.check_params, await us().catch(() => false) || ge || Pt()) {
+    p("Application focused with new credentials. Authorising..."), Oe = false, delete m.authorise, await wt().catch(
       (e) => p.error("Failed to authorise on focus:", e)
     );
     return;
   }
-  p("Application focused without a session. Reloading authority..."), Ce = false, xn().catch(
+  p("Application focused without a session. Reloading authority..."), Oe = false, An().catch(
     (e) => p.error("Failed to refresh authority:", e)
   );
 }
-function xn() {
-  return p("Refreshing authorty."), N = void 0, qn();
-}
 function An() {
-  p("Invalidating tokens."), A.removeItem(`${I}_access_token`), A.removeItem(`${I}_expires_at`), ge.value && ge.set(""), Oe();
+  return p("Refreshing authorty."), N = void 0, Pn();
+}
+function qn() {
+  p("Invalidating tokens."), A.removeItem(`${T}_access_token`), A.removeItem(`${T}_expires_at`), ye.value && ye.set(""), Ce();
 }
 function wt(t, e = N) {
   return m.authorise || (m.authorise = new Promise((n, s) => {
@@ -51387,29 +51394,29 @@ function wt(t, e = N) {
       return delete m.authorise, s("Authority is not loaded");
     p("Authorising user...");
     const i = () => {
-      if (V(false))
-        p("Valid token found."), delete m.authorise, n(V());
+      if (X(false))
+        p("Valid token found."), delete m.authorise, n(X());
       else {
         const r = [
           () => {
-            p("Successfully generated token."), n(V()), delete m.authorise;
+            p("Successfully generated token."), n(X()), delete m.authorise;
           },
           () => {
             p.error("Failed to generate token."), s("Failed to generate token"), setTimeout(() => delete m.authorise, 200);
           }
         ];
         if (_ && _.auth_type === "password")
-          p("Logging in with credentials."), ki(_).then(
+          p("Logging in with credentials."), Si(_).then(
             ...r
           ), qt = 0;
-        else if (me || Pt())
+        else if (ge || Pt())
           p(
-            `Generating token with ${me ? "code" : "refresh token"}`
+            `Generating token with ${ge ? "code" : "refresh token"}`
           ), cs().then(...r), qt = 0;
         else if (e.session)
           p(
             "Users has session. Authorising application..."
-          ), _i(t).then(...r);
+          ), mi(t).then(...r);
         else {
           p("No user session"), s("No user session"), setTimeout(() => delete m.authorise, 200);
           try {
@@ -51419,49 +51426,49 @@ function wt(t, e = N) {
         }
       }
     };
-    gi().then(i, i);
+    yi().then(i, i);
   })), m.authorise;
 }
-function qn(t = 0) {
+function Pn(t = 0) {
   return m.load_authority || (m.load_authority = new Promise((e) => {
-    if (pe.set(false), _.mock) {
-      N = ui, p("System in mock mode"), pe.set(true), e();
+    if (_e.set(false), _.mock) {
+      N = ci, p("System in mock mode"), _e.set(true), e();
       return;
     }
-    p(`Fixed: ${rs()} | Trusted: ${Sn()}`), p("Loading authority...");
+    p(`Fixed: ${rs()} | Trusted: ${xn()}`), p("Loading authority...");
     const n = _.secure || window.location?.protocol.indexOf("https") >= 0, s = (i) => {
-      p.error(`Failed to load authority(${i})`), pe.set(false), re(
+      p.error(`Failed to load authority(${i})`), _e.set(false), re(
         "load_authority",
         () => {
-          delete m.load_authority, qn(t).then((r) => e());
+          delete m.load_authority, Pn(t).then((r) => e());
         },
         300 * Math.min(20, ++t)
       );
     };
-    fetch(`${n ? "https:" : "http:"}//${$n()}/auth/authority`, {
+    fetch(`${n ? "https:" : "http:"}//${bn()}/auth/authority`, {
       credentials: "same-origin"
     }).then(async (i) => {
       if (!i.ok)
         return s(await i.text().catch((o) => o));
-      N = await i.json(), bn = /[2-9]\.[0-9]+\.[0-9]+/g.test(
+      N = await i.json(), vn = /[2-9]\.[0-9]+\.[0-9]+/g.test(
         N.version || ""
       ) ? "/api/engine/v2" : "/control/api", p.group("Loaded authority."), N && (p(`Name: ${N.name}`), p(`Version: ${N.version}`), p(`Domain: ${N.domain}`), p(`Session: ${N.session}`), p(`Production: ${N.production}`), p(
         `Config Keys: ${Object.keys(N.config || {}).length}`
       )), p.groupEnd("");
       const r = () => {
-        pe.set(true), p("Application set online."), e();
+        _e.set(true), p("Application set online."), e();
       };
       delete m.load_authority, wt("").then(r, r);
     }, s);
   })), m.load_authority;
 }
-async function _i(t) {
-  const e = yi(t);
+async function mi(t) {
+  const e = $i(t);
   if (_.use_iframe)
-    return mi(e);
+    return gi(e);
   window.location?.assign(e);
 }
-function mi(t) {
+function gi(t) {
   return m.iframe_auth || (m.iframe_auth = new Promise((e, n) => {
     p("Authorizing in an iFrame...");
     const s = document.createElement("iframe");
@@ -51469,11 +51476,11 @@ function mi(t) {
     const i = (o) => {
       if (o.origin === window.location?.origin && o.data.type === "place-os") {
         const a = o.data;
-        if (p("Received credentials from iFrame..."), document.body.removeChild(s), _e("iframe_auth"), window.removeEventListener("message", i), delete m.iframe_auth, a.token)
-          return e(), Pn(__spreadValues({
+        if (p("Received credentials from iFrame..."), document.body.removeChild(s), me("iframe_auth"), window.removeEventListener("message", i), delete m.iframe_auth, a.token)
+          return e(), Rn(__spreadValues({
             access_token: a.token
           }, a));
-        me = a.code || "", cs().then(
+        ge = a.code || "", cs().then(
           (y) => e(y),
           (y) => n(y)
         );
@@ -51488,13 +51495,13 @@ function mi(t) {
       },
       15 * 1e3
     ), window.addEventListener("message", i), s.onerror = (o) => {
-      p.error("iFrame error.", o), _e("iframe_auth"), r(), n();
+      p.error("iFrame error.", o), me("iframe_auth"), r(), n();
     }, document.body.appendChild(s);
   })), m.iframe_auth;
 }
-var Ce = false;
+var Oe = false;
 function os(t) {
-  if (_.handle_login !== false && !Ce) {
+  if (_.handle_login !== false && !Oe) {
     p("Redirecting to login page...");
     const e = ss(
       t.login_url?.replace(
@@ -51502,14 +51509,14 @@ function os(t) {
         encodeURIComponent(window.location?.href)
       )
     );
-    throw setTimeout(() => window.location?.assign(e), 300), Ce = true, new Error("Redirecting to login page...");
+    throw setTimeout(() => window.location?.assign(e), 300), Oe = true, new Error("Redirecting to login page...");
   } else
     p("Login being handled locally.");
   delete m.authorise;
 }
-function gi() {
+function yi() {
   return m.check_token || (m.check_token = new Promise(async (t, e) => {
-    V() ? (p("Valid token found."), t(V())) : (p("No token. Checking URL for auth credentials..."), await us() ? t(true) : e()), delete m.check_token;
+    X() ? (p("Valid token found."), t(X())) : (p("No token. Checking URL for auth credentials..."), await us() ? t(true) : e()), delete m.check_token;
   })), m.check_token;
 }
 function us() {
@@ -51519,13 +51526,13 @@ function us() {
     if ((!e || Object.keys(e).length <= 0) && sessionStorage && (e = JSON.parse(
       sessionStorage.getItem("ENGINE.auth.params") || "{}"
     ), sessionStorage.removeItem("ENGINE.auth.params")), e && (e.code || e.access_token || e.refresh_token)) {
-      const n = A.getItem(`${I}_nonce`) || "", s = (e.state || "").split(";");
+      const n = A.getItem(`${T}_nonce`) || "", s = (e.state || "").split(";");
       ie("state"), ie("token_type");
       const i = s[0];
-      n === i ? (e.code && (me = e.code, ie("code")), e.refresh_token && (A.setItem(
-        `${I}_refresh_token`,
+      n === i ? (e.code && (ge = e.code, ie("code")), e.refresh_token && (A.setItem(
+        `${T}_refresh_token`,
         e.refresh_token
-      ), ie("refresh_token")), Pn(e), t(!!e.access_token)) : (ie("code"), ie("access_token"), ie("refresh_token"), t(false));
+      ), ie("refresh_token")), Rn(e), t(!!e.access_token)) : (ie("code"), ie("access_token"), ie("refresh_token"), t(false));
     } else
       t(false);
     re(
@@ -51535,38 +51542,38 @@ function us() {
     );
   })), m.check_params;
 }
-function yi(t) {
-  const e = Si();
+function $i(t) {
+  const e = xi();
   t = t ? `${e};${t}` : e;
-  const n = _ ? (_.auth_uri || "").indexOf("?") >= 0 : false, s = (_ ? _.auth_uri : null) || "/auth/oauth/authorize", i = Sn() || _.auth_type === "auth_code" ? "code" : "token";
-  let r = `${s}${n ? "&" : "?"}response_type=${encodeURIComponent(i)}&client_id=${encodeURIComponent(I)}&state=${encodeURIComponent(t)}&redirect_uri=${encodeURIComponent(_.redirect_uri)}&scope=${encodeURIComponent(_.scope)}`;
+  const n = _ ? (_.auth_uri || "").indexOf("?") >= 0 : false, s = (_ ? _.auth_uri : null) || "/auth/oauth/authorize", i = xn() || _.auth_type === "auth_code" ? "code" : "token";
+  let r = `${s}${n ? "&" : "?"}response_type=${encodeURIComponent(i)}&client_id=${encodeURIComponent(T)}&state=${encodeURIComponent(t)}&redirect_uri=${encodeURIComponent(_.redirect_uri)}&scope=${encodeURIComponent(_.scope)}`;
   if (_.auth_type === "auth_code") {
-    const { challenge: o, verify: a } = $i();
-    sessionStorage.setItem(`${I}_challenge`, o), r += "&code_challenge_method=S256", r += `&code_challenge=${a}`;
+    const { challenge: o, verify: a } = bi();
+    sessionStorage.setItem(`${T}_challenge`, o), r += "&code_challenge_method=S256", r += `&code_challenge=${a}`;
   }
   return r;
 }
-function $i(t = 43) {
-  const e = ts(t), n = Hs(zs(e)), s = Yn(js.hash(n)).split("=")[0].replace(/\//g, "_").replace(/\+/g, "-");
+function bi(t = 43) {
+  const e = ts(t), n = zs(Fs(e)), s = Yn(Gs.hash(n)).split("=")[0].replace(/\//g, "_").replace(/\+/g, "-");
   return { challenge: e, verify: s };
 }
-function bi() {
-  let e = (_.token_uri || "/auth/token") + `?client_id=${encodeURIComponent(I)}`, n = "";
+function vi() {
+  let e = (_.token_uri || "/auth/token") + `?client_id=${encodeURIComponent(T)}`, n = "";
   if (e += `&redirect_uri=${encodeURIComponent(_.redirect_uri)}`, Pt()) {
     e += `&refresh_token=${encodeURIComponent(Pt())}`, e += "&grant_type=refresh_token";
     const s = e.indexOf("?");
     n = e.slice(s + 1), e = e.slice(0, s);
   } else {
-    e += `&code=${encodeURIComponent(me)}`, e += "&grant_type=authorization_code";
-    const s = sessionStorage.getItem(`${I}_challenge`);
-    s && (e += `&code_verifier=${s}`, sessionStorage.removeItem(`${I}_challenge`)), me = "";
+    e += `&code=${encodeURIComponent(ge)}`, e += "&grant_type=authorization_code";
+    const s = sessionStorage.getItem(`${T}_challenge`);
+    s && (e += `&code_verifier=${s}`, sessionStorage.removeItem(`${T}_challenge`)), ge = "";
   }
   return [e, n];
 }
-function vi(t) {
+function ki(t) {
   const e = t.token_uri || "/auth/token", n = b({
     grant_type: "password",
-    client_id: I,
+    client_id: T,
     client_secret: t.client_secret,
     redirect_uri: t.redirect_uri,
     authority: N?.id,
@@ -51577,16 +51584,16 @@ function vi(t) {
   return `${e}?${n}`;
 }
 function cs() {
-  return as(...bi());
+  return as(...vi());
 }
-function ki(t) {
-  return as(vi(t));
+function Si(t) {
+  return as(ki(t));
 }
 function as(t, e = "") {
   return m.generate_tokens || (m.generate_tokens = new Promise((n, s) => {
     p("Generating new token...");
     const i = (r) => {
-      p.error("Error generating new tokens:", r), r && r.status >= 400 && r.status < 500 && (A.removeItem(`${I}_refresh_token`), Je.set("")), Oe(), s(), delete m.generate_tokens;
+      p.error("Error generating new tokens:", r), r && r.status >= 400 && r.status < 500 && (A.removeItem(`${T}_refresh_token`), Je.set("")), Ce(), s(), delete m.generate_tokens;
     };
     fetch(t, {
       method: "POST",
@@ -51597,26 +51604,26 @@ function as(t, e = "") {
     }).then(async (r) => {
       if (!r.ok) return i(r);
       const o = await r.json();
-      Pn(o), n(), delete m.generate_tokens;
+      Rn(o), n(), delete m.generate_tokens;
     }, i);
   })), m.generate_tokens;
 }
-function Pn(t) {
-  const e = Ks(
+function Rn(t) {
+  const e = Zs(
     /* @__PURE__ */ new Date(),
     Math.max(60, parseInt(t.expires_in, 10) - 300)
   );
-  p("Tokens generated storing..."), Sn() && (t.access_token && (A.setItem(
-    `${I}_access_token`,
+  p("Tokens generated storing..."), xn() && (t.access_token && (A.setItem(
+    `${T}_access_token`,
     t.access_token
   ), ie("access_token")), t.refresh_token && (A.setItem(
-    `${I}_refresh_token`,
+    `${T}_refresh_token`,
     t.refresh_token
-  ), ie("refresh_token"))), t.expires_in && (A.setItem(`${I}_expires_at`, `${e.valueOf()}`), ie("expires_in")), pe.set(true), ge.set(t.access_token || ""), Je.set(t.refresh_token || ""), Oe();
+  ), ie("refresh_token"))), t.expires_in && (A.setItem(`${T}_expires_at`, `${e.valueOf()}`), ie("expires_in")), _e.set(true), ye.set(t.access_token || ""), Je.set(t.refresh_token || ""), Ce();
 }
-function Si() {
+function xi() {
   const t = ts();
-  return A.setItem(`${I}_nonce`, t), t;
+  return A.setItem(`${T}_nonce`, t), t;
 }
 var Ae = Nt("HTTP(M)");
 var Dt = {};
@@ -51624,8 +51631,8 @@ var hs = (t, e) => {
   const n = new Error(`Mock endpoint not found: ${t} ${e}`);
   return n.status = 404, Ae(`404 ${t}:`, e), Promise.reject(n);
 };
-function Wr(t, e = Dt) {
-  xi(t.method, t.path, e);
+function Zr(t, e = Dt) {
+  Ai(t.method, t.path, e);
   const n = `${t.method}|${t.path}`, s = t.path.replace(/(http|https):\/\/[a-zA-Z0-9.-]*:?([0-9]*)?/g, "").replace(/^\//, "").split("/"), i = __spreadProps(__spreadValues({}, t), {
     path_parts: s,
     path_structure: s.map(
@@ -51634,15 +51641,15 @@ function Wr(t, e = Dt) {
   });
   e[n] = i, Ae(`+ ${t.method} ${t.path}`);
 }
-function xi(t, e, n = Dt) {
+function Ai(t, e, n = Dt) {
   const s = `${t}|${e}`;
   n[s] && (delete n[s], Ae(`- ${t} ${e}`));
 }
-function Ai(t, e, n, s = Dt) {
-  const i = qi(t, e, s);
+function qi(t, e, n, s = Dt) {
+  const i = Pi(t, e, s);
   if (i) {
-    const r = Pi(e, i, n);
-    return Ri(i, r);
+    const r = Ri(e, i, n);
+    return Ui(i, r);
   }
   try {
     return hs(t, e);
@@ -51650,7 +51657,7 @@ function Ai(t, e, n, s = Dt) {
     return Ae.error(`ERROR ${t}:`, [e, r]), Promise.reject(r);
   }
 }
-function qi(t, e, n = Dt) {
+function Pi(t, e, n = Dt) {
   const i = e.replace(/(http|https):\/\/[a-zA-Z0-9.-]*:?([0-9]*)?/g, "").replace(/^\//, "").split("?")[0].split("/"), r = Object.keys(
     n
   ).reduce((o, a) => (a.indexOf(`${t}|`) === 0 && o.push(n[a]), o), []);
@@ -51667,8 +51674,8 @@ function qi(t, e, n = Dt) {
     }
   return null;
 }
-function Pi(t, e, n) {
-  const s = t.replace(/(http|https):\/\/[a-zA-Z0-9.-]*:?([0-9]*)?/g, "").split("?"), i = s[0].replace(/^\//, ""), r = s[1] || "", o = Ie(r), a = i.split("/"), y = {};
+function Ri(t, e, n) {
+  const s = t.replace(/(http|https):\/\/[a-zA-Z0-9.-]*:?([0-9]*)?/g, "").split("?"), i = s[0].replace(/^\//, ""), r = s[1] || "", o = Te(r), a = i.split("/"), y = {};
   for (let P2 = 0; P2 < e.path_structure.length; P2++) {
     const W2 = e.path_structure[P2];
     W2 && (y[W2] = a[P2]);
@@ -51684,7 +51691,7 @@ function Pi(t, e, n) {
   };
   return Ae(`MATCHED ${L2.method}:`, L2), L2;
 }
-function Ri(t, e) {
+function Ui(t, e) {
   let n;
   try {
     n = t.callback ? t.callback(e) : t.metadata;
@@ -51696,12 +51703,12 @@ function Ri(t, e) {
     setTimeout(() => o(n), Math.max(200, r));
   });
 }
-var Ui = Nt("HTTP");
+var Ii = Nt("HTTP");
 var ls = {};
 function Ti(t, e = ls) {
   return e[t] || {};
 }
-function d(t, e, n = Ve) {
+function f(t, e, n = Ve) {
   return e || (e = { response_type: "json" }), n("GET", t, __spreadValues({ response_type: "json" }, e));
 }
 function S(t, e, n, s = Ve) {
@@ -51710,10 +51717,10 @@ function S(t, e, n, s = Ve) {
 function ce(t, e, n, s = Ve) {
   return n || (n = { response_type: "json" }), s("PUT", t, __spreadValues({ body: e, response_type: "json" }, n));
 }
-function ye(t, e, n, s = Ve) {
+function ae(t, e, n, s = Ve) {
   return n || (n = { response_type: "json" }), s("PATCH", t, __spreadValues({ body: e, response_type: "json" }, n));
 }
-async function Ii(t, e, n = ls) {
+async function Ei(t, e, n = ls) {
   if (t.headers) {
     const s = {};
     t.headers.forEach ? t.headers.forEach((i, r) => s[r.toLowerCase()] = i) : Object.keys(t.headers).forEach(
@@ -51731,15 +51738,15 @@ async function Ii(t, e, n = ls) {
       return await t.json().catch(() => ({}));
   }
 }
-var fs = () => (An(), xn().then(
+var ds = () => (qn(), An().then(
   () => Promise.resolve(),
   () => new Promise((t) => {
     setTimeout(() => {
-      fs().then(() => t());
+      ds().then(() => t());
     }, 1e3);
   })
 ));
-function Ve(t, e, n, s = kn, i = Ai, r = Ii) {
+function Ve(t, e, n, s = Sn, i = qi, r = Ei) {
   if (s()) {
     const P2 = i(t, e, n?.body);
     if (P2) return P2;
@@ -51752,7 +51759,7 @@ function Ve(t, e, n, s = kn, i = Ai, r = Ii) {
     });
     return delete P2.response_type, delete P2.skip_auth, delete P2.skip_auth_flow, ["POST", "PUT", "PATCH"].includes(t) && n.body !== void 0 && (P2.body = typeof n.body == "string" ? n.body : JSON.stringify(n.body)), fetch(e, P2);
   }, a = async () => {
-    n.skip_auth || (await ri(li(), Boolean), V() === "x-api-key" ? n.headers["X-API-Key"] = Ye() : n.headers.Authorization = `Bearer ${V()}`);
+    n.skip_auth || (await oi(di(), Boolean), X() === "x-api-key" ? n.headers["X-API-Key"] = Ye() : n.headers.Authorization = `Bearer ${X()}`);
     const P2 = await o();
     if (P2.ok) return r(P2, n.response_type);
     throw P2;
@@ -51765,7 +51772,7 @@ function Ve(t, e, n, s = kn, i = Ai, r = Ii) {
       if (W2.status === 511)
         throw os(Rt()), W2;
       if (W2.status !== 401) throw W2 || {};
-      return Ui.warn("Auth error:", W2), await fs().catch(() => {
+      return Ii.warn("Auth error:", W2), await ds().catch(() => {
         throw W2;
       }), L2(P2 + 1);
     }
@@ -51791,20 +51798,20 @@ var F = class {
    */
   toJSON() {
     const e = __spreadValues({}, this);
-    return e.version = this.version, delete e.created_at, Ys(e, [void 0, null, ""]);
+    return e.version = this.version, delete e.created_at, Vs(e, [void 0, null, ""]);
   }
 };
-var ds = {};
+var fs = {};
 var ps = {};
 var Bn = "";
 var zt = (t) => t;
-var Mi = 300;
-var Te = {};
+var Ni = 300;
+var Ie = {};
 function $(t) {
   const { query_params: e, fn: n, path: s, endpoint: i } = t, r = b(e), o = `${i || u2()}${s ? "/" + s : ""}${r ? "?" + r : ""}`;
-  if (Te[o]) return Te[o].promise;
-  const a = d(o).then((y) => {
-    const L2 = Ni(o, r, s);
+  if (Ie[o]) return Ie[o].promise;
+  const a = f(o).then((y) => {
+    const L2 = wi(o, r, s);
     return {
       total: L2.total || 0,
       next: L2.next ? () => $({
@@ -51816,26 +51823,26 @@ function $(t) {
       data: y && y instanceof Array ? y.map((P2) => (n || zt)(P2)) : y && !(y instanceof Array) && y.results ? y.results.map((P2) => P2) : []
     };
   });
-  return Te[o] = {
+  return Ie[o] = {
     promise: a,
-    timeout: setTimeout(() => delete Te[o], Mi)
+    timeout: setTimeout(() => delete Ie[o], Ni)
   }, a.catch(() => {
-    clearTimeout(Te[o]?.timeout), delete Te[o];
+    clearTimeout(Ie[o]?.timeout), delete Ie[o];
   }), a;
 }
 function g(t) {
   const { query_params: e, id: n, path: s, fn: i, options: r } = t, o = b(e), a = `${u2()}/${s}/${n}${o ? "?" + o : ""}`;
-  return d(a, r).then((y) => (i || zt)(y));
+  return f(a, r).then((y) => (i || zt)(y));
 }
-function T(t) {
+function I(t) {
   const { id: e, query_params: n, form_data: s, method: i, path: r, fn: o } = t, a = b(__spreadProps(__spreadValues({}, n), {
     version: s.version || 0
   })), y = `${u2()}/${r}/${e}${a ? "?" + a : ""}`;
-  return (i === "put" ? ce : ye)(y, s).then(
+  return (i === "put" ? ce : ae)(y, s).then(
     (L2) => (o || zt)(L2)
   );
 }
-function Ni(t, e, n) {
+function wi(t, e, n) {
   const s = Ti(
     t[0] === "/" ? `${location.origin}${t}` : t
   ), i = {
@@ -51844,11 +51851,11 @@ function Ni(t, e, n) {
   };
   if (s && s["x-total-count"]) {
     const r = +(s["x-total-count"] || 0);
-    (e.length < 2 || e.length < 12 && e.indexOf("offset=") >= 0) && (ds[n] = r), ps[n] = r, i.total = r;
+    (e.length < 2 || e.length < 12 && e.indexOf("offset=") >= 0) && (fs[n] = r), ps[n] = r, i.total = r;
   }
-  return s && s.link && (Bn = Js(s.link || "").next, i.next = Ie(Bn.split("?")[1])), i;
+  return s && s.link && (Bn = Ys(s.link || "").next, i.next = Te(Bn.split("?")[1])), i;
 }
-var Rn = class extends F {
+var Un = class extends F {
   /** Hash of the email address of the user */
   email_digest;
   /** ID of the authority associated with the user */
@@ -51967,7 +51974,7 @@ var gs = class extends F {
       }));
   }
 };
-var Un = class {
+var In = class {
   /** ISO8601 timestamp of the creation time of the group */
   created_at;
   /** ISO8601 timestamp of the last update time of the group */
@@ -51992,18 +51999,18 @@ var Un = class {
 };
 var ze = "groups";
 function it(t) {
-  return new Un(t);
+  return new In(t);
 }
-function _u(t = {}) {
+function yu(t = {}) {
   const e = b(t), n = `${u2()}/${ze}/current${e ? "?" + e : ""}`;
-  return d(n).then(
+  return f(n).then(
     (s) => (s || []).map((i) => ({
       group: it(i.group || {}),
       permissions: i.permissions || 0
     }))
   );
 }
-var he = class extends F {
+var le = class extends F {
   /** Name of the system assocaited with the trigger */
   system_name;
   /** Number of times the trigger has been activated/triggered */
@@ -52112,7 +52119,7 @@ var Kt = class extends F {
         encryption_level: +n
       }));
     e.trigger_data && e.trigger_data instanceof Array && (this.trigger_list = e.trigger_data.map(
-      (n) => new he(n)
+      (n) => new le(n)
     ));
   }
 };
@@ -52149,7 +52156,7 @@ var $e = "metadata";
 function Fe(t) {
   return new vs(t);
 }
-function ju(t, e) {
+function Wu(t, e) {
   return g({
     id: t,
     query_params: { name: e },
@@ -52157,8 +52164,8 @@ function ju(t, e) {
     path: $e
   });
 }
-function Gu(t, e, n = "put") {
-  return T({
+function Qu(t, e, n = "put") {
+  return I({
     id: t,
     form_data: e,
     query_params: {},
@@ -52167,9 +52174,9 @@ function Gu(t, e, n = "put") {
     path: $e
   });
 }
-function Ku(t, e) {
+function Yu(t, e) {
   const n = b(e), s = `${u2()}/${$e}/${encodeURIComponent(t)}/bulk${n ? "?" + n : ""}`;
-  return d(s).then(
+  return f(s).then(
     (i) => Object.keys(i || {}).reduce(
       (r, o) => __spreadProps(__spreadValues({}, r), { [o]: Fe(i[o]) }),
       {}
@@ -52236,7 +52243,7 @@ var ks = class extends F {
   /** Orientation of the signage system */
   orientation;
   constructor(e = {}) {
-    super(e), this.display_name = e.display_name || "", this.description = e.description || "", this.email = e.email || "", this.code = e.code || "", this.capacity = e.capacity || 0, this.features = e.features || [], this.bookable = e.bookable || false, this.public = e.public ?? false, this.installed_ui_devices = e.installed_ui_devices || 0, this.support_url = e.support_url || "", this.camera_snapshot_url = e.camera_snapshot_url || "", this.camera_snapshot_urls = e.camera_snapshot_urls || [], this.camera_url = e.camera_url || "", this.timetable_url = e.timetable_url || "", this.room_booking_url = e.room_booking_url || "", this.map_id = e.map_id || "", this.modules = e.modules || [], this.images = e.images || [], this.zones = e.zones || [], this.settings = e.settings || [null, null, null, null], this.timezone = e.timezone || "", this.signage = e.signage || false, this.playlists = e.playlists || [], this.security_groups = e.security_groups || [], this.orientation = e.orientation || "unspecified", this.approval = e.approval || false, this.signage_last_seen = e.signage_last_seen || yn(Date.now()), typeof this.settings != "object" && (this.settings = [null, null, null, null]);
+    super(e), this.display_name = e.display_name || "", this.description = e.description || "", this.email = e.email || "", this.code = e.code || "", this.capacity = e.capacity || 0, this.features = e.features || [], this.bookable = e.bookable || false, this.public = e.public ?? false, this.installed_ui_devices = e.installed_ui_devices || 0, this.support_url = e.support_url || "", this.camera_snapshot_url = e.camera_snapshot_url || "", this.camera_snapshot_urls = e.camera_snapshot_urls || [], this.camera_url = e.camera_url || "", this.timetable_url = e.timetable_url || "", this.room_booking_url = e.room_booking_url || "", this.map_id = e.map_id || "", this.modules = e.modules || [], this.images = e.images || [], this.zones = e.zones || [], this.settings = e.settings || [null, null, null, null], this.timezone = e.timezone || "", this.signage = e.signage || false, this.playlists = e.playlists || [], this.security_groups = e.security_groups || [], this.orientation = e.orientation || "unspecified", this.approval = e.approval || false, this.signage_last_seen = e.signage_last_seen || $n(Date.now()), typeof this.settings != "object" && (this.settings = [null, null, null, null]);
     for (const n in He)
       !isNaN(Number(n)) && !this.settings[n] && (this.settings[n] = new qe({
         parent_id: this.id,
@@ -52314,39 +52321,39 @@ var Ss = class extends F {
     return (n.role !== Et.Logic && !e || !n.control_system_id) && delete n.control_system_id, delete n.driver, delete n.system, delete n.error_timestamp, delete n.has_runtime_error, n;
   }
 };
-var C = "systems";
+var O = "systems";
 function Pe(t) {
   return new ks(t);
 }
-function ta(t = {}) {
-  return $({ query_params: t, fn: Pe, path: C });
+function ia(t = {}) {
+  return $({ query_params: t, fn: Pe, path: O });
 }
-var J = "users";
+var Y = "users";
 function Re(t) {
-  return new Rn(t);
+  return new Un(t);
 }
-function Ca(t, e = {}) {
-  return g({ id: t, query_params: e, fn: Re, path: J });
+function Na(t, e = {}) {
+  return g({ id: t, query_params: e, fn: Re, path: Y });
 }
-function Ma(t, e, n = "patch") {
-  return T({
+function Da(t, e, n = "patch") {
+  return I({
     id: t,
     form_data: e,
     query_params: {},
     method: n,
     fn: Re,
-    path: J
+    path: Y
   });
 }
-var le = "zones";
+var de = "zones";
 function nn(t) {
   return new Kt(t);
 }
-function Ba(t = {}) {
-  return $({ query_params: t, fn: nn, path: le });
+function Ka(t = {}) {
+  return $({ query_params: t, fn: nn, path: de });
 }
-var Ps = /* @__PURE__ */ ((t) => (t[t.Default = 0] = "Default", t[t.Cut = 1] = "Cut", t[t.CrossFade = 2] = "CrossFade", t[t.SlideTop = 3] = "SlideTop", t[t.SlideLeft = 4] = "SlideLeft", t[t.SlideRight = 5] = "SlideRight", t[t.SlideBottom = 6] = "SlideBottom", t))(Ps || {});
-var sr = class {
+var Ps = /* @__PURE__ */ ((t) => (t.Default = "default", t.Cut = "cut", t.CrossFade = "cross_fade", t.SlideTop = "slide_top", t.SlideLeft = "slide_left", t.SlideRight = "slide_right", t.SlideBottom = "slide_bottom", t))(Ps || {});
+var Rs = class {
   id;
   created_at;
   updated_at;
@@ -52375,10 +52382,10 @@ var sr = class {
     return `/api/engine/v2/uploads/${this.thumbnail_id}/url`;
   }
   constructor(e) {
-    this.id = e.id || "", this.created_at = e.created_at || yn(Date.now()), this.updated_at = e.updated_at || yn(Date.now()), this.name = e.name || "", this.description = e.description || "", this.authority_id = e.authority_id || "", this.start_time = e.start_time || 0, this.play_time = e.play_time || 0, this.video_length = e.video_length || 0, this.animation = e.animation, this.media_type = e.media_type || "unknown", this.orientation = e.orientation || "unspecified", this.media_uri = e.media_uri || "", this.media_id = e.media_id || "", this.thumbnail_id = e.thumbnail_id || "", this.plugin_id = e.plugin_id || "", this.plugin_params = e.plugin_params || {}, this.play_count = e.play_count || 0, this.valid_from = e.valid_from, this.valid_until = e.valid_until, this.tags = e.tags || [];
+    this.id = e.id || "", this.created_at = e.created_at || $n(Date.now()), this.updated_at = e.updated_at || $n(Date.now()), this.name = e.name || "", this.description = e.description || "", this.authority_id = e.authority_id || "", this.start_time = e.start_time || 0, this.play_time = e.play_time || 0, this.video_length = e.video_length || 0, this.animation = e.animation, this.media_type = e.media_type || "unknown", this.orientation = e.orientation || "unspecified", this.media_uri = e.media_uri || "", this.media_id = e.media_id || "", this.thumbnail_id = e.thumbnail_id || "", this.plugin_id = e.plugin_id || "", this.plugin_params = e.plugin_params || {}, this.play_count = e.play_count || 0, this.valid_from = e.valid_from, this.valid_until = e.valid_until, this.tags = e.tags || [];
   }
 };
-var rr = class {
+var ur = class {
   id;
   created_at;
   updated_at;
@@ -52394,18 +52401,18 @@ var rr = class {
     this.id = e.id || "", this.created_at = e.created_at || 0, this.updated_at = e.updated_at || 0, this.name = e.name || "", this.description = e.description || "", this.uri = e.uri || "", this.playback_type = e.playback_type || "static", this.authority_id = e.authority_id || "", this.enabled = e.enabled ?? true, this.params = e.params || {}, this.defaults = e.defaults || {};
   }
 };
-var Rs = "signage";
-function eh(t, e = {}, n) {
-  return g({ id: t, query_params: e, fn: (s) => s, path: `${Rs}`, options: n });
+var Us = "signage";
+function sh(t, e = {}, n) {
+  return g({ id: t, query_params: e, fn: (s) => s, path: `${Us}`, options: n });
 }
 var at = "signage/plugins";
-function on(t) {
-  return new rr(t);
+function un(t) {
+  return new ur(t);
 }
-function kh(t = {}) {
-  return $({ query_params: t, fn: on, path: at });
+function Ph(t = {}) {
+  return $({ query_params: t, fn: un, path: at });
 }
-var Is = class {
+var Es = class {
   _listeners = /* @__PURE__ */ new Set();
   _error_listeners = /* @__PURE__ */ new Set();
   _complete_listeners = /* @__PURE__ */ new Set();
@@ -52435,7 +52442,7 @@ var Is = class {
     this._listeners.clear(), this._error_listeners.clear(), this._complete_listeners.clear();
   }
 };
-var fr = class extends Is {
+var _r = class extends Es {
   constructor(e) {
     super(), this._config = e, this._socket = new WebSocket(e.url), this._socket.onopen = () => {
       const n = [...this._queue];
@@ -52460,14 +52467,14 @@ var fr = class extends Is {
     return this._config.deserializer ? this._config.deserializer(e) : e.data;
   }
 };
-function dr(t) {
-  return new fr(
+function mr(t) {
+  return new _r(
     typeof t == "string" ? { url: t } : t
   );
 }
 var te = /* @__PURE__ */ ((t) => (t[t.PARSE_ERROR = 0] = "PARSE_ERROR", t[t.BAD_REQUEST = 1] = "BAD_REQUEST", t[t.ACCESS_DENIED = 2] = "ACCESS_DENIED", t[t.REQUEST_FAILED = 3] = "REQUEST_FAILED", t[t.UNKNOWN_CMD = 4] = "UNKNOWN_CMD", t[t.SYS_NOT_FOUND = 5] = "SYS_NOT_FOUND", t[t.MOD_NOT_FOUND = 6] = "MOD_NOT_FOUND", t[t.UNEXPECTED_FAILURE = 7] = "UNEXPECTED_FAILURE", t))(te || {});
-var Es = /* @__PURE__ */ ((t) => (t.Info = "info", t.Debug = "debug", t.Warning = "warn", t.Error = "error", t.Fatal = "fatal", t.Trace = "trace", t))(Es || {});
-var pr = class {
+var Os = /* @__PURE__ */ ((t) => (t.Info = "info", t.Debug = "debug", t.Warning = "warn", t.Error = "error", t.Fatal = "fatal", t.Trace = "trace", t))(Os || {});
+var gr = class {
   constructor(e, n) {
     this._system = e;
     const s = Object.getOwnPropertyNames(
@@ -52514,7 +52521,7 @@ var pr = class {
     });
   }
 };
-var _r = class {
+var yr = class {
   constructor(e) {
     for (const n in e)
       e.hasOwnProperty(n) && e[n] && e[n] instanceof Array && e[n].forEach((s) => {
@@ -52527,48 +52534,48 @@ var _r = class {
    * @param properties Properties of the new module
    */
   addModule(e, n) {
-    this[e] || (this[e] = []), this[e].push(new pr(this, n));
+    this[e] || (this[e] = []), this[e].push(new gr(this, n));
   }
 };
-var Ct = {};
-function Nl(t, e) {
-  return Ct[t] = new _r(e), Ct[t];
+var Ot = {};
+function Fl(t, e) {
+  return Ot[t] = new yr(e), Ot[t];
 }
-function mr(t) {
-  return Ct[t];
+function $r(t) {
+  return Ot[t];
 }
-var O = Nt("WS");
+var C = Nt("WS");
 var Cs = 15;
 var gt = 0;
-var Y;
-var Os = 0;
+var V;
+var Ms = 0;
 var G = {};
 var wn = {};
-var gr = {};
+var br = {};
 var Se = ne(false);
-var Ms = ne([0, 0]);
-var Ns = Date.now();
+var Ns = ne([0, 0]);
+var ws = Date.now();
 var Ee;
-var Ot = 0;
+var Ct = 0;
 var fe = null;
 var kt;
 var Dn = 0;
 var yt = 10 * 1e3;
-var yr = ne(null);
-function _n() {
+var vr = ne(null);
+function mn() {
   return u2().indexOf("/control/") >= 0 ? "/control/websocket" : `${is()}/systems/control`;
 }
-function ws() {
+function Ds() {
   return Se.value;
 }
-function $r() {
+function kr() {
   return Se.asReadonly();
 }
-function br(t, e = wn) {
+function Sr(t, e = wn) {
   const n = `${t.sys}|${t.mod}_${t.index}|${t.name}`;
   return e[n] || (e[n] = ne(void 0)), e[n].asReadonly();
 }
-function vr(t, e = wn) {
+function xr(t, e = wn) {
   const n = `${t.sys}|${t.mod}_${t.index}|${t.name}`;
   if (e[n])
     return e[n].value;
@@ -52580,14 +52587,14 @@ function Wn(t, e = 0, n = Ge) {
   }, t);
   return n(s, e);
 }
-function kr(t, e = 0, n = Ge) {
+function Ar(t, e = 0, n = Ge) {
   const s = __spreadValues({
     id: ++gt,
     cmd: "unbind"
   }, t);
   return n(s, e);
 }
-function Sr(t, e = yt, n = Ge) {
+function qr(t, e = yt, n = Ge) {
   const s = __spreadValues({
     id: ++gt,
     cmd: "exec"
@@ -52595,9 +52602,9 @@ function Sr(t, e = yt, n = Ge) {
   return n(s, e);
 }
 function Ge(t, e = yt, n = 0) {
-  const s = `${t.cmd}|${t.sys}|${t.mod}${t.index}|${t.name}|${t.args}|${ei()}`;
+  const s = `${t.cmd}|${t.sys}|${t.mod}${t.index}|${t.name}|${t.args}|${ti()}`;
   if (G[s])
-    O("Request already in progress. Waiting...", t);
+    C("Request already in progress. Waiting...", t);
   else {
     const i = __spreadProps(__spreadValues({}, t), { key: s });
     i.promise = new Promise((r, o) => {
@@ -52607,13 +52614,13 @@ function Ge(t, e = yt, n = 0) {
           (y) => o(y)
         );
       };
-      if (Y && ws()) {
-        kn() && Tr(t, Y, gr), i.resolve = r, i.reject = o;
+      if (V && Ds()) {
+        Sn() && Or(t, V, br), i.resolve = r, i.reject = o;
         const y = `${t.sys}, ${t.mod}_${t.index}, ${t.name}`;
-        O(
+        C(
           `[${t.cmd.toUpperCase()}](${t.id}) ${y}`,
           t.args
-        ), Y.next(t), e > 0 && re(
+        ), V.next(t), e > 0 && re(
           `${s}`,
           () => {
             o("Request timed out."), delete G[s], G[s] = null;
@@ -52625,32 +52632,32 @@ function Ge(t, e = yt, n = 0) {
   }
   return G[s].promise;
 }
-function Ds(t) {
+function Hs(t) {
   if (t !== "pong" && t instanceof Object) {
     if (t.type === "notify" && t.meta)
-      qr(t.meta, t.value);
+      Ur(t.meta, t.value);
     else if (t.type === "success")
-      xr(t);
+      Pr(t);
     else if (t.type === "debug") {
-      O(`[DEBUG] ${t.mod}${t.klass || ""} \u2192`, t.msg);
+      C(`[DEBUG] ${t.mod}${t.klass || ""} \u2192`, t.msg);
       const e = t.meta || { mod: "", index: "" };
-      yr.set({
+      vr.set({
         mod_id: t.mod || "<empty>",
         module: `${e.mod}_${e.index}`,
         class_name: t.klass || "<empty>",
         message: t.msg || "<empty>",
-        level: t.level || Es.Debug,
+        level: t.level || Os.Debug,
         time: Math.floor((/* @__PURE__ */ new Date()).getTime() / 1e3)
       });
-    } else t.type === "error" ? Ar(t) : t.cmd || O.error("Invalid websocket message", t);
-    _e(`${t.id}`);
-  } else t === "pong" && (Dn = Date.now(), O("Pong!"));
+    } else t.type === "error" ? Rr(t) : t.cmd || C.error("Invalid websocket message", t);
+    me(`${t.id}`);
+  } else t === "pong" && (Dn = Date.now(), C("Pong!"));
 }
-function xr(t) {
+function Pr(t) {
   const e = Object.keys(G).map((n) => G[n]).find((n) => n?.id === t.id);
-  O(`[SUCCESS](${t.id})`), e && e.resolve && (e.resolve(t.value), delete G[e.key]);
+  C(`[SUCCESS](${t.id})`), e && e.resolve && (e.resolve(t.value), delete G[e.key]);
 }
-function Ar(t) {
+function Rr(t) {
   let e = "UNEXPECTED FAILURE";
   switch (t.code) {
     case te.ACCESS_DENIED:
@@ -52675,15 +52682,15 @@ function Ar(t) {
       e = "UNKNOWN COMMAND";
       break;
   }
-  O.error(`[ERROR] ${e}(${t.id}): ${t.msg}`);
+  C.error(`[ERROR] ${e}(${t.id}): ${t.msg}`);
   const n = Object.keys(G).map((s) => G[s]).filter((s) => s).find((s) => s.id === t.id);
-  n && n.reject && (n.reject(t), _e(`${n.key}`), delete G[n.key]);
+  n && n.reject && (n.reject(t), me(`${n.key}`), delete G[n.key]);
 }
-function qr(t, e, n = wn) {
+function Ur(t, e, n = wn) {
   const s = `${t.sys}|${t.mod}_${t.index}|${t.name}`;
   n[s] || (n[s] = ne(null));
   const i = `${t.sys}, ${t.mod}_${t.index}, ${t.name}`;
-  O(`[NOTIFY] ${i} changed`, [
+  C(`[NOTIFY] ${i} changed`, [
     n[s].value,
     "\u2192",
     e
@@ -52693,26 +52700,26 @@ function Hn(t = 0) {
   return fe == null && (fe = new Promise((e) => {
     if (t > 40)
       return location.reload();
-    Ot++, Ns = Date.now(), Y = kn() ? Ur() : Pr(), Y ? (O.debug("Authority:", Rt()), O("Connecting to websocket..."), Y.subscribe(
+    Ct++, ws = Date.now(), V = Sn() ? Er() : Ir(), V ? (C.debug("Authority:", Rt()), C("Connecting to websocket..."), V.subscribe(
       (n) => {
-        Se.value || (O("Connection established."), e()), Se.set(true), Ot = 0, mn(), Ds(n);
+        Se.value || (C("Connection established."), e()), Se.set(true), Ct = 0, gn(), Hs(n);
       },
       (n) => {
-        Y = void 0, fe = null, Zn(), mn(), Rr(n);
+        V = void 0, fe = null, Zn(), gn(), Tr(n);
       },
       () => {
-        Y = void 0, fe = null, Zn(), O("Connection closed by browser."), Se.set(false), Mt();
+        V = void 0, fe = null, Zn(), C("Connection closed by browser."), Se.set(false), Mt();
       }
     ), Ee && clearInterval(Ee), Dn = Date.now(), Qn(), Ee = setInterval(
       () => Qn(),
       Cs * 1e3
-    ), mn(), Os += 1, kt = setTimeout(() => {
-      O("Unhealthy connection. Reconnecting..."), Se.set(false), fe = null, Mt();
-    }, 30 * 1e3)) : (Y ? O(
+    ), gn(), Ms += 1, kt = setTimeout(() => {
+      C("Unhealthy connection. Reconnecting..."), Se.set(false), fe = null, Mt();
+    }, 30 * 1e3)) : (V ? C(
       `Waiting on auth(${t}). Retrying in ${1e3 * Math.min(10, t + 1)}ms...`,
-      [!!V(), !!Rt()],
+      [!!X(), !!Rt()],
       "info"
-    ) : O.error(
+    ) : C.error(
       `Failed to create websocket(${t}). Retrying in ${1e3 * Math.min(10, t + 1)}ms...`
     ), setTimeout(
       () => {
@@ -52722,15 +52729,15 @@ function Hn(t = 0) {
     ));
   })), fe;
 }
-function Pr() {
-  if (!Rt() || !V()) return null;
+function Ir() {
+  if (!Rt() || !X()) return null;
   const t = fi() || location.protocol.indexOf("https") >= 0;
-  let e = `ws${t ? "s" : ""}://${$n()}${_n()}${rs() ? "?fixed_device=true" : ""}`;
-  const n = V();
+  let e = `ws${t ? "s" : ""}://${bn()}${mn()}${rs() ? "?fixed_device=true" : ""}`;
+  const n = X();
   let s = n === "x-api-key" ? `api-key=${Ye()}` : `bearer_token=${n}`;
-  return !ci() && !Vs() ? (O("Authenticating through cookie..."), s += `;max-age=120;path=${_n()};`, s += `${t ? "secure;" : ""}samesite=strict`, document.cookie = s, O("Cookies:", [document.cookie, s])) : (O("Authenticating through URL query parameter..."), e += `${e.indexOf("?") >= 0 ? "&" : "?"}${s}`), O(
-    `Creating websocket connection to ws${t ? "s" : ""}://${$n()}${_n()}`
-  ), dr({
+  return !ai() && !Xs() ? (C("Authenticating through cookie..."), s += `;max-age=120;path=${mn()};`, s += `${t ? "secure;" : ""}samesite=strict`, document.cookie = s, C("Cookies:", [document.cookie, s])) : (C("Authenticating through URL query parameter..."), e += `${e.indexOf("?") >= 0 ? "&" : "?"}${s}`), C(
+    `Creating websocket connection to ws${t ? "s" : ""}://${bn()}${mn()}`
+  ), mr({
     url: e,
     serializer: (i) => typeof i == "object" ? JSON.stringify(i) : i,
     deserializer: (i) => {
@@ -52745,32 +52752,32 @@ function Pr() {
   });
 }
 function Mt() {
-  Ms.set([Os, Date.now() - Ns]), Y && ws() && (Y.complete(), Ee && (clearInterval(Ee), Ee = void 0)), O(
+  Ns.set([Ms, Date.now() - ws]), V && Ds() && (V.complete(), Ee && (clearInterval(Ee), Ee = void 0)), C(
     `Reconnecting in ${Math.min(
       5e3,
-      Ot * 300 || 1e3
+      Ct * 300 || 1e3
     )}ms...`
   ), re(
     "reconnect",
     () => Hn(),
-    Math.min(5e3, (Ot + 1) * 300 || 1e3)
+    Math.min(5e3, (Ct + 1) * 300 || 1e3)
   );
 }
 function Qn() {
   if (Date.now() - Dn > 4 * Cs * 1e3)
     return Mt();
-  Y?.next("ping");
+  V?.next("ping");
 }
-function Rr(t) {
-  Se.set(false), O.error("Websocket error:", t), t.status === 401 && An(), xn(), Mt();
+function Tr(t) {
+  Se.set(false), C.error("Websocket error:", t), t.status === 401 && qn(), An(), Mt();
 }
-function mn() {
+function gn() {
   kt && (clearTimeout(kt), kt = void 0);
 }
-function Ur() {
-  const t = new Is();
+function Er() {
+  const t = new Es();
   return t.subscribe(
-    (e) => Ds(e)
+    (e) => Hs(e)
   ), t;
 }
 function Kn(t, e) {
@@ -52782,8 +52789,8 @@ function Kn(t, e) {
     msg: n
   };
 }
-function Tr(t, e, n) {
-  const s = `${t.sys}|${t.mod}_${t.index}|${t.name}`, i = mr(t.sys), r = i && i[t.mod] ? i[t.mod][t.index - 1 || 0] : null;
+function Or(t, e, n) {
+  const s = `${t.sys}|${t.mod}_${t.index}|${t.name}`, i = $r(t.sys), r = i && i[t.mod] ? i[t.mod][t.index - 1 || 0] : null;
   if (r) {
     try {
       switch (t.cmd) {
@@ -52803,11 +52810,11 @@ function Tr(t, e, n) {
           });
           break;
         case "unbind":
-          n[s] && (n[s](), delete n[s], _e(`${s}`));
+          n[s] && (n[s](), delete n[s], me(`${s}`));
           break;
       }
     } catch (o) {
-      O.error(`[MOCK ERROR](${t.id}) request failed`, o), re(
+      C.error(`[MOCK ERROR](${t.id}) request failed`, o), re(
         `${t.id}-error`,
         () => e.next(Kn(t, o)),
         10
@@ -52825,7 +52832,7 @@ function Tr(t, e, n) {
           };
           e.next(o);
         } catch (o) {
-          O.error(
+          C.error(
             `[MOCK ERROR](${t.id}) execute failed`,
             o
           ), e.next(Kn(t, o));
@@ -52850,8 +52857,8 @@ function Zn() {
 }
 var Jn = class {
   constructor(e, n) {
-    this._module = e, this.name = n, $r().subscribe((s, i) => {
-      s !== i && (s && (this._stale_bindings || this._pending === 1) ? (xt("VAR", "Re-binding to status variable", this.binding()), this.rebind()) : s || (_e(`rebind:${JSON.stringify(this.binding())}`), xt(
+    this._module = e, this.name = n, kr().subscribe((s, i) => {
+      s !== i && (s && (this._stale_bindings || this._pending === 1) ? (xt("VAR", "Re-binding to status variable", this.binding()), this.rebind()) : s || (me(`rebind:${JSON.stringify(this.binding())}`), xt(
         "VAR",
         "Binding dropped due to disconnection, re-binding when possible.",
         this.binding()
@@ -52872,13 +52879,13 @@ var Jn = class {
   }
   /** Current value of the binding */
   get value() {
-    return vr(this.binding());
+    return xr(this.binding());
   }
   /**
    * Get a signal that emits the current value of the binding
    */
   listen() {
-    return br(this.binding());
+    return Sr(this.binding());
   }
   /**
    * Subscribe to changes of the variable's binding value.
@@ -52919,7 +52926,7 @@ var Jn = class {
    * Unbind from status variable
    */
   unbind() {
-    this._binding_count === 1 && this._pending === 0 ? (this._pending = 2, kr(this.binding()).then(() => {
+    this._binding_count === 1 && this._pending === 0 ? (this._pending = 2, Ar(this.binding()).then(() => {
       this._pending === 2 && (this._pending = 0), this._binding_count--;
     })) : this._binding_count = Math.max(this._binding_count - 1, 0);
   }
@@ -52947,7 +52954,7 @@ var Jn = class {
     };
   }
 };
-var Ir = class {
+var Cr = class {
   constructor(e, n) {
     this._system = e, this._id = n;
   }
@@ -52991,7 +52998,7 @@ var Ir = class {
    * @param args Array of arguments to pass to the method
    */
   execute(e, n, s = yt) {
-    return Sr(
+    return qr(
       {
         sys: this._system.id,
         mod: this.name,
@@ -53003,7 +53010,7 @@ var Ir = class {
     );
   }
 };
-var Er = class {
+var Mr = class {
   /** Unique idetifier of the system */
   id;
   /** Mapping of engine modules within the system */
@@ -53024,7 +53031,7 @@ var Er = class {
     const i = s.join("_");
     for (this._module_list[i] || (this._module_list[i] = []); this._module_list[i].length < n; )
       this._module_list[i].push(
-        new Ir(
+        new Cr(
           this,
           `${i}_${this._module_list[i].length + 1}`
         )
@@ -53032,12 +53039,12 @@ var Er = class {
     return this._module_list[i][n - 1];
   }
 };
-var gn = {};
-function Cr(t) {
-  return gn[t] || (gn[t] = new Er(t)), gn[t];
+var yn = {};
+function Nr(t) {
+  return yn[t] || (yn[t] = new Mr(t)), yn[t];
 }
-function Fl(t, e, n = 1) {
-  return Cr(t).module(e, n);
+function Wl(t, e, n = 1) {
+  return Nr(t).module(e, n);
 }
 
 // libs/common/src/lib/locale.service.ts
@@ -53158,7 +53165,7 @@ var LocaleService = class _LocaleService {
         return console.error(`Failed to loaded locale file for "${locale}".`, resp);
       }
       const locale_data = await resp.json();
-      const locale_override_data = this.zone_id ? await ju(this.zone_id, `locale_${locale}`) : { details: {} };
+      const locale_override_data = this.zone_id ? await Wu(this.zone_id, `locale_${locale}`) : { details: {} };
       const base_locale_values = removeNesting(locale_data);
       const override_locale_values = removeNesting(locale_override_data.details);
       this._locale_mappings[locale] = __spreadValues(__spreadValues({}, base_locale_values), override_locale_values);
@@ -53201,12 +53208,12 @@ function setNotifyOutlet(snackbar, disable_logging = false) {
   _service2 = snackbar;
   _disable_logging = disable_logging;
 }
-function notify(type, message2, action = "OK", on_action, config2 = {}) {
+function notify(type2, message2, action = "OK", on_action, config2 = {}) {
   if (!_service2) {
     return !_disable_logging && console.warn("Snackbar service hasn't been initialised");
   }
   const snackbar_ref = _service2.open(message2, action, __spreadValues({
-    panelClass: [type],
+    panelClass: [type2],
     duration: 5e3
   }, config2));
   if (action) {
@@ -53273,16 +53280,16 @@ function getTimezoneOffsetInMinutes(timeZone, date = /* @__PURE__ */ new Date())
 }
 function getTimeInTimezone(date, tz) {
   if (!tz) {
-    const d2 = new Date(date);
-    return { hours: d2.getHours(), minutes: d2.getMinutes() };
+    const d = new Date(date);
+    return { hours: d.getHours(), minutes: d.getMinutes() };
   }
   const zoned = toZonedTime(date, tz);
   return { hours: zoned.getHours(), minutes: zoned.getMinutes() };
 }
 function setTimeInTimezone(date, hours, minutes, tz) {
   if (!tz) {
-    const d2 = set(new Date(date), { hours, minutes });
-    return startOfMinute(d2).valueOf();
+    const d = set(new Date(date), { hours, minutes });
+    return startOfMinute(d).valueOf();
   }
   const zoned = toZonedTime(date, tz);
   const adjusted = set(zoned, { hours, minutes });
@@ -53302,7 +53309,7 @@ var _app_name = "APP";
 function setAppName(name) {
   _app_name = name;
 }
-function log(type, msg, args, stream = "debug", force = false, app_name = _app_name) {
+function log(type2, msg, args, stream = "debug", force = false, app_name = _app_name) {
   if (window.jest)
     return;
   if (window.debug || force) {
@@ -53312,9 +53319,9 @@ function log(type, msg, args, stream = "debug", force = false, app_name = _app_n
       "color: default"
     ];
     if (args) {
-      console[stream](`%c[${app_name}]%c[${type}] %c${msg}`, ...colors, args);
+      console[stream](`%c[${app_name}]%c[${type2}] %c${msg}`, ...colors, args);
     } else {
-      console[stream](`%c[${app_name}]%c[${type}] %c${msg}`, ...colors);
+      console[stream](`%c[${app_name}]%c[${type2}] %c${msg}`, ...colors);
     }
   }
 }
@@ -53334,7 +53341,7 @@ function padLength(value, length = 2, character = "0") {
 }
 function getItemWithKeys(keys, map2) {
   const key = keys[0];
-  if (map2 && key in map2) {
+  if (map2 && typeof map2 === "object" && key in map2) {
     return keys.length > 1 ? getItemWithKeys(keys.slice(1), map2[key] || {}) : map2[key];
   }
   return null;
@@ -53384,18 +53391,18 @@ function xmur3(str) {
     return (h2 ^= h2 >>> 16) >>> 0;
   };
 }
-function sfc32(a, b2, c2, d2) {
+function sfc32(a, b2, c2, d) {
   return function() {
     a >>>= 0;
     b2 >>>= 0;
     c2 >>>= 0;
-    d2 >>>= 0;
+    d >>>= 0;
     let t = a + b2 | 0;
     a = b2 ^ b2 >>> 9;
     b2 = c2 + (c2 << 3) | 0;
     c2 = c2 << 21 | c2 >>> 11;
-    d2 = d2 + 1 | 0;
-    t = t + d2 | 0;
+    d = d + 1 | 0;
+    t = t + d | 0;
     c2 = c2 + t | 0;
     return (t >>> 0) / 4294967296;
   };
@@ -53596,18 +53603,18 @@ var GoogleAnalyticsService = class _GoogleAnalyticsService {
   init(tracking_id = "") {
     if (!window.gtag) {
       window.dataLayer = window.dataLayer || [];
-      (function(w, d2, s, l, i) {
+      (function(w, d, s, l, i) {
         w[l] = w[l] || [];
         w[l].push({
           "gtm.start": (/* @__PURE__ */ new Date()).getTime(),
           event: "gtm.js"
         });
-        const f = d2.getElementsByTagName(s)[0];
-        const j = d2.createElement(s);
+        const f2 = d.getElementsByTagName(s)[0];
+        const j = d.createElement(s);
         const dl = l != "dataLayer" ? "&l=" + l : "";
         j.async = true;
         j.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
-        f.parentNode.insertBefore(j, f);
+        f2.parentNode.insertBefore(j, f2);
       })(window, document, "script", "dataLayer", tracking_id);
       log("Analytics", "Service", "Injected Google Analytics into page");
     }
@@ -53646,12 +53653,12 @@ var GoogleAnalyticsService = class _GoogleAnalyticsService {
       }, 100);
     }
   }
-  send(type, value) {
+  send(type2, value) {
     if (!this.service) {
       throw new Error("Google Analytics hasn't been installed on this page");
     }
     if (this.enabled) {
-      this.timeout(`end|${type}`, () => {
+      this.timeout(`end|${type2}`, () => {
         this.push(__spreadProps(__spreadValues({}, value), {
           event: "event"
         }));
@@ -54190,7 +54197,7 @@ async function loadUserGroups() {
     return;
   }
   try {
-    const groups = await _u({});
+    const groups = await yu({});
     user_groups.set(groups);
     console.log("Permissions:", user_permissions());
   } catch (error2) {
@@ -54208,7 +54215,7 @@ function initialiseUser() {
   }
   _current_user.subscribe((u3) => user_signal.set(u3));
   const is_public_mode = isPublicMode();
-  const user_request = combineLatest([Ca("current"), _change]).pipe(map(([i]) => new StaffUser(i)));
+  const user_request = combineLatest([Na("current"), _change]).pipe(map(([i]) => new StaffUser(i)));
   if (is_public_mode) {
     user_request.pipe(catchError((error2) => {
       console.warn("User loading failed in public mode, using local public user data.", error2);
@@ -54232,7 +54239,7 @@ function initialiseUser() {
 function reloadUserData() {
   setTimeout(async () => {
     try {
-      const p_user = await Ca("current");
+      const p_user = await Na("current");
       const user = new StaffUser(p_user);
       _current_user.next(user);
       setDefaultCreator(user);
@@ -54269,20 +54276,33 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "73959d8",
-  "hash": "73959d8",
+  "raw": "72d21fe",
+  "hash": "72d21fe",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "73959d8",
+  "suffix": "72d21fe",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1783504122323
+  "time": 1783937447501
 };
 
 // libs/common/src/lib/settings.service.ts
 var _service3;
 var _setting_signals = {};
+var DEBUG_OVERRIDES_KEY = "PLACEOS.setting_overrides";
+function loadDebugOverrides() {
+  try {
+    const overrides = JSON.parse(localStorage.getItem(DEBUG_OVERRIDES_KEY) || "{}");
+    for (const key in overrides) {
+      if (!key.startsWith("app."))
+        delete overrides[key];
+    }
+    return overrides;
+  } catch {
+    return {};
+  }
+}
 function setting(key) {
   return _service3 ? _service3.get(key) : void 0;
 }
@@ -54299,6 +54319,30 @@ var SettingsService = class _SettingsService extends AsyncHandler {
    */
   setOverrides(value) {
     this._overrides.set(value);
+    this._refreshSettings();
+  }
+  /** Set a local debug override for an `app.*` setting. `undefined` clears the key. */
+  setDebugOverride(key, value) {
+    if (!key.startsWith("app."))
+      return;
+    const overrides = __spreadValues({}, this._debug_overrides());
+    if (value === void 0)
+      delete overrides[key];
+    else
+      overrides[key] = value;
+    this._debug_overrides.set(overrides);
+    if (Object.keys(overrides).length) {
+      localStorage.setItem(DEBUG_OVERRIDES_KEY, JSON.stringify(overrides));
+    } else
+      localStorage.removeItem(DEBUG_OVERRIDES_KEY);
+    this._refreshSettings();
+  }
+  clearDebugOverrides() {
+    this._debug_overrides.set({});
+    localStorage.removeItem(DEBUG_OVERRIDES_KEY);
+    this._refreshSettings();
+  }
+  _refreshSettings() {
     this._applyCssVariables();
     this._updateSignals();
     this._applyTheme();
@@ -54358,6 +54402,14 @@ var SettingsService = class _SettingsService extends AsyncHandler {
         []
       )
     );
+    this._debug_overrides = signal(
+      loadDebugOverrides(),
+      ...ngDevMode ? [{ debugName: "_debug_overrides" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.debug_overrides = this._debug_overrides.asReadonly();
     this._subjects = {};
     this._pending_settings = {};
     this.theme_signal = computed(
@@ -54404,7 +54456,7 @@ var SettingsService = class _SettingsService extends AsyncHandler {
       window.setting = (key) => this.get(key);
     }
     const user = await this._currentUser();
-    const data = await ju(user.id, "settings");
+    const data = await Wu(user.id, "settings");
     this._user_settings.set(data.details || {});
     this.timeout("init", () => {
       this._initDarkMode();
@@ -54426,6 +54478,9 @@ var SettingsService = class _SettingsService extends AsyncHandler {
    * @param key Name of the setting. i.e. nested items can be grabbed using `.` to seperate key names
    */
   get(key) {
+    const debug_overrides = this._debug_overrides();
+    if (key in debug_overrides)
+      return debug_overrides[key];
     const keys = key.split(".");
     if (keys[0] !== "app") {
       return getItemWithKeys(keys, this._pending_settings) ?? getItemWithKeys(keys, this._user_settings()) ?? getItemWithKeys(keys, DEFAULT_SETTINGS);
@@ -54448,7 +54503,7 @@ var SettingsService = class _SettingsService extends AsyncHandler {
     this.timeout("save_settings", () => this._savePendingChanges(), 2400);
   }
   async updateLocatable(locatable) {
-    await Ma(currentUser().id, { locatable }, "patch");
+    await Da(currentUser().id, { locatable }, "patch");
     reloadUserData();
   }
   overrideCssVariable(key, value, important = false) {
@@ -54487,7 +54542,7 @@ var SettingsService = class _SettingsService extends AsyncHandler {
     if (!user?.id || !Object.keys(this._pending_settings).length)
       return;
     this._updateSignals();
-    await Gu(user.id, {
+    await Qu(user.id, {
       name: "settings",
       description: "",
       details: __spreadValues(__spreadValues({}, this._user_settings()), this._pending_settings)
@@ -55217,7 +55272,7 @@ async function setupPlace(settings) {
   if (mock) {
     notifyInfo("Application in mock mode.");
   }
-  return zr(config2);
+  return jr(config2);
 }
 
 // libs/common/src/lib/signal.utilities.ts
@@ -62559,8 +62614,8 @@ var RippleRenderer = class _RippleRenderer {
     }
     this._removeTriggerEvents();
     this._triggerElement = element;
-    pointerDownEvents.forEach((type) => {
-      _RippleRenderer._eventManager.addHandler(this._ngZone, type, element, this);
+    pointerDownEvents.forEach((type2) => {
+      _RippleRenderer._eventManager.addHandler(this._ngZone, type2, element, this);
     });
   }
   handleEvent(event) {
@@ -62573,8 +62628,8 @@ var RippleRenderer = class _RippleRenderer {
     }
     if (!this._pointerUpEventsRegistered) {
       this._ngZone.runOutsideAngular(() => {
-        pointerUpEvents.forEach((type) => {
-          this._triggerElement.addEventListener(type, this, passiveCapturingEventOptions);
+        pointerUpEvents.forEach((type2) => {
+          this._triggerElement.addEventListener(type2, this, passiveCapturingEventOptions);
         });
       });
       this._pointerUpEventsRegistered = true;
@@ -62654,9 +62709,9 @@ var RippleRenderer = class _RippleRenderer {
   _removeTriggerEvents() {
     const trigger = this._triggerElement;
     if (trigger) {
-      pointerDownEvents.forEach((type) => _RippleRenderer._eventManager.removeHandler(type, trigger, this));
+      pointerDownEvents.forEach((type2) => _RippleRenderer._eventManager.removeHandler(type2, trigger, this));
       if (this._pointerUpEventsRegistered) {
-        pointerUpEvents.forEach((type) => trigger.removeEventListener(type, this, passiveCapturingEventOptions));
+        pointerUpEvents.forEach((type2) => trigger.removeEventListener(type2, this, passiveCapturingEventOptions));
         this._pointerUpEventsRegistered = false;
       }
     }
@@ -64435,25 +64490,25 @@ var NgswCommChannel = class {
       });
     });
   }
-  postMessageWithOperation(type, payload, operationNonce) {
+  postMessageWithOperation(type2, payload, operationNonce) {
     const waitForOperationCompleted = this.waitForOperationCompleted(operationNonce);
-    const postMessage = this.postMessage(type, payload);
+    const postMessage = this.postMessage(type2, payload);
     return Promise.all([postMessage, waitForOperationCompleted]).then(([, result]) => result);
   }
   generateNonce() {
     return Math.round(Math.random() * 1e7);
   }
-  eventsOfType(type) {
+  eventsOfType(type2) {
     let filterFn2;
-    if (typeof type === "string") {
-      filterFn2 = (event) => event.type === type;
+    if (typeof type2 === "string") {
+      filterFn2 = (event) => event.type === type2;
     } else {
-      filterFn2 = (event) => type.includes(event.type);
+      filterFn2 = (event) => type2.includes(event.type);
     }
     return this.events.pipe(filter(filterFn2));
   }
-  nextEventOfType(type) {
-    return this.eventsOfType(type).pipe(take(1));
+  nextEventOfType(type2) {
+    return this.eventsOfType(type2).pipe(take(1));
   }
   waitForOperationCompleted(nonce) {
     return new Promise((resolve, reject) => {
@@ -64944,22 +64999,22 @@ function getVueInternalName(value) {
 // node_modules/@sentry/core/build/esm/instrument/handlers.js
 var handlers = {};
 var instrumented = {};
-function addHandler(type, handler) {
-  handlers[type] = handlers[type] || [];
-  handlers[type].push(handler);
+function addHandler(type2, handler) {
+  handlers[type2] = handlers[type2] || [];
+  handlers[type2].push(handler);
 }
-function maybeInstrument(type, instrumentFn) {
-  if (!instrumented[type]) {
-    instrumented[type] = true;
+function maybeInstrument(type2, instrumentFn) {
+  if (!instrumented[type2]) {
+    instrumented[type2] = true;
     try {
       instrumentFn();
     } catch (e) {
-      DEBUG_BUILD && debug.error(`Error while instrumenting ${type}`, e);
+      DEBUG_BUILD && debug.error(`Error while instrumenting ${type2}`, e);
     }
   }
 }
-function triggerHandlers(type, data) {
-  const typeHandlers = type && handlers[type];
+function triggerHandlers(type2, data) {
+  const typeHandlers = type2 && handlers[type2];
   if (!typeHandlers) {
     return;
   }
@@ -64969,7 +65024,7 @@ function triggerHandlers(type, data) {
     } catch (e) {
       DEBUG_BUILD && debug.error(
         `Error while triggering instrumentation handler.
-Type: ${type}
+Type: ${type2}
 Name: ${getFunctionName(handler)}
 Error:`,
         e
@@ -64981,9 +65036,9 @@ Error:`,
 // node_modules/@sentry/core/build/esm/instrument/globalError.js
 var _oldOnErrorHandler = null;
 function addGlobalErrorInstrumentationHandler(handler) {
-  const type = "error";
-  addHandler(type, handler);
-  maybeInstrument(type, instrumentError);
+  const type2 = "error";
+  addHandler(type2, handler);
+  maybeInstrument(type2, instrumentError);
 }
 function instrumentError() {
   _oldOnErrorHandler = GLOBAL_OBJ.onerror;
@@ -65007,9 +65062,9 @@ function instrumentError() {
 // node_modules/@sentry/core/build/esm/instrument/globalUnhandledRejection.js
 var _oldOnUnhandledRejectionHandler = null;
 function addGlobalUnhandledRejectionInstrumentationHandler(handler) {
-  const type = "unhandledrejection";
-  addHandler(type, handler);
-  maybeInstrument(type, instrumentUnhandledRejection);
+  const type2 = "unhandledrejection";
+  addHandler(type2, handler);
+  maybeInstrument(type2, instrumentUnhandledRejection);
 }
 function instrumentUnhandledRejection() {
   _oldOnUnhandledRejectionHandler = GLOBAL_OBJ.onunhandledrejection;
@@ -65386,7 +65441,7 @@ function getEventDescription(event) {
   }
   return eventId || "<unknown>";
 }
-function addExceptionTypeValue(event, value, type) {
+function addExceptionTypeValue(event, value, type2) {
   const exception = event.exception = event.exception || {};
   const values = exception.values = exception.values || [];
   const firstException = values[0] = values[0] || {};
@@ -65394,7 +65449,7 @@ function addExceptionTypeValue(event, value, type) {
     firstException.value = value || "";
   }
   if (!firstException.type) {
-    firstException.type = type || "Error";
+    firstException.type = type2 || "Error";
   }
 }
 function addExceptionMechanism(event, newMechanism) {
@@ -67371,7 +67426,7 @@ function forEachEnvelopeItem(envelope, callback) {
   return false;
 }
 function envelopeContainsItemType(envelope, types) {
-  return forEachEnvelopeItem(envelope, (_2, type) => types.includes(type));
+  return forEachEnvelopeItem(envelope, (_2, type2) => types.includes(type2));
 }
 function encodeUTF8(input2) {
   const carrier = getSentryCarrier(GLOBAL_OBJ);
@@ -67448,11 +67503,11 @@ var DATA_CATEGORY_OVERRIDES = {
   log: "log_item",
   trace_metric: "metric"
 };
-function _isOverriddenType(type) {
-  return type in DATA_CATEGORY_OVERRIDES;
+function _isOverriddenType(type2) {
+  return type2 in DATA_CATEGORY_OVERRIDES;
 }
-function envelopeItemTypeToDataCategory(type) {
-  return _isOverriddenType(type) ? DATA_CATEGORY_OVERRIDES[type] : type;
+function envelopeItemTypeToDataCategory(type2) {
+  return _isOverriddenType(type2) ? DATA_CATEGORY_OVERRIDES[type2] : type2;
 }
 function getSdkMetadataForEnvelopeHeader(metadataOrEvent) {
   if (!metadataOrEvent?.sdk) {
@@ -67541,24 +67596,24 @@ function createSpanEnvelope(spans, client) {
 // node_modules/@sentry/core/build/esm/tracing/logSpans.js
 function logSpanStart(span) {
   if (!DEBUG_BUILD) return;
-  const { description = "< unknown name >", op = "< unknown op >", parent_span_id: parentSpanId } = spanToJSON(span);
+  const { description: description2 = "< unknown name >", op = "< unknown op >", parent_span_id: parentSpanId } = spanToJSON(span);
   const { spanId } = span.spanContext();
   const sampled = spanIsSampled(span);
   const rootSpan = getRootSpan(span);
   const isRootSpan = rootSpan === span;
   const header = `[Tracing] Starting ${sampled ? "sampled" : "unsampled"} ${isRootSpan ? "root " : ""}span`;
-  const infoParts = [`op: ${op}`, `name: ${description}`, `ID: ${spanId}`];
+  const infoParts = [`op: ${op}`, `name: ${description2}`, `ID: ${spanId}`];
   if (parentSpanId) {
     infoParts.push(`parent ID: ${parentSpanId}`);
   }
   if (!isRootSpan) {
-    const { op: op2, description: description2 } = spanToJSON(rootSpan);
+    const { op: op2, description: description3 } = spanToJSON(rootSpan);
     infoParts.push(`root ID: ${rootSpan.spanContext().spanId}`);
     if (op2) {
       infoParts.push(`root op: ${op2}`);
     }
-    if (description2) {
-      infoParts.push(`root description: ${description2}`);
+    if (description3) {
+      infoParts.push(`root description: ${description3}`);
     }
   }
   debug.log(`${header}
@@ -67566,11 +67621,11 @@ function logSpanStart(span) {
 }
 function logSpanEnd(span) {
   if (!DEBUG_BUILD) return;
-  const { description = "< unknown name >", op = "< unknown op >" } = spanToJSON(span);
+  const { description: description2 = "< unknown name >", op = "< unknown op >" } = spanToJSON(span);
   const { spanId } = span.spanContext();
   const rootSpan = getRootSpan(span);
   const isRootSpan = rootSpan === span;
-  const msg = `[Tracing] Finishing "${op}" ${isRootSpan ? "root " : ""}span "${description}" with ID ${spanId}`;
+  const msg = `[Tracing] Finishing "${op}" ${isRootSpan ? "root " : ""}span "${description2}" with ID ${spanId}`;
   debug.log(msg);
 }
 
@@ -69325,8 +69380,8 @@ function createTransport(options, makeRequest, buffer = makePromiseBuffer(
   const flush2 = (timeout) => buffer.drain(timeout);
   function send(envelope) {
     const filteredEnvelopeItems = [];
-    forEachEnvelopeItem(envelope, (item, type) => {
-      const dataCategory = envelopeItemTypeToDataCategory(type);
+    forEachEnvelopeItem(envelope, (item, type2) => {
+      const dataCategory = envelopeItemTypeToDataCategory(type2);
       if (isRateLimited(rateLimits, dataCategory)) {
         options.recordDroppedEvent("ratelimit_backoff", dataCategory);
       } else {
@@ -69342,8 +69397,8 @@ function createTransport(options, makeRequest, buffer = makePromiseBuffer(
         DEBUG_BUILD && debug.warn(`Dropping client report. Will not send outcomes (reason: ${reason}).`);
         return;
       }
-      forEachEnvelopeItem(filteredEnvelope, (item, type) => {
-        options.recordDroppedEvent(reason, envelopeItemTypeToDataCategory(type));
+      forEachEnvelopeItem(filteredEnvelope, (item, type2) => {
+        options.recordDroppedEvent(reason, envelopeItemTypeToDataCategory(type2));
       });
     };
     const requestTask = () => makeRequest({ body: serializeEnvelope(filteredEnvelope) }).then(
@@ -70121,8 +70176,8 @@ Reason: ${reason}`
    * Creates an {@link Event} from all inputs to `captureException` and non-primitive inputs to `captureMessage`.
    */
 };
-function getDataCategoryByType(type) {
-  return type === "replay_event" ? "replay" : type || "error";
+function getDataCategoryByType(type2) {
+  return type2 === "replay_event" ? "replay" : type2 || "error";
 }
 function _validateBeforeSendResult(beforeSendResult, beforeSendLabel) {
   const invalidValueError = `${beforeSendLabel} must return \`null\` or a valid event.`;
@@ -70730,9 +70785,9 @@ function applyExceptionGroupFieldsForChildException(exception, source, exception
 
 // node_modules/@sentry/core/build/esm/instrument/console.js
 function addConsoleInstrumentationHandler(handler) {
-  const type = "console";
-  addHandler(type, handler);
-  maybeInstrument(type, instrumentConsole);
+  const type2 = "console";
+  addHandler(type2, handler);
+  maybeInstrument(type2, instrumentConsole);
 }
 function instrumentConsole() {
   if (!("console" in GLOBAL_OBJ)) {
@@ -71156,14 +71211,14 @@ function supportsNativeFetch() {
 
 // node_modules/@sentry/core/build/esm/instrument/fetch.js
 function addFetchInstrumentationHandler(handler, skipNativeFetchCheck) {
-  const type = "fetch";
-  addHandler(type, handler);
-  maybeInstrument(type, () => instrumentFetch(void 0, skipNativeFetchCheck));
+  const type2 = "fetch";
+  addHandler(type2, handler);
+  maybeInstrument(type2, () => instrumentFetch(void 0, skipNativeFetchCheck));
 }
 function addFetchEndInstrumentationHandler(handler) {
-  const type = "fetch-body-resolved";
-  addHandler(type, handler);
-  maybeInstrument(type, () => instrumentFetch(streamHandler));
+  const type2 = "fetch-body-resolved";
+  addHandler(type2, handler);
+  maybeInstrument(type2, () => instrumentFetch(streamHandler));
 }
 function instrumentFetch(onFetchResolved, skipNativeFetchCheck = false) {
   if (skipNativeFetchCheck && !supportsNativeFetch()) {
@@ -71786,14 +71841,14 @@ var getActivationStart = () => {
 };
 
 // node_modules/@sentry-internal/browser-utils/build/esm/metrics/web-vitals/lib/globalListeners.js
-function addPageListener(type, listener, options) {
+function addPageListener(type2, listener, options) {
   if (WINDOW4.document) {
-    WINDOW4.addEventListener(type, listener, options);
+    WINDOW4.addEventListener(type2, listener, options);
   }
 }
-function removePageListener(type, listener, options) {
+function removePageListener(type2, listener, options) {
   if (WINDOW4.document) {
-    WINDOW4.removeEventListener(type, listener, options);
+    WINDOW4.removeEventListener(type2, listener, options);
   }
 }
 
@@ -71914,15 +71969,15 @@ var LayoutShiftManager = class _LayoutShiftManager {
 };
 
 // node_modules/@sentry-internal/browser-utils/build/esm/metrics/web-vitals/lib/observe.js
-var observe = (type, callback, opts = {}) => {
+var observe = (type2, callback, opts = {}) => {
   try {
-    if (PerformanceObserver.supportedEntryTypes.includes(type)) {
+    if (PerformanceObserver.supportedEntryTypes.includes(type2)) {
       const po2 = new PerformanceObserver((list) => {
         Promise.resolve().then(() => {
           callback(list.getEntries());
         });
       });
-      po2.observe(__spreadValues({ type, buffered: true }, opts));
+      po2.observe(__spreadValues({ type: type2, buffered: true }, opts));
       return po2;
     }
   } catch {
@@ -72233,8 +72288,8 @@ var onLCP = (onReport, opts = {}) => {
           });
         }
       };
-      for (const type of ["keydown", "click", "visibilitychange"]) {
-        addPageListener(type, stopListeningWrapper, {
+      for (const type2 of ["keydown", "click", "visibilitychange"]) {
+        addPageListener(type2, stopListeningWrapper, {
           capture: true
         });
       }
@@ -72285,16 +72340,16 @@ function addTtfbInstrumentationHandler(callback) {
 function addInpInstrumentationHandler(callback) {
   return addMetricObserver("inp", callback, instrumentInp, _previousInp);
 }
-function addPerformanceInstrumentationHandler(type, callback) {
-  addHandler2(type, callback);
-  if (!instrumented2[type]) {
-    instrumentPerformanceObserver(type);
-    instrumented2[type] = true;
+function addPerformanceInstrumentationHandler(type2, callback) {
+  addHandler2(type2, callback);
+  if (!instrumented2[type2]) {
+    instrumentPerformanceObserver(type2);
+    instrumented2[type2] = true;
   }
-  return getCleanupCallback(type, callback);
+  return getCleanupCallback(type2, callback);
 }
-function triggerHandlers2(type, data) {
-  const typeHandlers = handlers2[type];
+function triggerHandlers2(type2, data) {
+  const typeHandlers = handlers2[type2];
   if (!typeHandlers?.length) {
     return;
   }
@@ -72304,7 +72359,7 @@ function triggerHandlers2(type, data) {
     } catch (e) {
       DEBUG_BUILD2 && debug.error(
         `Error while triggering instrumentation handler.
-Type: ${type}
+Type: ${type2}
 Name: ${getFunctionName(handler)}
 Error:`,
         e
@@ -72354,41 +72409,41 @@ function instrumentInp() {
     _previousInp = metric;
   });
 }
-function addMetricObserver(type, callback, instrumentFn, previousValue, stopOnCallback = false) {
-  addHandler2(type, callback);
+function addMetricObserver(type2, callback, instrumentFn, previousValue, stopOnCallback = false) {
+  addHandler2(type2, callback);
   let stopListening;
-  if (!instrumented2[type]) {
+  if (!instrumented2[type2]) {
     stopListening = instrumentFn();
-    instrumented2[type] = true;
+    instrumented2[type2] = true;
   }
   if (previousValue) {
     callback({ metric: previousValue });
   }
-  return getCleanupCallback(type, callback, stopOnCallback ? stopListening : void 0);
+  return getCleanupCallback(type2, callback, stopOnCallback ? stopListening : void 0);
 }
-function instrumentPerformanceObserver(type) {
+function instrumentPerformanceObserver(type2) {
   const options = {};
-  if (type === "event") {
+  if (type2 === "event") {
     options.durationThreshold = 0;
   }
   observe(
-    type,
+    type2,
     (entries) => {
-      triggerHandlers2(type, { entries });
+      triggerHandlers2(type2, { entries });
     },
     options
   );
 }
-function addHandler2(type, handler) {
-  handlers2[type] = handlers2[type] || [];
-  handlers2[type].push(handler);
+function addHandler2(type2, handler) {
+  handlers2[type2] = handlers2[type2] || [];
+  handlers2[type2].push(handler);
 }
-function getCleanupCallback(type, callback, stopListening) {
+function getCleanupCallback(type2, callback, stopListening) {
   return () => {
     if (stopListening) {
       stopListening();
     }
-    const typeHandlers = handlers2[type];
+    const typeHandlers = handlers2[type2];
     if (!typeHandlers) {
       return;
     }
@@ -73162,8 +73217,8 @@ function _setWebVitalAttributes(span, options) {
     );
   }
 }
-function _setResourceRequestAttributes(entry, attributes, properties) {
-  properties.forEach(([entryKey, attributeKey]) => {
+function _setResourceRequestAttributes(entry, attributes, properties2) {
+  properties2.forEach(([entryKey, attributeKey]) => {
     const entryVal = entry[entryKey];
     if (entryVal != null && (typeof entryVal === "number" && entryVal < MAX_INT_AS_BYTES || typeof entryVal === "string")) {
       attributes[attributeKey] = entryVal;
@@ -73525,9 +73580,9 @@ var debounceTimerID;
 var lastCapturedEventType;
 var lastCapturedEventTargetId;
 function addClickKeypressInstrumentationHandler(handler) {
-  const type = "dom";
-  addHandler(type, handler);
-  maybeInstrument(type, instrumentDOM);
+  const type2 = "dom";
+  addHandler(type2, handler);
+  maybeInstrument(type2, instrumentDOM);
 }
 function instrumentDOM() {
   if (!WINDOW4.document) {
@@ -73544,38 +73599,38 @@ function instrumentDOM() {
       return;
     }
     fill(proto, "addEventListener", function(originalAddEventListener) {
-      return function(type, listener, options) {
-        if (type === "click" || type == "keypress") {
+      return function(type2, listener, options) {
+        if (type2 === "click" || type2 == "keypress") {
           try {
             const handlers3 = this.__sentry_instrumentation_handlers__ = this.__sentry_instrumentation_handlers__ || {};
-            const handlerForType = handlers3[type] = handlers3[type] || { refCount: 0 };
+            const handlerForType = handlers3[type2] = handlers3[type2] || { refCount: 0 };
             if (!handlerForType.handler) {
               const handler = makeDOMEventHandler(triggerDOMHandler);
               handlerForType.handler = handler;
-              originalAddEventListener.call(this, type, handler, options);
+              originalAddEventListener.call(this, type2, handler, options);
             }
             handlerForType.refCount++;
           } catch {
           }
         }
-        return originalAddEventListener.call(this, type, listener, options);
+        return originalAddEventListener.call(this, type2, listener, options);
       };
     });
     fill(
       proto,
       "removeEventListener",
       function(originalRemoveEventListener) {
-        return function(type, listener, options) {
-          if (type === "click" || type == "keypress") {
+        return function(type2, listener, options) {
+          if (type2 === "click" || type2 == "keypress") {
             try {
               const handlers3 = this.__sentry_instrumentation_handlers__ || {};
-              const handlerForType = handlers3[type];
+              const handlerForType = handlers3[type2];
               if (handlerForType) {
                 handlerForType.refCount--;
                 if (handlerForType.refCount <= 0) {
-                  originalRemoveEventListener.call(this, type, handlerForType.handler, options);
+                  originalRemoveEventListener.call(this, type2, handlerForType.handler, options);
                   handlerForType.handler = void 0;
-                  delete handlers3[type];
+                  delete handlers3[type2];
                 }
                 if (Object.keys(handlers3).length === 0) {
                   delete this.__sentry_instrumentation_handlers__;
@@ -73584,7 +73639,7 @@ function instrumentDOM() {
             } catch {
             }
           }
-          return originalRemoveEventListener.call(this, type, listener, options);
+          return originalRemoveEventListener.call(this, type2, listener, options);
         };
       }
     );
@@ -73652,9 +73707,9 @@ function getEventTarget2(event) {
 // node_modules/@sentry-internal/browser-utils/build/esm/instrument/history.js
 var lastHref;
 function addHistoryInstrumentationHandler(handler) {
-  const type = "history";
-  addHandler(type, handler);
-  maybeInstrument(type, instrumentHistory);
+  const type2 = "history";
+  addHandler(type2, handler);
+  maybeInstrument(type2, instrumentHistory);
 }
 function instrumentHistory() {
   WINDOW4.addEventListener("popstate", () => {
@@ -73736,9 +73791,9 @@ function clearCachedImplementation(name) {
 // node_modules/@sentry-internal/browser-utils/build/esm/instrument/xhr.js
 var SENTRY_XHR_DATA_KEY = "__sentry_xhr_v3__";
 function addXhrInstrumentationHandler(handler) {
-  const type = "xhr";
-  addHandler(type, handler);
-  maybeInstrument(type, instrumentXHR);
+  const type2 = "xhr";
+  addHandler(type2, handler);
+  maybeInstrument(type2, instrumentXHR);
 }
 function instrumentXHR() {
   if (!WINDOW4.XMLHttpRequest) {
@@ -74578,8 +74633,8 @@ function _enhanceEventWithInitialFrame(event, url, lineno, colno) {
   }
   return event;
 }
-function globalHandlerLog(type) {
-  DEBUG_BUILD3 && debug.log(`Global Handler attached: ${type}`);
+function globalHandlerLog(type2) {
+  DEBUG_BUILD3 && debug.log(`Global Handler attached: ${type2}`);
 }
 function getOptions() {
   const client = getClient();
@@ -74693,7 +74748,7 @@ function setupSidecarForwarding(client, sidecarUrl) {
 var spotlightBrowserIntegration = defineIntegration(_spotlightIntegration);
 function isSpotlightInteraction(event) {
   return Boolean(
-    event.type === "transaction" && event.spans && event.contexts?.trace && event.contexts.trace.op === "ui.action.click" && event.spans.some(({ description }) => description?.includes("#sentry-spotlight"))
+    event.type === "transaction" && event.spans && event.contexts?.trace && event.contexts.trace.op === "ui.action.click" && event.spans.some(({ description: description2 }) => description2?.includes("#sentry-spotlight"))
   );
 }
 
@@ -76188,7 +76243,7 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
       notifySuccess("Toggled dark mode.");
     });
     this._hotkey.listen(["Control", "Alt", "Shift", "KeyC"], () => {
-      this._clipboard.copy(`${V()}|${Pt()}`);
+      this._clipboard.copy(`${X()}|${Pt()}`);
       notifySuccess("Successfully copied token.");
     });
     this._hotkey.listen(["Control", "Alt", "Shift", "KeyV"], () => {
@@ -76208,7 +76263,7 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
         localStorage.setItem("PLACEOS.locale", locale);
       }
       if (params.has("x-api-key")) {
-        Nr(params.get("x-api-key"));
+        Hr(params.get("x-api-key"));
       }
       if (params.has("region_id")) {
         this._region = params.get("region_id");
@@ -76228,7 +76283,7 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
     settings.app_name = this._settings.get("app.name") || this._settings.get("app.short_name");
     settings.mock = !!this._settings.get("mock") || _mocks && location.origin.includes("demo.place.tech");
     if (START_QUERY) {
-      const query = Ie(START_QUERY.substring(1));
+      const query = Te(START_QUERY.substring(1));
       this._router.navigate([], {
         relativeTo: this._route,
         queryParams: query
@@ -76278,15 +76333,15 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
       const auth_error = await setupPlace(settings).then(() => null).catch((_2) => _2);
       if (!auth_error) {
         const api_key = getNativeApiKey();
-        const client_key = `${ai()}_x-api-key`;
+        const client_key = `${hi()}_x-api-key`;
         if (api_key)
-          Nr(api_key);
+          Hr(api_key);
         else if (localStorage.getItem(client_key)) {
           localStorage.removeItem(client_key);
-          An();
+          qn();
         }
         if (intune_token)
-          hi(intune_token);
+          li(intune_token);
         break;
       }
       log("APP", "Auth failed, resetting domain.", auth_error, "warn");
@@ -76294,13 +76349,13 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
       clearNativeApiKey();
       DOMAIN_ERROR.set(`Unable to connect to "${domain}". The server may be unavailable, or the email address may be for a different server. Try again.`);
     }
-    if (isNativeApp() && !V(false)) {
+    if (isNativeApp() && !X(false)) {
       const boot_params = new URLSearchParams(START_QUERY);
       if (boot_params.has("code")) {
-        console.warn("[AUTH] Auth code was present on load but the token exchange did not complete.", `State: "${boot_params.get("state")}"`, `Nonce: "${localStorage.getItem(`${ai()}_nonce`)}"`);
+        console.warn("[AUTH] Auth code was present on load but the token exchange did not complete.", `State: "${boot_params.get("state")}"`, `Nonce: "${localStorage.getItem(`${hi()}_nonce`)}"`);
       }
     }
-    if (isNativeApp() && !V(false) && !Pt() && Rt()) {
+    if (isNativeApp() && !X(false) && !Pt() && Rt()) {
       const auth_error = consumeNativeAuthError();
       if (auth_error) {
         setLoadingMessage("Waiting for sign in...");
@@ -76309,7 +76364,7 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
         await new Promise((r) => this._domain_resolve = r);
       }
       setLoadingMessage("Opening sign in...");
-      const auth_url = await createNativeAuthUrl(settings, ai());
+      const auth_url = await createNativeAuthUrl(settings, hi());
       console.warn(`[AUTH] Opening sign in: ${auth_url}`);
       await openNativeBrowser(auth_url);
       return;
@@ -76319,7 +76374,7 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
       await setupPlace(settings).catch((_2) => console.error(_2));
     }
     if (this._initial_token)
-      hi(this._initial_token);
+      li(this._initial_token);
     await this._waitFor(() => this._org.initialised());
     if (this._locale) {
       this._locale.zone_id = this._org.organisation.id;
@@ -76344,15 +76399,15 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
     this._setZones();
   }
   onInitError() {
-    if (kn() || currentUser()?.is_logged_in)
+    if (Sn() || currentUser()?.is_logged_in)
       return;
     if (isNativeApp() && getNativeApiKey()) {
       clearNativeApiKey();
       clearNativeDomain();
-      localStorage.removeItem(`${ai()}_x-api-key`);
-      An();
-    } else if (!V(false))
-      An();
+      localStorage.removeItem(`${hi()}_x-api-key`);
+      qn();
+    } else if (!X(false))
+      qn();
     location.reload();
   }
   _initAnalytics() {
@@ -76390,7 +76445,7 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
   }
   _pasteToken(tkn) {
     const parts = tkn.split("|");
-    const id = ai();
+    const id = hi();
     localStorage.setItem(`${id}_access_token`, `${parts[0]}`);
     localStorage.setItem(`${id}_refresh_token`, `${parts[1]}`);
     localStorage.setItem(`${id}_expires_at`, `${addHours(/* @__PURE__ */ new Date(), 6).valueOf()}`);
@@ -76564,7 +76619,7 @@ var OrganisationService = class _OrganisationService {
     const binding = this.binding(name);
     const system_id = binding instanceof Object ? binding.id || binding.system_id : binding;
     const mod_id = (binding instanceof Object ? binding.mod || binding.module : "") || default_mod_id;
-    return !system_id || !mod_id ? null : Fl(system_id, mod_id);
+    return !system_id || !mod_id ? null : Wl(system_id, mod_id);
   }
   /** Get building by id */
   find(id) {
@@ -76683,7 +76738,7 @@ var OrganisationService = class _OrganisationService {
     this._building_settings = {};
     this._skip_auto_selection = false;
     this._override_timer = null;
-    ri(Hr(), (_2) => _2).then(() => setTimeout(() => this.init(), 1e3));
+    oi(Lr(), (_2) => _2).then(() => setTimeout(() => this.init(), 1e3));
     effect(() => {
       this._active_region();
       const building = this._active_building();
@@ -76871,7 +76926,7 @@ var OrganisationService = class _OrganisationService {
     });
     if (org_list.length) {
       const auth = Rt();
-      const org = org_list.find((list) => kn() || list.id === auth?.config?.org_zone) || org_list[0];
+      const org = org_list.find((list) => Sn() || list.id === auth?.config?.org_zone) || org_list[0];
       const load_metadata = !this._service.get("dont_load_metadata");
       const bindings = load_metadata ? (await this._bulkMetadataDetails("bindings", [org.id]))[org.id] : {};
       this._organisation = new Organisation(__spreadProps(__spreadValues({}, org), { bindings }));
@@ -77108,7 +77163,7 @@ var OrganisationService = class _OrganisationService {
     const cached_metadata = this._getCachedItem(cache_key);
     if (cached_metadata)
       return cached_metadata;
-    const metadata = await Ku(name, { parent_ids }).catch((err) => err?.status === 404 ? this._individualMetadata(name, ids) : {});
+    const metadata = await Yu(name, { parent_ids }).catch((err) => err?.status === 404 ? this._individualMetadata(name, ids) : {});
     const metadata_details = ids.reduce((map2, id) => {
       map2[id] = metadata[id]?.details || {};
       return map2;
@@ -77118,7 +77173,7 @@ var OrganisationService = class _OrganisationService {
   }
   /** Fallback for backends without the bulk metadata endpoint (404) */
   async _individualMetadata(name, ids) {
-    const items = await Promise.all(ids.filter(Boolean).map((id) => ju(id, name).then((item) => [id, item], () => [id, null])));
+    const items = await Promise.all(ids.filter(Boolean).map((id) => Wu(id, name).then((item) => [id, item], () => [id, null])));
     const metadata = {};
     for (const [id, item] of items) {
       if (item)
@@ -77131,7 +77186,7 @@ var OrganisationService = class _OrganisationService {
     const cached_zones = this._getCachedItem(cache_key);
     if (cached_zones)
       return cached_zones;
-    const zones = (await Ba(__spreadProps(__spreadValues({}, params), {
+    const zones = (await Ka(__spreadProps(__spreadValues({}, params), {
       authority_id: Rt().id
     }))).data || [];
     this._setCachedItem(cache_key, zones);
@@ -78108,19 +78163,19 @@ var NativeDateAdapter = class _NativeDateAdapter extends DateAdapter {
     return new Date(date.getTime() + amount * 1e3);
   }
   _createDateWithOverflow(year, month, date) {
-    const d2 = /* @__PURE__ */ new Date();
-    d2.setFullYear(year, month, date);
-    d2.setHours(0, 0, 0, 0);
-    return d2;
+    const d = /* @__PURE__ */ new Date();
+    d.setFullYear(year, month, date);
+    d.setHours(0, 0, 0, 0);
+    return d;
   }
   _2digit(n) {
     return ("00" + n).slice(-2);
   }
   _format(dtf, date) {
-    const d2 = /* @__PURE__ */ new Date();
-    d2.setUTCFullYear(date.getFullYear(), date.getMonth(), date.getDate());
-    d2.setUTCHours(date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds());
-    return dtf.format(d2);
+    const d = /* @__PURE__ */ new Date();
+    d.setUTCFullYear(date.getFullYear(), date.getMonth(), date.getDate());
+    d.setUTCHours(date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds());
+    return dtf.format(d);
   }
   _parseTimeString(value) {
     const parsed = value.toUpperCase().match(TIME_REGEX);
@@ -78514,8 +78569,8 @@ var SafePipe = class _SafePipe {
    * @param value String to sanitize
    * @param type Type of value to sanitise. `resource`, `url`, `script`, `style` or `html`
    */
-  transform(value, type = "html") {
-    switch (type) {
+  transform(value, type2 = "html") {
+    switch (type2) {
       case "resource":
         return this.sanitizer.bypassSecurityTrustResourceUrl(value);
       case "url":
@@ -80470,8 +80525,8 @@ var TextFieldModule = class _TextFieldModule {
 var MAT_INPUT_VALUE_ACCESSOR = new InjectionToken("MAT_INPUT_VALUE_ACCESSOR");
 
 // node_modules/@angular/material/fesm2022/input.mjs
-function getMatInputUnsupportedTypeError(type) {
-  return Error(`Input type "${type}" isn't supported by matInput.`);
+function getMatInputUnsupportedTypeError(type2) {
+  return Error(`Input type "${type2}" isn't supported by matInput.`);
 }
 var MAT_INPUT_INVALID_TYPES = ["button", "checkbox", "file", "hidden", "image", "radio", "range", "reset", "submit"];
 var MAT_INPUT_CONFIG = new InjectionToken("MAT_INPUT_CONFIG");
@@ -83184,8 +83239,8 @@ var SanitizePipe = class _SanitizePipe {
   constructor() {
     this.sanitizer = inject2(DomSanitizer);
   }
-  transform(value, type = "html") {
-    switch (type) {
+  transform(value, type2 = "html") {
+    switch (type2) {
       case "resource":
         return this.sanitizer.sanitize(SecurityContext2.RESOURCE_URL, value);
       case "url":
@@ -84591,13 +84646,13 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
     this.loading.set(true);
     await this._org.waitUntilInitialised();
     await firstTruthyValueFrom(this._settings.initialised);
-    this.online.set(Dr());
+    this.online.set(Fr());
     this.interval("has_token", () => {
-      this.online.set(Dr());
-      if (!Rt() || !V())
+      this.online.set(Fr());
+      if (!Rt() || !X())
         return;
       this.loading.set(false);
-      this.online.set(Dr());
+      this.online.set(Fr());
       this.clearInterval("has_token");
     }, 1e3);
   }
@@ -84816,11 +84871,11 @@ var PluginEmbedComponent = class _PluginEmbedComponent extends AsyncHandler {
       this.send("config", this.config());
     }
   }
-  send(type, payload = null) {
+  send(type2, payload = null) {
     const origin = this.plugin_origin();
     if (!origin)
       return;
-    this._plugin_el()?.nativeElement?.contentWindow.postMessage({ api: API_VERSION, type, payload }, origin);
+    this._plugin_el()?.nativeElement?.contentWindow.postMessage({ api: API_VERSION, type: type2, payload }, origin);
   }
   onIframeError() {
     this.plugin_error.emit({
@@ -84925,7 +84980,984 @@ var PluginEmbedComponent = class _PluginEmbedComponent extends AsyncHandler {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(PluginEmbedComponent, { className: "PluginEmbedComponent", filePath: "libs/components/src/lib/plugin-embed.component.ts", lineNumber: 104 });
 })();
 
+// libs/components/src/lib/settings-debug-panel.component.ts
+var _c013 = (a0) => ({ zones: a0 });
+var _forTrack0 = ($index, $item) => $item.type + $item.id;
+function SettingsDebugPanelComponent_Conditional_0_Conditional_6_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r2 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 15);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_Conditional_6_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r2);
+      const ctx_r2 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r2.clearAll());
+    });
+    \u0275\u0275text(1, " Clear all overrides ");
+    \u0275\u0275elementEnd();
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_0_Conditional_7_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span", 22);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const group_r5 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", group_r5.overridden, " overridden ");
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r4 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 18);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_0_Template_button_click_0_listener() {
+      const group_r5 = \u0275\u0275restoreView(_r4);
+      const ctx_r2 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r2.toggleGroup(group_r5.name));
+    });
+    \u0275\u0275elementStart(1, "icon", 19);
+    \u0275\u0275text(2, " chevron_right ");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "span", 20);
+    \u0275\u0275text(4);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(5, "span", 21);
+    \u0275\u0275text(6);
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(7, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_0_Conditional_7_Template, 2, 1, "span", 22);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const group_r5 = ctx;
+    const ctx_r2 = \u0275\u0275nextContext(3);
+    \u0275\u0275advance();
+    \u0275\u0275classProp("rotate-90", ctx_r2.filter() || ctx_r2.expanded()[group_r5.name]);
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate(group_r5.name);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" (", group_r5.count, ") ");
+    \u0275\u0275advance();
+    \u0275\u0275conditional(group_r5.overridden ? 7 : -1);
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Conditional_8_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 29);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const row_r6 = \u0275\u0275nextContext();
+    \u0275\u0275property("title", row_r6.description);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", row_r6.description, " ");
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_9_For_2_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "option", 31);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const option_r8 = ctx.$implicit;
+    \u0275\u0275property("value", option_r8);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", option_r8, " ");
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_9_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r7 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "select", 30);
+    \u0275\u0275twoWayListener("ngModelChange", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_9_Template_select_ngModelChange_0_listener($event) {
+      \u0275\u0275restoreView(_r7);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      \u0275\u0275twoWayBindingSet(ctx_r2.edit_value, $event) || (ctx_r2.edit_value = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275listener("keydown.escape", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_9_Template_select_keydown_escape_0_listener() {
+      \u0275\u0275restoreView(_r7);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      return \u0275\u0275resetView(ctx_r2.editing_key.set(""));
+    });
+    \u0275\u0275repeaterCreate(1, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_9_For_2_Template, 2, 2, "option", 31, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementStart(3, "button", 32);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_9_Template_button_click_3_listener() {
+      \u0275\u0275restoreView(_r7);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      return \u0275\u0275resetView(ctx_r2.saveEdit());
+    });
+    \u0275\u0275elementStart(4, "icon", 33);
+    \u0275\u0275text(5, "check");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const row_r6 = \u0275\u0275nextContext();
+    const ctx_r2 = \u0275\u0275nextContext(3);
+    \u0275\u0275twoWayProperty("ngModel", ctx_r2.edit_value);
+    \u0275\u0275control();
+    \u0275\u0275advance();
+    \u0275\u0275repeater(row_r6.options);
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_10_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r9 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "input", 34);
+    \u0275\u0275twoWayListener("ngModelChange", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_10_Template_input_ngModelChange_0_listener($event) {
+      \u0275\u0275restoreView(_r9);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      \u0275\u0275twoWayBindingSet(ctx_r2.edit_value, $event) || (ctx_r2.edit_value = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275listener("keydown.enter", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_10_Template_input_keydown_enter_0_listener() {
+      \u0275\u0275restoreView(_r9);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      return \u0275\u0275resetView(ctx_r2.saveEdit());
+    })("keydown.escape", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_10_Template_input_keydown_escape_0_listener() {
+      \u0275\u0275restoreView(_r9);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      return \u0275\u0275resetView(ctx_r2.editing_key.set(""));
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementStart(1, "button", 32);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_10_Template_button_click_1_listener() {
+      \u0275\u0275restoreView(_r9);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      return \u0275\u0275resetView(ctx_r2.saveEdit());
+    });
+    \u0275\u0275elementStart(2, "icon", 33);
+    \u0275\u0275text(3, "check");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext(4);
+    \u0275\u0275twoWayProperty("ngModel", ctx_r2.edit_value);
+    \u0275\u0275control();
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_11_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r10 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "input", 35);
+    \u0275\u0275twoWayListener("ngModelChange", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_11_Template_input_ngModelChange_0_listener($event) {
+      \u0275\u0275restoreView(_r10);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      \u0275\u0275twoWayBindingSet(ctx_r2.edit_value, $event) || (ctx_r2.edit_value = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275listener("keydown.enter", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_11_Template_input_keydown_enter_0_listener() {
+      \u0275\u0275restoreView(_r10);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      return \u0275\u0275resetView(ctx_r2.saveEdit());
+    })("keydown.escape", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_11_Template_input_keydown_escape_0_listener() {
+      \u0275\u0275restoreView(_r10);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      return \u0275\u0275resetView(ctx_r2.editing_key.set(""));
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementStart(1, "button", 32);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_11_Template_button_click_1_listener() {
+      \u0275\u0275restoreView(_r10);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      return \u0275\u0275resetView(ctx_r2.saveEdit());
+    });
+    \u0275\u0275elementStart(2, "icon", 33);
+    \u0275\u0275text(3, "check");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext(4);
+    \u0275\u0275twoWayProperty("ngModel", ctx_r2.edit_value);
+    \u0275\u0275control();
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r11 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 36)(1, "button", 39);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_0_Template_button_click_1_listener() {
+      \u0275\u0275restoreView(_r11);
+      const row_r6 = \u0275\u0275nextContext(2);
+      const ctx_r2 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r2.toggleValue(row_r6));
+    });
+    \u0275\u0275element(2, "div", 40);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const row_r6 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance();
+    \u0275\u0275classProp("bg-info", row_r6.value)("bg-base-300", !row_r6.value);
+    \u0275\u0275property("title", row_r6.display);
+    \u0275\u0275advance();
+    \u0275\u0275classProp("translate-x-4", row_r6.value);
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_1_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r12 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 41);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_1_Template_div_click_0_listener() {
+      \u0275\u0275restoreView(_r12);
+      const row_r6 = \u0275\u0275nextContext(2);
+      const ctx_r2 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r2.startEdit(row_r6));
+    });
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const row_r6 = \u0275\u0275nextContext(2);
+    \u0275\u0275classMap(row_r6.display ? "opacity-80" : "italic opacity-40");
+    \u0275\u0275property("title", row_r6.display || "unset");
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", row_r6.display || "unset", " ");
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_2_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r13 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 42);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_2_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r13);
+      const row_r6 = \u0275\u0275nextContext(2);
+      const ctx_r2 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r2.clearOverride(row_r6.key));
+    });
+    \u0275\u0275elementStart(1, "icon", 33);
+    \u0275\u0275text(2, "undo");
+    \u0275\u0275elementEnd()();
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275conditionalCreate(0, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_0_Template, 3, 7, "div", 36)(1, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_1_Template, 2, 4, "div", 37);
+    \u0275\u0275conditionalCreate(2, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_2_Template, 3, 0, "button", 38);
+  }
+  if (rf & 2) {
+    const row_r6 = \u0275\u0275nextContext();
+    \u0275\u0275conditional(row_r6.control === "toggle" ? 0 : 1);
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(row_r6.overridden ? 2 : -1);
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 23)(1, "div", 24)(2, "div", 25)(3, "span", 26);
+    \u0275\u0275text(4);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(5, "span", 27)(6, "icon", 28);
+    \u0275\u0275text(7, "info");
+    \u0275\u0275elementEnd()()();
+    \u0275\u0275conditionalCreate(8, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Conditional_8_Template, 2, 2, "div", 29);
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(9, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_9_Template, 6, 1)(10, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_10_Template, 4, 1)(11, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_11_Template, 4, 1)(12, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Template, 3, 2);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    let tmp_24_0;
+    const row_r6 = ctx;
+    const entry_r14 = \u0275\u0275nextContext().$implicit;
+    const ctx_r2 = \u0275\u0275nextContext(2);
+    const zone_tooltip_r15 = \u0275\u0275reference(2);
+    \u0275\u0275classProp("pl-8", entry_r14.grouped)("pl-2", !entry_r14.grouped)("bg-warning-light", row_r6.overridden);
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate1(" ", row_r6.label, " ");
+    \u0275\u0275advance();
+    \u0275\u0275property("content", zone_tooltip_r15)("data", \u0275\u0275pureFunction1(14, _c013, row_r6.zones))("hover", true)("backdrop", false)("xOffset", 20);
+    \u0275\u0275advance(3);
+    \u0275\u0275conditional(row_r6.description ? 8 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional((tmp_24_0 = ctx_r2.editing_key() === row_r6.key ? row_r6.control : "") === "select" ? 9 : tmp_24_0 === "number" ? 10 : tmp_24_0 === "text" ? 11 : 12);
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_17_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275conditionalCreate(0, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_0_Template, 8, 5, "button", 16);
+    \u0275\u0275conditionalCreate(1, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Template, 13, 16, "div", 17);
+  }
+  if (rf & 2) {
+    let tmp_12_0;
+    let tmp_13_0;
+    const entry_r14 = ctx.$implicit;
+    \u0275\u0275conditional((tmp_12_0 = entry_r14.header) ? 0 : -1, tmp_12_0);
+    \u0275\u0275advance();
+    \u0275\u0275conditional((tmp_13_0 = entry_r14.row) ? 1 : -1, tmp_13_0);
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_ForEmpty_18_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 13);
+    \u0275\u0275text(1, " No matching settings ");
+    \u0275\u0275elementEnd();
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r1 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 1)(1, "div", 2)(2, "div", 3)(3, "div", 4);
+    \u0275\u0275text(4, "Settings Viewer");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(5, "div", 5);
+    \u0275\u0275conditionalCreate(6, SettingsDebugPanelComponent_Conditional_0_Conditional_6_Template, 2, 0, "button", 6);
+    \u0275\u0275elementStart(7, "button", 7);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_Template_button_click_7_listener() {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.show.set(false));
+    });
+    \u0275\u0275elementStart(8, "icon");
+    \u0275\u0275text(9, "close");
+    \u0275\u0275elementEnd()()()()();
+    \u0275\u0275elementStart(10, "div", 8)(11, "div", 9)(12, "input", 10);
+    \u0275\u0275twoWayListener("ngModelChange", function SettingsDebugPanelComponent_Conditional_0_Template_input_ngModelChange_12_listener($event) {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r2 = \u0275\u0275nextContext();
+      \u0275\u0275twoWayBindingSet(ctx_r2.filter, $event) || (ctx_r2.filter = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementStart(13, "icon", 11);
+    \u0275\u0275text(14, "search");
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(15, "div", 12);
+    \u0275\u0275repeaterCreate(16, SettingsDebugPanelComponent_Conditional_0_For_17_Template, 2, 2, null, null, \u0275\u0275repeaterTrackByIndex, false, SettingsDebugPanelComponent_Conditional_0_ForEmpty_18_Template, 2, 0, "div", 13);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(19, "div", 14);
+    \u0275\u0275text(20, " Click a value to override it. Text values are parsed as JSON, falling back to plain strings. Overrides are stored locally in this browser. ");
+    \u0275\u0275elementEnd()()();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275advance(6);
+    \u0275\u0275conditional(ctx_r2.has_overrides() ? 6 : -1);
+    \u0275\u0275advance(6);
+    \u0275\u0275twoWayProperty("ngModel", ctx_r2.filter);
+    \u0275\u0275control();
+    \u0275\u0275advance(4);
+    \u0275\u0275repeater(ctx_r2.entries());
+  }
+}
+function SettingsDebugPanelComponent_ng_template_1_For_5_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 46)(1, "div", 48)(2, "div", 49);
+    \u0275\u0275text(3);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "div", 50);
+    \u0275\u0275text(5);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(6, "span", 51);
+    \u0275\u0275text(7);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const zone_r16 = ctx.$implicit;
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1(" ", zone_r16.name, " ");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", zone_r16.id, " ");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", zone_r16.type, " ");
+  }
+}
+function SettingsDebugPanelComponent_ng_template_1_ForEmpty_6_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 47);
+    \u0275\u0275text(1, " No zone metadata value ");
+    \u0275\u0275elementEnd();
+  }
+}
+function SettingsDebugPanelComponent_ng_template_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 43)(1, "div", 44);
+    \u0275\u0275text(2, " Setting sources ");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "div", 45);
+    \u0275\u0275repeaterCreate(4, SettingsDebugPanelComponent_ng_template_1_For_5_Template, 8, 3, "div", 46, _forTrack0, false, SettingsDebugPanelComponent_ng_template_1_ForEmpty_6_Template, 2, 0, "div", 47);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const zones_r17 = ctx.zones;
+    \u0275\u0275advance(4);
+    \u0275\u0275repeater(zones_r17);
+  }
+}
+function flattenKeys(map2, prefix, keys) {
+  for (const key in map2) {
+    const full_key = prefix ? `${prefix}.${key}` : key;
+    const value = map2[key];
+    if (value && typeof value === "object" && !Array.isArray(value)) {
+      flattenKeys(value, full_key, keys);
+    } else
+      keys.add(full_key);
+  }
+}
+function hasSetting(map2, key) {
+  let value = map2;
+  for (const part of key.slice(4).split("."))
+    value = value?.[part];
+  return value != null;
+}
+function resolveRef(root, node) {
+  const ref = node?.["$ref"];
+  if (!ref?.startsWith("#/"))
+    return node;
+  let target = root;
+  for (const part of ref.slice(2).split("/"))
+    target = target?.[part];
+  return target || node;
+}
+function schemaNode(root, key) {
+  if (!root || !key.startsWith("app."))
+    return null;
+  let node = root;
+  for (const part of key.slice(4).split(".")) {
+    node = resolveRef(root, node)?.properties?.[part];
+    if (!node)
+      return null;
+  }
+  return resolveRef(root, node);
+}
+function flattenSchemaKeys(root, node, prefix, keys, depth = 0) {
+  if (depth > 8)
+    return;
+  node = resolveRef(root, node);
+  if (!node?.properties) {
+    if (prefix)
+      keys.add(prefix);
+    return;
+  }
+  for (const key in node.properties) {
+    flattenSchemaKeys(root, node.properties[key], prefix ? `${prefix}.${key}` : key, keys, depth + 1);
+  }
+}
+var SettingsDebugPanelComponent = class _SettingsDebugPanelComponent extends AsyncHandler {
+  constructor() {
+    super(...arguments);
+    this._settings = inject2(SettingsService);
+    this._hotkey = inject2(HotkeysService);
+    this._org = inject2(OrganisationService);
+    this.schema = input(
+      null,
+      ...ngDevMode ? [{ debugName: "schema" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.show = signal(
+      false,
+      ...ngDevMode ? [{ debugName: "show" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.filter = signal(
+      "",
+      ...ngDevMode ? [{ debugName: "filter" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.editing_key = signal(
+      "",
+      ...ngDevMode ? [{ debugName: "editing_key" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.expanded = signal(
+      {},
+      ...ngDevMode ? [{ debugName: "expanded" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.edit_value = "";
+    this.has_overrides = computed(
+      () => Object.keys(this._settings.debug_overrides()).length > 0,
+      ...ngDevMode ? [{ debugName: "has_overrides" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.rows = computed(
+      () => {
+        const schema = this.schema();
+        const debug_overrides = this._settings.debug_overrides();
+        const keys = /* @__PURE__ */ new Set();
+        flattenKeys({ app: DEFAULT_SETTINGS.app }, "", keys);
+        for (const layer of this._settings.overrides()) {
+          flattenKeys({ app: layer }, "", keys);
+        }
+        if (schema)
+          flattenSchemaKeys(schema, schema, "app", keys);
+        for (const key in debug_overrides)
+          keys.add(key);
+        const search = this.filter().toLowerCase();
+        return [...keys].filter((key) => key.slice(4).toLowerCase().includes(search)).sort().map((key) => {
+          const node = schemaNode(schema, key);
+          const value = this._settings.get(key);
+          let control = "text";
+          if (node?.enum?.length)
+            control = "select";
+          else if (node?.type === "boolean" || typeof value === "boolean") {
+            control = "toggle";
+          } else if (node?.type === "number" || node?.type === "integer" || typeof value === "number") {
+            control = "number";
+          }
+          return {
+            key,
+            label: key.slice(4),
+            value,
+            display: JSON.stringify(value) ?? "",
+            overridden: key in debug_overrides,
+            description: node?.description || "",
+            zones: this._zoneTooltip(key),
+            control,
+            options: node?.enum
+          };
+        });
+      },
+      ...ngDevMode ? [{ debugName: "rows" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.entries = computed(
+      () => {
+        const show_all = !!this.filter();
+        const expanded = this.expanded();
+        const entries = [];
+        let header = null;
+        for (const row of this.rows()) {
+          const index = row.label.indexOf(".");
+          if (index < 0) {
+            header = null;
+            entries.push({ row });
+            continue;
+          }
+          const group = row.label.slice(0, index);
+          if (!header || header.name !== group) {
+            header = { name: group, count: 0, overridden: 0 };
+            entries.push({ header });
+          }
+          header.count += 1;
+          if (row.overridden)
+            header.overridden += 1;
+          if (show_all || expanded[group]) {
+            entries.push({
+              row: __spreadProps(__spreadValues({}, row), { label: row.label.slice(index + 1) }),
+              grouped: true
+            });
+          }
+        }
+        return entries;
+      },
+      ...ngDevMode ? [{ debugName: "entries" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+  }
+  _zoneTooltip(key) {
+    const zones = [];
+    const add_zone = (type2, id, name, settings) => {
+      if (!id || !settings.some((_2) => hasSetting(_2, key)))
+        return;
+      zones.push({ type: type2, id, name: name || id });
+    };
+    for (const [id, settings] of Object.entries(this._org.building_settings)) {
+      const building = this._org.buildings.find((_2) => _2.id === id);
+      add_zone("Building", id, building?.display_name || building?.name || "", [settings]);
+    }
+    for (const [id, settings] of Object.entries(this._org.region_settings)) {
+      const region = this._org.regions.find((_2) => _2.id === id);
+      add_zone("Region", id, region?.display_name || region?.name || "", [settings]);
+    }
+    const organisation = this._org.organisation;
+    add_zone("ORG", organisation.id, organisation.name, this._org.settings);
+    return zones;
+  }
+  toggleGroup(name) {
+    this.expanded.update((state) => __spreadProps(__spreadValues({}, state), { [name]: !state[name] }));
+  }
+  ngOnInit() {
+    this.subscription("toggle", this._hotkey.listen(["Control", "Alt", "Shift", "KeyS"], () => this.show.set(!this.show())));
+  }
+  startEdit(row) {
+    this.editing_key.set(row.key);
+    this.edit_value = row.control === "text" ? row.display : `${row.value ?? ""}`;
+  }
+  toggleValue(row) {
+    this._settings.setDebugOverride(row.key, !row.value);
+  }
+  saveEdit() {
+    const key = this.editing_key();
+    const row = this.rows().find((_2) => _2.key === key);
+    if (!row)
+      return;
+    let value = this.edit_value;
+    if (row.control === "number") {
+      value = parseFloat(this.edit_value);
+      if (isNaN(value))
+        return;
+    } else if (row.control === "text") {
+      try {
+        value = JSON.parse(this.edit_value);
+      } catch {
+      }
+    }
+    this._settings.setDebugOverride(key, value);
+    this.editing_key.set("");
+  }
+  clearOverride(key) {
+    this._settings.setDebugOverride(key, void 0);
+  }
+  clearAll() {
+    this._settings.clearDebugOverrides();
+  }
+  static {
+    this.\u0275fac = /* @__PURE__ */ (() => {
+      let \u0275SettingsDebugPanelComponent_BaseFactory;
+      return function SettingsDebugPanelComponent_Factory(__ngFactoryType__) {
+        return (\u0275SettingsDebugPanelComponent_BaseFactory || (\u0275SettingsDebugPanelComponent_BaseFactory = \u0275\u0275getInheritedFactory(_SettingsDebugPanelComponent)))(__ngFactoryType__ || _SettingsDebugPanelComponent);
+      };
+    })();
+  }
+  static {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SettingsDebugPanelComponent, selectors: [["settings-debug-panel"]], inputs: { schema: [1, "schema"] }, features: [\u0275\u0275InheritDefinitionFeature], decls: 3, vars: 1, consts: [["zone_tooltip", ""], [1, "fixed", "bottom-2", "left-2", "z-998", "w-160", "max-w-[90vw]"], [1, "flex", "flex-col", "gap-2"], [1, "-mb-2", "border-base-300", "bg-base-100", "text-base-content", "flex", "w-[calc(100%-0.5rem)]", "mx-1", "items-center", "overflow-hidden", "rounded-b-lg", "rounded-t-xl", "border", "p-1", "shadow-sm"], [1, "flex-1", "px-3", "font-medium"], [1, "flex", "items-center"], ["matRipple", "", 1, "text-error", "px-2", "py-1", "text-xs", "underline"], ["icon", "", "default", "", "matRipple", "", 1, "text-sm", 3, "click"], [1, "border-base-300", "bg-base-200", "text-base-content", "flex", "h-120", "flex-col", "overflow-hidden", "rounded-xl", "border", "shadow-sm", "pt-2"], [1, "relative", "m-1", "flex"], ["name", "setting-filter", "placeholder", "Filter settings...", 1, "border-base-300", "bg-base-100", "w-full", "rounded-lg", "border", "px-8", "py-2", "pr-2", "font-mono", "text-sm", "shadow", 3, "ngModelChange", "ngModel"], [1, "absolute", "top-1/2", "left-1", "-translate-y-1/2", "text-xl"], [1, "flex-1", "overflow-auto"], [1, "p-4", "text-center", "opacity-30"], [1, "border-base-300", "bg-base-100", "border-t", "p-2", "text-xs", "opacity-60"], ["matRipple", "", 1, "text-error", "px-2", "py-1", "text-xs", "underline", 3, "click"], [1, "border-base-300", "bg-base-100/50", "hover:bg-base-100", "flex", "min-h-8", "w-full", "items-center", "gap-1", "border-b", "px-2", "py-1", "text-left", "text-xs"], [1, "border-base-300", "flex", "min-h-8", "items-center", "border-b", "py-1", "pr-2", "text-xs", 3, "pl-8", "pl-2", "bg-warning-light"], [1, "border-base-300", "bg-base-100/50", "hover:bg-base-100", "flex", "min-h-8", "w-full", "items-center", "gap-1", "border-b", "px-2", "py-1", "text-left", "text-xs", 3, "click"], [1, "text-sm", "transition-transform"], [1, "font-mono"], [1, "opacity-40"], [1, "bg-warning-light", "rounded-sm", "px-1", "text-[0.65rem]", "text-black"], [1, "border-base-300", "flex", "min-h-8", "items-center", "border-b", "py-1", "pr-2", "text-xs"], [1, "w-3/5", "min-w-0", "pr-2"], [1, "flex", "min-w-0", "items-center", "gap-1", "font-mono"], [1, "truncate"], ["customTooltip", "", "xPosition", "start", "yPosition", "center", 1, "shrink-0", 3, "content", "data", "hover", "backdrop", "xOffset"], [1, "text-sm", "opacity-60"], [1, "truncate", "text-[0.65rem]", "opacity-60", 3, "title"], ["name", "setting-value", 1, "bg-base-100", "flex-1", "rounded-sm", "border", "px-1", "py-0.5", "font-mono", 3, "ngModelChange", "keydown.escape", "ngModel"], [3, "value"], ["icon", "", "matRipple", "", "title", "Save override", 3, "click"], [1, "text-sm"], ["name", "setting-value", "type", "number", 1, "bg-base-100", "flex-1", "rounded-sm", "border", "px-1", "py-0.5", "font-mono", 3, "ngModelChange", "keydown.enter", "keydown.escape", "ngModel"], ["name", "setting-value", 1, "bg-base-100", "flex-1", "rounded-sm", "border", "px-1", "py-0.5", "font-mono", 3, "ngModelChange", "keydown.enter", "keydown.escape", "ngModel"], [1, "flex", "flex-1"], [1, "flex-1", "cursor-pointer", "truncate", "font-mono", 3, "class", "title"], ["icon", "", "matRipple", "", "title", "Clear override"], [1, "relative", "h-4", "w-8", "rounded-full", "transition-colors", 3, "click", "title"], [1, "absolute", "top-0.5", "left-0.5", "h-3", "w-3", "rounded-full", "bg-white", "shadow-sm", "transition-transform"], [1, "flex-1", "cursor-pointer", "truncate", "font-mono", 3, "click", "title"], ["icon", "", "matRipple", "", "title", "Clear override", 3, "click"], [1, "border-base-300", "bg-base-100", "text-base-content", "min-w-64", "rounded-lg", "border", "p-2", "shadow-lg"], [1, "border-base-300", "border-b", "px-1", "pb-2", "text-base", "font-medium"], [1, "flex", "flex-col", "gap-1", "pt-2"], [1, "bg-base-200", "flex", "items-start", "gap-2", "rounded-sm", "p-2"], [1, "px-1", "py-2", "text-xs", "opacity-60"], [1, "min-w-0", "flex-1", "w-1/2"], [1, "truncate", "text-base", "font-medium"], [1, "truncate", "font-mono", "text-[0.625rem]", "opacity-60"], [1, "bg-base-300", "rounded-sm", "px-1.5", "py-0.5", "text-[0.625rem]", "font-medium"]], template: function SettingsDebugPanelComponent_Template(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275conditionalCreate(0, SettingsDebugPanelComponent_Conditional_0_Template, 21, 3, "div", 1);
+        \u0275\u0275template(1, SettingsDebugPanelComponent_ng_template_1_Template, 7, 1, "ng-template", null, 0, \u0275\u0275templateRefExtractor);
+      }
+      if (rf & 2) {
+        \u0275\u0275conditional(ctx.show() ? 0 : -1);
+      }
+    }, dependencies: [
+      FormsModule,
+      NgSelectOption,
+      \u0275NgSelectMultipleOption,
+      DefaultValueAccessor,
+      NumberValueAccessor,
+      SelectControlValueAccessor,
+      NgControlStatus,
+      NgModel,
+      MatRippleModule,
+      MatRipple,
+      CustomTooltipComponent,
+      IconComponent
+    ], encapsulation: 2 });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(SettingsDebugPanelComponent, [{
+    type: Component,
+    args: [{
+      selector: "settings-debug-panel",
+      template: `
+        @if (show()) {
+            <div class=" fixed bottom-2 left-2 z-998 w-160 max-w-[90vw]">
+            <div class="flex flex-col gap-2">
+                <div
+                    class="-mb-2 border-base-300 bg-base-100 text-base-content flex w-[calc(100%-0.5rem)] mx-1 items-center overflow-hidden rounded-b-lg rounded-t-xl border p-1 shadow-sm"
+                >
+                    <div class="flex-1 px-3 font-medium">Settings Viewer</div>
+                    <div class="flex items-center">
+                        @if (has_overrides()) {
+                            <button
+                                matRipple
+                                class="text-error px-2 py-1 text-xs underline"
+                                (click)="clearAll()"
+                            >
+                                Clear all overrides
+                            </button>
+                        }
+                        <button
+                            icon
+                            default
+                            matRipple
+                            class="text-sm"
+                            (click)="show.set(false)"
+                        >
+                            <icon>close</icon>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div
+                class="border-base-300 bg-base-200 text-base-content flex h-120 flex-col overflow-hidden rounded-xl border shadow-sm pt-2"
+            >
+                <div class="relative m-1 flex">
+                    <input
+                        name="setting-filter"
+                        [(ngModel)]="filter"
+                        placeholder="Filter settings..."
+                        class="border-base-300 bg-base-100 w-full rounded-lg border px-8 py-2 pr-2 font-mono text-sm shadow"
+                    />
+                    <icon
+                        class="absolute top-1/2 left-1 -translate-y-1/2 text-xl"
+                        >search</icon
+                    >
+                </div>
+                <div class="flex-1 overflow-auto">
+                    @for (entry of entries(); track $index) {
+                        @if (entry.header; as group) {
+                            <button
+                                class="border-base-300 bg-base-100/50 hover:bg-base-100 flex min-h-8 w-full items-center gap-1 border-b px-2 py-1 text-left text-xs"
+                                (click)="toggleGroup(group.name)"
+                            >
+                                <icon
+                                    class="text-sm transition-transform"
+                                    [class.rotate-90]="
+                                        filter() || expanded()[group.name]
+                                    "
+                                >
+                                    chevron_right
+                                </icon>
+                                <span class="font-mono">{{ group.name }}</span>
+                                <span class="opacity-40">
+                                    ({{ group.count }})
+                                </span>
+                                @if (group.overridden) {
+                                    <span
+                                        class="bg-warning-light rounded-sm px-1 text-[0.65rem] text-black"
+                                    >
+                                        {{ group.overridden }} overridden
+                                    </span>
+                                }
+                            </button>
+                        }
+                        @if (entry.row; as row) {
+                            <div
+                                class="border-base-300 flex min-h-8 items-center border-b py-1 pr-2 text-xs"
+                                [class.pl-8]="entry.grouped"
+                                [class.pl-2]="!entry.grouped"
+                                [class.bg-warning-light]="row.overridden"
+                            >
+                                <div class="w-3/5 min-w-0 pr-2">
+                                    <div
+                                        class="flex min-w-0 items-center gap-1 font-mono"
+                                    >
+                                        <span class="truncate">
+                                            {{ row.label }}
+                                        </span>
+                                        <span
+                                            customTooltip
+                                            class="shrink-0"
+                                            [content]="zone_tooltip"
+                                            [data]="{ zones: row.zones }"
+                                            [hover]="true"
+                                            [backdrop]="false"
+                                            xPosition="start"
+                                            yPosition="center"
+                                            [xOffset]="20"
+                                        >
+                                            <icon class="text-sm opacity-60"
+                                                >info</icon
+                                            >
+                                        </span>
+                                    </div>
+                                    @if (row.description) {
+                                        <div
+                                            class="truncate text-[0.65rem] opacity-60"
+                                            [title]="row.description"
+                                        >
+                                            {{ row.description }}
+                                        </div>
+                                    }
+                                </div>
+                                @switch (
+                                    editing_key() === row.key ? row.control : ''
+                                ) {
+                                    @case ('select') {
+                                        <select
+                                            name="setting-value"
+                                            class="bg-base-100 flex-1 rounded-sm border px-1 py-0.5 font-mono"
+                                            [(ngModel)]="edit_value"
+                                            (keydown.escape)="
+                                                editing_key.set('')
+                                            "
+                                        >
+                                            @for (
+                                                option of row.options;
+                                                track option
+                                            ) {
+                                                <option [value]="option">
+                                                    {{ option }}
+                                                </option>
+                                            }
+                                        </select>
+                                        <button
+                                            icon
+                                            matRipple
+                                            title="Save override"
+                                            (click)="saveEdit()"
+                                        >
+                                            <icon class="text-sm">check</icon>
+                                        </button>
+                                    }
+                                    @case ('number') {
+                                        <input
+                                            name="setting-value"
+                                            type="number"
+                                            class="bg-base-100 flex-1 rounded-sm border px-1 py-0.5 font-mono"
+                                            [(ngModel)]="edit_value"
+                                            (keydown.enter)="saveEdit()"
+                                            (keydown.escape)="
+                                                editing_key.set('')
+                                            "
+                                        />
+                                        <button
+                                            icon
+                                            matRipple
+                                            title="Save override"
+                                            (click)="saveEdit()"
+                                        >
+                                            <icon class="text-sm">check</icon>
+                                        </button>
+                                    }
+                                    @case ('text') {
+                                        <input
+                                            name="setting-value"
+                                            class="bg-base-100 flex-1 rounded-sm border px-1 py-0.5 font-mono"
+                                            [(ngModel)]="edit_value"
+                                            (keydown.enter)="saveEdit()"
+                                            (keydown.escape)="
+                                                editing_key.set('')
+                                            "
+                                        />
+                                        <button
+                                            icon
+                                            matRipple
+                                            title="Save override"
+                                            (click)="saveEdit()"
+                                        >
+                                            <icon class="text-sm">check</icon>
+                                        </button>
+                                    }
+                                    @default {
+                                        @if (row.control === 'toggle') {
+                                            <div class="flex flex-1">
+                                                <button
+                                                    class="relative h-4 w-8 rounded-full transition-colors"
+                                                    [class.bg-info]="row.value"
+                                                    [class.bg-base-300]="
+                                                        !row.value
+                                                    "
+                                                    [title]="row.display"
+                                                    (click)="toggleValue(row)"
+                                                >
+                                                    <div
+                                                        class="absolute top-0.5 left-0.5 h-3 w-3 rounded-full bg-white shadow-sm transition-transform"
+                                                        [class.translate-x-4]="
+                                                            row.value
+                                                        "
+                                                    ></div>
+                                                </button>
+                                            </div>
+                                        } @else {
+                                            <div
+                                                class="flex-1 cursor-pointer truncate font-mono"
+                                                [class]="
+                                                    row.display
+                                                        ? 'opacity-80'
+                                                        : 'italic opacity-40'
+                                                "
+                                                [title]="row.display || 'unset'"
+                                                (click)="startEdit(row)"
+                                            >
+                                                {{ row.display || 'unset' }}
+                                            </div>
+                                        }
+                                        @if (row.overridden) {
+                                            <button
+                                                icon
+                                                matRipple
+                                                title="Clear override"
+                                                (click)="clearOverride(row.key)"
+                                            >
+                                                <icon class="text-sm"
+                                                    >undo</icon
+                                                >
+                                            </button>
+                                        }
+                                    }
+                                }
+                            </div>
+                        }
+                    } @empty {
+                        <div class="p-4 text-center opacity-30">
+                            No matching settings
+                        </div>
+                    }
+                </div>
+                <div
+                    class="border-base-300 bg-base-100 border-t p-2 text-xs opacity-60"
+                >
+                    Click a value to override it. Text values are parsed as
+                    JSON, falling back to plain strings. Overrides are stored
+                    locally in this browser.
+                </div>
+            </div>
+            </div>
+        }
+        <ng-template #zone_tooltip let-zones="zones">
+            <div
+                class="border-base-300 bg-base-100 text-base-content min-w-64 rounded-lg border p-2 shadow-lg"
+            >
+                <div class="border-base-300 border-b px-1 pb-2 text-base font-medium">
+                    Setting sources
+                </div>
+                <div class="flex flex-col gap-1 pt-2">
+                    @for (zone of zones; track zone.type + zone.id) {
+                        <div class="bg-base-200 flex items-start gap-2 rounded-sm p-2">
+                            <div class="min-w-0 flex-1 w-1/2">
+                                <div class="truncate text-base font-medium">
+                                    {{ zone.name }}
+                                </div>
+                                <div class="truncate font-mono text-[0.625rem] opacity-60">
+                                    {{ zone.id }}
+                                </div>
+                            </div>
+                            <span
+                                class="bg-base-300 rounded-sm px-1.5 py-0.5 text-[0.625rem] font-medium"
+                            >
+                                {{ zone.type }}
+                            </span>
+                        </div>
+                    } @empty {
+                        <div class="px-1 py-2 text-xs opacity-60">
+                            No zone metadata value
+                        </div>
+                    }
+                </div>
+            </div>
+        </ng-template>
+    `,
+      imports: [
+        FormsModule,
+        MatRippleModule,
+        CustomTooltipComponent,
+        IconComponent
+      ]
+    }]
+  }], null, { schema: [{ type: Input, args: [{ isSignal: true, alias: "schema", required: false }] }] });
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SettingsDebugPanelComponent, { className: "SettingsDebugPanelComponent", filePath: "libs/components/src/lib/settings-debug-panel.component.ts", lineNumber: 394 });
+})();
+
 // libs/components/src/lib/unauthorised.component.ts
+var _c014 = () => ["/"];
 var UnauthorisedComponent = class _UnauthorisedComponent {
   static {
     this.\u0275fac = function UnauthorisedComponent_Factory(__ngFactoryType__) {
@@ -84933,33 +85965,38 @@ var UnauthorisedComponent = class _UnauthorisedComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _UnauthorisedComponent, selectors: [["app-unauthorised"]], decls: 13, vars: 9, consts: [["unauthorised", "", 1, "absolute", "inset-0"], [1, "border-base-300", "bg-base-100", "text-base-content", "mx-auto", "my-4", "w-104", "max-w-[calc(100%-1rem)]", "rounded-xl", "border", "p-4", "text-center", "shadow-lg"], [1, "text-4xl"], [1, "py-4"]], template: function UnauthorisedComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _UnauthorisedComponent, selectors: [["app-unauthorised"]], decls: 15, vars: 11, consts: [["unauthorised", "", 1, "absolute", "inset-0"], [1, "border-base-300", "bg-base-100", "text-base-content", "mx-auto", "my-4", "flex", "w-104", "max-w-[calc(100%-1rem)]", "flex-col", "gap-2", "rounded-xl", "border", "p-4", "text-center", "shadow-lg"], [1, "text-4xl"], [1, "py-4"], ["btn", "", 3, "routerLink"]], template: function UnauthorisedComponent_Template(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275domElementStart(0, "div", 0)(1, "div", 1)(2, "h1", 2);
+        \u0275\u0275elementStart(0, "div", 0)(1, "div", 1)(2, "h1", 2);
         \u0275\u0275text(3, "403");
-        \u0275\u0275domElementEnd();
-        \u0275\u0275domElementStart(4, "h3");
+        \u0275\u0275elementEnd();
+        \u0275\u0275elementStart(4, "h3");
         \u0275\u0275text(5);
         \u0275\u0275pipe(6, "translate");
-        \u0275\u0275domElementEnd();
-        \u0275\u0275domElementStart(7, "p", 3);
+        \u0275\u0275elementEnd();
+        \u0275\u0275elementStart(7, "p", 3);
         \u0275\u0275text(8);
         \u0275\u0275pipe(9, "translate");
-        \u0275\u0275domElementEnd();
-        \u0275\u0275domElementStart(10, "p");
+        \u0275\u0275elementEnd();
+        \u0275\u0275elementStart(10, "p");
         \u0275\u0275text(11);
         \u0275\u0275pipe(12, "translate");
-        \u0275\u0275domElementEnd()()();
+        \u0275\u0275elementEnd();
+        \u0275\u0275elementStart(13, "a", 4);
+        \u0275\u0275text(14, "Try Again");
+        \u0275\u0275elementEnd()()();
       }
       if (rf & 2) {
         \u0275\u0275advance(5);
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(6, 3, "COMMON.FORBIDDEN"));
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(6, 4, "COMMON.FORBIDDEN"));
         \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(9, 5, "COMMON.INVALID_PAGE_PERMISSIONS"), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(9, 6, "COMMON.INVALID_PAGE_PERMISSIONS"), " ");
         \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(12, 7, "COMMON.CONTACT_ADMIN"), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(12, 8, "COMMON.CONTACT_ADMIN"), " ");
+        \u0275\u0275advance(2);
+        \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(10, _c014));
       }
-    }, dependencies: [TranslatePipe], styles: ["\n[_nghost-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n[unauthorised][_ngcontent-%COMP%] {\n  background-image:\n    linear-gradient(\n      to right,\n      #c62828 0%,\n      #ef5350 100%);\n}\n/*# sourceMappingURL=unauthorised.component.css.map */"] });
+    }, dependencies: [RouterLink, TranslatePipe], styles: ["\n[_nghost-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n[unauthorised][_ngcontent-%COMP%] {\n  background-image:\n    linear-gradient(\n      to right,\n      #c62828 0%,\n      #ef5350 100%);\n}\n/*# sourceMappingURL=unauthorised.component.css.map */"] });
   }
 };
 (() => {
@@ -84968,7 +86005,7 @@ var UnauthorisedComponent = class _UnauthorisedComponent {
     args: [{ selector: "app-unauthorised", template: `
         <div unauthorised class="absolute inset-0">
             <div
-                class="border-base-300 bg-base-100 text-base-content mx-auto my-4 w-104 max-w-[calc(100%-1rem)] rounded-xl border p-4 text-center shadow-lg"
+                class="border-base-300 bg-base-100 text-base-content mx-auto my-4 flex w-104 max-w-[calc(100%-1rem)] flex-col gap-2 rounded-xl border p-4 text-center shadow-lg"
             >
                 <h1 class="text-4xl">403</h1>
                 <h3>{{ 'COMMON.FORBIDDEN' | translate }}</h3>
@@ -84978,13 +86015,14 @@ var UnauthorisedComponent = class _UnauthorisedComponent {
                 <p>
                     {{ 'COMMON.CONTACT_ADMIN' | translate }}
                 </p>
+                <a btn [routerLink]="['/']">Try Again</a>
             </div>
         </div>
-    `, imports: [TranslatePipe], styles: ["/* angular:styles/component:css;9e56e45d1ecd17d612bec636f553ceddd9b98cd2552edbd57d59534065beeefe;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/unauthorised.component.ts */\n:host {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n[unauthorised] {\n  background-image:\n    linear-gradient(\n      to right,\n      #c62828 0%,\n      #ef5350 100%);\n}\n/*# sourceMappingURL=unauthorised.component.css.map */\n"] }]
+    `, imports: [TranslatePipe, RouterLink], styles: ["/* angular:styles/component:css;9e56e45d1ecd17d612bec636f553ceddd9b98cd2552edbd57d59534065beeefe;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/unauthorised.component.ts */\n:host {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n[unauthorised] {\n  background-image:\n    linear-gradient(\n      to right,\n      #c62828 0%,\n      #ef5350 100%);\n}\n/*# sourceMappingURL=unauthorised.component.css.map */\n"] }]
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UnauthorisedComponent, { className: "UnauthorisedComponent", filePath: "libs/components/src/lib/unauthorised.component.ts", lineNumber: 41 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UnauthorisedComponent, { className: "UnauthorisedComponent", filePath: "libs/components/src/lib/unauthorised.component.ts", lineNumber: 43 });
 })();
 
 // libs/components/src/lib/virtual-keyboard.component.ts
@@ -85374,13 +86412,13 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
     const use_group_subsystem_access = await this.useGroupSubsystemAccess();
     let can_activate = false;
     if (use_group_subsystem_access) {
-      await ri(Hr(), Boolean);
+      await oi(Lr(), Boolean);
       const user = await firstTruthyValueFrom(current_user);
       can_activate = await this.checkSubsystemAccess(user);
     } else if (!groups.length) {
       can_activate = true;
     } else {
-      await ri(Hr(), Boolean);
+      await oi(Lr(), Boolean);
       await this._org.waitUntilInitialised();
       const user = await firstTruthyValueFrom(current_user);
       can_activate = !!(user && groups.find((_2) => user.groups.includes(_2)));
@@ -86789,7 +87827,7 @@ var update = (dataset) => (id, data) => {
   return new_event;
 };
 function registerMockAssets() {
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_categories`,
     metadata: {},
     method: "GET",
@@ -86802,7 +87840,7 @@ function registerMockAssets() {
       return results;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_categories/:id`,
     metadata: {},
     method: "GET",
@@ -86816,7 +87854,7 @@ function registerMockAssets() {
       return event;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_categories`,
     metadata: {},
     method: "POST",
@@ -86828,13 +87866,13 @@ function registerMockAssets() {
       return new_event;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_categories/:id`,
     metadata: {},
     method: "PUT",
     callback: (req) => update(MOCK_CATEGORIES)(req.route_params.id, __spreadValues({}, req.body))
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_categories/:id`,
     metadata: {},
     method: "DELETE",
@@ -86849,7 +87887,7 @@ function registerMockAssets() {
       return;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_types`,
     metadata: {},
     method: "GET",
@@ -86861,7 +87899,7 @@ function registerMockAssets() {
       return results;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_types/:id`,
     metadata: {},
     method: "GET",
@@ -86875,7 +87913,7 @@ function registerMockAssets() {
       return event;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_types`,
     metadata: {},
     method: "POST",
@@ -86887,13 +87925,13 @@ function registerMockAssets() {
       return new_event;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_types/:id`,
     metadata: {},
     method: "PUT",
     callback: (req) => update(MOCK_PRODUCTS)(req.route_params.id, __spreadValues({}, req.body))
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_types/:id`,
     metadata: {},
     method: "DELETE",
@@ -86908,7 +87946,7 @@ function registerMockAssets() {
       return;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_purchase_orders`,
     metadata: {},
     method: "GET",
@@ -86917,7 +87955,7 @@ function registerMockAssets() {
       return events;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_purchase_orders/:id`,
     metadata: {},
     method: "GET",
@@ -86931,7 +87969,7 @@ function registerMockAssets() {
       return event;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_purchase_orders`,
     metadata: {},
     method: "POST",
@@ -86943,13 +87981,13 @@ function registerMockAssets() {
       return new_event;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_purchase_orders/:id`,
     metadata: {},
     method: "PUT",
     callback: (req) => update(MOCK_PURCHASE_ORDERS)(req.route_params.id, __spreadValues({}, req.body))
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/asset_purchase_orders/:id`,
     metadata: {},
     method: "DELETE",
@@ -86964,7 +88002,7 @@ function registerMockAssets() {
       return;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/assets`,
     metadata: {},
     method: "GET",
@@ -86984,7 +88022,7 @@ function registerMockAssets() {
       return results;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/assets/:id`,
     metadata: {},
     method: "GET",
@@ -86998,7 +88036,7 @@ function registerMockAssets() {
       return event;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/assets`,
     metadata: {},
     method: "POST",
@@ -87010,13 +88048,13 @@ function registerMockAssets() {
       return new_event;
     }
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/assets/:id`,
     metadata: {},
     method: "PUT",
     callback: (req) => update(MOCK_ASSETS)(req.route_params.id, __spreadValues({}, req.body))
   });
-  Wr({
+  Zr({
     path: `${BASE_PATH}/assets/:id`,
     metadata: {},
     method: "DELETE",
@@ -87727,7 +88765,7 @@ function generateCateringOrder(event) {
     // 10% tax
     total: Math.floor(totalPrice * 1.1),
     // Special requirements
-    dietary_requirements: dietaryNeeds.map((d2) => d2.name),
+    dietary_requirements: dietaryNeeds.map((d) => d.name),
     special_instructions: predictableRandomInt(3) === 0 ? [
       "Please use company branded napkins",
       "Set up 15 minutes before event start",
@@ -87770,7 +88808,7 @@ function generateCateringOrder(event) {
 }
 
 // libs/form-fields/src/lib/date-calendar.component.ts
-var _forTrack0 = ($index, $item) => $item.id;
+var _forTrack02 = ($index, $item) => $item.id;
 function DateCalendarComponent_For_14_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 7);
@@ -87979,11 +89017,11 @@ var DateCalendarComponent = class _DateCalendarComponent extends AsyncHandler {
         \u0275\u0275text(11, "chevron_right");
         \u0275\u0275elementEnd()()()();
         \u0275\u0275elementStart(12, "div", 6);
-        \u0275\u0275repeaterCreate(13, DateCalendarComponent_For_14_Template, 3, 4, "div", 7, _forTrack0);
+        \u0275\u0275repeaterCreate(13, DateCalendarComponent_For_14_Template, 3, 4, "div", 7, _forTrack02);
         \u0275\u0275pipe(15, "slice");
         \u0275\u0275elementEnd();
         \u0275\u0275elementStart(16, "div", 8);
-        \u0275\u0275repeaterCreate(17, DateCalendarComponent_For_18_Template, 5, 18, "button", 9, _forTrack0);
+        \u0275\u0275repeaterCreate(17, DateCalendarComponent_For_18_Template, 5, 18, "button", 9, _forTrack02);
         \u0275\u0275elementEnd()();
       }
       if (rf & 2) {
@@ -88089,7 +89127,7 @@ var DateCalendarComponent = class _DateCalendarComponent extends AsyncHandler {
 })();
 
 // libs/form-fields/src/lib/date-field.component.ts
-var _c013 = ["*"];
+var _c015 = ["*"];
 function DateFieldComponent_Conditional_4_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275text(0);
@@ -88454,7 +89492,7 @@ var DateFieldComponent = class _DateFieldComponent extends AsyncHandler {
         useExisting: forwardRef(() => _DateFieldComponent),
         multi: true
       }
-    ]), \u0275\u0275InheritDefinitionFeature], ngContentSelectors: _c013, decls: 15, vars: 8, consts: [["calendar_picker", ""], [1, "flex", "items-center", "gap-1"], ["type", "button", "customTooltip", "", "yPosition", "top", "matRipple", "", 1, "border-neutral", "flex", "h-12", "w-full", "flex-1", "items-center", "justify-between", "rounded-sm", "border", 3, "content", "disabled"], [1, "flex", "w-1/2", "flex-1", "flex-col", "truncate", "px-4", "py-2", "text-left", "leading-tight"], [1, "text-base", "font-normal"], [1, "opacity-30"], [1, "truncate", "text-xs", "opacity-30"], [1, "flex", "h-10", "w-10", "items-center", "justify-center", "text-2xl"], ["type", "button", "icon", "", "matRipple", "", 1, "border-error", "text-error", "flex", "h-12", "w-12", "items-center", "justify-center", "rounded-sm", "border", 3, "disabled"], [1, "error", "text-error", "h-5", "p-1", "text-xs"], ["type", "button", "icon", "", "matRipple", "", 1, "border-error", "text-error", "flex", "h-12", "w-12", "items-center", "justify-center", "rounded-sm", "border", 3, "click", "disabled"], [1, "bg-base-100", "relative", "w-[18rem]", "rounded-sm", "px-2", "py-4"], [3, "ngModelChange", "ngModel", "from", "to", "offset_weekday"]], template: function DateFieldComponent_Template(rf, ctx) {
+    ]), \u0275\u0275InheritDefinitionFeature], ngContentSelectors: _c015, decls: 15, vars: 8, consts: [["calendar_picker", ""], [1, "flex", "items-center", "gap-1"], ["type", "button", "customTooltip", "", "yPosition", "top", "matRipple", "", 1, "border-neutral", "flex", "h-12", "w-full", "flex-1", "items-center", "justify-between", "rounded-sm", "border", 3, "content", "disabled"], [1, "flex", "w-1/2", "flex-1", "flex-col", "truncate", "px-4", "py-2", "text-left", "leading-tight"], [1, "text-base", "font-normal"], [1, "opacity-30"], [1, "truncate", "text-xs", "opacity-30"], [1, "flex", "h-10", "w-10", "items-center", "justify-center", "text-2xl"], ["type", "button", "icon", "", "matRipple", "", 1, "border-error", "text-error", "flex", "h-12", "w-12", "items-center", "justify-center", "rounded-sm", "border", 3, "disabled"], [1, "error", "text-error", "h-5", "p-1", "text-xs"], ["type", "button", "icon", "", "matRipple", "", 1, "border-error", "text-error", "flex", "h-12", "w-12", "items-center", "justify-center", "rounded-sm", "border", 3, "click", "disabled"], [1, "bg-base-100", "relative", "w-[18rem]", "rounded-sm", "px-2", "py-4"], [3, "ngModelChange", "ngModel", "from", "to", "offset_weekday"]], template: function DateFieldComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275projectionDef();
         \u0275\u0275elementStart(0, "div", 1)(1, "button", 2)(2, "div", 3)(3, "div", 4);
@@ -89420,7 +90458,7 @@ var MOCK_SPACES = rawSpaces.map((space) => generateMockSpace(__spreadProps(__spr
 
 // libs/mocks/src/lib/api/bookings.data.ts
 var TRACKING = ["in_storage", "in_transit", "at_location"];
-var generateBookingForDay = (day, type, index, user) => {
+var generateBookingForDay = (day, type2, index, user) => {
   const bld = MOCK_BUILDINGS[predictableRandomInt(MOCK_BUILDINGS.length)];
   const lvls = MOCK_LEVELS.filter((_2) => _2.parent_id === bld?.id);
   const lvl = lvls[predictableRandomInt(lvls.length)];
@@ -89441,17 +90479,17 @@ var generateBookingForDay = (day, type, index, user) => {
     booking_start,
     booking_end,
     timezone: "Australia/Sydney",
-    title: capitalizeFirstLetter(`${type.replace("-", " ")} booking ${index}`),
+    title: capitalizeFirstLetter(`${type2.replace("-", " ")} booking ${index}`),
     event_start: booking_start,
     event_end: booking_end,
-    asset_ids: type === "asset-request" ? [...Array(asset_count)].map((_2, i) => MOCK_ASSETS[predictableRandomInt(MOCK_ASSETS.length, i + 1)].id) : [
-      type === "visitor" ? guest.email : `${type}-${bld?.id}-${lvl?.id}-${position}`
+    asset_ids: type2 === "asset-request" ? [...Array(asset_count)].map((_2, i) => MOCK_ASSETS[predictableRandomInt(MOCK_ASSETS.length, i + 1)].id) : [
+      type2 === "visitor" ? guest.email : `${type2}-${bld?.id}-${lvl?.id}-${position}`
     ],
-    asset_id: type === "visitor" ? guest.email : `${type}-${bld?.id}-${lvl?.id}-${position}`,
-    asset_name: type === "visitor" ? guest.name : `${bld?.name}-${position}`,
-    description: type === "visitor" ? guest.name : `${capitalizeFirstLetter(type.replace("-", " "))} in ${bld?.name}`,
-    booking_type: type,
-    type,
+    asset_id: type2 === "visitor" ? guest.email : `${type2}-${bld?.id}-${lvl?.id}-${position}`,
+    asset_name: type2 === "visitor" ? guest.name : `${bld?.name}-${position}`,
+    description: type2 === "visitor" ? guest.name : `${capitalizeFirstLetter(type2.replace("-", " "))} in ${bld?.name}`,
+    booking_type: type2,
+    type: type2,
     user_id: user.id,
     user_name: user.name,
     user_email: user.email,
@@ -89463,11 +90501,11 @@ var generateBookingForDay = (day, type, index, user) => {
     rejected: predictableRandomInt(12) === 0,
     approved: approved !== 0,
     access: approved !== 0,
-    permission: type === "group-event" ? "OPEN" : "PRIVATE",
+    permission: type2 === "group-event" ? "OPEN" : "PRIVATE",
     approver_id: approved ? approver.id : "",
     approver_name: approved ? approver.name : "",
     approver_email: approved ? approver.email : "",
-    process_state: type === "asset-request" ? TRACKING[predictableRandomInt(TRACKING.length, index)] : "",
+    process_state: type2 === "asset-request" ? TRACKING[predictableRandomInt(TRACKING.length, index)] : "",
     last_changed: booking_start,
     created: booking_start - 3600,
     created_by_id: user.id,
@@ -89475,11 +90513,11 @@ var generateBookingForDay = (day, type, index, user) => {
     created_by_email: user.email,
     zones: [
       bld?.id,
-      type === "parking" ? MOCK_LEVELS.find((l) => l.parent_id === bld?.id && l.type === "parking")?.id : lvl?.id
+      type2 === "parking" ? MOCK_LEVELS.find((l) => l.parent_id === bld?.id && l.type === "parking")?.id : lvl?.id
     ].filter(Boolean),
     extension_data: {
       map_id: `table-${bld?.id}.${position}`,
-      note: capitalizeFirstLetter(`${type.replace("-", " ")} booking ${index}`),
+      note: capitalizeFirstLetter(`${type2.replace("-", " ")} booking ${index}`),
       plate_number: randomString(8, "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"),
       tracking: approved ? "at_location" : "in_storage",
       space_id: lvl_spaces.length ? lvl_spaces[predictableRandomInt(lvl_spaces.length)].id : `space-${index}`,
@@ -89655,7 +90693,7 @@ var MOCK_CATERING_BOOKINGS = (() => {
 // libs/mocks/src/lib/api/bookings.mock.ts
 var ALL_BOOKINGS = [...MOCK_BOOKINGS, ...MOCK_CATERING_BOOKINGS];
 function registerMockBookings() {
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings",
     metadata: {},
     method: "GET",
@@ -89688,7 +90726,7 @@ function registerMockBookings() {
       return events;
     }
   });
-  Wr({
+  Zr({
     path: "/api/debug/bookings/distribution",
     metadata: {},
     method: "GET",
@@ -89723,7 +90761,7 @@ function registerMockBookings() {
       };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings/:id",
     metadata: {},
     method: "GET",
@@ -89737,7 +90775,7 @@ function registerMockBookings() {
       return event;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings/:id/guests/:email",
     metadata: {},
     method: "POST",
@@ -89758,7 +90796,7 @@ function registerMockBookings() {
       return user;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings/:id/guests/:email",
     metadata: {},
     method: "DELETE",
@@ -89781,7 +90819,7 @@ function registerMockBookings() {
       return guest;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings/:id/guests/:email/checkin",
     metadata: {},
     method: "POST",
@@ -89798,7 +90836,7 @@ function registerMockBookings() {
       return {};
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings",
     metadata: {},
     method: "POST",
@@ -89821,13 +90859,13 @@ function registerMockBookings() {
     ALL_BOOKINGS.splice(index, 1, new_event);
     return new_event;
   };
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings/:id",
     metadata: {},
     method: "PATCH",
     callback: (req) => updateBooking(req.route_params.id, req.body)
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings/:id/approve",
     metadata: {},
     method: "POST",
@@ -89843,7 +90881,7 @@ function registerMockBookings() {
       return booking;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings/:id/reject",
     metadata: {},
     method: "POST",
@@ -89859,7 +90897,7 @@ function registerMockBookings() {
       return booking;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings/:id/checkin",
     metadata: {},
     method: "POST",
@@ -89874,7 +90912,7 @@ function registerMockBookings() {
       return booking;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings/:id/update_induction",
     metadata: {},
     method: "POST",
@@ -89890,13 +90928,13 @@ function registerMockBookings() {
       return booking;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings/:id",
     metadata: {},
     method: "PUT",
     callback: (req) => updateBooking(req.route_params.id, req.body)
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/bookings/:id",
     metadata: {},
     method: "DELETE",
@@ -90249,7 +91287,7 @@ var event_spaces = MOCK_SPACES.map((space) => space.id);
 
 // libs/mocks/src/lib/api/calendars.mock.ts
 function registerMockCalendars() {
-  Wr({
+  Zr({
     path: "/api/staff/v1/calendars",
     metadata: {},
     method: "GET",
@@ -90304,7 +91342,7 @@ function registerMockCalendars() {
     });
     return spaces;
   };
-  Wr({
+  Zr({
     path: "/api/staff/v1/calendars/availability",
     metadata: {},
     method: "GET",
@@ -90312,7 +91350,7 @@ function registerMockCalendars() {
       resource: _2
     }))
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/calendars/free_busy",
     metadata: {},
     method: "GET",
@@ -90324,7 +91362,7 @@ function registerMockCalendars() {
 
 // libs/mocks/src/lib/api/events.mock.ts
 function registerMockEvents() {
-  Wr({
+  Zr({
     path: "/api/staff/v1/events",
     metadata: {},
     method: "GET",
@@ -90341,7 +91379,7 @@ function registerMockEvents() {
       return events;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/events",
     metadata: {},
     method: "POST",
@@ -90364,12 +91402,12 @@ function registerMockEvents() {
         ];
       }
       MOCK_EVENTS.push(new_event);
-      const system = mr(new_event.system?.id);
+      const system = $r(new_event.system?.id);
       system?.Bookings[0]?.$poll_bookings();
       return new_event;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/events/:id",
     metadata: {},
     method: "GET",
@@ -90381,7 +91419,7 @@ function registerMockEvents() {
       throw { status: 404, message: "Event not found" };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/events/:id",
     metadata: {},
     method: "DELETE",
@@ -90399,7 +91437,7 @@ function registerMockEvents() {
       throw { status: 404, message: "Event not found" };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/events/:id",
     metadata: {},
     method: "PATCH",
@@ -90411,7 +91449,7 @@ function registerMockEvents() {
       throw { status: 404, message: "Event not found" };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/events/:id/guests/:email/checkin",
     metadata: {},
     method: "POST",
@@ -90822,7 +91860,7 @@ function generateMockPlaylists(displays, media) {
   const playlists = [];
   let playlistId = 1;
   MOCK_BUILDINGS.forEach((building) => {
-    const buildingDisplays = displays.filter((d2) => d2.building_id === building.id);
+    const buildingDisplays = displays.filter((d) => d.building_id === building.id);
     const generalPlaylist = {
       id: `playlist-${String(playlistId).padStart(3, "0")}`,
       name: `${building.name} General Content`,
@@ -90853,7 +91891,7 @@ function generateMockPlaylists(displays, media) {
       },
       // Targeting
       target: {
-        displays: buildingDisplays.map((d2) => d2.id),
+        displays: buildingDisplays.map((d) => d.id),
         zones: [building.id],
         categories: ["lobby", "corridor", "general"]
       },
@@ -90891,7 +91929,7 @@ function generateMockPlaylists(displays, media) {
           end_date: mediaItem.scheduling.end_date
         })),
         target: {
-          displays: buildingDisplays.filter((d2) => d2.location.area.includes("Meeting")).map((d2) => d2.id),
+          displays: buildingDisplays.filter((d) => d.location.area.includes("Meeting")).map((d) => d.id),
           zones: [building.id],
           categories: ["meeting_room"]
         },
@@ -90923,7 +91961,7 @@ function generateMockPlaylists(displays, media) {
       duration_override: null
     })),
     target: {
-      displays: displays.map((d2) => d2.id),
+      displays: displays.map((d) => d.id),
       // All displays
       zones: ["zone-EmWFTjuYExK"],
       categories: ["emergency"]
@@ -91026,6 +92064,32 @@ function generateMockTriggers() {
 var MOCK_DISPLAYS = generateMockDisplays();
 var MOCK_MEDIA = generateMockMedia();
 var MOCK_PLAYLISTS = generateMockPlaylists(MOCK_DISPLAYS, MOCK_MEDIA);
+var MOCK_PLUGINS = [
+  {
+    id: "weather",
+    name: "Weather",
+    description: "Current weather signage widget",
+    uri: "/plugins/weather/index.html",
+    enabled: true,
+    defaults: { units: "metric" },
+    params: {
+      location: {
+        type: "string",
+        title: "Location",
+        default: "Sydney"
+      }
+    }
+  },
+  {
+    id: "clock",
+    name: "Clock",
+    description: "Clock signage widget",
+    uri: "/plugins/clock/index.html",
+    enabled: true,
+    defaults: { format: "24h" },
+    params: {}
+  }
+];
 var MOCK_TRIGGERS = generateMockTriggers();
 var SIGNAGE_GROUPS = [
   {
@@ -91109,7 +92173,8 @@ function toEngineMedia(item) {
     created_at: item.created_at,
     updated_at: item.updated_at,
     valid_from: item.scheduling?.start_date,
-    valid_until: item.scheduling?.end_date
+    valid_until: item.scheduling?.end_date,
+    tags: item.tags || []
   };
 }
 function toEnginePlaylist(item) {
@@ -91133,9 +92198,42 @@ function playlistMediaResponse(playlist_id, approved = false) {
     id: `${playlist_id}-media`,
     playlist_id,
     items: (playlist?.items || []).map((item) => item.media_id),
+    schedules: (playlist?.items || []).map((item) => ({
+      id: item.id,
+      item_id: item.media_id,
+      schedules: []
+    })),
     approved,
     approval_requested: false,
     updated_at: playlist?.updated_at || getUnixTime(Date.now())
+  };
+}
+function signageDisplay(display_id) {
+  if (display_id === "display-1") {
+    throw { status: 404, message: "Display not found" };
+  }
+  const display = MOCK_DISPLAYS.find((item) => item.id === display_id) || MOCK_DISPLAYS[0];
+  const playlists = MOCK_PLAYLISTS.filter((playlist) => playlist.target?.displays?.includes(display.id) || playlist.target?.zones?.includes(display.zone_id)).slice(0, 3);
+  const mapped_playlists = playlists.length ? playlists : MOCK_PLAYLISTS.slice(0, 2);
+  const media_ids = [
+    ...new Set(mapped_playlists.flatMap((playlist) => playlist.items.map((item) => item.media_id)))
+  ];
+  return {
+    id: display_id,
+    zones: [display.zone_id, display.building_id].filter(Boolean),
+    playlist_mappings: {
+      [display_id]: mapped_playlists.map((playlist) => playlist.id),
+      [display.zone_id]: []
+    },
+    playlist_config: Object.fromEntries(mapped_playlists.map((playlist) => [
+      playlist.id,
+      [
+        toEnginePlaylist(playlist),
+        playlist.items.map((item) => item.media_id)
+      ]
+    ])),
+    playlist_media: media_ids.map((id) => MOCK_MEDIA.find((item) => item.id === id)).filter((item) => !!item).map(toEngineMedia),
+    plugins: MOCK_PLUGINS
   };
 }
 function registerMockSignage() {
@@ -91155,7 +92253,7 @@ function registerMockSignage() {
       });
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/groups/current",
     metadata: {},
     method: "GET",
@@ -91166,13 +92264,13 @@ function registerMockSignage() {
       return [];
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/groups",
     metadata: {},
     method: "GET",
     callback: (request) => listSignageMockGroups(request.query_params)
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/groups",
     metadata: {},
     method: "POST",
@@ -91187,7 +92285,7 @@ function registerMockSignage() {
       return group;
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/groups/:id",
     metadata: {},
     method: "PATCH",
@@ -91201,7 +92299,7 @@ function registerMockSignage() {
       return item.group;
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/groups/:id",
     metadata: {},
     method: "DELETE",
@@ -91212,13 +92310,13 @@ function registerMockSignage() {
       return {};
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/group_users",
     metadata: {},
     method: "GET",
     callback: (request) => SIGNAGE_GROUP_USERS.filter((item) => item.group_id === request.query_params?.group_id)
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/group_users",
     metadata: {},
     method: "POST",
@@ -91235,7 +92333,7 @@ function registerMockSignage() {
       return item;
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/group_users/:user_id/:group_id",
     metadata: {},
     method: "PATCH",
@@ -91251,7 +92349,7 @@ function registerMockSignage() {
       return item;
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/group_users/:user_id/:group_id",
     metadata: {},
     method: "DELETE",
@@ -91264,13 +92362,13 @@ function registerMockSignage() {
       return {};
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/group_zones",
     metadata: {},
     method: "GET",
     callback: (request) => SIGNAGE_GROUP_ZONES.filter((item) => item.group_id === request.query_params?.group_id)
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/group_zones",
     metadata: {},
     method: "POST",
@@ -91287,7 +92385,7 @@ function registerMockSignage() {
       return item;
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/group_zones/:group_id/:zone_id",
     metadata: {},
     method: "PATCH",
@@ -91303,7 +92401,7 @@ function registerMockSignage() {
       return item;
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/group_zones/:group_id/:zone_id",
     metadata: {},
     method: "DELETE",
@@ -91316,13 +92414,21 @@ function registerMockSignage() {
       return {};
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/media",
     metadata: {},
     method: "GET",
     callback: (request) => filterByGroup(MOCK_MEDIA, request.query_params?.group_id).map(toEngineMedia)
   });
-  Wr({
+  Zr({
+    path: "/api/engine/v2/signage/media/tags",
+    metadata: {},
+    method: "GET",
+    callback: (request) => [
+      ...new Set(filterByGroup(MOCK_MEDIA, request.query_params?.group_id).flatMap((item) => item.tags || []).filter((tag) => !!tag))
+    ]
+  });
+  Zr({
     path: "/api/engine/v2/signage/media",
     metadata: {},
     method: "POST",
@@ -91332,7 +92438,13 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  Wr({
+  Zr({
+    path: "/api/engine/v2/signage/media/:id",
+    metadata: {},
+    method: "GET",
+    callback: (request) => toEngineMedia(MOCK_MEDIA.find((item) => item.id === request.route_params.id))
+  });
+  Zr({
     path: "/api/engine/v2/signage/media/:id",
     metadata: {},
     method: "PATCH",
@@ -91340,25 +92452,43 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/media/:id",
     metadata: {},
     method: "DELETE",
     callback: () => ({})
   });
-  Wr({
+  Zr({
+    path: "/api/engine/v2/signage/media/:id/thumbnail",
+    metadata: {},
+    method: "GET",
+    callback: () => ({})
+  });
+  Zr({
     path: "/api/engine/v2/signage/media/share",
     metadata: {},
     method: "POST",
     callback: () => ({})
   });
-  Wr({
+  Zr({
+    path: "/api/engine/v2/signage/plugins",
+    metadata: {},
+    method: "GET",
+    callback: () => MOCK_PLUGINS
+  });
+  Zr({
+    path: "/api/engine/v2/signage/plugins/:id",
+    metadata: {},
+    method: "GET",
+    callback: (request) => MOCK_PLUGINS.find((plugin) => plugin.id === request.route_params.id) || {}
+  });
+  Zr({
     path: "/api/engine/v2/signage/playlists",
     metadata: {},
     method: "GET",
     callback: (request) => filterByGroup(MOCK_PLAYLISTS, request.query_params?.group_id).map(toEnginePlaylist)
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/playlists/approvers",
     metadata: {},
     method: "GET",
@@ -91367,7 +92497,7 @@ function registerMockSignage() {
       name: item.user?.name || item.user_id
     }))
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/playlists",
     metadata: {},
     method: "POST",
@@ -91377,7 +92507,7 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/playlists/:id",
     metadata: {},
     method: "PATCH",
@@ -91385,19 +92515,19 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/playlists/:id",
     metadata: {},
     method: "DELETE",
     callback: () => ({})
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/playlists/:id/media",
     metadata: {},
     method: "GET",
     callback: (request) => playlistMediaResponse(request.route_params.id, false)
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/playlists/:id/media",
     metadata: {},
     method: "POST",
@@ -91406,7 +92536,31 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  Wr({
+  Zr({
+    path: "/api/engine/v2/signage/playlists/:id/media/schedule",
+    metadata: {},
+    method: "POST",
+    callback: (request) => __spreadProps(__spreadValues({}, playlistMediaResponse(request.route_params.id, false)), {
+      schedules: [
+        {
+          id: `schedule-${Date.now()}`,
+          item_id: request.body?.item_id,
+          schedules: request.body?.schedules || []
+        }
+      ]
+    })
+  });
+  Zr({
+    path: "/api/engine/v2/signage/playlists/:id/media/schedule/:item_id",
+    metadata: {},
+    method: "PATCH",
+    callback: (request) => ({
+      id: request.route_params.item_id,
+      item_id: request.body?.item_id || request.route_params.item_id,
+      schedules: request.body?.schedules || []
+    })
+  });
+  Zr({
     path: "/api/engine/v2/signage/playlists/:id/media/revisions",
     metadata: {},
     method: "GET",
@@ -91415,62 +92569,74 @@ function registerMockSignage() {
       playlistMediaResponse(request.route_params.id, true)
     ]
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/playlists/:id/media/approve",
     metadata: {},
     method: "POST",
     callback: (request) => playlistMediaResponse(request.route_params.id, true)
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/playlists/:id/media/request_approval",
     metadata: {},
     method: "POST",
     callback: () => ({})
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/signage/playlists/share",
     metadata: {},
     method: "POST",
     callback: () => ({})
   });
-  Wr({
+  Zr({
+    path: "/api/engine/v2/signage/:id",
+    metadata: {},
+    method: "GET",
+    callback: (request) => signageDisplay(request.route_params.id)
+  });
+  Zr({
+    path: "/api/engine/v2/signage/:id/metrics",
+    metadata: {},
+    method: "POST",
+    callback: () => ({})
+  });
+  Zr({
     path: "/api/staff/v1/signage-displays",
     metadata: {},
     method: "GET",
     callback: (request) => {
       let displays = MOCK_DISPLAYS;
       if (request.query_params?.building_id) {
-        displays = displays.filter((d2) => d2.building_id === request.query_params.building_id);
+        displays = displays.filter((d) => d.building_id === request.query_params.building_id);
       }
       if (request.query_params?.status) {
-        displays = displays.filter((d2) => d2.status === request.query_params.status);
+        displays = displays.filter((d) => d.status === request.query_params.status);
       }
       if (request.query_params?.zone_id) {
-        displays = displays.filter((d2) => d2.zone_id === request.query_params.zone_id);
+        displays = displays.filter((d) => d.zone_id === request.query_params.zone_id);
       }
       return {
         data: displays,
         meta: {
           total: displays.length,
-          online: displays.filter((d2) => d2.status === "online").length,
-          offline: displays.filter((d2) => d2.status === "offline").length,
-          error: displays.filter((d2) => d2.status === "error").length
+          online: displays.filter((d) => d.status === "online").length,
+          offline: displays.filter((d) => d.status === "offline").length,
+          error: displays.filter((d) => d.status === "error").length
         }
       };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/signage/displays/:id",
     metadata: {},
     method: "GET",
     callback: (request) => {
-      const display = MOCK_DISPLAYS.find((d2) => d2.id === request.route_params.id);
+      const display = MOCK_DISPLAYS.find((d) => d.id === request.route_params.id);
       if (!display)
         throw { status: 404, message: "Display not found" };
       return display;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/signage/media",
     metadata: {},
     method: "GET",
@@ -91500,7 +92666,7 @@ function registerMockSignage() {
       };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/signage/playlists",
     metadata: {},
     method: "GET",
@@ -91522,7 +92688,7 @@ function registerMockSignage() {
       };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/signage/playlists/:id",
     metadata: {},
     method: "GET",
@@ -91538,7 +92704,7 @@ function registerMockSignage() {
       return playlistWithMedia;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/signage/triggers",
     metadata: {},
     method: "GET",
@@ -91561,12 +92727,12 @@ function registerMockSignage() {
       };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/signage/displays/:id/content",
     metadata: {},
     method: "GET",
     callback: (request) => {
-      const display = MOCK_DISPLAYS.find((d2) => d2.id === request.route_params.id);
+      const display = MOCK_DISPLAYS.find((d) => d.id === request.route_params.id);
       if (!display)
         throw { status: 404, message: "Display not found" };
       const activePlaylist = MOCK_PLAYLISTS.find((p2) => p2.status === "active" && p2.target.displays.includes(display.id));
@@ -91588,7 +92754,7 @@ function registerMockSignage() {
       };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/signage-analytics",
     metadata: {},
     method: "GET",
@@ -91597,14 +92763,14 @@ function registerMockSignage() {
       const building_id = request.query_params?.building_id;
       let displays = MOCK_DISPLAYS;
       if (building_id) {
-        displays = displays.filter((d2) => d2.building_id === building_id);
+        displays = displays.filter((d) => d.building_id === building_id);
       }
       return {
         timeframe,
         summary: {
           total_displays: displays.length,
-          online_displays: displays.filter((d2) => d2.status === "online").length,
-          total_impressions: displays.reduce((sum, d2) => sum + d2.analytics.daily_views, 0) * (timeframe === "7d" ? 7 : timeframe === "30d" ? 30 : 1),
+          online_displays: displays.filter((d) => d.status === "online").length,
+          total_impressions: displays.reduce((sum, d) => sum + d.analytics.daily_views, 0) * (timeframe === "7d" ? 7 : timeframe === "30d" ? 30 : 1),
           average_uptime: "99.2%",
           content_items_served: MOCK_MEDIA.length * displays.length * 24
         },
@@ -91623,7 +92789,7 @@ function registerMockSignage() {
           engagement_rate: media.performance.engagement_rate,
           average_view_time: media.performance.average_view_time
         })),
-        health_alerts: displays.filter((d2) => d2.status !== "online").map((display) => ({
+        health_alerts: displays.filter((d) => d.status !== "online").map((display) => ({
           display_id: display.id,
           display_name: display.name,
           alert_type: display.status,
@@ -91633,12 +92799,12 @@ function registerMockSignage() {
       };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/signage-displays/:id/control",
     metadata: {},
     method: "POST",
     callback: (request) => {
-      const display = MOCK_DISPLAYS.find((d2) => d2.id === request.route_params.id);
+      const display = MOCK_DISPLAYS.find((d) => d.id === request.route_params.id);
       if (!display)
         throw { status: 404, message: "Display not found" };
       const action = request.body?.action;
@@ -92232,7 +93398,7 @@ var MOCK_ANSWERS = [
   }
 ];
 function registerMockSurveys() {
-  Wr({
+  Zr({
     path: "/api/staff/v1/surveys",
     metadata: {},
     method: "GET",
@@ -92251,7 +93417,7 @@ function registerMockSurveys() {
       return filteredSurveys;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/surveys/questions",
     metadata: {},
     method: "GET",
@@ -92276,7 +93442,7 @@ function registerMockSurveys() {
       return filteredQuestions;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/surveys/questions/:id",
     metadata: {},
     method: "GET",
@@ -92291,7 +93457,7 @@ function registerMockSurveys() {
       return question;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/surveys/answers",
     metadata: {},
     method: "GET",
@@ -92312,7 +93478,7 @@ function registerMockSurveys() {
       return filteredAnswers;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/surveys/answers/:id",
     metadata: {},
     method: "GET",
@@ -92325,7 +93491,7 @@ function registerMockSurveys() {
       return answer;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/surveys/:id",
     metadata: {},
     method: "GET",
@@ -92340,7 +93506,7 @@ function registerMockSurveys() {
       return survey;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/surveys/answers",
     metadata: {},
     method: "POST",
@@ -93383,9 +94549,9 @@ var createMicrophoneModule = (space, overrides = {}) => new MicrophoneModule(__s
 
 // libs/mocks/src/lib/realtime/payments.ts
 var PaymentsModule = class {
-  $list_payment_methods(type) {
+  $list_payment_methods(type2) {
   }
-  $add_payment_method(type, details) {
+  $add_payment_method(type2, details) {
   }
   $get_product_prices(id, period) {
     return [12e3, 60];
@@ -93497,7 +94663,7 @@ var createVideoConferenceModule = (space = {}, overrides = {}) => new VideoConfe
 
 // libs/mocks/src/lib/systems-bindings.mock.ts
 function createSystem(space) {
-  Nl(space.id, {
+  Fl(space.id, {
     System: [createSystemModule(space)],
     Bookings: [createBookingsModule(space)],
     ContactTracing: [createContactTracingModule(space)],
@@ -93512,7 +94678,7 @@ function createSystem(space) {
     Payment: [createPaymentsModule(space)],
     LockerLocations: [createLockerLocationsModule()]
   });
-  const system = mr(space.id);
+  const system = $r(space.id);
   system.Bookings[0].$poll_bookings();
   setInterval(() => system.Bookings[0].$poll_bookings(), 30 * 1e3);
   system.AreaManagement[0].$update();
@@ -93522,7 +94688,7 @@ function createSystem(space) {
 // libs/mocks/src/lib/api/systems.mock.ts
 function registerMockSystems() {
   MOCK_SPACES.forEach((space, index) => createSystem(space));
-  Wr({
+  Zr({
     path: "/api/engine/v2/systems",
     metadata: {},
     method: "GET",
@@ -93539,7 +94705,7 @@ function registerMockSystems() {
       return systems;
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/systems/:id",
     metadata: {},
     method: "GET",
@@ -93554,7 +94720,7 @@ function registerMockSystems() {
 
 // libs/mocks/src/lib/api/users.mock.ts
 function registerMockUsers() {
-  Wr({
+  Zr({
     path: "/api/engine/v2/users",
     metadata: {},
     method: "GET",
@@ -93566,7 +94732,7 @@ function registerMockUsers() {
       }).slice(0, limit);
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/users/:id",
     metadata: {},
     method: "GET",
@@ -93587,7 +94753,7 @@ function registerMockUsers() {
       throw { status: 404, message: "User not found" };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/people",
     metadata: {},
     method: "GET",
@@ -93601,7 +94767,7 @@ function registerMockUsers() {
       return MOCK_STAFF;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/people/:id",
     metadata: {},
     method: "GET",
@@ -93616,7 +94782,7 @@ function registerMockUsers() {
       throw { status: 404, message: "User not found" };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/guests",
     metadata: {},
     method: "GET",
@@ -93628,7 +94794,7 @@ function registerMockUsers() {
       return MOCK_STAFF;
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/guests/:email",
     metadata: {},
     method: "GET",
@@ -93640,7 +94806,7 @@ function registerMockUsers() {
       throw { status: 404, message: "Guest not found" };
     }
   });
-  Wr({
+  Zr({
     path: "/api/staff/v1/guests/:email/meetings",
     metadata: {},
     method: "GET",
@@ -93665,12 +94831,12 @@ function registerMockUsers() {
     "none"
   ];
   function generateLocation2() {
-    const type = LOCATION_TYPES[predictableRandomInt(LOCATION_TYPES.length)];
+    const type2 = LOCATION_TYPES[predictableRandomInt(LOCATION_TYPES.length)];
     const level = MOCK_LEVELS[predictableRandomInt(MOCK_LEVELS.length)];
     const level_spaces = MOCK_SPACES.filter((s) => s.zones.includes(level.id));
     const space = level_spaces[predictableRandomInt(level_spaces.length)] || {};
     const location2 = {};
-    switch (type) {
+    switch (type2) {
       case "meeting":
         location2.meeting = {
           building: level.parent_id,
@@ -93690,7 +94856,7 @@ function registerMockUsers() {
         break;
       case "laptop":
       case "mobile":
-        location2[type] = {
+        location2[type2] = {
           building: level.parent_id,
           level: level.id,
           x: +predictableRandomInt(1e4),
@@ -93744,7 +94910,7 @@ function registerMockZones() {
     ...MOCK_LEVELS,
     ...MOCK_ZONES
   ];
-  Wr({
+  Zr({
     path: "/api/engine/v2/zones",
     metadata: {},
     method: "GET",
@@ -93760,7 +94926,7 @@ function registerMockZones() {
       return zones;
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/zones/:id",
     metadata: {},
     method: "GET",
@@ -93775,19 +94941,19 @@ function registerMockZones() {
       return zone;
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/settings",
     metadata: {},
     method: "GET",
     callback: (request) => []
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/settings/:id",
     metadata: {},
     method: "GET",
     callback: (request) => ({})
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/metadata/:id",
     metadata: {},
     method: "GET",
@@ -93903,7 +95069,7 @@ function registerMockZones() {
       return {};
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/metadata/:id",
     metadata: {},
     method: "PATCH",
@@ -93914,7 +95080,7 @@ function registerMockZones() {
       return request.body;
     }
   });
-  Wr({
+  Zr({
     path: "/api/engine/v2/metadata/:id",
     metadata: {},
     method: "PUT",
@@ -93967,7 +95133,7 @@ function registerMockZones() {
     }
     return LOCKERS[id];
   }
-  Wr({
+  Zr({
     path: "/api/engine/v2/metadata/:id/children",
     metadata: {},
     method: "GET",
@@ -94003,9 +95169,60 @@ function mocksInit() {
   registerMockZones();
 }
 
+// apps/signage/src/environments/settings.schema.json
+var settings_schema_exports = {};
+__export(settings_schema_exports, {
+  default: () => settings_schema_default,
+  description: () => description,
+  properties: () => properties,
+  type: () => type
+});
+var type = "object";
+var description = "Customisable settings for the signage app";
+var properties = {
+  name: {
+    type: "string",
+    description: "Name of the application. Used as the suffix of the browser page title and as a fallback application name for API storage keys"
+  },
+  title: {
+    type: "string",
+    description: "Title of the application"
+  },
+  description: {
+    type: "string",
+    description: "Description of the application"
+  },
+  short_name: {
+    type: "string",
+    description: "Short name for the application. Used as the app name for local storage keys and as a fallback for the browser page title"
+  },
+  logo_light: {
+    type: "string",
+    description: "Path or URL of the logo image to display on light backgrounds e.g. the login screen"
+  },
+  logo_dark: {
+    type: "string",
+    description: "Path or URL of the logo image to display on dark backgrounds e.g. the login screen"
+  },
+  diagnostics: {
+    type: "boolean",
+    description: "Whether diagnostics are enabled. Currently unused by the signage app"
+  },
+  default_animation_time: {
+    type: "number",
+    description: "Duration in milliseconds of the media player's transition animation between playlist items. Defaults to `1000`"
+  }
+};
+var settings_schema_default = {
+  type,
+  description,
+  properties
+};
+
 // apps/signage/src/app/app.component.ts
 var AppComponent = class _AppComponent {
   constructor() {
+    this.settings_schema = settings_schema_exports;
     this._placeos = inject2(PlaceOS_Service);
     this._org = inject2(OrganisationService);
   }
@@ -94019,32 +95236,46 @@ var AppComponent = class _AppComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AppComponent, selectors: [["app-root"]], decls: 4, vars: 0, consts: [[1, "relative", "h-1/2", "w-full", "flex-1"]], template: function AppComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AppComponent, selectors: [["app-root"]], decls: 5, vars: 1, consts: [[1, "relative", "h-1/2", "w-full", "flex-1"], [3, "schema"]], template: function AppComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275element(0, "global-banner");
         \u0275\u0275elementStart(1, "div", 0);
         \u0275\u0275element(2, "router-outlet");
         \u0275\u0275elementEnd();
-        \u0275\u0275element(3, "global-loading");
+        \u0275\u0275element(3, "global-loading")(4, "settings-debug-panel", 1);
       }
-    }, dependencies: [RouterOutlet, GlobalBannerComponent, GlobalLoadingComponent], styles: ["\n[_nghost-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n  width: 100%;\n}\n/*# sourceMappingURL=app.component.css.map */"] });
+      if (rf & 2) {
+        \u0275\u0275advance(4);
+        \u0275\u0275property("schema", ctx.settings_schema);
+      }
+    }, dependencies: [
+      RouterOutlet,
+      GlobalBannerComponent,
+      GlobalLoadingComponent,
+      SettingsDebugPanelComponent
+    ], styles: ["\n[_nghost-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n  width: 100%;\n}\n/*# sourceMappingURL=app.component.css.map */"] });
   }
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(AppComponent, [{
     type: Component,
-    args: [{ selector: "app-root", imports: [RouterOutlet, GlobalBannerComponent, GlobalLoadingComponent], template: `
+    args: [{ selector: "app-root", imports: [
+      RouterOutlet,
+      GlobalBannerComponent,
+      GlobalLoadingComponent,
+      SettingsDebugPanelComponent
+    ], template: `
         <global-banner />
         <div class="relative h-1/2 w-full flex-1">
             <router-outlet></router-outlet>
         </div>
         <global-loading />
-        <!-- <debug-console *ngIf="debug"></debug-console> -->
+        <settings-debug-panel [schema]="settings_schema" />
     `, styles: ["/* angular:styles/component:css;2c590c9e56511a088a1469fe4b227d8190323c208f95620a03712f1a8f5bae8d;/home/runner/work/user-interfaces/user-interfaces/apps/signage/src/app/app.component.ts */\n:host {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n  width: 100%;\n}\n/*# sourceMappingURL=app.component.css.map */\n"] }]
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AppComponent, { className: "AppComponent", filePath: "apps/signage/src/app/app.component.ts", lineNumber: 36 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AppComponent, { className: "AppComponent", filePath: "apps/signage/src/app/app.component.ts", lineNumber: 44 });
 })();
 
 // apps/signage/src/environments/environment.ts
@@ -94164,7 +95395,7 @@ var BootstrapComponent = class _BootstrapComponent extends AsyncHandler {
       loader: async ({ params: initialised }) => {
         if (!initialised)
           return [];
-        const result = await ta({
+        const result = await ia({
           zone_id: this._org.organisation?.id,
           limit: 500,
           fields: ["id", "name", "display_name", "email", "zones"].join(","),
@@ -94467,7 +95698,7 @@ function findValidPlaylistIndex(playlist, start_index, step, include_start = fal
 }
 
 // apps/signage/src/app/media-controls.component.ts
-var _c014 = ["bar"];
+var _c016 = ["bar"];
 var _c18 = (a0) => ({ state: a0 });
 function MediaControlsComponent_Conditional_4_Template(rf, ctx) {
   if (rf & 1) {
@@ -94566,7 +95797,7 @@ var MediaProgressBarComponent = class _MediaProgressBarComponent {
   static {
     this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MediaProgressBarComponent, selectors: [["media-progress-bar"]], viewQuery: function MediaProgressBarComponent_Query(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275viewQuerySignal(ctx._bar, _c014, 5);
+        \u0275\u0275viewQuerySignal(ctx._bar, _c016, 5);
       }
       if (rf & 2) {
         \u0275\u0275queryAdvance();
@@ -94931,9 +96162,9 @@ var MediaControlsComponent = class _MediaControlsComponent {
 })();
 
 // apps/signage/src/app/playlist-display.component.ts
-var _c015 = (a0) => ({ count: a0 });
+var _c017 = (a0) => ({ count: a0 });
 var _c19 = (a0) => ({ data: a0 });
-var _forTrack02 = ($index, $item) => $item.id + $index;
+var _forTrack03 = ($index, $item) => $item.id + $index;
 function PlaylistDisplayComponent_Conditional_9_ng_template_1_Conditional_0_Conditional_29_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 18);
@@ -95097,7 +96328,7 @@ function PlaylistDisplayComponent_Conditional_9_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 5);
     \u0275\u0275template(1, PlaylistDisplayComponent_Conditional_9_ng_template_1_Template, 1, 1, "ng-template", null, 0, \u0275\u0275templateRefExtractor);
-    \u0275\u0275repeaterCreate(3, PlaylistDisplayComponent_Conditional_9_For_4_Template, 17, 29, "button", 7, _forTrack02);
+    \u0275\u0275repeaterCreate(3, PlaylistDisplayComponent_Conditional_9_For_4_Template, 17, 29, "button", 7, _forTrack03);
     \u0275\u0275elementStart(5, "div", 8)(6, "div", 9);
     \u0275\u0275text(7);
     \u0275\u0275pipe(8, "translate");
@@ -95199,7 +96430,7 @@ var PlaylistDisplayComponent = class _PlaylistDisplayComponent {
         \u0275\u0275advance(3);
         \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(4, 3, "APP.SIGNAGE.MEDIA_LIST"));
         \u0275\u0275advance(4);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(8, 5, "COMMON.ITEM_COUNT", \u0275\u0275pureFunction1(9, _c015, ctx.playlist()?.length || 0), ctx.playlist()?.length || 0), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(8, 5, "COMMON.ITEM_COUNT", \u0275\u0275pureFunction1(9, _c017, ctx.playlist()?.length || 0), ctx.playlist()?.length || 0), " ");
         \u0275\u0275advance(2);
         \u0275\u0275conditional(ctx.playlist().length > 0 ? 9 : 10);
       }
@@ -95950,7 +97181,7 @@ var TimeControlsComponent = class _TimeControlsComponent extends AsyncHandler {
 })();
 
 // apps/signage/src/app/media-player.component.ts
-var _c016 = ["media_container_0"];
+var _c018 = ["media_container_0"];
 var _c110 = ["media_container_1"];
 var _c25 = ["img_el_0"];
 var _c34 = ["img_el_1"];
@@ -96672,6 +97903,7 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
   }
   setPlaylistItem(index, resume_if_paused = true) {
     if (!this._hasValidPlaylistItem()) {
+      this._clearActiveItem();
       return this.timeout("retry_set_item", () => this.setPlaylistItem(index, resume_if_paused), 5e3);
     }
     this.clearTimeout("retry_set_item");
@@ -96807,7 +98039,8 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
   _clearOutput(output2) {
     const item = this._output_items[output2];
     this._hideMediaElements(output2);
-    this._pauseOutputVideo(output2);
+    if (item?.type === "video")
+      this._pauseOutputVideo(output2);
     this._web_element(output2).nativeElement.removeAttribute("src");
     if (item) {
       this._item_output.delete(item.id);
@@ -97118,6 +98351,23 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
     }
     this._preloadUpcomingInteractiveContent(current_index);
   }
+  _clearActiveItem() {
+    if (this.index() !== -1) {
+      this.index.set(-1);
+      this.indexChange.emit(-1);
+    }
+    this.playing_id.emit("");
+    this._item_start = 0;
+    this._item_progress = 0;
+    this._item_real_start = 0;
+    this._item_real_progress = 0;
+    this.progress.set(0);
+    this.duration.set(0);
+    this.progress_start.set(0);
+    this._clearDeferredReveal();
+    this._clearOutput(0);
+    this._clearOutput(1);
+  }
   _preloadUpcomingInteractiveContent(current_index) {
     if (!this._shouldPreloadUpcomingInteractiveContent())
       return;
@@ -97367,7 +98617,7 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
   static {
     this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MediaPlayerComponent, selectors: [["media-player"]], viewQuery: function MediaPlayerComponent_Query(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275viewQuerySignal(ctx._container_0, _c016, 5)(ctx._container_1, _c110, 5)(ctx._image_element_0, _c25, 5)(ctx._image_element_1, _c34, 5)(ctx._video_element_0, _c43, 5)(ctx._video_element_1, _c52, 5)(ctx._web_element_0, _c62, 5)(ctx._web_element_1, _c72, 5);
+        \u0275\u0275viewQuerySignal(ctx._container_0, _c018, 5)(ctx._container_1, _c110, 5)(ctx._image_element_0, _c25, 5)(ctx._image_element_1, _c34, 5)(ctx._video_element_0, _c43, 5)(ctx._video_element_1, _c52, 5)(ctx._web_element_0, _c62, 5)(ctx._web_element_1, _c72, 5);
       }
       if (rf & 2) {
         \u0275\u0275queryAdvance(8);
@@ -98158,7 +99408,7 @@ var MediaCacheService = class _MediaCacheService extends AsyncHandler {
     });
   }
   _applyAuthenticationCookie() {
-    const tkn = V();
+    const tkn = X();
     document.cookie = `${tkn === "x-api-key" ? "api-key=" + encodeURIComponent(Ye()) : "bearer_token=" + encodeURIComponent(tkn)};max-age=30;path=/api/engine/v2/uploads;samesite=strict;${location.protocol === "https:" ? "secure;" : ""}`;
   }
   static {
@@ -98402,7 +99652,7 @@ var SignageService = class _SignageService extends AsyncHandler {
     this._checkScheduledOverrides(display, this.override_playlists());
   }
   async _fetchDisplay(id) {
-    let d2 = await eh(id, Ys({ preview: this.debug(), item_id: this.playing_id() }, [
+    let d = await sh(id, Vs({ preview: this.debug(), item_id: this.playing_id() }, [
       void 0,
       null,
       ""
@@ -98411,14 +99661,14 @@ var SignageService = class _SignageService extends AsyncHandler {
         "If-Modified-Since": new Date(this._last_modified).toUTCString()
       }
     }).catch((_2) => null);
-    if (!d2) {
+    if (!d) {
       const display_key = displayCacheKey(id);
-      d2 = JSON.parse(localStorage.getItem(display_key) || localStorage.getItem(DISPLAY_KEY) || "{}");
-      if (d2.id !== id)
-        d2 = {};
+      d = JSON.parse(localStorage.getItem(display_key) || localStorage.getItem(DISPLAY_KEY) || "{}");
+      if (d.id !== id)
+        d = {};
     }
-    if (d2.id === id) {
-      localStorage.setItem(displayCacheKey(id), JSON.stringify(d2));
+    if (d.id === id) {
+      localStorage.setItem(displayCacheKey(id), JSON.stringify(d));
     }
     const path = `/api/engine/v2/signage/${id}`;
     const headers = Ti(`${location.origin}${path}`);
@@ -98426,12 +99676,12 @@ var SignageService = class _SignageService extends AsyncHandler {
     if (Number.isFinite(last_modified) && last_modified > 0) {
       this._last_modified = last_modified;
     }
-    return d2;
+    return d;
   }
   _bindTriggers(display) {
     const triggers = Object.keys(display.playlist_mappings || {}).filter((_2) => _2.startsWith("trig-"));
     this.unsubWith("trigger_");
-    const mod = Fl(display.id, "_TRIGGER__1");
+    const mod = Wl(display.id, "_TRIGGER__1");
     for (const id of triggers) {
       const binding = mod.variable(id);
       this.subscription(`trigger_listen-${id}`, binding.bindThenSubscribe(() => this._handleTrigger(id)));
@@ -98533,13 +99783,13 @@ var SignageService = class _SignageService extends AsyncHandler {
       ...this._getPlaylistMedia(display, playlists, (p2) => p2.enabled && (!playlistSchedules(p2).length || activePlaylistSchedules(p2).some(({ schedule }) => !schedule.play_takeover))),
       ...this._getPlaylistMedia(display, playlists, (p2) => p2.enabled && activePlaylistSchedules(p2).some(({ schedule }) => schedule.play_takeover))
     ];
-    const urls = active_media.filter(({ type }) => type !== "webpage" && type !== "plugin").map(({ url }) => url).filter((_2) => !!_2);
+    const urls = active_media.filter(({ type: type2 }) => type2 !== "webpage" && type2 !== "plugin").map(({ url }) => url).filter((_2) => !!_2);
     return [...new Set(urls)];
   }
   _cacheableMediaURLs(display) {
     return (display.playlist_media || []).filter((item) => {
-      const type = item.media_type || item.type;
-      return type !== "webpage" && type !== "plugin";
+      const type2 = item.media_type || item.type;
+      return type2 !== "webpage" && type2 !== "plugin";
     }).map((item) => item.media_url).filter((_2) => !!_2);
   }
   _checkScheduledOverrides(display, playlist_ids) {
@@ -98582,8 +99832,8 @@ var SignageService = class _SignageService extends AsyncHandler {
     log5.debug("Display updated.");
     value = value || {};
     try {
-      value.playlist_media = value.playlist_media?.map((_2) => new sr(_2)) || [];
-      value.plugins = value.plugins?.map((_2) => new rr(_2)) || [];
+      value.playlist_media = value.playlist_media?.map((_2) => new Rs(_2)) || [];
+      value.plugins = value.plugins?.map((_2) => new ur(_2)) || [];
     } catch (e) {
       log5.error("Failed to parse display media.", e);
       value = value || {};
@@ -98598,7 +99848,7 @@ var SignageService = class _SignageService extends AsyncHandler {
     const unresolved_plugin = plugin_ids?.some((id) => !display_plugins.find((plugin) => plugin.id === id && plugin.uri));
     if (!unresolved_plugin)
       return Promise.resolve(display_plugins);
-    return kh({ limit: 500 }).catch(() => ({ data: [] })).then((result) => {
+    return Ph({ limit: 500 }).catch(() => ({ data: [] })).then((result) => {
       const plugins = /* @__PURE__ */ new Map();
       for (const plugin of result.data || []) {
         if (plugin?.id)
@@ -98782,27 +100032,41 @@ function SignagePanelComponent_Conditional_1_Template(rf, ctx) {
     \u0275\u0275property("playlist", ctx_r1.override_playlist().playlist)("controls", ctx_r1.debug())("can_close", true)("muted", ctx_r1.muted())("animation_time", ctx_r1.animation_time);
   }
 }
+function SignagePanelComponent_Conditional_2_Conditional_11_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span");
+    \u0275\u0275text(1, "No item playing");
+    \u0275\u0275elementEnd();
+  }
+}
 function SignagePanelComponent_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 3);
     \u0275\u0275text(1);
-    \u0275\u0275element(2, "br");
-    \u0275\u0275text(3);
-    \u0275\u0275pipe(4, "date");
-    \u0275\u0275pipe(5, "date");
+    \u0275\u0275pipe(2, "date");
+    \u0275\u0275pipe(3, "date");
+    \u0275\u0275elementStart(4, "span", 4);
+    \u0275\u0275text(5, "|");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(6, "div", 4);
-    \u0275\u0275text(7);
+    \u0275\u0275text(6, "\xA0");
+    \u0275\u0275elementStart(7, "span", 5);
+    \u0275\u0275text(8);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(9, "div", 6);
+    \u0275\u0275text(10);
+    \u0275\u0275conditionalCreate(11, SignagePanelComponent_Conditional_2_Conditional_11_Template, 2, 0, "span");
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", ctx_r1.version_hash, " ");
+    \u0275\u0275textInterpolate2(" ", \u0275\u0275pipeBind2(2, 5, ctx_r1.version_date, "mediumDate"), " \u2013 ", \u0275\u0275pipeBind2(3, 8, ctx_r1.version_date, "shortTime"), " ");
+    \u0275\u0275advance(7);
+    \u0275\u0275textInterpolate(ctx_r1.version_hash);
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate2(" ", \u0275\u0275pipeBind2(4, 4, ctx_r1.version_date, "mediumDate"), " \u2013 ", \u0275\u0275pipeBind2(5, 7, ctx_r1.version_date, "shortTime"), " ");
-    \u0275\u0275advance(4);
     \u0275\u0275textInterpolate1(" ", ctx_r1.playing_id(), " ");
+    \u0275\u0275advance();
+    \u0275\u0275conditional(!ctx_r1.playing_id() ? 11 : -1);
   }
 }
 var REMOTE_PAUSE = "signage:pause";
@@ -98920,7 +100184,7 @@ var SignagePanelComponent = class _SignagePanelComponent extends AsyncHandler {
       if (rf & 2) {
         \u0275\u0275queryAdvance();
       }
-    }, features: [\u0275\u0275InheritDefinitionFeature], decls: 3, vars: 7, consts: [[1, "z-0", 3, "playing_id", "event", "mutedChange", "playlist", "controls", "muted", "override", "animation_time"], [1, "absolute", "inset-0", "z-10", 3, "playlist", "controls", "can_close", "muted", "animation_time"], [1, "absolute", "inset-0", "z-10", 3, "playing_id", "event", "mutedChange", "closed", "playlist", "controls", "can_close", "muted", "animation_time"], ["stroke", "", 1, "text-base-400", "absolute", "bottom-2", "left-2", "font-mono", "text-xs", "text-shadow-lg"], ["stroke", "", 1, "text-base-400", "absolute", "right-2", "bottom-2", "font-mono", "text-xs", "text-shadow-lg"]], template: function SignagePanelComponent_Template(rf, ctx) {
+    }, features: [\u0275\u0275InheritDefinitionFeature], decls: 3, vars: 7, consts: [[1, "z-0", 3, "playing_id", "event", "mutedChange", "playlist", "controls", "muted", "override", "animation_time"], [1, "absolute", "inset-0", "z-10", 3, "playlist", "controls", "can_close", "muted", "animation_time"], [1, "absolute", "inset-0", "z-10", 3, "playing_id", "event", "mutedChange", "closed", "playlist", "controls", "can_close", "muted", "animation_time"], ["stroke", "", 1, "text-base-100/60", "absolute", "bottom-1", "left-1", "font-mono", "text-[0.625rem]", "px-2", "rounded", "py-1", "bg-base-content/40"], [1, "opacity-50"], [1, "select-all"], ["stroke", "", 1, "text-base-100/60", "absolute", "bottom-1", "right-1", "font-mono", "text-[0.625rem]", "bg-base-content/40", "rounded", "px-2", "py-1"]], template: function SignagePanelComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "media-player", 0);
         \u0275\u0275listener("playing_id", function SignagePanelComponent_Template_media_player_playing_id_0_listener($event) {
@@ -98932,7 +100196,7 @@ var SignagePanelComponent = class _SignagePanelComponent extends AsyncHandler {
         });
         \u0275\u0275elementEnd();
         \u0275\u0275conditionalCreate(1, SignagePanelComponent_Conditional_1_Template, 1, 5, "media-player", 1);
-        \u0275\u0275conditionalCreate(2, SignagePanelComponent_Conditional_2_Template, 8, 10);
+        \u0275\u0275conditionalCreate(2, SignagePanelComponent_Conditional_2_Template, 12, 11);
       }
       if (rf & 2) {
         \u0275\u0275property("playlist", ctx.playlist())("controls", ctx.debug())("muted", ctx.muted())("override", ctx.override_playlist().playlist.length > 0)("animation_time", ctx.animation_time);
@@ -98976,24 +100240,26 @@ var SignagePanelComponent = class _SignagePanelComponent extends AsyncHandler {
         @if (debug()) {
             <div
                 stroke
-                class="text-base-400 absolute bottom-2 left-2 font-mono text-xs text-shadow-lg"
-            >
-                {{ version_hash }} <br />
+                class="text-base-100/60 absolute bottom-1 left-1 font-mono text-[0.625rem] px-2 rounded py-1 bg-base-content/40">
                 {{ version_date | date: 'mediumDate' }} &ndash;
                 {{ version_date | date: 'shortTime' }}
+                <span class="opacity-50">|</span>&nbsp;<span class="select-all">{{version_hash}}</span>
             </div>
             <div
                 stroke
-                class="text-base-400 absolute right-2 bottom-2 font-mono text-xs text-shadow-lg"
+                class="text-base-100/60 absolute bottom-1 right-1 font-mono text-[0.625rem] bg-base-content/40 rounded px-2 py-1"
             >
                 {{ playing_id() }}
+                @if (!playing_id()) {
+                    <span>No item playing</span>
+                }
             </div>
         }
     `, imports: [DatePipe, MediaPlayerComponent], styles: ["/* angular:styles/component:css;cd55edd5bec2e27ad72dbab2cf735c69f9dbe31aab8da774385fbf5fd5fffa9b;/home/runner/work/user-interfaces/user-interfaces/apps/signage/src/app/signage.component.ts */\n:host {\n  display: block;\n  height: 100%;\n  width: 100%;\n}\n.stroke {\n  -webkit-text-stroke: 1px #000;\n}\n/*# sourceMappingURL=signage.component.css.map */\n"] }]
   }], null, { _players: [{ type: ViewChildren, args: [forwardRef(() => MediaPlayerComponent), { isSignal: true }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SignagePanelComponent, { className: "SignagePanelComponent", filePath: "apps/signage/src/app/signage.component.ts", lineNumber: 82 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SignagePanelComponent, { className: "SignagePanelComponent", filePath: "apps/signage/src/app/signage.component.ts", lineNumber: 84 });
 })();
 
 // apps/signage/src/app/app.routes.ts
