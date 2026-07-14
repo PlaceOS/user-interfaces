@@ -93,7 +93,7 @@ describe('[Booking API]', () => {
             const spy = vi.spyOn(ts_client, 'post');
             expect(spy).not.toHaveBeenCalled();
             spy.mockResolvedValue({} as any);
-            const booking = await createBooking({});
+            const booking = await createBooking({ created_at: 123 });
             expect(booking).toBeInstanceOf(Booking);
             expect(ts_client.post).toHaveBeenCalledWith(
                 `/api/staff/v1/bookings`,
@@ -108,7 +108,7 @@ describe('[Booking API]', () => {
             const spy = vi.spyOn(ts_client, 'patch');
             expect(spy).not.toHaveBeenCalled();
             spy.mockResolvedValue({} as any);
-            const booking = await updateBooking('1', {});
+            const booking = await updateBooking('1', { created_at: 123 });
             expect(booking).toBeInstanceOf(Booking);
             expect(ts_client.patch).toHaveBeenCalledWith(
                 `/api/staff/v1/bookings/1`,
@@ -120,7 +120,11 @@ describe('[Booking API]', () => {
             const spy = vi.spyOn(ts_client, 'put');
             expect(spy).not.toHaveBeenCalled();
             spy.mockResolvedValue({} as any);
-            const booking = await updateBooking('1', {}, 'put');
+            const booking = await updateBooking(
+                '1',
+                { created_at: 123 },
+                'put',
+            );
             expect(booking).toBeInstanceOf(Booking);
             expect(ts_client.put).toHaveBeenCalledWith(
                 `/api/staff/v1/bookings/1`,

@@ -77,13 +77,13 @@ function appName() {
     );
 }
 
-function withAppVersion<T extends { extension_data?: Record<string, any> }>(
-    data: T,
-): T {
+function withAppVersion(data: Partial<Booking>): Partial<Booking> {
+    const booking_data = { ...data };
+    delete booking_data.created_at;
     return {
-        ...data,
+        ...booking_data,
         extension_data: {
-            ...(data.extension_data || {}),
+            ...(booking_data.extension_data || {}),
             app_name: appName(),
             app_version: APP_VERSION,
         },
