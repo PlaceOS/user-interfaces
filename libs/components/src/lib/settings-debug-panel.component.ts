@@ -1,3 +1,4 @@
+import { Clipboard } from '@angular/cdk/clipboard';
 import { DOCUMENT } from '@angular/common';
 import {
     Component,
@@ -9,6 +10,7 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { SettingsService } from '@placeos/common';
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
 import { HotkeysService } from 'libs/common/src/lib/hotkeys.service';
@@ -138,14 +140,41 @@ function flattenSchemaKeys(
                     <div class="flex-1 px-3 text-lg font-medium">
                         Settings Viewer
                     </div>
-                    <div class="flex items-center">
+                    <div class="flex items-center gap-2 text-xs">
+                        <button
+                            icon
+                            default
+                            matRipple
+                            matTooltip="Add setting"
+                            matTooltipPosition="below"
+                            aria-label="Add setting"
+                            (click)="addSetting()"
+                        >
+                            <icon>add</icon>
+                        </button>
                         @if (has_overrides()) {
                             <button
+                                icon
+                                default
                                 matRipple
-                                class="text-error px-2 py-1 text-xs underline"
+                                matTooltip="Copy overrides"
+                                matTooltipPosition="below"
+                                aria-label="Copy overrides"
+                                (click)="copyOverrides()"
+                            >
+                                <icon>content_copy</icon>
+                            </button>
+                            <button
+                                icon
+                                default
+                                error
+                                matRipple
+                                matTooltip="Clear all overrides"
+                                matTooltipPosition="below"
+                                aria-label="Clear all overrides"
                                 (click)="clearAll()"
                             >
-                                Clear all overrides
+                                <icon>delete_sweep</icon>
                             </button>
                         }
                     </div>
@@ -439,6 +468,7 @@ function flattenSchemaKeys(
     imports: [
         FormsModule,
         MatRippleModule,
+        MatTooltipModule,
         BindingDebugPanelComponent,
         CustomTooltipComponent,
         IconComponent,
@@ -449,6 +479,7 @@ export class SettingsDebugPanelComponent extends AsyncHandler {
     private _hotkey = inject(HotkeysService);
     private _org = inject(OrganisationService);
     private _document = inject(DOCUMENT);
+    private _clipboard = inject(Clipboard);
 
     /** JSON schema describing the app's `app.*` settings */
     public readonly schema = input<HashMap | null>(null);
@@ -641,6 +672,30 @@ export class SettingsDebugPanelComponent extends AsyncHandler {
 
     public clearOverride(key: string) {
         this._settings.setDebugOverride(key, undefined);
+    }
+
+    public addSetting() {
+        const prompt = this._document.defaultView?.prompt.bind(
+            this._document.defaultView,
+        );
+        const name = prompt?.('Setting key', 'app.')?.trim();
+        if (!name || name === 'app.') return;
+        const input = prompt?.('Setting value (JSON or plain text)', '');
+        if (input == null) return;
+        let value: any = input;
+        try {
+            value = JSON.parse(input);
+        } catch {
+            // ponytail: unquoted input is treated as a plain string
+        }
+        const key = name.startsWith('app.') ? name : `app.${name}`;
+        this._settings.setDebugOverride(key, value);
+    }
+
+    public copyOverrides() {
+        this._clipboard.copy(
+            JSON.stringify(this._settings.debug_overrides(), null, 2),
+        );
     }
 
     public clearAll() {
