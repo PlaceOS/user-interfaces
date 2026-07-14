@@ -1,6 +1,11 @@
 import { addMinutes, format } from 'date-fns';
 
-import { currentPeriod, nextPeriod } from '../../app/new-panel/helpers';
+import {
+    currentPeriod,
+    nextPeriod,
+    timelineData,
+    timelineStart,
+} from '../../app/new-panel/helpers';
 
 const FIXED_NOW = new Date('2026-07-04T09:00:00.000Z').valueOf();
 
@@ -49,7 +54,11 @@ describe('new-panel helpers', () => {
 
         it('should count down to the next booking when there is no current booking', () => {
             const next = { date: FIXED_NOW + 90 * 60 * 1000 } as any;
-            expect(currentPeriod([], null as any, next)).toEqual([false, 1, 30]);
+            expect(currentPeriod([], null as any, next)).toEqual([
+                false,
+                1,
+                30,
+            ]);
         });
 
         it('should count down to the next free slot when a booking is current', () => {
@@ -75,6 +84,46 @@ describe('new-panel helpers', () => {
             expect(checked_in).toBe(true);
             expect(hours).toBe(0);
             expect(minutes).toBe(45);
+        });
+    });
+
+    describe('timelineData', () => {
+        it('should keep hour markers when the clock moves off the step interval', () => {
+            const timeline = timelineData(
+                [],
+                FIXED_NOW + 60 * 1000,
+                timelineStart(FIXED_NOW),
+            );
+
+            expect(
+                timeline.blocks.filter((block) => block.on_hour),
+            ).toHaveLength(12);
+        });
+
+        it('should position bookings using their exact start and end times', () => {
+            const booking = {
+                date: FIXED_NOW + 33 * 60 * 1000,
+                duration: 17,
+            } as any;
+            const start = timelineStart(FIXED_NOW);
+            const timeline = timelineData([booking], FIXED_NOW, start);
+
+            expect(timeline.blocks).toHaveLength(72);
+            expect(timeline.bookings[0].start).toBeCloseTo((93 / 720) * 100);
+            expect(timeline.bookings[0].size).toBeCloseTo((17 / 720) * 100);
+        });
+
+        it('should move the current-time marker between grid intervals', () => {
+            const start = timelineStart(FIXED_NOW);
+            const first = timelineData([], FIXED_NOW, start);
+            const second = timelineData(
+                [],
+                FIXED_NOW + 30 * 1000,
+                start,
+            );
+
+            expect(second.now).toBeGreaterThan(first.now);
+            expect(second.now - first.now).toBeCloseTo((0.5 / 720) * 100);
         });
     });
 });
