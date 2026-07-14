@@ -219,8 +219,7 @@ const app = {
         force_current_user_for_booking_rules: false,
         // Applies to any assignable resource type (desk/parking/locker).
         // Override per type under `app.<type>s.*` (e.g. `app.desks.*`).
-        allow_booking_with_reserved_resource: false,
-        prevent_self_booking_if_assigned_resource: false,
+        assigned_resource_booking: 'other_only',
     },
     desks: {
         can_book_lockers: true,

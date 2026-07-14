@@ -19,7 +19,7 @@ describe('NewDeskFlowFormComponent', () => {
     let model: ReturnType<typeof signal<Record<string, any>>>;
     let form_valid: boolean;
     let has_assigned_desk: ReturnType<typeof signal<boolean>>;
-    let allows_reserved: any;
+    let assigned_resource_booking: any;
     let auto_allocation: boolean;
     let auto_allocate: any;
     let set_view: any;
@@ -59,7 +59,7 @@ describe('NewDeskFlowFormComponent', () => {
         });
         form_valid = true;
         has_assigned_desk = signal(false);
-        allows_reserved = vi.fn(() => true);
+        assigned_resource_booking = vi.fn(() => 'allow');
         auto_allocation = false;
         auto_allocate = vi.fn(() => Promise.resolve());
         set_view = vi.fn();
@@ -77,7 +77,7 @@ describe('NewDeskFlowFormComponent', () => {
                         form: () => ({ valid: () => form_valid }),
                         model,
                         has_assigned_desk,
-                        allowsBookingWithReservedResource: allows_reserved,
+                        assignedResourceBooking: assigned_resource_booking,
                         get auto_allocation() {
                             return auto_allocation;
                         },
@@ -97,13 +97,19 @@ describe('NewDeskFlowFormComponent', () => {
 
     it('should show the reserved-desk overlay when the user has a reserved desk that blocks booking', () => {
         has_assigned_desk.set(true);
-        allows_reserved.mockReturnValue(false);
+        assigned_resource_booking.mockReturnValue('deny');
         expect(spectator.component.show_reserved_desk_overlay()).toBe(true);
     });
 
     it('should not show the overlay when booking with a reserved resource is allowed', () => {
         has_assigned_desk.set(true);
-        allows_reserved.mockReturnValue(true);
+        assigned_resource_booking.mockReturnValue('allow');
+        expect(spectator.component.show_reserved_desk_overlay()).toBe(false);
+    });
+
+    it('should not show the overlay when assigned resource booking is other only', () => {
+        has_assigned_desk.set(true);
+        assigned_resource_booking.mockReturnValue('other_only');
         expect(spectator.component.show_reserved_desk_overlay()).toBe(false);
     });
 

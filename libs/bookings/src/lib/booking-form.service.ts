@@ -343,7 +343,7 @@ export class BookingFormService extends AsyncHandler {
             // The override count can be satisfied by placeholder `{}` building
             // settings before `loadBuildingData` populates them, so also wait
             // for the active building's metadata to actually land. Otherwise
-            // building/region-level settings (e.g. allow_booking_with_reserved_resource)
+            // building/region-level settings (e.g. assigned_resource_booking)
             // read as their defaults during the load window.
             this._org.active_building_loaded() &&
             overrides.length >= required_overrides
@@ -2081,30 +2081,21 @@ export class BookingFormService extends AsyncHandler {
         ref.close();
     }
 
-    /**
-     * Whether a user with a resource of `type` reserved (assigned) to them is
-     * allowed to book additional resources of that type at all. When `false`
-     * (default) they are fully blocked from booking another, including on
-     * behalf of others.
-     */
-    public allowsBookingWithReservedResource(type: BookingType) {
-        return (
-            this.settingForType(
-                type,
-                'allow_booking_with_reserved_resource',
-            ) === true
-        );
+    public assignedResourceBooking(type: BookingType) {
+        const setting = this.settingForType(type, 'assigned_resource_booking');
+        return setting === 'allow' ||
+            setting === 'deny' ||
+            setting === 'other_only'
+            ? setting
+            : 'other_only';
     }
 
     /**
-     * Enforce the reserved-resource restriction for any assignable resource type
-     * (desk/parking/locker). Only ever concerns the current user's own bookings:
-     * booking on behalf of others is always permitted.
+     * Enforce the assigned-resource restriction for any assignable resource type
+     * (desk/parking/locker).
      *
-     * `prevent_self_booking_if_assigned_resource` is deliberately evaluated here,
-     * at submission, and nowhere else. UI gating uses
-     * `allowsBookingWithReservedResource()` (the master allow) so a self-booking
-     * restriction never blanket-blocks the form for booking on behalf of others.
+     * `other_only` is evaluated here at submission so the form remains available
+     * for booking on behalf of others. `deny` blanket-blocks the form in the UI.
      */
     private async _checkAssignedResourceRestriction(
         user_email: string,
@@ -2113,14 +2104,10 @@ export class BookingFormService extends AsyncHandler {
         const is_self =
             !user_email ||
             user_email.toLowerCase() === currentUser()?.email?.toLowerCase();
-        if (!is_self) return true;
-        const self_booking_allowed =
-            this.allowsBookingWithReservedResource(type) &&
-            this.settingForType(
-                type,
-                'prevent_self_booking_if_assigned_resource',
-            ) !== true;
-        if (self_booking_allowed) return true;
+        const setting = this.assignedResourceBooking(type);
+        if (setting === 'allow' || (setting === 'other_only' && !is_self)) {
+            return true;
+        }
         if (await this._computeHasAssignedResource(type)) {
             throw `You have an assigned ${type} and cannot book another ${type}.`;
         }

@@ -184,8 +184,7 @@ These apply to all resource booking flows (desks, parking, lockers). Most can be
 | `bookings.has_assets` | boolean | – | Make asset requests available in resource booking flows. |
 | `bookings.use_building_timezone` | boolean | – | Display and book times using the building's timezone rather than the user's device timezone. |
 | `bookings.force_current_user_for_booking_rules` | boolean | `false` | Always check booking rules against the signed-in user, even when booking on behalf of someone else. |
-| `bookings.allow_booking_with_reserved_resource` | boolean | `false` | Allow users who already have a resource (desk/parking/locker) permanently assigned to them to book another resource of that type. By default these users are blocked. |
-| `bookings.prevent_self_booking_if_assigned_resource` | boolean | `false` | When booking with a reserved resource is allowed, still prevent users from booking that resource type for themselves while one is assigned to them. Booking on behalf of others remains allowed. |
+| `bookings.assigned_resource_booking` | `allow` \| `deny` \| `other_only` | `other_only` | Controls booking for users with an assigned desk, parking space, or locker. `allow` permits all bookings, `deny` blocks booking, and `other_only` permits booking only on behalf of another user. |
 
 ## Meetings & Events (`events.*`)
 

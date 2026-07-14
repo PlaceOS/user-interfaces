@@ -160,13 +160,11 @@
                     "type": "boolean",
                     "description": "Whether booking rule checks should always use the signed-in user as the host, even when booking on behalf of someone else."
                 },
-                "allow_booking_with_reserved_resource": {
-                    "type": "boolean",
-                    "description": "Whether users with a resource (desk/parking/locker) reserved (assigned) to them are allowed to book another resource of that type. By default these users are blocked. Override per type under app.<type>s.* (e.g. app.desks.*)."
-                },
-                "prevent_self_booking_if_assigned_resource": {
-                    "type": "boolean",
-                    "description": "When booking with a reserved resource is allowed, still prevent users from booking a resource of that type for themselves while one is assigned to them. Bookings on behalf of other users remain allowed. Checked only at submission. Override per type under app.<type>s.*."
+                "assigned_resource_booking": {
+                    "type": "string",
+                    "enum": ["allow", "deny", "other_only"],
+                    "default": "other_only",
+                    "description": "Controls booking for users with an assigned desk, parking space, or locker. Allow permits all bookings, deny blocks booking, and other_only permits booking only on behalf of another user. Override per type under app.<type>s.* (e.g. app.desks.*)."
                 },
                 "no_approval": {
                     "type": "boolean",
