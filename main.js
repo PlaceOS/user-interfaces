@@ -68115,15 +68115,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION4 = {
   "dirty": false,
-  "raw": "72d21fe",
-  "hash": "72d21fe",
+  "raw": "48e665b",
+  "hash": "48e665b",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "72d21fe",
+  "suffix": "48e665b",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1783937309207
+  "time": 1784002208256
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -108385,8 +108385,10 @@ function appName() {
   return setting("app.name") || setting("app.short_name") || "PlaceOS";
 }
 function withAppVersion(data) {
-  return __spreadProps(__spreadValues({}, data), {
-    extension_data: __spreadProps(__spreadValues({}, data.extension_data || {}), {
+  const booking_data = __spreadValues({}, data);
+  delete booking_data.created_at;
+  return __spreadProps(__spreadValues({}, booking_data), {
+    extension_data: __spreadProps(__spreadValues({}, booking_data.extension_data || {}), {
       app_name: appName(),
       app_version: APP_VERSION
     })
