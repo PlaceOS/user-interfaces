@@ -118,9 +118,18 @@ function flattenSchemaKeys(
                 class="border-base-300 bg-base-200 text-base-content fixed inset-y-0 right-0 z-998 flex w-96 max-w-[90vw] flex-col border-l shadow-xl"
             >
                 <header
-                    class="border-base-300 bg-base-100 flex items-center border-b p-1"
+                    class="border-base-300 bg-base-100 flex items-center border-b p-2"
                 >
-                    <div class="flex-1 px-3 font-medium">Settings Viewer</div>
+                    <button
+                        icon
+                        default
+                        matRipple
+                        class="text-sm"
+                        (click)="show.set(false)"
+                    >
+                        <icon>close</icon>
+                    </button>
+                    <div class="flex-1 px-3 text-lg font-medium">Settings Viewer</div>
                     <div class="flex items-center">
                         @if (has_overrides()) {
                             <button
@@ -131,15 +140,6 @@ function flattenSchemaKeys(
                                 Clear all overrides
                             </button>
                         }
-                        <button
-                            icon
-                            default
-                            matRipple
-                            class="text-sm"
-                            (click)="show.set(false)"
-                        >
-                            <icon>close</icon>
-                        </button>
                     </div>
                 </header>
                 <div class="relative m-2 flex">
