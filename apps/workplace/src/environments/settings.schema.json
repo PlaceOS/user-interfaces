@@ -42,6 +42,7 @@
                         "position": {
                             "type": "string",
                             "enum": ["right", "left"],
+                            "enumNames": ["Right", "Left"],
                             "description": "Side of the screen to render the overlay menu"
                         }
                     }
@@ -57,6 +58,7 @@
                         "type": {
                             "type": "string",
                             "enum": ["info", "warn", "error"],
+                            "enumNames": ["Information", "Warning", "Error"],
                             "description": "Type of banner to display. Affects the banner colour"
                         },
                         "content": {
@@ -124,7 +126,37 @@
                 },
                 "show_fields": {
                     "type": "array",
-                    "items": { "type": "string" },
+                    "items": {
+                        "type": "string",
+                        "enum": [
+                            "id",
+                            "space_list",
+                            "title",
+                            "date",
+                            "duration",
+                            "organiser",
+                            "attendees",
+                            "type",
+                            "catering",
+                            "recurrence",
+                            "body",
+                            "configuration"
+                        ],
+                        "enumNames": [
+                            "ID",
+                            "Space list",
+                            "Title",
+                            "Date",
+                            "Duration",
+                            "Organiser",
+                            "Attendees",
+                            "Type",
+                            "Catering",
+                            "Recurrence",
+                            "Description",
+                            "Configuration"
+                        ]
+                    },
                     "description": "Form fields available for use in the booking flow"
                 },
                 "html_body": {
@@ -163,6 +195,11 @@
                 "assigned_resource_booking": {
                     "type": "string",
                     "enum": ["allow", "deny", "other_only"],
+                    "enumNames": [
+                        "Allow",
+                        "Deny",
+                        "Only when booking for others"
+                    ],
                     "default": "other_only",
                     "description": "Controls booking for users with an assigned desk, parking space, or locker. Allow permits all bookings, deny blocks booking, and other_only permits booking only on behalf of another user. Override per type under app.<type>s.* (e.g. app.desks.*)."
                 },
@@ -745,7 +782,11 @@
                 "resources": {
                     "type": "array",
                     "description": "Booking types that auto release applies to e.g. `desk`, `parking`",
-                    "items": { "type": "string" }
+                    "items": {
+                        "type": "string",
+                        "enum": ["desk", "parking", "locker", "visitor"],
+                        "enumNames": ["Desk", "Parking", "Locker", "Visitor"]
+                    }
                 },
                 "all_day_start": {
                     "type": "number",
@@ -775,6 +816,16 @@
         },
         "week_start": {
             "type": "number",
+            "enum": [0, 1, 2, 3, 4, 5, 6],
+            "enumNames": [
+                "Sunday",
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday"
+            ],
             "description": "First day of the week for schedule and calendar views. `0` is Sunday through `6` for Saturday"
         },
         "hide_contacts": {
@@ -822,7 +873,8 @@
                     "description": "List of sources to load schedule events from. Overrides the legacy `use_driver` and `use_websocket` settings",
                     "items": {
                         "type": "string",
-                        "enum": ["api", "driver", "ws"]
+                        "enum": ["api", "driver", "ws"],
+                        "enumNames": ["API", "Driver", "WebSocket"]
                     }
                 },
                 "legend": {
@@ -980,6 +1032,7 @@
                 "type": {
                     "type": "string",
                     "enum": ["img", "icon"],
+                    "enumNames": ["Image", "Icon"],
                     "description": "Type of icon to render. Either `img` or `icon`"
                 },
                 "src": {
@@ -1049,6 +1102,11 @@
                 "book_as": {
                     "type": "string",
                     "enum": ["internals", "externals", "both"],
+                    "enumNames": [
+                        "Internal users",
+                        "External users",
+                        "Internal and external users"
+                    ],
                     "description": "Optional host selection mode for this request type. When omitted or invalid, the host field is hidden."
                 },
                 "forced_time": {

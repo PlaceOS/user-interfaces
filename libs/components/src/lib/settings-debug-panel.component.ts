@@ -34,7 +34,7 @@ interface SettingRow {
     description: string;
     zones: SettingZone[];
     control: 'toggle' | 'number' | 'select' | 'text';
-    options?: string[];
+    options?: { value: unknown; label: string }[];
 }
 
 interface GroupHeader {
@@ -63,6 +63,11 @@ function hasSetting(map: HashMap, key: string) {
     let value: any = map;
     for (const part of key.slice(4).split('.')) value = value?.[part];
     return value != null;
+}
+
+function optionLabel(value: unknown) {
+    const label = `${value}`.replace(/[_-]+/g, ' ');
+    return label.charAt(0).toUpperCase() + label.slice(1);
 }
 
 /** Resolve `$ref: "#/$defs/..."` pointers against the schema root */
@@ -129,7 +134,9 @@ function flattenSchemaKeys(
                     >
                         <icon>close</icon>
                     </button>
-                    <div class="flex-1 px-3 text-lg font-medium">Settings Viewer</div>
+                    <div class="flex-1 px-3 text-lg font-medium">
+                        Settings Viewer
+                    </div>
                     <div class="flex items-center">
                         @if (has_overrides()) {
                             <button
@@ -142,7 +149,7 @@ function flattenSchemaKeys(
                         }
                     </div>
                 </header>
-                <div class="relative m-2 flex">
+                <div class="relative m-1 flex">
                     <input
                         name="setting-filter"
                         [(ngModel)]="filter"
@@ -228,34 +235,43 @@ function flattenSchemaKeys(
                                     }
                                 </div>
                                 @switch (
-                                    editing_key() === row.key ? row.control : ''
+                                    row.control === 'select' ||
+                                    editing_key() === row.key
+                                        ? row.control
+                                        : ''
                                 ) {
                                     @case ('select') {
                                         <select
                                             name="setting-value"
                                             class="border-base-300 bg-base-100 focus:border-info focus:ring-info h-8 w-full rounded-md border px-2 font-mono shadow-sm outline-none focus:ring-2"
-                                            [(ngModel)]="edit_value"
-                                            (keydown.escape)="
-                                                editing_key.set('')
+                                            [ngModel]="row.value"
+                                            (ngModelChange)="
+                                                selectValue(row, $event)
                                             "
                                         >
                                             @for (
                                                 option of row.options;
-                                                track option
+                                                track $index
                                             ) {
-                                                <option [value]="option">
-                                                    {{ option }}
+                                                <option
+                                                    [ngValue]="option.value"
+                                                >
+                                                    {{ option.label }}
                                                 </option>
                                             }
                                         </select>
-                                        <button
-                                            icon
-                                            matRipple
-                                            title="Save override"
-                                            (click)="saveEdit()"
-                                        >
-                                            <icon class="text-sm">check</icon>
-                                        </button>
+                                        @if (row.overridden) {
+                                            <button
+                                                icon
+                                                matRipple
+                                                title="Clear override"
+                                                (click)="clearOverride(row.key)"
+                                            >
+                                                <icon class="text-sm"
+                                                    >undo</icon
+                                                >
+                                            </button>
+                                        }
                                     }
                                     @case ('number') {
                                         <input
@@ -474,7 +490,13 @@ export class SettingsDebugPanelComponent extends AsyncHandler {
                     description: node?.description || '',
                     zones: this._zoneTooltip(key),
                     control,
-                    options: node?.enum,
+                    options: node?.enum?.map(
+                        (value: unknown, index: number) => ({
+                            value,
+                            label:
+                                node.enumNames?.[index] || optionLabel(value),
+                        }),
+                    ),
                 };
             });
     });
@@ -567,6 +589,10 @@ export class SettingsDebugPanelComponent extends AsyncHandler {
 
     public toggleValue(row: SettingRow) {
         this._settings.setDebugOverride(row.key, !row.value);
+    }
+
+    public selectValue(row: SettingRow, value: unknown) {
+        this._settings.setDebugOverride(row.key, value);
     }
 
     public saveEdit() {

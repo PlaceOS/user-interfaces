@@ -84,6 +84,7 @@
                 "type": {
                     "type": "string",
                     "enum": ["img", "icon"],
+                    "enumNames": ["Image", "Icon"],
                     "description": "Type of icon to render. Either `img` or `icon`"
                 },
                 "src": {
