@@ -626,7 +626,15 @@
                 },
                 "hide_zones": {
                     "type": "boolean",
-                    "description": "Whether to hide zone overlays on the explore map"
+                    "description": "Whether to hide the areas toggle on the explore map"
+                },
+                "hide_devices": {
+                    "type": "boolean",
+                    "description": "Whether to hide the devices toggle on the explore map"
+                },
+                "hide_sensors": {
+                    "type": "boolean",
+                    "description": "Whether to hide the sensors toggle on the explore map"
                 },
                 "use_zone_polygons": {
                     "type": "boolean",

@@ -131,6 +131,8 @@ const explore = {
     show_legend_group_names: true,
     show_legend: true,
     hide_zones: true,
+    hide_devices: true,
+    hide_sensors: true,
     use_zone_polygons: false,
     show_simple_sensor_info: false,
     show_presence_indicators: false,

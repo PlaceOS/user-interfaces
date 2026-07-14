@@ -84,6 +84,17 @@ describe('ExploreStateService', () => {
         expect(feats).toEqual([{ id: 'first' }, { id: 'second' }]);
     });
 
+    it('should toggle zone and sensor features independently', () => {
+        spectator.service.setFeatures('zones', [{ id: 'zone' } as any]);
+        spectator.service.setFeatures('sensors', [{ id: 'sensor' } as any]);
+
+        spectator.service.setOptions({ disable: ['zones'] });
+        expect(spectator.service.map_features()).toEqual([{ id: 'sensor' }]);
+
+        spectator.service.setOptions({ disable: ['sensors'] });
+        expect(spectator.service.map_features()).toEqual([{ id: 'zone' }]);
+    });
+
     it('should handle changes to map actions', async () => {
         let actions = spectator.service.map_actions();
         expect(actions).toEqual([]);

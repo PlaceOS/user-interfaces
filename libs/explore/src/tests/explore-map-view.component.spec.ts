@@ -107,6 +107,9 @@ describe('ExploreMapViewComponent', () => {
 
     afterEach(() => {
         if (spectator) {
+            spectator.component.hide_zones.set(false);
+            spectator.component.hide_devices.set(true);
+            spectator.component.hide_sensors.set(true);
             (
                 spectator.inject(ExploreStateService).setFeatures as any
             ).mockReset();
@@ -120,10 +123,69 @@ describe('ExploreMapViewComponent', () => {
     it('should show map component', () => expect('interactive-map').toExist());
 
     it('should handle option changes', () => {
-        expect('settings-toggle').toExist();
+        spectator.component.hide_devices.set(false);
+        spectator.component.hide_sensors.set(false);
+        spectator.detectChanges();
+        expect(spectator.queryAll('settings-toggle')).toHaveLength(3);
         const state = spectator.inject(ExploreStateService);
-        spectator.triggerEventHandler('settings-toggle', 'ngModelChange', true);
-        expect(state.setOptions).toHaveBeenCalled();
+        vi.mocked(state.setOptions).mockClear();
+
+        spectator.component.toggleFeature('zones', false);
+        spectator.component.toggleFeature('devices', false);
+        spectator.component.toggleFeature('sensors', false);
+
+        expect(state.setOptions).toHaveBeenNthCalledWith(1, {
+            disable: ['zones'],
+        });
+        expect(state.setOptions).toHaveBeenNthCalledWith(2, {
+            disable: ['devices'],
+        });
+        expect(state.setOptions).toHaveBeenNthCalledWith(3, {
+            disable: ['sensors'],
+        });
+    });
+
+    it('should collapse two or more map toggles', () => {
+        spectator.component.hide_devices.set(false);
+        spectator.component.hide_sensors.set(false);
+        spectator.detectChanges();
+
+        expect('[toggle-controls]').toExist();
+        expect('#explore-map-toggle-options').toHaveClass('hidden');
+
+        spectator.click('[toggle-controls]');
+
+        expect('#explore-map-toggle-options').not.toHaveClass('hidden');
+        expect('[toggle-controls]').toHaveAttribute('aria-expanded', 'true');
+
+        spectator.component.hide_zones.set(true);
+        spectator.component.hide_devices.set(true);
+        spectator.detectChanges();
+
+        expect('[toggle-controls]').not.toExist();
+        expect('#explore-map-toggle-options').not.toHaveClass('hidden');
+
+        spectator.component.hide_zones.set(false);
+        spectator.component.hide_devices.set(true);
+        spectator.component.hide_sensors.set(true);
+    });
+
+    it('should hide device and sensor toggles by default', () => {
+        expect(spectator.queryAll('settings-toggle')).toHaveLength(1);
+        expect('[toggle-controls]').not.toExist();
+    });
+
+    it('should hide configured map toggles', () => {
+        spectator.component.hide_zones.set(true);
+        spectator.component.hide_devices.set(true);
+        spectator.component.hide_sensors.set(true);
+        spectator.detectChanges();
+
+        expect(spectator.queryAll('settings-toggle')).toHaveLength(0);
+
+        spectator.component.hide_zones.set(false);
+        spectator.component.hide_devices.set(true);
+        spectator.component.hide_sensors.set(true);
     });
 
     it('should handle level changes', () => {

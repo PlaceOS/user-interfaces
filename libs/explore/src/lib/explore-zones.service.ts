@@ -319,7 +319,8 @@ export class ExploreZonesService extends AsyncHandler {
             }
         }
         this._polygons.set(polygons);
-        this._state.setFeatures('zones', [...features, ...sensor_features]);
+        this._state.setFeatures('zones', features);
+        this._state.setFeatures('sensors', sensor_features);
         this._state.setStyles('zones-styles', style_map);
     }
 }

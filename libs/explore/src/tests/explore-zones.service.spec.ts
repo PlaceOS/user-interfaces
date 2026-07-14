@@ -143,8 +143,9 @@ describe('ExploreStateService', () => {
             { area_id: 'zone-1', temperature: 0, humidity: 0 },
         ]);
 
+        expect(state.setFeatures).toHaveBeenCalledWith('zones', []);
         expect(state.setFeatures).toHaveBeenLastCalledWith(
-            'zones',
+            'sensors',
             expect.arrayContaining([
                 expect.objectContaining({
                     track_id: 'sensors:zone-1',
