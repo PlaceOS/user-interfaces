@@ -386,7 +386,7 @@ export class MapViewer {
         this.overlays = document.createElement('div');
         this.overlays.id = `${this.id}-overlays`;
         this.overlays.style.cssText =
-            'position: absolute; inset: 0; pointer-events: none;';
+            'position: absolute; inset: 0; z-index: 0; pointer-events: none;';
         this.container.appendChild(this.overlays);
 
         this._resize_observer = new ResizeObserver(() => this._onResize());
