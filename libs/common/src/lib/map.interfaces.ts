@@ -35,7 +35,7 @@ export interface ViewerFeature {
     /** Whether container element should be sized to match parent */
     readonly full_size?: boolean;
     /** Element ID or Coordinates to display the content */
-    readonly location: string | Point;
+    readonly location: string | Point | MapElementBounds;
     /** Z index to apply the the container element */
     readonly z_index?: string | number;
     /** Data associated with the feature */

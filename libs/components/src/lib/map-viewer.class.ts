@@ -17,7 +17,7 @@ export interface MapDetails {
 
 export interface MapOverlay {
     /** ID of the reference element or point on the map to render the overlay */
-    ref: string | Point;
+    ref: string | Point | MapElementBounds;
     /** How the overlay should be positioned and sized. `point` is 0x0 on the center of the ref and `box` is mapped to the bounds of the ref */
     type: 'point' | 'box';
     contents: HTMLElement | string;
@@ -1227,7 +1227,7 @@ export class MapViewer {
                     continue;
                 }
             } else {
-                bounds = { ...overlay.ref, w: 0, h: 0 };
+                bounds = { w: 0, h: 0, ...overlay.ref };
             }
 
             setDisplay(instance, '');
