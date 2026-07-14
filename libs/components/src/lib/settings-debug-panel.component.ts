@@ -1,4 +1,12 @@
-import { Component, computed, inject, input, signal } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import {
+    Component,
+    computed,
+    effect,
+    inject,
+    input,
+    signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { SettingsService } from '@placeos/common';
@@ -106,10 +114,11 @@ function flattenSchemaKeys(
     selector: 'settings-debug-panel',
     template: `
         @if (show()) {
-            <div class=" fixed bottom-2 left-2 z-998 w-160 max-w-[90vw]">
-            <div class="flex flex-col gap-2">
-                <div
-                    class="-mb-2 border-base-300 bg-base-100 text-base-content flex w-[calc(100%-0.5rem)] mx-1 items-center overflow-hidden rounded-b-lg rounded-t-xl border p-1 shadow-sm"
+            <aside
+                class="border-base-300 bg-base-200 text-base-content fixed inset-y-0 right-0 z-998 flex w-96 max-w-[90vw] flex-col border-l shadow-xl"
+            >
+                <header
+                    class="border-base-300 bg-base-100 flex items-center border-b p-1"
                 >
                     <div class="flex-1 px-3 font-medium">Settings Viewer</div>
                     <div class="flex items-center">
@@ -132,12 +141,8 @@ function flattenSchemaKeys(
                             <icon>close</icon>
                         </button>
                     </div>
-                </div>
-            </div>
-            <div
-                class="border-base-300 bg-base-200 text-base-content flex h-120 flex-col overflow-hidden rounded-xl border shadow-sm pt-2"
-            >
-                <div class="relative m-1 flex">
+                </header>
+                <div class="relative m-2 flex">
                     <input
                         name="setting-filter"
                         [(ngModel)]="filter"
@@ -179,12 +184,18 @@ function flattenSchemaKeys(
                         }
                         @if (entry.row; as row) {
                             <div
-                                class="border-base-300 flex min-h-8 items-center border-b py-1 pr-2 text-xs"
+                                class="border-base-300 grid min-h-8 grid-cols-[minmax(0,1fr)_auto_auto] items-center border-b py-1 pr-2 text-xs"
                                 [class.pl-8]="entry.grouped"
                                 [class.pl-2]="!entry.grouped"
                                 [class.bg-warning-light]="row.overridden"
                             >
-                                <div class="w-3/5 min-w-0 pr-2">
+                                <div
+                                    class="min-w-0 pr-2"
+                                    [class.col-span-3]="
+                                        row.control !== 'toggle'
+                                    "
+                                    [class.pb-1]="row.control !== 'toggle'"
+                                >
                                     <div
                                         class="flex min-w-0 items-center gap-1 font-mono"
                                     >
@@ -222,7 +233,7 @@ function flattenSchemaKeys(
                                     @case ('select') {
                                         <select
                                             name="setting-value"
-                                            class="bg-base-100 flex-1 rounded-sm border px-1 py-0.5 font-mono"
+                                            class="border-base-300 bg-base-100 focus:border-info focus:ring-info h-8 w-full rounded-md border px-2 font-mono shadow-sm outline-none focus:ring-2"
                                             [(ngModel)]="edit_value"
                                             (keydown.escape)="
                                                 editing_key.set('')
@@ -250,7 +261,7 @@ function flattenSchemaKeys(
                                         <input
                                             name="setting-value"
                                             type="number"
-                                            class="bg-base-100 flex-1 rounded-sm border px-1 py-0.5 font-mono"
+                                            class="border-base-300 bg-base-100 focus:border-info focus:ring-info h-8 w-full rounded-md border px-2 font-mono shadow-sm outline-none focus:ring-2"
                                             [(ngModel)]="edit_value"
                                             (keydown.enter)="saveEdit()"
                                             (keydown.escape)="
@@ -269,7 +280,7 @@ function flattenSchemaKeys(
                                     @case ('text') {
                                         <input
                                             name="setting-value"
-                                            class="bg-base-100 flex-1 rounded-sm border px-1 py-0.5 font-mono"
+                                            class="border-base-300 bg-base-100 focus:border-info focus:ring-info h-8 w-full rounded-md border px-2 font-mono shadow-sm outline-none focus:ring-2"
                                             [(ngModel)]="edit_value"
                                             (keydown.enter)="saveEdit()"
                                             (keydown.escape)="
@@ -287,7 +298,7 @@ function flattenSchemaKeys(
                                     }
                                     @default {
                                         @if (row.control === 'toggle') {
-                                            <div class="flex flex-1">
+                                            <div class="flex">
                                                 <button
                                                     class="relative h-4 w-8 rounded-full transition-colors"
                                                     [class.bg-info]="row.value"
@@ -307,7 +318,7 @@ function flattenSchemaKeys(
                                             </div>
                                         } @else {
                                             <div
-                                                class="flex-1 cursor-pointer truncate font-mono"
+                                                class="border-base-300 bg-base-100 hover:border-info flex h-8 w-full cursor-pointer items-center truncate rounded-md border px-2 font-mono shadow-sm transition-colors"
                                                 [class]="
                                                     row.display
                                                         ? 'opacity-80'
@@ -348,24 +359,29 @@ function flattenSchemaKeys(
                     JSON, falling back to plain strings. Overrides are stored
                     locally in this browser.
                 </div>
-            </div>
-            </div>
+            </aside>
         }
         <ng-template #zone_tooltip let-zones="zones">
             <div
                 class="border-base-300 bg-base-100 text-base-content min-w-64 rounded-lg border p-2 shadow-lg"
             >
-                <div class="border-base-300 border-b px-1 pb-2 text-base font-medium">
+                <div
+                    class="border-base-300 border-b px-1 pb-2 text-base font-medium"
+                >
                     Setting sources
                 </div>
                 <div class="flex flex-col gap-1 pt-2">
                     @for (zone of zones; track zone.type + zone.id) {
-                        <div class="bg-base-200 flex items-start gap-2 rounded-sm p-2">
-                            <div class="min-w-0 flex-1 w-1/2">
+                        <div
+                            class="bg-base-200 flex items-start gap-2 rounded-sm p-2"
+                        >
+                            <div class="w-1/2 min-w-0 flex-1">
                                 <div class="truncate text-base font-medium">
                                     {{ zone.name }}
                                 </div>
-                                <div class="truncate font-mono text-[0.625rem] opacity-60">
+                                <div
+                                    class="truncate font-mono text-[0.625rem] opacity-60"
+                                >
                                     {{ zone.id }}
                                 </div>
                             </div>
@@ -395,11 +411,19 @@ export class SettingsDebugPanelComponent extends AsyncHandler {
     private _settings = inject(SettingsService);
     private _hotkey = inject(HotkeysService);
     private _org = inject(OrganisationService);
+    private _document = inject(DOCUMENT);
 
     /** JSON schema describing the app's `app.*` settings */
     public readonly schema = input<HashMap | null>(null);
 
     public readonly show = signal(false);
+    private readonly _dock_app = effect((on_cleanup) => {
+        if (!this.show()) return;
+        const body = this._document.body;
+        const padding_right = body.style.paddingRight;
+        body.style.paddingRight = 'min(24rem, 90vw)';
+        on_cleanup(() => (body.style.paddingRight = padding_right));
+    });
     public readonly filter = signal('');
     public readonly editing_key = signal('');
     /** Expansion state of top-level setting groups */
@@ -481,20 +505,12 @@ export class SettingsDebugPanelComponent extends AsyncHandler {
             this._org.region_settings,
         )) {
             const region = this._org.regions.find((_) => _.id === id);
-            add_zone(
-                'Region',
-                id,
-                region?.display_name || region?.name || '',
-                [settings],
-            );
+            add_zone('Region', id, region?.display_name || region?.name || '', [
+                settings,
+            ]);
         }
         const organisation = this._org.organisation;
-        add_zone(
-            'ORG',
-            organisation.id,
-            organisation.name,
-            this._org.settings,
-        );
+        add_zone('ORG', organisation.id, organisation.name, this._org.settings);
         return zones;
     }
 
