@@ -582,10 +582,12 @@ export class BookingFormService extends AsyncHandler {
             });
     }
 
-    private async _computeHasAssignedDesk(): Promise<boolean> {
+    private async _computeHasAssignedDesk(
+        user_email = currentUser()?.email,
+    ): Promise<boolean> {
         const buildings = this._org.building_list();
         if (!(buildings?.length > 0)) return false;
-        const email = currentUser()?.email?.toLowerCase();
+        const email = user_email?.toLowerCase();
         if (!email) return false;
         const map_metadata = (meta) =>
             (meta?.metadata?.desks?.details instanceof Array
@@ -605,15 +607,16 @@ export class BookingFormService extends AsyncHandler {
     }
 
     /**
-     * Whether the current user has a resource of `type` reserved (assigned) to
+     * Whether the given user has a resource of `type` reserved (assigned) to
      * them. Only desk/parking/locker support assignment; any other type resolves
      * to `false` so it is never blocked by the reserved-resource restriction.
      */
     private async _computeHasAssignedResource(
         type: BookingType,
+        user_email = currentUser()?.email,
     ): Promise<boolean> {
-        if (type === 'desk') return this._computeHasAssignedDesk();
-        const email = currentUser()?.email?.toLowerCase();
+        if (type === 'desk') return this._computeHasAssignedDesk(user_email);
+        const email = user_email?.toLowerCase();
         if (!email) return false;
         const resources = await this._loadRawResourcesForType(type).catch(
             () => [] as BookingAsset[],
@@ -2105,11 +2108,16 @@ export class BookingFormService extends AsyncHandler {
             !user_email ||
             user_email.toLowerCase() === currentUser()?.email?.toLowerCase();
         const setting = this.assignedResourceBooking(type);
-        if (setting === 'allow' || (setting === 'other_only' && !is_self)) {
-            return true;
-        }
-        if (await this._computeHasAssignedResource(type)) {
+        if (setting === 'allow') return true;
+        if (
+            setting === 'deny' &&
+            !is_self &&
+            (await this._computeHasAssignedResource(type))
+        ) {
             throw `You have an assigned ${type} and cannot book another ${type}.`;
+        }
+        if (await this._computeHasAssignedResource(type, user_email)) {
+            throw `${is_self ? 'You have' : 'This user has'} an assigned ${type} and cannot book another ${type}.`;
         }
         return true;
     }
