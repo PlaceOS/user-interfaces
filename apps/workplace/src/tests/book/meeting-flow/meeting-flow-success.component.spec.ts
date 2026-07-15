@@ -88,4 +88,23 @@ describe('MeetingFlowSuccessComponent', () => {
     it("should show the resolved space's level", () => {
         expect(spectator.component.level()).toBe(level_2);
     });
+
+    it('should present the room booking as pending approval', () => {
+        const element = spectator.element as HTMLElement;
+        const pending_icon = element.querySelector(
+            '[name="meeting-pending-icon"]',
+        );
+        const pending_guidance = element.querySelector(
+            '[name="meeting-pending-guidance"]',
+        );
+
+        expect(element.querySelector('h2')?.textContent).toContain(
+            'Room booking pending approval',
+        );
+        expect(element.textContent).toContain('is pending approval');
+        expect(element.textContent).not.toContain('successfully booked');
+        expect(pending_icon?.classList).toContain('bg-warning');
+        expect(pending_icon?.textContent).toContain('pending');
+        expect(pending_guidance?.classList).toContain('font-bold');
+    });
 });

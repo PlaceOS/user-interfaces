@@ -33,29 +33,25 @@ import { EventFormService, SpacePipe } from '@placeos/events';
                     class="flex flex-1 flex-col items-center justify-center space-y-2 p-8"
                 >
                     <h2 class="text-2xl font-medium">
-                        {{
-                            'BOOKINGS.ITEM_BOOKED'
-                                | translate
-                                    : { name: 'RESOURCE.ROOM' | translate }
-                        }}
+                        Room booking pending approval
                     </h2>
-                    <img src="assets/icons/success.svg" />
+                    <div
+                        name="meeting-pending-icon"
+                        class="bg-warning text-warning-content my-2 flex h-28 w-28 items-center justify-center rounded-full"
+                        aria-hidden="true"
+                    >
+                        <icon class="text-7xl">pending</icon>
+                    </div>
                     <p class="max-w-lg text-center">
                         @if (last_event()?.all_day) {
-                            {{
-                                (space().email
-                                    ? 'CALENDAR_EVENT.SUCCESS_WITH_SPACE_ALLDAY'
-                                    : 'CALENDAR_EVENT.SUCCESS_WITHOUT_SPACE_ALLDAY'
-                                ) | translate: details
-                            }}
+                            Your room booking for {{ details.level }},
+                            {{ details.space }} on {{ details.date }} is pending
+                            approval.
                         }
                         @if (!last_event()?.all_day) {
-                            {{
-                                (space().email
-                                    ? 'CALENDAR_EVENT.SUCCESS_WITH_SPACE'
-                                    : 'CALENDAR_EVENT.SUCCESS_WITHOUT_SPACE'
-                                ) | translate: details
-                            }}
+                            Your room booking for {{ details.level }},
+                            {{ details.space }} on {{ details.date }} at
+                            {{ details.time }} is pending approval.
                         }
                     </p>
                     @if (last_event()?.recurrence?.pattern) {
@@ -68,14 +64,9 @@ import { EventFormService, SpacePipe } from '@placeos/events';
                             </div>
                         </div>
                     }
-                    @if (true) {
-                        <p>
-                            {{
-                                'CALENDAR_EVENT.SUCCESS_WAIT_APPROVED'
-                                    | translate
-                            }}
-                        </p>
-                    }
+                    <p name="meeting-pending-guidance" class="font-bold">
+                        {{ 'CALENDAR_EVENT.SUCCESS_WAIT_APPROVED' | translate }}
+                    </p>
                     <div class="h-4"></div>
                     @if (space().email && allow_desk_booking) {
                         <button
