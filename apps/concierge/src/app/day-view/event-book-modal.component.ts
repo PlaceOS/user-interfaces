@@ -22,6 +22,7 @@ import { EventFormService } from '@placeos/events';
 import { FormsModule } from '@angular/forms';
 import { FormField } from '@angular/forms/signals';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -137,6 +138,18 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                                 [formField]="form.attendees"
                                 [guests]="allow_externals"
                             ></a-user-list-field>
+                            @if (can_notify_new_attendees_only()) {
+                                <mat-checkbox
+                                    name="notify-new-attendees-only"
+                                    [(ngModel)]="notify_new_attendees_only"
+                                    [ngModelOptions]="{ standalone: true }"
+                                >
+                                    {{
+                                        'CALENDAR_EVENT.NOTIFY_NEW_ATTENDEES_ONLY'
+                                            | translate
+                                    }}
+                                </mat-checkbox>
+                            }
                         </div>
                     </section>
                 }
@@ -414,6 +427,7 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
         MeetingFormDetailsComponent,
         UserListFieldComponent,
         MatAutocompleteModule,
+        MatCheckboxModule,
         FormsModule,
         MatSelectModule,
     ],
@@ -432,6 +446,10 @@ export class EventBookModalComponent implements OnInit {
     public readonly loading = signal(false);
     public readonly hide_block = signal<Record<string, boolean>>({});
     public readonly code_filter = signal('');
+    public readonly can_notify_new_attendees_only =
+        this._event_form.can_notify_new_attendees_only;
+    public readonly notify_new_attendees_only =
+        this._event_form.notify_new_attendees_only;
 
     private readonly _charge_codes = this._catering.charge_codes;
 

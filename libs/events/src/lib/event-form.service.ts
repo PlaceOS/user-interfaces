@@ -140,7 +140,20 @@ export class EventFormService extends AsyncHandler {
     private _form = this._form_ref.form;
     /** Writable signal holding the raw event form value. */
     private _model = this._form_ref.model;
+    private _initial_attendees: string[] = [];
     private _space_pipe = new SpacePipe();
+
+    public readonly notify_new_attendees_only = signal(false);
+    public readonly can_notify_new_attendees_only = computed(() => {
+        if (!this._model().id) return false;
+        const attendee_emails = this._model().attendees.map((_) =>
+            (_.email || _).toLowerCase(),
+        );
+        return (
+            this._initial_attendees.every((_) => attendee_emails.includes(_)) &&
+            attendee_emails.some((_) => !this._initial_attendees.includes(_))
+        );
+    });
 
     private removeLoadingTag = (t) =>
         this._loading.set(this._loading().replace(`[${t}]`, '').trim());
@@ -621,9 +634,11 @@ export class EventFormService extends AsyncHandler {
             (event.state === 'started' || event.state === 'in_progress');
         this._form_ref.lock_start_time.set(lock_start_time);
         const value = eventFormValue(event);
+        this.notify_new_attendees_only.set(false);
         value.assets = (event.extension_data.assets || []).map(
             (_) => new AssetRequest({ ..._, event }),
         );
+        this._setInitialAttendees(value.attendees);
         this._model.set(value);
         this._form().reset();
         this._applyDurationSettings();
@@ -665,6 +680,8 @@ export class EventFormService extends AsyncHandler {
         );
         const event = new CalendarEvent(event_data);
         this._event.set(event);
+        this._setInitialAttendees(event.attendees);
+        this.notify_new_attendees_only.set(false);
         const form_data = JSON.parse(
             sessionStorage.getItem('PLACEOS.event_form') || '{}',
         );
@@ -699,6 +716,9 @@ export class EventFormService extends AsyncHandler {
         ignore_owner = false,
         force_calendar = false,
     ) {
+        const notify_new_attendees_only =
+            this.notify_new_attendees_only() &&
+            this.can_notify_new_attendees_only();
         // host/creator may have been seeded with the placeholder EMPTY_USER
         // before the signed-in user loaded. Refresh them from the now-loaded
         // current user so events are never saved against the empty user.
@@ -876,6 +896,8 @@ export class EventFormService extends AsyncHandler {
                           spaces[0]?.id,
                   }
                 : {};
+            if (notify_new_attendees_only)
+                query.notify_existing_attendees = false;
             const user_email = currentUser()?.email?.toLowerCase() || '';
             const source_calendar =
                 event.calendar ||
@@ -1257,6 +1279,12 @@ export class EventFormService extends AsyncHandler {
                   } as any),
               ).then((_) => newCalendarEventFromBooking(_))
             : saveEvent(event, query);
+    }
+
+    private _setInitialAttendees(attendees: any[]) {
+        this._initial_attendees = attendees.map((_) =>
+            (_.email || _).toLowerCase(),
+        );
     }
 
     private async _removeBookingAfterError(

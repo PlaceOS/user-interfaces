@@ -650,6 +650,7 @@
         "ATTENDEES_COUNT_N": "{{ count }} attendees",
         "ATTENDEE_COUNT": "{{ count }} attendee(s)",
         "ATTENDEES": "Attendees",
+        "NOTIFY_NEW_ATTENDEES_ONLY": "Only notify new attendees",
         "DETAILS": "Details",
         "NOTES_HEADER": "Notes",
         "ASSETS_HEADER": "Assets",

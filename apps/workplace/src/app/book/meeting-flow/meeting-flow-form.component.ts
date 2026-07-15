@@ -18,6 +18,7 @@ import {
     MatBottomSheetRef,
 } from '@angular/material/bottom-sheet';
 import { MatRippleModule } from '@angular/material/core';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -168,6 +169,20 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                         [time]="model().date"
                                         [guests]="allow_externals()"
                                     ></a-user-list-field>
+                                    @if (can_notify_new_attendees_only()) {
+                                        <mat-checkbox
+                                            name="notify-new-attendees-only"
+                                            [(ngModel)]="notify_new_attendees_only"
+                                            [ngModelOptions]="{
+                                                standalone: true,
+                                            }"
+                                        >
+                                            {{
+                                                'CALENDAR_EVENT.NOTIFY_NEW_ATTENDEES_ONLY'
+                                                    | translate
+                                            }}
+                                        </mat-checkbox>
+                                    }
                                 </div>
                             </section>
                         }
@@ -486,6 +501,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
         TranslatePipe,
         IconComponent,
         MatRippleModule,
+        MatCheckboxModule,
         RichTextInputComponent,
         AssetListFieldComponent,
         CateringListFieldComponent,
@@ -517,6 +533,10 @@ export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
     public hide_block: Record<string, boolean> = {};
     public code_filter = signal('');
     public invalid_assets = signal<string[]>([]);
+    public readonly can_notify_new_attendees_only =
+        this._state.can_notify_new_attendees_only;
+    public readonly notify_new_attendees_only =
+        this._state.notify_new_attendees_only;
 
     public readonly has_catering = computed(
         () => this._catering.available_menu().length > 0,

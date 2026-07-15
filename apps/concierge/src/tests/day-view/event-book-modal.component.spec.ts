@@ -8,9 +8,10 @@ import {
 import { SettingsService } from '@placeos/common';
 import { CateringOrderStateService } from '@placeos/catering';
 import { EventFormService, generateEventForm } from '@placeos/events';
-import { MockProvider } from 'ng-mocks';
+import { MockComponent, MockProvider } from 'ng-mocks';
 
 import { EventBookModalComponent } from '../../app/day-view/event-book-modal.component';
+import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-details.component';
 
 describe('EventBookModalComponent', () => {
     let spectator: SpectatorRouting<EventBookModalComponent>;
@@ -24,6 +25,7 @@ describe('EventBookModalComponent', () => {
         component: EventBookModalComponent,
         shallow: true,
         detectChanges: false,
+        declarations: [MockComponent(MeetingFormDetailsComponent)],
         providers: [
             { provide: ComponentFixtureAutoDetect, useValue: false },
             MockProvider(MAT_DIALOG_DATA, { event: undefined }),
@@ -48,6 +50,8 @@ describe('EventBookModalComponent', () => {
                     return {
                         model,
                         form,
+                        can_notify_new_attendees_only: signal(false),
+                        notify_new_attendees_only: signal(false),
                         is_multiday: false,
                         newForm: new_form,
                         postForm: post_form,
@@ -72,6 +76,14 @@ describe('EventBookModalComponent', () => {
     it('should initialise the form on load', () => {
         spectator.component.ngOnInit();
         expect(new_form).toHaveBeenCalled();
+    });
+
+    it('should show the notification option beside attendee edits', () => {
+        (spectator.component.can_notify_new_attendees_only as any).set(true);
+        spectator.detectChanges();
+        expect(
+            spectator.query('[name="notify-new-attendees-only"]'),
+        ).toExist();
     });
 
     it('should flag catering availability from the available menu', () => {

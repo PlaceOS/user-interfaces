@@ -45,6 +45,8 @@ describe('MeetingFlowFormComponent', () => {
                     return {
                         model,
                         form,
+                        can_notify_new_attendees_only: signal(false),
+                        notify_new_attendees_only: signal(false),
                         resetForm: vi.fn(),
                     } as Partial<EventFormService>;
                 },
@@ -93,6 +95,17 @@ describe('MeetingFlowFormComponent', () => {
 
     it('should show attendee list', () =>
         expect(spectator.query('a-user-list-field')).toExist());
+
+    it('should show the notification option beside attendee edits', () => {
+        expect(
+            spectator.query('[name="notify-new-attendees-only"]'),
+        ).not.toExist();
+        (spectator.component.can_notify_new_attendees_only as any).set(true);
+        spectator.detectChanges();
+        expect(
+            spectator.query('[name="notify-new-attendees-only"]'),
+        ).toExist();
+    });
 
     it('should show room list', () =>
         expect(spectator.query('space-list-field')).toExist());
