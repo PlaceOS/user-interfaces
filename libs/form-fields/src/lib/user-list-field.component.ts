@@ -75,16 +75,22 @@ const DENIED_FILE_TYPES = [
                         @for (item of active_list(); track item.id) {
                             <mat-chip-row
                                 user
+
+                                [class.bg-base-200]="!item.is_external"
                                 [class.bg-warning]="item.is_external"
                                 (removed)="removeUser(item)"
                                 [matTooltip]="item.email"
                             >
-                                <div class="flex items-center space-x-2">
+                                <div class="flex items-center space-x-2"
+                                    [class.text-base-content!]="!item.is_external"
+                                    [class.text-warning-content!]="item.is_external">
                                     <div>{{ item.name || item.email }}</div>
                                 </div>
                                 <button
                                     matChipRemove
                                     remove
+                                    [class.text-base-content!]="!item.is_external"
+                                    [class.text-warning-content!]="item.is_external"
                                     [attr.aria-label]="
                                         'COMMON.REMOVE_ITEM'
                                             | translate
