@@ -914,7 +914,7 @@ describe('ParkingRequestFormDetailsComponent', () => {
         expect(errors.some((e) => e.kind === 'required')).toBe(false);
     });
 
-    it('should default parking restrictions to None', async () => {
+    it('should start with no parking restriction selected', async () => {
         spectator.component.space_restriction_options_setting.set([
             { id: 'oversized', name: 'Oversized' },
         ]);
@@ -929,7 +929,7 @@ describe('ParkingRequestFormDetailsComponent', () => {
         expect(spectator.component.model().space_restrictions).toBe(false);
     });
 
-    it('should require a parking restriction other than None when configured', () => {
+    it('should require a parking restriction when configured', () => {
         spectator.component.model.update((m) => ({
             ...m,
             space_restrictions: false,
