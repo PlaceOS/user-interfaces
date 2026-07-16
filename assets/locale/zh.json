@@ -1031,7 +1031,7 @@
             "DESKS_MAP_ID_PLACEHOLDER": "例如：table-01.123",
             "DESKS_VIEW_QR_CODE_LIST": "查看工位二维码列表",
             "DESKS_LIST_UPLOAD": "上传工位 CSV",
-            "DESKS_LIST_DOWNLOAD": "下载工位 CSV 模板",
+            "DESKS_LIST_DOWNLOAD": "下载工位 CSV",
             "DESKS_BOOKING_RULES": "工位限制",
             "DESKS_BOOKINGS_EMPTY": "当前选择的日期没有工位预订。",
             "DESKS_BOOKINGS_SEARCH_EMPTY": "没有匹配的工位预订",
