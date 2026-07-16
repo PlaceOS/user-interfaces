@@ -1490,13 +1490,18 @@ describe('BookingFormService', () => {
             spectator.service as any,
             '_checkResourceAvailable',
         ).mockResolvedValue(true);
-        const saved_forms: { asset_id: string; resource_id: string }[] = [];
+        const saved_forms: {
+            asset_id: string;
+            resource_id: string;
+            extension_name: string;
+        }[] = [];
         vi.spyOn(spectator.service, 'postForm').mockImplementation(
             async () => {
                 const value = spectator.service.model();
                 saved_forms.push({
                     asset_id: value.asset_id,
                     resource_id: value.resources?.[0]?.id,
+                    extension_name: value.name,
                 });
                 return new Booking({
                     id: `booking-${saved_forms.length}`,
@@ -1519,6 +1524,7 @@ describe('BookingFormService', () => {
             ...m,
             asset_id: 'desk-1',
             asset_name: 'Desk 1',
+            name: 'Desk 1',
             map_id: 'map-1',
             resources: [desk_list[0]],
         }));
@@ -1540,8 +1546,16 @@ describe('BookingFormService', () => {
         await spectator.service.postFormForGroup();
 
         expect(saved_forms).toEqual([
-            { asset_id: 'desk-1', resource_id: 'desk-1' },
-            { asset_id: 'desk-2', resource_id: 'desk-2' },
+            {
+                asset_id: 'desk-1',
+                resource_id: 'desk-1',
+                extension_name: 'Desk 1',
+            },
+            {
+                asset_id: 'desk-2',
+                resource_id: 'desk-2',
+                extension_name: 'Desk 2',
+            },
         ]);
     });
 
