@@ -7,6 +7,7 @@ import { MapCanvasComponent, Polygon } from '../lib/map-canvas.component';
 
 describe('MapCanvasComponent', () => {
     let spectator: Spectator<MapCanvasComponent>;
+    let resize_callback: ResizeObserverCallback;
     const polygons = signal<Polygon[]>([]);
     const context = {
         clearRect: vi.fn(),
@@ -18,6 +19,7 @@ describe('MapCanvasComponent', () => {
         stroke: vi.fn(),
         arc: vi.fn(),
         fillText: vi.fn(),
+        setTransform: vi.fn(),
     };
     const test_polygon: Polygon = {
         name: 'Zone A',
@@ -41,29 +43,62 @@ describe('MapCanvasComponent', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         polygons.set([]);
-        vi.spyOn(
-            HTMLCanvasElement.prototype,
-            'getContext',
-        ).mockReturnValue(context as any);
+        vi.stubGlobal(
+            'ResizeObserver',
+            class {
+                constructor(callback: ResizeObserverCallback) {
+                    resize_callback = callback;
+                }
+                public observe() {}
+                public disconnect() {}
+            },
+        );
+        vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(
+            context as any,
+        );
     });
 
-    afterEach(() => vi.restoreAllMocks());
+    afterEach(() => {
+        vi.unstubAllGlobals();
+        vi.restoreAllMocks();
+    });
 
     it('should create component', () => {
         spectator = createComponent();
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should size the canvas from the zoom and ratio signals', () => {
+    it('should size its backing buffer from its rendered size', () => {
+        vi.stubGlobal('devicePixelRatio', 2);
         spectator = createComponent();
         const canvas = spectator.query('canvas') as HTMLCanvasElement;
-        expect(canvas.style.width).toBe('10000%');
-        expect(canvas.style.height).toBe('10000%');
-        spectator.component.zoom.set(2);
-        spectator.component.ratio.set(0.5);
-        spectator.detectChanges();
-        expect(canvas.style.width).toBe('20000%');
-        expect(canvas.style.height).toBe('10000%');
+        Object.defineProperties(canvas, {
+            clientWidth: { value: 400 },
+            clientHeight: { value: 200 },
+        });
+
+        expect(resize_callback).toBeTypeOf('function');
+        resize_callback([], {} as ResizeObserver);
+
+        expect(canvas.width).toBe(800);
+        expect(canvas.height).toBe(400);
+        expect(context.setTransform).toHaveBeenCalledWith(2, 0, 0, 2, 0, 0);
+    });
+
+    it('should cap its backing buffer at the map texture limits', () => {
+        vi.stubGlobal('devicePixelRatio', 2);
+        spectator = createComponent();
+        const canvas = spectator.query('canvas') as HTMLCanvasElement;
+        Object.defineProperties(canvas, {
+            clientWidth: { value: 10_000 },
+            clientHeight: { value: 5_000 },
+        });
+
+        resize_callback([], {} as ResizeObserver);
+
+        expect(canvas.width).toBeLessThanOrEqual(8192);
+        expect(canvas.height).toBeLessThanOrEqual(8192);
+        expect(canvas.width * canvas.height).toBeLessThanOrEqual(16_000_000);
     });
 
     it('should draw polygons with outline, points and label', () => {

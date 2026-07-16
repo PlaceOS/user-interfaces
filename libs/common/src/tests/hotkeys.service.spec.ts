@@ -1,4 +1,7 @@
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
+import {
+    createServiceFactory,
+    SpectatorService,
+} from '@ngneat/spectator/vitest';
 
 import { HotkeysService } from '../lib/hotkeys.service';
 
@@ -64,5 +67,19 @@ describe('HotkeysService', () => {
         keypress('KeyK');
         vi.advanceTimersByTime(100);
         expect(spy).toHaveBeenCalledTimes(1);
+    });
+
+    it('should ignore hotkeys while typing in an editable element', () => {
+        const spy = vi.fn();
+        const input = document.createElement('input');
+        document.body.appendChild(input);
+        input.focus();
+        spectator.service.listen(['KeyS'], spy);
+
+        keypress('KeyS');
+        vi.advanceTimersByTime(100);
+
+        expect(spy).not.toHaveBeenCalled();
+        input.remove();
     });
 });

@@ -1,6 +1,7 @@
 import {
     Component,
     computed,
+    DestroyRef,
     effect,
     inject,
     OnDestroy,
@@ -15,6 +16,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSliderModule } from '@angular/material/slider';
 import {
+    HotkeysService,
     i18n,
     notifyError,
     notifySuccess,
@@ -129,6 +131,7 @@ function schemaDefaults(schema: Record<string, unknown> | null | undefined) {
                     : 'SIGNAGE_MANAGER.MEDIA_NEW'
                 ) | translate
             "
+            confirm_hotkey="S"
             (confirm)="saveMedia()"
             [loading]="
                 loading() ? ('SIGNAGE_MANAGER.MEDIA_SAVING' | translate) : ''
@@ -512,6 +515,10 @@ export class MediaEditModalComponent implements OnDestroy {
     }
 
     constructor() {
+        const save_hotkey = inject(HotkeysService).listen(['KeyS'], () =>
+            this.saveMedia(),
+        );
+        inject(DestroyRef).onDestroy(() => save_hotkey?.unsubscribe());
         if (this.media_type === 'webpage') {
             this.preview_url.set(this.item.media_uri || this.item.media_url);
             effect((onCleanup) => {

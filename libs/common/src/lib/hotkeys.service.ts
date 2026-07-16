@@ -31,6 +31,12 @@ export class HotkeysService {
 
     constructor() {
         window.addEventListener('keydown', (event: KeyboardEvent) => {
+            if (
+                document.getSelection()?.type === 'Range' ||
+                this.isEditableElementFocused()
+            ) {
+                return;
+            }
             const code = this.mapKey((event.code || '').toLowerCase());
             if (this.last_down !== code) {
                 if (!this.keydown_states[code]) {
@@ -113,6 +119,19 @@ export class HotkeysService {
         for (const callback of this.keydown_callbacks[code] || []) {
             callback(count);
         }
+    }
+
+    /** Check if keyboard input should remain with the focused editor. */
+    private isEditableElementFocused(): boolean {
+        const active = document.activeElement;
+        if (!active) return false;
+        const tag_name = active.tagName.toLowerCase();
+        return (
+            tag_name === 'input' ||
+            tag_name === 'textarea' ||
+            active.getAttribute('contenteditable') === 'true' ||
+            !!active.closest('.monaco-editor')
+        );
     }
 
     /**

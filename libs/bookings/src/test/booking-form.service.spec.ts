@@ -842,8 +842,8 @@ describe('BookingFormService', () => {
         const get = spectator.inject(SettingsService).get as Mock;
         (spectator.inject(PaymentsService) as any).enabled = false;
         get.mockImplementation((key: string) => {
-            if (key === 'app.desks.prevent_self_booking_if_assigned_resource') {
-                return true;
+            if (key === 'app.desks.assigned_resource_booking') {
+                return 'deny';
             }
             return undefined;
         });
@@ -895,8 +895,8 @@ describe('BookingFormService', () => {
         const get = spectator.inject(SettingsService).get as Mock;
         (spectator.inject(PaymentsService) as any).enabled = false;
         get.mockImplementation((key: string) => {
-            if (key === 'app.desks.prevent_self_booking_if_assigned_resource') {
-                return true;
+            if (key === 'app.desks.assigned_resource_booking') {
+                return 'other_only';
             }
             return undefined;
         });
@@ -951,6 +951,64 @@ describe('BookingFormService', () => {
         );
     });
 
+    it('should block desk bookings for other users who have an assigned desk', async () => {
+        const get = spectator.inject(SettingsService).get as Mock;
+        (spectator.inject(PaymentsService) as any).enabled = false;
+        get.mockImplementation((key: string) => {
+            if (key === 'app.desks.assigned_resource_booking') {
+                return 'other_only';
+            }
+            return undefined;
+        });
+        vi.mocked(ts_client.listChildMetadata).mockResolvedValue([
+            {
+                metadata: {
+                    desks: {
+                        details: [
+                            {
+                                id: 'assigned-desk',
+                                assigned_to: 'other.user@example.com',
+                            },
+                        ],
+                    },
+                },
+                zone: { id: 'lvl-1' },
+            },
+        ] as any);
+        spectator.service.newForm(
+            'desk',
+            new Booking({
+                booking_type: 'desk',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                asset_id: 'desk-1',
+            }),
+        );
+        spectator.service.model.update((m) => ({
+            ...m,
+            user: {
+                email: 'other.user@example.com',
+                name: 'Other User',
+                id: 'other-user',
+            } as any,
+            asset_id: 'desk-1',
+            asset_name: 'Desk 1',
+            resources: [
+                {
+                    id: 'desk-1',
+                    name: 'Desk 1',
+                    zone: { id: 'lvl-1', parent_id: 'bld-1' },
+                    features: [],
+                },
+            ],
+        }));
+
+        await expect(spectator.service.postForm(true)).rejects.toBe(
+            'This user has an assigned desk and cannot book another desk.',
+        );
+        expect(savedBookings().length).toBe(0);
+    });
+
     it('should block self desk bookings by default when the user has an assigned desk', async () => {
         (spectator.inject(PaymentsService) as any).enabled = false;
         vi.mocked(ts_client.listChildMetadata).mockResolvedValue([
@@ -1001,8 +1059,8 @@ describe('BookingFormService', () => {
         const get = spectator.inject(SettingsService).get as Mock;
         (spectator.inject(PaymentsService) as any).enabled = false;
         get.mockImplementation((key: string) => {
-            if (key === 'app.desks.allow_booking_with_reserved_resource') {
-                return true;
+            if (key === 'app.desks.assigned_resource_booking') {
+                return 'allow';
             }
             return undefined;
         });
@@ -1049,15 +1107,12 @@ describe('BookingFormService', () => {
         expect(savedBookings().length).toBe(1);
     });
 
-    it('should block self desk bookings when the legacy prevent setting overrides the allow setting', async () => {
+    it('should block self desk bookings when assigned resource booking is other only', async () => {
         const get = spectator.inject(SettingsService).get as Mock;
         (spectator.inject(PaymentsService) as any).enabled = false;
         get.mockImplementation((key: string) => {
-            if (key === 'app.desks.allow_booking_with_reserved_resource') {
-                return true;
-            }
-            if (key === 'app.desks.prevent_self_booking_if_assigned_resource') {
-                return true;
+            if (key === 'app.desks.assigned_resource_booking') {
+                return 'other_only';
             }
             return undefined;
         });
@@ -1105,11 +1160,11 @@ describe('BookingFormService', () => {
         expect(savedBookings().length).toBe(0);
     });
 
-    it('should resolve the reserved-desk allowance from desk settings regardless of the active flow type', () => {
+    it('should resolve assigned-resource booking from desk settings regardless of the active flow type', () => {
         const get = spectator.inject(SettingsService).get as Mock;
         get.mockImplementation((key: string) => {
-            if (key === 'app.desks.allow_booking_with_reserved_resource') {
-                return true;
+            if (key === 'app.desks.assigned_resource_booking') {
+                return 'allow';
             }
             return undefined;
         });
@@ -1117,75 +1172,66 @@ describe('BookingFormService', () => {
         // singleton. The desk allowance must remain stable so the reserved-desk
         // block does not appear intermittently.
         spectator.service.newForm('parking');
-        expect(spectator.service.allowsBookingWithReservedResource('desk')).toBe(true);
+        expect(spectator.service.assignedResourceBooking('desk')).toBe('allow');
         spectator.service.newForm('desk');
-        expect(spectator.service.allowsBookingWithReservedResource('desk')).toBe(true);
+        expect(spectator.service.assignedResourceBooking('desk')).toBe('allow');
     });
 
-    it('should keep the reserved-desk allowance on even when self-booking is prevented', () => {
+    it('should keep the form available when assigned resource booking is other only', () => {
         const get = spectator.inject(SettingsService).get as Mock;
         get.mockImplementation((key: string) => {
-            if (key === 'app.desks.allow_booking_with_reserved_resource') {
-                return true;
-            }
-            if (key === 'app.desks.prevent_self_booking_if_assigned_resource') {
-                return true;
+            if (key === 'app.desks.assigned_resource_booking') {
+                return 'other_only';
             }
             return undefined;
         });
-        // `prevent` blocks only the user's own bookings, and only at submit, so
-        // the master allowance (which drives UI gating) stays on and the form is
-        // not blanket-blocked for booking on behalf of others.
-        expect(spectator.service.allowsBookingWithReservedResource('desk')).toBe(true);
+        expect(spectator.service.assignedResourceBooking('desk')).toBe('other_only');
     });
 
-    it('should resolve the reserved-resource allowance independently for each resource type', () => {
+    it('should resolve assigned-resource booking independently for each resource type', () => {
         const get = spectator.inject(SettingsService).get as Mock;
         get.mockImplementation((key: string) => {
-            if (key === 'app.parking.allow_booking_with_reserved_resource') {
-                return true;
+            if (key === 'app.parking.assigned_resource_booking') {
+                return 'deny';
             }
             return undefined;
         });
         expect(
-            spectator.service.allowsBookingWithReservedResource('parking'),
-        ).toBe(true);
+            spectator.service.assignedResourceBooking('parking'),
+        ).toBe('deny');
         expect(
-            spectator.service.allowsBookingWithReservedResource('desk'),
-        ).toBe(false);
+            spectator.service.assignedResourceBooking('desk'),
+        ).toBe('other_only');
         expect(
-            spectator.service.allowsBookingWithReservedResource('locker'),
-        ).toBe(false);
+            spectator.service.assignedResourceBooking('locker'),
+        ).toBe('other_only');
     });
 
-    it('should fall back to booking-level reserved-resource settings for any resource type', () => {
+    it('should fall back to booking-level assigned-resource settings for any resource type', () => {
         const get = spectator.inject(SettingsService).get as Mock;
         get.mockImplementation((key: string) => {
-            if (key === 'app.bookings.allow_booking_with_reserved_resource') {
-                return true;
+            if (key === 'app.bookings.assigned_resource_booking') {
+                return 'deny';
             }
             return undefined;
         });
         expect(
-            spectator.service.allowsBookingWithReservedResource('desk'),
-        ).toBe(true);
+            spectator.service.assignedResourceBooking('desk'),
+        ).toBe('deny');
         expect(
-            spectator.service.allowsBookingWithReservedResource('parking'),
-        ).toBe(true);
+            spectator.service.assignedResourceBooking('parking'),
+        ).toBe('deny');
         expect(
-            spectator.service.allowsBookingWithReservedResource('locker'),
-        ).toBe(true);
+            spectator.service.assignedResourceBooking('locker'),
+        ).toBe('deny');
     });
 
     it('should allow desk bookings for others when self-booking is prevented for reserved-desk users', async () => {
         const get = spectator.inject(SettingsService).get as Mock;
         (spectator.inject(PaymentsService) as any).enabled = false;
         get.mockImplementation((key: string) => {
-            if (key === 'app.desks.allow_booking_with_reserved_resource') {
-                return true;
-            }
-            if (key === 'app.desks.prevent_self_booking_if_assigned_resource') {
-                return true;
+            if (key === 'app.desks.assigned_resource_booking') {
+                return 'other_only';
             }
             return undefined;
         });
@@ -1444,13 +1490,18 @@ describe('BookingFormService', () => {
             spectator.service as any,
             '_checkResourceAvailable',
         ).mockResolvedValue(true);
-        const saved_forms: { asset_id: string; resource_id: string }[] = [];
+        const saved_forms: {
+            asset_id: string;
+            resource_id: string;
+            extension_name: string;
+        }[] = [];
         vi.spyOn(spectator.service, 'postForm').mockImplementation(
             async () => {
                 const value = spectator.service.model();
                 saved_forms.push({
                     asset_id: value.asset_id,
                     resource_id: value.resources?.[0]?.id,
+                    extension_name: value.name,
                 });
                 return new Booking({
                     id: `booking-${saved_forms.length}`,
@@ -1473,6 +1524,7 @@ describe('BookingFormService', () => {
             ...m,
             asset_id: 'desk-1',
             asset_name: 'Desk 1',
+            name: 'Desk 1',
             map_id: 'map-1',
             resources: [desk_list[0]],
         }));
@@ -1494,8 +1546,16 @@ describe('BookingFormService', () => {
         await spectator.service.postFormForGroup();
 
         expect(saved_forms).toEqual([
-            { asset_id: 'desk-1', resource_id: 'desk-1' },
-            { asset_id: 'desk-2', resource_id: 'desk-2' },
+            {
+                asset_id: 'desk-1',
+                resource_id: 'desk-1',
+                extension_name: 'Desk 1',
+            },
+            {
+                asset_id: 'desk-2',
+                resource_id: 'desk-2',
+                extension_name: 'Desk 2',
+            },
         ]);
     });
 

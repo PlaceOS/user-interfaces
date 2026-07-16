@@ -37,5 +37,11 @@ export const routes: Routes = [
         loadChildren: () =>
             import('./checkin/checkin.routes').then((m) => m.ROUTES),
     },
+    {
+        path: 'checkout',
+        canActivate: [AuthorisedUserGuard],
+        loadChildren: () =>
+            import('./checkin/checkout.routes').then((m) => m.ROUTES),
+    },
     { path: '**', redirectTo: 'bootstrap' },
 ];

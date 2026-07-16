@@ -236,20 +236,25 @@ export class CheckinDetailsComponent implements OnInit {
     public async updateGuest(update = true) {
         this.loading.set(true);
         if (update) await this._checkin.updateGuest();
+        if (
+            this.induction_after_details() &&
+            this.induction_available() &&
+            this._checkin.event()?.induction !== 'accepted'
+        ) {
+            this.loading.set(false);
+            this._router.navigate(['/checkin', 'induction']);
+            return;
+        }
         const result = await this._checkin
             .checkinGuest()
             .then(() => true)
             .catch(() => false);
         this.loading.set(false);
         if (!result) return;
-        if (this.induction_after_details() && this.induction_available()) {
-            this._router.navigate(['/checkin', 'induction']);
-        } else {
-            this._router.navigate([
-                '/checkin',
-                this.allow_user_photo() ? 'photo' : 'results',
-            ]);
-        }
+        this._router.navigate([
+            '/checkin',
+            this.allow_user_photo() ? 'photo' : 'results',
+        ]);
     }
 
     public previous() {

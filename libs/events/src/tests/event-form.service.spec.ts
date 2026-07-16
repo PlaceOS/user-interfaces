@@ -174,6 +174,81 @@ describe('EventFormService', () => {
         expect(service.model().all_day).toBe(true);
     });
 
+    it('should offer attendee-only notifications when adding attendees to a room booking', async () => {
+        const event = new CalendarEvent({
+            id: 'event-1',
+            host: 'host@test.com',
+            title: 'Team meeting',
+            attendees: [{ email: 'existing@test.com' } as any],
+            resources: [
+                {
+                    id: 'space-1',
+                    email: 'space-1@test.com',
+                    zones: [],
+                } as any,
+            ],
+        });
+        service.newForm(event);
+        await new Promise((resolve) => setTimeout(resolve));
+
+        expect(service.can_notify_new_attendees_only()).toBe(false);
+
+        service.model.update((model) => ({
+            ...model,
+            attendees: [...model.attendees, { email: 'new.attendee@test.com' }],
+        }));
+        expect(service.can_notify_new_attendees_only()).toBe(true);
+
+        service.model.update((model) => ({
+            ...model,
+            title: 'Normalised team meeting',
+        }));
+        expect(service.can_notify_new_attendees_only()).toBe(true);
+
+        service.model.update((model) => ({
+            ...model,
+            attendees: model.attendees.filter(
+                (_) => _.email !== 'existing@test.com',
+            ),
+        }));
+        expect(service.can_notify_new_attendees_only()).toBe(false);
+    });
+
+    it('should suppress existing attendee notifications for attendee-only edits', async () => {
+        const event = new CalendarEvent({
+            id: 'event-1',
+            host: 'host@test.com',
+            creator: 'host@test.com',
+            title: 'Team meeting',
+            date: new Date(2028, 5, 15, 10).valueOf(),
+            duration: 60,
+            attendees: [{ email: 'existing@test.com' } as any],
+            resources: [
+                {
+                    id: 'space-1',
+                    email: 'space-1@test.com',
+                    zones: [],
+                } as any,
+            ],
+        });
+        const perform_booking_spy = vi
+            .spyOn(service as any, '_performBooking')
+            .mockResolvedValue(event);
+        service.newForm(event);
+        service.model.update((model) => ({
+            ...model,
+            attendees: [...model.attendees, { email: 'new.attendee@test.com' }],
+        }));
+        service.notify_new_attendees_only.set(true);
+
+        await service.postForm(true);
+
+        expect(perform_booking_spy).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.objectContaining({ notify_existing_attendees: false }),
+        );
+    });
+
     it('should allow multiday events ending exactly at the bookable-hours end', async () => {
         const settings = TestBed.inject(SettingsService) as any;
         settings.get.mockImplementation((key: string) =>

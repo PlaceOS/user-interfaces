@@ -47,6 +47,10 @@ export class MockBookingModule {
     hide_meeting_details = false;
     /** Whether to hide meeting title */
     hide_meeting_title = false;
+    /** Whether to show the floating schedule timeline */
+    show_timeline = false;
+    /** Position of the schedule timeline */
+    timeline_position = 'floating-left';
     /** URL for offline image */
     offline_image = '';
     /** Offline background color */

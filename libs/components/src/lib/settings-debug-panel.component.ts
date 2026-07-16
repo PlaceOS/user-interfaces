@@ -1,12 +1,23 @@
-import { Component, computed, inject, input, signal } from '@angular/core';
+import { Clipboard } from '@angular/cdk/clipboard';
+import { DOCUMENT } from '@angular/common';
+import {
+    Component,
+    computed,
+    effect,
+    inject,
+    input,
+    signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { SettingsService } from '@placeos/common';
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
 import { HotkeysService } from 'libs/common/src/lib/hotkeys.service';
 import { OrganisationService } from 'libs/common/src/lib/org/organisation.service';
 import { DEFAULT_SETTINGS } from 'libs/common/src/lib/settings';
 import { HashMap } from 'libs/common/src/lib/types';
+import { BindingDebugPanelComponent } from './binding-debug-panel.component';
 import { CustomTooltipComponent } from './custom-tooltip.component';
 import { IconComponent } from './icon.component';
 
@@ -26,7 +37,7 @@ interface SettingRow {
     description: string;
     zones: SettingZone[];
     control: 'toggle' | 'number' | 'select' | 'text';
-    options?: string[];
+    options?: { value: unknown; label: string }[];
 }
 
 interface GroupHeader {
@@ -37,8 +48,8 @@ interface GroupHeader {
 
 interface PanelEntry {
     header?: GroupHeader;
-    row?: SettingRow;
-    grouped?: boolean;
+    rows: SettingRow[];
+    grouped: boolean;
 }
 
 function flattenKeys(map: HashMap, prefix: string, keys: Set<string>) {
@@ -55,6 +66,11 @@ function hasSetting(map: HashMap, key: string) {
     let value: any = map;
     for (const part of key.slice(4).split('.')) value = value?.[part];
     return value != null;
+}
+
+function optionLabel(value: unknown) {
+    const label = `${value}`.replace(/[_-]+/g, ' ');
+    return label.charAt(0).toUpperCase() + label.slice(1);
 }
 
 /** Resolve `$ref: "#/$defs/..."` pointers against the schema root */
@@ -106,37 +122,63 @@ function flattenSchemaKeys(
     selector: 'settings-debug-panel',
     template: `
         @if (show()) {
-            <div class=" fixed bottom-2 left-2 z-998 w-160 max-w-[90vw]">
-            <div class="flex flex-col gap-2">
-                <div
-                    class="-mb-2 border-base-300 bg-base-100 text-base-content flex w-[calc(100%-0.5rem)] mx-1 items-center overflow-hidden rounded-b-lg rounded-t-xl border p-1 shadow-sm"
+            <aside
+                class="border-base-300 bg-base-200 text-base-content fixed inset-y-0 right-0 z-998 flex w-96 max-w-[90vw] flex-col border-l shadow-xl"
+            >
+                <header
+                    class="border-base-300 bg-base-100 flex items-center border-b p-2"
                 >
-                    <div class="flex-1 px-3 font-medium">Settings Viewer</div>
-                    <div class="flex items-center">
-                        @if (has_overrides()) {
-                            <button
-                                matRipple
-                                class="text-error px-2 py-1 text-xs underline"
-                                (click)="clearAll()"
-                            >
-                                Clear all overrides
-                            </button>
-                        }
+                    <button
+                        icon
+                        default
+                        matRipple
+                        class="text-sm"
+                        (click)="show.set(false)"
+                    >
+                        <icon>close</icon>
+                    </button>
+                    <div class="flex-1 px-3 text-lg font-medium">
+                        Settings Viewer
+                    </div>
+                    <div class="flex items-center gap-2 text-xs">
                         <button
                             icon
                             default
                             matRipple
-                            class="text-sm"
-                            (click)="show.set(false)"
+                            matTooltip="Add setting"
+                            matTooltipPosition="below"
+                            aria-label="Add setting"
+                            (click)="addSetting()"
                         >
-                            <icon>close</icon>
+                            <icon>add</icon>
                         </button>
+                        @if (has_overrides()) {
+                            <button
+                                icon
+                                default
+                                matRipple
+                                matTooltip="Copy overrides"
+                                matTooltipPosition="below"
+                                aria-label="Copy overrides"
+                                (click)="copyOverrides()"
+                            >
+                                <icon>content_copy</icon>
+                            </button>
+                            <button
+                                icon
+                                default
+                                error
+                                matRipple
+                                matTooltip="Clear all overrides"
+                                matTooltipPosition="below"
+                                aria-label="Clear all overrides"
+                                (click)="clearAll()"
+                            >
+                                <icon>delete_sweep</icon>
+                            </button>
+                        }
                     </div>
-                </div>
-            </div>
-            <div
-                class="border-base-300 bg-base-200 text-base-content flex h-120 flex-col overflow-hidden rounded-xl border shadow-sm pt-2"
-            >
+                </header>
                 <div class="relative m-1 flex">
                     <input
                         name="setting-filter"
@@ -151,190 +193,223 @@ function flattenSchemaKeys(
                 </div>
                 <div class="flex-1 overflow-auto">
                     @for (entry of entries(); track $index) {
-                        @if (entry.header; as group) {
-                            <button
-                                class="border-base-300 bg-base-100/50 hover:bg-base-100 flex min-h-8 w-full items-center gap-1 border-b px-2 py-1 text-left text-xs"
-                                (click)="toggleGroup(group.name)"
-                            >
-                                <icon
-                                    class="text-sm transition-transform"
-                                    [class.rotate-90]="
-                                        filter() || expanded()[group.name]
-                                    "
+                        <section>
+                            @if (entry.header; as group) {
+                                <button
+                                    class="border-base-300 bg-base-100 hover:bg-base-100 sticky top-0 z-10 flex min-h-8 w-full items-center gap-1 border-b px-2 py-1 text-left text-xs"
+                                    (click)="toggleGroup(group.name)"
                                 >
-                                    chevron_right
-                                </icon>
-                                <span class="font-mono">{{ group.name }}</span>
-                                <span class="opacity-40">
-                                    ({{ group.count }})
-                                </span>
-                                @if (group.overridden) {
-                                    <span
-                                        class="bg-warning-light rounded-sm px-1 text-[0.65rem] text-black"
+                                    <icon
+                                        class="text-sm transition-transform"
+                                        [class.rotate-90]="
+                                            filter() || expanded()[group.name]
+                                        "
                                     >
-                                        {{ group.overridden }} overridden
+                                        chevron_right
+                                    </icon>
+                                    <span class="font-mono">{{
+                                        group.name
+                                    }}</span>
+                                    <span class="opacity-40">
+                                        ({{ group.count }})
                                     </span>
-                                }
-                            </button>
-                        }
-                        @if (entry.row; as row) {
-                            <div
-                                class="border-base-300 flex min-h-8 items-center border-b py-1 pr-2 text-xs"
-                                [class.pl-8]="entry.grouped"
-                                [class.pl-2]="!entry.grouped"
-                                [class.bg-warning-light]="row.overridden"
-                            >
-                                <div class="w-3/5 min-w-0 pr-2">
-                                    <div
-                                        class="flex min-w-0 items-center gap-1 font-mono"
-                                    >
-                                        <span class="truncate">
-                                            {{ row.label }}
-                                        </span>
+                                    @if (group.overridden) {
                                         <span
-                                            customTooltip
-                                            class="shrink-0"
-                                            [content]="zone_tooltip"
-                                            [data]="{ zones: row.zones }"
-                                            [hover]="true"
-                                            [backdrop]="false"
-                                            xPosition="start"
-                                            yPosition="center"
-                                            [xOffset]="20"
+                                            class="bg-warning-light rounded-sm px-1 text-[0.65rem] text-black"
                                         >
-                                            <icon class="text-sm opacity-60"
-                                                >info</icon
-                                            >
+                                            {{ group.overridden }} overridden
                                         </span>
-                                    </div>
-                                    @if (row.description) {
+                                    }
+                                </button>
+                            }
+                            @for (row of entry.rows; track row.key) {
+                                <div
+                                    class="border-base-300 grid min-h-8 grid-cols-[minmax(0,1fr)_auto_auto] items-center border-b py-1 pr-2 text-xs"
+                                    [class.pl-8]="entry.grouped"
+                                    [class.pl-2]="!entry.grouped"
+                                    [class.bg-warning-light]="row.overridden"
+                                >
+                                    <div
+                                        class="min-w-0 pr-2"
+                                        [class.col-span-3]="
+                                            row.control !== 'toggle'
+                                        "
+                                        [class.pb-1]="row.control !== 'toggle'"
+                                    >
                                         <div
-                                            class="truncate text-[0.65rem] opacity-60"
-                                            [title]="row.description"
+                                            class="flex min-w-0 items-center gap-1 font-mono"
                                         >
-                                            {{ row.description }}
-                                        </div>
-                                    }
-                                </div>
-                                @switch (
-                                    editing_key() === row.key ? row.control : ''
-                                ) {
-                                    @case ('select') {
-                                        <select
-                                            name="setting-value"
-                                            class="bg-base-100 flex-1 rounded-sm border px-1 py-0.5 font-mono"
-                                            [(ngModel)]="edit_value"
-                                            (keydown.escape)="
-                                                editing_key.set('')
-                                            "
-                                        >
-                                            @for (
-                                                option of row.options;
-                                                track option
-                                            ) {
-                                                <option [value]="option">
-                                                    {{ option }}
-                                                </option>
-                                            }
-                                        </select>
-                                        <button
-                                            icon
-                                            matRipple
-                                            title="Save override"
-                                            (click)="saveEdit()"
-                                        >
-                                            <icon class="text-sm">check</icon>
-                                        </button>
-                                    }
-                                    @case ('number') {
-                                        <input
-                                            name="setting-value"
-                                            type="number"
-                                            class="bg-base-100 flex-1 rounded-sm border px-1 py-0.5 font-mono"
-                                            [(ngModel)]="edit_value"
-                                            (keydown.enter)="saveEdit()"
-                                            (keydown.escape)="
-                                                editing_key.set('')
-                                            "
-                                        />
-                                        <button
-                                            icon
-                                            matRipple
-                                            title="Save override"
-                                            (click)="saveEdit()"
-                                        >
-                                            <icon class="text-sm">check</icon>
-                                        </button>
-                                    }
-                                    @case ('text') {
-                                        <input
-                                            name="setting-value"
-                                            class="bg-base-100 flex-1 rounded-sm border px-1 py-0.5 font-mono"
-                                            [(ngModel)]="edit_value"
-                                            (keydown.enter)="saveEdit()"
-                                            (keydown.escape)="
-                                                editing_key.set('')
-                                            "
-                                        />
-                                        <button
-                                            icon
-                                            matRipple
-                                            title="Save override"
-                                            (click)="saveEdit()"
-                                        >
-                                            <icon class="text-sm">check</icon>
-                                        </button>
-                                    }
-                                    @default {
-                                        @if (row.control === 'toggle') {
-                                            <div class="flex flex-1">
-                                                <button
-                                                    class="relative h-4 w-8 rounded-full transition-colors"
-                                                    [class.bg-info]="row.value"
-                                                    [class.bg-base-300]="
-                                                        !row.value
-                                                    "
-                                                    [title]="row.display"
-                                                    (click)="toggleValue(row)"
-                                                >
-                                                    <div
-                                                        class="absolute top-0.5 left-0.5 h-3 w-3 rounded-full bg-white shadow-sm transition-transform"
-                                                        [class.translate-x-4]="
-                                                            row.value
-                                                        "
-                                                    ></div>
-                                                </button>
-                                            </div>
-                                        } @else {
-                                            <div
-                                                class="flex-1 cursor-pointer truncate font-mono"
-                                                [class]="
-                                                    row.display
-                                                        ? 'opacity-80'
-                                                        : 'italic opacity-40'
-                                                "
-                                                [title]="row.display || 'unset'"
-                                                (click)="startEdit(row)"
+                                            <span class="truncate">
+                                                {{ row.label }}
+                                            </span>
+                                            <span
+                                                customTooltip
+                                                class="shrink-0"
+                                                [content]="zone_tooltip"
+                                                [data]="{ zones: row.zones }"
+                                                [hover]="true"
+                                                [backdrop]="false"
+                                                xPosition="start"
+                                                yPosition="center"
+                                                [xOffset]="20"
                                             >
-                                                {{ row.display || 'unset' }}
+                                                <icon class="text-sm opacity-60"
+                                                    >info</icon
+                                                >
+                                            </span>
+                                        </div>
+                                        @if (row.description) {
+                                            <div
+                                                class="truncate text-[0.65rem] opacity-60"
+                                                [title]="row.description"
+                                            >
+                                                {{ row.description }}
                                             </div>
                                         }
-                                        @if (row.overridden) {
+                                    </div>
+                                    @switch (
+                                        row.control === 'select' ||
+                                        editing_key() === row.key
+                                            ? row.control
+                                            : ''
+                                    ) {
+                                        @case ('select') {
+                                            <select
+                                                name="setting-value"
+                                                class="border-base-300 bg-base-100 focus:border-info focus:ring-info h-8 w-full rounded-md border px-2 font-mono shadow-sm outline-none focus:ring-2"
+                                                [ngModel]="row.value"
+                                                (ngModelChange)="
+                                                    selectValue(row, $event)
+                                                "
+                                            >
+                                                @for (
+                                                    option of row.options;
+                                                    track $index
+                                                ) {
+                                                    <option
+                                                        [ngValue]="option.value"
+                                                    >
+                                                        {{ option.label }}
+                                                    </option>
+                                                }
+                                            </select>
+                                            @if (row.overridden) {
+                                                <button
+                                                    icon
+                                                    matRipple
+                                                    title="Clear override"
+                                                    (click)="
+                                                        clearOverride(row.key)
+                                                    "
+                                                >
+                                                    <icon class="text-sm"
+                                                        >undo</icon
+                                                    >
+                                                </button>
+                                            }
+                                        }
+                                        @case ('number') {
+                                            <input
+                                                name="setting-value"
+                                                type="number"
+                                                class="border-base-300 bg-base-100 focus:border-info focus:ring-info h-8 w-full rounded-md border px-2 font-mono shadow-sm outline-none focus:ring-2"
+                                                [(ngModel)]="edit_value"
+                                                (keydown.enter)="saveEdit()"
+                                                (keydown.escape)="
+                                                    editing_key.set('')
+                                                "
+                                            />
                                             <button
                                                 icon
                                                 matRipple
-                                                title="Clear override"
-                                                (click)="clearOverride(row.key)"
+                                                title="Save override"
+                                                (click)="saveEdit()"
                                             >
                                                 <icon class="text-sm"
-                                                    >undo</icon
+                                                    >check</icon
                                                 >
                                             </button>
                                         }
+                                        @case ('text') {
+                                            <input
+                                                name="setting-value"
+                                                class="border-base-300 bg-base-100 focus:border-info focus:ring-info h-8 w-full rounded-md border px-2 font-mono shadow-sm outline-none focus:ring-2"
+                                                [(ngModel)]="edit_value"
+                                                (keydown.enter)="saveEdit()"
+                                                (keydown.escape)="
+                                                    editing_key.set('')
+                                                "
+                                            />
+                                            <button
+                                                icon
+                                                matRipple
+                                                title="Save override"
+                                                (click)="saveEdit()"
+                                            >
+                                                <icon class="text-sm"
+                                                    >check</icon
+                                                >
+                                            </button>
+                                        }
+                                        @default {
+                                            @if (row.control === 'toggle') {
+                                                <div class="flex">
+                                                    <button
+                                                        class="relative h-4 w-8 rounded-full transition-colors"
+                                                        [class.bg-info]="
+                                                            row.value
+                                                        "
+                                                        [class.bg-base-300]="
+                                                            !row.value
+                                                        "
+                                                        [title]="row.display"
+                                                        (click)="
+                                                            toggleValue(row)
+                                                        "
+                                                    >
+                                                        <div
+                                                            class="absolute top-0.5 left-0.5 h-3 w-3 rounded-full bg-white shadow-sm transition-transform"
+                                                            [class.translate-x-4]="
+                                                                row.value
+                                                            "
+                                                        ></div>
+                                                    </button>
+                                                </div>
+                                            } @else {
+                                                <div
+                                                    class="border-base-300 bg-base-100 hover:border-info flex h-8 w-full cursor-pointer items-center truncate rounded-md border px-2 font-mono shadow-sm transition-colors"
+                                                    [class]="
+                                                        row.display
+                                                            ? 'opacity-80'
+                                                            : 'italic opacity-40'
+                                                    "
+                                                    [title]="
+                                                        row.display || 'unset'
+                                                    "
+                                                    (click)="startEdit(row)"
+                                                >
+                                                    {{ row.display || 'unset' }}
+                                                </div>
+                                            }
+                                            @if (row.overridden) {
+                                                <button
+                                                    icon
+                                                    matRipple
+                                                    title="Clear override"
+                                                    (click)="
+                                                        clearOverride(row.key)
+                                                    "
+                                                >
+                                                    <icon class="text-sm"
+                                                        >undo</icon
+                                                    >
+                                                </button>
+                                            }
+                                        }
                                     }
-                                }
-                            </div>
-                        }
+                                </div>
+                            }
+                        </section>
                     } @empty {
                         <div class="p-4 text-center opacity-30">
                             No matching settings
@@ -348,24 +423,30 @@ function flattenSchemaKeys(
                     JSON, falling back to plain strings. Overrides are stored
                     locally in this browser.
                 </div>
-            </div>
-            </div>
+            </aside>
         }
+        <binding-debug-panel />
         <ng-template #zone_tooltip let-zones="zones">
             <div
                 class="border-base-300 bg-base-100 text-base-content min-w-64 rounded-lg border p-2 shadow-lg"
             >
-                <div class="border-base-300 border-b px-1 pb-2 text-base font-medium">
+                <div
+                    class="border-base-300 border-b px-1 pb-2 text-base font-medium"
+                >
                     Setting sources
                 </div>
                 <div class="flex flex-col gap-1 pt-2">
                     @for (zone of zones; track zone.type + zone.id) {
-                        <div class="bg-base-200 flex items-start gap-2 rounded-sm p-2">
-                            <div class="min-w-0 flex-1 w-1/2">
+                        <div
+                            class="bg-base-200 flex items-start gap-2 rounded-sm p-2"
+                        >
+                            <div class="w-1/2 min-w-0 flex-1">
                                 <div class="truncate text-base font-medium">
                                     {{ zone.name }}
                                 </div>
-                                <div class="truncate font-mono text-[0.625rem] opacity-60">
+                                <div
+                                    class="truncate font-mono text-[0.625rem] opacity-60"
+                                >
                                     {{ zone.id }}
                                 </div>
                             </div>
@@ -387,6 +468,8 @@ function flattenSchemaKeys(
     imports: [
         FormsModule,
         MatRippleModule,
+        MatTooltipModule,
+        BindingDebugPanelComponent,
         CustomTooltipComponent,
         IconComponent,
     ],
@@ -395,11 +478,20 @@ export class SettingsDebugPanelComponent extends AsyncHandler {
     private _settings = inject(SettingsService);
     private _hotkey = inject(HotkeysService);
     private _org = inject(OrganisationService);
+    private _document = inject(DOCUMENT);
+    private _clipboard = inject(Clipboard);
 
     /** JSON schema describing the app's `app.*` settings */
     public readonly schema = input<HashMap | null>(null);
 
     public readonly show = signal(false);
+    private readonly _dock_app = effect((on_cleanup) => {
+        if (!this.show()) return;
+        const body = this._document.body;
+        const padding_right = body.style.paddingRight;
+        body.style.paddingRight = 'min(24rem, 90vw)';
+        on_cleanup(() => (body.style.paddingRight = padding_right));
+    });
     public readonly filter = signal('');
     public readonly editing_key = signal('');
     /** Expansion state of top-level setting groups */
@@ -450,7 +542,13 @@ export class SettingsDebugPanelComponent extends AsyncHandler {
                     description: node?.description || '',
                     zones: this._zoneTooltip(key),
                     control,
-                    options: node?.enum,
+                    options: node?.enum?.map(
+                        (value: unknown, index: number) => ({
+                            value,
+                            label:
+                                node.enumNames?.[index] || optionLabel(value),
+                        }),
+                    ),
                 };
             });
     });
@@ -481,20 +579,12 @@ export class SettingsDebugPanelComponent extends AsyncHandler {
             this._org.region_settings,
         )) {
             const region = this._org.regions.find((_) => _.id === id);
-            add_zone(
-                'Region',
-                id,
-                region?.display_name || region?.name || '',
-                [settings],
-            );
+            add_zone('Region', id, region?.display_name || region?.name || '', [
+                settings,
+            ]);
         }
         const organisation = this._org.organisation;
-        add_zone(
-            'ORG',
-            organisation.id,
-            organisation.name,
-            this._org.settings,
-        );
+        add_zone('ORG', organisation.id, organisation.name, this._org.settings);
         return zones;
     }
 
@@ -505,25 +595,29 @@ export class SettingsDebugPanelComponent extends AsyncHandler {
         const show_all = !!this.filter();
         const expanded = this.expanded();
         const entries: PanelEntry[] = [];
-        let header: GroupHeader | null = null;
+        let entry: PanelEntry | null = null;
         for (const row of this.rows()) {
             const index = row.label.indexOf('.');
             if (index < 0) {
-                header = null;
-                entries.push({ row });
+                entry = null;
+                entries.push({ rows: [row], grouped: false });
                 continue;
             }
             const group = row.label.slice(0, index);
-            if (!header || header.name !== group) {
-                header = { name: group, count: 0, overridden: 0 };
-                entries.push({ header });
-            }
-            header.count += 1;
-            if (row.overridden) header.overridden += 1;
-            if (show_all || expanded[group]) {
-                entries.push({
-                    row: { ...row, label: row.label.slice(index + 1) },
+            if (!entry?.header || entry.header.name !== group) {
+                entry = {
+                    header: { name: group, count: 0, overridden: 0 },
+                    rows: [],
                     grouped: true,
+                };
+                entries.push(entry);
+            }
+            entry.header.count += 1;
+            if (row.overridden) entry.header.overridden += 1;
+            if (show_all || expanded[group]) {
+                entry.rows.push({
+                    ...row,
+                    label: row.label.slice(index + 1),
                 });
             }
         }
@@ -553,6 +647,10 @@ export class SettingsDebugPanelComponent extends AsyncHandler {
         this._settings.setDebugOverride(row.key, !row.value);
     }
 
+    public selectValue(row: SettingRow, value: unknown) {
+        this._settings.setDebugOverride(row.key, value);
+    }
+
     public saveEdit() {
         const key = this.editing_key();
         const row = this.rows().find((_) => _.key === key);
@@ -574,6 +672,30 @@ export class SettingsDebugPanelComponent extends AsyncHandler {
 
     public clearOverride(key: string) {
         this._settings.setDebugOverride(key, undefined);
+    }
+
+    public addSetting() {
+        const prompt = this._document.defaultView?.prompt.bind(
+            this._document.defaultView,
+        );
+        const name = prompt?.('Setting key', 'app.')?.trim();
+        if (!name || name === 'app.') return;
+        const input = prompt?.('Setting value (JSON or plain text)', '');
+        if (input == null) return;
+        let value: any = input;
+        try {
+            value = JSON.parse(input);
+        } catch {
+            // ponytail: unquoted input is treated as a plain string
+        }
+        const key = name.startsWith('app.') ? name : `app.${name}`;
+        this._settings.setDebugOverride(key, value);
+    }
+
+    public copyOverrides() {
+        this._clipboard.copy(
+            JSON.stringify(this._settings.debug_overrides(), null, 2),
+        );
     }
 
     public clearAll() {

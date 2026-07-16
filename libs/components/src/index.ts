@@ -58,3 +58,5 @@ export * from './lib/authorised-user.guard';
 export * from './lib/binding.directive';
 export * from './lib/native-domain-overlay.component';
 export * from './lib/viewport-visibility.component';
+
+export * from './lib/binding-debug-panel.component';

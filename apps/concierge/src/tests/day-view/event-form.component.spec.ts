@@ -48,6 +48,8 @@ describe('EventFormComponent', () => {
                         is_multiday: false,
                         model: ref.model,
                         form: ref.form,
+                        can_notify_new_attendees_only: signal(false),
+                        notify_new_attendees_only: signal(false),
                     } as any;
                 },
             },
@@ -84,6 +86,16 @@ describe('EventFormComponent', () => {
         spectator.detectChanges();
         await spectator.fixture.whenStable();
         expect('a-user-list-field').not.toExist();
+    });
+
+    it('should show the notification option beside attendee edits', async () => {
+        spectator.setInput({ form });
+        (spectator.component.can_notify_new_attendees_only as any).set(true);
+        spectator.detectChanges();
+        await spectator.fixture.whenStable();
+        expect(
+            spectator.query('[name="notify-new-attendees-only"]'),
+        ).toExist();
     });
 
     it('should only show setup and breakdown fields when enabled', async () => {

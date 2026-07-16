@@ -44,6 +44,13 @@ import {
 import { openBookingModal } from './overlays/booking-modal.component';
 import { EmbeddedControlModalComponent } from './overlays/embedded-control-modal.component';
 
+export type PanelTimelinePosition =
+    | 'left'
+    | 'right'
+    | 'bottom'
+    | 'floating-left'
+    | 'floating-bottom';
+
 export interface PanelSettings {
     /** Name of the room */
     room_name?: string;
@@ -93,6 +100,10 @@ export interface PanelSettings {
     disable_end_meeting?: boolean;
     /** Whether user is able to end their meeting early */
     enable_end_meeting_button?: boolean;
+    /** Whether to show the floating schedule timeline */
+    show_timeline?: boolean;
+    /** Position of the schedule timeline */
+    timeline_position?: PanelTimelinePosition;
 }
 
 export function currentBooking(
@@ -213,6 +224,8 @@ export class PanelStateService extends AsyncHandler {
             'disable_book_now_host',
             'disable_end_meeting',
             'enable_end_meeting_button',
+            'show_timeline',
+            'timeline_position',
             'min_duration',
             'max_duration',
             'pending',

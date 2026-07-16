@@ -2,15 +2,17 @@ import {
     Component,
     ElementRef,
     Signal,
-    computed,
     effect,
     inject,
-    signal,
+    untracked,
     viewChild,
 } from '@angular/core';
 import { shiftColorTowards } from '@placeos/common';
 
 import { MAP_FEATURE_DATA } from 'libs/common/src/lib/types';
+
+const MAX_CANVAS_PIXELS = 16_000_000;
+const MAX_CANVAS_DIMENSION = 8192;
 
 export interface Polygon {
     /** Name of the region */
@@ -29,32 +31,27 @@ export interface MapPolygonData {
 
 @Component({
     selector: '[map-canvas]',
-    template: `
-        <canvas
-            #canvas
-            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
-            [style.width]="width() * svg_ratio() * zoom() + '%'"
-            [style.height]="width() * svg_ratio() * ratio() * zoom() + '%'"
-        ></canvas>
-    `,
+    host: { class: 'block h-full w-full' },
+    template: ` <canvas #canvas class="block h-full w-full"></canvas> `,
     styles: [],
 })
 export class MapCanvasComponent {
-    private _data = inject<MapPolygonData>(MAP_FEATURE_DATA);
-
-    public zoom = signal(1);
-    public ratio = signal(1);
-    public svg_ratio = signal(1);
-    public width = signal(10000);
+    private readonly _data = inject<MapPolygonData>(MAP_FEATURE_DATA);
 
     private readonly canvas_element =
         viewChild<ElementRef<HTMLCanvasElement>>('canvas');
 
-    public readonly ratioed_height = computed(
-        () => +(this.width() * this.ratio()).toFixed(2),
-    );
-
     constructor() {
+        effect((onCleanup) => {
+            const canvas = this.canvas_element()?.nativeElement;
+            if (!canvas || typeof ResizeObserver === 'undefined') return;
+            const resize_observer = new ResizeObserver(() =>
+                this._resizeCanvas(),
+            );
+            resize_observer.observe(canvas);
+            untracked(() => this._resizeCanvas());
+            onCleanup(() => resize_observer.disconnect());
+        });
         effect(() => {
             const canvas = this.canvas_element();
             const polygons = this._data.polygons();
@@ -63,20 +60,56 @@ export class MapCanvasComponent {
         });
     }
 
+    private _resizeCanvas(): void {
+        const canvas = this.canvas_element()?.nativeElement;
+        if (!canvas?.clientWidth || !canvas.clientHeight) return;
+        const pixel_ratio = Math.min(
+            window.devicePixelRatio || 1,
+            MAX_CANVAS_DIMENSION / canvas.clientWidth,
+            MAX_CANVAS_DIMENSION / canvas.clientHeight,
+            Math.sqrt(
+                MAX_CANVAS_PIXELS / (canvas.clientWidth * canvas.clientHeight),
+            ),
+        );
+        const width = Math.max(1, Math.floor(canvas.clientWidth * pixel_ratio));
+        const height = Math.max(
+            1,
+            Math.floor(canvas.clientHeight * pixel_ratio),
+        );
+        if (canvas.width === width && canvas.height === height) return;
+        canvas.width = width;
+        canvas.height = height;
+        this._handleStateChange(this._data.polygons());
+    }
+
     private _handleStateChange(polygon_list: Polygon[]): void {
         const canvas = this.canvas_element().nativeElement;
         const ctx = canvas.getContext('2d');
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        polygon_list.forEach((poly) => this._drawPolygon(poly));
+        if (!ctx) return;
+        const width = canvas.clientWidth || canvas.width;
+        const height = canvas.clientHeight || canvas.height;
+        ctx.setTransform(
+            canvas.clientWidth ? canvas.width / canvas.clientWidth : 1,
+            0,
+            0,
+            canvas.clientHeight ? canvas.height / canvas.clientHeight : 1,
+            0,
+            0,
+        );
+        ctx.clearRect(0, 0, width, height);
+        polygon_list.forEach((poly) =>
+            this._drawPolygon(ctx, poly, width, height),
+        );
     }
 
-    private _drawPolygon(polygon: Polygon) {
+    private _drawPolygon(
+        ctx: CanvasRenderingContext2D,
+        polygon: Polygon,
+        width: number,
+        height: number,
+    ): void {
         const points = polygon.points;
         if (!points?.length) return;
-        const canvas = this.canvas_element().nativeElement;
-        const ctx = canvas.getContext('2d');
-        const width = canvas.width;
-        const height = canvas.height;
         // Draw polygon
         ctx.fillStyle = polygon.color + '80';
         ctx.beginPath();

@@ -13,7 +13,11 @@ import { currentPeriod, nextPeriod } from './helpers';
     template: `
         @let s = state();
         @let es = event_state();
-        <div class="flex h-full w-full items-center justify-center">
+        <div
+            status-layout
+            class="flex h-full w-full items-center justify-center bg-[#424242]"
+            [style.padding-bottom]="show_floating_bottom ? '7rem' : null"
+        >
             <div
                 class="relative flex h-full flex-1 flex-col items-center justify-center text-white"
                 [class.bg-error]="s === 'busy'"
@@ -110,6 +114,9 @@ import { currentPeriod, nextPeriod } from './helpers';
                 @if (s === 'pending' && can_book) {
                     <div
                         class="absolute inset-x-0 top-0 flex items-center justify-center space-x-4 bg-[#0008] p-4 text-2xl"
+                        [style.padding-left]="
+                            show_floating_left ? '9rem' : null
+                        "
                     >
                         <p class="uppercase">
                             {{
@@ -125,6 +132,9 @@ import { currentPeriod, nextPeriod } from './helpers';
                 @if (s === 'free' && can_book) {
                     <div
                         class="absolute inset-x-0 top-0 flex items-center justify-center space-x-4 bg-[#0008] p-4 text-2xl"
+                        [style.padding-left]="
+                            show_floating_left ? '9rem' : null
+                        "
                     >
                         <p class="uppercase">
                             {{
@@ -140,6 +150,9 @@ import { currentPeriod, nextPeriod } from './helpers';
                 @if (s === 'busy' && can_end) {
                     <div
                         class="absolute inset-x-0 top-0 flex items-center justify-center space-x-4 bg-[#0008] p-4 text-2xl"
+                        [style.padding-left]="
+                            show_floating_left ? '9rem' : null
+                        "
                     >
                         <p class="uppercase">
                             {{ 'APP.BOOKING_PANEL.END_INPUT' | translate }}
@@ -191,6 +204,24 @@ export class PanelViewStatusComponent {
 
     public get can_end() {
         return this._state.setting('enable_end_meeting_button') === true;
+    }
+
+    public get show_timeline() {
+        return this._state.setting('show_timeline') === true;
+    }
+
+    public get timeline_position() {
+        return this._state.setting('timeline_position') || 'floating-left';
+    }
+
+    public get show_floating_left() {
+        return this.show_timeline && this.timeline_position === 'floating-left';
+    }
+
+    public get show_floating_bottom() {
+        return (
+            this.show_timeline && this.timeline_position === 'floating-bottom'
+        );
     }
 
     public readonly event_state = computed(() => ({

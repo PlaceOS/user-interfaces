@@ -96,17 +96,11 @@ export class NewDeskFlowFormComponent implements OnInit {
     public level = '';
     public levels = [];
 
-    /**
-     * Blanket-block the form only when the user has a reserved desk and booking
-     * with a reserved desk is disallowed entirely. When it is allowed, a
-     * `prevent_self_booking_if_assigned_resource` restriction blocks only their
-     * own bookings (enforced at submit), so the form stays open for booking on
-     * behalf of others.
-     */
+    /** Blanket-block the form for assigned-desk users only in `deny` mode. */
     public readonly show_reserved_desk_overlay = computed(
         () =>
             this._state.has_assigned_desk() &&
-            !this._state.allowsBookingWithReservedResource('desk'),
+            this._state.assignedResourceBooking('desk') === 'deny',
     );
 
     public get form() {

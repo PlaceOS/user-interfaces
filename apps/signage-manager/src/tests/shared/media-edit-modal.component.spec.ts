@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { setNotifyOutlet } from '@placeos/common';
+import { HotkeysService, setNotifyOutlet } from '@placeos/common';
 import { SignageMedia, SignagePlugin } from '@placeos/ts-client';
 import {
     MediaEditModalComponent,
@@ -19,6 +19,8 @@ describe('MediaEditModalComponent', () => {
     };
     const onAdd = vi.fn();
     const onEdit = vi.fn();
+    const hotkey_listen = vi.fn();
+    let hotkey_callback: () => void;
     let modal_data: MediaEditModalData;
 
     beforeEach(async () => {
@@ -27,6 +29,12 @@ describe('MediaEditModalComponent', () => {
         dialog_ref.disableClose = false;
         onAdd.mockResolvedValue(new SignageMedia({ id: 'media-1' }));
         onEdit.mockResolvedValue(undefined);
+        hotkey_listen.mockImplementation(
+            (_combo: string[], callback: () => void) => {
+                hotkey_callback = callback;
+                return { unsubscribe: vi.fn() };
+            },
+        );
         modal_data = {
             media: new SignageMedia({}),
             file: new File(['image'], 'poster.png', { type: 'image/png' }),
@@ -45,6 +53,10 @@ describe('MediaEditModalComponent', () => {
             providers: [
                 { provide: MAT_DIALOG_DATA, useValue: modal_data },
                 { provide: MatDialogRef, useValue: dialog_ref },
+                {
+                    provide: HotkeysService,
+                    useValue: { listen: hotkey_listen },
+                },
             ],
         })
             .overrideComponent(MediaEditModalComponent, {
@@ -73,6 +85,20 @@ describe('MediaEditModalComponent', () => {
             expect.anything(),
             expect.objectContaining({ panelClass: ['error'] }),
         );
+    });
+
+    it('saves when the S hotkey is pressed', () => {
+        const fixture = TestBed.createComponent(MediaEditModalComponent);
+        const component = fixture.componentInstance;
+        const save = vi.spyOn(component, 'saveMedia').mockResolvedValue();
+
+        hotkey_callback();
+
+        expect(hotkey_listen).toHaveBeenCalledWith(
+            ['KeyS'],
+            expect.any(Function),
+        );
+        expect(save).toHaveBeenCalled();
     });
 
     it('starts blank validity dates as empty values', () => {

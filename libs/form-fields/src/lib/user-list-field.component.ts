@@ -75,16 +75,22 @@ const DENIED_FILE_TYPES = [
                         @for (item of active_list(); track item.id) {
                             <mat-chip-row
                                 user
+
+                                [class.bg-base-200]="!item.is_external"
                                 [class.bg-warning]="item.is_external"
                                 (removed)="removeUser(item)"
                                 [matTooltip]="item.email"
                             >
-                                <div class="flex items-center space-x-2">
+                                <div class="flex items-center space-x-2"
+                                    [class.text-base-content!]="!item.is_external"
+                                    [class.text-warning-content!]="item.is_external">
                                     <div>{{ item.name || item.email }}</div>
                                 </div>
                                 <button
                                     matChipRemove
                                     remove
+                                    [class.text-base-content!]="!item.is_external"
+                                    [class.text-warning-content!]="item.is_external"
                                     [attr.aria-label]="
                                         'COMMON.REMOVE_ITEM'
                                             | translate
@@ -321,7 +327,11 @@ export class UserListFieldComponent
         },
     });
     /** User list to display */
-    public readonly user_list = computed(() => this._user_search.value() ?? []);
+    public readonly user_list = computed(() =>
+        [...(this._user_search.value() ?? [])].sort((a, b) =>
+            a.name.localeCompare(b.name),
+        ),
+    );
     /** Whether user list is loading */
     public readonly loading = computed(() => this._user_search.isLoading());
     /** List of active selected users on the list */

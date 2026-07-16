@@ -3,19 +3,83 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler, RemoteLoggingService, VERSION } from '@placeos/common';
 import { SafePipe, TranslatePipe } from '@placeos/components';
-import { PanelStateService } from '../panel-state.service';
+import {
+    PanelStateService,
+    PanelTimelinePosition,
+} from '../panel-state.service';
 import { PanelViewDetailsComponent } from './panel-view-details.component';
 import { PanelViewStatusComponent } from './panel-view-status.component';
+import { PanelViewTimelineComponent } from './panel-view-timeline.component';
 
 @Component({
     selector: 'panel-view',
     template: `
         <button
-            class="flex h-full w-full flex-col items-center overflow-hidden"
+            class="relative flex h-full w-full items-stretch overflow-hidden"
             (click)="action()"
         >
-            <panel-view-details class="w-full flex-1"></panel-view-details>
-            <panel-view-status class="w-full flex-1"></panel-view-status>
+            @let position = timeline_position;
+            @if (show_timeline && position === 'left') {
+                <panel-view-timeline
+                    timeline-left
+                    class="docked h-full w-28 shrink-0"
+                ></panel-view-timeline>
+            }
+            <div class="flex h-full min-w-0 flex-1 flex-col">
+                <div class="relative flex min-h-0 flex-1 flex-col">
+                    <panel-view-details
+                        class="min-h-0 w-full flex-1"
+                    ></panel-view-details>
+                    <panel-view-status
+                        class="min-h-0 w-full flex-1"
+                    ></panel-view-status>
+                    <div
+                        class="absolute right-0 bottom-0 p-2"
+                        [style.bottom.rem]="
+                            show_timeline && position === 'floating-bottom'
+                                ? 6.5
+                                : 0
+                        "
+                    >
+                        <div class="w-full text-xs opacity-40">
+                            <ng-container
+                                >{{ 'COMMON.CONTROLS_VERSION' | translate }}:
+                            </ng-container>
+                            {{ version.hash }}
+                        </div>
+                        <div class="w-full text-xs opacity-40">
+                            {{ version.time | date: 'longDate' }}
+                            ({{ version.time | date: 'shortTime' }})
+                        </div>
+                    </div>
+                </div>
+                @if (show_timeline && position === 'bottom') {
+                    <panel-view-timeline
+                        timeline-bottom
+                        class="docked h-24 w-full shrink-0"
+                        [horizontal]="true"
+                    ></panel-view-timeline>
+                }
+            </div>
+            @if (show_timeline && position === 'right') {
+                <panel-view-timeline
+                    timeline-right
+                    class="docked h-full w-28 shrink-0"
+                ></panel-view-timeline>
+            }
+            @if (show_timeline && position === 'floating-left') {
+                <panel-view-timeline
+                    timeline-floating-left
+                    class="absolute inset-y-24 left-5 z-30 w-28"
+                ></panel-view-timeline>
+            }
+            @if (show_timeline && position === 'floating-bottom') {
+                <panel-view-timeline
+                    timeline-floating-bottom
+                    class="absolute inset-x-24 bottom-5 z-30 h-20"
+                    [horizontal]="true"
+                ></panel-view-timeline>
+            }
             @if (show_offline) {
                 <div
                     class="absolute inset-0 z-40 bg-contain bg-center bg-no-repeat"
@@ -44,18 +108,6 @@ import { PanelViewStatusComponent } from './panel-view-status.component';
                     </div>
                 </div>
             }
-            <div class="absolute right-0 bottom-0 p-2">
-                <div class="w-full text-xs opacity-40">
-                    <ng-container
-                        >{{ 'COMMON.CONTROLS_VERSION' | translate }}:
-                    </ng-container>
-                    {{ version.hash }}
-                </div>
-                <div class="w-full text-xs opacity-40">
-                    {{ version.time | date: 'longDate' }}
-                    ({{ version.time | date: 'shortTime' }})
-                </div>
-            </div>
         </button>
     `,
     styles: [``],
@@ -64,6 +116,7 @@ import { PanelViewStatusComponent } from './panel-view-status.component';
     imports: [
         PanelViewStatusComponent,
         PanelViewDetailsComponent,
+        PanelViewTimelineComponent,
         CommonModule,
         TranslatePipe,
         SafePipe,
@@ -101,6 +154,14 @@ export class PanelViewComponent extends AsyncHandler {
 
     public get capacity() {
         return this._state.setting('room_capacity');
+    }
+
+    public get show_timeline() {
+        return this._state.setting('show_timeline') === true;
+    }
+
+    public get timeline_position(): PanelTimelinePosition {
+        return this._state.setting('timeline_position') || 'floating-left';
     }
 
     public get can_book() {

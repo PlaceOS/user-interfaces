@@ -65,6 +65,8 @@ export interface CalendarEventShowParams {
     calendar?: string;
     /** ID of the system/space to get the associated calendar ID */
     system_id?: string;
+    /** Whether existing attendees should be notified when attendees change */
+    notify_existing_attendees?: boolean;
 }
 
 const EVENTS_ENDPOINT = `/api/staff/v1/events`;

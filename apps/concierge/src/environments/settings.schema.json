@@ -40,6 +40,16 @@
         },
         "week_start": {
             "type": "number",
+            "enum": [0, 1, 2, 3, 4, 5, 6],
+            "enumNames": [
+                "Sunday",
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday"
+            ],
             "description": "Day of the week that calendars and week views start on. `0` for Sunday through `6` for Saturday. Defaults to `0`"
         },
         "use_region": {
@@ -234,6 +244,7 @@
                 "day_timeline_view": {
                     "type": "string",
                     "enum": ["default", "inverted"],
+                    "enumNames": ["Default", "Inverted"],
                     "description": "Layout of the day timeline. `default` shows rooms on the vertical axis, `inverted` shows rooms on the horizontal axis. Defaults to `default`"
                 },
                 "block_start": {
@@ -458,7 +469,27 @@
                 "hide_fields": {
                     "type": "array",
                     "description": "List of field names to hide in the visitor listing",
-                    "items": { "type": "string" }
+                    "items": {
+                        "type": "string",
+                        "enum": [
+                            "state",
+                            "date",
+                            "user_name",
+                            "checked_in_at",
+                            "checked_out_at",
+                            "status",
+                            "notes"
+                        ],
+                        "enumNames": [
+                            "State",
+                            "Date and time",
+                            "Host",
+                            "Checked in",
+                            "Checked out",
+                            "Status",
+                            "Notes"
+                        ]
+                    }
                 },
                 "allow_international": {
                     "type": "boolean",
@@ -485,7 +516,23 @@
                 "features": {
                     "type": "array",
                     "description": "List of report types shown in the reports menu. Defaults to `attendance`, `desks`, `spaces`, `catering` and `contact-tracing`",
-                    "items": { "type": "string" }
+                    "items": {
+                        "type": "string",
+                        "enum": [
+                            "attendance",
+                            "desks",
+                            "spaces",
+                            "catering",
+                            "contact-tracing"
+                        ],
+                        "enumNames": [
+                            "Attendance",
+                            "Desks",
+                            "Spaces",
+                            "Catering",
+                            "Contact tracing"
+                        ]
+                    }
                 },
                 "attendance_include_weekends": {
                     "type": "boolean",
@@ -494,7 +541,41 @@
                 "ignore_days": {
                     "type": "array",
                     "description": "Days of the week to exclude from report calculations. Either day names (e.g. `saturday`) or day indexes (0-6)",
-                    "items": { "type": ["string", "number"] }
+                    "items": {
+                        "type": ["string", "number"],
+                        "enum": [
+                            0,
+                            1,
+                            2,
+                            3,
+                            4,
+                            5,
+                            6,
+                            "sunday",
+                            "monday",
+                            "tuesday",
+                            "wednesday",
+                            "thursday",
+                            "friday",
+                            "saturday"
+                        ],
+                        "enumNames": [
+                            "Sunday (index)",
+                            "Monday (index)",
+                            "Tuesday (index)",
+                            "Wednesday (index)",
+                            "Thursday (index)",
+                            "Friday (index)",
+                            "Saturday (index)",
+                            "Sunday (name)",
+                            "Monday (name)",
+                            "Tuesday (name)",
+                            "Wednesday (name)",
+                            "Thursday (name)",
+                            "Friday (name)",
+                            "Saturday (name)"
+                        ]
+                    }
                 }
             }
         },

@@ -173,6 +173,10 @@ describe('WorkplaceSettingsFormModalComponent', () => {
         expect('hide_device_fields' in explore).toBe(true);
         expect('show_legend' in explore).toBe(true);
         expect('hide_zones' in explore).toBe(true);
+        expect('hide_devices' in explore).toBe(true);
+        expect('hide_sensors' in explore).toBe(true);
+        expect(explore.hide_devices).toBe(true);
+        expect(explore.hide_sensors).toBe(true);
         expect('disable' in explore).toBe(true);
         expect('disable_actions' in explore).toBe(true);
     });
