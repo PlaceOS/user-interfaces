@@ -1035,7 +1035,7 @@
             "DESKS_MAP_ID_PLACEHOLDER": "ex: table-01.123",
             "DESKS_VIEW_QR_CODE_LIST": "Ver Códigos QR da Mesa",
             "DESKS_LIST_UPLOAD": "Enviar CSV com Mesas",
-            "DESKS_LIST_DOWNLOAD": "Baixar modelo CSV de Mesas",
+            "DESKS_LIST_DOWNLOAD": "Baixar CSV de Mesas",
             "DESKS_BOOKING_RULES": "Restrições de Mesas",
             "DESKS_BOOKINGS_EMPTY": "Não há reservas de mesa para a data selecionada.",
             "DESKS_BOOKINGS_SEARCH_EMPTY": "Nenhuma reserva de mesa correspondente",
