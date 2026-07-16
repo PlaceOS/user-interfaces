@@ -25,6 +25,7 @@ import {
 import { addMinutes, format, isSameWeek } from 'date-fns';
 
 import { OrganisationService } from '@placeos/common';
+import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { ImageCarouselComponent } from 'libs/components/src/lib/image-carousel.component';
 import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
@@ -782,18 +783,40 @@ export class BookingDetailsModalComponent {
     }
 
     public async toggleCheckedIn() {
-        this.checking_in.set(true);
         const bkn = this.booking();
+        if (bkn.checked_in) {
+            const response = await openConfirmModal(
+                {
+                    title: i18n('COMMON.CHECK_OUT'),
+                    content:
+                        'You are currently checked in.<br/>' +
+                        'Would you like to check out of your desk now?<br/>' +
+                        'This will make the desk available for others to book.',
+                    confirm_text: i18n('COMMON.CHECK_OUT'),
+                    icon: { content: 'logout' },
+                },
+                this._dialog,
+            );
+            if (response.reason !== 'done') return;
+            response.close();
+        }
+        this.checking_in.set(true);
         const promise = (
             bkn.instance
                 ? checkinBookingInstance(
                       bkn.id,
                       bkn.instance,
-                      !this.booking().checked_in,
+                      !bkn.checked_in,
                   )
-                : checkinBooking(this.booking().id, !this.booking().checked_in)
+                : checkinBooking(bkn.id, !bkn.checked_in)
         ).catch((_) => {
-            notifyError(i18n('BOOKINGS.CHECK_IN_ERROR'));
+            notifyError(
+                i18n(
+                    bkn.checked_in
+                        ? 'BOOKINGS.CHECK_OUT_ERROR'
+                        : 'BOOKINGS.CHECK_IN_ERROR',
+                ),
+            );
             this.checking_in.set(false);
             throw _;
         });
