@@ -467,7 +467,7 @@ export class OrganisationService {
      * Initialise service data
      */
     private async load(): Promise<void> {
-        setLoadingMessage('Loading organistion data...');
+        setLoadingMessage('Loading organisation data...');
         await this.loadOrganisation();
         setLoadingMessage('Loading region data...');
         await this.loadRegions();
