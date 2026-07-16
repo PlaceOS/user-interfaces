@@ -1,6 +1,7 @@
 import {
   generateQRCode
-} from "./chunk-R5XPVHHX.js";
+} from "./chunk-EIIGDJY2.js";
+import "./chunk-Q4DQ62MM.js";
 import {
   AssetStateService,
   BookingFormService,
@@ -41,7 +42,18 @@ import {
   setHours,
   setMinutes,
   showStaff
-} from "./chunk-6DCCIJMX.js";
+} from "./chunk-63LJ3STJ.js";
+import {
+  FormField,
+  MatCheckbox,
+  MatCheckboxModule,
+  SanitizePipe,
+  disabled,
+  form,
+  required,
+  validate,
+  validateAssetRequestsForResource
+} from "./chunk-BNDDOGT5.js";
 import {
   ANIMATION_SHOW_CONTRACT_EXPAND,
   ActivatedRoute,
@@ -63,7 +75,6 @@ import {
   FocusMonitor,
   FormControl,
   FormControlName,
-  FormField,
   FormGroup,
   FormGroupDirective,
   FormsModule,
@@ -80,8 +91,6 @@ import {
   MAP_FEATURE_DATA,
   Ma,
   MapsPeopleService,
-  MatCheckbox,
-  MatCheckboxModule,
   MatError,
   MatFormField,
   MatFormFieldModule,
@@ -115,7 +124,6 @@ import {
   S,
   SETTING_KEYS,
   SafePipe,
-  SanitizePipe,
   SettingsService,
   SlicePipe,
   Space,
@@ -158,7 +166,6 @@ import {
   differenceInCalendarMonths,
   differenceInMilliseconds,
   differenceInMinutes,
-  disabled,
   ee,
   effect,
   enUS,
@@ -168,7 +175,6 @@ import {
   f,
   firstValueWhere,
   flatten,
-  form,
   format,
   formatTimeInTimezone,
   forwardRef,
@@ -207,7 +213,6 @@ import {
   queryAllBookings,
   queryBookings,
   queryResourceAvailability,
-  required,
   resource,
   roundToNearestMinutes,
   saveBooking,
@@ -230,8 +235,6 @@ import {
   toZonedTime,
   unique,
   untracked,
-  validate,
-  validateAssetRequestsForResource,
   viewChild,
   viewChildren,
   ɵsetClassDebugInfo,
@@ -304,7 +307,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-6GLLGKAV.js";
+} from "./chunk-WC2RAMUU.js";
 import {
   __spreadProps,
   __spreadValues
@@ -1894,7 +1897,7 @@ var ExploreStateService = class _ExploreStateService {
     this._options = signal(
       {
         is_public: false,
-        disable: ["zones", "devices"]
+        disable: ["zones", "devices", "sensors"]
       },
       ...ngDevMode ? [{ debugName: "_options" }] : (
         /* istanbul ignore next */
@@ -2062,6 +2065,7 @@ var ExploreStateService = class _ExploreStateService {
       disable: unique([
         "zones",
         "devices",
+        "sensors",
         ...this._normaliseDisabledSetting("app.explore.disable")
       ])
     });
@@ -4538,7 +4542,27 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     this._form_ref = generateEventForm(void 0, this._settings, this._injector);
     this._form = this._form_ref.form;
     this._model = this._form_ref.model;
+    this._initial_attendees = [];
     this._space_pipe = new SpacePipe();
+    this.notify_new_attendees_only = signal(
+      false,
+      ...ngDevMode ? [{ debugName: "notify_new_attendees_only" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.can_notify_new_attendees_only = computed(
+      () => {
+        if (!this._model().id)
+          return false;
+        const attendee_emails = this._model().attendees.map((_) => (_.email || _).toLowerCase());
+        return this._initial_attendees.every((_) => attendee_emails.includes(_)) && attendee_emails.some((_) => !this._initial_attendees.includes(_));
+      },
+      ...ngDevMode ? [{ debugName: "can_notify_new_attendees_only" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
     this.removeLoadingTag = (t) => this._loading.set(this._loading().replace(`[${t}]`, "").trim());
     this.addLoadingTag = (t) => t ? this._loading.set(`${this._loading().replace(`[${t}]`, "")}[${t}]`.trim()) : "";
     this._overflow = (id = "") => id ? this._settings.get(`app.events.overflow.${id}`) || {} : {
@@ -4877,7 +4901,9 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     const lock_start_time = !!event.id && (event.state === "started" || event.state === "in_progress");
     this._form_ref.lock_start_time.set(lock_start_time);
     const value = eventFormValue(event);
+    this.notify_new_attendees_only.set(false);
     value.assets = (event.extension_data.assets || []).map((_) => new AssetRequest(__spreadProps(__spreadValues({}, _), { event })));
+    this._setInitialAttendees(value.attendees);
     this._model.set(value);
     this._form().reset();
     this._applyDurationSettings();
@@ -4909,6 +4935,8 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     const event_data = JSON.parse(sessionStorage.getItem("PLACEOS.event") || "{}");
     const event = new CalendarEvent(event_data);
     this._event.set(event);
+    this._setInitialAttendees(event.attendees);
+    this.notify_new_attendees_only.set(false);
     const form_data = JSON.parse(sessionStorage.getItem("PLACEOS.event_form") || "{}");
     this._model.update((m) => __spreadValues(__spreadValues(__spreadValues({}, m), eventFormValue(event)), form_data));
   }
@@ -4928,6 +4956,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
   cancelPostForm() {
   }
   async postForm(force = false, ignore_space_check = [], ignore_owner = false, force_calendar = false) {
+    const notify_new_attendees_only = this.notify_new_attendees_only() && this.can_notify_new_attendees_only();
     if (isEmptyUser({ email: this._model().host })) {
       this._model.update((m) => __spreadProps(__spreadValues({}, m), { host: currentUser().email }));
     }
@@ -5025,6 +5054,8 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       const query = event.id ? {
         system_id: event?.resources[0]?.id || event?.system?.id || spaces[0]?.id
       } : {};
+      if (notify_new_attendees_only)
+        query.notify_existing_attendees = false;
       const user_email = currentUser()?.email?.toLowerCase() || "";
       const source_calendar = event.calendar || event.host || event.creator || raw_value.calendar || raw_value.creator;
       const target_calendar = raw_value.host || raw_value.creator;
@@ -5235,6 +5266,9 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     return this.book_internal ? saveBooking(newBookingFromCalendarEvent(__spreadProps(__spreadValues({}, event.toJSON()), {
       status: this._settings.get("app.bookings.no_approval") === true ? "approved" : "tentative"
     }))).then((_) => newCalendarEventFromBooking(_)) : saveEvent(event, query);
+  }
+  _setInitialAttendees(attendees) {
+    this._initial_attendees = attendees.map((_) => (_.email || _).toLowerCase());
   }
   async _removeBookingAfterError(is_new, event, assets = false, e) {
     if (is_new) {
@@ -9079,37 +9113,11 @@ var ExploreParkingService = class _ExploreParkingService extends AsyncHandler {
 
 // libs/components/src/lib/map-canvas.component.ts
 var _c07 = ["canvas"];
+var MAX_CANVAS_PIXELS = 16e6;
+var MAX_CANVAS_DIMENSION = 8192;
 var MapCanvasComponent = class _MapCanvasComponent {
   constructor() {
     this._data = inject(MAP_FEATURE_DATA);
-    this.zoom = signal(
-      1,
-      ...ngDevMode ? [{ debugName: "zoom" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.ratio = signal(
-      1,
-      ...ngDevMode ? [{ debugName: "ratio" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.svg_ratio = signal(
-      1,
-      ...ngDevMode ? [{ debugName: "svg_ratio" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.width = signal(
-      1e4,
-      ...ngDevMode ? [{ debugName: "width" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
     this.canvas_element = viewChild(
       "canvas",
       ...ngDevMode ? [{ debugName: "canvas_element" }] : (
@@ -9117,13 +9125,15 @@ var MapCanvasComponent = class _MapCanvasComponent {
         []
       )
     );
-    this.ratioed_height = computed(
-      () => +(this.width() * this.ratio()).toFixed(2),
-      ...ngDevMode ? [{ debugName: "ratioed_height" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
+    effect((onCleanup) => {
+      const canvas = this.canvas_element()?.nativeElement;
+      if (!canvas || typeof ResizeObserver === "undefined")
+        return;
+      const resize_observer = new ResizeObserver(() => this._resizeCanvas());
+      resize_observer.observe(canvas);
+      untracked(() => this._resizeCanvas());
+      onCleanup(() => resize_observer.disconnect());
+    });
     effect(() => {
       const canvas = this.canvas_element();
       const polygons = this._data.polygons();
@@ -9132,20 +9142,34 @@ var MapCanvasComponent = class _MapCanvasComponent {
       this._handleStateChange(polygons);
     });
   }
+  _resizeCanvas() {
+    const canvas = this.canvas_element()?.nativeElement;
+    if (!canvas?.clientWidth || !canvas.clientHeight)
+      return;
+    const pixel_ratio = Math.min(window.devicePixelRatio || 1, MAX_CANVAS_DIMENSION / canvas.clientWidth, MAX_CANVAS_DIMENSION / canvas.clientHeight, Math.sqrt(MAX_CANVAS_PIXELS / (canvas.clientWidth * canvas.clientHeight)));
+    const width = Math.max(1, Math.floor(canvas.clientWidth * pixel_ratio));
+    const height = Math.max(1, Math.floor(canvas.clientHeight * pixel_ratio));
+    if (canvas.width === width && canvas.height === height)
+      return;
+    canvas.width = width;
+    canvas.height = height;
+    this._handleStateChange(this._data.polygons());
+  }
   _handleStateChange(polygon_list) {
     const canvas = this.canvas_element().nativeElement;
     const ctx = canvas.getContext("2d");
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    polygon_list.forEach((poly) => this._drawPolygon(poly));
+    if (!ctx)
+      return;
+    const width = canvas.clientWidth || canvas.width;
+    const height = canvas.clientHeight || canvas.height;
+    ctx.setTransform(canvas.clientWidth ? canvas.width / canvas.clientWidth : 1, 0, 0, canvas.clientHeight ? canvas.height / canvas.clientHeight : 1, 0, 0);
+    ctx.clearRect(0, 0, width, height);
+    polygon_list.forEach((poly) => this._drawPolygon(ctx, poly, width, height));
   }
-  _drawPolygon(polygon) {
+  _drawPolygon(ctx, polygon, width, height) {
     const points = polygon.points;
     if (!points?.length)
       return;
-    const canvas = this.canvas_element().nativeElement;
-    const ctx = canvas.getContext("2d");
-    const width = canvas.width;
-    const height = canvas.height;
     ctx.fillStyle = polygon.color + "80";
     ctx.beginPath();
     ctx.moveTo(points[0][0] * width, points[0][1] * height);
@@ -9196,12 +9220,9 @@ var MapCanvasComponent = class _MapCanvasComponent {
       if (rf & 2) {
         \u0275\u0275queryAdvance();
       }
-    }, decls: 2, vars: 4, consts: [["canvas", ""], [1, "absolute", "top-1/2", "left-1/2", "-translate-x-1/2", "-translate-y-1/2"]], template: function MapCanvasComponent_Template(rf, ctx) {
+    }, hostAttrs: [1, "block", "h-full", "w-full"], decls: 2, vars: 0, consts: [["canvas", ""], [1, "block", "h-full", "w-full"]], template: function MapCanvasComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275domElement(0, "canvas", 1, 0);
-      }
-      if (rf & 2) {
-        \u0275\u0275styleProp("width", ctx.width() * ctx.svg_ratio() * ctx.zoom() + "%")("height", ctx.width() * ctx.svg_ratio() * ctx.ratio() * ctx.zoom() + "%");
       }
     }, encapsulation: 2 });
   }
@@ -9209,18 +9230,11 @@ var MapCanvasComponent = class _MapCanvasComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MapCanvasComponent, [{
     type: Component,
-    args: [{ selector: "[map-canvas]", template: `
-        <canvas
-            #canvas
-            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
-            [style.width]="width() * svg_ratio() * zoom() + '%'"
-            [style.height]="width() * svg_ratio() * ratio() * zoom() + '%'"
-        ></canvas>
-    ` }]
+    args: [{ selector: "[map-canvas]", host: { class: "block h-full w-full" }, template: ` <canvas #canvas class="block h-full w-full"></canvas> ` }]
   }], () => [], { canvas_element: [{ type: ViewChild, args: ["canvas", { isSignal: true }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(MapCanvasComponent, { className: "MapCanvasComponent", filePath: "libs/components/src/lib/map-canvas.component.ts", lineNumber: 42 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(MapCanvasComponent, { className: "MapCanvasComponent", filePath: "libs/components/src/lib/map-canvas.component.ts", lineNumber: 38 });
 })();
 
 // libs/explore/src/lib/explore-sensor-info.component.ts
@@ -9395,17 +9409,12 @@ var ExploreZonesService = class _ExploreZonesService extends AsyncHandler {
     this._org = inject(OrganisationService);
     this._settings = inject(SettingsService);
     this._injector = inject(Injector);
-    this._org_initialised = this._org.initialised;
-    this._building = this._org.active_building;
-    this._area_list = [];
-    this._statuses = {};
     this._count_key = {};
     this._location = {};
     this._label_location = {};
     this._capacity = {};
     this._draw = {};
     this._points = {};
-    this._features = [];
     this._polygons = signal(
       [],
       ...ngDevMode ? [{ debugName: "_polygons" }] : (
@@ -9428,7 +9437,7 @@ var ExploreZonesService = class _ExploreZonesService extends AsyncHandler {
       )
     );
     effect(() => {
-      const bld = this._building();
+      const bld = this._org.active_building();
       const lvl = this._state.level();
       const { is_public } = this._state.options();
       if (!bld || !lvl || is_public)
@@ -9436,40 +9445,44 @@ var ExploreZonesService = class _ExploreZonesService extends AsyncHandler {
       untracked(() => this._bindToLevel(lvl.id));
     });
     effect(() => {
-      const areas = this._area_data();
-      const zone = this._zone_data();
-      this.timeout("parse_data", () => this.parseData([
-        ...areas?.value || [],
-        ...(zone?.value || []).filter((_) => _.location === "area")
-      ]), 100);
+      this._area_data();
+      this._zone_data();
+      this.timeout("parse_data", () => this._parseBindingData(), 100);
     });
     this.init();
   }
   async init() {
-    await firstValueWhere(this._org_initialised, (_) => !!_, this._injector);
+    await firstValueWhere(this._org.initialised, (_) => !!_, this._injector);
     const zone_metadata = await Promise.all(this._org.levels.map((bld) => Wu(bld.id, "map_regions").catch(() => null)));
-    this._area_list = [];
+    this._capacity = {};
+    this._count_key = {};
+    this._location = {};
+    this._label_location = {};
+    this._draw = {};
+    this._points = {};
+    const use_zone_polygons = this._settings.get("app.explore.use_zone_polygons");
     for (const zone of zone_metadata) {
       const areas = zone?.details?.areas;
       if (!areas)
         continue;
       for (const area of areas) {
+        const id = area.map_id || area.id;
         const { capacity, hide_label, label_location, draw_polygon, area_count_key } = area.properties || {};
         const { coordinates } = area.geometry || {};
-        this._capacity[area.id] = capacity || 100;
-        this._count_key[area.id] = area_count_key || "";
-        this._location[area.id] = coordinates?.length ? getCenterPoint(coordinates) : null;
-        this._label_location[area.id] = hide_label === false ? label_location || this._location[area.id] : null;
-        this._draw[area.id] = !!draw_polygon || this._settings.get("app.explore.use_zone_polygons");
-        this._points[area.id] = coordinates || [];
-        this._area_list.push(area.map_id || area.id);
+        this._capacity[id] = capacity || 100;
+        this._count_key[id] = area_count_key || "";
+        this._location[id] = coordinates?.length ? getCenterPoint(coordinates) : null;
+        this._label_location[id] = hide_label === false ? label_location || this._location[id] : null;
+        this._draw[id] = !!draw_polygon || use_zone_polygons;
+        this._points[id] = coordinates || [];
       }
     }
     this._state.setFeatures("zones-canvas", [
       {
         track_id: "zones-canvas",
-        location: { x: 0.5, y: 0.5 },
+        location: { x: 0, y: 0, w: 1, h: 1 },
         content: MapCanvasComponent,
+        full_size: true,
         data: {
           polygons: this._polygons.asReadonly(),
           draw_points: false,
@@ -9477,10 +9490,15 @@ var ExploreZonesService = class _ExploreZonesService extends AsyncHandler {
         }
       }
     ]);
-    this.updateStatus();
+    this._parseBindingData();
   }
   _bindToLevel(zone_id) {
-    this._statuses = {};
+    this.unsub("binding");
+    this.unsub("zone-binding");
+    this._area_data.set(null);
+    this._zone_data.set(null);
+    this._state.setLabels("zones", []);
+    this._updateStatus({});
     const mod = this._org.module("area_management", "AreaManagement");
     if (!mod)
       return;
@@ -9489,23 +9507,32 @@ var ExploreZonesService = class _ExploreZonesService extends AsyncHandler {
     this.subscription("binding", bind_areas.bindThenSubscribe((d) => this._area_data.set(d)));
     this.subscription("zone-binding", bind_zone.bindThenSubscribe((d) => this._zone_data.set(d)));
   }
+  _parseBindingData() {
+    const areas = this._area_data()?.value || [];
+    const zones = (this._zone_data()?.value || []).filter((_) => _.location === "area");
+    this.parseData([...areas, ...zones]);
+  }
   parseData(value = []) {
     const labels = [];
     const features = [];
+    const statuses = {};
     const temp_unit = this._settings.get("app.use_imperial_units") ? "F" : "C";
+    const count_key = this._settings.get("app.explore.area_count_key") || "count";
+    const show_zone_labels = this._settings.get("app.explore.show_zone_labels");
+    const show_sensor_info = this._settings.get("app.explore.show_zone_sensor_info");
     for (const zone of value) {
       const id = zone.map_id || zone.area_id;
       const capacity = zone.capacity || this._capacity[id] || 100;
-      const count = zone[this._count_key[id] || this._settings.get("app.explore.area_count_key") || "count"] || 0;
+      const count = Number(zone[this._count_key[id] || count_key] ?? 0);
       const filled = count / capacity;
-      this._statuses[id] = zone.at_location ? "busy" : filled < 0.4 ? "free" : filled < 0.75 ? "pending" : "busy";
+      statuses[id] = zone.at_location ? "busy" : filled < 0.4 ? "free" : filled < 0.75 ? "pending" : "busy";
       if (!this._location[id])
         continue;
       let content = "";
       if (zone.count) {
         content += i18n("EXPLORE.DEVICE_COUNT", { count: zone.count }) + "\n";
       }
-      if (zone.temperature)
+      if (zone.temperature != null)
         content += i18n("EXPLORE.SENSORS_TEMP", {
           value: `${zone.temperature} \xB0${temp_unit}
 `
@@ -9515,7 +9542,7 @@ var ExploreZonesService = class _ExploreZonesService extends AsyncHandler {
           count: `${zone.people_count_sum}
 `
         });
-      if (zone.humidity)
+      if (zone.humidity != null)
         content += i18n("EXPLORE.SENSORS_HUMIDITY", {
           value: `${zone.humidity}
 `
@@ -9530,66 +9557,64 @@ var ExploreZonesService = class _ExploreZonesService extends AsyncHandler {
           value: `${zone.counter}
 `
         });
-      if (this._label_location[id] && !this._settings.get("app.explore.show_zone_labels")) {
+      if (this._label_location[id] && show_zone_labels) {
         labels.push({
           location: this._label_location[id],
           content,
           z_index: 100
         });
       }
-      if (this._settings.get("app.explore.show_zone_sensor_info") && (zone.temperature || zone.humidity)) {
+      if (show_sensor_info && (zone.temperature != null || zone.humidity != null)) {
         features.push({
           track_id: `sensors:${id}`,
           location: this._location[id],
           content: ExploreSensorInfoComponent,
           data: {
             id,
-            temp: zone.temperature || 10,
+            temp: zone.temperature ?? 10,
             temp_unit,
-            humidity: zone.humidity || 10
+            humidity: zone.humidity ?? 10
           },
           z_index: 98
         });
       }
     }
-    this._features = features;
     this._state.setLabels("zones", labels);
-    this.updateStatus();
+    this._updateStatus(statuses, features);
   }
-  updateStatus() {
+  _updateStatus(statuses, sensor_features = []) {
     const style_map = {};
     const features = [];
     const colours = this._settings.get("app.explore.colors") || {};
     const polygons = [];
-    for (const zone_id in this._statuses) {
-      const colour = colours[`zone-${this._statuses[zone_id]}`] || colours[`${this._statuses[zone_id]}`] || DEFAULT_COLOURS[`${this._statuses[zone_id]}`];
+    for (const [zone_id, status] of Object.entries(statuses)) {
+      const colour = colours[`zone-${status}`] || colours[status] || DEFAULT_COLOURS[status];
       if (this._draw[zone_id]) {
         polygons.push({
           name: zone_id,
           points: this._points[zone_id],
           color: colour
         });
+      } else if (this._state.has("style", zone_id, ["zones", "zones-styles"])) {
+        features.push({
+          location: zone_id,
+          content: ExploreIconComponent,
+          data: {
+            icon: { content: "pin_drop" }
+          },
+          full_size: true,
+          z_index: 98
+        });
       } else {
-        if (this._state.has("style", zone_id, ["zones", "zones-styles"])) {
-          features.push({
-            location: zone_id,
-            content: ExploreIconComponent,
-            data: {
-              icon: { content: "pin_drop" }
-            },
-            full_size: true,
-            z_index: 98
-          });
-        } else {
-          style_map[`#${zone_id}`] = {
-            fill: colour,
-            opacity: 0.6
-          };
-        }
+        style_map[`#${zone_id}`] = {
+          fill: colour,
+          opacity: 0.6
+        };
       }
     }
     this._polygons.set(polygons);
-    this._state.setFeatures("zones", [...features, ...this._features]);
+    this._state.setFeatures("zones", features);
+    this._state.setFeatures("sensors", sensor_features);
     this._state.setStyles("zones-styles", style_map);
   }
   static {
@@ -9607,20 +9632,20 @@ var ExploreZonesService = class _ExploreZonesService extends AsyncHandler {
   }], () => [], null);
 })();
 function getCenterPoint(points) {
-  const diff = (points || []).reduce((m, [x, y]) => ({
-    x_min: x < m.x_min ? x : m.x_min,
-    x_max: x > m.x_max ? x : m.x_max,
-    y_min: y < m.y_min ? y : m.y_min,
-    y_max: y > m.y_max ? y : m.y_max
-  }), {
-    x_min: 100,
-    x_max: -100,
-    y_min: 100,
-    y_max: -100
-  });
+  const [first_x, first_y] = points[0];
+  let x_min = first_x;
+  let x_max = first_x;
+  let y_min = first_y;
+  let y_max = first_y;
+  for (const [x, y] of points) {
+    x_min = Math.min(x_min, x);
+    x_max = Math.max(x_max, x);
+    y_min = Math.min(y_min, y);
+    y_max = Math.max(y_max, y);
+  }
   return {
-    x: diff.x_min + (diff.x_max - diff.x_min) / 2,
-    y: diff.y_min + (diff.y_max - diff.y_min) / 2
+    x: x_min + (x_max - x_min) / 2,
+    y: y_min + (y_max - y_min) / 2
   };
 }
 
@@ -11863,4 +11888,4 @@ var ROUTES = [
 export {
   ROUTES
 };
-//# sourceMappingURL=explore.routes-W3VKHXJI.js.map
+//# sourceMappingURL=explore.routes-KG7ZSL4Y.js.map
