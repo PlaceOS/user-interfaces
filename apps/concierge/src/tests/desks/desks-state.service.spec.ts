@@ -2,6 +2,7 @@ import { EventEmitter, WritableSignal, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { SpectatorService, createServiceFactory } from '@ngneat/spectator/vitest';
 import {
+    Desk,
     OrganisationService,
     SettingsService,
     getTimezoneDifferenceInHours,
@@ -14,6 +15,7 @@ import { NEVER, of } from 'rxjs';
 import * as ts_client_mod from '@placeos/ts-client';
 import { MockProvider } from 'ng-mocks';
 import { DesksStateService } from '../../app/desks/desks-state.service';
+import { captureDownloads } from '../reports/download-capture.helper';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
@@ -119,6 +121,32 @@ describe('DesksStateService', () => {
 
     it('should create service', () => {
         expect(spectator.service).toBeTruthy();
+    });
+
+    it('should download the current desk list', async () => {
+        Object.defineProperty(spectator.service, 'desks', {
+            value: () => [
+                new Desk({
+                    id: 'desk-1',
+                    name: 'Desk One',
+                    bookable: true,
+                }),
+                new Desk({ id: 'desk-2', name: 'Desk Two' }),
+            ],
+        });
+        const downloads = captureDownloads();
+        try {
+            spectator.service.downloadDesksCSV();
+            const csv = await downloads.text();
+
+            expect(downloads.filename).toBe('desks.csv');
+            expect(csv).toContain('desk-1');
+            expect(csv).toContain('Desk One');
+            expect(csv).toContain('desk-2');
+            expect(csv).not.toContain('Test Desk');
+        } finally {
+            downloads.restore();
+        }
     });
 
     it('should reload desk bookings when the active building changes', () => {

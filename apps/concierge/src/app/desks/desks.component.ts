@@ -506,16 +506,7 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
     }
 
     public downloadTemplate() {
-        const desk: any = new Desk({
-            id: 'desk-123',
-            name: 'Test Desk',
-            bookable: true,
-            groups: ['test-desk-group', 'desk-bookers'],
-            features: ['Standing Desk', 'Dual Monitor'],
-        }).toJSON();
-        delete desk.images;
-        const data = jsonToCsv([desk]);
-        downloadFile('desk-template.csv', data);
+        this._state.downloadDesksCSV();
     }
 
     public readonly downloadCsv = async () => {

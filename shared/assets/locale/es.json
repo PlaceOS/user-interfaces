@@ -1031,7 +1031,7 @@
             "DESKS_MAP_ID_PLACEHOLDER": "ej. table-01.123",
             "DESKS_VIEW_QR_CODE_LIST": "Ver Códigos QR de Escritorio",
             "DESKS_LIST_UPLOAD": "Subir CSV de Escritorios",
-            "DESKS_LIST_DOWNLOAD": "Descargar plantilla CSV de Escritorios",
+            "DESKS_LIST_DOWNLOAD": "Descargar CSV de Escritorios",
             "DESKS_BOOKING_RULES": "Restricciones de Escritorio",
             "DESKS_BOOKINGS_EMPTY": "No hay reservas de escritorio para la fecha actualmente seleccionada.",
             "DESKS_BOOKINGS_SEARCH_EMPTY": "No se encontraron reservas de escritorio coincidentes",

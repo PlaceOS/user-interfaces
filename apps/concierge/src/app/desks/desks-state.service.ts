@@ -26,9 +26,11 @@ import {
     Booking,
     BuildingLevel,
     Desk,
+    downloadFile,
     generateQRCode,
     getTimezoneDifferenceInHours,
     i18n,
+    jsonToCsv,
     nextValueFrom,
     notifyError,
     notifyInfo,
@@ -376,6 +378,29 @@ export class DesksStateService extends AsyncHandler {
         this._loading.set(true);
         this._next_page_fn = this._first_page;
         this._loadPage(true);
+    }
+
+    /** Download the current desk list as a CSV file */
+    public downloadDesksCSV() {
+        const desks = this.desks();
+        const rows = (
+            desks.length
+                ? desks
+                : [
+                      new Desk({
+                          id: 'desk-123',
+                          name: 'Test Desk',
+                          bookable: true,
+                          groups: ['test-desk-group', 'desk-bookers'],
+                          features: ['Standing Desk', 'Dual Monitor'],
+                      }),
+                  ]
+        ).map((desk) => {
+            const row: any = desk.toJSON();
+            delete row.images;
+            return row;
+        });
+        downloadFile('desks.csv', jsonToCsv(rows));
     }
 
     public async addDesks(list: Desk[]) {
