@@ -1031,7 +1031,7 @@
             "DESKS_MAP_ID_PLACEHOLDER": "ex. table-01.123",
             "DESKS_VIEW_QR_CODE_LIST": "Voir la liste des codes QR des bureaux",
             "DESKS_LIST_UPLOAD": "Téléverser le CSV des bureaux",
-            "DESKS_LIST_DOWNLOAD": "Télécharger le modèle CSV des bureaux",
+            "DESKS_LIST_DOWNLOAD": "Télécharger le CSV des bureaux",
             "DESKS_BOOKING_RULES": "Restrictions des bureaux",
             "DESKS_BOOKINGS_EMPTY": "Il n'y a aucune réservation de bureau pour la date actuellement sélectionnée.",
             "DESKS_BOOKINGS_SEARCH_EMPTY": "Aucune réservation de bureau correspondante",
