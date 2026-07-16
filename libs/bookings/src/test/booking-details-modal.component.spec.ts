@@ -1,5 +1,8 @@
-import type { Mock } from 'vitest';
-import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import {
+    MAT_DIALOG_DATA,
+    MatDialog,
+    MatDialogModule,
+} from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
@@ -10,6 +13,7 @@ import {
 } from '@placeos/common';
 import { createSettingsServiceMock } from '@placeos/common/tests';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
+import type { Mock } from 'vitest';
 
 import { Booking } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -17,7 +21,7 @@ import { ImageCarouselComponent } from 'libs/components/src/lib/image-carousel.c
 import { IndoorMapsComponent } from 'libs/components/src/lib/indoor-maps.component';
 import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
 import { StatusPillComponent } from 'libs/components/src/lib/status-pill.component';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, NEVER, of } from 'rxjs';
 import { BookingDetailsModalComponent } from '../lib/booking-details-modal.component';
 
 // `checkinBooking` runs for real; only the ts-client `post` beneath it is
@@ -150,6 +154,35 @@ describe('BookingDetailsModalComponent', () => {
 
         expect(refresh_fn).toHaveBeenCalled();
         expect(spectator.component.booking().checked_in).toBe(true);
+    });
+
+    it('should confirm before checking out', async () => {
+        const dialog: MatDialog = (spectator.component as any)._dialog;
+        vi.spyOn(dialog, 'open').mockReturnValue({
+            componentInstance: { event: NEVER },
+            afterClosed: () => of(null),
+            close: vi.fn(),
+        } as any);
+        (spectator.component as any).booking.set(
+            new Booking({
+                id: 'booking-1',
+                checked_in: true,
+            } as any),
+        );
+
+        await spectator.component.toggleCheckedIn();
+
+        expect(dialog.open).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.objectContaining({
+                data: expect.objectContaining({
+                    title: 'COMMON.CHECK_OUT',
+                    confirm_text: 'COMMON.CHECK_OUT',
+                    icon: { content: 'logout' },
+                }),
+            }),
+        );
+        expect(ts_client.post).not.toHaveBeenCalled();
     });
 
     it('should show waitlisted status for current week parking requests when enabled', () => {
