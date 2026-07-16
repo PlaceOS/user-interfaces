@@ -4,17 +4,19 @@ import {
   CdkTreeNode,
   CdkTreeNodeDef,
   CdkTreeNodePadding
-} from "./chunk-3ZY4CWHU.js";
+} from "./chunk-42562AUZ.js";
 import {
   NavFooterComponent,
   NavSidebarComponent
-} from "./chunk-XVOIKYI3.js";
+} from "./chunk-LCKILVOM.js";
 import {
   Component,
   DefaultValueAccessor,
+  DestroyRef,
   FormField,
   FormsModule,
   FullscreenModalShellComponent,
+  HotkeysService,
   IconComponent,
   MAT_DIALOG_DATA,
   MatDialog,
@@ -92,7 +94,7 @@ import {
   ɵɵtwoWayBindingSet,
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty
-} from "./chunk-A3Q2Q7MS.js";
+} from "./chunk-IIUAAJ3K.js";
 import {
   __spreadProps,
   __spreadValues
@@ -1601,6 +1603,8 @@ var SignageGroupEditModalComponent = class _SignageGroupEditModalComponent {
       if (!this.group.id)
         required(path.parent_id);
     });
+    const save_hotkey = inject(HotkeysService).listen(["KeyS"], () => this.save());
+    inject(DestroyRef).onDestroy(() => save_hotkey?.unsubscribe());
   }
   async save() {
     await submit(this.form, async () => {
@@ -1623,7 +1627,7 @@ var SignageGroupEditModalComponent = class _SignageGroupEditModalComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SignageGroupEditModalComponent, selectors: [["signage-group-edit-modal"]], decls: 33, vars: 32, consts: [[3, "confirm", "heading", "loading"], [1, "flex", "flex-col"], ["for", "signage-group-name"], ["required", ""], ["appearance", "outline", 1, "w-full"], ["matInput", "", "id", "signage-group-name", 3, "placeholder", "formField"], ["for", "signage-group-description"], ["matInput", "", "id", "signage-group-description", 1, "min-h-32", 3, "placeholder", "formField"], ["for", "signage-group-parent"], ["id", "signage-group-parent", 3, "placeholder", "formField"], ["value", ""], [3, "value"]], template: function SignageGroupEditModalComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SignageGroupEditModalComponent, selectors: [["signage-group-edit-modal"]], decls: 33, vars: 32, consts: [["confirm_hotkey", "S", 3, "confirm", "heading", "loading"], [1, "flex", "flex-col"], ["for", "signage-group-name"], ["required", ""], ["appearance", "outline", 1, "w-full"], ["matInput", "", "id", "signage-group-name", 3, "placeholder", "formField"], ["for", "signage-group-description"], ["matInput", "", "id", "signage-group-description", 1, "min-h-32", 3, "placeholder", "formField"], ["for", "signage-group-parent"], ["id", "signage-group-parent", 3, "placeholder", "formField"], ["value", ""], [3, "value"]], template: function SignageGroupEditModalComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "fullscreen-modal-shell", 0);
         \u0275\u0275pipe(1, "translate");
@@ -1724,6 +1728,7 @@ var SignageGroupEditModalComponent = class _SignageGroupEditModalComponent {
             [loading]="
                 loading() ? ('SIGNAGE_MANAGER.GROUP_SAVING' | translate) : ''
             "
+            confirm_hotkey="S"
             (confirm)="save()"
         >
             <form class="flex flex-col">
@@ -1792,10 +1797,10 @@ var SignageGroupEditModalComponent = class _SignageGroupEditModalComponent {
       MatSelectModule,
       TranslatePipe
     ] }]
-  }], null, null);
+  }], () => [], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SignageGroupEditModalComponent, { className: "SignageGroupEditModalComponent", filePath: "apps/signage-manager/src/app/groups/signage-group-edit-modal.component.ts", lineNumber: 98 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SignageGroupEditModalComponent, { className: "SignageGroupEditModalComponent", filePath: "apps/signage-manager/src/app/groups/signage-group-edit-modal.component.ts", lineNumber: 100 });
 })();
 
 // apps/signage-manager/src/app/groups/signage-group-detail-header.component.ts
@@ -1951,15 +1956,51 @@ var SignageGroupDetailHeaderComponent = class _SignageGroupDetailHeaderComponent
 
 // apps/signage-manager/src/app/groups/signage-group-header.component.ts
 var _c03 = (a0) => ({ count: a0 });
-function SignageGroupHeaderComponent_Conditional_9_Template(rf, ctx) {
+var _forTrack07 = ($index, $item) => $item.id;
+function SignageGroupHeaderComponent_Conditional_10_For_3_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 6);
+    \u0275\u0275elementStart(0, "button", 9);
+    \u0275\u0275listener("click", function SignageGroupHeaderComponent_Conditional_10_For_3_Template_button_click_0_listener() {
+      const group_r2 = \u0275\u0275restoreView(_r1).$implicit;
+      const ctx_r2 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r2.selectGroup(group_r2.id));
+    });
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const group_r2 = ctx.$implicit;
+    const ctx_r2 = \u0275\u0275nextContext(2);
+    \u0275\u0275classProp("bg-primary", ctx_r2.selected_group_id() === group_r2.id)("text-primary-content", ctx_r2.selected_group_id() === group_r2.id)("hover:bg-base-200", ctx_r2.selected_group_id() !== group_r2.id);
+    \u0275\u0275attribute("aria-current", ctx_r2.selected_group_id() === group_r2.id ? "true" : null);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", group_r2.name || group_r2.id, " ");
+  }
+}
+function SignageGroupHeaderComponent_Conditional_10_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "nav", 6);
     \u0275\u0275pipe(1, "translate");
-    \u0275\u0275listener("click", function SignageGroupHeaderComponent_Conditional_9_Template_button_click_0_listener() {
-      \u0275\u0275restoreView(_r1);
-      const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.editGroup());
+    \u0275\u0275repeaterCreate(2, SignageGroupHeaderComponent_Conditional_10_For_3_Template, 2, 8, "button", 8, _forTrack07);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(1, 1, "SIGNAGE_MANAGER.GROUPS_TITLE"));
+    \u0275\u0275advance(2);
+    \u0275\u0275repeater(ctx_r2.groups());
+  }
+}
+function SignageGroupHeaderComponent_Conditional_11_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r4 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 10);
+    \u0275\u0275pipe(1, "translate");
+    \u0275\u0275listener("click", function SignageGroupHeaderComponent_Conditional_11_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r4);
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.editGroup());
     });
     \u0275\u0275elementStart(2, "icon");
     \u0275\u0275text(3, "add");
@@ -1973,10 +2014,18 @@ var SignageGroupHeaderComponent = class _SignageGroupHeaderComponent {
   constructor() {
     this._service = inject(SignageService);
     this._dialog = inject(MatDialog);
-    this.can_manage_all_groups = this._service.can_manage_all_groups;
+    this.groups = this._service.manageable_signage_groups;
+    this.selected_group_id = this._service.managed_group_id;
     this.group_count = computed(
-      () => this._service.manageable_signage_groups().length,
+      () => this.groups().length,
       ...ngDevMode ? [{ debugName: "group_count" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.can_add_groups = computed(
+      () => this._service.can_manage_all_groups() || this.group_count() > 0,
+      ...ngDevMode ? [{ debugName: "can_add_groups" }] : (
         /* istanbul ignore next */
         []
       )
@@ -1988,33 +2037,40 @@ var SignageGroupHeaderComponent = class _SignageGroupHeaderComponent {
       panelClass: "mobile-fullscreen"
     });
   }
+  selectGroup(group_id) {
+    this.selected_group_id.set(group_id);
+  }
   static {
     this.\u0275fac = function SignageGroupHeaderComponent_Factory(__ngFactoryType__) {
       return new (__ngFactoryType__ || _SignageGroupHeaderComponent)();
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SignageGroupHeaderComponent, selectors: [["signage-group-header"]], decls: 10, vars: 11, consts: [[1, "bg-base-100", "border-base-300", "sticky", "top-0", "z-10", "flex", "flex-wrap", "items-center", "gap-2", "border-b", "px-4", "py-2", "shadow", "sm:flex-nowrap"], [1, "py-2"], [1, "text-2xl", "font-medium"], [1, "text-sm", "opacity-60"], [1, "w-px", "flex-1"], ["icon", "", "default", "", "type", "button", "matRipple", "", "matTooltipPosition", "left", 3, "matTooltip"], ["icon", "", "default", "", "type", "button", "matRipple", "", "matTooltipPosition", "left", 3, "click", "matTooltip"]], template: function SignageGroupHeaderComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SignageGroupHeaderComponent, selectors: [["signage-group-header"]], decls: 12, vars: 12, consts: [[1, "bg-base-100", "border-base-300", "sticky", "top-0", "z-10", "flex", "flex-nowrap", "items-center", "gap-4", "border-b", "px-4", "py-3", "shadow"], [1, "flex-1", "shrink-0"], [1, "text-2xl", "font-medium"], [1, "flex", "items-center", "gap-4"], [1, "text-sm", "opacity-60"], [1, "min-w-0", "flex-1", "overflow-hidden"], [1, "flex", "max-w-full", "gap-1", "overflow-x-auto"], ["icon", "", "default", "", "type", "button", "matRipple", "", "matTooltipPosition", "left", 3, "matTooltip"], ["type", "button", "matRipple", "", 1, "border-base-300", "flex", "h-8", "shrink-0", "items-center", "rounded-full", "border", "px-3", "text-xs", "font-medium", "transition-colors", 3, "bg-primary", "text-primary-content", "hover:bg-base-200"], ["type", "button", "matRipple", "", 1, "border-base-300", "flex", "h-8", "shrink-0", "items-center", "rounded-full", "border", "px-3", "text-xs", "font-medium", "transition-colors", 3, "click"], ["icon", "", "default", "", "type", "button", "matRipple", "", "matTooltipPosition", "left", 3, "click", "matTooltip"]], template: function SignageGroupHeaderComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "header", 0)(1, "div", 1)(2, "h3", 2);
         \u0275\u0275text(3);
         \u0275\u0275pipe(4, "translate");
         \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(5, "div", 3);
-        \u0275\u0275text(6);
-        \u0275\u0275pipe(7, "translate");
-        \u0275\u0275elementEnd()();
-        \u0275\u0275element(8, "div", 4);
-        \u0275\u0275conditionalCreate(9, SignageGroupHeaderComponent_Conditional_9_Template, 4, 3, "button", 5);
+        \u0275\u0275elementStart(5, "div", 3)(6, "div", 4);
+        \u0275\u0275text(7);
+        \u0275\u0275pipe(8, "translate");
+        \u0275\u0275elementEnd();
+        \u0275\u0275elementStart(9, "div", 5);
+        \u0275\u0275conditionalCreate(10, SignageGroupHeaderComponent_Conditional_10_Template, 4, 3, "nav", 6);
+        \u0275\u0275elementEnd()()();
+        \u0275\u0275conditionalCreate(11, SignageGroupHeaderComponent_Conditional_11_Template, 4, 3, "button", 7);
         \u0275\u0275elementEnd();
       }
       if (rf & 2) {
         \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(4, 3, "SIGNAGE_MANAGER.GROUPS_TITLE"), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(4, 4, "SIGNAGE_MANAGER.GROUPS_TITLE"), " ");
+        \u0275\u0275advance(4);
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(8, 6, "SIGNAGE_MANAGER.GROUP_COUNT", \u0275\u0275pureFunction1(10, _c03, ctx.group_count()), ctx.group_count()), " ");
         \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(7, 5, "SIGNAGE_MANAGER.GROUP_COUNT", \u0275\u0275pureFunction1(9, _c03, ctx.group_count()), ctx.group_count()), " ");
-        \u0275\u0275advance(3);
-        \u0275\u0275conditional(ctx.can_manage_all_groups() ? 9 : -1);
+        \u0275\u0275conditional(ctx.groups().length ? 10 : -1);
+        \u0275\u0275advance();
+        \u0275\u0275conditional(ctx.can_add_groups() ? 11 : -1);
       }
     }, dependencies: [IconComponent, MatRippleModule, MatRipple, MatTooltipModule, MatTooltip, TranslatePipe], encapsulation: 2 });
   }
@@ -2026,23 +2082,59 @@ var SignageGroupHeaderComponent = class _SignageGroupHeaderComponent {
       selector: "signage-group-header",
       template: `
         <header
-            class="bg-base-100 border-base-300 sticky top-0 z-10 flex flex-wrap items-center gap-2 border-b px-4 py-2 shadow sm:flex-nowrap"
+            class="bg-base-100 border-base-300 sticky top-0 z-10 flex flex-nowrap items-center gap-4 border-b px-4 py-3 shadow"
         >
-            <div class="py-2">
+            <div class="flex-1 shrink-0">
                 <h3 class="text-2xl font-medium">
                     {{ 'SIGNAGE_MANAGER.GROUPS_TITLE' | translate }}
                 </h3>
-                <div class="text-sm opacity-60">
-                    {{
-                        'SIGNAGE_MANAGER.GROUP_COUNT'
-                            | translate
-                                : { count: group_count() }
-                                : group_count()
-                    }}
+                <div class="flex items-center gap-4">
+                    <div class="text-sm opacity-60">
+                        {{
+                            'SIGNAGE_MANAGER.GROUP_COUNT'
+                                | translate
+                                    : { count: group_count() }
+                                    : group_count()
+                        }}
+                    </div>
+                    <div class="min-w-0 flex-1 overflow-hidden">
+                        @if (groups().length) {
+                            <nav
+                                class="flex max-w-full gap-1 overflow-x-auto"
+                                [attr.aria-label]="
+                                    'SIGNAGE_MANAGER.GROUPS_TITLE' | translate
+                                "
+                            >
+                                @for (group of groups(); track group.id) {
+                                    <button
+                                        type="button"
+                                        matRipple
+                                        class="border-base-300 flex h-8 shrink-0 items-center rounded-full border px-3 text-xs font-medium transition-colors"
+                                        [class.bg-primary]="
+                                            selected_group_id() === group.id
+                                        "
+                                        [class.text-primary-content]="
+                                            selected_group_id() === group.id
+                                        "
+                                        [class.hover:bg-base-200]="
+                                            selected_group_id() !== group.id
+                                        "
+                                        [attr.aria-current]="
+                                            selected_group_id() === group.id
+                                                ? 'true'
+                                                : null
+                                        "
+                                        (click)="selectGroup(group.id)"
+                                    >
+                                        {{ group.name || group.id }}
+                                    </button>
+                                }
+                            </nav>
+                        }
+                    </div>
                 </div>
             </div>
-            <div class="w-px flex-1"></div>
-            @if (can_manage_all_groups()) {
+            @if (can_add_groups()) {
                 <button
                     icon
                     default
@@ -2064,12 +2156,12 @@ var SignageGroupHeaderComponent = class _SignageGroupHeaderComponent {
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SignageGroupHeaderComponent, { className: "SignageGroupHeaderComponent", filePath: "apps/signage-manager/src/app/groups/signage-group-header.component.ts", lineNumber: 48 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SignageGroupHeaderComponent, { className: "SignageGroupHeaderComponent", filePath: "apps/signage-manager/src/app/groups/signage-group-header.component.ts", lineNumber: 84 });
 })();
 
 // apps/signage-manager/src/app/groups/signage-group-list.component.ts
 var _c04 = (a0) => ({ name: a0 });
-var _forTrack07 = ($index, $item) => $item.id;
+var _forTrack08 = ($index, $item) => $item.id;
 function SignageGroupListComponent_Conditional_7_Conditional_0_For_1_Conditional_7_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "span", 13);
@@ -2131,7 +2223,7 @@ function SignageGroupListComponent_Conditional_7_Conditional_0_For_1_Template(rf
 }
 function SignageGroupListComponent_Conditional_7_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275repeaterCreate(0, SignageGroupListComponent_Conditional_7_Conditional_0_For_1_Template, 9, 17, "button", 8, _forTrack07);
+    \u0275\u0275repeaterCreate(0, SignageGroupListComponent_Conditional_7_Conditional_0_For_1_Template, 9, 17, "button", 8, _forTrack08);
   }
   if (rf & 2) {
     const ctx_r2 = \u0275\u0275nextContext(2);
@@ -2812,7 +2904,7 @@ var SignageGroupListComponent = class _SignageGroupListComponent {
 })();
 
 // apps/signage-manager/src/app/groups/signage-group-tabs.component.ts
-var _forTrack08 = ($index, $item) => $item.id;
+var _forTrack09 = ($index, $item) => $item.id;
 function SignageGroupTabsComponent_For_3_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
@@ -2855,7 +2947,7 @@ var SignageGroupTabsComponent = class _SignageGroupTabsComponent {
       if (rf & 1) {
         \u0275\u0275domElementStart(0, "nav", 0);
         \u0275\u0275pipe(1, "translate");
-        \u0275\u0275repeaterCreate(2, SignageGroupTabsComponent_For_3_Template, 3, 12, "button", 1, _forTrack08);
+        \u0275\u0275repeaterCreate(2, SignageGroupTabsComponent_For_3_Template, 3, 12, "button", 1, _forTrack09);
         \u0275\u0275domElementEnd();
       }
       if (rf & 2) {
@@ -3014,4 +3106,4 @@ var GroupsSectionComponent = class _GroupsSectionComponent {
 export {
   GroupsSectionComponent
 };
-//# sourceMappingURL=groups.component-QZO3CU43.js.map
+//# sourceMappingURL=groups.component-5Z4CLD5S.js.map
