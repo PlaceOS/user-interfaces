@@ -7,14 +7,14 @@ import {
   MatTabNav,
   MatTabNavPanel,
   MatTabsModule
-} from "./chunk-UHTPRUID.js";
+} from "./chunk-XRW7EHKU.js";
 import {
   IntersectDirective
-} from "./chunk-JYWQFMWX.js";
+} from "./chunk-5JSI7B4Z.js";
 import {
   NavFooterComponent,
   NavSidebarComponent
-} from "./chunk-XVOIKYI3.js";
+} from "./chunk-LCKILVOM.js";
 import {
   AuthenticatedImageDirective,
   Component,
@@ -103,7 +103,7 @@ import {
   ɵɵtwoWayBindingSet,
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty
-} from "./chunk-A3Q2Q7MS.js";
+} from "./chunk-IIUAAJ3K.js";
 import "./chunk-653SOEEV.js";
 
 // apps/signage-manager/src/app/shared/media-add-modal.component.ts
@@ -1887,8 +1887,28 @@ function MediaListComponent_Conditional_8_Conditional_11_Template(rf, ctx) {
     const _r26 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "button", 76);
     \u0275\u0275pipe(1, "translate");
+    \u0275\u0275pipe(2, "translate");
     \u0275\u0275listener("click", function MediaListComponent_Conditional_8_Conditional_11_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r26);
+      const ctx_r1 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r1.addTagsToSelected());
+    });
+    \u0275\u0275elementStart(3, "icon");
+    \u0275\u0275text(4, "sell");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(1, 2, "COMMON.TAGS"));
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(2, 4, "COMMON.TAGS"));
+  }
+}
+function MediaListComponent_Conditional_8_Conditional_12_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r27 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 77);
+    \u0275\u0275pipe(1, "translate");
+    \u0275\u0275listener("click", function MediaListComponent_Conditional_8_Conditional_12_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r27);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.deleteSelected());
     });
@@ -1900,13 +1920,13 @@ function MediaListComponent_Conditional_8_Conditional_11_Template(rf, ctx) {
     \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(1, 1, "COMMON.DELETE"));
   }
 }
-function MediaListComponent_Conditional_8_Conditional_12_Template(rf, ctx) {
+function MediaListComponent_Conditional_8_Conditional_13_Template(rf, ctx) {
   if (rf & 1) {
-    const _r27 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 77);
+    const _r28 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 76);
     \u0275\u0275pipe(1, "translate");
-    \u0275\u0275listener("click", function MediaListComponent_Conditional_8_Conditional_12_Template_button_click_0_listener() {
-      \u0275\u0275restoreView(_r27);
+    \u0275\u0275listener("click", function MediaListComponent_Conditional_8_Conditional_13_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r28);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.addSelectedToPlaylist());
     });
@@ -1918,13 +1938,13 @@ function MediaListComponent_Conditional_8_Conditional_12_Template(rf, ctx) {
     \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(1, 1, "SIGNAGE_MANAGER.ADD_TO_PLAYLIST"));
   }
 }
-function MediaListComponent_Conditional_8_Conditional_13_Template(rf, ctx) {
+function MediaListComponent_Conditional_8_Conditional_14_Template(rf, ctx) {
   if (rf & 1) {
-    const _r28 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 77);
+    const _r29 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 76);
     \u0275\u0275pipe(1, "translate");
-    \u0275\u0275listener("click", function MediaListComponent_Conditional_8_Conditional_13_Template_button_click_0_listener() {
-      \u0275\u0275restoreView(_r28);
+    \u0275\u0275listener("click", function MediaListComponent_Conditional_8_Conditional_14_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r29);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.shareSelected());
     });
@@ -1955,24 +1975,27 @@ function MediaListComponent_Conditional_8_Template(rf, ctx) {
     \u0275\u0275pipe(9, "translate");
     \u0275\u0275elementEnd()();
     \u0275\u0275elementStart(10, "div", 73);
-    \u0275\u0275conditionalCreate(11, MediaListComponent_Conditional_8_Conditional_11_Template, 4, 3, "button", 74);
+    \u0275\u0275conditionalCreate(11, MediaListComponent_Conditional_8_Conditional_11_Template, 5, 6, "button", 74);
     \u0275\u0275conditionalCreate(12, MediaListComponent_Conditional_8_Conditional_12_Template, 4, 3, "button", 75);
-    \u0275\u0275conditionalCreate(13, MediaListComponent_Conditional_8_Conditional_13_Template, 4, 3, "button", 75);
+    \u0275\u0275conditionalCreate(13, MediaListComponent_Conditional_8_Conditional_13_Template, 4, 3, "button", 74);
+    \u0275\u0275conditionalCreate(14, MediaListComponent_Conditional_8_Conditional_14_Template, 4, 3, "button", 74);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance(2);
-    \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(3, 6, "SIGNAGE_MANAGER.CLEAR_SELECTED"));
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(4, 8, "SIGNAGE_MANAGER.CLEAR_SELECTED"));
+    \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(3, 7, "SIGNAGE_MANAGER.CLEAR_SELECTED"));
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(4, 9, "SIGNAGE_MANAGER.CLEAR_SELECTED"));
     \u0275\u0275advance(6);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(9, 10, "COMMON.SELECTED_COUNT", \u0275\u0275pureFunction1(13, _c02, ctx_r1.selected_count())), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(9, 11, "COMMON.SELECTED_COUNT", \u0275\u0275pureFunction1(14, _c02, ctx_r1.selected_count())), " ");
     \u0275\u0275advance(3);
-    \u0275\u0275conditional(ctx_r1.can_delete() ? 11 : -1);
+    \u0275\u0275conditional(ctx_r1.can_update() ? 11 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r1.can_update() ? 12 : -1);
+    \u0275\u0275conditional(ctx_r1.can_delete() ? 12 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r1.can_share() ? 13 : -1);
+    \u0275\u0275conditional(ctx_r1.can_update() ? 13 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r1.can_share() ? 14 : -1);
   }
 }
 var UNTAGGED = "\0untagged";
@@ -2199,6 +2222,11 @@ var MediaListComponent = class _MediaListComponent {
       this.clearSelection();
     }
   }
+  async addTagsToSelected() {
+    if (await this._service.addMediaTags(this.selected_media())) {
+      this.clearSelection();
+    }
+  }
   drop(_event) {
   }
   static {
@@ -2207,7 +2235,7 @@ var MediaListComponent = class _MediaListComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MediaListComponent, selectors: [["media-list"]], inputs: { playlist_count: [1, "playlist_count"] }, decls: 9, vars: 3, consts: [["menu", "matMenu"], ["thumb", ""], ["group_tabs_panel", ""], ["matMenuContent", ""], ["aria-live", "polite", 1, "bg-base-100", "border-base-300", "sticky", "bottom-2", "z-20", "mx-2", "mt-2", "flex", "items-center", "justify-between", "gap-2", "rounded-xl", "border", "p-2", "shadow-lg"], ["mat-tab-nav-bar", "", 1, "bg-base-100/95", "border-base-300", "sticky", "top-2", "z-30", "mx-2", "rounded-xl", "border", 3, "tabPanel"], ["mat-tab-link", "", "type", "button", 3, "active"], ["mat-tab-link", "", "type", "button", 3, "click", "active"], ["role", "list", 1, "grid", "w-full", "grid-cols-2", "gap-4", "p-4", "sm:grid-cols-3", "lg:grid-cols-4", "xl:grid-cols-6"], [1, "mx-auto", "flex", "flex-1", "flex-col", "items-center", "justify-center", "p-8"], [1, "text-base-content/70", "mx-auto", "flex", "flex-1", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], ["type", "button", "role", "listitem", "matRipple", "", 1, "border-base-300", "bg-base-100", "hover:border-info", "flex", "flex-col", "items-center", "justify-center", "rounded-lg", "border", "p-4", "hover:shadow-xl"], ["type", "button", "role", "listitem", "matRipple", "", 1, "border-base-300", "bg-base-100", "hover:border-info", "flex", "flex-col", "items-center", "justify-center", "rounded-lg", "border", "p-4", "hover:shadow-xl", 3, "click"], [1, "text-warning", "-my-2", "text-8xl"], [1, "text-base-content", "w-full", "truncate", "text-center", "font-medium", 3, "matTooltip"], [1, "text-base-content/60", "text-xs"], ["diameter", "32"], [1, "text-6xl"], [1, "text-base-content/80", "sticky", "z-30", "mx-2", "mt-4", "items-center", "gap-1", "px-2", "text-sm", 3, "top-2", "top-16"], ["cdkDropList", "", "id", "media-list", "role", "list", 3, "class", "cdkDropListData", "cdkDropListConnectedTo"], [1, "text-base-content/80", "sticky", "z-30", "mx-2", "mt-4", "items-center", "gap-1", "px-2", "text-sm"], [1, "bg-base-100", "border-base-300", "inline-flex", "items-center", "rounded-xl", "border", "p-1"], ["type", "button", "matRipple", "", 1, "hover:text-base-content", "flex", "items-center", "gap-1", "rounded-lg", "px-4", "py-2", "underline", 3, "click"], [1, "text-base-content/60", "text-xl"], [1, "text-base-content", "px-4", "font-medium"], ["cdkDropList", "", "id", "media-list", "role", "list", 3, "cdkDropListDropped", "cdkDropListData", "cdkDropListConnectedTo"], ["intersect", "", 1, "col-span-full", "h-px", "w-full"], [1, "text-base-content/50", "bg-base-content/10", "col-span-full", "rounded-lg", "p-2", "text-center", "text-xs"], ["cdkDrag", "", "role", "listitem", 1, "border-base-300", "bg-base-100", "hover:border-info", "relative", "flex", "items-center", "gap-3", "rounded-lg", "border", "p-2", "hover:shadow-md", 3, "opacity-60", "ring-2", "ring-primary"], ["cdkDrag", "", "role", "listitem", 1, "border-base-300", "bg-base-100", "hover:border-info", "relative", "flex", "flex-col", "items-center", "justify-center", "rounded-lg", "border", "p-3", "hover:opacity-80", "hover:shadow-xl", 3, "opacity-60", "ring-2", "ring-primary"], ["cdkDrag", "", "role", "listitem", 1, "border-base-300", "bg-base-100", "hover:border-info", "relative", "flex", "items-center", "gap-3", "rounded-lg", "border", "p-2", "hover:shadow-md"], ["class", "border-base-400 bg-base-300 flex min-h-10 min-w-10 items-center justify-center rounded-2xl border-4 border-dashed opacity-30", 4, "cdkDragPlaceholder"], [3, "click", "change", "checked"], ["preview", "", "type", "button", "matRipple", "", 1, "bg-base-200", "relative", "h-14", "w-20", "flex-none", "overflow-hidden", "rounded", 3, "click"], [3, "ngTemplateOutlet", "ngTemplateOutletContext"], [1, "flex", "w-px", "flex-1", "flex-col"], [1, "text-base-content", "w-full", "truncate", "text-left", 3, "click", "matTooltip"], [1, "flex", "items-center", "gap-2"], [1, "rounded-lg", "px-2", "py-1", "font-mono", "text-xs", "capitalize"], [1, "bg-error", "text-error-content", "rounded", "px-2", "py-1", "text-xs", "font-bold"], [1, "text-base-content/70", "hidden", "font-mono", "text-xs", "sm:block"], [1, "hidden", "items-center", "gap-1", "lg:flex"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "matMenuTriggerFor", "matMenuTriggerData"], [1, "border-base-400", "bg-base-300", "flex", "min-h-10", "min-w-10", "items-center", "justify-center", "rounded-2xl", "border-4", "border-dashed", "opacity-30"], [1, "text-base-100", "text-2xl"], [1, "bg-info-light", "text-info", "max-w-32", "truncate", "rounded-full", "px-2", "py-1", "text-[0.625rem]", "font-medium"], [1, "bg-info-light", "text-info", "rounded-full", "px-2", "py-1", "text-[0.625rem]", "font-medium", 3, "matTooltip"], ["cdkDrag", "", "role", "listitem", 1, "border-base-300", "bg-base-100", "hover:border-info", "relative", "flex", "flex-col", "items-center", "justify-center", "rounded-lg", "border", "p-3", "hover:opacity-80", "hover:shadow-xl"], [1, "absolute", "top-4", "right-4", "z-20", "rounded", 3, "click", "change", "checked"], ["preview", "", "type", "button", "matRipple", "", 1, "bg-base-200", "relative", "h-36", "w-full", "overflow-hidden", "rounded-lg", 3, "click"], [1, "bg-error", "text-error-content", "absolute", "inset-x-0", "top-1/2", "z-10", "-translate-y-1/2", "py-1", "text-center", "text-xs", "font-bold", "tracking-wide"], [1, "absolute", "inset-0", "flex", "items-end", "justify-end", "p-1", "opacity-0", "transition-opacity", "duration-200", "hover:opacity-100"], [1, "absolute", "top-1", "left-1", "rounded-lg", "px-2", "py-1", "font-mono", "text-xs", "capitalize"], [1, "bg-info", "text-info-content", "absolute", "right-1", "bottom-1", "rounded-lg", "px-2", "py-1", "font-mono", "text-xs", "capitalize"], [1, "relative", "top-1", "flex", "w-full", "items-center", "justify-between"], [1, "text-base-content", "w-1/2", "flex-1", "truncate", "text-left", 3, "click", "matTooltip"], ["icon", "", "type", "button", "matRipple", "", 3, "matMenuTriggerFor", "matMenuTriggerData"], [1, "flex", "min-h-6", "w-full", "items-center", "gap-1", "overflow-hidden"], [1, "text-2xl"], [1, "bg-info-light", "text-info", "max-w-[45%]", "truncate", "rounded-full", "px-2", "py-1", "text-xs", "font-medium"], [1, "bg-info-light", "text-info", "rounded-full", "px-2", "py-1", "text-xs", "font-medium", 3, "matTooltip"], ["intersect", "", 1, "col-span-full", "h-px", "w-full", 3, "intersect"], ["type", "button", "mat-menu-item", ""], ["type", "button", "mat-menu-item", "", 3, "click"], [1, "flex", "items-center", "space-x-2"], [1, "pr-2"], [1, "text-error", "text-2xl"], [1, "flex", "h-full", "w-full", "items-center", "justify-center"], ["auth", "", 1, "absolute", "-inset-px", "flex", "h-full", "w-full", "items-center", "justify-center", "rounded-lg", "object-contain", "object-center", 3, "source", "alt"], [1, "text-8xl", "opacity-30"], [1, "flex", "items-center", "gap-3"], ["icon", "", "matRipple", "", 1, "hover:bg-base-200", "rounded-xl", 3, "click", "matTooltip"], [1, "font-medium"], [1, "flex", "flex-wrap", "items-center", "gap-2"], ["icon", "", "default", "", "matRipple", "", "error", "", 3, "matTooltip"], ["icon", "", "default", "", "matRipple", "", 3, "matTooltip"], ["icon", "", "default", "", "matRipple", "", "error", "", 3, "click", "matTooltip"], ["icon", "", "default", "", "matRipple", "", 3, "click", "matTooltip"]], template: function MediaListComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MediaListComponent, selectors: [["media-list"]], inputs: { playlist_count: [1, "playlist_count"] }, decls: 9, vars: 3, consts: [["menu", "matMenu"], ["thumb", ""], ["group_tabs_panel", ""], ["matMenuContent", ""], ["aria-live", "polite", 1, "bg-base-100", "border-base-300", "sticky", "bottom-2", "z-20", "mx-2", "mt-2", "flex", "items-center", "justify-between", "gap-2", "rounded-xl", "border", "p-2", "shadow-lg"], ["mat-tab-nav-bar", "", 1, "bg-base-100/95", "border-base-300", "sticky", "top-2", "z-30", "mx-2", "rounded-xl", "border", 3, "tabPanel"], ["mat-tab-link", "", "type", "button", 3, "active"], ["mat-tab-link", "", "type", "button", 3, "click", "active"], ["role", "list", 1, "grid", "w-full", "grid-cols-2", "gap-4", "p-4", "sm:grid-cols-3", "lg:grid-cols-4", "xl:grid-cols-6"], [1, "mx-auto", "flex", "flex-1", "flex-col", "items-center", "justify-center", "p-8"], [1, "text-base-content/70", "mx-auto", "flex", "flex-1", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], ["type", "button", "role", "listitem", "matRipple", "", 1, "border-base-300", "bg-base-100", "hover:border-info", "flex", "flex-col", "items-center", "justify-center", "rounded-lg", "border", "p-4", "hover:shadow-xl"], ["type", "button", "role", "listitem", "matRipple", "", 1, "border-base-300", "bg-base-100", "hover:border-info", "flex", "flex-col", "items-center", "justify-center", "rounded-lg", "border", "p-4", "hover:shadow-xl", 3, "click"], [1, "text-warning", "-my-2", "text-8xl"], [1, "text-base-content", "w-full", "truncate", "text-center", "font-medium", 3, "matTooltip"], [1, "text-base-content/60", "text-xs"], ["diameter", "32"], [1, "text-6xl"], [1, "text-base-content/80", "sticky", "z-30", "mx-2", "mt-4", "items-center", "gap-1", "px-2", "text-sm", 3, "top-2", "top-16"], ["cdkDropList", "", "id", "media-list", "role", "list", 3, "class", "cdkDropListData", "cdkDropListConnectedTo"], [1, "text-base-content/80", "sticky", "z-30", "mx-2", "mt-4", "items-center", "gap-1", "px-2", "text-sm"], [1, "bg-base-100", "border-base-300", "inline-flex", "items-center", "rounded-xl", "border", "p-1"], ["type", "button", "matRipple", "", 1, "hover:text-base-content", "flex", "items-center", "gap-1", "rounded-lg", "px-4", "py-2", "underline", 3, "click"], [1, "text-base-content/60", "text-xl"], [1, "text-base-content", "px-4", "font-medium"], ["cdkDropList", "", "id", "media-list", "role", "list", 3, "cdkDropListDropped", "cdkDropListData", "cdkDropListConnectedTo"], ["intersect", "", 1, "col-span-full", "h-px", "w-full"], [1, "text-base-content/50", "bg-base-content/10", "col-span-full", "rounded-lg", "p-2", "text-center", "text-xs"], ["cdkDrag", "", "role", "listitem", 1, "border-base-300", "bg-base-100", "hover:border-info", "relative", "flex", "items-center", "gap-3", "rounded-lg", "border", "p-2", "hover:shadow-md", 3, "opacity-60", "ring-2", "ring-primary"], ["cdkDrag", "", "role", "listitem", 1, "border-base-300", "bg-base-100", "hover:border-info", "relative", "flex", "flex-col", "items-center", "justify-center", "rounded-lg", "border", "p-3", "hover:opacity-80", "hover:shadow-xl", 3, "opacity-60", "ring-2", "ring-primary"], ["cdkDrag", "", "role", "listitem", 1, "border-base-300", "bg-base-100", "hover:border-info", "relative", "flex", "items-center", "gap-3", "rounded-lg", "border", "p-2", "hover:shadow-md"], ["class", "border-base-400 bg-base-300 flex min-h-10 min-w-10 items-center justify-center rounded-2xl border-4 border-dashed opacity-30", 4, "cdkDragPlaceholder"], [3, "click", "change", "checked"], ["preview", "", "type", "button", "matRipple", "", 1, "bg-base-200", "relative", "h-14", "w-20", "flex-none", "overflow-hidden", "rounded", 3, "click"], [3, "ngTemplateOutlet", "ngTemplateOutletContext"], [1, "flex", "w-px", "flex-1", "flex-col"], [1, "text-base-content", "w-full", "truncate", "text-left", 3, "click", "matTooltip"], [1, "flex", "items-center", "gap-2"], [1, "rounded-lg", "px-2", "py-1", "font-mono", "text-xs", "capitalize"], [1, "bg-error", "text-error-content", "rounded", "px-2", "py-1", "text-xs", "font-bold"], [1, "text-base-content/70", "hidden", "font-mono", "text-xs", "sm:block"], [1, "hidden", "items-center", "gap-1", "lg:flex"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "matMenuTriggerFor", "matMenuTriggerData"], [1, "border-base-400", "bg-base-300", "flex", "min-h-10", "min-w-10", "items-center", "justify-center", "rounded-2xl", "border-4", "border-dashed", "opacity-30"], [1, "text-base-100", "text-2xl"], [1, "bg-info-light", "text-info", "max-w-32", "truncate", "rounded-full", "px-2", "py-1", "text-[0.625rem]", "font-medium"], [1, "bg-info-light", "text-info", "rounded-full", "px-2", "py-1", "text-[0.625rem]", "font-medium", 3, "matTooltip"], ["cdkDrag", "", "role", "listitem", 1, "border-base-300", "bg-base-100", "hover:border-info", "relative", "flex", "flex-col", "items-center", "justify-center", "rounded-lg", "border", "p-3", "hover:opacity-80", "hover:shadow-xl"], [1, "absolute", "top-4", "right-4", "z-20", "rounded", 3, "click", "change", "checked"], ["preview", "", "type", "button", "matRipple", "", 1, "bg-base-200", "relative", "h-36", "w-full", "overflow-hidden", "rounded-lg", 3, "click"], [1, "bg-error", "text-error-content", "absolute", "inset-x-0", "top-1/2", "z-10", "-translate-y-1/2", "py-1", "text-center", "text-xs", "font-bold", "tracking-wide"], [1, "absolute", "inset-0", "flex", "items-end", "justify-end", "p-1", "opacity-0", "transition-opacity", "duration-200", "hover:opacity-100"], [1, "absolute", "top-1", "left-1", "rounded-lg", "px-2", "py-1", "font-mono", "text-xs", "capitalize"], [1, "bg-info", "text-info-content", "absolute", "right-1", "bottom-1", "rounded-lg", "px-2", "py-1", "font-mono", "text-xs", "capitalize"], [1, "relative", "top-1", "flex", "w-full", "items-center", "justify-between"], [1, "text-base-content", "w-1/2", "flex-1", "truncate", "text-left", 3, "click", "matTooltip"], ["icon", "", "type", "button", "matRipple", "", 3, "matMenuTriggerFor", "matMenuTriggerData"], [1, "flex", "min-h-6", "w-full", "items-center", "gap-1", "overflow-hidden"], [1, "text-2xl"], [1, "bg-info-light", "text-info", "max-w-[45%]", "truncate", "rounded-full", "px-2", "py-1", "text-xs", "font-medium"], [1, "bg-info-light", "text-info", "rounded-full", "px-2", "py-1", "text-xs", "font-medium", 3, "matTooltip"], ["intersect", "", 1, "col-span-full", "h-px", "w-full", 3, "intersect"], ["type", "button", "mat-menu-item", ""], ["type", "button", "mat-menu-item", "", 3, "click"], [1, "flex", "items-center", "space-x-2"], [1, "pr-2"], [1, "text-error", "text-2xl"], [1, "flex", "h-full", "w-full", "items-center", "justify-center"], ["auth", "", 1, "absolute", "-inset-px", "flex", "h-full", "w-full", "items-center", "justify-center", "rounded-lg", "object-contain", "object-center", 3, "source", "alt"], [1, "text-8xl", "opacity-30"], [1, "flex", "items-center", "gap-3"], ["icon", "", "matRipple", "", 1, "hover:bg-base-200", "rounded-xl", 3, "click", "matTooltip"], [1, "font-medium"], [1, "flex", "flex-wrap", "items-center", "gap-2"], ["icon", "", "default", "", "matRipple", "", 3, "matTooltip"], ["icon", "", "default", "", "matRipple", "", "error", "", 3, "matTooltip"], ["icon", "", "default", "", "matRipple", "", 3, "click", "matTooltip"], ["icon", "", "default", "", "matRipple", "", "error", "", 3, "click", "matTooltip"]], template: function MediaListComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275conditionalCreate(0, MediaListComponent_Conditional_0_Template, 7, 5);
         \u0275\u0275conditionalCreate(1, MediaListComponent_Conditional_1_Template, 3, 1)(2, MediaListComponent_Conditional_2_Template, 4, 2);
@@ -2215,7 +2243,7 @@ var MediaListComponent = class _MediaListComponent {
         \u0275\u0275template(5, MediaListComponent_ng_template_5_Template, 11, 7, "ng-template", 3);
         \u0275\u0275elementEnd();
         \u0275\u0275template(6, MediaListComponent_ng_template_6_Template, 4, 1, "ng-template", null, 1, \u0275\u0275templateRefExtractor);
-        \u0275\u0275conditionalCreate(8, MediaListComponent_Conditional_8_Template, 14, 15, "footer", 4);
+        \u0275\u0275conditionalCreate(8, MediaListComponent_Conditional_8_Template, 15, 16, "footer", 4);
       }
       if (rf & 2) {
         \u0275\u0275conditional(ctx.can_switch_groups() ? 0 : -1);
@@ -2845,6 +2873,18 @@ var MediaListComponent = class _MediaListComponent {
                     </div>
                 </div>
                 <div class="flex flex-wrap items-center gap-2">
+                    @if (can_update()) {
+                        <button
+                            icon
+                            default
+                            matRipple
+                            (click)="addTagsToSelected()"
+                            [matTooltip]="'COMMON.TAGS' | translate"
+                            [attr.aria-label]="'COMMON.TAGS' | translate"
+                        >
+                            <icon>sell</icon>
+                        </button>
+                    }
                     @if (can_delete()) {
                         <button
                             icon
@@ -2902,7 +2942,7 @@ var MediaListComponent = class _MediaListComponent {
   }], () => [], { playlist_count: [{ type: Input, args: [{ isSignal: true, alias: "playlist_count", required: false }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(MediaListComponent, { className: "MediaListComponent", filePath: "apps/signage-manager/src/app/media/media-list.component.ts", lineNumber: 692 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(MediaListComponent, { className: "MediaListComponent", filePath: "apps/signage-manager/src/app/media/media-list.component.ts", lineNumber: 704 });
 })();
 
 // apps/signage-manager/src/app/media/playlist-sidebar.component.ts
@@ -3727,4 +3767,4 @@ var MediaSectionComponent = class _MediaSectionComponent {
 export {
   MediaSectionComponent
 };
-//# sourceMappingURL=media.component-V374TEIE.js.map
+//# sourceMappingURL=media.component-MUOJCREX.js.map

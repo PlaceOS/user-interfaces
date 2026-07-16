@@ -41425,6 +41425,7 @@ var CALENDAR_EVENT = {
   ATTENDEES_COUNT_N: "{{ count }} attendees",
   ATTENDEE_COUNT: "{{ count }} attendee(s)",
   ATTENDEES: "Attendees",
+  NOTIFY_NEW_ATTENDEES_ONLY: "Only notify new attendees",
   DETAILS: "Details",
   NOTES_HEADER: "Notes",
   ASSETS_HEADER: "Assets",
@@ -41861,7 +41862,7 @@ var APP = {
     DESKS_MAP_ID_PLACEHOLDER: "e.g. table-01.123",
     DESKS_VIEW_QR_CODE_LIST: "View Desk QR Codes",
     DESKS_LIST_UPLOAD: "Upload Desks CSV",
-    DESKS_LIST_DOWNLOAD: "Download Desk CSV template",
+    DESKS_LIST_DOWNLOAD: "Download Desk CSV",
     DESKS_BOOKING_RULES: "Desk Restrictions",
     DESKS_BOOKINGS_EMPTY: "There are no desk booking for the currently selected date.",
     DESKS_BOOKINGS_SEARCH_EMPTY: "No matching desk bookings",
@@ -45154,6 +45155,9 @@ function Pe(t) {
 }
 function ia(t = {}) {
   return $({ query_params: t, fn: Pe, path: O });
+}
+function oa(t, e = {}) {
+  return g({ id: t, query_params: e, fn: Pe, path: O });
 }
 function ua(t, e, n = "patch") {
   return I({
@@ -54632,15 +54636,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "5c5aca9",
-  "hash": "5c5aca9",
+  "raw": "dbdb776",
+  "hash": "dbdb776",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "5c5aca9",
+  "suffix": "dbdb776",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1783937504084
+  "time": 1784184834779
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -58423,6 +58427,9 @@ var HotkeysService = class _HotkeysService {
     this.registered_combos = [];
     this.counter = 0;
     window.addEventListener("keydown", (event) => {
+      if (document.getSelection()?.type === "Range" || this.isEditableElementFocused()) {
+        return;
+      }
       const code = this.mapKey((event.code || "").toLowerCase());
       if (this.last_down !== code) {
         if (!this.keydown_states[code]) {
@@ -58491,6 +58498,14 @@ var HotkeysService = class _HotkeysService {
     for (const callback of this.keydown_callbacks[code] || []) {
       callback(count);
     }
+  }
+  /** Check if keyboard input should remain with the focused editor. */
+  isEditableElementFocused() {
+    const active = document.activeElement;
+    if (!active)
+      return false;
+    const tag_name = active.tagName.toLowerCase();
+    return tag_name === "input" || tag_name === "textarea" || active.getAttribute("contenteditable") === "true" || !!active.closest(".monaco-editor");
   }
   /**
    * Map key codes with multiple versions to simple form
@@ -77186,13 +77201,13 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
     const tracking_id = this._settings.get("app.analytics.tracking_id");
     if (!tracking_id)
       return;
-    setLoadingMessage("Initializing analytics...");
+    setLoadingMessage("Initialising analytics...");
     this._analytics.init(tracking_id);
     this._analytics.load(tracking_id);
     this._analytics.setUser(currentUser().id);
   }
   _initLocale() {
-    setLoadingMessage("Loading locale...");
+    setLoadingMessage("Loading locales...");
     try {
       let locale = localStorage.getItem("PLACEOS.locale");
       const locales = this._settings.get("app.locales") || [];
@@ -77234,7 +77249,7 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
   async _initFixedDevice() {
     if (!rs())
       return;
-    setLoadingMessage("Initializing as fixed device...");
+    setLoadingMessage("Initialising as fixed device...");
     this.interval("auto-update-version", () => this._checkReload(), 15 * 1e3);
     await requestScreenWakeLock();
   }
@@ -77661,7 +77676,7 @@ var OrganisationService = class _OrganisationService {
    * Initialise service data
    */
   async load() {
-    setLoadingMessage("Loading organistion data...");
+    setLoadingMessage("Loading organisation data...");
     await this.loadOrganisation();
     setLoadingMessage("Loading region data...");
     await this.loadRegions();
@@ -92250,6 +92265,18 @@ function FullscreenModalShellComponent_Conditional_8_Template(rf, ctx) {
     \u0275\u0275textInterpolate(ctx_r0.loading());
   }
 }
+function FullscreenModalShellComponent_Conditional_9_Conditional_4_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "kbd", 14);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(ctx_r0.confirm_hotkey());
+  }
+}
 function FullscreenModalShellComponent_Conditional_9_Template(rf, ctx) {
   if (rf & 1) {
     const _r2 = \u0275\u0275getCurrentView();
@@ -92261,6 +92288,7 @@ function FullscreenModalShellComponent_Conditional_9_Template(rf, ctx) {
     });
     \u0275\u0275text(2);
     \u0275\u0275pipe(3, "translate");
+    \u0275\u0275conditionalCreate(4, FullscreenModalShellComponent_Conditional_9_Conditional_4_Template, 2, 1, "kbd", 14);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
@@ -92269,7 +92297,9 @@ function FullscreenModalShellComponent_Conditional_9_Template(rf, ctx) {
     \u0275\u0275advance();
     \u0275\u0275property("disabled", ctx_r0.confirm_disabled());
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", ctx_r0.confirm_text() || \u0275\u0275pipeBind1(3, 4, "COMMON.SAVE"), " ");
+    \u0275\u0275textInterpolate1(" ", ctx_r0.confirm_text() || \u0275\u0275pipeBind1(3, 5, "COMMON.SAVE"), " ");
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(ctx_r0.confirm_hotkey() ? 4 : -1);
   }
 }
 var FullscreenModalShellComponent = class _FullscreenModalShellComponent {
@@ -92291,6 +92321,13 @@ var FullscreenModalShellComponent = class _FullscreenModalShellComponent {
     this.confirm_text = input(
       "",
       ...ngDevMode ? [{ debugName: "confirm_text" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.confirm_hotkey = input(
+      "",
+      ...ngDevMode ? [{ debugName: "confirm_hotkey" }] : (
         /* istanbul ignore next */
         []
       )
@@ -92339,7 +92376,7 @@ var FullscreenModalShellComponent = class _FullscreenModalShellComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _FullscreenModalShellComponent, selectors: [["fullscreen-modal-shell"], ["", "fs-modal-shell", ""]], inputs: { loading: [1, "loading"], heading: [1, "heading"], confirm_text: [1, "confirm_text"], confirm_disabled: [1, "confirm_disabled"], close: [1, "close"], hide_confirm: [1, "hide_confirm"], hide_close: [1, "hide_close"], full_width: [1, "full_width"] }, outputs: { confirm: "confirm", closed: "closed" }, ngContentSelectors: _c015, decls: 10, vars: 14, consts: [[1, "bg-base-200", "fixed", "inset-0", "flex", "flex-col", "items-center", "overflow-auto", "px-2"], [1, "border-base-300", "bg-base-100", "fixed", "top-0", "mx-auto", "h-screen", "max-w-full", "border-x"], [1, "bg-base-200", "sticky", "top-0", "z-10", "mx-auto", "my-2", "flex", "h-14", "w-full", "items-center", "justify-between", "rounded-sm", "border-none", "px-4", "py-2"], [1, "flex", "items-center", "text-xl", "font-medium", "capitalize", 3, "innerHTML"], [1, "z-0", "mx-auto", "h-1/2", "w-full", "flex-1", "space-y-8", "p-2"], [1, "flex", "h-1/2", "w-full", "flex-1", "flex-col", "items-center", "justify-center", "space-y-4", "p-12"], [1, "bg-base-200", "fixed", "bottom-0", "left-1/2", "z-10", "mx-auto", "my-2", "flex", "w-full", "-translate-x-1/2", "items-center", "justify-end", "rounded-sm", "border-none", "px-4", "py-2", 3, "max-w-156"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], ["icon", "", "matRipple", "", 3, "routerLink"], [1, "h-24", "w-full"], [3, "diameter"], [1, "text-center", "opacity-50"], [1, "bg-base-200", "fixed", "bottom-0", "left-1/2", "z-10", "mx-auto", "my-2", "flex", "w-full", "-translate-x-1/2", "items-center", "justify-end", "rounded-sm", "border-none", "px-4", "py-2"], ["btn", "", "matRipple", "", 1, "min-w-32", 3, "click", "disabled"]], template: function FullscreenModalShellComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _FullscreenModalShellComponent, selectors: [["fullscreen-modal-shell"], ["", "fs-modal-shell", ""]], inputs: { loading: [1, "loading"], heading: [1, "heading"], confirm_text: [1, "confirm_text"], confirm_hotkey: [1, "confirm_hotkey"], confirm_disabled: [1, "confirm_disabled"], close: [1, "close"], hide_confirm: [1, "hide_confirm"], hide_close: [1, "hide_close"], full_width: [1, "full_width"] }, outputs: { confirm: "confirm", closed: "closed" }, ngContentSelectors: _c015, decls: 10, vars: 14, consts: [[1, "bg-base-200", "fixed", "inset-0", "flex", "flex-col", "items-center", "overflow-auto", "px-2"], [1, "border-base-300", "bg-base-100", "fixed", "top-0", "mx-auto", "h-screen", "max-w-full", "border-x"], [1, "bg-base-200", "sticky", "top-0", "z-10", "mx-auto", "my-2", "flex", "h-14", "w-full", "items-center", "justify-between", "rounded-sm", "border-none", "px-4", "py-2"], [1, "flex", "items-center", "text-xl", "font-medium", "capitalize", 3, "innerHTML"], [1, "z-0", "mx-auto", "h-1/2", "w-full", "flex-1", "space-y-8", "p-2"], [1, "flex", "h-1/2", "w-full", "flex-1", "flex-col", "items-center", "justify-center", "space-y-4", "p-12"], [1, "bg-base-200", "fixed", "bottom-0", "left-1/2", "z-10", "mx-auto", "my-2", "flex", "w-full", "-translate-x-1/2", "items-center", "justify-end", "rounded-sm", "border-none", "px-4", "py-2", 3, "max-w-156"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], ["icon", "", "matRipple", "", 3, "routerLink"], [1, "h-24", "w-full"], [3, "diameter"], [1, "text-center", "opacity-50"], [1, "bg-base-200", "fixed", "bottom-0", "left-1/2", "z-10", "mx-auto", "my-2", "flex", "w-full", "-translate-x-1/2", "items-center", "justify-end", "rounded-sm", "border-none", "px-4", "py-2"], ["btn", "", "matRipple", "", 1, "flex", "min-w-32", "items-center", "justify-center", "gap-2", 3, "click", "disabled"], [1, "border-base-300", "bg-base-100", "text-base-content", "rounded", "border", "px-2", "py-1", "text-xs", "leading-none", "shadow-sm"]], template: function FullscreenModalShellComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275projectionDef();
         \u0275\u0275elementStart(0, "div", 0);
@@ -92352,7 +92389,7 @@ var FullscreenModalShellComponent = class _FullscreenModalShellComponent {
         \u0275\u0275elementStart(6, "main", 4);
         \u0275\u0275conditionalCreate(7, FullscreenModalShellComponent_Conditional_7_Template, 2, 0)(8, FullscreenModalShellComponent_Conditional_8_Template, 4, 2, "div", 5);
         \u0275\u0275elementEnd();
-        \u0275\u0275conditionalCreate(9, FullscreenModalShellComponent_Conditional_9_Template, 4, 6, "footer", 6);
+        \u0275\u0275conditionalCreate(9, FullscreenModalShellComponent_Conditional_9_Template, 5, 7, "footer", 6);
         \u0275\u0275elementEnd();
       }
       if (rf & 2) {
@@ -92446,11 +92483,17 @@ var FullscreenModalShellComponent = class _FullscreenModalShellComponent {
                     <button
                         btn
                         matRipple
-                        class="min-w-32"
+                        class="flex min-w-32 items-center justify-center gap-2"
                         [disabled]="confirm_disabled()"
                         (click)="confirm.emit()"
                     >
                         {{ confirm_text() || ('COMMON.SAVE' | translate) }}
+                        @if (confirm_hotkey()) {
+                            <kbd
+                                class="border-base-300 bg-base-100 text-base-content rounded border px-2 py-1 text-xs leading-none shadow-sm"
+                                >{{ confirm_hotkey() }}</kbd
+                            >
+                        }
                     </button>
                 </footer>
             }
@@ -92464,10 +92507,10 @@ var FullscreenModalShellComponent = class _FullscreenModalShellComponent {
       RouterModule,
       SanitizePipe
     ], styles: ["/* angular:styles/component:css;9cba738a8b61f6e8c0fc50691e933d058b687b91fec8fff6415921963f4014b6;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/fullscreen-modal-shell.component.ts */\nmain {\n  scroll-margin-top: 60px;\n}\n/*# sourceMappingURL=fullscreen-modal-shell.component.css.map */\n"] }]
-  }], null, { loading: [{ type: Input, args: [{ isSignal: true, alias: "loading", required: false }] }], heading: [{ type: Input, args: [{ isSignal: true, alias: "heading", required: false }] }], confirm_text: [{ type: Input, args: [{ isSignal: true, alias: "confirm_text", required: false }] }], confirm_disabled: [{ type: Input, args: [{ isSignal: true, alias: "confirm_disabled", required: false }] }], close: [{ type: Input, args: [{ isSignal: true, alias: "close", required: false }] }], hide_confirm: [{ type: Input, args: [{ isSignal: true, alias: "hide_confirm", required: false }] }], hide_close: [{ type: Input, args: [{ isSignal: true, alias: "hide_close", required: false }] }], full_width: [{ type: Input, args: [{ isSignal: true, alias: "full_width", required: false }] }], confirm: [{ type: Output, args: ["confirm"] }], closed: [{ type: Output, args: ["closed"] }] });
+  }], null, { loading: [{ type: Input, args: [{ isSignal: true, alias: "loading", required: false }] }], heading: [{ type: Input, args: [{ isSignal: true, alias: "heading", required: false }] }], confirm_text: [{ type: Input, args: [{ isSignal: true, alias: "confirm_text", required: false }] }], confirm_hotkey: [{ type: Input, args: [{ isSignal: true, alias: "confirm_hotkey", required: false }] }], confirm_disabled: [{ type: Input, args: [{ isSignal: true, alias: "confirm_disabled", required: false }] }], close: [{ type: Input, args: [{ isSignal: true, alias: "close", required: false }] }], hide_confirm: [{ type: Input, args: [{ isSignal: true, alias: "hide_confirm", required: false }] }], hide_close: [{ type: Input, args: [{ isSignal: true, alias: "hide_close", required: false }] }], full_width: [{ type: Input, args: [{ isSignal: true, alias: "full_width", required: false }] }], confirm: [{ type: Output, args: ["confirm"] }], closed: [{ type: Output, args: ["closed"] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(FullscreenModalShellComponent, { className: "FullscreenModalShellComponent", filePath: "libs/components/src/lib/fullscreen-modal-shell.component.ts", lineNumber: 96 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(FullscreenModalShellComponent, { className: "FullscreenModalShellComponent", filePath: "libs/components/src/lib/fullscreen-modal-shell.component.ts", lineNumber: 102 });
 })();
 
 // libs/components/src/lib/confirm-modal.component.ts
@@ -102657,6 +102700,8 @@ var MediaEditModalComponent = class _MediaEditModalComponent {
         []
       )
     );
+    const save_hotkey = inject2(HotkeysService).listen(["KeyS"], () => this.saveMedia());
+    inject2(DestroyRef).onDestroy(() => save_hotkey?.unsubscribe());
     if (this.media_type === "webpage") {
       this.preview_url.set(this.item.media_uri || this.item.media_url);
       effect((onCleanup) => {
@@ -102772,7 +102817,7 @@ var MediaEditModalComponent = class _MediaEditModalComponent {
         provide: UPLOAD_PERMISSIONS_MODAL,
         useValue: UploadPermissionsModalComponent
       }
-    ])], decls: 87, vars: 100, consts: [[3, "confirm", "heading", "loading"], [1, "flex", "flex-col"], ["type", "button", "matRipple", "", 1, "bg-base-300", "border-base-300", "relative", "mx-auto", "mb-4", "h-48", "w-full", "overflow-hidden", "rounded-xl", "border", "shadow", 3, "click"], [1, "text-base-content/70", "flex", "h-full", "w-full", "flex-col", "items-center", "justify-center", "gap-3"], [1, "h-full", "w-full", 3, "plugin", "config", "auto_play", "schema"], [1, "h-screen", "w-full", "object-contain", "object-center", 3, "title", "src"], ["auth", "", 1, "h-full", "w-full", "object-contain", "object-center", 3, "source", "alt"], [1, "bg-info", "text-info-content", "absolute", "top-2", "left-2", "rounded-sm", "px-2", "py-1", "text-xs", "capitalize", "shadow"], ["for", "name"], ["appearance", "outline"], ["matInput", "", 3, "formField", "placeholder"], [1, "flex", "items-center", "gap-4"], ["for", "play-time", 1, "m-0", "w-auto", "min-w-0"], [1, "font-mono", "text-xs"], [1, "text-base-content/70"], ["step", "100", 3, "min", "max"], ["matSliderThumb", "", 3, "formField"], ["for", "animation"], [3, "formField", "placeholder"], [3, "value"], ["for", "description"], ["appearance", "outline", 1, "w-full"], ["matInput", "", 1, "min-h-32", 3, "placeholder", "formField"], ["for", "tags"], ["name", "tags", 3, "formField", "placeholder"], [1, "bg-base-200/60", "mb-2", "flex", "items-center", "gap-3", "rounded-lg", "p-4"], [1, "flex", "space-x-4"], [1, "flex-1"], ["for", "valid-from"], ["name", "valid-from", 3, "formField", "clear"], ["for", "valid-until"], ["name", "valid-until", 3, "from", "formField", "clear"], ["diameter", "32"], [1, "text-sm"], [1, "h-full", "w-full", 3, "schemaChange", "plugin", "config", "auto_play", "schema"], ["for", "media-uri"], ["matInput", "", "type", "url", "placeholder", "https://example.com", 3, "formField"], [1, "flex", "items-center", "space-x-4"], ["for", "start-time", 1, "m-0", "w-auto", "min-w-0"], ["min", "0", "step", "100", 3, "max"], ["diameter", "24"], [1, "m-0", "text-sm", "opacity-70"], [1, "bg-base-200/60", "mb-2", "rounded-lg", "p-4"], [3, "schema", "formField"]], template: function MediaEditModalComponent_Template(rf, ctx) {
+    ])], decls: 87, vars: 100, consts: [["confirm_hotkey", "S", 3, "confirm", "heading", "loading"], [1, "flex", "flex-col"], ["type", "button", "matRipple", "", 1, "bg-base-300", "border-base-300", "relative", "mx-auto", "mb-4", "h-48", "w-full", "overflow-hidden", "rounded-xl", "border", "shadow", 3, "click"], [1, "text-base-content/70", "flex", "h-full", "w-full", "flex-col", "items-center", "justify-center", "gap-3"], [1, "h-full", "w-full", 3, "plugin", "config", "auto_play", "schema"], [1, "h-screen", "w-full", "object-contain", "object-center", 3, "title", "src"], ["auth", "", 1, "h-full", "w-full", "object-contain", "object-center", 3, "source", "alt"], [1, "bg-info", "text-info-content", "absolute", "top-2", "left-2", "rounded-sm", "px-2", "py-1", "text-xs", "capitalize", "shadow"], ["for", "name"], ["appearance", "outline"], ["matInput", "", 3, "formField", "placeholder"], [1, "flex", "items-center", "gap-4"], ["for", "play-time", 1, "m-0", "w-auto", "min-w-0"], [1, "font-mono", "text-xs"], [1, "text-base-content/70"], ["step", "100", 3, "min", "max"], ["matSliderThumb", "", 3, "formField"], ["for", "animation"], [3, "formField", "placeholder"], [3, "value"], ["for", "description"], ["appearance", "outline", 1, "w-full"], ["matInput", "", 1, "min-h-32", 3, "placeholder", "formField"], ["for", "tags"], ["name", "tags", 3, "formField", "placeholder"], [1, "bg-base-200/60", "mb-2", "flex", "items-center", "gap-3", "rounded-lg", "p-4"], [1, "flex", "space-x-4"], [1, "flex-1"], ["for", "valid-from"], ["name", "valid-from", 3, "formField", "clear"], ["for", "valid-until"], ["name", "valid-until", 3, "from", "formField", "clear"], ["diameter", "32"], [1, "text-sm"], [1, "h-full", "w-full", 3, "schemaChange", "plugin", "config", "auto_play", "schema"], ["for", "media-uri"], ["matInput", "", "type", "url", "placeholder", "https://example.com", 3, "formField"], [1, "flex", "items-center", "space-x-4"], ["for", "start-time", 1, "m-0", "w-auto", "min-w-0"], ["min", "0", "step", "100", 3, "max"], ["diameter", "24"], [1, "m-0", "text-sm", "opacity-70"], [1, "bg-base-200/60", "mb-2", "rounded-lg", "p-4"], [3, "schema", "formField"]], template: function MediaEditModalComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "fullscreen-modal-shell", 0);
         \u0275\u0275pipe(1, "translate");
@@ -103010,6 +103055,7 @@ var MediaEditModalComponent = class _MediaEditModalComponent {
                     : 'SIGNAGE_MANAGER.MEDIA_NEW'
                 ) | translate
             "
+            confirm_hotkey="S"
             (confirm)="saveMedia()"
             [loading]="
                 loading() ? ('SIGNAGE_MANAGER.MEDIA_SAVING' | translate) : ''
@@ -103294,7 +103340,7 @@ var MediaEditModalComponent = class _MediaEditModalComponent {
   }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(MediaEditModalComponent, { className: "MediaEditModalComponent", filePath: "apps/signage-manager/src/app/shared/media-edit-modal.component.ts", lineNumber: 414 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(MediaEditModalComponent, { className: "MediaEditModalComponent", filePath: "apps/signage-manager/src/app/shared/media-edit-modal.component.ts", lineNumber: 417 });
 })();
 
 // apps/signage-manager/src/app/shared/media-preview-modal.component.ts
@@ -104164,6 +104210,150 @@ var MediaPreviewModalComponent = class _MediaPreviewModalComponent {
 })();
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(MediaPreviewModalComponent, { className: "MediaPreviewModalComponent", filePath: "apps/signage-manager/src/app/shared/media-preview-modal.component.ts", lineNumber: 363 });
+})();
+
+// apps/signage-manager/src/app/shared/media-tags-modal.component.ts
+var MediaTagsModalComponent = class _MediaTagsModalComponent {
+  constructor() {
+    this._dialog_ref = inject2(MatDialogRef);
+    this.heading = `${i18n("COMMON.ADD")} ${i18n("COMMON.TAGS")}`;
+    this.tags = signal(
+      [],
+      ...ngDevMode ? [{ debugName: "tags" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+  }
+  addTags() {
+    if (this.tags().length)
+      this._dialog_ref.close(this.tags());
+  }
+  static {
+    this.\u0275fac = function MediaTagsModalComponent_Factory(__ngFactoryType__) {
+      return new (__ngFactoryType__ || _MediaTagsModalComponent)();
+    };
+  }
+  static {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MediaTagsModalComponent, selectors: [["media-tags-modal"]], hostAttrs: [1, "block", "min-w-0", "max-w-112", "overflow-hidden"], decls: 17, vars: 15, consts: [[1, "bg-base-200", "m-2", "flex", "w-[calc(100%-1rem)]", "min-w-0", "items-center", "justify-between", "overflow-hidden", "rounded-sm", "p-2"], [1, "min-w-0", "flex-1", "truncate", "px-2", "text-xl", "font-medium"], ["icon", "", "type", "button", "matRipple", "", "mat-dialog-close", "", 1, "shrink-0"], [1, "min-w-0", "px-4", "py-2"], ["name", "media-tags", 3, "ngModelChange", "ngModel", "placeholder"], [1, "border-base-300", "flex", "justify-end", "border-t", "p-2"], ["btn", "", "type", "button", "matRipple", "", 1, "min-w-32", 3, "click", "disabled"]], template: function MediaTagsModalComponent_Template(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275elementStart(0, "header", 0)(1, "h2", 1);
+        \u0275\u0275text(2);
+        \u0275\u0275elementEnd();
+        \u0275\u0275elementStart(3, "button", 2);
+        \u0275\u0275pipe(4, "translate");
+        \u0275\u0275elementStart(5, "icon");
+        \u0275\u0275text(6, "close");
+        \u0275\u0275elementEnd()()();
+        \u0275\u0275elementStart(7, "main", 3)(8, "label");
+        \u0275\u0275text(9);
+        \u0275\u0275pipe(10, "translate");
+        \u0275\u0275elementEnd();
+        \u0275\u0275elementStart(11, "item-list-field", 4);
+        \u0275\u0275pipe(12, "translate");
+        \u0275\u0275twoWayListener("ngModelChange", function MediaTagsModalComponent_Template_item_list_field_ngModelChange_11_listener($event) {
+          \u0275\u0275twoWayBindingSet(ctx.tags, $event) || (ctx.tags = $event);
+          return $event;
+        });
+        \u0275\u0275elementEnd();
+        \u0275\u0275controlCreate();
+        \u0275\u0275elementEnd();
+        \u0275\u0275elementStart(13, "footer", 5)(14, "button", 6);
+        \u0275\u0275listener("click", function MediaTagsModalComponent_Template_button_click_14_listener() {
+          return ctx.addTags();
+        });
+        \u0275\u0275text(15);
+        \u0275\u0275pipe(16, "translate");
+        \u0275\u0275elementEnd()();
+      }
+      if (rf & 2) {
+        \u0275\u0275advance(2);
+        \u0275\u0275textInterpolate1(" ", ctx.heading, " ");
+        \u0275\u0275advance();
+        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(4, 7, "COMMON.CANCEL"));
+        \u0275\u0275advance(6);
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(10, 9, "COMMON.TAGS"));
+        \u0275\u0275advance(2);
+        \u0275\u0275twoWayProperty("ngModel", ctx.tags);
+        \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(12, 11, "COMMON.TAGS"));
+        \u0275\u0275control();
+        \u0275\u0275advance(3);
+        \u0275\u0275property("disabled", !ctx.tags().length);
+        \u0275\u0275advance();
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(16, 13, "COMMON.ADD"), " ");
+      }
+    }, dependencies: [
+      FormsModule,
+      NgControlStatus,
+      NgModel,
+      MatDialogModule,
+      MatDialogClose,
+      MatRippleModule,
+      MatRipple,
+      IconComponent,
+      ItemListFieldComponent,
+      TranslatePipe
+    ], encapsulation: 2 });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MediaTagsModalComponent, [{
+    type: Component,
+    args: [{
+      selector: "media-tags-modal",
+      host: { class: "block min-w-0 max-w-112 overflow-hidden" },
+      template: `
+        <header
+            class="bg-base-200 m-2 flex w-[calc(100%-1rem)] min-w-0 items-center justify-between overflow-hidden rounded-sm p-2"
+        >
+            <h2 class="min-w-0 flex-1 truncate px-2 text-xl font-medium">
+                {{ heading }}
+            </h2>
+            <button
+                icon
+                type="button"
+                matRipple
+                mat-dialog-close
+                class="shrink-0"
+                [attr.aria-label]="'COMMON.CANCEL' | translate"
+            >
+                <icon>close</icon>
+            </button>
+        </header>
+        <main class="min-w-0 px-4 py-2">
+            <label>{{ 'COMMON.TAGS' | translate }}</label>
+            <item-list-field
+                name="media-tags"
+                [(ngModel)]="tags"
+                [placeholder]="'COMMON.TAGS' | translate"
+            />
+        </main>
+        <footer class="border-base-300 flex justify-end border-t p-2">
+            <button
+                btn
+                type="button"
+                matRipple
+                class="min-w-32"
+                [disabled]="!tags().length"
+                (click)="addTags()"
+            >
+                {{ 'COMMON.ADD' | translate }}
+            </button>
+        </footer>
+    `,
+      imports: [
+        FormsModule,
+        MatDialogModule,
+        MatRippleModule,
+        IconComponent,
+        ItemListFieldComponent,
+        TranslatePipe
+      ]
+    }]
+  }], null, null);
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(MediaTagsModalComponent, { className: "MediaTagsModalComponent", filePath: "apps/signage-manager/src/app/shared/media-tags-modal.component.ts", lineNumber: 60 });
 })();
 
 // apps/signage-manager/src/app/shared/playlist-approval-preview.component.ts
@@ -106487,6 +106677,8 @@ var PlaylistEditModalComponent = class _PlaylistEditModalComponent {
       required(path.name);
       minLength(path.schedules, 1);
     });
+    const save_hotkey = inject2(HotkeysService).listen(["KeyS"], () => this.savePlaylist());
+    inject2(DestroyRef).onDestroy(() => save_hotkey?.unsubscribe());
     if (!this.model().distribution && !this.model().schedules.length) {
       this.addSchedule();
     }
@@ -106562,7 +106754,7 @@ var PlaylistEditModalComponent = class _PlaylistEditModalComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _PlaylistEditModalComponent, selectors: [["playlist-edit-modal"]], decls: 92, vars: 106, consts: [[3, "confirm", "heading", "loading"], ["for", "name"], ["required", ""], ["appearance", "outline", 1, "w-full"], ["matInput", "", 3, "placeholder", "formField"], [1, "mb-4", "flex", "items-center", "space-x-4"], [1, "flex-1", 3, "label", "formField"], [1, "mb-4"], [1, "pt-2", "pb-4"], [1, "border-base-300", "relative", "rounded-sm", "border"], ["for", "default-duration", 1, "bg-base-100", "absolute", "top-0", "left-2", "m-0", "flex", "w-auto", "min-w-0", "-translate-y-1/2", "items-center", "space-x-2", "px-2"], [1, "flex", "items-center", "px-2", "pt-2"], ["min", "5000", "max", "300000", "step", "1000", 1, "flex-1"], ["matSliderThumb", "", 3, "formField"], [1, "w-16", "px-2", "text-right", "font-mono", "text-xs"], [1, "flex", "space-x-2"], [1, "flex-1"], ["for", "orientation"], [3, "formField", "placeholder"], ["value", "unspecified"], ["value", "landscape"], ["value", "portrait"], ["value", "square"], ["for", "animation"], [3, "value"], ["for", "description"], ["matInput", "", 1, "min-h-32", 3, "placeholder", "formField"], [3, "label", "formField"], [1, "flex", "space-x-4"], ["for", "valid-from"], ["name", "valid-from", 3, "formField", "clear"], ["for", "valid-until"], ["name", "valid-until", 3, "from", "formField", "clear"], [1, "mt-2", "flex", "flex-col", "gap-4"], [3, "schedule", "index", "open", "can_remove"], ["type", "button", 1, "border-primary", "text-primary", "hover:bg-primary/10", "rounded", "border", "px-3", "py-2", "text-sm", "font-medium", 3, "click"], [3, "toggle", "remove", "schedule", "index", "open", "can_remove"]], template: function PlaylistEditModalComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _PlaylistEditModalComponent, selectors: [["playlist-edit-modal"]], decls: 92, vars: 106, consts: [["confirm_hotkey", "S", 3, "confirm", "heading", "loading"], ["for", "name"], ["required", ""], ["appearance", "outline", 1, "w-full"], ["matInput", "", 3, "placeholder", "formField"], [1, "mb-4", "flex", "items-center", "space-x-4"], [1, "flex-1", 3, "label", "formField"], [1, "mb-4"], [1, "pt-2", "pb-4"], [1, "border-base-300", "relative", "rounded-sm", "border"], ["for", "default-duration", 1, "bg-base-100", "absolute", "top-0", "left-2", "m-0", "flex", "w-auto", "min-w-0", "-translate-y-1/2", "items-center", "space-x-2", "px-2"], [1, "flex", "items-center", "px-2", "pt-2"], ["min", "5000", "max", "300000", "step", "1000", 1, "flex-1"], ["matSliderThumb", "", 3, "formField"], [1, "w-16", "px-2", "text-right", "font-mono", "text-xs"], [1, "flex", "space-x-2"], [1, "flex-1"], ["for", "orientation"], [3, "formField", "placeholder"], ["value", "unspecified"], ["value", "landscape"], ["value", "portrait"], ["value", "square"], ["for", "animation"], [3, "value"], ["for", "description"], ["matInput", "", 1, "min-h-32", 3, "placeholder", "formField"], [3, "label", "formField"], [1, "flex", "space-x-4"], ["for", "valid-from"], ["name", "valid-from", 3, "formField", "clear"], ["for", "valid-until"], ["name", "valid-until", 3, "from", "formField", "clear"], [1, "mt-2", "flex", "flex-col", "gap-4"], [3, "schedule", "index", "open", "can_remove"], ["type", "button", 1, "border-primary", "text-primary", "hover:bg-primary/10", "rounded", "border", "px-3", "py-2", "text-sm", "font-medium", 3, "click"], [3, "toggle", "remove", "schedule", "index", "open", "can_remove"]], template: function PlaylistEditModalComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "fullscreen-modal-shell", 0);
         \u0275\u0275pipe(1, "translate");
@@ -106796,6 +106988,7 @@ var PlaylistEditModalComponent = class _PlaylistEditModalComponent {
                     : 'SIGNAGE_MANAGER.NEW_PLAYLIST'
                 ) | translate
             "
+            confirm_hotkey="S"
             (confirm)="savePlaylist()"
             [loading]="
                 loading() ? ('SIGNAGE_MANAGER.PLAYLIST_SAVING' | translate) : ''
@@ -107043,7 +107236,7 @@ var PlaylistEditModalComponent = class _PlaylistEditModalComponent {
   }], () => [], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(PlaylistEditModalComponent, { className: "PlaylistEditModalComponent", filePath: "apps/signage-manager/src/app/shared/playlist-edit-modal.component.ts", lineNumber: 317 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(PlaylistEditModalComponent, { className: "PlaylistEditModalComponent", filePath: "apps/signage-manager/src/app/shared/playlist-edit-modal.component.ts", lineNumber: 323 });
 })();
 
 // apps/signage-manager/src/app/shared/playlist-item-schedule-modal.component.ts
@@ -110208,6 +110401,7 @@ var SignageService = class _SignageService {
     await this.editMedia(media, void 0, "", void 0, plugin);
   }
   async editMedia(media = new Rs({}), file, playlist_id = "", prepared_file_metadata, plugin) {
+    const is_new = !media.id;
     if (media.id) {
       if (!this._requirePermission(this.can_update(), i18n("SIGNAGE_MANAGER.SVC_NO_UPDATE_MEDIA")))
         return;
@@ -110240,18 +110434,24 @@ var SignageService = class _SignageService {
         plugin,
         loadPlugin: load_plugin,
         onAdd: (f3, m2, file_metadata2) => this._addMedia(f3, m2, playlist_id, file_metadata2, file_thumbnail),
-        onEdit: (id, data) => this._editMedia(id, data),
+        onEdit: async (id, data) => {
+          const updated_media = await this._editMedia(id, data);
+          Object.assign(media, updated_media);
+        },
         preview: (item) => this.previewMedia(item)
       }
     });
     await dialogClosed(ref);
-    setTimeout(() => this.changed(), 500);
+    if (is_new)
+      setTimeout(() => this.changed(), 500);
   }
   async _editMedia(id, data) {
     if (!this._requirePermission(this.can_update(), i18n("SIGNAGE_MANAGER.SVC_NO_UPDATE_MEDIA")))
       return;
-    await ch(id, data);
-    this.changed();
+    const updated_media = decodeEntityNames(await ch(id, data));
+    this._media_items.update((items) => items.map((item) => item.id === id ? updated_media : item));
+    this._media_tags.reload();
+    return updated_media;
   }
   async _resolvePlugin(plugin_id) {
     if (!plugin_id)
@@ -110443,6 +110643,32 @@ var SignageService = class _SignageService {
     if (!media_ids.length)
       return false;
     return this._shareSignageItems("media", media_ids);
+  }
+  async addMediaTags(items) {
+    const media_items = items.filter((item) => !!item?.id);
+    if (!media_items.length)
+      return false;
+    if (!this._requirePermission(this.can_update(), i18n("SIGNAGE_MANAGER.SVC_NO_UPDATE_MEDIA")))
+      return false;
+    const ref = this._dialog.open(MediaTagsModalComponent, {
+      width: "min(28rem, calc(100vw - 2rem))"
+    });
+    const tags = await dialogClosed(ref);
+    if (!tags?.length)
+      return false;
+    try {
+      await Promise.all(media_items.map((item) => ch(item.id, {
+        tags: [.../* @__PURE__ */ new Set([...item.tags || [], ...tags])]
+      })));
+    } catch (error2) {
+      notifyError(i18n("SIGNAGE_MANAGER.MEDIA_SAVE_ERROR", {
+        error: error2 instanceof Error ? error2.message : `${error2}`
+      }));
+      return false;
+    }
+    this.changed();
+    notifySuccess(i18n("SIGNAGE_MANAGER.MEDIA_SAVE_SUCCESS"));
+    return true;
   }
   async openPlaylistSelectModal(media_id) {
     const ref = this._dialog.open(PlaylistSelectModalComponent, {
@@ -110967,6 +111193,7 @@ export {
   ɵɵtext,
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1,
+  ɵɵtextInterpolate2,
   ɵɵtwoWayProperty,
   ɵɵtwoWayBindingSet,
   ɵɵtwoWayListener,
@@ -111048,10 +111275,12 @@ export {
   Fr,
   Lr,
   Zr,
+  oa,
   Ps,
   rr,
   Fl,
   $r,
+  Cr,
   i18n,
   LocaleService,
   notifyError,
@@ -111081,6 +111310,7 @@ export {
   normaliseNativeDomain,
   lookupNativeDomainByEmail,
   registerActiveLocale,
+  Clipboard,
   isFakeMousedownFromScreenReader,
   isFakeTouchstartFromScreenReader,
   ENTER,
@@ -111172,4 +111402,4 @@ export {
   dialogClosed,
   SignageService
 };
-//# sourceMappingURL=chunk-A3Q2Q7MS.js.map
+//# sourceMappingURL=chunk-IIUAAJ3K.js.map
