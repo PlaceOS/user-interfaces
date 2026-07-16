@@ -51492,6 +51492,7 @@ var CALENDAR_EVENT = {
   ATTENDEES_COUNT_N: "{{ count }} attendees",
   ATTENDEE_COUNT: "{{ count }} attendee(s)",
   ATTENDEES: "Attendees",
+  NOTIFY_NEW_ATTENDEES_ONLY: "Only notify new attendees",
   DETAILS: "Details",
   NOTES_HEADER: "Notes",
   ASSETS_HEADER: "Assets",
@@ -51928,7 +51929,7 @@ var APP = {
     DESKS_MAP_ID_PLACEHOLDER: "e.g. table-01.123",
     DESKS_VIEW_QR_CODE_LIST: "View Desk QR Codes",
     DESKS_LIST_UPLOAD: "Upload Desks CSV",
-    DESKS_LIST_DOWNLOAD: "Download Desk CSV template",
+    DESKS_LIST_DOWNLOAD: "Download Desk CSV",
     DESKS_BOOKING_RULES: "Desk Restrictions",
     DESKS_BOOKINGS_EMPTY: "There are no desk booking for the currently selected date.",
     DESKS_BOOKINGS_SEARCH_EMPTY: "No matching desk bookings",
@@ -55080,6 +55081,9 @@ function Pe(t) {
 function ia(t = {}) {
   return $({ query_params: t, fn: Pe, path: O });
 }
+function oa(t, e = {}) {
+  return g({ id: t, query_params: e, fn: Pe, path: O });
+}
 var Y = "users";
 function Re(t) {
   return new Un(t);
@@ -55968,6 +55972,9 @@ var HotkeysService = class _HotkeysService {
     this.registered_combos = [];
     this.counter = 0;
     window.addEventListener("keydown", (event) => {
+      if (document.getSelection()?.type === "Range" || this.isEditableElementFocused()) {
+        return;
+      }
       const code = this.mapKey((event.code || "").toLowerCase());
       if (this.last_down !== code) {
         if (!this.keydown_states[code]) {
@@ -56036,6 +56043,14 @@ var HotkeysService = class _HotkeysService {
     for (const callback of this.keydown_callbacks[code] || []) {
       callback(count2);
     }
+  }
+  /** Check if keyboard input should remain with the focused editor. */
+  isEditableElementFocused() {
+    const active = document.activeElement;
+    if (!active)
+      return false;
+    const tag_name = active.tagName.toLowerCase();
+    return tag_name === "input" || tag_name === "textarea" || active.getAttribute("contenteditable") === "true" || !!active.closest(".monaco-editor");
   }
   /**
    * Map key codes with multiple versions to simple form
@@ -56836,15 +56851,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "5c5aca9",
-  "hash": "5c5aca9",
+  "raw": "dbdb776",
+  "hash": "dbdb776",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "5c5aca9",
+  "suffix": "dbdb776",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1783937304754
+  "time": 1784184810224
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -79210,13 +79225,13 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
     const tracking_id = this._settings.get("app.analytics.tracking_id");
     if (!tracking_id)
       return;
-    setLoadingMessage("Initializing analytics...");
+    setLoadingMessage("Initialising analytics...");
     this._analytics.init(tracking_id);
     this._analytics.load(tracking_id);
     this._analytics.setUser(currentUser().id);
   }
   _initLocale() {
-    setLoadingMessage("Loading locale...");
+    setLoadingMessage("Loading locales...");
     try {
       let locale = localStorage.getItem("PLACEOS.locale");
       const locales = this._settings.get("app.locales") || [];
@@ -79258,7 +79273,7 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
   async _initFixedDevice() {
     if (!rs())
       return;
-    setLoadingMessage("Initializing as fixed device...");
+    setLoadingMessage("Initialising as fixed device...");
     this.interval("auto-update-version", () => this._checkReload(), 15 * 1e3);
     await requestScreenWakeLock();
   }
@@ -79685,7 +79700,7 @@ var OrganisationService = class _OrganisationService {
    * Initialise service data
    */
   async load() {
-    setLoadingMessage("Loading organistion data...");
+    setLoadingMessage("Loading organisation data...");
     await this.loadOrganisation();
     setLoadingMessage("Loading region data...");
     await this.loadRegions();
@@ -90764,25 +90779,1261 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(GlobalLoadingComponent, { className: "GlobalLoadingComponent", filePath: "libs/components/src/lib/global-loading.component.ts", lineNumber: 81 });
 })();
 
-// libs/components/src/lib/settings-debug-panel.component.ts
-var _c013 = (a0) => ({ zones: a0 });
-var _forTrack0 = ($index, $item) => $item.type + $item.id;
-function SettingsDebugPanelComponent_Conditional_0_Conditional_6_Template(rf, ctx) {
+// libs/components/src/lib/binding-debug-panel.component.ts
+var _forTrack0 = ($index, $item) => $item.id;
+var _forTrack1 = ($index, $item) => $item.key;
+var _forTrack2 = ($index, $item) => $item.direction + $item.id;
+function BindingDebugPanelComponent_Conditional_0_Conditional_7_Template(rf, ctx) {
   if (rf & 1) {
-    const _r2 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 15);
-    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_Conditional_6_Template_button_click_0_listener() {
-      \u0275\u0275restoreView(_r2);
-      const ctx_r2 = \u0275\u0275nextContext(2);
-      return \u0275\u0275resetView(ctx_r2.clearAll());
+    const _r3 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 14);
+    \u0275\u0275listener("click", function BindingDebugPanelComponent_Conditional_0_Conditional_7_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r3);
+      const ctx_r1 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r1.clearAllOverrides());
     });
-    \u0275\u0275text(1, " Clear all overrides ");
+    \u0275\u0275text(1, " Clear overrides ");
     \u0275\u0275elementEnd();
   }
 }
-function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_0_Conditional_7_Template(rf, ctx) {
+function BindingDebugPanelComponent_Conditional_0_Conditional_8_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 22);
+    const _r4 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 15);
+    \u0275\u0275listener("click", function BindingDebugPanelComponent_Conditional_0_Conditional_8_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r4);
+      const ctx_r1 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r1.clearMessages());
+    });
+    \u0275\u0275text(1, " Clear messages ");
+    \u0275\u0275elementEnd();
+  }
+}
+function BindingDebugPanelComponent_Conditional_0_For_20_Conditional_7_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span", 20);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const system_r6 = \u0275\u0275nextContext().$implicit;
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", system_r6.id, " ");
+  }
+}
+function BindingDebugPanelComponent_Conditional_0_For_20_Conditional_8_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span", 21);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const system_r6 = \u0275\u0275nextContext().$implicit;
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate2(" ", system_r6.active_count, "/", system_r6.binding_count, " active ");
+  }
+}
+function BindingDebugPanelComponent_Conditional_0_For_20_Conditional_9_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span", 21);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const system_r6 = \u0275\u0275nextContext().$implicit;
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", system_r6.message_count, " messages ");
+  }
+}
+function BindingDebugPanelComponent_Conditional_0_For_20_Conditional_10_For_1_Conditional_5_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span", 21);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const module_r8 = \u0275\u0275nextContext().$implicit;
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate2(" ", module_r8.active_count, "/", module_r8.bindings.length, " active ");
+  }
+}
+function BindingDebugPanelComponent_Conditional_0_For_20_Conditional_10_For_1_Conditional_6_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span", 21);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const module_r8 = \u0275\u0275nextContext().$implicit;
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", module_r8.messages.length, " messages ");
+  }
+}
+function BindingDebugPanelComponent_Conditional_0_For_20_Conditional_10_For_1_Conditional_7_Conditional_0_For_1_Conditional_6_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span", 29);
+    \u0275\u0275text(1, " overridden ");
+    \u0275\u0275elementEnd();
+  }
+}
+function BindingDebugPanelComponent_Conditional_0_For_20_Conditional_10_For_1_Conditional_7_Conditional_0_For_1_Conditional_7_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r9 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 30)(1, "input", 35);
+    \u0275\u0275twoWayListener("ngModelChange", function BindingDebugPanelComponent_Conditional_0_For_20_Conditional_10_For_1_Conditional_7_Conditional_0_For_1_Conditional_7_Template_input_ngModelChange_1_listener($event) {
+      \u0275\u0275restoreView(_r9);
+      const ctx_r1 = \u0275\u0275nextContext(8);
+      \u0275\u0275twoWayBindingSet(ctx_r1.edit_value, $event) || (ctx_r1.edit_value = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275listener("keydown.enter", function BindingDebugPanelComponent_Conditional_0_For_20_Conditional_10_For_1_Conditional_7_Conditional_0_For_1_Conditional_7_Template_input_keydown_enter_1_listener() {
+      \u0275\u0275restoreView(_r9);
+      const row_r10 = \u0275\u0275nextContext().$implicit;
+      const ctx_r1 = \u0275\u0275nextContext(7);
+      return \u0275\u0275resetView(ctx_r1.saveOverride(row_r10));
+    })("keydown.escape", function BindingDebugPanelComponent_Conditional_0_For_20_Conditional_10_For_1_Conditional_7_Conditional_0_For_1_Conditional_7_Template_input_keydown_escape_1_listener() {
+      \u0275\u0275restoreView(_r9);
+      const ctx_r1 = \u0275\u0275nextContext(8);
+      return \u0275\u0275resetView(ctx_r1.editing_key.set(""));
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementStart(2, "button", 36);
+    \u0275\u0275listener("click", function BindingDebugPanelComponent_Conditional_0_For_20_Conditional_10_For_1_Conditional_7_Conditional_0_For_1_Conditional_7_Template_button_click_2_listener() {
+      \u0275\u0275restoreView(_r9);
+      const row_r10 = \u0275\u0275nextContext().$implicit;
+      const ctx_r1 = \u0275\u0275nextContext(7);
+      return \u0275\u0275resetView(ctx_r1.saveOverride(row_r10));
+    });
+    \u0275\u0275elementStart(3, "icon", 37);
+    \u0275\u0275text(4, "check");
+    \u0275\u0275elementEnd()()();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext(8);
+    \u0275\u0275advance();
+    \u0275\u0275twoWayProperty("ngModel", ctx_r1.edit_value);
+    \u0275\u0275control();
+  }
+}
+function BindingDebugPanelComponent_Conditional_0_For_20_Conditional_10_For_1_Conditional_7_Conditional_0_For_1_Conditional_8_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r11 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 38);
+    \u0275\u0275listener("click", function BindingDebugPanelComponent_Conditional_0_For_20_Conditional_10_For_1_Conditional_7_Conditional_0_For_1_Conditional_8_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r11);
+      const row_r10 = \u0275\u0275nextContext().$implicit;
+      const ctx_r1 = \u0275\u0275nextContext(7);
+      return \u0275\u0275resetView(ctx_r1.startOverride(row_r10));
+    });
+    \u0275\u0275elementStart(1, "span", 39);
+    \u0275\u0275text(2);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "icon", 40);
+    \u0275\u0275text(4, "edit");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const row_r10 = \u0275\u0275nextContext().$implicit;
+    const ctx_r1 = \u0275\u0275nextContext(7);
+    \u0275\u0275property("title", ctx_r1.formatValue(row_r10.current_value));
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", ctx_r1.formatValue(row_r10.current_value), " ");
+  }
+}
+function BindingDebugPanelComponent_Conditional_0_For_20_Conditional_10_For_1_Conditional_7_Conditional_0_For_1_Conditional_12_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r12 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 41);
+    \u0275\u0275listener("click", function BindingDebugPanelComponent_Conditional_0_For_20_Conditional_10_For_1_Conditional_7_Conditional_0_For_1_Conditional_12_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r12);
+      const row_r10 = \u0275\u0275nextContext().$implicit;
+      const ctx_r1 = \u0275\u0275nextContext(7);
+      return \u0275\u0275resetView(ctx_r1.clearOverride(row_r10));
+    });
+    \u0275\u0275text(1, " Restore driver value ");
+    \u0275\u0275elementEnd();
+  }
+}
+function BindingDebugPanelComponent_Conditional_0_For_20_Conditional_10_For_1_Conditional_7_Conditional_0_For_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 25)(1, "div", 26)(2, "span", 27);
+    \u0275\u0275text(3);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "span", 28);
+    \u0275\u0275text(5);
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(6, BindingDebugPanelComponent_Conditional_0_For_20_Conditional_10_For_1_Conditional_7_Conditional_0_For_1_Conditional_6_Template, 2, 0, "span", 29);
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(7, BindingDebugPanelComponent_Conditional_0_For_20_Conditional_10_For_1_Conditional_7_Conditional_0_For_1_Conditional_7_Template, 5, 1, "div", 30)(8, BindingDebugPanelComponent_Conditional_0_For_20_Conditional_10_For_1_Conditional_7_Conditional_0_For_1_Conditional_8_Template, 5, 2, "button", 31);
+    \u0275\u0275elementStart(9, "div", 32)(10, "span", 33);
+    \u0275\u0275text(11);
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(12, BindingDebugPanelComponent_Conditional_0_For_20_Conditional_10_For_1_Conditional_7_Conditional_0_For_1_Conditional_12_Template, 2, 0, "button", 34);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const row_r10 = ctx.$implicit;
+    const ctx_r1 = \u0275\u0275nextContext(7);
+    \u0275\u0275classProp("bg-warning-light", row_r10.is_overridden);
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1(" ", row_r10.name, " ");
+    \u0275\u0275advance();
+    \u0275\u0275classProp("bg-success-light", row_r10.active)("text-success", row_r10.active)("bg-base-300", !row_r10.active);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate2(" ", row_r10.active ? "active" : "inactive", " \xB7 ", row_r10.count, " ");
+    \u0275\u0275advance();
+    \u0275\u0275conditional(row_r10.is_overridden ? 6 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r1.editing_key() === row_r10.key ? 7 : 8);
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate1(" Last update: ", ctx_r1.formatTime(row_r10.updated_at), " ");
+    \u0275\u0275advance();
+    \u0275\u0275conditional(row_r10.is_overridden ? 12 : -1);
+  }
+}
+function BindingDebugPanelComponent_Conditional_0_For_20_Conditional_10_For_1_Conditional_7_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275repeaterCreate(0, BindingDebugPanelComponent_Conditional_0_For_20_Conditional_10_For_1_Conditional_7_Conditional_0_For_1_Template, 13, 15, "div", 24, _forTrack1);
+  }
+  if (rf & 2) {
+    const module_r8 = \u0275\u0275nextContext(2).$implicit;
+    \u0275\u0275repeater(module_r8.bindings);
+  }
+}
+function BindingDebugPanelComponent_Conditional_0_For_20_Conditional_10_For_1_Conditional_7_Conditional_1_For_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 43)(1, "icon", 44);
+    \u0275\u0275text(2);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "div", 45)(4, "div", 46);
+    \u0275\u0275text(5);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(6, "div", 47);
+    \u0275\u0275text(7);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(8, "div", 48)(9, "div");
+    \u0275\u0275text(10);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(11, "div");
+    \u0275\u0275text(12);
+    \u0275\u0275elementEnd()()();
+  }
+  if (rf & 2) {
+    const message_r13 = ctx.$implicit;
+    const ctx_r1 = \u0275\u0275nextContext(7);
+    \u0275\u0275classProp("text-error", message_r13.error);
+    \u0275\u0275advance();
+    \u0275\u0275classProp("text-info", message_r13.direction === "send")("text-success", message_r13.direction === "receive" && !message_r13.error);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", message_r13.direction === "send" ? "north_east" : "south_west", " ");
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1(" ", message_r13.method, " ");
+    \u0275\u0275advance();
+    \u0275\u0275property("title", ctx_r1.formatValue(message_r13.value));
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", ctx_r1.formatValue(message_r13.value), " ");
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1(" ", message_r13.direction, " ");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", ctx_r1.formatTime(message_r13.time), " ");
+  }
+}
+function BindingDebugPanelComponent_Conditional_0_For_20_Conditional_10_For_1_Conditional_7_Conditional_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275repeaterCreate(0, BindingDebugPanelComponent_Conditional_0_For_20_Conditional_10_For_1_Conditional_7_Conditional_1_For_1_Template, 13, 12, "div", 42, _forTrack2);
+  }
+  if (rf & 2) {
+    const module_r8 = \u0275\u0275nextContext(2).$implicit;
+    \u0275\u0275repeater(module_r8.messages);
+  }
+}
+function BindingDebugPanelComponent_Conditional_0_For_20_Conditional_10_For_1_Conditional_7_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275conditionalCreate(0, BindingDebugPanelComponent_Conditional_0_For_20_Conditional_10_For_1_Conditional_7_Conditional_0_Template, 2, 0)(1, BindingDebugPanelComponent_Conditional_0_For_20_Conditional_10_For_1_Conditional_7_Conditional_1_Template, 2, 0);
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext(5);
+    \u0275\u0275conditional(ctx_r1.tab() === "bindings" ? 0 : 1);
+  }
+}
+function BindingDebugPanelComponent_Conditional_0_For_20_Conditional_10_For_1_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r7 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 22);
+    \u0275\u0275listener("click", function BindingDebugPanelComponent_Conditional_0_For_20_Conditional_10_For_1_Template_button_click_0_listener() {
+      const module_r8 = \u0275\u0275restoreView(_r7).$implicit;
+      const ctx_r1 = \u0275\u0275nextContext(4);
+      return \u0275\u0275resetView(ctx_r1.toggleGroup("module|" + module_r8.key));
+    });
+    \u0275\u0275elementStart(1, "icon", 17);
+    \u0275\u0275text(2, "chevron_right");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "span", 23);
+    \u0275\u0275text(4);
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(5, BindingDebugPanelComponent_Conditional_0_For_20_Conditional_10_For_1_Conditional_5_Template, 2, 2, "span", 21)(6, BindingDebugPanelComponent_Conditional_0_For_20_Conditional_10_For_1_Conditional_6_Template, 2, 1, "span", 21);
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(7, BindingDebugPanelComponent_Conditional_0_For_20_Conditional_10_For_1_Conditional_7_Template, 2, 1);
+  }
+  if (rf & 2) {
+    const module_r8 = ctx.$implicit;
+    const ctx_r1 = \u0275\u0275nextContext(4);
+    \u0275\u0275advance();
+    \u0275\u0275classProp("rotate-90", ctx_r1.isExpanded("module|" + module_r8.key));
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1(" ", module_r8.id, " ");
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r1.tab() === "bindings" ? 5 : 6);
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(ctx_r1.isExpanded("module|" + module_r8.key) ? 7 : -1);
+  }
+}
+function BindingDebugPanelComponent_Conditional_0_For_20_Conditional_10_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275repeaterCreate(0, BindingDebugPanelComponent_Conditional_0_For_20_Conditional_10_For_1_Template, 8, 5, null, null, _forTrack1);
+  }
+  if (rf & 2) {
+    const system_r6 = \u0275\u0275nextContext().$implicit;
+    \u0275\u0275repeater(system_r6.modules);
+  }
+}
+function BindingDebugPanelComponent_Conditional_0_For_20_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r5 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "section")(1, "button", 16);
+    \u0275\u0275listener("click", function BindingDebugPanelComponent_Conditional_0_For_20_Template_button_click_1_listener() {
+      const system_r6 = \u0275\u0275restoreView(_r5).$implicit;
+      const ctx_r1 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r1.toggleGroup("system|" + system_r6.id));
+    });
+    \u0275\u0275elementStart(2, "icon", 17);
+    \u0275\u0275text(3, "chevron_right");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "span", 18)(5, "span", 19);
+    \u0275\u0275text(6);
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(7, BindingDebugPanelComponent_Conditional_0_For_20_Conditional_7_Template, 2, 1, "span", 20);
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(8, BindingDebugPanelComponent_Conditional_0_For_20_Conditional_8_Template, 2, 2, "span", 21)(9, BindingDebugPanelComponent_Conditional_0_For_20_Conditional_9_Template, 2, 1, "span", 21);
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(10, BindingDebugPanelComponent_Conditional_0_For_20_Conditional_10_Template, 2, 0);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const system_r6 = ctx.$implicit;
+    const ctx_r1 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance(2);
+    \u0275\u0275classProp("rotate-90", ctx_r1.isExpanded("system|" + system_r6.id));
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate1(" ", system_r6.name, " ");
+    \u0275\u0275advance();
+    \u0275\u0275conditional(system_r6.name !== system_r6.id ? 7 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r1.tab() === "bindings" ? 8 : 9);
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(ctx_r1.isExpanded("system|" + system_r6.id) ? 10 : -1);
+  }
+}
+function BindingDebugPanelComponent_Conditional_0_ForEmpty_21_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 12);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" No observed ", ctx_r1.tab() === "bindings" ? "bindings" : "execute messages", " ");
+  }
+}
+function BindingDebugPanelComponent_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r1 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "aside", 0)(1, "header", 1)(2, "button", 2);
+    \u0275\u0275listener("click", function BindingDebugPanelComponent_Conditional_0_Template_button_click_2_listener() {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.show.set(false));
+    });
+    \u0275\u0275elementStart(3, "icon");
+    \u0275\u0275text(4, "close");
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(5, "div", 3);
+    \u0275\u0275text(6, " Driver Binding Viewer ");
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(7, BindingDebugPanelComponent_Conditional_0_Conditional_7_Template, 2, 0, "button", 4)(8, BindingDebugPanelComponent_Conditional_0_Conditional_8_Template, 2, 0, "button", 5);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(9, "div", 6)(10, "button", 7);
+    \u0275\u0275listener("click", function BindingDebugPanelComponent_Conditional_0_Template_button_click_10_listener() {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.tab.set("bindings"));
+    });
+    \u0275\u0275text(11);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(12, "button", 7);
+    \u0275\u0275listener("click", function BindingDebugPanelComponent_Conditional_0_Template_button_click_12_listener() {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.tab.set("executes"));
+    });
+    \u0275\u0275text(13);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(14, "div", 8)(15, "input", 9);
+    \u0275\u0275twoWayListener("ngModelChange", function BindingDebugPanelComponent_Conditional_0_Template_input_ngModelChange_15_listener($event) {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      \u0275\u0275twoWayBindingSet(ctx_r1.filter, $event) || (ctx_r1.filter = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementStart(16, "icon", 10);
+    \u0275\u0275text(17, "search");
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(18, "div", 11);
+    \u0275\u0275repeaterCreate(19, BindingDebugPanelComponent_Conditional_0_For_20_Template, 11, 6, "section", null, _forTrack0, false, BindingDebugPanelComponent_Conditional_0_ForEmpty_21_Template, 2, 1, "div", 12);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(22, "footer", 13);
+    \u0275\u0275text(23, " Ctrl + Alt + Shift + B \xB7 Values and overrides are local to this browser session. ");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275advance(7);
+    \u0275\u0275conditional(ctx_r1.tab() === "bindings" && ctx_r1.has_overrides() ? 7 : ctx_r1.tab() === "executes" && ctx_r1.execute_count() ? 8 : -1);
+    \u0275\u0275advance(3);
+    \u0275\u0275classProp("bg-base-300", ctx_r1.tab() === "bindings");
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" Bindings (", ctx_r1.binding_count(), ") ");
+    \u0275\u0275advance();
+    \u0275\u0275classProp("bg-base-300", ctx_r1.tab() === "executes");
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" Executes (", ctx_r1.execute_count(), ") ");
+    \u0275\u0275advance(2);
+    \u0275\u0275twoWayProperty("ngModel", ctx_r1.filter);
+    \u0275\u0275control();
+    \u0275\u0275advance(4);
+    \u0275\u0275repeater(ctx_r1.systems());
+  }
+}
+var binding_records = signal(
+  [],
+  ...ngDevMode ? [{ debugName: "binding_records" }] : (
+    /* istanbul ignore next */
+    []
+  )
+);
+var execute_messages = signal(
+  [],
+  ...ngDevMode ? [{ debugName: "execute_messages" }] : (
+    /* istanbul ignore next */
+    []
+  )
+);
+var records_by_key = /* @__PURE__ */ new Map();
+var system_name_cache = /* @__PURE__ */ new Map();
+var execute_id = 0;
+function bindingKey(module2, binding) {
+  return `${module2.system.id}|${module2.id}|${binding.name}`;
+}
+function trackBinding(module2, binding) {
+  const key = bindingKey(module2, binding);
+  if (records_by_key.has(key))
+    return binding;
+  const source = binding.listen();
+  const emit = source.set.bind(source);
+  const record = {
+    key,
+    system_id: module2.system.id,
+    module_id: module2.id,
+    module_name: module2.name,
+    module_index: module2.index,
+    name: binding.name,
+    binding,
+    value: signal(source.value),
+    last_update: signal(source.value === void 0 ? 0 : Date.now()),
+    overridden: signal(false),
+    driver_value: source.value,
+    emit
+  };
+  records_by_key.set(key, record);
+  binding_records.update((records) => [...records, record]);
+  source.subscribe((value) => record.value.set(value));
+  source.set = (value) => {
+    record.driver_value = value;
+    record.last_update.set(Date.now());
+    if (!record.overridden())
+      emit(value);
+  };
+  return binding;
+}
+function addExecuteMessage(message2) {
+  execute_messages.update((messages) => [...messages, message2].slice(-250));
+}
+function installBindingDebugHooks() {
+  const prototype = Cr.prototype;
+  if (prototype.__binding_debug_hooks__)
+    return;
+  prototype.__binding_debug_hooks__ = true;
+  const variable2 = Cr.prototype.variable;
+  Cr.prototype.variable = function(name) {
+    return trackBinding(this, variable2.call(this, name));
+  };
+  const binding = Cr.prototype.binding;
+  Cr.prototype.binding = function(name) {
+    return trackBinding(this, binding.call(this, name));
+  };
+  const execute2 = Cr.prototype.execute;
+  Cr.prototype.execute = function(method, args = [], timeout_delay) {
+    const id = ++execute_id;
+    const details = {
+      id,
+      system_id: this.system.id,
+      module_id: this.id,
+      module_name: this.name,
+      module_index: this.index,
+      method
+    };
+    addExecuteMessage(__spreadProps(__spreadValues({}, details), {
+      direction: "send",
+      value: args,
+      time: Date.now(),
+      error: false
+    }));
+    const request = execute2.call(this, method, args, timeout_delay);
+    request.then((value) => addExecuteMessage(__spreadProps(__spreadValues({}, details), {
+      direction: "receive",
+      value,
+      time: Date.now(),
+      error: false
+    })), (error2) => addExecuteMessage(__spreadProps(__spreadValues({}, details), {
+      direction: "receive",
+      value: error2,
+      time: Date.now(),
+      error: true
+    })));
+    return request;
+  };
+}
+installBindingDebugHooks();
+var BindingDebugPanelComponent = class _BindingDebugPanelComponent extends AsyncHandler {
+  constructor() {
+    super(...arguments);
+    this._hotkey = inject2(HotkeysService);
+    this._document = inject2(DOCUMENT);
+    this.show = signal(
+      false,
+      ...ngDevMode ? [{ debugName: "show" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.tab = signal(
+      "bindings",
+      ...ngDevMode ? [{ debugName: "tab" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.filter = signal(
+      "",
+      ...ngDevMode ? [{ debugName: "filter" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.expanded = signal(
+      {},
+      ...ngDevMode ? [{ debugName: "expanded" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.editing_key = signal(
+      "",
+      ...ngDevMode ? [{ debugName: "editing_key" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.edit_value = signal(
+      "",
+      ...ngDevMode ? [{ debugName: "edit_value" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._refresh = signal(
+      0,
+      ...ngDevMode ? [{ debugName: "_refresh" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._system_names = resource(__spreadProps(__spreadValues({}, ngDevMode ? { debugName: "_system_names" } : (
+      /* istanbul ignore next */
+      {}
+    )), {
+      params: () => {
+        if (!this.show())
+          return void 0;
+        return [
+          .../* @__PURE__ */ new Set([
+            ...binding_records().map((record) => record.system_id),
+            ...execute_messages().map((message2) => message2.system_id)
+          ])
+        ];
+      },
+      loader: async ({ params }) => Object.fromEntries(await Promise.all(params.map(async (id) => {
+        if (!system_name_cache.has(id)) {
+          const system = await oa(id).catch(() => null);
+          system_name_cache.set(id, system?.display_name || system?.name || id);
+        }
+        return [id, system_name_cache.get(id)];
+      }))),
+      defaultValue: {}
+    }));
+    this.binding_count = computed(
+      () => binding_records().length,
+      ...ngDevMode ? [{ debugName: "binding_count" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.execute_count = computed(
+      () => execute_messages().length,
+      ...ngDevMode ? [{ debugName: "execute_count" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.has_overrides = computed(
+      () => binding_records().some((record) => record.overridden()),
+      ...ngDevMode ? [{ debugName: "has_overrides" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._dock_app = effect(
+      (on_cleanup) => {
+        if (!this.show())
+          return;
+        const body = this._document.body;
+        const padding_right = body.style.paddingRight;
+        body.style.paddingRight = "min(24rem, 90vw)";
+        on_cleanup(() => body.style.paddingRight = padding_right);
+      },
+      ...ngDevMode ? [{ debugName: "_dock_app" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._poll_counts = effect(
+      (on_cleanup) => {
+        if (!this.show())
+          return;
+        this._refresh.update((value) => value + 1);
+        const timer2 = setInterval(() => this._refresh.update((value) => value + 1), 1e3);
+        on_cleanup(() => clearInterval(timer2));
+      },
+      ...ngDevMode ? [{ debugName: "_poll_counts" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.systems = computed(
+      () => {
+        this._refresh();
+        const filter2 = this.filter().trim().toLowerCase();
+        const selected_tab = this.tab();
+        const system_names = this._system_names.value();
+        const systems = /* @__PURE__ */ new Map();
+        const get_module = (system_id, module_id, module_name, module_index) => {
+          let system = systems.get(system_id);
+          if (!system) {
+            system = {
+              id: system_id,
+              name: system_names[system_id] || system_id,
+              modules: [],
+              binding_count: 0,
+              active_count: 0,
+              message_count: 0
+            };
+            systems.set(system_id, system);
+          }
+          const key = `${system_id}|${module_id}`;
+          let module2 = system.modules.find((item) => item.key === key);
+          if (!module2) {
+            module2 = {
+              key,
+              id: module_id,
+              name: module_name,
+              index: module_index,
+              bindings: [],
+              messages: [],
+              active_count: 0
+            };
+            system.modules.push(module2);
+          }
+          return { system, module: module2 };
+        };
+        if (selected_tab === "bindings") {
+          for (const record of binding_records()) {
+            const current_value = record.value();
+            const haystack = `${record.system_id} ${system_names[record.system_id] || ""} ${record.module_id} ${record.name} ${this.formatValue(current_value)}`.toLowerCase();
+            if (filter2 && !haystack.includes(filter2))
+              continue;
+            const { system, module: module2 } = get_module(record.system_id, record.module_id, record.module_name, record.module_index);
+            const count2 = record.binding.count;
+            const row = __spreadProps(__spreadValues({}, record), {
+              active: count2 > 0,
+              count: count2,
+              current_value,
+              updated_at: record.last_update(),
+              is_overridden: record.overridden()
+            });
+            module2.bindings.push(row);
+            module2.active_count += row.active ? 1 : 0;
+            system.binding_count += 1;
+            system.active_count += row.active ? 1 : 0;
+          }
+        } else {
+          for (const message2 of execute_messages()) {
+            const haystack = `${message2.system_id} ${system_names[message2.system_id] || ""} ${message2.module_id} ${message2.method} ${this.formatValue(message2.value)}`.toLowerCase();
+            if (filter2 && !haystack.includes(filter2))
+              continue;
+            const { system, module: module2 } = get_module(message2.system_id, message2.module_id, message2.module_name, message2.module_index);
+            module2.messages.push(message2);
+            system.message_count += 1;
+          }
+        }
+        return [...systems.values()].sort((a, b2) => a.id.localeCompare(b2.id)).map((system) => __spreadProps(__spreadValues({}, system), {
+          modules: system.modules.sort((a, b2) => a.id.localeCompare(b2.id)).map((module2) => __spreadProps(__spreadValues({}, module2), {
+            bindings: module2.bindings.sort((a, b2) => a.name.localeCompare(b2.name)),
+            messages: module2.messages.sort((a, b2) => b2.time - a.time)
+          }))
+        }));
+      },
+      ...ngDevMode ? [{ debugName: "systems" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+  }
+  ngOnInit() {
+    this.subscription("toggle", this._hotkey.listen(["Control", "Alt", "Shift", "KeyB"], () => this.show.set(!this.show())));
+  }
+  isExpanded(key) {
+    return !!this.filter() || !!this.expanded()[key];
+  }
+  toggleGroup(key) {
+    this.expanded.update((state) => __spreadProps(__spreadValues({}, state), {
+      [key]: !this.isExpanded(key)
+    }));
+  }
+  startOverride(row) {
+    this.editing_key.set(row.key);
+    this.edit_value.set(this.formatValue(row.current_value));
+  }
+  saveOverride(row) {
+    let value = this.edit_value();
+    try {
+      value = JSON.parse(value);
+    } catch {
+    }
+    row.overridden.set(true);
+    row.emit(value);
+    this.editing_key.set("");
+  }
+  clearOverride(row) {
+    const record = records_by_key.get(row.key) || row;
+    record.overridden.set(false);
+    record.emit(record.driver_value);
+  }
+  clearAllOverrides() {
+    for (const row of binding_records()) {
+      if (row.overridden())
+        this.clearOverride(row);
+    }
+  }
+  clearMessages() {
+    execute_messages.set([]);
+  }
+  formatValue(value) {
+    if (value === void 0)
+      return "undefined";
+    if (typeof value === "string")
+      return value;
+    try {
+      return JSON.stringify(value);
+    } catch {
+      return String(value);
+    }
+  }
+  formatTime(time) {
+    return time ? new Date(time).toLocaleTimeString() : "not observed";
+  }
+  static {
+    this.\u0275fac = /* @__PURE__ */ (() => {
+      let \u0275BindingDebugPanelComponent_BaseFactory;
+      return function BindingDebugPanelComponent_Factory(__ngFactoryType__) {
+        return (\u0275BindingDebugPanelComponent_BaseFactory || (\u0275BindingDebugPanelComponent_BaseFactory = \u0275\u0275getInheritedFactory(_BindingDebugPanelComponent)))(__ngFactoryType__ || _BindingDebugPanelComponent);
+      };
+    })();
+  }
+  static {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _BindingDebugPanelComponent, selectors: [["binding-debug-panel"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 1, vars: 1, consts: [[1, "border-base-300", "bg-base-200", "text-base-content", "fixed", "inset-y-0", "right-0", "z-999", "flex", "w-96", "max-w-[90vw]", "flex-col", "border-l", "shadow-xl"], [1, "border-base-300", "bg-base-100", "flex", "items-center", "border-b", "p-2"], ["icon", "", "default", "", "matRipple", "", "aria-label", "Close binding viewer", 1, "text-sm", 3, "click"], [1, "flex-1", "px-3", "text-lg", "font-medium"], ["matRipple", "", 1, "text-error", "px-2", "py-1", "text-xs", "underline"], ["matRipple", "", 1, "px-2", "py-1", "text-xs", "underline"], [1, "border-base-300", "bg-base-100", "grid", "grid-cols-2", "border-b", "p-1"], [1, "rounded-md", "px-3", "py-1.5", "text-sm", 3, "click"], [1, "relative", "m-1", "flex"], ["name", "binding-filter", "placeholder", "Filter systems, modules or names...", 1, "border-base-300", "bg-base-100", "w-full", "rounded-lg", "border", "px-8", "py-2", "pr-2", "font-mono", "text-sm", "shadow", 3, "ngModelChange", "ngModel"], [1, "absolute", "top-1/2", "left-1", "-translate-y-1/2", "text-xl"], [1, "flex-1", "overflow-auto"], [1, "p-4", "text-center", "opacity-40"], [1, "border-base-300", "bg-base-100", "border-t", "p-2", "text-xs", "opacity-60"], ["matRipple", "", 1, "text-error", "px-2", "py-1", "text-xs", "underline", 3, "click"], ["matRipple", "", 1, "px-2", "py-1", "text-xs", "underline", 3, "click"], [1, "border-base-300", "bg-base-100", "sticky", "top-0", "z-20", "flex", "min-h-9", "w-full", "items-center", "gap-1", "border-b", "px-2", "py-1", "text-left", "text-xs", 3, "click"], [1, "text-sm", "transition-transform"], [1, "min-w-0", "flex-1"], [1, "block", "truncate", "font-medium"], [1, "block", "truncate", "font-mono", "text-[0.625rem]", "opacity-50"], [1, "opacity-50"], [1, "border-base-300", "bg-base-200", "sticky", "top-9", "z-10", "flex", "min-h-8", "w-full", "items-center", "gap-1", "border-b", "py-1", "pr-2", "pl-5", "text-left", "text-xs", 3, "click"], [1, "min-w-0", "flex-1", "truncate", "font-mono"], [1, "border-base-300", "border-b", "py-2", "pr-2", "pl-10", "text-xs", 3, "bg-warning-light"], [1, "border-base-300", "border-b", "py-2", "pr-2", "pl-10", "text-xs"], [1, "flex", "min-w-0", "items-center", "gap-2"], [1, "min-w-0", "flex-1", "truncate", "font-mono", "font-medium"], [1, "rounded-sm", "px-1.5", "py-0.5", "text-[0.625rem]"], [1, "bg-warning", "rounded-sm", "px-1.5", "py-0.5", "text-[0.625rem]", "text-black"], [1, "mt-1", "flex", "items-center", "gap-1"], [1, "border-base-300", "bg-base-100", "hover:border-info", "mt-1", "flex", "h-8", "w-full", "items-center", "rounded-md", "border", "px-2", "text-left", "font-mono", "shadow-sm", 3, "title"], [1, "mt-1", "flex", "items-center", "opacity-50"], [1, "flex-1"], [1, "underline"], ["name", "binding-value", 1, "border-base-300", "bg-base-100", "focus:border-info", "focus:ring-info", "h-8", "min-w-0", "flex-1", "rounded-md", "border", "px-2", "font-mono", "shadow-sm", "outline-none", "focus:ring-2", 3, "ngModelChange", "keydown.enter", "keydown.escape", "ngModel"], ["icon", "", "matRipple", "", "title", "Apply override", 3, "click"], [1, "text-sm"], [1, "border-base-300", "bg-base-100", "hover:border-info", "mt-1", "flex", "h-8", "w-full", "items-center", "rounded-md", "border", "px-2", "text-left", "font-mono", "shadow-sm", 3, "click", "title"], [1, "min-w-0", "flex-1", "truncate"], [1, "ml-1", "text-sm", "opacity-40"], [1, "underline", 3, "click"], [1, "border-base-300", "grid", "grid-cols-[auto_minmax(0,1fr)_auto]", "gap-x-2", "border-b", "py-2", "pr-2", "pl-10", "text-xs", 3, "text-error"], [1, "border-base-300", "grid", "grid-cols-[auto_minmax(0,1fr)_auto]", "gap-x-2", "border-b", "py-2", "pr-2", "pl-10", "text-xs"], [1, "text-base"], [1, "min-w-0"], [1, "truncate", "font-mono", "font-medium"], [1, "truncate", "font-mono", "opacity-60", 3, "title"], [1, "text-right", "opacity-50"]], template: function BindingDebugPanelComponent_Template(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275conditionalCreate(0, BindingDebugPanelComponent_Conditional_0_Template, 24, 9, "aside", 0);
+      }
+      if (rf & 2) {
+        \u0275\u0275conditional(ctx.show() ? 0 : -1);
+      }
+    }, dependencies: [FormsModule, DefaultValueAccessor, NgControlStatus, NgModel, MatRippleModule, MatRipple, IconComponent], encapsulation: 2 });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(BindingDebugPanelComponent, [{
+    type: Component,
+    args: [{
+      selector: "binding-debug-panel",
+      template: `
+        @if (show()) {
+            <aside
+                class="border-base-300 bg-base-200 text-base-content fixed inset-y-0 right-0 z-999 flex w-96 max-w-[90vw] flex-col border-l shadow-xl"
+            >
+                <header
+                    class="border-base-300 bg-base-100 flex items-center border-b p-2"
+                >
+                    <button
+                        icon
+                        default
+                        matRipple
+                        class="text-sm"
+                        aria-label="Close binding viewer"
+                        (click)="show.set(false)"
+                    >
+                        <icon>close</icon>
+                    </button>
+                    <div class="flex-1 px-3 text-lg font-medium">
+                        Driver Binding Viewer
+                    </div>
+                    @if (tab() === 'bindings' && has_overrides()) {
+                        <button
+                            matRipple
+                            class="text-error px-2 py-1 text-xs underline"
+                            (click)="clearAllOverrides()"
+                        >
+                            Clear overrides
+                        </button>
+                    } @else if (tab() === 'executes' && execute_count()) {
+                        <button
+                            matRipple
+                            class="px-2 py-1 text-xs underline"
+                            (click)="clearMessages()"
+                        >
+                            Clear messages
+                        </button>
+                    }
+                </header>
+
+                <div
+                    class="border-base-300 bg-base-100 grid grid-cols-2 border-b p-1"
+                >
+                    <button
+                        class="rounded-md px-3 py-1.5 text-sm"
+                        [class.bg-base-300]="tab() === 'bindings'"
+                        (click)="tab.set('bindings')"
+                    >
+                        Bindings ({{ binding_count() }})
+                    </button>
+                    <button
+                        class="rounded-md px-3 py-1.5 text-sm"
+                        [class.bg-base-300]="tab() === 'executes'"
+                        (click)="tab.set('executes')"
+                    >
+                        Executes ({{ execute_count() }})
+                    </button>
+                </div>
+
+                <div class="relative m-1 flex">
+                    <input
+                        name="binding-filter"
+                        [(ngModel)]="filter"
+                        placeholder="Filter systems, modules or names..."
+                        class="border-base-300 bg-base-100 w-full rounded-lg border px-8 py-2 pr-2 font-mono text-sm shadow"
+                    />
+                    <icon
+                        class="absolute top-1/2 left-1 -translate-y-1/2 text-xl"
+                        >search</icon
+                    >
+                </div>
+
+                <div class="flex-1 overflow-auto">
+                    @for (system of systems(); track system.id) {
+                        <section>
+                            <button
+                                class="border-base-300 bg-base-100 sticky top-0 z-20 flex min-h-9 w-full items-center gap-1 border-b px-2 py-1 text-left text-xs"
+                                (click)="toggleGroup('system|' + system.id)"
+                            >
+                                <icon
+                                    class="text-sm transition-transform"
+                                    [class.rotate-90]="
+                                        isExpanded('system|' + system.id)
+                                    "
+                                    >chevron_right</icon
+                                >
+                                <span class="min-w-0 flex-1">
+                                    <span class="block truncate font-medium">
+                                        {{ system.name }}
+                                    </span>
+                                    @if (system.name !== system.id) {
+                                        <span
+                                            class="block truncate font-mono text-[0.625rem] opacity-50"
+                                        >
+                                            {{ system.id }}
+                                        </span>
+                                    }
+                                </span>
+                                @if (tab() === 'bindings') {
+                                    <span class="opacity-50">
+                                        {{ system.active_count }}/{{
+                                            system.binding_count
+                                        }}
+                                        active
+                                    </span>
+                                } @else {
+                                    <span class="opacity-50">
+                                        {{ system.message_count }} messages
+                                    </span>
+                                }
+                            </button>
+
+                            @if (isExpanded('system|' + system.id)) {
+                                @for (
+                                    module of system.modules;
+                                    track module.key
+                                ) {
+                                    <button
+                                        class="border-base-300 bg-base-200 sticky top-9 z-10 flex min-h-8 w-full items-center gap-1 border-b py-1 pr-2 pl-5 text-left text-xs"
+                                        (click)="
+                                            toggleGroup('module|' + module.key)
+                                        "
+                                    >
+                                        <icon
+                                            class="text-sm transition-transform"
+                                            [class.rotate-90]="
+                                                isExpanded(
+                                                    'module|' + module.key
+                                                )
+                                            "
+                                            >chevron_right</icon
+                                        >
+                                        <span
+                                            class="min-w-0 flex-1 truncate font-mono"
+                                        >
+                                            {{ module.id }}
+                                        </span>
+                                        @if (tab() === 'bindings') {
+                                            <span class="opacity-50">
+                                                {{ module.active_count }}/{{
+                                                    module.bindings.length
+                                                }}
+                                                active
+                                            </span>
+                                        } @else {
+                                            <span class="opacity-50">
+                                                {{ module.messages.length }}
+                                                messages
+                                            </span>
+                                        }
+                                    </button>
+
+                                    @if (isExpanded('module|' + module.key)) {
+                                        @if (tab() === 'bindings') {
+                                            @for (
+                                                row of module.bindings;
+                                                track row.key
+                                            ) {
+                                                <div
+                                                    class="border-base-300 border-b py-2 pr-2 pl-10 text-xs"
+                                                    [class.bg-warning-light]="
+                                                        row.is_overridden
+                                                    "
+                                                >
+                                                    <div
+                                                        class="flex min-w-0 items-center gap-2"
+                                                    >
+                                                        <span
+                                                            class="min-w-0 flex-1 truncate font-mono font-medium"
+                                                        >
+                                                            {{ row.name }}
+                                                        </span>
+                                                        <span
+                                                            class="rounded-sm px-1.5 py-0.5 text-[0.625rem]"
+                                                            [class.bg-success-light]="
+                                                                row.active
+                                                            "
+                                                            [class.text-success]="
+                                                                row.active
+                                                            "
+                                                            [class.bg-base-300]="
+                                                                !row.active
+                                                            "
+                                                        >
+                                                            {{
+                                                                row.active
+                                                                    ? 'active'
+                                                                    : 'inactive'
+                                                            }}
+                                                            \xB7 {{ row.count }}
+                                                        </span>
+                                                        @if (
+                                                            row.is_overridden
+                                                        ) {
+                                                            <span
+                                                                class="bg-warning rounded-sm px-1.5 py-0.5 text-[0.625rem] text-black"
+                                                            >
+                                                                overridden
+                                                            </span>
+                                                        }
+                                                    </div>
+
+                                                    @if (
+                                                        editing_key() ===
+                                                        row.key
+                                                    ) {
+                                                        <div
+                                                            class="mt-1 flex items-center gap-1"
+                                                        >
+                                                            <input
+                                                                name="binding-value"
+                                                                class="border-base-300 bg-base-100 focus:border-info focus:ring-info h-8 min-w-0 flex-1 rounded-md border px-2 font-mono shadow-sm outline-none focus:ring-2"
+                                                                [(ngModel)]="
+                                                                    edit_value
+                                                                "
+                                                                (keydown.enter)="
+                                                                    saveOverride(
+                                                                        row
+                                                                    )
+                                                                "
+                                                                (keydown.escape)="
+                                                                    editing_key.set(
+                                                                        ''
+                                                                    )
+                                                                "
+                                                            />
+                                                            <button
+                                                                icon
+                                                                matRipple
+                                                                title="Apply override"
+                                                                (click)="
+                                                                    saveOverride(
+                                                                        row
+                                                                    )
+                                                                "
+                                                            >
+                                                                <icon
+                                                                    class="text-sm"
+                                                                    >check</icon
+                                                                >
+                                                            </button>
+                                                        </div>
+                                                    } @else {
+                                                        <button
+                                                            class="border-base-300 bg-base-100 hover:border-info mt-1 flex h-8 w-full items-center rounded-md border px-2 text-left font-mono shadow-sm"
+                                                            [title]="
+                                                                formatValue(
+                                                                    row.current_value
+                                                                )
+                                                            "
+                                                            (click)="
+                                                                startOverride(
+                                                                    row
+                                                                )
+                                                            "
+                                                        >
+                                                            <span
+                                                                class="min-w-0 flex-1 truncate"
+                                                            >
+                                                                {{
+                                                                    formatValue(
+                                                                        row.current_value
+                                                                    )
+                                                                }}
+                                                            </span>
+                                                            <icon
+                                                                class="ml-1 text-sm opacity-40"
+                                                                >edit</icon
+                                                            >
+                                                        </button>
+                                                    }
+
+                                                    <div
+                                                        class="mt-1 flex items-center opacity-50"
+                                                    >
+                                                        <span class="flex-1">
+                                                            Last update:
+                                                            {{
+                                                                formatTime(
+                                                                    row.updated_at
+                                                                )
+                                                            }}
+                                                        </span>
+                                                        @if (
+                                                            row.is_overridden
+                                                        ) {
+                                                            <button
+                                                                class="underline"
+                                                                (click)="
+                                                                    clearOverride(
+                                                                        row
+                                                                    )
+                                                                "
+                                                            >
+                                                                Restore driver
+                                                                value
+                                                            </button>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            }
+                                        } @else {
+                                            @for (
+                                                message of module.messages;
+                                                track message.direction +
+                                                    message.id
+                                            ) {
+                                                <div
+                                                    class="border-base-300 grid grid-cols-[auto_minmax(0,1fr)_auto] gap-x-2 border-b py-2 pr-2 pl-10 text-xs"
+                                                    [class.text-error]="
+                                                        message.error
+                                                    "
+                                                >
+                                                    <icon
+                                                        class="text-base"
+                                                        [class.text-info]="
+                                                            message.direction ===
+                                                            'send'
+                                                        "
+                                                        [class.text-success]="
+                                                            message.direction ===
+                                                                'receive' &&
+                                                            !message.error
+                                                        "
+                                                    >
+                                                        {{
+                                                            message.direction ===
+                                                            'send'
+                                                                ? 'north_east'
+                                                                : 'south_west'
+                                                        }}
+                                                    </icon>
+                                                    <div class="min-w-0">
+                                                        <div
+                                                            class="truncate font-mono font-medium"
+                                                        >
+                                                            {{ message.method }}
+                                                        </div>
+                                                        <div
+                                                            class="truncate font-mono opacity-60"
+                                                            [title]="
+                                                                formatValue(
+                                                                    message.value
+                                                                )
+                                                            "
+                                                        >
+                                                            {{
+                                                                formatValue(
+                                                                    message.value
+                                                                )
+                                                            }}
+                                                        </div>
+                                                    </div>
+                                                    <div
+                                                        class="text-right opacity-50"
+                                                    >
+                                                        <div>
+                                                            {{
+                                                                message.direction
+                                                            }}
+                                                        </div>
+                                                        <div>
+                                                            {{
+                                                                formatTime(
+                                                                    message.time
+                                                                )
+                                                            }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        </section>
+                    } @empty {
+                        <div class="p-4 text-center opacity-40">
+                            No observed
+                            {{
+                                tab() === 'bindings'
+                                    ? 'bindings'
+                                    : 'execute messages'
+                            }}
+                        </div>
+                    }
+                </div>
+
+                <footer
+                    class="border-base-300 bg-base-100 border-t p-2 text-xs opacity-60"
+                >
+                    Ctrl + Alt + Shift + B \xB7 Values and overrides are local to
+                    this browser session.
+                </footer>
+            </aside>
+        }
+    `,
+      imports: [FormsModule, MatRippleModule, IconComponent]
+    }]
+  }], null, null);
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(BindingDebugPanelComponent, { className: "BindingDebugPanelComponent", filePath: "libs/components/src/lib/binding-debug-panel.component.ts", lineNumber: 600 });
+})();
+
+// libs/components/src/lib/settings-debug-panel.component.ts
+var _c013 = (a0) => ({ zones: a0 });
+var _forTrack02 = ($index, $item) => $item.key;
+var _forTrack12 = ($index, $item) => $item.type + $item.id;
+function SettingsDebugPanelComponent_Conditional_0_Conditional_11_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r3 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 13);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_Conditional_11_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r3);
+      const ctx_r1 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r1.copyOverrides());
+    });
+    \u0275\u0275elementStart(1, "icon");
+    \u0275\u0275text(2, "content_copy");
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(3, "button", 14);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_Conditional_11_Template_button_click_3_listener() {
+      \u0275\u0275restoreView(_r3);
+      const ctx_r1 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r1.clearAll());
+    });
+    \u0275\u0275elementStart(4, "icon");
+    \u0275\u0275text(5, "delete_sweep");
+    \u0275\u0275elementEnd()();
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_18_Conditional_1_Conditional_7_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span", 21);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -90792,32 +92043,32 @@ function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_0_Conditio
     \u0275\u0275textInterpolate1(" ", group_r5.overridden, " overridden ");
   }
 }
-function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_0_Template(rf, ctx) {
+function SettingsDebugPanelComponent_Conditional_0_For_18_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
     const _r4 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 18);
-    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_0_Template_button_click_0_listener() {
+    \u0275\u0275elementStart(0, "button", 17);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_18_Conditional_1_Template_button_click_0_listener() {
       const group_r5 = \u0275\u0275restoreView(_r4);
-      const ctx_r2 = \u0275\u0275nextContext(3);
-      return \u0275\u0275resetView(ctx_r2.toggleGroup(group_r5.name));
+      const ctx_r1 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r1.toggleGroup(group_r5.name));
     });
-    \u0275\u0275elementStart(1, "icon", 19);
+    \u0275\u0275elementStart(1, "icon", 18);
     \u0275\u0275text(2, " chevron_right ");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "span", 20);
+    \u0275\u0275elementStart(3, "span", 19);
     \u0275\u0275text(4);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(5, "span", 21);
+    \u0275\u0275elementStart(5, "span", 20);
     \u0275\u0275text(6);
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(7, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_0_Conditional_7_Template, 2, 1, "span", 22);
+    \u0275\u0275conditionalCreate(7, SettingsDebugPanelComponent_Conditional_0_For_18_Conditional_1_Conditional_7_Template, 2, 1, "span", 21);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
     const group_r5 = ctx;
-    const ctx_r2 = \u0275\u0275nextContext(3);
+    const ctx_r1 = \u0275\u0275nextContext(3);
     \u0275\u0275advance();
-    \u0275\u0275classProp("rotate-90", ctx_r2.filter() || ctx_r2.expanded()[group_r5.name]);
+    \u0275\u0275classProp("rotate-90", ctx_r1.filter() || ctx_r1.expanded()[group_r5.name]);
     \u0275\u0275advance(3);
     \u0275\u0275textInterpolate(group_r5.name);
     \u0275\u0275advance(2);
@@ -90826,158 +92077,161 @@ function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_0_Template
     \u0275\u0275conditional(group_r5.overridden ? 7 : -1);
   }
 }
-function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Conditional_8_Template(rf, ctx) {
+function SettingsDebugPanelComponent_Conditional_0_For_18_For_3_Conditional_8_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 29);
+    \u0275\u0275elementStart(0, "div", 28);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const row_r6 = \u0275\u0275nextContext();
+    const row_r6 = \u0275\u0275nextContext().$implicit;
     \u0275\u0275property("title", row_r6.description);
     \u0275\u0275advance();
     \u0275\u0275textInterpolate1(" ", row_r6.description, " ");
   }
 }
-function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_9_For_2_Template(rf, ctx) {
+function SettingsDebugPanelComponent_Conditional_0_For_18_For_3_Case_9_For_2_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "option", 31);
+    \u0275\u0275elementStart(0, "option", 30);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
     const option_r8 = ctx.$implicit;
-    \u0275\u0275property("value", option_r8);
+    \u0275\u0275property("ngValue", option_r8.value);
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", option_r8, " ");
+    \u0275\u0275textInterpolate1(" ", option_r8.label, " ");
   }
 }
-function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_9_Template(rf, ctx) {
+function SettingsDebugPanelComponent_Conditional_0_For_18_For_3_Case_9_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
-    const _r7 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "select", 30);
-    \u0275\u0275twoWayListener("ngModelChange", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_9_Template_select_ngModelChange_0_listener($event) {
-      \u0275\u0275restoreView(_r7);
-      const ctx_r2 = \u0275\u0275nextContext(4);
-      \u0275\u0275twoWayBindingSet(ctx_r2.edit_value, $event) || (ctx_r2.edit_value = $event);
-      return \u0275\u0275resetView($event);
+    const _r9 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 32);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_18_For_3_Case_9_Conditional_3_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r9);
+      const row_r6 = \u0275\u0275nextContext(2).$implicit;
+      const ctx_r1 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r1.clearOverride(row_r6.key));
     });
-    \u0275\u0275listener("keydown.escape", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_9_Template_select_keydown_escape_0_listener() {
-      \u0275\u0275restoreView(_r7);
-      const ctx_r2 = \u0275\u0275nextContext(4);
-      return \u0275\u0275resetView(ctx_r2.editing_key.set(""));
-    });
-    \u0275\u0275repeaterCreate(1, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_9_For_2_Template, 2, 2, "option", 31, \u0275\u0275repeaterTrackByIdentity);
-    \u0275\u0275elementEnd();
-    \u0275\u0275controlCreate();
-    \u0275\u0275elementStart(3, "button", 32);
-    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_9_Template_button_click_3_listener() {
-      \u0275\u0275restoreView(_r7);
-      const ctx_r2 = \u0275\u0275nextContext(4);
-      return \u0275\u0275resetView(ctx_r2.saveEdit());
-    });
-    \u0275\u0275elementStart(4, "icon", 33);
-    \u0275\u0275text(5, "check");
+    \u0275\u0275elementStart(1, "icon", 33);
+    \u0275\u0275text(2, "undo");
     \u0275\u0275elementEnd()();
   }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_18_For_3_Case_9_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r7 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "select", 29);
+    \u0275\u0275listener("ngModelChange", function SettingsDebugPanelComponent_Conditional_0_For_18_For_3_Case_9_Template_select_ngModelChange_0_listener($event) {
+      \u0275\u0275restoreView(_r7);
+      const row_r6 = \u0275\u0275nextContext().$implicit;
+      const ctx_r1 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r1.selectValue(row_r6, $event));
+    });
+    \u0275\u0275repeaterCreate(1, SettingsDebugPanelComponent_Conditional_0_For_18_For_3_Case_9_For_2_Template, 2, 2, "option", 30, \u0275\u0275repeaterTrackByIndex);
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+    \u0275\u0275conditionalCreate(3, SettingsDebugPanelComponent_Conditional_0_For_18_For_3_Case_9_Conditional_3_Template, 3, 0, "button", 31);
+  }
   if (rf & 2) {
-    const row_r6 = \u0275\u0275nextContext();
-    const ctx_r2 = \u0275\u0275nextContext(3);
-    \u0275\u0275twoWayProperty("ngModel", ctx_r2.edit_value);
+    const row_r6 = \u0275\u0275nextContext().$implicit;
+    \u0275\u0275property("ngModel", row_r6.value);
     \u0275\u0275control();
     \u0275\u0275advance();
     \u0275\u0275repeater(row_r6.options);
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(row_r6.overridden ? 3 : -1);
   }
 }
-function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_10_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r9 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "input", 34);
-    \u0275\u0275twoWayListener("ngModelChange", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_10_Template_input_ngModelChange_0_listener($event) {
-      \u0275\u0275restoreView(_r9);
-      const ctx_r2 = \u0275\u0275nextContext(4);
-      \u0275\u0275twoWayBindingSet(ctx_r2.edit_value, $event) || (ctx_r2.edit_value = $event);
-      return \u0275\u0275resetView($event);
-    });
-    \u0275\u0275listener("keydown.enter", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_10_Template_input_keydown_enter_0_listener() {
-      \u0275\u0275restoreView(_r9);
-      const ctx_r2 = \u0275\u0275nextContext(4);
-      return \u0275\u0275resetView(ctx_r2.saveEdit());
-    })("keydown.escape", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_10_Template_input_keydown_escape_0_listener() {
-      \u0275\u0275restoreView(_r9);
-      const ctx_r2 = \u0275\u0275nextContext(4);
-      return \u0275\u0275resetView(ctx_r2.editing_key.set(""));
-    });
-    \u0275\u0275elementEnd();
-    \u0275\u0275controlCreate();
-    \u0275\u0275elementStart(1, "button", 32);
-    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_10_Template_button_click_1_listener() {
-      \u0275\u0275restoreView(_r9);
-      const ctx_r2 = \u0275\u0275nextContext(4);
-      return \u0275\u0275resetView(ctx_r2.saveEdit());
-    });
-    \u0275\u0275elementStart(2, "icon", 33);
-    \u0275\u0275text(3, "check");
-    \u0275\u0275elementEnd()();
-  }
-  if (rf & 2) {
-    const ctx_r2 = \u0275\u0275nextContext(4);
-    \u0275\u0275twoWayProperty("ngModel", ctx_r2.edit_value);
-    \u0275\u0275control();
-  }
-}
-function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_11_Template(rf, ctx) {
+function SettingsDebugPanelComponent_Conditional_0_For_18_For_3_Case_10_Template(rf, ctx) {
   if (rf & 1) {
     const _r10 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "input", 35);
-    \u0275\u0275twoWayListener("ngModelChange", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_11_Template_input_ngModelChange_0_listener($event) {
+    \u0275\u0275elementStart(0, "input", 34);
+    \u0275\u0275twoWayListener("ngModelChange", function SettingsDebugPanelComponent_Conditional_0_For_18_For_3_Case_10_Template_input_ngModelChange_0_listener($event) {
       \u0275\u0275restoreView(_r10);
-      const ctx_r2 = \u0275\u0275nextContext(4);
-      \u0275\u0275twoWayBindingSet(ctx_r2.edit_value, $event) || (ctx_r2.edit_value = $event);
+      const ctx_r1 = \u0275\u0275nextContext(4);
+      \u0275\u0275twoWayBindingSet(ctx_r1.edit_value, $event) || (ctx_r1.edit_value = $event);
       return \u0275\u0275resetView($event);
     });
-    \u0275\u0275listener("keydown.enter", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_11_Template_input_keydown_enter_0_listener() {
+    \u0275\u0275listener("keydown.enter", function SettingsDebugPanelComponent_Conditional_0_For_18_For_3_Case_10_Template_input_keydown_enter_0_listener() {
       \u0275\u0275restoreView(_r10);
-      const ctx_r2 = \u0275\u0275nextContext(4);
-      return \u0275\u0275resetView(ctx_r2.saveEdit());
-    })("keydown.escape", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_11_Template_input_keydown_escape_0_listener() {
+      const ctx_r1 = \u0275\u0275nextContext(4);
+      return \u0275\u0275resetView(ctx_r1.saveEdit());
+    })("keydown.escape", function SettingsDebugPanelComponent_Conditional_0_For_18_For_3_Case_10_Template_input_keydown_escape_0_listener() {
       \u0275\u0275restoreView(_r10);
-      const ctx_r2 = \u0275\u0275nextContext(4);
-      return \u0275\u0275resetView(ctx_r2.editing_key.set(""));
+      const ctx_r1 = \u0275\u0275nextContext(4);
+      return \u0275\u0275resetView(ctx_r1.editing_key.set(""));
     });
     \u0275\u0275elementEnd();
     \u0275\u0275controlCreate();
-    \u0275\u0275elementStart(1, "button", 32);
-    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_11_Template_button_click_1_listener() {
+    \u0275\u0275elementStart(1, "button", 35);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_18_For_3_Case_10_Template_button_click_1_listener() {
       \u0275\u0275restoreView(_r10);
-      const ctx_r2 = \u0275\u0275nextContext(4);
-      return \u0275\u0275resetView(ctx_r2.saveEdit());
+      const ctx_r1 = \u0275\u0275nextContext(4);
+      return \u0275\u0275resetView(ctx_r1.saveEdit());
     });
     \u0275\u0275elementStart(2, "icon", 33);
     \u0275\u0275text(3, "check");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    const ctx_r2 = \u0275\u0275nextContext(4);
-    \u0275\u0275twoWayProperty("ngModel", ctx_r2.edit_value);
+    const ctx_r1 = \u0275\u0275nextContext(4);
+    \u0275\u0275twoWayProperty("ngModel", ctx_r1.edit_value);
     \u0275\u0275control();
   }
 }
-function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_0_Template(rf, ctx) {
+function SettingsDebugPanelComponent_Conditional_0_For_18_For_3_Case_11_Template(rf, ctx) {
   if (rf & 1) {
     const _r11 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 36)(1, "button", 39);
-    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_0_Template_button_click_1_listener() {
+    \u0275\u0275elementStart(0, "input", 36);
+    \u0275\u0275twoWayListener("ngModelChange", function SettingsDebugPanelComponent_Conditional_0_For_18_For_3_Case_11_Template_input_ngModelChange_0_listener($event) {
       \u0275\u0275restoreView(_r11);
-      const row_r6 = \u0275\u0275nextContext(2);
-      const ctx_r2 = \u0275\u0275nextContext(3);
-      return \u0275\u0275resetView(ctx_r2.toggleValue(row_r6));
+      const ctx_r1 = \u0275\u0275nextContext(4);
+      \u0275\u0275twoWayBindingSet(ctx_r1.edit_value, $event) || (ctx_r1.edit_value = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275listener("keydown.enter", function SettingsDebugPanelComponent_Conditional_0_For_18_For_3_Case_11_Template_input_keydown_enter_0_listener() {
+      \u0275\u0275restoreView(_r11);
+      const ctx_r1 = \u0275\u0275nextContext(4);
+      return \u0275\u0275resetView(ctx_r1.saveEdit());
+    })("keydown.escape", function SettingsDebugPanelComponent_Conditional_0_For_18_For_3_Case_11_Template_input_keydown_escape_0_listener() {
+      \u0275\u0275restoreView(_r11);
+      const ctx_r1 = \u0275\u0275nextContext(4);
+      return \u0275\u0275resetView(ctx_r1.editing_key.set(""));
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementStart(1, "button", 35);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_18_For_3_Case_11_Template_button_click_1_listener() {
+      \u0275\u0275restoreView(_r11);
+      const ctx_r1 = \u0275\u0275nextContext(4);
+      return \u0275\u0275resetView(ctx_r1.saveEdit());
+    });
+    \u0275\u0275elementStart(2, "icon", 33);
+    \u0275\u0275text(3, "check");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext(4);
+    \u0275\u0275twoWayProperty("ngModel", ctx_r1.edit_value);
+    \u0275\u0275control();
+  }
+}
+function SettingsDebugPanelComponent_Conditional_0_For_18_For_3_Case_12_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r12 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 37)(1, "button", 39);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_18_For_3_Case_12_Conditional_0_Template_button_click_1_listener() {
+      \u0275\u0275restoreView(_r12);
+      const row_r6 = \u0275\u0275nextContext(2).$implicit;
+      const ctx_r1 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r1.toggleValue(row_r6));
     });
     \u0275\u0275element(2, "div", 40);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    const row_r6 = \u0275\u0275nextContext(2);
+    const row_r6 = \u0275\u0275nextContext(2).$implicit;
     \u0275\u0275advance();
     \u0275\u0275classProp("bg-info", row_r6.value)("bg-base-300", !row_r6.value);
     \u0275\u0275property("title", row_r6.display);
@@ -90985,101 +92239,105 @@ function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_
     \u0275\u0275classProp("translate-x-4", row_r6.value);
   }
 }
-function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_1_Template(rf, ctx) {
+function SettingsDebugPanelComponent_Conditional_0_For_18_For_3_Case_12_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
-    const _r12 = \u0275\u0275getCurrentView();
+    const _r13 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 41);
-    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_1_Template_div_click_0_listener() {
-      \u0275\u0275restoreView(_r12);
-      const row_r6 = \u0275\u0275nextContext(2);
-      const ctx_r2 = \u0275\u0275nextContext(3);
-      return \u0275\u0275resetView(ctx_r2.startEdit(row_r6));
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_18_For_3_Case_12_Conditional_1_Template_div_click_0_listener() {
+      \u0275\u0275restoreView(_r13);
+      const row_r6 = \u0275\u0275nextContext(2).$implicit;
+      const ctx_r1 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r1.startEdit(row_r6));
     });
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const row_r6 = \u0275\u0275nextContext(2);
+    const row_r6 = \u0275\u0275nextContext(2).$implicit;
     \u0275\u0275classMap(row_r6.display ? "opacity-80" : "italic opacity-40");
     \u0275\u0275property("title", row_r6.display || "unset");
     \u0275\u0275advance();
     \u0275\u0275textInterpolate1(" ", row_r6.display || "unset", " ");
   }
 }
-function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_2_Template(rf, ctx) {
+function SettingsDebugPanelComponent_Conditional_0_For_18_For_3_Case_12_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
-    const _r13 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 42);
-    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_2_Template_button_click_0_listener() {
-      \u0275\u0275restoreView(_r13);
-      const row_r6 = \u0275\u0275nextContext(2);
-      const ctx_r2 = \u0275\u0275nextContext(3);
-      return \u0275\u0275resetView(ctx_r2.clearOverride(row_r6.key));
+    const _r14 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 32);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_For_18_For_3_Case_12_Conditional_2_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r14);
+      const row_r6 = \u0275\u0275nextContext(2).$implicit;
+      const ctx_r1 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r1.clearOverride(row_r6.key));
     });
     \u0275\u0275elementStart(1, "icon", 33);
     \u0275\u0275text(2, "undo");
     \u0275\u0275elementEnd()();
   }
 }
-function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Template(rf, ctx) {
+function SettingsDebugPanelComponent_Conditional_0_For_18_For_3_Case_12_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275conditionalCreate(0, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_0_Template, 3, 7, "div", 36)(1, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_1_Template, 2, 4, "div", 37);
-    \u0275\u0275conditionalCreate(2, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Conditional_2_Template, 3, 0, "button", 38);
+    \u0275\u0275conditionalCreate(0, SettingsDebugPanelComponent_Conditional_0_For_18_For_3_Case_12_Conditional_0_Template, 3, 7, "div", 37)(1, SettingsDebugPanelComponent_Conditional_0_For_18_For_3_Case_12_Conditional_1_Template, 2, 4, "div", 38);
+    \u0275\u0275conditionalCreate(2, SettingsDebugPanelComponent_Conditional_0_For_18_For_3_Case_12_Conditional_2_Template, 3, 0, "button", 31);
   }
   if (rf & 2) {
-    const row_r6 = \u0275\u0275nextContext();
+    const row_r6 = \u0275\u0275nextContext().$implicit;
     \u0275\u0275conditional(row_r6.control === "toggle" ? 0 : 1);
     \u0275\u0275advance(2);
     \u0275\u0275conditional(row_r6.overridden ? 2 : -1);
   }
 }
-function SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Template(rf, ctx) {
+function SettingsDebugPanelComponent_Conditional_0_For_18_For_3_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 23)(1, "div", 24)(2, "div", 25)(3, "span", 26);
+    \u0275\u0275elementStart(0, "div", 22)(1, "div", 23)(2, "div", 24)(3, "span", 25);
     \u0275\u0275text(4);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(5, "span", 27)(6, "icon", 28);
+    \u0275\u0275elementStart(5, "span", 26)(6, "icon", 27);
     \u0275\u0275text(7, "info");
     \u0275\u0275elementEnd()()();
-    \u0275\u0275conditionalCreate(8, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Conditional_8_Template, 2, 2, "div", 29);
+    \u0275\u0275conditionalCreate(8, SettingsDebugPanelComponent_Conditional_0_For_18_For_3_Conditional_8_Template, 2, 2, "div", 28);
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(9, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_9_Template, 6, 1)(10, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_10_Template, 4, 1)(11, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_11_Template, 4, 1)(12, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Case_12_Template, 3, 2);
+    \u0275\u0275conditionalCreate(9, SettingsDebugPanelComponent_Conditional_0_For_18_For_3_Case_9_Template, 4, 2)(10, SettingsDebugPanelComponent_Conditional_0_For_18_For_3_Case_10_Template, 4, 1)(11, SettingsDebugPanelComponent_Conditional_0_For_18_For_3_Case_11_Template, 4, 1)(12, SettingsDebugPanelComponent_Conditional_0_For_18_For_3_Case_12_Template, 3, 2);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    let tmp_24_0;
-    const row_r6 = ctx;
-    const entry_r14 = \u0275\u0275nextContext().$implicit;
-    const ctx_r2 = \u0275\u0275nextContext(2);
-    const zone_tooltip_r15 = \u0275\u0275reference(2);
-    \u0275\u0275classProp("pl-8", entry_r14.grouped)("pl-2", !entry_r14.grouped)("bg-warning-light", row_r6.overridden);
-    \u0275\u0275advance(4);
+    let tmp_34_0;
+    const row_r6 = ctx.$implicit;
+    const entry_r15 = \u0275\u0275nextContext().$implicit;
+    const ctx_r1 = \u0275\u0275nextContext(2);
+    const zone_tooltip_r16 = \u0275\u0275reference(3);
+    \u0275\u0275classProp("pl-8", entry_r15.grouped)("pl-2", !entry_r15.grouped)("bg-warning-light", row_r6.overridden);
+    \u0275\u0275advance();
+    \u0275\u0275classProp("col-span-3", row_r6.control !== "toggle")("pb-1", row_r6.control !== "toggle");
+    \u0275\u0275advance(3);
     \u0275\u0275textInterpolate1(" ", row_r6.label, " ");
     \u0275\u0275advance();
-    \u0275\u0275property("content", zone_tooltip_r15)("data", \u0275\u0275pureFunction1(14, _c013, row_r6.zones))("hover", true)("backdrop", false)("xOffset", 20);
+    \u0275\u0275property("content", zone_tooltip_r16)("data", \u0275\u0275pureFunction1(18, _c013, row_r6.zones))("hover", true)("backdrop", false)("xOffset", 20);
     \u0275\u0275advance(3);
     \u0275\u0275conditional(row_r6.description ? 8 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional((tmp_24_0 = ctx_r2.editing_key() === row_r6.key ? row_r6.control : "") === "select" ? 9 : tmp_24_0 === "number" ? 10 : tmp_24_0 === "text" ? 11 : 12);
+    \u0275\u0275conditional((tmp_34_0 = row_r6.control === "select" || ctx_r1.editing_key() === row_r6.key ? row_r6.control : "") === "select" ? 9 : tmp_34_0 === "number" ? 10 : tmp_34_0 === "text" ? 11 : 12);
   }
 }
-function SettingsDebugPanelComponent_Conditional_0_For_17_Template(rf, ctx) {
+function SettingsDebugPanelComponent_Conditional_0_For_18_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275conditionalCreate(0, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_0_Template, 8, 5, "button", 16);
-    \u0275\u0275conditionalCreate(1, SettingsDebugPanelComponent_Conditional_0_For_17_Conditional_1_Template, 13, 16, "div", 17);
+    \u0275\u0275elementStart(0, "section");
+    \u0275\u0275conditionalCreate(1, SettingsDebugPanelComponent_Conditional_0_For_18_Conditional_1_Template, 8, 5, "button", 15);
+    \u0275\u0275repeaterCreate(2, SettingsDebugPanelComponent_Conditional_0_For_18_For_3_Template, 13, 20, "div", 16, _forTrack02);
+    \u0275\u0275elementEnd();
   }
   if (rf & 2) {
     let tmp_12_0;
-    let tmp_13_0;
-    const entry_r14 = ctx.$implicit;
-    \u0275\u0275conditional((tmp_12_0 = entry_r14.header) ? 0 : -1, tmp_12_0);
+    const entry_r15 = ctx.$implicit;
     \u0275\u0275advance();
-    \u0275\u0275conditional((tmp_13_0 = entry_r14.row) ? 1 : -1, tmp_13_0);
+    \u0275\u0275conditional((tmp_12_0 = entry_r15.header) ? 1 : -1, tmp_12_0);
+    \u0275\u0275advance();
+    \u0275\u0275repeater(entry_r15.rows);
   }
 }
-function SettingsDebugPanelComponent_Conditional_0_ForEmpty_18_Template(rf, ctx) {
+function SettingsDebugPanelComponent_Conditional_0_ForEmpty_19_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 13);
+    \u0275\u0275elementStart(0, "div", 11);
     \u0275\u0275text(1, " No matching settings ");
     \u0275\u0275elementEnd();
   }
@@ -91087,92 +92345,101 @@ function SettingsDebugPanelComponent_Conditional_0_ForEmpty_18_Template(rf, ctx)
 function SettingsDebugPanelComponent_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 1)(1, "div", 2)(2, "div", 3)(3, "div", 4);
-    \u0275\u0275text(4, "Settings Viewer");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(5, "div", 5);
-    \u0275\u0275conditionalCreate(6, SettingsDebugPanelComponent_Conditional_0_Conditional_6_Template, 2, 0, "button", 6);
-    \u0275\u0275elementStart(7, "button", 7);
-    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_Template_button_click_7_listener() {
+    \u0275\u0275elementStart(0, "aside", 1)(1, "header", 2)(2, "button", 3);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_Template_button_click_2_listener() {
       \u0275\u0275restoreView(_r1);
-      const ctx_r2 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r2.show.set(false));
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.show.set(false));
     });
-    \u0275\u0275elementStart(8, "icon");
-    \u0275\u0275text(9, "close");
-    \u0275\u0275elementEnd()()()()();
-    \u0275\u0275elementStart(10, "div", 8)(11, "div", 9)(12, "input", 10);
-    \u0275\u0275twoWayListener("ngModelChange", function SettingsDebugPanelComponent_Conditional_0_Template_input_ngModelChange_12_listener($event) {
+    \u0275\u0275elementStart(3, "icon");
+    \u0275\u0275text(4, "close");
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(5, "div", 4);
+    \u0275\u0275text(6, " Settings Viewer ");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(7, "div", 5)(8, "button", 6);
+    \u0275\u0275listener("click", function SettingsDebugPanelComponent_Conditional_0_Template_button_click_8_listener() {
       \u0275\u0275restoreView(_r1);
-      const ctx_r2 = \u0275\u0275nextContext();
-      \u0275\u0275twoWayBindingSet(ctx_r2.filter, $event) || (ctx_r2.filter = $event);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.addSetting());
+    });
+    \u0275\u0275elementStart(9, "icon");
+    \u0275\u0275text(10, "add");
+    \u0275\u0275elementEnd()();
+    \u0275\u0275conditionalCreate(11, SettingsDebugPanelComponent_Conditional_0_Conditional_11_Template, 6, 0);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(12, "div", 7)(13, "input", 8);
+    \u0275\u0275twoWayListener("ngModelChange", function SettingsDebugPanelComponent_Conditional_0_Template_input_ngModelChange_13_listener($event) {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      \u0275\u0275twoWayBindingSet(ctx_r1.filter, $event) || (ctx_r1.filter = $event);
       return \u0275\u0275resetView($event);
     });
     \u0275\u0275elementEnd();
     \u0275\u0275controlCreate();
-    \u0275\u0275elementStart(13, "icon", 11);
-    \u0275\u0275text(14, "search");
+    \u0275\u0275elementStart(14, "icon", 9);
+    \u0275\u0275text(15, "search");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(15, "div", 12);
-    \u0275\u0275repeaterCreate(16, SettingsDebugPanelComponent_Conditional_0_For_17_Template, 2, 2, null, null, \u0275\u0275repeaterTrackByIndex, false, SettingsDebugPanelComponent_Conditional_0_ForEmpty_18_Template, 2, 0, "div", 13);
+    \u0275\u0275elementStart(16, "div", 10);
+    \u0275\u0275repeaterCreate(17, SettingsDebugPanelComponent_Conditional_0_For_18_Template, 4, 1, "section", null, \u0275\u0275repeaterTrackByIndex, false, SettingsDebugPanelComponent_Conditional_0_ForEmpty_19_Template, 2, 0, "div", 11);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(19, "div", 14);
-    \u0275\u0275text(20, " Click a value to override it. Text values are parsed as JSON, falling back to plain strings. Overrides are stored locally in this browser. ");
-    \u0275\u0275elementEnd()()();
+    \u0275\u0275elementStart(20, "div", 12);
+    \u0275\u0275text(21, " Click a value to override it. Text values are parsed as JSON, falling back to plain strings. Overrides are stored locally in this browser. ");
+    \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    const ctx_r2 = \u0275\u0275nextContext();
-    \u0275\u0275advance(6);
-    \u0275\u0275conditional(ctx_r2.has_overrides() ? 6 : -1);
-    \u0275\u0275advance(6);
-    \u0275\u0275twoWayProperty("ngModel", ctx_r2.filter);
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275advance(11);
+    \u0275\u0275conditional(ctx_r1.has_overrides() ? 11 : -1);
+    \u0275\u0275advance(2);
+    \u0275\u0275twoWayProperty("ngModel", ctx_r1.filter);
     \u0275\u0275control();
     \u0275\u0275advance(4);
-    \u0275\u0275repeater(ctx_r2.entries());
+    \u0275\u0275repeater(ctx_r1.entries());
   }
 }
-function SettingsDebugPanelComponent_ng_template_1_For_5_Template(rf, ctx) {
+function SettingsDebugPanelComponent_ng_template_2_For_5_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 46)(1, "div", 48)(2, "div", 49);
+    \u0275\u0275elementStart(0, "div", 45)(1, "div", 47)(2, "div", 48);
     \u0275\u0275text(3);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "div", 50);
+    \u0275\u0275elementStart(4, "div", 49);
     \u0275\u0275text(5);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(6, "span", 51);
+    \u0275\u0275elementStart(6, "span", 50);
     \u0275\u0275text(7);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    const zone_r16 = ctx.$implicit;
+    const zone_r17 = ctx.$implicit;
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1(" ", zone_r16.name, " ");
+    \u0275\u0275textInterpolate1(" ", zone_r17.name, " ");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", zone_r16.id, " ");
+    \u0275\u0275textInterpolate1(" ", zone_r17.id, " ");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", zone_r16.type, " ");
+    \u0275\u0275textInterpolate1(" ", zone_r17.type, " ");
   }
 }
-function SettingsDebugPanelComponent_ng_template_1_ForEmpty_6_Template(rf, ctx) {
+function SettingsDebugPanelComponent_ng_template_2_ForEmpty_6_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 47);
+    \u0275\u0275elementStart(0, "div", 46);
     \u0275\u0275text(1, " No zone metadata value ");
     \u0275\u0275elementEnd();
   }
 }
-function SettingsDebugPanelComponent_ng_template_1_Template(rf, ctx) {
+function SettingsDebugPanelComponent_ng_template_2_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 43)(1, "div", 44);
+    \u0275\u0275elementStart(0, "div", 42)(1, "div", 43);
     \u0275\u0275text(2, " Setting sources ");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "div", 45);
-    \u0275\u0275repeaterCreate(4, SettingsDebugPanelComponent_ng_template_1_For_5_Template, 8, 3, "div", 46, _forTrack0, false, SettingsDebugPanelComponent_ng_template_1_ForEmpty_6_Template, 2, 0, "div", 47);
+    \u0275\u0275elementStart(3, "div", 44);
+    \u0275\u0275repeaterCreate(4, SettingsDebugPanelComponent_ng_template_2_For_5_Template, 8, 3, "div", 45, _forTrack12, false, SettingsDebugPanelComponent_ng_template_2_ForEmpty_6_Template, 2, 0, "div", 46);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    const zones_r17 = ctx.zones;
+    const zones_r18 = ctx.zones;
     \u0275\u0275advance(4);
-    \u0275\u0275repeater(zones_r17);
+    \u0275\u0275repeater(zones_r18);
   }
 }
 function flattenKeys(map2, prefix, keys) {
@@ -91190,6 +92457,10 @@ function hasSetting(map2, key) {
   for (const part of key.slice(4).split("."))
     value = value?.[part];
   return value != null;
+}
+function optionLabel(value) {
+  const label = `${value}`.replace(/[_-]+/g, " ");
+  return label.charAt(0).toUpperCase() + label.slice(1);
 }
 function resolveRef(root, node) {
   const ref = node?.["$ref"];
@@ -91230,6 +92501,8 @@ var SettingsDebugPanelComponent = class _SettingsDebugPanelComponent extends Asy
     this._settings = inject2(SettingsService);
     this._hotkey = inject2(HotkeysService);
     this._org = inject2(OrganisationService);
+    this._document = inject2(DOCUMENT);
+    this._clipboard = inject2(Clipboard);
     this.schema = input(
       null,
       ...ngDevMode ? [{ debugName: "schema" }] : (
@@ -91240,6 +92513,20 @@ var SettingsDebugPanelComponent = class _SettingsDebugPanelComponent extends Asy
     this.show = signal(
       false,
       ...ngDevMode ? [{ debugName: "show" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._dock_app = effect(
+      (on_cleanup) => {
+        if (!this.show())
+          return;
+        const body = this._document.body;
+        const padding_right = body.style.paddingRight;
+        body.style.paddingRight = "min(24rem, 90vw)";
+        on_cleanup(() => body.style.paddingRight = padding_right);
+      },
+      ...ngDevMode ? [{ debugName: "_dock_app" }] : (
         /* istanbul ignore next */
         []
       )
@@ -91307,7 +92594,10 @@ var SettingsDebugPanelComponent = class _SettingsDebugPanelComponent extends Asy
             description: node?.description || "",
             zones: this._zoneTooltip(key),
             control,
-            options: node?.enum
+            options: node?.enum?.map((value2, index) => ({
+              value: value2,
+              label: node.enumNames?.[index] || optionLabel(value2)
+            }))
           };
         });
       },
@@ -91321,27 +92611,30 @@ var SettingsDebugPanelComponent = class _SettingsDebugPanelComponent extends Asy
         const show_all = !!this.filter();
         const expanded = this.expanded();
         const entries = [];
-        let header = null;
+        let entry = null;
         for (const row of this.rows()) {
           const index = row.label.indexOf(".");
           if (index < 0) {
-            header = null;
-            entries.push({ row });
+            entry = null;
+            entries.push({ rows: [row], grouped: false });
             continue;
           }
           const group = row.label.slice(0, index);
-          if (!header || header.name !== group) {
-            header = { name: group, count: 0, overridden: 0 };
-            entries.push({ header });
-          }
-          header.count += 1;
-          if (row.overridden)
-            header.overridden += 1;
-          if (show_all || expanded[group]) {
-            entries.push({
-              row: __spreadProps(__spreadValues({}, row), { label: row.label.slice(index + 1) }),
+          if (!entry?.header || entry.header.name !== group) {
+            entry = {
+              header: { name: group, count: 0, overridden: 0 },
+              rows: [],
               grouped: true
-            });
+            };
+            entries.push(entry);
+          }
+          entry.header.count += 1;
+          if (row.overridden)
+            entry.header.overridden += 1;
+          if (show_all || expanded[group]) {
+            entry.rows.push(__spreadProps(__spreadValues({}, row), {
+              label: row.label.slice(index + 1)
+            }));
           }
         }
         return entries;
@@ -91365,7 +92658,9 @@ var SettingsDebugPanelComponent = class _SettingsDebugPanelComponent extends Asy
     }
     for (const [id, settings] of Object.entries(this._org.region_settings)) {
       const region = this._org.regions.find((_2) => _2.id === id);
-      add_zone("Region", id, region?.display_name || region?.name || "", [settings]);
+      add_zone("Region", id, region?.display_name || region?.name || "", [
+        settings
+      ]);
     }
     const organisation = this._org.organisation;
     add_zone("ORG", organisation.id, organisation.name, this._org.settings);
@@ -91383,6 +92678,9 @@ var SettingsDebugPanelComponent = class _SettingsDebugPanelComponent extends Asy
   }
   toggleValue(row) {
     this._settings.setDebugOverride(row.key, !row.value);
+  }
+  selectValue(row, value) {
+    this._settings.setDebugOverride(row.key, value);
   }
   saveEdit() {
     const key = this.editing_key();
@@ -91406,6 +92704,25 @@ var SettingsDebugPanelComponent = class _SettingsDebugPanelComponent extends Asy
   clearOverride(key) {
     this._settings.setDebugOverride(key, void 0);
   }
+  addSetting() {
+    const prompt = this._document.defaultView?.prompt.bind(this._document.defaultView);
+    const name = prompt?.("Setting key", "app.")?.trim();
+    if (!name || name === "app.")
+      return;
+    const input3 = prompt?.("Setting value (JSON or plain text)", "");
+    if (input3 == null)
+      return;
+    let value = input3;
+    try {
+      value = JSON.parse(input3);
+    } catch {
+    }
+    const key = name.startsWith("app.") ? name : `app.${name}`;
+    this._settings.setDebugOverride(key, value);
+  }
+  copyOverrides() {
+    this._clipboard.copy(JSON.stringify(this._settings.debug_overrides(), null, 2));
+  }
   clearAll() {
     this._settings.clearDebugOverrides();
   }
@@ -91418,10 +92735,11 @@ var SettingsDebugPanelComponent = class _SettingsDebugPanelComponent extends Asy
     })();
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SettingsDebugPanelComponent, selectors: [["settings-debug-panel"]], inputs: { schema: [1, "schema"] }, features: [\u0275\u0275InheritDefinitionFeature], decls: 3, vars: 1, consts: [["zone_tooltip", ""], [1, "fixed", "bottom-2", "left-2", "z-998", "w-160", "max-w-[90vw]"], [1, "flex", "flex-col", "gap-2"], [1, "-mb-2", "border-base-300", "bg-base-100", "text-base-content", "flex", "w-[calc(100%-0.5rem)]", "mx-1", "items-center", "overflow-hidden", "rounded-b-lg", "rounded-t-xl", "border", "p-1", "shadow-sm"], [1, "flex-1", "px-3", "font-medium"], [1, "flex", "items-center"], ["matRipple", "", 1, "text-error", "px-2", "py-1", "text-xs", "underline"], ["icon", "", "default", "", "matRipple", "", 1, "text-sm", 3, "click"], [1, "border-base-300", "bg-base-200", "text-base-content", "flex", "h-120", "flex-col", "overflow-hidden", "rounded-xl", "border", "shadow-sm", "pt-2"], [1, "relative", "m-1", "flex"], ["name", "setting-filter", "placeholder", "Filter settings...", 1, "border-base-300", "bg-base-100", "w-full", "rounded-lg", "border", "px-8", "py-2", "pr-2", "font-mono", "text-sm", "shadow", 3, "ngModelChange", "ngModel"], [1, "absolute", "top-1/2", "left-1", "-translate-y-1/2", "text-xl"], [1, "flex-1", "overflow-auto"], [1, "p-4", "text-center", "opacity-30"], [1, "border-base-300", "bg-base-100", "border-t", "p-2", "text-xs", "opacity-60"], ["matRipple", "", 1, "text-error", "px-2", "py-1", "text-xs", "underline", 3, "click"], [1, "border-base-300", "bg-base-100/50", "hover:bg-base-100", "flex", "min-h-8", "w-full", "items-center", "gap-1", "border-b", "px-2", "py-1", "text-left", "text-xs"], [1, "border-base-300", "flex", "min-h-8", "items-center", "border-b", "py-1", "pr-2", "text-xs", 3, "pl-8", "pl-2", "bg-warning-light"], [1, "border-base-300", "bg-base-100/50", "hover:bg-base-100", "flex", "min-h-8", "w-full", "items-center", "gap-1", "border-b", "px-2", "py-1", "text-left", "text-xs", 3, "click"], [1, "text-sm", "transition-transform"], [1, "font-mono"], [1, "opacity-40"], [1, "bg-warning-light", "rounded-sm", "px-1", "text-[0.65rem]", "text-black"], [1, "border-base-300", "flex", "min-h-8", "items-center", "border-b", "py-1", "pr-2", "text-xs"], [1, "w-3/5", "min-w-0", "pr-2"], [1, "flex", "min-w-0", "items-center", "gap-1", "font-mono"], [1, "truncate"], ["customTooltip", "", "xPosition", "start", "yPosition", "center", 1, "shrink-0", 3, "content", "data", "hover", "backdrop", "xOffset"], [1, "text-sm", "opacity-60"], [1, "truncate", "text-[0.65rem]", "opacity-60", 3, "title"], ["name", "setting-value", 1, "bg-base-100", "flex-1", "rounded-sm", "border", "px-1", "py-0.5", "font-mono", 3, "ngModelChange", "keydown.escape", "ngModel"], [3, "value"], ["icon", "", "matRipple", "", "title", "Save override", 3, "click"], [1, "text-sm"], ["name", "setting-value", "type", "number", 1, "bg-base-100", "flex-1", "rounded-sm", "border", "px-1", "py-0.5", "font-mono", 3, "ngModelChange", "keydown.enter", "keydown.escape", "ngModel"], ["name", "setting-value", 1, "bg-base-100", "flex-1", "rounded-sm", "border", "px-1", "py-0.5", "font-mono", 3, "ngModelChange", "keydown.enter", "keydown.escape", "ngModel"], [1, "flex", "flex-1"], [1, "flex-1", "cursor-pointer", "truncate", "font-mono", 3, "class", "title"], ["icon", "", "matRipple", "", "title", "Clear override"], [1, "relative", "h-4", "w-8", "rounded-full", "transition-colors", 3, "click", "title"], [1, "absolute", "top-0.5", "left-0.5", "h-3", "w-3", "rounded-full", "bg-white", "shadow-sm", "transition-transform"], [1, "flex-1", "cursor-pointer", "truncate", "font-mono", 3, "click", "title"], ["icon", "", "matRipple", "", "title", "Clear override", 3, "click"], [1, "border-base-300", "bg-base-100", "text-base-content", "min-w-64", "rounded-lg", "border", "p-2", "shadow-lg"], [1, "border-base-300", "border-b", "px-1", "pb-2", "text-base", "font-medium"], [1, "flex", "flex-col", "gap-1", "pt-2"], [1, "bg-base-200", "flex", "items-start", "gap-2", "rounded-sm", "p-2"], [1, "px-1", "py-2", "text-xs", "opacity-60"], [1, "min-w-0", "flex-1", "w-1/2"], [1, "truncate", "text-base", "font-medium"], [1, "truncate", "font-mono", "text-[0.625rem]", "opacity-60"], [1, "bg-base-300", "rounded-sm", "px-1.5", "py-0.5", "text-[0.625rem]", "font-medium"]], template: function SettingsDebugPanelComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SettingsDebugPanelComponent, selectors: [["settings-debug-panel"]], inputs: { schema: [1, "schema"] }, features: [\u0275\u0275InheritDefinitionFeature], decls: 4, vars: 1, consts: [["zone_tooltip", ""], [1, "border-base-300", "bg-base-200", "text-base-content", "fixed", "inset-y-0", "right-0", "z-998", "flex", "w-96", "max-w-[90vw]", "flex-col", "border-l", "shadow-xl"], [1, "border-base-300", "bg-base-100", "flex", "items-center", "border-b", "p-2"], ["icon", "", "default", "", "matRipple", "", 1, "text-sm", 3, "click"], [1, "flex-1", "px-3", "text-lg", "font-medium"], [1, "flex", "items-center", "gap-2", "text-xs"], ["icon", "", "default", "", "matRipple", "", "matTooltip", "Add setting", "matTooltipPosition", "below", "aria-label", "Add setting", 3, "click"], [1, "relative", "m-1", "flex"], ["name", "setting-filter", "placeholder", "Filter settings...", 1, "border-base-300", "bg-base-100", "w-full", "rounded-lg", "border", "px-8", "py-2", "pr-2", "font-mono", "text-sm", "shadow", 3, "ngModelChange", "ngModel"], [1, "absolute", "top-1/2", "left-1", "-translate-y-1/2", "text-xl"], [1, "flex-1", "overflow-auto"], [1, "p-4", "text-center", "opacity-30"], [1, "border-base-300", "bg-base-100", "border-t", "p-2", "text-xs", "opacity-60"], ["icon", "", "default", "", "matRipple", "", "matTooltip", "Copy overrides", "matTooltipPosition", "below", "aria-label", "Copy overrides", 3, "click"], ["icon", "", "default", "", "error", "", "matRipple", "", "matTooltip", "Clear all overrides", "matTooltipPosition", "below", "aria-label", "Clear all overrides", 3, "click"], [1, "border-base-300", "bg-base-100", "hover:bg-base-100", "sticky", "top-0", "z-10", "flex", "min-h-8", "w-full", "items-center", "gap-1", "border-b", "px-2", "py-1", "text-left", "text-xs"], [1, "border-base-300", "grid", "min-h-8", "grid-cols-[minmax(0,1fr)_auto_auto]", "items-center", "border-b", "py-1", "pr-2", "text-xs", 3, "pl-8", "pl-2", "bg-warning-light"], [1, "border-base-300", "bg-base-100", "hover:bg-base-100", "sticky", "top-0", "z-10", "flex", "min-h-8", "w-full", "items-center", "gap-1", "border-b", "px-2", "py-1", "text-left", "text-xs", 3, "click"], [1, "text-sm", "transition-transform"], [1, "font-mono"], [1, "opacity-40"], [1, "bg-warning-light", "rounded-sm", "px-1", "text-[0.65rem]", "text-black"], [1, "border-base-300", "grid", "min-h-8", "grid-cols-[minmax(0,1fr)_auto_auto]", "items-center", "border-b", "py-1", "pr-2", "text-xs"], [1, "min-w-0", "pr-2"], [1, "flex", "min-w-0", "items-center", "gap-1", "font-mono"], [1, "truncate"], ["customTooltip", "", "xPosition", "start", "yPosition", "center", 1, "shrink-0", 3, "content", "data", "hover", "backdrop", "xOffset"], [1, "text-sm", "opacity-60"], [1, "truncate", "text-[0.65rem]", "opacity-60", 3, "title"], ["name", "setting-value", 1, "border-base-300", "bg-base-100", "focus:border-info", "focus:ring-info", "h-8", "w-full", "rounded-md", "border", "px-2", "font-mono", "shadow-sm", "outline-none", "focus:ring-2", 3, "ngModelChange", "ngModel"], [3, "ngValue"], ["icon", "", "matRipple", "", "title", "Clear override"], ["icon", "", "matRipple", "", "title", "Clear override", 3, "click"], [1, "text-sm"], ["name", "setting-value", "type", "number", 1, "border-base-300", "bg-base-100", "focus:border-info", "focus:ring-info", "h-8", "w-full", "rounded-md", "border", "px-2", "font-mono", "shadow-sm", "outline-none", "focus:ring-2", 3, "ngModelChange", "keydown.enter", "keydown.escape", "ngModel"], ["icon", "", "matRipple", "", "title", "Save override", 3, "click"], ["name", "setting-value", 1, "border-base-300", "bg-base-100", "focus:border-info", "focus:ring-info", "h-8", "w-full", "rounded-md", "border", "px-2", "font-mono", "shadow-sm", "outline-none", "focus:ring-2", 3, "ngModelChange", "keydown.enter", "keydown.escape", "ngModel"], [1, "flex"], [1, "border-base-300", "bg-base-100", "hover:border-info", "flex", "h-8", "w-full", "cursor-pointer", "items-center", "truncate", "rounded-md", "border", "px-2", "font-mono", "shadow-sm", "transition-colors", 3, "class", "title"], [1, "relative", "h-4", "w-8", "rounded-full", "transition-colors", 3, "click", "title"], [1, "absolute", "top-0.5", "left-0.5", "h-3", "w-3", "rounded-full", "bg-white", "shadow-sm", "transition-transform"], [1, "border-base-300", "bg-base-100", "hover:border-info", "flex", "h-8", "w-full", "cursor-pointer", "items-center", "truncate", "rounded-md", "border", "px-2", "font-mono", "shadow-sm", "transition-colors", 3, "click", "title"], [1, "border-base-300", "bg-base-100", "text-base-content", "min-w-64", "rounded-lg", "border", "p-2", "shadow-lg"], [1, "border-base-300", "border-b", "px-1", "pb-2", "text-base", "font-medium"], [1, "flex", "flex-col", "gap-1", "pt-2"], [1, "bg-base-200", "flex", "items-start", "gap-2", "rounded-sm", "p-2"], [1, "px-1", "py-2", "text-xs", "opacity-60"], [1, "w-1/2", "min-w-0", "flex-1"], [1, "truncate", "text-base", "font-medium"], [1, "truncate", "font-mono", "text-[0.625rem]", "opacity-60"], [1, "bg-base-300", "rounded-sm", "px-1.5", "py-0.5", "text-[0.625rem]", "font-medium"]], template: function SettingsDebugPanelComponent_Template(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275conditionalCreate(0, SettingsDebugPanelComponent_Conditional_0_Template, 21, 3, "div", 1);
-        \u0275\u0275template(1, SettingsDebugPanelComponent_ng_template_1_Template, 7, 1, "ng-template", null, 0, \u0275\u0275templateRefExtractor);
+        \u0275\u0275conditionalCreate(0, SettingsDebugPanelComponent_Conditional_0_Template, 22, 3, "aside", 1);
+        \u0275\u0275element(1, "binding-debug-panel");
+        \u0275\u0275template(2, SettingsDebugPanelComponent_ng_template_2_Template, 7, 1, "ng-template", null, 0, \u0275\u0275templateRefExtractor);
       }
       if (rf & 2) {
         \u0275\u0275conditional(ctx.show() ? 0 : -1);
@@ -91437,6 +92755,9 @@ var SettingsDebugPanelComponent = class _SettingsDebugPanelComponent extends Asy
       NgModel,
       MatRippleModule,
       MatRipple,
+      MatTooltipModule,
+      MatTooltip,
+      BindingDebugPanelComponent,
       CustomTooltipComponent,
       IconComponent
     ], encapsulation: 2 });
@@ -91449,37 +92770,63 @@ var SettingsDebugPanelComponent = class _SettingsDebugPanelComponent extends Asy
       selector: "settings-debug-panel",
       template: `
         @if (show()) {
-            <div class=" fixed bottom-2 left-2 z-998 w-160 max-w-[90vw]">
-            <div class="flex flex-col gap-2">
-                <div
-                    class="-mb-2 border-base-300 bg-base-100 text-base-content flex w-[calc(100%-0.5rem)] mx-1 items-center overflow-hidden rounded-b-lg rounded-t-xl border p-1 shadow-sm"
+            <aside
+                class="border-base-300 bg-base-200 text-base-content fixed inset-y-0 right-0 z-998 flex w-96 max-w-[90vw] flex-col border-l shadow-xl"
+            >
+                <header
+                    class="border-base-300 bg-base-100 flex items-center border-b p-2"
                 >
-                    <div class="flex-1 px-3 font-medium">Settings Viewer</div>
-                    <div class="flex items-center">
-                        @if (has_overrides()) {
-                            <button
-                                matRipple
-                                class="text-error px-2 py-1 text-xs underline"
-                                (click)="clearAll()"
-                            >
-                                Clear all overrides
-                            </button>
-                        }
+                    <button
+                        icon
+                        default
+                        matRipple
+                        class="text-sm"
+                        (click)="show.set(false)"
+                    >
+                        <icon>close</icon>
+                    </button>
+                    <div class="flex-1 px-3 text-lg font-medium">
+                        Settings Viewer
+                    </div>
+                    <div class="flex items-center gap-2 text-xs">
                         <button
                             icon
                             default
                             matRipple
-                            class="text-sm"
-                            (click)="show.set(false)"
+                            matTooltip="Add setting"
+                            matTooltipPosition="below"
+                            aria-label="Add setting"
+                            (click)="addSetting()"
                         >
-                            <icon>close</icon>
+                            <icon>add</icon>
                         </button>
+                        @if (has_overrides()) {
+                            <button
+                                icon
+                                default
+                                matRipple
+                                matTooltip="Copy overrides"
+                                matTooltipPosition="below"
+                                aria-label="Copy overrides"
+                                (click)="copyOverrides()"
+                            >
+                                <icon>content_copy</icon>
+                            </button>
+                            <button
+                                icon
+                                default
+                                error
+                                matRipple
+                                matTooltip="Clear all overrides"
+                                matTooltipPosition="below"
+                                aria-label="Clear all overrides"
+                                (click)="clearAll()"
+                            >
+                                <icon>delete_sweep</icon>
+                            </button>
+                        }
                     </div>
-                </div>
-            </div>
-            <div
-                class="border-base-300 bg-base-200 text-base-content flex h-120 flex-col overflow-hidden rounded-xl border shadow-sm pt-2"
-            >
+                </header>
                 <div class="relative m-1 flex">
                     <input
                         name="setting-filter"
@@ -91494,190 +92841,223 @@ var SettingsDebugPanelComponent = class _SettingsDebugPanelComponent extends Asy
                 </div>
                 <div class="flex-1 overflow-auto">
                     @for (entry of entries(); track $index) {
-                        @if (entry.header; as group) {
-                            <button
-                                class="border-base-300 bg-base-100/50 hover:bg-base-100 flex min-h-8 w-full items-center gap-1 border-b px-2 py-1 text-left text-xs"
-                                (click)="toggleGroup(group.name)"
-                            >
-                                <icon
-                                    class="text-sm transition-transform"
-                                    [class.rotate-90]="
-                                        filter() || expanded()[group.name]
-                                    "
+                        <section>
+                            @if (entry.header; as group) {
+                                <button
+                                    class="border-base-300 bg-base-100 hover:bg-base-100 sticky top-0 z-10 flex min-h-8 w-full items-center gap-1 border-b px-2 py-1 text-left text-xs"
+                                    (click)="toggleGroup(group.name)"
                                 >
-                                    chevron_right
-                                </icon>
-                                <span class="font-mono">{{ group.name }}</span>
-                                <span class="opacity-40">
-                                    ({{ group.count }})
-                                </span>
-                                @if (group.overridden) {
-                                    <span
-                                        class="bg-warning-light rounded-sm px-1 text-[0.65rem] text-black"
+                                    <icon
+                                        class="text-sm transition-transform"
+                                        [class.rotate-90]="
+                                            filter() || expanded()[group.name]
+                                        "
                                     >
-                                        {{ group.overridden }} overridden
+                                        chevron_right
+                                    </icon>
+                                    <span class="font-mono">{{
+                                        group.name
+                                    }}</span>
+                                    <span class="opacity-40">
+                                        ({{ group.count }})
                                     </span>
-                                }
-                            </button>
-                        }
-                        @if (entry.row; as row) {
-                            <div
-                                class="border-base-300 flex min-h-8 items-center border-b py-1 pr-2 text-xs"
-                                [class.pl-8]="entry.grouped"
-                                [class.pl-2]="!entry.grouped"
-                                [class.bg-warning-light]="row.overridden"
-                            >
-                                <div class="w-3/5 min-w-0 pr-2">
-                                    <div
-                                        class="flex min-w-0 items-center gap-1 font-mono"
-                                    >
-                                        <span class="truncate">
-                                            {{ row.label }}
-                                        </span>
+                                    @if (group.overridden) {
                                         <span
-                                            customTooltip
-                                            class="shrink-0"
-                                            [content]="zone_tooltip"
-                                            [data]="{ zones: row.zones }"
-                                            [hover]="true"
-                                            [backdrop]="false"
-                                            xPosition="start"
-                                            yPosition="center"
-                                            [xOffset]="20"
+                                            class="bg-warning-light rounded-sm px-1 text-[0.65rem] text-black"
                                         >
-                                            <icon class="text-sm opacity-60"
-                                                >info</icon
-                                            >
+                                            {{ group.overridden }} overridden
                                         </span>
-                                    </div>
-                                    @if (row.description) {
+                                    }
+                                </button>
+                            }
+                            @for (row of entry.rows; track row.key) {
+                                <div
+                                    class="border-base-300 grid min-h-8 grid-cols-[minmax(0,1fr)_auto_auto] items-center border-b py-1 pr-2 text-xs"
+                                    [class.pl-8]="entry.grouped"
+                                    [class.pl-2]="!entry.grouped"
+                                    [class.bg-warning-light]="row.overridden"
+                                >
+                                    <div
+                                        class="min-w-0 pr-2"
+                                        [class.col-span-3]="
+                                            row.control !== 'toggle'
+                                        "
+                                        [class.pb-1]="row.control !== 'toggle'"
+                                    >
                                         <div
-                                            class="truncate text-[0.65rem] opacity-60"
-                                            [title]="row.description"
+                                            class="flex min-w-0 items-center gap-1 font-mono"
                                         >
-                                            {{ row.description }}
-                                        </div>
-                                    }
-                                </div>
-                                @switch (
-                                    editing_key() === row.key ? row.control : ''
-                                ) {
-                                    @case ('select') {
-                                        <select
-                                            name="setting-value"
-                                            class="bg-base-100 flex-1 rounded-sm border px-1 py-0.5 font-mono"
-                                            [(ngModel)]="edit_value"
-                                            (keydown.escape)="
-                                                editing_key.set('')
-                                            "
-                                        >
-                                            @for (
-                                                option of row.options;
-                                                track option
-                                            ) {
-                                                <option [value]="option">
-                                                    {{ option }}
-                                                </option>
-                                            }
-                                        </select>
-                                        <button
-                                            icon
-                                            matRipple
-                                            title="Save override"
-                                            (click)="saveEdit()"
-                                        >
-                                            <icon class="text-sm">check</icon>
-                                        </button>
-                                    }
-                                    @case ('number') {
-                                        <input
-                                            name="setting-value"
-                                            type="number"
-                                            class="bg-base-100 flex-1 rounded-sm border px-1 py-0.5 font-mono"
-                                            [(ngModel)]="edit_value"
-                                            (keydown.enter)="saveEdit()"
-                                            (keydown.escape)="
-                                                editing_key.set('')
-                                            "
-                                        />
-                                        <button
-                                            icon
-                                            matRipple
-                                            title="Save override"
-                                            (click)="saveEdit()"
-                                        >
-                                            <icon class="text-sm">check</icon>
-                                        </button>
-                                    }
-                                    @case ('text') {
-                                        <input
-                                            name="setting-value"
-                                            class="bg-base-100 flex-1 rounded-sm border px-1 py-0.5 font-mono"
-                                            [(ngModel)]="edit_value"
-                                            (keydown.enter)="saveEdit()"
-                                            (keydown.escape)="
-                                                editing_key.set('')
-                                            "
-                                        />
-                                        <button
-                                            icon
-                                            matRipple
-                                            title="Save override"
-                                            (click)="saveEdit()"
-                                        >
-                                            <icon class="text-sm">check</icon>
-                                        </button>
-                                    }
-                                    @default {
-                                        @if (row.control === 'toggle') {
-                                            <div class="flex flex-1">
-                                                <button
-                                                    class="relative h-4 w-8 rounded-full transition-colors"
-                                                    [class.bg-info]="row.value"
-                                                    [class.bg-base-300]="
-                                                        !row.value
-                                                    "
-                                                    [title]="row.display"
-                                                    (click)="toggleValue(row)"
-                                                >
-                                                    <div
-                                                        class="absolute top-0.5 left-0.5 h-3 w-3 rounded-full bg-white shadow-sm transition-transform"
-                                                        [class.translate-x-4]="
-                                                            row.value
-                                                        "
-                                                    ></div>
-                                                </button>
-                                            </div>
-                                        } @else {
-                                            <div
-                                                class="flex-1 cursor-pointer truncate font-mono"
-                                                [class]="
-                                                    row.display
-                                                        ? 'opacity-80'
-                                                        : 'italic opacity-40'
-                                                "
-                                                [title]="row.display || 'unset'"
-                                                (click)="startEdit(row)"
+                                            <span class="truncate">
+                                                {{ row.label }}
+                                            </span>
+                                            <span
+                                                customTooltip
+                                                class="shrink-0"
+                                                [content]="zone_tooltip"
+                                                [data]="{ zones: row.zones }"
+                                                [hover]="true"
+                                                [backdrop]="false"
+                                                xPosition="start"
+                                                yPosition="center"
+                                                [xOffset]="20"
                                             >
-                                                {{ row.display || 'unset' }}
+                                                <icon class="text-sm opacity-60"
+                                                    >info</icon
+                                                >
+                                            </span>
+                                        </div>
+                                        @if (row.description) {
+                                            <div
+                                                class="truncate text-[0.65rem] opacity-60"
+                                                [title]="row.description"
+                                            >
+                                                {{ row.description }}
                                             </div>
                                         }
-                                        @if (row.overridden) {
+                                    </div>
+                                    @switch (
+                                        row.control === 'select' ||
+                                        editing_key() === row.key
+                                            ? row.control
+                                            : ''
+                                    ) {
+                                        @case ('select') {
+                                            <select
+                                                name="setting-value"
+                                                class="border-base-300 bg-base-100 focus:border-info focus:ring-info h-8 w-full rounded-md border px-2 font-mono shadow-sm outline-none focus:ring-2"
+                                                [ngModel]="row.value"
+                                                (ngModelChange)="
+                                                    selectValue(row, $event)
+                                                "
+                                            >
+                                                @for (
+                                                    option of row.options;
+                                                    track $index
+                                                ) {
+                                                    <option
+                                                        [ngValue]="option.value"
+                                                    >
+                                                        {{ option.label }}
+                                                    </option>
+                                                }
+                                            </select>
+                                            @if (row.overridden) {
+                                                <button
+                                                    icon
+                                                    matRipple
+                                                    title="Clear override"
+                                                    (click)="
+                                                        clearOverride(row.key)
+                                                    "
+                                                >
+                                                    <icon class="text-sm"
+                                                        >undo</icon
+                                                    >
+                                                </button>
+                                            }
+                                        }
+                                        @case ('number') {
+                                            <input
+                                                name="setting-value"
+                                                type="number"
+                                                class="border-base-300 bg-base-100 focus:border-info focus:ring-info h-8 w-full rounded-md border px-2 font-mono shadow-sm outline-none focus:ring-2"
+                                                [(ngModel)]="edit_value"
+                                                (keydown.enter)="saveEdit()"
+                                                (keydown.escape)="
+                                                    editing_key.set('')
+                                                "
+                                            />
                                             <button
                                                 icon
                                                 matRipple
-                                                title="Clear override"
-                                                (click)="clearOverride(row.key)"
+                                                title="Save override"
+                                                (click)="saveEdit()"
                                             >
                                                 <icon class="text-sm"
-                                                    >undo</icon
+                                                    >check</icon
                                                 >
                                             </button>
                                         }
+                                        @case ('text') {
+                                            <input
+                                                name="setting-value"
+                                                class="border-base-300 bg-base-100 focus:border-info focus:ring-info h-8 w-full rounded-md border px-2 font-mono shadow-sm outline-none focus:ring-2"
+                                                [(ngModel)]="edit_value"
+                                                (keydown.enter)="saveEdit()"
+                                                (keydown.escape)="
+                                                    editing_key.set('')
+                                                "
+                                            />
+                                            <button
+                                                icon
+                                                matRipple
+                                                title="Save override"
+                                                (click)="saveEdit()"
+                                            >
+                                                <icon class="text-sm"
+                                                    >check</icon
+                                                >
+                                            </button>
+                                        }
+                                        @default {
+                                            @if (row.control === 'toggle') {
+                                                <div class="flex">
+                                                    <button
+                                                        class="relative h-4 w-8 rounded-full transition-colors"
+                                                        [class.bg-info]="
+                                                            row.value
+                                                        "
+                                                        [class.bg-base-300]="
+                                                            !row.value
+                                                        "
+                                                        [title]="row.display"
+                                                        (click)="
+                                                            toggleValue(row)
+                                                        "
+                                                    >
+                                                        <div
+                                                            class="absolute top-0.5 left-0.5 h-3 w-3 rounded-full bg-white shadow-sm transition-transform"
+                                                            [class.translate-x-4]="
+                                                                row.value
+                                                            "
+                                                        ></div>
+                                                    </button>
+                                                </div>
+                                            } @else {
+                                                <div
+                                                    class="border-base-300 bg-base-100 hover:border-info flex h-8 w-full cursor-pointer items-center truncate rounded-md border px-2 font-mono shadow-sm transition-colors"
+                                                    [class]="
+                                                        row.display
+                                                            ? 'opacity-80'
+                                                            : 'italic opacity-40'
+                                                    "
+                                                    [title]="
+                                                        row.display || 'unset'
+                                                    "
+                                                    (click)="startEdit(row)"
+                                                >
+                                                    {{ row.display || 'unset' }}
+                                                </div>
+                                            }
+                                            @if (row.overridden) {
+                                                <button
+                                                    icon
+                                                    matRipple
+                                                    title="Clear override"
+                                                    (click)="
+                                                        clearOverride(row.key)
+                                                    "
+                                                >
+                                                    <icon class="text-sm"
+                                                        >undo</icon
+                                                    >
+                                                </button>
+                                            }
+                                        }
                                     }
-                                }
-                            </div>
-                        }
+                                </div>
+                            }
+                        </section>
                     } @empty {
                         <div class="p-4 text-center opacity-30">
                             No matching settings
@@ -91691,24 +93071,30 @@ var SettingsDebugPanelComponent = class _SettingsDebugPanelComponent extends Asy
                     JSON, falling back to plain strings. Overrides are stored
                     locally in this browser.
                 </div>
-            </div>
-            </div>
+            </aside>
         }
+        <binding-debug-panel />
         <ng-template #zone_tooltip let-zones="zones">
             <div
                 class="border-base-300 bg-base-100 text-base-content min-w-64 rounded-lg border p-2 shadow-lg"
             >
-                <div class="border-base-300 border-b px-1 pb-2 text-base font-medium">
+                <div
+                    class="border-base-300 border-b px-1 pb-2 text-base font-medium"
+                >
                     Setting sources
                 </div>
                 <div class="flex flex-col gap-1 pt-2">
                     @for (zone of zones; track zone.type + zone.id) {
-                        <div class="bg-base-200 flex items-start gap-2 rounded-sm p-2">
-                            <div class="min-w-0 flex-1 w-1/2">
+                        <div
+                            class="bg-base-200 flex items-start gap-2 rounded-sm p-2"
+                        >
+                            <div class="w-1/2 min-w-0 flex-1">
                                 <div class="truncate text-base font-medium">
                                     {{ zone.name }}
                                 </div>
-                                <div class="truncate font-mono text-[0.625rem] opacity-60">
+                                <div
+                                    class="truncate font-mono text-[0.625rem] opacity-60"
+                                >
                                     {{ zone.id }}
                                 </div>
                             </div>
@@ -91730,6 +93116,8 @@ var SettingsDebugPanelComponent = class _SettingsDebugPanelComponent extends Asy
       imports: [
         FormsModule,
         MatRippleModule,
+        MatTooltipModule,
+        BindingDebugPanelComponent,
         CustomTooltipComponent,
         IconComponent
       ]
@@ -91737,7 +93125,7 @@ var SettingsDebugPanelComponent = class _SettingsDebugPanelComponent extends Asy
   }], null, { schema: [{ type: Input, args: [{ isSignal: true, alias: "schema", required: false }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SettingsDebugPanelComponent, { className: "SettingsDebugPanelComponent", filePath: "libs/components/src/lib/settings-debug-panel.component.ts", lineNumber: 394 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SettingsDebugPanelComponent, { className: "SettingsDebugPanelComponent", filePath: "libs/components/src/lib/settings-debug-panel.component.ts", lineNumber: 477 });
 })();
 
 // libs/components/src/lib/unauthorised.component.ts
@@ -92076,6 +93464,7 @@ var $defs = {
       type: {
         type: "string",
         enum: ["img", "icon"],
+        enumNames: ["Image", "Icon"],
         description: "Type of icon to render. Either `img` or `icon`"
       },
       src: {
