@@ -64224,6 +64224,7 @@ var CALENDAR_EVENT = {
   ATTENDEES_COUNT_N: "{{ count }} attendees",
   ATTENDEE_COUNT: "{{ count }} attendee(s)",
   ATTENDEES: "Attendees",
+  NOTIFY_NEW_ATTENDEES_ONLY: "Only notify new attendees",
   DETAILS: "Details",
   NOTES_HEADER: "Notes",
   ASSETS_HEADER: "Assets",
@@ -64660,7 +64661,7 @@ var APP = {
     DESKS_MAP_ID_PLACEHOLDER: "e.g. table-01.123",
     DESKS_VIEW_QR_CODE_LIST: "View Desk QR Codes",
     DESKS_LIST_UPLOAD: "Upload Desks CSV",
-    DESKS_LIST_DOWNLOAD: "Download Desk CSV template",
+    DESKS_LIST_DOWNLOAD: "Download Desk CSV",
     DESKS_BOOKING_RULES: "Desk Restrictions",
     DESKS_BOOKINGS_EMPTY: "There are no desk booking for the currently selected date.",
     DESKS_BOOKINGS_SEARCH_EMPTY: "No matching desk bookings",
@@ -68846,6 +68847,10 @@ var _HotkeysService = class _HotkeysService {
     this.registered_combos = [];
     this.counter = 0;
     window.addEventListener("keydown", (event) => {
+      var _a10;
+      if (((_a10 = document.getSelection()) == null ? void 0 : _a10.type) === "Range" || this.isEditableElementFocused()) {
+        return;
+      }
       const code = this.mapKey((event.code || "").toLowerCase());
       if (this.last_down !== code) {
         if (!this.keydown_states[code]) {
@@ -68918,6 +68923,14 @@ var _HotkeysService = class _HotkeysService {
     for (const callback of this.keydown_callbacks[code] || []) {
       callback(count);
     }
+  }
+  /** Check if keyboard input should remain with the focused editor. */
+  isEditableElementFocused() {
+    const active = document.activeElement;
+    if (!active)
+      return false;
+    const tag_name = active.tagName.toLowerCase();
+    return tag_name === "input" || tag_name === "textarea" || active.getAttribute("contenteditable") === "true" || !!active.closest(".monaco-editor");
   }
   /**
    * Map key codes with multiple versions to simple form
@@ -70175,15 +70188,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION4 = {
   "dirty": false,
-  "raw": "5c5aca9",
-  "hash": "5c5aca9",
+  "raw": "dbdb776",
+  "hash": "dbdb776",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "5c5aca9",
+  "suffix": "dbdb776",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1783937512092
+  "time": 1784184819976
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -84482,14 +84495,14 @@ var _PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
     const tracking_id = this._settings.get("app.analytics.tracking_id");
     if (!tracking_id)
       return;
-    setLoadingMessage("Initializing analytics...");
+    setLoadingMessage("Initialising analytics...");
     this._analytics.init(tracking_id);
     this._analytics.load(tracking_id);
     this._analytics.setUser(currentUser().id);
   }
   _initLocale() {
     var _a10, _b4;
-    setLoadingMessage("Loading locale...");
+    setLoadingMessage("Loading locales...");
     try {
       let locale = localStorage.getItem("PLACEOS.locale");
       const locales = this._settings.get("app.locales") || [];
@@ -84531,7 +84544,7 @@ var _PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
   async _initFixedDevice() {
     if (!rs())
       return;
-    setLoadingMessage("Initializing as fixed device...");
+    setLoadingMessage("Initialising as fixed device...");
     this.interval("auto-update-version", () => this._checkReload(), 15 * 1e3);
     await requestScreenWakeLock();
   }
@@ -84962,7 +84975,7 @@ var _OrganisationService = class _OrganisationService {
    */
   async load() {
     var _a10;
-    setLoadingMessage("Loading organistion data...");
+    setLoadingMessage("Loading organisation data...");
     await this.loadOrganisation();
     setLoadingMessage("Loading region data...");
     await this.loadRegions();
@@ -94882,6 +94895,18 @@ function FullscreenModalShellComponent_Conditional_8_Template(rf, ctx) {
     \u0275\u0275textInterpolate(ctx_r0.loading());
   }
 }
+function FullscreenModalShellComponent_Conditional_9_Conditional_4_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "kbd", 14);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(ctx_r0.confirm_hotkey());
+  }
+}
 function FullscreenModalShellComponent_Conditional_9_Template(rf, ctx) {
   if (rf & 1) {
     const _r2 = \u0275\u0275getCurrentView();
@@ -94893,6 +94918,7 @@ function FullscreenModalShellComponent_Conditional_9_Template(rf, ctx) {
     });
     \u0275\u0275text(2);
     \u0275\u0275pipe(3, "translate");
+    \u0275\u0275conditionalCreate(4, FullscreenModalShellComponent_Conditional_9_Conditional_4_Template, 2, 1, "kbd", 14);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
@@ -94901,7 +94927,9 @@ function FullscreenModalShellComponent_Conditional_9_Template(rf, ctx) {
     \u0275\u0275advance();
     \u0275\u0275property("disabled", ctx_r0.confirm_disabled());
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", ctx_r0.confirm_text() || \u0275\u0275pipeBind1(3, 4, "COMMON.SAVE"), " ");
+    \u0275\u0275textInterpolate1(" ", ctx_r0.confirm_text() || \u0275\u0275pipeBind1(3, 5, "COMMON.SAVE"), " ");
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(ctx_r0.confirm_hotkey() ? 4 : -1);
   }
 }
 var _FullscreenModalShellComponent = class _FullscreenModalShellComponent {
@@ -94923,6 +94951,13 @@ var _FullscreenModalShellComponent = class _FullscreenModalShellComponent {
     this.confirm_text = input(
       "",
       ...ngDevMode ? [{ debugName: "confirm_text" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.confirm_hotkey = input(
+      "",
+      ...ngDevMode ? [{ debugName: "confirm_hotkey" }] : (
         /* istanbul ignore next */
         []
       )
@@ -94969,7 +95004,7 @@ var _FullscreenModalShellComponent = class _FullscreenModalShellComponent {
 _FullscreenModalShellComponent.\u0275fac = function FullscreenModalShellComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _FullscreenModalShellComponent)();
 };
-_FullscreenModalShellComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _FullscreenModalShellComponent, selectors: [["fullscreen-modal-shell"], ["", "fs-modal-shell", ""]], inputs: { loading: [1, "loading"], heading: [1, "heading"], confirm_text: [1, "confirm_text"], confirm_disabled: [1, "confirm_disabled"], close: [1, "close"], hide_confirm: [1, "hide_confirm"], hide_close: [1, "hide_close"], full_width: [1, "full_width"] }, outputs: { confirm: "confirm", closed: "closed" }, ngContentSelectors: _c015, decls: 10, vars: 14, consts: [[1, "bg-base-200", "fixed", "inset-0", "flex", "flex-col", "items-center", "overflow-auto", "px-2"], [1, "border-base-300", "bg-base-100", "fixed", "top-0", "mx-auto", "h-screen", "max-w-full", "border-x"], [1, "bg-base-200", "sticky", "top-0", "z-10", "mx-auto", "my-2", "flex", "h-14", "w-full", "items-center", "justify-between", "rounded-sm", "border-none", "px-4", "py-2"], [1, "flex", "items-center", "text-xl", "font-medium", "capitalize", 3, "innerHTML"], [1, "z-0", "mx-auto", "h-1/2", "w-full", "flex-1", "space-y-8", "p-2"], [1, "flex", "h-1/2", "w-full", "flex-1", "flex-col", "items-center", "justify-center", "space-y-4", "p-12"], [1, "bg-base-200", "fixed", "bottom-0", "left-1/2", "z-10", "mx-auto", "my-2", "flex", "w-full", "-translate-x-1/2", "items-center", "justify-end", "rounded-sm", "border-none", "px-4", "py-2", 3, "max-w-156"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], ["icon", "", "matRipple", "", 3, "routerLink"], [1, "h-24", "w-full"], [3, "diameter"], [1, "text-center", "opacity-50"], [1, "bg-base-200", "fixed", "bottom-0", "left-1/2", "z-10", "mx-auto", "my-2", "flex", "w-full", "-translate-x-1/2", "items-center", "justify-end", "rounded-sm", "border-none", "px-4", "py-2"], ["btn", "", "matRipple", "", 1, "min-w-32", 3, "click", "disabled"]], template: function FullscreenModalShellComponent_Template(rf, ctx) {
+_FullscreenModalShellComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _FullscreenModalShellComponent, selectors: [["fullscreen-modal-shell"], ["", "fs-modal-shell", ""]], inputs: { loading: [1, "loading"], heading: [1, "heading"], confirm_text: [1, "confirm_text"], confirm_hotkey: [1, "confirm_hotkey"], confirm_disabled: [1, "confirm_disabled"], close: [1, "close"], hide_confirm: [1, "hide_confirm"], hide_close: [1, "hide_close"], full_width: [1, "full_width"] }, outputs: { confirm: "confirm", closed: "closed" }, ngContentSelectors: _c015, decls: 10, vars: 14, consts: [[1, "bg-base-200", "fixed", "inset-0", "flex", "flex-col", "items-center", "overflow-auto", "px-2"], [1, "border-base-300", "bg-base-100", "fixed", "top-0", "mx-auto", "h-screen", "max-w-full", "border-x"], [1, "bg-base-200", "sticky", "top-0", "z-10", "mx-auto", "my-2", "flex", "h-14", "w-full", "items-center", "justify-between", "rounded-sm", "border-none", "px-4", "py-2"], [1, "flex", "items-center", "text-xl", "font-medium", "capitalize", 3, "innerHTML"], [1, "z-0", "mx-auto", "h-1/2", "w-full", "flex-1", "space-y-8", "p-2"], [1, "flex", "h-1/2", "w-full", "flex-1", "flex-col", "items-center", "justify-center", "space-y-4", "p-12"], [1, "bg-base-200", "fixed", "bottom-0", "left-1/2", "z-10", "mx-auto", "my-2", "flex", "w-full", "-translate-x-1/2", "items-center", "justify-end", "rounded-sm", "border-none", "px-4", "py-2", 3, "max-w-156"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], ["icon", "", "matRipple", "", 3, "routerLink"], [1, "h-24", "w-full"], [3, "diameter"], [1, "text-center", "opacity-50"], [1, "bg-base-200", "fixed", "bottom-0", "left-1/2", "z-10", "mx-auto", "my-2", "flex", "w-full", "-translate-x-1/2", "items-center", "justify-end", "rounded-sm", "border-none", "px-4", "py-2"], ["btn", "", "matRipple", "", 1, "flex", "min-w-32", "items-center", "justify-center", "gap-2", 3, "click", "disabled"], [1, "border-base-300", "bg-base-100", "text-base-content", "rounded", "border", "px-2", "py-1", "text-xs", "leading-none", "shadow-sm"]], template: function FullscreenModalShellComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275projectionDef();
     \u0275\u0275elementStart(0, "div", 0);
@@ -94982,7 +95017,7 @@ _FullscreenModalShellComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineCom
     \u0275\u0275elementStart(6, "main", 4);
     \u0275\u0275conditionalCreate(7, FullscreenModalShellComponent_Conditional_7_Template, 2, 0)(8, FullscreenModalShellComponent_Conditional_8_Template, 4, 2, "div", 5);
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(9, FullscreenModalShellComponent_Conditional_9_Template, 4, 6, "footer", 6);
+    \u0275\u0275conditionalCreate(9, FullscreenModalShellComponent_Conditional_9_Template, 5, 7, "footer", 6);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -95075,11 +95110,17 @@ var FullscreenModalShellComponent = _FullscreenModalShellComponent;
                     <button
                         btn
                         matRipple
-                        class="min-w-32"
+                        class="flex min-w-32 items-center justify-center gap-2"
                         [disabled]="confirm_disabled()"
                         (click)="confirm.emit()"
                     >
                         {{ confirm_text() || ('COMMON.SAVE' | translate) }}
+                        @if (confirm_hotkey()) {
+                            <kbd
+                                class="border-base-300 bg-base-100 text-base-content rounded border px-2 py-1 text-xs leading-none shadow-sm"
+                                >{{ confirm_hotkey() }}</kbd
+                            >
+                        }
                     </button>
                 </footer>
             }
@@ -95093,10 +95134,10 @@ var FullscreenModalShellComponent = _FullscreenModalShellComponent;
       RouterModule,
       SanitizePipe
     ], styles: ["/* angular:styles/component:css;9cba738a8b61f6e8c0fc50691e933d058b687b91fec8fff6415921963f4014b6;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/fullscreen-modal-shell.component.ts */\nmain {\n  scroll-margin-top: 60px;\n}\n/*# sourceMappingURL=fullscreen-modal-shell.component.css.map */\n"] }]
-  }], null, { loading: [{ type: Input, args: [{ isSignal: true, alias: "loading", required: false }] }], heading: [{ type: Input, args: [{ isSignal: true, alias: "heading", required: false }] }], confirm_text: [{ type: Input, args: [{ isSignal: true, alias: "confirm_text", required: false }] }], confirm_disabled: [{ type: Input, args: [{ isSignal: true, alias: "confirm_disabled", required: false }] }], close: [{ type: Input, args: [{ isSignal: true, alias: "close", required: false }] }], hide_confirm: [{ type: Input, args: [{ isSignal: true, alias: "hide_confirm", required: false }] }], hide_close: [{ type: Input, args: [{ isSignal: true, alias: "hide_close", required: false }] }], full_width: [{ type: Input, args: [{ isSignal: true, alias: "full_width", required: false }] }], confirm: [{ type: Output, args: ["confirm"] }], closed: [{ type: Output, args: ["closed"] }] });
+  }], null, { loading: [{ type: Input, args: [{ isSignal: true, alias: "loading", required: false }] }], heading: [{ type: Input, args: [{ isSignal: true, alias: "heading", required: false }] }], confirm_text: [{ type: Input, args: [{ isSignal: true, alias: "confirm_text", required: false }] }], confirm_hotkey: [{ type: Input, args: [{ isSignal: true, alias: "confirm_hotkey", required: false }] }], confirm_disabled: [{ type: Input, args: [{ isSignal: true, alias: "confirm_disabled", required: false }] }], close: [{ type: Input, args: [{ isSignal: true, alias: "close", required: false }] }], hide_confirm: [{ type: Input, args: [{ isSignal: true, alias: "hide_confirm", required: false }] }], hide_close: [{ type: Input, args: [{ isSignal: true, alias: "hide_close", required: false }] }], full_width: [{ type: Input, args: [{ isSignal: true, alias: "full_width", required: false }] }], confirm: [{ type: Output, args: ["confirm"] }], closed: [{ type: Output, args: ["closed"] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(FullscreenModalShellComponent, { className: "FullscreenModalShellComponent", filePath: "libs/components/src/lib/fullscreen-modal-shell.component.ts", lineNumber: 96 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(FullscreenModalShellComponent, { className: "FullscreenModalShellComponent", filePath: "libs/components/src/lib/fullscreen-modal-shell.component.ts", lineNumber: 102 });
 })();
 
 // libs/components/src/lib/changelog-modal.component.ts
@@ -107497,6 +107538,8 @@ var MockBookingModule = class {
     this.hide_qr_text = false;
     this.hide_meeting_details = false;
     this.hide_meeting_title = false;
+    this.show_timeline = false;
+    this.timeline_position = "floating-left";
     this.offline_image = "";
     this.offline_color = "#FFFFFF";
     this.presence = false;
