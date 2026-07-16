@@ -58,7 +58,6 @@ import { CheckinStateService } from './checkin-state.service';
     imports: [
         MatRippleModule,
         TranslatePipe,
-        IconComponent,
         MatProgressSpinnerModule,
         RouterModule,
     ],

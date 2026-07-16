@@ -186,17 +186,19 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                             }
                         </div>
                     </div>
-                    <div class="flex items-center space-x-2 px-2">
-                        <icon matTooltip="Location">place</icon>
-                        <div>
-                            {{ building()?.display_name || building()?.name }}
-                            {{
-                                building()?.address
-                                    ? ', ' + building().address
-                                    : ''
-                            }}
+                    @if (is_visitor()) {
+                        <div class="flex items-center space-x-2 px-2">
+                            <icon matTooltip="Location">place</icon>
+                            <div>
+                                {{ building()?.display_name || building()?.name }}
+                                {{
+                                    building()?.address
+                                        ? ', ' + building().address
+                                        : ''
+                                }}
+                            </div>
                         </div>
-                    </div>
+                    }
                     @if (current_user()?.email !== booking().user_email) {
                         <div class="flex items-center space-x-2 px-2">
                             <icon matTooltip="Host">person</icon>
