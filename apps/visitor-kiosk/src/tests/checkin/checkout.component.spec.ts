@@ -57,11 +57,11 @@ describe('CheckoutComponent', () => {
     });
 
     describe('ngOnInit', () => {
-        it('redirects to checkin when there is no event', async () => {
+        it('redirects to checkout when there is no event', async () => {
             (spectator.inject(CheckinStateService) as any).event.set(null);
             await spectator.component.ngOnInit();
             expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
-                '/checkin',
+                '/checkout',
             ]);
         });
 

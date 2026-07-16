@@ -123,11 +123,18 @@ export class CheckinInductionComponent {
         });
         notifySuccess('Induction completed successfully');
         if (this.induction_after_details()) {
+            const checked_in = await this._checkin
+                .checkinGuest()
+                .then(() => true)
+                .catch(() => false);
+            this.loading.set(false);
+            if (!checked_in) return;
             this._router.navigate([
                 '/checkin',
                 this.allow_user_photo() ? 'photo' : 'results',
             ]);
         } else {
+            this.loading.set(false);
             this._router.navigate(['/checkin', 'details']);
         }
     }
