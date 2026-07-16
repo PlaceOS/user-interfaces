@@ -86,6 +86,7 @@ import { DisplaySelectModalComponent } from './shared/display-select-modal.compo
 import { GroupSelectModalComponent } from './shared/group-select-modal.component';
 import { MediaEditModalComponent } from './shared/media-edit-modal.component';
 import { MediaPreviewModalComponent } from './shared/media-preview-modal.component';
+import { MediaTagsModalComponent } from './shared/media-tags-modal.component';
 import { PlaylistApproveModalComponent } from './shared/playlist-approve-modal.component';
 import { PlaylistEditModalComponent } from './shared/playlist-edit-modal.component';
 import { PlaylistItemScheduleModalComponent } from './shared/playlist-item-schedule-modal.component';
@@ -2507,6 +2508,43 @@ export class SignageService {
         const media_ids = items.map((item) => item.id).filter(Boolean);
         if (!media_ids.length) return false;
         return this._shareSignageItems('media', media_ids);
+    }
+
+    public async addMediaTags(items: SignageMedia[]) {
+        const media_items = items.filter((item) => !!item?.id);
+        if (!media_items.length) return false;
+        if (
+            !this._requirePermission(
+                this.can_update(),
+                i18n('SIGNAGE_MANAGER.SVC_NO_UPDATE_MEDIA'),
+            )
+        )
+            return false;
+        const ref = this._dialog.open(MediaTagsModalComponent, {
+            width: 'calc(100vw - 4rem)',
+            maxWidth: '28rem',
+        });
+        const tags = await dialogClosed<string[]>(ref);
+        if (!tags?.length) return false;
+        try {
+            await Promise.all(
+                media_items.map((item) =>
+                    updateSignageMedia(item.id, {
+                        tags: [...new Set([...(item.tags || []), ...tags])],
+                    }),
+                ),
+            );
+        } catch (error) {
+            notifyError(
+                i18n('SIGNAGE_MANAGER.MEDIA_SAVE_ERROR', {
+                    error: error instanceof Error ? error.message : `${error}`,
+                }),
+            );
+            return false;
+        }
+        this.changed();
+        notifySuccess(i18n('SIGNAGE_MANAGER.MEDIA_SAVE_SUCCESS'));
+        return true;
     }
 
     public async openPlaylistSelectModal(media_id: string) {

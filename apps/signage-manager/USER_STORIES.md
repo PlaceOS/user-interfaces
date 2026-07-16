@@ -106,7 +106,7 @@ These stories cover the current app workflows:
 - Users with share permission can share media.
 - Users with delete permission can remove media.
 - Share and delete actions open confirmation or group-selection dialogs before making changes.
-- Users can select multiple media items and bulk delete, share, or add them to a playlist when permitted.
+- Users can select multiple media items and bulk add tags, delete, share, or add them to a playlist when permitted.
 
 ---
 

@@ -13,8 +13,10 @@ import {
     scheduleSignagePlaylistMedia,
     SignageMedia,
     SignagePlaylist,
+    updateSignageMedia,
     updateSignagePlaylistMediaSchedule,
 } from '@placeos/ts-client';
+import { MediaTagsModalComponent } from '../app/shared/media-tags-modal.component';
 import { PlaylistItemScheduleModalComponent } from '../app/shared/playlist-item-schedule-modal.component';
 import { SignageService } from '../app/signage.service';
 
@@ -201,5 +203,34 @@ describe('SignageService media uploads', () => {
         expect(addSignageMedia).toHaveBeenCalledWith(
             expect.not.objectContaining({ thumbnail_id: expect.anything() }),
         );
+    });
+
+    it('adds tags to media without replacing existing tags', async () => {
+        dialog.open.mockReturnValue({
+            afterClosed: () => ({
+                subscribe: (handler: (value: string[]) => void) => {
+                    Promise.resolve().then(() => handler(['news', 'lobby']));
+                    return { unsubscribe: vi.fn() };
+                },
+            }),
+        });
+        (updateSignageMedia as any).mockResolvedValue({});
+        const service = createService();
+
+        await service.addMediaTags([
+            new SignageMedia({ id: 'media-1', tags: ['existing', 'news'] }),
+            new SignageMedia({ id: 'media-2', tags: [] }),
+        ]);
+
+        expect(dialog.open).toHaveBeenCalledWith(MediaTagsModalComponent, {
+            width: 'calc(100vw - 4rem)',
+            maxWidth: '28rem',
+        });
+        expect(updateSignageMedia).toHaveBeenCalledWith('media-1', {
+            tags: ['existing', 'news', 'lobby'],
+        });
+        expect(updateSignageMedia).toHaveBeenCalledWith('media-2', {
+            tags: ['news', 'lobby'],
+        });
     });
 });

@@ -23,6 +23,7 @@ describe('MediaListComponent folders', () => {
         can_update: signal(true),
         can_delete: signal(true),
         can_share: signal(true),
+        addMediaTags: vi.fn(),
         setSelectedGroup: set_selected_group,
         loadMoreMedia: vi.fn(),
     };
@@ -103,5 +104,20 @@ describe('MediaListComponent folders', () => {
         expect(component.selected_folder()).toBeNull();
         // grid/list views always show the full filtered set
         expect(component.display_media().length).toBe(3);
+    });
+
+    it('adds tags to every selected media item and clears the selection', async () => {
+        service_stub.addMediaTags.mockResolvedValue(true);
+        const component = make();
+        component.toggleSelection('a');
+        component.toggleSelection('c');
+
+        await component.addTagsToSelected();
+
+        expect(service_stub.addMediaTags).toHaveBeenCalledWith([
+            expect.objectContaining({ id: 'a' }),
+            expect.objectContaining({ id: 'c' }),
+        ]);
+        expect(component.selected_count()).toBe(0);
     });
 });
