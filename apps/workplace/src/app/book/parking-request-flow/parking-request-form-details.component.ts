@@ -1246,9 +1246,6 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                 "
                                 [formField]="form().space_restrictions"
                             >
-                                <mat-radio-button [value]="false">
-                                    {{ 'COMMON.NONE' | translate }}
-                                </mat-radio-button>
                                 @for (
                                     option of space_restriction_options();
                                     track trackById(option)
