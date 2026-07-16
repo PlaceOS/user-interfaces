@@ -326,7 +326,11 @@ export class UserListFieldComponent
         },
     });
     /** User list to display */
-    public readonly user_list = computed(() => this._user_search.value() ?? []);
+    public readonly user_list = computed(() =>
+        [...(this._user_search.value() ?? [])].sort((a, b) =>
+            a.name.localeCompare(b.name),
+        ),
+    );
     /** Whether user list is loading */
     public readonly loading = computed(() => this._user_search.isLoading());
     /** List of active selected users on the list */
