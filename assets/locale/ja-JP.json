@@ -1030,7 +1030,7 @@
             "DESKS_MAP_ID_PLACEHOLDER": "例：table-01.123",
             "DESKS_VIEW_QR_CODE_LIST": "デスクQRコードリストを表示",
             "DESKS_LIST_UPLOAD": "デスクCSVをアップロード",
-            "DESKS_LIST_DOWNLOAD": "デスクCSVテンプレートをダウンロード",
+            "DESKS_LIST_DOWNLOAD": "デスクCSVをダウンロード",
             "DESKS_BOOKING_RULES": "デスク制限",
             "DESKS_BOOKINGS_EMPTY": "選択された日付にデスク予約はありません。",
             "DESKS_BOOKINGS_SEARCH_EMPTY": "一致するデスク予約がありません",
