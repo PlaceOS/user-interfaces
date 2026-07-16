@@ -223,8 +223,7 @@ describe('SignageService media uploads', () => {
         ]);
 
         expect(dialog.open).toHaveBeenCalledWith(MediaTagsModalComponent, {
-            width: 'calc(100vw - 4rem)',
-            maxWidth: '28rem',
+            width: 'min(28rem, calc(100vw - 2rem))',
         });
         expect(updateSignageMedia).toHaveBeenCalledWith('media-1', {
             tags: ['existing', 'news', 'lobby'],

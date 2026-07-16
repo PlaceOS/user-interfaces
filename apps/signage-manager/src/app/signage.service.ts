@@ -2521,8 +2521,7 @@ export class SignageService {
         )
             return false;
         const ref = this._dialog.open(MediaTagsModalComponent, {
-            width: 'calc(100vw - 4rem)',
-            maxWidth: '28rem',
+            width: 'min(28rem, calc(100vw - 2rem))',
         });
         const tags = await dialogClosed<string[]>(ref);
         if (!tags?.length) return false;

@@ -8,7 +8,7 @@ import { ItemListFieldComponent } from '@placeos/form-fields';
 
 @Component({
     selector: 'media-tags-modal',
-    host: { class: 'block min-w-0 max-w-full overflow-hidden' },
+    host: { class: 'block min-w-0 max-w-112 overflow-hidden' },
     template: `
         <header
             class="bg-base-200 m-2 flex w-[calc(100%-1rem)] min-w-0 items-center justify-between overflow-hidden rounded-sm p-2"
