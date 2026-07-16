@@ -61153,6 +61153,7 @@ var CALENDAR_EVENT = {
   ATTENDEES_COUNT_N: "{{ count }} attendees",
   ATTENDEE_COUNT: "{{ count }} attendee(s)",
   ATTENDEES: "Attendees",
+  NOTIFY_NEW_ATTENDEES_ONLY: "Only notify new attendees",
   DETAILS: "Details",
   NOTES_HEADER: "Notes",
   ASSETS_HEADER: "Assets",
@@ -61589,7 +61590,7 @@ var APP = {
     DESKS_MAP_ID_PLACEHOLDER: "e.g. table-01.123",
     DESKS_VIEW_QR_CODE_LIST: "View Desk QR Codes",
     DESKS_LIST_UPLOAD: "Upload Desks CSV",
-    DESKS_LIST_DOWNLOAD: "Download Desk CSV template",
+    DESKS_LIST_DOWNLOAD: "Download Desk CSV",
     DESKS_BOOKING_RULES: "Desk Restrictions",
     DESKS_BOOKINGS_EMPTY: "There are no desk booking for the currently selected date.",
     DESKS_BOOKINGS_SEARCH_EMPTY: "No matching desk bookings",
@@ -66566,6 +66567,9 @@ var HotkeysService = class _HotkeysService {
     this.registered_combos = [];
     this.counter = 0;
     window.addEventListener("keydown", (event) => {
+      if (document.getSelection()?.type === "Range" || this.isEditableElementFocused()) {
+        return;
+      }
       const code = this.mapKey((event.code || "").toLowerCase());
       if (this.last_down !== code) {
         if (!this.keydown_states[code]) {
@@ -66634,6 +66638,14 @@ var HotkeysService = class _HotkeysService {
     for (const callback of this.keydown_callbacks[code] || []) {
       callback(count);
     }
+  }
+  /** Check if keyboard input should remain with the focused editor. */
+  isEditableElementFocused() {
+    const active = document.activeElement;
+    if (!active)
+      return false;
+    const tag_name = active.tagName.toLowerCase();
+    return tag_name === "input" || tag_name === "textarea" || active.getAttribute("contenteditable") === "true" || !!active.closest(".monaco-editor");
   }
   /**
    * Map key codes with multiple versions to simple form
@@ -68036,15 +68048,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION4 = {
   "dirty": false,
-  "raw": "5c5aca9",
-  "hash": "5c5aca9",
+  "raw": "dbdb776",
+  "hash": "dbdb776",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "5c5aca9",
+  "suffix": "dbdb776",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1783937296306
+  "time": 1784184812729
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -81371,13 +81383,13 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
     const tracking_id = this._settings.get("app.analytics.tracking_id");
     if (!tracking_id)
       return;
-    setLoadingMessage("Initializing analytics...");
+    setLoadingMessage("Initialising analytics...");
     this._analytics.init(tracking_id);
     this._analytics.load(tracking_id);
     this._analytics.setUser(currentUser().id);
   }
   _initLocale() {
-    setLoadingMessage("Loading locale...");
+    setLoadingMessage("Loading locales...");
     try {
       let locale = localStorage.getItem("PLACEOS.locale");
       const locales = this._settings.get("app.locales") || [];
@@ -81419,7 +81431,7 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
   async _initFixedDevice() {
     if (!rs())
       return;
-    setLoadingMessage("Initializing as fixed device...");
+    setLoadingMessage("Initialising as fixed device...");
     this.interval("auto-update-version", () => this._checkReload(), 15 * 1e3);
     await requestScreenWakeLock();
   }
@@ -81846,7 +81858,7 @@ var OrganisationService = class _OrganisationService {
    * Initialise service data
    */
   async load() {
-    setLoadingMessage("Loading organistion data...");
+    setLoadingMessage("Loading organisation data...");
     await this.loadOrganisation();
     setLoadingMessage("Loading region data...");
     await this.loadRegions();
@@ -96183,7 +96195,7 @@ var MapViewer = class {
     this.container.appendChild(this.canvas);
     this.overlays = document.createElement("div");
     this.overlays.id = `${this.id}-overlays`;
-    this.overlays.style.cssText = "position: absolute; inset: 0; pointer-events: none;";
+    this.overlays.style.cssText = "position: absolute; inset: 0; z-index: 0; pointer-events: none;";
     this.container.appendChild(this.overlays);
     this._resize_observer = new ResizeObserver(() => this._onResize());
     this._resize_observer.observe(this.container);
@@ -96792,7 +96804,7 @@ var MapViewer = class {
           continue;
         }
       } else {
-        bounds = __spreadProps(__spreadValues({}, overlay.ref), { w: 0, h: 0 });
+        bounds = __spreadValues({ w: 0, h: 0 }, overlay.ref);
       }
       setDisplay(instance, "");
       if (overlay.type === "box" && bounds.w > 0 && bounds.h > 0) {
@@ -99516,7 +99528,7 @@ var ExploreStateService = class _ExploreStateService {
     this._options = signal(
       {
         is_public: false,
-        disable: ["zones", "devices"]
+        disable: ["zones", "devices", "sensors"]
       },
       ...ngDevMode ? [{ debugName: "_options" }] : (
         /* istanbul ignore next */
@@ -99684,6 +99696,7 @@ var ExploreStateService = class _ExploreStateService {
       disable: unique([
         "zones",
         "devices",
+        "sensors",
         ...this._normaliseDisabledSetting("app.explore.disable")
       ])
     });
@@ -108305,8 +108318,10 @@ function appName() {
   return setting("app.name") || setting("app.short_name") || "PlaceOS";
 }
 function withAppVersion(data) {
-  return __spreadProps(__spreadValues({}, data), {
-    extension_data: __spreadProps(__spreadValues({}, data.extension_data || {}), {
+  const booking_data = __spreadValues({}, data);
+  delete booking_data.created_at;
+  return __spreadProps(__spreadValues({}, booking_data), {
+    extension_data: __spreadProps(__spreadValues({}, booking_data.extension_data || {}), {
       app_name: appName(),
       app_version: APP_VERSION
     })
@@ -122944,7 +122959,7 @@ function BookingDetailsModalComponent_Conditional_2_Template(rf, ctx) {
 function BookingDetailsModalComponent_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 4);
-    \u0275\u0275element(1, "image-carousel", 26);
+    \u0275\u0275element(1, "image-carousel", 25);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -122978,15 +122993,15 @@ function BookingDetailsModalComponent_Conditional_11_Template(rf, ctx) {
 }
 function BookingDetailsModalComponent_Conditional_12_Conditional_1_Conditional_0_Conditional_1_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "icon", 32);
+    \u0275\u0275elementStart(0, "icon", 31);
     \u0275\u0275text(1, "done");
     \u0275\u0275elementEnd();
   }
 }
 function BookingDetailsModalComponent_Conditional_12_Conditional_1_Conditional_0_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 30);
-    \u0275\u0275conditionalCreate(1, BookingDetailsModalComponent_Conditional_12_Conditional_1_Conditional_0_Conditional_1_Conditional_1_Template, 2, 0, "icon", 32);
+    \u0275\u0275elementStart(0, "div", 29);
+    \u0275\u0275conditionalCreate(1, BookingDetailsModalComponent_Conditional_12_Conditional_1_Conditional_0_Conditional_1_Conditional_1_Template, 2, 0, "icon", 31);
     \u0275\u0275elementStart(2, "div");
     \u0275\u0275text(3);
     \u0275\u0275pipe(4, "translate");
@@ -123004,7 +123019,7 @@ function BookingDetailsModalComponent_Conditional_12_Conditional_1_Conditional_0
 }
 function BookingDetailsModalComponent_Conditional_12_Conditional_1_Conditional_0_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275element(0, "mat-spinner", 31);
+    \u0275\u0275element(0, "mat-spinner", 30);
   }
   if (rf & 2) {
     \u0275\u0275property("diameter", 32);
@@ -123013,13 +123028,13 @@ function BookingDetailsModalComponent_Conditional_12_Conditional_1_Conditional_0
 function BookingDetailsModalComponent_Conditional_12_Conditional_1_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
     const _r2 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 29);
+    \u0275\u0275elementStart(0, "button", 28);
     \u0275\u0275listener("click", function BookingDetailsModalComponent_Conditional_12_Conditional_1_Conditional_0_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r2);
       const ctx_r0 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r0.toggleCheckedIn());
     });
-    \u0275\u0275conditionalCreate(1, BookingDetailsModalComponent_Conditional_12_Conditional_1_Conditional_0_Conditional_1_Template, 5, 6, "div", 30)(2, BookingDetailsModalComponent_Conditional_12_Conditional_1_Conditional_0_Conditional_2_Template, 1, 1, "mat-spinner", 31);
+    \u0275\u0275conditionalCreate(1, BookingDetailsModalComponent_Conditional_12_Conditional_1_Conditional_0_Conditional_1_Template, 5, 6, "div", 29)(2, BookingDetailsModalComponent_Conditional_12_Conditional_1_Conditional_0_Conditional_2_Template, 1, 1, "mat-spinner", 30);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -123032,7 +123047,7 @@ function BookingDetailsModalComponent_Conditional_12_Conditional_1_Conditional_0
 }
 function BookingDetailsModalComponent_Conditional_12_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275conditionalCreate(0, BookingDetailsModalComponent_Conditional_12_Conditional_1_Conditional_0_Template, 3, 6, "button", 28);
+    \u0275\u0275conditionalCreate(0, BookingDetailsModalComponent_Conditional_12_Conditional_1_Conditional_0_Template, 3, 6, "button", 27);
   }
   if (rf & 2) {
     const ctx_r0 = \u0275\u0275nextContext(2);
@@ -123043,13 +123058,13 @@ function BookingDetailsModalComponent_Conditional_12_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 11);
     \u0275\u0275conditionalCreate(1, BookingDetailsModalComponent_Conditional_12_Conditional_1_Template, 1, 1);
-    \u0275\u0275elementStart(2, "button", 27)(3, "icon");
+    \u0275\u0275elementStart(2, "button", 26)(3, "icon");
     \u0275\u0275text(4, "more_horiz");
     \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
     const ctx_r0 = \u0275\u0275nextContext();
-    const menu_r3 = \u0275\u0275reference(49);
+    const menu_r3 = \u0275\u0275reference(45);
     \u0275\u0275advance();
     \u0275\u0275conditional(ctx_r0.can_checkin() ? 1 : -1);
     \u0275\u0275advance();
@@ -123058,7 +123073,7 @@ function BookingDetailsModalComponent_Conditional_12_Template(rf, ctx) {
 }
 function BookingDetailsModalComponent_Conditional_33_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 33);
+    \u0275\u0275elementStart(0, "div", 32);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -123073,7 +123088,7 @@ function BookingDetailsModalComponent_Conditional_33_Template(rf, ctx) {
     \u0275\u0275elementStart(0, "div");
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(2, BookingDetailsModalComponent_Conditional_33_Conditional_2_Template, 2, 1, "div", 33);
+    \u0275\u0275conditionalCreate(2, BookingDetailsModalComponent_Conditional_33_Conditional_2_Template, 2, 1, "div", 32);
   }
   if (rf & 2) {
     const ctx_r0 = \u0275\u0275nextContext();
@@ -123092,7 +123107,22 @@ function BookingDetailsModalComponent_Conditional_34_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", ctx_r0.resource_details_label(), " ");
   }
 }
-function BookingDetailsModalComponent_Conditional_40_Template(rf, ctx) {
+function BookingDetailsModalComponent_Conditional_35_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 15)(1, "icon", 33);
+    \u0275\u0275text(2, "place");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "div");
+    \u0275\u0275text(4);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate2(" ", ctx_r0.building()?.display_name || ctx_r0.building()?.name, " ", ctx_r0.building()?.address ? ", " + ctx_r0.building().address : "", " ");
+  }
+}
+function BookingDetailsModalComponent_Conditional_36_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 15)(1, "icon", 34);
     \u0275\u0275text(2, "person");
@@ -123109,7 +123139,7 @@ function BookingDetailsModalComponent_Conditional_40_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(6, 3, \u0275\u0275pipeBind1(5, 1, ctx_r0.booking().user_email))?.name || ctx_r0.booking().user_name, " ");
   }
 }
-function BookingDetailsModalComponent_Conditional_41_Template(rf, ctx) {
+function BookingDetailsModalComponent_Conditional_37_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 15)(1, "icon", 35);
     \u0275\u0275text(2, "edit_calendar");
@@ -123126,7 +123156,7 @@ function BookingDetailsModalComponent_Conditional_41_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(6, 3, \u0275\u0275pipeBind1(5, 1, ctx_r0.booking().booked_by_email))?.name || ctx_r0.booking().booked_by_name, " ");
   }
 }
-function BookingDetailsModalComponent_Conditional_42_Conditional_9_Template(rf, ctx) {
+function BookingDetailsModalComponent_Conditional_38_Conditional_9_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 38)(1, "icon", 40);
     \u0275\u0275text(2, "category");
@@ -123141,7 +123171,7 @@ function BookingDetailsModalComponent_Conditional_42_Conditional_9_Template(rf, 
     \u0275\u0275textInterpolate(group_r4.resource_type);
   }
 }
-function BookingDetailsModalComponent_Conditional_42_Conditional_10_Template(rf, ctx) {
+function BookingDetailsModalComponent_Conditional_38_Conditional_10_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 38)(1, "icon", 41);
     \u0275\u0275text(2, "tag");
@@ -123156,9 +123186,9 @@ function BookingDetailsModalComponent_Conditional_42_Conditional_10_Template(rf,
     \u0275\u0275textInterpolate1(" ", group_r4.name, " ");
   }
 }
-function BookingDetailsModalComponent_Conditional_42_Template(rf, ctx) {
+function BookingDetailsModalComponent_Conditional_38_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 20)(1, "h3", 36);
+    \u0275\u0275elementStart(0, "div", 19)(1, "h3", 36);
     \u0275\u0275text(2, " Group Booking ");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(3, "div", 37)(4, "div", 38)(5, "icon", 39);
@@ -123167,8 +123197,8 @@ function BookingDetailsModalComponent_Conditional_42_Template(rf, ctx) {
     \u0275\u0275elementStart(7, "div");
     \u0275\u0275text(8);
     \u0275\u0275elementEnd()();
-    \u0275\u0275conditionalCreate(9, BookingDetailsModalComponent_Conditional_42_Conditional_9_Template, 5, 1, "div", 38);
-    \u0275\u0275conditionalCreate(10, BookingDetailsModalComponent_Conditional_42_Conditional_10_Template, 5, 1, "div", 38);
+    \u0275\u0275conditionalCreate(9, BookingDetailsModalComponent_Conditional_38_Conditional_9_Template, 5, 1, "div", 38);
+    \u0275\u0275conditionalCreate(10, BookingDetailsModalComponent_Conditional_38_Conditional_10_Template, 5, 1, "div", 38);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
@@ -123181,7 +123211,7 @@ function BookingDetailsModalComponent_Conditional_42_Template(rf, ctx) {
     \u0275\u0275conditional(group_r4.name ? 10 : -1);
   }
 }
-function BookingDetailsModalComponent_Conditional_43_For_6_For_15_Template(rf, ctx) {
+function BookingDetailsModalComponent_Conditional_39_For_6_For_15_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 52)(1, "div", 53)(2, "span", 47);
     \u0275\u0275text(3);
@@ -123198,11 +123228,11 @@ function BookingDetailsModalComponent_Conditional_43_For_6_For_15_Template(rf, c
     \u0275\u0275textInterpolate1(" x", item_r7.quantity, " ");
   }
 }
-function BookingDetailsModalComponent_Conditional_43_For_6_Template(rf, ctx) {
+function BookingDetailsModalComponent_Conditional_39_For_6_Template(rf, ctx) {
   if (rf & 1) {
     const _r5 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 44)(1, "button", 45);
-    \u0275\u0275listener("click", function BookingDetailsModalComponent_Conditional_43_For_6_Template_button_click_1_listener() {
+    \u0275\u0275listener("click", function BookingDetailsModalComponent_Conditional_39_For_6_Template_button_click_1_listener() {
       const request_r6 = \u0275\u0275restoreView(_r5).$implicit;
       const ctx_r0 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r0.toggleRequest(request_r6.id));
@@ -123219,7 +123249,7 @@ function BookingDetailsModalComponent_Conditional_43_For_6_Template(rf, ctx) {
     \u0275\u0275text(12);
     \u0275\u0275elementEnd()()();
     \u0275\u0275elementStart(13, "div", 51);
-    \u0275\u0275repeaterCreate(14, BookingDetailsModalComponent_Conditional_43_For_6_For_15_Template, 6, 2, "div", 52, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275repeaterCreate(14, BookingDetailsModalComponent_Conditional_39_For_6_For_15_Template, 6, 2, "div", 52, \u0275\u0275repeaterTrackByIdentity);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
@@ -123240,14 +123270,14 @@ function BookingDetailsModalComponent_Conditional_43_For_6_Template(rf, ctx) {
     \u0275\u0275repeater(request_r6.items);
   }
 }
-function BookingDetailsModalComponent_Conditional_43_Template(rf, ctx) {
+function BookingDetailsModalComponent_Conditional_39_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 20)(1, "h3", 36);
+    \u0275\u0275elementStart(0, "div", 19)(1, "h3", 36);
     \u0275\u0275text(2);
     \u0275\u0275pipe(3, "translate");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(4, "div", 43);
-    \u0275\u0275repeaterCreate(5, BookingDetailsModalComponent_Conditional_43_For_6_Template, 16, 25, "div", 44, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275repeaterCreate(5, BookingDetailsModalComponent_Conditional_39_For_6_Template, 16, 25, "div", 44, \u0275\u0275repeaterTrackByIdentity);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
@@ -123258,7 +123288,7 @@ function BookingDetailsModalComponent_Conditional_43_Template(rf, ctx) {
     \u0275\u0275repeater(ctx_r0.booking().valid_assets);
   }
 }
-function BookingDetailsModalComponent_Conditional_44_Conditional_1_Template(rf, ctx) {
+function BookingDetailsModalComponent_Conditional_40_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "interactive-map", 56);
   }
@@ -123267,16 +123297,16 @@ function BookingDetailsModalComponent_Conditional_44_Conditional_1_Template(rf, 
     \u0275\u0275property("src", ctx_r0.level()?.map_id)("features", ctx_r0.features())("options", \u0275\u0275pureFunction0(3, _c118));
   }
 }
-function BookingDetailsModalComponent_Conditional_44_Template(rf, ctx) {
+function BookingDetailsModalComponent_Conditional_40_Template(rf, ctx) {
   if (rf & 1) {
     const _r8 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "button", 55);
-    \u0275\u0275listener("click", function BookingDetailsModalComponent_Conditional_44_Template_button_click_0_listener() {
+    \u0275\u0275listener("click", function BookingDetailsModalComponent_Conditional_40_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r8);
       const ctx_r0 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r0.viewLocation());
     });
-    \u0275\u0275conditionalCreate(1, BookingDetailsModalComponent_Conditional_44_Conditional_1_Template, 1, 4, "interactive-map", 56);
+    \u0275\u0275conditionalCreate(1, BookingDetailsModalComponent_Conditional_40_Conditional_1_Template, 1, 4, "interactive-map", 56);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -123285,11 +123315,11 @@ function BookingDetailsModalComponent_Conditional_44_Template(rf, ctx) {
     \u0275\u0275conditional(!ctx_r0.hide_map() ? 1 : -1);
   }
 }
-function BookingDetailsModalComponent_Conditional_50_Template(rf, ctx) {
+function BookingDetailsModalComponent_Conditional_46_Template(rf, ctx) {
   if (rf & 1) {
     const _r9 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "button", 57);
-    \u0275\u0275listener("click", function BookingDetailsModalComponent_Conditional_50_Template_button_click_0_listener() {
+    \u0275\u0275listener("click", function BookingDetailsModalComponent_Conditional_46_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r9);
       const ctx_r0 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r0.edit(ctx_r0.booking()));
@@ -123307,11 +123337,11 @@ function BookingDetailsModalComponent_Conditional_50_Template(rf, ctx) {
     \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(6, 1, "BOOKINGS.ACTION_EDIT"));
   }
 }
-function BookingDetailsModalComponent_Conditional_51_Template(rf, ctx) {
+function BookingDetailsModalComponent_Conditional_47_Template(rf, ctx) {
   if (rf & 1) {
     const _r10 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "button", 59);
-    \u0275\u0275listener("click", function BookingDetailsModalComponent_Conditional_51_Template_button_click_0_listener() {
+    \u0275\u0275listener("click", function BookingDetailsModalComponent_Conditional_47_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r10);
       const ctx_r0 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r0.setDeskHeight());
@@ -123329,11 +123359,11 @@ function BookingDetailsModalComponent_Conditional_51_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(6, 1, "BOOKINGS.ACTION_SET_DESK_HEIGHT"), " ");
   }
 }
-function BookingDetailsModalComponent_Conditional_52_Template(rf, ctx) {
+function BookingDetailsModalComponent_Conditional_48_Template(rf, ctx) {
   if (rf & 1) {
     const _r11 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "button", 59);
-    \u0275\u0275listener("click", function BookingDetailsModalComponent_Conditional_52_Template_button_click_0_listener() {
+    \u0275\u0275listener("click", function BookingDetailsModalComponent_Conditional_48_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r11);
       const ctx_r0 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r0.remove(ctx_r0.booking(), false));
@@ -123351,11 +123381,11 @@ function BookingDetailsModalComponent_Conditional_52_Template(rf, ctx) {
     \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(6, 1, "BOOKINGS.ACTION_DELETE"));
   }
 }
-function BookingDetailsModalComponent_Conditional_53_Template(rf, ctx) {
+function BookingDetailsModalComponent_Conditional_49_Template(rf, ctx) {
   if (rf & 1) {
     const _r12 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "button", 59);
-    \u0275\u0275listener("click", function BookingDetailsModalComponent_Conditional_53_Template_button_click_0_listener() {
+    \u0275\u0275listener("click", function BookingDetailsModalComponent_Conditional_49_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r12);
       const ctx_r0 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r0.remove(ctx_r0.group_parent_booking(), false));
@@ -123368,11 +123398,11 @@ function BookingDetailsModalComponent_Conditional_53_Template(rf, ctx) {
     \u0275\u0275elementEnd()()();
   }
 }
-function BookingDetailsModalComponent_Conditional_54_Template(rf, ctx) {
+function BookingDetailsModalComponent_Conditional_50_Template(rf, ctx) {
   if (rf & 1) {
     const _r13 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "button", 59);
-    \u0275\u0275listener("click", function BookingDetailsModalComponent_Conditional_54_Template_button_click_0_listener() {
+    \u0275\u0275listener("click", function BookingDetailsModalComponent_Conditional_50_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r13);
       const ctx_r0 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r0.remove(ctx_r0.booking(), true));
@@ -123390,11 +123420,11 @@ function BookingDetailsModalComponent_Conditional_54_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(6, 1, "BOOKINGS.ACTION_DELETE_SERIES"), " ");
   }
 }
-function BookingDetailsModalComponent_Conditional_55_Template(rf, ctx) {
+function BookingDetailsModalComponent_Conditional_51_Template(rf, ctx) {
   if (rf & 1) {
     const _r14 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "button", 59);
-    \u0275\u0275listener("click", function BookingDetailsModalComponent_Conditional_55_Template_button_click_0_listener() {
+    \u0275\u0275listener("click", function BookingDetailsModalComponent_Conditional_51_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r14);
       const ctx_r0 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r0.end(ctx_r0.booking()));
@@ -123493,13 +123523,6 @@ var BookingDetailsModalComponent = class _BookingDetailsModalComponent {
     this.level_or_building = computed(
       () => this.level() || this.building(),
       ...ngDevMode ? [{ debugName: "level_or_building" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.location = computed(
-      () => bookingLocationString(this.booking(), this._org),
-      ...ngDevMode ? [{ debugName: "location" }] : (
         /* istanbul ignore next */
         []
       )
@@ -123811,10 +123834,21 @@ var BookingDetailsModalComponent = class _BookingDetailsModalComponent {
     }));
   }
   async toggleCheckedIn() {
-    this.checking_in.set(true);
     const bkn = this.booking();
-    const promise = (bkn.instance ? checkinBookingInstance(bkn.id, bkn.instance, !this.booking().checked_in) : checkinBooking(this.booking().id, !this.booking().checked_in)).catch((_3) => {
-      notifyError(i18n("BOOKINGS.CHECK_IN_ERROR"));
+    if (bkn.checked_in) {
+      const response = await openConfirmModal({
+        title: i18n("COMMON.CHECK_OUT"),
+        content: "You are currently checked in.<br/>Would you like to check out of your desk now?<br/>This will make the desk available for others to book.",
+        confirm_text: i18n("COMMON.CHECK_OUT"),
+        icon: { content: "logout" }
+      }, this._dialog);
+      if (response.reason !== "done")
+        return;
+      response.close();
+    }
+    this.checking_in.set(true);
+    const promise = (bkn.instance ? checkinBookingInstance(bkn.id, bkn.instance, !bkn.checked_in) : checkinBooking(bkn.id, !bkn.checked_in)).catch((_3) => {
+      notifyError(i18n(bkn.checked_in ? "BOOKINGS.CHECK_OUT_ERROR" : "BOOKINGS.CHECK_IN_ERROR"));
       this.checking_in.set(false);
       throw _3;
     });
@@ -123869,7 +123903,7 @@ var BookingDetailsModalComponent = class _BookingDetailsModalComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _BookingDetailsModalComponent, selectors: [["booking-details-modal"]], decls: 56, vars: 32, consts: [["menu", "matMenu"], [1, "bg-base-100", "sm:bg-base-200", "h-screen", "w-screen", "space-y-2", "overflow-auto", "pb-2", "sm:relative", "sm:inset-auto", "sm:h-auto", "sm:max-h-[80vh]", "sm:w-204", "sm:rounded-sm"], [1, "border-base-200", "bg-base-100", "max-h-screen", "flex-col", "items-center", "pb-4", "sm:flex", "sm:max-h-[80vh]", "sm:border-b", "sm:px-16"], [1, "block", "h-8", "w-full", "sm:hidden"], [1, "bg-neutral", "h-64", "w-full", "overflow-hidden", "sm:rounded-b"], ["title", "", 1, "mt-2", "w-full", "px-3", "text-xl", "font-medium"], [1, "w-full", "px-3", "text-sm", "opacity-70"], [1, "w-full", "items-center", "justify-between", "sm:flex"], [1, "m-2", "flex", "items-center", "space-x-2"], [3, "status"], [1, "text-2xl", 3, "matTooltip"], ["actions", "", 1, "flex", "items-center", "space-x-2", "px-2"], [1, "flex-wrap", "sm:flex", "sm:px-12"], [1, "border-base-200", "sm:bg-base-100", "min-w-1/3", "grow-4", "rounded-sm", "sm:m-2", "sm:w-[16rem]", "sm:border", "sm:p-4"], [1, "mt-2", "mb-2", "px-3", "text-lg", "font-medium"], [1, "flex", "items-center", "space-x-2", "px-2"], ["matTooltip", "Date"], ["matTooltip", "Time"], ["matTooltip", "Level and Resource"], ["matTooltip", "Location"], [1, "border-base-200", "sm:bg-base-100", "mt-4", "min-w-1/3", "grow-3", "rounded-sm", "sm:m-2", "sm:w-[16rem]", "sm:border", "sm:p-4"], ["map", "", 1, "border-base-200", "sm:bg-base-100", "relative", "m-2", "mt-4", "h-64", "w-[calc(100%-1rem)]", "min-w-1/3", "grow-3", "overflow-hidden", "rounded-sm", "border", "p-2", "sm:my-2", "sm:h-48", "sm:w-[16rem]"], ["icon", "", "default", "", "matRipple", "", "mat-dialog-close", "", 1, "absolute", "top-2", "left-2"], ["xPosition", "before"], ["mat-menu-item", "", "mat-dialog-close", ""], ["mat-menu-item", ""], [1, "h-64", "w-full", 3, "images"], ["icon", "", "matRipple", "", 1, "bg-secondary", "h-12", "w-12", "rounded-sm", "text-white", 3, "matMenuTriggerFor"], ["btn", "", "matRipple", "", 1, "h-10", "min-w-40", "flex-1", "border-none", 3, "bg-success", "text-success-content", "disabled"], ["btn", "", "matRipple", "", 1, "h-10", "min-w-40", "flex-1", "border-none", 3, "click", "disabled"], [1, "flex", "items-center", "justify-center", "gap-1"], [1, "mx-auto", 3, "diameter"], [1, "text-xl"], [1, "text-xs", "opacity-60"], ["matTooltip", "Host"], ["matTooltip", "Booked By"], [1, "mx-3", "py-2", "text-lg", "font-medium"], [1, "flex", "flex-col", "space-y-2", "px-3", "text-sm"], [1, "flex", "items-center", "space-x-2"], ["matTooltip", "Group Size"], ["matTooltip", "Resource Type"], ["matTooltip", "Group Reference"], [1, "break-all"], [1, "flex", "flex-col", "space-y-2"], ["request", "", 1, "border-base-300", "bg-base-100", "overflow-hidden", "rounded-xl", "border"], ["matRipple", "", 1, "flex", "w-full", "items-center", "space-x-2", "p-3", 3, "click"], [1, "flex-1", "text-left"], [1, "text-sm"], [1, "flex", "h-8", "w-8", "items-center", "justify-center", "rounded-full", 3, "matTooltip"], [1, "flex", "h-8", "w-8", "items-center", "justify-center", "rounded-full"], [1, "text-2xl"], [1, "divide-base-100", "bg-base-200", "flex", "flex-col", "divide-y"], [1, "flex", "items-center", "space-x-2", "px-3", "py-1", "hover:opacity-90"], [1, "flex", "flex-1", "items-center"], [1, "bg-success", "text-success-content", "rounded-sm", "px-2", "py-1", "text-xs"], ["map", "", 1, "border-base-200", "sm:bg-base-100", "relative", "m-2", "mt-4", "h-64", "w-[calc(100%-1rem)]", "min-w-1/3", "grow-3", "overflow-hidden", "rounded-sm", "border", "p-2", "sm:my-2", "sm:h-48", "sm:w-[16rem]", 3, "click"], [1, "pointer-events-none", 3, "src", "features", "options"], ["mat-menu-item", "", "mat-dialog-close", "", 3, "click"], [1, "flex", "items-center", "space-x-2", "text-base"], ["mat-menu-item", "", 3, "click"], ["className", "material-symbols-rounded"], [1, "text-error"]], template: function BookingDetailsModalComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _BookingDetailsModalComponent, selectors: [["booking-details-modal"]], decls: 52, vars: 32, consts: [["menu", "matMenu"], [1, "bg-base-100", "sm:bg-base-200", "h-screen", "w-screen", "space-y-2", "overflow-auto", "pb-2", "sm:relative", "sm:inset-auto", "sm:h-auto", "sm:max-h-[80vh]", "sm:w-204", "sm:rounded-sm"], [1, "border-base-200", "bg-base-100", "max-h-screen", "flex-col", "items-center", "pb-4", "sm:flex", "sm:max-h-[80vh]", "sm:border-b", "sm:px-16"], [1, "block", "h-8", "w-full", "sm:hidden"], [1, "bg-neutral", "h-64", "w-full", "overflow-hidden", "sm:rounded-b"], ["title", "", 1, "mt-2", "w-full", "px-3", "text-xl", "font-medium"], [1, "w-full", "px-3", "text-sm", "opacity-70"], [1, "w-full", "items-center", "justify-between", "sm:flex"], [1, "m-2", "flex", "items-center", "space-x-2"], [3, "status"], [1, "text-2xl", 3, "matTooltip"], ["actions", "", 1, "flex", "items-center", "space-x-2", "px-2"], [1, "flex-wrap", "sm:flex", "sm:px-12"], [1, "border-base-200", "sm:bg-base-100", "min-w-1/3", "grow-4", "rounded-sm", "sm:m-2", "sm:w-[16rem]", "sm:border", "sm:p-4"], [1, "mt-2", "mb-2", "px-3", "text-lg", "font-medium"], [1, "flex", "items-center", "space-x-2", "px-2"], ["matTooltip", "Date"], ["matTooltip", "Time"], ["matTooltip", "Level and Resource"], [1, "border-base-200", "sm:bg-base-100", "mt-4", "min-w-1/3", "grow-3", "rounded-sm", "sm:m-2", "sm:w-[16rem]", "sm:border", "sm:p-4"], ["map", "", 1, "border-base-200", "sm:bg-base-100", "relative", "m-2", "mt-4", "h-64", "w-[calc(100%-1rem)]", "min-w-1/3", "grow-3", "overflow-hidden", "rounded-sm", "border", "p-2", "sm:my-2", "sm:h-48", "sm:w-[16rem]"], ["icon", "", "default", "", "matRipple", "", "mat-dialog-close", "", 1, "absolute", "top-2", "left-2"], ["xPosition", "before"], ["mat-menu-item", "", "mat-dialog-close", ""], ["mat-menu-item", ""], [1, "h-64", "w-full", 3, "images"], ["icon", "", "matRipple", "", 1, "bg-secondary", "h-12", "w-12", "rounded-sm", "text-white", 3, "matMenuTriggerFor"], ["btn", "", "matRipple", "", 1, "h-10", "min-w-40", "flex-1", "border-none", 3, "bg-success", "text-success-content", "disabled"], ["btn", "", "matRipple", "", 1, "h-10", "min-w-40", "flex-1", "border-none", 3, "click", "disabled"], [1, "flex", "items-center", "justify-center", "gap-1"], [1, "mx-auto", 3, "diameter"], [1, "text-xl"], [1, "text-xs", "opacity-60"], ["matTooltip", "Location"], ["matTooltip", "Host"], ["matTooltip", "Booked By"], [1, "mx-3", "py-2", "text-lg", "font-medium"], [1, "flex", "flex-col", "space-y-2", "px-3", "text-sm"], [1, "flex", "items-center", "space-x-2"], ["matTooltip", "Group Size"], ["matTooltip", "Resource Type"], ["matTooltip", "Group Reference"], [1, "break-all"], [1, "flex", "flex-col", "space-y-2"], ["request", "", 1, "border-base-300", "bg-base-100", "overflow-hidden", "rounded-xl", "border"], ["matRipple", "", 1, "flex", "w-full", "items-center", "space-x-2", "p-3", 3, "click"], [1, "flex-1", "text-left"], [1, "text-sm"], [1, "flex", "h-8", "w-8", "items-center", "justify-center", "rounded-full", 3, "matTooltip"], [1, "flex", "h-8", "w-8", "items-center", "justify-center", "rounded-full"], [1, "text-2xl"], [1, "divide-base-100", "bg-base-200", "flex", "flex-col", "divide-y"], [1, "flex", "items-center", "space-x-2", "px-3", "py-1", "hover:opacity-90"], [1, "flex", "flex-1", "items-center"], [1, "bg-success", "text-success-content", "rounded-sm", "px-2", "py-1", "text-xs"], ["map", "", 1, "border-base-200", "sm:bg-base-100", "relative", "m-2", "mt-4", "h-64", "w-[calc(100%-1rem)]", "min-w-1/3", "grow-3", "overflow-hidden", "rounded-sm", "border", "p-2", "sm:my-2", "sm:h-48", "sm:w-[16rem]", 3, "click"], [1, "pointer-events-none", 3, "src", "features", "options"], ["mat-menu-item", "", "mat-dialog-close", "", 3, "click"], [1, "flex", "items-center", "space-x-2", "text-base"], ["mat-menu-item", "", 3, "click"], ["className", "material-symbols-rounded"], [1, "text-error"]], template: function BookingDetailsModalComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "div", 1)(1, "div", 2);
         \u0275\u0275conditionalCreate(2, BookingDetailsModalComponent_Conditional_2_Template, 1, 0, "div", 3);
@@ -123908,29 +123942,24 @@ var BookingDetailsModalComponent = class _BookingDetailsModalComponent {
         \u0275\u0275elementStart(32, "div");
         \u0275\u0275conditionalCreate(33, BookingDetailsModalComponent_Conditional_33_Template, 3, 2)(34, BookingDetailsModalComponent_Conditional_34_Template, 1, 1);
         \u0275\u0275elementEnd()();
-        \u0275\u0275elementStart(35, "div", 15)(36, "icon", 19);
-        \u0275\u0275text(37, "place");
+        \u0275\u0275conditionalCreate(35, BookingDetailsModalComponent_Conditional_35_Template, 5, 2, "div", 15);
+        \u0275\u0275conditionalCreate(36, BookingDetailsModalComponent_Conditional_36_Template, 7, 5, "div", 15);
+        \u0275\u0275conditionalCreate(37, BookingDetailsModalComponent_Conditional_37_Template, 7, 5, "div", 15);
         \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(38, "div");
-        \u0275\u0275text(39);
-        \u0275\u0275elementEnd()();
-        \u0275\u0275conditionalCreate(40, BookingDetailsModalComponent_Conditional_40_Template, 7, 5, "div", 15);
-        \u0275\u0275conditionalCreate(41, BookingDetailsModalComponent_Conditional_41_Template, 7, 5, "div", 15);
+        \u0275\u0275conditionalCreate(38, BookingDetailsModalComponent_Conditional_38_Template, 11, 3, "div", 19);
+        \u0275\u0275conditionalCreate(39, BookingDetailsModalComponent_Conditional_39_Template, 7, 4, "div", 19);
+        \u0275\u0275conditionalCreate(40, BookingDetailsModalComponent_Conditional_40_Template, 2, 1, "button", 20);
         \u0275\u0275elementEnd();
-        \u0275\u0275conditionalCreate(42, BookingDetailsModalComponent_Conditional_42_Template, 11, 3, "div", 20);
-        \u0275\u0275conditionalCreate(43, BookingDetailsModalComponent_Conditional_43_Template, 7, 4, "div", 20);
-        \u0275\u0275conditionalCreate(44, BookingDetailsModalComponent_Conditional_44_Template, 2, 1, "button", 21);
-        \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(45, "button", 22)(46, "icon");
-        \u0275\u0275text(47, "close");
+        \u0275\u0275elementStart(41, "button", 21)(42, "icon");
+        \u0275\u0275text(43, "close");
         \u0275\u0275elementEnd()()();
-        \u0275\u0275elementStart(48, "mat-menu", 23, 0);
+        \u0275\u0275elementStart(44, "mat-menu", 22, 0);
+        \u0275\u0275conditionalCreate(46, BookingDetailsModalComponent_Conditional_46_Template, 7, 3, "button", 23);
+        \u0275\u0275conditionalCreate(47, BookingDetailsModalComponent_Conditional_47_Template, 7, 3, "button", 24);
+        \u0275\u0275conditionalCreate(48, BookingDetailsModalComponent_Conditional_48_Template, 7, 3, "button", 24);
+        \u0275\u0275conditionalCreate(49, BookingDetailsModalComponent_Conditional_49_Template, 6, 0, "button", 24);
         \u0275\u0275conditionalCreate(50, BookingDetailsModalComponent_Conditional_50_Template, 7, 3, "button", 24);
-        \u0275\u0275conditionalCreate(51, BookingDetailsModalComponent_Conditional_51_Template, 7, 3, "button", 25);
-        \u0275\u0275conditionalCreate(52, BookingDetailsModalComponent_Conditional_52_Template, 7, 3, "button", 25);
-        \u0275\u0275conditionalCreate(53, BookingDetailsModalComponent_Conditional_53_Template, 6, 0, "button", 25);
-        \u0275\u0275conditionalCreate(54, BookingDetailsModalComponent_Conditional_54_Template, 7, 3, "button", 25);
-        \u0275\u0275conditionalCreate(55, BookingDetailsModalComponent_Conditional_55_Template, 7, 3, "button", 25);
+        \u0275\u0275conditionalCreate(51, BookingDetailsModalComponent_Conditional_51_Template, 7, 3, "button", 24);
         \u0275\u0275elementEnd();
       }
       if (rf & 2) {
@@ -123963,30 +123992,30 @@ var BookingDetailsModalComponent = class _BookingDetailsModalComponent {
         \u0275\u0275textInterpolate(ctx.is_visitor() ? "person" : "map");
         \u0275\u0275advance(2);
         \u0275\u0275conditional(ctx.is_visitor() ? 33 : 34);
+        \u0275\u0275advance(2);
+        \u0275\u0275conditional(ctx.is_visitor() ? 35 : -1);
+        \u0275\u0275advance();
+        \u0275\u0275conditional(ctx.current_user()?.email !== ctx.booking().user_email ? 36 : -1);
+        \u0275\u0275advance();
+        \u0275\u0275conditional(ctx.booking().booked_by_email !== ctx.booking().user_email ? 37 : -1);
+        \u0275\u0275advance();
+        \u0275\u0275conditional((tmp_18_0 = ctx.group_details()) ? 38 : -1, tmp_18_0);
+        \u0275\u0275advance();
+        \u0275\u0275conditional(ctx.has_assets() ? 39 : -1);
+        \u0275\u0275advance();
+        \u0275\u0275conditional(ctx.level()?.map_id && !ctx.hide_selected_parking_space() ? 40 : -1);
         \u0275\u0275advance(6);
-        \u0275\u0275textInterpolate1(" ", ctx.location(), " ");
+        \u0275\u0275conditional(ctx.can_edit() ? 46 : -1);
         \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.current_user()?.email !== ctx.booking().user_email ? 40 : -1);
+        \u0275\u0275conditional(ctx.is_checked_in() && ctx.desk_height_enabled() ? 47 : -1);
         \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.booking().booked_by_email !== ctx.booking().user_email ? 41 : -1);
+        \u0275\u0275conditional(!ctx.booking().is_done ? 48 : -1);
         \u0275\u0275advance();
-        \u0275\u0275conditional((tmp_18_0 = ctx.group_details()) ? 42 : -1, tmp_18_0);
+        \u0275\u0275conditional(ctx.can_manage_group() ? 49 : -1);
         \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.has_assets() ? 43 : -1);
+        \u0275\u0275conditional(!ctx.booking().is_done && ctx.booking().instance && ctx.allow_series_delete() ? 50 : -1);
         \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.level()?.map_id && !ctx.hide_selected_parking_space() ? 44 : -1);
-        \u0275\u0275advance(6);
-        \u0275\u0275conditional(ctx.can_edit() ? 50 : -1);
-        \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.is_checked_in() && ctx.desk_height_enabled() ? 51 : -1);
-        \u0275\u0275advance();
-        \u0275\u0275conditional(!ctx.booking().is_done ? 52 : -1);
-        \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.can_manage_group() ? 53 : -1);
-        \u0275\u0275advance();
-        \u0275\u0275conditional(!ctx.booking().is_done && ctx.booking().instance && ctx.allow_series_delete() ? 54 : -1);
-        \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.is_in_progress() ? 55 : -1);
+        \u0275\u0275conditional(ctx.is_in_progress() ? 51 : -1);
       }
     }, dependencies: [
       CommonModule,
@@ -124163,12 +124192,19 @@ var BookingDetailsModalComponent = class _BookingDetailsModalComponent {
                             }
                         </div>
                     </div>
-                    <div class="flex items-center space-x-2 px-2">
-                        <icon matTooltip="Location">place</icon>
-                        <div>
-                            {{ location() }}
+                    @if (is_visitor()) {
+                        <div class="flex items-center space-x-2 px-2">
+                            <icon matTooltip="Location">place</icon>
+                            <div>
+                                {{ building()?.display_name || building()?.name }}
+                                {{
+                                    building()?.address
+                                        ? ', ' + building().address
+                                        : ''
+                                }}
+                            </div>
                         </div>
-                    </div>
+                    }
                     @if (current_user()?.email !== booking().user_email) {
                         <div class="flex items-center space-x-2 px-2">
                             <icon matTooltip="Host">person</icon>
@@ -124461,7 +124497,7 @@ var BookingDetailsModalComponent = class _BookingDetailsModalComponent {
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(BookingDetailsModalComponent, { className: "BookingDetailsModalComponent", filePath: "libs/bookings/src/lib/booking-details-modal.component.ts", lineNumber: 507 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(BookingDetailsModalComponent, { className: "BookingDetailsModalComponent", filePath: "libs/bookings/src/lib/booking-details-modal.component.ts", lineNumber: 512 });
 })();
 
 // libs/bookings/src/lib/parking.service.ts
@@ -127232,11 +127268,11 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       return list;
     });
   }
-  async _computeHasAssignedDesk() {
+  async _computeHasAssignedDesk(user_email = currentUser()?.email) {
     const buildings = this._org.building_list();
     if (!(buildings?.length > 0))
       return false;
-    const email2 = currentUser()?.email?.toLowerCase();
+    const email2 = user_email?.toLowerCase();
     if (!email2)
       return false;
     const map_metadata = (meta) => (meta?.metadata?.desks?.details instanceof Array ? meta.metadata.desks.details : []).map((desk) => new Desk(__spreadProps(__spreadValues({}, desk), { zone: meta.zone })));
@@ -127244,14 +127280,14 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     return flatten2(desk_lists).some((desk) => desk.assigned_to?.toLowerCase() === email2);
   }
   /**
-   * Whether the current user has a resource of `type` reserved (assigned) to
+   * Whether the given user has a resource of `type` reserved (assigned) to
    * them. Only desk/parking/locker support assignment; any other type resolves
    * to `false` so it is never blocked by the reserved-resource restriction.
    */
-  async _computeHasAssignedResource(type) {
+  async _computeHasAssignedResource(type, user_email = currentUser()?.email) {
     if (type === "desk")
-      return this._computeHasAssignedDesk();
-    const email2 = currentUser()?.email?.toLowerCase();
+      return this._computeHasAssignedDesk(user_email);
+    const email2 = user_email?.toLowerCase();
     if (!email2)
       return false;
     const resources = await this._loadRawResourcesForType(type).catch(() => []);
@@ -127469,7 +127505,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
         return this._org.initialised() && (!this._org.regions.length || !!region?.id) && !!building?.id && // The override count can be satisfied by placeholder `{}` building
         // settings before `loadBuildingData` populates them, so also wait
         // for the active building's metadata to actually land. Otherwise
-        // building/region-level settings (e.g. allow_booking_with_reserved_resource)
+        // building/region-level settings (e.g. assigned_resource_booking)
         // read as their defaults during the load window.
         this._org.active_building_loaded() && overrides.length >= required_overrides;
       },
@@ -128366,6 +128402,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       booking_asset: asset || null,
       asset_id: asset?.id,
       asset_name: asset?.name || asset?.id,
+      name: asset?.display_name || asset?.name || asset?.id,
       description: asset?.name || asset?.id,
       map_id: asset?.map_id || asset?.id,
       zones: (asset?.zone ? unique([
@@ -128548,34 +128585,27 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     }
     ref.close();
   }
-  /**
-   * Whether a user with a resource of `type` reserved (assigned) to them is
-   * allowed to book additional resources of that type at all. When `false`
-   * (default) they are fully blocked from booking another, including on
-   * behalf of others.
-   */
-  allowsBookingWithReservedResource(type) {
-    return this.settingForType(type, "allow_booking_with_reserved_resource") === true;
+  assignedResourceBooking(type) {
+    const setting2 = this.settingForType(type, "assigned_resource_booking");
+    return setting2 === "allow" || setting2 === "deny" || setting2 === "other_only" ? setting2 : "other_only";
   }
   /**
-   * Enforce the reserved-resource restriction for any assignable resource type
-   * (desk/parking/locker). Only ever concerns the current user's own bookings:
-   * booking on behalf of others is always permitted.
+   * Enforce the assigned-resource restriction for any assignable resource type
+   * (desk/parking/locker).
    *
-   * `prevent_self_booking_if_assigned_resource` is deliberately evaluated here,
-   * at submission, and nowhere else. UI gating uses
-   * `allowsBookingWithReservedResource()` (the master allow) so a self-booking
-   * restriction never blanket-blocks the form for booking on behalf of others.
+   * `other_only` is evaluated here at submission so the form remains available
+   * for booking on behalf of others. `deny` blanket-blocks the form in the UI.
    */
   async _checkAssignedResourceRestriction(user_email, type) {
     const is_self = !user_email || user_email.toLowerCase() === currentUser()?.email?.toLowerCase();
-    if (!is_self)
+    const setting2 = this.assignedResourceBooking(type);
+    if (setting2 === "allow")
       return true;
-    const self_booking_allowed = this.allowsBookingWithReservedResource(type) && this.settingForType(type, "prevent_self_booking_if_assigned_resource") !== true;
-    if (self_booking_allowed)
-      return true;
-    if (await this._computeHasAssignedResource(type)) {
+    if (setting2 === "deny" && !is_self && await this._computeHasAssignedResource(type)) {
       throw `You have an assigned ${type} and cannot book another ${type}.`;
+    }
+    if (await this._computeHasAssignedResource(type, user_email)) {
+      throw `${is_self ? "You have" : "This user has"} an assigned ${type} and cannot book another ${type}.`;
     }
     return true;
   }
@@ -131281,7 +131311,27 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     this._form_ref = generateEventForm(void 0, this._settings, this._injector);
     this._form = this._form_ref.form;
     this._model = this._form_ref.model;
+    this._initial_attendees = [];
     this._space_pipe = new SpacePipe();
+    this.notify_new_attendees_only = signal(
+      false,
+      ...ngDevMode ? [{ debugName: "notify_new_attendees_only" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.can_notify_new_attendees_only = computed(
+      () => {
+        if (!this._model().id)
+          return false;
+        const attendee_emails = this._model().attendees.map((_3) => (_3.email || _3).toLowerCase());
+        return this._initial_attendees.every((_3) => attendee_emails.includes(_3)) && attendee_emails.some((_3) => !this._initial_attendees.includes(_3));
+      },
+      ...ngDevMode ? [{ debugName: "can_notify_new_attendees_only" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
     this.removeLoadingTag = (t) => this._loading.set(this._loading().replace(`[${t}]`, "").trim());
     this.addLoadingTag = (t) => t ? this._loading.set(`${this._loading().replace(`[${t}]`, "")}[${t}]`.trim()) : "";
     this._overflow = (id = "") => id ? this._settings.get(`app.events.overflow.${id}`) || {} : {
@@ -131620,7 +131670,9 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     const lock_start_time = !!event.id && (event.state === "started" || event.state === "in_progress");
     this._form_ref.lock_start_time.set(lock_start_time);
     const value = eventFormValue(event);
+    this.notify_new_attendees_only.set(false);
     value.assets = (event.extension_data.assets || []).map((_3) => new AssetRequest(__spreadProps(__spreadValues({}, _3), { event })));
+    this._setInitialAttendees(value.attendees);
     this._model.set(value);
     this._form().reset();
     this._applyDurationSettings();
@@ -131652,6 +131704,8 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     const event_data = JSON.parse(sessionStorage.getItem("PLACEOS.event") || "{}");
     const event = new CalendarEvent(event_data);
     this._event.set(event);
+    this._setInitialAttendees(event.attendees);
+    this.notify_new_attendees_only.set(false);
     const form_data = JSON.parse(sessionStorage.getItem("PLACEOS.event_form") || "{}");
     this._model.update((m2) => __spreadValues(__spreadValues(__spreadValues({}, m2), eventFormValue(event)), form_data));
   }
@@ -131671,6 +131725,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
   cancelPostForm() {
   }
   async postForm(force = false, ignore_space_check = [], ignore_owner = false, force_calendar = false) {
+    const notify_new_attendees_only = this.notify_new_attendees_only() && this.can_notify_new_attendees_only();
     if (isEmptyUser({ email: this._model().host })) {
       this._model.update((m2) => __spreadProps(__spreadValues({}, m2), { host: currentUser().email }));
     }
@@ -131768,6 +131823,8 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       const query2 = event.id ? {
         system_id: event?.resources[0]?.id || event?.system?.id || spaces[0]?.id
       } : {};
+      if (notify_new_attendees_only)
+        query2.notify_existing_attendees = false;
       const user_email = currentUser()?.email?.toLowerCase() || "";
       const source_calendar = event.calendar || event.host || event.creator || raw_value.calendar || raw_value.creator;
       const target_calendar = raw_value.host || raw_value.creator;
@@ -131978,6 +132035,9 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     return this.book_internal ? saveBooking(newBookingFromCalendarEvent(__spreadProps(__spreadValues({}, event.toJSON()), {
       status: this._settings.get("app.bookings.no_approval") === true ? "approved" : "tentative"
     }))).then((_3) => newCalendarEventFromBooking(_3)) : saveEvent(event, query2);
+  }
+  _setInitialAttendees(attendees) {
+    this._initial_attendees = attendees.map((_3) => (_3.email || _3).toLowerCase());
   }
   async _removeBookingAfterError(is_new, event, assets = false, e) {
     if (is_new) {
@@ -134680,7 +134740,7 @@ var HostSelectFieldComponent = class _HostSelectFieldComponent {
       () => {
         const list = this._calendars.value() ?? [];
         const mapped = list.filter((_3) => _3.can_edit).map((_3) => _3.primary ? currentUser() : { id: _3.id, email: _3.id, name: _3.summary || _3.id }).map((_3) => new StaffUser(_3));
-        return unique([currentUser(), ...mapped], "email");
+        return unique([currentUser(), ...mapped], "email").sort((a, b2) => a.name.localeCompare(b2.name));
       },
       ...ngDevMode ? [{ debugName: "users" }] : (
         /* istanbul ignore next */
@@ -134821,12 +134881,15 @@ function UserListFieldComponent_For_7_Template(rf, ctx) {
   }
   if (rf & 2) {
     const item_r2 = ctx.$implicit;
-    \u0275\u0275classProp("bg-warning", item_r2.is_external);
+    \u0275\u0275classProp("bg-base-200", !item_r2.is_external)("bg-warning", item_r2.is_external);
     \u0275\u0275property("matTooltip", item_r2.email);
-    \u0275\u0275advance(3);
+    \u0275\u0275advance();
+    \u0275\u0275classProp("text-base-content!", !item_r2.is_external)("text-warning-content!", item_r2.is_external);
+    \u0275\u0275advance(2);
     \u0275\u0275textInterpolate(item_r2.name || item_r2.email);
     \u0275\u0275advance();
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(5, 5, "COMMON.REMOVE_ITEM", \u0275\u0275pureFunction1(8, _c212, item_r2.name || item_r2.email)));
+    \u0275\u0275classProp("text-base-content!", !item_r2.is_external)("text-warning-content!", item_r2.is_external);
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(5, 15, "COMMON.REMOVE_ITEM", \u0275\u0275pureFunction1(18, _c212, item_r2.name || item_r2.email)));
   }
 }
 function UserListFieldComponent_Conditional_11_Template(rf, ctx) {
@@ -135091,7 +135154,7 @@ var UserListFieldComponent = class _UserListFieldComponent extends AsyncHandler 
       }
     }));
     this.user_list = computed(
-      () => this._user_search.value() ?? [],
+      () => [...this._user_search.value() ?? []].sort((a, b2) => a.name.localeCompare(b2.name)),
       ...ngDevMode ? [{ debugName: "user_list" }] : (
         /* istanbul ignore next */
         []
@@ -135295,11 +135358,11 @@ Fake Org,John,Smith,john.smith@example.com,01234567898,false,true`;
         useExisting: forwardRef(() => _UserListFieldComponent),
         multi: true
       }
-    ]), \u0275\u0275InheritDefinitionFeature], ngContentSelectors: _c124, decls: 18, vars: 11, consts: [["origin", "matAutocompleteOrigin"], ["chipList", ""], ["search_field", ""], ["auto", "matAutocomplete"], ["form-field", "", 1, "mb-4"], ["search", ""], ["appearance", "outline", "matAutocompleteOrigin", "", 1, "w-full"], ["aria-label", "User Seleciom"], ["user", "", 3, "bg-warning", "matTooltip"], ["name", "user_email", 3, "ngModelChange", "matChipInputTokenEnd", "placeholder", "ngModel", "matAutocomplete", "matChipInputFor", "matChipInputSeparatorKeyCodes"], ["diameter", "24", "matSuffix", ""], [1, "leading-tight"], ["actions", "", 1, "-mt-4", "flex", "items-center", "space-x-2"], ["user", "", 3, "removed", "matTooltip"], [1, "flex", "items-center", "space-x-2"], ["matChipRemove", "", "remove", ""], [3, "click"], [1, "leading-tight", 3, "click"], [1, "-ml-2", 3, "user"], [1, "text-xs", "opacity-30"], [1, "truncate"], ["btn", "", "matRipple", "", "type", "button", "name", "new-contact", 1, "inverse", "flex-1", "sm:flex-none", 3, "click"], [1, "flex", "items-center", "justify-center"], [1, "hidden", "sm:inline"], [1, "inline", "sm:hidden"], ["btn", "", "matRipple", "", "type", "button", "name", "upload-csv", 1, "inverse", "relative", "flex-1", "sm:flex-none"], ["type", "file", 1, "absolute", "inset-0", "opacity-0", 3, "change"], ["btn", "", "matRipple", "", "type", "button", "name", "download-template", 1, "inverse", "flex-1", "sm:flex-none", 3, "click"]], template: function UserListFieldComponent_Template(rf, ctx) {
+    ]), \u0275\u0275InheritDefinitionFeature], ngContentSelectors: _c124, decls: 18, vars: 11, consts: [["origin", "matAutocompleteOrigin"], ["chipList", ""], ["search_field", ""], ["auto", "matAutocomplete"], ["form-field", "", 1, "mb-4"], ["search", ""], ["appearance", "outline", "matAutocompleteOrigin", "", 1, "w-full"], ["aria-label", "User Seleciom"], ["user", "", 3, "bg-base-200", "bg-warning", "matTooltip"], ["name", "user_email", 3, "ngModelChange", "matChipInputTokenEnd", "placeholder", "ngModel", "matAutocomplete", "matChipInputFor", "matChipInputSeparatorKeyCodes"], ["diameter", "24", "matSuffix", ""], [1, "leading-tight"], ["actions", "", 1, "-mt-4", "flex", "items-center", "space-x-2"], ["user", "", 3, "removed", "matTooltip"], [1, "flex", "items-center", "space-x-2"], ["matChipRemove", "", "remove", ""], [3, "click"], [1, "leading-tight", 3, "click"], [1, "-ml-2", 3, "user"], [1, "text-xs", "opacity-30"], [1, "truncate"], ["btn", "", "matRipple", "", "type", "button", "name", "new-contact", 1, "inverse", "flex-1", "sm:flex-none", 3, "click"], [1, "flex", "items-center", "justify-center"], [1, "hidden", "sm:inline"], [1, "inline", "sm:hidden"], ["btn", "", "matRipple", "", "type", "button", "name", "upload-csv", 1, "inverse", "relative", "flex-1", "sm:flex-none"], ["type", "file", 1, "absolute", "inset-0", "opacity-0", 3, "change"], ["btn", "", "matRipple", "", "type", "button", "name", "download-template", 1, "inverse", "flex-1", "sm:flex-none", 3, "click"]], template: function UserListFieldComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275projectionDef();
         \u0275\u0275elementStart(0, "div", 4)(1, "div", 5)(2, "mat-form-field", 6, 0)(4, "mat-chip-grid", 7, 1);
-        \u0275\u0275repeaterCreate(6, UserListFieldComponent_For_7_Template, 8, 10, "mat-chip-row", 8, _forTrack07);
+        \u0275\u0275repeaterCreate(6, UserListFieldComponent_For_7_Template, 8, 20, "mat-chip-row", 8, _forTrack07);
         \u0275\u0275elementEnd();
         \u0275\u0275elementStart(8, "input", 9, 2);
         \u0275\u0275pipe(10, "translate");
@@ -135382,16 +135445,22 @@ Fake Org,John,Smith,john.smith@example.com,01234567898,false,true`;
                         @for (item of active_list(); track item.id) {
                             <mat-chip-row
                                 user
+
+                                [class.bg-base-200]="!item.is_external"
                                 [class.bg-warning]="item.is_external"
                                 (removed)="removeUser(item)"
                                 [matTooltip]="item.email"
                             >
-                                <div class="flex items-center space-x-2">
+                                <div class="flex items-center space-x-2"
+                                    [class.text-base-content!]="!item.is_external"
+                                    [class.text-warning-content!]="item.is_external">
                                     <div>{{ item.name || item.email }}</div>
                                 </div>
                                 <button
                                     matChipRemove
                                     remove
+                                    [class.text-base-content!]="!item.is_external"
+                                    [class.text-warning-content!]="item.is_external"
                                     [attr.aria-label]="
                                         'COMMON.REMOVE_ITEM'
                                             | translate
@@ -135546,7 +135615,7 @@ Fake Org,John,Smith,john.smith@example.com,01234567898,false,true`;
   }], () => [], { time: [{ type: Input, args: [{ isSignal: true, alias: "time", required: false }] }], disabled: [{ type: Input, args: [{ isSignal: true, alias: "disabled", required: false }] }, { type: Output, args: ["disabledChange"] }], limit: [{ type: Input, args: [{ isSignal: true, alias: "limit", required: false }] }], guests: [{ type: Input, args: [{ isSignal: true, alias: "guests", required: false }] }], guests_only: [{ type: Input, args: [{ isSignal: true, alias: "guests_only", required: false }] }], hide_actions: [{ type: Input, args: [{ isSignal: true, alias: "hide_actions", required: false }] }], custom_template: [{ type: Input, args: [{ isSignal: true, alias: "custom_template", required: false }] }], filter: [{ type: Input, args: [{ isSignal: true, alias: "filter", required: false }] }], new_user: [{ type: Output, args: ["new_user"] }], download: [{ type: Output, args: ["download"] }], _search_el: [{ type: ViewChild, args: ["search_field", { isSignal: true }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UserListFieldComponent, { className: "UserListFieldComponent", filePath: "libs/form-fields/src/lib/user-list-field.component.ts", lineNumber: 243 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UserListFieldComponent, { className: "UserListFieldComponent", filePath: "libs/form-fields/src/lib/user-list-field.component.ts", lineNumber: 249 });
 })();
 
 // libs/events/src/lib/spaces.service.ts
