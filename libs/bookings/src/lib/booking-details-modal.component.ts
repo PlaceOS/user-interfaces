@@ -172,7 +172,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                     </div>
                     <div class="flex items-center space-x-2 px-2">
                         <icon matTooltip="Level and Resource">{{
-                            is_visitor() ? 'person' : 'map'
+                            is_visitor() ? 'person' : 'place'
                         }}</icon>
                         <div>
                             @if (is_visitor()) {
