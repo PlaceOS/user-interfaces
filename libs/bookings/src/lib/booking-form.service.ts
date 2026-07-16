@@ -1911,6 +1911,7 @@ export class BookingFormService extends AsyncHandler {
             booking_asset: asset || null,
             asset_id: asset?.id,
             asset_name: asset?.name || asset?.id,
+            name: asset?.display_name || asset?.name || asset?.id,
             description: asset?.name || asset?.id,
             map_id: asset?.map_id || asset?.id,
             zones: (asset?.zone
