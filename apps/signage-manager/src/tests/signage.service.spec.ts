@@ -232,4 +232,33 @@ describe('SignageService media uploads', () => {
             tags: ['news', 'lobby'],
         });
     });
+
+    it('updates the displayed media item after editing it', async () => {
+        const media = new SignageMedia({ id: 'media-1', name: 'Old name' });
+        const updated_media = new SignageMedia({
+            id: 'media-1',
+            name: 'New name',
+        });
+        (updateSignageMedia as any).mockResolvedValue(updated_media);
+        dialog.open.mockImplementation((_component, config) => ({
+            afterClosed: () => ({
+                subscribe: (handler: (value?: unknown) => void) => {
+                    Promise.resolve()
+                        .then(() =>
+                            config.data.onEdit(media.id, updated_media),
+                        )
+                        .then(() => handler(undefined));
+                    return { unsubscribe: vi.fn() };
+                },
+            }),
+        }));
+        const service = createService();
+        const test_service = service as unknown as SignageServiceTestAccess;
+        test_service['_media_items'].set([media]);
+
+        await service.editMedia(media);
+
+        expect(media.name).toBe('New name');
+        expect(service.media()[0].name).toBe('New name');
+    });
 });

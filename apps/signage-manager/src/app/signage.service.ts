@@ -2147,6 +2147,7 @@ export class SignageService {
         prepared_file_metadata?: SignageMediaMetadata,
         plugin?: SignagePlugin,
     ) {
+        const is_new = !media.id;
         if (media.id) {
             if (
                 !this._requirePermission(
@@ -2211,12 +2212,15 @@ export class SignageService {
                         file_metadata,
                         file_thumbnail,
                     ),
-                onEdit: (id: string, data: any) => this._editMedia(id, data),
+                onEdit: async (id: string, data: any) => {
+                    const updated_media = await this._editMedia(id, data);
+                    Object.assign(media, updated_media);
+                },
                 preview: (item) => this.previewMedia(item),
             },
         });
         await dialogClosed(ref);
-        setTimeout(() => this.changed(), 500);
+        if (is_new) setTimeout(() => this.changed(), 500);
     }
 
     private async _editMedia(id: string, data: any) {
@@ -2227,8 +2231,14 @@ export class SignageService {
             )
         )
             return;
-        await updateSignageMedia(id, data);
-        this.changed();
+        const updated_media = decodeEntityNames(
+            await updateSignageMedia(id, data),
+        );
+        this._media_items.update((items) =>
+            items.map((item) => (item.id === id ? updated_media : item)),
+        );
+        this._media_tags.reload();
+        return updated_media;
     }
 
     private async _resolvePlugin(
