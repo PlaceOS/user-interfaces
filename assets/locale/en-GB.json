@@ -1037,7 +1037,7 @@
             "DESKS_MAP_ID_PLACEHOLDER": "e.g. table-01.123",
             "DESKS_VIEW_QR_CODE_LIST": "View Desk QR Codes",
             "DESKS_LIST_UPLOAD": "Upload Desks CSV",
-            "DESKS_LIST_DOWNLOAD": "Download Desk CSV template",
+            "DESKS_LIST_DOWNLOAD": "Download Desk CSV",
             "DESKS_BOOKING_RULES": "Desk Restrictions",
             "DESKS_BOOKINGS_EMPTY": "There are no desk booking for the currently selected date.",
             "DESKS_BOOKINGS_SEARCH_EMPTY": "No matching desk bookings",
