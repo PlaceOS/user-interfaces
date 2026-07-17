@@ -43,7 +43,9 @@ const savedBookings = (): Booking[] =>
     [
         ...vi
             .mocked(ts_client.post)
-            .mock.calls.filter(([url]) => url === BOOKINGS_ENDPOINT)
+            .mock.calls.filter(([url]) =>
+                url.startsWith(`${BOOKINGS_ENDPOINT}?`),
+            )
             .map(([, body]) => body),
         ...vi
             .mocked(ts_client.patch)
@@ -154,7 +156,7 @@ describe('BookingFormService', () => {
             // Emulate the backend assigning an id to a newly-created group
             // container so children can reference it as their parent_id.
             if (
-                url === BOOKINGS_ENDPOINT &&
+                url.startsWith(`${BOOKINGS_ENDPOINT}?`) &&
                 !body?.id &&
                 (body?.type === 'group' || body?.booking_type === 'group')
             ) {
