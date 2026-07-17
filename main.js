@@ -12,7 +12,7 @@ import {
   generateMockSpace,
   setHours,
   setMinutes
-} from "./chunk-63LJ3STJ.js";
+} from "./chunk-ICCIWJ2S.js";
 import {
   parseTokenFromUrl
 } from "./chunk-FZ3XJSQC.js";
@@ -24,10 +24,10 @@ import {
   MatSelectModule,
   MatSelectTrigger,
   SanitizePipe
-} from "./chunk-BNDDOGT5.js";
+} from "./chunk-CSUCXDCP.js";
 import {
   CheckinStateService
-} from "./chunk-D3NAA6Y3.js";
+} from "./chunk-54QMVEXY.js";
 import {
   $r,
   ANIMATION_MODULE_TYPE,
@@ -239,7 +239,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-WC2RAMUU.js";
+} from "./chunk-MZJSPCMJ.js";
 import {
   __export,
   __objRest,
@@ -20779,7 +20779,7 @@ var VisitorRegistrationComponent = class _VisitorRegistrationComponent extends A
     })();
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _VisitorRegistrationComponent, selectors: [["visitor-registration"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 9, vars: 11, consts: [[1, "absolute", "inset-0", "flex", "items-center", "p-8"], ["auth", "", 1, "absolute", "top-1/2", "left-1/2", "min-h-full", "min-w-full", "-translate-x-1/2", "-translate-y-1/2", 3, "source"], ["src", "assets/img/building.png", 1, "absolute", "right-0", "bottom-0", "w-[60%]"], [1, "bg-base-100", "absolute", "top-1/2", "left-4", "max-h-[80vh]", "w-lg", "max-w-[calc(100%-2rem)]", "-translate-y-1/2", "overflow-auto", "rounded-sm", "shadow-sm"], [1, "bg-base-100", "absolute", "top-1/2", "left-4", "flex", "w-[24rem]", "-translate-y-1/2", "flex-col", "items-center", "justify-center", "space-y-4", "rounded-sm", "p-16", "shadow-sm"], [1, "absolute", "top-4", "right-4", "text-2xl", "text-white"], [1, "bg-base-200", "sticky", "top-0", "z-10", "m-2", "flex", "w-[calc(100%-1rem)]", "items-center", "justify-between", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-lg", "font-medium"], ["icon", "", "matRipple", "", 3, "routerLink"], [1, "p-4"], ["for", "name"], ["appearance", "outline", 1, "w-full"], ["keyboard", "", "matInput", "", 3, "formField", "placeholder"], ["for", "email"], ["appearance", "outline", 1, "mb-0", "w-full"], ["for", "user"], [3, "ngModelChange", "ngModel"], ["form", "phone"], ["keyboard", "", "matInput", "", "type", "tel", 3, "formField", "placeholder"], ["form", "org"], ["form", "reason"], ["appearance", "outline", 1, "no-subscript", "mb-4", "w-full"], [1, "bg-base-200", "sticky", "bottom-0", "z-10", "m-2", "flex", "w-[calc(100%-1rem)]", "items-center", "justify-end", "rounded-sm", "border-none", "p-2"], ["btn", "", "matRipple", "", 1, "w-40", 3, "click"], ["form", "pass"], [1, "relative", "mt-4", "flex", "justify-end"], ["form", "duration"], [1, "text-base", 3, "ngModelChange", "ngModel", "time", "max", "disabled"], [1, "absolute", "-top-2", "right-0", 3, "formField"], ["diameter", "32"]], template: function VisitorRegistrationComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _VisitorRegistrationComponent, selectors: [["visitor-registration"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 9, vars: 11, consts: [[1, "absolute", "inset-0", "flex", "items-center", "p-8"], ["auth", "", 1, "absolute", "top-1/2", "left-1/2", "min-h-full", "min-w-full", "-translate-x-1/2", "-translate-y-1/2", 3, "source"], ["src", "assets/img/building.png", 1, "absolute", "right-0", "bottom-0", "w-[60%]"], [1, "bg-base-100", "absolute", "top-1/2", "left-4", "max-h-[80vh]", "w-lg", "max-w-[calc(100%-2rem)]", "-translate-y-1/2", "overflow-auto", "rounded-sm", "shadow-sm"], [1, "bg-base-100", "absolute", "top-1/2", "left-4", "flex", "w-[24rem]", "-translate-y-1/2", "flex-col", "items-center", "justify-center", "space-y-4", "rounded-sm", "p-16", "shadow-sm"], [1, "absolute", "top-4", "right-4", "text-2xl", "text-white"], [1, "bg-base-200", "sticky", "top-0", "z-10", "m-2", "flex", "w-[calc(100%-1rem)]", "items-center", "justify-between", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-lg", "font-medium"], ["icon", "", "matRipple", "", 3, "routerLink"], [1, "p-4"], ["for", "name"], ["appearance", "outline", 1, "w-full"], ["keyboard", "", "matInput", "", "autocomplete", "off", 3, "formField", "placeholder"], ["for", "email"], ["appearance", "outline", 1, "mb-0", "w-full"], ["for", "user"], ["autocomplete", "off", 3, "ngModelChange", "ngModel"], ["form", "phone"], ["keyboard", "", "matInput", "", "type", "tel", "autocomplete", "off", 3, "formField", "placeholder"], ["form", "org"], ["form", "reason"], ["appearance", "outline", 1, "no-subscript", "mb-4", "w-full"], [1, "bg-base-200", "sticky", "bottom-0", "z-10", "m-2", "flex", "w-[calc(100%-1rem)]", "items-center", "justify-end", "rounded-sm", "border-none", "p-2"], ["btn", "", "matRipple", "", 1, "w-40", 3, "click"], ["form", "pass"], [1, "relative", "mt-4", "flex", "justify-end"], ["form", "duration"], [1, "text-base", 3, "ngModelChange", "ngModel", "time", "max", "disabled"], [1, "absolute", "-top-2", "right-0", 3, "formField"], ["diameter", "32"]], template: function VisitorRegistrationComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "div", 0);
         \u0275\u0275element(1, "img", 1);
@@ -20868,6 +20868,7 @@ var VisitorRegistrationComponent = class _VisitorRegistrationComponent extends A
                             <input
                                 keyboard
                                 matInput
+                                autocomplete="off"
                                 [formField]="form.asset_name"
                                 [placeholder]="
                                     'APP.VISITOR_KIOSK.NAME' | translate
@@ -20885,6 +20886,7 @@ var VisitorRegistrationComponent = class _VisitorRegistrationComponent extends A
                             <input
                                 keyboard
                                 matInput
+                                autocomplete="off"
                                 [formField]="form.asset_id"
                                 [placeholder]="
                                     'APP.VISITOR_KIOSK.EMAIL' | translate
@@ -20894,6 +20896,7 @@ var VisitorRegistrationComponent = class _VisitorRegistrationComponent extends A
                         </mat-form-field>
                         <label for="user">Host</label>
                         <a-user-search-field
+                            autocomplete="off"
                             [ngModel]="host()"
                             (ngModelChange)="setHost($event)"
                             [class.mb-4]="!host()"
@@ -20906,6 +20909,7 @@ var VisitorRegistrationComponent = class _VisitorRegistrationComponent extends A
                                 keyboard
                                 matInput
                                 type="tel"
+                                autocomplete="off"
                                 [formField]="form.phone"
                                 [placeholder]="
                                     'APP.VISITOR_KIOSK.PHONE' | translate
@@ -20921,6 +20925,7 @@ var VisitorRegistrationComponent = class _VisitorRegistrationComponent extends A
                             <input
                                 keyboard
                                 matInput
+                                autocomplete="off"
                                 [formField]="form.company"
                                 [placeholder]="
                                     'APP.VISITOR_KIOSK.ORGANISATION' | translate
@@ -20937,6 +20942,7 @@ var VisitorRegistrationComponent = class _VisitorRegistrationComponent extends A
                             <input
                                 keyboard
                                 matInput
+                                autocomplete="off"
                                 [formField]="form.title"
                                 [placeholder]="
                                     'BOOKINGS.VISITOR_REASON_PLACEHOLDER'
@@ -20955,6 +20961,7 @@ var VisitorRegistrationComponent = class _VisitorRegistrationComponent extends A
                                 <input
                                     keyboard
                                     matInput
+                                    autocomplete="off"
                                     [formField]="form.pass_number"
                                     [placeholder]="
                                         'BOOKINGS.VISITOR_PASS_PLACEHOLDER'
@@ -21028,7 +21035,7 @@ var VisitorRegistrationComponent = class _VisitorRegistrationComponent extends A
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(VisitorRegistrationComponent, { className: "VisitorRegistrationComponent", filePath: "apps/visitor-kiosk/src/app/visitor-registration.component.ts", lineNumber: 242 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(VisitorRegistrationComponent, { className: "VisitorRegistrationComponent", filePath: "apps/visitor-kiosk/src/app/visitor-registration.component.ts", lineNumber: 243 });
 })();
 
 // apps/visitor-kiosk/src/app/welcome.component.ts
@@ -21528,17 +21535,17 @@ var routes = [
   {
     path: "explore",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./explore.routes-KG7ZSL4Y.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./explore.routes-GU4TORBT.js").then((m) => m.ROUTES)
   },
   {
     path: "checkin",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./checkin.routes-BD5GJRXW.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./checkin.routes-2HSVCT7J.js").then((m) => m.ROUTES)
   },
   {
     path: "checkout",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./checkout.routes-VGC5BTLJ.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./checkout.routes-UL3FECT2.js").then((m) => m.ROUTES)
   },
   { path: "**", redirectTo: "bootstrap" }
 ];
