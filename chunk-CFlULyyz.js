@@ -1,0 +1,1 @@
+import {ah as Pn}from'./main-2PQCZQV6.js';function u(t,o,a){return Pn(t,-o,a)}export{u};
