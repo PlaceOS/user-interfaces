@@ -1,1 +1,0 @@
-import {g0 as Kn,g1 as Mc,cU as Ou}from'./main.js';var r="/api/staff/v1/guests";async function C(t){let s=Kn({q:t});return (await Mc(`${r}${t?"?"+s:""}`)).map(c=>new Ou(c))}async function I(t){return new Ou(await Mc(`${r}/${encodeURIComponent(t)}`))}export{C,I};//# sourceMappingURL=chunk-DogwAbMU.js.map
