@@ -790,7 +790,7 @@ export class BookingDetailsModalComponent {
                     title: i18n('COMMON.CHECK_OUT'),
                     content:
                         'You are currently checked in.<br/>' +
-                        'Would you like to check out of your desk now?<br/>' +
+                        `Would you like to check out of your ${bkn.booking_type} now?<br/>` +
                         'This will make the desk available for others to book.',
                     confirm_text: i18n('COMMON.CHECK_OUT'),
                     icon: { content: 'logout' },
