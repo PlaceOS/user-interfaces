@@ -42244,6 +42244,10 @@ var APP = {
     PARKING_REQUEST_EDIT: "Edit Request",
     PARKING_REQUEST_SAVE: "Successfully submitted parking request.",
     PARKING_EDIT: "Edit Reservation",
+    PARKING_VIEW_HISTORY: "View Booking History",
+    PARKING_HISTORY_HEADER: "Booking history for {{ name }}",
+    PARKING_HISTORY_EMPTY: "No history recorded for this booking",
+    PARKING_HISTORY_STATE_NO_SHOW: "No show",
     PARKING_SPACE: "Parking Space",
     PARKING_SPACE_ADD: "New Space",
     PARKING_SPACE_NEW: "New Parking Space",
@@ -54636,15 +54640,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "dbdb776",
-  "hash": "dbdb776",
+  "raw": "da8c510",
+  "hash": "da8c510",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "dbdb776",
+  "suffix": "da8c510",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1784184834779
+  "time": 1784263200977
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -111402,4 +111406,4 @@ export {
   dialogClosed,
   SignageService
 };
-//# sourceMappingURL=chunk-IIUAAJ3K.js.map
+//# sourceMappingURL=chunk-U5GPADVJ.js.map
