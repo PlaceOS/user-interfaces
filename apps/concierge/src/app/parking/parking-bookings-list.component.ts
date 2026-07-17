@@ -484,6 +484,21 @@ interface ParkingBookingColumnTemplates {
                 </ng-template>
                 <ng-template #action_template let-row="row">
                     <div class="flex w-full items-center justify-end gap-2 p-2">
+                        <button
+                            icon
+                            default
+                            matRipple
+                            data-testid="parking-booking-history"
+                            [attr.aria-label]="
+                                'APP.CONCIERGE.PARKING_VIEW_HISTORY' | translate
+                            "
+                            [matTooltip]="
+                                'APP.CONCIERGE.PARKING_VIEW_HISTORY' | translate
+                            "
+                            (click)="viewBookingHistory(row)"
+                        >
+                            <icon>history</icon>
+                        </button>
                         @if (isRequest(row) && !hide_assign_space) {
                             <button
                                 icon
@@ -608,7 +623,7 @@ export class ParkingBookingsListComponent
     });
 
     public action_count(row) {
-        let count = 0;
+        let count = 1;
         if (this.isRequest(row) && !this.hide_assign_space) count += 1;
         if (this.canEdit(row)) count += 1;
         if (this.can_delete()) count += 1;
@@ -622,6 +637,8 @@ export class ParkingBookingsListComponent
     public readonly editReservation = (e) => this._state.editReservation(e);
     public readonly assignSpace = (e) => this._state.assignSpace(e);
     public readonly removeBooking = (e) => this._state.removeBooking(e);
+    public readonly viewBookingHistory = (e) =>
+        this._state.viewBookingHistory(e);
     public readonly isRequest = (e) => this._state.isRequest(e);
     public readonly isManualRequest = (e) => this._state.isManualRequest(e);
     public readonly isWaitlisted = (e) => this._state.isWaitlisted(e);
