@@ -44331,6 +44331,10 @@ var APP = {
     PARKING_REQUEST_EDIT: "Edit Request",
     PARKING_REQUEST_SAVE: "Successfully submitted parking request.",
     PARKING_EDIT: "Edit Reservation",
+    PARKING_VIEW_HISTORY: "View Booking History",
+    PARKING_HISTORY_HEADER: "Booking history for {{ name }}",
+    PARKING_HISTORY_EMPTY: "No history recorded for this booking",
+    PARKING_HISTORY_STATE_NO_SHOW: "No show",
     PARKING_SPACE: "Parking Space",
     PARKING_SPACE_ADD: "New Space",
     PARKING_SPACE_NEW: "New Parking Space",
@@ -49773,15 +49777,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "dbdb776",
-  "hash": "dbdb776",
+  "raw": "da8c510",
+  "hash": "da8c510",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "dbdb776",
+  "suffix": "da8c510",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1784184782181
+  "time": 1784263178945
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -79322,6 +79326,7 @@ var Booking = class {
     this.all_day = !!data.all_day || custom_all_day || this.duration >= 24 * 60;
     this.induction = data.induction || void 0;
     this.created_at = data.created_at || Date.now();
+    this.history = data.history || [];
     if (this.all_day) {
       if (!data.duration && !data.date_end && !data.booking_end) {
         this.date = startOfDayInTimezone(this.date, this.timezone);
@@ -79377,6 +79382,7 @@ var Booking = class {
     delete data.date;
     delete data.duration;
     delete data.created_at;
+    delete data.history;
     delete data.process_state;
     removeEmptyFields(data);
     return data;
@@ -84013,6 +84019,9 @@ var APP_VERSION = VERSION3.raw || VERSION3.version || VERSION3.hash;
 function appName() {
   return setting("app.name") || setting("app.short_name") || "PlaceOS";
 }
+function bookingUtmSource() {
+  return `${appName()}_${VERSION3.hash}_${currentUser().email || ""}`;
+}
 function withAppVersion(data) {
   const booking_data = __spreadValues({}, data);
   delete booking_data.created_at;
@@ -84090,7 +84099,7 @@ async function showBooking(id) {
   return new Booking(await f(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}`));
 }
 async function createBooking(data, q) {
-  const query2 = toQueryString(q);
+  const query2 = toQueryString(__spreadProps(__spreadValues({}, q), { utm_source: bookingUtmSource() }));
   return new Booking(await S(`${BOOKINGS_ENDPOINT}${query2 ? "?" + query2 : ""}`, withAppVersion(data)));
 }
 async function updateBooking(id, data, method = "patch") {
@@ -84114,12 +84123,14 @@ function removeBooking(id, q = {}) {
   if (q.instance) {
     return removeBookingInstance(id, q.start_time);
   }
-  return ee(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}`, {
+  const query2 = toQueryString({ utm_source: bookingUtmSource() });
+  return ee(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}?${query2}`, {
     response_type: "void"
   });
 }
 function removeBookingInstance(id, start_time) {
-  return ee(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/instance/${start_time}`, {
+  const query2 = toQueryString({ utm_source: bookingUtmSource() });
+  return ee(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/instance/${start_time}?${query2}`, {
     response_type: "void"
   });
 }
@@ -84672,4 +84683,4 @@ export {
   getGuestCateringItem,
   setGuestCateringItem
 };
-//# sourceMappingURL=chunk-WC2RAMUU.js.map
+//# sourceMappingURL=chunk-MZJSPCMJ.js.map

@@ -5,7 +5,7 @@ import {
   CheckinComponent,
   CheckinErrorComponent,
   CheckinQRScanComponent
-} from "./chunk-FJQCCN22.js";
+} from "./chunk-5FEXSYGD.js";
 import "./chunk-Q4DQ62MM.js";
 import {
   parseTokenFromUrl
@@ -26,10 +26,10 @@ import {
   form,
   required,
   saveAssetCategory
-} from "./chunk-BNDDOGT5.js";
+} from "./chunk-CSUCXDCP.js";
 import {
   CheckinStateService
-} from "./chunk-D3NAA6Y3.js";
+} from "./chunk-54QMVEXY.js";
 import {
   ActivatedRoute,
   AsyncHandler,
@@ -133,7 +133,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-WC2RAMUU.js";
+} from "./chunk-MZJSPCMJ.js";
 import {
   __spreadProps,
   __spreadValues
@@ -1005,7 +1005,7 @@ var CheckinDetailsComponent = class _CheckinDetailsComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CheckinDetailsComponent, selectors: [["", "checkin-details", ""]], decls: 2, vars: 1, consts: [[1, "bg-base-100", "relative", "flex", "w-xl", "flex-col", "items-center", "overflow-hidden", "rounded-sm", "p-4", "shadow-sm"], [1, "absolute", "inset-0", "flex", "flex-col", "items-center", "justify-center"], [1, "m-4", "text-2xl"], ["field", "", 1, "flex", "flex-col"], ["form", "host"], ["appearance", "outline"], ["keyboard", "", "matInput", "", 3, "formField", "placeholder"], ["form", "name"], ["form", "email"], ["keyboard", "", "matInput", "", "type", "tel", 3, "formField", "placeholder"], ["form", "org"], ["next", "", "type", "button", "btn", "", "matRipple", "", 3, "click"], ["icon", "", "matRipple", "", 1, "absolute", "top-0", "right-0", 3, "routerLink"], ["form", "pass"], ["appearance", "outline", 1, "w-full"], [1, "bg-base-100", "flex", "flex-col", "items-center", "space-y-2", "rounded-sm", "p-16", "shadow-sm"], [3, "diameter"], [1, "my-4", "text-lg"]], template: function CheckinDetailsComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CheckinDetailsComponent, selectors: [["", "checkin-details", ""]], decls: 2, vars: 1, consts: [["autocomplete", "off", 1, "bg-base-100", "relative", "flex", "w-xl", "flex-col", "items-center", "overflow-hidden", "rounded-sm", "p-4", "shadow-sm"], [1, "absolute", "inset-0", "flex", "flex-col", "items-center", "justify-center"], [1, "m-4", "text-2xl"], ["field", "", 1, "flex", "flex-col"], ["form", "host"], ["appearance", "outline"], ["keyboard", "", "matInput", "", "autocomplete", "off", 3, "formField", "placeholder"], ["form", "name"], ["form", "email"], ["keyboard", "", "matInput", "", "type", "tel", "autocomplete", "off", 3, "formField", "placeholder"], ["form", "org"], ["next", "", "type", "button", "btn", "", "matRipple", "", 3, "click"], ["icon", "", "matRipple", "", 1, "absolute", "top-0", "right-0", 3, "routerLink"], ["form", "pass"], ["appearance", "outline", 1, "w-full"], [1, "bg-base-100", "flex", "flex-col", "items-center", "space-y-2", "rounded-sm", "p-16", "shadow-sm"], [3, "diameter"], [1, "my-4", "text-lg"]], template: function CheckinDetailsComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275conditionalCreate(0, CheckinDetailsComponent_Conditional_0_Template, 53, 47, "form", 0)(1, CheckinDetailsComponent_Conditional_1_Template, 6, 4, "div", 1);
       }
@@ -1035,6 +1035,7 @@ var CheckinDetailsComponent = class _CheckinDetailsComponent {
     args: [{ selector: "[checkin-details]", template: `
         @if (ready_form()) {
             <form
+                autocomplete="off"
                 class="bg-base-100 relative flex w-xl flex-col items-center overflow-hidden rounded-sm p-4 shadow-sm"
             >
                 <h3 class="m-4 text-2xl">Confirm Details</h3>
@@ -1046,6 +1047,7 @@ var CheckinDetailsComponent = class _CheckinDetailsComponent {
                         <input
                             keyboard
                             matInput
+                            autocomplete="off"
                             [formField]="form.host"
                             [placeholder]="'APP.VISITOR_KIOSK.HOST' | translate"
                         />
@@ -1062,6 +1064,7 @@ var CheckinDetailsComponent = class _CheckinDetailsComponent {
                         <input
                             keyboard
                             matInput
+                            autocomplete="off"
                             [formField]="form.name"
                             [placeholder]="'APP.VISITOR_KIOSK.NAME' | translate"
                         />
@@ -1076,6 +1079,7 @@ var CheckinDetailsComponent = class _CheckinDetailsComponent {
                         <input
                             keyboard
                             matInput
+                            autocomplete="off"
                             [formField]="form.email"
                             [placeholder]="
                                 'APP.VISITOR_KIOSK.EMAIL' | translate
@@ -1095,6 +1099,7 @@ var CheckinDetailsComponent = class _CheckinDetailsComponent {
                             keyboard
                             matInput
                             type="tel"
+                            autocomplete="off"
                             [formField]="form.phone"
                             [placeholder]="
                                 'APP.VISITOR_KIOSK.PHONE' | translate
@@ -1110,6 +1115,7 @@ var CheckinDetailsComponent = class _CheckinDetailsComponent {
                         <input
                             keyboard
                             matInput
+                            autocomplete="off"
                             [formField]="form.organisation"
                             [placeholder]="
                                 'APP.VISITOR_KIOSK.ORGANISATION' | translate
@@ -1126,6 +1132,7 @@ var CheckinDetailsComponent = class _CheckinDetailsComponent {
                             <input
                                 keyboard
                                 matInput
+                                autocomplete="off"
                                 [formField]="form.pass_number"
                                 [placeholder]="
                                     'BOOKINGS.VISITOR_PASS_PLACEHOLDER'
@@ -1135,7 +1142,13 @@ var CheckinDetailsComponent = class _CheckinDetailsComponent {
                         </mat-form-field>
                     </div>
                 }
-                <button next type="button" btn matRipple (click)="updateGuest()">
+                <button
+                    next
+                    type="button"
+                    btn
+                    matRipple
+                    (click)="updateGuest()"
+                >
                     {{ 'APP.VISITOR_KIOSK.CONTINUE' | translate }}
                 </button>
                 <a
@@ -1174,7 +1187,7 @@ var CheckinDetailsComponent = class _CheckinDetailsComponent {
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CheckinDetailsComponent, { className: "CheckinDetailsComponent", filePath: "apps/visitor-kiosk/src/app/checkin/checkin-details.component.ts", lineNumber: 186 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CheckinDetailsComponent, { className: "CheckinDetailsComponent", filePath: "apps/visitor-kiosk/src/app/checkin/checkin-details.component.ts", lineNumber: 193 });
 })();
 
 // apps/visitor-kiosk/src/app/checkin/checkin-induction.component.ts
@@ -2545,4 +2558,4 @@ var ROUTES = [
 export {
   ROUTES
 };
-//# sourceMappingURL=checkin.routes-BD5GJRXW.js.map
+//# sourceMappingURL=checkin.routes-2HSVCT7J.js.map
