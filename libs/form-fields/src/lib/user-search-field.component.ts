@@ -63,6 +63,7 @@ import { searchStaff } from 'libs/users/src/lib/staff.fn';
                     #input
                     keyboard
                     matInput
+                    [attr.autocomplete]="autocomplete()"
                     [ngModel]="search_term()"
                     (ngModelChange)="search_term.set($event)"
                     [disabled]="disabled()"
@@ -199,6 +200,8 @@ export class UserSearchFieldComponent
     extends AsyncHandler
     implements ControlValueAccessor
 {
+    /** Native browser autocomplete mode for the search input. */
+    public readonly autocomplete = input<string>();
     private use_basic_search = settingSignal('basic_user_search', true);
 
     public readonly search_term = signal<string>('');
