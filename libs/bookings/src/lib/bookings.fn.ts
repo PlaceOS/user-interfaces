@@ -14,6 +14,7 @@ import {
     BookingClash,
     BookingType,
     CalendarEvent,
+    currentUser,
     flatten,
     fromBookingRecurrence,
     GuestUser,
@@ -75,6 +76,10 @@ function appName() {
         setting<string>('app.short_name') ||
         'PlaceOS'
     );
+}
+
+function bookingUtmSource() {
+    return `${appName()}_${VERSION.hash}_${currentUser().email || ''}`;
 }
 
 function withAppVersion(data: Partial<Booking>): Partial<Booking> {
@@ -230,7 +235,7 @@ export async function createBooking(
     data: Partial<Booking>,
     q?: { event_id?: string; ical_uid?: string },
 ): Promise<Booking> {
-    const query = toQueryString(q);
+    const query = toQueryString({ ...q, utm_source: bookingUtmSource() });
     return new Booking(
         await post(
             `${BOOKINGS_ENDPOINT}${query ? '?' + query : ''}`,
@@ -333,7 +338,8 @@ export function removeBooking(id: string, q: any = {}): Promise<void> {
     if (q.instance) {
         return removeBookingInstance(id, q.start_time);
     }
-    return del(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}`, {
+    const query = toQueryString({ utm_source: bookingUtmSource() });
+    return del(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}?${query}`, {
         response_type: 'void',
     });
 }
@@ -411,8 +417,9 @@ export function removeBookingInstance(
     id: string,
     start_time: number,
 ): Promise<void> {
+    const query = toQueryString({ utm_source: bookingUtmSource() });
     return del(
-        `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/instance/${start_time}`,
+        `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/instance/${start_time}?${query}`,
         {
             response_type: 'void',
         },

@@ -188,7 +188,7 @@ export function canEditBooking(booking: Booking) {
                     </div>
                     <div class="flex items-center space-x-2 px-2">
                         <icon matTooltip="Level and Resource">{{
-                            is_visitor() ? 'person' : 'map'
+                            is_visitor() ? 'person' : 'place'
                         }}</icon>
                         <div>
                             @if (is_visitor()) {
@@ -790,7 +790,7 @@ export class BookingDetailsModalComponent {
                     title: i18n('COMMON.CHECK_OUT'),
                     content:
                         'You are currently checked in.<br/>' +
-                        'Would you like to check out of your desk now?<br/>' +
+                        `Would you like to check out of your ${bkn.booking_type} now?<br/>` +
                         'This will make the desk available for others to book.',
                     confirm_text: i18n('COMMON.CHECK_OUT'),
                     icon: { content: 'logout' },

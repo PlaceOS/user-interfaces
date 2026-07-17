@@ -1,7 +1,10 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { BookingFormService } from '@placeos/bookings';
 import {
     EMPTY_USER,
@@ -87,6 +90,23 @@ describe('VisitorRegistrationComponent', () => {
         spectator.component.setHost(host);
 
         expect(spectator.component.host()).toEqual(host);
+    });
+
+    it('should disable browser autocomplete on every input', async () => {
+        vi.useFakeTimers();
+        TestBed.runInInjectionContext(() => spectator.component.ngOnInit());
+        spectator.detectChanges();
+        await vi.advanceTimersByTimeAsync(350);
+        spectator.detectChanges();
+
+        const inputs = spectator.queryAll('input');
+        expect(inputs.length).toBeGreaterThan(0);
+        expect(
+            inputs.every(
+                (input) => input.getAttribute('autocomplete') === 'off',
+            ),
+        ).toBe(true);
+        vi.useRealTimers();
     });
 
     it('should keep cleared host blank in the backing model', () => {
