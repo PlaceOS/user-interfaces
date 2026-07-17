@@ -246,7 +246,7 @@ export class UserSearchFieldComponent
             const guest_query = () => searchGuests(q).catch(() => [] as User[]);
             if (this.guests_only()) return guest_query();
             const staff = this.use_basic_search()
-                ? await queryUsers({ q, authority_id: authority()?.id })
+                ? await queryUsers({ q, authority_id: authority()?.id, fields: ['id', 'name', 'email'].join(',') })
                       .then((_) => _.data.map((u) => new User(u)))
                       .catch(() => [] as User[])
                 : await searchStaff(q).catch(() => [] as User[]);
