@@ -44,6 +44,7 @@ describe('ParkingBookingsListComponent', () => {
                 editReservation: vi.fn(),
                 assignSpace: vi.fn(),
                 removeBooking: vi.fn(),
+                viewBookingHistory: vi.fn(),
                 isRequest: vi.fn((booking: Booking) =>
                     booking.asset_id?.startsWith('unallocated'),
                 ),
@@ -268,7 +269,7 @@ describe('ParkingBookingsListComponent', () => {
         ).toBe(false);
     });
 
-    it('should hide the actions column when no visible actions are available', () => {
+    it('should keep the history action available when no edit actions are available', () => {
         hide_assign_space = true;
         request_filter = 'bookings';
         bookings = [
@@ -286,9 +287,31 @@ describe('ParkingBookingsListComponent', () => {
         spectator.detectChanges();
 
         const table = spectator.query(SimpleTableComponent);
+        expect(table?.active_columns().map((column) => column.key)).toContain(
+            'actions',
+        );
         expect(
-            table?.active_columns().map((column) => column.key),
-        ).not.toContain('actions');
+            spectator.query('[data-testid="parking-booking-history"]'),
+        ).toExist();
+    });
+
+    it('should open booking history from the day view action', () => {
+        const booking = {
+            id: 'booking-1',
+            asset_id: 'bay-1',
+            status: 'approved',
+            date: Date.now(),
+            date_end: Date.now() + 60 * 60 * 1000,
+            duration: 60,
+        } as unknown as Booking;
+        bookings = [booking];
+        spectator = createComponent();
+
+        spectator.click('[data-testid="parking-booking-history"]');
+
+        expect(
+            spectator.inject(ParkingStateService).viewBookingHistory,
+        ).toHaveBeenCalledWith(expect.objectContaining({ id: booking.id }));
     });
 
     it('should show the delete action when deleting is enabled', () => {
