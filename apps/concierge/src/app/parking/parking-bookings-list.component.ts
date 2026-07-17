@@ -177,47 +177,58 @@ interface ParkingBookingColumnTemplates {
                     </div>
                 </ng-template>
                 <ng-template #state_template let-row="row">
-                    @if (!row?.checked_in && row.checked_out_at) {
+                    @if (row.deleted) {
                         <div
-                            class="bg-base-300 text-base-100 mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl"
-                            [matTooltip]="
-                                'APP.CONCIERGE.PARKING_CHECKED_OUT_AT'
-                                    | translate
-                                        : {
-                                              time:
-                                                  (row.checked_out_at * 1000
-                                                  | date
-                                                      : time_format
-                                                      : timezone),
-                                          }
-                            "
+                            class="bg-error text-error-content mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl"
+                            [matTooltip]="'COMMON.TYPE_CANCELLED' | translate"
                             matTooltipPosition="right"
                         >
-                            <icon>done</icon>
+                            <icon>close</icon>
                         </div>
-                    }
-                    @if (!row?.checked_in && !row.checked_out_at) {
-                        <div
-                            class="bg-warning text-warning-content mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl"
-                            [matTooltip]="
-                                'APP.CONCIERGE.PARKING_NOT_CHECKED_IN'
-                                    | translate
-                            "
-                            matTooltipPosition="right"
-                        >
-                            <icon>question_mark</icon>
-                        </div>
-                    }
-                    @if (row?.checked_in) {
-                        <div
-                            class="bg-success text-success-content mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl"
-                            [matTooltip]="
-                                'APP.CONCIERGE.PARKING_CHECKED_IN' | translate
-                            "
-                            matTooltipPosition="right"
-                        >
-                            <icon>done</icon>
-                        </div>
+                    } @else {
+                        @if (!row?.checked_in && row.checked_out_at) {
+                            <div
+                                class="bg-base-300 text-base-100 mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl"
+                                [matTooltip]="
+                                    'APP.CONCIERGE.PARKING_CHECKED_OUT_AT'
+                                        | translate
+                                            : {
+                                                  time:
+                                                      (row.checked_out_at * 1000
+                                                      | date
+                                                          : time_format
+                                                          : timezone),
+                                              }
+                                "
+                                matTooltipPosition="right"
+                            >
+                                <icon>done</icon>
+                            </div>
+                        }
+                        @if (!row?.checked_in && !row.checked_out_at) {
+                            <div
+                                class="bg-warning text-warning-content mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl"
+                                [matTooltip]="
+                                    'APP.CONCIERGE.PARKING_NOT_CHECKED_IN'
+                                        | translate
+                                "
+                                matTooltipPosition="right"
+                            >
+                                <icon>question_mark</icon>
+                            </div>
+                        }
+                        @if (row?.checked_in) {
+                            <div
+                                class="bg-success text-success-content mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl"
+                                [matTooltip]="
+                                    'APP.CONCIERGE.PARKING_CHECKED_IN'
+                                        | translate
+                                "
+                                matTooltipPosition="right"
+                            >
+                                <icon>done</icon>
+                            </div>
+                        }
                     }
                 </ng-template>
                 <ng-template #bay_template let-row="row">
