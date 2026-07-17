@@ -61972,6 +61972,10 @@ var APP = {
     PARKING_REQUEST_EDIT: "Edit Request",
     PARKING_REQUEST_SAVE: "Successfully submitted parking request.",
     PARKING_EDIT: "Edit Reservation",
+    PARKING_VIEW_HISTORY: "View Booking History",
+    PARKING_HISTORY_HEADER: "Booking history for {{ name }}",
+    PARKING_HISTORY_EMPTY: "No history recorded for this booking",
+    PARKING_HISTORY_STATE_NO_SHOW: "No show",
     PARKING_SPACE: "Parking Space",
     PARKING_SPACE_ADD: "New Space",
     PARKING_SPACE_NEW: "New Parking Space",
@@ -68048,15 +68052,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION4 = {
   "dirty": false,
-  "raw": "dbdb776",
-  "hash": "dbdb776",
+  "raw": "da8c510",
+  "hash": "da8c510",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "dbdb776",
+  "suffix": "da8c510",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1784184812729
+  "time": 1784263177223
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -85326,6 +85330,7 @@ var Booking = class {
     this.all_day = !!data.all_day || custom_all_day || this.duration >= 24 * 60;
     this.induction = data.induction || void 0;
     this.created_at = data.created_at || Date.now();
+    this.history = data.history || [];
     if (this.all_day) {
       if (!data.duration && !data.date_end && !data.booking_end) {
         this.date = startOfDayInTimezone(this.date, this.timezone);
@@ -85381,6 +85386,7 @@ var Booking = class {
     delete data.date;
     delete data.duration;
     delete data.created_at;
+    delete data.history;
     delete data.process_state;
     removeEmptyFields(data);
     return data;
@@ -108317,6 +108323,9 @@ var APP_VERSION = VERSION4.raw || VERSION4.version || VERSION4.hash;
 function appName() {
   return setting("app.name") || setting("app.short_name") || "PlaceOS";
 }
+function bookingUtmSource() {
+  return `${appName()}_${VERSION4.hash}_${currentUser().email || ""}`;
+}
 function withAppVersion(data) {
   const booking_data = __spreadValues({}, data);
   delete booking_data.created_at;
@@ -108369,7 +108378,7 @@ async function findBookingClashes(booking, q2 = {}) {
 }
 var MAX_PAGES = 50;
 async function createBooking(data, q2) {
-  const query2 = toQueryString(q2);
+  const query2 = toQueryString(__spreadProps(__spreadValues({}, q2), { utm_source: bookingUtmSource() }));
   return new Booking(await S2(`${BOOKINGS_ENDPOINT}${query2 ? "?" + query2 : ""}`, withAppVersion(data)));
 }
 async function updateBooking(id, data, method = "patch") {
@@ -108390,12 +108399,14 @@ function removeBooking(id, q2 = {}) {
   if (q2.instance) {
     return removeBookingInstance(id, q2.start_time);
   }
-  return ee(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}`, {
+  const query2 = toQueryString({ utm_source: bookingUtmSource() });
+  return ee(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}?${query2}`, {
     response_type: "void"
   });
 }
 function removeBookingInstance(id, start_time) {
-  return ee(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/instance/${start_time}`, {
+  const query2 = toQueryString({ utm_source: bookingUtmSource() });
+  return ee(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/instance/${start_time}?${query2}`, {
     response_type: "void"
   });
 }
@@ -110484,6 +110495,12 @@ function UserSearchFieldComponent_Conditional_19_Template(rf, ctx) {
 var UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHandler {
   constructor() {
     super(...arguments);
+    this.autocomplete = input(
+      ...ngDevMode ? [void 0, { debugName: "autocomplete" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
     this.use_basic_search = settingSignal("basic_user_search", true);
     this.search_term = signal(
       "",
@@ -110605,7 +110622,7 @@ var UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHand
         const guest_query = () => searchGuests(q2).catch(() => []);
         if (this.guests_only())
           return guest_query();
-        const staff = this.use_basic_search() ? await Ma({ q: q2, authority_id: Rt()?.id }).then((_3) => _3.data.map((u4) => new User(u4))).catch(() => []) : await searchStaff(q2).catch(() => []);
+        const staff = this.use_basic_search() ? await Ma({ q: q2, authority_id: Rt()?.id, fields: ["id", "name", "email"].join(",") }).then((_3) => _3.data.map((u4) => new User(u4))).catch(() => []) : await searchStaff(q2).catch(() => []);
         if (!this.guests())
           return staff;
         return [...staff, ...await guest_query()];
@@ -110756,13 +110773,13 @@ var UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHand
       if (rf & 2) {
         \u0275\u0275queryAdvance(2);
       }
-    }, inputs: { disabled: [1, "disabled"], placeholder: [1, "placeholder"], options: [1, "options"], guests: [1, "guests"], guests_only: [1, "guests_only"], disable_search: [1, "disable_search"], clear: [1, "clear"], error: [1, "error"], validate: [1, "validate"], empty_fn: [1, "empty_fn"], allow_externals: [1, "allow_externals"], filter: [1, "filter"], query_fn: [1, "query_fn"] }, outputs: { disabled: "disabledChange" }, features: [\u0275\u0275ProvidersFeature([
+    }, inputs: { autocomplete: [1, "autocomplete"], disabled: [1, "disabled"], placeholder: [1, "placeholder"], options: [1, "options"], guests: [1, "guests"], guests_only: [1, "guests_only"], disable_search: [1, "disable_search"], clear: [1, "clear"], error: [1, "error"], validate: [1, "validate"], empty_fn: [1, "empty_fn"], allow_externals: [1, "allow_externals"], filter: [1, "filter"], query_fn: [1, "query_fn"] }, outputs: { disabled: "disabledChange" }, features: [\u0275\u0275ProvidersFeature([
       {
         provide: NG_VALUE_ACCESSOR,
         useExisting: forwardRef(() => _UserSearchFieldComponent),
         multi: true
       }
-    ]), \u0275\u0275InheritDefinitionFeature], decls: 20, vars: 17, consts: [["input", ""], ["auto", "matAutocomplete"], [1, "flex", "w-full", "space-x-2"], ["appearance", "outline", 1, "w-1/2", "flex-1"], ["matPrefix", "", 1, "mr-2", "-ml-1", "flex", "h-8", "w-8", "items-center", "justify-center"], [3, "user"], [1, "block", "flex", "w-6", "items-center", "justify-center", "text-2xl"], ["keyboard", "", "matInput", "", 3, "ngModelChange", "focus", "blur", "ngModel", "disabled", "matAutocomplete", "placeholder"], ["matSuffix", "", "diameter", "24"], [3, "optionSelected", "displayWith"], [3, "value"], [1, "pointer-events-none", "relative"], [3, "disabled"], ["icon", "", "matRipple", "", 1, "border-secondary", "text-secondary", "h-12", "w-12", "rounded-sm", "border"], [1, "flex", "items-center", "space-x-2"], [1, "-ml-2", 3, "user"], [1, "leading-tight"], [1, "text-xs", "opacity-30"], [1, "pointer-events-auto", "absolute", "inset-0", "px-4", 3, "mousedown", "touchstart", "click"], [1, "pointer-events-none"], [1, "pointer-events-auto", "absolute", "inset-0", "flex", "items-center", "px-4", 3, "mousedown", "touchstart", "click"], [3, "click", "disabled"], ["icon", "", "matRipple", "", 1, "border-secondary", "text-secondary", "h-12", "w-12", "rounded-sm", "border", 3, "click"]], template: function UserSearchFieldComponent_Template(rf, ctx) {
+    ]), \u0275\u0275InheritDefinitionFeature], decls: 20, vars: 18, consts: [["input", ""], ["auto", "matAutocomplete"], [1, "flex", "w-full", "space-x-2"], ["appearance", "outline", 1, "w-1/2", "flex-1"], ["matPrefix", "", 1, "mr-2", "-ml-1", "flex", "h-8", "w-8", "items-center", "justify-center"], [3, "user"], [1, "block", "flex", "w-6", "items-center", "justify-center", "text-2xl"], ["keyboard", "", "matInput", "", 3, "ngModelChange", "focus", "blur", "ngModel", "disabled", "matAutocomplete", "placeholder"], ["matSuffix", "", "diameter", "24"], [3, "optionSelected", "displayWith"], [3, "value"], [1, "pointer-events-none", "relative"], [3, "disabled"], ["icon", "", "matRipple", "", 1, "border-secondary", "text-secondary", "h-12", "w-12", "rounded-sm", "border"], [1, "flex", "items-center", "space-x-2"], [1, "-ml-2", 3, "user"], [1, "leading-tight"], [1, "text-xs", "opacity-30"], [1, "pointer-events-auto", "absolute", "inset-0", "px-4", 3, "mousedown", "touchstart", "click"], [1, "pointer-events-none"], [1, "pointer-events-auto", "absolute", "inset-0", "flex", "items-center", "px-4", 3, "mousedown", "touchstart", "click"], [3, "click", "disabled"], ["icon", "", "matRipple", "", 1, "border-secondary", "text-secondary", "h-12", "w-12", "rounded-sm", "border", 3, "click"]], template: function UserSearchFieldComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "div", 2)(1, "mat-form-field", 3)(2, "div", 4);
         \u0275\u0275conditionalCreate(3, UserSearchFieldComponent_Conditional_3_Template, 1, 1, "a-user-avatar", 5)(4, UserSearchFieldComponent_Conditional_4_Template, 2, 0, "icon", 6);
@@ -110803,7 +110820,8 @@ var UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHand
         \u0275\u0275advance(2);
         \u0275\u0275conditional((tmp_3_0 = ctx.selected_user()) ? 3 : 4, tmp_3_0);
         \u0275\u0275advance(2);
-        \u0275\u0275property("ngModel", ctx.search_term())("disabled", ctx.disabled())("matAutocomplete", auto_r8)("placeholder", \u0275\u0275pipeBind1(7, 14, ctx.placeholder()));
+        \u0275\u0275property("ngModel", ctx.search_term())("disabled", ctx.disabled())("matAutocomplete", auto_r8)("placeholder", \u0275\u0275pipeBind1(7, 15, ctx.placeholder()));
+        \u0275\u0275attribute("autocomplete", ctx.autocomplete());
         \u0275\u0275control();
         \u0275\u0275advance(3);
         \u0275\u0275conditional(ctx.loading() ? 8 : -1);
@@ -110880,6 +110898,7 @@ var UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHand
                     #input
                     keyboard
                     matInput
+                    [attr.autocomplete]="autocomplete()"
                     [ngModel]="search_term()"
                     (ngModelChange)="search_term.set($event)"
                     [disabled]="disabled()"
@@ -110998,10 +111017,10 @@ var UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHand
       UserAvatarComponent,
       VirtualKeyboardComponent
     ], styles: ["/* angular:styles/component:css;d84628be6394a4ab204c469dc548d2d04b7c619d7a49b10690a47d4a374a3d83;/home/runner/work/user-interfaces/user-interfaces/libs/form-fields/src/lib/user-search-field.component.ts */\n:host {\n  display: block;\n}\nicon {\n  top: 0.15em;\n  left: -0.15em;\n}\n/*# sourceMappingURL=user-search-field.component.css.map */\n"] }]
-  }], null, { disabled: [{ type: Input, args: [{ isSignal: true, alias: "disabled", required: false }] }, { type: Output, args: ["disabledChange"] }], placeholder: [{ type: Input, args: [{ isSignal: true, alias: "placeholder", required: false }] }], options: [{ type: Input, args: [{ isSignal: true, alias: "options", required: false }] }], guests: [{ type: Input, args: [{ isSignal: true, alias: "guests", required: false }] }], guests_only: [{ type: Input, args: [{ isSignal: true, alias: "guests_only", required: false }] }], disable_search: [{ type: Input, args: [{ isSignal: true, alias: "disable_search", required: false }] }], clear: [{ type: Input, args: [{ isSignal: true, alias: "clear", required: false }] }], error: [{ type: Input, args: [{ isSignal: true, alias: "error", required: false }] }], validate: [{ type: Input, args: [{ isSignal: true, alias: "validate", required: false }] }], empty_fn: [{ type: Input, args: [{ isSignal: true, alias: "empty_fn", required: false }] }], allow_externals: [{ type: Input, args: [{ isSignal: true, alias: "allow_externals", required: false }] }], filter: [{ type: Input, args: [{ isSignal: true, alias: "filter", required: false }] }], query_fn: [{ type: Input, args: [{ isSignal: true, alias: "query_fn", required: false }] }], _input_el: [{ type: ViewChild, args: ["input", __spreadProps(__spreadValues({}, { read: ElementRef }), { isSignal: true })] }], _autocomplete_trigger: [{ type: ViewChild, args: [forwardRef(() => MatAutocompleteTrigger), { isSignal: true }] }] });
+  }], null, { autocomplete: [{ type: Input, args: [{ isSignal: true, alias: "autocomplete", required: false }] }], disabled: [{ type: Input, args: [{ isSignal: true, alias: "disabled", required: false }] }, { type: Output, args: ["disabledChange"] }], placeholder: [{ type: Input, args: [{ isSignal: true, alias: "placeholder", required: false }] }], options: [{ type: Input, args: [{ isSignal: true, alias: "options", required: false }] }], guests: [{ type: Input, args: [{ isSignal: true, alias: "guests", required: false }] }], guests_only: [{ type: Input, args: [{ isSignal: true, alias: "guests_only", required: false }] }], disable_search: [{ type: Input, args: [{ isSignal: true, alias: "disable_search", required: false }] }], clear: [{ type: Input, args: [{ isSignal: true, alias: "clear", required: false }] }], error: [{ type: Input, args: [{ isSignal: true, alias: "error", required: false }] }], validate: [{ type: Input, args: [{ isSignal: true, alias: "validate", required: false }] }], empty_fn: [{ type: Input, args: [{ isSignal: true, alias: "empty_fn", required: false }] }], allow_externals: [{ type: Input, args: [{ isSignal: true, alias: "allow_externals", required: false }] }], filter: [{ type: Input, args: [{ isSignal: true, alias: "filter", required: false }] }], query_fn: [{ type: Input, args: [{ isSignal: true, alias: "query_fn", required: false }] }], _input_el: [{ type: ViewChild, args: ["input", __spreadProps(__spreadValues({}, { read: ElementRef }), { isSignal: true })] }], _autocomplete_trigger: [{ type: ViewChild, args: [forwardRef(() => MatAutocompleteTrigger), { isSignal: true }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UserSearchFieldComponent, { className: "UserSearchFieldComponent", filePath: "libs/form-fields/src/lib/user-search-field.component.ts", lineNumber: 198 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UserSearchFieldComponent, { className: "UserSearchFieldComponent", filePath: "libs/form-fields/src/lib/user-search-field.component.ts", lineNumber: 199 });
 })();
 
 // libs/users/src/lib/find-availability-modal/user-availability.component.ts
@@ -123838,7 +123857,7 @@ var BookingDetailsModalComponent = class _BookingDetailsModalComponent {
     if (bkn.checked_in) {
       const response = await openConfirmModal({
         title: i18n("COMMON.CHECK_OUT"),
-        content: "You are currently checked in.<br/>Would you like to check out of your desk now?<br/>This will make the desk available for others to book.",
+        content: `You are currently checked in.<br/>Would you like to check out of your ${bkn.booking_type} now?<br/>This will make the desk available for others to book.`,
         confirm_text: i18n("COMMON.CHECK_OUT"),
         icon: { content: "logout" }
       }, this._dialog);
@@ -123989,7 +124008,7 @@ var BookingDetailsModalComponent = class _BookingDetailsModalComponent {
         \u0275\u0275advance(6);
         \u0275\u0275textInterpolate(ctx.period());
         \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate(ctx.is_visitor() ? "person" : "map");
+        \u0275\u0275textInterpolate(ctx.is_visitor() ? "person" : "place");
         \u0275\u0275advance(2);
         \u0275\u0275conditional(ctx.is_visitor() ? 33 : 34);
         \u0275\u0275advance(2);
@@ -124177,7 +124196,7 @@ var BookingDetailsModalComponent = class _BookingDetailsModalComponent {
                     </div>
                     <div class="flex items-center space-x-2 px-2">
                         <icon matTooltip="Level and Resource">{{
-                            is_visitor() ? 'person' : 'map'
+                            is_visitor() ? 'person' : 'place'
                         }}</icon>
                         <div>
                             @if (is_visitor()) {
