@@ -472,6 +472,10 @@ export class ParkingStateService extends AsyncHandler {
                       has_next: !!next,
                   },
         );
+        if (next) {
+            await this._loadPage(false);
+            return;
+        }
         this._bookings_loading.set(false);
         this._last_updated.set(Date.now());
     }
