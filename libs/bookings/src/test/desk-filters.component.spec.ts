@@ -191,6 +191,13 @@ describe('DeskFiltersComponent', () => {
         expect(set_options).toHaveBeenCalledWith({ zone_id: undefined });
     });
 
+    it('should retain the selected level while resources are loading', () => {
+        resources.set([]);
+        options.set({ zone_id: 'lvl-a' });
+        spectator.detectChanges();
+        expect(set_options).not.toHaveBeenCalledWith({ zone_id: undefined });
+    });
+
     it('should only allow all-day bookings when both settings are enabled', () => {
         const settings = spectator.inject(SettingsService);
         (settings.get as Mock).mockImplementation((key: string) =>
