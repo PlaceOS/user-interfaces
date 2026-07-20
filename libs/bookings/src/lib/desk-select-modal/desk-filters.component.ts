@@ -282,6 +282,7 @@ export class DeskFiltersComponent {
     private readonly _clear_invalid_level = effect(() => {
         const zone_id = this.options()?.zone_id;
         if (!zone_id) return;
+        if (!this._state.resources().length) return;
         if (!this.levels().some((lvl) => lvl.id === zone_id)) {
             this._state.setOptions({ zone_id: undefined });
         }
