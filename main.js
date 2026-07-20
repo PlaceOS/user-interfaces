@@ -55885,15 +55885,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "da8c510",
-  "hash": "da8c510",
+  "raw": "e3b8a6a",
+  "hash": "e3b8a6a",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "da8c510",
+  "suffix": "e3b8a6a",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1784263175131
+  "time": 1784534625744
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -111389,7 +111389,11 @@ var UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHand
         const guest_query = () => searchGuests(q).catch(() => []);
         if (this.guests_only())
           return guest_query();
-        const staff = this.use_basic_search() ? await Ma({ q, authority_id: Rt()?.id, fields: ["id", "name", "email"].join(",") }).then((_2) => _2.data.map((u3) => new User(u3))).catch(() => []) : await searchStaff(q).catch(() => []);
+        const staff = this.use_basic_search() ? await Ma({
+          q,
+          authority_id: Rt()?.id,
+          fields: ["id", "name", "email"].join(",")
+        }).then((_2) => _2.data.map((u3) => new User(u3))).catch(() => []) : await searchStaff(q).catch(() => []);
         if (!this.guests())
           return staff;
         return [...staff, ...await guest_query()];
@@ -111421,7 +111425,7 @@ var UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHand
         if (s.length <= 2)
           return [];
         const list2 = await this.query_fn()(s).catch(() => []);
-        return list2.filter((_2) => !!_2 && _2.email !== EMPTY_USER.email);
+        return list2.filter((_2) => !!_2 && _2.email !== EMPTY_USER.email).sort((a, b2) => (a.name?.toLowerCase() || "").localeCompare(b2.name?.toLowerCase()));
       }
     }));
     this.search_results = computed(
