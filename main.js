@@ -68052,15 +68052,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION4 = {
   "dirty": false,
-  "raw": "da8c510",
-  "hash": "da8c510",
+  "raw": "e3b8a6a",
+  "hash": "e3b8a6a",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "da8c510",
+  "suffix": "e3b8a6a",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1784263177223
+  "time": 1784534615593
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -110622,7 +110622,11 @@ var UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHand
         const guest_query = () => searchGuests(q2).catch(() => []);
         if (this.guests_only())
           return guest_query();
-        const staff = this.use_basic_search() ? await Ma({ q: q2, authority_id: Rt()?.id, fields: ["id", "name", "email"].join(",") }).then((_3) => _3.data.map((u4) => new User(u4))).catch(() => []) : await searchStaff(q2).catch(() => []);
+        const staff = this.use_basic_search() ? await Ma({
+          q: q2,
+          authority_id: Rt()?.id,
+          fields: ["id", "name", "email"].join(",")
+        }).then((_3) => _3.data.map((u4) => new User(u4))).catch(() => []) : await searchStaff(q2).catch(() => []);
         if (!this.guests())
           return staff;
         return [...staff, ...await guest_query()];
@@ -110654,7 +110658,7 @@ var UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHand
         if (s.length <= 2)
           return [];
         const list = await this.query_fn()(s).catch(() => []);
-        return list.filter((_3) => !!_3 && _3.email !== EMPTY_USER.email);
+        return list.filter((_3) => !!_3 && _3.email !== EMPTY_USER.email).sort((a, b2) => (a.name?.toLowerCase() || "").localeCompare(b2.name?.toLowerCase()));
       }
     }));
     this.search_results = computed(
@@ -123855,9 +123859,10 @@ var BookingDetailsModalComponent = class _BookingDetailsModalComponent {
   async toggleCheckedIn() {
     const bkn = this.booking();
     if (bkn.checked_in) {
+      const resource_name = bkn.booking_type === "parking" ? "parking space" : bkn.booking_type;
       const response = await openConfirmModal({
         title: i18n("COMMON.CHECK_OUT"),
-        content: `You are currently checked in.<br/>Would you like to check out of your ${bkn.booking_type} now?<br/>This will make the desk available for others to book.`,
+        content: `You are currently checked in.<br/>Would you like to check out of your ${resource_name} now?<br/>This will make the ${resource_name} available for others to book.`,
         confirm_text: i18n("COMMON.CHECK_OUT"),
         icon: { content: "logout" }
       }, this._dialog);
@@ -123866,18 +123871,14 @@ var BookingDetailsModalComponent = class _BookingDetailsModalComponent {
       response.close();
     }
     this.checking_in.set(true);
-    const promise = (bkn.instance ? checkinBookingInstance(bkn.id, bkn.instance, !bkn.checked_in) : checkinBooking(bkn.id, !bkn.checked_in)).catch((_3) => {
+    const updated_booking = await (bkn.instance ? checkinBookingInstance(bkn.id, bkn.instance, !bkn.checked_in) : checkinBooking(bkn.id, !bkn.checked_in)).catch((_3) => {
       notifyError(i18n(bkn.checked_in ? "BOOKINGS.CHECK_OUT_ERROR" : "BOOKINGS.CHECK_IN_ERROR"));
       this.checking_in.set(false);
       throw _3;
     });
-    await promise;
-    this.booking.update((b2) => {
-      b2.checked_in = !b2.checked_in;
-      return b2;
-    });
-    this.checked_out.set(!this.booking().checked_in);
-    notifySuccess(i18n(this.booking().checked_in ? "BOOKINGS.CHECK_IN_SUCCESS" : "BOOKINGS.CHECK_OUT_SUCCESS"));
+    this.booking.set(updated_booking);
+    this.checked_out.set(!updated_booking.checked_in);
+    notifySuccess(i18n(updated_booking.checked_in ? "BOOKINGS.CHECK_IN_SUCCESS" : "BOOKINGS.CHECK_OUT_SUCCESS"));
     this._data.refresh_fn?.();
     this.checking_in.set(false);
   }
@@ -124995,6 +124996,12 @@ var BookingCardComponent = class _BookingCardComponent {
         []
       )
     );
+    this.refresh_fn = input(
+      ...ngDevMode ? [void 0, { debugName: "refresh_fn" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
     this.raw_description = computed(
       () => this.removeHtmlTags(this.booking()?.description),
       ...ngDevMode ? [{ debugName: "raw_description" }] : (
@@ -125189,7 +125196,8 @@ var BookingCardComponent = class _BookingCardComponent {
         booking: booking.booking_type === "group-event" ? { booking, concierge: false } : booking,
         edit_fn: this.edit_fn(),
         remove_fn: this.remove_fn(),
-        end_fn: this.end_fn()
+        end_fn: this.end_fn(),
+        refresh_fn: this.refresh_fn()
       };
       this._dialog.open(view_component, { data });
     }, 300);
@@ -125237,7 +125245,7 @@ var BookingCardComponent = class _BookingCardComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _BookingCardComponent, selectors: [["booking-card"]], inputs: { booking: [1, "booking"], show_day: [1, "show_day"], edit_fn: [1, "edit_fn"], remove_fn: [1, "remove_fn"], end_fn: [1, "end_fn"] }, decls: 2, vars: 2, consts: [[1, "mb-2", "flex", "items-center", "px-2"], ["name", "view-booking-details", 1, "relative", "w-full", "cursor-pointer", "overflow-hidden", 3, "routerLink", "queryParams"], ["day", ""], [1, "px-2", "text-xs"], ["name", "view-booking-details", 1, "relative", "w-full", "cursor-pointer", "overflow-hidden", 3, "click", "routerLink", "queryParams"], [1, "border-base-300", "bg-base-100", "relative", "w-full", "rounded-xl", "border", "py-4", "shadow-sm"], [1, "bg-base-300", "absolute", "top-2", "right-2", "rounded-full", "p-1", "text-2xl"], ["matTooltipPosition", "left", 3, "matTooltip"], [1, "px-4", "text-lg"], [1, "mx-4", "my-2", "flex", "items-center", "space-x-2"], [3, "status"], ["booked-for", "", 1, "text-base-content/70", "flex", "min-w-0", "items-center", "space-x-1", "text-sm"], [1, "text-2xl", 3, "matTooltip"], [1, "divide-base-200-500", "flex", "flex-col", "flex-wrap", "space-y-2", "py-2", "sm:flex-row", "sm:space-y-0", "sm:divide-x"], [1, "flex", "max-w-[33%]", "items-center", "px-4"], [1, "mx-2", "w-1/2", "flex-1", "truncate"], [1, "flex", "items-center", "px-4"], [1, "absolute", "top-1/2", "right-1", "-translate-y-1/2", "text-4xl"], ["checked-in-badge", "", 1, "bg-success", "text-success-content", "absolute", "top-2", "right-2", "flex", "items-center", "space-x-1", "rounded-xl", "px-2", "py-1", "text-xs"], [1, "bg-warning/50", "absolute", "top-14", "right-2", "rounded-xl", "px-2", "py-1", "text-xs"], [1, "text-lg"], [1, "truncate"], [1, "mx-2", "truncate"], [1, "text-sm"]], template: function BookingCardComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _BookingCardComponent, selectors: [["booking-card"]], inputs: { booking: [1, "booking"], show_day: [1, "show_day"], edit_fn: [1, "edit_fn"], remove_fn: [1, "remove_fn"], end_fn: [1, "end_fn"], refresh_fn: [1, "refresh_fn"] }, decls: 2, vars: 2, consts: [[1, "mb-2", "flex", "items-center", "px-2"], ["name", "view-booking-details", 1, "relative", "w-full", "cursor-pointer", "overflow-hidden", 3, "routerLink", "queryParams"], ["day", ""], [1, "px-2", "text-xs"], ["name", "view-booking-details", 1, "relative", "w-full", "cursor-pointer", "overflow-hidden", 3, "click", "routerLink", "queryParams"], [1, "border-base-300", "bg-base-100", "relative", "w-full", "rounded-xl", "border", "py-4", "shadow-sm"], [1, "bg-base-300", "absolute", "top-2", "right-2", "rounded-full", "p-1", "text-2xl"], ["matTooltipPosition", "left", 3, "matTooltip"], [1, "px-4", "text-lg"], [1, "mx-4", "my-2", "flex", "items-center", "space-x-2"], [3, "status"], ["booked-for", "", 1, "text-base-content/70", "flex", "min-w-0", "items-center", "space-x-1", "text-sm"], [1, "text-2xl", 3, "matTooltip"], [1, "divide-base-200-500", "flex", "flex-col", "flex-wrap", "space-y-2", "py-2", "sm:flex-row", "sm:space-y-0", "sm:divide-x"], [1, "flex", "max-w-[33%]", "items-center", "px-4"], [1, "mx-2", "w-1/2", "flex-1", "truncate"], [1, "flex", "items-center", "px-4"], [1, "absolute", "top-1/2", "right-1", "-translate-y-1/2", "text-4xl"], ["checked-in-badge", "", 1, "bg-success", "text-success-content", "absolute", "top-2", "right-2", "flex", "items-center", "space-x-1", "rounded-xl", "px-2", "py-1", "text-xs"], [1, "bg-warning/50", "absolute", "top-14", "right-2", "rounded-xl", "px-2", "py-1", "text-xs"], [1, "text-lg"], [1, "truncate"], [1, "mx-2", "truncate"], [1, "text-sm"]], template: function BookingCardComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275conditionalCreate(0, BookingCardComponent_Conditional_0_Template, 7, 9, "h4", 0);
         \u0275\u0275conditionalCreate(1, BookingCardComponent_Conditional_1_Template, 30, 25, "a", 1);
@@ -125424,7 +125432,7 @@ var BookingCardComponent = class _BookingCardComponent {
       RouterModule,
       MatTooltipModule
     ], styles: ["/* angular:styles/component:css;ebed79dbf42ca259394ae075644d04aa29f5856e78e5e954783f57ff9ad7aaa1;/home/runner/work/user-interfaces/user-interfaces/libs/bookings/src/lib/booking-card.component.ts */\n:host {\n  display: block;\n  width: 100%;\n  position: relative;\n}\n/*# sourceMappingURL=booking-card.component.css.map */\n"] }]
-  }], () => [], { booking: [{ type: Input, args: [{ isSignal: true, alias: "booking", required: false }] }], show_day: [{ type: Input, args: [{ isSignal: true, alias: "show_day", required: false }] }], edit_fn: [{ type: Input, args: [{ isSignal: true, alias: "edit_fn", required: false }] }], remove_fn: [{ type: Input, args: [{ isSignal: true, alias: "remove_fn", required: false }] }], end_fn: [{ type: Input, args: [{ isSignal: true, alias: "end_fn", required: false }] }] });
+  }], () => [], { booking: [{ type: Input, args: [{ isSignal: true, alias: "booking", required: false }] }], show_day: [{ type: Input, args: [{ isSignal: true, alias: "show_day", required: false }] }], edit_fn: [{ type: Input, args: [{ isSignal: true, alias: "edit_fn", required: false }] }], remove_fn: [{ type: Input, args: [{ isSignal: true, alias: "remove_fn", required: false }] }], end_fn: [{ type: Input, args: [{ isSignal: true, alias: "end_fn", required: false }] }], refresh_fn: [{ type: Input, args: [{ isSignal: true, alias: "refresh_fn", required: false }] }] });
 })();
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(BookingCardComponent, { className: "BookingCardComponent", filePath: "libs/bookings/src/lib/booking-card.component.ts", lineNumber: 202 });
@@ -129801,6 +129809,8 @@ var DeskFiltersComponent = class _DeskFiltersComponent {
         const zone_id = this.options()?.zone_id;
         if (!zone_id)
           return;
+        if (!this._state.resources().length)
+          return;
         if (!this.levels().some((lvl) => lvl.id === zone_id)) {
           this._state.setOptions({ zone_id: void 0 });
         }
@@ -133581,7 +133591,7 @@ var DeskMapComponent = class _DeskMapComponent {
             id: desk.map_id || desk.id,
             map_id: desk.name,
             name: desk.name || desk.map_id,
-            user: this._state.resourceUserName(desk.id),
+            user: signal(this._state.resourceUserName(desk.id)),
             status: this.statuses[desk.id]
           },
           z_index: 20
