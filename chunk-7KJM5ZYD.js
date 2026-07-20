@@ -19,7 +19,7 @@ import {
   saveAssetType,
   validate,
   validateAssetRequestsForResource
-} from "./chunk-CSUCXDCP.js";
+} from "./chunk-6NZ4BZUP.js";
 import {
   A11yModule,
   ActiveDescendantKeyManager,
@@ -330,7 +330,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-MZJSPCMJ.js";
+} from "./chunk-5DN6XJ73.js";
 import {
   __objRest,
   __spreadProps,
@@ -11803,7 +11803,11 @@ var UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHand
         const guest_query = () => searchGuests(q).catch(() => []);
         if (this.guests_only())
           return guest_query();
-        const staff = this.use_basic_search() ? await Ma({ q, authority_id: Rt()?.id, fields: ["id", "name", "email"].join(",") }).then((_) => _.data.map((u) => new User(u))).catch(() => []) : await searchStaff(q).catch(() => []);
+        const staff = this.use_basic_search() ? await Ma({
+          q,
+          authority_id: Rt()?.id,
+          fields: ["id", "name", "email"].join(",")
+        }).then((_) => _.data.map((u) => new User(u))).catch(() => []) : await searchStaff(q).catch(() => []);
         if (!this.guests())
           return staff;
         return [...staff, ...await guest_query()];
@@ -11835,7 +11839,7 @@ var UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHand
         if (s.length <= 2)
           return [];
         const list = await this.query_fn()(s).catch(() => []);
-        return list.filter((_) => !!_ && _.email !== EMPTY_USER.email);
+        return list.filter((_) => !!_ && _.email !== EMPTY_USER.email).sort((a, b) => (a.name?.toLowerCase() || "").localeCompare(b.name?.toLowerCase()));
       }
     }));
     this.search_results = computed(
@@ -12246,4 +12250,4 @@ export {
   CalendarService,
   BookingFormService
 };
-//# sourceMappingURL=chunk-ICCIWJ2S.js.map
+//# sourceMappingURL=chunk-7KJM5ZYD.js.map
