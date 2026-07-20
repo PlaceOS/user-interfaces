@@ -48,6 +48,14 @@ describe('LandingUpcomingComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
+    it('should refresh upcoming bookings on request', () => {
+        const state = spectator.inject(LandingStateService);
+
+        spectator.component.refresh_fn();
+
+        expect(state.refreshUpcomingEvents).toHaveBeenCalled();
+    });
+
     it('should not patch resources when editing visitor bookings', () => {
         vi.useFakeTimers();
         const booking_form = spectator.inject(BookingFormService);

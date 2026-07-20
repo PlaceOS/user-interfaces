@@ -219,6 +219,7 @@ export class BookingCardComponent {
     public readonly edit_fn = input((i) => null);
     public readonly remove_fn = input((i, s?) => null);
     public readonly end_fn = input((i) => null);
+    public readonly refresh_fn = input<() => void>();
 
     public readonly raw_description = computed(() =>
         this.removeHtmlTags(this.booking()?.description),
@@ -380,6 +381,7 @@ export class BookingCardComponent {
                 edit_fn: this.edit_fn(),
                 remove_fn: this.remove_fn(),
                 end_fn: this.end_fn(),
+                refresh_fn: this.refresh_fn(),
             };
             this._dialog.open(view_component, { data });
         }, 300);

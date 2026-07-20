@@ -785,13 +785,17 @@ export class BookingDetailsModalComponent {
     public async toggleCheckedIn() {
         const bkn = this.booking();
         if (bkn.checked_in) {
+            const resource_name =
+                bkn.booking_type === 'parking'
+                    ? 'parking space'
+                    : bkn.booking_type;
             const response = await openConfirmModal(
                 {
                     title: i18n('COMMON.CHECK_OUT'),
                     content:
                         'You are currently checked in.<br/>' +
-                        `Would you like to check out of your ${bkn.booking_type} now?<br/>` +
-                        'This will make the desk available for others to book.',
+                        `Would you like to check out of your ${resource_name} now?<br/>` +
+                        `This will make the ${resource_name} available for others to book.`,
                     confirm_text: i18n('COMMON.CHECK_OUT'),
                     icon: { content: 'logout' },
                 },
@@ -801,7 +805,7 @@ export class BookingDetailsModalComponent {
             response.close();
         }
         this.checking_in.set(true);
-        const promise = (
+        const updated_booking = await (
             bkn.instance
                 ? checkinBookingInstance(
                       bkn.id,
@@ -820,15 +824,11 @@ export class BookingDetailsModalComponent {
             this.checking_in.set(false);
             throw _;
         });
-        await promise;
-        this.booking.update((b) => {
-            (b as any).checked_in = !b.checked_in;
-            return b;
-        });
-        this.checked_out.set(!this.booking().checked_in);
+        this.booking.set(updated_booking);
+        this.checked_out.set(!updated_booking.checked_in);
         notifySuccess(
             i18n(
-                this.booking().checked_in
+                updated_booking.checked_in
                     ? 'BOOKINGS.CHECK_IN_SUCCESS'
                     : 'BOOKINGS.CHECK_OUT_SUCCESS',
             ),
