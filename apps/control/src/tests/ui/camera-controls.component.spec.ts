@@ -14,12 +14,16 @@ import {
     CameraControlsComponent,
     ZoomDirection,
 } from '../../app/ui/camera-controls.component';
-import { JoystickComponent, JoystickPan, JoystickTilt } from '../../app/ui/joystick.component';
+import {
+    JoystickComponent,
+    JoystickPan,
+    JoystickTilt,
+} from '../../app/ui/joystick.component';
 
 describe('CameraControlsComponent', () => {
     let spectator: Spectator<CameraControlsComponent>;
     const camera_list = signal<any[]>([]);
-    const selected_camera = signal<string>('');
+    const selected_camera = signal<string | null>(null);
     const execute_fn = vi.fn(async () => null);
     const createComponent = createComponentFactory({
         component: CameraControlsComponent,
@@ -46,7 +50,7 @@ describe('CameraControlsComponent', () => {
 
     beforeEach(() => {
         camera_list.set([]);
-        selected_camera.set('');
+        selected_camera.set(null);
         execute_fn.mockClear();
         (client.getModule as any).mockReturnValue({ execute: execute_fn });
         spectator = createComponent();
@@ -56,14 +60,14 @@ describe('CameraControlsComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should default active camera to first in list', () => {
+    it('should require a camera selection when selected_camera is null', () => {
         const list = [
             { id: 'cam1', name: 'Camera 1', mod: 'Camera_1' },
             { id: 'cam2', name: 'Camera 2', mod: 'Camera_2' },
         ];
         camera_list.set(list);
         spectator.detectChanges();
-        expect(spectator.component.active_camera()).toEqual(list[0]);
+        expect(spectator.component.active_camera()).toBeUndefined();
     });
 
     it('should select the camera matching selected_camera state', () => {
