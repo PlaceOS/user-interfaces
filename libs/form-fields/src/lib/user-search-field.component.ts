@@ -246,7 +246,11 @@ export class UserSearchFieldComponent
             const guest_query = () => searchGuests(q).catch(() => [] as User[]);
             if (this.guests_only()) return guest_query();
             const staff = this.use_basic_search()
-                ? await queryUsers({ q, authority_id: authority()?.id, fields: ['id', 'name', 'email'].join(',') })
+                ? await queryUsers({
+                      q,
+                      authority_id: authority()?.id,
+                      fields: ['id', 'name', 'email'].join(','),
+                  })
                       .then((_) => _.data.map((u) => new User(u)))
                       .catch(() => [] as User[])
                 : await searchStaff(q).catch(() => [] as User[]);
@@ -276,7 +280,13 @@ export class UserSearchFieldComponent
             }
             if (s.length <= 2) return [];
             const list = await this.query_fn()(s).catch(() => [] as User[]);
-            return list.filter((_) => !!_ && _.email !== EMPTY_USER.email);
+            return list
+                .filter((_) => !!_ && _.email !== EMPTY_USER.email)
+                .sort((a, b) =>
+                    (a.name?.toLowerCase() || '').localeCompare(
+                        b.name?.toLowerCase(),
+                    ),
+                );
         },
     });
     public readonly search_results = computed(() => this._search.value() ?? []);

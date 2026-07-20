@@ -279,6 +279,51 @@ describe('ParkingStateService', () => {
         vi.useRealTimers();
     });
 
+    it('should load all parking booking pages', async () => {
+        const booking = (id: string) =>
+            new Booking({
+                id,
+                user_email: 'staff@example.com',
+                extension_data: {},
+            } as any);
+        const fourth_page = vi.fn().mockResolvedValue({
+            data: [booking('booking-4')],
+            total: 4,
+            next: null,
+        });
+        const third_page = vi.fn().mockResolvedValue({
+            data: [booking('booking-3')],
+            total: 4,
+            next: fourth_page,
+        });
+        const second_page = vi.fn().mockResolvedValue({
+            data: [booking('booking-2')],
+            total: 4,
+            next: third_page,
+        });
+        const first_page = vi.fn().mockResolvedValue({
+            data: [booking('booking-1')],
+            total: 4,
+            next: second_page,
+        });
+        (spectator.service as any)._first_page = first_page;
+
+        await (spectator.service as any)._loadPage(true);
+
+        expect(first_page).toHaveBeenCalledTimes(1);
+        expect(second_page).toHaveBeenCalledTimes(1);
+        expect(third_page).toHaveBeenCalledTimes(1);
+        expect(fourth_page).toHaveBeenCalledTimes(1);
+        expect(spectator.service.bookings().map((item) => item.id)).toEqual([
+            'booking-1',
+            'booking-2',
+            'booking-3',
+            'booking-4',
+        ]);
+        expect(spectator.service.has_more_pages()).toBe(false);
+        expect(spectator.service.loading()).not.toContain('[BOOKINGS]');
+    });
+
     it('should use the building timezone for assigned parking bookings', async () => {
         const mock_now = new Date('2026-06-15T12:00:00Z').valueOf();
         const assigned_start = setTimeInTimezone(
