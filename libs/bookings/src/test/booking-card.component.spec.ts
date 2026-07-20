@@ -11,6 +11,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { Booking, SettingsService } from '@placeos/common';
 import { StatusPillComponent } from 'libs/components/src/lib/status-pill.component';
 import { BookingCardComponent } from '../lib/booking-card.component';
+import { BookingDetailsModalComponent } from '../lib/booking-details-modal.component';
 
 describe('BookingCardComponent', () => {
     let spectator: SpectatorRouting<BookingCardComponent>;
@@ -69,6 +70,27 @@ describe('BookingCardComponent', () => {
         });
         spectator.detectChanges();
         expect('[checked-in-badge]').toExist();
+    });
+
+    it('should pass the refresh callback to booking details', () => {
+        vi.useFakeTimers();
+        const dialog = spectator.inject(MatDialog);
+        const refresh_fn = vi.fn();
+        spectator.setInput({
+            booking: new Booking({ id: 'booking-1' }),
+            refresh_fn,
+        });
+
+        spectator.component.viewDetails();
+        vi.runAllTimers();
+
+        expect(dialog.open).toHaveBeenCalledWith(
+            BookingDetailsModalComponent,
+            expect.objectContaining({
+                data: expect.objectContaining({ refresh_fn }),
+            }),
+        );
+        vi.useRealTimers();
     });
 
     it('should not show checked-in badge when booking is not checked in', () => {

@@ -1148,6 +1148,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                             <mat-form-field appearance="outline" class="w-full">
                                 <input
                                     matInput
+                                    autocomplete="off"
                                     [ngModel]="model().plate_number"
                                     [ngModelOptions]="{ standalone: true }"
                                     (ngModelChange)="setPlateNumber($event)"

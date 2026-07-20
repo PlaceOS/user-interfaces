@@ -185,6 +185,56 @@ describe('BookingDetailsModalComponent', () => {
         expect(ts_client.post).not.toHaveBeenCalled();
     });
 
+    it('should check out parking and refresh the parent state', async () => {
+        const dialog: MatDialog = (spectator.component as any)._dialog;
+        const close = vi.fn();
+        vi.spyOn(dialog, 'open').mockReturnValue({
+            componentInstance: {
+                event: of({ reason: 'done' }),
+                loading: { set: vi.fn() },
+            },
+            afterClosed: () => NEVER,
+            close,
+        } as any);
+        (spectator.component as any).booking.set(
+            new Booking({
+                id: 'parking-booking-1',
+                booking_type: 'parking',
+                type: 'parking',
+                checked_in: true,
+            } as any),
+        );
+        vi.mocked(ts_client.post).mockResolvedValue({
+            id: 'parking-booking-1',
+            booking_type: 'parking',
+            type: 'parking',
+            checked_in: false,
+            checked_out_at: Math.floor(Date.now() / 1000),
+        } as any);
+
+        await spectator.component.toggleCheckedIn();
+
+        expect(dialog.open).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.objectContaining({
+                data: expect.objectContaining({
+                    content:
+                        'You are currently checked in.<br/>' +
+                        'Would you like to check out of your parking space now?<br/>' +
+                        'This will make the parking space available for others to book.',
+                }),
+            }),
+        );
+        expect(ts_client.post).toHaveBeenCalledWith(
+            expect.stringContaining('parking-booking-1/check_in?state=false'),
+            '',
+        );
+        expect(spectator.component.booking().checked_in).toBe(false);
+        expect(spectator.component.checked_out()).toBe(true);
+        expect(refresh_fn).toHaveBeenCalled();
+        expect(close).toHaveBeenCalled();
+    });
+
     it('should show waitlisted status for current week parking requests when enabled', () => {
         (spectator.component as any).booking.set(
             new Booking({

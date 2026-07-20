@@ -626,6 +626,7 @@ export class ScheduleDayViewComponent extends AsyncHandler implements OnInit {
                 edit_fn: (i) => this._state.editBooking(i),
                 remove_fn: (i, t) => this._state.remove(i, t),
                 end_fn: (i) => this._state.end(i),
+                refresh_fn: () => this._state.triggerPoll(),
             };
             this._dialog.open(view_component, { data });
         }

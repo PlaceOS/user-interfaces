@@ -1,12 +1,12 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
+import { BookingCardComponent } from '@placeos/bookings';
 import { Booking, CalendarEvent } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
-import { BookingCardComponent } from '@placeos/bookings';
 import { EventCardComponent } from '@placeos/events';
-import { MockComponent, MockPipe } from 'ng-mocks';
 import { addDays, addHours, startOfDay } from 'date-fns';
-import { ScheduleStateService } from '../../app/schedule/schedule-state.service';
+import { MockComponent, MockPipe } from 'ng-mocks';
 import { ScheduleListViewComponent } from '../../app/schedule/schedule-list-view.component';
+import { ScheduleStateService } from '../../app/schedule/schedule-state.service';
 
 describe('ScheduleListViewComponent', () => {
     let spectator: Spectator<ScheduleListViewComponent>;
@@ -15,6 +15,7 @@ describe('ScheduleListViewComponent', () => {
         editBooking: vi.fn(),
         remove: vi.fn(),
         end: vi.fn(),
+        triggerPoll: vi.fn(),
     };
 
     const day_one = startOfDay(new Date('2026-05-14T00:00:00')).valueOf();
@@ -130,7 +131,9 @@ describe('ScheduleListViewComponent', () => {
     it('should show the empty state when there are no bookings', () => {
         spectator.setInput('bookings', []);
         spectator.detectChanges();
-        expect(spectator.query('img[src="assets/img/no-events.svg"]')).toExist();
+        expect(
+            spectator.query('img[src="assets/img/no-events.svg"]'),
+        ).toExist();
         expect(spectator.query('.opacity-30')?.textContent).toContain(
             'APP.WORKPLACE.SCHEDULE_EMPTY',
         );
@@ -154,9 +157,11 @@ describe('ScheduleListViewComponent', () => {
         spectator.component.edit_booking_fn(booking);
         spectator.component.remove_fn(booking, true);
         spectator.component.end_fn(booking);
+        spectator.component.refresh_fn();
         expect(state.edit).toHaveBeenCalledWith(booking);
         expect(state.editBooking).toHaveBeenCalledWith(booking);
         expect(state.remove).toHaveBeenCalledWith(booking, true);
         expect(state.end).toHaveBeenCalledWith(booking);
+        expect(state.triggerPoll).toHaveBeenCalled();
     });
 });

@@ -1,22 +1,16 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MatDialog } from '@angular/material/dialog';
-import {
-    Booking,
-    CalendarEvent,
-    OrganisationService,
-} from '@placeos/common';
-import {
-    BookingDetailsModalComponent,
-} from '@placeos/bookings';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
+import { BookingDetailsModalComponent } from '@placeos/bookings';
+import { Booking, CalendarEvent, OrganisationService } from '@placeos/common';
 import {
     EventDetailsModalComponent,
     GroupEventDetailsModalComponent,
 } from '@placeos/events';
 import { UserPipe } from '@placeos/users';
-import { MockPipe, MockProvider } from 'ng-mocks';
 import { addDays, addHours, startOfDay } from 'date-fns';
-import { ScheduleStateService } from '../../app/schedule/schedule-state.service';
+import { MockPipe, MockProvider } from 'ng-mocks';
 import { ScheduleDayViewComponent } from '../../app/schedule/schedule-day-view.component';
+import { ScheduleStateService } from '../../app/schedule/schedule-state.service';
 
 describe('ScheduleDayViewComponent', () => {
     let spectator: Spectator<ScheduleDayViewComponent>;
@@ -54,6 +48,7 @@ describe('ScheduleDayViewComponent', () => {
                     editBooking: vi.fn(),
                     remove: vi.fn(),
                     end: vi.fn(),
+                    triggerPoll: vi.fn(),
                 },
             },
         ],
@@ -329,6 +324,9 @@ describe('ScheduleDayViewComponent', () => {
                 BookingDetailsModalComponent,
                 expect.anything(),
             );
+            const state = spectator.inject(ScheduleStateService);
+            (dialog.open as any).mock.calls[0][1].data.refresh_fn();
+            expect(state.triggerPoll).toHaveBeenCalled();
         });
 
         it('opens the group modal for a group-event booking', () => {
