@@ -15,6 +15,7 @@ describe('ParkingBookingsListComponent', () => {
     let hide_bay_number = false;
     let hide_assign_space = false;
     let show_waitlist = true;
+    let show_user_groups: string[] = [];
     let custom_booking_columns: any[] = [];
     let timezone = 'Australia/Perth';
     let request_filter: 'all' | 'bookings' | 'requests' | 'waitlist' = 'all';
@@ -70,9 +71,11 @@ describe('ParkingBookingsListComponent', () => {
                             ? hide_bay_number
                             : name === 'app.parking.hide_assign_space'
                               ? hide_assign_space
-                              : name === 'app.parking.custom_booking_columns'
-                                ? custom_booking_columns
-                                : false,
+                              : name === 'app.parking.show_user_groups'
+                                ? show_user_groups
+                                : name === 'app.parking.custom_booking_columns'
+                                  ? custom_booking_columns
+                                  : false,
                 ),
                 signal: vi.fn((_: string, initial: boolean) => signal(initial)),
                 time_format: 'h:mm a',
@@ -87,6 +90,7 @@ describe('ParkingBookingsListComponent', () => {
         hide_bay_number = false;
         hide_assign_space = false;
         show_waitlist = true;
+        show_user_groups = [];
         custom_booking_columns = [];
         timezone = 'Australia/Perth';
         request_filter = 'all';
@@ -201,6 +205,53 @@ describe('ParkingBookingsListComponent', () => {
             'extension_data.cost_code': 'CC-123',
             'extension_data.vehicle.colour': 'Blue',
         });
+    });
+
+    it('should sort user groups alphabetically by the first group', () => {
+        show_user_groups = ['Alpha', 'Beta', 'Gamma', 'Zulu'];
+        bookings = [
+            {
+                id: 'booking-beta',
+                asset_id: 'bay-1',
+                extension_data: { user_groups: ['Beta', 'Alpha'] },
+            },
+            {
+                id: 'booking-alpha',
+                asset_id: 'bay-2',
+                extension_data: { user_groups: ['Alpha', 'Zulu'] },
+            },
+            {
+                id: 'booking-gamma',
+                asset_id: 'bay-3',
+                extension_data: { user_groups: ['Gamma'] },
+            },
+        ] as unknown as Booking[];
+        spectator = createComponent();
+
+        const table =
+            spectator.query<SimpleTableComponent<Booking>>(
+                SimpleTableComponent,
+            );
+        table?.setSort('user_groups');
+
+        expect(table?.data_view().map((booking) => booking.id)).toEqual([
+            'booking-alpha',
+            'booking-beta',
+            'booking-gamma',
+        ]);
+
+        table?.setSort('user_groups');
+
+        expect(table?.data_view().map((booking) => booking.id)).toEqual([
+            'booking-gamma',
+            'booking-beta',
+            'booking-alpha',
+        ]);
+        expect(
+            table
+                ?.column('user_groups')
+                ?.sort_fn?.(['Alpha', 'Zulu'], ['Alpha', 'Beta']),
+        ).toBe(0);
     });
 
     it('should hide the bay number column when viewing requests', () => {

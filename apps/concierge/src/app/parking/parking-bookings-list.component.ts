@@ -505,7 +505,9 @@ interface ParkingBookingColumnTemplates {
                     </div>
                 </ng-template>
                 <ng-template #user_groups_template let-row="row">
-                    <div class="px-4 py-2">{{ row.user_groups }}</div>
+                    <div class="px-4 py-2">
+                        {{ row.user_groups.join(', ') }}
+                    </div>
                 </ng-template>
                 <ng-template #action_template let-row="row">
                     <div class="flex w-full items-center justify-end gap-2 p-2">
@@ -751,12 +753,16 @@ export class ParkingBookingsListComponent
         return Array.isArray(groups) ? groups.filter(Boolean) : [];
     }
 
-    public matchedUserGroups(booking: Booking): string {
+    public matchedUserGroups(booking: Booking): string[] {
         const allowed = this.show_user_groups;
-        if (!allowed.length) return '';
+        if (!allowed.length) return [];
         const groups = booking?.extension_data?.user_groups;
-        if (!Array.isArray(groups)) return '';
-        return groups.filter((group) => allowed.includes(group)).join(', ');
+        if (!Array.isArray(groups)) return [];
+        return groups.filter((group) => allowed.includes(group));
+    }
+
+    public sortUserGroups(a: string[] = [], b: string[] = []) {
+        return (a[0] || '').localeCompare(b[0] || '');
     }
 
     public get show_waitlist() {
@@ -896,7 +902,7 @@ export class ParkingBookingsListComponent
                 name: templates.user_groups_label,
                 content: templates.user_groups_template,
                 size: '12rem',
-                sortable: false,
+                sort_fn: this.sortUserGroups,
                 show: this.show_user_groups.length > 0,
             },
             {
