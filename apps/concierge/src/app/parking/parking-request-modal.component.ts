@@ -193,6 +193,13 @@ export class ParkingRequestModalComponent
         }
         const building = this._org.building;
         const form_value = this.model();
+        const plate_number = `${form_value.plate_number || ''}`.trim();
+        const booking_user_email = form_value.user?.email
+            ?.trim()
+            .toLowerCase();
+        const current_user_email = currentUser()?.email?.trim().toLowerCase();
+        const save_plate_number =
+            !!current_user_email && booking_user_email === current_user_email;
         this.model.update((m) => ({
             ...m,
             asset_id: form_value.asset_id || `unallocated-${randomString(8)}`,
@@ -200,6 +207,7 @@ export class ParkingRequestModalComponent
             description: 'Parking Request',
             title: form_value.title || 'Parking Request',
             booking_type: 'parking',
+            plate_number,
             zones: unique([
                 this._org.organisation.id,
                 this._org.region?.id,
@@ -235,9 +243,26 @@ export class ParkingRequestModalComponent
                 throw e;
             });
         }
+        if (save_plate_number) this._savePlateNumber(plate_number);
         notifySuccess(i18n('APP.CONCIERGE.PARKING_REQUEST_SAVE'));
         this._booking_form.clearForm();
         this._dialog_ref.close(result.id);
+    }
+
+    private _savePlateNumber(plate_number: string) {
+        if (!plate_number) return;
+        const saved_plate_numbers = this._settings.get('plate_numbers');
+        const plate_numbers = Array.isArray(saved_plate_numbers)
+            ? saved_plate_numbers
+            : [];
+        this._settings.saveUserSetting('plate_numbers', [
+            plate_number,
+            ...plate_numbers.filter(
+                (_) =>
+                    typeof _ === 'string' &&
+                    _.trim().toLowerCase() !== plate_number.toLowerCase(),
+            ),
+        ]);
     }
 
     private _defaultStartDate() {
