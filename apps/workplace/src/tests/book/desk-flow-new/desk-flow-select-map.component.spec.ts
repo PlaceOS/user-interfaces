@@ -148,6 +148,41 @@ describe('DeskFlowSelectMapComponent', () => {
         expect(typeof actions[0].callback).toBe('function');
     });
 
+    it('should fall back to the desk id for map actions', () => {
+        const desk_without_map_id = {
+            id: 'desk-without-map-id',
+            name: 'Desk without map id',
+            zone: { id: 'level-1' },
+        };
+        resources.set([desk_without_map_id]);
+        available_resources.set([desk_without_map_id]);
+
+        expect(spectator.component.actions()[0].id).toBe('desk-without-map-id');
+    });
+
+    it('should expose desk names and availability to map hover features', () => {
+        const features = spectator.component.features();
+
+        expect(features).toHaveLength(2);
+        expect(features[0]).toEqual(
+            expect.objectContaining({
+                location: 'd-1',
+                full_size: true,
+            }),
+        );
+        expect(features[0].data).toEqual(
+            expect.objectContaining({
+                id: 'desk-1',
+                map_id: 'd-1',
+            }),
+        );
+        expect((features[0].data.status as () => string)()).toBe('free');
+        expect((features[1].data.status as () => string)()).toBe('busy');
+
+        spectator.setInput('selected_items', ['desk-1']);
+        expect((features[0].data.status as () => string)()).toBe('pending');
+    });
+
     it('should emit the desk when a map action callback fires', () => {
         const emitted: any[] = [];
         spectator.output('item_selected').subscribe((v) => emitted.push(v));
