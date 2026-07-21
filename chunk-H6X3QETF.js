@@ -19,7 +19,7 @@ import {
   saveAssetType,
   validate,
   validateAssetRequestsForResource
-} from "./chunk-6NZ4BZUP.js";
+} from "./chunk-A4ADWAG4.js";
 import {
   A11yModule,
   ActiveDescendantKeyManager,
@@ -330,7 +330,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-5DN6XJ73.js";
+} from "./chunk-JYRRV2IS.js";
 import {
   __objRest,
   __spreadProps,
@@ -8493,7 +8493,7 @@ function bookingFormValue(booking = new Booking()) {
     recurrence_nth_of_month: booking.recurrence_nth_of_month ?? 0,
     recurrence_interval: booking.recurrence_interval ?? 0,
     recurrence_end: booking.recurrence_end ?? 0,
-    recurrence_instances: extension_data.recurrence_instances ?? [],
+    recurrence_instances: extension_data.recurrence_instances ?? 0,
     notes: extension_data.notes || "",
     attachments: bookingAttachments(booking),
     update_master: false,
@@ -12250,4 +12250,4 @@ export {
   CalendarService,
   BookingFormService
 };
-//# sourceMappingURL=chunk-7KJM5ZYD.js.map
+//# sourceMappingURL=chunk-H6X3QETF.js.map
