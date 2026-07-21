@@ -70192,15 +70192,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION4 = {
   "dirty": false,
-  "raw": "e3b8a6a",
-  "hash": "e3b8a6a",
+  "raw": "3fee653",
+  "hash": "3fee653",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "e3b8a6a",
+  "suffix": "3fee653",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1784534679230
+  "time": 1784606034342
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -106787,12 +106787,12 @@ var RoomModule = class {
       zone3: 100
     };
     this.available_cameras = [
-      "Camera_1",
-      "Camera_2",
-      "Camera_3",
-      "Camera_4"
+      "Camera1",
+      "Camera2",
+      "Camera3",
+      "Camera4"
     ];
-    this.selected_camera = "Camera_1";
+    this.selected_camera = null;
     this.microphones = [
       "Microphone_1",
       "Microphone_2",
@@ -107034,7 +107034,7 @@ Plug your laptop into the HDMI to stream it to the screen, or access the CMS to 
     }
   }
   /** Select a camera */
-  $select_camera(camera_id) {
+  $selected_camera(camera_id) {
     if (this.available_cameras.includes(camera_id)) {
       this.selected_camera = camera_id;
     }
@@ -111370,7 +111370,7 @@ function CameraTooltipComponent_Conditional_0_Conditional_41_Template(rf, ctx) {
   }
   if (rf & 2) {
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 1, "APP.CONTROLS.CAMERA_SELECT_MSG"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 1, "APP.CONTROL.CAMERA_SELECT_MSG"), " ");
   }
 }
 function CameraTooltipComponent_Conditional_0_Template(rf, ctx) {
@@ -111606,13 +111606,7 @@ var _CameraTooltipComponent = class _CameraTooltipComponent {
     effect(() => {
       const l = this.camera_list();
       const cam = this._selected_camera();
-      if (!(l == null ? void 0 : l.length))
-        return;
-      const current = this.active_camera();
-      const selected = l.find((_2) => _2.id === cam) || current || l[0];
-      if (selected !== current) {
-        this.active_camera.set(selected);
-      }
+      this.active_camera.set(l == null ? void 0 : l.find((_2) => _2.id === cam));
     });
   }
   selectCamera(camera) {
@@ -111898,7 +111892,7 @@ var CameraTooltipComponent = _CameraTooltipComponent;
                         >
                             <p>
                                 {{
-                                    'APP.CONTROLS.CAMERA_SELECT_MSG' | translate
+                                    'APP.CONTROL.CAMERA_SELECT_MSG' | translate
                                 }}
                             </p>
                         </div>
@@ -115350,12 +115344,7 @@ var _CameraControlsComponent = class _CameraControlsComponent {
     effect(() => {
       const list2 = this.camera_list();
       const cam = this._selected_camera();
-      if (!(list2 == null ? void 0 : list2.length))
-        return;
-      const found = list2.find((_2) => _2.id === cam);
-      if (found || !this.active_camera()) {
-        this.active_camera.set(found || list2[0]);
-      }
+      this.active_camera.set(list2 == null ? void 0 : list2.find((_2) => _2.id === cam));
     });
   }
   ngOnInit() {
