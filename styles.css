@@ -2130,9 +2130,6 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .min-w-304 {
   min-width: calc(var(--spacing) * 304);
 }
-#placeos .min-w-324 {
-  min-width: calc(var(--spacing) * 324);
-}
 #placeos .min-w-328 {
   min-width: calc(var(--spacing) * 328);
 }
@@ -2141,6 +2138,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .min-w-368 {
   min-width: calc(var(--spacing) * 368);
+}
+#placeos .min-w-372 {
+  min-width: calc(var(--spacing) * 372);
 }
 #placeos .min-w-\[3rem\] {
   min-width: 3rem;

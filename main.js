@@ -55885,15 +55885,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "e3b8a6a",
-  "hash": "e3b8a6a",
+  "raw": "3fee653",
+  "hash": "3fee653",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "e3b8a6a",
+  "suffix": "3fee653",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1784534625744
+  "time": 1784606013042
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -113435,7 +113435,7 @@ function bookingFormValue(booking = new Booking()) {
     recurrence_nth_of_month: booking.recurrence_nth_of_month ?? 0,
     recurrence_interval: booking.recurrence_interval ?? 0,
     recurrence_end: booking.recurrence_end ?? 0,
-    recurrence_instances: extension_data.recurrence_instances ?? [],
+    recurrence_instances: extension_data.recurrence_instances ?? 0,
     notes: extension_data.notes || "",
     attachments: bookingAttachments(booking),
     update_master: false,
@@ -120495,12 +120495,12 @@ var RoomModule = class {
       zone3: 100
     };
     this.available_cameras = [
-      "Camera_1",
-      "Camera_2",
-      "Camera_3",
-      "Camera_4"
+      "Camera1",
+      "Camera2",
+      "Camera3",
+      "Camera4"
     ];
-    this.selected_camera = "Camera_1";
+    this.selected_camera = null;
     this.microphones = [
       "Microphone_1",
       "Microphone_2",
@@ -120742,7 +120742,7 @@ Plug your laptop into the HDMI to stream it to the screen, or access the CMS to 
     }
   }
   /** Select a camera */
-  $select_camera(camera_id) {
+  $selected_camera(camera_id) {
     if (this.available_cameras.includes(camera_id)) {
       this.selected_camera = camera_id;
     }
