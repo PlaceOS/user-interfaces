@@ -525,7 +525,7 @@ export async function checkinBookingGuest(
         await post(
             `${BOOKINGS_ENDPOINT}/${encodeURIComponent(
                 id,
-            )}/guests/${encodeURIComponent(guest_id)}/check_in?state=${state}`,
+            )}/guests/${encodeURIComponent(guest_id)}/check_in?state=${state}&utm_source=${bookingUtmSource()}`,
             '',
         ),
     );
@@ -579,7 +579,7 @@ export async function checkinBooking(
     try {
         return new Booking(
             await post(
-                `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/check_in?${query}`,
+                `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/check_in?${query}&utm_source=${bookingUtmSource()}`,
                 '',
             ),
         );
@@ -604,7 +604,7 @@ export async function checkinBookingInstance(
     try {
         return new Booking(
             await post(
-                `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/check_in/${start_time}?${query}`,
+                `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/check_in/${start_time}?${query}&utm_source=${bookingUtmSource()}`,
                 '',
             ),
         );
@@ -629,7 +629,7 @@ export async function checkinBookingAttendee(
         await post(
             `${BOOKINGS_ENDPOINT}/${encodeURIComponent(
                 id,
-            )}/guests/${encodeURIComponent(email)}/check_in?${query}`,
+            )}/guests/${encodeURIComponent(email)}/check_in?${query}&utm_source=${bookingUtmSource()}`,
             '',
         ),
     );
