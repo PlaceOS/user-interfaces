@@ -108,6 +108,53 @@ describe('ParkingBookingsWeekViewComponent', () => {
         expect(grouped[today_key!][0].id).toBe('booking-1');
     });
 
+    it('should show start and end times for all-day bookings', () => {
+        options.set({
+            ...options(),
+            date: new Date(2026, 6, 21, 8).valueOf(),
+        });
+        bookings = [
+            {
+                id: 'booking-1',
+                asset_id: 'bay-1',
+                status: 'approved',
+                all_day: true,
+                date: new Date(2026, 6, 21, 8).valueOf(),
+                date_end: new Date(2026, 6, 21, 17).valueOf(),
+                duration: 9 * 60,
+            } as unknown as Booking,
+        ];
+        spectator = createComponent();
+
+        const time = spectator.query('[data-testid="parking-booking-time"]');
+        expect(time).toHaveText('8:00 AM - 5:00 PM');
+        expect(time).not.toHaveText('All Day');
+    });
+
+    it('should show all day for 24-hour bookings starting at midnight', () => {
+        const start = new Date('2026-07-21T00:00:00+08:00').valueOf();
+        options.set({ ...options(), date: start });
+        bookings = [
+            {
+                id: 'booking-1',
+                asset_id: 'bay-1',
+                status: 'approved',
+                all_day: false,
+                date: start,
+                date_end: new Date(
+                    '2026-07-22T00:00:00+08:00',
+                ).valueOf(),
+                duration: 24 * 60,
+            } as unknown as Booking,
+        ];
+        spectator = createComponent();
+
+        expect(spectator.component.isAllDayBooking(bookings[0])).toBe(true);
+        expect(
+            spectator.query('[data-testid="parking-booking-time"]'),
+        ).not.toHaveText(':');
+    });
+
     it('should resolve the status label from booking state', () => {
         spectator = createComponent();
         const component = spectator.component;

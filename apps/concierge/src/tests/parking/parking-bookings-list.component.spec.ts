@@ -16,6 +16,7 @@ describe('ParkingBookingsListComponent', () => {
     let hide_assign_space = false;
     let show_waitlist = true;
     let custom_booking_columns: any[] = [];
+    let bookable_hours: { start: number; end: number } | undefined;
     let timezone = 'Australia/Perth';
     let request_filter: 'all' | 'bookings' | 'requests' | 'waitlist' = 'all';
 
@@ -72,7 +73,9 @@ describe('ParkingBookingsListComponent', () => {
                               ? hide_assign_space
                               : name === 'app.parking.custom_booking_columns'
                                 ? custom_booking_columns
-                                : false,
+                                : name === 'app.parking.bookable_hours'
+                                  ? bookable_hours
+                                  : false,
                 ),
                 signal: vi.fn((_: string, initial: boolean) => signal(initial)),
                 time_format: 'h:mm a',
@@ -88,6 +91,7 @@ describe('ParkingBookingsListComponent', () => {
         hide_assign_space = false;
         show_waitlist = true;
         custom_booking_columns = [];
+        bookable_hours = undefined;
         timezone = 'Australia/Perth';
         request_filter = 'all';
         settingSignal('parking.allow_editing', true).set(true);
@@ -147,6 +151,46 @@ describe('ParkingBookingsListComponent', () => {
         spectator = createComponent();
 
         expect(spectator.component.timezone).toBe('Australia/Perth');
+    });
+
+    it('should show start and end times for all-day bookings', () => {
+        bookings = [
+            {
+                id: 'booking-1',
+                asset_id: 'bay-1',
+                status: 'approved',
+                all_day: true,
+                date: new Date(2026, 6, 21, 8).valueOf(),
+                date_end: new Date(2026, 6, 21, 17).valueOf(),
+                duration: 9 * 60,
+            } as unknown as Booking,
+        ];
+        spectator = createComponent();
+
+        const time = spectator.query('[data-testid="parking-booking-time"]');
+        expect(time).toHaveText('8:00 AM - 5:00 PM');
+        expect(time).not.toHaveText('All Day');
+    });
+
+    it('should show all day when the booking matches the bookable period', () => {
+        bookable_hours = { start: 8, end: 17 };
+        bookings = [
+            {
+                id: 'booking-1',
+                asset_id: 'bay-1',
+                status: 'approved',
+                all_day: true,
+                date: new Date(2026, 6, 21, 8).valueOf(),
+                date_end: new Date(2026, 6, 21, 17).valueOf(),
+                duration: 9 * 60,
+            } as unknown as Booking,
+        ];
+        spectator = createComponent();
+
+        expect(spectator.component.isAllDayBooking(bookings[0])).toBe(true);
+        expect(
+            spectator.query('[data-testid="parking-booking-time"]'),
+        ).not.toHaveText(':');
     });
 
     it('should add custom extension data columns', () => {
