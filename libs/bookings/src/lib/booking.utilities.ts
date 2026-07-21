@@ -307,7 +307,7 @@ export function bookingFormValue(
         recurrence_nth_of_month: booking.recurrence_nth_of_month ?? 0,
         recurrence_interval: booking.recurrence_interval ?? 0,
         recurrence_end: booking.recurrence_end ?? 0,
-        recurrence_instances: extension_data.recurrence_instances ?? [],
+        recurrence_instances: extension_data.recurrence_instances ?? 0,
         notes: extension_data.notes || '',
         attachments: bookingAttachments(booking),
         update_master: false,
