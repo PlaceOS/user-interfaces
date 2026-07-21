@@ -149,14 +149,13 @@ interface ParkingBookingColumnTemplates {
                     "
                 />
                 <ng-template #date_template let-row="row">
-                    <div class="px-4 py-2">
-                        {{
-                            isAllDayBooking(row)
-                                ? ('COMMON.ALL_DAY' | translate)
-                                : (row.date | date: time_format : timezone) +
-                                  ' - ' +
-                                  (row.date_end | date: time_format : timezone)
-                        }}
+                    <div class="px-4 py-2" data-testid="parking-booking-time">
+                        @if (isAllDayBooking(row)) {
+                            {{ 'COMMON.ALL_DAY' | translate }}
+                        } @else {
+                            {{ row.date | date: time_format : timezone }} -
+                            {{ row.date_end | date: time_format : timezone }}
+                        }
                     </div>
                 </ng-template>
                 <ng-template #person_template let-row="row">
@@ -814,6 +813,15 @@ export class ParkingBookingsListComponent
         return this._state.timezone;
     }
 
+    public get bookable_period() {
+        const period =
+            this._settings.get('app.parking.bookable_hours') ||
+            this._settings.get('app.bookings.bookable_hours');
+        return Number.isFinite(period?.start) && Number.isFinite(period?.end)
+            ? (period.end - period.start) * 60
+            : undefined;
+    }
+
     public isVisibleWaitlisted(booking: Booking) {
         return this.show_waitlist && this.isWaitlisted(booking);
     }
@@ -841,7 +849,11 @@ export class ParkingBookingsListComponent
     }
 
     public isAllDayBooking(booking: Booking) {
-        return isParkingAllDayBooking(booking, this.timezone);
+        return isParkingAllDayBooking(
+            booking,
+            this.timezone,
+            this.bookable_period,
+        );
     }
 
     public statusLabel(booking: Booking) {

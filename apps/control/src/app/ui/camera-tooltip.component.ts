@@ -187,7 +187,7 @@ export enum ZoomDirection {
                         >
                             <p>
                                 {{
-                                    'APP.CONTROLS.CAMERA_SELECT_MSG' | translate
+                                    'APP.CONTROL.CAMERA_SELECT_MSG' | translate
                                 }}
                             </p>
                         </div>
@@ -270,12 +270,7 @@ export class CameraTooltipComponent {
         effect(() => {
             const l = this.camera_list();
             const cam = this._selected_camera();
-            if (!l?.length) return;
-            const current = this.active_camera();
-            const selected = l.find((_) => _.id === cam) || current || l[0];
-            if (selected !== current) {
-                this.active_camera.set(selected);
-            }
+            this.active_camera.set(l?.find((_) => _.id === cam));
         });
     }
 

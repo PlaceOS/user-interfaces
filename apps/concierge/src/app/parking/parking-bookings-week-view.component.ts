@@ -108,20 +108,23 @@ import { isParkingAllDayBooking } from './parking.utilities';
                                         }}
                                     </span>
                                 </div>
-                                <div class="mt-1 opacity-60">
-                                    {{
-                                        isAllDayBooking(booking)
-                                            ? ('COMMON.ALL_DAY' | translate)
-                                            : (booking.date
-                                                  | date
-                                                      : time_format
-                                                      : timezone) +
-                                              ' - ' +
-                                              (booking.date_end
-                                                  | date
-                                                      : time_format
-                                                      : timezone)
-                                    }}
+                                <div
+                                    class="mt-1 opacity-60"
+                                    data-testid="parking-booking-time"
+                                >
+                                    @if (isAllDayBooking(booking)) {
+                                        {{ 'COMMON.ALL_DAY' | translate }}
+                                    } @else {
+                                        {{
+                                            booking.date
+                                                | date: time_format : timezone
+                                        }}
+                                        -
+                                        {{
+                                            booking.date_end
+                                                | date: time_format : timezone
+                                        }}
+                                    }
                                 </div>
                                 @let bay_name =
                                     booking.asset_id | parkingSpace | async;
@@ -481,6 +484,15 @@ export class ParkingBookingsWeekViewComponent extends AsyncHandler {
         return this._state.timezone;
     }
 
+    public get bookable_period() {
+        const period =
+            this._settings.get('app.parking.bookable_hours') ||
+            this._settings.get('app.bookings.bookable_hours');
+        return Number.isFinite(period?.start) && Number.isFinite(period?.end)
+            ? (period.end - period.start) * 60
+            : undefined;
+    }
+
     public get hide_assign_space() {
         return !!this._settings.get('app.parking.hide_assign_space');
     }
@@ -519,7 +531,11 @@ export class ParkingBookingsWeekViewComponent extends AsyncHandler {
     }
 
     public isAllDayBooking(booking: Booking) {
-        return isParkingAllDayBooking(booking, this.timezone);
+        return isParkingAllDayBooking(
+            booking,
+            this.timezone,
+            this.bookable_period,
+        );
     }
 
     public statusLabel(booking: Booking) {
