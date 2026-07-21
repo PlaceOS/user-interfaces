@@ -163,7 +163,7 @@ import {
   ɵɵtwoWayBindingSet,
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty
-} from "./chunk-6JDUC6T2.js";
+} from "./chunk-ZQUI6GD6.js";
 import {
   __export,
   __spreadProps,
@@ -10281,12 +10281,12 @@ var RoomModule = class {
       zone3: 100
     };
     this.available_cameras = [
-      "Camera_1",
-      "Camera_2",
-      "Camera_3",
-      "Camera_4"
+      "Camera1",
+      "Camera2",
+      "Camera3",
+      "Camera4"
     ];
-    this.selected_camera = "Camera_1";
+    this.selected_camera = null;
     this.microphones = [
       "Microphone_1",
       "Microphone_2",
@@ -10528,7 +10528,7 @@ Plug your laptop into the HDMI to stream it to the screen, or access the CMS to 
     }
   }
   /** Select a camera */
-  $select_camera(camera_id) {
+  $selected_camera(camera_id) {
     if (this.available_cameras.includes(camera_id)) {
       this.selected_camera = camera_id;
     }
@@ -11994,39 +11994,39 @@ var APP_ROUTES = [
     children: [
       {
         path: "media",
-        loadComponent: () => import("./media.component-TCZKO2FT.js").then((m) => m.MediaSectionComponent)
+        loadComponent: () => import("./media.component-TDXCS6N7.js").then((m) => m.MediaSectionComponent)
       },
       {
         path: "playlists/:id",
-        loadComponent: () => import("./playlists.component-UOTH4ZUX.js").then((m) => m.PlaylistsSectionComponent)
+        loadComponent: () => import("./playlists.component-ORUZLHYR.js").then((m) => m.PlaylistsSectionComponent)
       },
       {
         path: "playlists",
-        loadComponent: () => import("./playlists.component-UOTH4ZUX.js").then((m) => m.PlaylistsSectionComponent)
+        loadComponent: () => import("./playlists.component-ORUZLHYR.js").then((m) => m.PlaylistsSectionComponent)
       },
       {
         path: "schedules",
-        loadComponent: () => import("./schedules.component-NUXOM7O7.js").then((m) => m.SchedulesSectionComponent)
+        loadComponent: () => import("./schedules.component-ZNCJ3SY2.js").then((m) => m.SchedulesSectionComponent)
       },
       {
         path: "displays/:id",
-        loadComponent: () => import("./displays.component-6NZZDRYS.js").then((m) => m.DisplaysSectionComponent)
+        loadComponent: () => import("./displays.component-IZXK2GYE.js").then((m) => m.DisplaysSectionComponent)
       },
       {
         path: "displays",
-        loadComponent: () => import("./displays.component-6NZZDRYS.js").then((m) => m.DisplaysSectionComponent)
+        loadComponent: () => import("./displays.component-IZXK2GYE.js").then((m) => m.DisplaysSectionComponent)
       },
       {
         path: "groups",
-        loadComponent: () => import("./groups.component-CFTPWXCX.js").then((m) => m.GroupsSectionComponent)
+        loadComponent: () => import("./groups.component-256EDUQQ.js").then((m) => m.GroupsSectionComponent)
       },
       {
         path: "zones/:id",
-        loadComponent: () => import("./zones.component-7TUDNBK4.js").then((m) => m.ZonesSectionComponent)
+        loadComponent: () => import("./zones.component-3GNQQJZV.js").then((m) => m.ZonesSectionComponent)
       },
       {
         path: "zones",
-        loadComponent: () => import("./zones.component-7TUDNBK4.js").then((m) => m.ZonesSectionComponent)
+        loadComponent: () => import("./zones.component-3GNQQJZV.js").then((m) => m.ZonesSectionComponent)
       },
       { path: "**", redirectTo: "media" }
     ]
