@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["playlist-items.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: flex;\n                flex-direction: column;\n                height: 100%;\n            }\n\n            ::ng-deep .cdk-drag-preview {\n                opacity: 0.6;\n            }\n\n            .cdk-drag-placeholder {\n                opacity: 0.3;\n            }\n\n            ::ng-deep .playlist-schedule-tooltip .mdc-tooltip__surface {\n                white-space: pre-line;\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAA;AACA,kBAAA;AACA,UAAA;AACJ;AAEA,UAAA,CAAA;AACI,WAAA;AACJ;AAEA,CAAA;AACI,WAAA;AACJ;AAEA,UAAA,CAAA,0BAAA,CAAA;AACI,eAAA;AACJ;",
+  "names": []
+}
