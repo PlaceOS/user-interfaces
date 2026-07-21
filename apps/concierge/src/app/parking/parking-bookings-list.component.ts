@@ -35,6 +35,11 @@ interface ParkingBookingExtensionColumn {
     size?: string;
 }
 
+interface ParkingSpaceRestrictionOption {
+    id: string | number;
+    name: string;
+}
+
 interface ParkingBookingColumnTemplates {
     state_template: TemplateRef<any>;
     type_template: TemplateRef<any>;
@@ -99,7 +104,7 @@ interface ParkingBookingColumnTemplates {
                     class="sticky left-0 w-full"
                 />
                 <simple-table
-                    class="block min-w-324 text-sm"
+                    class="block min-w-372 text-sm"
                     [data]="filtered_events()"
                     [columns]="
                         bookingColumns({
@@ -653,6 +658,7 @@ export class ParkingBookingsListComponent
                 // Intersection of the booking's user groups with the
                 // configured `show_user_groups` filter, surfaced for display.
                 user_groups: this.matchedUserGroups(booking),
+                space_restriction: this.spaceRestriction(booking),
                 ...this.customExtensionColumnValues(booking),
             }))
             .sort((a, b) =>
@@ -763,6 +769,37 @@ export class ParkingBookingsListComponent
 
     public sortUserGroups(a: string[] = [], b: string[] = []) {
         return (a[0] || '').localeCompare(b[0] || '');
+    }
+
+    public get space_restriction_options(): ParkingSpaceRestrictionOption[] {
+        const options = this._settings.get(
+            'parking.request_space_restrictions',
+        );
+        return Array.isArray(options)
+            ? options.filter(
+                  (option) =>
+                      option?.name &&
+                      option?.id !== undefined &&
+                      option?.id !== null,
+              )
+            : [];
+    }
+
+    public spaceRestriction(booking: Booking): string {
+        const restriction_id = booking?.extension_data?.space_restrictions;
+        if (
+            restriction_id === undefined ||
+            restriction_id === null ||
+            restriction_id === false ||
+            restriction_id === ''
+        ) {
+            return '';
+        }
+        return (
+            this.space_restriction_options.find(
+                (option) => `${option.id}` === `${restriction_id}`,
+            )?.name || `${restriction_id}`
+        );
     }
 
     public get show_waitlist() {
@@ -904,6 +941,11 @@ export class ParkingBookingsListComponent
                 size: '12rem',
                 sort_fn: this.sortUserGroups,
                 show: this.show_user_groups.length > 0,
+            },
+            {
+                key: 'space_restriction',
+                name: 'Space Restriction',
+                size: '12rem',
             },
             {
                 key: 'actions',

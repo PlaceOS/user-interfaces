@@ -16,6 +16,7 @@ describe('ParkingBookingsListComponent', () => {
     let hide_assign_space = false;
     let show_waitlist = true;
     let show_user_groups: string[] = [];
+    let space_restriction_options: { id: number; name: string }[] = [];
     let custom_booking_columns: any[] = [];
     let timezone = 'Australia/Perth';
     let request_filter: 'all' | 'bookings' | 'requests' | 'waitlist' = 'all';
@@ -73,9 +74,12 @@ describe('ParkingBookingsListComponent', () => {
                               ? hide_assign_space
                               : name === 'app.parking.show_user_groups'
                                 ? show_user_groups
-                                : name === 'app.parking.custom_booking_columns'
-                                  ? custom_booking_columns
-                                  : false,
+                                : name === 'parking.request_space_restrictions'
+                                  ? space_restriction_options
+                                  : name ===
+                                      'app.parking.custom_booking_columns'
+                                    ? custom_booking_columns
+                                    : false,
                 ),
                 signal: vi.fn((_: string, initial: boolean) => signal(initial)),
                 time_format: 'h:mm a',
@@ -91,6 +95,7 @@ describe('ParkingBookingsListComponent', () => {
         hide_assign_space = false;
         show_waitlist = true;
         show_user_groups = [];
+        space_restriction_options = [];
         custom_booking_columns = [];
         timezone = 'Australia/Perth';
         request_filter = 'all';
@@ -123,6 +128,7 @@ describe('ParkingBookingsListComponent', () => {
             'plate_number',
             'status',
             'created_at',
+            'space_restriction',
             'actions',
         ]);
     });
@@ -252,6 +258,65 @@ describe('ParkingBookingsListComponent', () => {
                 ?.column('user_groups')
                 ?.sort_fn?.(['Alpha', 'Zulu'], ['Alpha', 'Beta']),
         ).toBe(0);
+    });
+
+    it('should resolve and sort parking space restrictions by name', () => {
+        show_user_groups = ['Staff'];
+        space_restriction_options = [
+            { id: 2, name: 'Electric Vehicle' },
+            { id: 9, name: 'ACROD (Max height 2.1m)' },
+            { id: 1, name: 'None' },
+        ];
+        bookings = [
+            {
+                id: 'booking-electric',
+                asset_id: 'bay-2',
+                extension_data: {
+                    user_groups: ['Staff'],
+                    space_restrictions: 2,
+                },
+            },
+            {
+                id: 'booking-none',
+                asset_id: 'bay-3',
+                extension_data: { space_restrictions: 1 },
+            },
+            {
+                id: 'booking-acrod',
+                asset_id: 'bay-1',
+                extension_data: { space_restrictions: 9 },
+            },
+        ] as unknown as Booking[];
+        spectator = createComponent();
+
+        const table =
+            spectator.query<SimpleTableComponent<Booking>>(
+                SimpleTableComponent,
+            );
+        const column_keys = table?.active_columns().map((column) => column.key);
+
+        expect(
+            spectator.component
+                .filtered_events()
+                .find((booking) => booking.id === 'booking-electric'),
+        ).toMatchObject({
+            id: 'booking-electric',
+            space_restriction: 'Electric Vehicle',
+        });
+        expect(column_keys?.indexOf('space_restriction')).toBe(
+            (column_keys?.indexOf('user_groups') ?? -1) + 1,
+        );
+        expect(table?.column('space_restriction')?.name).toBe(
+            'Space Restriction',
+        );
+
+        table?.setSort('space_restriction');
+
+        expect(table?.data_view().map((booking) => booking.id)).toEqual([
+            'booking-acrod',
+            'booking-electric',
+            'booking-none',
+        ]);
     });
 
     it('should hide the bay number column when viewing requests', () => {
