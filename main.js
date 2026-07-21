@@ -68052,15 +68052,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION4 = {
   "dirty": false,
-  "raw": "e3b8a6a",
-  "hash": "e3b8a6a",
+  "raw": "3fee653",
+  "hash": "3fee653",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "e3b8a6a",
+  "suffix": "3fee653",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1784534615593
+  "time": 1784606036226
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -108413,7 +108413,7 @@ function removeBookingInstance(id, start_time) {
 async function checkinBooking(id, state2) {
   const query2 = toQueryString({ state: state2 });
   try {
-    return new Booking(await S2(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/check_in?${query2}`, ""));
+    return new Booking(await S2(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/check_in?${query2}&utm_source=${bookingUtmSource()}`, ""));
   } catch (e) {
     const body = await e.json();
     throw body.error || body.message || body;
@@ -108422,7 +108422,7 @@ async function checkinBooking(id, state2) {
 async function checkinBookingInstance(id, start_time, state2) {
   const query2 = toQueryString({ state: state2 });
   try {
-    return new Booking(await S2(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/check_in/${start_time}?${query2}`, ""));
+    return new Booking(await S2(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/check_in/${start_time}?${query2}&utm_source=${bookingUtmSource()}`, ""));
   } catch (e) {
     const body = await e.json();
     throw body.error || body.message || body;
@@ -122526,7 +122526,7 @@ function bookingFormValue(booking = new Booking()) {
     recurrence_nth_of_month: booking.recurrence_nth_of_month ?? 0,
     recurrence_interval: booking.recurrence_interval ?? 0,
     recurrence_end: booking.recurrence_end ?? 0,
-    recurrence_instances: extension_data.recurrence_instances ?? [],
+    recurrence_instances: extension_data.recurrence_instances ?? 0,
     notes: extension_data.notes || "",
     attachments: bookingAttachments(booking),
     update_master: false,
