@@ -49777,15 +49777,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "e3b8a6a",
-  "hash": "e3b8a6a",
+  "raw": "3fee653",
+  "hash": "3fee653",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "e3b8a6a",
+  "suffix": "3fee653",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1784534682815
+  "time": 1784606085317
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -84137,7 +84137,7 @@ function removeBookingInstance(id, start_time) {
 async function checkinBooking(id, state2) {
   const query2 = toQueryString({ state: state2 });
   try {
-    return new Booking(await S(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/check_in?${query2}`, ""));
+    return new Booking(await S(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/check_in?${query2}&utm_source=${bookingUtmSource()}`, ""));
   } catch (e) {
     const body = await e.json();
     throw body.error || body.message || body;
@@ -84683,4 +84683,4 @@ export {
   getGuestCateringItem,
   setGuestCateringItem
 };
-//# sourceMappingURL=chunk-5DN6XJ73.js.map
+//# sourceMappingURL=chunk-JYRRV2IS.js.map

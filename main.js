@@ -12,7 +12,7 @@ import {
   generateMockSpace,
   setHours,
   setMinutes
-} from "./chunk-7KJM5ZYD.js";
+} from "./chunk-H6X3QETF.js";
 import {
   parseTokenFromUrl
 } from "./chunk-FZ3XJSQC.js";
@@ -24,10 +24,10 @@ import {
   MatSelectModule,
   MatSelectTrigger,
   SanitizePipe
-} from "./chunk-6NZ4BZUP.js";
+} from "./chunk-A4ADWAG4.js";
 import {
   CheckinStateService
-} from "./chunk-FHRQRPDB.js";
+} from "./chunk-3CLMHCFK.js";
 import {
   $r,
   ANIMATION_MODULE_TYPE,
@@ -239,7 +239,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-5DN6XJ73.js";
+} from "./chunk-JYRRV2IS.js";
 import {
   __export,
   __objRest,
@@ -13425,12 +13425,12 @@ var RoomModule = class {
       zone3: 100
     };
     this.available_cameras = [
-      "Camera_1",
-      "Camera_2",
-      "Camera_3",
-      "Camera_4"
+      "Camera1",
+      "Camera2",
+      "Camera3",
+      "Camera4"
     ];
-    this.selected_camera = "Camera_1";
+    this.selected_camera = null;
     this.microphones = [
       "Microphone_1",
       "Microphone_2",
@@ -13672,7 +13672,7 @@ Plug your laptop into the HDMI to stream it to the screen, or access the CMS to 
     }
   }
   /** Select a camera */
-  $select_camera(camera_id) {
+  $selected_camera(camera_id) {
     if (this.available_cameras.includes(camera_id)) {
       this.selected_camera = camera_id;
     }
@@ -21535,17 +21535,17 @@ var routes = [
   {
     path: "explore",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./explore.routes-ISFFSGTE.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./explore.routes-JFSXFAVE.js").then((m) => m.ROUTES)
   },
   {
     path: "checkin",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./checkin.routes-2Y7TYG6C.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./checkin.routes-5JEGL24X.js").then((m) => m.ROUTES)
   },
   {
     path: "checkout",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./checkout.routes-Q5DVCJFT.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./checkout.routes-HPRLJ6MW.js").then((m) => m.ROUTES)
   },
   { path: "**", redirectTo: "bootstrap" }
 ];
