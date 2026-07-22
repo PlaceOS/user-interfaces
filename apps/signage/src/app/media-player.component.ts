@@ -404,17 +404,17 @@ export class MediaPlayerComponent
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.playlist) {
-            const playlist_signature = this._getPlaylistSignature(
-                this.playlist() || [],
-            );
+            const next_playlist = this.playlist() || [];
+            const playlist_signature =
+                this._getPlaylistSignature(next_playlist);
             if (playlist_signature !== this._playlist_signature) {
                 const was_playing = this.state() === 'PLAYING';
                 const current_item = this.active_item;
                 this._playlist_signature = playlist_signature;
                 this._clearItemURLs();
                 this.progress.set(0);
-                if (was_playing) this.togglePause();
-                this._item_playlist = [...(this.playlist() || [])];
+                if (was_playing && next_playlist.length) this.togglePause();
+                this._item_playlist = [...next_playlist];
                 const current_index = this._item_playlist.findIndex(
                     (_) => _.id === current_item?.id,
                 );
