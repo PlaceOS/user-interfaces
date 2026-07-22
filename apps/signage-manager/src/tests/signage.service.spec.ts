@@ -14,6 +14,7 @@ import {
     SignageMedia,
     SignagePlaylist,
     updateSignageMedia,
+    updateSignagePlaylistMedia,
     updateSignagePlaylistMediaSchedule,
 } from '@placeos/ts-client';
 import { MediaTagsModalComponent } from '../app/shared/media-tags-modal.component';
@@ -152,6 +153,21 @@ describe('SignageService media uploads', () => {
         );
     });
 
+    it('removes a distribution schedule from the playlist items', async () => {
+        const service = createService();
+        (listSignagePlaylistMedia as any).mockResolvedValue({
+            items: ['schedule-1', 'schedule-2'],
+            schedules: [],
+        });
+        (updateSignagePlaylistMedia as any).mockResolvedValue({});
+
+        await service.removeMediaFromPlaylist('playlist-1', 'schedule-1', 0);
+
+        expect(updateSignagePlaylistMedia).toHaveBeenCalledWith('playlist-1', [
+            'schedule-2',
+        ]);
+    });
+
     it('does not create signage media when the media upload fails', async () => {
         uploads.uploadFileWithPermissionsToCompletion.mockRejectedValue({
             error: 'Upload failed',
@@ -244,9 +260,7 @@ describe('SignageService media uploads', () => {
             afterClosed: () => ({
                 subscribe: (handler: (value?: unknown) => void) => {
                     Promise.resolve()
-                        .then(() =>
-                            config.data.onEdit(media.id, updated_media),
-                        )
+                        .then(() => config.data.onEdit(media.id, updated_media))
                         .then(() => handler(undefined));
                     return { unsubscribe: vi.fn() };
                 },
