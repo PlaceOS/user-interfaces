@@ -199,7 +199,7 @@ describe('PlaylistEditModalComponent', () => {
                     },
                     {
                         play_at: Math.floor(play_at / 1000),
-                        play_cron: '',
+                        play_cron: '0 0 * * *',
                         play_period: 45,
                         play_takeover: true,
                     },

@@ -32,7 +32,7 @@ describe('playlist-schedule-form helpers', () => {
         expect(model.play_at).toBe(play_at);
     });
 
-    it('builds a one-off payload with a unix play_at and no cron', () => {
+    it('builds a one-off payload with a unix play_at and fallback cron', () => {
         const play_at = Date.UTC(2026, 2, 2, 10, 30);
         const payload = playlistSchedulePayload({
             ...createPlaylistScheduleModel(),
@@ -44,7 +44,7 @@ describe('playlist-schedule-form helpers', () => {
 
         expect(payload).toEqual({
             play_at: getUnixTime(new Date(play_at)),
-            play_cron: '',
+            play_cron: '0 0 * * *',
             play_period: 45,
             play_takeover: true,
         });

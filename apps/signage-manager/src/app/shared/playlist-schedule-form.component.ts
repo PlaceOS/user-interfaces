@@ -515,7 +515,7 @@ export function playlistSchedulePayload(
     return value.schedule_type === 'play_at'
         ? {
               play_at: value.play_at ? getUnixTime(new Date(value.play_at)) : 0,
-              play_cron: '',
+              play_cron: DEFAULT_RECURRING_CRON,
               play_period: Math.max(0, value.play_period || 0),
               play_takeover: !!value.play_takeover,
           }
