@@ -49,6 +49,7 @@ export interface TimeFieldRange {
     selector: 'a-time-field,time-field',
     template: `
         <button
+            type="button"
             time-field
             matRipple
             class="border-neutral flex h-12 w-full items-center justify-between rounded-sm border px-2"
@@ -75,6 +76,7 @@ export interface TimeFieldRange {
         <mat-menu #menu="matMenu" class="max-h-60 min-w-[18rem]">
             @if (force_time()) {
                 <button
+                    type="button"
                     mat-menu-item
                     [value]="force_time()"
                     class="text-left"
@@ -104,6 +106,7 @@ export interface TimeFieldRange {
             }
             @for (option of time_options(); track option.id) {
                 <button
+                    type="button"
                     mat-menu-item
                     [attr.data-time]="option.id"
                     [value]="option.id"
