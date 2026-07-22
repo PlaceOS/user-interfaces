@@ -553,6 +553,80 @@ describe('SignageService', () => {
         expect(override_playlist.ends_at).toBeGreaterThan(Date.now());
     });
 
+    it('should clear a scheduled override removed from the display', async () => {
+        (ts_client.showSignage as any)
+            .mockResolvedValueOnce(create_display())
+            .mockResolvedValueOnce(
+                create_display({
+                    playlist_mappings: {
+                        'display-1': ['base-playlist'],
+                        'zone-1': ['zone-playlist'],
+                        'trig-fire': ['trigger-playlist'],
+                    },
+                }),
+            );
+        spectator.service.setDisplay('display-1');
+        await flush();
+        expect(
+            spectator.service.override_playlist().playlist.map((_) => _.id),
+        ).toEqual(['media-3']);
+
+        await (spectator.service as any)._reloadDisplay();
+        await flush();
+
+        expect(spectator.service.override_playlist()).toEqual({
+            playlist: [],
+            ends_at: 0,
+        });
+    });
+
+    it('should remove one takeover while keeping another active', async () => {
+        const second_takeover = {
+            id: 'second-takeover',
+            name: 'Second Takeover',
+            enabled: true,
+            default_animation: MediaAnimation.Cut,
+            default_duration: 10000,
+            schedules: [
+                {
+                    play_at: Math.floor(Date.now() / 1000),
+                    play_cron: '',
+                    play_period: 10,
+                    play_takeover: true,
+                },
+            ],
+        };
+        const display_with = (playlist_ids: string[]) =>
+            create_display({
+                playlist_mappings: {
+                    'display-1': playlist_ids,
+                    'zone-1': [],
+                    'trig-fire': ['trigger-playlist'],
+                },
+                playlist_config: {
+                    ...create_display().playlist_config,
+                    'second-takeover': [second_takeover, ['media-5']],
+                },
+            });
+        (ts_client.showSignage as any)
+            .mockResolvedValueOnce(
+                display_with(['scheduled-playlist', 'second-takeover']),
+            )
+            .mockResolvedValueOnce(display_with(['second-takeover']));
+        spectator.service.setDisplay('display-1');
+        await flush();
+        expect(
+            spectator.service.override_playlist().playlist.map((_) => _.id),
+        ).toEqual(['media-3', 'media-5']);
+
+        await (spectator.service as any)._reloadDisplay();
+        await flush();
+
+        expect(
+            spectator.service.override_playlist().playlist.map((_) => _.id),
+        ).toEqual(['media-5']);
+    });
+
     it('should set and clear playlist overrides manually', () => {
         spectator.service.setPlaylistOverride([
             { id: 'override-1', playlist: 'playlist-1' } as any,

@@ -538,8 +538,13 @@ export class SignageService extends AsyncHandler {
         const active_playlists = active_schedules.map(
             ({ playlist }) => playlist,
         );
-        if (!active_playlists.length) return;
-        if (this._hasCurrentOverrideFor(active_playlists)) return;
+        if (!active_playlists.length) {
+            if (this.override_playlist().schedule_keys?.length) {
+                this.override_playlist.set({ playlist: [], ends_at: 0 });
+            }
+            return;
+        }
+        if (this._hasCurrentOverrideFor(active_schedules)) return;
         const media = this._getPlaylistMedia(
             display,
             active_playlists.map((_) => _.id),
@@ -566,10 +571,12 @@ export class SignageService extends AsyncHandler {
             .filter(({ key }) => !this._completed_schedule_overrides.has(key));
     }
 
-    private _hasCurrentOverrideFor(playlists: SignagePlaylist[]) {
-        const existing_override = this.override_playlist();
-        return playlists.every(({ id }) =>
-            existing_override.playlist.find((media) => media.playlist === id),
+    private _hasCurrentOverrideFor(schedules: ActivePlaylistSchedule[]) {
+        const existing_keys = this.override_playlist().schedule_keys || [];
+        const active_keys = new Set(schedules.map(({ key }) => key));
+        return (
+            existing_keys.length === active_keys.size &&
+            existing_keys.every((key) => active_keys.has(key))
         );
     }
 
