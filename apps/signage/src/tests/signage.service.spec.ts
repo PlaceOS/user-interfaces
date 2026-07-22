@@ -148,9 +148,6 @@ describe('SignageService', () => {
         (ts_client.querySignagePlugins as any).mockReturnValue(
             Promise.resolve({ data: [] } as any),
         );
-        (ts_client.responseHeaders as any).mockReturnValue({
-            'last-modified': new Date().toUTCString(),
-        } as any);
         trigger_binding = {
             bindThenSubscribe: vi.fn(() => ({ unsubscribe: vi.fn() })),
         };
@@ -392,7 +389,6 @@ describe('SignageService', () => {
         (ts_client.showSignage as any).mockImplementation(() =>
             Promise.reject(new Error('display unavailable')),
         );
-        (ts_client.responseHeaders as any).mockReturnValue({});
         media_cache.availableFiles.mockClear();
         media_cache.requestFilesToCache.mockClear();
         media_cache.invalidateFile.mockClear();
@@ -405,31 +401,54 @@ describe('SignageService', () => {
         expect(media_cache.invalidateFile).not.toHaveBeenCalled();
     });
 
-    it('should preserve last modified time when display loading falls back to cache', async () => {
-        const last_modified = Date.UTC(2026, 0, 1, 10, 0, 0);
-        (ts_client.responseHeaders as any).mockReturnValueOnce({
-            'last-modified': new Date(last_modified).toUTCString(),
-        } as any);
+    it('should apply a changed schedule when last modified is unchanged', async () => {
+        const now = new Date('2026-01-01T10:05:00');
+        vi.setSystemTime(now);
+        const scheduled_display = (play_cron: string) =>
+            create_display({
+                playlist_mappings: {
+                    'display-1': ['scheduled-playlist'],
+                    'zone-1': [],
+                    'trig-fire': ['trigger-playlist'],
+                },
+                playlist_config: {
+                    ...create_display().playlist_config,
+                    'scheduled-playlist': [
+                        {
+                            id: 'scheduled-playlist',
+                            name: 'Scheduled Playlist',
+                            enabled: true,
+                            default_animation: MediaAnimation.Cut,
+                            default_duration: 10000,
+                            schedules: [
+                                {
+                                    play_at: 0,
+                                    play_cron,
+                                    play_period: 10,
+                                    play_takeover: false,
+                                },
+                            ],
+                        },
+                        ['media-3'],
+                    ],
+                },
+            });
+        (ts_client.showSignage as any)
+            .mockResolvedValueOnce(scheduled_display('0 9 * * *'))
+            .mockResolvedValueOnce(scheduled_display('0 10 * * *'));
         spectator.service.setDisplay('display-1');
         await flush();
+        expect(spectator.service.playlist()).toHaveLength(0);
 
-        (ts_client.showSignage as any).mockImplementation(() =>
-            Promise.reject(new Error('display unavailable')),
-        );
-        (ts_client.responseHeaders as any).mockReturnValue({});
-
-        spectator.service.setDisplay('display-1');
+        await (spectator.service as any)._reloadDisplay();
         await flush();
 
-        expect((spectator.service as any)._last_modified).toBe(last_modified);
+        expect(spectator.service.playlist().map((_) => _.id)).toEqual([
+            'media-3',
+        ]);
         expect(ts_client.showSignage).toHaveBeenLastCalledWith(
             'display-1',
             expect.any(Object),
-            {
-                headers: {
-                    'If-Modified-Since': new Date(last_modified).toUTCString(),
-                },
-            },
         );
     });
 
