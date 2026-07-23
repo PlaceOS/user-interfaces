@@ -49967,7 +49967,8 @@ var COMMON = {
   ALL_OFFICES: "All Offices",
   ALL_STATUSES: "All Statuses",
   MAP_KIOSK: "Map Kiosk",
-  BOOKABLE_HOURS_ERROR: "Current date is outside available booking hours. Switched to next available time."
+  BOOKABLE_HOURS_ERROR: "Current date is outside available booking hours. Switched to next available time.",
+  TOOLTIP_SOURCE: "Source: {{ source }}"
 };
 var LANGUAGE = {
   ENGLISH: "English",
@@ -50922,6 +50923,10 @@ var APP = {
     DESKS_BOOKING_RULES: "Desk Restrictions",
     DESKS_BOOKINGS_EMPTY: "There are no desk booking for the currently selected date.",
     DESKS_BOOKINGS_SEARCH_EMPTY: "No matching desk bookings",
+    BOOKING_VIEW_HISTORY: "View Booking History",
+    BOOKING_HISTORY_HEADER: "Booking history for {{ name }}",
+    BOOKING_HISTORY_EMPTY: "No history recorded for this booking",
+    BOOKING_HISTORY_STATE_NO_SHOW: "No show",
     DESKS_GROUP_EMPTY: "No Group",
     DESKS_ACTION_APPROVE: "Approve Desk",
     DESKS_ACTION_DECLINE: "Reject Desk",
@@ -51300,10 +51305,6 @@ var APP = {
     PARKING_REQUEST_EDIT: "Edit Request",
     PARKING_REQUEST_SAVE: "Successfully submitted parking request.",
     PARKING_EDIT: "Edit Reservation",
-    PARKING_VIEW_HISTORY: "View Booking History",
-    PARKING_HISTORY_HEADER: "Booking history for {{ name }}",
-    PARKING_HISTORY_EMPTY: "No history recorded for this booking",
-    PARKING_HISTORY_STATE_NO_SHOW: "No show",
     PARKING_SPACE: "Parking Space",
     PARKING_SPACE_ADD: "New Space",
     PARKING_SPACE_NEW: "New Parking Space",
@@ -53320,7 +53321,7 @@ function bi(t = 43) {
   const e = ts(t), n = zs(Fs(e)), s = Yn(Gs.hash(n)).split("=")[0].replace(/\//g, "_").replace(/\+/g, "-");
   return { challenge: e, verify: s };
 }
-function vi() {
+function vi2() {
   let e = (_.token_uri || "/auth/token") + `?client_id=${encodeURIComponent(T)}`, n = "";
   if (e += `&redirect_uri=${encodeURIComponent(_.redirect_uri)}`, Pt()) {
     e += `&refresh_token=${encodeURIComponent(Pt())}`, e += "&grant_type=refresh_token";
@@ -53347,7 +53348,7 @@ function ki(t) {
   return `${e}?${n}`;
 }
 function cs() {
-  return as(...vi());
+  return as(...vi2());
 }
 function Si(t) {
   return as(ki(t));
@@ -56504,6 +56505,9 @@ var PERMISSION_VALUES = [
   ["manage", GroupPermission.Manage],
   ["share", GroupPermission.Share]
 ];
+function isTestRuntime() {
+  return typeof jest !== "undefined" || typeof vi !== "undefined";
+}
 var user_permissions = computed(
   () => {
     const permissions = {
@@ -56569,11 +56573,8 @@ async function loadUserGroups() {
   }
 }
 function initialiseUser() {
-  try {
-    if (jest)
-      return;
-  } catch {
-  }
+  if (isTestRuntime())
+    return;
   _current_user.subscribe((u4) => user_signal.set(u4));
   const is_public_mode = isPublicMode();
   const user_request = combineLatest([Na("current"), _change]).pipe(map(([i]) => new StaffUser(i)));
@@ -56637,15 +56638,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "3fee653",
-  "hash": "3fee653",
+  "raw": "66fd918",
+  "hash": "66fd918",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "3fee653",
+  "suffix": "66fd918",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1784606103352
+  "time": 1784784023364
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -112563,6 +112564,7 @@ var generateBookingForDay = (day, type2, index, user) => {
     checked_in: approved && predictableRandomInt(4) <= 2,
     rejected: predictableRandomInt(12) === 0,
     approved: approved !== 0,
+    deleted: false,
     access: approved !== 0,
     permission: type2 === "group-event" ? "OPEN" : "PRIVATE",
     approver_id: approved ? approver.id : "",
@@ -112581,6 +112583,7 @@ var generateBookingForDay = (day, type2, index, user) => {
     extension_data: {
       map_id: `table-${bld?.id}.${position}`,
       note: capitalizeFirstLetter(`${type2.replace("-", " ")} booking ${index}`),
+      notes: "",
       plate_number: randomString(8, "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"),
       tracking: approved ? "at_location" : "in_storage",
       space_id: lvl_spaces.length ? lvl_spaces[predictableRandomInt(lvl_spaces.length)].id : `space-${index}`,
@@ -112659,6 +112662,27 @@ var MOCK_BOOKINGS = (() => {
       dayBookings.push(...userDayBookings);
     });
     bookings.push(...dayBookings);
+  }
+  const active_user = MOCK_STAFF.find((user) => user.id === ACTIVE_USER.id);
+  for (const bld of active_user ? MOCK_BUILDINGS : []) {
+    const booking = generateBookingForDay(15, "parking", bookingIndex++, active_user);
+    const parking_level = MOCK_LEVELS.find((level) => level.parent_id === bld.id && level.type === "parking");
+    booking.title = `Cancelled parking request - ${bld.name}`;
+    booking.description = "Cancelled mock request for testing disabled parking actions";
+    booking.asset_id = `unallocated-${bld.id}-cancelled`;
+    booking.asset_ids = [booking.asset_id];
+    booking.asset_name = "Unallocated parking request";
+    booking.checked_in = false;
+    booking.rejected = false;
+    booking.approved = false;
+    booking.deleted = true;
+    booking.access = false;
+    booking.zones = [bld.id, parking_level?.id].filter(Boolean);
+    booking.extension_data = __spreadProps(__spreadValues({}, booking.extension_data), {
+      notes: "Cancelled mock request",
+      plate_number: "CANCELLED"
+    });
+    bookings.push(booking);
   }
   return bookings.sort((a, b2) => a.booking_start - b2.booking_start);
 })();
@@ -116963,6 +116987,17 @@ var MOCK_METADATA = {
           last_name: "Sorafumo"
         }
       ]
+    }
+  },
+  "zone-org": {
+    concierge_app: {
+      name: "concierge_app",
+      description: "Mock-only concierge settings",
+      details: {
+        parking: {
+          allow_deleting: true
+        }
+      }
     }
   }
 };
