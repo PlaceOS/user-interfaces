@@ -48130,7 +48130,8 @@ var COMMON = {
   ALL_OFFICES: "All Offices",
   ALL_STATUSES: "All Statuses",
   MAP_KIOSK: "Map Kiosk",
-  BOOKABLE_HOURS_ERROR: "Current date is outside available booking hours. Switched to next available time."
+  BOOKABLE_HOURS_ERROR: "Current date is outside available booking hours. Switched to next available time.",
+  TOOLTIP_SOURCE: "Source: {{ source }}"
 };
 var LANGUAGE = {
   ENGLISH: "English",
@@ -51483,7 +51484,7 @@ function bi(t = 43) {
   const e = ts(t), n = zs(Fs(e)), s = Yn(Gs.hash(n)).split("=")[0].replace(/\//g, "_").replace(/\+/g, "-");
   return { challenge: e, verify: s };
 }
-function vi() {
+function vi2() {
   let e = (_.token_uri || "/auth/token") + `?client_id=${encodeURIComponent(T)}`, n = "";
   if (e += `&redirect_uri=${encodeURIComponent(_.redirect_uri)}`, Pt()) {
     e += `&refresh_token=${encodeURIComponent(Pt())}`, e += "&grant_type=refresh_token";
@@ -51510,7 +51511,7 @@ function ki(t) {
   return `${e}?${n}`;
 }
 function cs() {
-  return as(...vi());
+  return as(...vi2());
 }
 function Si(t) {
   return as(ki(t));
@@ -54083,6 +54084,9 @@ var PERMISSION_VALUES = [
   ["manage", GroupPermission.Manage],
   ["share", GroupPermission.Share]
 ];
+function isTestRuntime() {
+  return typeof jest !== "undefined" || typeof vi !== "undefined";
+}
 var user_permissions = computed(
   () => {
     const permissions = {
@@ -54148,11 +54152,8 @@ async function loadUserGroups() {
   }
 }
 function initialiseUser() {
-  try {
-    if (jest)
-      return;
-  } catch {
-  }
+  if (isTestRuntime())
+    return;
   _current_user.subscribe((u3) => user_signal.set(u3));
   const is_public_mode = isPublicMode();
   const user_request = combineLatest([Na("current"), _change]).pipe(map(([i]) => new StaffUser(i)));
@@ -54216,15 +54217,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "3fee653",
-  "hash": "3fee653",
+  "raw": "dc1f957",
+  "hash": "dc1f957",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "3fee653",
+  "suffix": "dc1f957",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1784606032903
+  "time": 1784778823329
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -91813,6 +91814,7 @@ var generateBookingForDay = (day, type2, index, user) => {
     checked_in: approved && predictableRandomInt(4) <= 2,
     rejected: predictableRandomInt(12) === 0,
     approved: approved !== 0,
+    deleted: false,
     access: approved !== 0,
     permission: type2 === "group-event" ? "OPEN" : "PRIVATE",
     approver_id: approved ? approver.id : "",
@@ -91831,6 +91833,7 @@ var generateBookingForDay = (day, type2, index, user) => {
     extension_data: {
       map_id: `table-${bld?.id}.${position}`,
       note: capitalizeFirstLetter(`${type2.replace("-", " ")} booking ${index}`),
+      notes: "",
       plate_number: randomString(8, "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"),
       tracking: approved ? "at_location" : "in_storage",
       space_id: lvl_spaces.length ? lvl_spaces[predictableRandomInt(lvl_spaces.length)].id : `space-${index}`,
@@ -91909,6 +91912,27 @@ var MOCK_BOOKINGS = (() => {
       dayBookings.push(...userDayBookings);
     });
     bookings.push(...dayBookings);
+  }
+  const active_user = MOCK_STAFF.find((user) => user.id === ACTIVE_USER.id);
+  for (const bld of active_user ? MOCK_BUILDINGS : []) {
+    const booking = generateBookingForDay(15, "parking", bookingIndex++, active_user);
+    const parking_level = MOCK_LEVELS.find((level) => level.parent_id === bld.id && level.type === "parking");
+    booking.title = `Cancelled parking request - ${bld.name}`;
+    booking.description = "Cancelled mock request for testing disabled parking actions";
+    booking.asset_id = `unallocated-${bld.id}-cancelled`;
+    booking.asset_ids = [booking.asset_id];
+    booking.asset_name = "Unallocated parking request";
+    booking.checked_in = false;
+    booking.rejected = false;
+    booking.approved = false;
+    booking.deleted = true;
+    booking.access = false;
+    booking.zones = [bld.id, parking_level?.id].filter(Boolean);
+    booking.extension_data = __spreadProps(__spreadValues({}, booking.extension_data), {
+      notes: "Cancelled mock request",
+      plate_number: "CANCELLED"
+    });
+    bookings.push(booking);
   }
   return bookings.sort((a, b2) => a.booking_start - b2.booking_start);
 })();
@@ -96214,6 +96238,17 @@ var MOCK_METADATA = {
         }
       ]
     }
+  },
+  "zone-org": {
+    concierge_app: {
+      name: "concierge_app",
+      description: "Mock-only concierge settings",
+      details: {
+        parking: {
+          allow_deleting: true
+        }
+      }
+    }
   }
 };
 var LOCKERS = {};
@@ -98991,16 +99026,17 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
   }
   ngOnChanges(changes) {
     if (changes.playlist) {
-      const playlist_signature = this._getPlaylistSignature(this.playlist() || []);
+      const next_playlist = this.playlist() || [];
+      const playlist_signature = this._getPlaylistSignature(next_playlist);
       if (playlist_signature !== this._playlist_signature) {
         const was_playing = this.state() === "PLAYING";
         const current_item = this.active_item;
         this._playlist_signature = playlist_signature;
         this._clearItemURLs();
         this.progress.set(0);
-        if (was_playing)
+        if (was_playing && next_playlist.length)
           this.togglePause();
-        this._item_playlist = [...this.playlist() || []];
+        this._item_playlist = [...next_playlist];
         const current_index = this._item_playlist.findIndex((_2) => _2.id === current_item?.id);
         this.hold_over_item.set(false);
         const target_index = current_index >= 0 ? current_index : 0;
@@ -100875,7 +100911,7 @@ var SignageService = class _SignageService extends AsyncHandler {
         []
       )
     );
-    this._last_modified = 0;
+    this._display_signature = "";
     this._playlists = [];
     this._last_playlist = [];
     this._last_override_playlists = [];
@@ -100945,20 +100981,17 @@ var SignageService = class _SignageService extends AsyncHandler {
     this.interval("metrics", () => this._postMetrics(), 10 * MINUTES);
     this._scheduleTick();
   }
-  /**
-   * Re-fetch the active display details and refresh the derived playlists,
-   * trigger bindings, media cache and scheduled overrides. Skips downstream
-   * work when the server reports the display has not been modified.
-   */
+  /** Re-fetch the active display details and refresh derived player state. */
   async _reloadDisplay() {
     const id = this._display();
     if (!id)
       return;
-    const previous_modified = this._last_modified;
     const value = await this._fetchDisplay(id);
-    if (this._last_modified === previous_modified && this._display_data()) {
+    const display_signature = `${id}:${JSON.stringify(value || {})}`;
+    if (display_signature === this._display_signature && this._display_data()) {
       return;
     }
+    this._display_signature = display_signature;
     const display = this._parseDisplay(value);
     display.plugins = await this._resolveDisplayPlugins(display);
     this._display_data.set(display);
@@ -100971,11 +101004,7 @@ var SignageService = class _SignageService extends AsyncHandler {
       void 0,
       null,
       ""
-    ]), {
-      headers: {
-        "If-Modified-Since": new Date(this._last_modified).toUTCString()
-      }
-    }).catch((_2) => null);
+    ])).catch((_2) => null);
     if (!d) {
       const display_key = displayCacheKey(id);
       d = JSON.parse(localStorage.getItem(display_key) || localStorage.getItem(DISPLAY_KEY) || "{}");
@@ -100984,12 +101013,6 @@ var SignageService = class _SignageService extends AsyncHandler {
     }
     if (d.id === id) {
       localStorage.setItem(displayCacheKey(id), JSON.stringify(d));
-    }
-    const path = `/api/engine/v2/signage/${id}`;
-    const headers = Ti(`${location.origin}${path}`);
-    const last_modified = new Date(headers["last-modified"]).valueOf();
-    if (Number.isFinite(last_modified) && last_modified > 0) {
-      this._last_modified = last_modified;
     }
     return d;
   }
@@ -101110,9 +101133,13 @@ var SignageService = class _SignageService extends AsyncHandler {
   _checkScheduledOverrides(display, playlist_ids) {
     const active_schedules = this._activeOverrideSchedules(display, playlist_ids);
     const active_playlists = active_schedules.map(({ playlist }) => playlist);
-    if (!active_playlists.length)
+    if (!active_playlists.length) {
+      if (this.override_playlist().schedule_keys?.length) {
+        this.override_playlist.set({ playlist: [], ends_at: 0 });
+      }
       return;
-    if (this._hasCurrentOverrideFor(active_playlists))
+    }
+    if (this._hasCurrentOverrideFor(active_schedules))
       return;
     const media = this._getPlaylistMedia(display, active_playlists.map((_2) => _2.id));
     const ends_at = this._scheduledOverrideEnd(active_schedules);
@@ -101127,9 +101154,10 @@ var SignageService = class _SignageService extends AsyncHandler {
     const now = time();
     return playlist_ids.map((id) => this._playlistConfig(display, id)?.[0]).filter((_2) => !!_2).flatMap((playlist) => activePlaylistSchedules(playlist, now)).filter(({ key }) => !this._completed_schedule_overrides.has(key));
   }
-  _hasCurrentOverrideFor(playlists) {
-    const existing_override = this.override_playlist();
-    return playlists.every(({ id }) => existing_override.playlist.find((media) => media.playlist === id));
+  _hasCurrentOverrideFor(schedules) {
+    const existing_keys = this.override_playlist().schedule_keys || [];
+    const active_keys = new Set(schedules.map(({ key }) => key));
+    return existing_keys.length === active_keys.size && existing_keys.every((key) => active_keys.has(key));
   }
   _scheduledOverrideEnd(schedules) {
     const duration_minutes = schedules.reduce((duration, { schedule }) => Math.max(duration, playlistPlayPeriodMinutes(schedule)), 0);
