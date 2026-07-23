@@ -2,34 +2,34 @@ import {
   MatProgressBar,
   MatProgressBarModule,
   subDays
-} from "./chunk-BLUZ3PRU.js";
+} from "./chunk-LBZCGDGN.js";
 import {
   FooterMenuComponent,
   TopbarComponent,
   parse2 as parse
-} from "./chunk-JZLEH7BZ.js";
+} from "./chunk-5IZVDD2R.js";
 import {
   subMinutes
-} from "./chunk-JKVYFOQI.js";
-import "./chunk-QPP7OWIF.js";
-import "./chunk-XE4322K3.js";
-import "./chunk-GLZWU5TH.js";
-import "./chunk-WT5KFBGN.js";
-import "./chunk-CEGM7L62.js";
+} from "./chunk-HDEF5FAX.js";
+import "./chunk-NJ23FPNM.js";
+import "./chunk-7X6A3JFR.js";
+import "./chunk-GXDHPWFM.js";
+import "./chunk-DLJ2M7KA.js";
+import "./chunk-F6GEIZUY.js";
 import {
   generateMockSpace,
   setMinutes
-} from "./chunk-CX7HHNBM.js";
-import "./chunk-ZVSMEM5O.js";
-import "./chunk-E4HXBWCX.js";
-import "./chunk-2GCDWSJ5.js";
-import "./chunk-H34TSZRQ.js";
+} from "./chunk-QO4CONNN.js";
+import "./chunk-AHY7HDOU.js";
+import "./chunk-B5FYPWPG.js";
+import "./chunk-LDZDAULU.js";
+import "./chunk-3X5WTZMJ.js";
 import {
   CustomTooltipComponent,
   MatTooltip,
   MatTooltipModule
-} from "./chunk-LODFVBHS.js";
-import "./chunk-E4VKPCCN.js";
+} from "./chunk-OMYLRE7M.js";
+import "./chunk-GUTIOTOK.js";
 import {
   AUTO_STYLE,
   AnimationGroupPlayer,
@@ -87,7 +87,7 @@ import {
   style,
   user_groups_loaded,
   ɵPRE_STYLE
-} from "./chunk-TOWF5YBN.js";
+} from "./chunk-5R2JET4U.js";
 import {
   $r,
   ANIMATION_MODULE_TYPE,
@@ -227,7 +227,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-CQB5CWCP.js";
+} from "./chunk-ZCRECLJE.js";
 import {
   __export,
   __objRest,
@@ -7750,6 +7750,7 @@ var generateBookingForDay = (day, type2, index, user) => {
     checked_in: approved && predictableRandomInt(4) <= 2,
     rejected: predictableRandomInt(12) === 0,
     approved: approved !== 0,
+    deleted: false,
     access: approved !== 0,
     permission: type2 === "group-event" ? "OPEN" : "PRIVATE",
     approver_id: approved ? approver.id : "",
@@ -7768,6 +7769,7 @@ var generateBookingForDay = (day, type2, index, user) => {
     extension_data: {
       map_id: `table-${bld?.id}.${position}`,
       note: capitalizeFirstLetter(`${type2.replace("-", " ")} booking ${index}`),
+      notes: "",
       plate_number: randomString(8, "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"),
       tracking: approved ? "at_location" : "in_storage",
       space_id: lvl_spaces.length ? lvl_spaces[predictableRandomInt(lvl_spaces.length)].id : `space-${index}`,
@@ -7846,6 +7848,27 @@ var MOCK_BOOKINGS = (() => {
       dayBookings.push(...userDayBookings);
     });
     bookings.push(...dayBookings);
+  }
+  const active_user = MOCK_STAFF.find((user) => user.id === ACTIVE_USER.id);
+  for (const bld of active_user ? MOCK_BUILDINGS : []) {
+    const booking = generateBookingForDay(15, "parking", bookingIndex++, active_user);
+    const parking_level = MOCK_LEVELS.find((level) => level.parent_id === bld.id && level.type === "parking");
+    booking.title = `Cancelled parking request - ${bld.name}`;
+    booking.description = "Cancelled mock request for testing disabled parking actions";
+    booking.asset_id = `unallocated-${bld.id}-cancelled`;
+    booking.asset_ids = [booking.asset_id];
+    booking.asset_name = "Unallocated parking request";
+    booking.checked_in = false;
+    booking.rejected = false;
+    booking.approved = false;
+    booking.deleted = true;
+    booking.access = false;
+    booking.zones = [bld.id, parking_level?.id].filter(Boolean);
+    booking.extension_data = __spreadProps(__spreadValues({}, booking.extension_data), {
+      notes: "Cancelled mock request",
+      plate_number: "CANCELLED"
+    });
+    bookings.push(booking);
   }
   return bookings.sort((a, b) => a.booking_start - b.booking_start);
 })();
@@ -12150,6 +12173,17 @@ var MOCK_METADATA = {
           last_name: "Sorafumo"
         }
       ]
+    }
+  },
+  "zone-org": {
+    concierge_app: {
+      name: "concierge_app",
+      description: "Mock-only concierge settings",
+      details: {
+        parking: {
+          allow_deleting: true
+        }
+      }
     }
   }
 };
@@ -17967,62 +18001,62 @@ var routes = [
     title: "Book",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./book.routes-74TR3OR2.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./book.routes-I6IIEYRK.js").then((m) => m.ROUTES)
   },
   {
     path: "explore",
     title: "Explore",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./explore.routes-B34MFGMY.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./explore.routes-ZUSMLSLE.js").then((m) => m.ROUTES)
   },
   {
     path: "control",
     title: "Control",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./control.routes-RIRU7ADL.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./control.routes-BOJKZ4EY.js").then((m) => m.ROUTES)
   },
   {
     path: "directory",
     title: "Directory",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./directory.routes-7LXBH3MM.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./directory.routes-PMCWPSHT.js").then((m) => m.ROUTES)
   },
   {
     path: "your-bookings",
     title: "Your Bookings",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./schedule.routes-DMUKTDIU.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./schedule.routes-L7QTZWN6.js").then((m) => m.ROUTES)
   },
   {
     path: "group-events",
     title: "Group Events",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./group-events.routes-XE4TB6UV.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./group-events.routes-6CL4ZKAS.js").then((m) => m.ROUTES)
   },
   {
     path: "deals-n-offers",
     title: "Deals & Offers",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./deals.routes-WPEGY6KO.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./deals.routes-3YGRGYFW.js").then((m) => m.ROUTES)
   },
   {
     path: "landing",
     title: "Home",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadComponent: () => import("./landing-new.component-PSCCYYMI.js").then((m) => m.LandingNewComponent)
+    loadComponent: () => import("./landing-new.component-YY6E6NB4.js").then((m) => m.LandingNewComponent)
   },
   {
     path: "team-schedule",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadComponent: () => import("./team-schedule.component-XJP6YCP4.js").then((m) => m.TeamScheduleComponent)
+    loadComponent: () => import("./team-schedule.component-JTVBXDNX.js").then((m) => m.TeamScheduleComponent)
   },
   {
     path: "embedded/:id",
