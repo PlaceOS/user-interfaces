@@ -48644,7 +48644,8 @@ var COMMON = {
   ALL_OFFICES: "All Offices",
   ALL_STATUSES: "All Statuses",
   MAP_KIOSK: "Map Kiosk",
-  BOOKABLE_HOURS_ERROR: "Current date is outside available booking hours. Switched to next available time."
+  BOOKABLE_HOURS_ERROR: "Current date is outside available booking hours. Switched to next available time.",
+  TOOLTIP_SOURCE: "Source: {{ source }}"
 };
 var LANGUAGE = {
   ENGLISH: "English",
@@ -52009,7 +52010,7 @@ function bi(t = 43) {
   const e = ts(t), n = zs(Fs(e)), s = Yn(Gs.hash(n)).split("=")[0].replace(/\//g, "_").replace(/\+/g, "-");
   return { challenge: e, verify: s };
 }
-function vi() {
+function vi2() {
   let e = (_.token_uri || "/auth/token") + `?client_id=${encodeURIComponent(T)}`, n = "";
   if (e += `&redirect_uri=${encodeURIComponent(_.redirect_uri)}`, Pt()) {
     e += `&refresh_token=${encodeURIComponent(Pt())}`, e += "&grant_type=refresh_token";
@@ -52036,7 +52037,7 @@ function ki(t) {
   return `${e}?${n}`;
 }
 function cs() {
-  return as(...vi());
+  return as(...vi2());
 }
 function Si(t) {
   return as(ki(t));
@@ -55748,6 +55749,9 @@ var PERMISSION_VALUES = [
   ["manage", GroupPermission.Manage],
   ["share", GroupPermission.Share]
 ];
+function isTestRuntime() {
+  return typeof jest !== "undefined" || typeof vi !== "undefined";
+}
 var user_permissions = computed(
   () => {
     const permissions = {
@@ -55813,11 +55817,8 @@ async function loadUserGroups() {
   }
 }
 function initialiseUser() {
-  try {
-    if (jest)
-      return;
-  } catch {
-  }
+  if (isTestRuntime())
+    return;
   _current_user.subscribe((u3) => user_signal.set(u3));
   const is_public_mode = isPublicMode();
   const user_request = combineLatest([Na("current"), _change]).pipe(map(([i]) => new StaffUser(i)));
@@ -55865,11 +55866,7 @@ function currentUser() {
 function currentUserIsLoaded() {
   if (!isEmptyUser(currentUser()))
     return true;
-  try {
-    return !!jest;
-  } catch {
-    return false;
-  }
+  return isTestRuntime();
 }
 function currentUserLoaded() {
   const user = currentUser();
@@ -55905,15 +55902,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "3fee653",
-  "hash": "3fee653",
+  "raw": "dc1f957",
+  "hash": "dc1f957",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "3fee653",
+  "suffix": "dc1f957",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1784606028404
+  "time": 1784778882554
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -100834,7 +100831,7 @@ _TimeFieldComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ ty
     useExisting: forwardRef(() => _TimeFieldComponent),
     multi: true
   }
-]), \u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature], ngContentSelectors: _c016, decls: 15, vars: 12, consts: [["menu", "matMenu"], ["time-field", "", "matRipple", "", 1, "border-neutral", "flex", "h-12", "w-full", "items-center", "justify-between", "rounded-sm", "border", "px-2", 3, "disabled", "matMenuTriggerFor"], [1, "flex", "w-1/2", "flex-1", "flex-col", "px-2", "text-left", "leading-tight"], [1, "truncate"], [1, "truncate", "text-xs", "opacity-30"], [1, "text-2xl"], [1, "max-h-60", "min-w-[18rem]"], ["mat-menu-item", "", 1, "text-left", 3, "value"], ["mat-menu-item", "", "disabled", ""], ["mat-menu-item", "", 1, "text-left", 3, "click", "value"], [1, "flex", "items-center", "justify-between"], [1, "flex", "flex-col", "leading-tight"], [1, ""], [1, "text-xs", "opacity-30"], [1, "ml-2", "text-2xl"]], template: function TimeFieldComponent_Template(rf, ctx) {
+]), \u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature], ngContentSelectors: _c016, decls: 15, vars: 12, consts: [["menu", "matMenu"], ["type", "button", "time-field", "", "matRipple", "", 1, "border-neutral", "flex", "h-12", "w-full", "items-center", "justify-between", "rounded-sm", "border", "px-2", 3, "disabled", "matMenuTriggerFor"], [1, "flex", "w-1/2", "flex-1", "flex-col", "px-2", "text-left", "leading-tight"], [1, "truncate"], [1, "truncate", "text-xs", "opacity-30"], [1, "text-2xl"], [1, "max-h-60", "min-w-[18rem]"], ["type", "button", "mat-menu-item", "", 1, "text-left", 3, "value"], ["mat-menu-item", "", "disabled", ""], ["type", "button", "mat-menu-item", "", 1, "text-left", 3, "click", "value"], [1, "flex", "items-center", "justify-between"], [1, "flex", "flex-col", "leading-tight"], [1, ""], [1, "text-xs", "opacity-30"], [1, "ml-2", "text-2xl"]], template: function TimeFieldComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275projectionDef();
     \u0275\u0275elementStart(0, "button", 1)(1, "div", 2)(2, "div", 3);
@@ -100874,6 +100871,7 @@ var TimeFieldComponent = _TimeFieldComponent;
     type: Component,
     args: [{ selector: "a-time-field,time-field", template: `
         <button
+            type="button"
             time-field
             matRipple
             class="border-neutral flex h-12 w-full items-center justify-between rounded-sm border px-2"
@@ -100900,6 +100898,7 @@ var TimeFieldComponent = _TimeFieldComponent;
         <mat-menu #menu="matMenu" class="max-h-60 min-w-[18rem]">
             @if (force_time()) {
                 <button
+                    type="button"
                     mat-menu-item
                     [value]="force_time()"
                     class="text-left"
@@ -100929,6 +100928,7 @@ var TimeFieldComponent = _TimeFieldComponent;
             }
             @for (option of time_options(); track option.id) {
                 <button
+                    type="button"
                     mat-menu-item
                     [attr.data-time]="option.id"
                     [value]="option.id"
@@ -100974,7 +100974,7 @@ var TimeFieldComponent = _TimeFieldComponent;
   }], null, { step: [{ type: Input, args: [{ isSignal: true, alias: "step", required: false }] }], disabled: [{ type: Input, args: [{ isSignal: true, alias: "disabled", required: false }] }, { type: Output, args: ["disabledChange"] }], no_past_times: [{ type: Input, args: [{ isSignal: true, alias: "no_past_times", required: false }] }], use_24hr: [{ type: Input, args: [{ isSignal: true, alias: "use_24hr", required: false }] }], force_time: [{ type: Input, args: [{ isSignal: true, alias: "force_time", required: false }] }], no_error: [{ type: Input, args: [{ isSignal: true, alias: "no_error", required: false }] }], extra_info_fn: [{ type: Input, args: [{ isSignal: true, alias: "extra_info_fn", required: false }] }], from: [{ type: Input, args: [{ isSignal: true, alias: "from", required: false }] }], range: [{ type: Input, args: [{ isSignal: true, alias: "range", required: false }] }], min_duration: [{ type: Input, args: [{ isSignal: true, alias: "min_duration", required: false }] }], timezone: [{ type: Input, args: [{ isSignal: true, alias: "timezone", required: false }] }], _menu_trigger: [{ type: ViewChild, args: [forwardRef(() => MatMenuTrigger), { isSignal: true }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(TimeFieldComponent, { className: "TimeFieldComponent", filePath: "libs/form-fields/src/lib/time-field.component.ts", lineNumber: 159 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(TimeFieldComponent, { className: "TimeFieldComponent", filePath: "libs/form-fields/src/lib/time-field.component.ts", lineNumber: 162 });
 })();
 
 // libs/components/src/lib/virtual-keyboard.component.ts
@@ -106940,7 +106940,7 @@ _DurationFieldComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent(
     useExisting: forwardRef(() => _DurationFieldComponent),
     multi: true
   }
-]), \u0275\u0275NgOnChangesFeature], ngContentSelectors: _c019, decls: 15, vars: 12, consts: [["menu", "matMenu"], ["duration-field", "", "matRipple", "", 1, "border-neutral", "flex", "h-12", "w-full", "items-center", "justify-between", "rounded-sm", "border", "px-2", 3, "disabled", "matMenuTriggerFor"], [1, "flex", "w-1/2", "flex-1", "flex-col", "px-2", "text-left", "leading-tight"], [1, "truncate"], [1, "truncate", "text-xs", "opacity-30"], [1, "text-2xl"], [1, "max-h-60", "min-w-[18rem]"], ["mat-menu-item", "", 1, "text-left"], ["mat-menu-item", "", "disabled", ""], ["mat-menu-item", "", 1, "text-left", 3, "click"], [1, "flex", "items-center", "justify-between"], [1, "flex", "flex-col", "leading-tight"], [1, "ml-2", "text-2xl"]], template: function DurationFieldComponent_Template(rf, ctx) {
+]), \u0275\u0275NgOnChangesFeature], ngContentSelectors: _c019, decls: 15, vars: 12, consts: [["menu", "matMenu"], ["type", "button", "duration-field", "", "matRipple", "", 1, "border-neutral", "flex", "h-12", "w-full", "items-center", "justify-between", "rounded-sm", "border", "px-2", 3, "disabled", "matMenuTriggerFor"], [1, "flex", "w-1/2", "flex-1", "flex-col", "px-2", "text-left", "leading-tight"], [1, "truncate"], [1, "truncate", "text-xs", "opacity-30"], [1, "text-2xl"], [1, "max-h-60", "min-w-[18rem]"], ["type", "button", "mat-menu-item", "", 1, "text-left"], ["mat-menu-item", "", "disabled", ""], ["type", "button", "mat-menu-item", "", 1, "text-left", 3, "click"], [1, "flex", "items-center", "justify-between"], [1, "flex", "flex-col", "leading-tight"], [1, "ml-2", "text-2xl"]], template: function DurationFieldComponent_Template(rf, ctx) {
   var _a11, _b4, _c9, _d2, _e2;
   if (rf & 1) {
     \u0275\u0275projectionDef();
@@ -106978,6 +106978,7 @@ var DurationFieldComponent = _DurationFieldComponent;
     type: Component,
     args: [{ selector: "a-duration-field,duration-field", template: `
         <button
+            type="button"
             duration-field
             class="border-neutral flex h-12 w-full items-center justify-between rounded-sm border px-2"
             [disabled]="disabled() || no_options()"
@@ -107015,6 +107016,7 @@ var DurationFieldComponent = _DurationFieldComponent;
         <mat-menu #menu="matMenu" class="max-h-60 min-w-[18rem]">
             @for (option of duration_options(); track option.id) {
                 <button
+                    type="button"
                     mat-menu-item
                     class="text-left"
                     (click)="setValue(option.id)"
@@ -107073,7 +107075,7 @@ var DurationFieldComponent = _DurationFieldComponent;
   }], null, { max: [{ type: Input, args: [{ isSignal: true, alias: "max", required: false }] }], min: [{ type: Input, args: [{ isSignal: true, alias: "min", required: false }] }], step: [{ type: Input, args: [{ isSignal: true, alias: "step", required: false }] }], time: [{ type: Input, args: [{ isSignal: true, alias: "time", required: false }] }], disabled: [{ type: Input, args: [{ isSignal: true, alias: "disabled", required: false }] }, { type: Output, args: ["disabledChange"] }], custom_options: [{ type: Input, args: [{ isSignal: true, alias: "custom_options", required: false }] }], force: [{ type: Input, args: [{ isSignal: true, alias: "force", required: false }] }], use_24hr: [{ type: Input, args: [{ isSignal: true, alias: "use_24hr", required: false }] }], timezone: [{ type: Input, args: [{ isSignal: true, alias: "timezone", required: false }] }], end_time: [{ type: Input, args: [{ isSignal: true, alias: "end_time", required: false }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DurationFieldComponent, { className: "DurationFieldComponent", filePath: "libs/form-fields/src/lib/duration-field.component.ts", lineNumber: 153 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DurationFieldComponent, { className: "DurationFieldComponent", filePath: "libs/form-fields/src/lib/duration-field.component.ts", lineNumber: 155 });
 })();
 
 // libs/bookings/src/lib/booking.utilities.ts
@@ -109555,6 +109557,7 @@ var generateBookingForDay = (day, type2, index, user) => {
     checked_in: approved && predictableRandomInt(4) <= 2,
     rejected: predictableRandomInt(12) === 0,
     approved: approved !== 0,
+    deleted: false,
     access: approved !== 0,
     permission: type2 === "group-event" ? "OPEN" : "PRIVATE",
     approver_id: approved ? approver.id : "",
@@ -109573,6 +109576,7 @@ var generateBookingForDay = (day, type2, index, user) => {
     extension_data: {
       map_id: `table-${bld == null ? void 0 : bld.id}.${position}`,
       note: capitalizeFirstLetter(`${type2.replace("-", " ")} booking ${index}`),
+      notes: "",
       plate_number: randomString(8, "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"),
       tracking: approved ? "at_location" : "in_storage",
       space_id: lvl_spaces.length ? lvl_spaces[predictableRandomInt(lvl_spaces.length)].id : `space-${index}`,
@@ -109651,6 +109655,27 @@ var MOCK_BOOKINGS = (() => {
       dayBookings.push(...userDayBookings);
     });
     bookings.push(...dayBookings);
+  }
+  const active_user = MOCK_STAFF.find((user) => user.id === ACTIVE_USER.id);
+  for (const bld of active_user ? MOCK_BUILDINGS : []) {
+    const booking = generateBookingForDay(15, "parking", bookingIndex++, active_user);
+    const parking_level = MOCK_LEVELS.find((level) => level.parent_id === bld.id && level.type === "parking");
+    booking.title = `Cancelled parking request - ${bld.name}`;
+    booking.description = "Cancelled mock request for testing disabled parking actions";
+    booking.asset_id = `unallocated-${bld.id}-cancelled`;
+    booking.asset_ids = [booking.asset_id];
+    booking.asset_name = "Unallocated parking request";
+    booking.checked_in = false;
+    booking.rejected = false;
+    booking.approved = false;
+    booking.deleted = true;
+    booking.access = false;
+    booking.zones = [bld.id, parking_level == null ? void 0 : parking_level.id].filter(Boolean);
+    booking.extension_data = __spreadProps(__spreadValues({}, booking.extension_data), {
+      notes: "Cancelled mock request",
+      plate_number: "CANCELLED"
+    });
+    bookings.push(booking);
   }
   return bookings.sort((a, b2) => a.booking_start - b2.booking_start);
 })();
@@ -114012,6 +114037,17 @@ var MOCK_METADATA = {
           last_name: "Sorafumo"
         }
       ]
+    }
+  },
+  "zone-org": {
+    concierge_app: {
+      name: "concierge_app",
+      description: "Mock-only concierge settings",
+      details: {
+        parking: {
+          allow_deleting: true
+        }
+      }
     }
   }
 };
