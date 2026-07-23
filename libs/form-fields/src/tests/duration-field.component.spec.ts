@@ -22,6 +22,10 @@ describe('DurationFieldComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
+    it('should not submit a parent form when opened', () => {
+        expect('button[duration-field]').toHaveAttribute('type', 'button');
+    });
+
     it('should be able to be disabled', () => {
         expect('button[duration-field]').not.toHaveAttribute('disabled');
         spectator.component.setDisabledState(true);

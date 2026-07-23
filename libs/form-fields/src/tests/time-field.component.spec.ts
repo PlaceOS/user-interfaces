@@ -29,6 +29,10 @@ describe('TimeFieldComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
+    it('should not submit a parent form when opened', () => {
+        expect('button[time-field]').toHaveAttribute('type', 'button');
+    });
+
     it('should allow the user to select a time', () => {
         spectator.click('button[time-field]');
         const option_elements = document.querySelectorAll('[mat-menu-item]');

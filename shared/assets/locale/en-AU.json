@@ -754,7 +754,8 @@
         "ALL_OFFICES": "All Offices",
         "ALL_STATUSES": "All Statuses",
         "MAP_KIOSK": "Map Kiosk",
-        "BOOKABLE_HOURS_ERROR": "Current date is outside available booking hours. Switched to next available time."
+        "BOOKABLE_HOURS_ERROR": "Current date is outside available booking hours. Switched to next available time.",
+        "TOOLTIP_SOURCE": "Source: {{ source }}"
     },
     "LANGUAGE": {
         "ENGLISH": "English",

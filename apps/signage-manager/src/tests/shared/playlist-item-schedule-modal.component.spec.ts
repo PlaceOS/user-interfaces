@@ -107,6 +107,31 @@ describe('PlaylistItemScheduleModalComponent', () => {
         );
     });
 
+    it('saves play_at schedules with the backend fallback cron', async () => {
+        const component = await createComponent();
+        const play_at = Date.UTC(2026, 2, 2, 10, 30);
+        component.model.update((model) => ({
+            schedules: [
+                {
+                    ...model.schedules[0],
+                    schedule_type: 'play_at',
+                    play_at,
+                    play_period: 45,
+                },
+            ],
+        }));
+
+        await component.saveSchedule();
+
+        expect(save).toHaveBeenCalledWith('item-1', [
+            expect.objectContaining({
+                play_at: Math.floor(play_at / 1000),
+                play_cron: '0 0 * * *',
+                play_period: 45,
+            }),
+        ]);
+    });
+
     it('saves existing schedule entries by schedule id', async () => {
         modal_data.item = {
             id: 'schedule-1',

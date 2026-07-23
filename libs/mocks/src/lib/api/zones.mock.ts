@@ -33,6 +33,17 @@ const MOCK_METADATA = {
             ],
         },
     },
+    'zone-org': {
+        concierge_app: {
+            name: 'concierge_app',
+            description: 'Mock-only concierge settings',
+            details: {
+                parking: {
+                    allow_deleting: true,
+                },
+            },
+        },
+    },
 };
 
 export const LOCKERS = {};

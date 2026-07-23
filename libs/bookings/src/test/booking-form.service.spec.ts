@@ -114,9 +114,7 @@ describe('BookingFormService', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
-        // Under jest `currentUserIsLoaded()` returns true via the `jest` global;
-        // under the vitest builder that global is absent, so seed a loaded user
-        // to keep newForm()/loadForm() from deferring indefinitely.
+        // Seed a concrete user so newForm()/loadForm() has stable creator data.
         setCurrentUser(
             new StaffUser({
                 id: 'current-user',
