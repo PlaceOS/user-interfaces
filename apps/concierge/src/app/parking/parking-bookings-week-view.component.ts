@@ -51,35 +51,32 @@ import { isParkingAllDayBooking } from './parking.utilities';
                                 [class.border-success]="
                                     booking.status === 'approved' &&
                                     !isAssignedBooking(booking) &&
-                                    !isDeletedBooking(booking)
+                                    !isCancelledBooking(booking)
                                 "
                                 [class.border-secondary]="
                                     isAssignedBooking(booking)
                                 "
-                                [class.border-neutral]="
-                                    isDeletedBooking(booking)
+                                [class.border-error]="
+                                    (isCancelledBooking(booking) ||
+                                        booking.status === 'declined') &&
+                                    !isAssignedBooking(booking)
                                 "
                                 [class.border-info]="
                                     booking.status === 'tentative' &&
                                     isVisibleWaitlisted(booking) &&
                                     !isAssignedBooking(booking) &&
-                                    !isDeletedBooking(booking)
+                                    !isCancelledBooking(booking)
                                 "
                                 [class.border-warning]="
                                     booking.status === 'tentative' &&
                                     !isVisibleWaitlisted(booking) &&
                                     !isAssignedBooking(booking) &&
-                                    !isDeletedBooking(booking)
-                                "
-                                [class.border-error]="
-                                    booking.status === 'declined' &&
-                                    !isAssignedBooking(booking) &&
-                                    !isDeletedBooking(booking)
+                                    !isCancelledBooking(booking)
                                 "
                                 [class.border-base-300]="
                                     booking.status === 'ended' &&
                                     !isAssignedBooking(booking) &&
-                                    !isDeletedBooking(booking)
+                                    !isCancelledBooking(booking)
                                 "
                                 [class.opacity-50]="booking.status === 'ended'"
                             >
@@ -156,12 +153,12 @@ import { isParkingAllDayBooking } from './parking.utilities';
                                     [class.text-success-content]="
                                         booking.status === 'approved' &&
                                         !isAssignedBooking(booking) &&
-                                        !isDeletedBooking(booking)
+                                        !isCancelledBooking(booking)
                                     "
                                     [class.bg-success]="
                                         booking.status === 'approved' &&
                                         !isAssignedBooking(booking) &&
-                                        !isDeletedBooking(booking)
+                                        !isCancelledBooking(booking)
                                     "
                                     [class.text-secondary-content!]="
                                         isAssignedBooking(booking)
@@ -169,60 +166,62 @@ import { isParkingAllDayBooking } from './parking.utilities';
                                     [class.bg-secondary!]="
                                         isAssignedBooking(booking)
                                     "
-                                    [class.text-neutral-content!]="
-                                        isDeletedBooking(booking)
+                                    [class.text-error-content!]="
+                                        isCancelledBooking(booking) &&
+                                        !isAssignedBooking(booking)
                                     "
-                                    [class.bg-neutral!]="
-                                        isDeletedBooking(booking)
+                                    [class.bg-error!]="
+                                        isCancelledBooking(booking) &&
+                                        !isAssignedBooking(booking)
                                     "
                                     [class.text-error-content]="
                                         booking.status === 'declined' &&
                                         !isAssignedBooking(booking) &&
-                                        !isDeletedBooking(booking)
+                                        !isCancelledBooking(booking)
                                     "
                                     [class.bg-error]="
                                         booking.status === 'declined' &&
                                         !isAssignedBooking(booking) &&
-                                        !isDeletedBooking(booking)
+                                        !isCancelledBooking(booking)
                                     "
                                     [class.text-warning-content]="
                                         booking.status === 'tentative' &&
                                         !isVisibleWaitlisted(booking) &&
                                         !isAssignedBooking(booking) &&
-                                        !isDeletedBooking(booking)
+                                        !isCancelledBooking(booking)
                                     "
                                     [class.bg-warning]="
                                         booking.status === 'tentative' &&
                                         !isVisibleWaitlisted(booking) &&
                                         !isAssignedBooking(booking) &&
-                                        !isDeletedBooking(booking)
+                                        !isCancelledBooking(booking)
                                     "
                                     [class.text-info-content]="
                                         booking.status === 'tentative' &&
                                         isVisibleWaitlisted(booking) &&
                                         !isAssignedBooking(booking) &&
-                                        !isDeletedBooking(booking)
+                                        !isCancelledBooking(booking)
                                     "
                                     [class.bg-info]="
                                         booking.status === 'tentative' &&
                                         isVisibleWaitlisted(booking) &&
                                         !isAssignedBooking(booking) &&
-                                        !isDeletedBooking(booking)
+                                        !isCancelledBooking(booking)
                                     "
                                     [class.text-neutral-content]="
                                         booking.status === 'ended' &&
                                         !isAssignedBooking(booking) &&
-                                        !isDeletedBooking(booking)
+                                        !isCancelledBooking(booking)
                                     "
                                     [class.bg-neutral]="
                                         booking.status === 'ended' &&
                                         !isAssignedBooking(booking) &&
-                                        !isDeletedBooking(booking)
+                                        !isCancelledBooking(booking)
                                     "
                                     [class.opacity-30]="
                                         isStatusActionDisabled(booking) &&
                                         !isAssignedBooking(booking) &&
-                                        !isDeletedBooking(booking)
+                                        !isCancelledBooking(booking)
                                     "
                                     [matMenuTriggerFor]="menu"
                                     [disabled]="isStatusActionDisabled(booking)"
@@ -302,7 +301,9 @@ import { isParkingAllDayBooking } from './parking.utilities';
                                                     booking.checked_in ||
                                                     booking.state ===
                                                         'in_progress' ||
-                                                    booking.status === 'ended'
+                                                    booking.status ===
+                                                        'ended' ||
+                                                    isCancelledBooking(booking)
                                                 "
                                                 [matTooltip]="
                                                     'APP.CONCIERGE.PARKING_ASSIGN_SPACE'
@@ -327,6 +328,7 @@ import { isParkingAllDayBooking } from './parking.utilities';
                                                 booking.state ===
                                                     'in_progress' ||
                                                 booking.status === 'ended' ||
+                                                isCancelledBooking(booking) ||
                                                 booking.instance
                                             "
                                             [matTooltip]="
@@ -348,7 +350,8 @@ import { isParkingAllDayBooking } from './parking.utilities';
                                                 booking.checked_in ||
                                                 booking.state ===
                                                     'in_progress' ||
-                                                booking.status === 'ended'
+                                                booking.status === 'ended' ||
+                                                isCancelledBooking(booking)
                                             "
                                             [matTooltip]="
                                                 'APP.CONCIERGE.BOOKING_REMOVE_TITLE'
@@ -465,7 +468,7 @@ export class ParkingBookingsWeekViewComponent extends AsyncHandler {
     public readonly isStatusActionDisabled = (e: Booking) =>
         e?.status === 'ended' ||
         this.isAssignedBooking(e) ||
-        this.isDeletedBooking(e) ||
+        this.isCancelledBooking(e) ||
         !this.canApproveBooking(e);
 
     public readonly can_edit = settingSignal('parking.allow_editing', true);
@@ -512,6 +515,12 @@ export class ParkingBookingsWeekViewComponent extends AsyncHandler {
         return !!booking?.deleted;
     }
 
+    public isCancelledBooking(booking: Booking) {
+        return (
+            this.isDeletedBooking(booking) || booking?.status === 'cancelled'
+        );
+    }
+
     public isAllDayBooking(booking: Booking) {
         return isParkingAllDayBooking(
             booking,
@@ -525,15 +534,17 @@ export class ParkingBookingsWeekViewComponent extends AsyncHandler {
             ? 'APP.CONCIERGE.BOOKING_STATUS_ASSIGNED'
             : this.isDeletedBooking(booking)
               ? 'APP.CONCIERGE.BOOKING_STATUS_DELETED'
-              : booking?.status === 'ended'
-                ? 'APP.CONCIERGE.BOOKING_STATUS_ENDED'
-                : booking?.status === 'approved'
-                  ? 'APP.CONCIERGE.BOOKING_STATUS_APPROVED'
-                  : booking?.status === 'declined'
-                    ? 'APP.CONCIERGE.BOOKING_STATUS_DECLINED'
-                    : this.isVisibleWaitlisted(booking)
-                      ? 'APP.CONCIERGE.PARKING_WAITLISTED'
-                      : 'APP.CONCIERGE.BOOKING_STATUS_PENDING';
+              : booking?.status === 'cancelled'
+                ? 'COMMON.TYPE_CANCELLED'
+                : booking?.status === 'ended'
+                  ? 'APP.CONCIERGE.BOOKING_STATUS_ENDED'
+                  : booking?.status === 'approved'
+                    ? 'APP.CONCIERGE.BOOKING_STATUS_APPROVED'
+                    : booking?.status === 'declined'
+                      ? 'APP.CONCIERGE.BOOKING_STATUS_DECLINED'
+                      : this.isVisibleWaitlisted(booking)
+                        ? 'APP.CONCIERGE.PARKING_WAITLISTED'
+                        : 'APP.CONCIERGE.BOOKING_STATUS_PENDING';
     }
 
     public isRequestFilter(filter_type?: string) {

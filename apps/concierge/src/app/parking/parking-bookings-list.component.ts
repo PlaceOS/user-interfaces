@@ -311,57 +311,61 @@ interface ParkingBookingColumnTemplates {
                                 isAssignedBooking(row)
                             "
                             [class.bg-secondary!]="isAssignedBooking(row)"
-                            [class.text-neutral-content!]="
-                                isDeletedBooking(row)
+                            [class.text-error-content!]="
+                                isCancelledBooking(row) &&
+                                !isAssignedBooking(row)
                             "
-                            [class.bg-neutral!]="isDeletedBooking(row)"
+                            [class.bg-error!]="
+                                isCancelledBooking(row) &&
+                                !isAssignedBooking(row)
+                            "
                             [class.text-error-content]="
                                 row?.status === 'declined' &&
                                 !isAssignedBooking(row) &&
-                                !isDeletedBooking(row)
+                                !isCancelledBooking(row)
                             "
                             [class.bg-error]="
                                 row?.status === 'declined' &&
                                 !isAssignedBooking(row) &&
-                                !isDeletedBooking(row)
+                                !isCancelledBooking(row)
                             "
                             [class.text-neutral-content]="
                                 row?.status === 'ended' &&
                                 !isAssignedBooking(row) &&
-                                !isDeletedBooking(row)
+                                !isCancelledBooking(row)
                             "
                             [class.bg-neutral]="
                                 row?.status === 'ended' &&
                                 !isAssignedBooking(row) &&
-                                !isDeletedBooking(row)
+                                !isCancelledBooking(row)
                             "
                             [class.opacity-30]="
                                 isStatusActionDisabled(row) &&
                                 !isAssignedBooking(row) &&
-                                !isDeletedBooking(row)
+                                !isCancelledBooking(row)
                             "
                             [class.text-warning-content]="
                                 row?.status === 'tentative' &&
                                 !isAssignedBooking(row) &&
-                                !isDeletedBooking(row) &&
+                                !isCancelledBooking(row) &&
                                 !isVisibleWaitlisted(row)
                             "
                             [class.bg-warning]="
                                 row?.status === 'tentative' &&
                                 !isAssignedBooking(row) &&
-                                !isDeletedBooking(row) &&
+                                !isCancelledBooking(row) &&
                                 !isVisibleWaitlisted(row)
                             "
                             [class.text-info-content]="
                                 row?.status === 'tentative' &&
                                 !isAssignedBooking(row) &&
-                                !isDeletedBooking(row) &&
+                                !isCancelledBooking(row) &&
                                 isVisibleWaitlisted(row)
                             "
                             [class.bg-info]="
                                 row?.status === 'tentative' &&
                                 !isAssignedBooking(row) &&
-                                !isDeletedBooking(row) &&
+                                !isCancelledBooking(row) &&
                                 isVisibleWaitlisted(row)
                             "
                             [matMenuTriggerFor]="menu"
@@ -506,7 +510,8 @@ interface ParkingBookingColumnTemplates {
                                 [disabled]="
                                     row.checked_in ||
                                     row.state === 'in_progress' ||
-                                    row.status === 'ended'
+                                    row.status === 'ended' ||
+                                    isCancelledBooking(row)
                                 "
                                 [matTooltip]="
                                     'APP.CONCIERGE.PARKING_ASSIGN_SPACE'
@@ -526,6 +531,7 @@ interface ParkingBookingColumnTemplates {
                                     row.checked_in ||
                                     row.state === 'in_progress' ||
                                     row.status === 'ended' ||
+                                    isCancelledBooking(row) ||
                                     row.instance
                                 "
                                 [matTooltip]="
@@ -545,7 +551,8 @@ interface ParkingBookingColumnTemplates {
                                 [disabled]="
                                     row.checked_in ||
                                     row.state === 'in_progress' ||
-                                    row.status === 'ended'
+                                    row.status === 'ended' ||
+                                    isCancelledBooking(row)
                                 "
                                 [matTooltip]="
                                     'APP.CONCIERGE.BOOKING_REMOVE_TITLE'
@@ -646,7 +653,7 @@ export class ParkingBookingsListComponent
     public readonly isStatusActionDisabled = (e: Booking) =>
         e?.status === 'ended' ||
         this.isAssignedBooking(e) ||
-        this.isDeletedBooking(e) ||
+        this.isCancelledBooking(e) ||
         !this.canApproveBooking(e);
     public readonly hide_bay_number_column = computed(() => {
         const { request_filter } = this.options();
@@ -750,6 +757,12 @@ export class ParkingBookingsListComponent
         return !!booking?.deleted;
     }
 
+    public isCancelledBooking(booking: Booking) {
+        return (
+            this.isDeletedBooking(booking) || booking?.status === 'cancelled'
+        );
+    }
+
     public isRecurringInstance(booking: Booking) {
         return !!booking?.instance;
     }
@@ -767,15 +780,17 @@ export class ParkingBookingsListComponent
             ? 'APP.CONCIERGE.BOOKING_STATUS_ASSIGNED'
             : this.isDeletedBooking(booking)
               ? 'APP.CONCIERGE.BOOKING_STATUS_DELETED'
-              : booking?.status === 'ended'
-                ? 'APP.CONCIERGE.BOOKING_STATUS_ENDED'
-                : booking?.status === 'approved'
-                  ? 'APP.CONCIERGE.BOOKING_STATUS_APPROVED'
-                  : booking?.status === 'declined'
-                    ? 'APP.CONCIERGE.BOOKING_STATUS_DECLINED'
-                    : this.isVisibleWaitlisted(booking)
-                      ? 'APP.CONCIERGE.PARKING_WAITLISTED'
-                      : 'APP.CONCIERGE.BOOKING_STATUS_PENDING';
+              : booking?.status === 'cancelled'
+                ? 'COMMON.TYPE_CANCELLED'
+                : booking?.status === 'ended'
+                  ? 'APP.CONCIERGE.BOOKING_STATUS_ENDED'
+                  : booking?.status === 'approved'
+                    ? 'APP.CONCIERGE.BOOKING_STATUS_APPROVED'
+                    : booking?.status === 'declined'
+                      ? 'APP.CONCIERGE.BOOKING_STATUS_DECLINED'
+                      : this.isVisibleWaitlisted(booking)
+                        ? 'APP.CONCIERGE.PARKING_WAITLISTED'
+                        : 'APP.CONCIERGE.BOOKING_STATUS_PENDING';
     }
 
     public bookingColumns(

@@ -363,6 +363,45 @@ describe('ParkingBookingsListComponent', () => {
         ).toBe(true);
     });
 
+    it('should show cancelled bookings in red and disable their mutating actions', () => {
+        bookings = [
+            {
+                id: 'booking-1',
+                asset_id: 'unallocated-1',
+                status: 'cancelled',
+                date: Date.now(),
+                date_end: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+            } as unknown as Booking,
+        ];
+        settingSignal('parking.allow_deleting', false).set(true);
+        spectator = createComponent();
+
+        const status_button = spectator
+            .queryAll('button')
+            .find(
+                (button) =>
+                    button.classList.contains('w-30') &&
+                    button.classList.contains('rounded-3xl'),
+            );
+        const action_button = (icon_name: string) =>
+            spectator
+                .queryAll('icon')
+                .find((icon) => icon.textContent?.includes(icon_name))
+                ?.closest('button');
+
+        expect(spectator.component.statusLabel(bookings[0])).toBe(
+            'COMMON.TYPE_CANCELLED',
+        );
+        expect(status_button).toBeDisabled();
+        expect(status_button).toHaveClass('bg-error!');
+        expect(status_button).toHaveClass('text-error-content!');
+        expect(action_button('add_location')).toBeDisabled();
+        expect(action_button('edit')).toBeDisabled();
+        expect(action_button('delete')).toBeDisabled();
+        expect(action_button('history')).not.toBeDisabled();
+    });
+
     it('should map bookings to the expected vehicle type labels', () => {
         spectator = createComponent();
 
@@ -496,7 +535,7 @@ describe('ParkingBookingsListComponent', () => {
         ).toBe(false);
     });
 
-    it('should show deleted bookings as deleted and disable status actions', () => {
+    it('should show deleted bookings as cancelled in red and disable status actions', () => {
         bookings = [
             {
                 id: 'booking-1',
@@ -530,8 +569,8 @@ describe('ParkingBookingsListComponent', () => {
         );
         expect(spectator.component.isStatusActionDisabled(booking)).toBe(true);
         expect(status_button).toBeDisabled();
-        expect(status_button).toHaveClass('bg-neutral!');
-        expect(status_button).toHaveClass('text-neutral-content!');
+        expect(status_button).toHaveClass('bg-error!');
+        expect(status_button).toHaveClass('text-error-content!');
         expect(status_button).not.toHaveClass('bg-success');
         expect(status_button).not.toHaveClass('opacity-30');
         expect(
