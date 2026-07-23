@@ -713,10 +713,17 @@ export class DeskFlowSelectComponent extends AsyncHandler implements OnInit {
             'clear_selected_desk_on_building_change',
             this._effect(() => {
                 const bld = this._org.active_building();
+                const selected_resources = this.field('resources') || [];
+                const selected_for_building =
+                    !!selected_resources.length &&
+                    selected_resources.every(
+                        (resource) => resource.zone?.parent_id === bld?.id,
+                    );
                 if (
                     previous_building_id &&
                     bld?.id &&
-                    previous_building_id !== bld.id
+                    previous_building_id !== bld.id &&
+                    !selected_for_building
                 ) {
                     this.clearSelectedDesk();
                 }
