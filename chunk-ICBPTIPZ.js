@@ -40612,7 +40612,7 @@ function bi(t = 43) {
   const e = ts(t), n = zs(Fs(e)), s = Yn(Gs.hash(n)).split("=")[0].replace(/\//g, "_").replace(/\+/g, "-");
   return { challenge: e, verify: s };
 }
-function vi() {
+function vi2() {
   let e = (_.token_uri || "/auth/token") + `?client_id=${encodeURIComponent(T)}`, n = "";
   if (e += `&redirect_uri=${encodeURIComponent(_.redirect_uri)}`, Pt()) {
     e += `&refresh_token=${encodeURIComponent(Pt())}`, e += "&grant_type=refresh_token";
@@ -40639,7 +40639,7 @@ function ki(t) {
   return `${e}?${n}`;
 }
 function cs() {
-  return as(...vi());
+  return as(...vi2());
 }
 function Si(t) {
   return as(ki(t));
@@ -42998,7 +42998,8 @@ var COMMON = {
   ALL_OFFICES: "All Offices",
   ALL_STATUSES: "All Statuses",
   MAP_KIOSK: "Map Kiosk",
-  BOOKABLE_HOURS_ERROR: "Current date is outside available booking hours. Switched to next available time."
+  BOOKABLE_HOURS_ERROR: "Current date is outside available booking hours. Switched to next available time.",
+  TOOLTIP_SOURCE: "Source: {{ source }}"
 };
 var LANGUAGE = {
   ENGLISH: "English",
@@ -49622,6 +49623,9 @@ var PERMISSION_VALUES = [
   ["manage", GroupPermission.Manage],
   ["share", GroupPermission.Share]
 ];
+function isTestRuntime() {
+  return typeof jest !== "undefined" || typeof vi !== "undefined";
+}
 var user_permissions = computed(
   () => {
     const permissions = {
@@ -49687,11 +49691,8 @@ async function loadUserGroups() {
   }
 }
 function initialiseUser() {
-  try {
-    if (jest)
-      return;
-  } catch {
-  }
+  if (isTestRuntime())
+    return;
   _current_user.subscribe((u3) => user_signal.set(u3));
   const is_public_mode = isPublicMode();
   const user_request = combineLatest([Na("current"), _change]).pipe(map(([i]) => new StaffUser(i)));
@@ -49739,11 +49740,7 @@ function currentUser() {
 function currentUserIsLoaded() {
   if (!isEmptyUser(currentUser()))
     return true;
-  try {
-    return !!jest;
-  } catch {
-    return false;
-  }
+  return isTestRuntime();
 }
 function currentUserLoaded() {
   const user = currentUser();
@@ -49777,15 +49774,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "3fee653",
-  "hash": "3fee653",
+  "raw": "dc1f957",
+  "hash": "dc1f957",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "3fee653",
+  "suffix": "dc1f957",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1784606085317
+  "time": 1784778825078
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -84683,4 +84680,4 @@ export {
   getGuestCateringItem,
   setGuestCateringItem
 };
-//# sourceMappingURL=chunk-JYRRV2IS.js.map
+//# sourceMappingURL=chunk-ICBPTIPZ.js.map
