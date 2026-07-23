@@ -145,7 +145,7 @@ const EMPTY = [];
         }
         @if (locate()) {
             <button
-                class="border-base-300 bg-base-100 absolute top-2 right-2 h-12 min-w-32 rounded-lg border px-4 shadow-sm"
+                class="border-base-300 bg-base-100 absolute bottom-2 right-2 h-12 min-w-32 rounded-lg border px-4 shadow-sm"
                 matRipple
                 (click)="clearLocate()"
             >
