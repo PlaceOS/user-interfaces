@@ -44,8 +44,7 @@ describe('GroupEventsStateService', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
-        // Seed the current user; under vitest the jest-only auto-load path is
-        // gone, so `currentUser()` would otherwise be undefined.
+        // Vitest skips the automatic user bootstrap, so seed the current user.
         setCurrentUser(
             new StaffUser({
                 id: 'me',

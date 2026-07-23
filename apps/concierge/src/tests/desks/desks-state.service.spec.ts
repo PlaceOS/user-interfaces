@@ -274,7 +274,9 @@ describe('DesksStateService', () => {
         await spectator.service.cancelBooking(booking, true);
 
         expect(del_urls()).toEqual([
-            expect.stringMatching(/\/bookings\/booking-parent$/),
+            expect.stringMatching(
+                /\/bookings\/booking-parent\?utm_source=/,
+            ),
         ]);
     });
 
@@ -411,7 +413,7 @@ describe('DesksStateService', () => {
 
         expect(ts_client_mod.updateMetadata).toHaveBeenCalledTimes(2);
         expect(del_urls()).toEqual([
-            expect.stringMatching(/\/bookings\/booking-1$/),
+            expect.stringMatching(/\/bookings\/booking-1\?utm_source=/),
         ]);
         expect(posted_bookings()).toHaveLength(2);
         expect(posted_bookings()[0][1]).toEqual(
