@@ -107,9 +107,6 @@ import { ScheduleStateService } from '../schedule/schedule-state.service';
                         <h2 class="text-2xl font-medium">
                             {{ eventTitle() }}
                         </h2>
-                        <h3 class="mb-2 text-lg font-medium">
-                            {{ eventLocation() }}
-                        </h3>
                         <div class="mb-1 flex items-center space-x-2">
                             <icon class="text-xl">event</icon>
                             <div>{{ eventTimeDisplay() }}</div>
