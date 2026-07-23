@@ -772,7 +772,7 @@ export class ParkingBookingsListComponent
 
     public get space_restriction_options(): ParkingSpaceRestrictionOption[] {
         const options = this._settings.get(
-            'parking.request_space_restrictions',
+            'app.parking.request_space_restrictions',
         );
         return Array.isArray(options)
             ? options.filter(

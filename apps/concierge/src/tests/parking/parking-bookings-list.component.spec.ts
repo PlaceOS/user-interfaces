@@ -75,7 +75,8 @@ describe('ParkingBookingsListComponent', () => {
                               ? hide_assign_space
                               : name === 'app.parking.show_user_groups'
                                 ? show_user_groups
-                                : name === 'parking.request_space_restrictions'
+                                : name ===
+                                    'app.parking.request_space_restrictions'
                                   ? space_restriction_options
                                   : name ===
                                       'app.parking.custom_booking_columns'
