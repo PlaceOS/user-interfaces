@@ -1,7 +1,11 @@
 import { EventEmitter, WritableSignal, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { SpectatorService, createServiceFactory } from '@ngneat/spectator/vitest';
 import {
+    SpectatorService,
+    createServiceFactory,
+} from '@ngneat/spectator/vitest';
+import {
+    Booking,
     Desk,
     OrganisationService,
     SettingsService,
@@ -9,12 +13,19 @@ import {
     setNotifyOutlet,
     setTimeInTimezone,
 } from '@placeos/common';
-import { addHours, addMinutes, endOfDay, getUnixTime, startOfDay } from 'date-fns';
+import {
+    addHours,
+    addMinutes,
+    endOfDay,
+    getUnixTime,
+    startOfDay,
+} from 'date-fns';
 import { NEVER, of } from 'rxjs';
 
 import * as ts_client_mod from '@placeos/ts-client';
 import { MockProvider } from 'ng-mocks';
 import { DesksStateService } from '../../app/desks/desks-state.service';
+import { BookingHistoryModalComponent } from '../../app/ui/booking-history-modal.component';
 import { captureDownloads } from '../reports/download-capture.helper';
 
 vi.mock('@placeos/ts-client', { spy: true });
@@ -123,6 +134,21 @@ describe('DesksStateService', () => {
         expect(spectator.service).toBeTruthy();
     });
 
+    it('should open the booking history modal for a desk booking', () => {
+        const booking = new Booking({ id: 'booking-1' });
+
+        spectator.service.viewBookingHistory(booking);
+
+        expect(spectator.inject(MatDialog).open).toHaveBeenCalledWith(
+            BookingHistoryModalComponent,
+            {
+                data: { booking },
+                width: '32rem',
+                maxWidth: '100vw',
+            },
+        );
+    });
+
     it('should download the current desk list', async () => {
         Object.defineProperty(spectator.service, 'desks', {
             value: () => [
@@ -182,9 +208,7 @@ describe('DesksStateService', () => {
             getUnixTime(
                 addMinutes(startOfDay(date), spectator.service.tz_offset * 60),
             ),
-        ).toBe(
-            getUnixTime(addMinutes(startOfDay(date), expected_offset * 60)),
-        );
+        ).toBe(getUnixTime(addMinutes(startOfDay(date), expected_offset * 60)));
         expect(
             getUnixTime(
                 addMinutes(endOfDay(date), spectator.service.tz_offset * 60),
@@ -274,9 +298,7 @@ describe('DesksStateService', () => {
         await spectator.service.cancelBooking(booking, true);
 
         expect(del_urls()).toEqual([
-            expect.stringMatching(
-                /\/bookings\/booking-parent\?utm_source=/,
-            ),
+            expect.stringMatching(/\/bookings\/booking-parent\?utm_source=/),
         ]);
     });
 
