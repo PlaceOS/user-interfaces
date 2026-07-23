@@ -18,10 +18,10 @@ import { NEVER, of } from 'rxjs';
 import * as ts_client from '@placeos/ts-client';
 import { UserPipe } from '@placeos/users';
 import { MockProvider } from 'ng-mocks';
-import { ParkingBookingHistoryModalComponent } from '../../app/parking/parking-booking-history-modal.component';
 import { ParkingBookingModalComponent } from '../../app/parking/parking-booking-modal.component';
 import { ParkingRequestModalComponent } from '../../app/parking/parking-request-modal.component';
 import { ParkingStateService } from '../../app/parking/parking-state.service';
+import { BookingHistoryModalComponent } from '../../app/ui/booking-history-modal.component';
 import { captureDownloads } from '../reports/download-capture.helper';
 
 vi.mock('@placeos/ts-client', { spy: true });
@@ -1024,7 +1024,7 @@ describe('ParkingStateService', () => {
         spectator.service.viewBookingHistory(booking);
 
         expect(spectator.inject(MatDialog).open).toHaveBeenCalledWith(
-            ParkingBookingHistoryModalComponent,
+            BookingHistoryModalComponent,
             {
                 data: { booking },
                 width: '32rem',

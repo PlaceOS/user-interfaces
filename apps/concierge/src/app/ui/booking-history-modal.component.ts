@@ -8,14 +8,14 @@ import { Booking, BookingHistory, BookingHistoryState } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 
 @Component({
-    selector: 'parking-booking-history-modal',
+    selector: 'booking-history-modal',
     template: `
         <header
             class="bg-base-200 flex h-14 w-full flex-none items-center justify-between p-2"
         >
             <h2 class="truncate px-2 text-xl font-medium">
                 {{
-                    'APP.CONCIERGE.PARKING_HISTORY_HEADER'
+                    'APP.CONCIERGE.BOOKING_HISTORY_HEADER'
                         | translate
                             : {
                                   name:
@@ -37,7 +37,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                 <div
                     class="flex min-h-40 items-center justify-center text-sm opacity-60"
                 >
-                    {{ 'APP.CONCIERGE.PARKING_HISTORY_EMPTY' | translate }}
+                    {{ 'APP.CONCIERGE.BOOKING_HISTORY_EMPTY' | translate }}
                 </div>
             } @else {
                 <ol class="flex flex-col gap-2">
@@ -93,7 +93,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
         TranslatePipe,
     ],
 })
-export class ParkingBookingHistoryModalComponent {
+export class BookingHistoryModalComponent {
     private _data = inject<{ booking: Booking }>(MAT_DIALOG_DATA);
 
     public readonly booking = signal(this._data.booking);
@@ -146,7 +146,7 @@ export class ParkingBookingHistoryModalComponent {
             case 'checked_out':
                 return 'COMMON.CHECKED_OUT';
             case 'no_show':
-                return 'APP.CONCIERGE.PARKING_HISTORY_STATE_NO_SHOW';
+                return 'APP.CONCIERGE.BOOKING_HISTORY_STATE_NO_SHOW';
             case 'rejected':
                 return 'APP.CONCIERGE.REPORTS_REJECTED';
             case 'cancelled':

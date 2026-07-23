@@ -493,10 +493,10 @@ interface ParkingBookingColumnTemplates {
                             matRipple
                             data-testid="parking-booking-history"
                             [attr.aria-label]="
-                                'APP.CONCIERGE.PARKING_VIEW_HISTORY' | translate
+                                'APP.CONCIERGE.BOOKING_VIEW_HISTORY' | translate
                             "
                             [matTooltip]="
-                                'APP.CONCIERGE.PARKING_VIEW_HISTORY' | translate
+                                'APP.CONCIERGE.BOOKING_VIEW_HISTORY' | translate
                             "
                             (click)="viewBookingHistory(row)"
                         >

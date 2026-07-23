@@ -3,12 +3,12 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { Booking } from '@placeos/common';
 
 import * as ts_client from '@placeos/ts-client';
-import { ParkingBookingHistoryModalComponent } from '../../app/parking/parking-booking-history-modal.component';
+import { BookingHistoryModalComponent } from '../../app/ui/booking-history-modal.component';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
-describe('ParkingBookingHistoryModalComponent', () => {
-    let spectator: Spectator<ParkingBookingHistoryModalComponent>;
+describe('BookingHistoryModalComponent', () => {
+    let spectator: Spectator<BookingHistoryModalComponent>;
 
     const booking = new Booking({
         id: 'booking-1',
@@ -18,7 +18,7 @@ describe('ParkingBookingHistoryModalComponent', () => {
     });
 
     const createComponent = createComponentFactory({
-        component: ParkingBookingHistoryModalComponent,
+        component: BookingHistoryModalComponent,
         providers: [{ provide: MAT_DIALOG_DATA, useValue: { booking } }],
     });
 
@@ -56,7 +56,7 @@ describe('ParkingBookingHistoryModalComponent', () => {
             'COMMON.CHECKED_IN',
         );
         expect(spectator.component.stateLabel('no_show')).toBe(
-            'APP.CONCIERGE.PARKING_HISTORY_STATE_NO_SHOW',
+            'APP.CONCIERGE.BOOKING_HISTORY_STATE_NO_SHOW',
         );
     });
 });
