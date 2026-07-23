@@ -4302,6 +4302,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .max-w-\[calc\(100\%-4rem\)\] {
   max-width: calc(100% - 4rem);
 }
+#placeos .max-w-\[calc\(100\%-6rem\)\] {
+  max-width: calc(100% - 6rem);
+}
 #placeos .max-w-\[calc\(100\%-18rem\)\] {
   max-width: calc(100% - 18rem);
 }

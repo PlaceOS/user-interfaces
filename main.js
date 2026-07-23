@@ -60639,7 +60639,8 @@ var COMMON = {
   ALL_OFFICES: "All Offices",
   ALL_STATUSES: "All Statuses",
   MAP_KIOSK: "Map Kiosk",
-  BOOKABLE_HOURS_ERROR: "Current date is outside available booking hours. Switched to next available time."
+  BOOKABLE_HOURS_ERROR: "Current date is outside available booking hours. Switched to next available time.",
+  TOOLTIP_SOURCE: "Source: {{ source }}"
 };
 var LANGUAGE = {
   ENGLISH: "English",
@@ -61594,6 +61595,10 @@ var APP = {
     DESKS_BOOKING_RULES: "Desk Restrictions",
     DESKS_BOOKINGS_EMPTY: "There are no desk booking for the currently selected date.",
     DESKS_BOOKINGS_SEARCH_EMPTY: "No matching desk bookings",
+    BOOKING_VIEW_HISTORY: "View Booking History",
+    BOOKING_HISTORY_HEADER: "Booking history for {{ name }}",
+    BOOKING_HISTORY_EMPTY: "No history recorded for this booking",
+    BOOKING_HISTORY_STATE_NO_SHOW: "No show",
     DESKS_GROUP_EMPTY: "No Group",
     DESKS_ACTION_APPROVE: "Approve Desk",
     DESKS_ACTION_DECLINE: "Reject Desk",
@@ -61972,10 +61977,6 @@ var APP = {
     PARKING_REQUEST_EDIT: "Edit Request",
     PARKING_REQUEST_SAVE: "Successfully submitted parking request.",
     PARKING_EDIT: "Edit Reservation",
-    PARKING_VIEW_HISTORY: "View Booking History",
-    PARKING_HISTORY_HEADER: "Booking history for {{ name }}",
-    PARKING_HISTORY_EMPTY: "No history recorded for this booking",
-    PARKING_HISTORY_STATE_NO_SHOW: "No show",
     PARKING_SPACE: "Parking Space",
     PARKING_SPACE_ADD: "New Space",
     PARKING_SPACE_NEW: "New Parking Space",
@@ -63992,7 +63993,7 @@ function bi(t = 43) {
   const e = ts(t), n = zs(Fs(e)), s = Yn(Gs.hash(n)).split("=")[0].replace(/\//g, "_").replace(/\+/g, "-");
   return { challenge: e, verify: s };
 }
-function vi() {
+function vi2() {
   let e = (_.token_uri || "/auth/token") + `?client_id=${encodeURIComponent(T2)}`, n = "";
   if (e += `&redirect_uri=${encodeURIComponent(_.redirect_uri)}`, Pt()) {
     e += `&refresh_token=${encodeURIComponent(Pt())}`, e += "&grant_type=refresh_token";
@@ -64019,7 +64020,7 @@ function ki(t) {
   return `${e}?${n}`;
 }
 function cs() {
-  return as(...vi());
+  return as(...vi2());
 }
 function Si(t) {
   return as(ki(t));
@@ -67894,6 +67895,9 @@ var PERMISSION_VALUES = [
   ["manage", GroupPermission.Manage],
   ["share", GroupPermission.Share]
 ];
+function isTestRuntime() {
+  return typeof jest !== "undefined" || typeof vi !== "undefined";
+}
 var user_permissions = computed(
   () => {
     const permissions = {
@@ -67959,11 +67963,8 @@ async function loadUserGroups() {
   }
 }
 function initialiseUser() {
-  try {
-    if (jest)
-      return;
-  } catch {
-  }
+  if (isTestRuntime())
+    return;
   _current_user.subscribe((u4) => user_signal.set(u4));
   const is_public_mode = isPublicMode();
   const user_request = combineLatest([Na("current"), _change]).pipe(map(([i]) => new StaffUser(i)));
@@ -68011,11 +68012,7 @@ function currentUser() {
 function currentUserIsLoaded() {
   if (!isEmptyUser(currentUser()))
     return true;
-  try {
-    return !!jest;
-  } catch {
-    return false;
-  }
+  return isTestRuntime();
 }
 function currentUserLoaded() {
   const user = currentUser();
@@ -68052,15 +68049,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION4 = {
   "dirty": false,
-  "raw": "3fee653",
-  "hash": "3fee653",
+  "raw": "66fd918",
+  "hash": "66fd918",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "3fee653",
+  "suffix": "66fd918",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1784606036226
+  "time": 1784784033309
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -105567,7 +105564,7 @@ var TimeFieldComponent = class _TimeFieldComponent extends AsyncHandler {
         useExisting: forwardRef(() => _TimeFieldComponent),
         multi: true
       }
-    ]), \u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature], ngContentSelectors: _c025, decls: 15, vars: 12, consts: [["menu", "matMenu"], ["time-field", "", "matRipple", "", 1, "border-neutral", "flex", "h-12", "w-full", "items-center", "justify-between", "rounded-sm", "border", "px-2", 3, "disabled", "matMenuTriggerFor"], [1, "flex", "w-1/2", "flex-1", "flex-col", "px-2", "text-left", "leading-tight"], [1, "truncate"], [1, "truncate", "text-xs", "opacity-30"], [1, "text-2xl"], [1, "max-h-60", "min-w-[18rem]"], ["mat-menu-item", "", 1, "text-left", 3, "value"], ["mat-menu-item", "", "disabled", ""], ["mat-menu-item", "", 1, "text-left", 3, "click", "value"], [1, "flex", "items-center", "justify-between"], [1, "flex", "flex-col", "leading-tight"], [1, ""], [1, "text-xs", "opacity-30"], [1, "ml-2", "text-2xl"]], template: function TimeFieldComponent_Template(rf, ctx) {
+    ]), \u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature], ngContentSelectors: _c025, decls: 15, vars: 12, consts: [["menu", "matMenu"], ["type", "button", "time-field", "", "matRipple", "", 1, "border-neutral", "flex", "h-12", "w-full", "items-center", "justify-between", "rounded-sm", "border", "px-2", 3, "disabled", "matMenuTriggerFor"], [1, "flex", "w-1/2", "flex-1", "flex-col", "px-2", "text-left", "leading-tight"], [1, "truncate"], [1, "truncate", "text-xs", "opacity-30"], [1, "text-2xl"], [1, "max-h-60", "min-w-[18rem]"], ["type", "button", "mat-menu-item", "", 1, "text-left", 3, "value"], ["mat-menu-item", "", "disabled", ""], ["type", "button", "mat-menu-item", "", 1, "text-left", 3, "click", "value"], [1, "flex", "items-center", "justify-between"], [1, "flex", "flex-col", "leading-tight"], [1, ""], [1, "text-xs", "opacity-30"], [1, "ml-2", "text-2xl"]], template: function TimeFieldComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275projectionDef();
         \u0275\u0275elementStart(0, "button", 1)(1, "div", 2)(2, "div", 3);
@@ -105608,6 +105605,7 @@ var TimeFieldComponent = class _TimeFieldComponent extends AsyncHandler {
     type: Component,
     args: [{ selector: "a-time-field,time-field", template: `
         <button
+            type="button"
             time-field
             matRipple
             class="border-neutral flex h-12 w-full items-center justify-between rounded-sm border px-2"
@@ -105634,6 +105632,7 @@ var TimeFieldComponent = class _TimeFieldComponent extends AsyncHandler {
         <mat-menu #menu="matMenu" class="max-h-60 min-w-[18rem]">
             @if (force_time()) {
                 <button
+                    type="button"
                     mat-menu-item
                     [value]="force_time()"
                     class="text-left"
@@ -105663,6 +105662,7 @@ var TimeFieldComponent = class _TimeFieldComponent extends AsyncHandler {
             }
             @for (option of time_options(); track option.id) {
                 <button
+                    type="button"
                     mat-menu-item
                     [attr.data-time]="option.id"
                     [value]="option.id"
@@ -105708,7 +105708,7 @@ var TimeFieldComponent = class _TimeFieldComponent extends AsyncHandler {
   }], null, { step: [{ type: Input, args: [{ isSignal: true, alias: "step", required: false }] }], disabled: [{ type: Input, args: [{ isSignal: true, alias: "disabled", required: false }] }, { type: Output, args: ["disabledChange"] }], no_past_times: [{ type: Input, args: [{ isSignal: true, alias: "no_past_times", required: false }] }], use_24hr: [{ type: Input, args: [{ isSignal: true, alias: "use_24hr", required: false }] }], force_time: [{ type: Input, args: [{ isSignal: true, alias: "force_time", required: false }] }], no_error: [{ type: Input, args: [{ isSignal: true, alias: "no_error", required: false }] }], extra_info_fn: [{ type: Input, args: [{ isSignal: true, alias: "extra_info_fn", required: false }] }], from: [{ type: Input, args: [{ isSignal: true, alias: "from", required: false }] }], range: [{ type: Input, args: [{ isSignal: true, alias: "range", required: false }] }], min_duration: [{ type: Input, args: [{ isSignal: true, alias: "min_duration", required: false }] }], timezone: [{ type: Input, args: [{ isSignal: true, alias: "timezone", required: false }] }], _menu_trigger: [{ type: ViewChild, args: [forwardRef(() => MatMenuTrigger), { isSignal: true }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(TimeFieldComponent, { className: "TimeFieldComponent", filePath: "libs/form-fields/src/lib/time-field.component.ts", lineNumber: 159 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(TimeFieldComponent, { className: "TimeFieldComponent", filePath: "libs/form-fields/src/lib/time-field.component.ts", lineNumber: 162 });
 })();
 
 // node_modules/@angular/material/fesm2022/slider.mjs
@@ -119970,7 +119970,7 @@ var DurationFieldComponent = class _DurationFieldComponent {
         useExisting: forwardRef(() => _DurationFieldComponent),
         multi: true
       }
-    ]), \u0275\u0275NgOnChangesFeature], ngContentSelectors: _c034, decls: 15, vars: 12, consts: [["menu", "matMenu"], ["duration-field", "", "matRipple", "", 1, "border-neutral", "flex", "h-12", "w-full", "items-center", "justify-between", "rounded-sm", "border", "px-2", 3, "disabled", "matMenuTriggerFor"], [1, "flex", "w-1/2", "flex-1", "flex-col", "px-2", "text-left", "leading-tight"], [1, "truncate"], [1, "truncate", "text-xs", "opacity-30"], [1, "text-2xl"], [1, "max-h-60", "min-w-[18rem]"], ["mat-menu-item", "", 1, "text-left"], ["mat-menu-item", "", "disabled", ""], ["mat-menu-item", "", 1, "text-left", 3, "click"], [1, "flex", "items-center", "justify-between"], [1, "flex", "flex-col", "leading-tight"], [1, "ml-2", "text-2xl"]], template: function DurationFieldComponent_Template(rf, ctx) {
+    ]), \u0275\u0275NgOnChangesFeature], ngContentSelectors: _c034, decls: 15, vars: 12, consts: [["menu", "matMenu"], ["type", "button", "duration-field", "", "matRipple", "", 1, "border-neutral", "flex", "h-12", "w-full", "items-center", "justify-between", "rounded-sm", "border", "px-2", 3, "disabled", "matMenuTriggerFor"], [1, "flex", "w-1/2", "flex-1", "flex-col", "px-2", "text-left", "leading-tight"], [1, "truncate"], [1, "truncate", "text-xs", "opacity-30"], [1, "text-2xl"], [1, "max-h-60", "min-w-[18rem]"], ["type", "button", "mat-menu-item", "", 1, "text-left"], ["mat-menu-item", "", "disabled", ""], ["type", "button", "mat-menu-item", "", 1, "text-left", 3, "click"], [1, "flex", "items-center", "justify-between"], [1, "flex", "flex-col", "leading-tight"], [1, "ml-2", "text-2xl"]], template: function DurationFieldComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275projectionDef();
         \u0275\u0275elementStart(0, "button", 1)(1, "div", 2)(2, "div", 3);
@@ -120008,6 +120008,7 @@ var DurationFieldComponent = class _DurationFieldComponent {
     type: Component,
     args: [{ selector: "a-duration-field,duration-field", template: `
         <button
+            type="button"
             duration-field
             class="border-neutral flex h-12 w-full items-center justify-between rounded-sm border px-2"
             [disabled]="disabled() || no_options()"
@@ -120045,6 +120046,7 @@ var DurationFieldComponent = class _DurationFieldComponent {
         <mat-menu #menu="matMenu" class="max-h-60 min-w-[18rem]">
             @for (option of duration_options(); track option.id) {
                 <button
+                    type="button"
                     mat-menu-item
                     class="text-left"
                     (click)="setValue(option.id)"
@@ -120103,7 +120105,7 @@ var DurationFieldComponent = class _DurationFieldComponent {
   }], null, { max: [{ type: Input, args: [{ isSignal: true, alias: "max", required: false }] }], min: [{ type: Input, args: [{ isSignal: true, alias: "min", required: false }] }], step: [{ type: Input, args: [{ isSignal: true, alias: "step", required: false }] }], time: [{ type: Input, args: [{ isSignal: true, alias: "time", required: false }] }], disabled: [{ type: Input, args: [{ isSignal: true, alias: "disabled", required: false }] }, { type: Output, args: ["disabledChange"] }], custom_options: [{ type: Input, args: [{ isSignal: true, alias: "custom_options", required: false }] }], force: [{ type: Input, args: [{ isSignal: true, alias: "force", required: false }] }], use_24hr: [{ type: Input, args: [{ isSignal: true, alias: "use_24hr", required: false }] }], timezone: [{ type: Input, args: [{ isSignal: true, alias: "timezone", required: false }] }], end_time: [{ type: Input, args: [{ isSignal: true, alias: "end_time", required: false }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DurationFieldComponent, { className: "DurationFieldComponent", filePath: "libs/form-fields/src/lib/duration-field.component.ts", lineNumber: 153 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DurationFieldComponent, { className: "DurationFieldComponent", filePath: "libs/form-fields/src/lib/duration-field.component.ts", lineNumber: 155 });
 })();
 
 // libs/assets/src/lib/asset-select-modal/asset-filters.component.ts
