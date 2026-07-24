@@ -754,7 +754,8 @@
         "ALL_OFFICES": "All Offices",
         "ALL_STATUSES": "All Statuses",
         "MAP_KIOSK": "Map Kiosk",
-        "BOOKABLE_HOURS_ERROR": "Current date is outside available booking hours. Switched to next available time."
+        "BOOKABLE_HOURS_ERROR": "Current date is outside available booking hours. Switched to next available time.",
+        "TOOLTIP_SOURCE": "Source: {{ source }}"
     },
     "LANGUAGE": {
         "ENGLISH": "English",
@@ -1709,6 +1710,10 @@
             "DESKS_BOOKING_RULES": "Desk Restrictions",
             "DESKS_BOOKINGS_EMPTY": "There are no desk booking for the currently selected date.",
             "DESKS_BOOKINGS_SEARCH_EMPTY": "No matching desk bookings",
+            "BOOKING_VIEW_HISTORY": "View Booking History",
+            "BOOKING_HISTORY_HEADER": "Booking history for {{ name }}",
+            "BOOKING_HISTORY_EMPTY": "No history recorded for this booking",
+            "BOOKING_HISTORY_STATE_NO_SHOW": "No show",
             "DESKS_GROUP_EMPTY": "No Group",
             "DESKS_ACTION_APPROVE": "Approve Desk",
             "DESKS_ACTION_DECLINE": "Reject Desk",
