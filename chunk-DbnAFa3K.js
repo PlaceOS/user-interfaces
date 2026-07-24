@@ -1,0 +1,1 @@
+import {di as to}from'./main-2SLNH5KA.js';function u(o,r,n){return to(o,-r,n)}export{u};

@@ -1,1 +1,0 @@
-import {m as m$1,W as WS,ck as Yn}from'./main-2PQCZQV6.js';var f=(()=>{class t{constructor(){this._org=m$1(WS);}transform(e){return this._org.levelWithID(e instanceof Array?e:[e])}static{this.\u0275fac=function(n){return new(n||t)};}static{this.\u0275pipe=Yn({name:"level",type:t,pure:true});}}return t})();export{f};
