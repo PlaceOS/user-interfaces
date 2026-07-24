@@ -1,6 +1,5 @@
 import { signal } from '@angular/core';
-import { waitForAsync } from '@angular/core/testing';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent } from 'ng-mocks';
 
 import { ControlAdvancedViewComponent } from '../app/advanced-view.component';
@@ -31,16 +30,16 @@ describe('ControlAdvancedViewComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should show outputs', waitForAsync(async () => {
+    it('should show outputs', async () => {
         const service: any = spectator.inject(ControlStateService);
         expect('output-display').toHaveLength(0);
         expect('p').toExist();
         service.output_list.set([{ id: '1' }, { id: '2' }]);
         spectator.detectChanges();
         expect('output-display').toHaveLength(2);
-    }));
+    });
 
-    it('should paginate outputs', waitForAsync(async () => {
+    it('should paginate outputs', async () => {
         const service: any = spectator.inject(ControlStateService);
         service.output_list.set([{ id: '1' }, { id: '2' }]);
         spectator.detectChanges();
@@ -59,5 +58,5 @@ describe('ControlAdvancedViewComponent', () => {
         spectator.detectChanges();
         expect('output-display').toHaveLength(6);
         expect('button').toHaveLength(2);
-    }));
+    });
 });

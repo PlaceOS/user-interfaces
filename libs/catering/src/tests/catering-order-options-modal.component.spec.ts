@@ -2,7 +2,7 @@ import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatRadioModule } from '@angular/material/radio';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { MockComponent } from 'ng-mocks';
 
@@ -42,12 +42,9 @@ describe('CateringOrderOptionsModalComponent', () => {
         expect('[group="Multi"] mat-checkbox').toExist();
     });
 
-    it('should submit selected option', (done) => {
-        spectator.component.event.subscribe((e) => {
-            expect(e.reason).toBe('done');
-            expect(e.metadata.options).toHaveLength(1);
-            expect(e.metadata.options[0].id).toBe('1');
-            done();
+    it('should submit selected option', async () => {
+        const emitted = new Promise<any>((resolve) => {
+            spectator.component.event.subscribe((e) => resolve(e));
         });
         spectator.component.updateGroupOption(
             spectator.component.groups()[0],
@@ -56,5 +53,9 @@ describe('CateringOrderOptionsModalComponent', () => {
         expect(spectator.component.option_state()['1']).toBeTruthy();
         expect(spectator.component.option_state()['2']).toBeFalsy();
         spectator.component.saveOptions();
+        const e = await emitted;
+        expect(e.reason).toBe('done');
+        expect(e.metadata.options).toHaveLength(1);
+        expect(e.metadata.options[0].id).toBe('1');
     });
 });

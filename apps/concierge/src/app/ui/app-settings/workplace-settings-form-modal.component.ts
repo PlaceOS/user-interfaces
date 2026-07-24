@@ -1515,8 +1515,16 @@ import { UploadButtonComponent } from './upload-button.component';
                                         [formField]="form.explore.show_legend"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        label="Hide Zones"
+                                        label="Hide Areas Toggle"
                                         [formField]="form.explore.hide_zones"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        label="Hide Devices Toggle"
+                                        [formField]="form.explore.hide_devices"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        label="Hide Sensors Toggle"
+                                        [formField]="form.explore.hide_sensors"
                                     ></settings-toggle>
                                     <settings-toggle
                                         label="Show Booking QR Code"
@@ -2092,6 +2100,8 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
             hide_device_fields: false,
             show_legend: false,
             hide_zones: false,
+            hide_devices: true,
+            hide_sensors: true,
             legend: [] as [string, string][],
             colors: {} as Record<string, string>,
             show_booking_qr: false,

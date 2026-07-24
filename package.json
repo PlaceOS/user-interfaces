@@ -51,7 +51,7 @@
         "help": "nx help",
         "version": "node ./tools/apply-version.js && bunx standard-version",
         "build-all": "nx run-many --target=build --parallel=4 --stats-json",
-        "test-all": "nx run-many --target=test --runInBand --parallel=4",
+        "test-all": "nx run-many --target=test --parallel=4",
         "e2e-all": "nx run-many --target=e2e",
         "sentry:sourcemaps": "sentry-cli sourcemaps inject --org place-technology --project placeos-dev ./dist/apps && sentry-cli sourcemaps upload --org place-technology --project placeos-dev ./dist/apps"
     },
@@ -107,7 +107,7 @@
         "@nx/web": "22.7.5",
         "@nx/workspace": "22.7.5",
         "@placeos/cloud-uploads": "^1.1.1",
-        "@placeos/ts-client": "5.1.0",
+        "@placeos/ts-client": "^5.2.0",
         "@playwright/test": "^1.49.0",
         "@schematics/angular": "22.0.1",
         "@sentry/angular": "^10.47.0",
@@ -122,6 +122,7 @@
         "@typescript-eslint/eslint-plugin": "8.61.0",
         "@typescript-eslint/parser": "8.61.0",
         "@typescript-eslint/utils": "8.61.0",
+        "@vitest/coverage-v8": "^4.0.8",
         "autoprefixer": "^10.4.16",
         "blob-util": "^2.0.2",
         "chart.js": "^4.5.0",
@@ -157,6 +158,7 @@
         "ts-md5": "^2.0.1",
         "ts-node": "10.9.1",
         "typescript": "6.0.3",
+        "vitest": "^4.0.8",
         "yaml": "^2.8.1"
     }
 }

@@ -15,18 +15,10 @@ import { SettingsService } from 'libs/common/src/lib/settings.service';
 
 import { CateringStateService } from '../lib/catering-state.service';
 
-jest.mock('@placeos/ts-client', () => ({
-    ...jest.requireActual('@placeos/ts-client'),
-    showMetadata: jest.fn(),
-    updateMetadata: jest.fn(),
-}));
-jest.mock('@placeos/assets', () => ({
-    deleteCateringItem: jest.fn(),
-    queryCateringItems: jest.fn(),
-    saveCateringItem: jest.fn(),
-}));
+// The `@placeos/assets` catering fns run for real; only the ts-client API
+// layer beneath them (asset/type/category queries + mutations) is stubbed.
+vi.mock('@placeos/ts-client', { spy: true });
 
-import * as assets_mod from '@placeos/assets';
 import * as ts_client from '@placeos/ts-client';
 
 const dialog_fn = (has_delay, metadata?) => () => ({
@@ -39,6 +31,10 @@ const dialog_fn = (has_delay, metadata?) => () => ({
     afterClosed: () => of({}),
 });
 
+// Drain the async chain inside the real saveCateringItem/deleteCateringItem
+// helpers, which resolve the catering type then mutate the asset.
+const flush = () => new Promise((resolve) => setTimeout(resolve, 20));
+
 describe('CateringStateService', () => {
     let spectator: SpectatorService<CateringStateService>;
     const createService = createServiceFactory({
@@ -49,20 +45,49 @@ describe('CateringStateService', () => {
                 active_building: signal(new Building({ id: 'bld-1' })),
                 initialised: signal(true),
             }),
-            MockProvider(SettingsService, { get: jest.fn() }),
-            MockProvider(MatDialog, { open: jest.fn() }),
+            MockProvider(SettingsService, { get: vi.fn() }),
+            MockProvider(MatDialog, { open: vi.fn() }),
         ],
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
-        jest.mocked(ts_client.showMetadata).mockResolvedValue({} as any);
-        jest.mocked(ts_client.updateMetadata).mockResolvedValue({} as any);
-        (assets_mod.queryCateringItems as jest.Mock).mockResolvedValue([]);
-        (assets_mod.saveCateringItem as jest.Mock).mockImplementation((item) =>
-            Promise.resolve(item),
+        vi.clearAllMocks();
+        vi.mocked(ts_client.showMetadata).mockResolvedValue({} as any);
+        vi.mocked(ts_client.updateMetadata).mockResolvedValue({} as any);
+        // Hidden `_CATERING_` category + standalone catering asset type so the
+        // real assets helpers resolve an existing type without creating one.
+        vi.mocked(ts_client.queryAssetCategories).mockResolvedValue({
+            data: [{ id: 'cat-1', name: '_CATERING_', hidden: true }],
+        } as any);
+        vi.mocked(ts_client.queryAssetTypes).mockResolvedValue({
+            data: [
+                {
+                    id: 'type-1',
+                    name: 'CATERING:_STANDALONE_',
+                    category_id: 'cat-1',
+                },
+            ],
+        } as any);
+        vi.mocked(ts_client.queryAssets).mockResolvedValue({ data: [] } as any);
+        vi.mocked(ts_client.addAsset).mockImplementation((asset: any) =>
+            Promise.resolve({ ...asset, id: asset.id || 'saved-id' }),
         );
-        (assets_mod.deleteCateringItem as jest.Mock).mockResolvedValue({});
+        vi.mocked(ts_client.updateAsset).mockImplementation(
+            (_id: string, asset: any) => Promise.resolve({ ...asset }),
+        );
+        vi.mocked(ts_client.removeAsset).mockResolvedValue({} as any);
+        vi.mocked(ts_client.addAssetType).mockResolvedValue({
+            id: 'type-1',
+        } as any);
+        vi.mocked(ts_client.updateAssetType).mockResolvedValue({
+            id: 'type-1',
+        } as any);
+        vi.mocked(ts_client.addAssetCategory).mockResolvedValue({
+            id: 'cat-1',
+        } as any);
+        vi.mocked(ts_client.updateAssetCategory).mockResolvedValue({
+            id: 'cat-1',
+        } as any);
         spectator = createService();
     });
 
@@ -74,14 +99,18 @@ describe('CateringStateService', () => {
         const dialog = spectator.inject(MatDialog);
         (dialog.open as any).mockImplementation(dialog_fn(true));
         await spectator.service.addItem();
-        expect(assets_mod.saveCateringItem).not.toHaveBeenCalled();
+        await flush();
+        expect(ts_client.addAsset).not.toHaveBeenCalled();
         (dialog.open as any).mockImplementation(
             dialog_fn(false, { item: new CateringItem() }),
         );
         await spectator.service.addItem(new CateringItem());
-        expect(assets_mod.saveCateringItem).toHaveBeenCalledWith(
-            new CateringItem(),
-            'bld-1',
+        await flush();
+        expect(ts_client.addAsset).toHaveBeenCalledWith(
+            expect.objectContaining({
+                zone_id: 'bld-1',
+                asset_type_id: 'type-1',
+            }),
         );
     });
 
@@ -89,16 +118,22 @@ describe('CateringStateService', () => {
         const dialog = spectator.inject(MatDialog);
         (dialog.open as any).mockImplementation(dialog_fn(true));
         await spectator.service.addOption(new CateringItem());
-        expect(assets_mod.saveCateringItem).not.toHaveBeenCalled();
+        await flush();
+        expect(ts_client.addAsset).not.toHaveBeenCalled();
         (dialog.open as any).mockImplementation(
             dialog_fn(false, {
                 item: new CateringItem({ options: [{} as any] }),
             }),
         );
         await spectator.service.addOption(new CateringItem(), {} as any);
-        expect(assets_mod.saveCateringItem).toHaveBeenCalledWith(
-            new CateringItem({ options: [{} as any] }),
-            'bld-1',
+        await flush();
+        expect(ts_client.addAsset).toHaveBeenCalledWith(
+            expect.objectContaining({
+                zone_id: 'bld-1',
+                other_data: expect.objectContaining({
+                    options: expect.arrayContaining([expect.anything()]),
+                }),
+            }),
         );
     });
 
@@ -118,22 +153,25 @@ describe('CateringStateService', () => {
         const dialog = spectator.inject(MatDialog);
         (dialog.open as any).mockImplementation(dialog_fn(true));
         await spectator.service.deleteItem(new CateringItem());
-        expect(assets_mod.deleteCateringItem).not.toHaveBeenCalled();
+        await flush();
+        expect(ts_client.removeAsset).not.toHaveBeenCalled();
         (dialog.open as any).mockImplementation(dialog_fn(false, [{}]));
         await spectator.service.deleteItem(new CateringItem());
-        expect(assets_mod.deleteCateringItem).toHaveBeenCalledWith('');
+        await flush();
+        expect(ts_client.removeAsset).toHaveBeenCalledWith('');
     });
 
     it('should allow user to remove catering options to menu items', async () => {
         const dialog = spectator.inject(MatDialog);
         (dialog.open as any).mockImplementation(dialog_fn(true));
         await spectator.service.deleteOption(new CateringItem(), {} as any);
-        expect(assets_mod.saveCateringItem).not.toHaveBeenCalled();
+        await flush();
+        expect(ts_client.addAsset).not.toHaveBeenCalled();
         (dialog.open as any).mockImplementation(dialog_fn(false, [{}]));
         await spectator.service.deleteOption(new CateringItem(), {} as any);
-        expect(assets_mod.saveCateringItem).toHaveBeenCalledWith(
-            new CateringItem(),
-            'bld-1',
+        await flush();
+        expect(ts_client.addAsset).toHaveBeenCalledWith(
+            expect.objectContaining({ zone_id: 'bld-1' }),
         );
     });
 
@@ -153,14 +191,14 @@ describe('CateringStateService', () => {
     });
 
     it('should allow user to get catering config', async () => {
-        jest.mocked(ts_client.showMetadata).mockResolvedValue({} as any);
+        vi.mocked(ts_client.showMetadata).mockResolvedValue({} as any);
         let config = await spectator.service.getCateringConfig();
         expect(config).toEqual([]);
         expect(ts_client.showMetadata).toHaveBeenCalledWith(
             'bld-1',
             'catering_config',
         );
-        jest.mocked(ts_client.showMetadata).mockResolvedValue([] as any);
+        vi.mocked(ts_client.showMetadata).mockResolvedValue([] as any);
         config = await spectator.service.getCateringConfig('bld-2');
         expect(config).toEqual([]);
         expect(ts_client.showMetadata).toHaveBeenCalledWith(

@@ -97,6 +97,25 @@ describe('utilities', () => {
             expect(typeof form.host).toBe('function');
             expect(model().host).toBeDefined();
         });
+
+        it('should not loop when catering already has the current event time', () => {
+            const date = Date.now();
+            const { model } = TestBed.runInInjectionContext(() =>
+                generateEventForm(
+                    new CalendarEvent({ date, duration: 30 } as any),
+                    undefined,
+                    injector,
+                ),
+            );
+            const catering = [{ id: 'order-1', event: { date, duration: 30 } }];
+
+            model.update((m) => ({ ...m, catering }));
+            TestBed.flushEffects();
+            const synced_catering = model().catering;
+            TestBed.flushEffects();
+
+            expect(model().catering).toBe(synced_catering);
+        });
     });
 
     describe('generateSystemsFormFields', () => {

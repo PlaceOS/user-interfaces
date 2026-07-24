@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
@@ -30,13 +30,13 @@ describe('SignagePanelComponent', () => {
             override_playlist: signal({ ends_at: 0, playlist: [] }),
             debug: signal(false),
             playing_id: signal(''),
-            setDisplay: jest.fn(),
-            clearPlaylistOverride: jest.fn(),
-            storeMetricEvent: jest.fn(),
+            setDisplay: vi.fn(),
+            clearPlaylistOverride: vi.fn(),
+            storeMetricEvent: vi.fn(),
         };
     });
 
-    afterEach(() => jest.useRealTimers());
+    afterEach(() => vi.useRealTimers());
 
     function build_component(route_options = {}) {
         spectator = create_component({
@@ -65,28 +65,28 @@ describe('SignagePanelComponent', () => {
     });
 
     it('should redirect to bootstrap if no display is provided', () => {
-        jest.useFakeTimers();
+        vi.useFakeTimers();
         build_component();
         const router = spectator.inject(Router);
 
-        jest.advanceTimersByTime(3001);
+        vi.advanceTimersByTime(3001);
 
         expect(router.navigate).toHaveBeenCalledWith(['/bootstrap']);
-        jest.useRealTimers();
+        vi.useRealTimers();
     });
 
     it('should set the display from the route and cancel the bootstrap redirect', () => {
-        jest.useFakeTimers();
+        vi.useFakeTimers();
         build_component();
         const router = spectator.inject(Router);
 
         spectator.setRouteParam('system_id', 'display-1');
         spectator.detectChanges();
-        jest.advanceTimersByTime(3001);
+        vi.advanceTimersByTime(3001);
 
         expect(signage_service.setDisplay).toHaveBeenCalledWith('display-1');
         expect(router.navigate).not.toHaveBeenCalledWith(['/bootstrap']);
-        jest.useRealTimers();
+        vi.useRealTimers();
     });
 
     it('should enable debug mode from the route query string', () => {
@@ -180,17 +180,17 @@ describe('SignagePanelComponent', () => {
     });
 
     it('should clear expired override playlists on the interval check', () => {
-        jest.useFakeTimers();
+        vi.useFakeTimers();
         build_component();
         signage_service.override_playlist.set({
             ends_at: Date.now() - 1000,
-            playlist: [{ id: 'override-1' }],
+            playlist: [{ id: 'override-1', getURL: async () => '' }],
         });
 
-        jest.advanceTimersByTime(301);
+        vi.advanceTimersByTime(301);
 
         expect(signage_service.clearPlaylistOverride).toHaveBeenCalled();
-        jest.useRealTimers();
+        vi.useRealTimers();
     });
 
     it('should clear one-shot override playlists after a full playthrough', () => {

@@ -2,6 +2,1236 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2607.1] - 2026-07-06
+
+### Bug Fixes
+
+#### Assets
+
+- Update parking space pipe to return unallocated for unallocated spaces
+- Fix resource assets using newer duplicate categories and types for resolution
+
+#### Auth
+
+- Preserve mobile auth cookies
+
+#### Booking
+
+- Add guard for form cross-contamination
+
+#### Bookings
+
+- Preserve monthly review recurrence PPT-2526
+- Prevent asset option update loop
+- Fix required conditional for plate number on booking form
+- Defer booking requests until consumed
+- Debounce booked resource checks
+- Reduce limit for booked resources requests
+- Paginate booked resource lookup
+- Remove using assigned_asset_name from name details
+- Fix stale booking_end being used for clash check
+- Update start/end to most strictly source from date/duration
+- Combine booked with clashes for availability
+- Tweak readiness gate for form state
+- Restrict booking extension data
+- Generalize reserved-resource booking restriction
+- Read parking favourites from correct settings key
+
+#### Common
+
+- Initialise saved org location on load
+- Break runtime import cycle between event and catering classes
+
+#### Components
+
+- Stop dynamic map injector signal loop
+- Repair broken printable portal and debug console template
+- Add missing TranslatePipe and SlicePipe imports to indoor-maps
+- Add missing matInput to login form fields
+
+#### Concierge
+
+- Handle desk reject all instances PPT-2532
+- Print individual desk QR codes PPT-2533
+- Refresh desks after reject all
+- Prevent parking level navigation loops
+- Refresh desk rejection state PPT-2532
+- Use actual booking times in attendance report
+- Add ability to hide user list download button
+- Read use_region and org init as signals for parking init
+- Apply level zone to selector when switching to parking map view
+- Delete assigned desk recurrences for current day when unassigned
+- Fix user avatar initialising with empty user
+- Clean up logic for room approvals
+- Add bay number to parking booking searchable fields
+- Debounce state service requests
+- Handle stale desk rejection status
+- Fix rejecting overlapping bookings on desk assignment
+- Remove rejected from desk booking request
+- Fix bookings modals not have the model passed to the form
+- Fix locker infinite loop
+- Update parking report columns
+- Remove parking request submission info
+- Update parking report downloads
+- Save existing surveys via update instead of add
+
+#### Events
+
+- Return saved booking after post PPT-2462
+- Enforce room booking rules in booking panel
+- Keep submitted meeting success details
+- Preserve selected meeting booking time
+- Keep host permission error visible after host revert
+- Add aria-labels to space filter selects
+
+#### Explore
+
+- Minor review fixes
+- Clean up handling of disabled map resource states
+
+#### Form-fields
+
+- Remove monthly day recurrence option
+- Guard date calendar invalid values
+- Hide empty user in search field
+
+#### Forms
+
+- Start network requests from form load
+- Wait for user before form initialisation
+
+#### Mobile
+
+- Add config to hide status bar and remove safe area
+- Fix applying MDM system id to panel UIs
+- Fix System ID MDM key
+- Fix workplace safe zones for devices with notches
+
+#### Org
+
+- Rework default building init logic
+
+#### Parking
+
+- Keep approval requests out of waitlist
+- Fix level selections persisting when selector is disabled/hidden
+
+#### Signage
+
+- Fix takeover playlists not triggering after 30 second start window
+
+#### Signage-manager
+
+- Fix description wrapping on playlists
+- Fix thumbnail URL for media items
+- Fix display status on schedule view
+- Fix race condition for authorised check
+- Add line through disabled playlists on schedule views
+
+#### Signage-mananger
+
+- Add loading states for media items and playlist sidebar
+
+#### Stagehand
+
+- Default sidebar to all buildings
+- Correct cron field output, loading bar binding and iframe URL sanitisation
+
+#### Uploads
+
+- Handle token refreshes mid-upload
+
+#### Visitor-kiosk
+
+- Force host to null on registration form
+- Prevent next button "submitting" the details form
+- Keep registration host blank
+
+#### Workplace
+
+- Fix plate number validator propagating to other types
+- Remove leading and trailing whitespace from parking request submission html
+- Prevent user with reserved desk from booking by default
+- Tweaks to parking request form location
+- Stabilize signal migration
+- Add style to top menu active item more obvious
+- Hide expired deals
+- Preserve parking request shift duration
+- Fix parking form buttons submitting the form
+- Fix lookup for location availability
+- Prevent deleting ended bookings and events
+- Keep ended bookings visible
+- Repair broken timeline date handling and remove debug leftovers
+
+### Features
+
+#### Bookings
+
+- Migrate booking form service to use signals
+
+#### Components
+
+- Add debug mode to dynamic map
+- Show styles, actions, labels and features in map debug panel
+- Add colour swatches and src truncation to map debug panel
+- Improve map debug mappings
+
+#### Concierge
+
+- Hide parking user and vehicle tabs
+- Add level SVG map editor
+- Migrate day view to be signal based
+- Migrate desks section to use signals
+- Migrate reports to use signals
+- Migrate zone and room management to use signals
+- Migrate assets to use signals
+- Migrate surveys and signage to use signals
+- Migrate events, staff and url sections to use signals
+- Migrate catering, poi, and visitor sections to use signals
+- Migrate remaining logic to use signals
+- Add warning to resource assignment for existing bookings
+- Reject clashing assignment bookings and reject overlapping user bookings
+- Split parking user and vehicle visibility
+
+#### Events
+
+- Migrate event form service to use signals
+
+#### Maps
+
+- Standardise rasterised resolutions for map images
+
+#### Mobile
+
+- Add MDM config support
+- Add cleanup command
+- Add MS Intune support to mobile apps
+
+#### Signage-manager
+
+- Add ability to upload multiple media items at once
+- Handle html text codes in names
+- Add list and folder views to media list
+- Add ability to add new playlists from media view
+- Paginate media, playlist and display requests
+- Update media folders to use tags endpoint
+- Improve media topbar flow on mobile
+- Add support for distribution playlists
+
+#### Visitor-kiosk
+
+- Add virtual keyboard support
+
+#### Workplace
+
+- Hide locations without parking and add setting to hide locations on parking form
+- Add ability to set meeting space from query parameter
+
+### Refactor
+
+#### Booking-panel
+
+- Migrate state and forms to signals
+
+#### Bookings
+
+- Tweak plain variables for OnPush templates
+- Clean up form service
+- Clean up extension data for bookings
+
+#### Components
+
+- Replace svg-viewer map renderer with dynamic map
+
+#### Concierge
+
+- Migrate forms to signals
+- Remove ChangeDetectionStrategy where appropriate
+- Update button styles for tables
+- Tweak week view styles for parking bookings
+- Clean up styles for day view
+- Improve table overflow for parking
+
+#### Control
+
+- Migrate observables to signals
+
+#### Explore
+
+- Convert explore services and map components to signals
+
+#### Libs
+
+- Migrate template state to signals
+
+#### Outlook-addin
+
+- Migrate to use signals
+
+#### Signage
+
+- Migrate to use signals
+
+#### Signage-manager
+
+- Migrate to signals
+- Clean up signal related changes
+- Debounce active group for API requests
+- Update more requests to be debounced
+
+#### Stagehand
+
+- Migrate forms and state to signals
+- Remove Eager change detection
+
+#### Visitor-kiosk
+
+- Migrate to use signals
+- Remove Eager change detection
+
+#### Workplace
+
+- Remove ChangeDetectionStrategy where appropriate
+- Tweak styles for topbar search
+- Tweak styles for footer menu
+
+### Build
+
+#### Angular
+
+- Migrate workspace to Angular 22
+
+### Ci
+
+## [2606.1] - 2026-06-04
+
+### Bug Fixes
+
+#### PPT-2509
+
+- Preserve monthly recurrence week
+
+#### PPT-2512
+
+- Preserve recurrence end dates
+
+#### Assets
+
+- Reduce parking space asset requests
+
+#### Booking-panel
+
+- Fix error when parsing timezones
+
+#### Bookings
+
+- Use current user for resource rule checks
+- Filter recurring desk clashes PPT-2507
+- Count recurrence instances from first occurrence
+- Preserve monthly room recurrence PPT-2509
+- Handle empty booking saves
+- Align group child resources
+- Show failed group bookings on success
+- Cleanup booking data before editing
+- Fix saving visitor bookings for room bookings
+- Preserve monthly room recurrence PPT-2509
+- Preserve monthly weekday recurrence
+
+#### Common
+
+- Refresh token before uploading files
+- Cache organisation metadata
+- PPT-2518 preserve selected booking date
+- Suppress bookable hours date warning for PPT-2518
+- Cap desk booking duration to bookable hours PPT-2511
+
+#### Concierge
+
+- Prevent stale recurring approvals
+- Hide empty booking levels
+- Apply zones to parking spaces
+- Isolate unsaved feature edits
+- Cap report occupancy attendees
+- Handle parking reassignment failures
+- Filter report levels by resource type
+- Limit parking map level selection
+- Show deleted parking booking status
+- Fix loading asset purchase orders
+- Align parking week status display
+- Hide parking week space names
+- Show declined room bookings in red
+- Respect bookable hours in room utilisation PPT-2506
+- Apply desk all day default
+- Use parking timezone for request times PROJ-1846
+- Count daily unique attendance
+- Keep attendance averages raw
+- Fix room booking list display items
+- Show timed cross-day parking bookings
+- Correct site attendance reporting PPT-2451
+- Show rejected bookings as declined in reports
+- Show deleted desk bookings as disabled
+- Hide level selector on site attendance report
+- Align booking status terminology
+- Exclude inactive attendance records
+- Fix status display for desk bookings
+- Keep attendance tables with print headers
+- Avoid splitting attendance table blocks
+- Tweak handling of event statuses when room mismatches occur
+- Correct space report utilisation
+- Scale parking action column with number of actions (PPT-1890)
+- Show parking request notes PROJ-1882
+- Scroll selected parking space into view
+- Apply desk all day default
+- Filter approved parking approvals PROJ-1896
+- PROJ-1902 align parking request edit form
+- Show vehicle type in parking bookings
+- PROJ-1910 update room approval status
+- Print visitor passes from guest list
+- Hide declined room timeline bookings
+- Hide cancelled timeline events immediately
+- Apply desk duration rules PPT-2511
+
+#### Control
+
+- Tweak TV controls bindings
+
+#### Events
+
+- Block recurring room conflicts PPT-2510
+- Preserve monthly recurrence weekday PPT-2509
+- Fix saving room data (PROJ-1918)
+- Use source calendar when editing booking host
+- Align recurrence payloads with calendar backend
+- Handle unavailable duration options
+
+#### Explore
+
+- Set desk asset id from map bookings
+- Hide desk and parking tooltips on mobile
+- Respect disabled map styles
+- Disable hover tooltips for touch pointers
+
+#### Form-fields
+
+- Show selected user photo
+- Correct recurrence instance end dates PPT-2513
+- Limit recurrence instance count
+- Prevent duplicate booking rule list items
+
+#### Groups
+
+- Show default for permissions when none set
+
+#### Public
+
+- Refresh guest token for public events PPT-2247
+
+#### Service-worker
+
+- Harden update handling
+
+#### Signage
+
+- Sync debug state before display load
+- Refresh playlist assignment changes
+- Validate media against playlist schedule
+- Hold single webpage playlist items
+- Handle scheduled playlist timing
+- Handle playlist schedules field
+- Count playlist metrics on loop and at end of playback
+- Stabilise debug playback controls
+- Add more error handling for media items
+- Handle media load failures and harden playlist
+- Stop player freezing on a broken item when the playlist loops
+- Bound the URL wait so playback can't hang on a missing item
+- Recover media cache after download errors
+- Isolate embedded player media caches
+- Refresh missing cached media files
+- Delay instant failed media skips
+- Harden media cache storage
+- Handle nested player cache ownership
+- Double-buffer webpage and plugin playback
+- Scope display fallback cache by display
+- Let root prune nested media cache
+- Hide preloaded media behind active item
+- Show loading spinner while waiting for media
+- Clarify invalid media timing messages
+- Render media progress every frame
+- Handle plugin playback fallback
+- Handle plugin errors and cleanup
+- Pause inactive video outputs
+- Harden player scheduling and bootstrap
+- Hold single plugin playlist items
+
+#### Signage-manager
+
+- Hide groups nav without manage access
+- Guard app access by group permissions
+- Refresh playlist media state
+- Reset playlist approval on failure
+- Load child zones for group users
+- Show embedded playlist media
+- Tweak loading of root zones
+- Show share options for admins
+- Fix thumbnails for playlist media
+- Improve UX for valid from/until display
+- Format playlist schedule durations
+- Improve playlist schedule display
+- Fix minor styling issue
+- Update playlists on media removal
+- Refresh translated labels
+- Show loading state in media preview
+- Show preview load errors
+- Handle failed media uploads
+- Load plugin media config from plugin
+
+#### Workplace
+
+- Show meeting success space level
+- Apply parking recurrence end date
+- Reset saved host after permission errors
+- Persist host reset after permission check
+- Show booking context in lists CDU-242
+- Update parking request confirmation PROJ-1874
+- Handle overnight parking shifts PROJ-1881
+- Show restricted parking all-day window PROJ-1878
+- Clean up desk success page
+- Limit parking recurrence dates PROJ-1895
+- Clamp recurrence dates
+- Wait for settings before menu redirects
+
+### Documentation
+
+#### Signage
+
+- Update user stories
+
+### Features
+
+#### Auth
+
+- Guard apps by subsystem read access
+
+#### Bookings
+
+- Add group booking containers
+- Write app metadata to extension data
+- Add rule host override settings
+- Store parking request user groups
+
+#### Catering
+
+- Store menu items as assets
+
+#### Common
+
+- Show service worker update card
+
+#### Concierge
+
+- Hide levels without resources when listing bookings
+- Add room booking list loading state
+- Add attendance report people breakdown
+- Show parking space features
+- Report cancelled booking totals
+- Show report inactive percentages
+- Approve recurring parking bookings
+- Add report metric guides
+- Add parking request creation
+- Add custom parking booking columns
+- Make parking assignment map selectable PROJ-1891
+- Add ability to disable delete action for room and desk booking
+- Configure visitor action window
+- Use user list for broadcast recipients
+- Add broadcast email recipient groups
+
+#### Explore
+
+- Collapse mobile map legend
+
+#### Lockers
+
+- Store locker banks and lockers as assets
+
+#### Parking
+
+- Support manual approval request types
+- Add setting to hide availability counters
+- Add ability to prevent editing of allocated bookings
+
+#### Public
+
+- Add public events registration app
+
+#### Service-worker
+
+- Support automatic app reloads
+
+#### Settings
+
+- Add environment bar indicator
+
+#### Signage
+
+- Add playlist display and zone assignment
+- Support updated playlist schedule fields
+- Show awaiting review playlists
+- Defer webpage and plugin reveal
+- Show build info in debug mode
+- Show media type icons in debug playlist
+- Prioritize active media cache
+- Improve debug playback speed handling
+- Add playlist item tooltip details
+
+#### Signage-manager
+
+- Added group support
+- Add signage group management
+- Use modal for group selection
+- Allow duplicate playlist media
+- Use flat trees for zone and group lists
+- Improve group hierarchy navigation
+- Add playlist play hours range
+- Allow editing webpage media URLs
+- Add playlist scheduling options
+- Improve playlist schedule controls
+- Allow multi-select monthly playlist schedules
+- Add media group tabs
+- Add bulk media actions
+- Show upcoming playlist sessions
+- Request playlist approval
+- Allow multiple monthly playlist instances
+- Target playlist approval requests
+- Add playlist approval preview controls
+- Edit multiple playlist schedules
+- Localize app text
+- Add optional locale selector
+- Add media tags support
+- Add app translations
+
+#### Stagehand
+
+- Add ability to view camera streams
+
+#### User
+
+- Add loading and processing of user groups and permissions
+
+#### Workplace
+
+- Hide selected parking spaces
+- Add notes option to parking request types
+- Add embedded menu links
+- Support external menu embed links
+- Require parking request plate numbers by setting
+- Default parking requests to desk building
+
+### Performance
+
+#### Common
+
+- Cache org zones and bulk load metadata
+
+### Refactor
+
+#### Concierge
+
+- Clarify attendance report logic
+
+#### Signage
+
+- Simplify media playback logic
+
+### Ci
+
+## [2604.1] - 2026-04-28
+
+### Bug Fixes
+
+#### Assets
+
+- Hide assets from being selected if category is hidden
+
+#### Booking-panel
+
+- Fix check for disable_book_now_host setting
+- Fix showing the QR code (PPT-2290)
+
+#### Bookings
+
+- Add all day option to visitor booking (PPT-2376)
+- Fix display of desk name when booking desks
+- Fix multiple issues with editing visitors
+- Fix issues with visitor booking editing
+- Fix display for desks in group bookings
+- Add all day check to availability before posting booking
+
+#### Catering
+
+- Fix applying catering code to menu list
+- Tweak logic to work correctly
+- Fix removing orders with no items (PPT-2398)
+- Fix calculating delivery time (PPT-2424)
+- Fix applying delivery time changes (PPT-2424)
+
+#### Concierge
+
+- Fix saving visitor pass numbers (PPT-2291)
+- Fix camera feed displays on remote support
+- Cancel report requests when level/dates are changed
+- Fix grabbing deleted desk bookings
+- Fix printing desk QR codes (PPT-2373)
+- Update desk bookings when building changes (PPT-2411)
+- Update booking details on day view when no level is selected (PPT-2409)
+- Keep historical bookings when changing desk assignments
+- Preserve history of assigned parking space bookings
+- Preserve history of assigned locker bookings
+- Fix ending bookings for assigned resources (PPT-2427)
+- Add error handling to desk assignment errors
+- Improve UX for booking rules modal
+- Fix handling desk re-assignment failures
+- Fix desync of visitor list state when switching views (PPT-2475)
+- Align day view list actions with event details modal (PPT-2478)
+
+#### Events
+
+- Fix editing start time of room bookings in some cases (PPT-2382)
+- Tweak check for setting event resources
+- Fix sync of all day field on space select modal
+- Fix applying all_day value from form to availability request
+- Fix update last event details when editing the previously created (PPT-2449)
+- Fix editing events with assets
+
+#### Explore
+
+- Fix setting room booking form when external
+- Tweak handling of status signals for desk tooltips (PROJ-1665)
+- Fix changes to handling of future desk bookings
+- Fix handling of desk booking data
+- Add bookable hours checks and handling for booking modals
+- Fix display of parking space names
+
+#### Form-fields
+
+- Fix overflow of rich text component
+- Grab extra user details when selected from search (PPT-2425)
+- Fix text for booking rules form
+- Fix updating recurrence field instance date (PROJ-1773)
+- Fix date field selecting a different date if timezone is different from local
+
+#### Signage
+
+- Remove building requirement for bootstrap
+- Fix loading of systems
+- Fix preview and saving of plugins
+- Fix edge case infinite loop
+- Fix transitions between the same item
+
+#### Signage-manager
+
+- Fix filtering displays by building
+
+#### Stagehand
+
+- Fix setting initialising state for mqtt listener
+- Fix remote support filters
+- Fix header card counts for remote support view
+- Fix select all for region/building not updating alerts
+- Prevent adding multiple copies of conditions to an alert
+
+#### Visitor-kiosk
+
+- Set JWT before loading event data on beverages view
+- Fix visitor authentication for beverages
+- Fix scanning QR codes
+- Improve responsiveness of QR scanning
+- Fix navigating to right view when induction no enabled
+
+#### Workplace
+
+- Add setting to hide nearby desk option on meeting success view (PROJ-1697)
+- Fix selecting desk from favourites to book (PPT-2403)
+- Remove default parking request space restrictions
+- Fix schedule filters for parking requests
+- Fix parking booking form crashing
+
+### Features
+
+#### App-loader
+
+- Add new app for listing available applications (PPT-2474)
+
+#### Bookings
+
+- Add check and flow for recurrence clashes (PPT-2241)
+- Add ability to edit visitor bookings (PPT-2333)
+- Add handling of editing group bookings
+- Add setting to prevent booking when assigned (PPT-2469)
+
+#### Concierge
+
+- Add new URL fields to rooms model and form
+- Update emergency contacts to use the asset endpoints
+- Add ability to delete recurring desk bookings (PPT-2351)
+- Add action to download user list for desk bookings
+- Add view for listing parking requests
+- Add international toggle for visitors (PPT-2372)
+- Add currency options to app settings modals
+- Add tooltip to show extra visitor details (PPT-2389)
+- Add inverted timeline option for room day view
+- Add booking list view for rooms
+- Add the ability to add vehicle details to parking
+- Add ability to send ad-hoc emails to users (PPT-2400)
+- Add extra fields to parking space modal
+- Add ability to upload/download parking spaces
+- Add week view option to parking requests/bookings views
+- Add waitlisted status for parking requests
+- Add bookable field to parking space table
+- Add features column to room listing (PPT-2440)
+- Add new site attendance report (PPT-2451)
+- Add ability to view room history from management view (PPT-2227)
+- Add setting to hide waitlisted parking requests section
+- Add setting to limit assigned desks/parking
+- Add setting to show/hide edit action for parking bookings
+- Add delete option to parking bookings and hide action column when no actions are available
+
+#### Events
+
+- Add check for clashing recurring events (PPT-2366)
+
+#### Explore
+
+- Link to external URL for space booking when set
+- Add ability to show event details on space tooltips
+- Add template parameters to `room_booking_url` usage
+- Add all day option to explore space bookings (PPT-2334)
+- Update desk info tooltip to show time of next booking (PPT-2384)
+- Add setting to hide parking status on tooltip
+
+#### Form-fields
+
+- Add ability to restrict time ranges on time and duration fields
+
+#### Map-kiosk
+
+- Add pseudo-3D map rendering using three.js
+- Add 2D mode to new map renderer
+
+#### Parking
+
+- Convert parking spaces to use assets API
+- Convert parking users to use Assets API
+
+#### Signage
+
+- Update player to handle plugins
+- Update player to handle passing state when requesting media
+- Add interaction handler to plugins
+- Add logic to allow pausing from an iframe
+
+#### Signage-manager
+
+- Add media listing view
+- Add playlist sidebar and item actions to media list
+- Add media preview modal
+- Add ability to add and edit media items
+- Add playlist view
+- Add zones view
+- Add displays view
+- Add schedule block to displays view
+- Add file format validation
+- Show preview stack for playlist list items
+- Add playlist approvals flow
+- Add schedule view for displays and zones
+- Add ability to add plugins as media items
+- Add tree view to zone listing
+
+#### Stagehand
+
+- Hook up camera links to remote support (PPT-2228)
+- Add push notifications for alerts
+- Add dark mode support (PPT-2473)
+
+#### Visitor-kiosk
+
+- Add guest catering endpoints
+
+#### Workplace
+
+- Add ability to get user bookings from a driver for schedule view
+- Update explore search to sort relative to user's location (PPT-2304)
+- Add parking request flow
+- Add settings to set request types and add group based restrictions
+- Add setting for desks and room bookings to restrict booking hours (PPT-2415)
+- Add ability for users to choose to add teams meeting to room bookings
+- Add auto-allocation logic to desk booking
+- Add host field to parking request form
+- Add ability to book parking requests for externals
+- Add ability to show shifts based on user groups
+- Add ability to set extra space restrictions for parking requests
+
+### Refactor
+
+#### Assets
+
+- Cleanup handling of parking assets and add checks to prevent duplicates
+
+### Ci
+
+### E2e
+
+#### Booking-panel
+
+- Add e2e tests
+
+#### Caterer-ui
+
+- Add e2e tests
+
+#### Control
+
+- Add e2e tests for the user stories
+
+#### Signage
+
+- Add e2e tests
+
+#### Stagehand
+
+- Add e2e tests for the user stories
+
+#### Survey
+
+- Add e2e tests to surveys
+
+#### Visitor-kiosk
+
+- Add e2e tests for user stories
+
+## [2511.2] - 2025-11-11
+
+### Bug Fixes
+
+#### Explore
+
+- Show free state on space info tooltip (PPT-2286)
+
+#### Workplace
+
+- Fix loading of images for deals
+
+## [2511.1] - 2025-11-05
+
+### Bug Fixes
+
+#### Booking-panel
+
+- Make event panel time use a signal
+- Update time to be a signal (PPT-2262)
+- Retry system request on failure
+
+#### Bookings
+
+- Fix reading the show_filters state (PPT-2249)
+- Fix reading the show_filters state (PPT-2249)
+
+#### Concierge
+
+- Add logic to handle group desk bookings (PPT-2264)
+
+#### Control
+
+- Handle camera zoom errors
+
+#### Explore
+
+- Fix initial status updates
+- Fix zones toggle
+
+#### Signage
+
+- Prevent infinite item switching when no valid items
+- Fix initial form state for new playlists
+
+#### Visitor-kiosk
+
+- Fix bootstrap
+
+### Features
+
+#### Stagehand
+
+- Add ability to manage dashboard alerts
+- Add recorder grid view
+
+### Refactor
+
+#### Libs
+
+- Move commonly used classes and methods to common
+
+### Ci
+
+## [2510.1] - 2025-10-02
+
+### Bug Fixes
+
+#### Booking-panel
+
+- Display any booking modal errors (CDU-133)
+
+#### Bookings
+
+- Use existing user data for final rules check if available
+- Fix desk status tooltip on select map (PPT-2213)
+
+#### Catering
+
+- Fix toggle for favouriting items (PPT-2182)
+
+#### Concierge
+
+- Fix saving room availability for catering and assets (PPT-2202)
+- Fix check to open visitor section of concierge settings
+- Fix saving concierge and workplace settings
+
+#### Events
+
+- Fix displaying attendees for group events (PPT-2209)
+
+#### Explore
+
+- Fix displaying images on space tooltips (PPT-2207)
+- Tweak styling for desk tooltip
+
+#### Signage
+
+- Fix skipping items when playlist only has one item
+- Check override playlists have valid items to play
+
+#### Spaces
+
+- Fix filtering spaces by favourites (PPT-2183)
+
+#### Stagehand
+
+- Fix handling connected alerts
+
+### Features
+
+#### Concierge
+
+- Add extra fields to points of interest (PPT-2175)
+- Add setting to allow hiding parking "add reservation" button (PPT-2192)
+- Add simple stat display to parking bookings (PPT-2194)
+- Add map view to parking booking listing (PPT-2193)
+- Add permission modal to signage media upload (PPT-2197)
+- Add booked by column to desk bookings table (PPT-2201)
+- Add ability to disable parking management from bookings (PPT-2203)
+- Add ability to set user label size (PPT-2204)
+- Add buttons to scroll to sections in workplace/concierge settings modal (PPT-2208)
+- Show level, building and recurring state on approval display (PPT-2224)
+- Add ability to approve/reject cal event series
+
+#### Explore
+
+- Add ability to view poi details from map (PPT-2175)
+
+#### Form-fields
+
+- Add dblclick to date calendar month to reset to current month
+
+#### Signage
+
+- Add ability to display webpages (PPT-2173)
+
+#### Stagehand
+
+- Add setting to change display of event column (PPT-2236)
+
+#### Workplace
+
+- Add ability to return to today on schedule view (PPT-2190)
+- Add ability to quick book desks from landing view (PPT-2212)
+- Add ability for user to set their plate number (PPT-2238)
+
+### Ci
+
+## [2507.1] - 2025-07-30
+
+### Bug Fixes
+
+#### Booking-panel
+
+- Fix mobile styles for booking modal
+
+#### Bookings
+
+- Check booking rules before submitting booking request
+
+#### Catering
+
+- Handle updating catering orders for standalone visitors (PPT-2140)
+
+#### Concierge
+
+- Sort day view spaces by name (PPT-2135)
+- Wait for delete before recreating desk assigned booking (CDU-150)
+- Tweak filtering of parking bookings (PPT-2168)
+- Fix form state when creating a second parking booking (PPT-2170)
+
+#### Control
+
+- Fix binding for lighting level value
+- Limit controllable cameras to available ones
+
+#### Events
+
+- Check booking rules before submitting booking
+- Fix checking booking rules on booking
+
+#### Form-fields
+
+- Fix getting non-PlaceOS user details for host calendars
+- Fix selecting users from search field (PPT-2169)
+
+#### Signage
+
+- Add ability to add zones to displays
+
+#### Workplace
+
+- Fix booking favourited spaces (PPT-2092)
+- Fix code flow asking for camera on checkin requests (PPT-2137)
+
+### Features
+
+#### Concierge
+
+- Add ability to set orientation of signage displays
+- Add support for scheduling to signage playlists
+- Add deals and offers section and logic (PPT-2100)
+- Add ability to approve playlist changes (PPT-2161)
+
+#### Control
+
+- Add button to present active input to all (PPT-2121)
+- Add binding to hide master audio controls (PPT-2116)
+- Add topbar tooltip for lighting levels (PPT-2125)
+
+#### Signage
+
+- Add logic for metrics (PPT-2154)
+- Add logic for handling schedule override playlists (PPT-2146)
+- Add ability for triggers to activate playlists (PPT-2153)
+
+#### Survey
+
+- Add app for performing surveys (PPT-2110)
+
+#### Workplace
+
+- Add deals and offers section and logic
+
+## [2506.1] - 2025-06-12
+
+### Bug Fixes
+
+#### Assets
+
+- Fix counter binding for selected assets
+
+#### Booking-panel
+
+- Fix event panel view imports
+- Fix booking from panel view (PPT-2063)
+
+#### Bookings
+
+- Re-evaluate available resources on host change
+- Fix showing calendar links (PPT-2081)
+
+#### Catering
+
+- Fix filtering orders by location (PPT-1960)
+
+#### Concierge
+
+- Fix reject all action for desks
+- Handle redirects to invalid endpoints on day view section
+- Fix routing on assets manager views (PPT-2033)
+- Set user name when assigning parking spaces (PPT-2050)
+- Fix saving booking panel settings when non-existant (PPT-2056)
+
+#### Control
+
+- Tweak handling of bindings to fix camera details
+- Fix routing to outputs with no input
+
+#### Form-fields
+
+- Finish options for monthly recurrence (PPT-1993)
+- Use PlaceOS users for host select field (CDU-116)
+
+#### Redirect
+
+- Fix build not having oauth-resp.html
+
+#### Visitor-kiosk
+
+- Fix taking user photos (PPT-2054)
+- Fix label printing
+
+#### Workplace
+
+- Add handling all day start for auto-release
+- Allow searching controllable spaces from all spaces
+
+### Features
+
+#### Concierge
+
+- Add ability to print guest passes from visitor list (PPT-2029)
+- Add ability to set approval flag for rooms (PPT-2005)
+- Add ability to set default work hours for auto-release (PPT-2001)
+- Add component for survey rendering, remove survey-core dep
+
+#### Control
+
+- Add ability to hide outputs when rooms are joined (PPT-2044)
+- Add ability to mute outputs (PPT-2043)
+
+#### Explore
+
+- Add ability to search for desks (PPT-2090)
+
+#### Map-kiosk
+
+- Add view for only parking (PPT-2067)
+
+#### Redirect
+
+- Add simple app for redirecting users to set domains (PPT-2015)
+
+#### Visitor-kiosk
+
+- Add ability to set location for standalone visitors (PPT-2010)
+
+#### Workplace
+
+- Add icon for recurrence on details modals (PPT-2028)
+- Indicate to user that room bookings require approval (PPT-2006)
+
+### Refactor
+
+#### Catering
+
+- Clean up order select modal
+
+#### Surveys
+
+- Cleanup survey builder and responses components
+
 ## [2504.2] - 2025-04-17
 
 ### Bug Fixes

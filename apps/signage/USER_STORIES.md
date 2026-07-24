@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Signage app is a kiosk-style digital signage player. It bootstraps a device to a PlaceOS signage system, fetches the display's mapped playlists, plays images, videos, webpages, and plugins, supports scheduled or triggered takeovers, caches media locally, exposes debug controls, and reports playback metrics.
+The Signage app is a kiosk-style digital signage player. It bootstraps a device to a PlaceOS signage system, fetches that display's mapped playlists, plays images, videos, webpages, and plugins, supports scheduled or triggered takeovers, caches media locally, exposes debug controls, accepts simple parent-frame playback commands, and reports playback metrics.
 
 ---
 
@@ -84,8 +84,10 @@ The Signage app is a kiosk-style digital signage player. It bootstraps a device 
 - The app calls the PlaceOS signage endpoint for the active display ID.
 - Requests include preview context when debug mode is enabled and include the currently playing item ID when available.
 - Requests include `If-Modified-Since` based on the last known configuration timestamp.
-- The latest display configuration is cached in localStorage under `PlaceOS.SIGNAGE.display_details`.
+- The latest display configuration is cached in localStorage under a display-specific `PlaceOS.SIGNAGE.display_details.<display_id>` key.
+- Legacy cached configuration under `PlaceOS.SIGNAGE.display_details` can still be used as a fallback.
 - If the API request fails, the app falls back to the cached display configuration only when it matches the active display ID.
+- Unchanged responses keep the current parsed display, trigger bindings, media cache, and playlist state.
 - Display configuration refreshes every 60 seconds.
 
 ---
@@ -105,6 +107,7 @@ The Signage app is a kiosk-style digital signage player. It bootstraps a device 
 - Disabled playlists are excluded.
 - Scheduled playlists are included in normal playback only when they have an active non-takeover schedule.
 - Takeover schedules are excluded from normal playback and handled as overrides.
+- The app rejects signage media that embeds the same display, and rejects nested signage-player embeds when already running inside another frame.
 
 ---
 
@@ -136,6 +139,8 @@ The Signage app is a kiosk-style digital signage player. It bootstraps a device 
 - Video items render through the video layer.
 - Videos use object-contain sizing and remain centred within the screen.
 - Video playback starts automatically when the item becomes active.
+- Debug time speed changes update video playback rate.
+- Videos are muted automatically when debug time speed is 4x or faster.
 - If browser video playback is blocked, the player pauses cleanly instead of repeatedly failing.
 - Debug controls can mute and unmute video playback.
 
@@ -150,9 +155,11 @@ The Signage app is a kiosk-style digital signage player. It bootstraps a device 
 **Acceptance Criteria:**
 
 - Webpage items render in an iframe.
-- Playback timing starts after the iframe load event plus a 2 second hold delay.
+- Playback timing starts after the iframe load event plus a 2 second reveal delay.
+- If a webpage never reports load, playback continues after a 15 second wait.
 - Webpage items play for their configured effective duration.
 - A single valid webpage item remains loaded instead of reloading on every loop.
+- Upcoming webpage items can be preloaded on the inactive output shortly before transition.
 - Webpage media is not cached as a local file.
 
 ---
@@ -168,9 +175,11 @@ The Signage app is a kiosk-style digital signage player. It bootstraps a device 
 - Plugin media renders through `plugin-embed`.
 - Plugin config combines plugin defaults with media-specific plugin parameters.
 - When a plugin reports `ready`, the player sends config and then a play signal.
+- If a plugin does not report load or ready, the player sends config after a 15 second wait.
 - Static plugins follow the configured effective duration.
 - Play-through plugins advance when they report `finished`.
 - Interactive plugins can request a new playback duration through plugin interaction events.
+- Upcoming plugin items can be preloaded on the inactive output shortly before transition.
 - Fatal plugin errors advance to the next media item.
 
 ---
@@ -207,6 +216,7 @@ The Signage app is a kiosk-style digital signage player. It bootstraps a device 
 - The player skips media that is not currently valid.
 - When a changed playlist still contains the currently playing item, the current item is held over before the updated playlist continues.
 - If no valid items exist, the player retries item selection every 5 seconds.
+- If media URL resolution hangs or fails, the player waits briefly, skips the failed item when possible, and retries the playlist after a short delay when every valid item has failed.
 
 ---
 
@@ -269,7 +279,9 @@ The Signage app is a kiosk-style digital signage player. It bootstraps a device 
 - A queue button toggles the playlist sidebar.
 - The sidebar lists each media item name, playlist name, and duration.
 - The currently playing item is highlighted.
-- Invalid items are disabled and show an error icon with a tooltip.
+- Item tooltips show playlist, media type, duration, validity, cache status, and validation errors when present.
+- Invalid items are disabled and shown with an error state.
+- Cached items show an offline indicator.
 - Selecting a valid item jumps playback to that item.
 - The sidebar shows the total number of playlist items.
 
@@ -290,6 +302,7 @@ The Signage app is a kiosk-style digital signage player. It bootstraps a device 
 - Playlist validity windows are combined with media validity windows when media items are built.
 - Scheduled playlist windows are also combined with playlist and media validity windows.
 - Invalid items are skipped during playback and shown as invalid in debug playlist view.
+- Invalid debug messages identify whether the playlist, media item, or both supplied the active validity boundary.
 
 ---
 
@@ -306,6 +319,7 @@ The Signage app is a kiosk-style digital signage player. It bootstraps a device 
 - `play_cron` schedules support recurring cron-based activation.
 - `play_period` controls the active window in minutes.
 - When `play_period` is missing, the default active window is 24 hours.
+- Schedule activation is re-evaluated every 15 seconds, or faster while debug time is accelerated.
 
 ---
 
@@ -321,8 +335,8 @@ The Signage app is a kiosk-style digital signage player. It bootstraps a device 
 - The normal player is paused while an override is active.
 - Multiple active takeover playlists can be combined into the override playlist.
 - The override ends at the scheduled end time when `play_period` is greater than zero.
-- A scheduled takeover with `play_period` set to zero plays a single pass and then clears.
-- Clearing a scheduled override records its schedule key so the same single-pass activation is not immediately retriggered.
+- A scheduled takeover with `play_period` set to zero uses a short activation window, plays a single pass, and then clears.
+- Clearing a scheduled override records its schedule key so the same activation is not immediately retriggered.
 
 ---
 
@@ -373,6 +387,7 @@ The Signage app is a kiosk-style digital signage player. It bootstraps a device 
 - A stored debug state is restored when the signage route loads.
 - Debug mode shows time controls, media controls, the playlist toggle, playlist details, and the currently playing media ID.
 - `debug=false` disables debug mode and stores that disabled state.
+- Mute state is stored for the browser session under `SIGNAGE.muted`.
 
 ---
 
@@ -386,10 +401,11 @@ The Signage app is a kiosk-style digital signage player. It bootstraps a device 
 
 - Debug mode shows a time control with the current effective time.
 - The control allows selecting a date and time.
-- Static mode freezes the effective time at the selected value.
-- Progressive mode starts from the selected value and then advances with real elapsed time.
+- Progression can be frozen at `0x` or advanced at `0.5x`, `1x`, `2x`, `4x`, `8x`, or `16x`.
+- The control includes quick actions for now, one hour back, and one hour forward.
 - Clearing the override restores the real system time.
 - Schedule checks use the effective time from the time helper.
+- Debug time speed also controls video playback rate.
 
 ---
 
@@ -425,6 +441,7 @@ The Signage app is a kiosk-style digital signage player. It bootstraps a device 
 - Cache status moves through preparing, downloading, storing, and cached states.
 - Upload API media requests apply a short-lived authentication cookie before fetching.
 - Cached media is served to the player as object URLs.
+- Cache ownership is tracked per display so one display can prune its files without removing media still owned by another display.
 
 ---
 
@@ -438,7 +455,9 @@ The Signage app is a kiosk-style digital signage player. It bootstraps a device 
 
 - When display configuration changes, the app requests caching for current media URLs.
 - Cached URLs that are no longer referenced by the display are invalidated.
-- Failed cache requests schedule a retry after a debounce delay.
+- Cache pruning keeps the current display's priority URLs first and enforces a per-owner storage limit.
+- Embedded signage players avoid pruning files owned by other displays.
+- Failed cache requests schedule a retry after 15 seconds.
 - Media currently preparing, downloading, or storing waits for a final cached or invalidated state before playback tries to use it.
 - Invalidated media resolves as unavailable instead of throwing through playback.
 
@@ -456,6 +475,7 @@ The Signage app is a kiosk-style digital signage player. It bootstraps a device 
 - Plugin media is skipped because it does not need a prefetched file URL.
 - Object URLs outside the nearby window are revoked.
 - If an active item's URL is not ready, the player waits and retries item selection.
+- Webpage and plugin outputs are prepared on the inactive layer near the end of the current item so they can be revealed after loading.
 
 ---
 
@@ -507,6 +527,9 @@ The Signage app is a kiosk-style digital signage player. It bootstraps a device 
 - Items without usable media IDs are considered invalid.
 - Future and expired items are skipped.
 - Items without ready URLs are retried instead of crashing playback.
+- Hanging URL resolution is capped so a single item cannot block playback indefinitely.
+- Image and video load failures skip to other valid items when available.
+- When all valid media fails to load, the player pauses the failure loop and retries after 30 seconds.
 - Fatal plugin errors advance to the next item.
 - Debug playlist view shows invalid items with an error indicator.
 - If the playlist has no valid items, playback remains stable and retries selection.
@@ -525,4 +548,3 @@ The Signage app is a kiosk-style digital signage player. It bootstraps a device 
 - The unauthorised route renders the shared unauthorised component.
 - Unknown routes redirect to bootstrap.
 - The app remains stable when an invalid display ID is supplied.
-

@@ -1,4 +1,4 @@
-import { Booking, VERSION } from '@placeos/common';
+import { Booking, setCurrentUser, StaffUser, VERSION } from '@placeos/common';
 import {
     approveBooking,
     bookedResourceList,
@@ -6,24 +6,38 @@ import {
     createBooking,
     queryBookings,
     rejectBooking,
+    removeBooking,
+    removeBookingInstance,
     saveBooking,
     showBooking,
     updateBooking,
 } from '../lib/bookings.fn';
 
-jest.mock('@placeos/ts-client');
+vi.mock('@placeos/ts-client', { spy: true });
 
 import * as ts_client from '@placeos/ts-client';
 
 describe('[Booking API]', () => {
     const app_version = VERSION.raw || VERSION.version || VERSION.hash;
     const app_name = 'PlaceOS';
+    const user_email = 'current.user@example.com';
+    const utm_source = `${app_name}_${VERSION.hash}_${user_email}`;
+    const encoded_utm_source = encodeURIComponent(utm_source);
 
-    beforeEach(() => jest.clearAllMocks());
+    beforeEach(() => {
+        vi.clearAllMocks();
+        setCurrentUser(
+            new StaffUser({
+                id: 'current-user',
+                email: user_email,
+                name: 'Current User',
+            }),
+        );
+    });
 
     describe('queryBookings', () => {
         it('should allow calling GET request for listing bookings', async () => {
-            const spy = jest.spyOn(ts_client, 'get');
+            const spy = vi.spyOn(ts_client, 'get');
             expect(spy).not.toHaveBeenCalled();
             spy.mockResolvedValue([{}] as any);
             const bookings = await queryBookings({
@@ -42,7 +56,7 @@ describe('[Booking API]', () => {
 
     describe('bookedResourceList', () => {
         it('should query all pages of booked resources', async () => {
-            const spy = jest.spyOn(ts_client, 'query');
+            const spy = vi.spyOn(ts_client, 'query');
             spy.mockResolvedValue({
                 total: 3,
                 data: ['asset-1', 'asset-2'],
@@ -76,7 +90,7 @@ describe('[Booking API]', () => {
 
     describe('showBooking', () => {
         it('should allow calling GET request for a specific booking', async () => {
-            const spy = jest.spyOn(ts_client, 'get');
+            const spy = vi.spyOn(ts_client, 'get');
             expect(spy).not.toHaveBeenCalled();
             spy.mockResolvedValue({} as any);
             const booking = await showBooking('1');
@@ -90,13 +104,13 @@ describe('[Booking API]', () => {
 
     describe('createBooking', () => {
         it('should allow calling POST request for creating a new booking', async () => {
-            const spy = jest.spyOn(ts_client, 'post');
+            const spy = vi.spyOn(ts_client, 'post');
             expect(spy).not.toHaveBeenCalled();
             spy.mockResolvedValue({} as any);
-            const booking = await createBooking({});
+            const booking = await createBooking({ created_at: 123 });
             expect(booking).toBeInstanceOf(Booking);
             expect(ts_client.post).toHaveBeenCalledWith(
-                `/api/staff/v1/bookings`,
+                `/api/staff/v1/bookings?utm_source=${encoded_utm_source}`,
                 { extension_data: { app_name, app_version } },
             );
             spy.mockReset();
@@ -105,10 +119,10 @@ describe('[Booking API]', () => {
 
     describe('updateBooking', () => {
         it('should allow calling PATCH request for updating a booking', async () => {
-            const spy = jest.spyOn(ts_client, 'patch');
+            const spy = vi.spyOn(ts_client, 'patch');
             expect(spy).not.toHaveBeenCalled();
             spy.mockResolvedValue({} as any);
-            const booking = await updateBooking('1', {});
+            const booking = await updateBooking('1', { created_at: 123 });
             expect(booking).toBeInstanceOf(Booking);
             expect(ts_client.patch).toHaveBeenCalledWith(
                 `/api/staff/v1/bookings/1`,
@@ -117,10 +131,14 @@ describe('[Booking API]', () => {
             spy.mockReset();
         });
         it('should allow calling PUT request for updating a booking', async () => {
-            const spy = jest.spyOn(ts_client, 'put');
+            const spy = vi.spyOn(ts_client, 'put');
             expect(spy).not.toHaveBeenCalled();
             spy.mockResolvedValue({} as any);
-            const booking = await updateBooking('1', {}, 'put');
+            const booking = await updateBooking(
+                '1',
+                { created_at: 123 },
+                'put',
+            );
             expect(booking).toBeInstanceOf(Booking);
             expect(ts_client.put).toHaveBeenCalledWith(
                 `/api/staff/v1/bookings/1`,
@@ -132,18 +150,18 @@ describe('[Booking API]', () => {
 
     describe('saveBooking', () => {
         it('should create new bookings', async () => {
-            const spy = jest.spyOn(ts_client, 'post');
+            const spy = vi.spyOn(ts_client, 'post');
             spy.mockResolvedValue({} as any);
             expect(ts_client.post).not.toHaveBeenCalled();
             await saveBooking({});
             expect(ts_client.post).toHaveBeenCalledWith(
-                `/api/staff/v1/bookings`,
+                `/api/staff/v1/bookings?utm_source=${encoded_utm_source}`,
                 { extension_data: { app_name, app_version } },
             );
             spy.mockReset();
         });
         it('should update existing bookings', async () => {
-            const spy = jest.spyOn(ts_client, 'patch');
+            const spy = vi.spyOn(ts_client, 'patch');
             spy.mockResolvedValue({} as any);
             expect(ts_client.patch).not.toHaveBeenCalled();
             await saveBooking({ id: '1' });
@@ -155,9 +173,35 @@ describe('[Booking API]', () => {
         });
     });
 
+    describe('removeBooking', () => {
+        it('should include the UTM source in a booking DELETE request', async () => {
+            const spy = vi.spyOn(ts_client, 'del');
+            spy.mockResolvedValue(undefined as any);
+
+            await removeBooking('booking/1');
+
+            expect(spy).toHaveBeenCalledWith(
+                `/api/staff/v1/bookings/booking%2F1?utm_source=${encoded_utm_source}`,
+                { response_type: 'void' },
+            );
+        });
+
+        it('should include the UTM source in an instance DELETE request', async () => {
+            const spy = vi.spyOn(ts_client, 'del');
+            spy.mockResolvedValue(undefined as any);
+
+            await removeBookingInstance('booking/1', 123);
+
+            expect(spy).toHaveBeenCalledWith(
+                `/api/staff/v1/bookings/booking%2F1/instance/123?utm_source=${encoded_utm_source}`,
+                { response_type: 'void' },
+            );
+        });
+    });
+
     describe('approveBooking', () => {
         it('should allow calling POST request for approving a booking', async () => {
-            const spy = jest.spyOn(ts_client, 'post');
+            const spy = vi.spyOn(ts_client, 'post');
             expect(spy).not.toHaveBeenCalled();
             spy.mockResolvedValue({} as any);
             const booking = await approveBooking('1');
@@ -172,7 +216,7 @@ describe('[Booking API]', () => {
 
     describe('rejectBooking', () => {
         it('should allow calling POST request for rejecting a booking', async () => {
-            const spy = jest.spyOn(ts_client, 'post');
+            const spy = vi.spyOn(ts_client, 'post');
             expect(spy).not.toHaveBeenCalled();
             spy.mockResolvedValue({} as any);
             const booking = await rejectBooking('1');
@@ -187,7 +231,7 @@ describe('[Booking API]', () => {
 
     describe('checkinBooking', () => {
         it('should allow calling POST request for checking in a booking', async () => {
-            const spy = jest.spyOn(ts_client, 'post');
+            const spy = vi.spyOn(ts_client, 'post');
             expect(spy).not.toHaveBeenCalled();
             spy.mockResolvedValue({} as any);
             const booking = await checkinBooking('1', true);

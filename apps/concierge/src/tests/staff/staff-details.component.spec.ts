@@ -1,5 +1,5 @@
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { StaffUser } from '@placeos/common';
 import { mockComponent } from '@placeos/common/tests';
 import {
@@ -18,8 +18,8 @@ describe('StaffDetailsComponent', () => {
             {
                 provide: StaffStateService,
                 useValue: {
-                    checkin: jest.fn(),
-                    checkout: jest.fn(),
+                    checkin: vi.fn(),
+                    checkout: vi.fn(),
                 },
             },
         ],

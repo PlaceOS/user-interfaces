@@ -323,6 +323,7 @@ export class ParkingRequestFormComponent
             asset_name: 'Parking Request',
             description: 'Parking Request',
             title: m.title || 'Parking Request',
+            plate_number: `${m.plate_number || ''}`.trim(),
         }));
         if (
             this.model().request_type === 'special' &&
@@ -359,6 +360,7 @@ export class ParkingRequestFormComponent
                     this.model,
                 ).join(', ')}]`,
             );
+        const plate_number = this.model().plate_number;
         this.loading.set(true);
         try {
             const r = await this._state.postForm().catch((_) => {
@@ -366,10 +368,27 @@ export class ParkingRequestFormComponent
                 return null;
             });
             if (!r) return;
+            this._savePlateNumber(plate_number);
             this._router.navigate(['/book', 'parking-request', 'success']);
             this._state.setView('success');
         } finally {
             this.loading.set(false);
         }
     };
+
+    private _savePlateNumber(plate_number: string) {
+        if (!plate_number) return;
+        const saved_plate_numbers = this._settings.get('plate_numbers');
+        const plate_numbers = Array.isArray(saved_plate_numbers)
+            ? saved_plate_numbers
+            : [];
+        this._settings.saveUserSetting('plate_numbers', [
+            plate_number,
+            ...plate_numbers.filter(
+                (_) =>
+                    typeof _ === 'string' &&
+                    _.trim().toLowerCase() !== plate_number.toLowerCase(),
+            ),
+        ]);
+    }
 }

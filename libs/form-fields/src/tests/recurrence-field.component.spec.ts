@@ -8,7 +8,7 @@ import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { addDays, addMonths, addWeeks, endOfDay, getUnixTime } from 'date-fns';
 import { MockModule, MockProvider } from 'ng-mocks';
 
@@ -43,7 +43,7 @@ describe('RecurrenceFieldComponent – date change regression', () => {
     const createComponent = createComponentFactory({
         component: RecurrenceFieldComponent,
         imports: [MockModule(MatFormFieldModule), MockModule(MatSelectModule)],
-        providers: [MockProvider(MatDialog, { open: jest.fn() })],
+        providers: [MockProvider(MatDialog, { open: vi.fn() })],
     });
 
     /** Update the date signal input and flush effects. */

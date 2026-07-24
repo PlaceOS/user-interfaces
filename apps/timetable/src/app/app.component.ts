@@ -4,19 +4,27 @@ import { PlaceOS_Service, setMocks } from '@placeos/common';
 import {
     GlobalBannerComponent,
     GlobalLoadingComponent,
+    SettingsDebugPanelComponent,
 } from '@placeos/components';
 import { mocksInit } from '@placeos/mocks';
 
+import * as SETTINGS_SCHEMA from '../environments/settings.schema.json';
+
 @Component({
     selector: 'app-root',
-    imports: [RouterOutlet, GlobalBannerComponent, GlobalLoadingComponent],
+    imports: [
+        RouterOutlet,
+        GlobalBannerComponent,
+        GlobalLoadingComponent,
+        SettingsDebugPanelComponent,
+    ],
     template: `
         <global-banner />
         <div class="relative h-1/2 w-full flex-1">
             <router-outlet></router-outlet>
         </div>
         <global-loading />
-        <!-- <debug-console *ngIf="debug"></debug-console> -->
+        <settings-debug-panel [schema]="settings_schema" />
     `,
     styles: [
         `
@@ -30,6 +38,8 @@ import { mocksInit } from '@placeos/mocks';
     ],
 })
 export class AppComponent implements OnInit {
+    public readonly settings_schema = SETTINGS_SCHEMA as any;
+
     private _placeos = inject(PlaceOS_Service);
 
     public ngOnInit(): void {

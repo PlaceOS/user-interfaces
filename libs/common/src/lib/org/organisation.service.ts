@@ -15,6 +15,7 @@ import {
     isMock,
     onlineState,
     queryZones,
+    showMetadata,
     waitForSignal,
 } from '@placeos/ts-client';
 
@@ -36,7 +37,7 @@ const log = scoped_log('ORG');
 const ORG_CACHE_PREFIX = 'PLACEOS.org';
 const ZONE_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.zones`;
 const METADATA_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.metadata`;
-const DEFAULT_CACHE_DURATION = 5 * 60 * 1000;
+const DEFAULT_CACHE_DURATION = 2 * 60 * 1000;
 type ZoneQueryParams = Parameters<typeof queryZones>[0];
 type MetadataMap = Record<string, Record<string, any>>;
 interface SessionCacheItem<T> {
@@ -466,7 +467,7 @@ export class OrganisationService {
      * Initialise service data
      */
     private async load(): Promise<void> {
-        setLoadingMessage('Loading organistion data...');
+        setLoadingMessage('Loading organisation data...');
         await this.loadOrganisation();
         setLoadingMessage('Loading region data...');
         await this.loadRegions();
@@ -828,7 +829,10 @@ export class OrganisationService {
         const cached_metadata = this._getCachedItem<MetadataMap>(cache_key);
         if (cached_metadata) return cached_metadata;
         const metadata = await bulkMetadata(name, { parent_ids }).catch(
-            () => ({}) as Record<string, any>,
+            (err) =>
+                err?.status === 404
+                    ? this._individualMetadata(name, ids)
+                    : ({} as Record<string, any>),
         );
         const metadata_details = ids.reduce((map, id) => {
             map[id] = metadata[id]?.details || {};
@@ -836,6 +840,26 @@ export class OrganisationService {
         }, {} as MetadataMap);
         this._setCachedItem(cache_key, metadata_details);
         return metadata_details;
+    }
+
+    /** Fallback for backends without the bulk metadata endpoint (404) */
+    private async _individualMetadata(
+        name: string,
+        ids: string[],
+    ): Promise<Record<string, any>> {
+        const items = await Promise.all(
+            ids.filter(Boolean).map((id) =>
+                showMetadata(id, name).then(
+                    (item) => [id, item] as const,
+                    () => [id, null] as const,
+                ),
+            ),
+        );
+        const metadata: Record<string, any> = {};
+        for (const [id, item] of items) {
+            if (item) metadata[id] = item;
+        }
+        return metadata;
     }
 
     private async _queryZones(params: ZoneQueryParams): Promise<PlaceZone[]> {

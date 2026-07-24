@@ -200,16 +200,6 @@ import { DesksStateService } from './desks-state.service';
                             icon
                             default
                             matRipple
-                            [matTooltip]="'COMMON.REFRESH' | translate"
-                            (click)="refresh()"
-                            [disabled]="loading()"
-                        >
-                            <icon>refresh</icon>
-                        </button>
-                        <button
-                            icon
-                            default
-                            matRipple
                             [matTooltip]="
                                 'APP.CONCIERGE.REJECT_ALL' | translate
                             "
@@ -516,18 +506,7 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
     }
 
     public downloadTemplate() {
-        const desk: any = new Desk({
-            id: 'desk-123',
-            name: 'Test Desk',
-            bookable: true,
-            groups: ['test-desk-group', 'desk-bookers'],
-            features: ['Standing Desk', 'Dual Monitor'],
-            tags: ['engineering', 'level-3'],
-            homebase: 'Sydney HQ',
-        }).toJSON();
-        delete desk.images;
-        const data = jsonToCsv([desk]);
-        downloadFile('desk-template.csv', data);
+        this._state.downloadDesksCSV();
     }
 
     public readonly downloadCsv = async () => {
@@ -589,20 +568,25 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
     private _updateView() {
         const view = this._getViewFromPath();
         const previous_view = this._state.filters().view;
+        const view_changed = !!previous_view && previous_view !== view;
         this._state.setFilters(
-            previous_view && previous_view !== view
+            view_changed
                 ? { view, search: '' }
                 : { view },
         );
-        this._syncZones(this.levels());
+        this._syncZones(this.levels(), view_changed);
     }
 
-    private _syncZones(levels: BuildingLevel[]) {
+    private _syncZones(levels: BuildingLevel[], restore = false) {
         const current_zones = this._state.filters().zones || [];
         const valid_zones = current_zones.filter((zone) =>
             levels.find((level) => level.id === zone),
         );
-        let next_zones = this.manage() ? valid_zones.slice(0, 1) : valid_zones;
+        let next_zones = restore
+            ? []
+            : this.manage()
+              ? valid_zones.slice(0, 1)
+              : valid_zones;
         if (!next_zones.length) {
             // Restore persisted selection for the current view when none is
             // active. Manage view then falls back to the first level if no

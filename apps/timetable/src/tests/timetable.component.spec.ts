@@ -1,8 +1,8 @@
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { signal } from '@angular/core';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { SettingsService } from '@placeos/common';
 import { SpacesService } from '@placeos/events';
 import { MockComponent, MockDirective, MockProvider } from 'ng-mocks';
-import { of } from 'rxjs';
 
 import { AuthenticatedImageDirective } from '@placeos/components';
 import { SpaceTimetableComponent } from '../app/space-timetable.component';
@@ -13,10 +13,10 @@ describe('AppTimetableComponent', () => {
     const createComponent = createRoutingFactory({
         component: AppTimetableComponent,
         providers: [
-            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(SettingsService, { get: vi.fn() }),
             MockProvider(SpacesService, {
-                initialised: of(true),
-                find: jest.fn(),
+                initialised: signal(true),
+                find: vi.fn(),
             }),
         ],
         declarations: [

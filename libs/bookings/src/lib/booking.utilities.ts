@@ -273,9 +273,10 @@ export interface BookingFormValue {
 
 export function bookingAttachments(booking: Booking = new Booking()): string[] {
     booking = booking || new Booking();
+    const extension_data = booking.extension_data || {};
     return [
-        ...(booking.extension_data.attachments || []),
-        ...(booking.extension_data.p2_document_names || []),
+        ...(extension_data.attachments || []),
+        ...(extension_data.p2_document_names || []),
     ].filter((item) => !!item);
 }
 
@@ -283,9 +284,10 @@ export function bookingAttachments(booking: Booking = new Booking()): string[] {
 export function bookingFormValue(
     booking: Booking = new Booking(),
 ): BookingFormValue {
+    const extension_data = booking.extension_data || {};
     const visitor_name =
         booking.booking_type === 'visitor'
-            ? booking.extension_data?.visitor_name || booking.asset_name || ''
+            ? extension_data.visitor_name || booking.asset_name || ''
             : booking.asset_name || booking.description;
     // Every field must be non-`undefined`: the signal-forms FieldTree only
     // exposes a sub-field for keys whose value is defined, so an `undefined`
@@ -294,11 +296,11 @@ export function bookingFormValue(
         id: booking.id || '',
         parent_id: booking.parent_id || '',
         event_id: booking.event_id || '',
-        ical_uid: booking.extension_data.ical_uid || '',
+        ical_uid: extension_data.ical_uid || '',
         date: booking.date ?? 0,
         date_end: booking.date_end ?? 0,
         all_day: booking.all_day ?? false,
-        name: booking.extension_data.name || booking.asset_name || '',
+        name: extension_data.name || booking.asset_name || '',
         duration: booking.duration ?? 0,
         booking_type: booking.booking_type || '',
         zones: booking.zones || [],
@@ -306,13 +308,13 @@ export function bookingFormValue(
         description: booking.description || '',
         booking_asset: {},
         resources: [],
-        company: booking.extension_data?.company || '',
+        company: extension_data.company || '',
         asset_id: booking.asset_id || '',
         asset_name: visitor_name || '',
-        assets: booking.extension_data?.assets || [],
+        assets: extension_data.assets || [],
         attendees: booking.attendees || [],
-        map_id: booking.extension_data?.map_id || '',
-        featured: booking.extension_data?.featured || false,
+        map_id: extension_data.map_id || '',
+        featured: extension_data.featured || false,
         user: currentUser(),
         user_id: booking.user_id || '',
         group: booking.group ?? {},
@@ -323,36 +325,35 @@ export function bookingFormValue(
         booked_by_id: booking.booked_by_id || '',
         booked_by_email: booking.booked_by_email || '',
         secondary_resource:
-            booking.extension_data?.other_asset_type ||
-            booking.extension_data?.secondary_resource ||
+            extension_data.other_asset_type ||
+            extension_data.secondary_resource ||
             {},
-        location: booking.extension_data.location || '',
-        attendance_type: booking.extension_data.attendance_type || 'ANY',
-        phone: booking.extension_data.phone || '',
+        location: extension_data.location || '',
+        attendance_type: extension_data.attendance_type || 'ANY',
+        phone: extension_data.phone || '',
         permission: booking.permission || 'PRIVATE',
         images: booking.images || [],
         tags: booking?.tags || [],
-        plate_number: booking.extension_data.plate_number || '',
-        vehicle_type: booking.extension_data.vehicle_type || 'car',
-        request_type: booking.extension_data.request_type || 'standard',
+        plate_number: extension_data.plate_number || '',
+        vehicle_type: extension_data.vehicle_type || 'car',
+        request_type: extension_data.request_type || 'standard',
         requires_manual_approval:
-            booking.extension_data.requires_manual_approval ?? false,
-        space_restrictions: booking.extension_data.space_restrictions ?? false,
-        extra_space_restrictions:
-            booking.extension_data.extra_space_restrictions ?? [],
-        approver_group: booking.extension_data.approver_group || '',
+            extension_data.requires_manual_approval ?? false,
+        space_restrictions: extension_data.space_restrictions ?? false,
+        extra_space_restrictions: extension_data.extra_space_restrictions ?? [],
+        approver_group: extension_data.approver_group || '',
         prefer_booked_location_first:
-            booking.extension_data.prefer_booked_location_first ?? false,
-        pass_number: booking.extension_data.pass_number || '',
-        international: booking.extension_data.international ?? false,
-        recurrence_custom: booking.extension_data.recurrence_custom ?? false,
+            extension_data.prefer_booked_location_first ?? false,
+        pass_number: extension_data.pass_number || '',
+        international: extension_data.international ?? false,
+        recurrence_custom: extension_data.recurrence_custom ?? false,
         recurrence_type: booking.recurrence_type || 'none',
         recurrence_days: booking.recurrence_days ?? 0,
         recurrence_nth_of_month: booking.recurrence_nth_of_month ?? 0,
         recurrence_interval: booking.recurrence_interval ?? 0,
         recurrence_end: booking.recurrence_end ?? 0,
-        recurrence_instances: booking.extension_data.recurrence_instances ?? [],
-        notes: booking.extension_data.notes || '',
+        recurrence_instances: extension_data.recurrence_instances ?? 0,
+        notes: extension_data.notes || '',
         attachments: bookingAttachments(booking),
         update_master: false,
         self_registered: false,

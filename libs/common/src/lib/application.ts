@@ -133,6 +133,9 @@ export function clearCacheCheck() {
     _unrecoverable_subscription?.unsubscribe();
     _version_subscription = undefined;
     _unrecoverable_subscription = undefined;
+    _new_version = false;
+    _auto_reload = false;
+    SERVICE_WORKER_UPDATE.set(null);
 }
 
 /**

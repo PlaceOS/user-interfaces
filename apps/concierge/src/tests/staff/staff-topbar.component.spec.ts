@@ -2,7 +2,7 @@ import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { OrganisationService } from '@placeos/common';
 import { signal } from '@angular/core';
 import { MockComponent } from 'ng-mocks';
@@ -20,8 +20,8 @@ describe('StaffTopbarComponent', () => {
                 provide: StaffStateService,
                 useValue: {
                     filters: signal({}),
-                    setFilters: jest.fn(),
-                    setSearchString: jest.fn(),
+                    setFilters: vi.fn(),
+                    setSearchString: vi.fn(),
                 },
             },
             {
@@ -30,7 +30,7 @@ describe('StaffTopbarComponent', () => {
                     active_levels: signal([]),
                     initialised: signal(true),
                     waitUntilInitialised: () => Promise.resolve(),
-                    levelWithID: jest.fn(),
+                    levelWithID: vi.fn(),
                     buildings: [],
                 },
             },

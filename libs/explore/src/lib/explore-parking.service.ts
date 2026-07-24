@@ -13,6 +13,7 @@ import {
     BookableHoursRange,
     BookingRuleset,
     currentUser,
+    getAllDayTimeRange,
     i18n,
     isWithinBookableHours,
     notifyError,
@@ -23,8 +24,8 @@ import {
 } from '@placeos/common';
 import { PlaceAsset, showMetadata } from '@placeos/ts-client';
 import {
+    addMinutes,
     endOfDay,
-    endOfMinute,
     getUnixTime,
     isSameDay,
     setHours,
@@ -35,7 +36,10 @@ import {
 import { queryParkingSpacesForZones } from '@placeos/assets';
 import { OrganisationService } from '@placeos/common';
 import { BookingFormService } from 'libs/bookings/src/lib/booking-form.service';
-import { queryBookings } from 'libs/bookings/src/lib/bookings.fn';
+import {
+    queryAllBookings,
+    queryBookings,
+} from 'libs/bookings/src/lib/bookings.fn';
 import { ParkingService } from 'libs/bookings/src/lib/parking.service';
 import { ExploreParkingInfoComponent } from './explore-parking-info.component';
 import { DEFAULT_COLOURS } from './explore-spaces.service';
@@ -47,6 +51,7 @@ export interface ParkingOptions {
     enable_booking?: boolean;
     date?: number;
     all_day?: boolean;
+    duration?: number;
     zones?: string[];
     host?: StaffUser;
     custom?: boolean;
@@ -95,30 +100,53 @@ export class ExploreParkingService extends AsyncHandler {
         () => this._booking_rules.value() ?? [],
     );
 
-    /** List of current bookings for the current building */
+    /** List of current bookings for the current map level */
     private _events = resource({
         params: () => ({
-            bld: this._building(),
             is_public: this._state.options().is_public,
+            level_id: this._state.level()?.id,
             date: this._options().date,
+            all_day: this._options().all_day,
+            duration: this._options().duration,
             poll: this._poll(),
         }),
-        loader: ({ params: { bld, is_public, date } }) =>
-            is_public
+        loader: ({
+            params: { is_public, level_id, date, all_day, duration },
+        }) => {
+            const time = date ?? Date.now();
+            const bookable_hours: BookableHoursRange | null = all_day
+                ? this._settings.get('app.parking.bookable_hours') ||
+                  this._settings.get('app.bookings.bookable_hours') ||
+                  null
+                : null;
+            const all_day_range = getAllDayTimeRange(
+                time,
+                '',
+                bookable_hours?.start,
+                bookable_hours?.end,
+            );
+            return is_public || !level_id
                 ? Promise.resolve([])
-                : queryBookings({
+                : queryAllBookings({
                       period_start: getUnixTime(
-                          startOfMinute(date || Date.now()),
+                          all_day
+                              ? all_day_range.date
+                              : duration
+                                ? time
+                                : addMinutes(time, -15),
                       ),
-                      period_end: getUnixTime(endOfMinute(date || Date.now())),
+                      period_end: getUnixTime(
+                          all_day
+                              ? all_day_range.date_end
+                              : addMinutes(time, duration || 30),
+                      ),
                       type: 'parking',
-                      zones: this._settings.get('app.use_region')
-                          ? bld?.parent_id
-                          : bld?.id,
+                      zones: level_id,
                       rejected: false,
-                  }).catch(() => []),
+                  }).catch(() => []);
+        },
     });
-    /** List of current bookings for the current building */
+    /** List of current bookings for the current map level */
     public readonly events = computed(() => this._events.value() ?? []);
 
     /** Any event that the selected user has for the current date */

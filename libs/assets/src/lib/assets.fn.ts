@@ -38,6 +38,18 @@ export async function queryAssetPurchaseOrders(query: any = {}) {
     return queryAssetPurchaseOrdersAPI(query);
 }
 
+/**
+ * Find the item whose name matches (trimmed, case-insensitive), resolving
+ * duplicates to the oldest (lowest `created_at`) so every client converges
+ * on the same record.
+ */
+export function findOldestByName(list: any[], name: string = '') {
+    const match_name = name.trim().toLowerCase();
+    return list
+        .filter((_) => (_.name || '').trim().toLowerCase() === match_name)
+        .sort((a, b) => (a.created_at || 0) - (b.created_at || 0))[0];
+}
+
 function filter_hidden_items<T extends { data: any[] }>(response: T): T {
     return {
         ...response,

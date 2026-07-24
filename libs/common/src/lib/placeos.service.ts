@@ -507,14 +507,14 @@ export class PlaceOS_Service extends AsyncHandler {
     private _initAnalytics() {
         const tracking_id = this._settings.get('app.analytics.tracking_id');
         if (!tracking_id) return;
-        setLoadingMessage('Initializing analytics...');
+        setLoadingMessage('Initialising analytics...');
         this._analytics.init(tracking_id);
         this._analytics.load(tracking_id);
         this._analytics.setUser(currentUser().id);
     }
 
     private _initLocale() {
-        setLoadingMessage('Loading locale...');
+        setLoadingMessage('Loading locales...');
         try {
             let locale = localStorage.getItem('PLACEOS.locale');
             const locales = this._settings.get('app.locales') || [];
@@ -569,7 +569,7 @@ export class PlaceOS_Service extends AsyncHandler {
 
     private async _initFixedDevice() {
         if (!isFixedDevice()) return;
-        setLoadingMessage('Initializing as fixed device...');
+        setLoadingMessage('Initialising as fixed device...');
         this.interval(
             'auto-update-version',
             () => this._checkReload(),

@@ -1,4 +1,4 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { SettingsService } from '@placeos/common';
 import { MockComponent } from 'ng-mocks';
 import { FooterMenuComponent } from '../../app/components/footer-menu.component';

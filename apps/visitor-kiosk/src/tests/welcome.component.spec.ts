@@ -1,4 +1,4 @@
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { SettingsService } from '@placeos/common';
 import {
     MockComponent,
@@ -24,8 +24,8 @@ describe('WelcomeComponent', () => {
         component: WelcomeComponent,
         providers: [
             MockProvider(SettingsService, {
-                get: jest.fn(),
-                listen: jest.fn(() => signal('')),
+                get: vi.fn(),
+                listen: vi.fn(() => signal('')) as any,
             }),
         ],
         imports: [MockModule(MatMenuModule)],
@@ -44,6 +44,10 @@ describe('WelcomeComponent', () => {
 
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();
+    });
+
+    it('shows separate check-in and checkout actions', () => {
+        expect(spectator.queryAll('a[btn]')).toHaveLength(2);
     });
 
     it('should show public mode blocker when enabled', () => {

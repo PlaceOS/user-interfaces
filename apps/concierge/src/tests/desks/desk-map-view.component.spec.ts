@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { OrganisationService } from '@placeos/common';
 import { mockComponent } from '@placeos/common/tests';
 import {
@@ -22,16 +22,16 @@ describe('DeskMapViewComponent', () => {
             {
                 provide: DesksStateService,
                 useValue: {
-                    setFilters: jest.fn(),
+                    setFilters: vi.fn(),
                     desks: signal([]),
                     filters: signal({}),
-                    startPolling: jest.fn(() => () => null),
+                    startPolling: vi.fn(() => () => null),
                 },
             },
             {
                 provide: OrganisationService,
                 useValue: {
-                    levelWithID: jest.fn(),
+                    levelWithID: vi.fn(),
                 },
             },
             {
@@ -52,8 +52,8 @@ describe('DeskMapViewComponent', () => {
             {
                 provide: ExploreDesksService,
                 useValue: {
-                    setOptions: jest.fn(),
-                    startPolling: jest.fn(() => () => null),
+                    setOptions: vi.fn(),
+                    startPolling: vi.fn(() => () => null),
                 },
             },
         ],

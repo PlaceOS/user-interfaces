@@ -1,5 +1,5 @@
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { TakePhotoComponent } from '../../app/components/take-photo.component';
 
 describe('TakePhotoComponent', () => {

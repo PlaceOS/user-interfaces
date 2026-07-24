@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { BookingCardComponent, BookingFormService } from '@placeos/bookings';
 import { Booking, SettingsService } from '@placeos/common';
 import { EventCardComponent, EventFormService } from '@placeos/events';
@@ -19,23 +19,23 @@ describe('LandingUpcomingComponent', () => {
             MockComponent(BookingCardComponent),
         ],
         providers: [
-            { provide: MatDialog, useValue: { open: jest.fn() } },
+            { provide: MatDialog, useValue: { open: vi.fn() } },
             {
                 provide: LandingStateService,
                 useValue: {
                     upcoming_events,
-                    refreshUpcomingEvents: jest.fn(),
-                    pollUpcomingEvents: jest.fn(),
-                    stopPollingUpcomingEvents: jest.fn(),
+                    refreshUpcomingEvents: vi.fn(),
+                    pollUpcomingEvents: vi.fn(),
+                    stopPollingUpcomingEvents: vi.fn(),
                 },
             },
-            { provide: SettingsService, useValue: { get: jest.fn() } },
-            MockProvider(EventFormService, { newForm: jest.fn() }),
+            { provide: SettingsService, useValue: { get: vi.fn() } },
+            MockProvider(EventFormService, { newForm: vi.fn() }),
             MockProvider(BookingFormService, {
-                newForm: jest.fn(),
-                model: { update: jest.fn() },
+                newForm: vi.fn(),
+                model: { update: vi.fn() },
             } as any),
-            MockProvider(Router, { navigate: jest.fn() }),
+            MockProvider(Router, { navigate: vi.fn() }),
         ],
     });
 
@@ -48,11 +48,19 @@ describe('LandingUpcomingComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
+    it('should refresh upcoming bookings on request', () => {
+        const state = spectator.inject(LandingStateService);
+
+        spectator.component.refresh_fn();
+
+        expect(state.refreshUpcomingEvents).toHaveBeenCalled();
+    });
+
     it('should not patch resources when editing visitor bookings', () => {
-        jest.useFakeTimers();
+        vi.useFakeTimers();
         const booking_form = spectator.inject(BookingFormService);
-        (booking_form.newForm as jest.Mock).mockClear();
-        (booking_form.model.update as jest.Mock).mockClear();
+        (booking_form.newForm as any).mockClear();
+        (booking_form.model.update as any).mockClear();
         const booking = new Booking({
             booking_type: 'visitor',
             type: 'visitor',
@@ -61,18 +69,18 @@ describe('LandingUpcomingComponent', () => {
         } as any);
 
         spectator.component.editBooking(booking);
-        jest.runAllTimers();
+        vi.runAllTimers();
 
         expect(booking_form.newForm).toHaveBeenCalledWith('visitor', booking);
         expect(booking_form.model.update).not.toHaveBeenCalled();
-        jest.useRealTimers();
+        vi.useRealTimers();
     });
 
     it('should not patch resources when editing visitor bookings with only type set', () => {
-        jest.useFakeTimers();
+        vi.useFakeTimers();
         const booking_form = spectator.inject(BookingFormService);
-        (booking_form.newForm as jest.Mock).mockClear();
-        (booking_form.model.update as jest.Mock).mockClear();
+        (booking_form.newForm as any).mockClear();
+        (booking_form.model.update as any).mockClear();
         const booking = new Booking({
             booking_type: ' ',
             type: 'visitor',
@@ -81,14 +89,14 @@ describe('LandingUpcomingComponent', () => {
         } as any);
 
         spectator.component.editBooking(booking);
-        jest.runAllTimers();
+        vi.runAllTimers();
 
         expect(booking_form.newForm).toHaveBeenLastCalledWith(
             'visitor',
             expect.objectContaining({ type: 'visitor' }),
         );
         expect(booking_form.model.update).not.toHaveBeenCalled();
-        jest.useRealTimers();
+        vi.useRealTimers();
     });
 
     it('should show a prompt when the upcoming list is truncated', () => {

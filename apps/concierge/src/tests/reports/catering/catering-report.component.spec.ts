@@ -1,4 +1,4 @@
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { MockComponent, MockDirective, MockProvider } from 'ng-mocks';
 
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -28,10 +28,10 @@ describe('CateringReportComponent', () => {
             MockProvider(ReportsStateService, {
                 stats: signal({ count: 0 }),
                 loading: signal(true),
-                setOptions: jest.fn(),
+                setOptions: vi.fn(),
             } as any),
             MockProvider(Router, {}),
-            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(SettingsService, { get: vi.fn() }),
         ],
         imports: [MatProgressSpinnerModule],
     });

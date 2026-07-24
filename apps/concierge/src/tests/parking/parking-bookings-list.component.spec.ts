@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { Booking, settingSignal, SettingsService } from '@placeos/common';
 import { SimpleTableComponent } from '@placeos/components';
 import { MockProvider } from 'ng-mocks';
@@ -15,7 +15,10 @@ describe('ParkingBookingsListComponent', () => {
     let hide_bay_number = false;
     let hide_assign_space = false;
     let show_waitlist = true;
+    let show_user_groups: string[] = [];
+    let space_restriction_options: { id: number; name: string }[] = [];
     let custom_booking_columns: any[] = [];
+    let bookable_hours: { start: number; end: number } | undefined;
     let timezone = 'Australia/Perth';
     let request_filter: 'all' | 'bookings' | 'requests' | 'waitlist' = 'all';
 
@@ -33,31 +36,35 @@ describe('ParkingBookingsListComponent', () => {
                 })) as any,
                 loading: (() => []) as any,
                 period: (() => 'day') as any,
-                startPolling: jest.fn(() => () => null),
-                filterEventList: jest.fn((list: Booking[]) => list),
-                filterEventSearch: jest.fn((list: Booking[]) => list),
-                rejectBooking: jest.fn(),
-                approveBooking: jest.fn(),
-                editReservation: jest.fn(),
-                assignSpace: jest.fn(),
-                removeBooking: jest.fn(),
-                isRequest: jest.fn((booking: Booking) =>
+                has_more_pages: (() => false) as any,
+                last_updated: (() => 0) as any,
+                nextPage: vi.fn(),
+                refresh: vi.fn(),
+                filterEventList: vi.fn((list: Booking[]) => list),
+                filterEventSearch: vi.fn((list: Booking[]) => list),
+                rejectBooking: vi.fn(),
+                approveBooking: vi.fn(),
+                editReservation: vi.fn(),
+                assignSpace: vi.fn(),
+                removeBooking: vi.fn(),
+                viewBookingHistory: vi.fn(),
+                isRequest: vi.fn((booking: Booking) =>
                     booking.asset_id?.startsWith('unallocated'),
                 ),
-                isManualRequest: jest.fn(
+                isManualRequest: vi.fn(
                     (booking: Booking) =>
                         !!booking.extension_data?.approver_group,
                 ),
-                isWaitlisted: jest.fn(
+                isWaitlisted: vi.fn(
                     (booking: Booking) => booking.id === 'waitlisted',
                 ),
-                canApproveBooking: jest.fn(() => can_approve),
+                canApproveBooking: vi.fn(() => can_approve),
                 get timezone() {
                     return timezone;
                 },
             } as any),
             MockProvider(SettingsService as any, {
-                get: jest.fn((name: string) =>
+                get: vi.fn((name: string) =>
                     name === 'app.parking.show_requests'
                         ? show_requests
                         : name === 'app.parking.show_waitlist'
@@ -66,13 +73,18 @@ describe('ParkingBookingsListComponent', () => {
                             ? hide_bay_number
                             : name === 'app.parking.hide_assign_space'
                               ? hide_assign_space
-                              : name === 'app.parking.custom_booking_columns'
-                                ? custom_booking_columns
-                                : false,
+                              : name === 'app.parking.show_user_groups'
+                                ? show_user_groups
+                                : name === 'parking.request_space_restrictions'
+                                  ? space_restriction_options
+                                  : name ===
+                                      'app.parking.custom_booking_columns'
+                                    ? custom_booking_columns
+                                    : name === 'app.parking.bookable_hours'
+                                      ? bookable_hours
+                                      : false,
                 ),
-                signal: jest.fn((_: string, initial: boolean) =>
-                    signal(initial),
-                ),
+                signal: vi.fn((_: string, initial: boolean) => signal(initial)),
                 time_format: 'h:mm a',
             }),
         ],
@@ -85,7 +97,10 @@ describe('ParkingBookingsListComponent', () => {
         hide_bay_number = false;
         hide_assign_space = false;
         show_waitlist = true;
+        show_user_groups = [];
+        space_restriction_options = [];
         custom_booking_columns = [];
+        bookable_hours = undefined;
         timezone = 'Australia/Perth';
         request_filter = 'all';
         settingSignal('parking.allow_editing', true).set(true);
@@ -116,8 +131,29 @@ describe('ParkingBookingsListComponent', () => {
             'booked_by_name',
             'plate_number',
             'status',
+            'created_at',
+            'space_restriction',
             'actions',
         ]);
+    });
+
+    it('should expose requested at from booking created_at', () => {
+        bookings = [
+            {
+                id: 'booking-1',
+                asset_id: 'bay-1',
+                status: 'approved',
+                date: Date.now(),
+                date_end: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                created_at: 1_700_000_000,
+            } as unknown as Booking,
+        ];
+        spectator = createComponent();
+
+        expect(spectator.component.filtered_events()[0]).toMatchObject({
+            created_at: 1_700_000_000_000,
+        });
     });
 
     it('should hide the vehicle type column when requests are disabled', () => {
@@ -145,6 +181,46 @@ describe('ParkingBookingsListComponent', () => {
         spectator = createComponent();
 
         expect(spectator.component.timezone).toBe('Australia/Perth');
+    });
+
+    it('should show start and end times for all-day bookings', () => {
+        bookings = [
+            {
+                id: 'booking-1',
+                asset_id: 'bay-1',
+                status: 'approved',
+                all_day: true,
+                date: new Date(2026, 6, 21, 8).valueOf(),
+                date_end: new Date(2026, 6, 21, 17).valueOf(),
+                duration: 9 * 60,
+            } as unknown as Booking,
+        ];
+        spectator = createComponent();
+
+        const time = spectator.query('[data-testid="parking-booking-time"]');
+        expect(time).toHaveText('8:00 AM - 5:00 PM');
+        expect(time).not.toHaveText('All Day');
+    });
+
+    it('should show all day when the booking matches the bookable period', () => {
+        bookable_hours = { start: 8, end: 17 };
+        bookings = [
+            {
+                id: 'booking-1',
+                asset_id: 'bay-1',
+                status: 'approved',
+                all_day: true,
+                date: new Date(2026, 6, 21, 8).valueOf(),
+                date_end: new Date(2026, 6, 21, 17).valueOf(),
+                duration: 9 * 60,
+            } as unknown as Booking,
+        ];
+        spectator = createComponent();
+
+        expect(spectator.component.isAllDayBooking(bookings[0])).toBe(true);
+        expect(
+            spectator.query('[data-testid="parking-booking-time"]'),
+        ).not.toHaveText(':');
     });
 
     it('should add custom extension data columns', () => {
@@ -179,6 +255,112 @@ describe('ParkingBookingsListComponent', () => {
             'extension_data.cost_code': 'CC-123',
             'extension_data.vehicle.colour': 'Blue',
         });
+    });
+
+    it('should sort user groups alphabetically by the first group', () => {
+        show_user_groups = ['Alpha', 'Beta', 'Gamma', 'Zulu'];
+        bookings = [
+            {
+                id: 'booking-beta',
+                asset_id: 'bay-1',
+                extension_data: { user_groups: ['Beta', 'Alpha'] },
+            },
+            {
+                id: 'booking-alpha',
+                asset_id: 'bay-2',
+                extension_data: { user_groups: ['Alpha', 'Zulu'] },
+            },
+            {
+                id: 'booking-gamma',
+                asset_id: 'bay-3',
+                extension_data: { user_groups: ['Gamma'] },
+            },
+        ] as unknown as Booking[];
+        spectator = createComponent();
+
+        const table =
+            spectator.query<SimpleTableComponent<Booking>>(
+                SimpleTableComponent,
+            );
+        table?.setSort('user_groups');
+
+        expect(table?.data_view().map((booking) => booking.id)).toEqual([
+            'booking-alpha',
+            'booking-beta',
+            'booking-gamma',
+        ]);
+
+        table?.setSort('user_groups');
+
+        expect(table?.data_view().map((booking) => booking.id)).toEqual([
+            'booking-gamma',
+            'booking-beta',
+            'booking-alpha',
+        ]);
+        expect(
+            table
+                ?.column('user_groups')
+                ?.sort_fn?.(['Alpha', 'Zulu'], ['Alpha', 'Beta']),
+        ).toBe(0);
+    });
+
+    it('should resolve and sort parking space restrictions by name', () => {
+        show_user_groups = ['Staff'];
+        space_restriction_options = [
+            { id: 2, name: 'Electric Vehicle' },
+            { id: 9, name: 'ACROD (Max height 2.1m)' },
+            { id: 1, name: 'None' },
+        ];
+        bookings = [
+            {
+                id: 'booking-electric',
+                asset_id: 'bay-2',
+                extension_data: {
+                    user_groups: ['Staff'],
+                    space_restrictions: 2,
+                },
+            },
+            {
+                id: 'booking-none',
+                asset_id: 'bay-3',
+                extension_data: { space_restrictions: 1 },
+            },
+            {
+                id: 'booking-acrod',
+                asset_id: 'bay-1',
+                extension_data: { space_restrictions: 9 },
+            },
+        ] as unknown as Booking[];
+        spectator = createComponent();
+
+        const table =
+            spectator.query<SimpleTableComponent<Booking>>(
+                SimpleTableComponent,
+            );
+        const column_keys = table?.active_columns().map((column) => column.key);
+
+        expect(
+            spectator.component
+                .filtered_events()
+                .find((booking) => booking.id === 'booking-electric'),
+        ).toMatchObject({
+            id: 'booking-electric',
+            space_restriction: 'Electric Vehicle',
+        });
+        expect(column_keys?.indexOf('space_restriction')).toBe(
+            (column_keys?.indexOf('user_groups') ?? -1) + 1,
+        );
+        expect(table?.column('space_restriction')?.name).toBe(
+            'Space Restriction',
+        );
+
+        table?.setSort('space_restriction');
+
+        expect(table?.data_view().map((booking) => booking.id)).toEqual([
+            'booking-acrod',
+            'booking-electric',
+            'booking-none',
+        ]);
     });
 
     it('should hide the bay number column when viewing requests', () => {
@@ -247,7 +429,7 @@ describe('ParkingBookingsListComponent', () => {
         ).toBe(false);
     });
 
-    it('should hide the actions column when no visible actions are available', () => {
+    it('should keep the history action available when no edit actions are available', () => {
         hide_assign_space = true;
         request_filter = 'bookings';
         bookings = [
@@ -265,9 +447,31 @@ describe('ParkingBookingsListComponent', () => {
         spectator.detectChanges();
 
         const table = spectator.query(SimpleTableComponent);
+        expect(table?.active_columns().map((column) => column.key)).toContain(
+            'actions',
+        );
         expect(
-            table?.active_columns().map((column) => column.key),
-        ).not.toContain('actions');
+            spectator.query('[data-testid="parking-booking-history"]'),
+        ).toExist();
+    });
+
+    it('should open booking history from the day view action', () => {
+        const booking = {
+            id: 'booking-1',
+            asset_id: 'bay-1',
+            status: 'approved',
+            date: Date.now(),
+            date_end: Date.now() + 60 * 60 * 1000,
+            duration: 60,
+        } as unknown as Booking;
+        bookings = [booking];
+        spectator = createComponent();
+
+        spectator.click('[data-testid="parking-booking-history"]');
+
+        expect(
+            spectator.inject(ParkingStateService).viewBookingHistory,
+        ).toHaveBeenCalledWith(expect.objectContaining({ id: booking.id }));
     });
 
     it('should show the delete action when deleting is enabled', () => {

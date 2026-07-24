@@ -1,5 +1,5 @@
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { User } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.component';
@@ -33,9 +33,10 @@ describe('AttendeeListComponent', () => {
         expect('[attendee]').toHaveLength(2);
     });
 
-    it('should allow closing the component', (done) => {
-        expect('button[close]').toExist();
-        spectator.component.close.subscribe(() => done());
-        spectator.click('button[close]');
-    });
+    it('should allow closing the component', () =>
+        new Promise<void>((done) => {
+            expect('button[close]').toExist();
+            spectator.component.close.subscribe(() => done());
+            spectator.click('button[close]');
+        }));
 });

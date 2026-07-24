@@ -1,7 +1,10 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { addMinutes, differenceInMinutes, format, startOfDay } from 'date-fns';
 
+import { DatePipe } from '@angular/common';
+import { MatRippleModule } from '@angular/material/core';
 import { CalendarEvent, SettingsService } from '@placeos/common';
+import { IconComponent } from '@placeos/components';
 import { EventsStateService } from './events-state.service';
 
 const DAY_IN_MINUTES = 24 * 60;
@@ -66,24 +69,24 @@ const DAY_IN_MINUTES = 24 * 60;
                 <div
                     [class]="
                         'icon text-pending mr-2 flex h-12 w-12 items-center justify-center rounded-sm text-3xl ' +
-                        event().ext('cleaning_status')
+                        $any(event()).ext('cleaning_status')
                     "
                 >
                     <icon>{{
-                        event().ext('cleaning_status') === 'done'
+                        $any(event()).ext('cleaning_status') === 'done'
                             ? 'done'
                             : 'warning'
                     }}</icon>
                 </div>
                 <div class="w-1/2 flex-1">
                     {{
-                        event().ext('cleaning_status') === 'done'
+                        $any(event()).ext('cleaning_status') === 'done'
                             ? 'Finished'
                             : 'Scheduled to'
                     }}
                     clean at
                     {{
-                        event().ext('cleaning_time') || event().event_end * 1000
+                        $any(event()).ext('cleaning_time') || event().event_end * 1000
                             | date: time_format
                     }}
                 </div>
@@ -135,7 +138,7 @@ const DAY_IN_MINUTES = 24 * 60;
             }
         `,
     ],
-    standalone: false,
+    imports: [IconComponent, MatRippleModule, DatePipe],
 })
 export class DayviewEventComponent {
     private _state = inject(EventsStateService);

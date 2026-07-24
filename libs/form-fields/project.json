@@ -11,11 +11,26 @@
             "outputs": ["{options.outputFile}"]
         },
         "test": {
-            "executor": "@nx/jest:jest",
+            "executor": "@angular/build:unit-test",
             "outputs": ["{workspaceRoot}/coverage/libs/form-fields"],
             "options": {
-                "jestConfig": "libs/form-fields/jest.config.ts",
-                "tsConfig": "libs/form-fields/tsconfig.spec.json"
+                "tsConfig": "libs/form-fields/tsconfig.spec.json",
+                "setupFiles": ["libs/form-fields/src/test-setup.ts"],
+                "isolate": true,
+                "watch": false,
+                "buildTarget": "form-fields:test-build:development"
+            }
+        },
+        "test-build": {
+            "executor": "@angular/build:application",
+            "options": {
+                "outputPath": "dist/libs/form-fields",
+                "browser": "libs/form-fields/src/index.ts",
+                "tsConfig": "libs/form-fields/tsconfig.spec.json",
+                "polyfills": []
+            },
+            "configurations": {
+                "development": {}
             }
         }
     }

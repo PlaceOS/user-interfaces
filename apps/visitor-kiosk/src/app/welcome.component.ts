@@ -55,7 +55,20 @@ import {
                     >
                         <div class="flex items-center space-x-2">
                             <div class="ml-2">
-                                {{ 'APP.VISITOR_KIOSK.CHECK_IN' | translate }}
+                                {{ 'COMMON.CHECK_IN' | translate }}
+                            </div>
+                            <icon class="text-2xl">chevron_right</icon>
+                        </div>
+                    </a>
+                    <a
+                        btn
+                        matRipple
+                        [routerLink]="['/checkout']"
+                        class="bg-base-100 border-base-100 text-base-content w-40 border"
+                    >
+                        <div class="flex items-center space-x-2">
+                            <div class="ml-2">
+                                {{ 'COMMON.CHECK_OUT' | translate }}
                             </div>
                             <icon class="text-2xl">chevron_right</icon>
                         </div>

@@ -125,7 +125,7 @@ jobs:
 
             - name: Test affected code units
               run: |
-                  bunx nx test ${{ matrix.package }} --runInBand
+                  bunx nx test ${{ matrix.package }}
 
     build:
         runs-on: ubuntu-latest

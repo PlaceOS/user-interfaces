@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { OrganisationService } from '@placeos/common';
 import { VirtualKeyboardComponent } from '@placeos/components';
 import * as ts_client from '@placeos/ts-client';
@@ -8,13 +8,7 @@ import { MockProvider } from 'ng-mocks';
 
 import { BootstrapComponent } from '../app/bootstrap.component';
 
-jest.mock('@placeos/ts-client', () => {
-    const actual = jest.requireActual('@placeos/ts-client');
-    return {
-        ...actual,
-        querySystems: jest.fn(),
-    };
-});
+vi.mock('@placeos/ts-client', { spy: true });
 
 describe('BootstrapComponent', () => {
     let spectator: SpectatorRouting<BootstrapComponent>;
@@ -35,10 +29,10 @@ describe('BootstrapComponent', () => {
             organisation: { id: 'org-1' },
             buildings: [{ id: 'building-1', name: 'HQ' }],
             building_list: signal([{ id: 'building-1', name: 'HQ' }]),
-            levelWithID: jest.fn(() => ({ id: 'level-1', name: 'Level 1' })),
+            levelWithID: vi.fn(() => ({ id: 'level-1', name: 'Level 1' })),
             limit_init: false,
         };
-        (ts_client.querySystems as jest.Mock).mockReturnValue(
+        (ts_client.querySystems as any).mockReturnValue(
             Promise.resolve({
                 data: [
                     {
@@ -53,8 +47,8 @@ describe('BootstrapComponent', () => {
     });
 
     afterEach(() => {
-        jest.useRealTimers();
-        jest.restoreAllMocks();
+        vi.useRealTimers();
+        vi.restoreAllMocks();
     });
 
     function build_component() {
@@ -107,7 +101,7 @@ describe('BootstrapComponent', () => {
     it('should store the selected display and navigate to signage', async () => {
         build_component();
         const router = spectator.inject(Router);
-        const set_item_spy = jest.spyOn(Storage.prototype, 'setItem');
+        const set_item_spy = vi.spyOn(Storage.prototype, 'setItem');
         spectator.component.active_display.set('display-1');
 
         await spectator.component.bootstrapPanel();
@@ -123,7 +117,7 @@ describe('BootstrapComponent', () => {
     it('should not bootstrap without a selected display', async () => {
         build_component();
         const router = spectator.inject(Router);
-        const set_item_spy = jest.spyOn(Storage.prototype, 'setItem');
+        const set_item_spy = vi.spyOn(Storage.prototype, 'setItem');
 
         await spectator.component.bootstrapPanel();
 
@@ -146,7 +140,7 @@ describe('BootstrapComponent', () => {
 
     it('should bootstrap immediately from the display query parameter', () => {
         build_component();
-        const bootstrap_spy = jest.spyOn(spectator.component, 'bootstrapPanel');
+        const bootstrap_spy = vi.spyOn(spectator.component, 'bootstrapPanel');
 
         spectator.setRouteQueryParam('display', 'display-2');
         spectator.detectChanges();
@@ -156,17 +150,17 @@ describe('BootstrapComponent', () => {
     });
 
     it('should redirect when the app is already bootstrapped', async () => {
-        jest.useFakeTimers();
+        vi.useFakeTimers();
         localStorage.setItem('PlaceOS.SIGNAGE.display', 'display-3');
         localStorage.setItem('OSK.enabled', 'true');
         build_component();
         const router = spectator.inject(Router);
         await Promise.resolve();
 
-        jest.advanceTimersByTime(1001);
+        vi.advanceTimersByTime(1001);
 
         expect(router.navigate).toHaveBeenCalledWith(['/signage', 'display-3']);
         expect(VirtualKeyboardComponent.enabled).toBe(true);
-        jest.useRealTimers();
+        vi.useRealTimers();
     });
 });

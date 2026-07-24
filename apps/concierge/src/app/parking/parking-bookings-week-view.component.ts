@@ -1,5 +1,5 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, computed, inject, OnInit } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -108,20 +108,23 @@ import { isParkingAllDayBooking } from './parking.utilities';
                                         }}
                                     </span>
                                 </div>
-                                <div class="mt-1 opacity-60">
-                                    {{
-                                        isAllDayBooking(booking)
-                                            ? ('COMMON.ALL_DAY' | translate)
-                                            : (booking.date
-                                                  | date
-                                                      : time_format
-                                                      : timezone) +
-                                              ' - ' +
-                                              (booking.date_end
-                                                  | date
-                                                      : time_format
-                                                      : timezone)
-                                    }}
+                                <div
+                                    class="mt-1 opacity-60"
+                                    data-testid="parking-booking-time"
+                                >
+                                    @if (isAllDayBooking(booking)) {
+                                        {{ 'COMMON.ALL_DAY' | translate }}
+                                    } @else {
+                                        {{
+                                            booking.date
+                                                | date: time_format : timezone
+                                        }}
+                                        -
+                                        {{
+                                            booking.date_end
+                                                | date: time_format : timezone
+                                        }}
+                                    }
                                 </div>
                                 @let bay_name =
                                     booking.asset_id | parkingSpace | async;
@@ -154,7 +157,7 @@ import { isParkingAllDayBooking } from './parking.utilities';
                                 }
                                 <button
                                     matRipple
-                                    class="flex-1 rounded-full border-none text-xs w-full my-1 min-h-6 text-left"
+                                    class="my-1 min-h-6 w-full flex-1 rounded-full border-none text-left text-xs"
                                     [class.text-success-content]="
                                         booking.status === 'approved' &&
                                         !isAssignedBooking(booking) &&
@@ -227,15 +230,24 @@ import { isParkingAllDayBooking } from './parking.utilities';
                                         !isDeletedBooking(booking)
                                     "
                                     [matMenuTriggerFor]="menu"
-                                    [disabled]="
-                                        isStatusActionDisabled(booking)
-                                    "
+                                    [disabled]="isStatusActionDisabled(booking)"
                                 >
-                                    <div class="flex items-center" [class.justify-center]="isStatusActionDisabled(booking)">
-                                        <div class="px-4">{{ statusLabel(booking) | translate }}</div>
-                                        @if (!isStatusActionDisabled(booking) ) {
+                                    <div
+                                        class="flex items-center"
+                                        [class.justify-center]="
+                                            isStatusActionDisabled(booking)
+                                        "
+                                    >
+                                        <div class="px-4">
+                                            {{
+                                                statusLabel(booking) | translate
+                                            }}
+                                        </div>
+                                        @if (!isStatusActionDisabled(booking)) {
                                             <div class="flex-1"></div>
-                                            <icon class="text-xl mx-1">arrow_drop_down</icon>
+                                            <icon class="mx-1 text-xl"
+                                                >arrow_drop_down</icon
+                                            >
                                         }
                                     </div>
                                 </button>
@@ -391,10 +403,7 @@ import { isParkingAllDayBooking } from './parking.utilities';
         ParkingSpacePipe,
     ],
 })
-export class ParkingBookingsWeekViewComponent
-    extends AsyncHandler
-    implements OnInit
-{
+export class ParkingBookingsWeekViewComponent extends AsyncHandler {
     private _state = inject(ParkingStateService);
     private _settings = inject(SettingsService);
     private _date_pipe = new DatePipe('en');
@@ -475,6 +484,15 @@ export class ParkingBookingsWeekViewComponent
         return this._state.timezone;
     }
 
+    public get bookable_period() {
+        const period =
+            this._settings.get('app.parking.bookable_hours') ||
+            this._settings.get('app.bookings.bookable_hours');
+        return Number.isFinite(period?.start) && Number.isFinite(period?.end)
+            ? (period.end - period.start) * 60
+            : undefined;
+    }
+
     public get hide_assign_space() {
         return !!this._settings.get('app.parking.hide_assign_space');
     }
@@ -513,7 +531,11 @@ export class ParkingBookingsWeekViewComponent
     }
 
     public isAllDayBooking(booking: Booking) {
-        return isParkingAllDayBooking(booking, this.timezone);
+        return isParkingAllDayBooking(
+            booking,
+            this.timezone,
+            this.bookable_period,
+        );
     }
 
     public statusLabel(booking: Booking) {
@@ -540,9 +562,5 @@ export class ParkingBookingsWeekViewComponent
 
     public isToday(date: number) {
         return isSameDay(date, Date.now());
-    }
-
-    public ngOnInit() {
-        this.subscription('poll', this._state.startPolling());
     }
 }

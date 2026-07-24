@@ -123,11 +123,26 @@
             "executor": "@nx/eslint:lint"
         },
         "test": {
-            "executor": "@nx/jest:jest",
+            "executor": "@angular/build:unit-test",
             "outputs": ["{workspaceRoot}/coverage/apps/timetable"],
             "options": {
-                "jestConfig": "apps/timetable/jest.config.ts",
-                "tsConfig": "apps/timetable/tsconfig.spec.json"
+                "tsConfig": "apps/timetable/tsconfig.spec.json",
+                "setupFiles": ["apps/timetable/src/test-setup.ts"],
+                "isolate": true,
+                "watch": false,
+                "buildTarget": "timetable:test-build:development"
+            }
+        },
+        "test-build": {
+            "executor": "@angular/build:application",
+            "options": {
+                "outputPath": "dist/apps/timetable-test",
+                "browser": "apps/timetable/src/main.ts",
+                "tsConfig": "apps/timetable/tsconfig.spec.json",
+                "polyfills": []
+            },
+            "configurations": {
+                "development": {}
             }
         }
     }

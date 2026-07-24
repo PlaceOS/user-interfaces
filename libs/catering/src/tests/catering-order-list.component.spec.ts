@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 
 import { SettingsService } from '@placeos/common';
@@ -19,10 +19,10 @@ describe('CateringOrderListComponent', () => {
                 loading: signal(false),
                 order_filters: signal({}),
                 caterers: signal([]),
-                startPolling: jest.fn(),
-                stopPolling: jest.fn(),
+                startPolling: vi.fn(),
+                stopPolling: vi.fn(),
             }),
-            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(SettingsService, { get: vi.fn() }),
         ],
         imports: [MockModule(MatProgressBarModule)],
     });

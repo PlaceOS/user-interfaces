@@ -1,4 +1,4 @@
-import { SpectatorRouting, createRoutingFactory } from '@ngneat/spectator/jest';
+import { SpectatorRouting, createRoutingFactory } from '@ngneat/spectator/vitest';
 import { SettingsService } from '@placeos/common';
 import { MockComponent } from 'ng-mocks';
 
@@ -16,7 +16,7 @@ describe('DayViewComponent', () => {
         providers: [
             {
                 provide: SettingsService,
-                useValue: { get: jest.fn(() => [{ route: '' }]) },
+                useValue: { get: vi.fn(() => [{ route: '' }]) },
             },
         ],
         declarations: [

@@ -2,7 +2,7 @@ import { inject, Injector, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
 
 import { CateringOrderStateService } from '@placeos/catering';
@@ -23,8 +23,8 @@ describe('EventFormComponent', () => {
         shallow: true,
         providers: [
             MockProvider(SettingsService as any, {
-                get: jest.fn((key: string) => lookup_setting(key)),
-                signal: jest.fn(
+                get: vi.fn((key: string) => lookup_setting(key)),
+                signal: vi.fn(
                     (key: string, fallback?) => () =>
                         lookup_setting(key, fallback),
                 ),
@@ -48,7 +48,9 @@ describe('EventFormComponent', () => {
                         is_multiday: false,
                         model: ref.model,
                         form: ref.form,
-                    } as Partial<EventFormService>;
+                        can_notify_new_attendees_only: signal(false),
+                        notify_new_attendees_only: signal(false),
+                    } as any;
                 },
             },
             MockProvider(OrganisationService as any, {
@@ -84,6 +86,16 @@ describe('EventFormComponent', () => {
         spectator.detectChanges();
         await spectator.fixture.whenStable();
         expect('a-user-list-field').not.toExist();
+    });
+
+    it('should show the notification option beside attendee edits', async () => {
+        spectator.setInput({ form });
+        (spectator.component.can_notify_new_attendees_only as any).set(true);
+        spectator.detectChanges();
+        await spectator.fixture.whenStable();
+        expect(
+            spectator.query('[name="notify-new-attendees-only"]'),
+        ).toExist();
     });
 
     it('should only show setup and breakdown fields when enabled', async () => {

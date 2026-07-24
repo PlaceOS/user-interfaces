@@ -29,6 +29,22 @@ declare global {
 let _service: SettingsService;
 const _setting_signals: Record<string, WritableSignal<any>> = {};
 
+const DEBUG_OVERRIDES_KEY = 'PLACEOS.setting_overrides';
+
+function loadDebugOverrides(): HashMap {
+    try {
+        const overrides = JSON.parse(
+            localStorage.getItem(DEBUG_OVERRIDES_KEY) || '{}',
+        );
+        for (const key in overrides) {
+            if (!key.startsWith('app.')) delete overrides[key];
+        }
+        return overrides;
+    } catch {
+        return {};
+    }
+}
+
 export function setting<T = any>(key: string): T | undefined {
     return _service ? _service.get(key) : undefined;
 }
@@ -62,6 +78,9 @@ export class SettingsService extends AsyncHandler {
     public readonly overrides = this._overrides.asReadonly();
     /** User's personal settings */
     private _user_settings = signal<HashMap>({});
+    /** Local debug overrides, highest priority. Flat dot-notation keys. */
+    private _debug_overrides = signal<HashMap>(loadDebugOverrides());
+    public readonly debug_overrides = this._debug_overrides.asReadonly();
     /** Mapping of setting signals */
     private _subjects: HashMap<WritableSignal<any>> = {};
     /** Mapping of pending settings */
@@ -72,6 +91,32 @@ export class SettingsService extends AsyncHandler {
      */
     public setOverrides(value: HashMap[]) {
         this._overrides.set(value);
+        this._refreshSettings();
+    }
+
+    /** Set a local debug override for an `app.*` setting. `undefined` clears the key. */
+    public setDebugOverride(key: string, value: any) {
+        if (!key.startsWith('app.')) return;
+        const overrides = { ...this._debug_overrides() };
+        if (value === undefined) delete overrides[key];
+        else overrides[key] = value;
+        this._debug_overrides.set(overrides);
+        if (Object.keys(overrides).length) {
+            localStorage.setItem(
+                DEBUG_OVERRIDES_KEY,
+                JSON.stringify(overrides),
+            );
+        } else localStorage.removeItem(DEBUG_OVERRIDES_KEY);
+        this._refreshSettings();
+    }
+
+    public clearDebugOverrides() {
+        this._debug_overrides.set({});
+        localStorage.removeItem(DEBUG_OVERRIDES_KEY);
+        this._refreshSettings();
+    }
+
+    private _refreshSettings() {
         this._applyCssVariables();
         this._updateSignals();
         this._applyTheme();
@@ -192,6 +237,9 @@ export class SettingsService extends AsyncHandler {
      * @param key Name of the setting. i.e. nested items can be grabbed using `.` to seperate key names
      */
     public get<T = any>(key: string): T {
+        const debug_overrides = this._debug_overrides();
+        // ponytail: exact-key match only — override `app.a` won't affect get('app.a.b')
+        if (key in debug_overrides) return debug_overrides[key];
         const keys = key.split('.');
         if (keys[0] !== 'app') {
             return (

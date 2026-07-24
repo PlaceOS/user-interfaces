@@ -53,16 +53,19 @@ function parsePlaylistTab(value: string | null): 'items' | 'details' {
                                 >
                                     <icon>arrow_back</icon>
                                 </button>
-                                <div
-                                    class="flex min-w-0 flex-1 items-center gap-2 px-2"
-                                >
-                                    <icon class="shrink-0 text-2xl opacity-60"
-                                        >playlist_play</icon
-                                    >
+                                <div class="flex w-1/2 flex-1 flex-col px-2">
                                     <h4 class="truncate text-lg font-medium">
                                         {{ selected_playlist().name }}
                                     </h4>
+                                    @if (selected_playlist().description) {
+                                        <div class="-mt-1 truncate text-xs">
+                                            {{
+                                                selected_playlist().description
+                                            }}
+                                        </div>
+                                    }
                                 </div>
+                                <div></div>
                                 @if (requires_approval()) {
                                     @if (can_approve()) {
                                         <button
@@ -334,17 +337,16 @@ export class PlaylistsSectionComponent {
             if (!list.length) return;
             if (id) {
                 const match = list.find((p) => p.id === id);
-                if (
-                    match &&
-                    this._service.selected_playlist()?.id !== match.id
-                ) {
+                if (match && this._service.selected_playlist() !== match) {
                     this._service.selected_playlist.set(match);
                     this._service.selected_playlist_item.set(null);
+                    this._service.selected_playlist_item_index.set(null);
                 }
                 this._route_resolved = true;
             } else if (this._route_resolved) {
                 this._service.selected_playlist.set(null);
                 this._service.selected_playlist_item.set(null);
+                this._service.selected_playlist_item_index.set(null);
             }
         });
 
@@ -354,8 +356,12 @@ export class PlaylistsSectionComponent {
             if (!item_id) return;
             const items = this._playlist_items();
             if (!items.length) return;
-            const matched_item = items.find((item) => item.id === item_id);
+            const matched_index = items.findIndex((item) => item.id === item_id);
+            const matched_item = items[matched_index];
             this._service.selected_playlist_item.set(matched_item || null);
+            this._service.selected_playlist_item_index.set(
+                matched_item ? matched_index : null,
+            );
         });
     }
 
@@ -387,6 +393,7 @@ export class PlaylistsSectionComponent {
     public deselectPlaylist() {
         this._service.selected_playlist.set(null);
         this._service.selected_playlist_item.set(null);
+        this._service.selected_playlist_item_index.set(null);
         this._router.navigate(['/playlists'], {});
     }
 

@@ -1,5 +1,4 @@
-import { fakeAsync, flush } from '@angular/core/testing';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
     addMinutes,
     format,
@@ -30,11 +29,7 @@ describe('TimeFieldComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should allow the user to select a time', fakeAsync(() => {
-        // spectator.click('icon');
-        // spectator.detectChanges();
-        // spectator.tick(300);
-        // spectator.detectChanges();
+    it('should allow the user to select a time', () => {
         spectator.click('button[time-field]');
         const option_elements = document.querySelectorAll('[mat-menu-item]');
         expect(option_elements.length).toBeGreaterThan(0);
@@ -45,8 +40,7 @@ describe('TimeFieldComponent', () => {
         );
         spectator.component.writeValue(startOfDay(Date.now()).valueOf());
         expect(spectator.component.time()).toBe(`00:00`);
-        flush();
-    }));
+    });
 
     // it('should allow the user to manually input a time', () => {
     //     spectator.setInput({ no_past_times: false });

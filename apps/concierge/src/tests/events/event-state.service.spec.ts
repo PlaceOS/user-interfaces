@@ -2,7 +2,7 @@ import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
+import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
 import {
     Building,
     OrganisationService,
@@ -12,10 +12,19 @@ import { endOfDay, startOfDay } from 'date-fns';
 import { MockProvider } from 'ng-mocks';
 import { EventStateService } from '../../app/events/event-state.service';
 
-jest.mock('@placeos/events');
-import * as events_mod from '@placeos/events';
+vi.mock('@placeos/ts-client', { spy: true });
+
+import * as ts_client from '@placeos/ts-client';
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+/** Count `get` calls that hit the events listing endpoint (queryEvents -> get) */
+const eventQueryCount = () =>
+    vi
+        .mocked(ts_client.get)
+        .mock.calls.filter((args) =>
+            String(args[0]).includes('/api/staff/v1/events'),
+        ).length;
 
 describe('EventStateService', () => {
     let spectator: SpectatorService<EventStateService>;
@@ -26,24 +35,24 @@ describe('EventStateService', () => {
                 active_building: signal(new Building({ id: 'bld-123' })),
             } as any),
             MockProvider(SettingsService, {
-                get: jest.fn((key: string) =>
+                get: vi.fn((key: string) =>
                     key === 'app.group_events_calendar'
                         ? 'group-events@example.com'
                         : undefined,
                 ),
             } as any),
-            MockProvider(MatDialog, { open: jest.fn() }),
-            MockProvider(Router, { navigate: jest.fn() }),
+            MockProvider(MatDialog, { open: vi.fn() }),
+            MockProvider(Router, { navigate: vi.fn() }),
         ],
     });
 
     beforeEach(() => {
-        (events_mod as any).queryEvents = jest.fn(() => Promise.resolve([]));
+        vi.mocked(ts_client.get).mockResolvedValue([] as any);
         spectator = createService();
     });
 
     afterEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
     });
 
     it('should not re-request events when options are unchanged', async () => {
@@ -57,7 +66,7 @@ describe('EventStateService', () => {
 
         TestBed.flushEffects();
         await wait(350);
-        expect(events_mod.queryEvents).toHaveBeenCalledTimes(1);
+        expect(eventQueryCount()).toBe(1);
 
         spectator.service.setOptions({
             date,
@@ -66,7 +75,7 @@ describe('EventStateService', () => {
         });
         TestBed.flushEffects();
         await wait(350);
-        expect(events_mod.queryEvents).toHaveBeenCalledTimes(1);
+        expect(eventQueryCount()).toBe(1);
     });
 
     it('should re-request events when options change', async () => {
@@ -76,7 +85,7 @@ describe('EventStateService', () => {
 
         TestBed.flushEffects();
         await wait(350);
-        expect(events_mod.queryEvents).toHaveBeenCalledTimes(1);
+        expect(eventQueryCount()).toBe(1);
 
         spectator.service.setOptions({
             date,
@@ -85,6 +94,6 @@ describe('EventStateService', () => {
         });
         TestBed.flushEffects();
         await wait(350);
-        expect(events_mod.queryEvents).toHaveBeenCalledTimes(2);
+        expect(eventQueryCount()).toBe(2);
     });
 });

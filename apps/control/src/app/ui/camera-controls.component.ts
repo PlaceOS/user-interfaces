@@ -144,11 +144,7 @@ export class CameraControlsComponent implements OnInit {
         effect(() => {
             const list = this.camera_list();
             const cam = this._selected_camera();
-            if (!list?.length) return;
-            const found = list.find((_) => _.id === cam);
-            if (found || !this.active_camera()) {
-                this.active_camera.set(found || list[0]);
-            }
+            this.active_camera.set(list?.find((_) => _.id === cam));
         });
     }
 

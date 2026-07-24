@@ -1,5 +1,5 @@
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { SpectatorRouting, createRoutingFactory } from '@ngneat/spectator/jest';
+import { SpectatorRouting, createRoutingFactory } from '@ngneat/spectator/vitest';
 import { MockComponent } from 'ng-mocks';
 
 import { IconComponent } from '../lib/icon.component';

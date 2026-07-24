@@ -11,7 +11,7 @@ describe('MediaListComponent folders', () => {
     const filtered_media = signal<any[]>([]);
     const media_tags = signal<string[]>([]);
     const media_view_mode = signal<'grid' | 'list' | 'folder'>('grid');
-    const set_selected_group = jest.fn();
+    const set_selected_group = vi.fn();
     const service_stub = {
         filtered_media,
         media_tags,
@@ -23,8 +23,9 @@ describe('MediaListComponent folders', () => {
         can_update: signal(true),
         can_delete: signal(true),
         can_share: signal(true),
+        addMediaTags: vi.fn(),
         setSelectedGroup: set_selected_group,
-        loadMoreMedia: jest.fn(),
+        loadMoreMedia: vi.fn(),
     };
 
     function make() {
@@ -35,10 +36,12 @@ describe('MediaListComponent folders', () => {
     }
 
     beforeEach(() => {
-        window.matchMedia = jest.fn().mockReturnValue({
+        window.matchMedia = vi.fn().mockReturnValue({
             matches: false,
-            addEventListener: jest.fn(),
-            removeEventListener: jest.fn(),
+            addListener: vi.fn(),
+            removeListener: vi.fn(),
+            addEventListener: vi.fn(),
+            removeEventListener: vi.fn(),
         }) as any;
         filtered_media.set([
             media('a', ['news', 'lobby']),
@@ -101,5 +104,20 @@ describe('MediaListComponent folders', () => {
         expect(component.selected_folder()).toBeNull();
         // grid/list views always show the full filtered set
         expect(component.display_media().length).toBe(3);
+    });
+
+    it('adds tags to every selected media item and clears the selection', async () => {
+        service_stub.addMediaTags.mockResolvedValue(true);
+        const component = make();
+        component.toggleSelection('a');
+        component.toggleSelection('c');
+
+        await component.addTagsToSelected();
+
+        expect(service_stub.addMediaTags).toHaveBeenCalledWith([
+            expect.objectContaining({ id: 'a' }),
+            expect.objectContaining({ id: 'c' }),
+        ]);
+        expect(component.selected_count()).toBe(0);
     });
 });

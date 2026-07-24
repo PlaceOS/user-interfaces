@@ -126,11 +126,26 @@
             "outputs": ["{options.outputFile}"]
         },
         "test": {
-            "executor": "@nx/jest:jest",
+            "executor": "@angular/build:unit-test",
             "outputs": ["{workspaceRoot}/coverage/apps/concierge"],
             "options": {
-                "jestConfig": "apps/concierge/jest.config.ts",
-                "tsConfig": "apps/concierge/tsconfig.spec.json"
+                "tsConfig": "apps/concierge/tsconfig.spec.json",
+                "setupFiles": ["apps/concierge/src/test-setup.ts"],
+                "isolate": true,
+                "watch": false,
+                "buildTarget": "concierge:test-build:development"
+            }
+        },
+        "test-build": {
+            "executor": "@angular/build:application",
+            "options": {
+                "outputPath": "dist/apps/concierge-test",
+                "browser": "apps/concierge/src/main.ts",
+                "tsConfig": "apps/concierge/tsconfig.spec.json",
+                "polyfills": []
+            },
+            "configurations": {
+                "development": {}
             }
         }
     }

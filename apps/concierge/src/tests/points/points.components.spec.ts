@@ -1,5 +1,5 @@
 import { MatTabsModule } from '@angular/material/tabs';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { PointsStateService } from '../../app/points/points-state.service';
 import { PointsTopbarComponent } from '../../app/points/points-topbar.component';
@@ -14,7 +14,7 @@ describe('PointsComponent', () => {
         component: PointsComponent,
         providers: [
             MockProvider(PointsStateService, {
-                newAsset: jest.fn(),
+                newAsset: vi.fn(),
             }),
         ],
         imports: [MockModule(MatTabsModule)],

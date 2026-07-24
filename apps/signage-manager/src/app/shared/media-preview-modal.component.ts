@@ -3,6 +3,7 @@ import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltip } from '@angular/material/tooltip';
 import { DomSanitizer } from '@angular/platform-browser';
 import { RouterLink } from '@angular/router';
 import {
@@ -20,7 +21,7 @@ import {
     SignagePlaylist,
     SignagePlugin,
 } from '@placeos/ts-client';
-import { playlistMediaThumbnailUrl } from '../signage-playlist.util';
+import { playlistMediaThumbnailUrl, playlistMediaUrl } from '../signage-playlist.util';
 import { SignageService } from '../signage.service';
 
 interface MediaPreviewModalData {
@@ -144,7 +145,19 @@ interface MediaPreviewModalData {
                 <aside
                     class="border-base-300 bg-base-100 w-72 shrink-0 overflow-y-auto rounded-lg border max-md:w-full"
                 >
-                    <div class="space-y-5 p-5">
+                    <div class="relative space-y-5 p-5">
+                        <button
+                            icon
+                            default
+                            class="absolute top-2 right-2"
+                            [matTooltip]="
+                                'SIGNAGE_MANAGER.MEDIA_EDIT' | translate
+                            "
+                            matTooltipPosition="left"
+                            (click)="edit()"
+                        >
+                            <icon>edit</icon>
+                        </button>
                         @if (item.description) {
                             <div>
                                 <div
@@ -344,6 +357,7 @@ interface MediaPreviewModalData {
         MediaDurationPipe,
         PluginEmbedComponent,
         TranslatePipe,
+        MatTooltip,
     ],
 })
 export class MediaPreviewModalComponent implements OnInit {
@@ -353,13 +367,14 @@ export class MediaPreviewModalComponent implements OnInit {
 
     public readonly item = this._data.media;
     public readonly plugin = this._data.plugin;
-    public readonly media_url = this.item.media_url || this.item.media_uri;
+    public readonly media_url = playlistMediaUrl(this.item);
     public readonly thumbnail_url = playlistMediaThumbnailUrl(this.item);
     public readonly media_loading = signal(this._hasLoadableMedia());
     public readonly media_error = signal(false);
 
     public readonly containing_playlists = signal<SignagePlaylist[]>([]);
     public readonly loading_playlists = signal(true);
+    public readonly edit = () => this._service.editMedia(this.item);
 
     public readonly safe_url = computed(() => {
         if (this.item.media_type === 'webpage') {

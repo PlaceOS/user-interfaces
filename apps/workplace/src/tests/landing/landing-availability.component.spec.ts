@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
 import { ExploreSpacesService } from '@placeos/explore';
@@ -13,7 +13,7 @@ describe('LandingAvailabilityComponent', () => {
         component: LandingAvailabilityComponent,
         declarations: [MockComponent(IconComponent)],
         componentProviders: [
-            MockProvider(ExploreSpacesService, { bookSpace: jest.fn() }),
+            MockProvider(ExploreSpacesService, { bookSpace: vi.fn() }),
         ],
         providers: [
             MockProvider(LandingStateService, {
@@ -21,7 +21,7 @@ describe('LandingAvailabilityComponent', () => {
                 loading_spaces: signal(false),
                 level_occupancy: signal([]),
             }),
-            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(SettingsService, { get: vi.fn() }),
             MockProvider(OrganisationService, {
                 initialised: signal(true),
                 buildings: [],

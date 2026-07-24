@@ -3,11 +3,15 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
+import type { Mock } from 'vitest';
 
+import { inject, Injector, signal } from '@angular/core';
 import { Booking, OrganisationService, User } from '@placeos/common';
 import { createSettingsServiceMock } from '@placeos/common/tests';
-import { inject, Injector, signal } from '@angular/core';
 import { MockModule, MockProvider, MockService } from 'ng-mocks';
 import { BookingFormService } from '../lib/booking-form.service';
 import { generateBookingForm } from '../lib/booking.utilities';
@@ -39,13 +43,13 @@ describe('InviteVisitorFormComponent', () => {
                         form,
                         booking: new Booking(),
                         loading: signal(''),
-                        setOptions: jest.fn(),
-                        postForm: jest.fn(async () => new Booking()),
-                        postFormForVisitorGroup: jest.fn(
+                        setOptions: vi.fn(),
+                        postForm: vi.fn(async () => new Booking()),
+                        postFormForVisitorGroup: vi.fn(
                             async () => new Booking(),
                         ),
-                        loadGroupSiblings: jest.fn(async () => []),
-                        editFormForGroup: jest.fn(async () => new Booking()),
+                        loadGroupSiblings: vi.fn(async () => []),
+                        editFormForGroup: vi.fn(async () => new Booking()),
                     });
                 },
             },
@@ -91,7 +95,7 @@ describe('InviteVisitorFormComponent', () => {
                     ],
                     building: { id: 'bld-1', name: 'Building One' },
                     organisation: { id: 'org-1' },
-                    find: jest.fn((id: string) =>
+                    find: vi.fn((id: string) =>
                         [
                             {
                                 id: 'bld-1',
@@ -107,7 +111,7 @@ describe('InviteVisitorFormComponent', () => {
                             },
                         ].find((building) => building.id === id),
                     ),
-                    levelWithID: jest.fn((id_list: string[]) =>
+                    levelWithID: vi.fn((id_list: string[]) =>
                         id_list?.includes('lvl-2')
                             ? { id: 'lvl-2', parent_id: 'bld-2' }
                             : null,
@@ -272,10 +276,10 @@ describe('InviteVisitorFormComponent', () => {
     it('should load and show sibling visitors when editing a group booking', async () => {
         const service = spectator.inject(BookingFormService);
         const settings = spectator.inject(SettingsService);
-        (settings.get as jest.Mock).mockImplementation(
+        (settings.get as Mock).mockImplementation(
             (key: string) => key === 'app.bookings.multiple_visitors',
         );
-        (service.loadGroupSiblings as jest.Mock).mockResolvedValue([
+        (service.loadGroupSiblings as Mock).mockResolvedValue([
             new Booking({
                 id: 'booking-parent',
                 asset_name: 'Visitor One',
@@ -305,21 +309,17 @@ describe('InviteVisitorFormComponent', () => {
 
         expect(service.loadGroupSiblings).toHaveBeenCalled();
         expect(service.model().assets).toHaveLength(2);
-        expect(service.model().assets[0].email).toBe(
-            'visitor.one@example.com',
-        );
-        expect(service.model().assets[1].email).toBe(
-            'visitor.two@example.com',
-        );
+        expect(service.model().assets[0].email).toBe('visitor.one@example.com');
+        expect(service.model().assets[1].email).toBe('visitor.two@example.com');
     });
 
     it('should prefer group member names when sibling booking asset names are reason text', async () => {
         const service = spectator.inject(BookingFormService);
         const settings = spectator.inject(SettingsService);
-        (settings.get as jest.Mock).mockImplementation(
+        (settings.get as Mock).mockImplementation(
             (key: string) => key === 'app.bookings.multiple_visitors',
         );
-        (service.loadGroupSiblings as jest.Mock).mockResolvedValue([
+        (service.loadGroupSiblings as Mock).mockResolvedValue([
             new Booking({
                 id: 'booking-parent',
                 asset_name: 'Vendor Interview',
@@ -354,10 +354,10 @@ describe('InviteVisitorFormComponent', () => {
     it('should load group members from extension data when sibling lookup is empty', async () => {
         const service = spectator.inject(BookingFormService);
         const settings = spectator.inject(SettingsService);
-        (settings.get as jest.Mock).mockImplementation(
+        (settings.get as Mock).mockImplementation(
             (key: string) => key === 'app.bookings.multiple_visitors',
         );
-        (service.loadGroupSiblings as jest.Mock).mockResolvedValue([]);
+        (service.loadGroupSiblings as Mock).mockResolvedValue([]);
         (service as any).booking = new Booking({
             id: 'booking-parent',
             extension_data: {
@@ -390,18 +390,14 @@ describe('InviteVisitorFormComponent', () => {
         await spectator.component.ngOnInit();
 
         expect(service.model().assets).toHaveLength(2);
-        expect(service.model().assets[0].email).toBe(
-            'visitor.one@example.com',
-        );
-        expect(service.model().assets[1].email).toBe(
-            'visitor.two@example.com',
-        );
+        expect(service.model().assets[0].email).toBe('visitor.one@example.com');
+        expect(service.model().assets[1].email).toBe('visitor.two@example.com');
     });
 
     it('should persist edited reason from title when sending invite', async () => {
         const service = spectator.inject(BookingFormService);
         const settings = spectator.inject(SettingsService);
-        (settings.get as jest.Mock).mockImplementation((key: string) =>
+        (settings.get as Mock).mockImplementation((key: string) =>
             key === 'app.bookings.multiple_visitors' ? false : undefined,
         );
         await spectator.component.ngOnInit();
@@ -422,10 +418,10 @@ describe('InviteVisitorFormComponent', () => {
     it('should edit as a group when converting single visitor booking to multiple', async () => {
         const service = spectator.inject(BookingFormService);
         const settings = spectator.inject(SettingsService);
-        (settings.get as jest.Mock).mockImplementation(
+        (settings.get as Mock).mockImplementation(
             (key: string) => key === 'app.bookings.multiple_visitors',
         );
-        (service.loadGroupSiblings as jest.Mock).mockResolvedValue([]);
+        (service.loadGroupSiblings as Mock).mockResolvedValue([]);
         service.model.update((m) => ({
             ...m,
             id: 'booking-parent',
@@ -450,16 +446,16 @@ describe('InviteVisitorFormComponent', () => {
         await spectator.component.sendInvite();
 
         expect(service.editFormForGroup).toHaveBeenCalledTimes(1);
-        expect(
-            (service.editFormForGroup as jest.Mock).mock.calls[0][0][0].id,
-        ).toBe('booking-parent');
+        expect((service.editFormForGroup as Mock).mock.calls[0][0][0].id).toBe(
+            'booking-parent',
+        );
         expect(service.postFormForVisitorGroup).not.toHaveBeenCalled();
     });
 
     it('should not overwrite existing visitor email with multiple placeholder when editing', async () => {
         const service = spectator.inject(BookingFormService);
         const settings = spectator.inject(SettingsService);
-        (settings.get as jest.Mock).mockImplementation(
+        (settings.get as Mock).mockImplementation(
             (key: string) => key === 'app.bookings.multiple_visitors',
         );
         service.model.update((m) => ({
@@ -484,18 +480,16 @@ describe('InviteVisitorFormComponent', () => {
 
         await spectator.component.ngOnInit();
 
-        expect(service.model().asset_id).toBe(
-            'original.visitor@example.com',
-        );
+        expect(service.model().asset_id).toBe('original.visitor@example.com');
     });
 
     it('should load siblings before edit submit when sibling cache is still empty', async () => {
         const service = spectator.inject(BookingFormService);
         const settings = spectator.inject(SettingsService);
-        (settings.get as jest.Mock).mockImplementation(
+        (settings.get as Mock).mockImplementation(
             (key: string) => key === 'app.bookings.multiple_visitors',
         );
-        const load_group_siblings = service.loadGroupSiblings as jest.Mock;
+        const load_group_siblings = service.loadGroupSiblings as Mock;
         load_group_siblings.mockReset();
         load_group_siblings
             .mockImplementationOnce(() => new Promise(() => {}))
@@ -534,14 +528,14 @@ describe('InviteVisitorFormComponent', () => {
         expect(load_group_siblings.mock.calls.length).toBeGreaterThanOrEqual(2);
         expect(service.editFormForGroup).toHaveBeenCalled();
         const last_call =
-            (service.editFormForGroup as jest.Mock).mock.calls.at(-1) || [];
+            (service.editFormForGroup as Mock).mock.calls.at(-1) || [];
         expect(last_call[0]).toHaveLength(2);
     });
 
     it('should keep start time available when date control is disabled', async () => {
         const service = spectator.inject(BookingFormService);
         const settings = spectator.inject(SettingsService);
-        (settings.get as jest.Mock).mockImplementation((key: string) =>
+        (settings.get as Mock).mockImplementation((key: string) =>
             key === 'app.bookings.multiple_visitors' ? false : undefined,
         );
         const booking_date = Date.now() - 10 * 60 * 1000;
@@ -566,7 +560,7 @@ describe('InviteVisitorFormComponent', () => {
     it('should set reason on title only when sending invite', async () => {
         const service = spectator.inject(BookingFormService);
         const settings = spectator.inject(SettingsService);
-        (settings.get as jest.Mock).mockImplementation((key: string) =>
+        (settings.get as Mock).mockImplementation((key: string) =>
             key === 'app.bookings.multiple_visitors' ? false : undefined,
         );
         await spectator.component.ngOnInit();
@@ -588,7 +582,7 @@ describe('InviteVisitorFormComponent', () => {
     it('should keep preloaded edit booking date when initialising visitor form', async () => {
         const service = spectator.inject(BookingFormService);
         const settings = spectator.inject(SettingsService);
-        (settings.get as jest.Mock).mockImplementation((key: string) =>
+        (settings.get as Mock).mockImplementation((key: string) =>
             key === 'app.bookings.multiple_visitors' ? false : undefined,
         );
         sessionStorage.removeItem('PLACEOS.booking_form');
@@ -613,7 +607,7 @@ describe('InviteVisitorFormComponent', () => {
     it('should keep preloaded edit booking date when booking only has visitor type', async () => {
         const service = spectator.inject(BookingFormService);
         const settings = spectator.inject(SettingsService);
-        (settings.get as jest.Mock).mockImplementation((key: string) =>
+        (settings.get as Mock).mockImplementation((key: string) =>
             key === 'app.bookings.multiple_visitors' ? false : undefined,
         );
         sessionStorage.removeItem('PLACEOS.booking_form');
@@ -647,7 +641,7 @@ describe('InviteVisitorFormComponent', () => {
     it('should restore preloaded edit booking zones from the booking service when the form is initially empty', async () => {
         const service = spectator.inject(BookingFormService);
         const settings = spectator.inject(SettingsService);
-        (settings.get as jest.Mock).mockImplementation((key: string) =>
+        (settings.get as any).mockImplementation((key: string) =>
             key === 'app.bookings.multiple_visitors' ? false : undefined,
         );
         sessionStorage.removeItem('PLACEOS.booking_form');
@@ -667,17 +661,13 @@ describe('InviteVisitorFormComponent', () => {
         await spectator.component.ngOnInit();
 
         expect(service.model().id).toBe('booking-edit-zones-only');
-        expect(service.model().zones).toEqual([
-            'org-1',
-            'reg-1',
-            'zone-bld-2',
-        ]);
+        expect(service.model().zones).toEqual(['org-1', 'reg-1', 'zone-bld-2']);
         expect(spectator.component.selected_building_id()).toBe('bld-2');
     });
 
     it('should read bookable_hours from visitor settings with fallback', () => {
         const settings = spectator.inject(SettingsService);
-        (settings.get as jest.Mock).mockImplementation((key: string) => {
+        (settings.get as Mock).mockImplementation((key: string) => {
             if (key === 'app.visitors.bookable_hours')
                 return { start: 480, end: 1140 };
             return undefined;
@@ -687,7 +677,7 @@ describe('InviteVisitorFormComponent', () => {
             end: 1140,
         });
 
-        (settings.get as jest.Mock).mockImplementation((key: string) => {
+        (settings.get as Mock).mockImplementation((key: string) => {
             if (key === 'app.bookings.bookable_hours')
                 return { start: 540, end: 1080 };
             return undefined;
@@ -701,10 +691,10 @@ describe('InviteVisitorFormComponent', () => {
     it('should not block init while loading sibling visitors', async () => {
         const service = spectator.inject(BookingFormService);
         const settings = spectator.inject(SettingsService);
-        (settings.get as jest.Mock).mockImplementation(
+        (settings.get as Mock).mockImplementation(
             (key: string) => key === 'app.bookings.multiple_visitors',
         );
-        (service.loadGroupSiblings as jest.Mock).mockImplementation(
+        (service.loadGroupSiblings as Mock).mockImplementation(
             () => new Promise(() => {}),
         );
         (service as any).booking = new Booking({

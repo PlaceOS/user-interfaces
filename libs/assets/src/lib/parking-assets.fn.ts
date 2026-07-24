@@ -6,7 +6,12 @@ import {
     queryAssetTypes,
     removeAsset,
 } from '@placeos/ts-client';
-import { saveAsset, saveAssetCategory, saveAssetType } from './assets.fn';
+import {
+    findOldestByName,
+    saveAsset,
+    saveAssetCategory,
+    saveAssetType,
+} from './assets.fn';
 
 const PARKING_CATEGORY_NAME = '_PARKING_';
 const PARKING_TYPE_NAME = '_PARKING_SPACES_';
@@ -64,15 +69,10 @@ async function query_types_for_categories(category_ids: string[]) {
 }
 
 async function ensure_hidden_category(name: string) {
-    const match_name = normalise_name(name);
-    let category = (await query_hidden_categories()).find(
-        (_) => normalise_name(_.name) === match_name,
-    );
+    let category = findOldestByName(await query_hidden_categories(), name);
     if (category) return category;
     reset_hidden_categories_cache();
-    category = (await query_hidden_categories()).find(
-        (_) => normalise_name(_.name) === match_name,
-    );
+    category = findOldestByName(await query_hidden_categories(), name);
     if (category) return category;
     try {
         const category = await saveAssetCategory({
@@ -83,8 +83,9 @@ async function ensure_hidden_category(name: string) {
         return category;
     } catch (error) {
         reset_hidden_categories_cache();
-        category = (await query_hidden_categories()).find(
-            (_) => normalise_name(_.name) === match_name,
+        category = findOldestByName(
+            await query_hidden_categories(),
+            name,
         );
         if (category) return category;
         throw error;
@@ -114,9 +115,7 @@ async function move_type_to_category(
     } catch (error) {
         reset_types_cache([category_id]);
         const types = await query_types_for_category(category_id);
-        const existing_type = types.find(
-            (_) => normalise_name(_.name) === normalise_name(name),
-        );
+        const existing_type = findOldestByName(types, name);
         if (existing_type) return existing_type;
         throw error;
     }
@@ -127,13 +126,13 @@ async function ensure_type(
     name: string,
     legacy_category_ids: string[] = [],
 ) {
-    const match_name = normalise_name(name);
-    let type = (
+    let type = findOldestByName(
         await query_types_for_categories([
             category_id,
             ...legacy_category_ids.filter((_) => _ !== category_id),
-        ])
-    ).find((_) => normalise_name(_.name) === match_name);
+        ]),
+        name,
+    );
     if (type) return move_type_to_category(type, category_id, name);
     try {
         const type = await saveAssetType({
@@ -145,12 +144,13 @@ async function ensure_type(
         return type;
     } catch (error) {
         reset_types_cache([category_id, ...legacy_category_ids]);
-        type = (
+        type = findOldestByName(
             await query_types_for_categories([
                 category_id,
                 ...legacy_category_ids.filter((_) => _ !== category_id),
-            ])
-        ).find((_) => normalise_name(_.name) === match_name);
+            ]),
+            name,
+        );
         if (type) return move_type_to_category(type, category_id, name);
         throw error;
     }

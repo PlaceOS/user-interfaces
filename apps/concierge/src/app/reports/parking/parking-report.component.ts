@@ -19,6 +19,7 @@ import { ReportsOptionsComponent } from '../reports-options.component';
 import { ParkingReportChartsComponent } from './parking-report-charts.component';
 import { ParkingReportDailyUsageComponent } from './parking-report-daily-usage.component';
 import { ParkingReportListComponent } from './parking-report-list.component';
+import { ParkingReportNoShowsComponent } from './parking-report-no-shows.component';
 import { ParkingReportOverallComponent } from './parking-report-overall.component';
 import { ParkingReportService } from './parking-report.service';
 
@@ -43,9 +44,14 @@ const METRIC_GUIDE: ReportMetricGuideItem[] = [
             'Sum of active reservation durations divided by the number of active reservations.',
     },
     {
+        label: 'No shows',
+        description:
+            'Active reservations that ended without a check-in; percentage is of active reservations.',
+    },
+    {
         label: 'Daily usage',
         description:
-            'Counts unique parking spaces, unique hosts, active reservations, cancellations, deletions, and total reservations for each day.',
+            'Counts unique parking spaces, unique hosts, active reservations, cancellations, deletions, no shows, and total reservations for each day.',
     },
 ];
 
@@ -83,6 +89,9 @@ const METRIC_GUIDE: ReportMetricGuideItem[] = [
                     <parking-report-list
                         [print]="printing()"
                     ></parking-report-list>
+                    <parking-report-no-shows
+                        [print]="printing()"
+                    ></parking-report-no-shows>
                     <parking-report-daily-usage
                         [print]="printing()"
                     ></parking-report-daily-usage>
@@ -123,6 +132,7 @@ const METRIC_GUIDE: ReportMetricGuideItem[] = [
         ParkingReportDailyUsageComponent,
         ParkingReportChartsComponent,
         ParkingReportListComponent,
+        ParkingReportNoShowsComponent,
         ReportsOptionsComponent,
     ],
 })

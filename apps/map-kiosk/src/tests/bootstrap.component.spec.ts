@@ -1,10 +1,9 @@
 import { signal } from '@angular/core';
-import { fakeAsync } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { Router } from '@angular/router';
-import { SpectatorRouting, createRoutingFactory } from '@ngneat/spectator/jest';
+import { SpectatorRouting, createRoutingFactory } from '@ngneat/spectator/vitest';
 import {
     Building,
     BuildingLevel,
@@ -71,7 +70,7 @@ describe('BootstrapComponent', () => {
         // TODO: Add implementation
     });
     it('should handling bootstrapping', () => {
-        const spy = jest.spyOn(Storage.prototype, 'setItem');
+        const spy = vi.spyOn(Storage.prototype, 'setItem');
         expect(localStorage.setItem).not.toHaveBeenCalled();
         spectator.component.bootstrapKiosk();
         expect(localStorage.setItem).not.toHaveBeenCalled();
@@ -115,7 +114,7 @@ describe('BootstrapComponent', () => {
     });
 
     it('should handle clearing bootstrap details', () => {
-        jest.spyOn(Storage.prototype, 'removeItem');
+        vi.spyOn(Storage.prototype, 'removeItem');
         expect(localStorage.removeItem).not.toHaveBeenCalled();
         spectator.setRouteQueryParam('clear', 'true');
         spectator.detectChanges();
@@ -126,17 +125,19 @@ describe('BootstrapComponent', () => {
         );
     });
 
-    it('should re-direct if already bootstrapped', fakeAsync(async () => {
+    it('should re-direct if already bootstrapped', async () => {
+        vi.useFakeTimers();
         const router = spectator.inject(Router);
         expect(router.navigate).not.toHaveBeenCalled();
-        spectator.component.ngOnInit();
-        spectator.tick(1001);
+        await spectator.component.ngOnInit();
+        await vi.advanceTimersByTimeAsync(1001);
         localStorage.setItem('KIOSK.building', '1');
         localStorage.setItem('KIOSK.level', '1');
         expect(router.navigate).not.toHaveBeenCalled();
-        spectator.component.ngOnInit();
-        spectator.tick(1001);
+        await spectator.component.ngOnInit();
+        await vi.advanceTimersByTimeAsync(1001);
         // TODO: Fix
         // expect(router.navigate).toHaveBeenCalled();
-    }));
+        vi.useRealTimers();
+    });
 });

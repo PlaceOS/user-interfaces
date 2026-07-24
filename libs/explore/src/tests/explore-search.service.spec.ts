@@ -13,8 +13,7 @@ import {
     sortGlobalSearchResults,
 } from '../lib/explore-search.service';
 
-jest.mock('@placeos/ts-client');
-jest.mock('libs/users/src/lib/staff.fn');
+vi.mock('@placeos/ts-client');
 
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { MockProvider } from 'ng-mocks';
@@ -28,11 +27,11 @@ describe('ExploreSearchService', () => {
             MockProvider(OrganisationService, {
                 initialised: signal(true),
                 organisation: new Organisation(),
-                binding: jest.fn(() => 'sys-1'),
+                binding: vi.fn(() => 'sys-1'),
                 active_building: signal(new Building()),
             }),
             MockProvider(SettingsService, {
-                get: jest.fn(),
+                get: vi.fn(),
             }),
             MockProvider(ExploreStateService, {
                 level: signal(null),
@@ -100,8 +99,8 @@ describe('ExploreSearchService', () => {
 
     it('should allow searching for users', async () => {
         // TODO: Fix
-        // (ts_client.querySystems as any) = jest.fn(() => of([]));
-        // (user_mod as any).searchStaff = jest.fn((q) =>
+        // (ts_client.querySystems as any) = vi.fn(() => of([]));
+        // (user_mod as any).searchStaff = vi.fn((q) =>
         //     of(
         //         [{ name: 'Jim', email: 'jim@jim.com' }].filter((_) =>
         //             _.name.includes(q)
@@ -122,13 +121,13 @@ describe('ExploreSearchService', () => {
 
     it('should allow searching for spaces', async () => {
         // TODO: Fix
-        // (ts_client.querySystems as any) = jest.fn(() =>
+        // (ts_client.querySystems as any) = vi.fn(() =>
         //     of([
         //         { id: 'space-1', name: 'Space 1', email: 'space-1@p.t' },
         //         { id: 'space-2', name: 'Space 2', email: 'space-2@p.t' },
         //     ])
         // );
-        // (user_mod.searchStaff as any) = jest.fn(() => of([]));
+        // (user_mod.searchStaff as any) = vi.fn(() => of([]));
         // const spaces = spectator.inject(SpacesService);
         // spectator.service.setFilter('Space');
         // let result = await nextValueFrom(spectator.service.search_results);
@@ -142,8 +141,8 @@ describe('ExploreSearchService', () => {
 
     it('should allow searching for emergency contacts', async () => {
         // TODO: Fix
-        // (user_mod as any).searchStaff = jest.fn(() => of([]));
-        // (ts_client as any).getModule = jest.fn(() => ({
+        // (user_mod as any).searchStaff = vi.fn(() => of([]));
+        // (ts_client as any).getModule = vi.fn(() => ({
         //     binding: () => ({
         //         listen: () =>
         //             of({

@@ -189,7 +189,6 @@ export class ParkingFlowFormComponent extends AsyncHandler implements OnInit {
 
     public readonly viewConfirm = () => {
         const { asset_id, resources, date } = this.model();
-        console.log('Form:', this.model().date);
         if (resources?.length && asset_id !== resources[0].id) {
             this.model.update((m) => ({ ...m, asset_id: resources[0].id }));
         }
@@ -202,7 +201,6 @@ export class ParkingFlowFormComponent extends AsyncHandler implements OnInit {
                 }).valueOf(),
             }));
         }
-        console.log('Form:', this.model().date);
         if (!this.form().valid())
             return notifyError(
                 `Some fields are invalid. [${getInvalidSignalFields(

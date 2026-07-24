@@ -3,7 +3,7 @@ import { Injector } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NativeDateModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { CalendarEvent, SettingsService } from '@placeos/common';
 import {
     eventFormValue,
@@ -44,12 +44,12 @@ describe('RoomBookingComponent', () => {
                         injector,
                     );
                     return {
-                        setView: jest.fn(() => {}),
-                        newForm: jest.fn(() => {}),
-                        clearForm: jest.fn(),
-                        storeForm: jest.fn(() => {}),
-                        loadForm: jest.fn(),
-                        postForm: jest.fn(),
+                        setView: vi.fn(() => {}),
+                        newForm: vi.fn(() => {}),
+                        clearForm: vi.fn(),
+                        storeForm: vi.fn(() => {}),
+                        loadForm: vi.fn(),
+                        postForm: vi.fn(),
                         view: '',
                         model: form_ref.model,
                         form: form_ref.form,
@@ -57,7 +57,7 @@ describe('RoomBookingComponent', () => {
                 },
                 deps: [Injector],
             },
-            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(SettingsService, { get: vi.fn() }),
         ],
         stubsEnabled: false,
         routes: [
@@ -95,8 +95,8 @@ describe('RoomBookingComponent', () => {
     });
 
     afterEach(() => {
-        jest.clearAllMocks();
-        jest.resetModules();
+        vi.clearAllMocks();
+        vi.resetModules();
     });
 
     it('should create component', () => {
@@ -105,15 +105,20 @@ describe('RoomBookingComponent', () => {
 
     it('should create a new form on component init', () => {
         const event_service: any = spectator.inject(EventFormService);
-        const spy = jest.spyOn(spectator.component, 'ngOnInit');
-        const new_form_spy = jest.spyOn(event_service, 'newForm');
+        const spy = vi.spyOn(spectator.component, 'ngOnInit');
+        const new_form_spy = vi.spyOn(event_service, 'newForm');
         spectator.component.ngOnInit();
         expect(spy).toHaveBeenCalled();
         expect(new_form_spy).toHaveBeenCalled();
-        expect(event_service.form).toExist();
+        // `toExist` is a jQuery DOM matcher; passing the form signal-function
+        // makes jQuery treat it as a `$(fn)` ready-callback and leak a timer.
+        expect(event_service.form).toBeTruthy();
     });
 
     it('should not navigate away if the booking is in the past', async () => {
+        // Settle the routing factory's initial navigation so `Location.path()`
+        // reports the root route.
+        await spectator.fixture.whenStable();
         const event_service: any = spectator.inject(EventFormService);
         await event_service.newForm();
 
@@ -125,6 +130,8 @@ describe('RoomBookingComponent', () => {
             duration: 30,
         }));
 
+        // Read validity synchronously before the form's bookable-hours effect
+        // flushes and corrects the past booking to a valid future slot.
         spectator.component.findSpace();
         expect(form_ref.form.duration().invalid()).toBeTruthy();
         expect(form_ref.form().valid()).toBeFalsy();
@@ -146,6 +153,7 @@ describe('RoomBookingComponent', () => {
 
         expect(form_ref.form().valid()).toBeTruthy();
         await spectator.component.findSpace();
+        await spectator.fixture.whenStable();
         expect(spectator.inject(Location).path()).toBe('/schedule/view');
     });
 });

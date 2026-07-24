@@ -1,26 +1,31 @@
-import { Injector, signal, WritableSignal } from '@angular/core';
+import { Injector, WritableSignal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { ActivatedRoute, Router } from '@angular/router';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import {
     BookingForm,
     BookingFormValue,
     BookingFormService,
     generateBookingForm,
+    InviteVisitorFormComponent,
 } from '@placeos/bookings';
 import { SettingsService } from '@placeos/common';
-import { ActivatedRoute } from '@angular/router';
+import { mockComponent } from '@placeos/common/tests';
+import { MockProvider } from 'ng-mocks';
 import { NEVER, of } from 'rxjs';
-import { VisitorFlowNewComponent } from 'apps/workplace/src/app/book/visitor-flow-new/visitor-flow.component';
+
+import { VisitorFlowComponent } from '../../app/book/visitor-flow.component';
+import { VisitorFlowNewComponent } from '../../app/book/visitor-flow-new/visitor-flow.component';
 
 describe('VisitorFlowNewComponent', () => {
     let spectator: SpectatorRouting<VisitorFlowNewComponent>;
     let form: BookingForm;
     let model: WritableSignal<BookingFormValue>;
-    let save_user_setting: jest.Mock;
-    let clear_form: jest.Mock;
-    let dialog_open: jest.Mock;
-    let dialog_close: jest.Mock;
+    let save_user_setting: any;
+    let clear_form: any;
+    let dialog_open: any;
+    let dialog_close: any;
 
     const createComponent = createRoutingFactory({
         component: VisitorFlowNewComponent,
@@ -54,17 +59,17 @@ describe('VisitorFlowNewComponent', () => {
                         view: () => 'details',
                         booking: null,
                         last_count: 0,
-                        setOptions: jest.fn(),
-                        setView: jest.fn(),
+                        setOptions: vi.fn(),
+                        setView: vi.fn(),
                         clearForm: (...args: any[]) => clear_form(...args),
-                        loadGroupSiblings: jest.fn(async () => []),
+                        loadGroupSiblings: vi.fn(async () => []),
                     };
                 },
             },
             {
                 provide: SettingsService,
                 useValue: {
-                    get: jest.fn(() => []),
+                    get: vi.fn(() => []),
                     saveUserSetting: (...args: any[]) =>
                         save_user_setting(...args),
                 },
@@ -89,10 +94,10 @@ describe('VisitorFlowNewComponent', () => {
     });
 
     beforeEach(() => {
-        save_user_setting = jest.fn();
-        clear_form = jest.fn();
-        dialog_close = jest.fn();
-        dialog_open = jest.fn(() => ({
+        save_user_setting = vi.fn();
+        clear_form = vi.fn();
+        dialog_close = vi.fn();
+        dialog_open = vi.fn(() => ({
             componentInstance: { event: of({ reason: 'done' }) },
             afterClosed: () => NEVER,
             close: dialog_close,
@@ -154,7 +159,7 @@ describe('VisitorFlowNewComponent', () => {
         dialog_open.mockReturnValue({
             componentInstance: { event: NEVER },
             afterClosed: () => of(null),
-            close: jest.fn(),
+            close: vi.fn(),
         });
         model.update((m) => ({ ...m, id: 'visitor-booking-3' }));
         form().markAsDirty();
@@ -162,5 +167,33 @@ describe('VisitorFlowNewComponent', () => {
         await expect(spectator.component.canDeactivate()).resolves.toBe(false);
 
         expect(clear_form).not.toHaveBeenCalled();
+    });
+});
+
+describe('VisitorFlowComponent', () => {
+    let spectator: SpectatorRouting<VisitorFlowComponent>;
+    const createComponent = createRoutingFactory({
+        component: VisitorFlowComponent,
+        providers: [MockProvider(Router, { navigate: vi.fn() })],
+        declarations: [mockComponent(InviteVisitorFormComponent)],
+    });
+
+    beforeEach(() => (spectator = createComponent()));
+
+    it('should create component', () =>
+        expect(spectator.component).toBeTruthy());
+
+    it('should render the invite visitor form', () =>
+        expect(spectator.query('invite-visitor-form')).toExist());
+
+    it('should navigate home when the form completes', () => {
+        spectator.component.onDone();
+        expect(spectator.inject(Router).navigate).toHaveBeenCalledWith(['/']);
+    });
+
+    it('should navigate home when the form emits done', () => {
+        const form = spectator.query(InviteVisitorFormComponent);
+        form!.done.emit();
+        expect(spectator.inject(Router).navigate).toHaveBeenCalledWith(['/']);
     });
 });

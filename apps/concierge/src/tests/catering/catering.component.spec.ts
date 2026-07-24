@@ -1,5 +1,5 @@
 import { MatDialog } from '@angular/material/dialog';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import {
     CateringMenuComponent,
     CateringOrderListComponent,
@@ -15,7 +15,7 @@ describe('CateringComponent', () => {
     let spectator: SpectatorRouting<CateringComponent>;
     const createComponent = createRoutingFactory({
         component: CateringComponent,
-        providers: [{ provide: MatDialog, useValue: { open: jest.fn() } }],
+        providers: [{ provide: MatDialog, useValue: { open: vi.fn() } }],
         declarations: [
             MockComponent(CateringTopbarComponent),
             MockComponent(ApplicationTopbarComponent),

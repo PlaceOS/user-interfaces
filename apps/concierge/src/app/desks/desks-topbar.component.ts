@@ -20,8 +20,6 @@ import {
     AsyncHandler,
     csvToJson,
     Desk,
-    downloadFile,
-    jsonToCsv,
     loadTextFileFromInputEvent,
     notifyError,
     notifyInfo,
@@ -94,7 +92,7 @@ import { DesksStateService } from './desks-state.service';
                     <input
                         type="file"
                         class="absolute inset-0 opacity-0"
-                        (change)="loadCSVData($event)"
+                        (change)="loadCSVData($any($event))"
                     />
                 </button>
             }
@@ -201,7 +199,7 @@ export class DesksTopbarComponent extends AsyncHandler implements OnInit {
                             levels.find((lvl) => lvl.id === zone) ||
                             zone === 'All',
                     ) || [];
-                if (!zones.length && levels.length) zones.push(levels[0].id);
+                if (!zones.length && levels.length) zones.push('All');
                 this.updateZones(zones);
             });
         });
@@ -287,18 +285,7 @@ export class DesksTopbarComponent extends AsyncHandler implements OnInit {
     }
 
     public downloadTemplate() {
-        const desk: any = new Desk({
-            id: 'desk-123',
-            name: 'Test Desk',
-            bookable: true,
-            groups: ['test-desk-group', 'desk-bookers'],
-            features: ['Standing Desk', 'Dual Monitor'],
-            tags: ['engineering', 'level-3'],
-            homebase: 'Sydney HQ',
-        }).toJSON();
-        delete desk.images;
-        const data = jsonToCsv([desk]);
-        downloadFile('desk-template.csv', data);
+        this._desks.downloadDesksCSV();
     }
 
     /**

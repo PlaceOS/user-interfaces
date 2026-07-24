@@ -63,6 +63,7 @@ import { searchStaff } from 'libs/users/src/lib/staff.fn';
                     #input
                     keyboard
                     matInput
+                    [attr.autocomplete]="autocomplete()"
                     [ngModel]="search_term()"
                     (ngModelChange)="search_term.set($event)"
                     [disabled]="disabled()"
@@ -199,6 +200,8 @@ export class UserSearchFieldComponent
     extends AsyncHandler
     implements ControlValueAccessor
 {
+    /** Native browser autocomplete mode for the search input. */
+    public readonly autocomplete = input<string>();
     private use_basic_search = settingSignal('basic_user_search', true);
 
     public readonly search_term = signal<string>('');
@@ -243,7 +246,11 @@ export class UserSearchFieldComponent
             const guest_query = () => searchGuests(q).catch(() => [] as User[]);
             if (this.guests_only()) return guest_query();
             const staff = this.use_basic_search()
-                ? await queryUsers({ q, authority_id: authority()?.id })
+                ? await queryUsers({
+                      q,
+                      authority_id: authority()?.id,
+                      fields: ['id', 'name', 'email'].join(','),
+                  })
                       .then((_) => _.data.map((u) => new User(u)))
                       .catch(() => [] as User[])
                 : await searchStaff(q).catch(() => [] as User[]);
@@ -273,7 +280,13 @@ export class UserSearchFieldComponent
             }
             if (s.length <= 2) return [];
             const list = await this.query_fn()(s).catch(() => [] as User[]);
-            return list.filter((_) => !!_ && _.email !== EMPTY_USER.email);
+            return list
+                .filter((_) => !!_ && _.email !== EMPTY_USER.email)
+                .sort((a, b) =>
+                    (a.name?.toLowerCase() || '').localeCompare(
+                        b.name?.toLowerCase(),
+                    ),
+                );
         },
     });
     public readonly search_results = computed(() => this._search.value() ?? []);

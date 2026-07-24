@@ -1,5 +1,6 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { MatDialog } from '@angular/material/dialog';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
+import { BookingDetailsModalComponent } from '@placeos/bookings';
 import { Booking, OrganisationService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 import { ScheduleStateService } from '../../app/schedule/schedule-state.service';
@@ -10,18 +11,19 @@ describe('ScheduleWeekViewComponent', () => {
     const createComponent = createComponentFactory({
         component: ScheduleWeekViewComponent,
         providers: [
-            MockProvider(MatDialog, { open: jest.fn(), closeAll: jest.fn() }),
-            MockProvider(OrganisationService, { levelWithID: jest.fn() }),
+            MockProvider(MatDialog, { open: vi.fn(), closeAll: vi.fn() }),
+            MockProvider(OrganisationService, { levelWithID: vi.fn() }),
             {
                 provide: ScheduleStateService,
                 useValue: {
                     get offset_weekday() {
                         return 1;
                     },
-                    edit: jest.fn(),
-                    remove: jest.fn(),
-                    editBooking: jest.fn(),
-                    end: jest.fn(),
+                    edit: vi.fn(),
+                    remove: vi.fn(),
+                    editBooking: vi.fn(),
+                    end: vi.fn(),
+                    triggerPoll: vi.fn(),
                 },
             },
         ],
@@ -76,5 +78,20 @@ describe('ScheduleWeekViewComponent', () => {
             '2026-04-18',
             '2026-04-19',
         ]);
+    });
+
+    it('should refresh bookings after a modal checkout', () => {
+        const dialog = spectator.inject(MatDialog);
+        const state = spectator.inject(ScheduleStateService);
+        spectator.component.viewBooking(
+            new Booking({ id: 'booking-1', booking_type: 'desk' }),
+        );
+
+        expect(dialog.open).toHaveBeenCalledWith(
+            BookingDetailsModalComponent,
+            expect.anything(),
+        );
+        (dialog.open as any).mock.calls[0][1].data.refresh_fn();
+        expect(state.triggerPoll).toHaveBeenCalled();
     });
 });

@@ -13,7 +13,7 @@ import {
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { BookingFormService } from '@placeos/bookings';
+import { BookingAsset, BookingFormService } from '@placeos/bookings';
 import {
     AsyncHandler,
     BuildingLevel,
@@ -29,6 +29,7 @@ import {
 } from '@placeos/components';
 import { DEFAULT_COLOURS } from '@placeos/explore';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
+import { ExploreDeskInfoComponent } from 'libs/explore/src/lib/explore-desk-info.component';
 
 @Component({
     selector: 'desk-flow-select-map',
@@ -183,7 +184,27 @@ export class DeskFlowSelectMapComponent extends AsyncHandler implements OnInit {
 
     public readonly map_url = computed(() => this.level()?.map_id || '');
     public readonly resource_list = this._booking_form.resources;
-    public readonly features = signal([]);
+    public readonly features = computed(() =>
+        this.resource_list().map((space) => {
+            const map_id = this._mapId(space);
+            return {
+                track_id: `desk:hover:${map_id}`,
+                location: map_id,
+                content: ExploreDeskInfoComponent,
+                full_size: true,
+                no_scale: true,
+                data: {
+                    id: space.id,
+                    map_id,
+                    name: space.display_name || space.name || space.id,
+                    user: signal(''),
+                    status: computed(() => this._deskStatus(space)),
+                    bookings: signal([]),
+                },
+                z_index: 20,
+            };
+        }),
+    );
     public readonly use_region = this._use_region;
     public readonly levels = computed(() => {
         const region = this._org.active_region();
@@ -218,23 +239,18 @@ export class DeskFlowSelectMapComponent extends AsyncHandler implements OnInit {
     });
     public readonly actions = computed(() =>
         this.current_available().map((space) => ({
-            id: space.map_id,
+            id: this._mapId(space),
             action: ['touchend', 'mouseup'],
             callback: this._selectedItem(space),
         })),
     );
 
     public readonly styles = computed(() => {
-        const free_spaces = this.current_available();
         const spaces = this.resource_list();
         return spaces.reduce((styles, space) => {
             const colours = this._settings.get('app.explore.colors') || {};
-            const status = free_spaces.find((_) => _.id === space.id)
-                ? this.selected_items().includes(space.id)
-                    ? 'pending'
-                    : 'free'
-                : 'busy';
-            styles[`#${space.map_id || space.id}`] = {
+            const status = this._deskStatus(space);
+            styles[`#${this._mapId(space)}`] = {
                 fill:
                     colours[`space-${status}`] ||
                     colours[`${status}`] ||
@@ -243,6 +259,18 @@ export class DeskFlowSelectMapComponent extends AsyncHandler implements OnInit {
             return styles;
         }, {});
     });
+
+    private _mapId(space: Pick<BookingAsset, 'id' | 'map_id'>) {
+        return space.map_id || space.id;
+    }
+
+    private _deskStatus(space: Pick<BookingAsset, 'id'>) {
+        return this.current_available().some((item) => item.id === space.id)
+            ? this.selected_items().includes(space.id)
+                ? 'pending'
+                : 'free'
+            : 'busy';
+    }
 
     public ngOnInit() {
         const ref = effect(

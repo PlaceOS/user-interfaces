@@ -1,4 +1,4 @@
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 import { User } from '@placeos/common';
 import { SafePipe } from '../lib/safe.pipe';
 

@@ -478,6 +478,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                     duration,
                     until,
                     host,
+                    resource_type: 'Desk',
                     resource,
                     all_day,
                     allow_all_day,
@@ -537,7 +538,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
             }));
             this._bookings.model.update((m) => ({
                 ...m,
-                all_day: !!options.all_day,
+                all_day: options.all_day ?? m.all_day,
             }));
         } else if (bookable_hours) {
             this._bookings.model.update((m) => ({
@@ -553,7 +554,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
             this._bookings.model().duration,
             this._options()?.custom ?? false,
             desk as any,
-            !!options.all_day,
+            options.all_day ?? this._bookings.model().all_day,
             bookable_hours,
         );
         user = user || options.host || currentUser();

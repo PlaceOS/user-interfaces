@@ -1,34 +1,40 @@
 import { signal } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { UploadsService } from '@placeos/common';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
+import { setNotifyOutlet, UploadsService } from '@placeos/common';
 import { mockComponent } from '@placeos/common/tests';
 import { IconComponent } from '@placeos/components';
 import { MockProvider } from 'ng-mocks';
 
 import { UploadButtonComponent } from '../../../app/ui/app-settings/upload-button.component';
 
-import * as common_mod from '@placeos/common';
-
-jest.mock('@placeos/common');
-
 describe('UploadButtonComponent', () => {
     let spectator: Spectator<UploadButtonComponent>;
+    let notify_open: ReturnType<typeof vi.fn>;
 
     const createComponent = createComponentFactory({
         component: UploadButtonComponent,
         declarations: [mockComponent(IconComponent)],
         providers: [
             MockProvider(UploadsService, {
-                uploadFileWithProgress: jest.fn(),
+                uploadFileWithProgress: vi.fn(),
             }),
         ],
         imports: [MatProgressSpinnerModule],
     });
 
     beforeEach(() => {
-        (common_mod as any).notifyError = jest.fn();
+        notify_open = vi.fn(() => ({
+            onAction: () => ({ subscribe: () => undefined }),
+            dismiss: () => undefined,
+        }));
+        setNotifyOutlet({ open: notify_open } as any, true);
         spectator = createComponent();
+    });
+
+    afterEach(() => {
+        setNotifyOutlet(null as any, true);
+        vi.restoreAllMocks();
     });
 
     it('should create component', () => {
@@ -47,20 +53,20 @@ describe('UploadButtonComponent', () => {
     });
 
     it('should register onChange handler', () => {
-        const spy = jest.fn();
+        const spy = vi.fn();
         spectator.component.registerOnChange(spy);
         spectator.component.setValue('new-value');
         expect(spy).toHaveBeenCalledWith('new-value');
     });
 
     it('should register onTouched handler', () => {
-        const spy = jest.fn();
+        const spy = vi.fn();
         spectator.component.registerOnTouched(spy);
         expect(spectator.component).toBeTruthy();
     });
 
     it('should not trigger onChange when value is same', () => {
-        const spy = jest.fn();
+        const spy = vi.fn();
         spectator.component.registerOnChange(spy);
         spectator.component.writeValue('same-value');
         spectator.component.setValue('same-value');
@@ -70,7 +76,7 @@ describe('UploadButtonComponent', () => {
     it('should handle image upload', () => {
         const upload_state = signal<any>(null);
         const uploads = spectator.inject(UploadsService);
-        (uploads.uploadFileWithProgress as jest.Mock).mockReturnValue(upload_state);
+        (uploads.uploadFileWithProgress as any).mockReturnValue(upload_state);
 
         const file = new File(['test'], 'test.png', { type: 'image/png' });
         const event = {
@@ -85,7 +91,7 @@ describe('UploadButtonComponent', () => {
     it('should update progress during upload', () => {
         const upload_state = signal<any>(null);
         const uploads = spectator.inject(UploadsService);
-        (uploads.uploadFileWithProgress as jest.Mock).mockReturnValue(upload_state);
+        (uploads.uploadFileWithProgress as any).mockReturnValue(upload_state);
 
         const file = new File(['test'], 'test.png', { type: 'image/png' });
         const event = {
@@ -101,9 +107,9 @@ describe('UploadButtonComponent', () => {
     it('should set value on upload complete', () => {
         const upload_state = signal<any>(null);
         const uploads = spectator.inject(UploadsService);
-        (uploads.uploadFileWithProgress as jest.Mock).mockReturnValue(upload_state);
+        (uploads.uploadFileWithProgress as any).mockReturnValue(upload_state);
 
-        const spy = jest.fn();
+        const spy = vi.fn();
         spectator.component.registerOnChange(spy);
 
         const file = new File(['test'], 'test.png', { type: 'image/png' });
@@ -124,7 +130,7 @@ describe('UploadButtonComponent', () => {
     it('should handle upload error', () => {
         const upload_state = signal<any>(null);
         const uploads = spectator.inject(UploadsService);
-        (uploads.uploadFileWithProgress as jest.Mock).mockReturnValue(upload_state);
+        (uploads.uploadFileWithProgress as any).mockReturnValue(upload_state);
 
         const file = new File(['test'], 'test.png', { type: 'image/png' });
         const event = {
@@ -135,8 +141,10 @@ describe('UploadButtonComponent', () => {
         upload_state.set({ progress: 0, error: 'Upload failed' });
         spectator.detectChanges();
 
-        expect(common_mod.notifyError).toHaveBeenCalledWith(
+        expect(notify_open).toHaveBeenCalledWith(
             'Failed to upload image. Try again later',
+            'OK',
+            expect.objectContaining({ panelClass: ['error'] }),
         );
         expect(spectator.component.uploading()).toBe(false);
     });
@@ -148,12 +156,16 @@ describe('UploadButtonComponent', () => {
         } as Event;
 
         spectator.component.uploadImage(event);
-        expect(common_mod.notifyError).toHaveBeenCalled();
+        expect(notify_open).toHaveBeenCalledWith(
+            expect.anything(),
+            'OK',
+            expect.objectContaining({ panelClass: ['error'] }),
+        );
     });
 
     it('should do nothing when no files selected', () => {
         const uploads = spectator.inject(UploadsService);
-        (uploads.uploadFileWithProgress as jest.Mock).mockClear();
+        (uploads.uploadFileWithProgress as any).mockClear();
 
         const event = {
             target: { files: [] } as any,
@@ -166,7 +178,7 @@ describe('UploadButtonComponent', () => {
     it('should prevent double upload', () => {
         const upload_state = signal<any>(null);
         const uploads = spectator.inject(UploadsService);
-        (uploads.uploadFileWithProgress as jest.Mock).mockReturnValue(upload_state);
+        (uploads.uploadFileWithProgress as any).mockReturnValue(upload_state);
 
         const file = new File(['test'], 'test.png', { type: 'image/png' });
         const event = {
@@ -175,15 +187,17 @@ describe('UploadButtonComponent', () => {
 
         spectator.component.uploadImage(event);
         spectator.component.uploadImage(event);
-        expect(common_mod.notifyError).toHaveBeenCalledWith(
+        expect(notify_open).toHaveBeenCalledWith(
             'Already uploading a file...',
+            'OK',
+            expect.objectContaining({ panelClass: ['error'] }),
         );
     });
 
     it('should show error when upload completes without upload_id', () => {
         const upload_state = signal<any>(null);
         const uploads = spectator.inject(UploadsService);
-        (uploads.uploadFileWithProgress as jest.Mock).mockReturnValue(upload_state);
+        (uploads.uploadFileWithProgress as any).mockReturnValue(upload_state);
 
         const file = new File(['test'], 'test.png', { type: 'image/png' });
         const event = {
@@ -194,8 +208,10 @@ describe('UploadButtonComponent', () => {
         upload_state.set({ progress: 100 });
         spectator.detectChanges();
 
-        expect(common_mod.notifyError).toHaveBeenCalledWith(
+        expect(notify_open).toHaveBeenCalledWith(
             'Failed to get uploaded file ID',
+            'OK',
+            expect.objectContaining({ panelClass: ['error'] }),
         );
         expect(spectator.component.uploading()).toBe(false);
     });

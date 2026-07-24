@@ -1,0 +1,106 @@
+{
+    "type": "object",
+    "description": "Customisable settings for the map-kiosk app",
+    "properties": {
+        "name": {
+            "type": "string",
+            "description": "Name of the application. Used as the suffix of the browser page title and as the default location name for bookings."
+        },
+        "title": {
+            "type": "string",
+            "description": "Title for the application"
+        },
+        "description": {
+            "type": "string",
+            "description": "Description of the application"
+        },
+        "short_name": {
+            "type": "string",
+            "description": "Short name for the application. Used to namespace client settings and as a fallback for the page title."
+        },
+        "logo_light": {
+            "type": "string",
+            "description": "URL of the logo to display in the top bar when the light theme is active. Also accepts an icon object with a `src` property."
+        },
+        "logo_dark": {
+            "type": "string",
+            "description": "URL of the logo to display in the top bar when the dark theme is active. Also accepts an icon object with a `src` property."
+        },
+        "use_region": {
+            "type": "boolean",
+            "description": "Whether the level list on the map view should include levels for all buildings in the active region (prefixed with the building name) instead of only the active building. Also scopes booking queries to the region."
+        },
+        "inactivity_timeout_secs": {
+            "type": "number",
+            "description": "Number of seconds after the last user interaction before the map view resets the kiosk state (closes dialogs, recentres the map and returns to the default level). Defaults to `180`."
+        },
+        "kiosk_reset_delay": {
+            "type": "number",
+            "description": "Number of milliseconds of inactivity before the desk booking view navigates back to the explore map. Defaults to `300000` (5 minutes)."
+        },
+        "show_qr_for_booking": {
+            "type": "boolean",
+            "description": "Whether to show a QR code for completing bookings on a personal device"
+        },
+        "allow_dark_mode": {
+            "type": "boolean",
+            "description": "Whether the dark mode toggle is shown in the accessibility controls"
+        },
+        "chat": {
+            "type": "object",
+            "description": "Settings for the chat assistant",
+            "properties": {
+                "enabled": {
+                    "type": "boolean",
+                    "description": "Whether the global chat assistant widget is available in the app"
+                }
+            }
+        },
+        "general": {
+            "type": "object",
+            "description": "General settings associated with the app"
+        },
+        "explore": {
+            "type": "object",
+            "description": "Data associated with map rendering",
+            "properties": {
+                "search_enabled": {
+                    "type": "boolean",
+                    "description": "Whether the search bar is shown in the top bar of the map view"
+                },
+                "show_legend": {
+                    "type": "boolean",
+                    "description": "Whether the legend section is shown in the map view sidebar. Only hidden when explicitly set to `false`."
+                },
+                "hide_zones": {
+                    "type": "boolean",
+                    "description": "Whether to hide zone overlays on the explore map"
+                }
+            }
+        },
+        "desks": {
+            "type": "object",
+            "description": "Data associated with the desk booking flow",
+            "properties": {
+                "hide_reason": {
+                    "type": "boolean",
+                    "description": "Whether to disable ability for user to set a reason for desk booking"
+                },
+                "can_set_host": {
+                    "type": "boolean",
+                    "description": "Whether user is allowed to make desk bookings for others"
+                }
+            }
+        },
+        "events": {
+            "type": "object",
+            "description": "Data associated with the meeting booking flow",
+            "properties": {
+                "can_book_for_others": {
+                    "type": "boolean",
+                    "description": "Whether users are allowed to set another person as the host when booking a space"
+                }
+            }
+        }
+    }
+}

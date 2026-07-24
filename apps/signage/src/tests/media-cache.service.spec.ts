@@ -1,4 +1,4 @@
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
+import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
 import { Subject } from 'rxjs';
 
 import { MediaCacheService } from '../app/media-cache.service';
@@ -98,23 +98,23 @@ describe('MediaCacheService', () => {
         Object.defineProperty(globalThis, 'indexedDB', {
             configurable: true,
             value: {
-                open: jest.fn(() => ({})),
+                open: vi.fn(() => ({})),
             },
         });
         spectator = create_service();
         spectator.service['_cache_db'] = {
-            transaction: jest.fn(create_transaction),
+            transaction: vi.fn(create_transaction),
         } as any;
         spectator.service['_cache_db_ready'] = Promise.resolve();
     });
 
     afterEach(() => {
         spectator.service.ngOnDestroy();
-        jest.restoreAllMocks();
+        vi.restoreAllMocks();
     });
 
     it('should invalidate failed downloads and keep caching following media', async () => {
-        const fetch_spy = jest
+        const fetch_spy = vi
             .fn()
             .mockResolvedValueOnce({ ok: false, status: 500 } as Response)
             .mockResolvedValueOnce({
@@ -146,7 +146,7 @@ describe('MediaCacheService', () => {
     });
 
     it('should only report cached files for the requested owner', async () => {
-        const fetch_spy = jest.fn().mockResolvedValue({
+        const fetch_spy = vi.fn().mockResolvedValue({
             ok: true,
             blob: () =>
                 Promise.resolve(new Blob(['image'], { type: 'image/png' })),
@@ -180,7 +180,7 @@ describe('MediaCacheService', () => {
     });
 
     it('should share one cached file between multiple owners', async () => {
-        const fetch_spy = jest.fn().mockResolvedValue({
+        const fetch_spy = vi.fn().mockResolvedValue({
             ok: true,
             blob: () =>
                 Promise.resolve(new Blob(['image'], { type: 'image/png' })),
@@ -214,7 +214,7 @@ describe('MediaCacheService', () => {
     });
 
     it('should keep shared cached files when one owner invalidates them', async () => {
-        const fetch_spy = jest.fn().mockResolvedValue({
+        const fetch_spy = vi.fn().mockResolvedValue({
             ok: true,
             blob: () =>
                 Promise.resolve(new Blob(['image'], { type: 'image/png' })),
@@ -248,7 +248,7 @@ describe('MediaCacheService', () => {
     });
 
     it('should remove shared cached files when the last owner invalidates them', async () => {
-        const fetch_spy = jest.fn().mockResolvedValue({
+        const fetch_spy = vi.fn().mockResolvedValue({
             ok: true,
             blob: () =>
                 Promise.resolve(new Blob(['image'], { type: 'image/png' })),
@@ -277,7 +277,7 @@ describe('MediaCacheService', () => {
     });
 
     it('should re-download cached metadata when the backing file is missing', async () => {
-        const fetch_spy = jest.fn().mockResolvedValue({
+        const fetch_spy = vi.fn().mockResolvedValue({
             ok: true,
             blob: () =>
                 Promise.resolve(new Blob(['fresh'], { type: 'image/png' })),
@@ -336,7 +336,7 @@ describe('MediaCacheService', () => {
             owner: 'display-1',
             file: new File([], 'blank-file'),
         });
-        const fetch_spy = jest.fn().mockResolvedValue({
+        const fetch_spy = vi.fn().mockResolvedValue({
             ok: true,
             blob: () =>
                 Promise.resolve(new Blob(['fresh'], { type: 'image/png' })),
@@ -368,7 +368,7 @@ describe('MediaCacheService', () => {
     });
 
     it('should reject empty downloads instead of storing blank files', async () => {
-        const fetch_spy = jest.fn().mockResolvedValue({
+        const fetch_spy = vi.fn().mockResolvedValue({
             ok: true,
             blob: () => Promise.resolve(new Blob([])),
         } as Response);
@@ -394,7 +394,7 @@ describe('MediaCacheService', () => {
         spectator.service['_cache_db_ready'] = new Promise<void>(
             (resolve) => (resolve_ready = resolve),
         );
-        const fetch_spy = jest.fn().mockResolvedValue({
+        const fetch_spy = vi.fn().mockResolvedValue({
             ok: true,
             blob: () =>
                 Promise.resolve(new Blob(['image'], { type: 'image/png' })),
@@ -431,7 +431,7 @@ describe('MediaCacheService', () => {
                 on_change,
             },
         ]);
-        const fetch_spy = jest.fn();
+        const fetch_spy = vi.fn();
         Object.defineProperty(globalThis, 'fetch', {
             configurable: true,
             value: fetch_spy,
@@ -453,7 +453,7 @@ describe('MediaCacheService', () => {
     it('should only mark files cached after the IndexedDB transaction completes', async () => {
         let complete_transaction: () => void;
         spectator.service['_cache_db'] = {
-            transaction: jest.fn(() => {
+            transaction: vi.fn(() => {
                 const transaction = {
                     oncomplete: null,
                     onerror: null,
@@ -480,7 +480,7 @@ describe('MediaCacheService', () => {
                 return transaction;
             }),
         } as any;
-        const fetch_spy = jest.fn().mockResolvedValue({
+        const fetch_spy = vi.fn().mockResolvedValue({
             ok: true,
             blob: () =>
                 Promise.resolve(new Blob(['image'], { type: 'image/png' })),
@@ -508,7 +508,7 @@ describe('MediaCacheService', () => {
     });
 
     it('should keep earlier priority files when the owner cache is over size', async () => {
-        const fetch_spy = jest
+        const fetch_spy = vi
             .fn()
             .mockResolvedValueOnce({
                 ok: true,

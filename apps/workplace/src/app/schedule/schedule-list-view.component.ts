@@ -39,6 +39,7 @@ import { ScheduleStateService } from './schedule-state.service';
                             [edit_fn]="edit_booking_fn"
                             [remove_fn]="remove_fn"
                             [end_fn]="end_fn"
+                            [refresh_fn]="refresh_fn"
                         ></booking-card>
                     }
                 }
@@ -81,6 +82,7 @@ export class ScheduleListViewComponent {
     public readonly edit_booking_fn = (i) => this._state.editBooking(i);
     public readonly remove_fn = (i, t?) => this._state.remove(i, t);
     public readonly end_fn = (i) => this._state.end(i);
+    public readonly refresh_fn = () => this._state.triggerPoll();
 
     public readonly booking_dates = computed(() => {
         if (this.loading()) return [];

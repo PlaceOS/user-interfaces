@@ -1,6 +1,7 @@
 import {
     Component,
     computed,
+    DestroyRef,
     effect,
     inject,
     OnDestroy,
@@ -15,6 +16,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSliderModule } from '@angular/material/slider';
 import {
+    HotkeysService,
     i18n,
     notifyError,
     notifySuccess,
@@ -74,8 +76,8 @@ interface MediaEditFormModel {
     play_time: number;
     tags: string[];
     plugin_params: Record<string, unknown>;
-    valid_from: number;
-    valid_until: number;
+    valid_from: number | null;
+    valid_until: number | null;
 }
 
 function mediaSaveErrorMessage(error: unknown) {
@@ -129,6 +131,7 @@ function schemaDefaults(schema: Record<string, unknown> | null | undefined) {
                     : 'SIGNAGE_MANAGER.MEDIA_NEW'
                 ) | translate
             "
+            confirm_hotkey="S"
             (confirm)="saveMedia()"
             [loading]="
                 loading() ? ('SIGNAGE_MANAGER.MEDIA_SAVING' | translate) : ''
@@ -451,10 +454,10 @@ export class MediaEditModalComponent implements OnDestroy {
         plugin_params: this._data.media.plugin_params || {},
         valid_from: this._data.media.valid_from
             ? this._data.media.valid_from * 1000
-            : 0,
+            : null,
         valid_until: this._data.media.valid_until
             ? this._data.media.valid_until * 1000
-            : 0,
+            : null,
     });
     public readonly form = form(this.model, (path) => {
         required(path.name);
@@ -512,6 +515,10 @@ export class MediaEditModalComponent implements OnDestroy {
     }
 
     constructor() {
+        const save_hotkey = inject(HotkeysService).listen(['KeyS'], () =>
+            this.saveMedia(),
+        );
+        inject(DestroyRef).onDestroy(() => save_hotkey?.unsubscribe());
         if (this.media_type === 'webpage') {
             this.preview_url.set(this.item.media_uri || this.item.media_url);
             effect((onCleanup) => {

@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatSliderModule } from '@angular/material/slider';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent, MockDirective } from 'ng-mocks';
 
 import { BindingDirective, IconComponent } from '@placeos/components';

@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { ControlStateService } from '../../app/control-state.service';
 
 import { SourceSelectComponent } from '../../app/ui/source-select.component';
@@ -15,7 +15,7 @@ describe('SourceSelectComponent', () => {
                 useValue: {
                     output_list: signal([]),
                     available_inputs: signal([]),
-                    setRoute: jest.fn(),
+                    setRoute: vi.fn(),
                 },
             },
         ],

@@ -1,21 +1,17 @@
 import { signal } from '@angular/core';
-import { fakeAsync } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent, MockDirective, MockModule } from 'ng-mocks';
 
 import { ControlStateService } from '../../app/control-state.service';
 import { CameraTooltipComponent } from '../../app/ui/camera-tooltip.component';
 import { JoystickComponent } from '../../app/ui/joystick.component';
 
-jest.mock('@placeos/ts-client', () => {
-    class ZONE {}
-    return { getModule: jest.fn(), PlaceZone: ZONE };
-});
+vi.mock('@placeos/ts-client', { spy: true });
 
 import {
     BindingDirective,
@@ -26,6 +22,8 @@ import * as client from '@placeos/ts-client';
 
 describe('CameraTooltipComponent', () => {
     let spectator: Spectator<CameraTooltipComponent>;
+    const available_cameras = signal<any[]>([]);
+    const selected_camera = signal<string | null>(null);
     const createComponent = createComponentFactory({
         component: CameraTooltipComponent,
         declarations: [
@@ -38,13 +36,13 @@ describe('CameraTooltipComponent', () => {
                 provide: ControlStateService,
                 useValue: {
                     id: 'sys-1',
-                    available_cameras: signal([]),
-                    selected_camera: signal(''),
+                    available_cameras,
+                    selected_camera,
                 },
             },
             {
                 provide: CustomTooltipData,
-                useValue: { close: jest.fn() },
+                useValue: { close: vi.fn() },
             },
         ],
         imports: [
@@ -57,6 +55,8 @@ describe('CameraTooltipComponent', () => {
     });
 
     beforeEach(() => {
+        available_cameras.set([]);
+        selected_camera.set(null);
         (client.getModule as any).mockImplementation(() => ({
             execute: async () => null,
         }));
@@ -65,6 +65,15 @@ describe('CameraTooltipComponent', () => {
 
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();
+    });
+
+    it('should require a camera selection when selected_camera is null', () => {
+        available_cameras.set([
+            { id: 'cam1', name: 'Camera 1', mod: 'Camera_1' },
+            { id: 'cam2', name: 'Camera 2', mod: 'Camera_2' },
+        ]);
+        spectator.detectChanges();
+        expect(spectator.component.active_camera()).toBeUndefined();
     });
 
     it('should allow for user to select a camera', () => {
@@ -91,8 +100,8 @@ describe('CameraTooltipComponent', () => {
         // expect('joystick').toExist();
     });
 
-    it('should allow user to change zoom of camera', fakeAsync(() => {
-        // const spy = jest.spyOn(spectator.fixture.componentRef.injector.get(Renderer2), 'listen');
+    it('should allow user to change zoom of camera', () => {
+        // const spy = vi.spyOn(spectator.fixture.componentRef.injector.get(Renderer2), 'listen');
         // spy.mockImplementation((_, __, fn) => {
         //     setTimeout(() => fn({}), 100);
         //     return () => null;
@@ -110,7 +119,7 @@ describe('CameraTooltipComponent', () => {
         // expect(spectator.component.zoom).toBe(ZoomDirection.Out);
         // spectator.tick(101);
         // expect(spectator.component.zoom).toBe(ZoomDirection.Stop);
-    }));
+    });
 
     it('should allow user to select camera presets', () => {
         // const cam_list = [{ id: 'cam1', name: 'Camera 1' }] as any;

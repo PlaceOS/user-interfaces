@@ -8,7 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { mockComponent } from '@placeos/common/tests';
 import { IconComponent, SettingsToggleComponent } from '@placeos/components';
 import { SpacesService } from '@placeos/events';
@@ -23,9 +23,9 @@ describe('PointsAssetModalComponent', () => {
     const createComponent = createComponentFactory({
         component: PointsAssetModalComponent,
         providers: [
-            MockProvider(SpacesService, { list: new BehaviorSubject([]) }),
+            MockProvider(SpacesService, { list: new BehaviorSubject([]) } as any),
             MockProvider(DesksStateService, {
-                setFilters: jest.fn(),
+                setFilters: vi.fn(),
                 desks: signal([]),
             } as any),
             MockProvider(MAT_DIALOG_DATA, {}),

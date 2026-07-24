@@ -13,6 +13,16 @@ export function activeReportBookings<T extends Booking>(bookings: T[]): T[] {
     return bookings.filter(isActiveReportBooking);
 }
 
+/** Active bookings that have ended without ever being checked in */
+export function noShowReportBookings<T extends Booking>(bookings: T[]): T[] {
+    return activeReportBookings(bookings).filter(
+        (booking) =>
+            !booking.checked_in &&
+            !booking.checked_in_at &&
+            booking.booking_end * 1000 < Date.now(),
+    );
+}
+
 export function reportBookingStatusStats(bookings: Booking[]) {
     const deleted_count = bookings.filter((booking) => booking.deleted).length;
     const cancelled_count = bookings.filter(

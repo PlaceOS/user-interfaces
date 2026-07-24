@@ -26,9 +26,11 @@ import {
     Booking,
     BuildingLevel,
     Desk,
+    downloadFile,
     generateQRCode,
     getTimezoneDifferenceInHours,
     i18n,
+    jsonToCsv,
     nextValueFrom,
     notifyError,
     notifyInfo,
@@ -149,23 +151,32 @@ export class DesksStateService extends AsyncHandler {
             this._loading.set(true);
             try {
                 const zones = this._getActiveZones(params.zones);
+                const all_zones = params.zones.includes('All');
                 let list: any[] = [];
-                if (zones && !zones.includes('All')) {
+                if (zones.length && !all_zones) {
                     const metadata = await showMetadata(
                         zones[0],
                         'desks',
                     ).catch(() => ({ details: [] }) as any);
-                    list =
+                    list = (
                         metadata.details instanceof Array
                             ? metadata.details
-                            : [];
+                            : []
+                    ).map((i) => ({ ...i, zone: { id: zones[0] } }));
                 } else {
                     const metadata = await listChildMetadata(
                         this._org.building?.id,
                         { name: 'desks' },
                     ).catch(() => [] as any[]);
+                    // Tag each desk with its level so per-desk saves can
+                    // target the correct zone when viewing all levels.
                     list = metadata
-                        .map((i) => i.metadata?.desks?.details || [])
+                        .map((item) =>
+                            (item.metadata?.desks?.details instanceof Array
+                                ? item.metadata.desks.details
+                                : []
+                            ).map((i) => ({ ...i, zone: item.zone })),
+                        )
                         .reduce((c: any[], i: any[]) => [...c, ...i], []);
                 }
                 if (!(list instanceof Array)) list = [];
@@ -217,6 +228,9 @@ export class DesksStateService extends AsyncHandler {
         () => this.paged_bookings().has_next,
     );
     public readonly bookings = computed(() => this.paged_bookings().list);
+    /** Time the booking list last finished loading from the server */
+    private readonly _last_updated = signal(0);
+    public readonly last_updated = this._last_updated.asReadonly();
 
     /** Query for the first page of bookings for the active filters */
     private _first_page: (() => QueryResponse<Booking>) | null = null;
@@ -274,11 +288,13 @@ export class DesksStateService extends AsyncHandler {
         const period_start = addMinutes(startOfDay(date), this.tz_offset * 60);
         const period_end = addMinutes(endOfDay(date), this.tz_offset * 60);
         const active_zones = this._getActiveZones(filters.zones);
-        const zones = !active_zones.length
+        const all_zones =
+            !active_zones.length || filters.zones?.includes('All');
+        const zones = all_zones
             ? this._settings.get('app.use_region')
                 ? this._org.buildingsForRegion().map((_) => _.id)
                 : [this._org.building.id]
-            : filters.zones;
+            : active_zones;
         return () =>
             queryPagedBookings({
                 period_start: getUnixTime(period_start),
@@ -324,6 +340,7 @@ export class DesksStateService extends AsyncHandler {
                 : { list: [...acc.list, ...list], total, has_next: !!next },
         );
         this._loading.set(false);
+        this._last_updated.set(Date.now());
     }
 
     private _normaliseBooking(booking: Booking) {
@@ -363,19 +380,62 @@ export class DesksStateService extends AsyncHandler {
         this._loadPage(true);
     }
 
-    public async addDesks(list: Desk[]) {
-        const zone = this._filters().zones[0];
-        const desk_list = [...this.desks()];
-        for (const desk of list) {
-            const idx = desk_list.findIndex((_) => _.id === desk.id);
-            if (idx >= 0) desk_list[idx] = desk;
-            else desk_list.push(desk);
-        }
-        await updateMetadata(zone, {
-            name: 'desks',
-            details: desk_list,
-            description: 'List of available desks',
+    /** Download the current desk list as a CSV file */
+    public downloadDesksCSV() {
+        const desks = this.desks();
+        const rows = (
+            desks.length
+                ? desks
+                : [
+                      new Desk({
+                          id: 'desk-123',
+                          name: 'Test Desk',
+                          bookable: true,
+                          groups: ['test-desk-group', 'desk-bookers'],
+                          features: ['Standing Desk', 'Dual Monitor'],
+                          tags: ['engineering', 'level-3'],
+                          homebase: 'Sydney HQ',
+                      }),
+                  ]
+        ).map((desk) => {
+            const row: any = desk.toJSON();
+            delete row.images;
+            return row;
         });
+        downloadFile('desks.csv', jsonToCsv(rows));
+    }
+
+    public async addDesks(list: Desk[]) {
+        const selected_zones = this._getSelectedZones();
+        const all_zones = this._filters().zones?.includes('All');
+        const fallback_zone =
+            !all_zones && selected_zones.length ? selected_zones[0] : '';
+        // Group the desks by their level so each level's metadata is only
+        // written with its own desks.
+        const groups = new Map<string, Desk[]>();
+        for (const desk of list) {
+            const zone = desk.zone?.id || fallback_zone;
+            if (!zone) {
+                notifyError(i18n('APP.CONCIERGE.DESKS_SELECT_LEVEL'));
+                return;
+            }
+            groups.set(zone, [...(groups.get(zone) || []), desk]);
+        }
+        for (const [zone, desks] of groups) {
+            const desk_list = this.desks().filter(
+                (_) => (_.zone?.id || fallback_zone) === zone,
+            );
+            for (const desk of desks) {
+                const idx = desk_list.findIndex((_) => _.id === desk.id);
+                if (idx >= 0) desk_list[idx] = desk;
+                else desk_list.push(desk);
+            }
+            await updateMetadata(zone, {
+                name: 'desks',
+                details: desk_list,
+                description: 'List of available desks',
+            });
+        }
         this._change.set(Date.now());
     }
 
@@ -392,14 +452,25 @@ export class DesksStateService extends AsyncHandler {
             }),
         ]);
         if (state?.reason !== 'done') return;
-        const zone = this._filters().zones[0];
+        const selected_zones = this._getSelectedZones();
+        const all_zones = this._filters().zones?.includes('All');
+        const zone =
+            desk.zone?.id ||
+            (!all_zones && selected_zones.length ? selected_zones[0] : '');
+        if (!zone) {
+            notifyError(i18n('APP.CONCIERGE.DESKS_SELECT_LEVEL'));
+            return;
+        }
         const new_desk = {
             ...state.metadata,
             id:
                 state.metadata.id ||
                 `desk-${zone.slice(-3)}.${randomInt(999_999)}`,
         };
-        const original_desk_list = [...this.desks()];
+        // Only this desk's level is written, so scope the list to that zone.
+        const original_desk_list = this.desks().filter(
+            (_) => (_.zone?.id || zone) === zone,
+        );
         const desk_list = [...original_desk_list];
         const idx = desk_list.findIndex((_) => _.id === desk.id);
         if (idx >= 0) desk_list[idx] = new_desk;
@@ -457,7 +528,7 @@ export class DesksStateService extends AsyncHandler {
             new_desk.assigned_to
         ) {
             const created = await saveBooking(
-                this._createAssignedBooking(new_desk, zone),
+                this._createAssignedBooking(new_desk, zone).toJSON(),
             ).catch(async (e) => {
                 await this._rollbackMetadata(zone, original_desk_list);
                 if (recreate) {
@@ -605,7 +676,7 @@ export class DesksStateService extends AsyncHandler {
 
     public async giveAccess(desk: Booking) {
         const status: any = await saveBooking(
-            new Booking({ ...desk, access: true }),
+            new Booking({ ...desk, access: true }).toJSON(),
         ).catch((_) => ({ failed: true, error: _ }));
         if (status.failed) {
             return notifyError(
@@ -778,7 +849,7 @@ export class DesksStateService extends AsyncHandler {
 
     private async _restoreAssignedBooking(desk: Desk, zone?: string) {
         if (!desk.assigned_to) return;
-        await saveBooking(this._createAssignedBooking(desk, zone));
+        await saveBooking(this._createAssignedBooking(desk, zone).toJSON());
     }
 
     private async _clearAssignedBooking(desk: Desk) {
@@ -810,6 +881,13 @@ export class DesksStateService extends AsyncHandler {
                 await removeBooking(booking.parent_id || booking.id);
             }
         }
+    }
+
+    /** Selected zone filters with the "all levels" sentinel keys stripped */
+    private _getSelectedZones(): string[] {
+        return (this._filters().zones || []).filter(
+            (zone) => !this._all_zones_keys.includes(zone),
+        );
     }
 
     private _getActiveZones(zones: string[] = []): string[] {

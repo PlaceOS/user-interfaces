@@ -1,6 +1,10 @@
-import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import {
+    MAT_DIALOG_DATA,
+    MatDialog,
+    MatDialogModule,
+} from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
     currentUser,
     MapsPeopleService,
@@ -9,6 +13,7 @@ import {
 } from '@placeos/common';
 import { createSettingsServiceMock } from '@placeos/common/tests';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
+import type { Mock } from 'vitest';
 
 import { Booking } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -16,16 +21,21 @@ import { ImageCarouselComponent } from 'libs/components/src/lib/image-carousel.c
 import { IndoorMapsComponent } from 'libs/components/src/lib/indoor-maps.component';
 import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
 import { StatusPillComponent } from 'libs/components/src/lib/status-pill.component';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, NEVER, of } from 'rxjs';
 import { BookingDetailsModalComponent } from '../lib/booking-details-modal.component';
-import * as bookings_fn from '../lib/bookings.fn';
+
+// `checkinBooking` runs for real; only the ts-client `post` beneath it is
+// stubbed so the check-in request resolves.
+vi.mock('@placeos/ts-client', { spy: true });
+
+import * as ts_client from '@placeos/ts-client';
 
 describe('BookingDetailsModalComponent', () => {
     let spectator: Spectator<BookingDetailsModalComponent>;
-    const refresh_fn = jest.fn();
-    const edit_fn = jest.fn();
-    const remove_fn = jest.fn();
-    const end_fn = jest.fn();
+    const refresh_fn = vi.fn();
+    const edit_fn = vi.fn();
+    const remove_fn = vi.fn();
+    const end_fn = vi.fn();
     const createComponent = createComponentFactory({
         component: BookingDetailsModalComponent,
         providers: [
@@ -46,7 +56,7 @@ describe('BookingDetailsModalComponent', () => {
                 refresh_fn,
             }),
             MockProvider(OrganisationService as any, {
-                levelWithID: jest.fn(),
+                levelWithID: vi.fn(),
                 buildings: [],
             }),
             MockProvider(SettingsService as any, createSettingsServiceMock()),
@@ -65,7 +75,7 @@ describe('BookingDetailsModalComponent', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         spectator = createComponent();
     });
 
@@ -135,19 +145,94 @@ describe('BookingDetailsModalComponent', () => {
     });
 
     it('should refresh parent state after toggling checked in', async () => {
-        jest.spyOn(bookings_fn, 'checkinBooking').mockReturnValue(
-            Promise.resolve(
-                new Booking({
-                    id: 'booking-1',
-                    checked_in: true,
-                } as any),
-            ) as any,
-        );
+        vi.mocked(ts_client.post).mockResolvedValue({
+            id: 'booking-1',
+            checked_in: true,
+        } as any);
 
         await spectator.component.toggleCheckedIn();
 
         expect(refresh_fn).toHaveBeenCalled();
         expect(spectator.component.booking().checked_in).toBe(true);
+    });
+
+    it('should confirm before checking out', async () => {
+        const dialog: MatDialog = (spectator.component as any)._dialog;
+        vi.spyOn(dialog, 'open').mockReturnValue({
+            componentInstance: { event: NEVER },
+            afterClosed: () => of(null),
+            close: vi.fn(),
+        } as any);
+        (spectator.component as any).booking.set(
+            new Booking({
+                id: 'booking-1',
+                checked_in: true,
+            } as any),
+        );
+
+        await spectator.component.toggleCheckedIn();
+
+        expect(dialog.open).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.objectContaining({
+                data: expect.objectContaining({
+                    title: 'COMMON.CHECK_OUT',
+                    confirm_text: 'COMMON.CHECK_OUT',
+                    icon: { content: 'logout' },
+                }),
+            }),
+        );
+        expect(ts_client.post).not.toHaveBeenCalled();
+    });
+
+    it('should check out parking and refresh the parent state', async () => {
+        const dialog: MatDialog = (spectator.component as any)._dialog;
+        const close = vi.fn();
+        vi.spyOn(dialog, 'open').mockReturnValue({
+            componentInstance: {
+                event: of({ reason: 'done' }),
+                loading: { set: vi.fn() },
+            },
+            afterClosed: () => NEVER,
+            close,
+        } as any);
+        (spectator.component as any).booking.set(
+            new Booking({
+                id: 'parking-booking-1',
+                booking_type: 'parking',
+                type: 'parking',
+                checked_in: true,
+            } as any),
+        );
+        vi.mocked(ts_client.post).mockResolvedValue({
+            id: 'parking-booking-1',
+            booking_type: 'parking',
+            type: 'parking',
+            checked_in: false,
+            checked_out_at: Math.floor(Date.now() / 1000),
+        } as any);
+
+        await spectator.component.toggleCheckedIn();
+
+        expect(dialog.open).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.objectContaining({
+                data: expect.objectContaining({
+                    content:
+                        'You are currently checked in.<br/>' +
+                        'Would you like to check out of your parking space now?<br/>' +
+                        'This will make the parking space available for others to book.',
+                }),
+            }),
+        );
+        expect(ts_client.post).toHaveBeenCalledWith(
+            expect.stringContaining('parking-booking-1/check_in?state=false'),
+            '',
+        );
+        expect(spectator.component.booking().checked_in).toBe(false);
+        expect(spectator.component.checked_out()).toBe(true);
+        expect(refresh_fn).toHaveBeenCalled();
+        expect(close).toHaveBeenCalled();
     });
 
     it('should show waitlisted status for current week parking requests when enabled', () => {
@@ -181,7 +266,7 @@ describe('BookingDetailsModalComponent', () => {
 
     it('should hide waitlisted status for parking requests when waitlist display is disabled', () => {
         const settings = spectator.inject(SettingsService);
-        (settings.get as jest.Mock).mockImplementation((name: string) =>
+        (settings.get as Mock).mockImplementation((name: string) =>
             name === 'app.parking.show_waitlist' ? false : undefined,
         );
         spectator = createComponent();
@@ -200,7 +285,7 @@ describe('BookingDetailsModalComponent', () => {
 
     it('should hide selected parking space when enabled', () => {
         const settings = spectator.inject(SettingsService);
-        (settings.get as jest.Mock).mockImplementation((name: string) =>
+        (settings.get as Mock).mockImplementation((name: string) =>
             name === 'app.parking.hide_selected_space' ? true : undefined,
         );
         spectator = createComponent();

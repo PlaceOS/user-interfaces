@@ -10,7 +10,7 @@ import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import { IconComponent, SafePipe, TranslatePipe } from '@placeos/components';
 import { SidebarComponent } from './ui/sidebar.component';
 
 interface AnalyticsPage {
@@ -54,11 +54,11 @@ interface AnalyticsPage {
                     id="stagehand-page-content"
                     class="w-full flex-1 overflow-auto"
                 >
-                    @if (page()?.url) {
+                    @if (page()?.url; as url) {
                         <iframe
                             class="h-full w-full"
                             [title]="page()?.name || 'Analytics dashboard'"
-                            [src]="page().url"
+                            [src]="url | safe: 'resource'"
                         ></iframe>
                     } @else {
                         <div
@@ -81,6 +81,7 @@ interface AnalyticsPage {
     imports: [
         MatRippleModule,
         TranslatePipe,
+        SafePipe,
         IconComponent,
         MatFormFieldModule,
         MatSelectModule,
@@ -97,5 +98,5 @@ export class AnalyticsComponent extends AsyncHandler {
         'analytics_pages',
         [],
     );
-    public readonly page = signal(null);
+    public readonly page = signal<AnalyticsPage | null>(null);
 }

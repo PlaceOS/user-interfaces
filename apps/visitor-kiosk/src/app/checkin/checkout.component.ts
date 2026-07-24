@@ -24,19 +24,18 @@ import { CheckinStateService } from './checkin-state.service';
                 <div class="mt-2 mb-4 w-full">
                     {{ 'APP.VISITOR_KIOSK.CHECKOUT_MSG' | translate }}
                 </div>
-                <div class="flex w-full items-center justify-end">
+                <div class="flex w-full items-center justify-end gap-2">
+                    <button
+                        btn class="inverse error w-32 bg-error/10"
+                        matRipple
+                        [routerLink]="['/welcome']"
+                    >
+                        {{'COMMON.CANCEL' | translate}}
+                    </button>
                     <button btn matRipple class="w-32" (click)="checkout()">
                         {{ 'COMMON.CHECK_OUT' | translate }}
                     </button>
                 </div>
-                <a
-                    icon
-                    matRipple
-                    class="absolute top-2 right-2"
-                    [routerLink]="['/welcome']"
-                >
-                    <icon>close</icon>
-                </a>
             </div>
         } @else {
             <div
@@ -59,7 +58,6 @@ import { CheckinStateService } from './checkin-state.service';
     imports: [
         MatRippleModule,
         TranslatePipe,
-        IconComponent,
         MatProgressSpinnerModule,
         RouterModule,
     ],
@@ -74,7 +72,7 @@ export class CheckoutComponent implements OnInit {
     public async ngOnInit() {
         await this._org.waitUntilInitialised();
         const event = this._state.event();
-        if (!event) this._router.navigate(['/checkin']);
+        if (!event) this._router.navigate(['/checkout']);
     }
 
     public async checkout() {

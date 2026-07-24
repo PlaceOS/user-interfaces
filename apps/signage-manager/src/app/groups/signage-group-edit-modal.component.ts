@@ -1,9 +1,10 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { form, FormField, required, submit } from '@angular/forms/signals';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { HotkeysService } from '@placeos/common';
 import {
     FullscreenModalShellComponent,
     TranslatePipe,
@@ -24,6 +25,7 @@ import { SignageService } from '../signage.service';
             [loading]="
                 loading() ? ('SIGNAGE_MANAGER.GROUP_SAVING' | translate) : ''
             "
+            confirm_hotkey="S"
             (confirm)="save()"
         >
             <form class="flex flex-col">
@@ -118,6 +120,13 @@ export class SignageGroupEditModalComponent {
         required(path.name);
         if (!this.group.id) required(path.parent_id);
     });
+
+    constructor() {
+        const save_hotkey = inject(HotkeysService).listen(['KeyS'], () =>
+            this.save(),
+        );
+        inject(DestroyRef).onDestroy(() => save_hotkey?.unsubscribe());
+    }
 
     public async save() {
         await submit(this.form, async () => {

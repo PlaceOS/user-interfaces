@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
 import {
     form,
     FormField,
@@ -11,7 +11,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSliderModule } from '@angular/material/slider';
-import { i18n, notifyError, notifySuccess } from '@placeos/common';
+import {
+    HotkeysService,
+    i18n,
+    notifyError,
+    notifySuccess,
+} from '@placeos/common';
 import {
     FullscreenModalShellComponent,
     MediaDurationPipe,
@@ -47,13 +52,14 @@ export interface PlaylistEditFormModel {
     name: string;
     description: string;
     enabled: boolean;
+    distribution: boolean;
     random: boolean;
     default_animation: MediaAnimation;
     orientation: string;
     default_duration: number;
     schedules: PlaylistScheduleFormModel[];
-    valid_from: number;
-    valid_until: number;
+    valid_from: number | null;
+    valid_until: number | null;
 }
 
 @Component({
@@ -66,6 +72,7 @@ export interface PlaylistEditFormModel {
                     : 'SIGNAGE_MANAGER.NEW_PLAYLIST'
                 ) | translate
             "
+            confirm_hotkey="S"
             (confirm)="savePlaylist()"
             [loading]="
                 loading() ? ('SIGNAGE_MANAGER.PLAYLIST_SAVING' | translate) : ''
@@ -102,6 +109,18 @@ export interface PlaylistEditFormModel {
                     >
                     </settings-toggle>
                 </div>
+                @if (!playlist.id) {
+                    <div class="mb-4">
+                        <settings-toggle
+                            [label]="
+                                'SIGNAGE_MANAGER.PLAYLIST_DISTRIBUTION'
+                                    | translate
+                            "
+                            [formField]="form.distribution"
+                        >
+                        </settings-toggle>
+                    </div>
+                }
                 <div class="pt-2 pb-4">
                     <div class="border-base-300 relative rounded-sm border">
                         <label
@@ -230,57 +249,59 @@ export interface PlaylistEditFormModel {
                         "
                     ></textarea>
                 </mat-form-field>
-                <div class="flex space-x-4">
-                    <div class="flex-1">
-                        <label for="valid-from">{{
-                            'SIGNAGE_MANAGER.VALID_FROM' | translate
+                @if (!model().distribution) {
+                    <div class="flex space-x-4">
+                        <div class="flex-1">
+                            <label for="valid-from">{{
+                                'SIGNAGE_MANAGER.VALID_FROM' | translate
+                            }}</label>
+                            <a-date-field
+                                name="valid-from"
+                                [formField]="form.valid_from"
+                                [clear]="true"
+                            ></a-date-field>
+                        </div>
+                        <div class="flex-1">
+                            <label for="valid-until">{{
+                                'FORM.EXPIRES_AT' | translate
+                            }}</label>
+                            <a-date-field
+                                name="valid-until"
+                                [from]="model().valid_from"
+                                [formField]="form.valid_until"
+                                [clear]="true"
+                            ></a-date-field>
+                        </div>
+                    </div>
+                    <div class="pt-2 pb-4">
+                        <label>{{
+                            'SIGNAGE_MANAGER.PLAYLIST_SCHEDULES' | translate
                         }}</label>
-                        <a-date-field
-                            name="valid-from"
-                            [formField]="form.valid_from"
-                            [clear]="true"
-                        ></a-date-field>
+                        <div class="mt-2 flex flex-col gap-4">
+                            @for (
+                                schedule of form.schedules;
+                                track index;
+                                let index = $index
+                            ) {
+                                <playlist-schedule-form
+                                    [schedule]="schedule"
+                                    [index]="index"
+                                    [open]="isScheduleOpen(index)"
+                                    [can_remove]="model().schedules.length > 1"
+                                    (toggle)="openSchedule(index)"
+                                    (remove)="removeSchedule($event, index)"
+                                />
+                            }
+                            <button
+                                type="button"
+                                class="border-primary text-primary hover:bg-primary/10 rounded border px-3 py-2 text-sm font-medium"
+                                (click)="addSchedule()"
+                            >
+                                {{ 'SIGNAGE_MANAGER.ADD_SCHEDULE' | translate }}
+                            </button>
+                        </div>
                     </div>
-                    <div class="flex-1">
-                        <label for="valid-until">{{
-                            'FORM.EXPIRES_AT' | translate
-                        }}</label>
-                        <a-date-field
-                            name="valid-until"
-                            [from]="model().valid_from"
-                            [formField]="form.valid_until"
-                            [clear]="true"
-                        ></a-date-field>
-                    </div>
-                </div>
-                <div class="pt-2 pb-4">
-                    <label>{{
-                        'SIGNAGE_MANAGER.PLAYLIST_SCHEDULES' | translate
-                    }}</label>
-                    <div class="mt-2 flex flex-col gap-4">
-                        @for (
-                            schedule of form.schedules;
-                            track index;
-                            let index = $index
-                        ) {
-                            <playlist-schedule-form
-                                [schedule]="schedule"
-                                [index]="index"
-                                [open]="isScheduleOpen(index)"
-                                [can_remove]="model().schedules.length > 1"
-                                (toggle)="openSchedule(index)"
-                                (remove)="removeSchedule($event, index)"
-                            />
-                        }
-                        <button
-                            type="button"
-                            class="border-primary text-primary hover:bg-primary/10 rounded border px-3 py-2 text-sm font-medium"
-                            (click)="addSchedule()"
-                        >
-                            {{ 'SIGNAGE_MANAGER.ADD_SCHEDULE' | translate }}
-                        </button>
-                    </div>
-                </div>
+                }
             </form>
         </fullscreen-modal-shell>
     `,
@@ -311,6 +332,7 @@ export class PlaylistEditModalComponent {
         name: this.playlist.name || '',
         description: this.playlist.description || '',
         enabled: this.playlist.enabled ?? true,
+        distribution: !!this.playlist.distribution,
         random: !!this.playlist.random,
         default_animation:
             this.playlist.default_animation ?? MediaAnimation.Default,
@@ -321,10 +343,10 @@ export class PlaylistEditModalComponent {
         ),
         valid_from: this.playlist.valid_from
             ? this.playlist.valid_from * 1000
-            : 0,
+            : null,
         valid_until: this.playlist.valid_until
             ? this.playlist.valid_until * 1000
-            : 0,
+            : null,
     });
     public readonly form = form(this.model, (path) => {
         required(path.name);
@@ -332,7 +354,13 @@ export class PlaylistEditModalComponent {
     });
 
     constructor() {
-        if (!this.model().schedules.length) this.addSchedule();
+        const save_hotkey = inject(HotkeysService).listen(['KeyS'], () =>
+            this.savePlaylist(),
+        );
+        inject(DestroyRef).onDestroy(() => save_hotkey?.unsubscribe());
+        if (!this.model().distribution && !this.model().schedules.length) {
+            this.addSchedule();
+        }
     }
 
     public addSchedule() {
@@ -375,9 +403,13 @@ export class PlaylistEditModalComponent {
             this._dialog_ref.disableClose = true;
             const form_value = this.model();
             const data: any = { ...form_value };
-            data.schedules = form_value.schedules.map((schedule) =>
-                playlistSchedulePayload(schedule),
-            );
+            if (data.distribution) {
+                delete data.schedules;
+            } else {
+                data.schedules = form_value.schedules.map((schedule) =>
+                    playlistSchedulePayload(schedule),
+                );
+            }
             if (data.valid_from) {
                 data.valid_from = getUnixTime(startOfDay(data.valid_from));
             } else delete data.valid_from;

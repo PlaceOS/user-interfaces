@@ -1,8 +1,8 @@
+import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
 import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
-import { BookingFormService } from '@placeos/bookings';
+import { BookingFormService, ParkingService } from '@placeos/bookings';
 import {
     Booking,
     CalendarEvent,
@@ -11,77 +11,63 @@ import {
 } from '@placeos/common';
 import { EventFormService, SpacesService } from '@placeos/events';
 import { MockProvider } from 'ng-mocks';
+import { of } from 'rxjs';
 
-import { ScheduleStateService } from '../../app/schedule/schedule-state.service';
+vi.mock('@placeos/ts-client', { spy: true });
 
-jest.mock('@placeos/bookings', () => ({
-    ...jest.requireActual('@placeos/bookings'),
-    checkinBooking: jest.fn(() => Promise.resolve({})),
-    checkinBookingInstance: jest.fn(() => Promise.resolve({})),
-    loadLockerResources: jest.fn(() => Promise.resolve([])),
-    queryBookings: jest.fn(() => Promise.resolve([])),
-}));
-
-jest.mock('@placeos/components', () => ({
-    ...jest.requireActual('@placeos/components'),
-    openConfirmModal: jest.fn(() =>
-        Promise.resolve({
-            reason: 'done',
-            loading: jest.fn(),
-            close: jest.fn(),
-        }),
-    ),
-}));
-
-jest.mock('@placeos/events', () => ({
-    ...jest.requireActual('@placeos/events'),
-    queryEvents: jest.fn(() => Promise.resolve([])),
-    requestSpacesForZone: jest.fn(() => jest.requireActual('rxjs').of([])),
-}));
-
+import * as ts_client from '@placeos/ts-client';
 import {
-    checkinBooking,
-    loadLockerResources,
-    ParkingService,
-    queryBookings,
-} from '@placeos/bookings';
-import { queryEvents, requestSpacesForZone } from '@placeos/events';
-import { isBookingForOtherUser } from '../../app/schedule/schedule-state.service';
+    isBookingForOtherUser,
+    ScheduleStateService,
+} from '../../app/schedule/schedule-state.service';
 
 describe('ScheduleStateService', () => {
     let spectator: SpectatorService<ScheduleStateService>;
-    const router = { navigate: jest.fn() };
-    const event_form = { newForm: jest.fn() };
+    const router = { navigate: vi.fn() };
+    const event_form = { newForm: vi.fn() };
     const spaces = {
-        find: jest.fn(),
-        loadSpace: jest.fn(),
+        find: vi.fn(),
+        loadSpace: vi.fn(),
     };
-    const parking_factory = jest.fn(() => ({
+    const parking_factory = vi.fn(() => ({
         spaces: signal([{ id: 'space-1', name: 'Bay 1', identifier: 'B1' }]),
     }));
     const createService = createServiceFactory({
         service: ScheduleStateService,
         providers: [
             MockProvider(SettingsService, {
-                get: jest.fn(),
-                listen: jest.fn(() => signal(0)),
+                get: vi.fn(),
+                // `listen` returns a WritableSignal in production; the service
+                // invokes its result (`listen(name)()`), so the mock must hand
+                // back a callable signal, not an observable.
+                listen: vi.fn(() => signal(0)),
             } as any),
             MockProvider(OrganisationService, {
                 active_building: signal({} as any),
                 active_region: signal(null),
                 building_list: signal([]),
                 level_list: signal([]),
-                module: jest.fn(() => null),
+                module: vi.fn(() => null),
             } as any),
-            MockProvider(MatDialog, { closeAll: jest.fn() }),
+            MockProvider(MatDialog, {
+                closeAll: vi.fn(),
+                open: vi.fn(() => ({
+                    componentInstance: {
+                        event: of({ reason: 'done' }),
+                        loading: signal(''),
+                    },
+                    afterClosed: () => of(null),
+                    close: vi.fn(),
+                })) as any,
+            } as any),
             MockProvider(Router, router),
             MockProvider(EventFormService, event_form),
             MockProvider(BookingFormService, {
-                newForm: jest.fn(),
+                newForm: vi.fn(),
                 model: Object.assign(
-                    jest.fn(() => ({})),
+                    vi.fn(() => ({})),
                     {
-                        update: jest.fn(),
+                        update: vi.fn(),
                     },
                 ),
             } as any),
@@ -94,18 +80,27 @@ describe('ScheduleStateService', () => {
     });
 
     beforeEach(() => {
-        jest.useFakeTimers();
-        jest.clearAllMocks();
+        vi.useFakeTimers();
+        vi.clearAllMocks();
         router.navigate.mockClear();
         event_form.newForm.mockClear();
         spaces.find.mockReset();
         spaces.loadSpace.mockReset();
+        // The schedule fns (queryBookings/queryEvents/requestSpacesForZone/
+        // loadLockerResources) are workspace fns that can't be spied; they all
+        // funnel into ts-client `get`/`querySystems`, so stub + assert one
+        // layer down.
+        vi.mocked(ts_client.get).mockResolvedValue([] as any);
+        vi.mocked(ts_client.querySystems).mockResolvedValue({
+            data: [],
+        } as any);
+        vi.mocked(ts_client.post).mockResolvedValue({} as any);
         spectator = createService();
     });
 
     afterEach(() => {
-        jest.restoreAllMocks();
-        jest.useRealTimers();
+        vi.restoreAllMocks();
+        vi.useRealTimers();
     });
 
     it('should create service', () => {
@@ -150,7 +145,7 @@ describe('ScheduleStateService', () => {
         });
 
         await spectator.service.edit(event);
-        jest.advanceTimersByTime(300);
+        vi.advanceTimersByTime(300);
 
         expect(router.navigate).toHaveBeenCalledWith([
             '/book',
@@ -174,7 +169,7 @@ describe('ScheduleStateService', () => {
         } as any);
 
         spectator.service.editBooking(booking);
-        jest.runAllTimers();
+        vi.runAllTimers();
 
         expect(booking_form.newForm).toHaveBeenCalledWith('visitor', booking);
         expect(booking_form.model.update).not.toHaveBeenCalled();
@@ -182,9 +177,9 @@ describe('ScheduleStateService', () => {
 
     it('should refresh ended bookings without hiding them as deleted', async () => {
         const now = new Date(2026, 5, 23, 10).valueOf();
-        jest.setSystemTime(now);
-        const triggerPoll = jest.spyOn(spectator.service, 'triggerPoll');
-        const removeItem = jest.spyOn(spectator.service, 'removeItem');
+        vi.setSystemTime(now);
+        const triggerPoll = vi.spyOn(spectator.service, 'triggerPoll');
+        const removeItem = vi.spyOn(spectator.service, 'removeItem');
         const booking = new Booking({
             id: 'booking-1',
             booking_type: 'desk',
@@ -197,26 +192,25 @@ describe('ScheduleStateService', () => {
 
         await spectator.service.end(booking);
 
-        expect(checkinBooking).toHaveBeenCalledWith('booking-1', false);
+        expect(ts_client.post).toHaveBeenCalled();
+        const [url] = vi.mocked(ts_client.post).mock.calls[0];
+        expect(url).toContain('booking-1');
+        expect(url).toContain('check_in');
         expect(triggerPoll).toHaveBeenCalled();
         expect(removeItem).not.toHaveBeenCalled();
     });
 
     it('should not make schedule requests before schedule data is consumed', () => {
         expect(parking_factory).not.toHaveBeenCalled();
-        expect(queryBookings).not.toHaveBeenCalled();
-        expect(queryEvents).not.toHaveBeenCalled();
-        expect(requestSpacesForZone).not.toHaveBeenCalled();
-        expect(loadLockerResources).not.toHaveBeenCalled();
+        expect(ts_client.get).not.toHaveBeenCalled();
+        expect(ts_client.querySystems).not.toHaveBeenCalled();
     });
 
     it('should not make schedule requests for disabled features when consumed', () => {
         spectator.service.bookings();
 
-        expect(queryBookings).not.toHaveBeenCalled();
-        expect(queryEvents).not.toHaveBeenCalled();
-        expect(requestSpacesForZone).not.toHaveBeenCalled();
-        expect(loadLockerResources).not.toHaveBeenCalled();
+        expect(ts_client.get).not.toHaveBeenCalled();
+        expect(ts_client.querySystems).not.toHaveBeenCalled();
     });
 
     it('should only mark enabled feature booking types as loadable', () => {
@@ -257,7 +251,7 @@ describe('ScheduleStateService', () => {
             user_email: 'other@example.com',
             booked_by_email: 'me@example.com',
         });
-        jest.spyOn(
+        vi.spyOn(
             spectator.service,
             'isBookingForOtherUser',
         ).mockImplementation((item) => item === for_other);
@@ -304,6 +298,6 @@ describe('ScheduleStateService', () => {
             (spectator.service as any)._bookingQuery('desk', 'day', date),
         ]);
 
-        expect(queryBookings).toHaveBeenCalledTimes(1);
+        expect(ts_client.get).toHaveBeenCalledTimes(1);
     });
 });

@@ -2,7 +2,7 @@ import { inject, Injector, signal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatDialog } from '@angular/material/dialog';
-import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
+import { createRoutingFactory, Spectator } from '@ngneat/spectator/vitest';
 import { AssetListFieldComponent, AssetStateService } from '@placeos/assets';
 import {
     CateringListFieldComponent,
@@ -28,7 +28,7 @@ describe('MeetingFlowFormComponent', () => {
     const createComponent = createRoutingFactory({
         component: MeetingFlowFormComponent,
         providers: [
-            MockProvider(AssetStateService, { setOptions: jest.fn() }),
+            MockProvider(AssetStateService, { setOptions: vi.fn() }),
             {
                 provide: EventFormService,
                 useFactory: () => {
@@ -45,7 +45,9 @@ describe('MeetingFlowFormComponent', () => {
                     return {
                         model,
                         form,
-                        resetForm: jest.fn(),
+                        can_notify_new_attendees_only: signal(false),
+                        notify_new_attendees_only: signal(false),
+                        resetForm: vi.fn(),
                     } as Partial<EventFormService>;
                 },
             },
@@ -54,7 +56,7 @@ describe('MeetingFlowFormComponent', () => {
                 charge_codes: signal([]),
             } as any),
             MockProvider(MatBottomSheet, {
-                open: jest.fn(() => ({
+                open: vi.fn(() => ({
                     instance: {},
                     afterDismissed: () => of('1'),
                 })),
@@ -63,9 +65,9 @@ describe('MeetingFlowFormComponent', () => {
                 initialised: signal(true),
                 active_building: signal(null),
             }),
-            MockProvider(SettingsService, { get: jest.fn(() => false) } as any),
+            MockProvider(SettingsService, { get: vi.fn(() => false) } as any),
             MockProvider(MatDialog, {
-                open: jest.fn(() => ({
+                open: vi.fn(() => ({
                     componentInstance: {},
                     afterClosed: () => of('1'),
                 })),
@@ -93,6 +95,17 @@ describe('MeetingFlowFormComponent', () => {
 
     it('should show attendee list', () =>
         expect(spectator.query('a-user-list-field')).toExist());
+
+    it('should show the notification option beside attendee edits', () => {
+        expect(
+            spectator.query('[name="notify-new-attendees-only"]'),
+        ).not.toExist();
+        (spectator.component.can_notify_new_attendees_only as any).set(true);
+        spectator.detectChanges();
+        expect(
+            spectator.query('[name="notify-new-attendees-only"]'),
+        ).toExist();
+    });
 
     it('should show room list', () =>
         expect(spectator.query('space-list-field')).toExist());

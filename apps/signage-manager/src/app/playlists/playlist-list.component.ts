@@ -178,6 +178,9 @@ type PlaylistStatus =
                                 </div>
                             }
                         </div>
+                        @if (playlist.distribution) {
+                            <icon class="mx-1">p2p</icon>
+                        }
                     </a>
                 }
                 @if (has_more()) {

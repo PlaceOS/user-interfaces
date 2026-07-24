@@ -1,10 +1,4 @@
-import {
-    Component,
-    computed,
-    inject,
-    OnInit,
-    signal,
-} from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormField } from '@angular/forms/signals';
 import { Router, RouterModule } from '@angular/router';
 import { startOfMinute } from 'date-fns';
@@ -79,6 +73,7 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                             <input
                                 keyboard
                                 matInput
+                                autocomplete="off"
                                 [formField]="form.asset_name"
                                 [placeholder]="
                                     'APP.VISITOR_KIOSK.NAME' | translate
@@ -96,6 +91,7 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                             <input
                                 keyboard
                                 matInput
+                                autocomplete="off"
                                 [formField]="form.asset_id"
                                 [placeholder]="
                                     'APP.VISITOR_KIOSK.EMAIL' | translate
@@ -105,6 +101,7 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                         </mat-form-field>
                         <label for="user">Host</label>
                         <a-user-search-field
+                            autocomplete="off"
                             [ngModel]="host()"
                             (ngModelChange)="setHost($event)"
                             [class.mb-4]="!host()"
@@ -117,6 +114,7 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                                 keyboard
                                 matInput
                                 type="tel"
+                                autocomplete="off"
                                 [formField]="form.phone"
                                 [placeholder]="
                                     'APP.VISITOR_KIOSK.PHONE' | translate
@@ -132,6 +130,7 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                             <input
                                 keyboard
                                 matInput
+                                autocomplete="off"
                                 [formField]="form.company"
                                 [placeholder]="
                                     'APP.VISITOR_KIOSK.ORGANISATION' | translate
@@ -148,6 +147,7 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                             <input
                                 keyboard
                                 matInput
+                                autocomplete="off"
                                 [formField]="form.title"
                                 [placeholder]="
                                     'BOOKINGS.VISITOR_REASON_PLACEHOLDER'
@@ -166,6 +166,7 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                                 <input
                                     keyboard
                                     matInput
+                                    autocomplete="off"
                                     [formField]="form.pass_number"
                                     [placeholder]="
                                         'BOOKINGS.VISITOR_PASS_PLACEHOLDER'

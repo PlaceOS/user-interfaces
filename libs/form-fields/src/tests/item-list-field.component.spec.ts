@@ -1,6 +1,6 @@
 import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { MockComponent } from 'ng-mocks';
 import { ItemListFieldComponent } from '../lib/item-list-field.component';

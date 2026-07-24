@@ -10,7 +10,7 @@ describe('Building', () => {
 
     beforeEach(() => {
         init_data = generateMockBuilding();
-        service = { get: jest.fn() };
+        service = { get: vi.fn() };
         bld = new Building(init_data);
     });
 

@@ -11,11 +11,26 @@
             "outputs": ["{options.outputFile}"]
         },
         "test": {
-            "executor": "@nx/jest:jest",
+            "executor": "@angular/build:unit-test",
             "outputs": ["{workspaceRoot}/coverage/libs/bookings"],
             "options": {
-                "jestConfig": "libs/bookings/jest.config.ts",
-                "tsConfig": "libs/bookings/tsconfig.spec.json"
+                "tsConfig": "libs/bookings/tsconfig.spec.json",
+                "setupFiles": ["libs/bookings/src/test-setup.ts"],
+                "isolate": true,
+                "watch": false,
+                "buildTarget": "bookings:test-build:development"
+            }
+        },
+        "test-build": {
+            "executor": "@angular/build:application",
+            "options": {
+                "outputPath": "dist/libs/bookings",
+                "browser": "libs/bookings/src/index.ts",
+                "tsConfig": "libs/bookings/tsconfig.spec.json",
+                "polyfills": []
+            },
+            "configurations": {
+                "development": {}
             }
         }
     }

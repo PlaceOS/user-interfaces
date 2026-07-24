@@ -25,6 +25,7 @@ import {
 import { addMinutes, format, isSameWeek } from 'date-fns';
 
 import { OrganisationService } from '@placeos/common';
+import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { ImageCarouselComponent } from 'libs/components/src/lib/image-carousel.component';
 import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
@@ -33,10 +34,7 @@ import { MapPinComponent } from 'libs/components/src/lib/map-pin.component';
 import { StatusPillComponent } from 'libs/components/src/lib/status-pill.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { UserPipe } from 'libs/users/src/lib/user.pipe';
-import {
-    bookingLocationString,
-    visitorDisplayNameFor,
-} from './booking.utilities';
+import { visitorDisplayNameFor } from './booking.utilities';
 import { checkinBooking, checkinBookingInstance } from './bookings.fn';
 import { DeskSettingsModalComponent } from './desk-settings-modal.component';
 
@@ -190,7 +188,7 @@ export function canEditBooking(booking: Booking) {
                     </div>
                     <div class="flex items-center space-x-2 px-2">
                         <icon matTooltip="Level and Resource">{{
-                            is_visitor() ? 'person' : 'map'
+                            is_visitor() ? 'person' : 'place'
                         }}</icon>
                         <div>
                             @if (is_visitor()) {
@@ -205,12 +203,19 @@ export function canEditBooking(booking: Booking) {
                             }
                         </div>
                     </div>
-                    <div class="flex items-center space-x-2 px-2">
-                        <icon matTooltip="Location">place</icon>
-                        <div>
-                            {{ location() }}
+                    @if (is_visitor()) {
+                        <div class="flex items-center space-x-2 px-2">
+                            <icon matTooltip="Location">place</icon>
+                            <div>
+                                {{ building()?.display_name || building()?.name }}
+                                {{
+                                    building()?.address
+                                        ? ', ' + building().address
+                                        : ''
+                                }}
+                            </div>
                         </div>
-                    </div>
+                    }
                     @if (current_user()?.email !== booking().user_email) {
                         <div class="flex items-center space-x-2 px-2">
                             <icon matTooltip="Host">person</icon>
@@ -541,9 +546,6 @@ export class BookingDetailsModalComponent {
     public readonly level_or_building = computed(
         () => this.level() || this.building(),
     );
-    public readonly location = computed(() =>
-        bookingLocationString(this.booking(), this._org),
-    );
     public readonly resource_location = computed(() => {
         const location_name =
             this.level_or_building()?.display_name ||
@@ -781,30 +783,52 @@ export class BookingDetailsModalComponent {
     }
 
     public async toggleCheckedIn() {
-        this.checking_in.set(true);
         const bkn = this.booking();
-        const promise = (
+        if (bkn.checked_in) {
+            const resource_name =
+                bkn.booking_type === 'parking'
+                    ? 'parking space'
+                    : bkn.booking_type;
+            const response = await openConfirmModal(
+                {
+                    title: i18n('COMMON.CHECK_OUT'),
+                    content:
+                        'You are currently checked in.<br/>' +
+                        `Would you like to check out of your ${resource_name} now?<br/>` +
+                        `This will make the ${resource_name} available for others to book.`,
+                    confirm_text: i18n('COMMON.CHECK_OUT'),
+                    icon: { content: 'logout' },
+                },
+                this._dialog,
+            );
+            if (response.reason !== 'done') return;
+            response.close();
+        }
+        this.checking_in.set(true);
+        const updated_booking = await (
             bkn.instance
                 ? checkinBookingInstance(
                       bkn.id,
                       bkn.instance,
-                      !this.booking().checked_in,
+                      !bkn.checked_in,
                   )
-                : checkinBooking(this.booking().id, !this.booking().checked_in)
+                : checkinBooking(bkn.id, !bkn.checked_in)
         ).catch((_) => {
-            notifyError(i18n('BOOKINGS.CHECK_IN_ERROR'));
+            notifyError(
+                i18n(
+                    bkn.checked_in
+                        ? 'BOOKINGS.CHECK_OUT_ERROR'
+                        : 'BOOKINGS.CHECK_IN_ERROR',
+                ),
+            );
             this.checking_in.set(false);
             throw _;
         });
-        await promise;
-        this.booking.update((b) => {
-            (b as any).checked_in = !b.checked_in;
-            return b;
-        });
-        this.checked_out.set(!this.booking().checked_in);
+        this.booking.set(updated_booking);
+        this.checked_out.set(!updated_booking.checked_in);
         notifySuccess(
             i18n(
-                this.booking().checked_in
+                updated_booking.checked_in
                     ? 'BOOKINGS.CHECK_IN_SUCCESS'
                     : 'BOOKINGS.CHECK_OUT_SUCCESS',
             ),

@@ -202,7 +202,6 @@ export class ParkingComponent extends AsyncHandler implements OnInit {
     }
 
     public ngOnInit() {
-        this.subscription('poll_bookings', () => this._state.startPolling());
         this.subscription(
             'router.events',
             this._router.events.subscribe((e) => {

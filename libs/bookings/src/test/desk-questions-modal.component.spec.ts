@@ -1,13 +1,9 @@
 import { MatRadioModule } from '@angular/material/radio';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { MockComponent } from 'ng-mocks';
 
 import { DeskQuestionsModalComponent } from '../lib/desk-questions-modal.component';
-
-jest.mock('@placeos/common');
-
-import * as common_mod from '@placeos/common';
 
 describe('DeskQuestionsModalComponent', () => {
     let spectator: Spectator<DeskQuestionsModalComponent>;
@@ -23,14 +19,16 @@ describe('DeskQuestionsModalComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should check for validation', (done) => {
-        (common_mod as any).notifyError = jest.fn();
+    it('should check for validation', async () => {
         spectator.component.model.update((m) => ({ ...m, contact: true }));
         spectator.click('footer button');
         expect(spectator.component.failure()).toBeTruthy();
         spectator.component.model.update((m) => ({ ...m, contact: false }));
-        spectator.component.event.subscribe(() => done());
+        const emitted = new Promise<void>((resolve) =>
+            spectator.component.event.subscribe(() => resolve()),
+        );
         spectator.component.submit();
+        await emitted;
     });
 
     it('should show failure state', () => {

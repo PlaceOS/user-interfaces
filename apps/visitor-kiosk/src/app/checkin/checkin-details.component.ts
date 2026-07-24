@@ -1,10 +1,4 @@
-import {
-    Component,
-    computed,
-    inject,
-    OnInit,
-    signal,
-} from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import {
     email,
     FormField,
@@ -28,6 +22,7 @@ import { CheckinStateService } from './checkin-state.service';
     template: `
         @if (ready_form()) {
             <form
+                autocomplete="off"
                 class="bg-base-100 relative flex w-xl flex-col items-center overflow-hidden rounded-sm p-4 shadow-sm"
             >
                 <h3 class="m-4 text-2xl">Confirm Details</h3>
@@ -39,6 +34,7 @@ import { CheckinStateService } from './checkin-state.service';
                         <input
                             keyboard
                             matInput
+                            autocomplete="off"
                             [formField]="form.host"
                             [placeholder]="'APP.VISITOR_KIOSK.HOST' | translate"
                         />
@@ -55,6 +51,7 @@ import { CheckinStateService } from './checkin-state.service';
                         <input
                             keyboard
                             matInput
+                            autocomplete="off"
                             [formField]="form.name"
                             [placeholder]="'APP.VISITOR_KIOSK.NAME' | translate"
                         />
@@ -69,6 +66,7 @@ import { CheckinStateService } from './checkin-state.service';
                         <input
                             keyboard
                             matInput
+                            autocomplete="off"
                             [formField]="form.email"
                             [placeholder]="
                                 'APP.VISITOR_KIOSK.EMAIL' | translate
@@ -88,6 +86,7 @@ import { CheckinStateService } from './checkin-state.service';
                             keyboard
                             matInput
                             type="tel"
+                            autocomplete="off"
                             [formField]="form.phone"
                             [placeholder]="
                                 'APP.VISITOR_KIOSK.PHONE' | translate
@@ -103,6 +102,7 @@ import { CheckinStateService } from './checkin-state.service';
                         <input
                             keyboard
                             matInput
+                            autocomplete="off"
                             [formField]="form.organisation"
                             [placeholder]="
                                 'APP.VISITOR_KIOSK.ORGANISATION' | translate
@@ -119,6 +119,7 @@ import { CheckinStateService } from './checkin-state.service';
                             <input
                                 keyboard
                                 matInput
+                                autocomplete="off"
                                 [formField]="form.pass_number"
                                 [placeholder]="
                                     'BOOKINGS.VISITOR_PASS_PLACEHOLDER'
@@ -128,7 +129,13 @@ import { CheckinStateService } from './checkin-state.service';
                         </mat-form-field>
                     </div>
                 }
-                <button next type="button" btn matRipple (click)="updateGuest()">
+                <button
+                    next
+                    type="button"
+                    btn
+                    matRipple
+                    (click)="updateGuest()"
+                >
                     {{ 'APP.VISITOR_KIOSK.CONTINUE' | translate }}
                 </button>
                 <a
@@ -236,20 +243,25 @@ export class CheckinDetailsComponent implements OnInit {
     public async updateGuest(update = true) {
         this.loading.set(true);
         if (update) await this._checkin.updateGuest();
+        if (
+            this.induction_after_details() &&
+            this.induction_available() &&
+            this._checkin.event()?.induction !== 'accepted'
+        ) {
+            this.loading.set(false);
+            this._router.navigate(['/checkin', 'induction']);
+            return;
+        }
         const result = await this._checkin
             .checkinGuest()
             .then(() => true)
             .catch(() => false);
         this.loading.set(false);
         if (!result) return;
-        if (this.induction_after_details() && this.induction_available()) {
-            this._router.navigate(['/checkin', 'induction']);
-        } else {
-            this._router.navigate([
-                '/checkin',
-                this.allow_user_photo() ? 'photo' : 'results',
-            ]);
-        }
+        this._router.navigate([
+            '/checkin',
+            this.allow_user_photo() ? 'photo' : 'results',
+        ]);
     }
 
     public previous() {
