@@ -1,5 +1,6 @@
 import {
     currentUser,
+    currentUserIsLoaded,
     getPermissionMask,
     getPermissions,
     GroupPermission,
@@ -25,6 +26,10 @@ describe('user-state', () => {
 
     it('should default to the empty user', () => {
         expect(isEmptyUser(currentUser())).toBe(true);
+    });
+
+    it('should treat the test runtime as having a loaded user', () => {
+        expect(currentUserIsLoaded()).toBe(true);
     });
 
     describe('permissions', () => {

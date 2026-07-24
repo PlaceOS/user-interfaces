@@ -58,7 +58,8 @@ describe('PlaylistItemsComponent', () => {
                 set: { template: '' },
             })
             .compileComponents();
-        return TestBed.createComponent(PlaylistItemsComponent).componentInstance;
+        return TestBed.createComponent(PlaylistItemsComponent)
+            .componentInstance;
     }
 
     beforeEach(() => {
@@ -197,5 +198,21 @@ describe('PlaylistItemsComponent', () => {
         expect(remove_media).toHaveBeenCalledWith('pl-1', 'a', 3);
         expect(selected_playlist_item()).toBeNull();
         expect(selected_playlist_item_index()).toBeNull();
+    });
+
+    it('removes a distribution schedule by its playlist item id', async () => {
+        const item = media('media-1');
+        const schedule = new SignagePlaylistItemSchedule({
+            id: 'schedule-1',
+            item_id: item.id,
+            media: item,
+        });
+        selected_playlist.set({ id: 'pl-1', distribution: true });
+        playlist_item_schedule_list.set([schedule]);
+        const component = await make();
+
+        await component.removeItem(item, 0);
+
+        expect(remove_media).toHaveBeenCalledWith('pl-1', 'schedule-1', 0);
     });
 });

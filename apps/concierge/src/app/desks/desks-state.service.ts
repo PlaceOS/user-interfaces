@@ -58,6 +58,7 @@ import {
 } from 'date-fns';
 
 import { openConfirmModal } from '@placeos/components';
+import { BookingHistoryModalComponent } from '../ui/booking-history-modal.component';
 import { DeskModalComponent } from './desk-modal.component';
 
 function addQRCodeToBooking(booking: Booking): Booking {
@@ -672,6 +673,15 @@ export class DesksStateService extends AsyncHandler {
         notifySuccess(i18n('APP.CONCIERGE.DESKS_BOOKING_DELETE_SUCCESS'));
         result.close();
         this.setFilters({});
+    }
+
+    public viewBookingHistory(booking: Booking) {
+        if (!booking) return;
+        this._dialog.open(BookingHistoryModalComponent, {
+            data: { booking },
+            width: '32rem',
+            maxWidth: '100vw',
+        });
     }
 
     public async giveAccess(desk: Booking) {

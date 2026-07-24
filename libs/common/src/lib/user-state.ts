@@ -9,6 +9,7 @@ import { EMPTY_USER, isEmptyUser, StaffUser } from './types/user.class';
 export { EMPTY_USER, isEmptyUser } from './types/user.class';
 
 declare let jest;
+declare let vi;
 
 type PermissionName = (typeof PERMISSION_VALUES)[number][0];
 type UserPermissions = Record<PermissionName, string[]>;
@@ -53,6 +54,10 @@ const PERMISSION_VALUES = [
     ['manage', GroupPermission.Manage],
     ['share', GroupPermission.Share],
 ] as const;
+
+function isTestRuntime() {
+    return typeof jest !== 'undefined' || typeof vi !== 'undefined';
+}
 
 export const user_permissions = computed<UserPermissions>(() => {
     const permissions: UserPermissions = {
@@ -125,11 +130,7 @@ async function loadUserGroups() {
 }
 
 function initialiseUser() {
-    try {
-        if (jest) return;
-    } catch {
-        // `jest` is only defined during tests.
-    }
+    if (isTestRuntime()) return;
     _current_user.subscribe((u) => user_signal.set(u));
     const is_public_mode = isPublicMode();
     const user_request = combineLatest([showUser('current'), _change]).pipe(
@@ -205,11 +206,7 @@ export function setCurrentUser(user: StaffUser) {
 
 export function currentUserIsLoaded() {
     if (!isEmptyUser(currentUser())) return true;
-    try {
-        return !!jest;
-    } catch {
-        return false;
-    }
+    return isTestRuntime();
 }
 
 export function currentUserLoaded(): Promise<StaffUser> {

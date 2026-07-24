@@ -91,6 +91,7 @@ const generateBookingForDay = (
         checked_in: approved && predictableRandomInt(4) <= 2,
         rejected: predictableRandomInt(12) === 0,
         approved: approved !== 0,
+        deleted: false,
         access: approved !== 0,
         permission: type === 'group-event' ? 'OPEN' : 'PRIVATE',
         approver_id: approved ? approver.id : '',
@@ -118,6 +119,7 @@ const generateBookingForDay = (
             note: capitalizeFirstLetter(
                 `${type.replace('-', ' ')} booking ${index}`,
             ),
+            notes: '',
             plate_number: randomString(
                 8,
                 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
@@ -256,6 +258,39 @@ export const MOCK_BOOKINGS = (() => {
         });
 
         bookings.push(...dayBookings);
+    }
+
+    // Add a cancelled parking request for today in every building so the
+    // concierge parking list can exercise cancelled styling and actions.
+    const active_user = MOCK_STAFF.find((user) => user.id === ACTIVE_USER.id);
+    for (const bld of active_user ? MOCK_BUILDINGS : []) {
+        const booking = generateBookingForDay(
+            15,
+            'parking',
+            bookingIndex++,
+            active_user,
+        );
+        const parking_level = MOCK_LEVELS.find(
+            (level) => level.parent_id === bld.id && level.type === 'parking',
+        );
+        booking.title = `Cancelled parking request - ${bld.name}`;
+        booking.description =
+            'Cancelled mock request for testing disabled parking actions';
+        booking.asset_id = `unallocated-${bld.id}-cancelled`;
+        booking.asset_ids = [booking.asset_id];
+        booking.asset_name = 'Unallocated parking request';
+        booking.checked_in = false;
+        booking.rejected = false;
+        booking.approved = false;
+        booking.deleted = true;
+        booking.access = false;
+        booking.zones = [bld.id, parking_level?.id].filter(Boolean);
+        booking.extension_data = {
+            ...booking.extension_data,
+            notes: 'Cancelled mock request',
+            plate_number: 'CANCELLED',
+        };
+        bookings.push(booking);
     }
 
     return bookings.sort((a, b) => a.booking_start - b.booking_start);

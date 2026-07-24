@@ -1261,7 +1261,7 @@ export class SignageService {
 
     public async removeMediaFromPlaylist(
         playlist_id: string,
-        media_id: string,
+        playlist_item_id: string,
         item_index?: number,
     ) {
         if (
@@ -1275,11 +1275,11 @@ export class SignageService {
         const new_items = [...(media_list.items || [])];
         if (
             typeof item_index === 'number' &&
-            new_items[item_index] === media_id
+            new_items[item_index] === playlist_item_id
         ) {
             new_items.splice(item_index, 1);
         } else {
-            const index = new_items.indexOf(media_id);
+            const index = new_items.indexOf(playlist_item_id);
             if (index < 0) return;
             new_items.splice(index, 1);
         }

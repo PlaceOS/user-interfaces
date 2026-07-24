@@ -237,7 +237,7 @@ describe('[Booking API]', () => {
             const booking = await checkinBooking('1', true);
             expect(booking).toBeInstanceOf(Booking);
             expect(ts_client.post).toHaveBeenCalledWith(
-                `/api/staff/v1/bookings/1/check_in?state=true`,
+                `/api/staff/v1/bookings/1/check_in?state=true&utm_source=${utm_source}`,
                 '',
             );
             spy.mockReset();

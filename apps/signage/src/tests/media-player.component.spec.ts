@@ -207,6 +207,7 @@ describe('MediaPlayerComponent', () => {
         );
         load_playlist([item]);
         spectator.component.index.set(0);
+        spectator.component.state.set('PLAYING');
         spectator.component['_output_items'] = [item, null];
         spectator.component['_image_element'](0).nativeElement.classList.remove(
             'hidden',
@@ -219,6 +220,27 @@ describe('MediaPlayerComponent', () => {
         expect(
             spectator.component['_image_element'](0).nativeElement.classList,
         ).toContain('hidden');
+        expect(spectator.component.state()).toBe('PLAYING');
+    });
+
+    it('should resume playback when content returns after an empty playlist', () => {
+        vi.spyOn(spectator.component as any, '_showMediaItem').mockReturnValue(
+            true,
+        );
+        vi.spyOn(spectator.component as any, 'timeout').mockImplementation(
+            () => undefined,
+        );
+
+        load_playlist([create_item('media-1')]);
+        load_playlist([]);
+
+        expect(spectator.component.state()).toBe('PLAYING');
+        expect(spectator.component.index()).toBe(-1);
+
+        load_playlist([create_item('media-2')]);
+
+        expect(spectator.component.state()).toBe('PLAYING');
+        expect(spectator.component.active_item?.id).toBe('media-2');
     });
 
     it('should reset playback when the same media id changes source', () => {

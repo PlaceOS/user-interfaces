@@ -12,7 +12,6 @@ import {
     getModule,
     post,
     querySignagePlugins,
-    responseHeaders,
     showSignage,
     SignageMedia,
     SignagePlaylist,
@@ -208,7 +207,7 @@ export class SignageService extends AsyncHandler {
     private readonly _display_data = signal<any>(null);
     /** Counter incremented on the schedule timer to re-evaluate time windows */
     private readonly _tick = signal(0);
-    private _last_modified = 0;
+    private _display_signature = '';
     private _playlists: SignagePlaylist[] = [];
     private _last_playlist: MediaPlayerItem[] = [];
     private _last_override_playlists: string[] = [];
@@ -291,21 +290,19 @@ export class SignageService extends AsyncHandler {
         this._scheduleTick();
     }
 
-    /**
-     * Re-fetch the active display details and refresh the derived playlists,
-     * trigger bindings, media cache and scheduled overrides. Skips downstream
-     * work when the server reports the display has not been modified.
-     */
+    /** Re-fetch the active display details and refresh derived player state. */
     private async _reloadDisplay() {
         const id = this._display();
         if (!id) return;
-        const previous_modified = this._last_modified;
         const value = await this._fetchDisplay(id);
-        // Mirror the previous `distinctUntilKeyChanged(last_modified)`: when the
-        // display is unchanged there is no need to re-parse or re-bind anything.
-        if (this._last_modified === previous_modified && this._display_data()) {
+        const display_signature = `${id}:${JSON.stringify(value || {})}`;
+        if (
+            display_signature === this._display_signature &&
+            this._display_data()
+        ) {
             return;
         }
+        this._display_signature = display_signature;
         const display = this._parseDisplay(value);
         display.plugins = await this._resolveDisplayPlugins(display);
         this._display_data.set(display);
@@ -322,13 +319,6 @@ export class SignageService extends AsyncHandler {
                 null,
                 '',
             ]),
-            {
-                headers: {
-                    'If-Modified-Since': new Date(
-                        this._last_modified,
-                    ).toUTCString(),
-                },
-            },
         ).catch((_) => null);
         if (!d) {
             const display_key = displayCacheKey(id);
@@ -341,12 +331,6 @@ export class SignageService extends AsyncHandler {
         }
         if (d.id === id) {
             localStorage.setItem(displayCacheKey(id), JSON.stringify(d));
-        }
-        const path = `/api/engine/v2/signage/${id}`;
-        const headers = responseHeaders(`${location.origin}${path}`);
-        const last_modified = new Date(headers['last-modified']).valueOf();
-        if (Number.isFinite(last_modified) && last_modified > 0) {
-            this._last_modified = last_modified;
         }
         return d;
     }
@@ -554,8 +538,13 @@ export class SignageService extends AsyncHandler {
         const active_playlists = active_schedules.map(
             ({ playlist }) => playlist,
         );
-        if (!active_playlists.length) return;
-        if (this._hasCurrentOverrideFor(active_playlists)) return;
+        if (!active_playlists.length) {
+            if (this.override_playlist().schedule_keys?.length) {
+                this.override_playlist.set({ playlist: [], ends_at: 0 });
+            }
+            return;
+        }
+        if (this._hasCurrentOverrideFor(active_schedules)) return;
         const media = this._getPlaylistMedia(
             display,
             active_playlists.map((_) => _.id),
@@ -582,10 +571,12 @@ export class SignageService extends AsyncHandler {
             .filter(({ key }) => !this._completed_schedule_overrides.has(key));
     }
 
-    private _hasCurrentOverrideFor(playlists: SignagePlaylist[]) {
-        const existing_override = this.override_playlist();
-        return playlists.every(({ id }) =>
-            existing_override.playlist.find((media) => media.playlist === id),
+    private _hasCurrentOverrideFor(schedules: ActivePlaylistSchedule[]) {
+        const existing_keys = this.override_playlist().schedule_keys || [];
+        const active_keys = new Set(schedules.map(({ key }) => key));
+        return (
+            existing_keys.length === active_keys.size &&
+            existing_keys.every((key) => active_keys.has(key))
         );
     }
 

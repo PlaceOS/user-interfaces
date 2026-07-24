@@ -22,8 +22,8 @@ import {
 } from '@placeos/ts-client';
 import {
     playlistMediaIcon,
-    playlistScheduleNextPlayLabels,
     playlistScheduleLabel,
+    playlistScheduleNextPlayLabels,
 } from '../signage-playlist.util';
 import { SignageService } from '../signage.service';
 
@@ -763,9 +763,13 @@ export class PlaylistItemsComponent {
     public async removeItem(item: SignageMedia, item_index: number) {
         const playlist = this.selected_playlist();
         if (!playlist?.id || !item?.id) return;
+        const schedule = playlist.distribution
+            ? this.itemSchedule(item, item_index)
+            : null;
+        const playlist_item_id = schedule?.id || schedule?.item_id || item.id;
         await this._service.removeMediaFromPlaylist(
             playlist.id,
-            item.id,
+            playlist_item_id,
             item_index,
         );
         if (this.isItemSelected(item, item_index)) {

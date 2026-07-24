@@ -71,6 +71,7 @@ import {
     startOfWeek,
     subDays,
 } from 'date-fns';
+import { BookingHistoryModalComponent } from '../ui/booking-history-modal.component';
 import { ParkingAssignSpaceModalComponent } from './parking-assign-space-modal.component';
 import { ParkingBookingHistoryModalComponent } from './parking-booking-history-modal.component';
 import { ParkingBookingModalComponent } from './parking-booking-modal.component';
@@ -1044,7 +1045,7 @@ export class ParkingStateService extends AsyncHandler {
 
     public viewBookingHistory(booking: Booking) {
         if (!booking) return;
-        this._dialog.open(ParkingBookingHistoryModalComponent, {
+        this._dialog.open(BookingHistoryModalComponent, {
             data: { booking },
             width: '32rem',
             maxWidth: '100vw',

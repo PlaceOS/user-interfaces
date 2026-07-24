@@ -79,7 +79,7 @@ import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticat
                                             />
                                         }
                                     </div>
-                                    <div class="max-w-48 space-y-2">
+                                    <div class="max-w-[calc(100%-6rem)] space-y-2">
                                         <div
                                             class="mr-10 truncate text-left font-medium"
                                         >

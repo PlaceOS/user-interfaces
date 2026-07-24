@@ -41,15 +41,15 @@ describe('ParkingBookingsWeekViewComponent', () => {
                 isRequest: vi.fn((b: Booking) =>
                     b.asset_id?.startsWith('unallocated'),
                 ),
-                isWaitlisted: vi.fn(
-                    (b: Booking) => b.id === 'waitlisted',
-                ),
+                isWaitlisted: vi.fn((b: Booking) => b.id === 'waitlisted'),
                 canApproveBooking: vi.fn(() => true),
                 timezone: 'Australia/Perth',
             } as any),
             MockProvider(SettingsService as any, {
                 get: vi.fn((name: string) =>
-                    name === 'app.parking.show_waitlist' ? show_waitlist : false,
+                    name === 'app.parking.show_waitlist'
+                        ? show_waitlist
+                        : false,
                 ),
                 time_format: 'h:mm a',
             }),
@@ -141,9 +141,7 @@ describe('ParkingBookingsWeekViewComponent', () => {
                 status: 'approved',
                 all_day: false,
                 date: start,
-                date_end: new Date(
-                    '2026-07-22T00:00:00+08:00',
-                ).valueOf(),
+                date_end: new Date('2026-07-22T00:00:00+08:00').valueOf(),
                 duration: 24 * 60,
             } as unknown as Booking,
         ];
@@ -164,21 +162,24 @@ describe('ParkingBookingsWeekViewComponent', () => {
                 extension_data: { is_assigned: true },
             } as any),
         ).toBe('APP.CONCIERGE.BOOKING_STATUS_ASSIGNED');
-        expect(
-            component.statusLabel({ deleted: true } as Booking),
-        ).toBe('APP.CONCIERGE.BOOKING_STATUS_DELETED');
-        expect(
-            component.statusLabel({ status: 'ended' } as Booking),
-        ).toBe('APP.CONCIERGE.BOOKING_STATUS_ENDED');
-        expect(
-            component.statusLabel({ status: 'approved' } as Booking),
-        ).toBe('APP.CONCIERGE.BOOKING_STATUS_APPROVED');
-        expect(
-            component.statusLabel({ status: 'declined' } as Booking),
-        ).toBe('APP.CONCIERGE.BOOKING_STATUS_DECLINED');
-        expect(
-            component.statusLabel({ status: 'tentative' } as Booking),
-        ).toBe('APP.CONCIERGE.BOOKING_STATUS_PENDING');
+        expect(component.statusLabel({ deleted: true } as Booking)).toBe(
+            'APP.CONCIERGE.BOOKING_STATUS_DELETED',
+        );
+        expect(component.statusLabel({ status: 'cancelled' } as Booking)).toBe(
+            'COMMON.TYPE_CANCELLED',
+        );
+        expect(component.statusLabel({ status: 'ended' } as Booking)).toBe(
+            'APP.CONCIERGE.BOOKING_STATUS_ENDED',
+        );
+        expect(component.statusLabel({ status: 'approved' } as Booking)).toBe(
+            'APP.CONCIERGE.BOOKING_STATUS_APPROVED',
+        );
+        expect(component.statusLabel({ status: 'declined' } as Booking)).toBe(
+            'APP.CONCIERGE.BOOKING_STATUS_DECLINED',
+        );
+        expect(component.statusLabel({ status: 'tentative' } as Booking)).toBe(
+            'APP.CONCIERGE.BOOKING_STATUS_PENDING',
+        );
     });
 
     it('should label a current week tentative request as waitlisted only when waitlist is visible', () => {
@@ -191,7 +192,7 @@ describe('ParkingBookingsWeekViewComponent', () => {
         );
     });
 
-    it('should disable status actions for ended, assigned, deleted or unapprovable bookings', () => {
+    it('should disable status actions for ended, assigned, cancelled, deleted or unapprovable bookings', () => {
         spectator = createComponent();
         const component = spectator.component;
 
@@ -207,8 +208,45 @@ describe('ParkingBookingsWeekViewComponent', () => {
             component.isStatusActionDisabled({ deleted: true } as Booking),
         ).toBe(true);
         expect(
+            component.isStatusActionDisabled({
+                status: 'cancelled',
+            } as Booking),
+        ).toBe(true);
+        expect(
             component.isStatusActionDisabled({ status: 'approved' } as Booking),
         ).toBe(false);
+    });
+
+    it('should show cancelled bookings in red and disable their mutating actions', () => {
+        const date = options().date;
+        bookings = [
+            {
+                id: 'booking-1',
+                asset_id: 'unallocated-1',
+                status: 'cancelled',
+                date,
+                date_end: date + 60 * 60 * 1000,
+                duration: 60,
+            } as unknown as Booking,
+        ];
+        settingSignal('parking.allow_deleting', false).set(true);
+        spectator = createComponent();
+
+        const status_button = spectator
+            .queryAll('button')
+            .find((button) => button.classList.contains('rounded-full'));
+        const action_button = (icon_name: string) =>
+            spectator
+                .queryAll('icon')
+                .find((icon) => icon.textContent?.includes(icon_name))
+                ?.closest('button');
+
+        expect(status_button).toBeDisabled();
+        expect(status_button).toHaveClass('bg-error!');
+        expect(status_button).toHaveClass('text-error-content!');
+        expect(action_button('add_location')).toBeDisabled();
+        expect(action_button('edit')).toBeDisabled();
+        expect(action_button('delete')).toBeDisabled();
     });
 
     it('should recognise request-style filter values', () => {
