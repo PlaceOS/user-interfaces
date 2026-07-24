@@ -1,1 +1,0 @@
-import {m,a as ar,d$ as qn}from'./main-OWTV6NES.js';var f=(()=>{class t{constructor(){this._org=m(ar);}transform(e){return this._org.levelWithID(e instanceof Array?e:[e])}static{this.\u0275fac=function(n){return new(n||t)};}static{this.\u0275pipe=qn({name:"level",type:t,pure:true});}}return t})();export{f};

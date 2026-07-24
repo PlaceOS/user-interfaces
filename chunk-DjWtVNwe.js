@@ -1,0 +1,1 @@
+import {m,c as cr,d$ as qn}from'./main-CL3Z7WK4.js';var u=(()=>{class i{constructor(){this._org=m(cr);}transform(r){return this._org.buildings.find(t=>r instanceof Array?r.includes(t.id):t.id===r)}static{this.\u0275fac=function(t){return new(t||i)};}static{this.\u0275pipe=qn({name:"building",type:i,pure:true});}}return i})();export{u};
