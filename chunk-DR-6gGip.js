@@ -1,1 +1,0 @@
-import {m,s as sr,dZ as $n}from'./main-RZM6YU5F.js';var f=(()=>{class t{constructor(){this._org=m(sr);}transform(e){return this._org.levelWithID(e instanceof Array?e:[e])}static{this.\u0275fac=function(n){return new(n||t)};}static{this.\u0275pipe=$n({name:"level",type:t,pure:true});}}return t})();export{f};
