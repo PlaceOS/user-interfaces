@@ -1,0 +1,1 @@
+import {di as eo}from'./main-TSMQQAVN.js';function u(o,r,n){return eo(o,-r,n)}export{u};
