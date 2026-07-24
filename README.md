@@ -127,5 +127,5 @@ A list of application settings (configurable via Zone.metadata) is available at 
 `nx migrate --run-migrations`
 
 ## Generate Changelog
-
+ 
 `git cliff -o CHANGELOG.md`
