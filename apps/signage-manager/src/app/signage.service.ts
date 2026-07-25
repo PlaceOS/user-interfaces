@@ -123,6 +123,42 @@ function dataURLtoFile(data_url: string, filename: string) {
     return new File([uint8_array], filename, { type: mime_type });
 }
 
+/** Backoff between attempts at creating a media record, in milliseconds */
+const MEDIA_RETRY_DELAYS = [500, 1500, 4500];
+
+/**
+ * A 401 is deliberately absent: the API client already invalidates the token,
+ * re-authorises and replays the request itself, so retrying here as well would
+ * multiply into a long run of auth refreshes.
+ */
+function isRetryableMediaError(error: any) {
+    const status = error?.status;
+    // No status means the request never reached the server
+    if (typeof status !== 'number') return true;
+    return status === 408 || status === 429 || status >= 500;
+}
+
+async function retryMediaRequest<T>(request: () => Promise<T>): Promise<T> {
+    let last_error: unknown;
+    for (let attempt = 0; ; attempt++) {
+        try {
+            return await request();
+        } catch (error) {
+            last_error = error;
+            if (
+                !isRetryableMediaError(error) ||
+                attempt >= MEDIA_RETRY_DELAYS.length
+            ) {
+                break;
+            }
+            await new Promise((resolve) =>
+                setTimeout(resolve, MEDIA_RETRY_DELAYS[attempt]),
+            );
+        }
+    }
+    throw last_error;
+}
+
 interface PreparedUploadMedia {
     file: File;
     media_type: 'image' | 'video';
@@ -1641,13 +1677,34 @@ export class SignageService {
         };
     }
 
-    private _addSignageMedia(form_data: Partial<SignageMedia>) {
+    private async _addSignageMedia(form_data: Partial<SignageMedia>) {
         const group_id = this._api_group_id();
-        if (!group_id) return addSignageMedia(form_data);
-        return post(
-            `${apiEndpoint()}/signage/media?group_id=${encodeURIComponent(group_id)}`,
-            form_data,
-        ).then((resp: any) => new SignageMedia(resp));
+        const result = await retryMediaRequest(() =>
+            group_id
+                ? post(
+                      `${apiEndpoint()}/signage/media?group_id=${encodeURIComponent(group_id)}`,
+                      form_data,
+                  ).then((resp: any) => new SignageMedia(resp))
+                : addSignageMedia(form_data),
+        );
+        this._addMediaToList(result);
+        return result;
+    }
+
+    /**
+     * Fold a newly created item into the loaded media list. Refetching instead
+     * loses the item whenever the backend index lags the write, which reads as
+     * a failed upload.
+     */
+    private _addMediaToList(media: SignageMedia) {
+        if (!media?.id) return;
+        const item = decodeEntityNames(media);
+        this._media_items.update((items) =>
+            [item, ...items.filter((existing) => existing.id !== item.id)].sort(
+                (a, b) => b.created_at - a.created_at,
+            ),
+        );
+        this._media_tags.reload();
     }
 
     private _addSignagePlaylist(form_data: Partial<SignagePlaylist>) {
@@ -2147,7 +2204,6 @@ export class SignageService {
         prepared_file_metadata?: SignageMediaMetadata,
         plugin?: SignagePlugin,
     ) {
-        const is_new = !media.id;
         if (media.id) {
             if (
                 !this._requirePermission(
@@ -2220,7 +2276,6 @@ export class SignageService {
             },
         });
         await dialogClosed(ref);
-        if (is_new) setTimeout(() => this.changed(), 500);
     }
 
     private async _editMedia(id: string, data: any) {
@@ -2300,8 +2355,10 @@ export class SignageService {
             const media_list = await listSignagePlaylistMedia(playlist_id);
             const new_media_list = [...media_list.items, result.id];
             await this.updatePlaylistMedia(playlist_id, new_media_list);
+            // Only the playlist views need rebuilding; the media list already
+            // holds the item returned by the create call.
+            this.changed();
         }
-        this.changed();
         return result;
     }
 
@@ -2333,33 +2390,17 @@ export class SignageService {
             1280,
             720,
         ).catch(() => null);
+        // Resolves only once the upload is committed. Watching progress reach
+        // 100 is not enough: the last chunk lands before finalisation and the
+        // commit run, so a failure there would otherwise look like success.
         let media_id: string;
         if (upload_options) {
-            const upload = this._uploads.uploadFileWithProgress(
+            media_id = await this._uploads.uploadFileToCompletion(
                 upload_file,
                 false,
                 upload_options.permissions,
+                upload_options.on_progress,
             );
-            const details = await new Promise<ReturnType<typeof upload>>(
-                (resolve, reject) => {
-                    const interval = setInterval(() => {
-                        const state = upload();
-                        upload_options.on_progress?.(state.progress);
-                        if (state.error) {
-                            clearInterval(interval);
-                            reject(state.error);
-                            return;
-                        }
-                        if (state.progress < 100) return;
-                        clearInterval(interval);
-                        resolve(state);
-                    }, 100);
-                },
-            );
-            media_id = details.upload_id || details.upload?.id || details.id;
-            if (!media_id) {
-                throw new Error('Failed to get uploaded file ID');
-            }
         } else {
             media_id =
                 await this._uploads.uploadFileWithPermissionsToCompletion(
