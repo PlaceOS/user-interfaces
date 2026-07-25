@@ -21,7 +21,7 @@ import {
     SignagePlaylist,
     type SignagePlaylistSchedule,
 } from '@placeos/ts-client';
-import { getUnixTime } from 'date-fns';
+import { fromUnixTime, getUnixTime } from 'date-fns';
 
 export type PlaylistScheduleType = 'play_at' | 'play_cron';
 type RecurringScheduleType =
@@ -495,7 +495,11 @@ export function createPlaylistScheduleModel(
     return {
         schedule_type: scheduleTypeFor(source),
         play_start: timeToMinutes(recurring_schedule.recurrence_time),
-        play_at: source.play_at || Date.now(),
+        // The API carries a unix timestamp in seconds; the form model works in
+        // milliseconds, as playlistSchedulePayload's getUnixTime assumes.
+        play_at: source.play_at
+            ? fromUnixTime(source.play_at).getTime()
+            : Date.now(),
         play_takeover: !!source.play_takeover,
         play_cron: source.play_cron || DEFAULT_RECURRING_CRON,
         recurrence_type: recurring_schedule.recurrence_type,
