@@ -1,1 +1,0 @@
-import {g0 as hn,g1 as Mc,cU as Pu}from'./main.js';var r="/api/staff/v1/guests";async function C(t){let s=hn({q:t});return (await Mc(`${r}${t?"?"+s:""}`)).map(c=>new Pu(c))}async function I(t){return new Pu(await Mc(`${r}/${encodeURIComponent(t)}`))}export{C,I};//# sourceMappingURL=chunk-_rfYfWit.js.map
