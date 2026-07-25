@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["%3Cno%20source%3E", "compact-counter.component.ts"],
+  "sourcesContent": [null, "\n            [counter].disabled {\n                @apply pointer-events-none opacity-30;\n            }\n        "],
+  "mappings": ";ACCY,CAAA,QAAA,CAAA;AACW,kBAAA;AAAoB,WAAA;AAC9B;",
+  "names": []
+}
