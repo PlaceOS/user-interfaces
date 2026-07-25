@@ -2941,40 +2941,70 @@ export class SignageService {
         return '';
     }
 
-    private _generateImageThumbnail(
+    private async _generateImageThumbnail(
         file: File,
         max_width: number,
         max_height: number,
     ) {
-        return new Promise<string>((resolve, reject) => {
-            const img = new Image();
-            const url = URL.createObjectURL(file);
-            const capture = () => {
-                const image = this._generateThumbnailFromResource(
-                    img,
-                    img.width,
-                    img.height,
-                    max_width,
-                    max_height,
-                );
-                URL.revokeObjectURL(url);
-                resolve(image);
-            };
-            img.onload = () => {
-                // `load` does not guarantee the pixels are decoded and ready to
-                // paint; `decode` does where it is supported.
-                if (typeof img.decode !== 'function') {
-                    capture();
-                    return;
-                }
-                img.decode().then(capture, capture);
-            };
-            img.onerror = (error) => {
-                URL.revokeObjectURL(url);
-                reject(error);
-            };
-            img.src = url;
-        });
+        const source = await this._decodeImageSource(file);
+        const { width, height } = this._imageSourceSize(
+            source,
+            max_width,
+            max_height,
+        );
+        try {
+            return this._generateThumbnailFromResource(
+                source,
+                width,
+                height,
+                max_width,
+                max_height,
+            );
+        } finally {
+            if (source instanceof ImageBitmap) source.close();
+        }
+    }
+
+    /**
+     * Decode the file completely before anything paints it. `load` on an
+     * `<img>` only promises the bytes arrived, not that a frame is ready, and
+     * browsers differ on when that becomes true.
+     */
+    private async _decodeImageSource(
+        file: File,
+    ): Promise<ImageBitmap | HTMLImageElement> {
+        if (typeof createImageBitmap === 'function') {
+            try {
+                const bitmap = await createImageBitmap(file);
+                if (bitmap.width > 0 && bitmap.height > 0) return bitmap;
+                bitmap.close();
+            } catch {
+                // Firefox cannot decode SVG through createImageBitmap
+            }
+        }
+        const image = await this._loadImage(file);
+        if (typeof image.decode === 'function') {
+            await image.decode().catch(() => undefined);
+        }
+        return image;
+    }
+
+    /**
+     * An SVG carrying no intrinsic size reports zero dimensions in Firefox
+     * while Chrome substitutes a default, which yields a zero sized canvas and
+     * a blank thumbnail. Fall back to the target box in that case.
+     */
+    private _imageSourceSize(
+        source: ImageBitmap | HTMLImageElement,
+        max_width: number,
+        max_height: number,
+    ) {
+        const width =
+            (source as HTMLImageElement).naturalWidth || source.width || 0;
+        const height =
+            (source as HTMLImageElement).naturalHeight || source.height || 0;
+        if (width > 0 && height > 0) return { width, height };
+        return { width: max_width, height: max_height };
     }
 
     private async _convertImageToWebp(file: File) {
@@ -3093,7 +3123,7 @@ export class SignageService {
     }
 
     private _generateThumbnailFromResource(
-        data: HTMLImageElement | HTMLVideoElement,
+        data: CanvasImageSource,
         source_width: number,
         source_height: number,
         max_width: number,
@@ -3112,13 +3142,16 @@ export class SignageService {
             thumbnail_height = max_height;
             thumbnail_width = thumbnail_height * aspect_ratio;
         }
-        canvas.width = thumbnail_width;
-        canvas.height = thumbnail_height;
+        /* A fractional or zero sized canvas renders nothing at all */
+        const width = Math.max(1, Math.round(thumbnail_width));
+        const height = Math.max(1, Math.round(thumbnail_height));
+        canvas.width = width;
+        canvas.height = height;
         /* JPEG has no alpha channel, so anything transparent is written out as
          * black unless the canvas is given a background first. */
         ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, thumbnail_width, thumbnail_height);
-        ctx.drawImage(data, 0, 0, thumbnail_width, thumbnail_height);
+        ctx.fillRect(0, 0, width, height);
+        ctx.drawImage(data, 0, 0, width, height);
         return canvas.toDataURL('image/jpeg');
     }
 }

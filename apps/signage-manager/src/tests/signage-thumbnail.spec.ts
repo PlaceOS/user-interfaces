@@ -84,6 +84,61 @@ describe('SignageService thumbnail rendering', () => {
         expect(context.fillRect).toHaveBeenCalledWith(0, 0, 200, 100);
     });
 
+    it('should never size the canvas fractionally or to zero', () => {
+        const service = TestBed.inject(
+            SignageService,
+        ) as unknown as SignageServiceTestAccess;
+        // 1000x333 scaled into a 500 wide box gives a fractional height
+        service['_generateThumbnailFromResource'](
+            {} as any,
+            1000,
+            333,
+            500,
+            500,
+        );
+
+        expect(Number.isInteger(canvas.width)).toBe(true);
+        expect(Number.isInteger(canvas.height)).toBe(true);
+        expect(canvas.width).toBeGreaterThan(0);
+        expect(canvas.height).toBeGreaterThan(0);
+    });
+
+    describe('source dimensions', () => {
+        const size = (source: any, max_w = 1280, max_h = 720) => {
+            const service = TestBed.inject(
+                SignageService,
+            ) as unknown as SignageServiceTestAccess;
+            return service['_imageSourceSize'](source, max_w, max_h);
+        };
+
+        it('should prefer the intrinsic size of an image element', () => {
+            expect(
+                size({
+                    naturalWidth: 800,
+                    naturalHeight: 600,
+                    width: 0,
+                    height: 0,
+                }),
+            ).toEqual({ width: 800, height: 600 });
+        });
+
+        it('should use the bitmap size when there is no intrinsic size', () => {
+            expect(size({ width: 640, height: 480 })).toEqual({
+                width: 640,
+                height: 480,
+            });
+        });
+
+        // Firefox reports 0 for an SVG with no intrinsic size, which would
+        // otherwise produce a zero sized canvas and a blank thumbnail
+        it('should fall back to the target box for a zero sized source', () => {
+            expect(size({ width: 0, height: 0 }, 1024, 720)).toEqual({
+                width: 1024,
+                height: 720,
+            });
+        });
+    });
+
     describe('video frames', () => {
         // Firefox fires loadeddata before a frame can be painted, so capturing
         // there yields a black thumbnail. Seeking forces a decoded frame.
