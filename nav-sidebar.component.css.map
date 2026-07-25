@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["nav-sidebar.component.ts"],
+  "sourcesContent": ["\n            a [active] {\n                transition: opacity 300ms;\n            }\n\n            a:not(.active) [active] {\n                opacity: 0;\n            }\n            a.active [active] {\n                opacity: 1;\n            }\n        "],
+  "mappings": ";AACY,EAAA,CAAA;AACI,cAAA,QAAA;AACJ;AAEA,CAAA,KAAA,CAAA,QAAA,CAAA;AACI,WAAA;AACJ;AACA,CAAA,CAHA,OAGA,CAAA;AACI,WAAA;AACJ;",
+  "names": []
+}
