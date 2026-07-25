@@ -1,9 +1,11 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent, MockProvider } from 'ng-mocks';
+import { of } from 'rxjs';
 
-import { UploadsService } from '@placeos/common';
+import { UploadCancelledError, UploadsService } from '@placeos/common';
 import { mockDirective } from '@placeos/common/tests';
+import { setNotifyOutlet } from 'libs/common/src/lib/notifications';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { ImageFieldComponent } from '../lib/image-field.component';
@@ -64,5 +66,47 @@ describe('ImageFieldComponent', () => {
         expect(spectator.component.disabled()).toBe(false);
         spectator.component.setDisabledState(true);
         expect(spectator.component.disabled()).toBe(true);
+    });
+
+    describe('upload failures', () => {
+        // Fake notification outlet so notifyError() is observable; it runs for
+        // real one layer above this spy.
+        const notify_open = vi.fn(() => ({
+            onAction: () => of(),
+            dismiss: vi.fn(),
+        }));
+        const fileEvent = (...files: File[]) => ({ target: { files } }) as any;
+
+        beforeEach(() => {
+            notify_open.mockClear();
+            setNotifyOutlet({ open: notify_open } as any, true);
+        });
+
+        afterEach(() => setNotifyOutlet(null, true));
+
+        it('should report a failed upload rather than rejecting', async () => {
+            const uploads = spectator.inject(UploadsService);
+            vi.mocked(uploads.uploadFileWithPermissions).mockRejectedValueOnce(
+                new Error('Commit failed with status 401'),
+            );
+            await expect(
+                spectator.component.uploadImage(
+                    fileEvent(new File([], 'a.png')),
+                ),
+            ).resolves.toBeUndefined();
+            expect(notify_open).toHaveBeenCalled();
+            expect(spectator.component.progress()).toBe(0);
+        });
+
+        it('should stay silent when the user cancels the upload', async () => {
+            const uploads = spectator.inject(UploadsService);
+            vi.mocked(uploads.uploadFileWithPermissions).mockRejectedValueOnce(
+                new UploadCancelledError(),
+            );
+            await spectator.component.uploadImage(
+                fileEvent(new File([], 'a.png')),
+            );
+            expect(notify_open).not.toHaveBeenCalled();
+        });
     });
 });

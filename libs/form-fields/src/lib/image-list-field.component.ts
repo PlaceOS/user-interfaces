@@ -22,9 +22,11 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     AsyncHandler,
+    notifyError,
     notifyInfo,
     unique,
     UPLOAD_PERMISSIONS_MODAL,
+    UploadCancelledError,
     UploadsService,
 } from '@placeos/common';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
@@ -354,13 +356,22 @@ export class ImageListFieldComponent
                 this.interval('update_status', () =>
                     this._updateUploadHistory(),
                 );
+                // Keep going after a failure so one bad file doesn't drop the rest
                 for (let i = 0; i < files.length; i++) {
-                    const id = await this._uploads.uploadFileWithPermissions(
-                        files[i],
-                    );
-                    this.upload_ids.set([...this.upload_ids(), id]);
-                    this._file_input().nativeElement.value = '';
+                    try {
+                        const id =
+                            await this._uploads.uploadFileWithPermissions(
+                                files[i],
+                            );
+                        this.upload_ids.set([...this.upload_ids(), id]);
+                    } catch (error) {
+                        if (error instanceof UploadCancelledError) continue;
+                        notifyError(
+                            `Failed to upload ${files[i].name}: ${error?.message || 'Unknown error'}`,
+                        );
+                    }
                 }
+                this._file_input().nativeElement.value = '';
             }
         }
     }
