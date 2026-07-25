@@ -21,9 +21,25 @@ export type SignagePluginMessageType =
     | 'ready'
     | 'interaction'
     | 'finished'
-    | 'error';
+    | 'error'
+    | 'thumbnail';
 
-export type SignageHostMessageType = 'config' | 'play';
+export type SignageHostMessageType = 'config' | 'play' | 'thumbnail';
+
+/** Largest thumbnail a plugin is allowed to hand back */
+const MAX_THUMBNAIL_LENGTH = 4 * 1024 * 1024;
+const THUMBNAIL_DATA_URL = /^data:image\/(png|jpeg|webp);base64,/;
+
+/**
+ * A plugin is a separate document and its reply is untrusted input, so only
+ * accept something that is already an image of a known type and a sane size.
+ */
+function safeThumbnail(image: unknown) {
+    if (typeof image !== 'string') return '';
+    if (!THUMBNAIL_DATA_URL.test(image)) return '';
+    if (image.length > MAX_THUMBNAIL_LENGTH) return '';
+    return image;
+}
 
 export type SignageMessage<T = unknown> = {
     api: 'signage-plugin/v1';
@@ -41,8 +57,19 @@ export type PluginLoadedPayload = {
         requires_play_signal: boolean;
         can_finish: boolean;
         static_media: boolean;
+        /** Absent on plugins built before thumbnails existed */
+        can_thumbnail?: boolean;
     };
     config_schema: Record<string, unknown>;
+};
+
+export type PluginThumbnailRequest = {
+    width: number;
+    height: number;
+};
+
+export type PluginThumbnailPayload = {
+    image?: string;
 };
 
 export type PluginConfigPayload = {
@@ -134,6 +161,8 @@ export class PluginEmbedComponent
     private _handle_messages = (e) => this._handleMessage(e);
     private _play_timer: ReturnType<typeof setTimeout> | null = null;
     private _pending_auto_config = false;
+    private _thumbnail_requests = new Map<string, (image: string) => void>();
+    private _thumbnail_count = 0;
 
     public ngOnInit() {
         this._setupChannels();
@@ -157,14 +186,50 @@ export class PluginEmbedComponent
 
     public send(
         type: SignageHostMessageType,
-        payload: PluginConfigPayload | null = null,
+        payload: PluginConfigPayload | PluginThumbnailRequest | null = null,
+        request_id?: string,
     ) {
         const origin = this.plugin_origin();
         if (!origin) return;
         this._plugin_el()?.nativeElement?.contentWindow.postMessage(
-            { api: API_VERSION, type, payload },
+            { api: API_VERSION, type, request_id, payload },
             origin,
         );
+    }
+
+    /** Whether the plugin told us it can render its own thumbnail */
+    public canProvideThumbnail() {
+        return !!this.details()?.capabilities?.can_thumbnail;
+    }
+
+    /**
+     * Ask the plugin to render a thumbnail of itself. Resolves to an empty
+     * string for any plugin that cannot or does not answer, so callers treat a
+     * plugin built before this existed exactly as they did before.
+     */
+    public requestThumbnail(
+        width: number,
+        height: number,
+        timeout_ms = 5000,
+    ): Promise<string> {
+        const origin = this.plugin_origin();
+        const frame = this._plugin_el()?.nativeElement?.contentWindow;
+        if (!this.canProvideThumbnail() || !origin || !frame) {
+            return Promise.resolve('');
+        }
+        this._thumbnail_count += 1;
+        const request_id = `thumbnail-${this._thumbnail_count}`;
+        return new Promise<string>((resolve) => {
+            const timer = setTimeout(() => {
+                this._thumbnail_requests.delete(request_id);
+                resolve('');
+            }, timeout_ms);
+            this._thumbnail_requests.set(request_id, (image) => {
+                clearTimeout(timer);
+                resolve(image);
+            });
+            this.send('thumbnail', { width, height }, request_id);
+        });
     }
 
     public onIframeError() {
@@ -194,6 +259,16 @@ export class PluginEmbedComponent
 
         if (msg.type === 'interaction') {
             this.plugin_interaction.emit(msg.payload);
+            return;
+        }
+
+        // Answering a request is not a lifecycle change, so this has to be
+        // handled before `status` is updated below.
+        if (msg.type === 'thumbnail') {
+            const handler = this._thumbnail_requests.get(msg.request_id);
+            if (!handler) return;
+            this._thumbnail_requests.delete(msg.request_id);
+            handler(safeThumbnail(msg.payload?.image));
             return;
         }
 

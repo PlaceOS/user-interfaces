@@ -6,6 +6,7 @@ import {
     inject,
     OnDestroy,
     signal,
+    viewChild,
     ViewChild,
 } from '@angular/core';
 import { form, FormField, required, submit } from '@angular/forms/signals';
@@ -62,6 +63,7 @@ export interface MediaEditModalData {
         f: File,
         m: SignageMedia,
         file_metadata?: SignageMediaMetadata,
+        thumbnail?: string,
     ) => Promise<SignageMedia>;
     onEdit: (id: string, data: any) => Promise<void>;
     preview: (item: any) => void;
@@ -443,6 +445,7 @@ export class MediaEditModalComponent implements OnDestroy {
         this._resolvePluginSchema(),
     );
     public readonly preview_url = signal('');
+    private readonly _plugin_embed = viewChild(PluginEmbedComponent);
     public readonly model = signal<MediaEditFormModel>({
         name: this._data.file?.name || this._data.media.name || '',
         media_uri: this._data.media.media_uri || '',
@@ -576,6 +579,18 @@ export class MediaEditModalComponent implements OnDestroy {
         clearTimeout(this._preview_url_timeout);
     }
 
+    /**
+     * Ask the embedded plugin to render its own thumbnail. Captured from the
+     * live preview so it reflects the config the user just set. Plugins that
+     * predate the capability return nothing and are saved exactly as before.
+     */
+    private async _capturePluginThumbnail() {
+        if (this.media_type !== 'plugin') return '';
+        const embed = this._plugin_embed();
+        if (!embed?.canProvideThumbnail()) return '';
+        return embed.requestThumbnail(1280, 720).catch(() => '');
+    }
+
     public async saveMedia() {
         await submit(this.form, async () => {
             if (this.schema_form && !this.schema_form.isValid()) return;
@@ -619,10 +634,13 @@ export class MediaEditModalComponent implements OnDestroy {
                 if (this.item.id) {
                     await this._data.onEdit(this.item.id, new_media);
                 } else {
+                    const plugin_thumbnail =
+                        await this._capturePluginThumbnail();
                     await this._data.onAdd(
                         this.file,
                         new SignageMedia(new_media),
                         this._data.file_metadata,
+                        plugin_thumbnail,
                     );
                 }
             } catch (error) {
