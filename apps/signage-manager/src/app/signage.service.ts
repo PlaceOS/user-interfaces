@@ -126,6 +126,11 @@ function dataURLtoFile(data_url: string, filename: string) {
 /** Backoff between attempts at creating a media record, in milliseconds */
 const MEDIA_RETRY_DELAYS = [500, 1500, 4500];
 
+/** Point to seek to before capturing a video thumbnail, in seconds */
+const VIDEO_THUMBNAIL_OFFSET = 0.1;
+/** How long to wait for a paintable video frame, in milliseconds */
+const VIDEO_THUMBNAIL_TIMEOUT = 15 * 1000;
+
 /**
  * A 401 is deliberately absent: the API client already invalidates the token,
  * re-authorises and replays the request itself, so retrying here as well would
@@ -2950,8 +2955,8 @@ export class SignageService {
     ) {
         return new Promise<string>((resolve, reject) => {
             const img = new Image();
-            img.src = URL.createObjectURL(file);
-            img.onload = () => {
+            const url = URL.createObjectURL(file);
+            const capture = () => {
                 const image = this._generateThumbnailFromResource(
                     img,
                     img.width,
@@ -2959,10 +2964,23 @@ export class SignageService {
                     max_width,
                     max_height,
                 );
-                URL.revokeObjectURL(img.src);
+                URL.revokeObjectURL(url);
                 resolve(image);
             };
-            img.onerror = reject;
+            img.onload = () => {
+                // `load` does not guarantee the pixels are decoded and ready to
+                // paint; `decode` does where it is supported.
+                if (typeof img.decode !== 'function') {
+                    capture();
+                    return;
+                }
+                img.decode().then(capture, capture);
+            };
+            img.onerror = (error) => {
+                URL.revokeObjectURL(url);
+                reject(error);
+            };
+            img.src = url;
         });
     }
 
@@ -3021,10 +3039,20 @@ export class SignageService {
     ) {
         return new Promise<string>((resolve, reject) => {
             const video = document.createElement('video');
-            video.autoplay = true;
+            const url = URL.createObjectURL(file);
             video.muted = true;
-            video.src = URL.createObjectURL(file);
-            video.onloadeddata = () => {
+            video.playsInline = true;
+            video.preload = 'auto';
+            let settled = false;
+            const cleanup = () => {
+                clearTimeout(timer);
+                URL.revokeObjectURL(url);
+                video.removeAttribute('src');
+                video.load();
+            };
+            const capture = () => {
+                if (settled) return;
+                settled = true;
                 const image = this._generateThumbnailFromResource(
                     video,
                     video.videoWidth,
@@ -3032,10 +3060,42 @@ export class SignageService {
                     max_width,
                     max_height,
                 );
-                URL.revokeObjectURL(video.src);
+                cleanup();
                 resolve(image);
             };
-            video.onerror = reject;
+            const fail = (error: unknown) => {
+                if (settled) return;
+                settled = true;
+                cleanup();
+                reject(error);
+            };
+            // Never leave the caller waiting on a frame that will not arrive
+            const timer = setTimeout(
+                () => fail(new Error('Timed out generating video thumbnail')),
+                VIDEO_THUMBNAIL_TIMEOUT,
+            );
+            video.onseeked = capture;
+            video.onloadeddata = () => {
+                // `loadeddata` only promises HAVE_CURRENT_DATA, and Firefox
+                // reaches it before a frame can be painted, which renders the
+                // thumbnail black. Seeking and waiting for `seeked` guarantees
+                // a decoded frame is presented.
+                const duration = Number.isFinite(video.duration)
+                    ? video.duration
+                    : 0;
+                const target = duration
+                    ? Math.min(VIDEO_THUMBNAIL_OFFSET, duration / 2)
+                    : VIDEO_THUMBNAIL_OFFSET;
+                if (video.currentTime === target) {
+                    capture();
+                    return;
+                }
+                // A seek to the current position emits no `seeked` event
+                video.currentTime = target;
+            };
+            video.onerror = () =>
+                fail(new Error(i18n('SIGNAGE_MANAGER.SVC_ERR_LOAD_IMAGE')));
+            video.src = url;
         });
     }
 
@@ -3061,6 +3121,10 @@ export class SignageService {
         }
         canvas.width = thumbnail_width;
         canvas.height = thumbnail_height;
+        /* JPEG has no alpha channel, so anything transparent is written out as
+         * black unless the canvas is given a background first. */
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, thumbnail_width, thumbnail_height);
         ctx.drawImage(data, 0, 0, thumbnail_width, thumbnail_height);
         return canvas.toDataURL('image/jpeg');
     }
