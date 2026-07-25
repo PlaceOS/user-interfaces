@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<OfficeApp xmlns="http://schemas.microsoft.com/office/appforoffice/1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0" xmlns:mailappor="http://schemas.microsoft.com/office/mailappversionoverrides/1.0" xsi:type="MailApp">
+  <Id>28ff1819-77f1-476b-9cff-e59b3fecc655</Id>
+  <Version>1.0.1.0</Version>
+  <ProviderName>PLACEOS</ProviderName>
+  <DefaultLocale>en-US</DefaultLocale>
+  <DisplayName DefaultValue="PlaceOS | Book Meeting Plugin" />
+  <Description DefaultValue="This add-in allows you to book rooms in your building via the PlaceOS API" />
+  <IconUrl DefaultValue="https://s3.ap-southeast-2.amazonaws.com/os.place.tech/outlook-plugin-resources/16x16-01.png" />
+  <HighResolutionIconUrl DefaultValue="https://s3.ap-southeast-2.amazonaws.com/os.place.tech/outlook-plugin-resources/80x80-01.png" />
+  <SupportUrl DefaultValue="https://place.technology/contact" />
+  <AppDomains>
+    <AppDomain>https://microsoft.poc.placeos.com/outlook/</AppDomain>
+    <AppDomain>https://login.microsoftonline.com/</AppDomain>
+  </AppDomains>
+  <Hosts>
+    <Host Name="Mailbox" />
+  </Hosts>
+  <Requirements>
+    <Sets>
+      <Set Name="Mailbox" MinVersion="1.1" />
+    </Sets>
+  </Requirements>
+  <FormSettings>
+    <Form xsi:type="ItemRead">
+      <DesktopSettings>
+        <SourceLocation DefaultValue="https://microsoft.poc.placeos.com/outlook/" />
+        <RequestedHeight>250</RequestedHeight>
+      </DesktopSettings>
+    </Form>
+  </FormSettings>
+  <Permissions>ReadWriteItem</Permissions>
+  <Rule xsi:type="RuleCollection" Mode="Or">
+    <Rule xsi:type="ItemIs" ItemType="Message" FormType="Read" />
+  </Rule>
+  <DisableEntityHighlighting>false</DisableEntityHighlighting>
+  <VersionOverrides xmlns="http://schemas.microsoft.com/office/mailappversionoverrides" xsi:type="VersionOverridesV1_0">
+    <Requirements>
+      <bt:Sets DefaultMinVersion="1.3">
+        <bt:Set Name="Mailbox" />
+      </bt:Sets>
+    </Requirements>
+    <Hosts>
+      <Host xsi:type="MailHost">
+        <DesktopFormFactor>
+          <FunctionFile resid="functionFile" />
+          <ExtensionPoint xsi:type="AppointmentOrganizerCommandSurface">
+            <!-- <ExtensionPoint xsi:type="MessageReadCommandSurface"> -->
+            <OfficeTab id="TabDefault">
+              <Group id="msgReadGroup">
+                <Label resid="GroupLabel" />
+                <Control xsi:type="Button" id="msgReadOpenPaneButton">
+                  <Label resid="TaskpaneButton.Label" />
+                  <Supertip>
+                    <Title resid="TaskpaneButton.Label" />
+                    <Description resid="TaskpaneButton.Tooltip" />
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="Icon.16x16" />
+                    <bt:Image size="32" resid="Icon.32x32" />
+                    <bt:Image size="80" resid="Icon.80x80" />
+                  </Icon>
+                  <Action xsi:type="ShowTaskpane">
+                    <SourceLocation resid="Taskpane.Url" />
+                  </Action>
+                </Control>
+                <Control xsi:type="Button" id="RoomsButton">
+                  <Label resid="RoomsButton.Label" />
+                  <Supertip>
+                    <Title resid="RoomsButton.Label" />
+                    <Description resid="RoomsButton.Tooltip" />
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="Icon.16x16" />
+                    <bt:Image size="32" resid="Icon.32x32" />
+                    <bt:Image size="80" resid="Icon.80x80" />
+                  </Icon>
+                  <Action xsi:type="ShowTaskpane">
+                    <SourceLocation resid="RoomsButton.Url" />
+                  </Action>
+                </Control>
+                <Control xsi:type="Button" id="DesksButton">
+                  <Label resid="DesksButton.Label" />
+                  <Supertip>
+                    <Title resid="DesksButton.Label" />
+                    <Description resid="DesksButton.Tooltip" />
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="Icon.16x16" />
+                    <bt:Image size="32" resid="Icon.32x32" />
+                    <bt:Image size="80" resid="Icon.80x80" />
+                  </Icon>
+                  <Action xsi:type="ShowTaskpane">
+                    <SourceLocation resid="DesksButton.Url" />
+                  </Action>
+                </Control>
+              </Group>
+            </OfficeTab>
+          </ExtensionPoint>
+        </DesktopFormFactor>
+      </Host>
+    </Hosts>
+    <Resources>
+      <bt:Images>
+        <bt:Image id="Icon.16x16" DefaultValue="https://s3.ap-southeast-2.amazonaws.com/os.place.tech/outlook-plugin-resources/16x16-01.png" />
+        <bt:Image id="Icon.32x32" DefaultValue="https://s3.ap-southeast-2.amazonaws.com/os.place.tech/outlook-plugin-resources/32x32-01.png" />
+        <bt:Image id="Icon.80x80" DefaultValue="https://s3.ap-southeast-2.amazonaws.com/os.place.tech/outlook-plugin-resources/80x80-01.png" />
+      </bt:Images>
+      <bt:Urls>
+        <bt:Url id="functionFile" DefaultValue="https://microsoft.poc.placeos.com/outlook/function-file/function-file.html" />
+        <bt:Url id="Taskpane.Url" DefaultValue="https://microsoft.poc.placeos.com/outlook/#/book/meeting" />
+        <bt:Url id="RoomsButton.Url" DefaultValue="https://microsoft.poc.placeos.com/outlook/#/upcoming" />
+        <bt:Url id="DesksButton.Url" DefaultValue="https://microsoft.poc.placeos.com/outlook/#/book/desks" />
+      </bt:Urls>
+      <bt:ShortStrings>
+        <bt:String id="GroupLabel" DefaultValue="PlaceOS | Book Meeting" />
+        <bt:String id="TaskpaneButton.Label" DefaultValue="Book a meeting" />
+        <bt:String id="DesksButton.Label" DefaultValue="Book a Desk" />
+        <bt:String id="RoomsButton.Label" DefaultValue="Upcoming meetings" />
+      </bt:ShortStrings>
+      <bt:LongStrings>
+        <bt:String id="TaskpaneButton.Tooltip" DefaultValue="Opens a pane displaying all available properties." />
+        <bt:String id="DesksButton.Tooltip" DefaultValue="Opens a pane displaying all available properties." />
+        <bt:String id="RoomsButton.Tooltip" DefaultValue="Opens a pane displaying all available properties." />
+      </bt:LongStrings>
+    </Resources>
+    <VersionOverrides xmlns="http://schemas.microsoft.com/office/mailappversionoverrides/1.1" xsi:type="VersionOverridesV1_1">
+      <WebApplicationInfo>
+        <Id>b2d59a3c-5fcf-4307-9e9c-0fd385902ff0</Id>
+        <Resource>api://microsoft.poc.placeos.com/b2d59a3c-5fcf-4307-9e9c-0fd385902ff0</Resource>
+        <Scopes>
+          <Scope>User.Read</Scope>
+          <Scope>profile</Scope>
+          <Scope>openid</Scope>
+        </Scopes>
+      </WebApplicationInfo>
+    </VersionOverrides>
+  </VersionOverrides>
+</OfficeApp>
