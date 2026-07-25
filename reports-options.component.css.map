@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["reports-options.component.ts"],
+  "sourcesContent": ["\n            button {\n                min-width: 0;\n                padding: 0 0.85rem;\n            }\n\n            button[icon][disabled] {\n                background-color: var(--neutral) !important;\n            }\n\n            mat-slide-toggle div {\n                width: 5.5em;\n                white-space: initial;\n                line-height: 1.2em;\n            }\n        "],
+  "mappings": ";AACY;AACI,aAAA;AACA,WAAA,EAAA;AACJ;AAEA,MAAA,CAAA,KAAA,CAAA;AACI,oBAAA,IAAA;AACJ;AAEA,iBAAA;AACI,SAAA;AACA,eAAA;AACA,eAAA;AACJ;",
+  "names": []
+}
