@@ -3,7 +3,7 @@ import {
     SignagePlaylist,
     type SignagePlaylistSchedule,
 } from '@placeos/ts-client';
-import { isSameDay, startOfDay } from 'date-fns';
+import { fromUnixTime, isSameDay, startOfDay } from 'date-fns';
 
 const BLOCK_PALETTE = [
     { bg: '#dbeafe', text: '#1e40af' },
@@ -185,7 +185,7 @@ function formatTimeRange(
 
 function parsePlayAt(play_at: number): Date | null {
     if (!play_at) return null;
-    return new Date(play_at > 1_000_000_000_000 ? play_at : play_at * 1000);
+    return fromUnixTime(play_at);
 }
 
 function isDayInRange(
@@ -195,11 +195,11 @@ function isDayInRange(
 ): boolean {
     const day_start = startOfDay(day).getTime();
     if (valid_from) {
-        const from_start = startOfDay(new Date(valid_from * 1000)).getTime();
+        const from_start = startOfDay(fromUnixTime(valid_from)).getTime();
         if (day_start < from_start) return false;
     }
     if (valid_until) {
-        const until_start = startOfDay(new Date(valid_until * 1000)).getTime();
+        const until_start = startOfDay(fromUnixTime(valid_until)).getTime();
         if (day_start > until_start) return false;
     }
     return true;

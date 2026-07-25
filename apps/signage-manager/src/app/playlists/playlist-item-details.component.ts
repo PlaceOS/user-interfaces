@@ -14,6 +14,7 @@ import {
     SignagePlaylist,
     type SignagePlaylistSchedule,
 } from '@placeos/ts-client';
+import { fromUnixTime } from 'date-fns';
 import { SignageService } from '../signage.service';
 
 const DEFAULT_PLAY_PERIOD_MINUTES = 24 * 60;
@@ -272,11 +273,7 @@ function schedulePeriod(schedule: Partial<SignagePlaylistSchedule>) {
 function scheduleLabel(schedule: Partial<SignagePlaylistSchedule>) {
     const period = schedulePeriod(schedule);
     if (schedule.play_at) {
-        const date = new Date(
-            schedule.play_at > 1_000_000_000_000
-                ? schedule.play_at
-                : schedule.play_at * 1000,
-        );
+        const date = fromUnixTime(schedule.play_at);
         return `Plays once on ${date.toLocaleString()} for ${durationLabel(period)}`;
     }
     return `${humanizeCronSchedule(schedule.play_cron || '0 0 * * *', period)}${
@@ -295,11 +292,7 @@ function nextSchedulePlaySessions(
 ): PlaySession[] {
     const period = schedulePeriod(schedule);
     if (schedule.play_at) {
-        const start = new Date(
-            schedule.play_at > 1_000_000_000_000
-                ? schedule.play_at
-                : schedule.play_at * 1000,
-        );
+        const start = fromUnixTime(schedule.play_at);
         const end = new Date(start);
         end.setMinutes(end.getMinutes() + Math.max(0, period || 0));
         if (period > 0) end.setSeconds(end.getSeconds() - 1);
@@ -315,7 +308,7 @@ function nextSchedulePlaySessions(
     template: `
         @if (playlist()) {
             <div
-                class="border-base-300 flex h-full min-w-60 lg:w-84 flex-col overflow-hidden border-l"
+                class="border-base-300 flex h-full min-w-60 flex-col overflow-hidden border-l lg:w-84"
             >
                 <mat-tab-group
                     class="flex-1 overflow-hidden"
@@ -324,7 +317,7 @@ function nextSchedulePlaySessions(
                 >
                     <mat-tab [label]="'COMMON.DETAILS' | translate">
                         <div class="h-full overflow-auto">
-                            <div class="flex flex-col gap-2 p-4 w-full">
+                            <div class="flex w-full flex-col gap-2 p-4">
                                 <div class="w-full">
                                     <div
                                         class="text-base-content/70 mb-1 text-xs font-medium tracking-wider uppercase"
