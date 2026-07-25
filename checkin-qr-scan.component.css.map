@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["checkin-qr-scan.component.ts"],
+  "sourcesContent": ["\n            video {\n                width: 34rem;\n                height: 24rem;\n            }\n\n            .status-dot {\n                background: #22c55e;\n                border-radius: 9999px;\n                width: 0.5rem;\n                height: 0.5rem;\n                display: inline-block;\n            }\n\n            a {\n                position: absolute;\n            }\n        "],
+  "mappings": ";AACY;AACI,SAAA;AACA,UAAA;AACJ;AAEA,CAAA;AACI,cAAA;AACA,iBAAA;AACA,SAAA;AACA,UAAA;AACA,WAAA;AACJ;AAEA;AACI,YAAA;AACJ;",
+  "names": []
+}
