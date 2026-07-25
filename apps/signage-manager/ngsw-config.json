@@ -25,7 +25,7 @@
                     "/*.(eot|svg|cur|jpg|png|webp|gif|otf|ttf|woff|woff2|ani)"
                 ],
                 "urls": [
-                    "https://*.amazonaws.com/**/*.*"
+                    "https://*.amazonaws.com/**/*.(eot|svg|cur|jpg|jpeg|png|webp|gif|otf|ttf|woff|woff2|ani|mp4|webm|mov)"
                 ]
             }
         }
