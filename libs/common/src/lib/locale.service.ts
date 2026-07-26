@@ -28,7 +28,7 @@ declare global {
 }
 
 interface LocaleStore {
-    expiry: number;
+    cached_at: number;
     locale: string;
     mappings: Record<string, string>;
 }
@@ -73,8 +73,11 @@ export class LocaleService {
     private _default_locale = 'en-AU';
     private _current_locale = this._default_locale;
     private _current_locale_short = this._current_locale.split('-')[0];
-    private _cache_time = 7 * 24 * 60 * 60 * 1000;
+    /** Cached mappings older than this are discarded instead of displayed */
+    private _max_cache_age = 7 * 24 * 60 * 60 * 1000;
     private _load_promises: Record<string, Promise<void>> = {};
+    /** Locales that have been loaded from the API this session */
+    private _loaded_locales: Record<string, boolean> = {};
     private readonly _changes = signal(0);
 
     private _default_mappings: Record<string, string> =
@@ -89,13 +92,8 @@ export class LocaleService {
         this._current_locale =
             localStorage.getItem(`${STORE_KEY}`) || this._default_locale;
         if (this._current_locale !== this._default_locale) {
-            const existing: LocaleStore = JSON.parse(
-                localStorage.getItem(`${STORE_KEY}.${this._current_locale}`) ||
-                    '{}',
-            );
-            if (existing.expiry && existing.expiry > Date.now()) {
-                this._locale_mappings[this._current_locale] = existing.mappings;
-            }
+            const cached = this._cachedMappings(this._current_locale);
+            if (cached) this._locale_mappings[this._current_locale] = cached;
         }
     }
 
@@ -168,7 +166,7 @@ export class LocaleService {
         this._current_locale = locale;
         this._current_locale_short = this._current_locale.split('-')[0];
         this._changes.update((value) => value + 1);
-        if (!this._locale_mappings[locale] && !this._load_promises[locale]) {
+        if (!this._loaded_locales[locale] && !this._load_promises[locale]) {
             this._load_promises[locale] = this._loadLocale(locale);
         }
         localStorage.setItem(`${STORE_KEY}`, locale);
@@ -176,46 +174,68 @@ export class LocaleService {
     }
 
     private async _loadLocale(locale: string) {
-        const existing: LocaleStore = JSON.parse(
-            localStorage.getItem(`${STORE_KEY}.${locale}`) || '{}',
-        );
-        if (!existing.expiry || existing.expiry < Date.now()) {
-            localStorage.removeItem(`${STORE_KEY}.${locale}`);
-            const resp = await fetch(`${this.locale_folder}/${locale}.json`);
-            if (!resp.ok) {
-                delete this._load_promises[locale];
-                return console.error(
-                    `Failed to loaded locale file for "${locale}".`,
-                    resp,
-                );
-            }
-            const locale_data = await resp.json();
-            const locale_override_data = this.zone_id
-                ? await showMetadata(this.zone_id, `locale_${locale}`)
-                : { details: {} };
-            const base_locale_values = removeNesting(locale_data);
-            const override_locale_values = removeNesting(
-                locale_override_data.details,
-            );
-            this._locale_mappings[locale] = {
-                ...base_locale_values,
-                ...override_locale_values,
-            };
-            if (!window.debug) {
-                const store = {
-                    expiry: Date.now() + this._cache_time,
-                    locale,
-                    mappings: this._locale_mappings[locale],
-                };
-                localStorage.setItem(
-                    `${STORE_KEY}.${locale}`,
-                    JSON.stringify(store),
-                );
-            }
-        } else {
-            this._locale_mappings[locale] = existing.mappings;
+        // Display the mappings from the last load while the latest are on
+        // their way, so text isn't left untranslated until the fetch lands.
+        const cached = this._cachedMappings(locale);
+        if (cached && !this._locale_mappings[locale]) {
+            this._locale_mappings[locale] = cached;
+            this._changes.update((value) => value + 1);
         }
+        const resp = await fetch(`${this.locale_folder}/${locale}.json`);
+        if (!resp.ok) {
+            // Any cached mappings are left in place.
+            delete this._load_promises[locale];
+            return console.error(
+                `Failed to loaded locale file for "${locale}".`,
+                resp,
+            );
+        }
+        const locale_data = await resp.json();
+        const locale_override_data = this.zone_id
+            ? await showMetadata(this.zone_id, `locale_${locale}`)
+            : { details: {} };
+        const base_locale_values = removeNesting(locale_data);
+        const override_locale_values = removeNesting(
+            locale_override_data.details,
+        );
+        this._locale_mappings[locale] = {
+            ...base_locale_values,
+            ...override_locale_values,
+        };
+        if (!window.debug) {
+            const store: LocaleStore = {
+                cached_at: Date.now(),
+                locale,
+                mappings: this._locale_mappings[locale],
+            };
+            localStorage.setItem(
+                `${STORE_KEY}.${locale}`,
+                JSON.stringify(store),
+            );
+        }
+        this._loaded_locales[locale] = true;
         this._changes.update((value) => value + 1);
         delete this._load_promises[locale];
+    }
+
+    /** Mappings stored by the last load of the locale, if still usable */
+    private _cachedMappings(locale: string): Record<string, string> | null {
+        const key = `${STORE_KEY}.${locale}`;
+        try {
+            const store: LocaleStore = JSON.parse(
+                localStorage.getItem(key) || 'null',
+            );
+            if (
+                !store?.cached_at ||
+                store.cached_at + this._max_cache_age < Date.now()
+            ) {
+                localStorage.removeItem(key);
+                return null;
+            }
+            return store.mappings;
+        } catch {
+            localStorage.removeItem(key);
+            return null;
+        }
     }
 }
