@@ -67,7 +67,7 @@ export class UploadFailedError extends Error {
 /** How many times a failed upload is re-attempted before reporting failure */
 const UPLOAD_RETRY_ATTEMPTS = 3;
 
-function uploadStateError(state: { error?: string }) {
+function uploadStateError(state: { error?: string } | any) {
     return state?.error || 'Upload failed';
 }
 
