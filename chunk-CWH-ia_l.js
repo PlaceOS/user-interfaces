@@ -1,0 +1,1 @@
+import {m as m$1,T as Td,dy as qn}from'./main.js';var u=(()=>{class i{constructor(){this._org=m$1(Td);}transform(r){return this._org.buildings.find(t=>r instanceof Array?r.includes(t.id):t.id===r)}static{this.\u0275fac=function(t){return new(t||i)};}static{this.\u0275pipe=qn({name:"building",type:i,pure:true});}}return i})();export{u};//# sourceMappingURL=chunk-CWH-ia_l.js.map
