@@ -4,11 +4,12 @@ import {
   CdkTreeNode,
   CdkTreeNodeDef,
   CdkTreeNodePadding
-} from "./chunk-6PQKDVF6.js";
+} from "./chunk-H4UT3E63.js";
 import {
+  GroupBreadcrumbsComponent,
   NavFooterComponent,
   NavSidebarComponent
-} from "./chunk-EZB5K4JH.js";
+} from "./chunk-2YE535VN.js";
 import {
   ActivatedRoute,
   AuthenticatedImageDirective,
@@ -48,9 +49,6 @@ import {
   ɵɵcontrol,
   ɵɵcontrolCreate,
   ɵɵdefineComponent,
-  ɵɵdomElement,
-  ɵɵdomElementEnd,
-  ɵɵdomElementStart,
   ɵɵelement,
   ɵɵelementEnd,
   ɵɵelementStart,
@@ -73,7 +71,7 @@ import {
   ɵɵtext,
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1
-} from "./chunk-ZQUI6GD6.js";
+} from "./chunk-W36T2HDV.js";
 import {
   __spreadProps,
   __spreadValues
@@ -896,26 +894,28 @@ var ZoneHeaderComponent = class _ZoneHeaderComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ZoneHeaderComponent, selectors: [["zone-header"]], decls: 9, vars: 10, consts: [[1, "bg-base-100", "border-base-300", "sticky", "top-0", "flex", "flex-wrap", "items-center", "gap-2", "border-b", "px-4", "py-2", "shadow", "sm:flex-nowrap"], [1, "py-2"], [1, "text-2xl", "font-medium"], [1, "text-sm", "opacity-60"], [1, "w-px", "flex-1"]], template: function ZoneHeaderComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ZoneHeaderComponent, selectors: [["zone-header"]], decls: 11, vars: 10, consts: [[1, "bg-base-100", "border-base-300", "sticky", "top-0", "flex", "flex-wrap", "items-center", "gap-2", "border-b", "px-4", "py-2", "shadow", "sm:flex-nowrap"], [1, "py-2"], [1, "text-2xl", "font-medium"], [1, "flex", "flex-wrap", "items-center", "gap-2"], [1, "text-sm", "opacity-60"], [1, "w-px", "flex-1"]], template: function ZoneHeaderComponent_Template(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275domElementStart(0, "div", 0)(1, "div", 1)(2, "h3", 2);
+        \u0275\u0275elementStart(0, "div", 0)(1, "div", 1)(2, "h3", 2);
         \u0275\u0275text(3);
         \u0275\u0275pipe(4, "translate");
-        \u0275\u0275domElementEnd();
-        \u0275\u0275domElementStart(5, "div", 3);
-        \u0275\u0275text(6);
-        \u0275\u0275pipe(7, "translate");
-        \u0275\u0275domElementEnd()();
-        \u0275\u0275domElement(8, "div", 4);
-        \u0275\u0275domElementEnd();
+        \u0275\u0275elementEnd();
+        \u0275\u0275elementStart(5, "div", 3)(6, "div", 4);
+        \u0275\u0275text(7);
+        \u0275\u0275pipe(8, "translate");
+        \u0275\u0275elementEnd();
+        \u0275\u0275element(9, "group-breadcrumbs");
+        \u0275\u0275elementEnd()();
+        \u0275\u0275element(10, "div", 5);
+        \u0275\u0275elementEnd();
       }
       if (rf & 2) {
         \u0275\u0275advance(3);
         \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(4, 2, "SIGNAGE_MANAGER.ZONES_TITLE"), " ");
-        \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(7, 4, "COMMON.ITEM_COUNT", \u0275\u0275pureFunction1(8, _c02, ctx.total_count()), ctx.total_count()), " ");
+        \u0275\u0275advance(4);
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(8, 4, "COMMON.ITEM_COUNT", \u0275\u0275pureFunction1(8, _c02, ctx.total_count()), ctx.total_count()), " ");
       }
-    }, dependencies: [TranslatePipe], encapsulation: 2 });
+    }, dependencies: [GroupBreadcrumbsComponent, TranslatePipe], encapsulation: 2 });
   }
 };
 (() => {
@@ -931,24 +931,27 @@ var ZoneHeaderComponent = class _ZoneHeaderComponent {
                 <h3 class="text-2xl font-medium">
                     {{ 'SIGNAGE_MANAGER.ZONES_TITLE' | translate }}
                 </h3>
-                <div class="text-sm opacity-60">
-                    {{
-                        'COMMON.ITEM_COUNT'
-                            | translate
-                                : { count: total_count() }
-                                : total_count()
-                    }}
+                <div class="flex flex-wrap items-center gap-2">
+                    <div class="text-sm opacity-60">
+                        {{
+                            'COMMON.ITEM_COUNT'
+                                | translate
+                                    : { count: total_count() }
+                                    : total_count()
+                        }}
+                    </div>
+                    <group-breadcrumbs />
                 </div>
             </div>
             <div class="w-px flex-1"></div>
         </div>
     `,
-      imports: [TranslatePipe]
+      imports: [TranslatePipe, GroupBreadcrumbsComponent]
     }]
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ZoneHeaderComponent, { className: "ZoneHeaderComponent", filePath: "apps/signage-manager/src/app/zones/zone-header.component.ts", lineNumber: 29 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ZoneHeaderComponent, { className: "ZoneHeaderComponent", filePath: "apps/signage-manager/src/app/zones/zone-header.component.ts", lineNumber: 33 });
 })();
 
 // apps/signage-manager/src/app/zones/zone-list.component.ts
@@ -2108,4 +2111,4 @@ var ZonesSectionComponent = class _ZonesSectionComponent {
 export {
   ZonesSectionComponent
 };
-//# sourceMappingURL=zones.component-3GNQQJZV.js.map
+//# sourceMappingURL=zones.component-34SIRVYE.js.map
