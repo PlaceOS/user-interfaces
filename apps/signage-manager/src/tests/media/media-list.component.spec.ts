@@ -13,7 +13,7 @@ describe('MediaListComponent folders', () => {
     const media_view_mode = signal<'grid' | 'list' | 'folder'>('grid');
     const signage_groups = signal<any[]>([]);
     const is_sys_admin = signal(false);
-    const show_group_selector = signal(true);
+    const show_media_group_tabs = signal(true);
     const set_selected_group = vi.fn();
     const service_stub = {
         filtered_media,
@@ -23,7 +23,7 @@ describe('MediaListComponent folders', () => {
         signage_groups,
         selected_group_id: signal(''),
         is_sys_admin,
-        show_group_selector,
+        show_media_group_tabs,
         can_update: signal(true),
         can_delete: signal(true),
         can_share: signal(true),
@@ -57,11 +57,11 @@ describe('MediaListComponent folders', () => {
         media_view_mode.set('folder');
         signage_groups.set([]);
         is_sys_admin.set(false);
-        show_group_selector.set(true);
+        show_media_group_tabs.set(true);
         set_selected_group.mockReset();
     });
 
-    it('offers the group tabs only while the group selector is enabled', () => {
+    it('offers the group tabs only while the media group tabs are enabled', () => {
         signage_groups.set([
             { group: { id: 'a', name: 'Alpha' } },
             { group: { id: 'b', name: 'Beta' } },
@@ -70,7 +70,7 @@ describe('MediaListComponent folders', () => {
 
         expect(component.can_switch_groups()).toBe(true);
 
-        show_group_selector.set(false);
+        show_media_group_tabs.set(false);
 
         expect(component.can_switch_groups()).toBe(false);
     });

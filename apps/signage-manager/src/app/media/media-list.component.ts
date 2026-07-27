@@ -749,7 +749,7 @@ export class MediaListComponent implements OnInit {
     public readonly is_sys_admin = this._service.is_sys_admin;
     public readonly can_switch_groups = computed(
         () =>
-            this._service.show_group_selector() &&
+            this._service.show_media_group_tabs() &&
             (this.is_sys_admin()
                 ? this.groups().length > 0
                 : this.groups().length > 1),

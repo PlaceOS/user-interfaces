@@ -326,6 +326,11 @@ export class SignageService {
         'show_group_selector',
         true,
     );
+    /** Whether the media page offers its group tab bar. */
+    public readonly show_media_group_tabs = this._settings.signal(
+        'show_media_group_tabs',
+        true,
+    );
 
     public readonly search_term = signal('');
     public readonly media_view_mode =
