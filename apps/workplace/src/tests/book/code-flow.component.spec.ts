@@ -26,4 +26,14 @@ describe('BookCodeFlowComponent', () => {
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();
     });
+
+    it('should carry scanned QR code params through to the route', () => {
+        const router = spectator.inject(Router);
+        (spectator.component as any).handleQrCode(
+            'https://place.tech/workplace/#/book/code?asset_id=desk-1',
+        );
+        expect(router.navigate).toHaveBeenCalledWith(['/book/code'], {
+            queryParams: { asset_id: 'desk-1' },
+        });
+    });
 });

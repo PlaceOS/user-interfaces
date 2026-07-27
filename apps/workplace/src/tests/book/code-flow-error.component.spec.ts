@@ -62,6 +62,25 @@ describe('CodeFlowErrorComponent', () => {
         expect(try_again!.getAttribute('href')).toContain('asset_id=desk-7');
     });
 
+    it('should show a book link for the generic error state', () => {
+        spectator.setRouteQueryParam('asset_id', 'desk-3');
+        spectator.detectChanges();
+        const book = spectator
+            .queryAll('a[btn]')
+            .find((l) => l.getAttribute('href')?.includes('/book/desk'));
+        expect(book).toBeTruthy();
+        expect(book!.getAttribute('href')).toContain('asset_id=desk-3');
+    });
+
+    it('should not show a book link when the booking has not started', () => {
+        spectator.setRouteQueryParam('type', 'not_started');
+        spectator.detectChanges();
+        const book = spectator
+            .queryAll('a[btn]')
+            .find((l) => l.getAttribute('href')?.includes('/book/desk'));
+        expect(book).toBeFalsy();
+    });
+
     it('should show a book link when there is no booking', () => {
         spectator.setRouteQueryParam('type', 'no_booking');
         spectator.setRouteQueryParam('asset_id', 'desk-9');
