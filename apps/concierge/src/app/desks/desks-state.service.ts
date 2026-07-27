@@ -787,11 +787,12 @@ export class DesksStateService extends AsyncHandler {
                     item.assigned_to?.toLowerCase() === email,
             ).length;
         if (assigned_count >= max_assigned_count) {
-            const key =
-                max_assigned_count === 1
-                    ? 'APP.CONCIERGE.DESKS_ASSIGN_LIMIT_ERROR_1'
-                    : 'APP.CONCIERGE.DESKS_ASSIGN_LIMIT_ERROR_N';
-            const message = i18n(key, { count: max_assigned_count });
+            const key = 'APP.CONCIERGE.DESKS_ASSIGN_LIMIT_ERROR';
+            const message = i18n(
+                key,
+                { count: max_assigned_count },
+                max_assigned_count,
+            );
             throw !message || message === key
                 ? `Users can only have ${max_assigned_count} assigned desk${max_assigned_count === 1 ? '' : 's'} at a time.`
                 : message;

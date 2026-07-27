@@ -100,7 +100,10 @@ import { BookingFormService } from './booking-form.service';
                                 name="start-time"
                                 [ngModel]="model().date"
                                 (ngModelChange)="
-                                    model.update((m) => ({ ...m, date: $event }))
+                                    model.update((m) => ({
+                                        ...m,
+                                        date: $event,
+                                    }))
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                                 [use_24hr]="use_24hr()"
@@ -243,7 +246,7 @@ import { BookingFormService } from './booking-form.service';
                 } @else {
                     <div class="flex flex-col">
                         <label for="visitor-name">
-                            {{ 'BOOKINGS.VISITOR_LIST' | translate }}
+                            {{ 'RESOURCE.VISITORS' | translate }}
                             <span>*</span>
                         </label>
                         <a-user-list-field
@@ -300,7 +303,7 @@ import { BookingFormService } from './booking-form.service';
                 @if (allow_pass_number()) {
                     <div class="flex flex-col">
                         <label for="pass">{{
-                            'BOOKINGS.VISITOR_PASS' | translate
+                            'BOOKINGS.PASS_NUMBER' | translate
                         }}</label>
                         <mat-form-field appearance="outline">
                             <input
@@ -365,9 +368,7 @@ export class VisitorInviteFormComponent
 
     public readonly search_term = signal<string>('');
     public readonly visitors = signal<User[]>([]);
-    public readonly visitor_international = signal<Record<string, boolean>>(
-        {},
-    );
+    public readonly visitor_international = signal<Record<string, boolean>>({});
     public readonly filtered_visitors = computed(() => {
         const s = this.search_term().toLowerCase();
         return this.visitors().filter(
@@ -634,7 +635,10 @@ export class VisitorInviteFormComponent
         if (!this.model().id) this._service.newForm('visitor');
         this.model.update((m) => ({ ...m, booking_type: 'visitor' }));
         if (!this.model().zones?.length) {
-            this.model.update((m) => ({ ...m, zones: [this._org.building?.id] }));
+            this.model.update((m) => ({
+                ...m,
+                zones: [this._org.building?.id],
+            }));
         }
         if (this.model().id) {
             if (!this.model().assets?.length) {

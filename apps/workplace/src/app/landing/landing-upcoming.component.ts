@@ -42,14 +42,14 @@ import { LandingStateService } from './landing-state.service';
                     class="inverse hidden sm:flex"
                     [routerLink]="['/your-bookings']"
                 >
-                    {{ 'APP.WORKPLACE.UPCOMING_VIEW' | translate }}
+                    {{ 'COMMON.VIEW_ALL' | translate }}
                 </a>
                 <a
                     name="upcoming-view-all-mobile"
                     class="inverse relative top-8 flex text-blue-500 underline sm:hidden"
                     [routerLink]="['/your-bookings']"
                 >
-                    {{ 'APP.WORKPLACE.UPCOMING_VIEW' | translate }}
+                    {{ 'COMMON.VIEW_ALL' | translate }}
                 </a>
             </div>
             <div class="space-y-4 px-4">

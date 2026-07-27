@@ -19,7 +19,7 @@ import { DialpadComponent } from './dialpad.component';
                     matInput
                     readonly
                     [ngModel]="system()?.phone"
-                    [placeholder]="'APP.CONTROL.PHONE' | translate"
+                    [placeholder]="'FORM.PHONE' | translate"
                 />
                 @if (system()?.phone) {
                     <button icon matRipple matSuffix (click)="clear()">

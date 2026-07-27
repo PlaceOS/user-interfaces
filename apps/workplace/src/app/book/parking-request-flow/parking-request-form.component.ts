@@ -95,7 +95,7 @@ import { ParkingRequestFormDetailsComponent } from './parking-request-form-detai
                             >
                                 <icon class="text-xl">close</icon>
                                 <div class="mr-2">
-                                    {{ 'BOOKINGS.PARKING_CANCEL' | translate }}
+                                    {{ 'COMMON.CANCEL' | translate }}
                                 </div>
                             </button>
                             <button

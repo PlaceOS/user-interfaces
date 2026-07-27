@@ -262,9 +262,7 @@ import { BookingFormService } from './booking-form.service';
                                                     | translate
                                             "
                                             (focus)="
-                                                filterVisitors(
-                                                    model().asset_id
-                                                )
+                                                filterVisitors(model().asset_id)
                                             "
                                             [matAutocomplete]="email_auto"
                                         />
@@ -324,9 +322,7 @@ import { BookingFormService } from './booking-form.service';
                             } @else {
                                 <div class="flex flex-col">
                                     <label for="visitor-name">
-                                        {{
-                                            'BOOKINGS.VISITOR_LIST' | translate
-                                        }}
+                                        {{ 'RESOURCE.VISITORS' | translate }}
                                         <span>*</span>
                                     </label>
                                     <a-user-list-field
@@ -391,7 +387,7 @@ import { BookingFormService } from './booking-form.service';
                             @if (allow_pass_number()) {
                                 <div class="flex flex-col">
                                     <label for="pass">{{
-                                        'BOOKINGS.VISITOR_PASS' | translate
+                                        'BOOKINGS.PASS_NUMBER' | translate
                                     }}</label>
                                     <mat-form-field appearance="outline">
                                         <input
@@ -614,9 +610,7 @@ export class InviteVisitorFormComponent {
     public readonly last_count = signal(0);
     private visitors = [];
     public readonly filtered_visitors = signal<any[]>([]);
-    public readonly visitor_international = signal<Record<string, boolean>>(
-        {},
-    );
+    public readonly visitor_international = signal<Record<string, boolean>>({});
     private readonly _visitor_bookable_hours = this._settings.signal(
         'visitors.bookable_hours',
         null,

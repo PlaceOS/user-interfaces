@@ -113,7 +113,7 @@ interface ParkingBookingColumnTemplates {
                             status_busy_label: 'COMMON.STATUS_BUSY' | translate,
                             type_label:
                                 'BOOKINGS.PARKING_VEHICLE_TYPE' | translate,
-                            time_label: 'FORM.TIME' | translate,
+                            time_label: 'COMMON.TIME' | translate,
                             bay_number_label:
                                 'APP.CONCIERGE.PARKING_BAY_NUMBER' | translate,
                             reserved_for_label:
@@ -122,7 +122,7 @@ interface ParkingBookingColumnTemplates {
                             reserved_by_label:
                                 'APP.CONCIERGE.PARKING_RESERVED_BY' | translate,
                             plate_number_label:
-                                'EXPLORE.PARKING_PLATE_NUMBER' | translate,
+                                'BOOKINGS.PARKING_PLATE_NUMBER' | translate,
                             notes_label: 'FORM.NOTES' | translate,
                             status_label: 'COMMON.STATUS' | translate,
                         })

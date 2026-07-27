@@ -140,7 +140,7 @@ export class BookingHistoryModalComponent {
     public stateLabel(state: BookingHistoryState) {
         switch (state) {
             case 'reserved':
-                return 'BOOKINGS.RESERVED';
+                return 'COMMON.STATUS_RESERVED';
             case 'checked_in':
                 return 'COMMON.CHECKED_IN';
             case 'checked_out':

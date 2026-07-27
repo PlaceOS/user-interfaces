@@ -101,7 +101,7 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                     },
                     {
                         key: 'plate_number',
-                        name: 'EXPLORE.PARKING_PLATE_NUMBER' | translate,
+                        name: 'BOOKINGS.PARKING_PLATE_NUMBER' | translate,
                     },
                     {
                         key: 'checked_in',
@@ -193,7 +193,7 @@ export class ParkingReportListComponent {
                 host: booking.user_name || booking.user_email,
                 plate_number: booking.extension_data?.plate_number || '',
                 checked_in: i18n(
-                    booking.checked_in ? 'COMMON.TRUE' : 'COMMON.FALSE',
+                    booking.checked_in ? 'COMMON.YES' : 'COMMON.NO',
                 ),
                 checked_in_at: booking.checked_in_at
                     ? booking.checked_in_at
@@ -201,8 +201,8 @@ export class ParkingReportListComponent {
                 status: reportBookingStatus(booking),
                 self_registered: i18n(
                     booking.extension_data?.self_registered
-                        ? 'COMMON.TRUE'
-                        : 'COMMON.FALSE',
+                        ? 'COMMON.YES'
+                        : 'COMMON.NO',
                 ),
             });
         }

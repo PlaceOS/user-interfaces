@@ -32,12 +32,12 @@ import {
     currentUser,
     getFormTimeSyncHandle,
     getTimeInTimezone,
+    notifyError,
     OrganisationService,
     settingSignal,
     SettingsService,
     startOfDayInTimezone,
     UploadsService,
-    notifyError
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import {
@@ -660,10 +660,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                         <label
                                             class="mb-1 block text-sm font-medium"
                                         >
-                                            {{
-                                                'BOOKINGS.PARKING_START_TIME'
-                                                    | translate
-                                            }}
+                                            {{ 'FORM.TIME_START' | translate }}
                                         </label>
                                         <mat-form-field
                                             appearance="outline"
@@ -695,10 +692,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                         <label
                                             class="mb-1 block text-sm font-medium"
                                         >
-                                            {{
-                                                'BOOKINGS.PARKING_END_TIME'
-                                                    | translate
-                                            }}
+                                            {{ 'FORM.TIME_END' | translate }}
                                         </label>
                                         <mat-form-field
                                             appearance="outline"
@@ -815,7 +809,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                             >
                                                 @if (availability_loading()) {
                                                     <div
-                                                        class="text-sm font-medium opacity-60 p-2"
+                                                        class="p-2 text-sm font-medium opacity-60"
                                                     >
                                                         Checking...
                                                     </div>
@@ -922,7 +916,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                 >
                                     @if (availability_loading()) {
                                         <div
-                                            class="text-sm font-medium opacity-60 pr-2"
+                                            class="pr-2 text-sm font-medium opacity-60"
                                         >
                                             Checking...
                                         </div>
@@ -1027,7 +1021,9 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                                     plate_number
                                                 }}</span>
                                                 <button
-                                                    icon default error
+                                                    icon
+                                                    default
+                                                    error
                                                     type="button"
                                                     class="text-xs"
                                                     [attr.aria-label]="
@@ -1216,7 +1212,7 @@ export class ParkingRequestFormDetailsComponent
     private _parking = inject(ParkingService);
     private _injector = inject(Injector);
     private _settings = inject(SettingsService);
-    private _uploads = inject(UploadsService)
+    private _uploads = inject(UploadsService);
     private _org = inject(OrganisationService);
     private _saved_shift_state: ParkingRequestShiftState | null = null;
     private readonly _removed_plate_numbers = signal<string[]>([]);
@@ -1435,7 +1431,7 @@ export class ParkingRequestFormDetailsComponent
     public readonly end_time_mins = signal<number>(1020);
     public readonly custom_start_time_mins = signal<number>(480);
     public readonly custom_end_time_mins = signal<number>(600);
-    public readonly supporting_doc_names = signal<string[]>([])
+    public readonly supporting_doc_names = signal<string[]>([]);
     public readonly shift_options = computed(() => {
         const user_groups = currentUser()?.groups || [];
         return this._normaliseShiftOptions(this.shift_options_setting()).filter(

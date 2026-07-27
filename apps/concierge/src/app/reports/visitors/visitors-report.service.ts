@@ -118,8 +118,8 @@ export class VisitorsReportService {
                     if (show_international) {
                         b.international = i18n(
                             booking.extension_data?.international
-                                ? 'COMMON.TRUE'
-                                : 'COMMON.FALSE',
+                                ? 'COMMON.YES'
+                                : 'COMMON.NO',
                         );
                     }
                     for (const key of REMOVE_KEYS) delete b[key];

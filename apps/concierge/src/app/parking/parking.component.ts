@@ -82,9 +82,7 @@ import { ParkingTopbarComponent } from './parking-topbar.component';
                                 ]"
                                 [active]="view() === 'map'"
                             >
-                                {{
-                                    'APP.CONCIERGE.PARKING_TAB_MAP' | translate
-                                }}
+                                {{ 'COMMON.MAP' | translate }}
                             </a>
                         </nav>
                         <mat-tab-nav-panel #tabPanel></mat-tab-nav-panel>

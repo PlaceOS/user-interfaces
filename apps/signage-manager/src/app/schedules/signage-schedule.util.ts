@@ -358,7 +358,7 @@ export function buildDisplayScheduleAssignments(
                 zone_playlist_sources[playlist_id] = [];
             }
             zone_playlist_sources[playlist_id].push(
-                zone.display_name || zone.name || i18n('COMMON.ZONE'),
+                zone.display_name || zone.name || i18n('RESOURCE.ZONE'),
             );
         }
     }
@@ -402,6 +402,7 @@ export function buildZoneScheduleAssignments(
         .map((playlist) => ({
             playlist,
             source_type: 'zone' as const,
-            source_label: zone.display_name || zone.name || i18n('COMMON.ZONE'),
+            source_label:
+                zone.display_name || zone.name || i18n('RESOURCE.ZONE'),
         }));
 }

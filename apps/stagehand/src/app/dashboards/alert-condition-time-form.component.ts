@@ -98,9 +98,7 @@ export function numberToPosition(num: number): string {
                         @if (form().time) {
                             <div class="flex flex-1 flex-col">
                                 <label for="type"
-                                    >{{
-                                        'TRIGGERS.TIME_FIELD_DATE' | translate
-                                    }}
+                                    >{{ 'FORM.DATE' | translate }}
                                 </label>
                                 <a-date-field
                                     name="date"
@@ -111,9 +109,7 @@ export function numberToPosition(num: number): string {
                         @if (form().time) {
                             <div class="flex flex-1 flex-col">
                                 <label for="type"
-                                    >{{
-                                        'TRIGGERS.TIME_FIELD_TIME' | translate
-                                    }}
+                                    >{{ 'COMMON.TIME' | translate }}
                                 </label>
                                 <a-time-field
                                     name="date"
@@ -444,11 +440,13 @@ export class AlertConditionTimeFormComponent
 
     public toggleCRON(is_cron: boolean) {
         this.form().cron().value.set('');
-        this.form().time_type().value.set(
-            is_cron
-                ? TriggerTimeConditionType.CRON
-                : TriggerTimeConditionType.AT,
-        );
+        this.form()
+            .time_type()
+            .value.set(
+                is_cron
+                    ? TriggerTimeConditionType.CRON
+                    : TriggerTimeConditionType.AT,
+            );
         this.updateCronString();
     }
 

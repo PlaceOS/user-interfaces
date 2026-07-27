@@ -81,7 +81,7 @@ describe('LockersReportListComponent', () => {
                 host: 'Bob',
                 type: 'secure',
                 status: 'Approved',
-                checked_in: 'COMMON.TRUE',
+                checked_in: 'COMMON.YES',
             }),
         );
         const locker_two = rows.find((r) => r.lockers_name === 'L2');
@@ -90,7 +90,7 @@ describe('LockersReportListComponent', () => {
                 host: 'z@x',
                 type: 'locker',
                 status: 'Cancelled',
-                checked_in: 'COMMON.FALSE',
+                checked_in: 'COMMON.NO',
             }),
         );
     });

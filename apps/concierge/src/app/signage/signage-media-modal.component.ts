@@ -198,7 +198,7 @@ import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-
                         </div>
                         <div class="flex-1">
                             <label for="valid-until">{{
-                                'APP.CONCIERGE.VALID_UNTIL' | translate
+                                'COMMON.VALID_UNTIL' | translate
                             }}</label>
                             <a-date-field
                                 [from]="model().valid_from"

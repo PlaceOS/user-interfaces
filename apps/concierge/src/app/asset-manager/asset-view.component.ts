@@ -107,7 +107,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                 {{ item()?.description || '~No Description~' }}
                             } @else {
                                 <span class="opacity-30">{{
-                                    'COMMON.DESCRIPTION_EMPTY' | translate
+                                    'COMMON.NO_DESCRIPTION' | translate
                                 }}</span>
                             }
                         </div>
@@ -453,7 +453,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                             class="inverse w-24 flex-1"
                             (click)="closeTooltip()"
                         >
-                            {{ 'COMMON.FALSE' | translate }}
+                            {{ 'COMMON.NO' | translate }}
                         </button>
                         <button
                             btn

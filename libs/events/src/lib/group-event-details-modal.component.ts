@@ -167,7 +167,7 @@ import {
                                 <icon class="text-2xl">edit</icon>
                                 <div class="mr-2">
                                     {{
-                                        'CALENDAR_EVENT.GROUP_EDIT' | translate
+                                        'CALENDAR_EVENT.ACTION_EDIT' | translate
                                     }}
                                 </div>
                             </div>

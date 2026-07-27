@@ -35,7 +35,7 @@ import { ParkingStateService } from './parking-state.service';
                     },
                     {
                         key: 'plate_number',
-                        name: 'EXPLORE.PARKING_PLATE_NUMBER' | translate,
+                        name: 'BOOKINGS.PARKING_PLATE_NUMBER' | translate,
                         content: plate_template,
                     },
                     { key: 'notes', name: 'FORM.NOTES' | translate },
