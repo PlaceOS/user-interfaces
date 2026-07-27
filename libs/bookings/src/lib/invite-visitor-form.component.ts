@@ -51,6 +51,7 @@ import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.componen
 import { UserListFieldComponent } from 'libs/form-fields/src/lib/user-list-field.component';
 import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-field.component';
 import { BookingFormService } from './booking-form.service';
+import { bookingHostUser } from './booking.utilities';
 
 @Component({
     selector: `invite-visitor-form`,
@@ -907,7 +908,12 @@ export class InviteVisitorFormComponent {
                 }]`,
             );
         }
-        if (!this.model().user_email || !this.can_book_for_others()) {
+        // Existing bookings keep whatever host they were created with — only
+        // fall back to the signed-in user for a new booking with no host.
+        if (
+            !this.model().user_email ||
+            (!this.can_book_for_others() && !this.model().id)
+        ) {
             this.model.update((m) => ({ ...m, user: currentUser() }));
         }
         const visitor_reason =
@@ -966,11 +972,14 @@ export class InviteVisitorFormComponent {
         if (keep_preloaded_edit && !form_snapshot?.id && booking_snapshot?.id) {
             const booking = new Booking(booking_snapshot);
             this.model.set({
-                user: currentUser(),
                 booked_by: currentUser(),
                 ...booking_snapshot,
                 ...booking,
                 ...(booking.extension_data || {}),
+                // Rebuilt from the booking's `user_*` fields so a delegate
+                // booking keeps its host instead of falling back to whoever
+                // opened the form.
+                user: bookingHostUser(booking),
                 _in_progress:
                     booking_snapshot.state === 'started' ||
                     booking_snapshot.state === 'in_progress',

@@ -235,6 +235,18 @@ export function bookingAttachments(booking: Booking = new Booking()): string[] {
     ].filter((item) => !!item);
 }
 
+/** Host (`user`) of a booking, falling back to the signed-in user for new
+ * bookings. Delegate bookings are made on behalf of someone else, so seeding
+ * this from the current user would silently reassign the host on save. */
+export function bookingHostUser(booking: Booking = new Booking()): User {
+    if (!booking?.user_email) return currentUser();
+    return new User({
+        id: booking.user_id || '',
+        email: booking.user_email,
+        name: booking.user_name || booking.user_email,
+    });
+}
+
 /** Build the raw booking form value from a booking. */
 export function bookingFormValue(
     booking: Booking = new Booking(),
@@ -270,7 +282,7 @@ export function bookingFormValue(
         attendees: booking.attendees || [],
         map_id: extension_data.map_id || '',
         featured: extension_data.featured || false,
-        user: currentUser(),
+        user: bookingHostUser(booking),
         user_id: booking.user_id || '',
         group: booking.group ?? {},
         user_email: booking.user_email || '',
