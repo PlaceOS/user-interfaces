@@ -150,7 +150,6 @@ export class EventFormService extends AsyncHandler {
             (_.email || _).toLowerCase(),
         );
         return (
-            this._initial_attendees.every((_) => attendee_emails.includes(_)) &&
             attendee_emails.some((_) => !this._initial_attendees.includes(_))
         );
     });
