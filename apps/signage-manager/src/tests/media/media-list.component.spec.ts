@@ -11,15 +11,19 @@ describe('MediaListComponent folders', () => {
     const filtered_media = signal<any[]>([]);
     const media_tags = signal<string[]>([]);
     const media_view_mode = signal<'grid' | 'list' | 'folder'>('grid');
+    const signage_groups = signal<any[]>([]);
+    const is_sys_admin = signal(false);
+    const show_group_selector = signal(true);
     const set_selected_group = vi.fn();
     const service_stub = {
         filtered_media,
         media_tags,
         media_view_mode,
         media_has_more: signal(false),
-        signage_groups: signal([]),
+        signage_groups,
         selected_group_id: signal(''),
-        is_sys_admin: signal(false),
+        is_sys_admin,
+        show_group_selector,
         can_update: signal(true),
         can_delete: signal(true),
         can_share: signal(true),
@@ -51,7 +55,24 @@ describe('MediaListComponent folders', () => {
         // Tags come from the media-tags endpoint (pre-sorted by the service).
         media_tags.set(['lobby', 'news']);
         media_view_mode.set('folder');
+        signage_groups.set([]);
+        is_sys_admin.set(false);
+        show_group_selector.set(true);
         set_selected_group.mockReset();
+    });
+
+    it('offers the group tabs only while the group selector is enabled', () => {
+        signage_groups.set([
+            { group: { id: 'a', name: 'Alpha' } },
+            { group: { id: 'b', name: 'Beta' } },
+        ]);
+        const component = make();
+
+        expect(component.can_switch_groups()).toBe(true);
+
+        show_group_selector.set(false);
+
+        expect(component.can_switch_groups()).toBe(false);
     });
 
     it('builds one folder per endpoint tag with loaded counts plus an untagged bucket', () => {
