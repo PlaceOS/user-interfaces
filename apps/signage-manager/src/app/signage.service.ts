@@ -492,10 +492,6 @@ export class SignageService {
             (group) => group.id === group_id,
         );
     });
-    /** Managed group and its ancestors, root first. */
-    public readonly managed_group_hierarchy = computed(() =>
-        groupHierarchy(this.managed_group(), this.manageable_signage_groups()),
-    );
 
     public async groupChildren(parent_id: string) {
         if (!this.can_manage_all_groups()) {

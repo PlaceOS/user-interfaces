@@ -27,7 +27,7 @@ import { SignageGroupEditModalComponent } from './signage-group-edit-modal.compo
                         }}
                     </div>
                     <div class="min-w-0 flex-1 overflow-hidden">
-                        <group-breadcrumbs scope="managed" />
+                        <group-breadcrumbs />
                     </div>
                 </div>
             </div>
