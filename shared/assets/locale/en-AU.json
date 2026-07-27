@@ -1118,10 +1118,7 @@
         "RECURRING_CLASHES_TITLE": "Booking Clashes Detected",
         "RECURRING_CLASHES_MSG": "Some instances in this recurring booking series clash with existing bookings.",
         "RECURRING_CLASHES_CONFIRM": "These instances will be skipped. Do you want to continue with the booking?",
-        "CONTINUE_BOOKING": "Continue Booking",
-        "P2_SPECIAL_NEEDS_DETAILS": "Special Needs Details",
-        "P2_REASON_FOR_REQUEST": "Reason for request",
-        "P2_ATTACH_SUPPORTING_DOCS": "Supporting documents"
+        "CONTINUE_BOOKING": "Continue Booking"
     },
     "CALENDAR_EVENT": {
         "TEAMS_MEETING": "Allow online attendees (Teams)",
