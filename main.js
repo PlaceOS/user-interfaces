@@ -47458,24 +47458,19 @@ var SIGNAGE_MANAGER = {
   DENIED: "\xB7 Denied",
   DISPLAYS_COUNT: "Displays ({{ count }})",
   DISPLAYS_COUNT_1: "Display ({{ count }})",
-  DISPLAYS_COUNT_N: "Displays ({{ count }})",
   DISPLAYS_TITLE: "Signage Displays",
   DISPLAY_COUNT_LABEL: "{{ count }} displays",
   DISPLAY_COUNT_LABEL_1: "{{ count }} display",
-  DISPLAY_COUNT_LABEL_N: "{{ count }} displays",
   DISPLAY_DETAILS_TABS: "Display details tabs",
   DISPLAY_NO_ZONES: "This display is not in any zones.",
   DISPLAY_SELECT_DETAILS: "Select a display to view its details.",
   DRAG_MEDIA_HINT: "Drag media onto a playlist to add it",
   DURATION_DAY: "{{ count }} days",
   DURATION_DAY_1: "{{ count }} day",
-  DURATION_DAY_N: "{{ count }} days",
   DURATION_HOUR: "{{ count }} hours",
   DURATION_HOUR_1: "{{ count }} hour",
-  DURATION_HOUR_N: "{{ count }} hours",
   DURATION_MINUTE: "{{ count }} minutes",
   DURATION_MINUTE_1: "{{ count }} minute",
-  DURATION_MINUTE_N: "{{ count }} minutes",
   EDIT_GROUP_TOOLTIP: "Edit group",
   EDIT_PLAYLIST_TOOLTIP: "Edit playlist",
   EDIT_SELECTED_PLAYLIST: "Edit selected playlist",
@@ -47493,7 +47488,6 @@ var SIGNAGE_MANAGER = {
   GROUP_ADD_USER: "Add User",
   GROUP_COUNT: "{{ count }} groups",
   GROUP_COUNT_1: "{{ count }} group",
-  GROUP_COUNT_N: "{{ count }} groups",
   GROUP_DETAILS_TABS: "Group details tabs",
   GROUP_EDIT_HEADING: "Edit signage group",
   GROUP_NEW_HEADING: "New signage group",
@@ -47586,13 +47580,11 @@ var SIGNAGE_MANAGER = {
   PLAYBACK: "Playback",
   PLAYLISTS_COUNT: "Playlists ({{ count }})",
   PLAYLISTS_COUNT_1: "Playlist ({{ count }})",
-  PLAYLISTS_COUNT_N: "Playlists ({{ count }})",
   PLAYLISTS_PAGE_TITLE: "Signage Playlists",
   PLAYLIST_APPROVED: "Playlist approved",
   PLAYLIST_APPROVE_ERROR: "Error approving playlist",
   PLAYLIST_COUNT_LABEL: "{{ count }} playlists",
   PLAYLIST_COUNT_LABEL_1: "{{ count }} playlist",
-  PLAYLIST_COUNT_LABEL_N: "{{ count }} playlists",
   PLAYLIST_DESCRIPTION_ARIA: "Playlist description",
   PLAYLIST_DETAILS_TABS: "Playlist details tabs",
   PLAYLIST_DISTRIBUTION: "Distribution Playlist",
@@ -47646,7 +47638,6 @@ var SIGNAGE_MANAGER = {
   EDIT_SCHEDULE: "Edit Schedule",
   ITEM_SCHEDULES: "Item Schedules",
   NO_SCHEDULES: "No schedules",
-  SCHEDULES_SUBTITLE: "Daily schedule timelines for signage displays and zones.",
   SCHEDULE_INTERVAL_ARIA: "Recurring schedule interval",
   SCHEDULE_NUMBER: "Schedule {{ number }}",
   SCHEDULE_TYPES: "Schedule types",
@@ -47690,10 +47681,8 @@ var SIGNAGE_MANAGER = {
   SUMMARY_DAILY: "Starts every day at {{ time }} for {{ duration }}.",
   SUMMARY_EVERY_HOUR: "Plays every {{ interval }} hours.",
   SUMMARY_EVERY_HOUR_1: "Plays every {{ interval }} hour.",
-  SUMMARY_EVERY_HOUR_N: "Plays every {{ interval }} hours.",
   SUMMARY_EVERY_MINUTE: "Plays every {{ interval }} minutes.",
   SUMMARY_EVERY_MINUTE_1: "Plays every {{ interval }} minute.",
-  SUMMARY_EVERY_MINUTE_N: "Plays every {{ interval }} minutes.",
   SUMMARY_MONTHLY: "Starts on the {{ days }} of each month at {{ time }} for {{ duration }}.",
   SUMMARY_MONTHLY_WEEKDAY: "Starts on the {{ weeks }} {{ days }} of each month at {{ time }} for {{ duration }}.",
   SUMMARY_PLAY_ONCE: "Plays once on {{ datetime }} for {{ duration }}",
@@ -47707,7 +47696,6 @@ var SIGNAGE_MANAGER = {
   SVC_DELETE_NAMED_PLAIN: "Delete {{ name }}?",
   SVC_DELETE_SELECTED_MEDIA: "Delete {{ count }} selected media items?",
   SVC_DELETE_SELECTED_MEDIA_1: "Delete {{ count }} selected media item?",
-  SVC_DELETE_SELECTED_MEDIA_N: "Delete {{ count }} selected media items?",
   SVC_DISPLAY_ADDED_PLAYLIST: "Display added to playlist",
   SVC_DISPLAY_ADDED_ZONE: "Display added to zone",
   SVC_DISPLAY_IN_ZONE: "Display already assigned to this zone.",
@@ -47763,6 +47751,8 @@ var SIGNAGE_MANAGER = {
   SVC_SELECT_MEDIA_FILE: "Please select a media file to upload.",
   SVC_SHARE_MEDIA_TITLE: "Share media with group",
   SVC_SHARE_PLAYLIST_TITLE: "Share playlist with group",
+  SVC_THUMBNAIL_FAILED: "Could not generate a thumbnail from the selected image.",
+  SVC_THUMBNAIL_NOT_IMAGE: "Thumbnails must be an image file.",
   SVC_THUMBNAIL_UPLOAD_FAILED: "Media uploaded, but its thumbnail could not be saved.",
   SVC_USER_ADDED: "Group user added",
   SVC_USER_REMOVED: "Group user removed",
@@ -47778,6 +47768,10 @@ var SIGNAGE_MANAGER = {
   TAKEOVER_PLAYBACK: "Takeover playback",
   TAKEOVER_SUFFIX: " \xB7 takeover",
   THIS_WEEK_ARIA: "Show this week",
+  THUMBNAIL: "Thumbnail",
+  THUMBNAIL_CHOOSE: "Choose image",
+  THUMBNAIL_LOADING: "Loading image...",
+  THUMBNAIL_NONE: "No thumbnail",
   TOOLTIP_PLAYLIST: "Playlist: {{ name }}",
   TOOLTIP_SOURCE: "Source: {{ source }}",
   TOOLTIP_STATUS_AWAITING: "Status: Awaiting Approval",
@@ -47794,7 +47788,6 @@ var SIGNAGE_MANAGER = {
   URL_REQUIRED: "URL is required",
   USERS_COUNT: "Users ({{ count }})",
   USERS_COUNT_1: "User ({{ count }})",
-  USERS_COUNT_N: "Users ({{ count }})",
   USER_PERMISSIONS: "User permissions",
   VALID_FROM: "Valid From",
   VERSION_TO_APPROVE: "Version to approve",
@@ -47807,11 +47800,9 @@ var SIGNAGE_MANAGER = {
   WEEK_OF_MONTH_ARIA: "Recurring schedule week of month",
   ZONES_COUNT: "Zones ({{ count }})",
   ZONES_COUNT_1: "Zone ({{ count }})",
-  ZONES_COUNT_N: "Zones ({{ count }})",
   ZONES_TITLE: "Signage Zones",
   ZONE_COUNT_LABEL: "{{ count }} zones",
   ZONE_COUNT_LABEL_1: "{{ count }} zone",
-  ZONE_COUNT_LABEL_N: "{{ count }} zones",
   ZONE_DETAILS_TABS: "Zone details tabs",
   ZONE_PERMISSIONS: "Zone permissions",
   ZONE_SELECT_DETAILS: "Select a zone to view its details."
@@ -47829,14 +47820,12 @@ var COMMON = {
   CANCEL: "Cancel",
   CLEAR: "Clear",
   ADD: "Add",
-  ANY: "Any",
   URL: "URL",
   SCHEDULED: "Scheduled",
   CANCEL_BOOKING: "Cancel Booking",
   REFRESH: "Refresh",
   CHANGE: "Change",
   REMOVE: "Remove",
-  RETURN: "Return",
   FILTERS: "Filters",
   FILTERS_CLEAR: "Clear Filters",
   OPTIONS: "Options",
@@ -47844,14 +47833,11 @@ var COMMON = {
   COLUMN: "Column",
   ROW: "Row",
   ALL: "All",
-  FLOOR: "Floor",
   DUPLICATE: "Duplicate",
   HEIGHT: "Height",
   WIDTH: "Width",
   EDIT: "Edit",
   DELETE: "Delete",
-  TRUE: "Yes",
-  FALSE: "No",
   YES: "Yes",
   NO: "No",
   NONE: "None",
@@ -47862,7 +47848,6 @@ var COMMON = {
   DISABLED: "Disabled",
   CODE: "Code",
   BOOK: "Book",
-  BOOK_DESK: "Book Desk",
   MINUTE: "Minute",
   HOUR: "Hour",
   DAY: "Day",
@@ -47890,19 +47875,13 @@ var COMMON = {
   UNKNOWN: "Unknown",
   NEXT: "Next",
   PREVIOUS: "Previous",
-  NEXT_PAGE: "Next Page",
-  PREVIOUS_PAGE: "Previous Page",
-  RESULTS_COUNT: "{{ count }} result(s) found",
+  RESULTS_COUNT: "{{ count }} results found",
   RESULTS_COUNT_1: "{{ count }} result found",
-  RESULTS_COUNT_N: "{{ count }} results found",
   AVAILABLE_COUNT: "{{ count }} of {{ total }} available",
   ITEM_COUNT: "{{ count }} items",
   ITEM_COUNT_1: "{{ count }} item",
   NO_ITEMS: "No items",
-  VIEW_LIST: "View List",
   TIME: "Time",
-  CONFIRMING: "Confirming Booking",
-  TODAY_TIME: "Today, {{ time }}",
   WEEK_SELECT: "Select week",
   WEEK_THIS: "This week",
   WEEK_UPCOMING: "Upcoming week",
@@ -47915,13 +47894,7 @@ var COMMON = {
   ACCESSIBLE_ONLY: "Accessible Only",
   LANGUAGE: "Language",
   LANGUAGE_SELECT: "Select a language",
-  REGION: "Region",
-  BUILDING: "Building",
   ALL_DAY: "All Day",
-  BEGINS_IN: "In {{ minutes }} minutes",
-  BEGINS_IN_1: "In {{ minutes }} minute",
-  ENDS_IN: "For {{ minutes }} minutes",
-  ENDS_IN_1: "For {{ minutes }} minute",
   CHECK_IN: "Check-in",
   CHECK_OUT: "Check-out",
   CHECKED_IN: "Checked-in",
@@ -47933,7 +47906,6 @@ var COMMON = {
   PREVIEW: "Preview",
   DETAILS: "Details",
   DESCRIPTION: "Description",
-  DESCRIPTION_EMPTY: "No Description",
   DESCRIPTION_REQUIRED: "A description is required",
   ADD_TO: "Add to Booking",
   REMOVE_FROM: "Remove from Booking",
@@ -47958,7 +47930,6 @@ var COMMON = {
   STATE_IN_PROGRESS: "In Progress",
   STATE_ACTIVE: "Active",
   LOCATION: "Location",
-  ZONE: "Zone",
   ZONE_ANY: "Any Zone",
   ZONE_REQUIRED: "A valid zone is required",
   REQUIRED: "Required",
@@ -47972,7 +47943,6 @@ var COMMON = {
   BOOTSTRAP_ASSISTANT_INFO: "Select the system to connect to for Assistant functionality",
   BOOTSTRAP_INPUT_PLACEHOLDER: "Start typing to search for a room",
   CONTROLS_HELP: "Help & Support",
-  CONTROLS_WORK_LOCATION: "Work Location",
   CONTROLS_ACCESSIBILITY: "Display & Accessibility",
   CONTROLS_DESKS: "Desk Settings",
   CONTROLS_PARKING: "Parking Settings",
@@ -48006,13 +47976,8 @@ var COMMON = {
   DESK_HEIGHT_STANDING: "Standing Height",
   CONSOLE: "Console",
   AVAILABILITY: "Availability",
-  SUPPORT_HEADER: "Raise a support ticket",
-  SUPPORT_LOCATION: "Location",
   SUPPORT_TYPE: "Issue Type",
   SUPPORT_DESCRIPTION: "Issue Description",
-  SUPPORT_DESCRIPTION_REQUIRED: " A description is required",
-  SUPPORT_IMAGES: "Images",
-  SUPPORT_LOADING: "Sending support ticket...",
   SUPPORT_MSG: "Completing this form will raise an incident in your support management platform",
   SUPPORT_NO_MAILER: "Mailing system not configured for application.",
   SUPPORT_SUCCESS: "Successfully submitted support ticket",
@@ -48020,7 +47985,6 @@ var COMMON = {
   TAGS: "Tags",
   REGION_ANY: "Any Region",
   REGION_ALL: "All Regions",
-  BUILDING_ANY: "Any Building",
   BUILDING_ALL: "All Buildings",
   LEVEL_ANY: "Any Level",
   LAST_UPDATED: "Updated {{ time }}",
@@ -48047,7 +48011,6 @@ var COMMON = {
   TRIGGER: "Trigger",
   TRIGGER_SELECT: "Select a trigger",
   TRIGGER_EMPTY: "No trigger",
-  BUILDING_EMPTY: "No building",
   BUILDING_REQUIRED: "A building is required",
   CREATED_AT: "Created",
   DATE_EMPTY: "No date",
@@ -48078,7 +48041,6 @@ var COMMON = {
   TIME_HOURS: "{{ hours }} hours",
   TIME_DAY: "{{ days }} day",
   TIME_DAYS: "{{ days }} days",
-  NOT_IMPLEMENTED: "Not implemented yet",
   SELECT_USER_TITLE: "Select a user",
   SELECT_USER_SEARCH: "Search for users...",
   SELECT_USER_EMPTY: "Start typing to search for users.",
@@ -48113,14 +48075,29 @@ var COMMON = {
   ITEM_PRICE: "Price",
   ROOM_BOOKING_URL: "Room Booking URL",
   TIMETABLE_URL: "Timetable URL",
-  SUPPORT_URL: "Support URL",
   URL_VALID: "URL is invalid",
   SELECTED_COUNT: "{{ count }} selected",
   PEOPLE_COUNT: "{{ count }} people",
   PEOPLE_COUNT_1: "{{ count }} person",
+  LOCATION_UNSPECIFIED: "Unspecified",
+  MAP_KIOSK: "Map Kiosk",
+  BOOKABLE_HOURS_ERROR: "Current date is outside available booking hours. Switched to next available time.",
+  TOOLTIP_SOURCE: "Source: {{ source }}",
+  CLOSE: "Close",
+  UPDATE: "Update",
+  SAVING: "Saving...",
+  ITEM_REMOVE: "Remove item",
+  BUILDINGS_ALL: "All Buildings",
+  FLOOR: "Floor",
+  BOOK_DESK: "Book Desk",
+  CONFIRMING: "Confirming Booking",
+  REGION: "Region",
+  BUILDING: "Building",
+  BEGINS_IN: "In {{ minutes }} minutes",
+  ENDS_IN: "For {{ minutes }} minutes",
+  ZONE: "Zone",
   ALL_COLLEAGUES: "All Colleagues",
   MY_TEAM: "My Team",
-  LOCATION_UNSPECIFIED: "Unspecified",
   LOCATION_WFH: "Work from Home",
   LOCATION_OFFICE: "In Office",
   LOCATION_ONSITE: "Onsite",
@@ -48128,15 +48105,11 @@ var COMMON = {
   LOCATION_SICK: "Off Sick",
   ALL_DEPARTMENTS: "All Departments",
   ALL_OFFICES: "All Offices",
-  ALL_STATUSES: "All Statuses",
-  MAP_KIOSK: "Map Kiosk",
-  BOOKABLE_HOURS_ERROR: "Current date is outside available booking hours. Switched to next available time.",
-  TOOLTIP_SOURCE: "Source: {{ source }}"
+  ALL_STATUSES: "All Statuses"
 };
 var LANGUAGE = {
   ENGLISH: "English",
   ENGLISH_US: "English (US)",
-  ENGLISH_GB: "English (British)",
   FRENCH: "French",
   FRENCH_CA: "French (Canadian)",
   SPANISH: "Spanish",
@@ -48149,13 +48122,10 @@ var LANGUAGE = {
 var RESOURCE = {
   ROOM: "Room",
   ROOMS: "Rooms",
-  MEETING: "Meeting",
-  MEETINGS: "Meetings",
   DESK: "Desk",
   DESKS: "Desks",
   PARKING: "Parking",
   PARKING_SPACE: "Parking space",
-  PARKING_SPACES: "Parking spaces",
   LOCKER: "Locker",
   LOCKERS: "Lockers",
   VISITOR: "Visitor",
@@ -48166,11 +48136,8 @@ var RESOURCE = {
   ASSET: "Asset",
   ASSETS: "Assets",
   BUILDING: "Building",
-  BUILDINGS: "Buildings",
   REGION: "Region",
-  REGIONS: "Regions",
   LEVEL: "Level",
-  LEVELS: "Levels",
   BOOKING: "Booking",
   BOOKINGS: "Bookings",
   ZONE: "Zone",
@@ -48183,7 +48150,10 @@ var RESOURCE = {
   RULESET_HIDE_RULES: "Hide Rules",
   RULESET_REMOVE_RULES: "Remove Rule",
   RULESET_NAME_REQUIRED: "A ruleset name is required",
-  RULESET_VALUE_REQUIRED: "A rule value is required"
+  RULESET_VALUE_REQUIRED: "A rule value is required",
+  BUILDING_EMPTY: "No building",
+  MEETING: "Meeting",
+  MEETINGS: "Meetings"
 };
 var FORM = {
   INVALID_FIELDS: "Some fields are invalid. [{{ field_list }}]",
@@ -48217,14 +48187,11 @@ var FORM = {
   TITLE: "Title",
   TITLE_REQUIRED: "A valid title is required",
   HOST: "Host",
-  BOOK_FOR: "Book for",
-  TIME: "Time",
   EXPIRES_AT: "Valid Until",
   DURATION: "Duration",
   CLEAR: "Clear form",
   RESET: "Reset form",
   NOTES: "Notes",
-  IMAGE: "Image",
   RECURRENCE: "Recurrence",
   RECURRENCE_REPEAT_EVERY: "Repeat Every",
   RECURRENCE_REPEAT_ON: "Repeat on",
@@ -48256,7 +48223,10 @@ var FORM = {
   ASSETS_SHOW: "Show requested items",
   ASSETS_CLASH_ERROR: "Some of the items are not available for the selected date and time.",
   ASSETS_TIME_ERROR: "Delivery time is outside of the event time.\nThis order will be ignored.",
-  ASSETS_QUANTITY_ERROR: "Not enough assets available to meet request [{{ name }}].\nAnother request for this asset has been made in this meeting."
+  ASSETS_QUANTITY_ERROR: "Not enough assets available to meet request [{{ name }}].\nAnother request for this asset has been made in this meeting.",
+  ID_REQUIRED: "A valid ID is required",
+  BOOK_FOR: "Book for",
+  TIME: "Time"
 };
 var EXPLORE = {
   AREAS: "Show Areas",
@@ -48269,7 +48239,6 @@ var EXPLORE = {
   LOCATE_USER_FAILED: 'Failed to locate user "{{ name }}".',
   LOCATE_USER_NOT_FOUND: "No location for the given user",
   LOCATE_USER_FOUND_NO_PIN: "User is on this level but with an inaccurate method. {{ type }}",
-  LOCATE_USER_DETAILS_FAILED: 'Failed to find user details for "{{ name }}".',
   LOCATE_SPACE_DETAILS_FAILED: "Failed to find space details.",
   LOCATE_SERVICE_UNAVAILABLE: "Location services is not set up for this application.",
   ZOOM_IN: "Zoom in",
@@ -48277,7 +48246,6 @@ var EXPLORE = {
   ZOOM_RESET: "Reset zoom & centre",
   DEVICE_COUNT: "{{ count }} user device(s)",
   SENSORS_TEMP: "Temperature: {{ value }}",
-  SENSORS_PEOPLE: "{{ count }} people",
   SENSORS_HUMIDITY: "Humidity: {{ value }}",
   SENSORS_QUEUE: "Queue Size: {{ value }}",
   SENSORS_COUNT: "Count: {{ value }}",
@@ -48290,7 +48258,6 @@ var EXPLORE = {
   PARKING_GROUP_ERROR: 'You are not allowed to book "{{ name }}"',
   PARKING_BOOKING_ERROR: 'Failed to book parking space "{{ name }}". Error: {{ error }}',
   PARKING_BOOKING_SUCCESS: 'Successfully booked parking space "{{ name }}".',
-  PARKING_PLATE_NUMBER: "Plate Number",
   LOCKERS_USE: "{{ used }} lockers in use of {{ count }}",
   DEVICE_MAC: "MAC",
   DEVICE_ACCURACY: "Accuracy",
@@ -48299,7 +48266,6 @@ var EXPLORE = {
   DEVICE_OS: "OS",
   DEVICE_SSID: "SSID",
   DEVICE_USERNAME: "Username",
-  DEVICE_TYPE: "Type",
   DESK_AVAILABLE_ERROR: "{{ name }} is unavailable at this time.",
   DESK_GROUP_ERROR: 'You are not allowed to book "{{ name }}"',
   DESK_RESTRICTION_ERROR: 'You are not allowed to book "{{ name }}"',
@@ -48323,17 +48289,11 @@ var EXPLORE = {
 var BOOKINGS = {
   ASSOCIATE: "Associate",
   BOOKED_FOR: "For {{ name }}",
-  EVENT: "Event",
   PREVENT: "Prevent Bookings",
-  RESERVED: "Reserved",
   RELEASED: "Released",
-  DETAILS: "Details",
-  LOCATION: "Location",
-  ASSETS_HEADER: "Assets",
   ASSETS_REQUESTED_FOR: "Requested for {{ time }}",
   ACTION_EDIT: "Edit booking",
   ACTION_DELETE: "Cancel booking",
-  ACTION_PRINT: "Print booking",
   ACTION_END: "End booking",
   ACTION_SET_DESK_HEIGHT: "Set Desk Height",
   ACTION_DELETE_SERIES: "Cancel series",
@@ -48404,23 +48364,16 @@ var BOOKINGS = {
   DESK_TITLE: "Book Desk",
   DESK_CONFIRM: "Confirm Desk",
   DESK_ADD: "Add Desk",
-  DESK_ADDED_COUNT: "{{ count }} desks(s) added",
-  DESK_EDIT: "Edit Desk",
-  DESK_REMOVE: "Remove Desk",
   DESK_FIND: "Find Desk",
   DESK_LONE: "Single",
-  DESK_GROUP: "Group",
   DESK_COUNT_LONE: "Single desk",
   DESK_COUNT_GROUP: "Multiple desk",
   DESK_TITLE_PLACEHOLDER: "e.g. Focus Time",
   DESK_REQUIRE_LOCKER: "Require locker",
   DESK_GROUP_MEMBERS: "Additional Group Members",
   DESK_GROUP_SELECT: "Select your desk",
-  DESK_GROUP_MEMBERS_INFO: "Group members will be assigned desks nearby to your selected desk",
   DESK_GROUP_INFO: "Desks nearby to the selected desk will booked for group members",
   DESK_AUTO_ALLOCATION_INFO: "A desk will be automatically assigned to you when you confirm your booking.",
-  DESK_DETAILS_HEADER: "Booking Details",
-  DESK_SELECT_HEADER: "Select Desk",
   DESK_ASSETS_REQUESTED: "Requested assets",
   DESK_LOCKER_REQUESTED: "Requested locker",
   DESK_AVAILABLE_ERROR: "Desk is unavailable at this time.",
@@ -48430,16 +48383,7 @@ var BOOKINGS = {
   DESK_SELECT_MSG: "Select a desk to view its details",
   DESK_RESERVED_TITLE: "You have a reserved desk",
   DESK_RESERVED_MESSAGE: "A desk has already been reserved for you, so you are unable to book another desk.",
-  DESK_AUTO_ASSIGNED_TITLE: "Auto-Assigned Desk",
-  DESK_REQUESTING: "Requesting desk...",
-  DESK_FOUND: "Desk Found!",
-  DESK_PERFECT_DESK_MESSAGE: "We've found the perfect desk for you",
-  DESK_NEIGHBOURHOOD: "Neighbourhood",
-  DESK_LOCATION_ON_MAP: "Location on Map",
-  DESK_NO_MAP_AVAILABLE: "No map available",
-  DESK_CONFIRM_BOOKING: "Confirm Booking",
   ITEM_BOOKED: "{{ name }} booked!",
-  DESK_SELECT_EMPTY: "No available desks for selected time and/or filters",
   DESK_SUCCESS_LONE: "Your desk booking at {{ location }} has been successfully booked for {{ date }} at {{ time }}",
   DESK_SUCCESS_GROUP: "Your group of {{ size }} desks at {{ location }} have been successfully booked for {{ date }} at {{ time }}",
   DESK_SUCCESS_LONE_ALLDAY: "Your desk booking at {{ location }} has been successfully booked for {{ date }}",
@@ -48454,21 +48398,13 @@ var BOOKINGS = {
   LOCKER_TITLE: "Book Locker",
   LOCKER_CONFIRM: "Confirm Locker",
   LOCKER_ADD: "Add Locker",
-  LOCKER_EDIT: "Edit Locker",
-  LOCKER_REMOVE: "Remove Locker",
-  LOCKER_FIND: "Find Locker",
-  LOCKER_ADDED_COUNT: "{{ count }} locker(s) added",
   LOCKER_LIST_LOADING: "Finding available locker banks...",
   LOCKER_LIST_EMPTY: "No available locker banks for selected time and/or filters",
   LOCKER_ACCESSIBLE: "Accessible",
   LOCKER_ACCESSIBLE_SHOW: "Show accessible lockers",
-  PARKING_TITLE: "Book Parking",
   PARKING_CONFIRM: "Confirm Reservation",
   PARKING_ADD: "Add Parking Space",
-  PARKING_EDIT: "Edit Parking Space",
-  PARKING_REMOVE: "Remove Parking Space",
   PARKING_FIND: "Find Parking Space",
-  PARKING_ADDED_COUNT: "{{ count }} bay(s) added",
   PARKING_PLATE_NUMBER: "Plate Number",
   PARKING_PLATE_NUMBER_PLACEHOLDER: "e.g. MYPL4T3",
   PARKING_PLATE_NUMBER_REQUIRED: "A plate number is required",
@@ -48515,18 +48451,11 @@ var BOOKINGS = {
   P2_ACCEPTED_FORMATS: "Accepted formats: PDF, DOC, DOCX, JPG, PNG (max 10MB)",
   PARKING_SHIFT_SELECTION: "Shift Selection",
   PARKING_SHIFT_TYPE: "Shift Type",
-  PARKING_SHIFT_DAY_WORKER: "Day Worker",
-  PARKING_SHIFT_DAY_12HR: "Day Shift 12hr",
-  PARKING_SHIFT_NIGHT_12HR: "Night Shift 12hr",
-  PARKING_SHIFT_HALF_DAY_AM: "Half-Day AM",
-  PARKING_SHIFT_HALF_DAY_PM: "Half-Day PM",
   PARKING_SHIFT_BUSINESS: "Business Hours",
   PARKING_SHIFT_MORNING: "Morning",
   PARKING_SHIFT_AFTERNOON: "Afternoon",
   PARKING_SHIFT_CUSTOM: "Custom Hours",
   PARKING_SHIFT_ALL_DAY: "All Day",
-  PARKING_START_TIME: "Start Time",
-  PARKING_END_TIME: "End Time",
   PARKING_LOCATION_PREFERENCE: "Location Preference",
   PARKING_PREFER_BOOKED_LOCATION_FIRST: "Prefer booked location first",
   PARKING_VEHICLE_DETAILS: "Vehicle Details",
@@ -48536,7 +48465,6 @@ var BOOKINGS = {
   PARKING_APPROVER_GROUP_PLACEHOLDER: "Select an approver group",
   PARKING_SPACE_RESTRICTIONS_TITLE: "Space Restrictions",
   PARKING_SPACE_RESTRICTIONS_DESC: "Select any restrictions that apply to your vehicle or parking needs.",
-  PARKING_RESTRICTION_NONE: "None",
   PARKING_SPACE_RESTRICTION_REQUIRED: "Select a parking restriction other than None.",
   PARKING_RESTRICTION_OVERSIZED: "Requires oversized space",
   PARKING_SUMMARY_TITLE: "Summary + Submission",
@@ -48548,18 +48476,13 @@ var BOOKINGS = {
   PARKING_CANCEL: "Cancel",
   VISITOR_INVITE_TITLE: "Invite Visitor",
   VISITOR_EDIT_TITLE: "Edit Visitor",
-  VISITOR_LIST: "Visitors",
   VISITOR_NAME: "Visitor Name",
   VISITOR_NAME_PLACEHOLDER: "Name of the visitor",
   VISITOR_EMAIL: "Visitor Email",
   VISITOR_EMAIL_PLACEHOLDER: "Email of the visitor",
   VISITOR_COMPANY: "Visitor Company",
-  VISITOR_COMPANY_PLACEHOLDER: "Company of the visitor",
-  VISITOR_PHONE: "Phone Number",
-  VISITOR_PHONE_PLACEHOLDER: "Phone number of the visitor",
   VISITOR_REASON: "Reason for visit",
   VISITOR_REASON_PLACEHOLDER: "e.g. Meeting Catchup",
-  VISITOR_PASS: "Pass Number",
   VISITOR_PASS_PLACEHOLDER: "e.g. V-1234",
   VISITOR_SEND: "Send Visitor invite",
   VISITOR_UPDATE: "Update Visitor",
@@ -48571,13 +48494,6 @@ var BOOKINGS = {
   VISITOR_SENDING: "Sending out visitor invitations...",
   VISITOR_BOOK_ANOTHER: "Book another visitor",
   VISITOR_BOOK_ANOTHER_MULTIPLE: "Book more visitors",
-  VISITOR_TIME_HEADER: "Visit Details",
-  VISITOR_DETAILS_HEADER: "Visitor Details",
-  VISITOR_SINGLE: "Single Visitor",
-  VISITOR_MULTIPLE: "Multiple Visitors",
-  VISITOR_RECENT: "Recently Booked Visitors",
-  SPACE_REMOVE: "Remove this space",
-  SPACE_ADD_TO: "Add this space",
   INDUCTED: "Inducted",
   PASS_NUMBER: "Pass Number",
   FACILITIES: "Features",
@@ -48585,7 +48501,6 @@ var BOOKINGS = {
   RECURRING_TOOLTIP: "This booking is part of a recurring series",
   ASSETS_ADD_HEADER: "Add Assets",
   ASSETS_ADD: "Add this Asset",
-  ASSETS_REMOVE: "Remove this Asset",
   ASSETS_SELECT: "Select an asset to view its details",
   ASSETS_SEARCH: "Search assets...",
   ASSETS_LOADING: "Finding assets...",
@@ -48595,40 +48510,42 @@ var BOOKINGS = {
   ASSETS_DELIVER_TIME: "Deliver After",
   ASSETS_AVAILABLE: "{{ count }} available",
   RULES_HIDDEN_1: "You are not allowed to book the selected {{ type }} for the selected time or duration",
-  RULES_HIDDEN_N: "You are not allowed to book some of the selected {{ type }}s for the selected time or duration",
+  RULES_HIDDEN: "You are not allowed to book some of the selected {{ type }}s for the selected time or duration",
   FIRST_INSTANCE_CLASH: "The first booking in the series clashes with an existing booking",
   RECURRING_CLASHES_NOT_ALLOWED: "Recurring bookings with {{ count }} clashing instance(s) are not allowed",
   RECURRING_CLASHES_TITLE: "Booking Clashes Detected",
   RECURRING_CLASHES_MSG: "Some instances in this recurring booking series clash with existing bookings.",
   RECURRING_CLASHES_CONFIRM: "These instances will be skipped. Do you want to continue with the booking?",
-  CONTINUE_BOOKING: "Continue Booking"
+  CONTINUE_BOOKING: "Continue Booking",
+  DESK_GROUP: "Group",
+  DESK_GROUP_MEMBERS_INFO: "Group members will be assigned desks nearby to your selected desk",
+  DESK_DETAILS_HEADER: "Booking Details",
+  DESK_SELECT_HEADER: "Select Desk",
+  DESK_AUTO_ASSIGNED_TITLE: "Auto-Assigned Desk",
+  DESK_REQUESTING: "Requesting desk...",
+  DESK_FOUND: "Desk Found!",
+  DESK_PERFECT_DESK_MESSAGE: "We've found the perfect desk for you",
+  DESK_NEIGHBOURHOOD: "Neighbourhood",
+  DESK_LOCATION_ON_MAP: "Location on Map",
+  DESK_NO_MAP_AVAILABLE: "No map available",
+  DESK_CONFIRM_BOOKING: "Confirm Booking",
+  PARKING_SHIFT_DAY_WORKER: "Day Worker",
+  PARKING_SHIFT_DAY_12HR: "Day Shift 12hr",
+  PARKING_SHIFT_NIGHT_12HR: "Night Shift 12hr",
+  PARKING_SHIFT_HALF_DAY_AM: "Half-Day AM",
+  PARKING_SHIFT_HALF_DAY_PM: "Half-Day PM",
+  VISITOR_LIST: "Visitors",
+  VISITOR_PHONE: "Phone Number",
+  VISITOR_PHONE_PLACEHOLDER: "Phone number of the visitor",
+  VISITOR_PASS: "Pass Number",
+  VISITOR_TIME_HEADER: "Visit Details",
+  VISITOR_DETAILS_HEADER: "Visitor Details",
+  VISITOR_SINGLE: "Single Visitor",
+  VISITOR_MULTIPLE: "Multiple Visitors",
+  VISITOR_RECENT: "Recently Booked Visitors"
 };
 var CALENDAR_EVENT = {
-  MEETING_FLOW_HEADER: "Book a meeting room",
-  MEETING_FLOW_STEP_SELECT_ROOM: "Select Room",
-  MEETING_FLOW_STEP_CONFIRM: "Confirm & Options",
-  MEETING_DETAILS_HEADER: "Meeting Details",
-  MEETING_TITLE_LABEL: "Meeting Title",
-  ROOM_SIZE_LABEL: "Room Size",
-  ROOM_SIZE_1_2: "1\u20132 people",
-  ROOM_SIZE_3_4: "3-4 people",
-  ROOM_SIZE_5_8: "5-8 people",
-  ROOM_SIZE_9_PLUS: "9+ people",
-  SEARCH_ROOMS_BUTTON: "Search available rooms",
-  SELECT_ROOM_HEADER: "Select Meeting Room",
-  REVIEW_CONFIRM_HEADER: "Review & Confirm Booking",
-  SELECTED_ROOM_HEADER: "Selected Room",
-  CAPACITY_PEOPLE: "Capacity: {{ capacity }} people",
-  FEATURES_MORE: "more",
-  OPTIONAL_EXTRAS_HEADER: "Optional Extras",
-  MEETING_SPACE_DEFAULT: "Meeting Space",
-  RECURRENCE_WEEKLY: "Weekly",
-  RECURRENCE_MONTHLY: "Monthly",
-  ERROR_TITLE_REQUIRED_SELECT: "Please enter a meeting title before selecting a room",
-  ERROR_TITLE_REQUIRED_SEARCH: "Please enter a meeting title before searching for rooms",
-  ERROR_ROOM_REQUIRED: "Please select a meeting room before continuing",
   TEAMS_MEETING: "Allow online attendees (Teams)",
-  CATERING: "Catering",
   CATERING_ORDER_AT_DATE: "Order for {{ date }} at {{ time }}",
   CATERING_ORDER_AT: "Order at {{ time }}",
   CATERING_ORDER_DETAILS: "{{ count }} item(s) for {{ cost }}",
@@ -48642,21 +48559,15 @@ var CALENDAR_EVENT = {
   CATERED: "Catered",
   ATTENDEES_COUNT: "{{ count }} attendees",
   ATTENDEES_COUNT_1: "{{ count }} attendee",
-  ATTENDEES_COUNT_N: "{{ count }} attendees",
   ATTENDEE_COUNT: "{{ count }} attendee(s)",
   ATTENDEES: "Attendees",
   NOTIFY_NEW_ATTENDEES_ONLY: "Only notify new attendees",
-  DETAILS: "Details",
-  NOTES_HEADER: "Notes",
-  ASSETS_HEADER: "Assets",
   ASSETS_REQUESTED_FOR: "Requested for {{ time }}",
   ACTION_EDIT: "Edit event",
   ACTION_DELETE: "Cancel event",
   ACTION_PRINT: "Print event",
   ACTION_DELETE_SERIES: "Cancel series",
   NO_LONG_EDIT_MSG: "Editing bookings longer than \n a day is not available",
-  SPACE_LOADING: "Loading space list for location...",
-  SPACE_STATUS_LOADING: "Updating available spaces...",
   SPACE_EXTERNALS_ERROR: "External attendees require a space to be booked",
   ASSETS_CLASH_ERROR: "Some assets are already booked for the selected time",
   ASSETS_ERROR: "Failed to book the selected assets.",
@@ -48666,7 +48577,6 @@ var CALENDAR_EVENT = {
   SPACES_UNAVAILABLE: "These spaces are not available at the selected time: {{ spaces }}",
   CAPACITY_WARNING: "The selected room has less capacity than the number of meeting attendees.",
   CAPACITY_ERROR: "Attendee count is greater than the capacity of the selected rooms",
-  CATERING_CHARGE_CODE: "Charge Code",
   CATERING_CHARGE_CODE_SEARCH: "Search for charge code...",
   CATERING_CHARGE_CODE_REQUIRED: "Catering charge code is required",
   CATERING_NOTES: "Extra catering details. e.g. Dietary requirements etc.",
@@ -48691,18 +48601,12 @@ var CALENDAR_EVENT = {
   SPACE_ADD: "Add Space",
   CAPACITY_COUNT: "Capacity {{ count }}",
   SPACE_SELECT_FIND: "Find Space",
-  SPACE_SELECT_COUNT: "{{ count }} room(s) added",
   FACILITIES: "Room Features",
-  SPACE_REMOVE: "Remove this room",
-  SPACE_ADD_TO: "Add this room",
   SPACE_LIST_INFO: "Select a room to view its details",
-  SPACE_LOCATION: "Location",
   SPACE_SELECT_EMPTY: "No available spaces for selected time and/or filters",
   SPACE_SELECT_LOADING: "Finding available spaces...",
   SPACE_BOOKING_RULES_HIDDEN_1: "{{ spaces }} is not available for the selected time or duration",
-  SPACE_BOOKING_RULES_HIDDEN_N: "These rooms are not available for the selected time or duration: {{ spaces }}",
-  CONFIRM_DETAILS: "Confirm Meeting",
-  FINISHED: "Return home",
+  SPACE_BOOKING_RULES_HIDDEN: "These rooms are not available for the selected time or duration: {{ spaces }}",
   LOADING: "Creating meeting requests...",
   GROUP_NO_DESCRIPTION: "No description",
   GROUP_UNCONFIRMED: "Room to be confirmed",
@@ -48721,7 +48625,6 @@ var CALENDAR_EVENT = {
   GROUP_GOING_ADD: "Indicate Going",
   GROUP_GOING_REMOVE: "Revoke Going",
   GROUP_PROMOTE: "Promote Event",
-  GROUP_EDIT: "Edit Event",
   GROUP_COPY_URL: "Copy URL",
   GROUP_DELETE: "Delete Event",
   GROUP_HOST: "Event by {{ name }}",
@@ -48737,7 +48640,32 @@ var CALENDAR_EVENT = {
   BREAKDOWN_DURATION: "Breakdown Duration",
   CHECKING_AVAILABILITY: "Checking space availability...",
   FIRST_INSTANCE_CLASH: "The first event in the series clashes with an existing booking",
-  RECURRING_CLASHES_NOT_ALLOWED: "Recurring events with {{ count }} clashing instance(s) are not allowed"
+  RECURRING_CLASHES_NOT_ALLOWED: "Recurring events with {{ count }} clashing instance(s) are not allowed",
+  CATERING_ORDER_TIME_ERROR: "Delivery time is outside of the event time.\nThis order will be ignored",
+  MEETING_FLOW_HEADER: "Book a meeting room",
+  MEETING_FLOW_STEP_SELECT_ROOM: "Select Room",
+  MEETING_FLOW_STEP_CONFIRM: "Confirm & Options",
+  MEETING_DETAILS_HEADER: "Meeting Details",
+  MEETING_TITLE_LABEL: "Meeting Title",
+  ROOM_SIZE_LABEL: "Room Size",
+  ROOM_SIZE_1_2: "1\u20132 people",
+  ROOM_SIZE_3_4: "3-4 people",
+  ROOM_SIZE_5_8: "5-8 people",
+  ROOM_SIZE_9_PLUS: "9+ people",
+  SEARCH_ROOMS_BUTTON: "Search available rooms",
+  SELECT_ROOM_HEADER: "Select Meeting Room",
+  REVIEW_CONFIRM_HEADER: "Review & Confirm Booking",
+  SELECTED_ROOM_HEADER: "Selected Room",
+  CAPACITY_PEOPLE: "Capacity: {{ capacity }} people",
+  FEATURES_MORE: "more",
+  OPTIONAL_EXTRAS_HEADER: "Optional Extras",
+  MEETING_SPACE_DEFAULT: "Meeting Space",
+  ERROR_TITLE_REQUIRED_SELECT: "Please enter a meeting title before selecting a room",
+  ERROR_TITLE_REQUIRED_SEARCH: "Please enter a meeting title before searching for rooms",
+  ERROR_ROOM_REQUIRED: "Please select a meeting room before continuing",
+  CATERING: "Catering",
+  NOTES_HEADER: "Notes",
+  CATERING_CHARGE_CODE: "Charge Code"
 };
 var CATERING = {
   MENU: "Catering Menu",
@@ -48764,10 +48692,7 @@ var CATERING = {
   MENU_ADD: "Add Item",
   MENU_EDIT: "Edit Item",
   MENU_EDIT_INFO: "To edit the menu de-select all levels from the top left",
-  MENU_NEW: "New Item",
-  MENU_REMOVE: "Remove Item",
   MENU_IMPORT: "Import Catering Menu",
-  MENU_LOADING: "Loading menu items...",
   MENU_IMPORT_LOADING: "Importing catering menu items...",
   MENU_IMPORT_ERROR: "Failed to import catering menu. Error: {{ error }}",
   MENU_IMPORT_SUCCESS: "Successfully imported catering menu. {{ count }} item(s) added.",
@@ -48791,7 +48716,6 @@ var CATERING = {
   TAG_DAIRY: "Contains Dairy (D)",
   TAG_NUTS: "Contains Nuts (N)",
   ORDER: "Catering Order",
-  ORDER_ITEM_COUNT: "{{ count }} item(s) added",
   ORDER_SELECTED_HEADER: "Ordered Items",
   ORDER_SELECTED_COUNT: "{{ count }} item(s)",
   ORDER_ITEMS_EMPTY: "No available items for the selected time or filters",
@@ -48803,9 +48727,6 @@ var CATERING = {
   ORDERS_EMPTY: "No catering orders for the selected date.",
   ORDERS_DELIVER_TIME: "Deliver at {{ time }}",
   ORDERS_LOCATION_EMPTY: "No Location",
-  ORDERS_CONFIRM: "Confirm Order",
-  ORDERS_SAVE: "Save Order",
-  ORDERS_SELECTED: "{{ count }} option(s) selected",
   ORDERS_DELIVER_EXACT: "Exact Time",
   ORDERS_DELIVER_EXACT_INFO: "Deliver at exactly specified time. \nNote that changes to the booking will not be \nreflected in the order if this is set.",
   ORDERS_DELIVER_DATE: "Delivery Date",
@@ -48816,7 +48737,6 @@ var CATERING = {
   ITEM_LIST_EMPTY: "No catering items in the menu",
   ITEM_PRICE: "Unit Price",
   ITEM_DISCOUNT: "Discount Cap",
-  ITEM_ADD: "Add Item",
   ITEM_NEW: "New Catering Item",
   ITEM_EDIT: "Edit Catering Item",
   ITEM_SAVING: "Saving catering item...",
@@ -48826,18 +48746,16 @@ var CATERING = {
   ITEM_REMOVE_LOADING: "Removing catering item...",
   ITEM_REMOVE_SUCCESS: "Successfully removed catering item from menu.",
   ITEM_REMOVE_ERROR: "Failed to remove catering item from menu. Error: {{ error }}",
-  ITEM_OPTION_AVAILABLE: "Options Available",
   ITEM_OPTION_ADD: "Add Option",
   ITEM_OPTION_NEW: "New Item Option",
   ITEM_OPTION_EDIT: "Edit Item Option",
   ITEM_OPTION_REMOVE: "Remove Item Option",
   ITEM_OPTION_SHOW: "Show item's options",
   ITEM_OPTION_HIDE: "Hide item's options",
-  ITEM_OPTION_SAVING: "Saving catering item option...",
-  ITEM_OPTION_REMOVE_MSG: 'Are you sure you wish to remove the catering item option "{{ name }}" from {{ item }}?',
   ITEM_OPTION_REMOVE_LOADING: "Removing catering item option...",
   ITEM_OPTION_REMOVE_SUCCESS: "Successfully removed catering item option from {{ item }}.",
-  ITEM_OPTION_REMOVE_ERROR: "Failed to remove catering item option from {{ item }}. Error: {{ error }}"
+  ITEM_OPTION_REMOVE_ERROR: "Failed to remove catering item option from {{ item }}. Error: {{ error }}",
+  ITEM_SAVE_ERROR: "Failed to save catering item."
 };
 var APP = {
   WORKPLACE: {
@@ -48852,16 +48770,11 @@ var APP = {
     MENU_CONTROL: "Room Control",
     MENU_EXPLORE: "Spaces",
     MENU_EVENTS: "Events",
-    MENU_AI: "Ben AI",
     MENU_DEALS: "Deals & Offers",
-    MENU_TEAM_SCHEDULE: "Team Schedule",
     GLOBAL_SEARCH: "Search for people or spaces...",
-    GLOBAL_SEARCH_EMPTY: "No matches found.",
     GLOBAL_SEARCH_START: "Start typing to search...",
     WELCOME_MESSAGE: "Hello {{ name }},",
     UPCOMING: "Your Bookings",
-    UPCOMING_VIEW: "View All",
-    UPCOMING_VIEW_BOOKINGS: "View All Bookings",
     UPCOMING_MORE: "There are more bookings. Click here to view them.",
     UPCOMING_EMPTY: "You have no upcoming bookings",
     QUICK_LINKS_HEADER: "Make a reservation",
@@ -48870,53 +48783,26 @@ var APP = {
     QUICK_LINK_DESKS: "Book a desk",
     QUICK_LINK_PARKING: "Book parking",
     QUICK_LINK_LOCKERS: "Book a locker",
-    FAVOURITES_COUNT: "{{ count }} favourite(s)",
+    FAVOURITES_COUNT: "{{ count }} favourites",
     FAVOURITES_COUNT_1: "{{ count }} favourite",
-    FAVOURITES_COUNT_N: "{{ count }} favourites",
     FAVOURITES_REMOVE: "Remove favourite",
     FAVOURITES_EMPTY: "No favourites",
     FAVOURITES_SHOW: "Show only favourites",
     CAPACITY: "Capacity {{ count }}",
     COLLEAGUES: "Colleagues",
     COLLEAGUES_COUNT_1: "{{ count }} person",
-    COLLEAGUES_COUNT_N: "{{ count }} people",
     COLLEAGUES_COUNT: "{{ count }} people",
     COLLEAGUES_EMPTY: "No colleagues",
-    COLLEAGUES_ADD: "Add Colleagues",
-    COLLEAGUES_ADD_DESCRIPTION: "Search and select users to add them to your colleagues",
-    COLLEAGUES_ADDING: "Saving new colleagues...",
-    COLLEAGUES_ADD_CONFIRM: "Add {{ count }} colleagues",
-    COLLEAGUES_ADD_CONFIRM_1: "Add {{ count }} colleague",
-    COLLEAGUES_AVAILABLE: "Available Users",
-    COLLEAGUES_EXISTS: "User already added",
-    COLLEAGUES_SELECTED: "{{ count }} colleagues",
-    COLLEAGUES_SELECTED_1: "{{ count }} colleague",
-    COLLEAGUES_BOOK_MEETING: "Book Meeting",
-    COLLEAGUES_REMOVE: "Remove Colleague",
-    COLLEAGUES_REMOVE_TITLE: "Remove Colleague",
-    COLLEAGUES_REMOVE_MSG: "Are you sure you want to remove {{ name }} from your colleagues?",
-    COLLEAGUES_REMOVE_LOADING: "Removing colleague...",
-    COLLEAGUES_REMOVE_SUCCESS: "Colleague removed successfully",
-    COLLEAGUES_BOOK_ROOM: "Book Room together",
-    COLLEAGUES_BOOK_DESK: "Book Desk together",
-    COLLEAGUES_ADD_FAVORITE: "Add to Favourites",
-    COLLEAGUES_REMOVE_FAVORITE: "Remove from Favourites",
-    COLLEAGUES_ADD_TEAM: "Add to My Team",
-    COLLEAGUES_REMOVE_TEAM: "Remove from My Team",
     COLLEAGUE_NEW_MEETING: "Create Meeting",
     COLLEAGUE_REMOVE: "Remove Colleague",
     COLLEAGUE_ADD: "Add Colleague",
     COLLEAGUE_SEARCH: "Search for colleagues...",
-    COLLEAGUE_SEARCH_EMPTY: "Start typing to search for users.",
-    COLLEAGUE_SEARCH_NO_MATCH: 'No matching users found for "{{ text }}" ',
     COLLEAGUE_SEARCH_LOADING: "Searching for users...",
     COLLEAGUE_ADDED: 'Successfully added "{{ name }}" to contacts',
     COLLEAGUE_REMOVED: 'Successfully removed "{{ name }}" from contacts',
-    VIRTUAL_CONCIERGE: "Virtual Concierge",
     AVAILABLE_LIST_HEADER: "Available Now",
     AVAILABLE_LIST_SPACES: "Spaces",
     AVAILABLE_LIST_SPACES_EMPTY: "No spaces available to book at the current time",
-    AVAILABLE_LIST_ROOMS: "Rooms",
     AVAILABLE_LIST_ROOMS_EMPTY: "No rooms available to book at the current time",
     SCHEDULE_EMPTY: "No bookings for the selected date(s)",
     SCHEDULE_REMOVE_TITLE: "Cancel booking",
@@ -48934,8 +48820,6 @@ var APP = {
     SCHEDULE_END_LOADING: "Ending booking...",
     SCHEDULE_END_SUCCESS: "Successfully ended booking.",
     SCHEDULE_END_ERROR: "Failed to end booking. Error: {{ error }}",
-    SCHEDULE_END_ALREADY_ENDED_ERROR: "Booking has already ended.",
-    SCHEDULE_FILTERS: "Filters",
     SCHEDULE_FILTERS_DISPLAY_HEADER: "Category Filters",
     SCHEDULE_FILTER_ROOMS: "Rooms and meeting invites",
     SCHEDULE_FILTER_DESKS: "Desk bookings",
@@ -48964,17 +48848,11 @@ var APP = {
     PARKING_SUCCESS_HEADER: "Parking space reserved",
     PARKING_SUCCESS_MSG: 'Your parking space reservation for "{{ name }}" has been successfully booked for the {{ date }} at {{ time }}',
     PARKING_CONFIRM_TITLE: "Confirm Parking Reservation",
-    PARKING_REQUEST_NEW_HEADER: "New Parking Request",
     PARKING_REQUEST_EDIT_HEADER: "Edit Parking Request",
     PARKING_REQUEST_CONFIRM_TITLE: "Confirm Parking Request",
     PARKING_REQUEST_SUCCESS_HEADER: "Parking request submitted",
     PARKING_REQUEST_SUCCESS_MSG: "Your parking request has been submitted for {{ date }} at {{ time }}. You will be notified by email if your request is successful.",
-    DESK_ASSIGNED: 'You are already assigned a desk "{{ name }}"',
     DESK_CONFIRM_TITLE: "Confirm Desk Booking",
-    DESK_WEEK_TITLE: "My Desk Bookings",
-    DESK_WEEK_NEXT_MONDAY: "Next Monday",
-    DESK_WEEK_PREVIOUS: "Previous week",
-    DESK_WEEK_NEXT: "Next week",
     VIEW_SCHEDULE: "View your Bookings",
     BOOKING_FINISHED: "Return home",
     EVENTS_EMPTY: "No events for the selected time period",
@@ -48986,15 +48864,47 @@ var APP = {
     CHAT_WAITING: "Waiting for a reply...",
     CHAT_MESSAGE_PLACEHOLDER: "New message...",
     DEAL_COUNT_1: "{{ count }} Offer",
-    DEAL_COUNT_N: "{{ count }} Offers",
+    DEAL_COUNT: "{{ count }} Offers",
     SORT_BY_DATE_DESC: "Sort by Date (Newest First)",
     SORT_BY_DATE_ASC: "Sort by Date (Oldest First)",
     SORT_BY_RELEVANCE: "Sort by Relevance",
-    DEALS_EMPTY_HEADER: "No Deals or Offers Available",
     DEALS_EMPTY_BODY: "We're working on bringing you exciting deals and offers. Please check back later or explore other sections.",
     RESOURCE_CHECKED_IN_FAILED: "No booking found",
     RESOURCE_CHECKED_IN: "Successfully checked in resource",
     RESOURCE_CHECKED_IN_MESSAGE: "Resource checked in successfully",
+    TRY_AGAIN: "Try again",
+    DEALS_EMPTY_TITLE: "No Deals or Offers Available",
+    MENU_TEAM_SCHEDULE: "Team Schedule",
+    UPCOMING_VIEW: "View All",
+    UPCOMING_VIEW_BOOKINGS: "View All Bookings",
+    COLLEAGUES_ADD: "Add Colleagues",
+    COLLEAGUES_ADD_DESCRIPTION: "Search and select users to add them to your colleagues",
+    COLLEAGUES_ADDING: "Saving new colleagues...",
+    COLLEAGUES_ADD_CONFIRM: "Add {{ count }} colleagues",
+    COLLEAGUES_AVAILABLE: "Available Users",
+    COLLEAGUES_EXISTS: "User already added",
+    COLLEAGUES_SELECTED: "{{ count }} colleagues",
+    COLLEAGUES_BOOK_MEETING: "Book Meeting",
+    COLLEAGUES_REMOVE: "Remove Colleague",
+    COLLEAGUES_REMOVE_TITLE: "Remove Colleague",
+    COLLEAGUES_REMOVE_MSG: "Are you sure you want to remove {{ name }} from your colleagues?",
+    COLLEAGUES_REMOVE_LOADING: "Removing colleague...",
+    COLLEAGUES_REMOVE_SUCCESS: "Colleague removed successfully",
+    COLLEAGUES_BOOK_ROOM: "Book Room together",
+    COLLEAGUES_BOOK_DESK: "Book Desk together",
+    COLLEAGUES_ADD_FAVORITE: "Add to Favourites",
+    COLLEAGUES_REMOVE_FAVORITE: "Remove from Favourites",
+    COLLEAGUES_ADD_TEAM: "Add to My Team",
+    COLLEAGUES_REMOVE_TEAM: "Remove from My Team",
+    COLLEAGUE_SEARCH_EMPTY: "Start typing to search for users.",
+    COLLEAGUE_SEARCH_NO_MATCH: 'No matching users found for "{{ text }}" ',
+    AVAILABLE_LIST_ROOMS: "Rooms",
+    SCHEDULE_END_ALREADY_ENDED_ERROR: "Booking has already ended.",
+    SCHEDULE_FILTERS: "Filters",
+    DESK_WEEK_TITLE: "My Desk Bookings",
+    DESK_WEEK_NEXT_MONDAY: "Next Monday",
+    DESK_WEEK_PREVIOUS: "Previous week",
+    DESK_WEEK_NEXT: "Next week",
     TEAM_SCHEDULE_BOOK_HINT: "Press on the card to book desk next to colleague",
     TEAM_SCHEDULE_EMPLOYEE: "Employee",
     TEAM_SCHEDULE_NO_FILTER_RESULTS: "No results found",
@@ -49010,14 +48920,10 @@ var APP = {
     MENU_LOCKER_BOOKINGS: "Lockers",
     MENU_ASSET_BOOKINGS: "Assets",
     MENU_CATERING_BOOKINGS: "Catering",
-    MENU_VISITORS: "Visitor Management",
     MENU_VISITOR_BOOKINGS: "Visitors",
     MENU_VISITOR_RULES: "External",
     MENU_MANAGEMENT: "Facilities",
     MENU_MANAGE_ZONES: "Zone Management",
-    MENU_MANAGE_REGIONS: "Region Management",
-    MENU_MANAGE_BUILDINGS: "Building Management",
-    MENU_MANAGE_LEVELS: "Level Management",
     MENU_MANAGE_ROOMS: "Room Management",
     MENU_MANAGE_DESKS: "Desk Management",
     MENU_MANAGE_PARKING: "Parking Management",
@@ -49055,7 +48961,6 @@ var APP = {
     BOOKING_REMOVE_LOADING: "Cancelling booking...",
     ROOMS_PENDING_HEADER: "Pending Approval",
     ROOMS_PENDING_EMPTY: "No pending requests",
-    ROOMS_PENDING_LOADING: "Processing...",
     ROOMS_PENDING_SHOW: "Show Pending Approvals",
     ROOMS_PENDING_HIDE: "Hide Pending Approvals",
     ROOMS_SEARCH: "Search day's events...",
@@ -49078,7 +48983,7 @@ var APP = {
     DESKS_SELECT_LEVEL: "Select a level before modifying desks.",
     DESKS_ASSIGN_CONFLICT_ERROR: "This desk is currently booked. Please cancel the existing booking before assigning it.",
     DESKS_ASSIGN_LIMIT_ERROR_1: "Users can only have 1 assigned desk at a time.",
-    DESKS_ASSIGN_LIMIT_ERROR_N: "Users can only have {{ count }} assigned desks at a time.",
+    DESKS_ASSIGN_LIMIT_ERROR: "Users can only have {{ count }} assigned desks at a time.",
     DESKS_MAP_ID_PLACEHOLDER: "e.g. table-01.123",
     DESKS_VIEW_QR_CODE_LIST: "View Desk QR Codes",
     DESKS_LIST_UPLOAD: "Upload Desks CSV",
@@ -49086,6 +48991,10 @@ var APP = {
     DESKS_BOOKING_RULES: "Desk Restrictions",
     DESKS_BOOKINGS_EMPTY: "There are no desk booking for the currently selected date.",
     DESKS_BOOKINGS_SEARCH_EMPTY: "No matching desk bookings",
+    BOOKING_VIEW_HISTORY: "View Booking History",
+    BOOKING_HISTORY_HEADER: "Booking history for {{ name }}",
+    BOOKING_HISTORY_EMPTY: "No history recorded for this booking",
+    BOOKING_HISTORY_STATE_NO_SHOW: "No show",
     DESKS_GROUP_EMPTY: "No Group",
     DESKS_ACTION_APPROVE: "Approve Desk",
     DESKS_ACTION_DECLINE: "Reject Desk",
@@ -49144,21 +49053,18 @@ var APP = {
     TAB_REGIONS: "Regions",
     TAB_BUILDINGS: "Buildings",
     TAB_LEVELS: "Levels",
-    REGIONS_HEADER: "Region Management",
     REGIONS_ADD: "Add Region",
     REGIONS_NEW: "New Region",
     REGIONS_EDIT: "Edit Region",
     REGIONS_REMOVE: "Delete Region",
     REGIONS_NAME: "Region Name",
     REGIONS_BUILDINGS: "Buildings",
-    REGIONS_SAVING: "Saving region...",
     REGIONS_EMPTY: "No Regions",
     REGIONS_REMOVE_TITLE: "Remove Region",
     REGIONS_REMOVE_MSG: 'Are you sure you want to remove the region "{{ name }}"?',
     REGIONS_REMOVE_LOADING: "Removing region...",
     REGIONS_REMOVE_SUCCESS: "Successfully removed region",
     REGIONS_REMOVE_ERROR: "Failed to remove region. Error: {{ error }}",
-    BUILDINGS_HEADER: "Building Management",
     BUILDINGS_ADD: "Add Building",
     BUILDINGS_NEW: "New Building",
     BUILDINGS_EDIT: "Edit Building",
@@ -49178,21 +49084,17 @@ var APP = {
     BUILDINGS_REMOVE_LOADING: "Removing building...",
     BUILDINGS_REMOVE_SUCCESS: "Successfully removed building",
     BUILDINGS_REMOVE_ERROR: "Failed to remove building. Error: {{ error }}",
-    LEVELS_HEADER: "Level Management",
     LEVELS_ADD: "Add Level",
     LEVELS_NEW: "New Level",
     LEVELS_EDIT: "Edit Level",
     LEVELS_REMOVE: "Delete Level",
     LEVELS_NAME: "Level Name",
     LEVELS_COPIED_ID: "Level ID copied to clipboard.",
-    LEVELS_ROOMS: "Rooms",
     LEVELS_MAP_URL: "Map URL",
     LEVELS_BUILDING_REQUIRED: "A building zone is required",
     LEVELS_HAS_PARKING: "Has parking spaces",
     LEVELS_MAP_URL_PLACEHOLDER: "URL of the Map SVG file",
     LEVELS_SAVING: "Saving level...",
-    LEVELS_SAVE_SUCCESS: "Successfully saved level.",
-    LEVELS_SAVE_ERROR: "Failed to save level. Error: {{ error }}",
     LEVELS_EMPTY: "No Levels",
     LEVELS_REMOVE_TITLE: "Remove Level",
     LEVELS_REMOVE_MSG: 'Are you sure you want to remove the level "{{ name }}"?',
@@ -49203,11 +49105,9 @@ var APP = {
     ROOMS_ADD: "Add Room",
     ROOMS_NEW: "New Room",
     ROOMS_EDIT: "Edit Room",
-    ROOMS_REMOVE: "Delete Room",
     ROOMS_NAME: "Room Name",
     ROOMS_TYPE: "Room Type",
     ROOMS_ALERT: "Alert",
-    ROOMS_CODE: "Code",
     ROOMS_SETUP_INFO: "Time before a meeting needed for setup and preparation for the upcoming meeting",
     ROOMS_BREAKDOWN_INFO: "Time after a meeting needed for cleaning and preparation for next meeting",
     ROOMS_DEFAULT_SETUP: "Default Setup Duration",
@@ -49237,8 +49137,6 @@ var APP = {
     ROOMS_BOOKING_RULES: "Room Restrictions",
     ROOMS_COPIED_ID: "Room ID copied to clipboard.",
     ROOMS_LEVEL_REQUIRED: "A level zone is required",
-    ROOMS_HAS_PARKING: "Has parking spaces",
-    ROOMS_MAP_URL_PLACEHOLDER: "URL of the Map SVG file",
     ROOMS_ALERT_HEADER: "Set alert for {{ name }}",
     ROOMS_ALERT_TYPE_NONE: "None",
     ROOMS_ALERT_TYPE_INFO: "Info",
@@ -49249,14 +49147,6 @@ var APP = {
     ROOMS_ALERT_SAVE_ERROR: "Failed to save room alert details. Error: {{ error }}",
     ROOMS_ALERT_SAVE_SUCCESS: "Successfully saved room alert details",
     ROOMS_SAVING: "Saving room...",
-    ROOMS_SAVE_SUCCESS: "Successfully saved room.",
-    ROOMS_SAVE_ERROR: "Failed to save room. Error: {{ error }}",
-    ROOMS_LIST_EMPTY: "No rooms",
-    ROOMS_REMOVE_TITLE: "Remove room",
-    ROOMS_REMOVE_MSG: 'Are you sure you want to remove the room "{{ name }}"?',
-    ROOMS_REMOVE_LOADING: "Removing room...",
-    ROOMS_REMOVE_SUCCESS: "Successfully removed room",
-    ROOMS_REMOVE_ERROR: "Failed to remove room. Error: {{ error }}",
     ROOMS_APPROVE_SERIES: "Approve Series",
     ROOMS_REJECT_SERIES: "Reject Series",
     DOWNLOAD_USER_LIST: "Download User list for selected levels",
@@ -49302,7 +49192,6 @@ var APP = {
     VISITORS_ACTION_PARKING: "Reserve Parking Space",
     VISITORS_ACTION_REMOTE: "Set visitor as Remote",
     VISITORS_ACTION_ONSITE: "Set visitor as Onsite",
-    VISITORS_ACTION_PRINT_QR: "Print QR Code",
     VISITORS_ACTION_PRINT_PASS: "Print Visitor Label",
     VISITORS_ACTION_EMAIL_HOST: "Email Host",
     VISITORS_ACTION_EMAIL_GUEST: "Email Guest",
@@ -49357,7 +49246,6 @@ var APP = {
     POI_REMOVE: "Delete Point of Interest",
     POI_PREVIEW: "Preview Point of Interest",
     POI_SAVING: "Saving point of interest...",
-    POI_LIST_EMPTY: "No points of interest found.",
     POI_SEARCHABLE: "Searchable",
     POI_PRIVATE_QR: "Private QR Code",
     POI_PUBLIC_QR: "Public QR Code",
@@ -49371,17 +49259,11 @@ var APP = {
     POI_DETAILS: "Extra Details",
     URLS_HEADER: "Short URL Management",
     URLS_ADD: "Add Short URL",
-    URLS_NEW: "New Short URL",
     URLS_EDIT: "Edit Short URL",
     URLS_REMOVE: "Delete Short URL",
     URLS_URI: "URI",
     URLS_USER_NAME: "User Name",
-    URLS_ENABLED: "Enabled",
-    URLS_COPIED_ID: "URL copied to clipboard.",
     URLS_SAVING: "Saving Short URL...",
-    URLS_SAVE_SUCCESS: "Successfully saved Short URL.",
-    URLS_SAVE_ERROR: "Failed to save Short URL. Error: {{ error }}",
-    URLS_EMPTY: "No Short URLs",
     URLS_PRINT_QR: "Print QR Code",
     URLS_REMOVE_TITLE: "Remove Short URL",
     URLS_REMOVE_MSG: 'Are you sure you want to remove the Short URL "{{ name }}"?',
@@ -49395,7 +49277,6 @@ var APP = {
     EMAIL_TEMPLATES_REMOVE: "Remove Template",
     EMAIL_TEMPLATES_SAVE: "Save Template",
     EMAIL_TEMPLATES_SEND_TEST: "Send test Email",
-    EMAIL_TEMPLATES_SENT_TEST: "Successfully sent test email.",
     EMAIL_TEMPLATES_CONFIG_ERROR: "Mailing system is not configured for this application",
     EMAIL_TEMPLATES_SAVE_SUCCESS: "Successfully saved email template.",
     EMAIL_TEMPLATES_SAVE_ERROR: "Failed to save email template. Error: {{ error }}",
@@ -49419,8 +49300,7 @@ var APP = {
     SURVEY_TEST: "Test Survey",
     SURVEY_REMOVE: "Delete Survey",
     SURVEY_RESPONSES: "Survey Responses",
-    SURVEY_BUILDING_COUNT: "{{ count }} building(s)",
-    SURVEY_BUILDING_COUNT_N: "{{ count }} buildings",
+    SURVEY_BUILDING_COUNT: "{{ count }} buildings",
     SURVEY_BUILDING_COUNT_1: "{{ count }} building",
     SURVEY_LIST_HEADER: "Survey Listing",
     SURVEY_BLD_LIVE: "Live",
@@ -49433,26 +49313,15 @@ var APP = {
     SURVEY_ANSWERS_PAGE: "Page {{ id }}",
     SURVEY_ANSWERS_PAGE_WITH_TITLE: "Page {{ id }} - {{ title }}",
     SURVEY_ANSWERS_EMPTY: "No responses for this survey",
-    SURVEY_ANSWERS_ID_INVALID: "Invalid survey requested",
     SURVEY_ANSWERS_LOADING: "Loading survey questions and responses...",
-    SURVEY_QUESTION_ADD: "Add Question",
     SURVEY_QUESTION_NEW: "New Question",
     SURVEY_QUESTION_EDIT: "Edit Question",
-    SURVEY_QUESTION_SEARCH: "Find question...",
     SURVEY_QUESTION_TYPES_ALL: "All Types",
-    SURVEY_QUESTION_EMPTY: "No questions found.",
     SURVEY_QUESTION_HEADER: "Question Bank",
-    SURVEY_QUESTION_REMOVE: "Remove Question",
     SURVEY_QUESTION_ENTER: "Enter your question here",
     SURVEY_QUESTION_ENTER_ERROR: "Please enter your question above",
     SURVEY_QUESTION_HINT_MULTILINE: "*Type your answer above. Multiple lines supported",
-    SURVEY_QUESTION_HINT_RATING: "Move the slider to adjust the rating options",
     SURVEY_QUESTION_HINT_LINE: "*Type your answer above.",
-    SURVEY_QUESTION_PAGE_NEW: "New Page",
-    SURVEY_QUESTION_PAGE_TITLE: "Page Title",
-    SURVEY_QUESTION_PAGE_REMOVE: "Remove Page",
-    SURVEY_QUESTION_EMPTY_ACTION: "Click + above to add some questions",
-    SURVEY_DND_INFO: "Drag and drop questions from the question bank here",
     SURVEY_COMPLETE: "Thank you for completing the survey.",
     SURVEY_BUILDER: "Builder",
     PARKING_HEADER: "Parking Management",
@@ -49464,10 +49333,6 @@ var APP = {
     PARKING_REQUEST_EDIT: "Edit Request",
     PARKING_REQUEST_SAVE: "Successfully submitted parking request.",
     PARKING_EDIT: "Edit Reservation",
-    PARKING_VIEW_HISTORY: "View Booking History",
-    PARKING_HISTORY_HEADER: "Booking history for {{ name }}",
-    PARKING_HISTORY_EMPTY: "No history recorded for this booking",
-    PARKING_HISTORY_STATE_NO_SHOW: "No show",
     PARKING_SPACE: "Parking Space",
     PARKING_SPACE_ADD: "New Space",
     PARKING_SPACE_NEW: "New Parking Space",
@@ -49482,9 +49347,9 @@ var APP = {
     USER_ASSIGNED: "Assigned User",
     USER_CLEAR: "Clear Assigned User",
     ASSIGNED_FUTURE_DESK_BOOKINGS_1: "This user already has {{ count }} upcoming desk booking. Assigning this desk may cause a conflict.",
-    ASSIGNED_FUTURE_DESK_BOOKINGS_N: "This user already has {{ count }} upcoming desk bookings. Assigning this desk may cause a conflict.",
+    ASSIGNED_FUTURE_DESK_BOOKINGS: "This user already has {{ count }} upcoming desk bookings. Assigning this desk may cause a conflict.",
     ASSIGNED_FUTURE_PARKING_BOOKINGS_1: "This user already has {{ count }} upcoming parking booking. Assigning this space may cause a conflict.",
-    ASSIGNED_FUTURE_PARKING_BOOKINGS_N: "This user already has {{ count }} upcoming parking bookings. Assigning this space may cause a conflict.",
+    ASSIGNED_FUTURE_PARKING_BOOKINGS: "This user already has {{ count }} upcoming parking bookings. Assigning this space may cause a conflict.",
     PARKING_USER_DENY: "Deny",
     PARKING_USER_DENY_PLACEHOLER: "Deny User Parking Access",
     PARKING_USER_ADD: "New User",
@@ -49512,14 +49377,10 @@ var APP = {
     PARKING_TAB_SPACES: "Spaces",
     PARKING_TAB_FLEET: "Vehicles",
     PARKING_TAB_USERS: "Users",
-    PARKING_TAB_MAP: "Map",
-    PARKING_TAB_REQUESTS: "Requests",
-    PARKING_TAB_BOOKINGS: "Assigned",
     PARKING_BOOKING_TYPE_REQUEST: "All Requests",
     PARKING_BOOKING_TYPE_PENDING_MANUAL: "Pending Approval",
     PARKING_BOOKING_TYPE_WAITLISTED: "Waitlisted",
     PARKING_BOOKING_TYPE_BOOKED: "Allocated",
-    PARKING_FILTER_MANUAL: "Pending",
     PARKING_BAY: "Parking Bay",
     PARKING_BAY_NUMBER: "Bay Number",
     PARKING_USER_GROUPS: "User Groups",
@@ -49544,7 +49405,7 @@ var APP = {
     PARKING_ASSIGN_SPACE_EMPTY: "No available spaces for this time",
     PARKING_ASSIGN_SPACE_CLASH: "This space clashes with another booking in the recurring series",
     PARKING_ASSIGN_LIMIT_ERROR_1: "Users can only have 1 assigned parking space at a time.",
-    PARKING_ASSIGN_LIMIT_ERROR_N: "Users can only have {{ count }} assigned parking spaces at a time.",
+    PARKING_ASSIGN_LIMIT_ERROR: "Users can only have {{ count }} assigned parking spaces at a time.",
     PARKING_DECLINE: "Reject Reservation",
     PARKING_DECLINE_INSTANCE: "Reject Instance",
     PARKING_DECLINE_SERIES: "Reject Series",
@@ -49610,13 +49471,11 @@ var APP = {
     DEALS_REMOVE_BODY: "Are you sure you want to remove this deal/offer?",
     DEALS_SAVE_ERROR: "Failed to save deal/offer details. Error: {{ error }}",
     DEALS_SAVED: "Successfully saved deal/offer details.",
-    DEALS_EMPTY_HEADER: "No Deals or Offers Available",
     DEALS_EMPTY_BODY: "Add a new deal or offer to get started.",
     LOCKERS_HEADER: "Locker Management",
     LOCKERS_BOOK_HEADER: "Locker Bookings",
     LOCKERS_BOOK_NEW: "New Locker Booking",
     LOCKERS_BOOK_EDIT: "Edit Locker Booking",
-    LOCKERS_BOOK_REMOVE: "Cancel Locker Booking",
     LOCKERS_ADD: "Add Locker",
     LOCKERS_NEW: "New Locker",
     LOCKERS_EDIT: "Edit Locker",
@@ -49627,7 +49486,6 @@ var APP = {
     LOCKERS_SAVING: "Saving locker details...",
     LOCKERS_BOOKING_RULES: "Locker Restrictions",
     LOCKERS_REMOVE_TITLE: "Remove Locker",
-    LOCKERS_REMOVE_MSG: 'Are you sure you wish to remove the locker "{{ name }}"?',
     LOCKERS_REMOVE_LOADING: "Removing locker...",
     LOCKERS_REMOVE_ERROR: "Failed to remove locker. Error: {{ error }}",
     LOCKERS_REMOVE_SUCCESS: "Successfully removed locker.",
@@ -49646,7 +49504,6 @@ var APP = {
     LOCKERS_APPROVE: "Approve Locker",
     LOCKERS_DECLINE: "Reject Locker",
     LOCKERS_BANK_REMOVE_TITLE: "Remove Locker Bank",
-    LOCKERS_BANK_REMOVE_MSG: 'Are you sure you wish to remove the locker bank "{{ name }}"?',
     LOCKERS_BANK_REMOVE_LOADING: "Removing locker bank...",
     LOCKERS_BANK_REMOVE_ERROR: "Failed to remove locker bank. Error: {{ error }}",
     LOCKERS_BANK_REMOVE_SUCCESS: "Successfully removed locker bank.",
@@ -49705,7 +49562,6 @@ var APP = {
     SIGNAGE_PLAYLISTS_SEARCH_EMPTY: "No matching playlists found.",
     SIGNAGE_PLAYLISTS_MEDIA_EMPTY: "No media in the selected playlist.",
     SIGNAGE_PLAYLISTS_REMOVE_MSG: 'Are you sure you wish to remove the playlist "{{ name }}"?',
-    SIGNAGE_PLAYLISTS_REMOVE_LOADING: "Removing playlist...",
     SIGNAGE_PLAYLISTS_REMOVE_SUCCESS: "Successfully removed playlist",
     SIGNAGE_PLAYLISTS_COPY_ID: "Copy Playlist's ID",
     SIGNAGE_PLAYLISTS_APPROVE: "Review & Approve Playlist",
@@ -49777,7 +49633,6 @@ var APP = {
     SIGNAGE_ZONES_EMPTY: "No zones",
     SIGNAGE_ZONES_SEARCH_EMPTY: "No matching zones found.",
     SIGNAGE_ZONES_PLAYLIST_ADDED: "Successfully added playlist to the zone.",
-    SIGNAGE_ZONES_PLAYLIST_REMOVED: "Successfully removed playlist to the zone.",
     SIGNAGE_ZONES_PLAYLIST_REORDER: "Successfully re-ordered playlists for the zone.",
     SIGNAGE_TRIGGERS_PLAYLIST_ADDED: "Successfully added playlist to the trigger.",
     SIGNAGE_TRIGGERS_PLAYLIST_REMOVED: "Successfully removed playlist to the trigger.",
@@ -49831,7 +49686,6 @@ var APP = {
     ASSETS_CATEGORY_PARENT_EMPTY: "No Parent",
     ASSETS_CATEGORY_SAVING: "Saving category...",
     ASSETS_CATEGORY_SAVE_ERROR: "Failed to save category. Error: {{ error }}",
-    ASSETS_ADD: "Add Asset",
     ASSETS_NEW: "New Asset",
     ASSETS_EDIT: "Edit Asset",
     ASSETS_BULK_ADD: "Bulk Add Asset",
@@ -49840,14 +49694,10 @@ var APP = {
     ASSETS_PRODUCT: "Product",
     ASSETS_PRODUCTS: "Products",
     ASSETS_PO: "Purchase Orders",
-    ASSETS_SAVING: "Saving asset...",
-    ASSETS_SAVE_ERROR: "Failed to save asset. Error: {{ error }}",
-    ASSETS_SAVE_SUCCES: "Successfully saved asset.",
     ASSETS_BULK_SAVING: "Saving assets...",
     ASSETS_BULK_ASSET_LOADING: "Loading asset details...",
     ASSETS_BULK_PRODUCT_LOADING: "Loading product details...",
     ASSETS_BULK_COUNT_ERROR: "Please enter a valid number of assets to add.",
-    ASSETS_BULK_SAVE_ERROR: "Failed to save assets. Error: {{ error }}",
     ASSETS_BULK_SAVE_SUCCESS: "Successfully saved {{ count }} assets.",
     ASSETS_SERIAL_REQUIRED: "A serial number is required",
     ASSETS_NAME_REQUIRED: "A display name is required",
@@ -49938,7 +49788,6 @@ var APP = {
     REPORTS_TOTAL_VISITORS: "Total Visitors",
     REPORTS_AVERAGE_LENGTH: "Average Length",
     REPORTS_NO_SHOWS: "No shows",
-    REPORTS_NO_SHOWS_COUNT: "No show count",
     REPORTS_NO_SHOWS_PERCENT: "% of No shows",
     REPORTS_TOTAL_ATTENDEES: "Total Room Attendees",
     REPORTS_ACTIVE_BOOKINGS_HEADER: "Active Bookings",
@@ -49962,7 +49811,6 @@ var APP = {
     REPORTS_ROOMS_UTIL_HEADER: "Rooms Utilisation",
     REPORTS_ROOMS_HOST_HEADER: "Meeting Organisers",
     REPORTS_LEVEL_UTIL_HEADER: "Level Utilisation",
-    REPORTS_PARKING_UTIL_HEADER: "Parking Utilisation",
     REPORTS_LOCKERS_UTIL_HEADER: "Lockers Utilisation",
     REPORTS_HOST_COUNT_HEADER: "Reservee Count",
     REPORTS_BOOKING_COUNT_HEADER: "Booking Count",
@@ -49976,7 +49824,6 @@ var APP = {
     REPORTS_ASSETS_HEADER: "Assets Report",
     REPORTS_VISITORS_HEADER: "Visitors Report",
     REPORTS_SITE_ATTENDANCE_HEADER: "Site Attendance Report",
-    REPORTS_USERS_HOSTS_HEADER: "Users and Hosts",
     REPORTS_HOSTS_HEADER: "Hosts",
     REPORTS_LOAD_ERROR: "No bookings found for the selected zones and date range",
     REPORTS_CATERING_ITEMS_HEADER: "Ordered Items",
@@ -49985,8 +49832,6 @@ var APP = {
     REPORTS_CATERING_ORDERS_HEADER: "Orders",
     REPORTS_CATERING_ORDERS_AVERAGE: "Order Average",
     REPORTS_CATERING_ORDERS_EMPTY: "No orders for the selected date range",
-    REPORTS_CATERING_OPTIONS: "Options",
-    REPORTS_CATERING_OPTIONS_COUNT: "{{ count }} option(s)",
     REPORTS_ASSETS_AVAILABLE: "Assets Available",
     REPORTS_ASSETS_REQUESTEES: "Asset Request Users",
     REPORTS_ASSETS_BOOKED: "Assets Booked",
@@ -50001,7 +49846,6 @@ var APP = {
     REPORTS_VISITORS_DAILY: "Daily Visitors",
     APPROVER: "Approver",
     VALID_FROM: "Valid From",
-    VALID_UNTIL: "Valid Until",
     PLAY_FROM: "Play From",
     PLAY_UNTIL: "Play Until",
     PLAY_AT: "Play At",
@@ -50013,8 +49857,7 @@ var APP = {
     AVAILABLE_ROOMS_ENABLE: "Enable Selected",
     AVAILABLE_ROOMS_DISABLE: "Disable Selected",
     AVAILABLE_ROOMS_COUNT_1: "{{ count }} room",
-    AVAILABLE_ROOMS_COUNT_N: "{{ count }} rooms",
-    AVAILABLE_ROOMS_COUNT: "{{ count }} room(s)",
+    AVAILABLE_ROOMS_COUNT: "{{ count }} rooms",
     BOOKING_RULES_HEADER: "{{ type }} Booking Rules",
     BOOKING_RULES_NEW: "New {{ type }} Booking Ruleset",
     BOOKING_RULES_EDIT: "Edit {{ type }} Booking Ruleset",
@@ -50030,9 +49873,16 @@ var APP = {
     BOOKING_RULESET_SAVING: "Saving booking rules...",
     BOOKING_RULESET_ERROR: "Failed to save booking rules. Error: {{ error }}",
     BOOKING_RULESET_SUCCESS: "Successfully saved booking rules.",
-    BOOKING_RULESET_PRIORITY_UP: "Increase Ruleset Priority",
-    BOOKING_RULESET_PRIORITY_DOWN: "Decrease Ruleset Priority",
-    BOOKING_RULESET_REORDER: "Reorder Ruleset"
+    BOOKING_RULESET_REORDER: "Reorder Ruleset",
+    DEALS_EMPTY_TITLE: "No Deals or Offers Available",
+    REGION_SAVING: "Saving region...",
+    SURVEY_NO_BLD: "No buildings found.",
+    SIGNAGE_PLAYLISTS_SAVING: "Saving playlist...",
+    SIGNAGE_ZONES_PLAYLIST_REMOVED: "Successfully removed playlist from the zone.",
+    CONTACTS_DELETE_SUCCESS: "Successfully removed emergency contact.",
+    CONTACTS_DELETE_ERROR: "Failed to remove emergency contact. Error: {{ error }}",
+    CONTACTS_MIGRATION_SUCCESS: "Successfully migrated emergency contacts.",
+    CONTACTS_MIGRATION_ERROR: "Failed to migrate emergency contacts. Error: {{ error }}"
   },
   BOOKING_PANEL: {
     ROOM_CAPACITY: "Room capacity",
@@ -50042,23 +49892,17 @@ var APP = {
     BOOKING_INPUT_NOSCAN: "Touch to book",
     END_INPUT: "Touch to end meeting",
     SCAN_QR_CODE: "Scan QR code to book this room or view details",
-    NEXT: "Next",
     NOW: "Now",
     HOST: "Host:",
     MEETING_IN_PROGRESS: "is currently in progress",
-    BOOK: "Book",
     SCHEDULE: "Schedule",
-    FEATURES: "Features",
     LIGHTS_BLINDS: "Lights & Blinds",
     TV: "TV",
-    CATERING: "Catering",
     HELP: "Help",
-    CHECKIN: "Check-in",
     UPCOMING: "Upcoming",
     NO_CURRENT: "No current events",
     NO_UPCOMING: "No upcoming events",
     BOOTSTRAP_TITLE: "Booking Panel",
-    LOADING_SYSTEM: "Loading system data...",
     FREE_IN_HOURS_AND_MINUTES: "Free in {{ hour }} hours and {{ minute }} minutes",
     FREE_IN_MINUTES: "Free in {{ minute }} minutes",
     FREE_IN_LESS_THAN_MINUTE: "Free in less than a minute",
@@ -50068,7 +49912,8 @@ var APP = {
     EARLY_CHECKIN: "Meeting has been checked in early",
     BOOKING_NEW: "New Booking",
     BOOKING_HOST: "Booked by",
-    BOOKING_LOADING: "Processing booking request..."
+    BOOKING_LOADING: "Processing booking request...",
+    NO_MESSAGES: "No messages"
   },
   CONTROL: {
     BOOTSTRAP_TITLE: "Control Panel",
@@ -50139,7 +49984,6 @@ var APP = {
     LIGHTING_EMPTY: "No presets available for lights",
     MICS_EMPTY: "No microphones available for system",
     OUTPUT_SWITCH: "Click to switch input source",
-    PHONE: "Phone Number",
     PHONE_DIAL: "Dial Phone",
     PHONE_HANGUP: "Hangup",
     POWER_MSG: "Are you sure you want to shutdown<br/>the system?",
@@ -50162,8 +50006,6 @@ var APP = {
   },
   SIGNAGE: {
     BOOTSTRAP_TITLE: "Signage",
-    BOOTSTRAP_BUILDING: "Select a building from the dropdown below",
-    BOOTSTRAP_BUILDING_SELECT: "Select Building",
     BOOTSTRAP_DISPLAY: "Select a display from the dropdown below",
     BOOTSTRAP_DISPLAY_SELECT: "Select Display",
     BOOTSTRAP_LOADING: "Initialising application...",
@@ -50179,10 +50021,7 @@ var APP = {
     SHUFFLE: "Shuffle [{{ state }}]",
     MEDIA_LIST: "Media to play",
     MEDIA_LIST_END: "End of player media",
-    MEDIA_LIST_EMPTY: "No media available to play",
-    PLAYLIST_LENGTH: "{{ count }} items",
-    PLAYLIST_LENGTH_1: "{{ count }} item",
-    PLAYLIST_LENGTH_N: "{{ count }} items"
+    MEDIA_LIST_EMPTY: "No media available to play"
   },
   OUTLOOK: {},
   MAP_KIOSK: {},
@@ -50202,25 +50041,17 @@ var APP = {
     SELECT_LOCATION_MSG: "Select a fixed location from the dropdown below",
     SELECT_LOCATION: "Select location",
     WELCOME_MESSAGE: '<p>Welcome to Place<span class="text-primary">OS</span></p><p>Self Service Kiosk</p>',
-    CHECK_IN: "Check-in or out",
-    VISITOR: "Visitor",
     REGISTER: "Register",
     REGISTRATION: "Visitor Registration",
     REGISTERING: "Registering visitor...",
     REGISTRATION_ERROR: "Failed to register visitor. Error: {{ error }}",
     EXPLORE: "Explore",
     QR_CODE_MSG: "Please enter your email address or scan your QR code",
-    NAME: "Name",
-    EMAIL: "Email",
     INVALID_EMAIL: "Invalid email address",
-    EMAIL_REQUIRED: "A valid email address is required",
     FIND_DETAILS: "Find Details",
     LOADING_DETAILS: "Loading visitor information...",
     CAMERA_UNAVAILABLE: "Camera feed loading...",
-    HOST: "Host",
     PHONE: "Phone",
-    ORGANISATION: "Organisation",
-    REASON: "Reason for visit",
     CHECKED_IN_MSG: "You are checked in!",
     CHECKED_IN_MSG_SELF_REG: "Your registration is confirmed!",
     TAKE_PHOTO: "Take a photo to continue",
@@ -50230,17 +50061,13 @@ var APP = {
     SKIP: "Skip",
     PRINT_LABEL: "Print Label",
     PRINT_LOADING: "Printing visitor label...",
-    LABEL_FOR: "For: {{ title }}",
     LABEL_HOST: "Host: {{ host_name }}",
     LABEL_LOCATION: "Cleared for {{ location }}",
-    ARRIVED_MSG: 'Your visitor "{{ name }}" has arrived and is waiting at reception',
     INDUCTION_MSG: "Please read the induction information below before proceeding",
     ACCEPT_TERMS: "I agree",
-    ACCEPT: "Accept",
     DECLINE: "Decline",
     CHECKIN_LOADING: "Saving details and checking in...",
     CONTINUE: "Next",
-    SAVE: "Save",
     BEVERAGES: "Beverages",
     BEVERAGE_MSG: "Would you like a drink?",
     BEVERAGE_SELECT: "Select a drink",
@@ -50252,7 +50079,6 @@ var APP = {
     SUCCESS_CHECKIN: "Successfully checked in {{ guest }} for {{ host }}'s meeting",
     NOT_FOUND: 'No meetings for guest "{{ email }}" today',
     LOAD_ERROR: "Failed to load booking for guest.",
-    UPDATE_SUCCESS: "Successfully updated booking for guest.",
     CHECKOUT: "Check-out from building",
     CHECKOUT_MSG: "You are currently checked in to the building. Would you like to check out?",
     CHECKOUT_LOADING: "Checking out guest...",
@@ -50263,13 +50089,11 @@ var APP = {
     DASHBOARD_ADD: "Add Dashboard",
     DASHBOARD_EDIT: "Edit Dashboard",
     DASHBOARD_NEW: "New Dashboard",
-    DASHBOARD_VIEW: "View Dashboard",
     DASHBOARD_BACK: "Back to Dashboards",
     DASHBOARD_REMOVE: "Remove Dashboard",
     DASHBOARD_REMOVE_HEADER: "Remove Dashboard",
     DASHBOARD_REMOVE_CONTENT: 'Are you sure you want to remove the dashboard "{{ name }}"?',
     DASHBOARD_REMOVE_SUCCESS: "Successfully removed dashboard",
-    DASHBOARD_MANAGE_ALERTS: "Manage Alerts",
     DASHBOARD_ALERTS_HEADER: "Dashboard Alerts",
     DASHBOARD_ALERTS_ADD: "Add Alert",
     DASHBOARD_ALERTS_EDIT: "Edit Alert",
@@ -50295,12 +50119,6 @@ var APP = {
   }
 };
 var TRIGGERS = {
-  FIELD_ADDED: "Added",
-  FIELD_STATE: "State",
-  REFERENCE_SYSTEM: "Reference System",
-  REFERENCE_SYSTEM_MSG: "System to use for available status variables and function calls",
-  CONDITIONS: "Conditions",
-  CONDITION_ADD: "Add Condition",
   CONDITION_NEW: "New Condition",
   CONDITION_EDIT: "Edit Condition",
   CONDITION_FIELD_TYPE: "Condition Type",
@@ -50308,15 +50126,8 @@ var TRIGGERS = {
   CONDITION_TIME: "Particular Time",
   CONDITION_COMPARE_EMPTY: "No variable comparision conditions for this alert",
   CONDITION_TIME_EMPTY: "No time dependant conditions for this alert",
-  CONDITION_SAVE_ERROR: "Failed to save alert condition. Error {{ error }}",
-  CONDITION_SAVE_SUCCESS: "Successfully saved alert condtion",
   FIELD_VAR_COMPARE: "Variable Comparison Condition",
   FIELD_TIME_DEPS: "Time dependant Condition",
-  REMOVE_CONDITION_TITLE: "Remove alert condition",
-  REMOVE_CONDITION_MSG: "Are you sure you want remove this alert condition?<br>All systems using this alert will be updated <strong>immediately</strong>.",
-  REMOVE_CONDITION_LOADING: "Removing alert condition...",
-  REMOVE_CONDITION_ERROR: "Failed to remove alert condition. Error: {{ error }}",
-  REMOVE_CONDITION_SUCCESS: "Successfully removed alert condition.",
   TIME_SCHEDULE: "Recurring Schedule",
   TIME_REPEAT: "Repeat Every",
   TIME_DAY_OF_MONTH: "Day of Month",
@@ -50324,8 +50135,6 @@ var TRIGGERS = {
   TIME_DAY_OF_WEEK: "Day of Week",
   TIME_HOUR_OF_DAY: "Hour of the day",
   TIME_MINUTE_OF_HOUR: "Minute of the hour",
-  TIME_FIELD_DATE: "Date",
-  TIME_FIELD_TIME: "Time",
   COMPARE_CONSTANT: "Constant Value",
   COMPARE_VARIABLE: "Status Variable",
   COMPARE_VARIABLE_SELECT: "Select status variable",
@@ -50341,15 +50150,11 @@ var TRIGGERS = {
   COMPARE_OP_OR: "truthy OR",
   COMPARE_OP_XOR: "truthy XOR",
   COMPARE_OP_SELECT: "Select comparision operator",
-  COMPARE_TO: "Compared to",
   COMPARE_JSON_REQUIRED: "Valid JSON is required",
   COMPARE_MODULE_SELECT: "Select module",
   COMPARE_SUBKEYS: "Subkeys",
   COMPARE_SUBKEYS_PLACEHOLDER: "Status variable subkeys",
-  COMPARE_VARIABLE_LOAD_ERROR: "Failed to load status variables from {{ system }}, {{ module }}",
-  ENABLE_WEBHOOK: "Enable Webhook",
-  DEBOUNCE_PERIOD: "Debounce Period",
-  SUPPORTED_METHODS: "Supported Methods"
+  COMPARE_VARIABLE_LOAD_ERROR: "Failed to load status variables from {{ system }}, {{ module }}"
 };
 var en_AU_default = {
   SIGNAGE_MANAGER,
@@ -53013,8 +52818,9 @@ var LocaleService = class _LocaleService {
     this._default_locale = "en-AU";
     this._current_locale = this._default_locale;
     this._current_locale_short = this._current_locale.split("-")[0];
-    this._cache_time = 7 * 24 * 60 * 60 * 1e3;
+    this._max_cache_age = 7 * 24 * 60 * 60 * 1e3;
     this._load_promises = {};
+    this._loaded_locales = {};
     this._changes = signal(
       0,
       ...ngDevMode ? [{ debugName: "_changes" }] : (
@@ -53028,10 +52834,9 @@ var LocaleService = class _LocaleService {
     this.changes = this._changes.asReadonly();
     this._current_locale = localStorage.getItem(`${STORE_KEY}`) || this._default_locale;
     if (this._current_locale !== this._default_locale) {
-      const existing = JSON.parse(localStorage.getItem(`${STORE_KEY}.${this._current_locale}`) || "{}");
-      if (existing.expiry && existing.expiry > Date.now()) {
-        this._locale_mappings[this._current_locale] = existing.mappings;
-      }
+      const cached = this._cachedMappings(this._current_locale);
+      if (cached)
+        this._locale_mappings[this._current_locale] = cached;
     }
   }
   init() {
@@ -53079,39 +52884,54 @@ var LocaleService = class _LocaleService {
     this._current_locale = locale;
     this._current_locale_short = this._current_locale.split("-")[0];
     this._changes.update((value) => value + 1);
-    if (!this._locale_mappings[locale] && !this._load_promises[locale]) {
+    if (!this._loaded_locales[locale] && !this._load_promises[locale]) {
       this._load_promises[locale] = this._loadLocale(locale);
     }
     localStorage.setItem(`${STORE_KEY}`, locale);
     log("LOCALE", `Locale set to "${locale}"`);
   }
   async _loadLocale(locale) {
-    const existing = JSON.parse(localStorage.getItem(`${STORE_KEY}.${locale}`) || "{}");
-    if (!existing.expiry || existing.expiry < Date.now()) {
-      localStorage.removeItem(`${STORE_KEY}.${locale}`);
-      const resp = await fetch(`${this.locale_folder}/${locale}.json`);
-      if (!resp.ok) {
-        delete this._load_promises[locale];
-        return console.error(`Failed to loaded locale file for "${locale}".`, resp);
-      }
-      const locale_data = await resp.json();
-      const locale_override_data = this.zone_id ? await Wu(this.zone_id, `locale_${locale}`) : { details: {} };
-      const base_locale_values = removeNesting(locale_data);
-      const override_locale_values = removeNesting(locale_override_data.details);
-      this._locale_mappings[locale] = __spreadValues(__spreadValues({}, base_locale_values), override_locale_values);
-      if (!window.debug) {
-        const store2 = {
-          expiry: Date.now() + this._cache_time,
-          locale,
-          mappings: this._locale_mappings[locale]
-        };
-        localStorage.setItem(`${STORE_KEY}.${locale}`, JSON.stringify(store2));
-      }
-    } else {
-      this._locale_mappings[locale] = existing.mappings;
+    const cached = this._cachedMappings(locale);
+    if (cached && !this._locale_mappings[locale]) {
+      this._locale_mappings[locale] = cached;
+      this._changes.update((value) => value + 1);
     }
+    const resp = await fetch(`${this.locale_folder}/${locale}.json`);
+    if (!resp.ok) {
+      delete this._load_promises[locale];
+      return console.error(`Failed to loaded locale file for "${locale}".`, resp);
+    }
+    const locale_data = await resp.json();
+    const locale_override_data = this.zone_id ? await Wu(this.zone_id, `locale_${locale}`) : { details: {} };
+    const base_locale_values = removeNesting(locale_data);
+    const override_locale_values = removeNesting(locale_override_data.details);
+    this._locale_mappings[locale] = __spreadValues(__spreadValues({}, base_locale_values), override_locale_values);
+    if (!window.debug) {
+      const store2 = {
+        cached_at: Date.now(),
+        locale,
+        mappings: this._locale_mappings[locale]
+      };
+      localStorage.setItem(`${STORE_KEY}.${locale}`, JSON.stringify(store2));
+    }
+    this._loaded_locales[locale] = true;
     this._changes.update((value) => value + 1);
     delete this._load_promises[locale];
+  }
+  /** Mappings stored by the last load of the locale, if still usable */
+  _cachedMappings(locale) {
+    const key = `${STORE_KEY}.${locale}`;
+    try {
+      const store2 = JSON.parse(localStorage.getItem(key) || "null");
+      if (!store2?.cached_at || store2.cached_at + this._max_cache_age < Date.now()) {
+        localStorage.removeItem(key);
+        return null;
+      }
+      return store2.mappings;
+    } catch {
+      localStorage.removeItem(key);
+      return null;
+    }
   }
   static {
     this.\u0275fac = function LocaleService_Factory(__ngFactoryType__) {
@@ -54020,6 +53840,9 @@ var EMPTY_USER = {
   name: "<empty>",
   email: "<empty>@app.user"
 };
+function isEmptyUser(user) {
+  return !user || !user.email || user.email === EMPTY_USER.email;
+}
 
 // libs/common/src/lib/types/event.class.ts
 var _default_user = EMPTY_USER;
@@ -54086,6 +53909,52 @@ var PERMISSION_VALUES = [
 ];
 function isTestRuntime() {
   return typeof jest !== "undefined" || typeof vi !== "undefined";
+}
+var USER_CACHE_KEY = "PLACEOS.user";
+var MAX_CACHE_AGE = 7 * 24 * 60 * 60 * 1e3;
+function tokenID() {
+  const value = X() || "";
+  let hash = 0;
+  for (let i = 0; i < value.length; i++) {
+    hash = hash * 31 + value.charCodeAt(i) | 0;
+  }
+  return `${hash}`;
+}
+function cachedUserData() {
+  try {
+    const cache = JSON.parse(localStorage.getItem(USER_CACHE_KEY) || "null");
+    if (!cache?.cached_at || cache.token_id !== tokenID() || cache.cached_at + MAX_CACHE_AGE < Date.now()) {
+      localStorage.removeItem(USER_CACHE_KEY);
+      return null;
+    }
+    return cache;
+  } catch {
+    localStorage.removeItem(USER_CACHE_KEY);
+    return null;
+  }
+}
+function storeUserData() {
+  const user = currentUser();
+  if (isEmptyUser(user) || isPublicMode())
+    return;
+  try {
+    const cache = {
+      cached_at: Date.now(),
+      token_id: tokenID(),
+      user: __spreadValues({}, user)
+    };
+    localStorage.setItem(USER_CACHE_KEY, JSON.stringify(cache));
+  } catch {
+  }
+}
+function applyCachedUserData() {
+  const cache = cachedUserData();
+  if (!cache)
+    return false;
+  const user = new StaffUser(cache.user);
+  _current_user.next(user);
+  setDefaultCreator(user);
+  return true;
 }
 var user_permissions = computed(
   () => {
@@ -54156,6 +54025,8 @@ function initialiseUser() {
     return;
   _current_user.subscribe((u3) => user_signal.set(u3));
   const is_public_mode = isPublicMode();
+  if (!is_public_mode)
+    applyCachedUserData();
   const user_request = combineLatest([Na("current"), _change]).pipe(map(([i]) => new StaffUser(i)));
   if (is_public_mode) {
     user_request.pipe(catchError((error2) => {
@@ -54174,6 +54045,7 @@ function initialiseUser() {
   })).subscribe((user) => {
     _current_user.next(user);
     setDefaultCreator(user);
+    storeUserData();
     loadUserGroups();
   });
 }
@@ -54184,6 +54056,7 @@ function reloadUserData() {
       const user = new StaffUser(p_user);
       _current_user.next(user);
       setDefaultCreator(user);
+      storeUserData();
       loadUserGroups();
     } catch (error2) {
       if (isPublicMode()) {
@@ -54217,15 +54090,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "dc1f957",
-  "hash": "dc1f957",
+  "raw": "4315d92",
+  "hash": "4315d92",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "dc1f957",
+  "suffix": "4315d92",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1784778823329
+  "time": 1785149895846
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -76462,8 +76335,12 @@ var log3 = scoped_log("ORG");
 var ORG_CACHE_PREFIX = "PLACEOS.org";
 var ZONE_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.zones`;
 var METADATA_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.metadata`;
-var DEFAULT_CACHE_DURATION = 2 * 60 * 1e3;
+var MAX_CACHE_AGE2 = 7 * 24 * 60 * 60 * 1e3;
 var OrganisationService = class _OrganisationService {
+  /** Whether cached data is being replaced with the latest from the API */
+  get _refreshing() {
+    return this._refresh_count > 0;
+  }
   /** Mapping of organisation settings overrides */
   get settings() {
     return this._settings;
@@ -76620,7 +76497,9 @@ var OrganisationService = class _OrganisationService {
         []
       )
     );
-    this._loaded_data = [];
+    this._loaded_data = {};
+    this._served_cache = false;
+    this._refresh_count = 0;
     this._loaded_buildings = signal(
       [],
       ...ngDevMode ? [{ debugName: "_loaded_buildings" }] : (
@@ -76761,8 +76640,8 @@ var OrganisationService = class _OrganisationService {
   }
   /** Clear cached org data and reload it from PlaceOS. Exposed via window.app.org in debug mode. */
   async reloadMetadata() {
-    this._clearSessionCache();
-    this._loaded_data.length = 0;
+    this._clearCache();
+    this._loaded_data = {};
     this._loaded_buildings.set([]);
     await this.load();
   }
@@ -76791,6 +76670,21 @@ var OrganisationService = class _OrganisationService {
       window.org = this;
     }
     this._initialised.set(true);
+    if (this._served_cache) {
+      log3("Loaded from cache, refreshing organisation data...");
+      this._served_cache = false;
+      this._loaded_data = {};
+      this._refresh(() => this.load());
+    }
+  }
+  /**
+   * Run a load straight against the API, ignoring any cached data, so the
+   * displayed data is replaced with the latest. Runs in the background.
+   */
+  async _refresh(load2) {
+    this._refresh_count++;
+    await load2().catch((err) => console.warn("Failed to refresh organisation data.", err));
+    this._refresh_count--;
   }
   _setPublicData() {
     const region_id = localStorage.getItem("PLACEOS.region") || "public";
@@ -76827,19 +76721,23 @@ var OrganisationService = class _OrganisationService {
     this._updateSettingOverrides();
   }
   /**
-   * Initialise service data
+   * Initialise service data. When this is a background refresh, loading
+   * messages and the default region/building selection are skipped so the
+   * user's current view and selection are left alone.
    */
   async load() {
-    setLoadingMessage("Loading organisation data...");
+    const refreshing = this._refreshing;
+    const loadingMessage = (message2) => refreshing ? null : setLoadingMessage(message2);
+    loadingMessage("Loading organisation data...");
     await this.loadOrganisation();
-    setLoadingMessage("Loading region data...");
+    loadingMessage("Loading region data...");
     await this.loadRegions();
     if (!this._region_list().length) {
-      setLoadingMessage("Loading building data...");
+      loadingMessage("Loading building data...");
       const list = await this.loadBuildings();
       this._building_list.set(list);
     } else {
-      setLoadingMessage("Loading region buildings data...");
+      loadingMessage("Loading region buildings data...");
       for (const region of this._region_list()) {
         const blds = await this.loadBuildings(region.id);
         if (blds.length) {
@@ -76848,13 +76746,20 @@ var OrganisationService = class _OrganisationService {
         }
       }
     }
-    setLoadingMessage("Loading zone settings...");
+    loadingMessage("Loading zone settings...");
     await this.loadSettings();
     if (!this._building_list()?.length) {
       log3("Unable to find any building zones");
     }
-    setLoadingMessage("Loading active building levels...");
+    loadingMessage("Loading active building levels...");
     await this.loadLevels();
+    if (refreshing) {
+      if (this.region?.id)
+        await this.loadRegionData(this.region);
+      if (this.building?.id && !this._service.get("dont_load_metadata")) {
+        await this.loadBuildingData(this.building);
+      }
+    }
     this._updateSettingOverrides();
   }
   /**
@@ -76888,9 +76793,10 @@ var OrganisationService = class _OrganisationService {
     this._region_list.set(list);
   }
   async loadRegionData(region) {
-    if (this._loaded_data[region.id])
+    if (this._loaded_data[region.id] && !this._refreshing)
       return;
     const load_metadata = !this._service.get("dont_load_metadata");
+    const from_cache = this._zoneDataCached(region.id);
     const [settings, bindings, buildings] = await Promise.all([
       load_metadata ? this._bulkMetadataDetails(this.app_key, [region.id]).then((_2) => _2[region.id]) : {},
       load_metadata ? this._bulkMetadataDetails("bindings", [region.id]).then((_2) => _2[region.id]) : {},
@@ -76901,6 +76807,8 @@ var OrganisationService = class _OrganisationService {
     this._loaded_data[region.id] = true;
     region.bindings = bindings;
     this._region_settings[region.id] = settings;
+    if (from_cache)
+      this._refresh(() => this.loadRegionData(region));
   }
   /**
    * Load buildings data for the organisation
@@ -76914,8 +76822,9 @@ var OrganisationService = class _OrganisationService {
     return building_list;
   }
   async loadBuildingData(bld) {
-    if (!bld || this._loaded_data[bld.id])
+    if (!bld || this._loaded_data[bld.id] && !this._refreshing)
       return;
+    const from_cache = this._zoneDataCached(bld.id);
     const [settings, bindings, booking_rules, driver_settings] = await Promise.all([
       this._bulkMetadataDetails(this.app_key, [bld.id]).then((_2) => _2[bld.id]),
       this._bulkMetadataDetails("bindings", [bld.id]).then((_2) => _2[bld.id]),
@@ -76948,6 +76857,15 @@ var OrganisationService = class _OrganisationService {
     this._loaded_data[bld.id] = true;
     this._loaded_buildings.update((ids) => ids.includes(bld.id) ? ids : [...ids, bld.id]);
     this._updateSettingOverrides();
+    if (from_cache)
+      this._refresh(() => this.loadBuildingData(bld));
+  }
+  /**
+   * Whether the zone's settings metadata would be loaded from the cache.
+   * Always false while refreshing, so a refresh never schedules another one.
+   */
+  _zoneDataCached(id) {
+    return !!this._getCachedItem(this._metadataCacheKey(this.app_key, [id]));
   }
   /**
    * Load levels data for the buildings
@@ -76977,7 +76895,8 @@ var OrganisationService = class _OrganisationService {
       this._override_timer = null;
     }
     this._service.setOverrides([...this._settings]);
-    await this._setDefaultBuilding();
+    if (!this._refreshing)
+      await this._setDefaultBuilding();
     this._updateSettingOverrides();
   }
   /** Select the building physically closest to the user's current location */
@@ -77147,47 +77066,50 @@ var OrganisationService = class _OrganisationService {
     return `${ZONE_CACHE_PREFIX}.${auth?.id || "default"}.${JSON.stringify(sorted_params)}`;
   }
   _getCachedItem(cache_key) {
+    if (this._refreshing)
+      return null;
     try {
-      const cached_item = JSON.parse(sessionStorage.getItem(cache_key) || "null");
+      const cached_item = JSON.parse(localStorage.getItem(cache_key) || "null");
       if (!cached_item)
         return null;
-      if (cached_item.metadata_cache_id !== this._metadataCacheID()) {
-        sessionStorage.removeItem(cache_key);
+      if (cached_item.metadata_cache_id !== this._metadataCacheID() || cached_item.cached_at + MAX_CACHE_AGE2 < Date.now()) {
+        localStorage.removeItem(cache_key);
         return null;
       }
-      if (cached_item.expires_at > Date.now())
-        return cached_item.data;
-      sessionStorage.removeItem(cache_key);
-      return null;
+      this._served_cache = true;
+      return cached_item.data;
     } catch {
-      sessionStorage.removeItem(cache_key);
+      localStorage.removeItem(cache_key);
       return null;
     }
   }
   _setCachedItem(cache_key, data) {
+    const cached_item = {
+      cached_at: Date.now(),
+      metadata_cache_id: this._metadataCacheID(),
+      data
+    };
+    const value = JSON.stringify(cached_item);
     try {
-      const cached_item = {
-        expires_at: Date.now() + this._cacheDuration(),
-        metadata_cache_id: this._metadataCacheID(),
-        data
-      };
-      sessionStorage.setItem(cache_key, JSON.stringify(cached_item));
+      localStorage.setItem(cache_key, value);
     } catch {
+      this._clearCache();
+      try {
+        localStorage.setItem(cache_key, value);
+      } catch {
+      }
     }
-  }
-  _cacheDuration() {
-    const config2 = Rt()?.config || {};
-    const duration = config2["metadata_cache_duration"] ?? config2["metadata_cache_ttl"];
-    return typeof duration === "number" ? duration * 1e3 : DEFAULT_CACHE_DURATION;
   }
   _metadataCacheID() {
     return `${Rt()?.config?.["metadata_cache_id"] || ""}`;
   }
-  _clearSessionCache() {
-    for (let i = sessionStorage.length - 1; i >= 0; i--) {
-      const key = sessionStorage.key(i);
-      if (key?.startsWith(ORG_CACHE_PREFIX))
-        sessionStorage.removeItem(key);
+  _clearCache() {
+    for (const store2 of [localStorage, sessionStorage]) {
+      for (let i = store2.length - 1; i >= 0; i--) {
+        const key = store2.key(i);
+        if (key?.startsWith(ORG_CACHE_PREFIX))
+          store2.removeItem(key);
+      }
     }
   }
   static {
@@ -84704,6 +84626,17 @@ function PluginEmbedComponent_Conditional_0_Template(rf, ctx) {
   }
 }
 var API_VERSION = "signage-plugin/v1";
+var MAX_THUMBNAIL_LENGTH = 4 * 1024 * 1024;
+var THUMBNAIL_DATA_URL = /^data:image\/(png|jpeg|webp);base64,/;
+function safeThumbnail(image) {
+  if (typeof image !== "string")
+    return "";
+  if (!THUMBNAIL_DATA_URL.test(image))
+    return "";
+  if (image.length > MAX_THUMBNAIL_LENGTH)
+    return "";
+  return image;
+}
 var PluginEmbedComponent = class _PluginEmbedComponent extends AsyncHandler {
   constructor() {
     super(...arguments);
@@ -84792,6 +84725,8 @@ var PluginEmbedComponent = class _PluginEmbedComponent extends AsyncHandler {
     this._handle_messages = (e) => this._handleMessage(e);
     this._play_timer = null;
     this._pending_auto_config = false;
+    this._thumbnail_requests = /* @__PURE__ */ new Map();
+    this._thumbnail_count = 0;
   }
   ngOnInit() {
     this._setupChannels();
@@ -84812,11 +84747,40 @@ var PluginEmbedComponent = class _PluginEmbedComponent extends AsyncHandler {
       this.send("config", this.config());
     }
   }
-  send(type2, payload = null) {
+  send(type2, payload = null, request_id) {
     const origin = this.plugin_origin();
     if (!origin)
       return;
-    this._plugin_el()?.nativeElement?.contentWindow.postMessage({ api: API_VERSION, type: type2, payload }, origin);
+    this._plugin_el()?.nativeElement?.contentWindow.postMessage({ api: API_VERSION, type: type2, request_id, payload }, origin);
+  }
+  /** Whether the plugin told us it can render its own thumbnail */
+  canProvideThumbnail() {
+    return !!this.details()?.capabilities?.can_thumbnail;
+  }
+  /**
+   * Ask the plugin to render a thumbnail of itself. Resolves to an empty
+   * string for any plugin that cannot or does not answer, so callers treat a
+   * plugin built before this existed exactly as they did before.
+   */
+  requestThumbnail(width, height, timeout_ms = 5e3) {
+    const origin = this.plugin_origin();
+    const frame = this._plugin_el()?.nativeElement?.contentWindow;
+    if (!this.canProvideThumbnail() || !origin || !frame) {
+      return Promise.resolve("");
+    }
+    this._thumbnail_count += 1;
+    const request_id = `thumbnail-${this._thumbnail_count}`;
+    return new Promise((resolve) => {
+      const timer2 = setTimeout(() => {
+        this._thumbnail_requests.delete(request_id);
+        resolve("");
+      }, timeout_ms);
+      this._thumbnail_requests.set(request_id, (image) => {
+        clearTimeout(timer2);
+        resolve(image);
+      });
+      this.send("thumbnail", { width, height }, request_id);
+    });
   }
   onIframeError() {
     this.plugin_error.emit({
@@ -84841,6 +84805,14 @@ var PluginEmbedComponent = class _PluginEmbedComponent extends AsyncHandler {
       return;
     if (msg.type === "interaction") {
       this.plugin_interaction.emit(msg.payload);
+      return;
+    }
+    if (msg.type === "thumbnail") {
+      const handler = this._thumbnail_requests.get(msg.request_id);
+      if (!handler)
+        return;
+      this._thumbnail_requests.delete(msg.request_id);
+      handler(safeThumbnail(msg.payload?.image));
       return;
     }
     this.status.set(msg.type);
@@ -84918,7 +84890,7 @@ var PluginEmbedComponent = class _PluginEmbedComponent extends AsyncHandler {
   }], null, { plugin: [{ type: Input, args: [{ isSignal: true, alias: "plugin", required: false }] }], config: [{ type: Input, args: [{ isSignal: true, alias: "config", required: false }] }], play: [{ type: Input, args: [{ isSignal: true, alias: "play", required: false }] }], auto_play: [{ type: Input, args: [{ isSignal: true, alias: "auto_play", required: false }] }], play_delay: [{ type: Input, args: [{ isSignal: true, alias: "play_delay", required: false }] }], details: [{ type: Input, args: [{ isSignal: true, alias: "details", required: false }] }, { type: Output, args: ["detailsChange"] }], schema: [{ type: Input, args: [{ isSignal: true, alias: "schema", required: false }] }, { type: Output, args: ["schemaChange"] }], status: [{ type: Input, args: [{ isSignal: true, alias: "status", required: false }] }, { type: Output, args: ["statusChange"] }], loaded: [{ type: Output, args: ["loaded"] }], plugin_error: [{ type: Output, args: ["plugin_error"] }], plugin_interaction: [{ type: Output, args: ["plugin_interaction"] }], _plugin_el: [{ type: ViewChild, args: ["plugin_el", { isSignal: true }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(PluginEmbedComponent, { className: "PluginEmbedComponent", filePath: "libs/components/src/lib/plugin-embed.component.ts", lineNumber: 104 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(PluginEmbedComponent, { className: "PluginEmbedComponent", filePath: "libs/components/src/lib/plugin-embed.component.ts", lineNumber: 131 });
 })();
 
 // libs/components/src/lib/binding-debug-panel.component.ts
@@ -87749,7 +87721,8 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
   async checkSubsystemAccess(user) {
     if (!user)
       return false;
-    const app_name = `${this._settings.app_name || ""}`.trim().toLowerCase();
+    const subsystem = `${this._settings.get("app.access_subsystem") || ""}`.trim();
+    const app_name = (subsystem || `${this._settings.app_name || ""}`).trim().toLowerCase();
     if (!app_name)
       return false;
     await this.waitForUserGroups();
@@ -100823,7 +100796,7 @@ function playlistPlayPeriodMinutes(schedule) {
 function parsePlayAtTimestamp(value) {
   if (!Number.isFinite(value) || value <= 0)
     return 0;
-  return value > 1e12 ? value : value * 1e3;
+  return value * 1e3;
 }
 function scheduledPlaylistEnd(starts_at, period_minutes) {
   return period_minutes ? starts_at + period_minutes * 60 * 1e3 : starts_at + SINGLE_PASS_TRIGGER_WINDOW_MS;
