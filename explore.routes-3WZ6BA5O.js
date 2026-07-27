@@ -42,7 +42,7 @@ import {
   setHours,
   setMinutes,
   showStaff
-} from "./chunk-FUDL6PC2.js";
+} from "./chunk-DPK3WZHC.js";
 import {
   FormField,
   MatCheckbox,
@@ -53,7 +53,7 @@ import {
   required,
   validate,
   validateAssetRequestsForResource
-} from "./chunk-NXFOSLVR.js";
+} from "./chunk-433C7JNF.js";
 import {
   ANIMATION_SHOW_CONTRACT_EXPAND,
   ActivatedRoute,
@@ -307,7 +307,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-ICBPTIPZ.js";
+} from "./chunk-DABQDWGV.js";
 import {
   __spreadProps,
   __spreadValues
@@ -4559,7 +4559,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
         if (!this._model().id)
           return false;
         const attendee_emails = this._model().attendees.map((_) => (_.email || _).toLowerCase());
-        return this._initial_attendees.every((_) => attendee_emails.includes(_)) && attendee_emails.some((_) => !this._initial_attendees.includes(_));
+        return attendee_emails.some((_) => !this._initial_attendees.includes(_));
       },
       ...ngDevMode ? [{ debugName: "can_notify_new_attendees_only" }] : (
         /* istanbul ignore next */
@@ -7580,7 +7580,7 @@ function ExploreDeviceInfoComponent_ng_template_5_Conditional_19_Template(rf, ct
     \u0275\u0275nextContext();
     const device_user_r2 = \u0275\u0275readContextLet(3);
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1("", \u0275\u0275pipeBind1(3, 2, "EXPLORE.DEVICE_TYPE"), ":");
+    \u0275\u0275textInterpolate1("", \u0275\u0275pipeBind1(3, 2, "COMMON.TYPE"), ":");
     \u0275\u0275advance(2);
     \u0275\u0275textInterpolate1(" ", device_user_r2.type, " ");
   }
@@ -7941,9 +7941,7 @@ var ExploreDeviceInfoComponent = class _ExploreDeviceInfoComponent {
                     }
                     @if (device_user && !hide_fields().includes('user')) {
                         <p user>
-                            <label
-                                >{{ 'EXPLORE.DEVICE_TYPE' | translate }}:</label
-                            >
+                            <label>{{ 'COMMON.TYPE' | translate }}:</label>
                             {{ device_user.type }}
                         </p>
                     }
@@ -7954,7 +7952,7 @@ var ExploreDeviceInfoComponent = class _ExploreDeviceInfoComponent {
   }], () => [], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ExploreDeviceInfoComponent, { className: "ExploreDeviceInfoComponent", filePath: "libs/explore/src/lib/explore-device-info.component.ts", lineNumber: 176 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ExploreDeviceInfoComponent, { className: "ExploreDeviceInfoComponent", filePath: "libs/explore/src/lib/explore-device-info.component.ts", lineNumber: 174 });
 })();
 
 // libs/explore/src/lib/explore-desks.service.ts
@@ -8635,7 +8633,7 @@ function ExploreParkingInfoComponent_Conditional_7_Template(rf, ctx) {
   if (rf & 2) {
     const ctx_r0 = \u0275\u0275nextContext();
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 2, "EXPLORE.PARKING_PLATE_NUMBER"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 2, "BOOKINGS.PARKING_PLATE_NUMBER"), " ");
     \u0275\u0275advance(3);
     \u0275\u0275textInterpolate1(" ", ctx_r0.plate_number() || "PLATE NO 1", " ");
   }
@@ -8775,7 +8773,7 @@ var ExploreParkingInfoComponent = class _ExploreParkingInfoComponent {
                         <div
                             class="w-full pt-1 text-center text-[0.625rem] font-medium whitespace-nowrap"
                         >
-                            {{ 'EXPLORE.PARKING_PLATE_NUMBER' | translate }}
+                            {{ 'BOOKINGS.PARKING_PLATE_NUMBER' | translate }}
                         </div>
                         <div
                             class="w-full pb-1 text-center font-mono uppercase"
@@ -9541,7 +9539,7 @@ var ExploreZonesService = class _ExploreZonesService extends AsyncHandler {
 `
         });
       if (zone.people_count > 0)
-        content += i18n("EXPLORE.SENSORS_PEOPLE", {
+        content += i18n("COMMON.PEOPLE_COUNT", {
           count: `${zone.people_count_sum}
 `
         });
@@ -11891,4 +11889,4 @@ var ROUTES = [
 export {
   ROUTES
 };
-//# sourceMappingURL=explore.routes-UEFYVUA4.js.map
+//# sourceMappingURL=explore.routes-3WZ6BA5O.js.map

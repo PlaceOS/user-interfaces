@@ -19,7 +19,7 @@ import {
   saveAssetType,
   validate,
   validateAssetRequestsForResource
-} from "./chunk-NXFOSLVR.js";
+} from "./chunk-433C7JNF.js";
 import {
   A11yModule,
   ActiveDescendantKeyManager,
@@ -330,7 +330,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-ICBPTIPZ.js";
+} from "./chunk-DABQDWGV.js";
 import {
   __objRest,
   __spreadProps,
@@ -8437,6 +8437,15 @@ function bookingAttachments(booking = new Booking()) {
     ...extension_data.p2_document_names || []
   ].filter((item) => !!item);
 }
+function bookingHostUser(booking = new Booking()) {
+  if (!booking?.user_email)
+    return currentUser();
+  return new User({
+    id: booking.user_id || "",
+    email: booking.user_email,
+    name: booking.user_name || booking.user_email
+  });
+}
 function bookingFormValue(booking = new Booking()) {
   const extension_data = booking.extension_data || {};
   const visitor_name = booking.booking_type === "visitor" ? extension_data.visitor_name || booking.asset_name || "" : booking.asset_name || booking.description;
@@ -8463,7 +8472,7 @@ function bookingFormValue(booking = new Booking()) {
     attendees: booking.attendees || [],
     map_id: extension_data.map_id || "",
     featured: extension_data.featured || false,
-    user: currentUser(),
+    user: bookingHostUser(booking),
     user_id: booking.user_id || "",
     group: booking.group ?? {},
     user_email: booking.user_email || "",
@@ -10060,7 +10069,12 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     this._patch(Vs(__spreadProps(__spreadValues(__spreadProps(__spreadValues({}, booking.extension_data), {
       attachments: bookingAttachments(booking)
     }), booking), {
-      _in_progress: booking.state === "started" || booking.state === "in_progress"
+      _in_progress: booking.state === "started" || booking.state === "in_progress",
+      // `Booking` has no `user` object, only the flat `user_*`
+      // fields, so the host has to be rebuilt from those. Without
+      // it the form keeps the signed-in user and editing a
+      // delegate booking reassigns the host on save.
+      user: bookingHostUser(booking)
     }), [null, void 0, ""]), { emitEvent: false });
     this.applyDurationSettings();
     this._syncAssetOptions();
@@ -10445,6 +10459,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     this.form().reset();
     this._patch(Vs(__spreadProps(__spreadValues(__spreadValues({}, booking || {}), booking?.extension_data || {}), {
       attachments: bookingAttachments(booking),
+      user: bookingHostUser(booking),
       _in_progress: booking?.state === "started"
     }), [null, void 0, ""]));
     this._options.set({ type: this._options().type });
@@ -10481,6 +10496,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     this.form().reset();
     const booking_data = Vs(__spreadProps(__spreadValues(__spreadValues(__spreadValues({}, data), booking || {}), booking?.extension_data || {}), {
       attachments: bookingAttachments(booking),
+      user: bookingHostUser(booking),
       _in_progress: booking?.state === "started"
     }), [null, void 0, ""]);
     this._patch(booking_data, { emitEvent: false });
@@ -12252,4 +12268,4 @@ export {
   CalendarService,
   BookingFormService
 };
-//# sourceMappingURL=chunk-FUDL6PC2.js.map
+//# sourceMappingURL=chunk-DPK3WZHC.js.map
