@@ -1018,8 +1018,8 @@ var EMPTY_OBSERVER = {
 var observable = (() => typeof Symbol === "function" && Symbol.observable || "@@observable")();
 
 // node_modules/rxjs/dist/esm/internal/util/identity.js
-function identity(x2) {
-  return x2;
+function identity(x) {
+  return x;
 }
 
 // node_modules/rxjs/dist/esm/internal/util/pipe.js
@@ -1098,7 +1098,7 @@ var Observable = class _Observable {
     promiseCtor = getPromiseCtor(promiseCtor);
     return new promiseCtor((resolve, reject) => {
       let value;
-      this.subscribe((x2) => value = x2, (err) => reject(err), () => resolve(value));
+      this.subscribe((x) => value = x, (err) => reject(err), () => resolve(value));
     });
   }
 };
@@ -1873,8 +1873,8 @@ function __values(o) {
   };
   throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
 }
-function __await(v) {
-  return this instanceof __await ? (this.v = v, this) : new __await(v);
+function __await(v2) {
+  return this instanceof __await ? (this.v = v2, this) : new __await(v2);
 }
 function __asyncGenerator(thisArg, _arguments, generator) {
   if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
@@ -1883,23 +1883,23 @@ function __asyncGenerator(thisArg, _arguments, generator) {
     return this;
   }, i;
   function awaitReturn(f3) {
-    return function(v) {
-      return Promise.resolve(v).then(f3, reject);
+    return function(v2) {
+      return Promise.resolve(v2).then(f3, reject);
     };
   }
   function verb(n, f3) {
     if (g2[n]) {
-      i[n] = function(v) {
+      i[n] = function(v2) {
         return new Promise(function(a, b2) {
-          q2.push([n, v, a, b2]) > 1 || resume(n, v);
+          q2.push([n, v2, a, b2]) > 1 || resume(n, v2);
         });
       };
       if (f3) i[n] = f3(i[n]);
     }
   }
-  function resume(n, v) {
+  function resume(n, v2) {
     try {
-      step(g2[n](v));
+      step(g2[n](v2));
     } catch (e) {
       settle(q2[0][3], e);
     }
@@ -1913,8 +1913,8 @@ function __asyncGenerator(thisArg, _arguments, generator) {
   function reject(value) {
     resume("throw", value);
   }
-  function settle(f3, v) {
-    if (f3(v), q2.shift(), q2.length) resume(q2[0][0], q2[0][1]);
+  function settle(f3, v2) {
+    if (f3(v2), q2.shift(), q2.length) resume(q2[0][0], q2[0][1]);
   }
 }
 function __asyncValues(o) {
@@ -1924,21 +1924,21 @@ function __asyncValues(o) {
     return this;
   }, i);
   function verb(n) {
-    i[n] = o[n] && function(v) {
+    i[n] = o[n] && function(v2) {
       return new Promise(function(resolve, reject) {
-        v = o[n](v), settle(resolve, reject, v.done, v.value);
+        v2 = o[n](v2), settle(resolve, reject, v2.done, v2.value);
       });
     };
   }
-  function settle(resolve, reject, d2, v) {
-    Promise.resolve(v).then(function(v2) {
-      resolve({ value: v2, done: d2 });
+  function settle(resolve, reject, d, v2) {
+    Promise.resolve(v2).then(function(v3) {
+      resolve({ value: v3, done: d });
     }, reject);
   }
 }
 
 // node_modules/rxjs/dist/esm/internal/util/isArrayLike.js
-var isArrayLike = ((x2) => x2 && typeof x2.length === "number" && typeof x2 !== "function");
+var isArrayLike = ((x) => x && typeof x.length === "number" && typeof x !== "function");
 
 // node_modules/rxjs/dist/esm/internal/util/isPromise.js
 function isPromise(value) {
@@ -2765,7 +2765,7 @@ function finalize(callback) {
 // node_modules/rxjs/dist/esm/internal/operators/first.js
 function first(predicate, defaultValue) {
   const hasDefaultValue = arguments.length >= 2;
-  return (source) => source.pipe(predicate ? filter((v, i) => predicate(v, i, source)) : identity, take(1), hasDefaultValue ? defaultIfEmpty(defaultValue) : throwIfEmpty(() => new EmptyError()));
+  return (source) => source.pipe(predicate ? filter((v2, i) => predicate(v2, i, source)) : identity, take(1), hasDefaultValue ? defaultIfEmpty(defaultValue) : throwIfEmpty(() => new EmptyError()));
 }
 
 // node_modules/rxjs/dist/esm/internal/operators/takeLast.js
@@ -3552,7 +3552,7 @@ function throwMixedMultiProviderError() {
 }
 function throwInvalidProviderError(ngModuleType, providers, provider) {
   if (ngModuleType && providers) {
-    const providerDetail = providers.map((v) => v == provider ? "?" + provider + "?" : "...");
+    const providerDetail = providers.map((v2) => v2 == provider ? "?" + provider + "?" : "...");
     throw new Error(`Invalid provider for the NgModule '${stringify(ngModuleType)}' - only instances of Provider and Type are allowed, got: [${providerDetail.join(", ")}]`);
   } else if (isEnvironmentProviders(provider)) {
     if (provider.\u0275fromNgModule) {
@@ -6484,9 +6484,9 @@ function getParentInjectorView(location2, startView) {
   return parentView;
 }
 var includeViewProviders = true;
-function setIncludeViewProviders(v) {
+function setIncludeViewProviders(v2) {
   const oldValue = includeViewProviders;
-  includeViewProviders = v;
+  includeViewProviders = v2;
   return oldValue;
 }
 var BLOOM_SIZE = 256;
@@ -7055,8 +7055,8 @@ var angularCoreDiEnv = {
   "resolveForwardRef": resolveForwardRef
 };
 var Type = Function;
-function isType(v) {
-  return typeof v === "function";
+function isType(v2) {
+  return typeof v2 === "function";
 }
 var ES5_DELEGATE_CTOR = /^function\s+\S+\(\)\s*{[\s\S]+\.apply\(this,\s*(arguments|(?:[^()]+\(\[\],)?[^()]+\(arguments\).*)\)/;
 var ES2015_INHERITED_CLASS = /^class\s+[A-Za-z\d$_]*\s*extends\s+[^{]+{/;
@@ -8754,8 +8754,8 @@ function tagSet(tags) {
 function merge2(...sets) {
   const res = {};
   for (const s of sets) {
-    for (const v in s) {
-      if (s.hasOwnProperty(v)) res[v] = true;
+    for (const v2 in s) {
+      if (s.hasOwnProperty(v2)) res[v2] = true;
     }
   }
   return res;
@@ -13815,7 +13815,7 @@ var ComponentFactory = class {
     const sharedStylesHost = rootViewInjector.get(SHARED_STYLES_HOST, null);
     const styleHost = getStyleHost(hostElement, () => rootViewInjector.get(DOCUMENT, null) ?? getDocument());
     if (sharedStylesHost) sharedStylesHost.addHost(styleHost);
-    const hasInputBindings = componentBindings?.some(isInputBinding) || directives?.some((d2) => typeof d2 !== "function" && d2.bindings.some(isInputBinding));
+    const hasInputBindings = componentBindings?.some(isInputBinding) || directives?.some((d) => typeof d !== "function" && d.bindings.some(isInputBinding));
     const rootLView = createLView(null, rootTView, null, 512 | getInitialLViewFlagsFromDef(cmpDef), null, null, environment2, hostRenderer, rootViewInjector, null, retrieveHydrationInfo(hostElement, rootViewInjector, true));
     if (sharedStylesHost && shadowRootSupported && styleHost instanceof ShadowRoot) {
       storeLViewOnDestroy(rootLView, () => {
@@ -14573,7 +14573,7 @@ function bindQueryToSignal(target, queryIndex) {
   node._lView = getLView();
   node._queryIndex = queryIndex;
   node._queryList = loadQueryInternal(node._lView, queryIndex);
-  node._queryList.onDirty(() => node._dirtyCounter.update((v) => v + 1));
+  node._queryList.onDirty(() => node._dirtyCounter.update((v2) => v2 + 1));
 }
 function refreshSignalQuery(node, firstOnly) {
   const lView = node._lView;
@@ -19402,8 +19402,8 @@ function \u0275\u0275syntheticHostProperty(propName, value, sanitizer) {
 }
 var u = void 0;
 function plural(val) {
-  const i = Math.floor(Math.abs(val)), v = val.toString().replace(/^[^.]*\.?/, "").length;
-  if (i === 1 && v === 0) return 1;
+  const i = Math.floor(Math.abs(val)), v2 = val.toString().replace(/^[^.]*\.?/, "").length;
+  if (i === 1 && v2 === 0) return 1;
   return 5;
 }
 var localeEn = ["en", [["a", "p"], ["AM", "PM"]], [["AM", "PM"]], [["S", "M", "T", "W", "T", "F", "S"], ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"], ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"], ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"]], u, [["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"], ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"], ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]], u, [["B", "A"], ["BC", "AD"], ["Before Christ", "Anno Domini"]], 0, [6, 0], ["M/d/yy", "MMM d, y", "MMMM d, y", "EEEE, MMMM d, y"], ["h:mm\u202Fa", "h:mm:ss\u202Fa", "h:mm:ss\u202Fa z", "h:mm:ss\u202Fa zzzz"], ["{1}, {0}", u, u, u], [".", ",", ";", "%", "+", "-", "E", "\xD7", "\u2030", "\u221E", "NaN", ":"], ["#,##0.###", "#,##0%", "\xA4#,##0.00", "#E0"], "USD", "$", "US Dollar", {}, "ltr", plural];
@@ -22750,7 +22750,7 @@ function getStandaloneDefFunctions(type, imports) {
       return [];
     }
     const scope = depsTracker.getStandaloneComponentScope(type, imports);
-    return [...scope.compilation.directives].map((p2) => getComponentDef(p2) || getDirectiveDef(p2)).filter((d2) => d2 !== null);
+    return [...scope.compilation.directives].map((p2) => getComponentDef(p2) || getDirectiveDef(p2)).filter((d) => d !== null);
   };
   const pipeDefs = () => {
     if (ngDevMode) {
@@ -22762,7 +22762,7 @@ function getStandaloneDefFunctions(type, imports) {
       return [];
     }
     const scope = depsTracker.getStandaloneComponentScope(type, imports);
-    return [...scope.compilation.pipes].map((p2) => getPipeDef(p2)).filter((d2) => d2 !== null);
+    return [...scope.compilation.pipes].map((p2) => getPipeDef(p2)).filter((d) => d !== null);
   };
   return {
     directiveDefs,
@@ -23385,7 +23385,7 @@ var ResourceParamsStatus = class _ResourceParamsStatus extends Error {
   static IDLE = new _ResourceParamsStatus("IDLE");
   static LOADING = new _ResourceParamsStatus("LOADING");
 };
-var identityFn = (v) => v;
+var identityFn = (v2) => v2;
 function linkedSignal(optionsOrComputation, options) {
   if (typeof optionsOrComputation === "function") {
     const getter = createLinkedSignal(optionsOrComputation, identityFn, options?.equal);
@@ -26361,8 +26361,8 @@ var Location = class _Location {
   }
   onUrlChange(fn) {
     this._urlChangeListeners.push(fn);
-    this._urlChangeSubscription ??= this.subscribe((v) => {
-      this._notifyUrlChangeListeners(v.url, v.state);
+    this._urlChangeSubscription ??= this.subscribe((v2) => {
+      this._notifyUrlChangeListeners(v2.url, v2.state);
     });
     return () => {
       const fnIndex = this._urlChangeListeners.indexOf(fn);
@@ -27356,8 +27356,8 @@ function toDate(value) {
   if (typeof value === "string") {
     value = value.trim();
     if (/^(\d{4}(-\d{1,2}(-\d{1,2})?)?)$/.test(value)) {
-      const [y, m2 = 1, d2 = 1] = value.split("-").map((val) => +val);
-      return createDate(y, m2 - 1, d2);
+      const [y, m2 = 1, d = 1] = value.split("-").map((val) => +val);
+      return createDate(y, m2 - 1, d);
     }
     const parsedNb = parseFloat(value);
     if (!isNaN(value - parsedNb)) {
@@ -27446,7 +27446,7 @@ function formatNumberToLocaleString(value, pattern, locale, groupSymbol, decimal
     let integerLen = parsedNumber.integerLen;
     const exponent = parsedNumber.exponent;
     let decimals = [];
-    isZero = digits.every((d2) => !d2);
+    isZero = digits.every((d) => !d);
     for (; integerLen < minInt; integerLen++) {
       digits.unshift(0);
     }
@@ -27635,9 +27635,9 @@ function roundNumber(parsedNumber, minFrac, maxFrac) {
   for (; fractionLen < Math.max(0, fractionSize); fractionLen++) digits.push(0);
   let dropTrailingZeros = fractionSize !== 0;
   const minLen = minFrac + parsedNumber.integerLen;
-  const carry = digits.reduceRight(function(carry2, d2, i, digits2) {
-    d2 = d2 + carry2;
-    digits2[i] = d2 < 10 ? d2 : d2 - 10;
+  const carry = digits.reduceRight(function(carry2, d, i, digits2) {
+    d = d + carry2;
+    digits2[i] = d < 10 ? d : d - 10;
     if (dropTrailingZeros) {
       if (digits2[i] === 0 && i >= minLen) {
         digits2.pop();
@@ -27645,7 +27645,7 @@ function roundNumber(parsedNumber, minFrac, maxFrac) {
         dropTrailingZeros = false;
       }
     }
-    return d2 >= 10 ? 1 : 0;
+    return d >= 10 ? 1 : 0;
   }, 0);
   if (carry) {
     digits.unshift(carry);
@@ -28655,7 +28655,7 @@ var SubscribableStrategy = class {
 };
 var PromiseStrategy = class {
   createSubscription(async2, updateLatestValue, onError) {
-    async2.then((v) => updateLatestValue?.(v), (e) => onError?.(e));
+    async2.then((v2) => updateLatestValue?.(v2), (e) => onError?.(e));
     return {
       unsubscribe: () => {
         updateLatestValue = null;
@@ -31912,8 +31912,8 @@ var STANDARD_ENCODING_REPLACEMENTS = {
   "3F": "?",
   "2F": "/"
 };
-function standardEncoding(v) {
-  return encodeURIComponent(v).replace(STANDARD_ENCODING_REGEX, (s, t) => STANDARD_ENCODING_REPLACEMENTS[t] ?? s);
+function standardEncoding(v2) {
+  return encodeURIComponent(v2).replace(STANDARD_ENCODING_REGEX, (s, t) => STANDARD_ENCODING_REPLACEMENTS[t] ?? s);
 }
 function valueToString(value) {
   return `${value}`;
@@ -33891,7 +33891,7 @@ function generateHash(value) {
     hashState6 = hashState6 + workingStateG >>> 0;
     hashState7 = hashState7 + workingStateH >>> 0;
   }
-  return [hashState0, hashState1, hashState2, hashState3, hashState4, hashState5, hashState6, hashState7].map((x2) => x2.toString(16).padStart(8, "0")).join("");
+  return [hashState0, hashState1, hashState2, hashState3, hashState4, hashState5, hashState6, hashState7].map((x) => x.toString(16).padStart(8, "0")).join("");
 }
 var httpResource = (() => {
   const jsonFn = makeHttpResourceFn("json");
@@ -39822,16 +39822,16 @@ var FlexibleConnectedPositionStrategy = class {
     }
   }
   _getOriginPoint(originRect, containerRect, pos) {
-    let x2;
+    let x;
     if (pos.originX == "center") {
-      x2 = originRect.left + originRect.width / 2;
+      x = originRect.left + originRect.width / 2;
     } else {
       const startX = this._isRtl() ? originRect.right : originRect.left;
       const endX = this._isRtl() ? originRect.left : originRect.right;
-      x2 = pos.originX == "start" ? startX : endX;
+      x = pos.originX == "start" ? startX : endX;
     }
     if (containerRect.left < 0) {
-      x2 -= containerRect.left;
+      x -= containerRect.left;
     }
     let y;
     if (pos.originY == "center") {
@@ -39843,7 +39843,7 @@ var FlexibleConnectedPositionStrategy = class {
       y -= containerRect.top;
     }
     return {
-      x: x2,
+      x,
       y
     };
   }
@@ -39870,19 +39870,19 @@ var FlexibleConnectedPositionStrategy = class {
   _getOverlayFit(point, rawOverlayRect, viewport, position) {
     const overlay = getRoundedBoundingClientRect(rawOverlayRect);
     let {
-      x: x2,
+      x,
       y
     } = point;
     let offsetX = this._getOffset(position, "x");
     let offsetY = this._getOffset(position, "y");
     if (offsetX) {
-      x2 += offsetX;
+      x += offsetX;
     }
     if (offsetY) {
       y += offsetY;
     }
-    let leftOverflow = 0 - x2;
-    let rightOverflow = x2 + overlay.width - viewport.width;
+    let leftOverflow = 0 - x;
+    let rightOverflow = x + overlay.width - viewport.width;
     let topOverflow = 0 - y;
     let bottomOverflow = y + overlay.height - viewport.height;
     let visibleWidth = this._subtractOverflows(overlay.width, leftOverflow, rightOverflow);
@@ -41351,15 +41351,15 @@ var RippleRenderer = class _RippleRenderer {
       injector.get(_CdkPrivateStyleLoader).load(_MatRippleStylesLoader);
     }
   }
-  fadeInRipple(x2, y, config2 = {}) {
+  fadeInRipple(x, y, config2 = {}) {
     const containerRect = this._containerRect = this._containerRect || this._containerElement.getBoundingClientRect();
     const animationConfig = __spreadValues(__spreadValues({}, defaultRippleAnimationConfig), config2.animation);
     if (config2.centered) {
-      x2 = containerRect.left + containerRect.width / 2;
+      x = containerRect.left + containerRect.width / 2;
       y = containerRect.top + containerRect.height / 2;
     }
-    const radius = config2.radius || distanceToFurthestCorner(x2, y, containerRect);
-    const offsetX = x2 - containerRect.left;
+    const radius = config2.radius || distanceToFurthestCorner(x, y, containerRect);
+    const offsetX = x - containerRect.left;
     const offsetY = y - containerRect.top;
     const enterDuration = animationConfig.enterDuration;
     const ripple = document.createElement("div");
@@ -41543,8 +41543,8 @@ var RippleRenderer = class _RippleRenderer {
     }
   }
 };
-function distanceToFurthestCorner(x2, y, rect) {
-  const distX = Math.max(Math.abs(x2 - rect.left), Math.abs(x2 - rect.right));
+function distanceToFurthestCorner(x, y, rect) {
+  const distX = Math.max(Math.abs(x - rect.left), Math.abs(x - rect.right));
   const distY = Math.max(Math.abs(y - rect.top), Math.abs(y - rect.bottom));
   return Math.sqrt(distX * distX + distY * distY);
 }
@@ -43261,15 +43261,15 @@ var ParamsAsMap = class {
   }
   get(name) {
     if (this.has(name)) {
-      const v = this.params[name];
-      return Array.isArray(v) ? v[0] : v;
+      const v2 = this.params[name];
+      return Array.isArray(v2) ? v2[0] : v2;
     }
     return null;
   }
   getAll(name) {
     if (this.has(name)) {
-      const v = this.params[name];
-      return Array.isArray(v) ? v : [v];
+      const v2 = this.params[name];
+      return Array.isArray(v2) ? v2 : [v2];
     }
     return [];
   }
@@ -43507,7 +43507,7 @@ var UrlSegmentGroup = class {
   constructor(segments, children) {
     this.segments = segments;
     this.children = children;
-    Object.values(children).forEach((v) => v.parent = this);
+    Object.values(children).forEach((v2) => v2.parent = this);
   }
   hasChildren() {
     return this.numberOfChildren > 0;
@@ -43596,18 +43596,18 @@ function serializeSegment(segment, root) {
   if (root) {
     const primary = segment.children[PRIMARY_OUTLET] ? serializeSegment(segment.children[PRIMARY_OUTLET], false) : "";
     const children = [];
-    Object.entries(segment.children).forEach(([k2, v]) => {
+    Object.entries(segment.children).forEach(([k2, v2]) => {
       if (k2 !== PRIMARY_OUTLET) {
-        children.push(`${k2}:${serializeSegment(v, false)}`);
+        children.push(`${k2}:${serializeSegment(v2, false)}`);
       }
     });
     return children.length > 0 ? `${primary}(${children.join("//")})` : primary;
   } else {
-    const children = mapChildrenIntoArray(segment, (v, k2) => {
+    const children = mapChildrenIntoArray(segment, (v2, k2) => {
       if (k2 === PRIMARY_OUTLET) {
         return [serializeSegment(segment.children[PRIMARY_OUTLET], false)];
       }
-      return [`${k2}:${serializeSegment(v, false)}`];
+      return [`${k2}:${serializeSegment(v2, false)}`];
     });
     if (Object.keys(segment.children).length === 1 && segment.children[PRIMARY_OUTLET] != null) {
       return `${serializePaths(segment)}/${children[0]}`;
@@ -43641,7 +43641,7 @@ function serializeMatrixParams(params) {
 }
 function serializeQueryParams(params) {
   const strParams = Object.entries(params).map(([name, value]) => {
-    return Array.isArray(value) ? value.map((v) => `${encodeUriQuery(name)}=${encodeUriQuery(v)}`).join("&") : `${encodeUriQuery(name)}=${encodeUriQuery(value)}`;
+    return Array.isArray(value) ? value.map((v2) => `${encodeUriQuery(name)}=${encodeUriQuery(v2)}`).join("&") : `${encodeUriQuery(name)}=${encodeUriQuery(value)}`;
   }).filter((s) => s);
   return strParams.length ? `?${strParams.join("&")}` : "";
 }
@@ -43846,8 +43846,8 @@ function mergeTrivialChildren(s) {
   }
   return s;
 }
-function isUrlTree(v) {
-  return v instanceof UrlTree;
+function isUrlTree(v2) {
+  return v2 instanceof UrlTree;
 }
 function createUrlTreeFromSnapshot(relativeTo, commands, queryParams = null, fragment = null, urlSerializer = new DefaultUrlSerializer()) {
   const relativeToUrlSegmentGroup = createSegmentGroupFromRoute(relativeTo);
@@ -43893,18 +43893,18 @@ function isMatrixParams(command) {
 function isCommandWithOutlets(command) {
   return typeof command === "object" && command != null && command.outlets;
 }
-function normalizeQueryParams2(k2, v, urlSerializer) {
+function normalizeQueryParams2(k2, v2, urlSerializer) {
   k2 ||= "\u0275";
   const tree2 = new UrlTree();
   tree2.queryParams = {
-    [k2]: v
+    [k2]: v2
   };
   return urlSerializer.parse(urlSerializer.serialize(tree2)).queryParams[k2];
 }
 function tree(oldRoot, oldSegmentGroup, newSegmentGroup, queryParams, fragment, urlSerializer) {
   const qp = {};
   for (const [key, value] of Object.entries(queryParams ?? {})) {
-    qp[key] = Array.isArray(value) ? value.map((v) => normalizeQueryParams2(key, v, urlSerializer)) : normalizeQueryParams2(key, value, urlSerializer);
+    qp[key] = Array.isArray(value) ? value.map((v2) => normalizeQueryParams2(key, v2, urlSerializer)) : normalizeQueryParams2(key, value, urlSerializer);
   }
   let rootCandidate;
   if (oldRoot === oldSegmentGroup) {
@@ -44154,7 +44154,7 @@ function createNewSegmentChildren(outlets) {
 }
 function stringify2(params) {
   const res = {};
-  Object.entries(params).forEach(([k2, v]) => res[k2] = `${v}`);
+  Object.entries(params).forEach(([k2, v2]) => res[k2] = `${v2}`);
   return res;
 }
 function compare(path, params, segment) {
@@ -44662,7 +44662,7 @@ var ActivatedRoute = class {
     this.outlet = outlet;
     this.component = component;
     this._futureSnapshot = futureSnapshot;
-    this.title = this.dataSubject?.pipe(map((d2) => d2[RouteTitleKey])) ?? of(void 0);
+    this.title = this.dataSubject?.pipe(map((d) => d[RouteTitleKey])) ?? of(void 0);
     this.url = urlSubject;
     this.params = paramsSubject;
     this.queryParams = queryParamsSubject;
@@ -45254,8 +45254,8 @@ var ActivateRoutes = class {
       this.deactivateRoutes(futureChild, children[childOutletName], contexts);
       delete children[childOutletName];
     });
-    Object.values(children).forEach((v) => {
-      this.deactivateRouteAndItsChildren(v, contexts);
+    Object.values(children).forEach((v2) => {
+      this.deactivateRouteAndItsChildren(v2, contexts);
     });
   }
   deactivateRoutes(futureNode, currNode, parentContext) {
@@ -45423,7 +45423,7 @@ function getChildRouteGuards(futureNode, currNode, contexts, futurePath, checks 
     getRouteGuards(c, prevChildren[c.value.outlet], contexts, futurePath.concat([c.value]), checks);
     delete prevChildren[c.value.outlet];
   });
-  Object.entries(prevChildren).forEach(([k2, v]) => deactivateRouteAndItsChildren(v, contexts.getContext(k2), checks));
+  Object.entries(prevChildren).forEach(([k2, v2]) => deactivateRouteAndItsChildren(v2, contexts.getContext(k2), checks));
   return checks;
 }
 function getRouteGuards(futureNode, currNode, parentContexts, futurePath, checks = {
@@ -45500,11 +45500,11 @@ function deactivateRouteAndItsChildren(route, context2, checks) {
     checks.canDeactivateChecks.push(new CanDeactivate(null, r));
   }
 }
-function isFunction2(v) {
-  return typeof v === "function";
+function isFunction2(v2) {
+  return typeof v2 === "function";
 }
-function isBoolean(v) {
-  return typeof v === "boolean";
+function isBoolean(v2) {
+  return typeof v2 === "boolean";
 }
 function isCanLoad(guard) {
   return guard && isFunction2(guard.canLoad);
@@ -45622,10 +45622,10 @@ function runCanActivate(futureRSS, futureARS) {
 function runCanActivateChild(futureRSS, path) {
   const futureARS = path[path.length - 1];
   const canActivateChildGuards = path.slice(0, path.length - 1).reverse().map((p2) => getCanActivateChild(p2)).filter((_3) => _3 !== null);
-  const canActivateChildGuardsMapped = canActivateChildGuards.map((d2) => {
+  const canActivateChildGuardsMapped = canActivateChildGuards.map((d) => {
     return defer(() => {
-      const guardsMapped = d2.guards.map((canActivateChild) => {
-        const closestInjector = d2.node._environmentInjector;
+      const guardsMapped = d.guards.map((canActivateChild) => {
+        const closestInjector = d.node._environmentInjector;
         const guard = getTokenOrFunctionIdentity(canActivateChild, closestInjector);
         const guardVal = isCanActivateChild(guard) ? guard.canActivateChild(futureARS, futureRSS) : runInInjectionContext(closestInjector, () => guard(futureARS, futureRSS));
         return wrapIntoObservable(guardVal).pipe(first());
@@ -45735,13 +45735,13 @@ var ApplyRedirects = class {
   }
   createQueryParams(redirectToParams, actualParams) {
     const res = {};
-    Object.entries(redirectToParams).forEach(([k2, v]) => {
-      const copySourceValue = typeof v === "string" && v[0] === ":";
+    Object.entries(redirectToParams).forEach(([k2, v2]) => {
+      const copySourceValue = typeof v2 === "string" && v2[0] === ":";
       if (copySourceValue) {
-        const sourceName = v.substring(1);
+        const sourceName = v2.substring(1);
         res[k2] = actualParams[sourceName];
       } else {
-        res[k2] = v;
+        res[k2] = v2;
       }
     });
     return res;
@@ -45916,7 +45916,7 @@ function matchWithChecks(segmentGroup, route, segments, injector, urlSerializer,
   }
   const currentSnapshot = createPreMatchRouteSnapshot(createSnapshot(result));
   injector = getOrCreateRouteInjectorIfNeeded(route, injector);
-  return runCanMatchGuards(injector, route, segments, urlSerializer, currentSnapshot, abortSignal).pipe(map((v) => v === true ? result : __spreadValues({}, noMatch)));
+  return runCanMatchGuards(injector, route, segments, urlSerializer, currentSnapshot, abortSignal).pipe(map((v2) => v2 === true ? result : __spreadValues({}, noMatch)));
 }
 function match(segmentGroup, route, segments) {
   if (route.path === "") {
@@ -45935,8 +45935,8 @@ function match(segmentGroup, route, segments) {
   const res = matcher(segments, segmentGroup, route);
   if (!res) return __spreadValues({}, noMatch);
   const posParams = {};
-  Object.entries(res.posParams ?? {}).forEach(([k2, v]) => {
-    posParams[k2] = v.path;
+  Object.entries(res.posParams ?? {}).forEach(([k2, v2]) => {
+    posParams[k2] = v2.path;
   });
   const parameters = res.consumed.length > 0 ? __spreadValues(__spreadValues({}, posParams), res.consumed[res.consumed.length - 1].parameters) : posParams;
   return {
@@ -46379,12 +46379,12 @@ function getResolver(injectionToken, futureARS, futureRSS) {
   return wrapIntoObservable(resolverValue);
 }
 function switchTap(next) {
-  return switchMap((v) => {
-    const nextResult = next(v);
+  return switchMap((v2) => {
+    const nextResult = next(v2);
     if (nextResult) {
-      return from(nextResult).pipe(map(() => v));
+      return from(nextResult).pipe(map(() => v2));
     }
-    return of(v);
+    return of(v2);
   });
 }
 var TitleStrategy = class _TitleStrategy {
@@ -49008,7 +49008,7 @@ var NgswCommChannel = class {
         if (currentWorker !== null) {
           subscriber.next(currentWorker);
         }
-        return workerSubject.subscribe((v) => subscriber.next(v));
+        return workerSubject.subscribe((v2) => subscriber.next(v2));
       });
       const updateController = () => {
         const {
@@ -50315,19 +50315,19 @@ var NativeDateAdapter = class _NativeDateAdapter extends DateAdapter {
     return new Date(date.getTime() + amount * 1e3);
   }
   _createDateWithOverflow(year, month, date) {
-    const d2 = /* @__PURE__ */ new Date();
-    d2.setFullYear(year, month, date);
-    d2.setHours(0, 0, 0, 0);
-    return d2;
+    const d = /* @__PURE__ */ new Date();
+    d.setFullYear(year, month, date);
+    d.setHours(0, 0, 0, 0);
+    return d;
   }
   _2digit(n) {
     return ("00" + n).slice(-2);
   }
   _format(dtf, date) {
-    const d2 = /* @__PURE__ */ new Date();
-    d2.setUTCFullYear(date.getFullYear(), date.getMonth(), date.getDate());
-    d2.setUTCHours(date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds());
-    return dtf.format(d2);
+    const d = /* @__PURE__ */ new Date();
+    d.setUTCFullYear(date.getFullYear(), date.getMonth(), date.getDate());
+    d.setUTCHours(date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds());
+    return dtf.format(d);
   }
   _parseTimeString(value) {
     const parsed = value.toUpperCase().match(TIME_REGEX);
@@ -50517,8 +50517,8 @@ var MatProgressSpinner = class _MatProgressSpinner {
   get value() {
     return this.mode === "determinate" ? this._value : 0;
   }
-  set value(v) {
-    this._value = Math.max(0, Math.min(100, v || 0));
+  set value(v2) {
+    this._value = Math.max(0, Math.min(100, v2 || 0));
   }
   _value = 0;
   get diameter() {
@@ -54786,15 +54786,15 @@ function hasValidator(validators, validator) {
 function addValidators(validators, currentValidators) {
   const current = makeValidatorsArray(currentValidators);
   const validatorsToAdd = makeValidatorsArray(validators);
-  validatorsToAdd.forEach((v) => {
-    if (!hasValidator(current, v)) {
-      current.push(v);
+  validatorsToAdd.forEach((v2) => {
+    if (!hasValidator(current, v2)) {
+      current.push(v2);
     }
   });
   return current;
 }
 function removeValidators(validators, currentValidators) {
-  return makeValidatorsArray(currentValidators).filter((v) => !hasValidator(validators, v));
+  return makeValidatorsArray(currentValidators).filter((v2) => !hasValidator(validators, v2));
 }
 var AbstractControlDirective = class {
   get value() {
@@ -55180,8 +55180,8 @@ var AbstractControl = class {
   get status() {
     return untracked2(this.statusReactive);
   }
-  set status(v) {
-    untracked2(() => this.statusReactive.set(v));
+  set status(v2) {
+    untracked2(() => this.statusReactive.set(v2));
   }
   _status = computed(() => this.statusReactive(), ...ngDevMode ? [{
     debugName: "_status"
@@ -55208,8 +55208,8 @@ var AbstractControl = class {
   get pristine() {
     return untracked2(this.pristineReactive);
   }
-  set pristine(v) {
-    untracked2(() => this.pristineReactive.set(v));
+  set pristine(v2) {
+    untracked2(() => this.pristineReactive.set(v2));
   }
   _pristine = computed(() => this.pristineReactive(), ...ngDevMode ? [{
     debugName: "_pristine"
@@ -55223,8 +55223,8 @@ var AbstractControl = class {
   get touched() {
     return untracked2(this.touchedReactive);
   }
-  set touched(v) {
-    untracked2(() => this.touchedReactive.set(v));
+  set touched(v2) {
+    untracked2(() => this.touchedReactive.set(v2));
   }
   _touched = computed(() => this.touchedReactive(), ...ngDevMode ? [{
     debugName: "_touched"
@@ -55502,11 +55502,11 @@ var AbstractControl = class {
     return !!this.getError(errorCode, path);
   }
   get root() {
-    let x2 = this;
-    while (x2._parent) {
-      x2 = x2._parent;
+    let x = this;
+    while (x._parent) {
+      x = x._parent;
     }
-    return x2;
+    return x;
   }
   _updateControlsErrors(emitEvent, changedControl, shouldHaveEmitted) {
     this.status = this._calculateStatus();
@@ -56249,15 +56249,15 @@ function selectValueAccessor(dir, valueAccessors) {
   let defaultAccessor = void 0;
   let builtinAccessor = void 0;
   let customAccessor = void 0;
-  valueAccessors.forEach((v) => {
-    if (v.constructor === DefaultValueAccessor) {
-      defaultAccessor = v;
-    } else if (isBuiltInAccessor(v)) {
+  valueAccessors.forEach((v2) => {
+    if (v2.constructor === DefaultValueAccessor) {
+      defaultAccessor = v2;
+    } else if (isBuiltInAccessor(v2)) {
       if (builtinAccessor && (typeof ngDevMode === "undefined" || ngDevMode)) _throwError(dir, "More than one built-in value accessor matches form control with");
-      builtinAccessor = v;
+      builtinAccessor = v2;
     } else {
       if (customAccessor && (typeof ngDevMode === "undefined" || ngDevMode)) _throwError(dir, "More than one custom value accessor matches form control with");
-      customAccessor = v;
+      customAccessor = v2;
     }
   });
   if (customAccessor) return customAccessor;
@@ -56381,7 +56381,7 @@ var NgControl = class extends AbstractControlDirective {
     });
     this.customControlBindings = {};
     this.isNativeFormElement = isNativeFormElement2(host.nativeElement);
-    this.requiredValidatorViaDi = this._rawValidators.find((v) => v instanceof RequiredValidator);
+    this.requiredValidatorViaDi = this._rawValidators.find((v2) => v2 instanceof RequiredValidator);
   }
   ngControlUpdate(host, bindRequired) {
     if (!this.isCustomControlBased) {
@@ -58967,7 +58967,7 @@ var SelectMultipleControlValueAccessor = class _SelectMultipleControlValueAccess
     this.value = value;
     let optionSelectedStateSetter;
     if (Array.isArray(value)) {
-      const ids = value.map((v) => this._getOptionId(v));
+      const ids = value.map((v2) => this._getOptionId(v2));
       optionSelectedStateSetter = (opt, id) => {
         opt._setSelected(ids.indexOf(id) > -1);
       };
@@ -59845,10 +59845,10 @@ function validateTime(hours, minutes, seconds) {
 function toZonedTime(date, timeZone, options) {
   date = toDate3(date, options);
   const offsetMilliseconds = tzParseTimezone(timeZone, date, true);
-  const d2 = new Date(date.getTime() - offsetMilliseconds);
+  const d = new Date(date.getTime() - offsetMilliseconds);
   const resultDate = /* @__PURE__ */ new Date(0);
-  resultDate.setFullYear(d2.getUTCFullYear(), d2.getUTCMonth(), d2.getUTCDate());
-  resultDate.setHours(d2.getUTCHours(), d2.getUTCMinutes(), d2.getUTCSeconds(), d2.getUTCMilliseconds());
+  resultDate.setFullYear(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
+  resultDate.setHours(d.getUTCHours(), d.getUTCMinutes(), d.getUTCSeconds(), d.getUTCMilliseconds());
   return resultDate;
 }
 
@@ -59967,24 +59967,19 @@ var SIGNAGE_MANAGER = {
   DENIED: "\xB7 Denied",
   DISPLAYS_COUNT: "Displays ({{ count }})",
   DISPLAYS_COUNT_1: "Display ({{ count }})",
-  DISPLAYS_COUNT_N: "Displays ({{ count }})",
   DISPLAYS_TITLE: "Signage Displays",
   DISPLAY_COUNT_LABEL: "{{ count }} displays",
   DISPLAY_COUNT_LABEL_1: "{{ count }} display",
-  DISPLAY_COUNT_LABEL_N: "{{ count }} displays",
   DISPLAY_DETAILS_TABS: "Display details tabs",
   DISPLAY_NO_ZONES: "This display is not in any zones.",
   DISPLAY_SELECT_DETAILS: "Select a display to view its details.",
   DRAG_MEDIA_HINT: "Drag media onto a playlist to add it",
   DURATION_DAY: "{{ count }} days",
   DURATION_DAY_1: "{{ count }} day",
-  DURATION_DAY_N: "{{ count }} days",
   DURATION_HOUR: "{{ count }} hours",
   DURATION_HOUR_1: "{{ count }} hour",
-  DURATION_HOUR_N: "{{ count }} hours",
   DURATION_MINUTE: "{{ count }} minutes",
   DURATION_MINUTE_1: "{{ count }} minute",
-  DURATION_MINUTE_N: "{{ count }} minutes",
   EDIT_GROUP_TOOLTIP: "Edit group",
   EDIT_PLAYLIST_TOOLTIP: "Edit playlist",
   EDIT_SELECTED_PLAYLIST: "Edit selected playlist",
@@ -60002,7 +59997,6 @@ var SIGNAGE_MANAGER = {
   GROUP_ADD_USER: "Add User",
   GROUP_COUNT: "{{ count }} groups",
   GROUP_COUNT_1: "{{ count }} group",
-  GROUP_COUNT_N: "{{ count }} groups",
   GROUP_DETAILS_TABS: "Group details tabs",
   GROUP_EDIT_HEADING: "Edit signage group",
   GROUP_NEW_HEADING: "New signage group",
@@ -60095,13 +60089,11 @@ var SIGNAGE_MANAGER = {
   PLAYBACK: "Playback",
   PLAYLISTS_COUNT: "Playlists ({{ count }})",
   PLAYLISTS_COUNT_1: "Playlist ({{ count }})",
-  PLAYLISTS_COUNT_N: "Playlists ({{ count }})",
   PLAYLISTS_PAGE_TITLE: "Signage Playlists",
   PLAYLIST_APPROVED: "Playlist approved",
   PLAYLIST_APPROVE_ERROR: "Error approving playlist",
   PLAYLIST_COUNT_LABEL: "{{ count }} playlists",
   PLAYLIST_COUNT_LABEL_1: "{{ count }} playlist",
-  PLAYLIST_COUNT_LABEL_N: "{{ count }} playlists",
   PLAYLIST_DESCRIPTION_ARIA: "Playlist description",
   PLAYLIST_DETAILS_TABS: "Playlist details tabs",
   PLAYLIST_DISTRIBUTION: "Distribution Playlist",
@@ -60155,7 +60147,6 @@ var SIGNAGE_MANAGER = {
   EDIT_SCHEDULE: "Edit Schedule",
   ITEM_SCHEDULES: "Item Schedules",
   NO_SCHEDULES: "No schedules",
-  SCHEDULES_SUBTITLE: "Daily schedule timelines for signage displays and zones.",
   SCHEDULE_INTERVAL_ARIA: "Recurring schedule interval",
   SCHEDULE_NUMBER: "Schedule {{ number }}",
   SCHEDULE_TYPES: "Schedule types",
@@ -60199,10 +60190,8 @@ var SIGNAGE_MANAGER = {
   SUMMARY_DAILY: "Starts every day at {{ time }} for {{ duration }}.",
   SUMMARY_EVERY_HOUR: "Plays every {{ interval }} hours.",
   SUMMARY_EVERY_HOUR_1: "Plays every {{ interval }} hour.",
-  SUMMARY_EVERY_HOUR_N: "Plays every {{ interval }} hours.",
   SUMMARY_EVERY_MINUTE: "Plays every {{ interval }} minutes.",
   SUMMARY_EVERY_MINUTE_1: "Plays every {{ interval }} minute.",
-  SUMMARY_EVERY_MINUTE_N: "Plays every {{ interval }} minutes.",
   SUMMARY_MONTHLY: "Starts on the {{ days }} of each month at {{ time }} for {{ duration }}.",
   SUMMARY_MONTHLY_WEEKDAY: "Starts on the {{ weeks }} {{ days }} of each month at {{ time }} for {{ duration }}.",
   SUMMARY_PLAY_ONCE: "Plays once on {{ datetime }} for {{ duration }}",
@@ -60216,7 +60205,6 @@ var SIGNAGE_MANAGER = {
   SVC_DELETE_NAMED_PLAIN: "Delete {{ name }}?",
   SVC_DELETE_SELECTED_MEDIA: "Delete {{ count }} selected media items?",
   SVC_DELETE_SELECTED_MEDIA_1: "Delete {{ count }} selected media item?",
-  SVC_DELETE_SELECTED_MEDIA_N: "Delete {{ count }} selected media items?",
   SVC_DISPLAY_ADDED_PLAYLIST: "Display added to playlist",
   SVC_DISPLAY_ADDED_ZONE: "Display added to zone",
   SVC_DISPLAY_IN_ZONE: "Display already assigned to this zone.",
@@ -60272,6 +60260,8 @@ var SIGNAGE_MANAGER = {
   SVC_SELECT_MEDIA_FILE: "Please select a media file to upload.",
   SVC_SHARE_MEDIA_TITLE: "Share media with group",
   SVC_SHARE_PLAYLIST_TITLE: "Share playlist with group",
+  SVC_THUMBNAIL_FAILED: "Could not generate a thumbnail from the selected image.",
+  SVC_THUMBNAIL_NOT_IMAGE: "Thumbnails must be an image file.",
   SVC_THUMBNAIL_UPLOAD_FAILED: "Media uploaded, but its thumbnail could not be saved.",
   SVC_USER_ADDED: "Group user added",
   SVC_USER_REMOVED: "Group user removed",
@@ -60287,6 +60277,10 @@ var SIGNAGE_MANAGER = {
   TAKEOVER_PLAYBACK: "Takeover playback",
   TAKEOVER_SUFFIX: " \xB7 takeover",
   THIS_WEEK_ARIA: "Show this week",
+  THUMBNAIL: "Thumbnail",
+  THUMBNAIL_CHOOSE: "Choose image",
+  THUMBNAIL_LOADING: "Loading image...",
+  THUMBNAIL_NONE: "No thumbnail",
   TOOLTIP_PLAYLIST: "Playlist: {{ name }}",
   TOOLTIP_SOURCE: "Source: {{ source }}",
   TOOLTIP_STATUS_AWAITING: "Status: Awaiting Approval",
@@ -60303,7 +60297,6 @@ var SIGNAGE_MANAGER = {
   URL_REQUIRED: "URL is required",
   USERS_COUNT: "Users ({{ count }})",
   USERS_COUNT_1: "User ({{ count }})",
-  USERS_COUNT_N: "Users ({{ count }})",
   USER_PERMISSIONS: "User permissions",
   VALID_FROM: "Valid From",
   VERSION_TO_APPROVE: "Version to approve",
@@ -60316,11 +60309,9 @@ var SIGNAGE_MANAGER = {
   WEEK_OF_MONTH_ARIA: "Recurring schedule week of month",
   ZONES_COUNT: "Zones ({{ count }})",
   ZONES_COUNT_1: "Zone ({{ count }})",
-  ZONES_COUNT_N: "Zones ({{ count }})",
   ZONES_TITLE: "Signage Zones",
   ZONE_COUNT_LABEL: "{{ count }} zones",
   ZONE_COUNT_LABEL_1: "{{ count }} zone",
-  ZONE_COUNT_LABEL_N: "{{ count }} zones",
   ZONE_DETAILS_TABS: "Zone details tabs",
   ZONE_PERMISSIONS: "Zone permissions",
   ZONE_SELECT_DETAILS: "Select a zone to view its details."
@@ -60338,14 +60329,12 @@ var COMMON = {
   CANCEL: "Cancel",
   CLEAR: "Clear",
   ADD: "Add",
-  ANY: "Any",
   URL: "URL",
   SCHEDULED: "Scheduled",
   CANCEL_BOOKING: "Cancel Booking",
   REFRESH: "Refresh",
   CHANGE: "Change",
   REMOVE: "Remove",
-  RETURN: "Return",
   FILTERS: "Filters",
   FILTERS_CLEAR: "Clear Filters",
   OPTIONS: "Options",
@@ -60353,14 +60342,11 @@ var COMMON = {
   COLUMN: "Column",
   ROW: "Row",
   ALL: "All",
-  FLOOR: "Floor",
   DUPLICATE: "Duplicate",
   HEIGHT: "Height",
   WIDTH: "Width",
   EDIT: "Edit",
   DELETE: "Delete",
-  TRUE: "Yes",
-  FALSE: "No",
   YES: "Yes",
   NO: "No",
   NONE: "None",
@@ -60371,7 +60357,6 @@ var COMMON = {
   DISABLED: "Disabled",
   CODE: "Code",
   BOOK: "Book",
-  BOOK_DESK: "Book Desk",
   MINUTE: "Minute",
   HOUR: "Hour",
   DAY: "Day",
@@ -60399,19 +60384,13 @@ var COMMON = {
   UNKNOWN: "Unknown",
   NEXT: "Next",
   PREVIOUS: "Previous",
-  NEXT_PAGE: "Next Page",
-  PREVIOUS_PAGE: "Previous Page",
-  RESULTS_COUNT: "{{ count }} result(s) found",
+  RESULTS_COUNT: "{{ count }} results found",
   RESULTS_COUNT_1: "{{ count }} result found",
-  RESULTS_COUNT_N: "{{ count }} results found",
   AVAILABLE_COUNT: "{{ count }} of {{ total }} available",
   ITEM_COUNT: "{{ count }} items",
   ITEM_COUNT_1: "{{ count }} item",
   NO_ITEMS: "No items",
-  VIEW_LIST: "View List",
   TIME: "Time",
-  CONFIRMING: "Confirming Booking",
-  TODAY_TIME: "Today, {{ time }}",
   WEEK_SELECT: "Select week",
   WEEK_THIS: "This week",
   WEEK_UPCOMING: "Upcoming week",
@@ -60424,13 +60403,7 @@ var COMMON = {
   ACCESSIBLE_ONLY: "Accessible Only",
   LANGUAGE: "Language",
   LANGUAGE_SELECT: "Select a language",
-  REGION: "Region",
-  BUILDING: "Building",
   ALL_DAY: "All Day",
-  BEGINS_IN: "In {{ minutes }} minutes",
-  BEGINS_IN_1: "In {{ minutes }} minute",
-  ENDS_IN: "For {{ minutes }} minutes",
-  ENDS_IN_1: "For {{ minutes }} minute",
   CHECK_IN: "Check-in",
   CHECK_OUT: "Check-out",
   CHECKED_IN: "Checked-in",
@@ -60442,7 +60415,6 @@ var COMMON = {
   PREVIEW: "Preview",
   DETAILS: "Details",
   DESCRIPTION: "Description",
-  DESCRIPTION_EMPTY: "No Description",
   DESCRIPTION_REQUIRED: "A description is required",
   ADD_TO: "Add to Booking",
   REMOVE_FROM: "Remove from Booking",
@@ -60467,7 +60439,6 @@ var COMMON = {
   STATE_IN_PROGRESS: "In Progress",
   STATE_ACTIVE: "Active",
   LOCATION: "Location",
-  ZONE: "Zone",
   ZONE_ANY: "Any Zone",
   ZONE_REQUIRED: "A valid zone is required",
   REQUIRED: "Required",
@@ -60481,7 +60452,6 @@ var COMMON = {
   BOOTSTRAP_ASSISTANT_INFO: "Select the system to connect to for Assistant functionality",
   BOOTSTRAP_INPUT_PLACEHOLDER: "Start typing to search for a room",
   CONTROLS_HELP: "Help & Support",
-  CONTROLS_WORK_LOCATION: "Work Location",
   CONTROLS_ACCESSIBILITY: "Display & Accessibility",
   CONTROLS_DESKS: "Desk Settings",
   CONTROLS_PARKING: "Parking Settings",
@@ -60515,13 +60485,8 @@ var COMMON = {
   DESK_HEIGHT_STANDING: "Standing Height",
   CONSOLE: "Console",
   AVAILABILITY: "Availability",
-  SUPPORT_HEADER: "Raise a support ticket",
-  SUPPORT_LOCATION: "Location",
   SUPPORT_TYPE: "Issue Type",
   SUPPORT_DESCRIPTION: "Issue Description",
-  SUPPORT_DESCRIPTION_REQUIRED: " A description is required",
-  SUPPORT_IMAGES: "Images",
-  SUPPORT_LOADING: "Sending support ticket...",
   SUPPORT_MSG: "Completing this form will raise an incident in your support management platform",
   SUPPORT_NO_MAILER: "Mailing system not configured for application.",
   SUPPORT_SUCCESS: "Successfully submitted support ticket",
@@ -60529,7 +60494,6 @@ var COMMON = {
   TAGS: "Tags",
   REGION_ANY: "Any Region",
   REGION_ALL: "All Regions",
-  BUILDING_ANY: "Any Building",
   BUILDING_ALL: "All Buildings",
   LEVEL_ANY: "Any Level",
   LAST_UPDATED: "Updated {{ time }}",
@@ -60556,7 +60520,6 @@ var COMMON = {
   TRIGGER: "Trigger",
   TRIGGER_SELECT: "Select a trigger",
   TRIGGER_EMPTY: "No trigger",
-  BUILDING_EMPTY: "No building",
   BUILDING_REQUIRED: "A building is required",
   CREATED_AT: "Created",
   DATE_EMPTY: "No date",
@@ -60587,7 +60550,6 @@ var COMMON = {
   TIME_HOURS: "{{ hours }} hours",
   TIME_DAY: "{{ days }} day",
   TIME_DAYS: "{{ days }} days",
-  NOT_IMPLEMENTED: "Not implemented yet",
   SELECT_USER_TITLE: "Select a user",
   SELECT_USER_SEARCH: "Search for users...",
   SELECT_USER_EMPTY: "Start typing to search for users.",
@@ -60622,14 +60584,29 @@ var COMMON = {
   ITEM_PRICE: "Price",
   ROOM_BOOKING_URL: "Room Booking URL",
   TIMETABLE_URL: "Timetable URL",
-  SUPPORT_URL: "Support URL",
   URL_VALID: "URL is invalid",
   SELECTED_COUNT: "{{ count }} selected",
   PEOPLE_COUNT: "{{ count }} people",
   PEOPLE_COUNT_1: "{{ count }} person",
+  LOCATION_UNSPECIFIED: "Unspecified",
+  MAP_KIOSK: "Map Kiosk",
+  BOOKABLE_HOURS_ERROR: "Current date is outside available booking hours. Switched to next available time.",
+  TOOLTIP_SOURCE: "Source: {{ source }}",
+  CLOSE: "Close",
+  UPDATE: "Update",
+  SAVING: "Saving...",
+  ITEM_REMOVE: "Remove item",
+  BUILDINGS_ALL: "All Buildings",
+  FLOOR: "Floor",
+  BOOK_DESK: "Book Desk",
+  CONFIRMING: "Confirming Booking",
+  REGION: "Region",
+  BUILDING: "Building",
+  BEGINS_IN: "In {{ minutes }} minutes",
+  ENDS_IN: "For {{ minutes }} minutes",
+  ZONE: "Zone",
   ALL_COLLEAGUES: "All Colleagues",
   MY_TEAM: "My Team",
-  LOCATION_UNSPECIFIED: "Unspecified",
   LOCATION_WFH: "Work from Home",
   LOCATION_OFFICE: "In Office",
   LOCATION_ONSITE: "Onsite",
@@ -60637,15 +60614,11 @@ var COMMON = {
   LOCATION_SICK: "Off Sick",
   ALL_DEPARTMENTS: "All Departments",
   ALL_OFFICES: "All Offices",
-  ALL_STATUSES: "All Statuses",
-  MAP_KIOSK: "Map Kiosk",
-  BOOKABLE_HOURS_ERROR: "Current date is outside available booking hours. Switched to next available time.",
-  TOOLTIP_SOURCE: "Source: {{ source }}"
+  ALL_STATUSES: "All Statuses"
 };
 var LANGUAGE = {
   ENGLISH: "English",
   ENGLISH_US: "English (US)",
-  ENGLISH_GB: "English (British)",
   FRENCH: "French",
   FRENCH_CA: "French (Canadian)",
   SPANISH: "Spanish",
@@ -60658,13 +60631,10 @@ var LANGUAGE = {
 var RESOURCE = {
   ROOM: "Room",
   ROOMS: "Rooms",
-  MEETING: "Meeting",
-  MEETINGS: "Meetings",
   DESK: "Desk",
   DESKS: "Desks",
   PARKING: "Parking",
   PARKING_SPACE: "Parking space",
-  PARKING_SPACES: "Parking spaces",
   LOCKER: "Locker",
   LOCKERS: "Lockers",
   VISITOR: "Visitor",
@@ -60675,11 +60645,8 @@ var RESOURCE = {
   ASSET: "Asset",
   ASSETS: "Assets",
   BUILDING: "Building",
-  BUILDINGS: "Buildings",
   REGION: "Region",
-  REGIONS: "Regions",
   LEVEL: "Level",
-  LEVELS: "Levels",
   BOOKING: "Booking",
   BOOKINGS: "Bookings",
   ZONE: "Zone",
@@ -60692,7 +60659,10 @@ var RESOURCE = {
   RULESET_HIDE_RULES: "Hide Rules",
   RULESET_REMOVE_RULES: "Remove Rule",
   RULESET_NAME_REQUIRED: "A ruleset name is required",
-  RULESET_VALUE_REQUIRED: "A rule value is required"
+  RULESET_VALUE_REQUIRED: "A rule value is required",
+  BUILDING_EMPTY: "No building",
+  MEETING: "Meeting",
+  MEETINGS: "Meetings"
 };
 var FORM = {
   INVALID_FIELDS: "Some fields are invalid. [{{ field_list }}]",
@@ -60726,14 +60696,11 @@ var FORM = {
   TITLE: "Title",
   TITLE_REQUIRED: "A valid title is required",
   HOST: "Host",
-  BOOK_FOR: "Book for",
-  TIME: "Time",
   EXPIRES_AT: "Valid Until",
   DURATION: "Duration",
   CLEAR: "Clear form",
   RESET: "Reset form",
   NOTES: "Notes",
-  IMAGE: "Image",
   RECURRENCE: "Recurrence",
   RECURRENCE_REPEAT_EVERY: "Repeat Every",
   RECURRENCE_REPEAT_ON: "Repeat on",
@@ -60765,7 +60732,10 @@ var FORM = {
   ASSETS_SHOW: "Show requested items",
   ASSETS_CLASH_ERROR: "Some of the items are not available for the selected date and time.",
   ASSETS_TIME_ERROR: "Delivery time is outside of the event time.\nThis order will be ignored.",
-  ASSETS_QUANTITY_ERROR: "Not enough assets available to meet request [{{ name }}].\nAnother request for this asset has been made in this meeting."
+  ASSETS_QUANTITY_ERROR: "Not enough assets available to meet request [{{ name }}].\nAnother request for this asset has been made in this meeting.",
+  ID_REQUIRED: "A valid ID is required",
+  BOOK_FOR: "Book for",
+  TIME: "Time"
 };
 var EXPLORE = {
   AREAS: "Show Areas",
@@ -60778,7 +60748,6 @@ var EXPLORE = {
   LOCATE_USER_FAILED: 'Failed to locate user "{{ name }}".',
   LOCATE_USER_NOT_FOUND: "No location for the given user",
   LOCATE_USER_FOUND_NO_PIN: "User is on this level but with an inaccurate method. {{ type }}",
-  LOCATE_USER_DETAILS_FAILED: 'Failed to find user details for "{{ name }}".',
   LOCATE_SPACE_DETAILS_FAILED: "Failed to find space details.",
   LOCATE_SERVICE_UNAVAILABLE: "Location services is not set up for this application.",
   ZOOM_IN: "Zoom in",
@@ -60786,7 +60755,6 @@ var EXPLORE = {
   ZOOM_RESET: "Reset zoom & centre",
   DEVICE_COUNT: "{{ count }} user device(s)",
   SENSORS_TEMP: "Temperature: {{ value }}",
-  SENSORS_PEOPLE: "{{ count }} people",
   SENSORS_HUMIDITY: "Humidity: {{ value }}",
   SENSORS_QUEUE: "Queue Size: {{ value }}",
   SENSORS_COUNT: "Count: {{ value }}",
@@ -60799,7 +60767,6 @@ var EXPLORE = {
   PARKING_GROUP_ERROR: 'You are not allowed to book "{{ name }}"',
   PARKING_BOOKING_ERROR: 'Failed to book parking space "{{ name }}". Error: {{ error }}',
   PARKING_BOOKING_SUCCESS: 'Successfully booked parking space "{{ name }}".',
-  PARKING_PLATE_NUMBER: "Plate Number",
   LOCKERS_USE: "{{ used }} lockers in use of {{ count }}",
   DEVICE_MAC: "MAC",
   DEVICE_ACCURACY: "Accuracy",
@@ -60808,7 +60775,6 @@ var EXPLORE = {
   DEVICE_OS: "OS",
   DEVICE_SSID: "SSID",
   DEVICE_USERNAME: "Username",
-  DEVICE_TYPE: "Type",
   DESK_AVAILABLE_ERROR: "{{ name }} is unavailable at this time.",
   DESK_GROUP_ERROR: 'You are not allowed to book "{{ name }}"',
   DESK_RESTRICTION_ERROR: 'You are not allowed to book "{{ name }}"',
@@ -60832,17 +60798,11 @@ var EXPLORE = {
 var BOOKINGS = {
   ASSOCIATE: "Associate",
   BOOKED_FOR: "For {{ name }}",
-  EVENT: "Event",
   PREVENT: "Prevent Bookings",
-  RESERVED: "Reserved",
   RELEASED: "Released",
-  DETAILS: "Details",
-  LOCATION: "Location",
-  ASSETS_HEADER: "Assets",
   ASSETS_REQUESTED_FOR: "Requested for {{ time }}",
   ACTION_EDIT: "Edit booking",
   ACTION_DELETE: "Cancel booking",
-  ACTION_PRINT: "Print booking",
   ACTION_END: "End booking",
   ACTION_SET_DESK_HEIGHT: "Set Desk Height",
   ACTION_DELETE_SERIES: "Cancel series",
@@ -60913,23 +60873,16 @@ var BOOKINGS = {
   DESK_TITLE: "Book Desk",
   DESK_CONFIRM: "Confirm Desk",
   DESK_ADD: "Add Desk",
-  DESK_ADDED_COUNT: "{{ count }} desks(s) added",
-  DESK_EDIT: "Edit Desk",
-  DESK_REMOVE: "Remove Desk",
   DESK_FIND: "Find Desk",
   DESK_LONE: "Single",
-  DESK_GROUP: "Group",
   DESK_COUNT_LONE: "Single desk",
   DESK_COUNT_GROUP: "Multiple desk",
   DESK_TITLE_PLACEHOLDER: "e.g. Focus Time",
   DESK_REQUIRE_LOCKER: "Require locker",
   DESK_GROUP_MEMBERS: "Additional Group Members",
   DESK_GROUP_SELECT: "Select your desk",
-  DESK_GROUP_MEMBERS_INFO: "Group members will be assigned desks nearby to your selected desk",
   DESK_GROUP_INFO: "Desks nearby to the selected desk will booked for group members",
   DESK_AUTO_ALLOCATION_INFO: "A desk will be automatically assigned to you when you confirm your booking.",
-  DESK_DETAILS_HEADER: "Booking Details",
-  DESK_SELECT_HEADER: "Select Desk",
   DESK_ASSETS_REQUESTED: "Requested assets",
   DESK_LOCKER_REQUESTED: "Requested locker",
   DESK_AVAILABLE_ERROR: "Desk is unavailable at this time.",
@@ -60939,16 +60892,7 @@ var BOOKINGS = {
   DESK_SELECT_MSG: "Select a desk to view its details",
   DESK_RESERVED_TITLE: "You have a reserved desk",
   DESK_RESERVED_MESSAGE: "A desk has already been reserved for you, so you are unable to book another desk.",
-  DESK_AUTO_ASSIGNED_TITLE: "Auto-Assigned Desk",
-  DESK_REQUESTING: "Requesting desk...",
-  DESK_FOUND: "Desk Found!",
-  DESK_PERFECT_DESK_MESSAGE: "We've found the perfect desk for you",
-  DESK_NEIGHBOURHOOD: "Neighbourhood",
-  DESK_LOCATION_ON_MAP: "Location on Map",
-  DESK_NO_MAP_AVAILABLE: "No map available",
-  DESK_CONFIRM_BOOKING: "Confirm Booking",
   ITEM_BOOKED: "{{ name }} booked!",
-  DESK_SELECT_EMPTY: "No available desks for selected time and/or filters",
   DESK_SUCCESS_LONE: "Your desk booking at {{ location }} has been successfully booked for {{ date }} at {{ time }}",
   DESK_SUCCESS_GROUP: "Your group of {{ size }} desks at {{ location }} have been successfully booked for {{ date }} at {{ time }}",
   DESK_SUCCESS_LONE_ALLDAY: "Your desk booking at {{ location }} has been successfully booked for {{ date }}",
@@ -60963,21 +60907,13 @@ var BOOKINGS = {
   LOCKER_TITLE: "Book Locker",
   LOCKER_CONFIRM: "Confirm Locker",
   LOCKER_ADD: "Add Locker",
-  LOCKER_EDIT: "Edit Locker",
-  LOCKER_REMOVE: "Remove Locker",
-  LOCKER_FIND: "Find Locker",
-  LOCKER_ADDED_COUNT: "{{ count }} locker(s) added",
   LOCKER_LIST_LOADING: "Finding available locker banks...",
   LOCKER_LIST_EMPTY: "No available locker banks for selected time and/or filters",
   LOCKER_ACCESSIBLE: "Accessible",
   LOCKER_ACCESSIBLE_SHOW: "Show accessible lockers",
-  PARKING_TITLE: "Book Parking",
   PARKING_CONFIRM: "Confirm Reservation",
   PARKING_ADD: "Add Parking Space",
-  PARKING_EDIT: "Edit Parking Space",
-  PARKING_REMOVE: "Remove Parking Space",
   PARKING_FIND: "Find Parking Space",
-  PARKING_ADDED_COUNT: "{{ count }} bay(s) added",
   PARKING_PLATE_NUMBER: "Plate Number",
   PARKING_PLATE_NUMBER_PLACEHOLDER: "e.g. MYPL4T3",
   PARKING_PLATE_NUMBER_REQUIRED: "A plate number is required",
@@ -61024,18 +60960,11 @@ var BOOKINGS = {
   P2_ACCEPTED_FORMATS: "Accepted formats: PDF, DOC, DOCX, JPG, PNG (max 10MB)",
   PARKING_SHIFT_SELECTION: "Shift Selection",
   PARKING_SHIFT_TYPE: "Shift Type",
-  PARKING_SHIFT_DAY_WORKER: "Day Worker",
-  PARKING_SHIFT_DAY_12HR: "Day Shift 12hr",
-  PARKING_SHIFT_NIGHT_12HR: "Night Shift 12hr",
-  PARKING_SHIFT_HALF_DAY_AM: "Half-Day AM",
-  PARKING_SHIFT_HALF_DAY_PM: "Half-Day PM",
   PARKING_SHIFT_BUSINESS: "Business Hours",
   PARKING_SHIFT_MORNING: "Morning",
   PARKING_SHIFT_AFTERNOON: "Afternoon",
   PARKING_SHIFT_CUSTOM: "Custom Hours",
   PARKING_SHIFT_ALL_DAY: "All Day",
-  PARKING_START_TIME: "Start Time",
-  PARKING_END_TIME: "End Time",
   PARKING_LOCATION_PREFERENCE: "Location Preference",
   PARKING_PREFER_BOOKED_LOCATION_FIRST: "Prefer booked location first",
   PARKING_VEHICLE_DETAILS: "Vehicle Details",
@@ -61045,7 +60974,6 @@ var BOOKINGS = {
   PARKING_APPROVER_GROUP_PLACEHOLDER: "Select an approver group",
   PARKING_SPACE_RESTRICTIONS_TITLE: "Space Restrictions",
   PARKING_SPACE_RESTRICTIONS_DESC: "Select any restrictions that apply to your vehicle or parking needs.",
-  PARKING_RESTRICTION_NONE: "None",
   PARKING_SPACE_RESTRICTION_REQUIRED: "Select a parking restriction other than None.",
   PARKING_RESTRICTION_OVERSIZED: "Requires oversized space",
   PARKING_SUMMARY_TITLE: "Summary + Submission",
@@ -61057,18 +60985,13 @@ var BOOKINGS = {
   PARKING_CANCEL: "Cancel",
   VISITOR_INVITE_TITLE: "Invite Visitor",
   VISITOR_EDIT_TITLE: "Edit Visitor",
-  VISITOR_LIST: "Visitors",
   VISITOR_NAME: "Visitor Name",
   VISITOR_NAME_PLACEHOLDER: "Name of the visitor",
   VISITOR_EMAIL: "Visitor Email",
   VISITOR_EMAIL_PLACEHOLDER: "Email of the visitor",
   VISITOR_COMPANY: "Visitor Company",
-  VISITOR_COMPANY_PLACEHOLDER: "Company of the visitor",
-  VISITOR_PHONE: "Phone Number",
-  VISITOR_PHONE_PLACEHOLDER: "Phone number of the visitor",
   VISITOR_REASON: "Reason for visit",
   VISITOR_REASON_PLACEHOLDER: "e.g. Meeting Catchup",
-  VISITOR_PASS: "Pass Number",
   VISITOR_PASS_PLACEHOLDER: "e.g. V-1234",
   VISITOR_SEND: "Send Visitor invite",
   VISITOR_UPDATE: "Update Visitor",
@@ -61080,13 +61003,6 @@ var BOOKINGS = {
   VISITOR_SENDING: "Sending out visitor invitations...",
   VISITOR_BOOK_ANOTHER: "Book another visitor",
   VISITOR_BOOK_ANOTHER_MULTIPLE: "Book more visitors",
-  VISITOR_TIME_HEADER: "Visit Details",
-  VISITOR_DETAILS_HEADER: "Visitor Details",
-  VISITOR_SINGLE: "Single Visitor",
-  VISITOR_MULTIPLE: "Multiple Visitors",
-  VISITOR_RECENT: "Recently Booked Visitors",
-  SPACE_REMOVE: "Remove this space",
-  SPACE_ADD_TO: "Add this space",
   INDUCTED: "Inducted",
   PASS_NUMBER: "Pass Number",
   FACILITIES: "Features",
@@ -61094,7 +61010,6 @@ var BOOKINGS = {
   RECURRING_TOOLTIP: "This booking is part of a recurring series",
   ASSETS_ADD_HEADER: "Add Assets",
   ASSETS_ADD: "Add this Asset",
-  ASSETS_REMOVE: "Remove this Asset",
   ASSETS_SELECT: "Select an asset to view its details",
   ASSETS_SEARCH: "Search assets...",
   ASSETS_LOADING: "Finding assets...",
@@ -61104,40 +61019,42 @@ var BOOKINGS = {
   ASSETS_DELIVER_TIME: "Deliver After",
   ASSETS_AVAILABLE: "{{ count }} available",
   RULES_HIDDEN_1: "You are not allowed to book the selected {{ type }} for the selected time or duration",
-  RULES_HIDDEN_N: "You are not allowed to book some of the selected {{ type }}s for the selected time or duration",
+  RULES_HIDDEN: "You are not allowed to book some of the selected {{ type }}s for the selected time or duration",
   FIRST_INSTANCE_CLASH: "The first booking in the series clashes with an existing booking",
   RECURRING_CLASHES_NOT_ALLOWED: "Recurring bookings with {{ count }} clashing instance(s) are not allowed",
   RECURRING_CLASHES_TITLE: "Booking Clashes Detected",
   RECURRING_CLASHES_MSG: "Some instances in this recurring booking series clash with existing bookings.",
   RECURRING_CLASHES_CONFIRM: "These instances will be skipped. Do you want to continue with the booking?",
-  CONTINUE_BOOKING: "Continue Booking"
+  CONTINUE_BOOKING: "Continue Booking",
+  DESK_GROUP: "Group",
+  DESK_GROUP_MEMBERS_INFO: "Group members will be assigned desks nearby to your selected desk",
+  DESK_DETAILS_HEADER: "Booking Details",
+  DESK_SELECT_HEADER: "Select Desk",
+  DESK_AUTO_ASSIGNED_TITLE: "Auto-Assigned Desk",
+  DESK_REQUESTING: "Requesting desk...",
+  DESK_FOUND: "Desk Found!",
+  DESK_PERFECT_DESK_MESSAGE: "We've found the perfect desk for you",
+  DESK_NEIGHBOURHOOD: "Neighbourhood",
+  DESK_LOCATION_ON_MAP: "Location on Map",
+  DESK_NO_MAP_AVAILABLE: "No map available",
+  DESK_CONFIRM_BOOKING: "Confirm Booking",
+  PARKING_SHIFT_DAY_WORKER: "Day Worker",
+  PARKING_SHIFT_DAY_12HR: "Day Shift 12hr",
+  PARKING_SHIFT_NIGHT_12HR: "Night Shift 12hr",
+  PARKING_SHIFT_HALF_DAY_AM: "Half-Day AM",
+  PARKING_SHIFT_HALF_DAY_PM: "Half-Day PM",
+  VISITOR_LIST: "Visitors",
+  VISITOR_PHONE: "Phone Number",
+  VISITOR_PHONE_PLACEHOLDER: "Phone number of the visitor",
+  VISITOR_PASS: "Pass Number",
+  VISITOR_TIME_HEADER: "Visit Details",
+  VISITOR_DETAILS_HEADER: "Visitor Details",
+  VISITOR_SINGLE: "Single Visitor",
+  VISITOR_MULTIPLE: "Multiple Visitors",
+  VISITOR_RECENT: "Recently Booked Visitors"
 };
 var CALENDAR_EVENT = {
-  MEETING_FLOW_HEADER: "Book a meeting room",
-  MEETING_FLOW_STEP_SELECT_ROOM: "Select Room",
-  MEETING_FLOW_STEP_CONFIRM: "Confirm & Options",
-  MEETING_DETAILS_HEADER: "Meeting Details",
-  MEETING_TITLE_LABEL: "Meeting Title",
-  ROOM_SIZE_LABEL: "Room Size",
-  ROOM_SIZE_1_2: "1\u20132 people",
-  ROOM_SIZE_3_4: "3-4 people",
-  ROOM_SIZE_5_8: "5-8 people",
-  ROOM_SIZE_9_PLUS: "9+ people",
-  SEARCH_ROOMS_BUTTON: "Search available rooms",
-  SELECT_ROOM_HEADER: "Select Meeting Room",
-  REVIEW_CONFIRM_HEADER: "Review & Confirm Booking",
-  SELECTED_ROOM_HEADER: "Selected Room",
-  CAPACITY_PEOPLE: "Capacity: {{ capacity }} people",
-  FEATURES_MORE: "more",
-  OPTIONAL_EXTRAS_HEADER: "Optional Extras",
-  MEETING_SPACE_DEFAULT: "Meeting Space",
-  RECURRENCE_WEEKLY: "Weekly",
-  RECURRENCE_MONTHLY: "Monthly",
-  ERROR_TITLE_REQUIRED_SELECT: "Please enter a meeting title before selecting a room",
-  ERROR_TITLE_REQUIRED_SEARCH: "Please enter a meeting title before searching for rooms",
-  ERROR_ROOM_REQUIRED: "Please select a meeting room before continuing",
   TEAMS_MEETING: "Allow online attendees (Teams)",
-  CATERING: "Catering",
   CATERING_ORDER_AT_DATE: "Order for {{ date }} at {{ time }}",
   CATERING_ORDER_AT: "Order at {{ time }}",
   CATERING_ORDER_DETAILS: "{{ count }} item(s) for {{ cost }}",
@@ -61151,21 +61068,15 @@ var CALENDAR_EVENT = {
   CATERED: "Catered",
   ATTENDEES_COUNT: "{{ count }} attendees",
   ATTENDEES_COUNT_1: "{{ count }} attendee",
-  ATTENDEES_COUNT_N: "{{ count }} attendees",
   ATTENDEE_COUNT: "{{ count }} attendee(s)",
   ATTENDEES: "Attendees",
   NOTIFY_NEW_ATTENDEES_ONLY: "Only notify new attendees",
-  DETAILS: "Details",
-  NOTES_HEADER: "Notes",
-  ASSETS_HEADER: "Assets",
   ASSETS_REQUESTED_FOR: "Requested for {{ time }}",
   ACTION_EDIT: "Edit event",
   ACTION_DELETE: "Cancel event",
   ACTION_PRINT: "Print event",
   ACTION_DELETE_SERIES: "Cancel series",
   NO_LONG_EDIT_MSG: "Editing bookings longer than \n a day is not available",
-  SPACE_LOADING: "Loading space list for location...",
-  SPACE_STATUS_LOADING: "Updating available spaces...",
   SPACE_EXTERNALS_ERROR: "External attendees require a space to be booked",
   ASSETS_CLASH_ERROR: "Some assets are already booked for the selected time",
   ASSETS_ERROR: "Failed to book the selected assets.",
@@ -61175,7 +61086,6 @@ var CALENDAR_EVENT = {
   SPACES_UNAVAILABLE: "These spaces are not available at the selected time: {{ spaces }}",
   CAPACITY_WARNING: "The selected room has less capacity than the number of meeting attendees.",
   CAPACITY_ERROR: "Attendee count is greater than the capacity of the selected rooms",
-  CATERING_CHARGE_CODE: "Charge Code",
   CATERING_CHARGE_CODE_SEARCH: "Search for charge code...",
   CATERING_CHARGE_CODE_REQUIRED: "Catering charge code is required",
   CATERING_NOTES: "Extra catering details. e.g. Dietary requirements etc.",
@@ -61200,18 +61110,12 @@ var CALENDAR_EVENT = {
   SPACE_ADD: "Add Space",
   CAPACITY_COUNT: "Capacity {{ count }}",
   SPACE_SELECT_FIND: "Find Space",
-  SPACE_SELECT_COUNT: "{{ count }} room(s) added",
   FACILITIES: "Room Features",
-  SPACE_REMOVE: "Remove this room",
-  SPACE_ADD_TO: "Add this room",
   SPACE_LIST_INFO: "Select a room to view its details",
-  SPACE_LOCATION: "Location",
   SPACE_SELECT_EMPTY: "No available spaces for selected time and/or filters",
   SPACE_SELECT_LOADING: "Finding available spaces...",
   SPACE_BOOKING_RULES_HIDDEN_1: "{{ spaces }} is not available for the selected time or duration",
-  SPACE_BOOKING_RULES_HIDDEN_N: "These rooms are not available for the selected time or duration: {{ spaces }}",
-  CONFIRM_DETAILS: "Confirm Meeting",
-  FINISHED: "Return home",
+  SPACE_BOOKING_RULES_HIDDEN: "These rooms are not available for the selected time or duration: {{ spaces }}",
   LOADING: "Creating meeting requests...",
   GROUP_NO_DESCRIPTION: "No description",
   GROUP_UNCONFIRMED: "Room to be confirmed",
@@ -61230,7 +61134,6 @@ var CALENDAR_EVENT = {
   GROUP_GOING_ADD: "Indicate Going",
   GROUP_GOING_REMOVE: "Revoke Going",
   GROUP_PROMOTE: "Promote Event",
-  GROUP_EDIT: "Edit Event",
   GROUP_COPY_URL: "Copy URL",
   GROUP_DELETE: "Delete Event",
   GROUP_HOST: "Event by {{ name }}",
@@ -61246,7 +61149,32 @@ var CALENDAR_EVENT = {
   BREAKDOWN_DURATION: "Breakdown Duration",
   CHECKING_AVAILABILITY: "Checking space availability...",
   FIRST_INSTANCE_CLASH: "The first event in the series clashes with an existing booking",
-  RECURRING_CLASHES_NOT_ALLOWED: "Recurring events with {{ count }} clashing instance(s) are not allowed"
+  RECURRING_CLASHES_NOT_ALLOWED: "Recurring events with {{ count }} clashing instance(s) are not allowed",
+  CATERING_ORDER_TIME_ERROR: "Delivery time is outside of the event time.\nThis order will be ignored",
+  MEETING_FLOW_HEADER: "Book a meeting room",
+  MEETING_FLOW_STEP_SELECT_ROOM: "Select Room",
+  MEETING_FLOW_STEP_CONFIRM: "Confirm & Options",
+  MEETING_DETAILS_HEADER: "Meeting Details",
+  MEETING_TITLE_LABEL: "Meeting Title",
+  ROOM_SIZE_LABEL: "Room Size",
+  ROOM_SIZE_1_2: "1\u20132 people",
+  ROOM_SIZE_3_4: "3-4 people",
+  ROOM_SIZE_5_8: "5-8 people",
+  ROOM_SIZE_9_PLUS: "9+ people",
+  SEARCH_ROOMS_BUTTON: "Search available rooms",
+  SELECT_ROOM_HEADER: "Select Meeting Room",
+  REVIEW_CONFIRM_HEADER: "Review & Confirm Booking",
+  SELECTED_ROOM_HEADER: "Selected Room",
+  CAPACITY_PEOPLE: "Capacity: {{ capacity }} people",
+  FEATURES_MORE: "more",
+  OPTIONAL_EXTRAS_HEADER: "Optional Extras",
+  MEETING_SPACE_DEFAULT: "Meeting Space",
+  ERROR_TITLE_REQUIRED_SELECT: "Please enter a meeting title before selecting a room",
+  ERROR_TITLE_REQUIRED_SEARCH: "Please enter a meeting title before searching for rooms",
+  ERROR_ROOM_REQUIRED: "Please select a meeting room before continuing",
+  CATERING: "Catering",
+  NOTES_HEADER: "Notes",
+  CATERING_CHARGE_CODE: "Charge Code"
 };
 var CATERING = {
   MENU: "Catering Menu",
@@ -61273,10 +61201,7 @@ var CATERING = {
   MENU_ADD: "Add Item",
   MENU_EDIT: "Edit Item",
   MENU_EDIT_INFO: "To edit the menu de-select all levels from the top left",
-  MENU_NEW: "New Item",
-  MENU_REMOVE: "Remove Item",
   MENU_IMPORT: "Import Catering Menu",
-  MENU_LOADING: "Loading menu items...",
   MENU_IMPORT_LOADING: "Importing catering menu items...",
   MENU_IMPORT_ERROR: "Failed to import catering menu. Error: {{ error }}",
   MENU_IMPORT_SUCCESS: "Successfully imported catering menu. {{ count }} item(s) added.",
@@ -61300,7 +61225,6 @@ var CATERING = {
   TAG_DAIRY: "Contains Dairy (D)",
   TAG_NUTS: "Contains Nuts (N)",
   ORDER: "Catering Order",
-  ORDER_ITEM_COUNT: "{{ count }} item(s) added",
   ORDER_SELECTED_HEADER: "Ordered Items",
   ORDER_SELECTED_COUNT: "{{ count }} item(s)",
   ORDER_ITEMS_EMPTY: "No available items for the selected time or filters",
@@ -61312,9 +61236,6 @@ var CATERING = {
   ORDERS_EMPTY: "No catering orders for the selected date.",
   ORDERS_DELIVER_TIME: "Deliver at {{ time }}",
   ORDERS_LOCATION_EMPTY: "No Location",
-  ORDERS_CONFIRM: "Confirm Order",
-  ORDERS_SAVE: "Save Order",
-  ORDERS_SELECTED: "{{ count }} option(s) selected",
   ORDERS_DELIVER_EXACT: "Exact Time",
   ORDERS_DELIVER_EXACT_INFO: "Deliver at exactly specified time. \nNote that changes to the booking will not be \nreflected in the order if this is set.",
   ORDERS_DELIVER_DATE: "Delivery Date",
@@ -61325,7 +61246,6 @@ var CATERING = {
   ITEM_LIST_EMPTY: "No catering items in the menu",
   ITEM_PRICE: "Unit Price",
   ITEM_DISCOUNT: "Discount Cap",
-  ITEM_ADD: "Add Item",
   ITEM_NEW: "New Catering Item",
   ITEM_EDIT: "Edit Catering Item",
   ITEM_SAVING: "Saving catering item...",
@@ -61335,18 +61255,16 @@ var CATERING = {
   ITEM_REMOVE_LOADING: "Removing catering item...",
   ITEM_REMOVE_SUCCESS: "Successfully removed catering item from menu.",
   ITEM_REMOVE_ERROR: "Failed to remove catering item from menu. Error: {{ error }}",
-  ITEM_OPTION_AVAILABLE: "Options Available",
   ITEM_OPTION_ADD: "Add Option",
   ITEM_OPTION_NEW: "New Item Option",
   ITEM_OPTION_EDIT: "Edit Item Option",
   ITEM_OPTION_REMOVE: "Remove Item Option",
   ITEM_OPTION_SHOW: "Show item's options",
   ITEM_OPTION_HIDE: "Hide item's options",
-  ITEM_OPTION_SAVING: "Saving catering item option...",
-  ITEM_OPTION_REMOVE_MSG: 'Are you sure you wish to remove the catering item option "{{ name }}" from {{ item }}?',
   ITEM_OPTION_REMOVE_LOADING: "Removing catering item option...",
   ITEM_OPTION_REMOVE_SUCCESS: "Successfully removed catering item option from {{ item }}.",
-  ITEM_OPTION_REMOVE_ERROR: "Failed to remove catering item option from {{ item }}. Error: {{ error }}"
+  ITEM_OPTION_REMOVE_ERROR: "Failed to remove catering item option from {{ item }}. Error: {{ error }}",
+  ITEM_SAVE_ERROR: "Failed to save catering item."
 };
 var APP = {
   WORKPLACE: {
@@ -61361,16 +61279,11 @@ var APP = {
     MENU_CONTROL: "Room Control",
     MENU_EXPLORE: "Spaces",
     MENU_EVENTS: "Events",
-    MENU_AI: "Ben AI",
     MENU_DEALS: "Deals & Offers",
-    MENU_TEAM_SCHEDULE: "Team Schedule",
     GLOBAL_SEARCH: "Search for people or spaces...",
-    GLOBAL_SEARCH_EMPTY: "No matches found.",
     GLOBAL_SEARCH_START: "Start typing to search...",
     WELCOME_MESSAGE: "Hello {{ name }},",
     UPCOMING: "Your Bookings",
-    UPCOMING_VIEW: "View All",
-    UPCOMING_VIEW_BOOKINGS: "View All Bookings",
     UPCOMING_MORE: "There are more bookings. Click here to view them.",
     UPCOMING_EMPTY: "You have no upcoming bookings",
     QUICK_LINKS_HEADER: "Make a reservation",
@@ -61379,53 +61292,26 @@ var APP = {
     QUICK_LINK_DESKS: "Book a desk",
     QUICK_LINK_PARKING: "Book parking",
     QUICK_LINK_LOCKERS: "Book a locker",
-    FAVOURITES_COUNT: "{{ count }} favourite(s)",
+    FAVOURITES_COUNT: "{{ count }} favourites",
     FAVOURITES_COUNT_1: "{{ count }} favourite",
-    FAVOURITES_COUNT_N: "{{ count }} favourites",
     FAVOURITES_REMOVE: "Remove favourite",
     FAVOURITES_EMPTY: "No favourites",
     FAVOURITES_SHOW: "Show only favourites",
     CAPACITY: "Capacity {{ count }}",
     COLLEAGUES: "Colleagues",
     COLLEAGUES_COUNT_1: "{{ count }} person",
-    COLLEAGUES_COUNT_N: "{{ count }} people",
     COLLEAGUES_COUNT: "{{ count }} people",
     COLLEAGUES_EMPTY: "No colleagues",
-    COLLEAGUES_ADD: "Add Colleagues",
-    COLLEAGUES_ADD_DESCRIPTION: "Search and select users to add them to your colleagues",
-    COLLEAGUES_ADDING: "Saving new colleagues...",
-    COLLEAGUES_ADD_CONFIRM: "Add {{ count }} colleagues",
-    COLLEAGUES_ADD_CONFIRM_1: "Add {{ count }} colleague",
-    COLLEAGUES_AVAILABLE: "Available Users",
-    COLLEAGUES_EXISTS: "User already added",
-    COLLEAGUES_SELECTED: "{{ count }} colleagues",
-    COLLEAGUES_SELECTED_1: "{{ count }} colleague",
-    COLLEAGUES_BOOK_MEETING: "Book Meeting",
-    COLLEAGUES_REMOVE: "Remove Colleague",
-    COLLEAGUES_REMOVE_TITLE: "Remove Colleague",
-    COLLEAGUES_REMOVE_MSG: "Are you sure you want to remove {{ name }} from your colleagues?",
-    COLLEAGUES_REMOVE_LOADING: "Removing colleague...",
-    COLLEAGUES_REMOVE_SUCCESS: "Colleague removed successfully",
-    COLLEAGUES_BOOK_ROOM: "Book Room together",
-    COLLEAGUES_BOOK_DESK: "Book Desk together",
-    COLLEAGUES_ADD_FAVORITE: "Add to Favourites",
-    COLLEAGUES_REMOVE_FAVORITE: "Remove from Favourites",
-    COLLEAGUES_ADD_TEAM: "Add to My Team",
-    COLLEAGUES_REMOVE_TEAM: "Remove from My Team",
     COLLEAGUE_NEW_MEETING: "Create Meeting",
     COLLEAGUE_REMOVE: "Remove Colleague",
     COLLEAGUE_ADD: "Add Colleague",
     COLLEAGUE_SEARCH: "Search for colleagues...",
-    COLLEAGUE_SEARCH_EMPTY: "Start typing to search for users.",
-    COLLEAGUE_SEARCH_NO_MATCH: 'No matching users found for "{{ text }}" ',
     COLLEAGUE_SEARCH_LOADING: "Searching for users...",
     COLLEAGUE_ADDED: 'Successfully added "{{ name }}" to contacts',
     COLLEAGUE_REMOVED: 'Successfully removed "{{ name }}" from contacts',
-    VIRTUAL_CONCIERGE: "Virtual Concierge",
     AVAILABLE_LIST_HEADER: "Available Now",
     AVAILABLE_LIST_SPACES: "Spaces",
     AVAILABLE_LIST_SPACES_EMPTY: "No spaces available to book at the current time",
-    AVAILABLE_LIST_ROOMS: "Rooms",
     AVAILABLE_LIST_ROOMS_EMPTY: "No rooms available to book at the current time",
     SCHEDULE_EMPTY: "No bookings for the selected date(s)",
     SCHEDULE_REMOVE_TITLE: "Cancel booking",
@@ -61443,8 +61329,6 @@ var APP = {
     SCHEDULE_END_LOADING: "Ending booking...",
     SCHEDULE_END_SUCCESS: "Successfully ended booking.",
     SCHEDULE_END_ERROR: "Failed to end booking. Error: {{ error }}",
-    SCHEDULE_END_ALREADY_ENDED_ERROR: "Booking has already ended.",
-    SCHEDULE_FILTERS: "Filters",
     SCHEDULE_FILTERS_DISPLAY_HEADER: "Category Filters",
     SCHEDULE_FILTER_ROOMS: "Rooms and meeting invites",
     SCHEDULE_FILTER_DESKS: "Desk bookings",
@@ -61473,17 +61357,11 @@ var APP = {
     PARKING_SUCCESS_HEADER: "Parking space reserved",
     PARKING_SUCCESS_MSG: 'Your parking space reservation for "{{ name }}" has been successfully booked for the {{ date }} at {{ time }}',
     PARKING_CONFIRM_TITLE: "Confirm Parking Reservation",
-    PARKING_REQUEST_NEW_HEADER: "New Parking Request",
     PARKING_REQUEST_EDIT_HEADER: "Edit Parking Request",
     PARKING_REQUEST_CONFIRM_TITLE: "Confirm Parking Request",
     PARKING_REQUEST_SUCCESS_HEADER: "Parking request submitted",
     PARKING_REQUEST_SUCCESS_MSG: "Your parking request has been submitted for {{ date }} at {{ time }}. You will be notified by email if your request is successful.",
-    DESK_ASSIGNED: 'You are already assigned a desk "{{ name }}"',
     DESK_CONFIRM_TITLE: "Confirm Desk Booking",
-    DESK_WEEK_TITLE: "My Desk Bookings",
-    DESK_WEEK_NEXT_MONDAY: "Next Monday",
-    DESK_WEEK_PREVIOUS: "Previous week",
-    DESK_WEEK_NEXT: "Next week",
     VIEW_SCHEDULE: "View your Bookings",
     BOOKING_FINISHED: "Return home",
     EVENTS_EMPTY: "No events for the selected time period",
@@ -61495,15 +61373,47 @@ var APP = {
     CHAT_WAITING: "Waiting for a reply...",
     CHAT_MESSAGE_PLACEHOLDER: "New message...",
     DEAL_COUNT_1: "{{ count }} Offer",
-    DEAL_COUNT_N: "{{ count }} Offers",
+    DEAL_COUNT: "{{ count }} Offers",
     SORT_BY_DATE_DESC: "Sort by Date (Newest First)",
     SORT_BY_DATE_ASC: "Sort by Date (Oldest First)",
     SORT_BY_RELEVANCE: "Sort by Relevance",
-    DEALS_EMPTY_HEADER: "No Deals or Offers Available",
     DEALS_EMPTY_BODY: "We're working on bringing you exciting deals and offers. Please check back later or explore other sections.",
     RESOURCE_CHECKED_IN_FAILED: "No booking found",
     RESOURCE_CHECKED_IN: "Successfully checked in resource",
     RESOURCE_CHECKED_IN_MESSAGE: "Resource checked in successfully",
+    TRY_AGAIN: "Try again",
+    DEALS_EMPTY_TITLE: "No Deals or Offers Available",
+    MENU_TEAM_SCHEDULE: "Team Schedule",
+    UPCOMING_VIEW: "View All",
+    UPCOMING_VIEW_BOOKINGS: "View All Bookings",
+    COLLEAGUES_ADD: "Add Colleagues",
+    COLLEAGUES_ADD_DESCRIPTION: "Search and select users to add them to your colleagues",
+    COLLEAGUES_ADDING: "Saving new colleagues...",
+    COLLEAGUES_ADD_CONFIRM: "Add {{ count }} colleagues",
+    COLLEAGUES_AVAILABLE: "Available Users",
+    COLLEAGUES_EXISTS: "User already added",
+    COLLEAGUES_SELECTED: "{{ count }} colleagues",
+    COLLEAGUES_BOOK_MEETING: "Book Meeting",
+    COLLEAGUES_REMOVE: "Remove Colleague",
+    COLLEAGUES_REMOVE_TITLE: "Remove Colleague",
+    COLLEAGUES_REMOVE_MSG: "Are you sure you want to remove {{ name }} from your colleagues?",
+    COLLEAGUES_REMOVE_LOADING: "Removing colleague...",
+    COLLEAGUES_REMOVE_SUCCESS: "Colleague removed successfully",
+    COLLEAGUES_BOOK_ROOM: "Book Room together",
+    COLLEAGUES_BOOK_DESK: "Book Desk together",
+    COLLEAGUES_ADD_FAVORITE: "Add to Favourites",
+    COLLEAGUES_REMOVE_FAVORITE: "Remove from Favourites",
+    COLLEAGUES_ADD_TEAM: "Add to My Team",
+    COLLEAGUES_REMOVE_TEAM: "Remove from My Team",
+    COLLEAGUE_SEARCH_EMPTY: "Start typing to search for users.",
+    COLLEAGUE_SEARCH_NO_MATCH: 'No matching users found for "{{ text }}" ',
+    AVAILABLE_LIST_ROOMS: "Rooms",
+    SCHEDULE_END_ALREADY_ENDED_ERROR: "Booking has already ended.",
+    SCHEDULE_FILTERS: "Filters",
+    DESK_WEEK_TITLE: "My Desk Bookings",
+    DESK_WEEK_NEXT_MONDAY: "Next Monday",
+    DESK_WEEK_PREVIOUS: "Previous week",
+    DESK_WEEK_NEXT: "Next week",
     TEAM_SCHEDULE_BOOK_HINT: "Press on the card to book desk next to colleague",
     TEAM_SCHEDULE_EMPLOYEE: "Employee",
     TEAM_SCHEDULE_NO_FILTER_RESULTS: "No results found",
@@ -61519,14 +61429,10 @@ var APP = {
     MENU_LOCKER_BOOKINGS: "Lockers",
     MENU_ASSET_BOOKINGS: "Assets",
     MENU_CATERING_BOOKINGS: "Catering",
-    MENU_VISITORS: "Visitor Management",
     MENU_VISITOR_BOOKINGS: "Visitors",
     MENU_VISITOR_RULES: "External",
     MENU_MANAGEMENT: "Facilities",
     MENU_MANAGE_ZONES: "Zone Management",
-    MENU_MANAGE_REGIONS: "Region Management",
-    MENU_MANAGE_BUILDINGS: "Building Management",
-    MENU_MANAGE_LEVELS: "Level Management",
     MENU_MANAGE_ROOMS: "Room Management",
     MENU_MANAGE_DESKS: "Desk Management",
     MENU_MANAGE_PARKING: "Parking Management",
@@ -61564,7 +61470,6 @@ var APP = {
     BOOKING_REMOVE_LOADING: "Cancelling booking...",
     ROOMS_PENDING_HEADER: "Pending Approval",
     ROOMS_PENDING_EMPTY: "No pending requests",
-    ROOMS_PENDING_LOADING: "Processing...",
     ROOMS_PENDING_SHOW: "Show Pending Approvals",
     ROOMS_PENDING_HIDE: "Hide Pending Approvals",
     ROOMS_SEARCH: "Search day's events...",
@@ -61587,7 +61492,7 @@ var APP = {
     DESKS_SELECT_LEVEL: "Select a level before modifying desks.",
     DESKS_ASSIGN_CONFLICT_ERROR: "This desk is currently booked. Please cancel the existing booking before assigning it.",
     DESKS_ASSIGN_LIMIT_ERROR_1: "Users can only have 1 assigned desk at a time.",
-    DESKS_ASSIGN_LIMIT_ERROR_N: "Users can only have {{ count }} assigned desks at a time.",
+    DESKS_ASSIGN_LIMIT_ERROR: "Users can only have {{ count }} assigned desks at a time.",
     DESKS_MAP_ID_PLACEHOLDER: "e.g. table-01.123",
     DESKS_VIEW_QR_CODE_LIST: "View Desk QR Codes",
     DESKS_LIST_UPLOAD: "Upload Desks CSV",
@@ -61657,21 +61562,18 @@ var APP = {
     TAB_REGIONS: "Regions",
     TAB_BUILDINGS: "Buildings",
     TAB_LEVELS: "Levels",
-    REGIONS_HEADER: "Region Management",
     REGIONS_ADD: "Add Region",
     REGIONS_NEW: "New Region",
     REGIONS_EDIT: "Edit Region",
     REGIONS_REMOVE: "Delete Region",
     REGIONS_NAME: "Region Name",
     REGIONS_BUILDINGS: "Buildings",
-    REGIONS_SAVING: "Saving region...",
     REGIONS_EMPTY: "No Regions",
     REGIONS_REMOVE_TITLE: "Remove Region",
     REGIONS_REMOVE_MSG: 'Are you sure you want to remove the region "{{ name }}"?',
     REGIONS_REMOVE_LOADING: "Removing region...",
     REGIONS_REMOVE_SUCCESS: "Successfully removed region",
     REGIONS_REMOVE_ERROR: "Failed to remove region. Error: {{ error }}",
-    BUILDINGS_HEADER: "Building Management",
     BUILDINGS_ADD: "Add Building",
     BUILDINGS_NEW: "New Building",
     BUILDINGS_EDIT: "Edit Building",
@@ -61691,21 +61593,17 @@ var APP = {
     BUILDINGS_REMOVE_LOADING: "Removing building...",
     BUILDINGS_REMOVE_SUCCESS: "Successfully removed building",
     BUILDINGS_REMOVE_ERROR: "Failed to remove building. Error: {{ error }}",
-    LEVELS_HEADER: "Level Management",
     LEVELS_ADD: "Add Level",
     LEVELS_NEW: "New Level",
     LEVELS_EDIT: "Edit Level",
     LEVELS_REMOVE: "Delete Level",
     LEVELS_NAME: "Level Name",
     LEVELS_COPIED_ID: "Level ID copied to clipboard.",
-    LEVELS_ROOMS: "Rooms",
     LEVELS_MAP_URL: "Map URL",
     LEVELS_BUILDING_REQUIRED: "A building zone is required",
     LEVELS_HAS_PARKING: "Has parking spaces",
     LEVELS_MAP_URL_PLACEHOLDER: "URL of the Map SVG file",
     LEVELS_SAVING: "Saving level...",
-    LEVELS_SAVE_SUCCESS: "Successfully saved level.",
-    LEVELS_SAVE_ERROR: "Failed to save level. Error: {{ error }}",
     LEVELS_EMPTY: "No Levels",
     LEVELS_REMOVE_TITLE: "Remove Level",
     LEVELS_REMOVE_MSG: 'Are you sure you want to remove the level "{{ name }}"?',
@@ -61716,11 +61614,9 @@ var APP = {
     ROOMS_ADD: "Add Room",
     ROOMS_NEW: "New Room",
     ROOMS_EDIT: "Edit Room",
-    ROOMS_REMOVE: "Delete Room",
     ROOMS_NAME: "Room Name",
     ROOMS_TYPE: "Room Type",
     ROOMS_ALERT: "Alert",
-    ROOMS_CODE: "Code",
     ROOMS_SETUP_INFO: "Time before a meeting needed for setup and preparation for the upcoming meeting",
     ROOMS_BREAKDOWN_INFO: "Time after a meeting needed for cleaning and preparation for next meeting",
     ROOMS_DEFAULT_SETUP: "Default Setup Duration",
@@ -61750,8 +61646,6 @@ var APP = {
     ROOMS_BOOKING_RULES: "Room Restrictions",
     ROOMS_COPIED_ID: "Room ID copied to clipboard.",
     ROOMS_LEVEL_REQUIRED: "A level zone is required",
-    ROOMS_HAS_PARKING: "Has parking spaces",
-    ROOMS_MAP_URL_PLACEHOLDER: "URL of the Map SVG file",
     ROOMS_ALERT_HEADER: "Set alert for {{ name }}",
     ROOMS_ALERT_TYPE_NONE: "None",
     ROOMS_ALERT_TYPE_INFO: "Info",
@@ -61762,14 +61656,6 @@ var APP = {
     ROOMS_ALERT_SAVE_ERROR: "Failed to save room alert details. Error: {{ error }}",
     ROOMS_ALERT_SAVE_SUCCESS: "Successfully saved room alert details",
     ROOMS_SAVING: "Saving room...",
-    ROOMS_SAVE_SUCCESS: "Successfully saved room.",
-    ROOMS_SAVE_ERROR: "Failed to save room. Error: {{ error }}",
-    ROOMS_LIST_EMPTY: "No rooms",
-    ROOMS_REMOVE_TITLE: "Remove room",
-    ROOMS_REMOVE_MSG: 'Are you sure you want to remove the room "{{ name }}"?',
-    ROOMS_REMOVE_LOADING: "Removing room...",
-    ROOMS_REMOVE_SUCCESS: "Successfully removed room",
-    ROOMS_REMOVE_ERROR: "Failed to remove room. Error: {{ error }}",
     ROOMS_APPROVE_SERIES: "Approve Series",
     ROOMS_REJECT_SERIES: "Reject Series",
     DOWNLOAD_USER_LIST: "Download User list for selected levels",
@@ -61815,7 +61701,6 @@ var APP = {
     VISITORS_ACTION_PARKING: "Reserve Parking Space",
     VISITORS_ACTION_REMOTE: "Set visitor as Remote",
     VISITORS_ACTION_ONSITE: "Set visitor as Onsite",
-    VISITORS_ACTION_PRINT_QR: "Print QR Code",
     VISITORS_ACTION_PRINT_PASS: "Print Visitor Label",
     VISITORS_ACTION_EMAIL_HOST: "Email Host",
     VISITORS_ACTION_EMAIL_GUEST: "Email Guest",
@@ -61870,7 +61755,6 @@ var APP = {
     POI_REMOVE: "Delete Point of Interest",
     POI_PREVIEW: "Preview Point of Interest",
     POI_SAVING: "Saving point of interest...",
-    POI_LIST_EMPTY: "No points of interest found.",
     POI_SEARCHABLE: "Searchable",
     POI_PRIVATE_QR: "Private QR Code",
     POI_PUBLIC_QR: "Public QR Code",
@@ -61884,17 +61768,11 @@ var APP = {
     POI_DETAILS: "Extra Details",
     URLS_HEADER: "Short URL Management",
     URLS_ADD: "Add Short URL",
-    URLS_NEW: "New Short URL",
     URLS_EDIT: "Edit Short URL",
     URLS_REMOVE: "Delete Short URL",
     URLS_URI: "URI",
     URLS_USER_NAME: "User Name",
-    URLS_ENABLED: "Enabled",
-    URLS_COPIED_ID: "URL copied to clipboard.",
     URLS_SAVING: "Saving Short URL...",
-    URLS_SAVE_SUCCESS: "Successfully saved Short URL.",
-    URLS_SAVE_ERROR: "Failed to save Short URL. Error: {{ error }}",
-    URLS_EMPTY: "No Short URLs",
     URLS_PRINT_QR: "Print QR Code",
     URLS_REMOVE_TITLE: "Remove Short URL",
     URLS_REMOVE_MSG: 'Are you sure you want to remove the Short URL "{{ name }}"?',
@@ -61908,7 +61786,6 @@ var APP = {
     EMAIL_TEMPLATES_REMOVE: "Remove Template",
     EMAIL_TEMPLATES_SAVE: "Save Template",
     EMAIL_TEMPLATES_SEND_TEST: "Send test Email",
-    EMAIL_TEMPLATES_SENT_TEST: "Successfully sent test email.",
     EMAIL_TEMPLATES_CONFIG_ERROR: "Mailing system is not configured for this application",
     EMAIL_TEMPLATES_SAVE_SUCCESS: "Successfully saved email template.",
     EMAIL_TEMPLATES_SAVE_ERROR: "Failed to save email template. Error: {{ error }}",
@@ -61932,8 +61809,7 @@ var APP = {
     SURVEY_TEST: "Test Survey",
     SURVEY_REMOVE: "Delete Survey",
     SURVEY_RESPONSES: "Survey Responses",
-    SURVEY_BUILDING_COUNT: "{{ count }} building(s)",
-    SURVEY_BUILDING_COUNT_N: "{{ count }} buildings",
+    SURVEY_BUILDING_COUNT: "{{ count }} buildings",
     SURVEY_BUILDING_COUNT_1: "{{ count }} building",
     SURVEY_LIST_HEADER: "Survey Listing",
     SURVEY_BLD_LIVE: "Live",
@@ -61946,26 +61822,15 @@ var APP = {
     SURVEY_ANSWERS_PAGE: "Page {{ id }}",
     SURVEY_ANSWERS_PAGE_WITH_TITLE: "Page {{ id }} - {{ title }}",
     SURVEY_ANSWERS_EMPTY: "No responses for this survey",
-    SURVEY_ANSWERS_ID_INVALID: "Invalid survey requested",
     SURVEY_ANSWERS_LOADING: "Loading survey questions and responses...",
-    SURVEY_QUESTION_ADD: "Add Question",
     SURVEY_QUESTION_NEW: "New Question",
     SURVEY_QUESTION_EDIT: "Edit Question",
-    SURVEY_QUESTION_SEARCH: "Find question...",
     SURVEY_QUESTION_TYPES_ALL: "All Types",
-    SURVEY_QUESTION_EMPTY: "No questions found.",
     SURVEY_QUESTION_HEADER: "Question Bank",
-    SURVEY_QUESTION_REMOVE: "Remove Question",
     SURVEY_QUESTION_ENTER: "Enter your question here",
     SURVEY_QUESTION_ENTER_ERROR: "Please enter your question above",
     SURVEY_QUESTION_HINT_MULTILINE: "*Type your answer above. Multiple lines supported",
-    SURVEY_QUESTION_HINT_RATING: "Move the slider to adjust the rating options",
     SURVEY_QUESTION_HINT_LINE: "*Type your answer above.",
-    SURVEY_QUESTION_PAGE_NEW: "New Page",
-    SURVEY_QUESTION_PAGE_TITLE: "Page Title",
-    SURVEY_QUESTION_PAGE_REMOVE: "Remove Page",
-    SURVEY_QUESTION_EMPTY_ACTION: "Click + above to add some questions",
-    SURVEY_DND_INFO: "Drag and drop questions from the question bank here",
     SURVEY_COMPLETE: "Thank you for completing the survey.",
     SURVEY_BUILDER: "Builder",
     PARKING_HEADER: "Parking Management",
@@ -61991,9 +61856,9 @@ var APP = {
     USER_ASSIGNED: "Assigned User",
     USER_CLEAR: "Clear Assigned User",
     ASSIGNED_FUTURE_DESK_BOOKINGS_1: "This user already has {{ count }} upcoming desk booking. Assigning this desk may cause a conflict.",
-    ASSIGNED_FUTURE_DESK_BOOKINGS_N: "This user already has {{ count }} upcoming desk bookings. Assigning this desk may cause a conflict.",
+    ASSIGNED_FUTURE_DESK_BOOKINGS: "This user already has {{ count }} upcoming desk bookings. Assigning this desk may cause a conflict.",
     ASSIGNED_FUTURE_PARKING_BOOKINGS_1: "This user already has {{ count }} upcoming parking booking. Assigning this space may cause a conflict.",
-    ASSIGNED_FUTURE_PARKING_BOOKINGS_N: "This user already has {{ count }} upcoming parking bookings. Assigning this space may cause a conflict.",
+    ASSIGNED_FUTURE_PARKING_BOOKINGS: "This user already has {{ count }} upcoming parking bookings. Assigning this space may cause a conflict.",
     PARKING_USER_DENY: "Deny",
     PARKING_USER_DENY_PLACEHOLER: "Deny User Parking Access",
     PARKING_USER_ADD: "New User",
@@ -62021,14 +61886,10 @@ var APP = {
     PARKING_TAB_SPACES: "Spaces",
     PARKING_TAB_FLEET: "Vehicles",
     PARKING_TAB_USERS: "Users",
-    PARKING_TAB_MAP: "Map",
-    PARKING_TAB_REQUESTS: "Requests",
-    PARKING_TAB_BOOKINGS: "Assigned",
     PARKING_BOOKING_TYPE_REQUEST: "All Requests",
     PARKING_BOOKING_TYPE_PENDING_MANUAL: "Pending Approval",
     PARKING_BOOKING_TYPE_WAITLISTED: "Waitlisted",
     PARKING_BOOKING_TYPE_BOOKED: "Allocated",
-    PARKING_FILTER_MANUAL: "Pending",
     PARKING_BAY: "Parking Bay",
     PARKING_BAY_NUMBER: "Bay Number",
     PARKING_USER_GROUPS: "User Groups",
@@ -62053,7 +61914,7 @@ var APP = {
     PARKING_ASSIGN_SPACE_EMPTY: "No available spaces for this time",
     PARKING_ASSIGN_SPACE_CLASH: "This space clashes with another booking in the recurring series",
     PARKING_ASSIGN_LIMIT_ERROR_1: "Users can only have 1 assigned parking space at a time.",
-    PARKING_ASSIGN_LIMIT_ERROR_N: "Users can only have {{ count }} assigned parking spaces at a time.",
+    PARKING_ASSIGN_LIMIT_ERROR: "Users can only have {{ count }} assigned parking spaces at a time.",
     PARKING_DECLINE: "Reject Reservation",
     PARKING_DECLINE_INSTANCE: "Reject Instance",
     PARKING_DECLINE_SERIES: "Reject Series",
@@ -62119,13 +61980,11 @@ var APP = {
     DEALS_REMOVE_BODY: "Are you sure you want to remove this deal/offer?",
     DEALS_SAVE_ERROR: "Failed to save deal/offer details. Error: {{ error }}",
     DEALS_SAVED: "Successfully saved deal/offer details.",
-    DEALS_EMPTY_HEADER: "No Deals or Offers Available",
     DEALS_EMPTY_BODY: "Add a new deal or offer to get started.",
     LOCKERS_HEADER: "Locker Management",
     LOCKERS_BOOK_HEADER: "Locker Bookings",
     LOCKERS_BOOK_NEW: "New Locker Booking",
     LOCKERS_BOOK_EDIT: "Edit Locker Booking",
-    LOCKERS_BOOK_REMOVE: "Cancel Locker Booking",
     LOCKERS_ADD: "Add Locker",
     LOCKERS_NEW: "New Locker",
     LOCKERS_EDIT: "Edit Locker",
@@ -62136,7 +61995,6 @@ var APP = {
     LOCKERS_SAVING: "Saving locker details...",
     LOCKERS_BOOKING_RULES: "Locker Restrictions",
     LOCKERS_REMOVE_TITLE: "Remove Locker",
-    LOCKERS_REMOVE_MSG: 'Are you sure you wish to remove the locker "{{ name }}"?',
     LOCKERS_REMOVE_LOADING: "Removing locker...",
     LOCKERS_REMOVE_ERROR: "Failed to remove locker. Error: {{ error }}",
     LOCKERS_REMOVE_SUCCESS: "Successfully removed locker.",
@@ -62155,7 +62013,6 @@ var APP = {
     LOCKERS_APPROVE: "Approve Locker",
     LOCKERS_DECLINE: "Reject Locker",
     LOCKERS_BANK_REMOVE_TITLE: "Remove Locker Bank",
-    LOCKERS_BANK_REMOVE_MSG: 'Are you sure you wish to remove the locker bank "{{ name }}"?',
     LOCKERS_BANK_REMOVE_LOADING: "Removing locker bank...",
     LOCKERS_BANK_REMOVE_ERROR: "Failed to remove locker bank. Error: {{ error }}",
     LOCKERS_BANK_REMOVE_SUCCESS: "Successfully removed locker bank.",
@@ -62214,7 +62071,6 @@ var APP = {
     SIGNAGE_PLAYLISTS_SEARCH_EMPTY: "No matching playlists found.",
     SIGNAGE_PLAYLISTS_MEDIA_EMPTY: "No media in the selected playlist.",
     SIGNAGE_PLAYLISTS_REMOVE_MSG: 'Are you sure you wish to remove the playlist "{{ name }}"?',
-    SIGNAGE_PLAYLISTS_REMOVE_LOADING: "Removing playlist...",
     SIGNAGE_PLAYLISTS_REMOVE_SUCCESS: "Successfully removed playlist",
     SIGNAGE_PLAYLISTS_COPY_ID: "Copy Playlist's ID",
     SIGNAGE_PLAYLISTS_APPROVE: "Review & Approve Playlist",
@@ -62286,7 +62142,6 @@ var APP = {
     SIGNAGE_ZONES_EMPTY: "No zones",
     SIGNAGE_ZONES_SEARCH_EMPTY: "No matching zones found.",
     SIGNAGE_ZONES_PLAYLIST_ADDED: "Successfully added playlist to the zone.",
-    SIGNAGE_ZONES_PLAYLIST_REMOVED: "Successfully removed playlist to the zone.",
     SIGNAGE_ZONES_PLAYLIST_REORDER: "Successfully re-ordered playlists for the zone.",
     SIGNAGE_TRIGGERS_PLAYLIST_ADDED: "Successfully added playlist to the trigger.",
     SIGNAGE_TRIGGERS_PLAYLIST_REMOVED: "Successfully removed playlist to the trigger.",
@@ -62340,7 +62195,6 @@ var APP = {
     ASSETS_CATEGORY_PARENT_EMPTY: "No Parent",
     ASSETS_CATEGORY_SAVING: "Saving category...",
     ASSETS_CATEGORY_SAVE_ERROR: "Failed to save category. Error: {{ error }}",
-    ASSETS_ADD: "Add Asset",
     ASSETS_NEW: "New Asset",
     ASSETS_EDIT: "Edit Asset",
     ASSETS_BULK_ADD: "Bulk Add Asset",
@@ -62349,14 +62203,10 @@ var APP = {
     ASSETS_PRODUCT: "Product",
     ASSETS_PRODUCTS: "Products",
     ASSETS_PO: "Purchase Orders",
-    ASSETS_SAVING: "Saving asset...",
-    ASSETS_SAVE_ERROR: "Failed to save asset. Error: {{ error }}",
-    ASSETS_SAVE_SUCCES: "Successfully saved asset.",
     ASSETS_BULK_SAVING: "Saving assets...",
     ASSETS_BULK_ASSET_LOADING: "Loading asset details...",
     ASSETS_BULK_PRODUCT_LOADING: "Loading product details...",
     ASSETS_BULK_COUNT_ERROR: "Please enter a valid number of assets to add.",
-    ASSETS_BULK_SAVE_ERROR: "Failed to save assets. Error: {{ error }}",
     ASSETS_BULK_SAVE_SUCCESS: "Successfully saved {{ count }} assets.",
     ASSETS_SERIAL_REQUIRED: "A serial number is required",
     ASSETS_NAME_REQUIRED: "A display name is required",
@@ -62447,7 +62297,6 @@ var APP = {
     REPORTS_TOTAL_VISITORS: "Total Visitors",
     REPORTS_AVERAGE_LENGTH: "Average Length",
     REPORTS_NO_SHOWS: "No shows",
-    REPORTS_NO_SHOWS_COUNT: "No show count",
     REPORTS_NO_SHOWS_PERCENT: "% of No shows",
     REPORTS_TOTAL_ATTENDEES: "Total Room Attendees",
     REPORTS_ACTIVE_BOOKINGS_HEADER: "Active Bookings",
@@ -62471,7 +62320,6 @@ var APP = {
     REPORTS_ROOMS_UTIL_HEADER: "Rooms Utilisation",
     REPORTS_ROOMS_HOST_HEADER: "Meeting Organisers",
     REPORTS_LEVEL_UTIL_HEADER: "Level Utilisation",
-    REPORTS_PARKING_UTIL_HEADER: "Parking Utilisation",
     REPORTS_LOCKERS_UTIL_HEADER: "Lockers Utilisation",
     REPORTS_HOST_COUNT_HEADER: "Reservee Count",
     REPORTS_BOOKING_COUNT_HEADER: "Booking Count",
@@ -62485,7 +62333,6 @@ var APP = {
     REPORTS_ASSETS_HEADER: "Assets Report",
     REPORTS_VISITORS_HEADER: "Visitors Report",
     REPORTS_SITE_ATTENDANCE_HEADER: "Site Attendance Report",
-    REPORTS_USERS_HOSTS_HEADER: "Users and Hosts",
     REPORTS_HOSTS_HEADER: "Hosts",
     REPORTS_LOAD_ERROR: "No bookings found for the selected zones and date range",
     REPORTS_CATERING_ITEMS_HEADER: "Ordered Items",
@@ -62494,8 +62341,6 @@ var APP = {
     REPORTS_CATERING_ORDERS_HEADER: "Orders",
     REPORTS_CATERING_ORDERS_AVERAGE: "Order Average",
     REPORTS_CATERING_ORDERS_EMPTY: "No orders for the selected date range",
-    REPORTS_CATERING_OPTIONS: "Options",
-    REPORTS_CATERING_OPTIONS_COUNT: "{{ count }} option(s)",
     REPORTS_ASSETS_AVAILABLE: "Assets Available",
     REPORTS_ASSETS_REQUESTEES: "Asset Request Users",
     REPORTS_ASSETS_BOOKED: "Assets Booked",
@@ -62510,7 +62355,6 @@ var APP = {
     REPORTS_VISITORS_DAILY: "Daily Visitors",
     APPROVER: "Approver",
     VALID_FROM: "Valid From",
-    VALID_UNTIL: "Valid Until",
     PLAY_FROM: "Play From",
     PLAY_UNTIL: "Play Until",
     PLAY_AT: "Play At",
@@ -62522,8 +62366,7 @@ var APP = {
     AVAILABLE_ROOMS_ENABLE: "Enable Selected",
     AVAILABLE_ROOMS_DISABLE: "Disable Selected",
     AVAILABLE_ROOMS_COUNT_1: "{{ count }} room",
-    AVAILABLE_ROOMS_COUNT_N: "{{ count }} rooms",
-    AVAILABLE_ROOMS_COUNT: "{{ count }} room(s)",
+    AVAILABLE_ROOMS_COUNT: "{{ count }} rooms",
     BOOKING_RULES_HEADER: "{{ type }} Booking Rules",
     BOOKING_RULES_NEW: "New {{ type }} Booking Ruleset",
     BOOKING_RULES_EDIT: "Edit {{ type }} Booking Ruleset",
@@ -62539,9 +62382,16 @@ var APP = {
     BOOKING_RULESET_SAVING: "Saving booking rules...",
     BOOKING_RULESET_ERROR: "Failed to save booking rules. Error: {{ error }}",
     BOOKING_RULESET_SUCCESS: "Successfully saved booking rules.",
-    BOOKING_RULESET_PRIORITY_UP: "Increase Ruleset Priority",
-    BOOKING_RULESET_PRIORITY_DOWN: "Decrease Ruleset Priority",
-    BOOKING_RULESET_REORDER: "Reorder Ruleset"
+    BOOKING_RULESET_REORDER: "Reorder Ruleset",
+    DEALS_EMPTY_TITLE: "No Deals or Offers Available",
+    REGION_SAVING: "Saving region...",
+    SURVEY_NO_BLD: "No buildings found.",
+    SIGNAGE_PLAYLISTS_SAVING: "Saving playlist...",
+    SIGNAGE_ZONES_PLAYLIST_REMOVED: "Successfully removed playlist from the zone.",
+    CONTACTS_DELETE_SUCCESS: "Successfully removed emergency contact.",
+    CONTACTS_DELETE_ERROR: "Failed to remove emergency contact. Error: {{ error }}",
+    CONTACTS_MIGRATION_SUCCESS: "Successfully migrated emergency contacts.",
+    CONTACTS_MIGRATION_ERROR: "Failed to migrate emergency contacts. Error: {{ error }}"
   },
   BOOKING_PANEL: {
     ROOM_CAPACITY: "Room capacity",
@@ -62551,23 +62401,17 @@ var APP = {
     BOOKING_INPUT_NOSCAN: "Touch to book",
     END_INPUT: "Touch to end meeting",
     SCAN_QR_CODE: "Scan QR code to book this room or view details",
-    NEXT: "Next",
     NOW: "Now",
     HOST: "Host:",
     MEETING_IN_PROGRESS: "is currently in progress",
-    BOOK: "Book",
     SCHEDULE: "Schedule",
-    FEATURES: "Features",
     LIGHTS_BLINDS: "Lights & Blinds",
     TV: "TV",
-    CATERING: "Catering",
     HELP: "Help",
-    CHECKIN: "Check-in",
     UPCOMING: "Upcoming",
     NO_CURRENT: "No current events",
     NO_UPCOMING: "No upcoming events",
     BOOTSTRAP_TITLE: "Booking Panel",
-    LOADING_SYSTEM: "Loading system data...",
     FREE_IN_HOURS_AND_MINUTES: "Free in {{ hour }} hours and {{ minute }} minutes",
     FREE_IN_MINUTES: "Free in {{ minute }} minutes",
     FREE_IN_LESS_THAN_MINUTE: "Free in less than a minute",
@@ -62577,7 +62421,8 @@ var APP = {
     EARLY_CHECKIN: "Meeting has been checked in early",
     BOOKING_NEW: "New Booking",
     BOOKING_HOST: "Booked by",
-    BOOKING_LOADING: "Processing booking request..."
+    BOOKING_LOADING: "Processing booking request...",
+    NO_MESSAGES: "No messages"
   },
   CONTROL: {
     BOOTSTRAP_TITLE: "Control Panel",
@@ -62648,7 +62493,6 @@ var APP = {
     LIGHTING_EMPTY: "No presets available for lights",
     MICS_EMPTY: "No microphones available for system",
     OUTPUT_SWITCH: "Click to switch input source",
-    PHONE: "Phone Number",
     PHONE_DIAL: "Dial Phone",
     PHONE_HANGUP: "Hangup",
     POWER_MSG: "Are you sure you want to shutdown<br/>the system?",
@@ -62671,8 +62515,6 @@ var APP = {
   },
   SIGNAGE: {
     BOOTSTRAP_TITLE: "Signage",
-    BOOTSTRAP_BUILDING: "Select a building from the dropdown below",
-    BOOTSTRAP_BUILDING_SELECT: "Select Building",
     BOOTSTRAP_DISPLAY: "Select a display from the dropdown below",
     BOOTSTRAP_DISPLAY_SELECT: "Select Display",
     BOOTSTRAP_LOADING: "Initialising application...",
@@ -62688,10 +62530,7 @@ var APP = {
     SHUFFLE: "Shuffle [{{ state }}]",
     MEDIA_LIST: "Media to play",
     MEDIA_LIST_END: "End of player media",
-    MEDIA_LIST_EMPTY: "No media available to play",
-    PLAYLIST_LENGTH: "{{ count }} items",
-    PLAYLIST_LENGTH_1: "{{ count }} item",
-    PLAYLIST_LENGTH_N: "{{ count }} items"
+    MEDIA_LIST_EMPTY: "No media available to play"
   },
   OUTLOOK: {},
   MAP_KIOSK: {},
@@ -62711,25 +62550,17 @@ var APP = {
     SELECT_LOCATION_MSG: "Select a fixed location from the dropdown below",
     SELECT_LOCATION: "Select location",
     WELCOME_MESSAGE: '<p>Welcome to Place<span class="text-primary">OS</span></p><p>Self Service Kiosk</p>',
-    CHECK_IN: "Check-in or out",
-    VISITOR: "Visitor",
     REGISTER: "Register",
     REGISTRATION: "Visitor Registration",
     REGISTERING: "Registering visitor...",
     REGISTRATION_ERROR: "Failed to register visitor. Error: {{ error }}",
     EXPLORE: "Explore",
     QR_CODE_MSG: "Please enter your email address or scan your QR code",
-    NAME: "Name",
-    EMAIL: "Email",
     INVALID_EMAIL: "Invalid email address",
-    EMAIL_REQUIRED: "A valid email address is required",
     FIND_DETAILS: "Find Details",
     LOADING_DETAILS: "Loading visitor information...",
     CAMERA_UNAVAILABLE: "Camera feed loading...",
-    HOST: "Host",
     PHONE: "Phone",
-    ORGANISATION: "Organisation",
-    REASON: "Reason for visit",
     CHECKED_IN_MSG: "You are checked in!",
     CHECKED_IN_MSG_SELF_REG: "Your registration is confirmed!",
     TAKE_PHOTO: "Take a photo to continue",
@@ -62739,17 +62570,13 @@ var APP = {
     SKIP: "Skip",
     PRINT_LABEL: "Print Label",
     PRINT_LOADING: "Printing visitor label...",
-    LABEL_FOR: "For: {{ title }}",
     LABEL_HOST: "Host: {{ host_name }}",
     LABEL_LOCATION: "Cleared for {{ location }}",
-    ARRIVED_MSG: 'Your visitor "{{ name }}" has arrived and is waiting at reception',
     INDUCTION_MSG: "Please read the induction information below before proceeding",
     ACCEPT_TERMS: "I agree",
-    ACCEPT: "Accept",
     DECLINE: "Decline",
     CHECKIN_LOADING: "Saving details and checking in...",
     CONTINUE: "Next",
-    SAVE: "Save",
     BEVERAGES: "Beverages",
     BEVERAGE_MSG: "Would you like a drink?",
     BEVERAGE_SELECT: "Select a drink",
@@ -62761,7 +62588,6 @@ var APP = {
     SUCCESS_CHECKIN: "Successfully checked in {{ guest }} for {{ host }}'s meeting",
     NOT_FOUND: 'No meetings for guest "{{ email }}" today',
     LOAD_ERROR: "Failed to load booking for guest.",
-    UPDATE_SUCCESS: "Successfully updated booking for guest.",
     CHECKOUT: "Check-out from building",
     CHECKOUT_MSG: "You are currently checked in to the building. Would you like to check out?",
     CHECKOUT_LOADING: "Checking out guest...",
@@ -62772,13 +62598,11 @@ var APP = {
     DASHBOARD_ADD: "Add Dashboard",
     DASHBOARD_EDIT: "Edit Dashboard",
     DASHBOARD_NEW: "New Dashboard",
-    DASHBOARD_VIEW: "View Dashboard",
     DASHBOARD_BACK: "Back to Dashboards",
     DASHBOARD_REMOVE: "Remove Dashboard",
     DASHBOARD_REMOVE_HEADER: "Remove Dashboard",
     DASHBOARD_REMOVE_CONTENT: 'Are you sure you want to remove the dashboard "{{ name }}"?',
     DASHBOARD_REMOVE_SUCCESS: "Successfully removed dashboard",
-    DASHBOARD_MANAGE_ALERTS: "Manage Alerts",
     DASHBOARD_ALERTS_HEADER: "Dashboard Alerts",
     DASHBOARD_ALERTS_ADD: "Add Alert",
     DASHBOARD_ALERTS_EDIT: "Edit Alert",
@@ -62804,12 +62628,6 @@ var APP = {
   }
 };
 var TRIGGERS = {
-  FIELD_ADDED: "Added",
-  FIELD_STATE: "State",
-  REFERENCE_SYSTEM: "Reference System",
-  REFERENCE_SYSTEM_MSG: "System to use for available status variables and function calls",
-  CONDITIONS: "Conditions",
-  CONDITION_ADD: "Add Condition",
   CONDITION_NEW: "New Condition",
   CONDITION_EDIT: "Edit Condition",
   CONDITION_FIELD_TYPE: "Condition Type",
@@ -62817,15 +62635,8 @@ var TRIGGERS = {
   CONDITION_TIME: "Particular Time",
   CONDITION_COMPARE_EMPTY: "No variable comparision conditions for this alert",
   CONDITION_TIME_EMPTY: "No time dependant conditions for this alert",
-  CONDITION_SAVE_ERROR: "Failed to save alert condition. Error {{ error }}",
-  CONDITION_SAVE_SUCCESS: "Successfully saved alert condtion",
   FIELD_VAR_COMPARE: "Variable Comparison Condition",
   FIELD_TIME_DEPS: "Time dependant Condition",
-  REMOVE_CONDITION_TITLE: "Remove alert condition",
-  REMOVE_CONDITION_MSG: "Are you sure you want remove this alert condition?<br>All systems using this alert will be updated <strong>immediately</strong>.",
-  REMOVE_CONDITION_LOADING: "Removing alert condition...",
-  REMOVE_CONDITION_ERROR: "Failed to remove alert condition. Error: {{ error }}",
-  REMOVE_CONDITION_SUCCESS: "Successfully removed alert condition.",
   TIME_SCHEDULE: "Recurring Schedule",
   TIME_REPEAT: "Repeat Every",
   TIME_DAY_OF_MONTH: "Day of Month",
@@ -62833,8 +62644,6 @@ var TRIGGERS = {
   TIME_DAY_OF_WEEK: "Day of Week",
   TIME_HOUR_OF_DAY: "Hour of the day",
   TIME_MINUTE_OF_HOUR: "Minute of the hour",
-  TIME_FIELD_DATE: "Date",
-  TIME_FIELD_TIME: "Time",
   COMPARE_CONSTANT: "Constant Value",
   COMPARE_VARIABLE: "Status Variable",
   COMPARE_VARIABLE_SELECT: "Select status variable",
@@ -62850,15 +62659,11 @@ var TRIGGERS = {
   COMPARE_OP_OR: "truthy OR",
   COMPARE_OP_XOR: "truthy XOR",
   COMPARE_OP_SELECT: "Select comparision operator",
-  COMPARE_TO: "Compared to",
   COMPARE_JSON_REQUIRED: "Valid JSON is required",
   COMPARE_MODULE_SELECT: "Select module",
   COMPARE_SUBKEYS: "Subkeys",
   COMPARE_SUBKEYS_PLACEHOLDER: "Status variable subkeys",
-  COMPARE_VARIABLE_LOAD_ERROR: "Failed to load status variables from {{ system }}, {{ module }}",
-  ENABLE_WEBHOOK: "Enable Webhook",
-  DEBOUNCE_PERIOD: "Debounce Period",
-  SUPPORTED_METHODS: "Supported Methods"
+  COMPARE_VARIABLE_LOAD_ERROR: "Failed to load status variables from {{ system }}, {{ module }}"
 };
 var en_AU_default = {
   SIGNAGE_MANAGER,
@@ -63174,145 +62979,145 @@ function js() {
         3204031479,
         3329325298
       ]);
-      function s(v, c, l, d2, M3) {
-        for (var x2, R3, k2, Q3, D2, E3, se2, H3, j2, z2, Be2, We, $t2; M3 >= 64; ) {
-          for (x2 = c[0], R3 = c[1], k2 = c[2], Q3 = c[3], D2 = c[4], E3 = c[5], se2 = c[6], H3 = c[7], z2 = 0; z2 < 16; z2++)
-            Be2 = d2 + z2 * 4, v[z2] = (l[Be2] & 255) << 24 | (l[Be2 + 1] & 255) << 16 | (l[Be2 + 2] & 255) << 8 | l[Be2 + 3] & 255;
+      function s(v2, c, l2, d, M3) {
+        for (var x, R3, k2, Q3, D2, E3, se2, H3, j2, z2, Be2, We2, $t2; M3 >= 64; ) {
+          for (x = c[0], R3 = c[1], k2 = c[2], Q3 = c[3], D2 = c[4], E3 = c[5], se2 = c[6], H3 = c[7], z2 = 0; z2 < 16; z2++)
+            Be2 = d + z2 * 4, v2[z2] = (l2[Be2] & 255) << 24 | (l2[Be2 + 1] & 255) << 16 | (l2[Be2 + 2] & 255) << 8 | l2[Be2 + 3] & 255;
           for (z2 = 16; z2 < 64; z2++)
-            j2 = v[z2 - 2], We = (j2 >>> 17 | j2 << 15) ^ (j2 >>> 19 | j2 << 13) ^ j2 >>> 10, j2 = v[z2 - 15], $t2 = (j2 >>> 7 | j2 << 25) ^ (j2 >>> 18 | j2 << 14) ^ j2 >>> 3, v[z2] = (We + v[z2 - 7] | 0) + ($t2 + v[z2 - 16] | 0);
+            j2 = v2[z2 - 2], We2 = (j2 >>> 17 | j2 << 15) ^ (j2 >>> 19 | j2 << 13) ^ j2 >>> 10, j2 = v2[z2 - 15], $t2 = (j2 >>> 7 | j2 << 25) ^ (j2 >>> 18 | j2 << 14) ^ j2 >>> 3, v2[z2] = (We2 + v2[z2 - 7] | 0) + ($t2 + v2[z2 - 16] | 0);
           for (z2 = 0; z2 < 64; z2++)
-            We = (((D2 >>> 6 | D2 << 26) ^ (D2 >>> 11 | D2 << 21) ^ (D2 >>> 25 | D2 << 7)) + (D2 & E3 ^ ~D2 & se2) | 0) + (H3 + (n[z2] + v[z2] | 0) | 0) | 0, $t2 = ((x2 >>> 2 | x2 << 30) ^ (x2 >>> 13 | x2 << 19) ^ (x2 >>> 22 | x2 << 10)) + (x2 & R3 ^ x2 & k2 ^ R3 & k2) | 0, H3 = se2, se2 = E3, E3 = D2, D2 = Q3 + We | 0, Q3 = k2, k2 = R3, R3 = x2, x2 = We + $t2 | 0;
-          c[0] += x2, c[1] += R3, c[2] += k2, c[3] += Q3, c[4] += D2, c[5] += E3, c[6] += se2, c[7] += H3, d2 += 64, M3 -= 64;
+            We2 = (((D2 >>> 6 | D2 << 26) ^ (D2 >>> 11 | D2 << 21) ^ (D2 >>> 25 | D2 << 7)) + (D2 & E3 ^ ~D2 & se2) | 0) + (H3 + (n[z2] + v2[z2] | 0) | 0) | 0, $t2 = ((x >>> 2 | x << 30) ^ (x >>> 13 | x << 19) ^ (x >>> 22 | x << 10)) + (x & R3 ^ x & k2 ^ R3 & k2) | 0, H3 = se2, se2 = E3, E3 = D2, D2 = Q3 + We2 | 0, Q3 = k2, k2 = R3, R3 = x, x = We2 + $t2 | 0;
+          c[0] += x, c[1] += R3, c[2] += k2, c[3] += Q3, c[4] += D2, c[5] += E3, c[6] += se2, c[7] += H3, d += 64, M3 -= 64;
         }
-        return d2;
+        return d;
       }
       var i = (
         /** @class */
         (function() {
-          function v() {
+          function v2() {
             this.digestLength = e.digestLength, this.blockSize = e.blockSize, this.state = new Int32Array(8), this.temp = new Int32Array(64), this.buffer = new Uint8Array(128), this.bufferLength = 0, this.bytesHashed = 0, this.finished = false, this.reset();
           }
-          return v.prototype.reset = function() {
+          return v2.prototype.reset = function() {
             return this.state[0] = 1779033703, this.state[1] = 3144134277, this.state[2] = 1013904242, this.state[3] = 2773480762, this.state[4] = 1359893119, this.state[5] = 2600822924, this.state[6] = 528734635, this.state[7] = 1541459225, this.bufferLength = 0, this.bytesHashed = 0, this.finished = false, this;
-          }, v.prototype.clean = function() {
+          }, v2.prototype.clean = function() {
             for (var c = 0; c < this.buffer.length; c++)
               this.buffer[c] = 0;
             for (var c = 0; c < this.temp.length; c++)
               this.temp[c] = 0;
             this.reset();
-          }, v.prototype.update = function(c, l) {
-            if (l === void 0 && (l = c.length), this.finished)
+          }, v2.prototype.update = function(c, l2) {
+            if (l2 === void 0 && (l2 = c.length), this.finished)
               throw new Error("SHA256: can't update because hash was finished.");
-            var d2 = 0;
-            if (this.bytesHashed += l, this.bufferLength > 0) {
-              for (; this.bufferLength < 64 && l > 0; )
-                this.buffer[this.bufferLength++] = c[d2++], l--;
+            var d = 0;
+            if (this.bytesHashed += l2, this.bufferLength > 0) {
+              for (; this.bufferLength < 64 && l2 > 0; )
+                this.buffer[this.bufferLength++] = c[d++], l2--;
               this.bufferLength === 64 && (s(this.temp, this.state, this.buffer, 0, 64), this.bufferLength = 0);
             }
-            for (l >= 64 && (d2 = s(this.temp, this.state, c, d2, l), l %= 64); l > 0; )
-              this.buffer[this.bufferLength++] = c[d2++], l--;
+            for (l2 >= 64 && (d = s(this.temp, this.state, c, d, l2), l2 %= 64); l2 > 0; )
+              this.buffer[this.bufferLength++] = c[d++], l2--;
             return this;
-          }, v.prototype.finish = function(c) {
+          }, v2.prototype.finish = function(c) {
             if (!this.finished) {
-              var l = this.bytesHashed, d2 = this.bufferLength, M3 = l / 536870912 | 0, x2 = l << 3, R3 = l % 64 < 56 ? 64 : 128;
-              this.buffer[d2] = 128;
-              for (var k2 = d2 + 1; k2 < R3 - 8; k2++)
+              var l2 = this.bytesHashed, d = this.bufferLength, M3 = l2 / 536870912 | 0, x = l2 << 3, R3 = l2 % 64 < 56 ? 64 : 128;
+              this.buffer[d] = 128;
+              for (var k2 = d + 1; k2 < R3 - 8; k2++)
                 this.buffer[k2] = 0;
-              this.buffer[R3 - 8] = M3 >>> 24 & 255, this.buffer[R3 - 7] = M3 >>> 16 & 255, this.buffer[R3 - 6] = M3 >>> 8 & 255, this.buffer[R3 - 5] = M3 >>> 0 & 255, this.buffer[R3 - 4] = x2 >>> 24 & 255, this.buffer[R3 - 3] = x2 >>> 16 & 255, this.buffer[R3 - 2] = x2 >>> 8 & 255, this.buffer[R3 - 1] = x2 >>> 0 & 255, s(this.temp, this.state, this.buffer, 0, R3), this.finished = true;
+              this.buffer[R3 - 8] = M3 >>> 24 & 255, this.buffer[R3 - 7] = M3 >>> 16 & 255, this.buffer[R3 - 6] = M3 >>> 8 & 255, this.buffer[R3 - 5] = M3 >>> 0 & 255, this.buffer[R3 - 4] = x >>> 24 & 255, this.buffer[R3 - 3] = x >>> 16 & 255, this.buffer[R3 - 2] = x >>> 8 & 255, this.buffer[R3 - 1] = x >>> 0 & 255, s(this.temp, this.state, this.buffer, 0, R3), this.finished = true;
             }
             for (var k2 = 0; k2 < 8; k2++)
               c[k2 * 4 + 0] = this.state[k2] >>> 24 & 255, c[k2 * 4 + 1] = this.state[k2] >>> 16 & 255, c[k2 * 4 + 2] = this.state[k2] >>> 8 & 255, c[k2 * 4 + 3] = this.state[k2] >>> 0 & 255;
             return this;
-          }, v.prototype.digest = function() {
+          }, v2.prototype.digest = function() {
             var c = new Uint8Array(this.digestLength);
             return this.finish(c), c;
-          }, v.prototype._saveState = function(c) {
-            for (var l = 0; l < this.state.length; l++)
-              c[l] = this.state[l];
-          }, v.prototype._restoreState = function(c, l) {
-            for (var d2 = 0; d2 < this.state.length; d2++)
-              this.state[d2] = c[d2];
-            this.bytesHashed = l, this.finished = false, this.bufferLength = 0;
-          }, v;
+          }, v2.prototype._saveState = function(c) {
+            for (var l2 = 0; l2 < this.state.length; l2++)
+              c[l2] = this.state[l2];
+          }, v2.prototype._restoreState = function(c, l2) {
+            for (var d = 0; d < this.state.length; d++)
+              this.state[d] = c[d];
+            this.bytesHashed = l2, this.finished = false, this.bufferLength = 0;
+          }, v2;
         })()
       );
       e.Hash = i;
       var r = (
         /** @class */
         (function() {
-          function v(c) {
+          function v2(c) {
             this.inner = new i(), this.outer = new i(), this.blockSize = this.inner.blockSize, this.digestLength = this.inner.digestLength;
-            var l = new Uint8Array(this.blockSize);
+            var l2 = new Uint8Array(this.blockSize);
             if (c.length > this.blockSize)
-              new i().update(c).finish(l).clean();
+              new i().update(c).finish(l2).clean();
             else
-              for (var d2 = 0; d2 < c.length; d2++)
-                l[d2] = c[d2];
-            for (var d2 = 0; d2 < l.length; d2++)
-              l[d2] ^= 54;
-            this.inner.update(l);
-            for (var d2 = 0; d2 < l.length; d2++)
-              l[d2] ^= 106;
-            this.outer.update(l), this.istate = new Uint32Array(8), this.ostate = new Uint32Array(8), this.inner._saveState(this.istate), this.outer._saveState(this.ostate);
-            for (var d2 = 0; d2 < l.length; d2++)
-              l[d2] = 0;
+              for (var d = 0; d < c.length; d++)
+                l2[d] = c[d];
+            for (var d = 0; d < l2.length; d++)
+              l2[d] ^= 54;
+            this.inner.update(l2);
+            for (var d = 0; d < l2.length; d++)
+              l2[d] ^= 106;
+            this.outer.update(l2), this.istate = new Uint32Array(8), this.ostate = new Uint32Array(8), this.inner._saveState(this.istate), this.outer._saveState(this.ostate);
+            for (var d = 0; d < l2.length; d++)
+              l2[d] = 0;
           }
-          return v.prototype.reset = function() {
+          return v2.prototype.reset = function() {
             return this.inner._restoreState(this.istate, this.inner.blockSize), this.outer._restoreState(this.ostate, this.outer.blockSize), this;
-          }, v.prototype.clean = function() {
+          }, v2.prototype.clean = function() {
             for (var c = 0; c < this.istate.length; c++)
               this.ostate[c] = this.istate[c] = 0;
             this.inner.clean(), this.outer.clean();
-          }, v.prototype.update = function(c) {
+          }, v2.prototype.update = function(c) {
             return this.inner.update(c), this;
-          }, v.prototype.finish = function(c) {
+          }, v2.prototype.finish = function(c) {
             return this.outer.finished ? this.outer.finish(c) : (this.inner.finish(c), this.outer.update(c, this.digestLength).finish(c)), this;
-          }, v.prototype.digest = function() {
+          }, v2.prototype.digest = function() {
             var c = new Uint8Array(this.digestLength);
             return this.finish(c), c;
-          }, v;
+          }, v2;
         })()
       );
       e.HMAC = r;
-      function o(v) {
-        var c = new i().update(v), l = c.digest();
-        return c.clean(), l;
+      function o(v2) {
+        var c = new i().update(v2), l2 = c.digest();
+        return c.clean(), l2;
       }
       e.hash = o, e.default = o;
-      function a(v, c) {
-        var l = new r(v).update(c), d2 = l.digest();
-        return l.clean(), d2;
+      function a(v2, c) {
+        var l2 = new r(v2).update(c), d = l2.digest();
+        return l2.clean(), d;
       }
       e.hmac = a;
-      function y(v, c, l, d2) {
-        var M3 = d2[0];
+      function y(v2, c, l2, d) {
+        var M3 = d[0];
         if (M3 === 0)
           throw new Error("hkdf: cannot expand more");
-        c.reset(), M3 > 1 && c.update(v), l && c.update(l), c.update(d2), c.finish(v), d2[0]++;
+        c.reset(), M3 > 1 && c.update(v2), l2 && c.update(l2), c.update(d), c.finish(v2), d[0]++;
       }
       var L3 = new Uint8Array(e.digestLength);
-      function P3(v, c, l, d2) {
-        c === void 0 && (c = L3), d2 === void 0 && (d2 = 32);
-        for (var M3 = new Uint8Array([1]), x2 = a(c, v), R3 = new r(x2), k2 = new Uint8Array(R3.digestLength), Q3 = k2.length, D2 = new Uint8Array(d2), E3 = 0; E3 < d2; E3++)
-          Q3 === k2.length && (y(k2, R3, l, M3), Q3 = 0), D2[E3] = k2[Q3++];
+      function P3(v2, c, l2, d) {
+        c === void 0 && (c = L3), d === void 0 && (d = 32);
+        for (var M3 = new Uint8Array([1]), x = a(c, v2), R3 = new r(x), k2 = new Uint8Array(R3.digestLength), Q3 = k2.length, D2 = new Uint8Array(d), E3 = 0; E3 < d; E3++)
+          Q3 === k2.length && (y(k2, R3, l2, M3), Q3 = 0), D2[E3] = k2[Q3++];
         return R3.clean(), k2.fill(0), M3.fill(0), D2;
       }
       e.hkdf = P3;
-      function W3(v, c, l, d2) {
-        for (var M3 = new r(v), x2 = M3.digestLength, R3 = new Uint8Array(4), k2 = new Uint8Array(x2), Q3 = new Uint8Array(x2), D2 = new Uint8Array(d2), E3 = 0; E3 * x2 < d2; E3++) {
+      function W3(v2, c, l2, d) {
+        for (var M3 = new r(v2), x = M3.digestLength, R3 = new Uint8Array(4), k2 = new Uint8Array(x), Q3 = new Uint8Array(x), D2 = new Uint8Array(d), E3 = 0; E3 * x < d; E3++) {
           var se2 = E3 + 1;
           R3[0] = se2 >>> 24 & 255, R3[1] = se2 >>> 16 & 255, R3[2] = se2 >>> 8 & 255, R3[3] = se2 >>> 0 & 255, M3.reset(), M3.update(c), M3.update(R3), M3.finish(Q3);
-          for (var H3 = 0; H3 < x2; H3++)
+          for (var H3 = 0; H3 < x; H3++)
             k2[H3] = Q3[H3];
-          for (var H3 = 2; H3 <= l; H3++) {
+          for (var H3 = 2; H3 <= l2; H3++) {
             M3.reset(), M3.update(Q3).finish(Q3);
-            for (var j2 = 0; j2 < x2; j2++)
+            for (var j2 = 0; j2 < x; j2++)
               k2[j2] ^= Q3[j2];
           }
-          for (var H3 = 0; H3 < x2 && E3 * x2 + H3 < d2; H3++)
-            D2[E3 * x2 + H3] = k2[H3];
+          for (var H3 = 0; H3 < x && E3 * x + H3 < d; H3++)
+            D2[E3 * x + H3] = k2[H3];
         }
-        for (var E3 = 0; E3 < x2; E3++)
+        for (var E3 = 0; E3 < x; E3++)
           k2[E3] = Q3[E3] = 0;
         for (var E3 = 0; E3 < 4; E3++)
           R3[E3] = 0;
@@ -65567,8 +65372,9 @@ var LocaleService = class _LocaleService {
     this._default_locale = "en-AU";
     this._current_locale = this._default_locale;
     this._current_locale_short = this._current_locale.split("-")[0];
-    this._cache_time = 7 * 24 * 60 * 60 * 1e3;
+    this._max_cache_age = 7 * 24 * 60 * 60 * 1e3;
     this._load_promises = {};
+    this._loaded_locales = {};
     this._changes = signal(
       0,
       ...ngDevMode ? [{ debugName: "_changes" }] : (
@@ -65582,10 +65388,9 @@ var LocaleService = class _LocaleService {
     this.changes = this._changes.asReadonly();
     this._current_locale = localStorage.getItem(`${STORE_KEY}`) || this._default_locale;
     if (this._current_locale !== this._default_locale) {
-      const existing = JSON.parse(localStorage.getItem(`${STORE_KEY}.${this._current_locale}`) || "{}");
-      if (existing.expiry && existing.expiry > Date.now()) {
-        this._locale_mappings[this._current_locale] = existing.mappings;
-      }
+      const cached = this._cachedMappings(this._current_locale);
+      if (cached)
+        this._locale_mappings[this._current_locale] = cached;
     }
   }
   init() {
@@ -65633,39 +65438,54 @@ var LocaleService = class _LocaleService {
     this._current_locale = locale;
     this._current_locale_short = this._current_locale.split("-")[0];
     this._changes.update((value) => value + 1);
-    if (!this._locale_mappings[locale] && !this._load_promises[locale]) {
+    if (!this._loaded_locales[locale] && !this._load_promises[locale]) {
       this._load_promises[locale] = this._loadLocale(locale);
     }
     localStorage.setItem(`${STORE_KEY}`, locale);
     log("LOCALE", `Locale set to "${locale}"`);
   }
   async _loadLocale(locale) {
-    const existing = JSON.parse(localStorage.getItem(`${STORE_KEY}.${locale}`) || "{}");
-    if (!existing.expiry || existing.expiry < Date.now()) {
-      localStorage.removeItem(`${STORE_KEY}.${locale}`);
-      const resp = await fetch(`${this.locale_folder}/${locale}.json`);
-      if (!resp.ok) {
-        delete this._load_promises[locale];
-        return console.error(`Failed to loaded locale file for "${locale}".`, resp);
-      }
-      const locale_data = await resp.json();
-      const locale_override_data = this.zone_id ? await Wu(this.zone_id, `locale_${locale}`) : { details: {} };
-      const base_locale_values = removeNesting(locale_data);
-      const override_locale_values = removeNesting(locale_override_data.details);
-      this._locale_mappings[locale] = __spreadValues(__spreadValues({}, base_locale_values), override_locale_values);
-      if (!window.debug) {
-        const store2 = {
-          expiry: Date.now() + this._cache_time,
-          locale,
-          mappings: this._locale_mappings[locale]
-        };
-        localStorage.setItem(`${STORE_KEY}.${locale}`, JSON.stringify(store2));
-      }
-    } else {
-      this._locale_mappings[locale] = existing.mappings;
+    const cached = this._cachedMappings(locale);
+    if (cached && !this._locale_mappings[locale]) {
+      this._locale_mappings[locale] = cached;
+      this._changes.update((value) => value + 1);
     }
+    const resp = await fetch(`${this.locale_folder}/${locale}.json`);
+    if (!resp.ok) {
+      delete this._load_promises[locale];
+      return console.error(`Failed to loaded locale file for "${locale}".`, resp);
+    }
+    const locale_data = await resp.json();
+    const locale_override_data = this.zone_id ? await Wu(this.zone_id, `locale_${locale}`) : { details: {} };
+    const base_locale_values = removeNesting(locale_data);
+    const override_locale_values = removeNesting(locale_override_data.details);
+    this._locale_mappings[locale] = __spreadValues(__spreadValues({}, base_locale_values), override_locale_values);
+    if (!window.debug) {
+      const store2 = {
+        cached_at: Date.now(),
+        locale,
+        mappings: this._locale_mappings[locale]
+      };
+      localStorage.setItem(`${STORE_KEY}.${locale}`, JSON.stringify(store2));
+    }
+    this._loaded_locales[locale] = true;
     this._changes.update((value) => value + 1);
     delete this._load_promises[locale];
+  }
+  /** Mappings stored by the last load of the locale, if still usable */
+  _cachedMappings(locale) {
+    const key = `${STORE_KEY}.${locale}`;
+    try {
+      const store2 = JSON.parse(localStorage.getItem(key) || "null");
+      if (!store2?.cached_at || store2.cached_at + this._max_cache_age < Date.now()) {
+        localStorage.removeItem(key);
+        return null;
+      }
+      return store2.mappings;
+    } catch {
+      localStorage.removeItem(key);
+      return null;
+    }
   }
   static {
     this.\u0275fac = function LocaleService_Factory(__ngFactoryType__) {
@@ -65782,8 +65602,8 @@ function getTimezoneOffsetInMinutes(timeZone, date = /* @__PURE__ */ new Date())
 }
 function getTimeInTimezone(date, tz) {
   if (!tz) {
-    const d2 = new Date(date);
-    return { hours: d2.getHours(), minutes: d2.getMinutes() };
+    const d = new Date(date);
+    return { hours: d.getHours(), minutes: d.getMinutes() };
   }
   const zoned = toZonedTime(date, tz);
   return { hours: zoned.getHours(), minutes: zoned.getMinutes() };
@@ -65794,8 +65614,8 @@ function formatTimeInTimezone(date, tz) {
 }
 function setTimeInTimezone(date, hours, minutes, tz) {
   if (!tz) {
-    const d2 = set(new Date(date), { hours, minutes });
-    return startOfMinute(d2).valueOf();
+    const d = set(new Date(date), { hours, minutes });
+    return startOfMinute(d).valueOf();
   }
   const zoned = toZonedTime(date, tz);
   const adjusted = set(zoned, { hours, minutes });
@@ -65955,18 +65775,18 @@ function xmur3(str) {
     return (h2 ^= h2 >>> 16) >>> 0;
   };
 }
-function sfc32(a, b2, c, d2) {
+function sfc32(a, b2, c, d) {
   return function() {
     a >>>= 0;
     b2 >>>= 0;
     c >>>= 0;
-    d2 >>>= 0;
+    d >>>= 0;
     let t = a + b2 | 0;
     a = b2 ^ b2 >>> 9;
     b2 = c + (c << 3) | 0;
     c = c << 21 | c >>> 11;
-    d2 = d2 + 1 | 0;
-    t = t + d2 | 0;
+    d = d + 1 | 0;
+    t = t + d | 0;
     c = c + t | 0;
     return (t >>> 0) / 4294967296;
   };
@@ -66278,9 +66098,9 @@ function setupFormTimeSync(model2, options = {}, injector) {
     date_end = normaliseTimeValue(date_end);
     if (!date || !date_end)
       return false;
-    const d2 = timezone ? toZonedTime(date, timezone) : new Date(date);
+    const d = timezone ? toZonedTime(date, timezone) : new Date(date);
     const e = timezone ? toZonedTime(date_end, timezone) : new Date(date_end);
-    return !isSameDay(d2, e);
+    return !isSameDay(d, e);
   };
   const alignEndToBookableHours = (date_end) => {
     date_end = normaliseTimeValue(date_end);
@@ -66330,7 +66150,7 @@ function setupFormTimeSync(model2, options = {}, injector) {
     } catch {
     }
   };
-  fieldEffect((v) => v.duration, () => {
+  fieldEffect((v2) => v2.duration, () => {
     const s = snap();
     if (s.all_day)
       return;
@@ -66361,7 +66181,7 @@ function setupFormTimeSync(model2, options = {}, injector) {
     }
     on_change?.();
   });
-  fieldEffect((v) => v.date_end, () => {
+  fieldEffect((v2) => v2.date_end, () => {
     const s = snap();
     if (s.all_day)
       return;
@@ -66395,7 +66215,7 @@ function setupFormTimeSync(model2, options = {}, injector) {
     }
     on_change?.();
   });
-  fieldEffect((v) => v.date, () => {
+  fieldEffect((v2) => v2.date, () => {
     const date = normaliseTimeValue(snap().date);
     const last_date = normaliseTimeValue(prev.date);
     const previous_time = timezone ? toZonedTime(last_date, timezone) : new Date(last_date);
@@ -66458,7 +66278,7 @@ function setupFormTimeSync(model2, options = {}, injector) {
     }
     on_change?.();
   });
-  fieldEffect((v) => v.all_day, () => {
+  fieldEffect((v2) => v2.all_day, () => {
     const all_day = snap().all_day;
     if (all_day) {
       applyPatch(getAllDayTimeRange(normaliseTimeValue(snap().date), timezone, all_day_start, all_day_end));
@@ -66625,7 +66445,7 @@ var HotkeysService = class _HotkeysService {
               }
             }
           }
-          const total = presses.reduce((a, v) => a + (v > 0 ? 1 : -1), 0);
+          const total = presses.reduce((a, v2) => a + (v2 > 0 ? 1 : -1), 0);
           if (total >= combination.length) {
             next();
           }
@@ -66862,15 +66682,15 @@ var GoogleAnalyticsService = class _GoogleAnalyticsService {
   init(tracking_id = "") {
     if (!window.gtag) {
       window.dataLayer = window.dataLayer || [];
-      (function(w2, d2, s, l, i) {
-        w2[l] = w2[l] || [];
-        w2[l].push({
+      (function(w2, d, s, l2, i) {
+        w2[l2] = w2[l2] || [];
+        w2[l2].push({
           "gtm.start": (/* @__PURE__ */ new Date()).getTime(),
           event: "gtm.js"
         });
-        const f3 = d2.getElementsByTagName(s)[0];
-        const j2 = d2.createElement(s);
-        const dl = l != "dataLayer" ? "&l=" + l : "";
+        const f3 = d.getElementsByTagName(s)[0];
+        const j2 = d.createElement(s);
+        const dl = l2 != "dataLayer" ? "&l=" + l2 : "";
         j2.async = true;
         j2.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
         f3.parentNode.insertBefore(j2, f3);
@@ -66937,8 +66757,8 @@ var GoogleAnalyticsService = class _GoogleAnalyticsService {
     }
     if (this.enabled) {
       this.timeout(`event|${category}|${action}|${label}|${value}`, () => {
-        const l = label ? ", " + label : "";
-        log("Analytics", "Service", `Event: ${category}, ${action}${l}${value ? ", " + value : ""}`);
+        const l2 = label ? ", " + label : "";
+        log("Analytics", "Service", `Event: ${category}, ${action}${l2}${value ? ", " + value : ""}`);
         this.push({
           event: "event",
           category,
@@ -67637,7 +67457,7 @@ var CalendarEvent = class _CalendarEvent {
     const attendees = data.attendees || [];
     const system_email = (data.system?.email || "").toLowerCase();
     const is_system_resource = (user) => !!user.resource || !!system_email && user.email?.toLowerCase() === system_email;
-    this.attendees = attendees.filter((user) => !is_system_resource(user)).map((u4) => new User(u4));
+    this.attendees = attendees.filter((user) => !is_system_resource(user)).map((u3) => new User(u3));
     this.resources = unique(data.resources || attendees.filter((user) => is_system_resource(user)).map((s) => new Space(s)), "email") || [];
     this.title = data.title;
     this.body = (data.body || "").replace(/&lt;&lt;&lt;.*&gt;&gt;&gt;/g, "");
@@ -67898,6 +67718,52 @@ var PERMISSION_VALUES = [
 function isTestRuntime() {
   return typeof jest !== "undefined" || typeof vi !== "undefined";
 }
+var USER_CACHE_KEY = "PLACEOS.user";
+var MAX_CACHE_AGE = 7 * 24 * 60 * 60 * 1e3;
+function tokenID() {
+  const value = X2() || "";
+  let hash = 0;
+  for (let i = 0; i < value.length; i++) {
+    hash = hash * 31 + value.charCodeAt(i) | 0;
+  }
+  return `${hash}`;
+}
+function cachedUserData() {
+  try {
+    const cache = JSON.parse(localStorage.getItem(USER_CACHE_KEY) || "null");
+    if (!cache?.cached_at || cache.token_id !== tokenID() || cache.cached_at + MAX_CACHE_AGE < Date.now()) {
+      localStorage.removeItem(USER_CACHE_KEY);
+      return null;
+    }
+    return cache;
+  } catch {
+    localStorage.removeItem(USER_CACHE_KEY);
+    return null;
+  }
+}
+function storeUserData() {
+  const user = currentUser();
+  if (isEmptyUser(user) || isPublicMode())
+    return;
+  try {
+    const cache = {
+      cached_at: Date.now(),
+      token_id: tokenID(),
+      user: __spreadValues({}, user)
+    };
+    localStorage.setItem(USER_CACHE_KEY, JSON.stringify(cache));
+  } catch {
+  }
+}
+function applyCachedUserData() {
+  const cache = cachedUserData();
+  if (!cache)
+    return false;
+  const user = new StaffUser(cache.user);
+  _current_user.next(user);
+  setDefaultCreator(user);
+  return true;
+}
 var user_permissions = computed(
   () => {
     const permissions = {
@@ -67965,8 +67831,10 @@ async function loadUserGroups() {
 function initialiseUser() {
   if (isTestRuntime())
     return;
-  _current_user.subscribe((u4) => user_signal.set(u4));
+  _current_user.subscribe((u3) => user_signal.set(u3));
   const is_public_mode = isPublicMode();
+  if (!is_public_mode)
+    applyCachedUserData();
   const user_request = combineLatest([Na("current"), _change]).pipe(map(([i]) => new StaffUser(i)));
   if (is_public_mode) {
     user_request.pipe(catchError((error2) => {
@@ -67985,6 +67853,7 @@ function initialiseUser() {
   })).subscribe((user) => {
     _current_user.next(user);
     setDefaultCreator(user);
+    storeUserData();
     loadUserGroups();
   });
 }
@@ -67995,6 +67864,7 @@ function reloadUserData() {
       const user = new StaffUser(p_user);
       _current_user.next(user);
       setDefaultCreator(user);
+      storeUserData();
       loadUserGroups();
     } catch (error2) {
       if (isPublicMode()) {
@@ -68049,15 +67919,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION4 = {
   "dirty": false,
-  "raw": "66fd918",
-  "hash": "66fd918",
+  "raw": "4315d92",
+  "hash": "4315d92",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "66fd918",
+  "suffix": "4315d92",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1784784033309
+  "time": 1785149806278
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -76687,7 +76557,7 @@ function getObjectClassName(obj) {
   }
 }
 function getErrorPropertyFromObject(obj) {
-  return Object.values(obj).find((v) => v instanceof Error);
+  return Object.values(obj).find((v2) => v2 instanceof Error);
 }
 
 // node_modules/@sentry/browser/build/npm/esm/dev/client.js
@@ -81491,8 +81361,12 @@ var log3 = scoped_log("ORG");
 var ORG_CACHE_PREFIX = "PLACEOS.org";
 var ZONE_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.zones`;
 var METADATA_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.metadata`;
-var DEFAULT_CACHE_DURATION = 2 * 60 * 1e3;
+var MAX_CACHE_AGE2 = 7 * 24 * 60 * 60 * 1e3;
 var OrganisationService = class _OrganisationService {
+  /** Whether cached data is being replaced with the latest from the API */
+  get _refreshing() {
+    return this._refresh_count > 0;
+  }
   /** Mapping of organisation settings overrides */
   get settings() {
     return this._settings;
@@ -81649,7 +81523,9 @@ var OrganisationService = class _OrganisationService {
         []
       )
     );
-    this._loaded_data = [];
+    this._loaded_data = {};
+    this._served_cache = false;
+    this._refresh_count = 0;
     this._loaded_buildings = signal(
       [],
       ...ngDevMode ? [{ debugName: "_loaded_buildings" }] : (
@@ -81790,8 +81666,8 @@ var OrganisationService = class _OrganisationService {
   }
   /** Clear cached org data and reload it from PlaceOS. Exposed via window.app.org in debug mode. */
   async reloadMetadata() {
-    this._clearSessionCache();
-    this._loaded_data.length = 0;
+    this._clearCache();
+    this._loaded_data = {};
     this._loaded_buildings.set([]);
     await this.load();
   }
@@ -81820,6 +81696,21 @@ var OrganisationService = class _OrganisationService {
       window.org = this;
     }
     this._initialised.set(true);
+    if (this._served_cache) {
+      log3("Loaded from cache, refreshing organisation data...");
+      this._served_cache = false;
+      this._loaded_data = {};
+      this._refresh(() => this.load());
+    }
+  }
+  /**
+   * Run a load straight against the API, ignoring any cached data, so the
+   * displayed data is replaced with the latest. Runs in the background.
+   */
+  async _refresh(load2) {
+    this._refresh_count++;
+    await load2().catch((err) => console.warn("Failed to refresh organisation data.", err));
+    this._refresh_count--;
   }
   _setPublicData() {
     const region_id = localStorage.getItem("PLACEOS.region") || "public";
@@ -81856,19 +81747,23 @@ var OrganisationService = class _OrganisationService {
     this._updateSettingOverrides();
   }
   /**
-   * Initialise service data
+   * Initialise service data. When this is a background refresh, loading
+   * messages and the default region/building selection are skipped so the
+   * user's current view and selection are left alone.
    */
   async load() {
-    setLoadingMessage("Loading organisation data...");
+    const refreshing = this._refreshing;
+    const loadingMessage = (message2) => refreshing ? null : setLoadingMessage(message2);
+    loadingMessage("Loading organisation data...");
     await this.loadOrganisation();
-    setLoadingMessage("Loading region data...");
+    loadingMessage("Loading region data...");
     await this.loadRegions();
     if (!this._region_list().length) {
-      setLoadingMessage("Loading building data...");
+      loadingMessage("Loading building data...");
       const list = await this.loadBuildings();
       this._building_list.set(list);
     } else {
-      setLoadingMessage("Loading region buildings data...");
+      loadingMessage("Loading region buildings data...");
       for (const region of this._region_list()) {
         const blds = await this.loadBuildings(region.id);
         if (blds.length) {
@@ -81877,13 +81772,20 @@ var OrganisationService = class _OrganisationService {
         }
       }
     }
-    setLoadingMessage("Loading zone settings...");
+    loadingMessage("Loading zone settings...");
     await this.loadSettings();
     if (!this._building_list()?.length) {
       log3("Unable to find any building zones");
     }
-    setLoadingMessage("Loading active building levels...");
+    loadingMessage("Loading active building levels...");
     await this.loadLevels();
+    if (refreshing) {
+      if (this.region?.id)
+        await this.loadRegionData(this.region);
+      if (this.building?.id && !this._service.get("dont_load_metadata")) {
+        await this.loadBuildingData(this.building);
+      }
+    }
     this._updateSettingOverrides();
   }
   /**
@@ -81917,9 +81819,10 @@ var OrganisationService = class _OrganisationService {
     this._region_list.set(list);
   }
   async loadRegionData(region) {
-    if (this._loaded_data[region.id])
+    if (this._loaded_data[region.id] && !this._refreshing)
       return;
     const load_metadata = !this._service.get("dont_load_metadata");
+    const from_cache = this._zoneDataCached(region.id);
     const [settings, bindings, buildings] = await Promise.all([
       load_metadata ? this._bulkMetadataDetails(this.app_key, [region.id]).then((_3) => _3[region.id]) : {},
       load_metadata ? this._bulkMetadataDetails("bindings", [region.id]).then((_3) => _3[region.id]) : {},
@@ -81930,6 +81833,8 @@ var OrganisationService = class _OrganisationService {
     this._loaded_data[region.id] = true;
     region.bindings = bindings;
     this._region_settings[region.id] = settings;
+    if (from_cache)
+      this._refresh(() => this.loadRegionData(region));
   }
   /**
    * Load buildings data for the organisation
@@ -81943,8 +81848,9 @@ var OrganisationService = class _OrganisationService {
     return building_list;
   }
   async loadBuildingData(bld) {
-    if (!bld || this._loaded_data[bld.id])
+    if (!bld || this._loaded_data[bld.id] && !this._refreshing)
       return;
+    const from_cache = this._zoneDataCached(bld.id);
     const [settings, bindings, booking_rules, driver_settings] = await Promise.all([
       this._bulkMetadataDetails(this.app_key, [bld.id]).then((_3) => _3[bld.id]),
       this._bulkMetadataDetails("bindings", [bld.id]).then((_3) => _3[bld.id]),
@@ -81977,6 +81883,15 @@ var OrganisationService = class _OrganisationService {
     this._loaded_data[bld.id] = true;
     this._loaded_buildings.update((ids) => ids.includes(bld.id) ? ids : [...ids, bld.id]);
     this._updateSettingOverrides();
+    if (from_cache)
+      this._refresh(() => this.loadBuildingData(bld));
+  }
+  /**
+   * Whether the zone's settings metadata would be loaded from the cache.
+   * Always false while refreshing, so a refresh never schedules another one.
+   */
+  _zoneDataCached(id) {
+    return !!this._getCachedItem(this._metadataCacheKey(this.app_key, [id]));
   }
   /**
    * Load levels data for the buildings
@@ -82006,7 +81921,8 @@ var OrganisationService = class _OrganisationService {
       this._override_timer = null;
     }
     this._service.setOverrides([...this._settings]);
-    await this._setDefaultBuilding();
+    if (!this._refreshing)
+      await this._setDefaultBuilding();
     this._updateSettingOverrides();
   }
   /** Select the building physically closest to the user's current location */
@@ -82176,47 +82092,50 @@ var OrganisationService = class _OrganisationService {
     return `${ZONE_CACHE_PREFIX}.${auth?.id || "default"}.${JSON.stringify(sorted_params)}`;
   }
   _getCachedItem(cache_key) {
+    if (this._refreshing)
+      return null;
     try {
-      const cached_item = JSON.parse(sessionStorage.getItem(cache_key) || "null");
+      const cached_item = JSON.parse(localStorage.getItem(cache_key) || "null");
       if (!cached_item)
         return null;
-      if (cached_item.metadata_cache_id !== this._metadataCacheID()) {
-        sessionStorage.removeItem(cache_key);
+      if (cached_item.metadata_cache_id !== this._metadataCacheID() || cached_item.cached_at + MAX_CACHE_AGE2 < Date.now()) {
+        localStorage.removeItem(cache_key);
         return null;
       }
-      if (cached_item.expires_at > Date.now())
-        return cached_item.data;
-      sessionStorage.removeItem(cache_key);
-      return null;
+      this._served_cache = true;
+      return cached_item.data;
     } catch {
-      sessionStorage.removeItem(cache_key);
+      localStorage.removeItem(cache_key);
       return null;
     }
   }
   _setCachedItem(cache_key, data) {
+    const cached_item = {
+      cached_at: Date.now(),
+      metadata_cache_id: this._metadataCacheID(),
+      data
+    };
+    const value = JSON.stringify(cached_item);
     try {
-      const cached_item = {
-        expires_at: Date.now() + this._cacheDuration(),
-        metadata_cache_id: this._metadataCacheID(),
-        data
-      };
-      sessionStorage.setItem(cache_key, JSON.stringify(cached_item));
+      localStorage.setItem(cache_key, value);
     } catch {
+      this._clearCache();
+      try {
+        localStorage.setItem(cache_key, value);
+      } catch {
+      }
     }
-  }
-  _cacheDuration() {
-    const config2 = Rt()?.config || {};
-    const duration = config2["metadata_cache_duration"] ?? config2["metadata_cache_ttl"];
-    return typeof duration === "number" ? duration * 1e3 : DEFAULT_CACHE_DURATION;
   }
   _metadataCacheID() {
     return `${Rt()?.config?.["metadata_cache_id"] || ""}`;
   }
-  _clearSessionCache() {
-    for (let i = sessionStorage.length - 1; i >= 0; i--) {
-      const key = sessionStorage.key(i);
-      if (key?.startsWith(ORG_CACHE_PREFIX))
-        sessionStorage.removeItem(key);
+  _clearCache() {
+    for (const store2 of [localStorage, sessionStorage]) {
+      for (let i = store2.length - 1; i >= 0; i--) {
+        const key = store2.key(i);
+        if (key?.startsWith(ORG_CACHE_PREFIX))
+          store2.removeItem(key);
+      }
     }
   }
   static {
@@ -82392,8 +82311,8 @@ var Bitmap = class _Bitmap {
   size(offset) {
     if (!offset)
       return { height: this.height, width: this.width };
-    const { x: x2, y } = this.xy(offset);
-    return { height: this.height - y, width: this.width - x2 };
+    const { x, y } = this.xy(offset);
+    return { height: this.height - y, width: this.width - x };
   }
   xy(c) {
     if (typeof c === "number")
@@ -82408,11 +82327,11 @@ var Bitmap = class _Bitmap {
   }
   // Basically every operation can be represented as rect
   rect(c, size, value) {
-    const { x: x2, y } = this.xy(c);
-    const { height, width } = _Bitmap.size(size, this.size({ x: x2, y }));
+    const { x, y } = this.xy(c);
+    const { height, width } = _Bitmap.size(size, this.size({ x, y }));
     for (let yPos = 0; yPos < height; yPos++) {
       for (let xPos = 0; xPos < width; xPos++) {
-        this.data[y + yPos][x2 + xPos] = typeof value === "function" ? value({ x: xPos, y: yPos }, this.data[y + yPos][x2 + xPos]) : value;
+        this.data[y + yPos][x + xPos] = typeof value === "function" ? value({ x: xPos, y: yPos }, this.data[y + yPos][x + xPos]) : value;
       }
     }
     return this;
@@ -82435,25 +82354,25 @@ var Bitmap = class _Bitmap {
   border(border = 2, value) {
     const height = this.height + 2 * border;
     const width = this.width + 2 * border;
-    const v = fillArr(border, value);
+    const v2 = fillArr(border, value);
     const h2 = Array.from({ length: border }, () => fillArr(width, value));
-    return new _Bitmap({ height, width }, [...h2, ...this.data.map((i) => [...v, ...i, ...v]), ...h2]);
+    return new _Bitmap({ height, width }, [...h2, ...this.data.map((i) => [...v2, ...i, ...v2]), ...h2]);
   }
   // Embed another bitmap on coordinates
   embed(c, bm) {
-    return this.rect(c, bm.size(), ({ x: x2, y }) => bm.data[y][x2]);
+    return this.rect(c, bm.size(), ({ x, y }) => bm.data[y][x]);
   }
   // returns rectangular part of bitmap
   rectSlice(c, size = this.size()) {
     const rect = new _Bitmap(_Bitmap.size(size, this.size(this.xy(c))));
-    this.rect(c, size, ({ x: x2, y }, cur) => rect.data[y][x2] = cur);
+    this.rect(c, size, ({ x, y }, cur) => rect.data[y][x] = cur);
     return rect;
   }
   // Change shape, replace rows with columns (data[y][x] -> data[x][y])
   inverse() {
     const { height, width } = this;
     const res = new _Bitmap({ height: width, width: height });
-    return res.rect({ x: 0, y: 0 }, Infinity, ({ x: x2, y }) => this.data[x2][y]);
+    return res.rect({ x: 0, y: 0 }, Infinity, ({ x, y }) => this.data[x][y]);
   }
   // Each pixel size is multiplied by factor
   scale(factor) {
@@ -82461,11 +82380,11 @@ var Bitmap = class _Bitmap {
       throw new Error(`invalid scale factor: ${factor}`);
     const { height, width } = this;
     const res = new _Bitmap({ height: factor * height, width: factor * width });
-    return res.rect({ x: 0, y: 0 }, Infinity, ({ x: x2, y }) => this.data[Math.floor(y / factor)][Math.floor(x2 / factor)]);
+    return res.rect({ x: 0, y: 0 }, Infinity, ({ x, y }) => this.data[Math.floor(y / factor)][Math.floor(x / factor)]);
   }
   clone() {
     const res = new _Bitmap(this.size());
-    return res.rect({ x: 0, y: 0 }, this.size(), ({ x: x2, y }) => this.data[y][x2]);
+    return res.rect({ x: 0, y: 0 }, this.size(), ({ x, y }) => this.data[y][x]);
   }
   // Ensure that there is no undefined values left
   assertDrawn() {
@@ -82482,9 +82401,9 @@ var Bitmap = class _Bitmap {
     const { height, width, data } = this;
     let out = "";
     for (let y = 0; y < height; y += 2) {
-      for (let x2 = 0; x2 < width; x2++) {
-        const first2 = data[y][x2];
-        const second = y + 1 >= height ? true : data[y + 1][x2];
+      for (let x = 0; x < width; x++) {
+        const first2 = data[y][x];
+        const second = y + 1 >= height ? true : data[y + 1][x];
         if (!first2 && !second)
           out += "\u2588";
         else if (!first2 && second)
@@ -82512,18 +82431,18 @@ var Bitmap = class _Bitmap {
     this.rectRead(0, Infinity, (point, val) => {
       if (!val)
         return;
-      const { x: x2, y } = point;
+      const { x, y } = point;
       if (!optimize) {
-        out += `<rect x="${x2}" y="${y}" width="1" height="1" />`;
+        out += `<rect x="${x}" y="${y}" width="1" height="1" />`;
         return;
       }
-      let m2 = `M${x2} ${y}`;
+      let m2 = `M${x} ${y}`;
       if (prevPoint) {
-        const relM = `m${x2 - prevPoint.x} ${y - prevPoint.y}`;
+        const relM = `m${x - prevPoint.x} ${y - prevPoint.y}`;
         if (relM.length <= m2.length)
           m2 = relM;
       }
-      const bH = x2 < 10 ? `H${x2}` : "h-1";
+      const bH = x < 10 ? `H${x}` : "h-1";
       pathData += `${m2}h1v1${bH}Z`;
       prevPoint = point;
     });
@@ -82574,8 +82493,8 @@ var Bitmap = class _Bitmap {
     const data = new Uint8Array(height * width * (isRGB ? 3 : 4));
     let i = 0;
     for (let y = 0; y < height; y++) {
-      for (let x2 = 0; x2 < width; x2++) {
-        const value = !!this.data[y][x2] ? 0 : 255;
+      for (let x = 0; x < width; x++) {
+        const value = !!this.data[y][x] ? 0 : 255;
         data[i++] = value;
         data[i++] = value;
         data[i++] = value;
@@ -82681,16 +82600,16 @@ var info = {
   formatMask: 21522,
   formatBits(ecc, maskIdx) {
     const data = info.ECCode[ecc] << 3 | maskIdx;
-    let d2 = data;
+    let d = data;
     for (let i = 0; i < 10; i++)
-      d2 = d2 << 1 ^ (d2 >> 9) * 1335;
-    return (data << 10 | d2) ^ info.formatMask;
+      d = d << 1 ^ (d >> 9) * 1335;
+    return (data << 10 | d) ^ info.formatMask;
   },
   versionBits(ver) {
-    let d2 = ver;
+    let d = ver;
     for (let i = 0; i < 12; i++)
-      d2 = d2 << 1 ^ (d2 >> 11) * 7973;
-    return ver << 12 | d2;
+      d = d << 1 ^ (d >> 11) * 7973;
+    return ver << 12 | d;
   },
   alphabet: {
     numeric: alphabet("0123456789"),
@@ -82731,45 +82650,45 @@ var info = {
   }
 };
 var PATTERNS = [
-  (x2, y) => (x2 + y) % 2 == 0,
+  (x, y) => (x + y) % 2 == 0,
   (_x, y) => y % 2 == 0,
-  (x2, _y) => x2 % 3 == 0,
-  (x2, y) => (x2 + y) % 3 == 0,
-  (x2, y) => (Math.floor(y / 2) + Math.floor(x2 / 3)) % 2 == 0,
-  (x2, y) => x2 * y % 2 + x2 * y % 3 == 0,
-  (x2, y) => (x2 * y % 2 + x2 * y % 3) % 2 == 0,
-  (x2, y) => ((x2 + y) % 2 + x2 * y % 3) % 2 == 0
+  (x, _y) => x % 3 == 0,
+  (x, y) => (x + y) % 3 == 0,
+  (x, y) => (Math.floor(y / 2) + Math.floor(x / 3)) % 2 == 0,
+  (x, y) => x * y % 2 + x * y % 3 == 0,
+  (x, y) => (x * y % 2 + x * y % 3) % 2 == 0,
+  (x, y) => ((x + y) % 2 + x * y % 3) % 2 == 0
 ];
 var GF = {
   tables: ((p_poly) => {
     const exp = fillArr(256, 0);
     const log4 = fillArr(256, 0);
-    for (let i = 0, x2 = 1; i < 256; i++) {
-      exp[i] = x2;
-      log4[x2] = i;
-      x2 <<= 1;
-      if (x2 & 256)
-        x2 ^= p_poly;
+    for (let i = 0, x = 1; i < 256; i++) {
+      exp[i] = x;
+      log4[x] = i;
+      x <<= 1;
+      if (x & 256)
+        x ^= p_poly;
     }
     return { exp, log: log4 };
   })(285),
-  exp: (x2) => GF.tables.exp[x2],
-  log(x2) {
-    if (x2 === 0)
-      throw new Error(`GF.log: invalid arg=${x2}`);
-    return GF.tables.log[x2] % 255;
+  exp: (x) => GF.tables.exp[x],
+  log(x) {
+    if (x === 0)
+      throw new Error(`GF.log: invalid arg=${x}`);
+    return GF.tables.log[x] % 255;
   },
-  mul(x2, y) {
-    if (x2 === 0 || y === 0)
+  mul(x, y) {
+    if (x === 0 || y === 0)
       return 0;
-    return GF.tables.exp[(GF.tables.log[x2] + GF.tables.log[y]) % 255];
+    return GF.tables.exp[(GF.tables.log[x] + GF.tables.log[y]) % 255];
   },
-  add: (x2, y) => x2 ^ y,
-  pow: (x2, e) => GF.tables.exp[GF.tables.log[x2] * e % 255],
-  inv(x2) {
-    if (x2 === 0)
-      throw new Error(`GF.inverse: invalid arg=${x2}`);
-    return GF.tables.exp[255 - GF.tables.log[x2]];
+  add: (x, y) => x ^ y,
+  pow: (x, e) => GF.tables.exp[GF.tables.log[x] * e % 255],
+  inv(x) {
+    if (x === 0)
+      throw new Error(`GF.inverse: invalid arg=${x}`);
+    return GF.tables.exp[255 - GF.tables.log[x]];
   },
   polynomial(poly) {
     if (poly.length == 0)
@@ -82907,10 +82826,10 @@ var GF = {
 function RS(eccWords) {
   return {
     encode(from2) {
-      const d2 = GF.divisorPoly(eccWords);
+      const d = GF.divisorPoly(eccWords);
       const pol = Array.from(from2);
-      pol.push(...d2.slice(0, -1).fill(0));
-      return Uint8Array.from(GF.remainderPoly(pol, d2));
+      pol.push(...d.slice(0, -1).fill(0));
+      return Uint8Array.from(GF.remainderPoly(pol, d));
     },
     decode(to) {
       const res = to.slice();
@@ -83011,13 +82930,13 @@ function drawTemplate(ver, ecc, maskIdx, test = false) {
   const align = new Bitmap(1).rect(0, 1, true).border(1, false).border(1, true);
   const alignPos = info.alignmentPatterns(ver);
   for (const y of alignPos) {
-    for (const x2 of alignPos) {
-      if (b2.data[y][x2] !== void 0)
+    for (const x of alignPos) {
+      if (b2.data[y][x] !== void 0)
         continue;
-      b2.embed({ x: x2 - 2, y: y - 2 }, align);
+      b2.embed({ x: x - 2, y: y - 2 }, align);
     }
   }
-  b2 = b2.hLine({ x: 0, y: 6 }, Infinity, ({ x: x2 }, cur) => cur === void 0 ? x2 % 2 == 0 : cur).vLine({ x: 6, y: 0 }, Infinity, ({ y }, cur) => cur === void 0 ? y % 2 == 0 : cur);
+  b2 = b2.hLine({ x: 0, y: 6 }, Infinity, ({ x }, cur) => cur === void 0 ? x % 2 == 0 : cur).vLine({ x: 6, y: 0 }, Infinity, ({ y }, cur) => cur === void 0 ? y % 2 == 0 : cur);
   {
     const bits = info.formatBits(ecc, maskIdx);
     const getBit = (i) => !test && (bits >> i & 1) == 1;
@@ -83039,10 +82958,10 @@ function drawTemplate(ver, ecc, maskIdx, test = false) {
     const bits = info.versionBits(ver);
     for (let i = 0; i < 18; i += 1) {
       const bit = !test && (bits >> i & 1) == 1;
-      const x2 = Math.floor(i / 3);
+      const x = Math.floor(i / 3);
       const y = i % 3 + size - 8 - 3;
-      b2.data[x2][y] = bit;
-      b2.data[y][x2] = bit;
+      b2.data[x][y] = bit;
+      b2.data[y][x] = bit;
     }
   }
   return b2;
@@ -83057,10 +82976,10 @@ function zigzag(tpl, maskIdx, fn) {
       xOffset = 5;
     for (; ; y += dir) {
       for (let j2 = 0; j2 < 2; j2 += 1) {
-        const x2 = xOffset - j2;
-        if (tpl.data[y][x2] !== void 0)
+        const x = xOffset - j2;
+        if (tpl.data[y][x] !== void 0)
           continue;
-        fn(x2, y, pattern(x2, y));
+        fn(x, y, pattern(x, y));
       }
       if (y + dir < 0 || y + dir >= size)
         break;
@@ -83070,11 +82989,11 @@ function zigzag(tpl, maskIdx, fn) {
 }
 function detectType(str) {
   let type = "numeric";
-  for (let x2 of str) {
-    if (info.alphabet.numeric.has(x2))
+  for (let x of str) {
+    if (info.alphabet.numeric.has(x))
       continue;
     type = "alphanumeric";
-    if (!info.alphabet.alphanumerc.has(x2))
+    if (!info.alphabet.alphanumerc.has(x))
       return "byte";
   }
   return type;
@@ -83129,13 +83048,13 @@ function drawQR(ver, ecc, data, maskIdx, test = false) {
   const b2 = drawTemplate(ver, ecc, maskIdx, test);
   let i = 0;
   const need = 8 * data.length;
-  zigzag(b2, maskIdx, (x2, y, mask) => {
+  zigzag(b2, maskIdx, (x, y, mask) => {
     let value = false;
     if (i < need) {
       value = (data[i >>> 3] >> (7 - i & 7) & 1) !== 0;
       i++;
     }
-    b2.data[y][x2] = value !== mask;
+    b2.data[y][x] = value !== mask;
   });
   if (i !== need)
     throw new Error("QR: bytes left after draw");
@@ -83165,11 +83084,11 @@ function penalty(bm) {
   let b2 = bm.data;
   const lastW = bm.width - 1;
   const lastH = bm.height - 1;
-  for (let x2 = 0; x2 < lastW; x2++) {
+  for (let x = 0; x < lastW; x++) {
     for (let y = 0; y < lastH; y++) {
-      const x1 = x2 + 1;
+      const x1 = x + 1;
       const y1 = y + 1;
-      if (b2[x2][y] === b2[x1][y] && b2[x1][y] === b2[x2][y1] && b2[x1][y] === b2[x1][y1]) {
+      if (b2[x][y] === b2[x1][y] && b2[x1][y] === b2[x][y1] && b2[x1][y] === b2[x1][y1]) {
         box += 3;
       }
     }
@@ -83635,7 +83554,7 @@ function formatRecurrence(recurrence, selected_date = Date.now()) {
       result = `Every ${safe_interval} ${plural2(safe_interval, "day")}`;
       break;
     case "weekly": {
-      const days = validWeekdays2(weekdays).length ? formatList(validWeekdays2(weekdays).map((d2) => dayNames[d2])) : dayNames[selected_day];
+      const days = validWeekdays2(weekdays).length ? formatList(validWeekdays2(weekdays).map((d) => dayNames[d])) : dayNames[selected_day];
       result = `Every ${safe_interval} ${plural2(safe_interval, "week")}${days ? " on " + days : ""}`;
       break;
     }
@@ -83643,7 +83562,7 @@ function formatRecurrence(recurrence, selected_date = Date.now()) {
       const recurrence_days = validWeekdays2(weekdays);
       const week_value = week || selectedWeek();
       if (monthly_type === "day_of_week") {
-        const days = recurrence_days.length ? formatList(recurrence_days.map((d2) => dayNames[d2])) : dayNames[selected_day];
+        const days = recurrence_days.length ? formatList(recurrence_days.map((d) => dayNames[d])) : dayNames[selected_day];
         const week_name = weekNames[week_value] || weekNames[selectedWeek()];
         result = `Every ${safe_interval} ${plural2(safe_interval, "month")} on the ${week_name}${days ? " " + days : ""}`;
       } else if (monthly_type === "day_of_month") {
@@ -83663,26 +83582,26 @@ function formatRecurrence(recurrence, selected_date = Date.now()) {
 }
 
 // node_modules/@placeos/cloud-uploads/dist/index.es.js
-function P2(s) {
+function w(s) {
   return typeof s == "function";
 }
-var it2 = function(s, e) {
-  return it2 = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(t, r) {
+var ut = function(s, e) {
+  return ut = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(t, r) {
     t.__proto__ = r;
   } || function(t, r) {
     for (var i in r) Object.prototype.hasOwnProperty.call(r, i) && (t[i] = r[i]);
-  }, it2(s, e);
+  }, ut(s, e);
 };
 function L2(s, e) {
   if (typeof e != "function" && e !== null)
     throw new TypeError("Class extends value " + String(e) + " is not a constructor or null");
-  it2(s, e);
+  ut(s, e);
   function t() {
     this.constructor = s;
   }
   s.prototype = e === null ? Object.create(e) : (t.prototype = e.prototype, new t());
 }
-function nt(s) {
+function ht(s) {
   var e = typeof Symbol == "function" && Symbol.iterator, t = e && s[e], r = 0;
   if (t) return t.call(s);
   if (s && typeof s.length == "number") return {
@@ -83692,35 +83611,35 @@ function nt(s) {
   };
   throw new TypeError(e ? "Object is not iterable." : "Symbol.iterator is not defined.");
 }
-function ot(s, e) {
+function lt(s, e) {
   var t = typeof Symbol == "function" && s[Symbol.iterator];
   if (!t) return s;
-  var r = t.call(s), i, n = [], o;
+  var r = t.call(s), i, n = [], a;
   try {
     for (; (e === void 0 || e-- > 0) && !(i = r.next()).done; ) n.push(i.value);
-  } catch (a) {
-    o = { error: a };
+  } catch (o) {
+    a = { error: o };
   } finally {
     try {
       i && !i.done && (t = r.return) && t.call(r);
     } finally {
-      if (o) throw o.error;
+      if (a) throw a.error;
     }
   }
   return n;
 }
-function at(s, e, t) {
+function ct(s, e, t) {
   if (t || arguments.length === 2) for (var r = 0, i = e.length, n; r < i; r++)
     (n || !(r in e)) && (n || (n = Array.prototype.slice.call(e, 0, r)), n[r] = e[r]);
   return s.concat(n || Array.prototype.slice.call(e));
 }
-function _t(s) {
+function yt2(s) {
   var e = function(r) {
     Error.call(r), r.stack = new Error().stack;
   }, t = s(e);
   return t.prototype = Object.create(Error.prototype), t.prototype.constructor = t, t;
 }
-var et = _t(function(s) {
+var nt = yt2(function(s) {
   return function(t) {
     s(this), this.message = t ? t.length + ` errors occurred during unsubscription:
 ` + t.map(function(r, i) {
@@ -83729,13 +83648,13 @@ var et = _t(function(s) {
   `) : "", this.name = "UnsubscriptionError", this.errors = t;
   };
 });
-function ht(s, e) {
+function dt(s, e) {
   if (s) {
     var t = s.indexOf(e);
     0 <= t && s.splice(t, 1);
   }
 }
-var J2 = (function() {
+var tt = (function() {
   function s(e) {
     this.initialTeardown = e, this.closed = false, this._parentage = null, this._finalizers = null;
   }
@@ -83743,62 +83662,62 @@ var J2 = (function() {
     var e, t, r, i, n;
     if (!this.closed) {
       this.closed = true;
-      var o = this._parentage;
-      if (o)
-        if (this._parentage = null, Array.isArray(o))
+      var a = this._parentage;
+      if (a)
+        if (this._parentage = null, Array.isArray(a))
           try {
-            for (var a = nt(o), h2 = a.next(); !h2.done; h2 = a.next()) {
-              var c = h2.value;
+            for (var o = ht(a), u3 = o.next(); !u3.done; u3 = o.next()) {
+              var c = u3.value;
               c.remove(this);
             }
-          } catch (y) {
-            e = { error: y };
+          } catch (b2) {
+            e = { error: b2 };
           } finally {
             try {
-              h2 && !h2.done && (t = a.return) && t.call(a);
+              u3 && !u3.done && (t = o.return) && t.call(o);
             } finally {
               if (e) throw e.error;
             }
           }
         else
-          o.remove(this);
-      var m2 = this.initialTeardown;
-      if (P2(m2))
+          a.remove(this);
+      var p2 = this.initialTeardown;
+      if (w(p2))
         try {
-          m2();
-        } catch (y) {
-          n = y instanceof et ? y.errors : [y];
+          p2();
+        } catch (b2) {
+          n = b2 instanceof nt ? b2.errors : [b2];
         }
-      var A3 = this._finalizers;
-      if (A3) {
+      var x = this._finalizers;
+      if (x) {
         this._finalizers = null;
         try {
-          for (var g2 = nt(A3), v = g2.next(); !v.done; v = g2.next()) {
-            var Wt = v.value;
+          for (var m2 = ht(x), y = m2.next(); !y.done; y = m2.next()) {
+            var ae2 = y.value;
             try {
-              bt2(Wt);
-            } catch (y) {
-              n = n ?? [], y instanceof et ? n = at(at([], ot(n)), ot(y.errors)) : n.push(y);
+              xt2(ae2);
+            } catch (b2) {
+              n = n ?? [], b2 instanceof nt ? n = ct(ct([], lt(n)), lt(b2.errors)) : n.push(b2);
             }
           }
-        } catch (y) {
-          r = { error: y };
+        } catch (b2) {
+          r = { error: b2 };
         } finally {
           try {
-            v && !v.done && (i = g2.return) && i.call(g2);
+            y && !y.done && (i = m2.return) && i.call(m2);
           } finally {
             if (r) throw r.error;
           }
         }
       }
       if (n)
-        throw new et(n);
+        throw new nt(n);
     }
   }, s.prototype.add = function(e) {
     var t;
     if (e && e !== this)
       if (this.closed)
-        bt2(e);
+        xt2(e);
       else {
         if (e instanceof s) {
           if (e.closed || e._hasParent(this))
@@ -83815,54 +83734,54 @@ var J2 = (function() {
     this._parentage = Array.isArray(t) ? (t.push(e), t) : t ? [t, e] : e;
   }, s.prototype._removeParent = function(e) {
     var t = this._parentage;
-    t === e ? this._parentage = null : Array.isArray(t) && ht(t, e);
+    t === e ? this._parentage = null : Array.isArray(t) && dt(t, e);
   }, s.prototype.remove = function(e) {
     var t = this._finalizers;
-    t && ht(t, e), e instanceof s && e._removeParent(this);
+    t && dt(t, e), e instanceof s && e._removeParent(this);
   }, s.EMPTY = (function() {
     var e = new s();
     return e.closed = true, e;
   })(), s;
 })();
-var xt2 = J2.EMPTY;
-function $t(s) {
-  return s instanceof J2 || s && "closed" in s && P2(s.remove) && P2(s.add) && P2(s.unsubscribe);
+var Mt2 = tt.EMPTY;
+function qt2(s) {
+  return s instanceof tt || s && "closed" in s && w(s.remove) && w(s.add) && w(s.unsubscribe);
 }
-function bt2(s) {
-  P2(s) ? s() : s.unsubscribe();
+function xt2(s) {
+  w(s) ? s() : s.unsubscribe();
 }
-var Gt = {
+var ue2 = {
   Promise: void 0
 };
-var Jt = {
+var he = {
   setTimeout: function(s, e) {
     for (var t = [], r = 2; r < arguments.length; r++)
       t[r - 2] = arguments[r];
-    return setTimeout.apply(void 0, at([s, e], ot(t)));
+    return setTimeout.apply(void 0, ct([s, e], lt(t)));
   },
   clearTimeout: function(s) {
     return clearTimeout(s);
   },
   delegate: void 0
 };
-function Yt(s) {
-  Jt.setTimeout(function() {
+function le2(s) {
+  he.setTimeout(function() {
     throw s;
   });
 }
-function yt2() {
+function At() {
 }
-function B2(s) {
+function G3(s) {
   s();
 }
-var pt2 = (function(s) {
+var wt2 = (function(s) {
   L2(e, s);
   function e(t) {
     var r = s.call(this) || this;
-    return r.isStopped = false, t ? (r.destination = t, $t(t) && t.add(r)) : r.destination = Zt, r;
+    return r.isStopped = false, t ? (r.destination = t, qt2(t) && t.add(r)) : r.destination = fe2, r;
   }
   return e.create = function(t, r, i) {
-    return new ut(t, r, i);
+    return new ft2(t, r, i);
   }, e.prototype.next = function(t) {
     this.isStopped || this._next(t);
   }, e.prototype.error = function(t) {
@@ -83886,8 +83805,8 @@ var pt2 = (function(s) {
       this.unsubscribe();
     }
   }, e;
-})(J2);
-var Xt = (function() {
+})(tt);
+var ce2 = (function() {
   function s(e) {
     this.partialObserver = e;
   }
@@ -83897,7 +83816,7 @@ var Xt = (function() {
       try {
         t.next(e);
       } catch (r) {
-        N3(r);
+        F14(r);
       }
   }, s.prototype.error = function(e) {
     var t = this.partialObserver;
@@ -83905,58 +83824,58 @@ var Xt = (function() {
       try {
         t.error(e);
       } catch (r) {
-        N3(r);
+        F14(r);
       }
     else
-      N3(e);
+      F14(e);
   }, s.prototype.complete = function() {
     var e = this.partialObserver;
     if (e.complete)
       try {
         e.complete();
       } catch (t) {
-        N3(t);
+        F14(t);
       }
   }, s;
 })();
-var ut = (function(s) {
+var ft2 = (function(s) {
   L2(e, s);
   function e(t, r, i) {
-    var n = s.call(this) || this, o;
-    return P2(t) || !t ? o = {
+    var n = s.call(this) || this, a;
+    return w(t) || !t ? a = {
       next: t ?? void 0,
       error: r ?? void 0,
       complete: i ?? void 0
-    } : o = t, n.destination = new Xt(o), n;
+    } : a = t, n.destination = new ce2(a), n;
   }
   return e;
-})(pt2);
-function N3(s) {
-  Yt(s);
+})(wt2);
+function F14(s) {
+  le2(s);
 }
-function Qt(s) {
+function de2(s) {
   throw s;
 }
-var Zt = {
+var fe2 = {
   closed: true,
-  next: yt2,
-  error: Qt,
-  complete: yt2
+  next: At,
+  error: de2,
+  complete: At
 };
-var te2 = (function() {
+var _e2 = (function() {
   return typeof Symbol == "function" && Symbol.observable || "@@observable";
 })();
-function At(s) {
+function Nt2(s) {
   return s;
 }
-function ee2(s) {
-  return s.length === 0 ? At : s.length === 1 ? s[0] : function(t) {
+function pe(s) {
+  return s.length === 0 ? Nt2 : s.length === 1 ? s[0] : function(t) {
     return s.reduce(function(r, i) {
       return i(r);
     }, t);
   };
 }
-var lt = (function() {
+var _t = (function() {
   function s(e) {
     e && (this._subscribe = e);
   }
@@ -83964,10 +83883,10 @@ var lt = (function() {
     var t = new s();
     return t.source = this, t.operator = e, t;
   }, s.prototype.subscribe = function(e, t, r) {
-    var i = this, n = se(e) ? e : new ut(e, t, r);
-    return B2(function() {
-      var o = i, a = o.operator, h2 = o.source;
-      n.add(a ? a.call(n, h2) : h2 ? i._subscribe(n) : i._trySubscribe(n));
+    var i = this, n = ge2(e) ? e : new ft2(e, t, r);
+    return G3(function() {
+      var a = i, o = a.operator, u3 = a.source;
+      n.add(o ? o.call(n, u3) : u3 ? i._subscribe(n) : i._trySubscribe(n));
     }), n;
   }, s.prototype._trySubscribe = function(e) {
     try {
@@ -83977,37 +83896,37 @@ var lt = (function() {
     }
   }, s.prototype.forEach = function(e, t) {
     var r = this;
-    return t = vt2(t), new t(function(i, n) {
-      var o = new ut({
-        next: function(a) {
+    return t = zt2(t), new t(function(i, n) {
+      var a = new ft2({
+        next: function(o) {
           try {
-            e(a);
-          } catch (h2) {
-            n(h2), o.unsubscribe();
+            e(o);
+          } catch (u3) {
+            n(u3), a.unsubscribe();
           }
         },
         error: n,
         complete: i
       });
-      r.subscribe(o);
+      r.subscribe(a);
     });
   }, s.prototype._subscribe = function(e) {
     var t;
     return (t = this.source) === null || t === void 0 ? void 0 : t.subscribe(e);
-  }, s.prototype[te2] = function() {
+  }, s.prototype[_e2] = function() {
     return this;
   }, s.prototype.pipe = function() {
     for (var e = [], t = 0; t < arguments.length; t++)
       e[t] = arguments[t];
-    return ee2(e)(this);
+    return pe(e)(this);
   }, s.prototype.toPromise = function(e) {
     var t = this;
-    return e = vt2(e), new e(function(r, i) {
+    return e = zt2(e), new e(function(r, i) {
       var n;
-      t.subscribe(function(o) {
-        return n = o;
-      }, function(o) {
-        return i(o);
+      t.subscribe(function(a) {
+        return n = a;
+      }, function(a) {
+        return i(a);
       }, function() {
         return r(n);
       });
@@ -84016,35 +83935,35 @@ var lt = (function() {
     return new s(e);
   }, s;
 })();
-function vt2(s) {
+function zt2(s) {
   var e;
-  return (e = s ?? Gt.Promise) !== null && e !== void 0 ? e : Promise;
+  return (e = s ?? ue2.Promise) !== null && e !== void 0 ? e : Promise;
 }
-function re2(s) {
-  return s && P2(s.next) && P2(s.error) && P2(s.complete);
+function me2(s) {
+  return s && w(s.next) && w(s.error) && w(s.complete);
 }
-function se(s) {
-  return s && s instanceof pt2 || re2(s) && $t(s);
+function ge2(s) {
+  return s && s instanceof wt2 || me2(s) && qt2(s);
 }
-var ie2 = (function(s) {
+var be = (function(s) {
   L2(e, s);
-  function e(t, r, i, n, o, a) {
-    var h2 = s.call(this, t) || this;
-    return h2.onFinalize = o, h2.shouldUnsubscribe = a, h2._next = r ? function(c) {
+  function e(t, r, i, n, a, o) {
+    var u3 = s.call(this, t) || this;
+    return u3.onFinalize = a, u3.shouldUnsubscribe = o, u3._next = r ? function(c) {
       try {
         r(c);
-      } catch (m2) {
-        t.error(m2);
+      } catch (p2) {
+        t.error(p2);
       }
-    } : s.prototype._next, h2._error = n ? function(c) {
+    } : s.prototype._next, u3._error = n ? function(c) {
       try {
         n(c);
-      } catch (m2) {
-        t.error(m2);
+      } catch (p2) {
+        t.error(p2);
       } finally {
         this.unsubscribe();
       }
-    } : s.prototype._error, h2._complete = i ? function() {
+    } : s.prototype._error, u3._complete = i ? function() {
       try {
         i();
       } catch (c) {
@@ -84052,7 +83971,7 @@ var ie2 = (function(s) {
       } finally {
         this.unsubscribe();
       }
-    } : s.prototype._complete, h2;
+    } : s.prototype._complete, u3;
   }
   return e.prototype.unsubscribe = function() {
     var t;
@@ -84061,40 +83980,40 @@ var ie2 = (function(s) {
       s.prototype.unsubscribe.call(this), !r && ((t = this.onFinalize) === null || t === void 0 || t.call(this));
     }
   }, e;
-})(pt2);
-var ne2 = _t(function(s) {
+})(wt2);
+var ye2 = yt2(function(s) {
   return function() {
     s(this), this.name = "ObjectUnsubscribedError", this.message = "object unsubscribed";
   };
 });
-var zt2 = (function(s) {
+var jt = (function(s) {
   L2(e, s);
   function e() {
     var t = s.call(this) || this;
     return t.closed = false, t.currentObservers = null, t.observers = [], t.isStopped = false, t.hasError = false, t.thrownError = null, t;
   }
   return e.prototype.lift = function(t) {
-    var r = new wt2(this, this);
+    var r = new Ot2(this, this);
     return r.operator = t, r;
   }, e.prototype._throwIfClosed = function() {
     if (this.closed)
-      throw new ne2();
+      throw new ye2();
   }, e.prototype.next = function(t) {
     var r = this;
-    B2(function() {
+    G3(function() {
       var i, n;
       if (r._throwIfClosed(), !r.isStopped) {
         r.currentObservers || (r.currentObservers = Array.from(r.observers));
         try {
-          for (var o = nt(r.currentObservers), a = o.next(); !a.done; a = o.next()) {
-            var h2 = a.value;
-            h2.next(t);
+          for (var a = ht(r.currentObservers), o = a.next(); !o.done; o = a.next()) {
+            var u3 = o.value;
+            u3.next(t);
           }
         } catch (c) {
           i = { error: c };
         } finally {
           try {
-            a && !a.done && (n = o.return) && n.call(o);
+            o && !o.done && (n = a.return) && n.call(a);
           } finally {
             if (i) throw i.error;
           }
@@ -84103,7 +84022,7 @@ var zt2 = (function(s) {
     });
   }, e.prototype.error = function(t) {
     var r = this;
-    B2(function() {
+    G3(function() {
       if (r._throwIfClosed(), !r.isStopped) {
         r.hasError = r.isStopped = true, r.thrownError = t;
         for (var i = r.observers; i.length; )
@@ -84112,7 +84031,7 @@ var zt2 = (function(s) {
     });
   }, e.prototype.complete = function() {
     var t = this;
-    B2(function() {
+    G3(function() {
       if (t._throwIfClosed(), !t.isStopped) {
         t.isStopped = true;
         for (var r = t.observers; r.length; )
@@ -84133,21 +84052,21 @@ var zt2 = (function(s) {
   }, e.prototype._subscribe = function(t) {
     return this._throwIfClosed(), this._checkFinalizedStatuses(t), this._innerSubscribe(t);
   }, e.prototype._innerSubscribe = function(t) {
-    var r = this, i = this, n = i.hasError, o = i.isStopped, a = i.observers;
-    return n || o ? xt2 : (this.currentObservers = null, a.push(t), new J2(function() {
-      r.currentObservers = null, ht(a, t);
+    var r = this, i = this, n = i.hasError, a = i.isStopped, o = i.observers;
+    return n || a ? Mt2 : (this.currentObservers = null, o.push(t), new tt(function() {
+      r.currentObservers = null, dt(o, t);
     }));
   }, e.prototype._checkFinalizedStatuses = function(t) {
-    var r = this, i = r.hasError, n = r.thrownError, o = r.isStopped;
-    i ? t.error(n) : o && t.complete();
+    var r = this, i = r.hasError, n = r.thrownError, a = r.isStopped;
+    i ? t.error(n) : a && t.complete();
   }, e.prototype.asObservable = function() {
-    var t = new lt();
+    var t = new _t();
     return t.source = this, t;
   }, e.create = function(t, r) {
-    return new wt2(t, r);
+    return new Ot2(t, r);
   }, e;
-})(lt);
-var wt2 = (function(s) {
+})(_t);
+var Ot2 = (function(s) {
   L2(e, s);
   function e(t, r) {
     var i = s.call(this) || this;
@@ -84164,18 +84083,18 @@ var wt2 = (function(s) {
     (r = (t = this.destination) === null || t === void 0 ? void 0 : t.complete) === null || r === void 0 || r.call(t);
   }, e.prototype._subscribe = function(t) {
     var r, i;
-    return (i = (r = this.source) === null || r === void 0 ? void 0 : r.subscribe(t)) !== null && i !== void 0 ? i : xt2;
+    return (i = (r = this.source) === null || r === void 0 ? void 0 : r.subscribe(t)) !== null && i !== void 0 ? i : Mt2;
   }, e;
-})(zt2);
-var ae2 = new lt(function(s) {
+})(jt);
+var ve2 = new _t(function(s) {
   return s.complete();
 });
-var Ot2 = _t(function(s) {
+var Ht = yt2(function(s) {
   return function() {
     s(this), this.name = "EmptyError", this.message = "no elements in sequence";
   };
 });
-var Lt = (function(s) {
+var Bt = (function(s) {
   L2(e, s);
   function e(t) {
     var r = s.call(this) || this;
@@ -84198,8 +84117,8 @@ var Lt = (function(s) {
   }, e.prototype.next = function(t) {
     s.prototype.next.call(this, this._value = t);
   }, e;
-})(zt2);
-var _e2 = new Int32Array(4);
+})(jt);
+var ke = new Int32Array(4);
 var f2 = class _f {
   static hashStr(e, t = false) {
     return this.onePassHasher.start().appendStr(e).end(t);
@@ -84238,15 +84157,15 @@ var f2 = class _f {
   static onePassHasher = new _f();
   static _hex(e) {
     const t = _f.hexChars, r = _f.hexOut;
-    let i, n, o, a;
-    for (a = 0; a < 4; a += 1)
-      for (n = a * 8, i = e[a], o = 0; o < 8; o += 2)
-        r[n + 1 + o] = t.charAt(i & 15), i >>>= 4, r[n + 0 + o] = t.charAt(i & 15), i >>>= 4;
+    let i, n, a, o;
+    for (o = 0; o < 4; o += 1)
+      for (n = o * 8, i = e[o], a = 0; a < 8; a += 2)
+        r[n + 1 + a] = t.charAt(i & 15), i >>>= 4, r[n + 0 + a] = t.charAt(i & 15), i >>>= 4;
     return r.join("");
   }
   static _md5cycle(e, t) {
-    let r = e[0], i = e[1], n = e[2], o = e[3];
-    r += (i & n | ~i & o) + t[0] - 680876936 | 0, r = (r << 7 | r >>> 25) + i | 0, o += (r & i | ~r & n) + t[1] - 389564586 | 0, o = (o << 12 | o >>> 20) + r | 0, n += (o & r | ~o & i) + t[2] + 606105819 | 0, n = (n << 17 | n >>> 15) + o | 0, i += (n & o | ~n & r) + t[3] - 1044525330 | 0, i = (i << 22 | i >>> 10) + n | 0, r += (i & n | ~i & o) + t[4] - 176418897 | 0, r = (r << 7 | r >>> 25) + i | 0, o += (r & i | ~r & n) + t[5] + 1200080426 | 0, o = (o << 12 | o >>> 20) + r | 0, n += (o & r | ~o & i) + t[6] - 1473231341 | 0, n = (n << 17 | n >>> 15) + o | 0, i += (n & o | ~n & r) + t[7] - 45705983 | 0, i = (i << 22 | i >>> 10) + n | 0, r += (i & n | ~i & o) + t[8] + 1770035416 | 0, r = (r << 7 | r >>> 25) + i | 0, o += (r & i | ~r & n) + t[9] - 1958414417 | 0, o = (o << 12 | o >>> 20) + r | 0, n += (o & r | ~o & i) + t[10] - 42063 | 0, n = (n << 17 | n >>> 15) + o | 0, i += (n & o | ~n & r) + t[11] - 1990404162 | 0, i = (i << 22 | i >>> 10) + n | 0, r += (i & n | ~i & o) + t[12] + 1804603682 | 0, r = (r << 7 | r >>> 25) + i | 0, o += (r & i | ~r & n) + t[13] - 40341101 | 0, o = (o << 12 | o >>> 20) + r | 0, n += (o & r | ~o & i) + t[14] - 1502002290 | 0, n = (n << 17 | n >>> 15) + o | 0, i += (n & o | ~n & r) + t[15] + 1236535329 | 0, i = (i << 22 | i >>> 10) + n | 0, r += (i & o | n & ~o) + t[1] - 165796510 | 0, r = (r << 5 | r >>> 27) + i | 0, o += (r & n | i & ~n) + t[6] - 1069501632 | 0, o = (o << 9 | o >>> 23) + r | 0, n += (o & i | r & ~i) + t[11] + 643717713 | 0, n = (n << 14 | n >>> 18) + o | 0, i += (n & r | o & ~r) + t[0] - 373897302 | 0, i = (i << 20 | i >>> 12) + n | 0, r += (i & o | n & ~o) + t[5] - 701558691 | 0, r = (r << 5 | r >>> 27) + i | 0, o += (r & n | i & ~n) + t[10] + 38016083 | 0, o = (o << 9 | o >>> 23) + r | 0, n += (o & i | r & ~i) + t[15] - 660478335 | 0, n = (n << 14 | n >>> 18) + o | 0, i += (n & r | o & ~r) + t[4] - 405537848 | 0, i = (i << 20 | i >>> 12) + n | 0, r += (i & o | n & ~o) + t[9] + 568446438 | 0, r = (r << 5 | r >>> 27) + i | 0, o += (r & n | i & ~n) + t[14] - 1019803690 | 0, o = (o << 9 | o >>> 23) + r | 0, n += (o & i | r & ~i) + t[3] - 187363961 | 0, n = (n << 14 | n >>> 18) + o | 0, i += (n & r | o & ~r) + t[8] + 1163531501 | 0, i = (i << 20 | i >>> 12) + n | 0, r += (i & o | n & ~o) + t[13] - 1444681467 | 0, r = (r << 5 | r >>> 27) + i | 0, o += (r & n | i & ~n) + t[2] - 51403784 | 0, o = (o << 9 | o >>> 23) + r | 0, n += (o & i | r & ~i) + t[7] + 1735328473 | 0, n = (n << 14 | n >>> 18) + o | 0, i += (n & r | o & ~r) + t[12] - 1926607734 | 0, i = (i << 20 | i >>> 12) + n | 0, r += (i ^ n ^ o) + t[5] - 378558 | 0, r = (r << 4 | r >>> 28) + i | 0, o += (r ^ i ^ n) + t[8] - 2022574463 | 0, o = (o << 11 | o >>> 21) + r | 0, n += (o ^ r ^ i) + t[11] + 1839030562 | 0, n = (n << 16 | n >>> 16) + o | 0, i += (n ^ o ^ r) + t[14] - 35309556 | 0, i = (i << 23 | i >>> 9) + n | 0, r += (i ^ n ^ o) + t[1] - 1530992060 | 0, r = (r << 4 | r >>> 28) + i | 0, o += (r ^ i ^ n) + t[4] + 1272893353 | 0, o = (o << 11 | o >>> 21) + r | 0, n += (o ^ r ^ i) + t[7] - 155497632 | 0, n = (n << 16 | n >>> 16) + o | 0, i += (n ^ o ^ r) + t[10] - 1094730640 | 0, i = (i << 23 | i >>> 9) + n | 0, r += (i ^ n ^ o) + t[13] + 681279174 | 0, r = (r << 4 | r >>> 28) + i | 0, o += (r ^ i ^ n) + t[0] - 358537222 | 0, o = (o << 11 | o >>> 21) + r | 0, n += (o ^ r ^ i) + t[3] - 722521979 | 0, n = (n << 16 | n >>> 16) + o | 0, i += (n ^ o ^ r) + t[6] + 76029189 | 0, i = (i << 23 | i >>> 9) + n | 0, r += (i ^ n ^ o) + t[9] - 640364487 | 0, r = (r << 4 | r >>> 28) + i | 0, o += (r ^ i ^ n) + t[12] - 421815835 | 0, o = (o << 11 | o >>> 21) + r | 0, n += (o ^ r ^ i) + t[15] + 530742520 | 0, n = (n << 16 | n >>> 16) + o | 0, i += (n ^ o ^ r) + t[2] - 995338651 | 0, i = (i << 23 | i >>> 9) + n | 0, r += (n ^ (i | ~o)) + t[0] - 198630844 | 0, r = (r << 6 | r >>> 26) + i | 0, o += (i ^ (r | ~n)) + t[7] + 1126891415 | 0, o = (o << 10 | o >>> 22) + r | 0, n += (r ^ (o | ~i)) + t[14] - 1416354905 | 0, n = (n << 15 | n >>> 17) + o | 0, i += (o ^ (n | ~r)) + t[5] - 57434055 | 0, i = (i << 21 | i >>> 11) + n | 0, r += (n ^ (i | ~o)) + t[12] + 1700485571 | 0, r = (r << 6 | r >>> 26) + i | 0, o += (i ^ (r | ~n)) + t[3] - 1894986606 | 0, o = (o << 10 | o >>> 22) + r | 0, n += (r ^ (o | ~i)) + t[10] - 1051523 | 0, n = (n << 15 | n >>> 17) + o | 0, i += (o ^ (n | ~r)) + t[1] - 2054922799 | 0, i = (i << 21 | i >>> 11) + n | 0, r += (n ^ (i | ~o)) + t[8] + 1873313359 | 0, r = (r << 6 | r >>> 26) + i | 0, o += (i ^ (r | ~n)) + t[15] - 30611744 | 0, o = (o << 10 | o >>> 22) + r | 0, n += (r ^ (o | ~i)) + t[6] - 1560198380 | 0, n = (n << 15 | n >>> 17) + o | 0, i += (o ^ (n | ~r)) + t[13] + 1309151649 | 0, i = (i << 21 | i >>> 11) + n | 0, r += (n ^ (i | ~o)) + t[4] - 145523070 | 0, r = (r << 6 | r >>> 26) + i | 0, o += (i ^ (r | ~n)) + t[11] - 1120210379 | 0, o = (o << 10 | o >>> 22) + r | 0, n += (r ^ (o | ~i)) + t[2] + 718787259 | 0, n = (n << 15 | n >>> 17) + o | 0, i += (o ^ (n | ~r)) + t[9] - 343485551 | 0, i = (i << 21 | i >>> 11) + n | 0, e[0] = r + e[0] | 0, e[1] = i + e[1] | 0, e[2] = n + e[2] | 0, e[3] = o + e[3] | 0;
+    let r = e[0], i = e[1], n = e[2], a = e[3];
+    r += (i & n | ~i & a) + t[0] - 680876936 | 0, r = (r << 7 | r >>> 25) + i | 0, a += (r & i | ~r & n) + t[1] - 389564586 | 0, a = (a << 12 | a >>> 20) + r | 0, n += (a & r | ~a & i) + t[2] + 606105819 | 0, n = (n << 17 | n >>> 15) + a | 0, i += (n & a | ~n & r) + t[3] - 1044525330 | 0, i = (i << 22 | i >>> 10) + n | 0, r += (i & n | ~i & a) + t[4] - 176418897 | 0, r = (r << 7 | r >>> 25) + i | 0, a += (r & i | ~r & n) + t[5] + 1200080426 | 0, a = (a << 12 | a >>> 20) + r | 0, n += (a & r | ~a & i) + t[6] - 1473231341 | 0, n = (n << 17 | n >>> 15) + a | 0, i += (n & a | ~n & r) + t[7] - 45705983 | 0, i = (i << 22 | i >>> 10) + n | 0, r += (i & n | ~i & a) + t[8] + 1770035416 | 0, r = (r << 7 | r >>> 25) + i | 0, a += (r & i | ~r & n) + t[9] - 1958414417 | 0, a = (a << 12 | a >>> 20) + r | 0, n += (a & r | ~a & i) + t[10] - 42063 | 0, n = (n << 17 | n >>> 15) + a | 0, i += (n & a | ~n & r) + t[11] - 1990404162 | 0, i = (i << 22 | i >>> 10) + n | 0, r += (i & n | ~i & a) + t[12] + 1804603682 | 0, r = (r << 7 | r >>> 25) + i | 0, a += (r & i | ~r & n) + t[13] - 40341101 | 0, a = (a << 12 | a >>> 20) + r | 0, n += (a & r | ~a & i) + t[14] - 1502002290 | 0, n = (n << 17 | n >>> 15) + a | 0, i += (n & a | ~n & r) + t[15] + 1236535329 | 0, i = (i << 22 | i >>> 10) + n | 0, r += (i & a | n & ~a) + t[1] - 165796510 | 0, r = (r << 5 | r >>> 27) + i | 0, a += (r & n | i & ~n) + t[6] - 1069501632 | 0, a = (a << 9 | a >>> 23) + r | 0, n += (a & i | r & ~i) + t[11] + 643717713 | 0, n = (n << 14 | n >>> 18) + a | 0, i += (n & r | a & ~r) + t[0] - 373897302 | 0, i = (i << 20 | i >>> 12) + n | 0, r += (i & a | n & ~a) + t[5] - 701558691 | 0, r = (r << 5 | r >>> 27) + i | 0, a += (r & n | i & ~n) + t[10] + 38016083 | 0, a = (a << 9 | a >>> 23) + r | 0, n += (a & i | r & ~i) + t[15] - 660478335 | 0, n = (n << 14 | n >>> 18) + a | 0, i += (n & r | a & ~r) + t[4] - 405537848 | 0, i = (i << 20 | i >>> 12) + n | 0, r += (i & a | n & ~a) + t[9] + 568446438 | 0, r = (r << 5 | r >>> 27) + i | 0, a += (r & n | i & ~n) + t[14] - 1019803690 | 0, a = (a << 9 | a >>> 23) + r | 0, n += (a & i | r & ~i) + t[3] - 187363961 | 0, n = (n << 14 | n >>> 18) + a | 0, i += (n & r | a & ~r) + t[8] + 1163531501 | 0, i = (i << 20 | i >>> 12) + n | 0, r += (i & a | n & ~a) + t[13] - 1444681467 | 0, r = (r << 5 | r >>> 27) + i | 0, a += (r & n | i & ~n) + t[2] - 51403784 | 0, a = (a << 9 | a >>> 23) + r | 0, n += (a & i | r & ~i) + t[7] + 1735328473 | 0, n = (n << 14 | n >>> 18) + a | 0, i += (n & r | a & ~r) + t[12] - 1926607734 | 0, i = (i << 20 | i >>> 12) + n | 0, r += (i ^ n ^ a) + t[5] - 378558 | 0, r = (r << 4 | r >>> 28) + i | 0, a += (r ^ i ^ n) + t[8] - 2022574463 | 0, a = (a << 11 | a >>> 21) + r | 0, n += (a ^ r ^ i) + t[11] + 1839030562 | 0, n = (n << 16 | n >>> 16) + a | 0, i += (n ^ a ^ r) + t[14] - 35309556 | 0, i = (i << 23 | i >>> 9) + n | 0, r += (i ^ n ^ a) + t[1] - 1530992060 | 0, r = (r << 4 | r >>> 28) + i | 0, a += (r ^ i ^ n) + t[4] + 1272893353 | 0, a = (a << 11 | a >>> 21) + r | 0, n += (a ^ r ^ i) + t[7] - 155497632 | 0, n = (n << 16 | n >>> 16) + a | 0, i += (n ^ a ^ r) + t[10] - 1094730640 | 0, i = (i << 23 | i >>> 9) + n | 0, r += (i ^ n ^ a) + t[13] + 681279174 | 0, r = (r << 4 | r >>> 28) + i | 0, a += (r ^ i ^ n) + t[0] - 358537222 | 0, a = (a << 11 | a >>> 21) + r | 0, n += (a ^ r ^ i) + t[3] - 722521979 | 0, n = (n << 16 | n >>> 16) + a | 0, i += (n ^ a ^ r) + t[6] + 76029189 | 0, i = (i << 23 | i >>> 9) + n | 0, r += (i ^ n ^ a) + t[9] - 640364487 | 0, r = (r << 4 | r >>> 28) + i | 0, a += (r ^ i ^ n) + t[12] - 421815835 | 0, a = (a << 11 | a >>> 21) + r | 0, n += (a ^ r ^ i) + t[15] + 530742520 | 0, n = (n << 16 | n >>> 16) + a | 0, i += (n ^ a ^ r) + t[2] - 995338651 | 0, i = (i << 23 | i >>> 9) + n | 0, r += (n ^ (i | ~a)) + t[0] - 198630844 | 0, r = (r << 6 | r >>> 26) + i | 0, a += (i ^ (r | ~n)) + t[7] + 1126891415 | 0, a = (a << 10 | a >>> 22) + r | 0, n += (r ^ (a | ~i)) + t[14] - 1416354905 | 0, n = (n << 15 | n >>> 17) + a | 0, i += (a ^ (n | ~r)) + t[5] - 57434055 | 0, i = (i << 21 | i >>> 11) + n | 0, r += (n ^ (i | ~a)) + t[12] + 1700485571 | 0, r = (r << 6 | r >>> 26) + i | 0, a += (i ^ (r | ~n)) + t[3] - 1894986606 | 0, a = (a << 10 | a >>> 22) + r | 0, n += (r ^ (a | ~i)) + t[10] - 1051523 | 0, n = (n << 15 | n >>> 17) + a | 0, i += (a ^ (n | ~r)) + t[1] - 2054922799 | 0, i = (i << 21 | i >>> 11) + n | 0, r += (n ^ (i | ~a)) + t[8] + 1873313359 | 0, r = (r << 6 | r >>> 26) + i | 0, a += (i ^ (r | ~n)) + t[15] - 30611744 | 0, a = (a << 10 | a >>> 22) + r | 0, n += (r ^ (a | ~i)) + t[6] - 1560198380 | 0, n = (n << 15 | n >>> 17) + a | 0, i += (a ^ (n | ~r)) + t[13] + 1309151649 | 0, i = (i << 21 | i >>> 11) + n | 0, r += (n ^ (i | ~a)) + t[4] - 145523070 | 0, r = (r << 6 | r >>> 26) + i | 0, a += (i ^ (r | ~n)) + t[11] - 1120210379 | 0, a = (a << 10 | a >>> 22) + r | 0, n += (r ^ (a | ~i)) + t[2] + 718787259 | 0, n = (n << 15 | n >>> 17) + a | 0, i += (a ^ (n | ~r)) + t[9] - 343485551 | 0, i = (i << 21 | i >>> 11) + n | 0, e[0] = r + e[0] | 0, e[1] = i + e[1] | 0, e[2] = n + e[2] | 0, e[3] = a + e[3] | 0;
   }
   _dataLength = 0;
   _bufferLength = 0;
@@ -84272,16 +84191,16 @@ var f2 = class _f {
    */
   appendStr(e) {
     const t = this._buffer8, r = this._buffer32;
-    let i = this._bufferLength, n, o;
-    for (o = 0; o < e.length; o += 1) {
-      if (n = e.charCodeAt(o), n < 128)
+    let i = this._bufferLength, n, a;
+    for (a = 0; a < e.length; a += 1) {
+      if (n = e.charCodeAt(a), n < 128)
         t[i++] = n;
       else if (n < 2048)
         t[i++] = (n >>> 6) + 192, t[i++] = n & 63 | 128;
       else if (n < 55296 || n > 56319)
         t[i++] = (n >>> 12) + 224, t[i++] = n >>> 6 & 63 | 128, t[i++] = n & 63 | 128;
       else {
-        if (n = (n - 55296) * 1024 + (e.charCodeAt(++o) - 56320) + 65536, n > 1114111)
+        if (n = (n - 55296) * 1024 + (e.charCodeAt(++a) - 56320) + 65536, n > 1114111)
           throw new Error(
             "Unicode standard supports code points up to U+10FFFF"
           );
@@ -84297,10 +84216,10 @@ var f2 = class _f {
    */
   appendAsciiStr(e) {
     const t = this._buffer8, r = this._buffer32;
-    let i = this._bufferLength, n, o = 0;
+    let i = this._bufferLength, n, a = 0;
     for (; ; ) {
-      for (n = Math.min(e.length - o, 64 - i); n--; )
-        t[i++] = e.charCodeAt(o++);
+      for (n = Math.min(e.length - a, 64 - i); n--; )
+        t[i++] = e.charCodeAt(a++);
       if (i < 64)
         break;
       this._dataLength += 64, _f._md5cycle(this._state, r), i = 0;
@@ -84313,10 +84232,10 @@ var f2 = class _f {
    */
   appendByteArray(e) {
     const t = this._buffer8, r = this._buffer32;
-    let i = this._bufferLength, n, o = 0;
+    let i = this._bufferLength, n, a = 0;
     for (; ; ) {
-      for (n = Math.min(e.length - o, 64 - i); n--; )
-        t[i++] = e[o++];
+      for (n = Math.min(e.length - a, 64 - i); n--; )
+        t[i++] = e[a++];
       if (i < 64)
         break;
       this._dataLength += 64, _f._md5cycle(this._state, r), i = 0;
@@ -84352,21 +84271,21 @@ var f2 = class _f {
   end(e = false) {
     const t = this._bufferLength, r = this._buffer8, i = this._buffer32, n = (t >> 2) + 1;
     this._dataLength += t;
-    const o = this._dataLength * 8;
-    if (r[t] = 128, r[t + 1] = r[t + 2] = r[t + 3] = 0, i.set(_f.buffer32Identity.subarray(n), n), t > 55 && (_f._md5cycle(this._state, i), i.set(_f.buffer32Identity)), o <= 4294967295)
-      i[14] = o;
+    const a = this._dataLength * 8;
+    if (r[t] = 128, r[t + 1] = r[t + 2] = r[t + 3] = 0, i.set(_f.buffer32Identity.subarray(n), n), t > 55 && (_f._md5cycle(this._state, i), i.set(_f.buffer32Identity)), a <= 4294967295)
+      i[14] = a;
     else {
-      const a = o.toString(16).match(/(.*?)(.{0,8})$/);
-      if (a === null) return e ? _e2 : "";
-      const h2 = parseInt(a[2], 16), c = parseInt(a[1], 16) || 0;
-      i[14] = h2, i[15] = c;
+      const o = a.toString(16).match(/(.*?)(.{0,8})$/);
+      if (o === null) return e ? ke : "";
+      const u3 = parseInt(o[2], 16), c = parseInt(o[1], 16) || 0;
+      i[14] = u3, i[15] = c;
     }
     return _f._md5cycle(this._state, i), e ? this._state : _f._hex(this._state);
   }
 };
 if (f2.hashStr("hello") !== "5d41402abc4b2a76b9719d911017c592")
   throw new Error("Md5 self test failed.");
-var Ct2 = class {
+var Ft = class {
   _queue = [];
   _hashWorker;
   _processing;
@@ -84407,7 +84326,7 @@ var Ct2 = class {
     t.success ? this._processing?.resolve(t.result) : this._processing?.reject(t.result), this._processing = void 0, this._processNext();
   }
 };
-function Be(s, e = false) {
+function hr(s, e = false) {
   const t = e ? 1e3 : 1024;
   if (s < t)
     return s + (e ? " iB" : " B");
@@ -84415,16 +84334,16 @@ function Be(s, e = false) {
   return (s / Math.pow(t, r)).toFixed(1) + " " + i;
 }
 var q = 1024 * 1024;
-function Pe2(s) {
+function Ie2(s) {
   return s.toString().padStart(6, "0");
 }
-var Se2 = {
+var Re2 = {
   name: "EMPTY",
   part_size: 5 * q,
   resume_id: () => "",
   finalise_body: () => ""
 };
-var St2 = {
+var Ct2 = {
   name: "AmazonS3",
   part_size: 5 * q,
   resume_id: (s) => new DOMParser().parseFromString(s, "application/xml").getElementsByTagName("UploadId")[0].textContent || "",
@@ -84435,7 +84354,7 @@ var St2 = {
     return t += "</CompleteMultipartUpload>", t;
   }
 };
-var Et2 = {
+var Dt2 = {
   name: "GoogleCloudStorage",
   part_size: 5 * q,
   // Google's resumable upload ID comes from the Location header, not response body
@@ -84451,21 +84370,21 @@ var Et2 = {
   // Google uses resumable uploads - no manifest needed
   finalise_body: () => ""
 };
-var dt = {
+var mt = {
   name: "AzureStorage",
   part_size: 2 * q,
   // Azure uses block IDs, not a resumable upload ID
   // Use a placeholder that identifies this upload session
   resume_id: (s) => s,
   finalise_body: (s, e) => {
-    const t = Math.ceil(s.file.size / dt.part_size);
+    const t = Math.ceil(s.file.size / mt.part_size);
     let r = '<?xml version="1.0" encoding="utf-8"?><BlockList>';
     for (let i = 1; i <= t; i++)
-      r += `<Latest>${window.btoa(Pe2(i))}</Latest>`;
+      r += `<Latest>${window.btoa(Ie2(i))}</Latest>`;
     return r += "</BlockList>", r;
   }
 };
-var Ut2 = {
+var Tt2 = {
   name: "OpenStackSwift",
   part_size: 2 * q,
   // OpenStack Swift doesn't use resumable IDs for static large objects
@@ -84474,139 +84393,19 @@ var Ut2 = {
   // If needed client-side, it requires path info from server responses
   finalise_body: () => ""
 };
-function Ee2(s) {
-  return s === St2.name ? St2 : s === Et2.name ? Et2 : s === dt.name ? dt : s === Ut2.name ? Ut2 : (console.warn(`[UPLOADS] Unknown provider: "${s}", using EMPTY_PROVIDER`), Se2);
+function Me(s) {
+  return s === Ct2.name ? Ct2 : s === Dt2.name ? Dt2 : s === mt.name ? mt : s === Tt2.name ? Tt2 : (console.warn(`[UPLOADS] Unknown provider: "${s}", using EMPTY_PROVIDER`), Re2);
 }
-var R2 = "/api/engine/v2/uploads";
-var V3;
-var jt;
-function Ue2(s) {
-  console.debug("[UPLOADS] Set a token"), V3 = s;
-}
-function ke(s) {
-  console.debug("[UPLOADS] Set an API key"), V3 = "API_KEY", jt = s;
-}
-function xe2() {
-  return V3 === "API_KEY" ? { "x-api-key": jt } : { Authorization: `Bearer ${V3}` };
-}
-function j() {
-  return __spreadValues({ "Content-Type": "application/json" }, xe2());
-}
-async function $e2(s, e) {
-  console.debug(`[UPLOADS] Creating upload for ${e.name}...`);
-  const r = await (await fetch(`${R2}`, {
-    method: "POST",
-    body: JSON.stringify(s),
-    headers: __spreadValues({}, j())
-  })).json(), i = Ee2(r.residence);
-  if (r.type === "direct_upload")
-    return console.debug(`[UPLOADS] Direct upload for ${e.name}`), kt2(
-      r.upload_id,
-      e,
-      i,
-      "",
-      true,
-      r.signature
-    );
-  console.debug(`[UPLOADS] Chunked upload for ${e.name}`);
-  let n = "";
-  if (r.signature.url) {
-    const a = await (await fetch(r.signature.url, {
-      method: r.signature.verb,
-      headers: r.signature.headers
-    })).text();
-    n = i.resume_id(a);
-  } else
-    n = `${f2.hashStr(`${Date.now()}|${e.name}`)}`;
-  return console.debug(
-    `[UPLOADS] Initialised upload for ${e.name} (${n})`
-  ), kt2(r.upload_id, e, i, n, false);
-}
-async function Ae2(s, e, t, r) {
-  return console.debug(
-    `[UPLOADS] Starting upload ${s}, initialising part ${t}...`
-  ), (await (await fetch(
-    `${R2}/${s}?part=${t}&file_id=${encodeURIComponent(r)}`,
-    {
-      method: "PATCH",
-      body: JSON.stringify({ resumable_id: e }),
-      headers: __spreadValues({}, j())
-    }
-  )).json()).signature;
-}
-async function ze2(s, e, t, r) {
-  return console.debug(
-    `[UPLOADS] Finished parts for upload ${s}(${r.part_list?.join(", ")})`
-  ), console.debug(`[UPLOADS] Initialising next part ${e}...`), (await (await fetch(
-    `${R2}/${s}?part=${e}&file_id=${encodeURIComponent(t)}`,
-    {
-      method: "PATCH",
-      body: JSON.stringify(r),
-      headers: __spreadValues({}, j())
-    }
-  )).json()).signature;
-}
-async function Oe2(s, e) {
-  console.debug(`[UPLOADS] Finalising upload ${s}...`);
-  const r = await (await fetch(`${R2}/${s}?`, {
-    method: "PATCH",
-    body: JSON.stringify(e),
-    headers: __spreadValues({}, j())
-  })).json();
-  return __spreadProps(__spreadValues({}, r.signature), { body: r.body });
-}
-async function Nt2(s) {
-  console.debug(`[UPLOADS] Commiting upload ${s}...`), await fetch(`${R2}/${s}`, {
-    method: "PUT",
-    headers: __spreadValues({}, j())
-  });
-}
-var ft2 = 3;
-var S3 = [];
-var H2 = -1;
-var T3 = /* @__PURE__ */ new Set();
-var W2 = [];
-var Ft = "/node_modules/ts-md5/dist/md5_worker.js";
-function Le(s = Ft, e) {
-  console.debug("[UPLOADS] Setting up hash workers..."), S3?.length > 0 && S3.forEach((t) => t.terminate()), S3 = [], T3.clear(), W2 = [];
-  for (let t = 0; t < ft2; t += 1)
-    S3.push(new Ct2(s, e));
-}
-function Ce2() {
-  return H2 += 1, H2 = H2 % ft2, S3[H2];
-}
-function De() {
-  return S3.length || ft2;
-}
-async function Ie2() {
-  for (let s = 0; s < S3.length; s++)
-    if (!T3.has(s))
-      return T3.add(s), { worker: S3[s], index: s };
-  return new Promise((s) => {
-    W2.push((e) => {
-      T3.add(e), s({ worker: S3[e], index: e });
-    });
-  });
-}
-function Te2(s) {
-  T3.delete(s), W2.length > 0 && W2.shift()(s);
-}
-function Ht(s) {
-  let e = "";
-  s.length % 2 > 0 && (s = "0" + s);
-  for (let t = 0, r = s.length; t < r; t += 2)
-    e += String.fromCharCode(parseInt(s.slice(t, t + 2), 16));
-  return e;
-}
-var K3 = [];
-var w = [];
-var st = 0;
-var _2 = 0;
-var k = /* @__PURE__ */ new Set();
-var x = [];
-var O3 = /* @__PURE__ */ new Map();
-var $2 = /* @__PURE__ */ new Map();
-var u3 = {
+var Y3 = [300, 900, 2700];
+var J2 = [];
+var v = [];
+var ot = 0;
+var I3 = /* @__PURE__ */ new Set();
+var $2 = /* @__PURE__ */ new Set();
+var E2 = [];
+var A3 = /* @__PURE__ */ new Map();
+var k = /* @__PURE__ */ new Map();
+var l = {
   simultaneous: 2,
   parallel: 3,
   retries: 3,
@@ -84614,34 +84413,78 @@ var u3 = {
   auto_remove: false,
   remove_after_ms: -1
 };
-function Me(s) {
-  console.debug("[UPLOADS] Configured upload manager"), u3 = __spreadValues(__spreadValues({}, u3), s);
+function qe2(s) {
+  console.debug("[UPLOADS] Configured upload manager"), l = __spreadValues(__spreadValues({}, l), s);
 }
-async function qe2(s) {
-  const { worker: e, index: t } = await Ie2();
+async function Ne(s) {
+  const { worker: e, index: t } = await or();
   try {
-    const n = (await e.hash(s)).replace(/[^0-9a-fA-F]/g, ""), o = window.btoa(Ht(n));
-    return { hex: n, base64: o };
+    const n = (await e.hash(s)).replace(/[^0-9a-fA-F]/g, ""), a = window.btoa(ne2(n));
+    return { hex: n, base64: a };
   } finally {
-    Te2(t);
+    ur(t);
   }
 }
-function E2(s) {
-  for (const e of $2.keys())
-    e.startsWith(`${s}:`) && $2.delete(e);
+function vt2(s) {
+  for (const e of k.keys())
+    e.startsWith(`${s}:`) && k.delete(e);
 }
-function mt(s, e) {
+function N3(s, e) {
   return Math.ceil(s.size / e);
 }
-function Bt(s, e, t) {
+function Xt(s, e, t) {
   const r = (e - 1) * t, i = Math.min(r + t, s.size);
   return s.slice(r, i);
 }
-function d(s, e) {
+function _2(s, e) {
   const t = s.state.getValue();
   s.state.next(__spreadValues(__spreadValues({}, t), e));
 }
-async function Re2(s, e) {
+function je(s) {
+  return s instanceof Error && s.message ? s.message : typeof s == "string" && s ? s : "Unknown upload error";
+}
+function Qt(s) {
+  return s instanceof P2 ? s.retryable : true;
+}
+function Zt(s) {
+  return new Promise((e) => setTimeout(e, s));
+}
+function X3(s) {
+  return I3.has(s.id) ? true : I3.size >= l.simultaneous ? false : (I3.add(s.id), true);
+}
+function j(s) {
+  I3.delete(s) && Fe2();
+}
+function z(s, e, t) {
+  console.error(`[UPLOADS] ${t} for ${s.file.name}:`, e), vt2(s.id), v = v.filter((r) => r.upload_id !== s.id), _2(s, {
+    status: "FAILED",
+    working: [],
+    error: je(e)
+  }), j(s.id);
+}
+function He2(s) {
+  const e = new Set(s.state.getValue().completed), t = N3(s.file, s.provider.part_size);
+  for (let r = 1; r <= t; r++)
+    if (!e.has(r)) return r;
+  return t + 1;
+}
+function Pt2(s) {
+  if (s.is_direct) {
+    St2(s);
+    return;
+  }
+  const e = He2(s), t = N3(s.file, s.provider.part_size);
+  if (e > t) {
+    te2(s).catch(
+      (r) => z(s, r, "Finalisation failed")
+    );
+    return;
+  }
+  Ve2(s, e).catch(
+    (r) => z(s, r, "Failed to queue chunks")
+  );
+}
+async function Be(s, e) {
   let t;
   try {
     t = await fetch(s.url, {
@@ -84651,7 +84494,7 @@ async function Re2(s, e) {
     });
   } catch (r) {
     const i = r instanceof Error ? r.message : "Unknown network error";
-    throw new Error(`Chunk upload failed: ${i}`);
+    throw new P2(`Chunk upload failed: ${i}`);
   }
   if (!t.ok) {
     let r = "";
@@ -84659,105 +84502,109 @@ async function Re2(s, e) {
       r = await t.text();
     } catch {
     }
-    throw new Error(
-      `Chunk upload failed with status ${t.status}: ${r || t.statusText}`
+    throw new P2(
+      `Chunk upload failed with status ${t.status}: ${r || t.statusText}`,
+      t.status,
+      r
     );
   }
   return t.headers.get("ETag") || await t.text();
 }
-async function Vt() {
-  if (w.length === 0 || st >= u3.parallel)
+async function K3() {
+  if (v.length === 0 || ot >= l.parallel)
     return;
-  const s = w.shift();
+  const s = v.shift();
   if (!s) return;
-  const e = Z2(s.upload_id);
-  if (!e || k.has(s.upload_id))
+  const e = O3(s.upload_id);
+  if (!e || $2.has(s.upload_id)) {
+    K3();
     return;
-  st++;
+  }
+  ot++;
   const t = e.state.getValue();
-  d(e, {
+  _2(e, {
     status: "UPLOADING",
     working: [...t.working, s.part]
   });
   try {
-    const i = $2.get(`${e.id}:${s.part}`)?.base64 ?? "", n = mt(
+    const i = k.get(`${e.id}:${s.part}`)?.base64 ?? "", n = N3(
       e.file,
       e.provider.part_size
-    ), o = e.state.getValue().completed;
-    let a;
-    if (o.length === 0)
-      a = await Ae2(
+    ), a = e.state.getValue().completed;
+    let o;
+    if (a.length === 0)
+      o = await er(
         e.id,
         e.resume_id,
         s.part,
         i
       );
     else {
-      const g2 = {
-        part_list: o,
-        part_data: o.map((v) => ({
-          part: v,
-          md5: $2.get(`${e.id}:${v}`)?.base64 ?? ""
+      const m2 = {
+        part_list: a,
+        part_data: a.map((y) => ({
+          part: y,
+          md5: k.get(`${e.id}:${y}`)?.base64 ?? ""
         }))
       };
-      a = await ze2(
+      o = await rr(
         e.id,
         s.part,
         i,
-        g2
+        m2
       );
     }
-    const h2 = Bt(
+    const u3 = Xt(
       e.file,
       s.part,
       e.provider.part_size
     );
-    await Re2(a, h2);
-    const c = e.state.getValue(), m2 = [...c.completed, s.part].sort(
-      (g2, v) => g2 - v
-    ), A3 = c.working.filter((g2) => g2 !== s.part);
-    if (d(e, {
-      completed: m2,
-      working: A3,
-      progress: Math.round(m2.length / n * 100)
-    }), m2.length === n)
+    await Be(o, u3);
+    const c = e.state.getValue(), p2 = [...c.completed, s.part].sort(
+      (m2, y) => m2 - y
+    ), x = c.working.filter((m2) => m2 !== s.part);
+    if (_2(e, {
+      completed: p2,
+      working: x,
+      progress: Math.round(p2.length / n * 100)
+    }), p2.length === n)
       try {
-        await je(e);
-      } catch (g2) {
-        E2(e.id), d(e, { status: "FAILED" }), console.error(
-          `[UPLOADS] Finalization failed for ${e.file.name}:`,
-          g2
-        ), _2--, z();
+        await te2(e);
+      } catch (m2) {
+        z(e, m2, "Finalisation failed");
         return;
       }
   } catch (r) {
-    const n = e.state.getValue().working.filter((o) => o !== s.part);
-    s.retries < u3.retries ? (console.warn(
-      `Chunk upload failed for part ${s.part}, retrying (${s.retries + 1}/${u3.retries})...`
-    ), w.push(__spreadProps(__spreadValues({}, s), { retries: s.retries + 1 })), d(e, { working: n })) : (E2(e.id), d(e, {
-      status: "FAILED",
-      working: n
-    }), console.error(
-      `Chunk upload failed for part ${s.part} after ${u3.retries} retries:`,
-      r
-    ), w = w.filter(
-      (o) => o.upload_id !== e.id
-    ), _2--, z());
+    const n = e.state.getValue().working.filter((a) => a !== s.part);
+    if (Qt(r) && s.retries < l.retries) {
+      const a = Y3[Math.min(s.retries, Y3.length - 1)];
+      console.warn(
+        `Chunk upload failed for part ${s.part}, retrying in ${a}ms (${s.retries + 1}/${l.retries})...`,
+        r
+      ), _2(e, { working: n }), Zt(a).then(() => {
+        O3(s.upload_id) && (v.push(__spreadProps(__spreadValues({}, s), { retries: s.retries + 1 })), K3());
+      });
+    } else
+      z(
+        e,
+        r,
+        `Chunk ${s.part} failed after ${l.retries} retries`
+      );
   } finally {
-    st -= 1, Vt();
+    ot -= 1, K3();
   }
 }
-async function je(s) {
+async function te2(s) {
   const e = s.state.getValue(), t = [];
   for (const i of e.completed) {
-    const n = $2.get(`${s.id}:${i}`);
+    const n = k.get(`${s.id}:${i}`);
     t.push({
       part: i,
       md5: n?.base64 ?? "",
       md5_hex: n?.hex ?? ""
     });
   }
-  const r = await Oe2(s.id, {
+  const r = await sr(s.id, {
     part_list: e.completed,
     part_data: t
   });
@@ -84770,8 +84617,8 @@ async function je(s) {
         body: r.body || s.provider.finalise_body(s, t)
       });
     } catch (n) {
-      const o = n instanceof Error ? n.message : "Unknown network error";
-      throw new Error(`Finalization request failed: ${o}`);
+      const a = n instanceof Error ? n.message : "Unknown network error";
+      throw new P2(`Finalization request failed: ${a}`);
     }
     if (!i.ok) {
       let n = "";
@@ -84779,70 +84626,99 @@ async function je(s) {
         n = await i.text();
       } catch {
       }
-      throw new Error(
-        `Finalization request failed with status ${i.status}: ${n || i.statusText}`
+      throw new P2(
+        `Finalization request failed with status ${i.status}: ${n || i.statusText}`,
+        i.status,
+        n
       );
     }
   }
-  if (await Nt2(s.id), E2(s.id), d(s, {
+  if (await se(s.id), vt2(s.id), _2(s, {
     status: "COMPLETED",
-    progress: 100
-  }), _2--, z(), u3.auto_remove)
-    if (u3.remove_after_ms >= 0) {
+    progress: 100,
+    error: void 0
+  }), j(s.id), l.auto_remove)
+    if (l.remove_after_ms >= 0) {
       const i = setTimeout(() => {
-        M2(s.id), O3.delete(s.id);
-      }, u3.remove_after_ms);
-      O3.set(s.id, i);
+        M2(s.id), A3.delete(s.id);
+      }, l.remove_after_ms);
+      A3.set(s.id, i);
     } else
       M2(s.id);
 }
-function z() {
-  if (x.length === 0 || _2 >= u3.simultaneous)
+function Fe2() {
+  if (E2.length === 0 || I3.size >= l.simultaneous)
     return;
-  const s = x.shift();
-  s && (_2++, s.is_direct ? Q2(s) : gt2(s).catch((e) => {
-    console.error("[UPLOADS] Failed to queue chunks:", e), E2(s.id), d(s, { status: "FAILED" }), _2--;
-  }));
+  const s = E2.shift();
+  if (s) {
+    if (!X3(s)) {
+      E2.unshift(s);
+      return;
+    }
+    _2(s, { status: "UPLOADING" }), Pt2(s);
+  }
 }
-async function Q2(s, e = 0) {
+async function St2(s, e = 0) {
   if (!s.direct_signature) {
-    console.error(`[UPLOADS] Direct upload ${s.id} missing signature`), d(s, { status: "FAILED" }), _2--, z();
+    z(
+      s,
+      new Error(`Direct upload ${s.id} is missing its signature`),
+      "Direct upload could not start"
+    );
     return;
   }
   console.debug(
     `[UPLOADS] Processing direct upload for ${s.file.name}...`
-  ), d(s, { status: "UPLOADING", progress: 0 });
+  ), _2(s, { status: "UPLOADING", progress: 0 });
   try {
     const t = await fetch(s.direct_signature.url, {
       method: s.direct_signature.verb,
       headers: s.direct_signature.headers,
       body: s.file
     });
-    if (!t.ok)
-      throw new Error(`Upload failed with status ${t.status}`);
+    if (!t.ok) {
+      let r = "";
+      try {
+        r = await t.text();
+      } catch {
+      }
+      throw new P2(
+        `Upload failed with status ${t.status}: ${r || t.statusText}`,
+        t.status,
+        r
+      );
+    }
     if (console.debug(
       `[UPLOADS] Direct upload complete for ${s.file.name}, committing...`
-    ), await Nt2(s.id), d(s, {
+    ), await se(s.id), _2(s, {
       status: "COMPLETED",
-      progress: 100
-    }), _2--, z(), u3.auto_remove)
-      if (u3.remove_after_ms >= 0) {
+      progress: 100,
+      error: void 0
+    }), j(s.id), l.auto_remove)
+      if (l.remove_after_ms >= 0) {
         const r = setTimeout(() => {
-          M2(s.id), O3.delete(s.id);
-        }, u3.remove_after_ms);
-        O3.set(s.id, r);
+          M2(s.id), A3.delete(s.id);
+        }, l.remove_after_ms);
+        A3.set(s.id, r);
       } else
         M2(s.id);
   } catch (t) {
-    e < u3.retries ? (console.warn(
-      `[UPLOADS] Direct upload failed for ${s.file.name}, retrying (${e + 1}/${u3.retries})...`
-    ), Q2(s, e + 1)) : (console.error(
-      `[UPLOADS] Direct upload failed for ${s.file.name} after ${u3.retries} retries:`,
-      t
-    ), E2(s.id), d(s, { status: "FAILED" }), _2--, z());
+    if (Qt(t) && e < l.retries) {
+      const r = Y3[Math.min(e, Y3.length - 1)];
+      if (console.warn(
+        `[UPLOADS] Direct upload failed for ${s.file.name}, retrying in ${r}ms (${e + 1}/${l.retries})...`,
+        t
+      ), await Zt(r), !O3(s.id) || $2.has(s.id)) return;
+      await St2(s, e + 1);
+    } else
+      z(
+        s,
+        t,
+        `Direct upload failed after ${l.retries} retries`
+      );
   }
 }
-async function gt2(s, e = 1) {
+async function Ve2(s, e = 1) {
   if (!s.provider.part_size || s.provider.part_size <= 0)
     throw new Error(
       `Invalid provider part_size: ${s.provider.part_size}. Provider: ${s.provider.name}`
@@ -84851,142 +84727,131 @@ async function gt2(s, e = 1) {
     throw new Error(
       `Invalid resume_id: ${s.resume_id}. Upload: ${s.id}`
     );
-  const t = mt(s.file, s.provider.part_size), r = s.state.getValue(), i = De();
+  const t = N3(s.file, s.provider.part_size), r = s.state.getValue(), i = ar2();
   console.debug(
     `[UPLOADS] Queuing ${t} chunks for ${s.file.name} (part size: ${s.provider.part_size}, workers: ${i})`
   );
-  const n = /* @__PURE__ */ new Set(), o = async (a) => {
-    const h2 = `${s.id}:${a}`;
-    if (!$2.has(h2)) {
+  const n = /* @__PURE__ */ new Set(), a = async (o) => {
+    const u3 = `${s.id}:${o}`;
+    if (!k.has(u3)) {
       console.debug(
-        `[UPLOADS] Computing hash for part ${a}/${t}...`
+        `[UPLOADS] Computing hash for part ${o}/${t}...`
       );
-      const A3 = Bt(
+      const x = Xt(
         s.file,
-        a,
+        o,
         s.provider.part_size
-      ), g2 = await qe2(A3);
-      $2.set(h2, g2), console.debug(`[UPLOADS] Part ${a}/${t} hash cached`);
+      ), m2 = await Ne(x);
+      k.set(u3, m2), console.debug(`[UPLOADS] Part ${o}/${t} hash cached`);
     }
-    const c = (a - 1) * s.provider.part_size, m2 = Math.min(
+    const c = (o - 1) * s.provider.part_size, p2 = Math.min(
       c + s.provider.part_size,
       s.file.size
     );
-    w.push({
+    v.push({
       upload_id: s.id,
-      part: a,
+      part: o,
       start: c,
-      end: m2,
+      end: p2,
       retries: 0
-    }), Vt();
+    }), K3();
   };
-  for (let a = e; a <= t; a++) {
-    if (r.completed.includes(a)) continue;
-    if (k.has(s.id) || !Z2(s.id)) {
+  for (let o = e; o <= t; o++) {
+    if (r.completed.includes(o)) continue;
+    if ($2.has(s.id) || !O3(s.id)) {
       console.debug(
         `[UPLOADS] Chunk queuing cancelled for ${s.file.name}`
       ), await Promise.all(n);
       return;
     }
-    const h2 = o(a).finally(() => {
-      n.delete(h2);
+    const u3 = a(o).finally(() => {
+      n.delete(u3);
     });
-    n.add(h2), n.size >= i && await Promise.race(n);
+    n.add(u3), n.size >= i && await Promise.race(n);
   }
   await Promise.all(n), console.debug(`[UPLOADS] All chunks queued for ${s.file.name}`);
 }
-function Ne(s, e = []) {
+function We(s, e = []) {
   if (console.debug(
     `[UPLOADS] Adding upload to manager (${s.file.name})...`
-  ), K3.push(s), k.delete(s.id), s.is_direct) {
-    if (console.debug(`[UPLOADS] Upload is direct (${s.file.name})`), d(s, {
-      status: u3.auto_start ? "UPLOADING" : "PAUSED",
+  ), J2.push(s), $2.delete(s.id), s.is_direct) {
+    if (console.debug(`[UPLOADS] Upload is direct (${s.file.name})`), _2(s, {
+      status: l.auto_start ? "UPLOADING" : "PAUSED",
       completed: [],
       pending_complete: [],
       working: [],
       progress: 0
-    }), !u3.auto_start)
+    }), !l.auto_start)
       return;
-    if (_2 >= u3.simultaneous) {
-      x.push(s), d(s, { status: "PAUSED" });
+    if (!X3(s)) {
+      E2.push(s), _2(s, { status: "PAUSED" });
       return;
     }
-    _2++, Q2(s);
+    St2(s);
     return;
   }
   console.debug(`[UPLOADS] Upload is chunked (${s.file.name})`);
-  const t = mt(s.file, s.provider.part_size), r = [...e].sort((o, a) => o - a), i = Math.round(r.length / t * 100);
-  if (d(s, {
-    status: u3.auto_start ? "UPLOADING" : "PAUSED",
+  const t = N3(s.file, s.provider.part_size), r = [...e].sort((n, a) => n - a), i = Math.round(r.length / t * 100);
+  if (_2(s, {
+    status: l.auto_start ? "UPLOADING" : "PAUSED",
     completed: r,
     pending_complete: [],
     working: [],
     progress: i
-  }), !u3.auto_start)
-    return;
-  if (console.debug(`[UPLOADS] Staring upload (${s.file.name})...`), _2 >= u3.simultaneous) {
-    x.push(s), d(s, { status: "PAUSED" });
-    return;
-  }
-  _2++, console.debug(
-    `[UPLOADS] Queuing chunks to upload (${s.file.name})...`
-  );
-  const n = r.length > 0 ? Math.max(...r) + 1 : 1;
-  gt2(s, n).catch((o) => {
-    console.error("[UPLOADS] Failed to queue chunks:", o), E2(s.id), d(s, { status: "FAILED" }), _2--;
-  });
-}
-function Z2(s) {
-  return K3.find((e) => e.id === s);
-}
-function Fe2(s) {
-  const e = Z2(s);
-  e && (k.add(s), w = w.filter((t) => t.upload_id !== s), d(e, { status: "PAUSED" }));
-}
-function He2(s) {
-  const e = Z2(s);
-  if (e) {
-    if (k.delete(s), _2 >= u3.simultaneous) {
-      x.push(e);
+  }), !!l.auto_start) {
+    if (console.debug(`[UPLOADS] Staring upload (${s.file.name})...`), !X3(s)) {
+      E2.push(s), _2(s, { status: "PAUSED" });
       return;
     }
-    if (_2++, e.is_direct)
-      Q2(e);
-    else {
-      const t = e.state.getValue(), r = t.completed.length > 0 ? Math.max(...t.completed) + 1 : 1;
-      gt2(e, r).catch((i) => {
-        console.error("[UPLOADS] Failed to queue chunks:", i), E2(e.id), d(e, { status: "FAILED" }), _2--;
-      });
+    console.debug(
+      `[UPLOADS] Queuing chunks to upload (${s.file.name})...`
+    ), Pt2(s);
+  }
+}
+function O3(s) {
+  return J2.find((e) => e.id === s);
+}
+function Ge2(s) {
+  const e = O3(s);
+  e && ($2.add(s), v = v.filter((t) => t.upload_id !== s), _2(e, { status: "PAUSED" }), j(s));
+}
+function Ke(s) {
+  const e = O3(s);
+  if (e && e.state.getValue().status !== "UPLOADING") {
+    if ($2.delete(s), !X3(e)) {
+      E2.some((t) => t.id === s) || E2.push(e), _2(e, { status: "PAUSED" });
+      return;
     }
+    _2(e, { status: "UPLOADING", error: void 0 }), Pt2(e);
   }
 }
 function M2(s) {
-  const e = O3.get(s);
-  e && (clearTimeout(e), O3.delete(s)), E2(s), k.add(s), w = w.filter((t) => t.upload_id !== s), x = x.filter((t) => t.id !== s), K3 = K3.filter((t) => t.id !== s), k.delete(s);
+  const e = A3.get(s);
+  e && (clearTimeout(e), A3.delete(s)), vt2(s), $2.add(s), v = v.filter((t) => t.upload_id !== s), E2 = E2.filter((t) => t.id !== s), J2 = J2.filter((t) => t.id !== s), $2.delete(s), j(s);
 }
-function tr(s = {}) {
+function yr(s = {}) {
   const {
     token: e,
     api_key: t,
-    worker_url: r = Ft,
+    worker_url: r = ie2,
     worker_options: i,
     simultaneous: n = 2,
-    parallel: o = 3,
-    retries: a = 3,
-    auto_start: h2 = true,
+    parallel: a = 3,
+    retries: o = 3,
+    auto_start: u3 = true,
     auto_remove: c = false,
-    remove_after_ms: m2 = -1
+    remove_after_ms: p2 = -1
   } = s;
-  console.debug("[UPLOADS] Initialising..."), t ? ke(t) : e && Ue2(e), Me({
+  console.debug("[UPLOADS] Initialising..."), t ? Je2(t) : e && Ye2(e), Xe(o), qe2({
     simultaneous: n,
-    parallel: o,
-    retries: a,
-    auto_start: h2,
+    parallel: a,
+    retries: o,
+    auto_start: u3,
     auto_remove: c,
-    remove_after_ms: m2
-  }), Le(r, i);
+    remove_after_ms: p2
+  }), ir(r, i);
 }
-function kt2(s, e, t, r, i = false, n) {
+function It2(s, e, t, r, i = false, n) {
   return {
     id: s,
     resume_id: r,
@@ -84994,36 +84859,271 @@ function kt2(s, e, t, r, i = false, n) {
     provider: t,
     is_direct: i,
     direct_signature: n,
-    state: new Lt({
+    state: new Bt({
       status: "PAUSED",
       completed: [],
       pending_complete: [],
       working: [],
       progress: 0
     }),
-    pause: () => Fe2(s),
-    resume: () => He2(s),
+    pause: () => Ge2(s),
+    resume: () => Ke(s),
     remove: () => M2(s)
   };
 }
-async function er(s, e = {}) {
-  const { permissions: t = "none", public: r = false } = e, i = Ce2();
+async function wr(s, e = {}) {
+  const { permissions: t = "none", public: r = false } = e, i = nr();
   if (!i) throw new Error("No hash worker available");
-  const o = (await i.hash(s.slice())).replace(/[^0-9a-fA-F]/g, ""), a = await $e2(
+  const a = (await i.hash(s.slice())).replace(/[^0-9a-fA-F]/g, ""), o = await tr(
     {
       file_size: s.size,
       file_name: s.name,
       file_mime: s.type,
-      file_id: window.btoa(Ht(o)),
+      file_id: window.btoa(ne2(a)),
       permissions: t,
       public: r
     },
     s
   );
-  return Ne(a), a;
+  return We(o), o;
+}
+var H2 = "/api/engine/v2/uploads";
+var gt2 = [300, 900, 2700];
+var ee2 = "";
+var re2 = "";
+var Et2 = false;
+var bt2 = gt2.length;
+var P2 = class extends Error {
+  constructor(e, t = 0, r = "") {
+    super(e), this.status = t, this.body = r, this.name = "UploadError";
+  }
+  /** Whether the failure is transient enough to be worth another attempt */
+  get retryable() {
+    return this.status === 0 || this.status === 401 || this.status === 408 || this.status === 429 ? true : this.status >= 500;
+  }
+};
+function Ye2(s) {
+  console.debug("[UPLOADS] Set a token"), ee2 = s, Et2 = false;
+}
+function Je2(s) {
+  console.debug("[UPLOADS] Set an API key"), re2 = s, Et2 = true;
+}
+function Xe(s) {
+  bt2 = Math.max(0, s);
+}
+function Rt2(s) {
+  return typeof s == "function" ? s() : s;
+}
+function Qe2() {
+  return Et2 ? { "x-api-key": Rt2(re2) } : { Authorization: `Bearer ${Rt2(ee2)}` };
+}
+function B2() {
+  return __spreadValues({ "Content-Type": "application/json" }, Qe2());
+}
+function Ze2(s) {
+  return new Promise((e) => setTimeout(e, s));
+}
+async function $t(s, e, t) {
+  let r;
+  try {
+    r = await fetch(s, e);
+  } catch (i) {
+    const n = i instanceof Error ? i.message : "Unknown network error";
+    throw new P2(`${t} failed: ${n}`);
+  }
+  if (!r.ok) {
+    let i = "";
+    try {
+      i = await r.text();
+    } catch {
+    }
+    throw new P2(
+      `${t} failed with status ${r.status}: ${i || r.statusText}`,
+      r.status,
+      i
+    );
+  }
+  return r;
+}
+async function Ut2(s, e) {
+  let t;
+  for (let r = 0; ; r++)
+    try {
+      return await s();
+    } catch (i) {
+      if (t = i, !(i instanceof P2 ? i.retryable : false) || r >= bt2) break;
+      const a = gt2[Math.min(r, gt2.length - 1)];
+      console.warn(
+        `[UPLOADS] ${e} failed, retrying in ${a}ms (${r + 1}/${bt2})...`,
+        i
+      ), await Ze2(a);
+    }
+  throw t;
+}
+async function st(s, e, t) {
+  return Ut2(async () => {
+    const r = await $t(s, e, t);
+    try {
+      return await r.json();
+    } catch {
+      throw new P2(
+        `${t} returned a malformed response body`,
+        r.status
+      );
+    }
+  }, t);
+}
+async function tr(s, e) {
+  console.debug(`[UPLOADS] Creating upload for ${e.name}...`);
+  const t = await st(
+    `${H2}`,
+    {
+      method: "POST",
+      body: JSON.stringify(s),
+      headers: __spreadValues({}, B2())
+    },
+    `Creating upload for ${e.name}`
+  ), r = Me(t.residence);
+  if (t.type === "direct_upload")
+    return console.debug(`[UPLOADS] Direct upload for ${e.name}`), It2(
+      t.upload_id,
+      e,
+      r,
+      "",
+      true,
+      t.signature
+    );
+  console.debug(`[UPLOADS] Chunked upload for ${e.name}`);
+  let i = "";
+  if (t.signature.url) {
+    const a = await (await Ut2(
+      () => $t(
+        t.signature.url,
+        {
+          method: t.signature.verb,
+          headers: t.signature.headers
+        },
+        `Initialising blob storage for ${e.name}`
+      ),
+      `Initialising blob storage for ${e.name}`
+    )).text();
+    i = r.resume_id(a);
+  } else
+    i = `${f2.hashStr(`${Date.now()}|${e.name}`)}`;
+  return console.debug(
+    `[UPLOADS] Initialised upload for ${e.name} (${i})`
+  ), It2(t.upload_id, e, r, i, false);
+}
+async function er(s, e, t, r) {
+  return console.debug(
+    `[UPLOADS] Starting upload ${s}, initialising part ${t}...`
+  ), (await st(
+    `${H2}/${s}?part=${t}&file_id=${encodeURIComponent(r)}`,
+    {
+      method: "PATCH",
+      body: JSON.stringify({ resumable_id: e }),
+      headers: __spreadValues({}, B2())
+    },
+    `Signing part ${t} of upload ${s}`
+  )).signature;
+}
+async function rr(s, e, t, r) {
+  return console.debug(
+    `[UPLOADS] Finished parts for upload ${s}(${r.part_list?.join(", ")})`
+  ), console.debug(`[UPLOADS] Initialising next part ${e}...`), (await st(
+    `${H2}/${s}?part=${e}&file_id=${encodeURIComponent(t)}`,
+    {
+      method: "PATCH",
+      body: JSON.stringify(r),
+      headers: __spreadValues({}, B2())
+    },
+    `Signing part ${e} of upload ${s}`
+  )).signature;
+}
+async function sr(s, e) {
+  console.debug(`[UPLOADS] Finalising upload ${s}...`);
+  const t = await st(
+    `${H2}/${s}?`,
+    {
+      method: "PATCH",
+      body: JSON.stringify(e),
+      headers: __spreadValues({}, B2())
+    },
+    `Finalising upload ${s}`
+  );
+  return __spreadProps(__spreadValues({}, t.signature), { body: t.body });
+}
+async function se(s) {
+  console.debug(`[UPLOADS] Commiting upload ${s}...`), await Ut2(
+    () => $t(
+      `${H2}/${s}`,
+      { method: "PUT", headers: __spreadValues({}, B2()) },
+      `Committing upload ${s}`
+    ),
+    `Committing upload ${s}`
+  );
+}
+var kt2 = 3;
+var S3 = [];
+var W2 = -1;
+var R2 = /* @__PURE__ */ new Set();
+var Q2 = [];
+var ie2 = "/node_modules/ts-md5/dist/md5_worker.js";
+function ir(s = ie2, e) {
+  console.debug("[UPLOADS] Setting up hash workers..."), S3?.length > 0 && S3.forEach((t) => t.terminate()), S3 = [], R2.clear(), Q2 = [];
+  for (let t = 0; t < kt2; t += 1)
+    S3.push(new Ft(s, e));
+}
+function nr() {
+  return W2 += 1, W2 = W2 % kt2, S3[W2];
+}
+function ar2() {
+  return S3.length || kt2;
+}
+async function or() {
+  for (let s = 0; s < S3.length; s++)
+    if (!R2.has(s))
+      return R2.add(s), { worker: S3[s], index: s };
+  return new Promise((s) => {
+    Q2.push((e) => {
+      R2.add(e), s({ worker: S3[e], index: e });
+    });
+  });
+}
+function ur(s) {
+  R2.delete(s), Q2.length > 0 && Q2.shift()(s);
+}
+function ne2(s) {
+  let e = "";
+  s.length % 2 > 0 && (s = "0" + s);
+  for (let t = 0, r = s.length; t < r; t += 2)
+    e += String.fromCharCode(parseInt(s.slice(t, t + 2), 16));
+  return e;
 }
 
 // libs/common/src/lib/uploads.service.ts
+var UploadCancelledError = class extends Error {
+  constructor() {
+    super("Upload cancelled");
+    this.name = "UploadCancelledError";
+  }
+};
+var UploadFailedError = class extends Error {
+  constructor(message2, details) {
+    super(message2);
+    this.details = details;
+    this.name = "UploadFailedError";
+  }
+};
+var UPLOAD_RETRY_ATTEMPTS = 3;
+function uploadStateError(state2) {
+  return state2?.error || "Upload failed";
+}
+function uploadFailure(details) {
+  if (details instanceof Error)
+    return details;
+  return new UploadFailedError(details?.error || "Upload failed", details);
+}
 var UPLOAD_PERMISSIONS_MODAL = new InjectionToken("UploadPermissionsModalComponent");
 var UploadsService = class _UploadsService extends AsyncHandler {
   constructor() {
@@ -85069,7 +85169,7 @@ var UploadsService = class _UploadsService extends AsyncHandler {
       });
       ref.afterClosed().subscribe(async (details) => {
         if (!details)
-          return reject();
+          return reject(new UploadCancelledError());
         const id = await this.uploadFile(details.file, details.is_public, details.permissions).catch((e) => {
           reject(e);
           throw e;
@@ -85097,14 +85197,14 @@ var UploadsService = class _UploadsService extends AsyncHandler {
           if (details?.id)
             update_fn(details);
           if (!resolved2)
-            reject(details);
+            reject(uploadFailure(details));
         },
         complete: () => this._updateUploadHistory()
       });
     });
   }
-  async uploadFileToCompletion(file, pub = false, permissions = "none") {
-    const details = await this._uploadFileToDetails(file, pub, permissions);
+  async uploadFileToCompletion(file, pub = false, permissions = "none", on_progress) {
+    const details = await this._uploadFileToDetails(file, pub, permissions, on_progress);
     const upload_id = details.upload_id || details.upload?.id || details.id;
     if (!upload_id)
       throw new Error("Failed to get uploaded file ID");
@@ -85121,7 +85221,7 @@ var UploadsService = class _UploadsService extends AsyncHandler {
       });
       ref.afterClosed().subscribe((details) => {
         if (!details) {
-          reject(new Error("Upload cancelled"));
+          reject(new UploadCancelledError());
           return;
         }
         this.uploadFileToCompletion(details.file, details.is_public, details.permissions).then(resolve, reject);
@@ -85151,16 +85251,17 @@ var UploadsService = class _UploadsService extends AsyncHandler {
     }
   }
   _initUploads() {
-    tr({
-      auto_start: true,
-      token: X2(),
+    const api_key = Ye();
+    yr(__spreadProps(__spreadValues({
+      auto_start: true
+    }, api_key ? { api_key } : { token: X2() }), {
       endpoint: "/api/engine/v2/uploads",
       worker_url: "assets/md5_worker.js"
-    });
+    }));
   }
   _updateUploadToken() {
     this._token_refresh ||= (async () => {
-      if (!X2(false))
+      if (!Ye() && !X2(false))
         await wt();
       this._initUploads();
     })().finally(() => this._token_refresh = null);
@@ -85171,7 +85272,7 @@ var UploadsService = class _UploadsService extends AsyncHandler {
    * @param file File to upload
    */
   _uploadFile(file, pub = false, permissions = "none", observer) {
-    this._updateUploadToken().then(() => er(file, {
+    this._updateUploadToken().then(() => wr(file, {
       permissions,
       public: pub
     })).then((upload) => {
@@ -85180,12 +85281,20 @@ var UploadsService = class _UploadsService extends AsyncHandler {
         name: file.name,
         progress: 0,
         link: "",
-        formatted_size: Be(file.size),
+        formatted_size: hr(file.size),
         size: file.size,
         upload
       };
-      let retried = false;
-      upload.state.subscribe(async (state2) => {
+      let attempts = 0;
+      let settled = false;
+      let subscription;
+      const stop = () => {
+        settled = true;
+        Promise.resolve().then(() => subscription?.unsubscribe());
+      };
+      subscription = upload.state.subscribe(async (state2) => {
+        if (settled)
+          return;
         upload_details.upload_id = upload.id;
         if (upload.access_url || state2.progress >= 100) {
           const local_url = `${location.origin}/api/engine/v2/uploads/${encodeURIComponent(upload_details.upload_id || upload.id)}/url`;
@@ -85194,30 +85303,37 @@ var UploadsService = class _UploadsService extends AsyncHandler {
         upload_details.progress = state2.progress;
         observer.next(upload_details);
         if (state2.status === "FAILED") {
-          if (!retried) {
-            retried = true;
+          if (attempts < UPLOAD_RETRY_ATTEMPTS) {
+            attempts += 1;
             await this._updateUploadToken();
+            if (settled)
+              return;
             upload.resume();
             return;
           }
+          stop();
           observer.error(__spreadProps(__spreadValues({}, upload_details), {
-            error: state2.error || "Error"
+            error: uploadStateError(state2)
           }));
+          return;
         }
-        if (state2.status === "COMPLETED")
+        if (state2.status === "COMPLETED") {
+          stop();
           observer.complete();
+        }
       });
       observer.next(upload_details);
     }).catch((upload_error) => observer.error(upload_error));
   }
-  _uploadFileToDetails(file, pub = false, permissions = "none") {
+  _uploadFileToDetails(file, pub = false, permissions = "none", on_progress) {
     return new Promise((resolve, reject) => {
       let last_details;
       this._uploadFile(file, pub, permissions, {
         next: (details) => {
           last_details = details;
+          on_progress?.(details.progress);
         },
-        error: reject,
+        error: (details) => reject(uploadFailure(details)),
         complete: () => {
           this._updateUploadHistory();
           resolve(last_details);
@@ -88721,8 +88837,8 @@ var MatMenuTrigger = class _MatMenuTrigger extends MatMenuTriggerBase {
   get _deprecatedMatMenuTriggerFor() {
     return this.menu;
   }
-  set _deprecatedMatMenuTriggerFor(v) {
-    this.menu = v;
+  set _deprecatedMatMenuTriggerFor(v2) {
+    this.menu = v2;
   }
   get menu() {
     return this._menu;
@@ -88991,10 +89107,10 @@ var MatContextMenuTrigger = class _MatContextMenuTrigger extends MatMenuTriggerB
       this._updatePosition();
     });
   }
-  _initializePoint(x2, y) {
+  _initializePoint(x, y) {
     const scrollPosition = this._viewportRuler.getViewportScrollPosition();
     const point = this._point;
-    point.x = point.initialX = x2;
+    point.x = point.initialX = x;
     point.y = point.initialY = y;
     point.initialScrollX = scrollPosition.left;
     point.initialScrollY = scrollPosition.top;
@@ -91422,13 +91538,13 @@ var MatTooltip = class _MatTooltip {
       throw getMatTooltipInvalidPositionError(position);
     }
     const {
-      x: x2,
+      x,
       y
     } = this._invertPosition(originPosition.originX, originPosition.originY);
     return {
       main: originPosition,
       fallback: {
-        originX: x2,
+        originX: x,
         originY: y
       }
     };
@@ -91461,13 +91577,13 @@ var MatTooltip = class _MatTooltip {
       throw getMatTooltipInvalidPositionError(position);
     }
     const {
-      x: x2,
+      x,
       y
     } = this._invertPosition(overlayPosition.overlayX, overlayPosition.overlayY);
     return {
       main: overlayPosition,
       fallback: {
-        overlayX: x2,
+        overlayX: x,
         overlayY: y
       }
     };
@@ -91491,7 +91607,7 @@ var MatTooltip = class _MatTooltip {
       this._tooltipInstance._markForCheck();
     }
   }
-  _invertPosition(x2, y) {
+  _invertPosition(x, y) {
     if (this.position === "above" || this.position === "below") {
       if (y === "top") {
         y = "bottom";
@@ -91499,14 +91615,14 @@ var MatTooltip = class _MatTooltip {
         y = "top";
       }
     } else {
-      if (x2 === "end") {
-        x2 = "start";
-      } else if (x2 === "start") {
-        x2 = "end";
+      if (x === "end") {
+        x = "start";
+      } else if (x === "start") {
+        x = "end";
       }
     }
     return {
-      x: x2,
+      x,
       y
     };
   }
@@ -92431,7 +92547,7 @@ function outputToObservable(ref) {
   const destroyRef = getOutputDestroyRef(ref);
   return new Observable((observer) => {
     const unregisterOnDestroy = destroyRef?.onDestroy(() => observer.complete());
-    const subscription = ref.subscribe((v) => observer.next(v));
+    const subscription = ref.subscribe((v2) => observer.next(v2));
     return () => {
       subscription.unsubscribe();
       unregisterOnDestroy?.();
@@ -93239,7 +93355,7 @@ var FieldValidationState = class {
         return "unknown";
       }
       return "valid";
-    }, (v) => v === "invalid");
+    }, (v2) => v2 === "invalid");
   }, ...ngDevMode ? [{
     debugName: "status"
   }] : []);
@@ -94756,8 +94872,8 @@ function customControlCreate(host, parent) {
     }
   };
 }
-function isValidatorObject(v) {
-  return typeof v === "object" && v !== null;
+function isValidatorObject(v2) {
+  return typeof v2 === "object" && v2 !== null;
 }
 function cvaControlCreate(host, parent) {
   const bindings = createBindings();
@@ -94772,15 +94888,15 @@ function cvaControlCreate(host, parent) {
   });
   if (legacyValidators) {
     let version;
-    for (const v of legacyValidators) {
-      if (isValidatorObject(v) && v.registerOnValidatorChange) {
+    for (const v2 of legacyValidators) {
+      if (isValidatorObject(v2) && v2.registerOnValidatorChange) {
         version ??= signal(0);
-        v.registerOnValidatorChange(() => {
+        v2.registerOnValidatorChange(() => {
           version.update((n) => n + 1);
         });
       }
     }
-    const validatorFns = legacyValidators.map((v) => typeof v === "function" ? v : v.validate.bind(v));
+    const validatorFns = legacyValidators.map((v2) => typeof v2 === "function" ? v2 : v2.validate.bind(v2));
     const mergedValidator = Validators.compose(validatorFns);
     const parseErrors = computed(() => {
       version?.();
@@ -96009,7 +96125,7 @@ function cleanCssSelector(selector) {
   return escaped.split(" ").map((part) => part.replace(/^\\/, "")).join(" ");
 }
 function getSvgDimensions(svg_element) {
-  let x2 = 0;
+  let x = 0;
   let y = 0;
   let width = 0;
   let height = 0;
@@ -96017,7 +96133,7 @@ function getSvgDimensions(svg_element) {
   if (view_box) {
     const parts = view_box.split(/[\s,]+/).map(parseFloat);
     if (parts.length >= 4) {
-      x2 = parts[0] || 0;
+      x = parts[0] || 0;
       y = parts[1] || 0;
       width = parts[2];
       height = parts[3];
@@ -96032,14 +96148,14 @@ function getSvgDimensions(svg_element) {
   if (!width || !height) {
     try {
       const bbox = svg_element.getBBox();
-      x2 = bbox.x;
+      x = bbox.x;
       y = bbox.y;
       width = bbox.width;
       height = bbox.height;
     } catch {
     }
   }
-  return { x: x2, y, width: width || 1, height: height || 1 };
+  return { x, y, width: width || 1, height: height || 1 };
 }
 function getElementBoundsInSvgSpace(element, svg_inverse_ctm) {
   const bbox = element.getBBox();
@@ -96724,7 +96840,7 @@ var MapViewer = class {
     const ctx = this._ctx;
     const width = this.container.clientWidth || 1;
     const height = this.container.clientHeight || 1;
-    const toScreenX = (x2) => (x2 - view_left) * scale.x;
+    const toScreenX = (x) => (x - view_left) * scale.x;
     const toScreenY = (y) => (y - view_top) * scale.y;
     ctx.strokeStyle = "#f0f";
     ctx.lineWidth = 2;
@@ -96732,27 +96848,27 @@ var MapViewer = class {
     ctx.strokeStyle = "rgba(0, 200, 255, 0.6)";
     ctx.lineWidth = 1;
     for (const [, bounds] of this.map.element_bounds) {
-      const x2 = toScreenX(bounds.x);
+      const x = toScreenX(bounds.x);
       const y = toScreenY(bounds.y);
       const w2 = bounds.w * scale.x;
       const h2 = bounds.h * scale.y;
-      if (x2 + w2 < 0 || y + h2 < 0 || x2 > width || y > height)
+      if (x + w2 < 0 || y + h2 < 0 || x > width || y > height)
         continue;
-      ctx.strokeRect(x2, y, w2, h2);
+      ctx.strokeRect(x, y, w2, h2);
     }
     const highlight_id = this.debug_info.highlight_id || this.debug_info.hover_id;
     const hover_bounds = highlight_id ? this.map.element_bounds.get(highlight_id) : null;
     if (hover_bounds) {
-      const x2 = toScreenX(hover_bounds.x);
+      const x = toScreenX(hover_bounds.x);
       const y = toScreenY(hover_bounds.y);
       ctx.fillStyle = "rgba(255, 0, 255, 0.25)";
-      ctx.fillRect(x2, y, hover_bounds.w * scale.x, hover_bounds.h * scale.y);
+      ctx.fillRect(x, y, hover_bounds.w * scale.x, hover_bounds.h * scale.y);
       const label = `#${highlight_id}`;
       ctx.font = "12px monospace";
       ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
-      ctx.fillRect(x2, y - 16, ctx.measureText(label).width + 8, 16);
+      ctx.fillRect(x, y - 16, ctx.measureText(label).width + 8, 16);
       ctx.fillStyle = "#fff";
-      ctx.fillText(label, x2 + 4, y - 4);
+      ctx.fillText(label, x + 4, y - 4);
     }
     ctx.strokeStyle = "#f00";
     ctx.lineWidth = 1;
@@ -98240,16 +98356,16 @@ var MatProgressBar = class _MatProgressBar {
   get value() {
     return this._value;
   }
-  set value(v) {
-    this._value = clamp(v || 0);
+  set value(v2) {
+    this._value = clamp(v2 || 0);
     this._changeDetectorRef.markForCheck();
   }
   _value = 0;
   get bufferValue() {
     return this._bufferValue || 0;
   }
-  set bufferValue(v) {
-    this._bufferValue = clamp(v || 0);
+  set bufferValue(v2) {
+    this._bufferValue = clamp(v2 || 0);
     this._changeDetectorRef.markForCheck();
   }
   _bufferValue = 0;
@@ -98412,8 +98528,8 @@ var MatProgressBar = class _MatProgressBar {
     }]
   });
 })();
-function clamp(v, min = 0, max = 100) {
-  return Math.max(min, Math.min(max, v));
+function clamp(v2, min = 0, max = 100) {
+  return Math.max(min, Math.min(max, v2));
 }
 var MatProgressBarModule = class _MatProgressBarModule {
   static \u0275fac = function MatProgressBarModule_Factory(__ngFactoryType__) {
@@ -101114,8 +101230,8 @@ var MatRadioGroup = class _MatRadioGroup {
   get labelPosition() {
     return this._labelPosition;
   }
-  set labelPosition(v) {
-    this._labelPosition = v === "before" ? "before" : "after";
+  set labelPosition(v2) {
+    this._labelPosition = v2 === "before" ? "before" : "after";
     this._markRadiosForCheck();
   }
   get value() {
@@ -104854,6 +104970,10 @@ var RichTextInputComponent = class _RichTextInputComponent extends AsyncHandler 
           this._insertUploadedFile(link, file, images_only);
           this._syncValue();
         }, 100);
+      }).catch((error2) => {
+        if (error2 instanceof UploadCancelledError)
+          return;
+        notifyError(`Failed to upload ${file.name}: ${error2?.message || "Unknown error"}`);
       });
     };
   }
@@ -105053,7 +105173,7 @@ var RichTextInputComponent = class _RichTextInputComponent extends AsyncHandler 
   }], null, { placeholder: [{ type: Input, args: [{ isSignal: true, alias: "placeholder", required: false }] }], readonly: [{ type: Input, args: [{ isSignal: true, alias: "readonly", required: false }] }], images_allowed: [{ type: Input, args: [{ isSignal: true, alias: "images_allowed", required: false }] }], _editor_el: [{ type: ViewChild, args: ["editor", { isSignal: true }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(RichTextInputComponent, { className: "RichTextInputComponent", filePath: "libs/form-fields/src/lib/rich-text-input.component.ts", lineNumber: 186 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(RichTextInputComponent, { className: "RichTextInputComponent", filePath: "libs/form-fields/src/lib/rich-text-input.component.ts", lineNumber: 191 });
 })();
 
 // libs/form-fields/src/lib/time-field.component.ts
@@ -106058,8 +106178,8 @@ var MatSlider = class _MatSlider {
   get disabled() {
     return this._disabled;
   }
-  set disabled(v) {
-    this._disabled = v;
+  set disabled(v2) {
+    this._disabled = v2;
     const endInput = this._getInput(_MatThumb.END);
     const startInput = this._getInput(_MatThumb.START);
     if (endInput) {
@@ -106073,8 +106193,8 @@ var MatSlider = class _MatSlider {
   get discrete() {
     return this._discrete;
   }
-  set discrete(v) {
-    this._discrete = v;
+  set discrete(v2) {
+    this._discrete = v2;
     this._updateValueIndicatorUIs();
   }
   _discrete = false;
@@ -106092,8 +106212,8 @@ var MatSlider = class _MatSlider {
   get min() {
     return this._min;
   }
-  set min(v) {
-    const min = v === void 0 || v === null || isNaN(v) ? this._min : v;
+  set min(v2) {
+    const min = v2 === void 0 || v2 === null || isNaN(v2) ? this._min : v2;
     if (this._min !== min) {
       this._updateMin(min);
     }
@@ -106143,8 +106263,8 @@ var MatSlider = class _MatSlider {
   get max() {
     return this._max;
   }
-  set max(v) {
-    const max = v === void 0 || v === null || isNaN(v) ? this._max : v;
+  set max(v2) {
+    const max = v2 === void 0 || v2 === null || isNaN(v2) ? this._max : v2;
     if (this._max !== max) {
       this._updateMax(max);
     }
@@ -106192,8 +106312,8 @@ var MatSlider = class _MatSlider {
   get step() {
     return this._step;
   }
-  set step(v) {
-    const step = isNaN(v) ? this._step : v;
+  set step(v2) {
+    const step = isNaN(v2) ? this._step : v2;
     if (this._step !== step) {
       this._updateStep(step);
     }
@@ -106885,37 +107005,37 @@ var MatSliderThumb = class _MatSliderThumb {
     }
     return this._translateX;
   }
-  set translateX(v) {
-    this._translateX = v;
+  set translateX(v2) {
+    this._translateX = v2;
   }
   _translateX;
   thumbPosition = _MatThumb.END;
   get min() {
     return numberAttribute(this._hostElement.min, 0);
   }
-  set min(v) {
-    this._hostElement.min = v + "";
+  set min(v2) {
+    this._hostElement.min = v2 + "";
     this._cdr.detectChanges();
   }
   get max() {
     return numberAttribute(this._hostElement.max, 0);
   }
-  set max(v) {
-    this._hostElement.max = v + "";
+  set max(v2) {
+    this._hostElement.max = v2 + "";
     this._cdr.detectChanges();
   }
   get step() {
     return numberAttribute(this._hostElement.step, 0);
   }
-  set step(v) {
-    this._hostElement.step = v + "";
+  set step(v2) {
+    this._hostElement.step = v2 + "";
     this._cdr.detectChanges();
   }
   get disabled() {
     return booleanAttribute(this._hostElement.disabled);
   }
-  set disabled(v) {
-    this._hostElement.disabled = v;
+  set disabled(v2) {
+    this._hostElement.disabled = v2;
     this._cdr.detectChanges();
     if (this._slider.disabled !== this.disabled) {
       this._slider.disabled = this.disabled;
@@ -106944,8 +107064,8 @@ var MatSliderThumb = class _MatSliderThumb {
   _tickMarkOffset = 3;
   _isActive = false;
   _isFocused = false;
-  _setIsFocused(v) {
-    this._isFocused = v;
+  _setIsFocused(v2) {
+    this._isFocused = v2;
   }
   _hasSetInitialValue = false;
   _initialValue;
@@ -107109,10 +107229,10 @@ var MatSliderThumb = class _MatSliderThumb {
       setTimeout(() => this._updateWidthInactive(), this._platform.IOS ? 10 : 0);
     }
   }
-  _clamp(v) {
+  _clamp(v2) {
     const min = this._tickMarkOffset;
     const max = this._slider._cachedWidth - this._tickMarkOffset;
-    return Math.max(Math.min(v, max), min);
+    return Math.max(Math.min(v2, max), min);
   }
   _calcTranslateXByValue() {
     if (this._slider._isRtl()) {
@@ -107317,8 +107437,8 @@ var MatSliderRangeThumb = class _MatSliderRangeThumb extends MatSliderThumb {
     super._fixValue(event);
     this._sibling?._updateMinMax();
   }
-  _clamp(v) {
-    return Math.max(Math.min(v, this.getMaxPos()), this.getMinPos());
+  _clamp(v2) {
+    return Math.max(Math.min(v2, this.getMaxPos()), this.getMinPos());
   }
   _updateMinMax() {
     const sibling = this.getSibling();
@@ -108130,7 +108250,8 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
   async checkSubsystemAccess(user) {
     if (!user)
       return false;
-    const app_name = `${this._settings.app_name || ""}`.trim().toLowerCase();
+    const subsystem = `${this._settings.get("app.access_subsystem") || ""}`.trim();
+    const app_name = (subsystem || `${this._settings.app_name || ""}`).trim().toLowerCase();
     if (!app_name)
       return false;
     await this.waitForUserGroups();
@@ -110626,7 +110747,7 @@ var UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHand
           q: q2,
           authority_id: Rt()?.id,
           fields: ["id", "name", "email"].join(",")
-        }).then((_3) => _3.data.map((u4) => new User(u4))).catch(() => []) : await searchStaff(q2).catch(() => []);
+        }).then((_3) => _3.data.map((u3) => new User(u3))).catch(() => []) : await searchStaff(q2).catch(() => []);
         if (!this.guests())
           return staff;
         return [...staff, ...await guest_query()];
@@ -111351,8 +111472,8 @@ var FindAvailabilityModalComponent = class _FindAvailabilityModalComponent exten
     );
     this.selection_left = computed(
       () => {
-        const d2 = new Date(this.date());
-        return (d2.getHours() + d2.getMinutes() / 60) * 5;
+        const d = new Date(this.date());
+        return (d.getHours() + d.getMinutes() / 60) * 5;
       },
       ...ngDevMode ? [{ debugName: "selection_left" }] : (
         /* istanbul ignore next */
@@ -111377,23 +111498,23 @@ var FindAvailabilityModalComponent = class _FindAvailabilityModalComponent exten
     if (!new_user)
       return;
     this.users.update((current) => [
-      ...current.filter((u4) => u4.email !== new_user.email),
+      ...current.filter((u3) => u3.email !== new_user.email),
       new_user
     ]);
     this.user.set(void 0);
   }
   removeUser(user_to_remove) {
-    this.users.update((current) => current.filter((u4) => u4.email !== user_to_remove.email));
+    this.users.update((current) => current.filter((u3) => u3.email !== user_to_remove.email));
     this.user.set(void 0);
   }
   closeAndUpdate() {
     this._dialog_ref.close(true);
   }
   ngAfterViewInit() {
-    const d2 = new Date(this.date());
+    const d = new Date(this.date());
     const hour_width = 80;
     this.timeout("init", () => {
-      const selected_hour = d2.getHours() + d2.getMinutes() / 60;
+      const selected_hour = d.getHours() + d.getMinutes() / 60;
       const scroll_x = Math.max(0, selected_hour * hour_width - 48);
       this._container_el().nativeElement.scrollTo(scroll_x, 0);
       this.onScroll();
@@ -112387,7 +112508,7 @@ var CounterComponent = class _CounterComponent {
     );
     this.registerOnChange = (fn) => this._onChange = fn;
     this.registerOnTouched = (fn) => this._onTouch = fn;
-    this.setDisabledState = (d2) => this.disabled.set(d2);
+    this.setDisabledState = (d) => this.disabled.set(d);
   }
   /**
    * Add the `step` to the current value
@@ -113839,7 +113960,7 @@ function constructTimingAst(value, errors) {
     return makeTimingAst(duration, 0, "");
   }
   const strValue = value;
-  const isDynamic = strValue.split(/\s+/).some((v) => v.charAt(0) == "{" && v.charAt(1) == "{");
+  const isDynamic = strValue.split(/\s+/).some((v2) => v2.charAt(0) == "{" && v2.charAt(1) == "{");
   if (isDynamic) {
     const ast = makeTimingAst(0, 0, "");
     ast.dynamic = true;
@@ -118143,7 +118264,7 @@ var GroupEventDetailsModalComponent = class _GroupEventDetailsModalComponent {
         \u0275\u0275advance(5);
         \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(21, 34, "CALENDAR_EVENT.GROUP_PROMOTE"), " ");
         \u0275\u0275advance(7);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(28, 36, "CALENDAR_EVENT.GROUP_EDIT"), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(28, 36, "CALENDAR_EVENT.ACTION_EDIT"), " ");
         \u0275\u0275advance(2);
         \u0275\u0275property("disabled", !ctx.public_event_link());
         \u0275\u0275advance(5);
@@ -118329,7 +118450,7 @@ var GroupEventDetailsModalComponent = class _GroupEventDetailsModalComponent {
                                 <icon class="text-2xl">edit</icon>
                                 <div class="mr-2">
                                     {{
-                                        'CALENDAR_EVENT.GROUP_EDIT' | translate
+                                        'CALENDAR_EVENT.ACTION_EDIT' | translate
                                     }}
                                 </div>
                             </div>
@@ -122470,6 +122591,15 @@ function bookingAttachments(booking = new Booking()) {
     ...extension_data.p2_document_names || []
   ].filter((item) => !!item);
 }
+function bookingHostUser(booking = new Booking()) {
+  if (!booking?.user_email)
+    return currentUser();
+  return new User({
+    id: booking.user_id || "",
+    email: booking.user_email,
+    name: booking.user_name || booking.user_email
+  });
+}
 function bookingFormValue(booking = new Booking()) {
   const extension_data = booking.extension_data || {};
   const visitor_name = booking.booking_type === "visitor" ? extension_data.visitor_name || booking.asset_name || "" : booking.asset_name || booking.description;
@@ -122496,7 +122626,7 @@ function bookingFormValue(booking = new Booking()) {
     attendees: booking.attendees || [],
     map_id: extension_data.map_id || "",
     featured: extension_data.featured || false,
-    user: currentUser(),
+    user: bookingHostUser(booking),
     user_id: booking.user_id || "",
     group: booking.group ?? {},
     user_email: booking.user_email || "",
@@ -122574,7 +122704,7 @@ function generateBookingForm(booking = new Booking(), injector) {
       return value() < Date.now() && !!untracked2(model2).id;
     });
   }, { injector });
-  onFieldChange(model2, (v) => v.user, (user) => {
+  onFieldChange(model2, (v2) => v2.user, (user) => {
     if (!user)
       return;
     model2.update((m2) => __spreadProps(__spreadValues({}, m2), {
@@ -122584,7 +122714,7 @@ function generateBookingForm(booking = new Booking(), injector) {
       user_name: user?.name ?? ""
     }));
   }, injector);
-  onFieldChange(model2, (v) => v.resources, (resources) => setBookingAsset(model2, (resources || [])[0]), injector);
+  onFieldChange(model2, (v2) => v2.resources, (resources) => setBookingAsset(model2, (resources || [])[0]), injector);
   current_user.subscribe((user) => {
     if (!user)
       return;
@@ -122609,10 +122739,10 @@ async function findNearbyFeature(map_url, centered_at, desk_ids = []) {
   let dist = 10;
   let closest = "";
   for (const desk of desk_ids) {
-    const { x: x2, y } = centerOf(desk) || { x: 2, y: 2 };
-    const d2 = Math.sqrt((x2 - point.x) * (x2 - point.x) + (y - point.y) * (y - point.y));
-    if (d2 < dist) {
-      dist = d2;
+    const { x, y } = centerOf(desk) || { x: 2, y: 2 };
+    const d = Math.sqrt((x - point.x) * (x - point.x) + (y - point.y) * (y - point.y));
+    if (d < dist) {
+      dist = d;
       closest = desk;
     }
   }
@@ -124005,7 +124135,7 @@ var BookingDetailsModalComponent = class _BookingDetailsModalComponent {
         \u0275\u0275advance();
         \u0275\u0275conditional(!ctx.booking().is_done ? 12 : -1);
         \u0275\u0275advance(4);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(17, 27, "BOOKINGS.DETAILS"), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(17, 27, "COMMON.DETAILS"), " ");
         \u0275\u0275advance(6);
         \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(23, 29, ctx.booking().date, "EEEE, dd LLLL y"), " ");
         \u0275\u0275advance(6);
@@ -124185,7 +124315,7 @@ var BookingDetailsModalComponent = class _BookingDetailsModalComponent {
                     class="border-base-200 sm:bg-base-100 min-w-1/3 grow-4 rounded-sm sm:m-2 sm:w-[16rem] sm:border sm:p-4"
                 >
                     <h3 class="mt-2 mb-2 px-3 text-lg font-medium">
-                        {{ 'BOOKINGS.DETAILS' | translate }}
+                        {{ 'COMMON.DETAILS' | translate }}
                     </h3>
                     <div class="flex items-center space-x-2 px-2">
                         <icon matTooltip="Date">event</icon>
@@ -124218,7 +124348,9 @@ var BookingDetailsModalComponent = class _BookingDetailsModalComponent {
                         <div class="flex items-center space-x-2 px-2">
                             <icon matTooltip="Location">place</icon>
                             <div>
-                                {{ building()?.display_name || building()?.name }}
+                                {{
+                                    building()?.display_name || building()?.name
+                                }}
                                 {{
                                     building()?.address
                                         ? ', ' + building().address
@@ -124519,7 +124651,7 @@ var BookingDetailsModalComponent = class _BookingDetailsModalComponent {
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(BookingDetailsModalComponent, { className: "BookingDetailsModalComponent", filePath: "libs/bookings/src/lib/booking-details-modal.component.ts", lineNumber: 512 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(BookingDetailsModalComponent, { className: "BookingDetailsModalComponent", filePath: "libs/bookings/src/lib/booking-details-modal.component.ts", lineNumber: 514 });
 })();
 
 // libs/bookings/src/lib/parking.service.ts
@@ -124646,7 +124778,7 @@ var ParkingService = class _ParkingService extends AsyncHandler {
     effect(() => {
       const levels = this.levels();
       if (levels[0]?.id)
-        untracked2(() => this._loadSpaces(levels.map((l) => l.id)));
+        untracked2(() => this._loadSpaces(levels.map((l2) => l2.id)));
     });
     effect(() => {
       const bld = this._org.active_building();
@@ -124694,7 +124826,7 @@ var ParkingService = class _ParkingService extends AsyncHandler {
       return;
     const results = await Promise.all(buildings.map((bld) => Ju(bld.id, { name: "desks" }).then((data) => ({
       building_id: bld.id,
-      desks: flatten2(data.map((meta) => (meta?.metadata?.desks?.details instanceof Array ? meta.metadata.desks.details : []).map((d2) => new Desk(__spreadProps(__spreadValues({}, d2), {
+      desks: flatten2(data.map((meta) => (meta?.metadata?.desks?.details instanceof Array ? meta.metadata.desks.details : []).map((d) => new Desk(__spreadProps(__spreadValues({}, d), {
         zone: meta.zone
       })))))
     })).catch(() => ({
@@ -124704,7 +124836,7 @@ var ParkingService = class _ParkingService extends AsyncHandler {
     const email2 = currentUser()?.email?.toLowerCase();
     if (!email2)
       return this._home_building_id.set(null);
-    const match3 = results.find((r) => r.desks.some((d2) => d2.assigned_to?.toLowerCase() === email2));
+    const match3 = results.find((r) => r.desks.some((d) => d.assigned_to?.toLowerCase() === email2));
     this._home_building_id.set(match3?.building_id || null);
   }
   static {
@@ -124865,7 +124997,7 @@ function BookingCardComponent_Conditional_1_Conditional_28_Template(rf, ctx) {
   }
   if (rf & 2) {
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, "BOOKINGS.EVENT"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, "RESOURCE.EVENT"), " ");
   }
 }
 function BookingCardComponent_Conditional_1_Conditional_29_Template(rf, ctx) {
@@ -124878,7 +125010,7 @@ function BookingCardComponent_Conditional_1_Conditional_29_Template(rf, ctx) {
   if (rf & 2) {
     const ctx_r0 = \u0275\u0275nextContext(2);
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, ctx_r0.booking().status !== "declined" ? "BOOKINGS.RESERVED" : "BOOKINGS.RELEASED"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, ctx_r0.booking().status !== "declined" ? "COMMON.STATUS_RESERVED" : "BOOKINGS.RELEASED"), " ");
   }
 }
 function BookingCardComponent_Conditional_1_Template(rf, ctx) {
@@ -125406,7 +125538,7 @@ var BookingCardComponent = class _BookingCardComponent {
                         <div
                             class="bg-warning/50 absolute top-14 right-2 rounded-xl px-2 py-1 text-xs"
                         >
-                            {{ 'BOOKINGS.EVENT' | translate }}
+                            {{ 'RESOURCE.EVENT' | translate }}
                         </div>
                     }
                     @if (
@@ -125417,7 +125549,7 @@ var BookingCardComponent = class _BookingCardComponent {
                         >
                             {{
                                 (booking().status !== 'declined'
-                                    ? 'BOOKINGS.RESERVED'
+                                    ? 'COMMON.STATUS_RESERVED'
                                     : 'BOOKINGS.RELEASED'
                                 ) | translate
                             }}
@@ -127425,7 +127557,12 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     this._patch(Vs(__spreadProps(__spreadValues(__spreadProps(__spreadValues({}, booking.extension_data), {
       attachments: bookingAttachments(booking)
     }), booking), {
-      _in_progress: booking.state === "started" || booking.state === "in_progress"
+      _in_progress: booking.state === "started" || booking.state === "in_progress",
+      // `Booking` has no `user` object, only the flat `user_*`
+      // fields, so the host has to be rebuilt from those. Without
+      // it the form keeps the signed-in user and editing a
+      // delegate booking reassigns the host on save.
+      user: bookingHostUser(booking)
     }), [null, void 0, ""]), { emitEvent: false });
     this.applyDurationSettings();
     this._syncAssetOptions();
@@ -127810,6 +127947,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     this.form().reset();
     this._patch(Vs(__spreadProps(__spreadValues(__spreadValues({}, booking || {}), booking?.extension_data || {}), {
       attachments: bookingAttachments(booking),
+      user: bookingHostUser(booking),
       _in_progress: booking?.state === "started"
     }), [null, void 0, ""]));
     this._options.set({ type: this._options().type });
@@ -127846,6 +127984,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     this.form().reset();
     const booking_data = Vs(__spreadProps(__spreadValues(__spreadValues(__spreadValues({}, data), booking || {}), booking?.extension_data || {}), {
       attachments: bookingAttachments(booking),
+      user: bookingHostUser(booking),
       _in_progress: booking?.state === "started"
     }), [null, void 0, ""]);
     this._patch(booking_data, { emitEvent: false });
@@ -128767,7 +128906,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
   async loadParkingResources() {
     const use_region = this._settings.get("app.use_region");
     const levels = (use_region ? this._org.levelsForRegion() : this._org.levelsForBuilding()).filter((_3) => _3.tags.includes("parking"));
-    const spaces = await queryParkingSpacesForZones(levels.map((l) => l.id));
+    const spaces = await queryParkingSpacesForZones(levels.map((l2) => l2.id));
     return spaces.map((s) => __spreadProps(__spreadValues({}, s), {
       id: s.id || s.map_id,
       groups: s.place_groups,
@@ -128776,8 +128915,8 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
   }
   async loadResourceList(type) {
     const use_region = this._settings.get("app.use_region");
-    const map_metadata = (_3) => (_3?.metadata[type]?.details instanceof Array ? _3.metadata[type].details : []).map((d2) => __spreadProps(__spreadValues({}, d2), {
-      id: d2.id || d2.map_id,
+    const map_metadata = (_3) => (_3?.metadata[type]?.details instanceof Array ? _3.metadata[type].details : []).map((d) => __spreadProps(__spreadValues({}, d), {
+      id: d.id || d.map_id,
       zone: _3.zone
     }));
     const id = use_region ? this._org.building?.parent_id : this._org.building?.id;
@@ -129040,7 +129179,7 @@ function DeskDetailsComponent_Conditional_0_Template(rf, ctx) {
     \u0275\u0275advance(3);
     \u0275\u0275textInterpolate1(" ", ctx_r1.desk().display_name || ctx_r1.desk().name || ctx_r1.desk().id, " ");
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(16, 14, "BOOKINGS.DETAILS"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(16, 14, "COMMON.DETAILS"), " ");
     \u0275\u0275advance(6);
     \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(22, 16, "BOOKINGS.DESK_COUNT_LONE"));
     \u0275\u0275advance(6);
@@ -129206,7 +129345,7 @@ var DeskDetailsComponent = class _DeskDetailsComponent {
                     <h2
                         class="bg-base-100 absolute top-0 left-2 -translate-y-1/2 px-2 text-lg font-medium"
                     >
-                        {{ 'BOOKINGS.DETAILS' | translate }}
+                        {{ 'COMMON.DETAILS' | translate }}
                     </h2>
                     <div class="flex items-center space-x-2">
                         <icon>person</icon>
@@ -129502,7 +129641,7 @@ function DeskFiltersComponent_Conditional_10_Template(rf, ctx) {
   }
   if (rf & 2) {
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, "BOOKINGS.LOCATION"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, "COMMON.LOCATION"), " ");
   }
 }
 function DeskFiltersComponent_Conditional_11_For_4_Template(rf, ctx) {
@@ -129824,7 +129963,7 @@ var DeskFiltersComponent = class _DeskFiltersComponent {
     );
     this.setOptions = (o) => this._state.setOptions(o);
     this.setFeature = (f3, e) => this._state.setFeature(f3, e);
-    this.setLevel = (l) => {
+    this.setLevel = (l2) => {
     };
     this.setBuilding = (bld) => this._org.building = bld;
     this.setRegion = (r) => this._org.region = r;
@@ -129914,7 +130053,7 @@ var DeskFiltersComponent = class _DeskFiltersComponent {
         \u0275\u0275advance(2);
         \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 16, "COMMON.FILTERS"), " ");
         \u0275\u0275advance(5);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(8, 18, "BOOKINGS.DETAILS"), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(8, 18, "COMMON.DETAILS"), " ");
         \u0275\u0275advance(3);
         \u0275\u0275conditional(ctx.show_level_select() && !(ctx.use_region() && ctx.regions()?.length) && !(!ctx.use_region() && ctx.buildings()?.length > 1) ? 10 : -1);
         \u0275\u0275advance();
@@ -129978,7 +130117,7 @@ var DeskFiltersComponent = class _DeskFiltersComponent {
         <form class="divide-base-200 relative z-0 w-full divide-y p-2">
             <section details>
                 <h2 class="mb-1 text-lg font-medium">
-                    {{ 'BOOKINGS.DETAILS' | translate }}
+                    {{ 'COMMON.DETAILS' | translate }}
                 </h2>
                 <div class="flex min-w-32 flex-1 flex-col">
                     @if (
@@ -129987,7 +130126,7 @@ var DeskFiltersComponent = class _DeskFiltersComponent {
                         !(!use_region() && buildings()?.length > 1)
                     ) {
                         <label for="location">
-                            {{ 'BOOKINGS.LOCATION' | translate }}
+                            {{ 'COMMON.LOCATION' | translate }}
                         </label>
                     }
                     @if (use_region() && regions()?.length) {
@@ -130099,7 +130238,10 @@ var DeskFiltersComponent = class _DeskFiltersComponent {
                                 name="start-time"
                                 [ngModel]="model().date"
                                 (ngModelChange)="
-                                    model.update((m) => ({ ...m, date: $event }))
+                                    model.update((m) => ({
+                                        ...m,
+                                        date: $event,
+                                    }))
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                                 [use_24hr]="use_24hr()"
@@ -130178,7 +130320,7 @@ var DeskFiltersComponent = class _DeskFiltersComponent {
   }], null, { hide_levels: [{ type: Input, args: [{ isSignal: true, alias: "hide_levels", required: false }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DeskFiltersComponent, { className: "DeskFiltersComponent", filePath: "libs/bookings/src/lib/desk-select-modal/desk-filters.component.ts", lineNumber: 240 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DeskFiltersComponent, { className: "DeskFiltersComponent", filePath: "libs/bookings/src/lib/desk-select-modal/desk-filters.component.ts", lineNumber: 243 });
 })();
 
 // libs/bookings/src/lib/desk-select-modal/desk-list.component.ts
@@ -131158,15 +131300,15 @@ function generateEventForm(event = new CalendarEvent(), settings, injector) {
     disabled(p2.assets, { when: ({ valueOf }) => !valueOf(p2.resources)?.length });
     disabled(p2.duration, { when: ({ valueOf }) => !!valueOf(p2.all_day) });
   }, { injector });
-  onFieldChange(model2, (v) => v.organiser, (organiser) => (
+  onFieldChange(model2, (v2) => v2.organiser, (organiser) => (
     // Coalesce to '' so the `host` sub-field is never removed from the
     // FieldTree (an undefined value breaks its `required`/`[formField]`).
     model2.update((m2) => __spreadProps(__spreadValues({}, m2), { host: organiser?.email ?? "" }))
   ), injector);
-  onFieldChange(model2, (v) => v.resources, (resources) => model2.update((m2) => __spreadProps(__spreadValues({}, m2), {
+  onFieldChange(model2, (v2) => v2.resources, (resources) => model2.update((m2) => __spreadProps(__spreadValues({}, m2), {
     system: resources?.length ? resources[0] : null
   })), injector);
-  onFieldChange(model2, (v) => v.date, (date) => {
+  onFieldChange(model2, (v2) => v2.date, (date) => {
     const recurrence = model2().recurrence;
     if (recurrence?._pattern !== "custom_display" && recurrence?._pattern !== "none") {
       model2.update((m2) => __spreadProps(__spreadValues({}, m2), {
@@ -131192,7 +131334,7 @@ function generateEventForm(event = new CalendarEvent(), settings, injector) {
       }))
     }));
   };
-  onFieldChange(model2, (v) => v.catering, setCateringTime, injector);
+  onFieldChange(model2, (v2) => v2.catering, setCateringTime, injector);
   const time_sync = setupFormTimeSync(model2, { on_time_change: setCateringTime }, injector);
   return { model: model2, form: event_form, time_sync, lock_start_time };
 }
@@ -131356,7 +131498,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
         if (!this._model().id)
           return false;
         const attendee_emails = this._model().attendees.map((_3) => (_3.email || _3).toLowerCase());
-        return this._initial_attendees.every((_3) => attendee_emails.includes(_3)) && attendee_emails.some((_3) => !this._initial_attendees.includes(_3));
+        return attendee_emails.some((_3) => !this._initial_attendees.includes(_3));
       },
       ...ngDevMode ? [{ debugName: "can_notify_new_attendees_only" }] : (
         /* istanbul ignore next */
@@ -131574,9 +131716,9 @@ var EventFormService = class _EventFormService extends AsyncHandler {
   async init() {
     await currentUserLoaded();
     setDefaultCreator(currentUser());
-    onFieldChange(this._model, (v) => v.date, (date) => this.setOptions({ date }), this._injector);
-    onFieldChange(this._model, (v) => v.duration, (duration) => this.setOptions({ duration }), this._injector);
-    onFieldChange(this._model, (v) => v.all_day, (all_day) => this.setOptions({ all_day }), this._injector);
+    onFieldChange(this._model, (v2) => v2.date, (date) => this.setOptions({ date }), this._injector);
+    onFieldChange(this._model, (v2) => v2.duration, (duration) => this.setOptions({ duration }), this._injector);
+    onFieldChange(this._model, (v2) => v2.all_day, (all_day) => this.setOptions({ all_day }), this._injector);
     this.subscription("router.events", this._router.events.subscribe((event) => {
       if (event instanceof NavigationEnd && !BOOKING_URLS.some((_3) => event.url.includes(_3)) && !PERSISTED_EVENT_CONTEXT_URLS.some((_3) => event.url.includes(_3))) {
         this.clearForm();
@@ -131751,7 +131893,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       return;
     const event = new CalendarEvent(__spreadProps(__spreadValues({}, this._model()), { assets: [] }));
     const ref = this._dialog.open(EventLinkModalComponent, { data: event });
-    ref.afterClosed().subscribe((d2) => d2 ? this._router.navigate(["/"]) : "");
+    ref.afterClosed().subscribe((d) => d ? this._router.navigate(["/"]) : "");
   }
   cancelPostForm() {
   }
@@ -131882,10 +132024,10 @@ var EventFormService = class _EventFormService extends AsyncHandler {
         host,
         title: this._model().title || "Space Booking",
         attendees: this._model().attendees.map((_3) => {
-          const v = __spreadValues({}, _3);
-          delete v.visit_expected;
-          delete v.extension_data;
-          return v;
+          const v2 = __spreadValues({}, _3);
+          delete v2.visit_expected;
+          delete v2.extension_data;
+          return v2;
         }),
         assets: processed_assets,
         extension_data: ext
@@ -133234,11 +133376,11 @@ var ExploreSpacesService = class _ExploreSpacesService extends AsyncHandler {
     for (const space of list) {
       const mod2 = Wl(space.id, "Bookings");
       let binding = mod2.variable("bookings");
-      this.subscription(`b-${space.id}`, binding.bindThenSubscribe((d2) => this.handleBookingsChange(list, space, d2)));
+      this.subscription(`b-${space.id}`, binding.bindThenSubscribe((d) => this.handleBookingsChange(list, space, d)));
       binding = mod2.variable("status");
-      this.subscription(`s-${space.id}`, binding.bindThenSubscribe((d2) => this.handleStatusChange(list, space, d2)));
+      this.subscription(`s-${space.id}`, binding.bindThenSubscribe((d) => this.handleStatusChange(list, space, d)));
       binding = mod2.variable("presence");
-      this.subscription(`c-${space.id}`, binding.bindThenSubscribe((d2) => this.handlePresenceChange(list, space, d2)));
+      this.subscription(`c-${space.id}`, binding.bindThenSubscribe((d) => this.handlePresenceChange(list, space, d)));
     }
     this.updateActions(list);
     this._updateHoverElements(list);
@@ -135068,7 +135210,7 @@ var DENIED_FILE_TYPES = [
 ];
 var UserListFieldComponent = class _UserListFieldComponent extends AsyncHandler {
   async searchStaff(q2) {
-    return this._use_basic_user_search() ? Ma({ q: q2, authority_id: Rt()?.id }).then((_3) => _3.data.map((u4) => new User(u4))) : searchStaff(q2);
+    return this._use_basic_user_search() ? Ma({ q: q2, authority_id: Rt()?.id }).then((_3) => _3.data.map((u3) => new User(u3))) : searchStaff(q2);
   }
   constructor() {
     super();
@@ -136087,7 +136229,7 @@ function EventDetailsModalComponent_Conditional_88_Template(rf, ctx) {
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 1, "CALENDAR_EVENT.CATERING"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 1, "RESOURCE.CATERING"), " ");
     \u0275\u0275advance(3);
     \u0275\u0275repeater(ctx_r1.event().valid_catering);
   }
@@ -136123,7 +136265,7 @@ function EventDetailsModalComponent_Conditional_91_Template(rf, ctx) {
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 2, "CALENDAR_EVENT.NOTES_HEADER"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 2, "FORM.NOTES"), " ");
     \u0275\u0275advance(2);
     \u0275\u0275conditional(ctx_r1.raw_body() ? 4 : -1);
   }
@@ -136200,7 +136342,7 @@ function EventDetailsModalComponent_Conditional_92_Template(rf, ctx) {
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate2(" ", \u0275\u0275pipeBind1(3, 2, "CALENDAR_EVENT.ASSETS_HEADER"), " (", ctx_r1.event().valid_assets?.length || 0, ") ");
+    \u0275\u0275textInterpolate2(" ", \u0275\u0275pipeBind1(3, 2, "RESOURCE.ASSETS"), " (", ctx_r1.event().valid_assets?.length || 0, ") ");
     \u0275\u0275advance(3);
     \u0275\u0275repeater(ctx_r1.event().valid_assets);
   }
@@ -136841,7 +136983,7 @@ var EventDetailsModalComponent = class _EventDetailsModalComponent {
         \u0275\u0275advance();
         \u0275\u0275conditional(ctx.event().state !== "done" ? 15 : -1);
         \u0275\u0275advance(4);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(20, 46, "CALENDAR_EVENT.DETAILS"), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(20, 46, "COMMON.DETAILS"), " ");
         \u0275\u0275advance(7);
         \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(27, 48, ctx.event().date, "EEEE, dd LLLL y"), " ");
         \u0275\u0275advance(2);
@@ -136867,11 +137009,11 @@ var EventDetailsModalComponent = class _EventDetailsModalComponent {
         \u0275\u0275advance(5);
         \u0275\u0275textInterpolate(ctx.accept_count() || 0);
         \u0275\u0275advance(2);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(59, 55, "COMMON.TRUE"), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(59, 55, "COMMON.YES"), " ");
         \u0275\u0275advance(4);
         \u0275\u0275textInterpolate1(" ", ctx.declined_count() || 0, " ");
         \u0275\u0275advance(2);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(65, 57, "COMMON.FALSE"), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(65, 57, "COMMON.NO"), " ");
         \u0275\u0275advance(4);
         \u0275\u0275textInterpolate1(" ", ctx.pending_count() || 0, " ");
         \u0275\u0275advance(2);
@@ -137062,7 +137204,7 @@ var EventDetailsModalComponent = class _EventDetailsModalComponent {
                     class="border-base-200 sm:bg-base-100 min-w-1/3 grow-3 space-y-2 rounded-sm sm:m-2 sm:w-[16rem] sm:border sm:p-4"
                 >
                     <h3 class="mt-2 mb-2 px-3 text-lg font-medium">
-                        {{ 'CALENDAR_EVENT.DETAILS' | translate }}
+                        {{ 'COMMON.DETAILS' | translate }}
                     </h3>
                     <div class="flex items-center space-x-2 px-2">
                         <icon>event</icon>
@@ -137166,7 +137308,7 @@ var EventDetailsModalComponent = class _EventDetailsModalComponent {
                         >
                             <div class="text-lg">{{ accept_count() || 0 }}</div>
                             <div class="text-sm uppercase">
-                                {{ 'COMMON.TRUE' | translate }}
+                                {{ 'COMMON.YES' | translate }}
                             </div>
                         </div>
                         <div
@@ -137176,7 +137318,7 @@ var EventDetailsModalComponent = class _EventDetailsModalComponent {
                                 {{ declined_count() || 0 }}
                             </div>
                             <div class="text-sm uppercase">
-                                {{ 'COMMON.FALSE' | translate }}
+                                {{ 'COMMON.NO' | translate }}
                             </div>
                         </div>
                         <div
@@ -137242,7 +137384,7 @@ var EventDetailsModalComponent = class _EventDetailsModalComponent {
                         class="border-base-200 sm:bg-base-100 mt-4 min-w-1/3 grow-3 rounded-sm sm:m-2 sm:w-[16rem] sm:border sm:p-4"
                     >
                         <h3 class="mx-3 my-2 text-lg font-medium">
-                            {{ 'CALENDAR_EVENT.CATERING' | translate }}
+                            {{ 'RESOURCE.CATERING' | translate }}
                         </h3>
                         <div class="flex flex-col space-y-2">
                             @for (
@@ -137405,7 +137547,7 @@ var EventDetailsModalComponent = class _EventDetailsModalComponent {
                         <h3
                             class="border-base-200 mx-3 border-t text-lg font-medium sm:border-none"
                         >
-                            {{ 'CALENDAR_EVENT.NOTES_HEADER' | translate }}
+                            {{ 'FORM.NOTES' | translate }}
                         </h3>
                         @if (raw_body()) {
                             <div
@@ -137421,7 +137563,7 @@ var EventDetailsModalComponent = class _EventDetailsModalComponent {
                         class="border-base-200 sm:bg-base-100 mt-4 min-w-1/3 grow-3 rounded-sm sm:m-2 sm:w-[16rem] sm:border sm:p-4"
                     >
                         <h3 class="mx-3 pt-2 text-lg font-medium">
-                            {{ 'CALENDAR_EVENT.ASSETS_HEADER' | translate }} ({{
+                            {{ 'RESOURCE.ASSETS' | translate }} ({{
                                 event().valid_assets?.length || 0
                             }})
                         </h3>
@@ -137891,14 +138033,14 @@ var EventCardComponent = class _EventCardComponent extends AsyncHandler {
       )
     );
     this.edit_fn = input(
-      (d2) => null,
+      (d) => null,
       ...ngDevMode ? [{ debugName: "edit_fn" }] : (
         /* istanbul ignore next */
         []
       )
     );
     this.remove_fn = input(
-      (d2, t) => null,
+      (d, t) => null,
       ...ngDevMode ? [{ debugName: "remove_fn" }] : (
         /* istanbul ignore next */
         []
@@ -138385,7 +138527,7 @@ function SpaceDetailsComponent_Conditional_0_Template(rf, ctx) {
     \u0275\u0275advance();
     \u0275\u0275conditional(ctx_r1.alert() ? 12 : -1);
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(16, 22, "CALENDAR_EVENT.DETAILS"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(16, 22, "COMMON.DETAILS"), " ");
     \u0275\u0275advance(6);
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(22, 24, "CALENDAR_EVENT.CAPACITY_COUNT", \u0275\u0275pureFunction1(27, _c051, ctx_r1.space().capacity)), " ");
     \u0275\u0275advance(6);
@@ -138599,7 +138741,7 @@ var SpaceDetailsComponent = class _SpaceDetailsComponent {
                     <h2
                         class="bg-base-100 absolute top-0 left-2 -translate-y-1/2 px-2 text-lg font-medium"
                     >
-                        {{ 'CALENDAR_EVENT.DETAILS' | translate }}
+                        {{ 'COMMON.DETAILS' | translate }}
                     </h2>
                     <div class="flex items-center space-x-2">
                         <icon>people</icon>
@@ -138956,7 +139098,7 @@ function SpaceFiltersComponent_Conditional_10_Template(rf, ctx) {
   }
   if (rf & 2) {
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, "CALENDAR_EVENT.SPACE_LOCATION"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, "COMMON.LOCATION"), " ");
   }
 }
 function SpaceFiltersComponent_Conditional_11_For_4_Template(rf, ctx) {
@@ -139521,7 +139663,7 @@ var SpaceFiltersComponent = class _SpaceFiltersComponent {
         \u0275\u0275advance(2);
         \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 20, "COMMON.FILTERS"), " ");
         \u0275\u0275advance(5);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(8, 22, "CALENDAR_EVENT.DETAILS"), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(8, 22, "COMMON.DETAILS"), " ");
         \u0275\u0275advance(3);
         \u0275\u0275conditional(ctx.show_level_select() && !(ctx.use_region() && ctx.regions()?.length) && !(!ctx.use_region() && ctx.buildings()?.length > 1) ? 10 : -1);
         \u0275\u0275advance();
@@ -139593,7 +139735,7 @@ var SpaceFiltersComponent = class _SpaceFiltersComponent {
         >
             <section details>
                 <h2 class="mb-1 text-lg font-medium">
-                    {{ 'CALENDAR_EVENT.DETAILS' | translate }}
+                    {{ 'COMMON.DETAILS' | translate }}
                 </h2>
                 <div class="flex min-w-32 flex-1 flex-col">
                     @if (
@@ -139602,7 +139744,7 @@ var SpaceFiltersComponent = class _SpaceFiltersComponent {
                         !(!use_region() && buildings()?.length > 1)
                     ) {
                         <label for="location">
-                            {{ 'CALENDAR_EVENT.SPACE_LOCATION' | translate }}
+                            {{ 'COMMON.LOCATION' | translate }}
                         </label>
                     }
                     @if (use_region() && regions()?.length) {
@@ -139713,7 +139855,7 @@ var SpaceFiltersComponent = class _SpaceFiltersComponent {
                                 (ngModelChange)="
                                     model.update((m) => ({
                                         ...m,
-                                        date_end: $event
+                                        date_end: $event,
                                     }))
                                 "
                                 [ngModelOptions]="{ standalone: true }"
@@ -139753,7 +139895,10 @@ var SpaceFiltersComponent = class _SpaceFiltersComponent {
                                 name="start-time"
                                 [ngModel]="model().date"
                                 (ngModelChange)="
-                                    model.update((m) => ({ ...m, date: $event }))
+                                    model.update((m) => ({
+                                        ...m,
+                                        date: $event,
+                                    }))
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                                 [use_24hr]="use_24hr()"
@@ -139774,7 +139919,7 @@ var SpaceFiltersComponent = class _SpaceFiltersComponent {
                                     (ngModelChange)="
                                         model.update((m) => ({
                                             ...m,
-                                            date_end: $event
+                                            date_end: $event,
                                         }))
                                     "
                                     [ngModelOptions]="{ standalone: true }"
@@ -139881,7 +140026,7 @@ var SpaceFiltersComponent = class _SpaceFiltersComponent {
   }], null, { multiday: [{ type: Input, args: [{ isSignal: true, alias: "multiday", required: false }] }], hide_levels: [{ type: Input, args: [{ isSignal: true, alias: "hide_levels", required: false }] }], viewing_map: [{ type: Input, args: [{ isSignal: true, alias: "viewing_map", required: false }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SpaceFiltersComponent, { className: "SpaceFiltersComponent", filePath: "libs/events/src/lib/space-select-modal/space-filters.component.ts", lineNumber: 346 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SpaceFiltersComponent, { className: "SpaceFiltersComponent", filePath: "libs/events/src/lib/space-select-modal/space-filters.component.ts", lineNumber: 349 });
 })();
 
 // libs/events/src/lib/space-select-modal/space-list.component.ts
@@ -140587,7 +140732,7 @@ function SpaceMapComponent_Conditional_0_Template(rf, ctx) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance(2);
     \u0275\u0275twoWayProperty("ngModel", ctx_r1.level);
-    \u0275\u0275property("ngModelOptions", \u0275\u0275pureFunction0(5, _c128))("placeholder", \u0275\u0275pipeBind1(3, 3, "CALENDAR_EVENT.SPACE_LEVEL_ANY"));
+    \u0275\u0275property("ngModelOptions", \u0275\u0275pureFunction0(5, _c128))("placeholder", \u0275\u0275pipeBind1(3, 3, "COMMON.LEVEL_ANY"));
     \u0275\u0275control();
     \u0275\u0275advance(2);
     \u0275\u0275repeater(ctx_r1.levels());
@@ -140825,9 +140970,7 @@ var SpaceMapComponent = class _SpaceMapComponent {
                         [(ngModel)]="level"
                         (ngModelChange)="setOptions({ zone_ids: [$event.id] })"
                         [ngModelOptions]="{ standalone: true }"
-                        [placeholder]="
-                            'CALENDAR_EVENT.SPACE_LEVEL_ANY' | translate
-                        "
+                        [placeholder]="'COMMON.LEVEL_ANY' | translate"
                     >
                         @for (lvl of levels(); track lvl) {
                             <mat-option [value]="lvl">
@@ -140873,7 +141016,7 @@ var SpaceMapComponent = class _SpaceMapComponent {
   }], null, { selected: [{ type: Input, args: [{ isSignal: true, alias: "selected", required: false }] }], active: [{ type: Input, args: [{ isSignal: true, alias: "active", required: false }] }], is_displayed: [{ type: Input, args: [{ isSignal: true, alias: "is_displayed", required: false }] }], onSelect: [{ type: Output, args: ["onSelect"] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SpaceMapComponent, { className: "SpaceMapComponent", filePath: "libs/events/src/lib/space-select-modal/space-map.component.ts", lineNumber: 100 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SpaceMapComponent, { className: "SpaceMapComponent", filePath: "libs/events/src/lib/space-select-modal/space-map.component.ts", lineNumber: 98 });
 })();
 
 // libs/events/src/lib/space-select-modal/space-select-modal.component.ts
@@ -141038,7 +141181,7 @@ var SpaceSelectModalComponent = class _SpaceSelectModalComponent {
     this._event_form.setFilters(_data.options);
   }
   toggleFilters() {
-    this.show_filters.update((v) => !v);
+    this.show_filters.update((v2) => !v2);
   }
   isSelected(id) {
     return id && this.selected_ids().includes(id);
@@ -143232,25 +143375,25 @@ function cateringItemAvailable(item, rules, event) {
       let matches = 0;
       for (const [type, value] of rule.rules) {
         const date = new Date(event.date);
-        const v = typeof value === "string" ? stringToMinutes(value) : +value * 60;
+        const v2 = typeof value === "string" ? stringToMinutes(value) : +value * 60;
         switch (type) {
           case "is_before":
-            matches += isBefore(now, subMinutes(date, v)) ? 1 : 0;
+            matches += isBefore(now, subMinutes(date, v2)) ? 1 : 0;
             break;
           case "within_hours":
-            matches += isAfter(now, subMinutes(date, v)) ? 1 : 0;
+            matches += isAfter(now, subMinutes(date, v2)) ? 1 : 0;
             break;
           case "after_hour":
-            matches += isAfter(date, setHours(date, v / 60)) ? 1 : 0;
+            matches += isAfter(date, setHours(date, v2 / 60)) ? 1 : 0;
             break;
           case "before_hour":
-            matches += isBefore(date, setHours(date, v / 60)) ? 1 : 0;
+            matches += isBefore(date, setHours(date, v2 / 60)) ? 1 : 0;
             break;
           case "min_length":
-            matches += event.duration >= v ? 1 : 0;
+            matches += event.duration >= v2 ? 1 : 0;
             break;
           case "max_length":
-            matches += event.duration <= v ? 1 : 0;
+            matches += event.duration <= v2 ? 1 : 0;
             break;
           case "visitor_type":
             matches += event.ext("visitor_type") === value ? 1 : 0;
@@ -146827,8 +146970,8 @@ var MeetingBookingFormComponent = class _MeetingBookingFormComponent extends Asy
         duration
       }
     });
-    ref.afterClosed().subscribe((d2) => {
-      if (!d2)
+    ref.afterClosed().subscribe((d) => {
+      if (!d)
         return;
       this.model.update((m2) => __spreadProps(__spreadValues({}, m2), {
         date: ref.componentInstance.date(),
@@ -150128,7 +150271,7 @@ var MapService2 = class _MapService extends AsyncHandler {
       level: space.level.name
     }));
     this.maps_list.set([
-      ...new Map(maps_list.map((v) => [v.map_id, v])).values()
+      ...new Map(maps_list.map((v2) => [v2.map_id, v2])).values()
     ]);
     this.map_loaded.set(true);
   }
