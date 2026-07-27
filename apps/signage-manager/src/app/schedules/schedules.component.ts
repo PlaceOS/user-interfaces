@@ -16,6 +16,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { i18n } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { addDays, isSameDay, startOfDay } from 'date-fns';
+import { GroupBreadcrumbsComponent } from '../shared/group-breadcrumbs.component';
 import { NavFooterComponent } from '../shared/nav-footer.component';
 import { NavSidebarComponent } from '../shared/nav-sidebar.component';
 import { SignageService } from '../signage.service';
@@ -51,12 +52,7 @@ function parseScheduleTab(value: string | null): 'displays' | 'zones' {
                                     'SIGNAGE_MANAGER.NAV_SCHEDULES' | translate
                                 }}
                             </h2>
-                            <p class="text-base-content/50 text-xs">
-                                {{
-                                    'SIGNAGE_MANAGER.SCHEDULES_SUBTITLE'
-                                        | translate
-                                }}
-                            </p>
+                            <group-breadcrumbs />
                         </div>
                         <div
                             class="bg-base-content/5 flex max-w-52 overflow-hidden rounded-lg p-1"
@@ -263,6 +259,7 @@ function parseScheduleTab(value: string | null): 'displays' | 'zones' {
         IconComponent,
         NavSidebarComponent,
         NavFooterComponent,
+        GroupBreadcrumbsComponent,
         ScheduleTimelineComponent,
         MatFormFieldModule,
         MatInputModule,
