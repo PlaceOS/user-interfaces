@@ -86,7 +86,12 @@ export class AuthorisedUserGuard {
 
     private async checkSubsystemAccess(user: any) {
         if (!user) return false;
-        const app_name = `${this._settings.app_name || ''}`
+        // The subsystem groups grant permissions for doesn't always match the
+        // app's deploy path, e.g. signage-manager runs on `signage`.
+        const subsystem = `${
+            this._settings.get('app.access_subsystem') || ''
+        }`.trim();
+        const app_name = (subsystem || `${this._settings.app_name || ''}`)
             .trim()
             .toLowerCase();
         if (!app_name) return false;

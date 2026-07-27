@@ -352,14 +352,19 @@ export class SignageService {
                               }) as PlaceCurrentGroup,
                       )
                     : await this._currentSignageGroups(params.groups_change);
+                this.signage_groups_failed.set(false);
                 return groups
                     .map(decodeEntityNames)
                     .sort((a, b) => a.group.name.localeCompare(b.group.name));
             } catch {
+                this.signage_groups_failed.set(true);
                 return [] as PlaceCurrentGroup[];
             }
         },
     });
+    /** Whether the last signage group request failed, so an empty group list
+     * can't be read as "this user has no access". */
+    public readonly signage_groups_failed = signal(false);
     public readonly signage_groups = computed(
         () => this._signage_groups.value() || [],
     );

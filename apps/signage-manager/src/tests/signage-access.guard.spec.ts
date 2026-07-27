@@ -19,12 +19,17 @@ describe('canAccessSignageApp', () => {
     it('blocks users without admin, support, or group permissions', () => {
         expect(canAccessSignageApp(false, 0)).toBe(false);
     });
+
+    it('allows access when the group request failed', () => {
+        expect(canAccessSignageApp(false, 0, true)).toBe(true);
+    });
 });
 
 describe('signageAccessGuard', () => {
     const loaded = signal(false);
     const can_manage_all_groups = signal(false);
     const signage_groups = signal<any[]>([]);
+    const signage_groups_failed = signal(false);
 
     function runGuard() {
         return TestBed.runInInjectionContext(
@@ -39,6 +44,7 @@ describe('signageAccessGuard', () => {
         loaded.set(false);
         can_manage_all_groups.set(false);
         signage_groups.set([]);
+        signage_groups_failed.set(false);
 
         TestBed.configureTestingModule({
             providers: [
@@ -49,6 +55,7 @@ describe('signageAccessGuard', () => {
                         signage_groups_loaded: loaded,
                         can_manage_all_groups,
                         signage_groups,
+                        signage_groups_failed,
                     },
                 },
             ],
@@ -72,6 +79,13 @@ describe('signageAccessGuard', () => {
 
     it('allows users with signage group permissions', async () => {
         signage_groups.set([{ group: { id: 'group-1' }, permissions: 1 }]);
+        loaded.set(true);
+
+        await expect(runGuard()).resolves.toBe(true);
+    });
+
+    it('lets users through when the group request failed', async () => {
+        signage_groups_failed.set(true);
         loaded.set(true);
 
         await expect(runGuard()).resolves.toBe(true);

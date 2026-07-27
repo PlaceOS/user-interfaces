@@ -27,7 +27,7 @@ describe('AuthorisedUserGuard', () => {
     const access_mock = { group: '' };
     const settings_mock = {
         app_name: 'workplace',
-        get: vi.fn(() => []),
+        get: vi.fn((key: string): any => []),
     };
 
     const createService = createServiceFactory({
@@ -120,6 +120,25 @@ describe('AuthorisedUserGuard', () => {
 
         await expect(spectator.service.canActivate()).resolves.toBeTruthy();
         expect(ts_client.currentGroups).not.toHaveBeenCalled();
+    });
+
+    it('should use the configured access subsystem over the app name', async () => {
+        vi.mocked(ts_client.authority).mockReturnValue({
+            config: { use_group_subsystem_access: true },
+        } as any);
+        settings_mock.app_name = 'signage-manager';
+        settings_mock.get.mockImplementation((key) =>
+            key === 'app.access_subsystem' ? ('signage' as any) : [],
+        );
+        setCurrentUser({ groups: [] } as any);
+        common_lib.user_groups.set([
+            {
+                group: { subsystems: ['signage'] },
+                permissions: common_lib.GroupPermission.Read,
+            } as any,
+        ]);
+
+        await expect(spectator.service.canActivate()).resolves.toBeTruthy();
     });
 
     it('should block users without read access to the app subsystem', async () => {
