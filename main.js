@@ -163,7 +163,7 @@ import {
   ɵɵtwoWayBindingSet,
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty
-} from "./chunk-ZQUI6GD6.js";
+} from "./chunk-W36T2HDV.js";
 import {
   __export,
   __spreadProps,
@@ -3872,7 +3872,8 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
   async checkSubsystemAccess(user) {
     if (!user)
       return false;
-    const app_name = `${this._settings.app_name || ""}`.trim().toLowerCase();
+    const subsystem = `${this._settings.get("app.access_subsystem") || ""}`.trim();
+    const app_name = (subsystem || `${this._settings.app_name || ""}`).trim().toLowerCase();
     if (!app_name)
       return false;
     await this.waitForUserGroups();
@@ -7100,6 +7101,7 @@ var generateBookingForDay = (day, type2, index, user) => {
     checked_in: approved && predictableRandomInt(4) <= 2,
     rejected: predictableRandomInt(12) === 0,
     approved: approved !== 0,
+    deleted: false,
     access: approved !== 0,
     permission: type2 === "group-event" ? "OPEN" : "PRIVATE",
     approver_id: approved ? approver.id : "",
@@ -7118,6 +7120,7 @@ var generateBookingForDay = (day, type2, index, user) => {
     extension_data: {
       map_id: `table-${bld?.id}.${position}`,
       note: capitalizeFirstLetter(`${type2.replace("-", " ")} booking ${index}`),
+      notes: "",
       plate_number: randomString(8, "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"),
       tracking: approved ? "at_location" : "in_storage",
       space_id: lvl_spaces.length ? lvl_spaces[predictableRandomInt(lvl_spaces.length)].id : `space-${index}`,
@@ -7196,6 +7199,27 @@ var MOCK_BOOKINGS = (() => {
       dayBookings.push(...userDayBookings);
     });
     bookings.push(...dayBookings);
+  }
+  const active_user = MOCK_STAFF.find((user) => user.id === ACTIVE_USER.id);
+  for (const bld of active_user ? MOCK_BUILDINGS : []) {
+    const booking = generateBookingForDay(15, "parking", bookingIndex++, active_user);
+    const parking_level = MOCK_LEVELS.find((level) => level.parent_id === bld.id && level.type === "parking");
+    booking.title = `Cancelled parking request - ${bld.name}`;
+    booking.description = "Cancelled mock request for testing disabled parking actions";
+    booking.asset_id = `unallocated-${bld.id}-cancelled`;
+    booking.asset_ids = [booking.asset_id];
+    booking.asset_name = "Unallocated parking request";
+    booking.checked_in = false;
+    booking.rejected = false;
+    booking.approved = false;
+    booking.deleted = true;
+    booking.access = false;
+    booking.zones = [bld.id, parking_level?.id].filter(Boolean);
+    booking.extension_data = __spreadProps(__spreadValues({}, booking.extension_data), {
+      notes: "Cancelled mock request",
+      plate_number: "CANCELLED"
+    });
+    bookings.push(booking);
   }
   return bookings.sort((a, b) => a.booking_start - b.booking_start);
 })();
@@ -11501,6 +11525,17 @@ var MOCK_METADATA = {
         }
       ]
     }
+  },
+  "zone-org": {
+    concierge_app: {
+      name: "concierge_app",
+      description: "Mock-only concierge settings",
+      details: {
+        parking: {
+          allow_deleting: true
+        }
+      }
+    }
   }
 };
 var LOCKERS = {};
@@ -11815,6 +11850,14 @@ var properties = {
     type: "boolean",
     description: "Whether to show the locale (language) selector in the navigation sidebar. The selector is only rendered when more than one locale is configured."
   },
+  show_group_selector: {
+    type: "boolean",
+    description: "Whether to show the signage group selector in the navigation sidebar and mobile navigation menu. Defaults to `false`. The group breadcrumbs in each section header can still be used to change group."
+  },
+  show_media_group_tabs: {
+    type: "boolean",
+    description: "Whether to show the signage group tab bar above the media list. Defaults to `false`. The group breadcrumbs in the media header can still be used to change group."
+  },
   locales: {
     type: "array",
     description: "List of locales available in the navigation sidebar locale selector.",
@@ -11959,8 +12002,8 @@ var environment = {
 };
 
 // apps/signage-manager/src/app/signage-access.guard.ts
-function canAccessSignageApp(can_manage_all_groups, group_count) {
-  return can_manage_all_groups || group_count > 0;
+function canAccessSignageApp(can_manage_all_groups, group_count, groups_failed = false) {
+  return can_manage_all_groups || group_count > 0 || groups_failed;
 }
 function waitForSignageGroups(service) {
   return new Promise((resolve) => {
@@ -11978,7 +12021,7 @@ var signageAccessGuard = async () => {
   const service = inject(SignageService);
   const router = inject(Router);
   await waitForSignageGroups(service);
-  return canAccessSignageApp(service.can_manage_all_groups(), service.signage_groups().length) ? true : router.parseUrl("/unauthorised");
+  return canAccessSignageApp(service.can_manage_all_groups(), service.signage_groups().length, service.signage_groups_failed()) ? true : router.parseUrl("/unauthorised");
 };
 
 // apps/signage-manager/src/app/app.config.ts
@@ -11994,39 +12037,39 @@ var APP_ROUTES = [
     children: [
       {
         path: "media",
-        loadComponent: () => import("./media.component-TDXCS6N7.js").then((m) => m.MediaSectionComponent)
+        loadComponent: () => import("./media.component-343XMRP6.js").then((m) => m.MediaSectionComponent)
       },
       {
         path: "playlists/:id",
-        loadComponent: () => import("./playlists.component-ORUZLHYR.js").then((m) => m.PlaylistsSectionComponent)
+        loadComponent: () => import("./playlists.component-DNA2W6CJ.js").then((m) => m.PlaylistsSectionComponent)
       },
       {
         path: "playlists",
-        loadComponent: () => import("./playlists.component-ORUZLHYR.js").then((m) => m.PlaylistsSectionComponent)
+        loadComponent: () => import("./playlists.component-DNA2W6CJ.js").then((m) => m.PlaylistsSectionComponent)
       },
       {
         path: "schedules",
-        loadComponent: () => import("./schedules.component-ZNCJ3SY2.js").then((m) => m.SchedulesSectionComponent)
+        loadComponent: () => import("./schedules.component-N5WKCYU6.js").then((m) => m.SchedulesSectionComponent)
       },
       {
         path: "displays/:id",
-        loadComponent: () => import("./displays.component-IZXK2GYE.js").then((m) => m.DisplaysSectionComponent)
+        loadComponent: () => import("./displays.component-77DUMYGB.js").then((m) => m.DisplaysSectionComponent)
       },
       {
         path: "displays",
-        loadComponent: () => import("./displays.component-IZXK2GYE.js").then((m) => m.DisplaysSectionComponent)
+        loadComponent: () => import("./displays.component-77DUMYGB.js").then((m) => m.DisplaysSectionComponent)
       },
       {
         path: "groups",
-        loadComponent: () => import("./groups.component-256EDUQQ.js").then((m) => m.GroupsSectionComponent)
+        loadComponent: () => import("./groups.component-TWDPINPP.js").then((m) => m.GroupsSectionComponent)
       },
       {
         path: "zones/:id",
-        loadComponent: () => import("./zones.component-3GNQQJZV.js").then((m) => m.ZonesSectionComponent)
+        loadComponent: () => import("./zones.component-34SIRVYE.js").then((m) => m.ZonesSectionComponent)
       },
       {
         path: "zones",
-        loadComponent: () => import("./zones.component-3GNQQJZV.js").then((m) => m.ZonesSectionComponent)
+        loadComponent: () => import("./zones.component-34SIRVYE.js").then((m) => m.ZonesSectionComponent)
       },
       { path: "**", redirectTo: "media" }
     ]

@@ -7,14 +7,15 @@ import {
   MatTabNav,
   MatTabNavPanel,
   MatTabsModule
-} from "./chunk-3ZXEN5NZ.js";
+} from "./chunk-KE4BJD6X.js";
 import {
   IntersectDirective
-} from "./chunk-QIKFLUNO.js";
+} from "./chunk-WNTSOZB4.js";
 import {
+  GroupBreadcrumbsComponent,
   NavFooterComponent,
   NavSidebarComponent
-} from "./chunk-EZB5K4JH.js";
+} from "./chunk-2YE535VN.js";
 import {
   AuthenticatedImageDirective,
   Component,
@@ -103,7 +104,7 @@ import {
   ɵɵtwoWayBindingSet,
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty
-} from "./chunk-ZQUI6GD6.js";
+} from "./chunk-W36T2HDV.js";
 import "./chunk-653SOEEV.js";
 
 // apps/signage-manager/src/app/shared/media-add-modal.component.ts
@@ -369,7 +370,7 @@ var MediaAddModalComponent = class _MediaAddModalComponent {
 var _c0 = (a0) => ({ count: a0 });
 var _forTrack02 = ($index, $item) => $item.mode;
 var _forTrack1 = ($index, $item) => $item.id;
-function MediaListHeaderComponent_Conditional_6_Template(rf, ctx) {
+function MediaListHeaderComponent_Conditional_7_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275text(0);
     \u0275\u0275pipe(1, "translate");
@@ -379,7 +380,7 @@ function MediaListHeaderComponent_Conditional_6_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", ctx_r0.item_count() + " of " + \u0275\u0275pipeBind2(1, 1, "COMMON.ITEM_COUNT", \u0275\u0275pureFunction1(4, _c0, ctx_r0.total_count())), " ");
   }
 }
-function MediaListHeaderComponent_Conditional_7_Template(rf, ctx) {
+function MediaListHeaderComponent_Conditional_8_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275text(0);
     \u0275\u0275pipe(1, "translate");
@@ -389,13 +390,13 @@ function MediaListHeaderComponent_Conditional_7_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(1, 1, "COMMON.ITEM_COUNT", \u0275\u0275pureFunction1(4, _c0, ctx_r0.total_count())), " ");
   }
 }
-function MediaListHeaderComponent_For_12_Template(rf, ctx) {
+function MediaListHeaderComponent_For_14_Template(rf, ctx) {
   if (rf & 1) {
     const _r2 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 13);
+    \u0275\u0275elementStart(0, "button", 14);
     \u0275\u0275pipe(1, "translate");
     \u0275\u0275pipe(2, "translate");
-    \u0275\u0275listener("click", function MediaListHeaderComponent_For_12_Template_button_click_0_listener() {
+    \u0275\u0275listener("click", function MediaListHeaderComponent_For_14_Template_button_click_0_listener() {
       const option_r3 = \u0275\u0275restoreView(_r2).$implicit;
       const ctx_r0 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r0.view_mode.set(option_r3.mode));
@@ -414,9 +415,9 @@ function MediaListHeaderComponent_For_12_Template(rf, ctx) {
     \u0275\u0275textInterpolate(option_r3.icon);
   }
 }
-function MediaListHeaderComponent_Conditional_17_ng_template_5_Conditional_1_For_5_Template(rf, ctx) {
+function MediaListHeaderComponent_Conditional_19_ng_template_5_Conditional_1_For_5_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "mat-option", 25);
+    \u0275\u0275elementStart(0, "mat-option", 26);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -427,29 +428,29 @@ function MediaListHeaderComponent_Conditional_17_ng_template_5_Conditional_1_For
     \u0275\u0275textInterpolate1(" ", plugin_r6.name, " ");
   }
 }
-function MediaListHeaderComponent_Conditional_17_ng_template_5_Conditional_1_Template(rf, ctx) {
+function MediaListHeaderComponent_Conditional_19_ng_template_5_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
     const _r5 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "mat-form-field", 23)(1, "mat-select", 24);
+    \u0275\u0275elementStart(0, "mat-form-field", 24)(1, "mat-select", 25);
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275pipe(3, "translate");
-    \u0275\u0275twoWayListener("ngModelChange", function MediaListHeaderComponent_Conditional_17_ng_template_5_Conditional_1_Template_mat_select_ngModelChange_1_listener($event) {
+    \u0275\u0275twoWayListener("ngModelChange", function MediaListHeaderComponent_Conditional_19_ng_template_5_Conditional_1_Template_mat_select_ngModelChange_1_listener($event) {
       \u0275\u0275restoreView(_r5);
       const ctx_r0 = \u0275\u0275nextContext(3);
       \u0275\u0275twoWayBindingSet(ctx_r0.selected_plugin, $event) || (ctx_r0.selected_plugin = $event);
       return \u0275\u0275resetView($event);
     });
-    \u0275\u0275repeaterCreate(4, MediaListHeaderComponent_Conditional_17_ng_template_5_Conditional_1_For_5_Template, 2, 2, "mat-option", 25, _forTrack1);
+    \u0275\u0275repeaterCreate(4, MediaListHeaderComponent_Conditional_19_ng_template_5_Conditional_1_For_5_Template, 2, 2, "mat-option", 26, _forTrack1);
     \u0275\u0275elementEnd();
     \u0275\u0275controlCreate();
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(6, "button", 26);
-    \u0275\u0275listener("click", function MediaListHeaderComponent_Conditional_17_ng_template_5_Conditional_1_Template_button_click_6_listener() {
+    \u0275\u0275elementStart(6, "button", 27);
+    \u0275\u0275listener("click", function MediaListHeaderComponent_Conditional_19_ng_template_5_Conditional_1_Template_button_click_6_listener() {
       \u0275\u0275restoreView(_r5);
       const ctx_r0 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r0.addFromPlugin());
     });
-    \u0275\u0275elementStart(7, "icon", 27);
+    \u0275\u0275elementStart(7, "icon", 28);
     \u0275\u0275text(8, "add");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(9, "div");
@@ -472,9 +473,9 @@ function MediaListHeaderComponent_Conditional_17_ng_template_5_Conditional_1_Tem
     \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(11, 9, "COMMON.ADD"));
   }
 }
-function MediaListHeaderComponent_Conditional_17_ng_template_5_Conditional_2_Template(rf, ctx) {
+function MediaListHeaderComponent_Conditional_19_ng_template_5_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "p", 22);
+    \u0275\u0275elementStart(0, "p", 23);
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275elementEnd();
@@ -484,10 +485,10 @@ function MediaListHeaderComponent_Conditional_17_ng_template_5_Conditional_2_Tem
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, "SIGNAGE_MANAGER.NO_PLUGINS"), " ");
   }
 }
-function MediaListHeaderComponent_Conditional_17_ng_template_5_Template(rf, ctx) {
+function MediaListHeaderComponent_Conditional_19_ng_template_5_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 21);
-    \u0275\u0275conditionalCreate(1, MediaListHeaderComponent_Conditional_17_ng_template_5_Conditional_1_Template, 12, 11)(2, MediaListHeaderComponent_Conditional_17_ng_template_5_Conditional_2_Template, 3, 3, "p", 22);
+    \u0275\u0275elementStart(0, "div", 22);
+    \u0275\u0275conditionalCreate(1, MediaListHeaderComponent_Conditional_19_ng_template_5_Conditional_1_Template, 12, 11)(2, MediaListHeaderComponent_Conditional_19_ng_template_5_Conditional_2_Template, 3, 3, "p", 23);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -496,13 +497,13 @@ function MediaListHeaderComponent_Conditional_17_ng_template_5_Template(rf, ctx)
     \u0275\u0275conditional(ctx_r0.available_plugins().length ? 1 : 2);
   }
 }
-function MediaListHeaderComponent_Conditional_17_ng_template_12_Template(rf, ctx) {
+function MediaListHeaderComponent_Conditional_19_ng_template_12_Template(rf, ctx) {
   if (rf & 1) {
     const _r7 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 21)(1, "mat-form-field", 23)(2, "input", 12);
+    \u0275\u0275elementStart(0, "div", 22)(1, "mat-form-field", 24)(2, "input", 13);
     \u0275\u0275pipe(3, "translate");
     \u0275\u0275pipe(4, "translate");
-    \u0275\u0275twoWayListener("ngModelChange", function MediaListHeaderComponent_Conditional_17_ng_template_12_Template_input_ngModelChange_2_listener($event) {
+    \u0275\u0275twoWayListener("ngModelChange", function MediaListHeaderComponent_Conditional_19_ng_template_12_Template_input_ngModelChange_2_listener($event) {
       \u0275\u0275restoreView(_r7);
       const ctx_r0 = \u0275\u0275nextContext(2);
       \u0275\u0275twoWayBindingSet(ctx_r0.link, $event) || (ctx_r0.link = $event);
@@ -511,13 +512,13 @@ function MediaListHeaderComponent_Conditional_17_ng_template_12_Template(rf, ctx
     \u0275\u0275elementEnd();
     \u0275\u0275controlCreate();
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(5, "button", 28);
-    \u0275\u0275listener("click", function MediaListHeaderComponent_Conditional_17_ng_template_12_Template_button_click_5_listener() {
+    \u0275\u0275elementStart(5, "button", 29);
+    \u0275\u0275listener("click", function MediaListHeaderComponent_Conditional_19_ng_template_12_Template_button_click_5_listener() {
       \u0275\u0275restoreView(_r7);
       const ctx_r0 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r0.addFromLink());
     });
-    \u0275\u0275elementStart(6, "icon", 27);
+    \u0275\u0275elementStart(6, "icon", 28);
     \u0275\u0275text(7, "add");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(8, "div");
@@ -536,27 +537,27 @@ function MediaListHeaderComponent_Conditional_17_ng_template_12_Template(rf, ctx
     \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(10, 8, "COMMON.ADD"));
   }
 }
-function MediaListHeaderComponent_Conditional_17_Template(rf, ctx) {
+function MediaListHeaderComponent_Conditional_19_Template(rf, ctx) {
   if (rf & 1) {
     const _r4 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 14);
+    \u0275\u0275elementStart(0, "button", 15);
     \u0275\u0275pipe(1, "translate");
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275elementStart(3, "icon");
     \u0275\u0275text(4, "extension");
     \u0275\u0275elementEnd()();
-    \u0275\u0275template(5, MediaListHeaderComponent_Conditional_17_ng_template_5_Template, 3, 1, "ng-template", null, 0, \u0275\u0275templateRefExtractor);
-    \u0275\u0275elementStart(7, "button", 14);
+    \u0275\u0275template(5, MediaListHeaderComponent_Conditional_19_ng_template_5_Template, 3, 1, "ng-template", null, 0, \u0275\u0275templateRefExtractor);
+    \u0275\u0275elementStart(7, "button", 15);
     \u0275\u0275pipe(8, "translate");
     \u0275\u0275pipe(9, "translate");
     \u0275\u0275elementStart(10, "icon");
     \u0275\u0275text(11, "link");
     \u0275\u0275elementEnd()();
-    \u0275\u0275template(12, MediaListHeaderComponent_Conditional_17_ng_template_12_Template, 11, 10, "ng-template", null, 1, \u0275\u0275templateRefExtractor);
-    \u0275\u0275elementStart(14, "button", 15);
+    \u0275\u0275template(12, MediaListHeaderComponent_Conditional_19_ng_template_12_Template, 11, 10, "ng-template", null, 1, \u0275\u0275templateRefExtractor);
+    \u0275\u0275elementStart(14, "button", 16);
     \u0275\u0275pipe(15, "translate");
     \u0275\u0275pipe(16, "translate");
-    \u0275\u0275listener("click", function MediaListHeaderComponent_Conditional_17_Template_button_click_14_listener() {
+    \u0275\u0275listener("click", function MediaListHeaderComponent_Conditional_19_Template_button_click_14_listener() {
       \u0275\u0275restoreView(_r4);
       const upload_input_r8 = \u0275\u0275reference(48);
       return \u0275\u0275resetView(upload_input_r8.click());
@@ -564,54 +565,54 @@ function MediaListHeaderComponent_Conditional_17_Template(rf, ctx) {
     \u0275\u0275elementStart(17, "icon");
     \u0275\u0275text(18, "add");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(19, "button", 16);
+    \u0275\u0275elementStart(19, "button", 17);
     \u0275\u0275pipe(20, "translate");
     \u0275\u0275pipe(21, "translate");
     \u0275\u0275elementStart(22, "icon");
     \u0275\u0275text(23, "add");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(24, "mat-menu", null, 2)(26, "button", 17);
-    \u0275\u0275listener("click", function MediaListHeaderComponent_Conditional_17_Template_button_click_26_listener() {
+    \u0275\u0275elementStart(24, "mat-menu", null, 2)(26, "button", 18);
+    \u0275\u0275listener("click", function MediaListHeaderComponent_Conditional_19_Template_button_click_26_listener() {
       \u0275\u0275restoreView(_r4);
       const ctx_r0 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r0.openAdd("plugin"));
     });
-    \u0275\u0275elementStart(27, "div", 18)(28, "icon", 19);
+    \u0275\u0275elementStart(27, "div", 19)(28, "icon", 20);
     \u0275\u0275text(29, "extension");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(30, "div");
     \u0275\u0275text(31);
     \u0275\u0275pipe(32, "translate");
     \u0275\u0275elementEnd()()();
-    \u0275\u0275elementStart(33, "button", 17);
-    \u0275\u0275listener("click", function MediaListHeaderComponent_Conditional_17_Template_button_click_33_listener() {
+    \u0275\u0275elementStart(33, "button", 18);
+    \u0275\u0275listener("click", function MediaListHeaderComponent_Conditional_19_Template_button_click_33_listener() {
       \u0275\u0275restoreView(_r4);
       const ctx_r0 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r0.openAdd("link"));
     });
-    \u0275\u0275elementStart(34, "div", 18)(35, "icon", 19);
+    \u0275\u0275elementStart(34, "div", 19)(35, "icon", 20);
     \u0275\u0275text(36, "link");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(37, "div");
     \u0275\u0275text(38);
     \u0275\u0275pipe(39, "translate");
     \u0275\u0275elementEnd()()();
-    \u0275\u0275elementStart(40, "button", 17);
-    \u0275\u0275listener("click", function MediaListHeaderComponent_Conditional_17_Template_button_click_40_listener() {
+    \u0275\u0275elementStart(40, "button", 18);
+    \u0275\u0275listener("click", function MediaListHeaderComponent_Conditional_19_Template_button_click_40_listener() {
       \u0275\u0275restoreView(_r4);
       const upload_input_r8 = \u0275\u0275reference(48);
       return \u0275\u0275resetView(upload_input_r8.click());
     });
-    \u0275\u0275elementStart(41, "div", 18)(42, "icon", 19);
+    \u0275\u0275elementStart(41, "div", 19)(42, "icon", 20);
     \u0275\u0275text(43, "upload");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(44, "div");
     \u0275\u0275text(45);
     \u0275\u0275pipe(46, "translate");
     \u0275\u0275elementEnd()()()();
-    \u0275\u0275elementStart(47, "input", 20, 3);
+    \u0275\u0275elementStart(47, "input", 21, 3);
     \u0275\u0275pipe(49, "translate");
-    \u0275\u0275listener("change", function MediaListHeaderComponent_Conditional_17_Template_input_change_47_listener($event) {
+    \u0275\u0275listener("change", function MediaListHeaderComponent_Conditional_19_Template_input_change_47_listener($event) {
       \u0275\u0275restoreView(_r4);
       const ctx_r0 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r0.previewFile($event));
@@ -744,47 +745,49 @@ var MediaListHeaderComponent = class _MediaListHeaderComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MediaListHeaderComponent, selectors: [["media-list-header"]], decls: 18, vars: 15, consts: [["add_plugin_template", ""], ["add_link_template", ""], ["actions_menu", "matMenu"], ["upload_input", ""], [1, "bg-base-100", "border-base-300", "sticky", "top-0", "flex", "flex-wrap", "items-center", "gap-1", "border-b", "px-4", "py-2", "shadow", "sm:flex-nowrap", "sm:gap-2"], [1, "py-2"], [1, "text-2xl", "font-medium"], [1, "text-sm", "opacity-60"], [1, "w-px", "flex-1"], ["role", "group", 1, "border-base-300", "bg-base-200", "flex", "items-center", "rounded-lg", "border", "p-0.5"], ["icon", "", "type", "button", "matRipple", "", 1, "h-10", "w-10", "rounded-md", 3, "bg-base-100", "shadow", "text-base-content/60", "matTooltip"], ["appearance", "outline", 1, "no-subscript", "white", "order-last", "w-full", "sm:order-0", "sm:w-80"], ["matInput", "", 3, "ngModelChange", "placeholder", "ngModel"], ["icon", "", "type", "button", "matRipple", "", 1, "h-10", "w-10", "rounded-md", 3, "click", "matTooltip"], ["icon", "", "default", "", "type", "button", "matRipple", "", "customTooltip", "", "matTooltipPosition", "left", 1, "text-xl", "max-sm:hidden", 3, "content", "matTooltip"], ["icon", "", "default", "", "type", "button", "matRipple", "", "matTooltipPosition", "left", 1, "text-xl", "max-sm:hidden", 3, "click", "matTooltip"], ["icon", "", "default", "", "type", "button", "matRipple", "", "matTooltipPosition", "left", 1, "text-xl", "sm:hidden", 3, "matMenuTriggerFor", "matTooltip"], ["mat-menu-item", "", "type", "button", 3, "click"], [1, "flex", "items-center", "gap-2"], [1, "text-2xl"], ["type", "file", "multiple", "", 1, "sr-only", 3, "change"], [1, "border-base-300", "bg-base-100", "my-2", "flex", "w-[20rem]", "flex-col", "space-y-4", "rounded-lg", "border", "p-4", "shadow-sm"], [1, "text-base-content/60", "m-0", "text-sm"], ["appearance", "outline", 1, "no-subscript"], [3, "ngModelChange", "ngModel", "placeholder"], [3, "value"], ["btn", "", "type", "button", "matRipple", "", 1, "w-full", 3, "click", "disabled"], [1, "mr-2", "text-2xl"], ["btn", "", "type", "button", "matRipple", "", 1, "w-full", 3, "click"]], template: function MediaListHeaderComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MediaListHeaderComponent, selectors: [["media-list-header"]], decls: 20, vars: 15, consts: [["add_plugin_template", ""], ["add_link_template", ""], ["actions_menu", "matMenu"], ["upload_input", ""], [1, "bg-base-100", "border-base-300", "sticky", "top-0", "flex", "flex-wrap", "items-center", "gap-1", "border-b", "px-4", "py-2", "shadow", "sm:flex-nowrap", "sm:gap-2"], [1, "py-2"], [1, "text-2xl", "font-medium"], [1, "flex", "flex-wrap", "items-center", "gap-2"], [1, "text-sm", "opacity-60"], [1, "w-px", "flex-1"], ["role", "group", 1, "border-base-300", "bg-base-200", "flex", "items-center", "rounded-lg", "border", "p-0.5"], ["icon", "", "type", "button", "matRipple", "", 1, "h-10", "w-10", "rounded-md", 3, "bg-base-100", "shadow", "text-base-content/60", "matTooltip"], ["appearance", "outline", 1, "no-subscript", "white", "order-last", "w-full", "sm:order-0", "sm:w-80"], ["matInput", "", 3, "ngModelChange", "placeholder", "ngModel"], ["icon", "", "type", "button", "matRipple", "", 1, "h-10", "w-10", "rounded-md", 3, "click", "matTooltip"], ["icon", "", "default", "", "type", "button", "matRipple", "", "customTooltip", "", "matTooltipPosition", "left", 1, "text-xl", "max-sm:hidden", 3, "content", "matTooltip"], ["icon", "", "default", "", "type", "button", "matRipple", "", "matTooltipPosition", "left", 1, "text-xl", "max-sm:hidden", 3, "click", "matTooltip"], ["icon", "", "default", "", "type", "button", "matRipple", "", "matTooltipPosition", "left", 1, "text-xl", "sm:hidden", 3, "matMenuTriggerFor", "matTooltip"], ["mat-menu-item", "", "type", "button", 3, "click"], [1, "flex", "items-center", "gap-2"], [1, "text-2xl"], ["type", "file", "multiple", "", 1, "sr-only", 3, "change"], [1, "border-base-300", "bg-base-100", "my-2", "flex", "w-[20rem]", "flex-col", "space-y-4", "rounded-lg", "border", "p-4", "shadow-sm"], [1, "text-base-content/60", "m-0", "text-sm"], ["appearance", "outline", 1, "no-subscript"], [3, "ngModelChange", "ngModel", "placeholder"], [3, "value"], ["btn", "", "type", "button", "matRipple", "", 1, "w-full", 3, "click", "disabled"], [1, "mr-2", "text-2xl"], ["btn", "", "type", "button", "matRipple", "", 1, "w-full", 3, "click"]], template: function MediaListHeaderComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "div", 4)(1, "div", 5)(2, "h3", 6);
         \u0275\u0275text(3);
         \u0275\u0275pipe(4, "translate");
         \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(5, "div", 7);
-        \u0275\u0275conditionalCreate(6, MediaListHeaderComponent_Conditional_6_Template, 2, 6)(7, MediaListHeaderComponent_Conditional_7_Template, 2, 6);
-        \u0275\u0275elementEnd()();
-        \u0275\u0275element(8, "div", 8);
-        \u0275\u0275elementStart(9, "div", 9);
-        \u0275\u0275pipe(10, "translate");
-        \u0275\u0275repeaterCreate(11, MediaListHeaderComponent_For_12_Template, 5, 14, "button", 10, _forTrack02);
+        \u0275\u0275elementStart(5, "div", 7)(6, "div", 8);
+        \u0275\u0275conditionalCreate(7, MediaListHeaderComponent_Conditional_7_Template, 2, 6)(8, MediaListHeaderComponent_Conditional_8_Template, 2, 6);
         \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(13, "mat-form-field", 11)(14, "input", 12);
-        \u0275\u0275pipe(15, "translate");
-        \u0275\u0275pipe(16, "translate");
-        \u0275\u0275listener("ngModelChange", function MediaListHeaderComponent_Template_input_ngModelChange_14_listener($event) {
+        \u0275\u0275element(9, "group-breadcrumbs");
+        \u0275\u0275elementEnd()();
+        \u0275\u0275element(10, "div", 9);
+        \u0275\u0275elementStart(11, "div", 10);
+        \u0275\u0275pipe(12, "translate");
+        \u0275\u0275repeaterCreate(13, MediaListHeaderComponent_For_14_Template, 5, 14, "button", 11, _forTrack02);
+        \u0275\u0275elementEnd();
+        \u0275\u0275elementStart(15, "mat-form-field", 12)(16, "input", 13);
+        \u0275\u0275pipe(17, "translate");
+        \u0275\u0275pipe(18, "translate");
+        \u0275\u0275listener("ngModelChange", function MediaListHeaderComponent_Template_input_ngModelChange_16_listener($event) {
           return ctx.search.set($event);
         });
         \u0275\u0275elementEnd();
         \u0275\u0275controlCreate();
         \u0275\u0275elementEnd();
-        \u0275\u0275conditionalCreate(17, MediaListHeaderComponent_Conditional_17_Template, 50, 40);
+        \u0275\u0275conditionalCreate(19, MediaListHeaderComponent_Conditional_19_Template, 50, 40);
         \u0275\u0275elementEnd();
       }
       if (rf & 2) {
         \u0275\u0275advance(3);
         \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(4, 7, "SIGNAGE_MANAGER.MEDIA_TITLE"), " ");
-        \u0275\u0275advance(3);
-        \u0275\u0275conditional(ctx.search() ? 6 : 7);
-        \u0275\u0275advance(3);
-        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(10, 9, "SIGNAGE_MANAGER.MEDIA_VIEW_ARIA"));
+        \u0275\u0275advance(4);
+        \u0275\u0275conditional(ctx.search() ? 7 : 8);
+        \u0275\u0275advance(4);
+        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(12, 9, "SIGNAGE_MANAGER.MEDIA_VIEW_ARIA"));
         \u0275\u0275advance(2);
         \u0275\u0275repeater(ctx.view_options);
         \u0275\u0275advance(3);
-        \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(15, 11, "SIGNAGE_MANAGER.MEDIA_SEARCH"))("ngModel", ctx.search());
-        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(16, 13, "SIGNAGE_MANAGER.SEARCH_MEDIA_ARIA"));
+        \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(17, 11, "SIGNAGE_MANAGER.MEDIA_SEARCH"))("ngModel", ctx.search());
+        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(18, 13, "SIGNAGE_MANAGER.SEARCH_MEDIA_ARIA"));
         \u0275\u0275control();
         \u0275\u0275advance(3);
-        \u0275\u0275conditional(ctx.can_create() ? 17 : -1);
+        \u0275\u0275conditional(ctx.can_create() ? 19 : -1);
       }
     }, dependencies: [
       FormsModule,
@@ -808,6 +811,7 @@ var MediaListHeaderComponent = class _MediaListHeaderComponent {
       MatTooltip,
       CustomTooltipComponent,
       IconComponent,
+      GroupBreadcrumbsComponent,
       TranslatePipe
     ], encapsulation: 2 });
   }
@@ -825,20 +829,23 @@ var MediaListHeaderComponent = class _MediaListHeaderComponent {
                 <h3 class="text-2xl font-medium">
                     {{ 'SIGNAGE_MANAGER.MEDIA_TITLE' | translate }}
                 </h3>
-                <div class="text-sm opacity-60">
-                    @if (search()) {
-                        {{
-                            item_count() +
-                                ' of ' +
-                                ('COMMON.ITEM_COUNT'
-                                    | translate: { count: total_count() })
-                        }}
-                    } @else {
-                        {{
-                            'COMMON.ITEM_COUNT'
-                                | translate: { count: total_count() }
-                        }}
-                    }
+                <div class="flex flex-wrap items-center gap-2">
+                    <div class="text-sm opacity-60">
+                        @if (search()) {
+                            {{
+                                item_count() +
+                                    ' of ' +
+                                    ('COMMON.ITEM_COUNT'
+                                        | translate: { count: total_count() })
+                            }}
+                        } @else {
+                            {{
+                                'COMMON.ITEM_COUNT'
+                                    | translate: { count: total_count() }
+                            }}
+                        }
+                    </div>
+                    <group-breadcrumbs />
                 </div>
             </div>
             <div class="w-px flex-1"></div>
@@ -1044,7 +1051,9 @@ var MediaListHeaderComponent = class _MediaListHeaderComponent {
                         <div class="flex items-center gap-2">
                             <icon class="text-2xl">link</icon>
                             <div>
-                                {{ 'SIGNAGE_MANAGER.ADD_FROM_LINK' | translate }}
+                                {{
+                                    'SIGNAGE_MANAGER.ADD_FROM_LINK' | translate
+                                }}
                             </div>
                         </div>
                     </button>
@@ -1085,13 +1094,14 @@ var MediaListHeaderComponent = class _MediaListHeaderComponent {
         MatTooltipModule,
         CustomTooltipComponent,
         IconComponent,
-        TranslatePipe
+        TranslatePipe,
+        GroupBreadcrumbsComponent
       ]
     }]
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(MediaListHeaderComponent, { className: "MediaListHeaderComponent", filePath: "apps/signage-manager/src/app/media/media-list-header.component.ts", lineNumber: 301 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(MediaListHeaderComponent, { className: "MediaListHeaderComponent", filePath: "apps/signage-manager/src/app/media/media-list-header.component.ts", lineNumber: 308 });
 })();
 
 // apps/signage-manager/src/app/media/media-list.component.ts
@@ -2058,7 +2068,7 @@ var MediaListComponent = class _MediaListComponent {
     this.selected_group_id = this._service.selected_group_id;
     this.is_sys_admin = this._service.is_sys_admin;
     this.can_switch_groups = computed(
-      () => this.is_sys_admin() ? this.groups().length > 0 : this.groups().length > 1,
+      () => this._service.show_media_group_tabs() && (this.is_sys_admin() ? this.groups().length > 0 : this.groups().length > 1),
       ...ngDevMode ? [{ debugName: "can_switch_groups" }] : (
         /* istanbul ignore next */
         []
@@ -3767,4 +3777,4 @@ var MediaSectionComponent = class _MediaSectionComponent {
 export {
   MediaSectionComponent
 };
-//# sourceMappingURL=media.component-TDXCS6N7.js.map
+//# sourceMappingURL=media.component-343XMRP6.js.map

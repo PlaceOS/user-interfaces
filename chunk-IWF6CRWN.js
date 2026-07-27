@@ -1,8 +1,9 @@
 import {
+  fromUnixTime,
   i18n,
   isSameDay,
   startOfDay
-} from "./chunk-ZQUI6GD6.js";
+} from "./chunk-W36T2HDV.js";
 import {
   __spreadProps,
   __spreadValues
@@ -128,17 +129,17 @@ function formatTimeRange(start_minutes, duration_minutes) {
 function parsePlayAt(play_at) {
   if (!play_at)
     return null;
-  return new Date(play_at > 1e12 ? play_at : play_at * 1e3);
+  return fromUnixTime(play_at);
 }
 function isDayInRange(day, valid_from, valid_until) {
   const day_start = startOfDay(day).getTime();
   if (valid_from) {
-    const from_start = startOfDay(new Date(valid_from * 1e3)).getTime();
+    const from_start = startOfDay(fromUnixTime(valid_from)).getTime();
     if (day_start < from_start)
       return false;
   }
   if (valid_until) {
-    const until_start = startOfDay(new Date(valid_until * 1e3)).getTime();
+    const until_start = startOfDay(fromUnixTime(valid_until)).getTime();
     if (day_start > until_start)
       return false;
   }
@@ -265,7 +266,7 @@ function buildDisplayScheduleAssignments(display, zones, playlists) {
       if (!zone_playlist_sources[playlist_id]) {
         zone_playlist_sources[playlist_id] = [];
       }
-      zone_playlist_sources[playlist_id].push(zone.display_name || zone.name || i18n("COMMON.ZONE"));
+      zone_playlist_sources[playlist_id].push(zone.display_name || zone.name || i18n("RESOURCE.ZONE"));
     }
   }
   for (const [playlist_id, labels] of Object.entries(zone_playlist_sources)) {
@@ -288,7 +289,7 @@ function buildZoneScheduleAssignments(zone, playlists) {
   return (zone.playlists || []).map((playlist_id) => playlist_map.get(playlist_id)).filter((playlist) => !!playlist).sort((left, right) => left.name.localeCompare(right.name)).map((playlist) => ({
     playlist,
     source_type: "zone",
-    source_label: zone.display_name || zone.name || i18n("COMMON.ZONE")
+    source_label: zone.display_name || zone.name || i18n("RESOURCE.ZONE")
   }));
 }
 
@@ -299,4 +300,4 @@ export {
   buildDisplayScheduleAssignments,
   buildZoneScheduleAssignments
 };
-//# sourceMappingURL=chunk-LMUWE5SJ.js.map
+//# sourceMappingURL=chunk-IWF6CRWN.js.map
