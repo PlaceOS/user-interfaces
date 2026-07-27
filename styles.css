@@ -3207,6 +3207,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .-mr-4 {
   margin-right: calc(var(--spacing) * -4);
 }
+#placeos .mr-0\.5 {
+  margin-right: calc(var(--spacing) * 0.5);
+}
 #placeos .mr-1 {
   margin-right: calc(var(--spacing) * 1);
 }
