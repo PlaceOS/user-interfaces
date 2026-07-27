@@ -34,6 +34,10 @@
             "type": "boolean",
             "description": "Whether to show the locale (language) selector in the navigation sidebar. The selector is only rendered when more than one locale is configured."
         },
+        "show_group_selector": {
+            "type": "boolean",
+            "description": "Whether to show the signage group selector in the navigation sidebar and mobile navigation menu. Defaults to `false`. The group breadcrumbs in each section header can still be used to change group."
+        },
         "locales": {
             "type": "array",
             "description": "List of locales available in the navigation sidebar locale selector.",

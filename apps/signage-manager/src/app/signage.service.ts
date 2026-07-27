@@ -320,6 +320,13 @@ export class SignageService {
     private readonly _zone_overrides = signal<Record<string, any>>({});
     public readonly media_upload_accept = SIGNAGE_MEDIA_PICKER_ACCEPT;
 
+    /** Whether the navigation offers a group selector. Hiding it leaves the
+     * section header breadcrumbs as the way to change group. */
+    public readonly show_group_selector = this._settings.signal(
+        'show_group_selector',
+        true,
+    );
+
     public readonly search_term = signal('');
     public readonly media_view_mode =
         signal<MediaViewMode>(loadMediaViewMode());

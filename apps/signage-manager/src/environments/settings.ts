@@ -9,6 +9,7 @@ const app = {
     logo_dark: 'assets/logo-dark.svg',
     diagnostics: true,
     show_locale_selector: false,
+    show_group_selector: false,
     default_animation_time: 1000,
     media_allow_extended_video_codecs: false,
 };

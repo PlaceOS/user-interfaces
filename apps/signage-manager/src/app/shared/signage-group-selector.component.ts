@@ -15,7 +15,7 @@ import { GroupSelectModalComponent } from './group-select-modal.component';
     // eslint-disable-next-line @angular-eslint/component-selector
     selector: 'signage-group-selector',
     template: `
-        @if (is_sys_admin() || groups().length) {
+        @if (show_selector() && (is_sys_admin() || groups().length)) {
             <div
                 customTooltip
                 [content]="group_hierarchy_tooltip"
@@ -119,6 +119,7 @@ export class SignageGroupSelectorComponent {
     public readonly selected_group = this._service.selected_group;
     public readonly selected_group_id = this._service.selected_group_id;
     public readonly is_sys_admin = this._service.is_sys_admin;
+    public readonly show_selector = this._service.show_group_selector;
     public readonly selected_label = computed(
         () => this.selected_group()?.group.name || 'SIGNAGE_MANAGER.ALL_GROUPS',
     );

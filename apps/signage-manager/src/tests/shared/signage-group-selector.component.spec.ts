@@ -16,7 +16,9 @@ describe('SignageGroupSelectorComponent', () => {
     const selected_group_id = signal('');
     const is_sys_admin = signal(false);
     const selected_group_hierarchy = signal<any[]>([]);
+    const show_group_selector = signal(true);
     const service = {
+        show_group_selector,
         signage_groups,
         selected_group,
         selected_group_id,
@@ -59,6 +61,7 @@ describe('SignageGroupSelectorComponent', () => {
         selected_group_id.set('');
         is_sys_admin.set(false);
         selected_group_hierarchy.set([]);
+        show_group_selector.set(true);
         TestBed.resetTestingModule();
     });
 
@@ -89,6 +92,13 @@ describe('SignageGroupSelectorComponent', () => {
             'b',
             'c',
         ]);
+    });
+
+    it('follows the setting hiding the group selector', async () => {
+        show_group_selector.set(false);
+        const component = await createComponent();
+
+        expect(component.show_selector()).toBe(false);
     });
 
     it('applies the chosen group after the selector closes', async () => {

@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import {
@@ -40,7 +41,14 @@ describe('SignageService thumbnail rendering', () => {
             providers: [
                 SignageService,
                 { provide: UploadsService, useValue: {} },
-                { provide: SettingsService, useValue: { get: vi.fn() } },
+                {
+                    provide: SettingsService,
+                    useValue: {
+                        get: vi.fn(),
+                        signal: (_name: string, default_value?: any) =>
+                            signal(default_value),
+                    },
+                },
                 {
                     provide: OrganisationService,
                     useValue: {
