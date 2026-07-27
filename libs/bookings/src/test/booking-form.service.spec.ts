@@ -661,6 +661,40 @@ describe('BookingFormService', () => {
         );
     });
 
+    it('should keep the host when editing a delegated visitor booking', async () => {
+        (spectator.inject(PaymentsService) as any).enabled = false;
+        spectator.service.newForm(
+            'visitor',
+            new Booking({
+                id: 'bkn-1',
+                booking_type: 'visitor',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                asset_id: 'visitor@example.com',
+                asset_name: 'Visitor One',
+                user_id: 'host-user',
+                user_email: 'host@example.com',
+                user_name: 'Host User',
+                booked_by_id: 'current-user',
+                booked_by_email: 'current.user@example.com',
+                booked_by_name: 'Current User',
+            }),
+        );
+
+        expect((spectator.service.model().user as any)?.email).toBe(
+            'host@example.com',
+        );
+
+        spectator.service.model.update((m) => ({ ...m, title: 'Updated' }));
+        await spectator.service.postForm(true);
+
+        expect(savedBookings().length).toBe(1);
+        expect((savedBookings()[0] as Booking).user_email).toBe(
+            'host@example.com',
+        );
+        expect((savedBookings()[0] as Booking).user_name).toBe('Host User');
+    });
+
     it('should store the parking request user groups in extension data', async () => {
         (spectator.inject(PaymentsService) as any).enabled = false;
         spectator.service.newForm(

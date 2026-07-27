@@ -599,7 +599,12 @@ export class VisitorInviteFormComponent
                 }]`,
             );
         }
-        if (!this.model().user_email || !this.can_book_for_others()) {
+        // Existing bookings keep whatever host they were created with — only
+        // fall back to the signed-in user for a new booking with no host.
+        if (
+            !this.model().user_email ||
+            (!this.can_book_for_others() && !this.model().id)
+        ) {
             this.model.update((m) => ({ ...m, user: currentUser() }));
         }
         const visitor_reason =
@@ -730,7 +735,6 @@ export class VisitorInviteFormComponent
                 asset_id: user.email,
                 asset_name: user.name,
                 international: this.getVisitorInternational(user),
-                user: currentUser(),
                 description: group,
                 name: user.name,
                 assets: [],

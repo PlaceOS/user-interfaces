@@ -56,6 +56,7 @@ import { BookingLinkModalComponent } from './booking-link-modal.component';
 import {
     bookingAttachments,
     bookingFormValue,
+    bookingHostUser,
     type BookingFormValue,
     findNearbyFeature,
     generateBookingForm,
@@ -842,6 +843,11 @@ export class BookingFormService extends AsyncHandler {
                     _in_progress:
                         booking.state === 'started' ||
                         booking.state === 'in_progress',
+                    // `Booking` has no `user` object, only the flat `user_*`
+                    // fields, so the host has to be rebuilt from those. Without
+                    // it the form keeps the signed-in user and editing a
+                    // delegate booking reassigns the host on save.
+                    user: bookingHostUser(booking),
                 },
                 [null, undefined, ''],
             ),
@@ -1009,6 +1015,7 @@ export class BookingFormService extends AsyncHandler {
                     ...(booking || {}),
                     ...(booking?.extension_data || {}),
                     attachments: bookingAttachments(booking),
+                    user: bookingHostUser(booking),
                     _in_progress: booking?.state === 'started',
                 },
                 [null, undefined, ''],
@@ -1080,6 +1087,7 @@ export class BookingFormService extends AsyncHandler {
                 ...(booking || {}),
                 ...(booking?.extension_data || {}),
                 attachments: bookingAttachments(booking),
+                user: bookingHostUser(booking),
                 _in_progress: booking?.state === 'started',
             },
             [null, undefined, ''],
