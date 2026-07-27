@@ -1,1 +1,0 @@
-import {g0 as pn,g1 as Mc,cU as Hu}from'./main.js';var r="/api/staff/v1/guests";async function C(t){let s=pn({q:t});return (await Mc(`${r}${t?"?"+s:""}`)).map(c=>new Hu(c))}async function I(t){return new Hu(await Mc(`${r}/${encodeURIComponent(t)}`))}export{C,I};//# sourceMappingURL=chunk-BcVsFiqt.js.map
