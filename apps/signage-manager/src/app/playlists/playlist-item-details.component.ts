@@ -544,6 +544,151 @@ function nextSchedulePlaySessions(
                     <mat-tab>
                         <ng-template mat-tab-label>
                             {{
+                                'SIGNAGE_MANAGER.ZONES_COUNT'
+                                    | translate
+                                        : { count: playlist_zones().length }
+                                        : playlist_zones().length
+                            }}
+                        </ng-template>
+                        <div class="flex h-full flex-col overflow-hidden">
+                            <div
+                                class="border-base-300 flex items-center gap-2 border-b px-4 py-3"
+                            >
+                                <h5
+                                    class="text-base-content/80 flex flex-1 items-center gap-2 font-medium tracking-wider uppercase"
+                                >
+                                    <icon class="text-lg">layers</icon>
+                                    {{
+                                        'SIGNAGE_MANAGER.ZONES_COUNT'
+                                            | translate
+                                                : {
+                                                      count: playlist_zones()
+                                                          .length,
+                                                  }
+                                                : playlist_zones().length
+                                    }}
+                                </h5>
+                                @if (can_update()) {
+                                    <button
+                                        icon
+                                        default
+                                        type="button"
+                                        matRipple
+                                        [matTooltip]="
+                                            'SIGNAGE_MANAGER.ADD_ZONE_TOOLTIP'
+                                                | translate
+                                        "
+                                        (click)="addZone()"
+                                        [attr.aria-label]="
+                                            'SIGNAGE_MANAGER.ADD_ZONE_TO_PLAYLIST_ARIA'
+                                                | translate
+                                        "
+                                    >
+                                        <icon>add</icon>
+                                    </button>
+                                }
+                            </div>
+                            <div class="min-h-0 flex-1 gap-2 overflow-auto p-2">
+                                @if (playlist_zones().length > 0) {
+                                    @for (
+                                        zone of playlist_zones();
+                                        track zone.id
+                                    ) {
+                                        <div
+                                            class="border-base-300 bg-base-100 mb-2 flex items-center gap-3 rounded-lg border p-0.5 pl-1"
+                                        >
+                                            <a
+                                                matRipple
+                                                class="hover:bg-base-200 flex min-w-0 flex-1 items-center gap-3 rounded-lg p-1 no-underline transition-colors"
+                                                [routerLink]="[
+                                                    '/zones',
+                                                    zone.id,
+                                                ]"
+                                                [attr.aria-label]="
+                                                    'SIGNAGE_MANAGER.OPEN_ZONE'
+                                                        | translate
+                                                            : {
+                                                                  name:
+                                                                      zone.display_name ||
+                                                                      zone.name,
+                                                              }
+                                                "
+                                            >
+                                                <icon
+                                                    class="shrink-0 text-xl opacity-60"
+                                                    >location_on</icon
+                                                >
+                                                <div class="min-w-0 flex-1">
+                                                    <div
+                                                        class="truncate text-sm font-medium"
+                                                    >
+                                                        {{
+                                                            zone.display_name ||
+                                                                zone.name
+                                                        }}
+                                                    </div>
+                                                    @if (zone.description) {
+                                                        <div
+                                                            class="text-base-content/70 truncate text-xs"
+                                                        >
+                                                            {{
+                                                                zone.description
+                                                            }}
+                                                        </div>
+                                                    }
+                                                </div>
+                                            </a>
+                                            @if (can_update()) {
+                                                <button
+                                                    icon
+                                                    default
+                                                    error
+                                                    type="button"
+                                                    class="m-1 text-sm"
+                                                    matRipple
+                                                    [matTooltip]="
+                                                        'SIGNAGE_MANAGER.REMOVE_ZONE'
+                                                            | translate
+                                                    "
+                                                    (click)="
+                                                        removeZone($event, zone)
+                                                    "
+                                                    [attr.aria-label]="
+                                                        'SIGNAGE_MANAGER.REMOVE_ZONE_FROM_PLAYLIST'
+                                                            | translate
+                                                                : {
+                                                                      name:
+                                                                          zone.display_name ||
+                                                                          zone.name,
+                                                                  }
+                                                    "
+                                                >
+                                                    <icon>close</icon>
+                                                </button>
+                                            }
+                                        </div>
+                                    }
+                                } @else {
+                                    <div
+                                        class="text-base-content/70 flex flex-col items-center justify-center space-y-2 p-8"
+                                    >
+                                        <icon class="text-4xl"
+                                            >location_off</icon
+                                        >
+                                        <p class="text-sm">
+                                            {{
+                                                'SIGNAGE_MANAGER.NO_ZONES_USE_PLAYLIST'
+                                                    | translate
+                                            }}
+                                        </p>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </mat-tab>
+                    <mat-tab>
+                        <ng-template mat-tab-label>
+                            {{
                                 'SIGNAGE_MANAGER.DISPLAYS_COUNT'
                                     | translate
                                         : { count: playlist_displays().length }
@@ -679,151 +824,6 @@ function nextSchedulePlaySessions(
                                         <p class="text-sm">
                                             {{
                                                 'SIGNAGE_MANAGER.NO_DISPLAYS_USE_PLAYLIST'
-                                                    | translate
-                                            }}
-                                        </p>
-                                    </div>
-                                }
-                            </div>
-                        </div>
-                    </mat-tab>
-                    <mat-tab>
-                        <ng-template mat-tab-label>
-                            {{
-                                'SIGNAGE_MANAGER.ZONES_COUNT'
-                                    | translate
-                                        : { count: playlist_zones().length }
-                                        : playlist_zones().length
-                            }}
-                        </ng-template>
-                        <div class="flex h-full flex-col overflow-hidden">
-                            <div
-                                class="border-base-300 flex items-center gap-2 border-b px-4 py-3"
-                            >
-                                <h5
-                                    class="text-base-content/80 flex flex-1 items-center gap-2 font-medium tracking-wider uppercase"
-                                >
-                                    <icon class="text-lg">layers</icon>
-                                    {{
-                                        'SIGNAGE_MANAGER.ZONES_COUNT'
-                                            | translate
-                                                : {
-                                                      count: playlist_zones()
-                                                          .length,
-                                                  }
-                                                : playlist_zones().length
-                                    }}
-                                </h5>
-                                @if (can_update()) {
-                                    <button
-                                        icon
-                                        default
-                                        type="button"
-                                        matRipple
-                                        [matTooltip]="
-                                            'SIGNAGE_MANAGER.ADD_ZONE_TOOLTIP'
-                                                | translate
-                                        "
-                                        (click)="addZone()"
-                                        [attr.aria-label]="
-                                            'SIGNAGE_MANAGER.ADD_ZONE_TO_PLAYLIST_ARIA'
-                                                | translate
-                                        "
-                                    >
-                                        <icon>add</icon>
-                                    </button>
-                                }
-                            </div>
-                            <div class="min-h-0 flex-1 gap-2 overflow-auto p-2">
-                                @if (playlist_zones().length > 0) {
-                                    @for (
-                                        zone of playlist_zones();
-                                        track zone.id
-                                    ) {
-                                        <div
-                                            class="border-base-300 bg-base-100 mb-2 flex items-center gap-3 rounded-lg border p-0.5 pl-1"
-                                        >
-                                            <a
-                                                matRipple
-                                                class="hover:bg-base-200 flex min-w-0 flex-1 items-center gap-3 rounded-lg p-1 no-underline transition-colors"
-                                                [routerLink]="[
-                                                    '/zones',
-                                                    zone.id,
-                                                ]"
-                                                [attr.aria-label]="
-                                                    'SIGNAGE_MANAGER.OPEN_ZONE'
-                                                        | translate
-                                                            : {
-                                                                  name:
-                                                                      zone.display_name ||
-                                                                      zone.name,
-                                                              }
-                                                "
-                                            >
-                                                <icon
-                                                    class="shrink-0 text-xl opacity-60"
-                                                    >location_on</icon
-                                                >
-                                                <div class="min-w-0 flex-1">
-                                                    <div
-                                                        class="truncate text-sm font-medium"
-                                                    >
-                                                        {{
-                                                            zone.display_name ||
-                                                                zone.name
-                                                        }}
-                                                    </div>
-                                                    @if (zone.description) {
-                                                        <div
-                                                            class="text-base-content/70 truncate text-xs"
-                                                        >
-                                                            {{
-                                                                zone.description
-                                                            }}
-                                                        </div>
-                                                    }
-                                                </div>
-                                            </a>
-                                            @if (can_update()) {
-                                                <button
-                                                    icon
-                                                    default
-                                                    error
-                                                    type="button"
-                                                    class="m-1 text-sm"
-                                                    matRipple
-                                                    [matTooltip]="
-                                                        'SIGNAGE_MANAGER.REMOVE_ZONE'
-                                                            | translate
-                                                    "
-                                                    (click)="
-                                                        removeZone($event, zone)
-                                                    "
-                                                    [attr.aria-label]="
-                                                        'SIGNAGE_MANAGER.REMOVE_ZONE_FROM_PLAYLIST'
-                                                            | translate
-                                                                : {
-                                                                      name:
-                                                                          zone.display_name ||
-                                                                          zone.name,
-                                                                  }
-                                                    "
-                                                >
-                                                    <icon>close</icon>
-                                                </button>
-                                            }
-                                        </div>
-                                    }
-                                } @else {
-                                    <div
-                                        class="text-base-content/70 flex flex-col items-center justify-center space-y-2 p-8"
-                                    >
-                                        <icon class="text-4xl"
-                                            >location_off</icon
-                                        >
-                                        <p class="text-sm">
-                                            {{
-                                                'SIGNAGE_MANAGER.NO_ZONES_USE_PLAYLIST'
                                                     | translate
                                             }}
                                         </p>
