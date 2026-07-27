@@ -10,7 +10,7 @@ import { TranslatePipe } from '@placeos/components';
     template: `
         <div class="bg-base-100 z-50 flex h-full w-full flex-col">
             <main
-                class="flex flex-1 flex-col items-center justify-center space-y-2 p-8"
+                class="flex min-h-0 flex-1 flex-col items-center justify-center space-y-2 overflow-y-auto p-8"
             >
                 <h2 class="text-2xl font-medium">
                     {{
@@ -19,7 +19,7 @@ import { TranslatePipe } from '@placeos/components';
                     }}
                 </h2>
                 <div class="py-4">
-                    <img src="assets/icons/not-found.svg" class="h-64" />
+                    <img src="assets/icons/not-found.svg" class="h-32 sm:h-64" />
                 </div>
                 <p class="max-w-lg text-center">
                     @switch (type()) {
@@ -38,7 +38,7 @@ import { TranslatePipe } from '@placeos/components';
                 </p>
             </main>
             <footer
-                class="border-base-200 mt-4 flex w-full items-center justify-center space-x-2 border-t p-2"
+                class="border-base-200 mt-4 flex w-full shrink-0 items-center justify-center space-x-2 border-t p-2"
             >
                 @if (type() === 'not_started') {
                     <a
@@ -51,7 +51,7 @@ import { TranslatePipe } from '@placeos/components';
                         {{ 'APP.WORKPLACE.TRY_AGAIN' | translate }}
                     </a>
                 }
-                @if (type() === 'no_booking') {
+                @if (type() !== 'not_started') {
                     <a
                         btn
                         matRipple

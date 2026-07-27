@@ -230,6 +230,10 @@ export class BookCodeFlowComponent
     }
 
     public ngAfterViewInit() {
+        // Deep links from a scanned QR code already carry the resource, so
+        // there is no need to prompt for camera access.
+        const params = this._route.snapshot.queryParamMap;
+        if (params.has('asset_id') || params.has('space_id')) return;
         this.timeout('initialise', () => this._startScanning());
     }
 
@@ -245,7 +249,9 @@ export class BookCodeFlowComponent
             while ((match = regex.exec(url))) {
                 params[match[1]] = match[2];
             }
-            this._router.navigate([url.split('/#')[1].split('?')[0]], params);
+            this._router.navigate([url.split('/#')[1].split('?')[0]], {
+                queryParams: params,
+            });
         }
     }
 
@@ -276,6 +282,7 @@ export class BookCodeFlowComponent
                 period_start: getUnixTime(Date.now()),
                 period_end: getUnixTime(endOfDay(Date.now())),
                 type,
+                email: currentUser().email,
             }).catch((_) => [] as Booking[]);
             let item = bookings.find((_) => _.asset_id === asset_id);
             if (item) {
@@ -288,6 +295,7 @@ export class BookCodeFlowComponent
                 period_start: getUnixTime(Date.now()),
                 period_end: getUnixTime(addMinutes(Date.now(), 5)),
                 type,
+                email: currentUser().email,
             }).catch((_) => [] as Booking[]);
             item = bookings.find((_) => _.asset_id === asset_id);
             if (item) {
