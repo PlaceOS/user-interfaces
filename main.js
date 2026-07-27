@@ -12,7 +12,7 @@ import {
   generateMockSpace,
   setHours,
   setMinutes
-} from "./chunk-FUDL6PC2.js";
+} from "./chunk-DPK3WZHC.js";
 import {
   parseTokenFromUrl
 } from "./chunk-FZ3XJSQC.js";
@@ -24,10 +24,10 @@ import {
   MatSelectModule,
   MatSelectTrigger,
   SanitizePipe
-} from "./chunk-NXFOSLVR.js";
+} from "./chunk-433C7JNF.js";
 import {
   CheckinStateService
-} from "./chunk-NMHXJAMA.js";
+} from "./chunk-3VMHKZHV.js";
 import {
   $r,
   ANIMATION_MODULE_TYPE,
@@ -239,7 +239,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-ICBPTIPZ.js";
+} from "./chunk-DABQDWGV.js";
 import {
   __export,
   __objRest,
@@ -7016,7 +7016,8 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
   async checkSubsystemAccess(user) {
     if (!user)
       return false;
-    const app_name = `${this._settings.app_name || ""}`.trim().toLowerCase();
+    const subsystem = `${this._settings.get("app.access_subsystem") || ""}`.trim();
+    const app_name = (subsystem || `${this._settings.app_name || ""}`).trim().toLowerCase();
     if (!app_name)
       return false;
     await this.waitForUserGroups();
@@ -20472,7 +20473,7 @@ function VisitorRegistrationComponent_Conditional_3_Conditional_46_Template(rf, 
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext(2);
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 3, "BOOKINGS.VISITOR_PASS"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 3, "BOOKINGS.PASS_NUMBER"), " ");
     \u0275\u0275advance(3);
     \u0275\u0275property("formField", ctx_r1.form.pass_number)("placeholder", \u0275\u0275pipeBind1(5, 5, "BOOKINGS.VISITOR_PASS_PLACEHOLDER"));
     \u0275\u0275control();
@@ -20613,14 +20614,14 @@ function VisitorRegistrationComponent_Conditional_3_Template(rf, ctx) {
     \u0275\u0275advance(2);
     \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(47, _c04));
     \u0275\u0275advance(5);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(11, 25, "APP.VISITOR_KIOSK.NAME"));
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(11, 25, "FORM.NAME"));
     \u0275\u0275advance(3);
-    \u0275\u0275property("formField", ctx_r1.form.asset_name)("placeholder", \u0275\u0275pipeBind1(14, 27, "APP.VISITOR_KIOSK.NAME"));
+    \u0275\u0275property("formField", ctx_r1.form.asset_name)("placeholder", \u0275\u0275pipeBind1(14, 27, "FORM.NAME"));
     \u0275\u0275control();
     \u0275\u0275advance(5);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(19, 29, "APP.VISITOR_KIOSK.EMAIL"));
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(19, 29, "FORM.EMAIL"));
     \u0275\u0275advance(3);
-    \u0275\u0275property("formField", ctx_r1.form.asset_id)("placeholder", \u0275\u0275pipeBind1(22, 31, "APP.VISITOR_KIOSK.EMAIL"));
+    \u0275\u0275property("formField", ctx_r1.form.asset_id)("placeholder", \u0275\u0275pipeBind1(22, 31, "FORM.EMAIL"));
     \u0275\u0275control();
     \u0275\u0275advance(6);
     \u0275\u0275classProp("mb-4", !ctx_r1.host());
@@ -20632,9 +20633,9 @@ function VisitorRegistrationComponent_Conditional_3_Template(rf, ctx) {
     \u0275\u0275property("formField", ctx_r1.form.phone)("placeholder", \u0275\u0275pipeBind1(33, 35, "APP.VISITOR_KIOSK.PHONE"));
     \u0275\u0275control();
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(36, 37, "APP.VISITOR_KIOSK.ORGANISATION"));
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(36, 37, "COMMON.ORGANISATION"));
     \u0275\u0275advance(3);
-    \u0275\u0275property("formField", ctx_r1.form.company)("placeholder", \u0275\u0275pipeBind1(39, 39, "APP.VISITOR_KIOSK.ORGANISATION"));
+    \u0275\u0275property("formField", ctx_r1.form.company)("placeholder", \u0275\u0275pipeBind1(39, 39, "COMMON.ORGANISATION"));
     \u0275\u0275control();
     \u0275\u0275advance(3);
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(42, 41, "BOOKINGS.VISITOR_REASON"), " ");
@@ -20764,7 +20765,7 @@ var VisitorRegistrationComponent = class _VisitorRegistrationComponent extends A
     }
     if (!this.host()) {
       return notifyError(i18n("FORM.INVALID_FIELDS", {
-        field_list: i18n("APP.VISITOR_KIOSK.HOST")
+        field_list: i18n("FORM.HOST")
       }));
     }
     this.loading.set(true);
@@ -20895,23 +20896,19 @@ var VisitorRegistrationComponent = class _VisitorRegistrationComponent extends A
                         </a>
                     </div>
                     <div class="p-4">
-                        <label for="name">
-                            {{ 'APP.VISITOR_KIOSK.NAME' | translate }}</label
-                        >
+                        <label for="name"> {{ 'FORM.NAME' | translate }}</label>
                         <mat-form-field appearance="outline" class="w-full">
                             <input
                                 keyboard
                                 matInput
                                 autocomplete="off"
                                 [formField]="form.asset_name"
-                                [placeholder]="
-                                    'APP.VISITOR_KIOSK.NAME' | translate
-                                "
+                                [placeholder]="'FORM.NAME' | translate"
                             />
                             <mat-error>A valid email is required</mat-error>
                         </mat-form-field>
                         <label for="email">
-                            {{ 'APP.VISITOR_KIOSK.EMAIL' | translate }}</label
+                            {{ 'FORM.EMAIL' | translate }}</label
                         >
                         <mat-form-field
                             appearance="outline"
@@ -20922,9 +20919,7 @@ var VisitorRegistrationComponent = class _VisitorRegistrationComponent extends A
                                 matInput
                                 autocomplete="off"
                                 [formField]="form.asset_id"
-                                [placeholder]="
-                                    'APP.VISITOR_KIOSK.EMAIL' | translate
-                                "
+                                [placeholder]="'FORM.EMAIL' | translate"
                             />
                             <mat-error>A valid email is required</mat-error>
                         </mat-form-field>
@@ -20951,9 +20946,7 @@ var VisitorRegistrationComponent = class _VisitorRegistrationComponent extends A
                             />
                         </mat-form-field>
                         <label form="org">
-                            {{
-                                'APP.VISITOR_KIOSK.ORGANISATION' | translate
-                            }}</label
+                            {{ 'COMMON.ORGANISATION' | translate }}</label
                         >
                         <mat-form-field appearance="outline" class="w-full">
                             <input
@@ -20962,7 +20955,7 @@ var VisitorRegistrationComponent = class _VisitorRegistrationComponent extends A
                                 autocomplete="off"
                                 [formField]="form.company"
                                 [placeholder]="
-                                    'APP.VISITOR_KIOSK.ORGANISATION' | translate
+                                    'COMMON.ORGANISATION' | translate
                                 "
                             />
                         </mat-form-field>
@@ -20986,7 +20979,7 @@ var VisitorRegistrationComponent = class _VisitorRegistrationComponent extends A
                         </mat-form-field>
                         @if (allow_pass_number()) {
                             <label form="pass">
-                                {{ 'BOOKINGS.VISITOR_PASS' | translate }}
+                                {{ 'BOOKINGS.PASS_NUMBER' | translate }}
                             </label>
                             <mat-form-field
                                 appearance="outline"
@@ -21069,7 +21062,7 @@ var VisitorRegistrationComponent = class _VisitorRegistrationComponent extends A
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(VisitorRegistrationComponent, { className: "VisitorRegistrationComponent", filePath: "apps/visitor-kiosk/src/app/visitor-registration.component.ts", lineNumber: 243 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(VisitorRegistrationComponent, { className: "VisitorRegistrationComponent", filePath: "apps/visitor-kiosk/src/app/visitor-registration.component.ts", lineNumber: 235 });
 })();
 
 // apps/visitor-kiosk/src/app/welcome.component.ts
@@ -21569,17 +21562,17 @@ var routes = [
   {
     path: "explore",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./explore.routes-UEFYVUA4.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./explore.routes-3WZ6BA5O.js").then((m) => m.ROUTES)
   },
   {
     path: "checkin",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./checkin.routes-JN232A74.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./checkin.routes-UIPTWYJP.js").then((m) => m.ROUTES)
   },
   {
     path: "checkout",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./checkout.routes-4LYEWASM.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./checkout.routes-XQXFD2JB.js").then((m) => m.ROUTES)
   },
   { path: "**", redirectTo: "bootstrap" }
 ];

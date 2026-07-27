@@ -5,7 +5,7 @@ import {
   CheckinComponent,
   CheckinErrorComponent,
   CheckinQRScanComponent
-} from "./chunk-E3O5R3DL.js";
+} from "./chunk-H4DJI5BJ.js";
 import "./chunk-Q4DQ62MM.js";
 import {
   parseTokenFromUrl
@@ -26,10 +26,10 @@ import {
   form,
   required,
   saveAssetCategory
-} from "./chunk-NXFOSLVR.js";
+} from "./chunk-433C7JNF.js";
 import {
   CheckinStateService
-} from "./chunk-NMHXJAMA.js";
+} from "./chunk-3VMHKZHV.js";
 import {
   ActivatedRoute,
   AsyncHandler,
@@ -133,7 +133,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-ICBPTIPZ.js";
+} from "./chunk-DABQDWGV.js";
 import {
   __spreadProps,
   __spreadValues
@@ -404,7 +404,7 @@ var UserLabelComponent = class _UserLabelComponent {
         \u0275\u0275advance(2);
         \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(8, 23, "APP.VISITOR_KIOSK.LABEL_HOST", \u0275\u0275pureFunction1(37, _c0, ctx.user()?.host)), " ");
         \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(11, 26, "APP.VISITOR_KIOSK.VISITOR"), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(11, 26, "RESOURCE.VISITOR"), " ");
         \u0275\u0275advance(3);
         \u0275\u0275styleProp("max-width", ctx.landscape() ? "8em" : "");
         \u0275\u0275property("src", ctx.logo()?.src || ctx.logo(), \u0275\u0275sanitizeUrl);
@@ -469,7 +469,7 @@ var UserLabelComponent = class _UserLabelComponent {
             <div
                 class="absolute bottom-[1em] left-[1em] mt-[0.5em] w-[8em] rounded-[0.5em] border border-black px-[0.5em] py-[0.25em] text-center font-medium text-black uppercase"
             >
-                {{ 'APP.VISITOR_KIOSK.VISITOR' | translate }}
+                {{ 'RESOURCE.VISITOR' | translate }}
             </div>
             <div
                 class="absolute top-[1em] right-[1em] flex flex-col items-end space-y-[0.5em]"
@@ -790,7 +790,7 @@ function CheckinDetailsComponent_Conditional_0_Conditional_46_Template(rf, ctx) 
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext(2);
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 3, "BOOKINGS.VISITOR_PASS"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 3, "BOOKINGS.PASS_NUMBER"), " ");
     \u0275\u0275advance(3);
     \u0275\u0275property("formField", ctx_r1.form.pass_number)("placeholder", \u0275\u0275pipeBind1(6, 5, "BOOKINGS.VISITOR_PASS_PLACEHOLDER"));
     \u0275\u0275control();
@@ -872,33 +872,33 @@ function CheckinDetailsComponent_Conditional_0_Template(rf, ctx) {
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance(5);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(6, 20, "APP.VISITOR_KIOSK.HOST"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(6, 20, "FORM.HOST"));
     \u0275\u0275advance(3);
-    \u0275\u0275property("formField", ctx_r1.form.host)("placeholder", \u0275\u0275pipeBind1(9, 22, "APP.VISITOR_KIOSK.HOST"));
+    \u0275\u0275property("formField", ctx_r1.form.host)("placeholder", \u0275\u0275pipeBind1(9, 22, "FORM.HOST"));
     \u0275\u0275control();
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(12, 24, "APP.VISITOR_KIOSK.EMAIL_REQUIRED"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(12, 24, "FORM.EMAIL_REQUIRED"), " ");
     \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(16, 26, "APP.VISITOR_KIOSK.NAME"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(16, 26, "FORM.NAME"));
     \u0275\u0275advance(3);
-    \u0275\u0275property("formField", ctx_r1.form.name)("placeholder", \u0275\u0275pipeBind1(19, 28, "APP.VISITOR_KIOSK.NAME"));
+    \u0275\u0275property("formField", ctx_r1.form.name)("placeholder", \u0275\u0275pipeBind1(19, 28, "FORM.NAME"));
     \u0275\u0275control();
     \u0275\u0275advance(6);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(25, 30, "APP.VISITOR_KIOSK.NAME"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(25, 30, "FORM.NAME"));
     \u0275\u0275advance(3);
-    \u0275\u0275property("formField", ctx_r1.form.email)("placeholder", \u0275\u0275pipeBind1(28, 32, "APP.VISITOR_KIOSK.EMAIL"));
+    \u0275\u0275property("formField", ctx_r1.form.email)("placeholder", \u0275\u0275pipeBind1(28, 32, "FORM.EMAIL"));
     \u0275\u0275control();
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(31, 34, "APP.VISITOR_KIOSK.EMAIL_REQUIRED"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(31, 34, "FORM.EMAIL_REQUIRED"));
     \u0275\u0275advance(4);
     \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(35, 36, "APP.VISITOR_KIOSK.PHONE"));
     \u0275\u0275advance(3);
     \u0275\u0275property("formField", ctx_r1.form.phone)("placeholder", \u0275\u0275pipeBind1(38, 38, "APP.VISITOR_KIOSK.PHONE"));
     \u0275\u0275control();
     \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(42, 40, "APP.VISITOR_KIOSK.ORGANISATION"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(42, 40, "COMMON.ORGANISATION"));
     \u0275\u0275advance(3);
-    \u0275\u0275property("formField", ctx_r1.form.organisation)("placeholder", \u0275\u0275pipeBind1(45, 42, "APP.VISITOR_KIOSK.ORGANISATION"));
+    \u0275\u0275property("formField", ctx_r1.form.organisation)("placeholder", \u0275\u0275pipeBind1(45, 42, "COMMON.ORGANISATION"));
     \u0275\u0275control();
     \u0275\u0275advance(2);
     \u0275\u0275conditional(ctx_r1.allow_pass_number() ? 46 : -1);
@@ -1040,53 +1040,45 @@ var CheckinDetailsComponent = class _CheckinDetailsComponent {
             >
                 <h3 class="m-4 text-2xl">Confirm Details</h3>
                 <div field class="flex flex-col">
-                    <label form="host">{{
-                        'APP.VISITOR_KIOSK.HOST' | translate
-                    }}</label>
+                    <label form="host">{{ 'FORM.HOST' | translate }}</label>
                     <mat-form-field appearance="outline">
                         <input
                             keyboard
                             matInput
                             autocomplete="off"
                             [formField]="form.host"
-                            [placeholder]="'APP.VISITOR_KIOSK.HOST' | translate"
+                            [placeholder]="'FORM.HOST' | translate"
                         />
                         <mat-error>
-                            {{ 'APP.VISITOR_KIOSK.EMAIL_REQUIRED' | translate }}
+                            {{ 'FORM.EMAIL_REQUIRED' | translate }}
                         </mat-error>
                     </mat-form-field>
                 </div>
                 <div field class="flex flex-col">
-                    <label form="name">{{
-                        'APP.VISITOR_KIOSK.NAME' | translate
-                    }}</label>
+                    <label form="name">{{ 'FORM.NAME' | translate }}</label>
                     <mat-form-field appearance="outline">
                         <input
                             keyboard
                             matInput
                             autocomplete="off"
                             [formField]="form.name"
-                            [placeholder]="'APP.VISITOR_KIOSK.NAME' | translate"
+                            [placeholder]="'FORM.NAME' | translate"
                         />
                         <mat-error>Please enter your full name</mat-error>
                     </mat-form-field>
                 </div>
                 <div field class="flex flex-col">
-                    <label form="email">{{
-                        'APP.VISITOR_KIOSK.NAME' | translate
-                    }}</label>
+                    <label form="email">{{ 'FORM.NAME' | translate }}</label>
                     <mat-form-field appearance="outline">
                         <input
                             keyboard
                             matInput
                             autocomplete="off"
                             [formField]="form.email"
-                            [placeholder]="
-                                'APP.VISITOR_KIOSK.EMAIL' | translate
-                            "
+                            [placeholder]="'FORM.EMAIL' | translate"
                         />
                         <mat-error>{{
-                            'APP.VISITOR_KIOSK.EMAIL_REQUIRED' | translate
+                            'FORM.EMAIL_REQUIRED' | translate
                         }}</mat-error>
                     </mat-form-field>
                 </div>
@@ -1109,7 +1101,7 @@ var CheckinDetailsComponent = class _CheckinDetailsComponent {
                 </div>
                 <div field class="flex flex-col">
                     <label form="org">{{
-                        'APP.VISITOR_KIOSK.ORGANISATION' | translate
+                        'COMMON.ORGANISATION' | translate
                     }}</label>
                     <mat-form-field appearance="outline">
                         <input
@@ -1117,16 +1109,14 @@ var CheckinDetailsComponent = class _CheckinDetailsComponent {
                             matInput
                             autocomplete="off"
                             [formField]="form.organisation"
-                            [placeholder]="
-                                'APP.VISITOR_KIOSK.ORGANISATION' | translate
-                            "
+                            [placeholder]="'COMMON.ORGANISATION' | translate"
                         />
                     </mat-form-field>
                 </div>
                 @if (allow_pass_number()) {
                     <div field class="flex flex-col">
                         <label form="pass">
-                            {{ 'BOOKINGS.VISITOR_PASS' | translate }}
+                            {{ 'BOOKINGS.PASS_NUMBER' | translate }}
                         </label>
                         <mat-form-field appearance="outline" class="w-full">
                             <input
@@ -1187,7 +1177,7 @@ var CheckinDetailsComponent = class _CheckinDetailsComponent {
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CheckinDetailsComponent, { className: "CheckinDetailsComponent", filePath: "apps/visitor-kiosk/src/app/checkin/checkin-details.component.ts", lineNumber: 193 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CheckinDetailsComponent, { className: "CheckinDetailsComponent", filePath: "apps/visitor-kiosk/src/app/checkin/checkin-details.component.ts", lineNumber: 183 });
 })();
 
 // apps/visitor-kiosk/src/app/checkin/checkin-induction.component.ts
@@ -1329,7 +1319,7 @@ var CheckinInductionComponent = class _CheckinInductionComponent {
         \u0275\u0275advance(2);
         \u0275\u0275property("disabled", !ctx.agree());
         \u0275\u0275advance();
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(15, 13, "APP.VISITOR_KIOSK.ACCEPT"), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(15, 13, "COMMON.ACCEPT"), " ");
       }
     }, dependencies: [MatRippleModule, MatRipple, MatCheckboxModule, MatCheckbox, FormsModule, NgControlStatus, NgModel, TranslatePipe], encapsulation: 2 });
   }
@@ -1368,7 +1358,7 @@ var CheckinInductionComponent = class _CheckinInductionComponent {
                     [disabled]="!agree()"
                     (click)="continue()"
                 >
-                    {{ 'APP.VISITOR_KIOSK.ACCEPT' | translate }}
+                    {{ 'COMMON.ACCEPT' | translate }}
                 </button>
             </div>
         </div>
@@ -1376,7 +1366,7 @@ var CheckinInductionComponent = class _CheckinInductionComponent {
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CheckinInductionComponent, { className: "CheckinInductionComponent", filePath: "apps/visitor-kiosk/src/app/checkin/checkin-induction.component.ts", lineNumber: 62 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CheckinInductionComponent, { className: "CheckinInductionComponent", filePath: "apps/visitor-kiosk/src/app/checkin/checkin-induction.component.ts", lineNumber: 57 });
 })();
 
 // apps/visitor-kiosk/src/app/components/take-photo.component.ts
@@ -1868,7 +1858,7 @@ function CheckinPreferencesComponent_Conditional_0_Template(rf, ctx) {
     \u0275\u0275advance(2);
     \u0275\u0275property("disabled", ctx_r1.has_beverage());
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(14, 11, ctx_r1.beverage() ? "APP.VISITOR_KIOSK.SAVE" : "APP.VISITOR_KIOSK.CONTINUE"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(14, 11, ctx_r1.beverage() ? "COMMON.SAVE" : "APP.VISITOR_KIOSK.CONTINUE"), " ");
     \u0275\u0275advance(2);
     \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(13, _c05));
   }
@@ -2138,7 +2128,7 @@ var CheckinPreferencesComponent = class _CheckinPreferencesComponent extends Asy
                     >
                         {{
                             (beverage()
-                                ? 'APP.VISITOR_KIOSK.SAVE'
+                                ? 'COMMON.SAVE'
                                 : 'APP.VISITOR_KIOSK.CONTINUE'
                             ) | translate
                         }}
@@ -2558,4 +2548,4 @@ var ROUTES = [
 export {
   ROUTES
 };
-//# sourceMappingURL=checkin.routes-JN232A74.js.map
+//# sourceMappingURL=checkin.routes-UIPTWYJP.js.map
