@@ -1,4 +1,5 @@
 import {
+    cachedUserData,
     currentUser,
     currentUserIsLoaded,
     getPermissionMask,
@@ -6,11 +7,17 @@ import {
     GroupPermission,
     hasPermission,
     isEmptyUser,
+    setCurrentUser,
+    storeUserData,
     user_groups,
     user_permissions,
     userSignal,
 } from '../lib/user-state';
 import { EMPTY_USER, StaffUser } from '../lib/types/user.class';
+
+import * as ts_client from '@placeos/ts-client';
+
+vi.mock('@placeos/ts-client', { spy: true });
 
 function setGroups(subsystems: string[], permissions: number) {
     user_groups.set([
@@ -22,6 +29,9 @@ describe('user-state', () => {
     afterEach(() => {
         user_groups.set([]);
         userSignal().set(EMPTY_USER);
+        setCurrentUser(EMPTY_USER);
+        localStorage.clear();
+        vi.restoreAllMocks();
     });
 
     it('should default to the empty user', () => {
@@ -30,6 +40,55 @@ describe('user-state', () => {
 
     it('should treat the test runtime as having a loaded user', () => {
         expect(currentUserIsLoaded()).toBe(true);
+    });
+
+    describe('caching', () => {
+        const user = new StaffUser({
+            id: 'user-1',
+            name: 'Alex',
+            email: 'alex@dev.place.tech',
+        });
+
+        function storeFor(token: string) {
+            vi.mocked(ts_client.token).mockReturnValue(token);
+            setCurrentUser(user);
+            setGroups(['bookings'], GroupPermission.Read);
+            storeUserData();
+        }
+
+        it('should cache the loaded user', () => {
+            storeFor('token-1');
+            expect(cachedUserData().user.email).toBe('alex@dev.place.tech');
+        });
+
+        it('should never cache group permissions', () => {
+            storeFor('token-1');
+            const cache = JSON.parse(localStorage.getItem('PLACEOS.user'));
+            expect(cache.groups).toBe(undefined);
+        });
+
+        it('should ignore cached data from a different token', () => {
+            storeFor('token-1');
+            vi.mocked(ts_client.token).mockReturnValue('token-2');
+            expect(cachedUserData()).toBe(null);
+            // The mismatched data is dropped rather than left to be re-checked
+            expect(localStorage.getItem('PLACEOS.user')).toBe(null);
+        });
+
+        it('should discard cached data older than the maximum age', () => {
+            storeFor('token-1');
+            const cache = JSON.parse(localStorage.getItem('PLACEOS.user'));
+            cache.cached_at -= 8 * 24 * 60 * 60 * 1000;
+            localStorage.setItem('PLACEOS.user', JSON.stringify(cache));
+            expect(cachedUserData()).toBe(null);
+        });
+
+        it('should not cache the empty user', () => {
+            vi.mocked(ts_client.token).mockReturnValue('token-1');
+            setCurrentUser(EMPTY_USER);
+            storeUserData();
+            expect(localStorage.getItem('PLACEOS.user')).toBe(null);
+        });
     });
 
     describe('permissions', () => {

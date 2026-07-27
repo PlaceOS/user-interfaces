@@ -27,53 +27,45 @@ import { CheckinStateService } from './checkin-state.service';
             >
                 <h3 class="m-4 text-2xl">Confirm Details</h3>
                 <div field class="flex flex-col">
-                    <label form="host">{{
-                        'APP.VISITOR_KIOSK.HOST' | translate
-                    }}</label>
+                    <label form="host">{{ 'FORM.HOST' | translate }}</label>
                     <mat-form-field appearance="outline">
                         <input
                             keyboard
                             matInput
                             autocomplete="off"
                             [formField]="form.host"
-                            [placeholder]="'APP.VISITOR_KIOSK.HOST' | translate"
+                            [placeholder]="'FORM.HOST' | translate"
                         />
                         <mat-error>
-                            {{ 'APP.VISITOR_KIOSK.EMAIL_REQUIRED' | translate }}
+                            {{ 'FORM.EMAIL_REQUIRED' | translate }}
                         </mat-error>
                     </mat-form-field>
                 </div>
                 <div field class="flex flex-col">
-                    <label form="name">{{
-                        'APP.VISITOR_KIOSK.NAME' | translate
-                    }}</label>
+                    <label form="name">{{ 'FORM.NAME' | translate }}</label>
                     <mat-form-field appearance="outline">
                         <input
                             keyboard
                             matInput
                             autocomplete="off"
                             [formField]="form.name"
-                            [placeholder]="'APP.VISITOR_KIOSK.NAME' | translate"
+                            [placeholder]="'FORM.NAME' | translate"
                         />
                         <mat-error>Please enter your full name</mat-error>
                     </mat-form-field>
                 </div>
                 <div field class="flex flex-col">
-                    <label form="email">{{
-                        'APP.VISITOR_KIOSK.NAME' | translate
-                    }}</label>
+                    <label form="email">{{ 'FORM.NAME' | translate }}</label>
                     <mat-form-field appearance="outline">
                         <input
                             keyboard
                             matInput
                             autocomplete="off"
                             [formField]="form.email"
-                            [placeholder]="
-                                'APP.VISITOR_KIOSK.EMAIL' | translate
-                            "
+                            [placeholder]="'FORM.EMAIL' | translate"
                         />
                         <mat-error>{{
-                            'APP.VISITOR_KIOSK.EMAIL_REQUIRED' | translate
+                            'FORM.EMAIL_REQUIRED' | translate
                         }}</mat-error>
                     </mat-form-field>
                 </div>
@@ -96,7 +88,7 @@ import { CheckinStateService } from './checkin-state.service';
                 </div>
                 <div field class="flex flex-col">
                     <label form="org">{{
-                        'APP.VISITOR_KIOSK.ORGANISATION' | translate
+                        'COMMON.ORGANISATION' | translate
                     }}</label>
                     <mat-form-field appearance="outline">
                         <input
@@ -104,16 +96,14 @@ import { CheckinStateService } from './checkin-state.service';
                             matInput
                             autocomplete="off"
                             [formField]="form.organisation"
-                            [placeholder]="
-                                'APP.VISITOR_KIOSK.ORGANISATION' | translate
-                            "
+                            [placeholder]="'COMMON.ORGANISATION' | translate"
                         />
                     </mat-form-field>
                 </div>
                 @if (allow_pass_number()) {
                     <div field class="flex flex-col">
                         <label form="pass">
-                            {{ 'BOOKINGS.VISITOR_PASS' | translate }}
+                            {{ 'BOOKINGS.PASS_NUMBER' | translate }}
                         </label>
                         <mat-form-field appearance="outline" class="w-full">
                             <input

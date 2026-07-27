@@ -25,11 +25,26 @@ describe('playlist-schedule-form helpers', () => {
     });
 
     it('treats a schedule with play_at as a one-off', () => {
-        const play_at = Date.UTC(2026, 2, 2, 10, 30);
-        const model = createPlaylistScheduleModel({ play_at });
+        const play_at_ms = Date.UTC(2026, 2, 2, 10, 30);
+        // The API carries seconds; the form model works in milliseconds
+        const model = createPlaylistScheduleModel({
+            play_at: getUnixTime(new Date(play_at_ms)),
+        });
 
         expect(model.schedule_type).toBe('play_at');
-        expect(model.play_at).toBe(play_at);
+        expect(model.play_at).toBe(play_at_ms);
+    });
+
+    // Reading a seconds timestamp as milliseconds put every one-off schedule
+    // in January 1970, and saving it again divided the stored value by 1000.
+    it('round trips a one-off schedule without shifting the date', () => {
+        const stored = getUnixTime(new Date(Date.UTC(2026, 2, 2, 10, 30)));
+
+        const model = createPlaylistScheduleModel({ play_at: stored });
+        const payload = playlistSchedulePayload(model);
+
+        expect(payload.play_at).toBe(stored);
+        expect(new Date(model.play_at).getUTCFullYear()).toBe(2026);
     });
 
     it('builds a one-off payload with a unix play_at and fallback cron', () => {
@@ -87,9 +102,14 @@ describe('PlaylistScheduleFormComponent', () => {
         }).compileComponents();
     });
 
-    function setup(overrides: Partial<ReturnType<typeof createPlaylistScheduleModel>> = {}) {
+    function setup(
+        overrides: Partial<ReturnType<typeof createPlaylistScheduleModel>> = {},
+    ) {
         const fixture = TestBed.createComponent(PlaylistScheduleFormComponent);
-        const model = signal({ ...createPlaylistScheduleModel(), ...overrides });
+        const model = signal({
+            ...createPlaylistScheduleModel(),
+            ...overrides,
+        });
         const schedule = TestBed.runInInjectionContext(() => form(model));
         fixture.componentRef.setInput('schedule', schedule);
         fixture.componentRef.setInput('index', 0);

@@ -415,6 +415,22 @@ describe('InviteVisitorFormComponent', () => {
         expect(service.model().title).toBe('Vendor Interview');
     });
 
+    it('should set the multiple visitor placeholder email when the setting resolves after init', async () => {
+        const service = spectator.inject(BookingFormService);
+        const settings = spectator.inject(SettingsService);
+        (settings.get as Mock).mockImplementation(() => undefined);
+        await spectator.component.ngOnInit();
+
+        expect(service.model().asset_id).toBeFalsy();
+
+        (settings.get as Mock).mockImplementation(
+            (key: string) => key === 'app.bookings.multiple_visitors',
+        );
+        spectator.detectChanges();
+
+        expect(service.model().asset_id).toBe('multiple@place.tech');
+    });
+
     it('should edit as a group when converting single visitor booking to multiple', async () => {
         const service = spectator.inject(BookingFormService);
         const settings = spectator.inject(SettingsService);

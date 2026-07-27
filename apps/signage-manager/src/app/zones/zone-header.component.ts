@@ -1,5 +1,6 @@
 import { Component, computed, inject } from '@angular/core';
 import { TranslatePipe } from '@placeos/components';
+import { GroupBreadcrumbsComponent } from '../shared/group-breadcrumbs.component';
 import { SignageService } from '../signage.service';
 
 @Component({
@@ -12,19 +13,22 @@ import { SignageService } from '../signage.service';
                 <h3 class="text-2xl font-medium">
                     {{ 'SIGNAGE_MANAGER.ZONES_TITLE' | translate }}
                 </h3>
-                <div class="text-sm opacity-60">
-                    {{
-                        'COMMON.ITEM_COUNT'
-                            | translate
-                                : { count: total_count() }
-                                : total_count()
-                    }}
+                <div class="flex flex-wrap items-center gap-2">
+                    <div class="text-sm opacity-60">
+                        {{
+                            'COMMON.ITEM_COUNT'
+                                | translate
+                                    : { count: total_count() }
+                                    : total_count()
+                        }}
+                    </div>
+                    <group-breadcrumbs />
                 </div>
             </div>
             <div class="w-px flex-1"></div>
         </div>
     `,
-    imports: [TranslatePipe],
+    imports: [TranslatePipe, GroupBreadcrumbsComponent],
 })
 export class ZoneHeaderComponent {
     private readonly _service = inject(SignageService);

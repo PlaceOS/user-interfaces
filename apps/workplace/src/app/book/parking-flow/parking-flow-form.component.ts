@@ -49,7 +49,7 @@ import { ParkingFormDetailsComponent } from './parking-form-details.component';
                                 1
                             </div>
                             <div class="text-xl">
-                                {{ 'BOOKINGS.DETAILS' | translate }}
+                                {{ 'COMMON.DETAILS' | translate }}
                             </div>
                             <div class="w-px flex-1"></div>
                             <button

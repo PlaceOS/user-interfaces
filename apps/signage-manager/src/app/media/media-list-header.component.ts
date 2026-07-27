@@ -13,8 +13,9 @@ import {
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { SignageService } from '../signage.service';
+import { GroupBreadcrumbsComponent } from '../shared/group-breadcrumbs.component';
 import { MediaAddModalComponent } from '../shared/media-add-modal.component';
+import { SignageService } from '../signage.service';
 
 function isValidUrl(url: string): boolean {
     try {
@@ -35,20 +36,23 @@ function isValidUrl(url: string): boolean {
                 <h3 class="text-2xl font-medium">
                     {{ 'SIGNAGE_MANAGER.MEDIA_TITLE' | translate }}
                 </h3>
-                <div class="text-sm opacity-60">
-                    @if (search()) {
-                        {{
-                            item_count() +
-                                ' of ' +
-                                ('COMMON.ITEM_COUNT'
-                                    | translate: { count: total_count() })
-                        }}
-                    } @else {
-                        {{
-                            'COMMON.ITEM_COUNT'
-                                | translate: { count: total_count() }
-                        }}
-                    }
+                <div class="flex flex-wrap items-center gap-2">
+                    <div class="text-sm opacity-60">
+                        @if (search()) {
+                            {{
+                                item_count() +
+                                    ' of ' +
+                                    ('COMMON.ITEM_COUNT'
+                                        | translate: { count: total_count() })
+                            }}
+                        } @else {
+                            {{
+                                'COMMON.ITEM_COUNT'
+                                    | translate: { count: total_count() }
+                            }}
+                        }
+                    </div>
+                    <group-breadcrumbs />
                 </div>
             </div>
             <div class="w-px flex-1"></div>
@@ -254,7 +258,9 @@ function isValidUrl(url: string): boolean {
                         <div class="flex items-center gap-2">
                             <icon class="text-2xl">link</icon>
                             <div>
-                                {{ 'SIGNAGE_MANAGER.ADD_FROM_LINK' | translate }}
+                                {{
+                                    'SIGNAGE_MANAGER.ADD_FROM_LINK' | translate
+                                }}
                             </div>
                         </div>
                     </button>
@@ -296,6 +302,7 @@ function isValidUrl(url: string): boolean {
         CustomTooltipComponent,
         IconComponent,
         TranslatePipe,
+        GroupBreadcrumbsComponent,
     ],
 })
 export class MediaListHeaderComponent {

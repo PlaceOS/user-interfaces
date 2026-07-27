@@ -66,7 +66,9 @@ import { filterManageNavItems } from './nav-items';
                             </div>
                         </a>
                     }
-                    @if (is_sys_admin() || groups().length) {
+                    @if (
+                        show_selector() && (is_sys_admin() || groups().length)
+                    ) {
                         <div
                             class="border-base-300 my-1 border-t"
                             role="separator"
@@ -148,6 +150,7 @@ export class NavFooterComponent {
     public readonly selected_group_id = this._service.selected_group_id;
     public readonly selected_group = this._service.selected_group;
     public readonly is_sys_admin = this._service.is_sys_admin;
+    public readonly show_selector = this._service.show_group_selector;
     public readonly selected_label = computed(
         () => this.selected_group()?.group.name || 'SIGNAGE_MANAGER.ALL_GROUPS',
     );

@@ -174,7 +174,7 @@ const EMPTY_ACTIONS: { id: string; name: string; icon: string }[] = [];
                     class="border-base-200 sm:bg-base-100 min-w-1/3 grow-3 space-y-2 rounded-sm sm:m-2 sm:w-[16rem] sm:border sm:p-4"
                 >
                     <h3 class="mt-2 mb-2 px-3 text-lg font-medium">
-                        {{ 'CALENDAR_EVENT.DETAILS' | translate }}
+                        {{ 'COMMON.DETAILS' | translate }}
                     </h3>
                     <div class="flex items-center space-x-2 px-2">
                         <icon>event</icon>
@@ -278,7 +278,7 @@ const EMPTY_ACTIONS: { id: string; name: string; icon: string }[] = [];
                         >
                             <div class="text-lg">{{ accept_count() || 0 }}</div>
                             <div class="text-sm uppercase">
-                                {{ 'COMMON.TRUE' | translate }}
+                                {{ 'COMMON.YES' | translate }}
                             </div>
                         </div>
                         <div
@@ -288,7 +288,7 @@ const EMPTY_ACTIONS: { id: string; name: string; icon: string }[] = [];
                                 {{ declined_count() || 0 }}
                             </div>
                             <div class="text-sm uppercase">
-                                {{ 'COMMON.FALSE' | translate }}
+                                {{ 'COMMON.NO' | translate }}
                             </div>
                         </div>
                         <div
@@ -354,7 +354,7 @@ const EMPTY_ACTIONS: { id: string; name: string; icon: string }[] = [];
                         class="border-base-200 sm:bg-base-100 mt-4 min-w-1/3 grow-3 rounded-sm sm:m-2 sm:w-[16rem] sm:border sm:p-4"
                     >
                         <h3 class="mx-3 my-2 text-lg font-medium">
-                            {{ 'CALENDAR_EVENT.CATERING' | translate }}
+                            {{ 'RESOURCE.CATERING' | translate }}
                         </h3>
                         <div class="flex flex-col space-y-2">
                             @for (
@@ -517,7 +517,7 @@ const EMPTY_ACTIONS: { id: string; name: string; icon: string }[] = [];
                         <h3
                             class="border-base-200 mx-3 border-t text-lg font-medium sm:border-none"
                         >
-                            {{ 'CALENDAR_EVENT.NOTES_HEADER' | translate }}
+                            {{ 'FORM.NOTES' | translate }}
                         </h3>
                         @if (raw_body()) {
                             <div
@@ -533,7 +533,7 @@ const EMPTY_ACTIONS: { id: string; name: string; icon: string }[] = [];
                         class="border-base-200 sm:bg-base-100 mt-4 min-w-1/3 grow-3 rounded-sm sm:m-2 sm:w-[16rem] sm:border sm:p-4"
                     >
                         <h3 class="mx-3 pt-2 text-lg font-medium">
-                            {{ 'CALENDAR_EVENT.ASSETS_HEADER' | translate }} ({{
+                            {{ 'RESOURCE.ASSETS' | translate }} ({{
                                 event().valid_assets?.length || 0
                             }})
                         </h3>

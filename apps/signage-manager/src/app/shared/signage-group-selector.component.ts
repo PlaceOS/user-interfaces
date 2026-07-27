@@ -15,7 +15,7 @@ import { GroupSelectModalComponent } from './group-select-modal.component';
     // eslint-disable-next-line @angular-eslint/component-selector
     selector: 'signage-group-selector',
     template: `
-        @if (is_sys_admin() || groups().length) {
+        @if (show_selector() && (is_sys_admin() || groups().length)) {
             <div
                 customTooltip
                 [content]="group_hierarchy_tooltip"
@@ -119,25 +119,11 @@ export class SignageGroupSelectorComponent {
     public readonly selected_group = this._service.selected_group;
     public readonly selected_group_id = this._service.selected_group_id;
     public readonly is_sys_admin = this._service.is_sys_admin;
+    public readonly show_selector = this._service.show_group_selector;
     public readonly selected_label = computed(
         () => this.selected_group()?.group.name || 'SIGNAGE_MANAGER.ALL_GROUPS',
     );
-    public readonly selected_hierarchy = computed(() => {
-        const selected_group = this.selected_group();
-        if (!selected_group) return [];
-        const groups = new Map(
-            this.groups().map((item) => [item.group.id, item.group]),
-        );
-        const hierarchy: (typeof selected_group.group)[] = [];
-        const seen = new Set<string>();
-        let group = selected_group.group;
-        while (group?.id && !seen.has(group.id)) {
-            hierarchy.unshift(group);
-            seen.add(group.id);
-            group = group.parent_id ? groups.get(group.parent_id) : undefined;
-        }
-        return hierarchy;
-    });
+    public readonly selected_hierarchy = this._service.selected_group_hierarchy;
 
     public async selectGroup() {
         const ref = this._dialog.open(GroupSelectModalComponent, {

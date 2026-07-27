@@ -193,6 +193,7 @@ nx migrate --run-migrations
 - No weak or unnessessary indirection
 - Only abstract when absolutely nessessary
 - Prefer clear readable procedural code over clean code.
+- When asked to commit, commit to the working branch unless specified otherwise.
 
 ## Other
 

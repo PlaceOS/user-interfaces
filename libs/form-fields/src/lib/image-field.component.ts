@@ -12,8 +12,10 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     AsyncHandler,
+    notifyError,
     notifyInfo,
     UPLOAD_PERMISSIONS_MODAL,
+    UploadCancelledError,
     UploadsService,
 } from '@placeos/common';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
@@ -168,9 +170,20 @@ export class ImageFieldComponent
         if (!element?.files) return;
         const files: FileList = element.files;
         if (!files.length) return;
-        const id = await this._uploads.uploadFileWithPermissions(files[0]);
-        this.interval('update_status', () => this._updateUploadHistory(id));
-        this._file_input().nativeElement.value = '';
+        try {
+            const id = await this._uploads.uploadFileWithPermissions(files[0]);
+            this.interval('update_status', () => this._updateUploadHistory(id));
+        } catch (error) {
+            this.clearInterval('update_status');
+            this.progress.set(0);
+            if (!(error instanceof UploadCancelledError)) {
+                notifyError(
+                    `Failed to upload ${files[0].name}: ${error?.message || 'Unknown error'}`,
+                );
+            }
+        } finally {
+            this._file_input().nativeElement.value = '';
+        }
     }
 
     private async _updateUploadHistory(id: string) {

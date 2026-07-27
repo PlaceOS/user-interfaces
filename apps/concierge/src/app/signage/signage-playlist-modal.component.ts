@@ -201,7 +201,7 @@ import { SignageStateService } from './signage-state.service';
                     </div>
                     <div class="flex-1">
                         <label for="valid-until">{{
-                            'APP.CONCIERGE.VALID_UNTIL' | translate
+                            'COMMON.VALID_UNTIL' | translate
                         }}</label>
                         <a-date-field
                             class="w-full"

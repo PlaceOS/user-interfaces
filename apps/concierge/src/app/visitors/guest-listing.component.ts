@@ -50,7 +50,7 @@ import { VisitorsStateService } from './visitors-state.service';
                 },
                 {
                     key: 'date',
-                    name: 'FORM.TIME' | translate,
+                    name: 'COMMON.TIME' | translate,
                     content: date_template,
                     show: !hide_field('date'),
                     size: '6rem',

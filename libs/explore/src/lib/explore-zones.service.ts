@@ -236,7 +236,7 @@ export class ExploreZonesService extends AsyncHandler {
                     value: `${zone.temperature} °${temp_unit}\n`,
                 });
             if (zone.people_count > 0)
-                content += i18n('EXPLORE.SENSORS_PEOPLE', {
+                content += i18n('COMMON.PEOPLE_COUNT', {
                     count: `${zone.people_count_sum}\n`,
                 });
             if (zone.humidity != null)

@@ -262,9 +262,7 @@ import { BookingFormService } from './booking-form.service';
                                                     | translate
                                             "
                                             (focus)="
-                                                filterVisitors(
-                                                    model().asset_id
-                                                )
+                                                filterVisitors(model().asset_id)
                                             "
                                             [matAutocomplete]="email_auto"
                                         />
@@ -324,9 +322,7 @@ import { BookingFormService } from './booking-form.service';
                             } @else {
                                 <div class="flex flex-col">
                                     <label for="visitor-name">
-                                        {{
-                                            'BOOKINGS.VISITOR_LIST' | translate
-                                        }}
+                                        {{ 'RESOURCE.VISITORS' | translate }}
                                         <span>*</span>
                                     </label>
                                     <a-user-list-field
@@ -391,7 +387,7 @@ import { BookingFormService } from './booking-form.service';
                             @if (allow_pass_number()) {
                                 <div class="flex flex-col">
                                     <label for="pass">{{
-                                        'BOOKINGS.VISITOR_PASS' | translate
+                                        'BOOKINGS.PASS_NUMBER' | translate
                                     }}</label>
                                     <mat-form-field appearance="outline">
                                         <input
@@ -614,9 +610,7 @@ export class InviteVisitorFormComponent {
     public readonly last_count = signal(0);
     private visitors = [];
     public readonly filtered_visitors = signal<any[]>([]);
-    public readonly visitor_international = signal<Record<string, boolean>>(
-        {},
-    );
+    public readonly visitor_international = signal<Record<string, boolean>>({});
     private readonly _visitor_bookable_hours = this._settings.signal(
         'visitors.bookable_hours',
         null,
@@ -768,6 +762,16 @@ export class InviteVisitorFormComponent {
         return this._org.building?.id || zone_list[0] || '';
     });
 
+    // `multiple` comes from settings, which can resolve after the form is set
+    // up, and the form itself can be reset asynchronously. Keep the placeholder
+    // email in sync instead of writing it once during init, otherwise the
+    // required/email validation on `asset_id` fails on send.
+    private _multipleVisitorEffect = effect(() => {
+        const { id, asset_id } = this.model();
+        if (!this.multiple() || id || asset_id) return;
+        this.model.update((m) => ({ ...m, asset_id: 'multiple@place.tech' }));
+    });
+
     private _dateEffect = effect(() => {
         const date = this.date();
         if (date) {
@@ -816,11 +820,6 @@ export class InviteVisitorFormComponent {
             (_) => this.syncVisitorInternational(_ || []),
             this._injector,
         );
-        if (this.multiple() && !this.model().id)
-            this.model.update((m) => ({
-                ...m,
-                asset_id: 'multiple@place.tech',
-            }));
         if (!this.model().id)
             this.model.update((m) => ({ ...m, title: 'Visit' }));
     }
@@ -990,11 +989,6 @@ export class InviteVisitorFormComponent {
                 zones: [this._org.building?.id],
             }));
         }
-        if (this.multiple() && !this.model().id)
-            this.model.update((m) => ({
-                ...m,
-                asset_id: 'multiple@place.tech',
-            }));
         if (this.model().id) {
             const booking_ref = this._service.booking;
             if (this.multiple()) {

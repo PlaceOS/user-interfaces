@@ -40,9 +40,7 @@ import { SpaceLocationPinComponent } from './space-location-pin.component';
                         [(ngModel)]="level"
                         (ngModelChange)="setOptions({ zone_ids: [$event.id] })"
                         [ngModelOptions]="{ standalone: true }"
-                        [placeholder]="
-                            'CALENDAR_EVENT.SPACE_LEVEL_ANY' | translate
-                        "
+                        [placeholder]="'COMMON.LEVEL_ANY' | translate"
                     >
                         @for (lvl of levels(); track lvl) {
                             <mat-option [value]="lvl">

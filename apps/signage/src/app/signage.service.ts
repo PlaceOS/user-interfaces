@@ -116,7 +116,8 @@ function playlistPlayPeriodMinutes(schedule: PlaylistSchedule) {
 
 function parsePlayAtTimestamp(value: number) {
     if (!Number.isFinite(value) || value <= 0) return 0;
-    return value > 1_000_000_000_000 ? value : value * 1000;
+    // The API carries play_at in seconds; the player works in milliseconds
+    return value * 1000;
 }
 
 function scheduledPlaylistEnd(starts_at: number, period_minutes: number) {

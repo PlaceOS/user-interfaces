@@ -37,6 +37,7 @@ describe('SignageService media uploads', () => {
     };
     const settings = {
         get: vi.fn(),
+        signal: (_name: string, default_value?: any) => signal(default_value),
     };
     const org = {
         initialised: signal(true),
@@ -246,6 +247,167 @@ describe('SignageService media uploads', () => {
         });
         expect(updateSignageMedia).toHaveBeenCalledWith('media-2', {
             tags: ['news', 'lobby'],
+        });
+    });
+
+    it('waits for the upload to commit before creating the media record', async () => {
+        const service = createService();
+        let settle_upload: (id: string) => void;
+        const progress: number[] = [];
+        uploads.uploadFileToCompletion.mockImplementation(
+            (_file, _pub, _permissions, on_progress) => {
+                // Report a completed transfer, but do not resolve: the commit
+                // has not happened yet.
+                on_progress?.(100);
+                return new Promise<string>((resolve) => {
+                    settle_upload = resolve;
+                });
+            },
+        );
+
+        const pending = service.addMedia(
+            new File(['image'], 'poster.png', { type: 'image/png' }),
+            new SignageMedia({ name: 'Poster' }),
+            { is_landscape: true, duration: 0, width: 1920, height: 1080 },
+            { permissions: 'none', on_progress: (p) => progress.push(p) },
+        );
+        // Let the file validation and thumbnail steps settle
+        for (
+            let i = 0;
+            i < 20 && !uploads.uploadFileToCompletion.mock.calls.length;
+            i++
+        ) {
+            await new Promise((resolve) => setTimeout(resolve));
+        }
+
+        expect(progress).toContain(100);
+        expect(addSignageMedia).not.toHaveBeenCalled();
+
+        settle_upload('media-upload-1');
+        await pending;
+
+        expect(addSignageMedia).toHaveBeenCalled();
+    });
+
+    it('reports a commit failure instead of creating the media record', async () => {
+        const service = createService();
+        uploads.uploadFileToCompletion.mockRejectedValue(
+            new Error('Committing upload up-1 failed with status 401'),
+        );
+
+        await expect(
+            service.addMedia(
+                new File(['image'], 'poster.png', { type: 'image/png' }),
+                new SignageMedia({ name: 'Poster' }),
+                { is_landscape: true, duration: 0, width: 1920, height: 1080 },
+                { permissions: 'none' },
+            ),
+        ).rejects.toThrow(/status 401/);
+
+        expect(addSignageMedia).not.toHaveBeenCalled();
+    });
+
+    it('adds the created media to the library from the create response', async () => {
+        const service = createService();
+        (addSignageMedia as any).mockResolvedValue(
+            new SignageMedia({
+                id: 'media-new',
+                name: 'Poster',
+                created_at: 200,
+            }),
+        );
+        const test_service = service as unknown as SignageServiceTestAccess;
+        test_service['_media_items'].set([
+            new SignageMedia({ id: 'media-old', name: 'Old', created_at: 100 }),
+        ]);
+
+        await service.addMedia(
+            new File(['image'], 'poster.png', { type: 'image/png' }),
+            new SignageMedia({ name: 'Poster' }),
+            { is_landscape: true, duration: 0, width: 1920, height: 1080 },
+        );
+
+        expect(service.media().map((item) => item.id)).toEqual([
+            'media-new',
+            'media-old',
+        ]);
+    });
+
+    describe('creating the media record', () => {
+        const addMediaFor = (service: SignageService) =>
+            service.addMedia(
+                new File(['image'], 'poster.png', { type: 'image/png' }),
+                new SignageMedia({ name: 'Poster' }),
+                { is_landscape: true, duration: 0, width: 1920, height: 1080 },
+            );
+
+        it('retries a server error and then succeeds', async () => {
+            vi.useFakeTimers();
+            const service = createService();
+            (addSignageMedia as any)
+                .mockRejectedValueOnce({ status: 500 })
+                .mockRejectedValueOnce({ status: 503 })
+                .mockResolvedValueOnce(
+                    new SignageMedia({ id: 'media-retried' }),
+                );
+
+            const pending = addMediaFor(service);
+            await vi.runAllTimersAsync();
+            const result = await pending;
+
+            expect(addSignageMedia).toHaveBeenCalledTimes(3);
+            expect(result.id).toBe('media-retried');
+            vi.useRealTimers();
+        });
+
+        it('retries a transport failure with no status', async () => {
+            vi.useFakeTimers();
+            const service = createService();
+            (addSignageMedia as any)
+                .mockRejectedValueOnce(new TypeError('Failed to fetch'))
+                .mockResolvedValueOnce(new SignageMedia({ id: 'media-net' }));
+
+            const pending = addMediaFor(service);
+            await vi.runAllTimersAsync();
+            await pending;
+
+            expect(addSignageMedia).toHaveBeenCalledTimes(2);
+            vi.useRealTimers();
+        });
+
+        it('gives up after exhausting the retries', async () => {
+            vi.useFakeTimers();
+            const service = createService();
+            (addSignageMedia as any).mockRejectedValue({ status: 500 });
+
+            const pending = addMediaFor(service);
+            pending.catch(() => null);
+            await vi.runAllTimersAsync();
+
+            await expect(pending).rejects.toMatchObject({ status: 500 });
+            // Initial attempt plus one per backoff delay
+            expect(addSignageMedia).toHaveBeenCalledTimes(4);
+            vi.useRealTimers();
+        });
+
+        it('does not retry a client error', async () => {
+            const service = createService();
+            (addSignageMedia as any).mockRejectedValue({ status: 422 });
+
+            await expect(addMediaFor(service)).rejects.toMatchObject({
+                status: 422,
+            });
+            expect(addSignageMedia).toHaveBeenCalledTimes(1);
+        });
+
+        it('leaves a 401 to the api client rather than retrying again', async () => {
+            const service = createService();
+            (addSignageMedia as any).mockRejectedValue({ status: 401 });
+
+            await expect(addMediaFor(service)).rejects.toMatchObject({
+                status: 401,
+            });
+            expect(addSignageMedia).toHaveBeenCalledTimes(1);
         });
     });
 

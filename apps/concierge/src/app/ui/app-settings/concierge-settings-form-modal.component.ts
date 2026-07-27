@@ -231,7 +231,9 @@ import { UploadButtonComponent } from './upload-button.component';
                                     <input
                                         matInput
                                         placeholder="Banner Message"
-                                        [ngModel]="model().banner?.content || ''"
+                                        [ngModel]="
+                                            model().banner?.content || ''
+                                        "
                                         (ngModelChange)="
                                             model.update((m) => ({
                                                 ...m,
@@ -1039,7 +1041,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                             }}
                                         </mat-option>
                                         <mat-option value="date">
-                                            {{ 'FORM.TIME' | translate }}
+                                            {{ 'COMMON.TIME' | translate }}
                                         </mat-option>
                                         <mat-option value="user_name">
                                             {{ 'FORM.HOST' | translate }}
@@ -1260,7 +1262,9 @@ import { UploadButtonComponent } from './upload-button.component';
                                 <div class="-mx-2 flex flex-wrap items-center">
                                     <settings-toggle
                                         label="Allow all day bookings"
-                                        [formField]="form.bookings.allow_all_day"
+                                        [formField]="
+                                            form.bookings.allow_all_day
+                                        "
                                     ></settings-toggle>
                                     <settings-toggle
                                         label="Display times with building timezone"
@@ -1524,7 +1528,9 @@ import { UploadButtonComponent } from './upload-button.component';
                                     ></settings-toggle>
                                     <settings-toggle
                                         label="Disable parking map styles"
-                                        [formField]="form.parking.disable_styles"
+                                        [formField]="
+                                            form.parking.disable_styles
+                                        "
                                     ></settings-toggle>
                                     <settings-toggle
                                         label="Disable reservations"
@@ -1578,7 +1584,9 @@ import { UploadButtonComponent } from './upload-button.component';
                                             'APP.CONCIERGE.PARKING_ALLOW_DELETING'
                                                 | translate
                                         "
-                                        [formField]="form.parking.allow_deleting"
+                                        [formField]="
+                                            form.parking.allow_deleting
+                                        "
                                     ></settings-toggle>
                                     <settings-toggle
                                         label="Assign a space when approving requests"

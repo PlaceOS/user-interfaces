@@ -207,9 +207,7 @@ export interface AppLocale {
                                 <icon>share_location</icon>
                             </div>
                             <div class="flex-1">
-                                {{
-                                    'COMMON.CONTROLS_WORK_LOCATION' | translate
-                                }}
+                                {{ 'COMMON.WORK_LOCATION' | translate }}
                             </div>
                             <icon class="text-2xl opacity-60"
                                 >chevron_right</icon

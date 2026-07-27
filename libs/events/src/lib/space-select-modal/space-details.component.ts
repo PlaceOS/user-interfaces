@@ -89,7 +89,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                     <h2
                         class="bg-base-100 absolute top-0 left-2 -translate-y-1/2 px-2 text-lg font-medium"
                     >
-                        {{ 'CALENDAR_EVENT.DETAILS' | translate }}
+                        {{ 'COMMON.DETAILS' | translate }}
                     </h2>
                     <div class="flex items-center space-x-2">
                         <icon>people</icon>

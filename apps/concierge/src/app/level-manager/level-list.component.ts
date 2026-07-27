@@ -39,7 +39,7 @@ import { LevelManagementService } from './level-management.service';
                     },
                     {
                         key: 'room_count',
-                        name: 'APP.CONCIERGE.LEVELS_ROOMS' | translate,
+                        name: 'RESOURCE.ROOMS' | translate,
                         size: '6rem',
                     },
                     {

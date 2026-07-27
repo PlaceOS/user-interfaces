@@ -133,7 +133,7 @@ import { SplitJoinPipe } from './split-join.pipe';
                                 <icon class="text-sm">schedule</icon>
                             </div>
                             <div class="font-medium">
-                                {{ 'COMMON.PERIOD' | translate }}
+                                {{ 'FORM.PERIOD' | translate }}
                             </div>
                         </div>
                         <div class="mt-1 pl-10">

@@ -747,10 +747,12 @@ export class MediaListComponent implements OnInit {
     public readonly groups = this._service.signage_groups;
     public readonly selected_group_id = this._service.selected_group_id;
     public readonly is_sys_admin = this._service.is_sys_admin;
-    public readonly can_switch_groups = computed(() =>
-        this.is_sys_admin()
-            ? this.groups().length > 0
-            : this.groups().length > 1,
+    public readonly can_switch_groups = computed(
+        () =>
+            this._service.show_media_group_tabs() &&
+            (this.is_sys_admin()
+                ? this.groups().length > 0
+                : this.groups().length > 1),
     );
 
     // Currently opened tag folder (null = showing the folder grid).

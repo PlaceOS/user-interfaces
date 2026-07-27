@@ -174,7 +174,7 @@ export function canEditBooking(booking: Booking) {
                     class="border-base-200 sm:bg-base-100 min-w-1/3 grow-4 rounded-sm sm:m-2 sm:w-[16rem] sm:border sm:p-4"
                 >
                     <h3 class="mt-2 mb-2 px-3 text-lg font-medium">
-                        {{ 'BOOKINGS.DETAILS' | translate }}
+                        {{ 'COMMON.DETAILS' | translate }}
                     </h3>
                     <div class="flex items-center space-x-2 px-2">
                         <icon matTooltip="Date">event</icon>
@@ -207,7 +207,9 @@ export function canEditBooking(booking: Booking) {
                         <div class="flex items-center space-x-2 px-2">
                             <icon matTooltip="Location">place</icon>
                             <div>
-                                {{ building()?.display_name || building()?.name }}
+                                {{
+                                    building()?.display_name || building()?.name
+                                }}
                                 {{
                                     building()?.address
                                         ? ', ' + building().address
@@ -807,11 +809,7 @@ export class BookingDetailsModalComponent {
         this.checking_in.set(true);
         const updated_booking = await (
             bkn.instance
-                ? checkinBookingInstance(
-                      bkn.id,
-                      bkn.instance,
-                      !bkn.checked_in,
-                  )
+                ? checkinBookingInstance(bkn.id, bkn.instance, !bkn.checked_in)
                 : checkinBooking(bkn.id, !bkn.checked_in)
         ).catch((_) => {
             notifyError(

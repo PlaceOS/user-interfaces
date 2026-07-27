@@ -404,7 +404,7 @@ export class RoomBookingsListComponent {
             space?.display_name ||
             space?.name ||
             event.location ||
-            i18n('COMMON.ROOM') ||
+            i18n('RESOURCE.ROOM') ||
             ''
         );
     }
