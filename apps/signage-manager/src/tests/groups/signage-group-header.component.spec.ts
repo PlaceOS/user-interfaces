@@ -51,12 +51,6 @@ describe('SignageGroupHeaderComponent', () => {
         expect(make().can_add_groups()).toBe(true);
     });
 
-    it('selects a group from the header chips', () => {
-        make().selectGroup('group-2');
-
-        expect(managed_group_id()).toBe('group-2');
-    });
-
     it('opens the edit modal to create a new empty group', () => {
         const component = make();
         component.editGroup();

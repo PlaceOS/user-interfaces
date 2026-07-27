@@ -274,6 +274,25 @@ function persistSelectedGroupId(group_id: string) {
     }
 }
 
+/** Group and its ancestors, root first. Stops on a repeated group so a broken
+ * parent chain can't loop forever. */
+export function groupHierarchy(
+    selected: PlaceGroup | undefined,
+    all_groups: PlaceGroup[],
+) {
+    if (!selected) return [];
+    const groups = new Map(all_groups.map((item) => [item.id, item]));
+    const hierarchy: PlaceGroup[] = [];
+    const seen = new Set<string>();
+    let group = selected;
+    while (group?.id && !seen.has(group.id)) {
+        hierarchy.unshift(group);
+        seen.add(group.id);
+        group = group.parent_id ? groups.get(group.parent_id) : undefined;
+    }
+    return hierarchy;
+}
+
 export function dialogClosed<T = unknown>(ref: {
     afterClosed: () => {
         subscribe: (handler: (value: T) => void) => { unsubscribe: () => void };
@@ -372,6 +391,14 @@ export class SignageService {
         const group_id = this.selected_group_id();
         return this.signage_groups().find((item) => item.group.id === group_id);
     });
+    /** Selected group and its ancestors, root first. Empty when no group is
+     * selected. */
+    public readonly selected_group_hierarchy = computed(() =>
+        groupHierarchy(
+            this.selected_group()?.group,
+            this.signage_groups().map((item) => item.group),
+        ),
+    );
     public readonly is_sys_admin = computed(() => {
         const user = this._current_user() as any as {
             groups?: string[];
@@ -453,6 +480,10 @@ export class SignageService {
             (group) => group.id === group_id,
         );
     });
+    /** Managed group and its ancestors, root first. */
+    public readonly managed_group_hierarchy = computed(() =>
+        groupHierarchy(this.managed_group(), this.manageable_signage_groups()),
+    );
 
     public async groupChildren(parent_id: string) {
         if (!this.can_manage_all_groups()) {
