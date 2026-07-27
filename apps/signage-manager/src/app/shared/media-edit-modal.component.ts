@@ -59,6 +59,7 @@ export interface MediaEditModalData {
     playlist_id?: string;
     plugin?: SignagePlugin;
     loadPlugin?: () => Promise<SignagePlugin | undefined>;
+    generateThumbnail?: (file: File) => Promise<string>;
     onAdd: (
         f: File,
         m: SignageMedia,
@@ -229,6 +230,81 @@ function schemaDefaults(schema: Record<string, unknown> | null | undefined) {
                                 'SIGNAGE_MANAGER.URL_REQUIRED' | translate
                             }}</mat-error>
                         </mat-form-field>
+                    }
+                    @if (can_set_thumbnail) {
+                        <label for="thumbnail">{{
+                            'SIGNAGE_MANAGER.THUMBNAIL' | translate
+                        }}</label>
+                        <div class="mb-4 flex items-center gap-4">
+                            <div
+                                class="bg-base-300 border-base-300 h-20 w-32 shrink-0 overflow-hidden rounded-lg border"
+                            >
+                                @if (custom_thumbnail()) {
+                                    <img
+                                        class="h-full w-full object-contain"
+                                        [src]="custom_thumbnail()"
+                                        [alt]="
+                                            'SIGNAGE_MANAGER.THUMBNAIL'
+                                                | translate
+                                        "
+                                    />
+                                } @else if (item.thumbnail_id) {
+                                    <img
+                                        class="h-full w-full object-contain"
+                                        auth
+                                        [source]="thumbnail"
+                                        [alt]="
+                                            'SIGNAGE_MANAGER.THUMBNAIL'
+                                                | translate
+                                        "
+                                    />
+                                } @else {
+                                    <div
+                                        class="text-base-content/50 flex h-full w-full items-center justify-center px-2 text-center text-xs"
+                                    >
+                                        {{
+                                            'SIGNAGE_MANAGER.THUMBNAIL_NONE'
+                                                | translate
+                                        }}
+                                    </div>
+                                }
+                            </div>
+                            <button
+                                btn
+                                type="button"
+                                class="inverse bg-base-100"
+                                [disabled]="thumbnail_loading()"
+                                (click)="thumbnail_input.click()"
+                            >
+                                {{
+                                    (thumbnail_loading()
+                                        ? 'SIGNAGE_MANAGER.THUMBNAIL_LOADING'
+                                        : 'SIGNAGE_MANAGER.THUMBNAIL_CHOOSE'
+                                    ) | translate
+                                }}
+                            </button>
+                            @if (custom_thumbnail()) {
+                                <button
+                                    btn
+                                    type="button"
+                                    class="clear"
+                                    (click)="custom_thumbnail.set('')"
+                                >
+                                    {{ 'COMMON.CLEAR' | translate }}
+                                </button>
+                            }
+                            <input
+                                #thumbnail_input
+                                type="file"
+                                class="sr-only"
+                                accept="image/*"
+                                [attr.aria-label]="
+                                    'SIGNAGE_MANAGER.THUMBNAIL_CHOOSE'
+                                        | translate
+                                "
+                                (change)="setThumbnail($event)"
+                            />
+                        </div>
                     }
                     @if (media_type === 'video') {
                         <div class="flex items-center space-x-4">
@@ -445,6 +521,9 @@ export class MediaEditModalComponent implements OnDestroy {
         this._resolvePluginSchema(),
     );
     public readonly preview_url = signal('');
+    /** Thumbnail image picked by the user, as a data URL */
+    public readonly custom_thumbnail = signal('');
+    public readonly thumbnail_loading = signal(false);
     private readonly _plugin_embed = viewChild(PluginEmbedComponent);
     public readonly model = signal<MediaEditFormModel>({
         name: this._data.file?.name || this._data.media.name || '',
@@ -503,6 +582,18 @@ export class MediaEditModalComponent implements OnDestroy {
                 : isSupportedImageFile(this.file)
                   ? 'image'
                   : '') || this.item.media_type
+        );
+    }
+
+    /**
+     * Webpages and plugins have no file to capture a frame from, and a cross
+     * origin page cannot be rendered to a canvas, so their thumbnail has to be
+     * supplied by hand.
+     */
+    public get can_set_thumbnail() {
+        return (
+            !!this._data.generateThumbnail &&
+            (this.media_type === 'webpage' || this.media_type === 'plugin')
         );
     }
 
@@ -579,6 +670,20 @@ export class MediaEditModalComponent implements OnDestroy {
         clearTimeout(this._preview_url_timeout);
     }
 
+    public async setThumbnail(event: Event) {
+        const input = event.target as HTMLInputElement;
+        const file = input.files?.[0];
+        // Clear the input so picking the same file again still fires `change`
+        input.value = '';
+        if (!file) return;
+        this.thumbnail_loading.set(true);
+        const image = await this._data
+            .generateThumbnail(file)
+            .catch(() => '')
+            .finally(() => this.thumbnail_loading.set(false));
+        if (image) this.custom_thumbnail.set(image);
+    }
+
     /**
      * Ask the embedded plugin to render its own thumbnail. Captured from the
      * live preview so it reflects the config the user just set. Plugins that
@@ -632,15 +737,19 @@ export class MediaEditModalComponent implements OnDestroy {
             }
             try {
                 if (this.item.id) {
+                    if (this.custom_thumbnail()) {
+                        new_media.thumbnail_image = this.custom_thumbnail();
+                    }
                     await this._data.onEdit(this.item.id, new_media);
                 } else {
-                    const plugin_thumbnail =
-                        await this._capturePluginThumbnail();
+                    const thumbnail =
+                        this.custom_thumbnail() ||
+                        (await this._capturePluginThumbnail());
                     await this._data.onAdd(
                         this.file,
                         new SignageMedia(new_media),
                         this._data.file_metadata,
-                        plugin_thumbnail,
+                        thumbnail,
                     );
                 }
             } catch (error) {

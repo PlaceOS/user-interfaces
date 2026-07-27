@@ -250,4 +250,76 @@ describe('MediaEditModalComponent', () => {
             theme: 'dark',
         });
     });
+
+    describe('webpage thumbnails', () => {
+        const generateThumbnail = vi.fn();
+        const thumbnail_file = new File(['image'], 'thumb.png', {
+            type: 'image/png',
+        });
+        const change_event = {
+            target: { files: [thumbnail_file], value: 'thumb.png' },
+        } as any;
+
+        beforeEach(() => {
+            generateThumbnail.mockResolvedValue('data:image/jpeg;base64,abc');
+            modal_data.file = undefined;
+            modal_data.file_metadata = undefined;
+            modal_data.generateThumbnail = generateThumbnail;
+            modal_data.media = new SignageMedia({
+                media_type: 'webpage',
+                media_uri: 'https://example.com',
+                name: 'Example',
+            });
+        });
+
+        it('offers a thumbnail picker for webpage media', () => {
+            const fixture = TestBed.createComponent(MediaEditModalComponent);
+
+            expect(fixture.componentInstance.can_set_thumbnail).toBe(true);
+        });
+
+        it('scales the picked image and sends it with a new item', async () => {
+            const fixture = TestBed.createComponent(MediaEditModalComponent);
+            const component = fixture.componentInstance;
+
+            await component.setThumbnail(change_event);
+            await component.saveMedia();
+
+            expect(generateThumbnail).toHaveBeenCalledWith(thumbnail_file);
+            expect(component.custom_thumbnail()).toBe(
+                'data:image/jpeg;base64,abc',
+            );
+            expect(component.thumbnail_loading()).toBe(false);
+            expect(onAdd.mock.calls[0][3]).toBe('data:image/jpeg;base64,abc');
+        });
+
+        it('sends the picked image when updating an existing item', async () => {
+            modal_data.media = new SignageMedia({
+                id: 'media-1',
+                media_type: 'webpage',
+                media_uri: 'https://example.com',
+                name: 'Example',
+            });
+            const fixture = TestBed.createComponent(MediaEditModalComponent);
+            const component = fixture.componentInstance;
+
+            await component.setThumbnail(change_event);
+            await component.saveMedia();
+
+            expect(onEdit.mock.calls[0][1].thumbnail_image).toBe(
+                'data:image/jpeg;base64,abc',
+            );
+        });
+
+        it('keeps the existing thumbnail when generation fails', async () => {
+            generateThumbnail.mockResolvedValue('');
+            const fixture = TestBed.createComponent(MediaEditModalComponent);
+            const component = fixture.componentInstance;
+
+            await component.setThumbnail(change_event);
+
+            expect(component.custom_thumbnail()).toBe('');
+            expect(component.thumbnail_loading()).toBe(false);
+        });
+    });
 });

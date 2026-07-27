@@ -17,9 +17,12 @@ const WEEKDAY_NAMES = [
 ];
 
 export function playlistMediaThumbnailUrl(item: SignageMedia) {
-    return item?.thumbnail_id
+    // `SignageMedia.thumbnail_url` builds an uploads URL whether or not a
+    // thumbnail exists, so items without one render as a broken image
+    if (!item?.thumbnail_id) return '';
+    return item.id
         ? `/api/engine/v2/signage/media/${item.id}/thumbnail`
-        : item?.thumbnail_url || '';
+        : item.thumbnail_url || '';
 }
 
 export function playlistMediaUrl(item: SignageMedia) {

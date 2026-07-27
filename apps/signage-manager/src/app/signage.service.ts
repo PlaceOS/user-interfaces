@@ -2253,6 +2253,7 @@ export class SignageService {
                 playlist_id,
                 plugin,
                 loadPlugin: load_plugin,
+                generateThumbnail: (f: File) => this.generateThumbnailImage(f),
                 onAdd: (
                     f: File,
                     m: SignageMedia,
@@ -2284,8 +2285,19 @@ export class SignageService {
             )
         )
             return;
+        // Webpage and plugin items carry their thumbnail as an image the user
+        // picked in the modal. It has to be uploaded before the item can point
+        // at it.
+        const { thumbnail_image, ...update } = data;
+        if (thumbnail_image) {
+            const thumbnail_id = await this._uploadThumbnailImage(
+                thumbnail_image,
+                update.name,
+            );
+            if (thumbnail_id) update.thumbnail_id = thumbnail_id;
+        }
         const updated_media = decodeEntityNames(
-            await updateSignageMedia(id, data),
+            await updateSignageMedia(id, update),
         );
         this._media_items.update((items) =>
             items.map((item) => (item.id === id ? updated_media : item)),
@@ -2328,15 +2340,10 @@ export class SignageService {
         } else {
             let thumbnail_id = '';
             if (url_thumbnail) {
-                const name = `thumb+${(media_item.name || 'media').replace(/[^a-zA-Z0-9_-]/g, '_')}.jpg`;
-                thumbnail_id = await this._uploads
-                    .uploadFileToCompletion(dataURLtoFile(url_thumbnail, name))
-                    .catch(() => {
-                        notifyWarn(
-                            i18n('SIGNAGE_MANAGER.SVC_THUMBNAIL_UPLOAD_FAILED'),
-                        );
-                        return '';
-                    });
+                thumbnail_id = await this._uploadThumbnailImage(
+                    url_thumbnail,
+                    media_item.name,
+                );
             }
             const data = {
                 ...new SignageMedia({
@@ -2412,15 +2419,10 @@ export class SignageService {
         if (thumbnail_image) {
             const name_parts = upload_file.name.split('.');
             name_parts.pop();
-            const name = `thumb+${name_parts.join('.')}.jpg`;
-            thumbnail_id = await this._uploads
-                .uploadFileToCompletion(dataURLtoFile(thumbnail_image, name))
-                .catch(() => {
-                    notifyWarn(
-                        i18n('SIGNAGE_MANAGER.SVC_THUMBNAIL_UPLOAD_FAILED'),
-                    );
-                    return '';
-                });
+            thumbnail_id = await this._uploadThumbnailImage(
+                thumbnail_image,
+                name_parts.join('.'),
+            );
         }
         const data = {
             ...new SignageMedia({
@@ -2926,6 +2928,36 @@ export class SignageService {
                 img.src = url;
             }
         });
+    }
+
+    private _uploadThumbnailImage(data_url: string, name: string) {
+        const file_name = `thumb+${(name || 'media').replace(/[^a-zA-Z0-9_-]/g, '_')}.jpg`;
+        return this._uploads
+            .uploadFileToCompletion(dataURLtoFile(data_url, file_name))
+            .catch(() => {
+                notifyWarn(i18n('SIGNAGE_MANAGER.SVC_THUMBNAIL_UPLOAD_FAILED'));
+                return '';
+            });
+    }
+
+    /**
+     * Scale an image the user picked down to a thumbnail data URL. Webpages
+     * and plugins have no file to capture a frame from, and a cross origin
+     * page cannot be rendered to a canvas, so the image is supplied by hand.
+     */
+    public async generateThumbnailImage(file: File) {
+        if (!file || !isImageSourceFile(file)) {
+            notifyError(i18n('SIGNAGE_MANAGER.SVC_THUMBNAIL_NOT_IMAGE'));
+            return '';
+        }
+        const image = await this._normalizeImageUpload(file);
+        const thumbnail = await this._generateThumbnail(image, 1280, 720).catch(
+            () => '',
+        );
+        if (!thumbnail) {
+            notifyError(i18n('SIGNAGE_MANAGER.SVC_THUMBNAIL_FAILED'));
+        }
+        return thumbnail;
     }
 
     private async _generateThumbnail(
